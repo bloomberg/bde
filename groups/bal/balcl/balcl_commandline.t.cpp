@@ -153,15 +153,19 @@ using namespace bsl;
 // [ 3] int parse(int argc, const char *const argv[], ostream& stream);
 //
 // ACCESSORS
-// [ 9] CommandLineOptionsHandle options() const;
-// [ 3] bool isValid() const;
+// [ 9] bool hasOption(const bsl::string& name) const;
+// [ 9] bool hasValue(const bsl::string& name) const;
 // [ 3] bool isParsed() const;
 // [ 9] bool isSpecified(const string& name) const;
 // [ 9] bool isSpecified(const string& name, int *count) const;
+// [ 3] bool isValid() const;
 // [ 9] int numSpecified(const string& name) const;
+// [ 9] CommandLineOptionsHandle options() const;
 // [ 9] const vector<int>& positions(const string& name) const;
 // [ 9] int position(const bsl::string& name) const;
 // [ 9] CommandLineOptionsHandle specifiedOptions() const;
+// [ 9] OptionType::Enum type(const bsl::string name) const;
+//
 // [ 9] bool theBool(const bsl::string& name) const;
 // [ 9] char theChar(const bsl::string& name) const;
 // [ 9] int theInt(const bsl::string& name) const;
@@ -179,6 +183,7 @@ using namespace bsl;
 // [ 9] const vector<Datetime>& theDatetimeArray(const string& nom) const;
 // [ 9] const vector<Date>& theDateArray(const string& name) const;
 // [ 9] const vector<Time>& theTimeArray(const string& name) const;
+//
 // [18] void printUsage() const;
 // [18] void printUsage(bsl::ostream& stream) const;
 //
@@ -197,10 +202,15 @@ using namespace bsl;
 // [ 9] ~CommandLineOptionsHandle();
 //
 // ACCESSORS
+// [ 9] int index(const char *name) const;
 // [ 9] const char *name(size_t index) const;
 // [ 9] size_t numOptions() const;
 // [ 9] OptionType::Enum type(size_t index) const;
+// [ 9] OptionType::Enum type(const char *name) const;
 // [ 9] const OptionValue& value(size_t index) const;
+// [ 9] const OptionValue& value(const char *name) const;
+//
+// [ 9] template <class TYPE> const TYPE& the(size_t index) const;
 // [ 9] template <class TYPE> const TYPE& the(const char *name) const;
 // [ 9] bool theBool(const char *name) const;
 // [ 9] char theChar(const char *name) const;
@@ -264,6 +274,15 @@ void aSsErT(bool condition, const char *message, int line)
 
 #define ASSERT       BSLIM_TESTUTIL_ASSERT
 #define ASSERTV      BSLIM_TESTUTIL_ASSERTV
+
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
 #define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
 #define P            BSLIM_TESTUTIL_P   // Print identifier and value.
@@ -1672,7 +1691,7 @@ namespace BALCL_COMMANDLINE_USAGE_EXAMPLE {
 // We choose the non-option argument to be an array of 'bsl::string' so as to
 // accommodate multiple files.
 //
-// These options may be used incorrectly, as the following examples show:
+// These options might be used incorrectly, as the following examples show:
 //..
 //             INCORRECT USE                        REASON FOR INACCURACY
 //  ===========================================  ============================
@@ -1708,20 +1727,24 @@ namespace BALCL_COMMANDLINE_USAGE_EXAMPLE {
 //..
     int main(int argc, const char *argv[]) {
 //..
-// Note that it is important that variables that will be bound to optional
-// command-line arguments be initialized to their default value, otherwise
-// their value will unspecified if a value isn't provided on the command line
-// (unless a default is specified via 'balcl::OccurrenceInfo'):
+// Then, we define local variables that will be linked to certain command-line
+// options.  If those options are specified on the command line (or if a
+// default is specified via 'balcl::OccurrenceInfo'), these variables are
+// updated; otherwise, these variables are left unchanged.
 //..
-        bool isReverse         = false;
-        bool isCaseInsensitive = false;
-        bool isUniq            = false;
+        bool isReverse         = false;  // Must be initially 'false'.
+        bool isCaseInsensitive = false;  // Must be initially 'false'.
+        bool isUniq            = false;  // Must be initially 'false'.
 
         bsl::string outFile;
         bsl::string sortAlgo;
 
         bsl::vector<bsl::string> files;
 //..
+// Notice that variables linked to flags (boolean options) are initialized to
+// 'false'; otherwise, these variables would show incorrect values (i.e.,
+// 'true') if their corresponding tags are absent from the command line.
+//
 // Next, we build up an option specification table as follows:
 //..
         // build constraint for sortAlgo option
@@ -4174,12 +4197,15 @@ int main(int argc, const char *argv[])  {
         // Testing:
         //   ~CommandLineOptionsHandle();
         //   CommandLineOptionsHandle options() const;
+        //   bool hasOption(const bsl::string& name) const;
+        //   bool hasValue(const bsl::string& name) const;
         //   bool isSpecified(const string& name) const;
         //   bool isSpecified(const string& name, int *count) const;
         //   int numSpecified(const string& name) const;
         //   const vector<int>& positions(const string& name) const;
         //   int position(const bsl::string& name) const;
         //   CommandLineOptionsHandle specifiedOptions() const;
+        //   OptionType::Enum type(const bsl::string name) const;
         //   bool theBool(const bsl::string& name) const;
         //   char theChar(const bsl::string& name) const;
         //   int theInt(const bsl::string& name) const;
@@ -4198,10 +4224,14 @@ int main(int argc, const char *argv[])  {
         //   const vector<Date>& theDateArray(const string& name) const;
         //   const vector<Time>& theTimeArray(const string& name) const;
         //
+        //   int index(const char *name) const;
         //   const char *name(size_t index) const;
         //   size_t numOptions() const;
         //   OptionType::Enum type(size_t index) const;
+        //   OptionType::Enum type(const char *name) const;
         //   const OptionValue& value(size_t index) const;
+        //   const OptionValue& value(const char *name) const;
+        //   template <class TYPE> const TYPE& the(size_t index) const;
         //   template <class TYPE> const TYPE& the(const char *name) const;
         //   bool theBool(const char *name) const;
         //   char theChar(const char *name) const;
@@ -4236,6 +4266,7 @@ int main(int argc, const char *argv[])  {
         int countBinaryFalse     = 0;
 
         typedef bsl::map<ElemType, int> TypeTally;
+
         TypeTally typeTally;
 
 // BDE_VERIFY pragma: -IND01   // Possibly mis-indented line
@@ -4245,6 +4276,9 @@ int main(int argc, const char *argv[])  {
             const OptionInfo *SPEC_TABLE = specTable;
 
             for (int j = 0; j < n; ++j) {
+                if (veryVerbose) {
+                    T_ T_ T_ P_(j)
+                }
                 int index = i + j * NUM_OPTIONS;
                 specTable[j] = OPTIONS[index];
             }
@@ -4287,8 +4321,21 @@ int main(int argc, const char *argv[])  {
                     T_ T_ T_ P_(j) P_(name) P_(type) P(OI)
                 }
 
+                {
+                    // Confirm non-successful returns of 'index' and
+                    // 'hasOption'.
+                    ASSERT(-1    == OH.index(""));                    // ACTION
+                    ASSERT(-1    == OH.index("XXX"));                 // ACTION
+                    ASSERT(false == Z.hasOption(bsl::string("")));    // ACTION
+                    ASSERT(false == Z.hasOption(bsl::string("XXX"))); // ACTION
+                }
+
+                ASSERT(true == Z.hasOption(name));                    // ACTION
+                ASSERT(type == Z.type(name));                         // ACTION
+                ASSERT(j    == OH.index(name.c_str()));               // ACTION
                 ASSERT(0    == bsl::strcmp(name.c_str(), OH.name(j)));// ACTION
                 ASSERT(type == OH.type(j));                           // ACTION
+                ASSERT(type == OH.type(name.c_str()));                // ACTION
 
                 bool isThere  = Z.isSpecified(name);         // ACTION
                 int  count    = 0;
@@ -4347,7 +4394,13 @@ int main(int argc, const char *argv[])  {
                         ASSERT(true  == SH.value(j).isNull());  // ACTION
                         ASSERT(false == OH.value(j).isNull());  // ACTION
 
+                        ASSERT(true  == SH.value(namS).isNull());  // ACTION
+                        ASSERT(false == OH.value(namS).isNull());  // ACTION
+
                         ASSERT(OI.d_defaultInfo.defaultValue() == OH.value(j));
+                                                                      // ACTION
+                        ASSERT(OI.d_defaultInfo.defaultValue() == OH.value(
+                                                                        namS));
                                                                       // ACTION
 
 #define CASE(ENUM, ALIAS)                                                     \
@@ -4356,8 +4409,9 @@ int main(int argc, const char *argv[])  {
       ASSERT(default##ALIAS == OH.the##ALIAS(namS));                          \
                                                                               \
       typedef Ot::EnumToType<ENUM>::type VT;                                  \
-      ASSERT(default##ALIAS ==  OH         .the<VT>(namS));                   \
-      ASSERT(default##ALIAS ==  OH.value(j).the<VT>());                       \
+      ASSERT(default##ALIAS ==  OH            .the<VT>(namS));                \
+      ASSERT(default##ALIAS ==  OH.value(j)   .the<VT>());                    \
+      ASSERT(default##ALIAS ==  OH.value(namS).the<VT>());                    \
                                                                               \
       typeTally[ENUM] += 1;                                                   \
     }; break;                                                                 \
@@ -4403,9 +4457,11 @@ int main(int argc, const char *argv[])  {
                         ASSERT(true  == SH.theBool(name.c_str())); // ACTION
                         ++countBinaryTrue;
                     } else {
-                        ASSERT(false == Z.theBool(name));          // ACTION
+                        ASSERT(false ==  Z.theBool(name));         // ACTION
                         ASSERT(false == OH.theBool(name.c_str())); // ACTION
                         ASSERT(true  == SH.value(j).isNull());
+                        ASSERT(true  == SH.value(name.c_str()).isNull());
+                                                                   // ACTION
                         ++countBinaryFalse;
                     }
                 }
@@ -4814,6 +4870,916 @@ int main(int argc, const char *argv[])  {
             }
         }
 
+        if (veryVerbose) cout << "Negative Testing: ACCESSORS" << endl;
+        {
+            typedef bool                            Bool;
+            typedef char                            Char;
+            typedef int                             Int;
+            typedef bsls::Types::Int64              Int64;
+            typedef double                          Double;
+            typedef bsl::string                     String;
+            typedef bdlt::Datetime                  Datetime;
+            typedef bdlt::Date                      Date;
+            typedef bdlt::Time                      Time;
+            typedef bsl::vector<char>               CharArray;
+            typedef bsl::vector<int>                IntArray;
+            typedef bsl::vector<bsls::Types::Int64> Int64Array;
+            typedef bsl::vector<double>             DoubleArray;
+            typedef bsl::vector<bsl::string>        StringArray;
+            typedef bsl::vector<bdlt::Datetime>     DatetimeArray;
+            typedef bsl::vector<bdlt::Date>         DateArray;
+            typedef bsl::vector<bdlt::Time>         TimeArray;
+
+            // Specification table:
+            //: o all supported types
+            //: o each optional
+            //: o no default values
+            balcl::OptionInfo specTable[] = {
+              {
+                "a|aLongTag"
+              , "Bool" // name
+              , "description:  Bool"
+              , TypeInfo(Ot::k_BOOL)
+              , OccurrenceInfo::e_OPTIONAL
+              }
+            , {
+                "b|bLongTag"
+              , "Char" // name
+              , "description:  Char"
+              , TypeInfo(Ot::k_CHAR)
+              , OccurrenceInfo::e_OPTIONAL
+              }
+            , {
+                "c|cLongTag"
+              , "Int" // name
+              , "description:  Int"
+              , TypeInfo(Ot::k_INT)
+              , OccurrenceInfo::e_OPTIONAL
+              }
+            , {
+                "d|dLongTag"
+              , "Int64" // name
+              , "description:  Int64"
+              , TypeInfo(Ot::k_INT64)
+              , OccurrenceInfo::e_OPTIONAL
+              }
+            , {
+                "e|eLongTag"
+              , "Double" // name
+              , "description:  Double"
+              , TypeInfo(Ot::k_DOUBLE)
+              , OccurrenceInfo::e_OPTIONAL
+              }
+            , {
+                "f|fLongTag"
+              , "String" // name
+              , "description:  String"
+              , TypeInfo(Ot::k_STRING)
+              , OccurrenceInfo::e_OPTIONAL
+              }
+            , {
+                "g|gLongTag"
+              , "Datetime" // name
+              , "description:  Datetime"
+              , TypeInfo(Ot::k_DATETIME)
+              , OccurrenceInfo::e_OPTIONAL
+              }
+            , {
+                "h|hLongTag"
+              , "Date" // name
+              , "description:  Date"
+              , TypeInfo(Ot::k_DATE)
+              , OccurrenceInfo::e_OPTIONAL
+              }
+            , {
+                "i|iLongTag"
+              , "Time" // name
+              , "description:  Time"
+              , TypeInfo(Ot::k_TIME)
+              , OccurrenceInfo::e_OPTIONAL
+              }
+            , {
+                "j|jLongTag"
+              , "CharArray" // name
+              , "description:  CharArray"
+              , TypeInfo(Ot::k_CHAR_ARRAY)
+              , OccurrenceInfo::e_OPTIONAL
+              }
+            , {
+                "k|kLongTag"
+              , "IntArray" // name
+              , "description:  IntArray"
+              , TypeInfo(Ot::k_INT_ARRAY)
+              , OccurrenceInfo::e_OPTIONAL
+              }
+            , {
+                "l|lLongTag"
+              , "Int64Array" // name
+              , "description:  Int64Array"
+              , TypeInfo(Ot::k_INT64_ARRAY)
+              , OccurrenceInfo::e_OPTIONAL
+              }
+            , {
+                "m|mLongTag"
+              , "DoubleArray" // name
+              , "description:  DoubleArray"
+              , TypeInfo(Ot::k_DOUBLE_ARRAY)
+              , OccurrenceInfo::e_OPTIONAL
+              }
+            , {
+                "n|nLongTag"
+              , "StringArray" // name
+              , "description:  StringArray"
+              , TypeInfo(Ot::k_STRING_ARRAY)
+              , OccurrenceInfo::e_OPTIONAL
+              }
+            , {
+                "o|oLongTag"
+              , "DatetimeArray" // name
+              , "description:  DatetimeArray"
+              , TypeInfo(Ot::k_DATETIME_ARRAY)
+              , OccurrenceInfo::e_OPTIONAL
+              }
+            , {
+                "p|pLongTag"
+              , "DateArray" // name
+              , "description:  DateArray"
+              , TypeInfo(Ot::k_DATE_ARRAY)
+              , OccurrenceInfo::e_OPTIONAL
+              }
+            , {
+                "r|rLongTag"
+              , "TimeArray" // name
+              , "description:  TimeArray"
+              , TypeInfo(Ot::k_TIME_ARRAY)
+              , OccurrenceInfo::e_OPTIONAL
+              }
+            };
+
+            bsl::size_t numSpecTable = sizeof specTable / sizeof *specTable;
+            ASSERT(17 == numSpecTable);
+
+            bsl::ostringstream oss;
+
+            bool isValidSpec = Obj::isValidOptionSpecificationTable(specTable,
+                                                                    oss);
+            ASSERT(isValidSpec);
+            ASSERT(oss.str().empty());
+
+            Obj mX(specTable); const Obj& X = mX;
+
+            const char *const    emptyCommandLine[] = { "programName" };
+            const bsl::size_t numEmptyCommandLine = sizeof  emptyCommandLine
+                                                  / sizeof *emptyCommandLine;
+
+            int retParse = mX.parse(numEmptyCommandLine,
+                                    emptyCommandLine,
+                                    oss);
+
+            ASSERT(0 == retParse);
+            ASSERT(X.isParsed());
+            ASSERT(X.isValid());
+
+            // Test Handle accessors.  Use 'specifiedOptions' so we can have a
+            // boolean option without a value.
+            OptionsHandle SH = X.specifiedOptions();
+            ASSERT(numSpecTable == SH.numOptions());
+
+            const bsl::size_t  badIndex = SH.numOptions() + 1;
+            const char        *badName  = "badName";
+
+            bsls::AssertTestHandlerGuard hGa;
+
+            ASSERT_FAIL(SH.index(static_cast<const char *>(0)));
+            ASSERT_FAIL(SH.name(badIndex));
+
+            ASSERT_FAIL(SH.type(badIndex));
+            ASSERT_FAIL(SH.type(static_cast<const char *>(0)));
+            ASSERT_FAIL(SH.type(badName));
+
+            ASSERT_FAIL(SH.value(badIndex));
+            ASSERT_FAIL(SH.value(static_cast<const char *>(0)));
+            ASSERT_FAIL(SH.value(badName));
+
+            ASSERT_FAIL(X.hasValue(badName));
+            ASSERT_FAIL(X.type    (badName));
+
+            for (bsl::size_t i = 0; i < SH.numOptions(); ++i) {
+                Ot::Enum    type = SH.type(i);
+                const char *name = SH.name(i);
+
+                if (veryVerbose) {
+                    T_ P_(i) P_(type) P(name)
+                }
+
+                if (!SH.value(name).isNull()) {
+                    P_(i) P_(type) P(name)
+                }
+
+                switch (type) {
+                  case Ot::e_VOID: {
+                    ASSERT(!"Reached");
+                  } break;
+                  case Ot::e_BOOL: {
+                    // Good Type; bad arguments
+                    ASSERT_FAIL(SH.the<Bool>(badIndex));
+                    ASSERT_FAIL(SH.the<Bool>(badName));
+                    ASSERT_FAIL(SH.the<Bool>(
+                                        static_cast<const char *>(0)));
+                    ASSERT_FAIL(SH.theBool(badName));
+                    ASSERT_FAIL(SH.theBool(
+                                        static_cast<const char *>(0)));
+                    ASSERT_FAIL(X .theBool(bsl::string(badName)));
+
+                    // Bad Type; good argument
+                    ASSERT_FAIL(SH.theChar  (name));
+                    ASSERT_FAIL(SH.the<Char>(name));
+                    ASSERT_FAIL(SH.the<Char>(i));
+                    ASSERT_FAIL(X .theChar(bsl::string(name)));
+
+                    // No value
+                    ASSERT_FAIL(SH.the<Bool>(i));
+                    ASSERT_FAIL(SH.the<Bool>(name));
+                    ASSERT_FAIL(SH.theBool(name));
+                    ASSERT_PASS(X .theBool(bsl::string(name)));
+                        // No flag so the bool option is 'false'.
+                  } break;
+                  case Ot::e_CHAR: {
+                    // Good Type; bad arguments
+                    ASSERT_FAIL(SH.the<Char>(badIndex));
+                    ASSERT_FAIL(SH.the<Char>(badName));
+                    ASSERT_FAIL(SH.the<Char>(
+                                        static_cast<const char *>(0)));
+                    ASSERT_FAIL(SH.theChar(badName));
+                    ASSERT_FAIL(SH.theChar(
+                                        static_cast<const char *>(0)));
+                    ASSERT_FAIL(X .theChar(bsl::string(badName)));
+
+                    // Bad Type; good argument
+                    ASSERT_FAIL(SH.theInt  (name));
+                    ASSERT_FAIL(SH.the<int>(name));
+                    ASSERT_FAIL(SH.the<Int>(i));
+                    ASSERT_FAIL(X .theInt(bsl::string(name)));
+
+                    // No value
+                    ASSERT_FAIL(SH.the<Char>(i));
+                    ASSERT_FAIL(SH.the<Char>(name));
+                    ASSERT_FAIL(SH.theChar(name));
+                    ASSERT_FAIL(X .theChar(bsl::string(name)));
+                  } break;
+                  case Ot::e_INT: {
+                    // Good Type; bad arguments
+                    ASSERT_FAIL(SH.the<Int>(badIndex));
+                    ASSERT_FAIL(SH.the<Int>(badName));
+                    ASSERT_FAIL(SH.the<Int>(
+                                        static_cast<const char *>(0)));
+                    ASSERT_FAIL(SH.theInt(badName));
+                    ASSERT_FAIL(SH.theInt(
+                                        static_cast<const char *>(0)));
+                    ASSERT_FAIL(X .theInt(bsl::string(badName)));
+
+                    // Bad Type; good argument
+                    ASSERT_FAIL(SH.theInt64  (name));
+                    ASSERT_FAIL(SH.the<Int64>(name));
+                    ASSERT_FAIL(SH.the<Int64>(i));
+                    ASSERT_FAIL(X .theInt64(bsl::string(name)));
+
+                    // No value
+                    ASSERT_FAIL(SH.the<Int>(i));
+                    ASSERT_FAIL(SH.the<Int>(name));
+                    ASSERT_FAIL(SH.theInt(name));
+                    ASSERT_FAIL(X .theInt(bsl::string(name)));
+                  } break;
+                  case Ot::e_INT64: {
+                    // Good Type; bad arguments
+                    ASSERT_FAIL(SH.the<Int64>(badIndex));
+                    ASSERT_FAIL(SH.the<Int64>(badName));
+                    ASSERT_FAIL(SH.the<Int64>(
+                                        static_cast<const char *>(0)));
+                    ASSERT_FAIL(SH.theInt64(badName));
+                    ASSERT_FAIL(SH.theInt64(
+                                        static_cast<const char *>(0)));
+                    ASSERT_FAIL(X .theInt64(bsl::string(badName)));
+
+                    // Bad Type; good argument
+                    ASSERT_FAIL(SH.theDouble  (name));
+                    ASSERT_FAIL(SH.the<Double>(name));
+                    ASSERT_FAIL(SH.the<Double>(i));
+                    ASSERT_FAIL(X .theDouble(bsl::string(name)));
+
+                    // No value
+                    ASSERT_FAIL(SH.the<Int64>(i));
+                    ASSERT_FAIL(SH.the<Int64>(name));
+                    ASSERT_FAIL(SH.theInt64(name));
+                    ASSERT_FAIL(X .theInt64(bsl::string(name)));
+                  } break;
+                  case Ot::e_DOUBLE: {
+                    // Good Type; bad arguments
+                    ASSERT_FAIL(SH.the<Double>(badIndex));
+                    ASSERT_FAIL(SH.the<Double>(badName));
+                    ASSERT_FAIL(SH.the<Double>(
+                                        static_cast<const char *>(0)));
+                    ASSERT_FAIL(SH.theDouble(badName));
+                    ASSERT_FAIL(SH.theDouble(
+                                        static_cast<const char *>(0)));
+                    ASSERT_FAIL(X .theDouble(bsl::string(badName)));
+
+                    // Bad Type; good argument
+                    ASSERT_FAIL(SH.theString  (name));
+                    ASSERT_FAIL(SH.the<String>(name));
+                    ASSERT_FAIL(SH.the<String>(i));
+                    ASSERT_FAIL(X .theString(bsl::string(name)));
+
+                    // No value
+                    ASSERT_FAIL(SH.the<Double>(i));
+                    ASSERT_FAIL(SH.the<Double>(name));
+                    ASSERT_FAIL(SH.theDouble(name));
+                    ASSERT_FAIL(X .theDouble(bsl::string(name)));
+                  } break;
+                  case Ot::e_STRING: {
+                    // Good Type; bad arguments
+                    ASSERT_FAIL(SH.the<String>(badIndex));
+                    ASSERT_FAIL(SH.the<String>(badName));
+                    ASSERT_FAIL(SH.the<String>(
+                                        static_cast<const char *>(0)));
+                    ASSERT_FAIL(SH.theString(badName));
+                    ASSERT_FAIL(SH.theString(
+                                        static_cast<const char *>(0)));
+                    ASSERT_FAIL(X .theString(bsl::string(badName)));
+
+                    // Bad Type; good argument
+                    ASSERT_FAIL(SH.theDatetime  (name));
+                    ASSERT_FAIL(SH.the<Datetime>(name));
+                    ASSERT_FAIL(SH.the<Datetime>(i));
+                    ASSERT_FAIL(X .theDatetime(bsl::string(name)));
+
+                    // No value
+                    ASSERT_FAIL(SH.the<String>(i));
+                    ASSERT_FAIL(SH.the<String>(name));
+                    ASSERT_FAIL(SH.theString(name));
+                    ASSERT_FAIL(X .theString(bsl::string(name)));
+                  } break;
+                  case Ot::e_DATETIME: {
+                    // Good Type; bad arguments
+                    ASSERT_FAIL(SH.the<Datetime>(badIndex));
+                    ASSERT_FAIL(SH.the<Datetime>(badName));
+                    ASSERT_FAIL(SH.the<Datetime>(
+                                        static_cast<const char *>(0)));
+                    ASSERT_FAIL(SH.theDatetime(badName));
+                    ASSERT_FAIL(SH.theDatetime(
+                                        static_cast<const char *>(0)));
+                    ASSERT_FAIL(X .theDatetime(bsl::string(badName)));
+
+                    // Bad Type; good argument
+                    ASSERT_FAIL(SH.theDate  (name));
+                    ASSERT_FAIL(SH.the<Date>(name));
+                    ASSERT_FAIL(SH.the<Date>(i));
+                    ASSERT_FAIL(X .theDate(bsl::string(name)));
+
+                    // No value
+                    ASSERT_FAIL(SH.the<Datetime>(i));
+                    ASSERT_FAIL(SH.the<Datetime>(name));
+                    ASSERT_FAIL(SH.theDatetime(name));
+                    ASSERT_FAIL(X .theDatetime(bsl::string(name)));
+                  } break;
+                  case Ot::e_DATE: {
+                    // Good Type; bad arguments
+                    ASSERT_FAIL(SH.the<Date>(badIndex));
+                    ASSERT_FAIL(SH.the<Date>(badName));
+                    ASSERT_FAIL(SH.the<Date>(
+                                        static_cast<const char *>(0)));
+                    ASSERT_FAIL(SH.theDate(badName));
+                    ASSERT_FAIL(SH.theDate(
+                                        static_cast<const char *>(0)));
+                    ASSERT_FAIL(X .theDate(bsl::string(badName)));
+
+                    // Bad Type; good argument
+                    ASSERT_FAIL(SH.theTime  (name));
+                    ASSERT_FAIL(SH.the<Time>(name));
+                    ASSERT_FAIL(SH.the<Time>(i));
+                    ASSERT_FAIL(X .theTime(bsl::string(name)));
+
+                    // No value
+                    ASSERT_FAIL(SH.the<Date>(i));
+                    ASSERT_FAIL(SH.the<Date>(name));
+                    ASSERT_FAIL(SH.theDate(name));
+                    ASSERT_FAIL(X .theDate(bsl::string(name)));
+                  } break;
+                  case Ot::e_TIME: {
+                    // Good Type; bad arguments
+                    ASSERT_FAIL(SH.the<Time>(badIndex));
+                    ASSERT_FAIL(SH.the<Time>(badName));
+                    ASSERT_FAIL(SH.the<Time>(
+                                        static_cast<const char *>(0)));
+                    ASSERT_FAIL(SH.theTime(badName));
+                    ASSERT_FAIL(SH.theTime(
+                                        static_cast<const char *>(0)));
+                    ASSERT_FAIL(X .theTime(bsl::string(badName)));
+
+                    // Bad Type; good argument
+                    ASSERT_FAIL(SH.theCharArray  (name));
+                    ASSERT_FAIL(SH.the<CharArray>(name));
+                    ASSERT_FAIL(SH.the<CharArray>(i));
+                    ASSERT_FAIL(X .theCharArray(bsl::string(name)));
+
+                    // No value
+                    ASSERT_FAIL(SH.the<Time>(i));
+                    ASSERT_FAIL(SH.the<Time>(name));
+                    ASSERT_FAIL(SH.theTime(name));
+                    ASSERT_FAIL(X .theTime(bsl::string(name)));
+                  } break;
+                  case Ot::e_CHAR_ARRAY: {
+                    // Good Type; bad arguments
+                    ASSERT_FAIL(SH.the<CharArray>(badIndex));
+                    ASSERT_FAIL(SH.the<CharArray>(badName));
+                    ASSERT_FAIL(SH.the<CharArray>(
+                                        static_cast<const char *>(0)));
+                    ASSERT_FAIL(SH.theCharArray(badName));
+                    ASSERT_FAIL(SH.theCharArray(
+                                        static_cast<const char *>(0)));
+                    ASSERT_FAIL(X .theCharArray(bsl::string(badName)));
+
+                    // Bad Type; good argument
+                    ASSERT_FAIL(SH.theIntArray  (name));
+                    ASSERT_FAIL(SH.the<IntArray>(name));
+                    ASSERT_FAIL(SH.the<IntArray>(i));
+                    ASSERT_FAIL(X .theIntArray(bsl::string(name)));
+
+                    // No value
+                    ASSERT_FAIL(SH.the<CharArray>(i));
+                    ASSERT_FAIL(SH.the<CharArray>(name));
+                    ASSERT_FAIL(SH.theCharArray(name));
+                    ASSERT_FAIL(X .theCharArray(bsl::string(name)));
+                  } break;
+                  case Ot::e_INT_ARRAY: {
+                    // Good Type; bad arguments
+                    ASSERT_FAIL(SH.the<IntArray>(badIndex));
+                    ASSERT_FAIL(SH.the<IntArray>(badName));
+                    ASSERT_FAIL(SH.the<IntArray>(
+                                        static_cast<const char *>(0)));
+                    ASSERT_FAIL(SH.theIntArray(badName));
+                    ASSERT_FAIL(SH.theIntArray(
+                                        static_cast<const char *>(0)));
+                    ASSERT_FAIL(X .theIntArray(bsl::string(badName)));
+
+                    // Bad Type; good argument
+                    ASSERT_FAIL(SH.theInt64Array  (name));
+                    ASSERT_FAIL(SH.the<Int64Array>(name));
+                    ASSERT_FAIL(SH.the<Int64Array>(i));
+                    ASSERT_FAIL(X .theInt64Array(bsl::string(name)));
+
+                    // No value
+                    ASSERT_FAIL(SH.the<IntArray>(i));
+                    ASSERT_FAIL(SH.the<IntArray>(name));
+                    ASSERT_FAIL(SH.theIntArray(name));
+                    ASSERT_FAIL(X .theIntArray(bsl::string(name)));
+                  } break;
+                  case Ot::e_INT64_ARRAY: {
+                    // Good Type; bad arguments
+                    ASSERT_FAIL(SH.the<Int64Array>(badIndex));
+                    ASSERT_FAIL(SH.the<Int64Array>(badName));
+                    ASSERT_FAIL(SH.the<Int64Array>(
+                                        static_cast<const char *>(0)));
+                    ASSERT_FAIL(SH.theInt64Array(badName));
+                    ASSERT_FAIL(SH.theInt64Array(
+                                        static_cast<const char *>(0)));
+                    ASSERT_FAIL(X .theInt64Array(bsl::string(badName)));
+
+                    // Bad Type; good argument
+                    ASSERT_FAIL(SH.theDoubleArray  (name));
+                    ASSERT_FAIL(SH.the<DoubleArray>(name));
+                    ASSERT_FAIL(SH.the<DoubleArray>(i));
+                    ASSERT_FAIL(X .theDoubleArray(bsl::string(name)));
+
+                    // No value
+                    ASSERT_FAIL(SH.the<Int64Array>(i));
+                    ASSERT_FAIL(SH.the<Int64Array>(name));
+                    ASSERT_FAIL(SH.theInt64Array(name));
+                    ASSERT_FAIL(X .theInt64Array(bsl::string(name)));
+                  } break;
+                  case Ot::e_DOUBLE_ARRAY: {
+                    // Good Type; bad arguments
+                    ASSERT_FAIL(SH.the<DoubleArray>(badIndex));
+                    ASSERT_FAIL(SH.the<DoubleArray>(badName));
+                    ASSERT_FAIL(SH.the<DoubleArray>(
+                                        static_cast<const char *>(0)));
+                    ASSERT_FAIL(SH.theDoubleArray(badName));
+                    ASSERT_FAIL(SH.theDoubleArray(
+                                        static_cast<const char *>(0)));
+                    ASSERT_FAIL(X .theDoubleArray(bsl::string(badName)));
+
+                    // Bad Type; good argument
+                    ASSERT_FAIL(SH.theStringArray  (name));
+                    ASSERT_FAIL(SH.the<StringArray>(name));
+                    ASSERT_FAIL(SH.the<StringArray>(i));
+                    ASSERT_FAIL(X .theStringArray(bsl::string(name)));
+
+                    // No value
+                    ASSERT_FAIL(SH.the<DoubleArray>(i));
+                    ASSERT_FAIL(SH.the<DoubleArray>(name));
+                    ASSERT_FAIL(SH.theDoubleArray(name));
+                    ASSERT_FAIL(X .theDoubleArray(bsl::string(name)));
+                  } break;
+                  case Ot::e_STRING_ARRAY: {
+                    // Good Type; bad arguments
+                    ASSERT_FAIL(SH.the<StringArray>(badIndex));
+                    ASSERT_FAIL(SH.the<StringArray>(badName));
+                    ASSERT_FAIL(SH.the<StringArray>(
+                                        static_cast<const char *>(0)));
+                    ASSERT_FAIL(SH.theStringArray(badName));
+                    ASSERT_FAIL(SH.theStringArray(
+                                        static_cast<const char *>(0)));
+                    ASSERT_FAIL(X .theStringArray(bsl::string(badName)));
+
+                    // Bad Type; good argument
+                    ASSERT_FAIL(SH.theDatetimeArray  (name));
+                    ASSERT_FAIL(SH.the<DatetimeArray>(name));
+                    ASSERT_FAIL(SH.the<DatetimeArray>(i));
+                    ASSERT_FAIL(X .theDatetimeArray(bsl::string(name)));
+
+                    // No value
+                    ASSERT_FAIL(SH.the<StringArray>(i));
+                    ASSERT_FAIL(SH.the<StringArray>(name));
+                    ASSERT_FAIL(SH.theStringArray(name));
+                    ASSERT_FAIL(X .theStringArray(bsl::string(name)));
+                  } break;
+                  case Ot::e_DATETIME_ARRAY: {
+                    // Good Type; bad arguments
+                    ASSERT_FAIL(SH.the<DatetimeArray>(badIndex));
+                    ASSERT_FAIL(SH.the<DatetimeArray>(badName));
+                    ASSERT_FAIL(SH.the<DatetimeArray>(
+                                        static_cast<const char *>(0)));
+                    ASSERT_FAIL(SH.theDatetimeArray(badName));
+                    ASSERT_FAIL(SH.theDatetimeArray(
+                                        static_cast<const char *>(0)));
+                    ASSERT_FAIL(X .theDatetimeArray(bsl::string(badName)));
+
+                    // Bad Type; good argument
+                    ASSERT_FAIL(SH.theDateArray  (name));
+                    ASSERT_FAIL(SH.the<DateArray>(name));
+                    ASSERT_FAIL(SH.the<DateArray>(i));
+                    ASSERT_FAIL(X .theDateArray(bsl::string(name)));
+
+                    // No value
+                    ASSERT_FAIL(SH.the<DatetimeArray>(i));
+                    ASSERT_FAIL(SH.the<DatetimeArray>(name));
+                    ASSERT_FAIL(SH.theDatetimeArray(name));
+                    ASSERT_FAIL(X .theDatetimeArray(bsl::string(name)));
+                  } break;
+                  case Ot::e_DATE_ARRAY: {
+                    // Good Type; bad arguments
+                    ASSERT_FAIL(SH.the<DateArray>(badIndex));
+                    ASSERT_FAIL(SH.the<DateArray>(badName));
+                    ASSERT_FAIL(SH.the<DateArray>(
+                                        static_cast<const char *>(0)));
+                    ASSERT_FAIL(SH.theDateArray(badName));
+                    ASSERT_FAIL(SH.theDateArray(
+                                        static_cast<const char *>(0)));
+                    ASSERT_FAIL(X .theDateArray(bsl::string(badName)));
+
+                    // Bad Type; good argument
+                    ASSERT_FAIL(SH.theTimeArray  (name));
+                    ASSERT_FAIL(SH.the<TimeArray>(name));
+                    ASSERT_FAIL(SH.the<TimeArray>(i));
+                    ASSERT_FAIL(X .theTimeArray(bsl::string(name)));
+
+                    // No value
+                    ASSERT_FAIL(SH.the<DateArray>(i));
+                    ASSERT_FAIL(SH.the<DateArray>(name));
+                    ASSERT_FAIL(SH.theDateArray(name));
+                    ASSERT_FAIL(X .theDateArray(bsl::string(name)));
+                  } break;
+                  case Ot::e_TIME_ARRAY: {
+                    // Good Type; bad arguments
+                    ASSERT_FAIL(SH.the<TimeArray>(badIndex));
+                    ASSERT_FAIL(SH.the<TimeArray>(badName));
+                    ASSERT_FAIL(SH.the<TimeArray>(
+                                        static_cast<const char *>(0)));
+                    ASSERT_FAIL(SH.theTimeArray(badName));
+                    ASSERT_FAIL(SH.theTimeArray(
+                                        static_cast<const char *>(0)));
+                    ASSERT_FAIL(X .theTimeArray(bsl::string(badName)));
+
+                    // Bad Type; good argument
+                    ASSERT_FAIL(SH.theBool  (name));
+                    ASSERT_FAIL(SH.the<Bool>(name));
+                    ASSERT_FAIL(SH.the<Bool>(i));
+                    ASSERT_FAIL(X .theBool(bsl::string(name)));
+
+                    // No value
+                    ASSERT_FAIL(SH.the<TimeArray>(i));
+                    ASSERT_FAIL(SH.the<TimeArray>(name));
+                    ASSERT_FAIL(SH.theTimeArray(name));
+                    ASSERT_FAIL(X .theTimeArray(bsl::string(name)));
+                  } break;
+                }
+            }
+
+            // Specification table:
+            //: o all supported types
+            //: o each type has a default value (except 'bool', of course).
+
+            balcl::OptionInfo specTable2[] = {
+              {
+                "a|aLongTag"
+              , "Bool" // name
+              , "description:  Bool"
+              , TypeInfo(Ot::k_BOOL)
+              , OccurrenceInfo::e_OPTIONAL
+              }
+            , {
+                "b|bLongTag"
+              , "Char" // name
+              , "description:  Char"
+              , TypeInfo(Ot::k_CHAR)
+              , OccurrenceInfo(Char())
+              }
+            , {
+                "c|cLongTag"
+              , "Int" // name
+              , "description:  Int"
+              , TypeInfo(Ot::k_INT)
+              , OccurrenceInfo(Int())
+              }
+            , {
+                "d|dLongTag"
+              , "Int64" // name
+              , "description:  Int64"
+              , TypeInfo(Ot::k_INT64)
+              , OccurrenceInfo(Int64())
+              }
+            , {
+                "e|eLongTag"
+              , "Double" // name
+              , "description:  Double"
+              , TypeInfo(Ot::k_DOUBLE)
+              , OccurrenceInfo(Double())
+              }
+            , {
+                "f|fLongTag"
+              , "String" // name
+              , "description:  String"
+              , TypeInfo(Ot::k_STRING)
+              , OccurrenceInfo(String())
+              }
+            , {
+                "g|gLongTag"
+              , "Datetime" // name
+              , "description:  Datetime"
+              , TypeInfo(Ot::k_DATETIME)
+              , OccurrenceInfo(Datetime())
+              }
+            , {
+                "h|hLongTag"
+              , "Date" // name
+              , "description:  Date"
+              , TypeInfo(Ot::k_DATE)
+              , OccurrenceInfo(Date())
+              }
+            , {
+                "i|iLongTag"
+              , "Time" // name
+              , "description:  Time"
+              , TypeInfo(Ot::k_TIME)
+              , OccurrenceInfo(Time())
+              }
+            , {
+                "j|jLongTag"
+              , "CharArray" // name
+              , "description:  CharArray"
+              , TypeInfo(Ot::k_CHAR_ARRAY)
+              , OccurrenceInfo(CharArray())
+              }
+            , {
+                "k|kLongTag"
+              , "IntArray" // name
+              , "description:  IntArray"
+              , TypeInfo(Ot::k_INT_ARRAY)
+              , OccurrenceInfo(IntArray())
+              }
+            , {
+                "l|lLongTag"
+              , "Int64Array" // name
+              , "description:  Int64Array"
+              , TypeInfo(Ot::k_INT64_ARRAY)
+              , OccurrenceInfo(Int64Array())
+              }
+            , {
+                "m|mLongTag"
+              , "DoubleArray" // name
+              , "description:  DoubleArray"
+              , TypeInfo(Ot::k_DOUBLE_ARRAY)
+              , OccurrenceInfo(DoubleArray())
+              }
+            , {
+                "n|nLongTag"
+              , "StringArray" // name
+              , "description:  StringArray"
+              , TypeInfo(Ot::k_STRING_ARRAY)
+              , OccurrenceInfo(StringArray())
+              }
+            , {
+                "o|oLongTag"
+              , "DatetimeArray" // name
+              , "description:  DatetimeArray"
+              , TypeInfo(Ot::k_DATETIME_ARRAY)
+              , OccurrenceInfo(DatetimeArray())
+              }
+            , {
+                "p|pLongTag"
+              , "DateArray" // name
+              , "description:  DateArray"
+              , TypeInfo(Ot::k_DATE_ARRAY)
+              , OccurrenceInfo(DateArray())
+              }
+            , {
+                "r|rLongTag"
+              , "TimeArray" // name
+              , "description:  TimeArray"
+              , TypeInfo(Ot::k_TIME_ARRAY)
+              , OccurrenceInfo(TimeArray())
+              }
+            };
+
+            bsl::size_t numSpecTable2 = sizeof specTable / sizeof *specTable;
+            ASSERT(17 == numSpecTable2);
+
+            bsl::ostringstream oss2;
+
+            bool isValidSpec2 = Obj::isValidOptionSpecificationTable(
+                                                                    specTable2,
+                                                                    oss2);
+            ASSERT(isValidSpec2);
+            ASSERT(oss2.str().empty());
+
+            Obj mY(specTable2); const Obj& Y = mY;
+
+            const char *const    commandLine[] = { "programName", "-a" };
+            const bsl::size_t numCommandLine   = sizeof  commandLine
+                                               / sizeof *commandLine;
+
+            for (int pass = 1; pass <= 2; ++ pass ) {
+
+                if (2 == pass) {
+                    int retParse2 = mY.parse(numCommandLine,
+                                             commandLine,
+                                             oss2);
+                    ASSERT(0 == retParse2);
+                    ASSERT(Y.isParsed());
+                    ASSERT(Y.isValid());
+                }
+
+                switch (pass) {
+                  case 1: {
+                    ASSERT(!Y.isParsed());
+                  } break;
+                  case 2: {
+                    ASSERT( Y.isParsed());
+                  } break;
+                }
+
+                for (bsl::size_t i = 0; i < numSpecTable2; ++i) {
+                    Ot::Enum    type = specTable2[i].d_typeInfo.type();
+                    const char *name = specTable2[i].d_name.c_str();
+
+                    if (veryVerbose) {
+                        T_ P_(i) P_(type) P(name)
+                    }
+
+                    if (Y.isParsed()) {
+                        ASSERT_PASS(Y.hasValue(name));
+                    } else {
+                        ASSERT_FAIL(Y.hasValue(name));
+                    }
+
+                    switch (type) {
+                      case Ot::e_VOID: {
+                        ASSERT(!"Reached");
+                      } break;
+                      case Ot::e_BOOL: {
+                        if (Y.isParsed()) {
+                            ASSERT_PASS(Y.theBool(name));
+                        } else {
+                            ASSERT_FAIL(Y.theBool(name));
+                        }
+                      } break;
+                      case Ot::e_CHAR: {
+                        if (Y.isParsed()) {
+                            ASSERT_PASS(Y.theChar(name));
+                        } else {
+                            ASSERT_FAIL(Y.theChar(name));
+                        }
+                      } break;
+                      case Ot::e_INT: {
+                        if (Y.isParsed()) {
+                            ASSERT_PASS(Y.theInt(name));
+                        } else {
+                            ASSERT_FAIL(Y.theInt(name));
+                        }
+                      } break;
+                      case Ot::e_INT64: {
+                        if (Y.isParsed()) {
+                            ASSERT_PASS(Y.theInt64(name));
+                        } else {
+                            ASSERT_FAIL(Y.theInt64(name));
+                        }
+                      } break;
+                      case Ot::e_DOUBLE: {
+                        if (Y.isParsed()) {
+                            ASSERT_PASS(Y.theDouble(name));
+                        } else {
+                            ASSERT_FAIL(Y.theDouble(name));
+                        }
+                      } break;
+                      case Ot::e_STRING: {
+                        if (Y.isParsed()) {
+                            ASSERT_PASS(Y.theString(name));
+                        } else {
+                            ASSERT_FAIL(Y.theString(name));
+                        }
+                      } break;
+                      case Ot::e_DATETIME: {
+                        if (Y.isParsed()) {
+                            ASSERT_PASS(Y.theDatetime(name));
+                        } else {
+                            ASSERT_FAIL(Y.theDatetime(name));
+                        }
+                      } break;
+                      case Ot::e_DATE: {
+                        if (Y.isParsed()) {
+                            ASSERT_PASS(Y.theDate(name));
+                        } else {
+                            ASSERT_FAIL(Y.theDate(name));
+                        }
+                      } break;
+                      case Ot::e_TIME: {
+                        if (Y.isParsed()) {
+                            ASSERT_PASS(Y.theTime(name));
+                        } else {
+                            ASSERT_FAIL(Y.theTime(name));
+                        }
+                      } break;
+                      case Ot::e_CHAR_ARRAY: {
+                        if (Y.isParsed()) {
+                            ASSERT_PASS(Y.theCharArray(name));
+                        } else {
+                            ASSERT_FAIL(Y.theCharArray(name));
+                        }
+                      } break;
+                      case Ot::e_INT_ARRAY: {
+                        if (Y.isParsed()) {
+                            ASSERT_PASS(Y.theIntArray(name));
+                        } else {
+                            ASSERT_FAIL(Y.theIntArray(name));
+                        }
+                      } break;
+                      case Ot::e_INT64_ARRAY: {
+                        if (Y.isParsed()) {
+                            ASSERT_PASS(Y.theInt64Array(name));
+                        } else {
+                            ASSERT_FAIL(Y.theInt64Array(name));
+                        }
+                      } break;
+                      case Ot::e_DOUBLE_ARRAY: {
+                        if (Y.isParsed()) {
+                            ASSERT_PASS(Y.theDoubleArray(name));
+                        } else {
+                            ASSERT_FAIL(Y.theDoubleArray(name));
+                        }
+                      } break;
+                      case Ot::e_STRING_ARRAY: {
+                        if (Y.isParsed()) {
+                            ASSERT_PASS(Y.theStringArray(name));
+                        } else {
+                            ASSERT_FAIL(Y.theStringArray(name));
+                        }
+                      } break;
+                      case Ot::e_DATETIME_ARRAY: {
+                        if (Y.isParsed()) {
+                            ASSERT_PASS(Y.theDatetimeArray(name));
+                        } else {
+                            ASSERT_FAIL(Y.theDatetimeArray(name));
+                        }
+                      } break;
+                      case Ot::e_DATE_ARRAY: {
+                        if (Y.isParsed()) {
+                            ASSERT_PASS(Y.theDateArray(name));
+                        } else {
+                            ASSERT_FAIL(Y.theDateArray(name));
+                        }
+                      } break;
+                      case Ot::e_TIME_ARRAY: {
+                        if (Y.isParsed()) {
+                            ASSERT_PASS(Y.theTimeArray(name));
+                        } else {
+                            ASSERT_FAIL(Y.theTimeArray(name));
+                        }
+                      } break;
+                    }
+                }
+            }
+        }
+
         if (veryVerbose) cout << "Additional tests 'position'/'positions'"
                               << endl;
         {
@@ -4887,14 +5853,14 @@ int main(int argc, const char *argv[])  {
                  , k_MAX_UNIQUE_OPTIONS =  5 };
 
             typedef struct {
-                const char *d_optionName;
+                const char *d_optionName_p;
                 int         d_numPositions;
                 int         d_positions[k_MAX_ARGC];
             } NamePositions;
 
             static struct {
                 int            d_line;
-                const char    *d_commandLine;
+                const char    *d_commandLine_p;
                 int            d_numExpects;
                 NamePositions  d_expects[k_MAX_UNIQUE_OPTIONS];
             } DATA[] = {
@@ -5017,10 +5983,10 @@ int main(int argc, const char *argv[])  {
             // Run tests.
 
             for (int ti = 0; ti < k_NUM_DATA; ++ti) {
-                const int                   LINE     = DATA[ti].d_line;
-                const char          * const CMD      = DATA[ti].d_commandLine;
-                const int                   NUM_EXPS = DATA[ti].d_numExpects;
-                const NamePositions * const EXPS     = DATA[ti].d_expects;
+                const int                  LINE     = DATA[ti].d_line;
+                const char          *const CMD      = DATA[ti].d_commandLine_p;
+                const int                  NUM_EXPS = DATA[ti].d_numExpects;
+                const NamePositions *const EXPS     = DATA[ti].d_expects;
 
                 if (veryVerbose) { T_ P_(LINE) P(CMD) }
 
@@ -5055,7 +6021,7 @@ int main(int argc, const char *argv[])  {
 
                     if (veryVeryVerbose) {
                         T_ T_ P_(j)
-                              P_(EXP->d_optionName)
+                              P_(EXP->d_optionName_p)
                               P( EXP->d_numPositions)
 
                         for (int k = 0; k < EXP->d_numPositions; ++k) {
@@ -5066,7 +6032,7 @@ int main(int argc, const char *argv[])  {
 
                     typedef OptionInfoMap::const_iterator ConstIterator;
 
-                    bsl::string optionName(EXP->d_optionName);
+                    bsl::string optionName(EXP->d_optionName_p);
 
                     ConstIterator itr = Oim.find(optionName);
                     ASSERT(Oim.cend() != itr);
@@ -5390,6 +6356,9 @@ int main(int argc, const char *argv[])  {
             const OptionInfo *SPEC_TABLE1 = specTable1;
 
             for (int j = 0; j < n1; ++j) {
+                if (veryVerbose) {
+                    T_ T_ T_ P_(j) P(n1)
+                }
                 int index = i1 + j * NUM_OPTIONS;
                 specTable1[j] = OPTIONS[index];
             }
@@ -5480,12 +6449,15 @@ int main(int argc, const char *argv[])  {
                 ASSERT(ossErrPX.str().empty());
                 ASSERT( PX.isParsed());
 
-                // Prepare 'lhs' objects, uparsed and parsed.
+                // Prepare 'lhs' objects, unparsed and parsed.
 
                 OptionInfo        specTable2[4];
                 const OptionInfo *SPEC_TABLE2 = specTable2;
 
                 for (int j = 0; j < n2; ++j) {
+                    if (veryVerbose) {
+                        T_ T_ T_ P_(j) P(n2)
+                    }
                     int index = i2 + j * NUM_OPTIONS;
                     specTable2[j] = OPTIONS[index];
                 }
@@ -5531,7 +6503,7 @@ int main(int argc, const char *argv[])  {
                     ASSERT(Z    ==  X);
                 }
 
-                {   // uparsed <= parsed
+                {   // unparsed <= parsed
                     Obj mY(UY, &saY);  const Obj& Y = mY;
                     Obj mX(PX, &saX);  const Obj& X = mX;
 
@@ -5586,7 +6558,7 @@ int main(int argc, const char *argv[])  {
                     ASSERT(X    ==  Z);
                 }
 
-                {   // uparsed <= unparsed
+                {   // unparsed <= unparsed
                     Obj mY(UY, &saY);  const Obj& Y = mY;
                     Obj mX(UX, &saX);  const Obj& X = mX;
 
