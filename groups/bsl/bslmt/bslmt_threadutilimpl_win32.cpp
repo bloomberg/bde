@@ -541,7 +541,7 @@ int bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::create(
                                              startInfo,
                                              STACK_SIZE_PARAM_IS_A_RESERVATION,
                                              (unsigned int *)&handle->d_id);
-    if ((HANDLE)-1 == handle->d_handle) {
+    if ((HANDLE)0 == handle->d_handle) {
         u::freeStartupInfo(startInfo);
         return 1;                                                     // RETURN
     }

@@ -12,11 +12,9 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlmt_fixedthreadpool_cpp,"$Id$ $CSID$")
 
-#include <bslmt_lockguard.h>
-
 #include <bdlf_memfn.h>
 
-#include <bsls_assert.h>
+#include <bsls_nullptr.h>
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
 #include <bsls_timeutil.h>
@@ -57,119 +55,31 @@ void initBlockSet(sigset_t *blockSet)
 }  // close unnamed namespace
 
 namespace BloombergLP {
-
 namespace bdlmt {
-                           // ---------------------
-                           // class FixedThreadPool
-                           // ---------------------
+
+                          // ---------------------
+                          // class FixedThreadPool
+                          // ---------------------
 
 // PRIVATE MANIPULATORS
-void FixedThreadPool::processJobs()
-{
-    while (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
-                                        e_RUN == d_control.loadRelaxed())) {
-        Job functor;
-
-        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                                              d_queue.tryPopFront(&functor))) {
-            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-
-            ++d_numThreadsWaiting;
-
-            if (e_RUN == d_control && d_queue.isEmpty()) {
-                d_queueSemaphore.wait();
-            }
-
-            d_numThreadsWaiting.addRelaxed(-1);
-        }
-        else {
-            functor();
-        }
-    }
-}
-
-void FixedThreadPool::drainQueue()
-{
-    while (e_DRAIN == d_control.loadRelaxed()) {
-        Job functor;
-
-        const int ret = d_queue.tryPopFront(&functor);
-        if (ret) {
-            return;                                                   // RETURN
-        }
-
-        functor();
-    }
-}
-
-void FixedThreadPool::waitWorkerThreads()
-{
-    bslmt::LockGuard<bslmt::Mutex> lock(&d_gateMutex);
-
-    while (d_numThreadsReady != d_numThreads) {
-        d_threadsReadyCond.wait(&d_gateMutex);
-    }
-}
-
-void FixedThreadPool::releaseWorkerThreads()
-{
-    bslmt::LockGuard<bslmt::Mutex> lock(&d_gateMutex);
-    d_numThreadsReady = 0;
-    ++d_gateCount;
-    d_gateCond.broadcast();
-
-    // d_gateMutex.unlock() emits a release barrier.
-}
-
-void FixedThreadPool::interruptWorkerThreads()
-{
-    bslmt::LockGuard<bslmt::Mutex> lock(&d_gateMutex); // acquire barrier
-
-    int numThreadsWaiting = d_numThreadsWaiting;
-
-    for (int i = 0; i < numThreadsWaiting; ++i) {
-        // Wake up waiting threads.
-
-        d_queueSemaphore.post();
-    }
-}
-
 void FixedThreadPool::workerThread()
 {
-    int gateCount = d_gateCount;
+    d_barrier.wait();  // initial synchronization in 'start'
 
-    while (1) {
-        {
-            bslmt::LockGuard<bslmt::Mutex> lock(&d_gateMutex);
+    Job functor;
 
-            ++d_numThreadsReady;
-            d_threadsReadyCond.signal();
-
-            while (gateCount == d_gateCount) {
-                d_gateCond.wait(&d_gateMutex);
-            }
-
-            gateCount = d_gateCount;
+    do {
+        if (d_drainFlag) {
+            d_barrier.wait();  // pool threads acknowledge drain
+            d_barrier.wait();  // pool threads may proceed
         }
-
-        int control = d_control.loadRelaxed();
-
-        if (e_RUN == control) {
-            processJobs();
-            control = d_control;
+        while (Queue::e_SUCCESS == d_queue.popFront(&functor)) {
+            d_numActiveThreads.addAcqRel(1);
+            functor();
+            functor = bsl::nullptr_t();  // ensure destructor is called
+            d_numActiveThreads.addAcqRel(-1);
         }
-
-        if (e_DRAIN == control) {
-            drainQueue();
-        }
-        else if (e_SUSPEND == control) {
-            continue;
-        }
-        else {
-            BSLS_ASSERT(e_STOP == control);
-            return;                                                   // RETURN
-        }
-    }
+    } while (d_drainFlag);
 }
 
 int FixedThreadPool::startNewThread()
@@ -196,25 +106,23 @@ int FixedThreadPool::startNewThread()
 }
 
 // CREATORS
-
 FixedThreadPool::FixedThreadPool(
                              const bslmt::ThreadAttributes&  threadAttributes,
                              int                             numThreads,
                              int                             maxNumPendingJobs,
                              bslma::Allocator               *basicAllocator)
 : d_queue(maxNumPendingJobs, basicAllocator)
-, d_control(e_STOP)
-, d_gateCount(0)
-, d_numThreadsReady(0)
+, d_numActiveThreads(0)
+, d_drainFlag(false)
+, d_barrier(numThreads + 1)
 , d_threadGroup(basicAllocator)
 , d_threadAttributes(threadAttributes, basicAllocator)
 , d_numThreads(numThreads)
 {
-    BSLS_ASSERT_OPT(1          <= numThreads);
-    BSLS_ASSERT_OPT(1          <= maxNumPendingJobs);
-    BSLS_ASSERT_OPT(0x01FFFFFF >= maxNumPendingJobs);
+    BSLS_ASSERT_OPT(1 <= numThreads);
 
-    disable();
+    d_queue.disablePushBack();
+    d_queue.disablePopFront();
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
     initBlockSet(&d_blockSet);
@@ -225,16 +133,17 @@ FixedThreadPool::FixedThreadPool(int               numThreads,
                                  int               maxNumPendingJobs,
                                  bslma::Allocator *basicAllocator)
 : d_queue(maxNumPendingJobs, basicAllocator)
-, d_control(e_STOP)
-, d_gateCount(0)
-, d_numThreadsReady(0)
+, d_numActiveThreads(0)
+, d_drainFlag(false)
+, d_barrier(numThreads + 1)
 , d_threadGroup(basicAllocator)
 , d_threadAttributes(basicAllocator)
 , d_numThreads(numThreads)
 {
-    BSLS_ASSERT_OPT(0 != d_numThreads);
+    BSLS_ASSERT_OPT(1 <= numThreads);
 
-    disable();
+    d_queue.disablePushBack();
+    d_queue.disablePopFront();
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
     initBlockSet(&d_blockSet);
@@ -247,168 +156,41 @@ FixedThreadPool::~FixedThreadPool()
 }
 
 // MANIPULATORS
-
-int FixedThreadPool::enqueueJob(const Job& functor)
-{
-    BSLS_ASSERT(functor);
-
-    const int ret = d_queue.pushBack(functor);
-
-    if (0 == ret && d_numThreadsWaiting) {
-        // Wake up waiting threads.
-
-        d_queueSemaphore.post();
-    }
-
-    return ret;
-}
-
-int FixedThreadPool::enqueueJob(bslmf::MovableRef<Job> functor)
-{
-    BSLS_ASSERT(bslmf::MovableRefUtil::access(functor));
-
-    const int ret = d_queue.pushBack(bslmf::MovableRefUtil::move(functor));
-
-    if (0 == ret && d_numThreadsWaiting) {
-        // Wake up waiting threads.
-
-        d_queueSemaphore.post();
-    }
-
-    return ret;
-}
-
-int FixedThreadPool::tryEnqueueJob(const Job& functor)
-{
-    BSLS_ASSERT(functor);
-
-    const int ret = d_queue.tryPushBack(functor);
-
-    if (0 == ret && d_numThreadsWaiting) {
-        // Wake up waiting threads.
-
-        d_queueSemaphore.post();
-    }
-    return ret;
-}
-
-int FixedThreadPool::tryEnqueueJob(bslmf::MovableRef<Job> functor)
-{
-    BSLS_ASSERT(bslmf::MovableRefUtil::access(functor));
-
-    const int ret = d_queue.tryPushBack(bslmf::MovableRefUtil::move(functor));
-
-    if (0 == ret && d_numThreadsWaiting) {
-        // Wake up waiting threads.
-
-        d_queueSemaphore.post();
-    }
-    return ret;
-}
-
-void FixedThreadPool::drain()
-{
-    bslmt::LockGuard<bslmt::Mutex> lock(&d_metaMutex);
-
-    if (e_RUN == d_control.loadRelaxed()) {
-        d_control = e_DRAIN;
-
-        // 'interruptWorkerThreads' emits an initial acquire barrier (mutex
-        // lock).  Guaranteeing that no instructions in
-        // 'interruptWorkerThreads' will be executed before the previous store.
-
-        interruptWorkerThreads();
-        waitWorkerThreads();
-
-        d_control = e_RUN;
-
-        // 'releaseWorkerThreads' emits a release barrier so that the worker
-        // threads can't return from wait without observing the previous store.
-
-        releaseWorkerThreads();
-    }
-}
-
-void FixedThreadPool::shutdown()
-{
-    bslmt::LockGuard<bslmt::Mutex> lock(&d_metaMutex);
-
-    if (e_RUN == d_control.loadRelaxed()) {
-        d_queue.disable();
-        d_control = e_STOP;
-
-        // 'interruptWorkerThreads' emits an initial acquire barrier (mutex
-        // lock).  Guaranteeing that no instructions in
-        // 'interruptWorkerThreads' will be executed before the previous store.
-
-        interruptWorkerThreads();
-
-        d_queue.removeAll();
-        d_threadGroup.joinAll();
-    }
-}
-
 int FixedThreadPool::start()
 {
     bslmt::LockGuard<bslmt::Mutex> lock(&d_metaMutex);
 
-    if (e_STOP != d_control.loadRelaxed()) {
+    if (!d_queue.isPopFrontDisabled()) {
         return 0;                                                     // RETURN
     }
 
-    for (int i = d_threadGroup.numThreads(); i < d_numThreads; ++i)  {
+    for (int i = 0; i < d_numThreads; ++i)  {
         if (0 != startNewThread()) {
+            // Submit a sufficient number of arrivals to the barrier to release
+            // all threads ('d_numThreads + 1');
 
-            releaseWorkerThreads();
+            for (int j = i ; j <= d_numThreads; ++j) {
+                d_barrier.arrive();
+            }
+
             d_threadGroup.joinAll();
             return -1;                                                // RETURN
         }
     }
 
-    waitWorkerThreads();
+    d_queue.enablePopFront();
+    d_queue.enablePushBack();
 
-    d_queue.enable();
-    d_control = e_RUN;
-
-    // 'releaseWorkerThreads' emits a release barrier so that the worker
-    // threads can't return from wait without observing the previous store.
-
-    releaseWorkerThreads();
+    d_barrier.wait();
 
     return 0;
 }
 
-void FixedThreadPool::stop()
-{
-    bslmt::LockGuard<bslmt::Mutex> lock(&d_metaMutex);
-
-    if (e_RUN == d_control.loadRelaxed()) {
-        d_queue.disable();
-        d_control = e_DRAIN;
-
-        // 'interruptWorkerThreads' has an initial acquire barrier (mutex
-        // lock).  Guaranteeing that no instructions in
-        // 'interruptWorkerThreads' will be executed before the previous store.
-
-        interruptWorkerThreads();
-
-        waitWorkerThreads();
-
-        d_control = e_STOP;
-
-        // 'releaseWorkerThreads' emits a release barrier so that the worker
-        // threads can't return from wait without observing the previous store.
-
-        releaseWorkerThreads();
-        d_threadGroup.joinAll();
-    }
-}
 }  // close package namespace
-
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2021 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
