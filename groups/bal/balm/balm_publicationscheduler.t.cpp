@@ -13,16 +13,19 @@
 #include <balm_metricsmanager.h>
 #include <balm_metricsample.h>
 
-#include <bdlmt_timereventscheduler.h>
-#include <bslmt_threadutil.h>
 #include <bdlf_bind.h>
-#include <bslma_testallocator.h>
-#include <bslma_testallocatorexception.h>
-#include <bslma_defaultallocatorguard.h>
+#include <bdlmt_fixedthreadpool.h>
+#include <bdlmt_timereventscheduler.h>
 
 #include <bslmt_barrier.h>
-#include <bdlmt_fixedthreadpool.h>
+#include <bslmt_threadutil.h>
+
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocatorexception.h>
 #include <bslma_testallocator.h>
+
+#include <bslmf_assert.h>
+#include <bslmf_issame.h>
 
 #include <bsl_c_stdio.h>
 #include <bsl_cstddef.h>
@@ -279,6 +282,34 @@ enum {
 // ============================================================================
 //                            CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
+
+                                // ========
+                                // IsVector
+                                // ========
+
+template <class VECTOR, class MEMBER = typename VECTOR::value_type>
+struct IsVector {
+    static const bool value =
+                         bsl::is_same<VECTOR, bsl::vector<MEMBER> >::value
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                      || bsl::is_same<VECTOR, std::pmr::vector<MEMBER> >::value
+#endif
+                      || bsl::is_same<VECTOR, std::vector<MEMBER> >::value;
+};
+
+                                  // ======
+                                  // IsPair
+                                  // ======
+
+template <class PAIR>
+struct IsPair {
+    typedef typename PAIR::first_type  FirstType;
+    typedef typename PAIR::second_type SecondType;
+
+    static const bool value =
+              bsl::is_same<PAIR, bsl::pair<FirstType, SecondType> >::value
+           || bsl::is_same<PAIR, std::pair<FirstType, SecondType> >::value;
+};
 
 // from 'bdlmt_timereventscheduler.t.cpp'.
 void microSleep(int microSeconds, int seconds)
@@ -1014,24 +1045,39 @@ int countUniqueIntervals(const CategoryScheduleOracle& scheduleOracle,
     return static_cast<int>(intervals.size());
 }
 
+template <class SCHEDULE>
 bool equalSchedule(const CategoryScheduleOracle& oracle,
-                   const Schedule&               schedule)
+                   const SCHEDULE&               schedule)
     // Return 'true' if the specified 'oracle' schedule is equivalent to the
     // specified 'scheduler'.  The two values are considered equal if they
     // have the same number of elements and and that for each
     // (category address, interval) pair in 'schedule' there is an equivalent
     // pair in 'oracle'.
 {
+    BSLMF_ASSERT(IsVector<SCHEDULE>::value);
+
+    typedef typename SCHEDULE::value_type  PairType;
+
+    BSLMF_ASSERT(IsPair<PairType>::value);
+
+    typedef typename PairType::first_type  FirstType;
+    typedef typename PairType::second_type SecondType;
+
+    BSLMF_ASSERT((bsl::is_same<FirstType,  const balm::Category *>::value));
+    BSLMF_ASSERT((bsl::is_same<SecondType, bsls::TimeInterval>::    value));
+
     if (oracle.size() != schedule.size()) {
         return false;                                                 // RETURN
     }
-    Schedule::const_iterator it = schedule.begin();
+
+    typename SCHEDULE::const_iterator it = schedule.begin();
     for (; it != schedule.end(); ++it) {
         CategoryScheduleOracle::const_iterator fIt = oracle.find(it->first);
         if (fIt == oracle.end() || (it->second != fIt->second)) {
             return false;                                             // RETURN
         }
     }
+
     return true;
 }
 
@@ -1760,10 +1806,25 @@ int main(int argc, char *argv[])
             //   2. Compare the results of the 'getCategorySchedule' method to
             //      the "oracle" 'CategoryScheduleOracle'
 
-            Schedule schedule(Z);
+            Schedule scheduleBsl(Z);
             ASSERT(static_cast<int>(intervalMap.size()) ==
-                                            MX.getCategorySchedule(&schedule));
-            ASSERT(equalSchedule(intervalMap, schedule));
+                                         MX.getCategorySchedule(&scheduleBsl));
+            ASSERT(equalSchedule(intervalMap, scheduleBsl));
+
+            typedef std::pair<const balm::Category *, bsls::TimeInterval>
+                                                                       PairStd;
+
+            std::vector<PairStd> scheduleStd;
+            ASSERT(static_cast<int>(intervalMap.size()) ==
+                                         MX.getCategorySchedule(&scheduleStd));
+            ASSERT(equalSchedule(intervalMap, scheduleStd));
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            std::pmr::vector<PairStd> schedulePmr;
+            ASSERT(static_cast<int>(intervalMap.size()) ==
+                                         MX.getCategorySchedule(&schedulePmr));
+            ASSERT(equalSchedule(intervalMap, schedulePmr));
+#endif
         }
       } break;
       case 7: {
@@ -1789,7 +1850,7 @@ int main(int argc, char *argv[])
                           << "TESTING MANIPULATOR: cancelAll\n"
                           << "==============================\n";
 
-        bdlmt::TimerEventScheduler  timer(Z);
+        bdlmt::TimerEventScheduler timer(Z);
         balm::MetricsManager       manager(Z);
         balm::MetricRegistry&      registry = manager.metricRegistry();
 

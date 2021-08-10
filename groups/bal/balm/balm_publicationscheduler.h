@@ -223,7 +223,7 @@ class PublicationScheduler {
 
     bslma::Allocator           *d_allocator_p;  // allocator (held, not owned)
 
-
+  private:
     // NOT IMPLEMENTED
     PublicationScheduler(const PublicationScheduler& );
     PublicationScheduler& operator=(const PublicationScheduler& );
@@ -258,7 +258,7 @@ class PublicationScheduler {
         // *locked*.
 
   public:
-    // PUBLIC TRAITS
+    // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(PublicationScheduler,
                                                     bslma::UsesBslmaAllocator);
 
@@ -396,8 +396,16 @@ class PublicationScheduler {
         // return 'false' with no effect.
 
     int getCategorySchedule(
-                 bsl::vector<bsl::pair<const Category *,
-                                       bsls::TimeInterval> >    *result) const;
+                    bsl::vector<bsl::pair<const Category *,
+                                          bsls::TimeInterval> > *result) const;
+    int getCategorySchedule(
+                    std::vector<std::pair<const Category *,
+                                          bsls::TimeInterval> > *result) const;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    int getCategorySchedule(
+                std::pmr::vector<std::pair<const Category *,
+                                           bsls::TimeInterval>> *result) const;
+#endif
         // Load into the specified 'result' a representation of the current
         // schedule for publishing categories being followed by this scheduler
         // and return the number of scheduled categories.  The schedule is

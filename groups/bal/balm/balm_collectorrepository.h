@@ -125,6 +125,10 @@ BSLS_IDENT("$Id: $")
 #include <bsl_memory.h>
 #include <bsl_vector.h>
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+# include <memory_resource>
+#endif
+
 namespace BloombergLP {
 namespace balm {
 
@@ -177,6 +181,23 @@ class CollectorRepository {
 
   private:
     // PRIVATE MANIPULATORS
+    template <class VECTOR>
+    void collectAndResetImp(VECTOR         *records,
+                            const Category *category);
+        // Append to the specified 'records' the collected metric record
+        // values from the collectors in this repository belonging to the
+        // specified 'category'; then reset those collectors to their default
+        // values.
+
+    template <class VECTOR>
+    void collectImp(VECTOR         *records,
+                    const Category *category);
+        // Append to the specified 'records' the collected metric record
+        // values from the collectors in this repository belonging to the
+        // specified 'category'.  Note that this operation does not reset the
+        // managed collectors, so subsequent collection operations will
+        // effectively re-collect the current values.
+
     MetricCollectors& getMetricCollectors(const MetricId& metricId);
         // Return a reference to the modifiable collectors associated with the
         // specified 'metricId'.  If a collection of collectors for the
@@ -204,15 +225,27 @@ class CollectorRepository {
         // Free all the collectors in this repository and destroy this object.
 
     // MANIPULATORS
-    void collectAndReset(bsl::vector<MetricRecord> *records,
-                         const Category            *category);
+    void collectAndReset(bsl::vector<MetricRecord>      *records,
+                         const Category                 *category);
+    void collectAndReset(std::vector<MetricRecord>      *records,
+                         const Category                 *category);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    void collectAndReset(std::pmr::vector<MetricRecord> *records,
+                         const Category                 *category);
+#endif
         // Append to the specified 'records' the collected metric record
         // values from the collectors in this repository belonging to the
         // specified 'category'; then reset those collectors to their default
         // values.
 
-    void collect(bsl::vector<MetricRecord> *records,
-                 const Category            *category);
+    void collect(bsl::vector<MetricRecord>      *records,
+                 const Category                 *category);
+    void collect(std::vector<MetricRecord>      *records,
+                 const Category                 *category);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    void collect(std::pmr::vector<MetricRecord> *records,
+                 const Category                 *category);
+#endif
         // Append to the specified 'records' the collected metric record
         // values from the collectors in this repository belonging to the
         // specified 'category'.  Note that this operation does not reset the
@@ -301,9 +334,19 @@ class CollectorRepository {
         // id returned by the 'MetricRepository' supplied at construction.
 
     int getAddedCollectors(
-               bsl::vector<bsl::shared_ptr<Collector> >         *collectors,
-               bsl::vector<bsl::shared_ptr<IntegerCollector> >  *intCollectors,
-               const MetricId&                                   metricId);
+          bsl::vector<bsl::shared_ptr<Collector> >              *collectors,
+          bsl::vector<bsl::shared_ptr<IntegerCollector> >       *intCollectors,
+          const MetricId&                                        metricId);
+    int getAddedCollectors(
+          std::vector<bsl::shared_ptr<Collector> >              *collectors,
+          std::vector<bsl::shared_ptr<IntegerCollector> >       *intCollectors,
+          const MetricId&                                        metricId);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    int getAddedCollectors(
+          std::pmr::vector<bsl::shared_ptr<Collector> >         *collectors,
+          std::pmr::vector<bsl::shared_ptr<IntegerCollector> >  *intCollectors,
+          const MetricId&                                        metricId);
+#endif
         // Append to the specified 'collectors' and 'intCollectors' shared
         // pointers to any collectors, and integer collectors, collecting
         // values for the metrics identified by the specified 'metricId' that

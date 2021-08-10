@@ -130,6 +130,36 @@ typedef bsl::vector<IColSPtr>     IColSPtrVector;
 //                 GLOBAL CLASSES AND FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
+namespace {
+namespace u {
+
+enum VecType { e_BEGIN,
+               e_BSL = e_BEGIN,
+               e_STD,
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+               e_PMR,
+#endif
+               e_END };
+
+template <class VECTOR>
+typename VECTOR::value_type *vBeginPtr(VECTOR *v)
+    // Return a pointer to the first element of 'v', unless 'v' is empty, in
+    // which case return 0.
+{
+    return v->empty() ? 0 : &(*v)[0];
+}
+
+template <class VECTOR>
+typename VECTOR::value_type *vEndPtr(VECTOR *v)
+    // Return a pointer to the first element of 'v', unless 'v' is empty, in
+    // which case return 0.
+{
+    return v->empty() ? 0 : &(*v)[0] + v->size();
+}
+
+}  // close namespace u
+}  // close unnamed namspace
+
 void stringId(bsl::string *resultId, const char *heading, int value)
     // Populate the specified 'resultId' with a null-terminated string
     // identifier containing the specified 'heading' concatenated with the
@@ -386,7 +416,6 @@ bool vectorEquals(const bsl::vector<T *>&                 lhs,
 
 int main(int argc, char *argv[])
 {
-
     int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
@@ -535,102 +564,145 @@ int main(int argc, char *argv[])
         const int NUM_METRICS = sizeof (METRICS) / sizeof (*METRICS);
         const int  NUM_COLS = 3;
 
-        // Iterator over the category being tested.
-        for (int i = 0; i < NUM_CATEGORIES; ++i) {
-            Obj mX(&reg, Z);
+        for (int vi = u::e_BEGIN; vi < u::e_END; ++vi) {
+            u::VecType vecType = static_cast<u::VecType>(vi);
 
-            // Create collectors for all 3 categories and update them with test
-            // values.
-            for (int j = 0; j < NUM_CATEGORIES; ++j) {
-                const char *CATEGORY = CATEGORIES[j];
-                for (int k = 0; k < NUM_METRICS; ++k) {
-                    balm::MetricId metric = reg.getId(CATEGORY, METRICS[k]);
-                    for (int l = 0; l < NUM_COLS; ++l) {
-                        Col *col   = mX.addCollector(metric).get();
-                        ICol *iCol = mX.addIntegerCollector(metric).get();
-                        if (i == j) {
-                            // We are creating collector values for the metric
-                            // under test ('i == j').
-                            col->setCountTotalMinMax(k,  2 * k, -k, k);
-                            iCol->setCountTotalMinMax(k, 2 * k, -k, k);
-                        }
-                        else {
-                            // This category will not be collected, add a
-                            // value to verify it has not been updated.
-                            col->setCountTotalMinMax(100, 100,  100,  100);
-                            iCol->setCountTotalMinMax(100, 100,  100,  100);
+            // Iterator over the category being tested.
+
+            for (int i = 0; i < NUM_CATEGORIES; ++i) {
+                Obj mX(&reg, Z);
+
+                // Create collectors for all 3 categories and update them with
+                // test values.
+
+                for (int j = 0; j < NUM_CATEGORIES; ++j) {
+                    const char *CATEGORY = CATEGORIES[j];
+                    for (int k = 0; k < NUM_METRICS; ++k) {
+                        balm::MetricId metric = reg.getId(CATEGORY,
+                                                          METRICS[k]);
+                        for (int l = 0; l < NUM_COLS; ++l) {
+                            Col *col   = mX.addCollector(metric).get();
+                            ICol *iCol = mX.addIntegerCollector(metric).get();
+                            if (i == j) {
+                                // We are creating collector values for the
+                                // metric under test ('i == j').
+
+                                col->setCountTotalMinMax(k,  2 * k, -k, k);
+                                iCol->setCountTotalMinMax(k, 2 * k, -k, k);
+                            }
+                            else {
+                                // This category will not be collected, add a
+                                // value to verify it has not been updated.
+
+                                col->setCountTotalMinMax(100, 100,  100,  100);
+                                iCol->setCountTotalMinMax(100, 100,  100, 100);
+                            }
                         }
                     }
                 }
-            }
 
-            // Collect values from the category under test.
-            {
-                const char *CATEGORY = CATEGORIES[i];
-                const balm::Category *category = reg.getCategory(CATEGORY);
+                // Collect values from the category under test.
 
-                bsl::vector<balm::MetricRecord> records(Z);
-                mX.collect(&records, category);
+                {
+                    const char *CATEGORY = CATEGORIES[i];
+                    const balm::Category *category = reg.getCategory(CATEGORY);
 
-                ASSERT(NUM_METRICS == records.size());
-                bsl::sort(records.begin(), records.end(), recordLess);
+                    bsl::vector<balm::MetricRecord> recordsBsl(Z);
+                    std::vector<balm::MetricRecord> recordsStd;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                    std::pmr::vector<balm::MetricRecord> recordsPmr;
+#endif
+                    balm::MetricRecord *recordsBegin = 0, *recordsEnd = 0;
 
-                // Verify the collected values match the expected collected
-                // values.
-                for (int k = 0; k < NUM_METRICS; ++k) {
-                    balm::MetricId metric = reg.getId(CATEGORY, METRICS[k]);
-                    const Rec& R = records[k];
-                    ASSERT(metric == R.metricId());
-                    ASSERT(2 * k * NUM_COLS     == R.count());
-                    ASSERT(4 * k * NUM_COLS == R.total());
-                    ASSERT(-k               == R.min());
-                    ASSERT( k               == R.max());
-                }
+                    switch (vecType) {
+                      case u::e_BSL: {
+                        mX.collect(&recordsBsl, category);
+                        recordsBegin = u::vBeginPtr(&recordsBsl);
+                        recordsEnd   = u::vEndPtr(  &recordsBsl);
+                        ASSERT(NUM_METRICS == recordsBsl.size());
+                      } break;
+                      case u::e_STD: {
+                        mX.collect(&recordsStd, category);
+                        recordsBegin = u::vBeginPtr(&recordsStd);
+                        recordsEnd   = u::vEndPtr(  &recordsStd);
+                        ASSERT(NUM_METRICS == recordsStd.size());
+                      } break;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                      case u::e_PMR: {
+                        mX.collect(&recordsPmr, category);
+                        recordsBegin = u::vBeginPtr(&recordsPmr);
+                        recordsEnd   = u::vEndPtr(  &recordsPmr);
+                        ASSERT(NUM_METRICS == recordsPmr.size());
+                      } break;
+#endif
+                      default: {
+                        ASSERT(0);
+                      }
+                    }
 
-                // Verify the collectors for the test category have been reset.
-                for (int j = 0; j < NUM_METRICS; ++j) {
-                    balm::MetricId metric = reg.getId(CATEGORY,METRICS[j]);
-                    ColSPtrVector cols;
-                    IColSPtrVector iCols;
-                    mX.getAddedCollectors(&cols, &iCols, metric);
-                    for (bsl::size_t k = 0; k < cols.size(); ++k) {
-                        balm::MetricRecord E(metric,  j, 2 * j, -j, j);
-                        balm::MetricRecord r1, r2;
+                    bsl::sort(recordsBegin, recordsEnd, recordLess);
 
-                        cols[k]->load(&r1); iCols[k]->load(&r2);
-                        LOOP3_ASSERT(i, j, k, E == r1);
-                        LOOP3_ASSERT(i, j, k, E == r2);
+                    // Verify the collected values match the expected collected
+                    // values.
+
+                    for (int k = 0; k < NUM_METRICS; ++k) {
+                        balm::MetricId metric = reg.getId(CATEGORY,
+                                                          METRICS[k]);
+                        const Rec& R = recordsBegin[k];
+                        ASSERT(metric == R.metricId());
+                        ASSERT(2 * k * NUM_COLS     == R.count());
+                        ASSERT(4 * k * NUM_COLS == R.total());
+                        ASSERT(-k               == R.min());
+                        ASSERT( k               == R.max());
+                    }
+
+                    // Verify the collectors for the test category have been
+                    // reset.
+
+                    for (int j = 0; j < NUM_METRICS; ++j) {
+                        balm::MetricId metric = reg.getId(CATEGORY,METRICS[j]);
+                        ColSPtrVector cols;
+                        IColSPtrVector iCols;
+                        mX.getAddedCollectors(&cols, &iCols, metric);
+                        for (bsl::size_t k = 0; k < cols.size(); ++k) {
+                            balm::MetricRecord E(metric,  j, 2 * j, -j, j);
+                            balm::MetricRecord r1, r2;
+
+                            cols[k]->load(&r1); iCols[k]->load(&r2);
+                            LOOP3_ASSERT(i, j, k, E == r1);
+                            LOOP3_ASSERT(i, j, k, E == r2);
+                        }
                     }
                 }
-            }
 
-            // Finally verify the collectors for other categories have not been
-            // modified.
-            for (int j = 0; j < NUM_CATEGORIES; ++j) {
-                if (i == j) {
-                    continue;
-                }
-                const char *CATEGORY = CATEGORIES[j];
+                // Finally verify the collectors for other categories have not
+                // been modified.
 
-                for (int k = 0; k < NUM_METRICS; ++k) {
-                    balm::MetricId metric = reg.getId(CATEGORY,METRICS[j]);
-                    ColSPtrVector cols(Z);
-                    IColSPtrVector iCols(Z);
-                    mX.getAddedCollectors(&cols, &iCols, metric);
-                    for (bsl::size_t l = 0; l < cols.size(); ++l) {
-                        balm::MetricRecord r1, r2;
-                        cols[k]->load(&r1); iCols[k]->load(&r2);
-                        ASSERT(metric == r1.metricId());
-                        ASSERT(metric == r2.metricId());
-                        ASSERT(100    == r1.count());
-                        ASSERT(100    == r2.count());
-                        ASSERT(100    == r1.total());
-                        ASSERT(100    == r2.total());
-                        ASSERT(100    == r1.min());
-                        ASSERT(100    == r2.min());
-                        ASSERT(100    == r1.max());
-                        ASSERT(100    == r2.max());
+                for (int j = 0; j < NUM_CATEGORIES; ++j) {
+                    if (i == j) {
+                        continue;
+                    }
+                    const char *CATEGORY = CATEGORIES[j];
 
+                    for (int k = 0; k < NUM_METRICS; ++k) {
+                        balm::MetricId metric = reg.getId(CATEGORY,METRICS[j]);
+                        ColSPtrVector cols(Z);
+                        IColSPtrVector iCols(Z);
+                        mX.getAddedCollectors(&cols, &iCols, metric);
+                        for (bsl::size_t l = 0; l < cols.size(); ++l) {
+                            balm::MetricRecord r1, r2;
+                            cols[k]->load(&r1); iCols[k]->load(&r2);
+                            ASSERT(metric == r1.metricId());
+                            ASSERT(metric == r2.metricId());
+                            ASSERT(100    == r1.count());
+                            ASSERT(100    == r2.count());
+                            ASSERT(100    == r1.total());
+                            ASSERT(100    == r2.total());
+                            ASSERT(100    == r1.min());
+                            ASSERT(100    == r2.min());
+                            ASSERT(100    == r1.max());
+                            ASSERT(100    == r2.max());
+                        }
                     }
                 }
             }
@@ -953,98 +1025,137 @@ int main(int argc, char *argv[])
         const int NUM_METRICS = sizeof (METRICS) / sizeof (*METRICS);
         const int  NUM_COLS = 3;
 
-        // Iterator over the category being tested.
-        for (int i = 0; i < NUM_CATEGORIES; ++i) {
-            Obj mX(&reg, Z);
+        for (int vi = u::e_BEGIN; vi < u::e_END; ++vi) {
+            u::VecType vecType = static_cast<u::VecType>(vi);
 
-            // Create collectors for all 3 categories and update them with test
-            // values.
-            for (int j = 0; j < NUM_CATEGORIES; ++j) {
-                const char *CATEGORY = CATEGORIES[j];
-                for (int k = 0; k < NUM_METRICS; ++k) {
-                    balm::MetricId metric = reg.getId(CATEGORY, METRICS[k]);
-                    for (int l = 0; l < NUM_COLS; ++l) {
-                        Col *col   = mX.addCollector(metric).get();
-                        ICol *iCol = mX.addIntegerCollector(metric).get();
-                        if (i == j) {
-                            const int  M = (k % 2 == 0) ? 0 : 10 * (k + 1);
-                            const int IM = (k % 2 == 1) ? 0 : 10 * (k + 1);
-                            col->setCountTotalMinMax(k+1, 2*(k+1), -M, M);
-                            iCol->setCountTotalMinMax(k+1, 2*(k+1), -IM, IM);
-                        }
-                        else {
-                            col->setCountTotalMinMax(100, 100,  100,  100);
-                            iCol->setCountTotalMinMax(100, 100,  100,  100);
+            // Iterator over the category being tested.
+
+            for (int i = 0; i < NUM_CATEGORIES; ++i) {
+                Obj mX(&reg, Z);
+
+                // Create collectors for all 3 categories and update them with
+                // test values.
+
+                for (int j = 0; j < NUM_CATEGORIES; ++j) {
+                    const char *CATEGORY = CATEGORIES[j];
+                    for (int k = 0; k < NUM_METRICS; ++k) {
+                        balm::MetricId metric = reg.getId(CATEGORY,
+                                                          METRICS[k]);
+                        for (int l = 0; l < NUM_COLS; ++l) {
+                            Col *col   = mX.addCollector(metric).get();
+                            ICol *iCol = mX.addIntegerCollector(metric).get();
+                            if (i == j) {
+                                const int  M = (k % 2 == 0) ? 0 : 10 * (k + 1);
+                                const int IM = (k % 2 == 1) ? 0 : 10 * (k + 1);
+                                col->setCountTotalMinMax(k+1, 2*(k+1), -M, M);
+                                iCol->setCountTotalMinMax(k+1, 2*(k+1),-IM,IM);
+                            }
+                            else {
+                                col->setCountTotalMinMax(100, 100,  100,  100);
+                                iCol->setCountTotalMinMax(100, 100,  100, 100);
+                            }
                         }
                     }
                 }
-            }
 
-            // Collect values from the category under test.
-            {
-                const char *CATEGORY = CATEGORIES[i];
-                const balm::Category *category = reg.getCategory(CATEGORY);
+                // Collect values from the category under test.
+                {
+                    const char *CATEGORY = CATEGORIES[i];
+                    const balm::Category *category = reg.getCategory(CATEGORY);
 
-                bsl::vector<balm::MetricRecord> records(Z);
-                mX.collectAndReset(&records, category);
+                    bsl::vector<balm::MetricRecord> recordsBsl(Z);
+                    std::vector<balm::MetricRecord> recordsStd;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                    std::pmr::vector<balm::MetricRecord> recordsPmr;
+#endif
+                    balm::MetricRecord *recordsBegin = 0, *recordsEnd = 0;
 
-                ASSERT(NUM_METRICS == records.size());
-                bsl::sort(records.begin(), records.end(), recordLess);
+                    switch (vecType) {
+                      case u::e_BSL: {
+                        mX.collectAndReset(&recordsBsl, category);
+                        recordsBegin = u::vBeginPtr(&recordsBsl);
+                        recordsEnd   = u::vEndPtr(  &recordsBsl);
+                        ASSERT(NUM_METRICS == recordsBsl.size());
+                      } break;
+                      case u::e_STD: {
+                        mX.collectAndReset(&recordsStd, category);
+                        recordsBegin = u::vBeginPtr(&recordsStd);
+                        recordsEnd   = u::vEndPtr(  &recordsStd);
+                        ASSERT(NUM_METRICS == recordsStd.size());
+                      } break;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                      case u::e_PMR: {
+                        mX.collectAndReset(&recordsPmr, category);
+                        recordsBegin = u::vBeginPtr(&recordsPmr);
+                        recordsEnd   = u::vEndPtr(  &recordsPmr);
+                        ASSERT(NUM_METRICS == recordsPmr.size());
+                      } break;
+#endif
+                      default: {
+                        ASSERT(0);
+                      }
+                    }
 
-                // Verify the collected values match the expected collected
-                // values.
-                for (int k = 0; k < NUM_METRICS; ++k) {
-                    balm::MetricId metric = reg.getId(CATEGORY, METRICS[k]);
-                    const Rec& R = records[k];
-                    ASSERT(metric == R.metricId());
-                    ASSERT(2 * (k + 1) * NUM_COLS   == R.count());
-                    ASSERT(4 * (k + 1) * NUM_COLS   == R.total());
-                    ASSERT(-10 * (k + 1)            == R.min());
-                    ASSERT( 10 * (k + 1)            == R.max());
-                }
+                    bsl::sort(recordsBegin, recordsEnd, recordLess);
 
-                // Verify the collectors for the test category have been reset.
-                for (int j = 0; j < NUM_METRICS; ++j) {
-                    balm::MetricId metric = reg.getId(CATEGORY,METRICS[j]);
-                    ColSPtrVector cols;
-                    IColSPtrVector iCols;
-                    mX.getAddedCollectors(&cols, &iCols, metric);
-                    for (bsl::size_t k = 0; k < cols.size(); ++k) {
-                        balm::MetricRecord r1, r2;
-                        cols[k]->load(&r1); iCols[k]->load(&r2);
-                        ASSERT(balm::MetricRecord(metric) == r1);
-                        ASSERT(balm::MetricRecord(metric) == r2);
+                    // Verify the collected values match the expected collected
+                    // values.
+                    for (int k = 0; k < NUM_METRICS; ++k) {
+                        balm::MetricId metric = reg.getId(CATEGORY,
+                                                          METRICS[k]);
+                        const Rec& R = recordsBegin[k];
+                        ASSERT(metric == R.metricId());
+                        ASSERT(2 * (k + 1) * NUM_COLS   == R.count());
+                        ASSERT(4 * (k + 1) * NUM_COLS   == R.total());
+                        ASSERT(-10 * (k + 1)            == R.min());
+                        ASSERT( 10 * (k + 1)            == R.max());
+                    }
+
+                    // Verify the collectors for the test category have been
+                    // reset.
+
+                    for (int j = 0; j < NUM_METRICS; ++j) {
+                        balm::MetricId metric = reg.getId(CATEGORY,METRICS[j]);
+                        ColSPtrVector cols;
+                        IColSPtrVector iCols;
+                        mX.getAddedCollectors(&cols, &iCols, metric);
+                        for (bsl::size_t k = 0; k < cols.size(); ++k) {
+                            balm::MetricRecord r1, r2;
+                            cols[k]->load(&r1); iCols[k]->load(&r2);
+                            ASSERT(balm::MetricRecord(metric) == r1);
+                            ASSERT(balm::MetricRecord(metric) == r2);
+                        }
                     }
                 }
-            }
 
-            // Finally verify the collectors for other categories have not been
-            // modified.
-            for (int j = 0; j < NUM_CATEGORIES; ++j) {
-                if (i == j) {
-                    continue;
-                }
-                const char *CATEGORY = CATEGORIES[j];
+                // Finally verify the collectors for other categories have not
+                // been modified.
 
-                for (int k = 0; k < NUM_METRICS; ++k) {
-                    balm::MetricId metric = reg.getId(CATEGORY,METRICS[j]);
-                    ColSPtrVector cols(Z);
-                    IColSPtrVector iCols(Z);
-                    mX.getAddedCollectors(&cols, &iCols, metric);
-                    for (bsl::size_t l = 0; l < cols.size(); ++l) {
-                        balm::MetricRecord r1, r2;
-                        cols[k]->load(&r1); iCols[k]->load(&r2);
-                        ASSERT(metric == r1.metricId());
-                        ASSERT(metric == r2.metricId());
-                        ASSERT(100    == r1.count());
-                        ASSERT(100    == r2.count());
-                        ASSERT(100    == r1.total());
-                        ASSERT(100    == r2.total());
-                        ASSERT(100    == r1.min());
-                        ASSERT(100    == r2.min());
-                        ASSERT(100    == r1.max());
-                        ASSERT(100    == r2.max());
+                for (int j = 0; j < NUM_CATEGORIES; ++j) {
+                    if (i == j) {
+                        continue;
+                    }
+                    const char *CATEGORY = CATEGORIES[j];
 
+                    for (int k = 0; k < NUM_METRICS; ++k) {
+                        balm::MetricId metric = reg.getId(CATEGORY,METRICS[j]);
+                        ColSPtrVector cols(Z);
+                        IColSPtrVector iCols(Z);
+                        mX.getAddedCollectors(&cols, &iCols, metric);
+                        for (bsl::size_t l = 0; l < cols.size(); ++l) {
+                            balm::MetricRecord r1, r2;
+                            cols[k]->load(&r1); iCols[k]->load(&r2);
+                            ASSERT(metric == r1.metricId());
+                            ASSERT(metric == r2.metricId());
+                            ASSERT(100    == r1.count());
+                            ASSERT(100    == r2.count());
+                            ASSERT(100    == r1.total());
+                            ASSERT(100    == r2.total());
+                            ASSERT(100    == r1.min());
+                            ASSERT(100    == r2.min());
+                            ASSERT(100    == r1.max());
+                            ASSERT(100    == r2.max());
+                        }
                     }
                 }
             }

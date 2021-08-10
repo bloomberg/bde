@@ -14,16 +14,20 @@ BSLS_IDENT_RCSID(balm_publicationscheduler_cpp,"$Id$ $CSID$")
 
 #include <balm_metricsmanager.h>
 
-#include <bslmt_mutex.h>
-#include <bslmt_lockguard.h>
+#include <bdlb_print.h>
 #include <bdlmt_timereventscheduler.h>
 #include <bdlf_bind.h>
 #include <bdlt_currenttime.h>
 
-#include <bsls_assert.h>
+#include <bslmt_mutex.h>
+#include <bslmt_lockguard.h>
 
 #include <bslma_default.h>
-#include <bdlb_print.h>
+
+#include <bslmf_assert.h>
+#include <bslmf_issame.h>
+
+#include <bsls_assert.h>
 
 #include <bsl_ostream.h>
 #include <bsl_set.h>
@@ -31,15 +35,38 @@ BSLS_IDENT_RCSID(balm_publicationscheduler_cpp,"$Id$ $CSID$")
 #include <bsl_cstring.h>
 #include <bsl_algorithm.h>
 
-namespace BloombergLP {
-
-namespace balm {
-
 namespace {
+namespace u {
 
-// ============================================================================
-//                            INLINE DEFINITIONS
-// ============================================================================
+using namespace BloombergLP;
+
+                                // ========
+                                // IsVector
+                                // ========
+
+template <class VECTOR, class MEMBER = typename VECTOR::value_type>
+struct IsVector {
+    static const bool value =
+                         bsl::is_same<VECTOR, bsl::vector<MEMBER> >::value
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                      || bsl::is_same<VECTOR, std::pmr::vector<MEMBER> >::value
+#endif
+                      || bsl::is_same<VECTOR, std::vector<MEMBER> >::value;
+};
+
+                                  // ======
+                                  // IsPair
+                                  // ======
+
+template <class PAIR>
+struct IsPair {
+    typedef typename PAIR::first_type  FirstType;
+    typedef typename PAIR::second_type SecondType;
+
+    static const bool value =
+              bsl::is_same<PAIR, bsl::pair<FirstType, SecondType> >::value
+           || bsl::is_same<PAIR, std::pair<FirstType, SecondType> >::value;
+};
 
 inline
 bsls::TimeInterval makeInvalidInterval()
@@ -50,21 +77,25 @@ bsls::TimeInterval makeInvalidInterval()
 }
 
 struct ScheduleElementSort {
-   // A functor to sort schedule elements alphabetically by category name.
+    // A functor to sort schedule elements alphabetically by category name.
 
-   typedef bsl::pair<const balm::Category *,
-                     bsls::TimeInterval> ScheduleElement;
+    // TYPES
+    typedef bsl::pair<const balm::Category *,
+                      bsls::TimeInterval> ScheduleElement;
 
-   bool operator()(const ScheduleElement& lhs, const ScheduleElement& rhs)
-   {
-       return bsl::strcmp(lhs.first->name(), rhs.first->name()) < 0;
-   }
+    // ACCESSOR
+    bool operator()(const ScheduleElement& lhs, const ScheduleElement& rhs)
+                                                                          const
+    {
+        return bsl::strcmp(lhs.first->name(), rhs.first->name()) < 0;
+    }
 };
 
 struct CategorySort {
     // A functor to sort categories alphabetically.
 
-    bool operator()(const balm::Category *lhs, const balm::Category *rhs)
+    // ACCESSOR
+    bool operator()(const balm::Category *lhs, const balm::Category *rhs) const
     {
             return bsl::strcmp(lhs->name(), rhs->name()) < 0;
     }
@@ -84,7 +115,7 @@ bsl::ostream& printCategorySet(
         categoryList.push_back(*it);
     }
 
-    bsl::sort(categoryList.begin(), categoryList.end(), CategorySort());
+    bsl::sort(categoryList.begin(), categoryList.end(), u::CategorySort());
     bsl::vector<const balm::Category *>::const_iterator clIt =
                                                           categoryList.begin();
     for (; clIt != categoryList.end(); ++clIt) {
@@ -94,7 +125,50 @@ bsl::ostream& printCategorySet(
     return stream;
 }
 
+typedef bsl::map<const balm::Category *, bsls::TimeInterval>   Categories;
+
+template <class VECTOR>
+int getCategoryScheduleImp(VECTOR               *result,
+                           bslmt::Mutex         *mutex,
+                           const u::Categories&  categories)
+    // Load into the specified 'result' the sequence of
+    // 'Category *, TimeInterval' pairs from the specified 'Categories'.  Use
+    // the specified 'mutex' for synchronization.  The schedule is represented
+    // using a series of (category address, time interval) pairs; each pair in
+    // the series indicates the periodic time interval that the associated
+    // category will be published.
+{
+    BSLMF_ASSERT(u::IsVector<VECTOR>::value);
+
+    typedef typename VECTOR::value_type    PairType;
+
+    BSLMF_ASSERT(u::IsPair<PairType>::value);
+
+    typedef typename PairType::first_type  FirstType;
+    typedef typename PairType::second_type SecondType;
+
+    BSLMF_ASSERT((bsl::is_same<FirstType,  const balm::Category *>::value));
+    BSLMF_ASSERT((bsl::is_same<SecondType, bsls::TimeInterval>::    value));
+
+    bslmt::LockGuard<bslmt::Mutex> guard(mutex);
+
+    result->clear();
+    result->reserve(categories.size());
+
+    u::Categories::const_iterator catIt = categories.begin();
+    for (; catIt != categories.end(); ++catIt) {
+        result->push_back(PairType(catIt->first, catIt->second));
+    }
+
+    return static_cast<int>(categories.size());
+}
+
+
+}  // close namespace u
 }  // close unnamed namespace
+
+namespace BloombergLP {
+namespace balm {
 
                    // =====================================
                    // struct PublicationScheduler_ClockData
@@ -132,13 +206,13 @@ class PublicationScheduler_ClockData {
     bool                       d_default;     // whether this is the default
                                               // scheduled publication
 
-    bsl::set<const Category *>
-                               d_nonDefaultCategories;
+    bsl::set<const Category *> d_nonDefaultCategories;
                                               // if 'd_default' is 'true', the
                                               // set of categories that should
                                               // not be published as part of
                                               // the default publication
 
+  private:
     // NOT IMPLEMENTED
     PublicationScheduler_ClockData(const PublicationScheduler_ClockData &);
     PublicationScheduler_ClockData& operator=(
@@ -150,8 +224,7 @@ class PublicationScheduler_ClockData {
                                    bslma::UsesBslmaAllocator);
 
     // CREATORS
-    explicit PublicationScheduler_ClockData(
-                                             bslma::Allocator *basicAllocator);
+    explicit PublicationScheduler_ClockData(bslma::Allocator *basicAllocator);
         // Create a 'ClockData' object.  By default 'handle()' is invalid,
         // 'categories()' and 'nonDefaultCategories()' are empty, and
         // 'defaultClock()' is 'false'.
@@ -245,47 +318,46 @@ PublicationScheduler_ClockData::nonDefaultCategories()
                     // ===================================
 
 class PublicationScheduler_Proctor {
-   // This class implements a proctor that, unless 'release()' is called, sets
-   // the 'PublicationScheduler' object supplied at construction to its default
-   // state.  On construction a proctor object is provided the address of a
-   // 'PublicationScheduler' object, on destruction, if 'release()' has not
-   // been called, the proctor will clear all of the scheduler's internal
-   // state and cancel any managed clocks with the underlying
-   // 'bdlmt::TimerEventScheduler'.   If 'release()' is called on a proctor
-   // object, then the proctor object's destructor will have no effect.  Note
-   // that the 'PublicationScheduler_Proctor' class is a friend of
-   // 'PublicationScheduler' and has access to a scheduler's private data
-   // members.
+    // This class implements a proctor that, unless 'release()' is called, sets
+    // the 'PublicationScheduler' object supplied at construction to its
+    // default state.  On construction a proctor object is provided the address
+    // of a 'PublicationScheduler' object, on destruction, if 'release()' has
+    // not been called, the proctor will clear all of the scheduler's internal
+    // state and cancel any managed clocks with the underlying
+    // 'bdlmt::TimerEventScheduler'.  If 'release()' is called on a proctor
+    // object, then the proctor object's destructor will have no effect.  Note
+    // that the 'PublicationScheduler_Proctor' class is a friend of
+    // 'PublicationScheduler' and has access to a scheduler's private data
+    // members.
 
-   // DATA
-   PublicationScheduler *d_scheduler_p;  // managed scheduler (held, not
-                                              // owned)
+    // DATA
+    PublicationScheduler *d_scheduler_p; // managed scheduler (held, not owned)
 
-   // NOT IMPLEMENTED
-   PublicationScheduler_Proctor(const PublicationScheduler_Proctor&);
-   PublicationScheduler_Proctor& operator=(
-                                     const PublicationScheduler_Proctor&);
+   private:
+    // NOT IMPLEMENTED
+    PublicationScheduler_Proctor(const PublicationScheduler_Proctor&);
+    PublicationScheduler_Proctor& operator=(
+                                          const PublicationScheduler_Proctor&);
 
-  public:
+   public:
+    // CREATORS
+    explicit PublicationScheduler_Proctor(PublicationScheduler *scheduler);
+        // Create a proctor object that, unless 'release()' is called, will, on
+        // destruction, set the specified 'scheduler' to its default state and
+        // cancel any timer events managed by 'scheduler' with the underlying
+        // 'bdlmt::TimerEventScheduler' object.
 
-   // CREATORS
-   PublicationScheduler_Proctor(PublicationScheduler *scheduler);
-       // Create a proctor object that, unless 'release()' is called, will, on
-       // destruction, set the specified 'scheduler' to its default state and
-       // cancel any timer events managed by 'scheduler' with the underlying
-       // 'bdlmt::TimerEventScheduler' object.
+    ~PublicationScheduler_Proctor();
+        // Unless 'release()' has been called, clear all the internal state
+        // variables of 'PublicationScheduler' object supplied at construction
+        // and cancel any managed clocks with the underlying
+        // 'bdlmt::TimerEventScheduler'.
 
-   ~PublicationScheduler_Proctor();
-       // Unless 'release()' has been called, clear all the internal state
-       // variables of 'PublicationScheduler' object supplied at construction
-       // and cancel any managed clocks with the underlying
-       // 'bdlmt::TimerEventScheduler'.
-
-   // MANIPULATORS
-   void release();
-       // Release from management the 'PublicationScheduler' object supplied
-       // at construction.  After invoking this method, this object's
-       // destructor will have no effect.
+    // MANIPULATORS
+    void release();
+        // Release from management the 'PublicationScheduler' object supplied
+        // at construction.  After invoking this method, this object's
+        // destructor will have no effect.
 };
 
                     // -----------------------------------
@@ -316,7 +388,7 @@ PublicationScheduler_Proctor::~PublicationScheduler_Proctor()
                                                   it->second->handle(), true);
             }
         }
-        d_scheduler_p->d_defaultInterval = makeInvalidInterval();
+        d_scheduler_p->d_defaultInterval = u::makeInvalidInterval();
         d_scheduler_p->d_clocks.clear();
         d_scheduler_p->d_categories.clear();
     }
@@ -388,7 +460,7 @@ void PublicationScheduler::cancelCategory(
         // default schedule clock's list of non-default categories (indicating
         // the category should now be published as part of the default
         // publication).
-        if (d_defaultInterval != makeInvalidInterval()) {
+        if (d_defaultInterval != u::makeInvalidInterval()) {
             Clocks::iterator dfltIt = d_clocks.find(d_defaultInterval);
             BSLS_ASSERT(d_clocks.end() != dfltIt);
 
@@ -405,12 +477,12 @@ int PublicationScheduler::cancelDefaultSchedule()
     // interval value, and update the associated
     // 'PublicationScheduler_ClockData' object to reflect that change.
 
-    if (d_defaultInterval == makeInvalidInterval()) {
+    if (d_defaultInterval == u::makeInvalidInterval()) {
         return -1;                                                    // RETURN
     }
 
     bsls::TimeInterval interval = d_defaultInterval;
-    d_defaultInterval = makeInvalidInterval();
+    d_defaultInterval = u::makeInvalidInterval();
 
     Clocks::iterator clockIt = d_clocks.find(interval);
     BSLS_ASSERT(clockIt != d_clocks.end());
@@ -443,7 +515,7 @@ PublicationScheduler::PublicationScheduler(
 , d_manager_p(metricsManager)
 , d_categories(basicAllocator)
 , d_clocks(basicAllocator)
-, d_defaultInterval(makeInvalidInterval())
+, d_defaultInterval(u::makeInvalidInterval())
 , d_mutex()
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
@@ -512,7 +584,8 @@ void PublicationScheduler::scheduleCategory(
     // 'category' to the set of non-default categories maintained by the
     // default schedule's clock (indicating that 'category' should no longer be
     // published as part of the default publication).
-    if (!clock->defaultClock() && d_defaultInterval != makeInvalidInterval()) {
+    if (!clock->defaultClock() && d_defaultInterval !=
+                                                    u::makeInvalidInterval()) {
         Clocks::iterator dfltIt = d_clocks.find(d_defaultInterval);
         BSLS_ASSERT(d_clocks.end() != dfltIt);
 
@@ -610,7 +683,7 @@ void PublicationScheduler::cancelAll()
     for (; it != d_clocks.end(); ++it) {
         d_scheduler_p->cancelClock(it->second->handle(), true);
     }
-    d_defaultInterval = makeInvalidInterval();
+    d_defaultInterval = u::makeInvalidInterval();
     d_clocks.clear();
     d_categories.clear();
 }
@@ -639,7 +712,7 @@ bool
 PublicationScheduler::getDefaultSchedule(bsls::TimeInterval *result) const
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
-    if (d_defaultInterval == makeInvalidInterval()) {
+    if (d_defaultInterval == u::makeInvalidInterval()) {
         return false;                                                 // RETURN
     }
     *result = d_defaultInterval;
@@ -650,15 +723,26 @@ int PublicationScheduler::getCategorySchedule(
                      bsl::vector<bsl::pair<const Category *,
                                            bsls::TimeInterval> > *result) const
 {
-    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
-    result->clear();
-    result->reserve(d_categories.size());
-    Categories::const_iterator catIt = d_categories.begin();
-    for (; catIt != d_categories.end(); ++catIt) {
-        result->push_back(bsl::make_pair(catIt->first, catIt->second));
-    }
-    return static_cast<int>(d_categories.size());
+    return u::getCategoryScheduleImp(result, &d_mutex, d_categories);
 }
+
+
+int PublicationScheduler::getCategorySchedule(
+                     std::vector<std::pair<const Category *,
+                                           bsls::TimeInterval> > *result) const
+{
+    return u::getCategoryScheduleImp(result, &d_mutex, d_categories);
+}
+
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+int PublicationScheduler::getCategorySchedule(
+                 std::pmr::vector<std::pair<const Category *,
+                                            bsls::TimeInterval>> *result) const
+{
+    return u::getCategoryScheduleImp(result, &d_mutex, d_categories);
+}
+#endif
 
 bsl::ostream&
 PublicationScheduler::print(bsl::ostream& stream,
@@ -678,7 +762,7 @@ PublicationScheduler::print(bsl::ostream& stream,
     for (; catIt != d_categories.end(); ++catIt) {
         schedule.push_back(bsl::make_pair(catIt->first, catIt->second));
     }
-    bsl::sort(schedule.begin(), schedule.end(), ScheduleElementSort());
+    bsl::sort(schedule.begin(), schedule.end(), u::ScheduleElementSort());
 
     char SEP = (level <= 0) ? ' ' : '\n';
     bdlb::Print::indent(stream, level, spacesPerLevel);
@@ -686,7 +770,7 @@ PublicationScheduler::print(bsl::ostream& stream,
     stream << "[" << SEP;
     bdlb::Print::indent(stream, level + 1, spacesPerLevel);
     stream << "default interval: ";
-    if (d_defaultInterval != makeInvalidInterval()) {
+    if (d_defaultInterval != u::makeInvalidInterval()) {
         stream << d_defaultInterval << SEP;
     }
     else {
@@ -719,12 +803,12 @@ PublicationScheduler::print(bsl::ostream& stream,
 
         bdlb::Print::indent(stream, level + 3, spacesPerLevel);
         stream << "categories: [";
-        printCategorySet(stream, clock->categories());
+        u::printCategorySet(stream, clock->categories());
         stream << "] " << SEP;
 
         bdlb::Print::indent(stream, level + 3, spacesPerLevel);
         stream << "excluded categories: [";
-        printCategorySet(stream, clock->nonDefaultCategories());
+        u::printCategorySet(stream, clock->nonDefaultCategories());
         stream << "] " << SEP;
 
         bdlb::Print::indent(stream, level + 2, spacesPerLevel);

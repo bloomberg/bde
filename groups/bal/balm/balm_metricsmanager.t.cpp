@@ -199,6 +199,45 @@ enum {
 //                            CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
 
+namespace {
+namespace u {
+
+enum LibType { e_BEGIN,
+               e_BSL = e_BEGIN,
+               e_STD,
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+               e_PMR,
+#endif
+               e_END
+};
+
+template <class VECTOR>
+const typename VECTOR::value_type *vDataBegin(const VECTOR& v)
+{
+    return v.empty() ? 0 : &v[0];
+}
+
+template <class VECTOR>
+const typename VECTOR::value_type *vDataEnd(const VECTOR& v)
+{
+    return v.empty() ? 0 : &v[0] + v.size();
+}
+
+}  // close namespace u
+
+bsl::ostream& operator<<(bsl::ostream& stream, u::LibType lt)
+{
+    stream << (u::e_BSL == lt ? "BSL"
+             : u::e_STD == lt ? "STD"
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+             : u::e_PMR == lt ? "PMR"
+#endif
+             : "UNKNOWN");
+    return stream;
+}
+
+}  // close unnamed namespace
+
 inline
 bool recordLess(const balm::MetricRecord& lhs, const balm::MetricRecord& rhs)
     // Return 'true' if the specified 'lhs' is less than (ordered before) the
@@ -284,6 +323,7 @@ class TestCallback {
 
     bslma::Allocator   *d_allocator_p;    // allocator (held, not owned)
 
+  private:
     // NOT IMPLEMENTED
     TestCallback(const TestCallback& );
     TestCallback& operator=(const TestCallback& );
@@ -440,7 +480,7 @@ class LockAndModifyWorker {
     static void dummyCallback(bsl::vector<balm::MetricRecord>*,
                               bool) {}
 
-public:
+  public:
     // CREATORS
     LockAndModifyWorker(bslmt::Mutex *mutex,
                         balm::MetricsManager *obj)
@@ -449,7 +489,8 @@ public:
     , d_myCategory_p(obj->metricRegistry().addCategory("LOCKANDMODIFYWORKER"))
     {}
 
-    int start() {
+    int start()
+    {
         d_done = 0;
         return bslmt::ThreadUtil::create(
                       &d_thread,
@@ -457,14 +498,15 @@ public:
                                              this));
     }
 
-    void stop() {
+    void stop()
+    {
         d_done = 1;
         bslmt::ThreadUtil::join(d_thread);
     }
 };
 
-void
-LockAndModifyWorker::worker() {
+void LockAndModifyWorker::worker()
+{
     while (!d_done) {
         bslmt::LockGuard<bslmt::Mutex> guard(d_mutex_p);
 
@@ -486,9 +528,10 @@ class LockingPublisher : public balm::Publisher {
 
     bslmt::Mutex *d_mutex_p;
 
-public:
+  public:
 
     // CREATORS
+    explicit
     LockingPublisher(bslmt::Mutex *mutex)
     : d_mutex_p(mutex)
     {}
@@ -498,8 +541,9 @@ public:
        // Lock and unlock the mutex specified at construction.
 };
 
-void
-LockingPublisher::publish(const balm::MetricSample&) {
+// MANIPULATORS
+void LockingPublisher::publish(const balm::MetricSample&)
+{
     bslmt::LockGuard<bslmt::Mutex> guard(d_mutex_p);
 }
 
@@ -538,6 +582,7 @@ class TestPublisher : public balm::Publisher {
 
     bsl::set<bsls::TimeInterval>    d_elapsedTimes;    // last elapsed times
 
+  private:
     // NOT IMPLEMENTED
     TestPublisher(const TestPublisher& );
     TestPublisher& operator=(const TestPublisher& );
@@ -545,6 +590,7 @@ class TestPublisher : public balm::Publisher {
   public:
 
     // CREATORS
+    explicit
     TestPublisher(bslma::Allocator *allocator);
         // Create a test publisher with 0 'invocations()' and the default
         // constructed 'lastSample()' using the specified 'allocator' to
@@ -566,7 +612,7 @@ class TestPublisher : public balm::Publisher {
         // so the returned sample is equivalent but not equal to the published
         // sample.
 
-   void reset();
+    void reset();
         // Set 'invocations()' to 0, clear the 'lastRecords()' sequence.
 
     // ACCESSORS
@@ -774,12 +820,12 @@ class CombinationIterator {
         // iterator to the next combination of value and return 'true',
         // otherwise return 'false'.
 
-     // ACCESSORS
-     const bsl::vector<T>& current() const;
+    // ACCESSORS
+    const bsl::vector<T>& current() const;
         // Return a reference to the non-modifiable combination of
         // values that the iterator currently is positioned at.
 
-     bool includesElement(int index) const;
+    bool includesElement(int index) const;
         // Return 'true' if the 'current()' combination contains the value at
         // the specified 'index' in the sequence supplied at construction.
 
@@ -812,6 +858,7 @@ CombinationIterator<T>::CombinationIterator(const bsl::vector<T>&  values,
 {
     BSLS_ASSERT(values.size() > 0);
     BSLS_ASSERT(values.size() < 32);
+
     d_currentCombination.reserve(d_values.size());
     createCurrentCombination();
 }
@@ -910,7 +957,7 @@ class ConcurrencyTest {
 
     ~ConcurrencyTest() {}
 
-    //  MANIPULATORS
+    // MANIPULATORS
     void runTest();
         // Run the test.
 };
@@ -930,6 +977,7 @@ void ConcurrencyTest::execute()
     for (int i = 0; i < 10; ++i) {
 
         // Create 2 strings unique for this iteration.
+
         bsl::string iterStringA, iterStringB;
         stringId(&iterStringA, "A", i); stringId(&iterStringB, "B", i);
 
@@ -937,6 +985,7 @@ void ConcurrencyTest::execute()
         const char *B_VAL = iterStringB.c_str();
 
         // Create 2 strings unique across all threads & iterations.
+
         bsl::string uniqueString1, uniqueString2;
         stringId(&uniqueString1,
                  "U1",
@@ -1166,12 +1215,14 @@ void ConcurrencyTest::runTest()
         // PRIVATE DATA
         bsl::ostream& d_stream; // output stream (held, not owned)
 
+      private:
         // NOT IMPLEMENTED
         SimpleStreamPublisher(const SimpleStreamPublisher& );
         SimpleStreamPublisher& operator=(const SimpleStreamPublisher& );
 
-    public:
+      public:
         // CREATORS
+        explicit
         SimpleStreamPublisher(bsl::ostream& stream);
             // Create this publisher that will public metrics to the specified
             // 'stream' using the specified 'registry' to identify published
@@ -1258,6 +1309,7 @@ void ConcurrencyTest::runTest()
 // 'balm::DefaultMetricManager' (see 'balm_defaultmetricsmanager' and
 // 'balm_metric') rather than explicitly pass the address of 'manager'.
 //..
+        explicit
         EventHandler(balm::MetricsManager *manager)
         : d_eventMessageSizes_p(
                manager->collectorRepository().getDefaultCollector(
@@ -1277,17 +1329,18 @@ void ConcurrencyTest::runTest()
             // 'eventMessage' .  Return 0 on success, and a non-zero value
             // if there was an error handling the event.
         {
-           int returnCode = 0;
-           d_eventMessageSizes_p->update(
+            int returnCode = 0;
+            d_eventMessageSizes_p->update(
                                      static_cast<double>(eventMessage.size()));
 
-    // ...    (Process the event)
-           (void)eventId;
+            // ...    (Process the event)
 
-           if (0 != returnCode) {
-               d_eventFailures_p->update(1);
-           }
-           return returnCode;
+            (void)eventId;
+
+            if (0 != returnCode) {
+                d_eventFailures_p->update(1);
+            }
+            return returnCode;
         }
 
     // ...
@@ -1323,7 +1376,8 @@ void ConcurrencyTest::runTest()
 
         balm::MetricsManager *d_metricsManager_p;  // metrics manager (held,
                                                    // but not owned)
-     // ...
+
+        // ...
 
         // PRIVATE MANIPULATORS
         void collectMetricsCb(bsl::vector<balm::MetricRecord> *records,
@@ -1338,6 +1392,7 @@ void ConcurrencyTest::runTest()
 
       public:
         // CREATORS
+        explicit
         EventHandlerWithCallback(balm::MetricsManager *manager,
                                  bslma::Allocator    *basicAllocator = 0);
             // Initialize this object to use the specified 'manager' to record
@@ -1354,8 +1409,7 @@ void ConcurrencyTest::runTest()
             // 'eventMessage'.  Return 0 on success, and a non-zero value if
             // there was an error processing the event.
 
-    // ...
-
+        // ...
     };
 //..
 // In the implementation of 'EventHandlerWithCallback' below, we ensure that
@@ -1788,7 +1842,10 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) cout << "\tTest collectSample() for all categories"
                               << endl;
-        {
+
+        for (int li = u::e_BEGIN; li < u::e_END; ++li) {
+            const u::LibType libType = static_cast<u::LibType>(li);
+
             Obj mX(Z);
             Repository& rep = mX.collectorRepository();
             Registry&   reg = mX.metricRegistry();
@@ -1805,15 +1862,38 @@ int main(int argc, char *argv[])
             bsls::TimeInterval start = bdlt::CurrentTime::now();
             bslmt::ThreadUtil::microSleep(100000, 0);
 
-            bsl::vector<balm::MetricRecord> records(Z);
+            bsl::vector<balm::MetricRecord>      recordsBsl(Z);
+            std::vector<balm::MetricRecord>      recordsStd;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            std::pmr::vector<balm::MetricRecord> recordsPmr;
+#endif
             balm::MetricSample sample;
 
             if (veryVerbose) cout << "\t\twithout reset" << endl;
-            mX.collectSample(&sample, &records, false);
+            bsl::size_t sz = -1;
+            switch (libType) {
+              case u::e_BSL: {
+                mX.collectSample(&sample, &recordsBsl, false);
+                sz = recordsBsl.size();
+              } break;
+              case u::e_STD: {
+                mX.collectSample(&sample, &recordsStd, false);
+                sz = recordsStd.size();
+              } break;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+              case u::e_PMR: {
+                mX.collectSample(&sample, &recordsPmr, false);
+                sz = recordsPmr.size();
+              } break;
+#endif
+              default: {
+                ASSERT(0);
+              }
+            }
 
             bsls::TimeInterval window = bdlt::CurrentTime::now() - start;
             bdlt::Datetime     now    = bdlt::CurrentTime::utc();
-            ASSERT(NUM_CATEGORIES * NUM_METRICS == records.size());
+            ASSERT(NUM_CATEGORIES * NUM_METRICS == sz);
             ASSERT(NUM_CATEGORIES * NUM_METRICS == sample.numRecords());
             ASSERT(NUM_CATEGORIES               == sample.numGroups());
             ASSERT(withinWindow(sample.timeStamp(), now, 10));
@@ -1848,132 +1928,231 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) cout << "\t\twith reset" << endl;
             sample.removeAllRecords();
-            bsl::vector<balm::MetricRecord> records2(Z);
+            bsl::vector<balm::MetricRecord>      recordsBsl2(Z);
+            std::vector<balm::MetricRecord>      recordsStd2;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            std::pmr::vector<balm::MetricRecord> recordsPmr2;
+#endif
 
-            mX.collectSample(&sample, &records2, true);
-            ASSERT(NUM_CATEGORIES * NUM_METRICS == records2.size());
+            switch (libType) {
+              case u::e_BSL: {
+                mX.collectSample(&sample, &recordsBsl2, true);
+                sz = recordsBsl2.size();
+              } break;
+              case u::e_STD: {
+                mX.collectSample(&sample, &recordsStd2, true);
+                sz = recordsStd2.size();
+              } break;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+              case u::e_PMR: {
+                mX.collectSample(&sample, &recordsPmr2, true);
+                sz = recordsPmr2.size();
+              } break;
+#endif
+              default: {
+                ASSERT(0);
+              }
+            }
+
+            ASSERT(NUM_CATEGORIES * NUM_METRICS == sz);
             ASSERT(NUM_CATEGORIES * NUM_METRICS == sample.numRecords());
             ASSERT(NUM_CATEGORIES               == sample.numGroups());
 
-            ASSERT(records == records2);
+            ASSERT(recordsBsl == recordsBsl2);
+            ASSERT(recordsStd == recordsStd2);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT(recordsPmr == recordsPmr2);
+#endif
             for (int i = 0; i < NUM_CATEGORIES; ++i) {
                 for (int j = 0; j < NUM_METRICS; ++j) {
                     balm::MetricRecord record;
                     Collector *col = rep.getDefaultCollector(CATEGORIES[i],
                                                              METRICS[j]);
                     col->load(&record);
-                    ASSERT(balm::MetricRecord(record.metricId()) == record);
-                }
-            }
-        }
-
-        Obj mX(Z);
-        bsl::vector<const Category *> allCategories(Z);
-
-        Repository& rep = mX.collectorRepository();
-        Registry&   reg = mX.metricRegistry();
-        for (int i = 0; i < NUM_CATEGORIES; ++i) {
-            allCategories.push_back(reg.getCategory(CATEGORIES[i]));
-        }
-
-        if (veryVerbose) cout << "\tTest collectSample() for some categories"
-                              << endl;
-        CombinationIterator<const Category *> combIt(allCategories, Z);
-        do {
-            // Set all the 'balm::Collector' objects to a known state and set
-            // the 'enabled' state of each category.
-            for (int i = 0; i < NUM_CATEGORIES; ++i) {
-                for (int j = 0; j < NUM_METRICS; ++j) {
-                    Collector *col = rep.getDefaultCollector(CATEGORIES[i],
-                                                             METRICS[j]);
-                    col->reset(); col->update(1);
-                }
-            }
-
-            bsl::vector<balm::MetricRecord> records(Z);
-            balm::MetricSample              sample;
-
-            // Test without a reset.
-            const bsl::vector<const Category *>& cats = combIt.current();
-            mX.collectSample(&sample,
-                             &records,
-                             cats.data(),
-                             static_cast<int>(cats.size()),
-                             false);
-            ASSERT(static_cast<int>(NUM_METRICS * cats.size())
-                                                       == sample.numRecords());
-            ASSERT(static_cast<int>(cats.size())       == sample.numGroups());
-            for (int i = 0; i < NUM_CATEGORIES; ++i ) {
-                // Verify the correct categories are in the sample (once)
-                const Category *CATEGORY = allCategories[i];
-                int   found = 0;
-                for (int j = 0; j < sample.numGroups(); ++j) {
-                    if (CATEGORY == firstCategory(sample.sampleGroup(j))) {
-                        ++found;
-                    }
-                }
-                ASSERT(found < 2);
-                ASSERT(static_cast<bool>(found)== combIt.includesElement(i));
-            }
-            for (int i = 0; i < NUM_CATEGORIES; ++i) {
-                for (int j = 0; j < NUM_METRICS; ++j) {
-                    balm::MetricRecord record;
-                    Collector *col = rep.getDefaultCollector(CATEGORIES[i],
-                                                             METRICS[j]);
-                    col->load(&record);
-                    ASSERT(1 == record.count());
-                    ASSERT(1 == record.total());
-                    ASSERT(1 == record.min());
-                    ASSERT(1 == record.max());
-
-                }
-            }
-            bsl::vector<balm::MetricRecord> records2(Z);
-            sample.removeAllRecords();
-
-            // Test with a reset.
-            mX.collectSample(&sample,
-                             &records2,
-                             cats.data(),
-                             static_cast<int>(cats.size()),
-                             true);
-            ASSERT(static_cast<int>(NUM_METRICS * cats.size())
-                                                       == sample.numRecords());
-            ASSERT(static_cast<int>(cats.size())       == sample.numGroups());
-            ASSERT(records                             == records2);
-            for (int i = 0; i < NUM_CATEGORIES; ++i ) {
-                // Verify the correct categories are in the sample (once)
-                const Category *CATEGORY = allCategories[i];
-                int   found = 0;
-                for (int j = 0; j < sample.numGroups(); ++j) {
-                    if (CATEGORY == firstCategory(sample.sampleGroup(j))) {
-                        ++found;
-                    }
-                }
-                ASSERT(found < 2);
-                ASSERT(static_cast<bool>(found) == combIt.includesElement(i));
-            }
-            for (int i = 0; i < NUM_CATEGORIES; ++i) {
-                for (int j = 0; j < NUM_METRICS; ++j) {
-                    balm::MetricRecord record;
-                    Collector *col = rep.getDefaultCollector(CATEGORIES[i],
-                                                             METRICS[j]);
-                    col->load(&record);
-                    if (combIt.includesElement(i)) {
-                        ASSERT(
+                    ASSERTV(libType,
                               balm::MetricRecord(record.metricId()) == record);
+                }
+            }
+        }
+
+        for (int li = u::e_BEGIN; li < u::e_END; ++li) {
+            const u::LibType libType = static_cast<u::LibType>(li);
+
+            Obj mX(Z);
+            bsl::vector<const Category *> allCategories(Z);
+
+            Repository& rep = mX.collectorRepository();
+            Registry&   reg = mX.metricRegistry();
+            for (int i = 0; i < NUM_CATEGORIES; ++i) {
+                allCategories.push_back(reg.getCategory(CATEGORIES[i]));
+            }
+
+            if (veryVerbose) cout <<
+                                "\tTest collectSample() for some categories\n";
+            CombinationIterator<const Category *> combIt(allCategories, Z);
+            do {
+                // Set all the 'balm::Collector' objects to a known state and
+                // set the 'enabled' state of each category.
+
+                for (int i = 0; i < NUM_CATEGORIES; ++i) {
+                    for (int j = 0; j < NUM_METRICS; ++j) {
+                        Collector *col = rep.getDefaultCollector(CATEGORIES[i],
+                                                                 METRICS[j]);
+                        col->reset(); col->update(1);
                     }
-                    else {
+                }
+
+                bsl::vector<balm::MetricRecord>      recordsBsl(Z);
+                std::vector<balm::MetricRecord>      recordsStd;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                std::pmr::vector<balm::MetricRecord> recordsPmr;
+#endif
+                balm::MetricSample                   sample;
+
+                // Test without a reset.
+                const bsl::vector<const Category *>& cats = combIt.current();
+
+                switch (libType) {
+                  case u::e_BSL: {
+                    mX.collectSample(&sample,
+                                     &recordsBsl,
+                                     cats.data(),
+                                     static_cast<int>(cats.size()),
+                                     false);
+                  } break;
+                  case u::e_STD: {
+                    mX.collectSample(&sample,
+                                     &recordsStd,
+                                     cats.data(),
+                                     static_cast<int>(cats.size()),
+                                     false);
+                  } break;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                  case u::e_PMR: {
+                    mX.collectSample(&sample,
+                                     &recordsPmr,
+                                     cats.data(),
+                                     static_cast<int>(cats.size()),
+                                     false);
+                  } break;
+#endif
+                  default: {
+                    ASSERT(0);
+                  }
+                }
+
+                ASSERT(static_cast<int>(NUM_METRICS * cats.size())
+                                                       == sample.numRecords());
+                ASSERT(static_cast<int>(cats.size())   == sample.numGroups());
+                for (int i = 0; i < NUM_CATEGORIES; ++i ) {
+                    // Verify the correct categories are in the sample (once)
+                    const Category *CATEGORY = allCategories[i];
+                    int   found = 0;
+                    for (int j = 0; j < sample.numGroups(); ++j) {
+                        if (CATEGORY == firstCategory(sample.sampleGroup(j))) {
+                            ++found;
+                        }
+                    }
+                    ASSERT(found < 2);
+                    ASSERT(static_cast<bool>(found) ==
+                                                    combIt.includesElement(i));
+                }
+                for (int i = 0; i < NUM_CATEGORIES; ++i) {
+                    for (int j = 0; j < NUM_METRICS; ++j) {
+                        balm::MetricRecord record;
+                        Collector *col = rep.getDefaultCollector(CATEGORIES[i],
+                                                                 METRICS[j]);
+                        col->load(&record);
                         ASSERT(1 == record.count());
                         ASSERT(1 == record.total());
                         ASSERT(1 == record.min());
                         ASSERT(1 == record.max());
+
                     }
                 }
-            }
 
-        } while (combIt.next());
+                bsl::vector<balm::MetricRecord>      recordsBsl2(Z);
+                std::vector<balm::MetricRecord>      recordsStd2;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                std::pmr::vector<balm::MetricRecord> recordsPmr2;
+#endif
 
+                sample.removeAllRecords();
+
+                // Test with a reset.
+                switch (libType) {
+                  case u::e_BSL: {
+                    mX.collectSample(&sample,
+                                     &recordsBsl2,
+                                     cats.data(),
+                                     static_cast<int>(cats.size()),
+                                     true);
+                  } break;
+                  case u::e_STD: {
+                    mX.collectSample(&sample,
+                                     &recordsStd2,
+                                     cats.data(),
+                                     static_cast<int>(cats.size()),
+                                     true);
+                  } break;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                  case u::e_PMR: {
+                    mX.collectSample(&sample,
+                                     &recordsPmr2,
+                                     cats.data(),
+                                     static_cast<int>(cats.size()),
+                                     true);
+                  } break;
+#endif
+                  default: {
+                    ASSERT(0);
+                  }
+                }
+
+                ASSERT(static_cast<int>(NUM_METRICS * cats.size())
+                                                       == sample.numRecords());
+                ASSERT(static_cast<int>(cats.size())   == sample.numGroups());
+
+                ASSERT(recordsBsl                      == recordsBsl2);
+                ASSERT(recordsStd                      == recordsStd2);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                ASSERT(recordsPmr                      == recordsPmr2);
+#endif
+
+                for (int i = 0; i < NUM_CATEGORIES; ++i ) {
+                    // Verify the correct categories are in the sample (once)
+                    const Category *CATEGORY = allCategories[i];
+                    int   found = 0;
+                    for (int j = 0; j < sample.numGroups(); ++j) {
+                        if (CATEGORY == firstCategory(sample.sampleGroup(j))) {
+                            ++found;
+                        }
+                    }
+                    ASSERT(found < 2);
+                    ASSERT(static_cast<bool>(found) ==
+                                                    combIt.includesElement(i));
+                }
+                for (int i = 0; i < NUM_CATEGORIES; ++i) {
+                    for (int j = 0; j < NUM_METRICS; ++j) {
+                        balm::MetricRecord record;
+                        Collector *col = rep.getDefaultCollector(CATEGORIES[i],
+                                                                 METRICS[j]);
+                        col->load(&record);
+                        if (combIt.includesElement(i)) {
+                            ASSERT(balm::MetricRecord(record.metricId()) ==
+                                                                       record);
+                        }
+                        else {
+                            ASSERT(1 == record.count());
+                            ASSERT(1 == record.total());
+                            ASSERT(1 == record.min());
+                            ASSERT(1 == record.max());
+                        }
+                    }
+                }
+
+            } while (combIt.next());
+        }
     } break;
     case 21: {
         // --------------------------------------------------------------------
@@ -2713,65 +2892,102 @@ int main(int argc, char *argv[])
             allCategories.push_back(CAT);
         }
 
-        // Perform a test iteration for each *combination* of categories from
-        // the set of test categories.  On each iteration invoke 'publish'
-        // with the combination of categories and then verify the callbacks,
-        // collectors, publishers were updated as expected.
-        CombinationIterator<const Category *> combIt(allCategories, Z);
-        do {
-            // Set all the 'balm::Collector' objects to a known state.
-            for (int i = 0; i < NUM_CATEGORIES; ++i) {
-                for (int j = 0; j < NUM_METRICS; ++j) {
-                    Collector *col =
-                        repository.getDefaultCollector(CATEGORIES[i],
-                                                       METRICS[j]);
-                    col->reset(); col->update(1);
-                }
-            }
+        for (int li = u::e_BEGIN; li < u::e_END; ++li) {
+            const u::LibType libType = static_cast<u::LibType>(li);
 
-            // Create the exclusion set.
-            bsl::set<const balm::Category *> excludedSet(Z);
-            for (int i = 0; i < NUM_CATEGORIES; ++i) {
-                if (!combIt.includesElement(i)) {
-                    excludedSet.insert(allCategories[i]);
-                }
-            }
-            ASSERT(allCategories.size() ==
-                   excludedSet.size() + combIt.current().size());
+            // Perform a test iteration for each *combination* of categories
+            // from the set of test categories.  On each iteration invoke
+            // 'publish' with the combination of categories and then verify the
+            // callbacks, collectors, publishers were updated as expected.
 
-            // Publish the records.
-            bdlt::Datetime tmStamp = bdlt::CurrentTime::utc();
-            mX.publishAll(excludedSet);
-
-            // Verify the "general" publishers has been invoked.
-            if (combIt.current().empty()) {
-                ASSERT(0 == gPub.invocations())
-            }
-            else {
-                ASSERT(1 == gPub.invocations());
-                ASSERT(withinWindow(gPub.lastTimeStamp(), tmStamp, 10));
-                ASSERT(static_cast<int>(combIt.current().size()) ==
-                       gPub.lastSample().numGroups());
-            }
-
-            // Verify the correct "specific" publishers have been invoked.
-            for (int i = 0; i < NUM_CATEGORIES; ++i) {
-                for (int j = 0; j < NUM_METRICS; ++j) {
-                    Id id  = registry.getId(CATEGORIES[i], METRICS[j]);
-                    ASSERT(combIt.includesElement(i) == gPub.contains(id));
+            CombinationIterator<const Category *> combIt(allCategories, Z);
+            do {
+                // Set all the 'balm::Collector' objects to a known state.
+                for (int i = 0; i < NUM_CATEGORIES; ++i) {
+                    for (int j = 0; j < NUM_METRICS; ++j) {
+                        Collector *col =
+                            repository.getDefaultCollector(CATEGORIES[i],
+                                                           METRICS[j]);
+                        col->reset(); col->update(1);
+                    }
                 }
 
-                const int EXP_INV = combIt.includesElement(i) ? 1 : 0;
-                bsl::vector<balm::Publisher *> sPublishers(Z);
-                mX.findSpecificPublishers(&sPublishers, allCategories[i]);
-                TestPublisher *sPub_p = (TestPublisher *)sPublishers.front();
-                ASSERT(EXP_INV == sPub_p->invocations());
-                sPub_p->reset();
+                // Create the exclusion set.
+                bsl::set<const balm::Category *>      excludedSetBsl(Z);
+                std::set<const balm::Category *>      excludedSetStd;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                std::pmr::set<const balm::Category *> excludedSetPmr;
+#endif
+                for (int i = 0; i < NUM_CATEGORIES; ++i) {
+                    if (!combIt.includesElement(i)) {
+                        excludedSetBsl.insert(allCategories[i]);
+                        excludedSetStd.insert(allCategories[i]);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                        excludedSetPmr.insert(allCategories[i]);
+#endif
+                    }
+                }
+                ASSERT(excludedSetBsl.size() == excludedSetStd.size());
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                ASSERT(excludedSetBsl.size() == excludedSetPmr.size());
+#endif
 
-            }
-            gPub.reset();
-        } while (combIt.next());
-        ASSERT(0 == defaultAllocator.numBytesInUse());
+                ASSERT(allCategories.size() ==
+                       excludedSetBsl.size() + combIt.current().size());
+
+                // Publish the records.
+                bdlt::Datetime tmStamp = bdlt::CurrentTime::utc();
+
+                switch (libType) {
+                  case u::e_BSL: {
+                    mX.publishAll(excludedSetBsl);
+                  } break;
+                  case u::e_STD: {
+                    mX.publishAll(excludedSetStd);
+                  } break;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                  case u::e_PMR: {
+                    mX.publishAll(excludedSetPmr);
+                  } break;
+#endif
+                  default: {
+                    ASSERT(0);
+                  }
+                }
+
+                // Verify the "general" publishers has been invoked.
+
+                if (combIt.current().empty()) {
+                    ASSERT(0 == gPub.invocations())
+                }
+                else {
+                    ASSERT(1 == gPub.invocations());
+                    ASSERT(withinWindow(gPub.lastTimeStamp(), tmStamp, 10));
+                    ASSERT(static_cast<int>(combIt.current().size()) ==
+                           gPub.lastSample().numGroups());
+                }
+
+                // Verify the correct "specific" publishers have been invoked.
+
+                for (int i = 0; i < NUM_CATEGORIES; ++i) {
+                    for (int j = 0; j < NUM_METRICS; ++j) {
+                        Id id  = registry.getId(CATEGORIES[i], METRICS[j]);
+                        ASSERT(combIt.includesElement(i) == gPub.contains(id));
+                    }
+
+                    const int EXP_INV = combIt.includesElement(i) ? 1 : 0;
+                    bsl::vector<balm::Publisher *> sPublishers(Z);
+                    mX.findSpecificPublishers(&sPublishers, allCategories[i]);
+                    TestPublisher *sPub_p =
+                                         (TestPublisher *) sPublishers.front();
+                    ASSERT(EXP_INV == sPub_p->invocations());
+                    sPub_p->reset();
+
+                }
+                gPub.reset();
+            } while (combIt.next());
+            ASSERT(0 == defaultAllocator.numBytesInUse());
+        }
       } break;
       case 11: {
         // --------------------------------------------------------------------
@@ -2998,78 +3214,115 @@ int main(int argc, char *argv[])
         const char *METRICS[] = { "A", "B", "C", "MyMetric", "903metric" };
         const int   NUM_METRICS = sizeof (METRICS) / sizeof (*METRICS);
 
-        Obj mX(Z);
-        Registry& registry     = mX.metricRegistry();
-        Repository& repository = mX.collectorRepository();
+        for (int li = u::e_BEGIN; li < u::e_END; ++li) {
+            u::LibType libType = static_cast<u::LibType>(li);
 
-        // Create a "general" publisher.
-        TestPublisher gPub(Z);
-        PubPtr gPub_p(&gPub, bslstl::SharedPtrNilDeleter(), Z);
-        mX.addGeneralPublisher(gPub_p);
+            Obj mX(Z);
+            Registry& registry     = mX.metricRegistry();
+            Repository& repository = mX.collectorRepository();
 
-        // Create a "specific" publisher for each category.
-        bsl::vector<const Category *> allCategories(Z);
-        for (int i = 0; i < NUM_CATEGORIES; ++i) {
-            const Category *CAT = registry.getCategory(CATEGORIES[i]);
-            PubPtr pub_p(new (*Z) TestPublisher(Z), Z);
-            mX.addSpecificPublisher(CAT, pub_p);
-            allCategories.push_back(CAT);
-        }
+            // Create a "general" publisher.
 
-        // Perform a test iteration for each *combination* of categories from
-        // the set of test categories.  On each iteration invoke 'publish'
-        // with the combination of categories and then verify the callbacks,
-        // collectors, publishers were updated as expected.
-        CombinationIterator<const Category *> combIt(allCategories, Z);
-        do {
-            // Set all the 'balm::Collector' objects to a known state.
+            TestPublisher gPub(Z);
+            PubPtr gPub_p(&gPub, bslstl::SharedPtrNilDeleter(), Z);
+            mX.addGeneralPublisher(gPub_p);
+
+            // Create a "specific" publisher for each category.
+
+            bsl::vector<const Category *> allCategories(Z);
             for (int i = 0; i < NUM_CATEGORIES; ++i) {
-                for (int j = 0; j < NUM_METRICS; ++j) {
-                    Collector *col =
-                        repository.getDefaultCollector(CATEGORIES[i],
-                                                       METRICS[j]);
-                    col->reset(); col->update(1);
+                const Category *CAT = registry.getCategory(CATEGORIES[i]);
+                PubPtr pub_p(new (*Z) TestPublisher(Z), Z);
+                mX.addSpecificPublisher(CAT, pub_p);
+                allCategories.push_back(CAT);
+            }
+
+            // Perform a test iteration for each *combination* of categories
+            // from the set of test categories.  On each iteration invoke
+            // 'publish' with the combination of categories and then verify the
+            // callbacks, collectors, publishers were updated as expected.
+
+            CombinationIterator<const Category *> combIt(allCategories, Z);
+            do {
+                // Set all the 'balm::Collector' objects to a known state.
+
+                for (int i = 0; i < NUM_CATEGORIES; ++i) {
+                    for (int j = 0; j < NUM_METRICS; ++j) {
+                        Collector *col =
+                            repository.getDefaultCollector(CATEGORIES[i],
+                                                           METRICS[j]);
+                        col->reset(); col->update(1);
+                    }
                 }
-            }
-            const bsl::vector<const Category *>& categories = combIt.current();
-            bsl::set<const balm::Category *> categorySet(
-                                       categories.begin(), categories.end(),
-                                       bsl::less<const balm::Category *>(), Z);
+                const bsl::vector<const Category *>& categories =
+                                                              combIt.current();
+                bdlt::Datetime tmStamp = bdlt::CurrentTime::utc();
 
-            // Publish the records.
-            bdlt::Datetime tmStamp = bdlt::CurrentTime::utc();
-            mX.publish(categorySet);
+                bsl::set<const balm::Category *>      categorySetBsl(Z);
+                std::set<const balm::Category *>      categorySetStd;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                std::pmr::set<const balm::Category *> categorySetPmr;
+#endif
 
-            // Verify the "general" publishers has been invoked.
-            if (categorySet.empty()) {
-                ASSERT(0 == gPub.invocations())
-            }
-            else {
-                ASSERT(1 == gPub.invocations());
-                ASSERT(withinWindow(gPub.lastTimeStamp(), tmStamp, 10));
-                ASSERT(static_cast<int>(categorySet.size()) ==
+                // Initialize the set and publish the records.
+
+                bsl::size_t sz = -1;
+                switch (libType) {
+                  case u::e_BSL: {
+                    categorySetBsl.insert(categories.begin(),categories.end());
+                    mX.publish(categorySetBsl);
+                    sz = categorySetBsl.size();
+                  } break;
+                  case u::e_STD: {
+                    categorySetStd.insert(categories.begin(),categories.end());
+                    mX.publish(categorySetStd);
+                    sz = categorySetStd.size();
+                  } break;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                  case u::e_PMR: {
+                    categorySetPmr.insert(categories.begin(),categories.end());
+                    mX.publish(categorySetPmr);
+                    sz = categorySetPmr.size();
+                  } break;
+#endif
+                  default: {
+                    ASSERT(0);
+                  }
+                }
+
+                // Verify the "general" publishers has been invoked.
+                if (0 == sz) {
+                    ASSERT(0 == gPub.invocations())
+                }
+                else {
+                    ASSERT(1 == gPub.invocations());
+                    ASSERT(withinWindow(gPub.lastTimeStamp(), tmStamp, 10));
+                    ASSERT(static_cast<int>(sz) ==
                                                 gPub.lastSample().numGroups());
-            }
-
-            // Verify the correct "specific" publishers have been invoked.
-            for (int i = 0; i < NUM_CATEGORIES; ++i) {
-                for (int j = 0; j < NUM_METRICS; ++j) {
-                    Id id  = registry.getId(CATEGORIES[i], METRICS[j]);
-                    ASSERT(combIt.includesElement(i) == gPub.contains(id));
                 }
 
-                const int EXP_INV = combIt.includesElement(i) ? 1 : 0;
-                bsl::vector<balm::Publisher *> sPublishers(Z);
-                mX.findSpecificPublishers(&sPublishers, allCategories[i]);
-                TestPublisher *sPub_p = (TestPublisher *)sPublishers.front();
-                ASSERT(EXP_INV == sPub_p->invocations());
-                sPub_p->reset();
+                // Verify the correct "specific" publishers have been invoked.
+                for (int i = 0; i < NUM_CATEGORIES; ++i) {
+                    for (int j = 0; j < NUM_METRICS; ++j) {
+                        Id id  = registry.getId(CATEGORIES[i], METRICS[j]);
+                        ASSERT(combIt.includesElement(i) == gPub.contains(id));
+                    }
 
-            }
-            gPub.reset();
+                    const int EXP_INV = combIt.includesElement(i) ? 1 : 0;
+                    bsl::vector<balm::Publisher *> sPublishers(Z);
+                    mX.findSpecificPublishers(&sPublishers, allCategories[i]);
+                    TestPublisher *sPub_p = (TestPublisher *)
+                                                           sPublishers.front();
+                    ASSERT(EXP_INV == sPub_p->invocations());
+                    sPub_p->reset();
 
-        } while (combIt.next());
-        ASSERT(0 == defaultAllocator.numBytesInUse());
+                }
+                gPub.reset();
+
+            } while (combIt.next());
+            ASSERT(u::e_BSL != libType ||
+                                        0 == defaultAllocator.numBytesInUse());
+        }
       } break;
       case 8: {
         // --------------------------------------------------------------------
@@ -3344,11 +3597,15 @@ int main(int argc, char *argv[])
         const int NUM_PUBS = sizeof(TEST_PUBS)/sizeof(*TEST_PUBS);
 
         // ------------------- Verify 'general' publishers --------------------
-        {
+
+        for (int li = u::e_BEGIN; li < u::e_END; ++li) {
+            u::LibType libType = static_cast<u::LibType>(li);
+
             Obj mX(Z); const Obj& MX = mX;
             Registry& registry = mX.metricRegistry();
 
             // Add general publishers
+
             if (veryVerbose) cout << "Test general publishers" << bsl::endl;
 
             for (int i = 0; i < NUM_PUBS; ++i) {
@@ -3357,21 +3614,78 @@ int main(int argc, char *argv[])
 
                 // Verify that the publisher can't be added again, as either a
                 // general publisher or a specific publisher.
+
                 ASSERT(0 != mX.addGeneralPublisher(pub_p));
                 for (int j = 0; j < NUM_CATEGORIES; ++j) {
                     const Category *CAT = registry.getCategory(CATEGORIES[j]);
-                    bsl::vector<balm::Publisher *> pubsFound(Z);
+
+                    bsl::vector<balm::Publisher *>      pubsFoundBsl(Z);
+                    std::vector<balm::Publisher *>      pubsFoundStd;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                    std::pmr::vector<balm::Publisher *> pubsFoundPmr;
+#endif
+
                     ASSERT(0 != mX.addSpecificPublisher(CAT, pub_p));
-                    ASSERT(0 == mX.findSpecificPublishers(&pubsFound, CAT));
-                    ASSERT(0 == pubsFound.size());
+
+                    switch (libType) {
+                      case u::e_BSL: {
+                        ASSERT(0 ==
+                                mX.findSpecificPublishers(&pubsFoundBsl, CAT));
+                        ASSERT(0 == pubsFoundBsl.size());
+                      } break;
+                      case u::e_STD: {
+                        ASSERT(0 ==
+                                mX.findSpecificPublishers(&pubsFoundStd, CAT));
+                        ASSERT(0 == pubsFoundStd.size());
+                      } break;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                      case u::e_PMR: {
+                        ASSERT(0 ==
+                                mX.findSpecificPublishers(&pubsFoundPmr, CAT));
+                        ASSERT(0 == pubsFoundPmr.size());
+                      } break;
+#endif
+                      default: {
+                        ASSERT(0);
+                      }
+                  }
                 }
 
+                typedef balm::Publisher * const Ptr;
+                Ptr *pb = 0, *pe = 0;
+
                 // Verify 'findGeneralPublishers'
-                bsl::vector<balm::Publisher *> pubsFound(Z);
-                ASSERT(i + 1 == MX.findGeneralPublishers(&pubsFound));
+                bsl::vector<balm::Publisher *>      pubsFoundBsl(Z);
+                std::vector<balm::Publisher *>      pubsFoundStd;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                std::pmr::vector<balm::Publisher *> pubsFoundPmr;
+#endif
+
+                switch (libType) {
+                  case u::e_BSL: {
+                    ASSERT(i + 1 == MX.findGeneralPublishers(&pubsFoundBsl));
+                    pb = u::vDataBegin(pubsFoundBsl);
+                    pe = u::vDataEnd(  pubsFoundBsl);
+                  } break;
+                  case u::e_STD: {
+                    ASSERT(i + 1 == MX.findGeneralPublishers(&pubsFoundStd));
+                    pb = u::vDataBegin(pubsFoundStd);
+                    pe = u::vDataEnd(  pubsFoundStd);
+                  } break;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                  case u::e_PMR: {
+                    ASSERT(i + 1 == MX.findGeneralPublishers(&pubsFoundStd));
+                    pb = u::vDataBegin(pubsFoundStd);
+                    pe = u::vDataEnd(  pubsFoundStd);
+                  } break;
+#endif
+                  default: {
+                    ASSERT(0);
+                  }
+                }
 
                 bsl::set<balm::Publisher *> pubSet(Z);
-                pubSet.insert(pubsFound.begin(), pubsFound.end());
+                pubSet.insert(pb, pe);
                 ASSERT(i + 1 == static_cast<int>(pubSet.size()));
                 for (int j = 0; j < NUM_PUBS; ++j) {
                     const bsl::size_t EXP = i < j ? 0 : 1;
@@ -3414,12 +3728,17 @@ int main(int argc, char *argv[])
             }
             ASSERT(0 == defaultAllocator.numBytesInUse());
         }
+
         // ------------------- Verify 'specific' publishers -------------------
-        {
+
+        for (int li = u::e_BEGIN; li < u::e_END; ++li) {
+            u::LibType libType = static_cast<u::LibType>(li);
+
             Obj mX(Z); const Obj& MX = mX;
             Registry& registry = mX.metricRegistry();
 
             // Add general publishers
+
             if (veryVerbose) cout << "Test specific publishers" << bsl::endl;
 
             for (int i = 0; i < NUM_CATEGORIES; ++i) {
@@ -3433,24 +3752,63 @@ int main(int argc, char *argv[])
                     ASSERT(0 == mX.addSpecificPublisher(CAT, pub_p));
 
                     // Verify the publisher can't be added again.
+
                     ASSERT(0 != mX.addSpecificPublisher(CAT, pub_p));
                     ASSERT(0 != mX.addGeneralPublisher(pub_p));
 
                     // Verify 'find' operations.
-                    bsl::vector<balm::Publisher *> pubsFound(Z);
-                    ASSERT(0 == MX.findGeneralPublishers(&pubsFound));
-                    ASSERT(0 == pubsFound.size());
 
-                    ASSERT(j+1 == MX.findSpecificPublishers(&pubsFound, CAT));
+                    typedef balm::Publisher * const Ptr;
+                    Ptr *pb = 0, *pe = 0;
+
+                    bsl::vector<balm::Publisher *>      pubsFoundBsl(Z);
+                    std::vector<balm::Publisher *>      pubsFoundStd;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                    std::pmr::vector<balm::Publisher *> pubsFoundPmr;
+#endif
+
+                    switch (libType) {
+                      case u::e_BSL: {
+                        ASSERT(0 == MX.findGeneralPublishers(&pubsFoundBsl));
+                        ASSERT(0 == pubsFoundBsl.size());
+                        ASSERT(j+1 == MX.findSpecificPublishers(&pubsFoundBsl,
+                                                                CAT));
+                        pb = u::vDataBegin(pubsFoundBsl);
+                        pe = u::vDataEnd(  pubsFoundBsl);
+                      } break;
+                      case u::e_STD: {
+                        ASSERT(0 == MX.findGeneralPublishers(&pubsFoundStd));
+                        ASSERT(0 == pubsFoundStd.size());
+                        ASSERT(j+1 == MX.findSpecificPublishers(&pubsFoundStd,
+                                                                CAT));
+                        pb = u::vDataBegin(pubsFoundStd);
+                        pe = u::vDataEnd(  pubsFoundStd);
+                      } break;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                      case u::e_PMR: {
+                        ASSERT(0 == MX.findGeneralPublishers(&pubsFoundPmr));
+                        ASSERT(0 == pubsFoundPmr.size());
+                        ASSERT(j+1 == MX.findSpecificPublishers(&pubsFoundPmr,
+                                                                CAT));
+                        pb = u::vDataBegin(pubsFoundPmr);
+                        pe = u::vDataEnd(  pubsFoundPmr);
+                      } break;
+#endif
+                      default: {
+                        ASSERT(0);
+                      }
+                    }
+
                     bsl::set<balm::Publisher *> pubSet(Z);
-                    pubSet.insert(pubsFound.begin(), pubsFound.end());
-                    ASSERT(j+1 == static_cast<int>(pubsFound.size()));
+                    ASSERT(j+1 == pe - pb);
+                    pubSet.insert(pb, pe);
                     for (int k = 0; k < NUM_PUBS; ++k) {
                         const bsl::size_t EXP = j < k ? 0 : 1;
                         ASSERT(EXP == pubSet.count(TEST_PUBS[k]));
                     }
 
                     // Verify publish.
+
                     mX.publish(CAT);
                     for (int k = 0; k < NUM_PUBS; ++k) {
                         const int EXP = j < k ? 0 : 1;

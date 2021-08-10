@@ -32,6 +32,17 @@ BSLS_IDENT_RCSID(balm_collectorrepository_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 namespace {
+namespace u {
+
+template <class VECTOR, class MEMBER>
+struct IsVector {
+    static const bool value =
+                         bsl::is_same<VECTOR, bsl::vector<MEMBER> >::value
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                      || bsl::is_same<VECTOR, std::pmr::vector<MEMBER> >::value
+#endif
+                      || bsl::is_same<VECTOR, std::vector<MEMBER> >::value;
+};
 
 inline
 void combine(balm::MetricRecord *record, const balm::MetricRecord& value)
@@ -43,6 +54,7 @@ void combine(balm::MetricRecord *record, const balm::MetricRecord& value)
     record->max()      = bsl::max(record->max(), value.max());
 }
 
+}  // close namespace u
 }  // close unnamed namespace
 
 namespace balm {
@@ -137,8 +149,8 @@ class CollectorRepository_Collectors {
         // current values.
 
     // ACCESSORS
-    int getAddedCollectors(
-                   bsl::vector<bsl::shared_ptr<COLLECTOR> > *collectors) const;
+    template <class VECTOR>
+    int getAddedCollectors(VECTOR *collectors) const;
         // Append to the specified 'collectors' all the collectors that have
         // been added to this object (via the 'addCollector' method)  and not
         // subsequently removed.  Return the number of collectors that were
@@ -211,7 +223,7 @@ CollectorRepository_Collectors<COLLECTOR>::collectAndReset(
     for (; it != d_addedCollectors.end(); ++it) {
         MetricRecord tempRecord;
         (*it)->loadAndReset(&tempRecord);
-        combine(record, tempRecord);
+        u::combine(record, tempRecord);
     }
 }
 
@@ -224,15 +236,16 @@ CollectorRepository_Collectors<COLLECTOR>::collect(MetricRecord *record)
     for (; it != d_addedCollectors.end(); ++it) {
         MetricRecord tempRecord;
         (*it)->load(&tempRecord);
-        combine(record, tempRecord);
+        u::combine(record, tempRecord);
     }
 }
 
 // ACCESSORS
 template <class COLLECTOR>
+template <class VECTOR>
 int
 CollectorRepository_Collectors<COLLECTOR>::getAddedCollectors(
-                    bsl::vector<bsl::shared_ptr<COLLECTOR> > *collectors) const
+                                                      VECTOR *collectors) const
 {
     collectors->reserve(collectors->size() + d_addedCollectors.size());
     typename CollectorSet::const_iterator it = d_addedCollectors.begin();
@@ -379,7 +392,7 @@ void CollectorRepository_MetricCollectors::collectAndReset(
     d_collectors.collectAndReset(record);
     MetricRecord tempRecord;
     d_intCollectors.collectAndReset(&tempRecord);
-    combine(record, tempRecord);
+    u::combine(record, tempRecord);
 }
 
 void CollectorRepository_MetricCollectors::collect(MetricRecord *record)
@@ -387,7 +400,7 @@ void CollectorRepository_MetricCollectors::collect(MetricRecord *record)
     d_collectors.collect(record);
     MetricRecord tempRecord;
     d_intCollectors.collect(&tempRecord);
-    combine(record, tempRecord);
+    u::combine(record, tempRecord);
 }
 
 // ACCESSORS
@@ -417,6 +430,61 @@ CollectorRepository_MetricCollectors::metricId() const
                          // -------------------------
 
 // PRIVATE MANIPULATORS
+template <class VECTOR>
+inline
+void CollectorRepository::collectAndResetImp(VECTOR         *records,
+                                             const Category *category)
+{
+    BSLMF_ASSERT((u::IsVector<VECTOR, balm::MetricRecord>::value));
+
+    bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_rwMutex);
+
+    CategorizedCollectors::iterator catIt = d_categories.find(category);
+    if (catIt != d_categories.end()) {
+
+        bsl::vector<MetricCollectors *>& metricCollectors = catIt->second;
+        records->reserve(records->size() + metricCollectors.size());
+        bsl::vector<MetricCollectors *>::iterator metricIt =
+                                                     metricCollectors.begin();
+
+        // Each 'MetricCollectors' object (in the 'd_categories' map) contains
+        // the collectors for a single metric.
+        for (; metricIt != metricCollectors.end(); ++metricIt) {
+            MetricRecord record;
+            (*metricIt)->collectAndReset(&record);
+            records->push_back(record);
+        }
+    }
+}
+
+template <class VECTOR>
+inline
+void CollectorRepository::collectImp(VECTOR         *records,
+                                     const Category *category)
+{
+    BSLMF_ASSERT((u::IsVector<VECTOR, balm::MetricRecord>::value));
+
+    // PRIVATE TYPES
+    bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_rwMutex);
+
+    CategorizedCollectors::iterator catIt = d_categories.find(category);
+    if (catIt != d_categories.end()) {
+
+        bsl::vector<MetricCollectors *>& metricCollectors = catIt->second;
+        records->reserve(records->size() + metricCollectors.size());
+        bsl::vector<MetricCollectors *>::iterator metricIt =
+                                                     metricCollectors.begin();
+
+        // Each 'MetricCollectors' object (in the 'd_categories' map) contains
+        // the collectors for a single metric.
+        for (; metricIt != metricCollectors.end(); ++metricIt) {
+            MetricRecord record;
+            (*metricIt)->collect(&record);
+            records->push_back(record);
+        }
+    }
+}
+
 CollectorRepository::MetricCollectors&
 CollectorRepository::getMetricCollectors(const MetricId& metricId)
 {
@@ -450,49 +518,43 @@ CollectorRepository::getMetricCollectors(const MetricId& metricId)
 void CollectorRepository::collectAndReset(bsl::vector<MetricRecord> *records,
                                           const Category            *category)
 {
-    bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_rwMutex);
-
-    CategorizedCollectors::iterator catIt = d_categories.find(category);
-    if (catIt != d_categories.end()) {
-
-        bsl::vector<MetricCollectors *>& metricCollectors = catIt->second;
-        records->reserve(records->size() + metricCollectors.size());
-        bsl::vector<MetricCollectors *>::iterator metricIt =
-                                                     metricCollectors.begin();
-
-        // Each 'MetricCollectors' object (in the 'd_categories' map) contains
-        // the collectors for a single metric.
-        for (; metricIt != metricCollectors.end(); ++metricIt) {
-            MetricRecord record;
-            (*metricIt)->collectAndReset(&record);
-            records->push_back(record);
-        }
-    }
+    collectAndResetImp(records, category);
 }
+
+void CollectorRepository::collectAndReset(std::vector<MetricRecord> *records,
+                                          const Category            *category)
+{
+    collectAndResetImp(records, category);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+void CollectorRepository::collectAndReset(
+                                      std::pmr::vector<MetricRecord> *records,
+                                      const Category                 *category)
+{
+    collectAndResetImp(records, category);
+}
+#endif
 
 void CollectorRepository::collect(bsl::vector<MetricRecord> *records,
                                   const Category            *category)
 {
-    // PRIVATE TYPES
-    bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_rwMutex);
-
-    CategorizedCollectors::iterator catIt = d_categories.find(category);
-    if (catIt != d_categories.end()) {
-
-        bsl::vector<MetricCollectors *>& metricCollectors = catIt->second;
-        records->reserve(records->size() + metricCollectors.size());
-        bsl::vector<MetricCollectors *>::iterator metricIt =
-                                                     metricCollectors.begin();
-
-        // Each 'MetricCollectors' object (in the 'd_categories' map) contains
-        // the collectors for a single metric.
-        for (; metricIt != metricCollectors.end(); ++metricIt) {
-            MetricRecord record;
-            (*metricIt)->collect(&record);
-            records->push_back(record);
-        }
-    }
+    collectImp(records, category);
 }
+
+void CollectorRepository::collect(std::vector<MetricRecord> *records,
+                                  const Category            *category)
+{
+    collectImp(records, category);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+void CollectorRepository::collect(std::pmr::vector<MetricRecord> *records,
+                                  const Category                 *category)
+{
+    collectImp(records, category);
+}
+#endif
 
 Collector *CollectorRepository::getDefaultCollector(const MetricId& metricId)
 {
@@ -560,6 +622,40 @@ int CollectorRepository::getAddedCollectors(
     }
     return numFound;
 }
+
+int CollectorRepository::getAddedCollectors(
+               std::vector<bsl::shared_ptr<Collector> >         *collectors,
+               std::vector<bsl::shared_ptr<IntegerCollector> >  *intCollectors,
+               const MetricId&                                   metricId)
+{
+    int numFound = 0;
+    bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_rwMutex);
+    Collectors::iterator cIt = d_collectors.find(metricId);
+    if (cIt != d_collectors.end()) {
+        numFound += cIt->second->collectors().getAddedCollectors(collectors);
+        numFound += cIt->second->intCollectors().getAddedCollectors(
+                                                                intCollectors);
+    }
+    return numFound;
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+int CollectorRepository::getAddedCollectors(
+          std::pmr::vector<bsl::shared_ptr<Collector> >         *collectors,
+          std::pmr::vector<bsl::shared_ptr<IntegerCollector> >  *intCollectors,
+          const MetricId&                                        metricId)
+{
+    int numFound = 0;
+    bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_rwMutex);
+    Collectors::iterator cIt = d_collectors.find(metricId);
+    if (cIt != d_collectors.end()) {
+        numFound += cIt->second->collectors().getAddedCollectors(collectors);
+        numFound += cIt->second->intCollectors().getAddedCollectors(
+                                                                intCollectors);
+    }
+    return numFound;
+}
+#endif
 
 }  // close package namespace
 }  // close enterprise namespace
