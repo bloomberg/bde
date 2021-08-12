@@ -16,6 +16,7 @@
 #include <bslmt_barrier.h>
 #include <bslmt_lockguard.h>
 #include <bslmt_testutil.h>
+#include <bslmt_threadutil.h>
 #include <bslmt_throughputbenchmark.h>
 #include <bslmt_throughputbenchmarkresult.h>
 
@@ -766,7 +767,7 @@ enum {
 };
 
 bdlmt::FixedThreadPool *threadPools[NUM_THREADPOOLS];
-bsls::AtomicInt64 numFertileRabbits(0);
+bsls::AtomicInt64       numFertileRabbits(0);
 
 struct EnqueueRabbit {
     bool d_fertile;
@@ -813,6 +814,17 @@ struct TryEnqueueRabbit {
             }
             threadPools[poolIdx]->tryEnqueueJob(TryEnqueueRabbit(1, poolIdx));
         }
+    }
+};
+
+struct Delay {
+    bslmt::Barrier *d_barrier_p;
+
+    Delay(bslmt::Barrier *barrier) : d_barrier_p(barrier) {}
+
+    void operator()() {
+        d_barrier_p->wait();
+        bslmt::ThreadUtil::microSleep(1000);
     }
 };
 
@@ -1149,6 +1161,8 @@ int main(int argc, char *argv[])
         //   'bdlmt_fixedthreadpool' in the 'balm' test drivers.
         //
         // Plan:
+        // --------------------------------------------------------------------
+
         if (verbose) cout << "Check windows test failure\n"
                           << "==========================" << endl;
 
@@ -1180,6 +1194,7 @@ int main(int argc, char *argv[])
         //   reproducing amongst the thread pools, shut them all down, then
         //   test the thread pools to see if any residual jobs were left in
         //   any of the thread pools.  Repeat the process.
+        // --------------------------------------------------------------------
 
         if (verbose) cout << "Check for race condition in shutdown().\n"
                           << "=======================================" << endl;
@@ -1192,6 +1207,8 @@ int main(int argc, char *argv[])
             threadPools[i] = new bdlmt::FixedThreadPool(1,
                                                         THREADPOOL_QUEUE_SIZE);
         }
+
+        bslmt::Barrier barrier(2);
 
 #       ifdef BSLS_PLATFORM_OS_LINUX
             enum {
@@ -1222,7 +1239,7 @@ int main(int argc, char *argv[])
                                              cout << "\n  " << flush;
 
             for (int i = 0; i < NUM_THREADPOOLS; ++i) {
-                threadPools[i]->start();
+                ASSERT(0 == threadPools[i]->start());
             }
 
             bsls::Types::Int64 pauseUntil =
@@ -1238,6 +1255,14 @@ int main(int argc, char *argv[])
             } while (numFertileRabbits < pauseUntil);
 
             for (int i = 0; i < NUM_THREADPOOLS; ++i) {
+                // Create a temporal gap in 'shutdown' between the underlying
+                // queue being disabled and the threadpool's threads being
+                // joined to allow in-progress enqueues from other threadpools
+                // to complete.
+
+                threadPools[i]->enqueueJob(Delay(&barrier));
+                barrier.wait();
+
                 threadPools[i]->shutdown();
                 ASSERT(0 == threadPools[i]->numPendingJobs());
             }
@@ -1261,7 +1286,7 @@ int main(int argc, char *argv[])
                                              cout << "\n  " << flush;
 
             for (int i = 0; i < NUM_THREADPOOLS; ++i) {
-                threadPools[i]->start();
+                ASSERT(0 == threadPools[i]->start());
             }
 
             bsls::Types::Int64 pauseUntil =
@@ -1278,6 +1303,14 @@ int main(int argc, char *argv[])
             } while (numFertileRabbits < pauseUntil);
 
             for (int i = 0; i < NUM_THREADPOOLS; ++i) {
+                // Create a temporal gap in 'shutdown' between the underlying
+                // queue being disabled and the threadpool's threads being
+                // joined to allow in-progress enqueues from other threadpools
+                // to complete.
+
+                threadPools[i]->enqueueJob(Delay(&barrier));
+                barrier.wait();
+
                 threadPools[i]->shutdown();
                 ASSERT(0 == threadPools[i]->numPendingJobs());
             }

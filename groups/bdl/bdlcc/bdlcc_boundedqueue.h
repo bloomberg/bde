@@ -1319,7 +1319,7 @@ template <class TYPE>
 inline
 bsl::size_t BoundedQueue<TYPE>::capacity() const
 {
-    return d_capacity;
+    return static_cast<bsl::size_t>(d_capacity);
 }
 
 template <class TYPE>
