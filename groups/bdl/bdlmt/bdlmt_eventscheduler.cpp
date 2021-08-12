@@ -712,7 +712,10 @@ int EventScheduler::rescheduleEvent(const Event               *handle,
     bool isNewTop;
     bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
-    h->data().d_nowOffset = returnZero;
+    if (h) {
+        h->data().d_nowOffset = returnZero;
+    }
+
     int ret = d_eventQueue.updateR(h,
                                    newEpochTime.totalMicroseconds(),
                                    &isNewTop);
@@ -738,7 +741,10 @@ int EventScheduler::rescheduleEventAndWait(
         bool isNewTop;
         bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
-        h->data().d_nowOffset = returnZero;
+        if (h) {
+            h->data().d_nowOffset = returnZero;
+        }
+
         ret = d_eventQueue.updateR(h,
                                    newEpochTime.totalMicroseconds(),
                                    &isNewTop);

@@ -1615,8 +1615,11 @@ int EventScheduler::rescheduleEvent(
     bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
     bsls::TimeInterval             offsetFromNow(newEpochTime - CLOCK::now());
 
-    h->data().d_nowOffset =
-         bdlf::BindUtil::bind(timeUntilTrigger<CLOCK, DURATION>, newEpochTime);
+    if (h) {
+        h->data().d_nowOffset =
+                        bdlf::BindUtil::bind(timeUntilTrigger<CLOCK, DURATION>,
+                                             newEpochTime);
+    }
 
     int ret = d_eventQueue.updateR(h,
                                    (now() + offsetFromNow).totalMicroseconds(),
@@ -1650,8 +1653,12 @@ int EventScheduler::rescheduleEventAndWait(
         bsls::TimeInterval             offsetFromNow(
                                                   newEpochTime - CLOCK::now());
 
-        h->data().d_nowOffset = bdlf::BindUtil::bind
-                             (timeUntilTrigger<CLOCK, DURATION>, newEpochTime);
+        if (h) {
+            h->data().d_nowOffset = bdlf::BindUtil::bind(
+                                             timeUntilTrigger<CLOCK, DURATION>,
+                                             newEpochTime);
+        }
+
         ret = d_eventQueue.updateR(h,
                                    (now() + offsetFromNow).totalMicroseconds(),
                                    &isNewTop);
