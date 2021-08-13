@@ -213,7 +213,7 @@ struct PrintUtil {
 
 class AttributeFormatter {
     // This class implements a functional object that renders an attribute
-    // value string.
+    // string.
 
     // PRIVATE TYPES
     typedef bsl::vector<ball::ManagedAttribute> Attributes;
@@ -223,15 +223,18 @@ class AttributeFormatter {
     enum { k_UNSET = -1 };  // Unspecified index
 
     // DATA
-    const bsl::string_view d_key;    // attribute's key
-    int                    d_index;  // cached attribute's index
+    const bsl::string_view d_key;        // attribute's key
+    int                    d_index;      // cached attribute's index
+    bool                   d_renderKey;  // print "key=" before value
 
   public:
     // CREATORS
     explicit
-    AttributeFormatter(const bsl::string_view& key);
+    AttributeFormatter(const bsl::string_view& key, bool renderKey = true);
         // Create an attribute formatter object having the specified 'key' of
-        // an attribute to be rendered.
+        // an attribute to be rendered.  If optionally specified 'renderKey' is
+        // 'true', render attribute as "key=value", and render only the value
+        // of the attribute otherwize.
 
     // MANIPULATORS
     void operator()(bsl::string *result, const Record& record);
@@ -507,29 +510,32 @@ void PrintUtil::appendString(bsl::string             *result,
 {
     if (notPrintable) {
 
-        bsl::string_view::const_iterator p   = string.begin();
-        bsl::string_view::const_iterator q   = p;
+        bsl::string_view::const_iterator startRange = string.begin();
+        bsl::string_view::const_iterator endRange   = startRange;
         bsl::string_view::const_iterator end = string.end();
 
-        while (q != end) {
-            if (*q < 0x20 || *q > 0x7E) {  // not printable
-                result->append(&*p, bsl::distance(p, q));
+        while (endRange != end) {
+            if (*endRange < 0x20 || *endRange > 0x7E) {  // not printable
+                result->append(&*startRange, bsl::distance(startRange,
+                                                           endRange));
 
                 static const char HEX[] = "0123456789ABCDEF";
-                const char        value = *q;
+                const char        value = *endRange;
 
                 *result += "\\x";
                 *result += HEX[(value >> 4) & 0xF];
                 *result += HEX[value        & 0xF];
 
-                ++q;
-                p = q;
+                ++endRange;
+                startRange = endRange;
             }
             else {
-                ++q;
+                ++endRange;
             }
         }
-        result->append(&*p, bsl::distance(p, q));
+        if (startRange != end) {
+            result->append(&*startRange, bsl::distance(startRange, endRange));
+        }
     }
     else {
         result->append(string.data(), string.length());
@@ -588,9 +594,11 @@ void PrintUtil::appendUserFields(bsl::string *result, const Record& record)
                        // class AttributeFormatter
                        // ------------------------
 
-AttributeFormatter::AttributeFormatter(const bsl::string_view& key)
+AttributeFormatter::AttributeFormatter(const bsl::string_view& key,
+                                       bool                    renderKey)
 : d_key(key)
 , d_index(k_UNSET)
+, d_renderKey(renderKey)
 {
 }
 
@@ -599,8 +607,12 @@ void AttributeFormatter::operator()(bsl::string *result, const Record& record)
     const Attributes& attributes = record.attributes();
     if (k_UNSET == d_index ||
         d_index >= static_cast<int>(attributes.size()) ||
-        d_key   != attributes.at(d_index).key())
+        d_key   != attributes[d_index].key())
     {
+        // If either d_index has not been cached before, or if it's value no
+        // longer refers to the correct attribute (because the set of collected
+        // attributes has changed) we need to try and set d_index.
+
         d_index = k_UNSET;
         for (Attributes::const_iterator i = attributes.begin();
              i != attributes.end();
@@ -613,12 +625,12 @@ void AttributeFormatter::operator()(bsl::string *result, const Record& record)
             }
         }
         if (k_UNSET == d_index) {
-            *result += d_key;
-            *result += "=N/A";
+            // If an attribute with the specified key is not found, print
+            // nothing.
             return;                                                   // RETURN
         }
     }
-    PrintUtil::appendAttribute(result, attributes.at(d_index), false);
+    PrintUtil::appendAttribute(result, attributes.at(d_index), d_renderKey);
 }
 
                        // -------------------------
@@ -911,21 +923,27 @@ void RecordStringFormatter::parseFormatSpecification()
                                                 _1,
                                                 _2));
               } break;
-              case 'a': {  // ---------------- Attributes (%a) ----------------
+              case 'a': {  // ---------------- Attributes (%a/%av) ------------
                 bsl::string::iterator j = i + 1;
+                bool renderKey = true;
+
+                if (j != end && 'v' == *j) {
+                    renderKey = false;
+                    ++j;
+                }
                 if (j != end && '[' == *j) {
-                    j = bsl::find(j + 1, end, ']');
-                    if (j != end) {
-                        const bsl::string_view key(i + 2,
-                                                   bsl::distance(i + 2, j));
+                    bsl::string::iterator keyEnd = bsl::find(j + 1, end, ']');
+                    if (keyEnd != end) {
+                        const bsl::string_view key(j + 1,
+                                                   bsl::distance(j+1, keyEnd));
                         d_fieldFormatters.emplace_back(
-                                                      AttributeFormatter(key));
+                                           AttributeFormatter(key, renderKey));
                         if (d_skipAttributes.end() ==
                             d_skipAttributes.find(key))
                         {
                             d_skipAttributes.emplace(key);
                         }
-                        i = j;
+                        i = keyEnd;
                     }
                 }
                 else {

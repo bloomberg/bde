@@ -717,13 +717,15 @@ int main(int argc, char *argv[])
         //:   attributes of the record, separated by space.
         //:
         //: 2 The '%a[key]' specifier (where 'key' is the name of the
-        //:   attribute belonged to the record) outputs the attribute's value
+        //:   attribute belonged to the record) outputs the attribute in the
+        //:   form 'key=value', while '%av[key]' outputs the attribute's value
         //:   only.
         //:
         //: 3 The '%a' specifier output only those attributes not already
-        //:   rendered by a qualified '%a' instance.
+        //:   rendered by a qualified '%a'/'%av' instance.
         //:
-        //: 4 The '%a' and '%a[key]' do not duplicate attribute rendering.
+        //: 4 The '%a' and '%a[key]'/'%av[key]' do not duplicate attribute
+        //:   rendering.
         //:
         //: 5 All specifiers output attributes in the order in which they were
         //:   added.
@@ -738,8 +740,8 @@ int main(int argc, char *argv[])
         //:
         //: 2 Using the table-driven technique:
         //:
-        //:   2.1 Set a combination of '%a', '%a[key]' and '%A' specifiers as
-        //:       a format string to the object under the test.
+        //:   2.1 Set a combination of '%a', '%a[key]', '%av[key] and '%A'
+        //:       specifiers as a format string to the object under the test.
         //:
         //:   2.2 Invoke 'operator(bsl::ostream&, const ball::Record&)' and
         //:       make sure that the object under the test writes to the
@@ -769,29 +771,51 @@ int main(int argc, char *argv[])
             const char *d_expected;
         } DATA[] = {
     //------------------------------------------------------------------------
-    // line | spec                    | expected
+    // line | spec                      | expected
     //------------------------------------------------------------------------
-    { L_,    "%a",                     "name=\"Name\" number=1234"           },
-    { L_,    "%A",                     "name=\"Name\" number=1234"           },
-    { L_,    "%a %A",                  "name=\"Name\" number=1234 "
-                                       "name=\"Name\" number=1234"           },
-    { L_,    "%a %A %a[name]",         "number=1234 name=\"Name\" "
-                                       "number=1234 \"Name\""                },
-    { L_,    "%a[name]",               "\"Name\""                            },
-    { L_,    "%a[number]",             "1234"                                },
-    { L_,    "%a[name] %a[number]",    "\"Name\" 1234"                       },
-    { L_,    "%a[number] %a[name]",    "1234 \"Name\""                       },
-    { L_,    "%a[other]",              "other=N/A"                           },
-    { L_,    "%A %a[name]",            "name=\"Name\" number=1234 \"Name\""  },
-    { L_,    "%a[name] %A",            "\"Name\" name=\"Name\" number=1234"  },
-    { L_,    "%a %a[other]",           "name=\"Name\" number=1234 other=N/A" },
-    { L_,    "%A %a[other]",           "name=\"Name\" number=1234 other=N/A" },
-    { L_,    "%a[name] %a",            "\"Name\" number=1234"                },
-    { L_,    "%A %a[name]",            "name=\"Name\" number=1234 \"Name\""  },
-    { L_,    "%a %a[name] %a[number]", " \"Name\" 1234"                      },
-    { L_,    "%a[name] %a %a[number]", "\"Name\"  1234"                      },
-    { L_,    "%a[name] %a[number] %a", "\"Name\" 1234 "                      },
-    { L_,    "%a[name] %a[other] %a",  "\"Name\" other=N/A number=1234"      }
+    { L_,    "%a",                       "name=\"Name\" number=1234"         },
+    { L_,    "%A",                       "name=\"Name\" number=1234"         },
+    { L_,    "%a %A",                    "name=\"Name\" number=1234 "
+                                         "name=\"Name\" number=1234"         },
+    { L_,    "%a %A %a[name]",           "number=1234 name=\"Name\" "
+                                         "number=1234 name=\"Name\""         },
+    { L_,    "%a[name]",                 "name=\"Name\""                     },
+    { L_,    "%a[number]",               "number=1234"                       },
+    { L_,    "%a[name] %a[number]",      "name=\"Name\" number=1234"         },
+    { L_,    "%a[number] %a[name]",      "number=1234 name=\"Name\""         },
+    { L_,    "%a[bad]",                  ""                                  },
+    { L_,    "%A %a[name]",       "name=\"Name\" number=1234 name=\"Name\""  },
+    { L_,    "%a[name] %A",       "name=\"Name\" name=\"Name\" number=1234"  },
+    { L_,    "%a %a[bad]",               "name=\"Name\" number=1234 "        },
+    { L_,    "%A %a[bad]",               "name=\"Name\" number=1234 "        },
+    { L_,    "%a[name] %a",              "name=\"Name\" number=1234"         },
+    { L_,    "%A %a[name]",       "name=\"Name\" number=1234 name=\"Name\""  },
+    { L_,    "%a %a[name] %a[number]",   " name=\"Name\" number=1234"        },
+    { L_,    "%a[name] %a %a[number]",   "name=\"Name\"  number=1234"        },
+    { L_,    "%a[name] %a[number] %a",   "name=\"Name\" number=1234 "        },
+    { L_,    "%a[name] %a[bad] %a",      "name=\"Name\"  number=1234"        },
+
+    { L_,    "%avXX",                    "name=\"Name\" number=1234vXX"      },
+    { L_,    "%av[name]",                "\"Name\""                          },
+    { L_,    "%av[number]",              "1234"                              },
+    { L_,    "%av[name] %av[number]",    "\"Name\" 1234"                     },
+    { L_,    "%av[number] %av[name]",    "1234 \"Name\""                     },
+    { L_,    "%av[bad]",                 ""                                  },
+    { L_,    "%A %av[name]",             "name=\"Name\" number=1234 \"Name\""},
+    { L_,    "%av[name] %A",             "\"Name\" name=\"Name\" number=1234"},
+    { L_,    "%a %av[bad]",              "name=\"Name\" number=1234 "        },
+    { L_,    "%A %av[bad]",              "name=\"Name\" number=1234 "        },
+    { L_,    "%av[name] %a",             "\"Name\" number=1234"              },
+    { L_,    "%A %a[name]",       "name=\"Name\" number=1234 name=\"Name\""  },
+    { L_,    "%a %av[name] %av[number]", " \"Name\" 1234"                    },
+    { L_,    "%av[name] %a %av[number]", "\"Name\"  1234"                    },
+    { L_,    "%av[name] %av[number] %a", "\"Name\" 1234 "                    },
+    { L_,    "%av[name] %av[bad] %a",    "\"Name\"  number=1234"             },
+
+    { L_,    "%a[name] %av[name]",       "name=\"Name\" \"Name\""            },
+    { L_,    "%av[name] %a[number]",     "\"Name\" number=1234"              },
+    { L_,    "NAME=%av[name]",           "NAME=\"Name\""                     },
+    { L_,    "NAME=%av[bad]",            "NAME="                             },
             };
 
           enum { NUM_DATA = sizeof DATA / sizeof *DATA };
@@ -816,7 +840,7 @@ int main(int argc, char *argv[])
                   if (veryVerbose) {
                       T_ P_(LINE); P_(SPEC); P_(oss.str()); P(EXPECTED);
                   }
-                  ASSERT(oss.str() == EXPECTED);
+                  ASSERTV(LINE, oss.str(), EXPECTED, oss.str() == EXPECTED);
               }
           }
       } break;
@@ -1440,13 +1464,29 @@ int main(int argc, char *argv[])
             }
         }
 
+        if (verbose) cout << "\n  Testing \"%av\"." << endl;
+        {
+            oss1.str("");
+            oss2.str("");
+            mX.setFormat("%av");
+            X(oss1, record);
+            oss2 << "name=\"Name\" number=1234v";
+            {
+                bslma::TestAllocator         da;
+                bslma::DefaultAllocatorGuard guard(&da);
+                if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
+                ASSERTV(oss1.str(), oss2.str(),
+                        compareText(oss1.str(),oss2.str()));
+            }
+        }
+
         if (verbose) cout << "\n  Testing \"%a[key]\"." << endl;
         {
             oss1.str("");
             oss2.str("");
             mX.setFormat("%a[name]");
             X(oss1, record);
-            oss2 << "\"Name\"";
+            oss2 << "name=\"Name\"";
             {
                 bslma::TestAllocator         da;
                 bslma::DefaultAllocatorGuard guard(&da);
@@ -1462,7 +1502,7 @@ int main(int argc, char *argv[])
             oss2.str("");
             mX.setFormat("%A %a[name]");
             X(oss1, record);
-            oss2 << "name=\"Name\" number=1234 \"Name\"";
+            oss2 << "name=\"Name\" number=1234 name=\"Name\"";
             {
                 bslma::TestAllocator         da;
                 bslma::DefaultAllocatorGuard guard(&da);

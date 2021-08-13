@@ -60,8 +60,12 @@ BSLS_IDENT("$Id: $")
 //  %u - user-defined fields
 //  %% - single '%' character
 //  %A - log all the attributes of the record
-//  %a - log only those attributes not already logged by the %a[name] specifier
-//  %a[name] - log an attribute's value, where 'name' is the attribute's name
+//  %a - log only those attributes not already logged by the %a[name] or
+//       %av[name] specifier(s)
+//  %a[name] - log an attribute with the specified 'name' as "name=value",
+//       log nothing if the attribute with the specified 'name' is not found
+//  %av[name] - log only the value of an attribute with the specified 'name',
+//       log nothing if the attribute with the specified 'name' is not found
 //..
 // (Note that '%F' is used to indicate the shortened form of '__FILE__' rather
 // than '%f' because '%f' was given its current interpretation in an earlier
