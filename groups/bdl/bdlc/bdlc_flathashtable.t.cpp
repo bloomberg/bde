@@ -1644,9 +1644,17 @@ void testCase14MoveConstructorWithAllocator(int id)
             }
 
             // Verify the validity and value of the object after modifying 'Y'.
-
-            if (0 != W.size()) {
+            if (W.empty()) {
+                LOOP2_ASSERT(id, LINE, pY->empty());
+                LOOP2_ASSERT(id, LINE, *pY == W);
+            }
+            else if (Y.allocator() == objPtr->allocator()) {
+                LOOP2_ASSERT(id, LINE, pY->empty());
                 LOOP2_ASSERT(id, LINE, *pY != W);
+            }
+            else if (Y.allocator() != objPtr->allocator()) {
+                LOOP2_ASSERT(id, LINE, !pY->empty());
+                LOOP2_ASSERT(id, LINE, *pY == W);
             }
 
             mY = bslmf::MovableRefUtil::move(W);
@@ -2201,19 +2209,20 @@ void testCase7CopyConstructor(int id)
 
             switch (CONFIG) {
               case 'a': {
-                objPtr = new (fa) Obj(Z);
+                objPtr          = new (fa) Obj(Z);
                 objAllocatorPtr = &da;
               } break;
               case 'b': {
-                  objPtr = new (fa) Obj(Z, 0);
-                  objAllocatorPtr = &da;
+                objPtr          = new (fa) Obj(Z, 0);
+                objAllocatorPtr = &da;
               } break;
               case 'c': {
-                  objPtr = new (fa) Obj(Z, &sa);
-                  objAllocatorPtr = &sa;
+                objPtr          = new (fa) Obj(Z, &sa);
+                objAllocatorPtr = &sa;
               } break;
               default: {
-                  LOOP_ASSERT(CONFIG, !"Bad allocator config.");
+                LOOP_ASSERT(CONFIG, !"Bad allocator config.");
+                continue;
               } break;
             }
             LOOP3_ASSERT(id, LINE, CONFIG, sizeof(Obj) == fa.numBytesInUse());

@@ -120,6 +120,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlb_bitutil.h>
 
+#include <bslalg_arrayprimitives.h>
 #include <bslalg_swaputil.h>
 
 #include <bslma_allocator.h>
@@ -129,6 +130,7 @@ BSLS_IDENT("$Id: $")
 #include <bslma_destructorguard.h>
 #include <bslma_destructorproctor.h>
 
+#include <bslmf_assert.h>
 #include <bslmf_enableif.h>
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_isconvertible.h>
@@ -156,49 +158,14 @@ namespace BloombergLP {
 namespace bdlc {
 
 // FORWARD DECLARATIONS
+struct FlatHashTable_ImplUtil;
+
 template <class ENTRY>
 class FlatHashTable_IteratorImp;
 
 template <class ENTRY>
 bool operator==(const class FlatHashTable_IteratorImp<ENTRY>&,
                 const class FlatHashTable_IteratorImp<ENTRY>&);
-
-                     // ================================
-                     // class FlatHashTable_ResetProctor
-                     // ================================
-
-template <class TYPE>
-class FlatHashTable_ResetProctor {
-    // This class implements a proctor that, unless its 'release' method has
-    // previously been invoked, on destruction automatically invokes the
-    // 'reset' method of the 'TYPE' object supplied at construction.
-
-    // DATA
-    TYPE *d_object_p;  // managed object
-
-    // NOT IMPLEMENTED
-    FlatHashTable_ResetProctor() BSLS_KEYWORD_DELETED;
-    FlatHashTable_ResetProctor(const FlatHashTable_ResetProctor&)
-                                                          BSLS_KEYWORD_DELETED;
-    FlatHashTable_ResetProctor& operator=(const FlatHashTable_ResetProctor&)
-                                                          BSLS_KEYWORD_DELETED;
-
-  public:
-    // CREATORS
-    explicit FlatHashTable_ResetProctor(TYPE *object);
-        // Create a 'reset' proctor that conditionally manages the specified
-        // 'object'.  If 'object' is zero the destruction of this object is a
-        // no-op.
-
-    ~FlatHashTable_ResetProctor();
-        // Destroy this object and, if 'release' has not been invoked, invoke
-        // the managed object's 'reset' method.
-
-    // MANIPULATORS
-    void release();
-        // Release from management the object currently managed by this
-        // proctor.  If no object is being managed, this method has no effect.
-};
 
                      // ===============================
                      // class FlatHashTable_IteratorImp
@@ -286,6 +253,7 @@ class FlatHashTable
 {
     // PRIVATE TYPES
     typedef FlatHashTable_GroupControl       GroupControl;
+    typedef FlatHashTable_ImplUtil           ImplUtil;
     typedef FlatHashTable_IteratorImp<ENTRY> IteratorImp;
 
   public:
@@ -323,12 +291,6 @@ class FlatHashTable
         // entries.
 
     // PRIVATE MANIPULATORS
-    void clearEntriesRaw();
-        // Remove all entries from this table but do not update the control
-        // values or size.  The behavior is undefined unless the control values
-        // and size are updated (marked empty) before invoking any other
-        // method.
-
     bsl::size_t indexOfKey(bool        *notFound,
                            const KEY&   key,
                            bsl::size_t  hashValue);
@@ -370,9 +332,6 @@ class FlatHashTable
                                                       // min. non-zero capacity
 
     static const bsl::int8_t  k_HASHLET_MASK = 0x7f;  // hashlet = hash & MASK
-
-    static const bsl::uint8_t k_AVAIL_MASK = 0x80;    // entry is not in use if
-                                                      // this bit is set
 
     static const bsl::size_t  k_MAX_LOAD_FACTOR_NUMERATOR = 7;
                                                       // numerator of fraction
@@ -730,38 +689,240 @@ void swap(FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>& a,
     // provides the no-throw exception-safety guarantee if the two objects were
     // created with the same allocator and the basic guarantee otherwise.
 
+                       // =============================
+                       // struct FlatHashTable_ImplUtil
+                       // =============================
+
+struct FlatHashTable_ImplUtil {
+    // This component-private, utility 'struct' provides a namespace for a
+    // suite of operations used in the implementation of the 'FlatHashTable'
+    // class template.
+
+  private:
+    // PRIVATE TYPES
+    typedef bsl::false_type            EntryTypeIsNotTriviallyCopyable;
+    typedef bsl::true_type             EntryTypeIsTriviallyCopyable;
+    typedef FlatHashTable_GroupControl GroupControl;
+
+    template <class ENTRY_TYPE>
+    class DestroyEntryArrayProctor;
+        // This component-private, mechanism class template provides a proctor
+        // that, unless its 'release' method has been previously invoked, on
+        // destruction automatically destroys the populated 'ENTRY_TYPE'
+        // elements of an 'ENTRY_TYPE' array supplied on construction as
+        // indicated by a "control" byte array supplied on construction.
+
+    // PRIVATE CLASS METHODS
+    template <class ENTRY_TYPE>
+    static void copyEntryAndControlArrays(
+                      ENTRY_TYPE                      *firstDestinationEntry,
+                      bsl::uint8_t                    *firstDestinationControl,
+                      const ENTRY_TYPE                *firstSourceEntry,
+                      const ENTRY_TYPE                *lastSourceEntry,
+                      const bsl::uint8_t              *firstSourceControl,
+                      const bsl::uint8_t              *lastSourceControl,
+                      bslma::Allocator                *entryAllocator,
+                      EntryTypeIsNotTriviallyCopyable  tag);
+    template <class ENTRY_TYPE>
+    static void copyEntryAndControlArrays(
+                         ENTRY_TYPE                   *firstDestinationEntry,
+                         bsl::uint8_t                 *firstDestinationControl,
+                         const ENTRY_TYPE             *firstSourceEntry,
+                         const ENTRY_TYPE             *lastSourceEntry,
+                         const bsl::uint8_t           *firstSourceControl,
+                         const bsl::uint8_t           *lastSourceControl,
+                         bslma::Allocator             *entryAllocator,
+                         EntryTypeIsTriviallyCopyable  tag);
+        // Copy the specified range '[firstSourceControl, lastSourceControl)'
+        // to the array specified by 'firstDestinationControl', and copy each
+        // element in the specified range '[firstSourceEntry, lastSourceEntry)'
+        // at the same index as each byte in the range '[firstSourceControl,
+        // lastSourceControl)' that has its most-significant bit unset, to the
+        // corresponding location in the contiguous storage for 'ENTRY_TYPE'
+        // objects specified by 'firstDestinationEntry'.  Use the specified
+        // 'entryAllocator' as the object allocator for each newly-constructed
+        // 'ENTRY_TYPE' object if 'ENTRY_TYPE' is allocator-aware.  If
+        // 'entryAllocator' is 0, the currently-installed default allocator is
+        // used.  No exception is thrown if the specified 'ENTRY_TYPE' is
+        // nothrow-copyable, otherwise an exception may be thrown.  The
+        // behavior is undefined unless
+        // 'bsl::is_trivially_copyable<ENTRY_TYPE>::value' is equal to the
+        // 'value' member of the type of the specified 'tag',
+        // 'firstDestinationEntry' is a pointer to the first byte of
+        // uninitialized and correctly aligned storage for at least
+        // 'bsl::distance(firstSourceEntry, lastSourceEntry)' 'ENTRY_TYPE'
+        // objects, 'firstDestinationControl' is a pointer to the first byte of
+        // 'bsl::distance(firstSourceEntry, lastSourceEntry)' bytes of
+        // uninitialized storage, the range '[firstSourceEntry,
+        // lastSourceEntry)' denotes a contiguous array of storage for
+        // optionally-constructed 'ENTRY_TYPE' objects, the range
+        // '[firstSourceControl, lastSourceControl)' denotes a contiguous array
+        // of 'bsl::uint8_t' objects, an 'ENTRY_TYPE' object exists at the same
+        // index in the '[firstSourceEntry, lastSourceEntry)' storage range as
+        // each byte in the range '[firstControlEntry, lastControlEntry)' that
+        // has its most significant bit unset, and
+        // 'bsl::distance(firstSourceEntry, lastSourceEntry)' is equal to
+        // 'bsl::distance(firstSourceControl, lastSourceControl)'.
+
+
+    template <class ENTRY_TYPE>
+    static void destroyEntryArray(
+                                 ENTRY_TYPE                      *firstEntry,
+                                 ENTRY_TYPE                      *lastEntry,
+                                 const bsl::uint8_t              *firstControl,
+                                 const bsl::uint8_t              *lastControl,
+                                 EntryTypeIsNotTriviallyCopyable  tag);
+    template <class ENTRY_TYPE>
+    static void destroyEntryArray(ENTRY_TYPE                   *firstEntry,
+                                  ENTRY_TYPE                   *lastEntry,
+                                  const bsl::uint8_t           *firstControl,
+                                  const bsl::uint8_t           *lastControl,
+                                  EntryTypeIsTriviallyCopyable  tag);
+        // Destroy each entry object in the storage specified by the range
+        // '[firstEntry, lastEntry)' if the most-significant bit is unset in
+        // the corresponding element in the specified range '[firstControl,
+        // lastControl)' (i.e., the most-significant bit of the element in the
+        // "control" array that has the same index as the element in the
+        // "entry" array is unset).  No exception is thrown.  The behavior is
+        // undefined unless 'bsl::is_trivially_copyable<ENTRY_TYPE>::value' is
+        // equal to the 'value' member of the type of the specified 'tag', the
+        // range '[firstEntry, lastEntry)' denotes a contiguous array of
+        // storage for optionally-constructed 'ENTRY_TYPE' objects, the range
+        // '[firstControl, lastControl)' denotes a contiguous array of
+        // 'bsl::uint8_t' objects, the two arrays have the same number of
+        // elements, and an 'ENTRY_TYPE' object exists at the same index in the
+        // '[firstEntry, lastEntry)' storage range for each element in the
+        // '[firstControl, lastControl)' range that has its first bit unset.
+
+  public:
+    // CLASS METHODS
+    template <class ENTRY_TYPE>
+    static void
+    copyEntryAndControlArrays(ENTRY_TYPE         *firstDestinationEntry,
+                              bsl::uint8_t       *firstDestinationControl,
+                              const ENTRY_TYPE   *firstSourceEntry,
+                              const ENTRY_TYPE   *lastSourceEntry,
+                              const bsl::uint8_t *firstSourceControl,
+                              const bsl::uint8_t *lastSourceControl,
+                              bslma::Allocator   *entryAllocator);
+        // Copy the specified range '[firstSourceControl, lastSourceControl)'
+        // to the array specified by 'firstDestinationControl', and copy each
+        // element in the specified range '[firstSourceEntry, lastSourceEntry)'
+        // at the same index as each byte in the range '[firstSourceControl,
+        // lastSourceControl)' that has its most-significant bit unset, to the
+        // corresponding location in the contiguous storage for 'ENTRY_TYPE'
+        // objects specified by 'firstDestinationEntry'.  Use the specified
+        // 'entryAllocator' as the object allocator for each newly-constructed
+        // 'ENTRY_TYPE' object if 'ENTRY_TYPE' is allocator-aware.  If
+        // 'entryAllocator' is 0, the currently-installed default allocator is
+        // used.  No exception is thrown if the specified 'ENTRY_TYPE' is
+        // nothrow-copyable, otherwise an exception may be thrown.  The
+        // behavior is undefined unless 'firstDestinationEntry' is a pointer to
+        // the first byte of uninitialized and correctly aligned storage for at
+        // least 'bsl::distance(firstSourceEntry, lastSourceEntry)'
+        // 'ENTRY_TYPE' objects, 'firstDestinationControl' is a pointer to the
+        // first byte of 'bsl::distance(firstSourceEntry, lastSourceEntry)'
+        // bytes of uninitialized storage, the range '[firstSourceEntry,
+        // lastSourceEntry)' denotes a contiguous array of storage for
+        // optionally-constructed 'ENTRY_TYPE' objects, the range
+        // '[firstSourceControl, lastSourceControl)' denotes a contiguous array
+        // of 'bsl::uint8_t' objects, an 'ENTRY_TYPE' object exists at the same
+        // index in the '[firstSourceEntry, lastSourceEntry)' storage range as
+        // each byte in the range '[firstControlEntry, lastControlEntry)' that
+        // has its most significant bit unset, and
+        // 'bsl::distance(firstSourceEntry, lastSourceEntry)' is equal to
+        // 'bsl::distance(firstSourceControl, lastSourceControl)'.
+
+    template <class ENTRY_TYPE>
+    static void destroyEntryArray(ENTRY_TYPE         *firstEntry,
+                                  ENTRY_TYPE         *lastEntry,
+                                  const bsl::uint8_t *firstControl,
+                                  const bsl::uint8_t *lastControl);
+        // Destroy each entry object in the storage specified by the range
+        // '[firstEntry, lastEntry)' if the most-significant bit is unset in
+        // the corresponding element in the specified range '[firstControl,
+        // lastControl)' (i.e., the most-significant bit of the element in the
+        // "control" array that has the same index as the element in the
+        // "entry" array is unset).  No exception is thrown.  The behavior is
+        // undefined unless the range '[firstEntry, lastEntry)' denotes a
+        // contiguous array of storage for optionally-constructed 'ENTRY_TYPE'
+        // objects, the range '[firstControl, lastControl)' denotes a
+        // contiguous array of 'bsl::uint8_t' objects, the two arrays have the
+        // same number of elements, and an 'ENTRY_TYPE' object exists at the
+        // same index in the '[firstEntry, lastEntry)' storage range for each
+        // element in the '[firstControl, lastControl)' range that has its
+        // first bit unset.
+};
+
+           // ======================================================
+           // class FlatHashTable_ImplUtil::DestroyEntryArrayProctor
+           // ======================================================
+
+template <class ENTRY_TYPE>
+class FlatHashTable_ImplUtil::DestroyEntryArrayProctor {
+    // This component-private, mechanism class template provides a proctor
+    // that, unless its 'release' method has been previously invoked, on
+    // destruction automatically destroys the populated 'ENTRY_TYPE' elements
+    // of an 'ENTRY_TYPE' array supplied on construction as indicated by a
+    // "control" byte array supplied on construction.
+
+    // PRIVATE TYPES
+    typedef FlatHashTable_GroupControl GroupControl;
+    typedef FlatHashTable_ImplUtil     ImplUtil;
+
+    // DATA
+    ENTRY_TYPE         *d_firstEntry_p;
+        // pointer to first element of entry array
+
+    ENTRY_TYPE         *d_lastEntry_p;
+        // pointer to one-past-the-end of entry array
+
+    const bsl::uint8_t *d_firstControl_p;
+        // pointer to first element of control array
+
+    const bsl::uint8_t *d_lastControl_p;
+        // pointer to one-past-the-end of control array
+
+    // NOT IMPLEMENTED
+    DestroyEntryArrayProctor(const DestroyEntryArrayProctor&);
+    DestroyEntryArrayProctor& operator=(const DestroyEntryArrayProctor&);
+
+  public:
+    // CREATORS
+    DestroyEntryArrayProctor(ENTRY_TYPE         *firstEntry,
+                             ENTRY_TYPE         *lastEntry,
+                             const bsl::uint8_t *firstControl,
+                             const bsl::uint8_t *lastControl);
+        // Create a new 'DestroyEntryArrayProctor' object for the contiguous
+        // 'ENTRY_TYPE' storage delimited by the range specified by
+        // '[firstEntry, lastEntry)' controlled by the bytes in the range
+        // specified by '[firstControl, lastControl)'.  The behavior is
+        // undefined unless 'bsl::distance(firstEntry, lastEntry) ==
+        // bsl::distance('firstControl, lastControl)'.  Note that these ranges
+        // may be valid sub-ranges (or "views") of larger arrays, and these
+        // sub-ranges can be grown or shrunk by 'moveEnd'.
+
+    ~DestroyEntryArrayProctor();
+        // Destroy this object and each object in the entry storage array held
+        // by this object where the most-significant bit of the corresponding
+        // element in the control array held by this object is unset.
+
+    // MANIPULATORS
+    void moveEnd(bsl::ptrdiff_t offset);
+        // Move the end of the entry and control ranges held by this object by
+        // the specified 'offset'.
+
+    void release();
+        // Release the entry and control ranges held by this object from
+        // management by this object, and set this object's held entry and
+        // control arrays to the corresponding empty arrays.  If the entry and
+        // control arrays held by this object are empty, this method has no
+        // effect.
+};
+
 // ============================================================================
 //                             INLINE DEFINITIONS
 // ============================================================================
-
-                     // --------------------------------
-                     // class FlatHashTable_ResetProctor
-                     // --------------------------------
-
-// CREATORS
-template <class TYPE>
-inline
-FlatHashTable_ResetProctor<TYPE>::FlatHashTable_ResetProctor(TYPE *object)
-: d_object_p(object)
-{
-}
-
-template <class TYPE>
-inline
-FlatHashTable_ResetProctor<TYPE>::~FlatHashTable_ResetProctor()
-{
-    if (d_object_p) {
-        d_object_p->reset();
-    }
-}
-
-// MANIPULATORS
-template <class TYPE>
-inline
-void FlatHashTable_ResetProctor<TYPE>::release()
-{
-    d_object_p = 0;
-}
 
                      // -------------------------------
                      // class FlatHashTable_IteratorImp
@@ -890,23 +1051,6 @@ bsl::size_t FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::findAvailable(
 }
 
 // PRIVATE MANIPULATORS
-template <class KEY, class ENTRY, class ENTRY_UTIL, class HASH, class EQUAL>
-void FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::clearEntriesRaw()
-{
-    for (bsl::size_t i = 0; i < d_capacity; i += GroupControl::k_SIZE) {
-        bsl::uint8_t *controlStart = d_controls_p + i;
-        ENTRY        *entryStart   = d_entries_p  + i;
-
-        GroupControl  groupControl(controlStart);
-        bsl::uint32_t candidates = groupControl.inUse();
-        while (candidates) {
-            int offset = bdlb::BitUtil::numTrailingUnsetBits(candidates);
-            bslma::DestructionUtil::destroy(entryStart + offset);
-            candidates = bdlb::BitUtil::withBitCleared(candidates, offset);
-        }
-    }
-}
-
 template <class KEY, class ENTRY, class ENTRY_UTIL, class HASH, class EQUAL>
 bsl::size_t FlatHashTable<KEY,
                           ENTRY,
@@ -1040,6 +1184,7 @@ bsl::size_t FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::findKey(
 
         index = (index + GroupControl::k_SIZE) & (d_capacity - 1);
     }
+
     return d_capacity;
 }
 
@@ -1121,56 +1266,41 @@ FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::FlatHashTable(
 : d_entries_p(0)
 , d_controls_p(0)
 , d_size(0)
-, d_capacity(original.d_capacity)
+, d_capacity(0)
 , d_groupControlShift(original.d_groupControlShift)
 , d_hasher(original.hash_function())
 , d_equal(original.key_eq())
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
-    if (d_capacity) {
-        d_controls_p = static_cast<bsl::uint8_t *>(
-                                          d_allocator_p->allocate(d_capacity));
-        bsl::memset(d_controls_p, GroupControl::k_EMPTY, d_capacity);
-
+    if (0 != original.d_capacity) {
+        bsl::uint8_t *const controls = static_cast<bsl::uint8_t *>(
+            d_allocator_p->allocate(original.d_capacity));
         bslma::DeallocatorProctor<bslma::Allocator> controlsProctor(
-                                                                d_controls_p,
+                                                                controls,
                                                                 d_allocator_p);
 
-        d_entries_p = static_cast<ENTRY *>(
-                          d_allocator_p->allocate(d_capacity * sizeof(ENTRY)));
+        ENTRY *const entries = static_cast<ENTRY *>(
+            d_allocator_p->allocate(original.d_capacity * sizeof(ENTRY)));
+        bslma::DeallocatorProctor<bslma::Allocator> entriesProctor(
+                                                                entries,
+                                                                d_allocator_p);
 
+        ImplUtil::copyEntryAndControlArrays(
+            entries,
+            controls,
+            original.d_entries_p,
+            original.d_entries_p + original.d_capacity,
+            original.d_controls_p,
+            original.d_controls_p + original.d_capacity,
+            d_allocator_p);
+
+        entriesProctor.release();
         controlsProctor.release();
 
-        if (false == bsl::is_trivially_copyable<ENTRY>::value) {
-            FlatHashTable_ResetProctor<
-                                     FlatHashTable<KEY,
-                                                   ENTRY,
-                                                   ENTRY_UTIL,
-                                                   HASH,
-                                                   EQUAL> > resetProctor(this);
-
-            for (bsl::size_t i = 0; i < d_capacity; ++i) {
-                if (0 == (original.d_controls_p[i] & k_AVAIL_MASK)) {
-                    bslma::ConstructionUtil::construct(
-                                                      d_entries_p + i,
-                                                      d_allocator_p,
-                                                      original.d_entries_p[i]);
-                    ++d_size;
-                }
-                d_controls_p[i] = original.d_controls_p[i];
-            }
-
-            resetProctor.release();
-        }
-        else {
-            bsl::memcpy(d_entries_p,
-                        original.d_entries_p,
-                        d_capacity * sizeof(ENTRY));
-
-            bsl::memcpy(d_controls_p, original.d_controls_p, d_capacity);
-
-            d_size = original.d_size;
-        }
+        d_entries_p  = entries;
+        d_controls_p = controls;
+        d_size       = original.d_size;
+        d_capacity   = original.d_capacity;
     }
 }
 
@@ -1199,8 +1329,8 @@ FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::FlatHashTable(
 
 template <class KEY, class ENTRY, class ENTRY_UTIL, class HASH, class EQUAL>
 FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::FlatHashTable(
-                              bslmf::MovableRef<FlatHashTable>  original,
-                              bslma::Allocator                 *basicAllocator)
+    bslmf::MovableRef<FlatHashTable>  original,
+    bslma::Allocator                 *basicAllocator)
 : d_entries_p(0)
 , d_controls_p(0)
 , d_size(0)
@@ -1220,76 +1350,34 @@ FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::FlatHashTable(
                                &reference.d_groupControlShift);
     }
     else if (reference.d_capacity) {
-        d_capacity          = reference.d_capacity;
-        d_groupControlShift = reference.d_groupControlShift;
-
-        d_controls_p = static_cast<bsl::uint8_t *>(
-                                          d_allocator_p->allocate(d_capacity));
-        bsl::memset(d_controls_p, GroupControl::k_EMPTY, d_capacity);
-
+        bsl::uint8_t *const controls = static_cast<bsl::uint8_t *>(
+            d_allocator_p->allocate(reference.d_capacity));
         bslma::DeallocatorProctor<bslma::Allocator> controlsProctor(
-                                                                d_controls_p,
+                                                                controls,
                                                                 d_allocator_p);
 
-        d_entries_p = static_cast<ENTRY *>(
-                          d_allocator_p->allocate(d_capacity * sizeof(ENTRY)));
+        ENTRY *const entries = static_cast<ENTRY *>(
+            d_allocator_p->allocate(reference.d_capacity * sizeof(ENTRY)));
+        bslma::DeallocatorProctor<bslma::Allocator> entriesProctor(
+                                                                entries,
+                                                                d_allocator_p);
 
+        ImplUtil::copyEntryAndControlArrays(
+            entries,
+            controls,
+            reference.d_entries_p,
+            reference.d_entries_p + reference.d_capacity,
+            reference.d_controls_p,
+            reference.d_controls_p + reference.d_capacity,
+            d_allocator_p);
+
+        entriesProctor.release();
         controlsProctor.release();
 
-        if (false == bsl::is_trivially_copyable<ENTRY>::value) {
-            FlatHashTable_ResetProctor<
-                                     FlatHashTable<KEY,
-                                                   ENTRY,
-                                                   ENTRY_UTIL,
-                                                   HASH,
-                                                   EQUAL> > resetProctor(this);
-
-            for (bsl::size_t i = 0; i < d_capacity; ++i) {
-                bsl::uint8_t control = reference.d_controls_p[i];
-
-                if (0 == (control & k_AVAIL_MASK)) {
-                    // create a destructor guard for the element to be moved
-                    bslma::DestructorGuard<ENTRY> guard(
-                                                    reference.d_entries_p + i);
-
-                    // perform book-keeping for the destruction
-                    reference.d_controls_p[i] = GroupControl::k_ERASED;
-                    --reference.d_size;
-
-                    // place the element in the new container
-                    bslma::ConstructionUtil::construct(
-                                                     d_entries_p + i,
-                                                     d_allocator_p,
-                                                     reference.d_entries_p[i]);
-
-                    ++d_size;
-                }
-                d_controls_p[i] = control;
-            }
-
-            resetProctor.release();
-        }
-        else {
-            bsl::memcpy(d_entries_p,
-                        reference.d_entries_p,
-                        d_capacity * sizeof(ENTRY));
-
-            bsl::memcpy(d_controls_p, reference.d_controls_p, d_capacity);
-
-            d_size = reference.d_size;
-
-            // We choose to reset the 'original' object to the zero-capacity
-            // state, even though for trivially copyable 'ENTRY' it is not
-            // necessary.
-
-            reference.d_allocator_p->deallocate(reference.d_entries_p);
-            reference.d_allocator_p->deallocate(reference.d_controls_p);
-
-            reference.d_entries_p  = 0;
-            reference.d_controls_p = 0;
-            reference.d_capacity   = 0;
-            reference.d_size       = 0;
-        }
+        d_entries_p  = entries;
+        d_controls_p = controls;
+        d_size       = reference.d_size;
+        d_capacity   = reference.d_capacity;
     }
 }
 
@@ -1298,9 +1386,11 @@ inline
 FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::~FlatHashTable()
 {
     if (0 != d_entries_p) {
-        if (false == bsl::is_trivially_copyable<ENTRY>::value) {
-            clearEntriesRaw();
-        }
+        ImplUtil::destroyEntryArray(d_entries_p,
+                                    d_entries_p + d_capacity,
+                                    d_controls_p,
+                                    d_controls_p + d_capacity);
+
         d_allocator_p->deallocate(d_entries_p);
         d_allocator_p->deallocate(d_controls_p);
     }
@@ -1363,9 +1453,11 @@ template <class KEY, class ENTRY, class ENTRY_UTIL, class HASH, class EQUAL>
 inline
 void FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::clear()
 {
-    if (false == bsl::is_trivially_copyable<ENTRY>::value) {
-        clearEntriesRaw();
-    }
+    ImplUtil::destroyEntryArray(d_entries_p,
+                                d_entries_p + d_capacity,
+                                d_controls_p,
+                                d_controls_p + d_capacity);
+
     bsl::memset(d_controls_p, GroupControl::k_EMPTY, d_capacity);
     d_size = 0;
 }
@@ -1418,7 +1510,7 @@ FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::erase(
 
     if (d_size) {
         for (bsl::size_t i = index + 1; i < d_capacity; ++i) {
-            if (0 == (d_controls_p[i] & k_AVAIL_MASK)) {
+            if (0 == (d_controls_p[i] & GroupControl::k_EMPTY)) {
                 return iterator(IteratorImp(d_entries_p  + i,
                                             d_controls_p + i,
                                             d_capacity   - i - 1));   // RETURN
@@ -1450,7 +1542,7 @@ FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::erase(
 
     if (d_size) {
         for (bsl::size_t i = index + 1; i < d_capacity; ++i) {
-            if (0 == (d_controls_p[i] & k_AVAIL_MASK)) {
+            if (0 == (d_controls_p[i] & GroupControl::k_EMPTY)) {
                 return iterator(IteratorImp(d_entries_p  + i,
                                             d_controls_p + i,
                                             d_capacity   - i - 1));   // RETURN
@@ -1557,9 +1649,11 @@ inline
 void FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::reset()
 {
     if (0 != d_entries_p) {
-        if (false == bsl::is_trivially_copyable<ENTRY>::value) {
-            clearEntriesRaw();
-        }
+        ImplUtil::destroyEntryArray(d_entries_p,
+                                    d_entries_p + d_capacity,
+                                    d_controls_p,
+                                    d_controls_p + d_capacity);
+
         d_allocator_p->deallocate(d_entries_p);
         d_allocator_p->deallocate(d_controls_p);
 
@@ -1579,7 +1673,7 @@ FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::begin()
 {
     if (d_size) {
         for (bsl::size_t i = 0; i < d_capacity; ++i) {
-            if (0 == (d_controls_p[i] & k_AVAIL_MASK)) {
+            if (0 == (d_controls_p[i] & GroupControl::k_EMPTY)) {
                 return iterator(IteratorImp(d_entries_p  + i,
                                             d_controls_p + i,
                                             d_capacity   - i - 1));   // RETURN
@@ -1761,7 +1855,7 @@ FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::begin() const
 {
     if (d_size) {
         for (bsl::size_t i = 0; i < d_capacity; ++i) {
-            if (0 == (d_controls_p[i] & k_AVAIL_MASK)) {
+            if (0 == (d_controls_p[i] & GroupControl::k_EMPTY)) {
                 return const_iterator(
                                  IteratorImp(d_entries_p  + i,
                                              d_controls_p + i,
@@ -1900,6 +1994,269 @@ struct UsesBslmaAllocator<bdlc::FlatHashTable<KEY,
 };
 
 }  // close namespace bslma
+
+namespace bdlc {
+
+                       // -----------------------------
+                       // struct FlatHashTable_ImplUtil
+                       // -----------------------------
+
+// PRIVATE CLASS METHODS
+template <class ENTRY_TYPE>
+inline
+void FlatHashTable_ImplUtil::copyEntryAndControlArrays(
+                      ENTRY_TYPE                      *firstDestinationEntry,
+                      bsl::uint8_t                    *firstDestinationControl,
+                      const ENTRY_TYPE                *firstSourceEntry,
+                      const ENTRY_TYPE                *lastSourceEntry,
+                      const bsl::uint8_t              *firstSourceControl,
+                      const bsl::uint8_t              *lastSourceControl,
+                      bslma::Allocator                *entryAllocator,
+                      EntryTypeIsNotTriviallyCopyable)
+{
+    BSLMF_ASSERT((! bsl::is_trivially_copyable<ENTRY_TYPE>::value));
+
+    bsl::memcpy(firstDestinationControl,
+                firstSourceControl,
+                bsl::distance(firstSourceControl, lastSourceControl) *
+                    sizeof(bsl::uint8_t));
+
+    const bsl::size_t numEntries = static_cast<bsl::size_t>(
+        bsl::distance(firstSourceEntry, lastSourceEntry));
+
+    DestroyEntryArrayProctor<ENTRY_TYPE> destroyEntriesProctor(
+                                                      firstDestinationEntry,
+                                                      firstDestinationEntry,
+                                                      firstDestinationControl,
+                                                      firstDestinationControl);
+
+    for (bsl::size_t idx = 0; idx != numEntries; ++idx) {
+        ENTRY_TYPE&         destinationEntry = *(firstDestinationEntry + idx);
+        const bsl::uint8_t& sourceControl    = *(firstSourceControl + idx);
+        const ENTRY_TYPE&   sourceEntry      = *(firstSourceEntry + idx);
+
+        if (0 == (sourceControl & GroupControl::k_EMPTY)) {
+            bslma::ConstructionUtil::construct(
+                &destinationEntry, entryAllocator, sourceEntry);
+        }
+
+        destroyEntriesProctor.moveEnd(1);
+    }
+
+    destroyEntriesProctor.release();
+}
+
+template <class ENTRY_TYPE>
+inline
+void FlatHashTable_ImplUtil::copyEntryAndControlArrays(
+                   ENTRY_TYPE                   *firstDestinationEntry,
+                   bsl::uint8_t                 *firstDestinationControl,
+                   const ENTRY_TYPE             *firstSourceEntry,
+                   const ENTRY_TYPE             *lastSourceEntry,
+                   const bsl::uint8_t           *firstSourceControl,
+                   const bsl::uint8_t           *lastSourceControl,
+                   bslma::Allocator             *,
+                   EntryTypeIsTriviallyCopyable)
+{
+    BSLMF_ASSERT((bsl::is_trivially_copyable<ENTRY_TYPE>::value));
+
+    bsl::memcpy(firstDestinationControl,
+                firstSourceControl,
+                bsl::distance(firstSourceControl, lastSourceControl) *
+                    sizeof(bsl::uint8_t));
+
+#ifdef BSLS_PLATFORM_CMP_GNU
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wclass-memaccess"
+#endif
+
+    bsl::memcpy(firstDestinationEntry,
+                firstSourceEntry,
+                bsl::distance(firstSourceEntry, lastSourceEntry) *
+                    sizeof(ENTRY_TYPE));
+
+#ifdef BSLS_PLATFORM_CMP_GNU
+#pragma GCC diagnostic pop
+#endif
+}
+
+template <class ENTRY_TYPE>
+inline
+void FlatHashTable_ImplUtil::destroyEntryArray(
+                                 ENTRY_TYPE                      *firstEntry,
+                                 ENTRY_TYPE                      *lastEntry,
+                                 const bsl::uint8_t              *firstControl,
+                                 const bsl::uint8_t              *lastControl,
+                                 EntryTypeIsNotTriviallyCopyable)
+{
+    ///Implementation Note
+    ///-------------------
+    // The implementation of this function uses the
+    // 'FlatHashTable_GroupControl' facilities to bulk search through the
+    // control range and look for entries that need to be destroyed.  However,
+    // the size of the ranges passed to this function are not always a multiple
+    // of 'GroupControl::k_SIZE', and so a second loop is needed to
+    // sequentially destroy the up-to 'GroupControl::k_SIZE - 1' number of
+    // entries that cannot be destroyed as part of a bulk operation on
+    // 'GroupControl::k_SIZE' elements of the entry range.
+    //
+    // It may be surprising that the size of these ranges is not always a
+    // multiple of 'GroupControl::k_SIZE' despite the fact that the capacity of
+    // a 'FlatHashTable' is always a power of 2.  However, this operation can
+    // be invoked midway through copying one entry array to another if copying
+    // an entry throws and the already-copied elements need to then be
+    // destroyed as part of cleaning up during exception handling.
+
+    static_cast<void>(lastControl); // silence unused variable warnings
+
+    const bsl::size_t numEntries =
+        static_cast<bsl::size_t>(bsl::distance(firstEntry, lastEntry));
+    const bsl::size_t numGroupedEntries =
+        numEntries - (numEntries % GroupControl::k_SIZE);
+
+    for (bsl::size_t idx  = 0;
+                     idx != numGroupedEntries;
+                     idx += GroupControl::k_SIZE) {
+        GroupControl  groupControl(firstControl + idx);
+        bsl::uint32_t candidates = groupControl.inUse();
+        while (candidates) {
+            const int offset = bdlb::BitUtil::numTrailingUnsetBits(candidates);
+            bslma::DestructionUtil::destroy(firstEntry + idx + offset);
+            candidates = bdlb::BitUtil::withBitCleared(candidates, offset);
+        }
+    }
+
+    for (bsl::size_t idx = numGroupedEntries; idx != numEntries; ++idx) {
+        ENTRY_TYPE&         entry   = *(firstEntry + idx);
+        const bsl::uint8_t& control = *(firstControl + idx);
+
+        if (0 == (control & GroupControl::k_EMPTY)) {
+            bslma::DestructionUtil::destroy(&entry);
+        }
+    }
+}
+
+template <class ENTRY_TYPE>
+inline
+void FlatHashTable_ImplUtil::destroyEntryArray(ENTRY_TYPE                   *,
+                                               ENTRY_TYPE                   *,
+                                               const bsl::uint8_t           *,
+                                               const bsl::uint8_t           *,
+                                               EntryTypeIsTriviallyCopyable)
+{
+    // Do nothing, in just the right way.
+}
+
+// CLASS METHODS
+template <class ENTRY_TYPE>
+inline
+void FlatHashTable_ImplUtil::copyEntryAndControlArrays(
+                                   ENTRY_TYPE         *firstDestinationEntry,
+                                   bsl::uint8_t       *firstDestinationControl,
+                                   const ENTRY_TYPE   *firstSourceEntry,
+                                   const ENTRY_TYPE   *lastSourceEntry,
+                                   const bsl::uint8_t *firstSourceControl,
+                                   const bsl::uint8_t *lastSourceControl,
+                                   bslma::Allocator   *entryAllocator)
+{
+    BSLS_ASSERT_SAFE(bsl::distance(firstSourceEntry, lastSourceEntry) ==
+                     bsl::distance(firstSourceControl, lastSourceControl));
+
+    typedef bsl::is_trivially_copyable<ENTRY_TYPE>
+        IsEntryTypeTriviallyCopyable;
+
+    FlatHashTable_ImplUtil::copyEntryAndControlArrays(
+                                               firstDestinationEntry,
+                                               firstDestinationControl,
+                                               firstSourceEntry,
+                                               lastSourceEntry,
+                                               firstSourceControl,
+                                               lastSourceControl,
+                                               entryAllocator,
+                                               IsEntryTypeTriviallyCopyable());
+}
+
+template <class ENTRY_TYPE>
+inline
+void FlatHashTable_ImplUtil::destroyEntryArray(
+                                              ENTRY_TYPE         *firstEntry,
+                                              ENTRY_TYPE         *lastEntry,
+                                              const bsl::uint8_t *firstControl,
+                                              const bsl::uint8_t *lastControl)
+{
+    BSLS_ASSERT_SAFE(bsl::distance(firstEntry, lastEntry) ==
+                     bsl::distance(firstControl, lastControl));
+
+    ///Implementation Note
+    ///-------------------
+    // If a type is trivially copyable then it is also trivially destructible.
+    // The type trait 'bsl::is_trivially_copyable' is available in C++03 mode
+    // and later, however 'bsl::is_trivially_destructible' is only available in
+    // C++11 and later.  So, this utility 'struct' uses trivial copyability as
+    // a stand-in for trivial destructibility in order to provide certain
+    // optimizations uniformly across all C++ versions.
+
+    typedef bsl::is_trivially_copyable<ENTRY_TYPE>
+        IsEntryTypeTriviallyCopyable;
+
+    FlatHashTable_ImplUtil::destroyEntryArray(firstEntry,
+                                              lastEntry,
+                                              firstControl,
+                                              lastControl,
+                                              IsEntryTypeTriviallyCopyable());
+}
+
+           // ------------------------------------------------------
+           // class FlatHashTable_ImplUtil::DestroyEntryArrayProctor
+           // ------------------------------------------------------
+
+// CREATORS
+template <class ENTRY_TYPE>
+inline
+FlatHashTable_ImplUtil::DestroyEntryArrayProctor<
+    ENTRY_TYPE>::DestroyEntryArrayProctor(ENTRY_TYPE         *firstEntry,
+                                          ENTRY_TYPE         *lastEntry,
+                                          const bsl::uint8_t *firstControl,
+                                          const bsl::uint8_t *lastControl)
+: d_firstEntry_p(firstEntry)
+, d_lastEntry_p(lastEntry)
+, d_firstControl_p(firstControl)
+, d_lastControl_p(lastControl)
+{
+}
+
+template <class ENTRY_TYPE>
+inline
+FlatHashTable_ImplUtil::DestroyEntryArrayProctor<
+    ENTRY_TYPE>::~DestroyEntryArrayProctor()
+{
+    ImplUtil::destroyEntryArray(d_firstEntry_p,
+                                d_lastEntry_p,
+                                d_firstControl_p,
+                                d_lastControl_p);
+}
+
+// MANIPULATORS
+template <class ENTRY_TYPE>
+inline
+void FlatHashTable_ImplUtil::DestroyEntryArrayProctor<ENTRY_TYPE>::moveEnd(
+                                                         bsl::ptrdiff_t offset)
+{
+    d_lastEntry_p += offset;
+    d_lastControl_p += offset;
+}
+
+template <class ENTRY_TYPE>
+inline
+void FlatHashTable_ImplUtil::DestroyEntryArrayProctor<ENTRY_TYPE>::release()
+{
+    d_firstEntry_p   = 0;
+    d_lastEntry_p    = 0;
+    d_firstControl_p = 0;
+    d_lastControl_p  = 0;
+}
+
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

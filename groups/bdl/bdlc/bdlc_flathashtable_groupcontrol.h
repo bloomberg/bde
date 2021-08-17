@@ -82,8 +82,8 @@ class FlatHashTable_GroupControl
 
   public:
     // PUBLIC CLASS DATA
-    static const bsl::uint8_t k_EMPTY  = 0x80;
-    static const bsl::uint8_t k_ERASED = 0xC0;
+    static const bsl::uint8_t k_EMPTY  = 0x80;  // = 0b10000000
+    static const bsl::uint8_t k_ERASED = 0xC0;  // = 0b11000000
     static const bsl::size_t  k_SIZE   = sizeof(Storage);
 
     // CREATORS
