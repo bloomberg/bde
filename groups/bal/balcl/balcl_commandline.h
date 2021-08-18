@@ -676,10 +676,10 @@ BSLS_IDENT("$Id: $")
 //:   o have a default value, or
 //:   o have a constraint.
 //:
-//: o The 'theBool' method returns the same value ('true' or 'false') as the    
-//:   'isSpecified' method.  On the other hand, the 'the*' accessor methods for
-//:   the other option types have a precondition that 'isSpecified' be 'true'   
-//:   or the option have a default value.
+//: o The 'theBool' method returns the same value ('true' or 'false') as the
+//:   'isSpecified' method.  In contrast, the 'the*' accessor methods for the
+//:   other option types have a precondition such that either 'isSpecified()' 
+//:   must be 'true' or the option must have a default value.
 //
 ///Usage
 ///-----
