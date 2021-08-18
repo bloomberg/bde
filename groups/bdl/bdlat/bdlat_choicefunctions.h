@@ -20,21 +20,20 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlat_selectioninfo
 //
-// TBD: update this documentation to reflect the new overloaded functions
-//
 //@DESCRIPTION: The 'bdlat_ChoiceFunctions' 'namespace' provided in this
 // component defines parameterized functions that expose "choice" behavior for
-// "choice" types.  See the package-level documentation for a full description
-// of "choice" types.  The functions in this namespace allow users to:
-//..
-//  o make a selection using either a selection id or a selection name
-//    ('makeSelection').
-//  o manipulate the current selection using a parameterized manipulator
-//    ('manipulateSelection').
-//  o access the current selection using a parameterized accessor
-//    ('accessSelection').
-//  o obtain the id for the current selection ('selectionId').
-//..
+// "choice" types.  See the {'bdlat'} package-level documentation for a full
+// description of "choice" types.
+//
+// The functions in this namespace allow users to:
+//: o make a selection using either a selection id or a selection name
+//:   ('makeSelection'),
+//: o manipulate the current selection using a parameterized manipulator
+//:   ('manipulateSelection'),
+//: o access the current selection using a parameterized accessor
+//:   ('accessSelection'), and
+//: o obtain the id for the current selection ('selectionId').
+//
 // Also, the meta-function 'IsChoice' contains a compile-time constant 'VALUE'
 // that is non-zero if the parameterized 'TYPE' exposes "choice" behavior
 // through the 'bdlat_ChoiceFunctions' 'namespace'.
@@ -49,6 +48,8 @@ BSLS_IDENT("$Id: $")
 // the 'bdlat' framework as a "Choice", the following functions must be
 // declared and implemented in the 'mine' namespace:
 //..
+//  namespace mine {
+//
 //  // MANIPULATORS
 //  int bdlat_choiceMakeSelection(MyChoice *object, int selectionId);
 //      // Set the value of the specified 'object' to be the default for
@@ -86,24 +87,19 @@ BSLS_IDENT("$Id: $")
 //  int bdlat_choiceSelectionId(const MyChoice& object);
 //      // Return the id of the current selection if the selection is
 //      // defined, and 0 otherwise.
+//
+//  }  // close namespace 'mine'
 //..
 // Also, the 'IsChoice' meta-function must be specialized for the
 // 'mine::MyChoice' type in the 'bdlat_ChoiceFunctions' namespace.
 //
 ///Usage
 ///-----
-// The following snippets of code illustrate the usage of this component.
 // Suppose you had a 'union' embedded inside a 'struct'.  The 'struct' also
 // contains a 'd_selectionId' member that specifies which member of the 'union'
 // is selected.  The default constructor of the 'struct' makes the selection
 // undefined:
 //..
-//  #include <bdlat_choicefunctions.h>
-//  #include <bdlat_selectioninfo.h>
-//  #include <bdlat_formattingmode.h>
-//  #include <bdlb_string.h>
-//  #include <bsls_assert.h>
-//
 //  namespace BloombergLP {
 //
 //  namespace mine {
@@ -139,53 +135,51 @@ BSLS_IDENT("$Id: $")
 // 'bdlat_ChoiceFunctions' for 'MyChoice'.  First, we should forward declare
 // all the functions that we will implement inside the 'mine' namespace:
 //..
-//      // MANIPULATORS
-//      int bdlat_choiceMakeSelection(MyChoice *object, int selectionId);
-//          // Set the value of the specified 'object' to be the default for
-//          // the selection indicated by the specified 'selectionId'.  Return
-//          // 0 on success, and non-zero value otherwise (i.e., the selection
-//          // is not found).
+//  // MANIPULATORS
+//  int bdlat_choiceMakeSelection(MyChoice *object, int selectionId);
+//      // Set the value of the specified 'object' to be the default for the
+//      // selection indicated by the specified 'selectionId'.  Return 0 on
+//      // success, and non-zero value otherwise (i.e., the selection is not
+//      // found).
 //
-//      int bdlat_choiceMakeSelection(MyChoice   *object,
-//                                    const char *selectionName,
-//                                    int         selectionNameLength);
-//          // Set the value of the specified 'object' to be the default for
-//          // the selection indicated by the specified 'selectionName' of the
-//          // specified 'selectionNameLength'.  Return 0 on success, and
-//          // non-zero value otherwise (i.e., the selection is not found).
+//  int bdlat_choiceMakeSelection(MyChoice   *object,
+//                                const char *selectionName,
+//                                int         selectionNameLength);
+//      // Set the value of the specified 'object' to be the default for the
+//      // selection indicated by the specified 'selectionName' of the
+//      // specified 'selectionNameLength'.  Return 0 on success, and non-zero
+//      // value otherwise (i.e., the selection is not found).
 //
-//      template <typename MANIPULATOR>
-//      int bdlat_choiceManipulateSelection(MyChoice     *object,
-//                                          MANIPULATOR&  manipulator);
-//          // Invoke the specified 'manipulator' on the address of the
-//          // (modifiable) selection of the specified 'object', supplying
-//          // 'manipulator' with the corresponding selection information
-//          // structure.  Return -1 if the selection is undefined, and the
-//          // value returned from the invocation of 'manipulator' otherwise.
+//  template <class MANIPULATOR>
+//  int bdlat_choiceManipulateSelection(MyChoice     *object,
+//                                      MANIPULATOR&  manipulator);
+//      // Invoke the specified 'manipulator' on the address of the
+//      // (modifiable) selection of the specified 'object', supplying
+//      // 'manipulator' with the corresponding selection information
+//      // structure.  Return -1 if the selection is undefined, and the value
+//      // returned from the invocation of 'manipulator' otherwise.
 //
-//      // ACCESSORS
-//      template <typename ACCESSOR>
-//      int bdlat_choiceAccessSelection(const MyChoice& object,
-//                                      ACCESSOR&       accessor);
-//          // Invoke the specified 'accessor' on the (non-modifiable)
-//          // selection of the specified 'object', supplying 'accessor' with
-//          // the corresponding selection information structure.  Return -1 if
-//          // the selection is undefined, and the value returned from the
-//          // invocation of 'accessor' otherwise.
+//  // ACCESSORS
+//  template <class ACCESSOR>
+//  int bdlat_choiceAccessSelection(const MyChoice& object,
+//                                  ACCESSOR&       accessor);
+//      // Invoke the specified 'accessor' on the (non-modifiable) selection of
+//      // the specified 'object', supplying 'accessor' with the corresponding
+//      // selection information structure.  Return -1 if the selection is
+//      // undefined, and the value returned from the invocation of 'accessor'
+//      // otherwise.
 //
-//      int bdlat_choiceSelectionId(const MyChoice& object);
-//          // Return the id of the current selection if the selection is
-//          // defined, and 0 otherwise.
+//  int bdlat_choiceSelectionId(const MyChoice& object);
+//      // Return the id of the current selection if the selection is defined,
+//      // and 0 otherwise.
 //
 //  }  // close namespace mine
 //..
-// Next, we provide the definitions for each of these functions:
+// Now, we provide the definitions for each of these functions:
 //..
 //  // MANIPULATORS
-//
-//  inline
 //  int mine::bdlat_choiceMakeSelection(MyChoice *object,
-//                                      int        selectionId)
+//                                      int       selectionId)
 //  {
 //      enum { SUCCESS = 0, NOT_FOUND = -1 };
 //
@@ -194,179 +188,183 @@ BSLS_IDENT("$Id: $")
 //          object->d_selectionId = selectionId;
 //          object->d_charValue   = 0;
 //
-//          return SUCCESS;
+//          return SUCCESS;                                           // RETURN
 //        }
 //        case MyChoice::INT_SELECTION_ID: {
 //          object->d_selectionId = selectionId;
 //          object->d_intValue    = 0;
 //
-//          return SUCCESS;
+//          return SUCCESS;                                           // RETURN
 //        }
 //        case MyChoice::FLOAT_SELECTION_ID: {
 //          object->d_selectionId = selectionId;
 //          object->d_floatValue  = 0;
 //
-//          return SUCCESS;
+//          return SUCCESS;                                           // RETURN
 //        }
 //        case MyChoice::UNDEFINED_SELECTION_ID: {
 //          object->d_selectionId = selectionId;
 //
-//          return SUCCESS;
+//          return SUCCESS;                                           // RETURN
 //        }
 //        default: {
-//          return NOT_FOUND;
+//          return NOT_FOUND;                                         // RETURN
 //        }
 //      }
 //  }
 //
-//  inline
 //  int mine::bdlat_choiceMakeSelection(MyChoice   *object,
 //                                      const char *selectionName,
 //                                      int         selectionNameLength)
 //  {
-//    enum { NOT_FOUND = -1 };
+//      enum { NOT_FOUND = -1 };
 //
-//    if (bdlb::String::areEqualCaseless("charValue",
-//                                      selectionName,
-//                                      selectionNameLength)) {
-//      return bdlat_choiceMakeSelection(object, MyChoice::CHAR_SELECTION_ID);
-//    }
+//      if (bdlb::String::areEqualCaseless("charValue",
+//                                        selectionName,
+//                                        selectionNameLength)) {
+//          return bdlat_choiceMakeSelection(object,
+//                                           MyChoice::CHAR_SELECTION_ID);
+//                                                                    // RETURN
+//      }
 //
-//    if (bdlb::String::areEqualCaseless("intValue",
-//                                      selectionName,
-//                                      selectionNameLength)) {
-//      return bdlat_choiceMakeSelection(object, MyChoice::INT_SELECTION_ID);
-//    }
+//      if (bdlb::String::areEqualCaseless("intValue",
+//                                        selectionName,
+//                                        selectionNameLength)) {
+//          return bdlat_choiceMakeSelection(object,
+//                                           MyChoice::INT_SELECTION_ID);
+//                                                                    // RETURN
+//      }
 //
-//    if (bdlb::String::areEqualCaseless("floatValue",
-//                                      selectionName,
-//                                      selectionNameLength)) {
-//      return bdlat_choiceMakeSelection(object, MyChoice::FLOAT_SELECTION_ID);
-//    }
+//      if (bdlb::String::areEqualCaseless("floatValue",
+//                                        selectionName,
+//                                        selectionNameLength)) {
+//          return bdlat_choiceMakeSelection(object,
+//                                           MyChoice::FLOAT_SELECTION_ID);
+//                                                                    // RETURN
+//      }
 //
-//    return NOT_FOUND;
+//      return NOT_FOUND;
 //  }
 //..
 // For the 'manipulateSelection' and 'accessSelection' functions, we need to
 // create a temporary 'bdlat_SelectionInfo' object and pass it along when
-// invoking the manipulator or accessor.  See the 'bdlat_selectioninfo'
+// invoking the manipulator or accessor.  See the {'bdlat_selectioninfo'}
 // component-level documentation for more information.  The implementation of
 // the remaining functions are as follows:
 //..
-//  template <typename MANIPULATOR>
-//  int mine::bdlat_choiceManipulateSelection(MyChoice    *object,
+//  template <class MANIPULATOR>
+//  int mine::bdlat_choiceManipulateSelection(MyChoice     *object,
 //                                            MANIPULATOR&  manipulator)
 //  {
-//    switch (object->d_selectionId) {
-//      case MyChoice::CHAR_SELECTION_ID: {
-//        bdlat_SelectionInfo info;
+//      switch (object->d_selectionId) {
+//        case MyChoice::CHAR_SELECTION_ID: {
+//          bdlat_SelectionInfo info;
 //
-//        info.annotation()     = "Char Selection";
-//        info.formattingMode() = bdlat_FormattingMode::DEFAULT;
-//        info.id()             = MyChoice::CHAR_SELECTION_ID;
-//        info.name()           = "charValue";
-//        info.nameLength()     = 9;
+//          info.annotation()     = "Char Selection";
+//          info.formattingMode() = bdlat_FormattingMode::e_DEFAULT;
+//          info.id()             = MyChoice::CHAR_SELECTION_ID;
+//          info.name()           = "charValue";
+//          info.nameLength()     = 9;
 //
-//        return manipulator(&object->d_charValue, info);
+//          return manipulator(&object->d_charValue, info);           // RETURN
+//        }
+//        case MyChoice::INT_SELECTION_ID: {
+//          bdlat_SelectionInfo info;
+//
+//          info.annotation()     = "Int Selection";
+//          info.formattingMode() = bdlat_FormattingMode::e_DEFAULT;
+//          info.id()             = MyChoice::INT_SELECTION_ID;
+//          info.name()           = "intValue";
+//          info.nameLength()     = 8;
+//
+//          return manipulator(&object->d_intValue, info);            // RETURN
+//        }
+//        case MyChoice::FLOAT_SELECTION_ID: {
+//          bdlat_SelectionInfo info;
+//
+//          info.annotation()     = "Float Selection";
+//          info.formattingMode() = bdlat_FormattingMode::e_DEFAULT;
+//          info.id()             = MyChoice::FLOAT_SELECTION_ID;
+//          info.name()           = "floatValue";
+//          info.nameLength()     = 10;
+//
+//          return manipulator(&object->d_floatValue, info);          // RETURN
+//        }
+//        default:
+//          BSLS_ASSERT_SAFE(!"Invalid selection!");
 //      }
-//      case MyChoice::INT_SELECTION_ID: {
-//        bdlat_SelectionInfo info;
-//
-//        info.annotation()     = "Int Selection";
-//        info.formattingMode() = bdlat_FormattingMode::DEFAULT;
-//        info.id()             = MyChoice::INT_SELECTION_ID;
-//        info.name()           = "intValue";
-//        info.nameLength()     = 8;
-//
-//        return manipulator(&object->d_intValue, info);
-//      }
-//      case MyChoice::FLOAT_SELECTION_ID: {
-//        bdlat_SelectionInfo info;
-//
-//        info.annotation()     = "Float Selection";
-//        info.formattingMode() = bdlat_FormattingMode::DEFAULT;
-//        info.id()             = MyChoice::FLOAT_SELECTION_ID;
-//        info.name()           = "floatValue";
-//        info.nameLength()     = 10;
-//
-//        return manipulator(&object->d_floatValue, info);
-//      }
-//      default:
-//        BSLS_ASSERT_SAFE(!"Invalid selection!");
-//    }
-//    return 0;
+//      return 0;
 //  }
 //
 //  // ACCESSORS
 //
-//  template <typename ACCESSOR>
+//  template <class ACCESSOR>
 //  int mine::bdlat_choiceAccessSelection(const MyChoice& object,
-//                                        ACCESSOR&        accessor)
+//                                        ACCESSOR&       accessor)
 //  {
 //      switch (object.d_selectionId) {
 //        case MyChoice::CHAR_SELECTION_ID: {
 //          bdlat_SelectionInfo info;
 //
 //          info.annotation()     = "Char Selection";
-//          info.formattingMode() = bdlat_FormattingMode::DEFAULT;
+//          info.formattingMode() = bdlat_FormattingMode::e_DEFAULT;
 //          info.id()             = MyChoice::CHAR_SELECTION_ID;
 //          info.name()           = "charValue";
 //          info.nameLength()     = 9;
 //
-//          return accessor(object.d_charValue, info);
+//          return accessor(object.d_charValue, info);                // RETURN
 //        }
 //        case MyChoice::INT_SELECTION_ID: {
 //          bdlat_SelectionInfo info;
 //
 //          info.annotation()     = "Int Selection";
-//          info.formattingMode() = bdlat_FormattingMode::DEFAULT;
+//          info.formattingMode() = bdlat_FormattingMode::e_DEFAULT;
 //          info.id()             = MyChoice::INT_SELECTION_ID;
 //          info.name()           = "intValue";
 //          info.nameLength()     = 8;
 //
-//          return accessor(object.d_intValue, info);
+//          return accessor(object.d_intValue, info);                 // RETURN
 //        }
 //        case MyChoice::FLOAT_SELECTION_ID: {
 //          bdlat_SelectionInfo info;
 //
 //          info.annotation()     = "Float Selection";
-//          info.formattingMode() = bdlat_FormattingMode::DEFAULT;
+//          info.formattingMode() = bdlat_FormattingMode::e_DEFAULT;
 //          info.id()             = MyChoice::FLOAT_SELECTION_ID;
 //          info.name()           = "floatValue";
 //          info.nameLength()     = 10;
 //
-//          return accessor(object.d_floatValue, info);
+//          return accessor(object.d_floatValue, info);               // RETURN
 //        }
 //        default:
 //          BSLS_ASSERT_SAFE(!"Invalid selection!");
 //      }
-//    return 0;
+//      return 0;
 //  }
 //
-//  inline
 //  int mine::bdlat_choiceSelectionId(const MyChoice& object)
 //  {
 //      return object.d_selectionId;
 //  }
 //..
 // Finally, we need to specialize the 'IsChoice' meta-function in the
-// 'bdlat_ChoiceFunctions' namespace for the 'mine::MyChoice' type.  This
-// makes the 'bdlat' infrastructure recognize 'mine::MyChoice' as a choice
+// 'bdlat_ChoiceFunctions' namespace for the 'mine::MyChoice' type.  This makes
+// the 'bdlat' infrastructure recognize 'mine::MyChoice' as a choice
 // abstraction:
 //..
 //  namespace bdlat_ChoiceFunctions {
 //
-//      template <>
-//      struct IsChoice<mine::MyChoice> {
-//          enum { VALUE = 1 };
-//      };
+//  template <>
+//  struct IsChoice<mine::MyChoice> {
+//      enum { VALUE = 1 };
+//  };
 //
-//  } // close namespace 'bdlat_ChoiceFunctions'
-//  } // close namespace 'BloombergLP'
+//  }  // close namespace bdlat_ChoiceFunctions
+//  }  // close enterprise namespace
 //..
 // The 'bdlat' infrastructure (and any component that uses this infrastructure)
-// will now recognize 'mine::MyChoice' as a "choice" type.  For example,
-// suppose we have the following XML data:
+// will now recognize 'MyChoice' as a "choice" type.  For example, suppose we
+// have the following XML data:
 //..
 //  <?xml version='1.0' encoding='UTF-8' ?>
 //  <MyChoice>
@@ -374,28 +372,26 @@ BSLS_IDENT("$Id: $")
 //  </MyChoice>
 //..
 // Using the 'balxml_decoder' component, we can load this XML data into a
-// 'mine::MyChoice' object:
+// 'MyChoice' object:
 //..
-//  #include <balxml_decoder.h>
-//
-//  void decodeMySequenceFromXML(bsl::istream& inputData)
+//  void usageExample(bsl::istream& inputData)
 //  {
-//      using namespace BloombergLP;
+//    using namespace BloombergLP;
 //
-//      MyChoice object;
+//    MyChoice object;
 //
-//      assert(MyChoice::UNDEFINED_SELECTION_ID == object.d_selectionId);
+//    assert(MyChoice::UNDEFINED_SELECTION_ID == object.d_selectionId);
 //
-//      balxml::DecoderOptions options;
-//      balxml::MiniReader     reader;
-//      balxml::ErrorInfo      errInfo;
+//    balxml::DecoderOptions options;
+//    balxml::MiniReader     reader;
+//    balxml::ErrorInfo      errInfo;
 //
-//      balxml::Decoder decoder(&options, &reader, &errInfo);
-//      int result = decoder.decode(inputData, &object);
+//    balxml::Decoder decoder(&options, &reader, &errInfo);
+//    int result = decoder.decode(inputData, &object);
 //
-//      assert(0                          == result);
-//      assert(MyChoice::INT_SELECTION_ID == object.d_selectionId);
-//      assert(321                        == object.d_intValue);
+//    assert(0                           == result);
+//    assert(MyChoice::INT_SELECTION_ID  == object.d_selectionId);
+//    assert(321                         == object.d_intValue);
 //  }
 //..
 // Note that the 'bdlat' framework can be used for functionality other than
@@ -410,15 +406,15 @@ BSLS_IDENT("$Id: $")
 //      // DATA MEMBERS
 //      bsl::ostream *d_stream_p;
 //
-//      template <typename TYPE, typename INFO>
+//      template <class TYPE, class INFO>
 //      int operator()(const TYPE& object, const INFO& info)
 //      {
 //        (*d_stream_p) << info.name() << ": " << object << bsl::endl;
-//        return 0;
+//        return 0;                                                   // RETURN
 //      }
 //  };
 //
-//  template <typename TYPE>
+//  template <class TYPE>
 //  void printChoiceSelection(bsl::ostream& stream, const TYPE& object)
 //  {
 //      using namespace BloombergLP;
@@ -430,7 +426,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 // Now we have a generic function that takes an output stream and a choice
-// object, and prints out the choice selection with its name and value.  We can
+// object, and prints out each choice seletion with its name and value.  We can
 // use this generic function as follows:
 //..
 //  void printMyChoice(bsl::ostream& stream)

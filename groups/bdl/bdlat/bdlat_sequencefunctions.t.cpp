@@ -7,7 +7,6 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-
 #include <bdlat_sequencefunctions.h>
 
 #include <bslim_testutil.h>
@@ -326,347 +325,354 @@ const bdlat_AttributeInfo *Point::lookupAttributeInfo(int id)
 // Suppose you had a 'struct' that contains three members:
 //..
 
-namespace BloombergLP {
-
-namespace mine {
-
-struct MySequence {
-    // This struct represents a sequence containing a 'string' member, an
-    // 'int' member, and a 'float' member.
-
-    // CONSTANTS
-    enum {
-        NAME_ATTRIBUTE_ID   = 1,
-        AGE_ATTRIBUTE_ID    = 2,
-        SALARY_ATTRIBUTE_ID = 3
+    namespace BloombergLP {
+    
+    namespace mine {
+    
+    struct MySequence {
+        // This struct represents a sequence containing a 'string' member, an
+        // 'int' member, and a 'float' member.
+    
+        // CONSTANTS
+        enum {
+            NAME_ATTRIBUTE_ID   = 1,
+            AGE_ATTRIBUTE_ID    = 2,
+            SALARY_ATTRIBUTE_ID = 3
+        };
+    
+        // DATA MEMBERS
+        bsl::string d_name;
+        int         d_age;
+        float       d_salary;
     };
 
-    // DATA MEMBERS
-    bsl::string d_name;
-    int         d_age;
-    float       d_salary;
-};
-
-}  // close namespace mine
+    }  // close namespace mine
 //..
 // We can now make 'mine::MySequence' expose "sequence" behavior by
 // implementing the necessary 'bdlat_sequence*' functions for 'MySequence'
 // inside the 'mine' namespace.  First, we should forward declare all the
 // functions that we will implement inside the 'mine' namespace:
 //..
-namespace mine {
-
-template <class MANIPULATOR>
-int bdlat_sequenceManipulateAttribute(MySequence   *object,
-                                      MANIPULATOR&  manipulator,
-                                      const char   *attributeName,
-                                      int           attributeNameLength);
-template <class MANIPULATOR>
-int bdlat_sequenceManipulateAttribute(MySequence   *object,
-                                      MANIPULATOR&  manipulator,
-                                      int           attributeId);
-template <class MANIPULATOR>
-int bdlat_sequenceManipulateAttributes(MySequence   *object,
-                                       MANIPULATOR&  manipulator);
-template <class ACCESSOR>
-int bdlat_sequenceAccessAttribute(const MySequence&  object,
-                                  ACCESSOR&          accessor,
-                                  const char        *attributeName,
-                                  int                attributeNameLength);
-template <class ACCESSOR>
-int bdlat_sequenceAccessAttribute(const MySequence& object,
-                                  ACCESSOR&         accessor,
-                                  int               attributeId);
-template <class ACCESSOR>
-int bdlat_sequenceAccessAttributes(const MySequence& object,
-                                   ACCESSOR&         accessor);
-bool bdlat_sequenceHasAttribute(const MySequence&  object,
-                                const char        *attributeName,
-                                int                attributeNameLength);
-bool bdlat_sequenceHasAttribute(const MySequence& object,
-                                int               attributeId);
-
-}  // close namespace mine
+    namespace mine {
+    
+    template <class MANIPULATOR>
+    int bdlat_sequenceManipulateAttribute(MySequence   *object,
+                                          MANIPULATOR&  manipulator,
+                                          const char   *attributeName,
+                                          int           attributeNameLength);
+    template <class MANIPULATOR>
+    int bdlat_sequenceManipulateAttribute(MySequence   *object,
+                                          MANIPULATOR&  manipulator,
+                                          int           attributeId);
+    template <class MANIPULATOR>
+    int bdlat_sequenceManipulateAttributes(MySequence   *object,
+                                           MANIPULATOR&  manipulator);
+    template <class ACCESSOR>
+    int bdlat_sequenceAccessAttribute(const MySequence&  object,
+                                      ACCESSOR&          accessor,
+                                      const char        *attributeName,
+                                      int                attributeNameLength);
+    template <class ACCESSOR>
+    int bdlat_sequenceAccessAttribute(const MySequence& object,
+                                      ACCESSOR&         accessor,
+                                      int               attributeId);
+    template <class ACCESSOR>
+    int bdlat_sequenceAccessAttributes(const MySequence& object,
+                                       ACCESSOR&         accessor);
+    bool bdlat_sequenceHasAttribute(const MySequence&  object,
+                                    const char        *attributeName,
+                                    int                attributeNameLength);
+    bool bdlat_sequenceHasAttribute(const MySequence& object,
+                                    int               attributeId);
+    
+    }  // close namespace mine
 //..
 // Now, we will implement these functions.  Note that for this implementation,
 // we will create a temporary 'bdlat_AttributeInfo' object and pass it along
-// when invoking the manipulator or accessor.  See the 'bdlat_attributeinfo'
+// when invoking the manipulator or accessor.  See the {'bdlat_attributeinfo'}
 // component-level documentation for more information.  The implementation of
 // the functions are as follows:
 //..
-template <class MANIPULATOR>
-int mine::bdlat_sequenceManipulateAttribute(
-                                      MySequence   *object,
-                                      MANIPULATOR&  manipulator,
-                                      const char   *attributeName,
-                                      int           attributeNameLength)
-{
-    enum { NOT_FOUND = -1 };
-
-    if (bdlb::String::areEqualCaseless("name",
-                                       attributeName,
-                                       attributeNameLength)) {
-        return bdlat_sequenceManipulateAttribute(
+    template <class MANIPULATOR>
+    int mine::bdlat_sequenceManipulateAttribute(
+                                          MySequence   *object,
+                                          MANIPULATOR&  manipulator,
+                                          const char   *attributeName,
+                                          int           attributeNameLength)
+    {
+        enum { NOT_FOUND = -1 };
+    
+        if (bdlb::String::areEqualCaseless("name",
+                                           attributeName,
+                                           attributeNameLength)) {
+            return bdlat_sequenceManipulateAttribute(
                                                 object,
                                                 manipulator,
                                                 MySequence::NAME_ATTRIBUTE_ID);
                                                                       // RETURN
-    }
-
-    if (bdlb::String::areEqualCaseless("age",
-                                       attributeName,
-                                       attributeNameLength)) {
-        return bdlat_sequenceManipulateAttribute(
+        }
+    
+        if (bdlb::String::areEqualCaseless("age",
+                                           attributeName,
+                                           attributeNameLength)) {
+            return bdlat_sequenceManipulateAttribute(
                                                  object,
                                                  manipulator,
                                                  MySequence::AGE_ATTRIBUTE_ID);
                                                                       // RETURN
-    }
-
-    if (bdlb::String::areEqualCaseless("salary",
-                                       attributeName,
-                                       attributeNameLength)) {
-        return bdlat_sequenceManipulateAttribute(
+        }
+    
+        if (bdlb::String::areEqualCaseless("salary",
+                                           attributeName,
+                                           attributeNameLength)) {
+            return bdlat_sequenceManipulateAttribute(
                                               object,
                                               manipulator,
                                               MySequence::SALARY_ATTRIBUTE_ID);
                                                                       // RETURN
+        }
+    
+        return NOT_FOUND;
     }
-
-    return NOT_FOUND;
-}
-
-template <class MANIPULATOR>
-int mine::bdlat_sequenceManipulateAttribute(MySequence   *object,
-                                            MANIPULATOR&  manipulator,
-                                            int           attributeId)
-{
-    enum { NOT_FOUND = -1 };
-
-    switch (attributeId) {
-      case MySequence::NAME_ATTRIBUTE_ID: {
-        bdlat_AttributeInfo info;
-
-        info.annotation()     = "Name of employee";
-        info.formattingMode() = bdlat_FormattingMode::e_DEFAULT;
-        info.id()             = MySequence::NAME_ATTRIBUTE_ID;
-        info.name()           = "name";
-        info.nameLength()     = 4;
-
-        return manipulator(&object->d_name, info);                    // RETURN
-      }
-      case MySequence::AGE_ATTRIBUTE_ID: {
-        bdlat_AttributeInfo info;
-
-        info.annotation()     = "Age of employee";
-        info.formattingMode() = bdlat_FormattingMode::e_DEFAULT;
-        info.id()             = MySequence::AGE_ATTRIBUTE_ID;
-        info.name()           = "age";
-        info.nameLength()     = 3;
-
-        return manipulator(&object->d_age, info);                     // RETURN
-      }
-      case MySequence::SALARY_ATTRIBUTE_ID: {
-        bdlat_AttributeInfo info;
-
-        info.annotation()     = "Salary of employee";
-        info.formattingMode() = bdlat_FormattingMode::e_DEFAULT;
-        info.id()             = MySequence::SALARY_ATTRIBUTE_ID;
-        info.name()           = "salary";
-        info.nameLength()     = 6;
-
-        return manipulator(&object->d_salary, info);                  // RETURN
-      }
-      default: {
-          return NOT_FOUND;                                           // RETURN
-      }
+    
+    template <class MANIPULATOR>
+    int mine::bdlat_sequenceManipulateAttribute(MySequence   *object,
+                                                MANIPULATOR&  manipulator,
+                                                int           attributeId)
+    {
+        enum { NOT_FOUND = -1 };
+    
+        switch (attributeId) {
+          case MySequence::NAME_ATTRIBUTE_ID: {
+            bdlat_AttributeInfo info;
+    
+            info.annotation()     = "Name of employee";
+            info.formattingMode() = bdlat_FormattingMode::e_DEFAULT;
+            info.id()             = MySequence::NAME_ATTRIBUTE_ID;
+            info.name()           = "name";
+            info.nameLength()     = 4;
+    
+            return manipulator(&object->d_name, info);                // RETURN
+          }
+          case MySequence::AGE_ATTRIBUTE_ID: {
+            bdlat_AttributeInfo info;
+    
+            info.annotation()     = "Age of employee";
+            info.formattingMode() = bdlat_FormattingMode::e_DEFAULT;
+            info.id()             = MySequence::AGE_ATTRIBUTE_ID;
+            info.name()           = "age";
+            info.nameLength()     = 3;
+    
+            return manipulator(&object->d_age, info);                 // RETURN
+          }
+          case MySequence::SALARY_ATTRIBUTE_ID: {
+            bdlat_AttributeInfo info;
+    
+            info.annotation()     = "Salary of employee";
+            info.formattingMode() = bdlat_FormattingMode::e_DEFAULT;
+            info.id()             = MySequence::SALARY_ATTRIBUTE_ID;
+            info.name()           = "salary";
+            info.nameLength()     = 6;
+    
+            return manipulator(&object->d_salary, info);              // RETURN
+          }
+          default: {
+            return NOT_FOUND;                                         // RETURN
+          }
+        }
     }
-}
-
-template <class MANIPULATOR>
-int mine::bdlat_sequenceManipulateAttributes(MySequence   *object,
-                                             MANIPULATOR&  manipulator)
-{
-    int retVal;
-
-    retVal = bdlat_sequenceManipulateAttribute(object,
-                                               manipulator,
-                                               MySequence::NAME_ATTRIBUTE_ID);
-
-    if (0 != retVal) {
-        return retVal;                                                // RETURN
-    }
-
-    retVal = bdlat_sequenceManipulateAttribute(object,
-                                               manipulator,
-                                               MySequence::AGE_ATTRIBUTE_ID);
-
-    if (0 != retVal) {
-        return retVal;                                                // RETURN
-    }
-
-    retVal = bdlat_sequenceManipulateAttribute(
+    
+    template <class MANIPULATOR>
+    int mine::bdlat_sequenceManipulateAttributes(MySequence   *object,
+                                                 MANIPULATOR&  manipulator)
+    {
+        int retVal;
+    
+        retVal = bdlat_sequenceManipulateAttribute(
+                                                object,
+                                                manipulator,
+                                                MySequence::NAME_ATTRIBUTE_ID);
+    
+        if (0 != retVal) {
+            return retVal;                                            // RETURN
+        }
+    
+        retVal = bdlat_sequenceManipulateAttribute(
+                                                 object,
+                                                 manipulator,
+                                                 MySequence::AGE_ATTRIBUTE_ID);
+    
+        if (0 != retVal) {
+            return retVal;                                            // RETURN
+        }
+    
+        retVal = bdlat_sequenceManipulateAttribute(
                                               object,
                                               manipulator,
                                               MySequence::SALARY_ATTRIBUTE_ID);
-
-    return retVal;
-}
-
-// ACCESSORS
-
-template <class ACCESSOR>
-int mine::bdlat_sequenceAccessAttribute(const MySequence&  object,
+    
+        return retVal;
+    }
+    
+    // ACCESSORS
+    
+    template <class ACCESSOR>
+    int mine::bdlat_sequenceAccessAttribute(
+                                        const MySequence&  object,
                                         ACCESSOR&          accessor,
                                         const char        *attributeName,
                                         int                attributeNameLength)
-{
-    enum { NOT_FOUND = -1 };
-
-    if (bdlb::String::areEqualCaseless("name",
-                                       attributeName,
-                                       attributeNameLength)) {
-        return bdlat_sequenceAccessAttribute(object,
-                                             accessor,
-                                             MySequence::NAME_ATTRIBUTE_ID);
+    {
+        enum { NOT_FOUND = -1 };
+    
+        if (bdlb::String::areEqualCaseless("name",
+                                           attributeName,
+                                           attributeNameLength)) {
+            return bdlat_sequenceAccessAttribute(
+                                                object,
+                                                accessor,
+                                                MySequence::NAME_ATTRIBUTE_ID);
                                                                       // RETURN
-    }
-
-    if (bdlb::String::areEqualCaseless("age",
-                                       attributeName,
-                                       attributeNameLength)) {
-        return bdlat_sequenceAccessAttribute(object,
-                                             accessor,
-                                             MySequence::AGE_ATTRIBUTE_ID);
+        }
+    
+        if (bdlb::String::areEqualCaseless("age",
+                                           attributeName,
+                                           attributeNameLength)) {
+            return bdlat_sequenceAccessAttribute(object,
+                                                 accessor,
+                                                 MySequence::AGE_ATTRIBUTE_ID);
                                                                       // RETURN
-    }
-
-    if (bdlb::String::areEqualCaseless("salary",
-                                       attributeName,
-                                       attributeNameLength)) {
-        return bdlat_sequenceAccessAttribute(object,
-                                             accessor,
-                                             MySequence::SALARY_ATTRIBUTE_ID);
+        }
+    
+        if (bdlb::String::areEqualCaseless("salary",
+                                           attributeName,
+                                           attributeNameLength)) {
+            return bdlat_sequenceAccessAttribute(
+                                              object,
+                                              accessor,
+                                              MySequence::SALARY_ATTRIBUTE_ID);
                                                                       // RETURN
+        }
+    
+        return NOT_FOUND;
     }
-
-    return NOT_FOUND;
-}
-
-template <class ACCESSOR>
-int mine::bdlat_sequenceAccessAttribute(const MySequence& object,
-                                        ACCESSOR&         accessor,
-                                        int               attributeId)
-{
-    enum { NOT_FOUND = -1 };
-
-    switch (attributeId) {
-      case MySequence::NAME_ATTRIBUTE_ID: {
-        bdlat_AttributeInfo info;
-
-        info.annotation()     = "Name of employee";
-        info.formattingMode() = bdlat_FormattingMode::e_DEFAULT;
-        info.id()             = MySequence::NAME_ATTRIBUTE_ID;
-        info.name()           = "name";
-        info.nameLength()     = 4;
-
-        return accessor(object.d_name, info);                         // RETURN
-      }
-      case MySequence::AGE_ATTRIBUTE_ID: {
-        bdlat_AttributeInfo info;
-
-        info.annotation()     = "Age of employee";
-        info.formattingMode() = bdlat_FormattingMode::e_DEFAULT;
-        info.id()             = MySequence::AGE_ATTRIBUTE_ID;
-        info.name()           = "age";
-        info.nameLength()     = 3;
-
-        return accessor(object.d_age, info);                          // RETURN
-      }
-      case MySequence::SALARY_ATTRIBUTE_ID: {
-        bdlat_AttributeInfo info;
-
-        info.annotation()     = "Salary of employee";
-        info.formattingMode() = bdlat_FormattingMode::e_DEFAULT;
-        info.id()             = MySequence::SALARY_ATTRIBUTE_ID;
-        info.name()           = "salary";
-        info.nameLength()     = 6;
-
-        return accessor(object.d_salary, info);                       // RETURN
-      }
-      default: {
+    
+    template <class ACCESSOR>
+    int mine::bdlat_sequenceAccessAttribute(const MySequence& object,
+                                            ACCESSOR&         accessor,
+                                            int               attributeId)
+    {
+        enum { NOT_FOUND = -1 };
+    
+        switch (attributeId) {
+          case MySequence::NAME_ATTRIBUTE_ID: {
+            bdlat_AttributeInfo info;
+    
+            info.annotation()     = "Name of employee";
+            info.formattingMode() = bdlat_FormattingMode::e_DEFAULT;
+            info.id()             = MySequence::NAME_ATTRIBUTE_ID;
+            info.name()           = "name";
+            info.nameLength()     = 4;
+    
+            return accessor(object.d_name, info);                     // RETURN
+          }
+          case MySequence::AGE_ATTRIBUTE_ID: {
+            bdlat_AttributeInfo info;
+    
+            info.annotation()     = "Age of employee";
+            info.formattingMode() = bdlat_FormattingMode::e_DEFAULT;
+            info.id()             = MySequence::AGE_ATTRIBUTE_ID;
+            info.name()           = "age";
+            info.nameLength()     = 3;
+    
+            return accessor(object.d_age, info);                      // RETURN
+          }
+          case MySequence::SALARY_ATTRIBUTE_ID: {
+            bdlat_AttributeInfo info;
+    
+            info.annotation()     = "Salary of employee";
+            info.formattingMode() = bdlat_FormattingMode::e_DEFAULT;
+            info.id()             = MySequence::SALARY_ATTRIBUTE_ID;
+            info.name()           = "salary";
+            info.nameLength()     = 6;
+    
+            return accessor(object.d_salary, info);                   // RETURN
+          }
+          default: {
           return NOT_FOUND;                                           // RETURN
-      }
+          }
+        }
     }
-}
-
-template <class ACCESSOR>
-int mine::bdlat_sequenceAccessAttributes(const MySequence& object,
-                                         ACCESSOR&         accessor)
-{
-    int retVal;
-
-    retVal = bdlat_sequenceAccessAttribute(object,
-                                           accessor,
-                                           MySequence::NAME_ATTRIBUTE_ID);
-
-    if (0 != retVal) {
+    
+    template <class ACCESSOR>
+    int mine::bdlat_sequenceAccessAttributes(const MySequence& object,
+                                             ACCESSOR&         accessor)
+    {
+        int retVal;
+    
+        retVal = bdlat_sequenceAccessAttribute(object,
+                                               accessor,
+                                               MySequence::NAME_ATTRIBUTE_ID);
+    
+        if (0 != retVal) {
         return retVal;                                                // RETURN
+        }
+    
+        retVal = bdlat_sequenceAccessAttribute(object,
+                                               accessor,
+                                               MySequence::AGE_ATTRIBUTE_ID);
+    
+        if (0 != retVal) {
+            return retVal;                                            // RETURN
+        }
+    
+        retVal = bdlat_sequenceAccessAttribute(
+                                              object,
+                                              accessor,
+                                              MySequence::SALARY_ATTRIBUTE_ID);
+    
+        return retVal;
     }
-
-    retVal = bdlat_sequenceAccessAttribute(object,
-                                           accessor,
-                                           MySequence::AGE_ATTRIBUTE_ID);
-
-    if (0 != retVal) {
-        return retVal;                                                // RETURN
+    
+    bool mine::bdlat_sequenceHasAttribute(
+                                        const MySequence&  ,
+                                        const char        *attributeName,
+                                        int                attributeNameLength)
+    {
+        return bdlb::String::areEqualCaseless("name",
+                                              attributeName,
+                                              attributeNameLength)
+            || bdlb::String::areEqualCaseless("age",
+                                              attributeName,
+                                              attributeNameLength)
+            || bdlb::String::areEqualCaseless("salary",
+                                              attributeName,
+                                              attributeNameLength);
     }
-
-    retVal = bdlat_sequenceAccessAttribute(object,
-                                           accessor,
-                                           MySequence::SALARY_ATTRIBUTE_ID);
-
-    return retVal;
-}
-
-bool mine::bdlat_sequenceHasAttribute(const MySequence&,
-                                      const char        *attributeName,
-                                      int                attributeNameLength)
-{
-    return bdlb::String::areEqualCaseless("name",
-                                          attributeName,
-                                          attributeNameLength)
-        || bdlb::String::areEqualCaseless("age",
-                                          attributeName,
-                                          attributeNameLength)
-        || bdlb::String::areEqualCaseless("salary",
-                                          attributeName,
-                                          attributeNameLength);
-}
-
-bool mine::bdlat_sequenceHasAttribute(const MySequence&, int attributeId)
-{
-    return MySequence::NAME_ATTRIBUTE_ID   == attributeId
-        || MySequence::AGE_ATTRIBUTE_ID    == attributeId
-        || MySequence::SALARY_ATTRIBUTE_ID == attributeId;
-}
+    
+    bool mine::bdlat_sequenceHasAttribute(const MySequence& , int attributeId)
+    {
+        return MySequence::NAME_ATTRIBUTE_ID   == attributeId
+            || MySequence::AGE_ATTRIBUTE_ID    == attributeId
+            || MySequence::SALARY_ATTRIBUTE_ID == attributeId;
+    }
 //..
 // Finally, we need to specialize the 'IsSequence' meta-function in the
 // 'bdlat_SequenceFunctions' namespace for the 'mine::MySequence' type.  This
-// makes the 'bdeat' infrastructure recognize 'mine::MySequence' as a sequence
+// makes the 'bdlat' infrastructure recognize 'mine::MySequence' as a sequence
 // abstraction:
 //..
-namespace bdlat_SequenceFunctions {
+    namespace bdlat_SequenceFunctions {
 
     template <>
     struct IsSequence<mine::MySequence> {
         enum { VALUE = 1 };
     };
 
-}  // close namespace bdlat_SequenceFunctions
-}  // close enterprise namespace
+    }  // close namespace bdlat_SequenceFunctions
+    }  // close enterprise namespace
 //..
-// The 'bdeat' infrastructure (and any component that uses this infrastructure)
+// The 'bdlat' infrastructure (and any component that uses this infrastructure)
 // will now recognize 'mine::MySequence' as a "sequence" type.  For example,
 // suppose we have the following XML data:
 //..
@@ -677,8 +683,8 @@ namespace bdlat_SequenceFunctions {
 //      <salary>12345.00</salary>
 //  </MySequence>
 //..
-// Using the 'balxml_decoder' component, we can now load this XML data
-// into a 'mine::MySequence' object:
+// Using the 'balxml_decoder' component, we can now load this XML data into a
+// 'mine::MySequence' object:
 //..
 //  #include <balxml_decoder.h>
 //
@@ -701,51 +707,51 @@ namespace bdlat_SequenceFunctions {
 //      assert(12345.00   == object.d_salary);
 //  }
 //..
-// Note that the 'bdeat' framework can be used for functionality other than
+// Note that the 'bdlat' framework can be used for functionality other than
 // encoding/decoding into XML.  When 'mine::MySequence' is plugged into the
 // framework, then it will be automatically usable within the framework.  For
 // example, the following snippets of code will print out all the attributes of
 // a sequence object:
 //..
-struct PrintAttribute {
-    // Print each visited object to the bound 'd_stream_p' object.
-
-    // DATA MEMBERS
-    bsl::ostream *d_stream_p;
-
-    template <class TYPE, class INFO>
-    int operator()(const TYPE& object, const INFO& info)
+    struct PrintAttribute {
+        // Print each visited object to the bound 'd_stream_p' object.
+    
+        // DATA MEMBERS
+        bsl::ostream *d_stream_p;
+    
+        template <class TYPE, class INFO>
+        int operator()(const TYPE& object, const INFO& info)
+        {
+            (*d_stream_p) << info.name() << ": " << object << bsl::endl;
+            return 0;
+        }
+    };
+    
+    template <class TYPE>
+    void printSequenceAttributes(bsl::ostream& stream, const TYPE& object)
     {
-        (*d_stream_p) << info.name() << ": " << object << bsl::endl;
-        return 0;
+        PrintAttribute accessor;
+        accessor.d_stream_p = &stream;
+    
+        bdlat_SequenceFunctions::accessAttributes(object, accessor);
     }
-};
-
-template <class TYPE>
-void printSequenceAttributes(bsl::ostream& stream, const TYPE& object)
-{
-    PrintAttribute accessor;
-    accessor.d_stream_p = &stream;
-
-    bdlat_SequenceFunctions::accessAttributes(object, accessor);
-}
 //..
 // Now we have a generic function that takes an output stream and a sequence
 // object, and prints out each attribute with its name and value.  We can use
 // this generic function as follows:
 //..
-void printMySequence(bsl::ostream& stream)
-{
-    mine::MySequence object;
-
-    object.d_name   = "John Doe";
-    object.d_age    = 25;
-    object.d_salary = 12345.00;
-
-    stream << bsl::fixed << bsl::setprecision(2);
-
-    printSequenceAttributes(stream, object);
-}
+    void printMySequence(bsl::ostream& stream)
+    {
+        mine::MySequence object;
+    
+        object.d_name   = "John Doe";
+        object.d_age    = 25;
+        object.d_salary = 12345.00;
+    
+        stream << bsl::fixed << bsl::setprecision(2);
+    
+        printSequenceAttributes(stream, object);
+    }
 //..
 // The function above will print the following to provided stream:
 //..

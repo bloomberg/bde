@@ -22,19 +22,19 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: The 'bdlat_SequenceFunctions' 'namespace' provided in this
 // component defines parameterized functions that expose "sequence" behavior
-// for "sequence" types.  See the package-level documentation for a full
-// description of "sequence" types.  The functions in this namespace allow
-// users to:
-//..
-//      o manipulate an attribute by attribute id or attribute name using a
-//        parameterized manipulator ('manipulateAttribute').
-//      o manipulate all attributes sequentially using a parameterized
-//        manipulator ('manipulateAttributes').
-//      o access an attribute by attribute id or attribute name using a
-//        parameterized accessor ('accessAttribute').
-//      o access all attributes sequentially using a parameterized accessor
-//        ('accessAttributes').
-//..
+// for "sequence" types.  See the {'bdlat'} package-level documentation for a
+// full description of "sequence" types.
+//
+// The functions in this namespace allow users to:
+//: o manipulate an attribute by attribute id or attribute name using a
+//:   parameterized manipulator ('manipulateAttribute'),
+//: o manipulate all attributes sequentially using a parameterized manipulator
+//:   ('manipulateAttributes'),
+//: o access an attribute by attribute id or attribute name using a
+//:   parameterized accessor ('accessAttribute'), and
+//: o access all attributes sequentially using a parameterized accessor
+//:   ('accessAttributes').
+//
 // Also, the meta-function 'IsSequence' contains a compile-time constant
 // 'VALUE' that is non-zero if the parameterized 'TYPE' exposes "sequence"
 // behavior through the 'bdlat_SequenceFunctions' 'namespace'.
@@ -136,41 +136,36 @@ BSLS_IDENT("$Id: $")
 // 'mine::MySequence' type in the 'bdlat_SequenceFunctions' namespace.
 //
 // An example of plugging in a user-defined sequence type into the 'bdlat'
-// framework is shown in the 'Usage' section of this document.
+// framework is shown in the {'Usage'} section of this document.
 //
 ///Usage
 ///-----
 // The following snippets of code illustrate the usage of this component.
 // Suppose you had a 'struct' that contains three members:
 //..
-//  #include <bdlat_sequencefunctions.h>
-//  #include <bdlat_formattingmode.h>
-//  #include <bdlat_attributeinfo.h>
-//  #include <bdlb_string.h>
-//  #include <string>
 //
 //  namespace BloombergLP {
-//
+//  
 //  namespace mine {
-//
+//  
 //  struct MySequence {
 //      // This struct represents a sequence containing a 'string' member, an
 //      // 'int' member, and a 'float' member.
-//
+//  
 //      // CONSTANTS
 //      enum {
 //          NAME_ATTRIBUTE_ID   = 1,
 //          AGE_ATTRIBUTE_ID    = 2,
 //          SALARY_ATTRIBUTE_ID = 3
 //      };
-//
+//  
 //      // DATA MEMBERS
 //      bsl::string d_name;
 //      int         d_age;
 //      float       d_salary;
 //  };
 //
-//  }  // close namespace 'mine'
+//  }  // close namespace mine
 //..
 // We can now make 'mine::MySequence' expose "sequence" behavior by
 // implementing the necessary 'bdlat_sequence*' functions for 'MySequence'
@@ -178,29 +173,29 @@ BSLS_IDENT("$Id: $")
 // functions that we will implement inside the 'mine' namespace:
 //..
 //  namespace mine {
-//
-//  template <typename MANIPULATOR>
+//  
+//  template <class MANIPULATOR>
 //  int bdlat_sequenceManipulateAttribute(MySequence   *object,
 //                                        MANIPULATOR&  manipulator,
 //                                        const char   *attributeName,
 //                                        int           attributeNameLength);
-//  template <typename MANIPULATOR>
+//  template <class MANIPULATOR>
 //  int bdlat_sequenceManipulateAttribute(MySequence   *object,
 //                                        MANIPULATOR&  manipulator,
 //                                        int           attributeId);
-//  template <typename MANIPULATOR>
+//  template <class MANIPULATOR>
 //  int bdlat_sequenceManipulateAttributes(MySequence   *object,
 //                                         MANIPULATOR&  manipulator);
-//  template <typename ACCESSOR>
+//  template <class ACCESSOR>
 //  int bdlat_sequenceAccessAttribute(const MySequence&  object,
 //                                    ACCESSOR&          accessor,
 //                                    const char        *attributeName,
 //                                    int                attributeNameLength);
-//  template <typename ACCESSOR>
+//  template <class ACCESSOR>
 //  int bdlat_sequenceAccessAttribute(const MySequence& object,
 //                                    ACCESSOR&         accessor,
 //                                    int               attributeId);
-//  template <typename ACCESSOR>
+//  template <class ACCESSOR>
 //  int bdlat_sequenceAccessAttributes(const MySequence& object,
 //                                     ACCESSOR&         accessor);
 //  bool bdlat_sequenceHasAttribute(const MySequence&  object,
@@ -208,16 +203,16 @@ BSLS_IDENT("$Id: $")
 //                                  int                attributeNameLength);
 //  bool bdlat_sequenceHasAttribute(const MySequence& object,
 //                                  int               attributeId);
-//
-//  }  // close namespace 'mine'
+//  
+//  }  // close namespace mine
 //..
 // Now, we will implement these functions.  Note that for this implementation,
 // we will create a temporary 'bdlat_AttributeInfo' object and pass it along
-// when invoking the manipulator or accessor.  See the 'bdlat_attributeinfo'
+// when invoking the manipulator or accessor.  See the {'bdlat_attributeinfo'}
 // component-level documentation for more information.  The implementation of
 // the functions are as follows:
 //..
-//  template <typename MANIPULATOR>
+//  template <class MANIPULATOR>
 //  int mine::bdlat_sequenceManipulateAttribute(
 //                                        MySequence   *object,
 //                                        MANIPULATOR&  manipulator,
@@ -225,119 +220,122 @@ BSLS_IDENT("$Id: $")
 //                                        int           attributeNameLength)
 //  {
 //      enum { NOT_FOUND = -1 };
-//
+//  
 //      if (bdlb::String::areEqualCaseless("name",
-//                                        attributeName,
-//                                        attributeNameLength)) {
+//                                         attributeName,
+//                                         attributeNameLength)) {
 //          return bdlat_sequenceManipulateAttribute(
 //                                              object,
 //                                              manipulator,
 //                                              MySequence::NAME_ATTRIBUTE_ID);
+//                                                                    // RETURN
 //      }
-//
+//  
 //      if (bdlb::String::areEqualCaseless("age",
-//                                        attributeName,
-//                                        attributeNameLength)) {
+//                                         attributeName,
+//                                         attributeNameLength)) {
 //          return bdlat_sequenceManipulateAttribute(
 //                                               object,
 //                                               manipulator,
 //                                               MySequence::AGE_ATTRIBUTE_ID);
+//                                                                    // RETURN
 //      }
-//
+//  
 //      if (bdlb::String::areEqualCaseless("salary",
-//                                        attributeName,
-//                                        attributeNameLength)) {
+//                                         attributeName,
+//                                         attributeNameLength)) {
 //          return bdlat_sequenceManipulateAttribute(
 //                                            object,
 //                                            manipulator,
 //                                            MySequence::SALARY_ATTRIBUTE_ID);
+//                                                                    // RETURN
 //      }
-//
+//  
 //      return NOT_FOUND;
 //  }
-//
-//  template <typename MANIPULATOR>
+//  
+//  template <class MANIPULATOR>
 //  int mine::bdlat_sequenceManipulateAttribute(MySequence   *object,
 //                                              MANIPULATOR&  manipulator,
 //                                              int           attributeId)
 //  {
 //      enum { NOT_FOUND = -1 };
-//
+//  
 //      switch (attributeId) {
 //        case MySequence::NAME_ATTRIBUTE_ID: {
 //          bdlat_AttributeInfo info;
-//
+//  
 //          info.annotation()     = "Name of employee";
-//          info.formattingMode() = bdlat_FormattingMode::DEFAULT;
+//          info.formattingMode() = bdlat_FormattingMode::e_DEFAULT;
 //          info.id()             = MySequence::NAME_ATTRIBUTE_ID;
 //          info.name()           = "name";
 //          info.nameLength()     = 4;
-//
-//          return manipulator(&object->d_name, info);
+//  
+//          return manipulator(&object->d_name, info);                // RETURN
 //        }
 //        case MySequence::AGE_ATTRIBUTE_ID: {
 //          bdlat_AttributeInfo info;
-//
+//  
 //          info.annotation()     = "Age of employee";
-//          info.formattingMode() = bdlat_FormattingMode::DEFAULT;
+//          info.formattingMode() = bdlat_FormattingMode::e_DEFAULT;
 //          info.id()             = MySequence::AGE_ATTRIBUTE_ID;
 //          info.name()           = "age";
 //          info.nameLength()     = 3;
-//
-//          return manipulator(&object->d_age, info);
+//  
+//          return manipulator(&object->d_age, info);                 // RETURN
 //        }
 //        case MySequence::SALARY_ATTRIBUTE_ID: {
 //          bdlat_AttributeInfo info;
-//
+//  
 //          info.annotation()     = "Salary of employee";
-//          info.formattingMode() = bdlat_FormattingMode::DEFAULT;
+//          info.formattingMode() = bdlat_FormattingMode::e_DEFAULT;
 //          info.id()             = MySequence::SALARY_ATTRIBUTE_ID;
 //          info.name()           = "salary";
 //          info.nameLength()     = 6;
-//
-//          return manipulator(&object->d_salary, info);
+//  
+//          return manipulator(&object->d_salary, info);              // RETURN
 //        }
 //        default: {
-//            return NOT_FOUND;
+//          return NOT_FOUND;                                         // RETURN
 //        }
 //      }
 //  }
-//
-//  template <typename MANIPULATOR>
+//  
+//  template <class MANIPULATOR>
 //  int mine::bdlat_sequenceManipulateAttributes(MySequence   *object,
 //                                               MANIPULATOR&  manipulator)
 //  {
 //      int retVal;
-//
+//  
 //      retVal = bdlat_sequenceManipulateAttribute(
 //                                              object,
 //                                              manipulator,
 //                                              MySequence::NAME_ATTRIBUTE_ID);
-//
+//  
 //      if (0 != retVal) {
-//          return retVal;
+//          return retVal;                                            // RETURN
 //      }
-//
+//  
 //      retVal = bdlat_sequenceManipulateAttribute(
 //                                               object,
 //                                               manipulator,
 //                                               MySequence::AGE_ATTRIBUTE_ID);
-//
+//  
 //      if (0 != retVal) {
-//          return retVal;
+//          return retVal;                                            // RETURN
 //      }
-//
+//  
 //      retVal = bdlat_sequenceManipulateAttribute(
 //                                            object,
 //                                            manipulator,
 //                                            MySequence::SALARY_ATTRIBUTE_ID);
-//
+//  
 //      return retVal;
 //  }
-//
+//  
 //  // ACCESSORS
-//
-//  template <typename ACCESSOR>
+//  
+//  template <class ACCESSOR>
 //  int mine::bdlat_sequenceAccessAttribute(
 //                                      const MySequence&  object,
 //                                      ACCESSOR&          accessor,
@@ -345,130 +343,133 @@ BSLS_IDENT("$Id: $")
 //                                      int                attributeNameLength)
 //  {
 //      enum { NOT_FOUND = -1 };
-//
+//  
 //      if (bdlb::String::areEqualCaseless("name",
-//                                        attributeName,
-//                                        attributeNameLength)) {
+//                                         attributeName,
+//                                         attributeNameLength)) {
 //          return bdlat_sequenceAccessAttribute(
 //                                              object,
 //                                              accessor,
 //                                              MySequence::NAME_ATTRIBUTE_ID);
+//                                                                    // RETURN
 //      }
-//
+//  
 //      if (bdlb::String::areEqualCaseless("age",
-//                                        attributeName,
-//                                        attributeNameLength)) {
+//                                         attributeName,
+//                                         attributeNameLength)) {
 //          return bdlat_sequenceAccessAttribute(object,
 //                                               accessor,
 //                                               MySequence::AGE_ATTRIBUTE_ID);
+//                                                                    // RETURN
 //      }
-//
+//  
 //      if (bdlb::String::areEqualCaseless("salary",
-//                                        attributeName,
-//                                        attributeNameLength)) {
+//                                         attributeName,
+//                                         attributeNameLength)) {
 //          return bdlat_sequenceAccessAttribute(
 //                                            object,
 //                                            accessor,
 //                                            MySequence::SALARY_ATTRIBUTE_ID);
+//                                                                    // RETURN
 //      }
-//
+//  
 //      return NOT_FOUND;
 //  }
-//
-//  template <typename ACCESSOR>
+//  
+//  template <class ACCESSOR>
 //  int mine::bdlat_sequenceAccessAttribute(const MySequence& object,
 //                                          ACCESSOR&         accessor,
 //                                          int               attributeId)
 //  {
 //      enum { NOT_FOUND = -1 };
-//
+//  
 //      switch (attributeId) {
 //        case MySequence::NAME_ATTRIBUTE_ID: {
 //          bdlat_AttributeInfo info;
-//
+//  
 //          info.annotation()     = "Name of employee";
-//          info.formattingMode() = bdlat_FormattingMode::DEFAULT;
+//          info.formattingMode() = bdlat_FormattingMode::e_DEFAULT;
 //          info.id()             = MySequence::NAME_ATTRIBUTE_ID;
 //          info.name()           = "name";
 //          info.nameLength()     = 4;
-//
-//          return accessor(object.d_name, info);
+//  
+//          return accessor(object.d_name, info);                     // RETURN
 //        }
 //        case MySequence::AGE_ATTRIBUTE_ID: {
 //          bdlat_AttributeInfo info;
-//
+//  
 //          info.annotation()     = "Age of employee";
-//          info.formattingMode() = bdlat_FormattingMode::DEFAULT;
+//          info.formattingMode() = bdlat_FormattingMode::e_DEFAULT;
 //          info.id()             = MySequence::AGE_ATTRIBUTE_ID;
 //          info.name()           = "age";
 //          info.nameLength()     = 3;
-//
-//          return accessor(object.d_age, info);
+//  
+//          return accessor(object.d_age, info);                      // RETURN
 //        }
 //        case MySequence::SALARY_ATTRIBUTE_ID: {
 //          bdlat_AttributeInfo info;
-//
+//  
 //          info.annotation()     = "Salary of employee";
-//          info.formattingMode() = bdlat_FormattingMode::DEFAULT;
+//          info.formattingMode() = bdlat_FormattingMode::e_DEFAULT;
 //          info.id()             = MySequence::SALARY_ATTRIBUTE_ID;
 //          info.name()           = "salary";
 //          info.nameLength()     = 6;
-//
-//          return accessor(object.d_salary, info);
+//  
+//          return accessor(object.d_salary, info);                   // RETURN
 //        }
 //        default: {
-//            return NOT_FOUND;
+//        return NOT_FOUND;                                           // RETURN
 //        }
 //      }
 //  }
-//
-//  template <typename ACCESSOR>
+//  
+//  template <class ACCESSOR>
 //  int mine::bdlat_sequenceAccessAttributes(const MySequence& object,
 //                                           ACCESSOR&         accessor)
 //  {
 //      int retVal;
-//
+//  
 //      retVal = bdlat_sequenceAccessAttribute(object,
 //                                             accessor,
 //                                             MySequence::NAME_ATTRIBUTE_ID);
-//
+//  
 //      if (0 != retVal) {
-//          return retVal;
+//      return retVal;                                                // RETURN
 //      }
-//
+//  
 //      retVal = bdlat_sequenceAccessAttribute(object,
 //                                             accessor,
 //                                             MySequence::AGE_ATTRIBUTE_ID);
-//
+//  
 //      if (0 != retVal) {
-//          return retVal;
+//          return retVal;                                            // RETURN
 //      }
-//
-//      retVal = bdlat_sequenceAccessAttribute(object,
+//  
+//      retVal = bdlat_sequenceAccessAttribute(
+//                                            object,
 //                                            accessor,
 //                                            MySequence::SALARY_ATTRIBUTE_ID);
-//
+//  
 //      return retVal;
 //  }
-//
+//  
 //  bool mine::bdlat_sequenceHasAttribute(
-//                                      const MySequence&  object,
+//                                      const MySequence&  ,
 //                                      const char        *attributeName,
 //                                      int                attributeNameLength)
 //  {
 //      return bdlb::String::areEqualCaseless("name",
-//                                           attributeName,
-//                                           attributeNameLength)
+//                                            attributeName,
+//                                            attributeNameLength)
 //          || bdlb::String::areEqualCaseless("age",
-//                                           attributeName,
-//                                           attributeNameLength)
+//                                            attributeName,
+//                                            attributeNameLength)
 //          || bdlb::String::areEqualCaseless("salary",
-//                                           attributeName,
-//                                           attributeNameLength);
+//                                            attributeName,
+//                                            attributeNameLength);
 //  }
-//
-//  bool mine::bdlat_sequenceHasAttribute(const MySequence& object,
-//                                        int               attributeId)
+//  
+//  bool mine::bdlat_sequenceHasAttribute(const MySequence& , int attributeId)
 //  {
 //      return MySequence::NAME_ATTRIBUTE_ID   == attributeId
 //          || MySequence::AGE_ATTRIBUTE_ID    == attributeId
@@ -482,13 +483,13 @@ BSLS_IDENT("$Id: $")
 //..
 //  namespace bdlat_SequenceFunctions {
 //
-//      template <>
-//      struct IsSequence<mine::MySequence> {
-//          enum { VALUE = 1 };
-//      };
+//  template <>
+//  struct IsSequence<mine::MySequence> {
+//      enum { VALUE = 1 };
+//  };
 //
-//  }  // close namespace 'bdlat_SequenceFunctions'
-//  }  // close namespace 'BloombergLP'
+//  }  // close namespace bdlat_SequenceFunctions
+//  }  // close enterprise namespace
 //..
 // The 'bdlat' infrastructure (and any component that uses this infrastructure)
 // will now recognize 'mine::MySequence' as a "sequence" type.  For example,
@@ -533,24 +534,24 @@ BSLS_IDENT("$Id: $")
 //..
 //  struct PrintAttribute {
 //      // Print each visited object to the bound 'd_stream_p' object.
-//
+//  
 //      // DATA MEMBERS
 //      bsl::ostream *d_stream_p;
-//
-//      template <typename TYPE, typename INFO>
+//  
+//      template <class TYPE, class INFO>
 //      int operator()(const TYPE& object, const INFO& info)
 //      {
 //          (*d_stream_p) << info.name() << ": " << object << bsl::endl;
 //          return 0;
 //      }
 //  };
-//
-//  template <typename TYPE>
+//  
+//  template <class TYPE>
 //  void printSequenceAttributes(bsl::ostream& stream, const TYPE& object)
 //  {
 //      PrintAttribute accessor;
 //      accessor.d_stream_p = &stream;
-//
+//  
 //      bdlat_SequenceFunctions::accessAttributes(object, accessor);
 //  }
 //..
@@ -560,16 +561,14 @@ BSLS_IDENT("$Id: $")
 //..
 //  void printMySequence(bsl::ostream& stream)
 //  {
-//      using namespace BloombergLP;
-//
 //      mine::MySequence object;
-//
+//  
 //      object.d_name   = "John Doe";
 //      object.d_age    = 25;
 //      object.d_salary = 12345.00;
-//
+//  
 //      stream << bsl::fixed << bsl::setprecision(2);
-//
+//  
 //      printSequenceAttributes(stream, object);
 //  }
 //..
@@ -603,7 +602,6 @@ BSLS_IDENT("$Id: $")
 # define BDLAT_SEQUENCEFUNCTIONS_HAS_INHIBITED_ADL 1
     // Last verified with xlC 12.1
 #endif
-
 
 namespace BloombergLP {
 
@@ -658,7 +656,6 @@ namespace bdlat_SequenceFunctions {
         // 'manipulator' with the corresponding attribute information
         // structure.  Return non-zero value if the attribute is not found, and
         // the value returned from the invocation of 'manipulator' otherwise.
-
 
     template <class TYPE, class MANIPULATOR>
     int manipulateAttribute(TYPE         *object,
@@ -724,8 +721,6 @@ namespace bdlat_SequenceFunctions {
                       int         attributeId);
         // Return true if the specified 'object' has an attribute with the
         // specified 'attributeId', and false otherwise.
-
-
 
 #if ! defined(BDLAT_SEQUENCEFUNCTIONS_HAS_INHIBITED_ADL)
     // OVERLOADABLE FUNCTIONS
@@ -795,7 +790,6 @@ int bdlat_SequenceFunctions::manipulateAttribute(
                                              attributeName,
                                              attributeNameLength);
 }
-
 
 template <class TYPE, class MANIPULATOR>
 inline
