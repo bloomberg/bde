@@ -1,5 +1,20 @@
-bsl-internal (3.87.0.0) unstable; urgency=low
+bsl-internal (3.88.0.0) unstable; urgency=low
 
+  * 11f96f7ce Bumped version to 3.88.0.0
+  * e26cd0adb fix build breakage in bdlat_arrayfunctions.t (#3379)
+  * 413ca706f drqs-149019607: 'bdlat': Updated Usage in several "TBD:" components. (#3287)
+  * 3a1d36cab bdlc_flathashtable: Separate copy paths for trivial and nontrivial types (#3366)
+  * f13fb6b20 Correct behavior of scoped attribute format specifiers. (#3361)
+  * cd05b19b7 check for null in case the Event has expired (#3370)
+  * c997bcabb Drqs 166936444/bdlmt fixedthreadpool nb 20210810 (#3365)
+  * c6c7931b0 drqs-166390563: 'balcl' component documentation fixes. (#3342)
+  * 7c00865f6 Drqs 165748105/bdlmt fixedthreadpool use bdlcc boundedqueue (#3314)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 20 Aug 2021 13:38:54 -0400
+
+bsl-internal (3.87.0.0) git; urgency=low
+
+  * c113ffda6 Changelog for version 3.87.0.0
   * ee39d04d6 Bumped version to 3.87.0.0
   * e430ecb7d Merge pull request #3363 from afeher/drqs-166905817-fix-ryu-decimal-notation
   * 44c970982 bdld_datum.h: doc formatting fixes (#3231)
@@ -8,7 +23,7 @@ bsl-internal (3.87.0.0) unstable; urgency=low
   * 2e9e89e55 Merge pull request #3279 from mgill83/asyncfileobserver-test-fix-drqs-166463531
   * 93a379424 balst_stacktraceframe: bde-4.0 (#3348)
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 6 Aug 2021 18:29:48 -0400
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 6 Aug 2021 18:31:56 -0400
 
 bsl-internal (3.86.0.0) git; urgency=low
 
