@@ -435,7 +435,7 @@ bsl::size_t Test::bdlat_arraySize(const Test::FixedArray<SIZE, TYPE>& array)
             return;                                                   // RETURN
         }
 
-        d_capacity = bsl::max(1u, d_capacity * 2);
+        d_capacity = bsl::max(static_cast<bsl::size_t>(1u), d_capacity * 2);
 
         float *newData = new float[d_capacity];
 
