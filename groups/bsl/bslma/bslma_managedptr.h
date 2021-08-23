@@ -440,7 +440,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // Suppose we want to track the number of objects currently managed by
 // 'ManagedPtr' objects.
 //
-// First we define a factory type, that holds an allocator and a usage-counter.
+// First we define a factory type that holds an allocator and a usage-counter.
 // Note that such a type cannot sensibly be copied, as the notion 'count'
 // becomes confused.
 //..
@@ -1632,8 +1632,9 @@ struct ManagedPtrUtil {
         // the new object.  Use the specified 'basicAllocator' to supply memory
         // for the footprint of the new object and implicitly pass
         // 'basicAllocator' as the last argument of its constructor if
-        // 'bslma::UsesBslmaAllocator<ELEMENT_TYPE>::value' is 'true'.  The
-        // behavior is undefined unless '0 != basicAllocator'.
+        // 'bslma::UsesBslmaAllocator<ELEMENT_TYPE>::value' is 'true'.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
 
     template <class ELEMENT_TYPE, class... ARGS>
     static ManagedPtr<ELEMENT_TYPE> makeManaged(ARGS&&... args);
@@ -2360,21 +2361,21 @@ ManagedPtr<ELEMENT_TYPE> ManagedPtrUtil::allocateManaged(
                                               bslma::Allocator *basicAllocator,
                                               ARGS&&...         args)
 {
-    BSLS_ASSERT(0 != basicAllocator);
+    bslma::Allocator *allocator = bslma::Default::allocator(basicAllocator);
 
     ELEMENT_TYPE *objPtr = static_cast<ELEMENT_TYPE *>(
-                               basicAllocator->allocate(sizeof(ELEMENT_TYPE)));
+                                    allocator->allocate(sizeof(ELEMENT_TYPE)));
 
     bslma::DeallocatorProctor<bslma::Allocator> proctor(
                                            ManagedPtr_ImpUtil::voidify(objPtr),
-                                           basicAllocator);
+                                           allocator);
     bslma::ConstructionUtil::construct(
                                  ManagedPtr_ImpUtil::unqualify(objPtr),
-                                 basicAllocator,
+                                 allocator,
                                  BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...);
     proctor.release();
 
-    return ManagedPtr<ELEMENT_TYPE>(objPtr, basicAllocator);
+    return ManagedPtr<ELEMENT_TYPE>(objPtr, allocator);
 }
 
 template <class ELEMENT_TYPE, class... ARGS>
@@ -2382,6 +2383,7 @@ inline
 ManagedPtr<ELEMENT_TYPE> ManagedPtrUtil::makeManaged(ARGS&&... args)
 {
     bslma::Allocator *defaultAllocator = bslma::Default::defaultAllocator();
+
     ELEMENT_TYPE *objPtr = static_cast<ELEMENT_TYPE *>(
                              defaultAllocator->allocate(sizeof(ELEMENT_TYPE)));
 
