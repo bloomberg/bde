@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //  ball::RecordJsonFormatter: formatter for rendering log records in JSON
 //
 //@SEE_ALSO: ball_record, ball_recordattributes
-///
+//
 //@DESCRIPTION: This component provides a function object class,
 // 'ball::RecorJsonFormatter', that formats a log record as JSON text elements
 // according to a format specification (see {'Record Format Specification'}).
