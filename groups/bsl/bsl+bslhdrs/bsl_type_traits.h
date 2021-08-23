@@ -21,13 +21,15 @@ BSLS_IDENT("$Id: $")
 #include <bsls_nativestd.h>
 #include <bsls_platform.h>
 
-#if __cplusplus < 201103L \
-    && (defined(BSLS_PLATFORM_CMP_SUN) || defined(BSLS_PLATFORM_CMP_IBM))
-#   error This file requires compiler and library support for \
-          the ISO C++ 2011 standard.
+#include <cstddef>       // for 'std::size_t'
+
+#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L
+#  ifndef BSL_USE_NATIVE_STD_IMPLEMENTATION
+#    define BSL_USE_NATIVE_STD_IMPLEMENTATION 1
+#  endif
 #endif
 
-#include <cstddef>       // for 'std::size_t'
+#if defined(BSL_USE_NATIVE_STD_IMPLEMENTATION)
 
 #include <type_traits>
 
@@ -460,6 +462,8 @@ using native_std::true_type;
 using native_std::void_t;
 #endif
 }  // close package namespace
+
+#endif  // BSL_USE_NATIVE_STD_IMPLEMENTATION
 
 // Include Bloomberg's implementation, unless compilation is configured to
 // override native types in the 'std' namespace with Bloomberg's

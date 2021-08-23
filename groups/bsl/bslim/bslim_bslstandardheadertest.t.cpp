@@ -141,8 +141,9 @@
 #include <bsl_scoped_allocator.h>
 #include <bsl_thread.h>
 #include <bsl_tuple.h>
-#include <bsl_type_traits.h>
 #endif
+
+#include <bsl_type_traits.h>
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
 #include <bsl_shared_mutex.h>
