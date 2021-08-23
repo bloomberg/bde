@@ -156,7 +156,7 @@ BSLS_IDENT("$Id: $")
 //      } else {
 //          bsl::memcpy(newData, d_data_p, newSize);
 //      }
-//      
+//
 //      bsl::free(d_data_p);
 //      d_data_p = newData;
 //      d_size   = newSize;
@@ -164,7 +164,7 @@ BSLS_IDENT("$Id: $")
 //
 //  }  // close namespace mine
 //  }  // close enterprise namespace
-//.
+//..
 // We can now make 'mine::MyIntArray' expose "array" behavior by implementing
 // the necessary 'bdlat_ArrayFunctions' for 'MyIntArray' inside the 'mine'
 // namespace and defining the required meta-functions withing the
@@ -228,7 +228,7 @@ BSLS_IDENT("$Id: $")
 //      assert(0 <= index);
 //      assert(static_cast<bsl::size_t>(index) < array->size());
 //
-//      return manipulator(&array->value(index));    
+//      return manipulator(&array->value(index));
 //  }
 //
 //  void bdlat_arrayResize(MyIntArray *array, int newSize)
@@ -297,12 +297,12 @@ BSLS_IDENT("$Id: $")
 //  {
 //      BSLMF_ASSERT(bdlat_ArrayFunctions::IsArray<mine::MyIntArray>::VALUE);
 //
-//      mine::MyIntArray array;            
+//      mine::MyIntArray array;
 //      assert(0 == bdlat_ArrayFunctions::size(array));
 //
 //      bdlat_ArrayFunctions::resize(&array, 8);
 //      assert(8 == bdlat_ArrayFunctions::size(array));
-//      
+//
 //      bdlat_ArrayFunctions::resize(&array, 4);
 //      assert(4 == bdlat_ArrayFunctions::size(array));
 //  }
@@ -336,7 +336,7 @@ BSLS_IDENT("$Id: $")
 //
 //      // DATA
 //      ELEMENT_TYPE d_value;
-//  
+//
 //    public:
 //      // CREATORS
 //      SetElementManipulator(const ELEMENT_TYPE& value)
@@ -366,7 +366,7 @@ BSLS_IDENT("$Id: $")
 //      // Confirm initial array elements from resize.
 //
 //      int                     value;
-//      GetElementAccessor<int> accessor(&value); 
+//      GetElementAccessor<int> accessor(&value);
 //
 //      for (int index = 0; index < 4; ++index) {
 //          int rc = bdlat_ArrayFunctions::accessElement(array,
@@ -379,7 +379,7 @@ BSLS_IDENT("$Id: $")
 //      // Set element 'index * 10' as its value;
 //
 //      for (int index = 0; index < 4; ++index) {
-//          SetElementManipulator<int> manipulator(index * 10); 
+//          SetElementManipulator<int> manipulator(index * 10);
 //
 //          int rc = bdlat_ArrayFunctions::manipulateElement(&array,
 //                                                           manipulator,
