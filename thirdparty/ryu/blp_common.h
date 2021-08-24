@@ -4,16 +4,34 @@
 
 #include <stdint.h>
 
-static inline bool needs_decimal_notation(uint32_t olength, int32_t exponent) {
-  // Return 'false' if the ISO C++ scientifc notation for floating point
+static inline int xsd_non_numerical_mapping(char       *result,
+                                            const bool  isNegative,
+                                            const bool  nonZeroMantissa)
+    // Write the textual representation of a non-numeric IEE-754 special value
+    // described by the specified 'isNegative' and 'nonZeroMantissa' into the
+    // specified 'result' and return the number of characters written.
+{
+  if (nonZeroMantissa) {
+    memcpy(result, "NaN", 3);
+    return 3;
+  }
+
+  *result = (isNegative ? '-' : '+');
+  memcpy(result + 1, "INF", 3);
+  return 4;
+}
+
+static inline bool needs_decimal_notation_m(uint32_t olength, int32_t exponent)
+  // Return 'false' if the ISO C++ scientific notation for floating point
   // numbers having the specified 'olength' significant digits, and the
-  // specified 'exponent' decimal exponet is shorter than the decimal notation.
+  // specified 'exponent' decimal exponent is shorter than the decimal notation.
   // Otherwise, if the decimal notation is not longer than the scientific
-  // notation retrun 'true'.  The behavios is undefined unless
+  // notation return 'true'.  The behavior is undefined unless
   // `0 < olength <= 17` and `-324 <= exponent <= 308`.
 
   // Inspired by xcharconv_ryu.h of Stephan T Lavavej and Microsoft, that has
-  // Apache 2.0 License just like our code does
+  // Apache 2.0 License just like Bloomberg LP BDE code does.
+{
   int32_t low, high;
   if (olength == 1) { // One significant digit
     //      | value | Decimal | Scientific
@@ -49,12 +67,6 @@ static inline uint64_t ten_to_exp_for_decimal_notation(uint32_t exponent) {
   };
   return ten_to_the[exponent];
 }
-
-typedef enum WriteDigitsMode {
-  // An enumeration that determines the behavior of `write_digits` functions.
-  DigitsOnly,  // Just write the digits in `output`
-  Mantissa     // Write a '.' after the first digit if `output > 9`
-} WriteDigitsMode;
 
 #endif // BLP_RYU_COMMON_H
 
