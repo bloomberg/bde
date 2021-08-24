@@ -156,7 +156,7 @@ void resolveSymLinksIfAny(bsl::string *fileName)
 #if defined PATH_MAX
         bsl::string linkString(PATH_MAX, '\0');
 #else
-        bsl::string linkString(4 * 1204, '\0');
+        bsl::string linkString(4 * 1024, '\0');
 #endif
 
         const char *pLinkString = ::realpath(fileName->c_str(),
