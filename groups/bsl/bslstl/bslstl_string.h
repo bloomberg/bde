@@ -1486,14 +1486,20 @@ class basic_string
 
     basic_string(BloombergLP::bslmf::MovableRef<basic_string> original)
                                                          BSLS_KEYWORD_NOEXCEPT;
+        // Create a string that has the same value as the specified 'original'
+        // string by moving (in constant time) the contents of 'original' to
+        // the new string.  The allocator associated with 'original' is
+        // propagated for use in the newly-created string.  'original' is left
+        // in a valid but unspecified state.
+
     basic_string(BloombergLP::bslmf::MovableRef<basic_string> original,
                  const ALLOCATOR&                             basicAllocator);
         // Create a string that has the same value as the specified 'original'
-        // string by moving the contents of 'original' to the new string.
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is not specified, then a default-constructed
-        // allocator is used.  'original' is left in a valid but unspecified
-        // state.
+        // string that uses the specified 'basicAllocator' to supply memory.
+        // The contents of 'original' are moved (in constant time) to the new
+        // string if 'basicAllocator == original.get_allocator()', and are
+        // copied (in linear time) using 'basicAllocator' otherwise.
+        // 'original' is left in a valid but unspecified state.
 
     basic_string(const basic_string& original,
                  size_type           position,
@@ -2798,7 +2804,7 @@ inline namespace string_literals {
  string operator ""_s(const char    *characterString, std::size_t length);
 wstring operator ""_s(const wchar_t *characterString, std::size_t length);
     // Convert a character sequence of the specified 'length' excluding the
-    // terminatng null character starting at the beginning of the specified
+    // terminating null character starting at the beginning of the specified
     // 'characterString' to a string object of the indicated return type.  Use
     // the 'bslma::Default::defaultAllocator()' to supply memory.  (See the
     // "User-Defined Literals" section in the component-level documentation.)
@@ -2820,7 +2826,7 @@ wstring operator ""_s(const wchar_t *characterString, std::size_t length);
  string operator ""_S(const char    *characterString, std::size_t length);
 wstring operator ""_S(const wchar_t *characterString, std::size_t length);
     // Convert a character sequence of the specified 'length' excluding the
-    // terminatng null character starting at the beginning of the specified
+    // terminating null character starting at the beginning of the specified
     // 'characterString' to a string object of the indicated return type.  Use
     // the 'bslma::Default::globalAllocator()' to supply memory.  (See the
     // "Memory Allocation For a File-Scope Strings" section in the
