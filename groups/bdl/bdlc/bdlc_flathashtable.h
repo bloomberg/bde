@@ -2065,7 +2065,7 @@ void FlatHashTable_ImplUtil::copyEntryAndControlArrays(
                 bsl::distance(firstSourceControl, lastSourceControl) *
                     sizeof(bsl::uint8_t));
 
-#ifdef BSLS_PLATFORM_CMP_GNU
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 80000
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wclass-memaccess"
 #endif
@@ -2075,7 +2075,7 @@ void FlatHashTable_ImplUtil::copyEntryAndControlArrays(
                 bsl::distance(firstSourceEntry, lastSourceEntry) *
                     sizeof(ENTRY_TYPE));
 
-#ifdef BSLS_PLATFORM_CMP_GNU
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 80000
 #pragma GCC diagnostic pop
 #endif
 }
