@@ -235,8 +235,8 @@ static bool isEqual(SV a, SV b)
     // Return 'true' if the specified 'a' and 'b' have the same 'data' and
     // 'length' attributes and 'false' otherwise.
 {
-    return a.begin() == b.begin()
-        && a.end()   == b.end();
+    return a.data()   == b.data()
+        && a.length() == b.length();
 }
 
 static void testIsEqual()

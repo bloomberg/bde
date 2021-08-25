@@ -93,6 +93,22 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
+// ============================================================================
+//                  ADDITIONAL MACROS FOR COMPILER FEATURES
+// ----------------------------------------------------------------------------
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)                                           \
+ && _ITERATOR_DEBUG_LEVEL >= 1  // Internal MSVC macro
+    // MSVC has its own assertions for exceeding past-the-end iterator and
+    // comparing iterators of different objects.  And they fire earlier than
+    // ours.
+# define BDLB_INDEXSPANSTRINGUTIL_DEBUGGING_NATIVE_STRING_ITERATORS 1
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+# define BDLB_INDEXSPANSTRINGUTIL_DEBUGGING_NATIVE_STRING_VIEW_ITERATORS 1
+#endif
+#endif
+
 //=============================================================================
 //                              TYPE ALIASES
 //-----------------------------------------------------------------------------
@@ -258,6 +274,8 @@ int main(int argc, char *argv[])
         //   IndexSpan create([w]string, substring);
         //   IndexSpan create([w]string, begin, len);
         //   IndexSpan create([w]string, begin, end);
+        //   IndexSpan create(StringRef[Wide], begin, len);
+        //   IndexSpan create(StringRef[Wide], begin, end);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTESTING CREATE"
@@ -462,13 +480,18 @@ int main(int argc, char *argv[])
         ASSERT_FAIL(Util::create(input, k_BEGIN, k_LEN));                     \
         ASSERT_FAIL(Util::create(input, k_BEGIN, k_END));                     \
     }
+#ifndef BDLB_INDEXSPANSTRINGUTIL_DEBUGGING_NATIVE_STRING_VIEW_ITERATORS
             TEST_CREATE_FROM_ITER(bsl::string_view,  k_STRVIEW);
-            TEST_CREATE_FROM_ITER(bslstl::StringRef, k_STRREF);
-            TEST_CREATE_FROM_ITER(bsl::string,       k_BSLSTR);
+#endif
+#ifndef BDLB_INDEXSPANSTRINGUTIL_DEBUGGING_NATIVE_STRING_ITERATORS
             TEST_CREATE_FROM_ITER(std::string,       k_STDSTR);
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
             TEST_CREATE_FROM_ITER(std::pmr::string,  k_PMRSTR);
 #endif
+#endif
+            TEST_CREATE_FROM_ITER(bslstl::StringRef, k_STRREF);
+            TEST_CREATE_FROM_ITER(bsl::string,       k_BSLSTR);
+
 #undef TEST_CREATE_FROM_ITER
 
 #define TEST_CREATE_FROM_SUBSTR(input)                                        \
@@ -689,13 +712,18 @@ int main(int argc, char *argv[])
         ASSERT_FAIL(Util::create(input, k_BEGIN, k_LEN));                     \
         ASSERT_FAIL(Util::create(input, k_BEGIN, k_END));                     \
     }
+#ifndef BDLB_INDEXSPANSTRINGUTIL_DEBUGGING_NATIVE_STRING_VIEW_ITERATORS
             TEST_CREATE_FROM_ITER(bsl::wstring_view,     k_STRVIEW);
-            TEST_CREATE_FROM_ITER(bslstl::StringRefWide, k_STRREF);
-            TEST_CREATE_FROM_ITER(bsl::wstring,          k_BSLSTR);
+#endif
+#ifndef BDLB_INDEXSPANSTRINGUTIL_DEBUGGING_NATIVE_STRING_ITERATORS
             TEST_CREATE_FROM_ITER(std::wstring,          k_STDSTR);
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
             TEST_CREATE_FROM_ITER(std::pmr::wstring,     k_PMRSTR);
 #endif
+#endif
+            TEST_CREATE_FROM_ITER(bslstl::StringRefWide, k_STRREF);
+            TEST_CREATE_FROM_ITER(bsl::wstring,          k_BSLSTR);
+
 #undef TEST_CREATE_FROM_ITER
 
 #define TEST_CREATE_FROM_SUBSTR(input)                                        \
@@ -718,6 +746,7 @@ int main(int argc, char *argv[])
 #undef TEST_CREATE_FROM_SUBSTR
         }
 
+#ifndef BDLB_INDEXSPANSTRINGUTIL_DEBUGGING_NATIVE_STRING_VIEW_ITERATORS
         if (verbose)  cout << "Testing assertions with too low 'begin'.\n";
         {
             bslstl::StringRef string("0123456789");
@@ -780,6 +809,7 @@ int main(int argc, char *argv[])
             ASSERT_FAIL(Util::create(input, string));
             ASSERT_PASS(Util::create(input, input));
         }
+#endif
 #endif
       } break;
 
