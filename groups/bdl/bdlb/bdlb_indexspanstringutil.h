@@ -483,6 +483,12 @@ IndexSpanStringUtil::createImp(
     const_pointer subStringBegin = subString.data();
     const_pointer subStringEnd   = subString.data() + subString.length();
 
+    // Suppress unused variable warnings
+    (void)lessEqual;
+    (void)greaterEqual;
+    (void)stringEnd;
+    (void)subStringEnd;
+
     BSLS_ASSERT(lessEqual(   subStringBegin, stringEnd  ));
     BSLS_ASSERT(lessEqual(   subStringEnd,   stringEnd  ));
     BSLS_ASSERT(greaterEqual(subStringBegin, stringBegin));
