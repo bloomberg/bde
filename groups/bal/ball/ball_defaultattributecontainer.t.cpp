@@ -19,7 +19,6 @@
 #include <bslim_testutil.h>
 
 #include <bsls_platform.h>
-#include <bsls_types.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
@@ -139,19 +138,17 @@ void aSsErT(bool condition, const char *message, int line)
 typedef ball::DefaultAttributeContainer Obj;
 typedef Obj::allocator_type             AllocType;
 
-typedef bsls::Types::Int64              Int64;
-
 bslma::Allocator *globalAllocator = &bslma::NewDeleteAllocator::singleton();
 
 ball::Attribute A0("", "12345678", globalAllocator);
 ball::Attribute A1("", 12345678, globalAllocator);
-ball::Attribute A2("", (Int64)12345678, globalAllocator);
+ball::Attribute A2("", 12345678LL, globalAllocator);
 ball::Attribute A3("uuid", "12345678", globalAllocator);
 ball::Attribute A4("uuid", 12345678, globalAllocator);
-ball::Attribute A5("uuid", (Int64)12345678, globalAllocator);
+ball::Attribute A5("uuid", 12345678LL, globalAllocator);
 ball::Attribute A6("UUID", "12345678", globalAllocator);
 ball::Attribute A7("UUID", 12345678, globalAllocator);
-ball::Attribute A8("UUID", (Int64)12345678, globalAllocator);
+ball::Attribute A8("UUID", 12345678LL, globalAllocator);
 
 const char* NAMES[] = { "",                                       // A
                         "A",                                      // B
@@ -290,7 +287,7 @@ static Obj& gg(Obj *obj, const char *spec)
           } break;
           case 'I': {
             ++spec;
-            ball::Attribute attr(name, (Int64)*spec - '0');
+            ball::Attribute attr(name, (long long)*spec - '0');
             obj->addAttribute(attr);
           } break;
           default: {
@@ -432,7 +429,7 @@ int main(int argc, char *argv[])
 
         const ball::Attribute VX("attribute1", "string");
         const ball::Attribute VY("attribute2", 15);
-        const ball::Attribute VZ("attribute3", bsls::Types::Int64(15));
+        const ball::Attribute VZ("attribute3", 15LL);
 
         {
             bsl::vector<ball::Attribute> result;
@@ -1167,7 +1164,7 @@ int main(int argc, char *argv[])
                 ASSERTV(n, v, (v < n) == X.hasValue(
                                        ball::Attribute(NAMES[n], int32Value)));
 
-                Int64 int64Value = v;
+                long long int64Value = v;
                 ASSERTV(n, v, (v < n) == X.hasValue(
                                        ball::Attribute(NAMES[n], int64Value)));
             }
@@ -1229,7 +1226,7 @@ int main(int argc, char *argv[])
                 ASSERTV(n, v, (v < n) == X.hasValue(
                                        ball::Attribute(NAMES[n], int32Value)));
 
-                Int64 int64Value = v;
+                long long int64Value = v;
                 ASSERTV(n, v, (v < n) == X.hasValue(
                                        ball::Attribute(NAMES[n], int64Value)));
             }

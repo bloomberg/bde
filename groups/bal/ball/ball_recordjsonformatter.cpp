@@ -217,11 +217,15 @@ BSLS_IDENT_RCSID(ball_recordjsonformatter_cpp,"$Id$ $CSID$")
 #include <bdlf_bind.h>
 #include <bdlf_placeholder.h>
 
+#include <bdlsb_fixedmemoutstreambuf.h>
+
 #include <bdlt_datetime.h>
 #include <bdlt_currenttime.h>
 #include <bdlt_localtimeoffset.h>
 #include <bdlt_iso8601util.h>
 #include <bdlt_iso8601utilconfiguration.h>
+
+#include <bslim_printer.h>
 
 #include <bslma_managedptr.h>
 
@@ -1318,16 +1322,20 @@ RecordJsonFormatter_FieldFormatter *DatumParser::make(
     RecordJsonFormatter_FieldFormatter *formatter = 0;
 
     if (k_KEY_TIMESTAMP       == v) {
-        formatter = new (*d_allocator.mechanism()) TimestampFormatter(d_allocator);
+        formatter =
+                new (*d_allocator.mechanism()) TimestampFormatter(d_allocator);
     }
     else if (k_KEY_PROCESS_ID == v) {
-        formatter = new (*d_allocator.mechanism()) ProcessIdFormatter(d_allocator);
+        formatter =
+                new (*d_allocator.mechanism()) ProcessIdFormatter(d_allocator);
     }
     else if (k_KEY_THREAD_ID  == v) {
-        formatter = new (*d_allocator.mechanism()) ThreadIdFormatter(d_allocator);
+        formatter =
+                 new (*d_allocator.mechanism()) ThreadIdFormatter(d_allocator);
     }
     else if (k_KEY_SEVERITY   == v) {
-        formatter = new (*d_allocator.mechanism()) SeverityFormatter(d_allocator);
+        formatter =
+                 new (*d_allocator.mechanism()) SeverityFormatter(d_allocator);
     }
     else if (k_KEY_FILE       == v) {
         formatter = new (*d_allocator.mechanism()) FileFormatter(d_allocator);
@@ -1336,10 +1344,12 @@ RecordJsonFormatter_FieldFormatter *DatumParser::make(
         formatter = new (*d_allocator.mechanism()) LineFormatter(d_allocator);
     }
     else if (k_KEY_CATEGORY   == v) {
-        formatter = new (*d_allocator.mechanism()) CategoryFormatter(d_allocator);
+        formatter =
+                 new (*d_allocator.mechanism()) CategoryFormatter(d_allocator);
     }
     else if (k_KEY_MESSAGE    == v) {
-        formatter = new (*d_allocator.mechanism()) MessageFormatter(d_allocator);
+        formatter =
+                  new (*d_allocator.mechanism()) MessageFormatter(d_allocator);
     }
     else if (k_KEY_ATTRIBUTES == v) {
         if (!d_skipAttributes_sp) {
@@ -1430,11 +1440,45 @@ int FormatUtil::formatAttribute(baljsn::SimpleFormatter *formatter,
         return formatter->addValue(name, attribute.value().the<int>());
                                                                       // RETURN
     }
-    else if (attribute.value().is<bsls::Types::Int64>()) {
+    else if (attribute.value().is<long>()) {
+        return formatter->addValue(name,
+                                   static_cast<long long>(
+                                       attribute.value().the<long>()));
+                                                                      // RETURN
+    }
+    else if (attribute.value().is<long long>()) {
+        return formatter->addValue(name,
+                                   attribute.value().the<long long>());
+                                                                      // RETURN
+    }
+    else if (attribute.value().is<int>()) {
+        return formatter->addValue(name,
+                                   attribute.value().the<unsigned int>());
+                                                                      // RETURN
+    }
+    else if (attribute.value().is<long>()) {
+        return formatter->addValue(name,
+                                   static_cast<unsigned long long>(
+                                      attribute.value().the<unsigned long>()));
+                                                                      // RETURN
+    }
+    else if (attribute.value().is<unsigned long long>()) {
         return formatter->addValue(
                                   name,
-                                  attribute.value().the<bsls::Types::Int64>());
+                                  attribute.value().the<unsigned long long>());
                                                                       // RETURN
+    }
+    else if (attribute.value().is<const void *>()) {
+
+        const int                   k_STORAGE_SIZE = 32;
+        char                        storage[k_STORAGE_SIZE] = { 0 };
+        bdlsb::FixedMemOutStreamBuf buffer(storage, k_STORAGE_SIZE - 1);
+        bsl::ostream                stream(&buffer);
+        bslim::Printer              printer(&stream, 0, -1);
+
+        printer.printHexAddr(attribute.value().the<const void *>(), 0);
+
+        return formatter->addValue(name, &storage[1]);                // RETURN
     }
     return -1;
 }
@@ -1446,7 +1490,8 @@ int FormatUtil::formatAttribute(baljsn::SimpleFormatter *formatter,
                         // -------------------------
 
 // PRIVATE MANIPULATORS
-void RecordJsonFormatter::releaseFieldFormatters(FieldFormatters *formattersPtr)
+void RecordJsonFormatter::releaseFieldFormatters(
+                                                FieldFormatters *formattersPtr)
 {
     FieldFormattersDestructor destructor(formattersPtr);
 }

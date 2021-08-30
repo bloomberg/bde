@@ -169,6 +169,8 @@ static int veryVeryVeryVerbose = 0;
 typedef ball::RecordStringFormatter Obj;
 typedef ball::Record                Rec;
 typedef bsls::Types::IntPtr         IntPtr;
+typedef bsls::Types::Int64          Int64;
+typedef bsls::Types::Uint64         Uint64;
 
 // Values for testing.
 const char *F0 = "\n%d %p:%t %s %f:%l %c %m %u\n";
@@ -754,22 +756,23 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting Attribute Formatting"
                           << "\n============================" << endl;
 
-        bslma::TestAllocator testAllocator("objectAllocator",
-                                           veryVeryVeryVerbose);
-        Obj::allocator_type  oa(&testAllocator);
+        {
+            bslma::TestAllocator testAllocator("objectAllocator",
+                                               veryVeryVeryVerbose);
+            Obj::allocator_type  oa(&testAllocator);
 
-        ball::Record        mRecord(oa.mechanism());
-        const ball::Record& record = mRecord;
+            ball::Record        mRecord(oa.mechanism());
+            const ball::Record& record = mRecord;
 
-        // Add a couple of log attributes
-        mRecord.addAttribute(ball::Attribute("name",   "Name", oa));
-        mRecord.addAttribute(ball::Attribute("number", 1234, oa));
+            // Add a couple of log attributes
+            mRecord.addAttribute(ball::Attribute("name",   "Name", oa));
+            mRecord.addAttribute(ball::Attribute("number", 1234, oa));
 
-        static const struct {
-            int         d_line;
-            const char *d_spec;
-            const char *d_expected;
-        } DATA[] = {
+            static const struct {
+                int         d_line;
+                const char *d_spec;
+                const char *d_expected;
+            } DATA[] = {
     //------------------------------------------------------------------------
     // line | spec                      | expected
     //------------------------------------------------------------------------
@@ -818,31 +821,96 @@ int main(int argc, char *argv[])
     { L_,    "NAME=%av[bad]",            "NAME="                             },
             };
 
-          enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
-          bslma::TestAllocator sa("streamAllocator", veryVeryVeryVerbose);
+            bslma::TestAllocator sa("streamAllocator", veryVeryVeryVerbose);
 
-          for (int i = 0; i < NUM_DATA; ++i) {
+            for (int i = 0; i < NUM_DATA; ++i) {
 
-              const int   LINE     = DATA[i].d_line;
-              const char *SPEC     = DATA[i].d_spec;
-              const char *EXPECTED = DATA[i].d_expected;
+                const int   LINE     = DATA[i].d_line;
+                const char *SPEC     = DATA[i].d_spec;
+                const char *EXPECTED = DATA[i].d_expected;
 
-              Obj mX(oa); const Obj& X = mX;
+                Obj mX(oa); const Obj& X = mX;
 
-              mX.setFormat(SPEC);
+                mX.setFormat(SPEC);
 
-              ostringstream oss(&sa);
-              X(oss, record);
-              {
-                  bslma::TestAllocator         da;
-                  bslma::DefaultAllocatorGuard guard(&da);
-                  if (veryVerbose) {
-                      T_ P_(LINE); P_(SPEC); P_(oss.str()); P(EXPECTED);
-                  }
-                  ASSERTV(LINE, oss.str(), EXPECTED, oss.str() == EXPECTED);
-              }
-          }
+                ostringstream oss(&sa);
+                X(oss, record);
+                {
+                    bslma::TestAllocator         da;
+                    bslma::DefaultAllocatorGuard guard(&da);
+                    if (veryVerbose) {
+                        T_ P_(LINE); P_(SPEC); P_(oss.str()); P(EXPECTED);
+                    }
+                    ASSERT(oss.str() == EXPECTED);
+                }
+            }
+        }
+
+        {
+            bslma::TestAllocator testAllocator("objectAllocator",
+                                               veryVeryVeryVerbose);
+            Obj::allocator_type  oa(&testAllocator);
+            ball::Record         mRC(oa.mechanism());
+            const ball::Record&  RC = mRC;
+            int                 *value_p = (int*)42;
+
+
+            // Add a couple of log attributes
+            mRC.addAttribute(ball::Attribute("string",   "string", oa));
+            mRC.addAttribute(ball::Attribute("int",      -42,      oa));
+            mRC.addAttribute(ball::Attribute("long",     -42L,     oa));
+            mRC.addAttribute(ball::Attribute("llong",    -4242LL,  oa));
+            mRC.addAttribute(ball::Attribute("uint",      42U,     oa));
+            mRC.addAttribute(ball::Attribute("ulong",     42UL,    oa));
+            mRC.addAttribute(ball::Attribute("ullong",    4242ULL, oa));
+            mRC.addAttribute(ball::Attribute("void_ptr",  value_p, oa));
+
+            static const struct {
+                int         d_line;
+                const char *d_spec;
+                const char *d_expected;
+            } DATA[] = {
+                //-------------------------------------------
+                // line | spec            | expected
+                //-------------------------------------------
+                { L_,    "%a[string]",      "string=\"string\"" },
+                { L_,    "%a[int]",         "int=-42"           },
+                { L_,    "%a[long]",        "long=-42"          },
+                { L_,    "%a[llong]",       "llong=-4242"       },
+                { L_,    "%a[uint]",        "uint=42"           },
+                { L_,    "%a[ulong]",       "ulong=42"          },
+                { L_,    "%a[ullong]",      "ullong=4242"       },
+                { L_,    "%a[void_ptr]",    "void_ptr=0x2a"     },
+            };
+
+            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+            bslma::TestAllocator sa("streamAllocator", veryVeryVeryVerbose);
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+
+                const int   LINE     = DATA[i].d_line;
+                const char *SPEC     = DATA[i].d_spec;
+                const char *EXPECTED = DATA[i].d_expected;
+
+                Obj mX(oa); const Obj& X = mX;
+
+                mX.setFormat(SPEC);
+
+                ostringstream oss(&sa);
+                X(oss, RC);
+                {
+                    bslma::TestAllocator         da;
+                    bslma::DefaultAllocatorGuard guard(&da);
+                    if (veryVerbose) {
+                        T_ P_(LINE); P_(SPEC); P_(oss.str()); P(EXPECTED);
+                    }
+                    ASSERTV(LINE, SPEC, oss.str(), EXPECTED, oss.str() == EXPECTED);
+                }
+            }
+        }
       } break;
       case 11: {
         // --------------------------------------------------------------------

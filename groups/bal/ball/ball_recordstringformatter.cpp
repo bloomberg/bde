@@ -23,6 +23,8 @@ BSLS_IDENT_RCSID(ball_recordstringformatter_cpp,"$Id$ $CSID$")
 
 #include <bdlma_bufferedsequentialallocator.h>
 
+#include <bdlsb_fixedmemoutstreambuf.h>
+
 #include <bdlt_datetime.h>
 #include <bdlt_currenttime.h>
 #include <bdlt_localtimeoffset.h>
@@ -30,6 +32,8 @@ BSLS_IDENT_RCSID(ball_recordstringformatter_cpp,"$Id$ $CSID$")
 #include <bdlt_iso8601utilconfiguration.h>
 
 #include <bdlsb_overflowmemoutstreambuf.h>
+
+#include <bslim_printer.h>
 
 #include <bsls_annotation.h>
 #include <bsls_platform.h>
@@ -198,7 +202,11 @@ struct PrintUtil {
         // according to the specified 'format'.
 
     static void appendValue(bsl::string  *result, int                value);
-    static void appendValue(bsl::string  *result, bsls::Types::Int64 value);
+    static void appendValue(bsl::string  *result, long               value);
+    static void appendValue(bsl::string  *result, long long          value);
+    static void appendValue(bsl::string  *result, unsigned int       value);
+    static void appendValue(bsl::string  *result, unsigned long      value);
+    static void appendValue(bsl::string  *result, unsigned long long value);
         // Append the specified 'value' to the specified 'result' string.
 
     static void appendUserFields(bsl::string *result, const Record& record);
@@ -332,8 +340,32 @@ void PrintUtil::appendAttribute(bsl::string             *result,
     else if (a.value().is<int>()) {
         appendValue(result, a.value().the<int>());
     }
-    else if (a.value().is<bsls::Types::Int64>()) {
-        appendValue(result, a.value().the<bsls::Types::Int64>());
+    else if (a.value().is<long>()) {
+        appendValue(result, a.value().the<long>());
+    }
+    else if (a.value().is<long long>()) {
+        appendValue(result, a.value().the<long long>());
+    }
+    else if (a.value().is<unsigned int>()) {
+        appendValue(result, a.value().the<unsigned int>());
+    }
+    else if (a.value().is<unsigned long>()) {
+        appendValue(result, a.value().the<unsigned long>());
+    }
+    else if (a.value().is<unsigned long long>()) {
+        appendValue(result, a.value().the<unsigned long long>());
+    }
+    else if (a.value().is<const void *>()) {
+
+        const int                   k_STORAGE_SIZE = 32;
+        char                        storage[k_STORAGE_SIZE] = { 0 };
+        bdlsb::FixedMemOutStreamBuf buffer(storage, k_STORAGE_SIZE - 1);
+        bsl::ostream                stream(&buffer);
+        bslim::Printer              printer(&stream, 0, -1);
+
+        printer.printHexAddr(a.value().the<const void *>(), 0);
+
+        appendString(result, &storage[1]);
     }
 }
 
@@ -493,9 +525,29 @@ void PrintUtil::appendValue(bsl::string *result, int value)
     appendValue(result, "%d", value);
 }
 
-void PrintUtil::appendValue(bsl::string  *result, bsls::Types::Int64 value)
+void PrintUtil::appendValue(bsl::string  *result, long value)
+{
+    appendValue(result, "%ld", value);
+}
+
+void PrintUtil::appendValue(bsl::string  *result, long long value)
 {
     appendValue(result, "%lld", value);
+}
+
+void PrintUtil::appendValue(bsl::string  *result, unsigned int value)
+{
+    appendValue(result, "%u", value);
+}
+
+void PrintUtil::appendValue(bsl::string  *result, unsigned long value)
+{
+    appendValue(result, "%lu", value);
+}
+
+void PrintUtil::appendValue(bsl::string  *result, unsigned long long value)
+{
+    appendValue(result, "%llu", value);
 }
 
 void PrintUtil::appendProcessId(bsl::string   *result,

@@ -108,22 +108,6 @@ class ManagedAttribute {
         // of a 'bslma::Allocator' object) to supply memory; otherwise, the
         // default allocator is used.
 
-    ManagedAttribute(const bsl::string_view&  name,
-                     int                      value,
-                     const allocator_type&    allocator = allocator_type());
-        // Create a 'ManagedAttribute' object having the specified 'name' and
-        // integer 'value'.  Optionally specify an 'allocator' (e.g., the
-        // address of a 'bslma::Allocator' object) to supply memory; otherwise,
-        // the default allocator is used.
-
-    ManagedAttribute(const bsl::string_view& name,
-                     bsls::Types::Int64      value,
-                     const allocator_type&   allocator = allocator_type());
-        // Create a 'ManagedAttribute' object having the specified 'name' and
-        // 64-bit integer 'value'.  Optionally specify an 'allocator' (e.g.,
-        // the address of a 'bslma::Allocator' object) to supply memory;
-        // otherwise, the default allocator is used.
-
     ManagedAttribute(const bsl::string_view& name,
                      const bsl::string_view& value,
                      const allocator_type&   allocator = allocator_type());
@@ -131,6 +115,46 @@ class ManagedAttribute {
         // string 'value'.  Optionally specify an 'allocator' (e.g., the
         // address of a 'bslma::Allocator' object) to supply memory; otherwise,
         // the default allocator is used.
+
+    ManagedAttribute(const bsl::string_view&  name,
+                     const char              *value,
+                     const allocator_type&    allocator = allocator_type());
+        // Create a 'ManagedAttribute' object having the specified 'name' and
+        // the C-style 'value' string.  Optionally specify an 'allocator'
+        // (e.g., the address of a 'bslma::Allocator' object) to supply memory;
+        // otherwise, the default allocator is used.
+
+    ManagedAttribute(const bsl::string_view&  name,
+                     int                      value,
+                     const allocator_type&    allocator = allocator_type());
+    ManagedAttribute(const bsl::string_view&  name,
+                     long                     value,
+                     const allocator_type&    allocator = allocator_type());
+    ManagedAttribute(const bsl::string_view&  name,
+                     long long                value,
+                     const allocator_type&    allocator = allocator_type());
+    ManagedAttribute(const bsl::string_view&  name,
+                     unsigned int             value,
+                     const allocator_type&    allocator = allocator_type());
+    ManagedAttribute(const bsl::string_view&  name,
+                     unsigned long            value,
+                     const allocator_type&    allocator = allocator_type());
+    ManagedAttribute(const bsl::string_view&  name,
+                     unsigned long long       value,
+                     const allocator_type&    allocator = allocator_type());
+        // Create a 'ManagedAttribute' object having the specified 'name' and
+        // 'value'.  Optionally specify an 'allocator' (e.g., the address of a
+        // 'bslma::Allocator' object) to supply memory; otherwise, the default
+        // allocator is used.
+
+    ManagedAttribute(const bsl::string_view&  name,
+                     const void              *value,
+                     const allocator_type&    allocator = allocator_type());
+        // Create a 'ManagedAttribute' object having the specified 'name' and
+        // the pointer to the specified 'value' of cv-qualified 'void' type.
+        // Optionally specify an 'allocator' (e.g., the address of a
+        // 'bslma::Allocator' object) to supply memory; otherwise, the default
+        // allocator is used.
 
     ManagedAttribute(const bsl::string_view& name,
                      const Attribute::Value& value,
@@ -158,10 +182,16 @@ class ManagedAttribute {
     void setName(const bsl::string_view& name);
         // Set the attribute name of this object to the specified 'name'.
 
-    void setValue(int                     value);
-    void setValue(bsls::Types::Int64      value);
-    void setValue(const bsl::string_view& value);
-    void setValue(const Attribute::Value& value);
+    void setValue(int                      value);
+    void setValue(long                     value);
+    void setValue(long long                value);
+    void setValue(unsigned int             value);
+    void setValue(unsigned long            value);
+    void setValue(unsigned long long       value);
+    void setValue(const bsl::string_view&  value);
+    void setValue(const Attribute::Value&  value);
+    void setValue(const char              *value);
+    void setValue(const void              *value);
         // Set the attribute value of this object to the specified 'value'.
 
     // ACCESSORS
@@ -248,6 +278,24 @@ ManagedAttribute::ManagedAttribute(const Attribute&      attribute,
 
 inline
 ManagedAttribute::ManagedAttribute(const bsl::string_view&  name,
+                                   const bsl::string_view&  value,
+                                   const allocator_type&    allocator)
+: d_name(name, allocator)
+, d_attribute(d_name.c_str(), value, allocator)
+{
+}
+
+inline
+ManagedAttribute::ManagedAttribute(const bsl::string_view&  name,
+                                   const char              *value,
+                                   const allocator_type&    allocator)
+: d_name(name, allocator)
+, d_attribute(d_name.c_str(), value, allocator)
+{
+}
+
+inline
+ManagedAttribute::ManagedAttribute(const bsl::string_view&  name,
                                    int                      value,
                                    const allocator_type&    allocator)
 : d_name(name, allocator)
@@ -257,7 +305,7 @@ ManagedAttribute::ManagedAttribute(const bsl::string_view&  name,
 
 inline
 ManagedAttribute::ManagedAttribute(const bsl::string_view&  name,
-                                   bsls::Types::Int64       value,
+                                   long                     value,
                                    const allocator_type&    allocator)
 : d_name(name, allocator)
 , d_attribute(d_name.c_str(), value, allocator)
@@ -266,7 +314,43 @@ ManagedAttribute::ManagedAttribute(const bsl::string_view&  name,
 
 inline
 ManagedAttribute::ManagedAttribute(const bsl::string_view&  name,
-                                   const bsl::string_view&  value,
+                                   long long                value,
+                                   const allocator_type&    allocator)
+: d_name(name, allocator)
+, d_attribute(d_name.c_str(), value, allocator)
+{
+}
+
+inline
+ManagedAttribute::ManagedAttribute(const bsl::string_view&  name,
+                                   unsigned int             value,
+                                   const allocator_type&    allocator)
+: d_name(name, allocator)
+, d_attribute(d_name.c_str(), value, allocator)
+{
+}
+
+inline
+ManagedAttribute::ManagedAttribute(const bsl::string_view&  name,
+                                   unsigned long            value,
+                                   const allocator_type&    allocator)
+: d_name(name, allocator)
+, d_attribute(d_name.c_str(), value, allocator)
+{
+}
+
+inline
+ManagedAttribute::ManagedAttribute(const bsl::string_view&  name,
+                                   unsigned long long       value,
+                                   const allocator_type&    allocator)
+: d_name(name, allocator)
+, d_attribute(d_name.c_str(), value, allocator)
+{
+}
+
+inline
+ManagedAttribute::ManagedAttribute(const bsl::string_view&  name,
+                                   const void              *value,
                                    const allocator_type&    allocator)
 : d_name(name, allocator)
 , d_attribute(d_name.c_str(), value, allocator)
@@ -314,7 +398,31 @@ void ManagedAttribute::setValue(int value)
 }
 
 inline
-void ManagedAttribute::setValue(bsls::Types::Int64 value)
+void ManagedAttribute::setValue(long value)
+{
+    d_attribute.setValue(value);
+}
+
+inline
+void ManagedAttribute::setValue(long long value)
+{
+    d_attribute.setValue(value);
+}
+
+inline
+void ManagedAttribute::setValue(unsigned int value)
+{
+    d_attribute.setValue(value);
+}
+
+inline
+void ManagedAttribute::setValue(unsigned long value)
+{
+    d_attribute.setValue(value);
+}
+
+inline
+void ManagedAttribute::setValue(unsigned long long value)
 {
     d_attribute.setValue(value);
 }
@@ -327,6 +435,18 @@ void ManagedAttribute::setValue(const bsl::string_view& value)
 
 inline
 void ManagedAttribute::setValue(const Attribute::Value& value)
+{
+    d_attribute.setValue(value);
+}
+
+inline
+void ManagedAttribute::setValue(const char *value)
+{
+    d_attribute.setValue(value);
+}
+
+inline
+void ManagedAttribute::setValue(const void *value)
 {
     d_attribute.setValue(value);
 }

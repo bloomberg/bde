@@ -15,8 +15,8 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component implements an unusual in-core value-semantic
 // class, 'ball::Attribute'.  Each instance of this type represents an
 // attribute that consists of a (literal) name (held but not owned), and an
-// associated value (owned) that can be an 'int', a 64-bit integer, or a
-// 'bsl::string'.
+// associated value (owned) that can be an 'int', 'long', 'long long',
+// 'unsigned int', unsigned long', 'unsigned long long', or a 'bsl::string'.
 //
 // This component participates in the implementation of "Rule-Based Logging".
 // For more information on how to use that feature, please see the package
@@ -47,18 +47,24 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// The following code creates three attributes having the same name, but
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic 'Attribute' usage
+/// - - - - - - - - - - - - - - - - -
+// The following code creates four attributes having the same name, but
 // different attribute value types.
 //..
 //    ball::Attribute a1("day", "Sunday");
 //    ball::Attribute a2("day", 7);
-//    ball::Attribute a3("day", static_cast<bsls::Types::Int64>(7));
+//    ball::Attribute a3("day", 7LL);
+//    ball::Attribute a4("day", 7ULL);
 //..
 // The names of the attributes can be found by calling the 'name' method:
 //..
 //    assert(0 == bsl::strcmp("day", a1.name()));
 //    assert(0 == bsl::strcmp("day", a2.name()));
 //    assert(0 == bsl::strcmp("day", a3.name()));
+//    assert(0 == bsl::strcmp("day", a4.name()));
 //..
 // The 'value' method returns a non-modifiable reference to the
 // 'bdlb::Variant' object that manages the value of the attribute:
@@ -69,8 +75,11 @@ BSLS_IDENT("$Id: $")
 //    assert(true     == a2.value().is<int>());
 //    assert(7        == a2.value().the<int>());
 //
-//    assert(true     == a3.value().is<bsls::Types::Int64>());
-//    assert(7        == a3.value().the<bsls::Types::Int64>());
+//    assert(true     == a3.value().is<long long>());
+//    assert(7        == a3.value().the<long long>());
+//
+//    assert(true     == a4.value().is<unsigned long long>());
+//    assert(7        == a4.value().the<unsigned long long>());
 //..
 // Note that the name string that is passed to the constructor of
 // 'ball::Attribute' *must* remain valid and unchanged after the
@@ -92,6 +101,27 @@ BSLS_IDENT("$Id: $")
 //    ball::Attribute a5("day", value);
 //    assert(a5 == a1);
 //..
+//
+///Example 2: Using 'Attribute' to log pointers to opaque structure
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Consider we have an event scheduler that operates on events referred to by
+// event handle:
+//..
+//    struct Event {
+//        d_int d_id;
+//    };
+//
+//    typedef Event * EventHandle;
+//..
+// The event handler value can be logged using 'ball::Attribute' as follows:
+//..
+//    Event           event;
+//    EventHandle     handle = &event;
+//    ball::Attribute a7("event", handle);
+//
+//    assert(true   == a7.value().is<const void *>());
+//    assert(handle == a7.value().the<const void *>());
+//..
 
 #include <balscm_version.h>
 
@@ -104,7 +134,6 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_assert.h>
-#include <bsls_types.h>
 
 #include <bsl_cstring.h>
 #include <bsl_string.h>
@@ -123,8 +152,13 @@ class Attribute {
   public:
     // TYPES
     typedef bdlb::Variant<int,
-                          bsls::Types::Int64,
-                          bsl::string> Value;
+                          long,
+                          long long,
+                          unsigned int,
+                          unsigned long,
+                          unsigned long long,
+                          bsl::string,
+                          const void *> Value;
         // 'Value' is an alias for the attribute type variant.
 
   private:
@@ -158,26 +192,6 @@ class Attribute {
         // undefined unless '0 < size'.
 
     // CREATORS
-    Attribute(const char            *name,
-              int                    value,
-              const allocator_type&  allocator = allocator_type());
-        // Create an 'Attribute' object having the specified (literal) 'name'
-        // and (32-bit integer) 'value'.  Optionally specify an 'allocator'
-        // (e.g., the address of a 'bslma::Allocator' object) to supply memory;
-        // otherwise, the default allocator is used.  Note that 'name' is not
-        // managed by this object and therefore must remain valid while in use
-        // by any 'Attribute' object.
-
-    Attribute(const char            *name,
-              bsls::Types::Int64     value,
-              const allocator_type&  allocator = allocator_type());
-        // Create an 'Attribute' object having the specified (literal) 'name'
-        // and (64-bit integer) 'value'.  Optionally specify an 'allocator'
-        // (e.g., the address of a 'bslma::Allocator' object) to supply memory;
-        // otherwise, the default allocator is used.  Note that 'name' is not
-        // managed by this object and therefore must remain valid while in use
-        // by any 'Attribute' object.
-
     Attribute(const char              *name,
               const bsl::string_view&  value,
               const allocator_type&    allocator = allocator_type());
@@ -187,6 +201,49 @@ class Attribute {
         // otherwise, the default allocator is used.  Note that 'name' is not
         // managed by this object and therefore must remain valid while in use
         // by any 'Attribute' object.
+
+    Attribute(const char            *name,
+              const char            *value,
+              const allocator_type&  allocator = allocator_type());
+        // Create an 'Attribute' object having the specified (literal) 'name'
+        // and (character string) 'value'.  Optionally specify an 'allocator'
+        // (e.g., the address of a 'bslma::Allocator' object) to supply memory;
+        // otherwise, the default allocator is used.  Note that 'name' is not
+        // managed by this object and therefore must remain valid while in use
+        // by any 'Attribute' object.
+
+    Attribute(const char            *name,
+              int                    value,
+              const allocator_type&  allocator = allocator_type());
+    Attribute(const char            *name,
+              long                   value,
+              const allocator_type&  allocator = allocator_type());
+    Attribute(const char            *name,
+              long long              value,
+              const allocator_type&  allocator = allocator_type());
+    Attribute(const char            *name,
+              unsigned int           value,
+              const allocator_type&  allocator = allocator_type());
+    Attribute(const char            *name,
+              unsigned long          value,
+              const allocator_type&  allocator = allocator_type());
+    Attribute(const char            *name,
+              unsigned long long     value,
+              const allocator_type&  allocator = allocator_type());
+        // Create an 'Attribute' object having the specified (literal) 'name'
+        // and 'value'.  Optionally specify an 'allocator' (e.g., the address
+        // of a 'bslma::Allocator' object) to supply memory; otherwise, the
+        // default allocator is used.  Note that 'name' is not managed by this
+        // object and therefore must remain valid while in use by any
+        // 'Attribute' object.
+
+    Attribute(const char            *name,
+              const void            *value,
+              const allocator_type&  allocator = allocator_type());
+        // Create an 'Attribute' object having the specified (literal) 'name'
+        // and (const-qualified void pointer) 'value'.  Optionally specify an
+        // 'allocator' (e.g., the address of a 'bslma::Allocator' object) to
+        // supply memory; otherwise, the default allocator is used.
 
     Attribute(const char            *name,
               const Value&           value,
@@ -217,10 +274,16 @@ class Attribute {
         // 'name'.  Note that 'name' is not managed by this object and
         // therefore must remain valid while in use by any 'Attribute' object.
 
-    void setValue(const Value&            value);
-    void setValue(int                     value);
-    void setValue(bsls::Types::Int64      value);
-    void setValue(const bsl::string_view& value);
+    void setValue(const Value&             value);
+    void setValue(int                      value);
+    void setValue(long                     value);
+    void setValue(long long                value);
+    void setValue(unsigned int             value);
+    void setValue(unsigned long            value);
+    void setValue(unsigned long long       value);
+    void setValue(const bsl::string_view&  value);
+    void setValue(const char              *value);
+    void setValue(const void              *value);
         // Set the attribute value of this object to the specified 'value'.
 
     // ACCESSORS
@@ -280,6 +343,30 @@ bsl::ostream& operator<<(bsl::ostream& output, const Attribute& attribute);
 
 // CREATORS
 inline
+Attribute::Attribute(const char              *name,
+                     const bsl::string_view&  value,
+                     const allocator_type&    allocator)
+: d_name(name)
+, d_value(allocator.mechanism())
+, d_hashValue(-1)
+, d_hashSize(0)
+{
+    d_value.assign<bsl::string>(bsl::string(value));
+}
+
+inline
+Attribute::Attribute(const char            *name,
+                     const char            *value,
+                     const allocator_type&  allocator)
+: d_name(name)
+, d_value(allocator.mechanism())
+, d_hashValue(-1)
+, d_hashSize(0)
+{
+    d_value.assign<bsl::string>(value);
+}
+
+inline
 Attribute::Attribute(const char            *name,
                      int                    value,
                      const allocator_type&  allocator)
@@ -293,26 +380,74 @@ Attribute::Attribute(const char            *name,
 
 inline
 Attribute::Attribute(const char            *name,
-                     bsls::Types::Int64     value,
+                     long                   value,
                      const allocator_type&  allocator)
 : d_name(name)
 , d_value(allocator.mechanism())
 , d_hashValue(-1)
 , d_hashSize(0)
 {
-    d_value.assign<bsls::Types::Int64>(value);
+    d_value.assign<long>(value);
 }
 
 inline
-Attribute::Attribute(const char              *name,
-                     const bsl::string_view&  value,
-                     const allocator_type&    allocator)
+Attribute::Attribute(const char            *name,
+                     long long              value,
+                     const allocator_type&  allocator)
 : d_name(name)
 , d_value(allocator.mechanism())
 , d_hashValue(-1)
 , d_hashSize(0)
 {
-    d_value.assign<bsl::string>(bsl::string(value.data(), value.length()));
+    d_value.assign<long long>(value);
+}
+
+inline
+Attribute::Attribute(const char            *name,
+                     unsigned int           value,
+                     const allocator_type&  allocator)
+: d_name(name)
+, d_value(allocator.mechanism())
+, d_hashValue(-1)
+, d_hashSize(0)
+{
+    d_value.assign<unsigned int>(value);
+}
+
+inline
+Attribute::Attribute(const char            *name,
+                     unsigned long          value,
+                     const allocator_type&  allocator)
+: d_name(name)
+, d_value(allocator.mechanism())
+, d_hashValue(-1)
+, d_hashSize(0)
+{
+    d_value.assign<unsigned long>(value);
+}
+
+inline
+Attribute::Attribute(const char            *name,
+                     unsigned long long     value,
+                     const allocator_type&  allocator)
+: d_name(name)
+, d_value(allocator.mechanism())
+, d_hashValue(-1)
+, d_hashSize(0)
+{
+    d_value.assign<unsigned long long>(value);
+}
+
+inline
+Attribute::Attribute(const char            *name,
+                     const void            *value,
+                     const allocator_type&  allocator)
+: d_name(name)
+, d_value(allocator.mechanism())
+, d_hashValue(-1)
+, d_hashSize(0)
+{
+    d_value.assign<const void *>(value);
 }
 
 inline
@@ -369,7 +504,35 @@ void Attribute::setValue(int value)
 }
 
 inline
-void Attribute::setValue(bsls::Types::Int64 value)
+void Attribute::setValue(long value)
+{
+    d_value.assign(value);
+    d_hashValue = -1;
+}
+
+inline
+void Attribute::setValue(long long value)
+{
+    d_value.assign(value);
+    d_hashValue = -1;
+}
+
+inline
+void Attribute::setValue(unsigned int value)
+{
+    d_value.assign(value);
+    d_hashValue = -1;
+}
+
+inline
+void Attribute::setValue(unsigned long value)
+{
+    d_value.assign(value);
+    d_hashValue = -1;
+}
+
+inline
+void Attribute::setValue(unsigned long long value)
 {
     d_value.assign(value);
     d_hashValue = -1;
@@ -379,6 +542,20 @@ inline
 void Attribute::setValue(const bsl::string_view& value)
 {
     d_value.assign(bsl::string(value));
+    d_hashValue = -1;
+}
+
+inline
+void Attribute::setValue(const char *value)
+{
+    d_value.assign<bsl::string>(value);
+    d_hashValue = -1;
+}
+
+inline
+void Attribute::setValue(const void *value)
+{
+    d_value.assign<const void *>(value);
     d_hashValue = -1;
 }
 

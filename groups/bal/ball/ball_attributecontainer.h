@@ -193,14 +193,28 @@ BSLS_IDENT("$Id: $")
 //              switch (lhs.value().typeIndex()) {
 //                case 0: // unset
 //                  return true;
-//                case 14: // int
+//                case 1: // int
 //                  return lhs.value().the<int>() < rhs.value().the<int>();
-//                case 2: // int64
-//                  return lhs.value().the<bsls::Types::Int64>() <
-//                         rhs.value().the<bsls::Types::Int64>();
-//               case 3: // string
+//                case 2: // long
+//                  return lhs.value().the<long>() < rhs.value().the<long>();
+//                case 3: // long long
+//                  return lhs.value().the<long long>()
+//                       < rhs.value().the<long long>();
+//                case 4: // unsigned int
+//                  return lhs.value().the<unsigned int>()
+//                       < rhs.value().the<unsigned int>();
+//                case 5: // unsigned long
+//                  return lhs.value().the<unsigned long>()
+//                       < rhs.value().the<unsigned long>();
+//                case 6: // unsigned long long
+//                  return lhs.value().the<unsigned long long>()
+//                       < rhs.value().the<unsigned long long>();
+//                case 7: // string
 //                  return lhs.value().the<bsl::string>() <
 //                         rhs.value().the<bsl::string>();
+//                case 8: // const void *
+//                  return lhs.value().the<const void *>() <
+//                         rhs.value().the<const void *>();
 //              }
 //              BSLS_ASSERT(false);
 //              return false;

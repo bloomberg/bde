@@ -123,9 +123,6 @@ void aSsErT(bool condition, const char *message, int line)
 typedef ball::ManagedAttributeSet       Obj;
 typedef ball::DefaultAttributeContainer AttributeSet;
 
-typedef bsls::Types::Int64              Int64;
-
-
 const char* NAMES[] = { "",                                       // A
                         "A",                                      // B
                         "a",                                      // C
@@ -264,7 +261,8 @@ static Obj& gg(Obj *obj, const char *spec)
           } break;
           case 'I': {
             ++spec;
-            ball::ManagedAttribute attr(name, static_cast<Int64>(*spec - '0'));
+            ball::ManagedAttribute attr(name,
+                                        static_cast<long long>(*spec - '0'));
             obj->addAttribute(attr);
           } break;
           default: {
@@ -298,7 +296,7 @@ static AttributeSet& hh(AttributeSet *obj, const char *spec)
           } break;
           case 'I': {
             ++spec;
-            ball::Attribute attr(name, static_cast<Int64>(*spec - '0'));
+            ball::Attribute attr(name, static_cast<long long>(*spec - '0'));
             obj->addAttribute(attr);
           } break;
           default: {
@@ -330,13 +328,13 @@ int main(int argc, char *argv[])
 
     ball::ManagedAttribute A0("", "12345678");
     ball::ManagedAttribute A1("", 12345678);
-    ball::ManagedAttribute A2("", static_cast<Int64>(12345678));
+    ball::ManagedAttribute A2("", 12345678LL);
     ball::ManagedAttribute A3("uuid", "12345678");
     ball::ManagedAttribute A4("uuid", 12345678);
-    ball::ManagedAttribute A5("uuid", static_cast<Int64>(12345678));
+    ball::ManagedAttribute A5("uuid", 12345678LL);
     ball::ManagedAttribute A6("UUID", "12345678");
     ball::ManagedAttribute A7("UUID", 12345678);
-    ball::ManagedAttribute A8("UUID", static_cast<Int64>(12345678));
+    ball::ManagedAttribute A8("UUID", 12345678LL);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 14: {
@@ -1293,7 +1291,7 @@ int main(int argc, char *argv[])
                         (v < n) == X.isMember(
                             ball::ManagedAttribute(NAMES[n], int32Value)));
 
-                Int64 int64Value = v;
+                long long int64Value = v;
                 ASSERTV(n,
                         v,
                         (v < n) == X.isMember(
@@ -1367,7 +1365,7 @@ int main(int argc, char *argv[])
                         (v < n) == X.isMember(
                             ball::ManagedAttribute(NAMES[n], int32Value)));
 
-                Int64 int64Value = v;
+                long long int64Value = v;
                 ASSERTV(n,
                         v,
                         (v < n) == X.isMember(
@@ -1418,7 +1416,7 @@ int main(int argc, char *argv[])
                         (v < n) == X.hasValue(
                             ball::Attribute(NAMES[n], int32Value)));
 
-                Int64 int64Value = v;
+                long long int64Value = v;
                 ASSERTV(n,
                         v,
                         (v < n) == X.hasValue(

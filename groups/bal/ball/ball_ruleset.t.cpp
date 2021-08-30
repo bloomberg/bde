@@ -17,7 +17,6 @@
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
-#include <bsls_types.h>
 
 #include <bsl_climits.h>
 #include <bsl_cstdlib.h>
@@ -124,17 +123,16 @@ void aSsErT(bool condition, const char *message, int line)
 //-----------------------------------------------------------------------------
 
 typedef ball::RuleSet       Obj;
-typedef bsls::Types::Int64 Int64;
 
 const ball::Predicate P1("A", "1",       bslma::Default::globalAllocator());
 const ball::Predicate P2("A", 1,         bslma::Default::globalAllocator());
-const ball::Predicate P3("A", (Int64)1,  bslma::Default::globalAllocator());
+const ball::Predicate P3("A", 1LL,       bslma::Default::globalAllocator());
 const ball::Predicate P4("",  "",        bslma::Default::globalAllocator());
 const ball::Predicate P5("B", INT_MAX,   bslma::Default::globalAllocator());
 const ball::Predicate P6("B", LLONG_MAX, bslma::Default::globalAllocator());
 const ball::Predicate P7("C", LLONG_MIN, bslma::Default::globalAllocator());
 const ball::Predicate P8("a", 1,         bslma::Default::globalAllocator());
-const ball::Predicate P9("a", (Int64)1,  bslma::Default::globalAllocator());
+const ball::Predicate P9("a", 1LL,       bslma::Default::globalAllocator());
 
 const ball::Predicate PREDICATES[] = {
     P1, P2, P3, P4, P5, P6, P7, P8, P9

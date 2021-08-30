@@ -163,8 +163,6 @@ typedef ball::AttributeContext       Obj;
 typedef ball::AttributeContainerList List;
 typedef ball::CategoryManager        CatMngr;
 
-typedef bsls::Types::Int64           Int64;
-
 bool verbose;
 bool veryVerbose;
 bool veryVeryVerbose;
@@ -197,14 +195,30 @@ struct AttributeComparator {
           case 0: // unset?
             BSLS_ASSERT_OPT(false);
             return true;                                              // RETURN
-          case 1: // 'int'
-            return lhs.value().the<int>() < rhs.value().the<int>();   // RETURN
-          case 2: // 'Int64'
-            return lhs.value().the<Int64>() < rhs.value().the<Int64>();
+          case 1: // int
+            return lhs.value().the<int>() < rhs.value().the<int>();
                                                                       // RETURN
-          case 3: // string
-            return lhs.value().the<bsl::string>()
-                                   < rhs.value().the<bsl::string>();  // RETURN
+          case 2: // long
+            return lhs.value().the<long>() < rhs.value().the<long>();
+                                                                      // RETURN
+          case 3: // long long
+            return lhs.value().the<long long>()
+                 < rhs.value().the<long long>();                      // RETURN
+          case 4: // unsigned int
+            return lhs.value().the<unsigned int>()
+                 < rhs.value().the<unsigned int>();                   // RETURN
+          case 5: // unsigned long
+            return lhs.value().the<unsigned long>()
+                 < rhs.value().the<unsigned long>();                  // RETURN
+          case 6: // unsigned long long
+            return lhs.value().the<unsigned long long>()
+                 < rhs.value().the<unsigned long long>();             // RETURN
+          case 7: // string
+            return lhs.value().the<bsl::string>() <
+                   rhs.value().the<bsl::string>();                    // RETURN
+          case 8: // const void *
+            return lhs.value().the<const void *>() <
+                   rhs.value().the<const void *>();                   // RETURN
         }
         BSLS_ASSERT_OPT(false);
         return false;
@@ -1069,15 +1083,15 @@ bslma::Allocator *allocator = &bslma::NewDeleteAllocator::singleton();
 
 ball::Attribute A0("",     "12345678",      allocator);
 ball::Attribute A1("",     12345678,        allocator);
-ball::Attribute A2("",     (Int64)12345678, allocator);
+ball::Attribute A2("",     12345678LL,      allocator);
 
 ball::Attribute A3("uuid", "12345678",      allocator);
 ball::Attribute A4("uuid", 12345678,        allocator);
-ball::Attribute A5("uuid", (Int64)12345678, allocator);
+ball::Attribute A5("uuid", 12345678LL,      allocator);
 
 ball::Attribute A6("UUID", "12345678",      allocator);
 ball::Attribute A7("UUID", 12345678,        allocator);
-ball::Attribute A8("UUID", (Int64)12345678, allocator);
+ball::Attribute A8("UUID", 12345678LL,      allocator);
 
 const ball::Attribute ATTRS[] = { A0, A1, A2, A3, A4, A5, A6, A7, A8 };
 
@@ -2115,7 +2129,8 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < NUM_VALUES; ++i) {
                 mX.insert(ball::Attribute("uuid", i));
-                mX.insert(ball::Attribute("uuid", (Int64)i));
+                mX.insert(ball::Attribute("uuid", (long)i));
+                mX.insert(ball::Attribute("uuid", (long long)i));
                 mX.insert(ball::Attribute("name", VALUES[i]));
 
                 if (veryVerbose) { P(X); }
@@ -2124,8 +2139,12 @@ int main(int argc, char *argv[])
                     bool hasAttr = j <= i;
 
                     ASSERT(hasAttr == X.hasValue(ball::Attribute("uuid", j)));
-                    ASSERT(hasAttr == X.hasValue(ball::Attribute("uuid",
-                                                                 (Int64)j)));
+                    ASSERT(hasAttr == X.hasValue(ball::Attribute(
+                                                              "uuid",
+                                                              (long)j)));
+                    ASSERT(hasAttr == X.hasValue(ball::Attribute(
+                                                              "uuid",
+                                                              (long long)j)));
                     ASSERT(hasAttr == X.hasValue(ball::Attribute("name",
                                                                  VALUES[j])));
                 }
@@ -2135,7 +2154,8 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < NUM_VALUES; ++i) {
                 mX.remove(ball::Attribute("uuid", i));
-                mX.remove(ball::Attribute("uuid", (Int64)i));
+                mX.remove(ball::Attribute("uuid", (long)i));
+                mX.remove(ball::Attribute("uuid", (long long)i));
                 mX.remove(ball::Attribute("name", VALUES[i]));
 
                 if (veryVerbose) { P(X); }
@@ -2144,8 +2164,12 @@ int main(int argc, char *argv[])
                     bool hasAttr = j > i;
 
                     ASSERT(hasAttr == X.hasValue(ball::Attribute("uuid", j)));
-                    ASSERT(hasAttr == X.hasValue(ball::Attribute("uuid",
-                                                                 (Int64)j)));
+                    ASSERT(hasAttr == X.hasValue(ball::Attribute(
+                                                              "uuid",
+                                                              (long)j)));
+                    ASSERT(hasAttr == X.hasValue(ball::Attribute(
+                                                              "uuid",
+                                                              (long long)j)));
                     ASSERT(hasAttr == X.hasValue(ball::Attribute("name",
                                                                  VALUES[j])));
                 }

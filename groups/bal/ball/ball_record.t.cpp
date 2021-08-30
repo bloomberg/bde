@@ -404,9 +404,8 @@ int main(int argc, char *argv[])
 
         for (int i = 0; i < NUM_VALUES; ++i) {
             Obj X(VALUES[i], &localTestAllocator);
-            const bsls::Types::Int64 memUsage = X.numAllocatedBytes();
-            const bsls::Types::Int64 memAlloc =
-                                            localTestAllocator.numBytesInUse();
+            const Int64 memUsage = X.numAllocatedBytes();
+            const Int64 memAlloc = localTestAllocator.numBytesInUse();
 
             if (veryVerbose) { P_(memUsage); P(memAlloc); }
             ASSERTV(i, memUsage == memAlloc);
@@ -701,7 +700,7 @@ int main(int argc, char *argv[])
 
             ball::Attribute AA("t.name", LONG_STRING);
             ball::Attribute AB("t.value", 15);
-            ball::Attribute AC("t.another", bsls::Types::Int64(14));
+            ball::Attribute AC("t.another", 14LL);
 
             bsl::vector<ball::Attribute> ATTRS;
             ATTRS.push_back(AA);

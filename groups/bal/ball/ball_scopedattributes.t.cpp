@@ -154,12 +154,28 @@ bool veryVeryVerbose;
                   case 1: // int
                     return lhs.value().the<int>() < rhs.value().the<int>();
                                                                       // RETURN
-                  case 2: // int64
-                    return lhs.value().the<bsls::Types::Int64>()
-                         < rhs.value().the<bsls::Types::Int64>();     // RETURN
-                  case 3: // string
+                  case 2: // long
+                    return lhs.value().the<long>()
+                         < rhs.value().the<long>();                   // RETURN
+                  case 3: // long long
+                    return lhs.value().the<long long>()
+                         < rhs.value().the<long long>();              // RETURN
+                  case 4: // unsigned int
+                    return lhs.value().the<unsigned int>()
+                         < rhs.value().the<unsigned int>();
+                                                                      // RETURN
+                  case 5: // unsigned long
+                    return lhs.value().the<unsigned long>()
+                         < rhs.value().the<unsigned long>();          // RETURN
+                  case 6: // unsigned long long
+                    return lhs.value().the<unsigned long long>()
+                         < rhs.value().the<unsigned long long>();     // RETURN
+                  case 7: // string
                    return lhs.value().the<bsl::string>()
                         < rhs.value().the<bsl::string>();             // RETURN
+                  case 8: // unsigned long long
+                    return lhs.value().the<unsigned long long>()
+                         < rhs.value().the<unsigned long long>();     // RETURN
                 }
                 BSLS_ASSERT_OPT(false);
                 return false;

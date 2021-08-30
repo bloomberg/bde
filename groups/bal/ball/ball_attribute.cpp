@@ -35,15 +35,32 @@ int Attribute::hash(const Attribute& attribute, int size)
 
         if (attribute.d_value.is<int>()) {
             hash += bdlb::HashUtil::hash1(attribute.d_value.the<int>());
-        } else if (attribute.d_value.is<bsls::Types::Int64>()) {
+        } else if (attribute.d_value.is<long>()) {
+            hash += bdlb::HashUtil::hash1(attribute.d_value.the<long>());
+        } else if (attribute.d_value.is<long long>()) {
+            hash += bdlb::HashUtil::hash1(attribute.d_value.the<long long>());
+        } else if (attribute.d_value.is<unsigned int>()) {
             hash += bdlb::HashUtil::hash1(
-                                  attribute.d_value.the<bsls::Types::Int64>());
+                                       attribute.d_value.the<unsigned int>());
+        } else if (attribute.d_value.is<unsigned long>()) {
+            hash += bdlb::HashUtil::hash1(
+                                       attribute.d_value.the<unsigned long>());
+        } else if (attribute.d_value.is<unsigned long long>()) {
+            hash += bdlb::HashUtil::hash1(
+                                  attribute.d_value.the<unsigned long long>());
         }
-        else {
+        else  if (attribute.d_value.is<bsl::string>()) {
             hash += bdlb::HashUtil::hash1(
                 attribute.d_value.the<bsl::string>().c_str(),
                 static_cast<int>(
                                attribute.d_value.the<bsl::string>().length()));
+        }
+        else  if (attribute.d_value.is<const void *>()) {
+            hash += bdlb::HashUtil::hash1(
+                                        attribute.d_value.the<const void *>());
+        }
+        else {
+            BSLS_ASSERT_INVOKE_NORETURN("unreachable");
         }
 
         attribute.d_hashValue = hash % size;
@@ -67,7 +84,12 @@ bsl::ostream& Attribute::print(bsl::ostream& stream,
     stream << "[";
     printer.printValue(d_name);
     stream << " =";
-    printer.printValue(d_value);
+    if (d_value.is<const void *>()) {
+        printer.printHexAddr(d_value.the<const void *>(), 0);
+    }
+    else {
+        printer.printValue(d_value);
+    }
     stream << " ]";
 
     if (spacesPerLevel >= 0) {

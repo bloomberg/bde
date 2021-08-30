@@ -56,6 +56,7 @@
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_types.h>
+#include <bsls_assert.h>
 
 #include <bsl_iosfwd.h>
 #include <bsl_string.h>
@@ -93,11 +94,35 @@ class ScopedAttribute_Container : public AttributeContainer {
                         const allocator_type&    allocator = allocator_type());
     ScopedAttribute_Container(
                         const char              *name,
+                        const char              *value,
+                        const allocator_type&    allocator = allocator_type());
+    ScopedAttribute_Container(
+                        const char              *name,
                         int                      value,
                         const allocator_type&    allocator = allocator_type());
     ScopedAttribute_Container(
                         const char              *name,
-                        bsls::Types::Int64       value,
+                        long                     value,
+                        const allocator_type&    allocator = allocator_type());
+    ScopedAttribute_Container(
+                        const char              *name,
+                        long long                value,
+                        const allocator_type&    allocator = allocator_type());
+    ScopedAttribute_Container(
+                        const char              *name,
+                        unsigned int             value,
+                        const allocator_type&    allocator = allocator_type());
+    ScopedAttribute_Container(
+                        const char              *name,
+                        unsigned long            value,
+                        const allocator_type&    allocator = allocator_type());
+    ScopedAttribute_Container(
+                        const char              *name,
+                        unsigned long long       value,
+                        const allocator_type&    allocator = allocator_type());
+    ScopedAttribute_Container(
+                        const char              *name,
+                        const void              *value,
                         const allocator_type&    allocator = allocator_type());
         // Create a BALL attribute container holding a single rule, associating
         // the specified 'name' with the specified 'value'.  Optionally specify
@@ -169,10 +194,28 @@ class ScopedAttribute {
                     const bsl::string_view&  value,
                     const allocator_type&    allocator = allocator_type());
     ScopedAttribute(const char              *name,
+                    const char              *value,
+                    const allocator_type&    allocator = allocator_type());
+    ScopedAttribute(const char              *name,
                     int                      value,
                     const allocator_type&    allocator = allocator_type());
     ScopedAttribute(const char              *name,
-                    bsls::Types::Int64       value,
+                    long                     value,
+                    const allocator_type&    allocator = allocator_type());
+    ScopedAttribute(const char              *name,
+                    long long                value,
+                    const allocator_type&    allocator = allocator_type());
+    ScopedAttribute(const char              *name,
+                    unsigned int             value,
+                    const allocator_type&    allocator = allocator_type());
+    ScopedAttribute(const char              *name,
+                    unsigned long            value,
+                    const allocator_type&    allocator = allocator_type());
+    ScopedAttribute(const char              *name,
+                    unsigned long long       value,
+                    const allocator_type&    allocator = allocator_type());
+    ScopedAttribute(const char              *name,
+                    const void              *value,
                     const allocator_type&    allocator = allocator_type());
         // Set BALL logging attributes for the current thread for the scope of
         // this object, associating the specified 'name' with the specified
@@ -212,6 +255,15 @@ ScopedAttribute_Container::ScopedAttribute_Container(
 
 inline
 ScopedAttribute_Container::ScopedAttribute_Container(
+                                            const char              *name,
+                                            const char              *value,
+                                            const allocator_type&    allocator)
+: d_attribute(name, static_cast<bsl::string>(value), allocator)
+{
+}
+
+inline
+ScopedAttribute_Container::ScopedAttribute_Container(
                                              const char             *name,
                                              int                     value,
                                              const allocator_type&   allocator)
@@ -221,9 +273,54 @@ ScopedAttribute_Container::ScopedAttribute_Container(
 
 inline
 ScopedAttribute_Container::ScopedAttribute_Container(
+                                              const char            *name,
+                                              long                   value,
+                                              const allocator_type&  allocator)
+: d_attribute(name, value, allocator)
+{
+}
+
+inline
+ScopedAttribute_Container::ScopedAttribute_Container(
+                                              const char            *name,
+                                              long long              value,
+                                              const allocator_type&  allocator)
+: d_attribute(name, value, allocator)
+{
+}
+
+inline
+ScopedAttribute_Container::ScopedAttribute_Container(
                                              const char             *name,
-                                             bsls::Types::Int64      value,
+                                             unsigned int            value,
                                              const allocator_type&   allocator)
+: d_attribute(name, value, allocator)
+{
+}
+
+inline
+ScopedAttribute_Container::ScopedAttribute_Container(
+                                             const char             *name,
+                                             unsigned long           value,
+                                             const allocator_type&   allocator)
+: d_attribute(name, value, allocator)
+{
+}
+
+inline
+ScopedAttribute_Container::ScopedAttribute_Container(
+                                             const char             *name,
+                                             unsigned long long      value,
+                                             const allocator_type&   allocator)
+: d_attribute(name, value, allocator)
+{
+}
+
+inline
+ScopedAttribute_Container::ScopedAttribute_Container(
+                                            const char              *name,
+                                            const void              *value,
+                                            const allocator_type&    allocator)
 : d_attribute(name, value, allocator)
 {
 }
@@ -266,6 +363,15 @@ ScopedAttribute::ScopedAttribute(const char              *name,
 }
 
 inline
+ScopedAttribute::ScopedAttribute(const char              *name,
+                                 const char              *value,
+                                 const allocator_type&    allocator)
+: d_container(name, value, allocator)
+, d_it(AttributeContext::getContext()->addAttributes(&d_container))
+{
+}
+
+inline
 ScopedAttribute::ScopedAttribute(const char            *name,
                                  int                    value,
                                  const allocator_type&  allocator)
@@ -276,8 +382,53 @@ ScopedAttribute::ScopedAttribute(const char            *name,
 
 inline
 ScopedAttribute::ScopedAttribute(const char            *name,
-                                 bsls::Types::Int64     value,
+                                 long                   value,
                                  const allocator_type&  allocator)
+: d_container(name, value, allocator)
+, d_it(AttributeContext::getContext()->addAttributes(&d_container))
+{
+}
+
+inline
+ScopedAttribute::ScopedAttribute(const char            *name,
+                                 long long              value,
+                                 const allocator_type&  allocator)
+: d_container(name, value, allocator)
+, d_it(AttributeContext::getContext()->addAttributes(&d_container))
+{
+}
+
+inline
+ScopedAttribute::ScopedAttribute(const char            *name,
+                                 unsigned int           value,
+                                 const allocator_type&  allocator)
+: d_container(name, value, allocator)
+, d_it(AttributeContext::getContext()->addAttributes(&d_container))
+{
+}
+
+inline
+ScopedAttribute::ScopedAttribute(const char            *name,
+                                 unsigned long          value,
+                                 const allocator_type&  allocator)
+: d_container(name, value, allocator)
+, d_it(AttributeContext::getContext()->addAttributes(&d_container))
+{
+}
+
+inline
+ScopedAttribute::ScopedAttribute(const char            *name,
+                                 unsigned long long     value,
+                                 const allocator_type&  allocator)
+: d_container(name, value, allocator)
+, d_it(AttributeContext::getContext()->addAttributes(&d_container))
+{
+}
+
+inline
+ScopedAttribute::ScopedAttribute(const char              *name,
+                                 const void              *value,
+                                 const allocator_type&    allocator)
 : d_container(name, value, allocator)
 , d_it(AttributeContext::getContext()->addAttributes(&d_container))
 {

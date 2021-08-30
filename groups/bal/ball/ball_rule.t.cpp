@@ -21,7 +21,6 @@
 #include <bslma_testallocatorexception.h>
 
 #include <bsls_asserttest.h>
-#include <bsls_types.h>
 
 #include <bsl_climits.h>
 #include <bsl_cstdlib.h>
@@ -130,7 +129,6 @@ void aSsErT(bool condition, const char *message, int line)
 
 typedef Rule                      Obj;
 typedef ThresholdAggregate        Levels;
-typedef bsls::Types::Int64        Int64;
 
 #define VA_LEVELS 0, 0, 0, 0
 #define VB_LEVELS 1, 0, 0, 0
@@ -155,13 +153,13 @@ typedef bsls::Types::Int64        Int64;
 
 const ManagedAttribute P1("A", "1",       bslma::Default::globalAllocator());
 const ManagedAttribute P2("A", 1,         bslma::Default::globalAllocator());
-const ManagedAttribute P3("A", (Int64)1,  bslma::Default::globalAllocator());
+const ManagedAttribute P3("A", 1LL,       bslma::Default::globalAllocator());
 const ManagedAttribute P4("",  "",        bslma::Default::globalAllocator());
 const ManagedAttribute P5("B", INT_MAX,   bslma::Default::globalAllocator());
 const ManagedAttribute P6("B", LLONG_MAX, bslma::Default::globalAllocator());
 const ManagedAttribute P7("C", LLONG_MIN, bslma::Default::globalAllocator());
 const ManagedAttribute P8("a", 1,         bslma::Default::globalAllocator());
-const ManagedAttribute P9("a", (Int64)1,  bslma::Default::globalAllocator());
+const ManagedAttribute P9("a", 1LL,       bslma::Default::globalAllocator());
 
 const char *PATTERNS[] = {
     "",
@@ -639,13 +637,13 @@ int main(int argc, char *argv[])
 
         const Attribute A1("A", "1");
         const Attribute A2("A", 1);
-        const Attribute A3("A", (Int64)1);
+        const Attribute A3("A", 1LL);
         const Attribute A4("",  "");
         const Attribute A5("B", INT_MAX);
         const Attribute A6("B", LLONG_MAX);
         const Attribute A7("C", LLONG_MIN);
         const Attribute A8("a", 1);
-        const Attribute A9("a", (Int64)1);
+        const Attribute A9("a", 1LL);
 
         DefaultAttributeContainer AS1;
         DefaultAttributeContainer AS2; AS2.addAttribute(A1);

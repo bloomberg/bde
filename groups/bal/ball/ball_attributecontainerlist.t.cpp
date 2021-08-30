@@ -192,15 +192,31 @@ bslma::TestAllocator testAllocator;
                 }
                 switch (lhs.value().typeIndex()) {
                   case 0: // unset
-                    return true;
+                    return true;                                      // RETURN
                   case 1: // int
                     return lhs.value().the<int>() < rhs.value().the<int>();
-                  case 2: // int64
-                    return lhs.value().the<bsls::Types::Int64>()
-                        <  rhs.value().the<bsls::Types::Int64>();
-                 case 3: // string
-                   return lhs.value().the<bsl::string>()
-                       <  rhs.value().the<bsl::string>();
+                                                                      // RETURN
+                  case 2: // long
+                    return lhs.value().the<long>() < rhs.value().the<long>();
+                                                                      // RETURN
+                  case 3: // long long
+                    return lhs.value().the<long long>()
+                         < rhs.value().the<long long>();              // RETURN
+                  case 4: // unsigned int
+                    return lhs.value().the<unsigned long>()
+                         < rhs.value().the<unsigned long>();          // RETURN
+                  case 5: // unsigned long
+                    return lhs.value().the<unsigned long>()
+                         < rhs.value().the<unsigned long>();          // RETURN
+                  case 6: // unsigned long long
+                    return lhs.value().the<unsigned long long>()
+                         < rhs.value().the<unsigned long long>();     // RETURN
+                  case 7: // string
+                    return lhs.value().the<bsl::string>() <
+                           rhs.value().the<bsl::string>();            // RETURN
+                  case 8: // const void *
+                    return lhs.value().the<const void *>() <
+                           rhs.value().the<const void *>();           // RETURN
                 }
                 BSLS_ASSERT(false);
                 return false;

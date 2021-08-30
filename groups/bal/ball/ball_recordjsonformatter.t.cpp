@@ -439,6 +439,7 @@ int main(int argc, char *argv[])
                 bslma::TestAllocatorMonitor oam(&oa), dam(&da);
 
                 Obj *mR = &(mX = bslmf::MovableRefUtil::move(mY));
+                (void*)mR;
 
                 // Verify the value of the object.
                 ASSERTV(CONFIG, X == W);
@@ -1898,6 +1899,69 @@ int main(int argc, char *argv[])
                 rec.addAttribute(ball::Attribute("a1", "v1", &scratch));
                 rec.addAttribute(ball::Attribute("a2", "v2", &scratch));
                 rec.addAttribute(ball::Attribute("a3", "v3", &scratch));
+
+                X(oss, rec);
+
+                if (veryVeryVerbose) P(oss.str().c_str());
+
+                ASSERTV(LINE, oss.str().c_str(), EXPECTED,
+                              oss.str() ==       EXPECTED);
+
+                ASSERTV(dam.isInUseSame());
+            }
+
+            // Verify all memory is released.
+            ASSERTV(0 == sa.numBlocksInUse());
+            ASSERTV(0 == scratch.numBlocksInUse());
+        }
+        {
+            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+            bslma::TestAllocator sa("supplied",     veryVeryVeryVerbose);
+
+            static const struct {
+                int         d_line;
+                const char *d_spec;
+                const char *d_expected;
+            } DATA[] = {
+                //--------------------------------------------------------
+                // LINE      SPEC                        EXPECED
+                {  L_,  "[\"string\"]",        "{\"string\":\"string\"}" },
+                {  L_,  "[\"int\"]",           "{\"int\":-42}"           },
+                {  L_,  "[\"llong\"]",         "{\"llong\":-4242}"       },
+                {  L_,  "[\"ullong\"]",        "{\"ullong\":42}"         },
+                {  L_,  "[\"void_ptr\"]",      "{\"void_ptr\":\"0x2a\"}" },
+            };
+            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+
+                const int   LINE     = DATA[i].d_line;
+                const char *SPEC     = DATA[i].d_spec;
+                const char *EXPECTED = DATA[i].d_expected;
+
+                bslma::TestAllocatorMonitor dam(&defaultAllocator);
+
+                Obj mX(&sa); const Obj& X = mX;
+
+                int rc = mX.setFormat(SPEC);
+                ASSERTV(rc, 0 == rc);
+
+                bsl::ostringstream  oss(&scratch);
+                RA                  ra(&scratch);
+                UF                  uf(&scratch);
+                Rec                 rec(ra, uf, &scratch);
+                int                *value_p = (int*)42;
+
+                rec.addAttribute(
+                          ball::Attribute("string",   "string",     &scratch));
+                rec.addAttribute(
+                          ball::Attribute("int",      -42,          &scratch));
+                rec.addAttribute(
+                          ball::Attribute("llong",    -4242LL, &scratch));
+                rec.addAttribute(
+                          ball::Attribute("ullong",   42ULL,   &scratch));
+                rec.addAttribute(
+                          ball::Attribute("void_ptr", value_p,      &scratch));
 
                 X(oss, rec);
 

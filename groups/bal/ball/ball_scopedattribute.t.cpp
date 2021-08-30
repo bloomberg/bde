@@ -20,11 +20,14 @@
 #include <bdlf_placeholder.h>
 
 #include <bslim_testutil.h>
-#include <bslma_testallocator.h>
 
+#include <bslma_testallocator.h>
 #include <bslma_defaultallocatorguard.h>
 
 #include <bsls_types.h>
+
+#include <bsltf_templatetestfacility.h>
+#include <bsltf_simpletesttype.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
@@ -107,6 +110,30 @@ void testVisitor(bsl::vector<ball::Attribute>  *result,
     result->push_back(attribute);
 }
 
+template <class TYPE>
+struct TestCase5 {
+    template <class VARIANT_TYPE>
+    static void testIntegralType()
+    {
+        TYPE            value(42);
+        Obj             mX("name", value);
+        ball::Attribute attribute("name", VARIANT_TYPE(42));
+
+        ASSERTV(true == ball::AttributeContext::getContext()->hasAttribute(
+                                                                   attribute));
+    }
+
+    static void testPointerType()
+    {
+        TYPE             value;
+        Obj              mX("name", &value);
+        ball::Attribute  attribute("name", &value);
+
+        ASSERTV(true == ball::AttributeContext::getContext()->hasAttribute(
+                                                                   attribute));
+    }
+};
+
 //=============================================================================
 //                               MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -123,10 +150,61 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bslma::TestAllocator          da("da", veryVeryVeryVerbose);
+    bslma::TestAllocator         da("da", veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard guard(&da);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 5: {
+        if (verbose) cout << "\nTESTING ATTRIBUTE CREATION"
+                          << "\n--------------------------" << endl;
+
+          BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestCase5,
+                                                   testIntegralType<int>,
+                                                   char,
+                                                   unsigned char,
+                                                   short,
+                                                   short int,
+                                                   signed short,
+                                                   signed short int,
+                                                   unsigned short,
+                                                   unsigned short int,
+                                                   int,
+                                                   signed,
+                                                   signed int);
+
+          BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestCase5,
+                                                testIntegralType<unsigned int>,
+                                                unsigned int);
+
+          BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestCase5,
+                                                testIntegralType<long>,
+                                                long);
+
+          BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestCase5,
+                                                testIntegralType<unsigned long>,
+                                                unsigned long);
+
+          BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestCase5,
+                                                   testIntegralType<long long>,
+                                                   long long,
+                                                   long long int,
+                                                   signed long long,
+                                                   signed long long int,
+                                                   bsls::Types::Int64);
+
+          BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestCase5,
+                                          testIntegralType<unsigned long long>,
+                                          unsigned long long,
+                                          unsigned long long int,
+                                          bsls::Types::Uint64
+                                          );
+
+          BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestCase5,
+                                                   testPointerType,
+                                                   char,
+                                                   bsltf::SimpleTestType
+                                                   );
+      } break;
       case 4: {
         // ------------------------------------------------------------------
         // TESTING ATTRIBUTE CONTEXT VISITATION
@@ -290,7 +368,7 @@ int main(int argc, char *argv[])
             }
         }
         {
-            Obj_Container mX("name", bsls::Types::Int64(15));
+            Obj_Container mX("name", 15LL);
 
             {
                 bsl::vector<ball::Attribute> result;
@@ -302,7 +380,27 @@ int main(int argc, char *argv[])
 
                 ASSERTV(result.size(), 1 == result.size());
                 ASSERTV(result[0],
-                        ball::Attribute("name", bsls::Types::Int64(15))
+                        ball::Attribute("name", 15LL)
+                            == result[0]);
+                // Test that we do not convert value type when visiting.
+                ASSERTV(result[0],
+                        ball::Attribute("name", 15) != result[0]);
+            }
+        }
+        {
+            Obj_Container mX("name", 15ULL);
+
+            {
+                bsl::vector<ball::Attribute> result;
+
+                mX.visitAttributes(
+                    bdlf::BindUtil::bind(&testVisitor,
+                                         &result,
+                                         bdlf::PlaceHolders::_1));
+
+                ASSERTV(result.size(), 1 == result.size());
+                ASSERTV(result[0],
+                        ball::Attribute("name", 15ULL)
                             == result[0]);
                 // Test that we do not convert value type when visiting.
                 ASSERTV(result[0],
@@ -436,7 +534,7 @@ int main(int argc, char *argv[])
                               ball::Severity::e_TRACE,
                               ball::Severity::e_DEBUG,
                               ball::Severity::e_INFO);
-            myRule2.addPredicate(ball::Predicate("theInt64",  9876543210LL));
+            myRule2.addPredicate(ball::Predicate("long long",  9876543210LL));
             testManager.addRule(myRule2);
 
             ball::Rule myRule3("*",
@@ -472,13 +570,13 @@ int main(int argc, char *argv[])
                 ASSERT(ball::Severity::e_FATAL == tl.triggerAllLevel());
             }
 
-            // Int64 constructor
+            // long long constructor
             {
                 ball::ThresholdAggregate  tl(0, 0, 0, 0);
                 ball::AttributeContext   *ac =
                     ball::AttributeContext::getContext();
 
-                Obj mX("theInt64", bsls::Types::Int64(987654321) * 10);
+                Obj mX("long long", 987654321LL * 10);
                 ac->determineThresholdLevels(&tl, cat);
 
                 ASSERT(ball::Severity::e_OFF   == tl.recordLevel());
