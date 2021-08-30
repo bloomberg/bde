@@ -21,7 +21,7 @@
 // specially delimited regions of C++11 code, then this header contains no
 // code and is not '#include'd in the original header.
 //
-// Generated on Thu Jun 10 09:59:24 2021
+// Generated on Mon Aug 30 17:54:21 2021
 // Command line: sim_cpp11_features.pl bslstl_hashtable.h
 
 #ifdef COMPILING_BSLSTL_HASHTABLE_H
@@ -1226,7 +1226,7 @@ class HashTable {
         // (possibly newly inserted) element in this hash-table whose key is
         // equivalent to that of the object created from 'value'.  Load 'true'
         // into the specified 'isInsertedFlag' if a new value was inserted, and
-        // 'false' if an an equivalent key was already present.  If this
+        // 'false' if an equivalent key was already present.  If this
         // hash-table contains more than one element with an equivalent key,
         // return the first such element (from the contiguous sequence of
         // elements having a matching key).  Additional buckets are allocated,

@@ -140,7 +140,7 @@ constexpr bool is_member_pointer_v = is_member_pointer<TYPE>::value;
  &&   BSLS_PLATFORM_CMP_VERSION < 1910 \
  &&!((BSLS_PLATFORM_CMP_VERSION == 1900) && defined(BSLS_PLATFORM_CPU_64_BIT))
 // MSVC 2013 (and earlier) has two bugs that affect this component.  First,
-// it does not match partial specializations for cv-qualfiied pointer-to-member
+// it does not match partial specializations for cv-qualified pointer-to-member
 // types, requiring a general stripping of cv-qualifiers for all types to get
 // the right result.  Secondly, pointer-to-cv-qualified-member-function fails
 // to match the partial specialization at all, so fall back on trying to match
@@ -150,20 +150,20 @@ constexpr bool is_member_pointer_v = is_member_pointer<TYPE>::value;
 
 template <class TYPE>
 struct is_member_pointer<const TYPE> : is_member_pointer<TYPE>::type {
-    // The 'const'-qualfied (template parameter) 'TYPE' is a member pointer if
-    // the corresponding unqualfied 'TYPE' is a member pointer.
+    // The 'const'-qualified (template parameter) 'TYPE' is a member pointer if
+    // the corresponding unqualified 'TYPE' is a member pointer.
 };
 
 template <class TYPE>
 struct is_member_pointer<volatile TYPE> : is_member_pointer<TYPE>::type {
-    // The 'volatile'-qualfied (template parameter) 'TYPE' is a member pointer
-    // if the corresponding unqualfied 'TYPE' is a member pointer.
+    // The 'volatile'-qualified (template parameter) 'TYPE' is a member pointer
+    // if the corresponding unqualified 'TYPE' is a member pointer.
 };
 
 template <class TYPE>
 struct is_member_pointer<const volatile TYPE> : is_member_pointer<TYPE>::type {
-    // The 'const volatile'-qualfied (template parameter) 'TYPE' is a member
-    // pointer if the corresponding unqualfied 'TYPE' is a member pointer.
+    // The 'const volatile'-qualified (template parameter) 'TYPE' is a member
+    // pointer if the corresponding unqualified 'TYPE' is a member pointer.
 };
 
 template <class RESULT, class HOST, class... ARGS>

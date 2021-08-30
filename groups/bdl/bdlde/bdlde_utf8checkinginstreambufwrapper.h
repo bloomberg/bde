@@ -22,8 +22,7 @@ BSLS_IDENT("$Id: $")
 // though not forward seeks, and 'pubseekoff(0, bsl::ios_base::cur)' is
 // supported whether the wrapped 'streambuf' supports seeking or not.
 //
-// Input is buffered, the the buffer cannot be changed -- 'pubsetbuf' is a
-// no-op.
+// Input is buffered, the buffer cannot be changed -- 'pubsetbuf' is a no-op.
 //
 // The client is normally recommended to use this object by reading from it
 // until it behaves as though it has reached the end of input, and then call

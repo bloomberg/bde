@@ -182,8 +182,8 @@ void printStringDifferences(const bsl::string& lhs, const bsl::string& rhs);
 
 void constructFeatureTestMessage(
                            bsl::vector<s_baltst::FeatureTestMessage> *objects);
-    // Decode the sequence of of 's_baltst::FeatureTestMessage' objects defined
-    // by 's_baltst::FeatureTestMessage::s_XML_MESSAGES' as if by using
+    // Decode the sequence of 's_baltst::FeatureTestMessage' objects defined by
+    // 's_baltst::FeatureTestMessage::s_XML_MESSAGES' as if by using
     // 'balxml::Decoder' and load the sequence to the specified 'objects'.
 
 template <class TYPE>

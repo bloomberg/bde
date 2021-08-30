@@ -356,7 +356,7 @@ int main(int argc, char *argv[])
 #define TEST_IS_EMPTY_NO_CV(T, EXP)                           \
         ASSERT(EXP == bsl::is_empty<               T>::value);\
         ASSERT_V_SAME(               T)
-        // Macro to test whether a non-ccv-qualfiable type is empty, and that
+        // Macro to test whether a non-ccv-qualifiable type is empty, and that
         // 'is_empty<T>::value == is_empty_v<T>'
 
         // Concern 1: empty classes

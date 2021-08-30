@@ -547,7 +547,7 @@ int main(int argc, char *argv[])
         //:    cv-qualifiers, reference-qualifiers for C++11, and 'noexcept'
         //:    specifications in C++17.
         //:  9 Concern 8 applies when the member function (not the pointer) is
-        //:    cv-qualfied.
+        //:    cv-qualified.
         //: 10 Concern 8 applies when the member function (not the pointer) is
         //:    ref-qualified (in C++11 and later).
         //: 10 That 'is_member_function_pointer<T>::value' has the same value
@@ -566,7 +566,7 @@ int main(int argc, char *argv[])
         //:   configurations that support it.
         //: 2 Use the test macro for object types to verify the trait(s) for a
         //:   representative cross-section of fundamental types.  Note that
-        //:   cv-qualfied 'void' types must be tested fairly directly, due to
+        //:   cv-qualified 'void' types must be tested fairly directly, due to
         //:   the lack of support for reference-to-'void' types that would fall
         //:   out of most top-level test macro invocations.
         //: 3 Use the test macro for object types to verify the trait(s) for a

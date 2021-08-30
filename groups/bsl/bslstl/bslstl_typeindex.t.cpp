@@ -58,11 +58,11 @@ using namespace BloombergLP;
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS)
 # if defined(BSLS_PLATFORM_CMP_MSVC)
-    // MSVC does not correctly parse pointer-to-rvalue-ref-qualfied-member
+    // MSVC does not correctly parse pointer-to-rvalue-ref-qualified-member
     // function types inside operators such as 'sizeof' and 'typeid'.  It has
     // no issues with these types outside of such operators, nor using a
     // typedef to such a type with the operator expression.  Likewise it
-    // correctly parses pointer-to-lvalue-ref-qualfied-member functions in all
+    // correctly parses pointer-to-lvalue-ref-qualified-member functions in all
     // contexts.
 #   define BSLSTL_TYPEINDEX_MSVC_RVALUE_QUALIFIER_BUG   1
 # endif

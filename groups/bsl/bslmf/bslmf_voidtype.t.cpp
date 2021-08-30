@@ -826,7 +826,7 @@ int main(int argc, char *argv[])
         //:   the type 'void *'.
         //:
         //: 2 'isVoidPointer(arg)' returns 'false' is 'arg' has the type of a
-        //:   pointer to cv-qualfied 'void'.
+        //:   pointer to cv-qualified 'void'.
         //:
         //: 3 'isVoidPointer(arg)' returns 'false' is 'arg' has the type of a
         //:   to any object type other than 'void'.

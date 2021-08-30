@@ -6918,10 +6918,10 @@ int main(int argc, char *argv[])
         //       5-insert+find
         //   3rd parameter: number of threads in first group (defaults to 2).
         //   4th parameter: number of threads in second group (defaults to 0;
-        //       used for for test type 5).
+        //       used for test type 5).
         //   5th parameter: number of stripes (defaults to 4).
         //   6th parameter: number of buckets (defaults to 16)
-        //   7th parameter: work load for for threads (defaults to 0 - no load)
+        //   7th parameter: work load for threads (defaults to 0 - no load)
         //   8th parameter: percentage until which we fill the buckets
         //       (defaults to 70%)
         //   9th parameter: 1-enable rehash; 0-disable rehash
@@ -7147,10 +7147,10 @@ int main(int argc, char *argv[])
         //       5-insert+find
         //   3rd parameter: number of threads in first group (defaults to 2).
         //   4th parameter: number of threads in second group (defaults to 0;
-        //       used for for test type 5).
+        //       used for test type 5).
         //   5th parameter: number of stripes (defaults to 4).
         //   6th parameter: number of buckets (defaults to 16)
-        //   7th parameter: work load for for threads (defaults to 0 - no load)
+        //   7th parameter: work load for threads (defaults to 0 - no load)
         //   8th parameter: percentage until which we fill the buckets
         //       (defaults to 70%)
         //   9th parameter: 1-enable rehash; 0-disable rehash

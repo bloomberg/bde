@@ -7933,7 +7933,7 @@ void TestDriver<TYPE>::testCase13_imp_b()
     //: 4 There are no unnecessary argument type and 'value_type' copies
     //:   created
     //:
-    //: 5 'emplace' returns a modifiable reference to the 'optional''s 
+    //: 5 'emplace' returns a modifiable reference to the 'optional''s
     //:   value type object.
     //
     // Plan:
@@ -7950,7 +7950,7 @@ void TestDriver<TYPE>::testCase13_imp_b()
     //: 4 In steps 1-3, verify no unnecessary copies of the arguments and the
     //:   'value_type' have been created. [C-4]
     //:
-    //: 5 Verify that the returned reference reffers to the 'value_type' 
+    //: 5 Verify that the returned reference reffers to the 'value_type'
     //:   object. [C-5]
     //
     // Testing:
@@ -10058,8 +10058,8 @@ void TestDriver<TYPE>::testCase4b()
     //:
     //: 7 In steps 1-6, verify that no unexpected exception is thrown. [C-1]
     //:
-    //: 8 Run the test with an an allocator-aware TYPE and a non
-    //:   allocator-aware type. [C-6]
+    //: 8 Run the test with an allocator-aware TYPE and a non allocator-aware
+    //:   type. [C-6]
     //
     // Testing:
     //   TYPE& value() &;

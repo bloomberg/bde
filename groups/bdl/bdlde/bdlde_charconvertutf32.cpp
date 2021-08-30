@@ -883,7 +883,7 @@ bsl::size_t utf8BufferLengthNeeded(const unsigned int *input,
     // translation of the UTF-32 sequence pointed at by the specified 'input',
     // including the terminating 0, when using the specified 'errorByte'.  Use
     // the specified 'endFunctor' on 'input' prior to dereferencing it to
-    // detect end fo input.  Use the specified 'SWAPPER' to perform swapping,
+    // detect end for input.  Use the specified 'SWAPPER' to perform swapping,
     // or not perform swapping, as desired (see detailed doc in
     // 'Utf8ToUtf32Translator' and 'Utf32ToUtf8Translator' below).  Note that
     // this estimate will always be exact.

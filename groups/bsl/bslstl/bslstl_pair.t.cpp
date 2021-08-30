@@ -5810,7 +5810,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 'pair' can be instantiated and constructed with elements that are
-        //:   references to (cv-qualfied) complete object types.
+        //:   references to (cv-qualified) complete object types.
         //: 2 'pair' of reference to complete object type support copy and
         //:   move assignment if the referenced object type supports copy and
         //:   move assignment.
@@ -6823,11 +6823,11 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 A pair with a 'const' member is default constructible as long as
-        //:   the 'const-qualfied type is non-trivially default constructible.
+        //:   the 'const-qualified type is non-trivially default constructible.
         //: 2 A pair with a 'const' member can be copy-constructed, holding a
         //:   copy of the original value.
         //: 3 A pair with a 'const' member may be move-constructed, as long as
-        //:   the 'const'-qualfied member is copy constructible.
+        //:   the 'const'-qualified member is copy constructible.
         //: 4 All of the accessors of 'pair' work as previously tested for a
         //:   'pair' having a 'const'-qualified member.
         //

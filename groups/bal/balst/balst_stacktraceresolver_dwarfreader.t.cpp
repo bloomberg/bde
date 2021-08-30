@@ -2010,7 +2010,7 @@ int main(int argc, char *argv[])
         //: 14 Call 'readStringFromForm' on the 'info' reader passing it the
         //:    'string' reader and 'e_DW_FORM_strp' and verify the result.
         //:    (C-3-B)
-        //: 15 Skip the 'str' reader ot the beginning of the string.
+        //: 15 Skip the 'str' reader to the beginning of the string.
         //: 16 Call 'skipString' on the 'str' reader and verify the cursor is
         //:    now positioned after the string. (C-4)
         //

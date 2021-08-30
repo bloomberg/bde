@@ -823,7 +823,7 @@ struct InvokeResult_FunctorDeduction : InvokeResult_ImpUtils {
             typename ResultType<F,InvokeResultDeductionFailed>::type
         >::type UnqualTargetType;
         // The deduced result after stripping off pointer, reference, and
-        // cv-qualfiers.  The 'TARGET_INDEX' indicates the fundamental type of
+        // cv-qualifiers.  The 'TARGET_INDEX' indicates the fundamental type of
         // the target result.  If the target could not be deduced (i.e.,
         // 'TARGET_INDEX == e_OTHER), then attempt to find the result by
         // looking for a 'result_type' or 'ResultType' alias in 'FN'; failing

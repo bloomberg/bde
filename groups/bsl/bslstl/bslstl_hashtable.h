@@ -2232,8 +2232,8 @@ class HashTable {
         // created and inserted) element in this hash table whose key is
         // equivalent to that of an object created from 'arguments'.  Load
         // 'true' into the specified 'isInsertedFlag' if a new value was
-        // inserted, and 'false' if an an equivalent key was already present.
-        // If this hash-table contains more than one element with an equivalent
+        // inserted, and 'false' if an equivalent key was already present.  If
+        // this hash-table contains more than one element with an equivalent
         // key, return the first such element (from the contiguous sequence of
         // elements having a matching key).  Additional buckets are allocated,
         // as needed, to preserve the invariant 'loadFactor <= maxLoadFactor'.
@@ -2313,7 +2313,7 @@ class HashTable {
         // (possibly newly inserted) element in this hash-table whose key is
         // equivalent to that of the object created from 'value'.  Load 'true'
         // into the specified 'isInsertedFlag' if a new value was inserted, and
-        // 'false' if an an equivalent key was already present.  If this
+        // 'false' if an equivalent key was already present.  If this
         // hash-table contains more than one element with an equivalent key,
         // return the first such element (from the contiguous sequence of
         // elements having a matching key).  Additional buckets are allocated,

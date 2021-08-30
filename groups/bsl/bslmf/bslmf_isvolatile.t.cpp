@@ -252,9 +252,10 @@ bool testIsNotvolatileable()
 template <class MEMBER, class HOST>
 void testNovolatileOnMemberFunction(MEMBER HOST::*)
     // Call this function with a pointer-to-member pointing specifically to a
-    // cv-qualfied member function.  This will allow validation that a
-    // cv-qualfied "abominable" function does not carry a 'volatile' qualifier,
-    // even on platforms that do not allow us to enter the type directly.
+    // cv-qualified member function.  This will allow validation that a
+    // cv-qualified "abominable" function does not carry a 'volatile'
+    // qualifier, even on platforms that do not allow us to enter the type
+    // directly.
 {
     ASSERT(!testIsvolatile<MEMBER>());
 }

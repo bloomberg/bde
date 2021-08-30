@@ -456,7 +456,7 @@ class FixedQueueState {
     // CREATORS
     explicit FixedQueueState(
                             const bdlcc::FixedQueueIndexManager *indexManager);
-        // Create an an 'FixedQueueState' object to access the state of the
+        // Create an 'FixedQueueState' object to access the state of the
         // specified 'indexManager'.
 
     // ACCESSORS

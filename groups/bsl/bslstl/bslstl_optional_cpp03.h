@@ -21,7 +21,7 @@
 // specially delimited regions of C++11 code, then this header contains no
 // code and is not '#include'd in the original header.
 //
-// Generated on Thu Jun 10 09:59:24 2021
+// Generated on Mon Aug 30 17:47:05 2021
 // Command line: sim_cpp11_features.pl bslstl_optional.h
 
 #ifdef COMPILING_BSLSTL_OPTIONAL_H
@@ -186,7 +186,7 @@ struct Optional_RemoveCVRef {
      BSLSTL_OPTIONAL_IS_CONSTRUCTIBLE(TYPE, OPT_TYPE, false))
 
 // As in 'std' implementation, if the 'TYPE' can be assigned to from any value
-// category of of an optional type 'OPT_TYPE', we consider it convertible from
+// category of an optional type 'OPT_TYPE', we consider it convertible from
 // that optional type.
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 #define BSLSTL_OPTIONAL_ASSIGNS_FROM(TYPE, OPT_TYPE)                          \

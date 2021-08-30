@@ -482,8 +482,8 @@ int main(int argc, char *argv[])
         // C-4
 
         // Functions cannot be cv-qualified, so it suffices to check a simple
-        // reference to each kind of function signature, without cv-qualfiers.
-        // Similarly, it is not possible to form a reference to an "sbominable"
+        // reference to each kind of function signature, without cv-qualifiers.
+        // Similarly, it is not possible to form a reference to an "abominable"
         // function, so there are no cv-qualifiers to check elsewhere.
 
         ASSERT(false == bsl::is_function<int  (&)(int )>::value);

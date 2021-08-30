@@ -110,7 +110,7 @@ BSLS_IDENT("$Id: $")
 //: o If none of these traits have been set for 'TYPE', it is assumed to be in
 //:   the 'Simple' (scalar) category.
 //:
-//: o If more than one of of these traits have been set of 'TYPE', 'TYPE' is
+//: o If more than one of these traits have been set of 'TYPE', 'TYPE' is
 //:   classified as 'Dynamic'.
 //:
 //:   o The recommended practice is *also* set the
@@ -231,7 +231,7 @@ BSLS_IDENT("$Id: $")
 // than one 'bdlat' type category, the "manipulate" and "accessor" function
 // templates for each of those type categories is required.
 //
-// Every type plugged into the the framework must implement an overload of
+// Every type plugged into the framework must implement an overload of
 // 'bdlat_typeCategorySelect' function.
 //
 // Note that the placeholder 'YOUR_TYPE' is not a template argument and should

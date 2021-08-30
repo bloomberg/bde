@@ -1033,8 +1033,8 @@ struct IgnoreOracle<LyingNestedTraitMovableUnion> : bsl::true_type {};
 // Macro: ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS
 //   This macro tests that a the trait for a type matches the expected result,
 //   but that cv-qualified versions of that type are never no-throw movable.
-//   DO NOT CALL THIS MACRO FOR TRIVIAL CLASS TYPES, as the cv-qualfied results
-//   will be wrong.  Use the '_TRIVIAL_' macro below instead.
+//   DO NOT CALL THIS MACRO FOR TRIVIAL CLASS TYPES, as the cv-qualified
+//   results will be wrong.  Use the '_TRIVIAL_' macro below instead.
 #define ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(TYPE, RESULT)              \
     ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CV_TEST(TYPE, RESULT, false);        \
     ASSERT_ARRAYS_ARE_NOT_NOTHROW_MOVE_CONSTRUCTIBLE(TYPE)

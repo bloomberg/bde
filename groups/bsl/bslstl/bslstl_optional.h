@@ -299,7 +299,7 @@ struct Optional_RemoveCVRef {
      BSLSTL_OPTIONAL_IS_CONSTRUCTIBLE(TYPE, OPT_TYPE, false))
 
 // As in 'std' implementation, if the 'TYPE' can be assigned to from any value
-// category of of an optional type 'OPT_TYPE', we consider it convertible from
+// category of an optional type 'OPT_TYPE', we consider it convertible from
 // that optional type.
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 #define BSLSTL_OPTIONAL_ASSIGNS_FROM(TYPE, OPT_TYPE)                          \
