@@ -24,6 +24,7 @@
 #include <bslma_testallocator.h>
 #include <bslma_defaultallocatorguard.h>
 
+#include <bsls_nameof.h>
 #include <bsls_types.h>
 
 #include <bsltf_templatetestfacility.h>
@@ -201,9 +202,20 @@ int main(int argc, char *argv[])
 
           BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestCase5,
                                                    testPointerType,
-                                                   char,
                                                    bsltf::SimpleTestType
                                                    );
+
+          // Testing const char* separately
+          {
+              const char      *value = "Hello";
+              Obj              mX("name", value);
+              ball::Attribute  attribute("name", value);
+
+              ASSERTV(true ==
+                      ball::AttributeContext::getContext()->hasAttribute(
+                          attribute));
+          }
+
       } break;
       case 4: {
         // ------------------------------------------------------------------
