@@ -99,9 +99,14 @@ BSL_OVERRIDES_STD mode"
 
 #include <bslma_usesbslmaallocator.h>
 
+#include <bslmf_movableref.h>
+
+#include <bsls_compilerfeatures.h>
+#include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
 
 #include <bslstl_string.h>
+#include <bslstl_stringview.h>
 #include <bslstl_stringbuf.h>
 
 #include <ios>
@@ -132,6 +137,7 @@ class basic_istringstream
     typedef StringBufContainer<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>
                                                                  BaseType;
     typedef bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> StringType;
+    typedef bsl::basic_string_view<CHAR_TYPE, CHAR_TRAITS>       ViewType;
     typedef native_std::basic_istream<CHAR_TYPE, CHAR_TRAITS>    BaseStream;
     typedef native_std::ios_base                                 ios_base;
 
@@ -204,17 +210,34 @@ class basic_istringstream
 #endif
 
     void str(const StringType& value);
+    void str(BloombergLP::bslmf::MovableRef<StringType> value);
         // Reset the internally buffered sequence of characters provided as
-        // input by this stream to the specified 'value'.
+        // input by this stream to the specified 'value'.  If 'value' is passed
+        // by 'MovableRef', it is left in a valid but unspecified state.
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
+    StringType str() &&;
+        // Return the internally buffered sequence of characters maintained by
+        // this stream, leaving the stream empty.
+#endif
 
     // ACCESSORS
-    StringType str() const;
-        // Return the sequence of characters referred to by this stream object.
-
     StreamBufType *rdbuf() const;
         // Return an address providing modifiable access to the
         // 'basic_stringbuf' object that is internally used by this string
         // stream to buffer unformatted characters.
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
+    StringType str() const &;
+#else
+    StringType str() const;
+#endif
+        // Return the internally buffered sequence of characters maintained by
+        // this stream object.
+
+    ViewType view() const BSLS_KEYWORD_NOEXCEPT;
+        // Return a view of the internally buffered sequence of characters
+        // maintained by this stream object.
 };
 
 // STANDARD TYPEDEFS
@@ -307,15 +330,27 @@ void basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::str(
     this->rdbuf()->str(value);
 }
 
-// ACCESSORS
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+inline
+void basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::str(
+                              BloombergLP::bslmf::MovableRef<StringType> value)
+{
+    typedef BloombergLP::bslmf::MovableRefUtil MoveUtil;
+    StringType& lvalue = value;
+    this->rdbuf()->str(MoveUtil::move(lvalue));
+}
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 typename basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::StringType
-basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::str() const
+basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::str() &&
 {
-    return this->rdbuf()->str();
+    return std::move(*this->rdbuf()).str();
 }
+#endif
 
+// ACCESSORS
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 typename
@@ -323,6 +358,33 @@ basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::StreamBufType *
 basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::rdbuf() const
 {
     return this->BaseType::rdbuf();
+}
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+inline
+typename basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::StringType
+basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::str() const &
+{
+    return this->rdbuf()->str();
+}
+#else
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+inline
+typename basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::StringType
+basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::str() const
+{
+    return this->rdbuf()->str();
+}
+#endif
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+inline
+typename basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::ViewType
+basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::view()
+                                                    const BSLS_KEYWORD_NOEXCEPT
+{
+    return this->rdbuf()->view();
 }
 
 }  // close namespace bsl

@@ -144,13 +144,18 @@ BSL_OVERRIDES_STD mode"
 
 #include <bslstl_iosfwd.h>
 #include <bslstl_string.h>
+#include <bslstl_stringview.h>
 
 #include <bslalg_swaputil.h>
 
 #include <bslma_stdallocator.h>
 #include <bslma_usesbslmaallocator.h>
 
+#include <bslmf_movableref.h>
+
 #include <bsls_assert.h>
+#include <bsls_compilerfeatures.h>
+#include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
 
 #include <algorithm>
@@ -199,6 +204,7 @@ class basic_stringbuf
     // PRIVATE TYPES
     typedef native_std::basic_streambuf<CHAR_TYPE, CHAR_TRAITS>  BaseType;
     typedef bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> StringType;
+    typedef bsl::basic_string_view<CHAR_TYPE, CHAR_TRAITS>       ViewType;
 
   public:
     // TYPES
@@ -464,12 +470,28 @@ class basic_stringbuf
 #endif
 
     void str(const StringType& value);
+    void str(BloombergLP::bslmf::MovableRef<StringType> value);
         // Reset the internally buffered sequence of characters to the
         // specified 'value'.  Update the beginning and end of both the input
         // and output sequences to be the beginning and end of the updated
         // buffer, update the current input position to be the beginning of the
         // updated buffer, and update the current output position to be the end
-        // of the updated buffer.
+        // of the updated buffer.  If 'value' is passed by 'MovableRef', then
+        // it is left in an unspecified but valid state.
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
+    StringType str() &&;
+        // Return the currently buffered sequence of characters.  If this
+        // object was created only in input mode, the resultant 'StringType'
+        // contains the character sequence in the range '[eback(), egptr())'.
+        // If 'modeBitMask & ios_base::out' specified at construction is
+        // nonzero then the resultant 'StringType' contains the character
+        // sequence in the range '[pbase(), high_mark)', where 'high_mark'
+        // represents the position one past the highest initialized character
+        // in the buffer.  Otherwise this object has been created in neither
+        // input nor output mode and a zero length 'StringType' is returned.
+        // This object is left in an empty state.
+#endif
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
     void swap(basic_stringbuf& other);
@@ -487,7 +509,11 @@ class basic_stringbuf
     allocator_type get_allocator() const BSLS_KEYWORD_NOEXCEPT;
         // Return the allocator used by the underlying string to supply memory.
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
+    StringType str() const &;
+#else
     StringType str() const;
+#endif
         // Return the currently buffered sequence of characters.  If this
         // object was created only in input mode, the resultant 'StringType'
         // contains the character sequence in the range '[eback(), egptr())'.
@@ -497,6 +523,18 @@ class basic_stringbuf
         // represents the position one past the highest initialized character
         // in the buffer.  Otherwise this object has been created in neither
         // input nor output mode and a zero length 'StringType' is returned.
+
+    ViewType view() const BSLS_KEYWORD_NOEXCEPT;
+        // Return a 'string_view' containing the currently buffered sequence of
+        // characters.  If this object was created only in input mode, the
+        // resultant 'ViewType' contains the character sequence in the range
+        // '[eback(), egptr())'.  If 'modeBitMask & ios_base::out' specified at
+        // construction is nonzero then the resultant 'StringType' contains the
+        // character sequence in the range '[pbase(), high_mark)', where
+        // 'high_mark' represents the position one past the highest initialized
+        // character in the buffer.  Otherwise this object has been created in
+        // neither input nor output mode and a zero length 'ViewType' is
+        // returned.
 };
 
 // FREE FUNCTIONS
@@ -1256,6 +1294,44 @@ void basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::str(
     updateStreamPositions(0, d_mode & ios_base::ate ? d_endHint : 0);
 }
 
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+void basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::str(
+                              BloombergLP::bslmf::MovableRef<StringType> value)
+{
+    typedef BloombergLP::bslmf::MovableRefUtil MoveUtil;
+    StringType& lvalue = value;
+
+    d_str     = MoveUtil::move(lvalue);
+    d_endHint = d_str.size();
+    updateStreamPositions(0, d_mode & ios_base::ate ? d_endHint : 0);
+}
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::StringType
+basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::str() &&
+{
+    if (d_mode & ios_base::out) {
+        d_str.resize(streamSize());
+        this->setp(d_str.data(), d_str.data());
+    }
+    else if (d_mode & ios_base::in) {
+        if (streamSize() > 0) {
+            if (this->eback() != d_str.data()) {
+                d_str.erase(0, this->eback() - d_str.data());
+            }
+            d_str.resize(streamSize());
+            this->setg(d_str.data(), d_str.data(), d_str.data());
+        }
+    }
+
+    StringType ret = std::move(d_str);
+    d_endHint = 0;
+    updateStreamPositions();
+    return std::move(ret);
+}
+#endif
+
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 void basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::swap(
@@ -1310,21 +1386,31 @@ basic_stringbuf<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::get_allocator() const
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::StringType
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
+basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::str() const &
+#else
 basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::str() const
+#endif
+{
+    return StringType(view());
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+inline
+typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::ViewType
+basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::view()
+                                                    const BSLS_KEYWORD_NOEXCEPT
 {
     if (d_mode & ios_base::out) {
-        return StringType(d_str.begin(),
-                          d_str.begin()
-                          + static_cast<std::ptrdiff_t>(streamSize()));
-                                                                      // RETURN
-
+        return ViewType(d_str.begin(),
+                        static_cast<std::ptrdiff_t>(streamSize()));   // RETURN
     }
 
     if (d_mode & ios_base::in) {
-        return StringType(this->eback(), this->egptr());              // RETURN
+        return ViewType(this->eback(), this->egptr() - this->eback());// RETURN
     }
 
-    return StringType();
+    return ViewType();
 }
 
 }  // close namespace bsl

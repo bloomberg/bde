@@ -2,6 +2,7 @@
 #include <bslstl_stringbuf.h>
 
 #include <bslstl_string.h>
+#include <bslstl_stringview.h>
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
@@ -9,8 +10,11 @@
 #include <bslma_testallocator.h>
 #include <bslma_defaultallocatorguard.h>
 
+#include <bslmf_assert.h>
+
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_platform.h>
 
 #include <bsltf_stdstatefulallocator.h>
 
@@ -56,7 +60,11 @@ using namespace BloombergLP;
 // [11] xsputn(const char *, streamsize)
 // [12] overflow(int)
 // [ 3] allocator_type get_allocator() const;
+// [19] void str(const StringType& value);
+// [19] void str(BloombergLP::bslmf::MovableRef<StringType> value);
 // [ 3] StringType str() const;
+// [ 3] StringType str() &&;
+// [ 3] ViewType view() const;
 // [18] void swap(basic_stringbuf& other);
 //
 // FREE FUNCTIONS
@@ -65,7 +73,7 @@ using namespace BloombergLP;
 // [13] OUTPUT TO STRINGBUF VIA PUBLIC INTERFACE
 // [14] INPUT FROM STRINGBUF VIA PUBLIC INTERFACE
 // [15] INPUT/OUTPUT FROM/TO STRINGBUF VIA PUBLIC INTERFACE
-// [19] USAGE EXAMPLE
+// [20] USAGE EXAMPLE
 // [ 1] BREATHING TEST
 
 // ============================================================================
@@ -147,12 +155,55 @@ const char VL = 'L';
 typedef std::ios_base       IosBase;
 typedef IosBase::openmode   Mode;
 
+// Define the length of a 'bsl::string' value long enough to ensure dynamic
+// memory allocation.
+
+const int LENGTH_OF_SUFFICIENTLY_LONG_STRING =
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+                                               33;
+#else                 // 64_BIT
+                                               65;
+#endif
+
+BSLMF_ASSERT(LENGTH_OF_SUFFICIENTLY_LONG_STRING >
+                                        static_cast<int>(sizeof(bsl::string)));
+
+struct StrlenDataRow {
+    int  d_line;    // source line number
+    int  d_length;  // string length
+    char d_mem;     // expected allocation: 'Y', 'N', '?'
+};
+
+static
+const StrlenDataRow STRLEN_DATA[] =
+{
+    //LINE  LENGTH                              MEM
+    //----  ----------------------------------  ---
+    { L_,   0,                                  'N'   },
+    { L_,   1,                                  'N'   },
+    { L_,   LENGTH_OF_SUFFICIENTLY_LONG_STRING, 'Y'   }
+};
+
+const int NUM_STRLEN_DATA = sizeof STRLEN_DATA / sizeof *STRLEN_DATA;
 
 //=============================================================================
 //                     GLOBAL HELPER CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 
 namespace {
+
+template <class STRING>
+void loadString(STRING *value, int length)
+    // Load into the specified 'value' a character string having the specified
+    // 'length'.  The behavior is undefined unless 'length >= 0'.
+{
+    value->resize(length);
+
+    for (int i = 0; i < length; ++i) {
+        (*value)[i] =
+                     static_cast<typename STRING::value_type>('a' + (i % 26));
+    }
+}
 
 template <class TYPE>
 class StringBufTest : public bsl::basic_stringbuf<TYPE>
@@ -576,6 +627,8 @@ class StringBufTest : public bsl::basic_stringbuf<TYPE>
         typedef bsl::basic_string<TYPE,
                                   bsl::char_traits<TYPE>,
                                   bsl::allocator<TYPE> >    StringType;
+        typedef bsl::basic_string_view<TYPE,
+                                  bsl::char_traits<TYPE> >  ViewType;
         typedef bsl::basic_stringbuf<TYPE,
                                      bsl::char_traits<TYPE>,
                                      bsl::allocator<TYPE> > Obj;
@@ -640,14 +693,16 @@ class StringBufTest : public bsl::basic_stringbuf<TYPE>
                 ASSERTV(LINE, CONFIG, &oa, X.get_allocator().mechanism(),
                         &oa == X.get_allocator().mechanism());
 
-                const StringType RESULT = X.str();
+                const StringType RESULT_S = X.str();
+                const ViewType   RESULT_V = X.view();
 
-                ASSERTV(LINE, CONFIG, initialString == RESULT);
+                ASSERTV(LINE, CONFIG, initialString == RESULT_S);
                 ASSERTV(LINE,
                         CONFIG,
                         &da,
-                        RESULT.get_allocator().mechanism(),
-                        &da == RESULT.get_allocator());
+                        RESULT_S.get_allocator().mechanism(),
+                        &da == RESULT_S.get_allocator());
+                ASSERTV(LINE, CONFIG, initialString == RESULT_V);
 
                 fa.deleteObject(objPtr);
             }
@@ -703,15 +758,173 @@ class StringBufTest : public bsl::basic_stringbuf<TYPE>
                     StringType STR2(mX.pbase(), mX.epptr(), &ta);
                     ASSERTV(LINE, mX.str() != STR2);
                     ASSERTV(LINE, mX.str() == initialString2);
+                    ASSERTV(LINE, mX.view() == initialString2);
                 }
                 else if (MODE & IosBase::in) {
                     ASSERTV(LINE, mX.eback(), mX.eback() && mX.egptr());
                     StringType STR(mX.eback(), mX.egptr(), &ta);
                     ASSERTV(LINE, mX.str() == STR);
+                    ASSERTV(LINE, mX.view() == STR);
                 }
                 else {
                     ASSERTV(LINE, mX.str().empty());
+                    ASSERTV(LINE, mX.view().empty());
                 }
+            }
+        }
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
+        {
+            // test 'str() &&'
+            for (std::size_t i = 0; i != NUM_DATA; ++i) {
+                const int   LINE = DATA[i].d_line;
+                const char *SPEC = DATA[i].d_spec_p;
+
+                StringType initialString;
+                populateString(&initialString, SPEC);
+
+                for (char cfg = 'a'; cfg <= 'b'; ++cfg) {
+
+                    const char CONFIG = cfg;  // how we specify the allocator
+
+                    bslma::TestAllocator da("default");
+                    bslma::TestAllocator fa("footprint");
+                    bslma::TestAllocator sa("supplied");
+
+                    bslma::DefaultAllocatorGuard dag(&da);
+
+                    Obj                  *objPtr = 0;
+                    bslma::TestAllocator *objAllocatorPtr = 0;
+
+                    switch (CONFIG) {
+                      case 'a': {
+                        objAllocatorPtr = &da;
+                        objPtr = new (fa) Obj(initialString);
+                      } break;
+                      case 'b': {
+                        objAllocatorPtr = &sa;
+                        objPtr = new (fa) Obj(initialString, objAllocatorPtr);
+                      } break;
+                      default: {
+                        BSLS_ASSERT_OPT(!"Bad allocator config.");
+                      } break;
+                    }
+
+                    Obj&                   mX = *objPtr;
+                    const Obj&              X  = mX;
+
+                    ASSERTV(LINE, CONFIG, initialString == X.str());
+                    ASSERTV(LINE, CONFIG, initialString == X.view());
+
+                    const StringType movedStr = std::move(mX).str();
+                    ASSERTV(LINE, CONFIG, initialString == movedStr);
+                    ASSERTV(LINE, CONFIG, X.view().empty());
+
+                    fa.deleteObject(objPtr);
+                }
+            }
+        }
+#endif
+    }
+
+    static void testStrManipulator()
+    {
+        typedef bsl::basic_string<TYPE,
+                                  bsl::char_traits<TYPE>,
+                                  bsl::allocator<TYPE> >    StringType;
+        typedef bsl::basic_stringbuf<TYPE,
+                                     bsl::char_traits<TYPE>,
+                                     bsl::allocator<TYPE> > Obj;
+
+        static const struct {
+            int         d_line;     // line
+            const char *d_spec_p;   // spec of the initial string
+        } DATA[] = {
+            //LINE SPEC
+            //---- ---------------------------------------------------------
+            { L_,  ""                                                        },
+            { L_,  "A"                                                       },
+            { L_,  "AA"                                                      },
+            { L_,  "ABA"                                                     },
+            { L_,  "ABCA"                                                    },
+            { L_,  "ABCDA"                                                   },
+            { L_,  "ABCDEA"                                                  },
+            { L_,  "ABCDEFGHIJKLABCDEFGHIJKLABCDEFGHIJKLABCDEFGHIJKLABCDEFG" },
+        };
+        const std::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (std::size_t i = 0; i != NUM_DATA; ++i) {
+            const int   LINE = DATA[i].d_line;
+            const char *SPEC = DATA[i].d_spec_p;
+
+            StringType initialString;
+            populateString(&initialString, SPEC);
+
+            for (char cfg = 'a'; cfg <= 'b'; ++cfg) {
+
+                const char CONFIG = cfg;  // how we specify the allocator
+
+                bslma::TestAllocator da("default");
+                bslma::TestAllocator fa("footprint");
+                bslma::TestAllocator sa("supplied");
+
+                bslma::DefaultAllocatorGuard dag(&da);
+
+                Obj                  *objPtr = 0;
+                bslma::TestAllocator *objAllocatorPtr = 0;
+
+                switch (CONFIG) {
+                  case 'a': {
+                    objAllocatorPtr = &da;
+                    objPtr = new (fa) Obj(initialString);
+                  } break;
+                  case 'b': {
+                    objAllocatorPtr = &sa;
+                    objPtr = new (fa) Obj(initialString, objAllocatorPtr);
+                  } break;
+                  default: {
+                    BSLS_ASSERT_OPT(!"Bad allocator config.");
+                  } break;
+                }
+
+                Obj&                   mX = *objPtr;
+                const Obj&             X  = mX;
+                bslma::TestAllocator&  oa = *objAllocatorPtr;
+
+                // Verify the object's 'get_allocator' accessor.
+
+                ASSERTV(LINE, CONFIG, &oa, X.get_allocator().mechanism(),
+                        &oa == X.get_allocator().mechanism());
+
+                for (int tj = 0; tj < NUM_STRLEN_DATA; ++tj) {
+                    const int LENGTH_TJ = STRLEN_DATA[tj].d_length;
+
+                    StringType mT(&da);  const StringType& T = mT;
+                    loadString(&mT, LENGTH_TJ);
+
+                    mX.str(T);
+                    ASSERT(X.str() == T);
+                    ASSERT(X.view() == T);
+                }
+
+                for (int tj = 0; tj < NUM_STRLEN_DATA; ++tj) {
+                    const int LENGTH_TJ = STRLEN_DATA[tj].d_length;
+
+                    StringType mT(&oa);  StringType& T = mT;
+                    StringType oT(&oa);
+                    loadString(&mT, LENGTH_TJ);
+                    loadString(&oT, LENGTH_TJ);
+
+                    mX.str(BloombergLP::bslmf::MovableRefUtil::move(T));
+                    ASSERT(X.str() == oT);
+                    ASSERT(X.view() == oT);
+                    // test strings that will be changed by a move
+                    if (LENGTH_TJ >= LENGTH_OF_SUFFICIENTLY_LONG_STRING) {
+                        ASSERT(T != oT);
+                    }
+                }
+
+                fa.deleteObject(objPtr);
             }
         }
     }
@@ -1460,7 +1673,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 19: {
+      case 20: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -1483,6 +1696,33 @@ int main(int argc, char *argv[])
 //
     ASSERT(orig == result);
 //..
+
+      } break;
+      case 19: {
+        // --------------------------------------------------------------------
+        // TESTING 'str' MANIPULATOR
+        //
+        // Concerns:
+        //: 1 Setting the contents of the internal string works as expected.
+        //
+        // Plan:
+        //: 1 Set the contents via the 'str' manipulator, and then verify that
+        //:   the correct contents are available.
+        //:
+        //: 2 Set the contents with a 'MovableRef', and verify that the correct
+        //:   contents are available, and that the source was moved from, when
+        //:   appropriate.
+        //
+        // Testing:
+        //   void str(const StringType& value);
+        //   void str(BloombergLP::bslmf::MovableRef<StringType> value);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING 'str' MANIPULATOR"
+                            "\n=========================\n");
+
+        StringBufTest<char   >::testStrManipulator();
+        StringBufTest<wchar_t>::testStrManipulator();
 
       } break;
       case 18: {
@@ -2078,6 +2318,9 @@ int main(int argc, char *argv[])
         //:   'stringbuf'.  Then use 'overflow' to write a character into the
         //:   'stringbuf' and verify that the final state of the 'stringbuf'
         //:   obtained using the 'str' method matches the expected result.
+        //
+        // Testing:
+        //   overflow(int)
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING OVERFLOW FUNCTION"
@@ -2270,7 +2513,7 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING MOVE ASSIGMENT
+        // TESTING MOVE ASSIGNMENT
         //
         // Concerns:
         //: 1. move assignment moves
@@ -2279,7 +2522,7 @@ int main(int argc, char *argv[])
         //: 3. move assignment properly updates the internal pointers of the
         //:    moved-to object if the internal string has the small string
         //:    optimization (pointers point into the object)
-        //: 4. move assigment objects having different open modes works as
+        //: 4. move assignment objects having different open modes works as
         //:    expected
         //
         // Plan:
@@ -2459,6 +2702,8 @@ int main(int argc, char *argv[])
         // Testing:
         //   allocator_type get_allocator() const;
         //   StringType str() const;
+        //   StringType str() &&;
+        //   ViewType view() const;
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBASIC ACCESSORS"

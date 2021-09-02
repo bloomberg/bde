@@ -51,9 +51,12 @@
 // MANIPULATORS
 // [ 3] operator=(const A&& a);
 // [ 4] void str(const StringType& value);
+// [ 4] void str(MovableRef<StringType> value);
 //
 // ACCESSORS
 // [ 4] StringType str() const;
+// [ 4] StringType str() &&;
+// [ 4] ViewType view() const;
 // [ 2] StreamBufType *rdbuf() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -737,7 +740,10 @@ void testCase4()
     //
     // Testing:
     //   void str(const StringType& value);
+    //   void str(MovableRef<StringType> value);
     //   StringType str() const;
+    //   StringType str() &&;
+    //   ViewType view() const;
     // ------------------------------------------------------------------------
 
     if (verbose) printf("\n'str' MANIPULATOR AND 'str' ACCESSOR"
@@ -758,7 +764,9 @@ void testCase4()
         StringT mS(&da);  const StringT& S = mS;
         loadString(&mS, LENGTH_TI);
 
-        mX.str(S);                                 ASSERT(X.str() == S);
+        mX.str(S);
+        ASSERT(X.str()  == S);
+        ASSERT(X.view() == S);
 
         for (int tj = 0; tj < NUM_STRLEN_DATA; ++tj) {
             const int LENGTH_TJ = STRLEN_DATA[tj].d_length;
@@ -766,8 +774,38 @@ void testCase4()
             StringT mT(&da);  const StringT& T = mT;
             loadString(&mT, LENGTH_TJ);
 
-            mX.str(T);                             ASSERT(X.str() == T);
+            mX.str(T);
+            ASSERT(X.str()  == T);
+            ASSERT(X.view() == T);
         }
+
+        for (int tj = 0; tj < NUM_STRLEN_DATA; ++tj) {
+            const int LENGTH_TJ = STRLEN_DATA[tj].d_length;
+
+            StringT mT(&sa);     StringT& T = mT;
+            StringT oT(&sa);
+            loadString(&mT, LENGTH_TJ);
+            loadString(&oT, LENGTH_TJ);
+
+            mX.str(BloombergLP::bslmf::MovableRefUtil::move(T));
+            ASSERT(X.str() == oT);
+            ASSERT(X.view() == oT);
+            // test strings that will be changed by a move
+            if (LENGTH_TJ >= LENGTH_OF_SUFFICIENTLY_LONG_STRING) {
+                ASSERT(T != oT);
+            }
+        }
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
+        {
+            StringT oT = X.str();
+            ASSERT(X.str() == oT);
+            ASSERT(X.view() == oT);
+            StringT mT = std::move(mX).str();
+            ASSERT(mT == oT);
+            ASSERT(X.view().empty());
+        }
+#endif
     }
 }
 
