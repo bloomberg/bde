@@ -47,7 +47,7 @@
 /Component Synopsis
 /------------------
 : 'bdlat_arrayfunctions':
-:      Provide a namespace defining array functions.
+:      Provide a namespace defining "array" functions.
 :
 : 'bdlat_arrayiterators':
 :      Provide iterator support for bdlat_ArrayFunction-conformant types.
@@ -95,4 +95,4 @@
 :      Provide compile-time traits for generated types.
 :
 : 'bdlat_valuetypefunctions':
-:      Provide a namespace for functions on value types.
+:      Provide a namespace for "value type" functions.
