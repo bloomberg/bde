@@ -1137,9 +1137,10 @@ void FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::rehashRaw(
     d_allocator_p->deallocate(d_entries_p);
     d_allocator_p->deallocate(d_controls_p);
 
-    d_entries_p  = 0;
-    d_controls_p = 0;
-    d_capacity   = 0;
+    d_entries_p         = 0;
+    d_controls_p        = 0;
+    d_capacity          = 0;
+    d_groupControlShift = 0;
 
     bslalg::SwapUtil::swap(&d_entries_p,         &tmp.d_entries_p);
     bslalg::SwapUtil::swap(&d_controls_p,        &tmp.d_controls_p);
@@ -1267,7 +1268,7 @@ FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::FlatHashTable(
 , d_controls_p(0)
 , d_size(0)
 , d_capacity(0)
-, d_groupControlShift(original.d_groupControlShift)
+, d_groupControlShift(0)
 , d_hasher(original.hash_function())
 , d_equal(original.key_eq())
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
@@ -1297,10 +1298,11 @@ FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::FlatHashTable(
         entriesProctor.release();
         controlsProctor.release();
 
-        d_entries_p  = entries;
-        d_controls_p = controls;
-        d_size       = original.d_size;
-        d_capacity   = original.d_capacity;
+        d_entries_p         = entries;
+        d_controls_p        = controls;
+        d_size              = original.d_size;
+        d_capacity          = original.d_capacity;
+        d_groupControlShift = original.d_groupControlShift;
     }
 }
 
@@ -1374,10 +1376,11 @@ FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::FlatHashTable(
         entriesProctor.release();
         controlsProctor.release();
 
-        d_entries_p  = entries;
-        d_controls_p = controls;
-        d_size       = reference.d_size;
-        d_capacity   = reference.d_capacity;
+        d_entries_p         = entries;
+        d_controls_p        = controls;
+        d_size              = reference.d_size;
+        d_capacity          = reference.d_capacity;
+        d_groupControlShift = reference.d_groupControlShift;
     }
 }
 
@@ -1385,6 +1388,13 @@ template <class KEY, class ENTRY, class ENTRY_UTIL, class HASH, class EQUAL>
 inline
 FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::~FlatHashTable()
 {
+    BSLS_ASSERT(
+        (d_capacity == 0 && d_groupControlShift == 0) ||
+        (d_groupControlShift ==
+         static_cast<int>(sizeof(bsl::size_t) * 8 -
+                          bdlb::BitUtil::log2(static_cast<bsl::uint64_t>(
+                              d_capacity / GroupControl::k_SIZE)))));
+
     if (0 != d_entries_p) {
         ImplUtil::destroyEntryArray(d_entries_p,
                                     d_entries_p + d_capacity,
@@ -1626,9 +1636,10 @@ void FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::rehash(
         d_allocator_p->deallocate(d_entries_p);
         d_allocator_p->deallocate(d_controls_p);
 
-        d_entries_p  = 0;
-        d_controls_p = 0;
-        d_capacity   = 0;
+        d_entries_p         = 0;
+        d_controls_p        = 0;
+        d_capacity          = 0;
+        d_groupControlShift = 0;
     }
 }
 
@@ -1657,10 +1668,11 @@ void FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::reset()
         d_allocator_p->deallocate(d_entries_p);
         d_allocator_p->deallocate(d_controls_p);
 
-        d_entries_p  = 0;
-        d_controls_p = 0;
-        d_capacity   = 0;
-        d_size       = 0;
+        d_entries_p         = 0;
+        d_controls_p        = 0;
+        d_capacity          = 0;
+        d_size              = 0;
+        d_groupControlShift = 0;
     }
 }
 

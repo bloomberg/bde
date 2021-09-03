@@ -5,6 +5,8 @@
 
 #include <bdlb_bitutil.h>
 
+#include <bsla_fallthrough.h>
+
 #include <bslh_hash.h>
 
 #include <bslim_testutil.h>
@@ -156,6 +158,7 @@ using namespace bsl;
 // [12] CONCERN: 'const ENTRY& FHTCI::operator*()'
 // [12] CONCERN: 'bool operator==(FHTCI&, FHTCI&)'
 // [12] CONCERN: 'ENTRY& FHTI::operator*()'
+// [21] CONCERN: {DRQS 167125039} BASIC OPERATIONS OF MOVED-TO TABLES
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -923,6 +926,313 @@ IsValidResult::Enum isValid(bsl::size_t                       *errorIndex,
                    table.capacity(),
                    table.hash_function(),
                    ENTRY_UTIL());
+}
+
+
+template <class ENTRY>
+void testCase21OperationsWhenMoved(int id)
+    // Address the key-based accessor and basic manipulator concerns of
+    // moved-to objects from test case 21 for the specified 'id' value.  Note
+    // that, in case of a test failure, 'id' can be used to determine 'ENTRY'.
+    // See the test plan of case 21 for a description of the concerns checked
+    // by this function.
+{
+    typedef TestEntryUtil<ENTRY>                                    EntryUtil;
+    typedef IntValueIsHash                                          Hash;
+    typedef bsl::equal_to<int>                                      Equal;
+    typedef bdlc::FlatHashTable<int, ENTRY, EntryUtil, Hash, Equal> Obj;
+    typedef typename Obj::iterator                                  Iter;
+    typedef typename Obj::const_iterator                            ConstIter;
+    typedef bsl::pair<ConstIter, ConstIter>                         ConstRange;
+
+    const bsl::size_t            NUM_DATA  = DEFAULT_NUM_DATA;
+    const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
+
+    bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard dag(&da);
+
+    // Iterate over 'DEFAULT_DATA', which is used to provide specifications for
+    // placing flat hash tables in various interesting states, e.g., having
+    // certain entries inserted, removed, and never-inserted.
+    for (bsl::size_t ti = 0; ti != NUM_DATA; ++ti) {
+        const int         LINE = DATA[ti].d_lineNum;
+        const char *const SPEC = DATA[ti].d_spec_p;
+
+        // Iterate over different accessors and basic manipulators to verify
+        // for correctness on a moved-to flat hash table.
+        enum { LOOKUP, ERASE, INSERT_COPY, INSERT_MOVE, NUM_OPERATIONS };
+        for (bsl::size_t oi = 0; oi != NUM_OPERATIONS; ++oi) {
+            const bsl::size_t OPERATION = oi;
+
+            // Iterate over 4 different ways to move a flat hash table.  These
+            // are, in order: 1) move-constructing with the same allocator, 2)
+            // move-constructing with a different allocator, 3) move-assigning
+            // with the same allocator, and 4) move-assigning with a different
+            // allocator.
+            for (char cfg = 'a'; cfg <= 'd'; ++cfg) {
+                const char CONFIG = cfg; // Designate how we move 'mX' to 'mZ'.
+
+                bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
+                bslma::TestAllocator za("different", veryVeryVeryVerbose);
+
+                // Generate an 'mX' to move from using 'gg'.  The call to 'gg'
+                // places 'mX' in a non-trivial state, which we will move into
+                // an object 'mZ'.
+                Obj mX(0, Hash(), Equal(), &sa); const Obj& X = mX;
+                gg(&mX, SPEC);
+
+                // Copy the generated 'mX' to an 'mY', in order verify the
+                // state of 'mZ' later.
+                Obj mY(X, &sa);                  const Obj& Y = mY;
+
+                // Create an 'mZ' into which to move 'mX'.
+                bsls::ObjectBuffer<Obj>     bufferZ;
+                bslma::DestructorGuard<Obj> guardZ(bufferZ.address());
+
+                Obj *pZ = bufferZ.address();
+
+                // Select the manner in which to move 'mX' to 'mZ'.
+                switch (CONFIG) {
+                  case 'a': {
+                    // Move 'mX' to 'mZ' with the same allocator.
+                    bslma::ConstructionUtil::construct(
+                                              pZ,
+                                              &sa,
+                                              bslmf::MovableRefUtil::move(mX));
+
+                    LOOP3_ASSERT(id, ti, LINE,   Y != X ||   Y.empty());
+                    LOOP3_ASSERT(id, ti, LINE, *pZ != X || pZ->empty());
+                    LOOP3_ASSERT(id, ti, LINE, *pZ == Y);
+                  } break;
+                  case 'b': {
+                    // Move 'mX' to 'mZ' with a different allocator.
+                    bslma::ConstructionUtil::construct(
+                                              pZ,
+                                              &za,
+                                              bslmf::MovableRefUtil::move(mX));
+
+                    LOOP3_ASSERT(id, ti, LINE,   Y == X);
+                    LOOP3_ASSERT(id, ti, LINE, *pZ == X);
+                    LOOP3_ASSERT(id, ti, LINE, *pZ == Y);
+                  } break;
+                  case 'c': {
+                    // Move-assign 'mX' to 'mZ' with the same allocator.
+                    bslma::ConstructionUtil::construct(
+                        pZ, &sa, 0, Hash(), Equal());
+                    *pZ = bslmf::MovableRefUtil::move(mX);
+
+                    LOOP3_ASSERT(id, ti, LINE,   Y != X ||   Y.empty());
+                    LOOP3_ASSERT(id, ti, LINE, *pZ != X || pZ->empty());
+                    LOOP3_ASSERT(id, ti, LINE, *pZ == Y);
+                  } break;
+                  case 'd': {
+                    // Move-assign 'mX' to 'mZ' with a different allocator.
+                    bslma::ConstructionUtil::construct(
+                        pZ, &za, 0, Hash(), Equal());
+                    *pZ = bslmf::MovableRefUtil::move(mX);
+
+                    LOOP3_ASSERT(id, ti, LINE,   Y == X);
+                    LOOP3_ASSERT(id, ti, LINE, *pZ == X);
+                    LOOP3_ASSERT(id, ti, LINE, *pZ == Y);
+                  } break;
+                }
+
+                // Get convenience aliases to 'mZ'.
+                Obj& mZ = *pZ; const Obj& Z = mZ;
+
+                // Verify that the internal structure of 'mZ' is valid.
+                bsl::size_t errorIndex = 0;
+                LOOP3_ASSERT(id,
+                             ti,
+                             LINE,
+                             IsValidResult::e_SUCCESS ==
+                                 isValid(&errorIndex, Z));
+
+                // Calculate the number of groups that a flat hash table will
+                // have based on the 'SPEC'.  This is used to reconstruct the
+                // keys of entries that were inserted, removed, or left empty
+                // in the call to 'gg'.
+                const bsl::uint64_t NUM_GROUPS = bsl::strlen(SPEC) / k_SIZE;
+
+                // If 'mZ' is empty, then there are no contents to check.
+                if (0 == NUM_GROUPS) {
+                    LOOP3_ASSERT(id, ti, LINE, Z.empty());
+                    continue;                                       // CONTINUE
+                }
+
+                // 'nextErase' is a variable used to calculate the key of an
+                // erased entry.
+                int nextErase = 0x100;
+                for (int value = 0; SPEC[value]; ++value) {
+                    const char SPEC_CHAR = SPEC[value];
+
+                    // Determine if the 'value' has an entry in 'mZ', and if
+                    // so, get its hashlet.  The hashlet is used to reconstruct
+                    // the key for the value specified by 'SPEC[value]' (as
+                    // used in 'gg').
+                    int hashlet;
+                    const int rc = getValue(&hashlet, SPEC_CHAR, veryVerbose);
+                    const bool IS_KEY_IN_TABLE = (e_SUCCESS_VALUE == rc);
+
+                    // 'SHIFT' is a also a constant used to reconstruct the
+                    // key for 'value'.
+                    const bsl::size_t SHIFT =
+                        16 - bdlb::BitUtil::log2(NUM_GROUPS);
+
+                    // Finally, calculate the key for 'value'.
+                    int KEY = 0;
+                    if (e_SUCCESS_VALUE == rc) {
+                        KEY = ((value / k_SIZE) << SHIFT) | hashlet;
+                    }
+                    else if (e_SUCCESS_EMPTY == rc) {
+                        KEY = value;
+                    }
+                    else if (e_SUCCESS_ERASED == rc) {
+                        KEY = ((value / k_SIZE) << SHIFT) | nextErase;
+                        nextErase++;
+                    }
+
+                    // Given a key and an object 'mZ' in a non-trivial,
+                    // moved-to state, verify that the set of accessors, or the
+                    // basic manipulator, specified by 'OPERATION' functions
+                    // correctly.
+                    switch (OPERATION) {
+                      case LOOKUP: {
+                        // Verify all accessors related to lookup by key.
+
+                        if (IS_KEY_IN_TABLE) {
+                            // Verify that they find an entry for the key if it
+                            // is in the table.
+
+                            LOOP4_ASSERT(id, ti, KEY, LINE, Z.contains(KEY));
+
+                            LOOP4_ASSERT(id, ti, KEY, LINE, 1 == Z.count(KEY));
+
+                            LOOP4_ASSERT(
+                                id, ti, KEY, LINE, Z.end() != Z.find(KEY));
+                            LOOP4_ASSERT(
+                                id, ti, KEY, LINE, mZ.end() != mZ.find(KEY));
+
+                            LOOP4_ASSERT(
+                                id,
+                                ti,
+                                KEY,
+                                LINE,
+                                bsl::distance(mZ.begin(), mZ.find(KEY)) ==
+                                    bsl::distance(mY.begin(), mY.find(KEY)));
+                            LOOP4_ASSERT(
+                                id,
+                                ti,
+                                KEY,
+                                LINE,
+                                bsl::distance(Z.begin(), Z.find(KEY)) ==
+                                    bsl::distance(Y.begin(), Y.find(KEY)));
+
+                            const ConstRange EQUAL_RANGE = Z.equal_range(KEY);
+                            LOOP4_ASSERT(
+                                id,
+                                ti,
+                                KEY,
+                                LINE,
+                                1 == bsl::distance(EQUAL_RANGE.first,
+                                                   EQUAL_RANGE.second));
+                        }
+                        else {
+                            // Verify that they do not find an entry for the
+                            // key if it is not in the table.
+
+                            LOOP4_ASSERT(id, ti, KEY, LINE, !Z.contains(KEY));
+
+                            LOOP4_ASSERT(id, ti, KEY, LINE, 0 == Z.count(KEY));
+
+                            LOOP4_ASSERT(
+                                id, ti, KEY, LINE, Z.end() == Z.find(KEY));
+                            LOOP4_ASSERT(
+                                id, ti, KEY, LINE, mZ.end() == mZ.find(KEY));
+
+                            const ConstRange EQUAL_RANGE = Z.equal_range(KEY);
+                            LOOP4_ASSERT(
+                                id,
+                                ti,
+                                KEY,
+                                LINE,
+                                0 == bsl::distance(EQUAL_RANGE.first,
+                                                   EQUAL_RANGE.second));
+                        }
+                      } break;
+                      case ERASE: {
+                        // Verify the 'erase' basic manipulator.
+
+                        if (IS_KEY_IN_TABLE) {
+                            // Verify that it erases the entry for the key if
+                            // such an entry exists in the table.
+                            LOOP4_ASSERT(
+                                id, ti, KEY, LINE, 1 == mZ.erase(KEY));
+                        }
+                        else {
+                            // Verify that it does not erase an entry for the
+                            // key if such an entry does not exist in the
+                            // table.
+                            LOOP4_ASSERT(
+                                id, ti, KEY, LINE, 0 == mZ.erase(KEY));
+                        }
+                      } break;
+                      case INSERT_COPY:                       BSLA_FALLTHROUGH;
+                      case INSERT_MOVE: {
+                        // Verify the 'insert' basic manipulator.
+
+                        // First, construct an entry for the key.
+                        bsls::ObjectBuffer<ENTRY> entry;
+                        bslma::ConstructionUtil::construct(
+                            entry.address(), &za, KEY);
+                        bslma::DestructorGuard<ENTRY> guardEntry(
+                            entry.address());
+
+                        // Then, copy the entry in order to verify the value
+                        // of the inserted entry.
+                        bsls::ObjectBuffer<ENTRY> entryCopy;
+                        bslma::ConstructionUtil::construct(
+                            entryCopy.address(), &za, entry.object());
+                        bslma::DestructorGuard<ENTRY> guardEntryCopy(
+                            entryCopy.address());
+
+                        // Then, insert it into 'mZ'.
+                        bsl::pair<Iter, bool> INSERTION;
+                        if (OPERATION == INSERT_COPY) {
+                            INSERTION = mZ.insert(entry.object());
+                        }
+                        else if (OPERATION == INSERT_MOVE) {
+                            INSERTION = mZ.insert(
+                                bslmf::MovableRefUtil::move(entry.object()));
+                        }
+
+                        // Verify that the entry in 'mZ' associated with the
+                        // returned insertion result is equal to the entry that
+                        // was inserted.
+                        LOOP4_ASSERT(id,
+                                     ti,
+                                     KEY,
+                                     LINE,
+                                     entryCopy.object() == *INSERTION.first);
+
+                        if (IS_KEY_IN_TABLE) {
+                            // Verify that an insertion did not occur if an
+                            // entry for the key already existed in the table.
+                            LOOP4_ASSERT(
+                                id, ti, KEY, LINE, false == INSERTION.second);
+                        }
+                        else {
+                            // Verify that an insertion did occur if an entry
+                            // for the key did not exist in the table.
+                            LOOP4_ASSERT(
+                                id, ti, KEY, LINE, true == INSERTION.second);
+                        }
+                      } break;
+                    }
+                }
+            }
+        }
+    }
 }
 
 template <class ENTRY>
@@ -2756,6 +3066,99 @@ int main(int argc, char *argv[])
     bslma::Default::setDefaultAllocatorRaw(&defaultAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 21: {
+        // --------------------------------------------------------------------
+        // {DRQS 167125039} BASIC OPERATIONS OF MOVED-TO TABLES
+        //
+        // Ensure that the key-based accessors and basic manipulators operate
+        // as expected on moved-to objects.  This test case was created in
+        // order to verify the fix for the regression identified in
+        // {DRQS 167125039}.  A change made to 'bdlc::FlatHashTable' introduced
+        // a regression in which lookup, insert, and erase operations applied
+        // to 'bdlc::FlatHashTable' objects that were move-constructed or
+        // move-assigned from a hash table having a different allocator could
+        // return incorrect results or trigger segmentation faults.
+        //
+        // In the concerns below, 'X' is a placeholder used to refer to a
+        // 'bdlc::FlatHashTable' object that has been move-constructed or
+        // move-assigned from another 'bdlc::FlatHashTable', 'Y'.  Each concern
+        // holds for the case when the allocators of 'X' and 'Y' are the same,
+        // and when they differ.
+        //
+        // Concerns:
+        //: 1 'X' is in a valid state.
+        //:
+        //: 2 The key-based accessors of 'X': 'contains', 'count',
+        //:   'equal_range', and 'find', produce the expected return value and
+        //:   leave 'X' in a valid state.  In no event do these accessors
+        //:   return invalid results or lead to undefined behavior when used in
+        //:   contract.
+        //:
+        //: 3 The copy and move 'insert' methods on 'X' produce the expected
+        //:   return value and leaves 'X' in a valid state.  Inserting an entry
+        //:   already present in 'X' results in a no-op.
+        //:
+        //: 4 The 'erase(key)' method on 'X' produces the expected return value
+        //:   and leaves 'X' in a valid state.
+        //
+        // Plan:
+        //: 1 Using the table-driven technique:
+        //:
+        //:   1 Specify a set of widely varying object values (one per row) in
+        //:     terms of their individual attributes, including (a) first, the
+        //:     default value, (b) boundary values corresponding to every range
+        //:     of values that each individual attribute can independently
+        //:     attain, and (c) values that should require allocation from each
+        //:     individual attribute that can independently allocate memory.
+        //:
+        //: 2 For each row (representing a distinct object value, 'V') in the
+        //:   table described in P-1: (C-1..5)
+        //:
+        //:   1 Create a new object 'Y' moved from 'V' in one of 4 ways: via
+        //:     move construction with the same allocator, move construction
+        //:     with a different allocator, move assignment with the same
+        //:     allocator, and move assignment with a different allocator.
+        //:     With a fresh 'Y' in this state, perform each of the following:
+        //:
+        //:     1 Verify that the internal state of the 'Y' is valid (C-1)
+        //:
+        //:     2 Verify that each of the key-based accessors of 'Y':
+        //:      'contains', 'count', 'equal_range', and 'find', produce the
+        //:      expected results. (C-2)
+        //:
+        //:     3 Verify that the copy and move 'insert' methods leave 'Y' in a
+        //:       valid state and produce the expected results (C-3).
+        //:
+        //:     5 Verify that the 'erase(key)' method leave 'Y' in a valid
+        //:       state and produce the expected results (C-4).
+        //
+        // Testing
+        //   {DRQS 167125039} BASIC OPERATIONS OF MOVED-TO TABLES
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            cout << endl
+                 << "{DRQS 167125039} BASIC OPERATIONS OF MOVED-TO TABALES"
+                 << endl
+                 << "====================================================="
+                 << endl;
+
+        if (verbose)
+            cout << "Testing key-based accessors and basic"
+                 << " manipulators of moved-to tables." << endl;
+
+        testCase21OperationsWhenMoved<int>(0);
+        testCase21OperationsWhenMoved<bsltf::AllocBitwiseMoveableTestType>(1);
+        testCase21OperationsWhenMoved<bsltf::AllocTestType>(2);
+        testCase21OperationsWhenMoved<bsltf::BitwiseCopyableTestType>(3);
+        testCase21OperationsWhenMoved<bsltf::BitwiseMoveableTestType>(4);
+        testCase21OperationsWhenMoved<bsltf::MovableAllocTestType>(5);
+        testCase21OperationsWhenMoved<bsltf::MovableTestType>(6);
+        testCase21OperationsWhenMoved<bsltf::NonDefaultConstructibleTestType>(
+                                                                            7);
+        testCase21OperationsWhenMoved<bsltf::NonOptionalAllocTestType>(8);
+
+      } break;
       case 20: {
         // --------------------------------------------------------------------
         // 'operator[]'
