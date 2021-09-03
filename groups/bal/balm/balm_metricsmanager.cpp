@@ -619,6 +619,52 @@ void MetricsManager_PublicationHelper::collect(
     }
 }
 
+template <>
+void MetricsManager_PublicationHelper::collect<bsl::vector<MetricRecord> >(
+                                        bsl::vector<MetricRecord> *records,
+                                        bsls::TimeInterval        *elapsedTime,
+                                        MetricsManager            *manager,
+                                        const Category            *category,
+                                        const bsls::TimeInterval&  now,
+                                        bool                       resetFlag)
+{
+    typedef MetricsManager::RecordsCollectionCallback Callback;
+    typedef bsl::vector<const Callback *>             CBVector;
+    typedef MetricsManager_CallbackRegistry::iterator CBRegistryIterator;
+    CBVector callbacks;
+
+    CBRegistryIterator cbkIt  = manager->d_callbacks->lowerBound(category);
+    CBRegistryIterator cbkEnd = manager->d_callbacks->upperBound(category);
+
+    // Invoke the metric collection callback functions.
+    for (; cbkIt != cbkEnd; ++cbkIt) {
+        (cbkIt->second)(records, resetFlag);
+    }
+
+    // Collect records from the collector repository.
+    if (resetFlag) {
+        manager->d_collectors.collectAndReset(records, category);
+    } else {
+        manager->d_collectors.collect(records, category);
+    }
+
+    // Compute the elapsed time since the previous reset, and if 'resetFlag'
+    // is 'true', update the last reset time to 'now'.
+    MetricsManager::LastResetTimes::iterator tmIt =
+                                      manager->d_prevResetTimes.find(category);
+    if (tmIt == manager->d_prevResetTimes.end()) {
+        *elapsedTime = now - manager->d_creationTime;
+        if (resetFlag) {
+            manager->d_prevResetTimes.insert(bsl::make_pair(category, now));
+        }
+    } else {
+        *elapsedTime = now - tmIt->second;
+        if (resetFlag) {
+            tmIt->second = now;
+        }
+    }
+}
+
 template <class ConstForwardCategoryIterator>
 void MetricsManager_PublicationHelper::publish(
                           MetricsManager                      *manager,

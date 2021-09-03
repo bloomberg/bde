@@ -222,9 +222,7 @@ class MetricRecord {
         // Create a metric record having the specified 'metricId', 'count',
         // 'total', 'min', and 'max' attribute values.
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
-    MetricRecord(const MetricRecord& original) = default;
-#endif
+    // MetricRecord(const MetricRecord& original) = default;
         // Create a metric record having the value of the specified 'original'
         // record.
 
@@ -233,9 +231,7 @@ class MetricRecord {
         // by the compiler.
 
     // MANIPULATORS
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
-    MetricRecord& operator=(const MetricRecord& rhs) = default;
-#endif
+    // MetricRecord& operator=(const MetricRecord& rhs) = default;
         // Assign to this metric record the value of the specified 'rhs'
         // record, and return a reference to this modifiable record.
 
