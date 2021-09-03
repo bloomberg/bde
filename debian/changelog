@@ -1,5 +1,25 @@
-bsl-internal (3.88.0.0) unstable; urgency=low
+bsl-internal (3.89.0.0) unstable; urgency=low
 
+  * d5f1f3c24 Bumped version to 3.89.0.0
+  * 75b841a5e bdlc_flathashtable: Address {DRQS 167125039} (#3394)
+  * 10aff94a1 Implement the view/str functionality from P0408 (#3374)
+  * 81b810d9c Fix SA test case for char* (#3391)
+  * a5ad72449 Fix assorted typos. (#3389)
+  * f1e6b7964 Scoped attribute support more types drqs 166238785 (#3378)
+  * f2b9961c0 Compiler warnings have been suppressed in 'bdlb_indexspanstringutil' (#3388)
+  * 642555fe9 Fixes in 'bdlb_indexspanstringutil' for MSVC. DRQS 166689011 (#3362)
+  * f2ed88ce3 Merge pull request #3382 from afeher/drqs-167048561-yet-another-unreferenced-ryu-for-master
+  * 2fc134d6c bdlc_flathashtable: Silence GCC 7 unknown pragma warning (#3385)
+  * 37e926a10 fix doc for string move constructor (#3384)
+  * e7bb54fdc Fix typo in resolveSymLinksIfAny (#3383)
+  * 07cbe6595 Stop bsl_type_traits.h show error on cpp03 (#3369)
+  * c3f736da4 Contract of allocate shared vs allocate managed (DRQS 166899748) (#3373)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 3 Sep 2021 11:04:56 -0400
+
+bsl-internal (3.88.0.0) git; urgency=low
+
+  * 016dff5d5 Changelog for version 3.88.0.0
   * 11f96f7ce Bumped version to 3.88.0.0
   * e26cd0adb fix build breakage in bdlat_arrayfunctions.t (#3379)
   * 413ca706f drqs-149019607: 'bdlat': Updated Usage in several "TBD:" components. (#3287)
@@ -10,7 +30,7 @@ bsl-internal (3.88.0.0) unstable; urgency=low
   * c6c7931b0 drqs-166390563: 'balcl' component documentation fixes. (#3342)
   * 7c00865f6 Drqs 165748105/bdlmt fixedthreadpool use bdlcc boundedqueue (#3314)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 20 Aug 2021 13:38:54 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 20 Aug 2021 13:44:01 -0400
 
 bsl-internal (3.87.0.0) git; urgency=low
 
