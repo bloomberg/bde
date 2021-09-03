@@ -101,10 +101,7 @@ struct TestInputIterator : public bsltf::InputIterator<TYPE> {
     // CREATORS
     TestInputIterator();
 
-    TestInputIterator(TYPE *ptr);
-
-    template <class CONTIGUOUS_ITERATOR>
-    TestInputIterator(CONTIGUOUS_ITERATOR iter);
+    TestInputIterator(const TestInputIterator& original);
 };
 
                         // -----------------------
@@ -120,15 +117,8 @@ TestInputIterator<TYPE>::TestInputIterator()
 
 template <class TYPE>
 inline
-TestInputIterator<TYPE>::TestInputIterator(TYPE *ptr)
-: bsltf::InputIterator<TYPE>(ptr)
-{}
-
-template <class TYPE>
-template <class CONTIGUOUS_ITERATOR>
-inline
-TestInputIterator<TYPE>::TestInputIterator(CONTIGUOUS_ITERATOR iter)
-: bsltf::InputIterator<TYPE>(iter)
+TestInputIterator<TYPE>::TestInputIterator(const TestInputIterator& original)
+: bsltf::InputIterator<TYPE>(original)
 {}
 
 #endif

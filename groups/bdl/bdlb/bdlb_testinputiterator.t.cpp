@@ -1,20 +1,18 @@
 // bdlb_testinputiterator.t.cpp                                       -*-C++-*-
 #include <bdlb_testinputiterator.h>
 
-#include <bslmf_assert.h>      // for testing only
-#include <bslmf_issame.h>      // for testing only
-#include <bslmf_removecv.h>    // for testing only
+#include <bsl_cstdlib.h>
+#include <bsl_iostream.h>
+#include <bsl_iterator.h>
+
+#include <bslim_testutil.h>
+
+#include <bslmf_issame.h> // for testing only
 
 #include <bsls_asserttest.h>
-#include <bsls_bsltestutil.h>
-
-#include <vector>
-
-#include <cstddef>
-
-#include <stdio.h>
 
 using namespace BloombergLP;
+using namespace bsl;
 
 // ============================================================================
 //                             TEST PLAN
@@ -30,13 +28,12 @@ using namespace BloombergLP;
 // CREATORS
 // [ 2] TestInputIterator();
 // [ 2] TestInputIterator(const TestInputIterator&);
-// [ 3] TestInputIterator(TYPE *);
 // [ 2] ~TestInputIterator();
 //
 // MANIPULATORS
 // [ 2] TestInputIterator& operator=(const TestInputIterator&);
 // [ 3] TestInputIterator& operator++();
-// [ 3] TestInputIterator operator++(int);
+// [ 3] TestInputIterator& operator++(int);
 //
 // ACCESSORS
 // [ 3] TYPE *operator->() const;
@@ -57,92 +54,92 @@ namespace {
 
 int testStatus = 0;
 
-void aSsErT(bool b, const char *s, int i)
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (b) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
+             << "    (failed)" << endl;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
 }  // close unnamed namespace
 
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
-#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
-#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
-#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
-#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
-#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
+
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
+
+#define ASSERT_SAFE_PASS_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPR)
+#define ASSERT_SAFE_FAIL_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPR)
+#define ASSERT_PASS_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS_RAW(EXPR)
+#define ASSERT_FAIL_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPR)
+#define ASSERT_OPT_PASS_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPR)
+#define ASSERT_OPT_FAIL_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-namespace {
-namespace u {
-
 class MyClass {
     // A simple test class that can instantiated and copied to help test the
     // instantiation of 'bdlb::TestInputIterator' on a user-defined type.
 
-    int d_value;
-
   public:
     // CREATORS
-    explicit
-    MyClass(int value) : d_value(value) {}
+    explicit MyClass(int){ }
         // Construct a MyClass object.
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
-    MyClass(const MyClass& original) = default;
+    MyClass(const MyClass& original) { (void) original; }
         // Construct a copy of an object.
 
-    ~MyClass() = default;
+    ~MyClass() { }
         // Destroy an object.
 
+    int value() const { return 0; }
+        // Member function, required for dereference operator test.
+
+  private:
     // MANIPULATORS
-    MyClass& operator=(const MyClass&) = default;
-        // The type used to instantiate 'bdlb::TestInputIterator' does not
-        // need to be assignable, although it must be copy-constructible.  We
+    MyClass& operator=(const MyClass& rhs);
+        // The type used to instantiate 'bdlb::TestInputIterator' does not need
+        // to be assignable, although it must be copy-constructible.  We
         // disable the assignment operator to ensure that we don't depend on
         // it.
-#endif
 
-    // ACCESSORS
-    int value() const { return d_value; }
-        // Member function, required for dereference operator test.
+
 };
-
-template <class TYPE>
-bool isConst(TYPE&)
-    // Return 'true' if passed a 'const' object and 'false' otherwise.
-{
-    return false;
-}
-
-template <class TYPE>
-bool isConst(const TYPE&)
-    // Return 'true' if passed a 'const' object and 'false' otherwise.
-{
-    return true;
-}
-
-}  // close namespace u
-}  // close unnamed namespace
 
 //=============================================================================
 //                           USAGE EXAMPLE
@@ -164,10 +161,7 @@ bool isConst(const TYPE&)
     typename bsl::iterator_traits<IN_ITER>::value_type
     sum(IN_ITER first, IN_ITER last)
     {
-        typedef typename bsl::iterator_traits<IN_ITER>::value_type CValueType;
-        typedef typename bsl::remove_cv<CValueType>::type ValueType;
-
-        ValueType total = 0;
+        typename bsl::iterator_traits<IN_ITER>::value_type total = 0;
         while (first != last) {
             total += *first++;
         }
@@ -207,7 +201,7 @@ int main(int argc, char *argv[])
     const bool     verbose = argc > 2;
     const bool veryVerbose = argc > 3;
 
-    printf("TEST" __FILE__ "CASE %d\n", test);
+    cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 5: {
@@ -227,11 +221,12 @@ int main(int argc, char *argv[])
         // Testing:
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
-
-        if (verbose) printf("USAGE EXAMPLE\n"
-                            "=============\n");
+        if (verbose) cout << endl
+                          << "USAGE EXAMPLE" << endl
+                          << "=============" << endl;
 
         testSum();
+
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -262,23 +257,24 @@ int main(int argc, char *argv[])
         //   bool operator!=(TestInputIterator&, TestInputIterator&);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("EQUALITY-COMPARISON OPERATORS\n"
-                            "=============================\n");
+        if (verbose) cout << endl
+                          << "EQUALITY-COMPARISON OPERATORS" << endl
+                          << "=============================" << endl;
 
-        if (veryVerbose) printf("\tTesting different objects\n");
+        if (veryVerbose) cout << "\tTesting different objects" << endl;
         {
-            bdlb::TestInputIterator<u::MyClass> nc1;
-            bdlb::TestInputIterator<u::MyClass> nc2;
+            bdlb::TestInputIterator<MyClass> nc1;
+            bdlb::TestInputIterator<MyClass> nc2;
             ASSERT(nc2 == nc1);
             ASSERT(nc1 == nc2);
             ASSERT(!(nc2 != nc1));
             ASSERT(!(nc1 != nc2));
         }
 
-        if (veryVerbose) printf("\tTesting copies\n");
+        if (veryVerbose) cout << "\tTesting copies" << endl;
         {
-            bdlb::TestInputIterator<u::MyClass>        nc;
-            const bdlb::TestInputIterator<u::MyClass>& NC(nc);
+            bdlb::TestInputIterator<MyClass>        nc;
+            const bdlb::TestInputIterator<MyClass>& NC(nc);
             ASSERT(NC == nc);
             ASSERT(nc == NC);
             ASSERT(!(NC != nc));
@@ -287,94 +283,65 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // ITERATING OVER A RANGE
+        // UNSUPPORTED OPERATIONS
+        //   Ensure that calls of the four implicitly declared and defined
+        //   special member functions (increment operators, indirection
+        //   operator and dereference operator) lead to assertion, but can be
+        //   compiled.
         //
         // Concerns:
-        //: 1 That the class under test can iterate over a contiguous range.
+        //: 1 QoI: asserted forbidden function calls are detected when enabled.
         //:
-        //: 2 That the class under test can be initialized with a pointer, or
-        //:   with a contiguous iterator.
+        //: 2 Expressions with this operators are able to be compiled.
         //
         // Plan:
-        //: 1 Use a 'vector' to create a range of 'int's.
-        //:   o Create an iterator pair to the start and end of the vector
-        //:     using the pointer c'tor.
+        //: 1 Manually call different methods of the object.  (C-1..2)
         //:
-        //:   o Traverse the range, examining the values with 'operator++()'
-        //:     and 'operator*()'.
-        //:
-        //:   o Traverse the range again, examining the values with
-        //:     'operator++(int)' and 'operator*()'.
-        //:
-        //: 2 Use a 'vector' to create a range of 'u::MyClass' objects.
-        //:   o Create an iterator pair to the start and end of the vector
-        //:     using the pointer c'tor.
-        //:
-        //:   o Traverse the range, examining the values with 'operator++()'
-        //:     and 'operator->()'.
-        //:
-        //:   o Traverse the range again, examining the values with
-        //:     'operator++(int)' and 'operator->()'.
+        //: 2 Verify that defensive checks are triggered for unacceptable
+        //:   operator calls. (C-1)
         //
         // Testing:
-        //   TestInputIterator(TYPE *);
         //   TestInputIterator& operator++();
-        //   TestInputIterator operator++(int);
+        //   TestInputIterator& operator++(int);
         //   TYPE *operator->() const;
         //   TYPE operator*() const;
         // --------------------------------------------------------------------
 
-        if (verbose) printf("ITERATING OVER A RANGE\n"
-                            "======================\n");
+        if (verbose) cout << endl
+                          << "UNSUPPORTED OPERATIONS" << endl
+                          << "======================" << endl;
 
-        if (verbose) printf("Iterating over a range of 'int'\n");
+        if (verbose) cout <<
+                            "\nNegative Testing of direct invocation." << endl;
         {
-            std::vector<int> v;
-            for (int ii = 0; ii < 100; ++ii) {
-                v.push_back(ii);
-            }
+            bsls::AssertTestHandlerGuard hG;
 
-            typedef bdlb::TestInputIterator<int> Iter;
-            int jj = 0;
-            {
-                const Iter begin(&v[0]), end(&v[0] + 100);
-                jj = 0;
-                for (Iter it = begin; end != it; ++it) {
-                    ASSERT(jj++ == *it);
-                }
-                ASSERT(100 == jj);
+            bdlb::TestInputIterator<int> ni;
+//          ASSERT_FAIL(++ni);
+//          ASSERT_FAIL(ni++);
+//          ASSERT_FAIL(*ni);
 
-                jj = 0;
-                for (Iter it = begin; end != it; ) {
-                    ASSERT(jj++ == *it++);
-                }
-                ASSERT(100 == jj);
-            }
+            bdlb::TestInputIterator<MyClass> nc;
+//          ASSERT_FAIL(++nc);
+//          ASSERT_FAIL(nc++);
+//          ASSERT_FAIL(*nc);
+//          ASSERT_FAIL(nc->value());
         }
 
-        if (verbose) printf("Iterating over a range of 'u::MyClass'\n");
+        if (verbose) cout << "\nNegative Testing of expressions" << endl;
         {
-            std::vector<u::MyClass> mv;
-            for (int ii = 0; ii < 100; ++ii) {
-                mv.push_back(u::MyClass(ii));
-            }
+            bsls::AssertTestHandlerGuard hG;
 
-            typedef bdlb::TestInputIterator<u::MyClass> Iter;
-            int jj = 0;
-            {
-                const Iter begin(&mv[0]), end(&mv[0] + 100);
-                jj = 0;
-                for (Iter it = begin; end != it; ++it) {
-                    ASSERT(jj++ == it->value());
-                }
-                ASSERT(100 == jj);
+            bdlb::TestInputIterator<int> ni;
+//          ASSERT_FAIL(bdlb::TestInputIterator<int>(++ni));
+//          ASSERT_FAIL(bdlb::TestInputIterator<int>(ni++));
+//          ASSERT_FAIL(MyClass nmci(*ni));
 
-                jj = 0;
-                for (Iter it = begin; end != it; ) {
-                    ASSERT(jj++ == (it++)->value());
-                }
-                ASSERT(100 == jj);
-            }
+            bdlb::TestInputIterator<MyClass> nc;
+//          ASSERT_FAIL(bdlb::TestInputIterator<MyClass> nc2(++nc));
+//          ASSERT_FAIL(bdlb::TestInputIterator<MyClass> nc3(nc++));
+//          ASSERT_FAIL(MyClass nmc(*nc));
+//          ASSERT_FAIL(MyClass(nc->value()));
         }
       } break;
       case 2: {
@@ -401,8 +368,8 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Verify the default constructor exists and is publicly accessible
-        //:   by default-constructing a 'const bdlb::TestInputIterator'
-        //:   object.  (C-1)
+        //:   by default-constructing a 'const bdlb::TestInputIterator' object.
+        //:  (C-1)
         //:
         //: 2 Verify the copy constructor is publicly accessible and not
         //:   'explicit' by using the copy-initialization syntax to create a
@@ -416,8 +383,8 @@ int main(int argc, char *argv[])
         //:   itself. (C-5)
         //:
         //: 5 Verify the destructor is publicly accessible by allowing the two
-        //:   'bdlb::TestInputIterator' object to leave scope and be
-        //:   destroyed.  (C-6)
+        //:   'bdlb::TestInputIterator' object to leave scope and be destroyed.
+        //:   (C-6)
         //
         // Testing:
         //   TestInputIterator();
@@ -426,55 +393,38 @@ int main(int argc, char *argv[])
         //   TestInputIterator& operator=(const TestInputIterator&);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("PRIMARY MANIPULATORS\n"
-                            "====================\n");
-
-        if (veryVerbose) printf("\tTesting basic type\n");
+        if (verbose) cout << endl
+                          << "PRIMARY MANIPULATORS" << endl
+                          << "====================" << endl;
+        if (veryVerbose) cout << "\tTesting basic type" << endl;
         {
             typedef bdlb::TestInputIterator<int> Obj;
-            typedef bsl::iterator_traits<Obj>    Traits;
 
-            int ii(3);
-            const Obj NI1(&ii);
-            Obj       ni2(NI1), ni3;
+            const Obj NI1;
+            Obj       ni2(NI1);
             ni2 = NI1;
-            ni3 = ni2 = NI1;
+            ni2 = ni2;
 
-            BSLMF_ASSERT((bsl::is_same<Obj::iterator_category,
-                                       std::input_iterator_tag>::value));
-            BSLMF_ASSERT((bsl::is_same<Obj::value_type, int>::value));
-
-            BSLMF_ASSERT((bsl::is_same<Traits::iterator_category,
-                                       std::input_iterator_tag>::value));
-            BSLMF_ASSERT((bsl::is_same<Traits::value_type, int>::value));
-
-            ASSERT(! u::isConst(*ni3));
-            ASSERT(! u::isConst(ni3));
+            typedef bsl::iterator_traits<Obj> ObjTraits;
+            BSLMF_ASSERT((bsl::is_same<ObjTraits::iterator_category,
+                                       bsl::input_iterator_tag>::value));
+            BSLMF_ASSERT((bsl::is_same<ObjTraits::value_type, int>::value));
         }
 
-        if (veryVerbose) printf("\tTesting user-defined type\n");
+        if (veryVerbose) cout << "\tTesting user-defined type" << endl;
         {
-            typedef bdlb::TestInputIterator<u::MyClass> Obj;
-            typedef bsl::iterator_traits<Obj>           Traits;
+            typedef bdlb::TestInputIterator<MyClass> Obj;
 
-            u::MyClass mc(5);
-            const Obj NC1(&mc);
-            Obj       nc2(NC1), nc3;
+            const Obj NC1;
+            Obj       nc2(NC1);
             nc2 = NC1;
-            nc3 = (nc2 = NC1);
+            nc2 = nc2;
 
-            BSLMF_ASSERT((bsl::is_same<Obj::iterator_category,
-                                       std::input_iterator_tag>::value));
-            BSLMF_ASSERT((bsl::is_same<Obj::value_type,
-                                       u::MyClass>::value));
-
-            BSLMF_ASSERT((bsl::is_same<Traits::iterator_category,
-                                       std::input_iterator_tag>::value));
-            BSLMF_ASSERT((bsl::is_same<Traits::value_type,
-                                       u::MyClass>::value));
-
-            ASSERT(u::isConst(nc3->value()));
-            ASSERT(! u::isConst(nc3));
+            typedef bsl::iterator_traits<Obj> ObjTraits;
+            BSLMF_ASSERT((bsl::is_same<ObjTraits::iterator_category,
+                                       bsl::input_iterator_tag>::value));
+            BSLMF_ASSERT((bsl::is_same<ObjTraits::value_type,
+                                       MyClass>::value));
         }
       } break;
       case 1: {
@@ -493,25 +443,25 @@ int main(int argc, char *argv[])
         //   BREATHING TEST
         // --------------------------------------------------------------------
 
-        if (verbose) printf("BREATHING TEST\n"
-                            "==============\n");
+        if (verbose) cout << endl
+                          << "BREATHING TEST" << endl
+                          << "==============" << endl;
       } break;
 
       default: {
-        fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
+        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;
       }
     }
 
     if (testStatus > 0) {
-        fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
+        cerr << "Error, non-zero test status = " << testStatus << "." << endl;
     }
-
     return testStatus;
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2021 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
