@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsltf::InputIterator: empty input iterator template
 //
-//@DESCRIPTION: This components provides a mechanism,
+//@DESCRIPTION: This components provides a value-semantic 'class',
 // 'bsltf::InputIterator', that defines an input iterator that supports the
 // following operations:
 //
@@ -95,6 +95,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
+#include <bsls_assert.h>
 #include <bsls_libraryfeatures.h>
 
 #include <cstddef>
@@ -214,42 +215,34 @@ struct InputIteratorUtil {
 
     // CLASS METHODS
     template <class CONTIGUOUS_CONTAINER>
-    static
-    InputIterator<typename CONTIGUOUS_CONTAINER::value_type>
-    begin(CONTIGUOUS_CONTAINER& container);
+    static InputIterator<typename CONTIGUOUS_CONTAINER::value_type> begin(
+                                              CONTIGUOUS_CONTAINER& container);
     template <class CONTIGUOUS_CONTAINER>
-    static
-    InputIterator<const typename CONTIGUOUS_CONTAINER::value_type>
-    begin(const CONTIGUOUS_CONTAINER& container);
+    static InputIterator<const typename CONTIGUOUS_CONTAINER::value_type>
+                                  begin(const CONTIGUOUS_CONTAINER& container);
         // Return an 'InputIterator' referring to the first element of the
         // specified 'container' or a null iterator if 'container' is empty.
 
     template <class TYPE, std::size_t LEN>
-    static
-    InputIterator<TYPE> begin(TYPE (&array)[LEN]);
+    static InputIterator<TYPE> begin(TYPE (&array)[LEN]);
     template <class TYPE, std::size_t LEN>
-    static
-    InputIterator<const TYPE> begin(const TYPE (&array)[LEN]);
+    static InputIterator<const TYPE> begin(const TYPE (&array)[LEN]);
         // Return an 'InputIterator' referring to the first element of the
         // specified 'array'.
 
     template <class CONTIGUOUS_CONTAINER>
-    static
-    InputIterator<typename CONTIGUOUS_CONTAINER::value_type>
-    end(CONTIGUOUS_CONTAINER& container);
+    static InputIterator<typename CONTIGUOUS_CONTAINER::value_type> end(
+                                              CONTIGUOUS_CONTAINER& container);
     template <class CONTIGUOUS_CONTAINER>
-    static
-    InputIterator<const typename CONTIGUOUS_CONTAINER::value_type>
-    end(const CONTIGUOUS_CONTAINER& container);
+    static InputIterator<const typename CONTIGUOUS_CONTAINER::value_type> end(
+                                        const CONTIGUOUS_CONTAINER& container);
         // Return an 'InputIterator' referring to after the last element of the
         // specified 'container' or a null iterator if 'container' is empty.
 
     template <class TYPE, std::size_t LEN>
-    static
-    InputIterator<TYPE> end(TYPE (&array)[LEN]);
+    static InputIterator<TYPE> end(TYPE (&array)[LEN]);
     template <class TYPE, std::size_t LEN>
-    static
-    InputIterator<const TYPE> end(const TYPE (&array)[LEN]);
+    static InputIterator<const TYPE> end(const TYPE (&array)[LEN]);
         // Return an 'InputIterator' referring to after the last element of the
         // specified 'array'.
 };
@@ -282,6 +275,8 @@ template<class TYPE>
 inline
 InputIterator<TYPE>& InputIterator<TYPE>::operator++()
 {
+    BSLS_ASSERT_SAFE(d_value_p);
+
     ++d_value_p;
 
     return *this;
@@ -291,6 +286,8 @@ template<class TYPE>
 inline
 InputIterator<TYPE> InputIterator<TYPE>::operator++(int)
 {
+    BSLS_ASSERT_SAFE(d_value_p);
+
     TYPE *prev = d_value_p++;
     return InputIterator(prev);
 }
@@ -298,17 +295,19 @@ InputIterator<TYPE> InputIterator<TYPE>::operator++(int)
 // ACCESSORS
 template<class TYPE>
 inline
-typename InputIterator<TYPE>::pointer
-                                    InputIterator<TYPE>::operator->() const
+typename InputIterator<TYPE>::pointer InputIterator<TYPE>::operator->() const
 {
+    BSLS_ASSERT_SAFE(d_value_p);
+
     return d_value_p;
 }
 
 template<class TYPE>
 inline
-typename InputIterator<TYPE>::reference
-                                     InputIterator<TYPE>::operator*() const
+typename InputIterator<TYPE>::reference InputIterator<TYPE>::operator*() const
 {
+    BSLS_ASSERT_SAFE(d_value_p);
+
     return *d_value_p;
 }
 

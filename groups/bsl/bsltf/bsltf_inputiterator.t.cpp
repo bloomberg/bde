@@ -255,10 +255,10 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 Two objects of 'bsltf::InputIterator' class, 'X' and 'Y',
-        //:   always compare equal.
+        //:   compare equal if and only if they have the same value.
         //:
         //: 2 Two objects of 'bsltf::InputIterator' class, 'X' and 'Y',
-        //:   never compare unequal.
+        //:   compare unequal if and only if they have different values.
         //:
         //: 3 Comparison is symmetric.
         //:
