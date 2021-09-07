@@ -40,15 +40,14 @@ struct IsCCharVector {
 // Potential locations of TZ Database time-zone information.
 static const char *BALTZO_DATA_LOCATIONS[] = {
 #ifndef BSLS_PLATFORM_OS_WINDOWS
-    "/opt/bb/share/zoneinfo/"      // Bloomberg standard data location
-  , "/bb/data/datetime/zoneinfo/"  // deprecated Bloomberg stnd data location
-  , "/usr/share/zoneinfo/"         // Unix standard location (Linux, OSX)
-  , "/usr/share/lib/zoneinfo/"     // Solaris standard location
-  , 0
-#else
-    0
+    "/opt/bb/share/zoneinfo/",     // Bloomberg standard data location
+    "/bb/data/datetime/zoneinfo/", // deprecated Bloomberg stnd data location
+    "/usr/share/zoneinfo/",        // Unix standard location (Linux, OSX)
+    "/usr/share/lib/zoneinfo/"     // Solaris standard location
 #endif
 };
+enum { k_NUM_BALTZO_DATA_LOCATIONS = sizeof  BALTZO_DATA_LOCATIONS /
+                                     sizeof *BALTZO_DATA_LOCATIONS };
 
 // STATIC DATA
 static baltzo::ZoneinfoCache *systemSingletonCachePtr = 0; // default sys cache
@@ -76,19 +75,19 @@ baltzo::ZoneinfoCache *initSystemDefaultCache()
 
 template <class CCHAR_VECTOR>
 inline
-void loadDefaultZoneinfoDataLocations_Impl(CCHAR_VECTOR *locations)
+void loadDefaultZoneinfoDataLocationsImp(CCHAR_VECTOR *locations)
 {
     BSLS_ASSERT(locations);
 
     BSLMF_ASSERT(u::IsCCharVector<CCHAR_VECTOR>::value);
 
-    for (const char **pathPtr = u::BALTZO_DATA_LOCATIONS; *pathPtr; ++pathPtr){
-        locations->push_back(*pathPtr);
-    }
+    locations->insert(locations->end(),
+                      BALTZO_DATA_LOCATIONS + 0,
+                      BALTZO_DATA_LOCATIONS + k_NUM_BALTZO_DATA_LOCATIONS);
 }
 
-}  // namespace u
-}  // namespace
+}  // close namespace u
+}  // close unnamed namespace
 
 namespace BloombergLP {
 namespace baltzo {
@@ -132,13 +131,15 @@ const char *DefaultZoneinfoCache::defaultZoneinfoDataLocation()
         return envValue;                                              // RETURN
     }
 
-    for (const char **pathPtr = u::BALTZO_DATA_LOCATIONS; *pathPtr; ++pathPtr){
-        if (DataFileLoader::isPlausibleZoneinfoRootPath(*pathPtr)) {
+    for (int ii = 0; ii < u::k_NUM_BALTZO_DATA_LOCATIONS; ++ii) {
+        const char * const path = u::BALTZO_DATA_LOCATIONS[ii];
+
+        if (DataFileLoader::isPlausibleZoneinfoRootPath(path)) {
             BSLS_LOG_INFO("The environment variable "
                           "'BDE_ZONEINFO_ROOT_PATH' has not been set. "
-                          "falling back on default location: %s", *pathPtr);
-            return *pathPtr;                                          // RETURN
-         }
+                          "falling back on default location: %s", path);
+            return path;                                              // RETURN
+        }
     }
 
     BSLS_LOG_INFO("The environment variable 'BDE_ZONEINFO_ROOT_PATH' is unset "
@@ -151,20 +152,20 @@ const char *DefaultZoneinfoCache::defaultZoneinfoDataLocation()
 void DefaultZoneinfoCache::loadDefaultZoneinfoDataLocations(
                                      bsl::vector<const char *>      *locations)
 {
-    u::loadDefaultZoneinfoDataLocations_Impl(locations);
+    u::loadDefaultZoneinfoDataLocationsImp(locations);
 }
 
 void DefaultZoneinfoCache::loadDefaultZoneinfoDataLocations(
                                      std::vector<const char *>      *locations)
 {
-    u::loadDefaultZoneinfoDataLocations_Impl(locations);
+    u::loadDefaultZoneinfoDataLocationsImp(locations);
 }
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
 void DefaultZoneinfoCache::loadDefaultZoneinfoDataLocations(
                                      std::pmr::vector<const char *> *locations)
 {
-    u::loadDefaultZoneinfoDataLocations_Impl(locations);
+    u::loadDefaultZoneinfoDataLocationsImp(locations);
 }
 #endif
 

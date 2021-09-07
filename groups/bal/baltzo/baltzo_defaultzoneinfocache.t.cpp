@@ -20,8 +20,12 @@
 #include <bslma_testallocator.h>
 #include <bslmt_threadutil.h>
 
+#include <bslmf_assert.h>
+#include <bslmf_issame.h>
+
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_platform.h>
 #include <bsls_types.h>
 
 #include <bsl_cstdlib.h>
@@ -124,10 +128,20 @@ static void aSsErT(int c, const char *s, int i)
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
+
 typedef baltzo::DefaultZoneinfoCache Obj;
 typedef baltzo::ZoneinfoCache        Cache;
 typedef baltzo::Zoneinfo             Zone;
-typedef bsl::string                 Id;
+typedef bsl::string                  Id;
+
+// ============================================================================
+//                       GLOBAL VARIABLES FOR TESTING
+// ----------------------------------------------------------------------------
+
+bool         verbose;
+bool     veryVerbose;
+bool veryVeryVerbose;
+bool veryVeryVeryVerbose;
 
 //=============================================================================
 //                                USAGE EXAMPLE
@@ -561,21 +575,98 @@ void writeData(const char *fileName, const char *data, int numBytes)
     outputFile.close();
 }
 
+namespace TEST_CASE_2 {
+
+struct TestData {
+    int             d_line;
+    const char     *d_path;
+} VALUES[] = {
+    // LINE  EXP_PATH
+    // ----  --------
+#ifndef BSLS_PLATFORM_OS_WINDOWS
+    {L_,  "/opt/bb/share/zoneinfo/"},         // Bloomberg stnd loc.
+    {L_,  "/bb/data/datetime/zoneinfo/"},     // deprctd. BB stnd loc.
+    {L_,  "/usr/share/zoneinfo/"},            // Unix standard loc.
+    {L_,  "/usr/share/lib/zoneinfo/"},        // Solaris standard loc.
+#endif
+};
+const int k_NUM_VALUES = sizeof(VALUES) / sizeof(*VALUES);
+
+template <class VECTOR>
+void test2()
+{
+    if (verbose) cout << "\nCreate a test allocator and install "
+                         "it in the return object" << endl;
+
+    BSLMF_ASSERT((bsl::is_same<typename VECTOR::value_type,
+                               const char *>::value));
+
+    bslma::TestAllocator da("default", veryVeryVeryVerbose);
+    bslma::TestAllocator la("object",  veryVeryVeryVerbose);
+
+    bslma::DefaultAllocatorGuard guard(&da);
+
+    bslalg::ConstructorProxy<VECTOR> locationsProxy(&la);
+    VECTOR& locations = locationsProxy.object();
+
+    if (verbose) cout << "\nTest that all allocations are temporary" << endl;
+
+    Obj::loadDefaultZoneinfoDataLocations(&locations);
+    LOOP2_ASSERT(L_, da.numAllocations(), 0 == da.numAllocations());
+
+    // Make sure 'locations' contains the same number of paths as expected.
+
+    LOOP2_ASSERT(L_, locations.size(),
+                 k_NUM_VALUES == locations.size());
+
+    // Verify that the paths correspond to the expected values.
+
+    for (int ii = 0; ii < k_NUM_VALUES; ++ii) {
+        const int   LINE        = VALUES[ii].d_line;
+        const char *EXP_PATH    = VALUES[ii].d_path;
+        const char *RESULT_PATH = locations[ii];
+
+        if (veryVerbose) {
+             T_ P_(LINE) P_(EXP_PATH) P(RESULT_PATH)
+        }
+
+        LOOP2_ASSERT(LINE, EXP_PATH,
+                     0 == bsl::strcmp(RESULT_PATH, EXP_PATH));
+    }
+
+    if (verbose) cout << "\nNegative Testing." << endl;
+    {
+        bsls::AssertTestHandlerGuard hG;
+
+        if (veryVerbose) cout <<
+                 "\t'CLASS METHOD 'loadDefaultZoneinfoDataLocations' " << endl;
+        {
+            VECTOR parameter, *nv = 0;
+
+            ASSERT_PASS(Obj::loadDefaultZoneinfoDataLocations(&parameter));
+            ASSERT_FAIL(Obj::loadDefaultZoneinfoDataLocations(nv));
+        }
+    }
+}
+
+}  // close namespace TEST_CASE_2
+
 // ============================================================================
 //                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
-    int             test     = argc > 1 ? atoi(argv[1]) : 0;
-    bool         verbose     = argc > 2;
-    bool     veryVerbose     = argc > 3;
-    bool veryVeryVerbose     = argc > 4;
-    bool veryVeryVeryVerbose = argc > 5;
+    int test = argc > 1 ? atoi(argv[1]) : 0;
+
+    verbose             = argc > 2;
+    veryVerbose         = argc > 3;
+    veryVeryVerbose     = argc > 4;
+    veryVeryVeryVerbose = argc > 5;
 
     bslma::TestAllocator        allocator;
     static bslma::TestAllocator defaultAllocator("dta", veryVeryVerbose);
-    static bslma::TestAllocator globalAllocator("gta", veryVeryVerbose);;
+    static bslma::TestAllocator globalAllocator( "gta", veryVeryVerbose);;
 
     bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
@@ -1085,193 +1176,20 @@ int main(int argc, char *argv[])
         // Testing:
         //   loadDefaultZoneinfoDataLocation()
         // --------------------------------------------------------------------
+
         if (verbose) cout << endl
                           << "'loadDefaultZoneinfoDataLocations' CLASS METHOD"
                           << endl
                           << "==============================================="
                           << endl;
 
-        if (verbose) cout <<
-                         "\nCreate a table of expected output values." << endl;
+        namespace TC = TEST_CASE_2;
 
-        struct TestData {
-            int             d_line;
-            const char     *d_path;
-        } VALUES[] = {
-            // LINE  EXP_PATH
-            // ----  --------
-            {L_,  "/opt/bb/share/zoneinfo/"},         // Bloomberg stnd loc.
-            {L_,      "/bb/data/datetime/zoneinfo/"}, // deprctd. BB stnd loc.
-            {L_,      "/usr/share/zoneinfo/"},        // Unix standard loc.
-            {L_,      "/usr/share/lib/zoneinfo/"},    // Solaris standard loc.
-        };
-        const int NUM_VALUES = sizeof(VALUES) / sizeof(*VALUES);
-
-        {
-           if (verbose) cout <<
-                           "\nCreate a test allocator and install "
-                           "it in the return object" << endl;
-
-           bslma::TestAllocator LA("object", veryVeryVeryVerbose);
-           bsl::vector<const char *> locations(&LA);
-
-           if (verbose) cout <<
-                           "\nTest that all allocations are temporary" << endl;
-
-            const bsls::Types::Int64 DA_NUM_BYTES =
-                                              defaultAllocator.numBytesInUse();
-
-            Obj::loadDefaultZoneinfoDataLocations(&locations);
-            LOOP2_ASSERT(L_, defaultAllocator.numBytesInUse(),
-                         DA_NUM_BYTES == defaultAllocator.numBytesInUse());
-
-#ifndef BSLS_PLATFORM_OS_WINDOWS
-            // Make sure 'locations' contains the same number of paths as
-            // expected.
-
-            LOOP2_ASSERT(L_, locations.size(),
-                         NUM_VALUES == locations.size());
-
-            // Verify that the paths correspond to the expected values.
-
-            for (int i = 0; i < NUM_VALUES; ++i) {
-                const int   LINE        = VALUES[i].d_line;
-                const char *EXP_PATH    = VALUES[i].d_path;
-                const char *RESULT_PATH = locations[i];
-
-                if (veryVerbose) {
-                     T_ P_(LINE) P_(EXP_PATH) P(RESULT_PATH)
-                }
-
-                LOOP2_ASSERT(LINE, EXP_PATH,
-                             0 == bsl::strcmp(RESULT_PATH, EXP_PATH));
-            }
-#else
-            // As of now Windows does not have any default paths.
-
-            LOOP2_ASSERT(L_, locations.size(), 0 == locations.size());
-#endif
-        }
-
-        {
-           if (verbose) cout <<
-                           "\nCreate a test allocator and install "
-                           "it in the return object" << endl;
-
-           std::vector<const char *> locations;
-
-           if (verbose) cout <<
-                           "\nTest that all allocations are temporary" << endl;
-
-            const bsls::Types::Int64 DA_NUM_BYTES =
-                                              defaultAllocator.numBytesInUse();
-
-            Obj::loadDefaultZoneinfoDataLocations(&locations);
-            LOOP2_ASSERT(L_, defaultAllocator.numBytesInUse(),
-                         DA_NUM_BYTES == defaultAllocator.numBytesInUse());
-
-#ifndef BSLS_PLATFORM_OS_WINDOWS
-            // Make sure 'locations' contains the same number of paths as
-            // expected.
-
-            LOOP2_ASSERT(L_, locations.size(),
-                         NUM_VALUES == locations.size());
-
-            // Verify that the paths correspond to the expected values.
-
-            for (int i = 0; i < NUM_VALUES; ++i) {
-                const int   LINE        = VALUES[i].d_line;
-                const char *EXP_PATH    = VALUES[i].d_path;
-                const char *RESULT_PATH = locations[i];
-
-                if (veryVerbose) {
-                     T_ P_(LINE) P_(EXP_PATH) P(RESULT_PATH)
-                }
-
-                LOOP2_ASSERT(LINE, EXP_PATH,
-                             0 == bsl::strcmp(RESULT_PATH, EXP_PATH));
-            }
-#else
-            // As of now Windows does not have any default paths.
-
-            LOOP2_ASSERT(L_, locations.size(), 0 == locations.size());
-#endif
-        }
-
+        TC::test2<bsl::vector<const char *> >();
+        TC::test2<std::vector<const char *> >();
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-        {
-           if (verbose) cout <<
-                           "\nCreate a test allocator and install "
-                           "it in the return object" << endl;
-
-           std::pmr::vector<const char *> locations;
-
-           if (verbose) cout <<
-                           "\nTest that all allocations are temporary" << endl;
-
-            const bsls::Types::Int64 DA_NUM_BYTES =
-                                              defaultAllocator.numBytesInUse();
-
-            Obj::loadDefaultZoneinfoDataLocations(&locations);
-            LOOP2_ASSERT(L_, defaultAllocator.numBytesInUse(),
-                         DA_NUM_BYTES == defaultAllocator.numBytesInUse());
-
-#ifndef BSLS_PLATFORM_OS_WINDOWS
-            // Make sure 'locations' contains the same number of paths as
-            // expected.
-
-            LOOP2_ASSERT(L_, locations.size(),
-                         NUM_VALUES == locations.size());
-
-            // Verify that the paths correspond to the expected values.
-
-            for (int i = 0; i < NUM_VALUES; ++i) {
-                const int   LINE        = VALUES[i].d_line;
-                const char *EXP_PATH    = VALUES[i].d_path;
-                const char *RESULT_PATH = locations[i];
-
-                if (veryVerbose) {
-                     T_ P_(LINE) P_(EXP_PATH) P(RESULT_PATH)
-                }
-
-                LOOP2_ASSERT(LINE, EXP_PATH,
-                             0 == bsl::strcmp(RESULT_PATH, EXP_PATH));
-            }
-#else
-            // As of now Windows does not have any default paths.
-
-            LOOP2_ASSERT(L_, locations.size(), 0 == locations.size());
+        TC::test2<std::pmr::vector<const char *> >();
 #endif
-        }
-#endif
-
-        if (verbose) cout << "\nNegative Testing." << endl;
-        {
-            bsls::AssertTestHandlerGuard hG;
-
-            if (veryVerbose) cout <<
-                 "\t'CLASS METHOD 'loadDefaultZoneinfoDataLocations' " << endl;
-            {
-                bsl::vector<const char *> parameter, *nv = 0;
-
-                ASSERT_PASS(Obj::loadDefaultZoneinfoDataLocations(&parameter));
-                ASSERT_FAIL(Obj::loadDefaultZoneinfoDataLocations(nv));
-            }
-            {
-                std::vector<const char *> parameter, *nv = 0;
-
-                ASSERT_PASS(Obj::loadDefaultZoneinfoDataLocations(&parameter));
-                ASSERT_FAIL(Obj::loadDefaultZoneinfoDataLocations(nv));
-            }
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-            {
-                std::pmr::vector<const char *> parameter, *nv = 0;
-
-                ASSERT_PASS(Obj::loadDefaultZoneinfoDataLocations(&parameter));
-                ASSERT_FAIL(Obj::loadDefaultZoneinfoDataLocations(nv));
-            }
-#endif
-        }
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -1298,7 +1216,7 @@ int main(int argc, char *argv[])
         ASSERT(0 != SYSTEMDEFAULTCACHE);
         ASSERT(SYSTEMDEFAULTCACHE == Obj::defaultCache());
 
-        if(veryVerbose) cout << "Loading Etc/UTC" << endl;
+        if (veryVerbose) cout << "Loading Etc/UTC" << endl;
         {
             const char *ID = "Etc/UTC";
             ASSERT(0 == Obj::defaultCache()->lookupZoneinfo(ID));
@@ -1309,7 +1227,7 @@ int main(int argc, char *argv[])
         }
 
         {
-            if(veryVerbose) cout << "\nLoading America/New_York" << endl;
+            if (veryVerbose) cout << "\nLoading America/New_York" << endl;
             const char *ID = "America/New_York";
             ASSERT(0 == Obj::defaultCache()->lookupZoneinfo(ID));
 

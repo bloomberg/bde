@@ -479,11 +479,7 @@ inline
 void LocalDatetime::setTimeZoneId(const char *value)
 {
     if (value) {
-        // The swap ensures that the if the old value of 'd_timeZoneId' was
-        // longer than the new one, space won't be wasted.
-
-        bsl::string(value, d_timeZoneId.get_allocator().mechanism()).swap(
-                                                                 d_timeZoneId);
+        d_timeZoneId.assign(value);
     }
     else {
         d_timeZoneId.clear();

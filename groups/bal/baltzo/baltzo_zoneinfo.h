@@ -707,7 +707,7 @@ void Zoneinfo::setIdentifier(const bsl::string_view& value)
 {
     BSLS_ASSERT(0 != value.data());
 
-    d_identifier.assign(value.begin(), value.end());
+    d_identifier = value;
 }
 
 inline
@@ -715,7 +715,7 @@ void Zoneinfo::setIdentifier(const char *value)
 {
     BSLS_ASSERT(value);
 
-    bsl::string(value, get_allocator()).swap(d_identifier);
+    d_identifier = value;
 }
 
 inline
@@ -731,7 +731,7 @@ void Zoneinfo::setPosixExtendedRangeDescription(const char *value)
 {
     BSLS_ASSERT(value);
 
-    d_posixExtendedRangeDescription.assign(value, value + bsl::strlen(value));
+    d_posixExtendedRangeDescription = value;
 }
 
 inline

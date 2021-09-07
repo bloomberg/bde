@@ -4893,12 +4893,9 @@ int main(int argc, char *argv[])
         const bdlt::Datetime TB_A(2000,  3, 15,  3, 10, 15);
         const bdlt::Datetime TC_A(2038,  1, 19,  3, 14,  7);
 
-        const TimeT64 TTA_A =                                                 \
-                                bdlt::EpochUtil::convertToTimeT64(TA_A);
-        const TimeT64 TTB_A =
-                                bdlt::EpochUtil::convertToTimeT64(TB_A);
-        const TimeT64 TTC_A =
-                                bdlt::EpochUtil::convertToTimeT64(TC_A);
+        const TimeT64 TTA_A = bdlt::EpochUtil::convertToTimeT64(TA_A);
+        const TimeT64 TTB_A = bdlt::EpochUtil::convertToTimeT64(TB_A);
+        const TimeT64 TTC_A = bdlt::EpochUtil::convertToTimeT64(TC_A);
 
         // VB
         const char *TID_B("Europe/Berlin");
