@@ -141,6 +141,9 @@ BSLS_IDENT("$Id: $")
 #include <ball_record.h>
 
 #include <bslma_allocator.h>
+#include <bslma_usesbslmaallocator.h>
+
+#include <bslmf_nestedtraitdeclaration.h>
 
 #include <bslmt_lockguard.h>
 #include <bslmt_mutex.h>
@@ -207,6 +210,9 @@ class TestObserver : public Observer {
     TestObserver& operator=(const TestObserver&);
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(TestObserver, bslma::UsesBslmaAllocator);
+
     // CLASS METHODS
     static int numInstances();
         // Return the total number of instances of this class that have been
