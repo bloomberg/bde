@@ -356,10 +356,6 @@ class ReaderWriterLock {
         // success, and a non-zero value if the lock already locked for read or
         // write.  If successful, 'unlock' must be called to release the lock.
 
-    int upgradeToReservedWriteLock();
-        // *DEPRECATED* Use 'upgradeToWriteLock' instead.  Note that calls to
-        // this function are simply forwarded to 'upgradeToWriteLock'.
-
     int upgradeToWriteLock();
         // Convert a read lock (acquired by a successful call to 'lockRead',
         // 'lockReadReserveWrite', or 'tryLockRead') to a write lock.  Return 0
@@ -438,12 +434,6 @@ bslmt::ReaderWriterLock::~ReaderWriterLock()
 }
 
 // MANIPULATORS
-inline
-int bslmt::ReaderWriterLock::upgradeToReservedWriteLock()
-{
-    return upgradeToWriteLock();
-}
-
 inline
 void bslmt::ReaderWriterLock::unlockRead()
 {
