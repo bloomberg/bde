@@ -163,7 +163,7 @@ class my_Condition {
 
     void wait(bslmt::Mutex *mutex);
         // Block until this condition is signaled by a call to 'signal' or
-        // 'broadcast'. The specified 'mutex' is unlocked while blocking.
+        // 'broadcast'.  The specified 'mutex' is unlocked while blocking.
 };
 
 my_Condition::my_Condition()
@@ -646,7 +646,7 @@ extern "C" void *case11ThreadRW(void *arg)
 
     enum { k_NUM_ITERATIONS = 2000 };
 
-    for(int i=0; i < k_NUM_ITERATIONS; ++i){
+    for (int i=0; i < k_NUM_ITERATIONS; ++i){
         a.d_lock_p->lockReadReserveWrite();
         int nc = ++numConcurrent;
         LOOP_ASSERT(i, 1 == nc);
@@ -662,7 +662,7 @@ extern "C" void *case11ThreadRW(void *arg)
         ++k;
         LOOP_ASSERT(i, 1 == k);
 
-        if(i & 1){
+        if (i & 1) {
             --k;
             LOOP_ASSERT(i, 0 == k);
             nc = --numConcurrent;
@@ -698,7 +698,7 @@ extern "C" void *case11ThreadRO(void *arg)
 
     enum { k_NUM_ITERATIONS = 2000 };
 
-    for(int i=0; i < k_NUM_ITERATIONS; ++i){
+    for (int i=0; i < k_NUM_ITERATIONS; ++i){
         a.d_lock_p->lockRead();
         v = k; LOOP_ASSERT(i, 0 == v || 1 == v );
         a.d_lock_p->unlock();

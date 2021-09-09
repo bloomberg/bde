@@ -290,25 +290,27 @@ class ReaderWriterLock {
 
     // INSTANCE DATA
     bsls::AtomicOperations::AtomicTypes::Int64 d_rwCount;
-                                     // atomic counter used to track active and
-                                     // waiting read/write lock requests
+                                         // atomic counter used to track active
+                                         // and waiting read/write lock
+                                         // requests
 
-    Mutex            d_mutex;        // used for access control
+    Mutex                d_mutex;        // used for access control
 
-    Condition        d_readCond;     // used to signal waiting readers
+    Condition            d_readCond;     // used to signal waiting readers
 
-    Condition        d_writeCond;    // used to signal waiting writers
+    Condition            d_writeCond;    // used to signal waiting writers
 
-    Condition        d_upgradeCond;  // used to signal upgraders
+    Condition            d_upgradeCond;  // used to signal upgraders
 
-    ThreadUtil::Id   d_owner;        // id of thread that currently owns this
-                                     // lock if it is in the write lock state,
-                                     // or the id of the thread that holds the
-                                     // write reservation if one exists
+    bsls::AtomicUint64   d_owner;        // id of thread that currently owns
+                                         // this lock if it is in the write
+                                         // lock state, or the id of the thread
+                                         // that holds the write reservation if
+                                         // one exists
 
-    volatile SignalState   d_signalState;
+    volatile SignalState d_signalState;
 
-    bsls::AtomicBool       d_owned;
+    bsls::AtomicBool     d_owned;
 
     // NOT IMPLEMENTED
     ReaderWriterLock(const ReaderWriterLock&);
