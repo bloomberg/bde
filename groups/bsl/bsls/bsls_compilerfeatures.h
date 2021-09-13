@@ -52,6 +52,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_COMPILERFEATURES_SUPPORT_USER_DEFINED_LITERALS: user-defined literals
 //  BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES: variable templates flag
 //  BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES: flag for variadic params.
+//  BSLS_COMPILERFEATURES_SUPPORT_CTAD: flag for template argument deduction
 //
 //@SEE_ALSO: bsls_libraryfeatures, bsls_platform
 //
@@ -304,6 +305,11 @@ BSLS_IDENT("$Id: $")
 //: 'BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES':
 //:     This macro is defined if variable templates introduced in the C++14
 //:     Standard are supported by the current compiler settings for this
+//:     platform.
+//:
+//: 'BSLS_COMPILERFEATURES_SUPPORT_CTAD':
+//:     This macro is defined if template argument deduction introduced in the
+//:     C++17 Standard are supported by the current compiler settings for this
 //:     platform.
 //
 ///Usage
@@ -821,6 +827,10 @@ BSLS_IDENT("$Id: $")
 
 #if __has_cpp_attribute(maybe_unused)
 #   define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED
+#endif
+
+#if defined(__cpp_deduction_guides) && __cpp_deduction_guides >= 201611
+#define BSLS_COMPILERFEATURES_SUPPORT_CTAD
 #endif
 
 #endif

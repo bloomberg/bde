@@ -70,6 +70,7 @@
 // [21] BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
 // [  ] BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
 // [18] BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+// [33] BSLS_COMPILERFEATURES_SUPPORT_CTAD
 // [  ] BSLS_COMPILERFEATURES_FORWARD_REF
 // [  ] BSLS_COMPILERFEATURES_FORWARD
 // ----------------------------------------------------------------------------
@@ -1140,6 +1141,30 @@ class NCWrapper {
 #endif
 }  // close namespace test_case_31
 
+                    // case 33
+
+namespace test_case_33 {
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+
+struct Empty {};
+   // An empty class used to test template argument deduction.
+
+template <class T>
+struct Holder {
+        // A class to hold a single value. Used to test template argument
+        // deduction.
+    Holder(const T &v) : val(v) {}
+        // Create a 'Holder'  by initializing its data member from 'v'
+    T val;
+    };
+
+template<class T>
+    Holder(const T &)
+    -> Holder<T>;
+
+#endif
+}  // close namespace test_case_33
+
 // ============================================================================
 //                              HELPER FUNCTIONS
 // ----------------------------------------------------------------------------
@@ -1504,6 +1529,14 @@ static void printFlags()
     printf("UNDEFINED\n");
 #endif
 
+    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_CTAD: ");
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+    printf("%s\n",
+                 STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_CTAD) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
     printf("\n\n  printFlags: bsls_compilerfeatures Referenced Macros\n");
 
     printf("\n  BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND: ");
@@ -1739,7 +1772,7 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
-      case 33: {
+      case 34: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -1820,6 +1853,41 @@ int main(int argc, char *argv[])
 // compilers) that further, more complicated or even indeterminate behaviors
 // may arise.
 #undef THATS_MY_LINE
+      } break;
+      case 33: {
+        // --------------------------------------------------------------------
+        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_CTAD'
+        //
+        // Concerns:
+        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_CTAD' is defined when template
+        //:   deduction guides are supported.
+        //
+        // Plan:
+        //: 1 Verify that template argument deduction occurs when the macro
+        //:   is defined.
+        //
+        // Testing:
+        //   BSLS_COMPILERFEATURES_SUPPORT_CTAD
+        // --------------------------------------------------------------------
+
+        if (verbose) printf(
+            "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_CTAD'"
+            "\n===========================================\n");
+
+        using namespace test_case_33;
+
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+        if (verbose)
+            printf("CTAD not supported in this configuration\n");
+#else  // BSLS_COMPILERFEATURES_SUPPORT_CTAD
+        Holder h1(1);
+        Holder h2(2.0);
+        Holder h3(Empty{});
+
+        ASSERT((std::is_same<decltype(h1), Holder<int>>::value));
+        ASSERT((std::is_same<decltype(h2), Holder<double>>::value));
+        ASSERT((std::is_same<decltype(h3), Holder<Empty>>::value));
+#endif // BSLS_COMPILERFEATURES_SUPPORT_CTAD
       } break;
       case 32: {
         // --------------------------------------------------------------------

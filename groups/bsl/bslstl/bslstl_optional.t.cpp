@@ -7648,8 +7648,8 @@ void TestDriver<TYPE>::testCase13_imp_a()
     //: 4 Variadic arguments to 'emplace' method are correctly forwarded to the
     //:   constructor arguments.
     //:
-    //: 5 'emplace' returns a modifiable reference to the 'optional''s
-    //:   value type object.
+    //: 5 'emplace' returns a reference offering modifiable access to the
+    //:   'optional''s value type object.
     //
     // Plan:
     //: 1 Call 'emplace' method that takes no arguments and verify the value
@@ -7666,8 +7666,8 @@ void TestDriver<TYPE>::testCase13_imp_a()
     //: 4 In steps 1-3, verify that no additional copies of 'value_type' have
     //:   been created. [C-3]
     //:
-    //: 5 Verify that the returned reference reffers to the 'value_type'
-    //:   object. [C-5]
+    //: 5 Verify that the returned reference refers to the 'value_type' object.
+    //:   [C-5]
     //
     // Testing:
     //
@@ -7933,8 +7933,8 @@ void TestDriver<TYPE>::testCase13_imp_b()
     //: 4 There are no unnecessary argument type and 'value_type' copies
     //:   created
     //:
-    //: 5 'emplace' returns a modifiable reference to the 'optional''s
-    //:   value type object.
+    //: 5 'emplace' returns a reference offering modifiable access to the
+    //:   'optional''s value type object.
     //
     // Plan:
     //: 1 Create an 'optional' object of non allocator-aware 'value_type'.
@@ -7950,8 +7950,8 @@ void TestDriver<TYPE>::testCase13_imp_b()
     //: 4 In steps 1-3, verify no unnecessary copies of the arguments and the
     //:   'value_type' have been created. [C-4]
     //:
-    //: 5 Verify that the returned reference reffers to the 'value_type'
-    //:   object. [C-5]
+    //: 5 Verify that the returned reference refers to the 'value_type' object.
+    //:   [C-5]
     //
     // Testing:
     //
