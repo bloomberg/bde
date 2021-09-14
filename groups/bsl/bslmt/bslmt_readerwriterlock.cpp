@@ -212,8 +212,9 @@ int bslmt::ReaderWriterLock::upgradeToWriteLock()
     int wait;
     bsls::Types::Int64 rwcount;
     bsls::Types::Int64 newrwcount=bsls::AtomicOperations::getInt64(&d_rwCount);
-    ThreadUtil::Id me = ThreadUtil::selfIdAsUint64();
-    bool mine = d_owned && ThreadUtil::isEqualId(d_owner, me);
+
+    bsls::Types::Uint64 me = ThreadUtil::selfIdAsUint64();
+    bool mine = d_owned && d_owner == me;
 
     do {
         rwcount = newrwcount;
@@ -302,8 +303,9 @@ int bslmt::ReaderWriterLock::tryUpgradeToWriteLock()
     int wait;
     bsls::Types::Int64 rwcount;
     bsls::Types::Int64 newrwcount=bsls::AtomicOperations::getInt64(&d_rwCount);
-    ThreadUtil::Id me = ThreadUtil::selfIdAsUint64();
-    bool mine = d_owned && ThreadUtil::isEqualId(d_owner, me);
+
+    bsls::Types::Uint64 me = ThreadUtil::selfIdAsUint64();
+    bool mine = d_owned && d_owner == me;
 
     do {
         rwcount = newrwcount;
