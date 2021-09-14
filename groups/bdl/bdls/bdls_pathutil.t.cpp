@@ -38,8 +38,8 @@ using namespace bsl;  // automatically added by script
 //
 //-----------------------------------------------------------------------------
 // CLASS METHODS
-// [ 4] int appendIfValid(bsl::string *, const bslstl::StringRef& );
-// [ 5] void splitFilename(StringRef*, StringRef*, const StringRef&, int);
+// [ 4] int appendIfValid(bsl::string *, const bsl::string_view& );
+// [ 5] void splitFilename(string_view*, string_view*, const string_view&, int);
 // ----------------------------------------------------------------------------
 // [ 6] USAGE EXAMPLE
 
@@ -293,7 +293,8 @@ struct Parameters {
 #endif
 };
 
-void convertToWindowsSeparator(bsl::string *path)
+template <class STRING_TYPE>
+void convertToWindowsSeparator(STRING_TYPE *path)
     // Replace each occurrence of '/' with '\\' in the specified 'path'.
 {
     bsl::string::size_type position = path->find('/');
@@ -313,42 +314,9 @@ void convertToUnixSeparator(bsl::string *path)
     }
 }
 
-
-int main(int argc, char *argv[])
+template <class STRING_TYPE>
+void usageExample()
 {
-    int             test = argc > 1 ? bsl::atoi(argv[1]) : 0;
-    bool         verbose = argc > 2;
-    bool     veryVerbose = argc > 3;
-    bool veryVeryVerbose = argc > 4;
-
-    (void)veryVerbose;
-
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
-    bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
-
-    switch(test) { case 0:
-      case 7: {
-        // --------------------------------------------------------------------
-        // USAGE EXAMPLE
-        //   Extracted from component header file.
-        //
-        // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
-        //
-        // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
-        //
-        // Testing:
-        //   USAGE EXAMPLE
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "TESTING USAGE EXAMPLE" << endl
-                          << "=====================" << endl;
-
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -359,11 +327,11 @@ int main(int argc, char *argv[])
 // native path, respectively:
 //..
     #ifdef BSLS_PLATFORM_OS_WINDOWS
-    bsl::string tempPath  = "c:\\windows\\temp";
-    bsl::string otherPath = "22jan08\\log.txt";
+    STRING_TYPE tempPath  = "c:\\windows\\temp";
+    STRING_TYPE otherPath = "22jan08\\log.txt";
     #else
-    bsl::string tempPath  = "/var/tmp";
-    bsl::string otherPath = "22jan08/log.txt";
+    STRING_TYPE tempPath  = "/var/tmp";
+    STRING_TYPE otherPath = "22jan08/log.txt";
     #endif
 //..
 // 'tempPath' is an absolute path, since it has a root.  It also has a leaf
@@ -421,13 +389,13 @@ int main(int argc, char *argv[])
     #else
     const char                     *splitPath = "//one/two/three/four";
     #endif
-    bsl::vector<bslstl::StringRef>  filenames;
+    bsl::vector<bsl::string_view>  filenames;
 //..
 // Then, we run a cycle to sever filenames from the end one by one:
 //..
-    bslstl::StringRef head;
-    bslstl::StringRef tail;
-    bslstl::StringRef path(splitPath);
+    bsl::string_view head;
+    bsl::string_view tail;
+    bsl::string_view path(splitPath);
 
     do {
         bdls::PathUtil::splitFilename(&head, &tail, path);
@@ -453,65 +421,20 @@ int main(int argc, char *argv[])
     ASSERT("//"        == head);
     #endif
 //..
-      } break;
-      case 6: {
-        // --------------------------------------------------------------------
-        // TESTING: 'getExtension'
-        //
-        // Concerns:
-        //: 1 The 'getExtension' method accepts absolute and relative paths.
-        //:
-        //: 2 The 'getExtension' method accepts empty paths and returns an
-        //:   empty extension in that case.
-        //:
-        //: 3 The 'getExtension' method is able to find the extension even
-        //:   in filenames that contain multiple dots.
-        //:
-        //: 4 The 'getExtension' method does not find extensions in the special
-        //:   files '.' and '..'
-        //:
-        //: 5 In the case that the leaf of the path begins with a dot ('.'),
-        //:   it is ignored as a character for considering what the path is.
-        //:
-        //: 6 The 'getExtension' method is not tricked by dots in the
-        //:     directory names containing the path
-        //:
-        //: 7 The 'getExtension' method behaviour is consistent with that of
-        //:   the 'getLeaf' method ("a.txt/" *has* an extension)
-        //:
-        //: 8 The 'getExtension' method correctly identifies empty extensions
-        //:
-        //: 9 Asserted precondition violations are detected when enabled.
-        //
-        // Plan:
-        //: 1 Create a table of test input values and expected results
-        //:
-        //: 2 Iterate over this table verifying that 'getExtension' produces
-        //:   the expected results with
-        //:     - the explicit negative value of the 'rootEnd'
-        //:     - the default value of the 'rootEnd'
-        //:     - the explicit correct value of the 'rootEnd
-        //:
-        //: 3 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid attribute values, but not triggered for
-        //:   adjacent valid ones.  (C-9)
-        //
-        // Testing:
-        //   void getExtension(bsl::string*, const StringRef&, int);
-        // --------------------------------------------------------------------
-        
-        if (verbose) {
-            cout << "TESTING: getExtension" << endl
-                 << "=====================" << endl;
-        }
+}
 
-        static const struct {
-            int d_line;
-            const char* d_path;
-            int d_root;
-            bool d_success;
-            const char *d_extension;
-        } DATA [] = {
+template <class STRING_TYPE>
+void test_getExtension(int verbose, int veryVerbose, int veryVeryVerbose)
+{
+    (void) verbose; (void) veryVerbose; (void) veryVeryVerbose;
+
+    static const struct {
+        int d_line;
+        const char* d_path;
+        int d_root;
+        bool d_success;
+        const char *d_extension;
+    } DATA [] = {
 // 1. Relative and absolute paths
 {L_, "hello.txt",           0, true,  ".txt"   },
 {L_, "hello",               0, false, ""       },
@@ -563,126 +486,53 @@ int main(int argc, char *argv[])
 // 8. [Windows] Empty extensions
 {L_, "\\\\a\\b\\c\\d.",     4, true,  "."      }
 #endif
-        };
+    };
 
-        const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+    const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        for (size_t i = 0; i < NUM_DATA; ++i) {
-            const int               LINE      = DATA[i].d_line;
-            const bslstl::StringRef PATH      = DATA[i].d_path;
-            const int               ROOT      = DATA[i].d_root;
-            const bool              SUCCESS   = DATA[i].d_success;
-            const bslstl::StringRef EXTENSION = DATA[i].d_extension;
+    for (size_t i = 0; i < NUM_DATA; ++i) {
+        const int              LINE      = DATA[i].d_line;
+        const bsl::string_view PATH      = DATA[i].d_path;
+        const int              ROOT      = DATA[i].d_root;
+        const bool             SUCCESS   = DATA[i].d_success;
+        const bsl::string_view EXTENSION = DATA[i].d_extension;
 
-            // Explicit negative 'rootEnd'
-            bsl::string extension;
-            int result = bdls::PathUtil::getExtension(&extension, DATA[i].d_path, -1);
-            ASSERTV(LINE, SUCCESS, result == 0, SUCCESS == (result == 0));
-            ASSERTV(LINE, EXTENSION, extension, EXTENSION == extension);
+        (void) PATH;
 
-            // Implicit negative 'rootEnd' (default value)
-            extension.clear();
-            result = bdls::PathUtil::getExtension(&extension, DATA[i].d_path);
-            ASSERTV(LINE, SUCCESS, result == 0, SUCCESS == (result == 0));
-            ASSERTV(LINE, EXTENSION, extension, EXTENSION == extension);
+        // Explicit negative 'rootEnd'
+        STRING_TYPE extension;
+        int         result =
+            bdls::PathUtil::getExtension(&extension, DATA[i].d_path, -1);
+        ASSERTV(LINE, SUCCESS, result == 0, SUCCESS == (result == 0));
+        ASSERTV(LINE, EXTENSION, extension, EXTENSION == extension);
 
-            // Explicit non-negative 'rootEnd'
-            extension.clear();
-            result = bdls::PathUtil::getExtension(&extension, DATA[i].d_path, ROOT);
-            ASSERTV(LINE, SUCCESS, result == 0, SUCCESS == (result == 0));
-            ASSERTV(LINE, EXTENSION, extension, EXTENSION == extension);
-        }
+        // Implicit negative 'rootEnd' (default value)
+        extension.clear();
+        result = bdls::PathUtil::getExtension(&extension, DATA[i].d_path);
+        ASSERTV(LINE, SUCCESS, result == 0, SUCCESS == (result == 0));
+        ASSERTV(LINE, EXTENSION, extension, EXTENSION == extension);
 
-    }; break;
-      case 5: {
-        // --------------------------------------------------------------------
-        // TESTING: 'splitFilename'
-        //
-        // Concerns:
-        //: 1 The 'splitFilename' method accepts absolute and relative paths.
-        //:
-        //: 2 The 'splitFilename' method accepts empty paths and returns empty
-        //:   'head' and 'tail' in such cases.
-        //:
-        //: 3 The resulting 'head' always contains the root of the original
-        //:   path.
-        //:
-        //: 4 The resulting 'head' does not contain trailing seperators.
-        //:
-        //: 5 The resulting 'tail' does not contain seperators.
-        //:
-        //: 6 The 'splitFilename' method properly handles Windows paths
-        //:   containing forward and backward slashes.
-        //:
-        //: 7 The 'splitFilename' method correctly identifies the root end of
-        //:   the passed path.
-        //:
-        //: 8 The 'splitFilename' method correctly handles passed 'head' or
-        //:   'tail' in the case when they are aliases of 'path'
-        //:   ('head == &path' or 'tail == &path').
-        //:
-        //: 9 Asserted precondition violations are detected when enabled.
-        //
-        // Plan:
-        //: 1 Create a table of test input values and expected results.  Input
-        //:   values are graded in the following way:
-        //:
-        //:     Windows:
-        //:     --------
-        //:     - empty path
-        //:     - slashes only
-        //:     - LFS  root
-        //:     - UNC  root
-        //:     - LUNC root
-        //:
-        //:   As Windows OS supports both backward and forward slashes, we
-        //:   check both variants separately.
-        //:
-        //:     Unix:
-        //:     -----
-        //:     - empty path
-        //:     - one slash root
-        //:     - two slashes root
-        //:     - three slashes root
-        //:
-        //:   Whithin each group input values are graded in the following way:
-        //:
-        //:     - root + delimiter(s)
-        //:     - root + delimiter(s) + file
-        //:     - root + delimiter(s) + folder
-        //:     - root + delimiter    + folder + delimiter(s) + file
-        //:
-        //:   As paths can contain multiple delimiters, we add up to 4 of them
-        //:   to check that they are handled correctly.
-        //:
-        //: 2 Iterate over this table verifying that 'splitFilename' produces
-        //:   the expected results with
-        //:     - the explicit negative value of the 'rootEnd'
-        //:     - the default value of the 'rootEnd'
-        //:     - the explicit correct value of the 'rootEnd
-        //:     - the 'head' being an address of 'path'
-        //:     - the 'tail' being an address of 'path'  (C-1..8)
-        //:
-        //: 3 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid attribute values, but not triggered for
-        //:   adjacent valid ones.  (C-9)
-        //
-        // Testing:
-        //   void splitFilename(StringRef*, StringRef*, const StringRef&, int);
-        // --------------------------------------------------------------------
+        // Explicit non-negative 'rootEnd'
+        extension.clear();
+        result =
+            bdls::PathUtil::getExtension(&extension, DATA[i].d_path, ROOT);
+        ASSERTV(LINE, SUCCESS, result == 0, SUCCESS == (result == 0));
+        ASSERTV(LINE, EXTENSION, extension, EXTENSION == extension);
+    }
+}
 
-        if (verbose) {
-            cout << "TESTING: splitFilename" << endl
-                 << "======================" << endl;
-        }
+template <class STRING_TYPE>
+void test_splitFilename(int verbose, int veryVerbose, int veryVeryVerbose)
+{
+    (void) verbose; (void) veryVerbose; (void) veryVeryVerbose;
 
-         static const struct {
-                int         d_line;  // line
-                const char *d_path;  // original path to split
-                int         d_root;  // length of root
-                const char *d_head;  // expected head
-                const char *d_tail;  // expected tail
-        } DATA [] = {
+    static const struct {
+            int         d_line;  // line
+            const char *d_path;  // original path to split
+            int         d_root;  // length of root
+            const char *d_head;  // expected head
+            const char *d_tail;  // expected tail
+    } DATA [] = {
 //v--------^
 //L  ORIGINAL PATH                       ROOT  HEAD                     TAIL
 //-  ----------------------------------  ----  -----------------------  -----
@@ -763,28 +613,28 @@ int main(int argc, char *argv[])
 {L_, "\\\\?\\c:\\one\\\\\\two",            7,  "\\\\?\\c:\\one",        "two"},
 {L_, "\\\\?\\c:\\one\\\\\\\\two",          7,  "\\\\?\\c:\\one",        "two"},
 {L_, "\\\\?\\UNC\\serv\\",                 13, "\\\\?\\UNC\\serv\\",
-                                                                        ""   },
+                                                                    ""   },
 {L_, "\\\\?\\UNC\\serv\\dir",              16, "\\\\?\\UNC\\serv\\dir",
-                                                                        ""   },
+                                                                    ""   },
 {L_, "\\\\?\\UNC\\serv\\dir\\",            17, "\\\\?\\UNC\\serv\\dir\\",
-                                                                        ""   },
+                                                                    ""   },
 {L_, "\\\\?\\UNC\\serv\\dir\\one",         17, "\\\\?\\UNC\\serv\\dir\\",
-                                                                        "one"},
+                                                                    "one"},
 {L_, "\\\\?\\UNC\\serv\\dir\\\\one",       18, "\\\\?\\UNC\\serv\\dir\\\\",
-                                                                        "one"},
+                                                                    "one"},
 {L_, "\\\\?\\UNC\\serv\\dir\\\\\\one",     19, "\\\\?\\UNC\\serv\\dir\\\\\\",
-                                                                        "one"},
+                                                                    "one"},
 {L_, "\\\\?\\UNC\\serv\\dir\\\\\\\\one",   20, "\\\\?\\UNC\\serv\\dir\\\\\\\\",
-                                                                        "one"},
+                                                                    "one"},
 
 {L_, "\\\\?\\UNC\\serv\\dir\\one\\",       19, "\\\\?\\UNC\\serv\\dir\\one",
-                                                                        ""   },
+                                                                    ""   },
 {L_, "\\\\?\\UNC\\serv\\dir\\one\\\\",     19, "\\\\?\\UNC\\serv\\dir\\one",
-                                                                        ""   },
+                                                                    ""   },
 {L_, "\\\\?\\UNC\\serv\\dir\\one\\\\\\",   19, "\\\\?\\UNC\\serv\\dir\\one",
-                                                                        ""   },
+                                                                    ""   },
 {L_, "\\\\?\\UNC\\serv\\dir\\one\\\\\\\\", 19, "\\\\?\\UNC\\serv\\dir\\one",
-                                                                        ""   },
+                                                                    ""   },
 //L  ORIGINAL PATH                       ROOT  HEAD                     TAIL
 //-  ----------------------------------  ----  -----------------------  -----
 // Forward slash.
@@ -863,20 +713,20 @@ int main(int argc, char *argv[])
 {L_, "\\\\?\\UNC\\serv/dir/",              17, "\\\\?\\UNC\\serv/dir/", ""   },
 {L_, "\\\\?\\UNC\\serv/dir/one",           17, "\\\\?\\UNC\\serv/dir/", "one"},
 {L_, "\\\\?\\UNC\\serv/dir//one",          18, "\\\\?\\UNC\\serv/dir//",
-                                                                        "one"},
+                                                                    "one"},
 {L_, "\\\\?\\UNC\\serv/dir///one",         19, "\\\\?\\UNC\\serv/dir///",
-                                                                        "one"},
+                                                                    "one"},
 {L_, "\\\\?\\UNC\\serv/dir////one",        20, "\\\\?\\UNC\\serv/dir////",
-                                                                        "one"},
+                                                                    "one"},
 
 {L_, "\\\\?\\UNC\\serv/dir/one/",          19, "\\\\?\\UNC\\serv/dir/one",
-                                                                        ""   },
+                                                                    ""   },
 {L_, "\\\\?\\UNC\\serv/dir/one//",         19, "\\\\?\\UNC\\serv/dir/one",
-                                                                        ""   },
+                                                                    ""   },
 {L_, "\\\\?\\UNC\\serv/dir/one///",        19, "\\\\?\\UNC\\serv/dir/one",
-                                                                        ""   },
+                                                                    ""   },
 {L_, "\\\\?\\UNC\\serv/dir/one////",       19, "\\\\?\\UNC\\serv/dir/one",
-                                                                        ""   },
+                                                                    ""   },
 #else
 //L  ORIGINAL PATH                       ROOT  HEAD                     TAIL
 //-  ----------------------------------  ----  -----------------------  -----
@@ -939,88 +789,630 @@ int main(int argc, char *argv[])
 {L_, "///one////two/",                     3,  "///one////two",         ""   },
 #endif
 //^--------v
+    };
+    const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+
+    const bsl::string_view   emptyRefOrView;
+
+    if (verbose)
+        cout << "\nBehavior Testing." << endl;
+
+    for (size_t ti = 0; ti < NUM_DATA; ++ti) {
+        const int              LINE     = DATA[ti].d_line;
+        const bsl::string_view PATH     = DATA[ti].d_path;
+        const int              ROOT_END = DATA[ti].d_root;
+        const STRING_TYPE      EXP_HEAD = DATA[ti].d_head;
+        const STRING_TYPE      EXP_TAIL = DATA[ti].d_tail;
+
+        if (veryVerbose) { T_; P_(ti); P(PATH); }
+
+        // Explicit negative 'rootEnd'.
+
+        bsl::string_view head;
+        bsl::string_view tail;
+
+        Obj::splitFilename(&head, &tail, PATH, -1);
+
+        ASSERTV(LINE, EXP_HEAD, head, EXP_HEAD == head);
+        if (EXP_HEAD != head) {
+            cout << __FILE__ << ":" << __LINE__
+                 << "\n\thead    : \"" << head << "\""
+                 << "\n\tEXP_HEAD: \"" << EXP_HEAD << "\""
+                 << endl;
+        }
+
+        ASSERTV(LINE, EXP_TAIL, tail, EXP_TAIL == tail);
+        if (EXP_TAIL != tail) {
+            cout << __FILE__ << ":" << __LINE__
+                 << "\n\ttail    : \"" << tail << "\""
+                 << "\n\tEXP_TAIL: \"" << EXP_TAIL << "\""
+                 << endl;
+        }
+
+        // Implicit negative 'rootEnd' (default value).
+
+        head = emptyRefOrView;
+        tail = emptyRefOrView;
+
+        Obj::splitFilename(&head, &tail, PATH);
+
+        ASSERTV(LINE, EXP_HEAD, head, EXP_HEAD == head);
+        ASSERTV(LINE, EXP_TAIL, tail, EXP_TAIL == tail);
+
+        // Explicit non-negative 'rootEnd'.
+
+        head = emptyRefOrView;
+        tail = emptyRefOrView;
+
+        Obj::splitFilename(&head, &tail, PATH, ROOT_END);
+
+        ASSERTV(LINE, EXP_HEAD, head, EXP_HEAD == head);
+        ASSERTV(LINE, EXP_TAIL, tail, EXP_TAIL == tail);
+
+        // 'head' is alias of 'path'.
+
+        bsl::string_view aliasPath = DATA[ti].d_path;
+        tail = emptyRefOrView;
+
+        Obj::splitFilename(&aliasPath, &tail, aliasPath);
+
+        ASSERTV(LINE, EXP_HEAD, head,      EXP_HEAD == head);
+        ASSERTV(LINE, EXP_HEAD, aliasPath, EXP_HEAD == aliasPath);
+        ASSERTV(LINE, EXP_TAIL, tail,      EXP_TAIL == tail);
+
+        // 'tail' is alias of 'path'.
+
+        aliasPath = DATA[ti].d_path;
+        head = emptyRefOrView;
+
+        Obj::splitFilename(&head, &aliasPath, aliasPath);
+
+        ASSERTV(LINE, EXP_HEAD, head,      EXP_HEAD == head);
+        ASSERTV(LINE, EXP_TAIL, tail,      EXP_TAIL == tail);
+        ASSERTV(LINE, EXP_HEAD, aliasPath, EXP_TAIL == aliasPath);
+    }
+
+    if (verbose) cout << "\nNegative Testing." << endl;
+    {
+        bsls::AssertTestHandlerGuard hG;
+
+        bsl::string_view head;
+        bsl::string_view tail;
+        bsl::string_view path;
+
+        ASSERT_FAIL(Obj::splitFilename(0,         0, path));
+        ASSERT_FAIL(Obj::splitFilename(0,     &tail, path));
+        ASSERT_FAIL(Obj::splitFilename(&head,     0, path));
+        ASSERT_FAIL(Obj::splitFilename(&head, &head, path));
+
+        ASSERT_PASS(Obj::splitFilename(&head, &tail, path));
+    }
+
+}
+
+template <class STRING_TYPE>
+void test_appendIfValid(int verbose, int veryVerbose, int veryVeryVerbose)
+{
+    (void) verbose; (void) veryVerbose; (void) veryVeryVerbose;
+
+    if (verbose) {
+        cout << "\tUse table of distinct object values." << endl;
+    }
+
+    {
+        struct TestData {
+                int         d_line;
+                const char *d_path;
+                const char *d_filename;
+                bool        d_expectSuccess;
+                const char *d_expectedResult;
+        } VALUES [] = {
+            { L_,  "" , "" , true, ""    },
+            { L_,  "a", "" , true, "a"   },
+            { L_,  "" , "a", true, "a"   },
+            { L_,  "a", "b", true, "a/b" },
+
+            { L_,  "a/" , "b"   , true,  "a/b" },
+            { L_,  "a//", "b"   , true,  "a/b" },
+            { L_,  "a"  , "b/"  , true,  "a/b" },
+            { L_,  "a"  , "b//" , true,  "a/b" },
+            { L_,  "a//", "b//" , true,  "a/b" },
+            { L_,  "a//", "/b//", false, "" },
+
+            { L_,  "/a/" , "b"   , true , "/a/b" },
+            { L_,  "/a//", "b"   , true , "/a/b" },
+            { L_,  "/a"  , "b/"  , true , "/a/b" },
+            { L_,  "/a"  , "b//" , true , "/a/b" },
+            { L_,  "/a//", "b//" , true , "/a/b" },
+            { L_,  "/a//", "/b//", false, "" },
+
+
+            { L_,  "/"     , "b" , true, "/b" },
+            { L_,  "//////", "b" , true, "/b" },
+            { L_,  "//////", "b/", true, "/b" },
+
+            { L_,  "/a/b/c/" , "e/f/g"   , true,  "/a/b/c/e/f/g" },
+            { L_,  "/a/b/c//", "e/f/g"   , true,  "/a/b/c/e/f/g" },
+            { L_,  "/a/b/c"  , "e/f/g/"  , true,  "/a/b/c/e/f/g" },
+            { L_,  "/a/b/c"  , "e/f/g//" , true,  "/a/b/c/e/f/g" },
+            { L_,  "/a/b/c//", "e/f/g//" , true,  "/a/b/c/e/f/g" },
+            { L_,  "/a/b/c//", "/e/f/g//", false, "" },
+
+
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+            // Test a path starting with a drive letter.
+            { L_,  "z:"    , "b" , true ,  "z:/b" },
+            { L_,  "z:/"   , "b" , true ,  "z:/b" },
+            { L_,  "z://"  , "b" , true ,  "z:/b" },
+            { L_,  "z://"  , "b/", true ,  "z:/b" },
+            { L_,  "z:/a"  , "b" , true ,  "z:/a/b" },
+            { L_,  "z:/a/" , "b" , true ,  "z:/a/b" },
+            { L_,  "z:/a//", "b" , true ,  "z:/a/b" },
+            { L_,  "z:/"   , "/b", false,  "z:/b" },
+
+            // Test UNC paths
+            { L_,  "//UNC"    , "b" , true ,  "//UNC/b" },
+            { L_,  "//UNC/"   , "b" , true ,  "//UNC/b" },
+            { L_,  "//UNC//"  , "b" , true ,  "//UNC/b" },
+            { L_,  "//UNC//"  , "b/", true ,  "//UNC/b" },
+            { L_,  "//UNC/a"  , "b" , true ,  "//UNC/a/b" },
+            { L_,  "//UNC/a/" , "b" , true ,  "//UNC/a/b" },
+            { L_,  "//UNC/a//", "b" , true ,  "//UNC/a/b" },
+            { L_,  "//UNC/"   , "/b", false,  "//UNC/b" },
+
+            // Test device paths
+            { L_,  "//?/"   , "b" , true ,  "//?/b" },
+            { L_,  "//?//"  , "b" , true ,  "//?/b" },
+            { L_,  "//?//"  , "b/", true ,  "//?/b" },
+            { L_,  "//?/a"  , "b" , true ,  "//?/a/b" },
+            { L_,  "//?/a/" , "b" , true ,  "//?/a/b" },
+            { L_,  "//?/a//", "b" , true ,  "//?/a/b" },
+            { L_,  "//?/"   , "/b", false,  "//?/b" },
+#endif
+
         };
-        const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_VALUES = sizeof(VALUES) / sizeof(*VALUES);
 
-       if (verbose) cout << "\nBehavior Testing." << endl;
+        for (int i = 0; i < NUM_VALUES; ++i) {
+            STRING_TYPE path(VALUES[i].d_path);
+            STRING_TYPE filename(VALUES[i].d_filename);
+            STRING_TYPE expectedResult(VALUES[i].d_expectedResult);
 
-        for (size_t ti = 0; ti < NUM_DATA; ++ti) {
-            const int               LINE     = DATA[ti].d_line;
-            const bslstl::StringRef PATH     = DATA[ti].d_path;
-            const int               ROOT_END = DATA[ti].d_root;
-            const bsl::string       EXP_HEAD = DATA[ti].d_head;
-            const bsl::string       EXP_TAIL = DATA[ti].d_tail;
+            const int  LINE    = VALUES[i].d_line;
+            const bool success = VALUES[i].d_expectSuccess;
 
-            if (veryVerbose) { T_; P_(ti); P(PATH); }
 
-            // Explicit negative 'rootEnd'.
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+            convertToWindowsSeparator(&path);
+            convertToWindowsSeparator(&filename);
+            convertToWindowsSeparator(&expectedResult);
+#endif
 
-            bslstl::StringRef head;
-            bslstl::StringRef tail;
+            STRING_TYPE originalPath(path);
 
-            Obj::splitFilename(&head, &tail, PATH, -1);
+            int rc = Obj::appendIfValid(&path, filename);
 
-            ASSERTV(LINE, EXP_HEAD, head, EXP_HEAD == head);
-            ASSERTV(LINE, EXP_TAIL, tail, EXP_TAIL == tail);
+            if (veryVeryVerbose) {
+                P_(LINE); P_(originalPath); P_(filename);
+                P_(path); P(expectedResult);
+            }
 
-            // Implicit negative 'rootEnd' (default value).
+            if (!success) {
+                LOOP_ASSERT(LINE, 0 != rc);
+                continue;
+            }
 
-            head.reset();
-            tail.reset();
+            LOOP_ASSERT(LINE, 0 == rc);
+            LOOP4_ASSERT(LINE, originalPath, filename, path,
+                         expectedResult == path);
+        }
+    }
+    if (verbose) {
+        cout << "\tTest for aliasing." << endl;
+    }
 
-            Obj::splitFilename(&head, &tail, PATH);
+    {
+        const char *VALUES[] = {
+            "",
+            "a",
+            "abc",
+            "thisisalongpathnamexxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        };
+        const int NUM_VALUES = sizeof(VALUES) / sizeof(*VALUES);
 
-            ASSERTV(LINE, EXP_HEAD, head, EXP_HEAD == head);
-            ASSERTV(LINE, EXP_TAIL, tail, EXP_TAIL == tail);
+        for (int i = 0; i < NUM_VALUES; ++i) {
+            const size_t pathLen = bsl::strlen(VALUES[i]);
 
-            // Explicit non-negative 'rootEnd'.
+            for (size_t subStrLen = 0; subStrLen < pathLen; ++subStrLen) {
+                for (size_t offset = 0; offset < pathLen - subStrLen + 1;
+                     ++offset) {
+                    STRING_TYPE      path(VALUES[i]);
+                    bsl::string_view filename(path.c_str() + offset,
+                                              subStrLen);
 
-            head.reset();
-            tail.reset();
+                    if (filename.length() > 0 && '/' == filename[0]) {
+                        continue;
+                    }
 
-            Obj::splitFilename(&head, &tail, PATH, ROOT_END);
+                    STRING_TYPE expectedResult(path);
+                    if (path.size() > 0 && filename.length() > 0) {
+                        expectedResult += "/";
+                    }
+                    expectedResult +=
+                        STRING_TYPE(filename.data(), filename.length());
 
-            ASSERTV(LINE, EXP_HEAD, head, EXP_HEAD == head);
-            ASSERTV(LINE, EXP_TAIL, tail, EXP_TAIL == tail);
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+                    convertToWindowsSeparator(&path);
+                    convertToWindowsSeparator(&expectedResult);
+#endif
+                    STRING_TYPE originalPath(path);
+                    STRING_TYPE originalFilename(filename.data(),
+                                                 filename.length());
 
-            // 'head' is alias of 'path'.
+                    int rc = Obj::appendIfValid(&path, filename);
 
-            bslstl::StringRef aliasPath = DATA[ti].d_path;
-            tail.reset();
+                    if (veryVeryVerbose) {
+                        P_(originalPath); P(originalFilename);
+                        P_(path); P(expectedResult);
+                    }
 
-            Obj::splitFilename(&aliasPath, &tail, aliasPath);
+                    ASSERT(0 == rc);
+                    LOOP4_ASSERT(originalPath,
+                                 originalFilename,
+                                 path,
+                                 expectedResult,
+                                 expectedResult == path);
+                }
+            }
+        }
+    }
+}
 
-            ASSERTV(LINE, EXP_HEAD, head,      EXP_HEAD == head);
-            ASSERTV(LINE, EXP_HEAD, aliasPath, EXP_HEAD == aliasPath);
-            ASSERTV(LINE, EXP_TAIL, tail,      EXP_TAIL == tail);
+template <class STRING_TYPE>
+void test_leaflessAppend(int verbose, int veryVerbose, int veryVeryVerbose)
+{
+    (void) verbose; (void) veryVerbose; (void) veryVeryVerbose;
 
-            // 'tail' is alias of 'path'.
+    enum {
+       LEAF_ORIGINAL = 0,
+       LEAF_EXPECTED = 1,
+       LEAFLESS_ORIGINAL = 2,
+       LEAFLESS_EXPECTED = 3
+    };
+    const char *absolute[] = {
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+        "\\\\machine\\dir\\logs",
+        "\\\\machine\\dir\\logs\\hello",
+        "\\\\machine\\dir\\",
+        "\\\\machine\\dir\\hello",
+        "\\\\machine/dir/logs",
+        "\\\\machine/dir/logs/hello",
+        "\\\\machine/dir/",
+        "\\\\machine/dir/hello"
+#else
+        "/logs",
+        "/logs/hello",
+        "/",
+        "/hello"
+#endif
+    };
+    const char *relative[] = {
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+        "logs",
+        "logs\\hello",
+        "",
+        "hello",
+        "logs",
+        "logs/hello",
+        "",
+        "hello"
+#else
+        "logs",
+        "logs/hello",
+        "",
+        "hello"
+#endif
+    };
+    const char** arrays[] = {absolute, relative};
+    for (int i = 0; i < 2; ++i) {
+       STRING_TYPE leaf(arrays[i][LEAF_ORIGINAL]);
+       bdls::PathUtil::appendRaw(&leaf, "hello");
+       ASSERT(leaf == STRING_TYPE(arrays[i][LEAF_EXPECTED]));
 
-            aliasPath = DATA[ti].d_path;
-            head.reset();
+       STRING_TYPE leafless(arrays[i][LEAFLESS_ORIGINAL]);
+       bdls::PathUtil::appendRaw(&leafless, "hello");
+       LOOP3_ASSERT(
+              arrays[i][LEAFLESS_ORIGINAL],
+              arrays[i][LEAFLESS_EXPECTED],
+              leafless, leafless == STRING_TYPE(arrays[i][LEAFLESS_EXPECTED]));
+    }
 
-            Obj::splitFilename(&head, &aliasPath, aliasPath);
+    STRING_TYPE leafless2;
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    leafless2 = "\\\\.\\pipe";
+#else
+    leafless2 = "/var/tmp/"; // not really leafless but let's do SOMEthing
+                             // on unix for this part
+#endif
+    ASSERT( 0 == bdls::PathUtil::appendIfValid(&leafless2, "hello") );
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    LOOP_ASSERT(leafless2, "\\\\.\\pipe\\hello" == leafless2);
+#else
+    LOOP_ASSERT(leafless2, "/var/tmp/hello" == leafless2);
+#endif
+}
 
-            ASSERTV(LINE, EXP_HEAD, head,      EXP_HEAD == head);
-            ASSERTV(LINE, EXP_TAIL, tail,      EXP_TAIL == tail);
-            ASSERTV(LINE, EXP_HEAD, aliasPath, EXP_TAIL == aliasPath);
+template <class STRING_TYPE>
+void test_nativeParsingTest(int verbose, int veryVerbose, int veryVeryVerbose)
+{
+    (void) verbose; (void) veryVerbose; (void) veryVeryVerbose;
+
+    const int NUM_PARAMETERS = sizeof(parameters) / sizeof(Parameters);
+    for (int i = 0; i < NUM_PARAMETERS; ++i) {
+        const Parameters& pi = parameters[i];
+
+        STRING_TYPE iTest(pi.d_path);
+
+        // Verify root
+
+        STRING_TYPE root;
+        if (pi.d_isRelative) {
+            ASSERT(0 != bdls::PathUtil::getRoot(&root, iTest));
+        }
+        else {
+            ASSERT(0 == bdls::PathUtil::getRoot(&root, iTest));
+            ASSERTV(root, root == pi.d_root);
         }
 
-        if (verbose) cout << "\nNegative Testing." << endl;
-        {
-            bsls::AssertTestHandlerGuard hG;
+        // Verify getLeaf, getDirName
 
-            bslstl::StringRef head;
-            bslstl::StringRef tail;
-            bslstl::StringRef path;
+        STRING_TYPE basename, dirname;
+        if (pi.d_numLeaves) {
+            ASSERT(0 == bdls::PathUtil::getLeaf(&basename, iTest));
+            ASSERT(0 == bdls::PathUtil::getDirname(&dirname, iTest));
 
-            ASSERT_FAIL(Obj::splitFilename(0,         0, path));
-            ASSERT_FAIL(Obj::splitFilename(0,     &tail, path));
-            ASSERT_FAIL(Obj::splitFilename(&head,     0, path));
-            ASSERT_FAIL(Obj::splitFilename(&head, &head, path));
+            //test invariant:
 
-            ASSERT_PASS(Obj::splitFilename(&head, &tail, path));
+            ASSERT(pi.d_leaf && pi.d_dirName);
+
+            LOOP2_ASSERT(pi.d_line, basename, basename == pi.d_leaf);
+            LOOP2_ASSERT(pi.d_line, dirname, dirname == pi.d_dirName);
         }
+        else {
+            ASSERT(0 != bdls::PathUtil::getLeaf(&basename, iTest));
+            ASSERT(0 != bdls::PathUtil::getDirname(&dirname, iTest));
+        }
+
+        // Count leaves by removing them iteratively...When we're done,
+        // verify the root of the path (we should not be able to change it
+        // by removing leaves)
+
+        int count;
+        for (count = 0; bdls::PathUtil::hasLeaf(iTest); ++count) {
+            bdls::PathUtil::popLeaf(&iTest);
+        }
+        LOOP2_ASSERT(pi.d_line, count, count == pi.d_numLeaves);
+        ASSERT(bdls::PathUtil::isRelative(iTest) == pi.d_isRelative);
+        if (!pi.d_isRelative) {
+            ASSERT(0 == bdls::PathUtil::getRoot(&root, iTest));
+            LOOP_ASSERT(root, root == pi.d_root);
+        }
+
+        for (int j = 0; j < NUM_PARAMETERS; ++j) {
+            const Parameters& pj = parameters[j];
+
+            int referenceCount;
+            if (pj.d_isRelative) {
+                ASSERT(0 ==
+                         bdls::PathUtil::appendIfValid(&iTest, pj.d_path));
+                referenceCount = pj.d_numLeaves;
+            }
+            else {
+                ASSERT(0 !=
+                         bdls::PathUtil::appendIfValid(&iTest, pj.d_path));
+                referenceCount = 0;
+            }
+            for (count = 0;
+                 bdls::PathUtil::hasLeaf(iTest);
+                 ++count) {
+                bdls::PathUtil::popLeaf(&iTest);
+            }
+            LOOP2_ASSERT(pi.d_path, pj.d_path, count == referenceCount);
+            LOOP2_ASSERT(pi.d_path, iTest,
+                       bdls::PathUtil::isRelative(iTest)==pi.d_isRelative);
+        }
+    }
+}
+
+int main(int argc, char *argv[])
+{
+    int             test = argc > 1 ? bsl::atoi(argv[1]) : 0;
+    bool         verbose = argc > 2;
+    bool     veryVerbose = argc > 3;
+    bool veryVeryVerbose = argc > 4;
+
+    (void)veryVerbose;
+
+    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
+
+    switch(test) { case 0:
+      case 7: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //   Extracted from component header file.
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING USAGE EXAMPLE" << endl
+                          << "=====================" << endl;
+
+        usageExample<bsl::string>();
+        usageExample<std::string>();
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+        usageExample<std::pmr::string>();
+#endif
+      } break;
+      case 6: {
+        // --------------------------------------------------------------------
+        // TESTING: 'getExtension'
+        //
+        // Concerns:
+        //: 1 The 'getExtension' method accepts absolute and relative paths.
+        //:
+        //: 2 The 'getExtension' method accepts empty paths and returns an
+        //:   empty extension in that case.
+        //:
+        //: 3 The 'getExtension' method is able to find the extension even
+        //:   in filenames that contain multiple dots.
+        //:
+        //: 4 The 'getExtension' method does not find extensions in the special
+        //:   files '.' and '..'
+        //:
+        //: 5 In the case that the leaf of the path begins with a dot ('.'),
+        //:   it is ignored as a character for considering what the path is.
+        //:
+        //: 6 The 'getExtension' method is not tricked by dots in the
+        //:     directory names containing the path
+        //:
+        //: 7 The 'getExtension' method behaviour is consistent with that of
+        //:   the 'getLeaf' method ("a.txt/" *has* an extension)
+        //:
+        //: 8 The 'getExtension' method correctly identifies empty extensions
+        //:
+        //: 9 Asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //: 1 Create a table of test input values and expected results
+        //:
+        //: 2 Iterate over this table verifying that 'getExtension' produces
+        //:   the expected results with
+        //:     - the explicit negative value of the 'rootEnd'
+        //:     - the default value of the 'rootEnd'
+        //:     - the explicit correct value of the 'rootEnd
+        //:
+        //: 3 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for invalid attribute values, but not triggered for
+        //:   adjacent valid ones.  (C-9)
+        //
+        // Testing:
+        //   void getExtension(bsl::string*, const string_view&, int);
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout << "TESTING: getExtension" << endl
+                 << "=====================" << endl;
+        }
+
+        test_getExtension<bsl::string>(verbose, veryVerbose, veryVeryVerbose);
+        test_getExtension<std::string>(verbose, veryVerbose, veryVeryVerbose);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+        test_getExtension<std::pmr::string>(
+            verbose, veryVerbose, veryVeryVerbose);
+#endif
+
+    }; break;
+      case 5: {
+        // --------------------------------------------------------------------
+        // TESTING: 'splitFilename'
+        //
+        // Concerns:
+        //: 1 The 'splitFilename' method accepts absolute and relative paths.
+        //:
+        //: 2 The 'splitFilename' method accepts empty paths and returns empty
+        //:   'head' and 'tail' in such cases.
+        //:
+        //: 3 The resulting 'head' always contains the root of the original
+        //:   path.
+        //:
+        //: 4 The resulting 'head' does not contain trailing seperators.
+        //:
+        //: 5 The resulting 'tail' does not contain seperators.
+        //:
+        //: 6 The 'splitFilename' method properly handles Windows paths
+        //:   containing forward and backward slashes.
+        //:
+        //: 7 The 'splitFilename' method correctly identifies the root end of
+        //:   the passed path.
+        //:
+        //: 8 The 'splitFilename' method correctly handles passed 'head' or
+        //:   'tail' in the case when they are aliases of 'path'
+        //:   ('head == &path' or 'tail == &path').
+        //:
+        //: 9 Asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //: 1 Create a table of test input values and expected results.  Input
+        //:   values are graded in the following way:
+        //:
+        //:     Windows:
+        //:     --------
+        //:     - empty path
+        //:     - slashes only
+        //:     - LFS  root
+        //:     - UNC  root
+        //:     - LUNC root
+        //:
+        //:   As Windows OS supports both backward and forward slashes, we
+        //:   check both variants separately.
+        //:
+        //:     Unix:
+        //:     -----
+        //:     - empty path
+        //:     - one slash root
+        //:     - two slashes root
+        //:     - three slashes root
+        //:
+        //:   Whithin each group input values are graded in the following way:
+        //:
+        //:     - root + delimiter(s)
+        //:     - root + delimiter(s) + file
+        //:     - root + delimiter(s) + folder
+        //:     - root + delimiter    + folder + delimiter(s) + file
+        //:
+        //:   As paths can contain multiple delimiters, we add up to 4 of them
+        //:   to check that they are handled correctly.
+        //:
+        //: 2 Iterate over this table verifying that 'splitFilename' produces
+        //:   the expected results with
+        //:     - the explicit negative value of the 'rootEnd'
+        //:     - the default value of the 'rootEnd'
+        //:     - the explicit correct value of the 'rootEnd
+        //:     - the 'head' being an address of 'path'
+        //:     - the 'tail' being an address of 'path'  (C-1..8)
+        //:
+        //: 3 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for invalid attribute values, but not triggered for
+        //:   adjacent valid ones.  (C-9)
+        //
+        // Testing:
+        //   void splitFilename(string_view*, string_view*,
+        //                      const string_view&, int);
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout << "TESTING: splitFilename" << endl
+                 << "======================" << endl;
+        }
+
+        test_splitFilename<bsl::string>(verbose, veryVerbose, veryVeryVerbose);
+        test_splitFilename<std::string>(verbose, veryVerbose, veryVeryVerbose);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+        test_splitFilename<std::pmr::string>(
+            verbose, veryVerbose, veryVeryVerbose);
+#endif
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -1054,12 +1446,12 @@ int main(int argc, char *argv[])
         //:
         //: 1 Iterate over a series of simple test paths, and for each
         //:   path, iterate over a series of sub-string within that path.
-        //:   For each sub-string, create a bslstl::StringRef aliasing that
+        //:   For each sub-string, create a bsl::string_view aliasing that
         //:   sub-string, create an expected result value, and verify
         //:   that 'appendIfValid' also generates that expected value (C-7).
         //
         // Testing:
-        //  int appendIfValid(bsl::string *, const bslstl::StringRef& );
+        //  int appendIfValid(bsl::string *, const bsl::string_view& );
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -1067,181 +1459,12 @@ int main(int argc, char *argv[])
                  << "======================" << endl;
         }
 
-        if (verbose) {
-            cout << "\tUse table of distinct object values." << endl;
-        }
-
-        {
-            struct TestData {
-                    int         d_line;
-                    const char *d_path;
-                    const char *d_filename;
-                    bool        d_expectSuccess;
-                    const char *d_expectedResult;
-            } VALUES [] = {
-                { L_,  "" , "" , true, ""    },
-                { L_,  "a", "" , true, "a"   },
-                { L_,  "" , "a", true, "a"   },
-                { L_,  "a", "b", true, "a/b" },
-
-                { L_,  "a/" , "b"   , true,  "a/b" },
-                { L_,  "a//", "b"   , true,  "a/b" },
-                { L_,  "a"  , "b/"  , true,  "a/b" },
-                { L_,  "a"  , "b//" , true,  "a/b" },
-                { L_,  "a//", "b//" , true,  "a/b" },
-                { L_,  "a//", "/b//", false, "" },
-
-                { L_,  "/a/" , "b"   , true , "/a/b" },
-                { L_,  "/a//", "b"   , true , "/a/b" },
-                { L_,  "/a"  , "b/"  , true , "/a/b" },
-                { L_,  "/a"  , "b//" , true , "/a/b" },
-                { L_,  "/a//", "b//" , true , "/a/b" },
-                { L_,  "/a//", "/b//", false, "" },
-
-
-                { L_,  "/"     , "b" , true, "/b" },
-                { L_,  "//////", "b" , true, "/b" },
-                { L_,  "//////", "b/", true, "/b" },
-
-                { L_,  "/a/b/c/" , "e/f/g"   , true,  "/a/b/c/e/f/g" },
-                { L_,  "/a/b/c//", "e/f/g"   , true,  "/a/b/c/e/f/g" },
-                { L_,  "/a/b/c"  , "e/f/g/"  , true,  "/a/b/c/e/f/g" },
-                { L_,  "/a/b/c"  , "e/f/g//" , true,  "/a/b/c/e/f/g" },
-                { L_,  "/a/b/c//", "e/f/g//" , true,  "/a/b/c/e/f/g" },
-                { L_,  "/a/b/c//", "/e/f/g//", false, "" },
-
-
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-                // Test a path starting with a drive letter.
-                { L_,  "z:"    , "b" , true ,  "z:/b" },
-                { L_,  "z:/"   , "b" , true ,  "z:/b" },
-                { L_,  "z://"  , "b" , true ,  "z:/b" },
-                { L_,  "z://"  , "b/", true ,  "z:/b" },
-                { L_,  "z:/a"  , "b" , true ,  "z:/a/b" },
-                { L_,  "z:/a/" , "b" , true ,  "z:/a/b" },
-                { L_,  "z:/a//", "b" , true ,  "z:/a/b" },
-                { L_,  "z:/"   , "/b", false,  "z:/b" },
-
-                // Test UNC paths
-                { L_,  "//UNC"    , "b" , true ,  "//UNC/b" },
-                { L_,  "//UNC/"   , "b" , true ,  "//UNC/b" },
-                { L_,  "//UNC//"  , "b" , true ,  "//UNC/b" },
-                { L_,  "//UNC//"  , "b/", true ,  "//UNC/b" },
-                { L_,  "//UNC/a"  , "b" , true ,  "//UNC/a/b" },
-                { L_,  "//UNC/a/" , "b" , true ,  "//UNC/a/b" },
-                { L_,  "//UNC/a//", "b" , true ,  "//UNC/a/b" },
-                { L_,  "//UNC/"   , "/b", false,  "//UNC/b" },
-
-                // Test device paths
-                { L_,  "//?/"   , "b" , true ,  "//?/b" },
-                { L_,  "//?//"  , "b" , true ,  "//?/b" },
-                { L_,  "//?//"  , "b/", true ,  "//?/b" },
-                { L_,  "//?/a"  , "b" , true ,  "//?/a/b" },
-                { L_,  "//?/a/" , "b" , true ,  "//?/a/b" },
-                { L_,  "//?/a//", "b" , true ,  "//?/a/b" },
-                { L_,  "//?/"   , "/b", false,  "//?/b" },
+        test_appendIfValid<bsl::string>(verbose, veryVerbose, veryVeryVerbose);
+        test_appendIfValid<std::string>(verbose, veryVerbose, veryVeryVerbose);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+        test_appendIfValid<std::pmr::string>(
+            verbose, veryVerbose, veryVeryVerbose);
 #endif
-
-            };
-            const int NUM_VALUES = sizeof(VALUES) / sizeof(*VALUES);
-
-            for (int i = 0; i < NUM_VALUES; ++i) {
-                bsl::string path(VALUES[i].d_path);
-                bsl::string filename(VALUES[i].d_filename);
-                bsl::string expectedResult(VALUES[i].d_expectedResult);
-
-                const int  LINE    = VALUES[i].d_line;
-                const bool success = VALUES[i].d_expectSuccess;
-
-
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-                convertToWindowsSeparator(&path);
-                convertToWindowsSeparator(&filename);
-                convertToWindowsSeparator(&expectedResult);
-#endif
-
-                bsl::string originalPath(path);
-
-                int rc = Obj::appendIfValid(&path, filename);
-
-                if (veryVeryVerbose) {
-                    P_(LINE); P_(originalPath); P_(filename);
-                    P_(path); P(expectedResult);
-                }
-
-                if (!success) {
-                    LOOP_ASSERT(LINE, 0 != rc);
-                    continue;
-                }
-
-                LOOP_ASSERT(LINE, 0 == rc);
-                LOOP4_ASSERT(LINE, originalPath, filename, path,
-                             expectedResult == path);
-            }
-        }
-        if (verbose) {
-            cout << "\tTest for aliasing." << endl;
-        }
-
-        {
-            const char *VALUES[] = {
-                "",
-                "a",
-                "abc",
-                "thisisalongpathnamexxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-            };
-            const int NUM_VALUES = sizeof(VALUES) / sizeof(*VALUES);
-
-            for (int i = 0; i < NUM_VALUES; ++i) {
-                const size_t pathLen = bsl::strlen(VALUES[i]);
-
-                for (size_t subStrLen = 0; subStrLen < pathLen; ++subStrLen) {
-                    for (size_t offset = 0;
-                         offset < pathLen - subStrLen + 1;
-                         ++offset) {
-
-                        bsl::string path(VALUES[i]);
-                        bslstl::StringRef filename(path.c_str() + offset,
-                                                 subStrLen);
-
-                        if (filename.length() > 0 && '/' == filename[0]) {
-                            continue;
-                        }
-
-                        bsl::string expectedResult(path);
-                        if (path.size() > 0 && filename.length() > 0) {
-                            expectedResult += "/";
-                        }
-                        expectedResult+=
-                            bsl::string(filename.data(), filename.length());
-
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-                        convertToWindowsSeparator(&path);
-                        convertToWindowsSeparator(&expectedResult);
-#endif
-                        bsl::string originalPath(path);
-                        bsl::string originalFilename(filename.data(),
-                                                     filename.length());
-
-                        int rc = Obj::appendIfValid(&path, filename);
-
-                        if (veryVeryVerbose) {
-                            P_(originalPath); P(originalFilename);
-                            P_(path); P(expectedResult);
-                        }
-
-                        ASSERT(0 == rc);
-                        LOOP4_ASSERT(originalPath,
-                                     originalFilename,
-                                     path,
-                                     expectedResult,
-                                     expectedResult == path);
-                    }
-                }
-            }
-
-        }
-
       } break;
       case 3: {
         ///////////////////////////////////////////////////////////////////////
@@ -1273,72 +1496,14 @@ int main(int argc, char *argv[])
         if (verbose) {
            cout << "Leafless Append Test" << endl;
         }
-        enum {
-           LEAF_ORIGINAL = 0,
-           LEAF_EXPECTED = 1,
-           LEAFLESS_ORIGINAL = 2,
-           LEAFLESS_EXPECTED = 3
-        };
-        const char *absolute[] = {
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-            "\\\\machine\\dir\\logs",
-            "\\\\machine\\dir\\logs\\hello",
-            "\\\\machine\\dir\\",
-            "\\\\machine\\dir\\hello",
-            "\\\\machine/dir/logs",
-            "\\\\machine/dir/logs/hello",
-            "\\\\machine/dir/",
-            "\\\\machine/dir/hello"
-#else
-            "/logs",
-            "/logs/hello",
-            "/",
-            "/hello"
-#endif
-        };
-        const char *relative[] = {
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-            "logs",
-            "logs\\hello",
-            "",
-            "hello",
-            "logs",
-            "logs/hello",
-            "",
-            "hello"
-#else
-            "logs",
-            "logs/hello",
-            "",
-            "hello"
-#endif
-        };
-        const char** arrays[] = {absolute, relative};
-        for (int i = 0; i < 2; ++i) {
-           string leaf(arrays[i][LEAF_ORIGINAL]);
-           bdls::PathUtil::appendRaw(&leaf, "hello");
-           ASSERT(leaf == string(arrays[i][LEAF_EXPECTED]));
 
-           string leafless(arrays[i][LEAFLESS_ORIGINAL]);
-           bdls::PathUtil::appendRaw(&leafless, "hello");
-           LOOP3_ASSERT(
-                  arrays[i][LEAFLESS_ORIGINAL],
-                  arrays[i][LEAFLESS_EXPECTED],
-                  leafless, leafless == string(arrays[i][LEAFLESS_EXPECTED]));
-        }
-
-        string leafless2;
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-        leafless2 = "\\\\.\\pipe";
-#else
-        leafless2 = "/var/tmp/"; // not really leafless but let's do SOMEthing
-                                 // on unix for this part
-#endif
-        ASSERT( 0 == bdls::PathUtil::appendIfValid(&leafless2, "hello") );
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-        LOOP_ASSERT(leafless2, "\\\\.\\pipe\\hello" == leafless2);
-#else
-        LOOP_ASSERT(leafless2, "/var/tmp/hello" == leafless2);
+        test_leaflessAppend<bsl::string>(
+            verbose, veryVerbose, veryVeryVerbose);
+        test_leaflessAppend<std::string>(
+            verbose, veryVerbose, veryVeryVerbose);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+        test_leaflessAppend<std::pmr::string>(
+            verbose, veryVerbose, veryVeryVerbose);
 #endif
       } break;
       case 1: {
@@ -1356,83 +1521,15 @@ int main(int argc, char *argv[])
         if (verbose) {
             cout << "Native Parsing Test" << endl;
         }
-        const int NUM_PARAMETERS = sizeof(parameters) / sizeof(Parameters);
-        for (int i = 0; i < NUM_PARAMETERS; ++i) {
-            const Parameters& pi = parameters[i];
 
-            string iTest(pi.d_path);
-
-            // Verify root
-
-            bsl::string root;
-            if (pi.d_isRelative) {
-                ASSERT(0 != bdls::PathUtil::getRoot(&root, iTest));
-            }
-            else {
-                ASSERT(0 == bdls::PathUtil::getRoot(&root, iTest));
-                ASSERTV(root, root == pi.d_root);
-            }
-
-            // Verify getLeaf, getDirName
-
-            bsl::string basename, dirname;
-            if (pi.d_numLeaves) {
-                ASSERT(0 == bdls::PathUtil::getLeaf(&basename, iTest));
-                ASSERT(0 == bdls::PathUtil::getDirname(&dirname, iTest));
-
-                //test invariant:
-
-                ASSERT(pi.d_leaf && pi.d_dirName);
-
-                LOOP2_ASSERT(pi.d_line, basename, basename == pi.d_leaf);
-                LOOP2_ASSERT(pi.d_line, dirname, dirname == pi.d_dirName);
-            }
-            else {
-                ASSERT(0 != bdls::PathUtil::getLeaf(&basename, iTest));
-                ASSERT(0 != bdls::PathUtil::getDirname(&dirname, iTest));
-            }
-
-            // Count leaves by removing them iteratively...When we're done,
-            // verify the root of the path (we should not be able to change it
-            // by removing leaves)
-
-            int count;
-            for (count = 0;
-                 bdls::PathUtil::hasLeaf(iTest);
-                 ++count) {
-                bdls::PathUtil::popLeaf(&iTest);
-            }
-            LOOP2_ASSERT(pi.d_line, count, count == pi.d_numLeaves);
-            ASSERT(bdls::PathUtil::isRelative(iTest) == pi.d_isRelative);
-            if (!pi.d_isRelative) {
-                ASSERT(0 == bdls::PathUtil::getRoot(&root, iTest));
-                LOOP_ASSERT(root, root == pi.d_root);
-            }
-
-            for (int j = 0; j < NUM_PARAMETERS; ++j) {
-                const Parameters& pj = parameters[j];
-
-                int referenceCount;
-                if (pj.d_isRelative) {
-                    ASSERT(0 ==
-                             bdls::PathUtil::appendIfValid(&iTest, pj.d_path));
-                    referenceCount = pj.d_numLeaves;
-                }
-                else {
-                    ASSERT(0 !=
-                             bdls::PathUtil::appendIfValid(&iTest, pj.d_path));
-                    referenceCount = 0;
-                }
-                for (count = 0;
-                     bdls::PathUtil::hasLeaf(iTest);
-                     ++count) {
-                    bdls::PathUtil::popLeaf(&iTest);
-                }
-                LOOP2_ASSERT(pi.d_path, pj.d_path, count == referenceCount);
-                LOOP2_ASSERT(pi.d_path, iTest,
-                           bdls::PathUtil::isRelative(iTest)==pi.d_isRelative);
-            }
-        }
+        test_nativeParsingTest<bsl::string>(
+            verbose, veryVerbose, veryVeryVerbose);
+        test_nativeParsingTest<std::string>(
+            verbose, veryVerbose, veryVeryVerbose);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+        test_nativeParsingTest<std::pmr::string>(
+            verbose, veryVerbose, veryVeryVerbose);
+#endif
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

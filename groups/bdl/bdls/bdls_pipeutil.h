@@ -26,7 +26,15 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 
 #include <bsl_string.h>
+#include <bsl_string_view.h>
 
+#include <bsls_libraryfeatures.h>
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#include <memory_resource>  // 'std::pmr::polymorphic_allocator'
+#endif
+
+#include <string>           // 'std::string', 'std::pmr::string'
 
 namespace BloombergLP {
 
@@ -38,8 +46,14 @@ struct PipeUtil {
     // This struct contains utility methods for platform-independent named pipe
     // operations.
 
-    static int makeCanonicalName(bsl::string              *pipeName,
-                                 const bslstl::StringRef&  baseName);
+    static int makeCanonicalName(bsl::string             *pipeName,
+                                 const bsl::string_view&  baseName);
+    static int makeCanonicalName(std::string             *pipeName,
+                                 const bsl::string_view&  baseName);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    static int makeCanonicalName(std::pmr::string        *pipeName,
+                                 const bsl::string_view&  baseName);
+#endif
         // Load into the specified 'pipeName' the system-dependent canonical
         // pipe name corresponding to the specified 'baseName'.  Return 0 on
         // success, and a nonzero value if 'baseName' cannot be part of a pipe
@@ -51,13 +65,13 @@ struct PipeUtil {
         // Windows systems, if 'baseName' is not a full path name, the
         // canonical name will be prefixed with "\\.\pipe\".
 
-    static int send(const bslstl::StringRef& pipeName,
-                    const bslstl::StringRef& message);
+    static int send(const bsl::string_view& pipeName,
+                    const bsl::string_view& message);
         // Send the specified 'message' to the pipe with the specified UTF-8
         // 'pipeName'.  Return 0 on success, and a nonzero value otherwise.
         // The behavior is undefined unless 'pipeName' is a valid UTF-8 string.
 
-    static bool isOpenForReading(const bslstl::StringRef& pipeName);
+    static bool isOpenForReading(const bsl::string_view& pipeName);
         // Return 'true' if the pipe with the specified UTF-8 'pipeName' exists
         // and is currently open for reading by some process, and 'false'
         // otherwise.  The behavior is undefined unless 'pipeName' is a valid

@@ -44,17 +44,27 @@ BSLS_IDENT_RCSID(bdls_osutil_cpp, "$Id$ $CSID$")
 
 namespace BloombergLP {
 
-                            // --------------------
-                            // struct bdls::OsUtil
-                            // --------------------
+namespace {
 
-// CLASS METHODS
+template <class STRING_TYPE>
+int u_OsUtil_getOsInfo(STRING_TYPE *osName,
+                       STRING_TYPE *osVersion,
+                       STRING_TYPE *osPatch);
+    // Load the operating system name, version name and patch name into the
+    // specified 'osName', 'osVersion' and 'osPatch' respectively.  Return
+    // 0 on success and a non-zero value otherwise.  The loaded values may
+    // represent an emulation provided for the current process (see
+    // "manifest-based behavior" in Windows programming documentation for an
+    // example) and therefore are not suitable for determining supported
+    // features or the real environment/version.  If you need to determine the
+    // presence of certain features please consult the documentation of the
+    // operating systems you need to support.
+
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-
-namespace bdls {
-int OsUtil::getOsInfo(bsl::string *osName,
-                      bsl::string *osVersion,
-                      bsl::string *osPatch)
+template <class STRING_TYPE>
+int u_OsUtil_getOsInfo(STRING_TYPE *osName,
+                       STRING_TYPE *osVersion,
+                       STRING_TYPE *osPatch)
 {
     BSLS_ASSERT(osName);
     BSLS_ASSERT(osVersion);
@@ -123,7 +133,7 @@ int OsUtil::getOsInfo(bsl::string *osName,
 
     *osPatch = buf;
 
-#else
+#else // i.e., 0 == U_VISTA_OR_LATER
 
     OSVERSIONINFOEX osvi;
 
@@ -131,7 +141,7 @@ int OsUtil::getOsInfo(bsl::string *osName,
     osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
 
     if (!GetVersionEx((OSVERSIONINFO *)&osvi)) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     // Os version
@@ -158,18 +168,17 @@ int OsUtil::getOsInfo(bsl::string *osName,
     }
     *osPatch = buf;
 
-#endif
+#endif // 0 != U_VISTA_OR_LATER
 
     return 0;
 }
-}  // close package namespace
 
 #elif defined(BSLS_PLATFORM_OS_UNIX)
 
-namespace bdls {
-int OsUtil::getOsInfo(bsl::string *osName,
-                      bsl::string *osVersion,
-                      bsl::string *osPatch)
+template <class STRING_TYPE>
+int u_OsUtil_getOsInfo(STRING_TYPE *osName,
+                       STRING_TYPE *osVersion,
+                       STRING_TYPE *osPatch)
 {
     BSLS_ASSERT(osName);
     BSLS_ASSERT(osVersion);
@@ -182,15 +191,49 @@ int OsUtil::getOsInfo(bsl::string *osName,
     *osName = unameInfo.sysname;
     *osVersion = unameInfo.release;
     *osPatch = unameInfo.version;
+
     return 0;
 }
-}  // close package namespace
 
 #else
+#error "Unsupported operating system"
+#endif // OS CHECK
 
-BSLMF_ASSERT("Unsupported operating system", false);
 
+} // close unnamed namespace
+
+namespace bdls {
+
+                            // --------------------
+                            // struct bdls::OsUtil
+                            // --------------------
+
+// CLASS METHODS
+
+int OsUtil::getOsInfo(bsl::string *osName,
+                      bsl::string *osVersion,
+                      bsl::string *osPatch)
+{
+    return u_OsUtil_getOsInfo(osName, osVersion, osPatch);
+}
+
+int OsUtil::getOsInfo(std::string *osName,
+                      std::string *osVersion,
+                      std::string *osPatch)
+{
+    return u_OsUtil_getOsInfo(osName, osVersion, osPatch);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+int OsUtil::getOsInfo(std::pmr::string *osName,
+                      std::pmr::string *osVersion,
+                      std::pmr::string *osPatch)
+{
+    return u_OsUtil_getOsInfo(osName, osVersion, osPatch);
+}
 #endif
+
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

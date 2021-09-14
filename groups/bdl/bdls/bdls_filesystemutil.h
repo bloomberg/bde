@@ -282,21 +282,34 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_datetime.h>
 #include <bdlt_epochutil.h>
 
+#include <bslmf_assert.h>
+
 #include <bsls_assert.h>
 
 #include <bsl_functional.h>
+#include <bsl_optional.h>
 
+#include <bsls_keyword.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_platform.h>
 #include <bsls_review.h>
 
 #include <bsl_string.h>
+#include <bsl_string_view.h>
 #include <bsl_vector.h>
 #include <bsl_cstddef.h>
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#include <memory_resource>  // 'std::pmr::polymorphic_allocator'
+#endif
+
+#include <string>           // 'std::string', 'std::pmr::string'
 
 #include <sys/types.h>
 
 namespace BloombergLP {
 namespace bdls {
+
                            // =====================
                            // struct FilesystemUtil
                            // =====================
@@ -308,13 +321,18 @@ struct FilesystemUtil {
     // TYPES
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     typedef void *HANDLE;
-        // 'HANDLE' is a stand-in for the Windows API 'HANDLE' type, to allow
-        // us to avoid including 'windows.h' in this header.  'HANDLE' should
-        // not be used by client code.
 
-    typedef HANDLE FileDescriptor;
-        // 'FileDescriptor' is an alias for the operating system's native file
-        // descriptor / file handle type.
+    struct FileDescriptorType {
+    };
+
+    typedef FileDescriptorType *FileDescriptor;
+        // 'FileDescriptorType' is a stand-in for the Windows API 'HANDLE'
+        // type, to allow us to avoid including 'windows.h' in this header.
+        // 'FileDescriptorType' should not be used by client code.  Note that
+        // while 'HANDLE' is currently 'void*', we choose a new type to avoid
+        // overloading ambiguities between 'STRING_TYPE' and
+        // 'FileDescriptor' when invoking methods with a 'const char *'
+        // argument.
 
     typedef __int64 Offset;
         // 'Offset' is an alias for a signed value, representing the offset of
@@ -434,10 +452,11 @@ struct FilesystemUtil {
                                FileOpenPolicy      openPolicy,
                                FileIOPolicy        ioPolicy,
                                FileTruncatePolicy  truncatePolicy = e_KEEP);
-    static FileDescriptor open(const bsl::string&  path,
-                               FileOpenPolicy      openPolicy,
-                               FileIOPolicy        ioPolicy,
-                               FileTruncatePolicy  truncatePolicy = e_KEEP);
+    template <class STRING_TYPE>
+    static FileDescriptor open(const STRING_TYPE& path,
+                               FileOpenPolicy     openPolicy,
+                               FileIOPolicy       ioPolicy,
+                               FileTruncatePolicy truncatePolicy = e_KEEP);
         // Open the file at the specified 'path', using the specified
         // 'openPolicy' to determine whether to open an existing file or create
         // a new file, and using the specified 'ioPolicy' to determine whether
@@ -482,6 +501,10 @@ struct FilesystemUtil {
         //: o 'e_OPEN_OR_CREATE'
         //: o 'e_WRITE_ONLY
         //: o 'e_READ_WRITE'
+        // The parameterized 'STRING_TYPE' must be one of 'bsl::string',
+        // 'std::string', 'std::pmr::string' (if supported), or
+        // 'bslstl::StringRef'.
+
 
     static int close(FileDescriptor descriptor);
         // Close the specified 'descriptor'.  Return 0 on success and a
@@ -490,27 +513,38 @@ struct FilesystemUtil {
         // invalid.
 
     static int getWorkingDirectory(bsl::string *path);
+    static int getWorkingDirectory(std::string *path);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    static int getWorkingDirectory(std::pmr::string *path);
+#endif
         // Load into the specified 'path' the absolute pathname of the current
         // working directory.  Return 0 on success and a non-zero value
         // otherwise.
 
-    static int setWorkingDirectory(const bsl::string&  path);
-    static int setWorkingDirectory(const char         *path);
+    static int setWorkingDirectory(const char *path);
+    template <class STRING_TYPE>
+    static int setWorkingDirectory(const STRING_TYPE& path);
         // Set the working directory of the current process to the specified
-        // 'path'.  Return 0 on success and a non-zero value otherwise.
+        // 'path'.  Return 0 on success and a non-zero value otherwise.  The
+        // parameterized 'STRING_TYPE' must be one of 'bsl::string',
+        // 'std::string', 'std::pmr::string' (if supported), or
+        // 'bslstl::StringRef'.
 
-    static bool exists(const bsl::string&  path);
-    static bool exists(const char         *path);
+    static bool exists(const char *path);
+    template <class STRING_TYPE>
+    static bool exists(const STRING_TYPE& path);
         // Return 'true' if there currently exists a file or directory at the
         // specified 'path', and 'false' otherwise.  If 'path' is a symlink,
         // the result of this function is platform dependent. On POSIX/Unix
         // platforms this method dereferences symlinks, while on Windows it
-        // does not.
+        // does not.  The parameterized 'STRING_TYPE' must be one of
+        // 'bsl::string', 'std::string', 'std::pmr::string' (if supported), or
+        // 'bslstl::StringRef'.
 
-    static bool isRegularFile(const bsl::string&  path,
-                              bool                followLinksFlag = false);
-    static bool isRegularFile(const char         *path,
-                              bool                followLinksFlag = false);
+    static bool isRegularFile(const char *path, bool followLinksFlag = false);
+    template <class STRING_TYPE>
+    static bool isRegularFile(const STRING_TYPE& path,
+                              bool               followLinksFlag = false);
         // Return 'true' if there currently exists a regular file at the
         // specified 'path', and 'false' otherwise.  If there is a symbolic
         // link at 'path', follow it only if the optionally specified
@@ -520,25 +554,32 @@ struct FilesystemUtil {
         // positive test on the "regular file" mode; on Windows, this is a
         // negative test on the "directory" attribute, i.e., on Windows,
         // everything that exists and is not a directory is a regular file.
+        // The parameterized 'STRING_TYPE' must be one of 'bsl::string',
+        // 'std::string', 'std::pmr::string' (if supported), or
+        // 'bslstl::StringRef'.
 
-    static bool isDirectory(const bsl::string&  path,
-                            bool                followLinksFlag = false);
-    static bool isDirectory(const char         *path,
-                            bool                followLinksFlag = false);
+    static bool isDirectory(const char *path, bool followLinksFlag = false);
+    template <class STRING_TYPE>
+    static bool isDirectory(const STRING_TYPE& path,
+                            bool               followLinksFlag = false);
         // Return 'true' if there currently exists a directory at the specified
         // 'path', and 'false' otherwise.  If there is a symbolic link at
         // 'path', follow it only if the optionally specified 'followLinksFlag'
         // is 'true' (otherwise return 'false').  Platform-specific note: On
-        // Windows, a "shortcut" is not a symbolic link.
+        // Windows, a "shortcut" is not a symbolic link.  The parameterized
+        // 'STRING_TYPE' must be one of 'bsl::string', 'std::string',
+        // 'std::pmr::string' (if supported), or 'bslstl::StringRef'.
 
+    static int getLastModificationTime(bdlt::Datetime *time, const char *path);
+    template <class STRING_TYPE>
     static int getLastModificationTime(bdlt::Datetime     *time,
-                                       const bsl::string&  path);
-    static int getLastModificationTime(bdlt::Datetime     *time,
-                                       const char         *path);
+                                       const STRING_TYPE&  path);
         // Load into the specified 'time' the last modification time of the
         // file at the specified 'path', as reported by the filesystem.  Return
         // 0 on success, and a non-zero value otherwise.  The time is reported
-        // in UTC.
+        // in UTC.  The parameterized 'STRING_TYPE' must be one of
+        // 'bsl::string', 'std::string', 'std::pmr::string' (if supported), or
+        // 'bslstl::StringRef'.
 
     static int getLastModificationTime(bdlt::Datetime *time,
                                        FileDescriptor  descriptor);
@@ -550,11 +591,11 @@ struct FilesystemUtil {
     // TBD: write setModificationTime() when SetFileInformationByHandle()
     // becomes available on our standard Windows platforms.
 
+    static int createDirectories(const char *path,
+                                 bool        isLeafDirectoryFlag = false);
+    template <class STRING_TYPE>
     static int createDirectories(
-                               const bsl::string& path,
-                               bool               isLeafDirectoryFlag = false);
-    static int createDirectories(
-                               const char        *path,
+                               const STRING_TYPE& path,
                                bool               isLeafDirectoryFlag = false);
         // Create any directories in the specified 'path' that do not exist.
         // If the optionally specified 'isLeafDirectoryFlag' is 'true', treat
@@ -562,9 +603,14 @@ struct FilesystemUtil {
         // it.  Otherwise, create only the directories leading up to the final
         // name component.  Return 0 on success, 'k_ERROR_PATH_NOT_FOUND' if a
         // component used as a directory in 'path' exists but is not a
-        // directory, and a negative value for any other kind of error.
+        // directory, and a negative value for any other kind of error.  The
+        // parameterized 'STRING_TYPE' must be one of 'bsl::string',
+        // 'std::string', 'std::pmr::string' (if supported), or
+        // 'bslstl::StringRef'.
 
-    static int createPrivateDirectory(const bslstl::StringRef& path);
+    static int createPrivateDirectory(const char *path);
+    template <class STRING_TYPE>
+    static int createPrivateDirectory(const STRING_TYPE& path);
         // Create a private directory with the specified 'path'.  Return 0 on
         // success, 'k_ERROR_PATH_NOT_FOUND' if a component used as a directory
         // in 'path' either does not exist or is not a directory,
@@ -573,9 +619,16 @@ struct FilesystemUtil {
         // for any other kind of error.  The directory is created with
         // permissions restricting access, as closely as possible, to the
         // caller's userid only.  Note that directories created on Microsoft
-        // Windows may receive default, not restricted permissions.
+        // Windows may receive default, not restricted permissions.  The
+        // parameterized 'STRING_TYPE' must be one of 'bsl::string',
+        // 'std::string', 'std::pmr::string' (if supported), or
+        // 'bslstl::StringRef'.
 
     static int getSystemTemporaryDirectory(bsl::string *path);
+    static int getSystemTemporaryDirectory(std::string *path);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    static int getSystemTemporaryDirectory(std::pmr::string *path);
+#endif
         // Load a valid path to the system temporary directory to the specified
         // 'path'.  Return 0 on success, and a non-zero value otherwise.  A
         // temporary directory is one in which the operating system has
@@ -583,7 +636,13 @@ struct FilesystemUtil {
         // itself, the next time the computer reboots.
 
     static FileDescriptor createTemporaryFile(bsl::string             *outPath,
-                                              const bslstl::StringRef& prefix);
+                                              const bsl::string_view&  prefix);
+    static FileDescriptor createTemporaryFile(std::string             *outPath,
+                                              const bsl::string_view&  prefix);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    static FileDescriptor createTemporaryFile(std::pmr::string        *outPath,
+                                              const bsl::string_view&  prefix);
+#endif
         // Create and open a new file with a name constructed by appending an
         // automatically-generated suffix to the specified 'prefix', and return
         // its file descriptor open for reading and writing.  A return value of
@@ -599,7 +658,13 @@ struct FilesystemUtil {
         // default, not restricted permissions.
 
     static int createTemporaryDirectory(bsl::string             *outPath,
-                                        const bslstl::StringRef& prefix);
+                                        const bsl::string_view&  prefix);
+    static int createTemporaryDirectory(std::string             *outPath,
+                                        const bsl::string_view&  prefix);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    static int createTemporaryDirectory(std::pmr::string        *outPath,
+                                        const bsl::string_view&  prefix);
+#endif
         // Create a new directory with a name constructed by appending an
         // automatically-generated suffix to the specified 'prefix'.  A
         // non-zero return value indicates that no such directory could be
@@ -612,7 +677,13 @@ struct FilesystemUtil {
         // caller.
 
     static void makeUnsafeTemporaryFilename(bsl::string             *outPath,
-                                            const bslstl::StringRef& prefix);
+                                            const bsl::string_view&  prefix);
+    static void makeUnsafeTemporaryFilename(std::string             *outPath,
+                                            const bsl::string_view&  prefix);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    static void makeUnsafeTemporaryFilename(std::pmr::string        *outPath,
+                                            const bsl::string_view&  prefix);
+#endif
         // Construct a file name by appending an automatically-generated suffix
         // to the specified 'prefix'.  The file name constructed is assigned to
         // the specified 'outPath'.  Note that this function is called "unsafe"
@@ -626,21 +697,24 @@ struct FilesystemUtil {
         // its previous result, to get a new, probably different name.
 
     static int visitPaths(
-                         const bsl::string&                           pattern,
-                         const bsl::function<void(const char *path)>& visitor);
-    static int visitPaths(
                         const char                                   *pattern,
                         const bsl::function<void(const char *path)>&  visitor);
+    template <class STRING_TYPE>
+    static int visitPaths(
+                         const STRING_TYPE&                           pattern,
+                         const bsl::function<void(const char *path)>& visitor);
         // Call the specified 'visitor' function object for each path in the
         // filesystem matching the specified 'pattern'.  Return the number of
-        // paths visited on success, and a negative value otherwise.  Note
-        // that if 'visitor' deletes files or directories during the search,
+        // paths visited on success, and a negative value otherwise.  Note that
+        // if 'visitor' deletes files or directories during the search,
         // 'visitor' may subsequently be called with paths which have already
         // been deleted, so must be prepared for this event.  Also note that
         // there is no guarantee as to the order in which paths will be
         // visited.  See 'findMatchingPaths' for a discussion of how 'pattern'
         // is interpreted.  Also note that '.' and '..' are never matched by
-        // wild cards.
+        // wild cards.  The parameterized 'STRING_TYPE' must be one of
+        // 'bsl::string', 'std::string', 'std::pmr::string' (if supported), or
+        // 'bslstl::StringRef'.
         //
         // IBM-SPECIFIC WARNING: This function is not thread-safe.  The AIX
         // implementation of the system 'glob' function can temporarily change
@@ -648,15 +722,10 @@ struct FilesystemUtil {
         // other threads to open files with relative path names to fail.
 
     static int visitTree(
-              const char                                    *root,
-              const bsl::string&                             pattern,
-              const bsl::function<void (const char *path)>&  visitor,
-              bool                                           sortFlag = false);
-    static int visitTree(
-               const bsl::string&                            root,
-               const bsl::string&                            pattern,
-               const bsl::function<void (const char *path)>& visitor,
-               bool                                          sortFlag = false);
+                const bsl::string_view&                      root,
+                const bsl::string_view&                      pattern,
+                const bsl::function<void(const char *path)>& visitor,
+                bool                                         sortFlag = false);
         // Recursively traverse the directory tree starting at the specified
         // 'root' for files whose leaf names match the specified 'pattern', and
         // run the specified function 'visitor', passing it the full path
@@ -688,8 +757,21 @@ struct FilesystemUtil {
 
     static int findMatchingPaths(bsl::vector<bsl::string> *result,
                                  const char               *pattern);
+    template <class STRING_TYPE>
     static int findMatchingPaths(bsl::vector<bsl::string> *result,
-                                 const bsl::string&        pattern);
+                                 const STRING_TYPE&        pattern);
+    static int findMatchingPaths(std::vector<std::string> *result,
+                                 const char               *pattern);
+    template <class STRING_TYPE>
+    static int findMatchingPaths(std::vector<std::string> *result,
+                                 const STRING_TYPE&        pattern);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    static int findMatchingPaths(std::pmr::vector<std::pmr::string> *result,
+                                 const char                         *pattern);
+    template <class STRING_TYPE>
+    static int findMatchingPaths(std::pmr::vector<std::pmr::string> *result,
+                                 const STRING_TYPE&                  pattern);
+#endif
         // Load into the specified 'result' vector all paths in the filesystem
         // matching the specified 'pattern'.  The '*' character will match any
         // number of characters in a filename; however, this matching will not
@@ -701,13 +783,15 @@ struct FilesystemUtil {
         // the paths in 'result' will not be in any particular guaranteed
         // order.  Return the number of paths matched on success, and a
         // negative value otherwise; if a negative value is returned, the
-        // contents of '*result' are undefined.
+        // contents of '*result' are undefined.  The parameterized
+        // 'STRING_TYPE' must be one of 'bsl::string', 'std::string',
+        // 'std::pmr::string' (if supported), or 'bslstl::StringRef'.
         //
         // WINDOWS-SPECIFIC NOTE: To support DOS idioms, the OS-provided search
         // function has behavior that we have chosen not to work around: an
-        // extension consisting of wild-card characters ('?', '*') can match
-        // an extension or *no* extension.  E.g., "file.?" matches "file.z",
-        // but not "file.txt"; however, it also matches "file" (without any
+        // extension consisting of wild-card characters ('?', '*') can match an
+        // extension or *no* extension.  E.g., "file.?" matches "file.z", but
+        // not "file.txt"; however, it also matches "file" (without any
         // extension).  Likewise, "*.*" matches any filename, including
         // filenames having no extension.  Also, on Windows (but not on Unix)
         // attempting to match a pattern that is invalid UTF-8 will result in
@@ -718,23 +802,29 @@ struct FilesystemUtil {
         // the working directory of the entire program, casuing attempts in
         // other threads to open files with relative path names to fail.
 
-    static Offset getAvailableSpace(const bsl::string&  path);
-    static Offset getAvailableSpace(const char         *path);
+    static Offset getAvailableSpace(const char *path);
+    template <class STRING_TYPE>
+    static Offset getAvailableSpace(const STRING_TYPE& path);
         // Return the number of bytes available for allocation in the file
         // system where the file or directory with the specified 'path'
-        // resides, or a negative value if an error occurs.
+        // resides, or a negative value if an error occurs.  The parameterized
+        // 'STRING_TYPE' must be one of 'bsl::string', 'std::string',
+        // 'std::pmr::string' (if supported), or 'bslstl::StringRef'.
 
     static Offset getAvailableSpace(FileDescriptor descriptor);
         // Return the number of bytes available for allocation in the file
         // system where the file with the specified 'descriptor' resides, or a
         // negative value if an error occurs.
 
-    static Offset getFileSize(const bsl::string&  path);
-    static Offset getFileSize(const char         *path);
+    static Offset getFileSize(const char *path);
+    template <class STRING_TYPE>
+    static Offset getFileSize(const STRING_TYPE& path);
         // Return the size, in bytes, of the file or directory at the specified
         // 'path', or a negative value if an error occurs.  Note that the size
         // of a symbolic link is the size of the file or directory to which it
-        // points.
+        // points.  The parameterized 'STRING_TYPE' must be one of
+        // 'bsl::string', 'std::string', 'std::pmr::string' (if supported), or
+        // 'bslstl::StringRef'.
 
     static Offset getFileSize(FileDescriptor descriptor);
         // Return the size, in bytes, of the file with the specified
@@ -846,8 +936,9 @@ struct FilesystemUtil {
         // if there were not enough available; or a negative number on some
         // other error.
 
-    static int remove(const bsl::string&  path, bool recursiveFlag = false);
-    static int remove(const char         *path, bool recursiveFlag = false);
+    static int remove(const char *path, bool recursiveFlag = false);
+    template <class STRING_TYPE>
+    static int remove(const STRING_TYPE& path, bool recursiveFlag = false);
         // Remove the file or directory at the specified 'path'.  If the 'path'
         // refers to a directory and the optionally specified 'recursiveFlag'
         // is 'true', recursively remove all files and directories within the
@@ -858,22 +949,26 @@ struct FilesystemUtil {
         // not empty, and recursive is 'false', this method will fail.  Also
         // note that if the function fails when 'recursive' is 'true', it may
         // or may not have removed *some* files or directories before failing.
+        // The parameterized 'STRING_TYPE' must be one of 'bsl::string',
+        // 'std::string', 'std::pmr::string' (if supported), or
+        // 'bslstl::StringRef'.
         //
         // IBM-SPECIFIC WARNING: This function is not thread-safe.  The AIX
         // implementation of the system 'glob' function can temporarily change
         // the working directory of the entire program, causing attempts in
         // other threads to open files with relative path names to fail.
 
-    static int rollFileChain(const bsl::string& path, int maxSuffix);
-    static int rollFileChain(const char        *path, int maxSuffix);
+    static int rollFileChain(const bsl::string_view& path, int maxSuffix);
         // Remove the file at the specified 'path' appended with the specified
         // 'maxSuffix' using a '.' as a separator.  Then move the files with
         // the suffixes '.1' to '.maxSuffix-1' so they have new suffixes from
         // '.2' to '.maxSuffix'.  Finally, move 'path' to 'path' with a '.1'
         // suffix.  Return 0 on success, and non-zero otherwise.
 
-    static int move(const bsl::string&  oldPath, const bsl::string&  newPath);
-    static int move(const char         *oldPath, const char         *newPath);
+    static int move(const char *oldPath, const char *newPath);
+    template <class OLD_STRING_TYPE, class NEW_STRING_TYPE>
+    static int move(const OLD_STRING_TYPE& oldPath,
+                    const NEW_STRING_TYPE& newPath);
         // Move the file or directory at the specified 'oldPath' to the
         // specified 'newPath'.  If there is a file or directory at 'newPath',
         // it will be removed and replaced.  In that case, 'newPath' must refer
@@ -884,10 +979,15 @@ struct FilesystemUtil {
         // 'newPath', the resulting behavior is platform dependent.  Note that
         // this operation is carried out via library/system facilities
         // ('rename' in UNIX and 'MoveFile' in Windows) that usually cannot
-        // move files between file systems or volumes.  Note that a symbolic
-        // link already exists at 'newPath' POSIX/Unix systems will overwrite
-        // that existing symbolic link, while Windows will return an error
-        // status ('GetLastError' will report 'ERROR_ALREADY_EXISTS').
+        // move files between file systems or volumes, and that the behavior of
+        // the underlying library/system facilities differs when 'oldPath' and
+        // 'newPath' refer to the same file (in that case, UNIX succeeds,
+        // Windows fails).  Note that a symbolic link already exists at
+        // 'newPath' POSIX/Unix systems will overwrite that existing symbolic
+        // link, while Windows will return an error status ('GetLastError' will
+        // report 'ERROR_ALREADY_EXISTS').  The parameterized 'OLD_STRING_TYPE'
+        // and 'NEW_STRING_TYPE' must be one of 'bsl::string', 'std::string',
+        // 'std::pmr::string' (if supported), or 'bslstl::StringRef'.
 
     static int write(FileDescriptor  descriptor,
                      const void     *buffer,
@@ -916,125 +1016,271 @@ struct FilesystemUtil {
         // the file is undefined.
 };
 
+                      // ================================
+                      // class FilesystemUtil_CStringUtil
+                      // ================================
+
+struct FilesystemUtil_CStringUtil {
+    // This component-private utility 'struct' provides a namespace for the
+    // 'flatten' overload set intended to be used in concert with an overload
+    // set consisting of a function template with a deduced argument and an
+    // non-template overload accepting a 'const char *'.  The actual
+    // implementation of the functionality would be in the 'const char *'
+    // overload whereas the purpose of the function template is to invoke the
+    // 'const char *' overload with a null-terminated string.
+    //
+    // The function template achieves null-termination by recursively calling
+    // the function and supplying it with the result of 'flatten' invoked on
+    // the deduced argument.  This 'flatten' invocation will call 'c_str()' on
+    // various supported 'string' types, will produce a temporary 'bsl::string'
+    // for possibly non-null-terminated 'bslstl::StringRef', and will result in
+    // a 'BSLMF_ASSERT' for any unsupported type.  Calling the function with
+    // the temporary 'bsl::string' produced from 'bslstl::StringRef' will
+    // result in a second invocation of 'flatten', this time producing
+    // 'const char *', and finally calling the function with a null-terminated
+    // string.
+    //
+    // Note that the 'bslstl::StringRef' overload for 'flatten' is provided for
+    // backwards compatibility.  Without it, the 'bsl::string' and
+    // 'std::string' overloads would be ambiguous.  In new code, it is
+    // preferable to not provide 'bslstl::StringRef' overload in a similar
+    // facility and require the clients to explicitly state the string type in
+    // their code, making a potential allocation obvious.  The
+    // 'bsl::string_view' overload is not provided for the same reason.
+
+    // CLASS METHODS
+
+    static const char *flatten(char *cString);
+    static const char *flatten(const char *cString);
+        // Return the specified 'cString'.
+
+    static const char *flatten(const bsl::string& string);
+    static const char *flatten(const std::string& string);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    static const char *flatten(const std::pmr::string& string);
+#endif
+        // Return the result of invoking 'c_str()' on the specified 'string'.
+
+    static bsl::string flatten(const bslstl::StringRef& stringRef);
+        // Return a temporary 'bsl::string' constructed from the specified
+        // 'stringRef'.
+
+    template <class TYPE>
+    static const char *flatten(const TYPE&);
+        // Produce a compile-time error informing the caller that the
+        // parameterized 'TYPE' is not supported as the parameter for the call.
+};
+
 // ============================================================================
 //                            INLINE DEFINITIONS
 // ============================================================================
 
-                           // ---------------------
-                           // struct FilesystemUtil
-                           // ---------------------
+                      // --------------------
+                      // class FilesystemUtil
+                      // --------------------
 
 // CLASS METHODS
-
-inline
-int FilesystemUtil::createDirectories(const bsl::string& path,
-                                      bool               isLeafDirectoryFlag)
-{
-    return createDirectories(path.c_str(), isLeafDirectoryFlag);
-}
-
-inline
-int FilesystemUtil::visitPaths(
-                          const bsl::string&                           pattern,
-                          const bsl::function<void(const char *path)>& visitor)
-{
-    return visitPaths(pattern.c_str(), visitor);
-}
-
-inline
-int FilesystemUtil::visitTree(
-                       const char                                    *root,
-                       const bsl::string&                             pattern,
-                       const bsl::function<void (const char *path)>&  visitor,
-                       bool                                           sortFlag)
-{
-    BSLS_ASSERT(0 != root);
-
-    return visitTree(bsl::string(root), pattern, visitor, sortFlag);
-}
-
-inline
-int FilesystemUtil::findMatchingPaths(bsl::vector<bsl::string> *result,
-                                      const bsl::string&        pattern)
-{
-    return findMatchingPaths(result, pattern.c_str());
-}
-
+template <class STRING_TYPE>
 inline
 FilesystemUtil::FileDescriptor FilesystemUtil::open(
-                                             const bsl::string& path,
+                                             const STRING_TYPE& path,
                                              FileOpenPolicy     openPolicy,
                                              FileIOPolicy       ioPolicy,
                                              FileTruncatePolicy truncatePolicy)
 {
-    return open(path.c_str(), openPolicy, ioPolicy, truncatePolicy);
+    return FilesystemUtil::open(FilesystemUtil_CStringUtil::flatten(path),
+                                openPolicy,
+                                ioPolicy,
+                                truncatePolicy);
 }
 
+template <class STRING_TYPE>
 inline
-bool FilesystemUtil::exists(const bsl::string& path)
+int FilesystemUtil::setWorkingDirectory(const STRING_TYPE& path)
 {
-    return exists(path.c_str());
+    return FilesystemUtil::setWorkingDirectory(
+        FilesystemUtil_CStringUtil::flatten(path));
 }
 
+template <class STRING_TYPE>
 inline
-bool FilesystemUtil::isRegularFile(const bsl::string& path,
+bool FilesystemUtil::exists(const STRING_TYPE& path)
+{
+    return FilesystemUtil::exists(FilesystemUtil_CStringUtil::flatten(path));
+}
+
+template <class STRING_TYPE>
+inline
+bool FilesystemUtil::isRegularFile(const STRING_TYPE& path,
                                    bool               followLinksFlag)
 {
-    return isRegularFile(path.c_str(), followLinksFlag);
+    return FilesystemUtil::isRegularFile(
+        FilesystemUtil_CStringUtil::flatten(path), followLinksFlag);
 }
 
+template <class STRING_TYPE>
 inline
-bool FilesystemUtil::isDirectory(const bsl::string& path,
+bool FilesystemUtil::isDirectory(const STRING_TYPE& path,
                                  bool               followLinksFlag)
 {
-    return isDirectory(path.c_str(), followLinksFlag);
+    return FilesystemUtil::isDirectory(
+        FilesystemUtil_CStringUtil::flatten(path), followLinksFlag);
 }
 
+template <class STRING_TYPE>
 inline
 int FilesystemUtil::getLastModificationTime(bdlt::Datetime     *time,
-                                            const bsl::string&  path)
+                                            const STRING_TYPE&  path)
 {
-    BSLS_ASSERT(time);
-
-    return getLastModificationTime(time, path.c_str());
+    return FilesystemUtil::getLastModificationTime(
+        time, FilesystemUtil_CStringUtil::flatten(path));
 }
 
+template <class STRING_TYPE>
 inline
-int FilesystemUtil::remove(const bsl::string& path, bool recursiveFlag)
+int FilesystemUtil::createDirectories(
+                               const STRING_TYPE& path,
+                               bool               isLeafDirectoryFlag)
 {
-    return remove(path.c_str(), recursiveFlag);
+    return FilesystemUtil::createDirectories(
+        FilesystemUtil_CStringUtil::flatten(path), isLeafDirectoryFlag);
 }
 
+template <class STRING_TYPE>
 inline
-int FilesystemUtil::rollFileChain(const bsl::string& path, int maxSuffix)
+int FilesystemUtil::createPrivateDirectory(const STRING_TYPE& path)
 {
-    return rollFileChain(path.c_str(), maxSuffix);
+    return FilesystemUtil::createPrivateDirectory(
+        FilesystemUtil_CStringUtil::flatten(path));
 }
 
+template <class STRING_TYPE>
 inline
-int FilesystemUtil::move(const bsl::string& oldPath,
-                         const bsl::string& newPath)
+int FilesystemUtil::visitPaths(
+                          const STRING_TYPE&                           pattern,
+                          const bsl::function<void(const char *path)>& visitor)
 {
-    return move(oldPath.c_str(), newPath.c_str());
+    return FilesystemUtil::visitPaths(
+        FilesystemUtil_CStringUtil::flatten(pattern), visitor);
 }
 
+template <class STRING_TYPE>
 inline
-int FilesystemUtil::setWorkingDirectory(const bsl::string& path)
+int FilesystemUtil::findMatchingPaths(bsl::vector<bsl::string> *result,
+                                      const STRING_TYPE&        pattern)
 {
-    return setWorkingDirectory(path.c_str());
+    return FilesystemUtil::findMatchingPaths(
+        result, FilesystemUtil_CStringUtil::flatten(pattern));
 }
 
+template <class STRING_TYPE>
 inline
-FilesystemUtil::Offset FilesystemUtil::getFileSize(const bsl::string& path)
+int FilesystemUtil::findMatchingPaths(std::vector<std::string> *result,
+                                      const STRING_TYPE&        pattern)
 {
-    return getFileSize(path.c_str());
+    return FilesystemUtil::findMatchingPaths(
+        result, FilesystemUtil_CStringUtil::flatten(pattern));
 }
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+template <class STRING_TYPE>
+inline
+int FilesystemUtil::findMatchingPaths(
+                                   std::pmr::vector<std::pmr::string> *result,
+                                   const STRING_TYPE&                  pattern)
+{
+    return FilesystemUtil::findMatchingPaths(
+        result, FilesystemUtil_CStringUtil::flatten(pattern));
+}
+#endif
+
+template <class STRING_TYPE>
 inline
 FilesystemUtil::Offset FilesystemUtil::getAvailableSpace(
-                                                       const bsl::string& path)
+                                                       const STRING_TYPE& path)
 {
-    return getAvailableSpace(path.c_str());
+    return FilesystemUtil::getAvailableSpace(
+        FilesystemUtil_CStringUtil::flatten(path));
+}
+
+template <class STRING_TYPE>
+inline
+FilesystemUtil::Offset FilesystemUtil::getFileSize(const STRING_TYPE& path)
+{
+    return FilesystemUtil::getFileSize(
+        FilesystemUtil_CStringUtil::flatten(path));
+}
+
+template <class STRING_TYPE>
+inline
+int FilesystemUtil::remove(const STRING_TYPE& path, bool recursiveFlag)
+{
+    return FilesystemUtil::remove(FilesystemUtil_CStringUtil::flatten(path),
+                                  recursiveFlag);
+}
+
+template <class OLD_STRING_TYPE, class NEW_STRING_TYPE>
+inline
+int FilesystemUtil::move(const OLD_STRING_TYPE& oldPath,
+                         const NEW_STRING_TYPE& newPath)
+{
+    return FilesystemUtil::move(FilesystemUtil_CStringUtil::flatten(oldPath),
+                                FilesystemUtil_CStringUtil::flatten(newPath));
+}
+
+
+
+
+                      // --------------------------------
+                      // class FilesystemUtil_CStringUtil
+                      // --------------------------------
+
+// CLASS METHODS
+inline
+const char *FilesystemUtil_CStringUtil::flatten(char *cString)
+{
+    return cString;
+}
+
+inline
+const char *FilesystemUtil_CStringUtil::flatten(const char *cString)
+{
+    return cString;
+}
+
+inline
+const char *FilesystemUtil_CStringUtil::flatten(const bsl::string& string)
+{
+    return string.c_str();
+}
+
+inline
+const char *FilesystemUtil_CStringUtil::flatten(const std::string& string)
+{
+    return string.c_str();
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+inline
+const char *FilesystemUtil_CStringUtil::flatten(const std::pmr::string& string)
+{
+    return string.c_str();
+}
+#endif
+
+inline
+bsl::string FilesystemUtil_CStringUtil::flatten(
+                                            const bslstl::StringRef& stringRef)
+{
+    return stringRef;
+}
+
+template <class TYPE>
+inline
+const char *FilesystemUtil_CStringUtil::flatten(const TYPE&)
+{
+    BSLMF_ASSERT(("Unsupported parameter type." && !sizeof(TYPE)));
+    return 0;
 }
 
 }  // close package namespace

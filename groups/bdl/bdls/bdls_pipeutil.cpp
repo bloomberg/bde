@@ -44,12 +44,15 @@ BSLS_IDENT_RCSID(bdls_pipeutil_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-// STATIC HELPER FUNCTIONS
+// HELPER FUNCTIONS
+
+namespace {
 
 #ifdef BSLS_PLATFORM_OS_UNIX
 
-static
-void getPipeDir(bsl::string *dir)
+template <class STRING_TYPE>
+inline
+void getPipeDir(STRING_TYPE *dir)
     // open an appropriate working directory
 {
     BSLS_ASSERT(dir);
@@ -70,8 +73,9 @@ void getPipeDir(bsl::string *dir)
 
 #else  // Windows
 
-static
-void getPipeDir(bsl::string *dir)
+template <class STRING_TYPE>
+inline
+void getPipeDir(STRING_TYPE *dir)
 {
     BSLS_ASSERT(dir);
 
@@ -80,36 +84,60 @@ void getPipeDir(bsl::string *dir)
 
 #endif
 
+template <class STRING_TYPE, class STRING_REF_TYPE>
+int u_makeCanonicalName(STRING_TYPE *pipeName, const STRING_REF_TYPE& baseName)
+{
+    BSLS_ASSERT(pipeName);
+
+    getPipeDir(pipeName);
+
+    int rc = bdls::PathUtil::appendIfValid(pipeName, baseName);
+    if (0 != rc) {
+        return rc;                                                    // RETURN
+    }
+
+    typename STRING_TYPE::iterator where = pipeName->end() - baseName.length();
+
+    bsl::transform(where, pipeName->end(), where, (int(*)(int))bsl::tolower);
+    return 0;
+}
+
+
+} // close unnamed namespace
+
 namespace bdls {
                               // ---------------
                               // struct PipeUtil
                               // ---------------
 
 // CLASS METHODS
-int PipeUtil::makeCanonicalName(bsl::string              *pipeName,
-                                const bslstl::StringRef&  baseName)
+int PipeUtil::makeCanonicalName(bsl::string             *pipeName,
+                                const bsl::string_view&  baseName)
 {
-    BSLS_ASSERT(pipeName);
-
-    getPipeDir(pipeName);
-
-    int rc = PathUtil::appendIfValid(pipeName, baseName);
-    if (0 != rc) {
-        return rc;                                                    // RETURN
-    }
-
-    bsl::string::iterator where = pipeName->end() - baseName.length();
-
-    bsl::transform(where, pipeName->end(), where, (int(*)(int))bsl::tolower);
-    return 0;
+    return u_makeCanonicalName(pipeName, baseName);
 }
+
+int PipeUtil::makeCanonicalName(std::string             *pipeName,
+                                const bsl::string_view&  baseName)
+{
+    return u_makeCanonicalName(pipeName, baseName);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+int PipeUtil::makeCanonicalName(std::pmr::string        *pipeName,
+                                const bsl::string_view&  baseName)
+{
+    return u_makeCanonicalName(pipeName, baseName);
+}
+#endif
+
 }  // close package namespace
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 
 namespace bdls {
-int PipeUtil::send(const bslstl::StringRef& pipeName,
-                   const bslstl::StringRef& message)
+int PipeUtil::send(const bsl::string_view& pipeName,
+                   const bsl::string_view& message)
 {
     bsl::wstring wPipeName;
 
@@ -136,7 +164,7 @@ int PipeUtil::send(const bslstl::StringRef& pipeName,
 }
 
 bool
-PipeUtil::isOpenForReading(const bslstl::StringRef& pipeName)
+PipeUtil::isOpenForReading(const bsl::string_view& pipeName)
 {
     bsl::wstring wPipeName;
 
@@ -145,9 +173,10 @@ PipeUtil::isOpenForReading(const bslstl::StringRef& pipeName)
         return false;                                                 // RETURN
     }
 
-    HANDLE pipe = CreateFileW(wPipeName.data(),
-                              GENERIC_WRITE, 0, NULL,
-                              OPEN_EXISTING, 0, NULL);
+    FilesystemUtil::FileDescriptor pipe =
+        FilesystemUtil::FileDescriptor(CreateFileW(
+            wPipeName.data(), GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL));
+
     if (INVALID_HANDLE_VALUE == pipe) {
         return false;                                                 // RETURN
     }
@@ -173,8 +202,8 @@ PipeUtil::isOpenForReading(const bslstl::StringRef& pipeName)
 #else // UNIX implementation
 
 namespace bdls {
-int PipeUtil::send(const bslstl::StringRef& pipeName,
-                   const bslstl::StringRef& message)
+int PipeUtil::send(const bsl::string_view& pipeName,
+                   const bsl::string_view& message)
 {
     BSLS_ASSERT(bdlde::Utf8Util::isValid(pipeName.data(), pipeName.length()));
 
@@ -193,7 +222,7 @@ int PipeUtil::send(const bslstl::StringRef& pipeName,
 }
 
 bool
-PipeUtil::isOpenForReading(const bslstl::StringRef& pipeName)
+PipeUtil::isOpenForReading(const bsl::string_view& pipeName)
 {
     BSLS_ASSERT(bdlde::Utf8Util::isValid(pipeName.data(), pipeName.length()));
 

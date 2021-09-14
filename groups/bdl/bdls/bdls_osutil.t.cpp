@@ -108,6 +108,62 @@ void aSsErT(bool condition, const char *message, int line)
 typedef bdls::OsUtil Obj;
 
 // ============================================================================
+//                            TEMPLATED TEST CASES
+// ----------------------------------------------------------------------------
+
+template <typename STRING_TYPE>
+void testCase2_getOsInfo(const char         *typeName,
+                         int                 test,
+                         int                 verbose,
+                         int                 veryVerbose,
+                         int                 veryVeryVerbose)
+{
+    (void)test; (void) verbose; (void) veryVerbose; (void) veryVeryVerbose;
+
+    if (veryVerbose)
+        cout << endl
+             << " ... with " << typeName << endl
+             << "-----------------------------" << endl;
+
+    STRING_TYPE            name;
+    STRING_TYPE            version;
+    STRING_TYPE            patch;
+    ASSERT(0 == Obj::getOsInfo(&name, &version, &patch));
+
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    ASSERTV(name, "Windows" == name);
+
+    OSVERSIONINFOEX osvi;
+    memset(&osvi, 0, sizeof(osvi));
+    osvi.dwOSVersionInfoSize = sizeof(osvi);
+    ASSERT(GetVersionEx(reinterpret_cast<LPOSVERSIONINFO>(&osvi)));
+
+    ostringstream expectedVersion;
+    expectedVersion << osvi.dwMajorVersion << '.' << osvi.dwMinorVersion;
+    ASSERTV(version, expectedVersion.str(), version == expectedVersion.str());
+
+    ASSERTV(patch, osvi.szCSDVersion, 0 == patch.find(osvi.szCSDVersion));
+#else
+    struct utsname unameInfo;
+    ASSERT(uname(&unameInfo) >= 0);
+    ASSERTV(name, unameInfo.sysname, name == unameInfo.sysname);
+    ASSERTV(version, unameInfo.release, version == unameInfo.release);
+    ASSERTV(patch, unameInfo.version, patch == unameInfo.version);
+#endif
+
+    if (verbose)
+        cout << "Negative testing" << endl;
+    {
+        bsls::AssertTestHandlerGuard hg;
+
+        ASSERT_FAIL(Obj::getOsInfo(0, &version, &patch));
+        ASSERT_FAIL(Obj::getOsInfo(&name, 0, &patch));
+        ASSERT_FAIL(Obj::getOsInfo(&name, &version, 0));
+        ASSERT_FAIL(Obj::getOsInfo(static_cast<STRING_TYPE *>(0), 0, 0));
+        ASSERT_PASS(Obj::getOsInfo(&name, &version, &patch));
+    }
+}
+// ============================================================================
 //                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
@@ -206,16 +262,19 @@ int main(int argc, char *argv[])
         //: 1 The operating system is identified as defined in the contract.
         //: 2 The result is always zero, as there is no clear way to force an
         //:   OS to fail to report the expected data.
+        //: 3 All overloads work identically.
         //
         // Plan:
-        //: 1 Verify the function returns zero
-        //: 2 Verify OS Name is 'Windows' when built on MS Windows, and the
-        //:   loaded version and patch match values returned by GetVersionEx().
-        //: 3 On Posix systems verify that loaded 'name', 'version' and 'patch'
-        //:   match sysname, release and version, respectively, as returned by
-        //:   uname(2).
-        //: 4 Negative testing: verify that passing a null pointer for any
-        //:   argument is detected by a 'BSLS_ASSERT'.
+        //: 1 For each available 'string' overload type:
+        //: 2   Verify the function returns zero
+        //: 3   Verify OS Name is 'Windows' when built on MS Windows, and the
+        //:     loaded version and patch match values returned by
+        //:     GetVersionEx().
+        //: 4   On Posix systems verify that loaded 'name', 'version' and
+        //:     'patch' match sysname, release and version, respectively, as
+        //:     returned by uname(2).
+        //: 5   Negative testing: verify that passing a null pointer for any
+        //:     argument is detected by a 'BSLS_ASSERT'.
         //
         // Testing:
         //   int getOsInfo(bsl::string *os, bsl::string *v, bsl::string *ptch);
@@ -224,45 +283,17 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl
                           << "TESTING 'getOsInfo'" << endl
                           << "===================" << endl;
-        bsl::string name;
-        bsl::string version;
-        bsl::string patch;
-        ASSERT(0 == Obj::getOsInfo(&name, &version, &patch));
 
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-        ASSERTV(name, "Windows" == name);
+        testCase2_getOsInfo<bsl::string>(
+            "bsl::string", test, verbose, veryVerbose, veryVeryVerbose);
 
-        OSVERSIONINFOEX osvi;
-        memset(&osvi, 0, sizeof(osvi));
-        osvi.dwOSVersionInfoSize = sizeof(osvi);
-        ASSERT(GetVersionEx(reinterpret_cast<LPOSVERSIONINFO>(&osvi)));
+        testCase2_getOsInfo<std::string>(
+            "std::string", test, verbose, veryVerbose, veryVeryVerbose);
 
-        ostringstream expectedVersion;
-        expectedVersion << osvi.dwMajorVersion
-                        << '.'
-                        << osvi.dwMinorVersion;
-        ASSERTV(version,   expectedVersion.str(),
-                version == expectedVersion.str());
-
-        ASSERTV(patch, osvi.szCSDVersion, 0 == patch.find(osvi.szCSDVersion));
-#else
-        struct utsname unameInfo;
-        ASSERT(uname(&unameInfo) >= 0);
-        ASSERTV(name, unameInfo.sysname, name == unameInfo.sysname);
-        ASSERTV(version, unameInfo.release, version == unameInfo.release);
-        ASSERTV(patch, unameInfo.version, patch == unameInfo.version);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+        testCase2_getOsInfo<std::pmr::string>(
+            "std::pmr::string", test, verbose, veryVerbose, veryVeryVerbose);
 #endif
-
-        if (verbose) cout << "Negative testing" << endl;
-        {
-            bsls::AssertTestHandlerGuard hg;
-
-            ASSERT_FAIL(Obj::getOsInfo(    0, &version, &patch));
-            ASSERT_FAIL(Obj::getOsInfo(&name,        0, &patch));
-            ASSERT_FAIL(Obj::getOsInfo(&name, &version,      0));
-            ASSERT_FAIL(Obj::getOsInfo(    0,        0,      0));
-            ASSERT_PASS(Obj::getOsInfo(&name, &version, &patch));
-        }
       } break;
       case 1: {
         // --------------------------------------------------------------------

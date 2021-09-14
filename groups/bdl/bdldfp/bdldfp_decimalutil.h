@@ -740,6 +740,7 @@ struct DecimalUtil_CStringUtil {
     // CLASS METHODS
 
     static const char *flatten(const char *cString);
+    static const char *flatten(char *cString);
         // Return the specified 'cString'.
 
     static const char *flatten(const bsl::string& string);
@@ -753,7 +754,7 @@ struct DecimalUtil_CStringUtil {
         // Return a temporary 'bsl::string' constructed from the specified
         // 'stringRef'.
 
-    template <typename TYPE>
+    template <class TYPE>
     static const char *flatten(const TYPE&);
         // Produce a compile-time error informing the caller that the
         // parameterized 'TYPE' is not supported as the parameter for the call.
@@ -1361,6 +1362,12 @@ const char *DecimalUtil_CStringUtil::flatten(const char *cString)
 }
 
 inline
+const char *DecimalUtil_CStringUtil::flatten(char *cString)
+{
+    return cString;
+}
+
+inline
 const char *DecimalUtil_CStringUtil::flatten(const bsl::string& string)
 {
     return string.c_str();
@@ -1387,7 +1394,7 @@ bsl::string DecimalUtil_CStringUtil::flatten(
     return stringRef;
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 const char *DecimalUtil_CStringUtil::flatten(const TYPE&)
 {

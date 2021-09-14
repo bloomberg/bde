@@ -1020,7 +1020,9 @@ int main(int argc, char *argv[])
             Obj sb(fd, false, false, false, &cza);
 
             const int eof = bsl::char_traits<char>::eof();
-            int ic;
+            int ic = !eof; // don't care about the default value - just that
+                           // it's different than eof in case the loop gets
+                           // skipped
             for (pc = trBuf; pc <= to; ++pc, sb.sbumpc()) {
                 ic = sb.sgetc();
                 if (eof == ic) {
@@ -1969,12 +1971,10 @@ int main(int argc, char *argv[])
 
         FileUtil::FileDescriptor BOGUS_HANDLE =
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-                              reinterpret_cast<FileUtil::FileDescriptor>(100);
+            reinterpret_cast<FileUtil::FileDescriptor>(100);
 #else
-                              static_cast<FileUtil::FileDescriptor>(100);
+            static_cast<FileUtil::FileDescriptor>(100);
 #endif
-
-
 
         char fnBuf[100];
         char fnBuf2[100];
@@ -2059,9 +2059,9 @@ int main(int argc, char *argv[])
 
             // open and get same fd, which verifies clear closed fd
 
-            ASSERT(fd == FileUtil::open(fnBuf,
-                                        FileUtil::e_OPEN,
-                                        FileUtil::e_READ_WRITE));
+            ASSERTV(fnBuf, fd == FileUtil::open(fnBuf,
+                                                FileUtil::e_OPEN,
+                                                FileUtil::e_READ_WRITE));
 
             ASSERT(!sb.reset(fd, true, false, true));
 
@@ -2423,7 +2423,7 @@ int main(int argc, char *argv[])
         FdType fd = FileUtil::open(fnBuf,
                                    FileUtil::e_OPEN,
                                    FileUtil::e_READ_ONLY);
-        ASSERT(u::invalid != fd);
+        ASSERTV(fnBuf, u::invalid != fd);
 
         {
             Obj sb(fd, true);
@@ -2449,7 +2449,7 @@ int main(int argc, char *argv[])
         ASSERT(fd == FileUtil::open(fnBuf,
                                     FileUtil::e_OPEN,
                                     FileUtil::e_READ_ONLY));
-        ASSERT(u::invalid != fd);
+        ASSERTV(fnBuf, u::invalid != fd);
 
         ASSERT(0 == FileUtil::close(fd));
 
@@ -2815,7 +2815,14 @@ int main(int argc, char *argv[])
                                        FileUtil::e_READ_WRITE);
             ASSERT(u::invalid != fd);
 
-            Obj sb((FdType) -1, false);
+            FileUtil::FileDescriptor BOGUS_HANDLE =
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+                              reinterpret_cast<FileUtil::FileDescriptor>(-1);
+#else
+                              static_cast<FileUtil::FileDescriptor>(-1);
+#endif
+
+            Obj sb(BOGUS_HANDLE, false);
             ASSERT(!sb.reset(fd, true, false, true));
 
             sb.sputn(line1, 20);

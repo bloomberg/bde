@@ -67,6 +67,67 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
 
+template <class STRING_TYPE>
+void testCase1_makeCanonicalName(const STRING_TYPE& typeName,
+                                 int                test,
+                                 int                verbose)
+{
+    (void) verbose; (void) test;
+
+    if (verbose) cout << "\n\t+++++++++++++++ Testing " << typeName << endl;
+
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    STRING_TYPE compare("\\\\.\\pipe\\foo.bar");
+    STRING_TYPE name;
+    ASSERT(0 == bdls::PipeUtil::makeCanonicalName(&name, "FOO.Bar"));
+    LOOP2_ASSERT(name, compare, name == compare);
+    if (verbose) { P(name) }
+#else
+    STRING_TYPE compare;
+    const char  *tmpdirPtr;
+    if (0 != (tmpdirPtr = bsl::getenv("SOCKDIR"))) {
+        compare = tmpdirPtr;
+    }
+    else if (0 != (tmpdirPtr = bsl::getenv("TMPDIR"))) {
+        compare = tmpdirPtr;
+    }
+    else {
+        bdls::FilesystemUtil::getWorkingDirectory(&compare);
+    }
+
+    ASSERT(0 == bdls::PathUtil::appendIfValid(&compare, "foo.bar"));
+
+    STRING_TYPE name;
+    ASSERT(0 == bdls::PipeUtil::makeCanonicalName(&name, "FOO.Bar"));
+    LOOP2_ASSERT(name, compare, name == compare);
+    if (verbose) { P(name) }
+
+    if (0 == bsl::getenv("SOCKDIR")) {
+        // 'SOCKDIR' is not set.  Set it and retest.
+        static char sockdir[] = "SOCKDIR=bozonono";
+        ::putenv(sockdir);
+        compare = bsl::getenv("SOCKDIR");
+        ASSERT(0 == bdls::PathUtil::appendIfValid(&compare, "xy.ab"));
+        ASSERT(0 == bdls::PipeUtil::makeCanonicalName(&name, "XY.Ab"));
+        LOOP2_ASSERT(name, compare, name == compare);
+        if (verbose) { P(name) }
+    }
+    else if (0 != bsl::getenv("TMPDIR")) {
+        // Both 'SOCKDIR' and 'TMPDIR' are set.  If 'SOCKDIR' can be
+        // removed, retest 'TMPDIR'.
+        static char sockdir[] = "SOCKDIR";
+        ::putenv(sockdir);
+        if (0 == bsl::getenv("SOCKDIR")) {
+            compare = bsl::getenv("TMPDIR");
+            ASSERT(0 == bdls::PathUtil::appendIfValid(&compare, "xy.ab"));
+            ASSERT(0 == bdls::PipeUtil::makeCanonicalName(&name, "XY.Ab"));
+            LOOP2_ASSERT(name, compare, name == compare);
+            if (verbose) { P(name) }
+        }
+    }
+#endif
+}
+
 int main(int argc, char *argv[]) {
     int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
     bool             verbose = argc > 2;
@@ -87,55 +148,13 @@ int main(int argc, char *argv[]) {
            cout << "makeCanonicalName test" << endl;
         }
 
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-        bsl::string compare("\\\\.\\pipe\\foo.bar");
-        bsl::string name;
-        ASSERT(0 == bdls::PipeUtil::makeCanonicalName(&name, "FOO.Bar"));
-        LOOP2_ASSERT(name, compare, name == compare);
-        if (verbose) { P(name) }
-#else
-        bsl::string compare;
-        const char  *tmpdirPtr;
-        if (0 != (tmpdirPtr = bsl::getenv("SOCKDIR"))) {
-            compare = tmpdirPtr;
-        }
-        else if (0 != (tmpdirPtr = bsl::getenv("TMPDIR"))) {
-            compare = tmpdirPtr;
-        }
-        else {
-            bdls::FilesystemUtil::getWorkingDirectory(&compare);
-        }
-
-        ASSERT(0 == bdls::PathUtil::appendIfValid(&compare, "foo.bar"));
-
-        bsl::string name;
-        ASSERT(0 == bdls::PipeUtil::makeCanonicalName(&name, "FOO.Bar"));
-        LOOP2_ASSERT(name, compare, name == compare);
-        if (verbose) { P(name) }
-
-        if (0 == bsl::getenv("SOCKDIR")) {
-            // 'SOCKDIR' is not set.  Set it and retest.
-            static char sockdir[] = "SOCKDIR=bozonono";
-            ::putenv(sockdir);
-            compare = bsl::getenv("SOCKDIR");
-            ASSERT(0 == bdls::PathUtil::appendIfValid(&compare, "xy.ab"));
-            ASSERT(0 == bdls::PipeUtil::makeCanonicalName(&name, "XY.Ab"));
-            LOOP2_ASSERT(name, compare, name == compare);
-            if (verbose) { P(name) }
-        }
-        else if (0 != bsl::getenv("TMPDIR")) {
-            // Both 'SOCKDIR' and 'TMPDIR' are set.  If 'SOCKDIR' can be
-            // removed, retest 'TMPDIR'.
-            static char sockdir[] = "SOCKDIR";
-            ::putenv(sockdir);
-            if (0 == bsl::getenv("SOCKDIR")) {
-                compare = bsl::getenv("TMPDIR");
-                ASSERT(0 == bdls::PathUtil::appendIfValid(&compare, "xy.ab"));
-                ASSERT(0 == bdls::PipeUtil::makeCanonicalName(&name, "XY.Ab"));
-                LOOP2_ASSERT(name, compare, name == compare);
-                if (verbose) { P(name) }
-            }
-        }
+        testCase1_makeCanonicalName<bsl::string>(
+            "bsl::string", test, verbose);
+        testCase1_makeCanonicalName<std::string>(
+            "std::string", test, verbose);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+        testCase1_makeCanonicalName<std::pmr::string>(
+            "std::pmr::string", test, verbose);
 #endif
       } break;
       default: {

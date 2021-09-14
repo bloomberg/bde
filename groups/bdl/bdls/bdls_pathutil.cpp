@@ -220,23 +220,17 @@ const char *leafDelimiter(const char *path, int rootEnd, int length = -1)
     return position;
 }
 
+template <class STR_TYPE>
 static inline
-const char *leafDelimiter(const bsl::string &path, int rootEnd)
+const char *leafDelimiter(const STR_TYPE &path, int rootEnd)
 {
     return leafDelimiter(path.c_str(),
                          rootEnd,
                          static_cast<int>(path.length()));
 }
 
-}  // close unnamed namespace
-
-                              // ===============
-                              // struct PathUtil
-                              // ===============
-
-// CLASS METHODS
-int PathUtil::appendIfValid(bsl::string              *path,
-                            const bslstl::StringRef&  filename)
+template <class STR_TYPE>
+int u_appendIfValid(STR_TYPE *path, const bsl::string_view& filename)
 {
     BSLS_ASSERT(path);
 
@@ -246,7 +240,7 @@ int PathUtil::appendIfValid(bsl::string              *path,
     const char *pathEnd = path->c_str() + path->length();
     if (filename.data() >= path->c_str() && filename.data() < pathEnd) {
         bsl::string nonAliasedFilename(filename.data(), filename.length());
-        return appendIfValid(path, nonAliasedFilename);               // RETURN
+        return PathUtil::appendIfValid(path, nonAliasedFilename);     // RETURN
     }
 
     // If 'filename' is an absolute path, return an error status.
@@ -283,14 +277,12 @@ int PathUtil::appendIfValid(bsl::string              *path,
         }
     }
 
-    appendRaw(path, filename.data(), adjustedFilenameLength);
+    PathUtil::appendRaw(path, filename.data(), adjustedFilenameLength);
     return 0;
 }
 
-void PathUtil::appendRaw(bsl::string *path,
-                         const char  *filename,
-                         int          length,
-                         int          rootEnd)
+template <class STR_TYPE>
+void u_appendRaw(STR_TYPE *path, const char *filename, int length, int rootEnd)
 {
     BSLS_ASSERT(path);
     BSLS_ASSERT(filename);
@@ -305,7 +297,7 @@ void PathUtil::appendRaw(bsl::string *path,
                                       path->c_str(),
                                       static_cast<int>(path->length()));
         }
-        if (hasLeaf(path->c_str(), rootEnd)
+        if (PathUtil::hasLeaf(path->c_str(), rootEnd)
          || (rootEnd > 0 && !isSeparator((*path)[rootEnd-1]))) {
             path->push_back(k_separators[0]);
         }
@@ -313,7 +305,8 @@ void PathUtil::appendRaw(bsl::string *path,
     }
 }
 
-int PathUtil::popLeaf(bsl::string *path, int rootEnd)
+template <class STR_TYPE>
+int u_popLeaf(STR_TYPE *path, int rootEnd)
 {
     BSLS_ASSERT(path);
 
@@ -323,17 +316,16 @@ int PathUtil::popLeaf(bsl::string *path, int rootEnd)
                                   static_cast<int>(path->length()));
     }
 
-    if (!hasLeaf(path->c_str(), rootEnd)) {
+    if (!PathUtil::hasLeaf(path->c_str(), rootEnd)) {
         return -1;                                                    // RETURN
     }
 
-    path->erase(leafDelimiter(*path, rootEnd) - path->begin());
+    path->erase(leafDelimiter(*path, rootEnd) - path->data());
     return 0;
 }
 
-int PathUtil::getLeaf(bsl::string              *leaf,
-                      const bslstl::StringRef&  path,
-                      int                       rootEnd)
+template <class STR_TYPE>
+int u_getLeaf(STR_TYPE *leaf, const bsl::string_view& path, int rootEnd)
 {
     BSLS_ASSERT(leaf);
 
@@ -343,9 +335,10 @@ int PathUtil::getLeaf(bsl::string              *leaf,
         findFirstNonSeparatorChar(&rootEnd, path.data(), length);
     }
 
-    if (!hasLeaf(path, rootEnd)) {
+    if (!PathUtil::hasLeaf(path, rootEnd)) {
         return -1;                                                    // RETURN
     }
+
     leaf->clear();
     const char *lastSeparator = leafDelimiter(path.data(), rootEnd, length);
     BSLS_ASSERT(lastSeparator != path.data() + length);
@@ -360,14 +353,15 @@ int PathUtil::getLeaf(bsl::string              *leaf,
     return 0;
 }
 
-int PathUtil::getExtension(bsl::string             *extension,
-                           const bslstl::StringRef& path,
-                           int                      rootEnd)
+template <class STR_TYPE>
+int u_getExtension(STR_TYPE                *extension,
+                   const bsl::string_view&  path,
+                   int                      rootEnd)
 {
     BSLS_ASSERT(extension);
-    bsl::string leaf;
+    STR_TYPE    leaf;
     int hasLeaf = PathUtil::getLeaf(&leaf, path, rootEnd);
-    
+
     if (hasLeaf != 0) {
         return -1;                                                        // RETURN
     }
@@ -386,9 +380,8 @@ int PathUtil::getExtension(bsl::string             *extension,
     return 0;                                                             // RETURN
 }
 
-int PathUtil::getDirname(bsl::string              *dirname,
-                         const bslstl::StringRef&  path,
-                         int                       rootEnd)
+template <class STR_TYPE>
+int u_getDirname(STR_TYPE *dirname, const bsl::string_view& path, int rootEnd)
 {
     BSLS_ASSERT(dirname);
 
@@ -398,7 +391,7 @@ int PathUtil::getDirname(bsl::string              *dirname,
                                   static_cast<int>(path.length()));
     }
 
-    if (!hasLeaf(path, rootEnd)) {
+    if (!PathUtil::hasLeaf(path, rootEnd)) {
         return -1;                                                    // RETURN
     }
 
@@ -415,9 +408,8 @@ int PathUtil::getDirname(bsl::string              *dirname,
     return 0;
 }
 
-int PathUtil::getRoot(bsl::string              *root,
-                      const bslstl::StringRef&  path,
-                      int                       rootEnd)
+template <class STR_TYPE>
+int u_getRoot(STR_TYPE *root, const bsl::string_view& path, int rootEnd)
 {
     BSLS_ASSERT(root);
 
@@ -427,7 +419,7 @@ int PathUtil::getRoot(bsl::string              *root,
                                   static_cast<int>(path.length()));
     }
 
-    if (isRelative(path, rootEnd)) {
+    if (PathUtil::isRelative(path, rootEnd)) {
         return -1;                                                    // RETURN
     }
 
@@ -436,18 +428,182 @@ int PathUtil::getRoot(bsl::string              *root,
     return 0;
 }
 
-void PathUtil::splitFilename(bslstl::StringRef        *head,
-                             bslstl::StringRef        *tail,
-                             const bslstl::StringRef&  path,
-                             int                       rootEnd)
+}  // close unnamed namespace
+
+                              // ===============
+                              // struct PathUtil
+                              // ===============
+
+// CLASS METHODS
+int PathUtil::appendIfValid(bsl::string             *path,
+                            const bsl::string_view&  filename)
+{
+    return u_appendIfValid(path, filename);
+}
+
+int PathUtil::appendIfValid(std::string             *path,
+                            const bsl::string_view&  filename)
+{
+    return u_appendIfValid(path, filename);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+int PathUtil::appendIfValid(std::pmr::string        *path,
+                            const bsl::string_view&  filename)
+{
+    return u_appendIfValid(path, filename);
+}
+#endif
+
+void PathUtil::appendRaw(bsl::string *path,
+                         const char  *filename,
+                         int          length,
+                         int          rootEnd)
+{
+    u_appendRaw(path, filename, length, rootEnd);
+}
+
+void PathUtil::appendRaw(std::string *path,
+                         const char  *filename,
+                         int          length,
+                         int          rootEnd)
+{
+    u_appendRaw(path, filename, length, rootEnd);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+void PathUtil::appendRaw(std::pmr::string *path,
+                         const char  *filename,
+                         int          length,
+                         int          rootEnd)
+{
+    u_appendRaw(path, filename, length, rootEnd);
+}
+#endif
+
+int PathUtil::popLeaf(bsl::string *path, int rootEnd)
+{
+    return u_popLeaf(path, rootEnd);
+}
+
+int PathUtil::popLeaf(std::string *path, int rootEnd)
+{
+    return u_popLeaf(path, rootEnd);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+int PathUtil::popLeaf(std::pmr::string *path, int rootEnd)
+{
+    return u_popLeaf(path, rootEnd);
+}
+#endif
+
+int PathUtil::getLeaf(bsl::string             *leaf,
+                      const bsl::string_view&  path,
+                      int                      rootEnd)
+{
+    return u_getLeaf(leaf, path, rootEnd);
+}
+
+int PathUtil::getLeaf(std::string             *leaf,
+                      const bsl::string_view&  path,
+                      int                      rootEnd)
+{
+    return u_getLeaf(leaf, path, rootEnd);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+int PathUtil::getLeaf(std::pmr::string        *leaf,
+                      const bsl::string_view&  path,
+                      int                      rootEnd)
+{
+    return u_getLeaf(leaf, path, rootEnd);
+}
+#endif
+
+int PathUtil::getExtension(bsl::string             *extension,
+                           const bsl::string_view&  path,
+                           int                      rootEnd)
+{
+    return u_getExtension(extension, path, rootEnd);
+}
+
+int PathUtil::getExtension(std::string             *extension,
+                           const bsl::string_view&  path,
+                           int                      rootEnd)
+{
+    return u_getExtension(extension, path, rootEnd);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+int PathUtil::getExtension(std::pmr::string        *extension,
+                           const bsl::string_view&  path,
+                           int                      rootEnd)
+{
+    return u_getExtension(extension, path, rootEnd);
+}
+#endif
+
+int PathUtil::getDirname(bsl::string             *dirname,
+                         const bsl::string_view&  path,
+                         int                      rootEnd)
+{
+    return u_getDirname(dirname, path, rootEnd);
+}
+
+int PathUtil::getDirname(std::string             *dirname,
+                         const bsl::string_view&  path,
+                         int                      rootEnd)
+{
+    return u_getDirname(dirname, path, rootEnd);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+int PathUtil::getDirname(std::pmr::string             *dirname,
+                         const bsl::string_view&  path,
+                         int                      rootEnd)
+{
+    return u_getDirname(dirname, path, rootEnd);
+}
+#endif
+
+int PathUtil::getRoot(bsl::string             *root,
+                      const bsl::string_view&  path,
+                      int                      rootEnd)
+{
+    return u_getRoot(root, path, rootEnd);
+}
+
+int PathUtil::getRoot(std::string             *root,
+                      const bsl::string_view&  path,
+                      int                      rootEnd)
+{
+    return u_getRoot(root, path, rootEnd);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+int PathUtil::getRoot(std::pmr::string             *root,
+                      const bsl::string_view&  path,
+                      int                      rootEnd)
+{
+    return u_getRoot(root, path, rootEnd);
+}
+#endif
+
+void PathUtil::splitFilename(bsl::string_view        *head,
+                             bsl::string_view        *tail,
+                             const bsl::string_view&  path,
+                             int                      rootEnd)
 {
     BSLS_ASSERT(head);
     BSLS_ASSERT(tail);
     BSLS_ASSERT(head != tail);
 
+    bsl::string_view default_sv;
+
     if (path.empty()) {
-        head->reset();
-        tail->reset();
+        *head = default_sv;
+        *tail = default_sv;
         return;                                                       // RETURN
     }
 
@@ -470,9 +626,10 @@ void PathUtil::splitFilename(bslstl::StringRef        *head,
     }
 
     if (pathEnd - 1 != lastSeparator) {
-        tail->assign(lastSeparator + 1, pathEnd);
+        *tail =
+            bsl::string_view(lastSeparator + 1, pathEnd - lastSeparator - 1);
     } else {
-        tail->reset();
+        *tail = default_sv;
     }
 
     // Skip trailing delimiters between head and tail.
@@ -483,13 +640,13 @@ void PathUtil::splitFilename(bslstl::StringRef        *head,
     }
 
     // Head detection.
-
-    head->assign(pathBegin,
-                 lastSeparator > pathBegin + rootEnd ? lastSeparator
-                                                     : pathBegin + rootEnd);
+    *head = bsl::string_view(pathBegin,
+                             lastSeparator > pathBegin + rootEnd
+                                 ? (lastSeparator - pathBegin)
+                                 : rootEnd);
 }
 
-bool PathUtil::isAbsolute(const bslstl::StringRef& path, int rootEnd)
+bool PathUtil::isAbsolute(const bsl::string_view& path, int rootEnd)
 {
     if (0 > rootEnd) {
         findFirstNonSeparatorChar(&rootEnd,
@@ -500,7 +657,7 @@ bool PathUtil::isAbsolute(const bslstl::StringRef& path, int rootEnd)
     return rootEnd > 0;
 }
 
-bool PathUtil::isRelative(const bslstl::StringRef& path, int rootEnd)
+bool PathUtil::isRelative(const bsl::string_view& path, int rootEnd)
 {
     if (0 > rootEnd) {
         findFirstNonSeparatorChar(&rootEnd,
@@ -511,16 +668,7 @@ bool PathUtil::isRelative(const bslstl::StringRef& path, int rootEnd)
     return 0 == rootEnd;
 }
 
-int PathUtil::getRootEnd(const bslstl::StringRef& path)
-{
-    int result;
-    findFirstNonSeparatorChar(&result,
-                              path.data(),
-                              static_cast<int>(path.length()));
-    return result;
-}
-
-bool PathUtil::hasLeaf(const bslstl::StringRef& path, int rootEnd)
+bool PathUtil::hasLeaf(const bsl::string_view& path, int rootEnd)
 {
     int length = static_cast<int>(path.length());
     if (0 > rootEnd) {
@@ -533,6 +681,16 @@ bool PathUtil::hasLeaf(const bslstl::StringRef& path, int rootEnd)
 
     return rootEnd < length;
 }
+
+int PathUtil::getRootEnd(const bsl::string_view& path)
+{
+    int result;
+    findFirstNonSeparatorChar(&result,
+                              path.data(),
+                              static_cast<int>(path.length()));
+    return result;
+}
+
 }  // close package namespace
 
 }  // close enterprise namespace
