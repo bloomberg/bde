@@ -173,9 +173,9 @@ PipeUtil::isOpenForReading(const bsl::string_view& pipeName)
         return false;                                                 // RETURN
     }
 
-    FilesystemUtil::FileDescriptor pipe =
-        FilesystemUtil::FileDescriptor(CreateFileW(
-            wPipeName.data(), GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL));
+    HANDLE pipe = CreateFileW(wPipeName.data(),
+                              GENERIC_WRITE, 0, NULL,
+                              OPEN_EXISTING, 0, NULL);
 
     if (INVALID_HANDLE_VALUE == pipe) {
         return false;                                                 // RETURN

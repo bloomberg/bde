@@ -321,18 +321,13 @@ struct FilesystemUtil {
     // TYPES
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     typedef void *HANDLE;
+        // 'HANDLE' is a stand-in for the Windows API 'HANDLE' type, to allow
+        // us to avoid including 'windows.h' in this header.  'HANDLE' should
+        // not be used by client code.
 
-    struct FileDescriptorType {
-    };
-
-    typedef FileDescriptorType *FileDescriptor;
-        // 'FileDescriptorType' is a stand-in for the Windows API 'HANDLE'
-        // type, to allow us to avoid including 'windows.h' in this header.
-        // 'FileDescriptorType' should not be used by client code.  Note that
-        // while 'HANDLE' is currently 'void*', we choose a new type to avoid
-        // overloading ambiguities between 'STRING_TYPE' and
-        // 'FileDescriptor' when invoking methods with a 'const char *'
-        // argument.
+    typedef HANDLE FileDescriptor;
+        // 'FileDescriptor' is an alias for the operating system's native file
+        // descriptor / file handle type.
 
     typedef __int64 Offset;
         // 'Offset' is an alias for a signed value, representing the offset of

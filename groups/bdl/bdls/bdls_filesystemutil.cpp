@@ -809,7 +809,7 @@ int removeFile(const char *path)
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 
 const bdls::FilesystemUtil::FileDescriptor bdls::FilesystemUtil::k_INVALID_FD =
-    bdls::FilesystemUtil::FileDescriptor(INVALID_HANDLE_VALUE);
+                                                          INVALID_HANDLE_VALUE;
 
 namespace bdls {
 
@@ -893,21 +893,21 @@ FilesystemUtil::FileDescriptor FilesystemUtil::open(
     FilesystemUtil::FileDescriptor descriptor = k_INVALID_FD;
 
     if (narrowToWide(&wide, pathName)) {
-        descriptor = FilesystemUtil::FileDescriptor(
-            CreateFileW(wide.c_str(),
-                        accessMode,
-                        FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
-                        // do not lock
-                        NULL,                   // default security
-                        creationInfo,           // existing file only
-                        FILE_ATTRIBUTE_NORMAL,  // normal file
-                        NULL));                 // no attr
+        descriptor = CreateFileW(
+                    wide.c_str(),
+                    accessMode,
+                    FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+                                                        // do not lock
+                    NULL,                               // default security
+                    creationInfo,                       // existing file only
+                    FILE_ATTRIBUTE_NORMAL,              // normal file
+                    NULL);                              // no attr
     }
 
     return descriptor;
 }
 
-int FilesystemUtil::close(FilesystemUtil::FileDescriptor descriptor)
+int FilesystemUtil::close(FileDescriptor descriptor)
 {
     if (k_INVALID_FD == descriptor) {
         return int(k_BAD_FILE_DESCRIPTOR);                            // RETURN
@@ -947,10 +947,9 @@ int FilesystemUtil::remove(const char *fileToRemove, bool recursive)
     }
 }
 
-FilesystemUtil::Offset FilesystemUtil::seek(
-                                     FilesystemUtil::FileDescriptor descriptor,
-                                     FilesystemUtil::Offset         offset,
-                                     int                            whence)
+FilesystemUtil::Offset FilesystemUtil::seek(FileDescriptor         descriptor,
+                                            FilesystemUtil::Offset offset,
+                                            int                    whence)
 {
     switch (whence) {
       case e_SEEK_FROM_BEGINNING: {
@@ -976,9 +975,9 @@ FilesystemUtil::Offset FilesystemUtil::seek(
     return li.QuadPart;
 }
 
-int FilesystemUtil::read(FilesystemUtil::FileDescriptor  descriptor,
-                         void                           *buffer,
-                         int                             numBytesToRead)
+int FilesystemUtil::read(FileDescriptor  descriptor,
+                         void           *buffer,
+                         int             numBytesToRead)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 <= numBytesToRead);
@@ -987,9 +986,9 @@ int FilesystemUtil::read(FilesystemUtil::FileDescriptor  descriptor,
     return ReadFile(descriptor, buffer, numBytesToRead, &n, 0) ? n : -1;
 }
 
-int FilesystemUtil::write(FilesystemUtil::FileDescriptor  descriptor,
-                          const void                     *buffer,
-                          int                             numBytesToWrite)
+int FilesystemUtil::write(FileDescriptor  descriptor,
+                          const void     *buffer,
+                          int             numBytesToWrite)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 <= numBytesToWrite);
@@ -998,11 +997,11 @@ int FilesystemUtil::write(FilesystemUtil::FileDescriptor  descriptor,
     return WriteFile(descriptor, buffer, numBytesToWrite, &n, 0) ? n : -1;
 }
 
-int FilesystemUtil::map(FilesystemUtil::FileDescriptor   descriptor,
-                        void                           **address,
-                        Offset                           offset,
-                        bsl::size_t                      len,
-                        int                              mode)
+int FilesystemUtil::map(FileDescriptor   descriptor,
+                        void           **address,
+                        Offset           offset,
+                        bsl::size_t      len,
+                        int              mode)
 {
     BSLS_ASSERT(address);
 
@@ -1071,8 +1070,7 @@ int FilesystemUtil::sync(char *address, bsl::size_t numBytes, bool)
     return FlushViewOfFile(address, numBytes) ? 0 : -1;
 }
 
-int FilesystemUtil::lock(FilesystemUtil::FileDescriptor descriptor,
-                         bool                           lockWrite)
+int FilesystemUtil::lock(FileDescriptor descriptor, bool lockWrite)
 {
     OVERLAPPED overlapped;
     ZeroMemory(&overlapped, sizeof(overlapped));
@@ -1084,8 +1082,7 @@ int FilesystemUtil::lock(FilesystemUtil::FileDescriptor descriptor,
                        &overlapped);
 }
 
-int FilesystemUtil::truncateFileSize(FilesystemUtil::FileDescriptor descriptor,
-                                     Offset                         size)
+int FilesystemUtil::truncateFileSize(FileDescriptor descriptor, Offset size)
 {
     BSLS_ASSERT(size <= getFileSize(descriptor));
 
@@ -1102,8 +1099,7 @@ int FilesystemUtil::truncateFileSize(FilesystemUtil::FileDescriptor descriptor,
     return 0;
 }
 
-int FilesystemUtil::tryLock(FilesystemUtil::FileDescriptor descriptor,
-                            bool                           lockWrite)
+int FilesystemUtil::tryLock(FileDescriptor descriptor, bool lockWrite)
 {
     OVERLAPPED overlapped;
     ZeroMemory(&overlapped, sizeof(overlapped));
@@ -1120,7 +1116,7 @@ int FilesystemUtil::tryLock(FilesystemUtil::FileDescriptor descriptor,
                      : -1;
 }
 
-int FilesystemUtil::unlock(FilesystemUtil::FileDescriptor descriptor)
+int FilesystemUtil::unlock(FileDescriptor descriptor)
 {
     OVERLAPPED overlapped;
     ZeroMemory(&overlapped, sizeof(overlapped));
@@ -1214,9 +1210,8 @@ int FilesystemUtil::getLastModificationTime(bdlt::Datetime *time,
     return 0;
 }
 
-int FilesystemUtil::getLastModificationTime(
-                                    bdlt::Datetime                 *time,
-                                    FilesystemUtil::FileDescriptor  descriptor)
+int FilesystemUtil::getLastModificationTime(bdlt::Datetime *time,
+                                            FileDescriptor  descriptor)
 {
     BSLS_ASSERT(time);
 
@@ -1429,13 +1424,12 @@ int FilesystemUtil::visitTree(
 
     (void)bdlde::CharConvertUtf16::utf8ToUtf16(
         &widePattern, fullPattern, 0, '-');
-    FileDescriptor handle =
-        FileDescriptor(FindFirstFileExW(widePattern.c_str(),
-                                        FindExInfoStandard,
-                                        &foundData,
-                                        FindExSearchNameMatch,
-                                        NULL,
-                                        FIND_FIRST_EX_CASE_SENSITIVE));
+    FileDescriptor handle = FindFirstFileExW(widePattern.c_str(),
+                                             FindExInfoStandard,
+                                             &foundData,
+                                             FindExSearchNameMatch,
+                                             NULL,
+                                             FIND_FIRST_EX_CASE_SENSITIVE);
     if (INVALID_HANDLE_VALUE != handle) {
         bslma::ManagedPtr<FileDescriptor> handleGuard(
             &handle, 0, &invokeFindClose);
@@ -1462,12 +1456,12 @@ int FilesystemUtil::visitTree(
     widePattern.clear();
     (void)bdlde::CharConvertUtf16::utf8ToUtf16(
         &widePattern, fullPattern, 0, '-');
-    handle = FileDescriptor(FindFirstFileExW(widePattern.c_str(),
-                                             FindExInfoStandard,
-                                             &foundData,
-                                             FindExSearchLimitToDirectories,
-                                             NULL,
-                                             FIND_FIRST_EX_CASE_SENSITIVE));
+    handle = FindFirstFileExW(widePattern.c_str(),
+                              FindExInfoStandard,
+                              &foundData,
+                              FindExSearchLimitToDirectories,
+                              NULL,
+                              FIND_FIRST_EX_CASE_SENSITIVE);
     if (INVALID_HANDLE_VALUE != handle) {
         bslma::ManagedPtr<FileDescriptor> handleGuard(
             &handle, 0, &invokeFindClose);
@@ -2389,8 +2383,8 @@ FilesystemUtil::Offset FilesystemUtil::getAvailableSpace(const char *path)
     }
 }
 
-FilesystemUtil::Offset FilesystemUtil::getAvailableSpace(
-                                                     FileDescriptor descriptor)
+FilesystemUtil::Offset
+FilesystemUtil::getAvailableSpace(FileDescriptor descriptor)
 {
 # if defined(U_USE_UNIX_FILE_SYSTEM_INTERFACE)
     struct ::statvfs buffer;

@@ -1971,9 +1971,9 @@ int main(int argc, char *argv[])
 
         FileUtil::FileDescriptor BOGUS_HANDLE =
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-            reinterpret_cast<FileUtil::FileDescriptor>(100);
+                              reinterpret_cast<FileUtil::FileDescriptor>(100);
 #else
-            static_cast<FileUtil::FileDescriptor>(100);
+                              static_cast<FileUtil::FileDescriptor>(100);
 #endif
 
         char fnBuf[100];
@@ -2815,14 +2815,7 @@ int main(int argc, char *argv[])
                                        FileUtil::e_READ_WRITE);
             ASSERT(u::invalid != fd);
 
-            FileUtil::FileDescriptor BOGUS_HANDLE =
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-                              reinterpret_cast<FileUtil::FileDescriptor>(-1);
-#else
-                              static_cast<FileUtil::FileDescriptor>(-1);
-#endif
-
-            Obj sb(BOGUS_HANDLE, false);
+            Obj sb((FdType) -1, false);
             ASSERT(!sb.reset(fd, true, false, true));
 
             sb.sputn(line1, 20);

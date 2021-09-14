@@ -1435,8 +1435,7 @@ int TestUtil_UnixImpUtil::setLastModificationTime(
 
 // TYPES
 const TestUtil_WindowsImpUtil::FileDescriptor
-    TestUtil_WindowsImpUtil::k_INVALID_FD =
-        (TestUtil_WindowsImpUtil::FileDescriptor)INVALID_HANDLE_VALUE;
+    TestUtil_WindowsImpUtil::k_INVALID_FD = INVALID_HANDLE_VALUE;
 
 // PRIVATE CLASS METHODS
 TestUtil_WindowsImpUtil::FileDescriptor
@@ -1480,7 +1479,7 @@ TestUtil_WindowsImpUtil::createTemporaryFile(
     }
 
     *path = pathValue;
-    return (TestUtil_WindowsImpUtil::FileDescriptor) fileDescriptor;
+    return fileDescriptor;
 }
 
 // CLASS METHODS
@@ -4765,9 +4764,6 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   int tryLock(FileDescriptor, bool)
-        // --------------------------------------------------------------------
-
-        typedef Obj::FileDescriptor FD;
         // --------------------------------------------------------------------
 
         typedef Obj::FileDescriptor FD;
