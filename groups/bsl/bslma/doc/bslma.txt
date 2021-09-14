@@ -16,11 +16,13 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslma' package currently has 44 components having 9 levels of physical
+ The 'bslma' package currently has 45 components having 10 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
+ 10. bslma_isstdallocator
+
   9. bslma_managedptr
      bslma_stdallocator
      bslma_stdtestallocator
@@ -136,6 +138,9 @@
 :
 : 'bslma_infrequentdeleteblocklist':                     !DEPRECATED!
 :      Provide allocation and management of a sequence of memory blocks.
+:
+: 'bslma_isstdallocator':
+:      Provide a compile-time check for determining allocator types.
 :
 : 'bslma_mallocfreeallocator':
 :      Provide malloc/free adaptor to 'bslma::Allocator' protocol.
@@ -315,6 +320,12 @@
  destroyed automatically when the proctor object goes out of scope by calling
  the object's destructor.  This proctor mechanism is useful in guarding against
  memory leaks, e.g., when additional allocations may throw an exception.
+
+/'bslma_isstdallocator'
+/ - - - - - - - - - - -
+The {'bslma_isstdallocator'} component provides a a meta-function,
+'bsl::IsStdAllocator', that determines if a type meets the requirements for an
+allocator, as specified in [container.requirements.general].
 
 /'bslma_mallocfreeallocator'
 /- - - - - - - - - - - - - -
