@@ -21,6 +21,7 @@ BSLS_IDENT_RCSID(baljsn_parserutil_cpp,"$Id$ $CSID$")
 #include <bsls_libraryfeatures.h>
 
 #include <bsl_algorithm.h>
+#include <bsl_iterator.h>
 #include <bsl_cmath.h>
 #include <bsl_cctype.h>
 #include <bsl_cerrno.h>
@@ -622,6 +623,8 @@ int ParserUtil::getValue(bool *value, const bsl::string_view& data)
 int ParserUtil::getValue(bsl::vector<char>       *value,
                          const bsl::string_view&  data)
 {
+    BSLS_ASSERT(value);
+
     const int MAX_LENGTH = 1024;
     bsls::AlignedBuffer<MAX_LENGTH> buffer;
 
@@ -636,9 +639,12 @@ int ParserUtil::getValue(bsl::vector<char>       *value,
     value->clear();
 
     bdlde::Base64Decoder base64Decoder(true);
-    bsl::back_insert_iterator<bsl::vector<char> > outputIterator(*value);
+    int                  length = static_cast<int>(base64String.length());
 
-    rc = base64Decoder.convert(outputIterator,
+    value->resize(static_cast<bsl::size_t>(
+                              bdlde::Base64Decoder::maxDecodedLength(length)));
+
+    rc = base64Decoder.convert(value->begin(),
                                base64String.begin(),
                                base64String.end());
 
@@ -646,11 +652,14 @@ int ParserUtil::getValue(bsl::vector<char>       *value,
         return rc;                                                    // RETURN
     }
 
-    rc = base64Decoder.endConvert(outputIterator);
+    rc = base64Decoder.endConvert(value->begin() +
+                                  base64Decoder.outputLength());
 
     if (rc < 0) {
         return rc;                                                    // RETURN
     }
+
+    value->resize(static_cast<bsl::size_t>(base64Decoder.outputLength()));
 
     return 0;
 }
