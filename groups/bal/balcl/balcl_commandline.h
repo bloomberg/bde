@@ -47,7 +47,8 @@ BSLS_IDENT("$Id: $")
 //:   line loads such variables with the option value as specified on the
 //:   command line (or a default value if one is configured).  Linked variables
 //:   provide a sometimes convenient alternative to using the accessor methods.
-//:   See {Type-and-Constraint Field}.
+//:   See {Type-and-Constraint Field}.  Linked variables can be 'bsl::optional'
+//:   objects for each of the scalar option types except 'bool'.
 //:
 //: 5 The ability to access options and their corresponding values through
 //:   various accessor methods.
@@ -416,6 +417,19 @@ BSLS_IDENT("$Id: $")
 // information field can then be specified; if such a field is desired, then
 // the type-and-constraint field needs to be set explicitly.
 //
+///Linked Variables
+///-  -  -  -  -  -
+// Linked variables are updated by the 'parse' method of 'balcl::CommandLine'
+// should that method determine a value for an option; otherwise, the linked
+// variable is left unchanged.  The value for an option is determined either
+// from the command-line arguments passed to 'parse' or obtained from a
+// pre-configured default value, if any (see {Occurrence Information Field}).
+//
+// Linked variables can be 'bsl::optional' objects that wrap any of the
+// non-array option types except for 'bool' (see {Supported Types}).  Also, a
+// link to a 'bsl::optional' object is disallowed if the option is "required"
+// or has a default value (see {Occurrence Information Field}).
+//
 ///Occurrence Information Field
 /// - - - - - - - - - - - - - -
 // The occurrence information field is used to specify a default value for an
@@ -674,11 +688,12 @@ BSLS_IDENT("$Id: $")
 //: o A boolean option type cannot be configured to be:
 //:   o required, or
 //:   o have a default value, or
-//:   o have a constraint.
+//:   o have a constraint, or
+//:   o be linked to a 'bsl::optional<bool>' variable.
 //:
 //: o The 'theBool' method returns the same value ('true' or 'false') as the
 //:   'isSpecified' method.  In contrast, the 'the*' accessor methods for the
-//:   other option types have a precondition such that either 'isSpecified()' 
+//:   other option types have a precondition such that either 'isSpecified()'
 //:   must be 'true' or the option must have a default value.
 //
 ///Usage
@@ -692,6 +707,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  usage: mysort  [-r|reverse] [-i|insensitivetocase] [-u|uniq]
 //                 [-a|algorithm sortAlgo] -o|outputfile <outputFile>
+//                 [-t|field-separator] <character>
 //                 [<file>]*
 //                            // Sort the specified files (in 'fileList'),
 //                            // using the specified sorting algorithm and
@@ -753,9 +769,9 @@ BSLS_IDENT("$Id: $")
 //      bool isCaseInsensitive = false;  // Must be initially 'false'.
 //      bool isUniq            = false;  // Must be initially 'false'.
 //
-//      bsl::string outFile;
-//      bsl::string sortAlgo;
-//
+//      bsl::optional<char>      fieldSeparator;
+//      bsl::string              outFile;
+//      bsl::string              sortAlgo;
 //      bsl::vector<bsl::string> files;
 //..
 // Notice that variables linked to flags (boolean options) are initialized to
@@ -765,8 +781,8 @@ BSLS_IDENT("$Id: $")
 // Next, we build up an option specification table as follows:
 //..
 //      // build constraint for sortAlgo option
-//      balcl::Constraint::StringConstraint validAlgoConstraint;
-//      validAlgoConstraint = &isValidAlgorithm;
+//      balcl::Constraint::StringConstraint validAlgoConstraint(
+//                                                          &isValidAlgorithm);
 //
 //      // option specification table
 //      balcl::OptionInfo specTable[] = {
@@ -789,6 +805,13 @@ BSLS_IDENT("$Id: $")
 //          "isUniq",                                        // name
 //          "discard duplicate lines",                       // description
 //          balcl::TypeInfo(&isUniq),                        // link
+//          balcl::OccurrenceInfo::e_OPTIONAL                // occurrence info
+//        },
+//        {
+//          "t|field-separator",                             // tag
+//          "fieldSeparator",                                // name
+//          "field separator character",                     // description
+//          balcl::TypeInfo(&fieldSeparator),                // link
 //          balcl::OccurrenceInfo::e_OPTIONAL                // occurrence info
 //        },
 //        {
@@ -838,7 +861,12 @@ BSLS_IDENT("$Id: $")
 //      balcl::CommandLineOptionsHandle options = cmdLine.options();
 //
 //      // Access through linked variable.
-//      bsl::cout << outFile << bsl::endl;
+//      bsl::cout << "outFile: " << outFile << bsl::endl;
+//      bsl::cout << "isUniq:  " << isUniq  << bsl::endl;
+//      if (fieldSeparator.has_value()) {
+//          bsl::cout << "fieldSeparator: "
+//                    <<  fieldSeparator.value() << bsl::endl;
+//      }
 //
 //      // Access through *theType* methods.
 //      assert(cmdLine.theString("outputFile") == outFile);

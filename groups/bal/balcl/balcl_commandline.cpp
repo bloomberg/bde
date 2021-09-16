@@ -16,6 +16,7 @@ BSLS_IDENT_RCSID(balcl_commandline_cpp,"$Id$ $CSID$")
 #include <bsls_assert.h>
 
 #include <bsl_iostream.h>
+#include <bsl_optional.h>
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
 
@@ -202,80 +203,83 @@ namespace u {
                         // =====================
 
 struct OptionValueUtil {
-    static void setValue(void *dst, const OptionValue& src);
+    static void setLinkedVariableValue(
+                                  void               *dst,
+                                  bool                isOptionalLinkedVariable,
+                                  const OptionValue&  src);
         // Assign to the object at the specified 'dst' the value of the
         // specified 'src'.  The behavior is undefined unless
-        // 'OptionType::e_VOID != src.type()' and 'dst' can be cast to a
-        // pointer to an object of 'OptionType::EnumToType<src.type()>::type'.
+        // 'OptionType::e_VOID != src.type()' and 'dst' can be legally cast to
+        // a 'OptionType::EnumToType<src.type()>::type *' or, if the specified
+        // 'isOptionalLinkedVariable' is 'true', to
+        // 'bsl::optional<OptionType::EnumToType<src.type()>::type> *'.
 };
 
                         // ---------------------
                         // class OptionValueUtil
                         // ---------------------
 
-void OptionValueUtil::setValue(void               *dst,
+void OptionValueUtil::setLinkedVariableValue(
+                               void               *dst,
+                               bool                isOptionalLinkedVariable,
                                const OptionValue&  src)
 {
     BSLS_ASSERT(dst);
 
     typedef OptionType Ot;
 
+#define CASE(ENUM)                                                            \
+      case ENUM: {                                                            \
+        typedef Ot::EnumToType<ENUM>::type Type;                              \
+                                                                              \
+        *(static_cast<Type *>(dst)) = src.the<Type>();                        \
+      } break;                                                                \
+
+#define CASE_MAYBE_OPTIONAL_LINK(ENUM)                                        \
+      case ENUM: {                                                            \
+        typedef Ot::EnumToType<ENUM>::type Type;                              \
+                                                                              \
+        if (isOptionalLinkedVariable) {                                       \
+          BSLS_ASSERT(Ot::e_BOOL != src.type());                              \
+          BSLS_ASSERT(false      == Ot::isArrayType(src.type()));             \
+                                                                              \
+          typedef bsl::optional<Type> OptType;                                \
+                                                                              \
+          *(static_cast<OptType *>(dst)) = src.the<Type>();                   \
+        } else {                                                              \
+          *(static_cast<   Type *>(dst)) = src.the<Type>();                   \
+        }                                                                     \
+      } break;                                                                \
+
     switch (src.type()) {
       case Ot::e_VOID: {
-          BSLS_ASSERT_OPT(!"Reached");
+        BSLS_ASSERT_OPT(!"Reached");
       } break;
-      case Ot::e_BOOL: {
-        *(static_cast<Ot::Bool          *>(dst)) = src.the<Ot::Bool>();
+
+      CASE                    (Ot::e_BOOL)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_CHAR)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_INT)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_INT64)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_DOUBLE)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_STRING)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_DATETIME)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_DATE)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_TIME)
+      CASE                    (Ot::e_CHAR_ARRAY)
+      CASE                    (Ot::e_INT_ARRAY)
+      CASE                    (Ot::e_INT64_ARRAY)
+      CASE                    (Ot::e_DOUBLE_ARRAY)
+      CASE                    (Ot::e_STRING_ARRAY)
+      CASE                    (Ot::e_DATETIME_ARRAY)
+      CASE                    (Ot::e_DATE_ARRAY)
+      CASE                    (Ot::e_TIME_ARRAY)
+
+      default: {
+        BSLS_ASSERT(!"Reached");
       } break;
-      case Ot::e_CHAR: {
-        *(static_cast<Ot::Char          *>(dst)) = src.the<Ot::Char>();
-      } break;
-      case Ot::e_INT: {
-        *(static_cast<Ot::Int           *>(dst)) = src.the<Ot::Int>();
-      } break;
-      case Ot::e_INT64: {
-        *(static_cast<Ot::Int64         *>(dst)) = src.the<Ot::Int64>();
-      } break;
-      case Ot::e_DOUBLE: {
-        *(static_cast<Ot::Double        *>(dst)) = src.the<Ot::Double>();
-      } break;
-      case Ot::e_STRING: {
-        *(static_cast<Ot::String        *>(dst)) = src.the<Ot::String>();
-      } break;
-      case Ot::e_DATETIME: {
-        *(static_cast<Ot::Datetime      *>(dst)) = src.the<Ot::Datetime>();
-      } break;
-      case Ot::e_DATE: {
-        *(static_cast<Ot::Date          *>(dst)) = src.the<Ot::Date>();
-      } break;
-      case Ot::e_TIME: {
-        *(static_cast<Ot::Time          *>(dst)) = src.the<Ot::Time>();
-      } break;
-      case Ot::e_CHAR_ARRAY: {
-        *(static_cast<Ot::CharArray     *>(dst)) = src.the<Ot::CharArray>();
-      } break;
-      case Ot::e_INT_ARRAY: {
-        *(static_cast<Ot::IntArray      *>(dst)) = src.the<Ot::IntArray>();
-      } break;
-      case Ot::e_INT64_ARRAY: {
-        *(static_cast<Ot::Int64Array    *>(dst)) = src.the<Ot::Int64Array>();
-      } break;
-      case Ot::e_DOUBLE_ARRAY: {
-        *(static_cast<Ot::DoubleArray   *>(dst)) = src.the<Ot::DoubleArray>();
-      } break;
-      case Ot::e_STRING_ARRAY: {
-        *(static_cast<Ot::StringArray   *>(dst)) = src.the<Ot::StringArray>();
-      } break;
-      case Ot::e_DATETIME_ARRAY: {
-        *(static_cast<Ot::DatetimeArray *>(dst)) =
-                                                  src.the<Ot::DatetimeArray>();
-      } break;
-      case Ot::e_DATE_ARRAY: {
-        *(static_cast<Ot::DateArray     *>(dst)) = src.the<Ot::DateArray>();
-      } break;
-      case Ot::e_TIME_ARRAY: {
-        *(static_cast<Ot::TimeArray     *>(dst)) = src.the<Ot::TimeArray>();
-      } break;
+
+#undef CASE_MAYBE_OPTIONAL_LINK
+#undef CASE
     }
 }
 
@@ -342,6 +346,28 @@ int validate(const bsl::vector<Option>& options,
             status = 5;
         }
 
+        if (thisOption.occurrenceInfo().hasDefaultValue()
+         && thisOption.typeInfo().isOptionalLinkedVariable()) {
+
+            stream << "Link to 'bsl::optional' object disallowed "
+                      "for option having a configured default value." << '\n'
+                   << u::Ordinal(i) << " option." << '\n'
+                   << bsl::flush;
+
+            status = 6;
+        }
+
+        if (thisOption.occurrenceInfo().isRequired()
+         && thisOption.typeInfo().isOptionalLinkedVariable()) {
+
+            stream << "Link to 'bsl::optional' object disallowed "
+                      "for option configured as \"required\"." << '\n'
+                   << u::Ordinal(i) << " option." << '\n'
+                   << bsl::flush;
+
+            status = 7;
+        }
+
         // Tags and names must be unique.
 
         for (bsl::size_t j = 0; j < i; ++j) {
@@ -351,7 +377,7 @@ int validate(const bsl::vector<Option>& options,
                        << u::Ordinal(j) << " options are equal."
                        << '\n' << bsl::flush;
 
-                status = 6;
+                status = 8;
             }
         }
 
@@ -368,7 +394,7 @@ int validate(const bsl::vector<Option>& options,
                            << u::Ordinal(j) << " options are equal."
                            << '\n' << bsl::flush;
 
-                    status = 7;
+                    status = 9;
                 }
 
                 if (!bsl::strcmp(thisOption.longTag(),
@@ -378,7 +404,7 @@ int validate(const bsl::vector<Option>& options,
                            << u::Ordinal(j) << " options are equal."
                            << '\n' << bsl::flush;
 
-                    status = 8;
+                    status = 10;
                 }
             }
         }
@@ -394,7 +420,7 @@ int validate(const bsl::vector<Option>& options,
                        << u::Ordinal(i) << " option.\n"
                        << bsl::flush;
 
-                status = 9;
+                status = 11;
             }
         }
     }
@@ -887,7 +913,10 @@ int CommandLine::postParse(bsl::ostream& stream)
         if (!d_data[i].isNull()) {
 
             if (info.linkedVariable()) {
-                u::OptionValueUtil::setValue(info.linkedVariable(), d_data[i]);
+                u::OptionValueUtil::setLinkedVariableValue(
+                                               info.linkedVariable(),
+                                               info.isOptionalLinkedVariable(),
+                                               d_data[i]);
             }
 
             d_data1.push_back(d_data[i]);
@@ -898,9 +927,13 @@ int CommandLine::postParse(bsl::ostream& stream)
             // This might be redundant, since 'data[i]' was set in
             // 'validateAndInitialize'.  But to be safe...
 
+            BSLS_ASSERT(false == info.isOptionalLinkedVariable());
+
             if (info.linkedVariable()) {
-                u::OptionValueUtil::setValue(info.linkedVariable(),
-                                             defaultInfo.defaultValue());
+                u::OptionValueUtil::setLinkedVariableValue(
+                                               info.linkedVariable(),
+                                               info.isOptionalLinkedVariable(),
+                                               defaultInfo.defaultValue());
             }
 
             d_data1.push_back(defaultInfo.defaultValue());

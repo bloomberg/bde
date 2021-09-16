@@ -24,6 +24,11 @@ BSLS_IDENT("$Id: $")
 // For further details see {'balcl_commandline'|Type-and-Constraint Field} and
 // {'balcl_commandline'|Example: Type-and-Constraint Field}.
 //
+// This component also provides a utility 'struct', 'balcl::TypeInfoUtil', that
+// defines a namespace for functions that extract option values from input
+// streams and for validating those values against the constraints of a
+// 'balcl::TypeInfo' object.
+//
 ///Usage
 ///-----
 // The intended use of this component is illustrated in
@@ -36,6 +41,10 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlb_printmethods.h>  // 'bdlb::HasPrintMethod'
 
+#include <bdlt_date.h>
+#include <bdlt_datetime.h>
+#include <bdlt_time.h>
+
 #include <bslma_allocator.h>
 #include <bslma_usesbslmaallocator.h>
 
@@ -45,15 +54,11 @@ BSLS_IDENT("$Id: $")
 
 #include <bsl_iosfwd.h>
 #include <bsl_memory.h>     // 'bsl::shared_ptr'
+#include <bsl_optional.h>
 #include <bsl_string.h>
 #include <bsl_vector.h>
 
 namespace BloombergLP {
-
-namespace bdlt { class Date; }
-namespace bdlt { class Time; }
-namespace bdlt { class Datetime; }
-
 namespace balcl {
 
 class OptionValue;
@@ -74,6 +79,10 @@ class TypeInfo {
     OptionType::Enum     d_elemType;          // type of the option value
 
     void                *d_linkedVariable_p;  // variable to be linked (held)
+
+    bool                 d_isOptionalLinkedVariable;
+                                              // linked variable is
+                                              // 'bsl::optional' wrapped value
 
     bsl::shared_ptr<TypeInfoConstraint>
                          d_constraint_p;      // constraint on the option value
@@ -330,6 +339,115 @@ class TypeInfo {
         // on the option.  If 'constraint' is not specified, the option has no
         // constraint.
 
+    explicit
+    TypeInfo(bsl::optional<char> *variable,
+             bslma::Allocator    *basicAllocator = 0);
+    TypeInfo(bsl::optional<char>               *variable,
+             const Constraint::CharConstraint&  constraint,
+             bslma::Allocator                  *basicAllocator = 0);
+        // Construct an object having 'char' type for the associated option.
+        // If the specified 'variable' is not 0, then link it with the option.
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.  Optionally specify a 'constraint' to put on the option.  If
+        // 'constraint' is not specified, the option has no constraint.
+
+    explicit
+    TypeInfo(bsl::optional<int> *variable,
+             bslma::Allocator   *basicAllocator = 0);
+    TypeInfo(bsl::optional<int>               *variable,
+             const Constraint::IntConstraint&  constraint,
+             bslma::Allocator                 *basicAllocator = 0);
+        // Construct an object having 'int' type for the associated option.  If
+        // the specified 'variable' is not 0, then link it with the option.
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.  Optionally specify a 'constraint' to put on the option.  If
+        // 'constraint' is not specified, the option has no constraint.
+
+    explicit
+    TypeInfo(bsl::optional<bsls::Types::Int64> *variable,
+             bslma::Allocator                  *basicAllocator = 0);
+    TypeInfo(bsl::optional<bsls::Types::Int64>  *variable,
+             const Constraint::Int64Constraint&  constraint,
+             bslma::Allocator                   *basicAllocator = 0);
+        // Construct an object having 'bsls::Types::Int64' type for the
+        // associated option.  If the specified 'variable' is not 0, then link
+        // it with the option.  Optionally specify a 'basicAllocator' used to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.  Optionally specify a 'constraint' to put
+        // on the option.  If 'constraint' is not specified, the option has no
+        // constraint.
+
+    explicit
+    TypeInfo(bsl::optional<double> *variable,
+             bslma::Allocator      *basicAllocator = 0);
+    TypeInfo(bsl::optional<double>               *variable,
+             const Constraint::DoubleConstraint&  constraint,
+             bslma::Allocator                    *basicAllocator = 0);
+        // Construct an object having 'double' type for the associated option.
+        // If the specified 'variable' is not 0, then link it with the option.
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.  Optionally specify a 'constraint' to put on the option.  If
+        // 'constraint' is not specified, the option has no constraint.
+
+    explicit
+    TypeInfo(bsl::optional<bsl::string> *variable,
+             bslma::Allocator           *basicAllocator = 0);
+    TypeInfo(bsl::optional<bsl::string>          *variable,
+             const Constraint::StringConstraint&  constraint,
+             bslma::Allocator                    *basicAllocator = 0);
+        // Construct an object having 'bsl::string' type for the associated
+        // option.  If the specified 'variable' is not 0, then link it with the
+        // option.  Optionally specify a 'basicAllocator' used to supply
+        // memory.  If 'basicAllocator' is 0, the currently installed default
+        // allocator is used.  Optionally specify a 'constraint' to put on the
+        // option.  If 'constraint' is not specified, the option has no
+        // constraint.
+
+    explicit
+    TypeInfo(bsl::optional<bdlt::Datetime> *variable,
+             bslma::Allocator              *basicAllocator = 0);
+    TypeInfo(bsl::optional<bdlt::Datetime>         *variable,
+             const Constraint::DatetimeConstraint&  constraint,
+             bslma::Allocator                      *basicAllocator = 0);
+        // Construct an object having 'bdlt::Datetime' type for the associated
+        // option.  If the specified 'variable' is not 0, then link it with the
+        // option.  Optionally specify a 'basicAllocator' used to supply
+        // memory.  If 'basicAllocator' is 0, the currently installed default
+        // allocator is used.  Optionally specify a 'constraint' to put on the
+        // option.  If 'constraint' is not specified, the option has no
+        // constraint.
+
+    explicit
+    TypeInfo(bsl::optional<bdlt::Date> *variable,
+             bslma::Allocator          *basicAllocator = 0);
+    TypeInfo(bsl::optional<bdlt::Date>         *variable,
+             const Constraint::DateConstraint&  constraint,
+             bslma::Allocator                  *basicAllocator = 0);
+        // Construct an object having 'bdlt::Date' type for the associated
+        // option.  If the specified 'variable' is not 0, then link it with the
+        // option.  Optionally specify a 'basicAllocator' used to supply
+        // memory.  If 'basicAllocator' is 0, the currently installed default
+        // allocator is used.  Optionally specify a 'constraint' to put on the
+        // option.  If 'constraint' is not specified, the option has no
+        // constraint.
+
+    explicit
+    TypeInfo(bsl::optional<bdlt::Time> *variable,
+             bslma::Allocator          *basicAllocator = 0);
+    TypeInfo(bsl::optional<bdlt::Time>         *variable,
+             const Constraint::TimeConstraint&  constraint,
+             bslma::Allocator                  *basicAllocator = 0);
+        // Construct an object having 'bdlt::Time' type for the associated
+        // option.  If the specified 'variable' is not 0, then link it with the
+        // option.  Optionally specify a 'basicAllocator' used to supply
+        // memory.  If 'basicAllocator' is 0, the currently installed default
+        // allocator is used.  Optionally specify a 'constraint' to put on the
+        // option.  If 'constraint' is not specified, the option has no
+        // constraint.
+
     TypeInfo(const TypeInfo&   original,
              bslma::Allocator *basicAllocator = 0);
         // Create an object having the value of the specified 'original'
@@ -385,27 +503,37 @@ class TypeInfo {
         // associated with this object.  Note that the linked variable, if any,
         // is unchanged by this method.
 
-    void setLinkedVariable(bool                            *variable);
-    void setLinkedVariable(char                            *variable);
-    void setLinkedVariable(int                             *variable);
-    void setLinkedVariable(bsls::Types::Int64              *variable);
-    void setLinkedVariable(double                          *variable);
-    void setLinkedVariable(bsl::string                     *variable);
-    void setLinkedVariable(bdlt::Datetime                  *variable);
-    void setLinkedVariable(bdlt::Date                      *variable);
-    void setLinkedVariable(bdlt::Time                      *variable);
-    void setLinkedVariable(bsl::vector<char>               *variable);
-    void setLinkedVariable(bsl::vector<int>                *variable);
-    void setLinkedVariable(bsl::vector<bsls::Types::Int64> *variable);
-    void setLinkedVariable(bsl::vector<double>             *variable);
-    void setLinkedVariable(bsl::vector<bsl::string>        *variable);
-    void setLinkedVariable(bsl::vector<bdlt::Datetime>     *variable);
-    void setLinkedVariable(bsl::vector<bdlt::Date>         *variable);
-    void setLinkedVariable(bsl::vector<bdlt::Time>         *variable);
+    void setLinkedVariable(bool                              *variable);
+    void setLinkedVariable(char                              *variable);
+    void setLinkedVariable(int                               *variable);
+    void setLinkedVariable(bsls::Types::Int64                *variable);
+    void setLinkedVariable(double                            *variable);
+    void setLinkedVariable(bsl::string                       *variable);
+    void setLinkedVariable(bdlt::Datetime                    *variable);
+    void setLinkedVariable(bdlt::Date                        *variable);
+    void setLinkedVariable(bdlt::Time                        *variable);
+    void setLinkedVariable(bsl::vector<char>                 *variable);
+    void setLinkedVariable(bsl::vector<int>                  *variable);
+    void setLinkedVariable(bsl::vector<bsls::Types::Int64>   *variable);
+    void setLinkedVariable(bsl::vector<double>               *variable);
+    void setLinkedVariable(bsl::vector<bsl::string>          *variable);
+    void setLinkedVariable(bsl::vector<bdlt::Datetime>       *variable);
+    void setLinkedVariable(bsl::vector<bdlt::Date>           *variable);
+    void setLinkedVariable(bsl::vector<bdlt::Time>           *variable);
+    void setLinkedVariable(bsl::optional<char>               *variable);
+    void setLinkedVariable(bsl::optional<int>                *variable);
+    void setLinkedVariable(bsl::optional<bsls::Types::Int64> *variable);
+    void setLinkedVariable(bsl::optional<double>             *variable);
+    void setLinkedVariable(bsl::optional<bsl::string>        *variable);
+    void setLinkedVariable(bsl::optional<bdlt::Datetime>     *variable);
+    void setLinkedVariable(bsl::optional<bdlt::Date>         *variable);
+    void setLinkedVariable(bsl::optional<bdlt::Time>         *variable);
         // Set this object to have the type indicated by the specified
         // 'variable', and reset this object so that it no longer has a
         // constraint associated with it.  If 'variable' is not 0, then link it
-        // with the described option.
+        // with the described option.  If 'variable' is of type
+        // 'bsl::optional<Type>', then the type of this object is set to
+        // 'Type'.
 
     // ACCESSORS
     bsl::shared_ptr<TypeInfoConstraint> constraint() const;
@@ -418,6 +546,10 @@ class TypeInfo {
     void *linkedVariable() const;
         // Return the address of the modifiable variable linked to the
         // described option, or 0 if no variable is linked.
+
+    bool isOptionalLinkedVariable() const;
+        // Return 'true' if the described option has a linked variable and that
+        // variable is a 'bsl::optional' object, and 'false' otherwise.
 
     OptionType::Enum type() const;
         // Return the type of the described option.  Note that the option is a

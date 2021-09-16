@@ -22,6 +22,7 @@
 #include <bslma_testallocatormonitor.h>
 #include <bslma_usesbslmaallocator.h>
 
+#include <bslmf_allocatorargt.h> // 'bsl::allocator_arg'
 #include <bslmf_assert.h>
 
 #include <bsls_assert.h>
@@ -33,6 +34,7 @@
 #include <bsl_cstring.h>    // 'bsl::strspn'
 #include <bsl_functional.h> // 'bsl::function'
 #include <bsl_iostream.h>
+#include <bsl_optional.h>
 #include <bsl_ostream.h>    // 'operator<<'
 #include <bsl_sstream.h>
 #include <bsl_stdexcept.h>
@@ -98,39 +100,55 @@ using namespace bsl;
 // CREATORS
 // [ 2] TypeInfo();
 // [ 2] TypeInfo(bslma::Allocator *basicAllocator);
-// [ 9] TypeInfo(bool             *v, *bA = 0);
-// [ 9] TypeInfo(char             *v, *bA = 0);
-// [ 9] TypeInfo(char             *v, CharC&     c, *bA = 0);
-// [ 9] TypeInfo(int              *v, *bA = 0);
-// [ 9] TypeInfo(int              *v, IntC&      c, *bA = 0);
-// [ 9] TypeInfo(Int64            *v, *bA = 0);
-// [ 9] TypeInfo(Int64            *v, Int64C&    c, *bA = 0);
-// [ 9] TypeInfo(double           *v, *bA = 0);
-// [ 9] TypeInfo(double           *v, DoubleC&   c, *bA = 0);
-// [ 9] TypeInfo(string           *v, *bA = 0);
-// [ 9] TypeInfo(string           *v, StringC&   c, *bA = 0);
-// [ 9] TypeInfo(Datetime         *v, *bA = 0);
-// [ 9] TypeInfo(Datetime         *v, DatetimeC& c, *bA = 0);
-// [ 9] TypeInfo(Date             *v, *bA = 0);
-// [ 9] TypeInfo(Date             *v, DateC&     c, *bA = 0);
-// [ 9] TypeInfo(Time             *v, *bA = 0);
-// [ 9] TypeInfo(Time             *v, TimeC&     c, *bA = 0);
-// [ 9] TypeInfo(vector<char>     *v, *bA = 0);
-// [ 9] TypeInfo(vector<char>     *v, CharC&     c, *bA = 0);
-// [ 9] TypeInfo(vector<int>      *v, *bA = 0);
-// [ 9] TypeInfo(vector<int>      *v, IntC&      c, *bA = 0);
-// [ 9] TypeInfo(vector<Int64>    *v, *bA = 0);
-// [ 9] TypeInfo(vector<Int64>    *v, Int64C&    c, *bA = 0);
-// [ 9] TypeInfo(vector<double>   *v, *bA = 0);
-// [ 9] TypeInfo(vector<double>   *v, DoubleC&   c, *bA = 0);
-// [ 9] TypeInfo(vector<string>   *v, *bA = 0);
-// [ 9] TypeInfo(vector<string>   *v, StringC&   c, *bA = 0);
-// [ 9] TypeInfo(vector<Datetime> *v, *bA = 0);
-// [ 9] TypeInfo(vector<Datetime> *v, DatetimeC& c, *bA = 0);
-// [ 9] TypeInfo(vector<Date>     *v, *bA = 0);
-// [ 9] TypeInfo(vector<Date>     *v, DateC&     c, *bA = 0);
-// [ 9] TypeInfo(vector<Time>     *v, *bA = 0);
-// [ 9] TypeInfo(vector<Time>     *v, TimeC&     c, *bA = 0);
+// [ 9] TypeInfo(bool               *v, *bA = 0);
+// [ 9] TypeInfo(char               *v, *bA = 0);
+// [ 9] TypeInfo(char               *v, CharC&     c, *bA = 0);
+// [ 9] TypeInfo(int                *v, *bA = 0);
+// [ 9] TypeInfo(int                *v, IntC&      c, *bA = 0);
+// [ 9] TypeInfo(Int64              *v, *bA = 0);
+// [ 9] TypeInfo(Int64              *v, Int64C&    c, *bA = 0);
+// [ 9] TypeInfo(double             *v, *bA = 0);
+// [ 9] TypeInfo(double             *v, DoubleC&   c, *bA = 0);
+// [ 9] TypeInfo(string             *v, *bA = 0);
+// [ 9] TypeInfo(string             *v, StringC&   c, *bA = 0);
+// [ 9] TypeInfo(Datetime           *v, *bA = 0);
+// [ 9] TypeInfo(Datetime           *v, DatetimeC& c, *bA = 0);
+// [ 9] TypeInfo(Date               *v, *bA = 0);
+// [ 9] TypeInfo(Date               *v, DateC&     c, *bA = 0);
+// [ 9] TypeInfo(Time               *v, *bA = 0);
+// [ 9] TypeInfo(Time               *v, TimeC&     c, *bA = 0);
+// [ 9] TypeInfo(vector<char>       *v, *bA = 0);
+// [ 9] TypeInfo(vector<char>       *v, CharC&     c, *bA = 0);
+// [ 9] TypeInfo(vector<int>        *v, *bA = 0);
+// [ 9] TypeInfo(vector<int>        *v, IntC&      c, *bA = 0);
+// [ 9] TypeInfo(vector<Int64>      *v, *bA = 0);
+// [ 9] TypeInfo(vector<Int64>      *v, Int64C&    c, *bA = 0);
+// [ 9] TypeInfo(vector<double>     *v, *bA = 0);
+// [ 9] TypeInfo(vector<double>     *v, DoubleC&   c, *bA = 0);
+// [ 9] TypeInfo(vector<string>     *v, *bA = 0);
+// [ 9] TypeInfo(vector<string>     *v, StringC&   c, *bA = 0);
+// [ 9] TypeInfo(vector<Datetime>   *v, *bA = 0);
+// [ 9] TypeInfo(vector<Datetime>   *v, DatetimeC& c, *bA = 0);
+// [ 9] TypeInfo(vector<Date>       *v, *bA = 0);
+// [ 9] TypeInfo(vector<Date>       *v, DateC&     c, *bA = 0);
+// [ 9] TypeInfo(vector<Time>       *v, *bA = 0);
+// [ 9] TypeInfo(vector<Time>       *v, TimeC&     c, *bA = 0);
+// [ 9] TypeInfo(optional<char>     *v, *bA = 0);
+// [ 9] TypeInfo(optional<char>     *v, CharC&     c, *bA = 0);
+// [ 9] TypeInfo(optional<int>      *v, *bA = 0);
+// [ 9] TypeInfo(optional<int>      *v, IntC&      c, *bA = 0);
+// [ 9] TypeInfo(optional<Int64>    *v, *bA = 0);
+// [ 9] TypeInfo(optional<Int64>    *v, Int64C&    c, *bA = 0);
+// [ 9] TypeInfo(optional<double>   *v, *bA = 0);
+// [ 9] TypeInfo(optional<double>   *v, DoubleC&   c, *bA = 0);
+// [ 9] TypeInfo(optional<string>   *v, *bA = 0);
+// [ 9] TypeInfo(optional<string>   *v, StringC&   c, *bA = 0);
+// [ 9] TypeInfo(optional<Datetime> *v, *bA = 0);
+// [ 9] TypeInfo(optional<Datetime> *v, DatetimeC& c, *bA = 0);
+// [ 9] TypeInfo(optional<Date>     *v, *bA = 0);
+// [ 9] TypeInfo(optional<Date>     *v, DateC&     c, *bA = 0);
+// [ 9] TypeInfo(optional<Time>     *v, *bA = 0);
+// [ 9] TypeInfo(optional<Time>     *v, TimeC&     c, *bA = 0);
 // [ 7] TypeInfo(const TypeInfo& original, *bA = 0);
 // [ 2] ~TypeInfo();
 //
@@ -147,27 +165,36 @@ using namespace bsl;
 // [ 2] void setConstraint(const Clc::DateConstraint&     constraint);
 // [ 2] void setConstraint(const Clc::TimeConstraint&     constraint);
 // [ 2] void setConstraint(const shared_ptr<Constraint>& constraint);
-// [ 2] void setLinkedVariable(bool             *variable);
-// [ 2] void setLinkedVariable(char             *variable);
-// [ 2] void setLinkedVariable(int              *variable);
-// [ 2] void setLinkedVariable(Int64            *variable);
-// [ 2] void setLinkedVariable(double           *variable);
-// [ 2] void setLinkedVariable(string           *variable);
-// [ 2] void setLinkedVariable(Datetime         *variable);
-// [ 2] void setLinkedVariable(Date             *variable);
-// [ 2] void setLinkedVariable(Time             *variable);
-// [ 2] void setLinkedVariable(vector<char>     *variable);
-// [ 2] void setLinkedVariable(vector<int>      *variable);
-// [ 2] void setLinkedVariable(vector<Int64>    *variable);
-// [ 2] void setLinkedVariable(vector<double>   *variable);
-// [ 2] void setLinkedVariable(vector<string>   *variable);
-// [ 2] void setLinkedVariable(vector<Datetime> *variable);
-// [ 2] void setLinkedVariable(vector<Date>     *variable);
-// [ 2] void setLinkedVariable(vector<Time>     *variable);
+// [ 2] void setLinkedVariable(bool               *variable);
+// [ 2] void setLinkedVariable(char               *variable);
+// [ 2] void setLinkedVariable(int                *variable);
+// [ 2] void setLinkedVariable(Int64              *variable);
+// [ 2] void setLinkedVariable(double             *variable);
+// [ 2] void setLinkedVariable(string             *variable);
+// [ 2] void setLinkedVariable(Datetime           *variable);
+// [ 2] void setLinkedVariable(Date               *variable);
+// [ 2] void setLinkedVariable(Time               *variable);
+// [ 2] void setLinkedVariable(vector<char>       *variable);
+// [ 2] void setLinkedVariable(vector<int>        *variable);
+// [ 2] void setLinkedVariable(vector<Int64>      *variable);
+// [ 2] void setLinkedVariable(vector<double>     *variable);
+// [ 2] void setLinkedVariable(vector<string>     *variable);
+// [ 2] void setLinkedVariable(vector<Datetime>   *variable);
+// [ 2] void setLinkedVariable(vector<Date>       *variable);
+// [ 2] void setLinkedVariable(vector<Time>       *variable);
+// [ 2] void setLinkedVariable(optional<char>     *variable);
+// [ 2] void setLinkedVariable(optional<int>      *variable);
+// [ 2] void setLinkedVariable(optional<Int64>    *variable);
+// [ 2] void setLinkedVariable(optional<double>   *variable);
+// [ 2] void setLinkedVariable(optional<string>   *variable);
+// [ 2] void setLinkedVariable(optional<Datetime> *variable);
+// [ 2] void setLinkedVariable(optional<Date>     *variable);
+// [ 2] void setLinkedVariable(optional<Time>     *variable);
 //
 // ACCESSORS
 // [ 2] shared_ptr<Constraint> constraint() const;
 // [ 2] void *linkedVariable() const;
+// [ 2] bool isOptionalLinkedVariable() const;
 // [ 2] OptionType::Enum type() const;
 //
 // [ 2] bslma::Allocator *allocator() const;
@@ -270,27 +297,31 @@ BSLMF_ASSERT(bdlb::HasPrintMethod<Obj>::value);
 #define GA bslma::Default::globalAllocator()
 
 // ATTRIBUTES FOR 'balcl::TypeInfo'
-bool                        linkedBool;
-char                        linkedChar;
-short                       linkedShort;
-int                         linkedInt;
-Int64                       linkedInt64;
-float                       linkedFloat;
-double                      linkedDouble;
-bsl::string                 linkedString       (GA);
-bdlt::Datetime              linkedDatetime;
-bdlt::Date                  linkedDate;
-bdlt::Time                  linkedTime;
-bsl::vector<char>           linkedCharArray    (GA);
-bsl::vector<short>          linkedShortArray   (GA);
-bsl::vector<int>            linkedIntArray     (GA);
-bsl::vector<Int64>          linkedInt64Array   (GA);
-bsl::vector<float>          linkedFloatArray   (GA);
-bsl::vector<double>         linkedDoubleArray  (GA);
-bsl::vector<bsl::string>    linkedStringArray  (GA);
-bsl::vector<bdlt::Datetime> linkedDatetimeArray(GA);
-bsl::vector<bdlt::Date>     linkedDateArray    (GA);
-bsl::vector<bdlt::Time>     linkedTimeArray    (GA);
+bool                          linkedBool;
+char                          linkedChar;
+int                           linkedInt;
+Int64                         linkedInt64;
+double                        linkedDouble;
+bsl::string                   linkedString       (GA);
+bdlt::Datetime                linkedDatetime;
+bdlt::Date                    linkedDate;
+bdlt::Time                    linkedTime;
+bsl::vector<char>             linkedCharArray    (GA);
+bsl::vector<int>              linkedIntArray     (GA);
+bsl::vector<Int64>            linkedInt64Array   (GA);
+bsl::vector<double>           linkedDoubleArray  (GA);
+bsl::vector<bsl::string>      linkedStringArray  (GA);
+bsl::vector<bdlt::Datetime>   linkedDatetimeArray(GA);
+bsl::vector<bdlt::Date>       linkedDateArray    (GA);
+bsl::vector<bdlt::Time>       linkedTimeArray    (GA);
+bsl::optional<char>           oLinkedChar;
+bsl::optional<int>            oLinkedInt;
+bsl::optional<Int64>          oLinkedInt64;
+bsl::optional<double>         oLinkedDouble;
+bsl::optional<bsl::string>    oLinkedString(bsl::allocator_arg, GA);
+bsl::optional<bdlt::Datetime> oLinkedDatetime;
+bsl::optional<bdlt::Date>     oLinkedDate;
+bsl::optional<bdlt::Time>     oLinkedTime;
 
                         // =====================
                         // struct TestConstraint
@@ -401,121 +432,136 @@ const struct {
     // This array has an entry for every supported option type with a linked
     // variable and not, and having a constraint and not.
 
-   { L_, Ot::e_BOOL,           0,                    0                     }
- , { L_, Ot::e_CHAR,           0,                    0                     }
- , { L_, Ot::e_INT,            0,                    0                     }
- , { L_, Ot::e_INT64,          0,                    0                     }
- , { L_, Ot::e_DOUBLE,         0,                    0                     }
- , { L_, Ot::e_STRING,         0,                    0                     }
- , { L_, Ot::e_DATETIME,       0,                    0                     }
- , { L_, Ot::e_DATE,           0,                    0                     }
- , { L_, Ot::e_TIME,           0,                    0                     }
- , { L_, Ot::e_CHAR_ARRAY,     0,                    0                     }
- , { L_, Ot::e_INT_ARRAY,      0,                    0                     }
- , { L_, Ot::e_INT64_ARRAY,    0,                    0                     }
- , { L_, Ot::e_DOUBLE_ARRAY,   0,                    0                     }
- , { L_, Ot::e_STRING_ARRAY,   0,                    0                     }
- , { L_, Ot::e_DATETIME_ARRAY, 0,                    0                     }
- , { L_, Ot::e_DATE_ARRAY,     0,                    0                     }
- , { L_, Ot::e_TIME_ARRAY,     0,                    0                     }
- , { L_, Ot::e_BOOL,           &linkedBool,          0                     }
- , { L_, Ot::e_CHAR,           &linkedChar,          0                     }
- , { L_, Ot::e_INT,            &linkedInt,           0                     }
- , { L_, Ot::e_INT64,          &linkedInt64,         0                     }
- , { L_, Ot::e_DOUBLE,         &linkedDouble,        0                     }
- , { L_, Ot::e_STRING,         &linkedString,        0                     }
- , { L_, Ot::e_DATETIME,       &linkedDatetime,      0                     }
- , { L_, Ot::e_DATE,           &linkedDate,          0                     }
- , { L_, Ot::e_TIME,           &linkedTime,          0                     }
- , { L_, Ot::e_CHAR_ARRAY,     &linkedCharArray,     0                     }
- , { L_, Ot::e_INT_ARRAY,      &linkedIntArray,      0                     }
- , { L_, Ot::e_INT64_ARRAY,    &linkedInt64Array,    0                     }
- , { L_, Ot::e_DOUBLE_ARRAY,   &linkedDoubleArray,   0                     }
- , { L_, Ot::e_STRING_ARRAY,   &linkedStringArray,   0                     }
- , { L_, Ot::e_DATETIME_ARRAY, &linkedDatetimeArray, 0                     }
- , { L_, Ot::e_DATE_ARRAY,     &linkedDateArray,     0                     }
- , { L_, Ot::e_TIME_ARRAY,     &linkedTimeArray,     0                     }
- , { L_, Ot::e_BOOL,           0,                    0                     }
- , { L_, Ot::e_CHAR,           0,                    &testCharConstraint    }
- , { L_, Ot::e_INT,            0,                    &testIntConstraint     }
- , { L_, Ot::e_INT64,          0,                    &testInt64Constraint   }
- , { L_, Ot::e_DOUBLE,         0,                    &testDoubleConstraint  }
- , { L_, Ot::e_STRING,         0,                    &testStringConstraint  }
- , { L_, Ot::e_DATETIME,       0,                    &testDatetimeConstraint}
- , { L_, Ot::e_DATE,           0,                    &testDateConstraint    }
- , { L_, Ot::e_TIME,           0,                    &testTimeConstraint    }
- , { L_, Ot::e_CHAR_ARRAY,     0,                    &testCharConstraint    }
- , { L_, Ot::e_INT_ARRAY,      0,                    &testIntConstraint     }
- , { L_, Ot::e_INT64_ARRAY,    0,                    &testInt64Constraint   }
- , { L_, Ot::e_DOUBLE_ARRAY,   0,                    &testDoubleConstraint  }
- , { L_, Ot::e_STRING_ARRAY,   0,                    &testStringConstraint  }
- , { L_, Ot::e_DATETIME_ARRAY, 0,                    &testDatetimeConstraint}
- , { L_, Ot::e_DATE_ARRAY,     0,                    &testDateConstraint    }
- , { L_, Ot::e_TIME_ARRAY,     0,                    &testTimeConstraint    }
- , { L_, Ot::e_BOOL,           &linkedBool,          0                     }
- , { L_, Ot::e_CHAR,           &linkedChar,          &testCharConstraint    }
- , { L_, Ot::e_INT,            &linkedInt,           &testIntConstraint     }
- , { L_, Ot::e_INT64,          &linkedInt64,         &testInt64Constraint   }
- , { L_, Ot::e_DOUBLE,         &linkedDouble,        &testDoubleConstraint  }
- , { L_, Ot::e_STRING,         &linkedString,        &testStringConstraint  }
- , { L_, Ot::e_DATETIME,       &linkedDatetime,      &testDatetimeConstraint}
- , { L_, Ot::e_DATE,           &linkedDate,          &testDateConstraint    }
- , { L_, Ot::e_TIME,           &linkedTime,          &testTimeConstraint    }
- , { L_, Ot::e_CHAR_ARRAY,     &linkedCharArray,     &testCharConstraint    }
- , { L_, Ot::e_INT_ARRAY,      &linkedIntArray,      &testIntConstraint     }
- , { L_, Ot::e_INT64_ARRAY,    &linkedInt64Array,    &testInt64Constraint   }
- , { L_, Ot::e_DOUBLE_ARRAY,   &linkedDoubleArray,   &testDoubleConstraint  }
- , { L_, Ot::e_STRING_ARRAY,   &linkedStringArray,   &testStringConstraint  }
- , { L_, Ot::e_DATETIME_ARRAY, &linkedDatetimeArray, &testDatetimeConstraint}
- , { L_, Ot::e_DATE_ARRAY,     &linkedDateArray,     &testDateConstraint    }
- , { L_, Ot::e_TIME_ARRAY,     &linkedTimeArray,     &testTimeConstraint    }
+   { L_, Ot::e_BOOL,           0,                    0                       }
+ , { L_, Ot::e_CHAR,           0,                    0                       }
+ , { L_, Ot::e_INT,            0,                    0                       }
+ , { L_, Ot::e_INT64,          0,                    0                       }
+ , { L_, Ot::e_DOUBLE,         0,                    0                       }
+ , { L_, Ot::e_STRING,         0,                    0                       }
+ , { L_, Ot::e_DATETIME,       0,                    0                       }
+ , { L_, Ot::e_DATE,           0,                    0                       }
+ , { L_, Ot::e_TIME,           0,                    0                       }
+ , { L_, Ot::e_CHAR_ARRAY,     0,                    0                       }
+ , { L_, Ot::e_INT_ARRAY,      0,                    0                       }
+ , { L_, Ot::e_INT64_ARRAY,    0,                    0                       }
+ , { L_, Ot::e_DOUBLE_ARRAY,   0,                    0                       }
+ , { L_, Ot::e_STRING_ARRAY,   0,                    0                       }
+ , { L_, Ot::e_DATETIME_ARRAY, 0,                    0                       }
+ , { L_, Ot::e_DATE_ARRAY,     0,                    0                       }
+ , { L_, Ot::e_TIME_ARRAY,     0,                    0                       }
+ , { L_, Ot::e_BOOL,           &linkedBool,          0                       }
+ , { L_, Ot::e_CHAR,           &linkedChar,          0                       }
+ , { L_, Ot::e_INT,            &linkedInt,           0                       }
+ , { L_, Ot::e_INT64,          &linkedInt64,         0                       }
+ , { L_, Ot::e_DOUBLE,         &linkedDouble,        0                       }
+ , { L_, Ot::e_STRING,         &linkedString,        0                       }
+ , { L_, Ot::e_DATETIME,       &linkedDatetime,      0                       }
+ , { L_, Ot::e_DATE,           &linkedDate,          0                       }
+ , { L_, Ot::e_TIME,           &linkedTime,          0                       }
+ , { L_, Ot::e_CHAR_ARRAY,     &linkedCharArray,     0                       }
+ , { L_, Ot::e_INT_ARRAY,      &linkedIntArray,      0                       }
+ , { L_, Ot::e_INT64_ARRAY,    &linkedInt64Array,    0                       }
+ , { L_, Ot::e_DOUBLE_ARRAY,   &linkedDoubleArray,   0                       }
+ , { L_, Ot::e_STRING_ARRAY,   &linkedStringArray,   0                       }
+ , { L_, Ot::e_DATETIME_ARRAY, &linkedDatetimeArray, 0                       }
+ , { L_, Ot::e_DATE_ARRAY,     &linkedDateArray,     0                       }
+ , { L_, Ot::e_TIME_ARRAY,     &linkedTimeArray,     0                       }
+ , { L_, Ot::e_CHAR,           &oLinkedChar,         0                       }
+ , { L_, Ot::e_INT,            &oLinkedInt,          0                       }
+ , { L_, Ot::e_INT64,          &oLinkedInt64,        0                       }
+ , { L_, Ot::e_DOUBLE,         &oLinkedDouble,       0                       }
+ , { L_, Ot::e_STRING,         &oLinkedString,       0                       }
+ , { L_, Ot::e_DATETIME,       &oLinkedDatetime,     0                       }
+ , { L_, Ot::e_DATE,           &oLinkedDate,         0                       }
+ , { L_, Ot::e_TIME,           &oLinkedTime,         0                       }
+ , { L_, Ot::e_BOOL,           0,                    0                       }
+ , { L_, Ot::e_CHAR,           0,                    &testCharConstraint     }
+ , { L_, Ot::e_INT,            0,                    &testIntConstraint      }
+ , { L_, Ot::e_INT64,          0,                    &testInt64Constraint    }
+ , { L_, Ot::e_DOUBLE,         0,                    &testDoubleConstraint   }
+ , { L_, Ot::e_STRING,         0,                    &testStringConstraint   }
+ , { L_, Ot::e_DATETIME,       0,                    &testDatetimeConstraint }
+ , { L_, Ot::e_DATE,           0,                    &testDateConstraint     }
+ , { L_, Ot::e_TIME,           0,                    &testTimeConstraint     }
+ , { L_, Ot::e_CHAR_ARRAY,     0,                    &testCharConstraint     }
+ , { L_, Ot::e_INT_ARRAY,      0,                    &testIntConstraint      }
+ , { L_, Ot::e_INT64_ARRAY,    0,                    &testInt64Constraint    }
+ , { L_, Ot::e_DOUBLE_ARRAY,   0,                    &testDoubleConstraint   }
+ , { L_, Ot::e_STRING_ARRAY,   0,                    &testStringConstraint   }
+ , { L_, Ot::e_DATETIME_ARRAY, 0,                    &testDatetimeConstraint }
+ , { L_, Ot::e_DATE_ARRAY,     0,                    &testDateConstraint     }
+ , { L_, Ot::e_TIME_ARRAY,     0,                    &testTimeConstraint     }
+ , { L_, Ot::e_BOOL,           &linkedBool,          0                       }
+ , { L_, Ot::e_CHAR,           &linkedChar,          &testCharConstraint     }
+ , { L_, Ot::e_INT,            &linkedInt,           &testIntConstraint      }
+ , { L_, Ot::e_INT64,          &linkedInt64,         &testInt64Constraint    }
+ , { L_, Ot::e_DOUBLE,         &linkedDouble,        &testDoubleConstraint   }
+ , { L_, Ot::e_STRING,         &linkedString,        &testStringConstraint   }
+ , { L_, Ot::e_DATETIME,       &linkedDatetime,      &testDatetimeConstraint }
+ , { L_, Ot::e_DATE,           &linkedDate,          &testDateConstraint     }
+ , { L_, Ot::e_TIME,           &linkedTime,          &testTimeConstraint     }
+ , { L_, Ot::e_CHAR_ARRAY,     &linkedCharArray,     &testCharConstraint     }
+ , { L_, Ot::e_INT_ARRAY,      &linkedIntArray,      &testIntConstraint      }
+ , { L_, Ot::e_INT64_ARRAY,    &linkedInt64Array,    &testInt64Constraint    }
+ , { L_, Ot::e_DOUBLE_ARRAY,   &linkedDoubleArray,   &testDoubleConstraint   }
+ , { L_, Ot::e_STRING_ARRAY,   &linkedStringArray,   &testStringConstraint   }
+ , { L_, Ot::e_DATETIME_ARRAY, &linkedDatetimeArray, &testDatetimeConstraint }
+ , { L_, Ot::e_DATE_ARRAY,     &linkedDateArray,     &testDateConstraint     }
+ , { L_, Ot::e_TIME_ARRAY,     &linkedTimeArray,     &testTimeConstraint     }
+ , { L_, Ot::e_CHAR,           &oLinkedChar,         &testCharConstraint     }
+ , { L_, Ot::e_INT,            &oLinkedInt,          &testIntConstraint      }
+ , { L_, Ot::e_INT64,          &oLinkedInt64,        &testInt64Constraint    }
+ , { L_, Ot::e_DOUBLE,         &oLinkedDouble,       &testDoubleConstraint   }
+ , { L_, Ot::e_STRING,         &oLinkedString,       &testStringConstraint   }
+ , { L_, Ot::e_DATETIME,       &oLinkedDatetime,     &testDatetimeConstraint }
+ , { L_, Ot::e_DATE,           &oLinkedDate,         &testDateConstraint     }
+ , { L_, Ot::e_TIME,           &oLinkedTime,         &testTimeConstraint     }
 };
 enum { NUM_OPTION_TYPEINFO = sizeof  OPTION_TYPEINFO
                            / sizeof *OPTION_TYPEINFO };
 
-bool                        defaultBool          = false;
-char                        defaultChar          = 'D';
-int                         defaultInt           = 1234567;
-Int64                       defaultInt64         = 123456789LL;
-double                      defaultDouble        = 0.015625;  // 1/64
-bsl::string                 defaultString        ( "ABCDEFGHIJ"    , GA);
-bdlt::Datetime              defaultDatetime(1234, 12, 3, 4, 5, 6);
-bdlt::Date                  defaultDate(1234, 4, 6);
-bdlt::Time                  defaultTime(7, 8, 9, 10);
-bsl::vector<char>           defaultCharArray    (1, defaultChar    , GA);
-bsl::vector<int>            defaultIntArray     (1, defaultInt     , GA);
-bsl::vector<Int64>          defaultInt64Array   (1, defaultInt64   , GA);
-bsl::vector<double>         defaultDoubleArray  (1, defaultDouble  , GA);
-bsl::vector<bsl::string>    defaultStringArray  (1, defaultString  , GA);
-bsl::vector<bdlt::Datetime> defaultDatetimeArray(1, defaultDatetime, GA);
-bsl::vector<bdlt::Date>     defaultDateArray    (1, defaultDate    , GA);
-bsl::vector<bdlt::Time>     defaultTimeArray    (1, defaultTime    , GA);
+bool                        valueBool          = true;
+char                        valueChar          = 'D';
+int                         valueInt           = 1234567;
+Int64                       valueInt64         = 123456789LL;
+double                      valueDouble        = 0.015625;  // 1/64
+bsl::string                 valueString        ( "ABCDEFGHIJ"  , GA);
+bdlt::Datetime              valueDatetime(1234, 12, 3, 4, 5, 6);
+bdlt::Date                  valueDate(1234, 4, 6);
+bdlt::Time                  valueTime(7, 8, 9, 10);
+bsl::vector<char>           valueCharArray    (1, valueChar    , GA);
+bsl::vector<int>            valueIntArray     (1, valueInt     , GA);
+bsl::vector<Int64>          valueInt64Array   (1, valueInt64   , GA);
+bsl::vector<double>         valueDoubleArray  (1, valueDouble  , GA);
+bsl::vector<bsl::string>    valueStringArray  (1, valueString  , GA);
+bsl::vector<bdlt::Datetime> valueDatetimeArray(1, valueDatetime, GA);
+bsl::vector<bdlt::Date>     valueDateArray    (1, valueDate    , GA);
+bsl::vector<bdlt::Time>     valueTimeArray    (1, valueTime    , GA);
 
 static const struct {
     int         d_line;     // line number
     ElemType    d_type;     // option type
-    const void *d_value_p;  // default value attribute(s)
-} OPTION_DEFAULT_VALUES[] = {
-    { L_, Ot::e_BOOL,            0                     }
-  , { L_, Ot::e_CHAR,            &defaultChar          }
-  , { L_, Ot::e_INT,             &defaultInt           }
-  , { L_, Ot::e_INT64,           &defaultInt64         }
-  , { L_, Ot::e_DOUBLE,          &defaultDouble        }
-  , { L_, Ot::e_STRING,          &defaultString        }
-  , { L_, Ot::e_DATETIME,        &defaultDatetime      }
-  , { L_, Ot::e_DATE,            &defaultDate          }
-  , { L_, Ot::e_TIME,            &defaultTime          }
-  , { L_, Ot::e_CHAR_ARRAY,      &defaultCharArray     }
-  , { L_, Ot::e_INT_ARRAY,       &defaultIntArray      }
-  , { L_, Ot::e_INT64_ARRAY,     &defaultInt64Array    }
-  , { L_, Ot::e_DOUBLE_ARRAY,    &defaultDoubleArray   }
-  , { L_, Ot::e_STRING_ARRAY,    &defaultStringArray   }
-  , { L_, Ot::e_DATETIME_ARRAY,  &defaultDatetimeArray }
-  , { L_, Ot::e_DATE_ARRAY,      &defaultDateArray     }
-  , { L_, Ot::e_TIME_ARRAY,      &defaultTimeArray     }
+    const void *d_value_p;  // value attribute(s)
+} OPTION_VALUES[] = {
+    { L_, Ot::e_BOOL,           &valueBool            }
+  , { L_, Ot::e_CHAR,           &valueChar            }
+  , { L_, Ot::e_INT,            &valueInt             }
+  , { L_, Ot::e_INT64,          &valueInt64           }
+  , { L_, Ot::e_DOUBLE,         &valueDouble          }
+  , { L_, Ot::e_STRING,         &valueString          }
+  , { L_, Ot::e_DATETIME,       &valueDatetime        }
+  , { L_, Ot::e_DATE,           &valueDate            }
+  , { L_, Ot::e_TIME,           &valueTime            }
+  , { L_, Ot::e_CHAR_ARRAY,     &valueCharArray       }
+  , { L_, Ot::e_INT_ARRAY,      &valueIntArray        }
+  , { L_, Ot::e_INT64_ARRAY,    &valueInt64Array      }
+  , { L_, Ot::e_DOUBLE_ARRAY,   &valueDoubleArray     }
+  , { L_, Ot::e_STRING_ARRAY,   &valueStringArray     }
+  , { L_, Ot::e_DATETIME_ARRAY, &valueDatetimeArray   }
+  , { L_, Ot::e_DATE_ARRAY,     &valueDateArray       }
+  , { L_, Ot::e_TIME_ARRAY,     &valueTimeArray       }
 };
-enum { NUM_OPTION_DEFAULT_VALUES = sizeof  OPTION_DEFAULT_VALUES
-                                 / sizeof *OPTION_DEFAULT_VALUES };
+enum { NUM_OPTION_VALUES = sizeof  OPTION_VALUES / sizeof *OPTION_VALUES };
 
 char                        parsedChar          = 'a';
 int                         parsedInt           = 123654;
@@ -785,7 +831,7 @@ void setConstraint(Obj *typeInfo, ElemType type, const void *address)
       default: {
         BSLS_ASSERT(!"Reached");
       } break;
-    };
+    }
 
 #undef CASE
 
@@ -795,19 +841,42 @@ void setConstraint(Obj *typeInfo, ElemType type, const void *address)
                         // function setLinkedVariable
                         // ==========================
 
-void setLinkedVariable(Obj *typeInfo, ElemType type, void *address)
-    // Set the linked variable of the specified 'typeInfo' to the variable at
-    // the specified 'address'.  The behavior is undefined unless 'address' can
-    // be cast to a pointer to the type associated with the specified 'type'
-    // (i.e., 'Ot::EnumToType<ENUM>::type *' where 'ENUM' matches any of the
-    // enumerators of 'Ot::OptionType' expect 'Ot::e_VOID').
+void setLinkedVariable(Obj      *typeInfo,
+                       ElemType  type,
+                       void     *variable,
+                       bool      isOptionalLinkedVariable)
+    // Invoke the 'setLinkedVariable' overload of 'balcl::TypeInfo' that
+    // accepts addresses of type 'Ot::EnumToType<type>::type *' for the
+    // specified 'type' with the specified 'variable' (address).  If the
+    // specified 'isOptionalLinkedVariable' is 'true', then invoke the overload
+    // that accepts addresses of type
+    // 'bsl::optional<Ot::EnumToType<type>::type> *'.  The behavior is
+    // undefined unless 'variable' can be legally cast to the target type.
+    // Note that 'isOptionalLinkedVariable' is *disallowed* when 'type' is an
+    // "array" option type or 'type' is 'Ot::e_BOOL'.
 {
     ASSERT(typeInfo);
 
 #define CASE(ENUM)                                                            \
     case ENUM: {                                                              \
-      typeInfo->setLinkedVariable(static_cast<Ot::EnumToType<ENUM>::type *>(  \
-                                                                   address)); \
+      typedef Ot::EnumToType<ENUM>::type      LinkType;                       \
+      typeInfo->setLinkedVariable(static_cast<LinkType *>(variable));         \
+    } break;                                                                  \
+
+#define CASE_MAYBE_OPTIONAL_LINK(ENUM)                                        \
+    case ENUM: {                                                              \
+      typedef Ot::EnumToType<ENUM>::type LinkType;                            \
+                                                                              \
+      if (isOptionalLinkedVariable) {                                         \
+        BSLS_ASSERT(Ot::e_BOOL != type);                                      \
+        BSLS_ASSERT(false      == Ot::isArrayType(type));                     \
+                                                                              \
+        typedef bsl::optional<LinkType> OptLinkType;                          \
+                                                                              \
+        typeInfo->setLinkedVariable(static_cast<OptLinkType *>(variable));    \
+      } else {                                                                \
+        typeInfo->setLinkedVariable(static_cast<   LinkType *>(variable));    \
+      }                                                                       \
     } break;                                                                  \
 
     switch (type) {
@@ -815,33 +884,33 @@ void setLinkedVariable(Obj *typeInfo, ElemType type, void *address)
         BSLS_ASSERT(!"Reached: 'e_VOID'");
       } break;
 
-      CASE(Ot::e_BOOL)
-      CASE(Ot::e_CHAR)
-      CASE(Ot::e_INT)
-      CASE(Ot::e_INT64)
-      CASE(Ot::e_DOUBLE)
-      CASE(Ot::e_STRING)
-      CASE(Ot::e_DATETIME)
-      CASE(Ot::e_DATE)
-      CASE(Ot::e_TIME)
-      CASE(Ot::e_CHAR_ARRAY)
-      CASE(Ot::e_INT_ARRAY)
-      CASE(Ot::e_INT64_ARRAY)
-      CASE(Ot::e_DOUBLE_ARRAY)
-      CASE(Ot::e_STRING_ARRAY)
-      CASE(Ot::e_DATETIME_ARRAY)
-      CASE(Ot::e_DATE_ARRAY)
-      CASE(Ot::e_TIME_ARRAY)
+      CASE                    (Ot::e_BOOL)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_CHAR)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_INT)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_INT64)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_DOUBLE)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_STRING)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_DATETIME)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_DATE)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_TIME)
+      CASE                    (Ot::e_CHAR_ARRAY)
+      CASE                    (Ot::e_INT_ARRAY)
+      CASE                    (Ot::e_INT64_ARRAY)
+      CASE                    (Ot::e_DOUBLE_ARRAY)
+      CASE                    (Ot::e_STRING_ARRAY)
+      CASE                    (Ot::e_DATETIME_ARRAY)
+      CASE                    (Ot::e_DATE_ARRAY)
+      CASE                    (Ot::e_TIME_ARRAY)
 
       default: {
         BSLS_ASSERT(!"Reached: Unknown");
       } break;
-    };
+    }
 
+#undef CASE_MAYBE_OPTIONAL_LINK
 #undef CASE
 
 }
-
 
                         // ================
                         // function setType
@@ -886,7 +955,7 @@ void setType(Obj *typeInfo, ElemType type)
       default: {
         BSLS_ASSERT(!"Reached: Unknown");
       } break;
-    };
+    }
 
 #undef CASE
 
@@ -898,15 +967,20 @@ void setType(Obj *typeInfo, ElemType type)
 
 void setTypeInfo(Obj      *typeInfo,
                  ElemType  type,
-                 void     *variable = 0,
-                 void     *constraint = 0)
-    // Set the specified 'typeInfo' to have the specified 'type'.  Optionally
-    // specify 'variable', the address of a linked variable and 'constraint',
-    // the address of a constraint.  The behavior is undefined unless
-    // 'Ot::e_VOID != type', 'variable' is 0 or can be cast to
-    // 'Ot::EnumToType<type>::type', 'constraint' is 0 or can be cast to the
-    // type defined by 'Constraint' for 'type', and if 'Ot::e_BOOL == type'
-    // then 'constraint' is 0.
+                 void     *variable,
+                 bool      isOptionalLinkedVariable,
+                 void     *constraint)
+    // Set the specified 'typeInfo' object to have the specified 'type', a link
+    // to the specified 'variable' (possibly 0) that is used as a
+    // 'bsl::optional' object if the specified 'isOptionalLinkedVariable' is
+    // 'true', and containing a value subject to the specified 'constraint'
+    // (possibly 0).  The behavior is undefined unless 'Ot::e_VOID != type',
+    // 'variable' is 0 or can be cast to 'Ot::EnumToType<type>::type *' if
+    // 'isOptionalLinkedVariable' is 'false' or cast to
+    // 'bsl::optional<Ot::EnumToType<type>::type> *' if
+    // 'isOptionalLinkedVariable' is 'true', 'constraint' is 0 or can be cast
+    // to the type defined by 'Constraint' for 'type', and if
+    // 'Ot::e_BOOL == type' then 'constraint' is 0.
 {
     BSLS_ASSERT(typeInfo);
 
@@ -917,7 +991,7 @@ void setTypeInfo(Obj      *typeInfo,
     setType(typeInfo, type);
 
     if (variable) {
-        setLinkedVariable(typeInfo, type, variable);
+        setLinkedVariable(typeInfo, type, variable, isOptionalLinkedVariable);
     }
     if (constraint) {
         setConstraint(typeInfo, type, constraint);
@@ -928,16 +1002,22 @@ void setTypeInfo(Obj      *typeInfo,
                         // function constructTypeInfo
                         // ==========================
 
-
-Obj *constructTypeInfo(void *buffer,  ElemType type, void *variable)
+Obj *constructTypeInfo(void     *buffer,
+                       ElemType  type,
+                       void     *variable,
+                       bool      isOptionalLinkedVariable = false)
     // Return the address of a 'TypeInfo' object created in the specified
     // 'buffer' and having the specified 'type'.  If the specified 'variable'
-    // is not 0, that address is linked to the option.  There is no constraint
-    // on the value.  The returned object will use the currently defined
-    // default allocator.  The caller is required to explicitly invoke the
-    // destructor of the returned object.  The behavior is undefined unless
-    // 'Ot::e_VOID != type' and 'variable' can be cast to
-    // 'Ot::EnumToType<type>::type'.
+    // is not 0, that address is linked to the option.  Optionally specify
+    // 'isOptionalLinkedVariable' (if 'true', then 'variable' is the address of
+    // a 'bsl::optional' object).  Impose no constraint on the option value.
+    // The created object will use the currently defined default allocator.
+    // The caller is required to explicitly invoke the destructor of the
+    // created object.  The behavior is undefined unless 'Ot::e_VOID != type',
+    // 'variable' can be cast to 'Ot::EnumToType<type>::type *' (or
+    // 'bsl::optional<Ot::EnumToType<type>::type> *' if
+    // 'isOptionalLinkedVariable'), and 'isOptionalLinkedVariable' is 'true'
+    // only if 'type' allows 'bsl::optional' objects as linked variables.
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(Ot::e_VOID != type);
@@ -946,8 +1026,24 @@ Obj *constructTypeInfo(void *buffer,  ElemType type, void *variable)
 
 #define CASE(ENUM)                                                            \
     case ENUM: {                                                              \
-      ptr = new (buffer) Obj(static_cast<Ot::EnumToType<ENUM>::type *>(       \
-                                                                  variable)); \
+      typedef Ot::EnumToType<ENUM>::type LinkType;                            \
+      ptr = new (buffer) Obj(static_cast<LinkType *>(variable));              \
+    } break;                                                                  \
+
+#define CASE_MAYBE_OPTIONAL_LINK(ENUM)                                        \
+    case ENUM: {                                                              \
+      typedef Ot::EnumToType<ENUM>::type LinkType;                            \
+                                                                              \
+      if (isOptionalLinkedVariable) {                                         \
+        BSLS_ASSERT(Ot::e_BOOL != type);                                      \
+        BSLS_ASSERT(false      == Ot::isArrayType(type));                     \
+                                                                              \
+        typedef bsl::optional<LinkType> OptLinkType;                          \
+                                                                              \
+        ptr = new (buffer) Obj(static_cast<OptLinkType *>(variable));         \
+      } else {                                                                \
+        ptr = new (buffer) Obj(static_cast<   LinkType *>(variable));         \
+      }                                                                       \
     } break;                                                                  \
 
     switch (type) {
@@ -955,23 +1051,23 @@ Obj *constructTypeInfo(void *buffer,  ElemType type, void *variable)
         BSLS_ASSERT(!"Reached: 'e_VOID'");
       } break;
 
-      CASE(Ot::e_BOOL)
-      CASE(Ot::e_CHAR)
-      CASE(Ot::e_INT)
-      CASE(Ot::e_INT64)
-      CASE(Ot::e_DOUBLE)
-      CASE(Ot::e_STRING)
-      CASE(Ot::e_DATETIME)
-      CASE(Ot::e_DATE)
-      CASE(Ot::e_TIME)
-      CASE(Ot::e_CHAR_ARRAY)
-      CASE(Ot::e_INT_ARRAY)
-      CASE(Ot::e_INT64_ARRAY)
-      CASE(Ot::e_DOUBLE_ARRAY)
-      CASE(Ot::e_STRING_ARRAY)
-      CASE(Ot::e_DATETIME_ARRAY)
-      CASE(Ot::e_DATE_ARRAY)
-      CASE(Ot::e_TIME_ARRAY)
+      CASE                    (Ot::e_BOOL)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_CHAR)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_INT)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_INT64)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_DOUBLE)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_STRING)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_DATETIME)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_DATE)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_TIME)
+      CASE                    (Ot::e_CHAR_ARRAY)
+      CASE                    (Ot::e_INT_ARRAY)
+      CASE                    (Ot::e_INT64_ARRAY)
+      CASE                    (Ot::e_DOUBLE_ARRAY)
+      CASE                    (Ot::e_STRING_ARRAY)
+      CASE                    (Ot::e_DATETIME_ARRAY)
+      CASE                    (Ot::e_DATE_ARRAY)
+      CASE                    (Ot::e_TIME_ARRAY)
 
       default: {
         BSLS_ASSERT(!"Reached: Unknown");
@@ -979,6 +1075,7 @@ Obj *constructTypeInfo(void *buffer,  ElemType type, void *variable)
     }
 
 #undef CASE
+#undef CASE_MAYBE_OPTIONAL_LINK
 
     return ptr;
 }
@@ -986,15 +1083,20 @@ Obj *constructTypeInfo(void *buffer,  ElemType type, void *variable)
 Obj *constructTypeInfo(void             *buffer,
                        ElemType          type,
                        void             *variable,
+                       bool              isOptionalLinkedVariable,
                        bslma::Allocator *basicAllocator)
     // Return the address of a 'TypeInfo' object created in the specified
     // 'buffer' and having the specified 'type'.  If the specified 'variable'
-    // is not 0, that address is linked to the option.  There is no constraint
-    // on the value.  The returned object will use the currently defined
-    // default allocator.  The caller is required to explicitly invoke the
-    // destructor of the returned object.  The behavior is undefined unless
-    // 'Ot::e_VOID != type' and 'variable' can be cast to
-    // 'Ot::EnumToType<type>::type'.
+    // is not 0, that address is linked to the option.  If the specified
+    // 'isOptionalLinkedVariable' is 'true', then 'variable' is the address of
+    // a 'bsl::optional' object.  Impose no constraint on the option value.
+    // The created object will use the specified 'basicAllocator'.  The caller
+    // is required to explicitly invoke the destructor of the returned object.
+    // The behavior is undefined unless 'Ot::e_VOID != type', 'variable' can be
+    // cast to 'Ot::EnumToType<type>::type *' (or
+    // 'bsl::optional<Ot::EnumToType<type>::type: *' if
+    // 'isOptionalLinkedVariable'), and 'isOptionalLinkedVariable' is 'true'
+    // only if 'type' allows 'bsl::optional' objects as linked variables.
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(Ot::e_VOID != type);
@@ -1003,9 +1105,26 @@ Obj *constructTypeInfo(void             *buffer,
 
 #define CASE(ENUM)                                                            \
     case ENUM: {                                                              \
-      ptr = new (buffer) Obj(static_cast<Ot::EnumToType<ENUM>::type *>(       \
-                                                                   variable), \
+      typedef Ot::EnumToType<ENUM>::type LinkType;                            \
+      ptr = new (buffer) Obj(static_cast<LinkType *>(variable),               \
                              basicAllocator);                                 \
+    } break;                                                                  \
+
+#define CASE_MAYBE_OPTIONAL_LINK(ENUM)                                        \
+    case ENUM: {                                                              \
+      typedef Ot::EnumToType<ENUM>::type LinkType;                            \
+                                                                              \
+      if (isOptionalLinkedVariable) {                                         \
+        BSLS_ASSERT(Ot::e_BOOL != type);                                      \
+        BSLS_ASSERT(false      == Ot::isArrayType(type));                     \
+                                                                              \
+        typedef bsl::optional<LinkType> OptLinkType;                          \
+        ptr = new (buffer) Obj(static_cast<OptLinkType *>(variable),          \
+                              basicAllocator);                                \
+      } else {                                                                \
+        ptr = new (buffer) Obj(static_cast<   LinkType *>(variable),          \
+                               basicAllocator);                               \
+      }                                                                       \
     } break;                                                                  \
 
     switch (type) {
@@ -1013,29 +1132,30 @@ Obj *constructTypeInfo(void             *buffer,
         BSLS_ASSERT(!"Reached");
       } break;
 
-      CASE(Ot::e_BOOL)
-      CASE(Ot::e_CHAR)
-      CASE(Ot::e_INT)
-      CASE(Ot::e_INT64)
-      CASE(Ot::e_DOUBLE)
-      CASE(Ot::e_STRING)
-      CASE(Ot::e_DATETIME)
-      CASE(Ot::e_DATE)
-      CASE(Ot::e_TIME)
-      CASE(Ot::e_CHAR_ARRAY)
-      CASE(Ot::e_INT_ARRAY)
-      CASE(Ot::e_INT64_ARRAY)
-      CASE(Ot::e_DOUBLE_ARRAY)
-      CASE(Ot::e_STRING_ARRAY)
-      CASE(Ot::e_DATETIME_ARRAY)
-      CASE(Ot::e_DATE_ARRAY)
-      CASE(Ot::e_TIME_ARRAY)
+      CASE                    (Ot::e_BOOL)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_CHAR)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_INT)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_INT64)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_DOUBLE)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_STRING)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_DATETIME)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_DATE)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_TIME)
+      CASE                    (Ot::e_CHAR_ARRAY)
+      CASE                    (Ot::e_INT_ARRAY)
+      CASE                    (Ot::e_INT64_ARRAY)
+      CASE                    (Ot::e_DOUBLE_ARRAY)
+      CASE                    (Ot::e_STRING_ARRAY)
+      CASE                    (Ot::e_DATETIME_ARRAY)
+      CASE                    (Ot::e_DATE_ARRAY)
+      CASE                    (Ot::e_TIME_ARRAY)
 
       default: {
         BSLS_ASSERT(!"Reached: Unknown");
       } break;
     }
 
+#undef CASE_MAYBE_OPTIONAL_LINK
 #undef CASE
 
     return ptr;
@@ -1044,16 +1164,22 @@ Obj *constructTypeInfo(void             *buffer,
 Obj *constructTypeInfo(void     *buffer,
                        ElemType  type,
                        void     *variable,
+                       bool      isOptionalLinkedVariable,
                        void     *constraint)
     // Return the address of a 'TypeInfo' object created in the specified
-    // 'buffer' and having the specified 'type' and 'constraint'.  If the
-    // specified 'variable' is not 0, that address is linked to the option.
-    // The returned object uses the currently defined default allocator.  The
-    // caller is required to explicitly invoke the destructor of the returned
-    // object.  The behavior is undefined unless 'Ot::e_VOID != type',
-    // 'Ot::e_BOOL != type', 'variable' can be cast to
-    // 'Ot::EnumToType<type>::type', and 'constraint' can be cast to the type
-    // defined by 'Constraint' for 'type'.
+    // 'buffer' and having the specified 'type' and 'constraint' (on option
+    // value).  If the specified 'variable' is not 0, that address is linked to
+    // the option.  If the specified 'isOptionalLinkedVariable' is 'true' then
+    // 'variable' is the address of a 'bsl::optional' object.  The created
+    // object uses the currently defined default allocator.  The caller is
+    // required to explicitly invoke the destructor of the created object.  The
+    // behavior is undefined unless 'Ot::e_VOID != type', 'Ot::e_BOOL != type',
+    // 'variable' can be cast to 'Ot::EnumToType<type>::type *' (or
+    // 'bsl::optional<Ot::EnumToType<type>::type> *' if
+    // 'isOptionalLinkedVariable'), 'constraint' can be cast to the type
+    // defined by 'Constraint' for 'type', and 'isOptionalLinkedVariable' is
+    // 'true' only if 'type' allows 'bsl::optional' objects as linked
+    // variables.
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(Ot::e_VOID != type);
@@ -1064,9 +1190,28 @@ Obj *constructTypeInfo(void     *buffer,
 
 #define CASE(ENUM, CONSTRAINT)                                                \
     case ENUM: {                                                              \
-      ptr = new (buffer) Obj(                                                 \
-                    static_cast<Ot::EnumToType<ENUM>::type   *>(variable  ),  \
-                   *static_cast<const Constraint::CONSTRAINT *>(constraint)); \
+      typedef Constraint::CONSTRAINT           ConsType;                      \
+      typedef Ot::EnumToType<ENUM>::type       LinkType;                      \
+      ptr = new (buffer) Obj(static_cast<      LinkType *>(variable),         \
+                            *static_cast<const ConsType *>(constraint));      \
+    } break;                                                                  \
+
+#define CASE_MAYBE_OPTIONAL_LINK(ENUM, CONSTRAINT)                            \
+    case ENUM: {                                                              \
+      typedef Constraint::CONSTRAINT     ConsType;                            \
+      typedef Ot::EnumToType<ENUM>::type LinkType;                            \
+                                                                              \
+      if (isOptionalLinkedVariable) {                                         \
+        BSLS_ASSERT(Ot::e_BOOL != type);                                      \
+        BSLS_ASSERT(false      == Ot::isArrayType(type));                     \
+                                                                              \
+        typedef bsl::optional<LinkType>       OptLinkType;                    \
+        ptr = new (buffer) Obj(static_cast<   OptLinkType *>(variable),       \
+                              *static_cast<const ConsType *>(constraint));    \
+      } else {                                                                \
+        ptr = new (buffer) Obj(static_cast<      LinkType *>(variable),       \
+                              *static_cast<const ConsType *>(constraint));    \
+      }                                                                       \
     } break;                                                                  \
 
     switch (type) {
@@ -1077,29 +1222,29 @@ Obj *constructTypeInfo(void     *buffer,
         BSLS_ASSERT(!"Reached: 'e_BOOL'");
       } break;
 
-      CASE(Ot::e_CHAR,               CharConstraint)
-      CASE(Ot::e_INT,                 IntConstraint)
-      CASE(Ot::e_INT64,             Int64Constraint)
-      CASE(Ot::e_DOUBLE,           DoubleConstraint)
-      CASE(Ot::e_STRING,           StringConstraint)
-      CASE(Ot::e_DATETIME,       DatetimeConstraint)
-      CASE(Ot::e_DATE,               DateConstraint)
-      CASE(Ot::e_TIME,               TimeConstraint)
-
-      CASE(Ot::e_CHAR_ARRAY,         CharConstraint)
-      CASE(Ot::e_INT_ARRAY,           IntConstraint)
-      CASE(Ot::e_INT64_ARRAY,       Int64Constraint)
-      CASE(Ot::e_DOUBLE_ARRAY,     DoubleConstraint)
-      CASE(Ot::e_STRING_ARRAY,     StringConstraint)
-      CASE(Ot::e_DATETIME_ARRAY, DatetimeConstraint)
-      CASE(Ot::e_DATE_ARRAY,         DateConstraint)
-      CASE(Ot::e_TIME_ARRAY,         TimeConstraint)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_CHAR,               CharConstraint)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_INT,                 IntConstraint)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_INT64,             Int64Constraint)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_DOUBLE,           DoubleConstraint)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_STRING,           StringConstraint)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_DATETIME,       DatetimeConstraint)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_DATE,               DateConstraint)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_TIME,               TimeConstraint)
+      CASE                    (Ot::e_CHAR_ARRAY,         CharConstraint)
+      CASE                    (Ot::e_INT_ARRAY,           IntConstraint)
+      CASE                    (Ot::e_INT64_ARRAY,       Int64Constraint)
+      CASE                    (Ot::e_DOUBLE_ARRAY,     DoubleConstraint)
+      CASE                    (Ot::e_STRING_ARRAY,     StringConstraint)
+      CASE                    (Ot::e_DATETIME_ARRAY, DatetimeConstraint)
+      CASE                    (Ot::e_DATE_ARRAY,         DateConstraint)
+      CASE                    (Ot::e_TIME_ARRAY,         TimeConstraint)
 
       default: {
         BSLS_ASSERT(!"Reached: Unknown");
       } break;
     }
 
+#undef CASE_MAYBE_OPTIONAL_LINK
 #undef CASE
 
     return ptr;
@@ -1108,17 +1253,23 @@ Obj *constructTypeInfo(void     *buffer,
 Obj *constructTypeInfo(void             *buffer,
                        ElemType          type,
                        void             *variable,
+                       bool              isOptionalLinkedVariable,
                        void             *constraint,
                        bslma::Allocator *basicAllocator)
     // Return the address of a 'TypeInfo' object created in the specified
-    // 'buffer' and having the specified 'type' and 'constraint'.  If the
-    // specified 'variable' is not 0, that address is linked to the option.
-    // The returned object uses the currently defined default allocator.  The
-    // caller is required to explicitly invoke the destructor of the returned
-    // object.  The behavior is undefined unless 'Ot::e_VOID != type',
-    // 'Ot::e_BOOL != type', 'variable' can be cast to
-    // 'Ot::EnumToType<type>::type', and 'constraint' can be cast to the type
-    // defined by 'Constraint' for 'type'.
+    // 'buffer' and having the specified 'type' and 'constraint' (on option
+    // value).  If the specified 'variable' is not 0, that address is linked to
+    // the option.  If the specified 'isOptionalLinkedVariable' is 'true', then
+    // 'variable' is the address of a 'bsl::optional' object.  The created
+    // object uses the specified 'basicAllocator'.  The caller is required to
+    // explicitly invoke the destructor of the created object.  The behavior is
+    // undefined unless 'Ot::e_VOID != type', 'Ot::e_BOOL != type', 'variable'
+    // can be cast to 'Ot::EnumToType<type>::type *' (or
+    // 'bsl::optional<Ot::EnumToType<type>::type> *', if
+    // 'isOptionalLinkedVariable'), 'constraint' can be cast to the type
+    // defined by 'Constraint' for 'type', and 'isOptionalLinkedVariable' is
+    // 'true' only if 'type' allows 'bsl::optional' objects as linked
+    // variables.
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(Ot::e_VOID != type);
@@ -1129,10 +1280,31 @@ Obj *constructTypeInfo(void             *buffer,
 
 #define CASE(ENUM, CONSTRAINT)                                                \
     case ENUM: {                                                              \
-      ptr = new (buffer) Obj(                                                 \
-                    static_cast<Ot::EnumToType<ENUM>::type   *>(variable  ),  \
-                   *static_cast<const Constraint::CONSTRAINT *>(constraint),  \
-                   basicAllocator);                                           \
+      typedef Constraint::CONSTRAINT           ConsType;                      \
+      typedef Ot::EnumToType<ENUM>::type       LinkType;                      \
+      ptr = new (buffer) Obj(static_cast<      LinkType *>(variable),         \
+                            *static_cast<const ConsType *>(constraint),       \
+                                                           basicAllocator);   \
+    } break;                                                                  \
+
+#define CASE_MAYBE_OPTIONAL_LINK(ENUM, CONSTRAINT)                            \
+    case ENUM: {                                                              \
+      typedef Constraint::CONSTRAINT     ConsType;                            \
+      typedef Ot::EnumToType<ENUM>::type LinkType;                            \
+                                                                              \
+      if (isOptionalLinkedVariable) {                                         \
+        BSLS_ASSERT(Ot::e_BOOL != type);                                      \
+        BSLS_ASSERT(false      == Ot::isArrayType(type));                     \
+                                                                              \
+        typedef bsl::optional<LinkType>       OptLinkType;                    \
+        ptr = new (buffer) Obj(static_cast<   OptLinkType *>(variable),       \
+                              *static_cast<const ConsType *>(constraint),     \
+                                                             basicAllocator); \
+      } else {                                                                \
+        ptr = new (buffer) Obj(static_cast<      LinkType *>(variable),       \
+                              *static_cast<const ConsType *>(constraint),     \
+                                                             basicAllocator); \
+      }                                                                       \
     } break;                                                                  \
 
     switch (type) {
@@ -1143,29 +1315,29 @@ Obj *constructTypeInfo(void             *buffer,
         BSLS_ASSERT(!"Reached: 'e_BOOL'");
       } break;
 
-      CASE(Ot::e_CHAR,               CharConstraint)
-      CASE(Ot::e_INT,                 IntConstraint)
-      CASE(Ot::e_INT64,             Int64Constraint)
-      CASE(Ot::e_DOUBLE,           DoubleConstraint)
-      CASE(Ot::e_STRING,           StringConstraint)
-      CASE(Ot::e_DATETIME,       DatetimeConstraint)
-      CASE(Ot::e_DATE,               DateConstraint)
-      CASE(Ot::e_TIME,               TimeConstraint)
-
-      CASE(Ot::e_CHAR_ARRAY,         CharConstraint)
-      CASE(Ot::e_INT_ARRAY,           IntConstraint)
-      CASE(Ot::e_INT64_ARRAY,       Int64Constraint)
-      CASE(Ot::e_DOUBLE_ARRAY,     DoubleConstraint)
-      CASE(Ot::e_STRING_ARRAY,     StringConstraint)
-      CASE(Ot::e_DATETIME_ARRAY, DatetimeConstraint)
-      CASE(Ot::e_DATE_ARRAY,         DateConstraint)
-      CASE(Ot::e_TIME_ARRAY,         TimeConstraint)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_CHAR,               CharConstraint)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_INT,                 IntConstraint)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_INT64,             Int64Constraint)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_DOUBLE,           DoubleConstraint)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_STRING,           StringConstraint)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_DATETIME,       DatetimeConstraint)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_DATE,               DateConstraint)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_TIME,               TimeConstraint)
+      CASE                    (Ot::e_CHAR_ARRAY,         CharConstraint)
+      CASE                    (Ot::e_INT_ARRAY,           IntConstraint)
+      CASE                    (Ot::e_INT64_ARRAY,       Int64Constraint)
+      CASE                    (Ot::e_DOUBLE_ARRAY,     DoubleConstraint)
+      CASE                    (Ot::e_STRING_ARRAY,     StringConstraint)
+      CASE                    (Ot::e_DATETIME_ARRAY, DatetimeConstraint)
+      CASE                    (Ot::e_DATE_ARRAY,         DateConstraint)
+      CASE                    (Ot::e_TIME_ARRAY,         TimeConstraint)
 
       default: {
         BSLS_ASSERT(!"Reached: Unknown");
       } break;
     }
 
+#undef CASE_MAYBE_OPTIONAL_LINK
 #undef CASE
 
     return ptr;
@@ -1455,7 +1627,6 @@ void printValue(ostream& stream, Ot::Enum type, const void *value)
                  << endl;                                                     \
     } break;
 
-
 #define CASE_ARRAY(ENUM)                                                      \
     case ENUM: {                                                              \
           stream                                                              \
@@ -1495,6 +1666,45 @@ void printValue(ostream& stream, Ot::Enum type, const void *value)
 #undef CASE_SCALAR
 #undef CASE_ARRAY
     }
+}
+
+                         // ===========================
+                         // function getSomeOptionValue
+                         // ===========================
+
+const void *getSomeOptionValue(ElemType type)
+    // Return the address of the element in 'OPTION_VALUES' having the
+    // specified 'type' and 0 if no such element is found.
+{
+    for (bsl::size_t i = 0; i < NUM_OPTION_VALUES; ++i) {
+        if (OPTION_VALUES[i].d_type == type) {
+            return OPTION_VALUES[i].d_value_p;                        // RETURN
+        }
+    }
+    return 0;
+}
+
+                         // ========================================
+                         // function isOptionalLinkedVariableInTable
+                         // ========================================
+
+bool isOptionalLinkedVariableInTable(void *variable)
+    // Return 'true' is the specified 'variable', possibly having a 0 value, is
+    // the address of one of the 'bsl::optional' objects that are used as
+    // linked variables in some entries of the 'OPTION_TYPEINFO' table, and
+    // 'false' otherwise.
+{
+    if (variable == &oLinkedChar
+     || variable == &oLinkedInt
+     || variable == &oLinkedInt64
+     || variable == &oLinkedDouble
+     || variable == &oLinkedString
+     || variable == &oLinkedDatetime
+     || variable == &oLinkedDate
+     || variable == &oLinkedTime) {
+        return true;                                                  // RETURN
+    }
+    return false;
 }
 
 }  // close namespace u
@@ -1726,39 +1936,55 @@ int main(int argc, const char *argv[])  {
         //:   from the intended allocators.  (C-2).
         //
         // Testing:
-        //   TypeInfo(bool             *v, *bA = 0);
-        //   TypeInfo(char             *v, *bA = 0);
-        //   TypeInfo(char             *v, CharC&     c, *bA = 0);
-        //   TypeInfo(int              *v, *bA = 0);
-        //   TypeInfo(int              *v, IntC&      c, *bA = 0);
-        //   TypeInfo(Int64            *v, *bA = 0);
-        //   TypeInfo(Int64            *v, Int64C&    c, *bA = 0);
-        //   TypeInfo(double           *v, *bA = 0);
-        //   TypeInfo(double           *v, DoubleC&   c, *bA = 0);
-        //   TypeInfo(string           *v, *bA = 0);
-        //   TypeInfo(string           *v, StringC&   c, *bA = 0);
-        //   TypeInfo(Datetime         *v, *bA = 0);
-        //   TypeInfo(Datetime         *v, DatetimeC& c, *bA = 0);
-        //   TypeInfo(Date             *v, *bA = 0);
-        //   TypeInfo(Date             *v, DateC&     c, *bA = 0);
-        //   TypeInfo(Time             *v, *bA = 0);
-        //   TypeInfo(Time             *v, TimeC&     c, *bA = 0);
-        //   TypeInfo(vector<char>     *v, *bA = 0);
-        //   TypeInfo(vector<char>     *v, CharC&     c, *bA = 0);
-        //   TypeInfo(vector<int>      *v, *bA = 0);
-        //   TypeInfo(vector<int>      *v, IntC&      c, *bA = 0);
-        //   TypeInfo(vector<Int64>    *v, *bA = 0);
-        //   TypeInfo(vector<Int64>    *v, Int64C&    c, *bA = 0);
-        //   TypeInfo(vector<double>   *v, *bA = 0);
-        //   TypeInfo(vector<double>   *v, DoubleC&   c, *bA = 0);
-        //   TypeInfo(vector<string>   *v, *bA = 0);
-        //   TypeInfo(vector<string>   *v, StringC&   c, *bA = 0);
-        //   TypeInfo(vector<Datetime> *v, *bA = 0);
-        //   TypeInfo(vector<Datetime> *v, DatetimeC& c, *bA = 0);
-        //   TypeInfo(vector<Date>     *v, *bA = 0);
-        //   TypeInfo(vector<Date>     *v, DateC&     c, *bA = 0);
-        //   TypeInfo(vector<Time>     *v, *bA = 0);
-        //   TypeInfo(vector<Time>     *v, TimeC&     c, *bA = 0);
+        //   TypeInfo(bool               *v, *bA = 0);
+        //   TypeInfo(char               *v, *bA = 0);
+        //   TypeInfo(char               *v, CharC&     c, *bA = 0);
+        //   TypeInfo(int                *v, *bA = 0);
+        //   TypeInfo(int                *v, IntC&      c, *bA = 0);
+        //   TypeInfo(Int64              *v, *bA = 0);
+        //   TypeInfo(Int64              *v, Int64C&    c, *bA = 0);
+        //   TypeInfo(double             *v, *bA = 0);
+        //   TypeInfo(double             *v, DoubleC&   c, *bA = 0);
+        //   TypeInfo(string             *v, *bA = 0);
+        //   TypeInfo(string             *v, StringC&   c, *bA = 0);
+        //   TypeInfo(Datetime           *v, *bA = 0);
+        //   TypeInfo(Datetime           *v, DatetimeC& c, *bA = 0);
+        //   TypeInfo(Date               *v, *bA = 0);
+        //   TypeInfo(Date               *v, DateC&     c, *bA = 0);
+        //   TypeInfo(Time               *v, *bA = 0);
+        //   TypeInfo(Time               *v, TimeC&     c, *bA = 0);
+        //   TypeInfo(vector<char>       *v, *bA = 0);
+        //   TypeInfo(vector<char>       *v, CharC&     c, *bA = 0);
+        //   TypeInfo(vector<int>        *v, *bA = 0);
+        //   TypeInfo(vector<int>        *v, IntC&      c, *bA = 0);
+        //   TypeInfo(vector<Int64>      *v, *bA = 0);
+        //   TypeInfo(vector<Int64>      *v, Int64C&    c, *bA = 0);
+        //   TypeInfo(vector<double>     *v, *bA = 0);
+        //   TypeInfo(vector<double>     *v, DoubleC&   c, *bA = 0);
+        //   TypeInfo(vector<string>     *v, *bA = 0);
+        //   TypeInfo(vector<string>     *v, StringC&   c, *bA = 0);
+        //   TypeInfo(vector<Datetime>   *v, *bA = 0);
+        //   TypeInfo(vector<Datetime>   *v, DatetimeC& c, *bA = 0);
+        //   TypeInfo(vector<Date>       *v, *bA = 0);
+        //   TypeInfo(vector<Date>       *v, DateC&     c, *bA = 0);
+        //   TypeInfo(vector<Time>       *v, *bA = 0);
+        //   TypeInfo(vector<Time>       *v, TimeC&     c, *bA = 0);
+        //   TypeInfo(optional<char>     *v, *bA = 0);
+        //   TypeInfo(optional<char>     *v, CharC&     c, *bA = 0);
+        //   TypeInfo(optional<int>      *v, *bA = 0);
+        //   TypeInfo(optional<int>      *v, IntC&      c, *bA = 0);
+        //   TypeInfo(optional<Int64>    *v, *bA = 0);
+        //   TypeInfo(optional<Int64>    *v, Int64C&    c, *bA = 0);
+        //   TypeInfo(optional<double>   *v, *bA = 0);
+        //   TypeInfo(optional<double>   *v, DoubleC&   c, *bA = 0);
+        //   TypeInfo(optional<string>   *v, *bA = 0);
+        //   TypeInfo(optional<string>   *v, StringC&   c, *bA = 0);
+        //   TypeInfo(optional<Datetime> *v, *bA = 0);
+        //   TypeInfo(optional<Datetime> *v, DatetimeC& c, *bA = 0);
+        //   TypeInfo(optional<Date>     *v, *bA = 0);
+        //   TypeInfo(optional<Date>     *v, DateC&     c, *bA = 0);
+        //   TypeInfo(optional<Time>     *v, *bA = 0);
+        //   TypeInfo(optional<Time>     *v, TimeC&     c, *bA = 0);
         // -------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1771,10 +1997,14 @@ int main(int argc, const char *argv[])  {
             void           *VARIABLE   = OPTION_TYPEINFO[i].d_linkedVariable_p;
             void           *CONSTRAINT = OPTION_TYPEINFO[i].d_constraint_p;
 
+            const bool      IS_OPTIONAL_LINKED_VARIABLE =
+                                  u::isOptionalLinkedVariableInTable(VARIABLE);
+
             if (veryVerbose) {
                 P_(LINE)
                 P_(TYPE)
                 P_(VARIABLE)
+                P_(IS_OPTIONAL_LINKED_VARIABLE)
                 P(CONSTRAINT)
             }
 
@@ -1816,9 +2046,12 @@ int main(int argc, const char *argv[])  {
 
                     switch(cfg) {
                       case 'a': {
-                        xPtr = u::constructTypeInfo(xObjectBuffer.buffer(),
-                                                    TYPE,
-                                                    VARIABLE);  // ACTION
+                        xPtr = u::constructTypeInfo(
+                                                  xObjectBuffer.buffer(),
+                                                  TYPE,
+                                                  VARIABLE,
+                                                  IS_OPTIONAL_LINKED_VARIABLE);
+                                                                      // ACTION
                         xOa = &da;
                       } break;
                       case 'b': {
@@ -1826,21 +2059,26 @@ int main(int argc, const char *argv[])  {
                                  xObjectBuffer.buffer(),
                                  TYPE,
                                  VARIABLE,
+                                 IS_OPTIONAL_LINKED_VARIABLE,
                                  static_cast<bslma::Allocator *>(0)); // ACTION
                         xOa = &da;
                       } break;
                       case 'c': {
-                        xPtr = u::constructTypeInfo(xObjectBuffer.buffer(),
-                                                    TYPE,
-                                                    VARIABLE,
-                                                    &sa);  // ACTION
+                        xPtr = u::constructTypeInfo(
+                                                   xObjectBuffer.buffer(),
+                                                   TYPE,
+                                                   VARIABLE,
+                                                   IS_OPTIONAL_LINKED_VARIABLE,
+                                                   &sa);  // ACTION
                         xOa = &sa;
                       } break;
                       case 'd': {
-                        xPtr = u::constructTypeInfo(xObjectBuffer.buffer(),
-                                                    TYPE,
-                                                    VARIABLE,
-                                                    CONSTRAINT);  // ACTION
+                        xPtr = u::constructTypeInfo(
+                                                   xObjectBuffer.buffer(),
+                                                   TYPE,
+                                                   VARIABLE,
+                                                   IS_OPTIONAL_LINKED_VARIABLE,
+                                                   CONSTRAINT);  // ACTION
                         xOa = &da;
                       } break;
                       case 'e': {
@@ -1848,16 +2086,19 @@ int main(int argc, const char *argv[])  {
                                  xObjectBuffer.buffer(),
                                  TYPE,
                                  VARIABLE,
+                                 IS_OPTIONAL_LINKED_VARIABLE,
                                  CONSTRAINT,
                                  static_cast<bslma::Allocator *>(0)); // ACTION
                         xOa = &da;
                       } break;
                       case 'f': {
-                        xPtr = u::constructTypeInfo(xObjectBuffer.buffer(),
-                                                    TYPE,
-                                                    VARIABLE,
-                                                    CONSTRAINT,
-                                                    &sa);  // ACTION
+                        xPtr = u::constructTypeInfo(
+                                                   xObjectBuffer.buffer(),
+                                                   TYPE,
+                                                   VARIABLE,
+                                                   IS_OPTIONAL_LINKED_VARIABLE,
+                                                   CONSTRAINT,
+                                                   &sa);  // ACTION
                         xOa = &sa;
                       } break;
                       default: {
@@ -1890,9 +2131,13 @@ int main(int argc, const char *argv[])  {
 
                 Obj& mX = *xPtr; const Obj& X = mX;
 
-                ASSERT(TYPE     ==                     X.type());
-                ASSERT(VARIABLE == static_cast<void *>(X.linkedVariable()));
-                ASSERT(xOa      ==                     X.allocator());
+                ASSERT(TYPE     ==               X.type());
+                ASSERT(VARIABLE == static_cast<void *>(
+                                                 X.linkedVariable()));
+                ASSERTV(LINE, IS_OPTIONAL_LINKED_VARIABLE,
+                        IS_OPTIONAL_LINKED_VARIABLE
+                                ==               X.isOptionalLinkedVariable());
+                ASSERT(xOa      ==               X.allocator());
 
                 xPtr->~Obj();
 
@@ -1920,6 +2165,9 @@ int main(int argc, const char *argv[])  {
         //: 5 The assignment operation returns a reference to the 'lhs' object.
         //:
         //: 6 The operation does not change the 'rhs'.
+        //:
+        //: 7 The non-salient attribute 'isOptionalLinkedVariable' has the
+        //:   expected value.
         //
         // Plan:
         //: 1 Use the "pointer-to-method" idiom to have the compiler check the
@@ -1943,6 +2191,8 @@ int main(int argc, const char *argv[])  {
         //: 6 Create a duplicate of the 'rhs' object that is not used in the
         //:   assignment operation.  Confirm that the 'rhs' compares equal to
         //:   this spare object both before and after the assignment operation.
+        //:   Confirm that the non-salient 'isOptionalLinkedVariable' has the
+        //:   expected value.  (C-6..7)
         //
         // Testing:
         //   TypeInfo& operator=(const TypeInfo& rhs);
@@ -1969,18 +2219,34 @@ int main(int argc, const char *argv[])  {
             void       *VARIABLE1 = OPTION_TYPEINFO[i].d_linkedVariable_p;
             void     *CONSTRAINT1 = OPTION_TYPEINFO[i].d_constraint_p;
 
+            const bool      IS_OPTIONAL_LINKED_VARIABLE1 =
+                                 u::isOptionalLinkedVariableInTable(VARIABLE1);
+
             if (veryVerbose) {
                 T_ P_(LINE1) P_(i) P(TYPE1)
-                T_ P_(VARIABLE1) P(CONSTRAINT1)
+                T_ P_(VARIABLE1) P_(IS_OPTIONAL_LINKED_VARIABLE1)
+                                                                 P(CONSTRAINT1)
             }
 
             Obj mX;  const Obj& X = mX;
             Obj mZ;  const Obj& Z = mZ;
             Obj mW;  const Obj& W = mW;
 
-            u::setTypeInfo(&mX, TYPE1, VARIABLE1, CONSTRAINT1);
-            u::setTypeInfo(&mZ, TYPE1, VARIABLE1, CONSTRAINT1);
-            u::setTypeInfo(&mW, TYPE1, VARIABLE1, CONSTRAINT1);
+            u::setTypeInfo(&mX,
+                           TYPE1,
+                           VARIABLE1,
+                           IS_OPTIONAL_LINKED_VARIABLE1,
+                           CONSTRAINT1);
+            u::setTypeInfo(&mZ,
+                           TYPE1,
+                           VARIABLE1,
+                           IS_OPTIONAL_LINKED_VARIABLE1,
+                           CONSTRAINT1);
+            u::setTypeInfo(&mW,
+                           TYPE1,
+                           VARIABLE1,
+                           IS_OPTIONAL_LINKED_VARIABLE1,
+                           CONSTRAINT1);
 
             mZ.setConstraint(X.constraint());  // shared constraint
             ASSERT(X == Z);
@@ -1990,7 +2256,11 @@ int main(int argc, const char *argv[])  {
             Obj *mR = &(mX = X);  // ACTION
             ASSERT(mR == &mX);
             ASSERT(X  == Z);
+            ASSERT(X.isOptionalLinkedVariable()
+                == Z.isOptionalLinkedVariable());
             ASSERT(Z  == W);
+            ASSERT(Z.isOptionalLinkedVariable()
+                == W.isOptionalLinkedVariable());
 
             for (int j = 0; j < NUM_OPTION_TYPEINFO; ++j) {
                 const int       LINE2 = OPTION_TYPEINFO[j].d_line;
@@ -1998,19 +2268,31 @@ int main(int argc, const char *argv[])  {
                 void       *VARIABLE2 = OPTION_TYPEINFO[j].d_linkedVariable_p;
                 void     *CONSTRAINT2 = OPTION_TYPEINFO[j].d_constraint_p;
 
+                 const bool IS_OPTIONAL_LINKED_VARIABLE2 =
+                                 u::isOptionalLinkedVariableInTable(VARIABLE2);
+
                 if (veryVerbose) {
                     T_ T_ P_(LINE2) P_(i) P(TYPE2)
-                    T_ T_ P_(VARIABLE2) P(CONSTRAINT2)
+                    T_ T_ P_(VARIABLE2) P_(IS_OPTIONAL_LINKED_VARIABLE2)
+                                                                 P(CONSTRAINT2)
                 }
 
                 bslma::TestAllocator saX("saX", veryVeryVeryVerbose);
                 bslma::TestAllocator saY("saY", veryVeryVeryVerbose);
 
                 Obj mX(&saX);  const Obj& X = mX;
-                u::setTypeInfo(&mX, TYPE1, VARIABLE1, CONSTRAINT1);
+                u::setTypeInfo(&mX,
+                               TYPE1,
+                               VARIABLE1,
+                               IS_OPTIONAL_LINKED_VARIABLE1,
+                               CONSTRAINT1);
 
                 Obj mY(&saY);  const Obj& Y = mY;
-                u::setTypeInfo(&mY, TYPE2, VARIABLE2, CONSTRAINT2);
+                u::setTypeInfo(&mY,
+                               TYPE2,
+                               VARIABLE2,
+                               IS_OPTIONAL_LINKED_VARIABLE2,
+                               CONSTRAINT2);
 
                 bslma::TestAllocatorMonitor samX(&saX);
                 bslma::TestAllocatorMonitor samY(&saY);
@@ -2024,6 +2306,8 @@ int main(int argc, const char *argv[])  {
                 LOOP2_ASSERT(LINE1, LINE2, X    == Y);
                 LOOP2_ASSERT(LINE1, LINE2, &saX == X.allocator());
                 LOOP2_ASSERT(LINE1, LINE2, &saY == Y.allocator());
+                LOOP2_ASSERT(LINE1, LINE2, X.isOptionalLinkedVariable()
+                                        == Y.isOptionalLinkedVariable());
             }
         }
 
@@ -2076,14 +2360,21 @@ int main(int argc, const char *argv[])  {
             void           *VARIABLE   = OPTION_TYPEINFO[i].d_linkedVariable_p;
             void           *CONSTRAINT = OPTION_TYPEINFO[i].d_constraint_p;
 
+            const bool      IS_OPTIONAL_LINKED_VARIABLE =
+                                  u::isOptionalLinkedVariableInTable(VARIABLE);
+
             if (veryVerbose) {
                 T_ P_(LINE) P_(i) P(TYPE)
-                T_ P_(VARIABLE) P(CONSTRAINT)
+                T_ P_(VARIABLE) P_(IS_OPTIONAL_LINKED_VARIABLE) P(CONSTRAINT)
             }
 
             Obj mX;  const Obj& X = mX;
 
-            u::setTypeInfo(&mX, TYPE, VARIABLE, CONSTRAINT);
+            u::setTypeInfo(&mX,
+                           TYPE,
+                           VARIABLE,
+                           IS_OPTIONAL_LINKED_VARIABLE,
+                           CONSTRAINT);
 
             for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
                 const char CONFIG = cfg;  // how we specify the allocator
@@ -2148,6 +2439,8 @@ int main(int argc, const char *argv[])  {
 
                 ASSERTV(LINE, CONFIG, X   == Y);
                 ASSERTV(LINE, CONFIG, &oa == Y.allocator());
+                ASSERTV(LINE, CONFIG, X.isOptionalLinkedVariable()
+                                   == Y.isOptionalLinkedVariable());
 
                 fa.deleteObject(objPtr); // Clean up
             }
@@ -2259,6 +2552,9 @@ int main(int argc, const char *argv[])  {
             void       *VARIABLE1 = OPTION_TYPEINFO[i].d_linkedVariable_p;
             void     *CONSTRAINT1 = OPTION_TYPEINFO[i].d_constraint_p;
 
+            const bool      IS_OPTIONAL_LINKED_VARIABLE1 =
+                                 u::isOptionalLinkedVariableInTable(VARIABLE1);
+
             if (veryVerbose) { T_ P_(LINE1) P(TYPE1) }
 
             bslma::TestAllocator sa1("supplied1", veryVeryVeryVerbose);
@@ -2268,7 +2564,11 @@ int main(int argc, const char *argv[])  {
 
             Obj mX(saX);  const Obj& X = mX;
 
-            u::setTypeInfo(&mX, TYPE1, VARIABLE1, CONSTRAINT1);
+            u::setTypeInfo(&mX,
+                           TYPE1,
+                           VARIABLE1,
+                           IS_OPTIONAL_LINKED_VARIABLE1,
+                           CONSTRAINT1);
 
             bslma::TestAllocatorMonitor samX(saX);
 
@@ -2283,6 +2583,9 @@ int main(int argc, const char *argv[])  {
                 void       *VARIABLE2 = OPTION_TYPEINFO[j].d_linkedVariable_p;
                 void     *CONSTRAINT2 = OPTION_TYPEINFO[j].d_constraint_p;
 
+                const bool      IS_OPTIONAL_LINKED_VARIABLE2 =
+                                 u::isOptionalLinkedVariableInTable(VARIABLE2);
+
                 if (veryVerbose) { T_ T_ P_(LINE2) P(TYPE2) }
 
                 for (int k = 0; k < 2; ++k) {
@@ -2295,10 +2598,16 @@ int main(int argc, const char *argv[])  {
 
                     Obj mY(saY);  const Obj& Y = mY;
 
-                    u::setTypeInfo(&mY, TYPE2, VARIABLE2, CONSTRAINT2);
+                    u::setTypeInfo(&mY,
+                                   TYPE2,
+                                   VARIABLE2,
+                                   IS_OPTIONAL_LINKED_VARIABLE2,
+                                   CONSTRAINT2);
 
                     bool isSame = (TYPE1       == TYPE2)
                                && (VARIABLE1   == VARIABLE2)
+                               && (IS_OPTIONAL_LINKED_VARIABLE1 ==
+                                   IS_OPTIONAL_LINKED_VARIABLE2)
                                && (CONSTRAINT1 == 0)
                                && (CONSTRAINT2 == 0);
 
@@ -2391,14 +2700,21 @@ int main(int argc, const char *argv[])  {
             void           *VARIABLE   = OPTION_TYPEINFO[i].d_linkedVariable_p;
             void           *CONSTRAINT = OPTION_TYPEINFO[i].d_constraint_p;
 
+            const bool      IS_OPTIONAL_LINKED_VARIABLE =
+                                  u::isOptionalLinkedVariableInTable(VARIABLE);
+
             if (veryVerbose) {
                 T_ P_(LINE) P_(i) P(TYPE)
-                T_ P_(VARIABLE) P(CONSTRAINT)
+                T_ P_(VARIABLE) P_(IS_OPTIONAL_LINKED_VARIABLE) P(CONSTRAINT)
             }
 
             Obj mX;  const Obj& X = mX;
 
-            u::setTypeInfo(&mX, TYPE, VARIABLE, CONSTRAINT);
+            u::setTypeInfo(&mX,
+                           TYPE,
+                           VARIABLE,
+                           IS_OPTIONAL_LINKED_VARIABLE,
+                           CONSTRAINT);
 
             bsl::ostringstream ossMethod;
             bsl::ostringstream ossOperator;
@@ -2483,15 +2799,15 @@ int main(int argc, const char *argv[])  {
         //:     public static variable to unconditionally return 'true' or
         //:     'false'.
         //
-        //: 2 Also use 'OPTION_DEFAULT_VALUES', a table of values for each
-        //:   supported option type.  Note that none of those values is the
-        //:   default value for the type.
+        //: 2 Also use 'OPTION_VALUES', a table of values for each supported
+        //:   option type.  Note that none of those values is the default value
+        //:   for the type.
         //:
         //: 3 For each entry in 'OPTION_TYPEINFO' that defines a constraint,
         //:   create an object, create a value of the appropriate type from
-        //:   'OPTION_DEFAULT_VALUES', call 'satisfiesConstraint', and confirm
-        //:   that the result matches that expected per the current value of
-        //:   the constraint's static variable.  Toggle the static variable and
+        //:   'OPTION_VALUES', call 'satisfiesConstraint', and confirm that the
+        //:   result matches that expected per the current value of the
+        //:   constraint's static variable.  Toggle the static variable and
         //:   retest.  (C-1)
         //:
         //: 4 The first two arguments are always passed by 'const' reference.
@@ -2520,22 +2836,25 @@ int main(int argc, const char *argv[])  {
             void           *VARIABLE   = OPTION_TYPEINFO[i].d_linkedVariable_p;
             void           *CONSTRAINT = OPTION_TYPEINFO[i].d_constraint_p;
 
+            const bool      IS_OPTIONAL_LINKED_VARIABLE =
+                                  u::isOptionalLinkedVariableInTable(VARIABLE);
+
             if (veryVerbose) {
                 T_ P_(LINE) P_(i) P(TYPE)
-                T_ P_(VARIABLE) P(CONSTRAINT)
+                T_ P_(VARIABLE) P_(IS_OPTIONAL_LINKED_VARIABLE) P(CONSTRAINT)
             }
 
-            const int   j = i % NUM_OPTION_DEFAULT_VALUES;
-            const void *VALUE = OPTION_DEFAULT_VALUES[j].d_value_p;
-
-            const ElemType OTYPE = OPTION_DEFAULT_VALUES[j].d_type;
-
-            ASSERTV(TYPE, OTYPE, TYPE == OTYPE);
+            const void *VALUE = u::getSomeOptionValue(TYPE);
+            ASSERT(VALUE);
 
             if (CONSTRAINT) {
                 Obj mX;  const Obj& X = mX;
 
-                u::setTypeInfo(&mX, TYPE, VARIABLE, CONSTRAINT);
+                u::setTypeInfo(&mX,
+                               TYPE,
+                               VARIABLE,
+                               IS_OPTIONAL_LINKED_VARIABLE,
+                               CONSTRAINT);
 
                 OptionValue ELEMENT(TYPE);
                 u::setOptionValue(&ELEMENT, VALUE, TYPE);
@@ -2591,7 +2910,11 @@ int main(int argc, const char *argv[])  {
 
             } else {
                 Obj mX;  const Obj& X = mX;
-                u::setTypeInfo(&mX, TYPE, VARIABLE, 0);  // no constraint
+                u::setTypeInfo(&mX,
+                               TYPE,
+                               VARIABLE,
+                               IS_OPTIONAL_LINKED_VARIABLE,
+                               0);  // no constraint
 
                 OptionValue ELEMENT(TYPE);
                 if (VALUE) {
@@ -2758,7 +3081,6 @@ int main(int argc, const char *argv[])  {
         //   TypeInfo();
         //   TypeInfo(bslma::Allocator *basicAllocator);
         //   ~TypeInfo();
-        //   TypeInfo& operator=(const TypeInfo& rhs);
         //   void resetConstraint();
         //   void resetLinkedVariableAndConstraint();
         //   void setConstraint(const Clc::CharConstraint&     constraint);
@@ -2770,25 +3092,34 @@ int main(int argc, const char *argv[])  {
         //   void setConstraint(const Clc::DateConstraint&     constraint);
         //   void setConstraint(const Clc::TimeConstraint&     constraint);
         //   void setConstraint(const shared_ptr<Constraint>& constraint);
-        //   void setLinkedVariable(bool             *variable);
-        //   void setLinkedVariable(char             *variable);
-        //   void setLinkedVariable(int              *variable);
-        //   void setLinkedVariable(Int64            *variable);
-        //   void setLinkedVariable(double           *variable);
-        //   void setLinkedVariable(string           *variable);
-        //   void setLinkedVariable(Datetime         *variable);
-        //   void setLinkedVariable(Date             *variable);
-        //   void setLinkedVariable(Time             *variable);
-        //   void setLinkedVariable(vector<char>     *variable);
-        //   void setLinkedVariable(vector<int>      *variable);
-        //   void setLinkedVariable(vector<Int64>    *variable);
-        //   void setLinkedVariable(vector<double>   *variable);
-        //   void setLinkedVariable(vector<string>   *variable);
-        //   void setLinkedVariable(vector<Datetime> *variable);
-        //   void setLinkedVariable(vector<Date>     *variable);
-        //   void setLinkedVariable(vector<Time>     *variable);
+        //   void setLinkedVariable(bool               *variable);
+        //   void setLinkedVariable(char               *variable);
+        //   void setLinkedVariable(int                *variable);
+        //   void setLinkedVariable(Int64              *variable);
+        //   void setLinkedVariable(double             *variable);
+        //   void setLinkedVariable(string             *variable);
+        //   void setLinkedVariable(Datetime           *variable);
+        //   void setLinkedVariable(Date               *variable);
+        //   void setLinkedVariable(Time               *variable);
+        //   void setLinkedVariable(vector<char>       *variable);
+        //   void setLinkedVariable(vector<int>        *variable);
+        //   void setLinkedVariable(vector<Int64>      *variable);
+        //   void setLinkedVariable(vector<double>     *variable);
+        //   void setLinkedVariable(vector<string>     *variable);
+        //   void setLinkedVariable(vector<Datetime>   *variable);
+        //   void setLinkedVariable(vector<Date>       *variable);
+        //   void setLinkedVariable(vector<Time>       *variable);
+        //   void setLinkedVariable(optional<char>     *variable);
+        //   void setLinkedVariable(optional<int>      *variable);
+        //   void setLinkedVariable(optional<Int64>    *variable);
+        //   void setLinkedVariable(optional<double>   *variable);
+        //   void setLinkedVariable(optional<string>   *variable);
+        //   void setLinkedVariable(optional<Datetime> *variable);
+        //   void setLinkedVariable(optional<Date>     *variable);
+        //   void setLinkedVariable(optional<Time>     *variable);
         //   shared_ptr<Constraint> constraint() const;
         //   void *linkedVariable() const;
+        //   bool isOptionalLinkedVariable() const;
         //   OptionType::Enum type() const;
         //   bslma::Allocator *allocator() const;
         // --------------------------------------------------------------------
@@ -2810,27 +3141,35 @@ int main(int argc, const char *argv[])  {
             void           *VARIABLE   = OPTION_TYPEINFO[i].d_linkedVariable_p;
             void           *CONSTRAINT = OPTION_TYPEINFO[i].d_constraint_p;
 
+            const bool      IS_OPTIONAL_LINKED_VARIABLE =
+                                  u::isOptionalLinkedVariableInTable(VARIABLE);
+
             Obj mX;  const Obj& X = mX;      // ACTION
 
             if (veryVerbose) {
                 T_ P_(LINE) P_(i) P(TYPE)
-                T_ P_(VARIABLE) P(CONSTRAINT)
+                T_ P_(VARIABLE) P_(IS_OPTIONAL_LINKED_VARIABLE) P(CONSTRAINT)
                 T_ T_ P_(LINE) P_(i) P(X)
             }
 
             LOOP_ASSERT(LINE, Ot::e_STRING == X.type());
             LOOP_ASSERT(LINE, 0            == X.linkedVariable());
+            LOOP_ASSERT(LINE, false        == X.isOptionalLinkedVariable());
             LOOP_ASSERT(LINE, &da          == X.allocator());
 
             u::setType(&mX, TYPE);
 
             LOOP_ASSERT(LINE, TYPE == X.type());
             LOOP_ASSERT(LINE, 0    == X.linkedVariable());
+            LOOP_ASSERT(LINE, false== X.isOptionalLinkedVariable());
 
             bsl::shared_ptr<ObjConstraint> DEFAULT_CONSTRAINT = X.constraint();
 
             if (VARIABLE) {
-                u::setLinkedVariable(&mX, TYPE, VARIABLE);  // ACTION
+                u::setLinkedVariable(&mX,
+                                     TYPE,
+                                     VARIABLE,
+                                     IS_OPTIONAL_LINKED_VARIABLE);  // ACTION
 
                 if (veryVerbose) {
                     T_ T_ T_ P_(LINE) P_(i) P(X)
@@ -2838,12 +3177,16 @@ int main(int argc, const char *argv[])  {
                 LOOP_ASSERT(LINE, TYPE               == X.type());
                 LOOP_ASSERT(LINE, VARIABLE           == X.linkedVariable());
                 LOOP_ASSERT(LINE, DEFAULT_CONSTRAINT == X.constraint());
+                LOOP_ASSERT(LINE, IS_OPTIONAL_LINKED_VARIABLE ==
+                                                 X.isOptionalLinkedVariable());
 
                 mX.resetLinkedVariableAndConstraint();     // ACTION
 
                 LOOP_ASSERT(LINE, TYPE               == X.type());
                 LOOP_ASSERT(LINE, 0                  == X.linkedVariable());
                 LOOP_ASSERT(LINE, DEFAULT_CONSTRAINT == X.constraint());
+                LOOP_ASSERT(LINE, false              ==
+                                                 X.isOptionalLinkedVariable());
             }
 
             mX.resetLinkedVariableAndConstraint();
@@ -2851,6 +3194,8 @@ int main(int argc, const char *argv[])  {
             LOOP_ASSERT(LINE, TYPE               == X.type());
             LOOP_ASSERT(LINE, 0                  == X.linkedVariable());
             LOOP_ASSERT(LINE, DEFAULT_CONSTRAINT == X.constraint());
+            LOOP_ASSERT(LINE, false              ==
+                                                 X.isOptionalLinkedVariable());
 
             if (CONSTRAINT) {
                 bslma::TestAllocatorMonitor dam(&da);
@@ -2865,12 +3210,16 @@ int main(int argc, const char *argv[])  {
                 LOOP_ASSERT(LINE, TYPE               == X.type());
                 LOOP_ASSERT(LINE, 0                  == X.linkedVariable());
                 LOOP_ASSERT(LINE, DEFAULT_CONSTRAINT != X.constraint());
+                LOOP_ASSERT(LINE, false              ==
+                                                 X.isOptionalLinkedVariable());
 
                 mX.resetConstraint();
 
                 LOOP_ASSERT(LINE, TYPE               == X.type());
                 LOOP_ASSERT(LINE, 0                  == X.linkedVariable());
                 LOOP_ASSERT(LINE, DEFAULT_CONSTRAINT == X.constraint());
+                LOOP_ASSERT(LINE, false              ==
+                                                 X.isOptionalLinkedVariable());
 
                 {
                     Obj mX;  const Obj& X = mX;
@@ -2898,9 +3247,12 @@ int main(int argc, const char *argv[])  {
             LOOP_ASSERT(LINE, TYPE               == X.type());
             LOOP_ASSERT(LINE, 0                  == X.linkedVariable());
             LOOP_ASSERT(LINE, DEFAULT_CONSTRAINT == X.constraint());
+            LOOP_ASSERT(LINE, false              ==
+                                                 X.isOptionalLinkedVariable());
 
             if (VARIABLE && CONSTRAINT) {
-                u::setLinkedVariable(&mX, TYPE, VARIABLE);
+                u::setLinkedVariable(&mX, TYPE, VARIABLE,
+                                                IS_OPTIONAL_LINKED_VARIABLE);
                 u::setConstraint    (&mX, TYPE, CONSTRAINT);
 
                 if (veryVerbose) {
@@ -2909,12 +3261,16 @@ int main(int argc, const char *argv[])  {
                 LOOP_ASSERT(LINE, TYPE               == X.type());
                 LOOP_ASSERT(LINE, VARIABLE           == X.linkedVariable());
                 LOOP_ASSERT(LINE, DEFAULT_CONSTRAINT != X.constraint());
+                LOOP_ASSERT(LINE, IS_OPTIONAL_LINKED_VARIABLE ==
+                                                 X.isOptionalLinkedVariable());
 
                 mX.resetLinkedVariableAndConstraint();
 
                 LOOP_ASSERT(LINE, TYPE               == X.type());
                 LOOP_ASSERT(LINE, 0                  == X.linkedVariable());
                 LOOP_ASSERT(LINE, DEFAULT_CONSTRAINT == X.constraint());
+                LOOP_ASSERT(LINE, false              ==
+                                                 X.isOptionalLinkedVariable());
             }
         }
 
@@ -2927,9 +3283,12 @@ int main(int argc, const char *argv[])  {
             void           *VARIABLE   = OPTION_TYPEINFO[i].d_linkedVariable_p;
             void           *CONSTRAINT = OPTION_TYPEINFO[i].d_constraint_p;
 
+            const bool      IS_OPTIONAL_LINKED_VARIABLE =
+                                  u::isOptionalLinkedVariableInTable(VARIABLE);
+
             if (veryVerbose) {
                 T_ P_(LINE) P_(i) P(TYPE)
-                T_ P_(VARIABLE) P(CONSTRAINT)
+                T_ P_(VARIABLE) P_(IS_OPTIONAL_LINKED_VARIABLE) P(CONSTRAINT)
             }
 
             bslma::TestAllocatorMonitor dam(&da);
@@ -2941,11 +3300,16 @@ int main(int argc, const char *argv[])  {
 
             LOOP_ASSERT(LINE, Ot::e_STRING == X.type());
             LOOP_ASSERT(LINE, 0            == X.linkedVariable());
+            LOOP_ASSERT(LINE, false        == X.isOptionalLinkedVariable());
             LOOP_ASSERT(LINE, &sa          == X.allocator());
 
             bsl::shared_ptr<ObjConstraint> DEFAULT_CONSTRAINT = X.constraint();
 
-            u::setTypeInfo(&mX, TYPE, VARIABLE, CONSTRAINT);  // ACTION
+            u::setTypeInfo(&mX,
+                           TYPE,
+                           VARIABLE,
+                           IS_OPTIONAL_LINKED_VARIABLE,
+                           CONSTRAINT);  // ACTION
 
             if (CONSTRAINT) {
                 LOOP_ASSERT(LINE, sam.isTotalUp());
@@ -2956,6 +3320,8 @@ int main(int argc, const char *argv[])  {
 
             LOOP_ASSERT(LINE, TYPE     == X.type());
             LOOP_ASSERT(LINE, VARIABLE == X.linkedVariable());
+            LOOP_ASSERT(LINE, IS_OPTIONAL_LINKED_VARIABLE
+                                              == X.isOptionalLinkedVariable());
 
             // Note that the test for 'satisfiesConstraint' (case 4)
             // demonstrates that 'setConstraint' does install the intended
@@ -2970,9 +3336,12 @@ int main(int argc, const char *argv[])  {
             void           *VARIABLE   = OPTION_TYPEINFO[i].d_linkedVariable_p;
             void           *CONSTRAINT = OPTION_TYPEINFO[i].d_constraint_p;
 
+            const bool      IS_OPTIONAL_LINKED_VARIABLE =
+                                  u::isOptionalLinkedVariableInTable(VARIABLE);
+
             if (veryVerbose) {
                 T_ P_(LINE) P_(i) P(TYPE)
-                T_ P_(VARIABLE) P(CONSTRAINT)
+                T_ P_(VARIABLE) P_(IS_OPTIONAL_LINKED_VARIABLE) P(CONSTRAINT)
             }
 
             Obj mY(&sa);  const Obj& Y = mY; u::setType(&mY, TYPE);
@@ -2983,7 +3352,11 @@ int main(int argc, const char *argv[])  {
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
                 Obj mX(&sa);  const Obj& X = mX;
 
-                u::setTypeInfo(&mX, TYPE, VARIABLE, CONSTRAINT);  // ACTION
+                u::setTypeInfo(&mX,
+                               TYPE,
+                               VARIABLE,
+                               IS_OPTIONAL_LINKED_VARIABLE,
+                               CONSTRAINT);  // ACTION
 
                 LOOP_ASSERT(LINE, TYPE     == X.type());
                 LOOP_ASSERT(LINE, VARIABLE == X.linkedVariable());

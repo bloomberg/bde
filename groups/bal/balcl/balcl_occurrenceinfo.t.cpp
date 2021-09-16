@@ -67,9 +67,8 @@ using namespace bsl;
 //: 1 'OPTION_OCCURRENCES': an entry for each of the three allowed values of
 //:   'OccurrenceType'.
 //:
-//: 2 'OPTION_DEFAULT_VALUES': an entry for each of the allowed option types
-//:   and the address of a value of that type to be used as a default option
-//:   value.
+//: 2 'OPTION_VALUES': an entry for each of the allowed option types and the
+//:   address of a value of that type to be used as a default option value.
 //:
 //:   o None of these "default" values correspond to the default value of their
 //:     respective type.
@@ -78,8 +77,8 @@ using namespace bsl;
 //:     short-string optimization.
 //:
 //:   o A helper function, 'u::setOptionValue' (defined below), is provided to
-//:     convert the "value" field of 'OPTION_DEFAULT_VALUES' into an argument
-//:     for the 'setDefaultValue' method.
+//:     convert the "value" field of 'OPTION_VALUES' into an argument for the
+//:     'setDefaultValue' method.
 //
 // ----------------------------------------------------------------------------
 // CREATORS
@@ -228,53 +227,48 @@ BSLMF_ASSERT(sizeof SUFFICIENTLY_LONG_STRING > sizeof(bsl::string));
 
 #define GA bslma::Default::globalAllocator()
 
-bool                        defaultBool          = false;
-char                        defaultChar          = 'D';
-short                       defaultShort         = 1234;
-int                         defaultInt           = 1234567;
-Int64                       defaultInt64         = 123456789LL;
-float                       defaultFloat         = 0.125;     // 1/8
-double                      defaultDouble        = 0.015625;  // 1/64
-bsl::string                 defaultString(SUFFICIENTLY_LONG_STRING, GA);
-bdlt::Datetime              defaultDatetime(1234, 12, 3, 4, 5, 6);
-bdlt::Date                  defaultDate(1234, 4, 6);
-bdlt::Time                  defaultTime(7, 8, 9, 10);
-bsl::vector<char>           defaultCharArray    (1, defaultChar,     GA);
-bsl::vector<short>          defaultShortArray   (1, defaultShort,    GA);
-bsl::vector<int>            defaultIntArray     (1, defaultInt,      GA);
-bsl::vector<Int64>          defaultInt64Array   (1, defaultInt64,    GA);
-bsl::vector<float>          defaultFloatArray   (1, defaultFloat,    GA);
-bsl::vector<double>         defaultDoubleArray  (1, defaultDouble,   GA);
-bsl::vector<bsl::string>    defaultStringArray  (1, defaultString,   GA);
-bsl::vector<bdlt::Datetime> defaultDatetimeArray(1, defaultDatetime, GA);
-bsl::vector<bdlt::Date>     defaultDateArray    (1, defaultDate,     GA);
-bsl::vector<bdlt::Time>     defaultTimeArray    (1, defaultTime,     GA);
+bool                        valueBool          = true;
+char                        valueChar          = 'D';
+int                         valueInt           = 1234567;
+Int64                       valueInt64         = 123456789LL;
+double                      valueDouble        = 0.015625;  // 1/64
+bsl::string                 valueString(SUFFICIENTLY_LONG_STRING, GA);
+bdlt::Datetime              valueDatetime(1234, 12, 3, 4, 5, 6);
+bdlt::Date                  valueDate(1234, 4, 6);
+bdlt::Time                  valueTime(7, 8, 9, 10);
+bsl::vector<char>           valueCharArray    (1, valueChar,     GA);
+bsl::vector<int>            valueIntArray     (1, valueInt,      GA);
+bsl::vector<Int64>          valueInt64Array   (1, valueInt64,    GA);
+bsl::vector<double>         valueDoubleArray  (1, valueDouble,   GA);
+bsl::vector<bsl::string>    valueStringArray  (1, valueString,   GA);
+bsl::vector<bdlt::Datetime> valueDatetimeArray(1, valueDatetime, GA);
+bsl::vector<bdlt::Date>     valueDateArray    (1, valueDate,     GA);
+bsl::vector<bdlt::Time>     valueTimeArray    (1, valueTime,     GA);
 
 static const struct {
-    int             d_line;   // line number
-    ElemType        d_type;   // option type
-    const void     *d_value_p;  // default value attribute(s)
-} OPTION_DEFAULT_VALUES[] = {
-    { L_, Ot::e_BOOL,            0                     }
-  , { L_, Ot::e_CHAR,            &defaultChar          }
-  , { L_, Ot::e_INT,             &defaultInt           }
-  , { L_, Ot::e_INT64,           &defaultInt64         }
-  , { L_, Ot::e_DOUBLE,          &defaultDouble        }
-  , { L_, Ot::e_STRING,          &defaultString        }
-  , { L_, Ot::e_DATETIME,        &defaultDatetime      }
-  , { L_, Ot::e_DATE,            &defaultDate          }
-  , { L_, Ot::e_TIME,            &defaultTime          }
-  , { L_, Ot::e_CHAR_ARRAY,      &defaultCharArray     }
-  , { L_, Ot::e_INT_ARRAY,       &defaultIntArray      }
-  , { L_, Ot::e_INT64_ARRAY,     &defaultInt64Array    }
-  , { L_, Ot::e_DOUBLE_ARRAY,    &defaultDoubleArray   }
-  , { L_, Ot::e_STRING_ARRAY,    &defaultStringArray   }
-  , { L_, Ot::e_DATETIME_ARRAY,  &defaultDatetimeArray }
-  , { L_, Ot::e_DATE_ARRAY,      &defaultDateArray     }
-  , { L_, Ot::e_TIME_ARRAY,      &defaultTimeArray     }
+    int             d_line;     // line number
+    ElemType        d_type;     // option type
+    const void     *d_value_p;  // value attribute(s)
+} OPTION_VALUES[] = {
+    { L_, Ot::e_BOOL,            &valueBool          }
+  , { L_, Ot::e_CHAR,            &valueChar          }
+  , { L_, Ot::e_INT,             &valueInt           }
+  , { L_, Ot::e_INT64,           &valueInt64         }
+  , { L_, Ot::e_DOUBLE,          &valueDouble        }
+  , { L_, Ot::e_STRING,          &valueString        }
+  , { L_, Ot::e_DATETIME,        &valueDatetime      }
+  , { L_, Ot::e_DATE,            &valueDate          }
+  , { L_, Ot::e_TIME,            &valueTime          }
+  , { L_, Ot::e_CHAR_ARRAY,      &valueCharArray     }
+  , { L_, Ot::e_INT_ARRAY,       &valueIntArray      }
+  , { L_, Ot::e_INT64_ARRAY,     &valueInt64Array    }
+  , { L_, Ot::e_DOUBLE_ARRAY,    &valueDoubleArray   }
+  , { L_, Ot::e_STRING_ARRAY,    &valueStringArray   }
+  , { L_, Ot::e_DATETIME_ARRAY,  &valueDatetimeArray }
+  , { L_, Ot::e_DATE_ARRAY,      &valueDateArray     }
+  , { L_, Ot::e_TIME_ARRAY,      &valueTimeArray     }
 };
-enum { NUM_OPTION_DEFAULT_VALUES = sizeof  OPTION_DEFAULT_VALUES
-                                 / sizeof *OPTION_DEFAULT_VALUES };
+enum { NUM_OPTION_VALUES = sizeof  OPTION_VALUES / sizeof *OPTION_VALUES };
 
 // ============================================================================
 //                          HELPER FUNCTIONS FOR TESTING
@@ -1310,7 +1304,7 @@ int main(int argc, const char *argv[])
         //:   using the 'setDefaultValue' method.
         //
         // Plan:
-        //: 1 For each entry in the 'OPTION_DEFAULT_VALUES' table except for
+        //: 1 For each entry in the 'OPTION_VALUES' table except for
         //:   'Ot::e_BOOL' (which is disallowed default values), create a
         //:   "reference" object by using the "type" constructor and then
         //:   calling 'setDefaultValue'.
@@ -1345,28 +1339,27 @@ int main(int argc, const char *argv[])
                           << "VALUE CONSTRUCTORS" << endl
                           << "==================" << endl;
 
-        for (int j = 0; j < NUM_OPTION_DEFAULT_VALUES; ++j) {
+        for (int j = 0; j < NUM_OPTION_VALUES; ++j) {
 
             const int       LINE1   = OPTION_OCCURRENCES[1].d_line;
             const OccurType OTYPE   = Obj::e_OPTIONAL;
 
-            const int       LINE2   = OPTION_DEFAULT_VALUES[j].d_line;
-            const ElemType  ETYPE   = OPTION_DEFAULT_VALUES[j].d_type;
-            const void     *ADDRESS = OPTION_DEFAULT_VALUES[j].d_value_p;
+            const int       LINE2   = OPTION_VALUES[j].d_line;
+            const ElemType  ETYPE   = OPTION_VALUES[j].d_type;
+            const void     *ADDRESS = OPTION_VALUES[j].d_value_p;
 
             if (veryVerbose) { T_ P_(LINE1) P(LINE2) }
 
             Obj mX(OTYPE);  const Obj& X = mX;
 
-            if (OTYPE != Obj::e_REQUIRED && ADDRESS) {
+            if (OTYPE != Obj::e_REQUIRED && ETYPE != Ot::e_BOOL) {
                 OptionValue DEFAULT_VALUE(ETYPE);
                 u::setOptionValue(&DEFAULT_VALUE, ADDRESS, ETYPE);
 
                 mX.setDefaultValue(DEFAULT_VALUE);
             }
 
-
-            if (ADDRESS) {
+            if (Ot::e_BOOL != ETYPE) {
 
 #define CASE(ENUM)                                                            \
 case ENUM: {                                                                  \
@@ -1423,7 +1416,7 @@ case ENUM: {                                                                  \
         //: 1 Use the "pointer-to-method" idiom to have the compiler check the
         //:   signature.  (C-1)
         //:
-        //: 2 For a representative set of objects (see the 'OPTION_TYPEINFO'
+        //: 2 For a representative set of objects (see the 'OPTION_VALUES'
         //:   table), assign each object with itself and to every other object.
         //:   Use equality comparison to confirm that each object is in the
         //:   expected state afterward.  (C-2)
@@ -1468,14 +1461,14 @@ case ENUM: {                                                                  \
 // BDE_VERIFY pragma: -TP21    // Loops must contain very verbose action
 // BDE_VERIFY pragma: -IND01   // Possibly mis-indented line
         for (int i = 0; i < NUM_OPTION_OCCURRENCES;    ++i) {
-        for (int j = 0; j < NUM_OPTION_DEFAULT_VALUES; ++j) {
+        for (int j = 0; j < NUM_OPTION_VALUES;         ++j) {
 
             const int       LINE1    = OPTION_OCCURRENCES[i].d_line;
             const OccurType OTYPE1   = OPTION_OCCURRENCES[i].d_type;
 
-            const int       LINE2    = OPTION_DEFAULT_VALUES[j].d_line;
-            const ElemType  ETYPE2   = OPTION_DEFAULT_VALUES[j].d_type;
-            const void     *ADDRESS1 = OPTION_DEFAULT_VALUES[j].d_value_p;
+            const int       LINE2    = OPTION_VALUES[j].d_line;
+            const ElemType  ETYPE2   = OPTION_VALUES[j].d_type;
+            const void     *ADDRESS1 = OPTION_VALUES[j].d_value_p;
 
             if (veryVerbose) { T_ P_(LINE1) P_(OTYPE1)
                                   P_(LINE2)  P(ETYPE2) }
@@ -1485,7 +1478,7 @@ case ENUM: {                                                                  \
 
             bslma::Allocator *xa = X.allocator();
 
-            if (OTYPE1 != Obj::e_REQUIRED && ADDRESS1) {
+            if (OTYPE1 != Obj::e_REQUIRED && ETYPE2 != Ot::e_BOOL) {
                 OptionValue DEFAULT_VALUE1(ETYPE2);
                 u::setOptionValue(&DEFAULT_VALUE1, ADDRESS1, ETYPE2);
 
@@ -1504,14 +1497,14 @@ case ENUM: {                                                                  \
             ASSERT(xa == X.allocator());
 
             for (int k = 0; k < NUM_OPTION_OCCURRENCES;    ++k) {
-            for (int l = 0; l < NUM_OPTION_DEFAULT_VALUES; ++l) {
+            for (int l = 0; l < NUM_OPTION_VALUES;         ++l) {
 
                 const int       LINE3    = OPTION_OCCURRENCES[k].d_line;
                 const OccurType OTYPE3   = OPTION_OCCURRENCES[k].d_type;
 
-                const int       LINE4    = OPTION_DEFAULT_VALUES[l].d_line;
-                const ElemType  ETYPE4   = OPTION_DEFAULT_VALUES[l].d_type;
-                const void     *ADDRESS2 = OPTION_DEFAULT_VALUES[l].d_value_p;
+                const int       LINE4    = OPTION_VALUES[l].d_line;
+                const ElemType  ETYPE4   = OPTION_VALUES[l].d_type;
+                const void     *ADDRESS2 = OPTION_VALUES[l].d_value_p;
 
                 if (veryVerbose) { T_ P_(LINE3) P_(OTYPE3)
                                       P_(LINE4)  P(ETYPE4) }
@@ -1524,7 +1517,7 @@ case ENUM: {                                                                  \
 
                 Obj mY(OTYPE3, &saY);  const Obj& Y = mY;
 
-                if (OTYPE1 != Obj::e_REQUIRED && ADDRESS1) {
+                if (OTYPE1 != Obj::e_REQUIRED && ETYPE2 != Ot::e_BOOL) {
                     OptionValue DEFAULT_VALUE1(ETYPE2);
                     u::setOptionValue(&DEFAULT_VALUE1, ADDRESS1, ETYPE2);
 
@@ -1532,7 +1525,7 @@ case ENUM: {                                                                  \
                     mZ.setDefaultValue(DEFAULT_VALUE1);
                 }
 
-                if (OTYPE3 != Obj::e_REQUIRED && ADDRESS2) {
+                if (OTYPE3 != Obj::e_REQUIRED && ETYPE4 != Ot::e_BOOL) {
                     OptionValue DEFAULT_VALUE2(ETYPE4);
                     u::setOptionValue(&DEFAULT_VALUE2, ADDRESS2, ETYPE4);
 
@@ -1573,7 +1566,7 @@ case ENUM: {                                                                  \
         //:   3 The class is exception safe.
         //
         // Plans:
-        //: 1 Do table-driven testing using the 'OPTION_TYPEINFO' array of
+        //: 1 Do table-driven testing using the 'OPTION_VALUES' array of
         //:   representative values described in earlier tests.
         //:
         //: 2 Use 'operator==' to confirm the equality of the new object (C-1).
@@ -1603,14 +1596,14 @@ case ENUM: {                                                                  \
 // BDE_VERIFY pragma: -TP21    // Loops must contain very verbose action
 // BDE_VERIFY pragma: -IND01   // Possibly mis-indented line
         for (int i = 0; i < NUM_OPTION_OCCURRENCES;    ++i) {
-        for (int j = 0; j < NUM_OPTION_DEFAULT_VALUES; ++j) {
+        for (int j = 0; j < NUM_OPTION_VALUES;         ++j) {
 
             const int       LINE1   = OPTION_OCCURRENCES[i].d_line;
             const OccurType OTYPE   = OPTION_OCCURRENCES[i].d_type;
 
-            const int       LINE2   = OPTION_DEFAULT_VALUES[j].d_line;
-            const ElemType  ETYPE   = OPTION_DEFAULT_VALUES[j].d_type;
-            const void     *ADDRESS = OPTION_DEFAULT_VALUES[j].d_value_p;
+            const int       LINE2   = OPTION_VALUES[j].d_line;
+            const ElemType  ETYPE   = OPTION_VALUES[j].d_type;
+            const void     *ADDRESS = OPTION_VALUES[j].d_value_p;
 
             if (veryVerbose) { T_ P_(LINE1) P_(OTYPE)
                                   P_(LINE2)  P(ETYPE) }
@@ -1620,7 +1613,7 @@ case ENUM: {                                                                  \
 
             Obj mX(OTYPE);  const Obj& X = mX;
 
-            if (OTYPE != Obj::e_REQUIRED && ADDRESS) {
+            if (OTYPE != Obj::e_REQUIRED && ETYPE != Ot::e_BOOL) {
                 OptionValue DEFAULT_VALUE(ETYPE);
                 u::setOptionValue(&DEFAULT_VALUE, ADDRESS, ETYPE);
 
@@ -1746,14 +1739,14 @@ case ENUM: {                                                                  \
         //:   equality-comparison operators defined in this component.
         //:   (C-3..4)
         //:
-        //: 2 Using the tables 'OPTION_OCCURRENCES' and 'OPTION_DEFAULT_VALUES'
-        //:   (see {Input Tables}), create a series of test-object pairs, that
-        //:   serve as operands to 'operator==' and 'operator!='.  Since each
-        //:   row of the two input tables is unique, equality is expected when
-        //:   both objects of a pair happened to be created from the same table
-        //:   rows (i.e., same type and same default value), with the exception
-        //:   of objects having the 'Obj::e_REQUIRED' type.  Objects of that
-        //:   type are disallowed default values so row agreement in table
+        //: 2 Using the tables 'OPTION_OCCURRENCES' and 'OPTION_VALUES' (see
+        //:   {Input Tables}), create a series of test-object pairs, that serve
+        //:   as operands to 'operator==' and 'operator!='.  Since each row of
+        //:   the two input tables is unique, equality is expected when both
+        //:   objects of a pair happened to be created from the same table rows
+        //:   (i.e., same type and same default value), with the exception of
+        //:   objects having the 'Obj::e_REQUIRED' type.  Objects of that type
+        //:   are disallowed default values so row agreement in table
         //:   'OPTION_OCCURRENCES' suffices for equality.  (C-1.1..2)
         //:
         //: 3 For each in the series, check for equality (and failure of
@@ -1808,14 +1801,14 @@ case ENUM: {                                                                  \
 // BDE_VERIFY pragma: -TP21    // Loops must contain very verbose action
 // BDE_VERIFY pragma: -IND01   // Possibly mis-indented line
         for (int i = 0; i < NUM_OPTION_OCCURRENCES;    ++i) {
-        for (int j = 0; j < NUM_OPTION_DEFAULT_VALUES; ++j) {
+        for (int j = 0; j < NUM_OPTION_VALUES;         ++j) {
 
             const int       LINE1    = OPTION_OCCURRENCES[i].d_line;
             const OccurType OTYPE1   = OPTION_OCCURRENCES[i].d_type;
 
-            const int       LINE2    = OPTION_DEFAULT_VALUES[j].d_line;
-            const ElemType  ETYPE2   = OPTION_DEFAULT_VALUES[j].d_type;
-            const void     *ADDRESS1 = OPTION_DEFAULT_VALUES[j].d_value_p;
+            const int       LINE2    = OPTION_VALUES[j].d_line;
+            const ElemType  ETYPE2   = OPTION_VALUES[j].d_type;
+            const void     *ADDRESS1 = OPTION_VALUES[j].d_value_p;
 
             if (veryVerbose) { T_ P_(LINE1) P_(OTYPE1)
                                   P_(LINE2)  P(ETYPE2) }
@@ -1830,7 +1823,7 @@ case ENUM: {                                                                  \
 
             Obj mX(OTYPE1, saX);  const Obj& X = mX;
 
-            if (OTYPE1 != Obj::e_REQUIRED && ADDRESS1) {
+            if (OTYPE1 != Obj::e_REQUIRED && ETYPE2 != Ot::e_BOOL) {
                 OptionValue DEFAULT_VALUE1(ETYPE2);
                 u::setOptionValue(&DEFAULT_VALUE1, ADDRESS1, ETYPE2);
 
@@ -1847,14 +1840,14 @@ case ENUM: {                                                                  \
             ASSERTV(LINE1, samX.isTotalSame());
 
             for (int k = 0; k < NUM_OPTION_OCCURRENCES;    ++k) {
-            for (int l = 0; l < NUM_OPTION_DEFAULT_VALUES; ++l) {
+            for (int l = 0; l < NUM_OPTION_VALUES;         ++l) {
 
                 const int       LINE3    = OPTION_OCCURRENCES[k].d_line;
                 const OccurType OTYPE3   = OPTION_OCCURRENCES[k].d_type;
 
-                const int       LINE4    = OPTION_DEFAULT_VALUES[l].d_line;
-                const ElemType  ETYPE4   = OPTION_DEFAULT_VALUES[l].d_type;
-                const void     *ADDRESS2 = OPTION_DEFAULT_VALUES[l].d_value_p;
+                const int       LINE4    = OPTION_VALUES[l].d_line;
+                const ElemType  ETYPE4   = OPTION_VALUES[l].d_type;
+                const void     *ADDRESS2 = OPTION_VALUES[l].d_value_p;
 
                 if (veryVerbose) { T_ P_(LINE3) P_(OTYPE3)
                                       P_(LINE4)  P(ETYPE4) }
@@ -1868,7 +1861,7 @@ case ENUM: {                                                                  \
 
                     Obj mY(OTYPE3, saY);  const Obj& Y = mY;
 
-                    if (OTYPE3 != Obj::e_REQUIRED && ADDRESS2) {
+                    if (OTYPE3 != Obj::e_REQUIRED && ETYPE4 != Ot::e_BOOL) {
                         OptionValue DEFAULT_VALUE2(ETYPE4);
                         u::setOptionValue(&DEFAULT_VALUE2, ADDRESS2, ETYPE4);
 
@@ -1969,7 +1962,6 @@ case ENUM: {                                                                  \
             typedef ostream& (Obj::*funcPtr)(ostream&, int, int) const;
             typedef ostream& (*operatorPtr)(ostream&, const Obj&);
 
-
             funcPtr     printMember = &Obj::print;
             operatorPtr operatorOp  = operator<<;
 
@@ -1982,18 +1974,18 @@ case ENUM: {                                                                  \
 
 // BDE_VERIFY pragma: -IND01   // Possibly mis-indented line
         for (int i = 0; i < NUM_OPTION_OCCURRENCES;    ++i) {
-        for (int j = 0; j < NUM_OPTION_DEFAULT_VALUES; ++j) {
+        for (int j = 0; j < NUM_OPTION_VALUES;         ++j) {
 
             const int       LINE1   = OPTION_OCCURRENCES[i].d_line;
             const OccurType OTYPE   = OPTION_OCCURRENCES[i].d_type;
 
-            const int       LINE2   = OPTION_DEFAULT_VALUES[j].d_line;
-            const ElemType  ETYPE   = OPTION_DEFAULT_VALUES[j].d_type;
-            const void     *ADDRESS = OPTION_DEFAULT_VALUES[j].d_value_p;
+            const int       LINE2   = OPTION_VALUES[j].d_line;
+            const ElemType  ETYPE   = OPTION_VALUES[j].d_type;
+            const void     *ADDRESS = OPTION_VALUES[j].d_value_p;
 
             Obj mX(OTYPE);  const Obj& X = mX;
 
-            if (OTYPE != Obj::e_REQUIRED && ADDRESS) {
+            if (OTYPE != Obj::e_REQUIRED && ETYPE != Ot::e_BOOL) {
                 OptionValue DEFAULT_VALUE(ETYPE);
                 u::setOptionValue(&DEFAULT_VALUE, ADDRESS, ETYPE);
 
@@ -2119,14 +2111,14 @@ case ENUM: {                                                                  \
 
 //v-----^
   for (int i = 0; i < NUM_OPTION_OCCURRENCES;    ++i) {
-  for (int j = 0; j < NUM_OPTION_DEFAULT_VALUES; ++j) {
+  for (int j = 0; j < NUM_OPTION_VALUES;         ++j) {
 
       const int       LINE1   = OPTION_OCCURRENCES[i].d_line;
       const OccurType OTYPE   = OPTION_OCCURRENCES[i].d_type;
 
-      const int       LINE2   = OPTION_DEFAULT_VALUES[j].d_line;
-      const ElemType  ETYPE   = OPTION_DEFAULT_VALUES[j].d_type;
-      const void     *ADDRESS = OPTION_DEFAULT_VALUES[j].d_value_p;
+      const int       LINE2   = OPTION_VALUES[j].d_line;
+      const ElemType  ETYPE   = OPTION_VALUES[j].d_type;
+      const void     *ADDRESS = OPTION_VALUES[j].d_value_p;
 
       if (veryVerbose) {
           T_ P_(i) P(j)
@@ -2201,7 +2193,7 @@ case ENUM: {                                                                  \
 
           if (OTYPE != Obj::e_REQUIRED) {
 
-              if (ADDRESS) {
+              if (Ot::e_BOOL != ETYPE) {
                   OptionValue dfltOptionValue(ETYPE);
                   u::setOptionValue(&dfltOptionValue, ADDRESS, ETYPE);
 
@@ -2265,14 +2257,14 @@ case ENUM: {                                                                  \
 
 //v-----^
   for (int i = 0; i < NUM_OPTION_OCCURRENCES;    ++i) {
-  for (int j = 0; j < NUM_OPTION_DEFAULT_VALUES; ++j) {
+  for (int j = 0; j < NUM_OPTION_VALUES;         ++j) {
 
       const int       LINE1   = OPTION_OCCURRENCES[i].d_line;
       const OccurType OTYPE   = OPTION_OCCURRENCES[i].d_type;
 
-      const int       LINE2   = OPTION_DEFAULT_VALUES[j].d_line;
-      const ElemType  ETYPE   = OPTION_DEFAULT_VALUES[j].d_type;
-      const void     *ADDRESS = OPTION_DEFAULT_VALUES[j].d_value_p;
+      const int       LINE2   = OPTION_VALUES[j].d_line;
+      const ElemType  ETYPE   = OPTION_VALUES[j].d_type;
+      const void     *ADDRESS = OPTION_VALUES[j].d_value_p;
 
       if (veryVerbose) {
           T_ P_(i) P_(LINE1) P_(OTYPE) P_(j) P_(ETYPE) P(LINE2)
@@ -2288,7 +2280,7 @@ case ENUM: {                                                                  \
           }
       }
 
-      if (ADDRESS) {
+      if (Ot::e_BOOL != ETYPE) {
           Obj mX(OTYPE);
 
           OptionValue defaultOptionValue(ETYPE);

@@ -953,6 +953,7 @@ void OptionValueUtil::setValue(OptionValue *dst, const void  *src)
 TypeInfo::TypeInfo()
 : d_elemType(OptionType::e_STRING)
 , d_linkedVariable_p(0)
+, d_isOptionalLinkedVariable(false)
 , d_allocator_p(bslma::Default::allocator())
 {
     resetConstraint();
@@ -961,6 +962,7 @@ TypeInfo::TypeInfo()
 TypeInfo::TypeInfo(bslma::Allocator *basicAllocator)
 : d_elemType(OptionType::e_STRING)
 , d_linkedVariable_p(0)
+, d_isOptionalLinkedVariable(false)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     resetConstraint();
@@ -970,6 +972,7 @@ TypeInfo::TypeInfo(bool            *variable,
                   bslma::Allocator *basicAllocator)
 : d_elemType(OptionType::e_BOOL)
 , d_linkedVariable_p(variable)
+, d_isOptionalLinkedVariable(false)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     resetConstraint();
@@ -979,6 +982,7 @@ TypeInfo::TypeInfo(char             *variable,
                    bslma::Allocator *basicAllocator)
 : d_elemType(OptionType::e_CHAR)
 , d_linkedVariable_p(variable)
+, d_isOptionalLinkedVariable(false)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     resetConstraint();
@@ -989,6 +993,7 @@ TypeInfo::TypeInfo(char                              *variable,
                    bslma::Allocator                  *basicAllocator)
 : d_elemType(OptionType::e_CHAR)
 , d_linkedVariable_p(variable)
+, d_isOptionalLinkedVariable(false)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     setConstraint(constraint);
@@ -998,6 +1003,7 @@ TypeInfo::TypeInfo(int              *variable,
                    bslma::Allocator *basicAllocator)
 : d_elemType(OptionType::e_INT)
 , d_linkedVariable_p(variable)
+, d_isOptionalLinkedVariable(false)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     resetConstraint();
@@ -1008,6 +1014,7 @@ TypeInfo::TypeInfo(int                              *variable,
                    bslma::Allocator                 *basicAllocator)
 : d_elemType(OptionType::e_INT)
 , d_linkedVariable_p(variable)
+, d_isOptionalLinkedVariable(false)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     setConstraint(constraint);
@@ -1017,6 +1024,7 @@ TypeInfo::TypeInfo(bsls::Types::Int64 *variable,
                    bslma::Allocator   *basicAllocator)
 : d_elemType(OptionType::e_INT64)
 , d_linkedVariable_p(variable)
+, d_isOptionalLinkedVariable(false)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     resetConstraint();
@@ -1027,6 +1035,7 @@ TypeInfo::TypeInfo(bsls::Types::Int64                 *variable,
                    bslma::Allocator                   *basicAllocator)
 : d_elemType(OptionType::e_INT64)
 , d_linkedVariable_p(variable)
+, d_isOptionalLinkedVariable(false)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     setConstraint(constraint);
@@ -1036,6 +1045,7 @@ TypeInfo::TypeInfo(double           *variable,
                    bslma::Allocator *basicAllocator)
 : d_elemType(OptionType::e_DOUBLE)
 , d_linkedVariable_p(variable)
+, d_isOptionalLinkedVariable(false)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     resetConstraint();
@@ -1046,6 +1056,7 @@ TypeInfo::TypeInfo(double                              *variable,
                    bslma::Allocator                    *basicAllocator)
 : d_elemType(OptionType::e_DOUBLE)
 , d_linkedVariable_p(variable)
+, d_isOptionalLinkedVariable(false)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     setConstraint(constraint);
@@ -1055,6 +1066,7 @@ TypeInfo::TypeInfo(bsl::string      *variable,
                    bslma::Allocator *basicAllocator)
 : d_elemType(OptionType::e_STRING)
 , d_linkedVariable_p(variable)
+, d_isOptionalLinkedVariable(false)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     resetConstraint();
@@ -1065,6 +1077,7 @@ TypeInfo::TypeInfo(bsl::string                         *variable,
                    bslma::Allocator                    *basicAllocator)
 : d_elemType(OptionType::e_STRING)
 , d_linkedVariable_p(variable)
+, d_isOptionalLinkedVariable(false)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     setConstraint(constraint);
@@ -1074,6 +1087,7 @@ TypeInfo::TypeInfo(bdlt::Datetime   *variable,
                    bslma::Allocator *basicAllocator)
 : d_elemType(OptionType::e_DATETIME)
 , d_linkedVariable_p(variable)
+, d_isOptionalLinkedVariable(false)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     resetConstraint();
@@ -1084,6 +1098,7 @@ TypeInfo::TypeInfo(bdlt::Datetime                        *variable,
                    bslma::Allocator                      *basicAllocator)
 : d_elemType(OptionType::e_DATETIME)
 , d_linkedVariable_p(variable)
+, d_isOptionalLinkedVariable(false)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     setConstraint(constraint);
@@ -1093,6 +1108,7 @@ TypeInfo::TypeInfo(bdlt::Date       *variable,
                    bslma::Allocator *basicAllocator)
 : d_elemType(OptionType::e_DATE)
 , d_linkedVariable_p(variable)
+, d_isOptionalLinkedVariable(false)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     resetConstraint();
@@ -1103,6 +1119,7 @@ TypeInfo::TypeInfo(bdlt::Date                        *variable,
                    bslma::Allocator                  *basicAllocator)
 : d_elemType(OptionType::e_DATE)
 , d_linkedVariable_p(variable)
+, d_isOptionalLinkedVariable(false)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     setConstraint(constraint);
@@ -1112,6 +1129,7 @@ TypeInfo::TypeInfo(bdlt::Time       *variable,
                    bslma::Allocator *basicAllocator)
 : d_elemType(OptionType::e_TIME)
 , d_linkedVariable_p(variable)
+, d_isOptionalLinkedVariable(false)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     resetConstraint();
@@ -1122,6 +1140,7 @@ TypeInfo::TypeInfo(bdlt::Time                        *variable,
                    bslma::Allocator                  *basicAllocator)
 : d_elemType(OptionType::e_TIME)
 , d_linkedVariable_p(variable)
+, d_isOptionalLinkedVariable(false)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     setConstraint(constraint);
@@ -1131,6 +1150,7 @@ TypeInfo::TypeInfo(bsl::vector<char> *variable,
                    bslma::Allocator  *basicAllocator)
 : d_elemType(OptionType::e_CHAR_ARRAY)
 , d_linkedVariable_p(variable)
+, d_isOptionalLinkedVariable(false)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     resetConstraint();
@@ -1141,6 +1161,7 @@ TypeInfo::TypeInfo(bsl::vector<char>                 *variable,
                    bslma::Allocator                  *basicAllocator)
 : d_elemType(OptionType::e_CHAR_ARRAY)
 , d_linkedVariable_p(variable)
+, d_isOptionalLinkedVariable(false)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     setConstraint(constraint);
@@ -1150,6 +1171,7 @@ TypeInfo::TypeInfo(bsl::vector<int> *variable,
                    bslma::Allocator *basicAllocator)
 : d_elemType(OptionType::e_INT_ARRAY)
 , d_linkedVariable_p(variable)
+, d_isOptionalLinkedVariable(false)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     resetConstraint();
@@ -1160,6 +1182,7 @@ TypeInfo::TypeInfo(bsl::vector<int>                 *variable,
                    bslma::Allocator                 *basicAllocator)
 : d_elemType(OptionType::e_INT_ARRAY)
 , d_linkedVariable_p(variable)
+, d_isOptionalLinkedVariable(false)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     setConstraint(constraint);
@@ -1169,6 +1192,7 @@ TypeInfo::TypeInfo(bsl::vector<bsls::Types::Int64> *variable,
                    bslma::Allocator                *basicAllocator)
 : d_elemType(OptionType::e_INT64_ARRAY)
 , d_linkedVariable_p(variable)
+, d_isOptionalLinkedVariable(false)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     resetConstraint();
@@ -1179,6 +1203,7 @@ TypeInfo::TypeInfo(bsl::vector<bsls::Types::Int64>    *variable,
                    bslma::Allocator                   *basicAllocator)
 : d_elemType(OptionType::e_INT64_ARRAY)
 , d_linkedVariable_p(variable)
+, d_isOptionalLinkedVariable(false)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     setConstraint(constraint);
@@ -1188,6 +1213,7 @@ TypeInfo::TypeInfo(bsl::vector<double> *variable,
                    bslma::Allocator    *basicAllocator)
 : d_elemType(OptionType::e_DOUBLE_ARRAY)
 , d_linkedVariable_p(variable)
+, d_isOptionalLinkedVariable(false)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     resetConstraint();
@@ -1198,6 +1224,7 @@ TypeInfo::TypeInfo(bsl::vector<double>                 *variable,
                    bslma::Allocator                    *basicAllocator)
 : d_elemType(OptionType::e_DOUBLE_ARRAY)
 , d_linkedVariable_p(variable)
+, d_isOptionalLinkedVariable(false)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     setConstraint(constraint);
@@ -1207,6 +1234,7 @@ TypeInfo::TypeInfo(bsl::vector<bsl::string> *variable,
                    bslma::Allocator         *basicAllocator)
 : d_elemType(OptionType::e_STRING_ARRAY)
 , d_linkedVariable_p(variable)
+, d_isOptionalLinkedVariable(false)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     resetConstraint();
@@ -1217,6 +1245,7 @@ TypeInfo::TypeInfo(bsl::vector<bsl::string>            *variable,
                    bslma::Allocator                    *basicAllocator)
 : d_elemType(OptionType::e_STRING_ARRAY)
 , d_linkedVariable_p(variable)
+, d_isOptionalLinkedVariable(false)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     setConstraint(constraint);
@@ -1226,6 +1255,7 @@ TypeInfo::TypeInfo(bsl::vector<bdlt::Datetime> *variable,
                    bslma::Allocator            *basicAllocator)
 : d_elemType(OptionType::e_DATETIME_ARRAY)
 , d_linkedVariable_p(variable)
+, d_isOptionalLinkedVariable(false)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     resetConstraint();
@@ -1236,6 +1266,7 @@ TypeInfo::TypeInfo(bsl::vector<bdlt::Datetime>           *variable,
                    bslma::Allocator                      *basicAllocator)
 : d_elemType(OptionType::e_DATETIME_ARRAY)
 , d_linkedVariable_p(variable)
+, d_isOptionalLinkedVariable(false)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     setConstraint(constraint);
@@ -1245,6 +1276,7 @@ TypeInfo::TypeInfo(bsl::vector<bdlt::Date> *variable,
                    bslma::Allocator        *basicAllocator)
 : d_elemType(OptionType::e_DATE_ARRAY)
 , d_linkedVariable_p(variable)
+, d_isOptionalLinkedVariable(false)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     resetConstraint();
@@ -1255,6 +1287,7 @@ TypeInfo::TypeInfo(bsl::vector<bdlt::Date>           *variable,
                    bslma::Allocator                  *basicAllocator)
 : d_elemType(OptionType::e_DATE_ARRAY)
 , d_linkedVariable_p(variable)
+, d_isOptionalLinkedVariable(false)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     setConstraint(constraint);
@@ -1264,6 +1297,7 @@ TypeInfo::TypeInfo(bsl::vector<bdlt::Time> *variable,
                    bslma::Allocator        *basicAllocator)
 : d_elemType(OptionType::e_TIME_ARRAY)
 , d_linkedVariable_p(variable)
+, d_isOptionalLinkedVariable(false)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     resetConstraint();
@@ -1274,6 +1308,175 @@ TypeInfo::TypeInfo(bsl::vector<bdlt::Time>           *variable,
                    bslma::Allocator                  *basicAllocator)
 : d_elemType(OptionType::e_TIME_ARRAY)
 , d_linkedVariable_p(variable)
+, d_isOptionalLinkedVariable(false)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+    setConstraint(constraint);
+}
+
+TypeInfo::TypeInfo(bsl::optional<char> *variable,
+                   bslma::Allocator    *basicAllocator)
+: d_elemType(OptionType::e_CHAR)
+, d_linkedVariable_p(variable)
+, d_isOptionalLinkedVariable(variable != 0)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+    resetConstraint();
+}
+
+TypeInfo::TypeInfo(bsl::optional<char>               *variable,
+                   const Constraint::CharConstraint&  constraint,
+                   bslma::Allocator                  *basicAllocator)
+: d_elemType(OptionType::e_CHAR)
+, d_linkedVariable_p(variable)
+, d_isOptionalLinkedVariable(variable != 0)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+    setConstraint(constraint);
+}
+
+TypeInfo::TypeInfo(bsl::optional<int> *variable,
+                   bslma::Allocator   *basicAllocator)
+: d_elemType(OptionType::e_INT)
+, d_linkedVariable_p(variable)
+, d_isOptionalLinkedVariable(variable != 0)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+    resetConstraint();
+}
+
+TypeInfo::TypeInfo(bsl::optional<int>               *variable,
+                   const Constraint::IntConstraint&  constraint,
+                   bslma::Allocator                 *basicAllocator)
+: d_elemType(OptionType::e_INT)
+, d_linkedVariable_p(variable)
+, d_isOptionalLinkedVariable(variable != 0)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+    setConstraint(constraint);
+}
+
+TypeInfo::TypeInfo(bsl::optional<bsls::Types::Int64> *variable,
+                   bslma::Allocator                  *basicAllocator)
+: d_elemType(OptionType::e_INT64)
+, d_linkedVariable_p(variable)
+, d_isOptionalLinkedVariable(variable != 0)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+    resetConstraint();
+}
+
+TypeInfo::TypeInfo(bsl::optional<bsls::Types::Int64>  *variable,
+                   const Constraint::Int64Constraint&  constraint,
+                   bslma::Allocator                   *basicAllocator)
+: d_elemType(OptionType::e_INT64)
+, d_linkedVariable_p(variable)
+, d_isOptionalLinkedVariable(variable != 0)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+    setConstraint(constraint);
+}
+
+TypeInfo::TypeInfo(bsl::optional<double> *variable,
+                   bslma::Allocator      *basicAllocator)
+: d_elemType(OptionType::e_DOUBLE)
+, d_linkedVariable_p(variable)
+, d_isOptionalLinkedVariable(variable != 0)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+    resetConstraint();
+}
+
+TypeInfo::TypeInfo(bsl::optional<double>               *variable,
+                   const Constraint::DoubleConstraint&  constraint,
+                   bslma::Allocator                    *basicAllocator)
+: d_elemType(OptionType::e_DOUBLE)
+, d_linkedVariable_p(variable)
+, d_isOptionalLinkedVariable(variable != 0)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+    setConstraint(constraint);
+}
+
+TypeInfo::TypeInfo(bsl::optional<bsl::string> *variable,
+                   bslma::Allocator           *basicAllocator)
+: d_elemType(OptionType::e_STRING)
+, d_linkedVariable_p(variable)
+, d_isOptionalLinkedVariable(variable != 0)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+    resetConstraint();
+}
+
+TypeInfo::TypeInfo(bsl::optional<bsl::string>          *variable,
+                   const Constraint::StringConstraint&  constraint,
+                   bslma::Allocator                    *basicAllocator)
+: d_elemType(OptionType::e_STRING)
+, d_linkedVariable_p(variable)
+, d_isOptionalLinkedVariable(variable != 0)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+    setConstraint(constraint);
+}
+
+TypeInfo::TypeInfo(bsl::optional<bdlt::Datetime> *variable,
+                   bslma::Allocator              *basicAllocator)
+: d_elemType(OptionType::e_DATETIME)
+, d_linkedVariable_p(variable)
+, d_isOptionalLinkedVariable(variable != 0)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+    resetConstraint();
+}
+
+TypeInfo::TypeInfo(bsl::optional<bdlt::Datetime>         *variable,
+                   const Constraint::DatetimeConstraint&  constraint,
+                   bslma::Allocator                      *basicAllocator)
+: d_elemType(OptionType::e_DATETIME)
+, d_linkedVariable_p(variable)
+, d_isOptionalLinkedVariable(variable != 0)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+    setConstraint(constraint);
+}
+
+TypeInfo::TypeInfo(bsl::optional<bdlt::Date> *variable,
+                   bslma::Allocator          *basicAllocator)
+: d_elemType(OptionType::e_DATE)
+, d_linkedVariable_p(variable)
+, d_isOptionalLinkedVariable(variable != 0)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+    resetConstraint();
+}
+
+TypeInfo::TypeInfo(bsl::optional<bdlt::Date>         *variable,
+                   const Constraint::DateConstraint&  constraint,
+                   bslma::Allocator                  *basicAllocator)
+: d_elemType(OptionType::e_DATE)
+, d_linkedVariable_p(variable)
+, d_isOptionalLinkedVariable(variable != 0)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+    setConstraint(constraint);
+}
+
+TypeInfo::TypeInfo(bsl::optional<bdlt::Time> *variable,
+                   bslma::Allocator          *basicAllocator)
+: d_elemType(OptionType::e_TIME)
+, d_linkedVariable_p(variable)
+, d_isOptionalLinkedVariable(variable != 0)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+    resetConstraint();
+}
+
+TypeInfo::TypeInfo(bsl::optional<bdlt::Time>         *variable,
+                   const Constraint::TimeConstraint&  constraint,
+                   bslma::Allocator                  *basicAllocator)
+: d_elemType(OptionType::e_TIME)
+, d_linkedVariable_p(variable)
+, d_isOptionalLinkedVariable(variable != 0)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     setConstraint(constraint);
@@ -1281,9 +1484,10 @@ TypeInfo::TypeInfo(bsl::vector<bdlt::Time>           *variable,
 
 TypeInfo::TypeInfo(const TypeInfo&   original,
                    bslma::Allocator *basicAllocator)
-: d_elemType(original.d_elemType)
-, d_linkedVariable_p(original.d_linkedVariable_p)
-, d_constraint_p(original.d_constraint_p)  // share constraint
+: d_elemType                (original.d_elemType)
+, d_linkedVariable_p        (original.d_linkedVariable_p)
+, d_isOptionalLinkedVariable(original.d_isOptionalLinkedVariable)
+, d_constraint_p            (original.d_constraint_p)  // share constraint
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
@@ -1296,9 +1500,10 @@ TypeInfo::~TypeInfo()
 TypeInfo& TypeInfo::operator=(const TypeInfo& rhs)
 {
     if (this != &rhs) {
-        d_elemType         = rhs.d_elemType;
-        d_linkedVariable_p = rhs.d_linkedVariable_p;
-        d_constraint_p     = rhs.d_constraint_p;
+        d_elemType                 = rhs.d_elemType;
+        d_linkedVariable_p         = rhs.d_linkedVariable_p;
+        d_isOptionalLinkedVariable = rhs.d_isOptionalLinkedVariable;
+        d_constraint_p             = rhs.d_constraint_p;
     }
 
     return *this;
@@ -1440,7 +1645,8 @@ void TypeInfo::resetConstraint()
 
 void TypeInfo::resetLinkedVariableAndConstraint()
 {
-    d_linkedVariable_p = 0;
+    d_linkedVariable_p         = 0;
+    d_isOptionalLinkedVariable = false;
     resetConstraint();
 }
 
@@ -1588,120 +1794,201 @@ void TypeInfo::setConstraint(
 
 void TypeInfo::setLinkedVariable(bool *variable)
 {
-    d_elemType         = OptionType::e_BOOL;
-    d_linkedVariable_p = variable;
+    d_elemType                 = OptionType::e_BOOL;
+    d_linkedVariable_p         = variable;
+    d_isOptionalLinkedVariable = false;
     resetConstraint();
 }
 
 void TypeInfo::setLinkedVariable(char *variable)
 {
-    d_elemType         = OptionType::e_CHAR;
-    d_linkedVariable_p = variable;
+    d_elemType                 = OptionType::e_CHAR;
+    d_linkedVariable_p         = variable;
+    d_isOptionalLinkedVariable = false;
     resetConstraint();
 }
 
 void TypeInfo::setLinkedVariable(int *variable)
 {
-    d_elemType         = OptionType::e_INT;
-    d_linkedVariable_p = variable;
+    d_elemType                 = OptionType::e_INT;
+    d_linkedVariable_p         = variable;
+    d_isOptionalLinkedVariable = false;
     resetConstraint();
 }
 
 void TypeInfo::setLinkedVariable(bsls::Types::Int64 *variable)
 {
-    d_elemType         = OptionType::e_INT64;
-    d_linkedVariable_p = variable;
+    d_elemType                 = OptionType::e_INT64;
+    d_linkedVariable_p         = variable;
+    d_isOptionalLinkedVariable = false;
     resetConstraint();
 }
 
 void TypeInfo::setLinkedVariable(double *variable)
 {
-    d_elemType         = OptionType::e_DOUBLE;
-    d_linkedVariable_p = variable;
+    d_elemType                 = OptionType::e_DOUBLE;
+    d_linkedVariable_p         = variable;
+    d_isOptionalLinkedVariable = false;
     resetConstraint();
 }
 
 void TypeInfo::setLinkedVariable(bsl::string *variable)
 {
-    d_elemType         = OptionType::e_STRING;
-    d_linkedVariable_p = variable;
+    d_elemType                 = OptionType::e_STRING;
+    d_linkedVariable_p         = variable;
+    d_isOptionalLinkedVariable = false;
     resetConstraint();
 }
 
 void TypeInfo::setLinkedVariable(bdlt::Datetime *variable)
 {
-    d_elemType         = OptionType::e_DATETIME;
-    d_linkedVariable_p = variable;
+    d_elemType                 = OptionType::e_DATETIME;
+    d_linkedVariable_p         = variable;
+    d_isOptionalLinkedVariable = false;
     resetConstraint();
 }
 
 void TypeInfo::setLinkedVariable(bdlt::Date *variable)
 {
-    d_elemType         = OptionType::e_DATE;
-    d_linkedVariable_p = variable;
+    d_elemType                 = OptionType::e_DATE;
+    d_linkedVariable_p         = variable;
+    d_isOptionalLinkedVariable = false;
     resetConstraint();
 }
 
 void TypeInfo::setLinkedVariable(bdlt::Time *variable)
 {
-    d_elemType         = OptionType::e_TIME;
-    d_linkedVariable_p = variable;
+    d_elemType                 = OptionType::e_TIME;
+    d_linkedVariable_p         = variable;
+    d_isOptionalLinkedVariable = false;
     resetConstraint();
 }
 
 void TypeInfo::setLinkedVariable(bsl::vector<char> *variable)
 {
-    d_elemType         = OptionType::e_CHAR_ARRAY;
-    d_linkedVariable_p = variable;
+    d_elemType                 = OptionType::e_CHAR_ARRAY;
+    d_linkedVariable_p         = variable;
+    d_isOptionalLinkedVariable = false;
     resetConstraint();
 }
 
 void TypeInfo::setLinkedVariable(bsl::vector<int> *variable)
 {
-    d_elemType         = OptionType::e_INT_ARRAY;
-    d_linkedVariable_p = variable;
+    d_elemType                 = OptionType::e_INT_ARRAY;
+    d_linkedVariable_p         = variable;
+    d_isOptionalLinkedVariable = false;
     resetConstraint();
 }
 
 void TypeInfo::setLinkedVariable(bsl::vector<bsls::Types::Int64> *variable)
 {
-    d_elemType         = OptionType::e_INT64_ARRAY;
-    d_linkedVariable_p = variable;
+    d_elemType                 = OptionType::e_INT64_ARRAY;
+    d_linkedVariable_p         = variable;
+    d_isOptionalLinkedVariable = false;
     resetConstraint();
 }
 
 void TypeInfo::setLinkedVariable(bsl::vector<double> *variable)
 {
-    d_elemType         = OptionType::e_DOUBLE_ARRAY;
-    d_linkedVariable_p = variable;
+    d_elemType                 = OptionType::e_DOUBLE_ARRAY;
+    d_linkedVariable_p         = variable;
+    d_isOptionalLinkedVariable = false;
     resetConstraint();
 }
 
 void TypeInfo::setLinkedVariable(bsl::vector<bsl::string> *variable)
 {
-    d_elemType         = OptionType::e_STRING_ARRAY;
-    d_linkedVariable_p = variable;
+    d_elemType                 = OptionType::e_STRING_ARRAY;
+    d_linkedVariable_p         = variable;
+    d_isOptionalLinkedVariable = false;
     resetConstraint();
 }
 
 void TypeInfo::setLinkedVariable(bsl::vector<bdlt::Datetime> *variable)
 {
-    d_elemType         = OptionType::e_DATETIME_ARRAY;
-    d_linkedVariable_p = variable;
+    d_elemType                 = OptionType::e_DATETIME_ARRAY;
+    d_linkedVariable_p         = variable;
+    d_isOptionalLinkedVariable = false;
     resetConstraint();
 }
 
 void TypeInfo::setLinkedVariable(bsl::vector<bdlt::Date> *variable)
 {
-    d_elemType         = OptionType::e_DATE_ARRAY;
-    d_linkedVariable_p = variable;
+    d_elemType                 = OptionType::e_DATE_ARRAY;
+    d_linkedVariable_p         = variable;
+    d_isOptionalLinkedVariable = false;
     resetConstraint();
 }
 
 void TypeInfo::setLinkedVariable(bsl::vector<bdlt::Time> *variable)
 {
-    d_elemType         = OptionType::e_TIME_ARRAY;
-    d_linkedVariable_p = variable;
+    d_elemType                 = OptionType::e_TIME_ARRAY;
+    d_linkedVariable_p         = variable;
+    d_isOptionalLinkedVariable = false;
+    resetConstraint();
+}
+
+void TypeInfo::setLinkedVariable(bsl::optional<char> *variable)
+{
+    d_elemType                 = OptionType::e_CHAR;
+    d_linkedVariable_p         = variable;
+    d_isOptionalLinkedVariable = variable != 0;
+    resetConstraint();
+}
+
+void TypeInfo::setLinkedVariable(bsl::optional<int> *variable)
+{
+    d_elemType                 = OptionType::e_INT;
+    d_linkedVariable_p         = variable;
+    d_isOptionalLinkedVariable = variable != 0;
+    resetConstraint();
+}
+
+void TypeInfo::setLinkedVariable(bsl::optional<bsls::Types::Int64> *variable)
+{
+    d_elemType                 = OptionType::e_INT64;
+    d_linkedVariable_p         = variable;
+    d_isOptionalLinkedVariable = variable != 0;
+    resetConstraint();
+}
+
+void TypeInfo::setLinkedVariable(bsl::optional<double> *variable)
+{
+    d_elemType                 = OptionType::e_DOUBLE;
+    d_linkedVariable_p         = variable;
+    d_isOptionalLinkedVariable = variable != 0;
+    resetConstraint();
+}
+
+void TypeInfo::setLinkedVariable(bsl::optional<bsl::string> *variable)
+{
+    d_elemType                 = OptionType::e_STRING;
+    d_linkedVariable_p         = variable;
+    d_isOptionalLinkedVariable = variable != 0;
+    resetConstraint();
+}
+
+void TypeInfo::setLinkedVariable(bsl::optional<bdlt::Datetime> *variable)
+{
+    d_elemType                 = OptionType::e_DATETIME;
+    d_linkedVariable_p         = variable;
+    d_isOptionalLinkedVariable = variable != 0;
+    resetConstraint();
+}
+
+void TypeInfo::setLinkedVariable(bsl::optional<bdlt::Date> *variable)
+{
+    d_elemType                 = OptionType::e_DATE;
+    d_linkedVariable_p         = variable;
+    d_isOptionalLinkedVariable = variable != 0;
+    resetConstraint();
+}
+
+void TypeInfo::setLinkedVariable(bsl::optional<bdlt::Time> *variable)
+{
+    d_elemType                 = OptionType::e_TIME;
+    d_linkedVariable_p         = variable;
+    d_isOptionalLinkedVariable = variable != 0;
     resetConstraint();
 }
 
@@ -1714,6 +2001,11 @@ bsl::shared_ptr<TypeInfoConstraint> TypeInfo::constraint() const
 void *TypeInfo::linkedVariable() const
 {
     return d_linkedVariable_p;
+}
+
+bool TypeInfo::isOptionalLinkedVariable() const
+{
+    return d_isOptionalLinkedVariable;
 }
 
 OptionType::Enum TypeInfo::type() const

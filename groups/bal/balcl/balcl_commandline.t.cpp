@@ -14,10 +14,11 @@
 #include <bdlt_datetime.h>
 #include <bdlt_time.h>
 
-#include <bdlb_printmethods.h>  // 'bdlb::HasPrintMethod'
+#include <bdlb_printmethods.h>   // 'bdlb::HasPrintMethod'
 
 #include <bslim_testutil.h>
 
+#include <bslmf_allocatorargt.h> // 'bsl::allocator_arg'
 #include <bslmf_assert.h>
 
 #include <bslma_default.h>
@@ -37,12 +38,13 @@
 #include <bsl_functional.h> // 'bsl::function'
 #include <bsl_iostream.h>
 #include <bsl_map.h>
+#include <bsl_optional.h>
 #include <bsl_ostream.h>    // 'operator<<'
 #include <bsl_sstream.h>
 #include <bsl_stdexcept.h>
 #include <bsl_streambuf.h>
 #include <bsl_string.h>     // 'bslstl::StringRef'
-#include <bsl_utility.h>    // 'bsl::make_pair'
+#include <bsl_utility.h>    // 'bsl::pair', 'bsl::make_pair'
 #include <bsl_vector.h>
 
 using namespace BloombergLP;
@@ -97,24 +99,24 @@ using namespace bsl;
 //:   o A helper function, 'u::createOccurrenceInfo', is defined to create test
 //:     arguments from table entries.
 //:
-//: 3 'OPTION_DEFAULT_VALUES': an entry for each of the allowed option types
-//:   and the address of a value of that type to be used as a default option
-//:   value.
+//: 3 'OPTION_VALUES': This table provides an entry for each of the allowed
+//:   option types and the address of a value of that type.  These values are
+//:   available for general use in the test driver.  For example, they can be
+//:   used as default values for options when creating option-specification
+//:   tables.
 //:
-//:   o None of these "default" values correspond to the default value of their
+//:   o None of these option values correspond to the default value of their
 //:     respective types.
 //:
 //:   o The value chosen for 'balcl::OptionType::e_STRING' is sufficiently long
 //:     to exceed the short-string optimization.
 //:
-//:   o A helper function, 'u::setOptionValue', is provided to convert the
-//:     "value" field of 'OPTION_DEFAULT_VALUES' into an argument for the
-//:     'setDefaultValue' method.
+//:   o A helper function, 'u::getSomeOptionValue', is provided to return the
+//:     address (a 'void *') of the value for a specified option type.
 //:
-//:   o The entries of 'OPTION_DEFAULT_VALUES' are ordered so that we can
-//:     assert 'OPTION_TYPEINFO[l].d_type == OPTION_DEFAULT_VALUES[n].d_type'
-//:     where 'n = l % NUM_OPTION_DEFAULT_VALUES' for
-//:     '0 <= l < NUM_OPTION_TYPEINFO'.
+//:   o A helper function, 'u::setOptionValue', is provided to convert the
+//:     "value" field of 'OPTION_VALUES' into an argument for the
+//:     'setDefaultValue' method.
 //
 ///Usage and Error Messages
 ///------------------------
@@ -243,7 +245,8 @@ using namespace bsl;
 // [15] TESTING PARSING OF STRINGS
 // [16] TESTING NON-OPTION TOGGLE '--'
 // [17] TESTING ABILITY TO INPUT VALUE FOR FLAG
-// [19] USAGE EXAMPLE
+// [19] TESTING OPTIONAL LINKED VARIABLES
+// [20] USAGE EXAMPLE
 // [ *] CONCERN: The global allocator is not used.
 
 // ============================================================================
@@ -355,27 +358,32 @@ enum { NUM_OPTION_TAGS = sizeof OPTION_TAGS / sizeof *OPTION_TAGS };
 static bslma::Allocator *ga = bslma::Default::globalAllocator();
 
 // ATTRIBUTES FOR 'balcl::TypeInfo'
-bool                        linkedBool;
-char                        linkedChar;
-short                       linkedShort;
-int                         linkedInt;
-Int64                       linkedInt64;
-float                       linkedFloat;
-double                      linkedDouble;
-bsl::string                 linkedString       (ga);
-bdlt::Datetime              linkedDatetime;
-bdlt::Date                  linkedDate;
-bdlt::Time                  linkedTime;
-bsl::vector<char>           linkedCharArray    (ga);
-bsl::vector<short>          linkedShortArray   (ga);
-bsl::vector<int>            linkedIntArray     (ga);
-bsl::vector<Int64>          linkedInt64Array   (ga);
-bsl::vector<float>          linkedFloatArray   (ga);
-bsl::vector<double>         linkedDoubleArray  (ga);
-bsl::vector<bsl::string>    linkedStringArray  (ga);
-bsl::vector<bdlt::Datetime> linkedDatetimeArray(ga);
-bsl::vector<bdlt::Date>     linkedDateArray    (ga);
-bsl::vector<bdlt::Time>     linkedTimeArray    (ga);
+bool                          linkedBool;
+char                          linkedChar;
+int                           linkedInt;
+Int64                         linkedInt64;
+double                        linkedDouble;
+bsl::string                   linkedString       (ga);
+bdlt::Datetime                linkedDatetime;
+bdlt::Date                    linkedDate;
+bdlt::Time                    linkedTime;
+bsl::vector<char>             linkedCharArray    (ga);
+bsl::vector<int>              linkedIntArray     (ga);
+bsl::vector<Int64>            linkedInt64Array   (ga);
+bsl::vector<double>           linkedDoubleArray  (ga);
+bsl::vector<bsl::string>      linkedStringArray  (ga);
+bsl::vector<bdlt::Datetime>   linkedDatetimeArray(ga);
+bsl::vector<bdlt::Date>       linkedDateArray    (ga);
+bsl::vector<bdlt::Time>       linkedTimeArray    (ga);
+
+bsl::optional<char>           oLinkedChar;
+bsl::optional<int>            oLinkedInt;
+bsl::optional<Int64>          oLinkedInt64;
+bsl::optional<double>         oLinkedDouble;
+bsl::optional<bsl::string>    oLinkedString(bsl::allocator_arg, ga);
+bsl::optional<bdlt::Datetime> oLinkedDatetime;
+bsl::optional<bdlt::Date>     oLinkedDate;
+bsl::optional<bdlt::Time>     oLinkedTime;
 
                         // =====================
                         // struct TestConstraint
@@ -487,74 +495,90 @@ const struct {
     void     *d_linkedVariable_p;  // linked variable attribute(s)
     void     *d_constraint_p;      // linked variable attribute(s)
 } OPTION_TYPEINFO[] = {
-   { L_, Ot::e_BOOL,           0,                    0                      }
- , { L_, Ot::e_CHAR,           0,                    0                      }
- , { L_, Ot::e_INT,            0,                    0                      }
- , { L_, Ot::e_INT64,          0,                    0                      }
- , { L_, Ot::e_DOUBLE,         0,                    0                      }
- , { L_, Ot::e_STRING,         0,                    0                      }
- , { L_, Ot::e_DATETIME,       0,                    0                      }
- , { L_, Ot::e_DATE,           0,                    0                      }
- , { L_, Ot::e_TIME,           0,                    0                      }
- , { L_, Ot::e_CHAR_ARRAY,     0,                    0                      }
- , { L_, Ot::e_INT_ARRAY,      0,                    0                      }
- , { L_, Ot::e_INT64_ARRAY,    0,                    0                      }
- , { L_, Ot::e_DOUBLE_ARRAY,   0,                    0                      }
- , { L_, Ot::e_STRING_ARRAY,   0,                    0                      }
- , { L_, Ot::e_DATETIME_ARRAY, 0,                    0                      }
- , { L_, Ot::e_DATE_ARRAY,     0,                    0                      }
- , { L_, Ot::e_TIME_ARRAY,     0,                    0                      }
- , { L_, Ot::e_BOOL,           &linkedBool,          0                      }
- , { L_, Ot::e_CHAR,           &linkedChar,          0                      }
- , { L_, Ot::e_INT,            &linkedInt,           0                      }
- , { L_, Ot::e_INT64,          &linkedInt64,         0                      }
- , { L_, Ot::e_DOUBLE,         &linkedDouble,        0                      }
- , { L_, Ot::e_STRING,         &linkedString,        0                      }
- , { L_, Ot::e_DATETIME,       &linkedDatetime,      0                      }
- , { L_, Ot::e_DATE,           &linkedDate,          0                      }
- , { L_, Ot::e_TIME,           &linkedTime,          0                      }
- , { L_, Ot::e_CHAR_ARRAY,     &linkedCharArray,     0                      }
- , { L_, Ot::e_INT_ARRAY,      &linkedIntArray,      0                      }
- , { L_, Ot::e_INT64_ARRAY,    &linkedInt64Array,    0                      }
- , { L_, Ot::e_DOUBLE_ARRAY,   &linkedDoubleArray,   0                      }
- , { L_, Ot::e_STRING_ARRAY,   &linkedStringArray,   0                      }
- , { L_, Ot::e_DATETIME_ARRAY, &linkedDatetimeArray, 0                      }
- , { L_, Ot::e_DATE_ARRAY,     &linkedDateArray,     0                      }
- , { L_, Ot::e_TIME_ARRAY,     &linkedTimeArray,     0                      }
- , { L_, Ot::e_BOOL,           0,                    0                      }
- , { L_, Ot::e_CHAR,           0,                    &testCharConstraint    }
- , { L_, Ot::e_INT,            0,                    &testIntConstraint     }
- , { L_, Ot::e_INT64,          0,                    &testInt64Constraint   }
- , { L_, Ot::e_DOUBLE,         0,                    &testDoubleConstraint  }
- , { L_, Ot::e_STRING,         0,                    &testStringConstraint  }
- , { L_, Ot::e_DATETIME,       0,                    &testDatetimeConstraint}
- , { L_, Ot::e_DATE,           0,                    &testDateConstraint    }
- , { L_, Ot::e_TIME,           0,                    &testTimeConstraint    }
- , { L_, Ot::e_CHAR_ARRAY,     0,                    &testCharConstraint    }
- , { L_, Ot::e_INT_ARRAY,      0,                    &testIntConstraint     }
- , { L_, Ot::e_INT64_ARRAY,    0,                    &testInt64Constraint   }
- , { L_, Ot::e_DOUBLE_ARRAY,   0,                    &testDoubleConstraint  }
- , { L_, Ot::e_STRING_ARRAY,   0,                    &testStringConstraint  }
- , { L_, Ot::e_DATETIME_ARRAY, 0,                    &testDatetimeConstraint}
- , { L_, Ot::e_DATE_ARRAY,     0,                    &testDateConstraint    }
- , { L_, Ot::e_TIME_ARRAY,     0,                    &testTimeConstraint    }
- , { L_, Ot::e_BOOL,           &linkedBool,          0                      }
- , { L_, Ot::e_CHAR,           &linkedChar,          &testCharConstraint    }
- , { L_, Ot::e_INT,            &linkedInt,           &testIntConstraint     }
- , { L_, Ot::e_INT64,          &linkedInt64,         &testInt64Constraint   }
- , { L_, Ot::e_DOUBLE,         &linkedDouble,        &testDoubleConstraint  }
- , { L_, Ot::e_STRING,         &linkedString,        &testStringConstraint  }
- , { L_, Ot::e_DATETIME,       &linkedDatetime,      &testDatetimeConstraint}
- , { L_, Ot::e_DATE,           &linkedDate,          &testDateConstraint    }
- , { L_, Ot::e_TIME,           &linkedTime,          &testTimeConstraint    }
- , { L_, Ot::e_CHAR_ARRAY,     &linkedCharArray,     &testCharConstraint    }
- , { L_, Ot::e_INT_ARRAY,      &linkedIntArray,      &testIntConstraint     }
- , { L_, Ot::e_INT64_ARRAY,    &linkedInt64Array,    &testInt64Constraint   }
- , { L_, Ot::e_DOUBLE_ARRAY,   &linkedDoubleArray,   &testDoubleConstraint  }
- , { L_, Ot::e_STRING_ARRAY,   &linkedStringArray,   &testStringConstraint  }
- , { L_, Ot::e_DATETIME_ARRAY, &linkedDatetimeArray, &testDatetimeConstraint}
- , { L_, Ot::e_DATE_ARRAY,     &linkedDateArray,     &testDateConstraint    }
- , { L_, Ot::e_TIME_ARRAY,     &linkedTimeArray,     &testTimeConstraint    }
+   { L_, Ot::e_BOOL,           0,                    0                       }
+ , { L_, Ot::e_CHAR,           0,                    0                       }
+ , { L_, Ot::e_INT,            0,                    0                       }
+ , { L_, Ot::e_INT64,          0,                    0                       }
+ , { L_, Ot::e_DOUBLE,         0,                    0                       }
+ , { L_, Ot::e_STRING,         0,                    0                       }
+ , { L_, Ot::e_DATETIME,       0,                    0                       }
+ , { L_, Ot::e_DATE,           0,                    0                       }
+ , { L_, Ot::e_TIME,           0,                    0                       }
+ , { L_, Ot::e_CHAR_ARRAY,     0,                    0                       }
+ , { L_, Ot::e_INT_ARRAY,      0,                    0                       }
+ , { L_, Ot::e_INT64_ARRAY,    0,                    0                       }
+ , { L_, Ot::e_DOUBLE_ARRAY,   0,                    0                       }
+ , { L_, Ot::e_STRING_ARRAY,   0,                    0                       }
+ , { L_, Ot::e_DATETIME_ARRAY, 0,                    0                       }
+ , { L_, Ot::e_DATE_ARRAY,     0,                    0                       }
+ , { L_, Ot::e_TIME_ARRAY,     0,                    0                       }
+ , { L_, Ot::e_BOOL,           &linkedBool,          0                       }
+ , { L_, Ot::e_CHAR,           &linkedChar,          0                       }
+ , { L_, Ot::e_INT,            &linkedInt,           0                       }
+ , { L_, Ot::e_INT64,          &linkedInt64,         0                       }
+ , { L_, Ot::e_DOUBLE,         &linkedDouble,        0                       }
+ , { L_, Ot::e_STRING,         &linkedString,        0                       }
+ , { L_, Ot::e_DATETIME,       &linkedDatetime,      0                       }
+ , { L_, Ot::e_DATE,           &linkedDate,          0                       }
+ , { L_, Ot::e_TIME,           &linkedTime,          0                       }
+ , { L_, Ot::e_CHAR_ARRAY,     &linkedCharArray,     0                       }
+ , { L_, Ot::e_INT_ARRAY,      &linkedIntArray,      0                       }
+ , { L_, Ot::e_INT64_ARRAY,    &linkedInt64Array,    0                       }
+ , { L_, Ot::e_DOUBLE_ARRAY,   &linkedDoubleArray,   0                       }
+ , { L_, Ot::e_STRING_ARRAY,   &linkedStringArray,   0                       }
+ , { L_, Ot::e_DATETIME_ARRAY, &linkedDatetimeArray, 0                       }
+ , { L_, Ot::e_DATE_ARRAY,     &linkedDateArray,     0                       }
+ , { L_, Ot::e_TIME_ARRAY,     &linkedTimeArray,     0                       }
+ , { L_, Ot::e_CHAR,           &oLinkedChar,         0                       }
+ , { L_, Ot::e_INT,            &oLinkedInt,          0                       }
+ , { L_, Ot::e_INT64,          &oLinkedInt64,        0                       }
+ , { L_, Ot::e_DOUBLE,         &oLinkedDouble,       0                       }
+ , { L_, Ot::e_STRING,         &oLinkedString,       0                       }
+ , { L_, Ot::e_DATETIME,       &oLinkedDatetime,     0                       }
+ , { L_, Ot::e_DATE,           &oLinkedDate,         0                       }
+ , { L_, Ot::e_TIME,           &oLinkedTime,         0                       }
+ , { L_, Ot::e_BOOL,           0,                    0                       }
+ , { L_, Ot::e_CHAR,           0,                    &testCharConstraint     }
+ , { L_, Ot::e_INT,            0,                    &testIntConstraint      }
+ , { L_, Ot::e_INT64,          0,                    &testInt64Constraint    }
+ , { L_, Ot::e_DOUBLE,         0,                    &testDoubleConstraint   }
+ , { L_, Ot::e_STRING,         0,                    &testStringConstraint   }
+ , { L_, Ot::e_DATETIME,       0,                    &testDatetimeConstraint }
+ , { L_, Ot::e_DATE,           0,                    &testDateConstraint     }
+ , { L_, Ot::e_TIME,           0,                    &testTimeConstraint     }
+ , { L_, Ot::e_CHAR_ARRAY,     0,                    &testCharConstraint     }
+ , { L_, Ot::e_INT_ARRAY,      0,                    &testIntConstraint      }
+ , { L_, Ot::e_INT64_ARRAY,    0,                    &testInt64Constraint    }
+ , { L_, Ot::e_DOUBLE_ARRAY,   0,                    &testDoubleConstraint   }
+ , { L_, Ot::e_STRING_ARRAY,   0,                    &testStringConstraint   }
+ , { L_, Ot::e_DATETIME_ARRAY, 0,                    &testDatetimeConstraint }
+ , { L_, Ot::e_DATE_ARRAY,     0,                    &testDateConstraint     }
+ , { L_, Ot::e_TIME_ARRAY,     0,                    &testTimeConstraint     }
+ , { L_, Ot::e_BOOL,           &linkedBool,          0                       }
+ , { L_, Ot::e_CHAR,           &linkedChar,          &testCharConstraint     }
+ , { L_, Ot::e_INT,            &linkedInt,           &testIntConstraint      }
+ , { L_, Ot::e_INT64,          &linkedInt64,         &testInt64Constraint    }
+ , { L_, Ot::e_DOUBLE,         &linkedDouble,        &testDoubleConstraint   }
+ , { L_, Ot::e_STRING,         &linkedString,        &testStringConstraint   }
+ , { L_, Ot::e_DATETIME,       &linkedDatetime,      &testDatetimeConstraint }
+ , { L_, Ot::e_DATE,           &linkedDate,          &testDateConstraint     }
+ , { L_, Ot::e_TIME,           &linkedTime,          &testTimeConstraint     }
+ , { L_, Ot::e_CHAR_ARRAY,     &linkedCharArray,     &testCharConstraint     }
+ , { L_, Ot::e_INT_ARRAY,      &linkedIntArray,      &testIntConstraint      }
+ , { L_, Ot::e_INT64_ARRAY,    &linkedInt64Array,    &testInt64Constraint    }
+ , { L_, Ot::e_DOUBLE_ARRAY,   &linkedDoubleArray,   &testDoubleConstraint   }
+ , { L_, Ot::e_STRING_ARRAY,   &linkedStringArray,   &testStringConstraint   }
+ , { L_, Ot::e_DATETIME_ARRAY, &linkedDatetimeArray, &testDatetimeConstraint }
+ , { L_, Ot::e_DATE_ARRAY,     &linkedDateArray,     &testDateConstraint     }
+ , { L_, Ot::e_TIME_ARRAY,     &linkedTimeArray,     &testTimeConstraint     }
+ , { L_, Ot::e_CHAR,           &oLinkedChar,         &testCharConstraint     }
+ , { L_, Ot::e_INT,            &oLinkedInt,          &testIntConstraint      }
+ , { L_, Ot::e_INT64,          &oLinkedInt64,        &testInt64Constraint    }
+ , { L_, Ot::e_DOUBLE,         &oLinkedDouble,       &testDoubleConstraint   }
+ , { L_, Ot::e_STRING,         &oLinkedString,       &testStringConstraint   }
+ , { L_, Ot::e_DATETIME,       &oLinkedDatetime,     &testDatetimeConstraint }
+ , { L_, Ot::e_DATE,           &oLinkedDate,         &testDateConstraint     }
+ , { L_, Ot::e_TIME,           &oLinkedTime,         &testTimeConstraint     }
 };
 enum { NUM_OPTION_TYPEINFO = sizeof  OPTION_TYPEINFO
                            / sizeof *OPTION_TYPEINFO };
@@ -579,53 +603,48 @@ enum { NUM_OPTION_OCCURRENCES = sizeof  OPTION_OCCURRENCES
 #endif
 BSLMF_ASSERT(sizeof SUFFICIENTLY_LONG_STRING > sizeof(bsl::string));
 
-//bool                        defaultBool          = false;
-char                        defaultChar          = 'D';
-short                       defaultShort         = 1234;
-int                         defaultInt           = 1234567;
-Int64                       defaultInt64         = 123456789LL;
-float                       defaultFloat         = 0.125;     // 1/8
-double                      defaultDouble        = 0.015625;  // 1/64
-bsl::string                 defaultString(SUFFICIENTLY_LONG_STRING,  ga);
-bdlt::Datetime              defaultDatetime(1234, 12, 3, 4, 5, 6);
-bdlt::Date                  defaultDate(1234, 4, 6);
-bdlt::Time                  defaultTime(7, 8, 9, 10);
-bsl::vector<char>           defaultCharArray    (1, defaultChar,     ga);
-bsl::vector<short>          defaultShortArray   (1, defaultShort,    ga);
-bsl::vector<int>            defaultIntArray     (1, defaultInt,      ga);
-bsl::vector<Int64>          defaultInt64Array   (1, defaultInt64,    ga);
-bsl::vector<float>          defaultFloatArray   (1, defaultFloat,    ga);
-bsl::vector<double>         defaultDoubleArray  (1, defaultDouble,   ga);
-bsl::vector<bsl::string>    defaultStringArray  (1, defaultString,   ga);
-bsl::vector<bdlt::Datetime> defaultDatetimeArray(1, defaultDatetime, ga);
-bsl::vector<bdlt::Date>     defaultDateArray    (1, defaultDate,     ga);
-bsl::vector<bdlt::Time>     defaultTimeArray    (1, defaultTime,     ga);
+bool                        valueBool          = true;
+char                        valueChar          = 'D';
+int                         valueInt           = 1234567;
+Int64                       valueInt64         = 123456789LL;
+double                      valueDouble        = 0.015625;  // 1/64
+bsl::string                 valueString(SUFFICIENTLY_LONG_STRING, ga);
+bdlt::Datetime              valueDatetime(1234, 12, 3, 4, 5, 6);
+bdlt::Date                  valueDate(1234, 4, 6);
+bdlt::Time                  valueTime(7, 8, 9, 10);
+bsl::vector<char>           valueCharArray    (1, valueChar,      ga);
+bsl::vector<int>            valueIntArray     (1, valueInt,       ga);
+bsl::vector<Int64>          valueInt64Array   (1, valueInt64,     ga);
+bsl::vector<double>         valueDoubleArray  (1, valueDouble,    ga);
+bsl::vector<bsl::string>    valueStringArray  (1, valueString,    ga);
+bsl::vector<bdlt::Datetime> valueDatetimeArray(1, valueDatetime,  ga);
+bsl::vector<bdlt::Date>     valueDateArray    (1, valueDate,      ga);
+bsl::vector<bdlt::Time>     valueTimeArray    (1, valueTime,      ga);
 
 static const struct {
     int             d_line;     // line number
     ElemType        d_type;     // option type
-    const void     *d_value_p;  // default value attribute(s)
-} OPTION_DEFAULT_VALUES[] = {
-    { L_, Ot::e_BOOL,            0                     }
-  , { L_, Ot::e_CHAR,            &defaultChar          }
-  , { L_, Ot::e_INT,             &defaultInt           }
-  , { L_, Ot::e_INT64,           &defaultInt64         }
-  , { L_, Ot::e_DOUBLE,          &defaultDouble        }
-  , { L_, Ot::e_STRING,          &defaultString        }
-  , { L_, Ot::e_DATETIME,        &defaultDatetime      }
-  , { L_, Ot::e_DATE,            &defaultDate          }
-  , { L_, Ot::e_TIME,            &defaultTime          }
-  , { L_, Ot::e_CHAR_ARRAY,      &defaultCharArray     }
-  , { L_, Ot::e_INT_ARRAY,       &defaultIntArray      }
-  , { L_, Ot::e_INT64_ARRAY,     &defaultInt64Array    }
-  , { L_, Ot::e_DOUBLE_ARRAY,    &defaultDoubleArray   }
-  , { L_, Ot::e_STRING_ARRAY,    &defaultStringArray   }
-  , { L_, Ot::e_DATETIME_ARRAY,  &defaultDatetimeArray }
-  , { L_, Ot::e_DATE_ARRAY,      &defaultDateArray     }
-  , { L_, Ot::e_TIME_ARRAY,      &defaultTimeArray     }
+    const void     *d_value_p;  // value attribute(s)
+} OPTION_VALUES[] = {
+    { L_, Ot::e_BOOL,            &valueBool          }
+  , { L_, Ot::e_CHAR,            &valueChar          }
+  , { L_, Ot::e_INT,             &valueInt           }
+  , { L_, Ot::e_INT64,           &valueInt64         }
+  , { L_, Ot::e_DOUBLE,          &valueDouble        }
+  , { L_, Ot::e_STRING,          &valueString        }
+  , { L_, Ot::e_DATETIME,        &valueDatetime      }
+  , { L_, Ot::e_DATE,            &valueDate          }
+  , { L_, Ot::e_TIME,            &valueTime          }
+  , { L_, Ot::e_CHAR_ARRAY,      &valueCharArray     }
+  , { L_, Ot::e_INT_ARRAY,       &valueIntArray      }
+  , { L_, Ot::e_INT64_ARRAY,     &valueInt64Array    }
+  , { L_, Ot::e_DOUBLE_ARRAY,    &valueDoubleArray   }
+  , { L_, Ot::e_STRING_ARRAY,    &valueStringArray   }
+  , { L_, Ot::e_DATETIME_ARRAY,  &valueDatetimeArray }
+  , { L_, Ot::e_DATE_ARRAY,      &valueDateArray     }
+  , { L_, Ot::e_TIME_ARRAY,      &valueTimeArray     }
 };
-enum { NUM_OPTION_DEFAULT_VALUES = sizeof  OPTION_DEFAULT_VALUES
-                                 / sizeof *OPTION_DEFAULT_VALUES };
+enum { NUM_OPTION_VALUES = sizeof  OPTION_VALUES / sizeof *OPTION_VALUES };
 
 bool                     linkedBoolA;
 bool                     linkedBoolB;
@@ -996,45 +1015,72 @@ void setConstraint(TypeInfo *typeInfo, ElemType type, const void *address)
                          // function setLinkedVariable
                          // ==========================
 
-void setLinkedVariable(TypeInfo *typeInfo, ElemType type, void *address)
-    // Set the linked variable of the specified 'typeInfo' to the variable at
-    // the specified 'address'.  The behavior is undefined unless 'address' can
-    // be cast to a pointer to the type associated with the specified 'type'
-    // (i.e., 'Ot::EnumToType<type>::type *').
+void setLinkedVariable(TypeInfo *typeInfo,
+                       ElemType  type,
+                       void     *variable,
+                       bool      isOptionalLinkedVariable)
+    // Invoke the 'setLinkedVariable' overload of 'balcl::TypeInfo' that
+    // accepts addresses of type 'Ot::EnumToType<type>::type *' with the
+    // specified 'variable' (address).  If the specified
+    // 'isOptionalLinkedVariable' is 'true', then invoke the overload that
+    // accepts addresses of type 'bsl::optional<Ot::EnumToType<type>::type> *'.
+    // The behavior is undefined unless 'variable' can be legally cast to the
+    // target type.  Note that 'isOptionalLinkedVariable' is *disallowed* when
+    // 'type' is an "array" option type or 'type' is 'Ot::e_BOOL'.
 {
     ASSERT(typeInfo);
-    ASSERT(address);
 
 #define CASE(ENUM)                                                            \
-      case ENUM: {                                                            \
-        typeInfo->setLinkedVariable(static_cast<Ot::EnumToType<ENUM>::type *> \
-                                                                  (address)); \
-      } break;                                                                \
+    case ENUM: {                                                              \
+      typedef Ot::EnumToType<ENUM>::type      LinkType;                       \
+      typeInfo->setLinkedVariable(static_cast<LinkType *>(variable));         \
+    } break;                                                                  \
+
+#define CASE_MAYBE_OPTIONAL_LINK(ENUM)                                        \
+    case ENUM: {                                                              \
+      typedef Ot::EnumToType<ENUM>::type LinkType;                            \
+                                                                              \
+      if (isOptionalLinkedVariable) {                                         \
+        BSLS_ASSERT(Ot::e_BOOL != type);                                      \
+        BSLS_ASSERT(false      == Ot::isArrayType(type));                     \
+                                                                              \
+        typedef bsl::optional<LinkType> OptLinkType;                          \
+                                                                              \
+        typeInfo->setLinkedVariable(static_cast<OptLinkType *>(variable));    \
+      } else {                                                                \
+        typeInfo->setLinkedVariable(static_cast<   LinkType *>(variable));    \
+      }                                                                       \
+    } break;                                                                  \
 
     switch (type) {
-      CASE(Ot::e_BOOL)
-      CASE(Ot::e_CHAR)
-      CASE(Ot::e_INT)
-      CASE(Ot::e_INT64)
-      CASE(Ot::e_DOUBLE)
-      CASE(Ot::e_STRING)
-      CASE(Ot::e_DATETIME)
-      CASE(Ot::e_DATE)
-      CASE(Ot::e_TIME)
-      CASE(Ot::e_CHAR_ARRAY)
-      CASE(Ot::e_INT_ARRAY)
-      CASE(Ot::e_INT64_ARRAY)
-      CASE(Ot::e_DOUBLE_ARRAY)
-      CASE(Ot::e_STRING_ARRAY)
-      CASE(Ot::e_DATETIME_ARRAY)
-      CASE(Ot::e_DATE_ARRAY)
-      CASE(Ot::e_TIME_ARRAY)
+      case Ot::e_VOID: {
+        BSLS_ASSERT(!"Reached: 'e_VOID'");
+      } break;
+
+      CASE                    (Ot::e_BOOL)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_CHAR)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_INT)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_INT64)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_DOUBLE)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_STRING)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_DATETIME)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_DATE)
+      CASE_MAYBE_OPTIONAL_LINK(Ot::e_TIME)
+      CASE                    (Ot::e_CHAR_ARRAY)
+      CASE                    (Ot::e_INT_ARRAY)
+      CASE                    (Ot::e_INT64_ARRAY)
+      CASE                    (Ot::e_DOUBLE_ARRAY)
+      CASE                    (Ot::e_STRING_ARRAY)
+      CASE                    (Ot::e_DATETIME_ARRAY)
+      CASE                    (Ot::e_DATE_ARRAY)
+      CASE                    (Ot::e_TIME_ARRAY)
 
       default: {
-        BSLS_ASSERT(!"Reached");
+        BSLS_ASSERT(!"Reached: Unknown");
       } break;
     }
 
+#undef CASE_MAYBE_OPTIONAL_LINK
 #undef CASE
 
 }
@@ -1095,14 +1141,19 @@ void setType(TypeInfo *typeInfo, ElemType type)
 void createTypeInfo(TypeInfo *typeInfo,
                     ElemType  type,
                     void     *variable = 0,
+                    bool      isOptionalLinkedVariable = false,
                     void     *constraint = 0)
     // Set the specified 'typeInfo' to have the specified 'type'.  Optionally
-    // specify 'variable', the address of a linked variable, and 'constraint',
-    // the address of a constraint.  The behavior is undefined unless
-    // 'Ot::e_VOID != type', 'variable' is 0 or can be cast to
-    // 'Ot::EnumToType<type>::type', 'constraint' is 0 or can be cast to the
-    // type defined by 'Constraint' for 'type', and if 'Ot::e_BOOL == type'
-    // then 'constraint' must be 0.
+    // specify 'variable', the address of a linked variable'.  Optionally
+    // specify 'isOptionalLinkedVariable' to 'true' if 'variable' is the
+    // address of a 'bsl::optional' object.  Optionally specify 'constraint',
+    // the address of a constraint functor.  The behavior is undefined unless
+    // 'Ot::e_VOID != type', 'variable' is 0 or can be cast to either
+    // 'Ot::EnumToType<type>::type *' if 'isOptionalLinkedVariable' is 'false'
+    // or 'bsl::optional<Ot::EnumToType<type>::type> *' if
+    // 'isOptionalLinkedVariable' is 'true', 'constraint' is 0 or can be cast
+    // to the type defined by 'Constraint' for 'type', and if
+    // 'Ot::e_BOOL == type' then 'constraint' must be 0.
 {
     BSLS_ASSERT(typeInfo);
 
@@ -1113,7 +1164,7 @@ void createTypeInfo(TypeInfo *typeInfo,
     setType(typeInfo, type);
 
     if (variable) {
-        setLinkedVariable(typeInfo, type, variable);
+        setLinkedVariable(typeInfo, type, variable, isOptionalLinkedVariable);
     }
 
     if (constraint) {
@@ -1124,17 +1175,26 @@ void createTypeInfo(TypeInfo *typeInfo,
 // BDE_VERIFY pragma: -AR01  // Type using allocator is returned by value
 TypeInfo createTypeInfo(ElemType  type,
                         void     *variable = 0,
+                        bool      isOptionalLinkedVariable = false,
                         void     *constraint = 0)
     // Return (by value) a 'TypeInfo' object having the specified 'type'.
     // Optionally specify 'variable', an address to be linked to the option.
-    // Optionally specify a 'constraint' on the value of the option.  The
-    // returned object uses the currently installed default allocator.  The
-    // behavior is undefined unless 'Ot::e_VOID != type', 'variable' is 0 or
-    // can be cast to 'Ot::EnumToType<type>::type', and 'constraint' is 0 or
-    // can be cast to the type defined by 'Constraint' for 'type' .
+    // Optionally specify 'isOptionalLinkedVariable' (if 'true', then
+    // 'variable' is the address of a 'bsl::optional' object).  Optionally
+    // specify a 'constraint' on the value of the option.  The returned object
+    // uses the currently installed default allocator.  The behavior is
+    // undefined unless 'Ot::e_VOID != type', 'variable' is 0 or can be cast to
+    // 'Ot::EnumToType<type>::type *' if 'isOptionalLinkedVariable' is 'false'
+    // or 'bsl::optional<Ot::EnumToType<type>::type> *' if
+    // 'isOptionalLinkedVariable' is 'true', and 'constraint' is 0 or can be
+    // cast to the type defined by 'Constraint' for 'type' .
 {
     TypeInfo result;
-    createTypeInfo(&result, type, variable, constraint);
+    createTypeInfo(&result,
+                   type,
+                   variable,
+                   isOptionalLinkedVariable,
+                   constraint);
     return result;
 }
 // BDE_VERIFY pragma: +AR01  // Type using allocator is returned by value
@@ -1197,16 +1257,18 @@ OccurrenceInfo createOccurrenceInfo(OccurrenceType  occurrenceType,
                                     const void     *variable)
     // Return (by value) an 'OccurrenceInfo' object having the specified
     // 'occurrenceType' and having a default value of the specified 'type' and
-    // a value determined by the specified 'variable'.  The returned object
-    // uses the currently installed default allocator.  The behavior is
-    // undefined unless 'Ot::e_VOID != type' and 'variable' can be cast to a
-    // pointer of 'Ot::EnumToType<type>::type',
+    // a value determined by the specified 'variable' (if non-zero).  The
+    // returned object uses the currently installed default allocator.  The
+    // behavior is undefined unless 'Ot::e_VOID != type' and 'variable' can be
+    // cast to a pointer of 'Ot::EnumToType<type>::type',
 {
     BSLS_ASSERT(Ot::e_VOID != type);
 
     OccurrenceInfo result(occurrenceType);
 
-    if (occurrenceType != OccurrenceInfo::e_REQUIRED && variable) {
+    if (occurrenceType != OccurrenceInfo::e_REQUIRED
+     && Ot::e_BOOL     != type
+     && variable) {
         OptionValue defaultValue(type);
         setOptionValue(&defaultValue, variable, type);
 
@@ -1297,6 +1359,45 @@ bool isCompatibleOrdering(const char *const *argv1,
     return true;
 }
 
+                         // ===========================
+                         // function getSomeOptionValue
+                         // ===========================
+
+const void *getSomeOptionValue(ElemType type)
+    // Return the address of the element in 'OPTION_VALUES' having the
+    // specified 'type' and 0 if no such element is found.
+{
+    for (bsl::size_t i = 0; i < NUM_OPTION_VALUES; ++i) {
+        if (OPTION_VALUES[i].d_type == type) {
+            return OPTION_VALUES[i].d_value_p;                        // RETURN
+        }
+    }
+    return 0;
+}
+
+                         // ========================================
+                         // function isOptionalLinkedVariableInTable
+                         // ========================================
+
+bool isOptionalLinkedVariableInTable(void *variable)
+    // Return 'true' is the specified 'variable', possibly having a 0 value, is
+    // the address of one of the 'bsl::optional' objects that are used as
+    // linked variables in some entries of the 'OPTION_TYPEINFO' table, and
+    // 'false' otherwise.
+{
+    if (variable == &oLinkedChar
+     || variable == &oLinkedInt
+     || variable == &oLinkedInt64
+     || variable == &oLinkedDouble
+     || variable == &oLinkedString
+     || variable == &oLinkedDatetime
+     || variable == &oLinkedDate
+     || variable == &oLinkedTime) {
+        return true;                                                  // RETURN
+    }
+    return false;
+}
+
                          // =========================
                          // function generateTestData
                          // =========================
@@ -1306,8 +1407,8 @@ int generateTestData(bsl::vector<OptionInfo>  *options,
                      int                      *numBaseOptions)
     // Load into the specified 'options' a sequence of 'OptionInfo' objects
     // generated from the global tables of representative values
-    // 'OPTION_TYPEINFO', 'OPTION_OCCURRENCE', and 'OPTION_DEFAULT_VALUES' (see
-    // {Input Tables}).  Load into the specified 'numBaseOptions' the number of
+    // 'OPTION_TYPEINFO', 'OPTION_OCCURRENCE', and 'OPTION_VALUES' (see {Input
+    // Tables}).  Load into the specified 'numBaseOptions' the number of
     // generated options.  The following sequences of options can be validly
     // used to construct a 'balcl::CommandLine' object' where 'i' is in the
     // range '[0 .. numBaseOptions)':
@@ -1339,17 +1440,6 @@ int generateTestData(bsl::vector<OptionInfo>  *options,
 
         if (veryVerbose) { T_ P_(i) P_(t) P(m) }
 
-        const int n = t % NUM_OPTION_DEFAULT_VALUES;
-  //v-------^
-    // Instead of:
-    //..
-    //  for (int n = 0; n < NUM_OPTION_DEFAULT_VALUES; ++n)
-    //..
-    // Valid only because of the way we organized the table data:
-    //..
-        ASSERT(OPTION_TYPEINFO[t].d_type == OPTION_DEFAULT_VALUES[n].d_type);
-    //..
-  //^-------v
         const char     *TAG        = OPTION_TAGS[i].d_tag_p;
         const char     *NAME       = "SOME UNIQUE NAME";
         const char     *DESC       = "SOME VERY LONG DESCRIPTION...";
@@ -1357,19 +1447,19 @@ int generateTestData(bsl::vector<OptionInfo>  *options,
         void           *VARIABLE   = OPTION_TYPEINFO[t].d_linkedVariable_p;
         void           *CONSTRAINT = OPTION_TYPEINFO[t].d_constraint_p;
 
+        const bool      IS_OPTIONAL_LINKED_VARIABLE =
+                                     isOptionalLinkedVariableInTable(VARIABLE);
+
         const OccurrenceType OTYPE = OPTION_OCCURRENCES[
                                                 t % NUM_OPTION_OCCURRENCES]
                                                                        .d_type;
+        const void  *DEFAULT_VALUE = u::getSomeOptionValue(TYPE);
 
-        const void  *DEFAULT_VALUE = OPTION_DEFAULT_VALUES[n].d_value_p;
-
-        if (TYPE != OPTION_DEFAULT_VALUES[n].d_type) {
-            continue;
-        }
-
-        const TypeInfo       TYPE_INFO       = createTypeInfo(TYPE,
-                                                              VARIABLE,
-                                                              CONSTRAINT);
+        const TypeInfo       TYPE_INFO       = createTypeInfo(
+                                                   TYPE,
+                                                   VARIABLE,
+                                                   IS_OPTIONAL_LINKED_VARIABLE,
+                                                   CONSTRAINT);
         const OccurrenceInfo OCCURRENCE_INFO = createOccurrenceInfo(
                                                                 OTYPE,
                                                                 TYPE,
@@ -1393,6 +1483,16 @@ int generateTestData(bsl::vector<OptionInfo>  *options,
         if (OccurrenceInfo::e_HIDDEN == OCCURRENCE_INFO.occurrenceType()
          && OPTION_INFO.d_tag.empty()) {
             // A non-option argument cannot be hidden.  Skip this.
+
+            continue;
+        }
+
+        if (TYPE_INFO.isOptionalLinkedVariable()
+         && (TYPE_INFO.type() == Ot::e_BOOL  // Not impossible for 'TypeInfo'.
+          || OCCURRENCE_INFO.isRequired()
+          || OCCURRENCE_INFO.hasDefaultValue())) {
+            // Disallowed combinations when linked variable is a
+            // 'bsl::optional' object.  Skip this.
 
             continue;
         }
@@ -1653,6 +1753,7 @@ void normalizeIndentation(bsl::string        *output,
         (*output) += line;
     }
 }
+
 }  // close namespace u
 }  // close unnamed namespace
 
@@ -1675,6 +1776,7 @@ namespace BALCL_COMMANDLINE_USAGE_EXAMPLE {
 //..
 //  usage: mysort  [-r|reverse] [-i|insensitivetocase] [-u|uniq]
 //                 [-a|algorithm sortAlgo] -o|outputfile <outputFile>
+//                 [-t|field-separator] <character>
 //                 [<file>]*
 //                            // Sort the specified files (in 'fileList'),
 //                            // using the specified sorting algorithm and
@@ -1736,9 +1838,9 @@ namespace BALCL_COMMANDLINE_USAGE_EXAMPLE {
         bool isCaseInsensitive = false;  // Must be initially 'false'.
         bool isUniq            = false;  // Must be initially 'false'.
 
-        bsl::string outFile;
-        bsl::string sortAlgo;
-
+        bsl::optional<char>      fieldSeparator;
+        bsl::string              outFile;
+        bsl::string              sortAlgo;
         bsl::vector<bsl::string> files;
 //..
 // Notice that variables linked to flags (boolean options) are initialized to
@@ -1748,8 +1850,8 @@ namespace BALCL_COMMANDLINE_USAGE_EXAMPLE {
 // Next, we build up an option specification table as follows:
 //..
         // build constraint for sortAlgo option
-        balcl::Constraint::StringConstraint validAlgoConstraint;
-        validAlgoConstraint = &isValidAlgorithm;
+        balcl::Constraint::StringConstraint validAlgoConstraint(
+                                                            &isValidAlgorithm);
 
         // option specification table
         balcl::OptionInfo specTable[] = {
@@ -1772,6 +1874,13 @@ namespace BALCL_COMMANDLINE_USAGE_EXAMPLE {
             "isUniq",                                        // name
             "discard duplicate lines",                       // description
             balcl::TypeInfo(&isUniq),                        // link
+            balcl::OccurrenceInfo::e_OPTIONAL                // occurrence info
+          },
+          {
+            "t|field-separator",                             // tag
+            "fieldSeparator",                                // name
+            "field separator character",                     // description
+            balcl::TypeInfo(&fieldSeparator),                // link
             balcl::OccurrenceInfo::e_OPTIONAL                // occurrence info
           },
           {
@@ -1821,7 +1930,12 @@ namespace BALCL_COMMANDLINE_USAGE_EXAMPLE {
         balcl::CommandLineOptionsHandle options = cmdLine.options();
 
         // Access through linked variable.
-        bsl::cout << outFile << bsl::endl;
+        bsl::cout << "outFile: " << outFile << bsl::endl;
+        bsl::cout << "isUniq:  " << isUniq  << bsl::endl;
+        if (fieldSeparator.has_value()) {
+            bsl::cout << "fieldSeparator: "
+                      <<  fieldSeparator.value() << bsl::endl;
+        }
 
         // Access through *theType* methods.
         ASSERT(cmdLine.theString("outputFile") == outFile);
@@ -1929,7 +2043,7 @@ int main(int argc, const char *argv[])  {
     bslma::Default::setGlobalAllocator(&ga);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 19: {
+      case 20: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -1991,6 +2105,416 @@ int main(int argc, const char *argv[])  {
                                                                         ARGV));
             delete[] cmdLine;
         }
+      } break;
+      case 19: {
+        // --------------------------------------------------------------------
+        // TESTING OPTIONAL LINKED VARIABLES
+        //
+        // Concerns:
+        //: 1 Linked variables to 'bsl::optional' objects (optional linked
+        //:   variables) can be configured for each of the eight supported
+        //:   types.
+        //:
+        //: 2 Optional linked variables are left in a no-value state if
+        //:   associated options are not specified on the command line (input
+        //:   to the 'parse' method).
+        //:
+        //: 3 Optional linked variables are left with the expected value when
+        //:   the command line is populated with fields for the associated
+        //:   option.
+        //:
+        //: 4 Optional linked variables do not interfere with the operation of
+        //:   non-optional linked variables to the 17 supported option types.
+        //:
+        //: 5 The 'validate' method, called either explicitly or implicitly in
+        //:   the constructor, detects disallowed configurations of optional
+        //:   linked variables:
+        //:   o optional linked variables for "required" option.
+        //:   o optional linked variables with a default value.
+        //:   o optional linked variables for a 'bool' option (flag).
+        //
+        // Plan:
+        //: 1 Create a specification table featuring options for each of the 17
+        //:   supported option types, each having a linked variable to the same
+        //:   type.  The 8 option types that allow links to 'bsl::optional'
+        //:   objects have a second option entry so there are 25 entries in
+        //:   total.  Use the specification table to construct a
+        //:   'balcl::CommandLine' object.  (C-1,4).
+        //:
+        //: 2 Confirm that each of the 'bsl::optional' objects are in a
+        //:   no-value state ('false == has_value()').  Initialize each of the
+        //:   other linked objects to a distinct non-default value except for
+        //:   the 'bool' option that is initialized to 'false'.  Construct
+        //:   command-line input in which *none* of the options defined in the
+        //:   specification table are mentioned and pass that input to the
+        //:   'parse' method.  Afterwards, confirm that each of the optional
+        //:   linked variables are still in a no-value state (i.e.,
+        //:   'false == has_value()') and that each of the other linked objects
+        //:   has their initial value.  (C-2, 4)
+        //:
+        //: 3 Construct command-line input having a field that specifies a
+        //:   value for each of the options having optional linked variables,
+        //:   each distinct from the initial value.  Pass that input to the
+        //:   'parse' method of a (freshly constructed) 'balcl::CommandLine'
+        //:   object.  Confirm that each of the linked variables has a value
+        //:   and that the value matches that expected based on the field input
+        //:   and that the non-'bsl::optional' linked object has its expected
+        //:   value.  (C-3, 4)
+        //:
+        //: 4 Create a specification table that intentionally defines the
+        //:   invalid combinations of optional linked variables and
+        //:   incompatible occurrence objects (i.e., 'e_REQUIRED' or having a
+        //:   default value).  Confirm that these specification fail the
+        //:   'validation' method and generate the expected error message.
+        //:   (C-5)
+        //
+        // Testing:
+        //   TESTING OPTIONAL LINKED VARIABLES
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING OPTIONAL LINKED VARIABLES" << endl
+                          << "=================================" << endl;
+
+        ASSERT(!oLinkedChar    .has_value());
+        ASSERT(!oLinkedInt     .has_value());
+        ASSERT(!oLinkedInt64   .has_value());
+        ASSERT(!oLinkedDouble  .has_value());
+        ASSERT(!oLinkedString  .has_value());
+        ASSERT(!oLinkedDatetime.has_value());
+        ASSERT(!oLinkedDate    .has_value());
+        ASSERT(!oLinkedTime    .has_value());
+
+        // Initialize each with a non-default value.
+        linkedBool          =  false;  // 'bool' option requires 'false'
+        linkedChar          =  valueChar;
+        linkedInt           =  valueInt;
+        linkedInt64         =  valueInt64;
+        linkedDouble        =  valueDouble;
+        linkedString        =  valueString;
+        linkedDatetime      =  valueDatetime;
+        linkedDate          =  valueDate;
+        linkedTime          =  valueTime;
+        linkedCharArray     =  valueCharArray;
+        linkedIntArray      =  valueIntArray;
+        linkedInt64Array    =  valueInt64Array;
+        linkedDoubleArray   =  valueDoubleArray;
+        linkedStringArray   =  valueStringArray;
+        linkedDatetimeArray =  valueDatetimeArray;
+        linkedDateArray     =  valueDateArray;
+
+#define OPTINFO_ENTRY(LETTER, ADDRESS)                                        \
+            {   #LETTER"|"#LETTER"Long",                                      \
+                "Name_"#LETTER,                                               \
+                "Description for "#LETTER,                                    \
+                TypeInfo(ADDRESS),                                            \
+                OccurrenceInfo::e_OPTIONAL                                    \
+            }                                                                 \
+
+        const OptionInfo SPECS[] = {
+
+            // links to 'bsl::optional' objects
+            OPTINFO_ENTRY(a, &oLinkedChar)
+          , OPTINFO_ENTRY(b, &oLinkedInt)
+          , OPTINFO_ENTRY(c, &oLinkedInt64)
+          , OPTINFO_ENTRY(d, &oLinkedDouble)
+          , OPTINFO_ENTRY(e, &oLinkedString)
+          , OPTINFO_ENTRY(f, &oLinkedDatetime)
+          , OPTINFO_ENTRY(g, &oLinkedDate)
+          , OPTINFO_ENTRY(h, &oLinkedTime)
+
+            // links to non-'bsl::optional' objects
+          , OPTINFO_ENTRY(i, &linkedBool)
+          , OPTINFO_ENTRY(j, &linkedChar)
+          , OPTINFO_ENTRY(k, &linkedInt)
+          , OPTINFO_ENTRY(l, &linkedInt64)
+          , OPTINFO_ENTRY(m, &linkedDouble)
+          , OPTINFO_ENTRY(n, &linkedString)
+          , OPTINFO_ENTRY(o, &linkedDatetime)
+          , OPTINFO_ENTRY(p, &linkedDate)
+          , OPTINFO_ENTRY(q, &linkedTime)
+          , OPTINFO_ENTRY(r, &linkedCharArray)
+          , OPTINFO_ENTRY(s, &linkedIntArray)
+          , OPTINFO_ENTRY(t, &linkedInt64Array)
+          , OPTINFO_ENTRY(u, &linkedDoubleArray)
+          , OPTINFO_ENTRY(v, &linkedStringArray)
+          , OPTINFO_ENTRY(w, &linkedDatetimeArray)
+          , OPTINFO_ENTRY(x, &linkedDateArray)
+          , OPTINFO_ENTRY(y, &linkedTimeArray)
+        };
+
+#undef OPTINFO_ENTRY
+
+        bsl::ostringstream oss;
+
+        ASSERT(balcl::CommandLine::isValidOptionSpecificationTable(SPECS,
+                                                                   oss));
+        ASSERT(oss.str().empty());
+
+        if (verbose) cout << "No Option unspecified." << endl;
+
+        Obj mX(SPECS); const Obj& X = mX;
+
+        const char *const    emptyCommandLine[] = { "programName" };
+        const bsl::size_t numEmptyCommandLine = sizeof  emptyCommandLine
+                                              / sizeof *emptyCommandLine;
+
+        int retParseX = mX.parse(numEmptyCommandLine, emptyCommandLine, oss);
+
+        ASSERT(0 == retParseX);
+        ASSERT(oss.str().empty());
+        ASSERT(X.isParsed());
+        ASSERT(X.isValid());
+
+        ASSERT(!oLinkedChar    .has_value());
+        ASSERT(!oLinkedInt     .has_value());
+        ASSERT(!oLinkedInt64   .has_value());
+        ASSERT(!oLinkedDouble  .has_value());
+        ASSERT(!oLinkedString  .has_value());
+        ASSERT(!oLinkedDatetime.has_value());
+        ASSERT(!oLinkedDate    .has_value());
+        ASSERT(!oLinkedTime    .has_value());
+
+        ASSERT(linkedBool          ==  false);  // unchanged
+        ASSERT(linkedChar          ==  valueChar);
+        ASSERT(linkedInt           ==  valueInt);
+        ASSERT(linkedInt64         ==  valueInt64);
+        ASSERT(linkedDouble        ==  valueDouble);
+        ASSERT(linkedString        ==  valueString);
+        ASSERT(linkedDatetime      ==  valueDatetime);
+        ASSERT(linkedDate          ==  valueDate);
+        ASSERT(linkedTime          ==  valueTime);
+        ASSERT(linkedCharArray     ==  valueCharArray);
+        ASSERT(linkedIntArray      ==  valueIntArray);
+        ASSERT(linkedInt64Array    ==  valueInt64Array);
+        ASSERT(linkedDoubleArray   ==  valueDoubleArray);
+        ASSERT(linkedStringArray   ==  valueStringArray);
+        ASSERT(linkedDatetimeArray ==  valueDatetimeArray);
+        ASSERT(linkedDateArray     ==  valueDateArray);
+
+        if (verbose) cout << "Each option specified." << endl;
+
+        const bool           argBool   = true;
+        const char           argChar   = 'a';
+        const int            argInt    = 123654;
+        const Int64          argInt64  = 987654321;
+        const double         argDouble = 0.376739501953125;
+        const bsl::string    argString  ("someString");
+        const bdlt::Datetime argDatetime(2008, 7, 22,  4,  6,  8);
+        const bdlt::Date     argDate    (2007, 8, 22);
+        const bdlt::Time     argTime                 ( 8,  6,  4);
+
+        const bsl::vector<char>           argCharArray    (2, argChar);
+        const bsl::vector<int>            argIntArray     (2, argInt);
+        const bsl::vector<Int64>          argInt64Array   (2, argInt64);
+        const bsl::vector<double>         argDoubleArray  (2, argDouble);
+        const bsl::vector<bsl::string>    argStringArray  (2, argString);
+        const bsl::vector<bdlt::Datetime> argDatetimeArray(2, argDatetime);
+        const bsl::vector<bdlt::Date>     argDateArray    (2, argDate);
+        const bsl::vector<bdlt::Time>     argTimeArray    (2, argTime);
+
+        ASSERT(linkedBool          != argBool);
+        ASSERT(linkedChar          != argChar);
+        ASSERT(linkedInt           != argInt);
+        ASSERT(linkedInt64         != argInt64);
+        ASSERT(linkedDouble        != argDouble);
+        ASSERT(linkedString        != argString);
+        ASSERT(linkedDatetime      != argDatetime);
+        ASSERT(linkedDate          != argDate);
+        ASSERT(linkedTime          != argTime);
+        ASSERT(linkedCharArray     != argCharArray);
+        ASSERT(linkedIntArray      != argIntArray);
+        ASSERT(linkedInt64Array    != argInt64Array);
+        ASSERT(linkedDoubleArray   != argDoubleArray);
+        ASSERT(linkedStringArray   != argStringArray);
+        ASSERT(linkedDatetimeArray != argDatetimeArray);
+        ASSERT(linkedDateArray     != argDateArray);
+        ASSERT(linkedTimeArray     != argTimeArray);
+
+        const char *const populatedCommandLine[] = {
+               "programName"
+
+               // options linked to 'bsl::optional' objects
+             , "-a", "a"
+             , "-b", "123654"
+             , "-c", "987654321"
+             , "-d", "0.376739501953125"
+             , "-e", "someString"
+             , "-f", "2008-07-22T04:06:08"
+             , "-g", "2007-08-22"
+             , "-h", "08:06:04"
+
+               // scalar options linked to non-'bsl::optional' objects
+             , "-i"  // 'bool' option (flag)
+             , "-j", "a"
+             , "-k", "123654"
+             , "-l", "987654321"
+             , "-m", "0.376739501953125"
+             , "-n", "someString"
+             , "-o", "2008-07-22T04:06:08"
+             , "-p", "2007-08-22"
+             , "-q", "08:06:04"
+
+               // array options linked to non-'bsl::optional' objects
+             , "-r", "a",                   "-r", "a"
+             , "-s", "123654",              "-s", "123654"
+             , "-t", "987654321",           "-t", "987654321"
+             , "-u", "0.376739501953125",   "-u", "0.376739501953125"
+             , "-v", "someString",          "-v", "someString"
+             , "-w", "2008-07-22T04:06:08", "-w", "2008-07-22T04:06:08"
+             , "-x", "2007-08-22",          "-x", "2007-08-22"
+             , "-y", "08:06:04",            "-y", "08:06:04"
+             };
+
+        const bsl::size_t numPopulatedCommandLine
+                                               = sizeof  populatedCommandLine
+                                               / sizeof *populatedCommandLine;
+
+        Obj mY(SPECS); const Obj& Y = mY;
+
+        int retParseY = mY.parse(numPopulatedCommandLine,
+                                 populatedCommandLine,
+                                 oss);
+
+        ASSERT(0 == retParseY);
+        ASSERT(oss.str().empty());
+        ASSERT(Y.isParsed());
+        ASSERT(Y.isValid());
+
+        ASSERT(oLinkedChar    .has_value());
+        ASSERT(oLinkedInt     .has_value());
+        ASSERT(oLinkedInt64   .has_value());
+        ASSERT(oLinkedDouble  .has_value());
+        ASSERT(oLinkedString  .has_value());
+        ASSERT(oLinkedDatetime.has_value());
+        ASSERT(oLinkedDate    .has_value());
+        ASSERT(oLinkedTime    .has_value());
+
+        ASSERT(oLinkedChar          == argChar);
+        ASSERT(oLinkedInt           == argInt);
+        ASSERT(oLinkedInt64         == argInt64);
+        ASSERT(oLinkedDouble        == argDouble);
+        ASSERT(oLinkedString        == argString);
+        ASSERT(oLinkedDatetime      == argDatetime);
+        ASSERT(oLinkedDate          == argDate);
+        ASSERT(oLinkedTime          == argTime);
+
+        ASSERT( linkedBool          == argBool);
+        ASSERT( linkedChar          == argChar);
+        ASSERT( linkedInt           == argInt);
+        ASSERT( linkedInt64         == argInt64);
+        ASSERT( linkedDouble        == argDouble);
+        ASSERT( linkedString        == argString);
+        ASSERT( linkedDatetime      == argDatetime);
+        ASSERT( linkedDate          == argDate);
+        ASSERT( linkedTime          == argTime);
+
+        ASSERT( linkedCharArray     == argCharArray);
+        ASSERT( linkedIntArray      == argIntArray);
+        ASSERT( linkedInt64Array    == argInt64Array);
+        ASSERT( linkedDoubleArray   == argDoubleArray);
+        ASSERT( linkedStringArray   == argStringArray);
+        ASSERT( linkedDatetimeArray == argDatetimeArray);
+        ASSERT( linkedDateArray     == argDateArray);
+        ASSERT( linkedTimeArray     == argTimeArray);
+
+        if (verbose) cout << "Testing invalid specs." << endl;
+
+#ifdef BDE_BUILD_TARGET_EXC
+        bsls::Assert::setFailureHandler(&u::throwInvalidSpec);
+
+        static const struct {
+            int         d_line;
+            int         d_numSpecs;
+            OptionInfo  d_specTable[MAX_SPEC_SIZE];
+            const char *d_message_p;
+        } DATA[] = {
+#define NL "\n"
+            { L_, 1, {
+                          {
+                              "a|aLong",                       // tag-option
+                              "Name_a",                        // name
+                              "Description_a",                 // description
+                              TypeInfo(&oLinkedInt),
+                              OccurrenceInfo::e_REQUIRED
+                          }  // optional link and "required".
+                      }
+            , "Link to 'bsl::optional' object disallowed "
+              "for option configured as \"required\"."                       NL
+              "1st option."                                                  NL
+            }
+          , { L_, 1, {
+                          {
+                              "a|aLong",                       // tag-option
+                              "Name_a",                        // name
+                              "Description_a",                 // description
+                              TypeInfo(&oLinkedString),
+                              OccurrenceInfo(bsl::string("default-string"))
+                          }  // optional link and default value
+                      }
+            , "Link to 'bsl::optional' object disallowed "
+              "for option having a configured default value."                NL
+              "1st option."                                                  NL
+            }
+#undef NL
+        };
+
+        bsl::size_t NUM_DATA = sizeof DATA/ sizeof *DATA;
+
+        for (bsl::size_t ti = 0; ti < NUM_DATA; ++ti) {
+
+            const int                LINE     = DATA[ti].d_line;
+            const int                NUM_SPEC = DATA[ti].d_numSpecs;
+            const OptionInfo * const SPEC     = DATA[ti].d_specTable;
+            const char       * const MSG      = DATA[ti].d_message_p;
+
+            ASSERTV(LINE, NUM_SPEC <= MAX_SPEC_SIZE);
+
+            if (veryVerbose) {
+                T_ P_(LINE) P(NUM_SPECS)
+                if (0 < NUM_SPEC) { T_ T_ P(SPEC[0]) }
+                if (1 < NUM_SPEC) { T_ T_ P(SPEC[1]) }
+                if (2 < NUM_SPEC) { T_ T_ P(SPEC[2]) }
+                if (3 < NUM_SPEC) { T_ T_ P(SPEC[3]) }
+            }
+
+            bsl::stringstream ossValidate;
+
+            ASSERTV(LINE,
+                    false == Obj::isValidOptionSpecificationTable(
+                                                                 SPEC,
+                                                                 NUM_SPEC,
+                                                                 ossValidate));
+            ASSERTV(LINE,
+                    false == Obj::isValidOptionSpecificationTable(SPEC,
+                                                                  NUM_SPEC));
+            ASSERTV(LINE,
+                    MSG,   ossValidate.str(),
+                    MSG == ossValidate.str());
+
+            bsl::stringstream oss;
+            bool              exceptionCaught = false;
+
+            try {
+                Obj mX(SPEC, NUM_SPEC, oss);
+            }
+            catch (const u::InvalidSpec& e) {
+                if (veryVerbose) { T_ T_ P(oss.str()) }
+                exceptionCaught = true;
+            }
+
+            ASSERTV(LINE, exceptionCaught);
+            ASSERTV(LINE, ossValidate.str() == oss.str());
+        }
+#else
+        if (verbose) cout
+                      << endl
+                      << "===========================================" << endl
+                      << "Skipping Test: invalid optional link specs." << endl
+                      << "===========================================" << endl;
+
+#endif // BDE_BUILD_TARGET_EXC
+
       } break;
       case 18: {
         // --------------------------------------------------------------------
@@ -3813,7 +4337,7 @@ int main(int argc, const char *argv[])  {
                               u::createOccurrenceInfo(
                                                     OccurrenceInfo::e_OPTIONAL,
                                                     Ot::e_INT,  // type 'int'
-                                                    &defaultInt)
+                                                    &valueInt)
                           }  // Type of default value does not match type info.
                       }
 
@@ -3829,11 +4353,12 @@ int main(int argc, const char *argv[])  {
                               "Some description",                // description
                               u::createTypeInfo(Ot::e_INT,
                                                 0,        // no linked variable
+                                                false,    // so not 'optional'
                                                 &testIntConstraint),
                               u::createOccurrenceInfo(
                                                     OccurrenceInfo::e_OPTIONAL,
                                                     Ot::e_INT,  // type 'int'
-                                                    &defaultInt)
+                                                    &valueInt)
                           }  // The default value does not meet constraint.
                       }
             , "Constraint Functor: error message."                           NL
@@ -3911,7 +4436,7 @@ int main(int argc, const char *argv[])  {
                               u::createOccurrenceInfo(           // *optional*
                                                     OccurrenceInfo::e_OPTIONAL,
                                                     Ot::e_INT,
-                                                    &defaultInt)
+                                                    &valueInt)
                           },
                           {
                               "",                                // non-option
@@ -4405,13 +4930,13 @@ int main(int argc, const char *argv[])  {
 
 #define CASE(ENUM, ALIAS)                                                     \
     case ENUM: {                                                              \
-      ASSERT(default##ALIAS ==  Z.the##ALIAS(name));                          \
-      ASSERT(default##ALIAS == OH.the##ALIAS(namS));                          \
+      ASSERT(value##ALIAS ==  Z.the##ALIAS(name));                            \
+      ASSERT(value##ALIAS == OH.the##ALIAS(namS));                            \
                                                                               \
       typedef Ot::EnumToType<ENUM>::type VT;                                  \
-      ASSERT(default##ALIAS ==  OH            .the<VT>(namS));                \
-      ASSERT(default##ALIAS ==  OH.value(j)   .the<VT>());                    \
-      ASSERT(default##ALIAS ==  OH.value(namS).the<VT>());                    \
+      ASSERT(value##ALIAS ==  OH            .the<VT>(namS));                  \
+      ASSERT(value##ALIAS ==  OH.value(j)   .the<VT>());                      \
+      ASSERT(value##ALIAS ==  OH.value(namS).the<VT>());                      \
                                                                               \
       typeTally[ENUM] += 1;                                                   \
     }; break;                                                                 \
@@ -4504,7 +5029,7 @@ int main(int argc, const char *argv[])  {
                              ,        "name"#ALIAS                            \
                              , "description"#ALIAS                            \
                              , TypeInfo(Ot::k_##TYPE)                         \
-                             , OccurrenceInfo(default##ALIAS)                 \
+                             , OccurrenceInfo(value##ALIAS)                   \
                              }                                                \
 
             const OptionInfo TABLE[] = {
@@ -6996,7 +7521,7 @@ int main(int argc, const char *argv[])  {
         //: 5 No memory allocation occurs as a result of comparison (e.g., the
         //:   arguments are not passed by value).
         //:
-        //: 6 An 'bacl::CommandLine' object in a unparsed state does not
+        //: 6 An 'balcl::CommandLine' object in a unparsed state does not
         //:   compare equal to any other, not even itself.
         //:
         //: 7 Comparisons between option handles match those of the (parsed)

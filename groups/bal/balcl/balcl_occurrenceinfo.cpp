@@ -198,9 +198,9 @@ OccurrenceInfo& OccurrenceInfo::operator=(const OccurrenceInfo& rhs)
 void OccurrenceInfo::setDefaultValue(const OptionValue& defaultValue)
 {
     BSLS_ASSERT(!d_isRequired);
-    BSLS_ASSERT(OptionType::e_VOID != defaultValue.type()
-             && OptionType::e_BOOL != defaultValue.type()
-             && false              == defaultValue.isNull());
+    BSLS_ASSERT(OptionType::e_VOID != defaultValue.type());
+    BSLS_ASSERT(OptionType::e_BOOL != defaultValue.type());
+    BSLS_ASSERT(false              == defaultValue.isNull());
 
     d_defaultValue = defaultValue;
 }

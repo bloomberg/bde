@@ -25,6 +25,7 @@
 #include <bslma_testallocatormonitor.h>
 #include <bslma_usesbslmaallocator.h>
 
+#include <bslmf_allocatorargt.h> // 'bsl::allocator_arg'
 #include <bslmf_assert.h>
 
 #include <bsls_asserttest.h>
@@ -35,6 +36,7 @@
 #include <bsl_cstring.h>     // 'bsl::strcmp', 'bsl::strchr', 'bsl::strlen'
 #include <bsl_functional.h>
 #include <bsl_iostream.h>
+#include <bsl_optional.h>
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>      // 'bslstl::StringRef'
@@ -93,9 +95,8 @@ using namespace bsl;
 //:   o A helper function, 'u::createOccurrenceInfo', is defined to create test
 //:     arguments from table entries.
 //:
-//: 6 'OPTION_DEFAULT_VALUES': an entry for each of the allowed option types
-//:   and the address of a value of that type to be used as a default option
-//:   value.
+//: 6 'OPTION_VALUES': an entry for each of the allowed option types and the
+//:   address of a value of that type to be used as a default option value.
 //:
 //:   o None of these "default" values correspond to the default value of their
 //:     respective types.
@@ -103,14 +104,12 @@ using namespace bsl;
 //:   o The value chosen for 'Ot::e_STRING' is sufficiently long to exceed the
 //:     short-string optimization.
 //:
-//:   o A helper function, 'u::setOptionValue', is provided to convert the
-//:     "value" field of 'OPTION_DEFAULT_VALUES' into an argument for the
-//:     'setDefaultValue' method.
+//:   o A helper function, 'u::getSomeOptionValue', is provided to return the
+//:     address (a 'void *') of the value for a specified option type.
 //:
-//:   o The entries of 'OPTION_DEFAULT_VALUES' are ordered so that we can
-//:     assert 'OPTION_TYPEINFO[l].d_type == OPTION_DEFAULT_VALUES[n].d_type'
-//:     where 'n = l % NUM_OPTION_DEFAULT_VALUES' for
-//:     '0 <= l < NUM_OPTION_TYPEINFO'.
+//:   o A helper function, 'u::setOptionValue', is provided to convert the
+//:     "value" field of 'OPTION_VALUES' into an argument for the
+//:     'setDefaultValue' method.
 //
 // ----------------------------------------------------------------------------
 // CREATORS
@@ -308,6 +307,15 @@ bsl::vector<bdlt::Datetime> linkedDatetimeArray(GA);
 bsl::vector<bdlt::Date>     linkedDateArray    (GA);
 bsl::vector<bdlt::Time>     linkedTimeArray    (GA);
 
+bsl::optional<char>           oLinkedChar;
+bsl::optional<int>            oLinkedInt;
+bsl::optional<Int64>          oLinkedInt64;
+bsl::optional<double>         oLinkedDouble;
+bsl::optional<bsl::string>    oLinkedString(bsl::allocator_arg, GA);
+bsl::optional<bdlt::Datetime> oLinkedDatetime;
+bsl::optional<bdlt::Date>     oLinkedDate;
+bsl::optional<bdlt::Time>     oLinkedTime;
+
 #undef GA
 
                         // =====================
@@ -416,74 +424,90 @@ const struct {
     void     *d_linkedVariable_p;  // linked variable attribute(s)
     void     *d_constraint_p;      // linked variable attribute(s)
 } OPTION_TYPEINFO[] = {
-   { L_, Ot::e_BOOL,           0,                    0                      }
- , { L_, Ot::e_CHAR,           0,                    0                      }
- , { L_, Ot::e_INT,            0,                    0                      }
- , { L_, Ot::e_INT64,          0,                    0                      }
- , { L_, Ot::e_DOUBLE,         0,                    0                      }
- , { L_, Ot::e_STRING,         0,                    0                      }
- , { L_, Ot::e_DATETIME,       0,                    0                      }
- , { L_, Ot::e_DATE,           0,                    0                      }
- , { L_, Ot::e_TIME,           0,                    0                      }
- , { L_, Ot::e_CHAR_ARRAY,     0,                    0                      }
- , { L_, Ot::e_INT_ARRAY,      0,                    0                      }
- , { L_, Ot::e_INT64_ARRAY,    0,                    0                      }
- , { L_, Ot::e_DOUBLE_ARRAY,   0,                    0                      }
- , { L_, Ot::e_STRING_ARRAY,   0,                    0                      }
- , { L_, Ot::e_DATETIME_ARRAY, 0,                    0                      }
- , { L_, Ot::e_DATE_ARRAY,     0,                    0                      }
- , { L_, Ot::e_TIME_ARRAY,     0,                    0                      }
- , { L_, Ot::e_BOOL,           &linkedBool,          0                      }
- , { L_, Ot::e_CHAR,           &linkedChar,          0                      }
- , { L_, Ot::e_INT,            &linkedInt,           0                      }
- , { L_, Ot::e_INT64,          &linkedInt64,         0                      }
- , { L_, Ot::e_DOUBLE,         &linkedDouble,        0                      }
- , { L_, Ot::e_STRING,         &linkedString,        0                      }
- , { L_, Ot::e_DATETIME,       &linkedDatetime,      0                      }
- , { L_, Ot::e_DATE,           &linkedDate,          0                      }
- , { L_, Ot::e_TIME,           &linkedTime,          0                      }
- , { L_, Ot::e_CHAR_ARRAY,     &linkedCharArray,     0                      }
- , { L_, Ot::e_INT_ARRAY,      &linkedIntArray,      0                      }
- , { L_, Ot::e_INT64_ARRAY,    &linkedInt64Array,    0                      }
- , { L_, Ot::e_DOUBLE_ARRAY,   &linkedDoubleArray,   0                      }
- , { L_, Ot::e_STRING_ARRAY,   &linkedStringArray,   0                      }
- , { L_, Ot::e_DATETIME_ARRAY, &linkedDatetimeArray, 0                      }
- , { L_, Ot::e_DATE_ARRAY,     &linkedDateArray,     0                      }
- , { L_, Ot::e_TIME_ARRAY,     &linkedTimeArray,     0                      }
- , { L_, Ot::e_BOOL,           0,                    0 /*cannot constrain */}
- , { L_, Ot::e_CHAR,           0,                    &testCharConstraint    }
- , { L_, Ot::e_INT,            0,                    &testIntConstraint     }
- , { L_, Ot::e_INT64,          0,                    &testInt64Constraint   }
- , { L_, Ot::e_DOUBLE,         0,                    &testDoubleConstraint  }
- , { L_, Ot::e_STRING,         0,                    &testStringConstraint  }
- , { L_, Ot::e_DATETIME,       0,                    &testDatetimeConstraint}
- , { L_, Ot::e_DATE,           0,                    &testDateConstraint    }
- , { L_, Ot::e_TIME,           0,                    &testTimeConstraint    }
- , { L_, Ot::e_CHAR_ARRAY,     0,                    &testCharConstraint    }
- , { L_, Ot::e_INT_ARRAY,      0,                    &testIntConstraint     }
- , { L_, Ot::e_INT64_ARRAY,    0,                    &testInt64Constraint   }
- , { L_, Ot::e_DOUBLE_ARRAY,   0,                    &testDoubleConstraint  }
- , { L_, Ot::e_STRING_ARRAY,   0,                    &testStringConstraint  }
- , { L_, Ot::e_DATETIME_ARRAY, 0,                    &testDatetimeConstraint}
- , { L_, Ot::e_DATE_ARRAY,     0,                    &testDateConstraint    }
- , { L_, Ot::e_TIME_ARRAY,     0,                    &testTimeConstraint    }
- , { L_, Ot::e_BOOL,           &linkedBool,          0                      }
- , { L_, Ot::e_CHAR,           &linkedChar,          &testCharConstraint    }
- , { L_, Ot::e_INT,            &linkedInt,           &testIntConstraint     }
- , { L_, Ot::e_INT64,          &linkedInt64,         &testInt64Constraint   }
- , { L_, Ot::e_DOUBLE,         &linkedDouble,        &testDoubleConstraint  }
- , { L_, Ot::e_STRING,         &linkedString,        &testStringConstraint  }
- , { L_, Ot::e_DATETIME,       &linkedDatetime,      &testDatetimeConstraint}
- , { L_, Ot::e_DATE,           &linkedDate,          &testDateConstraint    }
- , { L_, Ot::e_TIME,           &linkedTime,          &testTimeConstraint    }
- , { L_, Ot::e_CHAR_ARRAY,     &linkedCharArray,     &testCharConstraint    }
- , { L_, Ot::e_INT_ARRAY,      &linkedIntArray,      &testIntConstraint     }
- , { L_, Ot::e_INT64_ARRAY,    &linkedInt64Array,    &testInt64Constraint   }
- , { L_, Ot::e_DOUBLE_ARRAY,   &linkedDoubleArray,   &testDoubleConstraint  }
- , { L_, Ot::e_STRING_ARRAY,   &linkedStringArray,   &testStringConstraint  }
- , { L_, Ot::e_DATETIME_ARRAY, &linkedDatetimeArray, &testDatetimeConstraint}
- , { L_, Ot::e_DATE_ARRAY,     &linkedDateArray,     &testDateConstraint    }
- , { L_, Ot::e_TIME_ARRAY,     &linkedTimeArray,     &testTimeConstraint    }
+   { L_, Ot::e_BOOL,           0,                    0                       }
+ , { L_, Ot::e_CHAR,           0,                    0                       }
+ , { L_, Ot::e_INT,            0,                    0                       }
+ , { L_, Ot::e_INT64,          0,                    0                       }
+ , { L_, Ot::e_DOUBLE,         0,                    0                       }
+ , { L_, Ot::e_STRING,         0,                    0                       }
+ , { L_, Ot::e_DATETIME,       0,                    0                       }
+ , { L_, Ot::e_DATE,           0,                    0                       }
+ , { L_, Ot::e_TIME,           0,                    0                       }
+ , { L_, Ot::e_CHAR_ARRAY,     0,                    0                       }
+ , { L_, Ot::e_INT_ARRAY,      0,                    0                       }
+ , { L_, Ot::e_INT64_ARRAY,    0,                    0                       }
+ , { L_, Ot::e_DOUBLE_ARRAY,   0,                    0                       }
+ , { L_, Ot::e_STRING_ARRAY,   0,                    0                       }
+ , { L_, Ot::e_DATETIME_ARRAY, 0,                    0                       }
+ , { L_, Ot::e_DATE_ARRAY,     0,                    0                       }
+ , { L_, Ot::e_TIME_ARRAY,     0,                    0                       }
+ , { L_, Ot::e_BOOL,           &linkedBool,          0                       }
+ , { L_, Ot::e_CHAR,           &linkedChar,          0                       }
+ , { L_, Ot::e_INT,            &linkedInt,           0                       }
+ , { L_, Ot::e_INT64,          &linkedInt64,         0                       }
+ , { L_, Ot::e_DOUBLE,         &linkedDouble,        0                       }
+ , { L_, Ot::e_STRING,         &linkedString,        0                       }
+ , { L_, Ot::e_DATETIME,       &linkedDatetime,      0                       }
+ , { L_, Ot::e_DATE,           &linkedDate,          0                       }
+ , { L_, Ot::e_TIME,           &linkedTime,          0                       }
+ , { L_, Ot::e_CHAR_ARRAY,     &linkedCharArray,     0                       }
+ , { L_, Ot::e_INT_ARRAY,      &linkedIntArray,      0                       }
+ , { L_, Ot::e_INT64_ARRAY,    &linkedInt64Array,    0                       }
+ , { L_, Ot::e_DOUBLE_ARRAY,   &linkedDoubleArray,   0                       }
+ , { L_, Ot::e_STRING_ARRAY,   &linkedStringArray,   0                       }
+ , { L_, Ot::e_DATETIME_ARRAY, &linkedDatetimeArray, 0                       }
+ , { L_, Ot::e_DATE_ARRAY,     &linkedDateArray,     0                       }
+ , { L_, Ot::e_TIME_ARRAY,     &linkedTimeArray,     0                       }
+ , { L_, Ot::e_CHAR,           &oLinkedChar,         0                       }
+ , { L_, Ot::e_INT,            &oLinkedInt,          0                       }
+ , { L_, Ot::e_INT64,          &oLinkedInt64,        0                       }
+ , { L_, Ot::e_DOUBLE,         &oLinkedDouble,       0                       }
+ , { L_, Ot::e_STRING,         &oLinkedString,       0                       }
+ , { L_, Ot::e_DATETIME,       &oLinkedDatetime,     0                       }
+ , { L_, Ot::e_DATE,           &oLinkedDate,         0                       }
+ , { L_, Ot::e_TIME,           &oLinkedTime,         0                       }
+ , { L_, Ot::e_BOOL,           0,                    0                       }
+ , { L_, Ot::e_CHAR,           0,                    &testCharConstraint     }
+ , { L_, Ot::e_INT,            0,                    &testIntConstraint      }
+ , { L_, Ot::e_INT64,          0,                    &testInt64Constraint    }
+ , { L_, Ot::e_DOUBLE,         0,                    &testDoubleConstraint   }
+ , { L_, Ot::e_STRING,         0,                    &testStringConstraint   }
+ , { L_, Ot::e_DATETIME,       0,                    &testDatetimeConstraint }
+ , { L_, Ot::e_DATE,           0,                    &testDateConstraint     }
+ , { L_, Ot::e_TIME,           0,                    &testTimeConstraint     }
+ , { L_, Ot::e_CHAR_ARRAY,     0,                    &testCharConstraint     }
+ , { L_, Ot::e_INT_ARRAY,      0,                    &testIntConstraint      }
+ , { L_, Ot::e_INT64_ARRAY,    0,                    &testInt64Constraint    }
+ , { L_, Ot::e_DOUBLE_ARRAY,   0,                    &testDoubleConstraint   }
+ , { L_, Ot::e_STRING_ARRAY,   0,                    &testStringConstraint   }
+ , { L_, Ot::e_DATETIME_ARRAY, 0,                    &testDatetimeConstraint }
+ , { L_, Ot::e_DATE_ARRAY,     0,                    &testDateConstraint     }
+ , { L_, Ot::e_TIME_ARRAY,     0,                    &testTimeConstraint     }
+ , { L_, Ot::e_BOOL,           &linkedBool,          0                       }
+ , { L_, Ot::e_CHAR,           &linkedChar,          &testCharConstraint     }
+ , { L_, Ot::e_INT,            &linkedInt,           &testIntConstraint      }
+ , { L_, Ot::e_INT64,          &linkedInt64,         &testInt64Constraint    }
+ , { L_, Ot::e_DOUBLE,         &linkedDouble,        &testDoubleConstraint   }
+ , { L_, Ot::e_STRING,         &linkedString,        &testStringConstraint   }
+ , { L_, Ot::e_DATETIME,       &linkedDatetime,      &testDatetimeConstraint }
+ , { L_, Ot::e_DATE,           &linkedDate,          &testDateConstraint     }
+ , { L_, Ot::e_TIME,           &linkedTime,          &testTimeConstraint     }
+ , { L_, Ot::e_CHAR_ARRAY,     &linkedCharArray,     &testCharConstraint     }
+ , { L_, Ot::e_INT_ARRAY,      &linkedIntArray,      &testIntConstraint      }
+ , { L_, Ot::e_INT64_ARRAY,    &linkedInt64Array,    &testInt64Constraint    }
+ , { L_, Ot::e_DOUBLE_ARRAY,   &linkedDoubleArray,   &testDoubleConstraint   }
+ , { L_, Ot::e_STRING_ARRAY,   &linkedStringArray,   &testStringConstraint   }
+ , { L_, Ot::e_DATETIME_ARRAY, &linkedDatetimeArray, &testDatetimeConstraint }
+ , { L_, Ot::e_DATE_ARRAY,     &linkedDateArray,     &testDateConstraint     }
+ , { L_, Ot::e_TIME_ARRAY,     &linkedTimeArray,     &testTimeConstraint     }
+ , { L_, Ot::e_CHAR,           &oLinkedChar,         &testCharConstraint     }
+ , { L_, Ot::e_INT,            &oLinkedInt,          &testIntConstraint      }
+ , { L_, Ot::e_INT64,          &oLinkedInt64,        &testInt64Constraint    }
+ , { L_, Ot::e_DOUBLE,         &oLinkedDouble,       &testDoubleConstraint   }
+ , { L_, Ot::e_STRING,         &oLinkedString,       &testStringConstraint   }
+ , { L_, Ot::e_DATETIME,       &oLinkedDatetime,     &testDatetimeConstraint }
+ , { L_, Ot::e_DATE,           &oLinkedDate,         &testDateConstraint     }
+ , { L_, Ot::e_TIME,           &oLinkedTime,         &testTimeConstraint     }
 };
 enum { NUM_OPTION_TYPEINFO = sizeof  OPTION_TYPEINFO
                            / sizeof *OPTION_TYPEINFO };
@@ -504,55 +528,51 @@ BSLMF_ASSERT(sizeof SUFFICIENTLY_LONG_STRING > sizeof(bsl::string));
 
 #define GA bslma::Default::globalAllocator()
 
-bool                        defaultBool          = false;
-char                        defaultChar          = 'D';
-short                       defaultShort         = 1234;
-int                         defaultInt           = 1234567;
-Int64                       defaultInt64         = 123456789LL;
-float                       defaultFloat         = 0.125;     // 1/8
-double                      defaultDouble        = 0.015625;  // 1/64
-bsl::string                 defaultString(SUFFICIENTLY_LONG_STRING,  GA);
-bdlt::Datetime              defaultDatetime(1234, 12, 3, 4, 5, 6);
-bdlt::Date                  defaultDate(1234, 4, 6);
-bdlt::Time                  defaultTime(7, 8, 9, 10);
-bsl::vector<char>           defaultCharArray    (1, defaultChar,     GA);
-bsl::vector<short>          defaultShortArray   (1, defaultShort,    GA);
-bsl::vector<int>            defaultIntArray     (1, defaultInt,      GA);
-bsl::vector<Int64>          defaultInt64Array   (1, defaultInt64,    GA);
-bsl::vector<float>          defaultFloatArray   (1, defaultFloat,    GA);
-bsl::vector<double>         defaultDoubleArray  (1, defaultDouble,   GA);
-bsl::vector<bsl::string>    defaultStringArray  (1, defaultString,   GA);
-bsl::vector<bdlt::Datetime> defaultDatetimeArray(1, defaultDatetime, GA);
-bsl::vector<bdlt::Date>     defaultDateArray    (1, defaultDate,     GA);
-bsl::vector<bdlt::Time>     defaultTimeArray    (1, defaultTime,     GA);
+bool                        valueBool          = true;
+char                        valueChar          = 'D';
+int                         valueInt           = 1234567;
+Int64                       valueInt64         = 123456789LL;
+double                      valueDouble        = 0.015625;  // 1/64
+bsl::string                 valueString(SUFFICIENTLY_LONG_STRING,  GA);
+bdlt::Datetime              valueDatetime(1234, 12, 3, 4, 5, 6);
+bdlt::Date                  valueDate(1234, 4, 6);
+bdlt::Time                  valueTime(7, 8, 9, 10);
+bsl::vector<char>           valueCharArray    (1, valueChar,     GA);
+bsl::vector<int>            valueIntArray     (1, valueInt,      GA);
+bsl::vector<Int64>          valueInt64Array   (1, valueInt64,    GA);
+bsl::vector<double>         valueDoubleArray  (1, valueDouble,   GA);
+bsl::vector<bsl::string>    valueStringArray  (1, valueString,   GA);
+bsl::vector<bdlt::Datetime> valueDatetimeArray(1, valueDatetime, GA);
+bsl::vector<bdlt::Date>     valueDateArray    (1, valueDate,     GA);
+bsl::vector<bdlt::Time>     valueTimeArray    (1, valueTime,     GA);
 
 #undef GA
 
 static const struct {
-    int             d_line;   // line number
-    ElemType        d_type;   // option type
-    const void     *d_value_p;  // default value attribute(s)
-} OPTION_DEFAULT_VALUES[] = {
-    { L_, Ot::e_BOOL,            0                     }
-  , { L_, Ot::e_CHAR,            &defaultChar          }
-  , { L_, Ot::e_INT,             &defaultInt           }
-  , { L_, Ot::e_INT64,           &defaultInt64         }
-  , { L_, Ot::e_DOUBLE,          &defaultDouble        }
-  , { L_, Ot::e_STRING,          &defaultString        }
-  , { L_, Ot::e_DATETIME,        &defaultDatetime      }
-  , { L_, Ot::e_DATE,            &defaultDate          }
-  , { L_, Ot::e_TIME,            &defaultTime          }
-  , { L_, Ot::e_CHAR_ARRAY,      &defaultCharArray     }
-  , { L_, Ot::e_INT_ARRAY,       &defaultIntArray      }
-  , { L_, Ot::e_INT64_ARRAY,     &defaultInt64Array    }
-  , { L_, Ot::e_DOUBLE_ARRAY,    &defaultDoubleArray   }
-  , { L_, Ot::e_STRING_ARRAY,    &defaultStringArray   }
-  , { L_, Ot::e_DATETIME_ARRAY,  &defaultDatetimeArray }
-  , { L_, Ot::e_DATE_ARRAY,      &defaultDateArray     }
-  , { L_, Ot::e_TIME_ARRAY,      &defaultTimeArray     }
+    int             d_line;     // line number
+    ElemType        d_type;     // option type
+    const void     *d_value_p;  // value attribute(s)
+} OPTION_VALUES[] = {
+    { L_, Ot::e_BOOL,            &valueBool          }
+  , { L_, Ot::e_CHAR,            &valueChar          }
+  , { L_, Ot::e_INT,             &valueInt           }
+  , { L_, Ot::e_INT64,           &valueInt64         }
+  , { L_, Ot::e_DOUBLE,          &valueDouble        }
+  , { L_, Ot::e_STRING,          &valueString        }
+  , { L_, Ot::e_DATETIME,        &valueDatetime      }
+  , { L_, Ot::e_DATE,            &valueDate          }
+  , { L_, Ot::e_TIME,            &valueTime          }
+  , { L_, Ot::e_CHAR_ARRAY,      &valueCharArray     }
+  , { L_, Ot::e_INT_ARRAY,       &valueIntArray      }
+  , { L_, Ot::e_INT64_ARRAY,     &valueInt64Array    }
+  , { L_, Ot::e_DOUBLE_ARRAY,    &valueDoubleArray   }
+  , { L_, Ot::e_STRING_ARRAY,    &valueStringArray   }
+  , { L_, Ot::e_DATETIME_ARRAY,  &valueDatetimeArray }
+  , { L_, Ot::e_DATE_ARRAY,      &valueDateArray     }
+  , { L_, Ot::e_TIME_ARRAY,      &valueTimeArray     }
 };
-enum { NUM_OPTION_DEFAULT_VALUES = sizeof  OPTION_DEFAULT_VALUES
-                                 / sizeof *OPTION_DEFAULT_VALUES };
+enum { NUM_OPTION_VALUES = sizeof  OPTION_VALUES
+                                 / sizeof *OPTION_VALUES };
 
 #define GA bslma::Default::globalAllocator()
 
@@ -1317,7 +1337,7 @@ OccurrenceInfo createOccurrenceInfo(OccurType   occurrenceType,
 
     OccurrenceInfo result(occurrenceType);
 
-    if (occurrenceType != OccurrenceInfo::e_REQUIRED && variable) {
+    if (occurrenceType != OccurrenceInfo::e_REQUIRED && type != Ot::e_BOOL) {
         OptionValue defaultValue(type);
         setOptionValue(&defaultValue, variable, type);
 
@@ -1768,6 +1788,18 @@ OptionInfo::ArgType argType(const Obj& obj)
     }
 
     return OptionInfo::e_OPTION;
+}
+
+const void *getSomeOptionValue(ElemType type)
+    // Return the address of the element in 'OPTION_VALUES' having the
+    // specified 'type' and 0 if no such element is found.
+{
+    for (bsl::size_t i = 0; i < NUM_OPTION_VALUES; ++i) {
+        if (OPTION_VALUES[i].d_type == type) {
+            return OPTION_VALUES[i].d_value_p;                        // RETURN
+        }
+    }
+    return 0;
 }
 
 }  // close namespace u
@@ -2444,10 +2476,6 @@ int main(int argc, const char *argv[])  {
         for (int l = 0; l < NUM_OPTION_TYPEINFO;     ++l) {
         for (int m = 0; m < NUM_OPTION_OCCURRENCES;  ++m) {
 
-            const int n = l % NUM_OPTION_DEFAULT_VALUES;
-            ASSERT(OPTION_DEFAULT_VALUES[n].d_type
-                   ==    OPTION_TYPEINFO[l].d_type);
-
             const int       LINE1      = OPTION_TAGS[i].d_line;
             const char     *TAG        = OPTION_TAGS[i].d_tag_p;
 
@@ -2466,7 +2494,7 @@ int main(int argc, const char *argv[])  {
             const int       LINE5      = OPTION_OCCURRENCES[m].d_line;
             const OccurType OTYPE      = OPTION_OCCURRENCES[m].d_type;
 
-            const void     *DEFAULT_VALUE = OPTION_DEFAULT_VALUES[n].d_value_p;
+            const void     *DEFAULT_VALUE = u::getSomeOptionValue(TYPE);
 
             const TypeInfo       TYPEINFO        = u::createTypeInfo(
                                                                    TYPE,
@@ -2891,10 +2919,6 @@ int main(int argc, const char *argv[])  {
         for (int l = 0; l < NUM_OPTION_TYPEINFO;     ++l) {
         for (int m = 0; m < NUM_OPTION_OCCURRENCES;  ++m) {
 
-            const int n = l % NUM_OPTION_DEFAULT_VALUES;
-            ASSERT(OPTION_DEFAULT_VALUES[n].d_type
-                   ==    OPTION_TYPEINFO[l].d_type);
-
             const int       LINE1      = OPTION_TAGS[i].d_line;
             const char     *TAG        = OPTION_TAGS[i].d_tag_p;
 
@@ -2913,7 +2937,7 @@ int main(int argc, const char *argv[])  {
             const int       LINE5      = OPTION_OCCURRENCES[m].d_line;
             const OccurType OTYPE      = OPTION_OCCURRENCES[m].d_type;
 
-            const void     *DEFAULT_VALUE = OPTION_DEFAULT_VALUES[n].d_value_p;
+            const void     *DEFAULT_VALUE = u::getSomeOptionValue(TYPE);
 
             const TypeInfo       TYPEINFO        = u::createTypeInfo(
                                                                    TYPE,
@@ -3086,10 +3110,6 @@ int main(int argc, const char *argv[])  {
         for (int l = 0; l < NUM_OPTION_TYPEINFO;     ++l) {
         for (int m = 0; m < NUM_OPTION_OCCURRENCES;  ++m) {
 
-            const int n = l % NUM_OPTION_DEFAULT_VALUES;
-            ASSERT(OPTION_DEFAULT_VALUES[n].d_type
-                   ==    OPTION_TYPEINFO[l].d_type);
-
             const int       LINE1      = OPTION_TAGS[i].d_line;
             const char     *TAG        = OPTION_TAGS[i].d_tag_p;
 
@@ -3108,7 +3128,7 @@ int main(int argc, const char *argv[])  {
             const int       LINE5      = OPTION_OCCURRENCES[m].d_line;
             const OccurType OTYPE      = OPTION_OCCURRENCES[m].d_type;
 
-            const void     *DEFAULT_VALUE = OPTION_DEFAULT_VALUES[n].d_value_p;
+            const void     *DEFAULT_VALUE = u::getSomeOptionValue(TYPE);
 
             const TypeInfo       TYPEINFO        = u::createTypeInfo(
                                                                    TYPE,
