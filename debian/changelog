@@ -1,5 +1,23 @@
-bsl-internal (3.89.0.0) unstable; urgency=low
+bsl-internal (3.90.0.0) unstable; urgency=low
 
+  * 93605b383 Bumped version to 3.90.0.0
+  * bc7513919 Merge pull request #3411 from bde/INTEGRATION-drqs-167113122-shortest-round-trip-xml-json-floating-point-encoding
+  * 3b2ae0071 drqs-153900553: 'balcl': Support 'bsl::optional' linked variables. (#3390)
+  * 91f988f67 Eliminate use of back_insert_iterator in baljsn::ParserUtil (#3408)
+  * b229294fa Revert to FileDescriptor being void*. (#3407)
+  * f3c7b2644 fix intorduced compile error on MacOS (#3406)
+  * 8f629f76f add new type_trait 'is_allocator' for use in new code (#3375)
+  * be51eb95b Update bdls for BDE 4.0 (#3241)
+  * 08f490648 changed files from old patch (#3404)
+  * fb3b47a79 correcting data race on 'd_owner' and some whitespace issues (#3400)
+  * 58175d5ce Remove deprecated, unused method in ReaderWriterLock. (#3397)
+  * 6ff92ffdc Add missing allocator trait. (#3398)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 17 Sep 2021 17:03:09 -0400
+
+bsl-internal (3.89.0.0) git; urgency=low
+
+  * da884973c Changelog for version 3.89.0.0
   * d5f1f3c24 Bumped version to 3.89.0.0
   * 75b841a5e bdlc_flathashtable: Address {DRQS 167125039} (#3394)
   * 10aff94a1 Implement the view/str functionality from P0408 (#3374)
@@ -15,7 +33,7 @@ bsl-internal (3.89.0.0) unstable; urgency=low
   * 07cbe6595 Stop bsl_type_traits.h show error on cpp03 (#3369)
   * c3f736da4 Contract of allocate shared vs allocate managed (DRQS 166899748) (#3373)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 3 Sep 2021 11:04:56 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 3 Sep 2021 11:06:53 -0400
 
 bsl-internal (3.88.0.0) git; urgency=low
 
