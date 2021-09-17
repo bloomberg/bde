@@ -30,7 +30,7 @@ BSLS_IDENT("$Id: $")
 // if their underlying (non-null) 'TYPE' values are the same, or both are null.
 //
 // Note that the object of template parameter 'TYPE' that is managed by a
-// 'bsl:optional<TYPE>' object is created *in*-*place*.  Consequently, the
+// 'bsl::optional<TYPE>' object is created *in*-*place*.  Consequently, the
 // template parameter 'TYPE' must be a complete type when the class is
 // instantiated.
 //

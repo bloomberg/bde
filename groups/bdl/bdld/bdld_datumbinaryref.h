@@ -17,7 +17,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // integral size value.  Note, that 'bdld::DatumBinaryRef' is nether a
 // value-semantic type, nor is it an in-core value-semantic type (see
 // 'bsldoc_glossary').  The 'bdld::DatumBinaryRef' notion of value is expressed
-// by its equality-operator - two 'bdld:DatumBinaryRef' compare equal if the
+// by its equality-operator - two 'bdld::DatumBinaryRef' compare equal if the
 // binary data they refer to is identical (both by size and by content).
 // Accessors inside 'Datum' class that need to return a binary data, return an
 // instance of 'bdld::DatumBinaryRef'.

@@ -10,10 +10,10 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlcc::StripedUnorderedContainerImpl: striped container for key-value types
 //
-//@SEE_ALSO: bdlcc:stripedunorderedmap, bdlcc:stripedunorderedmultimap
+//@SEE_ALSO: bdlcc_stripedunorderedmap, bdlcc_stripedunorderedmultimap
 //
 //@DESCRIPTON: This component provides 'bdlcc::StripedUnorderedContainerImpl',
-// a common implementation for 'bdlcc:StripedUnorderedMap' and
+// a common implementation for 'bdlcc::StripedUnorderedMap' and
 // 'bdlcc::StripedUnorderedMultiMap', that are concurrent (fully thread-safe)
 // associative containers that partition their underlying hash tables into a
 // (user-defined) number of "bucket groups" and control access to each part of

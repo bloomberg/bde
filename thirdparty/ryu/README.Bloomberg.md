@@ -12,7 +12,9 @@ strings using shortest, fixed %f, and scientific %e formatting.
 The original sources are from the https://github.com/ulfjack/ryu repository.
 
 The library is pruned, as the parts of it that aren't fully portable or
-finished have been removed.
+finished have been removed.  A slight change to the original code is that we
+added a `ryu_` prefix to all public symbols to avoid name collisions as C does
+not support namespaces.
 
 Ryu is both an algorithm and a fast library (the original incarnation written
 in C) that converts between textual decimal and IEEE-754 binary single or
@@ -178,7 +180,12 @@ Adding the above files should be considered if and when
   the already supported ones
 * we have a business reason for adding them.
 
-# WHAT IS LEFT TO DO
+## WHAT WAS CHANGED
+
+All public function names have been prefixed with `ryu_` to avoid possible
+name collisions.  So `d2s` becomes `ryu_d2s`.  File names were not changed.
+
+## WHAT IS LEFT TO DO
 
 For the functionality defined in `d2fixed.c` we need to use `cmake` to
 configure the proper configuration macros to make the resulting code the most
@@ -354,9 +361,9 @@ because the "general" format will a similar function to switch between the same
 two formats.  That we plan to name `needs_decimal_notation_g`.
 
 If the value is determined to be written in decimal (fixed) notation and it is
-an integer value (see `is_integer` in this file), we delegate the precise
-printing to `d2fixed_buffered_n` from `d2fixed.c`.  It is a `double`-based
-function, but it works just fine for 'float', only a bit slower.
+an integer value (see `is_integer32` in `blp_common32.h`), we delegate the
+precise printing to `d2fixed_buffered_n` from `d2fixed.c`.  It is a
+`double`-based function, but it works just fine for 'float', only a bit slower.
 
 Finally, we call the new `to_chars_m` function to do the writing of the
 `olength` `v.mantissa` decimal digits, in a format depending on the value of
@@ -396,19 +403,31 @@ as `#include "ryu/blp_ryu.h"`.  We still include `ryu.h` so we can call
 Notice that we have decided not to include the function that uses a `malloc`
 returned buffer like `f2s.c` does.
 
-`is_integer` and the `mantissa_countr_zero` function it calls are thoroughly
-documented in the code.
+`is_integer32`/`is_integer64`, and the
+`mantissa_countr_zero32`/`mantissa_countr_zero64` functions are in the
+`blp_common32.h`/`blp_common64.h` headers respectively so we can test them
+directly by including them into a BDE-style test driver.  Those functions are
+thoroughly documented in their respective files.
 
-When you compare `blp_f2g.c` with `blp_d2g.c` you will notice that it has a
-special function to detect small integers.  Additional code in
-`blp_d2g_buffered` decodes those small integers.  Because `double` has 52
-bits in its significand `blp_d2g.c` uses a 64 bit type for `mantissa` and
-`output` and its `write_digits` function has an additional section that deals
-with printing the top 8 digits of very long values.  Because the decimal
-exponent of `double` values can go up to 3 digits `blp_d2g.c` also has extra
-code for that.
+When you compare `blp_f2g.c` and `blp_d2g.c` (or `f2s.c` with `d2s.c`) you will
+notice extra code in the `double` variants.  Most apparent is a special
+function that detects and decodes so-called small integers.  There is also
+extra code to adjust the exponent/mantissa of those small intehgers.  Because
+`double` has 52 bits in its significand `d2s.c`/`blp_d2g.c` uses a 64 bit type
+for `mantissa` and `output`.  Our `write_decimal_digits`, and `write_mantissa`
+functions have an additional section that deals with printing the top 8 digits
+decimal of those larger values.  Because the decimal exponent of `double`
+values can go up to 3 digits, we also hve has extra code for that in
+`write_scientific`.
 
 # CHANGELOG
 
 2021.07.16 First version.  See BLOOMBERG RYU IN DETAIL.
-2021.08.23 Added scientific and decimal notation support.
+2021.08.23 Added scientific, and decimal notation support.
+2021.08.26 Moved `is_integer`, and `mantissa_countr_zero` functions, as well as
+           the `FLOAT_MANTISSA_BITS`/`DOUBLE_MANTISSA_BITS`,
+           `FLOAT_EXPONENT_BITS`/`DOUBLE_EXPONENT_BITS`, and
+           `FLOAT_BIAS`/`DOUBLE_BIAS` macros to the new
+           `blp_common32.h`/`blp_common64.h` headers.  Also added `32,` and
+           `64` suffix to those function names to avoid name collision when
+           testing.

@@ -4,13 +4,21 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+#include <bslmf_enableif.h>
+
+#include <bsls_buildtarget.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_performancehint.h>
+#include <bsls_platform.h>
 
 #include <algorithm>
 #include <cctype>
+#include <climits>
+#include <cstddef>
 #include <cstring>
+#include <limits>
 
-#include <limits.h>
+#include <ryu/blp_ryu.h>
 
 namespace {
 namespace u {
@@ -53,7 +61,7 @@ BSLMF_ASSERT(sizeof(twoDigitStrings) == 201);
 inline
 char digitToAscii(unsigned digit) BSLS_KEYWORD_NOEXCEPT
     // Translate the specified 'digit' which is a number in the range
-    // '[ 0 .. 36 )' to an ascii char ('0' + digit) for 'digit < 10' and ('a' -
+    // '[ 0 .. 36 )' to an ASCII char ('0' + digit) for 'digit < 10' and ('a' -
     // 10 + digit) for values higher than that.  The behavior is undefined
     // unless 'digit < 36'.
 {
@@ -72,7 +80,7 @@ inline
 char *toCharsBase10Uint32(char           *first,
                           char           *last,
                           unsigned        value) BSLS_KEYWORD_NOEXCEPT
-    // On success, render the specified 'value', in decimal ascii form, to the
+    // On success, render the specified 'value', in decimal ASCII form, to the
     // beginning of the memory specified by '[ first .. last )' and return the
     // address one past the lowest order digit written.  If the range
     // '[ first .. last )' is not large enough to contain the result, fail and
@@ -144,7 +152,7 @@ inline
 char *toCharsBase10Uint64(char          *first,
                           char          *last,
                           Uint64         value) BSLS_KEYWORD_NOEXCEPT
-    // On success, render the specified 'value', in decimal ascii form, to the
+    // On success, render the specified 'value', in decimal ASCII form, to the
     // beginning of the memory specified by '[ first .. last )' and return the
     // address one past the lowest order digit written.  If the range
     // '[ first .. last )' is not large enough to contain the result, fail and
@@ -393,16 +401,273 @@ char *toCharsPowerOf2Base(char          *first,
 
     return first + length;
 }
+                        // =======================
+                        // struct NumDecimalDigits
+                        // =======================
+
+template <int NUMBER, class = void>
+struct NumDecimalDigits {
+    static const size_t value = 1 + NumDecimalDigits<NUMBER / 10>::value;
+};
+
+template <int NUMBER>
+struct NumDecimalDigits<NUMBER, typename bslmf::EnableIf<NUMBER < 10>::type> {
+    static const size_t value = 1;
+};
 
 }  // close namespace u
 }  // close unnamed namespace
 
 namespace BloombergLP {
 namespace bslalg {
-
                         // -----------------------------
                         // struct 'NumericFormatterUtil'
                         // -----------------------------
+
+
+// PPRIVATE CLASS METHODS
+char *NumericFormatterUtil::toCharsDecimal(char   *first,
+                                           char   *last,
+                                           double  value) BSLS_KEYWORD_NOEXCEPT
+{
+    typedef std::numeric_limits<double> lim;
+
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    BSLMF_ASSERT( true == lim::is_specialized); // Ensuring our assumptions
+    BSLMF_ASSERT( true == lim::is_signed);      // about 'double' in case
+    BSLMF_ASSERT(false == lim::is_exact);       // 'max_digits10' is not
+#ifndef BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD     // available
+    // Yet another Sun "anomaly"
+    BSLMF_ASSERT( true == lim::is_iec559);
+#endif
+    BSLMF_ASSERT(    8 == sizeof(double));
+#endif
+
+    BSLS_ASSERT(first <= last);
+
+    static const std::ptrdiff_t k_BUFLEN =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+        lim::max_digits10 +
+#else
+        17 +
+#endif                                                          //   17
+        lim::max_exponent10 +                                   // +308 ==> 325
+        1 + // optional sign character                             +  1 ==> 326
+        1;  // optional radix mark (decimal point)                 +  1 ==> 327
+
+    if (last - first >= k_BUFLEN) {
+        // Surely fits into the output area
+        const int pos = blp_d2d_buffered_n(value, first);
+        return first + pos;                                           // RETURN
+    }
+    else {
+        // May be longer than the output area provided
+        char buf[k_BUFLEN];
+        const int pos = blp_d2d_buffered_n(value, buf);
+        if (pos > last - first) {
+            // Too long, won't fit
+            return 0;                                                 // RETURN
+        }
+        else {
+            // Will fit to output area, need to copy
+#if defined(BSLS_PLATFORM_CMP_GNU) && (BDE_BUILD_TARGET_OPT)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wnonnull"
+#pragma GCC diagnostic ignored "-Wstringop-overflow"
+#endif
+            std::memcpy(first, buf, pos);
+#if defined(BSLS_PLATFORM_CMP_GNU) && (BDE_BUILD_TARGET_OPT)
+#pragma GCC diagnostic pop
+#endif
+            return first + pos;                                       // RETURN
+        }
+    }
+}
+
+char *NumericFormatterUtil::toCharsDecimal(char  *first,
+                                           char  *last,
+                                           float  value) BSLS_KEYWORD_NOEXCEPT
+{
+    typedef std::numeric_limits<float> lim;
+
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    BSLMF_ASSERT( true == lim::is_specialized); // Ensuring our assumptions
+    BSLMF_ASSERT( true == lim::is_signed);      // about 'float' when
+    BSLMF_ASSERT(false == lim::is_exact);       // 'max_digits10' is not
+#ifndef BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD     // available
+    // Yet another Sun "anomaly"
+    BSLMF_ASSERT( true == lim::is_iec559);
+#endif
+    BSLMF_ASSERT(    4 == sizeof(float));
+#endif
+
+    BSLS_ASSERT(first <= last);
+
+    static const std::ptrdiff_t k_BUFLEN =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+        lim::max_digits10 +
+#else
+        9 +
+#endif                                                             //   9
+        lim::max_exponent10 +                                      // +38 -> 47
+        1 +   // optional sign character                              + 1 -> 48
+        1     // optional radix mark (decimal point)                  + 1 -> 49
+        - 1;  // See below                                            - 1 -> 48
+        // It has been empirically determined that all IEEE-754 'binary32'
+        // values with the largest (positive) and the smallest (negative)
+        // exponent require only 8 significant decimal digits (not 9) to
+        // represent them precisely, so we need just 48 characters space.
+
+    if (last - first >= k_BUFLEN) {
+        // Surely fits into the output area
+        const int pos = blp_f2d_buffered_n(value, first);
+        return first + pos;                                           // RETURN
+    }
+    else {
+        // May be longer than the output area provided
+        char buf[k_BUFLEN];
+        const int pos = blp_f2d_buffered_n(value, buf);
+        if (pos > last - first) {
+            // Too long, won't fit
+            return 0;                                                 // RETURN
+        }
+        else {
+            // Will fit to output area, need to copy
+#if defined(BSLS_PLATFORM_CMP_GNU) && (BDE_BUILD_TARGET_OPT)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wnonnull"
+#pragma GCC diagnostic ignored "-Wstringop-overflow"
+#endif
+            std::memcpy(first, buf, pos);
+#if defined(BSLS_PLATFORM_CMP_GNU) && (BDE_BUILD_TARGET_OPT)
+#pragma GCC diagnostic pop
+#endif
+            return first + pos;                                       // RETURN
+        }
+    }
+}
+
+char *
+NumericFormatterUtil::toCharsScientific(char   *first,
+                                        char   *last,
+                                        double  value) BSLS_KEYWORD_NOEXCEPT
+{
+    typedef std::numeric_limits<double> lim;
+
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    BSLMF_ASSERT( true == lim::is_specialized); // Ensuring our assumptions
+    BSLMF_ASSERT( true == lim::is_signed);      // about 'double' in case
+    BSLMF_ASSERT(false == lim::is_exact);       // 'max_digits10' is not
+#ifndef BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD     // available
+    // Yet another Sun "anomaly"
+    BSLMF_ASSERT( true == lim::is_iec559);
+#endif
+    BSLMF_ASSERT(    8 == sizeof(double));
+#endif
+
+    BSLS_ASSERT(first <= last);
+
+    static const std::ptrdiff_t k_BUFLEN =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+        lim::max_digits10 +
+#else
+        17 +
+#endif                                                            //  17
+        u::NumDecimalDigits<lim::max_exponent10>::value +         // + 3 ==> 20
+        1 + // optional sign character                            // + 1 ==> 21
+        1 + // optional radix mark (decimal point)                // + 1 ==> 22
+        1 + // 'e' of the scientific format                       // + 1 ==> 23
+        1;  // sign for the scientific form exponent              // + 1 ==> 24
+
+    if (last - first >= k_BUFLEN) {
+        // Surely fits into the output area
+        const int pos = blp_d2s_buffered_n(value, first);
+        return first + pos;                                           // RETURN
+    }
+    else {
+        // May be longer than the output area provided
+        char buf[k_BUFLEN];
+        const int pos = blp_d2s_buffered_n(value, buf);
+        if (pos > last - first) {
+            // Too long, won't fit
+            return 0;                                                 // RETURN
+        }
+        else {
+            // Will fit to output area, need to copy
+#if defined(BSLS_PLATFORM_CMP_GNU) && (BDE_BUILD_TARGET_OPT)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wnonnull"
+#pragma GCC diagnostic ignored "-Wstringop-overflow"
+#endif
+            std::memcpy(first, buf, pos);
+#if defined(BSLS_PLATFORM_CMP_GNU) && (BDE_BUILD_TARGET_OPT)
+#pragma GCC diagnostic pop
+#endif
+            return first + pos;                                       // RETURN
+        }
+    }
+}
+
+char *
+NumericFormatterUtil::toCharsScientific(char  *first,
+                                        char  *last,
+                                        float  value) BSLS_KEYWORD_NOEXCEPT
+{
+    typedef std::numeric_limits<float> lim;
+
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    BSLMF_ASSERT( true == lim::is_specialized); // Ensuring our assumptions
+    BSLMF_ASSERT( true == lim::is_signed);      // about 'float' when
+    BSLMF_ASSERT(false == lim::is_exact);       // 'max_digits10' is not
+#ifndef BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD     // available
+    // Yet another Sun "anomaly"
+    BSLMF_ASSERT( true == lim::is_iec559);
+#endif
+    BSLMF_ASSERT(    4 == sizeof(float));
+#endif
+
+    BSLS_ASSERT(first <= last);
+
+    static const std::ptrdiff_t k_BUFLEN =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+        lim::max_digits10 +
+#else
+        9 +
+#endif                                                             //  9
+        u::NumDecimalDigits<lim::max_exponent10>::value +          // +2 ==> 11
+        1 + // optional sign character                             // +1 ==> 12
+        1 + // optional radix mark (decimal point)                 // +1 ==> 13
+        1 + // 'e' of the scientific format                        // +1 ==> 14
+        1;  // sign for the scientific form exponent               // +1 ==> 15
+
+    if (last - first >= k_BUFLEN) {
+        // Surely fits into the output area
+        const int pos = blp_f2s_buffered_n(value, first);
+        return first + pos;                                           // RETURN
+    }
+    else {
+        // May be longer than the output area provided
+        char buf[k_BUFLEN];
+        const int pos = blp_f2s_buffered_n(value, buf);
+        if (pos > last - first) {
+            // Too long, won't fit
+            return 0;                                                 // RETURN
+        }
+        else {
+            // Will fit to output area, need to copy
+#if defined(BSLS_PLATFORM_CMP_GNU) && (BDE_BUILD_TARGET_OPT)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wnonnull"
+#pragma GCC diagnostic ignored "-Wstringop-overflow"
+#endif
+            std::memcpy(first, buf, pos);
+#if defined(BSLS_PLATFORM_CMP_GNU) && (BDE_BUILD_TARGET_OPT)
+#pragma GCC diagnostic pop
+#endif
+            return first + pos;                                       // RETURN
+        }
+    }
+}
 
 // CLASS METHODS
 char *NumericFormatterUtil::toCharsImpl(char     *first,
@@ -468,6 +733,130 @@ char *NumericFormatterUtil::toCharsImpl(char                *first,
     // 'base' is neither decimal nor a power of 2
 
     return u::toCharsArbitraryBaseUint64(first, last, value, base);
+}
+
+char *NumericFormatterUtil::toChars(char   *first,
+                                    char   *last,
+                                    double  value) BSLS_KEYWORD_NOEXCEPT
+{
+    typedef std::numeric_limits<double> lim;
+
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    BSLMF_ASSERT( true == lim::is_specialized); // Ensuring our assumptions
+    BSLMF_ASSERT( true == lim::is_signed);      // about 'double' in case
+    BSLMF_ASSERT(false == lim::is_exact);       // 'max_digits10' is not
+#ifndef BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD     // available
+    // Yet another Sun "anomaly"
+    BSLMF_ASSERT( true == lim::is_iec559);
+#endif
+    BSLMF_ASSERT(    8 == sizeof(double));
+#endif
+
+    BSLS_ASSERT(first <= last);
+
+    static const std::ptrdiff_t k_BUFLEN =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+        lim::max_digits10 +
+#else
+        17 +
+#endif                                                            //  17
+        u::NumDecimalDigits<lim::max_exponent10>::value +         // + 3 ==> 20
+        1 + // optional sign character                            // + 1 ==> 21
+        1 + // optional radix mark (decimal point)                // + 1 ==> 22
+        1 + // 'e' of the scientific format                       // + 1 ==> 23
+        1;  // sign for the scientific form exponent              // + 1 ==> 24
+        // Notice that if scientific form is shorter that is the one that will
+        // be used, so essentially its maximum length determines the maximum.
+
+    if (last - first >= k_BUFLEN) {
+        // Surely fits into the output area
+        const int pos = blp_d2m_buffered_n(value, first);
+        return first + pos;                                           // RETURN
+    }
+    else {
+        // May be longer than the output area provided
+        char buf[k_BUFLEN];
+        const int pos = blp_d2m_buffered_n(value, buf);
+        if (pos > last - first) {
+            // Too long, won't fit
+            return 0;                                                 // RETURN
+        }
+        else {
+            // Will fit to output area, need to copy
+#if defined(BSLS_PLATFORM_CMP_GNU) && (BDE_BUILD_TARGET_OPT)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wnonnull"
+#pragma GCC diagnostic ignored "-Wstringop-overflow"
+#endif
+            std::memcpy(first, buf, pos);
+#if defined(BSLS_PLATFORM_CMP_GNU) && (BDE_BUILD_TARGET_OPT)
+#pragma GCC diagnostic pop
+#endif
+            return first + pos;                                       // RETURN
+        }
+    }
+}
+
+char *NumericFormatterUtil::toChars(char  *first,
+                                    char  *last,
+                                    float  value) BSLS_KEYWORD_NOEXCEPT
+{
+    typedef std::numeric_limits<float> lim;
+
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    BSLMF_ASSERT( true == lim::is_specialized); // Ensuring our assumptions
+    BSLMF_ASSERT( true == lim::is_signed);      // about 'float' when
+    BSLMF_ASSERT(false == lim::is_exact);       // 'max_digits10' is not
+#ifndef BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD     // available
+    // Yet another Sun "anomaly"
+    BSLMF_ASSERT( true == lim::is_iec559);
+#endif
+    BSLMF_ASSERT(    4 == sizeof(float));
+#endif
+
+    BSLS_ASSERT(first <= last);
+
+    static const std::ptrdiff_t k_BUFLEN =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+        lim::max_digits10 +
+#else
+        9 +
+#endif                                                             //  9
+        u::NumDecimalDigits<lim::max_exponent10>::value +          // +2 ==> 11
+        1 + // optional sign character                             // +1 ==> 12
+        1 + // optional radix mark (decimal point)                 // +1 ==> 13
+        1 + // 'e' of the scientific format                        // +1 ==> 14
+        1;  // sign for the scientific form exponent               // +1 ==> 15
+        // Notice that if scientific form is shorter that is the one that will
+        // be used, so essentially its maximum length determines the maximum.
+
+    if (last - first >= k_BUFLEN) {
+        // Surely fits into the output area
+        const int pos = blp_f2m_buffered_n(value, first);
+        return first + pos;                                           // RETURN
+    }
+    else {
+        // May be longer than the output area provided
+        char buf[k_BUFLEN];
+        const int pos = blp_f2m_buffered_n(value, buf);
+        if (pos > last - first) {
+            // Too long, won't fit
+            return 0;                                                 // RETURN
+        }
+        else {
+            // Will fit to output area, need to copy
+#if defined(BSLS_PLATFORM_CMP_GNU) && (BDE_BUILD_TARGET_OPT)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wnonnull"
+#pragma GCC diagnostic ignored "-Wstringop-overflow"
+#endif
+            std::memcpy(first, buf, pos);
+#if defined(BSLS_PLATFORM_CMP_GNU) && (BDE_BUILD_TARGET_OPT)
+#pragma GCC diagnostic pop
+#endif
+            return first + pos;                                       // RETURN
+        }
+    }
 }
 
 }  // close package namespace

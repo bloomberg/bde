@@ -305,7 +305,7 @@ static inline int to_chars(const floating_decimal_32 v, const bool sign, char* c
   return index;
 }
 
-int f2s_buffered_n(float f, char* result) {
+int ryu_f2s_buffered_n(float f, char* result) {
   // Step 1: Decode the floating-point number, and unify normalized and subnormal cases.
   const uint32_t bits = float_to_bits(f);
 
@@ -331,15 +331,15 @@ int f2s_buffered_n(float f, char* result) {
   return to_chars(v, ieeeSign, result);
 }
 
-void f2s_buffered(float f, char* result) {
-  const int index = f2s_buffered_n(f, result);
+void ryu_f2s_buffered(float f, char* result) {
+  const int index = ryu_f2s_buffered_n(f, result);
 
   // Terminate the string.
   result[index] = '\0';
 }
 
-char* f2s(float f) {
+char* ryu_f2s(float f) {
   char* const result = (char*) malloc(16);
-  f2s_buffered(f, result);
+  ryu_f2s_buffered(f, result);
   return result;
 }

@@ -44,7 +44,7 @@ BSLS_IDENT("$Id: $")
 // manipulated via this utility.  Each 'ball::Category' contains private data
 // members that provide:
 //
-//: o A linked list of associated 'ball:CategoryHolder' objects that refer to
+//: o A linked list of associated 'ball::CategoryHolder' objects that refer to
 //:   the category.
 //:
 //: o A cache of the logging rules that apply to the category.

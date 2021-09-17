@@ -669,7 +669,7 @@ class TimeInterval {
     asDuration() const;
         // Return the value of this time interval as a 'std::chrono::duration'
         // object.   This function participates in overloading if
-        // 'DURATION_TYPE' is actually an 'std::chrono:duration' instance, and
+        // 'DURATION_TYPE' is actually an 'std::chrono::duration' instance, and
         // if it has *not* a floating point representation.  The behavior is
         // undefined unless the total number of nanoseconds can be represented
         // using a 'DURATION_TYPE'.  Note that the return value may be
