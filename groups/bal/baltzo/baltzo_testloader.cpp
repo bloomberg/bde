@@ -52,11 +52,10 @@ int TestLoader::setTimeZone(const char *timeZoneId,
     BSLS_ASSERT(0 <= timeZoneDataNumBytes);
 
     bdlsb::FixedMemInStreamBuf inBuf(timeZoneData, timeZoneDataNumBytes);
-    bsl::istream              input(&inBuf);
-    Zoneinfo           timeZone;
+    bsl::istream               input(&inBuf);
+    Zoneinfo                   timeZone;
 
-    if (0 != ZoneinfoBinaryReader::read(&timeZone,
-                                               input)) {
+    if (0 != ZoneinfoBinaryReader::read(&timeZone, input)) {
         return 1;                                                     // RETURN
     }
 

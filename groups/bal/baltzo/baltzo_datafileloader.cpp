@@ -52,25 +52,6 @@ struct IsString {
 };
 
 // HELPER FUNCTIONS
-void concatenatePath(bsl::string *result,
-                     const char  *rootPath,
-                     const char  *timeZoneId)
-    // Load, into the specified 'result', the system independent path of the
-    // specified 'timeZoneId' appended to the specified 'rootPath'.
-{
-    BSLS_ASSERT(result);
-    BSLS_ASSERT(rootPath);
-    BSLS_ASSERT(timeZoneId);
-
-    *result = rootPath;
-    for (bdlb::Tokenizer it(bslstl::StringRef(timeZoneId),
-                            bslstl::StringRef("/"));
-         it.isValid();
-         ++it) {
-        bdls::PathUtil::appendIfValid(result, it.token());
-    }
-}
-
 template <class STRING>
 void concatenatePath(STRING             *result,
                      const bsl::string&  rootPath,
@@ -83,16 +64,13 @@ void concatenatePath(STRING             *result,
 
     BSLMF_ASSERT(u::IsString<STRING>::value);
 
-    bsl::string tmpResult(rootPath,
-                          rootPath.get_allocator().mechanism());
-
+    *result = rootPath;
     for (bdlb::Tokenizer it(bslstl::StringRef(timeZoneId),
                             bslstl::StringRef("/"));
          it.isValid();
          ++it) {
-        bdls::PathUtil::appendIfValid(&tmpResult, it.token());
+        bdls::PathUtil::appendIfValid(result, it.token());
     }
-    *result = tmpResult;
 }
 
 int validateTimeZoneId(const char *timeZoneId)
