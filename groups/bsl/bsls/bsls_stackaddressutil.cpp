@@ -485,7 +485,24 @@ namespace bsls {
 int StackAddressUtil::getStackAddresses(void    **buffer,
                                         int       maxFrames)
 {
-    return RtlCaptureStackBackTrace(1, maxFrames, buffer, (PDWORD) 0);
+    int numAddresses =
+                    RtlCaptureStackBackTrace(1, maxFrames, buffer, (PDWORD) 0);
+
+    // There is a very strange highly intermittent problem on Windows,
+    // especially but not only on optimized builds, where
+    // 'RtlCaptureStackBackTrace' adds extra nulls to the end of 'buffer'.
+    // This behavior is undocumented and is very probably a bug.  So far we
+    // have only observed single nulls being added, but this fix deals with an
+    // unlimited number of them.  This problem was mostly observed in
+    // 'balst_stackaddressutil.t.cpp' and not as often in this component's test
+    // driver, and the nulls were always observed being added to the end of the
+    // buffer.
+
+    while (0 < numAddresses && 0 == buffer[numAddresses - 1]) {
+        --numAddresses;
+    }
+
+    return numAddresses;
 }
 
 }  // close package namespace

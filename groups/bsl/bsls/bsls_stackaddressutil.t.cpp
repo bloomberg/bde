@@ -653,6 +653,8 @@ void func0(int *pi)
 
     for (int toIndex = 0, fromIndex = IGNORE_FRAMES;
                             fromIndex < numAddresses; ++toIndex, ++fromIndex) {
+        ASSERTV(fromIndex, numAddresses, 0 != buffer[fromIndex]);
+
         entries[toIndex].d_returnAddress = (UintPtr) buffer[fromIndex];
         entries[toIndex].d_traceIndex    = toIndex;
     }
@@ -722,21 +724,22 @@ void recurser(int *depth)
                                                                 buffer,
                                                                 BUFFER_LENGTH);
         ASSERTV(numAddresses, u::lamePlatform || numAddresses > recurseDepth);
+        if (verbose) P(numAddresses);
         for (int i = 0; i < numAddresses; ++i) {
-            ASSERT(0 != buffer[i]);
+            ASSERTV(i, numAddresses, 0 != buffer[i]);
         }
         for (int i = numAddresses; i < BUFFER_LENGTH; ++i) {
-            ASSERT(0 == buffer[i]);
+            ASSERTV(i, numAddresses, 0 == buffer[i]);
         }
 
         memset(buffer, 0, sizeof(buffer));
         numAddresses = bsls::StackAddressUtil::getStackAddresses(buffer, 10);
         ASSERTV(numAddresses, u::lamePlatform || 10 == numAddresses);
         for (int i = 0; i < numAddresses; ++i) {
-            ASSERT(0 != buffer[i]);
+            ASSERTV(i, numAddresses, 0 != buffer[i]);
         }
         for (int i = numAddresses; i < BUFFER_LENGTH; ++i) {
-            ASSERT(0 == buffer[i]);
+            ASSERTV(i, numAddresses, 0 == buffer[i]);
         }
     }
 
