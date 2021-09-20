@@ -616,8 +616,9 @@ struct TestData {
     {L_,  "/usr/share/zoneinfo/"},            // Unix standard loc.
     {L_,  "/usr/share/lib/zoneinfo/"},        // Solaris standard loc.
 #endif
+    {0,   0 }    // zero-legnth arrays are a syntax error
 };
-const int k_NUM_VALUES = sizeof(VALUES) / sizeof(*VALUES);
+const int k_NUM_VALUES = sizeof(VALUES) / sizeof(*VALUES) - 1;
 
 template <class VECTOR>
 void test2()
