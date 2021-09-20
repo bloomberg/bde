@@ -43,11 +43,12 @@ static const char *BALTZO_DATA_LOCATIONS[] = {
     "/opt/bb/share/zoneinfo/",     // Bloomberg standard data location
     "/bb/data/datetime/zoneinfo/", // deprecated Bloomberg stnd data location
     "/usr/share/zoneinfo/",        // Unix standard location (Linux, OSX)
-    "/usr/share/lib/zoneinfo/"     // Solaris standard location
+    "/usr/share/lib/zoneinfo/",    // Solaris standard location
 #endif
+    0    // 0 length arrays not allowed
 };
 enum { k_NUM_BALTZO_DATA_LOCATIONS = sizeof  BALTZO_DATA_LOCATIONS /
-                                     sizeof *BALTZO_DATA_LOCATIONS };
+                                     sizeof *BALTZO_DATA_LOCATIONS - 1 };
 
 // STATIC DATA
 static baltzo::ZoneinfoCache *systemSingletonCachePtr = 0; // default sys cache

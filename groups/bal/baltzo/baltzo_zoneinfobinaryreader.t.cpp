@@ -2684,7 +2684,7 @@ static int testVerifyTimeZone(int verbose)
     {
         {
             baltzo::Zoneinfo TZ;
-            baltzo::LocalTimeDescriptor dError(-1, 0, "");
+            baltzo::LocalTimeDescriptor dError(-1, false, "");
             TZ.addTransition(FIRST_TRANSITION, D[0]);
             TZ.addTransition(TRANSITION_TIMES[0], dError);
             TZ.addTransition(TRANSITION_TIMES[1], D[1]);
@@ -2696,7 +2696,7 @@ static int testVerifyTimeZone(int verbose)
         }
         {
             baltzo::Zoneinfo TZ;
-            baltzo::LocalTimeDescriptor dError(1, 2, "A");
+            baltzo::LocalTimeDescriptor dError(1, true, "A");
             TZ.addTransition(FIRST_TRANSITION, D[0]);
             TZ.addTransition(TRANSITION_TIMES[0], D[0]);
             TZ.addTransition(TRANSITION_TIMES[1], dError);
@@ -2708,7 +2708,7 @@ static int testVerifyTimeZone(int verbose)
         }
         {
             baltzo::Zoneinfo TZ;
-            baltzo::LocalTimeDescriptor dError(1, 1, "A");
+            baltzo::LocalTimeDescriptor dError(1, true, "A");
             TZ.addTransition(FIRST_TRANSITION, D[0]);
             TZ.addTransition(TRANSITION_TIMES[0], D[0]);
             TZ.addTransition(TRANSITION_TIMES[1], D[1]);
@@ -2914,7 +2914,7 @@ static int testVerifyTimeZoneVersion2Or3Format(int verbose)
     {
         {
             baltzo::Zoneinfo TZ;
-            baltzo::LocalTimeDescriptor dError(-1, 0, "");
+            baltzo::LocalTimeDescriptor dError(-1, false, "");
             TZ.addTransition(FIRST_TRANSITION, D[0]);
             TZ.addTransition(TRANSITION_TIMES[0], dError);
             TZ.addTransition(TRANSITION_TIMES[1], D[1]);
@@ -2926,7 +2926,7 @@ static int testVerifyTimeZoneVersion2Or3Format(int verbose)
         }
         {
             baltzo::Zoneinfo TZ;
-            baltzo::LocalTimeDescriptor dError(1, 2, "A");
+            baltzo::LocalTimeDescriptor dError(1, true, "A");
             TZ.addTransition(FIRST_TRANSITION, D[0]);
             TZ.addTransition(TRANSITION_TIMES[0], D[0]);
             TZ.addTransition(TRANSITION_TIMES[1], dError);
@@ -2938,7 +2938,7 @@ static int testVerifyTimeZoneVersion2Or3Format(int verbose)
         }
         {
             baltzo::Zoneinfo TZ;
-            baltzo::LocalTimeDescriptor dError(1, 1, "A");
+            baltzo::LocalTimeDescriptor dError(1, true, "A");
             TZ.addTransition(FIRST_TRANSITION, D[0]);
             TZ.addTransition(TRANSITION_TIMES[0], D[0]);
             TZ.addTransition(TRANSITION_TIMES[1], D[1]);
