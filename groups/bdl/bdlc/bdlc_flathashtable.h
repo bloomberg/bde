@@ -1648,6 +1648,13 @@ inline
 void FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::reserve(
                                                         bsl::size_t numEntries)
 {
+    if (0 == d_capacity && 0 == numEntries) {
+        // From DRQS 167247593, 'reserve(0)' on an empty container is a
+        // performance concern.
+
+        return;                                                       // RETURN
+    }
+
     bsl::size_t minForEntries = ((numEntries + k_MAX_LOAD_FACTOR_NUMERATOR - 1)
                                                  / k_MAX_LOAD_FACTOR_NUMERATOR)
                               * k_MAX_LOAD_FACTOR_DENOMINATOR;
