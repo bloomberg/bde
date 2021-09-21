@@ -15,33 +15,36 @@ BSLS_IDENT_RCSID(balb_performancemonitor_cpp,"$Id$ $CSID$")
 #include <bdlf_bind.h>
 #include <bdlf_placeholder.h>
 
-#include <bslmt_writelockguard.h>
+#include <bdlsb_fixedmeminstreambuf.h>
 
 #include <bdlt_currenttime.h>
 #include <bdlt_datetime.h>
 #include <bdlt_epochutil.h>
 
+#include <bslmt_writelockguard.h>
+
+#include <bslma_allocator.h>
+#include <bslma_default.h>
+
+#include <bsls_assert.h>
 #include <bsls_log.h>
+#include <bsls_exceptionutil.h>
+#include <bsls_platform.h>
+#include <bsls_timeinterval.h>
+#include <bsls_types.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_cmath.h>
 #include <bsl_fstream.h>
 #include <bsl_iomanip.h>
 #include <bsl_iostream.h>
+#include <bsl_istream.h>
 #include <bsl_iterator.h>
 #include <bsl_limits.h>
+#include <bsl_ostream.h>
 #include <bsl_sstream.h>
 #include <bsl_utility.h>
 #include <bsl_vector.h>
-
-#include <bslma_allocator.h>
-#include <bslma_default.h>
-
-#include <bsls_assert.h>
-#include <bsls_exceptionutil.h>
-#include <bsls_platform.h>
-#include <bsls_timeinterval.h>
-#include <bsls_types.h>
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
 #include <unistd.h>
@@ -150,6 +153,185 @@ namespace balb {
 
 #if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_CYGWIN)
 
+                    // --------------------------------------
+                    // PerformanceMonitor_LinuxProcStatistics
+                    // --------------------------------------
+
+// CLASS METHOD
+int PerformanceMonitor_LinuxProcStatistics::readProcStatString(
+                                                           bsl::string *buffer,
+                                                           int          pid)
+{
+    bsl::ostringstream oss;
+    oss << "/proc/" << pid << "/stat";
+    const bsl::string& ossString = oss.str();
+    const char * const filename = ossString.c_str();
+
+    bsl::ifstream ifs(filename);
+    if (!ifs) {
+        BSLS_LOG_DEBUG("Failed to open '%s'", filename);
+        return -1;                                                    // RETURN
+    }
+
+    BSLS_TRY {
+        // The following has been observed to throw with some gcc versions
+        // (reportedly 4.1.2 and 4.8.1).  See internal ticket 57176174.
+
+        buffer->clear();
+        bsl::getline(ifs, *buffer);
+
+        return 0;                                                     // RETURN
+    }
+    BSLS_CATCH (...) {
+    }
+
+    BSLS_LOG_DEBUG("'getline' threw");
+
+    return -1;
+}
+
+// CREATOR
+PerformanceMonitor_LinuxProcStatistics::
+PerformanceMonitor_LinuxProcStatistics()
+: d_pid()
+, d_comm()
+, d_state()
+, d_ppid()
+, d_pgrp()
+, d_session()
+, d_tty_nr()
+, d_tpgid()
+, d_flags()
+, d_minflt()
+, d_cminflt()
+, d_majflt()
+, d_cmajflt()
+, d_utime()
+, d_stime()
+, d_cutime()
+, d_cstime()
+, d_priority()
+, d_nice()
+, d_numThreads()
+, d_itrealvalue()
+, d_starttime()
+, d_vsize()
+, d_rss()
+{
+}
+
+// MANIPULATOR
+int PerformanceMonitor_LinuxProcStatistics::parseProcStatString(
+                                             const bsl::string& procStatString,
+                                             int                pid)
+{
+    *this = PerformanceMonitor_LinuxProcStatistics();
+
+    const char *psCStr = procStatString.c_str();
+
+    bsl::size_t commIdx = procStatString.find('(');
+    if (bsl::string::npos == commIdx) {
+        BSLS_LOG_DEBUG("Error parsing '(' of '%s'", psCStr);
+        return  -1;                                                   // RETURN
+    }
+
+    // There are 22 fields following 'comm', the first of which is '%c'
+    // guaranteed not to contain parens, and the rest of which are integral.
+    // All of these fields are at least 1 char wide (in practice most of them
+    // are just 0), plus spaces is a minimum width of those fields of 44.  More
+    // fields may be appeneded to the 'stat' file in future versions of Linux,
+    // and they may be '%s' or '%c' fields containing parens, so we want to be
+    // sure not to search over them.
+
+    // The 'comm' field, according to current documentation, is up to 16 chars
+    // long, and enclosed in parens, but will often be shorter.  The shortest
+    // 'comm' field would be the empty string contained in parens.  It is
+    // conceivable but very unlikely that the length limitation on the 'comm'
+    // field may grow a bit.  So let's search backward for the terminating ')'
+    // starting at 'commIdx + 2 + 40'.
+
+    if (procStatString.length() < commIdx + 2 + 40) {
+        // Failure: the string should always be at least this long.
+
+        BSLS_LOG_DEBUG("Incomplete input '%s'", psCStr);
+        return -1;                                                    // RETURN
+    }
+
+    const bsl::size_t lastParen = procStatString.rfind(')', commIdx + 2 + 40);
+    if (bsl::string::npos == lastParen || lastParen <= commIdx) {
+        BSLS_LOG_DEBUG("Error parsing ')' of '%s'", psCStr);
+        return  -1;                                                   // RETURN
+    }
+
+    d_comm = procStatString.substr(commIdx, lastParen + 1 - commIdx);
+
+    const bsl::size_t stateIdx = procStatString.find_first_not_of(
+                                                                " ",
+                                                                lastParen + 1);
+    if (bsl::string::npos == stateIdx) {
+        BSLS_LOG_DEBUG("Error parsing 'state' of '%s'", psCStr);
+        return -1;                                                    // RETURN
+    }
+
+    BSLS_TRY {
+        // The following has been observed to throw with some gcc versions
+        // (reportedly 4.1.2 and 4.8.1).  See internal ticket 57176174.
+
+        bdlsb::FixedMemInStreamBuf sb(psCStr,
+                                      procStatString.length());
+        bsl::istream ibs(&sb);
+
+        ibs >> d_pid;
+        if (pid != d_pid) {
+            BSLS_LOG_DEBUG("Error parsing pid of '%s'", psCStr);
+            return  -1;                                               // RETURN
+        }
+
+        ibs.seekg(stateIdx);
+        ibs >> d_state;
+
+        if (!ibs) {
+            BSLS_LOG_DEBUG("Error parsing state field of '%s'", psCStr);
+            return  -1;                                               // RETURN
+        }
+
+        ibs >> d_ppid
+            >> d_pgrp
+            >> d_session
+            >> d_tty_nr
+            >> d_tpgid
+            >> d_flags
+            >> d_minflt
+            >> d_cminflt
+            >> d_majflt
+            >> d_cmajflt
+            >> d_utime
+            >> d_stime
+            >> d_cutime
+            >> d_cstime
+            >> d_priority
+            >> d_nice
+            >> d_numThreads
+            >> d_itrealvalue
+            >> d_starttime
+            >> d_vsize
+            >> d_rss;
+
+        if (!ibs) {
+            BSLS_LOG_DEBUG("Error parsing integral fields of '%s'", psCStr);
+            return  -1;                                               // RETURN
+        }
+
+        return 0;                                                     // RETURN
+    }
+    BSLS_CATCH (...) {
+    }
+
+    BSLS_LOG_DEBUG("Throw when parsing '%s'", psCStr);
+
+    return -1;
+}
+
 template <>
 class PerformanceMonitor::Collector<bsls::Platform::OsLinux> {
     // Provide a specialization of the 'Collector' class template for the Linux
@@ -163,99 +345,29 @@ class PerformanceMonitor::Collector<bsls::Platform::OsLinux> {
     // 'Collector' template requires a constructor accepting a single
     // 'bslma::Allocator' argument.
 
-    // PRIVATE TYPES
+    // TYPES
+    typedef PerformanceMonitor_LinuxProcStatistics ProcStatistics;
 
-    struct ProcStatistics {
-        // Describes the fields present in /proc/<pid>/stat.  For a complete
-        // description of each field, see 'man proc'.
-        //
-        // Note that sizes of the data fields are defined in terms of scanf(3)
-        // format specifiers, such as %d, %lu or %c.  There is no good way to
-        // know if %lu is 32-bit wide or 64-bit, because the code can be built
-        // in the -m32 mode making sizeof(unsigned long)==4 and executed on a
-        // 64bit platform where the kernel thinks that %lu can represent 64-bit
-        // wide integers.  Therefore we use 'Uint64' regardless of the build
-        // configuration.
+  private:
+    // NOT IMPLEMENTED
+    Collector(const Collector &);             // = deleted
+    Collector& operator=(const Collector &);  // = deleted
 
-        typedef bsls::Types::Int64  LdType;
-        typedef bsls::Types::Uint64 LuType;
-        typedef bsls::Types::Uint64 LluType;
-
-        int           d_pid;             // process pid
-        bsl::string   d_comm;            // filename of executable
-        char          d_state;           // process state
-        int           d_ppid;            // process's parent pid
-        int           d_pgrp;            // process group id
-        int           d_session;         // process session id
-        int           d_tty_nr;          // the tty used by the process
-        int           d_tpgid;           // tty owner's group id
-        unsigned int  d_flags;           // kernel flags
-        LuType        d_minflt;          // num minor page faults
-        LuType        d_cminflt;         // num minor page faults - children
-        LuType        d_majflt;          // num major page faults
-        LuType        d_cmajflt;         // num major page faults - children
-        LuType        d_utime;           // num jiffies in user mode
-        LuType        d_stime;           // num jiffies in kernel mode
-        LdType        d_cutime;          // num jiffies, user mode, children
-        LdType        d_cstime;          // num jiffies, kernel mode, children
-        LdType        d_priority;        // standard nice value, plus fifteen
-        LdType        d_nice;            // nice value
-        LdType        d_numThreads;      // number of threads (since Linux 2.6)
-        LdType        d_itrealvalue;     // num jiffies before next SIGALRM
-        LluType       d_starttime;       // time in jiffies since system boot
-        LuType        d_vsize;           // virtual memory size, in bytes
-        LdType        d_rss;             // resident set size, in pages
-
-        ProcStatistics()
-        : d_pid()
-        , d_comm()
-        , d_state()
-        , d_ppid()
-        , d_pgrp()
-        , d_session()
-        , d_tty_nr()
-        , d_tpgid()
-        , d_flags()
-        , d_minflt()
-        , d_cminflt()
-        , d_majflt()
-        , d_cmajflt()
-        , d_utime()
-        , d_stime()
-        , d_cutime()
-        , d_cstime()
-        , d_priority()
-        , d_nice()
-        , d_numThreads()
-        , d_itrealvalue()
-        , d_starttime()
-        , d_vsize()
-        , d_rss()
-        {
-        }
-
-        // Note that subsequent fields present in '/proc/<pid>/stat' are not
-        // required for any collected measures.
-    };
-
-    int readProcStat(ProcStatistics *stats, int pid);
+    // PRIVATE CLASS METHODS
+    static int readProcStat(ProcStatistics *stats, int pid);
         // Load into the specified 'stats' result the fields present for the
         // specified 'pid' in the '/proc/<pid>/stat' virtual file.  Return 0 on
         // success or a non-zero value otherwise.
 
-    // UNIMPLEMENTED
-    Collector(const Collector &);             // = deleted
-    Collector& operator=(const Collector &);  // = deleted
-
   public:
     // CREATORS
+    explicit
     Collector(bslma::Allocator *basicAllocator = 0);
         // Create an instance of this class.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
 
-    // METHODS
-
+    // MANIPULATORS
     int initialize(PerformanceMonitor::Statistics *stats,
                    int                             pid,
                    const bsl::string&              description);
@@ -272,45 +384,18 @@ class PerformanceMonitor::Collector<bsls::Platform::OsLinux> {
 int PerformanceMonitor::Collector<bsls::Platform::OsLinux>
 ::readProcStat(ProcStatistics *stats, int pid)
 {
-    bsl::stringstream filename;
-    filename << "/proc/" << pid << "/stat";
-
-    bsl::ifstream ifs(filename.str().c_str());
-    if (!ifs) {
-        BSLS_LOG_DEBUG("Failed to open '%s'", filename.str().c_str());
-        return -1;                                                    // RETURN
+    int rc;
+    bsl::string procStatString;
+    rc = ProcStatistics::readProcStatString(&procStatString, pid);
+    if (0 != rc) {
+        BSLS_LOG_DEBUG("readProcStat: readProcStatString failed");
+        return rc;                                                    // RETURN
     }
 
-    BSLS_TRY {
-        // The following has been observed to throw with some gcc versions
-        // (reportedly 4.1.2 and 4.8.1).  See internal ticket 57176174.
-
-        ifs >> stats->d_pid
-            >> stats->d_comm
-            >> stats->d_state
-            >> stats->d_ppid
-            >> stats->d_pgrp
-            >> stats->d_session
-            >> stats->d_tty_nr
-            >> stats->d_tpgid
-            >> stats->d_flags
-            >> stats->d_minflt
-            >> stats->d_cminflt
-            >> stats->d_majflt
-            >> stats->d_cmajflt
-            >> stats->d_utime
-            >> stats->d_stime
-            >> stats->d_cutime
-            >> stats->d_cstime
-            >> stats->d_priority
-            >> stats->d_nice
-            >> stats->d_numThreads
-            >> stats->d_itrealvalue
-            >> stats->d_starttime
-            >> stats->d_vsize
-            >> stats->d_rss;
-    }
-    BSLS_CATCH (...) {
+    rc = stats->parseProcStatString(procStatString, pid);
+    if (0 != rc) {
+        BSLS_LOG_DEBUG("readProcStat: parseProcStatString failed");
+        return rc;                                                    // RETURN
     }
 
     return 0;

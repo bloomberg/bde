@@ -183,6 +183,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_assert.h>
 #include <bsls_platform.h>
+#include <bsls_types.h>
 
 #include <bsl_iosfwd.h>
 #include <bsl_iterator.h>
@@ -224,10 +225,8 @@ class PerformanceMonitor {
     typedef bsls::Platform::OsFreeBsd OsType;
 #elif defined(BSLS_PLATFORM_OS_DARWIN)
     typedef bsls::Platform::OsDarwin  OsType;
-/*
-#elif defined(BSLS_PLATFORM_OS_HPUX)
-typedef bsls::Platform::OsHpUx OsType;
-*/
+//  #elif defined(BSLS_PLATFORM_OS_HPUX)
+//      typedef bsls::Platform::OsHpUx OsType;
 #elif defined(BSLS_PLATFORM_OS_UNIX)
     typedef bsls::Platform::OsUnix    OsType;
 #elif defined(BSLS_PLATFORM_OS_WINDOWS)
@@ -604,6 +603,83 @@ typedef bsls::Platform::OsHpUx OsType;
     int numRegisteredPids() const;
         // Return the number of processes registered for statistics collection.
 };
+
+#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_CYGWIN)
+
+struct PerformanceMonitor_LinuxProcStatistics {
+    // Describes the fields present in /proc/<pid>/stat.  For a complete
+    // description of each field, see 'man proc'.
+    //
+    // Note that sizes of the data fields are defined in terms of scanf(3)
+    // format specifiers, such as %d, %lu or %c.  There is no good way to know
+    // if %lu is 32-bit wide or 64-bit, because the code can be built in the
+    // -m32 mode making sizeof(unsigned long)==4 and executed on a 64bit
+    // platform where the kernel thinks that %lu can represent 64-bit wide
+    // integers.  Therefore we use 'Uint64' regardless of the build
+    // configuration.
+
+    // PUBLIC TYPES
+    typedef bsls::Types::Int64  LdType;
+    typedef bsls::Types::Uint64 LuType;
+    typedef bsls::Types::Uint64 LluType;
+
+    // PUBLIC DATA
+    int           d_pid;             // process pid
+    bsl::string   d_comm;            // filename of executable
+    char          d_state;           // process state
+    int           d_ppid;            // process's parent pid
+    int           d_pgrp;            // process group id
+    int           d_session;         // process session id
+    int           d_tty_nr;          // the tty used by the process
+    int           d_tpgid;           // tty owner's group id
+    unsigned int  d_flags;           // kernel flags
+    LuType        d_minflt;          // num minor page faults
+    LuType        d_cminflt;         // num minor page faults - children
+    LuType        d_majflt;          // num major page faults
+    LuType        d_cmajflt;         // num major page faults - children
+    LuType        d_utime;           // num jiffies in user mode
+    LuType        d_stime;           // num jiffies in kernel mode
+    LdType        d_cutime;          // num jiffies, user mode, children
+    LdType        d_cstime;          // num jiffies, kernel mode, children
+    LdType        d_priority;        // standard nice value, plus fifteen
+    LdType        d_nice;            // nice value
+    LdType        d_numThreads;      // number of threads (since Linux 2.6)
+    LdType        d_itrealvalue;     // num jiffies before next SIGALRM
+    LluType       d_starttime;       // time in jiffies since system boot
+    LuType        d_vsize;           // virtual memory size, in bytes
+    LdType        d_rss;             // resident set size, in pages
+
+    // Note that subsequent fields present in '/proc/<pid>/stat' are not
+    // required for any collected measures.
+
+    // CLASS METHOD
+    static int readProcStatString(bsl::string *buffer, int pid);
+        // For the specified process id 'pid', load the contents of the file
+        // '/proc/<pid>/stat' into the specified 'buffer'.  Return 0 on success
+        // and a non-zero value otherwise.
+
+  private:
+    // NOT IMPLEMENTED
+    PerformanceMonitor_LinuxProcStatistics(
+                                const PerformanceMonitor_LinuxProcStatistics&);
+
+  public:
+    // CREATOR
+    PerformanceMonitor_LinuxProcStatistics();
+        // Default construct all fields in this object.
+
+    // MANIPULATOR
+    // PerformanceMonitor_LinuxProcStatistics& operator=(
+    //                const PerformanceMonitor_LinuxProcStatistics&) = default;
+
+    int parseProcStatString(const bsl::string& procStatString, int pid);
+        // Parse the specified 'procStatString' and populate all the fields in
+        // this 'struct'.  Check that the specified 'pid' matches the 'pid'
+        // field in the string.  Return 0 on success and a non-zero value
+        // otherwise.
+};
+
+#endif
 
 // ============================================================================
 //                            INLINE DEFINITIONS

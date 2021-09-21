@@ -14,16 +14,9 @@
 #include <bdlt_currenttime.h>
 #include <bdlt_datetimeinterval.h>
 
-#include <bsl_algorithm.h>
-#include <bsl_cstdlib.h>
-#include <bsl_deque.h>
-#include <bsl_iomanip.h>
-#include <bsl_iostream.h>
-#include <bsl_set.h>
-#include <bsl_sstream.h>
-#include <bsl_stdexcept.h>
-#include <bsl_string.h>
-#include <bsl_vector.h>
+#include <bslmt_barrier.h>
+#include <bslmt_threadgroup.h>
+#include <bslmt_threadutil.h>
 
 #include <bslim_testutil.h>
 
@@ -34,11 +27,20 @@
 
 #include <bslmf_assert.h>
 
-#include <bslmt_barrier.h>
-#include <bslmt_threadutil.h>
-
+#include <bsls_atomic.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
+
+#include <bsl_algorithm.h>
+#include <bsl_cstdlib.h>
+#include <bsl_deque.h>
+#include <bsl_iomanip.h>
+#include <bsl_iostream.h>
+#include <bsl_set.h>
+#include <bsl_sstream.h>
+#include <bsl_stdexcept.h>
+#include <bsl_string.h>
+#include <bsl_vector.h>
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
 #include <sys/mman.h>
@@ -55,7 +57,10 @@
 #endif
 
 using namespace BloombergLP;
-using namespace bsl;
+using bsl::cout;
+using bsl::cerr;
+using bsl::endl;
+using bsl::flush;
 
 // ============================================================================
 //                                 TEST PLAN
@@ -364,17 +369,21 @@ class MmapAllocator : public bslma::Allocator {
     MapType           d_map;
     bslma::Allocator *d_allocator_p;
 
-    // UNIMPLEMENTED
+  private:
+    // NOT IMPLEMENTED
     MmapAllocator(const MmapAllocator &);             // = deleted
     MmapAllocator& operator=(const MmapAllocator &);  // = deleted
 
   public:
+    // CREATOR
+    explicit
     MmapAllocator(bslma::Allocator *basicAllocator = 0)
     : d_map(basicAllocator)
     , d_allocator_p(bslma::Default::allocator(basicAllocator))
     {
     }
 
+    // MANIPULATORS
     virtual void *allocate(size_type size)
     {
 #if defined(BSLS_PLATFORM_OS_SOLARIS)
@@ -534,15 +543,14 @@ double wasteCpuTime()
 #endif
 }
 
-long long controlledCpuBurn()
+bsls::Types::Int64 controlledCpuBurn()
 {
-    volatile long long factorial = 1;
+    volatile bsls::Types::Int64 factorial = 1;
     bsls::TimeInterval begin = bdlt::CurrentTime::now();
 
     while (1) {
-
-        for (int i = 1; i <= 20; ++i) {
-            factorial *= i;
+        for (int x = 1; x <= 20; ++x) {
+            factorial *= x;
         }
 
         if ((bdlt::CurrentTime::now() - begin).totalSecondsAsDouble() > 1.0) {
@@ -566,6 +574,64 @@ ObjIterator advanceIt(const ObjIterator& begin, int n)
 
 }  // close unnamed namespace
 
+#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_CYGWIN)
+
+namespace BetterParsingTest {
+
+typedef balb::PerformanceMonitor_LinuxProcStatistics ProcStats;
+
+void testParseProcStatStr(const bsl::string&  procStatStr,
+                          int                 pid,
+                          const char         *expComm = 0,
+                          bool                expRcZero = true)
+    // Test parsing the specified 'procStatStr', expected to have a process id
+    // matching the specified 'pid', expected to have a 'comm' field matching
+    // the optionally specified 'expComm', and where the return value of the
+    // parse match 0 or not depending upon the optionally specified
+    // 'expRcZero'.
+{
+    static const long clockTicksPerSec = sysconf(_SC_CLK_TCK);
+    static const long pageSize         = sysconf(_SC_PAGESIZE);
+
+    ProcStats procStats;
+    int rc = procStats.parseProcStatString(procStatStr, pid);
+    ASSERTV(expRcZero, rc, expRcZero == !rc);
+
+    if (!expRcZero) {
+        return;                                                       // RETURN
+    }
+
+    if (expComm) {
+        ASSERT(expComm == procStats.d_comm);
+    }
+
+    const double cpuTimeU = static_cast<double>(procStats.d_utime) /
+                            static_cast<double>(clockTicksPerSec);
+    const double cpuTimeS = static_cast<double>(procStats.d_stime) /
+                            static_cast<double>(clockTicksPerSec);
+
+    ASSERTV(cpuTimeU, 0.1 < cpuTimeU);
+    ASSERTV(cpuTimeU, cpuTimeU < 3);
+
+    ASSERTV(cpuTimeS, cpuTimeS < 1);
+
+    const double resSize = static_cast<double>(procStats.d_rss)
+                         * static_cast<double>(pageSize)
+                         / (1024 * 1024);
+
+    ASSERT(0.1 < resSize);
+
+    const double virtSize =
+                        static_cast<double>(procStats.d_vsize) / (1024 * 1024);
+
+    ASSERTV(virtSize, 0.1 < virtSize);
+    ASSERTV(resSize, virtSize, resSize <= virtSize);
+}
+
+}  // close namespace BetterParsingTest
+
+#endif
+
 // ============================================================================
 //                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -578,8 +644,10 @@ int main(int argc, char *argv[])
     veryVeryVerbose = (argc > 4);
     veryVeryVeryVerbose = (argc > 5);
 
+    cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
     switch (test) { case 0:  // Zero is always the leading case.
-      case 11: {
+      case 12: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -656,6 +724,116 @@ int main(int argc, char *argv[])
 
     scheduler.stop();
 //..
+      } break;
+      case 11: {
+        // --------------------------------------------------------------------
+        // TESTING COMM CONTAINING SPACES
+        //
+        // The 'comm' field normally reflects the filename of the executable,
+        // but it can be changed by the client to anything up to 16 bytes long.
+        // One way is for a child process to set a thread name in the current
+        // thread (this doesn't work for a non-child process).  It is
+        // conceivable but highly unlikely that the 'comm' field may be over 16
+        // bytes in the future.  According to 'man proc', the 'comm' field was
+        // parsable with '%s' (meaning that it could not contain spaces) but
+        // this turned out not to be the case -- a client was configuring the
+        // the 'comm' field to contain spaces, which was interfering with the
+        // the correct functioning of this component.
+        //
+        // Concern:
+        //: 1 Spaces occurring in the 'comm' field on Linux caused the parsing
+        //:   of '/proc/<pid>/stat' to fail.  Ensure that our parsing can
+        //:   cope with this.
+        //:
+        //: 2 Future versions of Linux may have more fields appended to the
+        //:   '/proc/<pid>/stat' file, and we want to ensure that our parser
+        //:   will be able to cope.
+        //
+        // Plan:
+        //: 1 Call 'ProcStat::readProcStatString' to read the
+        //:   '/proc/<pid>/stat' file into a string.
+        //:
+        //: 2 Parse that string  with 'ProcStat::parseProcStatString' and
+        //:   observe that the results are reasonable.
+        //:
+        //: 3 Separate out the 'front' and 'back' seconds of the string before
+        //:   and after the 'comm' field.
+        //:
+        //: 4 Initialize an array of various strings.
+        //:
+        //: 5 Nest two loops, each iterating through the array of strings.
+        //:   Have the outer loop dictate the string to be inserted into the
+        //:   'comm' field, and have the inner loop dictate the string to be
+        //:   appended to the assembled string.
+        //:
+        //: 6 Parse that string  with 'ProcStat::parseProcStatString' and
+        //:   observe that the results are reasonable.
+        // --------------------------------------------------------------------
+
+#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_CYGWIN)
+        namespace TC = BetterParsingTest;
+
+        if (verbose) cout << "TESTING COMM CONTAINING SPACES\n"
+                             "==============================\n";
+
+        const bsl::size_t npos = bsl::string::npos;
+
+        controlledCpuBurn();
+
+        const int pid = bdls::ProcessUtil::getProcessId();
+        bsl::string procStat;
+        int rc = TC::ProcStats::readProcStatString(&procStat, pid);
+        ASSERT(0 == rc);
+
+        if (veryVerbose) P(procStat);
+
+        TC::testParseProcStatStr(procStat, pid);
+
+        ASSERT(1 == bsl::count(procStat.begin(), procStat.end(), '('));
+        const bsl::size_t openPos = procStat.find('(');
+        ASSERT(npos != openPos);
+
+        const bsl::string FRONT = procStat.substr(0, openPos + 1);
+
+        ASSERT(1 == bsl::count(procStat.begin(), procStat.end(), ')'));
+        const bsl::size_t closePos = procStat.find(')');
+        ASSERT(npos != closePos);
+        ASSERT(openPos < closePos);
+
+        const bsl::string BACK = procStat.substr(closePos);
+
+        if (veryVerbose) { P(FRONT);    P(BACK); }
+
+        const char *strings[] = { "", "woof", "woof meow", "bow() wow()",
+                                  "))))", "((((", "!@#$%^&*()",
+                                  "()()()()()()()()", "0123456789abcdef",
+                                  "((((((((((((((((", "))))))))))))))))",
+                                  "very very very very very very very very"
+                                          " very very very very long string" };
+        enum { k_NUM_STRINGS = sizeof strings / sizeof *strings };
+        enum { k_LONG_STR_IDX = k_NUM_STRINGS - 1 };
+
+        for (int ti = 0; ti < k_NUM_STRINGS; ++ti) {
+            const bsl::string COMM     = strings[ti];
+            const bsl::string EXP_COMM = '(' + COMM + ')';
+
+            for (int tj = 0; tj < k_NUM_STRINGS; ++tj) {
+                const bsl::string TAIL = bsl::string(*strings[tj] ? " " : "") +
+                                                                   strings[tj];
+                const bsl::string str = FRONT + COMM + BACK + TAIL;
+
+                if (veryVeryVerbose) P(str);
+
+                TC::testParseProcStatStr(str, pid, EXP_COMM.c_str(),
+                                                         k_LONG_STR_IDX != ti);
+            }
+        }
+#else
+        if (verbose) bsl::cout <<
+            "There is no 'comm' field parsed on any platform other than\n"
+            "Linux, so the bug cannot occur on other platforms.\n"
+            "Test skipped.\n";
+#endif
       } break;
       case 10: {
         // --------------------------------------------------------------------
