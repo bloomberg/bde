@@ -1815,12 +1815,20 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 'rotateOnSize' triggers a rotation as expected even if the log
         //:   file already exist.
+        //:
+        //: 2 'suppressUniqueFileNameOnRotation(true)' suppresses unique
+        //:   filename generation for the rotated log file on rotation.
         //
         // Plan:
         //: 1 Set 'rotateOnSize' to 1k, create a file with approximately 0.5k.
         //:
         //: 2 Write another 0.5k to the file and verify that the file is
-        //:   rotated.  (C-1)
+        //:   rotated.  Ensure the log file name and rotated filename do not
+        //:   match. (C-1)
+        //:
+        //: 3 Call 'suppressUniqueFileNameOnRotation(true)'.  Write another
+        //:   0.5k to the file and verify that the rotation took place and the
+        //:   log file name and rotated filename are the same. (C-2)
         //
         // Testing:
         //  CONCERN: ROTATION CALLBACK TRIGGERS CORRECTLY FOR EXISTING FILE
@@ -1897,6 +1905,48 @@ int main(int argc, char *argv[])
                 ASSERT(1 == FsUtil::exists(fileName.c_str()));
                 ASSERT(1 == cb.numInvocations());
                 ASSERT(1 == FsUtil::exists(cb.rotatedFileName().c_str()));
+                ASSERTV(fileName,   cb.rotatedFileName(),
+                        fileName != cb.rotatedFileName());
+            }
+
+            if (verbose) cout <<
+                          "Testing file observer with suppressed filename "
+                          "uniqueness" << endl;
+            {
+                char buffer[512];
+                memset(buffer, 'x', sizeof buffer);
+                buffer[sizeof buffer - 1] = '\0';
+
+                BALL_LOG_TRACE << buffer;
+                mX->disableFileLogging();
+
+                enableFileLogging(mX, fileName);
+
+                BALL_LOG_TRACE << 'x';
+
+                ASSERTV(cb.numInvocations(), 1 == cb.numInvocations());
+
+                bool suppressUniqueFileNameOnRotation =
+                                      mX->isSuppressUniqueFileNameOnRotation();
+
+                ASSERTV(suppressUniqueFileNameOnRotation,
+                        false == suppressUniqueFileNameOnRotation);
+
+                mX->suppressUniqueFileNameOnRotation(true);
+
+                suppressUniqueFileNameOnRotation =
+                                      mX->isSuppressUniqueFileNameOnRotation();
+
+                ASSERTV(suppressUniqueFileNameOnRotation,
+                        true == suppressUniqueFileNameOnRotation);
+
+                BALL_LOG_TRACE << buffer;
+                BALL_LOG_TRACE << 'x';
+
+                ASSERT(1 == FsUtil::exists(fileName.c_str()));
+                ASSERTV(cb.numInvocations(), 2 == cb.numInvocations());
+                ASSERTV(fileName,   cb.rotatedFileName(),
+                        fileName == cb.rotatedFileName());
             }
 
             mX->disableFileLogging();
@@ -2870,7 +2920,6 @@ int main(int argc, char *argv[])
                 BALL_LOG_WARN  << "log 4";
 
                 // Check that the rotation occurred.
-
                 glob_t globbuf;
                 ASSERT(0 == glob((fileName + ".2*").c_str(), 0, 0, &globbuf));
                 ASSERT(3 == globbuf.gl_pathc);

@@ -53,11 +53,13 @@ BSLS_IDENT("$Id: $")
 //                         |              shutdownPublicationThread
 //                         |              startPublicationThread
 //                         |              stopPublicationThread
+//                         |              suppressUniqueFileNameOnRotation
 //                         |              getLogFormat
 //                         |              isFileLoggingEnabled
 //                         |              isPublicationThreadRunning
 //                         |              isPublishInLocalTimeEnabled
 //                         |              isStdoutLoggingPrefixEnabled
+//                         |              isSuppressUniqueFileNameOnRotation
 //                         |              recordQueueLength
 //                         |              rotationLifetime
 //                         |              rotationSize
@@ -98,33 +100,44 @@ BSLS_IDENT("$Id: $")
 // |                       | dropRecordsOnFullQueueThreshold |
 // +-----------------------+---------------------------------+
 //
-// +-------------+-----------------------------+------------------------------+
-// | Aspect      | Manipulators                | Accessors                    |
-// +=============+=============================+==============================+
-// | Log Record  | setLogFormat                | getLogFormat                 |
-// | Formatting  | enableStdoutLoggingPrefix   | isStdoutLoggingPrefixEnabled |
-// |             | disableStdoutLoggingPrefix  |                              |
-// +-------------+-----------------------------+------------------------------+
-// | Log Record  | enablePublishInLocalTime    | isPublishInLocalTimeEnabled  |
-// | Timestamps  | disablePublishInLocalTime   |                              |
-// +-------------+-----------------------------+------------------------------+
-// | File        | enableFileLogging           | isFileLoggingEnabled         |
-// | Logging     | disableFileLogging          |                              |
-// +-------------+-----------------------------+------------------------------+
-// | 'stdout'    | setStdoutThreshold          | stdoutThreshold              |
-// | Logging     | enableStdoutLoggingPrefix   | isStdoutLoggingPrefixEnabled |
-// |             | disableStdoutLoggingPrefix  |                              |
-// +-------------+-----------------------------+------------------------------+
-// | Log File    | rotateOnSize                | rotationSize                 |
-// | Rotation    | rotateOnTimeInterval        | rotationLifetime             |
-// |             | disableSizeRotation         |                              |
-// |             | disableTimeIntervalRotation |                              |
-// |             | setOnFileRotationCallback   |                              |
-// +-------------+-----------------------------+------------------------------+
-// | Publication | startPublicationThread      | isPublicationThreadRunning   |
-// | Thread      | stopPublicationThread       |                              |
-// | Management  | shutdownPublicationThread   |                              |
-// +-------------+-----------------------------+------------------------------+
+// +-------------+------------------------------------+
+// | Aspect      | Related Methods                    |
+// +=============+====================================+
+// | Log Record  | setLogFormat                       |
+// | Formatting  | enableStdoutLoggingPrefix          |
+// |             | disableStdoutLoggingPrefix         |
+// |             | getLogFormat                       |
+// |             | isStdoutLoggingPrefixEnabled       |
+// +-------------+------------------------------------+
+// | Log Record  | enablePublishInLocalTime           |
+// | Timestamps  | disablePublishInLocalTime          |
+// |             | isPublishInLocalTimeEnabled        |
+// +-------------+----------------------------------- +
+// | File        | enableFileLogging                  |
+// | Logging     | disableFileLogging                 |
+// |             | isFileLoggingEnabled               |
+// +-------------+----------------------------------- +
+// | 'stdout'    | setStdoutThreshold                 |
+// | Logging     | enableStdoutLoggingPrefix          |
+// |             | disableStdoutLoggingPrefix         |
+// |             | stdoutThreshold                    |
+// |             | isStdoutLoggingPrefixEnabled       |
+// +-------------+------------------------------------+
+// | Log File    | rotateOnSize                       |
+// | Rotation    | rotateOnTimeInterval               |
+// |             | disableSizeRotation                |
+// |             | disableTimeIntervalRotation        |
+// |             | setOnFileRotationCallback          |
+// |             | suppressUniqueFileNameOnRotation   |
+// |             | rotationSize                       |
+// |             | rotationLifetime                   |
+// |             | isSuppressUniqueFileNameOnRotation |
+// +-------------+------------------------------------+
+// | Publication | startPublicationThread             |
+// | Thread      | stopPublicationThread              |
+// | Management  | shutdownPublicationThread          |
+// |             | isPublicationThreadRunning         |
+// +-------------+------------------------------------+
 //..
 // In general, a 'ball::AsyncFileObserver' object can be dynamically configured
 // throughout its lifetime (in particular, before or after being registered
@@ -281,55 +294,91 @@ BSLS_IDENT("$Id: $")
 ///Rotated File Naming
 ///- - - - - - - - - -
 // When a log file is rotated, a new filename is generated using the pattern
-// supplied to 'enableFileLogging'.  If the new filename is the same as the old
-// filename, the old file is renamed by appending a timestamp in the form
-// ".%Y%M%D_%h%m%s" where the timestamp indicates when the file being rotated
-// was last opened (the time of either the last file rotation or the last call
-// to 'enableFileLogging', whichever is most recent).  As with timestamps of
-// logged records, the timestamps appended to log filenames upon rotation will
-// be in UTC time or local time depending on the value returned by
-// 'isPublishInLocalTimeEnabled'.
+// supplied to 'enableFileLogging'.  If the file having the new name does not
+// exist, the current log file is closed, and the logging continues to the new
+// file.
+//
+// If the file having the new name already exits, then the behavior of the file
+// rotation is further controlled by the flag set with
+// 'suppressUniqueFileNameOnRotation':
+//
+//: o 'suppressUniqueFileNameOnRotation(false)' (*default* behavior)
+//:   The current log filename is renamed by appending a timestamp in the form
+//:   ".%Y%M%D_%h%m%s" where the timestamp indicates when the file being
+//:   rotated was last opened (the time of either the last file rotation or the
+//:   last call to 'enableFileLogging', whichever is most recent).  As with the
+//:   timestamps of logged records, the timestamps appended to log filenames
+//:   upon rotation will be in UTC time or local time depending on the value
+//:   returned by 'isPublishInLocalTimeEnabled'.
+//:
+//: o 'suppressUniqueFileNameOnRotation(true)'
+//:   The logging continues to the *current* log file, effectively suppressing
+//:   log filename rotation.  This may happen when the log file pattern does
+//:   not contain %-escape sequences indicating a time period, or the rotation
+//:   interval is less than the time period encoded by %-escape sequences.  In
+//:   order to rotate log files in this mode, the log file pattern MUST contain
+//:   %-escape sequences that specify date and (optionally) time.  For example,
+//:   the log filename pattern "app_%Y%M%D.log" will produce a single log file
+//:   per calendar day (assuming, the rotation on time is enabled and the
+//:   rotation happens at least once a day).
 //
 // The two tables below illustrate the names of old and new log files when a
-// file rotation occurs.  We assume that the log file is rotated on 2011-May-20
-// at 16:45:00 local time and that the last rotation occurred at 12:30:00 on
-// the same day.  We further assume that 'enablePublishInLocalTime' was called,
-// so that all date and time elements are rendered in local time.
+// file rotation occurs.  We assume that the log file is rotated on 2011-May-21
+// at 12:29:59 local time and that the last rotation occurred at 12:30:00 on
+// the previous day.  We further assume that 'enablePublishInLocalTime' was
+// called, so that all date and time elements are rendered in local time.
 //
 // The first table shows the name change (if any) of the (old) log file being
-// rotated:
+// rotated when the flag controlled by 'suppressUniqueFileNameOnRotation'
+// is set to 'false':
 //..
-//  +----------------+-------------------------+-------------------------------
-//  | Pattern        | Log Before Rotation     | Rotated Log Filename
-//  +----------------+-------------------------+-------------------------------
-//  | "a.log"        | a.log                   | a.log.20110520_123000
-//  | "a.log.%T"     | a.log.20110520_123000   | a.log.20110520_123000
-//  | "a.log.%Y"     | a.log.2011              | a.log.2011.20110520_123000
-//  | "a.log.%Y%M%D" | a.log.20110520          | a.log.20110520.20110520_123000
-//  +----------------+-------------------------+-------------------------------
+//  Disabled: 'suppressUniqueFileNameOnRotation'
+//
+//  For brevity:
+//      <TS1> = 20210520_123000
+//      <TS2> = 20210521_122959 (aka next day, about the same time)
+//
+//  +----------------+-----------------+----------------+----------------------
+//  | Pattern        | Filename Before | Filename After | Rotated Filename
+//  |                | Rotation        | Rotation       |
+//  +----------------+-----------------+----------------+----------------------
+//  | "a.log"        | a.log           | a.log          | a.log.<TS1>
+//  | "a.log.%T"     | a.log.<TS1>     | a.log.<TS2>    | a.log.<TS1>
+//  | "a.log.%Y%M"   | a.log.202105    | a.log.202105   | a.log.202105.<TS1>
+//  | "a.log.%Y%M%D" | a.log.20210520  | a.log.20110521 | a.log.20210520
+//  +----------------+-----------------+----------------+----------------------
 //..
 // Note that upon rotation a timestamp was appended to the name of the rotated
-// file in all cases except where the filename pattern includes "%T".  In that
-// case, the name of the file before rotation indicates that the file was
-// created at 12:30:00 on the same day of the rotation being illustrated.
+// file when the log pattern does not contain %-escape sequences indicating a
+// time period ("a.log"), or the rotation period (in our case, one day) is less
+// than the time period encoded in the pattern (in case of "a.log.%Y%M" the
+// period is one month).
 //
-// The next table shows the (possibly new) name of the (new) log file following
-// rotation:
+// The next table shows the rotated name when the flag controlled by
+// 'suppressUniqueFileNameOnRotation' is set to 'true', and (possibly new) name
+// of the (new) log file following rotation:
 //..
-//  +----------------+-------------------------+
-//  | Pattern        | Log After Rotation      |
-//  +----------------+-------------------------+
-//  | "a.log"        | a.log                   |
-//  | "a.log.%T"     | a.log.20110520_164500   |
-//  | "a.log.%Y"     | a.log.2011              |
-//  | "a.log.%Y%M%D" | a.log.20110520          |
-//  +----------------+-------------------------+
+//  Enabled: 'suppressUniqueFileNameOnRotation'
+//
+//  +----------------+-----------------+----------------+----------------------
+//  | Pattern        | Filename Before | Filename After | Rotated Filename
+//  |                | Rotation        | Rotation       |
+//  +----------------+-----------------+----------------+----------------------
+//  | "a.log"        | a.log           | a.log          | none
+//  | "a.log.%T"     | a.log.<TS1>     | a.log.<TS2>    | a.log.<TS1>
+//  | "a.log.%Y%M"   | a.log.202105    | a.log.202105   | none
+//  | "a.log.%Y%M%D" | a.log.20210520  | a.log.20110521 | a.log.20210520
+//  +----------------+-----------------+----------------+----------------------
 //..
-// Note that the original filename is reused in all cases except where "%T" is
-// used in the filename pattern.  In that case, a unique name on each rotation
-// is produced with the (local) time at which file rotation occurred embedded
-// in the filename.  In any case, logging resumes to a new, initially empty,
-// file.
+// Note that the original filename is reused when the log pattern does not
+// contain %-escape sequences indicating a time period ("a.log"), or the
+// rotation period (in our case, one day) is less than the time period encoded
+// in the pattern (in case of "a.log.%Y%M" the period is one month).
+//
+// Also note, that in any cases, when the log pattern includes "%T", or encodes
+// a time period that coincides the rotation period (in case of "a.log.%Y%M%D"
+// the period is one day), then a unique name on each rotation is produced with
+// the (local) time at which file rotation occurred embedded in the filename.
 //
 ///Thread Safety
 ///-------------
@@ -882,6 +931,11 @@ class AsyncFileObserver : public Observer {
         // method will continue to be added to the queue after the publication
         // thread is stopped.
 
+    void suppressUniqueFileNameOnRotation(bool suppress);
+        // Suppress generating a unique log file name upon rotation if the
+        // specified 'suppress' is 'true', and generate a unique filename
+        // otherwise.  See {Rotated File Naming} for details.
+
     // ACCESSORS
     void getLogFormat(const char **logFileFormat,
                       const char **stdoutFormat) const;
@@ -930,6 +984,10 @@ class AsyncFileObserver : public Observer {
         // format when writing to 'stdout', and 'false' otherwise (in which
         // case the default short output format is used).  See
         // 'enableStdoutLoggingPrefix' and 'disableStdoutLoggingPrefix'.
+
+    bool isSuppressUniqueFileNameOnRotation() const;
+        // Return 'true' if the log filename uniqueness check on rotation is
+        // suppressed, and false otherwise.
 
     bool isUserFieldsLoggingEnabled() const;
         // Return 'true' if the logging of user-defined fields is enabled for
@@ -1074,6 +1132,12 @@ void AsyncFileObserver::setStdoutThreshold(Severity::Level stdoutThreshold)
     d_fileObserver.FileObserver::setStdoutThreshold(stdoutThreshold);
 }
 
+inline
+void AsyncFileObserver::suppressUniqueFileNameOnRotation(bool suppress)
+{
+    d_fileObserver.suppressUniqueFileNameOnRotation(suppress);
+}
+
 // ACCESSORS
 inline
 void AsyncFileObserver::getLogFormat(const char **logFileFormat,
@@ -1124,6 +1188,12 @@ inline
 bool AsyncFileObserver::isStdoutLoggingPrefixEnabled() const
 {
     return d_fileObserver.isStdoutLoggingPrefixEnabled();
+}
+
+inline
+bool AsyncFileObserver::isSuppressUniqueFileNameOnRotation() const
+{
+    return d_fileObserver.isSuppressUniqueFileNameOnRotation();
 }
 
 inline

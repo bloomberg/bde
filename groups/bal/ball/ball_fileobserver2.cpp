@@ -485,7 +485,9 @@ int FileObserver2::rotateFile(bsl::string *rotatedLogFileName)
                    d_logFilePattern.c_str(),
                    d_publishInLocalTime);
 
-    if (bdls::FilesystemUtil::exists(d_logFileName.c_str())) {
+    if (bdls::FilesystemUtil::exists(d_logFileName.c_str())
+        && !d_suppressUniqueFileName)
+    {
         bdlt::Datetime timeStampSuffix(oldLogFileTimestamp);
 
         if (d_publishInLocalTime) {
@@ -606,6 +608,7 @@ FileObserver2::FileObserver2(bslma::Allocator *basicAllocator)
             bsl::allocator<LogRecordFunctor>(basicAllocator),
             bdlf::MemFnUtil::memFn(&FileObserver2::logRecordDefault, this))
 , d_publishInLocalTime(false)
+, d_suppressUniqueFileName(false)
 , d_rotationSize(0)
 , d_rotationInterval(0)
 , d_onRotationCb(bsl::allocator_arg_t(),
@@ -775,6 +778,13 @@ void FileObserver2::publish(const Record& record, const Context&)
     }
 }
 
+void FileObserver2::suppressUniqueFileNameOnRotation(bool suppress)
+{
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
+
+    d_suppressUniqueFileName = suppress;
+}
+
 void FileObserver2::rotateOnLifetime(
                                     const bdlt::DatetimeInterval& timeInterval)
 {
@@ -866,6 +876,13 @@ bool FileObserver2::isPublishInLocalTimeEnabled() const
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
 
     return d_publishInLocalTime;
+}
+
+bool FileObserver2::isSuppressUniqueFileNameOnRotation() const
+{
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
+
+    return d_suppressUniqueFileName;
 }
 
 bdlt::DatetimeInterval FileObserver2::localTimeOffset() const

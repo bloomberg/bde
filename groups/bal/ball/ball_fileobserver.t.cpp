@@ -1632,13 +1632,41 @@ int main(int argc, char *argv[])
             cb.reset();
         }
 
-        if (veryVerbose) cout << "Testing 'disableLifetimeRotation'" << endl;
+        if (veryVerbose) cout << "\tTesting suppressing rotated file name "
+                                 "uniqueness" << endl;
         {
             // Temporary directory for test files.
             TempDirectoryGuard tempDirGuard;
             bsl::string        fileName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&fileName, "testLog");
 
+            ASSERT(0 == mX->enableFileLogging(fileName.c_str()));
+
+            BALL_LOG_TRACE << "log";
+            ASSERTV(cb.numInvocations(), 0 == cb.numInvocations());
+
+            mX->suppressUniqueFileNameOnRotation(true);
+
+            mX->forceRotation();
+            BALL_LOG_TRACE << "log";
+
+            ASSERTV(cb.numInvocations(), 1 == cb.numInvocations());
+            ASSERTV(fileName,   cb.rotatedFileName(),
+                    fileName == cb.rotatedFileName());
+
+            mX->disableFileLogging();
+
+            mX->suppressUniqueFileNameOnRotation(false);
+
+            cb.reset();
+        }
+
+        if (veryVerbose) cout << "\tTesting 'disableLifetimeRotation'" << endl;
+        {
+            // Temporary directory for test files.
+            TempDirectoryGuard tempDirGuard;
+            bsl::string        fileName(tempDirGuard.getTempDirName());
+            bdls::PathUtil::appendRaw(&fileName, "testLog");
 
             mX->rotateOnTimeInterval(bdlt::DatetimeInterval(0, 0, 0, 1));
             ASSERT(0 == mX->enableFileLogging(fileName.c_str()));
@@ -1654,7 +1682,7 @@ int main(int argc, char *argv[])
         }
 
         if (veryVerbose)
-            cout << "Testing 'disableTimeIntervalRotation'" << endl;
+            cout << "\tTesting 'disableTimeIntervalRotation'" << endl;
         {
             // Temporary directory for test files.
             TempDirectoryGuard tempDirGuard;

@@ -697,7 +697,7 @@ int main(int argc, char *argv[])
     bslma::TestAllocator *Z = &allocator;
 
     switch (test) { case 0:
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -848,6 +848,87 @@ int main(int argc, char *argv[])
     ASSERT(0 == rc);
 //..
 
+      } break;
+      case 14: {
+        // --------------------------------------------------------------------
+        // TESTING SUPPRESS UNIQUE FILE NAME ON ROTATION
+        //
+        // Concerns:
+        //: 1 'suppressUniqueFileNameOnRotation(true)' suppresses unique
+        //:   filename generation for the rotated log file on rotation.
+        //
+        // Plan:
+        //:  Call 'suppressUniqueFileNameOnRotation(true)'.  Force rotation and
+        //:  ensure that the rotation took place and the log file name and
+        //:  rotated filename are the same.
+        //
+        // Testing:
+        //   CONCERN: suppressUniqueFileNameOnRotation(bool);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING SUPPRESS UNIQUE FILE NAME"
+                          << "\n================================="  << endl;
+
+        // This configuration guarantees that the logger manager will publish
+        // all messages regardless of their severity and the observer will see
+        // each message only once.
+
+        ball::LoggerManagerConfiguration configuration;
+        ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
+                                                       ball::Severity::e_OFF,
+                                                       ball::Severity::e_TRACE,
+                                                       ball::Severity::e_OFF,
+                                                       ball::Severity::e_OFF));
+
+        ball::LoggerManagerScopedGuard guard(configuration);
+
+        ball::LoggerManager& manager = ball::LoggerManager::singleton();
+
+        BALL_LOG_SET_CATEGORY("TestCategory");
+
+        bslma::TestAllocator ta("test", veryVeryVeryVerbose);
+
+        bsl::shared_ptr<Obj> mX = bsl::allocate_shared<Obj>(
+                                                       &ta,
+                                                       ball::Severity::e_WARN,
+                                                       &ta);
+
+        ASSERT(0 == manager.registerObserver(mX, "testObserver"));
+
+        // Set callback to monitor rotation.
+        RotCb cb(&ta);
+        mX->setOnFileRotationCallback(cb);
+        if (veryVerbose) cout << "\tTesting suppressing rotated file name "
+                                 "uniqueness" << endl;
+        {
+            // Temporary directory for test files.
+            TempDirectoryGuard tempDirGuard;
+            bsl::string        fileName(tempDirGuard.getTempDirName());
+            bdls::PathUtil::appendRaw(&fileName, "testLog");
+
+            ASSERT(0 == mX->enableFileLogging(fileName.c_str()));
+
+            BALL_LOG_TRACE << "log";
+            ASSERTV(cb.numInvocations(), 0 == cb.numInvocations());
+
+            mX->suppressUniqueFileNameOnRotation(true);
+
+            mX->forceRotation();
+            BALL_LOG_TRACE << "log";
+
+            ASSERTV(cb.numInvocations(), 1 == cb.numInvocations());
+            ASSERTV(fileName,   cb.rotatedFileName(),
+                    fileName == cb.rotatedFileName());
+
+            mX->disableFileLogging();
+
+            mX->suppressUniqueFileNameOnRotation(false);
+
+            cb.reset();
+        }
+
+        // Deregister here as we used local allocator for the observer.
+        ASSERT(0 == manager.deregisterObserver("testObserver"));
       } break;
       case 13: {
         // --------------------------------------------------------------------
