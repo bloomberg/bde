@@ -15,6 +15,7 @@
 #include <bslim_testutil.h>
 
 #include <bsls_atomic.h>
+#include <bsls_platform.h>
 #include <bsls_stopwatch.h>
 #include <bsls_timeinterval.h>
 #include <bsls_types.h>
@@ -206,8 +207,9 @@ void benchmark(double *sysTime,
                double *wallTime,
                Uint64  iterations)
 {
-    bsls::Stopwatch sw;
+    static bsls::Stopwatch sw;
 
+    sw.reset();
     sw.start(true);
 
     while (0 < iterations--) {
@@ -230,7 +232,7 @@ void dumpTimes(double times[k_NUM_SAMPLES])
             if (k_NUM_SAMPLES <= index) {
                 break;
             }
-            printf("%st[%2d] = %4.1f", jj ? "  " : "        //     ",
+            printf("%s%2d: %6.1f", jj ? ", " : "        //     ",
                                                           index, times[index]);
         }
         printf("\n");
@@ -327,6 +329,9 @@ int main(int argc, char *argv[])
         //: 1 Write a loop that times a large number of semaphore create /
         //:   destroys, store 100 such trials in an array, sort it, then
         //:   display 10 of these results from min to max.
+        //:
+        //: 2 The clock on Windows seems to have coarser resolution, so aim for
+        //    5 ms per sample on Unix and 20 ms per sample on Windows.
         //
         // Testing:
         //   CREATORS BENCHMARK
@@ -378,6 +383,21 @@ int main(int argc, char *argv[])
         //     t[ 0] = 2963.4  t[10] = 3064.1  t[20] = 3090.3  t[30] = 3138.6
         //     t[40] = 3162.1  t[50] = 3182.8  t[60] = 3206.9  t[70] = 3231.2
         //     t[80] = 3274.4  t[90] = 3355.6  t[100] = 3999.5
+        //   ------------------------------------------------------------------
+        // Windows
+        //     iterations: 65050, mulFactor: 15372.8
+        //     SysTimes:- - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        //      0:  720.6, 10:  960.8, 20:  960.8, 30: 1201.0
+        //     40: 1201.0, 50: 1441.2, 60: 1441.2, 70: 1681.4
+        //     80: 1681.4, 90: 1921.6, 100: 2882.4
+        //     UserTimes: - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        //      0:  240.2, 10: 1201.0, 20: 1201.0, 30: 1441.2
+        //     40: 1441.2, 50: 1681.4, 60: 1681.4, 70: 1921.6
+        //     80: 1921.6, 90: 2161.8, 100: 2402.0
+        //     WallTimes: - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        //      0: 2884.8, 10: 2937.3, 20: 2978.7, 30: 2995.1
+        //     40: 3016.8, 50: 3044.7, 60: 3068.9, 70: 3088.8
+        //     80: 3130.8, 90: 3204.5, 100: 3364.6
         // --------------------------------------------------------------------
 
         if (verbose) printf("CREATORS BENCHMARK\n"
@@ -394,23 +414,29 @@ int main(int argc, char *argv[])
 
         double sysTime, userTime = 0, wallTime;
 
-        for (; userTime < 0.020; iterations *= 10) {
+        for (; userTime < 0.040; iterations *= 10) {
             if (veryVerbose) P(iterations);
             BSLS_ASSERT(iterations <= 1e9);
             u::benchmark(&sysTime, &userTime, &wallTime, iterations);
         }
 
-        // Aim for 5 ms per call to 'u::benchmark' as requested by the ticket.
+        // Aim for 5 ms per call (20 ms on Windows) to 'u::benchmark' as
+        // requested by the ticket.
 
+#if defined(BSLS_PLATFORM_OS_UNIX)
+        const double targetIterationTime = 0.005;
+#else
+        const double targetIterationTime = 0.020;
+#endif
         iterations = static_cast<Uint64>(static_cast<double>(iterations) *
-                                                           (0.005 / wallTime));
+                                             (targetIterationTime / wallTime));
 
         // Amount to adjust the time by to get ns / iteration.
 
         const double mulFactor = 1e9 / static_cast<double>(iterations);
 
-        printf("        //     iterations: %llu, mulFactor: %g\n", iterations,
-                                                                    mulFactor);
+        bsl::printf("        //     iterations: %llu, mulFactor: %g\n",
+                                                        iterations, mulFactor);
 
         for (int ii = 0; ii < u::k_NUM_SAMPLES; ++ii) {
             u::benchmark(&sysTime, &userTime, &wallTime, iterations);
@@ -424,11 +450,14 @@ int main(int argc, char *argv[])
         bsl::sort(userTimes + 0, userTimes + u::k_NUM_SAMPLES);
         bsl::sort(wallTimes + 0, wallTimes + u::k_NUM_SAMPLES);
 
-        printf("        //     SysTimes:- - - - - - - - - - - - - - - - -\n");
+        printf("        //     SysTimes:"
+                  "- - - - - - - - - - - - - - - - - - - - - - - - - - - -\n");
         u::dumpTimes(sysTimes);        
-        printf("        //     UserTimes: - - - - - - - - - - - - - - - -\n");
+        printf("        //     UserTimes:"
+                   " - - - - - - - - - - - - - - - - - - - - - - - - - - -\n");
         u::dumpTimes(userTimes);        
-        printf("        //     WallTimes: - - - - - - - - - - - - - - - -\n");
+        printf("        //     WallTimes:"
+                   " - - - - - - - - - - - - - - - - - - - - - - - - - - -\n");
         u::dumpTimes(wallTimes);        
       } break;
 
