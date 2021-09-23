@@ -1843,9 +1843,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "\tTest collectSample() for all categories"
                               << endl;
 
-        for (int li = u::e_BEGIN; li < u::e_END; ++li) {
-            const u::LibType libType = static_cast<u::LibType>(li);
-
+        {
             Obj mX(Z);
             Repository& rep = mX.collectorRepository();
             Registry&   reg = mX.metricRegistry();
@@ -1863,33 +1861,12 @@ int main(int argc, char *argv[])
             bslmt::ThreadUtil::microSleep(100000, 0);
 
             bsl::vector<balm::MetricRecord>      recordsBsl(Z);
-            std::vector<balm::MetricRecord>      recordsStd;
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-            std::pmr::vector<balm::MetricRecord> recordsPmr;
-#endif
             balm::MetricSample sample;
 
             if (veryVerbose) cout << "\t\twithout reset" << endl;
             bsl::size_t sz = -1;
-            switch (libType) {
-              case u::e_BSL: {
-                mX.collectSample(&sample, &recordsBsl, false);
-                sz = recordsBsl.size();
-              } break;
-              case u::e_STD: {
-                mX.collectSample(&sample, &recordsStd, false);
-                sz = recordsStd.size();
-              } break;
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-              case u::e_PMR: {
-                mX.collectSample(&sample, &recordsPmr, false);
-                sz = recordsPmr.size();
-              } break;
-#endif
-              default: {
-                ASSERT(0);
-              }
-            }
+            mX.collectSample(&sample, &recordsBsl, false);
+            sz = recordsBsl.size();
 
             bsls::TimeInterval window = bdlt::CurrentTime::now() - start;
             bdlt::Datetime     now    = bdlt::CurrentTime::utc();
@@ -1929,55 +1906,27 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout << "\t\twith reset" << endl;
             sample.removeAllRecords();
             bsl::vector<balm::MetricRecord>      recordsBsl2(Z);
-            std::vector<balm::MetricRecord>      recordsStd2;
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-            std::pmr::vector<balm::MetricRecord> recordsPmr2;
-#endif
 
-            switch (libType) {
-              case u::e_BSL: {
-                mX.collectSample(&sample, &recordsBsl2, true);
-                sz = recordsBsl2.size();
-              } break;
-              case u::e_STD: {
-                mX.collectSample(&sample, &recordsStd2, true);
-                sz = recordsStd2.size();
-              } break;
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-              case u::e_PMR: {
-                mX.collectSample(&sample, &recordsPmr2, true);
-                sz = recordsPmr2.size();
-              } break;
-#endif
-              default: {
-                ASSERT(0);
-              }
-            }
+            mX.collectSample(&sample, &recordsBsl2, true);
+            sz = recordsBsl2.size();
 
             ASSERT(NUM_CATEGORIES * NUM_METRICS == sz);
             ASSERT(NUM_CATEGORIES * NUM_METRICS == sample.numRecords());
             ASSERT(NUM_CATEGORIES               == sample.numGroups());
 
             ASSERT(recordsBsl == recordsBsl2);
-            ASSERT(recordsStd == recordsStd2);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-            ASSERT(recordsPmr == recordsPmr2);
-#endif
             for (int i = 0; i < NUM_CATEGORIES; ++i) {
                 for (int j = 0; j < NUM_METRICS; ++j) {
                     balm::MetricRecord record;
                     Collector *col = rep.getDefaultCollector(CATEGORIES[i],
                                                              METRICS[j]);
                     col->load(&record);
-                    ASSERTV(libType,
-                              balm::MetricRecord(record.metricId()) == record);
+                    ASSERTV(balm::MetricRecord(record.metricId()) == record);
                 }
             }
         }
 
-        for (int li = u::e_BEGIN; li < u::e_END; ++li) {
-            const u::LibType libType = static_cast<u::LibType>(li);
-
+        {
             Obj mX(Z);
             bsl::vector<const Category *> allCategories(Z);
 
@@ -2003,43 +1952,16 @@ int main(int argc, char *argv[])
                 }
 
                 bsl::vector<balm::MetricRecord>      recordsBsl(Z);
-                std::vector<balm::MetricRecord>      recordsStd;
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-                std::pmr::vector<balm::MetricRecord> recordsPmr;
-#endif
                 balm::MetricSample                   sample;
 
                 // Test without a reset.
                 const bsl::vector<const Category *>& cats = combIt.current();
 
-                switch (libType) {
-                  case u::e_BSL: {
-                    mX.collectSample(&sample,
-                                     &recordsBsl,
-                                     cats.data(),
-                                     static_cast<int>(cats.size()),
-                                     false);
-                  } break;
-                  case u::e_STD: {
-                    mX.collectSample(&sample,
-                                     &recordsStd,
-                                     cats.data(),
-                                     static_cast<int>(cats.size()),
-                                     false);
-                  } break;
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-                  case u::e_PMR: {
-                    mX.collectSample(&sample,
-                                     &recordsPmr,
-                                     cats.data(),
-                                     static_cast<int>(cats.size()),
-                                     false);
-                  } break;
-#endif
-                  default: {
-                    ASSERT(0);
-                  }
-                }
+                mX.collectSample(&sample,
+                                 &recordsBsl,
+                                 cats.data(),
+                                 static_cast<int>(cats.size()),
+                                 false);
 
                 ASSERT(static_cast<int>(NUM_METRICS * cats.size())
                                                        == sample.numRecords());
@@ -2072,52 +1994,20 @@ int main(int argc, char *argv[])
                 }
 
                 bsl::vector<balm::MetricRecord>      recordsBsl2(Z);
-                std::vector<balm::MetricRecord>      recordsStd2;
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-                std::pmr::vector<balm::MetricRecord> recordsPmr2;
-#endif
-
                 sample.removeAllRecords();
 
                 // Test with a reset.
-                switch (libType) {
-                  case u::e_BSL: {
-                    mX.collectSample(&sample,
-                                     &recordsBsl2,
-                                     cats.data(),
-                                     static_cast<int>(cats.size()),
-                                     true);
-                  } break;
-                  case u::e_STD: {
-                    mX.collectSample(&sample,
-                                     &recordsStd2,
-                                     cats.data(),
-                                     static_cast<int>(cats.size()),
-                                     true);
-                  } break;
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-                  case u::e_PMR: {
-                    mX.collectSample(&sample,
-                                     &recordsPmr2,
-                                     cats.data(),
-                                     static_cast<int>(cats.size()),
-                                     true);
-                  } break;
-#endif
-                  default: {
-                    ASSERT(0);
-                  }
-                }
+                mX.collectSample(&sample,
+                                 &recordsBsl2,
+                                 cats.data(),
+                                 static_cast<int>(cats.size()),
+                                 true);
 
                 ASSERT(static_cast<int>(NUM_METRICS * cats.size())
                                                        == sample.numRecords());
                 ASSERT(static_cast<int>(cats.size())   == sample.numGroups());
 
                 ASSERT(recordsBsl                      == recordsBsl2);
-                ASSERT(recordsStd                      == recordsStd2);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-                ASSERT(recordsPmr                      == recordsPmr2);
-#endif
 
                 for (int i = 0; i < NUM_CATEGORIES; ++i ) {
                     // Verify the correct categories are in the sample (once)

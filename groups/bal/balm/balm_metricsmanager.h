@@ -516,12 +516,11 @@ class MetricsManager {
 
   private:
     // PRIVATE MANIPULATORS
-    template <class VECTOR>
-    void collectSampleImp(MetricSample           *sample,
-                          VECTOR                 *records,
-                          const Category * const  categories[],
-                          int                     numCategories,
-                          bool                    resetFlag = false);
+    void collectSampleImp(MetricSample              *sample,
+                          bsl::vector<MetricRecord> *records,
+                          const Category * const     categories[],
+                          int                        numCategories,
+                          bool                       resetFlag = false);
         // Load into the specified 'sample' a metric sample collected from the
         // indicated categories, and append to 'records' those collected
         // records which are referred to by 'sample'.  Optionally specify a
@@ -654,32 +653,14 @@ class MetricsManager {
         // Return a reference to the modifiable registry of metrics managed by
         // this object.
 
-    void collectSample(MetricSample                   *sample,
-                       bsl::vector<MetricRecord>      *records,
-                       bool                            resetFlag = false);
-    void collectSample(MetricSample                   *sample,
-                       bsl::vector<MetricRecord>      *records,
-                       const Category    * const       categories[],
-                       int                             numCategories,
-                       bool                            resetFlag = false);
-    void collectSample(MetricSample                   *sample,
-                       std::vector<MetricRecord>      *records,
-                       bool                            resetFlag = false);
-    void collectSample(MetricSample                   *sample,
-                       std::vector<MetricRecord>      *records,
-                       const Category    * const       categories[],
-                       int                             numCategories,
-                       bool                            resetFlag = false);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-    void collectSample(MetricSample                   *sample,
-                       std::pmr::vector<MetricRecord> *records,
-                       bool                            resetFlag = false);
-    void collectSample(MetricSample                   *sample,
-                       std::pmr::vector<MetricRecord> *records,
-                       const Category    * const       categories[],
-                       int                             numCategories,
-                       bool                            resetFlag = false);
-#endif
+    void collectSample(MetricSample              *sample,
+                       bsl::vector<MetricRecord> *records,
+                       bool                       resetFlag = false);
+    void collectSample(MetricSample              *sample,
+                       bsl::vector<MetricRecord> *records,
+                       const Category    * const  categories[],
+                       int                        numCategories,
+                       bool                       resetFlag = false);
         // Load into the specified 'sample' a metric sample collected from the
         // indicated categories, and append to 'records' those collected
         // records which are referred to by 'sample'.  Optionally specify a

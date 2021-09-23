@@ -78,8 +78,7 @@ struct MetricsManager_PublicationHelper {
         // for 'publisher' in the 'sampleCache', create one and add it to the
         // 'sampleCache'.
 
-    template <class VECTOR>
-    static void collect(VECTOR                    *records,
+    static void collect(bsl::vector<MetricRecord> *records,
                         bsls::TimeInterval        *elapsedTime,
                         MetricsManager            *manager,
                         const Category            *category,
@@ -551,76 +550,7 @@ void MetricsManager_PublicationHelper::updateSampleCache(
     it->second.appendGroup(sampleGroup);
 }
 
-template <class VECTOR>
 void MetricsManager_PublicationHelper::collect(
-                                        VECTOR                    *records,
-                                        bsls::TimeInterval        *elapsedTime,
-                                        MetricsManager            *manager,
-                                        const Category            *category,
-                                        const bsls::TimeInterval&  now,
-                                        bool                       resetFlag)
-{
-    BSLMF_ASSERT(u::IsVector<VECTOR>::value);
-    BSLMF_ASSERT((bsl::is_same<typename VECTOR::value_type,
-                               MetricRecord>::value));
-
-    typedef MetricsManager::RecordsCollectionCallback Callback;
-    typedef bsl::vector<const Callback *>             CBVector;
-    typedef MetricsManager_CallbackRegistry::iterator CBRegistryIterator;
-    CBVector callbacks;
-
-    {
-        bsl::vector<MetricRecord> appendRecords(manager->d_allocator_p);
-
-        CBRegistryIterator cbkIt  = manager->d_callbacks->lowerBound(category);
-        CBRegistryIterator cbkEnd = manager->d_callbacks->upperBound(category);
-
-        // Invoke the metric collection callback functions.
-
-        for (; cbkIt != cbkEnd; ++cbkIt) {
-            (cbkIt->second)(&appendRecords, resetFlag);
-        }
-
-        BSLMF_ASSERT(bsl::is_trivially_copyable<MetricRecord>::value);
-
-        const bsl::size_t appendSize = appendRecords.size();
-        if (0 < appendSize) {
-            const bsl::size_t oldSize = records->size();
-            records->resize(oldSize + appendSize);
-            bsl::memcpy(&(*records)[oldSize],
-                        appendRecords.data(),
-                        sizeof(MetricRecord) * appendSize);
-        }
-    }
-
-    // Collect records from the collector repository.
-
-    if (resetFlag) {
-        manager->d_collectors.collectAndReset(records, category);
-    } else {
-        manager->d_collectors.collect(records, category);
-    }
-
-    // Compute the elapsed time since the previous reset, and if 'resetFlag'
-    // is 'true', update the last reset time to 'now'.
-
-    MetricsManager::LastResetTimes::iterator tmIt =
-                                      manager->d_prevResetTimes.find(category);
-    if (tmIt == manager->d_prevResetTimes.end()) {
-        *elapsedTime = now - manager->d_creationTime;
-        if (resetFlag) {
-            manager->d_prevResetTimes.insert(bsl::make_pair(category, now));
-        }
-    } else {
-        *elapsedTime = now - tmIt->second;
-        if (resetFlag) {
-            tmIt->second = now;
-        }
-    }
-}
-
-template <>
-void MetricsManager_PublicationHelper::collect<bsl::vector<MetricRecord> >(
                                         bsl::vector<MetricRecord> *records,
                                         bsls::TimeInterval        *elapsedTime,
                                         MetricsManager            *manager,
@@ -1159,19 +1089,13 @@ int MetricsManager_CallbackRegistry::findCallbacks(
                             // --------------------
 
 // PRIVATE MANIPULATORS
-template <class VECTOR>
 inline
-void MetricsManager::collectSampleImp(MetricSample           *sample,
-                                      VECTOR                 *records,
-                                      const Category * const  categories[],
-                                      int                     numCategories,
-                                      bool                    resetFlag)
+void MetricsManager::collectSampleImp(MetricSample              *sample,
+                                      bsl::vector<MetricRecord> *records,
+                                      const Category * const     categories[],
+                                      int                        numCategories,
+                                      bool                       resetFlag)
 {
-    BSLMF_ASSERT(u::IsVector<VECTOR>::value);
-
-    BSLMF_ASSERT((bsl::is_same<typename VECTOR::value_type,
-                               MetricRecord>::value));
-
     bdlt::DatetimeTz   timeStamp(bdlt::CurrentTime::utc(), 0);
     bsls::TimeInterval now = bdlt::CurrentTime::now();
 
@@ -1279,61 +1203,6 @@ void MetricsManager::collectSample(MetricSample              *sample,
                      numCategories,
                      resetFlag);
 }
-
-void MetricsManager::collectSample(MetricSample              *sample,
-                                   std::vector<MetricRecord> *records,
-                                   bool                       resetFlag)
-{
-    bsl::vector<const Category *> allCategories;
-    d_metricRegistry.getAllCategories(&allCategories);
-    collectSampleImp(sample,
-                     records,
-                     allCategories.data(),
-                     static_cast<int>(allCategories.size()),
-                     resetFlag);
-}
-
-void MetricsManager::collectSample(MetricSample              *sample,
-                                   std::vector<MetricRecord> *records,
-                                   const Category * const     categories[],
-                                   int                        numCategories,
-                                   bool                       resetFlag)
-{
-    collectSampleImp(sample,
-                     records,
-                     categories,
-                     numCategories,
-                     resetFlag);
-}
-
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-void MetricsManager::collectSample(MetricSample                   *sample,
-                                   std::pmr::vector<MetricRecord> *records,
-                                   bool                            resetFlag)
-{
-    bsl::vector<const Category *> allCategories;
-    d_metricRegistry.getAllCategories(&allCategories);
-    collectSampleImp(sample,
-                     records,
-                     allCategories.data(),
-                     static_cast<int>(allCategories.size()),
-                     resetFlag);
-}
-
-void MetricsManager::collectSample(
-                                 MetricSample                   *sample,
-                                 std::pmr::vector<MetricRecord> *records,
-                                 const Category * const          categories[],
-                                 int                             numCategories,
-                                 bool                            resetFlag)
-{
-    collectSampleImp(sample,
-                     records,
-                     categories,
-                     numCategories,
-                     resetFlag);
-}
-#endif
 
 void MetricsManager::publish(const Category *category,
                              bool            resetFlag)
