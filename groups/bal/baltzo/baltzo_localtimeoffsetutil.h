@@ -136,9 +136,9 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_atomic.h>
 
-#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-#include <bslalg_typetraits.h>
-#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#include <memory_resource>
+#endif
 
 namespace BloombergLP {
 namespace baltzo {
