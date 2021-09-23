@@ -32,19 +32,13 @@ using namespace bsl;
 //
 // MANIPULATORS
 // [ 2] TestInputIterator& operator=(const TestInputIterator&);
-// [ 3] TestInputIterator& operator++();
-// [ 3] TestInputIterator& operator++(int);
-//
-// ACCESSORS
-// [ 3] TYPE *operator->() const;
-// [ 3] TYPE operator*() const;
 //
 // FREE OPERATORS
-// [ 4] bool operator==(TestInputIterator&, TestInputIterator&);
-// [ 4] bool operator!=(TestInputIterator&, TestInputIterator&);
+// [ 3] bool operator==(TestInputIterator&, TestInputIterator&);
+// [ 3] bool operator!=(TestInputIterator&, TestInputIterator&);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 5] USAGE EXAMPLE
+// [ 4] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -204,7 +198,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 5: {
+      case 4: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -228,7 +222,7 @@ int main(int argc, char *argv[])
         testSum();
 
       } break;
-      case 4: {
+      case 3: {
         // --------------------------------------------------------------------
         // EQUALITY-COMPARISON OPERATORS
         //
@@ -279,69 +273,6 @@ int main(int argc, char *argv[])
             ASSERT(nc == NC);
             ASSERT(!(NC != nc));
             ASSERT(!(nc != NC));
-        }
-      } break;
-      case 3: {
-        // --------------------------------------------------------------------
-        // UNSUPPORTED OPERATIONS
-        //   Ensure that calls of the four implicitly declared and defined
-        //   special member functions (increment operators, indirection
-        //   operator and dereference operator) lead to assertion, but can be
-        //   compiled.
-        //
-        // Concerns:
-        //: 1 QoI: asserted forbidden function calls are detected when enabled.
-        //:
-        //: 2 Expressions with this operators are able to be compiled.
-        //
-        // Plan:
-        //: 1 Manually call different methods of the object.  (C-1..2)
-        //:
-        //: 2 Verify that defensive checks are triggered for unacceptable
-        //:   operator calls. (C-1)
-        //
-        // Testing:
-        //   TestInputIterator& operator++();
-        //   TestInputIterator& operator++(int);
-        //   TYPE *operator->() const;
-        //   TYPE operator*() const;
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "UNSUPPORTED OPERATIONS" << endl
-                          << "======================" << endl;
-
-        if (verbose) cout <<
-                            "\nNegative Testing of direct invocation." << endl;
-        {
-            bsls::AssertTestHandlerGuard hG;
-
-            bdlb::TestInputIterator<int> ni;
-//          ASSERT_FAIL(++ni);
-//          ASSERT_FAIL(ni++);
-//          ASSERT_FAIL(*ni);
-
-            bdlb::TestInputIterator<MyClass> nc;
-//          ASSERT_FAIL(++nc);
-//          ASSERT_FAIL(nc++);
-//          ASSERT_FAIL(*nc);
-//          ASSERT_FAIL(nc->value());
-        }
-
-        if (verbose) cout << "\nNegative Testing of expressions" << endl;
-        {
-            bsls::AssertTestHandlerGuard hG;
-
-            bdlb::TestInputIterator<int> ni;
-//          ASSERT_FAIL(bdlb::TestInputIterator<int>(++ni));
-//          ASSERT_FAIL(bdlb::TestInputIterator<int>(ni++));
-//          ASSERT_FAIL(MyClass nmci(*ni));
-
-            bdlb::TestInputIterator<MyClass> nc;
-//          ASSERT_FAIL(bdlb::TestInputIterator<MyClass> nc2(++nc));
-//          ASSERT_FAIL(bdlb::TestInputIterator<MyClass> nc3(nc++));
-//          ASSERT_FAIL(MyClass nmc(*nc));
-//          ASSERT_FAIL(MyClass(nc->value()));
         }
       } break;
       case 2: {
