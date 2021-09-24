@@ -80,17 +80,17 @@ OccurrenceInfo::OccurrenceInfo(const bsl::string&  defaultValue,
 , d_isHidden(false)
 , d_defaultValue(defaultValue, basicAllocator)
 {
-    // It would be nice to change 'defaultValue' to a string view, but the
-    // overload that we'll call from 'd_defaultValue' will take a
-    // 'const bsl::string&', so turning 'defaultValue' into a string view will,
-    // in the case where a 'const 'bsl::string&' is passed, result in a
-    // conversion to a string view and then back to a string.  'const
-    // char *'s, 'std::string's and 'std::pmr::string's can be passed, and will
-    // coerce to a 'bsl::string', which would've happened anyway if
-    // 'defaultValue' were a string view.
+    // Implementation note: Changing the type of 'defaultValue' to
+    // 'bsl::string_view' would lead to the need for creating a temporary
+    // 'bsl::string' when initializing 'd_defaultValue', so turning
+    // 'defaultValue' into a string view will, in the case where a
+    // 'const bsl::string&' is passed, result in a conversion to a string view
+    // and then back to a string.  'const char *'s, 'std::string's and
+    // 'std::pmr::string's can be passed, and will coerce to a 'bsl::string',
+    // which would've happened anyway if 'defaultValue' were a string view.
     //
-    // So changing 'defaultValue' to a string view accomplishes no gain in the
-    // cases of 'const char *', 'std::string', and 'std::pmr::string', and
+    // So changing 'defaultValue' to a string view would accomplish no gain in
+    // the cases of 'const char *', 'std::string', and 'std::pmr::string', and
     // results in a loss in the case of 'bsl::string'.
 }
 

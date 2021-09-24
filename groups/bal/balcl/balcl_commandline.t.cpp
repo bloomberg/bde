@@ -5577,15 +5577,12 @@ int main(int argc, const char *argv[])
 
             bsls::AssertTestHandlerGuard hGa;
 
-//          ASSERT_FAIL(SH.index(static_cast<const char *>(0)));
             ASSERT_FAIL(SH.name(badIndex));
 
             ASSERT_FAIL(SH.type(badIndex));
-//          ASSERT_FAIL(SH.type(static_cast<const char *>(0)));
             ASSERT_FAIL(SH.type(badName));
 
             ASSERT_FAIL(SH.value(badIndex));
-//          ASSERT_FAIL(SH.value(static_cast<const char *>(0)));
             ASSERT_FAIL(SH.value(badName));
 
             ASSERT_FAIL(X.hasValue(badName));
@@ -5611,11 +5608,7 @@ int main(int argc, const char *argv[])
                     // Good Type; bad arguments
                     ASSERT_FAIL(SH.the<Bool>(badIndex));
                     ASSERT_FAIL(SH.the<Bool>(badName));
-//                  ASSERT_FAIL(SH.the<Bool>(
-//                                      static_cast<const char *>(0)));
                     ASSERT_FAIL(SH.theBool(badName));
-//                  ASSERT_FAIL(SH.theBool(
-//                                      static_cast<const char *>(0)));
                     ASSERT_FAIL(X .theBool(bsl::string(badName)));
 
                     // Bad Type; good argument
@@ -5635,11 +5628,7 @@ int main(int argc, const char *argv[])
                     // Good Type; bad arguments
                     ASSERT_FAIL(SH.the<Char>(badIndex));
                     ASSERT_FAIL(SH.the<Char>(badName));
-//                  ASSERT_FAIL(SH.the<Char>(
-//                                      static_cast<const char *>(0)));
                     ASSERT_FAIL(SH.theChar(badName));
-//                  ASSERT_FAIL(SH.theChar(
-//                                      static_cast<const char *>(0)));
                     ASSERT_FAIL(X .theChar(bsl::string(badName)));
 
                     // Bad Type; good argument
@@ -5658,11 +5647,7 @@ int main(int argc, const char *argv[])
                     // Good Type; bad arguments
                     ASSERT_FAIL(SH.the<Int>(badIndex));
                     ASSERT_FAIL(SH.the<Int>(badName));
-//                  ASSERT_FAIL(SH.the<Int>(
-//                                      static_cast<const char *>(0)));
                     ASSERT_FAIL(SH.theInt(badName));
-//                  ASSERT_FAIL(SH.theInt(
-//                                      static_cast<const char *>(0)));
                     ASSERT_FAIL(X .theInt(bsl::string(badName)));
 
                     // Bad Type; good argument
@@ -5681,11 +5666,7 @@ int main(int argc, const char *argv[])
                     // Good Type; bad arguments
                     ASSERT_FAIL(SH.the<Int64>(badIndex));
                     ASSERT_FAIL(SH.the<Int64>(badName));
-//                  ASSERT_FAIL(SH.the<Int64>(
-//                                      static_cast<const char *>(0)));
                     ASSERT_FAIL(SH.theInt64(badName));
-//                  ASSERT_FAIL(SH.theInt64(
-//                                      static_cast<const char *>(0)));
                     ASSERT_FAIL(X .theInt64(bsl::string(badName)));
 
                     // Bad Type; good argument
@@ -5704,11 +5685,7 @@ int main(int argc, const char *argv[])
                     // Good Type; bad arguments
                     ASSERT_FAIL(SH.the<Double>(badIndex));
                     ASSERT_FAIL(SH.the<Double>(badName));
-//                  ASSERT_FAIL(SH.the<Double>(
-//                                      static_cast<const char *>(0)));
                     ASSERT_FAIL(SH.theDouble(badName));
-//                  ASSERT_FAIL(SH.theDouble(
-//                                      static_cast<const char *>(0)));
                     ASSERT_FAIL(X .theDouble(bsl::string(badName)));
 
                     // Bad Type; good argument
@@ -5727,11 +5704,7 @@ int main(int argc, const char *argv[])
                     // Good Type; bad arguments
                     ASSERT_FAIL(SH.the<String>(badIndex));
                     ASSERT_FAIL(SH.the<String>(badName));
-//                  ASSERT_FAIL(SH.the<String>(
-//                                      static_cast<const char *>(0)));
                     ASSERT_FAIL(SH.theString(badName));
-//                  ASSERT_FAIL(SH.theString(
-//                                      static_cast<const char *>(0)));
                     ASSERT_FAIL(X .theString(bsl::string(badName)));
 
                     // Bad Type; good argument
@@ -5750,11 +5723,7 @@ int main(int argc, const char *argv[])
                     // Good Type; bad arguments
                     ASSERT_FAIL(SH.the<Datetime>(badIndex));
                     ASSERT_FAIL(SH.the<Datetime>(badName));
-//                  ASSERT_FAIL(SH.the<Datetime>(
-//                                      static_cast<const char *>(0)));
                     ASSERT_FAIL(SH.theDatetime(badName));
-//                  ASSERT_FAIL(SH.theDatetime(
-//                                      static_cast<const char *>(0)));
                     ASSERT_FAIL(X .theDatetime(bsl::string(badName)));
 
                     // Bad Type; good argument
@@ -5773,11 +5742,7 @@ int main(int argc, const char *argv[])
                     // Good Type; bad arguments
                     ASSERT_FAIL(SH.the<Date>(badIndex));
                     ASSERT_FAIL(SH.the<Date>(badName));
-//                  ASSERT_FAIL(SH.the<Date>(
-//                                       static_cast<const char *>(0)));
                     ASSERT_FAIL(SH.theDate(badName));
-//                  ASSERT_FAIL(SH.theDate(
-//                                       static_cast<const char *>(0)));
                     ASSERT_FAIL(X .theDate(bsl::string(badName)));
 
                     // Bad Type; good argument
@@ -5796,11 +5761,7 @@ int main(int argc, const char *argv[])
                     // Good Type; bad arguments
                     ASSERT_FAIL(SH.the<Time>(badIndex));
                     ASSERT_FAIL(SH.the<Time>(badName));
-//                  ASSERT_FAIL(SH.the<Time>(
-//                                      static_cast<const char *>(0)));
                     ASSERT_FAIL(SH.theTime(badName));
-//                  ASSERT_FAIL(SH.theTime(
-//                                      static_cast<const char *>(0)));
                     ASSERT_FAIL(X .theTime(bsl::string(badName)));
 
                     // Bad Type; good argument
@@ -5819,11 +5780,7 @@ int main(int argc, const char *argv[])
                     // Good Type; bad arguments
                     ASSERT_FAIL(SH.the<CharArray>(badIndex));
                     ASSERT_FAIL(SH.the<CharArray>(badName));
-//                  ASSERT_FAIL(SH.the<CharArray>(
-//                                      static_cast<const char *>(0)));
                     ASSERT_FAIL(SH.theCharArray(badName));
-//                  ASSERT_FAIL(SH.theCharArray(
-//                                      static_cast<const char *>(0)));
                     ASSERT_FAIL(X .theCharArray(bsl::string(badName)));
 
                     // Bad Type; good argument
@@ -5842,11 +5799,7 @@ int main(int argc, const char *argv[])
                     // Good Type; bad arguments
                     ASSERT_FAIL(SH.the<IntArray>(badIndex));
                     ASSERT_FAIL(SH.the<IntArray>(badName));
-//                  ASSERT_FAIL(SH.the<IntArray>(
-//                                      static_cast<const char *>(0)));
                     ASSERT_FAIL(SH.theIntArray(badName));
-//                  ASSERT_FAIL(SH.theIntArray(
-//                                      static_cast<const char *>(0)));
                     ASSERT_FAIL(X .theIntArray(bsl::string(badName)));
 
                     // Bad Type; good argument
@@ -5865,11 +5818,7 @@ int main(int argc, const char *argv[])
                     // Good Type; bad arguments
                     ASSERT_FAIL(SH.the<Int64Array>(badIndex));
                     ASSERT_FAIL(SH.the<Int64Array>(badName));
-//                  ASSERT_FAIL(SH.the<Int64Array>(
-//                                      static_cast<const char *>(0)));
                     ASSERT_FAIL(SH.theInt64Array(badName));
-//                  ASSERT_FAIL(SH.theInt64Array(
-//                                      static_cast<const char *>(0)));
                     ASSERT_FAIL(X .theInt64Array(bsl::string(badName)));
 
                     // Bad Type; good argument
@@ -5888,11 +5837,7 @@ int main(int argc, const char *argv[])
                     // Good Type; bad arguments
                     ASSERT_FAIL(SH.the<DoubleArray>(badIndex));
                     ASSERT_FAIL(SH.the<DoubleArray>(badName));
-//                  ASSERT_FAIL(SH.the<DoubleArray>(
-//                                      static_cast<const char *>(0)));
                     ASSERT_FAIL(SH.theDoubleArray(badName));
-//                  ASSERT_FAIL(SH.theDoubleArray(
-//                                      static_cast<const char *>(0)));
                     ASSERT_FAIL(X .theDoubleArray(bsl::string(badName)));
 
                     // Bad Type; good argument
@@ -5911,11 +5856,7 @@ int main(int argc, const char *argv[])
                     // Good Type; bad arguments
                     ASSERT_FAIL(SH.the<StringArray>(badIndex));
                     ASSERT_FAIL(SH.the<StringArray>(badName));
-//                  ASSERT_FAIL(SH.the<StringArray>(
-//                                      static_cast<const char *>(0)));
                     ASSERT_FAIL(SH.theStringArray(badName));
-//                  ASSERT_FAIL(SH.theStringArray(
-//                                      static_cast<const char *>(0)));
                     ASSERT_FAIL(X .theStringArray(bsl::string(badName)));
 
                     // Bad Type; good argument
@@ -5934,11 +5875,7 @@ int main(int argc, const char *argv[])
                     // Good Type; bad arguments
                     ASSERT_FAIL(SH.the<DatetimeArray>(badIndex));
                     ASSERT_FAIL(SH.the<DatetimeArray>(badName));
-//                  ASSERT_FAIL(SH.the<DatetimeArray>(
-//                                      static_cast<const char *>(0)));
                     ASSERT_FAIL(SH.theDatetimeArray(badName));
-//                  ASSERT_FAIL(SH.theDatetimeArray(
-//                                      static_cast<const char *>(0)));
                     ASSERT_FAIL(X .theDatetimeArray(bsl::string(badName)));
 
                     // Bad Type; good argument
@@ -5957,11 +5894,7 @@ int main(int argc, const char *argv[])
                     // Good Type; bad arguments
                     ASSERT_FAIL(SH.the<DateArray>(badIndex));
                     ASSERT_FAIL(SH.the<DateArray>(badName));
-//                  ASSERT_FAIL(SH.the<DateArray>(
-//                                      static_cast<const char *>(0)));
                     ASSERT_FAIL(SH.theDateArray(badName));
-//                  ASSERT_FAIL(SH.theDateArray(
-//                                      static_cast<const char *>(0)));
                     ASSERT_FAIL(X .theDateArray(bsl::string(badName)));
 
                     // Bad Type; good argument
@@ -5980,11 +5913,7 @@ int main(int argc, const char *argv[])
                     // Good Type; bad arguments
                     ASSERT_FAIL(SH.the<TimeArray>(badIndex));
                     ASSERT_FAIL(SH.the<TimeArray>(badName));
-//                  ASSERT_FAIL(SH.the<TimeArray>(
-//                                      static_cast<const char *>(0)));
                     ASSERT_FAIL(SH.theTimeArray(badName));
-//                  ASSERT_FAIL(SH.theTimeArray(
-//                                      static_cast<const char *>(0)));
                     ASSERT_FAIL(X .theTimeArray(bsl::string(badName)));
 
                     // Bad Type; good argument
