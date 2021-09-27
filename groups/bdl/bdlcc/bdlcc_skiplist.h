@@ -1359,7 +1359,8 @@ class SkipList {
         // appended to 'removed' will be in ascending order by key value.
         // Return the number of items that were removed from this list.  Note
         // that all references in 'removed' must be released (i.e., destroyed)
-        // before this skip list is destroyed.
+        // before this skip list is destroyed.  Note that if 'removed' is not
+        // specified, all removed elements will be released by this method.
 
     int removeAllRaw(bsl::vector<Pair *>      *removed);
     int removeAllRaw(std::vector<Pair *>      *removed);
@@ -1371,8 +1372,7 @@ class SkipList {
         // items.  *Each* such pointer must be released (using
         // 'releaseReferenceRaw') when it is no longer needed.  The pairs
         // appended to 'removed' will be in ascending order by key value.
-        // Return the number of items that were removed from this list.  If
-        // 'removed' is 0, all the removed nodes will be released.
+        // Return the number of items that were removed from this list.
 
                          // Update Methods
 

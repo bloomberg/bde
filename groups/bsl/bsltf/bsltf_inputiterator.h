@@ -169,19 +169,22 @@ class InputIterator {
 
     InputIterator& operator++();
         // Increment this iterator to refer to the next contiguous 'TYPE'
-        // object, and return a reference to after the increment.
+        // object, and return a reference to after the increment.  The behavior
+        // is undefined if this iterator is empty.
 
     InputIterator operator++(int);
-        // Copy this iterator, increment, and return by value the copy that
-        // was made prior to the increment.
+        // Copy this iterator, increment, and return by value the copy that was
+        // made prior to the increment.  The behavior is undefined if this
+        // iterator is empty.
 
     // ACCESSORS
     pointer operator->() const;
         // Return a pointer to the 'TYPE' object referred to by this iterator.
+        // The behavior is undefined if this iterator is empty.
 
     reference operator*() const;
         // Return a const reference to the 'TYPE' object referred to by this
-        // iterator.
+        // iterator.  The behavior is undefined if this iterator is empty.
 };
 
 // FREE OPERATORS
