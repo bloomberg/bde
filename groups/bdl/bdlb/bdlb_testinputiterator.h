@@ -89,7 +89,7 @@ namespace bdlb {
                         // class TestInputIterator
                         // =======================
 
-#if 201103L <= BSLS_COMPILERFEATURES_CPLUSPLUS
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
 
 template <class TYPE>
 using TestInputIterator = bsltf::InputIterator<TYPE>;
