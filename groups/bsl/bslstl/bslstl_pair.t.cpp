@@ -180,7 +180,8 @@ using bsls::NameOf;
 // [17] template <class U1, class U2> operator std::tuple<U1&, U2&>()
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [27] USAGE EXAMPLE
+// [27] CLASS TEMPLATE DEDUCTION GUIDES
+// [28] USAGE EXAMPLE
 // [ 3] Type Traits
 // [ 7] Concern: Can create a pointer-to-member for 'first' and 'second'
 // [ 8] Concern: Can assign to a 'pair' of references
@@ -5589,6 +5590,135 @@ namespace IsDefaultConstructibleTestTypes {
 }  // close namespace IsDefaultConstructibleTestTypes
 #endif
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+struct TestDeductionGuides {
+    // This struct provides a namespace for functions testing deduction guides.
+    // The tests are compile-time only; it is not necessary that these routines
+    // be called at run-time.  Note that the following constructors do not have
+    // associated deduction guides because the template parameters for
+    // 'bsl::pair' cannot be deduced from the constructor parameters.
+    //..
+    // pair()
+    // pair(bslma::Allocator *)
+    // pair(piecewise_construct_t, ...);
+    // pair(piecewise_construct_t, ..., bslma::Allocator *);
+    // All the converting constructors
+    //..
+
+#define ASSERT_SAME_TYPE(...) \
+ static_assert((bsl::is_same<__VA_ARGS__>::value), "Types differ unexpectedly")
+
+    static void BslPairConstructors ()
+        // Test that constructing a 'bsl::pair' from a 'bsl::pair' and
+        // (optionally) an allocator deduces the correct type.
+        //..
+        // pair(const pair&  t) -> decltype(t)
+        // pair(      pair&& t) -> decltype(t)
+        // pair(const pair&  t, bslma::Allocator *) -> decltype(t)
+        // pair(      pair&& t, bslma::Allocator *) -> decltype(t)
+        //..
+    {
+        my_String             s ("abc");
+        bslma::Allocator     *a1 = NULL;
+        bslma::TestAllocator *a2 = NULL;
+
+        bsl::pair<double, long> const p1(0.0, 42L);
+        bsl::pair                     p1a(p1);
+        ASSERT_SAME_TYPE(decltype(p1a), bsl::pair<double, long>);
+
+        bsl::pair<my_String, void*> p2("abc", nullptr);
+        bsl::pair                   p2a(std::move(p2));
+        ASSERT_SAME_TYPE(decltype(p2a), bsl::pair<my_String, void*>);
+
+        bsl::pair<my_String, void*> p3("abc", nullptr);
+        bsl::pair                   p3a(p3, a1);
+        bsl::pair                   p3b(p3, a2);
+        ASSERT_SAME_TYPE(decltype(p3a), bsl::pair<my_String, void*>);
+        ASSERT_SAME_TYPE(decltype(p3b), bsl::pair<my_String, void*>);
+
+        bsl::pair<my_String, void*> p4("abc", nullptr);
+        bsl::pair                   p4a(std::move(p4), a1);
+        bsl::pair                   p4b(std::move(p4), a2);
+        ASSERT_SAME_TYPE(decltype(p4a), bsl::pair<my_String, void*>);
+        ASSERT_SAME_TYPE(decltype(p4b), bsl::pair<my_String, void*>);
+
+        bsl::pair<double, long> const p5(0.0, 42L);
+        bsl::pair                     p5a(a1, p5);
+        ASSERT_SAME_TYPE(decltype(p5a), bsl::pair<bslma::Allocator *,
+                                                  bsl::pair<double, long>>);
+    }
+
+    static void SimpleConstructors ()
+        // Test that constructing a 'bsl::pair' from a two arguments and
+        // (optionally) an allocator deduces the correct type.
+        //..
+        // pair(const T1&,  const T2& ) -> pair<T1, T2>
+        // pair(      T1&&,       T2&&) -> pair<T1, T2>
+        // pair(const T1&, const T2&, bslma::Allocator *) -> pair<T1, T2>
+        //..
+    {
+        int                   x = 42;
+        my_String             s ("abc");
+        bslma::Allocator     *a1 = NULL;
+        bslma::TestAllocator *a2 = NULL;
+
+        bsl::pair p1("abc", x);
+        ASSERT_SAME_TYPE(decltype(p1), bsl::pair<const char*, int>);
+
+        bsl::pair p2(std::move(x), std::move(s));
+        ASSERT_SAME_TYPE(decltype(p2), bsl::pair<int, my_String>);
+
+        bsl::pair p3a(s, 42, a1);
+        bsl::pair p3b(42, s, a2);
+        ASSERT_SAME_TYPE(decltype(p3a), bsl::pair<my_String, int>);
+        ASSERT_SAME_TYPE(decltype(p3b), bsl::pair<int, my_String>);
+    }
+
+    static void StdPairConstructors ()
+        // Test that constructing a 'bsl::pair' from a 'std::pair' and
+        // (optionally) an allocator deduces the correct type.
+        //..
+        // pair(const std::pair<T1, T2>&)  -> pair<T1, T2>
+        // pair(      std::pair<T1, T2>&&) -> pair<T1, T2>
+        // pair(const std::pair<T1, T2>&,  bslma::Allocator *) -> pair<T1, T2>
+        // pair(      std::pair<T1, T2>&&, bslma::Allocator *) -> pair<T1, T2>
+        //..
+    {
+        my_String             s ("abc");
+        bslma::Allocator     *a1 = NULL;
+        bslma::TestAllocator *a2 = NULL;
+
+        std::pair<const char*, int> p1("abc", 42);
+        bsl::pair                   p1a(p1);
+        ASSERT_SAME_TYPE(decltype(p1a), bsl::pair<const char*, int>);
+
+        std::pair<my_String, void*> p2(s, nullptr);
+        bsl::pair                   p2a(std::move(p2));
+        ASSERT_SAME_TYPE(decltype(p2a), bsl::pair<my_String, void*>);
+
+        std::pair<my_String, int> p3(s, 42);
+        bsl::pair                 p3a(p3, a1);
+        bsl::pair                 p3b(p3, a2);
+        ASSERT_SAME_TYPE(decltype(p3a), bsl::pair<my_String, int>);
+        ASSERT_SAME_TYPE(decltype(p3b), bsl::pair<my_String, int>);
+
+        std::pair<my_String, void*> p4(s, nullptr);
+        bsl::pair                   p4a(std::move(p4), a1);
+        bsl::pair                   p4b(std::move(p4), a2);
+        ASSERT_SAME_TYPE(decltype(p4a), bsl::pair<my_String, void*>);
+        ASSERT_SAME_TYPE(decltype(p4b), bsl::pair<my_String, void*>);
+
+        std::pair<double, long> const p5(0.0, 42L);
+        bsl::pair                     p5a(a1, p5);
+        ASSERT_SAME_TYPE(decltype(p5a),
+                                    bsl::pair<bslma::Allocator *,
+                                              std::pair<double, long>>);
+    }
+
+#undef ASSERT_SAME_TYPE
+};
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_CTAD
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -5611,7 +5741,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 27: {
+      case 28: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -5633,6 +5763,45 @@ int main(int argc, char *argv[])
 
         usageExample();
 
+      } break;
+      case 27: {
+        //---------------------------------------------------------------------
+        // TESTING CLASS TEMPLATE DEDUCTION GUIDES (AT COMPILE TIME)
+        //   Ensure that the deduction guides are properly specified to deduce
+        //   the template arguments from the arguments supplied to the
+        //   constructors.
+        //
+        // Concerns:
+        //: 1 Simple two argument constructors deduce the template arguments.
+        //:
+        //: 2 Providing an allocator as the third argument does not suppress
+        //:   deduction.
+        //:
+        //: 3 Constructing a 'pair' from 'native_std::pair' deduces the
+        //:   template arguments.
+        //
+        //: 4 Constructing a 'pair' from 'pair' (native_std or bsl) and an
+        //:   allocator deduces a pair + allocator, rather than a
+        //:   pair<pair, Allocator>.
+        //
+        // Plan:
+        //: 1 Create a pair by invoking the constructor without supplying the
+        //:   template arguments explicitly.
+        //:
+        //: 2 Verify that the deduced type is correct.
+        //
+        // Testing:
+        //   CLASS TEMPLATE DEDUCTION GUIDES
+        //---------------------------------------------------------------------
+        if (verbose)
+            printf(
+              "\nTESTING CLASS TEMPLATE DEDUCTION GUIDES (AT COMPILE TIME)"
+              "\n=========================================================\n");
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+        // This is a compile-time only test case.
+        TestDeductionGuides test;
+#endif
       } break;
       case 26: {
         // --------------------------------------------------------------------

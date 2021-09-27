@@ -1582,6 +1582,63 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
         // field is no-throw.
 };
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+// CLASS TEMPLATE DEDUCTION GUIDES
+
+// When we are deducing from a 'pair<T1, T2>' (std or bsl) and an
+// 'Allocator *', we want to deduce a 'bsl::pair<T1, T2>', not a
+// bsl::pair<pair<T1, T2>, Allocator *>.
+//
+// Note that order is important; if given an 'Allocator *' and a
+// 'pair<T1, T2>' we deduce 'bsl::pair<Allocator *, pair<T1, T2>>'.
+
+template <class T1, class T2>
+pair(T1, T2) -> pair<T1, T2>;
+    // Deduce the specified types 'T1' and 'T2' from the corresponding types
+    // supplied to the constructor of 'pair'.
+
+template <
+    class T1,
+    class T2,
+    class ALLOC,
+    class = bsl::enable_if<
+         std::is_convertible<ALLOC *, BloombergLP::bslma::Allocator *>::value>>
+pair(T1, T2, ALLOC *) -> pair<T1, T2>;
+    // Deduce the specified types 'T1' and 'T2' from the corresponding types
+    // supplied to the constructor of 'pair'.  This guide does not participate
+    // in deduction unless the specified 'ALLOC' inherits from
+    // 'bslma::Allocator'.
+
+template <
+    class T1,
+    class T2,
+    class ALLOC,
+    class = bsl::enable_if<
+         std::is_convertible<ALLOC *, BloombergLP::bslma::Allocator *>::value>>
+pair(pair<T1, T2>, ALLOC *) -> pair<T1, T2>;
+    // Deduce the specified types 'T1' and 'T2' from the corresponding template
+    // parameters of the 'bsl::pair' supplied to the constructor of 'pair'.
+    // This guide does not participate in deduction unless the specified
+    // 'ALLOC' inherits from 'bslma::Allocator'.
+
+template <class T1, class T2>
+pair(std::pair<T1, T2>) -> pair<T1, T2>;
+    // Deduce the specified types 'T1' and 'T2' from the corresponding template
+    // parameters of the 'std::pair' supplied to the constructor of 'pair'.
+
+template <
+    class T1,
+    class T2,
+    class ALLOC,
+    class = bsl::enable_if<
+         std::is_convertible<ALLOC *, BloombergLP::bslma::Allocator *>::value>>
+pair(std::pair<T1, T2>, ALLOC *) -> pair<T1, T2>;
+    // Deduce the specified types 'T1' and 'T2' from the corresponding template
+    // parameters of the 'std::pair' supplied to the constructor of 'pair'.
+    // This guide does not participate in deduction unless the specified
+    // 'ALLOC' inherits from 'bslma::Allocator'.
+#endif
+
 // FREE OPERATORS
 template <class T1, class T2>
 inline

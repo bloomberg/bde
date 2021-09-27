@@ -10,6 +10,7 @@
             "debug-mode"       : false,
             "options"          : [
                 "-nodefinc",
+                "-std=c++17",
                 "-cl='set ident_header bsls_ident'"
             ],
             "header-paths"     : [
