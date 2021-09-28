@@ -2900,7 +2900,7 @@ inline
 optional<TYPE, USES_BSLMA_ALLOC>::optional(
                              BloombergLP::bslmf::MovableRef<optional> original)
                        BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
-                                    is_nothrow_move_constructible<TYPE>::value)
+                               bsl::is_nothrow_move_constructible<TYPE>::value)
 : d_allocator(MoveUtil::access(original).get_allocator())
 {
     optional& lvalue = original;

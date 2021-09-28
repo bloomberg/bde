@@ -5978,14 +5978,8 @@ void TestDriver<TYPE>::testCase20()
 
     Obj                  mX;    
 
-#if 201703L <= BSLS_COMPILERFEATURES_CPLUSPLUS
-    const bsl::nullopt_t no(bsl::nullopt_t::_Construct::_Token);
-#else
-    const bsl::nullopt_t no(1);
-#endif
-
     ASSERTV(type, noexcept(Obj()));
-    ASSERTV(type, noexcept(Obj(no)));
+    ASSERTV(type, noexcept(Obj(bsl::nullopt)));
     ASSERTV(type, bsl::is_nothrow_move_constructible<TYPE>::value == 
                                                  noexcept(Obj(std::move(mX))));
 #endif
