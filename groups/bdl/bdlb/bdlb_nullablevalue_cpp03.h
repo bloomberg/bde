@@ -21,7 +21,7 @@
 // specially delimited regions of C++11 code, then this header contains no
 // code and is not '#include'd in the original header.
 //
-// Generated on Thu Jun 10 09:59:37 2021
+// Generated on Tue Sep 28 14:00:56 2021
 // Command line: sim_cpp11_features.pl bdlb_nullablevalue.h
 
 #ifdef COMPILING_BDLB_NULLABLEVALUE_H
@@ -126,7 +126,9 @@ class NullableValue : public bsl::optional<TYPE> {
         // construction, use the currently installed default allocator to
         // supply memory.
 
-    NullableValue(bslmf::MovableRef<NullableValue> original);
+    NullableValue(bslmf::MovableRef<NullableValue> original)
+                      BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                              bsl::is_nothrow_move_constructible<TYPE>::value);
         // Create a nullable object having the same value as the specified
         // 'original' object by moving the contents of 'original' to the
         // newly-created object.  If 'TYPE' takes an optional allocator at
@@ -775,6 +777,8 @@ NullableValue<TYPE>::NullableValue(const NullableValue&  original,
 template <class TYPE>
 inline
 NullableValue<TYPE>::NullableValue(bslmf::MovableRef<NullableValue> original)
+                       BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                               bsl::is_nothrow_move_constructible<TYPE>::value)
 : bsl::optional<TYPE>(MoveUtil::move(
       static_cast<bsl::optional<TYPE>&>(MoveUtil::access(original))))
 {

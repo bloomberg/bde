@@ -98,6 +98,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_integralconstant.h>
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_isconvertible.h>
+#include <bslmf_isnothrowmoveconstructible.h>
 #include <bslmf_issame.h>
 #include <bslmf_movableref.h>
 #include <bslmf_nestedtraitdeclaration.h>
@@ -725,11 +726,11 @@ class optional {
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
     // CREATORS
-    optional();
+    optional() BSLS_KEYWORD_NOEXCEPT;
         // Create a disengaged 'optional' object.  Use the currently installed
         // default allocator to supply memory.
 
-    optional(bsl::nullopt_t);                                       // IMPLICIT
+    optional(bsl::nullopt_t) BSLS_KEYWORD_NOEXCEPT;                 // IMPLICIT
         // Create a disengaged 'optional' object.  Use the currently installed
         // default allocator to supply memory.
 
@@ -738,7 +739,9 @@ class optional {
         // 'original' object.  Use the currently installed default allocator to
         // supply memory.
 
-    optional(BloombergLP::bslmf::MovableRef<optional> original);    // IMPLICIT
+    optional(BloombergLP::bslmf::MovableRef<optional> original)
+             BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                 bsl::is_nothrow_move_constructible<TYPE>::value);  // IMPLICIT
         // Create an 'optional' object having the same value as the specified
         // 'original' object by moving the contents of 'original' to the
         // newly-created object.  The allocator associated with 'original' is
@@ -1554,10 +1557,10 @@ class optional<TYPE, false> : public std::optional<TYPE> {
 
   public:
     // CREATORS
-   optional();
+   optional() BSLS_KEYWORD_NOEXCEPT;
         // Create a disengaged 'optional' object.
 
-    optional(bsl::nullopt_t);  // IMPLICIT
+    optional(bsl::nullopt_t) BSLS_KEYWORD_NOEXCEPT;  // IMPLICIT
         // Create a disengaged 'optional' object.
 
     optional(const optional& original) = default;
@@ -1863,17 +1866,19 @@ class optional<TYPE, false> {
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
     // CREATORS
-    optional();
+    optional() BSLS_KEYWORD_NOEXCEPT;
         // Create a disengaged 'optional' object.
 
-    optional(bsl::nullopt_t);  // IMPLICIT
+    optional(bsl::nullopt_t) BSLS_KEYWORD_NOEXCEPT;  // IMPLICIT
         // Create a disengaged 'optional' object.
 
     optional(const optional& original);  // IMPLICIT
         // Create an 'optional' object having the value of the specified
         // 'original' object.
 
-    optional(BloombergLP::bslmf::MovableRef<optional> original);  // IMPLICIT
+    optional(BloombergLP::bslmf::MovableRef<optional> original)
+            BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                 bsl::is_nothrow_move_constructible<TYPE>::value);  // IMPLICIT
         // Create an 'optional' object having the same value as the specified
         // 'original' object by moving the contents of 'original' to the
         // newly-created object.  'original' is left in a valid, but
@@ -2870,13 +2875,14 @@ namespace bsl {
 // CREATORS
 template <class TYPE, bool USES_BSLMA_ALLOC>
 inline
-optional<TYPE, USES_BSLMA_ALLOC>::optional()
+optional<TYPE, USES_BSLMA_ALLOC>::optional() BSLS_KEYWORD_NOEXCEPT
 {
 }
 
 template <class TYPE, bool USES_BSLMA_ALLOC>
 inline
 optional<TYPE, USES_BSLMA_ALLOC>::optional(bsl::nullopt_t)
+                                                          BSLS_KEYWORD_NOEXCEPT
 {
 }
 
@@ -2893,6 +2899,8 @@ template <class TYPE, bool USES_BSLMA_ALLOC>
 inline
 optional<TYPE, USES_BSLMA_ALLOC>::optional(
                              BloombergLP::bslmf::MovableRef<optional> original)
+                       BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                                    is_nothrow_move_constructible<TYPE>::value)
 : d_allocator(MoveUtil::access(original).get_allocator())
 {
     optional& lvalue = original;
@@ -3933,13 +3941,13 @@ const TYPE& optional<TYPE, USES_BSLMA_ALLOC>::dereferenceRaw() const
 // CREATORS
 template <class TYPE>
 inline
-optional<TYPE, false>::optional()
+optional<TYPE, false>::optional() BSLS_KEYWORD_NOEXCEPT
 {
 }
 
 template <class TYPE>
 inline
-optional<TYPE, false>::optional(bsl::nullopt_t)
+optional<TYPE, false>::optional(bsl::nullopt_t) BSLS_KEYWORD_NOEXCEPT
 {
 }
 
@@ -4286,13 +4294,13 @@ const TYPE& optional<TYPE, false>::dereferenceRaw() const
 // CREATORS
 template <class TYPE>
 inline
-optional<TYPE, false>::optional()
+optional<TYPE, false>::optional() BSLS_KEYWORD_NOEXCEPT
 {
 }
 
 template <class TYPE>
 inline
-optional<TYPE, false>::optional(bsl::nullopt_t)
+optional<TYPE, false>::optional(bsl::nullopt_t) BSLS_KEYWORD_NOEXCEPT
 {
 }
 
@@ -4309,6 +4317,8 @@ template <class TYPE>
 inline
 optional<TYPE, false>::optional(
     BloombergLP::bslmf::MovableRef<optional> original)
+                  BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                               bsl::is_nothrow_move_constructible<TYPE>::value)
 {
     optional& lvalue = original;
 
