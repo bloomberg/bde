@@ -126,7 +126,8 @@ using namespace bslstl;
 // [22] void hashAppend(HASH_ALGORITHM&, const bsl::array<TYPE, SIZE>&);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [25] USAGE EXAMPLE
+// [26] USAGE EXAMPLE
+// [25] CLASS TEMPLATE DEDUCTION GUIDES
 // [23] CONCERN: 'constexpr' FUNCTIONS ARE USABLE IN CONSTANT EVALUATION
 
 // TEST APPARATUS: GENERATOR FUNCTIONS
@@ -4397,6 +4398,47 @@ void usageExample()
 
 // BDE_VERIFY pragma: pop  // End of usage example-example relaxed rules
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+struct TestDeductionGuides {
+    // This struct provides a namespace for functions testing deduction guides.
+    // The tests are compile-time only; it is not necessary that these routines
+    // be called at run-time.  Note that the following constructors do not have
+    // associated deduction guides because the template parameters for
+    // 'bsl::array' cannot be deduced from the constructor parameters.
+    //..
+    // array()
+    //..
+
+#define ASSERT_SAME_TYPE(...) \
+ static_assert((bsl::is_same<__VA_ARGS__>::value), "Types differ unexpectedly")
+
+    static void SimpleConstructors ()
+        // Test that constructing a 'bsl::array' from various combinations of
+        // arguments deduces the correct type.
+        //..
+        // array(/*braces*/);
+        // array(const array<T>&);
+        // array(      array<T>&&);
+        //..
+    {
+        bsl::array a1a{12, 23, 34, 45, 56};
+        bsl::array a1b{12L, 23, 34, 45};
+        ASSERT_SAME_TYPE(decltype(a1a), bsl::array<int, 5>);
+        ASSERT_SAME_TYPE(decltype(a1b), bsl::array<long, 4>);
+
+        bsl::array<long long, 6> a2{1LL, 2LL, 3LL, 4LL, 5LL, 6LL};
+        bsl::array               a2a(a2);
+        ASSERT_SAME_TYPE(decltype(a2a), bsl::array<long long, 6>);
+
+        bsl::array<double, 3> a3{1.0, 2.0, 3.0};
+        bsl::array            a3a(std::move(a3));
+        ASSERT_SAME_TYPE(decltype(a3a), bsl::array<double, 3>);
+    }
+
+#undef ASSERT_SAME_TYPE
+};
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_CTAD
+
 //=============================================================================
 //                                 MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -4428,7 +4470,7 @@ int main(int argc, char *argv[])
 // BDE_VERIFY pragma: -TP33  // Comment should contain a 'Plan:' section
 
     switch (test) { case 0:
-      case 25: {
+      case 26: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -4449,6 +4491,36 @@ int main(int argc, char *argv[])
                             "\n=============\n");
 
         UsageExample::usageExample();
+      } break;
+      case 25: {
+        //---------------------------------------------------------------------
+        // TESTING CLASS TEMPLATE DEDUCTION GUIDES (AT COMPILE TIME)
+        //   Ensure that the deduction guides are properly specified to deduce
+        //   the template arguments from the arguments supplied to the
+        //   constructors.
+        //
+        // Concerns:
+        //: 1 Argument lists of mixed type deduce the type of the array from
+        //:   the type of the first element.
+        //
+        // Plan:
+        //: 1 Create a pair by invoking the constructor without supplying the
+        //:   template arguments explicitly.
+        //:
+        //: 2 Verify that the deduced type is correct.
+        //
+        // Testing:
+        //   CLASS TEMPLATE DEDUCTION GUIDES
+        //---------------------------------------------------------------------
+        if (verbose)
+            printf(
+              "\nTESTING CLASS TEMPLATE DEDUCTION GUIDES (AT COMPILE TIME)"
+              "\n=========================================================\n");
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+        // This is a compile-time only test case.
+        TestDeductionGuides test;
+#endif
       } break;
       case 24: {
         // --------------------------------------------------------------------

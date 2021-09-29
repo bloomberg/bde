@@ -381,6 +381,18 @@ struct array {
         // Return a valid 'T*' which cannot be dereferenced if the 'SIZE' is 0.
 };
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+// CLASS TEMPLATE DEDUCTION GUIDES
+
+template<class VALUE_TYPE, class... OTHERS>
+array(VALUE_TYPE, OTHERS...) -> array<VALUE_TYPE, 1 + sizeof...(OTHERS)>;
+    // Deduce the specified types 'VALUE_TYPE' and 'SIZE' from the
+    // corresponding elements in the sequence supplied to the constructor of
+    // 'array'. The type of the first element in the sequence is the type of
+    // the elements of the array, and the length of the sequence is the size of
+    // the array.
+#endif
+
 // FREE OPERATORS
 template <class VALUE_TYPE, size_t SIZE>
 bool operator==(const array<VALUE_TYPE, SIZE>& lhs,
