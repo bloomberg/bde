@@ -196,6 +196,15 @@ using bsls::NameOf;
 // [25] Concern: 'return' by brace initialization
 // [26] Concern: can construct pair of objects that are not copyable
 
+// Further, there are a number of behaviors that explicitly should not compile
+// by accident that we will provide tests for.  These tests should fail to
+// compile if the appropriate macro is defined.  Each such test will use a
+// unique macro for its feature test, and provide a commented-out definition of
+// that macro immediately above the test, to easily enable compiling that test
+// while in development.  Below is the list of all macros that control the
+// availability of these tests:
+//  #define BSLSTL_PAIR_COMPILE_FAIL_NOT_AN_ALLOCATOR
+
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
@@ -5672,6 +5681,16 @@ struct TestDeductionGuides {
         bsl::pair p3b(42, s, a2);
         ASSERT_SAME_TYPE(decltype(p3a), bsl::pair<my_String, int>);
         ASSERT_SAME_TYPE(decltype(p3b), bsl::pair<int, my_String>);
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // Compile-fail tests
+
+//#define BSLSTL_PAIR_COMPILE_FAIL_NOT_AN_ALLOCATOR
+#if defined(BSLSTL_PAIR_COMPILE_FAIL_NOT_AN_ALLOCATOR)
+        my_String *ps = nullptr;
+        bsl::pair  p99(s, 42, ps);
+        // this should fail to compile
+#endif
     }
 
     static void StdPairConstructors ()
