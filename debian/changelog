@@ -1,5 +1,19 @@
-bsl-internal (3.90.0.0) unstable; urgency=low
+bsl-internal (3.91.0.0) unstable; urgency=low
 
+  * b72a38de5 Bumped version to 3.91.0.0
+  * 25d5eb98d Class template deduction guides for bsl::array (#3421)
+  * 2bed1afaa Fix bug in CTAD enable_if codes (#3424)
+  * 20d76018d Implement template deduction guides for `bsl::pair` (#3405)
+  * 5584c1dd8 ball::FileObserver2: Add a flag to disable timestamp append. (#3380)
+  * 51ea06097 balb_performancemonitor: tolerate spaces in name of main thread on Linux (#3367)
+  * c103732b1 improve performance of 'reserve(0)' on empty container (#3416)
+  * dfad27484 bsls_stackaddressutil: eliminate stray nulls at end (#3409)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 1 Oct 2021 10:15:45 -0400
+
+bsl-internal (3.90.0.0) git; urgency=low
+
+  * 9db77e8a6 Changelog for version 3.90.0.0
   * 93605b383 Bumped version to 3.90.0.0
   * bc7513919 Merge pull request #3411 from bde/INTEGRATION-drqs-167113122-shortest-round-trip-xml-json-floating-point-encoding
   * 3b2ae0071 drqs-153900553: 'balcl': Support 'bsl::optional' linked variables. (#3390)
@@ -13,7 +27,7 @@ bsl-internal (3.90.0.0) unstable; urgency=low
   * 58175d5ce Remove deprecated, unused method in ReaderWriterLock. (#3397)
   * 6ff92ffdc Add missing allocator trait. (#3398)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 17 Sep 2021 17:03:09 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 17 Sep 2021 17:13:41 -0400
 
 bsl-internal (3.89.0.0) git; urgency=low
 
