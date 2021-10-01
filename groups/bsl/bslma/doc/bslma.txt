@@ -21,60 +21,60 @@
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
- 10. bslma_isstdallocator
+  10. bslma_isstdallocator
 
-  9. bslma_managedptr
-     bslma_stdallocator
-     bslma_stdtestallocator
+   9. bslma_managedptr
+      bslma_stdallocator
+      bslma_stdtestallocator
 
-  8. bslma_constructionutil
-     bslma_managedptr_factorydeleter                                  !PRIVATE!
-     bslma_managedptr_members                                         !PRIVATE!
-     bslma_sequentialallocator                           !DEPRECATED!
+   8. bslma_constructionutil
+      bslma_managedptr_factorydeleter                                 !PRIVATE!
+      bslma_managedptr_members                                        !PRIVATE!
+      bslma_sequentialallocator                          !DEPRECATED!
 
-  7. bslma_autorawdeleter
-     bslma_destructorproctor
-     bslma_sequentialpool                                !DEPRECATED!
-     bslma_sharedptrinplacerep
-     bslma_sharedptroutofplacerep
-     bslma_testallocatormonitor
+   7. bslma_autorawdeleter
+      bslma_destructorproctor
+      bslma_sequentialpool                               !DEPRECATED!
+      bslma_sharedptrinplacerep
+      bslma_sharedptroutofplacerep
+      bslma_testallocatormonitor
 
-  6. bslma_allocatoradaptor
-     bslma_autodeallocator
-     bslma_autodestructor
-     bslma_deallocatorguard
-     bslma_deallocatorproctor
-     bslma_defaultallocatorguard
-     bslma_destructionutil
-     bslma_destructorguard
-     bslma_exceptionguard
-     bslma_infrequentdeleteblocklist                     !DEPRECATED!
-     bslma_managedptr_pairproxy                                       !PRIVATE!
-     bslma_managedptrdeleter
-     bslma_rawdeleterguard
-     bslma_rawdeleterproctor
-     bslma_sharedptrrep
+   6. bslma_allocatoradaptor
+      bslma_autodeallocator
+      bslma_autodestructor
+      bslma_deallocatorguard
+      bslma_deallocatorproctor
+      bslma_defaultallocatorguard
+      bslma_destructionutil
+      bslma_destructorguard
+      bslma_exceptionguard
+      bslma_infrequentdeleteblocklist                    !DEPRECATED!
+      bslma_managedptr_pairproxy                                      !PRIVATE!
+      bslma_managedptrdeleter
+      bslma_rawdeleterguard
+      bslma_rawdeleterproctor
+      bslma_sharedptrrep
 
-  5. bslma_default
-     bslma_testallocator
+   5. bslma_default
+      bslma_testallocator
 
-  4. bslma_bufferallocator                               !DEPRECATED!
-     bslma_mallocfreeallocator
-     bslma_managedallocator                              !DEPRECATED!
-     bslma_newdeleteallocator
-     bslma_testallocatorexception
-     bslma_usesbslmaallocator
+   4. bslma_bufferallocator                              !DEPRECATED!
+      bslma_mallocfreeallocator
+      bslma_managedallocator                             !DEPRECATED!
+      bslma_newdeleteallocator
+      bslma_testallocatorexception
+      bslma_usesbslmaallocator
 
-  3. bslma_allocator
+   3. bslma_allocator
 
-  2. bslma_allocatortraits
-     bslma_deleterhelper
+   2. bslma_allocatortraits
+      bslma_deleterhelper
 
-  1. bslma_allocatortraits_cpp03                                      !PRIVATE!
-     bslma_constructionutil_cpp03                                     !PRIVATE!
-     bslma_managedptr_cpp03                                           !PRIVATE!
-     bslma_sharedptrinplacerep_cpp03                                  !PRIVATE!
-     bslma_stdallocator_cpp03                                         !PRIVATE!
+   1. bslma_allocatortraits_cpp03                                     !PRIVATE!
+      bslma_constructionutil_cpp03                                    !PRIVATE!
+      bslma_managedptr_cpp03                                          !PRIVATE!
+      bslma_sharedptrinplacerep_cpp03                                 !PRIVATE!
+      bslma_stdallocator_cpp03                                        !PRIVATE!
 ..
 
 /Component Synopsis
