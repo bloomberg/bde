@@ -121,6 +121,10 @@ BSLS_IDENT("$Id: $")
 
 #include <bsl_vector.h>
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+# include <memory_resource>
+#endif
+
 namespace BloombergLP {
 namespace bblb {
 
@@ -134,11 +138,25 @@ struct ScheduleGenerationUtil {
 
     // CLASS METHODS
     static void generateFromDayInterval(
-                                      bsl::vector<bdlt::Date> *schedule,
-                                      const bdlt::Date&        earliest,
-                                      const bdlt::Date&        latest,
-                                      const bdlt::Date&        example,
-                                      int                      intervalInDays);
+                                 bsl::vector<bdlt::Date>      *schedule,
+                                 const bdlt::Date&             earliest,
+                                 const bdlt::Date&             latest,
+                                 const bdlt::Date&             example,
+                                 int                           intervalInDays);
+    static void generateFromDayInterval(
+                                 std::vector<bdlt::Date>      *schedule,
+                                 const bdlt::Date&             earliest,
+                                 const bdlt::Date&             latest,
+                                 const bdlt::Date&             example,
+                                 int                           intervalInDays);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    static void generateFromDayInterval(
+                                 std::pmr::vector<bdlt::Date> *schedule,
+                                 const bdlt::Date&             earliest,
+                                 const bdlt::Date&             latest,
+                                 const bdlt::Date&             example,
+                                 int                           intervalInDays);
+#endif
         // Load, into the specified 'schedule', the chronologically increasing
         // sequence of unique dates that are integral multiples of the
         // specified 'intervalInDays' away from the specified 'example' date,
@@ -147,14 +165,34 @@ struct ScheduleGenerationUtil {
         // '1 <= intervalInDays'.
 
     static void generateFromDayOfMonth(
-                                  bsl::vector<bdlt::Date> *schedule,
-                                  const bdlt::Date&        earliest,
-                                  const bdlt::Date&        latest,
-                                  int                      exampleYear,
-                                  int                      exampleMonth,
-                                  int                      intervalInMonths,
-                                  int                      targetDayOfMonth,
-                                  int                      targetDayOfFeb = 0);
+                             bsl::vector<bdlt::Date>      *schedule,
+                             const bdlt::Date&             earliest,
+                             const bdlt::Date&             latest,
+                             int                           exampleYear,
+                             int                           exampleMonth,
+                             int                           intervalInMonths,
+                             int                           targetDayOfMonth,
+                             int                           targetDayOfFeb = 0);
+    static void generateFromDayOfMonth(
+                             std::vector<bdlt::Date>      *schedule,
+                             const bdlt::Date&             earliest,
+                             const bdlt::Date&             latest,
+                             int                           exampleYear,
+                             int                           exampleMonth,
+                             int                           intervalInMonths,
+                             int                           targetDayOfMonth,
+                             int                           targetDayOfFeb = 0);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    static void generateFromDayOfMonth(
+                             std::pmr::vector<bdlt::Date> *schedule,
+                             const bdlt::Date&             earliest,
+                             const bdlt::Date&             latest,
+                             int                           exampleYear,
+                             int                           exampleMonth,
+                             int                           intervalInMonths,
+                             int                           targetDayOfMonth,
+                             int                           targetDayOfFeb = 0);
+#endif
         // Load, into the specified 'schedule', the chronologically increasing
         // sequence of unique dates that are on the specified
         // 'targetDayOfMonth' (or the last day of the month if
@@ -169,14 +207,34 @@ struct ScheduleGenerationUtil {
         // '1 <= targetDayOfMonth <= 31', and '0 <= targetDayOfFeb <= 29'.
 
     static void generateFromBusinessDayOfMonth(
-                            bsl::vector<bdlt::Date> *schedule,
-                            const bdlt::Date&        earliest,
-                            const bdlt::Date&        latest,
-                            int                      exampleYear,
-                            int                      exampleMonth,
-                            int                      intervalInMonths,
-                            const bdlt::Calendar&    calendar,
-                            int                      targetBusinessDayOfMonth);
+                       bsl::vector<bdlt::Date>      *schedule,
+                       const bdlt::Date&             earliest,
+                       const bdlt::Date&             latest,
+                       int                           exampleYear,
+                       int                           exampleMonth,
+                       int                           intervalInMonths,
+                       const bdlt::Calendar&         calendar,
+                       int                           targetBusinessDayOfMonth);
+    static void generateFromBusinessDayOfMonth(
+                       std::vector<bdlt::Date>      *schedule,
+                       const bdlt::Date&             earliest,
+                       const bdlt::Date&             latest,
+                       int                           exampleYear,
+                       int                           exampleMonth,
+                       int                           intervalInMonths,
+                       const bdlt::Calendar&         calendar,
+                       int                           targetBusinessDayOfMonth);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    static void generateFromBusinessDayOfMonth(
+                       std::pmr::vector<bdlt::Date> *schedule,
+                       const bdlt::Date&             earliest,
+                       const bdlt::Date&             latest,
+                       int                           exampleYear,
+                       int                           exampleMonth,
+                       int                           intervalInMonths,
+                       const bdlt::Calendar&         calendar,
+                       int                           targetBusinessDayOfMonth);
+#endif
         // Load, into the specified 'schedule', the chronologically increasing
         // sequence of unique dates that are on the specified
         // 'targetBusinessDayOfMonth' (or the highest count possible in the
@@ -197,14 +255,34 @@ struct ScheduleGenerationUtil {
         // '1 <= abs(targetBusinessDayOfMonth) <= 31'.
 
     static void generateFromDayOfWeekAfterDayOfMonth(
-                                     bsl::vector<bdlt::Date> *schedule,
-                                     const bdlt::Date&        earliest,
-                                     const bdlt::Date&        latest,
-                                     int                      exampleYear,
-                                     int                      exampleMonth,
-                                     int                      intervalInMonths,
-                                     bdlt::DayOfWeek::Enum    dayOfWeek,
-                                     int                      dayOfMonth);
+                                bsl::vector<bdlt::Date>      *schedule,
+                                const bdlt::Date&             earliest,
+                                const bdlt::Date&             latest,
+                                int                           exampleYear,
+                                int                           exampleMonth,
+                                int                           intervalInMonths,
+                                bdlt::DayOfWeek::Enum         dayOfWeek,
+                                int                           dayOfMonth);
+    static void generateFromDayOfWeekAfterDayOfMonth(
+                                std::vector<bdlt::Date>      *schedule,
+                                const bdlt::Date&             earliest,
+                                const bdlt::Date&             latest,
+                                int                           exampleYear,
+                                int                           exampleMonth,
+                                int                           intervalInMonths,
+                                bdlt::DayOfWeek::Enum         dayOfWeek,
+                                int                           dayOfMonth);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    static void generateFromDayOfWeekAfterDayOfMonth(
+                                std::pmr::vector<bdlt::Date> *schedule,
+                                const bdlt::Date&             earliest,
+                                const bdlt::Date&             latest,
+                                int                           exampleYear,
+                                int                           exampleMonth,
+                                int                           intervalInMonths,
+                                bdlt::DayOfWeek::Enum         dayOfWeek,
+                                int                           dayOfMonth);
+#endif
         // Load, into the specified 'schedule', the chronologically increasing
         // sequence of unique dates that are on the specified 'dayOfWeek' on or
         // after the specified 'dayOfMonth', integral multiples of the
@@ -217,14 +295,34 @@ struct ScheduleGenerationUtil {
         // '1 <= intervalInMonths', and '1 <= dayOfMonth <= 31'.
 
     static void generateFromDayOfWeekInMonth(
-                                     bsl::vector<bdlt::Date> *schedule,
-                                     const bdlt::Date&        earliest,
-                                     const bdlt::Date&        latest,
-                                     int                      exampleYear,
-                                     int                      exampleMonth,
-                                     int                      intervalInMonths,
-                                     bdlt::DayOfWeek::Enum    dayOfWeek,
-                                     int                      occurrenceWeek);
+                                bsl::vector<bdlt::Date>      *schedule,
+                                const bdlt::Date&             earliest,
+                                const bdlt::Date&             latest,
+                                int                           exampleYear,
+                                int                           exampleMonth,
+                                int                           intervalInMonths,
+                                bdlt::DayOfWeek::Enum         dayOfWeek,
+                                int                           occurrenceWeek);
+    static void generateFromDayOfWeekInMonth(
+                                std::vector<bdlt::Date>      *schedule,
+                                const bdlt::Date&             earliest,
+                                const bdlt::Date&             latest,
+                                int                           exampleYear,
+                                int                           exampleMonth,
+                                int                           intervalInMonths,
+                                bdlt::DayOfWeek::Enum         dayOfWeek,
+                                int                           occurrenceWeek);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    static void generateFromDayOfWeekInMonth(
+                                std::pmr::vector<bdlt::Date> *schedule,
+                                const bdlt::Date&             earliest,
+                                const bdlt::Date&             latest,
+                                int                           exampleYear,
+                                int                           exampleMonth,
+                                int                           intervalInMonths,
+                                bdlt::DayOfWeek::Enum         dayOfWeek,
+                                int                           occurrenceWeek);
+#endif
         // Load, into the specified 'schedule', the chronologically increasing
         // sequence of unique dates that are on the specified 'dayOfWeek' of
         // the specified 'occurrenceWeek' of the month, integral multiples of

@@ -10,41 +10,57 @@ BSLS_IDENT_RCSID(bblb_schedulegenerationutil_cpp,"$Id$ $CSID$")
 #include <bdlt_dateutil.h>
 #include <bdlt_serialdateimputil.h>
 
+#include <bslmf_assert.h>
+#include <bslmf_issame.h>
+
 #include <bsls_assert.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_cstdlib.h>
 
-namespace BloombergLP {
-namespace bblb {
+namespace {
+namespace u {
+
+using namespace BloombergLP;
+using namespace bblb;
+
+template <class VECTOR, class ELEMENT_TYPE>
+struct IsVector {
+    static const bool value =
+                  bsl::is_same<VECTOR, bsl::vector<     ELEMENT_TYPE> >::value
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+               || bsl::is_same<VECTOR, std::pmr::vector<ELEMENT_TYPE> >::value
+#endif
+               || bsl::is_same<VECTOR, std::vector<     ELEMENT_TYPE> >::value;
+};
 
 // For 'bdlt::Date', the valid range of years is [1, 9999] and months is
 // [1, 12].
 
-static const int k_MAX_SERIAL_MONTH = (9999*12 + 12) - 1;
-static const int k_MIN_SERIAL_MONTH = (1*12 + 1) - 1;
+const int k_MAX_SERIAL_MONTH = (9999*12 + 12) - 1;
+const int k_MIN_SERIAL_MONTH = (1*12 + 1) - 1;
 
 // Helper macros to convert to and from serial month.
 
-#define YM2SERIAL(Y,M) 12*(Y) + (M) - 1
-#define SERIAL2Y(S) (S)/12
-#define SERIAL2M(S) (S)%12 + 1
+#define U_YM2SERIAL(Y,M) 12*(Y) + (M) - 1
+#define U_SERIAL2Y(S) (S)/12
+#define U_SERIAL2M(S) (S)%12 + 1
 
-static
-inline void computeSerialMonthAndDay(int               *serialMonth,
-                                     int               *day,
-                                     const bdlt::Date&  date)
+inline
+void computeSerialMonthAndDay(int               *serialMonth,
+                              int               *day,
+                              const bdlt::Date&  date)
     // Load in the specified 'serialMonth' the serial month value computed from
     // the specified 'date' and load into 'day' the value of 'date.day()'.
 {
     int year;
     int month;
     date.getYearMonthDay(&year, &month, day);
-    *serialMonth = YM2SERIAL(year, month);
+    *serialMonth = U_YM2SERIAL(year, month);
 }
 
-static
-inline bdlt::Date getDayOfMonth(int year, int month, int day, int dayOfFeb)
+inline
+bdlt::Date getDayOfMonth(int year, int month, int day, int dayOfFeb)
     // If the specified 'month' represents February and the specified
     // 'dayOfFeb' is non-zero, return the smaller of 'dayOfFeb' and the last
     // day of the 'month' in the specified 'year'.  Otherwise, return the
@@ -66,8 +82,8 @@ inline bdlt::Date getDayOfMonth(int year, int month, int day, int dayOfFeb)
     return bdlt::Date(year, month, resultDay);
 }
 
-static
-inline int rationalFloor(int numerator, int denominator)
+inline
+int rationalFloor(int numerator, int denominator)
     // Return the largest integer smaller than the rational number represented
     // by the ratio of the specified 'numerator' and the specified
     // 'denominator', without the use of floating-point calculations.  The
@@ -80,8 +96,8 @@ inline int rationalFloor(int numerator, int denominator)
             : numerator/denominator);
 }
 
-static
-inline int rationalCeiling(int numerator, int denominator)
+inline
+int rationalCeiling(int numerator, int denominator)
     // Return the smallest integer larger than the rational number represented
     // by the ratio of the specified 'numerator' and the specified
     // 'denominator', without the use of floating-point calculations.  The
@@ -94,7 +110,6 @@ inline int rationalCeiling(int numerator, int denominator)
             : numerator/denominator);
 }
 
-static
 int computeMonthRange(int *startSerialMonth,
                       int *endSerialMonth,
                       int  earliestSerialMonth,
@@ -112,8 +127,8 @@ int computeMonthRange(int *startSerialMonth,
     // 'k_MIN_SERIAL_MONTH <= exampleSerialMonth <= k_MAX_SERIAL_MONTH', and
     // 'earliestSerialMonth <= latestSerialMonth'.
 {
-    BSLS_ASSERT(   k_MAX_SERIAL_MONTH >= exampleSerialMonth
-                && k_MIN_SERIAL_MONTH <= exampleSerialMonth);
+    BSLS_ASSERT(   u::k_MAX_SERIAL_MONTH >= exampleSerialMonth
+                && u::k_MIN_SERIAL_MONTH <= exampleSerialMonth);
     BSLS_ASSERT(earliestSerialMonth <= latestSerialMonth);
 
     // Return codes.
@@ -122,11 +137,11 @@ int computeMonthRange(int *startSerialMonth,
 
     // Compute how many periods away the start and end are.
 
-    int startCount = rationalCeiling(earliestSerialMonth - exampleSerialMonth,
-                                     intervalInMonths);
+    int startCount = u::rationalCeiling(earliestSerialMonth-exampleSerialMonth,
+                                        intervalInMonths);
 
-    int endCount   = rationalFloor(latestSerialMonth - exampleSerialMonth,
-                                   intervalInMonths);
+    int endCount   = u::rationalFloor(latestSerialMonth - exampleSerialMonth,
+                                      intervalInMonths);
 
     // Get corresponding serial months.
 
@@ -155,8 +170,8 @@ int computeMonthRange(int *startSerialMonth,
     // 'endSerialMonth == k_MIN_SERIAL_MONTH - 3'.
     //
 
-    if (   startSerialMonthCandidate > k_MAX_SERIAL_MONTH
-        || endSerialMonthCandidate < k_MIN_SERIAL_MONTH) {
+    if (   startSerialMonthCandidate > u::k_MAX_SERIAL_MONTH
+        || endSerialMonthCandidate < u::k_MIN_SERIAL_MONTH) {
         return e_OUT_OF_RANGE;                                        // RETURN
     }
 
@@ -168,7 +183,6 @@ int computeMonthRange(int *startSerialMonth,
     return e_VALID_RANGE;
 }
 
-static
 int adjustMonthRange(int *startSerialMonth,
                      int *endSerialMonth,
                      int  startDay,
@@ -193,18 +207,19 @@ int adjustMonthRange(int *startSerialMonth,
     // 'k_MIN_SERIAL_MONTH <= earliestSerialMonth <= k_MAX_SERIAL_MONTH',
     // '1 <= startDay <= 31', and '1 <= endDay <= 31'.
 {
-    BSLS_ASSERT(   *startSerialMonth <= k_MAX_SERIAL_MONTH
-                && *startSerialMonth >= k_MIN_SERIAL_MONTH);
-    BSLS_ASSERT(   *endSerialMonth <= k_MAX_SERIAL_MONTH
-                && *endSerialMonth >= k_MIN_SERIAL_MONTH);
-    BSLS_ASSERT(   earliestSerialMonth <= k_MAX_SERIAL_MONTH
-                && earliestSerialMonth >= k_MIN_SERIAL_MONTH);
-    BSLS_ASSERT(   latestSerialMonth <= k_MAX_SERIAL_MONTH
-                && latestSerialMonth >= k_MIN_SERIAL_MONTH);
+    BSLS_ASSERT(   *startSerialMonth <= u::k_MAX_SERIAL_MONTH
+                && *startSerialMonth >= u::k_MIN_SERIAL_MONTH);
+    BSLS_ASSERT(   *endSerialMonth <= u::k_MAX_SERIAL_MONTH
+                && *endSerialMonth >= u::k_MIN_SERIAL_MONTH);
+    BSLS_ASSERT(   earliestSerialMonth <= u::k_MAX_SERIAL_MONTH
+                && earliestSerialMonth >= u::k_MIN_SERIAL_MONTH);
+    BSLS_ASSERT(   latestSerialMonth <= u::k_MAX_SERIAL_MONTH
+                && latestSerialMonth >= u::k_MIN_SERIAL_MONTH);
     BSLS_ASSERT(1 <= startDay && 31 >= startDay);
     BSLS_ASSERT(1 <= endDay   && 31 >= endDay);
 
     // Return codes
+
     enum { e_VALID_RANGE = 0, e_OUT_OF_RANGE = 1 };
 
     int startSerialMonthCandidate = *startSerialMonth;
@@ -219,8 +234,8 @@ int adjustMonthRange(int *startSerialMonth,
         endSerialMonthCandidate -= intervalInMonths;
     }
 
-    if (   startSerialMonthCandidate > k_MAX_SERIAL_MONTH
-        || endSerialMonthCandidate   < k_MIN_SERIAL_MONTH) {
+    if (   startSerialMonthCandidate > u::k_MAX_SERIAL_MONTH
+        || endSerialMonthCandidate   < u::k_MIN_SERIAL_MONTH) {
         return e_OUT_OF_RANGE;                                        // RETURN
     }
 
@@ -230,25 +245,29 @@ int adjustMonthRange(int *startSerialMonth,
     return e_VALID_RANGE;
 }
 
-                      // -----------------------------
-                      // struct ScheduleGenerationUtil
-                      // -----------------------------
-
-void ScheduleGenerationUtil::generateFromDayInterval(
-                                       bsl::vector<bdlt::Date> *schedule,
-                                       const bdlt::Date&        earliest,
-                                       const bdlt::Date&        latest,
-                                       const bdlt::Date&        example,
-                                       int                      intervalInDays)
+template <class VECTOR>
+inline
+void generateFromDayIntervalImp(VECTOR            *schedule,
+                                const bdlt::Date&  earliest,
+                                const bdlt::Date&  latest,
+                                const bdlt::Date&  example,
+                                int                intervalInDays)
+    // Load, into the specified 'schedule', the chronologically increasing
+    // sequence of unique dates that are integral multiples of the specified
+    // 'intervalInDays' away from the specified 'example' date, and within the
+    // specified closed-interval '[earliest, latest]'.  The behavior is
+    // undefined unless 'earliest <= latest' and '1 <= intervalInDays'.
 {
     BSLS_ASSERT(schedule);
     BSLS_ASSERT(earliest <= latest);
     BSLS_ASSERT(1 <= intervalInDays);
 
+    BSLMF_ASSERT((u::IsVector<VECTOR, bdlt::Date>::value));
+
     schedule->clear();
 
-    int startCount = rationalCeiling(earliest - example, intervalInDays);
-    int endCount   = rationalFloor(latest - example, intervalInDays);
+    int startCount = u::rationalCeiling(earliest - example, intervalInDays);
+    int endCount   = u::rationalFloor(latest - example, intervalInDays);
 
     schedule->reserve(bsl::abs(endCount - startCount) + 1);
 
@@ -257,15 +276,28 @@ void ScheduleGenerationUtil::generateFromDayInterval(
     }
 }
 
-void ScheduleGenerationUtil::generateFromDayOfMonth(
-                                     bsl::vector<bdlt::Date> *schedule,
-                                     const bdlt::Date&        earliest,
-                                     const bdlt::Date&        latest,
-                                     int                      exampleYear,
-                                     int                      exampleMonth,
-                                     int                      intervalInMonths,
-                                     int                      targetDayOfMonth,
-                                     int                      targetDayOfFeb)
+template <class VECTOR>
+inline
+void generateFromDayOfMonthImp(VECTOR            *schedule,
+                               const bdlt::Date&  earliest,
+                               const bdlt::Date&  latest,
+                               int                exampleYear,
+                               int                exampleMonth,
+                               int                intervalInMonths,
+                               int                targetDayOfMonth,
+                               int                targetDayOfFeb)
+    // Load, into the specified 'schedule', the chronologically increasing
+    // sequence of unique dates that are on the specified 'targetDayOfMonth'
+    // (or the last day of the month if 'targetDayOfMonth' would be past the
+    // end of the month), integral multiples of the specified
+    // 'intervalInMonths' away from the specified 'exampleYear' and
+    // 'exampleMonth', and within the specified closed-interval
+    // '[earliest, latest]'.  Optionally specify 'targetDayOfFeb' to replace
+    // 'targetDayOfMonth' whenever the month of a 'schedule' entry is February.
+    // The behavior is undefined unless 'earliest <= latest',
+    // '1 <= exampleYear <= 9999', '1 <= exampleMonth <= 12',
+    // '1 <= intervalInMonths', '1 <= targetDayOfMonth <= 31', and
+    // '0 <= targetDayOfFeb <= 29'.
 {
     BSLS_ASSERT(schedule);
     BSLS_ASSERT(earliest <= latest);
@@ -275,49 +307,51 @@ void ScheduleGenerationUtil::generateFromDayOfMonth(
     BSLS_ASSERT(1 <= targetDayOfMonth &&   31 >= targetDayOfMonth);
     BSLS_ASSERT(0 <= targetDayOfFeb   &&   29 >= targetDayOfFeb);
 
+    BSLMF_ASSERT((u::IsVector<VECTOR, bdlt::Date>::value));
+
     schedule->clear();
 
     int earliestSerialMonth;
     int earliestDay;
-    computeSerialMonthAndDay(&earliestSerialMonth, &earliestDay, earliest);
+    u::computeSerialMonthAndDay(&earliestSerialMonth, &earliestDay, earliest);
 
     int latestSerialMonth;
     int latestDay;
-    computeSerialMonthAndDay(&latestSerialMonth, &latestDay, latest);
+    u::computeSerialMonthAndDay(&latestSerialMonth, &latestDay, latest);
 
     int startSerialMonth;
     int endSerialMonth;
 
-    if (computeMonthRange(&startSerialMonth,
-                          &endSerialMonth,
-                          earliestSerialMonth,
-                          latestSerialMonth,
-                          YM2SERIAL(exampleYear, exampleMonth),
-                          intervalInMonths)) {
+    if (u::computeMonthRange(&startSerialMonth,
+                             &endSerialMonth,
+                             earliestSerialMonth,
+                             latestSerialMonth,
+                             U_YM2SERIAL(exampleYear, exampleMonth),
+                             intervalInMonths)) {
         // empty schedule
 
         return;                                                       // RETURN
     }
 
-    int startDay = getDayOfMonth(SERIAL2Y(startSerialMonth),
-                                 SERIAL2M(startSerialMonth),
-                                 targetDayOfMonth,
-                                 targetDayOfFeb).day();
+    int startDay = u::getDayOfMonth(U_SERIAL2Y(startSerialMonth),
+                                    U_SERIAL2M(startSerialMonth),
+                                    targetDayOfMonth,
+                                    targetDayOfFeb).day();
 
-    int endDay   = getDayOfMonth(SERIAL2Y(endSerialMonth),
-                                 SERIAL2M(endSerialMonth),
-                                 targetDayOfMonth,
-                                 targetDayOfFeb).day();
+    int endDay   = u::getDayOfMonth(U_SERIAL2Y(endSerialMonth),
+                                    U_SERIAL2M(endSerialMonth),
+                                    targetDayOfMonth,
+                                    targetDayOfFeb).day();
 
-    if (adjustMonthRange(&startSerialMonth,
-                         &endSerialMonth,
-                         startDay,
-                         endDay,
-                         earliestDay,
-                         latestDay,
-                         earliestSerialMonth,
-                         latestSerialMonth,
-                         intervalInMonths)) {
+    if (u::adjustMonthRange(&startSerialMonth,
+                            &endSerialMonth,
+                            startDay,
+                            endDay,
+                            earliestDay,
+                            latestDay,
+                            earliestSerialMonth,
+                            latestSerialMonth,
+                            intervalInMonths)) {
         // empty schedule
 
         return;                                                       // RETURN
@@ -329,22 +363,40 @@ void ScheduleGenerationUtil::generateFromDayOfMonth(
     for (int sm = startSerialMonth;
          sm <= endSerialMonth;
          sm += intervalInMonths) {
-        schedule->push_back(getDayOfMonth(SERIAL2Y(sm),
-                                          SERIAL2M(sm),
-                                          targetDayOfMonth,
-                                          targetDayOfFeb));
+        schedule->push_back(u::getDayOfMonth(U_SERIAL2Y(sm),
+                                             U_SERIAL2M(sm),
+                                             targetDayOfMonth,
+                                             targetDayOfFeb));
     }
 }
 
-void ScheduleGenerationUtil::generateFromBusinessDayOfMonth(
-                             bsl::vector<bdlt::Date> *schedule,
-                             const bdlt::Date&        earliest,
-                             const bdlt::Date&        latest,
-                             int                      exampleYear,
-                             int                      exampleMonth,
-                             int                      intervalInMonths,
-                             const bdlt::Calendar&    calendar,
-                             int                      targetBusinessDayOfMonth)
+template <class VECTOR>
+inline
+void generateFromBusinessDayOfMonthImp(
+                             VECTOR                *schedule,
+                             const bdlt::Date&      earliest,
+                             const bdlt::Date&      latest,
+                             int                    exampleYear,
+                             int                    exampleMonth,
+                             int                    intervalInMonths,
+                             const bdlt::Calendar&  calendar,
+                             int                    targetBusinessDayOfMonth)
+    // Load, into the specified 'schedule', the chronologically increasing
+    // sequence of unique dates that are on the specified
+    // 'targetBusinessDayOfMonth' (or the highest count possible in the
+    // resulting month), integral multiples of the specified 'intervalInMonths'
+    // away from the specified 'exampleYear' and 'exampleMonth', and within the
+    // specified closed-interval '[earliest, latest]'.  Business days, as per
+    // the specified 'calendar', are counted, if 'targetBusinessDayOfMonth' is
+    // positive, from and including the chronologically earliest business day
+    // to chronologically later business days, and if
+    // 'targetBusinessDayOfMonth' is negative, from and including the
+    // chronologically latest business day to chronologically earlier business
+    // days.  If any of the months required for the schedule do not have a
+    // business day, return an empty 'schedule'.  The behavior is undefined
+    // unless 'earliest <= latest', '1 <= exampleYear <= 9999',
+    // '1 <= exampleMonth <= 12', '1 <= intervalInMonths', and
+    // '1 <= abs(targetBusinessDayOfMonth) <= 31'.
 {
     BSLS_ASSERT(schedule);
     BSLS_ASSERT(earliest <= latest);
@@ -355,25 +407,27 @@ void ScheduleGenerationUtil::generateFromBusinessDayOfMonth(
                 &&  31 >= targetBusinessDayOfMonth
                 &&   0 != targetBusinessDayOfMonth);
 
+    BSLMF_ASSERT((u::IsVector<VECTOR, bdlt::Date>::value));
+
     schedule->clear();
 
     int earliestSerialMonth;
     int earliestDay;
-    computeSerialMonthAndDay(&earliestSerialMonth, &earliestDay, earliest);
+    u::computeSerialMonthAndDay(&earliestSerialMonth, &earliestDay, earliest);
 
     int latestSerialMonth;
     int latestDay;
-    computeSerialMonthAndDay(&latestSerialMonth, &latestDay, latest);
+    u::computeSerialMonthAndDay(&latestSerialMonth, &latestDay, latest);
 
     int startSerialMonth;
     int endSerialMonth;
 
-    if (computeMonthRange(&startSerialMonth,
-                          &endSerialMonth,
-                          earliestSerialMonth,
-                          latestSerialMonth,
-                          YM2SERIAL(exampleYear, exampleMonth),
-                          intervalInMonths)) {
+    if (u::computeMonthRange(&startSerialMonth,
+                             &endSerialMonth,
+                             earliestSerialMonth,
+                             latestSerialMonth,
+                             U_YM2SERIAL(exampleYear, exampleMonth),
+                             intervalInMonths)) {
         // empty schedule
 
         return;                                                       // RETURN
@@ -384,11 +438,11 @@ void ScheduleGenerationUtil::generateFromBusinessDayOfMonth(
         bdlt::Date rv;
 
         if (bdlt::CalendarUtil::nthBusinessDayOfMonthOrMaxIfValid(
-                                                   &rv,
-                                                   calendar,
-                                                   SERIAL2Y(startSerialMonth),
-                                                   SERIAL2M(startSerialMonth),
-                                                   targetBusinessDayOfMonth)) {
+                                                  &rv,
+                                                  calendar,
+                                                  U_SERIAL2Y(startSerialMonth),
+                                                  U_SERIAL2M(startSerialMonth),
+                                                  targetBusinessDayOfMonth)) {
             // empty schedule
 
             return;                                                   // RETURN
@@ -403,8 +457,8 @@ void ScheduleGenerationUtil::generateFromBusinessDayOfMonth(
         if (bdlt::CalendarUtil::nthBusinessDayOfMonthOrMaxIfValid(
                                                    &rv,
                                                    calendar,
-                                                   SERIAL2Y(endSerialMonth),
-                                                   SERIAL2M(endSerialMonth),
+                                                   U_SERIAL2Y(endSerialMonth),
+                                                   U_SERIAL2M(endSerialMonth),
                                                    targetBusinessDayOfMonth)) {
             // empty schedule
 
@@ -413,15 +467,15 @@ void ScheduleGenerationUtil::generateFromBusinessDayOfMonth(
         endDay = rv.day();
     }
 
-    if (adjustMonthRange(&startSerialMonth,
-                         &endSerialMonth,
-                         startDay,
-                         endDay,
-                         earliestDay,
-                         latestDay,
-                         earliestSerialMonth,
-                         latestSerialMonth,
-                         intervalInMonths)) {
+    if (u::adjustMonthRange(&startSerialMonth,
+                            &endSerialMonth,
+                            startDay,
+                            endDay,
+                            earliestDay,
+                            latestDay,
+                            earliestSerialMonth,
+                            latestSerialMonth,
+                            intervalInMonths)) {
         // empty schedule
 
         return;                                                       // RETURN
@@ -437,8 +491,8 @@ void ScheduleGenerationUtil::generateFromBusinessDayOfMonth(
         if (bdlt::CalendarUtil::nthBusinessDayOfMonthOrMaxIfValid(
                                                    &rv,
                                                    calendar,
-                                                   SERIAL2Y(sm),
-                                                   SERIAL2M(sm),
+                                                   U_SERIAL2Y(sm),
+                                                   U_SERIAL2M(sm),
                                                    targetBusinessDayOfMonth)) {
             // empty schedule
 
@@ -449,15 +503,27 @@ void ScheduleGenerationUtil::generateFromBusinessDayOfMonth(
     }
 }
 
-void ScheduleGenerationUtil::generateFromDayOfWeekAfterDayOfMonth(
-                                     bsl::vector<bdlt::Date> *schedule,
-                                     const bdlt::Date&        earliest,
-                                     const bdlt::Date&        latest,
-                                     int                      exampleYear,
-                                     int                      exampleMonth,
-                                     int                      intervalInMonths,
-                                     bdlt::DayOfWeek::Enum    dayOfWeek,
-                                     int                      dayOfMonth)
+template <class VECTOR>
+inline
+void generateFromDayOfWeekAfterDayOfMonthImp(
+                                     VECTOR                *schedule,
+                                     const bdlt::Date&      earliest,
+                                     const bdlt::Date&      latest,
+                                     int                    exampleYear,
+                                     int                    exampleMonth,
+                                     int                    intervalInMonths,
+                                     bdlt::DayOfWeek::Enum  dayOfWeek,
+                                     int                    dayOfMonth)
+    // Load, into the specified 'schedule', the chronologically increasing
+    // sequence of unique dates that are on the specified 'dayOfWeek' on or
+    // after the specified 'dayOfMonth', integral multiples of the specified
+    // 'intervalInMonths' away from the specified 'exampleYear' and
+    // 'exampleMonth', and within the specified closed-interval
+    // '[earliest, latest]'.  If any of the months required for the schedule
+    // have fewer than 'dayOfMonth' days, return an empty 'schedule'.  The
+    // behavior is undefined unless 'earliest <= latest',
+    // '1 <= exampleYear <= 9999', '1 <= exampleMonth <= 12',
+    // '1 <= intervalInMonths', and '1 <= dayOfMonth <= 31'.
 {
     BSLS_ASSERT(schedule);
     BSLS_ASSERT(earliest <= latest);
@@ -466,25 +532,27 @@ void ScheduleGenerationUtil::generateFromDayOfWeekAfterDayOfMonth(
     BSLS_ASSERT(1 <= exampleMonth   &&   12 >= exampleMonth);
     BSLS_ASSERT(1 <= dayOfMonth     &&   31 >= dayOfMonth);
 
+    BSLMF_ASSERT((u::IsVector<VECTOR, bdlt::Date>::value));
+
     schedule->clear();
 
     int earliestSerialMonth;
     int earliestDay;
-    computeSerialMonthAndDay(&earliestSerialMonth, &earliestDay, earliest);
+    u::computeSerialMonthAndDay(&earliestSerialMonth, &earliestDay, earliest);
 
     int latestSerialMonth;
     int latestDay;
-    computeSerialMonthAndDay(&latestSerialMonth, &latestDay, latest);
+    u::computeSerialMonthAndDay(&latestSerialMonth, &latestDay, latest);
 
     int startSerialMonth;
     int endSerialMonth;
 
-    if (computeMonthRange(&startSerialMonth,
-                          &endSerialMonth,
-                          earliestSerialMonth,
-                          latestSerialMonth,
-                          YM2SERIAL(exampleYear, exampleMonth),
-                          intervalInMonths)) {
+    if (u::computeMonthRange(&startSerialMonth,
+                             &endSerialMonth,
+                             earliestSerialMonth,
+                             latestSerialMonth,
+                             U_YM2SERIAL(exampleYear, exampleMonth),
+                             intervalInMonths)) {
         // empty schedule
 
         return;                                                       // RETURN
@@ -493,10 +561,10 @@ void ScheduleGenerationUtil::generateFromDayOfWeekAfterDayOfMonth(
     int startDay;
     int endDay;
     {
-        int startYear  = SERIAL2Y(startSerialMonth);
-        int startMonth = SERIAL2M(startSerialMonth);
-        int endYear    = SERIAL2Y(endSerialMonth);
-        int endMonth   = SERIAL2M(endSerialMonth);
+        int startYear  = U_SERIAL2Y(startSerialMonth);
+        int startMonth = U_SERIAL2M(startSerialMonth);
+        int endYear    = U_SERIAL2Y(endSerialMonth);
+        int endMonth   = U_SERIAL2M(endSerialMonth);
 
         if (   !bdlt::Date::isValidYearMonthDay(startYear,
                                                 startMonth,
@@ -522,15 +590,15 @@ void ScheduleGenerationUtil::generateFromDayOfWeekAfterDayOfMonth(
                                                            dayOfMonth)).day();
     }
 
-    if (adjustMonthRange(&startSerialMonth,
-                         &endSerialMonth,
-                         startDay,
-                         endDay,
-                         earliestDay,
-                         latestDay,
-                         earliestSerialMonth,
-                         latestSerialMonth,
-                         intervalInMonths)) {
+    if (u::adjustMonthRange(&startSerialMonth,
+                            &endSerialMonth,
+                            startDay,
+                            endDay,
+                            earliestDay,
+                            latestDay,
+                            earliestSerialMonth,
+                            latestSerialMonth,
+                            intervalInMonths)) {
         // empty schedule
 
         return;                                                       // RETURN
@@ -542,8 +610,8 @@ void ScheduleGenerationUtil::generateFromDayOfWeekAfterDayOfMonth(
     for (int sm = startSerialMonth;
          sm <= endSerialMonth;
          sm += intervalInMonths) {
-        int year  = SERIAL2Y(sm);
-        int month = SERIAL2M(sm);
+        int year  = U_SERIAL2Y(sm);
+        int month = U_SERIAL2M(sm);
 
         if (!bdlt::Date::isValidYearMonthDay(year, month, dayOfMonth)) {
             // empty schedule
@@ -560,15 +628,25 @@ void ScheduleGenerationUtil::generateFromDayOfWeekAfterDayOfMonth(
     }
 }
 
-void ScheduleGenerationUtil::generateFromDayOfWeekInMonth(
-                                     bsl::vector<bdlt::Date> *schedule,
-                                     const bdlt::Date&        earliest,
-                                     const bdlt::Date&        latest,
-                                     int                      exampleYear,
-                                     int                      exampleMonth,
-                                     int                      intervalInMonths,
-                                     bdlt::DayOfWeek::Enum    dayOfWeek,
-                                     int                      occurrenceWeek)
+template <class VECTOR>
+inline
+void generateFromDayOfWeekInMonthImp(VECTOR                *schedule,
+                                     const bdlt::Date&      earliest,
+                                     const bdlt::Date&      latest,
+                                     int                    exampleYear,
+                                     int                    exampleMonth,
+                                     int                    intervalInMonths,
+                                     bdlt::DayOfWeek::Enum  dayOfWeek,
+                                     int                    occurrenceWeek)
+    // Load, into the specified 'schedule', the chronologically increasing
+    // sequence of unique dates that are on the specified 'dayOfWeek' of the
+    // specified 'occurrenceWeek' of the month, integral multiples of the
+    // specified 'intervalInMonths' away from the specified 'exampleYear' and
+    // 'exampleMonth', and within the specified closed-interval
+    // '[earliest, latest]'.  The behavior is undefined unless
+    // 'earliest <= latest', '1 <= exampleYear <= 9999',
+    // '1 <= exampleMonth <= 12', '1 <= intervalInMonths', and
+    // '1 <= occurrenceWeek <= 4'.
 {
     BSLS_ASSERT(schedule);
     BSLS_ASSERT(earliest <= latest);
@@ -577,50 +655,52 @@ void ScheduleGenerationUtil::generateFromDayOfWeekInMonth(
     BSLS_ASSERT(1 <= exampleMonth   &&   12 >= exampleMonth);
     BSLS_ASSERT(1 <= occurrenceWeek &&    4 >= occurrenceWeek);
 
+    BSLMF_ASSERT((u::IsVector<VECTOR, bdlt::Date>::value));
+
     schedule->clear();
 
     int earliestSerialMonth;
     int earliestDay;
-    computeSerialMonthAndDay(&earliestSerialMonth, &earliestDay, earliest);
+    u::computeSerialMonthAndDay(&earliestSerialMonth, &earliestDay, earliest);
 
     int latestSerialMonth;
     int latestDay;
-    computeSerialMonthAndDay(&latestSerialMonth, &latestDay, latest);
+    u::computeSerialMonthAndDay(&latestSerialMonth, &latestDay, latest);
 
     int startSerialMonth;
     int endSerialMonth;
 
-    if (computeMonthRange(&startSerialMonth,
-                          &endSerialMonth,
-                          earliestSerialMonth,
-                          latestSerialMonth,
-                          YM2SERIAL(exampleYear, exampleMonth),
-                          intervalInMonths)) {
+    if (u::computeMonthRange(&startSerialMonth,
+                             &endSerialMonth,
+                             earliestSerialMonth,
+                             latestSerialMonth,
+                             U_YM2SERIAL(exampleYear, exampleMonth),
+                             intervalInMonths)) {
         // empty schedule
 
         return;                                                       // RETURN
     }
 
     int startDay = bdlt::DateUtil::nthDayOfWeekInMonth(
-                                                    SERIAL2Y(startSerialMonth),
-                                                    SERIAL2M(startSerialMonth),
-                                                    dayOfWeek,
-                                                    occurrenceWeek).day();
+                                                  U_SERIAL2Y(startSerialMonth),
+                                                  U_SERIAL2M(startSerialMonth),
+                                                  dayOfWeek,
+                                                  occurrenceWeek).day();
 
     int endDay   = bdlt::DateUtil::nthDayOfWeekInMonth(
-                                                      SERIAL2Y(endSerialMonth),
-                                                      SERIAL2M(endSerialMonth),
-                                                      dayOfWeek,
-                                                      occurrenceWeek).day();
-    if (adjustMonthRange(&startSerialMonth,
-                         &endSerialMonth,
-                         startDay,
-                         endDay,
-                         earliestDay,
-                         latestDay,
-                         earliestSerialMonth,
-                         latestSerialMonth,
-                         intervalInMonths)) {
+                                                    U_SERIAL2Y(endSerialMonth),
+                                                    U_SERIAL2M(endSerialMonth),
+                                                    dayOfWeek,
+                                                    occurrenceWeek).day();
+    if (u::adjustMonthRange(&startSerialMonth,
+                            &endSerialMonth,
+                            startDay,
+                            endDay,
+                            earliestDay,
+                            latestDay,
+                            earliestSerialMonth,
+                            latestSerialMonth,
+                            intervalInMonths)) {
         // empty schedule
 
         return;                                                       // RETURN
@@ -633,12 +713,315 @@ void ScheduleGenerationUtil::generateFromDayOfWeekInMonth(
          sm <= endSerialMonth;
          sm += intervalInMonths) {
         schedule->push_back(bdlt::DateUtil::nthDayOfWeekInMonth(
-                                                              SERIAL2Y(sm),
-                                                              SERIAL2M(sm),
+                                                              U_SERIAL2Y(sm),
+                                                              U_SERIAL2M(sm),
                                                               dayOfWeek,
                                                               occurrenceWeek));
     }
 }
+
+}  // close namespace u
+}  // close unnamed namespace
+
+
+namespace BloombergLP {
+namespace bblb {
+
+                      // -----------------------------
+                      // struct ScheduleGenerationUtil
+                      // -----------------------------
+
+void ScheduleGenerationUtil::generateFromDayInterval(
+                                  bsl::vector<bdlt::Date>      *schedule,
+                                  const bdlt::Date&             earliest,
+                                  const bdlt::Date&             latest,
+                                  const bdlt::Date&             example,
+                                  int                           intervalInDays)
+{
+    u::generateFromDayIntervalImp(schedule,
+                                  earliest,
+                                  latest,
+                                  example,
+                                  intervalInDays);
+}
+
+void ScheduleGenerationUtil::generateFromDayInterval(
+                                  std::vector<bdlt::Date>      *schedule,
+                                  const bdlt::Date&             earliest,
+                                  const bdlt::Date&             latest,
+                                  const bdlt::Date&             example,
+                                  int                           intervalInDays)
+{
+    u::generateFromDayIntervalImp(schedule,
+                                  earliest,
+                                  latest,
+                                  example,
+                                  intervalInDays);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+void ScheduleGenerationUtil::generateFromDayInterval(
+                                  std::pmr::vector<bdlt::Date> *schedule,
+                                  const bdlt::Date&             earliest,
+                                  const bdlt::Date&             latest,
+                                  const bdlt::Date&             example,
+                                  int                           intervalInDays)
+{
+    u::generateFromDayIntervalImp(schedule,
+                                  earliest,
+                                  latest,
+                                  example,
+                                  intervalInDays);
+}
+#endif
+
+void ScheduleGenerationUtil::generateFromDayOfMonth(
+                                bsl::vector<bdlt::Date>      *schedule,
+                                const bdlt::Date&             earliest,
+                                const bdlt::Date&             latest,
+                                int                           exampleYear,
+                                int                           exampleMonth,
+                                int                           intervalInMonths,
+                                int                           targetDayOfMonth,
+                                int                           targetDayOfFeb)
+{
+    u::generateFromDayOfMonthImp(schedule,
+                                 earliest,
+                                 latest,
+                                 exampleYear,
+                                 exampleMonth,
+                                 intervalInMonths,
+                                 targetDayOfMonth,
+                                 targetDayOfFeb);
+}
+
+void ScheduleGenerationUtil::generateFromDayOfMonth(
+                                std::vector<bdlt::Date>      *schedule,
+                                const bdlt::Date&             earliest,
+                                const bdlt::Date&             latest,
+                                int                           exampleYear,
+                                int                           exampleMonth,
+                                int                           intervalInMonths,
+                                int                           targetDayOfMonth,
+                                int                           targetDayOfFeb)
+{
+    u::generateFromDayOfMonthImp(schedule,
+                                 earliest,
+                                 latest,
+                                 exampleYear,
+                                 exampleMonth,
+                                 intervalInMonths,
+                                 targetDayOfMonth,
+                                 targetDayOfFeb);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+void ScheduleGenerationUtil::generateFromDayOfMonth(
+                                std::pmr::vector<bdlt::Date> *schedule,
+                                const bdlt::Date&             earliest,
+                                const bdlt::Date&             latest,
+                                int                           exampleYear,
+                                int                           exampleMonth,
+                                int                           intervalInMonths,
+                                int                           targetDayOfMonth,
+                                int                           targetDayOfFeb)
+{
+    u::generateFromDayOfMonthImp(schedule,
+                                 earliest,
+                                 latest,
+                                 exampleYear,
+                                 exampleMonth,
+                                 intervalInMonths,
+                                 targetDayOfMonth,
+                                 targetDayOfFeb);
+}
+#endif
+
+void ScheduleGenerationUtil::generateFromBusinessDayOfMonth(
+                        bsl::vector<bdlt::Date>      *schedule,
+                        const bdlt::Date&             earliest,
+                        const bdlt::Date&             latest,
+                        int                           exampleYear,
+                        int                           exampleMonth,
+                        int                           intervalInMonths,
+                        const bdlt::Calendar&         calendar,
+                        int                           targetBusinessDayOfMonth)
+{
+    u::generateFromBusinessDayOfMonthImp(schedule,
+                                         earliest,
+                                         latest,
+                                         exampleYear,
+                                         exampleMonth,
+                                         intervalInMonths,
+                                         calendar,
+                                         targetBusinessDayOfMonth);
+}
+
+void ScheduleGenerationUtil::generateFromBusinessDayOfMonth(
+                        std::vector<bdlt::Date>      *schedule,
+                        const bdlt::Date&             earliest,
+                        const bdlt::Date&             latest,
+                        int                           exampleYear,
+                        int                           exampleMonth,
+                        int                           intervalInMonths,
+                        const bdlt::Calendar&         calendar,
+                        int                           targetBusinessDayOfMonth)
+{
+    u::generateFromBusinessDayOfMonthImp(schedule,
+                                         earliest,
+                                         latest,
+                                         exampleYear,
+                                         exampleMonth,
+                                         intervalInMonths,
+                                         calendar,
+                                         targetBusinessDayOfMonth);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+void ScheduleGenerationUtil::generateFromBusinessDayOfMonth(
+                        std::pmr::vector<bdlt::Date> *schedule,
+                        const bdlt::Date&             earliest,
+                        const bdlt::Date&             latest,
+                        int                           exampleYear,
+                        int                           exampleMonth,
+                        int                           intervalInMonths,
+                        const bdlt::Calendar&         calendar,
+                        int                           targetBusinessDayOfMonth)
+{
+    u::generateFromBusinessDayOfMonthImp(schedule,
+                                         earliest,
+                                         latest,
+                                         exampleYear,
+                                         exampleMonth,
+                                         intervalInMonths,
+                                         calendar,
+                                         targetBusinessDayOfMonth);
+}
+#endif
+
+void ScheduleGenerationUtil::generateFromDayOfWeekAfterDayOfMonth(
+                                bsl::vector<bdlt::Date>      *schedule,
+                                const bdlt::Date&             earliest,
+                                const bdlt::Date&             latest,
+                                int                           exampleYear,
+                                int                           exampleMonth,
+                                int                           intervalInMonths,
+                                bdlt::DayOfWeek::Enum         dayOfWeek,
+                                int                           dayOfMonth)
+{
+    u::generateFromDayOfWeekAfterDayOfMonthImp(schedule,
+                                               earliest,
+                                               latest,
+                                               exampleYear,
+                                               exampleMonth,
+                                               intervalInMonths,
+                                               dayOfWeek,
+                                               dayOfMonth);
+}
+
+void ScheduleGenerationUtil::generateFromDayOfWeekAfterDayOfMonth(
+                                std::vector<bdlt::Date>      *schedule,
+                                const bdlt::Date&             earliest,
+                                const bdlt::Date&             latest,
+                                int                           exampleYear,
+                                int                           exampleMonth,
+                                int                           intervalInMonths,
+                                bdlt::DayOfWeek::Enum         dayOfWeek,
+                                int                           dayOfMonth)
+{
+    u::generateFromDayOfWeekAfterDayOfMonthImp(schedule,
+                                               earliest,
+                                               latest,
+                                               exampleYear,
+                                               exampleMonth,
+                                               intervalInMonths,
+                                               dayOfWeek,
+                                               dayOfMonth);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+void ScheduleGenerationUtil::generateFromDayOfWeekAfterDayOfMonth(
+                                std::pmr::vector<bdlt::Date> *schedule,
+                                const bdlt::Date&             earliest,
+                                const bdlt::Date&             latest,
+                                int                           exampleYear,
+                                int                           exampleMonth,
+                                int                           intervalInMonths,
+                                bdlt::DayOfWeek::Enum         dayOfWeek,
+                                int                           dayOfMonth)
+{
+    u::generateFromDayOfWeekAfterDayOfMonthImp(schedule,
+                                               earliest,
+                                               latest,
+                                               exampleYear,
+                                               exampleMonth,
+                                               intervalInMonths,
+                                               dayOfWeek,
+                                               dayOfMonth);
+}
+#endif
+
+void ScheduleGenerationUtil::generateFromDayOfWeekInMonth(
+                                bsl::vector<bdlt::Date>      *schedule,
+                                const bdlt::Date&             earliest,
+                                const bdlt::Date&             latest,
+                                int                           exampleYear,
+                                int                           exampleMonth,
+                                int                           intervalInMonths,
+                                bdlt::DayOfWeek::Enum         dayOfWeek,
+                                int                           occurrenceWeek)
+{
+    u::generateFromDayOfWeekInMonthImp(schedule,
+                                       earliest,
+                                       latest,
+                                       exampleYear,
+                                       exampleMonth,
+                                       intervalInMonths,
+                                       dayOfWeek,
+                                       occurrenceWeek);
+}
+
+void ScheduleGenerationUtil::generateFromDayOfWeekInMonth(
+                                std::vector<bdlt::Date>      *schedule,
+                                const bdlt::Date&             earliest,
+                                const bdlt::Date&             latest,
+                                int                           exampleYear,
+                                int                           exampleMonth,
+                                int                           intervalInMonths,
+                                bdlt::DayOfWeek::Enum         dayOfWeek,
+                                int                           occurrenceWeek)
+{
+    u::generateFromDayOfWeekInMonthImp(schedule,
+                                       earliest,
+                                       latest,
+                                       exampleYear,
+                                       exampleMonth,
+                                       intervalInMonths,
+                                       dayOfWeek,
+                                       occurrenceWeek);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+void ScheduleGenerationUtil::generateFromDayOfWeekInMonth(
+                                std::pmr::vector<bdlt::Date> *schedule,
+                                const bdlt::Date&             earliest,
+                                const bdlt::Date&             latest,
+                                int                           exampleYear,
+                                int                           exampleMonth,
+                                int                           intervalInMonths,
+                                bdlt::DayOfWeek::Enum         dayOfWeek,
+                                int                           occurrenceWeek)
+{
+    u::generateFromDayOfWeekInMonthImp(schedule,
+                                       earliest,
+                                       latest,
+                                       exampleYear,
+                                       exampleMonth,
+                                       intervalInMonths,
+                                       dayOfWeek,
+                                       occurrenceWeek);
+}
+#endif
 
 }  // close package namespace
 }  // close enterprise namespace

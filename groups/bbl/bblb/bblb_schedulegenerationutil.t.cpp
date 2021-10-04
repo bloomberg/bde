@@ -15,6 +15,9 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
+#include <bslmf_assert.h>
+#include <bslmf_issame.h>
+
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 
@@ -118,15 +121,48 @@ void aSsErT(bool condition, const char *message, int line)
 
 typedef bblb::ScheduleGenerationUtil Obj;
 
+enum VecType { e_BEGIN, e_BSL = e_BEGIN, e_STD,
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+               e_PMR,
+#endif
+               e_END };
+
 // ============================================================================
 //                           TEST FUNCTIONS
 // ----------------------------------------------------------------------------
 
+bsl::ostream& operator<<(bsl::ostream& stream, VecType vt)
+    // Output the value of the specified enum 'vt' to the specified 'stream'
+    // and return a reference to 'stream'.
+{
+    stream << (e_BSL == vt
+             ? "BSL"
+             : e_STD == vt
+             ? "STD"
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+             : e_PMR == vt
+             ? "PMR"
+#endif
+             : "UNKNOWN VECTOR TYPE");
+
+    return stream;
+}
+
+template <class VECTOR>
 static
-void toString(bsl::ostringstream *output, const bsl::vector<bdlt::Date>& date)
+void toString(bsl::ostringstream *output,
+              const VECTOR& date)
     // Load, into the specified 'output' stream a comma-separated string
     // representation of the specified 'date' vector.
 {
+    static const bool isVector =
+                  bsl::is_same<VECTOR, bsl::vector<bdlt::Date> >::value
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+               || bsl::is_same<VECTOR, std::pmr::vector<bdlt::Date> >::value
+#endif
+               || bsl::is_same<VECTOR, std::vector<bdlt::Date> >::value;
+    BSLMF_ASSERT(isVector);
+
     output->str(std::string());
     for (bsl::size_t i = 0; i < date.size(); i++) {
         (*output) << bdlt::DateUtil::convertToYYYYMMDD(date[i]) << ",";
@@ -154,7 +190,8 @@ class TestCalendarLoader : public bdlt::CalendarLoader
     {
     }
 
-    int load(bdlt::PackedCalendar *result, const char * /* calendarName */)
+    int load(bdlt::PackedCalendar *result,
+             const char           *)    // calendar name
         // Load, into the specified 'result', the calendar corresponding to the
         // specified 'calendarName'.  Return 0 on success, and a non-zero value
         // otherwise.  If the return value is 1, the calendar was not found and
@@ -330,49 +367,88 @@ int main(int argc, char *argv[])
 
         const size_t NUM_DATA = sizeof INPUT / sizeof *INPUT;
 
-        bsl::vector<bdlt::Date> schedule;
+        bsl::vector<bdlt::Date>      scheduleBsl;
+        std::vector<bdlt::Date>      scheduleStd;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+        std::pmr::vector<bdlt::Date> schedulePmr;
+#endif
 
-        for (size_t di = 0; di < NUM_DATA; ++di)
-        {
-            const int  LINE     = INPUT[di].d_lineNum;
-            bdlt::Date earliest = bdlt::DateUtil::convertFromYYYYMMDDRaw(
+        for (int ivt = e_BEGIN; ivt < e_END; ++ivt) {
+            VecType vt = static_cast<VecType>(ivt);
+
+            for (size_t di = 0; di < NUM_DATA; ++di)
+            {
+                const int  LINE     = INPUT[di].d_lineNum;
+                bdlt::Date earliest = bdlt::DateUtil::convertFromYYYYMMDDRaw(
                                                  INPUT[di].d_earliestYYYYMMDD);
-            bdlt::Date latest   = bdlt::DateUtil::convertFromYYYYMMDDRaw(
+                bdlt::Date latest   = bdlt::DateUtil::convertFromYYYYMMDDRaw(
                                                    INPUT[di].d_latestYYYYMMDD);
 
-            const bdlt::DayOfWeek::Enum dayOfWeek = INPUT[di].d_dayOfWeek;
+                const bdlt::DayOfWeek::Enum dayOfWeek = INPUT[di].d_dayOfWeek;
 
-            const int   exampleYear    = INPUT[di].d_exampleYear;
-            const int   exampleMonth   = INPUT[di].d_exampleMonth;
-            const int   interval       = INPUT[di].d_intervalInMonths;
-            const int   ocurrenceWeek  = INPUT[di].d_ocurrenceWeek;
-            const char* expectedOutput = INPUT[di].d_expectedOutputString_p;
+                const int   exampleYear    = INPUT[di].d_exampleYear;
+                const int   exampleMonth   = INPUT[di].d_exampleMonth;
+                const int   interval       = INPUT[di].d_intervalInMonths;
+                const int   ocurrenceWeek  = INPUT[di].d_ocurrenceWeek;
+                const char* expectedOutput =INPUT[di].d_expectedOutputString_p;
 
-            Obj::generateFromDayOfWeekInMonth(&schedule,
-                                              earliest,
-                                              latest,
-                                              exampleYear,
-                                              exampleMonth,
-                                              interval,
-                                              dayOfWeek,
-                                              ocurrenceWeek);
+                bsl::ostringstream output;
+                switch (vt) {
+                  case e_BSL: {
+                    Obj::generateFromDayOfWeekInMonth(&scheduleBsl,
+                                                      earliest,
+                                                      latest,
+                                                      exampleYear,
+                                                      exampleMonth,
+                                                      interval,
+                                                      dayOfWeek,
+                                                      ocurrenceWeek);
+                    toString(&output, scheduleBsl);
+                  } break;
+                  case e_STD: {
+                    Obj::generateFromDayOfWeekInMonth(&scheduleStd,
+                                                      earliest,
+                                                      latest,
+                                                      exampleYear,
+                                                      exampleMonth,
+                                                      interval,
+                                                      dayOfWeek,
+                                                      ocurrenceWeek);
+                    toString(&output, scheduleStd);
+                  } break;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                  case e_PMR: {
+                    Obj::generateFromDayOfWeekInMonth(&schedulePmr,
+                                                      earliest,
+                                                      latest,
+                                                      exampleYear,
+                                                      exampleMonth,
+                                                      interval,
+                                                      dayOfWeek,
+                                                      ocurrenceWeek);
+                    toString(&output, schedulePmr);
+                  } break;
+#endif
+                  default: {
+                    ASSERT(0);
+                  }
+                }
 
-            bsl::ostringstream output;
-            toString(&output, schedule);
+                if (veryVerbose) {
+                    P_(vt) P_(LINE) P_(output.str()) P(expectedOutput);
+                }
 
-            if (veryVerbose) { P_(LINE) P_(output.str()) P(expectedOutput); }
-
-            LOOP3_ASSERT(di,
-                         output.str(),
-                         expectedOutput,
-                         output.str() == expectedOutput);
+                LOOP3_ASSERT(di,
+                             output.str(),
+                             expectedOutput,
+                             output.str() == expectedOutput);
+            }
         }
 
         // negative tests
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-
             bsls::AssertTestHandlerGuard g;
 
             bdlt::Date d(2015,1,23);
@@ -380,49 +456,145 @@ int main(int argc, char *argv[])
             // 'earliest <= latest'
 
             ASSERT_FAIL(Obj::generateFromDayOfWeekInMonth(
-                                  &schedule, d, d-1, 2010, 2, 1, DAY(FRI), 1));
+                               &scheduleBsl, d, d-1, 2010, 2, 1, DAY(FRI), 1));
+            ASSERT_FAIL(Obj::generateFromDayOfWeekInMonth(
+                               &scheduleStd, d, d-1, 2010, 2, 1, DAY(FRI), 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_FAIL(Obj::generateFromDayOfWeekInMonth(
+                               &schedulePmr, d, d-1, 2010, 2, 1, DAY(FRI), 1));
+#endif
             ASSERT_PASS(Obj::generateFromDayOfWeekInMonth(
-                                    &schedule, d, d, 2010, 2, 1, DAY(FRI), 1));
+                                 &scheduleBsl, d, d, 2010, 2, 1, DAY(FRI), 1));
+            ASSERT_PASS(Obj::generateFromDayOfWeekInMonth(
+                                 &scheduleStd, d, d, 2010, 2, 1, DAY(FRI), 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_PASS(Obj::generateFromDayOfWeekInMonth(
+                                 &schedulePmr, d, d, 2010, 2, 1, DAY(FRI), 1));
+#endif
 
             // 'exampleYear'
 
             ASSERT_FAIL(Obj::generateFromDayOfWeekInMonth(
-                                      &schedule, d, d,  0, 2, 1, DAY(FRI), 1));
-            ASSERT_PASS(Obj::generateFromDayOfWeekInMonth(
-                                      &schedule, d, d,  1, 2, 1, DAY(FRI), 1));
-            ASSERT_PASS(Obj::generateFromDayOfWeekInMonth(
-                                    &schedule, d, d, 9999, 2, 1, DAY(FRI), 1));
+                                   &scheduleBsl, d, d,  0, 2, 1, DAY(FRI), 1));
             ASSERT_FAIL(Obj::generateFromDayOfWeekInMonth(
-                                   &schedule, d, d, 10000, 2, 1, DAY(FRI), 1));
+                                   &scheduleStd, d, d,  0, 2, 1, DAY(FRI), 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_FAIL(Obj::generateFromDayOfWeekInMonth(
+                                   &schedulePmr, d, d,  0, 2, 1, DAY(FRI), 1));
+#endif
+            ASSERT_PASS(Obj::generateFromDayOfWeekInMonth(
+                                   &scheduleBsl, d, d,  1, 2, 1, DAY(FRI), 1));
+            ASSERT_PASS(Obj::generateFromDayOfWeekInMonth(
+                                   &scheduleStd, d, d,  1, 2, 1, DAY(FRI), 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_PASS(Obj::generateFromDayOfWeekInMonth(
+                                   &schedulePmr, d, d,  1, 2, 1, DAY(FRI), 1));
+#endif
+            ASSERT_PASS(Obj::generateFromDayOfWeekInMonth(
+                                 &scheduleBsl, d, d, 9999, 2, 1, DAY(FRI), 1));
+            ASSERT_PASS(Obj::generateFromDayOfWeekInMonth(
+                                 &scheduleStd, d, d, 9999, 2, 1, DAY(FRI), 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_PASS(Obj::generateFromDayOfWeekInMonth(
+                                 &schedulePmr, d, d, 9999, 2, 1, DAY(FRI), 1));
+#endif
+            ASSERT_FAIL(Obj::generateFromDayOfWeekInMonth(
+                                &scheduleBsl, d, d, 10000, 2, 1, DAY(FRI), 1));
+            ASSERT_FAIL(Obj::generateFromDayOfWeekInMonth(
+                                &scheduleStd, d, d, 10000, 2, 1, DAY(FRI), 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_FAIL(Obj::generateFromDayOfWeekInMonth(
+                                &schedulePmr, d, d, 10000, 2, 1, DAY(FRI), 1));
+#endif
 
             // 'exampleMonth'
 
             ASSERT_FAIL(Obj::generateFromDayOfWeekInMonth(
-                                   &schedule, d, d, 2010,  0, 1, DAY(FRI), 1));
-            ASSERT_PASS(Obj::generateFromDayOfWeekInMonth(
-                                   &schedule, d, d, 2010,  1, 1, DAY(FRI), 1));
-            ASSERT_PASS(Obj::generateFromDayOfWeekInMonth(
-                                   &schedule, d, d, 2010, 12, 1, DAY(FRI), 1));
+                                &scheduleBsl, d, d, 2010,  0, 1, DAY(FRI), 1));
             ASSERT_FAIL(Obj::generateFromDayOfWeekInMonth(
-                                   &schedule, d, d, 2010, 13, 1, DAY(FRI), 1));
+                                &scheduleStd, d, d, 2010,  0, 1, DAY(FRI), 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_FAIL(Obj::generateFromDayOfWeekInMonth(
+                                &schedulePmr, d, d, 2010,  0, 1, DAY(FRI), 1));
+#endif
+            ASSERT_PASS(Obj::generateFromDayOfWeekInMonth(
+                                &scheduleBsl, d, d, 2010,  1, 1, DAY(FRI), 1));
+            ASSERT_PASS(Obj::generateFromDayOfWeekInMonth(
+                                &scheduleStd, d, d, 2010,  1, 1, DAY(FRI), 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_PASS(Obj::generateFromDayOfWeekInMonth(
+                                &schedulePmr, d, d, 2010,  1, 1, DAY(FRI), 1));
+#endif
+            ASSERT_PASS(Obj::generateFromDayOfWeekInMonth(
+                                &scheduleBsl, d, d, 2010, 12, 1, DAY(FRI), 1));
+            ASSERT_PASS(Obj::generateFromDayOfWeekInMonth(
+                                &scheduleStd, d, d, 2010, 12, 1, DAY(FRI), 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_PASS(Obj::generateFromDayOfWeekInMonth(
+                                &schedulePmr, d, d, 2010, 12, 1, DAY(FRI), 1));
+#endif
+            ASSERT_FAIL(Obj::generateFromDayOfWeekInMonth(
+                                &scheduleBsl, d, d, 2010, 13, 1, DAY(FRI), 1));
+            ASSERT_FAIL(Obj::generateFromDayOfWeekInMonth(
+                                &scheduleStd, d, d, 2010, 13, 1, DAY(FRI), 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_FAIL(Obj::generateFromDayOfWeekInMonth(
+                                &schedulePmr, d, d, 2010, 13, 1, DAY(FRI), 1));
+#endif
 
             // 'interval'
 
             ASSERT_FAIL(Obj::generateFromDayOfWeekInMonth(
-                                    &schedule, d, d, 2010, 2, 0, DAY(FRI), 1));
+                                 &scheduleBsl, d, d, 2010, 2, 0, DAY(FRI), 1));
+            ASSERT_FAIL(Obj::generateFromDayOfWeekInMonth(
+                                 &scheduleStd, d, d, 2010, 2, 0, DAY(FRI), 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_FAIL(Obj::generateFromDayOfWeekInMonth(
+                                 &schedulePmr, d, d, 2010, 2, 0, DAY(FRI), 1));
+#endif
             ASSERT_PASS(Obj::generateFromDayOfWeekInMonth(
-                                    &schedule, d, d, 2010, 2, 1, DAY(FRI), 1));
+                                 &scheduleBsl, d, d, 2010, 2, 1, DAY(FRI), 1));
+            ASSERT_PASS(Obj::generateFromDayOfWeekInMonth(
+                                 &scheduleStd, d, d, 2010, 2, 1, DAY(FRI), 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_PASS(Obj::generateFromDayOfWeekInMonth(
+                                 &schedulePmr, d, d, 2010, 2, 1, DAY(FRI), 1));
+#endif
 
             // 'ocurrenceWeek'
 
             ASSERT_FAIL(Obj::generateFromDayOfWeekInMonth(
-                                    &schedule, d, d, 2010, 2, 1, DAY(FRI), 0));
-            ASSERT_PASS(Obj::generateFromDayOfWeekInMonth(
-                                    &schedule, d, d, 2010, 2, 1, DAY(FRI), 1));
-            ASSERT_PASS(Obj::generateFromDayOfWeekInMonth(
-                                    &schedule, d, d, 2010, 2, 1, DAY(FRI), 4));
+                                 &scheduleBsl, d, d, 2010, 2, 1, DAY(FRI), 0));
             ASSERT_FAIL(Obj::generateFromDayOfWeekInMonth(
-                                    &schedule, d, d, 2010, 2, 1, DAY(FRI), 5));
+                                 &scheduleStd, d, d, 2010, 2, 1, DAY(FRI), 0));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_FAIL(Obj::generateFromDayOfWeekInMonth(
+                                 &schedulePmr, d, d, 2010, 2, 1, DAY(FRI), 0));
+#endif
+            ASSERT_PASS(Obj::generateFromDayOfWeekInMonth(
+                                 &scheduleBsl, d, d, 2010, 2, 1, DAY(FRI), 1));
+            ASSERT_PASS(Obj::generateFromDayOfWeekInMonth(
+                                 &scheduleStd, d, d, 2010, 2, 1, DAY(FRI), 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_PASS(Obj::generateFromDayOfWeekInMonth(
+                                 &schedulePmr, d, d, 2010, 2, 1, DAY(FRI), 1));
+#endif
+            ASSERT_PASS(Obj::generateFromDayOfWeekInMonth(
+                                 &scheduleBsl, d, d, 2010, 2, 1, DAY(FRI), 4));
+            ASSERT_PASS(Obj::generateFromDayOfWeekInMonth(
+                                 &scheduleStd, d, d, 2010, 2, 1, DAY(FRI), 4));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_PASS(Obj::generateFromDayOfWeekInMonth(
+                                 &schedulePmr, d, d, 2010, 2, 1, DAY(FRI), 4));
+#endif
+            ASSERT_FAIL(Obj::generateFromDayOfWeekInMonth(
+                                 &scheduleBsl, d, d, 2010, 2, 1, DAY(FRI), 5));
+            ASSERT_FAIL(Obj::generateFromDayOfWeekInMonth(
+                                 &scheduleStd, d, d, 2010, 2, 1, DAY(FRI), 5));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_FAIL(Obj::generateFromDayOfWeekInMonth(
+                                 &schedulePmr, d, d, 2010, 2, 1, DAY(FRI), 5));
+#endif
         }
       } break;
       case 5: {
@@ -483,49 +655,89 @@ int main(int argc, char *argv[])
 
         const size_t NUM_DATA = sizeof INPUT / sizeof *INPUT;
 
-        bsl::vector<bdlt::Date> schedule;
+        bsl::vector<bdlt::Date>      scheduleBsl;
+        std::vector<bdlt::Date>      scheduleStd;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+        std::pmr::vector<bdlt::Date> schedulePmr;
+#endif
 
-        for (size_t di = 0; di < NUM_DATA; ++di)
-        {
-            const int  LINE     = INPUT[di].d_lineNum;
-            bdlt::Date earliest = bdlt::DateUtil::convertFromYYYYMMDDRaw(
+        for (int ivt = e_BEGIN; ivt < e_END; ++ivt) {
+            VecType vt = static_cast<VecType>(ivt);
+
+            for (size_t di = 0; di < NUM_DATA; ++di)
+            {
+                const int  LINE     = INPUT[di].d_lineNum;
+                bdlt::Date earliest = bdlt::DateUtil::convertFromYYYYMMDDRaw(
                                                  INPUT[di].d_earliestYYYYMMDD);
-            bdlt::Date latest   = bdlt::DateUtil::convertFromYYYYMMDDRaw(
+                bdlt::Date latest   = bdlt::DateUtil::convertFromYYYYMMDDRaw(
                                                    INPUT[di].d_latestYYYYMMDD);
 
-            const bdlt::DayOfWeek::Enum dayOfWeek = INPUT[di].d_dayOfWeek;
+                const bdlt::DayOfWeek::Enum dayOfWeek = INPUT[di].d_dayOfWeek;
 
-            const int   exampleYear    = INPUT[di].d_exampleYear;
-            const int   exampleMonth   = INPUT[di].d_exampleMonth;
-            const int   interval       = INPUT[di].d_intervalInMonths;
-            const int   dayOfMonth     = INPUT[di].d_dayOfMonth;
-            const char* expectedOutput = INPUT[di].d_expectedOutputString_p;
+                const int   exampleYear    = INPUT[di].d_exampleYear;
+                const int   exampleMonth   = INPUT[di].d_exampleMonth;
+                const int   interval       = INPUT[di].d_intervalInMonths;
+                const int   dayOfMonth     = INPUT[di].d_dayOfMonth;
+                const char* expectedOutput =INPUT[di].d_expectedOutputString_p;
 
-            Obj::generateFromDayOfWeekAfterDayOfMonth(&schedule,
-                                                      earliest,
-                                                      latest,
-                                                      exampleYear,
-                                                      exampleMonth,
-                                                      interval,
-                                                      dayOfWeek,
-                                                      dayOfMonth);
+                bsl::ostringstream output;
 
-            bsl::ostringstream output;
-            toString(&output, schedule);
+                switch (vt) {
+                  case e_BSL: {
+                    Obj::generateFromDayOfWeekAfterDayOfMonth(&scheduleBsl,
+                                                              earliest,
+                                                              latest,
+                                                              exampleYear,
+                                                              exampleMonth,
+                                                              interval,
+                                                              dayOfWeek,
+                                                              dayOfMonth);
+                    toString(&output, scheduleBsl);
+                  } break;
+                  case e_STD: {
+                    Obj::generateFromDayOfWeekAfterDayOfMonth(&scheduleStd,
+                                                              earliest,
+                                                              latest,
+                                                              exampleYear,
+                                                              exampleMonth,
+                                                              interval,
+                                                              dayOfWeek,
+                                                              dayOfMonth);
+                    toString(&output, scheduleStd);
+                  } break;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                  case e_PMR: {
+                    Obj::generateFromDayOfWeekAfterDayOfMonth(&schedulePmr,
+                                                              earliest,
+                                                              latest,
+                                                              exampleYear,
+                                                              exampleMonth,
+                                                              interval,
+                                                              dayOfWeek,
+                                                              dayOfMonth);
+                    toString(&output, schedulePmr);
+                  } break;
+#endif
+                  default: {
+                    ASSERT(0);
+                  }
+                }
 
-            if (veryVerbose) { P_(LINE) P_(output.str()) P(expectedOutput); }
+                if (veryVerbose) {
+                    P_(vt) P_(LINE) P_(output.str()) P(expectedOutput);
+                }
 
-            LOOP3_ASSERT(di,
-                         output.str(),
-                         expectedOutput,
-                         output.str() == expectedOutput);
+                LOOP3_ASSERT(di,
+                             output.str(),
+                             expectedOutput,
+                             output.str() == expectedOutput);
+            }
         }
 
         // negative tests
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-
             bsls::AssertTestHandlerGuard g;
 
             bdlt::Date d(2015,1,23);
@@ -533,49 +745,145 @@ int main(int argc, char *argv[])
             // 'earliest <= latest'
 
             ASSERT_FAIL(Obj::generateFromDayOfWeekAfterDayOfMonth(
-                                  &schedule, d, d-1, 2010, 2, 1, DAY(FRI), 1));
+                               &scheduleBsl, d, d-1, 2010, 2, 1, DAY(FRI), 1));
+            ASSERT_FAIL(Obj::generateFromDayOfWeekAfterDayOfMonth(
+                               &scheduleStd, d, d-1, 2010, 2, 1, DAY(FRI), 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_FAIL(Obj::generateFromDayOfWeekAfterDayOfMonth(
+                               &schedulePmr, d, d-1, 2010, 2, 1, DAY(FRI), 1));
+#endif
             ASSERT_PASS(Obj::generateFromDayOfWeekAfterDayOfMonth(
-                                    &schedule, d, d, 2010, 2, 1, DAY(FRI), 1));
+                                 &scheduleBsl, d, d, 2010, 2, 1, DAY(FRI), 1));
+            ASSERT_PASS(Obj::generateFromDayOfWeekAfterDayOfMonth(
+                                 &scheduleStd, d, d, 2010, 2, 1, DAY(FRI), 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_PASS(Obj::generateFromDayOfWeekAfterDayOfMonth(
+                                 &schedulePmr, d, d, 2010, 2, 1, DAY(FRI), 1));
+#endif
 
             // 'exampleYear'
 
             ASSERT_FAIL(Obj::generateFromDayOfWeekAfterDayOfMonth(
-                                       &schedule, d, d, 0, 2, 1, DAY(FRI), 1));
-            ASSERT_PASS(Obj::generateFromDayOfWeekAfterDayOfMonth(
-                                      &schedule, d, d,  1, 2, 1, DAY(FRI), 1));
-            ASSERT_PASS(Obj::generateFromDayOfWeekAfterDayOfMonth(
-                                    &schedule, d, d, 9999, 2, 1, DAY(FRI), 1));
+                                    &scheduleBsl, d, d, 0, 2, 1, DAY(FRI), 1));
             ASSERT_FAIL(Obj::generateFromDayOfWeekAfterDayOfMonth(
-                                   &schedule, d, d, 10000, 2, 1, DAY(FRI), 1));
+                                    &scheduleStd, d, d, 0, 2, 1, DAY(FRI), 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_FAIL(Obj::generateFromDayOfWeekAfterDayOfMonth(
+                                    &schedulePmr, d, d, 0, 2, 1, DAY(FRI), 1));
+#endif
+            ASSERT_PASS(Obj::generateFromDayOfWeekAfterDayOfMonth(
+                                   &scheduleBsl, d, d,  1, 2, 1, DAY(FRI), 1));
+            ASSERT_PASS(Obj::generateFromDayOfWeekAfterDayOfMonth(
+                                   &scheduleStd, d, d,  1, 2, 1, DAY(FRI), 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_PASS(Obj::generateFromDayOfWeekAfterDayOfMonth(
+                                   &schedulePmr, d, d,  1, 2, 1, DAY(FRI), 1));
+#endif
+            ASSERT_PASS(Obj::generateFromDayOfWeekAfterDayOfMonth(
+                                 &scheduleBsl, d, d, 9999, 2, 1, DAY(FRI), 1));
+            ASSERT_PASS(Obj::generateFromDayOfWeekAfterDayOfMonth(
+                                 &scheduleStd, d, d, 9999, 2, 1, DAY(FRI), 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_PASS(Obj::generateFromDayOfWeekAfterDayOfMonth(
+                                 &schedulePmr, d, d, 9999, 2, 1, DAY(FRI), 1));
+#endif
+            ASSERT_FAIL(Obj::generateFromDayOfWeekAfterDayOfMonth(
+                                &scheduleBsl, d, d, 10000, 2, 1, DAY(FRI), 1));
+            ASSERT_FAIL(Obj::generateFromDayOfWeekAfterDayOfMonth(
+                                &scheduleStd, d, d, 10000, 2, 1, DAY(FRI), 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_FAIL(Obj::generateFromDayOfWeekAfterDayOfMonth(
+                                &schedulePmr, d, d, 10000, 2, 1, DAY(FRI), 1));
+#endif
 
             // 'exampleMonth'
 
             ASSERT_FAIL(Obj::generateFromDayOfWeekAfterDayOfMonth(
-                                    &schedule, d, d, 2010, 0, 1, DAY(FRI), 1));
-            ASSERT_PASS(Obj::generateFromDayOfWeekAfterDayOfMonth(
-                                    &schedule, d, d, 2010, 1, 1, DAY(FRI), 1));
-            ASSERT_PASS(Obj::generateFromDayOfWeekAfterDayOfMonth(
-                                   &schedule, d, d, 2010, 12, 1, DAY(FRI), 1));
+                                 &scheduleBsl, d, d, 2010, 0, 1, DAY(FRI), 1));
             ASSERT_FAIL(Obj::generateFromDayOfWeekAfterDayOfMonth(
-                                   &schedule, d, d, 2010, 13, 1, DAY(FRI), 1));
+                                 &scheduleStd, d, d, 2010, 0, 1, DAY(FRI), 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_FAIL(Obj::generateFromDayOfWeekAfterDayOfMonth(
+                                 &schedulePmr, d, d, 2010, 0, 1, DAY(FRI), 1));
+#endif
+            ASSERT_PASS(Obj::generateFromDayOfWeekAfterDayOfMonth(
+                                 &scheduleBsl, d, d, 2010, 1, 1, DAY(FRI), 1));
+            ASSERT_PASS(Obj::generateFromDayOfWeekAfterDayOfMonth(
+                                 &scheduleStd, d, d, 2010, 1, 1, DAY(FRI), 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_PASS(Obj::generateFromDayOfWeekAfterDayOfMonth(
+                                 &schedulePmr, d, d, 2010, 1, 1, DAY(FRI), 1));
+#endif
+            ASSERT_PASS(Obj::generateFromDayOfWeekAfterDayOfMonth(
+                                &scheduleBsl, d, d, 2010, 12, 1, DAY(FRI), 1));
+            ASSERT_PASS(Obj::generateFromDayOfWeekAfterDayOfMonth(
+                                &scheduleStd, d, d, 2010, 12, 1, DAY(FRI), 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_PASS(Obj::generateFromDayOfWeekAfterDayOfMonth(
+                                &schedulePmr, d, d, 2010, 12, 1, DAY(FRI), 1));
+#endif
+            ASSERT_FAIL(Obj::generateFromDayOfWeekAfterDayOfMonth(
+                                &scheduleBsl, d, d, 2010, 13, 1, DAY(FRI), 1));
+            ASSERT_FAIL(Obj::generateFromDayOfWeekAfterDayOfMonth(
+                                &scheduleStd, d, d, 2010, 13, 1, DAY(FRI), 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_FAIL(Obj::generateFromDayOfWeekAfterDayOfMonth(
+                                &schedulePmr, d, d, 2010, 13, 1, DAY(FRI), 1));
+#endif
 
             // 'interval'
 
             ASSERT_FAIL(Obj::generateFromDayOfWeekAfterDayOfMonth(
-                                    &schedule, d, d, 2010, 2, 0, DAY(FRI), 1));
+                                 &scheduleBsl, d, d, 2010, 2, 0, DAY(FRI), 1));
+            ASSERT_FAIL(Obj::generateFromDayOfWeekAfterDayOfMonth(
+                                 &scheduleStd, d, d, 2010, 2, 0, DAY(FRI), 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_FAIL(Obj::generateFromDayOfWeekAfterDayOfMonth(
+                                 &schedulePmr, d, d, 2010, 2, 0, DAY(FRI), 1));
+#endif
             ASSERT_PASS(Obj::generateFromDayOfWeekAfterDayOfMonth(
-                                    &schedule, d, d, 2010, 2, 1, DAY(FRI), 1));
+                                 &scheduleBsl, d, d, 2010, 2, 1, DAY(FRI), 1));
+            ASSERT_PASS(Obj::generateFromDayOfWeekAfterDayOfMonth(
+                                 &scheduleStd, d, d, 2010, 2, 1, DAY(FRI), 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_PASS(Obj::generateFromDayOfWeekAfterDayOfMonth(
+                                 &schedulePmr, d, d, 2010, 2, 1, DAY(FRI), 1));
+#endif
 
             // 'dayOfMonth'
 
             ASSERT_FAIL(Obj::generateFromDayOfWeekAfterDayOfMonth(
-                                    &schedule, d, d, 2010, 2, 1, DAY(FRI), 0));
-            ASSERT_PASS(Obj::generateFromDayOfWeekAfterDayOfMonth(
-                                    &schedule, d, d, 2010, 2, 1, DAY(FRI), 1));
-            ASSERT_PASS(Obj::generateFromDayOfWeekAfterDayOfMonth(
-                                   &schedule, d, d, 2010, 2, 1, DAY(FRI), 31));
+                                 &scheduleBsl, d, d, 2010, 2, 1, DAY(FRI), 0));
             ASSERT_FAIL(Obj::generateFromDayOfWeekAfterDayOfMonth(
-                                   &schedule, d, d, 2010, 2, 1, DAY(FRI), 32));
+                                 &scheduleStd, d, d, 2010, 2, 1, DAY(FRI), 0));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_FAIL(Obj::generateFromDayOfWeekAfterDayOfMonth(
+                                 &schedulePmr, d, d, 2010, 2, 1, DAY(FRI), 0));
+#endif
+            ASSERT_PASS(Obj::generateFromDayOfWeekAfterDayOfMonth(
+                                 &scheduleBsl, d, d, 2010, 2, 1, DAY(FRI), 1));
+            ASSERT_PASS(Obj::generateFromDayOfWeekAfterDayOfMonth(
+                                 &scheduleStd, d, d, 2010, 2, 1, DAY(FRI), 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_PASS(Obj::generateFromDayOfWeekAfterDayOfMonth(
+                                 &schedulePmr, d, d, 2010, 2, 1, DAY(FRI), 1));
+#endif
+            ASSERT_PASS(Obj::generateFromDayOfWeekAfterDayOfMonth(
+                                &scheduleBsl, d, d, 2010, 2, 1, DAY(FRI), 31));
+            ASSERT_PASS(Obj::generateFromDayOfWeekAfterDayOfMonth(
+                                &scheduleStd, d, d, 2010, 2, 1, DAY(FRI), 31));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_PASS(Obj::generateFromDayOfWeekAfterDayOfMonth(
+                                &schedulePmr, d, d, 2010, 2, 1, DAY(FRI), 31));
+#endif
+            ASSERT_FAIL(Obj::generateFromDayOfWeekAfterDayOfMonth(
+                                &scheduleBsl, d, d, 2010, 2, 1, DAY(FRI), 32));
+            ASSERT_FAIL(Obj::generateFromDayOfWeekAfterDayOfMonth(
+                                &scheduleStd, d, d, 2010, 2, 1, DAY(FRI), 32));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_FAIL(Obj::generateFromDayOfWeekAfterDayOfMonth(
+                                &schedulePmr, d, d, 2010, 2, 1, DAY(FRI), 32));
+#endif
         }
       } break;
       case 4: {
@@ -696,41 +1004,84 @@ int main(int argc, char *argv[])
 
         const size_t NUM_DATA = sizeof INPUT / sizeof *INPUT;
 
-        bsl::vector<bdlt::Date> schedule;
+        bsl::vector<bdlt::Date>      scheduleBsl;
+        std::vector<bdlt::Date>      scheduleStd;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+        std::pmr::vector<bdlt::Date> schedulePmr;
+#endif
 
-        for (size_t di = 0; di < NUM_DATA; ++di) {
-            const int  LINE     = INPUT[di].d_lineNum;
-            bdlt::Date earliest = bdlt::DateUtil::convertFromYYYYMMDDRaw(
+        for (int ivt = e_BEGIN; ivt < e_END; ++ivt) {
+            VecType vt = static_cast<VecType>(ivt);
+
+            for (size_t di = 0; di < NUM_DATA; ++di) {
+                const int  LINE     = INPUT[di].d_lineNum;
+                bdlt::Date earliest = bdlt::DateUtil::convertFromYYYYMMDDRaw(
                                                  INPUT[di].d_earliestYYYYMMDD);
-            bdlt::Date latest  = bdlt::DateUtil::convertFromYYYYMMDDRaw(
+                bdlt::Date latest  = bdlt::DateUtil::convertFromYYYYMMDDRaw(
                                                    INPUT[di].d_latestYYYYMMDD);
 
-            const bdlt::Calendar *calendar = INPUT[di].d_calendar_p;
+                const bdlt::Calendar *calendar = INPUT[di].d_calendar_p;
 
-            const int   exampleYear    = INPUT[di].d_exampleYear;
-            const int   exampleMonth   = INPUT[di].d_exampleMonth;
-            const int   interval       = INPUT[di].d_intervalInMonths;
-            const int   targetBusDay   = INPUT[di].d_targetBusinessDayOfMonth;
-            const char *expectedOutput = INPUT[di].d_expectedOutputString_p;
+                const int   exampleYear    = INPUT[di].d_exampleYear;
+                const int   exampleMonth   = INPUT[di].d_exampleMonth;
+                const int   interval       = INPUT[di].d_intervalInMonths;
+                const int   targetBusDay   =
+                                          INPUT[di].d_targetBusinessDayOfMonth;
+                const char *expectedOutput =
+                                          INPUT[di].d_expectedOutputString_p;
 
-            Obj::generateFromBusinessDayOfMonth(&schedule,
-                                                earliest,
-                                                latest,
-                                                exampleYear,
-                                                exampleMonth,
-                                                interval,
-                                                *calendar,
-                                                targetBusDay);
+                bsl::ostringstream output;
 
-            bsl::ostringstream output;
-            toString(&output, schedule);
+                switch (vt) {
+                  case e_BSL: {
+                    Obj::generateFromBusinessDayOfMonth(&scheduleBsl,
+                                                        earliest,
+                                                        latest,
+                                                        exampleYear,
+                                                        exampleMonth,
+                                                        interval,
+                                                        *calendar,
+                                                        targetBusDay);
+                    toString(&output, scheduleBsl);
+                  } break;
+                  case e_STD: {
+                    Obj::generateFromBusinessDayOfMonth(&scheduleStd,
+                                                        earliest,
+                                                        latest,
+                                                        exampleYear,
+                                                        exampleMonth,
+                                                        interval,
+                                                        *calendar,
+                                                        targetBusDay);
+                    toString(&output, scheduleStd);
+                  } break;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                  case e_PMR: {
+                    Obj::generateFromBusinessDayOfMonth(&schedulePmr,
+                                                        earliest,
+                                                        latest,
+                                                        exampleYear,
+                                                        exampleMonth,
+                                                        interval,
+                                                        *calendar,
+                                                        targetBusDay);
+                    toString(&output, schedulePmr);
+                  } break;
+#endif
+                  default: {
+                    ASSERT(0);
+                  }
+                }
 
-            if (veryVerbose) { P_(LINE) P_(output.str()) P(expectedOutput); }
+                if (veryVerbose) {
+                    P_(vt) P_(LINE) P_(output.str()) P(expectedOutput);
+                }
 
-            LOOP3_ASSERT(LINE,
-                         output.str(),
-                         expectedOutput,
-                         output.str() == expectedOutput);
+                LOOP3_ASSERT(LINE,
+                             output.str(),
+                             expectedOutput,
+                             output.str() == expectedOutput);
+            }
         }
 
         // negative tests
@@ -744,47 +1095,137 @@ int main(int argc, char *argv[])
             // 'earliest <= latest'
 
             ASSERT_FAIL(Obj::generateFromBusinessDayOfMonth(
-                                    &schedule, d, d - 1, 2010, 2, 1, cal1, 1));
+                                 &scheduleBsl, d, d - 1, 2010, 2, 1, cal1, 1));
+            ASSERT_FAIL(Obj::generateFromBusinessDayOfMonth(
+                                 &scheduleStd, d, d - 1, 2010, 2, 1, cal1, 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_FAIL(Obj::generateFromBusinessDayOfMonth(
+                                 &schedulePmr, d, d - 1, 2010, 2, 1, cal1, 1));
+#endif
             ASSERT_PASS(Obj::generateFromBusinessDayOfMonth(
-                                        &schedule, d, d, 2010, 2, 1, cal1, 1));
+                                     &scheduleBsl, d, d, 2010, 2, 1, cal1, 1));
+            ASSERT_PASS(Obj::generateFromBusinessDayOfMonth(
+                                     &scheduleStd, d, d, 2010, 2, 1, cal1, 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_PASS(Obj::generateFromBusinessDayOfMonth(
+                                     &schedulePmr, d, d, 2010, 2, 1, cal1, 1));
+#endif
 
             // 'exampleYear'
 
             ASSERT_FAIL(Obj::generateFromBusinessDayOfMonth(
-                                           &schedule, d, d, 0, 2, 1, cal1, 1));
-            ASSERT_PASS(Obj::generateFromBusinessDayOfMonth(
-                                           &schedule, d, d, 1, 2, 1, cal1, 1));
-            ASSERT_PASS(Obj::generateFromBusinessDayOfMonth(
-                                        &schedule, d, d, 9999, 2, 1, cal1, 1));
+                                        &scheduleBsl, d, d, 0, 2, 1, cal1, 1));
             ASSERT_FAIL(Obj::generateFromBusinessDayOfMonth(
-                                       &schedule, d, d, 10000, 2, 1, cal1, 1));
+                                        &scheduleStd, d, d, 0, 2, 1, cal1, 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_FAIL(Obj::generateFromBusinessDayOfMonth(
+                                        &schedulePmr, d, d, 0, 2, 1, cal1, 1));
+#endif
+            ASSERT_PASS(Obj::generateFromBusinessDayOfMonth(
+                                        &scheduleBsl, d, d, 1, 2, 1, cal1, 1));
+            ASSERT_PASS(Obj::generateFromBusinessDayOfMonth(
+                                        &scheduleStd, d, d, 1, 2, 1, cal1, 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_PASS(Obj::generateFromBusinessDayOfMonth(
+                                        &schedulePmr, d, d, 1, 2, 1, cal1, 1));
+#endif
+            ASSERT_PASS(Obj::generateFromBusinessDayOfMonth(
+                                     &scheduleBsl, d, d, 9999, 2, 1, cal1, 1));
+            ASSERT_PASS(Obj::generateFromBusinessDayOfMonth(
+                                     &scheduleStd, d, d, 9999, 2, 1, cal1, 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_PASS(Obj::generateFromBusinessDayOfMonth(
+                                     &schedulePmr, d, d, 9999, 2, 1, cal1, 1));
+#endif
+            ASSERT_FAIL(Obj::generateFromBusinessDayOfMonth(
+                                    &scheduleBsl, d, d, 10000, 2, 1, cal1, 1));
+            ASSERT_FAIL(Obj::generateFromBusinessDayOfMonth(
+                                    &scheduleStd, d, d, 10000, 2, 1, cal1, 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_FAIL(Obj::generateFromBusinessDayOfMonth(
+                                    &schedulePmr, d, d, 10000, 2, 1, cal1, 1));
+#endif
 
             // 'exampleMonth'
 
             ASSERT_FAIL(Obj::generateFromBusinessDayOfMonth(
-                                        &schedule, d, d, 2010, 0, 1, cal1, 1));
-            ASSERT_PASS(Obj::generateFromBusinessDayOfMonth(
-                                        &schedule, d, d, 2010, 1, 1, cal1, 1));
-            ASSERT_PASS(Obj::generateFromBusinessDayOfMonth(
-                                       &schedule, d, d, 2010, 12, 1, cal1, 1));
+                                     &scheduleBsl, d, d, 2010, 0, 1, cal1, 1));
             ASSERT_FAIL(Obj::generateFromBusinessDayOfMonth(
-                                       &schedule, d, d, 2010, 13, 1, cal1, 1));
+                                     &scheduleStd, d, d, 2010, 0, 1, cal1, 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_FAIL(Obj::generateFromBusinessDayOfMonth(
+                                     &schedulePmr, d, d, 2010, 0, 1, cal1, 1));
+#endif
+            ASSERT_PASS(Obj::generateFromBusinessDayOfMonth(
+                                     &scheduleBsl, d, d, 2010, 1, 1, cal1, 1));
+            ASSERT_PASS(Obj::generateFromBusinessDayOfMonth(
+                                     &scheduleStd, d, d, 2010, 1, 1, cal1, 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_PASS(Obj::generateFromBusinessDayOfMonth(
+                                     &schedulePmr, d, d, 2010, 1, 1, cal1, 1));
+#endif
+            ASSERT_PASS(Obj::generateFromBusinessDayOfMonth(
+                                    &scheduleBsl, d, d, 2010, 12, 1, cal1, 1));
+            ASSERT_PASS(Obj::generateFromBusinessDayOfMonth(
+                                    &scheduleStd, d, d, 2010, 12, 1, cal1, 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_PASS(Obj::generateFromBusinessDayOfMonth(
+                                    &schedulePmr, d, d, 2010, 12, 1, cal1, 1));
+#endif
+            ASSERT_FAIL(Obj::generateFromBusinessDayOfMonth(
+                                    &scheduleBsl, d, d, 2010, 13, 1, cal1, 1));
+            ASSERT_FAIL(Obj::generateFromBusinessDayOfMonth(
+                                    &scheduleStd, d, d, 2010, 13, 1, cal1, 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_FAIL(Obj::generateFromBusinessDayOfMonth(
+                                    &schedulePmr, d, d, 2010, 13, 1, cal1, 1));
+#endif
 
             // 'interval'
 
             ASSERT_FAIL(Obj::generateFromBusinessDayOfMonth(
-                                        &schedule, d, d, 2010, 2, 0, cal1, 1));
+                                     &scheduleBsl, d, d, 2010, 2, 0, cal1, 1));
+            ASSERT_FAIL(Obj::generateFromBusinessDayOfMonth(
+                                     &scheduleStd, d, d, 2010, 2, 0, cal1, 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_FAIL(Obj::generateFromBusinessDayOfMonth(
+                                     &schedulePmr, d, d, 2010, 2, 0, cal1, 1));
+#endif
             ASSERT_PASS(Obj::generateFromBusinessDayOfMonth(
-                                        &schedule, d, d, 2010, 2, 1, cal1, 1));
+                                     &scheduleBsl, d, d, 2010, 2, 1, cal1, 1));
+            ASSERT_PASS(Obj::generateFromBusinessDayOfMonth(
+                                     &scheduleStd, d, d, 2010, 2, 1, cal1, 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_PASS(Obj::generateFromBusinessDayOfMonth(
+                                     &schedulePmr, d, d, 2010, 2, 1, cal1, 1));
+#endif
 
             // 'targetBusinessDayOfMonth'
 
             ASSERT_PASS(Obj::generateFromBusinessDayOfMonth(
-                                       &schedule, d, d, 2010, 2, 1, cal1, -1));
-            ASSERT_FAIL(Obj::generateFromBusinessDayOfMonth(
-                                        &schedule, d, d, 2010, 2, 1, cal1, 0));
+                                    &scheduleBsl, d, d, 2010, 2, 1, cal1, -1));
             ASSERT_PASS(Obj::generateFromBusinessDayOfMonth(
-                                        &schedule, d, d, 2010, 2, 1, cal1, 1));
+                                    &scheduleStd, d, d, 2010, 2, 1, cal1, -1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_PASS(Obj::generateFromBusinessDayOfMonth(
+                                    &schedulePmr, d, d, 2010, 2, 1, cal1, -1));
+#endif
+            ASSERT_FAIL(Obj::generateFromBusinessDayOfMonth(
+                                     &scheduleBsl, d, d, 2010, 2, 1, cal1, 0));
+            ASSERT_FAIL(Obj::generateFromBusinessDayOfMonth(
+                                     &scheduleStd, d, d, 2010, 2, 1, cal1, 0));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_FAIL(Obj::generateFromBusinessDayOfMonth(
+                                     &schedulePmr, d, d, 2010, 2, 1, cal1, 0));
+#endif
+            ASSERT_PASS(Obj::generateFromBusinessDayOfMonth(
+                                     &scheduleBsl, d, d, 2010, 2, 1, cal1, 1));
+            ASSERT_PASS(Obj::generateFromBusinessDayOfMonth(
+                                     &scheduleStd, d, d, 2010, 2, 1, cal1, 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_PASS(Obj::generateFromBusinessDayOfMonth(
+                                     &schedulePmr, d, d, 2010, 2, 1, cal1, 1));
+#endif
         }
       } break;
       case 3: {
@@ -854,41 +1295,83 @@ int main(int argc, char *argv[])
 
         const size_t NUM_DATA = sizeof INPUT / sizeof *INPUT;
 
-        bsl::vector<bdlt::Date> schedule;
+        bsl::vector<bdlt::Date>      scheduleBsl;
+        std::vector<bdlt::Date>      scheduleStd;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+        std::pmr::vector<bdlt::Date> schedulePmr;
+#endif
 
-        for (size_t di = 0; di < NUM_DATA; ++di)
-        {
-            const int  LINE     = INPUT[di].d_lineNum;
-            bdlt::Date earliest = bdlt::DateUtil::convertFromYYYYMMDDRaw(
+        for (int ivt = e_BEGIN; ivt < e_END; ++ivt) {
+            VecType vt = static_cast<VecType>(ivt);
+
+            for (size_t di = 0; di < NUM_DATA; ++di)
+            {
+                const int  LINE     = INPUT[di].d_lineNum;
+                bdlt::Date earliest = bdlt::DateUtil::convertFromYYYYMMDDRaw(
                                                  INPUT[di].d_earliestYYYYMMDD);
-            bdlt::Date latest   = bdlt::DateUtil::convertFromYYYYMMDDRaw(
+                bdlt::Date latest   = bdlt::DateUtil::convertFromYYYYMMDDRaw(
                                                    INPUT[di].d_latestYYYYMMDD);
 
-            const int   exampleYear      = INPUT[di].d_exampleYear;
-            const int   exampleMonth     = INPUT[di].d_exampleMonth;
-            const int   interval         = INPUT[di].d_intervalInMonths;
-            const int   targetDayOfMonth = INPUT[di].d_targetDayOfMonth;
-            const int   targetDayOfFeb   = INPUT[di].d_targetDayOfFeb;
-            const char *expectedOutput   = INPUT[di].d_expectedOutputString_p;
+                const int   exampleYear      = INPUT[di].d_exampleYear;
+                const int   exampleMonth     = INPUT[di].d_exampleMonth;
+                const int   interval         = INPUT[di].d_intervalInMonths;
+                const int   targetDayOfMonth = INPUT[di].d_targetDayOfMonth;
+                const int   targetDayOfFeb   = INPUT[di].d_targetDayOfFeb;
+                const char *expectedOutput   =
+                                            INPUT[di].d_expectedOutputString_p;
 
-            Obj::generateFromDayOfMonth(&schedule,
-                                        earliest,
-                                        latest,
-                                        exampleYear,
-                                        exampleMonth,
-                                        interval,
-                                        targetDayOfMonth,
-                                        targetDayOfFeb);
+                bsl::ostringstream output;
 
-            bsl::ostringstream output;
-            toString(&output, schedule);
+                switch (vt) {
+                  case e_BSL: {
+                    Obj::generateFromDayOfMonth(&scheduleBsl,
+                                                earliest,
+                                                latest,
+                                                exampleYear,
+                                                exampleMonth,
+                                                interval,
+                                                targetDayOfMonth,
+                                                targetDayOfFeb);
+                    toString(&output, scheduleBsl);
+                  } break;
+                  case e_STD: {
+                    Obj::generateFromDayOfMonth(&scheduleStd,
+                                                earliest,
+                                                latest,
+                                                exampleYear,
+                                                exampleMonth,
+                                                interval,
+                                                targetDayOfMonth,
+                                                targetDayOfFeb);
+                    toString(&output, scheduleStd);
+                  } break;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                  case e_PMR: {
+                    Obj::generateFromDayOfMonth(&schedulePmr,
+                                                earliest,
+                                                latest,
+                                                exampleYear,
+                                                exampleMonth,
+                                                interval,
+                                                targetDayOfMonth,
+                                                targetDayOfFeb);
+                    toString(&output, schedulePmr);
+                  } break;
+#endif
+                  default: {
+                    ASSERT(0);
+                  }
+                }
 
-            if (veryVerbose) { P_(LINE) P_(output.str()) P(expectedOutput); }
+                if (veryVerbose) {
+                    P_(vt) P_(LINE) P_(output.str()) P(expectedOutput);
+                }
 
-            LOOP3_ASSERT(di,
-                         output.str(),
-                         expectedOutput,
-                         output.str() == expectedOutput);
+                LOOP3_ASSERT(di,
+                             output.str(),
+                             expectedOutput,
+                             output.str() == expectedOutput);
+            }
         }
 
         // negative tests
@@ -902,62 +1385,188 @@ int main(int argc, char *argv[])
             // 'earliest <= latest'
 
             ASSERT_FAIL(Obj::generateFromDayOfMonth(
-                                       &schedule, d, d - 1, 2010, 2, 1, 1, 1));
+                                    &scheduleBsl, d, d - 1, 2010, 2, 1, 1, 1));
+            ASSERT_FAIL(Obj::generateFromDayOfMonth(
+                                    &scheduleStd, d, d - 1, 2010, 2, 1, 1, 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_FAIL(Obj::generateFromDayOfMonth(
+                                    &schedulePmr, d, d - 1, 2010, 2, 1, 1, 1));
+#endif
             ASSERT_PASS(Obj::generateFromDayOfMonth(
-                                           &schedule, d, d, 2010, 2, 1, 1, 1));
+                                        &scheduleBsl, d, d, 2010, 2, 1, 1, 1));
+            ASSERT_PASS(Obj::generateFromDayOfMonth(
+                                        &scheduleStd, d, d, 2010, 2, 1, 1, 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_PASS(Obj::generateFromDayOfMonth(
+                                        &schedulePmr, d, d, 2010, 2, 1, 1, 1));
+#endif
 
             // 'exampleYear'
 
             ASSERT_FAIL(Obj::generateFromDayOfMonth(
-                                              &schedule, d, d, 0, 2, 1, 1, 1));
-            ASSERT_PASS(Obj::generateFromDayOfMonth(
-                                              &schedule, d, d, 1, 2, 1, 1, 1));
-            ASSERT_PASS(Obj::generateFromDayOfMonth(
-                                           &schedule, d, d, 9999, 2, 1, 1, 1));
+                                           &scheduleBsl, d, d, 0, 2, 1, 1, 1));
             ASSERT_FAIL(Obj::generateFromDayOfMonth(
-                                          &schedule, d, d, 10000, 2, 1, 1, 1));
+                                           &scheduleStd, d, d, 0, 2, 1, 1, 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_FAIL(Obj::generateFromDayOfMonth(
+                                           &schedulePmr, d, d, 0, 2, 1, 1, 1));
+#endif
+            ASSERT_PASS(Obj::generateFromDayOfMonth(
+                                           &scheduleBsl, d, d, 1, 2, 1, 1, 1));
+            ASSERT_PASS(Obj::generateFromDayOfMonth(
+                                           &scheduleStd, d, d, 1, 2, 1, 1, 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_PASS(Obj::generateFromDayOfMonth(
+                                           &schedulePmr, d, d, 1, 2, 1, 1, 1));
+#endif
+            ASSERT_PASS(Obj::generateFromDayOfMonth(
+                                        &scheduleBsl, d, d, 9999, 2, 1, 1, 1));
+            ASSERT_PASS(Obj::generateFromDayOfMonth(
+                                        &scheduleStd, d, d, 9999, 2, 1, 1, 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_PASS(Obj::generateFromDayOfMonth(
+                                        &schedulePmr, d, d, 9999, 2, 1, 1, 1));
+#endif
+            ASSERT_FAIL(Obj::generateFromDayOfMonth(
+                                       &scheduleBsl, d, d, 10000, 2, 1, 1, 1));
+            ASSERT_FAIL(Obj::generateFromDayOfMonth(
+                                       &scheduleStd, d, d, 10000, 2, 1, 1, 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_FAIL(Obj::generateFromDayOfMonth(
+                                       &schedulePmr, d, d, 10000, 2, 1, 1, 1));
+#endif
 
             // 'exampleMonth'
 
             ASSERT_FAIL(Obj::generateFromDayOfMonth(
-                                           &schedule, d, d, 2010, 0, 1, 1, 1));
-            ASSERT_PASS(Obj::generateFromDayOfMonth(
-                                           &schedule, d, d, 2010, 1, 1, 1, 1));
-            ASSERT_PASS(Obj::generateFromDayOfMonth(
-                                          &schedule, d, d, 2010, 12, 1, 1, 1));
+                                        &scheduleBsl, d, d, 2010, 0, 1, 1, 1));
             ASSERT_FAIL(Obj::generateFromDayOfMonth(
-                                          &schedule, d, d, 2010, 13, 1, 1, 1));
+                                        &scheduleStd, d, d, 2010, 0, 1, 1, 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_FAIL(Obj::generateFromDayOfMonth(
+                                        &schedulePmr, d, d, 2010, 0, 1, 1, 1));
+#endif
+            ASSERT_PASS(Obj::generateFromDayOfMonth(
+                                        &scheduleBsl, d, d, 2010, 1, 1, 1, 1));
+            ASSERT_PASS(Obj::generateFromDayOfMonth(
+                                        &scheduleStd, d, d, 2010, 1, 1, 1, 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_PASS(Obj::generateFromDayOfMonth(
+                                        &schedulePmr, d, d, 2010, 1, 1, 1, 1));
+#endif
+            ASSERT_PASS(Obj::generateFromDayOfMonth(
+                                       &scheduleBsl, d, d, 2010, 12, 1, 1, 1));
+            ASSERT_PASS(Obj::generateFromDayOfMonth(
+                                       &scheduleStd, d, d, 2010, 12, 1, 1, 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_PASS(Obj::generateFromDayOfMonth(
+                                       &schedulePmr, d, d, 2010, 12, 1, 1, 1));
+#endif
+            ASSERT_FAIL(Obj::generateFromDayOfMonth(
+                                       &scheduleBsl, d, d, 2010, 13, 1, 1, 1));
+            ASSERT_FAIL(Obj::generateFromDayOfMonth(
+                                       &scheduleStd, d, d, 2010, 13, 1, 1, 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_FAIL(Obj::generateFromDayOfMonth(
+                                       &schedulePmr, d, d, 2010, 13, 1, 1, 1));
+#endif
 
             // 'interval'
 
             ASSERT_FAIL(Obj::generateFromDayOfMonth(
-                                           &schedule, d, d, 2010, 2, 0, 1, 1));
+                                        &scheduleBsl, d, d, 2010, 2, 0, 1, 1));
+            ASSERT_FAIL(Obj::generateFromDayOfMonth(
+                                        &scheduleStd, d, d, 2010, 2, 0, 1, 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_FAIL(Obj::generateFromDayOfMonth(
+                                        &schedulePmr, d, d, 2010, 2, 0, 1, 1));
+#endif
             ASSERT_PASS(Obj::generateFromDayOfMonth(
-                                           &schedule, d, d, 2010, 2, 1, 1, 1));
+                                        &scheduleBsl, d, d, 2010, 2, 1, 1, 1));
+            ASSERT_PASS(Obj::generateFromDayOfMonth(
+                                        &scheduleStd, d, d, 2010, 2, 1, 1, 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_PASS(Obj::generateFromDayOfMonth(
+                                        &schedulePmr, d, d, 2010, 2, 1, 1, 1));
+#endif
 
             // 'targetDayOfMonth'
 
             ASSERT_FAIL(Obj::generateFromDayOfMonth(
-                                           &schedule, d, d, 2010, 2, 1, 0, 1));
-            ASSERT_PASS(Obj::generateFromDayOfMonth(
-                                           &schedule, d, d, 2010, 2, 1, 1, 1));
-            ASSERT_PASS(Obj::generateFromDayOfMonth(
-                                          &schedule, d, d, 2010, 2, 1, 31, 1));
+                                        &scheduleBsl, d, d, 2010, 2, 1, 0, 1));
             ASSERT_FAIL(Obj::generateFromDayOfMonth(
-                                          &schedule, d, d, 2010, 2, 1, 32, 1));
+                                        &scheduleStd, d, d, 2010, 2, 1, 0, 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_FAIL(Obj::generateFromDayOfMonth(
+                                        &schedulePmr, d, d, 2010, 2, 1, 0, 1));
+#endif
+            ASSERT_PASS(Obj::generateFromDayOfMonth(
+                                        &scheduleBsl, d, d, 2010, 2, 1, 1, 1));
+            ASSERT_PASS(Obj::generateFromDayOfMonth(
+                                        &scheduleStd, d, d, 2010, 2, 1, 1, 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_PASS(Obj::generateFromDayOfMonth(
+                                        &schedulePmr, d, d, 2010, 2, 1, 1, 1));
+#endif
+            ASSERT_PASS(Obj::generateFromDayOfMonth(
+                                       &scheduleBsl, d, d, 2010, 2, 1, 31, 1));
+            ASSERT_PASS(Obj::generateFromDayOfMonth(
+                                       &scheduleStd, d, d, 2010, 2, 1, 31, 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_PASS(Obj::generateFromDayOfMonth(
+                                       &schedulePmr, d, d, 2010, 2, 1, 31, 1));
+#endif
+            ASSERT_FAIL(Obj::generateFromDayOfMonth(
+                                       &scheduleBsl, d, d, 2010, 2, 1, 32, 1));
+            ASSERT_FAIL(Obj::generateFromDayOfMonth(
+                                       &scheduleStd, d, d, 2010, 2, 1, 32, 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_FAIL(Obj::generateFromDayOfMonth(
+                                       &schedulePmr, d, d, 2010, 2, 1, 32, 1));
+#endif
 
             // 'targetDayOfFeb'
 
             ASSERT_FAIL(Obj::generateFromDayOfMonth(
-                                          &schedule, d, d, 2010, 2, 1, 3, -1));
-            ASSERT_PASS(Obj::generateFromDayOfMonth(
-                                           &schedule, d, d, 2010, 2, 1, 3, 0));
-            ASSERT_PASS(Obj::generateFromDayOfMonth(
-                                           &schedule, d, d, 2010, 2, 1, 3, 1));
-            ASSERT_PASS(Obj::generateFromDayOfMonth(
-                                          &schedule, d, d, 2010, 2, 1, 3, 29));
+                                       &scheduleBsl, d, d, 2010, 2, 1, 3, -1));
             ASSERT_FAIL(Obj::generateFromDayOfMonth(
-                                          &schedule, d, d, 2010, 2, 1, 3, 30));
+                                       &scheduleStd, d, d, 2010, 2, 1, 3, -1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_FAIL(Obj::generateFromDayOfMonth(
+                                       &schedulePmr, d, d, 2010, 2, 1, 3, -1));
+#endif
+            ASSERT_PASS(Obj::generateFromDayOfMonth(
+                                        &scheduleBsl, d, d, 2010, 2, 1, 3, 0));
+            ASSERT_PASS(Obj::generateFromDayOfMonth(
+                                        &scheduleStd, d, d, 2010, 2, 1, 3, 0));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_PASS(Obj::generateFromDayOfMonth(
+                                        &schedulePmr, d, d, 2010, 2, 1, 3, 0));
+#endif
+            ASSERT_PASS(Obj::generateFromDayOfMonth(
+                                        &scheduleBsl, d, d, 2010, 2, 1, 3, 1));
+            ASSERT_PASS(Obj::generateFromDayOfMonth(
+                                        &scheduleStd, d, d, 2010, 2, 1, 3, 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_PASS(Obj::generateFromDayOfMonth(
+                                        &schedulePmr, d, d, 2010, 2, 1, 3, 1));
+#endif
+            ASSERT_PASS(Obj::generateFromDayOfMonth(
+                                       &scheduleBsl, d, d, 2010, 2, 1, 3, 29));
+            ASSERT_PASS(Obj::generateFromDayOfMonth(
+                                       &scheduleStd, d, d, 2010, 2, 1, 3, 29));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_PASS(Obj::generateFromDayOfMonth(
+                                       &schedulePmr, d, d, 2010, 2, 1, 3, 29));
+#endif
+            ASSERT_FAIL(Obj::generateFromDayOfMonth(
+                                       &scheduleBsl, d, d, 2010, 2, 1, 3, 30));
+            ASSERT_FAIL(Obj::generateFromDayOfMonth(
+                                       &scheduleStd, d, d, 2010, 2, 1, 3, 30));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_FAIL(Obj::generateFromDayOfMonth(
+                                       &schedulePmr, d, d, 2010, 2, 1, 3, 30));
+#endif
         }
       } break;
       case 2: {
@@ -1008,32 +1617,62 @@ int main(int argc, char *argv[])
 
         const size_t NUM_DATA = sizeof INPUT / sizeof *INPUT;
 
-        bsl::vector<bdlt::Date> schedule;
+        bsl::vector<bdlt::Date>      scheduleBsl;
+        std::vector<bdlt::Date>      scheduleStd;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+        std::pmr::vector<bdlt::Date> schedulePmr;
+#endif
 
-        for (size_t di = 0; di < NUM_DATA; ++di) {
-            const int  LINE     = INPUT[di].d_lineNum;
-            bdlt::Date earliest = bdlt::DateUtil::convertFromYYYYMMDDRaw(
+        for (int ivt = e_BEGIN; ivt < e_END; ++ivt) {
+            VecType vt = static_cast<VecType>(ivt);
+
+            for (size_t di = 0; di < NUM_DATA; ++di) {
+                const int  LINE     = INPUT[di].d_lineNum;
+                bdlt::Date earliest = bdlt::DateUtil::convertFromYYYYMMDDRaw(
                                                  INPUT[di].d_earliestYYYYMMDD);
-            bdlt::Date latest   = bdlt::DateUtil::convertFromYYYYMMDDRaw(
+                bdlt::Date latest   = bdlt::DateUtil::convertFromYYYYMMDDRaw(
                                                    INPUT[di].d_latestYYYYMMDD);
-            bdlt::Date example = bdlt::DateUtil::convertFromYYYYMMDDRaw(
+                bdlt::Date example = bdlt::DateUtil::convertFromYYYYMMDDRaw(
                                                   INPUT[di].d_exampleYYYYMMDD);
 
-            const int   interval       = INPUT[di].d_interval;
-            const char* expectedOutput = INPUT[di].d_expectedOutputString_p;
+                const int   interval       = INPUT[di].d_interval;
+                const char* expectedOutput =
+                                            INPUT[di].d_expectedOutputString_p;
 
-            Obj::generateFromDayInterval(
-                               &schedule, earliest, latest, example, interval);
+                bsl::ostringstream output;
 
-            bsl::ostringstream output;
-            toString(&output, schedule);
+                switch (vt) {
+                  case e_BSL: {
+                    Obj::generateFromDayInterval(
+                            &scheduleBsl, earliest, latest, example, interval);
+                    toString(&output, scheduleBsl);
+                  } break;
+                  case e_STD: {
+                    Obj::generateFromDayInterval(
+                            &scheduleStd, earliest, latest, example, interval);
+                    toString(&output, scheduleStd);
+                  } break;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                  case e_PMR: {
+                    Obj::generateFromDayInterval(
+                            &schedulePmr, earliest, latest, example, interval);
+                    toString(&output, schedulePmr);
+                  } break;
+#endif
+                  default: {
+                    ASSERT(0);
+                  }
+                }
 
-            if (veryVerbose) { P_(LINE) P_(output.str()) P(expectedOutput); }
+                if (veryVerbose) {
+                    P_(vt) P_(LINE) P_(output.str()) P(expectedOutput);
+                }
 
-            LOOP3_ASSERT(di,
-                         output.str(),
-                         expectedOutput,
-                         output.str() == expectedOutput);
+                LOOP3_ASSERT(di,
+                             output.str(),
+                             expectedOutput,
+                             output.str() == expectedOutput);
+            }
         }
 
         // negative tests
@@ -1047,13 +1686,40 @@ int main(int argc, char *argv[])
             // 'earliest <= latest'
 
             ASSERT_FAIL(Obj::generateFromDayInterval(
-                                                   &schedule, d, d - 1, d, 2));
-            ASSERT_PASS(Obj::generateFromDayInterval(&schedule, d, d, d, 2));
+                                                &scheduleBsl, d, d - 1, d, 2));
+            ASSERT_FAIL(Obj::generateFromDayInterval(
+                                                &scheduleStd, d, d - 1, d, 2));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_FAIL(Obj::generateFromDayInterval(
+                                                &schedulePmr, d, d - 1, d, 2));
+#endif
+            ASSERT_PASS(Obj::generateFromDayInterval(
+                                                    &scheduleBsl, d, d, d, 2));
+            ASSERT_PASS(Obj::generateFromDayInterval(
+                                                    &scheduleStd, d, d, d, 2));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_PASS(Obj::generateFromDayInterval(
+                                                    &schedulePmr, d, d, d, 2));
+#endif
 
             // 'interval'
 
-            ASSERT_FAIL(Obj::generateFromDayInterval(&schedule, d, d, d, 0));
-            ASSERT_PASS(Obj::generateFromDayInterval(&schedule, d, d, d, 1));
+            ASSERT_FAIL(Obj::generateFromDayInterval(
+                                                    &scheduleBsl, d, d, d, 0));
+            ASSERT_FAIL(Obj::generateFromDayInterval(
+                                                    &scheduleStd, d, d, d, 0));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_FAIL(Obj::generateFromDayInterval(
+                                                    &schedulePmr, d, d, d, 0));
+#endif
+            ASSERT_PASS(Obj::generateFromDayInterval(
+                                                    &scheduleBsl, d, d, d, 1));
+            ASSERT_PASS(Obj::generateFromDayInterval(
+                                                    &scheduleStd, d, d, d, 1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_PASS(Obj::generateFromDayInterval(
+                                                    &schedulePmr, d, d, d, 1));
+#endif
         }
       } break;
       case 1: {
