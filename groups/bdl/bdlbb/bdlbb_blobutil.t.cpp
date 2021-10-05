@@ -236,12 +236,13 @@ bsl::string g(int length)
 void copyStringToBlob(bdlbb::Blob *dest, const bsl::string& str)
 {
     dest->setLength(static_cast<int>(str.length()));
-    int numBytesRemaining = static_cast<int>(str.length());
-    const char *data = str.data();
-    int bufferIndex = 0;
+    int         numBytesRemaining = static_cast<int>(str.length());
+    const char *data              = str.data();
+    int         bufferIndex       = 0;
     while (numBytesRemaining) {
-        bdlbb::BlobBuffer buffer = dest->buffer(bufferIndex);
-        int numBytesToCopy = bsl::min(numBytesRemaining, buffer.size());
+        bdlbb::BlobBuffer buffer         = dest->buffer(bufferIndex);
+        int               numBytesToCopy = 
+                                    bsl::min(numBytesRemaining, buffer.size());
         bsl::memcpy(buffer.data(), data, numBytesToCopy);
         data += numBytesToCopy;
         numBytesRemaining -= numBytesToCopy;
@@ -265,7 +266,7 @@ void copyBlobToString(bsl::string *dest, const bdlbb::Blob& blob)
     ASSERT(0 == numBytesRemaining);
 }
 
-bsl::string expectedOutCase3[] = {
+bsl::string expectedOut2Case3[] = {
     "",
 
     "     0:   61626364 65662031 61626364 65662032     |abcdef 1abcdef 2|\n"
@@ -336,6 +337,36 @@ bsl::string expectedOutCase3[] = {
     "   224:   61626364 65203239 61626364 65203330     |abcde 29abcde 30|\n"
     "   240:   61626364 65203331 61626364 65203332     |abcde 31abcde 32|\n"
     "   256:   61626364 65203333                       |abcde 33        |"
+};
+
+bsl::string expectedOut4Case3[] = {
+    // 0
+    "",
+
+    // 1
+    "     0:   65203136 61626364 65203137 61626364     |e 16abcde 17abcd|\n"
+    "    16:   65203138 61626364 65203139 61626364     |e 18abcde 19abcd|\n"
+    "    32:   65203230 61626364 65203231 61626364     |e 20abcde 21abcd|\n"
+    "    48:   65203232 61626364 65203233 6162         |e 22abcde 23ab  |\n",
+
+    // 2
+    "     0:   65203136 61626364 65203137 61626364     |e 16abcde 17abcd|\n"
+    "    16:   65203138 61626364 65203139 61626364     |e 18abcde 19abcd|\n"
+    "    32:   65203230 61626364 65203231 61626364     |e 20abcde 21abcd|\n"
+    "    48:   65203232 61626364 65203233 6162         |e 22abcde 23ab  |\n",
+
+    // 3
+    "     0:   61626364 65203137 61626364 65203138     |abcde 17abcde 18|\n"
+    "    16:   61626364 65203139 61626364 65203230     |abcde 19abcde 20|\n"
+    "    32:   61626364 65203231 61626364 65203232     |abcde 21abcde 22|\n"
+    "    48:   61626364 65203233 61626364 65203234     |abcde 23abcde 24|\n",
+
+    // 4
+    "     0:   65203137 61626364 65203138 61626364     |e 17abcde 18abcd|\n"
+    "    16:   65203139 61626364 65203230 61626364     |e 19abcde 20abcd|\n"
+    "    32:   65203231 61626364 65203232 61626364     |e 21abcde 22abcd|\n"
+    "    48:   65203233 61626364 65203234 61626364     |e 23abcde 24abcd|\n"
+    "    64:   6520                                    |e               |\n",
 };
 
 static bool bad_jk(int j, int k, bdlbb::Blob& blob)
@@ -2671,35 +2702,82 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting 'hexdump' Function"
                           << "\n==========================" << endl;
 
+        typedef bsl::pair<const char*, int> BufferInfo;
+
         enum { k_BUF_SIZE = 2048 };
+
+        bslma::TestAllocator         da("default", veryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
 
         {
             if (verbose) cout << "(a) 0 buffers" << endl;
             bdlbb::SimpleBlobBufferFactory factory(5);
-            bdlbb::Blob        myBlob(&factory);
+            bdlbb::Blob                    myBlob(&factory);
+            bdlbb::Blob                    modelBlob(&factory);
 
-            ASSERT(0 == myBlob.numDataBuffers() );
+            ASSERT(0 == myBlob.numDataBuffers());
 
-            char buf[k_BUF_SIZE];
-            bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
-            bsl::ostream out(&obuf);
-            ASSERT(&out == &bdlbb::BlobUtil::hexDump(out, myBlob));
-            ASSERT(0 == strncmp(buf, expectedOutCase3[0].c_str(),
-                                expectedOutCase3[0].size()));
+            // Testing overload with 2 parameters.
+            {
+                char                        buf[k_BUF_SIZE];
+                bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
+                bsl::ostream                out(&obuf);
 
-            if (veryVerbose) {
-                bsl::string output(buf, obuf.length());
-                bsl::cout << "Hexdumped String :\n"
-                          << output
-                          << "Expected String  :\n"
-                          << expectedOutCase3[0] << bsl::endl;
+                const bsls::Types::Int64 NUM_BYTES_TOTAL = da.numBytesTotal();
+
+                ASSERT(0 == bdlbb::BlobUtil::compare(modelBlob, myBlob));
+
+                // Action.
+                ASSERT(&out == &bdlbb::BlobUtil::hexDump(out, myBlob));
+
+                ASSERT(0 == bdlbb::BlobUtil::compare(modelBlob, myBlob));
+                ASSERT(NUM_BYTES_TOTAL == da.numBytesTotal());
+                ASSERT(0 == strncmp(buf, expectedOut2Case3[0].c_str(),
+                                    expectedOut2Case3[0].size()));
+
+                if (veryVerbose) {
+                    bsl::string output(buf, obuf.length());
+                    bsl::cout << "Hexdumped String :\n"
+                              << output
+                              << "Expected String  :\n"
+                              << expectedOut2Case3[0] << bsl::endl;
+                }
+            }
+
+            // Testing overload with 4 parameters.
+            {
+                char                        buf[k_BUF_SIZE];
+                bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
+                bsl::ostream                out(&obuf);
+
+                const bsls::Types::Int64 NUM_BYTES_TOTAL = da.numBytesTotal();
+
+                ASSERT(0 == bdlbb::BlobUtil::compare(modelBlob, myBlob));
+
+                // Action.
+                ASSERT(&out == &bdlbb::BlobUtil::hexDump(out, myBlob, 0, 0));
+
+                ASSERT(0 == bdlbb::BlobUtil::compare(modelBlob, myBlob));
+                ASSERT(NUM_BYTES_TOTAL == da.numBytesTotal());
+                ASSERT(0 == strncmp(buf,
+                                    expectedOut2Case3[0].c_str(),
+                                    expectedOut2Case3[0].size()));
+
+                if (veryVerbose) {
+                    bsl::string output(buf, obuf.length());
+                    bsl::cout << "Hexdumped String :\n"
+                              << output
+                              << "Expected String  :\n"
+                              << expectedOut2Case3[0] << bsl::endl;
+                }
             }
         }
 
         {
             if (verbose) cout << "(b) 1 buffers" << endl;
             bdlbb::SimpleBlobBufferFactory factory(1024);
-            bdlbb::Blob        myBlob(&factory);
+            bdlbb::Blob                    myBlob(&factory);
+            bdlbb::Blob                    modelBlob(&factory);
 
             const char *TEST_STR = "abcdef 1abcdef 2abcdef 3abcdef 4abcdef 5"
                 "abcdef 6abcdef 7abcdef 8abcdef 9abcde 10abcde 11abcde 12"
@@ -2707,27 +2785,101 @@ int main(int argc, char *argv[])
                 "abcde 20abcde 21abcde 22abcde 23abcde 24abcde 25abcde 26"
                 "abcde 27abcde 28abcde 29abcde 30abcde 31";
 
-            copyStringToBlob(&myBlob, TEST_STR);
-            ASSERT(1 == myBlob.numDataBuffers() );
+            copyStringToBlob(&myBlob,    TEST_STR);
+            copyStringToBlob(&modelBlob, TEST_STR);
 
-            char buf[k_BUF_SIZE];
-            bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
-            bsl::ostream out(&obuf);
-            ASSERT(&out == &bdlbb::BlobUtil::hexDump(out, myBlob));
-            ASSERT(0 == strncmp(buf, expectedOutCase3[1].c_str(),
-                                expectedOutCase3[1].size()));
-            if (veryVerbose) {
-                bsl::string output(buf, obuf.length());
-                bsl::cout << "Hexdumped String :\n"
-                          << output
-                          << "Expected String  :\n"
-                          << expectedOutCase3[1] << bsl::endl;
+            ASSERT(1 == myBlob.numDataBuffers());
+
+            const int BLOB_LENGTH = myBlob.length();
+
+            // Testing overload with 2 parameters.
+            {
+                char                        buf[k_BUF_SIZE];
+                bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
+                bsl::ostream                out(&obuf);
+
+                const bsls::Types::Int64 NUM_BYTES_TOTAL = da.numBytesTotal();
+
+                ASSERT(0 == bdlbb::BlobUtil::compare(modelBlob, myBlob));
+
+                // Action.
+                ASSERT(&out == &bdlbb::BlobUtil::hexDump(out, myBlob));
+
+                ASSERT(0 == bdlbb::BlobUtil::compare(modelBlob, myBlob));
+                ASSERT(NUM_BYTES_TOTAL == da.numBytesTotal());
+                ASSERT(0 == strncmp(buf, expectedOut2Case3[1].c_str(),
+                                    expectedOut2Case3[1].size()));
+
+                if (veryVerbose) {
+                    bsl::string output(buf, obuf.length());
+                    bsl::cout << "Hexdumped String :\n"
+                              << output
+                              << "Expected String  :\n"
+                              << expectedOut2Case3[1] << bsl::endl;
+                }
+            }
+
+            // Testing overload with 4 parameters.
+            {
+                {
+                    char                        buf[k_BUF_SIZE];
+                    bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
+                    bsl::ostream                out(&obuf);
+
+                    const bsls::Types::Int64 NUM_BYTES_TOTAL =
+                                                        da.numBytesTotal();
+
+                    ASSERT(0 == bdlbb::BlobUtil::compare(modelBlob,
+                                                         myBlob));
+
+                    // Action.
+                    ASSERT(&out == &bdlbb::BlobUtil::hexDump(out,
+                                                             myBlob,
+                                                             0,
+                                                             BLOB_LENGTH));
+
+                    ASSERT(0 == bdlbb::BlobUtil::compare(modelBlob,
+                                                         myBlob));
+                    ASSERT(NUM_BYTES_TOTAL == da.numBytesTotal());
+                    ASSERT(0 == strncmp(buf,
+                                        expectedOut2Case3[1].c_str(),
+                                        expectedOut2Case3[1].length()));
+                }
+                {
+                    const int OFFSET = BLOB_LENGTH / 2;
+                    const int LENGTH = BLOB_LENGTH / 4;
+
+                    char                        buf[k_BUF_SIZE];
+                    bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
+                    bsl::ostream                out(&obuf);
+
+                    const bsls::Types::Int64 NUM_BYTES_TOTAL =
+                                                        da.numBytesTotal();
+
+                    ASSERT(0 == bdlbb::BlobUtil::compare(modelBlob,
+                                                         myBlob));
+
+                    // Action.
+                    ASSERT(&out == &bdlbb::BlobUtil::hexDump(out,
+                                                             myBlob,
+                                                             OFFSET,
+                                                             LENGTH));
+
+                    ASSERT(0 == bdlbb::BlobUtil::compare(modelBlob,
+                                                         myBlob));
+                    ASSERT(NUM_BYTES_TOTAL == da.numBytesTotal());
+                    ASSERTV(buf, 0 == strncmp(buf,
+                                              expectedOut4Case3[1].c_str(),
+                                              LENGTH));
+                }
             }
         }
+
         {
             if (verbose) cout << "(c) 31 buffers" << endl;
             bdlbb::SimpleBlobBufferFactory factory(8);
             bdlbb::Blob                    myBlob(&factory);
+            bdlbb::Blob                    modelBlob(&factory);
 
             const char *TEST_STR = "abcdef 1abcdef 2abcdef 3abcdef 4abcdef 5"
                 "abcdef 6abcdef 7abcdef 8abcdef 9abcde 10abcde 11abcde 12"
@@ -2735,27 +2887,96 @@ int main(int argc, char *argv[])
                 "abcde 20abcde 21abcde 22abcde 23abcde 24abcde 25abcde 26"
                 "abcde 27abcde 28abcde 29abcde 30abcde 31";
 
-            copyStringToBlob(&myBlob, TEST_STR);
-            ASSERT(31 == myBlob.numDataBuffers() );
+            copyStringToBlob(&myBlob,    TEST_STR);
+            copyStringToBlob(&modelBlob, TEST_STR);
 
-            char buf[k_BUF_SIZE];
-            bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
-            bsl::ostream out(&obuf);
-            ASSERT(&out == &bdlbb::BlobUtil::hexDump(out, myBlob));
-            ASSERT(0 == strncmp(buf, expectedOutCase3[2].c_str(),
-                                expectedOutCase3[2].size()));
-            if (veryVerbose) {
-                bsl::string output(buf, obuf.length());
-                bsl::cout << "Hexdumped String :\n"
-                          << output
-                          << "Expected String  :\n"
-                          << expectedOutCase3[2] << bsl::endl;
+            ASSERT(31 == myBlob.numDataBuffers());
+
+            const int BLOB_LENGTH = myBlob.length();
+
+            // Testing overload with 2 parameters.
+            {
+                char                        buf[k_BUF_SIZE];
+                bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
+                bsl::ostream                out(&obuf);
+
+                // Action.
+                ASSERT(&out == &bdlbb::BlobUtil::hexDump(out, myBlob));
+
+                ASSERTV(buf, 0 == strncmp(buf,
+                                          expectedOut2Case3[2].c_str(),
+                                          expectedOut2Case3[2].size()));
+                if (veryVerbose) {
+                    bsl::string output(buf, obuf.length());
+                    bsl::cout << "Hexdumped String :\n"
+                        << output
+                        << "Expected String  :\n"
+                        << expectedOut2Case3[2] << bsl::endl;
+                }
+            }
+
+            // Testing overload with 4 parameters.
+            {
+                {
+                    char                        buf[k_BUF_SIZE];
+                    bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
+                    bsl::ostream                out(&obuf);
+
+                    const bsls::Types::Int64 NUM_BYTES_TOTAL =
+                                                        da.numBytesTotal();
+
+                    ASSERT(0 == bdlbb::BlobUtil::compare(modelBlob,
+                                                         myBlob));
+
+                    // Action.
+                    ASSERT(&out == &bdlbb::BlobUtil::hexDump(out,
+                                                             myBlob,
+                                                             0,
+                                                             BLOB_LENGTH));
+
+                    ASSERT(0 == bdlbb::BlobUtil::compare(modelBlob,
+                                                         myBlob));
+                    ASSERT(NUM_BYTES_TOTAL == da.numBytesTotal());
+                    ASSERT(0 == strncmp(buf,
+                                        expectedOut2Case3[1].c_str(),
+                                        expectedOut2Case3[1].length()));
+                }
+                {
+                    const int OFFSET = BLOB_LENGTH / 2;
+                    const int LENGTH = BLOB_LENGTH / 4;
+
+                    char                        buf[k_BUF_SIZE];
+                    bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
+                    bsl::ostream                out(&obuf);
+
+                    const bsls::Types::Int64 NUM_BYTES_TOTAL =
+                                                        da.numBytesTotal();
+
+                    ASSERT(0 == bdlbb::BlobUtil::compare(modelBlob,
+                                                         myBlob));
+
+                    // Action.
+                    ASSERT(&out == &bdlbb::BlobUtil::hexDump(out,
+                                                             myBlob,
+                                                             OFFSET,
+                                                             LENGTH));
+
+                    ASSERT(0 == bdlbb::BlobUtil::compare(modelBlob,
+                                                         myBlob));
+                    ASSERT(NUM_BYTES_TOTAL == da.numBytesTotal());
+                    ASSERT(0 == strncmp(
+                                      buf,
+                                      expectedOut4Case3[2].c_str(),
+                                      LENGTH));
+                }
             }
         }
+
         {
             if (verbose) cout << "(d) 32 buffers" << endl;
             bdlbb::SimpleBlobBufferFactory factory(8);
-            bdlbb::Blob myBlob(&factory);
+            bdlbb::Blob                    myBlob(&factory);
+            bdlbb::Blob                    modelBlob(&factory);
 
             const char *TEST_STR = "abcdef 1abcdef 2abcdef 3abcdef 4abcdef 5"
                 "abcdef 6abcdef 7abcdef 8abcdef 9abcde 10abcde 11abcde 12"
@@ -2763,28 +2984,96 @@ int main(int argc, char *argv[])
                 "abcde 20abcde 21abcde 22abcde 23abcde 24abcde 25abcde 26"
                 "abcde 27abcde 28abcde 29abcde 30abcde 31abcde 32";
 
-            copyStringToBlob(&myBlob, TEST_STR);
-            ASSERT(32 == myBlob.numDataBuffers() );
+            copyStringToBlob(&myBlob,    TEST_STR);
+            copyStringToBlob(&modelBlob, TEST_STR);
 
-            char buf[k_BUF_SIZE];
-            bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
-            bsl::ostream out(&obuf);
-            ASSERT(&out == &bdlbb::BlobUtil::hexDump(out, myBlob));
-            ASSERT(0 == strncmp(buf, expectedOutCase3[3].c_str(),
-                                expectedOutCase3[3].size()));
+            ASSERT(32 == myBlob.numDataBuffers());
 
-            if (veryVerbose) {
-                bsl::string output(buf, obuf.length());
-                bsl::cout << "Hexdumped String :\n"
-                          << output
-                          << "Expected String  :\n"
-                          << expectedOutCase3[3] << bsl::endl;
+            const int BLOB_LENGTH = myBlob.length();
+
+            // Testing overload with 2 parameters.
+            {
+                char                        buf[k_BUF_SIZE];
+                bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
+                bsl::ostream                out(&obuf);
+
+                // Action.
+                ASSERT(&out == &bdlbb::BlobUtil::hexDump(out, myBlob));
+
+                ASSERT(0 == strncmp(buf, expectedOut2Case3[3].c_str(),
+                                    expectedOut2Case3[3].size()));
+
+                if (veryVerbose) {
+                    bsl::string output(buf, obuf.length());
+                    bsl::cout << "Hexdumped String :\n"
+                              << output
+                              << "Expected String  :\n"
+                              << expectedOut2Case3[3] << bsl::endl;
+                }
+            }
+
+            // Testing overload with 4 parameters.
+            {
+                {
+                    char                        buf[k_BUF_SIZE];
+                    bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
+                    bsl::ostream                out(&obuf);
+
+                    const bsls::Types::Int64 NUM_BYTES_TOTAL =
+                                                        da.numBytesTotal();
+
+                    ASSERT(0 == bdlbb::BlobUtil::compare(modelBlob,
+                                                         myBlob));
+
+                    // Action.
+                    ASSERT(&out == &bdlbb::BlobUtil::hexDump(out,
+                                                             myBlob,
+                                                             0,
+                                                             BLOB_LENGTH));
+
+                    ASSERT(0 == bdlbb::BlobUtil::compare(modelBlob,
+                                                         myBlob));
+                    ASSERT(NUM_BYTES_TOTAL == da.numBytesTotal());
+                    ASSERT(0 == strncmp(buf,
+                                        expectedOut2Case3[3].c_str(),
+                                        expectedOut2Case3[3].length()));
+                }
+                {
+                    const int OFFSET = BLOB_LENGTH / 2;
+                    const int LENGTH = BLOB_LENGTH / 4;
+
+                    char                        buf[k_BUF_SIZE];
+                    bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
+                    bsl::ostream                out(&obuf);
+
+                    const bsls::Types::Int64 NUM_BYTES_TOTAL =
+                                                        da.numBytesTotal();
+
+                    ASSERT(0 == bdlbb::BlobUtil::compare(modelBlob,
+                                                         myBlob));
+
+                    // Action.
+                    ASSERT(&out == &bdlbb::BlobUtil::hexDump(out,
+                                                             myBlob,
+                                                             OFFSET,
+                                                             LENGTH));
+
+                    ASSERT(0 == bdlbb::BlobUtil::compare(modelBlob,
+                                                         myBlob));
+                    ASSERT(NUM_BYTES_TOTAL == da.numBytesTotal());
+                    ASSERT(0 == strncmp(
+                                      buf,
+                                      expectedOut4Case3[3].c_str(),
+                                      LENGTH));
+                }
             }
         }
+
         {
             if (verbose) cout << "(e) 33 buffers" << endl;
             bdlbb::SimpleBlobBufferFactory factory(8);
-            bdlbb::Blob myBlob(&factory);
+            bdlbb::Blob                    myBlob(&factory);
+            bdlbb::Blob                    modelBlob(&factory);
 
             const char *TEST_STR = "abcdef 1abcdef 2abcdef 3abcdef 4abcdef 5"
                 "abcdef 6abcdef 7abcdef 8abcdef 9abcde 10abcde 11abcde 12"
@@ -2792,21 +3081,95 @@ int main(int argc, char *argv[])
                 "abcde 20abcde 21abcde 22abcde 23abcde 24abcde 25abcde 26"
                 "abcde 27abcde 28abcde 29abcde 30abcde 31abcde 32abcde 33";
 
-            copyStringToBlob(&myBlob, TEST_STR);
-            ASSERT(33 == myBlob.numDataBuffers() );
+            copyStringToBlob(&myBlob,    TEST_STR);
+            copyStringToBlob(&modelBlob, TEST_STR);
 
-            char buf[k_BUF_SIZE];
-            bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
-            bsl::ostream out(&obuf);
-            ASSERT(&out == &bdlbb::BlobUtil::hexDump(out, myBlob));
-            ASSERT(0 == strncmp(buf, expectedOutCase3[4].c_str(),
-                                expectedOutCase3[4].size()));
-            if (veryVerbose) {
-                bsl::string output(buf, obuf.length());
-                bsl::cout << "Hexdumped String :\n"
-                          << output
-                          << "Expected String  :\n"
-                          << expectedOutCase3[4] << bsl::endl;
+            ASSERT(33 == myBlob.numDataBuffers());
+
+            const int BLOB_LENGTH = myBlob.length();
+
+            // Testing overload with 2 parameters.
+            {
+                char                        buf[k_BUF_SIZE];
+                bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
+                bsl::ostream                out(&obuf);
+
+                const bsls::Types::Int64 NUM_BYTES_TOTAL = da.numBytesTotal();
+                const bsls::Types::Int64 EXP_BYTES_TOTAL =
+                                     NUM_BYTES_TOTAL + 33 * sizeof(BufferInfo);
+
+                // Action.
+                ASSERT(&out == &bdlbb::BlobUtil::hexDump(out, myBlob));
+
+                ASSERT(EXP_BYTES_TOTAL == da.numBytesTotal());
+
+                ASSERT(0 == strncmp(buf, expectedOut2Case3[4].c_str(),
+                                    expectedOut2Case3[4].size()));
+                if (veryVerbose) {
+                    bsl::string output(buf, obuf.length());
+                    bsl::cout << "Hexdumped String :\n"
+                              << output
+                              << "Expected String  :\n"
+                              << expectedOut2Case3[4] << bsl::endl;
+                }
+            }
+
+            // Testing overload with 4 parameters.
+            {
+                {
+                    char                        buf[k_BUF_SIZE];
+                    bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
+                    bsl::ostream                out(&obuf);
+
+                    const bsls::Types::Int64 NUM_BYTES_TOTAL =
+                                                            da.numBytesTotal();
+                    const bsls::Types::Int64 EXP_BYTES_TOTAL =
+                                     NUM_BYTES_TOTAL + 33 * sizeof(BufferInfo);
+
+                    ASSERT(0 == bdlbb::BlobUtil::compare(modelBlob,
+                                                         myBlob));
+
+                    // Action.
+                    ASSERT(&out == &bdlbb::BlobUtil::hexDump(out,
+                                                             myBlob,
+                                                             0,
+                                                             BLOB_LENGTH));
+
+                    ASSERT(0 == bdlbb::BlobUtil::compare(modelBlob,
+                                                         myBlob));
+                    ASSERT(EXP_BYTES_TOTAL == da.numBytesTotal());
+                    ASSERT(0 == strncmp(buf,
+                                        expectedOut2Case3[4].c_str(),
+                                        expectedOut2Case3[4].length()));
+                }
+                {
+                    const int OFFSET = BLOB_LENGTH / 2;
+                    const int LENGTH = BLOB_LENGTH / 4;
+
+                    char                        buf[k_BUF_SIZE];
+                    bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
+                    bsl::ostream                out(&obuf);
+
+                    const bsls::Types::Int64 NUM_BYTES_TOTAL =
+                                                        da.numBytesTotal();
+
+                    ASSERT(0 == bdlbb::BlobUtil::compare(modelBlob,
+                                                         myBlob));
+
+                    // Action.
+                    ASSERT(&out == &bdlbb::BlobUtil::hexDump(out,
+                                                             myBlob,
+                                                             OFFSET,
+                                                             LENGTH));
+
+                    ASSERT(0 == bdlbb::BlobUtil::compare(modelBlob,
+                                                         myBlob));
+                    ASSERT(NUM_BYTES_TOTAL == da.numBytesTotal());
+                    ASSERT(0 == strncmp(
+                                      buf,
+                                      expectedOut4Case3[4].c_str(),
+                                      LENGTH));
+                }
             }
         }
 
@@ -2828,6 +3191,31 @@ int main(int argc, char *argv[])
             ASSERT(&os == &bdlbb::BlobUtil::hexDump(os, blob));
 
             ASSERTV(BEFORE == os.str());
+
+            ASSERT(&os == &bdlbb::BlobUtil::hexDump(os, blob, 0, 0));
+
+            ASSERTV(BEFORE == os.str());
+        }
+
+        if (verbose) cout << "Negative testing\n";
+        {
+            bsls::AssertTestHandlerGuard hG;
+
+            const int BLOB_BUFFER_SIZE = 2;
+
+            bdlbb::SimpleBlobBufferFactory factory(BLOB_BUFFER_SIZE);
+            bdlbb::Blob                    blob(&factory);
+
+            ASSERTV(0 == blob.length());
+
+            bsl::stringstream os;
+
+            ASSERT_PASS(bdlbb::BlobUtil::hexDump(os, blob,  0,  0));
+            ASSERT_FAIL(bdlbb::BlobUtil::hexDump(os, blob,  0, -1));
+            ASSERT_FAIL(bdlbb::BlobUtil::hexDump(os, blob, -1,  0));
+
+            ASSERT_FAIL(bdlbb::BlobUtil::hexDump(os, blob,  0,  1));
+            ASSERT_FAIL(bdlbb::BlobUtil::hexDump(os, blob,  1,  0));
         }
       } break;
       case 2: {

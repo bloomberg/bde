@@ -498,10 +498,18 @@ bsl::ostream& BlobUtil::hexDump(bsl::ostream& stream,
 {
     BSLS_ASSERT(0 <= offset);
     BSLS_ASSERT(0 <= length);
-    BSLS_ASSERT(length <= source.totalSize());
-    BSLS_ASSERT(offset <= source.totalSize() - length);
+    BSLS_ASSERT(length <= source.length());
+    BSLS_ASSERT(offset <= source.length() - length);
 
-    if (0 == source.length()) {
+    if (0 == source.length() || 0 == length) {
+        return stream;                                                // RETURN
+    }
+
+    bsl::pair<int, int> place       = findBufferIndexAndOffset(source, offset);
+    int                 bufferIndex = place.first;
+    int                 offsetInThisBuffer = place.second;
+
+    if (bufferIndex >= source.numDataBuffers()) {
         return stream;                                                // RETURN
     }
 
@@ -516,25 +524,16 @@ bsl::ostream& BlobUtil::hexDump(bsl::ostream& stream,
     bslma::DeallocatorProctor<bslma::Allocator> deallocationGuard(
         0, bslma::Default::defaultAllocator());
 
-    if (source.numDataBuffers() > k_NUM_STATIC_BUFFERS) {
+    const int NUM_BUFFERS = source.numDataBuffers() - bufferIndex;
+    if (NUM_BUFFERS > k_NUM_STATIC_BUFFERS) {
         // This works because we do not need to call the constructor on a pair
         // of two built-in types.
 
         buffers = static_cast<BufferInfo *>(
                       bslma::Default::defaultAllocator()->allocate(
-                                source.numDataBuffers() * sizeof(BufferInfo)));
+                                            NUM_BUFFERS * sizeof(BufferInfo)));
         deallocationGuard.reset(buffers);
     }
-
-    bsl::pair<int, int> place       = findBufferIndexAndOffset(source, offset);
-    int                 bufferIndex = place.first;
-    int                 offsetInThisBuffer = place.second;
-
-    if (bufferIndex >= source.numDataBuffers()) {
-        return stream;                                                // RETURN
-    }
-
-    BSLS_ASSERT(bufferIndex < source.numDataBuffers());
 
     int numBytesLeft   = length;
     int numBytesCopied = 0;
