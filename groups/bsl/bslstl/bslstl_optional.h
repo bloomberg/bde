@@ -1557,10 +1557,10 @@ class optional<TYPE, false> : public std::optional<TYPE> {
 
   public:
     // CREATORS
-   optional() BSLS_KEYWORD_NOEXCEPT;
+   optional() noexcept;
         // Create a disengaged 'optional' object.
 
-    optional(bsl::nullopt_t) BSLS_KEYWORD_NOEXCEPT;  // IMPLICIT
+    optional(bsl::nullopt_t) noexcept;                              // IMPLICIT
         // Create a disengaged 'optional' object.
 
     optional(const optional& original) = default;
@@ -1717,7 +1717,7 @@ class optional<TYPE, false> : public std::optional<TYPE> {
         // the specified 'args'.
 
     // MANIPULATORS
-    optional& operator=(bsl::nullopt_t) BSLS_KEYWORD_NOEXCEPT;
+    optional& operator=(bsl::nullopt_t) noexcept;
         // reset the optional to a disengaged state.
 
     optional& operator=(const optional& rhs);

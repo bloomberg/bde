@@ -5964,23 +5964,26 @@ void TestDriver<TYPE>::testCase20()
     // TESTING NOEXCEPT
     //
     // Concerns:
-    //: 1 
+    //: 1 That the default, and 'nullopt_t', are no except.
+    //:
+    //: 2 That the move c'tor is noexcept if the contained type is nothrow move
+    //:   constructible.
     //
     // Plan:
-    //: 1 
+    //: 1 Use the 'noexcept' operator around constructor calls.
     //
     // Testing:
     //   NOEXCEPT
     // ------------------------------------------------------------------------
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT    
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
     const char *type = bsls::NameOf<TYPE>().name();
 
-    Obj                  mX;    
+    Obj                  mX;
 
     ASSERTV(type, noexcept(Obj()));
     ASSERTV(type, noexcept(Obj(bsl::nullopt)));
-    ASSERTV(type, bsl::is_nothrow_move_constructible<TYPE>::value == 
+    ASSERTV(type, bsl::is_nothrow_move_constructible<TYPE>::value ==
                                                  noexcept(Obj(std::move(mX))));
 #endif
 }
