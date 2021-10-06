@@ -322,13 +322,13 @@ int main(int argc, char *argv[])
         // CREATORS BENCHMARK
         //
         // Concern:
-        //: 1 Benchmark the time, in microseconds, to create and destror a
+        //: 1 Benchmark the time, in nanoseconds, to create and destroy a
         //:   bslmt::Semaphore.
         //
         // Plan:
         //: 1 Write a loop that times a large number of semaphore create /
-        //:   destroys, store 100 such trials in an array, sort it, then
-        //:   display 10 of these results from min to max.
+        //:   destroys, store 101 such trials in an array, sort it, then
+        //:   display 11 of these results from min to max.
         //:
         //: 2 The clock on Windows seems to have coarser resolution, so aim for
         //    5 ms per sample on Unix and 20 ms per sample on Windows.
