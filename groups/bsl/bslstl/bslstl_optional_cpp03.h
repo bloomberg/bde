@@ -21,7 +21,7 @@
 // specially delimited regions of C++11 code, then this header contains no
 // code and is not '#include'd in the original header.
 //
-// Generated on Mon Aug 30 17:47:05 2021
+// Generated on Thu Oct  7 14:54:10 2021
 // Command line: sim_cpp11_features.pl bslstl_optional.h
 
 #ifdef COMPILING_BSLSTL_OPTIONAL_H
@@ -2990,7 +2990,7 @@ class optional<TYPE, false> : public std::optional<TYPE> {
       // Assign to this object the value of the specified 'rhs' object
       // converted to 'TYPE', and return a reference providing modifiable
       // access to this object.  Note that this method may invoke assignment
-      // from 'rhs', or construction from 'rhs3141', depending on whether this
+      // from 'rhs', or construction from 'rhs', depending on whether this
       // object is engaged.  BSLSTL_OPTIONAL_ENABLE_ASSIGN_FROM(TYPE, ANY_TYPE)
       // contains a check that disables this overload if 'ANY_TYPE' is
       // 'optional<TYPE>'.  This is needed to prevent this assignment operator
