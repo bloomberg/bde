@@ -6,13 +6,18 @@
 #include <baltzo_testloader.h>
 #include <baltzo_zoneinfo.h>
 
+#include <bdlsb_fixedmemoutstreambuf.h>
+
 #include <bdls_filesystemutil.h>
 #include <bdls_pathutil.h>
+#include <bdls_processutil.h>
 
 #include <bdlt_date.h>
 #include <bdlt_datetime.h>
 
 #include <bdlt_currenttime.h>
+
+#include <bslim_testutil.h>
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
@@ -20,8 +25,12 @@
 #include <bslma_testallocator.h>
 #include <bslmt_threadutil.h>
 
+#include <bslmf_assert.h>
+#include <bslmf_issame.h>
+
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_platform.h>
 #include <bsls_types.h>
 
 #include <bsl_cstdlib.h>
@@ -31,8 +40,18 @@
 
 #include <bsl_c_stdlib.h>   // 'putenv'
 
+#if BSLS_PLATFORM_OS_UNIX
+# include <unistd.h>        // sleep
+#else
+# include <windows.h>       // Sleep
+#endif
+
 using namespace BloombergLP;
-using namespace std;
+using bsl::cout;
+using bsl::cerr;
+using bsl::endl;
+using bsl::flush;
+using bsl::ends;
 
 //=============================================================================
 //                              TEST PLAN
@@ -62,53 +81,48 @@ using namespace std;
 //=============================================================================
 
 // ============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
+//                     STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
-static int testStatus = 0;
-static void aSsErT(int c, const char *s, int i)
+
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+
+}  // close unnamed namespace
 
 // ============================================================================
-//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define LOOP_ASSERT(I,X) {                                                    \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP2_ASSERT(I,J,X) {                                                 \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": "                 \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP3_ASSERT(I,J,K,X) {                                               \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t"     \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) {                                             \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" <<  \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n";                    \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) {                                           \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" <<  \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" <<                  \
-       #M << ": " << M << "\n";                                               \
-       aSsErT(1, #X, __LINE__); } }
-
-// ============================================================================
-//                     SEMI-STANDARD TEST OUTPUT MACROS
-// ----------------------------------------------------------------------------
-#define P(X)  cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X)  cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define T_    cout << "\t" << flush;          // Print a tab (w/o newline)
-#define L_ __LINE__                           // current Line number
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                     NEGATIVE-TEST MACRO ABBREVIATIONS
@@ -124,10 +138,21 @@ static void aSsErT(int c, const char *s, int i)
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
+
 typedef baltzo::DefaultZoneinfoCache Obj;
 typedef baltzo::ZoneinfoCache        Cache;
 typedef baltzo::Zoneinfo             Zone;
-typedef bsl::string                 Id;
+typedef bdls::FilesystemUtil         FUtil;
+typedef bsl::string                  Id;
+
+// ============================================================================
+//                       GLOBAL VARIABLES FOR TESTING
+// ----------------------------------------------------------------------------
+
+bool         verbose;
+bool     veryVerbose;
+bool veryVeryVerbose;
+bool veryVeryVeryVerbose;
 
 //=============================================================================
 //                                USAGE EXAMPLE
@@ -539,7 +564,7 @@ static const char *AMERICA_NEW_YORK_FILE = "defaultzictest/America/New_York";
 
 void writeData(const char *fileName, const char *data, int numBytes)
 {
-    int rc = bdls::FilesystemUtil::createDirectories(fileName, false);
+    int rc = FUtil::createDirectories(fileName, false);
 
     if (rc != 0) {
         // If this test-driver is being run in parallel, its possible for two
@@ -549,7 +574,7 @@ void writeData(const char *fileName, const char *data, int numBytes)
         bslmt::ThreadUtil::microSleep(0,1);
         bsl::string path(fileName);
         bdls::PathUtil::popLeaf(&path);
-        ASSERT(bdls::FilesystemUtil::exists(path));
+        ASSERT(FUtil::exists(path));
     }
 //..
 // Then we create a file for Bangkok and write the binary time zone data to
@@ -561,21 +586,115 @@ void writeData(const char *fileName, const char *data, int numBytes)
     outputFile.close();
 }
 
+namespace {
+namespace u {
+
+inline
+void sleep(int seconds)
+{
+#ifdef BSLS_PLATFORM_OS_UNIX
+    ::sleep(seconds);
+#else
+    ::Sleep(seconds * 1000);
+#endif
+}
+
+}  // close namespace u
+}  // close unnamed namespace
+
+namespace TEST_CASE_2 {
+
+struct TestData {
+    int             d_line;
+    const char     *d_path;
+} VALUES[] = {
+    // LINE  EXP_PATH
+    // ----  --------
+#ifndef BSLS_PLATFORM_OS_WINDOWS
+    {L_,  "/opt/bb/share/zoneinfo/"},         // Bloomberg stnd loc.
+    {L_,  "/bb/data/datetime/zoneinfo/"},     // deprctd. BB stnd loc.
+    {L_,  "/usr/share/zoneinfo/"},            // Unix standard loc.
+    {L_,  "/usr/share/lib/zoneinfo/"},        // Solaris standard loc.
+#endif
+    {0,   0 }    // zero-legnth arrays are a syntax error
+};
+const int k_NUM_VALUES = sizeof(VALUES) / sizeof(*VALUES) - 1;
+
+template <class VECTOR>
+void test2()
+{
+    if (verbose) cout << "\nCreate a test allocator and install "
+                         "it in the return object" << endl;
+
+    BSLMF_ASSERT((bsl::is_same<typename VECTOR::value_type,
+                               const char *>::value));
+
+    bslma::TestAllocator da("default", veryVeryVeryVerbose);
+    bslma::TestAllocator la("object",  veryVeryVeryVerbose);
+
+    bslma::DefaultAllocatorGuard guard(&da);
+
+    bslalg::ConstructorProxy<VECTOR> locationsProxy(&la);
+    VECTOR& locations = locationsProxy.object();
+
+    if (verbose) cout << "\nTest that all allocations are temporary" << endl;
+
+    Obj::loadDefaultZoneinfoDataLocations(&locations);
+    LOOP2_ASSERT(L_, da.numAllocations(), 0 == da.numAllocations());
+
+    // Make sure 'locations' contains the same number of paths as expected.
+
+    LOOP2_ASSERT(L_, locations.size(),
+                 k_NUM_VALUES == locations.size());
+
+    // Verify that the paths correspond to the expected values.
+
+    for (int ii = 0; ii < k_NUM_VALUES; ++ii) {
+        const int   LINE        = VALUES[ii].d_line;
+        const char *EXP_PATH    = VALUES[ii].d_path;
+        const char *RESULT_PATH = locations[ii];
+
+        if (veryVerbose) {
+             T_ P_(LINE) P_(EXP_PATH) P(RESULT_PATH)
+        }
+
+        LOOP2_ASSERT(LINE, EXP_PATH,
+                     0 == bsl::strcmp(RESULT_PATH, EXP_PATH));
+    }
+
+    if (verbose) cout << "\nNegative Testing." << endl;
+    {
+        bsls::AssertTestHandlerGuard hG;
+
+        if (veryVerbose) cout <<
+                 "\t'CLASS METHOD 'loadDefaultZoneinfoDataLocations' " << endl;
+        {
+            VECTOR parameter, *nv = 0;
+
+            ASSERT_PASS(Obj::loadDefaultZoneinfoDataLocations(&parameter));
+            ASSERT_FAIL(Obj::loadDefaultZoneinfoDataLocations(nv));
+        }
+    }
+}
+
+}  // close namespace TEST_CASE_2
+
 // ============================================================================
 //                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
-    int             test     = argc > 1 ? atoi(argv[1]) : 0;
-    bool         verbose     = argc > 2;
-    bool     veryVerbose     = argc > 3;
-    bool veryVeryVerbose     = argc > 4;
-    bool veryVeryVeryVerbose = argc > 5;
+    int test = argc > 1 ? atoi(argv[1]) : 0;
+
+    verbose             = argc > 2;
+    veryVerbose         = argc > 3;
+    veryVeryVerbose     = argc > 4;
+    veryVeryVeryVerbose = argc > 5;
 
     bslma::TestAllocator        allocator;
     static bslma::TestAllocator defaultAllocator("dta", veryVeryVerbose);
-    static bslma::TestAllocator globalAllocator("gta", veryVeryVerbose);;
+    static bslma::TestAllocator globalAllocator( "gta", veryVeryVerbose);;
 
     bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
@@ -584,6 +703,41 @@ int main(int argc, char *argv[])
     if (veryVeryVerbose) {
         defaultAllocator.setVerbose(true);
     }
+
+    bsl::string origWorkingDirectory(&globalAllocator);
+    ASSERT(0 == FUtil::getWorkingDirectory(&origWorkingDirectory));
+
+    char tmpWorkingDir[256];
+    {
+#ifdef BSLS_PLATFORM_OS_UNIX
+        char host[80];
+        ASSERT(0 == ::gethostname(host, sizeof(host)));
+#else
+        const char *host = "win";     // 'gethostname' is difficult on
+                                      // Windows, and we usually aren't using
+                                      // nfs there anyway.
+#endif
+
+        bdlsb::FixedMemOutStreamBuf sb(tmpWorkingDir, sizeof(tmpWorkingDir));
+        bsl::ostream                os(&sb);
+
+        os << "tmp.workingDir.baltzo_defaultzoneinfocache." << test << '.' <<
+               host << '.' << bdls::ProcessUtil::getProcessId() << ends;
+    }
+    if (veryVerbose) P(tmpWorkingDir);
+
+    if (FUtil::exists(tmpWorkingDir)) {
+        // Sometimes the cleanup at the end of this program is unable to clean
+        // up files, so we might encounter leftovers from a previous run, but
+        // these can usually be deleted if sufficient time has elapsed.  If
+        // we're not able to clean it up now, old files may prevent the test
+        // case we're running this time from working.  So we want this assert
+        // to fail to give the tester a 'heads-up' as to what went wrong.
+
+        ASSERTV(tmpWorkingDir, 0 == FUtil::remove(tmpWorkingDir, true));
+    }
+    ASSERT(0 == FUtil::createDirectories(  tmpWorkingDir, true));
+    ASSERT(0 == FUtil::setWorkingDirectory(tmpWorkingDir));
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     char zoneInfo[] = "BDE_ZONEINFO_ROOT_PATH=.\\defaultzictest";
@@ -1085,87 +1239,20 @@ int main(int argc, char *argv[])
         // Testing:
         //   loadDefaultZoneinfoDataLocation()
         // --------------------------------------------------------------------
+
         if (verbose) cout << endl
                           << "'loadDefaultZoneinfoDataLocations' CLASS METHOD"
                           << endl
                           << "==============================================="
                           << endl;
 
-        if (verbose) cout <<
-                         "\nCreate a table of expected output values." << endl;
+        namespace TC = TEST_CASE_2;
 
-        struct TestData {
-            int             d_line;
-            const char     *d_path;
-        } VALUES[] = {
-            // LINE  EXP_PATH
-            // ----  --------
-            {L_,  "/opt/bb/share/zoneinfo/"},         // Bloomberg stnd loc.
-            {L_,      "/bb/data/datetime/zoneinfo/"}, // deprctd. BB stnd loc.
-            {L_,      "/usr/share/zoneinfo/"},        // Unix standard loc.
-            {L_,      "/usr/share/lib/zoneinfo/"},    // Solaris standard loc.
-        };
-        const int NUM_VALUES = sizeof(VALUES) / sizeof(*VALUES);
-
-        {
-           if (verbose) cout <<
-                           "\nCreate a test allocator and install "
-                           "it in the return object" << endl;
-
-           bslma::TestAllocator LA("object", veryVeryVeryVerbose);
-           bsl::vector<const char *> locations(&LA);
-
-           if (verbose) cout <<
-                           "\nTest that all allocations are temporary" << endl;
-
-            const bsls::Types::Int64 DA_NUM_BYTES =
-                                              defaultAllocator.numBytesInUse();
-
-            Obj::loadDefaultZoneinfoDataLocations(&locations);
-            LOOP2_ASSERT(L_, defaultAllocator.numBytesInUse(),
-                         DA_NUM_BYTES == defaultAllocator.numBytesInUse());
-
-#ifndef BSLS_PLATFORM_OS_WINDOWS
-            // Make sure 'locations' contains the same number of paths as
-            // expected.
-
-            LOOP2_ASSERT(L_, locations.size(),
-                         NUM_VALUES == locations.size());
-
-            // Verify that the paths correspond to the expected values.
-
-            for (int i = 0; i < NUM_VALUES; ++i) {
-                const int   LINE        = VALUES[i].d_line;
-                const char *EXP_PATH    = VALUES[i].d_path;
-                const char *RESULT_PATH = locations[i];
-
-                if (veryVerbose) {
-                     T_ P_(LINE) P_(EXP_PATH) P(RESULT_PATH)
-                }
-
-                LOOP2_ASSERT(LINE, EXP_PATH,
-                             0 == bsl::strcmp(RESULT_PATH, EXP_PATH));
-            }
-#else
-            // As of now Windows does not have any default paths.
-
-            LOOP2_ASSERT(L_, locations.size(), 0 == locations.size());
+        TC::test2<bsl::vector<const char *> >();
+        TC::test2<std::vector<const char *> >();
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+        TC::test2<std::pmr::vector<const char *> >();
 #endif
-        }
-
-        if (verbose) cout << "\nNegative Testing." << endl;
-        {
-            bsls::AssertTestHandlerGuard hG;
-
-            if (veryVerbose) cout <<
-                 "\t'CLASS METHOD 'loadDefaultZoneinfoDataLocations' " << endl;
-            {
-                bsl::vector<const char *> parameter;
-
-                ASSERT_PASS(Obj::loadDefaultZoneinfoDataLocations(&parameter));
-                ASSERT_FAIL(Obj::loadDefaultZoneinfoDataLocations(0));
-            }
-        }
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -1192,7 +1279,7 @@ int main(int argc, char *argv[])
         ASSERT(0 != SYSTEMDEFAULTCACHE);
         ASSERT(SYSTEMDEFAULTCACHE == Obj::defaultCache());
 
-        if(veryVerbose) cout << "Loading Etc/UTC" << endl;
+        if (veryVerbose) cout << "Loading Etc/UTC" << endl;
         {
             const char *ID = "Etc/UTC";
             ASSERT(0 == Obj::defaultCache()->lookupZoneinfo(ID));
@@ -1203,7 +1290,7 @@ int main(int argc, char *argv[])
         }
 
         {
-            if(veryVerbose) cout << "\nLoading America/New_York" << endl;
+            if (veryVerbose) cout << "\nLoading America/New_York" << endl;
             const char *ID = "America/New_York";
             ASSERT(0 == Obj::defaultCache()->lookupZoneinfo(ID));
 
@@ -1247,10 +1334,38 @@ int main(int argc, char *argv[])
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;
     }
 
-    // TBD: multiple test cases use the same path and so cleanup can not occur
-    //      after each test case ends, or else there is a race condition when
-    //      multiple test cases are run in parallel
-    //bdls::FilesystemUtil::remove("defaultzictest", true);
+    ASSERT(0 == FUtil::setWorkingDirectory(origWorkingDirectory));
+    LOOP_ASSERT(tmpWorkingDir, FUtil::exists(tmpWorkingDir));
+
+    // Sometimes this delete won't work because of '.nfs*' gremlin files that
+    // mysteriously get created in the directory.  Seems to especially happen
+    // in TC 5 for some reason.  Leave the directory behind and move on.  Also
+    // remove twice, because sometimes the first 'remove' 'sorta' fails -- it
+    // returns a negative status after successfully killing the gremlin file.
+    // Worst case, leave the file there to be cleaned up in a sweep later.
+
+    int ii;
+    for (ii = 1; ii < 12; ++ii) {
+        if (veryVerbose) {
+            cout << "Cleaning up " << tmpWorkingDir << " (attempt " << ii <<
+                     ")" << endl;
+        }
+
+        FUtil::remove(tmpWorkingDir, true);
+
+        if (!FUtil::exists(tmpWorkingDir)) {
+            if (veryVerbose) {
+                cout << "Clean up of " << tmpWorkingDir << " succeeded"
+                     << endl;
+            }
+
+            break;
+        }
+
+        u::sleep(10);
+    }
+    ASSERTV(tmpWorkingDir, !FUtil::exists(tmpWorkingDir) &&
+                                            "unable to clean 'tmpWorkingDir'");
 
     return testStatus;
 }

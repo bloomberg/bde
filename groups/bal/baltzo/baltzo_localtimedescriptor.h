@@ -191,7 +191,7 @@ class LocalTimeDescriptor {
 
     LocalTimeDescriptor(int                      utcOffsetInSeconds,
                         bool                     dstInEffectFlag,
-                        const bslstl::StringRef& description,
+                        const bsl::string_view&  description,
                         const allocator_type&    allocator = allocator_type());
         // Create a 'LocalTimeDescriptor' object having the specified
         // 'utcOffsetInSeconds', 'dstInEffectFlag', and 'description'
@@ -241,7 +241,7 @@ class LocalTimeDescriptor {
         // unspecified but valid, and no exceptions will be thrown; otherwise
         // 'rhs' is unchanged (and an exception may be thrown).
 
-    void setDescription(const bslstl::StringRef& value);
+    void setDescription(const bsl::string_view& value);
         // Set the 'description' attribute of this object to the specified
         // 'value'.  Note that 'value' is not canonical, and is intended for
         // debugging only.
@@ -376,7 +376,7 @@ inline
 LocalTimeDescriptor::LocalTimeDescriptor(
                                    int                      utcOffsetInSeconds,
                                    bool                     dstInEffectFlag,
-                                   const bslstl::StringRef& description,
+                                   const bsl::string_view&  description,
                                    const allocator_type&    allocator)
 : d_utcOffsetInSeconds(utcOffsetInSeconds)
 , d_dstInEffectFlag(dstInEffectFlag)
@@ -458,7 +458,7 @@ LocalTimeDescriptor& LocalTimeDescriptor::operator=(
 
 
 inline
-void LocalTimeDescriptor::setDescription(const bslstl::StringRef& value)
+void LocalTimeDescriptor::setDescription(const bsl::string_view& value)
 {
     d_description.assign(value.begin(), value.end());
 }

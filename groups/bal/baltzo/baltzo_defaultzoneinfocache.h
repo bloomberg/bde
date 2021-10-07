@@ -208,6 +208,12 @@ BSLS_IDENT("$Id: $")
 
 #include <baltzo_zoneinfocache.h>
 
+#include <bsls_libraryfeatures.h>
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+# include <memory_resource>
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+
 namespace BloombergLP {
 namespace baltzo {
 
@@ -250,10 +256,16 @@ struct DefaultZoneinfoCache {
         // environment variable.
 
     static void loadDefaultZoneinfoDataLocations(
-                                         bsl::vector<const char *> *locations);
+                                    bsl::vector<const char *>      *locations);
+    static void loadDefaultZoneinfoDataLocations(
+                                    std::vector<const char *>      *locations);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    static void loadDefaultZoneinfoDataLocations(
+                                    std::pmr::vector<const char *> *locations);
         // Load into the specified 'locations', the sequence of null
         // terminated C-style strings that characterizes the default paths for
         // Zoneinfo data, accessed by this class, on this platform.
+#endif
 
     static ZoneinfoCache *setDefaultCache(ZoneinfoCache *cache);
         // Set the address of the default 'ZoneinfoCache' object to the

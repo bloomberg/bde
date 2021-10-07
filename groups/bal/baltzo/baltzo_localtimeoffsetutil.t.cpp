@@ -72,7 +72,9 @@ using namespace bsl;
 //
 //                         *** accessor methods ***
 // [ 2] void loadLocalTimePeriod(LocalTimePeriod *localTimePeriod);
-// [ 2] bsl::string loadTimezone(bsl::string *timezone);
+// [ 2] void loadTimezone(bsl::string      *timezone);
+// [ 2] void loadTimezone(std::string      *timezone);
+// [ 2] void loadTimezone(std::pmr::string *timezone);
 // [ 6] int updateCount();
 // [ 6] void loadLocalTimeOffset(int *result, const bdlt::Datetime& utc);
 // [ 6] bdlt::TimeInterval loadLocalTimeOffset(const bdlt::Datetime& utc);
@@ -1447,9 +1449,9 @@ int main(int argc, char *argv[])
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int            LINE         = DATA[ti].d_line;
+                const int             LINE         = DATA[ti].d_line;
                 const bdlt::Datetime& UTC_DATETIME = DATA[ti].d_utcDatetime;
-                const int            EXP_OFFSET   = DATA[ti].d_expectedOffset;
+                const int             EXP_OFFSET   = DATA[ti].d_expectedOffset;
 
                 if (veryVeryVerbose) { T_ P(ti) }
                 if (veryVerbose) { T_ P_(LINE) P_(UTC_DATETIME) P(EXP_OFFSET) }
@@ -1458,8 +1460,20 @@ int main(int argc, char *argv[])
                             Util::localTimeOffset(UTC_DATETIME).totalSeconds();
                 ASSERT(EXP_OFFSET == reportedOffset);
 
-                bsl::string timezone; Util::loadTimezone(&timezone);
-                LOOP_ASSERT(LINE, priorTimezone == timezone); // invariant
+                {
+                    bsl::string timezone; Util::loadTimezone(&timezone);
+                    LOOP_ASSERT(LINE, priorTimezone == timezone); // invariant
+                }
+                {
+                    std::string timezone; Util::loadTimezone(&timezone);
+                    LOOP_ASSERT(LINE, priorTimezone == timezone); // invariant
+                }
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                {
+                    std::pmr::string timezone; Util::loadTimezone(&timezone);
+                    LOOP_ASSERT(LINE, priorTimezone == timezone); // invariant
+                }
+#endif
 
                 if (ti > 0 && DATA[ti - 1].d_expectedOffset != EXP_OFFSET) {
                     baltzo::LocalTimePeriod localTimePeriod;
@@ -1495,8 +1509,20 @@ int main(int argc, char *argv[])
                             Util::localTimeOffset(UTC_DATETIME).totalSeconds();
                 ASSERT(EXP_OFFSET == reportedOffset);
 
-                bsl::string timezone; Util::loadTimezone(&timezone);
-                LOOP_ASSERT(LINE, priorTimezone == timezone); // invariant
+                {
+                    bsl::string timezone; Util::loadTimezone(&timezone);
+                    LOOP_ASSERT(LINE, priorTimezone == timezone); // invariant
+                }
+                {
+                    std::string timezone; Util::loadTimezone(&timezone);
+                    LOOP_ASSERT(LINE, priorTimezone == timezone); // invariant
+                }
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                {
+                    std::pmr::string timezone; Util::loadTimezone(&timezone);
+                    LOOP_ASSERT(LINE, priorTimezone == timezone); // invariant
+                }
+#endif
 
                 if (ti < NUM_DATA - 1
                  && DATA[ti + 1].d_expectedOffset != EXP_OFFSET) {
@@ -1876,7 +1902,9 @@ int main(int argc, char *argv[])
         // Testing:
         //   int configure(const char *timezone, const bdlt::Datetime& utc);
         //   void loadLocalTimePeriod(LocalTimePeriod *localTimePeriod);
-        //   bsl::string loadTimezone(bsl::string *timezone);
+        //   bsl::string loadTimezone(bsl::string      *timezone);
+        //   bsl::string loadTimezone(std::string      *timezone);
+        //   bsl::string loadTimezone(std::pmr::string *timezone);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1903,8 +1931,23 @@ int main(int argc, char *argv[])
                     int status = Util::configure(TIMEZONE, UTC);
                     ASSERT(0 == status);
 
-                    bsl::string timezone; Util::loadTimezone(&timezone);
-                    ASSERT(0 == strcmp(TIMEZONE, timezone.c_str()));
+                    {
+                        bsl::string timezone;
+                        Util::loadTimezone(&timezone);
+                        ASSERT(0 == strcmp(TIMEZONE, timezone.c_str()));
+                    }
+                    {
+                        std::string timezone;
+                        Util::loadTimezone(&timezone);
+                        ASSERT(0 == strcmp(TIMEZONE, timezone.c_str()));
+                    }
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                    {
+                        std::pmr::string timezone;
+                        Util::loadTimezone(&timezone);
+                        ASSERT(0 == strcmp(TIMEZONE, timezone.c_str()));
+                    }
+#endif
 
                     updateCount = Util::updateCount();
                     ASSERT(priorUpdateCount + 1 == updateCount);
@@ -1964,10 +2007,22 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) cout << "\t'loadTimezone'" << endl;
             {
-                bsl::string s;
+                bsl::string s, *pz = 0;
                 ASSERT_PASS(Util::loadTimezone(&s));
-                ASSERT_FAIL(Util::loadTimezone( 0));
+                ASSERT_FAIL(Util::loadTimezone(pz));
             }
+            {
+                std::string s, *pz = 0;
+                ASSERT_PASS(Util::loadTimezone(&s));
+                ASSERT_FAIL(Util::loadTimezone(pz));
+            }
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            {
+                std::pmr::string s, *pz = 0;
+                ASSERT_PASS(Util::loadTimezone(&s));
+                ASSERT_FAIL(Util::loadTimezone(pz));
+            }
+#endif
         }
       } break;
       case 1: {

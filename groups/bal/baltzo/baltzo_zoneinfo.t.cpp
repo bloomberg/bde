@@ -34,7 +34,10 @@
 #undef DS
 
 using namespace BloombergLP;
-using namespace bsl;
+using bsl::cout;
+using bsl::cerr;
+using bsl::endl;
+using bsl::flush;
 
 //=============================================================================
 //                                  TEST PLAN
@@ -103,9 +106,9 @@ using namespace bsl;
 // [14] baltzo::Zoneinfo& operator=(const baltzo::Zoneinfo& rhs);
 // [15] baltzo::Zoneinfo& operator=(MovableRef<Zoneinfo> rhs);
 // [ 2] void addTransition(TimeT64 time, const baltzo::LTD& d);
-// [ 2] void setPosixExtendedRangeDescription(const bslstl::StringRef&);
+// [ 2] void setPosixExtendedRangeDescription(const bsl::string_view&);
 // [ 2] void setPosixExtendedRangeDescription(const char *value);
-// [ 9] void setIdentifier(const bslstl::StringRef& identifier);
+// [ 9] void setIdentifier(const bsl::string_view& identifier);
 // [13] void swap(baltzo::Zoneinfo& other);
 
 // ACCESSORS
@@ -210,31 +213,31 @@ typedef baltzo::LocalTimeDescriptor   Descriptor;
 
 typedef bdlt::EpochUtil::TimeT64      TimeT64;
 
-typedef map<TimeT64, Descriptor>         my_TransitionMap;
-typedef my_TransitionMap::const_iterator my_TransitionMapConstIter;
-typedef pair<TimeT64, Descriptor>        my_Transition;
+typedef bsl::map<TimeT64, Descriptor>         my_TransitionMap;
+typedef my_TransitionMap::const_iterator      my_TransitionMapConstIter;
+typedef bsl::pair<TimeT64, Descriptor>        my_Transition;
 
 // Attribute values for the local time descriptor
 
 // 'D' values: These are the default constructed values.
 
-const int  D1   = 0;        // 'utcOffsetInSeconds'
-const bool D2   = false;    // 'dstInEffectFlag'
-const char D3[] = "";       // 'description'
+const int              D1   = 0;        // 'utcOffsetInSeconds'
+const bool             D2   = false;    // 'dstInEffectFlag'
+const bsl::string_view D3;    // 'description'
 
 // 'A' values: Should cause memory allocation if possible.
 
-const int  A1   = -24 * 60 * 60 + 1;
-const bool A2   = true;
-const char A3[] = "a_" SUFFICIENTLY_LONG_STRING;
+const int              A1   = -24 * 60 * 60 + 1;
+const bool             A2   = true;
+const bsl::string_view A3 = "a_" SUFFICIENTLY_LONG_STRING;
 
 // 'B' values: Should NOT cause allocation (use alternate string type).
 
-const int    B1 =  24 * 60 * 60 - 1;
-const bool   B2 = false;
-const string B3 = "EST";
+const int              B1 =  24 * 60 * 60 - 1;
+const bool             B2 = false;
+const bsl::string_view B3 = "EST";
 
-static const TimeT64 TIMES[] = {
+static const TimeT64   TIMES[] = {
     0,
     1000,
     2000
@@ -267,28 +270,28 @@ BSLMF_ASSERT((bsl::uses_allocator<Obj, bsl::allocator<char> >::value));
 
 bsl::string descriptorPrintOutput(const Descriptor& D, int L, int SPL)
 {
-    ostringstream os;
+    bsl::ostringstream os;
     D.print(os, L, SPL);
     return os.str();
 }
 
 bsl::string descriptorOperatorOutput(const Descriptor& D)
 {
-    ostringstream os;
+    bsl::ostringstream os;
     os << D;
     return os.str();
 }
 
 bsl::string transitionPrintOutput(const Transition& T, int L, int SPL)
 {
-    ostringstream os;
+    bsl::ostringstream os;
     T.print(os, L, SPL);
     return os.str();
 }
 
 bsl::string transitionOperatorOutput(const Transition& T)
 {
-    ostringstream os;
+    bsl::ostringstream os;
     os << T;
     return os.str();
 }
@@ -1624,7 +1627,7 @@ int main(int argc, char *argv[])
             // Verify that the signatures and return types are standard.
 
             funcPtr     memberSwap = &Obj::swap;
-            freeFuncPtr freeSwap   = swap;
+            freeFuncPtr freeSwap   = bsl::swap;
 
             // Quash unused variable warnings.
 
@@ -2723,7 +2726,7 @@ int main(int argc, char *argv[])
         //:       'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros).  (C-8)
         //
         // Testing:
-        //   void setIdentifier(const bslstl::StringRef& identifier);
+        //   void setIdentifier(const bsl::string_view& identifier);
         //   const bsl::string& identifier() const;
         // --------------------------------------------------------------------
 
@@ -2767,10 +2770,10 @@ int main(int argc, char *argv[])
         bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int         LINE      = DATA[ti].d_line;
-            const char        MEM       = DATA[ti].d_mem;
-            const char *const ID_CSTR   = DATA[ti].d_identifier;
-            string            ID_STRING(DATA[ti].d_identifier, &scratch);
+            const int              LINE      = DATA[ti].d_line;
+            const char             MEM       = DATA[ti].d_mem;
+            const char *const      ID_CSTR   = DATA[ti].d_identifier;
+            const bsl::string_view ID_STRING = DATA[ti].d_identifier;
 
             if (veryVerbose) { T_ P_(MEM) P(ID_STRING) }
 
@@ -3251,6 +3254,8 @@ int main(int argc, char *argv[])
                              "and output operator to a variable." << endl;
         {
             using namespace baltzo;
+            using bsl::ostream;
+
             typedef ostream& (Obj::*funcPtr)(ostream&, int, int) const;
             typedef ostream& (*operatorPtr)(ostream&, const Obj&);
 
@@ -3282,12 +3287,12 @@ int main(int argc, char *argv[])
         const Transition& TB = *iter;
 
         const struct {
-            int           d_line;           // source line number
-            int           d_level;
-            int           d_spacesPerLevel;
+            int                     d_line;           // source line number
+            int                     d_level;
+            int                     d_spacesPerLevel;
 
-            const char   *d_spec_p;
-            const string  d_expected;
+            const char             *d_spec_p;
+            const bsl::string       d_expected;
         } DATA[] = {
 
 #define NL "\n"
@@ -3451,11 +3456,11 @@ int main(int argc, char *argv[])
                           << endl;
         {
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int         LINE = DATA[ti].d_line;
-                const int         L    = DATA[ti].d_level;
-                const int         SPL  = DATA[ti].d_spacesPerLevel;
-                const char *const SPEC = DATA[ti].d_spec_p;
-                const string      EXP  = DATA[ti].d_expected;
+                const int              LINE = DATA[ti].d_line;
+                const int              L    = DATA[ti].d_level;
+                const int              SPL  = DATA[ti].d_spacesPerLevel;
+                const char *const      SPEC = DATA[ti].d_spec_p;
+                const bsl::string_view EXP  = DATA[ti].d_expected;
 
                 bslma::TestAllocator oa("supplied", veryVeryVeryVerbose);
 
@@ -3463,7 +3468,7 @@ int main(int argc, char *argv[])
                 mX.setIdentifier(ID);
                 mX.setPosixExtendedRangeDescription(TZ);
 
-                ostringstream os;
+                bsl::ostringstream os;
 
                 if (-9 == L && -9 == SPL) {
 
@@ -3912,6 +3917,8 @@ int main(int argc, char *argv[])
                              "and output operator to a variable." << endl;
         {
             using namespace baltzo;
+            using bsl::ostream;
+
             typedef ostream& (Transition::*funcPtr)(ostream&, int, int) const;
             typedef ostream& (*operatorPtr)(ostream&, const Transition&);
 
@@ -3933,12 +3940,12 @@ int main(int argc, char *argv[])
         const Descriptor& DB = DESCRIPTORS[2];
 
         const struct {
-            int           d_line;           // source line number
-            int           d_level;
-            int           d_spacesPerLevel;
+            int                     d_line;           // source line number
+            int                     d_level;
+            int                     d_spacesPerLevel;
 
-            const char   *d_spec_p;
-            const string  d_expected;
+            const char             *d_spec_p;
+            const bsl::string       d_expected;
         } DATA[] = {
 
 #define NL "\n"
@@ -4070,11 +4077,11 @@ int main(int argc, char *argv[])
                           << endl;
         {
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int         LINE = DATA[ti].d_line;
-                const int         L    = DATA[ti].d_level;
-                const int         SPL  = DATA[ti].d_spacesPerLevel;
-                const char *const SPEC = DATA[ti].d_spec_p;
-                const string      EXP  = DATA[ti].d_expected;
+                const int              LINE = DATA[ti].d_line;
+                const int              L    = DATA[ti].d_level;
+                const int              SPL  = DATA[ti].d_spacesPerLevel;
+                const char *const      SPEC = DATA[ti].d_spec_p;
+                const bsl::string_view EXP  = DATA[ti].d_expected;
 
                 bslma::TestAllocator oa("supplied", veryVeryVeryVerbose);
 
@@ -4084,7 +4091,7 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { T_ P_(LINE) P_(X) }
 
-                ostringstream os;
+                bsl::ostringstream os;
 
                 if (-9 == L && -9 == SPL) {
 
@@ -4550,7 +4557,7 @@ int main(int argc, char *argv[])
                           << "DEFAULT CTOR & PRIMARY MANIPULATORS" << endl
                           << "===================================" << endl;
 
-        const string ID = "";       // default identifier
+        const bsl::string_view ID;       // default identifier
 
         if (verbose) cout << "\nTesting with various allocator configurations."
                           << endl;
@@ -4589,7 +4596,7 @@ int main(int argc, char *argv[])
                   } break;
                 }
 
-                Obj&                  mX = *objPtr;  const Obj& X = mX;
+                Obj&                   mX = *objPtr;  const Obj& X = mX;
                 bslma::TestAllocator&  oa = *objAllocatorPtr;
                 bslma::TestAllocator& noa = 'c' != CONFIG ? sa : da;
 
@@ -4759,9 +4766,9 @@ int main(int argc, char *argv[])
                 const Obj& XSR = mXSR;
 
                 for (int ti = 0; ti < NUM_DATA; ++ti) {
-                    const char *const       TZ_C = DATA[ti];
-                    const bslstl::StringRef TZ_SR(DATA[ti]);
-                    const bsl::string       RESULT(DATA[ti], &sa);
+                    const char *const       TZ_C   = DATA[ti];
+                    const bsl::string_view  TZ_SR  = DATA[ti];
+                    const bsl::string_view  RESULT = DATA[ti];
 
                     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
 
@@ -4789,22 +4796,20 @@ int main(int argc, char *argv[])
             Obj mX;
 
             const char *const       INVALID_C = 0;
-            const bslstl::StringRef INVALID_SR(0, 0);
+            const bsl::string_view  INVALID_SV(0, 0);
             const char *const       VALID_C = "";
-            const bslstl::StringRef VALID_SR("");
+            const bsl::string_view  VALID_SV = "";
 
             (void) INVALID_C;
-            (void) INVALID_SR;
+            (void) INVALID_SV;
             (void) VALID_C;
-            (void) VALID_SR;
+            (void) VALID_SV;
 
             ASSERT_PASS(mX.setPosixExtendedRangeDescription(  VALID_C ));
-            ASSERT_PASS(mX.setPosixExtendedRangeDescription(  VALID_SR));
+            ASSERT_PASS(mX.setPosixExtendedRangeDescription(  VALID_SV));
             ASSERT_FAIL(mX.setPosixExtendedRangeDescription(INVALID_C ));
-            ASSERT_FAIL(mX.setPosixExtendedRangeDescription(INVALID_SR));
+            ASSERT_FAIL(mX.setPosixExtendedRangeDescription(INVALID_SV));
         }
-
-
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -4888,12 +4893,9 @@ int main(int argc, char *argv[])
         const bdlt::Datetime TB_A(2000,  3, 15,  3, 10, 15);
         const bdlt::Datetime TC_A(2038,  1, 19,  3, 14,  7);
 
-        const TimeT64 TTA_A =
-                                bdlt::EpochUtil::convertToTimeT64(TA_A);
-        const TimeT64 TTB_A =
-                                bdlt::EpochUtil::convertToTimeT64(TB_A);
-        const TimeT64 TTC_A =
-                                bdlt::EpochUtil::convertToTimeT64(TC_A);
+        const TimeT64 TTA_A = bdlt::EpochUtil::convertToTimeT64(TA_A);
+        const TimeT64 TTB_A = bdlt::EpochUtil::convertToTimeT64(TB_A);
+        const TimeT64 TTC_A = bdlt::EpochUtil::convertToTimeT64(TC_A);
 
         // VB
         const char *TID_B("Europe/Berlin");

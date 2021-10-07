@@ -1971,10 +1971,8 @@ int main(int argc, char *argv[])
                 const bsls::TimeInterval INTERVAL(0, 0);
 
                 baltzo::LocalDatetime resultLcl;
-                ASSERT_PASS(0 == Obj::addInterval(&resultLcl,
-                                                  LCL_TIME,
-                                                  INTERVAL));
-                ASSERT_FAIL(0 == Obj::addInterval(0, LCL_TIME, INTERVAL));
+                ASSERT_PASS(Obj::addInterval(&resultLcl, LCL_TIME, INTERVAL));
+                ASSERT_FAIL(Obj::addInterval(0, LCL_TIME, INTERVAL));
             }
         }
       } break;
@@ -2112,30 +2110,30 @@ int main(int argc, char *argv[])
                 bdlt::DatetimeTz    resultTz;
                 baltzo::LocalDatetime resultLcl;
 
-                ASSERT_PASS(0 == Obj::convertUtcToLocalTime(&resultLcl,
-                                                            "America/New_York",
-                                                            TIME));
-                ASSERT_FAIL(0 == Obj::convertUtcToLocalTime(
-                                                   (baltzo::LocalDatetime *) 0,
-                                                   "America/New_York",
-                                                   TIME));
-                ASSERT_FAIL(0 == Obj::convertUtcToLocalTime(&resultLcl,
-                                                            0,
-                                                            TIME));
+                ASSERT_PASS(Obj::convertUtcToLocalTime(&resultLcl,
+                                                       "America/New_York",
+                                                       TIME));
+                ASSERT_FAIL(Obj::convertUtcToLocalTime(
+                                              (baltzo::LocalDatetime *) 0,
+                                              "America/New_York",
+                                              TIME));
+                ASSERT_FAIL(Obj::convertUtcToLocalTime(&resultLcl,
+                                                       0,
+                                                       TIME));
 
                 // ------------------------------------------------------------
 
-                ASSERT_PASS(0 == Obj::convertUtcToLocalTime(
-                                                       &resultTz,
-                                                       "America/New_York",
+                ASSERT_PASS(Obj::convertUtcToLocalTime(
+                                                  &resultTz,
+                                                  "America/New_York",
+                                                  TIME));
+                ASSERT_FAIL(Obj::convertUtcToLocalTime(
+                                              (bdlt::DatetimeTz *) 0,
+                                              "America/New_York",
+                                              TIME));
+                ASSERT_FAIL(Obj::convertUtcToLocalTime(&resultTz,
+                                                       0,
                                                        TIME));
-                ASSERT_FAIL(0 == Obj::convertUtcToLocalTime(
-                                                   (bdlt::DatetimeTz *) 0,
-                                                   "America/New_York",
-                                                   TIME));
-                ASSERT_FAIL(0 == Obj::convertUtcToLocalTime(&resultTz,
-                                                            0,
-                                                            TIME));
 
             }
         }

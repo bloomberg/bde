@@ -254,6 +254,10 @@ class ZoneinfoBinaryHeader {
         //  abbrevDataSize()    == 1
         //..
 
+    ZoneinfoBinaryHeader(const ZoneinfoBinaryHeader& original);
+        // Create a 'ZoneInfoBinaryHeader' object with the same value as the
+        // specified 'original'.
+
     ZoneinfoBinaryHeader(char version,
                          int  numIsGmt,
                          int  numIsStd,
@@ -447,6 +451,19 @@ ZoneinfoBinaryHeader::ZoneinfoBinaryHeader()
 , d_numTransitions(0)
 , d_numLocalTimeTypes(1)
 , d_abbrevDataSize(1)
+{
+}
+
+inline
+ZoneinfoBinaryHeader::ZoneinfoBinaryHeader(
+                                          const ZoneinfoBinaryHeader& original)
+: d_version(original.d_version)
+, d_numIsGmt(original.d_numIsGmt)
+, d_numIsStd(original.d_numIsStd)
+, d_numLeaps(original.d_numLeaps)
+, d_numTransitions(original.d_numTransitions)
+, d_numLocalTimeTypes(original.d_numLocalTimeTypes)
+, d_abbrevDataSize(original.d_abbrevDataSize)
 {
 }
 

@@ -18,6 +18,8 @@
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_usesallocator.h>
 
+#include <bsla_fallthrough.h>
+
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_platform.h>
@@ -30,7 +32,10 @@
 #include <bsl_sstream.h>
 
 using namespace BloombergLP;
-using namespace bsl;
+using bsl::cout;
+using bsl::cerr;
+using bsl::endl;
+using bsl::flush;
 
 // ============================================================================
 //                             TEST PLAN
@@ -90,7 +95,7 @@ using namespace bsl;
 // CREATORS
 // [ 2] baltzo::LocalTimeDescriptor();
 // [ 2] baltzo::LocalTimeDescriptor(const allocator_type& a);
-// [ 3] LocalTimeDescriptor(int o, bool f, const SRef& d, a = {});
+// [ 3] LocalTimeDescriptor(int o, bool f, const SView& d, a = {});
 // [ 7] baltzo::LocalTimeDescriptor(const LTDescriptor& o, a = {});
 // [ 8] baltzo::LocalTimeDescriptor(MovableRef<LTDescriptor> o);
 // [ 8] baltzo::LocalTimeDescriptor(MovableRef<LTDescriptor> o, a);
@@ -99,7 +104,7 @@ using namespace bsl;
 // MANIPULATORS
 // [10] operator=(const baltzo::LocalTimeDescriptor& rhs);
 // [11] operator=(bslmf::MovableRef<baltzo::LocalTimeDescriptor> rhs);
-// [ 2] setDescription(const StringRef& value);
+// [ 2] setDescription(const SView& value);
 // [ 2] setDstInEffectFlag(bool value);
 // [ 2] setUtcOffsetInSeconds(int value);
 //
@@ -1350,7 +1355,7 @@ int main(int argc, char *argv[])
             // Verify that the signatures and return types are standard.
 
             funcPtr     memberSwap = &Obj::swap;
-            freeFuncPtr freeSwap   = swap;
+            freeFuncPtr freeSwap   = bsl::swap;
 
             (void)memberSwap;  // quash potential compiler warnings
             (void)freeSwap;
@@ -2582,6 +2587,8 @@ int main(int argc, char *argv[])
                              "the output 'operator<<' to variables." << endl;
         {
             using namespace baltzo;
+            using bsl::ostream;
+
             typedef ostream& (Obj::*funcPtr)(ostream&, int, int) const;
             typedef ostream& (*operatorPtr)(ostream&, const Obj&);
 
@@ -2780,7 +2787,7 @@ int main(int argc, char *argv[])
 
                 const Obj X(OFF, FLAG, DESC);
 
-                ostringstream os;
+                bsl::ostringstream os;
 
                 // Verify supplied stream is returned by reference.
 
@@ -2882,9 +2889,9 @@ int main(int argc, char *argv[])
         // 'D' values: These are the default-constructed values.
         // -----------------------------------------------------
 
-        const int  D1   = 0;        // 'utcOffsetInSeconds'
-        const bool D2   = false;    // 'dstInEffectFlag'
-        const char D3[] = "";       // 'description'
+        const int              D1   = 0;        // 'utcOffsetInSeconds'
+        const bool             D2   = false;    // 'dstInEffectFlag'
+        const bsl::string_view D3;              // 'description'
 
         // -------------------------------------------------------
         // 'A' values: Should cause memory allocation if possible.
@@ -3094,7 +3101,7 @@ int main(int argc, char *argv[])
         //:   (C-13)
         //
         // Testing:
-        //   LocalTimeDescriptor(int o, bool f, const SRef& d, a = {});
+        //   LocalTimeDescriptor(int o, bool f, const SView& d, a = {});
         //   CONCERN: All creator/manipulator ptr./ref. parameters are 'const'.
         //   CONCERN: String arguments can be either 'char *' or 'string'.
         // --------------------------------------------------------------------
@@ -3116,17 +3123,22 @@ int main(int argc, char *argv[])
                                                         // this test allocates
                                                         // some object memory.
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int         LINE   = DATA[ti].d_line;
-                const char        MEM    = DATA[ti].d_mem;
-                const int         OFFSET = DATA[ti].d_utcOffsetInSeconds;
-                const bool        FLAG   = DATA[ti].d_dstInEffectFlag;
-                const char *const DESC   = DATA[ti].d_description;
+                const int              LINE   = DATA[ti].d_line;
+                const char             MEM    = DATA[ti].d_mem;
+                const int              OFFSET = DATA[ti].d_utcOffsetInSeconds;
+                const bool             FLAG   = DATA[ti].d_dstInEffectFlag;
+                const char *const      DESC   = DATA[ti].d_description;
+                const bsl::string      DESCB  = DATA[ti].d_description;
+                const std::string      DESCS  = DATA[ti].d_description;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                const std::pmr::string DESCP  = DATA[ti].d_description;
+#endif
 
                 if (veryVerbose) { T_ P_(MEM) P_(OFFSET) P_(FLAG) P(DESC) }
 
                 ASSERTV(LINE, MEM, MEM && strchr("YN?", MEM));
 
-                for (char cfg = 'a'; cfg <= 'd'; ++cfg) {
+                for (char cfg = 'a'; cfg <= 'm'; ++cfg) {
 
                     const char CONFIG = cfg;  // how we specify the allocator
 
@@ -3157,6 +3169,56 @@ int main(int argc, char *argv[])
                                               objAllocatorPtr);
                       } break;
                       case 'd': {
+                        objAllocatorPtr = &da;
+                        objPtr = new (fa) Obj(OFFSET, FLAG, DESCB);
+                      } break;
+                      case 'e': {
+                        objAllocatorPtr = &da;
+                        objPtr = new (fa) Obj(OFFSET, FLAG, DESCB,
+                                              Obj::allocator_type());
+                      } break;
+                      case 'f': {
+                        objAllocatorPtr = &sa;
+                        objPtr = new (fa) Obj(OFFSET, FLAG, DESCB,
+                                              objAllocatorPtr);
+                      } break;
+                      case 'g': {
+                        objAllocatorPtr = &da;
+                        objPtr = new (fa) Obj(OFFSET, FLAG, DESCS);
+                      } break;
+                      case 'h': {
+                        objAllocatorPtr = &da;
+                        objPtr = new (fa) Obj(OFFSET, FLAG, DESCS,
+                                              Obj::allocator_type());
+                      } break;
+                      case 'i': {
+                        objAllocatorPtr = &sa;
+                        objPtr = new (fa) Obj(OFFSET, FLAG, DESCS,
+                                              objAllocatorPtr);
+                      } break;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                      case 'j': {
+                        objAllocatorPtr = &da;
+                        objPtr = new (fa) Obj(OFFSET, FLAG, DESCP);
+                      } break;
+                      case 'k': {
+                        objAllocatorPtr = &da;
+                        objPtr = new (fa) Obj(OFFSET, FLAG, DESCP,
+                                              Obj::allocator_type());
+                      } break;
+                      case 'l': {
+                        objAllocatorPtr = &sa;
+                        objPtr = new (fa) Obj(OFFSET, FLAG, DESCP,
+                                              objAllocatorPtr);
+                      } break;
+#else
+                      case 'j': BSLA_FALLTHROUGH;
+                      case 'k': BSLA_FALLTHROUGH;
+                      case 'l': {
+                        continue;
+                      } break;
+#endif
+                      case 'm': {
                         objAllocatorPtr = &sa;
                         Obj::allocator_type alloc(objAllocatorPtr);
                         objPtr = new (fa) Obj(OFFSET, FLAG, DESC, alloc);
@@ -3267,11 +3329,11 @@ int main(int argc, char *argv[])
             bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int    LINE   = DATA[ti].d_line;
-                const char   MEM    = DATA[ti].d_mem;
-                const int    OFFSET = DATA[ti].d_utcOffsetInSeconds;
-                const bool   FLAG   = DATA[ti].d_dstInEffectFlag;
-                const string DESC(DATA[ti].d_description, &scratch);
+                const int              LINE   = DATA[ti].d_line;
+                const char             MEM    = DATA[ti].d_mem;
+                const int              OFFSET = DATA[ti].d_utcOffsetInSeconds;
+                const bool             FLAG   = DATA[ti].d_dstInEffectFlag;
+                const bsl::string_view DESC   = DATA[ti].d_description;
 
                 if (veryVerbose) { T_ P_(MEM) P_(OFFSET) P_(FLAG) P(DESC) }
 
@@ -3443,7 +3505,7 @@ int main(int argc, char *argv[])
         //   baltzo::LocalTimeDescriptor();
         //   baltzo::LocalTimeDescriptor(const allocator_type& a);
         //   baltzo::~LocalTimeDescriptor();
-        //   setDescription(const StringRef& value);
+        //   setDescription(const SView& value);
         //   setDstInEffectFlag(bool value);
         //   setUtcOffsetInSeconds(int value);
         // --------------------------------------------------------------------
@@ -3456,9 +3518,9 @@ int main(int argc, char *argv[])
 
         // 'D' values: These are the default-constructed values.
 
-        const int  D1   = 0;        // 'utcOffsetInSeconds'
-        const bool D2   = false;    // 'dstInEffectFlag'
-        const char D3[] = "";       // 'description'
+        const int              D1   = 0;        // 'utcOffsetInSeconds'
+        const bool             D2   = false;    // 'dstInEffectFlag'
+        const bsl::string_view D3;              // 'description'
 
         // 'A' values: Should cause memory allocation if possible.
 
@@ -3468,9 +3530,9 @@ int main(int argc, char *argv[])
 
         // 'B' values: Should NOT cause allocation (use alternate string type).
 
-        const int    B1 = UTC_MAX;
-        const bool   B2 = false;
-        const string B3 = "EST";
+        const int              B1 = UTC_MAX;
+        const bool             B2 = false;
+        const bsl::string_view B3 = "EST";
 
         if (verbose) cout << "\nTesting with various allocator configurations."
                           << endl;
