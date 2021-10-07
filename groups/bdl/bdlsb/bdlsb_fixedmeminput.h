@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bdlsb::FixedMemInput: basic input stream buffer using client memory
 //
-//@SEE_ALSO: bdesb::fixedmeminstreambuf
+//@SEE_ALSO: bdlsb_fixedmeminstreambuf
 //
 //@DESCRIPTION: This component provides a mechanism, 'bdlsb::FixedMemInput',
 // that implements the input portion of the 'bsl::basic_streambuf' protocol

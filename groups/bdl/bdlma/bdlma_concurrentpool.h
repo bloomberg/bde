@@ -18,7 +18,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bdlma::ConcurrentPool: thread-safe memory manager that allocates blocks
 //
-//@SEE_ALSO: bdema_pool
+//@SEE_ALSO: bdlma_pool
 //
 //@DESCRIPTION: This component implements a memory pool,
 // 'bdlma::ConcurrentPool', that allocates and manages memory blocks of some

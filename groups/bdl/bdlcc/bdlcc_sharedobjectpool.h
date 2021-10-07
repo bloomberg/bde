@@ -1,12 +1,4 @@
 // bdlcc_sharedobjectpool.h                                           -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BDLCC_SHAREDOBJECTPOOL
 #define INCLUDED_BDLCC_SHAREDOBJECTPOOL
 
@@ -18,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlcc::SharedObjectPool: thread-enabled container of shared objects
 //
-//@SEE_ALSO: bcema_sharedptr
+//@SEE_ALSO: bslstl_sharedptr
 //
 //@DESCRIPTION: This component provides a generic thread-safe pool of shared
 // objects, 'bdlcc::SharedObjectPool', using the acquire-release idiom.  The

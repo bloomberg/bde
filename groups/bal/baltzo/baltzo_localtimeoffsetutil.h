@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  baltzo::LocalTimeOffsetUtil: utilities managing a local time callback
 //
-//@SEE_ALSO: bdlt::LocalTimeOffset
+//@SEE_ALSO: bdlt_localtimeoffset
 //
 //@DESCRIPTION: This component, 'baltzo::LocalTimeOffsetUtil', provides
 // 'baltzo::LocalTimeOffsetUtil::localTimeOffset', a high performance

@@ -4,7 +4,7 @@
 
 @MNEMONIC: Basic Development Library Functors (bdlf)
 
-@SEE_ALSO: bcef
+@SEE_ALSO:
 
 @DESCRIPTION: The 'bdlf' package provides components to implement function
  objects (functors) that return void and take between zero and nine arguments

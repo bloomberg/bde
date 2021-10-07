@@ -4,7 +4,7 @@
 
 @MNEMONIC: Basic Standard Library Source Control Management (bslscm)
 
-@SEE_ALSO: bdescm
+@SEE_ALSO: balscm, bdlscm
 
 @DESCRIPTION: This package provides versioning information that is incorporated
  into every release of the 'bsl' Package Group Library.  This versioning

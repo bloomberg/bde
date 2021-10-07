@@ -1,12 +1,4 @@
 // bdlbb_blob.h                                                       -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BDLBB_BLOB
 #define INCLUDED_BDLBB_BLOB
 
@@ -20,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //  bdlbb::BlobBufferFactory: factory of blob buffers
 //  bdlbb::Blob: indexed sequence of buffers
 //
-//@SEE_ALSO: bcema_sharedptr, bdlbb_pooledblobbufferfactory
+//@SEE_ALSO: bslstl_sharedptr, bdlbb_pooledblobbufferfactory
 //
 //@DESCRIPTION: This component provides an indexed sequence ('bdlbb::Blob') of
 // 'bdlbb::BlobBuffer' objects allocated from potentially multiple

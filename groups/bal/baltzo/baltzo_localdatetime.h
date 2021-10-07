@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $ $CSID: $")
 //@CLASSES:
 //  baltzo::LocalDatetime: time-zone-aware datetime type
 //
-//@SEE_ALSO: bdet_datetimetz
+//@SEE_ALSO: bdlt_datetimetz
 //
 //@DESCRIPTION: This component provides a single, unconstrained
 // (value-semantic) attribute class, 'baltzo::LocalDatetime', that is used to

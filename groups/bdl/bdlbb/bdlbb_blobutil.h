@@ -1,5 +1,4 @@
 // bdlbb_blobutil.h                                                   -*-C++-*-
-
 #ifndef INCLUDED_BDLBB_BLOBUTIL
 #define INCLUDED_BDLBB_BLOBUTIL
 

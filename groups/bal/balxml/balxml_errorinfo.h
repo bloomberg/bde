@@ -18,7 +18,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   balxml::ErrorInfo: details of XML parsing errors
 //
-//@SEE_ALSO: baexml_xmlreader
+//@SEE_ALSO: balxml_reader
 //
 //@DESCRIPTION: This component provides an in-core value-semantic class,
 // 'balxml::ErrorInfo', that contains the following diagnostic information:

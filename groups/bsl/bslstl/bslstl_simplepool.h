@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslstl::SimplePool: memory manager that allocates memory blocks for a type
 //
-//@SEE_ALSO: bslstl_treenodepool, bdema_pool
+//@SEE_ALSO: bslstl_treenodepool, bdlma_pool
 //
 //@DESCRIPTION: This component implements a memory pool, 'bslstl::SimplePool',
 // that allocates and manages memory blocks of for a parameterized type.  A

@@ -1,12 +1,4 @@
 // bdlde_quotedprintableencoder.h                                     -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BDLDE_QUOTEDPRINTABLEENCODER
 #define INCLUDED_BDLDE_QUOTEDPRINTABLEENCODER
 
@@ -18,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlde::QuotedPrintableEncoder: automaton for Quoted-Printable encoding
 //
-//@SEE_ALSO: 'bdlde::QuotedPrintableDecoder'
+//@SEE_ALSO: bdlde_quotedprintabledecoder
 //
 //@DESCRIPTION: This component provides a class that can be used to encode byte
 // sequences of arbitrary length into the Quoted Printable representation

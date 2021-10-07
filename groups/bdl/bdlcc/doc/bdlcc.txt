@@ -4,7 +4,7 @@
 
 @MNEMONIC: Basic Development Library Concurrency Containers (bdlcc)
 
-@SEE_ALSO: bdec, bcemt
+@SEE_ALSO: bdlc, bdlmt
 
 @DESCRIPTION: The 'bdlcc' package provides a set of containers that allow
  concurrent access and manipulation.  Components in this package are similar in

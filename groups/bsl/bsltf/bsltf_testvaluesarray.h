@@ -11,7 +11,7 @@ BSLS_IDENT("$Id: $")
 //  bsltf::TestValuesArray: container for values used for testing
 //  bsltf::TestValuesArrayIterator: iterator for the container
 //
-//@SEE_ALSO: bsltf_testfacility
+//@SEE_ALSO: bsltf_templatetestfacility
 //
 //@DESCRIPTION: This component defines a class 'bsltf::TestValuesArray'
 // providing a uniform interface for creating and accessing a sequence of test

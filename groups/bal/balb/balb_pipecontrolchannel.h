@@ -18,7 +18,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 // balb::PipeControlChannel: Mechanism for reading messages from a named pipe
 //
-//@SEE_ALSO: bdlsu::PipeUtil
+//@SEE_ALSO: bdls_pipeutil
 //
 //@DESCRIPTION: This component provides a platform-independent mechanism,
 // 'balb::PipeControlChannel', for establishing, monitoring, and shutting down

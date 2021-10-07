@@ -1,12 +1,4 @@
 // balxml_namespaceregistry.h                                         -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BALXML_NAMESPACEREGISTRY
 #define INCLUDED_BALXML_NAMESPACEREGISTRY
 
@@ -18,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   balxml::NamespaceRegistry: namespace-to-id mapping registry
 //
-//@SEE_ALSO: baexml::PrefixTable
+//@SEE_ALSO: balxml_prefixstack
 //
 //@DESCRIPTION: This component provides an in-core value-semantic type,
 // 'balxml::NamespaceRegistry', that associates an integer ID with each

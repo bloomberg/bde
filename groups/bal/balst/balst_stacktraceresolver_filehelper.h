@@ -18,8 +18,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   balst::StackTraceResolver_FileHelper: file input for stack trace resolvers
 //
-//@SEE_ALSO: balst::StackTraceResolverImpl_Elf
-//           balst::StackTraceResolverImpl_Xcoff
+//@SEE_ALSO: balst_stacktraceresolverimpl_elf,
+//           balst_stacktraceresolverimpl_xcoff
 //
 //@DESCRIPTION: The one class in this component opens a file in readonly mode
 // and then owns the file descriptor, and provides 3 utility functions for

@@ -1,12 +1,4 @@
 // bdlde_quotedprintabledecoder.h                                     -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BDLDE_QUOTEDPRINTABLEDECODER
 #define INCLUDED_BDLDE_QUOTEDPRINTABLEDECODER
 
@@ -18,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlde::QuotedPrintableDecoder: automata for Quoted-Printable decoding
 //
-//@SEE_ALSO: 'bdlde::QuotedPrintableEncoder'
+//@SEE_ALSO: bdlde_quotedprintableencoder
 //
 //@DESCRIPTION: This component provides a template class (parameterized
 // separately on both input and output iterators) that can be used to decode
@@ -245,11 +237,11 @@ class QuotedPrintableDecoder {
     // INSTANCE DATA
     bool d_unrecognizedIsErrorFlag;  // If true, fail on "bad" characters
     LineBreakMode d_lineBreakMode;   // Line break mode
-    int d_state;  // TBD doc
-    char d_buffer[90]; // TBD doc
-    int d_bufferLength; // TBD doc
-    char d_hexBuffer; // TBD doc
-    int d_outputLength;   // Total number of output characters
+    int  d_state;         // TBD doc
+    char d_buffer[90];    // TBD doc
+    int  d_bufferLength;  // TBD doc
+    char d_hexBuffer;     // TBD doc
+    int  d_outputLength;  // Total number of output characters
     char *d_equivClass_p; // Map of 'unsigned char' to input equivalence class;
                           // dynamically allocated because there is no default
                           // complete configuration.
@@ -385,8 +377,7 @@ class QuotedPrintableDecoder {
 };
 
 // ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
-//
+//                             INLINE DEFINITIONS
 // ============================================================================
 
 // CLASS METHODS
@@ -424,7 +415,7 @@ QuotedPrintableDecoder::QuotedPrintableDecoder(
             d_equivClass_p = new char[len];
             bsl::memcpy(d_equivClass_p, s_defaultEquivClassCRLF_p, len);
             d_equivClass_p['\n'] = e_LL;  // output '\n' instead if preceded
-                                              // by '='.
+                                          // by '='.
         }
     }
 }
