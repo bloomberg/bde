@@ -24,6 +24,7 @@
 #include <bsltf_movestate.h>
 #include <bsltf_streamutil.h>
 #include <bsltf_templatetestfacility.h>
+#include <bsltf_inputiterator.h>
 #include <bsltf_testvaluesarray.h>
 
 #include <bslmf_assert.h>
@@ -211,6 +212,7 @@ bool         veryVerbose;
 bool     veryVeryVerbose;
 bool veryVeryVeryVerbose;
 
+bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
 
 namespace usageExample1 {
 
@@ -423,6 +425,27 @@ void example2()
 //..
 
 }  // close namespace usageExample2
+
+namespace {
+namespace u {
+
+enum VectorType { e_BEGIN,
+                  e_BSL = e_BEGIN,
+                  e_STD,
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                  e_PMR,
+#endif
+                  e_END
+};
+
+template <class VECTOR>
+typename VECTOR::value_type *vFront(VECTOR *v)
+{
+    return v->empty() ? 0 : &v[0];
+}
+
+}  // close namespace u
+}  // close unnamed namespace
 
 // Utilities
 namespace {
@@ -2164,18 +2187,16 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase13()
     typedef bdlcc::CacheEvictionPolicy Policy;
     typedef bsltf::MoveState           MoveState;
     typedef MoveState::Enum            MoveEnum;
+    typedef typename Obj::KVType       KVType;
 
-    const char *key      = bsls::NameOf<KEYTYPE>();
-    const char *value    = bsls::NameOf<VALUETYPE>();
-    const int   alloc    = bslma::UsesBslmaAllocator<KEYTYPE>::value +
-                           bslma::UsesBslmaAllocator<VALUETYPE>::value;
-    const bool  moveType = bsl::is_same<KEYTYPE,
-                                        bsltf::MovableTestType>::value ||
-                           bsl::is_same<KEYTYPE,
-                                        bsltf::MovableAllocTestType>::value;
+    static const char *key        = bsls::NameOf<KEYTYPE>();
+    static const char *value      = bsls::NameOf<VALUETYPE>();
+
+    static const bsltf::MoveState::Enum e_NOT_MOVED =
+                                                 bsltf::MoveState::e_NOT_MOVED;
 
     if (verbose) {
-        cout << "Move InsertBulk:\t";    P_(key);    P_(value);    P(alloc);
+        cout << "Move InsertBulk:\t";    P_(key);    P_(value);
     }
 
     const bsl::size_t MAX_LENGTH = 9;
@@ -2196,71 +2217,66 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase13()
         bslma::TestAllocator& ca = MATCH ? sa : oa;  // cache allocator
 
         for (bsl::size_t ti = 2; ti <= MAX_LENGTH; ++ti) {
-            {
-                const bsl::size_t LENGTH = ti;
+            const bsl::size_t LENGTH = ti;
 
-                Obj mX(POLICY, 100, 100, &ca);    const Obj& X = mX;
+            Obj mX(POLICY, 100, 100, &ca);    const Obj& X = mX;
 
-                int postSetupThrows = -1;
-                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(ca) {
-                    // We have to build a new 'insertVec' each time, since if
-                    // 'insertBulk' throws, elements in 'insertVec' will
-                    // usually have been moved out of.
+            int postSetupThrows = -1;
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(ca) {
+                // We have to build a new 'insertVec' each time, since if
+                // 'insertBulk' throws, elements in 'insertVec' will usually
+                // have been moved out of.
 
-                    mX.clear();
-                    mX.insert(VALUES[0].first, VALUES[0].second);
-                    mX.insert(VALUES[1].first, VALUES[1].second);
+                mX.clear();
+                mX.insert(VALUES[0].first, VALUES[0].second);
+                mX.insert(VALUES[1].first, VALUES[1].second);
 
-                    bsl::vector<typename Obj::KVType> insertVec(&sa);
-                    for (bsl::size_t tj = 2; tj < LENGTH; ++tj) {
-                        typename Obj::ValuePtrType valuePtr;
-                        InplaceUtil<VALUETYPE>::SpCreateInplace(
-                                                             &valuePtr,
-                                                             VALUES[tj].second,
-                                                             &sa);
-                        typename Obj::KVType pr(VALUES[tj].first,
-                                                valuePtr,
-                                                &sa);
-                        insertVec.push_back(pr);
-                    }
-
-                    ++postSetupThrows;
-
-                    mX.insertBulk(bslmf::MovableRefUtil::move(insertVec));
-
-                    ASSERTV(LENGTH, insertVec.size(),
-                                               LENGTH - 2 == insertVec.size());
-                    if (moveType) {
-                        for (bsl::size_t tj = LENGTH - 2; 0 < tj--; ) {
-                            MoveEnum movedFrom =
-                                      bsltf::getMovedFrom(insertVec[tj].first);
-                            ASSERTV(key, MoveState::e_MOVED == movedFrom);
-                        }
-                    }
-                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
-
-                ASSERTV(LENGTH, X.size(), LENGTH == X.size());
-
-                if (verbose && (veryVerbose || LENGTH == MAX_LENGTH)) {
-                    P_(MATCH);    P_(POLICY);    P_(LENGTH);
-                    P(postSetupThrows);
+                bsl::vector<KVType> insertVecBsl(&sa);
+                for (bsl::size_t tj = 2; tj < LENGTH; ++tj) {
+                    typename Obj::ValuePtrType valuePtr;
+                    InplaceUtil<VALUETYPE>::SpCreateInplace(
+                                                         &valuePtr,
+                                                         VALUES[tj].second,
+                                                         &sa);
+                    KVType pr(VALUES[tj].first,
+                              valuePtr,
+                              &sa);
+                    insertVecBsl.push_back(pr);
                 }
 
-                TestVisitor visitor(&VALUES, LENGTH);
-                X.visit(visitor);
-                visitor.assertEnd();
+                ++postSetupThrows;
+                mX.insertBulk(bslmf::MovableRefUtil::move(insertVecBsl));
+
+                ASSERTV(LENGTH, insertVecBsl.size(),
+                                            LENGTH - 2 == insertVecBsl.size());
+                for (bsl::size_t tj = LENGTH - 2; 0 < tj--; ) {
+                    MoveEnum movedFrom =
+                           bsltf::getMovedFrom(insertVecBsl[tj].first);
+                    ASSERTV(key, movedFrom, e_NOT_MOVED != movedFrom);
+                }
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
+
+            ASSERTV(LENGTH, X.size(), LENGTH == X.size());
+
+            if (verbose && (veryVerbose || LENGTH == MAX_LENGTH)) {
+                P_(MATCH);    P_(POLICY);    P_(LENGTH);
+                P(postSetupThrows);
             }
 
-            // Verify all memory is released on object destruction.
-
-            ASSERTV(MATCH, POLICY, da.numBlocksTotal(),
-                                                     0 == da.numBlocksTotal());
-            ASSERTV(MATCH, POLICY, sa.numBlocksInUse() - saInitUsed,
-                                        0 == sa.numBlocksInUse() - saInitUsed);
-            ASSERTV(MATCH, POLICY, oa.numBlocksInUse(),
-                                                     0 == oa.numBlocksInUse());
+            TestVisitor visitor(&VALUES, LENGTH);
+            X.visit(visitor);
+            visitor.assertEnd();
         }
+
+        // Verify all memory is released on object destruction.
+
+        ASSERTV(MATCH, POLICY, sa.numBlocksInUse() - saInitUsed,
+                                0 == sa.numBlocksInUse() - saInitUsed);
+        ASSERTV(MATCH, POLICY, oa.numBlocksInUse(),
+                                             0 == oa.numBlocksInUse());
     }
+
+    ASSERT(0 == da.numAllocations());
 }
 
 template <class KEYTYPE, class VALUETYPE, class HASH, class EQUAL>
@@ -2455,7 +2471,10 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase11()
     //   int insertBulk(const bsl::vector<KVType>& data);
     // ------------------------------------------------------------------------
 
-    bslma::TestAllocator oa("oa", veryVeryVeryVerbose);
+    bslma::TestAllocator da("default", veryVeryVeryVerbose);
+    bslma::TestAllocator oa("oa",      veryVeryVeryVerbose);
+
+    bslma::DefaultAllocatorGuard dag(&da);
 
     const TestValues VALUES;  // contains 52 distinct increasing values
 
@@ -2466,33 +2485,68 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase11()
         bdlcc::CacheEvictionPolicy::e_FIFO
     };
 
+    typedef bsltf::InputIteratorUtil IterUtil;
+    enum InsertBy {
+        e_INSERT_BY_BEGIN,
+        e_INSERT_BY_VECTOR = e_INSERT_BY_BEGIN,
+        e_INSERT_BY_ITERATOR,
+        e_INSERT_BY_END
+    };
+
     const int NUM_POLICIES = sizeof(POLICIES) / sizeof(*POLICIES);
 
-    for (int tp = 0; tp < NUM_POLICIES; ++tp) {
-        bdlcc::CacheEvictionPolicy::Enum policy = POLICIES[tp];
-        for (bsl::size_t ti = 0; ti < MAX_LENGTH; ++ti) {
-            const bsl::size_t LENGTH = ti;
+    for (int ii = e_INSERT_BY_BEGIN; ii < e_INSERT_BY_END; ++ii) {
+        InsertBy insertBy = static_cast<InsertBy>(ii);
 
-            Obj        mX(policy, 100, 100, &oa);
-            const Obj& X = mX;
+        for (int tp = 0; tp < NUM_POLICIES; ++tp) {
+            bdlcc::CacheEvictionPolicy::Enum policy = POLICIES[tp];
+            for (bsl::size_t ti = 0; ti < MAX_LENGTH; ++ti) {
+                const bsl::size_t LENGTH = ti;
 
-            bsl::vector<typename Obj::KVType> insertVec(&oa);
-            for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
-                typename Obj::ValuePtrType value;
-                InplaceUtil<VALUETYPE>::SpCreateInplace(&value,
+                Obj        mX(policy, 100, 100, &oa);
+                const Obj& X = mX;
+
+                ASSERT(0 == X.size());
+
+                bsl::vector<typename Obj::KVType>      insertVecBsl(&oa);
+                for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
+                    typename Obj::ValuePtrType value;
+                    InplaceUtil<VALUETYPE>::SpCreateInplace(&value,
                                                        VALUES[tj].second, &oa);
-                typename Obj::KVType item(VALUES[tj].first, value, &oa);
-                insertVec.push_back(item);
-            }
-            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
-                mX.insertBulk(insertVec);
-            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
+                    typename Obj::KVType item(VALUES[tj].first, value, &oa);
+                    insertVecBsl.push_back(item);
+                }
 
-            TestVisitor visitor(&VALUES, LENGTH);
-            X.visit(visitor);
-            visitor.assertEnd();
-            ASSERTV(LENGTH, X.size(), LENGTH == X.size());
+                switch (insertBy) {
+                  case e_INSERT_BY_VECTOR: {
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                        mX.insertBulk(insertVecBsl);
+                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
+                  } break;
+                  case e_INSERT_BY_ITERATOR: {
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                        mX.insertBulk(IterUtil::begin(insertVecBsl),
+                                      IterUtil::end(  insertVecBsl));
+                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
+                  } break;
+                  default: {
+                    ASSERT(0);
+                  } break;
+                }
+
+                for (unsigned tj = 0; tj < ti; ++tj) {
+                    ASSERT(bsltf::getMovedFrom(insertVecBsl[tj]) !=
+                                                    bsltf::MoveState::e_MOVED);
+                }
+
+                TestVisitor visitor(&VALUES, LENGTH);
+                X.visit(visitor);
+                visitor.assertEnd();
+                ASSERTV(LENGTH, X.size(), LENGTH == X.size());
+            }
         }
+
+        ASSERT(0 == da.numAllocations());
     }
 }
 
@@ -2740,7 +2794,11 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase7()
 
     const TestValues     VALUES; // contains 52 distinct increasing values
     const bsl::size_t    MAX_LENGTH = 9;
+
+    bslma::TestAllocator da(     "default", veryVeryVeryVerbose);
     bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+    bslma::DefaultAllocatorGuard dag(&da);
 
     const bdlcc::CacheEvictionPolicy::Enum POLICIES[] = {
         bdlcc::CacheEvictionPolicy::e_LRU,
@@ -2749,87 +2807,128 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase7()
 
     const int NUM_POLICIES = sizeof(POLICIES) / sizeof(*POLICIES);
 
-    for (int tp = 0; tp < NUM_POLICIES; ++tp) {
-        bdlcc::CacheEvictionPolicy::Enum policy = POLICIES[tp];
-        for (bsl::size_t ti = 0; ti < MAX_LENGTH; ++ti) {
-            const bsl::size_t LENGTH = ti;
+    typedef bsltf::InputIteratorUtil IterUtil;
+    enum EraseType {
+        e_ERASE_BY_BEGIN,
+        e_ERASE_BY_VECTOR = e_ERASE_BY_BEGIN,
+        e_ERASE_BY_ITERATOR,
+        e_ERASE_BY_END
+    };
 
-            bsl::vector<typename TestVisitor::Args> allValues(&scratch);
-            for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
-                typename TestVisitor::Args args(tj, true);
-                allValues.push_back(args);
+    for (int ei = e_ERASE_BY_BEGIN; ei < e_ERASE_BY_END; ++ei) {
+        EraseType eraseBy = static_cast<EraseType>(ei);
+
+        for (int tp = 0; tp < NUM_POLICIES; ++tp) {
+            bdlcc::CacheEvictionPolicy::Enum policy = POLICIES[tp];
+            for (bsl::size_t ti = 0; ti < MAX_LENGTH; ++ti) {
+                const bsl::size_t LENGTH = ti;
+
+                bsl::vector<typename TestVisitor::Args> allValues(&scratch);
+                for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
+                    typename TestVisitor::Args args(tj, true);
+                    allValues.push_back(args);
+                }
+
+                for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
+                    Obj        mX(policy, 100, 100, &scratch);
+                    const Obj& X = mX;
+
+                    for (bsl::size_t v = 0; v < LENGTH; ++v) {
+                        mX.insert(VALUES[v].first, VALUES[v].second);
+                    }
+
+                    {
+                        TestVisitor visitor(&VALUES, LENGTH);
+                        X.visit(visitor);
+                        visitor.assertEnd();
+                    }
+                    bsl::size_t              pos;
+                    TestPostEvictionCallback callback(&VALUES, &pos, tj, 0);
+
+                    typename bdlcc::Cache<KEYTYPE, VALUETYPE, HASH, EQUAL>::
+                        PostEvictionCallback
+                        callbackFunc (bsl::allocator_arg, &scratch, callback);
+                    mX.setPostEvictionCallback(callbackFunc);
+
+                    ASSERTV(LENGTH == X.size());
+
+                    // Keys to be erased with 'eraseBulk'
+                    bsl::vector<KEYTYPE> eraseKeysBsl(&scratch);
+                    for (bsl::size_t v = 0; v < tj; ++v) {
+                        eraseKeysBsl.push_back(VALUES[v].first);
+                    }
+                    bsl::size_t count;
+
+                    switch (eraseBy) {
+                      case e_ERASE_BY_VECTOR: {
+                        count = mX.eraseBulk(eraseKeysBsl);
+                      } break;
+                      case e_ERASE_BY_ITERATOR: {
+                        count = mX.eraseBulk(IterUtil::begin(eraseKeysBsl),
+                                             IterUtil::end(  eraseKeysBsl));
+                      } break;
+                      default: {
+                        ASSERT(0);
+                      } break;
+                    }
+                    ASSERTV(tj == count);
+                    ASSERTV(LENGTH - count == X.size());
+                    callback.assertEnd();
+                }
             }
+        }
 
-            for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
-                Obj        mX(policy, 100, 100, &scratch);
+        // Test erasing non-existent keys.
+
+        for (int tp = 0; tp < NUM_POLICIES; ++tp) {
+            bdlcc::CacheEvictionPolicy::Enum policy = POLICIES[tp];
+            for (bsl::size_t ti = 0; ti < MAX_LENGTH; ++ti) {
+                const bsl::size_t LENGTH = ti;
+
+                Obj        mX(policy, 90, 100, &scratch);
                 const Obj& X = mX;
 
-                for (bsl::size_t v = 0; v < LENGTH; ++v) {
-                    mX.insert(VALUES[v].first, VALUES[v].second);
+                for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
+                    mX.insert(VALUES[tj].first, VALUES[tj].second);
                 }
+                {
+                    TestVisitor visitor(&VALUES, LENGTH);
+                    X.visit(visitor);
+                    visitor.assertEnd();
+                    ASSERTV(LENGTH == X.size());
+                }
+
+                bsl::vector<KEYTYPE> eraseKeysBsl(&scratch);
+                for (bsl::size_t v = LENGTH; v < 2*LENGTH; ++v) {
+                    eraseKeysBsl.push_back(VALUES[v].first);
+                }
+
+                bsl::size_t count = -1;
+                switch (eraseBy) {
+                  case e_ERASE_BY_VECTOR: {
+                    count = mX.eraseBulk(eraseKeysBsl);
+                  } break;
+                  case e_ERASE_BY_ITERATOR: {
+                    count = mX.eraseBulk(IterUtil::begin(eraseKeysBsl),
+                                         IterUtil::end(  eraseKeysBsl));
+                  } break;
+                  default: {
+                    ASSERT(0);
+                  } break;
+                }
+
+                ASSERTV(0 == count);
 
                 {
                     TestVisitor visitor(&VALUES, LENGTH);
                     X.visit(visitor);
                     visitor.assertEnd();
+                    ASSERTV(LENGTH == X.size());
                 }
-                bsl::size_t              pos;
-                TestPostEvictionCallback callback(&VALUES, &pos, tj, 0);
-
-                typename bdlcc::Cache<KEYTYPE, VALUETYPE, HASH, EQUAL>::
-                    PostEvictionCallback
-                    callbackFunc (bsl::allocator_arg, &scratch, callback);
-                mX.setPostEvictionCallback(callbackFunc);
-
-                ASSERTV(LENGTH == X.size());
-
-                // Keys to be erased with 'eraseBulk'
-                bsl::vector<KEYTYPE> eraseKeys(&scratch);
-                for (bsl::size_t v = 0; v < tj; ++v) {
-                    eraseKeys.push_back(VALUES[v].first);
-                }
-                bsl::size_t count = mX.eraseBulk(eraseKeys);
-                ASSERTV(tj == count);
-                ASSERTV(LENGTH - count == X.size());
-                callback.assertEnd();
             }
         }
-    }
 
-    // Test erasing non-existent keys.
-
-    for (int tp = 0; tp < NUM_POLICIES; ++tp) {
-        bdlcc::CacheEvictionPolicy::Enum policy = POLICIES[tp];
-        for (bsl::size_t ti = 0; ti < MAX_LENGTH; ++ti) {
-            const bsl::size_t LENGTH = ti;
-
-            Obj        mX(policy, 90, 100, &scratch);
-            const Obj& X = mX;
-
-            for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
-                mX.insert(VALUES[tj].first, VALUES[tj].second);
-            }
-            {
-                TestVisitor visitor(&VALUES, LENGTH);
-                X.visit(visitor);
-                visitor.assertEnd();
-                ASSERTV(LENGTH == X.size());
-            }
-
-            bsl::vector<KEYTYPE> eraseKeys(&scratch);
-            for (bsl::size_t v = LENGTH; v < 2*LENGTH; ++v) {
-                eraseKeys.push_back(VALUES[v].first);
-            }
-            int count = mX.eraseBulk(eraseKeys);
-            ASSERTV(0 == count);
-
-            {
-                TestVisitor visitor(&VALUES, LENGTH);
-                X.visit(visitor);
-                visitor.assertEnd();
-                ASSERTV(LENGTH == X.size());
-            }
-        }
+        ASSERT(0 == da.numAllocations());
     }
 }
 
@@ -4151,7 +4250,6 @@ int main(int argc, char *argv[])
 
     // CONCERN: In no case does memory come from the default allocator.
 
-    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
     ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
     bslma::TestAllocatorMonitor dam(&defaultAllocator);
 
@@ -4478,15 +4576,13 @@ int main(int argc, char *argv[])
     }
     // BDE_VERIFY pragma: +TP17
 
-    if (test >= 0) {
-        // CONCERN: In no case does memory come from the default allocator.
+    // CONCERN: In no case does memory come from the default allocator.
 
-        ASSERT(dam.isTotalSame());
+    ASSERT(dam.isTotalSame());
 
-        // CONCERN: In no case does memory come from the global allocator.
+    // CONCERN: In no case does memory come from the global allocator.
 
-        ASSERT(gam.isTotalSame());
-    }
+    ASSERT(gam.isTotalSame());
 
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;

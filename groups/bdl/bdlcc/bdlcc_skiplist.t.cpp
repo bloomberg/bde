@@ -15,12 +15,6 @@
 #include <bdlt_intervalconversionutil.h>
 #include <bdlt_datetime.h>
 
-#include <bsla_fallthrough.h>
-#include <bslma_default.h>
-#include <bslma_defaultallocatorguard.h>
-#include <bslma_testallocator.h>
-#include <bslma_usesbslmaallocator.h>
-#include <bslmf_assert.h>
 #include <bslmt_lockguard.h>
 #include <bslmt_barrier.h>
 #include <bslmt_condition.h>
@@ -30,6 +24,21 @@
 #include <bslmt_testutil.h>
 #include <bslmt_threadutil.h>
 #include <bslmt_threadgroup.h>
+
+#include <bsltf_streamutil.h>
+#include <bsltf_templatetestfacility.h>
+
+#include <bslalg_constructorproxy.h>
+
+#include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
+#include <bslma_usesbslmaallocator.h>
+
+#include <bslmf_assert.h>
+
+#include <bsla_fallthrough.h>
+
 #include <bsls_assert.h>
 #include <bsls_atomic.h>
 #include <bsls_nameof.h>
@@ -40,8 +49,6 @@
 #include <bsls_systemtime.h>
 #include <bsls_timeinterval.h>
 #include <bsls_types.h>
-#include <bsltf_streamutil.h>
-#include <bsltf_templatetestfacility.h>
 
 #include <bsl_algorithm.h>    // 'min'
 #include <bsl_cstdlib.h>
@@ -172,6 +179,14 @@ typedef bsls::Types::IntPtr         IntPtr;
 
 namespace {
 namespace u {
+
+enum VecType { e_BSL,
+               e_STD,
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+               e_PMR,
+#endif
+               e_NUM_VEC_TYPES
+};
 
 bsls::AtomicInt masterThreadId(0);
 
@@ -524,6 +539,19 @@ unsigned RandGen::operator()()
 
 }  // close namespace u
 }  // close unnamed namespace
+
+inline
+bsl::ostream& operator<<(bsl::ostream& stream, u::VecType value)
+{
+    stream << (u::e_BSL == value ? "bsl"      :
+               u::e_STD == value ? "std"      :
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+               u::e_PMR == value ? "std::pmr" :
+#endif
+               "unk");
+
+    return stream;
+}
 
 bsl::ostream& operator<<(bsl::ostream& stream, u::AddMode mode)
 {
@@ -885,6 +913,8 @@ class TestDriver {
 
     static void addRTest();
 
+    template <class VECTOR>
+    static void removeAllTestByVecType();
     static void removeAllTest();
 
     static void findTest();
@@ -2454,41 +2484,28 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::addRTest()
 }
 
 template <class KEY_TYPE, class DATA_TYPE>
-void TestDriver<KEY_TYPE, DATA_TYPE>::removeAllTest()
-// ----------------------------------------------------------------------------
-// REMOVEALL TEST
-//
-// Concerns:
-//: 1 That the function 'removeAll' empties the container.
-//:
-//: 2 If a vector is passed to 'removeAll', the container is emptied but the
-//:   vector is populated with pair handles referring to all the deleted nodes
-//:   from the container.
-//
-// Plan:
-//: 1 Create a container and populate it from the non-sorted table 'VALUES1',
-//:
-//: 2 Use the function 'verify' to traverse the container and compare it with
-//:   table 'VALUES2', which has the same data as 'VALUES1', only sorted.
-//:
-//: 3 Call 'removeAll' with no args, and verify that it empties the container.
-//:
-//: 4 Re-populate and check the conainter again as in steps '1' and '2'.
-//:
-//: 5 Create a vector of pair handles and put one pair handle in it.
-//:
-//: 6 Call 'removeAll' passing it the vector, and observe that the container
-//:   is emptied.
-//:
-//: 7 Examine the contents of the vector and observe that it has the handle
-//:   that was originally there, with the other handles from the container
-//:   appended to that, in the correct order.
-//:
-//: 8 Don't check the default allocator -- 'removeAll' uses it.
-// ---------------------------------------------------------------------------
+template <class VECTOR>
+void TestDriver<KEY_TYPE, DATA_TYPE>::removeAllTestByVecType()
 {
-    if (verbose) cout << "removeAllTest<" << bsls::NameOf<KEY_TYPE>() <<
-                           ", " << bsls::NameOf<DATA_TYPE>() << ">();" << endl;
+    static const u::VecType vecType =
+                     bsl::is_same<VECTOR, bsl::vector<PairHandle> >::value
+                   ? u::e_BSL
+                   : bsl::is_same<VECTOR, std::vector<PairHandle> >::value
+                   ? u::e_STD
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                   : bsl::is_same<VECTOR, std::pmr::vector<PairHandle> >::value
+                   ? u::e_PMR
+#endif
+                   : u::e_NUM_VEC_TYPES;
+
+    BSLMF_ASSERT(u::e_NUM_VEC_TYPES != vecType);
+
+    typedef bslalg::ConstructorProxy<VECTOR> ProxyVector;
+
+    if (verbose) cout << "  removeAllTestByVecType<" <<
+                                   vecType << "::vector<PairHandle>, " <<
+                                   bsls::NameOf<KEY_TYPE>() << ", " <<
+                                   bsls::NameOf<DATA_TYPE>() << ">();" << endl;
 
     TableRecord VALUES1[] = {
         { L_ , 1, 2, 0},
@@ -2535,7 +2552,8 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::removeAllTest()
 
         ASSERT(0 == da.numAllocations());
 
-        bsl::vector<PairHandle> removed(&ta);
+        ProxyVector  removedProxy(&ta);
+        VECTOR&      removed = removedProxy.object();
 
         PairHandle ph;
         ASSERT(0 == mX.front(&ph));
@@ -2566,11 +2584,56 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::removeAllTest()
             }
         }
 
-        ASSERT(0 <  da.numAllocations());
+        ASSERT(u::e_BSL != vecType || 0 == da.numAllocations());
     }
 
     ASSERT(0 <  ta.numAllocations());
     ASSERT(0 == ta.numBytesInUse());
+}
+
+template <class KEY_TYPE, class DATA_TYPE>
+void TestDriver<KEY_TYPE, DATA_TYPE>::removeAllTest()
+// ----------------------------------------------------------------------------
+// REMOVEALL TEST
+//
+// Concerns:
+//: 1 That the function 'removeAll' empties the container.
+//:
+//: 2 If a vector is passed to 'removeAll', the container is emptied but the
+//:   vector is populated with pair handles referring to all the deleted nodes
+//:   from the container.
+//
+// Plan:
+//: 1 Create a container and populate it from the non-sorted table 'VALUES1',
+//:
+//: 2 Use the function 'verify' to traverse the container and compare it with
+//:   table 'VALUES2', which has the same data as 'VALUES1', only sorted.
+//:
+//: 3 Call 'removeAll' with no args, and verify that it empties the container.
+//:
+//: 4 Re-populate and check the conainter again as in steps '1' and '2'.
+//:
+//: 5 Create a vector of pair handles and put one pair handle in it.
+//:
+//: 6 Call 'removeAll' passing it the vector, and observe that the container
+//:   is emptied.
+//:
+//: 7 Examine the contents of the vector and observe that it has the handle
+//:   that was originally there, with the other handles from the container
+//:   appended to that, in the correct order.
+//:
+//: 8 Don't check the default allocator -- 'removeAll' uses it.
+// ----------------------------------------------------------------------------
+{
+    if (verbose) cout << "removeAllTest<" <<
+                                   bsls::NameOf<KEY_TYPE>() << ", " <<
+                                   bsls::NameOf<DATA_TYPE>() << ">();" << endl;
+
+    removeAllTestByVecType<bsl::vector<PairHandle> >();
+    removeAllTestByVecType<std::vector<PairHandle> >();
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    removeAllTestByVecType<std::pmr::vector<PairHandle> >();
+#endif
 }
 
 template <class KEY_TYPE, class DATA_TYPE>
@@ -3346,7 +3409,7 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::updateTest()
         {
             PairHandle ph;
             ASSERT(0 == X.findR(&ph, KVS[k_NUM_ITEMS - 1]));
-            ASSERT(ph.data() == DVS[k_NUM_ITEMS - 1]); 
+            ASSERT(ph.data() == DVS[k_NUM_ITEMS - 1]);
             bool newFrontFlag;
             ASSERT(0 == mX.update(ph, KVS[0], &newFrontFlag, 1));
             ASSERT(newFrontFlag);
@@ -3466,7 +3529,7 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::updateTest()
 
             X.skipForward(&ph);
             ASSERT(KVS[1] == ph.key());
-        }            
+        }
 
         verify( X, &init[0], init.size(), L_);
         verifyR(X, &init[0], init.size(), L_);
@@ -3710,8 +3773,6 @@ void removeAllSafetyFunc(Obj        *list,
     barrier_p->wait();
 
     const bsltf::AllocTestType data(id, alloc_p);
-    bsl::vector<Pair*>         removedPairs(alloc_p);
-    bsl::vector<PairHandle>    removedHandles(alloc_p);
 
     for (int ii = 0; ii < numIterations; ++ii) {
         int         key = ii;
@@ -3833,29 +3894,60 @@ void removeAllSafetyFunc(Obj        *list,
             // internal temporary vector.  All previous modes should not use
             // the default allocator.
 
+            bsl::vector<PairHandle> removedHandles(alloc_p);
+
             unsigned rc = list->removeAll(&removedHandles);
             ASSERT(rc == removedHandles.size());
             removed += rc;
-
-            removedHandles.clear();
         } else {
-            switch (ii % 3) {
+            switch (ii % 5) {
               case 0: {
                 removed += list->removeAll();
               } break;
               case 1: {
-                unsigned rc = list->removeAllRaw(&removedPairs);
-                ASSERT(rc == removedPairs.size());
+                bsl::vector<Pair*> removedPairsBsl(alloc_p);
+
+                unsigned rc = list->removeAllRaw(&removedPairsBsl);
+                ASSERT(rc == removedPairsBsl.size());
                 removed += rc;
 
-                for (unsigned jj = 0; jj < removedPairs.size(); ++jj) {
-                    list->releaseReferenceRaw(removedPairs[jj]);
+                for (unsigned jj = 0; jj < removedPairsBsl.size(); ++jj) {
+                    list->releaseReferenceRaw(removedPairsBsl[jj]);
                 }
-
-                removedPairs.clear();
               } break;
               case 2: {
-                removed += list->removeAllRaw(0);
+                std::vector<Pair*> removedPairsStd;
+
+                unsigned rc = list->removeAllRaw(&removedPairsStd);
+                ASSERT(rc == removedPairsStd.size());
+                removed += rc;
+
+                for (unsigned jj = 0; jj < removedPairsStd.size(); ++jj) {
+                    list->releaseReferenceRaw(removedPairsStd[jj]);
+                }
+
+                removedPairsStd.clear();
+              } break;
+              case 3: {
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                std::pmr::vector<Pair*> removedPairsPmr;
+
+                unsigned rc = list->removeAllRaw(&removedPairsPmr);
+                ASSERT(rc == removedPairsPmr.size());
+                removed += rc;
+
+                for (unsigned jj = 0; jj < removedPairsPmr.size(); ++jj) {
+                    list->releaseReferenceRaw(removedPairsPmr[jj]);
+                }
+
+                removedPairsPmr.clear();
+#else
+                removed += list->removeAll();
+#endif
+              } break;
+              case 4: {
+                std::vector<Pair*> *nullRemoved = 0;
+                removed += list->removeAllRaw(nullRemoved);
               } break;
               default: {
                 BSLS_ASSERT(0);
@@ -5441,8 +5533,7 @@ int main(int argc, char *argv[])
             // internal temporary vector.  All previous modes should not use
             // the default allocator.
 
-            ASSERT((u::e_ADD_WITH_REMOVEALL_HANDLES == mode) ==
-                                                    (0 < da.numAllocations()));
+            ASSERT(0 == da.numAllocations());
         }
 
         ASSERT(0 <  ta.numAllocations());

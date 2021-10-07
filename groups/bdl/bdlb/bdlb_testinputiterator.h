@@ -7,6 +7,8 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a pure input iterator for an empty range.
 //
+//@DEPRECATED: Use 'bsltf_testinputiterator' instead.
+//
 //@CLASSES:
 //  bdlb::TestInputIterator: empty input iterator template
 //
@@ -74,10 +76,10 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlscm_version.h>
 
-#include <bsls_assert.h>
-#include <bsls_libraryfeatures.h>
+#include <bsltf_inputiterator.h>
 
-#include <bsl_cstddef.h>
+#include <bsls_compilerfeatures.h>
+
 #include <bsl_iterator.h>
 
 namespace BloombergLP {
@@ -87,168 +89,41 @@ namespace bdlb {
                         // class TestInputIterator
                         // =======================
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
+
 template <class TYPE>
-class TestInputIterator
-#if defined(BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD)
-// Sun CC workaround: iterators must be derived from 'std::iterator' to work
-// with the native std library algorithms.  However, 'std::iterator' is
-// deprecated in C++17, so do not rely on derivation unless required, to avoid
-// deprecation warnings on modern compilers.
-    : public bsl::iterator<bsl::input_iterator_tag, TYPE>
-#endif
-{
-    // Provide an input iterator that iterates over an empty sequence.  All
-    // 'TestInputIterator' objects compare equal.  Since the iteration sequence
-    // is empty, incrementing or de-referencing this iterator yields undefined
-    // behavior.
+using TestInputIterator = bsltf::InputIterator<TYPE>;
 
-  public:
-    // PUBLIC TYPES
-    typedef bsl::input_iterator_tag  iterator_category;
-    typedef TYPE                     value_type;
-    typedef bsl::ptrdiff_t           difference_type;
-    typedef TYPE *                   pointer;
-    typedef TYPE                     reference;
+#else
 
-  public:
+template <class TYPE>
+struct TestInputIterator : public bsltf::InputIterator<TYPE> {
     // CREATORS
     TestInputIterator();
-        // Construct an empty input iterator.
 
     TestInputIterator(const TestInputIterator& original);
-        // Construct a copy of the specified 'original' object.
-
-    ~TestInputIterator();
-        // Destroy this object.
-
-    // MANIPULATORS
-    TestInputIterator& operator=(const TestInputIterator& rhs);
-        // Assign to this object the value of the specified 'rhs' and return a
-        // reference to this modifiable object.
-
-    TestInputIterator& operator++();
-        // The behavior is undefined for this method.  Note that this method
-        // signature matches the requirements of an input iterator, but a
-        // 'TestInputIterator' always represents the end position in a range.
-
-
-    TestInputIterator& operator++(int);
-        // The behavior is undefined for this method.  Note that this method
-        // signature matches the requirements of an input iterator, but a
-        // 'TestInputIterator' always represents the end position in a range.
-
-    // ACCESSORS
-    TYPE *operator->() const;
-        // The behavior is undefined for this method.  Note that this method
-        // signature matches the requirements of an input iterator, but a
-        // 'TestInputIterator' always represents the end position in a range.
-
-    TYPE operator*() const;
-        // The behavior is undefined for this method.  Note that this method
-        // signature matches the requirements of an input iterator, but a
-        // 'TestInputIterator' always represents the end position in a range.
 };
 
-// FREE OPERATORS
-template <class TYPE>
-inline
-bool operator==(const TestInputIterator<TYPE>& lhs,
-                const TestInputIterator<TYPE>& rhs);
-    // Return 'true'.  Note that all iterators represent the end position in a
-    // range, and therefore all iterators have the same value.
-
-template <class TYPE>
-inline
-bool operator!=(const TestInputIterator<TYPE>& lhs,
-                const TestInputIterator<TYPE>& rhs);
-    // Return 'false'.  Note that all iterators represent the end position in a
-    // range, and therefore all iterators have the same value.
-
-
-// ============================================================================
-//                              INLINE DEFINITIONS
-// ============================================================================
+                        // -----------------------
+                        // class TestInputIterator
+                        // -----------------------
 
 // CREATORS
-template<class TYPE>
+template <class TYPE>
 inline
 TestInputIterator<TYPE>::TestInputIterator()
-{
-}
+: bsltf::InputIterator<TYPE>()
+{}
 
-template<class TYPE>
+template <class TYPE>
 inline
-TestInputIterator<TYPE>::TestInputIterator(const TestInputIterator&)
-{
-}
+TestInputIterator<TYPE>::TestInputIterator(const TestInputIterator& original)
+: bsltf::InputIterator<TYPE>(original)
+{}
 
-template<class TYPE>
-inline
-TestInputIterator<TYPE>::~TestInputIterator()
-{
-}
-
-// MANIPULATORS
-template<class TYPE>
-inline
-TestInputIterator<TYPE>&
-TestInputIterator<TYPE>::operator=(const TestInputIterator&)
-{
-    return *this;
-}
-
-template<class TYPE>
-inline
-TestInputIterator<TYPE>& TestInputIterator<TYPE>::operator++()
-{
-    BSLS_ASSERT(false);
-    return *this;
-}
-
-template<class TYPE>
-inline
-TestInputIterator<TYPE>& TestInputIterator<TYPE>::operator++(int)
-{
-    BSLS_ASSERT(false);
-    return *this;
-}
-
-// ACCESSORS
-template<class TYPE>
-inline
-TYPE *TestInputIterator<TYPE>::operator->() const
-{
-    BSLS_ASSERT(false);
-    return 0;
-}
-
-template<class TYPE>
-inline
-TYPE TestInputIterator<TYPE>::operator*() const
-{
-    BSLS_ASSERT(false);
-    return *this->operator->();
-}
+#endif
 
 }  // close package namespace
-
-// FREE OPERATORS
-template <class TYPE>
-inline
-bool bdlb::operator==(const TestInputIterator<TYPE>&,
-                      const TestInputIterator<TYPE>&)
-{
-    return true;
-}
-
-template <class TYPE>
-inline
-bool bdlb::operator!=(const TestInputIterator<TYPE>&,
-                      const TestInputIterator<TYPE>&)
-{
-    return false;
-}
-
 }  // close enterprise namespace
 
 #endif

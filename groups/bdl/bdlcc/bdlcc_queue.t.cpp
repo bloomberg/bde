@@ -10,9 +10,11 @@
 
 #include <bdlcc_queue.h>
 
+#include <bdlf_bind.h>
+#include <bdlb_random.h>
+
 #include <bslim_testutil.h>
 
-#include <bslma_testallocator.h>
 #include <bslmt_barrier.h>
 #include <bslmt_lockguard.h>
 #include <bslmt_semaphore.h>
@@ -20,15 +22,16 @@
 #include <bslmt_mutex.h>
 #include <bslmt_threadutil.h>
 #include <bslmt_threadgroup.h>
-#include <bsls_atomic.h>
-#include <bsls_systemtime.h>
 
-#include <bdlf_bind.h>
-#include <bdlb_random.h>
+#include <bslalg_constructorproxy.h>
 
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
+
+#include <bsls_atomic.h>
 #include <bsls_stopwatch.h>
+#include <bsls_systemtime.h>
 
 #include <bsl_algorithm.h>
 
@@ -39,7 +42,10 @@
 #include <bsl_memory.h>
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using bsl::cout;
+using bsl::cerr;
+using bsl::endl;
+using bsl::flush;
 
 //=============================================================================
 //                             TEST PLAN
@@ -181,8 +187,20 @@ static const int MICRO_DECI_SEC =    10000;
 //              SUPPORT CLASSES AND FUNCTIONS USED FOR TESTING
 // ----------------------------------------------------------------------------
 
+
 namespace {
 namespace u {
+
+enum VecType { e_BEGIN,
+               e_BSL = e_BEGIN,
+               e_STD,
+               e_PMR,
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+               e_NUM_VEC_TYPES = e_PMR + 1
+#else
+               e_NUM_VEC_TYPES = e_PMR
+#endif
+};
 
 bsls::TimeInterval now()
     // Return the current time, as a 'TimeInterval'.
@@ -192,6 +210,16 @@ bsls::TimeInterval now()
 
 }  // close namespace u
 }  // close unnamed namespace
+
+inline
+bsl::ostream& operator<<(bsl::ostream& stream, u::VecType value)
+{
+    stream << (u::e_BSL == value ? "bsl"      :
+               u::e_STD == value ? "std"      :
+               u::e_PMR == value ? "std::pmr" : "unk");
+
+    return stream;
+}
 
 namespace BloombergLP {
 namespace bslma {
@@ -581,31 +609,49 @@ namespace QUEUE_USAGE_EXAMPLE_2 {
 }  // close namespace QUEUE_USAGE_EXAMPLE_2
 
 // ============================================================================
-//                               TEST CASE 12
+//                               TEST CASE 13
 // ----------------------------------------------------------------------------
 
-namespace QUEUE_TEST_CASE_12 {
+namespace QUEUE_TEST_CASE_13 {
 
+template <class VECTOR>
 class TestPopFront {
-    Obj     *d_mX;
-    int      d_maxVecSize;
-    Element  d_maxVecSizeAt;
+    // TYPES
+    typedef bslalg::ConstructorProxy<VECTOR> ProxyVector;
+
+    // DATA
+    Obj              *d_mX;
+    int               d_maxVecSize;
+    Element           d_maxVecSizeAt;
+    bslma::Allocator *d_alloc_p;
+
+    static const u::VecType s_vecType =
+                         bsl::is_same<bsl::vector<Element>, VECTOR>::value
+                       ? u::e_BSL
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                       : bsl::is_same<std::pmr::vector<Element>, VECTOR>::value
+                       ? u::e_PMR
+#endif
+                       : u::e_STD;
 
   public:
     explicit
-    TestPopFront(Obj *mX)
+    TestPopFront(Obj *mX, bslma::Allocator *alloc)
+    : d_mX(mX)
+    , d_maxVecSize(0)
+    , d_maxVecSizeAt(0)
+    , d_alloc_p(alloc)
         // c'tor
     {
-        d_mX = mX;
-        d_maxVecSize = 0;
-        d_maxVecSizeAt = 0;
     }
+
     void operator()()
         //
     {
         int expectedVal = 0;
         Element e;
-        vector<Element> v;
+        ProxyVector   pv(d_alloc_p);
+        VECTOR&       v = pv.object();
 
         while (expectedVal < 50) {
             if (25 == expectedVal) {
@@ -630,25 +676,41 @@ class TestPopFront {
         }
 
         if (verbose) {
-            cout << "PopFront: max vecsize = " << d_maxVecSize <<
+            cout << "  PopFront: max vecsize = " << d_maxVecSize <<
                     " at " << d_maxVecSizeAt << endl;
         }
     }
 };
 
+template <class VECTOR>
 class TestPopBack {
-    Obj     *d_mX;
-    int      d_maxVecSize;
-    Element  d_maxVecSizeAt;
+    // TYPES
+    typedef bslalg::ConstructorProxy<VECTOR> ProxyVector;
+
+    // DATA
+    Obj              *d_mX;
+    int               d_maxVecSize;
+    Element           d_maxVecSizeAt;
+    bslma::Allocator *d_alloc_p;
+
+    static const u::VecType s_vecType =
+                         bsl::is_same<bsl::vector<Element>, VECTOR>::value
+                       ? u::e_BSL
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                       : bsl::is_same<std::pmr::vector<Element>, VECTOR>::value
+                       ? u::e_PMR
+#endif
+                       : u::e_STD;
 
   public:
     explicit
-    TestPopBack(Obj *mX)
+    TestPopBack(Obj *mX, bslma::Allocator *alloc)
+    : d_mX(mX)
+    , d_maxVecSize(0)
+    , d_maxVecSizeAt(0)
+    , d_alloc_p(alloc)
         // c'tor
     {
-        d_mX = mX;
-        d_maxVecSize = 0;
-        d_maxVecSizeAt = 0;
     }
 
     void operator()()
@@ -656,7 +718,8 @@ class TestPopBack {
     {
         int expectedVal = 0;
         Element e;
-        vector<Element> v;
+        ProxyVector   pv(d_alloc_p);
+        VECTOR&       v = pv.object();
 
         while (expectedVal < 50) {
             if (25 == expectedVal) {
@@ -681,7 +744,7 @@ class TestPopBack {
         }
 
         if (verbose) {
-            cout << "PopBack: max vecsize = " << d_maxVecSize <<
+            cout << "  PopBack: max vecsize = " << d_maxVecSize <<
                     " at " << d_maxVecSizeAt << endl;
         }
     }
@@ -768,10 +831,10 @@ int TestClass13::s_pushCount;
 }  // close namespace QUEUE_TEST_CASE_11
 
 // ============================================================================
-//                               TEST CASE 10
+//                               TEST CASE 11
 // ----------------------------------------------------------------------------
 
-namespace QUEUE_TEST_CASE_10 {
+namespace QUEUE_TEST_CASE_11 {
 
 class TestClass12 {      // this class is a functor passed to thread::create
     Obj              *d_queue;
@@ -836,7 +899,150 @@ class TestClass12 {      // this class is a functor passed to thread::create
     }
 };
 
-}  // close namespace QUEUE_TEST_CASE_10
+}  // close namespace QUEUE_TEST_CASE_11
+
+// ============================================================================
+//                               TEST CASE 10
+// ----------------------------------------------------------------------------
+
+namespace TEST_TRY_POP {
+
+template <class VECTOR>
+void testTryPop()
+{
+    typedef typename VECTOR::value_type VT;
+
+    Obj mX;
+    const Obj& X = mX;
+    VECTOR v;
+    VECTOR v2;
+    VT e;
+    int sts;
+
+    ASSERT(!X.length());
+
+    e = -7;
+    sts = mX.tryPopFront(&e);
+    ASSERT(0 != sts);
+    ASSERT(-7 == e);
+    mX.tryPopFront(100, &v);
+    ASSERT(v.empty());
+    mX.tryPopFront(100);
+
+    ASSERT(!X.length());
+
+    for (int i = 0; i < 10; ++i) {
+        mX.pushBack((VT) i);
+    }
+
+    mX.tryPopFront(1);
+    e = -7;
+    sts = mX.tryPopFront(&e);
+    ASSERT(0 == sts);
+    ASSERT(1 == e);
+
+    mX.tryPopFront(4, &v);
+    ASSERT(4 == v.size());
+    ASSERT(2 == v.front());
+    ASSERT(5 == v.back());
+    v.clear();
+
+    mX.tryPopFront(10, &v);
+    ASSERT(4 == v.size());
+    ASSERT(6 == v.front());
+    ASSERT(9 == v.back());
+    v.clear();
+
+    mX.tryPopFront(1, &v);
+    ASSERT(v.empty());
+
+    mX.removeAll();
+
+    e = -7;
+    sts = mX.tryPopBack(&e);
+    ASSERT(0 != sts);
+    ASSERT(-7 == e);
+    mX.tryPopBack(100);
+
+    mX.removeAll();
+
+    mX.tryPopBack(10, &v);
+    ASSERT(v.empty());
+
+    for (int i = 0; 10 > i; ++i) {
+        mX.pushBack((VT) i);
+    }
+
+    mX.tryPopBack(1);
+
+    e = -7;
+    sts = mX.tryPopBack(&e);
+    ASSERT(0 == sts);
+    ASSERT(8 == e);
+
+    mX.tryPopBack(4, &v);
+    ASSERT(4 == v.size());
+    ASSERT(7 == v.front());
+    ASSERT(4 == v.back());
+
+    v.clear();
+    mX.tryPopBack(10, &v);
+    ASSERT(4 == v.size());
+    ASSERT(3 == v.front());
+    ASSERT(0 == v.back());
+
+    ASSERT(!X.length());
+
+    v.clear();
+    mX.tryPopBack(1, &v);
+    ASSERT(v.empty());
+
+    for (int i = 0; i < 10; ++i) {
+        mX.pushBack((VT) i);
+        v.push_back(i - 10);
+    }
+
+    mX.tryPopFront(30, &v);
+    ASSERT(20 == v.size());
+    for (int i = 0; i < 20; ++i) {
+        ASSERT(i - 10 == v[i]);
+    }
+    v.clear();
+
+    for (int i = 0; i < 10; ++i) {
+        mX.pushBack((VT) i);
+        v.push_back(19 - i);
+    }
+
+    mX.tryPopBack(30, &v);
+    ASSERT(20 == v.size());
+    for (int i = 0; i < 20; ++i) {
+        LOOP2_ASSERT(19 - i, v[i], 19 - i == v[i]);
+    }
+    v.clear();
+
+    ASSERT(!X.length());
+
+    ASSERT(0 != mX.tryPopBack(&e));
+    ASSERT(0 != mX.tryPopFront(&e));
+
+    for (int i = 0; 10 > i; ++i) {
+        mX.pushBack((VT) i);
+    }
+
+    for (int i = 9; 5 <= i; --i) {
+        ASSERT(0 == mX.tryPopBack(&e));
+        ASSERT(i == e);
+    }
+    for (int i = 0; 5 > i; ++i) {
+        ASSERT(0 == mX.tryPopFront(&e));
+        ASSERT(i == e);
+    }
+
+    ASSERT(!X.length());
+}
+
+}  // close namespace TEST_TRY_POP
 
 // ============================================================================
 //                                TEST CASE 6
@@ -2090,7 +2296,9 @@ int main(int argc, char *argv[])
         //   void tryPopBack(int, vector<TYPE> *);
         // --------------------------------------------------------------------
 
-        using namespace QUEUE_TEST_CASE_12;
+        if (verbose) cout << "tryPopFront, tryPopBack test\n";
+
+        using namespace QUEUE_TEST_CASE_13;
 
         Element waitTable[] = { 4, 5, 6, 7, 15, 20, 30, 31, 32, 33, 34 };
         int waitTableLength = static_cast<int>(sizeof waitTable
@@ -2099,16 +2307,46 @@ int main(int argc, char *argv[])
         const Element *waitTableBegin = waitTable;
         const Element *waitTableEnd   = waitTable + waitTableLength;
 
-        Obj mX;
+        bslma::TestAllocator ta("test");
+
+        Obj mX(&ta);
         bslmt::ThreadUtil::Handle handle;
 
-        for (int run = 0; run < 4; ++run) {
-            bslmt::ThreadUtil::create(&handle, TestPopFront(&mX));
+        for (int ti = 0; ti < 3 * u::e_NUM_VEC_TYPES; ++ti) {
+            u::VecType vecType = static_cast<u::VecType>(ti / 3);
+            int        run     = ti % 3;
+
+            if (veryVerbose) {
+                cout << "  " << vecType << "::vector, run: " << run << endl;
+            }
+
+            switch (vecType) {
+              case u::e_BSL: {
+                TestPopFront<bsl::vector<Element> > testFront(&mX, &ta);
+                bslmt::ThreadUtil::create(&handle, testFront);
+              } break;
+              case u::e_STD: {
+                TestPopFront<std::vector<Element> > testFront(&mX, &ta);
+                bslmt::ThreadUtil::create(&handle, testFront);
+              } break;
+              case u::e_PMR: {
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                TestPopFront<std::pmr::vector<Element> > testFront(&mX, &ta);
+                bslmt::ThreadUtil::create(&handle, testFront);
+#else
+                ASSERT(0 && "PMR");
+#endif
+              } break;
+              default: {
+                ASSERT(0 && "default");
+              }
+            }
+
             bslmt::ThreadUtil::microSleep(10 * 1000);
             for (Element e = 0; e < 50; ++e) {
                 if (waitTableEnd != bsl::find(waitTableBegin, waitTableEnd,
                                                                           e)) {
-                    if (veryVerbose) {
+                    if (veryVeryVerbose) {
                         cout << "PopFront: wait at " << e << endl;
                     }
                     bslmt::ThreadUtil::microSleep(10 * 1000);
@@ -2117,11 +2355,33 @@ int main(int argc, char *argv[])
             }
             bslmt::ThreadUtil::join(handle);
 
-            bslmt::ThreadUtil::create(&handle, TestPopBack(&mX));
+            switch (vecType) {
+              case u::e_BSL: {
+                TestPopBack<bsl::vector<Element> > testBack(&mX, &ta);
+                bslmt::ThreadUtil::create(&handle, testBack);
+              } break;
+              case u::e_STD: {
+                TestPopBack<std::vector<Element> > testBack(&mX, &ta);
+                bslmt::ThreadUtil::create(&handle, testBack);
+              } break;
+              case u::e_PMR: {
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                TestPopBack<std::pmr::vector<Element> > testBack(&mX, &ta);
+                bslmt::ThreadUtil::create(&handle, testBack);
+#else
+                ASSERT(0 && "PMR");
+#endif
+              } break;
+              default: {
+                ASSERT(0 && "default");
+              }
+            }
+
+            bslmt::ThreadUtil::microSleep(10 * 1000);
             for (Element e = 0; e < 50; ++e) {
                 if (waitTableEnd != bsl::find(waitTableBegin, waitTableEnd,
                                                                           e)) {
-                    if (veryVerbose) {
+                    if (veryVeryVerbose) {
                         cout << "PopBack: wait at " << e << endl;
                     }
                     bslmt::ThreadUtil::microSleep(10 * 1000);
@@ -2153,7 +2413,7 @@ int main(int argc, char *argv[])
         bslma::TestAllocator ta(veryVeryVeryVerbose);
 
         Obj mX(4, &ta);
-        vector<Element> v;
+        bsl::vector<Element> v;
         bslmt::ThreadUtil::Handle handle;
         bslmt::Barrier barrier(2);
         bsls::TimeInterval timeout = u::now() + bsls::TimeInterval(4.0);
@@ -2227,13 +2487,13 @@ int main(int argc, char *argv[])
         //   int timedPopFront(TYPE *, const bsls::TimeInterval&);
         // --------------------------------------------------------------------
 
-        using namespace QUEUE_TEST_CASE_10;
+        using namespace QUEUE_TEST_CASE_11;
 
         bslma::TestAllocator ta(veryVeryVeryVerbose);
 
         Obj mX(&ta);
         Element e = TestClass12::k_VALID_VAL;
-        vector<Element> v;
+        bsl::vector<Element> v;
         bslmt::ThreadUtil::Handle handle;
         bslmt::Barrier barrier(2);
 
@@ -2310,133 +2570,13 @@ int main(int argc, char *argv[])
         //   void tryPopBack(int, vector<TYPE> *);
         // --------------------------------------------------------------------
 
-        Obj mX(&da), &X = mX;
-        vector<Element> v(&da);
-        vector<Element> v2(&da);
-        Element e;
-        int sts;
+        namespace TC = TEST_TRY_POP;
 
-        ASSERT(!X.length());
-
-        e = -7;
-        sts = mX.tryPopFront(&e);
-        ASSERT(0 != sts);
-        ASSERT(-7 == e);
-        mX.tryPopFront(100, &v);
-        ASSERT(v.empty());
-        mX.tryPopFront(100);
-
-        ASSERT(!X.length());
-
-        for (int i = 0; i < 10; ++i) {
-            mX.pushBack((Element) i);
-        }
-
-        mX.tryPopFront(1);
-        e = -7;
-        sts = mX.tryPopFront(&e);
-        ASSERT(0 == sts);
-        ASSERT(1 == e);
-
-        mX.tryPopFront(4, &v);
-        ASSERT(4 == v.size());
-        ASSERT(2 == v.front());
-        ASSERT(5 == v.back());
-        v.clear();
-
-        mX.tryPopFront(10, &v);
-        ASSERT(4 == v.size());
-        ASSERT(6 == v.front());
-        ASSERT(9 == v.back());
-        v.clear();
-
-        mX.tryPopFront(1, &v);
-        ASSERT(v.empty());
-
-        mX.removeAll();
-
-        e = -7;
-        sts = mX.tryPopBack(&e);
-        ASSERT(0 != sts);
-        ASSERT(-7 == e);
-        mX.tryPopBack(100);
-
-        mX.removeAll();
-
-        mX.tryPopBack(10, &v);
-        ASSERT(v.empty());
-
-        for (int i = 0; 10 > i; ++i) {
-            mX.pushBack((Element) i);
-        }
-
-        mX.tryPopBack(1);
-
-        e = -7;
-        sts = mX.tryPopBack(&e);
-        ASSERT(0 == sts);
-        ASSERT(8 == e);
-
-        mX.tryPopBack(4, &v);
-        ASSERT(4 == v.size());
-        ASSERT(7 == v.front());
-        ASSERT(4 == v.back());
-
-        v.clear();
-        mX.tryPopBack(10, &v);
-        ASSERT(4 == v.size());
-        ASSERT(3 == v.front());
-        ASSERT(0 == v.back());
-
-        ASSERT(!X.length());
-
-        v.clear();
-        mX.tryPopBack(1, &v);
-        ASSERT(v.empty());
-
-        for (int i = 0; i < 10; ++i) {
-            mX.pushBack((Element) i);
-            v.push_back(i - 10);
-        }
-
-        mX.tryPopFront(30, &v);
-        ASSERT(20 == v.size());
-        for (int i = 0; i < 20; ++i) {
-            ASSERT(i - 10 == v[i]);
-        }
-        v.clear();
-
-        for (int i = 0; i < 10; ++i) {
-            mX.pushBack((Element) i);
-            v.push_back(19 - i);
-        }
-
-        mX.tryPopBack(30, &v);
-        ASSERT(20 == v.size());
-        for (int i = 0; i < 20; ++i) {
-            LOOP2_ASSERT(19 - i, v[i], 19 - i == v[i]);
-        }
-        v.clear();
-
-        ASSERT(!X.length());
-
-        ASSERT(0 != mX.tryPopBack(&e));
-        ASSERT(0 != mX.tryPopFront(&e));
-
-        for (int i = 0; 10 > i; ++i) {
-            mX.pushBack((Element) i);
-        }
-
-        for (int i = 9; 5 <= i; --i) {
-            ASSERT(0 == mX.tryPopBack(&e));
-            ASSERT(i == e);
-        }
-        for (int i = 0; 5 > i; ++i) {
-            ASSERT(0 == mX.tryPopFront(&e));
-            ASSERT(i == e);
-        }
-
-        ASSERT(!X.length());
+        TC::testTryPop<bsl::vector<Element> >();
+        TC::testTryPop<std::vector<Element> >();
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+        TC::testTryPop<std::pmr::vector<Element> >();
+#endif
       } break;
       case 9: {
         // --------------------------------------------------------------------
@@ -2524,6 +2664,40 @@ int main(int argc, char *argv[])
             ASSERT(VB == buffer[1]);
             ASSERT(VC == buffer[2]);
         }
+
+        {
+            Obj mX(&ta);
+            std::vector<Element> buffer;
+
+            mX.pushBack(VA);
+            mX.pushBack(VB);
+            mX.pushBack(VC);
+
+            mX.removeAll(&buffer);
+            ASSERT(0 == mX.length());
+            ASSERT(3 == buffer.size());
+            ASSERT(VA == buffer[0]);
+            ASSERT(VB == buffer[1]);
+            ASSERT(VC == buffer[2]);
+        }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+        {
+            Obj mX(&ta);
+            std::pmr::vector<Element> buffer;
+
+            mX.pushBack(VA);
+            mX.pushBack(VB);
+            mX.pushBack(VC);
+
+            mX.removeAll(&buffer);
+            ASSERT(0 == mX.length());
+            ASSERT(3 == buffer.size());
+            ASSERT(VA == buffer[0]);
+            ASSERT(VB == buffer[1]);
+            ASSERT(VC == buffer[2]);
+        }
+#endif
       } break;
       case 7: {
         // --------------------------------------------------------------------

@@ -200,8 +200,13 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_movableref.h>
 
 #include <bsls_assert.h>
+#include <bsls_libraryfeatures.h>
 
 #include <bsl_functional.h>
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+# include <memory_resource>
+#endif
 
 namespace BloombergLP {
 namespace bdlcc {
@@ -528,12 +533,18 @@ class StripedUnorderedMultiMap {
         // The returned function will return 'true' if two 'KEY' objects have
         // the same value, and 'false' otherwise.
 
-    bsl::size_t getValueAll(bsl::vector<VALUE> *valuesPtr,
-                            const KEY&          key) const;
+    bsl::size_t getValueAll(bsl::vector<VALUE>      *valuesPtr,
+                            const KEY&               key) const;
+    bsl::size_t getValueAll(std::vector<VALUE>      *valuesPtr,
+                            const KEY&               key) const;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    bsl::size_t getValueAll(std::pmr::vector<VALUE> *valuesPtr,
+                            const KEY&               key) const;
         // Load, into the specified '*valuesPtr', the value attributes of every
         // element in this hash map having the specified 'key'.  Return the
         // number of elements found with 'key'.  Note that the order of the
         // values returned is not specified.
+#endif
 
     bsl::size_t getValueFirst(VALUE *value, const KEY& key) const;
         // Load, into the specified '*value', the value attribute of the first
@@ -850,6 +861,26 @@ bsl::size_t StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::getValueAll(
 {
     return d_imp.getValue(valuesPtr, key);
 }
+
+template <class KEY, class VALUE, class HASH, class EQUAL>
+inline
+bsl::size_t StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::getValueAll(
+                                                 std::vector<VALUE> *valuesPtr,
+                                                 const KEY&          key) const
+{
+    return d_imp.getValue(valuesPtr, key);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+template <class KEY, class VALUE, class HASH, class EQUAL>
+inline
+bsl::size_t StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::getValueAll(
+                                            std::pmr::vector<VALUE> *valuesPtr,
+                                            const KEY&               key) const
+{
+    return d_imp.getValue(valuesPtr, key);
+}
+#endif
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
 inline

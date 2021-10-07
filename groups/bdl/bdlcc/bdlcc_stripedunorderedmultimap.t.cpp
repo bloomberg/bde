@@ -6212,6 +6212,50 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase6()
 
     // CONCERN: In no case does memory come from the default allocator.
     ASSERT(dam.isTotalSame());
+
+    for (bsl::size_t ti = 0; ti < MAX_LENGTH - 1; ++ti) {
+        // arbitrary number of stripes and buckets
+        Obj mX(64, 4, &supplied);  const Obj& X = mX;
+
+        mX.insert(VALUES[ti].first, VALUES[ti].second);
+        mX.insert(VALUES[ti].first, VALUES[ti+1].second);
+
+        std::vector<VALUE> values;
+
+        bslma::TestAllocatorMonitor sam(&supplied);
+
+        bsl::size_t rc = X.getValueAll(&values, VALUES[ti].first);
+        ASSERT(2 == rc);
+        ASSERT(areEqual(values[0], VALUES[ti].second) ||
+               areEqual(values[0], VALUES[ti+1].second));
+        ASSERT(areEqual(values[1], VALUES[ti].second) ||
+               areEqual(values[1], VALUES[ti+1].second));
+
+        ASSERT(sam.isTotalSame());
+    }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    for (bsl::size_t ti = 0; ti < MAX_LENGTH - 1; ++ti) {
+        // arbitrary number of stripes and buckets
+        Obj mX(64, 4, &supplied);  const Obj& X = mX;
+
+        mX.insert(VALUES[ti].first, VALUES[ti].second);
+        mX.insert(VALUES[ti].first, VALUES[ti+1].second);
+
+        std::pmr::vector<VALUE> values;
+
+        bslma::TestAllocatorMonitor sam(&supplied);
+
+        bsl::size_t rc = X.getValueAll(&values, VALUES[ti].first);
+        ASSERT(2 == rc);
+        ASSERT(areEqual(values[0], VALUES[ti].second) ||
+               areEqual(values[0], VALUES[ti+1].second));
+        ASSERT(areEqual(values[1], VALUES[ti].second) ||
+               areEqual(values[1], VALUES[ti+1].second));
+
+        ASSERT(sam.isTotalSame());
+    }
+#endif
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL>

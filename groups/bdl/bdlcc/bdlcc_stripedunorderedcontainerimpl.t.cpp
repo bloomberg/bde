@@ -859,6 +859,44 @@ void testLocking()
         ASSERT(duration > k_SLEEP_PERIOD / 2);
     }
 
+    if (veryVerbose) cout << "LockWrite / 'getValue' vector" << endl;
+    {
+        // Time the duration how long it took to run 'getValue'
+        TimeType startTime = bsls::TimeUtil::getTimer();
+        bslmt::ThreadUtil::create(&handle, workThread, &tdWrite);
+        smp.wait();
+
+        std::vector<bsl::string> values;
+        bsl::size_t              rc = strip.getValue(&values, key);
+        (void) rc;
+
+        TimeType endTime = bsls::TimeUtil::getTimer();
+        int      duration = static_cast<int>((endTime - startTime) / 1000);
+        bslmt::ThreadUtil::join(handle, &result);
+
+        ASSERT(duration > k_SLEEP_PERIOD / 2);
+    }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    if (veryVerbose) cout << "LockWrite / 'getValue' vector" << endl;
+    {
+        // Time the duration how long it took to run 'getValue'
+        TimeType startTime = bsls::TimeUtil::getTimer();
+        bslmt::ThreadUtil::create(&handle, workThread, &tdWrite);
+        smp.wait();
+
+        std::pmr::vector<bsl::string> values;
+        bsl::size_t                   rc = strip.getValue(&values, key);
+        (void) rc;
+
+        TimeType endTime = bsls::TimeUtil::getTimer();
+        int      duration = static_cast<int>((endTime - startTime) / 1000);
+        bslmt::ThreadUtil::join(handle, &result);
+
+        ASSERT(duration > k_SLEEP_PERIOD / 2);
+    }
+#endif
+
     if (veryVerbose) cout << "LockRead  / 'getValue' vector" << endl;
     {
         bslmt::ThreadUtil::create(&handle, workThread, &tdRead);

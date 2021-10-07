@@ -101,6 +101,9 @@ BSLS_IDENT("$Id: $")
 
 #include <bslim_printer.h>
 
+#include <bslstl_hash.h>
+#include <bslstl_pair.h>
+
 #include <bslma_allocator.h>
 #include <bslma_constructionutil.h>
 #include <bslma_default.h>
@@ -118,11 +121,9 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_assert.h>
 #include <bsls_atomic.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>   // BSLS_PLATFORM_CPU_X86_64
-
-#include <bslstl_hash.h>
-#include <bslstl_pair.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_cstddef.h>     // 'NULL'
@@ -131,6 +132,10 @@ BSLS_IDENT("$Id: $")
 #include <bsl_vector.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+# include <memory_resource>
+#endif
 
 namespace BloombergLP {
 namespace bdlcc {
@@ -689,6 +694,13 @@ class StripedUnorderedContainerImpl {
     bsl::size_t bucketToStripe(bsl::size_t bucketIndex) const;
         // Return the stripe index associated with the specified 'bucketIndex'.
 
+    template <class VECTOR>
+    bsl::size_t getValueImpl(VECTOR *valuesPtr, const KEY& key) const;
+        // Load, into the specified '*valuesPtr', the value attributes of every
+        // element in this hash map having the specified 'key'.  Return the
+        // number of elements found with 'key'.  Note that the order of the
+        // values returned is not specified.
+
     LockElement *lockRead(bsl::size_t *bucketIdx, const KEY& key) const;
         // Lock for read the stripe related to the specified 'key', setting the
         // specified 'bucketIdx' to the bucket index associated with 'key'.
@@ -1001,6 +1013,11 @@ class StripedUnorderedContainerImpl {
         // and subject to change.
 
     bsl::size_t getValue(bsl::vector<VALUE> *valuesPtr, const KEY& key) const;
+    bsl::size_t getValue(std::vector<VALUE> *valuesPtr, const KEY& key) const;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    bsl::size_t getValue(std::pmr::vector<VALUE> *valuesPtr, const KEY& key)
+                                                                         const;
+#endif
         // Load, into the specified '*valuesPtr', the value attributes of every
         // element in this hash map having the specified 'key'.  Return the
         // number of elements found with 'key'.  Note that the order of the
@@ -2172,6 +2189,43 @@ StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::bucketToStripe(
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class VECTOR>
+inline
+bsl::size_t
+StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::getValueImpl(
+                                                        VECTOR     *valuesPtr,
+                                                        const KEY&   key) const
+{
+    static const bool isVector =
+                           bsl::is_same<bsl::vector<VALUE>, VECTOR>::value
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                        || bsl::is_same<std::pmr::vector<VALUE>, VECTOR>::value
+#endif
+                        || bsl::is_same<std::vector<VALUE>, VECTOR>::value;
+    BSLMF_ASSERT(isVector);
+
+    BSLS_ASSERT(NULL != valuesPtr);
+
+    valuesPtr->clear();
+
+    bsl::size_t bucketIdx;
+    LERGuard    guard(lockRead(&bucketIdx, key));
+
+    bsl::size_t                                             count  = 0;
+    const StripedUnorderedContainerImpl_Bucket<KEY, VALUE>& bucket = d_buckets[
+                                                                    bucketIdx];
+    // Loop on the elements in the list
+    StripedUnorderedContainerImpl_Node<KEY, VALUE> *curNode  = bucket.head();
+    for (; curNode != NULL; curNode = curNode->next()) {
+        if (d_comparator(curNode->key(), key)) {
+            valuesPtr->push_back(curNode->value());
+            ++count;
+        }
+    }
+    return count;
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL>
 inline
 StripedUnorderedContainerImpl_LockElement *
 StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::lockRead(
@@ -2718,26 +2772,28 @@ bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::getValue(
                                                  bsl::vector<VALUE> *valuesPtr,
                                                  const KEY&          key) const
 {
-    BSLS_ASSERT(NULL != valuesPtr);
-
-    valuesPtr->clear();
-
-    bsl::size_t bucketIdx;
-    LERGuard    guard(lockRead(&bucketIdx, key));
-
-    bsl::size_t                                             count  = 0;
-    const StripedUnorderedContainerImpl_Bucket<KEY, VALUE>& bucket = d_buckets[
-                                                                    bucketIdx];
-    // Loop on the elements in the list
-    StripedUnorderedContainerImpl_Node<KEY, VALUE> *curNode  = bucket.head();
-    for (; curNode != NULL; curNode = curNode->next()) {
-        if (d_comparator(curNode->key(), key)) {
-            valuesPtr->push_back(curNode->value());
-            ++count;
-        }
-    }
-    return count;
+    return getValueImpl(valuesPtr, key);
 }
+
+template <class KEY, class VALUE, class HASH, class EQUAL>
+inline
+bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::getValue(
+                                                 std::vector<VALUE> *valuesPtr,
+                                                 const KEY&          key) const
+{
+    return getValueImpl(valuesPtr, key);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+template <class KEY, class VALUE, class HASH, class EQUAL>
+inline
+bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::getValue(
+                                            std::pmr::vector<VALUE> *valuesPtr,
+                                            const KEY&               key) const
+{
+    return getValueImpl(valuesPtr, key);
+}
+#endif
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
 inline

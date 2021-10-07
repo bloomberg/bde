@@ -602,21 +602,23 @@ BSLS_IDENT("$Id: $")
 #include <bdlma_concurrentpoolallocator.h>
 #include <bdlma_pool.h>
 
+#include <bslmt_lockguard.h>
+#include <bslmt_mutex.h>
+
 #include <bslalg_scalarprimitives.h>
 
 #include <bslma_default.h>
 #include <bslma_destructionutil.h>
 #include <bslma_usesbslmaallocator.h>
 
+#include <bslmf_assert.h>
 #include <bslmf_nestedtraitdeclaration.h>
-
-#include <bslmt_lockguard.h>
-#include <bslmt_mutex.h>
 
 #include <bsls_alignment.h>
 #include <bsls_assert.h>
 #include <bsls_atomic.h>
 #include <bsls_keyword.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_platform.h>
 #include <bsls_timeinterval.h>
 
@@ -628,6 +630,10 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_scalardestructionprimitives.h>
 #include <bslalg_typetraits.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+# include <memory_resource>
+#endif
 
 namespace BloombergLP {
 namespace bdlcc {
@@ -713,6 +719,9 @@ class TimeQueue {
   private:
 
     // PRIVATE TYPES
+    template <class VECTOR>
+    struct IsVector;
+
     struct Node {
         // This queue is implemented internally as a map of time values, each
         // entry in the map storing a doubly-linked circular list of items
@@ -783,6 +792,48 @@ class TimeQueue {
     void freeNode(Node *node);
         // Prepare the specified 'node' for being reused on the free list by
         // incrementing the iteration count.  Set 'd_prev_p' field to 0.
+
+    template <class VECTOR>
+    void popLEImp(const bsls::TimeInterval&  time,
+                  VECTOR                    *buffer,
+                  int                       *newLength = 0,
+                  bsls::TimeInterval        *newMinTime = 0);
+        // Remove from this queue all the items that have a time value less
+        // than or equal to the specified 'time', and optionally append into
+        // the optionally specified 'buffer' a list of the removed items,
+        // ordered by their corresponding time values (top item first).
+        // Optionally load into the optionally specified 'newLength' the number
+        // of items remaining in this queue, and into the optionally specified
+        // 'newMinTime' the lowest remaining time value in this queue.  Note
+        // that 'newMinTime' is only loaded if there are items remaining in the
+        // time queue; therefore, 'newLength' should be specified and examined
+        // to determine whether items remain, and 'newMinTime' used only when
+        // 'newLength' > 0.  Also note that if 'DATA' follows the 'bdema'
+        // allocator model, the allocator of the 'buffer' vector is used to
+        // supply memory for the items appended to the 'buffer'.
+
+    template <class VECTOR>
+    void popLEImp(const bsls::TimeInterval&  time,
+                  int                        maxTimers,
+                  VECTOR                    *buffer,
+                  int                       *newLength = 0,
+                  bsls::TimeInterval        *newMinTime = 0);
+        // Remove from this queue up to the specified 'maxTimers' number of
+        // items that have a time value less than or equal to the specified
+        // 'time', and optionally append into the optionally specified 'buffer'
+        // a list of the removed items, ordered by their corresponding time
+        // values (top item first).  Optionally load into the optionally
+        // specified 'newLength' the number of items remaining in this queue,
+        // and into the optionally specified 'newMinTime' the lowest remaining
+        // time value in this queue.  The behavior is undefined unless
+        // 'maxTimers' >= 0.  Note that 'newMinTime' is only loaded if there
+        // are items remaining in the time queue; therefore, 'newLength' should
+        // be specified and examined to determine whether items remain, and
+        // 'newMinTime' used only when 'newLength' > 0.  Also note that if
+        // 'DATA' follows the 'bdema' allocator model, the allocator of the
+        // 'buffer' vector is used to supply memory.  Note finally that all the
+        // items appended into 'buffer' have a time value less than or equal to
+        // the elements remaining in this queue.
 
     void putFreeNode(Node *node);
         // Destroy the data located at the specified 'node' and reattach this
@@ -876,10 +927,21 @@ class TimeQueue {
         // allocator model, the allocator of the 'buffer' is used to supply
         // memory.
 
-    void popLE(const bsls::TimeInterval&          time,
-               bsl::vector<TimeQueueItem<DATA> > *buffer = 0,
-               int                               *newLength = 0,
-               bsls::TimeInterval                *newMinTime = 0);
+    void popLE(const bsls::TimeInterval&               time);
+    void popLE(const bsls::TimeInterval&               time,
+               bsl::vector<TimeQueueItem<DATA> >      *buffer,
+               int                                    *newLength = 0,
+               bsls::TimeInterval                     *newMinTime = 0);
+    void popLE(const bsls::TimeInterval&               time,
+               std::vector<TimeQueueItem<DATA> >      *buffer,
+               int                                    *newLength = 0,
+               bsls::TimeInterval                     *newMinTime = 0);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    void popLE(const bsls::TimeInterval&               time,
+               std::pmr::vector<TimeQueueItem<DATA> > *buffer,
+               int                                    *newLength = 0,
+               bsls::TimeInterval                     *newMinTime = 0);
+#endif
         // Remove from this queue all the items that have a time value less
         // than or equal to the specified 'time', and optionally append into
         // the optionally specified 'buffer' a list of the removed items,
@@ -894,11 +956,25 @@ class TimeQueue {
         // allocator model, the allocator of the 'buffer' vector is used to
         // supply memory for the items appended to the 'buffer'.
 
-    void popLE(const bsls::TimeInterval&          time,
-               int                                maxTimers,
-               bsl::vector<TimeQueueItem<DATA> > *buffer = 0,
-               int                               *newLength = 0,
-               bsls::TimeInterval                *newMinTime = 0);
+    void popLE(const bsls::TimeInterval&               time,
+               int                                     maxTimers);
+    void popLE(const bsls::TimeInterval&               time,
+               int                                     maxTimers,
+               bsl::vector<TimeQueueItem<DATA> >      *buffer,
+               int                                    *newLength = 0,
+               bsls::TimeInterval                     *newMinTime = 0);
+    void popLE(const bsls::TimeInterval&               time,
+               int                                     maxTimers,
+               std::vector<TimeQueueItem<DATA> >      *buffer,
+               int                                    *newLength = 0,
+               bsls::TimeInterval                     *newMinTime = 0);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    void popLE(const bsls::TimeInterval&               time,
+               int                                     maxTimers,
+               std::pmr::vector<TimeQueueItem<DATA> > *buffer,
+               int                                    *newLength = 0,
+               bsls::TimeInterval                     *newMinTime = 0);
+#endif
         // Remove from this queue up to the specified 'maxTimers' number of
         // items that have a time value less than or equal to the specified
         // 'time', and optionally append into the optionally specified 'buffer'
@@ -1074,6 +1150,28 @@ class TimeQueueItem {
         // Return the non-modifiable key value associated with this item.
 };
 
+                        // =========================
+                        // TimeQueue<DATA>::IsVector
+                        // =========================
+
+template <class DATA>
+template <class VECTOR>
+struct TimeQueue<DATA>::IsVector {
+    // This 'struct' has a 'value' that evaluates to 'true' if the specified
+    // 'VECTOR' is a 'bsl', 'std', or 'std::pmr' 'vector<VALUE>'.
+
+    // TYPE
+    typedef TimeQueueItem<DATA> Item;
+
+    // CLASS DATA
+    static const bool value =
+                            bsl::is_same<bsl::vector<Item>, VECTOR>::value
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                         || bsl::is_same<std::pmr::vector<Item>, VECTOR>::value
+#endif
+                         || bsl::is_same<std::vector<Item>, VECTOR>::value;
+};
+
 // ============================================================================
 //                            INLINE DEFINITIONS
 // ============================================================================
@@ -1094,6 +1192,123 @@ void TimeQueue<DATA>::freeNode(Node *node)
         node->d_index += d_indexIterationInc;
     }
     node->d_prev_p = 0;
+}
+
+template <class DATA>
+template <class VECTOR>
+void TimeQueue<DATA>::popLEImp(const bsls::TimeInterval&  time,
+                               VECTOR                    *buffer,
+                               int                       *newLength,
+                               bsls::TimeInterval        *newMinTime)
+{
+    BSLMF_ASSERT(IsVector<VECTOR>::value);
+
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+
+    MapIter it = d_map.begin();
+
+    Node *begin = 0;
+    while (d_map.end() != it && it->first <= time) {
+        Node *const first = it->second;
+        Node *const last  = first->d_prev_p;
+        Node *node = first;
+
+        do {
+            if (buffer) {
+                buffer->push_back(TimeQueueItem<DATA>(it->first,
+                                                      node->d_data.object(),
+                                                      node->d_index,
+                                                      node->d_key,
+                                                      d_allocator_p));
+            }
+            freeNode(node);
+            node = node->d_next_p;
+            --d_length;
+        } while (node != first);
+
+        last->d_next_p = begin;
+        begin = first;
+
+        MapIter condemned = it;
+        ++it;
+        d_map.erase(condemned);
+    }
+
+    if (newLength) {
+        *newLength = d_length;
+    }
+    if (d_map.end() != it && newMinTime) {
+        *newMinTime = it->first;
+    }
+
+    lock.release()->unlock();
+    putFreeNodeList(begin);
+}
+
+template <class DATA>
+template <class VECTOR>
+void TimeQueue<DATA>::popLEImp(const bsls::TimeInterval&  time,
+                               int                        maxTimers,
+                               VECTOR                    *buffer,
+                               int                       *newLength,
+                               bsls::TimeInterval        *newMinTime)
+{
+    BSLS_ASSERT(0 <= maxTimers);
+
+    BSLMF_ASSERT(IsVector<VECTOR>::value);
+
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+
+    MapIter it = d_map.begin();
+
+    Node *begin = 0;
+    while (d_map.end() != it && it->first <= time && 0 < maxTimers) {
+        Node *const first = it->second;
+        Node *const last  = first->d_prev_p;
+        Node *node  = first;
+        Node *prevNode  = first->d_prev_p;
+
+        do {
+            if (buffer) {
+                buffer->push_back(TimeQueueItem<DATA>(
+                                                         it->first,
+                                                         node->d_data.object(),
+                                                         node->d_index,
+                                                         node->d_key,
+                                                         d_allocator_p));
+            }
+            freeNode(node);
+            prevNode = node;
+            node = node->d_next_p;
+            --d_length;
+            --maxTimers;
+        } while (0 < maxTimers && node != first);
+
+        prevNode->d_next_p = begin;
+        begin = first;
+
+        if (node == first) {
+            MapIter condemned = it;
+            ++it;
+            d_map.erase(condemned);
+        }
+        else {
+            node->d_prev_p = last;
+            last->d_next_p = node;
+            it->second = node;
+            break;
+        }
+    }
+
+    if (newLength) {
+        *newLength = d_length;
+    }
+    if (d_map.end() != it && newMinTime) {
+        *newMinTime = it->first;
+    }
+
+    lock.release()->unlock();
+    putFreeNodeList(begin);
 }
 
 template <class DATA>
@@ -1359,116 +1574,87 @@ int TimeQueue<DATA>::popFront(TimeQueueItem<DATA> *buffer,
 }
 
 template <class DATA>
+inline
+void TimeQueue<DATA>::popLE(const bsls::TimeInterval& time)
+{
+    popLEImp(time, static_cast<bsl::vector<TimeQueueItem<DATA> > *>(0));
+}
+
+template <class DATA>
+inline
 void TimeQueue<DATA>::popLE(const bsls::TimeInterval&          time,
                             bsl::vector<TimeQueueItem<DATA> > *buffer,
                             int                               *newLength,
                             bsls::TimeInterval                *newMinTime)
 {
-    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
-
-    MapIter it = d_map.begin();
-
-    Node *begin = 0;
-    while (d_map.end() != it && it->first <= time) {
-        Node *const first = it->second;
-        Node *const last  = first->d_prev_p;
-        Node *node = first;
-
-        do {
-            if (buffer) {
-                buffer->push_back(TimeQueueItem<DATA>(
-                                                         it->first,
-                                                         node->d_data.object(),
-                                                         node->d_index,
-                                                         node->d_key,
-                                                         d_allocator_p));
-            }
-            freeNode(node);
-            node = node->d_next_p;
-            --d_length;
-        } while (node != first);
-
-        last->d_next_p = begin;
-        begin = first;
-
-        MapIter condemned = it;
-        ++it;
-        d_map.erase(condemned);
-    }
-
-    if (newLength) {
-        *newLength = d_length;
-    }
-    if (d_map.end() != it && newMinTime) {
-        *newMinTime = it->first;
-    }
-
-    lock.release()->unlock();
-    putFreeNodeList(begin);
+    popLEImp(time, buffer, newLength, newMinTime);
 }
 
 template <class DATA>
+inline
+void TimeQueue<DATA>::popLE(const bsls::TimeInterval&          time,
+                            std::vector<TimeQueueItem<DATA> > *buffer,
+                            int                               *newLength,
+                            bsls::TimeInterval                *newMinTime)
+{
+    popLEImp(time, buffer, newLength, newMinTime);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+template <class DATA>
+inline
+void TimeQueue<DATA>::popLE(const bsls::TimeInterval&               time,
+                            std::pmr::vector<TimeQueueItem<DATA> > *buffer,
+                            int                                    *newLength,
+                            bsls::TimeInterval                     *newMinTime)
+{
+    popLEImp(time, buffer, newLength, newMinTime);
+}
+#endif
+
+template <class DATA>
+inline
+void TimeQueue<DATA>::popLE(const bsls::TimeInterval& time, int maxTimers)
+{
+    popLEImp(time,
+             maxTimers,
+             static_cast<bsl::vector<TimeQueueItem<DATA> > *>(0));
+}
+
+template <class DATA>
+inline
 void TimeQueue<DATA>::popLE(const bsls::TimeInterval&          time,
                             int                                maxTimers,
                             bsl::vector<TimeQueueItem<DATA> > *buffer,
                             int                               *newLength,
                             bsls::TimeInterval                *newMinTime)
 {
-    BSLS_ASSERT(0 <= maxTimers);
-
-    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
-
-    MapIter it = d_map.begin();
-
-    Node *begin = 0;
-    while (d_map.end() != it && it->first <= time && 0 < maxTimers) {
-        Node *const first = it->second;
-        Node *const last  = first->d_prev_p;
-        Node *node  = first;
-        Node *prevNode  = first->d_prev_p;
-
-        do {
-            if (buffer) {
-                buffer->push_back(TimeQueueItem<DATA>(
-                                                         it->first,
-                                                         node->d_data.object(),
-                                                         node->d_index,
-                                                         node->d_key,
-                                                         d_allocator_p));
-            }
-            freeNode(node);
-            prevNode = node;
-            node = node->d_next_p;
-            --d_length;
-            --maxTimers;
-        } while (0 < maxTimers && node != first);
-
-        prevNode->d_next_p = begin;
-        begin = first;
-
-        if (node == first) {
-            MapIter condemned = it;
-            ++it;
-            d_map.erase(condemned);
-        }
-        else {
-            node->d_prev_p = last;
-            last->d_next_p = node;
-            it->second = node;
-            break;
-        }
-    }
-
-    if (newLength) {
-        *newLength = d_length;
-    }
-    if (d_map.end() != it && newMinTime) {
-        *newMinTime = it->first;
-    }
-
-    lock.release()->unlock();
-    putFreeNodeList(begin);
+    popLEImp(time, maxTimers, buffer, newLength, newMinTime);
 }
+
+template <class DATA>
+inline
+void TimeQueue<DATA>::popLE(const bsls::TimeInterval&          time,
+                            int                                maxTimers,
+                            std::vector<TimeQueueItem<DATA> > *buffer,
+                            int                               *newLength,
+                            bsls::TimeInterval                *newMinTime)
+{
+    popLEImp(time, maxTimers, buffer, newLength, newMinTime);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+template <class DATA>
+inline
+void TimeQueue<DATA>::popLE(const bsls::TimeInterval&               time,
+                            int                                     maxTimers,
+                            std::pmr::vector<TimeQueueItem<DATA> > *buffer,
+                            int                                    *newLength,
+                            bsls::TimeInterval                     *newMinTime)
+{
+    popLEImp(time, maxTimers, buffer, newLength, newMinTime);
+}
+#endif
 
 template <class DATA>
 inline
