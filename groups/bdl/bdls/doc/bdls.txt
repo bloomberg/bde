@@ -10,7 +10,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdls' package currently has 13 components having 4 levels of physical
+ The 'bdls' package currently has 14 components having 4 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -24,13 +24,14 @@
 
   2. bdls_filesystemutil
 
-  1. bdls_filesystemutil_transitionaluniximputil                      !PRIVATE!
-     bdls_filesystemutil_uniximputil                                  !PRIVATE!
-     bdls_filesystemutil_unixplatform                                 !PRIVATE!
-     bdls_filesystemutil_windowsimputil                               !PRIVATE!
+  1. bdls_filesystemutil_transitionaluniximputil                     !PRIVATE!
+     bdls_filesystemutil_uniximputil                                 !PRIVATE!
+     bdls_filesystemutil_unixplatform                                !PRIVATE!
+     bdls_filesystemutil_windowsimputil                              !PRIVATE!
      bdls_memoryutil
      bdls_pathutil
-     bdls_testutil                                       !DEPRECATED!
+     bdls_tempdirectoryguard
+     bdls_testutil                                      !DEPRECATED!
 ..
 
 /Component Synopsis
@@ -44,16 +45,16 @@
 : 'bdls_filesystemutil':
 :      Provide methods for filesystem access with multi-language names.
 :
-: 'bdls_filesystemutil_transitionaluniximputil':                      !PRIVATE!
+: 'bdls_filesystemutil_transitionaluniximputil':
 :      Provide testable 'bdls::FilesystemUtil' operations for some Unixes.
 :
-: 'bdls_filesystemutil_uniximputil':                                  !PRIVATE!
+: 'bdls_filesystemutil_uniximputil':
 :      Provide testable 'bdls::FilesystemUtil' operations for some Unixes.
 :
-: 'bdls_filesystemutil_unixplatform':                                 !PRIVATE!
+: 'bdls_filesystemutil_unixplatform':
 :      Provide maximum Unix file-offset type width detection macros.
 :
-: 'bdls_filesystemutil_windowsimputil':                               !PRIVATE!
+: 'bdls_filesystemutil_windowsimputil':
 :      Provide testable 'bdls::FilesystemUtil' operations on Windows.
 :
 : 'bdls_memoryutil':
@@ -71,5 +72,5 @@
 : 'bdls_processutil':
 :      Provide basic platform-independent utilities related to processes.
 :
-: 'bdls_testutil':                                       !DEPRECATED!
+: 'bdls_testutil':
 :      Provide test utilities for components in 'bdl' and above.

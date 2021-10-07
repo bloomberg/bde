@@ -16,6 +16,7 @@
 #include <bdls_filesystemutil.h>
 #include <bdls_pathutil.h>
 #include <bdls_processutil.h>
+#include <bdls_tempdirectoryguard.h>
 
 #include <bdlt_currenttime.h>
 #include <bdlt_date.h>
@@ -210,70 +211,6 @@ typedef bsls::Types::Int64   Int64;
 //-----------------------------------------------------------------------------
 
 namespace {
-
-class TempDirectoryGuard {
-    // This class implements a scoped temporary directory guard.  The guard
-    // tries to create a temporary directory in the system-wide temp directory
-    // and falls back to the current directory.
-
-    // DATA
-    bsl::string       d_dirName;      // path to the created directory
-    bslma::Allocator *d_allocator_p;  // memory allocator (held, not owned)
-
-  private:
-    // NOT IMPLEMENTED
-    TempDirectoryGuard(const TempDirectoryGuard&);
-    TempDirectoryGuard& operator=(const TempDirectoryGuard&);
-
-  public:
-    // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(TempDirectoryGuard,
-                                   bslma::UsesBslmaAllocator);
-
-    // CREATORS
-    explicit TempDirectoryGuard(bslma::Allocator *basicAllocator = 0)
-        // Create temporary directory in the system-wide temp or current
-        // directory.  Optionally specify a 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.
-    : d_dirName(bslma::Default::allocator(basicAllocator))
-    , d_allocator_p(bslma::Default::allocator(basicAllocator))
-    {
-        bsl::string tmpPath(d_allocator_p);
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-        char tmpPathBuf[MAX_PATH];
-        GetTempPath(MAX_PATH, tmpPathBuf);
-        tmpPath.assign(tmpPathBuf);
-#else
-        const char *envTmpPath = bsl::getenv("TMPDIR");
-        if (envTmpPath) {
-            tmpPath.assign(envTmpPath);
-        }
-#endif
-
-        int res = bdls::PathUtil::appendIfValid(&tmpPath, "ball_");
-        ASSERTV(tmpPath, 0 == res);
-
-        res = bdls::FilesystemUtil::createTemporaryDirectory(&d_dirName,
-                                                             tmpPath);
-        ASSERTV(tmpPath, 0 == res);
-    }
-
-    ~TempDirectoryGuard()
-        // Destroy this object and remove the temporary directory (recursively)
-        // created at construction.
-    {
-        bdls::FilesystemUtil::remove(d_dirName, true);
-    }
-
-    // ACCESSORS
-    const bsl::string& getTempDirName() const
-        // Return a 'const' reference to the name of the created temporary
-        // directory.
-    {
-        return d_dirName;
-    }
-};
 
 void enableFileLogging(
                     bsl::shared_ptr<ball::FileObserver2>& observer,
@@ -739,9 +676,8 @@ int main(int argc, char *argv[])
 
         // This is standard preamble to create the directory and filename for
         // the test.
-        TempDirectoryGuard tempDirGuard;
-
-        bsl::string fileName(tempDirGuard.getTempDirName());
+        bdls::TempDirectoryGuard tempDirGuard("ball_");
+        bsl::string              fileName(tempDirGuard.getTempDirName());
         bdls::PathUtil::appendRaw(&fileName, "test.log");
 
 ///Example: Basic Usage
@@ -815,9 +751,8 @@ int main(int argc, char *argv[])
 
         int rot_size = 1024 * 1024;
 
-        TempDirectoryGuard tempDirGuard;
-
-        bsl::string baseName(tempDirGuard.getTempDirName());
+        bdls::TempDirectoryGuard tempDirGuard("ball_");
+        bsl::string              baseName(tempDirGuard.getTempDirName());
         bdls::PathUtil::appendRaw(&baseName, "testLog");
 
         if (veryVeryVerbose) { T_; T_; P(baseName); }
@@ -1133,7 +1068,7 @@ int main(int argc, char *argv[])
             bslma::TestAllocator         ta("ta", veryVeryVeryVerbose);
             bslma::DefaultAllocatorGuard dag(&da);
 
-            TempDirectoryGuard tempDirGuard;
+            bdls::TempDirectoryGuard tempDirGuard("ball_");
 
             bsl::shared_ptr<Obj>       mX(new (ta) Obj(&ta), &ta);
             bsl::shared_ptr<const Obj> X = mX;
@@ -1357,8 +1292,8 @@ int main(int argc, char *argv[])
             bslma::TestAllocator         ta("ta", veryVeryVeryVerbose);
             bslma::DefaultAllocatorGuard dag(&da);
 
-            TempDirectoryGuard tempDirGuard;
-            bsl::string        fileName(tempDirGuard.getTempDirName());
+            bdls::TempDirectoryGuard tempDirGuard("ball_");
+            bsl::string              fileName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&fileName, "testLog");
 
             bsl::shared_ptr<Obj>       mX(new (ta) Obj(&ta), &ta);
@@ -1458,8 +1393,9 @@ int main(int argc, char *argv[])
                 }
 
                 {
-                    TempDirectoryGuard tempDirGuard;
-                    bsl::string        fileName(tempDirGuard.getTempDirName());
+                    bdls::TempDirectoryGuard tempDirGuard("ball_");
+                    bsl::string              fileName(
+                                                tempDirGuard.getTempDirName());
                     bdls::PathUtil::appendRaw(&fileName, "testLog");
 
                     // Set callback to monitor rotation.
@@ -1476,8 +1412,9 @@ int main(int argc, char *argv[])
                 {
                     BALL_LOG_SET_CATEGORY("TestCategory");
 
-                    TempDirectoryGuard tempDirGuard;
-                    bsl::string        fileName(tempDirGuard.getTempDirName());
+                    bdls::TempDirectoryGuard tempDirGuard("ball_");
+                    bsl::string              fileName(
+                                                tempDirGuard.getTempDirName());
                     bdls::PathUtil::appendRaw(&fileName, "testLog");
 
                     mX->rotateOnTimeInterval(
@@ -1505,8 +1442,9 @@ int main(int argc, char *argv[])
                 {
                     BALL_LOG_SET_CATEGORY("TestCategory");
 
-                    TempDirectoryGuard tempDirGuard;
-                    bsl::string        fileName(tempDirGuard.getTempDirName());
+                    bdls::TempDirectoryGuard tempDirGuard("ball_");
+                    bsl::string              fileName(
+                                                tempDirGuard.getTempDirName());
                     bdls::PathUtil::appendRaw(&fileName, "testLog");
 
                     mX->rotateOnTimeInterval(
@@ -1533,8 +1471,9 @@ int main(int argc, char *argv[])
                 {
                     BALL_LOG_SET_CATEGORY("TestCategory");
 
-                    TempDirectoryGuard tempDirGuard;
-                    bsl::string        fileName(tempDirGuard.getTempDirName());
+                    bdls::TempDirectoryGuard tempDirGuard("ball_");
+                    bsl::string              fileName(
+                                                tempDirGuard.getTempDirName());
                     bdls::PathUtil::appendRaw(&fileName, "testLog");
 
                     bdlt::Datetime startTime = bdlt::CurrentTime::utc();
@@ -1623,8 +1562,8 @@ int main(int argc, char *argv[])
         {
             bslma::TestAllocator ta("test", veryVeryVeryVerbose);
 
-            TempDirectoryGuard tempDirGuard;
-            bsl::string        fileName(tempDirGuard.getTempDirName());
+            bdls::TempDirectoryGuard tempDirGuard("ball_");
+            bsl::string              fileName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&fileName, "testLog");
 
             Obj mX(&ta);
@@ -1652,8 +1591,8 @@ int main(int argc, char *argv[])
         {
             bslma::TestAllocator ta("test", veryVeryVeryVerbose);
 
-            TempDirectoryGuard tempDirGuard;
-            bsl::string        fileName(tempDirGuard.getTempDirName());
+            bdls::TempDirectoryGuard tempDirGuard("ball_");
+            bsl::string              fileName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&fileName, "testLog");
 
             // Rotate every 1s.
@@ -1689,8 +1628,8 @@ int main(int argc, char *argv[])
         {
             bslma::TestAllocator ta("test", veryVeryVeryVerbose);
 
-            TempDirectoryGuard tempDirGuard;
-            bsl::string        fileName(tempDirGuard.getTempDirName());
+            bdls::TempDirectoryGuard tempDirGuard("ball_");
+            bsl::string              fileName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&fileName, "testLog");
 
             Obj mX(&ta);
@@ -1718,8 +1657,8 @@ int main(int argc, char *argv[])
         {
             bslma::TestAllocator ta("test", veryVeryVeryVerbose);
 
-            TempDirectoryGuard tempDirGuard;
-            bsl::string        fileName(tempDirGuard.getTempDirName());
+            bdls::TempDirectoryGuard tempDirGuard("ball_");
+            bsl::string              fileName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&fileName, "testLog");
 
             Obj mX(&ta);
@@ -1748,8 +1687,8 @@ int main(int argc, char *argv[])
         {
             bslma::TestAllocator ta("test", veryVeryVeryVerbose);
 
-            TempDirectoryGuard tempDirGuard;
-            bsl::string        fileName(tempDirGuard.getTempDirName());
+            bdls::TempDirectoryGuard tempDirGuard("ball_");
+            bsl::string              fileName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&fileName, "testLog");
 
             Obj mX(&ta);
@@ -1777,8 +1716,8 @@ int main(int argc, char *argv[])
             // 'rotateOnTimeInterval'.
             bslma::TestAllocator ta("test", veryVeryVeryVerbose);
 
-            TempDirectoryGuard tempDirGuard;
-            bsl::string        fileName(tempDirGuard.getTempDirName());
+            bdls::TempDirectoryGuard tempDirGuard("ball_");
+            bsl::string              fileName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&fileName, "testLog");
 
             Obj mX(&ta);
@@ -1866,8 +1805,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Test-case infrastructure setup." << endl;
         {
-            TempDirectoryGuard tempDirGuard;
-            bsl::string        fileName(tempDirGuard.getTempDirName());
+            bdls::TempDirectoryGuard tempDirGuard("ball_");
+            bsl::string              fileName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&fileName, "testLog");
 
             if (verbose) cout << "Testing setup." << endl;
@@ -2003,8 +1942,8 @@ int main(int argc, char *argv[])
         mX->setOnFileRotationCallback(cb);
 
         {
-            TempDirectoryGuard tempDirGuard;
-            bsl::string        fileName(tempDirGuard.getTempDirName());
+            bdls::TempDirectoryGuard tempDirGuard("ball_");
+            bsl::string              fileName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&fileName, "testLog");
 
             enableFileLogging(mX, fileName);
@@ -2128,8 +2067,8 @@ int main(int argc, char *argv[])
         {
             bslma::TestAllocator ta("test", veryVeryVeryVerbose);
 
-            TempDirectoryGuard tempDirGuard;
-            bsl::string        fileName(tempDirGuard.getTempDirName());
+            bdls::TempDirectoryGuard tempDirGuard("ball_");
+            bsl::string              fileName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&fileName, "testLog");
 
             Obj mX; const Obj& X = mX;
@@ -2169,8 +2108,8 @@ int main(int argc, char *argv[])
         {
             bslma::TestAllocator ta("test", veryVeryVeryVerbose);
 
-            TempDirectoryGuard tempDirGuard;
-            bsl::string        fileName(tempDirGuard.getTempDirName());
+            bdls::TempDirectoryGuard tempDirGuard("ball_");
+            bsl::string              fileName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&fileName, "testLog.%T");
 
             Obj mX; const Obj& X = mX;
@@ -2208,8 +2147,8 @@ int main(int argc, char *argv[])
         {
             bslma::TestAllocator ta("test", veryVeryVeryVerbose);
 
-            TempDirectoryGuard tempDirGuard;
-            bsl::string        fileName(tempDirGuard.getTempDirName());
+            bdls::TempDirectoryGuard tempDirGuard("ball_");
+            bsl::string              fileName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&fileName, "testLog");
 
             Obj mX; const Obj& X = mX;
@@ -2400,8 +2339,9 @@ int main(int argc, char *argv[])
 
                 if (veryVeryVerbose) { P_(LINE) P_(SUF) P_(PAT) P(UNI) }
 
-                TempDirectoryGuard tempDirGuard;
-                bsl::string        fileName(tempDirGuard.getTempDirName());
+                bdls::TempDirectoryGuard tempDirGuard("ball_");
+                bsl::string              fileName(
+                                                tempDirGuard.getTempDirName());
                 bdls::PathUtil::appendRaw(&fileName, "testLog");
 
                 bdlt::Datetime startDatetime, endDatetime;
@@ -2532,7 +2472,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Testing filename time-stamp uses "
                           << "'isPublishInLocalTimeEnabled'" << endl;
         {
-            TempDirectoryGuard tempDirGuard;
+            bdls::TempDirectoryGuard tempDirGuard("ball_");
 
             if (veryVerbose)
                 cout << "\tTesting utc pattern in filename." << endl;
@@ -2685,8 +2625,8 @@ int main(int argc, char *argv[])
         {
             bslma::TestAllocator ta("ta", veryVeryVeryVerbose);
 
-            TempDirectoryGuard tempDirGuard;
-            bsl::string        fileName(tempDirGuard.getTempDirName());
+            bdls::TempDirectoryGuard tempDirGuard("ball_");
+            bsl::string              fileName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&fileName, "testLog");
 
             // Set the limit of the file size we can produce to 2048 bytes.
@@ -2813,8 +2753,8 @@ int main(int argc, char *argv[])
         bslma::TestAllocator ta("ta", veryVeryVeryVerbose);
         if (verbose) cout << "Test-case infrastructure setup." << endl;
         {
-            TempDirectoryGuard tempDirGuard;
-            bsl::string        fileName(tempDirGuard.getTempDirName());
+            bdls::TempDirectoryGuard tempDirGuard("ball_");
+            bsl::string              fileName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&fileName, "testLog");
 
             bsl::shared_ptr<Obj>       mX(new (ta) Obj(&ta), &ta);
@@ -2998,8 +2938,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Test-case infrastructure setup." << endl;
         {
             // Create a temporary directory for log files.
-            TempDirectoryGuard tempDirGuard;
-            bsl::string        fileName(tempDirGuard.getTempDirName());
+            bdls::TempDirectoryGuard tempDirGuard("ball_");
+            bsl::string              fileName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&fileName, "testLog");
 
             bsl::shared_ptr<Obj>       mX(new (ta) Obj(&ta), &ta);
@@ -3173,8 +3113,9 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "Testing default output format." << endl;
             {
-                TempDirectoryGuard tempDirGuard;
-                bsl::string        fileName(tempDirGuard.getTempDirName());
+                bdls::TempDirectoryGuard tempDirGuard("ball_");
+                bsl::string              fileName(
+                                                tempDirGuard.getTempDirName());
                 bdls::PathUtil::appendRaw(&fileName, "testLog");
 
                 bsl::shared_ptr<Obj>       mX(new (ta) Obj(&ta), &ta);
@@ -3231,8 +3172,9 @@ int main(int argc, char *argv[])
             if (verbose) cout << "Testing format with local time offset."
                               << endl;
             {
-                TempDirectoryGuard tempDirGuard;
-                bsl::string        fileName(tempDirGuard.getTempDirName());
+                bdls::TempDirectoryGuard tempDirGuard("ball_");
+                bsl::string              fileName(
+                                                tempDirGuard.getTempDirName());
                 bdls::PathUtil::appendRaw(&fileName, "testLog");
 
                 bsl::shared_ptr<Obj>       mX(new (ta) Obj(&ta), &ta);
@@ -3347,8 +3289,9 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "Testing file logging." << endl;
             {
-                TempDirectoryGuard tempDirGuard;
-                bsl::string        fileName(tempDirGuard.getTempDirName());
+                bdls::TempDirectoryGuard tempDirGuard("ball_");
+                bsl::string              fileName(
+                                                tempDirGuard.getTempDirName());
                 bdls::PathUtil::appendRaw(&fileName, "testLog");
 
                 bsl::shared_ptr<Obj>       mX(new (ta) Obj(&ta), &ta);
@@ -3404,8 +3347,9 @@ int main(int argc, char *argv[])
             if (verbose)
                 cout << "Testing file logging with timestamp." << endl;
             {
-                TempDirectoryGuard tempDirGuard;
-                bsl::string        fileName(tempDirGuard.getTempDirName());
+                bdls::TempDirectoryGuard tempDirGuard("ball_");
+                bsl::string              fileName(
+                                                tempDirGuard.getTempDirName());
                 bdls::PathUtil::appendRaw(&fileName, "testLog");
 
                 bsl::shared_ptr<Obj>       mX(new (ta) Obj(&ta), &ta);
@@ -3455,8 +3399,9 @@ int main(int argc, char *argv[])
                     const char *PATTERN  = DATA[ti].d_patternSuffix_p;
                     const char *FILENAME = DATA[ti].d_fileNameSuffix_p;
 
-                    TempDirectoryGuard tempDirGuard;
-                    bsl::string        baseName(tempDirGuard.getTempDirName());
+                    bdls::TempDirectoryGuard tempDirGuard("ball_");
+                    bsl::string              baseName(
+                                                tempDirGuard.getTempDirName());
                     bdls::PathUtil::appendRaw(&baseName, "testLog");
 
                     bsl::string pattern(baseName  + PATTERN);
@@ -3516,8 +3461,9 @@ int main(int argc, char *argv[])
             if (verbose) cout << "Testing functors with the same format."
                               << endl;
             {
-                TempDirectoryGuard tempDirGuard;
-                bsl::string        baseName(tempDirGuard.getTempDirName());
+                bdls::TempDirectoryGuard tempDirGuard("ball_");
+                bsl::string              baseName(
+                                                tempDirGuard.getTempDirName());
                 bdls::PathUtil::appendRaw(&baseName, "testLog");
 
                 // Create observers.
@@ -3572,8 +3518,9 @@ int main(int argc, char *argv[])
             if (verbose) cout << "Testing functors with different formats."
                               << endl;
             {
-                TempDirectoryGuard tempDirGuard;
-                bsl::string        baseName(tempDirGuard.getTempDirName());
+                bdls::TempDirectoryGuard tempDirGuard("ball_");
+                bsl::string              baseName(
+                                                tempDirGuard.getTempDirName());
                 bdls::PathUtil::appendRaw(&baseName, "testLog");
 
                 // Create observers.
@@ -3708,8 +3655,8 @@ int main(int argc, char *argv[])
 
         bslma::TestAllocator ta("ta", veryVeryVeryVerbose);
 
-        TempDirectoryGuard tempDirGuard;
-        bsl::string        fileName(tempDirGuard.getTempDirName());
+        bdls::TempDirectoryGuard tempDirGuard("ball_");
+        bsl::string              fileName(tempDirGuard.getTempDirName());
         bdls::PathUtil::appendRaw(&fileName, "testLog");
 
         bsl::shared_ptr<Obj>       mX(new (ta) Obj(&ta), &ta);

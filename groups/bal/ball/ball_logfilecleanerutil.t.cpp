@@ -6,6 +6,7 @@
 
 #include <bdls_filesystemutil.h>
 #include <bdls_pathutil.h>
+#include <bdls_tempdirectoryguard.h>
 
 #include <bdlt_datetime.h>
 
@@ -125,69 +126,6 @@ typedef ball::LogFileCleanerUtil Obj;
 // ----------------------------------------------------------------------------
 
 namespace {
-
-class TempDirectoryGuard {
-    // This class implements a scoped temporary directory guard.  The guard
-    // tries to create a temporary directory in the system-wide temp directory
-    // and falls back to the current directory.
-
-    // DATA
-    bsl::string       d_dirName;      // path to the created directory
-    bslma::Allocator *d_allocator_p;  // memory allocator (held, not owned)
-
-    // NOT IMPLEMENTED
-    TempDirectoryGuard(const TempDirectoryGuard&);
-    TempDirectoryGuard& operator=(const TempDirectoryGuard&);
-
-  public:
-    // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(TempDirectoryGuard,
-                                   bslma::UsesBslmaAllocator);
-
-    // CREATORS
-    explicit TempDirectoryGuard(bslma::Allocator *basicAllocator = 0)
-        // Create temporary directory in the system-wide temp or current
-        // directory.  Optionally specify a 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.
-    : d_dirName(bslma::Default::allocator(basicAllocator))
-    , d_allocator_p(bslma::Default::allocator(basicAllocator))
-    {
-        bsl::string tmpPath(d_allocator_p);
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-        char tmpPathBuf[MAX_PATH];
-        GetTempPath(MAX_PATH, tmpPathBuf);
-        tmpPath.assign(tmpPathBuf);
-#else
-        const char *envTmpPath = bsl::getenv("TMPDIR");
-        if (envTmpPath) {
-            tmpPath.assign(envTmpPath);
-        }
-#endif
-
-        int res = bdls::PathUtil::appendIfValid(&tmpPath, "ball_");
-        ASSERTV(tmpPath, 0 == res);
-
-        res = bdls::FilesystemUtil::createTemporaryDirectory(&d_dirName,
-                                                             tmpPath);
-        ASSERTV(tmpPath, 0 == res);
-    }
-
-    ~TempDirectoryGuard()
-        // Destroy this object and remove the temporary directory (recursively)
-        // created at construction.
-    {
-        bdls::FilesystemUtil::remove(d_dirName, true);
-    }
-
-    // ACCESSORS
-    const bsl::string& getTempDirName() const
-        // Return a 'const' reference to the name of the created temporary
-        // directory.
-    {
-        return d_dirName;
-    }
-};
 
 int changeModificationTime(const bsl::string& fileName,
                            int                delta)
@@ -316,8 +254,8 @@ int main(int argc, char *argv[])
 // The following snippets of code illustrate how the application can implement
 // automatic log file cleanup from the observer's file rotation callback.
 //..
-    TempDirectoryGuard tempDirGuard;
-    bsl::string        baseName(tempDirGuard.getTempDirName());
+    bdls::TempDirectoryGuard tempDirGuard("ball_");
+    bsl::string              baseName(tempDirGuard.getTempDirName());
     bdls::PathUtil::appendRaw(&baseName, "logFile%T");
 //..
 // Suppose that the application was set up to do its logging using one of the
@@ -417,8 +355,8 @@ int main(int argc, char *argv[])
                           << endl;
 
         {
-            TempDirectoryGuard tempDirGuard;
-            bsl::string        baseName(tempDirGuard.getTempDirName());
+            bdls::TempDirectoryGuard tempDirGuard("ball_");
+            bsl::string              baseName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&baseName, "logFile");
 
             createFile(baseName + "1");
@@ -456,8 +394,8 @@ int main(int argc, char *argv[])
             ASSERT(false == bdls::FilesystemUtil::exists(baseName + "4"));
         }
         {
-            TempDirectoryGuard tempDirGuard;
-            bsl::string        baseName(tempDirGuard.getTempDirName());
+            bdls::TempDirectoryGuard tempDirGuard("ball_");
+            bsl::string              baseName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&baseName, "logFile");
 
             createFile(baseName + "1");

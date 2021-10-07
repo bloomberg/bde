@@ -10,6 +10,7 @@
 #include <bdls_filesystemutil.h>
 #include <bdls_pathutil.h>
 #include <bdls_processutil.h>
+#include <bdls_tempdirectoryguard.h>
 
 #include <bdlt_date.h>
 #include <bdlt_datetimeinterval.h>
@@ -224,69 +225,6 @@ typedef bdls::FilesystemUtil::Offset Offset;
 // ----------------------------------------------------------------------------
 
 namespace {
-
-class TempDirectoryGuard {
-    // This class implements a scoped temporary directory guard.  The guard
-    // tries to create a temporary directory in the system-wide temp directory
-    // and falls back to the current directory.
-
-    // DATA
-    bsl::string       d_dirName;      // path to the created directory
-    bslma::Allocator *d_allocator_p;  // memory allocator (held, not owned)
-
-    // NOT IMPLEMENTED
-    TempDirectoryGuard(const TempDirectoryGuard&);
-    TempDirectoryGuard& operator=(const TempDirectoryGuard&);
-
-  public:
-    // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(TempDirectoryGuard,
-                                   bslma::UsesBslmaAllocator);
-
-    // CREATORS
-    explicit TempDirectoryGuard(bslma::Allocator *basicAllocator = 0)
-        // Create temporary directory in the system-wide temp or current
-        // directory.  Optionally specify a 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.
-    : d_dirName(bslma::Default::allocator(basicAllocator))
-    , d_allocator_p(bslma::Default::allocator(basicAllocator))
-    {
-        bsl::string tmpPath(d_allocator_p);
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-        char tmpPathBuf[MAX_PATH];
-        GetTempPath(MAX_PATH, tmpPathBuf);
-        tmpPath.assign(tmpPathBuf);
-#else
-        const char *envTmpPath = bsl::getenv("TMPDIR");
-        if (envTmpPath) {
-            tmpPath.assign(envTmpPath);
-        }
-#endif
-
-        int res = bdls::PathUtil::appendIfValid(&tmpPath, "ball_");
-        ASSERTV(tmpPath, 0 == res);
-
-        res = bdls::FilesystemUtil::createTemporaryDirectory(&d_dirName,
-                                                             tmpPath);
-        ASSERTV(tmpPath, 0 == res);
-    }
-
-    ~TempDirectoryGuard()
-        // Destroy this object and remove the temporary directory (recursively)
-        // created at construction.
-    {
-        bdls::FilesystemUtil::remove(d_dirName, true);
-    }
-
-    // ACCESSORS
-    const bsl::string& getTempDirName() const
-        // Return a 'const' reference to the name of the created temporary
-        // directory.
-    {
-        return d_dirName;
-    }
-};
 
 bsl::shared_ptr<ball::Record> createRecord(const bsl::string&     message,
                                            ball::Severity::Level  severity,
@@ -718,9 +656,8 @@ int main(int argc, char *argv[])
 
         // This is standard preamble to create the directory and filename for
         // the test.
-        TempDirectoryGuard tempDirGuard;
-
-        bsl::string fileName(tempDirGuard.getTempDirName());
+        bdls::TempDirectoryGuard tempDirGuard("ball_");
+        bsl::string              fileName(tempDirGuard.getTempDirName());
         bdls::PathUtil::appendRaw(&fileName, "testLog");
 
 ///Usage
@@ -902,8 +839,8 @@ int main(int argc, char *argv[])
                                  "uniqueness" << endl;
         {
             // Temporary directory for test files.
-            TempDirectoryGuard tempDirGuard;
-            bsl::string        fileName(tempDirGuard.getTempDirName());
+            bdls::TempDirectoryGuard tempDirGuard("ball_");
+            bsl::string              fileName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&fileName, "testLog");
 
             ASSERT(0 == mX->enableFileLogging(fileName.c_str()));
@@ -961,8 +898,8 @@ int main(int argc, char *argv[])
                  << endl;
 
         bsl::string LONG_MESSAGE(5000, 'x');
-        TempDirectoryGuard tempDirGuard;
-        bsl::string fileName(tempDirGuard.getTempDirName());
+        bdls::TempDirectoryGuard tempDirGuard("ball_");
+        bsl::string              fileName(tempDirGuard.getTempDirName());
         bdls::PathUtil::appendRaw(&fileName,
                                   "asyncfileobserver.t.cpp.case.13");
 
@@ -1024,9 +961,8 @@ int main(int argc, char *argv[])
         // Create an observer with a very small queue size.
         Obj mX(ball::Severity::e_FATAL, false, 2);
 
-        TempDirectoryGuard tempDirGuard;
-
-        bsl::string fileName(tempDirGuard.getTempDirName());
+        bdls::TempDirectoryGuard tempDirGuard("ball_");
+        bsl::string              fileName(tempDirGuard.getTempDirName());
         bdls::PathUtil::appendRaw(&fileName,
                                   "asyncfileobserver.t.cpp.case.12");
         mX.enableFileLogging(fileName.c_str());
@@ -1111,9 +1047,8 @@ int main(int argc, char *argv[])
             cout << "\tTesting basic 'recordQueueLength' behavior" << endl;
         }
         {
-            TempDirectoryGuard tempDirGuard;
-
-            bsl::string fileName(tempDirGuard.getTempDirName());
+            bdls::TempDirectoryGuard tempDirGuard("ball_");
+            bsl::string              fileName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&fileName, "testLog");
 
             bslma::TestAllocator ta(veryVeryVeryVerbose);
@@ -1165,9 +1100,8 @@ int main(int argc, char *argv[])
                  << endl;
         }
         {
-            TempDirectoryGuard tempDirGuard;
-
-            bsl::string fileName(tempDirGuard.getTempDirName());
+            bdls::TempDirectoryGuard tempDirGuard("ball_");
+            bsl::string              fileName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&fileName, "testLog");
 
             bslma::TestAllocator ta(veryVeryVeryVerbose);
@@ -1240,9 +1174,8 @@ int main(int argc, char *argv[])
 
         using namespace BALL_ASYNCFILEOBSERVER_TEST_CONCURRENCY;
 
-        TempDirectoryGuard tempDirGuard;
-
-        bsl::string fileName(tempDirGuard.getTempDirName());
+        bdls::TempDirectoryGuard tempDirGuard("ball_");
+        bsl::string              fileName(tempDirGuard.getTempDirName());
         bdls::PathUtil::appendRaw(&fileName, "testLog");
 
         bslma::TestAllocator ta(veryVeryVeryVerbose);
@@ -1355,8 +1288,8 @@ int main(int argc, char *argv[])
         mX->setOnFileRotationCallback(cb);
 
         // Create temporary directory for log files.
-        TempDirectoryGuard tempDirGuard;
-        bsl::string        fileName(tempDirGuard.getTempDirName());
+        bdls::TempDirectoryGuard tempDirGuard("ball_");
+        bsl::string              fileName(tempDirGuard.getTempDirName());
         bdls::PathUtil::appendRaw(&fileName, "testLog");
 
         ASSERT(0    == mX->enableFileLogging(fileName.c_str()));
@@ -1449,8 +1382,8 @@ int main(int argc, char *argv[])
                           << "\n====================================" << endl;
 
         // Create temporary directory for log files.
-        TempDirectoryGuard tempDirGuard;
-        bsl::string        fileName(tempDirGuard.getTempDirName());
+        bdls::TempDirectoryGuard tempDirGuard("ball_");
+        bsl::string              fileName(tempDirGuard.getTempDirName());
         bdls::PathUtil::appendRaw(&fileName, "testLog");
 
         bslma::TestAllocator ta(veryVeryVeryVerbose);
@@ -1506,7 +1439,7 @@ int main(int argc, char *argv[])
         ball::LoggerManager& manager = ball::LoggerManager::singleton();
 
         // Create a temporary directory for a log files.
-        TempDirectoryGuard tempDirGuard;
+        bdls::TempDirectoryGuard tempDirGuard("ball_");
 
         {
 
@@ -1633,8 +1566,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Test-case infrastructure setup." << endl;
         {
             // Create a temporary directory for log files.
-            TempDirectoryGuard tempDirGuard;
-            bsl::string        fileName(tempDirGuard.getTempDirName());
+            bdls::TempDirectoryGuard tempDirGuard("ball_");
+            bsl::string              fileName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&fileName, "testLog");
 
             bsl::shared_ptr<Obj>       mX(new(ta) Obj(ball::Severity::e_OFF,
@@ -1827,8 +1760,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Test-case infrastructure setup." << endl;
         {
             // Create a temporary directory for log files.
-            TempDirectoryGuard tempDirGuard;
-            bsl::string        fileName(tempDirGuard.getTempDirName());
+            bdls::TempDirectoryGuard tempDirGuard("ball_");
+            bsl::string              fileName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&fileName, "testLog");
 
             bsl::shared_ptr<Obj> mX(new(ta) Obj(ball::Severity::e_OFF, &ta),
@@ -1980,8 +1913,8 @@ int main(int argc, char *argv[])
         if (verbose) cerr << "Testing blocking caller thread." << endl;
         {
             // Create a temporary directory for log files.
-            TempDirectoryGuard tempDirGuard;
-            bsl::string        fileName(tempDirGuard.getTempDirName());
+            bdls::TempDirectoryGuard tempDirGuard("ball_");
+            bsl::string              fileName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&fileName, "testLog");
 
             int fixedQueueSize = 1000;
@@ -2023,8 +1956,8 @@ int main(int argc, char *argv[])
                           << endl;
         {
             // Create a temporary directory for log files.
-            TempDirectoryGuard tempDirGuard;
-            bsl::string        fileName(tempDirGuard.getTempDirName());
+            bdls::TempDirectoryGuard tempDirGuard("ball_");
+            bsl::string              fileName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&fileName, "testLog");
 
             int fixedQueueSize = 1000;
@@ -2097,7 +2030,7 @@ int main(int argc, char *argv[])
         bslma::TestAllocator ta;
 
         // Create a temporary directory for log files.
-        TempDirectoryGuard tempDirGuard;
+        bdls::TempDirectoryGuard tempDirGuard("ball_");
 
         // Redirecting stdout to a file.
         bsl::string stdoutFileName(tempDirGuard.getTempDirName());
@@ -2502,7 +2435,7 @@ int main(int argc, char *argv[])
         if (verbose) cerr << "Testing temp directory guard" << endl;
         bsl::string tempDirectory;
         {
-            TempDirectoryGuard tempDirGuard;
+            bdls::TempDirectoryGuard tempDirGuard("ball_");
 
             tempDirectory.assign(tempDirGuard.getTempDirName());
 
@@ -2522,7 +2455,7 @@ int main(int argc, char *argv[])
         bsl::string line(&ta);
 
         // Create a temporary directory for log files.
-        TempDirectoryGuard tempDirGuard;
+        bdls::TempDirectoryGuard tempDirGuard("ball_");
 
         // Redirecting stdout to a file.
         bsl::string stdoutFileName(tempDirGuard.getTempDirName());

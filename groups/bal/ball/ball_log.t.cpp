@@ -21,6 +21,7 @@
 
 #include <bdls_filesystemutil.h>
 #include <bdls_pathutil.h>
+#include <bdls_tempdirectoryguard.h>
 
 #include <bdlf_bind.h>
 #include <bdlf_placeholder.h>
@@ -246,6 +247,8 @@ typedef BloombergLP::bslma::TestAllocator     TestAllocator;
 
 typedef BloombergLP::bsls::Types::IntPtr      IntPtr;
 
+typedef BloombergLP::bdls::TempDirectoryGuard TempDirectoryGuard;
+
 const int TRACE = Sev::e_TRACE;
 const int DEBUG = Sev::e_DEBUG;
 const int INFO  = Sev::e_INFO;
@@ -277,76 +280,6 @@ namespace {
 namespace u {
 
 TestAllocator ta("u::ta");
-
-class TempDirectoryGuard {
-    // This class implements a scoped temporary directory guard.  The guard
-    // tries to create a temporary directory in the system-wide temp directory
-    // and falls back to the current directory.
-
-    // DATA
-    bsl::string                    d_dirName;      // path to the created
-                                                   // directory
-
-    BloombergLP::bslma::Allocator *d_allocator_p;  // memory allocator (held,
-                                                   // not owned)
-
-  private:
-    // NOT IMPLEMENTED
-    TempDirectoryGuard(const TempDirectoryGuard&);
-    TempDirectoryGuard& operator=(const TempDirectoryGuard&);
-
-  public:
-    // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(TempDirectoryGuard,
-                                   BloombergLP::bslma::UsesBslmaAllocator);
-
-    // CREATORS
-    explicit TempDirectoryGuard(
-                             BloombergLP::bslma::Allocator *basicAllocator = 0)
-        // Create temporary directory in the system-wide temp or current
-        // directory.  Optionally specify a 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.
-    : d_dirName(BloombergLP::bslma::Default::allocator(basicAllocator))
-    , d_allocator_p(BloombergLP::bslma::Default::allocator(basicAllocator))
-    {
-        bsl::string tmpPath(d_allocator_p);
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-        char tmpPathBuf[MAX_PATH];
-        GetTempPath(MAX_PATH, tmpPathBuf);
-        tmpPath.assign(tmpPathBuf);
-#else
-        const char *envTmpPath = bsl::getenv("TMPDIR");
-        if (envTmpPath) {
-            tmpPath.assign(envTmpPath);
-        }
-#endif
-
-        int res = BloombergLP::bdls::PathUtil::appendIfValid(&tmpPath,
-                                                             "ball_");
-        ASSERTV(tmpPath, 0 == res);
-
-        res = BloombergLP::bdls::FilesystemUtil::createTemporaryDirectory(
-                                                                    &d_dirName,
-                                                                    tmpPath);
-        ASSERTV(tmpPath, 0 == res);
-    }
-
-    ~TempDirectoryGuard()
-        // Destroy this object and remove the temporary directory (recursively)
-        // created at construction.
-    {
-        BloombergLP::bdls::FilesystemUtil::remove(d_dirName, true);
-    }
-
-    // ACCESSORS
-    const bsl::string& getTempDirName() const
-        // Return a 'const' reference to the name of the created temporary
-        // directory.
-    {
-        return d_dirName;
-    }
-};
 
 void executeInParallel(
                      int                                            numThreads,
@@ -2176,7 +2109,7 @@ void macrosTest(bool                                   loggerManagerExistsFlag,
 #ifdef BSLS_PLATFORM_OS_UNIX
     // Temporarily redirect 'stderr' to a temp file.
 
-    u::TempDirectoryGuard tempDirGuard;
+    TempDirectoryGuard tempDirGuard("ball_");
 
     bsl::string filename(tempDirGuard.getTempDirName());
     BloombergLP::bdls::PathUtil::appendRaw(&filename, "stderrOut");
@@ -2736,7 +2669,7 @@ void macrosTest(bool                                   loggerManagerExistsFlag,
 #ifdef BSLS_PLATFORM_OS_UNIX
     // Temporarily redirect 'stderr' to a temp file.
 
-    u::TempDirectoryGuard tempDirGuard;
+    TempDirectoryGuard tempDirGuard("ball_");
 
     bsl::string filename(tempDirGuard.getTempDirName());
     BloombergLP::bdls::PathUtil::appendRaw(&filename, "stderrOut");
@@ -3464,7 +3397,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
         LoggerManager& manager = LoggerManager::singleton();
 
-        u::TempDirectoryGuard tempDirGuard;
+        TempDirectoryGuard tempDirGuard("ball_");
 
         bsl::string baseName(tempDirGuard.getTempDirName());
         BloombergLP::bdls::PathUtil::appendRaw(&baseName, "testLog");
@@ -7686,7 +7619,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
 
 #ifdef BSLS_PLATFORM_OS_UNIX
-            u::TempDirectoryGuard tempDirGuard;
+            TempDirectoryGuard tempDirGuard("ball_");
 
             bsl::string filename(tempDirGuard.getTempDirName());
             Blp::bdls::PathUtil::appendRaw(&filename, "stderrOut");
@@ -7804,7 +7737,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
 
 #ifdef BSLS_PLATFORM_OS_UNIX
-            u::TempDirectoryGuard tempDirGuard;
+            TempDirectoryGuard tempDirGuard("ball_");
 
             bsl::string filename(tempDirGuard.getTempDirName());
             Blp::bdls::PathUtil::appendRaw(&filename, "stderrOut");
