@@ -409,6 +409,10 @@ BSLS_IDENT("$Id: $")
 #include <bsl_set.h>
 #include <bsl_vector.h>
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+# include <memory_resource>
+#endif
+
 namespace BloombergLP {
 
 
@@ -493,6 +497,7 @@ class MetricsManager {
     // FRIENDS
     friend struct MetricsManager_PublicationHelper;
 
+  private:
     // NOT IMPLEMENTED
     MetricsManager(const MetricsManager& );
     MetricsManager& operator=(const MetricsManager& );
@@ -509,7 +514,39 @@ class MetricsManager {
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(MetricsManager, bslma::UsesBslmaAllocator);
 
+  private:
+    // PRIVATE MANIPULATORS
+    void collectSampleImp(MetricSample              *sample,
+                          bsl::vector<MetricRecord> *records,
+                          const Category * const     categories[],
+                          int                        numCategories,
+                          bool                       resetFlag = false);
+        // Load into the specified 'sample' a metric sample collected from the
+        // indicated categories, and append to 'records' those collected
+        // records which are referred to by 'sample'.  Optionally specify a
+        // 'resetFlag' that determines if the collected metrics are reset as
+        // part of this operation.  This operation will collect aggregated
+        // metric values for each *enabled* category in the specified
+        // categories from registered callbacks as well as from its own
+        // 'CollectorRepository', and then append those values to 'records' and
+        // update 'sample' with the addresses of those collected 'records'.  If
+        // 'resetFlag' is 'true', the metrics being collected are reset to
+        // their default state.  This operation also populates the 'sample'
+        // with the time interval is computed as the elapsed time since the
+        // interval over which the sampled metrics were collected.  This last
+        // time the metrics were reset (either through a call to the 'publish'
+        // or 'collectSample' methods).  If 'category' has not previously been
+        // reset then this interval is taken to be the elapsed time since the
+        // creation of this metrics manager.  The behavior is undefined unless
+        // '0 <= numCategories', 'categories' refers to a contiguous sequence
+        // of (at least) 'numCategories', and each category in 'categories'
+        // appears only once.  Note that 'sample' is loaded with the
+        // *addresses* of the metric records appended to 'records', and
+        // modifying 'records' after this call returns may invalidate 'sample'.
+
+  public:
     // CREATORS
+    explicit
     MetricsManager(bslma::Allocator *basicAllocator = 0);
         // Create a 'MetricsManager'.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently
@@ -624,7 +661,6 @@ class MetricsManager {
                        const Category    * const  categories[],
                        int                        numCategories,
                        bool                       resetFlag = false);
-
         // Load into the specified 'sample' a metric sample collected from the
         // indicated categories, and append to 'records' those collected
         // records which are referred to by 'sample'.  Optionally specify a
@@ -696,8 +732,14 @@ class MetricsManager {
         // of (at least) 'numCategories', and each category in 'categories'
         // appears only once.
 
-    void publish(const bsl::set<const Category *>& categories,
-                 bool                              resetFlag = true);
+    void publish(const bsl::set<const Category *>&      categories,
+                 bool                                   resetFlag = true);
+    void publish(const std::set<const Category *>&      categories,
+                 bool                                   resetFlag = true);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    void publish(const std::pmr::set<const Category *>& categories,
+                 bool                                   resetFlag = true);
+#endif
         // Publish metrics belonging to the specified 'categories'.
         // Optionally specify a 'resetFlag' that determines if the metrics are
         // reset as part of this operation.  This operation will collect
@@ -733,8 +775,14 @@ class MetricsManager {
         // interval is taken to be the elapsed time since the creation of this
         // metrics manager.
 
-    void publishAll(const bsl::set<const Category *>& excludedCategories,
-                    bool                              resetFlag = true);
+    void publishAll(const bsl::set<const Category *>&      excludedCategories,
+                    bool                                   resetFlag = true);
+    void publishAll(const std::set<const Category *>&      excludedCategories,
+                    bool                                   resetFlag = true);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    void publishAll(const std::pmr::set<const Category *>& excludedCategories,
+                    bool                                   resetFlag = true);
+#endif
         // Publish metrics for every category registered with the contained
         // 'MetricsRegistry' object, except for the specified
         // 'excludedCategories'.  Optionally specify a 'resetFlag' that
@@ -808,15 +856,26 @@ class MetricsManager {
         // category holders).
 
     // ACCESSORS
-    int findGeneralPublishers(bsl::vector<Publisher *> *publishers) const;
+    int findGeneralPublishers(bsl::vector<Publisher *>      *publishers) const;
+    int findGeneralPublishers(std::vector<Publisher *>      *publishers) const;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    int findGeneralPublishers(std::pmr::vector<Publisher *> *publishers) const;
+#endif
         // Append to the specified 'publishers' the addresses of publishers
         // registered to publish metrics for every category.  Return the number
         // of publishers found.  Note that this method will not find publishers
         // associated with individual categories (i.e., category specific
         // publishers).
 
-    int findSpecificPublishers(bsl::vector<Publisher *> *publishers,
-                               const char               *categoryName) const;
+    int findSpecificPublishers(bsl::vector<Publisher *>   *publishers,
+                               const char                 *categoryName) const;
+    int findSpecificPublishers(std::vector<Publisher *>   *publishers,
+                               const char                 *categoryName) const;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    int findSpecificPublishers(
+                            std::pmr::vector<Publisher *> *publishers,
+                            const char                    *categoryName) const;
+#endif
         // Append to the specified 'publishers' the addresses of any
         // publishers associated with the (particular) category identified by
         // the specified 'categoryName'.  Return the number of publishers
@@ -826,6 +885,12 @@ class MetricsManager {
 
     int findSpecificPublishers(bsl::vector<Publisher *> *publishers,
                                const Category           *category) const;
+    int findSpecificPublishers(std::vector<Publisher *> *publishers,
+                               const Category           *category) const;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    int findSpecificPublishers(std::pmr::vector<Publisher *> *publishers,
+                               const Category                *category) const;
+#endif
         // Append to the specified 'publishers' the addresses of any
         // publishers associated with the (particular) specified 'category'.
         // Return the number of publishers found for the 'category'.  The
@@ -914,6 +979,26 @@ int MetricsManager::findSpecificPublishers(
     const Category *categoryPtr = d_metricRegistry.findCategory(categoryName);
     return categoryPtr ? findSpecificPublishers(publishers, categoryPtr) : 0;
 }
+
+inline
+int MetricsManager::findSpecificPublishers(
+                                  std::vector<Publisher *> *publishers,
+                                  const char               *categoryName) const
+{
+    const Category *categoryPtr = d_metricRegistry.findCategory(categoryName);
+    return categoryPtr ? findSpecificPublishers(publishers, categoryPtr) : 0;
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+inline
+int MetricsManager::findSpecificPublishers(
+                             std::pmr::vector<Publisher *> *publishers,
+                             const char                    *categoryName) const
+{
+    const Category *categoryPtr = d_metricRegistry.findCategory(categoryName);
+    return categoryPtr ? findSpecificPublishers(publishers, categoryPtr) : 0;
+}
+#endif
 
 inline
 const CollectorRepository&

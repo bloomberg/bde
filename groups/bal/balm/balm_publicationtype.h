@@ -114,8 +114,8 @@ struct PublicationType {
         // success, and a non-zero value with no effect on 'result' otherwise
         // (i.e., 'string' does not match any enumerator).
 
-    static int fromString(Value              *result,
-                          const bsl::string&  string);
+    static int fromString(Value                  *result,
+                          const bsl::string_view&  string);
         // Load into the specified 'result' the enumerator matching the
         // specified 'string'.  Return 0 on success, and a non-zero value with
         // no effect on 'result' otherwise (i.e., 'string' does not match any
@@ -156,10 +156,10 @@ namespace balm {
 
 // CLASS METHODS
 inline
-int PublicationType::fromString(Value *result, const bsl::string& string)
+int PublicationType::fromString(Value *result, const bsl::string_view& string)
 {
     return fromString(result,
-                      string.c_str(),
+                      string.data(),
                       static_cast<int>(string.length()));
 }
 

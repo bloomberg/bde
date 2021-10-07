@@ -150,6 +150,10 @@ BSLS_IDENT("$Id: balm_metricrecord.h,v 1.8 2008/04/16 20:00:49 hversche Exp $")
 
 #include <balm_metricid.h>
 
+#include <bslmf_assert.h>
+#include <bslmf_istriviallycopyable.h>
+#include <bslmf_nestedtraitdeclaration.h>
+
 #include <bsl_iosfwd.h>
 
 namespace BloombergLP {
@@ -171,7 +175,7 @@ class MetricRecord {
     // representation for negative infinity).
 
     // DATA
-    MetricId d_metricId;  // id for the metric
+    MetricId      d_metricId;  // id for the metric
     int           d_count;     // aggregated count of events
     double        d_total;     // total of values across events
     double        d_min;       // minimum value across events
@@ -185,6 +189,12 @@ class MetricRecord {
     static const double DEFAULT_MIN;
     static const double DEFAULT_MAX;
 #endif
+
+    BSLMF_ASSERT(bsl::is_trivially_copyable<MetricId>::value);
+
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(MetricRecord,
+                                   bsl::is_trivially_copyable);
 
     // CREATORS
     MetricRecord();
@@ -212,7 +222,7 @@ class MetricRecord {
         // Create a metric record having the specified 'metricId', 'count',
         // 'total', 'min', and 'max' attribute values.
 
-    MetricRecord(const MetricRecord& original);
+    // MetricRecord(const MetricRecord& original) = default;
         // Create a metric record having the value of the specified 'original'
         // record.
 
@@ -221,7 +231,7 @@ class MetricRecord {
         // by the compiler.
 
     // MANIPULATORS
-    MetricRecord& operator=(const MetricRecord& rhs);
+    // MetricRecord& operator=(const MetricRecord& rhs) = default;
         // Assign to this metric record the value of the specified 'rhs'
         // record, and return a reference to this modifiable record.
 
@@ -340,28 +350,7 @@ MetricRecord::MetricRecord(const MetricId& metricId,
 {
 }
 
-inline
-MetricRecord::MetricRecord(const MetricRecord& original)
-: d_metricId(original.d_metricId)
-, d_count(original.d_count)
-, d_total(original.d_total)
-, d_min(original.d_min)
-, d_max(original.d_max)
-{
-}
-
 // MANIPULATORS
-inline
-MetricRecord& MetricRecord::operator=(const MetricRecord& rhs)
-{
-    d_metricId = rhs.d_metricId;
-    d_count    = rhs.d_count;
-    d_total    = rhs.d_total;
-    d_min      = rhs.d_min;
-    d_max      = rhs.d_max;
-    return *this;
-}
-
 inline
 MetricId& MetricRecord::metricId()
 {
