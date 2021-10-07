@@ -1090,12 +1090,12 @@ class CommandLine {
         // that subsequent execution would result in successful validation.
 
     // PRIVATE ACCESSORS
-    int findName(const bsl::string& name) const;
+    int findName(const bsl::string_view& name) const;
         // Return the index (in the options table passed at construction) of an
         // option whose name matches the specified 'name' string, or -1 if no
         // such 'name' exists.
 
-    int findTag(const char *longTag, bsl::size_t tagLength) const;
+    int findTag(const bsl::string_view& longTag) const;
         // Return the index (in the options table passed at construction) of a
         // command-line option whose long tag matches the specified 'longTag'
         // string of the specified 'tagLength', or -1 if no such 'longTag'
@@ -1269,11 +1269,11 @@ class CommandLine {
         // object (successful or not).
 
     // ACCESSORS
-    bool hasOption(const bsl::string& name) const;
+    bool hasOption(const bsl::string_view& name) const;
         // Return 'true' if this command-line object is configured with an
         // option having the specified 'name', and 'false' otherwise.
 
-    bool hasValue(const bsl::string& name) const;
+    bool hasValue(const bsl::string_view& name) const;
         // Return 'true' if this command-line object's option having the
         // specified 'name' has a defined value, and 'false' otherwise.  An
         // option has a defined value if 'isSpecified(name)' or if a default
@@ -1286,8 +1286,8 @@ class CommandLine {
         // otherwise.  Note that if 'parse' was invoked but failed, this method
         // returns 'false'.
 
-    bool isSpecified(const bsl::string& name) const;
-    bool isSpecified(const bsl::string& name, int *count) const;
+    bool isSpecified(const bsl::string_view& name) const;
+    bool isSpecified(const bsl::string_view& name, int *count) const;
         // Return 'true' if the option with the specified 'name' has been
         // entered on the command line and, if the optionally specified 'count'
         // is not 0, load into 'count' the number of times the option 'name'
@@ -1306,7 +1306,7 @@ class CommandLine {
         // state.  Note that additional object state is available from the
         // 'isParsed' accessor method.
 
-    int numSpecified(const bsl::string& name) const;
+    int numSpecified(const bsl::string_view& name) const;
         // Return the number of times the option with the specified 'name' has
         // been entered on the command line, or 0 if 'name' is not the name of
         // a field in the command-line specification passed at construction to
@@ -1322,14 +1322,14 @@ class CommandLine {
         // for that option, then the corresponding option will be in a null
         // state.  The behavior is undefined unless 'isParsed' returns 'true'.
 
-    int position(const bsl::string& name) const;
+    int position(const bsl::string_view& name) const;
         // Return the position where the option with the specified 'name' has
         // been entered on the command line (i.e., the offset in the 'argv'
         // argument to the 'parse' method).  If the option was not specified,
         // return -1.  The behavior is undefined unless the option is of scalar
         // type.
 
-    const bsl::vector<int>& positions(const bsl::string& name) const;
+    const bsl::vector<int>& positions(const bsl::string_view& name) const;
         // Return the positions where the option with the specified 'name' has
         // been entered on the command line (i.e., the offset in the 'argv'
         // argument to the 'parse' method).  If the option was not specified,
@@ -1351,7 +1351,7 @@ class CommandLine {
         // (potentially obtained from a configuration file).  The behavior is
         // undefined unless 'isParsed' returns 'true'.
 
-    OptionType::Enum type(const bsl::string& name) const;
+    OptionType::Enum type(const bsl::string_view& name) const;
         // Return the type of the option having the specified 'name'.  The
         // behavior is undefined unless this command-line object
         // 'hasOption(name)'.
@@ -1360,106 +1360,109 @@ class CommandLine {
 
 // BDE_VERIFY pragma: -FABC01  // not in alphabetic order
 
-    bool theBool(const bsl::string& name) const;
+    bool theBool(const bsl::string_view& name) const;
         // Return the value of the option having the specified 'name'.  The
         // value returned matches that returned by 'isSpecified(name)'.  The
         // behavior is undefined unless this command-line object 'isParsed()',
         // 'hasOption(name)', and 'OptionType::e_BOOL == type(name)'.
 
-    char theChar(const bsl::string& name) const;
+    char theChar(const bsl::string_view& name) const;
         // Return the value of the option having the specified 'name'.  The
         // behavior is undefined unless this command-line object 'isParsed()',
         // 'hasOption(name)', 'OptionType::e_CHAR == type(name)', and
         // 'hasValue(name)'.
 
-    int theInt(const bsl::string& name) const;
+    int theInt(const bsl::string_view& name) const;
         // Return the value of the option having the specified 'name'.  The
         // behavior is undefined unless this command-line object 'isParsed()',
         // 'hasOption(name)', 'OptionType::e_INT == type(name)', and
         // 'hasValue(name)'.
 
-    bsls::Types::Int64 theInt64(const bsl::string& name) const;
+    bsls::Types::Int64 theInt64(const bsl::string_view& name) const;
         // Return the value of the option having the specified 'name'.  The
         // behavior is undefined unless this command-line object 'isParsed()',
         // 'hasOption(name)', 'OptionType::e_INT64 == type(name)', and
         // 'hasValue(name)'.
 
-    double theDouble(const bsl::string& name) const;
+    double theDouble(const bsl::string_view& name) const;
         // Return the value of the option having the specified 'name'.  The
         // behavior is undefined unless this command-line object 'isParsed()',
         // 'hasOption(name)', 'OptionType::e_DOUBLE == type(name)', and
         // 'hasValue(name)'.
 
-    const bsl::string& theString(const bsl::string& name) const;
+    const bsl::string& theString(const bsl::string_view& name) const;
         // Return a 'const' reference to the value of the option having the
         // specified 'name'.  The behavior is undefined unless this
         // command-line object 'isParsed()', 'hasOption(name)',
         // 'OptionType::e_STRING == type(name)', and 'hasValue(name)'.
 
-    const bdlt::Datetime& theDatetime(const bsl::string& name) const;
+    const bdlt::Datetime& theDatetime(const bsl::string_view& name) const;
         // Return a 'const' reference to the value of the option having the
         // specified 'name'.  The behavior is undefined unless this
         // command-line object 'isParsed()', 'hasOption(name)',
         // 'OptionType::e_DATETIME == type(name)', and 'hasValue(name)'.
 
-    const bdlt::Date& theDate(const bsl::string& name) const;
+    const bdlt::Date& theDate(const bsl::string_view& name) const;
         // Return a 'const' reference to the value of the option having the
         // specified 'name'.  The behavior is undefined unless this
         // command-line object 'isParsed()', 'hasOption(name)',
         // 'OptionType::e_DATE == type(name)', and 'hasValue(name)'.
 
-    const bdlt::Time& theTime(const bsl::string& name) const;
+    const bdlt::Time& theTime(const bsl::string_view& name) const;
         // Return a 'const' reference to the value of the option having the
         // specified 'name'.  The behavior is undefined unless this
         // command-line object 'isParsed()', 'hasOption(name)',
         // 'OptionType::e_TIME == type(name)', and 'hasValue(name)'.
 
-    const bsl::vector<char>& theCharArray(const bsl::string& name) const;
+    const bsl::vector<char>& theCharArray(const bsl::string_view& name) const;
         // Return a 'const' reference to the value of the option having the
         // specified 'name'.  The behavior is undefined unless this
         // command-line object 'isParsed()', 'hasOption(name)',
         // 'OptionType::e_CHAR_ARRAY == type(name)', and 'hasValue(name)'.
 
-    const bsl::vector<int>& theIntArray(const bsl::string& name) const;
+    const bsl::vector<int>& theIntArray(const bsl::string_view& name) const;
         // Return a 'const' reference to the value of the option having the
         // specified 'name'.  The behavior is undefined unless this
         // command-line object 'isParsed()', 'hasOption(name)',
         // 'OptionType::e_INT_ARRAY == type(name)', and 'hasValue(name)'.
 
     const bsl::vector<bsls::Types::Int64>& theInt64Array(
-                                                const bsl::string& name) const;
+                                           const bsl::string_view& name) const;
         // Return a 'const' reference to the value of the option having the
         // specified 'name'.  The behavior is undefined unless this
         // command-line object 'isParsed()', 'hasOption(name)',
         // 'OptionType::e_INT64_ARRAY == type(name)', and 'hasValue(name)'.
 
-    const bsl::vector<double>& theDoubleArray(const bsl::string& name) const;
+    const bsl::vector<double>& theDoubleArray(
+                                           const bsl::string_view& name) const;
         // Return a 'const' reference to the value of the option having the
         // specified 'name'.  The behavior is undefined unless this
         // command-line object 'isParsed()', 'hasOption(name)',
         // 'OptionType::e_DOUBLE_ARRAY == type(name)', and 'hasValue(name)'.
 
     const bsl::vector<bsl::string>& theStringArray(
-                                                const bsl::string& name) const;
+                                           const bsl::string_view& name) const;
         // Return a 'const' reference to the value of the option having the
         // specified 'name'.  The behavior is undefined unless this
         // command-line object 'isParsed()', 'hasOption(name)',
         // 'OptionType::e_STRING_ARRAY == type(name)', and 'hasValue(name)'.
 
     const bsl::vector<bdlt::Datetime>& theDatetimeArray(
-                                                const bsl::string& name) const;
+                                           const bsl::string_view& name) const;
         // Return a 'const' reference to the value of the option having the
         // specified 'name'.  The behavior is undefined unless this
         // command-line object 'isParsed()', 'hasOption(name)',
         // 'OptionType::e_DATETIME_ARRAY == type(name)', and 'hasValue(name)'.
 
-    const bsl::vector<bdlt::Date>& theDateArray(const bsl::string& name) const;
+    const bsl::vector<bdlt::Date>& theDateArray(
+                                           const bsl::string_view& name) const;
         // Return a 'const' reference to the value of the option having the
         // specified 'name'.  The behavior is undefined unless this
         // command-line object 'isParsed()', 'hasOption(name)',
         // 'OptionType::e_DATE_ARRAY == type(name)', and 'hasValue(name)'.
 
-    const bsl::vector<bdlt::Time>& theTimeArray(const bsl::string& name) const;
+    const bsl::vector<bdlt::Time>& theTimeArray(
+                                           const bsl::string_view& name) const;
         // Return a 'const' reference to the value of the option having the
         // specified 'name'.  The behavior is undefined unless this
         // command-line object 'isParsed()', 'hasOption(name)',
@@ -1547,7 +1550,7 @@ class CommandLineOptionsHandle {
 
   public:
     // ACCESSORS
-    int index(const char *name) const;
+    int index(const bsl::string_view& name) const;
         // Return the position in this handle object of the option having the
         // specified 'name', and -1 if the handle has no option of that name.
         // Note that, on success, the return values are in the range
@@ -1565,7 +1568,7 @@ class CommandLineOptionsHandle {
         // handle object.  The behavior is undefined unless
         // 'index < numOptions()'.
 
-    OptionType::Enum type(const char *name) const;
+    OptionType::Enum type(const bsl::string_view& name) const;
         // Return the type of the option having the specified 'name'.  The
         // behavior is undefined unless this handle object has a 'name' option
         // (i.e., '0 <= index(name)').
@@ -1575,7 +1578,7 @@ class CommandLineOptionsHandle {
         // of the option at the specified 'index' in this handle object.  The
         // behavior is undefined unless 'index < numOptions()'.
 
-    const OptionValue& value(const char *name) const;
+    const OptionValue& value(const bsl::string_view& name) const;
         // Return a 'const' reference to the value (possibly in a null state)
         // of this handle object's option having the specified 'name'.  The
         // behavior is undefined unless this handle object has a 'name' option
@@ -1595,7 +1598,7 @@ class CommandLineOptionsHandle {
         // option has a value (i.e., 'false == value(index).isNull()').
 
     template <class TYPE>
-    const TYPE& the(const char *name) const;
+    const TYPE& the(const bsl::string_view& name) const;
         // Return a 'const' reference to the value of the option having the
         // specified 'name'.  Template parameter 'TYPE' must be one of the
         // supported types (see {Supported Types}).  The behavior is undefined
@@ -1604,49 +1607,49 @@ class CommandLineOptionsHandle {
         // (i.e., 'OptionType::TypeToEnum<TYPE>::value == type(name)'), and the
         // option has a value (i.e., 'false == value(name).isNull()').
 
-    bool theBool(const char *name) const;
+    bool theBool(const bsl::string_view& name) const;
         // Return the value of the option having the specified 'name'.  The
         // behavior is undefined unless this handle object has a 'name' option
         // (i.e., '0 <= index(name)'), the option has type 'bool' (i.e.,
         // 'OptionType::e_BOOL == type(name)'), and the option has a value
         // (i.e., 'false == value(name).isNull()').
 
-    char theChar(const char *name) const;
+    char theChar(const bsl::string_view& name) const;
         // Return the value of the option having the specified 'name'.  The
         // behavior is undefined unless this handle object has a 'name' option
         // (i.e., '0 <= index(name)'), the option has type 'char' (i.e.,
         // 'OptionType::e_CHAR == type(name)'), and the option has a value
         // (i.e., 'false == value(name).isNull()').
 
-    int theInt(const char *name) const;
+    int theInt(const bsl::string_view& name) const;
         // Return the value of the option having the specified 'name'.  The
         // behavior is undefined unless this handle object has a 'name' option
         // (i.e., '0 <= index(name)'), the option has type 'int' (i.e.,
         // 'OptionType::e_INT == type(name)'), and the option has a value
         // (i.e., 'false == value(name).isNull()').
 
-    bsls::Types::Int64 theInt64(const char *name) const;
+    bsls::Types::Int64 theInt64(const bsl::string_view& name) const;
         // Return the value of the option having the specified 'name'.  The
         // behavior is undefined unless this handle object has a 'name' option
         // (i.e., '0 <= index(name)'), the option has type 'bsls::Types::Int64'
         // (i.e., 'OptionType::e_INT64 == type(name)'), and the option has a
         // value (i.e., 'false == value(name).isNull()').
 
-    double theDouble(const char *name) const;
+    double theDouble(const bsl::string_view& name) const;
         // Return the value of the option having the specified 'name'.  The
         // behavior is undefined unless this handle object has a 'name' option
         // (i.e., '0 <= index(name)'), the option has type 'double' (i.e.,
         // 'OptionType::e_DOUBLE == type(name)'), and the option has a value
         // (i.e., 'false == value(name).isNull()').
 
-    const bsl::string& theString(const char *name) const;
+    const bsl::string& theString(const bsl::string_view& name) const;
         // Return a 'const' reference to the value of the option having the
         // specified 'name'.  The behavior is undefined unless this handle
         // object has a 'name' option (i.e., '0 <= index(name)'), the option
         // has type 'bsl::string' (i.e., 'OptionType::e_STRING == type(name)'),
         // and the option has a value (i.e., 'false == value(name).isNull()').
 
-    const bdlt::Datetime& theDatetime(const char *name) const;
+    const bdlt::Datetime& theDatetime(const bsl::string_view& name) const;
         // Return a 'const' reference to the value of the option having the
         // specified 'name'.  The behavior is undefined unless this handle
         // object has a 'name' option (i.e., '0 <= index(name)'), the option
@@ -1654,21 +1657,21 @@ class CommandLineOptionsHandle {
         // 'OptionType::e_DATETIME == type(name)'), and the option has a value
         // (i.e., 'false == value(name).isNull()').
 
-    const bdlt::Date& theDate(const char *name) const;
+    const bdlt::Date& theDate(const bsl::string_view& name) const;
         // Return a 'const' reference to the value of the option having the
         // specified 'name'.  The behavior is undefined unless this handle
         // object has a 'name' option (i.e., '0 <= index(name)'), the option
         // has type 'bdlt::Date' (i.e., 'OptionType::e_DATE == type(name)'),
         // and the option has a value (i.e., 'false == value(name).isNull()').
 
-    const bdlt::Time& theTime(const char *name) const;
+    const bdlt::Time& theTime(const bsl::string_view& name) const;
         // Return a 'const' reference to the value of the option having the
         // specified 'name'.  The behavior is undefined unless this handle
         // object has a 'name' option (i.e., '0 <= index(name)'), the option
         // has type 'bdlt::Time' (i.e., 'OptionType::e_TIME == type(name)'),
         // and the option has a value (i.e., 'false == value(name).isNull()').
 
-    const bsl::vector<char>& theCharArray(const char *name) const;
+    const bsl::vector<char>& theCharArray(const bsl::string_view& name) const;
         // Return a 'const' reference to the value of the option having the
         // specified 'name'.  The behavior is undefined unless this handle
         // object has a 'name' option (i.e., '0 <= index(name)'), the option
@@ -1676,7 +1679,7 @@ class CommandLineOptionsHandle {
         // 'OptionType::e_CHAR_ARRAY == type(name)'), and the option has a
         // value (i.e., 'false == value(name).isNull()').
 
-    const bsl::vector<int>& theIntArray(const char *name) const;
+    const bsl::vector<int>& theIntArray(const bsl::string_view& name) const;
         // Return a 'const' reference to the value of the option having the
         // specified 'name'.  The behavior is undefined unless this handle
         // object has a 'name' option (i.e., '0 <= index(name)'), the option
@@ -1684,8 +1687,8 @@ class CommandLineOptionsHandle {
         // 'OptionType::e_INT_ARRAY == type(name)'), and the option has a value
         // (i.e., 'false == value(name).isNull()').
 
-    const bsl::vector<bsls::Types::Int64>& theInt64Array(const char *name)
-                                                                         const;
+    const bsl::vector<bsls::Types::Int64>& theInt64Array(
+                                           const bsl::string_view& name) const;
         // Return a 'const' reference to the value of the option having the
         // specified 'name'.  The behavior is undefined unless this handle
         // object has a 'name' option (i.e., '0 <= index(name)'), the option
@@ -1693,7 +1696,8 @@ class CommandLineOptionsHandle {
         // 'OptionType::e_INT64_ARRAY == type(name)'), and the option has a
         // value (i.e., 'false == value(name).isNull()').
 
-    const bsl::vector<double>& theDoubleArray(const char *name) const;
+    const bsl::vector<double>& theDoubleArray(
+                                           const bsl::string_view& name) const;
         // Return a 'const' reference to the value of the option having the
         // specified 'name'.  The behavior is undefined unless this handle
         // object has a 'name' option (i.e., '0 <= index(name)'), the option
@@ -1701,7 +1705,8 @@ class CommandLineOptionsHandle {
         // 'OptionType::e_DOUBLE_ARRAY == type(name)'), and the option has a
         // value (i.e., 'false == value(name).isNull()').
 
-    const bsl::vector<bsl::string>& theStringArray(const char *name) const;
+    const bsl::vector<bsl::string>& theStringArray(
+                                           const bsl::string_view& name) const;
         // Return a 'const' reference to the value of the option having the
         // specified 'name'.  The behavior is undefined unless this handle
         // object has a 'name' option (i.e., '0 <= index(name)'), the option
@@ -1709,8 +1714,8 @@ class CommandLineOptionsHandle {
         // 'OptionType::e_STRING_ARRAY == type(name)'), and the option has a
         // value (i.e., 'false == value(name).isNull()').
 
-    const bsl::vector<bdlt::Datetime>& theDatetimeArray(const char *name)
-                                                                         const;
+    const bsl::vector<bdlt::Datetime>& theDatetimeArray(
+                                           const bsl::string_view& name) const;
         // Return a 'const' reference to the value of the option having the
         // specified 'name'.  The behavior is undefined unless this handle
         // object has a 'name' option (i.e., '0 <= index(name)'), the option
@@ -1718,7 +1723,8 @@ class CommandLineOptionsHandle {
         // 'OptionType::e_DATETIME_ARRAY == type(name)'), and the option has a
         // value (i.e., 'false == value(name).isNull()').
 
-    const bsl::vector<bdlt::Date>& theDateArray(const char *name) const;
+    const bsl::vector<bdlt::Date>& theDateArray(
+                                           const bsl::string_view& name) const;
         // Return a 'const' reference to the value of the option having the
         // specified 'name'.  The behavior is undefined unless this handle
         // object has a 'name' option (i.e., '0 <= index(name)'), the option
@@ -1726,7 +1732,8 @@ class CommandLineOptionsHandle {
         // 'OptionType::e_DATE_ARRAY == type(name)'), and the option has a
         // value (i.e., 'false == value(name).isNull()').
 
-    const bsl::vector<bdlt::Time>& theTimeArray(const char *name) const;
+    const bsl::vector<bdlt::Time>& theTimeArray(
+                                           const bsl::string_view& name) const;
         // Return a 'const' reference to the value of the option having the
         // specified 'name'.  The behavior is undefined unless this handle
         // object has a 'name' option (i.e., '0 <= index(name)'), the option
@@ -1960,10 +1967,9 @@ OptionType::Enum CommandLineOptionsHandle::type(bsl::size_t index) const
 }
 
 inline
-OptionType::Enum CommandLineOptionsHandle::type(const char *name) const
+OptionType::Enum CommandLineOptionsHandle::type(
+                                            const bsl::string_view& name) const
 {
-    BSLS_ASSERT(name);
-
     int index = this->index(name);
 
     BSLS_ASSERT(0                               <= index);
@@ -1981,10 +1987,9 @@ const OptionValue& CommandLineOptionsHandle::value(bsl::size_t index) const
 }
 
 inline
-const OptionValue& CommandLineOptionsHandle::value(const char *name) const
+const OptionValue& CommandLineOptionsHandle::value(
+                                            const bsl::string_view& name) const
 {
-    BSLS_ASSERT(name);
-
     int index = this->index(name);
 
     BSLS_ASSERT(0                               <= index);
@@ -2007,10 +2012,8 @@ const TYPE& CommandLineOptionsHandle::the(bsl::size_t index) const
 }
 
 template <class TYPE>
-const TYPE& CommandLineOptionsHandle::the(const char *name) const
+const TYPE& CommandLineOptionsHandle::the(const bsl::string_view& name) const
 {
-    BSLS_ASSERT(name);
-
     int index = this->index(name);
 
     BSLS_ASSERT(0 <= index);
@@ -2021,10 +2024,8 @@ const TYPE& CommandLineOptionsHandle::the(const char *name) const
 }
 
 inline
-bool CommandLineOptionsHandle::theBool(const char *name) const
+bool CommandLineOptionsHandle::theBool(const bsl::string_view& name) const
 {
-    BSLS_ASSERT(name);
-
     int index = this->index(name);
 
     BSLS_ASSERT(0 <= index);
@@ -2035,10 +2036,8 @@ bool CommandLineOptionsHandle::theBool(const char *name) const
 }
 
 inline
-char CommandLineOptionsHandle::theChar(const char *name) const
+char CommandLineOptionsHandle::theChar(const bsl::string_view& name) const
 {
-    BSLS_ASSERT(name);
-
     int index = this->index(name);
 
     BSLS_ASSERT(0 <= index);
@@ -2049,10 +2048,8 @@ char CommandLineOptionsHandle::theChar(const char *name) const
 }
 
 inline
-int CommandLineOptionsHandle::theInt(const char *name) const
+int CommandLineOptionsHandle::theInt(const bsl::string_view& name) const
 {
-    BSLS_ASSERT(name);
-
     int index = this->index(name);
 
     BSLS_ASSERT(0 <= index);
@@ -2063,10 +2060,9 @@ int CommandLineOptionsHandle::theInt(const char *name) const
 }
 
 inline
-bsls::Types::Int64 CommandLineOptionsHandle::theInt64(const char *name) const
+bsls::Types::Int64 CommandLineOptionsHandle::theInt64(
+                                            const bsl::string_view& name) const
 {
-    BSLS_ASSERT(name);
-
     int index = this->index(name);
 
     BSLS_ASSERT(0 <= index);
@@ -2077,10 +2073,8 @@ bsls::Types::Int64 CommandLineOptionsHandle::theInt64(const char *name) const
 }
 
 inline
-double CommandLineOptionsHandle::theDouble(const char *name) const
+double CommandLineOptionsHandle::theDouble(const bsl::string_view& name) const
 {
-    BSLS_ASSERT(name);
-
     int index = this->index(name);
 
     BSLS_ASSERT(0 <= index);
@@ -2092,10 +2086,8 @@ double CommandLineOptionsHandle::theDouble(const char *name) const
 
 inline
 const bsl::string&
-CommandLineOptionsHandle::theString(const char *name) const
+CommandLineOptionsHandle::theString(const bsl::string_view& name) const
 {
-    BSLS_ASSERT(name);
-
     int index = this->index(name);
 
     BSLS_ASSERT(0 <= index);
@@ -2107,10 +2099,8 @@ CommandLineOptionsHandle::theString(const char *name) const
 
 inline
 const bdlt::Datetime&
-CommandLineOptionsHandle::theDatetime(const char *name) const
+CommandLineOptionsHandle::theDatetime(const bsl::string_view& name) const
 {
-    BSLS_ASSERT(name);
-
     int index = this->index(name);
 
     BSLS_ASSERT(0 <= index);
@@ -2122,10 +2112,8 @@ CommandLineOptionsHandle::theDatetime(const char *name) const
 
 inline
 const bdlt::Date&
-CommandLineOptionsHandle::theDate(const char *name) const
+CommandLineOptionsHandle::theDate(const bsl::string_view& name) const
 {
-    BSLS_ASSERT(name);
-
     int index = this->index(name);
 
     BSLS_ASSERT(0 <= index);
@@ -2136,10 +2124,9 @@ CommandLineOptionsHandle::theDate(const char *name) const
 }
 
 inline
-const bdlt::Time& CommandLineOptionsHandle::theTime(const char *name) const
+const bdlt::Time& CommandLineOptionsHandle::theTime(
+                                            const bsl::string_view& name) const
 {
-    BSLS_ASSERT(name);
-
     int index = this->index(name);
 
     BSLS_ASSERT(0 <= index);
@@ -2151,10 +2138,8 @@ const bdlt::Time& CommandLineOptionsHandle::theTime(const char *name) const
 
 inline
 const bsl::vector<char>&
-CommandLineOptionsHandle::theCharArray(const char *name) const
+CommandLineOptionsHandle::theCharArray(const bsl::string_view& name) const
 {
-    BSLS_ASSERT(name);
-
     int index = this->index(name);
 
     BSLS_ASSERT(0 <= index);
@@ -2166,10 +2151,8 @@ CommandLineOptionsHandle::theCharArray(const char *name) const
 
 inline
 const bsl::vector<int>&
-CommandLineOptionsHandle::theIntArray(const char *name) const
+CommandLineOptionsHandle::theIntArray(const bsl::string_view& name) const
 {
-    BSLS_ASSERT(name);
-
     int index = this->index(name);
 
     BSLS_ASSERT(0 <= index);
@@ -2181,10 +2164,8 @@ CommandLineOptionsHandle::theIntArray(const char *name) const
 
 inline
 const bsl::vector<bsls::Types::Int64>&
-CommandLineOptionsHandle::theInt64Array(const char *name) const
+CommandLineOptionsHandle::theInt64Array(const bsl::string_view& name) const
 {
-    BSLS_ASSERT(name);
-
     int index = this->index(name);
 
     BSLS_ASSERT(0 <= index);
@@ -2196,10 +2177,8 @@ CommandLineOptionsHandle::theInt64Array(const char *name) const
 
 inline
 const bsl::vector<double>&
-CommandLineOptionsHandle::theDoubleArray(const char *name) const
+CommandLineOptionsHandle::theDoubleArray(const bsl::string_view& name) const
 {
-    BSLS_ASSERT(name);
-
     int index = this->index(name);
 
     BSLS_ASSERT(0 <= index);
@@ -2211,10 +2190,8 @@ CommandLineOptionsHandle::theDoubleArray(const char *name) const
 
 inline
 const bsl::vector<bsl::string>&
-CommandLineOptionsHandle::theStringArray(const char *name) const
+CommandLineOptionsHandle::theStringArray(const bsl::string_view& name) const
 {
-    BSLS_ASSERT(name);
-
     int index = this->index(name);
 
     BSLS_ASSERT(0 <= index);
@@ -2226,10 +2203,8 @@ CommandLineOptionsHandle::theStringArray(const char *name) const
 
 inline
 const bsl::vector<bdlt::Datetime>&
-CommandLineOptionsHandle::theDatetimeArray(const char *name) const
+CommandLineOptionsHandle::theDatetimeArray(const bsl::string_view& name) const
 {
-    BSLS_ASSERT(name);
-
     int index = this->index(name);
 
     BSLS_ASSERT(0 <= index);
@@ -2241,10 +2216,8 @@ CommandLineOptionsHandle::theDatetimeArray(const char *name) const
 
 inline
 const bsl::vector<bdlt::Date>&
-CommandLineOptionsHandle::theDateArray(const char *name) const
+CommandLineOptionsHandle::theDateArray(const bsl::string_view& name) const
 {
-    BSLS_ASSERT(name);
-
     int index = this->index(name);
 
     BSLS_ASSERT(0 <= index);
@@ -2256,10 +2229,8 @@ CommandLineOptionsHandle::theDateArray(const char *name) const
 
 inline
 const bsl::vector<bdlt::Time>&
-CommandLineOptionsHandle::theTimeArray(const char *name) const
+CommandLineOptionsHandle::theTimeArray(const bsl::string_view& name) const
 {
-    BSLS_ASSERT(name);
-
     int index = this->index(name);
 
     BSLS_ASSERT(0 <= index);

@@ -646,6 +646,11 @@ OptionValue::OptionValue(const bsl::string&  value,
                          bslma::Allocator   *basicAllocator)
 : d_value(bdlb::NullableValue<bsl::string>(value), basicAllocator)
 {
+    // Implementation note: Changing 'bsl::string' to a string view would not
+    // be a constructive change, because 'bdlb::NullableValue<bsl::string>' is
+    // not constructible from a string view.  Note that 'value', as a
+    // 'bsl::string', is constructible from 'const char *', an 'std::string',
+    // or an 'std::pmr::string'.
 }
 
 inline

@@ -166,6 +166,7 @@ Ordinal::Ordinal(bsl::size_t n)
 bsl::ostream& u::operator<<(bsl::ostream& stream, Ordinal position)
 {
     // ranks start at 0, but are displayed as 1st, 2nd, etc.
+
     int n = static_cast<int>(position.d_rank + 1);
     switch (n % 10) {
       case 1: {
@@ -711,10 +712,10 @@ int CommandLine::parse(bsl::ostream& stream)
             int index = -1;  // index of long option in 'd_options'
 
             if ('=' == *s) { // example: i:"--port=13"
-                index = findTag(start, static_cast<int>(s - start));
+                index = findTag(bsl::string_view(start, s - start));
             } else {         // example: i:"--port" i+1:"13"
-                index = findTag(&d_arguments[i][2],
-                                static_cast<int>(d_arguments[i].size() - 2));
+                index = findTag(bsl::string_view(&d_arguments[i][2],
+                                                 d_arguments[i].size() - 2));
             }
 
             // Check valid long option name.
@@ -943,7 +944,7 @@ int CommandLine::postParse(bsl::ostream& stream)
 
             balcl::OptionValue element(thisOption.typeInfo().type());
             if (OptionInfo::e_FLAG == thisOption.argType()) {
-                    element.set(false);
+                element.set(false);
             } else {
                 element.setNull();
             }
@@ -972,7 +973,7 @@ void CommandLine::validateAndInitialize(bsl::ostream& stream)
 }
 
 // PRIVATE ACCESSORS
-int CommandLine::findName(const bsl::string& name) const
+int CommandLine::findName(const bsl::string_view& name) const
 {
     for (unsigned int i = 0; i < d_options.size(); ++i) {
         if (d_options[i].name() == name) {
@@ -982,12 +983,11 @@ int CommandLine::findName(const bsl::string& name) const
     return -1;
 }
 
-int CommandLine::findTag(const char *longTag, bsl::size_t tagLength) const
+int CommandLine::findTag(const bsl::string_view& longTag) const
 {
     for (unsigned int i = 0; i < d_options.size(); ++i) {
-        if (d_options[i].argType() != OptionInfo::e_NON_OPTION
-         && !bsl::strncmp(d_options[i].longTag(), longTag, tagLength)
-         && bsl::strlen(d_options[i].longTag()) == tagLength) {
+        if   (d_options[i].argType() != OptionInfo::e_NON_OPTION
+           && d_options[i].longTag() == longTag) {
             return i;                                                 // RETURN
         }
     }
@@ -1225,12 +1225,12 @@ int CommandLine::parse(int                argc,
 }
 
 // ACCESSORS
-bool CommandLine::hasOption(const bsl::string& name) const
+bool CommandLine::hasOption(const bsl::string_view& name) const
 {
     return 0 <= findName(name);
 }
 
-bool CommandLine::hasValue(const bsl::string& name) const
+bool CommandLine::hasValue(const bsl::string_view& name) const
 {
     BSLS_ASSERT(e_PARSED == d_state);
 
@@ -1246,12 +1246,12 @@ bool CommandLine::isParsed() const
     return e_PARSED == d_state;
 }
 
-bool CommandLine::isSpecified(const bsl::string& name) const
+bool CommandLine::isSpecified(const bsl::string_view& name) const
 {
     return numSpecified(name) > 0;
 }
 
-bool CommandLine::isSpecified(const bsl::string& name, int *count) const
+bool CommandLine::isSpecified(const bsl::string_view& name, int *count) const
 {
     const int n = numSpecified(name);
     if (n > 0 && count) {
@@ -1265,7 +1265,7 @@ bool CommandLine::isValid() const
     return e_INVALID != d_state;
 }
 
-int CommandLine::numSpecified(const bsl::string& name) const
+int CommandLine::numSpecified(const bsl::string_view& name) const
 {
     const int index = findName(name);
     return static_cast<int>(0 <= index ? d_positions[index].size() : 0);
@@ -1278,7 +1278,7 @@ CommandLineOptionsHandle CommandLine::options() const
     return CommandLineOptionsHandle(&d_data1, &d_schema);
 }
 
-int CommandLine::position(const bsl::string& name) const
+int CommandLine::position(const bsl::string_view& name) const
 {
     // The behavior is undefined unless 'name' exists and it is not an array.
     // -1 is returned if option is never entered on command line (possible in
@@ -1292,7 +1292,8 @@ int CommandLine::position(const bsl::string& name) const
     return 0 == d_positions[index].size() ? -1 : d_positions[index][0];
 }
 
-const bsl::vector<int>& CommandLine::positions(const bsl::string& name) const
+const bsl::vector<int>& CommandLine::positions(
+                                            const bsl::string_view& name) const
 {
     const int index = findName(name);
 
@@ -1334,7 +1335,7 @@ CommandLineOptionsHandle CommandLine::specifiedOptions() const
     return CommandLineOptionsHandle(&d_data2, &d_schema);
 }
 
-OptionType::Enum CommandLine::type(const bsl::string& name) const
+OptionType::Enum CommandLine::type(const bsl::string_view& name) const
 {
     int index = findName(name);
     BSLS_ASSERT(0 <= index); // Moral equivalent of 'hasOption(name)'.
@@ -1343,7 +1344,7 @@ OptionType::Enum CommandLine::type(const bsl::string& name) const
 }
 
 // BDE_VERIFY pragma: -FABC01  // not in alphabetic order
-bool CommandLine::theBool(const bsl::string& name) const
+bool CommandLine::theBool(const bsl::string_view& name) const
 {
     const int index = findName(name);
 
@@ -1352,175 +1353,176 @@ bool CommandLine::theBool(const bsl::string& name) const
           OptionInfo::e_FLAG == d_options[index].argType());
     (void)index;
 
-    return options().the<OptionType::Bool>(name.c_str());
+    return options().the<OptionType::Bool>(name);
 }
 
-char CommandLine::theChar(const bsl::string& name) const
+char CommandLine::theChar(const bsl::string_view& name) const
 {
     BSLS_ASSERT(isParsed());
     BSLS_ASSERT(hasOption(name));
     BSLS_ASSERT(OptionType::e_CHAR == type(name));
     BSLS_ASSERT(hasValue(name));
 
-    return options().the<OptionType::Char>(name.c_str());
+    return options().the<OptionType::Char>(name);
 }
 
-int CommandLine::theInt(const bsl::string& name) const
+int CommandLine::theInt(const bsl::string_view& name) const
 {
     BSLS_ASSERT(isParsed());
     BSLS_ASSERT(hasOption(name));
     BSLS_ASSERT(OptionType::e_INT == type(name));
     BSLS_ASSERT(hasValue(name));
 
-    return options().the<OptionType::Int>(name.c_str());
+    return options().the<OptionType::Int>(name);
 }
 
-bsls::Types::Int64 CommandLine::theInt64(const bsl::string& name) const
+bsls::Types::Int64 CommandLine::theInt64(const bsl::string_view& name) const
 {
     BSLS_ASSERT(isParsed());
     BSLS_ASSERT(hasOption(name));
     BSLS_ASSERT(OptionType::e_INT64 == type(name));
     BSLS_ASSERT(hasValue(name));
 
-    return options().the<OptionType::Int64>(name.c_str());
+    return options().the<OptionType::Int64>(name);
 }
 
-double CommandLine::theDouble(const bsl::string& name) const
+double CommandLine::theDouble(const bsl::string_view& name) const
 {
     BSLS_ASSERT(isParsed());
     BSLS_ASSERT(hasOption(name));
     BSLS_ASSERT(OptionType::e_DOUBLE == type(name));
     BSLS_ASSERT(hasValue(name));
 
-    return options().the<OptionType::Double>(name.c_str());
+    return options().the<OptionType::Double>(name);
 }
 
-const bsl::string& CommandLine::theString(const bsl::string& name) const
+const bsl::string& CommandLine::theString(const bsl::string_view& name) const
 {
     BSLS_ASSERT(isParsed());
     BSLS_ASSERT(hasOption(name));
     BSLS_ASSERT(OptionType::e_STRING == type(name));
     BSLS_ASSERT(hasValue(name));
 
-    return options().the<OptionType::String>(name.c_str());
+    return options().the<OptionType::String>(name);
 }
 
-const bdlt::Datetime& CommandLine::theDatetime(const bsl::string& name) const
+const bdlt::Datetime& CommandLine::theDatetime(
+                                            const bsl::string_view& name) const
 {
     BSLS_ASSERT(isParsed());
     BSLS_ASSERT(hasOption(name));
     BSLS_ASSERT(OptionType::e_DATETIME == type(name));
     BSLS_ASSERT(hasValue(name));
 
-    return options().the<OptionType::Datetime>(name.c_str());
+    return options().the<OptionType::Datetime>(name);
 }
 
-const bdlt::Date& CommandLine::theDate(const bsl::string& name) const
+const bdlt::Date& CommandLine::theDate(const bsl::string_view& name) const
 {
     BSLS_ASSERT(isParsed());
     BSLS_ASSERT(hasOption(name));
     BSLS_ASSERT(OptionType::e_DATE == type(name));
     BSLS_ASSERT(hasValue(name));
 
-    return options().the<OptionType::Date>(name.c_str());
+    return options().the<OptionType::Date>(name);
 }
 
-const bdlt::Time& CommandLine::theTime(const bsl::string& name) const
+const bdlt::Time& CommandLine::theTime(const bsl::string_view& name) const
 {
     BSLS_ASSERT(isParsed());
     BSLS_ASSERT(hasOption(name));
     BSLS_ASSERT(OptionType::e_TIME == type(name));
     BSLS_ASSERT(hasValue(name));
 
-    return options().the<OptionType::Time>(name.c_str());
+    return options().the<OptionType::Time>(name);
 }
 
 const bsl::vector<char>&
-CommandLine::theCharArray(const bsl::string& name) const
+CommandLine::theCharArray(const bsl::string_view& name) const
 {
     BSLS_ASSERT(isParsed());
     BSLS_ASSERT(hasOption(name));
     BSLS_ASSERT(OptionType::e_CHAR_ARRAY == type(name));
     BSLS_ASSERT(hasValue(name));
 
-    return options().the<OptionType::CharArray>(name.c_str());
+    return options().the<OptionType::CharArray>(name);
 }
 
 const bsl::vector<int>&
-CommandLine::theIntArray(const bsl::string& name) const
+CommandLine::theIntArray(const bsl::string_view& name) const
 {
     BSLS_ASSERT(isParsed());
     BSLS_ASSERT(hasOption(name));
     BSLS_ASSERT(OptionType::e_INT_ARRAY == type(name));
     BSLS_ASSERT(hasValue(name));
 
-    return options().the<OptionType::IntArray>(name.c_str());
+    return options().the<OptionType::IntArray>(name);
 }
 
 const bsl::vector<bsls::Types::Int64>&
-CommandLine::theInt64Array(const bsl::string& name) const
+CommandLine::theInt64Array(const bsl::string_view& name) const
 {
     BSLS_ASSERT(isParsed());
     BSLS_ASSERT(hasOption(name));
     BSLS_ASSERT(OptionType::e_INT64_ARRAY == type(name));
     BSLS_ASSERT(hasValue(name));
 
-    return options().the<OptionType::Int64Array>(name.c_str());
+    return options().the<OptionType::Int64Array>(name);
 }
 
 const bsl::vector<double>&
-CommandLine::theDoubleArray(const bsl::string& name) const
+CommandLine::theDoubleArray(const bsl::string_view& name) const
 {
     BSLS_ASSERT(isParsed());
     BSLS_ASSERT(hasOption(name));
     BSLS_ASSERT(OptionType::e_DOUBLE_ARRAY == type(name));
     BSLS_ASSERT(hasValue(name));
 
-    return options().the<OptionType::DoubleArray>(name.c_str());
+    return options().the<OptionType::DoubleArray>(name);
 }
 
 const bsl::vector<bsl::string>&
-CommandLine::theStringArray(const bsl::string& name) const
+CommandLine::theStringArray(const bsl::string_view& name) const
 {
     BSLS_ASSERT(isParsed());
     BSLS_ASSERT(hasOption(name));
     BSLS_ASSERT(OptionType::e_STRING_ARRAY == type(name));
     BSLS_ASSERT(hasValue(name));
 
-    return options().the<OptionType::StringArray>(name.c_str());
+    return options().the<OptionType::StringArray>(name);
 }
 
 const bsl::vector<bdlt::Datetime>&
-CommandLine::theDatetimeArray(const bsl::string& name) const
+CommandLine::theDatetimeArray(const bsl::string_view& name) const
 {
     BSLS_ASSERT(isParsed());
     BSLS_ASSERT(hasOption(name));
     BSLS_ASSERT(OptionType::e_DATETIME_ARRAY == type(name));
     BSLS_ASSERT(hasValue(name));
 
-    return options().the<OptionType::DatetimeArray>(name.c_str());
+    return options().the<OptionType::DatetimeArray>(name);
 }
 
 const bsl::vector<bdlt::Date>&
-CommandLine::theDateArray(const bsl::string& name) const
+CommandLine::theDateArray(const bsl::string_view& name) const
 {
     BSLS_ASSERT(isParsed());
     BSLS_ASSERT(hasOption(name));
     BSLS_ASSERT(OptionType::e_DATE_ARRAY == type(name));
     BSLS_ASSERT(hasValue(name));
 
-    return options().the<OptionType::DateArray>(name.c_str());
+    return options().the<OptionType::DateArray>(name);
 }
 
 const bsl::vector<bdlt::Time>&
-CommandLine::theTimeArray(const bsl::string& name) const
+CommandLine::theTimeArray(const bsl::string_view& name) const
 {
     BSLS_ASSERT(isParsed());
     BSLS_ASSERT(hasOption(name));
     BSLS_ASSERT(OptionType::e_TIME_ARRAY == type(name));
     BSLS_ASSERT(hasValue(name));
 
-    return options().the<OptionType::TimeArray>(name.c_str());
+    return options().the<OptionType::TimeArray>(name);
 }
 // BDE_VERIFY pragma: +FABC01  // not in alphabetic order
                                   // Aspects
@@ -1808,14 +1810,12 @@ namespace balcl {
                           // ------------------------------
 
 // ACCESSORS
-int CommandLineOptionsHandle::index(const char *name) const
+int CommandLineOptionsHandle::index(const bsl::string_view& name) const
 {
-    BSLS_ASSERT(name);
-
     for (CommandLine_Schema::const_iterator itr  = d_schema_p->cbegin(),
                                             end  = d_schema_p->cend();
                                             end != itr; ++itr) {
-        if (0 == bsl::strcmp(itr->d_name_p, name)) {
+        if (itr->d_name_p == name) {
             return static_cast<int>(bsl::distance(d_schema_p->begin(), itr));
                                                                       // RETURN
         }
