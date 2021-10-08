@@ -3,6 +3,7 @@
 
 #include <bslmf_assert.h>
 
+#include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_libraryfeatures.h>
@@ -3400,7 +3401,6 @@ template <class FLOAT_TYPE,
 void verifyFloatingPointToChars(const TEST_DATA_TYPE (&k_DATA)[k_NUM_DATA])
 {
     BSLMF_ASSERT(sizeof(FLOAT_TYPE) == 8 || sizeof(FLOAT_TYPE) == 4);
-    BSLMF_ASSERT(static_cast<FLOAT_TYPE>(.125) == .125);
 
     for (size_t i = 0; i < k_NUM_DATA; ++i) {
         const int         LINE       = k_DATA[i].d_line;
