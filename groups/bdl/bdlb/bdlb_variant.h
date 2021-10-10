@@ -622,8 +622,8 @@ BSLS_IDENT("$Id: $")
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_assert.h>
+#include <bslmf_conditional.h>
 #include <bslmf_enableif.h>
-#include <bslmf_if.h>
 #include <bslmf_integralconstant.h>
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_isconvertible.h>
@@ -648,6 +648,10 @@ BSLS_IDENT("$Id: $")
 
 #include <bsl_algorithm.h>
 #include <bsl_iosfwd.h>
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bslmf_if.h>
+#endif  // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 #include <bslalg_scalardestructionprimitives.h>
@@ -1036,9 +1040,9 @@ struct VariantImp_Traits {
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
-    typedef typename bslmf::If<k_VARIANT_USES_BSLMA_ALLOCATOR,
-                               VariantImp_AllocatorBase<TYPES>,
-                               VariantImp_NoAllocatorBase<TYPES> >::Type
+    typedef typename bsl::conditional<k_VARIANT_USES_BSLMA_ALLOCATOR,
+                                      VariantImp_AllocatorBase<TYPES>,
+                                      VariantImp_NoAllocatorBase<TYPES> >::type
                                                                       BaseType;
         // Determines what the base type is.
 };

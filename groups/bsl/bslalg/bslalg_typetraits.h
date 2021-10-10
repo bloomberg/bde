@@ -203,13 +203,14 @@ BSLS_IDENT("$Id: $")
 //          // memory if the parameterized 'TYPE' possesses the
 //          // 'bslalg::TypeTraitUsesBslmaAllocator'.
 //      {
-//          copyConstruct(location, value, allocator,
-//              typename bslmf::If<HasTrait<TYPE,
-//                            bslalg::TypeTraitUsesBslmaAllocator>::VALUE,
+//          copyConstruct(
+//                 location, value, allocator,
+//                 typename bsl::conditional<
+//                        HasTrait<TYPE,
+//                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE,
 //                        bslalg::TypeTraitUsesBslmaAllocator,
-//                        bslalg::TypeTraitNil>::Type());
+//                        bslalg::TypeTraitNil>::type());
 //      }
-//
 //  };
 //..
 //

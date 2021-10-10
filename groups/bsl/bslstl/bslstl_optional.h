@@ -95,7 +95,6 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmf_allocatorargt.h>
 #include <bslmf_decay.h>
-#include <bslmf_if.h>
 #include <bslmf_integralconstant.h>
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_isconvertible.h>
@@ -116,6 +115,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_util.h>     // 'forward<T>(V)'
 
 #include <stddef.h>
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bslmf_if.h>
+#endif  // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 #include <type_traits>

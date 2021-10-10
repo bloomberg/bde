@@ -464,7 +464,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslalg_hastrait.h>
 
-#include <bslmf_if.h>
+#include <bslmf_conditional.h>
 #include <bslmf_isconvertible.h>
 
 #include <bsls_platform.h>
@@ -481,6 +481,10 @@ BSLS_IDENT("$Id: $")
 # define BDLAT_VALUETYPEFUNCTIONS_HAS_INHIBITED_ADL 1
     // Last verified with xlC 12.1
 #endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bslmf_if.h>
+#endif  // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 
@@ -818,8 +822,9 @@ int bdlat_ValueTypeFunctions_Imp::assign(LHS_TYPE                   *lhs,
         IS_CONVERTIBLE = bslmf::IsConvertible<RHS_TYPE, LHS_TYPE>::VALUE
     };
 
-    typedef typename
-    bslmf::If<IS_CONVERTIBLE, IsConvertible, IsNotConvertible>::Type Selector;
+    typedef typename bsl::conditional<IS_CONVERTIBLE,
+                                      IsConvertible,
+                                      IsNotConvertible>::type Selector;
 
     return assignSimpleTypes(lhs, rhs, Selector());
 }
@@ -873,10 +878,10 @@ void bdlat_ValueTypeFunctions_Imp::reset(TYPE *object)
                                     bdlat_TypeTraitBasicCustomizedType>::VALUE
     };
 
-    typedef typename
-    bslmf::If<HAS_TRAIT,
-             bdlat_ValueTypeFunctions_Imp::UseResetMethod,
-             bdlat_ValueTypeFunctions_Imp::UseDefaultCtor>::Type Selector;
+    typedef typename bsl::conditional<
+                  HAS_TRAIT,
+                  bdlat_ValueTypeFunctions_Imp::UseResetMethod,
+                  bdlat_ValueTypeFunctions_Imp::UseDefaultCtor>::type Selector;
 
     bdlat_ValueTypeFunctions_Imp::reset(object, Selector());
 }

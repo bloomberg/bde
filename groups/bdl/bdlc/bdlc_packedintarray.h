@@ -153,7 +153,7 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #include <bslma_usesbslmaallocator.h>
 
-#include <bslmf_if.h>
+#include <bslmf_conditional.h>
 #include <bslmf_issame.h>
 
 #include <bsls_assert.h>
@@ -167,6 +167,9 @@ BSLS_IDENT("$Id: $")
 #include <bsl_limits.h>
 #include <bsl_iosfwd.h>
 
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bslmf_if.h>
+#endif  // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 namespace bdlc {
@@ -675,19 +678,19 @@ struct PackedIntArrayImpType {
     // stored as an unsigned integer, and
     // 'PackedIntArrayImp<PackedIntArrayImp_Signed>' otherwise.
 
-    typedef typename bslmf::If<   bsl::is_same<TYPE, unsigned char>::value
-                               || bsl::is_same<TYPE, unsigned short>::value
-                               || bsl::is_same<TYPE, unsigned int>::value
-                               || bsl::is_same<TYPE, unsigned long int>::value
-                               || bsl::is_same<TYPE,
-                                               bsls::Types::Uint64>::value
-                               || bsl::is_same<TYPE, bsl::uint8_t>::value
-                               || bsl::is_same<TYPE, bsl::uint16_t>::value
-                               || bsl::is_same<TYPE, bsl::uint32_t>::value
-                               || bsl::is_same<TYPE, bsl::uint64_t>::value,
-                               PackedIntArrayImp<PackedIntArrayImp_Unsigned>,
-                               PackedIntArrayImp<PackedIntArrayImp_Signed> >
-                                                                ::Type Type;
+    // TYPES
+    typedef typename bsl::conditional<
+                      bsl::is_same<TYPE, unsigned char>::value
+                          || bsl::is_same<TYPE, unsigned short>::value
+                          || bsl::is_same<TYPE, unsigned int>::value
+                          || bsl::is_same<TYPE, unsigned long int>::value
+                          || bsl::is_same<TYPE, bsls::Types::Uint64>::value
+                          || bsl::is_same<TYPE, bsl::uint8_t>::value
+                          || bsl::is_same<TYPE, bsl::uint16_t>::value
+                          || bsl::is_same<TYPE, bsl::uint32_t>::value
+                          || bsl::is_same<TYPE, bsl::uint64_t>::value,
+                      PackedIntArrayImp<PackedIntArrayImp_Unsigned>,
+                      PackedIntArrayImp<PackedIntArrayImp_Signed> >::type Type;
 };
 
                      // =================================

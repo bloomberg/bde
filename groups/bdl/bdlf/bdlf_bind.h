@@ -871,11 +871,11 @@ BSLS_IDENT("$Id: $")
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_arraytopointer.h>
+#include <bslmf_conditional.h>
 #include <bslmf_forwardingtype.h>
 #include <bslmf_forwardingreftype.h>
 #include <bslmf_functionpointertraits.h>
 #include <bslmf_haspointersemantics.h>
-#include <bslmf_if.h>
 #include <bslmf_matchanytype.h>
 #include <bslmf_memberfunctionpointertraits.h>
 #include <bslmf_nestedtraitdeclaration.h>
@@ -889,6 +889,10 @@ BSLS_IDENT("$Id: $")
 
 #include <bsl_functional.h>
 #include <bsl_memory.h>
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bslmf_if.h>
+#endif  // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 
@@ -4242,15 +4246,15 @@ struct Bind_ImplSelector {
     //:   nested 'Bind' objects in the bound arguments.
     //: 3 There are no ellipsis argument in the signature of the function.
 
+    // TYPES
     enum {
         k_IS_EXPLICIT = (Bind_CalcParameterMask<LIST>::k_IS_EXPLICIT &&
                        Bind_FuncTraits<RET,FUNC>::k_IS_EXPLICIT) ? 1 : 0
     };
 
-    typedef typename
-        bslmf::If<k_IS_EXPLICIT,
-                  Bind_ImplExplicit<RET,FUNC,LIST>,
-                  Bind_Impl<RET,FUNC,LIST> >::Type Type;
+    typedef typename bsl::conditional<k_IS_EXPLICIT,
+                                      Bind_ImplExplicit<RET,FUNC,LIST>,
+                                      Bind_Impl<RET,FUNC,LIST> >::type Type;
 };
 
 // Implementation note: The following three classes, 'Bind_FuncTraits',

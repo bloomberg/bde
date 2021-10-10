@@ -14,7 +14,6 @@
 #include <bslim_testutil.h>
 
 #include <bslmf_assert.h>
-#include <bslmf_if.h>
 #include <bslmf_issame.h>
 
 #include <bsls_review.h>
@@ -357,9 +356,9 @@ namespace Obj = bdlat_NullableValueFunctions;
     template <class ACCESSOR>
     int bdlat_nullableValueAccessValue(const MyNullableValue& object,
                                        ACCESSOR&              accessor);
-        // Invoke the specified 'accessor' on a 'const'-reference to the value  
-        // stored in the specified "nullable" 'object'.  Return the value from  
-        // the invocation of 'accessor'.  The behavior is undefined if 'object' 
+        // Invoke the specified 'accessor' on a 'const'-reference to the value
+        // stored in the specified "nullable" 'object'.  Return the value from
+        // the invocation of 'accessor'.  The behavior is undefined if 'object'
         // contains a null value.
 
     bool bdlat_nullableValueIsNull(const MyNullableValue& object);

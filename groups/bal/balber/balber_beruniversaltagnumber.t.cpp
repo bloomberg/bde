@@ -28,13 +28,13 @@
 #include <bdlsb_fixedmemoutstreambuf.h>
 
 #include <bslalg_constructorproxy.h>
+#include <bslalg_typetraits.h>
 
 #include <bslim_testutil.h>
 
-#include <bslalg_typetraits.h>
 #include <bslma_allocator.h>
 #include <bslma_default.h>
-#include <bslmf_if.h>
+#include <bslmf_conditional.h>
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_objectbuffer.h>
@@ -498,10 +498,10 @@ int bdlat_typeCategoryAccessArray(
     // 'bslmf::Nil' tag object otherwise.  Return the result from the
     // invocation of 'accessor'.
 {
-    typedef
-        typename bslmf::If<bdlat_ArrayFunctions::IsArray<VALUE_TYPE>::VALUE,
-                           bdlat_TypeCategory::Array,
-                           bslmf::Nil>::Type Tag;
+    typedef typename
+             bsl::conditional<bdlat_ArrayFunctions::IsArray<VALUE_TYPE>::VALUE,
+                              bdlat_TypeCategory::Array,
+                              bslmf::Nil>::type Tag;
 
     return accessor(object.value(), Tag());
 }
@@ -517,10 +517,10 @@ int bdlat_typeCategoryAccessChoice(
     // 'bslmf::Nil' tag object otherwise.  Return the result from the
     // invocation of 'accessor'.
 {
-    typedef
-        typename bslmf::If<bdlat_ChoiceFunctions::IsChoice<VALUE_TYPE>::VALUE,
-                           bdlat_TypeCategory::Choice,
-                           bslmf::Nil>::Type Tag;
+    typedef typename
+           bsl::conditional<bdlat_ChoiceFunctions::IsChoice<VALUE_TYPE>::VALUE,
+                            bdlat_TypeCategory::Choice,
+                            bslmf::Nil>::type Tag;
 
     return accessor(object.value(), Tag());
 }
@@ -536,10 +536,10 @@ int bdlat_typeCategoryAccessCustomizedType(
     // 'bdlat_customizedtypefunctions', or a 'bslmf::Nil' tag object otherwise.
     // Return the result from the invocation of 'accessor'.
 {
-    typedef typename bslmf::If<
+    typedef typename bsl::conditional<
         bdlat_CustomizedTypeFunctions::IsCustomizedType<VALUE_TYPE>::VALUE,
         bdlat_TypeCategory::CustomizedType,
-        bslmf::Nil>::Type Tag;
+        bslmf::Nil>::type Tag;
 
     return accessor(object.value(), Tag());
 }
@@ -555,10 +555,10 @@ int bdlat_typeCategoryAccessEnumeration(
     // or a 'bslmf::Nil' tag object otherwise.  Return the result from the
     // invocation of 'accessor'.
 {
-    typedef typename bslmf::If<
+    typedef typename bsl::conditional<
         bdlat_EnumFunctions::IsEnumeration<VALUE_TYPE>::VALUE,
         bdlat_TypeCategory::Enumeration,
-        bslmf::Nil>::Type Tag;
+        bslmf::Nil>::type Tag;
 
     return accessor(object.value(), Tag());
 }
@@ -574,10 +574,10 @@ int bdlat_typeCategoryAccessNullableValue(
     // 'bdlat_nullablevaluefunctions', or a 'bslmf::Nil' tag object otherwise.
     // Return the result from the invocation of 'accessor'.
 {
-    typedef typename bslmf::If<
+    typedef typename bsl::conditional<
         bdlat_NullableValueFunctions::IsNullableValue<VALUE_TYPE>::VALUE,
         bdlat_TypeCategory::NullableValue,
-        bslmf::Nil>::Type Tag;
+        bslmf::Nil>::type Tag;
 
     return accessor(object.value(), Tag());
 }
@@ -593,10 +593,10 @@ int bdlat_typeCategoryAccessSequence(
     // 'bdlat_sequencefunctions', or a 'bslmf::Nil' tag object otherwise.
     // Return the result from the invocation of 'accessor'.
 {
-    typedef typename bslmf::If<
+    typedef typename bsl::conditional<
         bdlat_SequenceFunctions::IsSequence<VALUE_TYPE>::VALUE,
         bdlat_TypeCategory::Sequence,
-        bslmf::Nil>::Type Tag;
+        bslmf::Nil>::type Tag;
 
     return accessor(object.value(), Tag());
 }
@@ -612,12 +612,12 @@ int bdlat_typeCategoryAccessSimple(
     // tag object otherwise.  Return the result from the invocation of
     // 'accessor'.
 {
-    typedef typename bslmf::If<
+    typedef typename bsl::conditional<
         bdlat_TypeCategory::e_SIMPLE_CATEGORY ==
             static_cast<bdlat_TypeCategory::Value>(
                 bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION),
         bdlat_TypeCategory::Simple,
-        bslmf::Nil>::Type Tag;
+        bslmf::Nil>::type Tag;
     // If the type category of 'VALUE_TYPE' is 'Simple', then 'Tag' is
     // 'bdlat_TypeCategory::Simple', and 'bslmf::Nil' otherwise.  This
     // detection is done differently than for the complex type categories

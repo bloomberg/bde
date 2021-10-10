@@ -16,7 +16,6 @@
 #include <bslalg_typetraits.h>
 
 #include <bslmf_assert.h>
-#include <bslmf_if.h>
 #include <bslmf_issame.h>             // for testing only
 
 #include <bsl_algorithm.h> // 'bsl::max', 'bsl::copy', 'bsl::fill'
@@ -456,7 +455,7 @@ bsl::size_t Test::bdlat_arraySize(const Test::FixedArray<SIZE, TYPE>& array)
         // the specified 'index' of the specified 'array'.  Return the value
         // from the invocation of 'manipulator'.  The behavior is undefined
         // unless '0 <= index' and 'index < bdlat_arraySize(*array)'.
-  
+
     void bdlat_arrayResize(YourFloatArray *array, int newSize);
         // Set the size of the specified modifiable 'array' to the specified
         // 'newSize'.  If 'newSize > size(array)', then 'newSize - size(array)'
@@ -464,7 +463,7 @@ bsl::size_t Test::bdlat_arraySize(const Test::FixedArray<SIZE, TYPE>& array)
         // 'array'.  If 'newSize < size(array)', then the
         // 'size(array) - newSize' elements at the end of 'array' are
         // destroyed.  The behavior is undefined unless '0 <= newSize'.
-  
+
     // ACCESSORS
     template <class ACCESSOR>
     int bdlat_arrayAccessElement(const YourFloatArray& array,
@@ -474,7 +473,7 @@ bsl::size_t Test::bdlat_arraySize(const Test::FixedArray<SIZE, TYPE>& array)
         // element at the specified 'index' of the specified 'array'.  Return
         // the value from the invocation of 'accessor'.  The behavior is
         // undefined unless '0 <= index' and 'index < bdlat_arraySize(array)'.
-  
+
     bsl::size_t bdlat_arraySize(const YourFloatArray& array);
         // Return the number of elements in the specified 'array'.
 
@@ -488,9 +487,9 @@ bsl::size_t Test::bdlat_arraySize(const Test::FixedArray<SIZE, TYPE>& array)
         ASSERT(0 <= index);
         ASSERT(static_cast<bsl::size_t>(index) < array->numElements());
 
-        return manipulator(&array->element(index));    
+        return manipulator(&array->element(index));
     }
-  
+
     void bdlat_arrayResize(YourFloatArray *array, int newSize)
     {
         ASSERT(array);
@@ -498,7 +497,7 @@ bsl::size_t Test::bdlat_arraySize(const Test::FixedArray<SIZE, TYPE>& array)
 
         array->setSize(newSize);
     }
-  
+
     // ACCESSORS
     template <class ACCESSOR>
     int bdlat_arrayAccessElement(const YourFloatArray& array,
@@ -510,7 +509,7 @@ bsl::size_t Test::bdlat_arraySize(const Test::FixedArray<SIZE, TYPE>& array)
 
         return accessor(array.element(index));
     }
-  
+
     bsl::size_t bdlat_arraySize(const YourFloatArray& array)
     {
         return array.numElements();
@@ -607,7 +606,7 @@ bsl::size_t Test::bdlat_arraySize(const Test::FixedArray<SIZE, TYPE>& array)
         } else {
             bsl::memcpy(newData, d_data_p, newSize);
         }
-        
+
         bsl::free(d_data_p);
         d_data_p = newData;
         d_size   = newSize;
@@ -636,7 +635,7 @@ bsl::size_t Test::bdlat_arraySize(const Test::FixedArray<SIZE, TYPE>& array)
         // the specified 'index' of the specified 'array'.  Return the value
         // from the invocation of 'manipulator'.  The behavior is undefined
         // unless '0 <= index' and 'index < bdlat_arraySize(*array)'.
-  
+
     void bdlat_arrayResize(MyIntArray *array, int newSize);
         // Set the size of the specified modifiable 'array' to the specified
         // 'newSize'.  If 'newSize > bdlat_arraySize(*array)', then
@@ -645,7 +644,7 @@ bsl::size_t Test::bdlat_arraySize(const Test::FixedArray<SIZE, TYPE>& array)
         // 'newSize < bdlat_arraySize(*array)', then the
         // 'bdlat_arraySize(*array) - newSize' elements at the end of 'array'
         // are destroyed.  The behavior is undefined unless '0 <= newSize'.
-  
+
     // ACCESSORS
     template <class ACCESSOR>
     int bdlat_arrayAccessElement(const MyIntArray& array,
@@ -655,7 +654,7 @@ bsl::size_t Test::bdlat_arraySize(const Test::FixedArray<SIZE, TYPE>& array)
         // element at the specified 'index' of the specified 'array'.  Return
         // the value from the invocation of 'accessor'.  The behavior is
         // undefined unless '0 <= index' and 'index < bdlat_arraySize(array)'.
-  
+
     bsl::size_t bdlat_arraySize(const MyIntArray& array);
         // Return the number of elements in the specified 'array'.
 
@@ -679,9 +678,9 @@ bsl::size_t Test::bdlat_arraySize(const Test::FixedArray<SIZE, TYPE>& array)
         ASSERT(0 <= index);
         ASSERT(static_cast<bsl::size_t>(index) < array->size());
 
-        return manipulator(&array->value(index));    
+        return manipulator(&array->value(index));
     }
-  
+
     void bdlat_arrayResize(MyIntArray *array, int newSize)
     {
         ASSERT(array);
@@ -689,7 +688,7 @@ bsl::size_t Test::bdlat_arraySize(const Test::FixedArray<SIZE, TYPE>& array)
 
         array->resize(newSize);
     }
-  
+
     // ACCESSORS
     template <class ACCESSOR>
     int bdlat_arrayAccessElement(const MyIntArray& array,
@@ -701,7 +700,7 @@ bsl::size_t Test::bdlat_arraySize(const Test::FixedArray<SIZE, TYPE>& array)
 
         return accessor(array.value(index));
     }
-  
+
     bsl::size_t bdlat_arraySize(const MyIntArray& array)
     {
         return array.size();
@@ -748,12 +747,12 @@ bsl::size_t Test::bdlat_arraySize(const Test::FixedArray<SIZE, TYPE>& array)
     {
         BSLMF_ASSERT(bdlat_ArrayFunctions::IsArray<mine::MyIntArray>::VALUE);
 
-        mine::MyIntArray array;            
+        mine::MyIntArray array;
         ASSERT(0 == bdlat_ArrayFunctions::size(array));
 
         bdlat_ArrayFunctions::resize(&array, 8);
         ASSERT(8 == bdlat_ArrayFunctions::size(array));
-        
+
         bdlat_ArrayFunctions::resize(&array, 4);
         ASSERT(4 == bdlat_ArrayFunctions::size(array));
     }
@@ -787,7 +786,7 @@ bsl::size_t Test::bdlat_arraySize(const Test::FixedArray<SIZE, TYPE>& array)
 
         // DATA
         ELEMENT_TYPE d_value;
-    
+
       public:
         // CREATORS
         SetElementManipulator(const ELEMENT_TYPE& value)
@@ -817,7 +816,7 @@ bsl::size_t Test::bdlat_arraySize(const Test::FixedArray<SIZE, TYPE>& array)
         // Confirm initial array elements from resize.
 
         int                     value;
-        GetElementAccessor<int> accessor(&value); 
+        GetElementAccessor<int> accessor(&value);
 
         for (int index = 0; index < 4; ++index) {
             int rc = bdlat_ArrayFunctions::accessElement(array,
@@ -830,7 +829,7 @@ bsl::size_t Test::bdlat_arraySize(const Test::FixedArray<SIZE, TYPE>& array)
         // Set element 'index * 10' as its value;
 
         for (int index = 0; index < 4; ++index) {
-            SetElementManipulator<int> manipulator(index * 10); 
+            SetElementManipulator<int> manipulator(index * 10);
 
             int rc = bdlat_ArrayFunctions::manipulateElement(&array,
                                                              manipulator,

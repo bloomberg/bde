@@ -935,6 +935,7 @@ BSLS_IDENT("$Id: $")
 #include <bdlat_sequencefunctions.h>
 
 #include <bslmf_assert.h>
+#include <bslmf_conditional.h>
 #include <bslmf_issame.h>
 #include <bslmf_switch.h>
 
@@ -1571,8 +1572,9 @@ int bdlat_TypeCategoryFunctions::bdlat_typeCategoryManipulateArray(
                                                      MANIPULATOR&  manipulator)
 {
     typedef typename
-    bslmf::If<bdlat_ArrayFunctions::IsArray<TYPE>::VALUE,
-             bdlat_TypeCategory::Array, bslmf::Nil>::Type Tag;
+        bsl::conditional<bdlat_ArrayFunctions::IsArray<TYPE>::VALUE,
+                         bdlat_TypeCategory::Array,
+                         bslmf::Nil>::type Tag;
     return manipulator(object, Tag());
 }
 
@@ -1583,8 +1585,9 @@ int bdlat_TypeCategoryFunctions::bdlat_typeCategoryManipulateChoice(
                                                      MANIPULATOR&  manipulator)
 {
     typedef typename
-    bslmf::If<bdlat_ChoiceFunctions::IsChoice<TYPE>::VALUE,
-             bdlat_TypeCategory::Choice, bslmf::Nil>::Type Tag;
+        bsl::conditional<bdlat_ChoiceFunctions::IsChoice<TYPE>::VALUE,
+                         bdlat_TypeCategory::Choice,
+                         bslmf::Nil>::type Tag;
     return manipulator(object, Tag());
 }
 
@@ -1594,9 +1597,10 @@ int bdlat_TypeCategoryFunctions::bdlat_typeCategoryManipulateCustomizedType(
                                                      TYPE         *object,
                                                      MANIPULATOR&  manipulator)
 {
-    typedef typename
-    bslmf::If<bdlat_CustomizedTypeFunctions::IsCustomizedType<TYPE>::VALUE,
-             bdlat_TypeCategory::CustomizedType, bslmf::Nil>::Type Tag;
+    typedef typename bsl::conditional<
+                  bdlat_CustomizedTypeFunctions::IsCustomizedType<TYPE>::VALUE,
+                  bdlat_TypeCategory::CustomizedType,
+                  bslmf::Nil>::type Tag;
     return manipulator(object, Tag());
 }
 
@@ -1606,9 +1610,10 @@ int bdlat_TypeCategoryFunctions::bdlat_typeCategoryManipulateEnumeration(
                                                      TYPE         *object,
                                                      MANIPULATOR&  manipulator)
 {
-    typedef typename
-    bslmf::If<bdlat_EnumFunctions::IsEnumeration<TYPE>::VALUE,
-             bdlat_TypeCategory::Enumeration, bslmf::Nil>::Type Tag;
+    typedef typename bsl::conditional<
+                               bdlat_EnumFunctions::IsEnumeration<TYPE>::VALUE,
+                               bdlat_TypeCategory::Enumeration,
+                               bslmf::Nil>::type Tag;
     return manipulator(object, Tag());
 }
 
@@ -1618,9 +1623,10 @@ int bdlat_TypeCategoryFunctions::bdlat_typeCategoryManipulateNullableValue(
                                                      TYPE         *object,
                                                      MANIPULATOR&  manipulator)
 {
-    typedef typename
-    bslmf::If<bdlat_NullableValueFunctions::IsNullableValue<TYPE>::VALUE,
-             bdlat_TypeCategory::NullableValue, bslmf::Nil>::Type Tag;
+    typedef typename bsl::conditional<
+                    bdlat_NullableValueFunctions::IsNullableValue<TYPE>::VALUE,
+                    bdlat_TypeCategory::NullableValue,
+                    bslmf::Nil>::type Tag;
     return manipulator(object, Tag());
 }
 
@@ -1630,9 +1636,10 @@ int bdlat_TypeCategoryFunctions::bdlat_typeCategoryManipulateSequence(
                                                      TYPE         *object,
                                                      MANIPULATOR&  manipulator)
 {
-    typedef typename
-    bslmf::If<bdlat_SequenceFunctions::IsSequence<TYPE>::VALUE,
-             bdlat_TypeCategory::Sequence, bslmf::Nil>::Type Tag;
+    typedef typename bsl::conditional<
+                              bdlat_SequenceFunctions::IsSequence<TYPE>::VALUE,
+                              bdlat_TypeCategory::Sequence,
+                              bslmf::Nil>::type Tag;
     return manipulator(object, Tag());
 }
 
@@ -1642,10 +1649,11 @@ int bdlat_TypeCategoryFunctions::bdlat_typeCategoryManipulateSimple(
                                                      TYPE         *object,
                                                      MANIPULATOR&  manipulator)
 {
-    typedef typename
-    bslmf::If<(int)bdlat_TypeCategory::Select<TYPE>::e_SELECTION ==
-              (int)bdlat_TypeCategory::              e_SIMPLE_CATEGORY,
-             bdlat_TypeCategory::Simple, bslmf::Nil>::Type Tag;
+    typedef typename bsl::conditional<
+                          (int)bdlat_TypeCategory::Select<TYPE>::e_SELECTION ==
+                                    (int)bdlat_TypeCategory::e_SIMPLE_CATEGORY,
+                          bdlat_TypeCategory::Simple,
+                          bslmf::Nil>::type Tag;
     return manipulator(object, Tag());
 }
 
@@ -1657,9 +1665,10 @@ int bdlat_TypeCategoryFunctions::bdlat_typeCategoryAccessArray(
                                                           const TYPE& object,
                                                           ACCESSOR&   accessor)
 {
-    typedef typename
-    bslmf::If<bdlat_ArrayFunctions::IsArray<TYPE>::VALUE,
-             bdlat_TypeCategory::Array, bslmf::Nil>::Type Tag;
+    typedef typename bsl::conditional<
+                                    bdlat_ArrayFunctions::IsArray<TYPE>::VALUE,
+                                    bdlat_TypeCategory::Array,
+                                    bslmf::Nil>::type Tag;
     return accessor(object, Tag());
 }
 
@@ -1669,9 +1678,10 @@ int bdlat_TypeCategoryFunctions::bdlat_typeCategoryAccessChoice(
                                                           const TYPE& object,
                                                           ACCESSOR&   accessor)
 {
-    typedef typename
-    bslmf::If<bdlat_ChoiceFunctions::IsChoice<TYPE>::VALUE,
-             bdlat_TypeCategory::Choice, bslmf::Nil>::Type Tag;
+    typedef typename bsl::conditional<
+                                  bdlat_ChoiceFunctions::IsChoice<TYPE>::VALUE,
+                                  bdlat_TypeCategory::Choice,
+                                  bslmf::Nil>::type Tag;
     return accessor(object, Tag());
 }
 
@@ -1681,9 +1691,10 @@ int bdlat_TypeCategoryFunctions::bdlat_typeCategoryAccessCustomizedType(
                                                           const TYPE& object,
                                                           ACCESSOR&   accessor)
 {
-    typedef typename
-    bslmf::If<bdlat_CustomizedTypeFunctions::IsCustomizedType<TYPE>::VALUE,
-             bdlat_TypeCategory::CustomizedType, bslmf::Nil>::Type Tag;
+    typedef typename bsl::conditional<
+                  bdlat_CustomizedTypeFunctions::IsCustomizedType<TYPE>::VALUE,
+                  bdlat_TypeCategory::CustomizedType,
+                  bslmf::Nil>::type Tag;
     return accessor(object, Tag());
 }
 
@@ -1693,9 +1704,10 @@ int bdlat_TypeCategoryFunctions::bdlat_typeCategoryAccessEnumeration(
                                                           const TYPE& object,
                                                           ACCESSOR&   accessor)
 {
-    typedef typename
-    bslmf::If<bdlat_EnumFunctions::IsEnumeration<TYPE>::VALUE,
-             bdlat_TypeCategory::Enumeration, bslmf::Nil>::Type Tag;
+    typedef typename bsl::conditional<
+                               bdlat_EnumFunctions::IsEnumeration<TYPE>::VALUE,
+                               bdlat_TypeCategory::Enumeration,
+                               bslmf::Nil>::type Tag;
     return accessor(object, Tag());
 }
 
@@ -1705,9 +1717,10 @@ int bdlat_TypeCategoryFunctions::bdlat_typeCategoryAccessNullableValue(
                                                           const TYPE& object,
                                                           ACCESSOR&   accessor)
 {
-    typedef typename
-    bslmf::If<bdlat_NullableValueFunctions::IsNullableValue<TYPE>::VALUE,
-             bdlat_TypeCategory::NullableValue, bslmf::Nil>::Type Tag;
+    typedef typename bsl::conditional<
+                    bdlat_NullableValueFunctions::IsNullableValue<TYPE>::VALUE,
+                    bdlat_TypeCategory::NullableValue,
+                    bslmf::Nil>::type Tag;
     return accessor(object, Tag());
 }
 
@@ -1717,9 +1730,10 @@ int bdlat_TypeCategoryFunctions::bdlat_typeCategoryAccessSequence(
                                                           const TYPE& object,
                                                           ACCESSOR&   accessor)
 {
-    typedef typename
-    bslmf::If<bdlat_SequenceFunctions::IsSequence<TYPE>::VALUE,
-             bdlat_TypeCategory::Sequence, bslmf::Nil>::Type Tag;
+    typedef typename bsl::conditional<
+                              bdlat_SequenceFunctions::IsSequence<TYPE>::VALUE,
+                              bdlat_TypeCategory::Sequence,
+                              bslmf::Nil>::type Tag;
     return accessor(object, Tag());
 }
 
@@ -1729,10 +1743,11 @@ int bdlat_TypeCategoryFunctions::bdlat_typeCategoryAccessSimple(
                                                           const TYPE& object,
                                                           ACCESSOR&   accessor)
 {
-    typedef typename
-    bslmf::If<(int)bdlat_TypeCategory::Select<TYPE>::e_SELECTION ==
-              (int)bdlat_TypeCategory::              e_SIMPLE_CATEGORY,
-             bdlat_TypeCategory::Simple, bslmf::Nil>::Type Tag;
+    typedef typename bsl::conditional<
+                          (int)bdlat_TypeCategory::Select<TYPE>::e_SELECTION ==
+                                    (int)bdlat_TypeCategory::e_SIMPLE_CATEGORY,
+                          bdlat_TypeCategory::Simple,
+                          bslmf::Nil>::type Tag;
     return accessor(object, Tag());
 }
 

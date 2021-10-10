@@ -3,7 +3,7 @@
 
 #include <bslma_testallocator.h>
 
-#include <bslmf_if.h>
+#include <bslmf_conditional.h>
 #include <bslmf_metaint.h>
 
 #include <bsls_bsltestutil.h>
@@ -429,13 +429,14 @@ namespace BSLALG_TYPETRAITS_USAGE_EXAMPLE {
             // memory if the parameterized 'TYPE' possesses the
             // 'bslalg::TypeTraitUsesBslmaAllocator'.
         {
-            copyConstruct(location, value, allocator,
-                typename bslmf::If<bslalg::HasTrait<TYPE,
-                              bslalg::TypeTraitUsesBslmaAllocator>::VALUE,
-                          bslalg::TypeTraitUsesBslmaAllocator,
-                          bslalg::TypeTraitNil>::Type());
+            copyConstruct(
+                location, value, allocator,
+                typename bsl::conditional<
+                  bslalg::HasTrait<TYPE,
+                                   bslalg::TypeTraitUsesBslmaAllocator>::VALUE,
+                  bslalg::TypeTraitUsesBslmaAllocator,
+                  bslalg::TypeTraitNil>::type());
         }
-
     };
 //..
 ///Generic container implementation

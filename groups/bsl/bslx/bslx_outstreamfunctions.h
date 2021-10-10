@@ -481,7 +481,7 @@ BSLS_IDENT("$Id: $")
 #include <bslx_versionfunctions.h>
 
 #include <bslmf_assert.h>
-#include <bslmf_if.h>
+#include <bslmf_conditional.h>
 #include <bslmf_isenum.h>
 
 #include <bsls_types.h>
@@ -489,6 +489,10 @@ BSLS_IDENT("$Id: $")
 #include <bsl_string.h>
 #include <bsl_vector.h>
 #include <bsl_cstdint.h>
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bslmf_if.h>
+#endif  // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 namespace bslx {
@@ -958,9 +962,9 @@ STREAM& OutStreamFunctions::bdexStreamOut(STREAM&     stream,
                                           const TYPE& value,
                                           int         version)
 {
-    typedef typename bslmf::If<bslmf::IsEnum<TYPE>::value,
-                               IsEnumType,
-                               IsNotEnumType>::Type dummyType;
+    typedef typename bsl::conditional<bslmf::IsEnum<TYPE>::value,
+                                      IsEnumType,
+                                      IsNotEnumType>::type dummyType;
     return bdexStreamOutImp(stream, value, version, dummyType());
 }
 

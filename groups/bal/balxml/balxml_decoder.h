@@ -281,7 +281,7 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 
-#include <bslmf_if.h>
+#include <bslmf_conditional.h>
 
 #include <bsls_assert.h>
 #include <bsls_objectbuffer.h>
@@ -297,6 +297,10 @@ BSLS_IDENT("$Id: $")
 #include <bsl_cstring.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cerrno.h>
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bslmf_if.h>
+#endif  // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 namespace balxml {
@@ -2955,9 +2959,9 @@ int Decoder_ParseObject::executeImp(bsl::vector<TYPE>         *object,
                            == (int)bdlat_TypeCategory::e_CHOICE_CATEGORY)
     };
 
-    typedef typename
-    bslmf::If<CAN_BE_REPETITION_ONLY, CanBeRepetitionOnly,
-                                      CanBeListOrRepetition>::Type Toggle;
+    typedef typename bsl::conditional<CAN_BE_REPETITION_ONLY,
+                                      CanBeRepetitionOnly,
+                                      CanBeListOrRepetition>::type Toggle;
 
     return executeArrayImp(object, formattingMode, Toggle());
 }

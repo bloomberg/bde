@@ -13,7 +13,6 @@
 #include <bslim_testutil.h>
 
 #include <bdlf_bind.h>
-#include <bslmf_if.h>
 #include <bslmt_semaphore.h>
 #include <bslmt_threadutil.h>
 #include <bslmt_threadgroup.h>

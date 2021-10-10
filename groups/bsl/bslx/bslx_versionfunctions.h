@@ -84,7 +84,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
-#include <bslmf_if.h>
+#include <bslmf_conditional.h>
 #include <bslmf_isenum.h>
 #include <bslmf_isfundamental.h>
 #include <bslmf_issame.h>
@@ -92,6 +92,10 @@ BSLS_IDENT("$Id: $")
 
 #include <bsl_string.h>
 #include <bsl_vector.h>
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bslmf_if.h>
+#endif  // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 namespace bslx {
@@ -409,12 +413,12 @@ template <class TYPE>
 inline
 int VersionFunctions_Impl::maxSupportedBdexVersion(int versionSelector)
 {
-    typedef typename bslmf::If<bslmf::IsFundamental<TYPE>::value
-                               || bslmf::IsEnum<TYPE>::value
-                               || bsl::is_same<TYPE, bsl::string>::value,
-                               VersionFunctions_DoesNotHaveBdexVersion,
-                               VersionFunctions_HasBdexVersion>::Type
-                                                                     dummyType;
+    typedef typename bsl::conditional<
+                              bslmf::IsFundamental<TYPE>::value
+                                  || bslmf::IsEnum<TYPE>::value
+                                  || bsl::is_same<TYPE, bsl::string>::value,
+                              VersionFunctions_DoesNotHaveBdexVersion,
+                              VersionFunctions_HasBdexVersion>::type dummyType;
 
     return VersionFunctions_Impl::
                    maxSupportedBdexVersion<TYPE>(versionSelector, dummyType());
@@ -444,12 +448,12 @@ template <class TYPE>
 inline
 int VersionFunctions_Impl::maxSupportedBdexVersion()
 {
-    typedef typename bslmf::If<bslmf::IsFundamental<TYPE>::value
-                               || bslmf::IsEnum<TYPE>::value
-                               || bsl::is_same<TYPE, bsl::string>::value,
-                               VersionFunctions_DoesNotHaveBdexVersion,
-                               VersionFunctions_HasBdexVersion>::Type
-                                                                     dummyType;
+    typedef typename bsl::conditional<
+                              bslmf::IsFundamental<TYPE>::value
+                                  || bslmf::IsEnum<TYPE>::value
+                                  || bsl::is_same<TYPE, bsl::string>::value,
+                              VersionFunctions_DoesNotHaveBdexVersion,
+                              VersionFunctions_HasBdexVersion>::type dummyType;
 
     return VersionFunctions_Impl::maxSupportedBdexVersion<TYPE>(dummyType());
 }

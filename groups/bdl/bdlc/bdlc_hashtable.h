@@ -563,7 +563,7 @@ BSLS_IDENT("$Id: $")
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_assert.h>
-#include <bslmf_if.h>
+#include <bslmf_conditional.h>
 #include <bslmf_issame.h>
 #include <bslmf_istriviallydefaultconstructible.h>
 #include <bslmf_nestedtraitdeclaration.h>
@@ -580,6 +580,10 @@ BSLS_IDENT("$Id: $")
 #include <bsl_string.h>
 #include <bsl_utility.h>
 #include <bsl_vector.h>
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bslmf_if.h>
+#endif  // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 namespace bdlc {
@@ -619,9 +623,9 @@ class HashTable {
 
   private:
     // PRIVATE TYPES
-    typedef typename
-    bslmf::If<bslmf::IsSame<bslmf::Nil, VALUE>::VALUE,
-             KEY, bsl::pair<KEY, VALUE> >::Type Bucket;
+    typedef typename bsl::conditional<bslmf::IsSame<bslmf::Nil, VALUE>::VALUE,
+                                      KEY,
+                                      bsl::pair<KEY, VALUE> >::type Bucket;
         // Type of the element stored in this object.  If the 'VALUE' parameter
         // is 'bslmf::Nil', then 'Bucket' is of type 'KEY', otherwise 'Bucket'
         // is of type 'bsl::pair<KEY, VALUE>'.
