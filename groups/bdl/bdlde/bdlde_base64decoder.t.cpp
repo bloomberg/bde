@@ -4742,23 +4742,38 @@ DEFINE_TEST_CASE(7)
         if (verbose) cout <<
                 "\nVerify is numeric Base64 char (256 entries)." << endl;
         {
+#define BASIC Obj::e_BASIC
+#define URL   Obj::e_URL
+
             static const struct {
-                int  d_lineNum;  // source line number
-                int  d_upto;     // indicated ending character code
-                bool d_valid;    // true if expected member of set
+                int           d_lineNum;   // source line number
+                Obj::Alphabet d_alphabet;  // alphabet
+                int           d_upto;      // indicated ending character code
+                bool          d_valid;     // true if expected member of set
 
             } DATA[] = {
-                //lin  UpTo Valid
-                //---  ---- -----
-                { L_,  43,  false },
-                { L_,  44,  true  }, // '+'
-                { L_,  47,  false },
-                { L_,  58,  true  }, // '/' and decimal digits
-                { L_,  65,  false },
-                { L_,  91,  true  }, // uppercase alphabet
-                { L_,  97,  false },
-                { L_, 123,  true  }, // lowercase alphabet
-                { L_, 256,  false },
+                //lin  BASE64 UpTo Valid
+                //---  ------ ---- -----
+                { L_,  BASIC,  43,  false },
+                { L_,  BASIC,  44,  true  }, // '+'
+                { L_,  BASIC,  47,  false },
+                { L_,  BASIC,  58,  true  }, // '/' and decimal digits
+                { L_,  BASIC,  65,  false },
+                { L_,  BASIC,  91,  true  }, // uppercase alphabet
+                { L_,  BASIC,  97,  false },
+                { L_,  BASIC, 123,  true  }, // lowercase alphabet
+                { L_,  BASIC, 256,  false },
+                { L_,  URL,    45,  false },
+                { L_,  URL,    46,  true  }, // '-'
+                { L_,  URL,    48,  false },
+                { L_,  URL,    58,  true  }, // '/' and decimal digits
+                { L_,  URL,    65,  false },
+                { L_,  URL,    91,  true  }, // uppercase alphabet
+                { L_,  URL,    95,  false },
+                { L_,  URL,    96,  true  }, // '_'
+                { L_,  URL,    97,  false },
+                { L_,  URL,   123,  true  }, // lowercase alphabet
+                { L_,  URL,   256,  false },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -4775,10 +4790,11 @@ DEFINE_TEST_CASE(7)
 
             // MAIN TEST-TABLE LOOP
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int LINE  = DATA[ti].d_lineNum;
-                const int UPTO  = DATA[ti].d_upto;
-                const int VALID = DATA[ti].d_valid;
-                const int START = end;
+                const int           LINE     = DATA[ti].d_lineNum;
+                const Obj::Alphabet ALPHABET = DATA[ti].d_alphabet;
+                const int           UPTO     = DATA[ti].d_upto;
+                const int           VALID    = DATA[ti].d_valid;
+                const int           START    = 256 == end ? 0 : end;
                 end = UPTO;
 
                 LOOP3_ASSERT(LINE, end, START, end > START);
@@ -4797,7 +4813,7 @@ DEFINE_TEST_CASE(7)
                     if (veryVeryVerbose) { T_ T_ P(i) }
                     input[INPUT_INDEX] = char(i);
 
-                    Obj obj(false); // The mode is not relevant.
+                    Obj obj(false, ALPHABET); // The mode is not relevant.
 
                     obj.convert(b, &nOut, &nIn, B, E);
                     LOOP2_ASSERT(LINE, i, VALID == (3 == nOut));
@@ -4876,22 +4892,36 @@ DEFINE_TEST_CASE(7)
                 "\nVerify ignorable chars/Relaxed mode (256 entries)." << endl;
         {
             static const struct {
-                int  d_lineNum;  // source line number
-                int  d_upto;     // indicated ending character code
-                bool d_valid;    // true if expected member of set
+                int           d_lineNum;   // source line number
+                Obj::Alphabet d_alphabet;  // alphabet
+                int           d_upto;      // indicated ending character code
+                bool          d_valid;     // true if expected member of set
 
             } DATA[] = {
-                { L_,  43,  true  },
-                { L_,  44,  false }, // '+'
-                { L_,  47,  true  },
-                { L_,  58,  false }, // '/' and decimal digits
-                { L_,  61,  true  },
-                { L_,  62,  false }, // '=' and decimal digits
-                { L_,  65,  true  },
-                { L_,  91,  false }, // uppercase alphabet
-                { L_,  97,  true  },
-                { L_, 123,  false }, // lowercase alphabet
-                { L_, 256,  true  },
+                { L_, BASIC,  43,  true  },
+                { L_, BASIC,  44,  false }, // '+'
+                { L_, BASIC,  47,  true  },
+                { L_, BASIC,  58,  false }, // '/' and decimal digits
+                { L_, BASIC,  61,  true  },
+                { L_, BASIC,  62,  false }, // '=' and decimal digits
+                { L_, BASIC,  65,  true  },
+                { L_, BASIC,  91,  false }, // uppercase alphabet
+                { L_, BASIC,  97,  true  },
+                { L_, BASIC, 123,  false }, // lowercase alphabet
+                { L_, BASIC, 256,  true  },
+                { L_, URL,    45,  true  },
+                { L_, URL,    46,  false }, // '-'
+                { L_, URL,    48,  true  },
+                { L_, URL,    58,  false }, // '/' and decimal digits
+                { L_, URL,    61,  true  },
+                { L_, URL,    62,  false }, // '=' and decimal digits
+                { L_, URL,    65,  true  },
+                { L_, URL,    91,  false }, // uppercase alphabet
+                { L_, URL,    95,  true  },
+                { L_, URL,    96,  false }, // '_'
+                { L_, URL,    97,  true  },
+                { L_, URL,   123,  false }, // lowercase alphabet
+                { L_, URL,   256,  true  },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -4909,10 +4939,12 @@ DEFINE_TEST_CASE(7)
 
             // MAIN TEST-TABLE LOOP
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int LINE  = DATA[ti].d_lineNum;
-                const int UPTO  = DATA[ti].d_upto;
-                const int VALID = DATA[ti].d_valid;
-                const int START = end;
+                const int  LINE              = DATA[ti].d_lineNum;
+                const Obj::Alphabet ALPHABET = DATA[ti].d_alphabet;
+                const int  UPTO              = DATA[ti].d_upto;
+                const int  VALID             = DATA[ti].d_valid;
+                const int  START             = 256 == end ? 0 : end;
+
                 end = UPTO;
 
                 LOOP3_ASSERT(LINE, end, START, end > START);
@@ -4931,7 +4963,7 @@ DEFINE_TEST_CASE(7)
                     if (veryVeryVerbose) { T_ T_ P(i) }
                     input[INPUT_INDEX] = char(i);
 
-                    Obj obj(false); // Relaxed Mode.
+                    Obj obj(false, ALPHABET); // Relaxed Mode.
 
                     obj.convert(b, &nOut, &nIn, B, E);
                     bool stillInitial = isState(&obj, INITIAL_STATE);
@@ -5000,6 +5032,31 @@ DEFINE_TEST_CASE(7)
                     int  nOut = -1;
                     char b[1] = { ff };
                     Obj  obj(false); // Do this test in Relaxed mode.
+
+                    const int res = obj.convert(b, &nOut, &nIn, B, E);
+                    if (VALID) {
+                        LOOP3_ASSERT(LINE, i, res,  0 == res);
+                        LOOP3_ASSERT(LINE, i, nOut, 1 == nOut);
+                        LOOP3_ASSERT(LINE, i, b[0], 0 == (b[0] & 0xFC));
+                    }
+                    else if (1 == nOut) {
+                        LOOP3_ASSERT(LINE, i, res, -1 == res);
+                        LOOP3_ASSERT(LINE, i, b[0], 0 == (b[0] & 0xFC));
+                    }
+                    else {
+                        LOOP3_ASSERT(LINE, i, res,  -1 == res);
+                        LOOP3_ASSERT(LINE, i, b[0], (char)-1 == b[0]);
+                    }
+                }
+
+                end = UPTO;
+                for (int i = START; i < end; ++i) {
+                    if (veryVeryVerbose) { T_ T_ P(i) }
+                    input[INPUT_INDEX] = char(i);
+
+                    int  nOut = -1;
+                    char b[1] = { ff };
+                    Obj  obj(false, URL); // Do this test in Relaxed mode.
 
                     const int res = obj.convert(b, &nOut, &nIn, B, E);
                     if (VALID) {
@@ -5111,6 +5168,21 @@ DEFINE_TEST_CASE(7)
                     LOOP3_ASSERT(LINE, i, nOut,
                                             VALID == (2 == nOut && -1 != res));
                 }
+
+                end = UPTO;
+
+                for (int i = START; i < end; ++i) {
+                    if (veryVeryVerbose) { T_ T_ P(i) }
+                    input[INPUT_INDEX] = char(i);
+
+                    int  nOut = -1;
+                    char b[2] = { ff, ff };
+                    Obj  obj(true, URL); // Do this test in Strict Mode.
+
+                    const int res = obj.convert(b, &nOut, &nIn, B, E);
+                    LOOP3_ASSERT(LINE, i, nOut,
+                                            VALID == (2 == nOut && -1 != res));
+                }
             }
             ASSERT(256 == end); // make sure all entires are accounted for.
         }
@@ -5119,19 +5191,26 @@ DEFINE_TEST_CASE(7)
                 "\nVerify encoded char index value (64/256 entries)." << endl;
         {
             static const struct {
-                int  d_lineNum;  // source line number
-                char d_from;    // starting character
-                char d_to;      // ending character
-                int  d_offset;  // value of FROM char and count so far
+                int           d_lineNum;   // source line number
+                Obj::Alphabet d_alphabet;  // alphabet
+                char          d_from;      // starting character
+                char          d_to;        // ending character
+                int           d_offset;    // value of FROM char and count so
+                                           // far
 
             } DATA[] = {
-                //lin  From   To   Offset
-                //---  ----  ----  ------
-                { L_,  'A',  'Z',  0    },
-                { L_,  'a',  'z',  26   },
-                { L_,  '0',  '9',  52   },
-                { L_,  '+',  '+',  62   },
-                { L_,  '/',  '/',  63   },
+                //lin  BASE64 From   To   Offset
+                //---  ------ ----  ----  ------
+                { L_,  BASIC, 'A',  'Z',  0    },
+                { L_,  BASIC, 'a',  'z',  26   },
+                { L_,  BASIC, '0',  '9',  52   },
+                { L_,  BASIC, '+',  '+',  62   },
+                { L_,  BASIC, '/',  '/',  63   },
+                { L_,  URL,   'A',  'Z',  0    },
+                { L_,  URL,   'a',  'z',  26   },
+                { L_,  URL,   '0',  '9',  52   },
+                { L_,  URL,   '-',  '-',  62   },
+                { L_,  URL,   '_',  '_',  63   },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -5146,10 +5225,13 @@ DEFINE_TEST_CASE(7)
 
             // MAIN TEST-TABLE LOOP
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int  LINE   = DATA[ti].d_lineNum;
-                const char FROM  = DATA[ti].d_from;
-                const char TO    = DATA[ti].d_to;
-                const int  OFFSET = DATA[ti].d_offset;
+                const int  LINE              = DATA[ti].d_lineNum;
+                const Obj::Alphabet ALPHABET = DATA[ti].d_alphabet;
+                const char FROM              = DATA[ti].d_from;
+                const char TO                = DATA[ti].d_to;
+                const int  OFFSET            = DATA[ti].d_offset;
+
+                if (64 == count) { count = 0; }
 
                 LOOP3_ASSERT(LINE, FROM, TO, TO >= FROM);
                 LOOP3_ASSERT(LINE, OFFSET, oldOffset, OFFSET > oldOffset);
@@ -5167,13 +5249,14 @@ DEFINE_TEST_CASE(7)
 
                 for (char c = FROM; c <= TO; ++c) {
                     ++count;
+
                     if (veryVeryVerbose) { T_ T_ P_(c) P(int(c)) }
 
                     char b[3] = { ff, ff, ff };
                     int  nOut = -1;
                     int  nIn = -1;
                     input[INPUT_INDEX] = c;
-                    Obj  obj(false); // Do test in Relaxed Mode.
+                    Obj  obj(false, ALPHABET ); // Do test in Relaxed Mode.
 
                     const int res = obj.convert(b, &nOut, &nIn, B, E);
 
@@ -5187,6 +5270,10 @@ DEFINE_TEST_CASE(7)
             }
             ASSERT(64 == count);  // make sure all entires are accounted for.
         }
+
+#undef BASIC
+#undef URL
+
 }
 
 DEFINE_TEST_CASE(6)
@@ -6119,6 +6206,7 @@ DEFINE_TEST_CASE(2)
             ASSERT(1 == obj.isInitialState());
             ASSERT(1 == obj.isUnrecognizedAnError());
             ASSERT(0 == obj.outputLength());
+            ASSERT(Obj::e_BASIC == obj.alphabet());
         }
 
         if (verbose) cout << "\tunrecognizedIsErrorFlag = 'false'" << endl;
@@ -6131,6 +6219,34 @@ DEFINE_TEST_CASE(2)
             ASSERT(0 == obj.isMaximal());
             ASSERT(0 == obj.isUnrecognizedAnError());
             ASSERT(0 == obj.outputLength());
+            ASSERT(Obj::e_BASIC == obj.alphabet());
+        }
+
+        if (verbose) cout << "\tUse the Basic BASE64 alphabet" << endl;
+        {
+            Obj obj(true, Obj::e_BASIC);
+            ASSERT(1 == obj.isAcceptable());
+            ASSERT(0 == obj.isDone());
+            ASSERT(0 == obj.isError());
+            ASSERT(0 == obj.isMaximal());
+            ASSERT(1 == obj.isInitialState());
+            ASSERT(1 == obj.isUnrecognizedAnError());
+            ASSERT(0 == obj.outputLength());
+            ASSERT(Obj::e_BASIC == obj.alphabet());
+        }
+
+        if (verbose) cout << "\tUse the URL and Filename Safe alphabet"
+                          << endl;
+        {
+            Obj obj(true, Obj::e_URL);
+            ASSERT(1 == obj.isAcceptable());
+            ASSERT(0 == obj.isDone());
+            ASSERT(0 == obj.isError());
+            ASSERT(0 == obj.isMaximal());
+            ASSERT(1 == obj.isInitialState());
+            ASSERT(1 == obj.isUnrecognizedAnError());
+            ASSERT(0 == obj.outputLength());
+            ASSERT(Obj::e_URL == obj.alphabet());
         }
 }
 

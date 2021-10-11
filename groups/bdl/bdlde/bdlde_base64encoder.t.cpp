@@ -104,8 +104,8 @@ using bsl::flush;
 // for both of these template methods.
 //-----------------------------------------------------------------------------
 // [ 8] static int encodedLength(int numInputBytes, int maxLineLength);
-// [11] bdlde::Base64Encoder();
-// [ 2] bdlde::Base64Encoder(int maxLineLength);
+// [11] bdlde::Base64Encoder(Alphabet alphabet);
+// [ 2] bdlde::Base64Encoder(int maxLineLength, Alphabet alphabet);
 // [ 3] ~bdlde::Base64Encoder();
 // [ 9] int convert(char *o, int *no, int *ni, begin, end, int mno);
 // [ 9] int endConvert(char *out, int *numOut, int maxNumOut);
@@ -2472,7 +2472,7 @@ int main(int argc, char *argv[])
         //   - Brute-Force Implementation Technique
         //
         // Testing:
-        //   bdlde::Base64Encoder();
+        //   bdlde::Base64Encoder(Alphabet alphabet = e_BASIC);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2480,7 +2480,8 @@ int main(int argc, char *argv[])
                           << "===================" << endl;
 
         if (verbose) cout <<
-            "\nVerify default configuration and initial state." << endl;
+            "\nVerify default configuration and initial state, default "
+            "alhpabet." << endl;
         {
             Obj obj;
             ASSERT(76 == obj.maxLineLength());
@@ -2489,6 +2490,39 @@ int main(int argc, char *argv[])
             ASSERT( 0 == obj.isError());
             ASSERT( 1 == obj.isInitialState());
             ASSERT( 0 == obj.outputLength());
+            ASSERT(Obj::e_BASIC == obj.alphabet());
+
+            ASSERT(isState(&obj, e_INITIAL_STATE));
+        }
+
+        if (verbose) cout <<
+            "\nVerify default configuration and initial state, e_BASIC "
+            "alphabet." << endl;
+        {
+            Obj obj(Obj::e_BASIC);
+            ASSERT(76 == obj.maxLineLength());
+            ASSERT( 1 == obj.isAcceptable());
+            ASSERT( 0 == obj.isDone());
+            ASSERT( 0 == obj.isError());
+            ASSERT( 1 == obj.isInitialState());
+            ASSERT( 0 == obj.outputLength());
+            ASSERT(Obj::e_BASIC == obj.alphabet());
+
+            ASSERT(isState(&obj, e_INITIAL_STATE));
+        }
+
+        if (verbose) cout <<
+            "\nVerify default configuration and initial state, e_URL alphabet."
+            << endl;
+        {
+            Obj obj(Obj::e_URL);
+            ASSERT(76 == obj.maxLineLength());
+            ASSERT( 1 == obj.isAcceptable());
+            ASSERT( 0 == obj.isDone());
+            ASSERT( 0 == obj.isError());
+            ASSERT( 1 == obj.isInitialState());
+            ASSERT( 0 == obj.outputLength());
+            ASSERT(Obj::e_URL == obj.alphabet());
 
             ASSERT(isState(&obj, e_INITIAL_STATE));
         }
@@ -3310,7 +3344,10 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
 
             int  end = 0;
 
-            if (verbose) cout << "\tVerify Entries [0-25]." << endl;
+            // --------------------- Base64 alhabet ---------------------------
+
+            if (verbose) cout << "\t\"base64\": Verify Entries [0-25]."
+                              << endl;
             {
                 int start = end;
                 end = start + 26;
@@ -3330,7 +3367,8 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
                 }
             }
 
-            if (verbose) cout << "\tVerify Entries [26-51]." << endl;
+            if (verbose) cout << "\t\"base64\": Verify Entries [26-51]."
+                              << endl;
             {
                 int start = end;
                 end = start + 26;
@@ -3350,7 +3388,8 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
                 }
             }
 
-            if (verbose) cout << "\tVerify Entries [52-61]." << endl;
+            if (verbose) cout << "\t\"base64\": Verify Entries [52-61]."
+                              << endl;
             {
                 int start = end;
                 end = start + 10;
@@ -3370,7 +3409,8 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
                 }
             }
 
-            if (verbose) cout << "\tVerify Entry [62]." << endl;
+            if (verbose) cout << "\t\"base64\": Verify Entry [62]."
+                              << endl;
             {
                 int start = end;
                 end = start + 1;
@@ -3390,7 +3430,8 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
                 }
             }
 
-            if (verbose) cout << "\tVerify Entry [63]." << endl;
+            if (verbose) cout << "\t\"base64\": Verify Entry [63]."
+                              << endl;
             {
                 int start = end;
                 end = start + 1;
@@ -3403,6 +3444,116 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
                     LOOP_ASSERT(i, 0 == obj.endConvert(b + nOut, &nOut));
                     LOOP_ASSERT(i, 3 == nOut);
                     LOOP_ASSERT(i, '/' + i - start == b[0]);
+                    LOOP_ASSERT(i, 'A' == b[1]);
+                    LOOP_ASSERT(i, '=' == b[2]);
+                    LOOP_ASSERT(i, '=' == b[3]);
+                }
+            }
+
+            ASSERT(64 == end);  // make sure all entires are accounted for.
+
+            // ------------------- Base64url alhabet --------------------------
+
+            end = 0;
+
+            if (verbose) cout << "\t\"base64url\": Verify Entries [0-25]."
+                              << endl;
+            {
+                int start = end;
+                end = start + 26;
+                for (int i = start; i < end; ++i) {
+                    if (veryVerbose) { T_ T_ P(i) }
+                    Obj obj(0, Obj::e_URL);
+                    input = char(4 * i);
+                    LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
+                    LOOP_ASSERT(i, 1 == nOut);
+                    LOOP_ASSERT(i, 1 == nIn);
+                    LOOP_ASSERT(i, 0 == obj.endConvert(b + nOut, &nOut));
+                    LOOP_ASSERT(i, 3 == nOut);
+                    LOOP_ASSERT(i, 'A' + i - start == b[0]);
+                    LOOP_ASSERT(i, 'A' == b[1]);
+                    LOOP_ASSERT(i, '=' == b[2]);
+                    LOOP_ASSERT(i, '=' == b[3]);
+                }
+            }
+
+            if (verbose) cout << "\t\"base64url\": Verify Entries [26-51]."
+                              << endl;
+            {
+                int start = end;
+                end = start + 26;
+                for (int i = start; i < end; ++i) {
+                    if (veryVerbose) { T_ T_ P(i) }
+                    Obj obj(0, Obj::e_URL);
+                    input = char(4 * i);
+                    LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
+                    LOOP_ASSERT(i, 1 == nOut);
+                    LOOP_ASSERT(i, 1 == nIn);
+                    LOOP_ASSERT(i, 0 == obj.endConvert(b + nOut, &nOut));
+                    LOOP_ASSERT(i, 3 == nOut);
+                    LOOP_ASSERT(i, 'a' + i - start == b[0]);
+                    LOOP_ASSERT(i, 'A' == b[1]);
+                    LOOP_ASSERT(i, '=' == b[2]);
+                    LOOP_ASSERT(i, '=' == b[3]);
+                }
+            }
+
+            if (verbose) cout << "\t\"base64url\": Verify Entries [52-61]."
+                              << endl;
+            {
+                int start = end;
+                end = start + 10;
+                for (int i = start; i < end; ++i) {
+                    if (veryVerbose) { T_ T_ P(i) }
+                    Obj obj(0, Obj::e_URL);
+                    input = char(4 * i);
+                    LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
+                    LOOP_ASSERT(i, 1 == nOut);
+                    LOOP_ASSERT(i, 1 == nIn);
+                    LOOP_ASSERT(i, 0 == obj.endConvert(b + nOut, &nOut));
+                    LOOP_ASSERT(i, 3 == nOut);
+                    LOOP_ASSERT(i, '0' + i - start == b[0]);
+                    LOOP_ASSERT(i, 'A' == b[1]);
+                    LOOP_ASSERT(i, '=' == b[2]);
+                    LOOP_ASSERT(i, '=' == b[3]);
+                }
+            }
+
+            if (verbose) cout << "\t\"base64url\": Verify Entry [62]."
+                              << endl;
+            {
+                int start = end;
+                end = start + 1;
+                for (int i = start; i < end; ++i) {
+                    if (veryVerbose) { T_ T_ P(i) }
+                    Obj obj(0, Obj::e_URL);
+                    input = char(4 * i);
+                    LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
+                    LOOP_ASSERT(i, 1 == nOut);
+                    LOOP_ASSERT(i, 1 == nIn);
+                    LOOP_ASSERT(i, 0 == obj.endConvert(b + nOut, &nOut));
+                    LOOP_ASSERT(i, 3 == nOut);
+                    LOOP_ASSERT(i, '-' + i - start == b[0]);
+                    LOOP_ASSERT(i, 'A' == b[1]);
+                    LOOP_ASSERT(i, '=' == b[2]);
+                    LOOP_ASSERT(i, '=' == b[3]);
+                }
+            }
+
+            if (verbose) cout << "\t\"base64url\": Verify Entry [63]."
+                              << endl;
+            {
+                int start = end;
+                end = start + 1;
+                for (int i = start; i < end; ++i) {
+                    Obj obj(0, Obj::e_URL);
+                    input = char(4 * i);
+                    LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
+                    LOOP_ASSERT(i, 1 == nOut);
+                    LOOP_ASSERT(i, 1 == nIn);
+                    LOOP_ASSERT(i, 0 == obj.endConvert(b + nOut, &nOut));
+                    LOOP_ASSERT(i, 3 == nOut);
+                    LOOP_ASSERT(i, '_' + i - start == b[0]);
                     LOOP_ASSERT(i, 'A' == b[1]);
                     LOOP_ASSERT(i, '=' == b[2]);
                     LOOP_ASSERT(i, '=' == b[3]);
@@ -3950,7 +4101,7 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
 
         if (verbose) cout << "\nTry a few different settings." << endl;
 
-        if (verbose) cout << "\tmaxLineLength = 0" << endl;
+        if (verbose) cout << "\tmaxLineLength = 0, default alphabet" << endl;
         {
             Obj obj(0);
             ASSERT(1 == obj.isAcceptable());
@@ -3959,8 +4110,9 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
             ASSERT(1 == obj.isInitialState());
             ASSERT(0 == obj.maxLineLength());
             ASSERT(0 == obj.outputLength());
+            ASSERT(Obj::e_BASIC == obj.alphabet());
         }
-        if (verbose) cout << "\tmaxLineLength = 1" << endl;
+        if (verbose) cout << "\tmaxLineLength = 1, default alphabet" << endl;
         {
             Obj obj(1);
             ASSERT(1 == obj.isAcceptable());
@@ -3969,26 +4121,31 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
             ASSERT(1 == obj.isInitialState());
             ASSERT(1 == obj.maxLineLength());
             ASSERT(0 == obj.outputLength());
+            ASSERT(Obj::e_BASIC == obj.alphabet());
         }
-        if (verbose) cout << "\tmaxLineLength = 2" << endl;
+        if (verbose) cout << "\tmaxLineLength = 2, \"base64\" alphabet"
+                          << endl;
         {
-            Obj obj(2);
+            Obj obj(2, Obj::e_BASIC);
             ASSERT(1 == obj.isAcceptable());
             ASSERT(0 == obj.isDone());
             ASSERT(0 == obj.isError());
             ASSERT(1 == obj.isInitialState());
             ASSERT(2 == obj.maxLineLength());
             ASSERT(0 == obj.outputLength());
+            ASSERT(Obj::e_BASIC == obj.alphabet());
         }
-        if (verbose) cout << "\tmaxLineLength = INT_MAX" << endl;
+        if (verbose) cout << "\tmaxLineLength = INT_MAX, \"base64url\" "
+                          << "alphabet" << endl;
         {
-            Obj obj(INT_MAX);
+            Obj obj(INT_MAX, Obj::e_URL);
             ASSERT(1 == obj.isAcceptable());
             ASSERT(0 == obj.isDone());
             ASSERT(0 == obj.isError());
             ASSERT(1 == obj.isInitialState());
             ASSERT(INT_MAX == obj.maxLineLength());
             ASSERT(0 == obj.outputLength());
+            ASSERT(Obj::e_URL == obj.alphabet());
         }
 
       } break;

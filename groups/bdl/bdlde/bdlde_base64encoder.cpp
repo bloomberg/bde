@@ -23,7 +23,7 @@ namespace BloombergLP {
 // The following table is a map of a 6-bit index value to the corresponding
 // Base64 encoding of that index.
 
-static const char enc[] = {
+static const char base64[] = {
 //   0    1    2    3    4    5    6    7
     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',  // 000
     'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',  // 010
@@ -35,6 +35,21 @@ static const char enc[] = {
     '4', '5', '6', '7', '8', '9', '+', '/',  // 070
 };
 
+// The following table is a map of a 6-bit index value to the corresponding
+// Base64 URL and Filename Safe encoding of that index.
+
+static const char base64url[] = {
+//   0    1    2    3    4    5    6    7
+    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',  // 000
+    'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',  // 010
+    'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',  // 020
+    'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f',  // 030
+    'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',  // 040
+    'o', 'p', 'q', 'r', 's', 't', 'u', 'v',  // 050
+    'w', 'x', 'y', 'z', '0', '1', '2', '3',  // 060
+    '4', '5', '6', '7', '8', '9', '-', '_',  // 070
+};
+
 namespace bdlde {
 
                          // -------------------
@@ -42,7 +57,8 @@ namespace bdlde {
                          // -------------------
 
 // CLASS DATA
-const char *const Base64Encoder::s_encodedChars_p       = enc;
+const char *const Base64Encoder::s_base64Alphabet_p     = base64;
+const char *const Base64Encoder::s_base64UrlAlphabet_p  = base64url;
 const int         Base64Encoder::s_defaultMaxLineLength = 76;
 
 // CREATORS

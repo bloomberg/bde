@@ -28,6 +28,15 @@ BSLS_IDENT("$Id: $")
 // of RFC 2045, "Multipurpose Internet Mail Extensions (MIME) Part One: Format
 // of Internet Message Bodies."
 //
+// The 'bdlde::Base64Encoder' and 'bdlde::Base64Decoder' support the standard
+// "base64" encoding (described in https://tools.ietf.org/html/rfc4648) as well
+// as the "Base 64 Encoding with URL and Filename Safe Alphabet", or
+// "base64url", encoding.  The "base64url" encoding is very similar to "base64"
+// but substitutes a couple characters in the encoded alphabet to avoid
+// characters that conflict with special characters in URL syntax or filename
+// descriptions (replacing '+' for '-'. and '/' for '_').  See
+// {Base 64 Encoding with URL and Filename Safe Alphabet} for more information.
+//
 // Each instance of either the encoder or decoder retains the state of the
 // conversion from one supplied input to the next, enabling the processing of
 // segmented input -- i.e., processing resumes where it left off with the next
@@ -63,7 +72,7 @@ BSLS_IDENT("$Id: $")
 // form the encoding for the original 3-byte sequence.
 //..
 //     ======================================================================
-//     *              Table of Numeric BASE-64 Encoding Characters          *
+//     *                   The Basic BASE-64 Alphabet                       *
 //     ----------------------------------------------------------------------
 //     Val Enc  Val Enc  Val Enc  Val Enc  Val Enc  Val Enc  Val Enc  Val Enc
 //     --- ---  --- ---  --- ---  --- ---  --- ---  --- ---  --- ---  --- ---
@@ -77,6 +86,11 @@ BSLS_IDENT("$Id: $")
 //       7 'H'   15 'P'   23 'X'   31 'f'   39 'n'   47 'v'   55 '3'   63 '/'
 //     ======================================================================
 //..
+// This component also supports a slightly different alphabet, "base64url",
+// that is more appropriate if the encoded representation would be used in a
+// file name or URL (see
+// {Base 64 Encoding with URL and Filename Safe Alphabet}).
+//
 // The 3-byte grouping of the input is only a design of convenience and not a
 // requirement.  When the number of bytes in the input stream is not divisible
 // by 3, sufficient 0 bits are padded on the right to achieve an integral
@@ -118,6 +132,30 @@ BSLS_IDENT("$Id: $")
 // terminated explicitly by the 'endConvert' method (initiating bit padding
 // when necessary).
 //
+///Base 64 Encoding with URL and Filename Safe Alphabet
+///----------------------------------------------------
+// The encoder and decoder in this component also support the "base64url"
+// encoding, which is the same as standard "base64" but substitutes (a couple)
+// characters in the alphabet that are treated as special characters when used
+// in a URL or in a file system.  The following table is technically identical
+// to the table presented in {Base 64 Encoding}, except for the 62:nd and 63:rd
+// alphabet character, that indicates '-' and '_' respectively.
+//..
+//     ======================================================================
+//     *            The "URL and Filename Safe" BASE-64 Alphabet            *
+//     ----------------------------------------------------------------------
+//     Val Enc  Val Enc  Val Enc  Val Enc  Val Enc  Val Enc  Val Enc  Val Enc
+//     --- ---  --- ---  --- ---  --- ---  --- ---  --- ---  --- ---  --- ---
+//       0 'A'    8 'I'   16 'Q'   24 'Y'   32 'g'   40 'o'   48 'w'   56 '4'
+//       1 'B'    9 'J'   17 'R'   25 'Z'   33 'h'   41 'p'   49 'x'   57 '5'
+//       2 'C'   10 'K'   18 'S'   26 'a'   34 'i'   42 'q'   50 'y'   58 '6'
+//       3 'D'   11 'L'   19 'T'   27 'b'   35 'j'   43 'r'   51 'z'   59 '7'
+//       4 'E'   12 'M'   20 'U'   28 'c'   36 'k'   44 's'   52 '0'   60 '8'
+//       5 'F'   13 'N'   21 'V'   29 'd'   37 'l'   45 't'   53 '1'   61 '9'
+//       6 'G'   14 'O'   22 'W'   30 'e'   38 'm'   46 'u'   54 '2'   62 '-'
+//       7 'H'   15 'P'   23 'X'   31 'f'   39 'n'   47 'v'   55 '3'   63 '_'
+//     ======================================================================
+//..
 ///Base 64 Decoding
 ///----------------
 // The degree to which decoding detects errors can significantly affect
@@ -397,6 +435,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_assert.h>
 #include <bsls_review.h>
+#include <bsl_iostream.h>
 
 namespace BloombergLP {
 
@@ -409,6 +448,16 @@ class Base64Decoder {
     // This class implements a mechanism capable of converting data of
     // arbitrary length from its corresponding Base64 representation.
 
+  public:
+    // PUBLIC TYPES
+    enum Alphabet {
+        // Enumeration used to distinguish between different types of
+        // alphabets supported by this component.
+        e_BASIC = 0,  // "base64"
+        e_URL   = 1   // "base64url"
+    };
+
+  private:
     // PRIVATE TYPES
     enum {
         // Symbolic state values.
@@ -421,27 +470,42 @@ class Base64Decoder {
     };
 
     // CLASS DATA
-    static const bool *const s_ignorableStrict_p; // Table identifying
-                                                  // ignorable characters
-                                                  // in strict mode
-    static const bool *const s_ignorableRelaxed_p;// Table identifying
-                                                  // ignorable characters
-                                                  // in relaxed mode
-    static const char *const s_decoding_p;        // a map from numeric Base64
-                                                  // encoding characters to the
-                                                  // corresponding 6-bit number
+    static const bool *const s_ignorableStrict_p;
+        // Table identifying ignorable characters in strict mode
+
+    static const bool *const s_basicIgnorableRelaxed_p;
+        // Table identifying ignorable characters in Basic64 alphabet in
+        // relaxed mode
+
+    static const bool *const s_urlIgnorableRelaxed_p;
+        // Table identifying ignorable characters in Url and Filename Safe
+        // alphabet in relaxed mode
+
+    static const char *const s_basicAlphabet_p;
+        // A map from numeric Base64 encoding characters to the corresponding
+        // 6-bit number
+
+    static const char *const s_urlAlphabet_p;
+        // A map from numeric URL and Filename Safe encoding characters to the
+        // corresponding 6-bit number
 
     // INSTANCE DATA
-    const bool *const d_ignorable_p; // Selected table of ignorable characters
-                                     // based on specified error-reporting mode
+    signed char       d_state;         // -1 = error state
+                                       //  0 = general input state
+                                       //  1 = need another '='
+                                       //  2 = soft done state - allow only
+                                       //      ignorable input
+                                       //  3 = done state - no more input
+                                       //      allowed
 
-    signed char d_state;  // -1 = error state
-                          //  0 = general input state
-                          //  1 = need another '='
-                          //  2 = soft done state - allow only ignorable input
-                          //  3 = done state - no more input allowed
+    int               d_outputLength;  // total number of output characters
 
-    int d_outputLength;          // total number of output characters
+    const char *const d_alphabet_p;    // Selected alphabet based on specified
+                                       // alphabet type
+
+    const bool *const d_ignorable_p;   // Selected table of ignorable
+                                       // characters based on specified
+                                       // error-reporting mode
 
     // TBD doc
 
@@ -463,11 +527,13 @@ class Base64Decoder {
 
     // CREATORS
     explicit
-    Base64Decoder(bool unrecognizedIsErrorFlag);
+    Base64Decoder(bool unrecognizedIsErrorFlag, Alphabet alphabet = e_BASIC);
         // Create a Base64 decoder in the initial state.  Unrecognized
         // characters (i.e., non-base64 characters other than whitespace) will
         // be treated as errors if the specified 'unrecognizedIsErrorFlag' is
-        // 'true', and ignored otherwise.
+        // 'true', and ignored otherwise.  Optionally specify an alphabet used
+        // to decode input characters.  If 'alphabet' is not specified, then
+        // the basic alphabet, "base64", is used.
 
     ~Base64Decoder();
         // Destroy this object.
@@ -533,6 +599,9 @@ class Base64Decoder {
         // been consumed).
 
     // ACCESSORS
+    Alphabet alphabet() const;
+        // Return the alphabet supplied at construction of this object.
+
     bool isAcceptable() const;
         // Return 'true' if the input read so far is considered syntactically
         // complete, and 'false' otherwise.  Note that the number of relevant
@@ -590,11 +659,16 @@ int Base64Decoder::maxDecodedLength(int inputLength)
 
 // CREATORS
 inline
-Base64Decoder::Base64Decoder(bool unrecognizedIsErrorFlag)
-: d_ignorable_p(unrecognizedIsErrorFlag ? s_ignorableStrict_p
-                                        : s_ignorableRelaxed_p)
-, d_state(e_INPUT_STATE)
+Base64Decoder::Base64Decoder(bool     unrecognizedIsErrorFlag,
+                             Alphabet alphabet)
+: d_state(e_INPUT_STATE)
 , d_outputLength(0)
+, d_alphabet_p(Alphabet::e_BASIC == alphabet ? s_basicAlphabet_p
+                                             : s_urlAlphabet_p)
+, d_ignorable_p(unrecognizedIsErrorFlag
+                ? s_ignorableStrict_p
+                : (Alphabet::e_BASIC == alphabet) ? s_basicIgnorableRelaxed_p
+                                                  : s_urlIgnorableRelaxed_p)
 , d_stack(0)
 , d_bitsInStack(0)
 {
@@ -654,7 +728,7 @@ int Base64Decoder::convert(OUTPUT_ITERATOR  out,
             ++*numIn;
 
             unsigned char converted = static_cast<unsigned char>(
-                                                           s_decoding_p[byte]);
+                                                           d_alphabet_p[byte]);
 
             if (converted < 64) {
                 d_stack = (d_stack << 6) | converted;
@@ -780,6 +854,12 @@ void Base64Decoder::resetState()
 }
 
 // ACCESSORS
+inline
+Base64Decoder::Alphabet Base64Decoder::alphabet() const
+{
+    return d_alphabet_p == s_basicAlphabet_p ? e_BASIC : e_URL;
+}
+
 inline
 bool Base64Decoder::isAcceptable() const
 {
