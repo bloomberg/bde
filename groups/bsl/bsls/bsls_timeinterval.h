@@ -289,11 +289,20 @@ class TimeInterval {
     BSLS_KEYWORD_CONSTEXPR
     static bool isValid(bsls::Types::Int64 seconds,
                         int                nanoseconds);
-        // Return 'true' if a valid 'TimeInterval' can be constructed from the
+        // Return 'true' if a 'TimeInterval' object can be constructed from the
         // specified 'seconds' and 'nanoseconds', and 'false' otherwise.  A
-        // valid time interval can be constructed from 'seconds' and
-        // 'nanoseconds' if their sum results in a time interval whose total
-        // number of seconds can be represented with a 64-bit signed integer.
+        // time interval can be constructed from 'seconds' and 'nanoseconds' if
+        // their sum results in a time interval whose total number of seconds
+        // can be represented with a 64-bit signed integer.
+ 
+#ifdef BSLS_TIMEINTERVAL_PROVIDES_CHRONO_CONVERSIONS
+    template <class REP, class PERIOD>
+    static bool isValid(const std::chrono::duration<REP, PERIOD>& duration);
+        // Return 'true' if a 'TimeInterval' object can be constructed from the
+        // specified 'duration', and 'false' otherwise.  A time interval can be
+        // constructed from 'duration' if duration's value converted to seconds
+        // can be represented with a 64-bit signed integer.
+#endif
 
                                   // Aspects
 
@@ -603,6 +612,18 @@ class TimeInterval {
         // value-semantic types and containers.
 
     // ACCESSORS
+#ifdef BSLS_TIMEINTERVAL_PROVIDES_CHRONO_CONVERSIONS
+    template <class DURATION_TYPE>
+    bool isInDurationRange(
+         typename std::enable_if<TimeInterval_IsDuration<DURATION_TYPE>::value,
+                                 int>::type * = 0) const;
+        // Return 'true' if the value of this time interval is within the valid
+        // range of the parameterized 'DURATION_TYPE', and 'false' otherwise.
+        // Note that this function does not participate in overload resolution
+        // unless 'DURATION_TYPE' is an instantiation of
+        // 'std::chrono::duration'.
+#endif
+
     BSLS_KEYWORD_CONSTEXPR
     int nanoseconds() const;
         // Return the nanoseconds field in the canonical representation of the
@@ -739,41 +760,6 @@ class TimeInterval {
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
 
 };
-
-#ifdef BSLS_TIMEINTERVAL_PROVIDES_CHRONO_CONVERSIONS
-
-                       // =============================
-                       // class TimeInterval_ChronoUtil
-                       // =============================
-
-struct TimeInterval_ChronoUtil {
-    // This 'struct' provides a namespace for functions that check if
-    // 'std::chrono::duration' values can be safely converted to the
-    // corresponding 'TimeInterval' values and vice versa.
-
-    // CLASS METHODS
-    template <class REP, class PERIOD>
-    static
-    bool isInTimeIntervalRange(
-                           const std::chrono::duration<REP, PERIOD>& duration);
-        // Return 'true' if the specified 'duration' is within the valid range
-        // of 'TimeInterval', and 'false' otherwise.
-
-    template <class DURATION_TYPE>
-    static bool isInDurationRange(
-         bsls::Types::Int64 seconds,
-         int                nanoseconds,
-         typename std::enable_if<TimeInterval_IsDuration<DURATION_TYPE>::value,
-                                 int>::type * = 0);
-        // Return 'true' if the sum of the specified 'seconds' and
-        // 'nanoseconds' is within the valid range of the (template parameter)
-        // 'DURATION_TYPE', which should be a specialization of
-        // 'std::chrono::duration', and 'false' otherwise.  Note that this
-        // function participates in the overload set if and only if
-        // 'DURATION_TYPE' is an instance of 'std::chrono::duration'.
-};
-
-#endif
 
 // FREE OPERATORS
 TimeInterval operator+(const TimeInterval& lhs, const TimeInterval& rhs);
@@ -931,6 +917,25 @@ bool TimeInterval::isValid(bsls::Types::Int64 seconds,
     return isSumValidInt64(seconds, nanoseconds / k_NANOSECS_PER_SEC);
 }
 
+#ifdef BSLS_TIMEINTERVAL_PROVIDES_CHRONO_CONVERSIONS
+
+template <class REP, class PERIOD>
+bool TimeInterval::isValid(const std::chrono::duration<REP, PERIOD>& duration)
+{
+    std::chrono::duration<long double> minValue =
+                                 std::chrono::duration<long double>(LLONG_MIN);
+    --minValue;
+    std::chrono::duration<long double> maxValue =
+                                 std::chrono::duration<long double>(LLONG_MAX);
+    ++maxValue;
+    const std::chrono::duration<long double> safeDuration =
+               std::chrono::duration_cast<std::chrono::duration<long double> >(
+                                                                     duration);
+
+    return (safeDuration >= minValue && safeDuration <= maxValue);
+}
+#endif  // BSLS_TIMEINTERVAL_PROVIDES_CHRONO_CONVERSIONS
+
 // CREATORS
 inline BSLS_KEYWORD_CONSTEXPR
 TimeInterval::TimeInterval()
@@ -962,9 +967,7 @@ TimeInterval::TimeInterval(
                                    PERIOD_TYPE>::k_IMPLICIT_CONVERSION_ENABLED,
                             int>::type *)
 {
-    BSLS_ASSERT((
-        TimeInterval_ChronoUtil::isInTimeIntervalRange<REP_TYPE, PERIOD_TYPE>(
-                                                                   duration)));
+    BSLS_ASSERT((isValid<REP_TYPE, PERIOD_TYPE>(duration)));
     using SecondsRatio = std::ratio<1>;
     using TimeIntervalSeconds =
                      std::chrono::duration<bsls::Types::Int64, SecondsRatio>;
@@ -988,9 +991,7 @@ TimeInterval::TimeInterval(
                                    PERIOD_TYPE>::k_EXPLICIT_CONVERSION_ENABLED,
                             int>::type *)
 {
-    BSLS_ASSERT((
-        TimeInterval_ChronoUtil::isInTimeIntervalRange<REP_TYPE, PERIOD_TYPE>(
-                                                                   duration)));
+    BSLS_ASSERT((isValid<REP_TYPE, PERIOD_TYPE>(duration)));
     const bsls::Types::Int64 k_SECONDS     =
             std::chrono::duration_cast<std::chrono::seconds>(duration).count();
     const int                k_NANOSECONDS = static_cast<int>(
@@ -1177,9 +1178,7 @@ TimeInterval::addDuration(
                                    PERIOD_TYPE>::k_IMPLICIT_CONVERSION_ENABLED,
                                int>::type *)
 {
-    BSLS_ASSERT((
-        TimeInterval_ChronoUtil::isInTimeIntervalRange<REP_TYPE, PERIOD_TYPE>(
-                                                                   duration)));
+    BSLS_ASSERT((isValid<REP_TYPE, PERIOD_TYPE>(duration)));
 
     const bsls::Types::Int64 k_SECONDS     =
             std::chrono::duration_cast<std::chrono::seconds>(duration).count();
@@ -1263,6 +1262,34 @@ STREAM& TimeInterval::bdexStreamIn(STREAM& stream, int version)
 }
 
 // ACCESSORS
+#ifdef BSLS_TIMEINTERVAL_PROVIDES_CHRONO_CONVERSIONS
+template <class DURATION_TYPE>
+bool TimeInterval::isInDurationRange(
+         typename std::enable_if<TimeInterval_IsDuration<DURATION_TYPE>::value,
+                                 int>::type *) const
+{
+    using SecondsRatio = std::ratio<1>;
+    using TimeIntervalSeconds =
+                       std::chrono::duration<bsls::Types::Int64, SecondsRatio>;
+    using TimeIntervalNanoseconds = std::chrono::duration<int, std::nano>;
+    using Period = typename DURATION_TYPE::period;
+    using LongDoubleTo = std::chrono::duration<long double, Period>;
+
+    const LongDoubleTo MIN_VALUE =
+                std::chrono::duration_cast<LongDoubleTo>(DURATION_TYPE::min());
+
+    const LongDoubleTo MAX_VALUE =
+                std::chrono::duration_cast<LongDoubleTo>(DURATION_TYPE::max());
+
+    const LongDoubleTo value = std::chrono::duration_cast<LongDoubleTo>(
+                                                TimeIntervalSeconds(seconds()))
+                             + std::chrono::duration_cast<LongDoubleTo>(
+                                       TimeIntervalNanoseconds(nanoseconds()));
+
+    return (MIN_VALUE <= value && value <= MAX_VALUE);
+}
+#endif  // BSLS_TIMEINTERVAL_PROVIDES_CHRONO_CONVERSIONS
+
 inline BSLS_KEYWORD_CONSTEXPR
 int TimeInterval::nanoseconds() const
 {
@@ -1350,9 +1377,7 @@ TimeInterval::asDuration() const
                        std::chrono::duration<bsls::Types::Int64, SecondsRatio>;
     using TimeIntervalNanoseconds = std::chrono::duration<int, std::nano>;
 
-    BSLS_ASSERT(TimeInterval_ChronoUtil::isInDurationRange<DURATION_TYPE>(
-                                                               d_seconds,
-                                                               d_nanoseconds));
+    BSLS_ASSERT(isInDurationRange<DURATION_TYPE>());
 
     return (std::chrono::duration_cast<DURATION_TYPE>(TimeIntervalSeconds(
                                                                     d_seconds))
@@ -1413,60 +1438,6 @@ STREAM& TimeInterval::streamOut(STREAM& stream) const
 }
 
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
-
-#ifdef BSLS_TIMEINTERVAL_PROVIDES_CHRONO_CONVERSIONS
-
-                      // -----------------------------
-                      // class TimeInterval_ChronoUtil
-                      // -----------------------------
-
-// CLASS METHODS
-template <class REP, class PERIOD>
-bool TimeInterval_ChronoUtil::isInTimeIntervalRange(
-                            const std::chrono::duration<REP, PERIOD>& duration)
-{
-    std::chrono::duration<long double> minValue =
-                                 std::chrono::duration<long double>(LLONG_MIN);
-    --minValue;
-    std::chrono::duration<long double> maxValue =
-                                 std::chrono::duration<long double>(LLONG_MAX);
-    ++maxValue;
-    const std::chrono::duration<long double> safeDuration =
-               std::chrono::duration_cast<std::chrono::duration<long double> >(
-                                                                     duration);
-
-    return (safeDuration >= minValue && safeDuration <= maxValue);
-}
-
-template <class DURATION_TYPE>
-bool TimeInterval_ChronoUtil::isInDurationRange(
-         bsls::Types::Int64 seconds,
-         int                nanoseconds,
-         typename std::enable_if<TimeInterval_IsDuration<DURATION_TYPE>::value,
-                                 int>::type *)
-{
-    using SecondsRatio = std::ratio<1>;
-    using TimeIntervalSeconds =
-                       std::chrono::duration<bsls::Types::Int64, SecondsRatio>;
-    using TimeIntervalNanoseconds = std::chrono::duration<int, std::nano>;
-    using Period = typename DURATION_TYPE::period;
-    using LongDoubleTo = std::chrono::duration<long double, Period>;
-
-    const LongDoubleTo MIN_VALUE =
-                std::chrono::duration_cast<LongDoubleTo>(DURATION_TYPE::min());
-
-    const LongDoubleTo MAX_VALUE =
-                std::chrono::duration_cast<LongDoubleTo>(DURATION_TYPE::max());
-
-    const LongDoubleTo value = std::chrono::duration_cast<LongDoubleTo>(
-                                                  TimeIntervalSeconds(seconds))
-                             + std::chrono::duration_cast<LongDoubleTo>(
-                                         TimeIntervalNanoseconds(nanoseconds));
-
-    return (MIN_VALUE <= value && value <= MAX_VALUE);
-}
-
-#endif  // BSLS_TIMEINTERVAL_PROVIDES_CHRONO_CONVERSIONS
 
 }  // close package namespace
 

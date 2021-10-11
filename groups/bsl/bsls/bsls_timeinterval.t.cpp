@@ -69,6 +69,7 @@ using bsls::NameOf;
 // ----------------------------------------------------------------------------
 // CLASS METHODS
 // [22] bool isValid(Int64, int);
+// [25] bool isValid(const std::chrono::duration& duration);
 // [10] static int maxSupportedBdexVersion(int versionSelector);
 //
 // CREATORS
@@ -117,6 +118,7 @@ using bsls::NameOf;
 // [17] Int64 totalMicroseconds() const;
 // [17] Int64 totalNanoseconds() const;
 // [17] double totalSecondsAsDouble() const;
+// [26] bool isInDurationRange() const;
 // [27] DURATION_TYPE asDuration() const;
 // [10] STREAM& bdexStreamOut(STREAM& stream, int version) const;
 // [ 5] ostream& print(ostream&, int, int) const;
@@ -168,8 +170,6 @@ using bsls::NameOf;
 // [ 8] Reserved for 'swap' testing.
 // [23] CONCERN: DRQS 65043434
 // [24] TESTING STD::CHRONO HELPER CLASSES
-// [25] TESTING 'TimeInterval' RANGE CHECKS
-// [26] TESTING 'std::chrono::duration' RANGE CHECKS
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -314,8 +314,8 @@ template <class VALUE_TYPE, class REP, class PERIOD>
 void verifyIsInTimeIntervalRange(int        line,
                                  VALUE_TYPE count,
                                  bool       expectedResult)
-    // Verify that the result of the 'ChronoUtil::isInTimeIntervalRange' call
-    // for the 'std::chrono::duration<REP, PERIOD>' object having the specified
+    // Verify that the result of the 'TimeInterval::isValid' call for the
+    // 'std::chrono::duration<REP, PERIOD>' object having the specified
     // 'count', is equal to the specified 'expectedResult'.   As conventional,
     // the specified 'line' identifies the row of the test table that is the
     // source of the data.  The behavior is undefined unless 'VALUE_TYPE' is
@@ -324,7 +324,6 @@ void verifyIsInTimeIntervalRange(int        line,
     // represent all possible values we need to work with.
 {
     using std::chrono::duration;
-    using ChronoUtil = bsls::TimeInterval_ChronoUtil;
 
     BSLS_KEYWORD_CONSTEXPR VALUE_TYPE k_REP_MIN =
                                                std::numeric_limits<REP>::min();
@@ -337,7 +336,7 @@ void verifyIsInTimeIntervalRange(int        line,
         const bool                  k_EXPECTED = expectedResult;
         const duration<REP, PERIOD> k_DUR_VALUE(count);
         const bool                  k_RESULT =
-                   ChronoUtil::isInTimeIntervalRange<REP, PERIOD>(k_DUR_VALUE);
+                         bsls::TimeInterval::isValid<REP, PERIOD>(k_DUR_VALUE);
 
         ASSERTV(line,
                 NameOf<VALUE_TYPE>().name(),
@@ -352,9 +351,9 @@ template <class PERIOD>
 void verifyTimeIntervalRangeCheck(int                      line,
                                   std::uint64_t            count,
                                   const RangeCheckResults& expectedResults)
-    // Verify that the result of the 'ChronoUtil::isInTimeIntervalRange' call
-    // for the 'std::chrono::duration' object, having the specified 'count',
-    // the (template parameter) PERIOD and any signed integer representation
+    // Verify that the result of the 'TimeInterval::isValid' call for the
+    // 'std::chrono::duration' object, having the specified 'count', the
+    // (template parameter) PERIOD and any signed integer representation
     // matches the corresponding entry of the specified 'expectedResults'
     // array.  As conventional, the specified 'line' identifies the row of the
     // test table that is the source of the data.
@@ -382,9 +381,9 @@ void verifyTimeIntervalRangeCheckUnsigned(
                                       int                      line,
                                       std::uint64_t            count,
                                       const RangeCheckResults& expectedResults)
-    // Verify that the result of the 'ChronoUtil::isInTimeIntervalRange' call
-    // for the 'std::chrono::duration' object, having the specified 'count',
-    // the (template parameter) PERIOD and any unsigned integer representation
+    // Verify that the result of the 'TimeInterval::isValid' call for the
+    // 'std::chrono::duration' object, having the specified 'count', the
+    // (template parameter) PERIOD and any unsigned integer representation
     // matches the corresponding entry of the specified 'expectedResults'
     // array.  As conventional, the specified 'line' identifies the row of the
     // test table that is the source of the data.
@@ -408,90 +407,77 @@ void verifyTimeIntervalRangeCheckUnsigned(
 }
 
 template <class REP, class PERIOD>
-void verifyIsInDurationRange(int           line,
-                             long long int seconds,
-                             int           nanoseconds,
-                             bool          expectedResult)
+void verifyIsInDurationRange(int                       line,
+                             const bsls::TimeInterval& interval,
+                             bool                      expectedResult)
     // Verify that the result of the
-    // 'ChronoUtil::isInDurationRange<std::chrono::duration<REP, PERIOD> >'
-    // call for the specified 'seconds' and 'nanoseconds' is equal to the
-    // specified 'expectedResult'.   The specified 'line' points to the
-    // specific row in the test table to facilitate debugging in case of error.
+    // 'TimeInterval::isInDurationRange<std::chrono::duration<REP, PERIOD> >'
+    // call for the specified 'interval' is equal to the specified
+    // 'expectedResult'.   The specified 'line' points to the specific row in
+    // the test table to facilitate debugging in case of error.
 {
     using std::chrono::duration;
-    using ChronoUtil = bsls::TimeInterval_ChronoUtil;
     using Duration   = duration<REP, PERIOD>;
 
     const bool k_EXPECTED = expectedResult;
     const bool k_RESULT   =
-                 ChronoUtil::isInDurationRange<Duration>(seconds, nanoseconds);
+                    interval.bsls::TimeInterval::isInDurationRange<Duration>();
 
     ASSERTV(line,
             NameOf<REP>().name(),
-            seconds,
-            nanoseconds,
+            interval.seconds(),
+            interval.nanoseconds(),
             k_RESULT,
             k_EXPECTED == k_RESULT);
 }
 
 template <class PERIOD>
-void verifyDurationRangeCheck(int                      line,
-                              long long int            seconds,
-                              int                      nanoseconds,
-                              const RangeCheckResults& expectedResults)
-    // Verify that the result of the 'ChronoUtil::isInDurationRange' call
+void verifyDurationRangeCheck(int                       line,
+                              const bsls::TimeInterval& interval,
+                              const RangeCheckResults&  expectedResults)
+    // Verify that the result of the 'TimeInterval::isInDurationRange' call
     // parameterized by 'std::chrono::duration' type having any signed integer
     // representation and the (template parameter) PERIOD, for the specified
-    // 'seconds' and 'nanoseconds' matches the corresponding entry of the
-    // specified 'expectedResults' array.  The specified 'line' points to the
-    // specific row in the test table to facilitate debugging in case of error.
+    // 'interval' matches the corresponding entry of the specified
+    // 'expectedResults' array.  The specified 'line' points to the specific
+    // row in the test table to facilitate debugging in case of error.
 {
     verifyIsInDurationRange<std::int8_t,  PERIOD>(line,
-                                                  seconds,
-                                                  nanoseconds,
+                                                  interval,
                                                   expectedResults[e_EXP_8]);
     verifyIsInDurationRange<std::int16_t, PERIOD>(line,
-                                                  seconds,
-                                                  nanoseconds,
+                                                  interval,
                                                   expectedResults[e_EXP_16]);
     verifyIsInDurationRange<std::int32_t, PERIOD>(line,
-                                                  seconds,
-                                                  nanoseconds,
+                                                  interval,
                                                   expectedResults[e_EXP_32]);
     verifyIsInDurationRange<std::int64_t, PERIOD>(line,
-                                                  seconds,
-                                                  nanoseconds,
+                                                  interval,
                                                   expectedResults[e_EXP_64]);
 }
 
 template <class PERIOD>
-void verifyDurationRangeCheckUnsigned(int                      line,
-                                      long long int            seconds,
-                                      int                      nanoseconds,
-                                      const RangeCheckResults& expectedResults)
-    // Verify that the result of the 'ChronoUtil::isInDurationRange' call
+void verifyDurationRangeCheckUnsigned(int                       line,
+                                      const bsls::TimeInterval& interval,
+                                      const RangeCheckResults&  expectedResults)
+    // Verify that the result of the 'TimeInterval::isInDurationRange' call
     // parameterized by 'std::chrono::duration' type having any unsigned
     // integer representation and the (template parameter) PERIOD, for the
-    // specified 'seconds' and 'nanoseconds' matches the corresponding entry of
-    // the specified 'expectedResults' array.  The specified 'line' points to
-    // the specific row in the test table to facilitate debugging in case of
-    // error.
+    // specified 'interval' matches the corresponding entry of the specified
+    // 'expectedResults' array.  The specified 'line' points to the specific
+    // row in the test table to facilitate debugging in case of error.
 {
     verifyIsInDurationRange<std::uint8_t,  PERIOD>(line,
-                                                   seconds,
-                                                   nanoseconds,
+                                                   interval,
                                                    expectedResults[e_EXP_8]);
     verifyIsInDurationRange<std::uint16_t, PERIOD>(line,
-                                                   seconds,
-                                                   nanoseconds,
+                                                   interval,
                                                    expectedResults[e_EXP_16]);
     verifyIsInDurationRange<std::uint32_t, PERIOD>(line,
-                                                   seconds,
-                                                   nanoseconds,
+                                                   interval,
                                                    expectedResults[e_EXP_32]);
     verifyIsInDurationRange<std::uint64_t, PERIOD>(line,
-                                                   seconds,
-                                                   nanoseconds,
+                                                   interval,
                                                    expectedResults[e_EXP_64]);
 }
 
@@ -2004,10 +1990,13 @@ int main(int argc, char *argv[])
             // 'LLONG_MIN'.  We don't have integer type with bigger capacity
             // for duration's representation, so we have to play with the
             // duration's period.  Let's take the minimum fitting value of
-            // minutes - 1.
+            // 'minutes - 15'.  The usual change by one is not enough in this
+            // case, since we have to convert the values to 'long double' that
+            // suffers from a lack of precision on such large numbers.  The
+            // specific value is selected empirically.
 
             const std::chrono::duration<long long int, std::ratio<60, 1> >
-                                               INVALID_MIN(LLONG_MIN / 60 - 1);
+                                              INVALID_MIN(LLONG_MIN / 60 - 15);
 
             const std::chrono::duration<long long int> VALID_MAX =
                                                             DURATION_LLONG_MAX;
@@ -2017,7 +2006,7 @@ int main(int argc, char *argv[])
             // Using the same approach as for the mininmal invalid value.
 
             const std::chrono::duration<long long int, std::ratio<60, 1> >
-                                               INVALID_MAX(LLONG_MAX / 60 + 1);
+                                              INVALID_MAX(LLONG_MAX / 60 + 15);
 
 
             // Constructor.
@@ -2158,7 +2147,7 @@ int main(int argc, char *argv[])
       } break;
       case 26: {
         // --------------------------------------------------------------------
-        // TESTING 'std::chrono::duration' RANGE CHECKS
+        // TESTING 'isInDurationRange'
         //
         // NOTE THAT this first implementation of 'chrono::duration'
         // interoperability does not support durations with floating point
@@ -2207,12 +2196,11 @@ int main(int argc, char *argv[])
         //:   from P-1 can be converted.  (C-1..4)
         //
         // Testing:
-        //   TESTING 'std::chrono::duration' RANGE CHECKS
+        //   bool isInDurationRange() const;
         // --------------------------------------------------------------------
 
-        if (verbose) printf(
-                           "\nTESTING 'std::chrono::duration' RANGE CHECKS"
-                           "\n============================================\n");
+        if (verbose) printf("\nTESTING 'isInDurationRange'"
+                            "\n===========================\n");
 
 #ifdef BSLS_TIMEINTERVAL_PROVIDES_CHRONO_CONVERSIONS
 
@@ -2386,16 +2374,10 @@ int main(int argc, char *argv[])
 
         for (size_t i = 0; i < NUM_PICO_DATA; i++) {
             const int               LINE        = PICO_DATA[i].d_line;
-            const long long int     SECONDS     =
-                                             PICO_DATA[i].d_interval.seconds();
-            const int               NANOSECONDS =
-                                         PICO_DATA[i].d_interval.nanoseconds();
+            const Obj&              INTERVAL    = PICO_DATA[i].d_interval;
             const RangeCheckResults EXPECTED    = PICO_DATA[i].d_expected;
 
-            verifyDurationRangeCheck<pico>(LINE,
-                                           SECONDS,
-                                           NANOSECONDS,
-                                           EXPECTED);
+            verifyDurationRangeCheck<pico>(LINE, INTERVAL, EXPECTED);
         }
 
         // +-----------------------------------------------------+
@@ -2448,16 +2430,10 @@ int main(int argc, char *argv[])
 
         for (size_t i = 0; i < NUM_U_PICO_DATA; i++) {
             const int               LINE        = U_PICO_DATA[i].d_line;
-            const long long int     SECONDS     =
-                                           U_PICO_DATA[i].d_interval.seconds();
-            const int               NANOSECONDS =
-                                       U_PICO_DATA[i].d_interval.nanoseconds();
+            const Obj&              INTERVAL    = U_PICO_DATA[i].d_interval;
             const RangeCheckResults EXPECTED    = U_PICO_DATA[i].d_expected;
 
-            verifyDurationRangeCheckUnsigned<pico>(LINE,
-                                                   SECONDS,
-                                                   NANOSECONDS,
-                                                   EXPECTED);
+            verifyDurationRangeCheckUnsigned<pico>(LINE, INTERVAL, EXPECTED);
         }
 
         // +-------------------------------------------+
@@ -2528,16 +2504,10 @@ int main(int argc, char *argv[])
 
         for (size_t i = 0; i < NUM_NANO_DATA; i++) {
             const int               LINE        = NANO_DATA[i].d_line;
-            const long long int     SECONDS     =
-                                             NANO_DATA[i].d_interval.seconds();
-            const int               NANOSECONDS =
-                                         NANO_DATA[i].d_interval.nanoseconds();
+            const Obj&              INTERVAL    = NANO_DATA[i].d_interval;
             const RangeCheckResults EXPECTED    = NANO_DATA[i].d_expected;
 
-            verifyDurationRangeCheck<nano>(LINE,
-                                           SECONDS,
-                                           NANOSECONDS,
-                                           EXPECTED);
+            verifyDurationRangeCheck<nano>(LINE, INTERVAL, EXPECTED);
         }
 
         // +-------------------------------------------+
@@ -2585,16 +2555,10 @@ int main(int argc, char *argv[])
 
         for (size_t i = 0; i < NUM_U_NANO_DATA; i++) {
             const int               LINE        = U_NANO_DATA[i].d_line;
-            const long long int     SECONDS     =
-                                           U_NANO_DATA[i].d_interval.seconds();
-            const int               NANOSECONDS =
-                                       U_NANO_DATA[i].d_interval.nanoseconds();
+            const Obj&              INTERVAL    = U_NANO_DATA[i].d_interval;
             const RangeCheckResults EXPECTED    = U_NANO_DATA[i].d_expected;
 
-            verifyDurationRangeCheckUnsigned<nano>(LINE,
-                                                   SECONDS,
-                                                   NANOSECONDS,
-                                                   EXPECTED);
+            verifyDurationRangeCheckUnsigned<nano>(LINE, INTERVAL, EXPECTED);
         }
 
         // +-----------------------------------------------+
@@ -2665,16 +2629,10 @@ int main(int argc, char *argv[])
 
         for (size_t i = 0; i < NUM_MICRO_DATA; i++) {
             const int               LINE        = MICRO_DATA[i].d_line;
-            const long long int     SECONDS     =
-                                            MICRO_DATA[i].d_interval.seconds();
-            const int               NANOSECONDS =
-                                        MICRO_DATA[i].d_interval.nanoseconds();
+            const Obj&              INTERVAL    = MICRO_DATA[i].d_interval;
             const RangeCheckResults EXPECTED    = MICRO_DATA[i].d_expected;
 
-            verifyDurationRangeCheck<micro>(LINE,
-                                            SECONDS,
-                                            NANOSECONDS,
-                                            EXPECTED);
+            verifyDurationRangeCheck<micro>(LINE, INTERVAL, EXPECTED);
         }
 
         // +-----------------------------------------------+
@@ -2723,16 +2681,10 @@ int main(int argc, char *argv[])
 
         for (size_t i = 0; i < NUM_U_MICRO_DATA; i++) {
             const int               LINE        = U_MICRO_DATA[i].d_line;
-            const long long int     SECONDS     =
-                                          U_MICRO_DATA[i].d_interval.seconds();
-            const int               NANOSECONDS =
-                                      U_MICRO_DATA[i].d_interval.nanoseconds();
+            const Obj&              INTERVAL    = U_MICRO_DATA[i].d_interval;
             const RangeCheckResults EXPECTED    = U_MICRO_DATA[i].d_expected;
 
-            verifyDurationRangeCheckUnsigned<micro>(LINE,
-                                                    SECONDS,
-                                                    NANOSECONDS,
-                                                    EXPECTED);
+            verifyDurationRangeCheckUnsigned<micro>(LINE, INTERVAL, EXPECTED);
         }
 
         // +---------------------------------------------------+
@@ -2807,16 +2759,10 @@ int main(int argc, char *argv[])
 
         for (size_t i = 0; i < NUM_MILLI_DATA; i++) {
             const int               LINE        = MILLI_DATA[i].d_line;
-            const long long int     SECONDS     =
-                                            MILLI_DATA[i].d_interval.seconds();
-            const int               NANOSECONDS =
-                                        MILLI_DATA[i].d_interval.nanoseconds();
+            const Obj&              INTERVAL    = MILLI_DATA[i].d_interval;
             const RangeCheckResults EXPECTED    = MILLI_DATA[i].d_expected;
 
-            verifyDurationRangeCheck<milli>(LINE,
-                                            SECONDS,
-                                            NANOSECONDS,
-                                            EXPECTED);
+            verifyDurationRangeCheck<milli>(LINE, INTERVAL, EXPECTED);
         }
 
         // +---------------------------------------------------+
@@ -2865,16 +2811,10 @@ int main(int argc, char *argv[])
 
         for (size_t i = 0; i < NUM_U_MILLI_DATA; i++) {
             const int               LINE        = U_MILLI_DATA[i].d_line;
-            const long long int     SECONDS     =
-                                          U_MILLI_DATA[i].d_interval.seconds();
-            const int               NANOSECONDS =
-                                      U_MILLI_DATA[i].d_interval.nanoseconds();
+            const Obj&              INTERVAL    = U_MILLI_DATA[i].d_interval;
             const RangeCheckResults EXPECTED    = U_MILLI_DATA[i].d_expected;
 
-            verifyDurationRangeCheckUnsigned<milli>(LINE,
-                                                    SECONDS,
-                                                    NANOSECONDS,
-                                                    EXPECTED);
+            verifyDurationRangeCheckUnsigned<milli>(LINE, INTERVAL, EXPECTED);
         }
 
         // +-------------------------------------------------------+
@@ -2950,16 +2890,10 @@ int main(int argc, char *argv[])
 
         for (size_t i = 0; i < NUM_THIRD_DATA; i++) {
             const int               LINE        = THIRD_DATA[i].d_line;
-            const long long int     SECONDS     =
-                                            THIRD_DATA[i].d_interval.seconds();
-            const int               NANOSECONDS =
-                                        THIRD_DATA[i].d_interval.nanoseconds();
+            const Obj&              INTERVAL    = THIRD_DATA[i].d_interval;
             const RangeCheckResults EXPECTED    = THIRD_DATA[i].d_expected;
 
-            verifyDurationRangeCheck<third>(LINE,
-                                            SECONDS,
-                                            NANOSECONDS,
-                                            EXPECTED);
+            verifyDurationRangeCheck<third>(LINE, INTERVAL, EXPECTED);
         }
 
         // +-------------------------------------------------------+
@@ -3020,16 +2954,10 @@ int main(int argc, char *argv[])
 
         for (size_t i = 0; i < NUM_U_THIRD_DATA; i++) {
             const int               LINE        = U_THIRD_DATA[i].d_line;
-            const long long int     SECONDS     =
-                                          U_THIRD_DATA[i].d_interval.seconds();
-            const int               NANOSECONDS =
-                                      U_THIRD_DATA[i].d_interval.nanoseconds();
+            const Obj&              INTERVAL    = U_THIRD_DATA[i].d_interval;
             const RangeCheckResults EXPECTED    = U_THIRD_DATA[i].d_expected;
 
-            verifyDurationRangeCheckUnsigned<third>(LINE,
-                                                    SECONDS,
-                                                    NANOSECONDS,
-                                                    EXPECTED);
+            verifyDurationRangeCheckUnsigned<third>(LINE, INTERVAL, EXPECTED);
         }
 
         // +-------------------------------------------------------+
@@ -3105,16 +3033,10 @@ int main(int argc, char *argv[])
 
         for (size_t i = 0; i < NUM_HALF_DATA; i++) {
             const int               LINE        = HALF_DATA[i].d_line;
-            const long long int     SECONDS     =
-                                             HALF_DATA[i].d_interval.seconds();
-            const int               NANOSECONDS =
-                                         HALF_DATA[i].d_interval.nanoseconds();
+            const Obj&              INTERVAL    = HALF_DATA[i].d_interval;
             const RangeCheckResults EXPECTED    = HALF_DATA[i].d_expected;
 
-            verifyDurationRangeCheck<half>(LINE,
-                                           SECONDS,
-                                           NANOSECONDS,
-                                           EXPECTED);
+            verifyDurationRangeCheck<half>(LINE, INTERVAL, EXPECTED);
         }
 
         // +-------------------------------------------------------+
@@ -3183,16 +3105,10 @@ int main(int argc, char *argv[])
 
         for (size_t i = 0; i < NUM_U_HALF_DATA; i++) {
             const int               LINE        = U_HALF_DATA[i].d_line;
-            const long long int     SECONDS     =
-                                           U_HALF_DATA[i].d_interval.seconds();
-            const int               NANOSECONDS =
-                                       U_HALF_DATA[i].d_interval.nanoseconds();
+            const Obj&              INTERVAL    = U_HALF_DATA[i].d_interval;
             const RangeCheckResults EXPECTED    = U_HALF_DATA[i].d_expected;
 
-            verifyDurationRangeCheckUnsigned<half>(LINE,
-                                                   SECONDS,
-                                                   NANOSECONDS,
-                                                   EXPECTED);
+            verifyDurationRangeCheckUnsigned<half>(LINE, INTERVAL, EXPECTED);
         }
 
         // +-------------------------------------------------------+
@@ -3290,16 +3206,10 @@ int main(int argc, char *argv[])
 
         for (size_t i = 0; i < NUM_ONE_DATA; i++) {
             const int               LINE        = ONE_DATA[i].d_line;
-            const long long int     SECONDS     =
-                                              ONE_DATA[i].d_interval.seconds();
-            const int               NANOSECONDS =
-                                          ONE_DATA[i].d_interval.nanoseconds();
+            const Obj&              INTERVAL    = ONE_DATA[i].d_interval;
             const RangeCheckResults EXPECTED    = ONE_DATA[i].d_expected;
 
-            verifyDurationRangeCheck<one>(LINE,
-                                          SECONDS,
-                                          NANOSECONDS,
-                                          EXPECTED);
+            verifyDurationRangeCheck<one>(LINE, INTERVAL, EXPECTED);
         }
 
         // +-------------------------------------------------------+
@@ -3345,16 +3255,10 @@ int main(int argc, char *argv[])
 
         for (size_t i = 0; i < NUM_U_ONE_DATA; i++) {
             const int               LINE        = U_ONE_DATA[i].d_line;
-            const long long int     SECONDS     =
-                                            U_ONE_DATA[i].d_interval.seconds();
-            const int               NANOSECONDS =
-                                        U_ONE_DATA[i].d_interval.nanoseconds();
+            const Obj&              INTERVAL    = U_ONE_DATA[i].d_interval;
             const RangeCheckResults EXPECTED    = U_ONE_DATA[i].d_expected;
 
-            verifyDurationRangeCheckUnsigned<one>(LINE,
-                                                  SECONDS,
-                                                  NANOSECONDS,
-                                                  EXPECTED);
+            verifyDurationRangeCheckUnsigned<one>(LINE, INTERVAL, EXPECTED);
         }
 
         // +-------------------------------------------------------+
@@ -3422,16 +3326,10 @@ int main(int argc, char *argv[])
 
         for (size_t i = 0; i < NUM_TWO_DATA; i++) {
             const int               LINE        = TWO_DATA[i].d_line;
-            const long long int     SECONDS     =
-                                              TWO_DATA[i].d_interval.seconds();
-            const int               NANOSECONDS =
-                                          TWO_DATA[i].d_interval.nanoseconds();
+            const Obj&              INTERVAL    = TWO_DATA[i].d_interval;
             const RangeCheckResults EXPECTED    = TWO_DATA[i].d_expected;
 
-            verifyDurationRangeCheck<two>(LINE,
-                                          SECONDS,
-                                          NANOSECONDS,
-                                          EXPECTED);
+            verifyDurationRangeCheck<two>(LINE, INTERVAL, EXPECTED);
         }
 
         // +-------------------------------------------------------+
@@ -3478,16 +3376,10 @@ int main(int argc, char *argv[])
 
         for (size_t i = 0; i < NUM_U_TWO_DATA; i++) {
             const int               LINE        = U_TWO_DATA[i].d_line;
-            const long long int     SECONDS     =
-                                            U_TWO_DATA[i].d_interval.seconds();
-            const int               NANOSECONDS =
-                                        U_TWO_DATA[i].d_interval.nanoseconds();
+            const Obj&              INTERVAL    = U_TWO_DATA[i].d_interval;
             const RangeCheckResults EXPECTED    = U_TWO_DATA[i].d_expected;
 
-            verifyDurationRangeCheckUnsigned<two>(LINE,
-                                                  SECONDS,
-                                                  NANOSECONDS,
-                                                  EXPECTED);
+            verifyDurationRangeCheckUnsigned<two>(LINE, INTERVAL, EXPECTED);
         }
 
         // +-------------------------------------------------------+
@@ -3554,16 +3446,10 @@ int main(int argc, char *argv[])
 
         for (size_t i = 0; i < NUM_KILO_DATA; i++) {
             const int               LINE        = KILO_DATA[i].d_line;
-            const long long int     SECONDS     =
-                                             KILO_DATA[i].d_interval.seconds();
-            const int               NANOSECONDS =
-                                         KILO_DATA[i].d_interval.nanoseconds();
+            const Obj&              INTERVAL    = KILO_DATA[i].d_interval;
             const RangeCheckResults EXPECTED    = KILO_DATA[i].d_expected;
 
-            verifyDurationRangeCheck<kilo>(LINE,
-                                           SECONDS,
-                                           NANOSECONDS,
-                                           EXPECTED);
+            verifyDurationRangeCheck<kilo>(LINE, INTERVAL, EXPECTED);
         }
 
         // +-------------------------------------------------------+
@@ -3609,16 +3495,10 @@ int main(int argc, char *argv[])
 
         for (size_t i = 0; i < NUM_U_KILO_DATA; i++) {
             const int               LINE        = U_KILO_DATA[i].d_line;
-            const long long int     SECONDS     =
-                                           U_KILO_DATA[i].d_interval.seconds();
-            const int               NANOSECONDS =
-                                       U_KILO_DATA[i].d_interval.nanoseconds();
+            const Obj&              INTERVAL    = U_KILO_DATA[i].d_interval;
             const RangeCheckResults EXPECTED    = U_KILO_DATA[i].d_expected;
 
-            verifyDurationRangeCheckUnsigned<kilo>(LINE,
-                                                   SECONDS,
-                                                   NANOSECONDS,
-                                                   EXPECTED);
+            verifyDurationRangeCheckUnsigned<kilo>(LINE, INTERVAL, EXPECTED);
         }
 
         // +-------------------------------------------------------+
@@ -3685,16 +3565,10 @@ int main(int argc, char *argv[])
 
         for (size_t i = 0; i < NUM_MEGA_DATA; i++) {
             const int               LINE        = MEGA_DATA[i].d_line;
-            const long long int     SECONDS     =
-                                             MEGA_DATA[i].d_interval.seconds();
-            const int               NANOSECONDS =
-                                         MEGA_DATA[i].d_interval.nanoseconds();
+            const Obj&              INTERVAL    = MEGA_DATA[i].d_interval;
             const RangeCheckResults EXPECTED    = MEGA_DATA[i].d_expected;
 
-            verifyDurationRangeCheck<mega>(LINE,
-                                           SECONDS,
-                                           NANOSECONDS,
-                                           EXPECTED);
+            verifyDurationRangeCheck<mega>(LINE, INTERVAL, EXPECTED);
         }
 
         // +-------------------------------------------------------+
@@ -3740,16 +3614,10 @@ int main(int argc, char *argv[])
 
         for (size_t i = 0; i < NUM_U_MEGA_DATA; i++) {
             const int               LINE        = U_MEGA_DATA[i].d_line;
-            const long long int     SECONDS     =
-                                           U_MEGA_DATA[i].d_interval.seconds();
-            const int               NANOSECONDS =
-                                       U_MEGA_DATA[i].d_interval.nanoseconds();
+            const Obj&              INTERVAL    = U_MEGA_DATA[i].d_interval;
             const RangeCheckResults EXPECTED    = U_MEGA_DATA[i].d_expected;
 
-            verifyDurationRangeCheckUnsigned<mega>(LINE,
-                                                   SECONDS,
-                                                   NANOSECONDS,
-                                                   EXPECTED);
+            verifyDurationRangeCheckUnsigned<mega>(LINE, INTERVAL, EXPECTED);
         }
 
         // +-------------------------------------------------------+
@@ -3816,16 +3684,10 @@ int main(int argc, char *argv[])
 
         for (size_t i = 0; i < NUM_GIGA_DATA; i++) {
             const int               LINE        = GIGA_DATA[i].d_line;
-            const long long int     SECONDS     =
-                                             GIGA_DATA[i].d_interval.seconds();
-            const int               NANOSECONDS =
-                                         GIGA_DATA[i].d_interval.nanoseconds();
+            const Obj&              INTERVAL    = GIGA_DATA[i].d_interval;
             const RangeCheckResults EXPECTED    = GIGA_DATA[i].d_expected;
 
-            verifyDurationRangeCheck<giga>(LINE,
-                                           SECONDS,
-                                           NANOSECONDS,
-                                           EXPECTED);
+            verifyDurationRangeCheck<giga>(LINE, INTERVAL, EXPECTED);
         }
 
         // +-------------------------------------------------------+
@@ -3871,16 +3733,10 @@ int main(int argc, char *argv[])
 
         for (size_t i = 0; i < NUM_U_GIGA_DATA; i++) {
             const int               LINE        = U_GIGA_DATA[i].d_line;
-            const long long int     SECONDS     =
-                                           U_GIGA_DATA[i].d_interval.seconds();
-            const int               NANOSECONDS =
-                                       U_GIGA_DATA[i].d_interval.nanoseconds();
+            const Obj&              INTERVAL    = U_GIGA_DATA[i].d_interval;
             const RangeCheckResults EXPECTED    = U_GIGA_DATA[i].d_expected;
 
-            verifyDurationRangeCheckUnsigned<giga>(LINE,
-                                                   SECONDS,
-                                                   NANOSECONDS,
-                                                   EXPECTED);
+            verifyDurationRangeCheckUnsigned<giga>(LINE, INTERVAL, EXPECTED);
         }
 #else
         if (verbose) printf("'std::chrono' is not supported\n");
@@ -3888,7 +3744,7 @@ int main(int argc, char *argv[])
       } break;
       case 25: {
         // --------------------------------------------------------------------
-        // TESTING 'TimeInterval' RANGE CHECKS
+        // TESTING 'isValid(duration)'
         //
         // NOTE THAT this first implementation of 'chrono::duration'
         // interoperability does not support durations with floating point
@@ -3898,8 +3754,8 @@ int main(int argc, char *argv[])
         // are present for those either.
         //
         // Concerns:
-        //: 1 An 'isInTimeIntervalRange' instance function returns 'true' for
-        //:   any 'std::chrono::duration' object whose value can be represented
+        //: 1 An 'isValid' instance function returns 'true' for any
+        //:   'std::chrono::duration' object whose value can be represented
         //:   (even if not precisely) within the boundaries of the
         //:   'TimeInterval'.
         //:
@@ -3908,23 +3764,22 @@ int main(int argc, char *argv[])
         //:   precision. On such platforms we want range check on all in-bounds
         //:   'std::chrono::duration' values to succeed , and verify that there
         //:   *are* out-of-bounds values (if such values exist in the range of
-        //:   the 'TimeInterval')  for which range checking using
-        //:   'isInTimeIntervalRange' fails.  We do that test to ensure that
-        //:   'isInTimeIntervalRange' does not just report 'true' for any
-        //:   'std::chrono::duration' value.
+        //:   the 'TimeInterval')  for which range checking using 'isValid'
+        //:   fails.  We do that test to ensure that 'isValid' does not just
+        //:   report 'true' for any 'std::chrono::duration' value.
         //:
-        //: 3 'isInTimeIntervalRange' is parameterized as described in C-1 and
-        //:   C-2 with 'duration' types with all fundamental integral types as
+        //: 3 'isValid' is parameterized as described in C-1 and C-2 with
+        //:   'duration'types with all fundamental integral types as
         //:   representation. Therefore we will test C-1 and 2 concerns with
         //:   'durations' sporting 'char', 'short', 'int', 'long', 'long long'
         //:   representation types, as well as their 'unsigned' variants.
         //:
-        //: 4 'isInTimeIntervalRange' is parameterized with thee 'duration'
-        //:   types having both reasonable and unusual periods.  Note that C-3
-        //:   and C-4 combine, so we have a combinatorial "explosion" of
-        //:   tests. We aim to verify that reasonable units (periods) work very
-        //:   well.  We aim to verify that unusual unit, such as one third
-        //:   nanosecond work reasonably well.
+        //: 4 'isValid' is parameterized with thee 'duration' types having both
+        //:   reasonable and unusual periods.  Note that C-3 and C-4 combine,
+        //:   so we have a combinatorial "explosion" of tests. We aim to verify
+        //:   that reasonable units (periods) work very well.  We aim to verify
+        //:   that unusual unit, such as one third nanosecond work reasonably
+        //:   well.
         //
         // Plan:
         //: 1 Use the table-based approach to specify a set of test values,
@@ -3935,15 +3790,15 @@ int main(int argc, char *argv[])
         //: 2 Iterate through integer types using them as representation for
         //:   duration types and through several common ratios and some
         //:   specific ratios (such as one third nanoseconds), create duration
-        //:   objects with the values from P-1, call 'isInTimeIntervalRange'
-        //:   and verify the results.  (C-1..4)
+        //:   objects with the values from P-1, call 'isValid' and verify the
+        //:   results.  (C-1..4)
         //
         // Testing:
-        //   TESTING 'TimeInterval' RANGE CHECKS
+        //   bool isValid(const std::chrono::duration& duration);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'TimeInterval' RANGE CHECKS"
-                            "\n===================================\n");
+        if (verbose) printf("\nTESTING 'isValid(duration)'"
+                            "\n===========================\n");
 
 #ifdef BSLS_TIMEINTERVAL_PROVIDES_CHRONO_CONVERSIONS
 
@@ -4146,7 +4001,7 @@ int main(int argc, char *argv[])
                                                  ? k_U_ONE_BOUNDARY_MAX + 2
                                                  : k_U_ONE_BOUNDARY_MAX + 2048;
             // Since MSVC does not support 'long double' type and uses 'double'
-            // that has lower precision instead, 'isInTimeIntervalRange' can
+            // that has lower precision instead, 'isValid' can
             // give false positive results for 'std::chrono::duration' values,
             // that are expected to be (and actually are) unacceptable for
             // conversion to 'TimeInterval' object.  This only happens with
@@ -9564,14 +9419,10 @@ int main(int argc, char *argv[])
                 { L_,          -123,      -5000, "(-123, -5000)"             },
                 { L_,  3000000000LL,  999999999, "(3000000000, 999999999)"   },
                 { L_, -3000000000LL, -999999999, "(-3000000000, -999999999)" },
-                { L_,     LLONG_MAX,    INT_MAX, "(9223372036854775807, "
-                                                 "2147483647)"               },
-                { L_,     LLONG_MAX,    INT_MIN, "(9223372036854775807, "
-                                                 "-2147483648)"              },
-                { L_,     LLONG_MIN,    INT_MAX, "(-9223372036854775808, "
-                                                 "2147483647)"               },
-                { L_,     LLONG_MIN,    INT_MIN, "(-9223372036854775808, "
-                                                 "-2147483648)"              }
+                { L_,     LLONG_MAX,  999999999, "(9223372036854775807, "
+                                                 "999999999)"                },
+                { L_,     LLONG_MIN, -999999999, "(-9223372036854775808, "
+                                                 "-999999999)"               },
             };
 
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
