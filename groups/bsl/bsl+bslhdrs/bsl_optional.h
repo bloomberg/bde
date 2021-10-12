@@ -14,7 +14,7 @@ BSLS_IDENT("$Id: $")
 // 'bslstl_optional.h' which provides Bloomberg's implementation on all
 // platforms. 'bslstl_optional.h' includes the native compiler-provided
 // standard header when it is available and uses the platform standard library
-// implementation as a base class in the 'bsl' namespace.  
+// implementation as a base class in the 'bsl' namespace.
 
 #include <bslstl_optional.h>
 

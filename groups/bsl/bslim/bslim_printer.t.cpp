@@ -381,18 +381,21 @@ class StockTrade {
     // Record representing a stock trade.
 
     // DATA
-    bsl::string d_ticker;
-    double      d_price;
-    double      d_quantity;
+    bsl::string                d_ticker;
+    double                     d_price;
+    double                     d_quantity;
+    bsl::optional<bsl::string> d_notes;
 
   public:
     // CREATORS
-    StockTrade(const bsl::string& ticker,
-               double             price,
-               double             quantity)
+    StockTrade(const bsl::string&                ticker,
+               double                            price,
+               double                            quantity,
+               const bsl::optional<bsl::string>& notes)
     : d_ticker(ticker)
     , d_price(price)
     , d_quantity(quantity)
+    , d_notes(notes)
     {}
 
     // ACCESSORS
@@ -409,6 +412,7 @@ class StockTrade {
         printer.printAttribute("ticker",   d_ticker);
         printer.printAttribute("price",    d_price);
         printer.printAttribute("quantity", d_quantity);
+        printer.printAttribute("notes",    d_notes);
         printer.end();
 
         return stream;
@@ -964,7 +968,7 @@ int main(int argc, char *argv[])
 
             const char *EXP = "[ 0x 0x ]";
 
-            LOOP2_ASSERT(out.str(), buf, !bsl::strcmp(EXP, buf));
+            ASSERTV(out.str(), buf, !bsl::strcmp(EXP, buf));
         }
 
         out.str("");
@@ -992,7 +996,7 @@ int main(int argc, char *argv[])
                               "    0x\n"
                               "]\n";
 
-            LOOP2_ASSERT(out.str(), buf, !bsl::strcmp(EXP, buf));
+            ASSERTV(out.str(), buf, !bsl::strcmp(EXP, buf));
         }
       } break;
       case 21: {
@@ -1012,13 +1016,13 @@ int main(int argc, char *argv[])
 
         bsl::ostringstream out;
 
-        StockTrade st("IBM", 107.3, 200);
+        StockTrade st("IBM", 107.3, 200, "XYZ");
 
         {
             st.print(out, 0, -1);
-            const char *EXP =
-                           "[ ticker = \"IBM\" price = 107.3 quantity = 200 ]";
-            LOOP_ASSERT(out.str(), EXP == out.str());
+            const char *EXP = "[ ticker = \"IBM\" price = 107.3 "
+                              "quantity = 200 notes = \"XYZ\" ]";
+            ASSERTV(out.str(), EXP == out.str());
         }
 
         out.str("");
@@ -1029,8 +1033,9 @@ int main(int argc, char *argv[])
                               "    ticker = \"IBM\"\n"
                               "    price = 107.3\n"
                               "    quantity = 200\n"
+                              "    notes = \"XYZ\"\n"
                               "]\n";
-            LOOP_ASSERT(out.str(), EXP == out.str());
+            ASSERTV(out.str(), EXP == out.str());
         }
       } break;
       case 20: {
@@ -2770,6 +2775,54 @@ int main(int argc, char *argv[])
             LOOP2_ASSERT(EXP.str(), out.str(), EXP.str() == out.str());
         }
 
+        // 'bsl::optional'
+        {
+            bsl::optional<int> v1(42);
+            bsl::ostringstream v1Out;
+
+            Obj pV(&v1Out, 2, 2);
+            pV.printAttribute("optional", v1);
+
+            ASSERTV(v1Out.str(), "      optional = 42\n" == v1Out.str());
+
+            bsl::optional<int> v2;
+            bsl::ostringstream v2Out;
+
+            Obj nV(&v2Out, 2, 2);
+            nV.printAttribute("optional", v2);
+            ASSERTV(v2Out.str(), "      optional = NULL\n" == v2Out.str());
+
+            bsl::optional<int> v3;
+            bsl::ostringstream v3Out;
+
+            Obj nV2(&v3Out, 0, -1);
+            nV2.printAttribute("optional", v3);
+            ASSERTV(v3Out.str(), " optional = NULL" == v3Out.str());
+        }
+        {
+            bsl::optional<int> v1(42);
+            bsl::ostringstream v1Out;
+
+            Obj pV(&v1Out, 2, 2);
+            pV.printValue(v1);
+
+            ASSERTV(v1Out.str(), "      42\n" == v1Out.str());
+
+            bsl::optional<int> v2;
+            bsl::ostringstream v2Out;
+
+            Obj nV(&v2Out, 2, 2);
+            nV.printValue(v2);
+            ASSERTV(v2Out.str(), "      NULL\n" == v2Out.str());
+
+            bsl::optional<int> v3;
+            bsl::ostringstream v3Out;
+
+            Obj nV2(&v3Out, 0, -1);
+            nV2.printValue(v3);
+            ASSERTV(v3Out.str(), " NULL" == v3Out.str());
+        }
+
         if (veryVerbose) { printf("vector<int>::iterator with FUNCTOR\n"); }
         {
             bsl::vector<int>        v(&uniqKeys[0], uniqKeys + NUM_DATA);
@@ -4202,7 +4255,6 @@ int main(int argc, char *argv[])
         // bsl:: namespace.  This suffices to validate that they are correctly
         // imported.
         // --------------------------------------------------------------------
-
 
 #if defined ( ENABLE_CPP11_TESTS)
         if (verbose) cout << "\nTEST INSTANTIATING BSL TYPES"

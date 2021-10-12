@@ -46,13 +46,13 @@ BSLS_IDENT("$Id: $")
 //: o If the attributes are to be printed on a single line, then separate each
 //:   value with a single space character.
 //:
-//: o For small, common types, such as 'bdet_Date', the names of attributes,
+//: o For small, common types, such as 'bdlt::Date', the names of attributes,
 //:   equal sign, and brackets may be omitted, with the entire value
 //:   represented on a single line in a custom format.  For example, the
-//:   'bdet_Date::print' method emits the date value in the format: 01JAN2001.
+//:   'bdlt::Date::print' method emits the date value in the format: 01JAN2001.
 //
-// For example, consider a class having two attributes, "ticker", represented
-// by a 'bsl::string', and "price", represented by a 'double'.  The output for
+// For example, consider a class having two attributes, 'ticker', represented
+// by a 'bsl::string', and 'price', represented by a 'double'.  The output for
 // a 'print' method that produces standardized output for
 // 'print(bsl::cout, 0, -4)' (single-line output) is shown below:
 //..
@@ -85,18 +85,18 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example, we demonstrate how to use 'Printer' to implement the
 // standard 'print' function of a value-semantic class having multiple
-// attributes.  Suppose we have a class, 'RecordAttributes', that provides a
-// container for a fixed set of attributes.  A 'RecordAttributes' object has
-// two attributes, "timestamp", of type 'my::Datetime', and "processID", of
-// type 'int':
+// attributes.  Suppose we have a class, 'StockTrade', that provides a
+// container for a fixed set of attributes.  A 'StockTrade' object has four
+// attributes, 'ticker', 'price', 'quantity', and optional 'notes':
 //..
 //  class StockTrade {
 //      // This class represents the properties of a stock trace.
 //
 //      // DATA
-//      bsl::string d_ticker;        // ticker symbol
-//      double      d_price;         // stock price
-//      double      d_quantity;      // quanity traded
+//      bsl::string                d_ticker;    // ticker symbol
+//      double                     d_price;     // stock price
+//      double                     d_quantity;  // quanity traded
+//      bsl::optional<bsl::string> d_notes;     // optional trade notes
 //
 //    public:
 //      ...
@@ -115,6 +115,7 @@ BSLS_IDENT("$Id: $")
 //          printer.printAttribute("ticker",   d_ticker);
 //          printer.printAttribute("price",    d_price);
 //          printer.printAttribute("quantity", d_quantity);
+//          printer.printAttribute("notes",    d_notes);
 //          printer.end();
 //
 //          return stream;
@@ -123,7 +124,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Sample output for 'StockTrade::print(bsl::cout, 0, -4)':
 //..
-//  [ ticker = "IBM" price = 107.3 quantity = 200 ]
+//  [ ticker = "IBM" price = 107.3 quantity = 200 notes = "XYZ" ]
 //..
 // Sample output for 'StockTrade::print(bsl::cout, 0, 4)':
 //..
@@ -131,6 +132,7 @@ BSLS_IDENT("$Id: $")
 //      ticker = "IBM"
 //      price = 107.3
 //      quantity = 200
+//      notes = "XYZ"
 //  ]
 //..
 //
@@ -156,19 +158,19 @@ BSLS_IDENT("$Id: $")
 //          // blocks, and thereby enabling constant-time deletions from, as
 //          // well as additions to, the list of blocks.
 //
-//          Block                               *d_next_p;       // next
-//                                                               // pointer
+//          Block                                *d_next_p;       // next
+//                                                                // pointer
 //
-//          Block                              **d_addrPrevNext; // enable
-//                                                               // delete
+//          Block                               **d_addrPrevNext; // enable
+//                                                                // delete
 //
-//          bsls::AlignmentUtil::MaxAlignedType   d_memory;      // force
-//                                                               // alignment
+//          bsls::AlignmentUtil::MaxAlignedType   d_memory;       // force
+//                                                                // alignment
 //      };
 //
 //      // DATA
-//      Block           *d_head_p;      // address of first block of memory
-//                                      // (or 0)
+//      Block            *d_head_p;      // address of first block of memory
+//                                       // (or 0)
 //
 //      bslma::Allocator *d_allocator_p; // memory allocator; held, but not
 //                                       // owned
@@ -235,7 +237,7 @@ BSLS_IDENT("$Id: $")
 //
 //      short pid;              // process id
 //      short access_flags;     // options
-//      char user_id[20];       // userid
+//      char  user_id[20];      // userid
 //  };
 //..
 // We create a struct 'MyThirdPartyStructPrintUtil':
@@ -534,6 +536,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #include <bsls_types.h>
 
+#include <bsl_optional.h>
 #include <bsl_ostream.h>
 #include <bsl_memory.h>
 #include <bsl_string.h>
@@ -1010,6 +1013,13 @@ struct Printer_Helper {
 
     template <class TYPE>
     static void printRaw(bsl::ostream&              stream,
+                         const bsl::optional<TYPE>& data,
+                         int                        level,
+                         int                        spacesPerLevel,
+                         bslmf::SelectTraitCase<>);
+
+    template <class TYPE>
+    static void printRaw(bsl::ostream&              stream,
                          const TYPE&                data,
                          int                        level,
                          int                        spacesPerLevel,
@@ -1276,8 +1286,11 @@ void Printer_Helper::printRaw(bsl::ostream&                  stream,
                               int                            spacesPerLevel,
                               bslmf::SelectTraitCase<bsl::is_enum>)
 {
-    printRaw(stream, data, 0, spacesPerLevel,
-             bslmf::SelectTraitCase<bsl::is_fundamental>());
+    Printer_Helper::printRaw(stream,
+                             data,
+                             0,
+                             spacesPerLevel,
+                             bslmf::SelectTraitCase<bsl::is_fundamental>());
 }
 
                       // Function pointer types
@@ -1311,11 +1324,11 @@ void Printer_Helper::printRaw(bsl::ostream&              stream,
                               int                        spacesPerLevel,
                               bslmf::SelectTraitCase<bsl::is_pointer>)
 {
-    printRaw(stream,
-             static_cast<const void *>(data),
-             level,
-             -1,
-             bslmf::SelectTraitCase<bsl::is_pointer>());
+    Printer_Helper::printRaw(stream,
+                             static_cast<const void *>(data),
+                             level,
+                             -1,
+                             bslmf::SelectTraitCase<bsl::is_pointer>());
     if (0 == data) {
         if (spacesPerLevel >= 0) {
             stream << '\n';
@@ -1335,8 +1348,11 @@ void Printer_Helper::printRaw(bsl::ostream&              stream,
                               int                        spacesPerLevel,
                               bslmf::SelectTraitCase<bsl::is_array>)
 {
-    printRaw(stream, data, level, spacesPerLevel,
-             bslmf::SelectTraitCase<bsl::is_pointer>());
+    Printer_Helper::printRaw(stream,
+                             data,
+                             level,
+                             spacesPerLevel,
+                             bslmf::SelectTraitCase<bsl::is_pointer>());
 }
 
 
@@ -1350,11 +1366,11 @@ void Printer_Helper::printRaw(
                              int                                spacesPerLevel,
                              bslmf::SelectTraitCase<bslalg::HasStlIterators>)
 {
-    printRaw(stream,
-             data.c_str(),
-             level,
-             spacesPerLevel,
-             bslmf::SelectTraitCase<bsl::is_pointer>());
+    Printer_Helper::printRaw(stream,
+                             data.c_str(),
+                             level,
+                             spacesPerLevel,
+                             bslmf::SelectTraitCase<bsl::is_pointer>());
 }
 
 template <class TYPE>
@@ -1366,7 +1382,11 @@ void Printer_Helper::printRaw(
                              int                                spacesPerLevel,
                              bslmf::SelectTraitCase<bslalg::HasStlIterators>)
 {
-    print(stream, data.begin(), data.end(), level, spacesPerLevel);
+    Printer_Helper::print(stream,
+                          data.begin(),
+                          data.end(),
+                          level,
+                          spacesPerLevel);
 }
 
                       // Default types
@@ -1394,17 +1414,38 @@ void Printer_Helper::printRaw(bsl::ostream&                stream,
                               int                          spacesPerLevel,
                               bslmf::SelectTraitCase<>)
 {
-    printRaw(stream,
-             static_cast<const void *>(data.get()),
-             level,
-             -1,
-             bslmf::SelectTraitCase<bsl::is_pointer>());
+    Printer_Helper::printRaw(stream,
+                             static_cast<const void *>(data.get()),
+                             level,
+                             -1,
+                             bslmf::SelectTraitCase<bsl::is_pointer>());
     if (data) {
         stream << ' ';
         Printer_Helper::print(stream, *data, level, spacesPerLevel);
     }
     else if (spacesPerLevel >= 0) {
         stream << '\n';
+    }
+}
+
+template <class TYPE>
+inline
+void Printer_Helper::printRaw(bsl::ostream&              stream,
+                              const bsl::optional<TYPE>& data,
+                              int                        level,
+                              int                        spacesPerLevel,
+                              bslmf::SelectTraitCase<>)
+{
+    if (data.has_value()) {
+        Printer_Helper::print(stream, *data, level, spacesPerLevel);
+    }
+    else {
+        if (spacesPerLevel >= 0) {
+            stream << "NULL\n";
+        }
+        else {
+            stream << "NULL";
+        }
     }
 }
 
