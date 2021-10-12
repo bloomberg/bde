@@ -155,9 +155,10 @@ using bsls::NameOf;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST 1: Using 'bsl::string'
 // [ 2] BREATHING TEST 2: Using 'int'
-// [29] USAGE EXAMPLE
+// [30] USAGE EXAMPLE
 // [24] Concern: Types that are not copy-assignable can be used.
 // [28] DRQS 166024189: 'NullableValue<T> -> bool' implicit conv. w/C++03.
+// [29] noexcept
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 // [ 8] int maxSupportedBdexVersion() const;
 #endif
@@ -2842,6 +2843,9 @@ class TestDriver {
 
     static void testCase25();
         // Test 'const T *addressOr(const T *)'.
+
+    static void testCase29();
+        // Test 'noexcept'.
 };
 
 // PRIVATE CLASS METHODS
@@ -5220,6 +5224,45 @@ void TestDriver<TEST_TYPE>::testCase16()
 }
 
 template <class TEST_TYPE>
+void TestDriver<TEST_TYPE>::testCase29()
+{
+    // ------------------------------------------------------------------------
+    // TESTING NOEXCEPT
+    //
+    // Concerns:
+    //: 1 That the default constructor is noexcept.
+    //:
+    //: 2 That the move constructor (without an allocator) is noexcept.
+    //
+    // Plan:
+    //: 1 Use the 'noexcept' operator to determine whether calls to the two
+    //:   constructors under test are indeed noxcept.  This can be done only on
+    //:   platforms that support 'noexcept'.
+    //
+    // Testing:
+    //   NOEXCEPT
+    // ------------------------------------------------------------------------
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+    const char *type = bsls::NameOf<TEST_TYPE>().name();
+
+    TEST_TYPE    mTT;
+
+    if (veryVerbose) {
+        cout << "Type: " << type << ": default c'tor: " <<
+                                   noexcept(TEST_TYPE()) << ", move c'tor: " <<
+                                   noexcept(TEST_TYPE(std::move(mTT))) << endl;
+    }
+
+    Obj                  mX;
+
+    ASSERTV(type, noexcept(Obj()));
+    ASSERTV(type, bsl::is_nothrow_move_constructible<TEST_TYPE>::value ==
+                                                 noexcept(Obj(std::move(mX))));
+#endif
+}
+
+template <class TEST_TYPE>
 void TestDriver<TEST_TYPE>::testCase25()
 {
     // ------------------------------------------------------------------------
@@ -6065,6 +6108,16 @@ void runTestCase25()
     RUN_EACH_TYPE(TestDriver, testCase25, TEST_TYPES);
 }
 
+void runTestCase29()
+{
+    if (veryVerbose) {
+        cout << "C'tors noexcept:\n"
+                "---------------\n";
+    }
+
+    RUN_EACH_TYPE(TestDriver, testCase29, TEST_TYPES);
+}
+
 // ============================================================================
 //                              MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -6088,7 +6141,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 29: {
+      case 30: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -6131,6 +6184,29 @@ int main(int argc, char *argv[])
     ASSERT( nullableInt.isNull());
 //..
 
+      } break;
+      case 29: {
+        // --------------------------------------------------------------------
+        // TESTING NOEXCEPT
+        //
+        // Concerns:
+        //: 1 That the default c'tor is always noexcept.
+        //:
+        //: 2 If the type contained in the nullable value is nothrow move
+        //:   constructible, then the nullable value is too.
+        //
+        // Plan:
+        //: 1 Use the 'noexcept' operator on c'tor calls to see if the two
+        //:   respective c'tors are noexcept when we expect them to be.
+        //
+        // Testing:
+        //   noexcept
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING NOEXCEPT\n"
+                             "================\n";
+
+        runTestCase29();
       } break;
       case 28: {
         // --------------------------------------------------------------------

@@ -111,6 +111,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_enableif.h>
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_isconvertible.h>
+#include <bslmf_isnothrowmoveconstructible.h>
 #include <bslmf_istriviallycopyable.h>
 #include <bslmf_movableref.h>
 #include <bslmf_nestedtraitdeclaration.h>
@@ -248,7 +249,9 @@ class NullableValue : public bsl::optional<TYPE> {
         // construction, use the currently installed default allocator to
         // supply memory.
 
-    NullableValue(bslmf::MovableRef<NullableValue> original);
+    NullableValue(bslmf::MovableRef<NullableValue> original)
+                      BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                              bsl::is_nothrow_move_constructible<TYPE>::value);
         // Create a nullable object having the same value as the specified
         // 'original' object by moving the contents of 'original' to the
         // newly-created object.  If 'TYPE' takes an optional allocator at
@@ -849,6 +852,8 @@ NullableValue<TYPE>::NullableValue(const NullableValue&  original,
 template <class TYPE>
 inline
 NullableValue<TYPE>::NullableValue(bslmf::MovableRef<NullableValue> original)
+                       BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                               bsl::is_nothrow_move_constructible<TYPE>::value)
 : bsl::optional<TYPE>(MoveUtil::move(
       static_cast<bsl::optional<TYPE>&>(MoveUtil::access(original))))
 {

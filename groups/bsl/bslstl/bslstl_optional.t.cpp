@@ -1,18 +1,20 @@
 // bslstl_optional.t.cpp                                              -*-C++-*-
 #include <bslstl_optional.h>
 
-#include <bsls_bsltestutil.h>
 #include <bslstl_string.h>
 
 #include <bslalg_constructorproxy.h>
+
+#include <bsltf_templatetestfacility.h>
+#include <bsltf_testvaluesarray.h>
 
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 
-#include <bsltf_templatetestfacility.h>
-#include <bsltf_testvaluesarray.h>
+#include <bsls_nameof.h>
+#include <bsls_bsltestutil.h>
 
 // A list of disabled tests :
 //
@@ -5815,6 +5817,9 @@ class TestDriver {
 
   public:
 
+    static void testCase20();
+        // TESTING NOEXCEPT
+
     static void testCase19();
         // TESTING DRQS 165776192
 
@@ -5950,6 +5955,38 @@ void bslstl_optional_value_type_deduce(const bsl::optional<TYPE>&)
 template <class TYPE>
 void bslstl_optional_optional_type_deduce(const TYPE&)
 {
+}
+
+template <class TYPE>
+void TestDriver<TYPE>::testCase20()
+{
+    // ------------------------------------------------------------------------
+    // TESTING NOEXCEPT
+    //
+    // Concerns:
+    //: 1 That the default, and 'nullopt_t', are noexcept.
+    //:
+    //: 2 That the move c'tor is noexcept if the contained type is nothrow move
+    //:   constructible.
+    //
+    // Plan:
+    //: 1 Use the 'noexcept' operator on c'tor calls to see if the three
+    //:   respective c'tors are noexcept when we expect them to be.
+    //
+    // Testing:
+    //   NOEXCEPT
+    // ------------------------------------------------------------------------
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+    const char *type = bsls::NameOf<TYPE>().name();
+
+    Obj                  mX;
+
+    ASSERTV(type, noexcept(Obj()));
+    ASSERTV(type, noexcept(Obj(bsl::nullopt)));
+    ASSERTV(type, bsl::is_nothrow_move_constructible<TYPE>::value ==
+                                                 noexcept(Obj(std::move(mX))));
+#endif
 }
 
 template <class TYPE>
@@ -12119,6 +12156,11 @@ int main(int argc, char **argv)
 
     switch (test) {
       case 0:
+      case 20: {
+        RUN_EACH_TYPE(TestDriver,
+                      testCase20,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+      } break;
       case 19: {
         if (verbose)
             printf("\nTESTING DRQS 165776192"
