@@ -19,9 +19,9 @@ namespace bslmt {
                                 // ---------------
 
 // CLASS METHODS
-void *TestUtil::callFunc(Func func, void *arg)
+void *TestUtil::identityPtr(void *ptr)
 {
-    return (*func)(arg);
+    return ptr;
 }
 
                              // --------------------

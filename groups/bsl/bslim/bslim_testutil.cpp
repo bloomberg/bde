@@ -13,16 +13,7 @@ namespace bslim {
                         // class TestUtil
                         // --------------
 
-// CLASS DATA
-TestUtil::Func TestUtil::s_func = 0;
-
 // CLASS METHODS
-void *TestUtil::callFunc(void *arg)
-{
-    BSLS_ASSERT(s_func);
-    return (*s_func)(arg);
-}
-
 bool TestUtil::compareText(bslstl::StringRef lhs,
                            bslstl::StringRef rhs,
                            bsl::ostream&     errorStream)
@@ -64,9 +55,9 @@ bool TestUtil::compareText(bslstl::StringRef lhs,
     return true;
 }
 
-void TestUtil::setFunc(TestUtil::Func func)
+void *TestUtil::identityPtr(void *ptr)
 {
-    s_func = func;
+    return ptr;
 }
 
 }  // close package namespace

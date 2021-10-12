@@ -21,6 +21,8 @@
 #include <bdlb_random.h>
 #include <bdlb_string.h>
 
+#include <bslim_testutil.h>
+
 #include <bslma_deallocatorguard.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
@@ -209,7 +211,11 @@ using bsl::flush;
 // Optimizing compilers have a tendency to inline function calls, which will
 // cause these test cases to fail when expected function names are missing from
 // stack traces.  To foil this, function pointers are stored in arrays of
-// function pointers and looked up at run time.
+// function pointers and looked up at run time.  We also pass these pointers
+// through an identity transform in another module using
+// 'bslim::TestUtil::makeFunctionCallNonInline' which, because it's in another
+// module, the compiler doesn't know that it's an identity transform and can't
+// inline the call.
 //
 // There is also a problem where if a function call is the last thing in a
 // function, the compiler may replace a call to a function to a chaining jump
@@ -235,39 +241,26 @@ void aSsErT(int c, const char *s, int i)
 
 }  // close unnamed namespace
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-
 // ============================================================================
-//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+//                      STANDARD BDE TEST DRIVER MACROS
 // ----------------------------------------------------------------------------
 
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-                    << J << "\t" \
-                    << #K << ": " << K <<  "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I, J, K, M, X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-                    << J << "\t" << #K << ": " << K << "\t" \
-                    << #M << ": " << M << "\n"; aSsErT(1, #X, __LINE__); } }
-
-// ============================================================================
-//                     SEMI-STANDARD TEST OUTPUT MACROS
-// ----------------------------------------------------------------------------
-
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define QV(X) if (verbose) Q(X);
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_()  cout << "\t" << flush;          // Print tab w/o newline
+#define Q   BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P   BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_  BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //      GLOBAL HELPER MACROS, TYPES, CLASSES, and CONSTANTS FOR TESTING
@@ -318,45 +311,6 @@ static bool narcissicStack = false;         // On Windows, the stack trace
 // ============================================================================
 //                    GLOBAL HELPER #DEFINES FOR TESTING
 // ----------------------------------------------------------------------------
-
-//=============================================================================
-//                    GLOBAL HELPER FUNCTIONS FOR TESTING
-// ----------------------------------------------------------------------------
-
-template <class TYPE>
-TYPE foilOptimizer(const TYPE funcPtr)
-    // The function just returns 'funcPtr', but only after putting it through a
-    // transform that the optimizer can't possibly understand that leaves it
-    // with its original value.  'TYPE' is expected to be a function pointer
-    // type.
-    //
-    // Note that it's still necessary to put a lot of the routines through
-    // contortions to avoid the optimizer optimizing tail calls as jumps.
-{
-    TYPE ret, ret2 = funcPtr;
-
-    UintPtr u = reinterpret_cast<UintPtr>(funcPtr);
-
-    const int loopGuard  = 0x8edf1000;    // garbage with a lot of trailing
-                                          // 0's.
-    const int toggleMask = 0xa72c3dca;    // pure garbage
-
-    UintPtr u2 = u;
-    for (int i = 0; !(i & loopGuard); ++i) {
-        u ^= (i & toggleMask);
-    }
-
-    ret = reinterpret_cast<TYPE>(u);
-
-    // That previous loop toggled all the bits in 'u' that it touched an even
-    // number of times, so 'ret == ret2', but I'm pretty sure the optimizer
-    // can't figure that out.
-
-    ASSERT(  u2 ==   u);
-    ASSERT(ret2 == ret);
-
-    return ret;
-}
 
 // ============================================================================
 //                               USAGE EXAMPLE
@@ -1101,10 +1055,14 @@ int main(int argc, char *argv[])
     idxVoidFuncLeakTwiceA = 1;
     idxVoidFuncLeakTwiceB = 2;
     idxVoidFuncLeakTwiceC = 3;
-    voidFuncs[idxVoidFuncRecurser]   = foilOptimizer(&recurser);
-    voidFuncs[idxVoidFuncLeakTwiceA] = foilOptimizer(&leakTwiceA);
-    voidFuncs[idxVoidFuncLeakTwiceB] = foilOptimizer(&leakTwiceB);
-    voidFuncs[idxVoidFuncLeakTwiceC] = foilOptimizer(&leakTwiceC);
+    voidFuncs[idxVoidFuncRecurser]   =
+                       bslim::TestUtil::makeFunctionCallNonInline(&recurser);
+    voidFuncs[idxVoidFuncLeakTwiceA] =
+                       bslim::TestUtil::makeFunctionCallNonInline(&leakTwiceA);
+    voidFuncs[idxVoidFuncLeakTwiceB] =
+                       bslim::TestUtil::makeFunctionCallNonInline(&leakTwiceB);
+    voidFuncs[idxVoidFuncLeakTwiceC] =
+                       bslim::TestUtil::makeFunctionCallNonInline(&leakTwiceC);
 
     ASSERT(voidFuncsSize <= sizeof voidFuncs / sizeof *voidFuncs);
 
@@ -2776,7 +2734,7 @@ int main(int argc, char *argv[])
 
         bsl::stringstream ss(&sta);
 
-        QV(Named Allocator);
+        Q(Named Allocator);
         {
             Obj ta(8, &sta);
             ta.setOstream(&ss);
@@ -2813,7 +2771,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == ta.numBlocksInUse());
         }
 
-        QV(Unnamed Allocator);
+        Q(Unnamed Allocator);
         {
             Obj ta(8, &sta);
             ta.setOstream(&ss);

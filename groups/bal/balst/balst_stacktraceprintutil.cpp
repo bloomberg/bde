@@ -19,6 +19,7 @@ BSLS_IDENT_RCSID(balst_stacktraceprintutil_cpp,"$Id$ $CSID$")
 #include <bsls_platform.h>
 #include <bsls_stackaddressutil.h>
 
+#include <bsl_algorithm.h>
 #include <bsl_iostream.h>
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS) && defined(BDE_BUILD_TARGET_OPT)
@@ -36,24 +37,26 @@ namespace balst {
 bsl::ostream& StackTracePrintUtil::printStackTrace(
                                          bsl::ostream& stream,
                                          int           maxFrames,
-                                         bool          demanglingPreferredFlag)
+                                         bool          demanglingPreferredFlag,
+                                         int           additionalIgnoreFrames)
 {
     BSLS_ASSERT(0 <= maxFrames || -1 == maxFrames);
+    BSLS_ASSERT(0 <= additionalIgnoreFrames);
 
-    enum {
-        k_DEFAULT_MAX_FRAMES = 1024,
-        k_IGNORE_FRAMES      = bsls::StackAddressUtil::k_IGNORE_FRAMES + 1
-    };
+    enum { k_DEFAULT_MAX_FRAMES = 1024 };
 
     if (maxFrames < 0) {
         maxFrames = k_DEFAULT_MAX_FRAMES;
     }
 
+    int ignoreFrames = bsls::StackAddressUtil::k_IGNORE_FRAMES + 1 +
+                                                        additionalIgnoreFrames;
+
     // The value 'IGNORE_FRAMES' indicates the number of additional frames to
     // be ignored because they contained function calls within the stack trace
     // facility.
 
-    maxFrames += k_IGNORE_FRAMES;
+    maxFrames += ignoreFrames;
 
     StackTrace st;    // defaults to using its own heap bypass allocator
 
@@ -70,11 +73,14 @@ bsl::ostream& StackTracePrintUtil::printStackTrace(
         return stream;                                                // RETURN
     }
 
+    ignoreFrames = bsl::min(numAddresses, ignoreFrames);
+    BSLS_ASSERT(0 <= ignoreFrames);
+
     const int rc = StackTraceUtil::loadStackTraceFromAddressArray(
-                                                &st,
-                                                addresses    + k_IGNORE_FRAMES,
-                                                numAddresses - k_IGNORE_FRAMES,
-                                                demanglingPreferredFlag);
+                                                   &st,
+                                                   addresses    + ignoreFrames,
+                                                   numAddresses - ignoreFrames,
+                                                   demanglingPreferredFlag);
     if (rc) {
         stream << "Stack Trace: Internal Error initializing frames\n";
         return stream;                                                // RETURN

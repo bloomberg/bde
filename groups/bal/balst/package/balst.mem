@@ -2,6 +2,7 @@
 balst_objectfileformat
 balst_stacktrace
 balst_stacktraceframe
+balst_stacktraceprinter
 balst_stacktraceprintutil
 balst_stacktraceresolver_dwarfreader
 balst_stacktraceresolver_filehelper

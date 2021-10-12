@@ -542,6 +542,9 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 
 #include <bslmt_recursivemutex.h>
+
+#include <bslmf_assert.h>
+
 #include <bsls_keyword.h>
 #include <bsls_unspecifiedbool.h>
 
@@ -699,14 +702,22 @@ struct TestUtil {
     // the '.cpp' file, can be used to prevent unwanted inlining in test
     // drivers, particularly useful when testing the stack trace functionality.
 
-    // PUBLIC TYPES
-    typedef void *(*Func)(void *);
-        // 'Func' is the type of a user-supplied callback functor that can be
+  private:
+    // PRIVATE CLASS METHODS
+    static void *identityPtr(void *ptr);
+        // Return 'ptr' without modification.  Note that this is NOT an inline
+        // function, so that if the caller is not in the same module, the
+        // compiler has no way of knowing that it's an identity transform.
 
+  public:
     // CLASS METHODS
-    static void *callFunc(Func func, void *arg);
-        // Call the specified 'func', passing it the specified 'arg', and
-        // return its returned value.
+    template <class FUNCTION_PTR>
+    static FUNCTION_PTR makeFunctionCallNonInline(FUNCTION_PTR functionPtr);
+        // Return the specified 'functionPtr' (expected to be a static function
+        // pointer) without modification.  The value of 'functionPtr' is
+        // transformed through 'identityPtr' so that if the caller is in a
+        // different module, the compiler will have no way of knowing that this
+        // is an identity function and thus no way of inlining the call.
 };
 
                               // ====================
@@ -767,6 +778,20 @@ class TestUtil_Guard {
 // ============================================================================
 //                           INLINE FUNCTION DEFINITIONS
 // ============================================================================
+
+                                // --------
+                                // TestUtil
+                                // --------
+
+template <class FUNCTION_PTR>
+inline
+FUNCTION_PTR TestUtil::makeFunctionCallNonInline(FUNCTION_PTR functionPtr)
+{
+    BSLMF_ASSERT(sizeof(FUNCTION_PTR) == sizeof(void *));
+
+    return reinterpret_cast<FUNCTION_PTR>(
+                           identityPtr(reinterpret_cast<void *>(functionPtr)));
+}
 
                              // --------------------
                              // class TestUtil_Guard

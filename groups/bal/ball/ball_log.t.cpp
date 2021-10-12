@@ -2475,6 +2475,8 @@ struct Util {
 
 };
 
+void *(*workerThread10FuncPtr)(void *);
+
 extern "C" {
 void *workerThread10(void *)
 {
@@ -2484,7 +2486,7 @@ void *workerThread10(void *)
     for (int i = BloombergLP::ball::Severity::e_TRACE == severity
                ? NUM_MSGS_TRACE
                : NUM_MSGS_INFO; 0 < i; --i) {
-        BloombergLP::bslim::TestUtil::callFunc(NULL);
+        (*workerThread10FuncPtr)(NULL);
     }
 
     return NULL;
@@ -8563,9 +8565,9 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
         bsls::Types::Int64 t;
 
-        bslim::TestUtil::setFunc(ball::Severity::e_TRACE == severity
-                                 ? &Util::doOldTraceConst
-                                 : &Util::doOldInfoConst);
+        workerThread10FuncPtr = ball::Severity::e_TRACE == severity
+                                ? &Util::doOldTraceConst
+                                : &Util::doOldInfoConst;
 
         t = bsls::TimeUtil::getTimer();
         u::executeInParallel(NUM_THREADS, workerThread10);
@@ -8573,16 +8575,16 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
         const double oldConstTime = static_cast<double>(t);
 
-        bslim::TestUtil::setFunc(&Util::doOldVar);
+        workerThread10FuncPtr = &Util::doOldVar;
         t = bsls::TimeUtil::getTimer();
         u::executeInParallel(NUM_THREADS, workerThread10);
         t = bsls::TimeUtil::getTimer() - t;
 
         const double oldVarTime = static_cast<double>(t);
 
-        bslim::TestUtil::setFunc(ball::Severity::e_TRACE == severity
-                                 ? &Util::doTraceConst
-                                 : &Util::doInfoConst);
+        workerThread10FuncPtr = ball::Severity::e_TRACE == severity
+                                ? &Util::doTraceConst
+                                : &Util::doInfoConst;
 
         t = bsls::TimeUtil::getTimer();
         u::executeInParallel(NUM_THREADS, workerThread10);
@@ -8590,7 +8592,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
         const double newConstTime = static_cast<double>(t);
 
-        bslim::TestUtil::setFunc(&Util::doVar);
+        workerThread10FuncPtr = &Util::doVar;
 
         t = bsls::TimeUtil::getTimer();
         u::executeInParallel(NUM_THREADS, workerThread10);

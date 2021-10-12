@@ -138,29 +138,6 @@ static TYPE abs(TYPE num)
     return num >= 0 ? num : -num;
 }
 
-inline
-UintPtr foilOptimizer(const UintPtr u)
-    // The function just returns 'u', but only after putting it through a
-    // transform that the optimizer can't possibly understand that leaves it
-    // with its original value.
-{
-    const int loopGuard = 0x8edf0000;    // garbage with a lot of trailing 0's.
-    const int mask      = 0xa72c3dca;    // pure garbage
-
-    UintPtr u2 = u;
-    for (int i = 0; !(i & loopGuard); ++i) {
-        u2 ^= (i & mask);
-    }
-
-    // That previous loop toggled all the bits in 'u2' that it touched an even
-    // number of times, so 'u2 == u', but I'm pretty sure the optimizer can't
-    // figure that out.
-
-    ASSERT(u == u2);
-
-    return u2;
-}
-
 static
 const void *addFixedOffset(bsls::Types::UintPtr funcAddress)
     // Given a function pointer stored in a 'UintPtr', add an offset to the

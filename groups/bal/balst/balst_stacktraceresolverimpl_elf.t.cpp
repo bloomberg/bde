@@ -135,29 +135,6 @@ enum { e_IS_DWARF = 0 };
 //                    GLOBAL HELPER FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
-inline
-UintPtr foilOptimizer(const UintPtr u)
-    // The function just returns 'u', but only after putting it through a
-    // transform that the optimizer can't possibly understand that leaves it
-    // with its original value.
-{
-    const int loopGuard = 0x8edf0000;    // garbage with a lot of trailing 0's.
-    const int mask      = 0xa72c3dca;    // pure garbage
-
-    UintPtr u2 = u;
-    for (int i = 0; !(i & loopGuard); ++i) {
-        u2 ^= (i & mask);
-    }
-
-    // That previous loop toggled all the bits in 'u2' that it touched an even
-    // number of times, so 'u2 == u', but I'm pretty sure the optimizer can't
-    // figure that out.
-
-    ASSERT(u == u2);
-
-    return u2;
-}
-
 template <class TYPE>
 static TYPE abs(TYPE num)
 {
@@ -410,7 +387,8 @@ int main(int argc, char *argv[])
             // call.  So let's juggle (without actually changing it) a bit in a
             // way the optizer can't possibly figure out:
 
-            testFuncPtr = foilOptimizer(testFuncPtr);
+            testFuncPtr = bslim::TestUtil::makeFunctionCallNonInline(
+                                                                  testFuncPtr);
 
             int result = (* (int (*)(int)) testFuncPtr)(100);
             ASSERT(result > 10000);

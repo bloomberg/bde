@@ -134,6 +134,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
+#include <bslmf_assert.h>
+
 #include <bsl_iostream.h>
 #include <bsl_string.h>
 
@@ -248,36 +250,60 @@ struct TestUtil {
     // This 'struct' provides a namespace for a suite of utility functions that
     // facilitate the creation of BDE-style test drivers.
 
-    // PUBLIC TYPES
-    typedef void *(*Func)(void *);
-        // 'Func' is the type of a user-supplied callback functor that can be
-        // called by external code and will not be inlined by a compiler.
-
   private:
-    // CLASS DATA
-    static Func s_func;   // user-supplied functor
+    // PRIVATE CLASS METHODS
+    static void *identityPtr(void *ptr);
+        // Return 'ptr' without modification.  Note that this is NOT an inline
+        // function, so that if the caller is not in the same module, the
+        // compiler has no way of knowing that it's an identity transform.
 
   public:
     // CLASS METHODS
-    static void *callFunc(void *arg);
-        // Call the function whose address was passed to the most recent call
-        // to 'setFunc', passing it the specified 'arg', and return its
-        // returned value.  The behavior is undefined unless 'setFunc' has been
-        // called, and the most recent call was passed a non-null function
-        // pointer.
-
     static bool compareText(bslstl::StringRef lhs,
                             bslstl::StringRef rhs,
                             bsl::ostream&     errorStream = bsl::cout);
         // Return 'true' if the specified 'lhs' has the same value as the
-        // specified' rhs', and 'false' otherwise.  Optionally specify an
+        // specified 'rhs', and 'false' otherwise.  Optionally specify an
         // 'errorStream' on which, if 'lhs' and 'rhs' are not the same', a
         // description of how the two strings differ will be written.  If
         // 'errorStream' is not supplied, 'stdout' is used.
 
-    static void setFunc(Func func);
-        // Set the function to be called by 'callFunc' to the specified 'func'.
+    template <class FUNCTION_PTR>
+    static FUNCTION_PTR makeFunctionCallNonInline(FUNCTION_PTR functionPtr);
+        // Return the specified 'functionPtr' (expected to be a static function
+        // pointer) without modification.  The value of 'functionPtr' is
+        // transformed through 'identityPtr' so that if the caller is in a
+        // different module, the compiler will have no way of knowing that this
+        // is an identity transform and thus no way of inlining the call.
+        //
+        // Note: the Windows optimizer is still able to inline the call, it may
+        // be comparing the result of this function with the argument and
+        // branching to inline on equality and call on inequality, so the
+        // Windows optimizer has to be turned off with
+        // '# pragma optimize("", off)'.
+        //
+        // Also note that even with an optimizer that can't figure out that
+        // this is an identity transform, there is still the possibility of
+        // chaining the call.
 };
+
+// ============================================================================
+//                           INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+                                // --------
+                                // TestUtil
+                                // --------
+
+template <class FUNCTION_PTR>
+inline
+FUNCTION_PTR TestUtil::makeFunctionCallNonInline(FUNCTION_PTR function)
+{
+    BSLMF_ASSERT(sizeof(FUNCTION_PTR) == sizeof(void *));
+
+    return reinterpret_cast<FUNCTION_PTR>(identityPtr(reinterpret_cast<void *>(
+                                                                   function)));
+}
 
 }  // close package namespace
 }  // close enterprise namespace

@@ -85,7 +85,7 @@
 // provided by the user.
 //-----------------------------------------------------------------------------
 // CLASS METHODS
-// [ 7] void *callFunc(void *arg);
+// [ 7] FUNCTION makeFunctionCallNonInline(FUNCTION);
 //
 // MACROS
 // [ 6] BSLMT_TESTUTIL_ASSERT(X)
@@ -1548,7 +1548,7 @@ int main(int argc, char *argv[])
         //:   its invocation.
         //
         // Testing:
-        //   void *callFunc(void *arg);
+        //   FUNCTION makeFunctionCallNonInline(FUNCTION);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cerr << "TESTING 'callFunc' AND 'setFunc' METHODS\n"
@@ -1560,24 +1560,25 @@ int main(int argc, char *argv[])
 
         int   refValue;
         void *INPUT = &refValue;
-        void *result = Obj::callFunc(testFunctionAdd, INPUT);
+        void *result = (*Obj::makeFunctionCallNonInline(testFunctionAdd))(
+                                                                        INPUT);
 
         REAL_ASSERT(1 == callCount);
         REAL_ASSERT(&refValue == result);
 
-        result = Obj::callFunc(testFunctionAdd, INPUT);
+        result = (*Obj::makeFunctionCallNonInline(testFunctionAdd))(INPUT);
 
         REAL_ASSERT(2 == callCount);
         REAL_ASSERT(&refValue == result);
 
         REAL_ASSERT(2 == callCount);
 
-        result = Obj::callFunc(testFunctionSub, INPUT);
+        result = (*Obj::makeFunctionCallNonInline(testFunctionSub))(INPUT);
 
         REAL_ASSERT(1 == callCount);
         REAL_ASSERT(&refValue == result);
 
-        result = Obj::callFunc(testFunctionSub, INPUT);
+        result = (*Obj::makeFunctionCallNonInline(testFunctionSub))(INPUT);
 
         REAL_ASSERT(0 == callCount);
         REAL_ASSERT(&refValue == result);

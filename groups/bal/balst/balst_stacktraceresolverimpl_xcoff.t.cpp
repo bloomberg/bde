@@ -13,6 +13,8 @@
 
 #include <bdlma_sequentialallocator.h>
 
+#include <bslim_testutil.h>
+
 #include <bslma_testallocator.h>
 
 #include <bsls_review.h>
@@ -58,33 +60,26 @@ static void aSsErT(int c, const char *s, int i)
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-
 // ============================================================================
-//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+//                      STANDARD BDE TEST DRIVER MACROS
 // ----------------------------------------------------------------------------
 
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-                    << J << "\t" \
-                    << #K << ": " << K <<  "\n"; aSsErT(1, #X, __LINE__); } }
-
-// ============================================================================
-//                     SEMI-STANDARD TEST OUTPUT MACROS
-// ----------------------------------------------------------------------------
-
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_()  cout << "\t" << flush;          // Print tab w/o newline
+#define Q   BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P   BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_  BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                    GLOBAL HELPER #DEFINES FOR TESTING
@@ -146,29 +141,6 @@ int funcGlobalOne(int i)
     }
 
     return 5 * i * j * k;
-}
-
-inline
-UintPtr foilOptimizer(const UintPtr u)
-    // The function just returns 'u', but only after putting it through a
-    // transform that the optimizer can't possibly understand that leaves it
-    // with its original value.
-{
-    const int loopGuard = 0x8edf0000;    // garbage with a lot of trailing 0's.
-    const int mask      = 0xa72c3dca;    // pure garbage
-
-    UintPtr u2 = u;
-    for (int i = 0; !(i & loopGuard); ++i) {
-        u2 ^= (i & mask);
-    }
-
-    // That previous loop toggled all the bits in 'u2' that it touched an even
-    // number of times, so 'u2 == u', but I'm pretty sure the optimizer can't
-    // figure that out.
-
-    ASSERT(u == u2);
-
-    return u2;
 }
 
 template <typename TYPE>
@@ -385,7 +357,8 @@ int main(int argc, char *argv[])
             // call.  So let's juggle (without actually changing it) a bit in a
             // way the optizer can't possibly figure out:
 
-            testFuncPtr = foilOptimizer(testFuncPtr);
+            testFuncPtr = bslim::TestUtil::makeFunctionCallNonInline(
+                                                                  testFuncPtr);
 
             int testFuncLine = (* (int (*)()) testFuncPtr)();
             frames[2].setAddress(addFixedOffset(testFuncPtr));

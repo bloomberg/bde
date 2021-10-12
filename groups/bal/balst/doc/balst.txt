@@ -14,7 +14,8 @@
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  6. balst_stacktraceprintutil
+  6. balst_stacktraceprinter
+     balst_stacktraceprintutil
      balst_stacktracetestallocator
 
   5. balst_stacktraceutil
@@ -43,6 +44,9 @@
 :
 : 'balst_stacktraceframe':
 :      Provide an attribute class describing an execution stack frame.
+:
+: 'balst_stacktraceprinter':
+:      Provide an object for streaming the current stack trace.
 :
 : 'balst_stacktraceprintutil':
 :      Provide a single function to perform and print a stack trace.
@@ -101,73 +105,45 @@
 /-----
  This section illustrates intended use of this package.
 
-/Example 1: Printing a Stack Trace to a Stream
-/- - - - - - - - - - - - - - - - - - - - - - -
- This example shows how to obtain a stack trace and print it to a stream, all
- by calling just the static function
- 'balst_StackTracePrintUtil::printStackTrace'.
-
- First, we define a recursive function 'recurseAndPrintStack' that recurses to
- the specified 'depth', then calls 'balst_StackTracePrintUtil::printStackTrace'
- to obtain a stack trace and print it to 'cout'.  When we call
- 'printStackTrace', neither of the optional arguments corresponding to
- 'maxFrames' or 'demanglingPreferredFlag' are supplied; 'maxFrames' defaults to
- at least 1024 (which is more than we need), and 'demanglingPreferredFlag'
- defaults to 'true'.
+/Example 1: Streaming to BALL
+/ - - - - - - - - - - - - - -
+ First, we define a recursive function 'recurseAndPrintStack' that recurses 4
+ times, then calls '<< StackTracePrinter()' to obtain a stack trace and print
+ it to 'BALL_LOG_FATAL':
 ..
-  static
-  void recurseAndPrintStack(int *depth)
-      // Recurse to the specified 'depth', then print out the stack trace to
-      // 'cout'.
+  #include <balst_stacktraceprinter.h>
+
+  void recurseAndStreamStackDefault()
+      // Recurse 4 times and print a stack trace to 'BALL_LOG_FATAL'.
   {
-      if (--*depth > 0) {
-          recurseAndPrintStack(depth);
+      static int recurseCount = 0;
+
+      if (recurseCount++ < 4) {
+          recurseAndStreamStackDefault();
       }
       else {
-          balst_StackTracePrintUtil::printStackTrace(cout);
+          BALL_LOG_FATAL << balst::StackTracePrinter();
       }
-
-      ++*depth;   // Prevent compiler from optimizing tail recursion as a
-                  // loop.
   }
 ..
- Then, we call 'recurseAndPrintStack' from the main program.
+ which, on Linux, produces the output:
 ..
-  int main()
-  {
-      int depth = 5;
-      recurseAndPrintStack(&depth);
-      assert(5 == depth);
-  }
+  (0): recurseAndStreamStackDefault()+0x5a at 0x407762
+          source:balst_stacktraceprinter.t.cpp:723 in balst_stacktraceprinter.t
+  (1): recurseAndStreamStackDefault()+0x27 at 0x40772f
+          source:balst_stacktraceprinter.t.cpp:725 in balst_stacktraceprinter.t
+  (2): recurseAndStreamStackDefault()+0x27 at 0x40772f
+          source:balst_stacktraceprinter.t.cpp:725 in balst_stacktraceprinter.t
+  (3): recurseAndStreamStackDefault()+0x27 at 0x40772f
+          source:balst_stacktraceprinter.t.cpp:725 in balst_stacktraceprinter.t
+  (4): recurseAndStreamStackDefault()+0x27 at 0x40772f
+          source:balst_stacktraceprinter.t.cpp:725 in balst_stacktraceprinter.t
+  (5): main+0x1a7 at 0x407a37 source:balst_stacktraceprinter.t.cpp:857 in
+                                                      balst_stacktraceprinter.t
+  (6): __libc_start_main+0xf5 at 0x7fab4df69495 in /lib64/libc.so.6
+  (7): --unknown-- at 0x406205 in balst_stacktraceprinter.t
 ..
- Now, invoking the main program on AIX produces the following output:
-..
-  (0): BloombergLP::balst_StackTracePrintUtil::.printStackTrace(
-       bdl::basic_ostream<char,bdl::char_traits<char> >&,int,bool)+0x170 at
-       0x1000a2c8 source:balst_stacktraceprintutil.cpp:52 in
-       balst_stacktraceprintutil.t.dbg_
-  (1): .recurseAndPrintStack(int*)+0x58 at 0x1000a118
-       source:balst_stacktraceprintutil.t.cpp:652 in
-       balst_stacktraceprintutil.t.dbg_
-  (2): .recurseAndPrintStack(int*)+0x40 at 0x1000a100
-       source:balst_stacktraceprintutil.t.cpp:650
-       in balst_stacktraceprintutil.t.dbg_
-  (3): .recurseAndPrintStack(int*)+0x40 at 0x1000a100
-       source:balst_stacktraceprintutil.t.cpp:650 in
-       balst_stacktraceprintutil.t.dbg_
-  (4): .recurseAndPrintStack(int*)+0x40 at 0x1000a100
-       source:balst_stacktraceprintutil.t.cpp:650 in
-       balst_stacktraceprintutil.t.dbg_
-  (5): .recurseAndPrintStack(int*)+0x40 at 0x1000a100
-       source:balst_stacktraceprintutil.t.cpp:650 in
-       balst_stacktraceprintutil.t.dbg_
-  (6): .main+0x2f4 at 0x10000a4c source:balst_stacktraceprintutil.t.cpp:724
-       in balst_stacktraceprintutil.t.dbg_
-  (7): .__start+0x6c at 0x1000020c source:crt0main.s in
-       balst_stacktraceprintutil.t.dbg_
-..
- Finally, we observe the following about the above output to 'cout'.  Notice
- that since the actual output would write each stack trace frame all on a
- single line, and all the lines here were longer than 80 characters, it has
- been manually edited to wrap and have every line be less than 80 columns.
- Also note the program name is truncated to 32 characters in length.
+ Note that long lines of output here have been hand-wrapped to fit into
+ comments in this 79-column source file.  Also note that if the full path of
+ the executable or library is too long, only the basename will be displayed,
+ while if it is short, then the full path will be displayed.

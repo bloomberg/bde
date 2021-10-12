@@ -26,8 +26,8 @@ BSLS_IDENT("$Id: $")
 // Not all properties of a stack trace are printed on all platforms because the
 // set of properties describing a stack trace that are obtainable varies
 // according to both the platform and build parameters.  For example, on
-// Solaris, Linux, and HP-UX, source file names and line numbers are not
-// provided.  Function names and addresses are provided on all platforms.  The
+// Solaris and HP-UX, source file names and line numbers are not provided.
+// Function names and addresses are provided on all platforms.  The
 // 'printStackTrace' function always prints a description of the stack of the
 // calling thread.
 //
@@ -130,7 +130,8 @@ struct StackTracePrintUtil {
     static bsl::ostream& printStackTrace(
                                  bsl::ostream& stream,
                                  int           maxFrames = -1,
-                                 bool          demanglingPreferredFlag = true);
+                                 bool          demanglingPreferredFlag = true,
+                                 int           additionalIgnoreFrames = 0);
         // Obtain a trace of the stack and print it to the specified 'stream'.
         // Optionally specify 'maxFrames' indicating the maximum number of
         // frames from the top of the stack that will be printed.  If
@@ -139,10 +140,13 @@ struct StackTracePrintUtil {
         // preference whether to attempt to demangle function names.  If
         // 'damanglingPreferredFlag' is not specified, an attempt to demangle
         // is assumed.  If an error occurs, a single-line error message is
-        // printed to 'stream'.  The behavior is undefined unless
-        // '-1 <= maxFrames'.  Note that attempting to demangle symbol names
-        // could involve calling 'malloc', and that symbol names are always
-        // demangled on the Windows platform.
+        // printed to 'stream'.  Optionally specify 'additionalIgnoreFrames'
+        // which is added to 'bsls::StackAddressUtil::k_IGNORE_FRAMES' to
+        // ignore frames of the caller.  Return a reference to 'stream.  The
+        // behavior is undefined unless '-1 <= maxFrames' and
+        // '0 <= additionalIgnoreFrames'.  Note that attempting to demangle
+        // symbol names could involve calling 'malloc', and that symbol names
+        // are always demangled on the Windows platform.
 };
 
                        // ==============================

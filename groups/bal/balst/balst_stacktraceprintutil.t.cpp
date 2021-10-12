@@ -260,39 +260,6 @@ bool problem()
 
 //=============================================================================
 // GLOBAL HELPER FUNCTIONS FOR TESTING
-
-UintPtr foilOptimizer(const UintPtr u)
-    // The function just returns 'u', but only after putting it through a
-    // transform that the optimizer can't possibly understand that leaves it
-    // with its original value.
-{
-    const int loopGuard  = 0x8edf0000;    // garbage with a lot of trailing
-                                          // 0's.
-    const int toggleMask = 0xa72c3dca;    // pure garbage
-
-    UintPtr u2 = u;
-    for (int i = 0; !(i & loopGuard); ++i) {
-        u2 ^= (i & toggleMask);
-    }
-
-    // That previous loop toggled all the bits in 'u2' that it touched an even
-    // number of times, so 'u2 == u', but I'm pretty sure the optimizer can't
-    // figure that out.
-
-    ASSERT(u == u2);
-
-    return u2;
-}
-
-template <class FUNC_PTR>
-inline
-FUNC_PTR funcFoilOptimizer(const FUNC_PTR funcPtr)
-{
-    UintPtr ret = reinterpret_cast<UintPtr>(funcPtr);
-
-    return reinterpret_cast<FUNC_PTR>(foilOptimizer(ret));
-}
-
 //-----------------------------------------------------------------------------
 
 bool checkOutput(const bsl::string&               str,
@@ -353,18 +320,10 @@ bool isColonPair(const char *pc)
 
 void top()
 {
-    typedef void (*PrintStackTraceToStringPtrType)(bsl::string *string);
-    union {
-        PrintStackTraceToStringPtrType d_funcPtr;
-        UintPtr                        d_uintPtr;
-    } testDumpUnion;
-
-    testDumpUnion.d_funcPtr = &PrintUtilTest::printStackTraceToString;
-    testDumpUnion.d_uintPtr = foilOptimizer(testDumpUnion.d_uintPtr);
-
     bslma::TestAllocator ta;
     bsl::string dump(&ta);
-    (*testDumpUnion.d_funcPtr)(&dump);
+    (*bslim::TestUtil::makeFunctionCallNonInline(
+                              &PrintUtilTest::printStackTraceToString))(&dump);
 
     bsl::string inExec(execName, &ta);
     const char slash = e_FORMAT_WINDOWS ? '\\' : '/';
@@ -543,8 +502,6 @@ int phonyCompare(const void *, const void *)
     Data strippedStrings[] = {
         { L_, false, "phonyCompare" },
         { L_, false, "main" } };
-    enum { NUM_STRIPPED_STRINGS = sizeof strippedStrings /
-                                                     sizeof *strippedStrings };
 
     Data debugStrings[] = {
         { L_, false, "phonyCompare" },
@@ -552,7 +509,10 @@ int phonyCompare(const void *, const void *)
         { L_, true,  " in " },
         { L_, true,  e_FORMAT_DLADDR ? "/libsystem_c" : "/libc." },
         { L_, false, "main" } };
-    enum { NUM_DEBUG_STRINGS = sizeof debugStrings / sizeof *debugStrings };
+
+    enum { NUM_STRIPPED_STRINGS = sizeof strippedStrings /
+                                                       sizeof *strippedStrings,
+           NUM_DEBUG_STRINGS    = sizeof debugStrings / sizeof *debugStrings };
 
     const bool stripped = NPOS != dump.find("--unknown--");
 
@@ -606,36 +566,55 @@ int top()
     if (calledTop) return 9;                                          // RETURN
     calledTop = true;
 
-    bslma::TestAllocator ta;
-    bsl::vector<const char *> matches(&ta);
-    matches.push_back(e_DEMANGLE_PARENS ? "top()" : "top");
-    matches.push_back("\n");
-    matches.push_back(e_DEMANGLE_PARENS ? "highMiddle(int" : "highMiddle");
-    matches.push_back("\n");
-    matches.push_back(e_DEMANGLE_PARENS ? "lowMiddle()" : "lowMiddle");
-    matches.push_back("\n");
-    matches.push_back(e_DEMANGLE_PARENS ? "bottom()" : "bottom");
-    matches.push_back("\n");
-    matches.push_back("main");
-    matches.push_back("\n");
+    for (int addIgnore = 0; addIgnore < 3; ++addIgnore) {
+        bslma::TestAllocator ta;
+        bsl::vector<const char *> matches(&ta), nonMatches(&ta);
 
-    bsl::stringstream os(&ta);
-    balst::StackTracePrintUtil::printStackTrace(os);
+        (0 == addIgnore ? matches : nonMatches).push_back(
+                                          e_DEMANGLE_PARENS ? "top()" : "top");
+        if (0 == addIgnore) {
+            matches.push_back("\n");
+        }
 
-    bsl::string str(&ta);
-    {
-        bslma::DefaultAllocatorGuard guard(&ta);
+        (addIgnore <= 1 ? matches : nonMatches).push_back(
+                          e_DEMANGLE_PARENS ? "highMiddle(int" : "highMiddle");
+        if (addIgnore <= 1) {
+            matches.push_back("\n");
+        }
 
-        // 'bsl::stringstream::str' may create temporaries if the string is
-        // large
+        (addIgnore <= 2 ? matches : nonMatches).push_back(
+                              e_DEMANGLE_PARENS ? "lowMiddle()" : "lowMiddle");
+        if (addIgnore <= 2) {
+            matches.push_back("\n");
+        }
 
-        str = os.str();
-    }
+        matches.push_back(e_DEMANGLE_PARENS ? "bottom()" : "bottom");
+        matches.push_back("\n");
+        matches.push_back("main");
+        matches.push_back("\n");
 
-    checkOutput(str, matches);
+        bsl::stringstream os(&ta);
+        balst::StackTracePrintUtil::printStackTrace(os, -1, true, addIgnore);
 
-    if (verbose) {
-        *out_p << str;
+        bsl::string str(&ta);
+        {
+            bslma::DefaultAllocatorGuard guard(&ta);
+
+            // 'bsl::stringstream::str' may create temporaries if the string is
+            // large
+
+            str = os.str();
+        }
+
+        checkOutput(str, matches);
+        for (unsigned uu = 0; uu < nonMatches.size(); ++uu) {
+            ASSERTV(nonMatches[uu], addIgnore,
+                                bsl::string::npos == str.find(nonMatches[uu]));
+        }
+
+        if (verbose) {
+            *out_p << str;
+        }
     }
 
     return 7 + !!verbose;
@@ -655,11 +634,11 @@ int highMiddle(int i)
     for (; i < 40; ++i) {
         if (i & 16) {
             i += 5;
-            ASSERT((*funcFoilOptimizer(&top))() >= 6);
+            ASSERT((*bslim::TestUtil::makeFunctionCallNonInline(&top))() >= 6);
         }
         else if (i & 8) {
             i += 7;
-            ASSERT((*funcFoilOptimizer(&top))() >= 7);
+            ASSERT((*bslim::TestUtil::makeFunctionCallNonInline(&top))() >= 7);
         }
     }
 
@@ -681,11 +660,13 @@ int lowMiddle()
     for (; i < 30; ++i) {
         if (i & 4) {
             i += 12;
-            ASSERT((*funcFoilOptimizer(&highMiddle))(10) >= 40);
+            ASSERT((*bslim::TestUtil::makeFunctionCallNonInline(&highMiddle))(
+                                                                    10) >= 40);
         }
         else if ((i & 2) && (i & 16)) {
             i += 5;
-            ASSERT((*funcFoilOptimizer(&highMiddle))(10) >= 39);
+            ASSERT((*bslim::TestUtil::makeFunctionCallNonInline(&highMiddle))(
+                                                                    10) >= 39);
         }
     }
 
@@ -703,11 +684,13 @@ int bottom()
     for (; i < 20; ++i) {
         if (i & 8) {
             i += 7;
-            ASSERT((*funcFoilOptimizer(&lowMiddle))() >= 30);
+            ASSERT((*bslim::TestUtil::makeFunctionCallNonInline(&lowMiddle))()
+                                                                        >= 30);
         }
         if ((i & 2) && (i & 4)) {
             i += 4;
-            ASSERT((*funcFoilOptimizer(&lowMiddle))() >= 28);
+            ASSERT((*bslim::TestUtil::makeFunctionCallNonInline(&lowMiddle))()
+                                                                        >= 28);
         }
     }
 
@@ -775,7 +758,7 @@ int bottom(bslma::Allocator *alloc)
     int i = 0;
     for (; i < 0x20; ++i) {
         if ((i & 2) && (i & 4)) {
-            if ((*funcFoilOptimizer(&top))(alloc)) {
+            if ((*bslim::TestUtil::makeFunctionCallNonInline(&top))(alloc)) {
                 break;
             }
         }
@@ -915,10 +898,11 @@ int main(int argc, char *argv[])
         //: 3 If we just store the address of the function to a pointer and
         //:   call through that pointer, the optimizer will sometimes *STILL*
         //:   figure out what we are doing and inline the call.  Call
-        //:   'foilOptimizer', which does a transform on the function pointer
-        //:   that results in it being unchanged, that is too complex for the
-        //:   optimizer to understand.  Thus, the compiler has no choice but to
-        //:   call the routine out of line.
+        //:   'bslim::TestUtil::identity', which does a transform on the
+        //:   function pointer that results in it being unchanged, that happens
+        //:   in another module so the compiler doesn't realize that it's an
+        //:   identity transform.  Thus, the compiler has no choice but to call
+        //:   the routine out of line.
         //:
         //: 4 On platforms / build modes that support source file names,
         //:   verify that the source file name of the inline function is
@@ -1022,7 +1006,8 @@ int main(int argc, char *argv[])
         {
             namespace TC = CASE_2;
 
-            (void) (*funcFoilOptimizer(&TC::bottom))();
+            (void) (*bslim::TestUtil::makeFunctionCallNonInline(
+                                                               &TC::bottom))();
 
             ASSERT(0 == defaultAllocator.numAllocations());
         }
@@ -1063,7 +1048,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Manipulator & Accessor Test\n"
                              "===========================\n";
 
-        int result = (*funcFoilOptimizer(&TC::bottom))(&ta);
+        int result = (*bslim::TestUtil::makeFunctionCallNonInline(
+                                                            &TC::bottom))(&ta);
         ASSERT(result >= 6);
       } break;
       default: {

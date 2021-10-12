@@ -340,42 +340,6 @@ void stripReturnType(bsl::string *dst, const bsl::string& symbol)
 
 //=============================================================================
 // GLOBAL HELPER FUNCTIONS FOR TESTING
-
-template <class TYPE>
-TYPE foilOptimizer(const TYPE funcPtr)
-    // The function just returns 'funcPtr', but only after putting it through a
-    // transform that the optimizer can't possibly understand that leaves it
-    // with its original value.  'TYPE' is expected to be a function pointer
-    // type.
-    //
-    // Note that it's still necessary to put a lot of the routines through
-    // contortions to avoid the optimizer optimizing tail calls as jumps.
-{
-    TYPE ret, ret2 = funcPtr;
-
-    UintPtr u = (UintPtr) funcPtr;
-
-    const int loopGuard  = 0x8edf1000;    // garbage with a lot of trailing
-                                          // 0's.
-    const int toggleMask = 0xa72c3dca;    // pure garbage
-
-    UintPtr u2 = u;
-    for (int i = 0; !(i & loopGuard); ++i) {
-        u ^= (i & toggleMask);
-    }
-
-    ret = (TYPE) u;
-
-    // That previous loop toggled all the bits in 'u' that it touched an even
-    // number of times, so 'ret == ret2', but I'm pretty sure the optimizer
-    // can't figure that out.
-
-    ASSERT(  u2 ==   u);
-    ASSERT(ret2 == ret);
-
-    return ret;
-}
-
 //-----------------------------------------------------------------------------
 
 void checkOutput(const bsl::string&               str,
@@ -667,10 +631,11 @@ void recurseABunchOfTimes(int *depth, int, void *, int, void *)
     // in the specified 'numRecurses'.
 {
     if (--*depth <= 0) {
-        (*foilOptimizer(stackTop))();
+        (*bslim::TestUtil::makeFunctionCallNonInline(&stackTop))();
     }
     else {
-        (*foilOptimizer(recurseABunchOfTimes))(depth, 0, depth, 0, depth);
+        (*bslim::TestUtil::makeFunctionCallNonInline(&recurseABunchOfTimes))(
+                                                    depth, 0, depth, 0, depth);
     }
 
     ++*depth;
@@ -818,7 +783,8 @@ void loopForSevenSeconds()
     do {
         int depth = numRecurses;
         for (int i = 0; i < 10; ++i, ++localTracesDone) {
-            (*foilOptimizer(recurseABunchOfTimes))(
+            (*bslim::TestUtil::makeFunctionCallNonInline(
+                                                       &recurseABunchOfTimes))(
                 &depth, 0, &i, 0, numRecurses);
             ASSERT(numRecurses == depth);
         }
@@ -836,10 +802,11 @@ void recurseABunchOfTimes(int *depth, int, void *, int, int numRecurses)
     // in the specified 'numRecurses'.
 {
     if (--*depth <= 0) {
-        (*foilOptimizer(topOfTheStack))(depth, depth, depth, numRecurses);
+        (*bslim::TestUtil::makeFunctionCallNonInline(&topOfTheStack))(
+                                             depth, depth, depth, numRecurses);
     }
     else {
-        (*foilOptimizer(recurseABunchOfTimes))(
+        (*bslim::TestUtil::makeFunctionCallNonInline(&recurseABunchOfTimes))(
             depth, 0, depth, 0, numRecurses);
     }
 
@@ -1397,7 +1364,8 @@ int middle(bool demangle)
 
     for (i = 0; i < 1024; ++i) {
         if (i & 0xabc4) {
-            i += (*foilOptimizer(case_4_top))(demangle);
+            i += (*bslim::TestUtil::makeFunctionCallNonInline(&case_4_top))(
+                                                                     demangle);
         }
         else if (i > 4) {
             ASSERT(0);
@@ -1412,7 +1380,8 @@ void bottom(bool demangle, double x)
     for (int i = 0; i < (1 << 15); ++i) {
         x *= x;
         if (i & 0x1234) {
-            i += (*foilOptimizer(middle))(demangle);
+            i += (*bslim::TestUtil::makeFunctionCallNonInline(&middle))(
+                                                                     demangle);
         }
         else if (i > 4) {
             ASSERT(0);
@@ -1486,7 +1455,8 @@ int upperMiddle(bool demangle)
     int j;
     for (j = 0; j < 100; ++j) {
         if (j & 16) {
-            j += (*foilOptimizer(case_3_Top))(demangle);
+            j += (*bslim::TestUtil::makeFunctionCallNonInline(&case_3_Top))(
+                                                                     demangle);
         }
         else if (j > 16) {
             ASSERT(0);
@@ -1500,7 +1470,8 @@ int lowerMiddle(bool demangle)
 {
     for (int j = 0; j < 100; ++j) {
         if (j & 16) {
-            j += (*foilOptimizer(upperMiddle))(demangle);
+            j += (*bslim::TestUtil::makeFunctionCallNonInline(&upperMiddle))(
+                                                                     demangle);
         } else if (j > 16) {
             ASSERT(0);
         }
@@ -1516,7 +1487,8 @@ double bottom(bool demangle)
     for (int i = 0; i < 100; ++i) {
         if (i & 4) {
             i *= 50;
-            x = 3.7 * (*foilOptimizer(lowerMiddle))(demangle);
+            x = 3.7 * (*bslim::TestUtil::makeFunctionCallNonInline(
+                                                      &lowerMiddle))(demangle);
         } else if (i > 4) {
             ASSERT(0);
         }
@@ -1596,7 +1568,7 @@ void bottom(bslma::Allocator *alloc)
 {
     for (int i = 0; i < 0x20; ++i) {
         if ((i & 2) && (i & 4)) {
-            i += (*foilOptimizer(top))(alloc);
+            i += (*bslim::TestUtil::makeFunctionCallNonInline(&top))(alloc);
         }
         else if (7 == i) {
             ASSERT(0);
@@ -1693,13 +1665,13 @@ void bottom(bslma::Allocator *alloc)
 {
     for (int i = 0; i < 20; ++i) {
         if ((i & 1) && (i & 2)) {
-            if ((*foilOptimizer(&top))(alloc)) {
+            if ((*bslim::TestUtil::makeFunctionCallNonInline(&top))(alloc)) {
                 break;
             }
         }
         else if (i & 8) {
             ASSERT(0);
-            (*foilOptimizer(&top))(alloc);
+            (*bslim::TestUtil::makeFunctionCallNonInline(&top))(alloc);
         }
     }
 }
@@ -2397,8 +2369,8 @@ int main(int argc, char *argv[])
         straightTrace = false;
 
         int depth = 5;
-        (*foilOptimizer(recurseABunchOfTimes))(
-            &depth, depth, &depth, depth, &depth);
+        (*bslim::TestUtil::makeFunctionCallNonInline(&recurseABunchOfTimes))(
+                                         &depth, depth, &depth, depth, &depth);
       } break;
       case 11: {
         // --------------------------------------------------------------------
@@ -2426,8 +2398,8 @@ int main(int argc, char *argv[])
         bslma::DefaultAllocatorGuard guard(&da2);
 
         int depth = 5;
-        (*foilOptimizer(recurseABunchOfTimes))(
-            &depth, depth, &depth, depth, &depth);
+        (*bslim::TestUtil::makeFunctionCallNonInline(&recurseABunchOfTimes))(
+                                         &depth, depth, &depth, depth, &depth);
       } break;
       case 10: {
         // --------------------------------------------------------------------
@@ -2717,14 +2689,18 @@ int main(int argc, char *argv[])
         case_5_bottom(true,  false, &depth);    // demangle
         ASSERT(startDepth  == depth);
 
-        (*foilOptimizer(CASE_4::bottom))(false, 3.7);    // no demangling
+        (*bslim::TestUtil::makeFunctionCallNonInline(&CASE_4::bottom))(
+                                                                   false, 3.7);
+                                                               // no demangling
         ASSERT(case_4_top_called_mangle);
 
         if (PLAT_WIN) {
             break;
         }
 
-        (*foilOptimizer(CASE_4::bottom))(true,  3.7);    // demangling
+        (*bslim::TestUtil::makeFunctionCallNonInline(&CASE_4::bottom))(
+                                                                   true,  3.7);
+                                                                  // demangling
         ASSERT(case_4_top_called_demangle);
       } break;
       case 5: {
@@ -2756,7 +2732,8 @@ int main(int argc, char *argv[])
         int depth = startDepth;
 
         // no demangle, hbpa
-        (*foilOptimizer(case_5_bottom))(false, false, &depth);
+        (*bslim::TestUtil::makeFunctionCallNonInline(&case_5_bottom))(
+                                                         false, false, &depth);
         ASSERT(startDepth == depth);
 
         case_5_bottom(false, true,  &depth);    // no demangle, test alloc
@@ -2792,14 +2769,16 @@ int main(int argc, char *argv[])
 
         namespace TC = CASE_4;
 
-        (*foilOptimizer(TC::bottom))(false, 3.7);    // no demangling
+        (*bslim::TestUtil::makeFunctionCallNonInline(&TC::bottom))(false, 3.7);
+                                                               // no demangling
         ASSERT(case_4_top_called_mangle);
 
         if (PLAT_WIN) {
             break;
         }
 
-        (*foilOptimizer(TC::bottom))(true,  3.7);    // demangling
+        (*bslim::TestUtil::makeFunctionCallNonInline(&TC::bottom))(
+                                                     true,  3.7); // demangling
         ASSERT(case_4_top_called_demangle);
       } break;
       case 3: {
@@ -2828,7 +2807,9 @@ int main(int argc, char *argv[])
 
         namespace TC = CASE_3;
 
-        (void) (*foilOptimizer(TC::bottom))(false);    // no demangling
+        (void) (*bslim::TestUtil::makeFunctionCallNonInline(&TC::bottom))(
+                                                                        false);
+                                                               // no demangling
 
         ASSERT(calledCase3TopMangle);
 
@@ -2836,7 +2817,8 @@ int main(int argc, char *argv[])
             break;
         }
 
-        (void) (*foilOptimizer(TC::bottom))(true);     // demangling
+        (void) (*bslim::TestUtil::makeFunctionCallNonInline(&TC::bottom))(
+                                                            true);// demangling
 
         ASSERT(calledCase3TopDemangle);
       } break;
@@ -2871,7 +2853,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Print and Streamout Test\n"
                              "========================\n";
 
-        (*foilOptimizer(TC::bottom))(&ta);
+        (*bslim::TestUtil::makeFunctionCallNonInline(&TC::bottom))(&ta);
         ASSERT(TC::topCalled);
 
         ASSERT(0 == defaultAllocator.numAllocations());
@@ -2910,7 +2892,7 @@ int main(int argc, char *argv[])
             ASSERT(st.allocator() != &defaultAllocator);
         }
 
-        (*foilOptimizer(&TC::bottom))(&ta);
+        (*bslim::TestUtil::makeFunctionCallNonInline(&TC::bottom))(&ta);
         ASSERT(TC::topCalled);
 
         ASSERT(0 == defaultAllocator.numAllocations());

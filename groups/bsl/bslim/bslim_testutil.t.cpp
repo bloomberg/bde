@@ -9,6 +9,7 @@
 
 #include <fcntl.h>
 #include <limits.h>     // 'PATH_MAX' on Linux
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>     // 'strlen'
@@ -78,8 +79,7 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 // CLASS METHODS
 // [ 7] bool compareText(StringRef, StringRef, bsl::ostream&);
-// [ 8] void *callFunc(void *arg);
-// [ 8] void setFunc(Func func);
+// [ 8] FUNCTION makeFunctionCallNonInline(FUNCTION);
 //
 // MACROS
 // [ 6] BSLIM_TESTUTIL_ASSERT(X)
@@ -320,7 +320,8 @@ typedef struct stat StatType;
 typedef struct stat64 StatType;
 #endif
 
-inline int fstatFunc(int fd, StatType *buf)
+inline
+int fstatFunc(int fd, StatType *buf)
 {
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
     return fstat(fd, buf);
@@ -390,6 +391,8 @@ bool tempFileName(char *result)
 
     return true;
 }
+
+}  // close unnamed namespace
 
 class OutputRedirector {
     // This class provides a facility for redirecting 'stdout' to a temporary
@@ -810,8 +813,6 @@ size_t OutputRedirector::outputSize() const
     return static_cast<size_t>(d_outputSize);
 }
 
-}  // close unnamed namespace
-
 //=============================================================================
 //                                 MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -859,7 +860,7 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'callFunc' AND 'setFunc' METHODS
+        // TESTING 'makeFunctionCallNonInline'
         //
         // Concerns:
         //: 1 A custom function with external linkage can be installed and
@@ -872,43 +873,34 @@ int main(int argc, char *argv[])
         //:   its invocation.
         //
         // Testing:
-        //   void *callFunc(void *arg);
-        //   void setFunc(Func func);
+        //   FUNCTION makeFunctionCallNonInline(FUNCTION);
         // --------------------------------------------------------------------
-        if (verbose) bsl::cout << "\nTESTING 'callFunc' AND 'setFunc' METHODS"
-                               << "\n========================================"
-                               << bsl::endl;
+        if (verbose) bsl::cout << "TESTING 'makeFunctionCallNonInline'\n"
+                               << "======================\n";
 
         using namespace BSLIM_TESTUTIL_TEST_FUNCTION_CALL;
 
         ASSERT(0 == callCount);
 
-        Obj::setFunc(testFunctionAdd);
-
-        ASSERT(0 == callCount);
-
         int   refValue;
         void *INPUT = &refValue;
-        void *result = Obj::callFunc(INPUT);
+        void *result =
+                     (*Obj::makeFunctionCallNonInline(testFunctionAdd))(INPUT);
 
         ASSERT(1 == callCount);
         ASSERT(&refValue == result);
 
-        result = Obj::callFunc(INPUT);
+        result = (*Obj::makeFunctionCallNonInline(testFunctionAdd))(INPUT);
 
         ASSERT(2 == callCount);
         ASSERT(&refValue == result);
 
-        Obj::setFunc(testFunctionSub);
-
-        ASSERT(2 == callCount);
-
-        result = Obj::callFunc(INPUT);
+        result = (*Obj::makeFunctionCallNonInline(testFunctionSub))(INPUT);
 
         ASSERT(1 == callCount);
         ASSERT(&refValue == result);
 
-        result = Obj::callFunc(INPUT);
+        result = (*Obj::makeFunctionCallNonInline(testFunctionSub))(INPUT);
 
         ASSERT(0 == callCount);
         ASSERT(&refValue == result);
@@ -2189,7 +2181,7 @@ int main(int argc, char *argv[])
             const char *testString = "This is good output";
 
             output.reset();
-            int stringLength = strlen(testString);
+            size_t stringLength = strlen(testString);
             for (int idx = 0; idx * stringLength < OUTPUT_BUFFER_SIZE; ++idx) {
                 printf("%s", testString);
             }

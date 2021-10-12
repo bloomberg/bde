@@ -110,8 +110,7 @@ int StackTraceResolverImpl<ObjectFileFormat::Windows>::testFunc()
             line ^= (i & mask);
         }
 
-        // The above loop will leave the value of 'line' unchanged.  See
-        // 'foilOptimizer' in the test driver.
+        // The above loop will leave the value of 'line' unchanged.
 
         BSLS_ASSERT_OPT(line == lineCopy);
 
