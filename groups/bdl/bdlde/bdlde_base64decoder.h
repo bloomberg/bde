@@ -659,16 +659,14 @@ int Base64Decoder::maxDecodedLength(int inputLength)
 
 // CREATORS
 inline
-Base64Decoder::Base64Decoder(bool     unrecognizedIsErrorFlag,
-                             Alphabet alphabet)
+Base64Decoder::Base64Decoder(bool unrecognizedIsErrorFlag, Alphabet alphabet)
 : d_state(e_INPUT_STATE)
 , d_outputLength(0)
-, d_alphabet_p(Alphabet::e_BASIC == alphabet ? s_basicAlphabet_p
-                                             : s_urlAlphabet_p)
+, d_alphabet_p(e_BASIC == alphabet ? s_basicAlphabet_p : s_urlAlphabet_p)
 , d_ignorable_p(unrecognizedIsErrorFlag
-                ? s_ignorableStrict_p
-                : (Alphabet::e_BASIC == alphabet) ? s_basicIgnorableRelaxed_p
-                                                  : s_urlIgnorableRelaxed_p)
+                    ? s_ignorableStrict_p
+                    : (e_BASIC == alphabet) ? s_basicIgnorableRelaxed_p
+                                            : s_urlIgnorableRelaxed_p)
 , d_stack(0)
 , d_bitsInStack(0)
 {
