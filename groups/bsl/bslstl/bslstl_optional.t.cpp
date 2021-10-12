@@ -5964,13 +5964,14 @@ void TestDriver<TYPE>::testCase20()
     // TESTING NOEXCEPT
     //
     // Concerns:
-    //: 1 That the default, and 'nullopt_t', are no except.
+    //: 1 That the default, and 'nullopt_t', are noexcept.
     //:
     //: 2 That the move c'tor is noexcept if the contained type is nothrow move
     //:   constructible.
     //
     // Plan:
-    //: 1 Use the 'noexcept' operator around constructor calls.
+    //: 1 Use the 'noexcept' operator on c'tor calls to see if the three
+    //:   respective c'tors are noexcept when we expect them to be.
     //
     // Testing:
     //   NOEXCEPT

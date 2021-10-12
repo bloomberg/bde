@@ -5235,7 +5235,7 @@ void TestDriver<TEST_TYPE>::testCase29()
     //: 2 That the move constructor (without an allocator) is noexcept.
     //
     // Plan:
-    //: 1 Use the 'noexcept' function to determine whether calls to the two
+    //: 1 Use the 'noexcept' operator to determine whether calls to the two
     //:   constructors under test are indeed noxcept.  This can be done only on
     //:   platforms that support 'noexcept'.
     //
