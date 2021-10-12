@@ -294,6 +294,7 @@ struct array {
         // Return the past-the-end reverse iterator providing modifiable access
         // to this array.
 
+    BSLS_KEYWORD_CONSTEXPR_CPP17
     reference operator[](size_type position);
         // Return a reference providing modifiable access to the element at the
         // specified 'position' in this array.  The behavior is undefined
@@ -668,6 +669,7 @@ size_t array<VALUE_TYPE, SIZE>::max_size() const BSLS_KEYWORD_NOEXCEPT
 }
 
 template <class VALUE_TYPE, size_t SIZE>
+BSLS_KEYWORD_CONSTEXPR_CPP17
 typename array<VALUE_TYPE, SIZE>::reference
 array<VALUE_TYPE, SIZE>::operator[](size_type position)
 {

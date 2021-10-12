@@ -2045,6 +2045,28 @@ class CopyOnlyTestType {
 
 };
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17)
+constexpr int testConstexprForNonConstBracketOperator()
+    // Use the bracket operator of 'bsl::array' that returns a non-'const'
+    // reference to each element and (incidentally) return 0.  The compilation
+    // of this 'constexpr' function demonstrates that the operator is itself
+    // 'constexpr'-qualified as intended.
+{
+    typedef bsl::array<int, 7> Obj;
+    Obj mX = { 3, 1, 4, 1, 5, 9, 3 };
+
+    mX[0] = 0;
+    mX[1] = 0;
+    mX[2] = 0;
+    mX[3] = 0;
+    mX[4] = 0;
+    mX[5] = 0;
+    mX[6] = 0;
+
+    return 0;
+}
+#endif
+
 // ============================================================================
 //                          TEST DRIVER TEMPLATE
 // ----------------------------------------------------------------------------
@@ -4556,11 +4578,16 @@ int main(int argc, char *argv[])
         //: 2 All methods defined with the 'BSLS_KEYWORD_CONSTEXPR_CPP14' macro
         //:   can be used in constant evaluation on a C++14 compiler (or
         //:   later).
-        //:   o operator[]
+        //:   o operator[] (const)
         //:   o at
         //:   o front
         //:   o back
         //:   o get  (x2)
+        //:
+        //: 3 All methods defined with the 'BSLS_KEYWORD_CONSTEXPR_CPP17' macro
+        //:   can be used in constant evaluation on a C++17 compiler (or
+        //:   later).
+        //:   o operator[] (non-const)
         //
         // Plan:
         //: 1 Call each of the listed 'constexpr' functions from a
@@ -4575,11 +4602,16 @@ int main(int argc, char *argv[])
         //: 2 Call each of the listed 'constexpr' functions from a
         //:   'static_assert' expression, guarded by a macro check that C++14
         //:   'constexpr' is available.
-        //:   o operator[]
+        //:   o operator[] (const)
         //:   o at
         //:   o front
         //:   o back
         //:   (C-2)
+        //:
+        //: 3 Call each of the listed 'constexpr' functions from a
+        //:   'static_assert' expression, guarded by a macro check that C++17
+        //:   'constexpr' is available.
+        //:   o operator[] (non-const)
         //
         // Testing:
         //   CONCERN: 'constexpr' FUNCTIONS ARE USABLE IN CONSTANT EVALUATION
@@ -4629,6 +4661,11 @@ int main(int argc, char *argv[])
         static_assert( 1 == X.front(), "Bad value at 'front' of array");
         static_assert(13 == X.back(),  "Bad value at 'back' of array");
 #endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17)
+        static_assert( 0 == testConstexprForNonConstBracketOperator(),
+                       "Non-const operator[] test failed");
+# endif
       } break;
       case 22: {
         // --------------------------------------------------------------------
