@@ -190,8 +190,7 @@ class TestCalendarLoader : public bdlt::CalendarLoader
     {
     }
 
-    int load(bdlt::PackedCalendar *result,
-             const char           *)    // calendar name
+    int load(bdlt::PackedCalendar *result, const char * /* calendar name */)
         // Load, into the specified 'result', the calendar corresponding to the
         // specified 'calendarName'.  Return 0 on success, and a non-zero value
         // otherwise.  If the return value is 1, the calendar was not found and
