@@ -12,6 +12,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsl::system_error: a standard compliant 'system_error' class
 //
+//@CANONICAL_HEADER: bsl_system_error.h
+//
 //@DESCRIPTION: This component defines class 'bsl::system_error', a class used
 // for annotated exception objects about 'errno'-style errors.  In C++11 mode,
 // the vendor-supplied '<system_error>' implementation is used instead, and the

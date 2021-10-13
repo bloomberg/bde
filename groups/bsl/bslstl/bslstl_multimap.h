@@ -10,6 +10,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bsl::multimap: STL-compatible multimap template
 //
+//@CANONICAL_HEADER: bsl_map.h
+//
 //@SEE_ALSO: bslstl_map, bslstl_multiset
 //
 //@DESCRIPTION: This component defines a single class template,

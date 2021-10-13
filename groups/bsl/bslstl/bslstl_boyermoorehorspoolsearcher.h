@@ -11,6 +11,8 @@ BSLS_IDENT("$Id: $")
 //  bsl::boyer_moore_horspool_searcher: class template to search via BMH
 //  bslstl::BoyerMooreHorspoolSearcher: class template to search via BMH
 //
+//@CANONICAL_HEADER: bsl_functional.h
+//
 //@SEE_ALSO: bslstl_defaultsearcher
 //
 //@DESCRIPTION: This component defines two class templates,

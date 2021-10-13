@@ -9,6 +9,8 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //
+//@CANONICAL_HEADER: bsl_algorithm.h
+//
 //@SEE_ALSO: bos+stdhdrs
 //
 //@DESCRIPTION: This component is for internal use only.  Please include

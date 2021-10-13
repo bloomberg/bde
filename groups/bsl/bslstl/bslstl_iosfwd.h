@@ -17,6 +17,8 @@ BSLS_IDENT("$Id: $")
 //  bsl::wostringstream: specialization for bsl::basic_ostringstream<wchar_t>
 //  bsl::wstringstream: specialization for bsl::basic_stringstream<wchar_t>
 //
+//@CANONICAL_HEADER: bsl_iosfwd.h
+//
 //@SEE_ALSO: bslstl_stringbuf, bslstl_istringstream, bslstl_ostringstream,
 //           bslstl_stringstream
 //

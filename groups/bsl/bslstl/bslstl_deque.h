@@ -10,6 +10,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsl::deque: STL-compliant deque template
 //
+//@CANONICAL_HEADER: bsl_deque.h
+//
 //@SEE_ALSO: bslstl_vector
 //
 //@DESCRIPTION: This component defines a single class template, 'bsl::deque',

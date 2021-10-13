@@ -10,6 +10,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bsl::unordered_set : STL-compliant 'unordered_set' container
 //
+//@CANONICAL_HEADER: bsl_unordered_set.h
+//
 //@SEE_ALSO: package bos+stdhdrs in the bos package group
 //
 //@DESCRIPTION: This component defines a single class template,

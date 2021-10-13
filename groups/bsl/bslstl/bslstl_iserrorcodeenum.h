@@ -15,6 +15,8 @@ BSLS_IDENT("$Id: $")
 //@MACROS:
 //  BSL_IS_ERROR_CODE_ENUM_NAMESPACE:  namespace to specialize the trait
 //
+//@CANONICAL_HEADER: bsl_system_error.h
+//
 //@DESCRIPTION: This component defines a class template,
 // 'bsl::is_error_code_enum', intended to be specialized for enumeration types
 // that are designated as error codes for the '<system_error>' facility.  In

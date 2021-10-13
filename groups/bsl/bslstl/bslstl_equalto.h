@@ -10,6 +10,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  equal_to: C++11-compliant binary functor applying 'operator=='
 //
+//@CANONICAL_HEADER: bsl_functional.h
+//
 //@SEE_ALSO: bslstl_unorderedmap, bslstl_unorderedset
 //
 //@DESCRIPTION: This component provides the C+11 standard binary comparison

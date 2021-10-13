@@ -13,6 +13,8 @@ BSLS_IDENT("$Id: $")
 //  bsl::errc: namespace for 'errc' enumeration type
 //  bsl::ErrcEnum: 'typedef' for 'bsl::errc::Enum' or 'std::errc'
 //
+//@CANONICAL_HEADER: bsl_system_error.h
+//
 //@DESCRIPTION: This component defines an enumeration 'bsl::errc::Enum', and
 // marks it eligible to participate as an error condition in the 'system_error'
 // facility.  In C++11 mode, the vendor-supplied '<system_error>'

@@ -10,6 +10,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bsl::list: STL-compatible list template
 //
+//@CANONICAL_HEADER: bsl_list.h
+//
 //@SEE_ALSO: bslstl_deque
 //
 //@DESCRIPTION: This component defines a single class template, 'bsl::list',

@@ -7,6 +7,8 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide functionality of the corresponding C++ Standard header.
 //
+//@CANONICAL_HEADER: bsl_chrono.h
+//
 //@DESCRIPTION: This component is for internal use only. Please include
 // '<bsl_chrono.h>' directly.  This component imports symbols declared in the
 // <chrono> header file implemented in the standard library provided by the

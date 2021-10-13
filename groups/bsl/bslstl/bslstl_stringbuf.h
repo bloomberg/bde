@@ -11,6 +11,8 @@ BSLS_IDENT("$Id: $")
 //  bsl::stringbuf: C++03-compatible 'stringbuf' class
 //  bsl::StringBufContainer: wrapper for 'basic_stringbuf'
 //
+//@CANONICAL_HEADER: bsl_sstream.h
+//
 //@SEE_ALSO: bslstl_stringstream, bslstl_ostringstream, bslstl_istringstream
 //
 //@DESCRIPTION: This component is for internal use only.  Please include

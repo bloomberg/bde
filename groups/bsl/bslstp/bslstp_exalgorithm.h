@@ -12,6 +12,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslstp::exalgorithm::copy_n: copy 'n' elements
 //
+//@CANONICAL_HEADER: bsl_algorithm.h
+//
 //@SEE_ALSO: bsl_algorithm
 //
 //@DESCRIPTION: This component is for internal use only.  Please include

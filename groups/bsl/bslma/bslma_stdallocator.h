@@ -11,6 +11,8 @@ BSLS_IDENT("$Id: $")
 //  bsl::allocator: STL-compatible allocator template
 //  bsl::allocator_traits<bsl::allocator>: specialization for 'bsl::allocator'
 //
+//@CANONICAL_HEADER: bsl_memory.h
+//
 //@SEE_ALSO: bslma_allocator
 //
 // TBD: update component-level doc

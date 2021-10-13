@@ -11,6 +11,8 @@ BSLS_IDENT("$Id: $")
 //  bslstl::BadWeakPtr: exception class derived from 'native_std' classes
 //  bsl::bad_weak_ptr: alias to an exception type thrown by the 'bsl' library
 //
+//@CANONICAL_HEADER: bsl_memory.h
+//
 //@SEE_ALSO: bslstl_sharedptr, bslstl_stdexceptionutil
 //
 //@DESCRIPTION: This component provides ...

@@ -10,6 +10,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsl::pair: pair of values, each of which may use a 'bslma::Allocator'
 //
+//@CANONICAL_HEADER: bsl_utility.h
+//
 //@DESCRIPTION: 'bsl::pair' is an allocator-aware version of 'std::pair'.
 // The 'bsl::pair' class template is instantiated on two types, 'T1' and 'T2',
 // and provides two public data members, 'first' and 'second' of types 'T1' and

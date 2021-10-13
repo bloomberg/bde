@@ -10,6 +10,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bsl::array: an STL compliant array
 //
+//@CANONICAL_HEADER: bsl_array.h
+//
 //@SEE_ALSO: bslstl_vector
 //
 //@DESCRIPTION: This component defines a single class template, 'bsl::array',

@@ -9,6 +9,8 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //
+//@CANONICAL_HEADER: bsl_charconv.h
+//
 //@SEE_ALSO: bsl+bslhdrs
 //
 //@DESCRIPTION: This component is for internal use only.  Please include

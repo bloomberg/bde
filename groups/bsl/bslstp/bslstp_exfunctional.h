@@ -15,6 +15,8 @@ BSLS_IDENT("$Id: $")
 //  bsl::select1st: select 'first' value of a pair
 //  bsl::select2nd: select 'second' value of a pair
 //
+//@CANONICAL_HEADER: bsl_functional.h
+//
 //@SEE_ALSO: bsl_functional
 //
 //@DESCRIPTION: This component is for internal use only.  Please include

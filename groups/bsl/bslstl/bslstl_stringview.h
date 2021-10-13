@@ -12,6 +12,8 @@ BSLS_IDENT("$Id: $")
 //  bsl::string_view: 'typedef' for 'bsl::basic_string_view<char>'
 //  bsl::wstring_view: 'typedef' for 'bsl::basic_string_view<wchar_t>'
 //
+//@CANONICAL_HEADER: bsl_string_view.h
+//
 //@SEE_ALSO: ISO C++ Standard, bdlb_stringviewutil
 //
 //@DESCRIPTION: This component defines a single class template

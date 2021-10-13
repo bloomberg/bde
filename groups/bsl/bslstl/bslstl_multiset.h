@@ -10,6 +10,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bsl::multiset: STL-compatible multiset template
 //
+//@CANONICAL_HEADER: bsl_set.h
+//
 //@SEE_ALSO: bslstl_set, bslstl_multimap
 //
 //@DESCRIPTION: This component defines a single class template 'bsl::multiset',

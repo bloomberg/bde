@@ -11,6 +11,8 @@ BSLS_IDENT("$Id: $")
 //  bsl::default_searcher:   class template to search via the "naive" algorithm
 //  bslstl::DefaultSearcher: class template to search via the "naive" algorithm
 //
+//@CANONICAL_HEADER: bsl_functional.h
+//
 //@SEE_ALSO: bslstl_boyermoorehorspoolsearcher
 //
 //@DESCRIPTION: This component defines two class templates,

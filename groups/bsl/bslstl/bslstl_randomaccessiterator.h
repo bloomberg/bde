@@ -10,6 +10,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslstl::RandomAccessIterator: random-access iterator template
 //
+//@CANONICAL_HEADER: bsl_iterator.h
+//
 //@SEE_ALSO: bslstl_iterator, bslstl_forwarditerator,
 //           bslstl_bidirectionaliterator
 //

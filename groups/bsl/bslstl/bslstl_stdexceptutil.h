@@ -10,6 +10,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslstl::StdExceptUtil: namespace for utilities to throw standard exceptions
 //
+//@CANONICAL_HEADER: bsl_stdexcept.h
+//
 //@SEE_ALSO: stdexcept
 //
 //@DESCRIPTION: This component provides a means to throw standard exceptions

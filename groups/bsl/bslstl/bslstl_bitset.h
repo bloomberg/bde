@@ -10,6 +10,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsl::bitset: STL-compatible bitset template
 //
+//@CANONICAL_HEADER: bsl_bitset.h
+//
 //@SEE_ALSO: package bos+stdhdrs in the bos package group
 //
 //@DESCRIPTION: This component is for internal use only.  Please include

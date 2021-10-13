@@ -11,6 +11,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsl::optional: template class for optional objects
 //
+//@CANONICAL_HEADER: bsl_optional.h
+//
 //@DESCRIPTION: This component provides a template class,
 // 'bsl::optional<TYPE>', that implements a notion of object that may or may
 // not contain a 'TYPE' value.  This template class also provides an interface

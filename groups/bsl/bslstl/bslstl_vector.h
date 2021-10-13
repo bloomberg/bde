@@ -10,6 +10,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsl::vector: STL-compatible vector template
 //
+//@CANONICAL_HEADER: bsl_vector.h
+//
 //@SEE_ALSO: bslstl_deque
 //
 //@DESCRIPTION: This component defines a single class template, 'bsl::vector',

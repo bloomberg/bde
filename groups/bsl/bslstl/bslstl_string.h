@@ -12,6 +12,8 @@ BSLS_IDENT("$Id: $")
 //  bsl::string: 'typedef' for 'bsl::basic_string<char>'
 //  bsl::wstring: 'typedef' for 'bsl::basic_string<wchar_t>'
 //
+//@CANONICAL_HEADER: bsl_string.h
+//
 //@SEE_ALSO: ISO C++ Standard, Section 21 [strings]
 //
 //@DESCRIPTION: This component defines a single class template 'basic_string',

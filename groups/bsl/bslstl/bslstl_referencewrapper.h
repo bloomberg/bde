@@ -10,6 +10,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsl::reference_wrapper: class object to hold a reference to an object
 //
+//@CANONICAL_HEADER: bsl_functional.h
+//
 //@DESCRIPTION: This component provides 'bsl::reference_wrapper', a reduced
 //  implementation of the standard C++2011 template of the same name, which
 //  simply wraps a reference into a copyable, assignable object to allow it to

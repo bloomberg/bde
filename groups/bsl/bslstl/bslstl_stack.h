@@ -10,6 +10,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bsl::stack: STL-compliant stack template
 //
+//@CANONICAL_HEADER: bsl_stack.h
+//
 //@SEE_ALSO: bslstl_deque, bslstl_vector, bslstl_list, bslstl_queue,
 //           bslstl_priorityqueue
 //

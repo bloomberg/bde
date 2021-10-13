@@ -10,6 +10,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bsl::queue: class template of a first-in-first-out data structure
 //
+//@CANONICAL_HEADER: bsl_queue.h
+//
 //@SEE_ALSO: bslstl_priorityqueue, bslstl_stack
 //
 //@DESCRIPTION: This component defines a class template, 'bsl::queue', holding

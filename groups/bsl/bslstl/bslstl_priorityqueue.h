@@ -10,6 +10,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bsl::priority_queue: template of highest-priority-first data structure
 //
+//@CANONICAL_HEADER: bsl_queue.h
+//
 //@SEE_ALSO: bslstl_queue, bslstl_stack
 //
 //@DESCRIPTION: This component defines a class template, 'bsl::priority_queue',

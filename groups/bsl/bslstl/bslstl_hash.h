@@ -10,6 +10,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsl::hash: hash function for fundamental types
 //
+//@CANONICAL_HEADER: bsl_functional.h
+//
 //@SEE_ALSO: package bos+stdhdrs in the bos package group
 //
 //@DESCRIPTION: This component provides a template unary functor, 'bsl::hash',

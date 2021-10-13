@@ -10,6 +10,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 // bsl::function: polymorphic function object with a specific prototype.
 //
+//@CANONICAL_HEADER: bsl_functional.h
+//
 //@DESCRIPTION: This component provides a single class template,
 // 'bsl::function', implementing the standard template 'std::function', a
 // runtime-polymorphic wrapper that encapsulates an arbitrary callable object

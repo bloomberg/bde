@@ -7,6 +7,8 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide functionality of the corresponding C++ Standard header.
 //
+//@CANONICAL_HEADER: bsl_complex.h
+//
 //@DESCRIPTION: This component is for internal use only. Please include
 //'<bsl_complex.h>' directly.  This component imports symbols declared in the
 // <complex> header file implemented in the standard library provided by the

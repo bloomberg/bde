@@ -10,6 +10,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsl::type_index: value-semantic type wrapping a 'std::type_info' object
 //
+//@CANONICAL_HEADER: bsl_typeindex.h
+//
 //@SEE_ALSO:
 //  bsl_typeinfo
 //

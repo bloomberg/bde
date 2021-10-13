@@ -10,6 +10,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsl::ostringstream: C++03-compatible 'ostringstream' class
 //
+//@CANONICAL_HEADER: bsl_sstream.h
+//
 //@SEE_ALSO:
 //
 //@DESCRIPTION: This component is for internal use only.  Please include

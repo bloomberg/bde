@@ -7,6 +7,8 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide functionality of the corresponding C++ Standard header.
 //
+//@CANONICAL_HEADER: bsl_ratio.h
+//
 //@SEE_ALSO: package bos+stdhdrs in the bos package group
 //
 //@DESCRIPTION: Provide types, in the 'bsl' namespace, equivalent to those

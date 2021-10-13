@@ -14,6 +14,8 @@ BSLS_IDENT("$Id$ $CSID$")
 //  bslstl::SharedPtrUtil: shared pointer utility functions
 //  bslstl::SharedPtrNilDeleter: no-op deleter
 //
+//@CANONICAL_HEADER: bsl_memory.h
+//
 //@SEE_ALSO: bslma_managedptr, bslma_sharedptrrep
 //
 //@DESCRIPTION: This component implements a thread-safe, generic,

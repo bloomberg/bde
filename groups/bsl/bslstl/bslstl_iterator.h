@@ -12,6 +12,8 @@ BSLS_IDENT("$Id: $")
 //  bsl::reverse_iterator: bring in 'std::reverse_iterator'
 //  bsl::distance: global function to calculate iterator distance
 //
+//@CANONICAL_HEADER: bsl_iterator.h
+//
 //@SEE_ALSO: bslstl_forwarditerator, bslstl_bidirectionaliterator,
 //           bslstl_randomaccessiterator, C++ Standard
 //
