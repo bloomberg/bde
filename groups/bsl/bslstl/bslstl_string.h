@@ -2291,9 +2291,9 @@ class basic_string
 
     const CHAR_TYPE *data() const BSLS_KEYWORD_NOEXCEPT;
         // Return an address providing non-modifiable access to the
-        // null-terminated buffer of 'length()' characters whose contents are
-        // identical to the value of this string.  Note that any call to the
-        // string destructor or any of its manipulators invalidates the
+        // null-terminated buffer of 'length() + 1' characters whose contents
+        // are identical to the value of this string.  Note that any call to
+        // the string destructor or any of its manipulators invalidates the
         // returned pointer.
 
     allocator_type get_allocator() const BSLS_KEYWORD_NOEXCEPT;
