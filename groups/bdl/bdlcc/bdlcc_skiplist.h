@@ -1005,6 +1005,10 @@ class SkipList {
         // Return the node at the back of the list, or 0 if the list is empty.
         // This method acquires and releases the lock.
 
+    void checkInvariants() const;
+        // This function is normally never called -- it is useful in
+        // debugging.  The behavior is undefined unless the mutex is locked.
+
     Node *findNode(const KEY& key) const;
         // Return the node with the specified 'key', or 0 if no node could be
         // found.  This method acquires and releases the lock.
@@ -2296,6 +2300,9 @@ void SkipList<KEY, DATA>::releaseNode(Node *node)
     if (!refCnt) {
         node->d_key.~KEY();
         node->d_data.~DATA();
+
+        BSLS_ASSERT(0 == node->d_ptrs[0].d_next_p);
+
         PoolUtil::deallocate(d_poolManager_p, node);
     }
 }
@@ -2335,14 +2342,19 @@ int SkipList<KEY, DATA>::removeAllMaybeUnlock(VECTOR *removed, bool unlock)
         const FactoryType factory(this);
 
         removed->reserve(removed->size() + numRemoved);
-        for (Node *q = begin; end != q; q = q->d_ptrs[0].d_next_p) {
-            removed->push_back(factory(q));
+        for (Node *q = begin; end != q; ) {
+            Node *condemned = q;
+            q = q->d_ptrs[0].d_next_p;
+            condemned->d_ptrs[0].d_next_p = 0;
+
+            removed->push_back(factory(condemned));
         }
     }
     else {
         for (Node *q = begin; end != q; ) {
             Node *condemned = q;
             q = q->d_ptrs[0].d_next_p;
+            condemned->d_ptrs[0].d_next_p = 0;
 
             releaseNode(condemned);
         }
@@ -2468,6 +2480,40 @@ SkipList<KEY, DATA>::backNode() const
 
     node->incrementRefCount();
     return node;
+}
+
+template<class KEY, class DATA>
+void SkipList<KEY, DATA>::checkInvariants() const
+{
+    enum { k_MASK = (1 << SkipList_Control::k_NUM_REFERENCE_BITS) - 1 };
+
+    BSLMT_MUTEXASSERT_IS_LOCKED(&d_lock);
+
+    for (int ii = 0; ii <= d_listLevel; ++ii) {
+        int numNodes = 0;
+        Node *prev = d_head_p;
+        for (Node *q = d_head_p->d_ptrs[ii].d_next_p; d_tail_p != q;
+                                        prev = q, q = q->d_ptrs[ii].d_next_p) {
+            ++numNodes;
+
+            BSLS_ASSERT(q->d_ptrs[ii].d_prev_p == prev);
+
+            BSLS_ASSERT(q->d_control.d_cw & k_MASK);
+            BSLS_ASSERT(q->d_control.d_level >= ii);
+            BSLS_ASSERT(q->d_control.d_level <= d_listLevel);
+
+            for (int jj = ii - 1; 0 <= jj; --jj) {
+                BSLS_ASSERT(q->d_ptrs[jj].d_next_p);
+                BSLS_ASSERT(q->d_ptrs[jj].d_prev_p);
+            }
+        }
+
+        BSLS_ASSERT(numNodes <= d_length);
+        BSLS_ASSERT(0 != ii || numNodes == d_length);
+
+        BSLS_ASSERT(0 == d_head_p->d_ptrs[ii].d_prev_p);
+        BSLS_ASSERT(0 == d_tail_p->d_ptrs[ii].d_next_p);
+    }
 }
 
 template<class KEY, class DATA>
@@ -2804,6 +2850,14 @@ SkipList<KEY, DATA>::SkipList(const SkipList&   original,
 template<class KEY, class DATA>
 SkipList<KEY, DATA>::~SkipList()
 {
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+    {
+        LockGuard guard(&d_lock);
+
+        checkInvariants();
+    }
+#endif    
+
     Node *p = d_head_p->d_ptrs[0].d_next_p;
     while (p != d_tail_p) {
         const int count = p->decrementRefCount();
