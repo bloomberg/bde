@@ -21,7 +21,7 @@
 // specially delimited regions of C++11 code, then this header contains no
 // code and is not '#include'd in the original header.
 //
-// Generated on Tue Jun 15 16:05:34 2021
+// Generated on Wed Sep 29 11:31:27 2021
 // Command line: sim_cpp11_features.pl bslstl_sharedptr.h
 
 #ifdef COMPILING_BSLSTL_SHAREDPTR_H
@@ -1648,6 +1648,63 @@ class shared_ptr {
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 };
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+// CLASS TEMPLATE DEDUCTION GUIDES
+
+//  The obvious deduction guide:
+//  template <class T>
+//  shared_ptr(T*) -> shared_ptr<T>;
+//  is not provided because there's no way to distinguish from T* and T[].
+
+template<class ELEMENT_TYPE>
+shared_ptr(weak_ptr<ELEMENT_TYPE>) -> shared_ptr<ELEMENT_TYPE>;
+    // Deduce the specified type 'ELEMENT_TYPE' corresponding template
+    // parameter of the 'bsl::weak_ptr' supplied to the constructor of
+    // 'shared_ptr'.
+
+template<class ELEMENT_TYPE, class DELETER>
+shared_ptr(std::unique_ptr<ELEMENT_TYPE, DELETER>)
+-> shared_ptr<ELEMENT_TYPE>;
+    // Deduce the specified type 'ELEMENT_TYPE' corresponding template
+    // parameter of the 'std::unique_ptr' supplied to the constructor of
+    // 'shared_ptr'.
+
+template<class ELEMENT_TYPE,
+         class DELETER,
+         class ALLOC,
+         class = typename bsl::enable_if<
+           std::is_convertible<ALLOC *, BloombergLP::bslma::Allocator *>::value
+           >::type>
+shared_ptr(std::unique_ptr<ELEMENT_TYPE, DELETER>, ALLOC *)
+-> shared_ptr<ELEMENT_TYPE>;
+    // Deduce the specified type 'ELEMENT_TYPE' corresponding template
+    // parameter of the 'std::unique_ptr' supplied to the constructor of
+    // 'shared_ptr'.  This guide does not participate in deduction unless the
+    // specified 'ALLOC' inherits from 'bslma::Allocator'.
+
+// Deduction guides for 'auto_ptr' and 'auto_ptr_ref' are deliberately not
+// provided, since auto_ptr has been removed from C++17.
+
+template<class ELEMENT_TYPE>
+shared_ptr(BloombergLP::bslma::ManagedPtr<ELEMENT_TYPE>)
+-> shared_ptr<ELEMENT_TYPE>;
+    // Deduce the specified type 'ELEMENT_TYPE' corresponding template
+    // parameter of the 'bslma::ManagedPtr' supplied to the constructor of
+    // 'shared_ptr'.
+
+template<class ELEMENT_TYPE,
+         class ALLOC,
+         class = typename bsl::enable_if<
+           std::is_convertible<ALLOC *, BloombergLP::bslma::Allocator *>::value
+           >::type>
+shared_ptr(BloombergLP::bslma::ManagedPtr<ELEMENT_TYPE>, ALLOC *)
+-> shared_ptr<ELEMENT_TYPE>;
+    // Deduce the specified type 'ELEMENT_TYPE' corresponding template
+    // parameter of the 'bslma::ManagedPtr' supplied to the constructor of
+    // 'shared_ptr'.  This guide does not participate in deduction unless the
+    // specified 'ALLOC' inherits from 'bslma::Allocator'.
+#endif
+
 // FREE OPERATORS
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator==(const shared_ptr<LHS_TYPE>& lhs,
@@ -3046,6 +3103,16 @@ class weak_ptr {
         // may be unreliable in multi-threaded code for the same reasons.
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 };
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+// CLASS TEMPLATE DEDUCTION GUIDES
+
+template<class ELEMENT_TYPE>
+weak_ptr(shared_ptr<ELEMENT_TYPE>) -> weak_ptr<ELEMENT_TYPE>;
+    // Deduce the specified type 'ELEMENT_TYPE' corresponding template
+    // parameter of the 'bsl::shared_ptr' supplied to the constructor of
+    // 'weak_ptr'.
+#endif
 
                     //==============================
                     // class enable_shared_from_this

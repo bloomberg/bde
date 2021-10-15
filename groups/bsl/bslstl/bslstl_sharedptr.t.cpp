@@ -13,6 +13,7 @@
 #include <bslma_usesbslmaallocator.h>
 #include <bslmf_assert.h>
 #include <bslmf_integralconstant.h>
+#include <bslmf_issame.h>
 #include <bsls_alignmenttotype.h>
 #include <bsls_alignmentutil.h>
 #include <bsls_asserttest.h>
@@ -323,7 +324,18 @@ using namespace BloombergLP;
 // [  ] USAGE EXAMPLE (shared_ptr) // TBD
 // [38] CONCERN: Methods qualified 'noexcept' in standard are so implemented.
 // [43] REGRESSIONS
+// [44] CLASS TEMPLATE DEDUCTION GUIDES
 // [-1] PERFORMANCE
+// Further, there are a number of behaviors that explicitly should not compile
+// by accident that we will provide tests for.  These tests should fail to
+// compile if the appropriate macro is defined.  Each such test will use a
+// unique macro for its feature test, and provide a commented-out definition of
+// that macro immediately above the test, to easily enable compiling that test
+// while in development.  Below is the list of all macros that control the
+// availability of these tests:
+//  #define BSLSTL_SHARED_PTR_UNIQUE_PTR_COMPILE_FAIL_NOT_AN_ALLOCATOR
+//  #define BSLSTL_SHARED_PTR_MANAGED_PTR_COMPILE_FAIL_NOT_AN_ALLOCATOR
+
 //-----------------------------------------------------------------------------
 //
 // ============================================================================
@@ -7372,6 +7384,146 @@ void testMyAllocatableArgWithAllocator(const int value)
     ASSERT(da_p->numDeallocations() == numDefaultDeallocations);
 }
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+struct TestSharedPtrDeductionGuides {
+    // This struct provides a namespace for functions testing deduction guides.
+    // The tests are compile-time only; it is not necessary that these routines
+    // be called at run-time.  Note that the following constructors do not have
+    // associated deduction guides because the template parameters for
+    // 'bsl::shared_ptr' cannot be deduced from the constructor parameters.
+    //..
+    // shared_ptr()
+    // shared_ptr(bsl::nullptr_t)
+    // shared_ptr(bsl::nullptr_t, BloombergLP::bslma::Allocator *)
+    // shared_ptr(bsl::nullptr_t, DELETER, BloombergLP::bslma::Allocator *)
+    // shared_ptr(bsl::nullptr_t, DELETER, BloombergLP::bslma::Allocator *,
+    //                                                 ALLOCATOR::value_type *)
+    // shared_ptr(T *);
+    // shared_ptr(T *, BloombergLP::bslma::Allocator *);
+    // All the converting constructors
+    //..
+    // We also choose not to deduce from 'auto_ptr' and 'auto_ptr_ref'
+    //..
+    // shared_ptr(native_std::auto_ptr<T> &)
+    // shared_ptr(native_std::auto_ptr<T> &, BloombergLP::bslma::Allocator *);
+    // shared_ptr(native_std::auto_ptr_ref<T>)
+    // shared_ptr(native_std::auto_ptr_ref<T>,BloombergLP::bslma::Allocator *);
+    //..
+
+#define ASSERT_SAME_TYPE(...) \
+ static_assert((bsl::is_same<__VA_ARGS__>::value), "Types differ unexpectedly")
+
+    static void SimpleConstructors ()
+        // Test that constructing a 'bsl::shared_ptr' from different smart
+        // pointer types and optionally an allocator deduces the correct type.
+        //..
+        // shared_ptr(const shared_ptr<T>&)
+        // shared_ptr(      shared_ptr<T>&&)
+        // shared_ptr(unique_ptr<T, D>&&);
+        // shared_ptr(unique_ptr<T, D>&&, BloombergLP::bslma::Allocator *);
+        // shared_ptr(const weak_ptr<T>&);
+        // shared_ptr(      weak_ptr<T>&&);
+        // shared_ptr(ManagedPtr<T>&);
+        // shared_ptr(ManagedPtr<T>&, BloombergLP::bslma::Allocator *);
+        //..
+    {
+        bslma::Allocator *a = nullptr;
+
+        bsl::shared_ptr<int> sp1;
+        bsl::shared_ptr sp1a(sp1);
+        ASSERT_SAME_TYPE(decltype(sp1a), bsl::shared_ptr<int>);
+
+        bsl::shared_ptr<float> sp2;
+        bsl::shared_ptr sp2a(std::move(sp2));
+        ASSERT_SAME_TYPE(decltype(sp2a), bsl::shared_ptr<float>);
+
+        native_std::unique_ptr<double> up3;
+        bsl::shared_ptr sp3a(std::move(up3));
+        ASSERT_SAME_TYPE(decltype(sp3a), bsl::shared_ptr<double>);
+
+        native_std::unique_ptr<long double> up4;
+        bsl::shared_ptr sp4a(std::move(up4), a);
+        ASSERT_SAME_TYPE(decltype(sp4a), bsl::shared_ptr<long double>);
+
+        bsl::weak_ptr<short> wp5;
+        bsl::shared_ptr sp5a(wp5);
+        ASSERT_SAME_TYPE(decltype(sp5a), bsl::shared_ptr<short>);
+
+        bsl::weak_ptr<long> wp6;
+        bsl::shared_ptr sp6a(std::move(wp6));
+        ASSERT_SAME_TYPE(decltype(sp6a), bsl::shared_ptr<long>);
+
+        BloombergLP::bslma::ManagedPtr<char> mp7;
+        bsl::shared_ptr sp7a(mp7);
+        ASSERT_SAME_TYPE(decltype(sp7a), bsl::shared_ptr<char>);
+
+        BloombergLP::bslma::ManagedPtr<unsigned char> mp8;
+        bsl::shared_ptr sp8a(mp8, a);
+        ASSERT_SAME_TYPE(decltype(sp8a), bsl::shared_ptr<unsigned char>);
+
+//#define BSLSTL_SHARED_PTR_UNIQUE_PTR_COMPILE_FAIL_NOT_AN_ALLOCATOR
+#if defined(BSLSTL_SHARED_PTR_UNIQUE_PTR_COMPILE_FAIL_NOT_AN_ALLOCATOR)
+        float                        *pf98 = nullptr;
+        native_std::unique_ptr<char>  up98;
+        bsl::shared_ptr               sp99a(up98, pf98);
+        // this should fail to compile ('float *' is not an allocator)
+#endif
+
+//#define BSLSTL_SHARED_PTR_MANAGED_PTR_COMPILE_FAIL_NOT_AN_ALLOCATOR
+#if defined(BSLSTL_SHARED_PTR_MANAGED_PTR_COMPILE_FAIL_NOT_AN_ALLOCATOR)
+        float                                *pf99 = nullptr;
+        BloombergLP::bslma::ManagedPtr<char>  mp99;
+        bsl::shared_ptr                       sp99a(mp99, pf99);
+        // this should fail to compile ('float *' is not an allocator)
+#endif
+    }
+
+#undef ASSERT_SAME_TYPE
+};
+
+struct TestWeakPtrDeductionGuides {
+    // This struct provides a namespace for functions testing deduction guides.
+    // The tests are compile-time only; it is not necessary that these routines
+    // be called at run-time.  Note that the following constructors do not have
+    // associated deduction guides because the template parameters for
+    // 'bsl::weak_ptr' cannot be deduced from the constructor parameters.
+    //..
+    // weak_ptr()
+    // All the converting constructors
+    //..
+
+#define ASSERT_SAME_TYPE(...) \
+ static_assert((bsl::is_same<__VA_ARGS__>::value), "Types differ unexpectedly")
+
+// Simple constructors
+
+    static void SimpleConstructors ()
+        // Test that constructing a 'bsl::weak_ptr' from different smart
+        // pointer types deduces the correct type.
+        //..
+        // weak_ptr(const weak_ptr<T>&)
+        // weak_ptr(      weak_ptr<T>&&)
+        // weak_ptr(const shared_ptr<T>&);
+        //..
+    {
+        bsl::weak_ptr<int> wp1;
+        bsl::weak_ptr      wp1a(wp1);
+        ASSERT_SAME_TYPE(decltype(wp1a), bsl::weak_ptr<int>);
+
+        bsl::weak_ptr<double> wp2;
+        bsl::weak_ptr         wp2a(std::move(wp2));
+        ASSERT_SAME_TYPE(decltype(wp2a), bsl::weak_ptr<double>);
+
+        bsl::shared_ptr<float> sp3;
+        bsl::weak_ptr wp3(sp3);
+        ASSERT_SAME_TYPE(decltype(wp3), bsl::weak_ptr<float>);
+    }
+
+#undef ASSERT_SAME_TYPE
+};
+#endif
+
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -7415,6 +7567,47 @@ int main(int argc, char *argv[])
     bsls::Types::Int64 numDefaultAllocations =
                                              defaultAllocator.numAllocations();
     switch (test) { case 0:  // Zero is always the leading case.
+      case 44: {
+        //---------------------------------------------------------------------
+        // TESTING CLASS TEMPLATE DEDUCTION GUIDES (AT COMPILE TIME)
+        //   Ensure that the deduction guides are properly specified to deduce
+        //   the template arguments from the arguments supplied to the
+        //   constructors.
+        //
+        // Concerns:
+        //: 1 Constructing a 'shared_ptr' from a 'weak_ptr' deduces the
+        //:   arguments.
+        //:
+        //: 2 Constructing a 'shared_ptr' from a 'ManagedPtr' with an optional
+        //:   allocator deduces the arguments.
+        //:
+        //: 3 Constructing a 'shared_ptr' from a 'unique_ptr' with an optional
+        //:   allocator deduces the  arguments.
+        //:
+        //: 4 Constructing a 'weak_ptr' from a 'shared_ptr' deduces the
+        //:   arguments.
+        //:
+        //
+        // Plan:
+        //: 1 Create a shared_ptr/weak_ptr by invoking the constructor without
+        //:   supplying the template arguments explicitly.
+        //:
+        //: 2 Verify that the deduced type is correct.
+        //
+        // Testing:
+        //   CLASS TEMPLATE DEDUCTION GUIDES
+        //---------------------------------------------------------------------
+        if (verbose)
+            printf(
+              "\nTESTING CLASS TEMPLATE DEDUCTION GUIDES (AT COMPILE TIME)"
+              "\n=========================================================\n");
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+        // This is a compile-time only test case.
+        TestSharedPtrDeductionGuides testShared;
+        TestWeakPtrDeductionGuides   testWeak;
+#endif
+      } break;
       case 43: {
         // --------------------------------------------------------------------
         // TESTING REGRESSIONS
