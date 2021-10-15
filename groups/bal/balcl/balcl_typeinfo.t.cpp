@@ -1893,6 +1893,7 @@ int main(int argc, const char *argv[])  {
                                                   bsl::string(INPUT),
                                                   *objPtr,
                                                   oss));
+            objPtr->~Obj();
         }
       } break;
       case 9: {
