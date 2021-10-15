@@ -1,5 +1,36 @@
-bsl-internal (3.91.0.0) unstable; urgency=low
+bsl-internal (3.92.0.0) unstable; urgency=low
 
+  * ee21ddea8 Bumped version to 3.92.0.0
+  * 43a86c70e Class template deduction guides for shared_ptr and weak_ptr (#3415)
+  * 44c831040 bdlcc_skiplist: 'removeAll' zeroing out 'd_next_p' in nodes (#3447)
+  * bf8ccb5cf Comments with canonical headers have been added (#3442)
+  * 7c1b03fe8 Documentation inconsistency in 'bsl::basic_string' has been removed (#3446)
+  * d4f34926c Merge pull request #3434 from bchapman/bblb-make-pmr-compatible-drqs-167357938
+  * af997368f Merge pull request #3423 from bchapman/bdlb_nullablevalue-noexcept-ctors-drqs-167273350
+  * 3f3a4f93c Print helpers for 'bsl::optional' (#3425)
+  * 5e5cdcc96 Fix C++03 compilation (#3444)
+  * 7759236c4 Non-const indexer has been made constexpr in 'bsl::array'. DRQS 166841800 (#3418)
+  * da7e9b3c0 Balst stacktraceprinter create drqs 167052072 (#3392)
+  * 6bbe13a53 Add support for Base64url encoding to bdlde::Base64Encoder (#3417)
+  * 2a2ab266e 'std::chrono' range checks have become public. DRQS 167369799 (#3427)
+  * 8b59fbef3 bslmf::If -> bsl::conditional (#3441)
+  * f02bad262 Removed BSLMF_ASSERT that won't compile on C++03. (#3438)
+  * 443f6074f Merge pull request #3364 from bchapman/balm-make-pmr-compatible-drqs-166649777
+  * eb8d6ae91 Merge pull request #3331 from bchapman/baltzo-make-pmr-compatible-drqs-166649676
+  * 2a6f052f5 Merge pull request #3419 from bchapman/bdlcc-make-pmr-compatible-2-drqs-166649762
+  * fe9878966 Merge pull request #3410 from bchapman/balcl-make-pmr-compatible-drqs-166649786
+  * be044f278 Refactored TempDirectoryGuard (#3354)
+  * ffea60e7d Regenerate cpp03 file for bslstl_optional. (#3437)
+  * 160dc5d04 Cleanup documentation. (#3436)
+  * 927696159 Merge pull request #3420 from bchapman/bslmt_semaphone-benchmark-creators-drqs-166698942
+  * 3c3af7b5d 'bdlbb::BlobUtil::hexDump' has been improved. DRQS 167253580 (#3422)
+  * f7cd095ce Merge pull request #3433 from mgiroux/unwind-FixedThreadPool-DRQS167232024
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 15 Oct 2021 10:05:29 -0400
+
+bsl-internal (3.91.0.0) git; urgency=low
+
+  * 052dfbd47 Changelog for version 3.91.0.0
   * b72a38de5 Bumped version to 3.91.0.0
   * 25d5eb98d Class template deduction guides for bsl::array (#3421)
   * 2bed1afaa Fix bug in CTAD enable_if codes (#3424)
@@ -9,7 +40,7 @@ bsl-internal (3.91.0.0) unstable; urgency=low
   * c103732b1 improve performance of 'reserve(0)' on empty container (#3416)
   * dfad27484 bsls_stackaddressutil: eliminate stray nulls at end (#3409)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 1 Oct 2021 10:15:45 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 1 Oct 2021 12:49:14 -0400
 
 bsl-internal (3.90.0.0) git; urgency=low
 
