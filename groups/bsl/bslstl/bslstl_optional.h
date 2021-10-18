@@ -2296,6 +2296,44 @@ class optional<TYPE, false> {
 };
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+// CLASS TEMPLATE DEDUCTION GUIDES
+
+template<class TYPE>
+optional(TYPE) -> optional<TYPE>;
+    // Deduce the specified type 'TYPE' from the corresponding type supplied to
+    // the constructor of 'optional'.
+
+template <class TYPE,
+          class ALLOC,
+          class = typename bsl::enable_if<
+                    BloombergLP::bslma::UsesBslmaAllocator<TYPE>::value>::type,
+          class = typename bsl::enable_if<
+                std::is_convertible<ALLOC, bsl::allocator<char>>::value>::type>
+optional(bsl::allocator_arg_t, ALLOC, TYPE)
+-> optional<TYPE>;
+    // Deduce the specified type 'TYPE' from the corresponding type supplied to
+    // the constructor of 'optional'.   This guide does not participate in
+    // deduction unless the deduced type 'TYPE' supports the bslma allocator
+    // model, and specified 'ALLOC' can be implicitly converted to
+    // 'bsl::allocator<char>'.
+
+template <class TYPE,
+          class ALLOC,
+          class = typename bsl::enable_if<
+                    BloombergLP::bslma::UsesBslmaAllocator<TYPE>::value>::type,
+          class = typename bsl::enable_if<
+                std::is_convertible<ALLOC, bsl::allocator<char>>::value>::type>
+optional(bsl::allocator_arg_t, ALLOC, optional<TYPE>)
+-> optional<TYPE>;
+    // Deduce the specified type 'TYPE' from the corresponding template
+    // parameter type supplied to the constructor of 'optional'.   This guide
+    // does not participate in deduction unless the deduced type 'TYPE'
+    // supports the bslma allocator model, and specified 'ALLOC' can be
+    // implicitly converted to 'bsl::allocator<char>'.
+
+#endif
+
 // FREE FUNCTIONS
 template <class TYPE>
 typename

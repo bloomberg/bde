@@ -13,6 +13,8 @@
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 
+#include <bslmf_issame.h>
+
 #include <bsls_nameof.h>
 #include <bsls_bsltestutil.h>
 
@@ -124,7 +126,7 @@ using namespace bsl;
 // [ 4] TYPE *operator->();
 // [ 4] TYPE&  operator*() &;
 // [ 4] TYPE&& operator*() &&;
-
+//
 // ACCESSORS
 // [ 2] allocator_type get_allocator() const;
 // [ 4] bool has_value() const;
@@ -194,6 +196,18 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [19] DRQS 165776192
+// [21] CLASS TEMPLATE DEDUCTION GUIDES
+
+// Further, there are a number of behaviors that explicitly should not compile
+// by accident that we will provide tests for.  These tests should fail to
+// compile if the appropriate macro is defined.  Each such test will use a
+// unique macro for its feature test, and provide a commented-out definition of
+// that macro immediately above the test, to easily enable compiling that test
+// while in development.  Below is the list of all macros that control the
+// availability of these tests:
+//  #define BSLSTL_OPTIONAL_COMPILE_FAIL_NOT_AN_ALLOCATOR_AWARE_TYPE
+//  #define BSLSTL_OPTIONAL_COMPILE_FAIL_NOT_AN_ALLOCATOR
+
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
@@ -12138,6 +12152,115 @@ void TestDriver<TYPE>::testCase1()
     ASSERT(Y);
 }
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+struct TestDeductionGuides {
+    // This struct provides a namespace for functions testing deduction guides.
+    // The tests are compile-time only; it is not necessary that these routines
+    // be called at run-time.  Note that the following constructors do not have
+    // associated deduction guides because the template parameters for
+    // 'bsl::optional' cannot be deduced from the constructor parameters.
+    //..
+    // optional()
+    // optional(bsl::nullopt_t)
+    // optional(bsl::in_place_t, ...)
+    // optional(bsl::in_place_t, initializer_list, ...)
+    // optional(bsl::allocator_arg_t, allocator_type);
+    // optional(bsl::allocator_arg_t, allocator_type, bsl::nullopt_t);
+    // optional(bsl::allocator_arg_t, allocator_type, bsl::in_place_t, ...);
+    // optional(bsl::allocator_arg_t, allocator_type, bsl::in_place_t,
+    //                                                  initializer_list, ...);
+    // All the converting constructors
+    //..
+
+#define ASSERT_SAME_TYPE(...) \
+ static_assert((bsl::is_same<__VA_ARGS__>::value), "Types differ unexpectedly")
+
+    static void AllocatorAwareConstructors ()
+        // Test that constructing a 'bsl::optional' from 'allocator_arg_t', an
+        // allocator and either a 'T' or an 'optional<T>' deduces the correct
+        // type.
+        //..
+        // optional(bsl::allocator_arg_t, allocator_type, T) -> optional<T>
+        // optional(bsl::allocator_arg_t, allocator_type, const optional&  o)
+        //    -> decltype(o)
+        // optional(bsl::allocator_arg_t, allocator_type,       optional&& o)
+        //    -> decltype(o)
+        //..
+    {
+        bsl::allocator <char> a;
+        bsl::allocator_arg_t  allocator_arg;
+        bslma::Allocator     *pa = nullptr;
+        bslma::TestAllocator *ta = nullptr;
+        bsl::string           s;
+
+        typedef bsl::optional<bsl::string> o1_t;
+        bsl::optional o1a(allocator_arg, a,  s);
+        bsl::optional o1b(allocator_arg, pa, s);
+        bsl::optional o1c(allocator_arg, ta, s);
+        ASSERT_SAME_TYPE(decltype(o1a), o1_t);
+        ASSERT_SAME_TYPE(decltype(o1b), o1_t);
+        ASSERT_SAME_TYPE(decltype(o1c), o1_t);
+
+        typedef bsl::optional<bsl::string> o2_t;
+        o2_t          o2(s);
+        bsl::optional o2a(allocator_arg, a,  o2);
+        bsl::optional o2b(allocator_arg, pa, o2);
+        bsl::optional o2c(allocator_arg, ta, o2);
+        ASSERT_SAME_TYPE(decltype(o2a), o2_t);
+        ASSERT_SAME_TYPE(decltype(o2b), o2_t);
+        ASSERT_SAME_TYPE(decltype(o2c), o2_t);
+
+        typedef bsl::optional<bsl::string> o3_t;
+        o3_t          o3(s);
+        bsl::optional o3a(allocator_arg, a,  std::move(o3));
+        bsl::optional o3b(allocator_arg, pa, std::move(o3));
+        bsl::optional o3c(allocator_arg, ta, std::move(o3));
+        ASSERT_SAME_TYPE(decltype(o3a), o3_t);
+        ASSERT_SAME_TYPE(decltype(o3b), o3_t);
+        ASSERT_SAME_TYPE(decltype(o3c), o3_t);
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // Compile-fail tests
+
+//#define BSLSTL_OPTIONAL_COMPILE_FAIL_NOT_AN_ALLOCATOR_AWARE_TYPE
+#if defined(BSLSTL_OPTIONAL_COMPILE_FAIL_NOT_AN_ALLOCATOR_AWARE_TYPE)
+        bsl::optional  o97(allocator_arg, pa, 42);
+        // this should fail to compile ('int' is not an allocator-aware type)
+#endif
+
+//#define BSLSTL_OPTIONAL_COMPILE_FAIL_NOT_AN_ALLOCATOR
+#if defined(BSLSTL_OPTIONAL_COMPILE_FAIL_NOT_AN_ALLOCATOR)
+        bsl::string *ps = nullptr;
+        bsl::optional  o98(allocator_arg, ps, s);
+        // this should fail to compile ('bsl::string *' is not an allocator)
+#endif
+        }
+
+    static void SimpleConstructors ()
+        // Test that constructing a 'bsl::optional' from a single argument
+        // deduces the correct type.
+        //..
+        // optional(T) -> optional<T>
+        // optional(const optional&  o) -> decltype(o)
+        // optional(      optional&& o) -> decltype(o)
+        //..
+    {
+        bsl::optional o1(1);
+        ASSERT_SAME_TYPE(decltype(o1), bsl::optional<int>);
+
+        bsl::optional<double> o2(2.0);
+        bsl::optional         o2a(o2);
+        ASSERT_SAME_TYPE(decltype(o2a), bsl::optional<double>);
+
+        bsl::optional<float>  o3(3.0f);
+        bsl::optional         o3a(std::move(o3));
+        ASSERT_SAME_TYPE(decltype(o3a), bsl::optional<float>);
+    }
+
+#undef ASSERT_SAME_TYPE
+};
+#endif
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -12156,6 +12279,38 @@ int main(int argc, char **argv)
 
     switch (test) {
       case 0:
+      case 21: {
+        //---------------------------------------------------------------------
+        // TESTING CLASS TEMPLATE DEDUCTION GUIDES (AT COMPILE TIME)
+        //   Ensure that the deduction guides are properly specified to deduce
+        //   the template arguments from the arguments supplied to the
+        //   constructors.
+        //
+        // Concerns:
+        //: 1 Simple one argument constructors deduce the template argument.
+        //:
+        //: 2 Constructing an 'optional' from 'allocator_arg_t', an allocator
+        //:   and a value deduces the template argument.
+        //
+        // Plan:
+        //: 1 Create an optional by invoking the constructor without supplying
+        //:   the template argument explicitly.
+        //:
+        //: 2 Verify that the deduced type is correct.
+        //
+        // Testing:
+        //   CLASS TEMPLATE DEDUCTION GUIDES
+        //---------------------------------------------------------------------
+        if (verbose)
+            printf(
+              "\nTESTING CLASS TEMPLATE DEDUCTION GUIDES (AT COMPILE TIME)"
+              "\n=========================================================\n");
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+        // This is a compile-time only test case.
+        TestDeductionGuides test;
+#endif
+      } break;
       case 20: {
         RUN_EACH_TYPE(TestDriver,
                       testCase20,
