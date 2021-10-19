@@ -20,18 +20,31 @@
 : o A multi-process performance reporting mechanism and a value-semantic type
 :   to represent metrics.  Note that the entire {'balm'} package is dedicated
 :   to metrics gathering.
+:
+: o A mechanism that allows clients to monitor whether a resource is being
+:   consumed at a particular rate.
+:
+: o A mechanism that enables clients to monitor and control the use of a
+:   resource such that the peak consumption rate and the sustained consumption
+:   rate do not exceed their respective configured limits.
+:
+: o Generic proctor to automatically reserve and release units from a rate
+:   controlling object.
 
 /Hierarchical Synopsis
 /---------------------
- The 'balb' package currently has 6 components having 2 levels of physical
+ The 'balb' package currently has 9 components having 2 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
   2. balb_filecleanerutil
+     balb_ratelimiter
+     balb_reservationguard
 
   1. balb_controlmanager
      balb_filecleanerconfiguration
+     balb_leakybucket
      balb_performancemonitor
      balb_pipecontrolchannel
      balb_testmessages
@@ -48,11 +61,20 @@
 : 'balb_filecleanerutil':
 :      Provide a utility class for configuration-based file removal.
 :
+: 'balb_leakybucket':
+:      Provide a mechanism to monitor the consumption rate of a resource.
+:
 : 'balb_performancemonitor':
 :      Provide a mechanism to collect process performance measures.
 :
 : 'balb_pipecontrolchannel':
 :      Provide a mechanism for reading control messages from a named pipe.
+:
+: 'balb_ratelimiter':
+:      Provide a mechanism to limit peak and sustained consumption rates.
+:
+: 'balb_reservationguard':
+:      Provide a generic proctor for rate controlling objects.
 :
 : 'balb_testmessages':
 :      Provide value-semantic attribute classes.
