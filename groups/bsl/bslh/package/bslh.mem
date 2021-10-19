@@ -3,6 +3,7 @@ bslh_defaultseededhashalgorithm
 bslh_fibonaccibadhashwrapper
 bslh_hash
 bslh_hashoptional
+bslh_hashtuple
 bslh_hashvariant
 bslh_seededhash
 bslh_seedgenerator

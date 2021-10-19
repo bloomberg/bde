@@ -2,6 +2,8 @@
 #include <bslim_bslstandardheadertest.h>
 
 #include <bslim_testutil.h>
+#include <bsls_libraryfeatures.h>
+
 
 #include <bslma_constructionutil.h>
 #include <bslma_defaultallocatorguard.h>
@@ -11,13 +13,17 @@
 #include <bslmf_movableref.h>
 
 #include <bsls_compilerfeatures.h>
-#include <bsls_libraryfeatures.h>
 #include <bsls_nameof.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
 #include <bsls_util.h>
 
 #include <bsltf_templatetestfacility.h>
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
+#include <bslh_hashtuple.h>
+#include <tuple>     // 'std::tuple', 'std::make_tuple'
+#endif //  BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
 
 // #include all of the headers defined in bsl+bslhdrs.
 
@@ -170,6 +176,7 @@ using namespace bslim;
 // defined in 'bslstl'.
 //
 //-----------------------------------------------------------------------------
+// [ 9] CONCERN: 'bslh::hashAppend' of 'std::tuple' is usable from 'bsl'.
 // [ 8] CONCERN: 'default_searcher'/'boyer_moore_horspool_searcher usable.
 // [ 8] CONCERN: 'boyer_moore_searcher' usable when available.
 // [ 8] CONCERN: 'bsl::search' function is usable.
@@ -413,7 +420,74 @@ int main(int argc, char *argv[])
     (void) veryVeryVeryVerbose;
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << "\n";
+
     switch (test) { case 0:  // Zero is always the leading case.
+      case 9: {
+        // --------------------------------------------------------------------
+        // TESTING 'bslh::hashAppend' OF 'std::tuple'
+        //
+        // Concerns:
+        //: 1 The 'bslh::hashAppend' function defined for 'std::tuple' is found
+        //:   and usable by 'bsl' container classes that have a 'HASH' template
+        //:   parameter.
+        //
+        // Plan:
+        //: 1 Create an 'bsl::unordered_set' object keyed on instances of
+        //:   'std::tuple'.  Confirm that keys of the appropriate type can be
+        //:   inserted and later found.
+        //
+        // Testing:
+        //   CONCERN: 'bslh::hashAppend' of 'std::tuple' is usable from 'bsl'.
+        // --------------------------------------------------------------------
+        if (verbose) printf("\nTESTING 'bslh::hashAppend' OF 'std::tuple'"
+                            "\n==========================================\n");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
+
+        if (verbose) printf("Testing 'hashAppend' of 'std::tuple'\n");
+
+        typedef std::tuple<int, int, int> StdKeyTuple;
+        typedef bsl::tuple<int, int, int> BslKeyTuple;
+
+        ASSERT(( bsl::is_same<StdKeyTuple, BslKeyTuple>::value));
+
+        typedef bsl::unordered_set<StdKeyTuple> SetOfStdKeyTuples;
+
+
+        ASSERT(0 == bsl::strcmp("bsl::hash<std::tuple<int, int, int>>",
+                                bsls::NameOf<SetOfStdKeyTuples::hasher>()));
+
+        SetOfStdKeyTuples setOfStdKeyTuples;
+
+        StdKeyTuple itemTuple0 = std::make_tuple(0, 0, 0);
+        StdKeyTuple itemTuple1 = std::make_tuple(1, 1, 1);
+        StdKeyTuple itemTuple2 = std::make_tuple(2, 2, 2);
+
+        setOfStdKeyTuples.insert(itemTuple0);
+        setOfStdKeyTuples.insert(itemTuple1);
+        setOfStdKeyTuples.insert(itemTuple2);
+
+        ASSERT(3 == setOfStdKeyTuples.size());
+
+        SetOfStdKeyTuples::const_iterator itrTuple0 = setOfStdKeyTuples.find(
+                                                                   itemTuple0);
+        SetOfStdKeyTuples::const_iterator itrTuple1 = setOfStdKeyTuples.find(
+                                                                   itemTuple1);
+        SetOfStdKeyTuples::const_iterator itrTuple2 = setOfStdKeyTuples.find(
+                                                                   itemTuple2);
+
+        ASSERT(setOfStdKeyTuples.end() != itrTuple0);
+        ASSERT(setOfStdKeyTuples.end() != itrTuple1);
+        ASSERT(setOfStdKeyTuples.end() != itrTuple2);
+
+        ASSERT(itemTuple0 == *itrTuple0);
+        ASSERT(itemTuple1 == *itrTuple1);
+        ASSERT(itemTuple2 == *itrTuple2);
+#else
+        cout << "SKIP: 'std::tuple' not available" << endl;
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
+
+      } break;
       case 8: {
         // --------------------------------------------------------------------
         // TESTING SEARCHERS
