@@ -1,3 +1,6 @@
+This README is documents the Bloomberg adoption and changes to the original
+ryu source code.
+
 # NOTICE
 
 Please do not use this package directly!  The facilities are available in the
