@@ -962,7 +962,7 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // Include version that can be compiled with C++03
-// Generated on Fri Oct 23 15:03:59 2020
+// Generated on Thu Oct 21 10:11:37 2021
 // Command line: sim_cpp11_features.pl bslma_managedptr.h
 # define COMPILING_BSLMA_MANAGEDPTR_H
 # include <bslma_managedptr_cpp03.h>

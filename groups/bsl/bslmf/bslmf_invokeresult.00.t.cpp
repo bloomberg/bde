@@ -31,20 +31,20 @@
 
 #include <bsls_compilerfeatures.h>
 
-// Workaround for the fact that the cpp11 feature simulation script adds the
-// variable 'COMPILING_BSLMF_INVOKERESULT_T_CPP' in the generated code, but
-// sets the variable 'COMPILING_BSLMF_INVOKERESULT_00_T_CPP' in the generated
-// section below.
-#define COMPILING_BSLMF_INVOKERESULT_T_CPP
-
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // Include version that can be compiled with C++03
-// Generated on Thu May 27 12:55:56 2021
+// Generated on Thu Oct 21 10:11:37 2021
 // Command line: sim_cpp11_features.pl bslmf_invokeresult.00.t.cpp
 # define COMPILING_BSLMF_INVOKERESULT_00_T_CPP
 # include <bslmf_invokeresult_cpp03.00.t.cpp>
 # undef COMPILING_BSLMF_INVOKERESULT_00_T_CPP
 #else
+
+// Workaround for the fact that the cpp11 feature simulation script adds the
+// variable 'COMPILING_BSLMF_INVOKERESULT_T_CPP' in the generated code, but
+// sets the variable 'COMPILING_BSLMF_INVOKERESULT_00_T_CPP' in the generated
+// section below.
+#define COMPILING_BSLMF_INVOKERESULT_T_CPP
 
 #if defined(BSLS_PLATFORM_CMP_SUN)
 # pragma error_messages(off, functypequal)

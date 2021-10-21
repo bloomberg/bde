@@ -338,7 +338,7 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // Include version that can be compiled with C++03
-// Generated on Fri Oct 23 15:03:26 2020
+// Generated on Thu Oct 21 10:11:37 2021
 // Command line: sim_cpp11_features.pl bslalg_arrayprimitives.h
 # define COMPILING_BSLALG_ARRAYPRIMITIVES_H
 # include <bslalg_arrayprimitives_cpp03.h>

@@ -151,7 +151,7 @@ BSLS_IDENT("$Id: $")
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // Include version that can be compiled with C++03
-// Generated on Fri Oct 23 15:03:24 2020
+// Generated on Thu Oct 21 10:11:37 2021
 // Command line: sim_cpp11_features.pl bsltf_stdstatefulallocator.h
 # define COMPILING_BSLTF_STDSTATEFULALLOCATOR_H
 # include <bsltf_stdstatefulallocator_cpp03.h>

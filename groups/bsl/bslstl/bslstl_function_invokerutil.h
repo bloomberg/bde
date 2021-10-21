@@ -132,20 +132,20 @@ BSLS_IDENT("$Id: $")
 
 #include <utility>
 
-#ifndef BSLS_PLATFORM_CMP_SUN
-#define BSLSTL_FUNCTION_INVOKERUTIL_CAST_RESULT(RET, X) static_cast<RET>(X)
-#else
-#define BSLSTL_FUNCTION_INVOKERUTIL_CAST_RESULT(RET, X) (RET)(X)
-#endif
-
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // Include version that can be compiled with C++03
-// Generated on Wed Apr 28 15:58:26 2021
+// Generated on Thu Oct 21 10:11:37 2021
 // Command line: sim_cpp11_features.pl bslstl_function_invokerutil.h
 # define COMPILING_BSLSTL_FUNCTION_INVOKERUTIL_H
 # include <bslstl_function_invokerutil_cpp03.h>
 # undef COMPILING_BSLSTL_FUNCTION_INVOKERUTIL_H
 #else
+
+#ifndef BSLS_PLATFORM_CMP_SUN
+#define BSLSTL_FUNCTION_INVOKERUTIL_CAST_RESULT(RET, X) static_cast<RET>(X)
+#else
+#define BSLSTL_FUNCTION_INVOKERUTIL_CAST_RESULT(RET, X) (RET)(X)
+#endif
 
 #if defined(BSLMF_INVOKERESULT_SUPPORT_CPP17_SEMANTICS)      \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)          \

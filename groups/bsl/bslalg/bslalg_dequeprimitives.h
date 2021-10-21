@@ -141,7 +141,7 @@ BSLS_IDENT("$Id: $")
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // Include version that can be compiled with C++03
-// Generated on Fri Oct 23 15:03:21 2020
+// Generated on Thu Oct 21 10:11:37 2021
 // Command line: sim_cpp11_features.pl bslalg_dequeprimitives.h
 # define COMPILING_BSLALG_DEQUEPRIMITIVES_H
 # include <bslalg_dequeprimitives_cpp03.h>

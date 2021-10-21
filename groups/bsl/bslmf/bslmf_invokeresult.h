@@ -224,6 +224,15 @@ BSLS_IDENT("$Id: $")
 #include <bsls_nullptr.h>
 #include <bsls_platform.h>
 
+#if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+// Include version that can be compiled with C++03
+// Generated on Thu Oct 21 10:11:37 2021
+// Command line: sim_cpp11_features.pl bslmf_invokeresult.h
+# define COMPILING_BSLMF_INVOKERESULT_H
+# include <bslmf_invokeresult_cpp03.h>
+# undef COMPILING_BSLMF_INVOKERESULT_H
+#else
+
 #if   defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE) \
  && !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION == 1800)
 // The implementation of C++17 semantics in this component depends upon the
@@ -232,15 +241,6 @@ BSLS_IDENT("$Id: $")
 // functional implementation of expression sfinae to enable C++17 semantics.
 #define BSLMF_INVOKERESULT_SUPPORT_CPP17_SEMANTICS 1
 #endif
-
-#if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-// Include version that can be compiled with C++03
-// Generated on Thu Feb 18 17:39:32 2021
-// Command line: sim_cpp11_features.pl bslmf_invokeresult.h
-# define COMPILING_BSLMF_INVOKERESULT_H
-# include <bslmf_invokeresult_cpp03.h>
-# undef COMPILING_BSLMF_INVOKERESULT_H
-#else
 
 namespace BloombergLP {
 namespace bslmf {

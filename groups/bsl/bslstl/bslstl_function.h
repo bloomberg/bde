@@ -635,6 +635,15 @@ BSL_OVERRIDES_STD mode"
 #include <stdlib.h>  // Import global-scope 'abs(double)'
 #endif
 
+#if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+// Include version that can be compiled with C++03
+// Generated on Thu Oct 21 10:11:37 2021
+// Command line: sim_cpp11_features.pl bslstl_function.h
+# define COMPILING_BSLSTL_FUNCTION_H
+# include <bslstl_function_cpp03.h>
+# undef COMPILING_BSLSTL_FUNCTION_H
+#else
+
 // 'BSLS_ASSERT' filename fix -- See {'bsls_assertimputil'}
 #ifdef BSLS_ASSERTIMPUTIL_AVOID_STRING_CONSTANTS
 namespace BloombergLP {
@@ -643,15 +652,6 @@ extern const char s_bslstl_function_h[];
 #define BSLS_ASSERTIMPUTIL_FILE BloombergLP::s_bslstl_function_h
 }  // close enterprise namespace
 #endif
-
-#if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-// Include version that can be compiled with C++03
-// Generated on Wed Apr 28 15:58:26 2021
-// Command line: sim_cpp11_features.pl bslstl_function.h
-# define COMPILING_BSLSTL_FUNCTION_H
-# include <bslstl_function_cpp03.h>
-# undef COMPILING_BSLSTL_FUNCTION_H
-#else
 
 // FORWARD DECLARATIONS
 namespace bsl {

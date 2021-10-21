@@ -383,7 +383,7 @@ BSL_OVERRIDES_STD mode"
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // Include version that can be compiled with C++03
-// Generated on Fri Oct 23 15:03:57 2020
+// Generated on Thu Oct 21 10:11:37 2021
 // Command line: sim_cpp11_features.pl bslma_stdallocator.h
 # define COMPILING_BSLMA_STDALLOCATOR_H
 # include <bslma_stdallocator_cpp03.h>

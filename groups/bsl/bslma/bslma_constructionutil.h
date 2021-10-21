@@ -619,7 +619,7 @@ BSLS_IDENT("$Id: $")
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // Include version that can be compiled with C++03
-// Generated on Mon Oct  5 16:41:00 2020
+// Generated on Thu Oct 21 10:11:37 2021
 // Command line: sim_cpp11_features.pl bslma_constructionutil.h
 # define COMPILING_BSLMA_CONSTRUCTIONUTIL_H
 # include <bslma_constructionutil_cpp03.h>

@@ -16,7 +16,7 @@
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // Include version that can be compiled with C++03
-// Generated on Wed Apr 28 16:00:48 2021
+// Generated on Thu Oct 21 10:11:37 2021
 // Command line: sim_cpp11_features.pl bslstl_function_invokerutil.t.cpp
 # define COMPILING_BSLSTL_FUNCTION_INVOKERUTIL_T_CPP
 # include <bslstl_function_invokerutil_cpp03.t.cpp>

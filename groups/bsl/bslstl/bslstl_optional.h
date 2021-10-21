@@ -138,7 +138,7 @@ BSLS_IDENT("$Id: $")
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // Include version that can be compiled with C++03
-// Generated on Fri Jan 22 13:58:33 2021
+// Generated on Thu Oct 21 10:11:37 2021
 // Command line: sim_cpp11_features.pl bslstl_optional.h
 # define COMPILING_BSLSTL_OPTIONAL_H
 # include <bslstl_optional_cpp03.h>
