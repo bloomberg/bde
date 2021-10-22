@@ -1247,7 +1247,7 @@ int FilesystemUtil::visitPaths(
     if (bsl::string::npos != dirName.find_first_of("*?")) {
         bsl::vector<bsl::string> leaves;
         bsl::vector<bsl::string> paths, workingPaths;
-        bsl::string pattern = patternSV;
+        bsl::string pattern(patternSV.data(), patternSV.size());
         while (PathUtil::hasLeaf(pattern)) {
             leaves.push_back(bsl::string());
             if (0 != PathUtil::getLeaf(&leaves.back(), pattern)) {
