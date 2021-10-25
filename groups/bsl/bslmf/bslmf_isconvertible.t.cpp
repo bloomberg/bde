@@ -246,7 +246,7 @@ class my_NotCopyableClass {
     // Objects of this class type cannot be copied.
 
   private:
-    // NOT DEFINED
+    // NOT IMPLEMENTED
     my_NotCopyableClass(const my_NotCopyableClass&); // = delete
     my_NotCopyableClass& operator=(const my_NotCopyableClass&); // = delete
 
@@ -262,6 +262,7 @@ enum my_Enum { MY_VAL0, MY_VAL1 };
 
 class my_EnumClass {
     // This class defines a nested 'enum' type.
+
   public:
     enum Type { VAL0, VAL1 };
 };
@@ -327,9 +328,9 @@ struct Movable {
     // This 'struct' is both copyable and movable, in both C++11, and through
     // move-semantic emulation in C++03.
 
-    Movable();
+    Movable();                                                      // IMPLICIT
     Movable(const Movable&);
-    Movable(Mover<Movable>); // implicit
+    Movable(Mover<Movable>);                                        // IMPLICIT
 };
 
 //=============================================================================
@@ -349,73 +350,101 @@ struct Movable {
 // function (at compile time) based on the convertibility of one type to
 // another without causing a compiler error by actually trying the conversion.
 //
-// Suppose we are implementing a 'convertToInt' template method that converts a
-// given object of the (template parameter) 'TYPE' to 'int' type, and returns
-// the integer value.  If the given object can not convert to 'int', return 0.
-// The method calls an overloaded function, 'getIntValue', to get the converted
-// integer value.  The idea is to invoke one version of 'getIntValue' if the
-// type provides a conversion operator that returns an integer value, and
-// another version if the type does not provide such an operator.
+// First, we define two classes, 'Foo' and 'Bar'.  The 'Foo' class has an
+// explict constructor from int, an implicit conversion operator that returns
+// an integer value while the 'Bar' class does neither:
+//..
+    class Foo {
+        // DATA
+        int d_value;
+
+      public:
+        // CREATORS
+        explicit Foo(int value) : d_value(value) {}
+
+        // ACCESSORS
+        operator int() const { return d_value; }
+    };
+
+    class Bar {};
+//..
+// Then, we run:
+//..
+void usage1a()
+{
+    ASSERT(false == (bsl::is_convertible<int, Foo>::value));
+    ASSERT(false == (bsl::is_convertible<int, Bar>::value));
+
+    ASSERT(true  == (bsl::is_convertible<Foo, int>::value));
+    ASSERT(false == (bsl::is_convertible<Bar, int>::value));
+}
+//..
+// Note that 'int' to 'Foo' is false, even though 'Foo' has a constructor that
+// takes an 'int'.  This is because that constructor is explicit, and
+// 'is_converitble' ignores explicit constructors.
 //
-// First, we define two classes, 'Foo' and 'Bar'.  The 'Foo' class has a
-// conversion operator that returns an integer value while the 'Bar' class does
-// not:
+// Next, we go on to demonstrate how this could be used.  Suppose we are
+// implementing a 'convertToInt' template method that converts a given object
+// of the (template parameter) 'TYPE' to 'int' type, and returns the integer
+// value.  If the given object can not convert to 'int', return 0.  The method
+// calls an overloaded function, 'getIntValue', to get the converted integer
+// value.  The idea is to invoke one version of 'getIntValue' if the type
+// provides a conversion operator that returns an integer value, and another
+// version if the type does not provide such an operator.
+//
+// We define the first 'getIntValue' function that takes a 'bsl::false_type' as
+// its last argument, whereas the second 'getIntValue' function takes a
+// 'bsl::true_type' object.  The result of the 'bsl::is_convertible'
+// meta-function (i.e., its 'type' member) is used to create the last argument
+// passed to 'getIntValue'.  Neither version of 'getIntValue' makes use of this
+// argument -- it is used only to differentiate the argument list so we can
+// overload the function.
 //..
-class Foo {
-    // DATA
-    int d_value;
+    template <class TYPE>
+    inline
+    int getIntValue(TYPE *, bsl::false_type)
+    {
+        // Return 0 because the specified 'TYPE' is not convertible to the
+        // 'int' type.
 
-  public:
-    // CREATORS
-    explicit Foo(int value) : d_value(value) {}
+        return 0;
+    }
 
-    // ACCESSORS
-    operator int() const { return d_value; }
-};
+    template <class TYPE>
+    inline
+    int getIntValue(TYPE *object, bsl::true_type)
+    {
+        // Return the integer value converted from the specified 'object' of
+        // the (template parameter) 'TYPE'.
 
-class Bar {};
-//..
-// Then, we define the first 'getIntValue' function that takes a
-// 'bsl::false_type' as its last argument, whereas the second 'getIntValue'
-// function takes a 'bsl::true_type' object.  The result of the
-// 'bsl::is_convertible' meta-function (i.e., its 'type' member) is used to
-// create the last argument passed to 'getIntValue'.  Neither version of
-// 'getIntValue' makes use of this argument -- it is used only to differentiate
-// the argument list so we can overload the function.
-//..
-template <class TYPE>
-inline
-int getIntValue(TYPE * /* object */, bsl::false_type)
-{
-    // Return 0 because the specified 'object' of the (template parameter)
-    // 'TYPE' is not convertible to the 'int' type.
-
-    return 0;
-}
-
-template <class TYPE>
-inline
-int getIntValue(TYPE *object, bsl::true_type)
-{
-    // Return the integer value converted from the specified 'object' of the
-    // (template parameter) 'TYPE'.
-
-    return int(*object);
-}
+        return int(*object);
+    }
 //..
 // Now, we define our 'convertToInt' method:
 //..
-template <class TYPE>
-inline
-int convertToInt(TYPE *object)
-{
-    typedef typename bsl::is_convertible<TYPE, int>::type CanConvertToInt;
-    return getIntValue(object, CanConvertToInt());
-}
+    template <class TYPE>
+    inline
+    int convertToInt(TYPE *object)
+    {
+        typedef typename bsl::is_convertible<TYPE, int>::type CanConvertToInt;
+        return getIntValue(object, CanConvertToInt());
+    }
 //..
 // Notice that we use 'bsl::is_convertible' to get a 'bsl::false_type' or
 // 'bsl::true_type', and then call the corresponding overloaded 'getIntValue'
 // method.
+//
+// Finally, we call our finished product and observe the return values:
+//..
+void usage1b()
+{
+    Foo foo(99);
+    Bar bar;
+
+    ASSERT(99 == convertToInt(&foo));
+    ASSERT(0  == convertToInt(&bar));
+}
+//..
 
 // BDE_VERIFY pragma : pop
 
@@ -471,16 +500,8 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nUSAGE EXAMPLE\n"
                               "=============\n");
 
-//
-// Finally, we call 'convertToInt' with both 'Foo' and 'Bar' classes:
-//..
-    Foo foo(99);
-    Bar bar;
-
-    printf("%d\n", convertToInt(&foo));
-    printf("%d\n", convertToInt(&bar));
-//..
-
+        usage1a();
+        usage1b();
       } break;
       case 4: {
         // --------------------------------------------------------------------
