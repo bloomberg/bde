@@ -553,22 +553,23 @@ class TmvipSa {
         // recent call to the 'resetDtorCount' class method.
 
     // CREATORS
-             TmvipSa();
-    explicit TmvipSa(const TYPE& a1);
-             TmvipSa(const TYPE& a1,
-                     const TYPE& a2);
-             TmvipSa(const TYPE& a1,
-                     const TYPE& a2,
-                     const TYPE& a3);
-             TmvipSa(const TYPE& a1,
-                     const TYPE& a2,
-                     const TYPE& a3,
-                     const TYPE& a4);
-             TmvipSa(const TYPE& a1,
-                     const TYPE& a2,
-                     const TYPE& a3,
-                     const TYPE& a4,
-                     const TYPE& a5);
+    TmvipSa();
+    explicit
+    TmvipSa(const TYPE& a1);
+    TmvipSa(const TYPE& a1,
+            const TYPE& a2);
+    TmvipSa(const TYPE& a1,
+            const TYPE& a2,
+            const TYPE& a3);
+    TmvipSa(const TYPE& a1,
+            const TYPE& a2,
+            const TYPE& a3,
+            const TYPE& a4);
+    TmvipSa(const TYPE& a1,
+            const TYPE& a2,
+            const TYPE& a3,
+            const TYPE& a4,
+            const TYPE& a5);
         // Create a test object having the default value (i.e., 'TYPE()') for
         // attributes 1 to N, where N is the maximum number of parameters we
         // are supporting in our simulation of C++11 variadic templates.
@@ -580,7 +581,7 @@ class TmvipSa {
         // Create an object having the same attribute values as the specified
         // 'original'.
 
-   ~TmvipSa();
+    ~TmvipSa();
         // Destroy this object and increment the value reported by the
         // 'dtorCount()' class method.
 
@@ -806,27 +807,29 @@ class TmvipAa {
         // class is destroyed.
 
     // CREATORS
-    explicit TmvipAa(bslma::Allocator *basicAllocator = 0);
-    explicit TmvipAa(const TYPE&       a1,
-                     bslma::Allocator *basicAllocator = 0);
-             TmvipAa(const TYPE&       a1,
-                     const TYPE&       a2,
-                     bslma::Allocator *basicAllocator = 0);
-             TmvipAa(const TYPE&       a1,
-                     const TYPE&       a2,
-                     const TYPE&       a3,
-                     bslma::Allocator *basicAllocator = 0);
-             TmvipAa(const TYPE&       a1,
-                     const TYPE&       a2,
-                     const TYPE&       a3,
-                     const TYPE&       a4,
-                     bslma::Allocator *basicAllocator = 0);
-             TmvipAa(const TYPE&       a1,
-                     const TYPE&       a2,
-                     const TYPE&       a3,
-                     const TYPE&       a4,
-                     const TYPE&       a5,
-                     bslma::Allocator *basicAllocator = 0);
+    explicit
+    TmvipAa(bslma::Allocator *basicAllocator = 0);
+    explicit
+    TmvipAa(const TYPE&       a1,
+            bslma::Allocator *basicAllocator = 0);
+    TmvipAa(const TYPE&       a1,
+            const TYPE&       a2,
+            bslma::Allocator *basicAllocator = 0);
+    TmvipAa(const TYPE&       a1,
+            const TYPE&       a2,
+            const TYPE&       a3,
+            bslma::Allocator *basicAllocator = 0);
+    TmvipAa(const TYPE&       a1,
+            const TYPE&       a2,
+            const TYPE&       a3,
+            const TYPE&       a4,
+            bslma::Allocator *basicAllocator = 0);
+    TmvipAa(const TYPE&       a1,
+            const TYPE&       a2,
+            const TYPE&       a3,
+            const TYPE&       a4,
+            const TYPE&       a5,
+            bslma::Allocator *basicAllocator = 0);
         // Create a test object having the default value (i.e., 'TYPE()') for
         // attributes 1 to N, where N is the maximum number of parameters we
         // are supporting in our simulation of C++11 variadic templates.
@@ -1107,22 +1110,23 @@ class TmvipSa_WithThrowingCtor {
         // class is destroyed.
 
     // CREATORS
-             TmvipSa_WithThrowingCtor();
-    explicit TmvipSa_WithThrowingCtor(const TYPE& a1);
-             TmvipSa_WithThrowingCtor(const TYPE& a1,
-                                      const TYPE& a2);
-             TmvipSa_WithThrowingCtor(const TYPE& a1,
-                                      const TYPE& a2,
-                                      const TYPE& a3);
-             TmvipSa_WithThrowingCtor(const TYPE& a1,
-                                      const TYPE& a2,
-                                      const TYPE& a3,
-                                      const TYPE& a4);
-             TmvipSa_WithThrowingCtor(const TYPE& a1,
-                                      const TYPE& a2,
-                                      const TYPE& a3,
-                                      const TYPE& a4,
-                                      const TYPE& a5);
+    TmvipSa_WithThrowingCtor();
+    explicit
+    TmvipSa_WithThrowingCtor(const TYPE& a1);
+    TmvipSa_WithThrowingCtor(const TYPE& a1,
+                             const TYPE& a2);
+    TmvipSa_WithThrowingCtor(const TYPE& a1,
+                             const TYPE& a2,
+                             const TYPE& a3);
+    TmvipSa_WithThrowingCtor(const TYPE& a1,
+                             const TYPE& a2,
+                             const TYPE& a3,
+                             const TYPE& a4);
+    TmvipSa_WithThrowingCtor(const TYPE& a1,
+                             const TYPE& a2,
+                             const TYPE& a3,
+                             const TYPE& a4,
+                             const TYPE& a5);
         // Create a test object having the default value (i.e., 'TYPE()') for
         // attributes 1 to N, where N is the maximum number of parameters we
         // are supporting in our simulation of C++11 variadic templates.
@@ -1131,12 +1135,12 @@ class TmvipSa_WithThrowingCtor {
         // the number of parameters in the overload called *and* throw
         // 'bsl::exception'.
 
-             TmvipSa_WithThrowingCtor(const TYPE& a1,
-                                      const TYPE& a2,
-                                      const TYPE& a3,
-                                      const TYPE& a4,
-                                      const TYPE& a5,
-                                      const TYPE& a6);
+    TmvipSa_WithThrowingCtor(const TYPE& a1,
+                             const TYPE& a2,
+                             const TYPE& a3,
+                             const TYPE& a4,
+                             const TYPE& a5,
+                             const TYPE& a6);
         // Create a test object having the default value (i.e., 'TYPE()') for
         // attributes 1 to N, where N is the maximum number of parameters we
         // are supporting in our simulation of C++11 variadic templates.
@@ -1150,7 +1154,7 @@ class TmvipSa_WithThrowingCtor {
         // Create an object having the same attribute values as the specified
         // 'original'.
 
-   ~TmvipSa_WithThrowingCtor();
+    ~TmvipSa_WithThrowingCtor();
         // Destroy this object and increment the value reported by the
         // 'dtorCount()' class method.
 
@@ -1806,7 +1810,7 @@ class FirstMethodComparableType {
         // Return 'true' if the specified 'lhs' is ordered after the specified
         // 'rhs' nullable object or 'lhs' and 'rhs' have the same value, and
         // 'false' otherwise.
- };
+};
 
                    // ================================
                    // class SecondMethodComparableType
@@ -1878,7 +1882,7 @@ class SecondMethodComparableType {
         // Return 'true' if the specified 'lhs' is ordered after the specified
         // 'rhs' nullable object or 'lhs' and 'rhs' have the same value, and
         // 'false' otherwise.
- };
+};
 
                    // -------------------------------
                    // class FirstMethodComparableType
@@ -2070,7 +2074,7 @@ class FirstFunctionComparableType {
     // ACCESSORS
     int data() const;
         // Return the value of the 'data' attribute of this object.
- };
+};
 
 // FREE OPERATORS
 bool operator==(const FirstFunctionComparableType&  lhs,
@@ -2155,7 +2159,7 @@ class SecondFunctionComparableType {
     // ACCESSORS
     int data() const;
         // Return the value of the 'data' attribute of this object.
- };
+};
 
 // FREE OPERATORS
 bool operator==(const SecondFunctionComparableType& lhs,
@@ -6121,6 +6125,309 @@ void runTestCase29()
     RUN_EACH_TYPE(TestDriver, testCase29, TEST_TYPES);
 }
 
+namespace TestCase30 {
+
+// Needed types with 3 requirments:
+//: 1 type records whether it has been moved from
+//:
+//: 2 type records whether it has been moved to
+//:
+//: 3 type can convert to another type which also records moves
+//:
+//: 4 a moved-to type that is allocator-aware
+
+typedef bsltf::MoveState MS;
+
+                                // ==========
+                                // class From
+                                // ==========
+
+struct From {
+    // DATA
+    int d_ii;
+    MS::Enum d_from, d_into;
+
+    // CREATORS
+    From(int ii);                                                   // IMPLICIT
+
+    From(const From& original);
+
+    // MANIPULATORS
+    From& operator=(const From& rhs);
+
+    void setData(int ii);
+
+    // ACCESSORS
+    int data() const;
+};
+
+                                // ----------
+                                // class From
+                                // ----------
+
+// CREATORS
+From::From(int ii)
+: d_ii(ii)
+, d_from(MS::e_NOT_MOVED)
+, d_into(MS::e_NOT_MOVED)
+{}
+
+From::From(const From& original)
+: d_ii(original.d_ii)
+, d_from(MS::e_NOT_MOVED)
+, d_into(MS::e_NOT_MOVED)
+{}
+
+// MANIPULATORS
+From& From::operator=(const From& rhs)
+{
+    d_ii   = rhs.d_ii;
+    d_from = MS::e_NOT_MOVED;
+    d_into = MS::e_NOT_MOVED;
+
+    return *this;
+}
+
+void From::setData(int ii)
+{
+    d_ii   = ii;
+    d_from = MS::e_NOT_MOVED;
+    d_into = MS::e_NOT_MOVED;
+}
+
+// ACCESSORS
+int From::data() const
+{
+    return d_ii;
+}
+
+                                    // ========
+                                    // class To
+                                    // ========
+
+struct To {
+    // DATA
+    int d_ii;
+    MS::Enum d_from, d_into;
+
+    // CREATORS
+    To(int ii);                                                     // IMPLICIT
+
+    To(const From& from);                                           // IMPLICIT
+
+    To(bslmf::MovableRef<From> from);                               // IMPLICIT
+
+    To(const To& original);
+
+    To(bslmf::MovableRef<To> original);
+
+    // MANIPULATORS
+    To& operator=(const To& rhs);
+
+    To& operator=(bslmf::MovableRef<To> rhs);
+
+    To& operator=(const From& rhs);
+
+    To& operator=(bslmf::MovableRef<From> rhs);
+
+    void setData(int ii);
+
+    // ACCESSORS
+    int data() const;
+};
+
+                                    // --------
+                                    // class To
+                                    // --------
+
+To::To(int ii)
+: d_ii(ii)
+, d_from(MS::e_NOT_MOVED)
+, d_into(MS::e_NOT_MOVED)
+{}
+
+To::To(const From& from)
+: d_ii(from.data())
+, d_from(MS::e_NOT_MOVED)
+, d_into(MS::e_NOT_MOVED)
+{}
+
+To::To(bslmf::MovableRef<From> from)
+: d_ii(bslmf::MovableRefUtil::access(from).data())
+, d_from(MS::e_NOT_MOVED)
+, d_into(MS::e_MOVED)
+{
+    From& local = from;
+
+    local.d_from = MS::e_MOVED;
+    local.d_ii   = -1;
+}
+
+To::To(const To& original)
+: d_ii(original.data())
+, d_from(MS::e_NOT_MOVED)
+, d_into(MS::e_NOT_MOVED)
+{}
+
+To::To(bslmf::MovableRef<To> original)
+: d_ii(bslmf::MovableRefUtil::access(original).data())
+, d_from(MS::e_NOT_MOVED)
+, d_into(MS::e_MOVED)
+{
+    To& local = original;
+
+    local.d_from = MS::e_MOVED;
+    local.d_ii   = -1;
+}
+
+// MANIPULATORS
+To& To::operator=(const To& rhs)
+{
+    d_ii = rhs.d_ii;
+
+    d_into = MS::e_NOT_MOVED;
+
+    return *this;
+}
+
+To& To::operator=(bslmf::MovableRef<To> rhs)
+{
+    To& local = rhs;
+
+    d_ii = local.d_ii;
+
+    d_into       = MS::e_MOVED;
+    local.d_from = MS::e_MOVED;
+    local.d_ii   = -1;
+
+    return *this;
+}
+
+To& To::operator=(const From& rhs)
+{
+    d_ii = rhs.d_ii;
+
+    d_into = MS::e_NOT_MOVED;
+
+    return *this;
+}
+
+To& To::operator=(bslmf::MovableRef<From> rhs)
+{
+    From& local = rhs;
+
+    d_ii = local.d_ii;
+
+    d_into       = MS::e_MOVED;
+    local.d_from = MS::e_MOVED;
+    local.d_ii   = -1;
+
+    return *this;
+}
+
+void To::setData(int ii)
+{
+    d_ii   = ii;
+    d_from = MS::e_NOT_MOVED;
+    d_into = MS::e_NOT_MOVED;
+}
+
+// ACCESSORS
+int To::data() const
+{
+    return d_ii;
+}
+
+                                // ===============
+                                // class AllocType
+                                // ===============
+
+struct AllocType {
+    // DATA
+    int d_ii;
+    MS::Enum d_from, d_into;
+    bsl::allocator<char> d_alloc;
+
+    BSLMF_NESTED_TRAIT_DECLARATION(AllocType,
+                                   bslma::UsesBslmaAllocator);
+
+    // CREATORS
+    AllocType(const From& from,
+              bsl::allocator<char> alloc = bsl::allocator<char>()); // IMPLICIT
+
+    AllocType(bslmf::MovableRef<From> from,
+              bsl::allocator<char> alloc = bsl::allocator<char>()); // IMPLICIT
+
+    AllocType(const AllocType& original,
+              bsl::allocator<char> alloc = bsl::allocator<char>());
+
+    AllocType(bslmf::MovableRef<AllocType> original,
+              bsl::allocator<char> alloc = bsl::allocator<char>());
+
+    // ACCESSORS
+    int data() const;
+
+    bsl::allocator<char> allocator() const;
+};
+
+                                // ---------------
+                                // class AllocType
+                                // ---------------
+
+AllocType::AllocType(const From& from,
+                     bsl::allocator<char> alloc)
+: d_ii(from.data())
+, d_from(MS::e_NOT_MOVED)
+, d_into(MS::e_NOT_MOVED)
+, d_alloc(alloc)
+{}
+
+AllocType::AllocType(bslmf::MovableRef<From> from,
+                     bsl::allocator<char> alloc)
+: d_ii(bslmf::MovableRefUtil::access(from).data())
+, d_from(MS::e_NOT_MOVED)
+, d_into(MS::e_MOVED)
+, d_alloc(alloc)
+{
+    From& local = from;
+
+    local.d_from = MS::e_MOVED;
+    local.d_ii   = -1;
+}
+
+AllocType::AllocType(const AllocType& original,
+                     bsl::allocator<char> alloc)
+: d_ii(original.data())
+, d_from(MS::e_NOT_MOVED)
+, d_into(MS::e_NOT_MOVED)
+, d_alloc(alloc)
+{}
+
+AllocType::AllocType(bslmf::MovableRef<AllocType> original,
+                     bsl::allocator<char> alloc)
+: d_ii(bslmf::MovableRefUtil::access(original).data())
+, d_from(MS::e_NOT_MOVED)
+, d_into(MS::e_MOVED)
+, d_alloc(alloc)
+{
+    AllocType& local = original;
+
+    local.d_from = MS::e_MOVED;
+    local.d_ii   = -1;
+}
+
+int AllocType::data() const
+{
+    return d_ii;
+}
+
+bsl::allocator<char> AllocType::allocator() const
+{
+    return d_alloc;
+}
+
+}  // close namespace TestCase30
+
 // ============================================================================
 //                              MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -6144,7 +6451,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 31: {
+      case 32: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -6188,7 +6495,7 @@ int main(int argc, char *argv[])
 //..
 
       } break;
-      case 30: {
+      case 31: {
         // --------------------------------------------------------------------
         // TEST 'operator<<' FOR 'std::optional' AND 'std::variant'
         //
@@ -6281,6 +6588,466 @@ int main(int argc, char *argv[])
                              "'std::optional', 'std::variant'" << endl;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
       } break;
+      case 30: {
+        // --------------------------------------------------------------------
+        // TESTING CONVERSION FROM OPTIONAL
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING CONVERSION FROM OPTIONAL\n"
+                             "================================\n";
+
+        namespace TC = TestCase30;
+
+        typedef bsltf::TemplateTestFacility Util;
+        typedef bsltf::MovableTestType      MTT;
+        typedef bsltf::MoveState            MState;
+        typedef bslmf::MovableRefUtil       MoveUtil;
+
+        if (verbose) cout << "Copy construction from opt of same type.\n";
+        {
+            bsl::optional<int> mX(5);    const bsl::optional<int>& X = mX;
+            bdlb::NullableValue<int> mNV(X);
+
+            ASSERT(5 == *X);
+            ASSERT(5 == *mNV);
+
+            bsl::optional<int> mY;    const bsl::optional<int>& Y = mY;
+            ASSERT(!Y.has_value());
+            bdlb::NullableValue<int> mNY(Y);
+
+            ASSERT(!mNY.has_value());
+        }
+
+        if (verbose) cout << "Copy construction from opt of other type.\n";
+        {
+            bsl::optional<char> mC(' ');    const bsl::optional<char>& C = mC;
+            bdlb::NullableValue<int> mNC(C);
+
+            ASSERT(' ' == mNC.value());
+
+            bsl::optional<char> mY;    const bsl::optional<char>& Y = mY;
+            bdlb::NullableValue<int> mNY(Y);
+
+            ASSERT(!mNY.has_value());
+        }
+
+        if (verbose) cout << "Move construction from opt of same type.\n";
+        {
+            MTT mMTT(5);
+            bsl::optional<MTT> OMTT(mMTT);
+
+            const bdlb::NullableValue<MTT> NM(MoveUtil::move(OMTT));
+
+            ASSERT(!!NM);
+            ASSERT(5 == Util::getIdentifier(NM.value()));
+            MState::Enum movedFrom = Util::getMovedFromState(OMTT.value());
+            ASSERTV(movedFrom, MState::e_MOVED == movedFrom);
+            MState::Enum movedInto = Util::getMovedIntoState(NM.value());
+            ASSERTV(movedInto, MState::e_MOVED == movedInto);
+
+            bsl::optional<MTT> oY;
+            const bdlb::NullableValue<MTT> NMY(MoveUtil::move(oY));
+            ASSERT(!NMY.has_value());
+        }
+
+        if (verbose) cout << "Move construction from opt of diff type.\n";
+        {
+            TC::From mF(7);
+            bsl::optional<TC::From> oF(mF);
+
+            bdlb::NullableValue<TC::To> nvt(MoveUtil::move(oF));
+            ASSERT(7 == nvt->data());
+            MState::Enum movedFrom = oF->d_from;
+            ASSERTV(movedFrom, MState::e_MOVED == movedFrom);
+            MState::Enum movedInto = nvt->d_into;
+            ASSERTV(movedInto, MState::e_MOVED == movedInto);
+
+            bsl::optional<TC::From> mY;
+            ASSERT(!mY.has_value());
+
+            bdlb::NullableValue<TC::To> ny(MoveUtil::move(mY));
+            ASSERT(!ny.has_value());
+            ASSERT(!mY.has_value());
+        }
+
+        if (verbose) cout << "Move construction from opt of diff type.\n";
+        {
+            TC::From mF(7);
+            bsl::optional<TC::From> oF(mF);
+
+            bdlb::NullableValue<TC::AllocType> nvt(MoveUtil::move(oF));
+            ASSERT(7 == nvt->data());
+            MState::Enum movedFrom = oF->d_from;
+            ASSERTV(movedFrom, MState::e_MOVED == movedFrom);
+            MState::Enum movedInto = nvt->d_into;
+            ASSERTV(movedInto, MState::e_MOVED == movedInto);
+
+            bsl::optional<TC::From> oY;
+            bdlb::NullableValue<TC::AllocType> nY(MoveUtil::move(oY));
+            ASSERT(!nY.has_value());
+            ASSERT(!oY.has_value());
+        }
+
+        if (verbose) cout << "Copy c'tor w/ alloc from opt of same type.\n";
+        {
+            bslma::TestAllocator ta;
+            bsl::allocator<char> aa(&ta);
+
+            bslma::TestAllocator tb;
+            bsl::allocator<char> ab(&tb);
+
+            TC::AllocType mX(7, aa);    const TC::AllocType& X = mX;
+            bsl::optional<TC::AllocType> oX(bsl::allocator_arg, aa, X);
+            const bsl::optional<TC::AllocType>& OX = oX;
+
+            ASSERT(aa == OX->allocator());
+
+            bdlb::NullableValue<TC::AllocType> nvt(OX, ab);
+
+            ASSERT(7 == nvt->data());
+            MState::Enum movedFrom = OX->d_from;
+            ASSERTV(movedFrom, MState::e_NOT_MOVED == movedFrom);
+            MState::Enum movedInto = nvt->d_into;
+            ASSERTV(movedInto, MState::e_NOT_MOVED == movedInto);
+            ASSERT(ab == nvt->allocator());
+
+            bsl::optional<TC::AllocType> mY;
+            const bsl::optional<TC::AllocType>& Y = mY;
+            ASSERT(!Y.has_value());
+            bdlb::NullableValue<TC::AllocType> mNY(Y, ab);
+
+            ASSERT(!Y.has_value());
+            ASSERT(!mNY.has_value());
+        }
+
+        if (verbose) cout << "Move c'tor w/ alloc from opt of same type.\n";
+        {
+            bslma::TestAllocator ta;
+            bsl::allocator<char> aa(&ta);
+
+            bslma::TestAllocator tb;
+            bsl::allocator<char> ab(&tb);
+
+            TC::AllocType mX(7, aa);    const TC::AllocType& X = mX;
+            bsl::optional<TC::AllocType> oX(bsl::allocator_arg, aa, X);
+
+            ASSERT(aa == oX->allocator());
+
+            bdlb::NullableValue<TC::AllocType> nvt(MoveUtil::move(oX), ab);
+
+            ASSERT(7 == nvt->data());
+            MState::Enum movedFrom = oX->d_from;
+            ASSERTV(movedFrom, MState::e_MOVED == movedFrom);
+            MState::Enum movedInto = nvt->d_into;
+            ASSERTV(movedInto, MState::e_MOVED == movedInto);
+            ASSERT(ab == nvt->allocator());
+
+            bsl::optional<TC::AllocType> mY;
+            ASSERT(!mY.has_value());
+            bdlb::NullableValue<TC::AllocType> nvY(MoveUtil::move(mY), ab);
+
+            ASSERT(!mY.has_value());
+            ASSERT(!nvY.has_value());
+        }
+
+        if (verbose) cout << "Copy c'tor w/ alloc from opt of diff type.\n";
+        {
+            bslma::TestAllocator tb;
+            bsl::allocator<char> ab(&tb);
+
+            TC::From mX(7);    const TC::From& X = mX;
+            bsl::optional<TC::From> oX(X);
+            const bsl::optional<TC::From>& OX = oX;
+
+            bdlb::NullableValue<TC::AllocType> nvt(OX, ab);
+
+            ASSERT(7 == nvt->data());
+            MState::Enum movedFrom = OX->d_from;
+            ASSERTV(movedFrom, MState::e_NOT_MOVED == movedFrom);
+            MState::Enum movedInto = nvt->d_into;
+            ASSERTV(movedInto, MState::e_NOT_MOVED == movedInto);
+            ASSERT(ab == nvt->allocator());
+
+            bsl::optional<TC::From> oY;
+            const bsl::optional<TC::From>& Y = oY;
+            bdlb::NullableValue<TC::AllocType> nvY(Y, ab);
+
+            ASSERT(!Y.has_value());
+            ASSERT(!nvY.has_value());
+        }
+
+        if (verbose) cout << "Move c'tor w/ alloc from opt of diff type.\n";
+        {
+            bslma::TestAllocator tb;
+            bsl::allocator<char> ab(&tb);
+
+            TC::From mX(7);    const TC::From& X = mX;
+            bsl::optional<TC::From> oX(X);
+
+            bdlb::NullableValue<TC::AllocType> nvt(MoveUtil::move(oX), ab);
+
+            ASSERT(7 == nvt->data());
+            MState::Enum movedFrom = oX->d_from;
+            ASSERTV(movedFrom, MState::e_MOVED == movedFrom);
+            MState::Enum movedInto = nvt->d_into;
+            ASSERTV(movedInto, MState::e_MOVED == movedInto);
+            ASSERT(ab == nvt->allocator());
+
+            bsl::optional<TC::From> oY;
+            const bsl::optional<TC::From>& Y = oY;
+            bdlb::NullableValue<TC::AllocType> nvY(MoveUtil::move(oY), ab);
+
+            ASSERT(!Y.has_value());
+            ASSERT(!nvY.has_value());
+        }
+
+        if (verbose) cout << "Copy assign Base to Obj.\n";
+        {
+            bsl::optional<TC::To> mX;   const bsl::optional<TC::To>& X = mX;
+
+            bdlb::NullableValue<TC::To> mY;
+            const bdlb::NullableValue<TC::To>& Y = mY;
+
+            bdlb::NullableValue<TC::To> *z_p = 0;
+
+            // null <- null
+
+            z_p = &(mY = X);
+
+            ASSERT(&mY == z_p);
+            ASSERT(!Y.has_value());
+
+            // null <- value
+
+            z_p = 0;
+            mX = TC::To(7);
+            ASSERT(7 == X->data());
+
+            z_p = &(mY = X);
+
+            ASSERT(Y->data() == 7);
+            MState::Enum movedFrom = X->d_from;
+            ASSERTV(movedFrom, MState::e_NOT_MOVED == movedFrom);
+            MState::Enum movedInto = Y->d_into;
+            ASSERTV(movedInto, MState::e_NOT_MOVED == movedInto);
+
+            // value <- value
+
+            z_p = 0;
+            mX->setData(11);
+            ASSERT(11 == X->data());
+            movedFrom = X->d_from;
+            ASSERTV(movedFrom, MState::e_NOT_MOVED == movedFrom);
+
+            z_p = &(mY = X);
+
+            ASSERT(Y->data() == 11);
+            movedFrom = X->d_from;
+            ASSERTV(movedFrom, MState::e_NOT_MOVED == movedFrom);
+            movedInto = Y->d_into;
+            ASSERTV(movedInto, MState::e_NOT_MOVED == movedInto);
+
+            // value <- null
+
+            z_p = 0;
+            bsl::optional<TC::To> mN;   const bsl::optional<TC::To>& N = mN;
+
+            z_p = &(mY = N);
+
+            ASSERT(!Y.has_value());
+        }
+
+        if (verbose) cout << "Move assign Base to Obj.\n";
+        {
+            bsl::optional<TC::To> mX;   const bsl::optional<TC::To>& X = mX;
+
+            bdlb::NullableValue<TC::To> mY;
+            const bdlb::NullableValue<TC::To>& Y = mY;
+
+            bdlb::NullableValue<TC::To> *z_p = 0;
+
+            // null <- null
+
+            z_p = &(mY = MoveUtil::move(mX));
+
+            ASSERT(&mY == z_p);
+            ASSERT(!Y.has_value());
+            ASSERT(!X.has_value());
+
+            mX = bsl::optional<TC::To>();
+            ASSERT(!X.has_value());
+
+            // null <- value
+
+            z_p = 0;
+            mX = TC::To(7);
+            ASSERT(7 == X->data());
+
+            z_p = &(mY = MoveUtil::move(mX));
+
+            ASSERT(Y->data() == 7);
+            MState::Enum movedFrom = X->d_from;
+            ASSERTV(movedFrom, MState::e_MOVED == movedFrom);
+            MState::Enum movedInto = Y->d_into;
+            ASSERTV(movedInto, MState::e_MOVED == movedInto);
+
+            // value <- value
+
+            z_p = 0;
+            mX->setData(11);
+            ASSERT(11 == X->data());
+            movedFrom = X->d_from;
+            ASSERTV(movedFrom, MState::e_NOT_MOVED == movedFrom);
+            mY->setData(7);
+            ASSERT(7 == Y->data());
+            movedInto = Y->d_into;
+            ASSERTV(movedInto, MState::e_NOT_MOVED == movedInto);
+
+            z_p = &(mY = MoveUtil::move(mX));
+            ASSERT(Y->data() == 11);
+            movedFrom = X->d_from;
+            ASSERTV(movedFrom, MState::e_MOVED == movedFrom);
+            movedInto = Y->d_into;
+            ASSERTV(movedInto, MState::e_MOVED == movedInto);
+
+            // value <- null
+
+            z_p = 0;
+            bsl::optional<TC::To> mN;   const bsl::optional<TC::To>& N = mN;
+
+            z_p = &(mY = N);
+
+            ASSERT(!Y.has_value());
+        }
+
+        if (verbose) cout << "Copy assign Base<From> to Obj<To>.\n";
+        {
+            bsl::optional<TC::From> mX(7);
+            const bsl::optional<TC::From>& X = mX;
+
+            bdlb::NullableValue<TC::To> mY;
+            const bdlb::NullableValue<TC::To>& Y = mY;
+            ASSERT(!Y.has_value());
+
+            bdlb::NullableValue<TC::To> *z_p = 0;
+
+            // null = value
+
+            z_p = &(mY = X);
+
+            ASSERT(Y.has_value());
+            ASSERT(&mY == z_p);
+            ASSERT(Y->data() == 7);
+            MState::Enum movedFrom = X->d_from;
+            ASSERTV(movedFrom, MState::e_NOT_MOVED == movedFrom);
+            MState::Enum movedInto = Y->d_into;
+            ASSERTV(movedInto, MState::e_NOT_MOVED == movedInto);
+
+            mX->setData(11);
+            z_p = 0;
+            movedFrom = X->d_from;
+            ASSERTV(movedFrom, MState::e_NOT_MOVED == movedFrom);
+
+            // value = value
+
+            z_p = &(mY = X);
+
+            ASSERT(&mY == z_p);
+            ASSERT(Y->data() == 11);
+            movedFrom = X->d_from;
+            ASSERTV(movedFrom, MState::e_NOT_MOVED == movedFrom);
+            movedInto = Y->d_into;
+            ASSERTV(movedInto, MState::e_NOT_MOVED == movedInto);
+
+            z_p = 0;
+
+            // value = null
+
+            bsl::optional<TC::To> mN;    const bsl::optional<TC::To>& N = mN;
+
+            z_p = &(mY = N);
+
+            ASSERT(&mY == z_p);
+            ASSERT(!Y.has_value());
+            ASSERT(!N.has_value());
+
+            mN = bsl::optional<TC::To>();
+            ASSERT(!N.has_value());
+            z_p = 0;
+
+            // null = null
+
+            z_p = &(mY = N);
+
+            ASSERT(&mY == z_p);
+            ASSERT(!Y.has_value());
+            ASSERT(!N.has_value());
+        }
+
+        if (verbose) cout << "Move assign Base<From> to Obj<To>.\n";
+        {
+            bsl::optional<TC::From> mX(7);
+            const bsl::optional<TC::From>& X = mX;
+
+            bdlb::NullableValue<TC::To> mY;
+            const bdlb::NullableValue<TC::To>& Y = mY;
+            ASSERT(!Y.has_value());
+
+            bdlb::NullableValue<TC::To> *z_p = 0;
+
+            // null = value
+
+            z_p = &(mY = MoveUtil::move(mX));
+
+            ASSERT(Y.has_value());
+            ASSERT(&mY == z_p);
+            ASSERT(Y->data() == 7);
+            MState::Enum movedFrom = X->d_from;
+            ASSERTV(movedFrom, MState::e_MOVED == movedFrom);
+            MState::Enum movedInto = Y->d_into;
+            ASSERTV(movedInto, MState::e_MOVED == movedInto);
+
+            mX->setData(11);
+            z_p = 0;
+            movedFrom = X->d_from;
+            ASSERTV(movedFrom, MState::e_NOT_MOVED == movedFrom);
+
+            // value = value
+
+            z_p = &(mY = MoveUtil::move(mX));
+
+            ASSERT(&mY == z_p);
+            ASSERT(Y->data() == 11);
+            movedFrom = X->d_from;
+            ASSERTV(movedFrom, MState::e_MOVED == movedFrom);
+            movedInto = Y->d_into;
+            ASSERTV(movedInto, MState::e_MOVED == movedInto);
+
+            z_p = 0;
+
+            // value = null
+
+            bsl::optional<TC::To> mN;    const bsl::optional<TC::To>& N = mN;
+
+            z_p = &(mY = MoveUtil::move(mN));
+
+            ASSERT(&mY == z_p);
+            ASSERT(!Y.has_value());
+            ASSERT(!N.has_value());
+
+            mN = bsl::optional<TC::To>();
+            ASSERT(!N.has_value());
+            z_p = 0;
+
+            // null = null
+
+            z_p = &(mY = MoveUtil::move(mN));
+
+            ASSERT(&mY == z_p);
+            ASSERT(!Y.has_value());
+            ASSERT(!N.has_value());
+        }
+      } break;
       case 29: {
         // --------------------------------------------------------------------
         // TESTING NOEXCEPT
@@ -6306,7 +7073,7 @@ int main(int argc, char *argv[])
       } break;
       case 28: {
         // --------------------------------------------------------------------
-        // IMPLICIT CONVERSION TO BOOL W/C++03
+        // CONVERSION TO BOOL W/C++03 (IMPLICIT)
         //
         // Concerns:
         //: 1 An implicit conversion from 'NullableValue<T>' to 'bool' (using
@@ -6322,9 +7089,8 @@ int main(int argc, char *argv[])
         //   DRQS 166024189: 'NullableValue<T> -> bool' implicit conv. w/C++03.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "IMPLICIT CONVERSION TO BOOL W/C++03" << endl
-                          << "===================================" << endl;
+        if (verbose) cout << "CONVERSION TO BOOL W/C++03 (IMPLICIT)\n"
+                             "=====================================\n";
 
         bool isCpp03 =
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
@@ -7465,6 +8231,9 @@ int main(int argc, char *argv[])
                              "\n========================================"
                           << endl;
 
+        typedef TestCase30::From      From;
+        typedef TestCase30::To        To;
+
         bslma::TestAllocator da("default", veryVeryVeryVerbose);
 
         bslma::DefaultAllocatorGuard dag(&da);
@@ -7565,19 +8334,22 @@ int main(int argc, char *argv[])
         }
         ASSERT(0 == da.numBlocksTotal());
 
-        if (verbose) cout << "\nUsing 'double' and 'int'." << endl;
+        if (verbose) cout << "\nUsing 'To' and 'From'." << endl;
         {
-            typedef int    ValueType1;
-            typedef double ValueType2;
+            typedef From ValueType1;
+            typedef To   ValueType2;
 
             typedef bdlb::NullableValue<ValueType1> ObjType1;
             typedef bdlb::NullableValue<ValueType2> ObjType2;
 
-            const ValueType1 VALUE1a = 123;
-            const ValueType1 VALUE1b = 456;
+            typedef bsltf::MoveState      MS;
+            typedef bslmf::MovableRefUtil MoveUtil;
 
-            ValueType1  mVALUE2  = 789;  const ValueType1& VALUE2 = mVALUE2;
-            ValueType1& mRVALUE2 = mVALUE2;
+            const int val1a = 123;
+            const int val1b = 456;
+
+            const ValueType1 VALUE1a = val1a;
+            const ValueType1 VALUE1b = val1b;
 
             if (verbose) cout << "\tcopy assignment" << endl;
             {
@@ -7590,15 +8362,19 @@ int main(int argc, char *argv[])
 
                 ObjType2 *mR2 = &(obj2 = OBJ1a);  // null = non-null
 
-                ASSERT(VALUE1a == OBJ1a.value());
-                ASSERT(VALUE1a == OBJ2.value());
-                ASSERT(    mR2 == &obj2);
+                ASSERT(val1a == OBJ1a->data());
+                ASSERT(val1a == OBJ2->data());
+                ASSERT(MS::e_NOT_MOVED == OBJ1a->d_from);
+                ASSERT(MS::e_NOT_MOVED == OBJ2->d_into);
+                ASSERT(  mR2 == &obj2);
 
                 mR2 = &(obj2 = obj1b);            // non-null = non-null
 
-                ASSERT(VALUE1b == obj1b.value());
-                ASSERT(VALUE1b == OBJ2.value());
-                ASSERT(    mR2 == &obj2);
+                ASSERT(val1b == obj1b->data());
+                ASSERT(val1b == OBJ2->data());
+                ASSERT(MS::e_NOT_MOVED == obj1b->d_from);
+                ASSERT(MS::e_NOT_MOVED == OBJ2->d_into);
+                ASSERT(  mR2 == &obj2);
 
                 mR2 = &(obj2 = OBJ1n);            // non-null = null
 
@@ -7613,50 +8389,52 @@ int main(int argc, char *argv[])
                 ASSERT(    mR2 == &obj2);
             }
 
-            if (verbose) cout << "\tvalue assignment" << endl;
+            if (verbose) cout << "\tmove assignment" << endl;
             {
-                ObjType2 obj2;  const ObjType2& OBJ2 = obj2;
+                const ObjType1  OBJ1a(VALUE1a);
+                      ObjType1  obj1b(VALUE1b);
+                const ObjType1& OBJ1b = obj1b;
+                const ObjType1  OBJ1n;
+                      ObjType1  obj1n;
+
+                      ObjType2 obj2;  const ObjType2& OBJ2 = obj2;
                 ASSERT(OBJ2.isNull());
 
-                ObjType2 *mR2 = &(obj2 = VALUE1a);
+                P(&*obj1b);
+                ObjType2 *mR2 = &(obj2 = MoveUtil::move(obj1b));
+                                                             // null = non-null
 
-                ASSERT(VALUE1a == OBJ2.value());
+                ASSERT(val1b == OBJ2->data());
+                ASSERTV(OBJ1b->d_from, MS::e_MOVED == OBJ1b->d_from);
+                ASSERTV(OBJ2->d_into,  MS::e_MOVED == OBJ2->d_into);
+                ASSERT(  mR2 == &obj2);
+
+                obj1b->setData(val1b);
+                ASSERT(MS::e_NOT_MOVED == OBJ1b->d_from);
+
+                obj2->setData(val1a);
+                ASSERT(MS::e_NOT_MOVED == OBJ2->d_into);
+
+                mR2 = &(obj2 = MoveUtil::move(obj1b));   // non-null = non-null
+
+                ASSERT(val1b == OBJ2->data());
+                ASSERTV(obj1b->d_from, MS::e_MOVED == obj1b->d_from);
+                ASSERTV(OBJ2->d_into,  MS::e_MOVED == OBJ2->d_into);
                 ASSERT(    mR2 == &obj2);
 
-                mR2 = &(obj2 = VALUE1b);
+                mR2 = &(obj2 = MoveUtil::move(obj1n));   // non-null = null
 
-                ASSERT(VALUE1b == OBJ2.value());
+                ASSERT(obj1n.isNull());
+                ASSERT(OBJ2.isNull());
                 ASSERT(    mR2 == &obj2);
 
-                // testing non-'const' source object
+                obj1n = OBJ1n;
 
-                obj2.reset();
+                mR2 = &(obj2 = MoveUtil::move(obj1n));   // null = null
+
+                ASSERT(obj1n.isNull());
                 ASSERT(OBJ2.isNull());
-
-                obj2 = mVALUE2;
-                ASSERT(VALUE2 == OBJ2.value());
-
-                obj2.reset();
-                ASSERT(OBJ2.isNull());
-
-                obj2 = mRVALUE2;
-                ASSERT(VALUE2 == OBJ2.value());
-            }
-
-            if (verbose) cout << "\tmake value" << endl;
-            {
-                ObjType2 obj2;  const ObjType2& OBJ2 = obj2;
-                ASSERT(OBJ2.isNull());
-
-                ValueType2 *addr2 = &obj2.makeValue(VALUE1a);
-
-                ASSERT(VALUE1a == OBJ2.value());
-                ASSERT(  addr2 == &obj2.value());
-
-                addr2 = &obj2.makeValue(VALUE1b);
-
-                ASSERT(VALUE1b == OBJ2.value());
-                ASSERT(  addr2 == &obj2.value());
+                ASSERT(    mR2 == &obj2);
             }
         }
         ASSERT(0 == da.numBlocksTotal());
@@ -8213,9 +8991,13 @@ int main(int argc, char *argv[])
                 typedef bdlb::NullableValue<ValueType>   ObjType;
 
                 bslma::TestAllocator oa("default", veryVeryVeryVerbose);
+                bsl::allocator<char> ba(&oa);
 
                 ObjType mX(&oa);  const ObjType& X = mX;
                 ASSERT(X.isNull());
+
+                ObjType mY(ba);  const ObjType& Y = mY;
+                ASSERT(Y.isNull());
             }
         }
 
