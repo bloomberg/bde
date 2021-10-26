@@ -65,6 +65,10 @@ BSLS_IDENT("$Id: $")
 
 #include <bsl_vector.h>
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+# include <memory_resource>
+#endif
+
 namespace BloombergLP {
 namespace bbldc {
 
@@ -86,10 +90,45 @@ struct PeriodIcmaActualActual {
         // non-negative.  Note that reversing the order of 'beginDate' and
         // 'endDate' negates the result.
 
-    static double yearsDiff(const bdlt::Date&              beginDate,
-                            const bdlt::Date&              endDate,
-                            const bsl::vector<bdlt::Date>& periodDate,
-                            double                         periodYearDiff);
+    static double yearsDiff(const bdlt::Date&  beginDate,
+                            const bdlt::Date&  endDate,
+                            const bdlt::Date  *periodDateBegin,
+                            const bdlt::Date  *periodDateEnd,
+                            double             periodYearDiff);
+        // Return the (signed fractional) number of years between the specified
+        // 'beginDate' and 'endDate' according to the ICMA Actual/Actual
+        // day-count convention with periods starting on the specified range
+        // '[ periodDateBegin, periodDateEnd )' values and each period having a
+        // duration of the specified 'periodYearDiff' years (e.g., 0.25 for
+        // quarterly periods).  If 'beginDate <= endDate', then the result is
+        // non-negative.  The behavior is undefined unless
+        // '2 <= periodDateEnd - periodDateBegin', the values contained in the
+        // range are unique and sorted from minimum to maximum,
+        // '*periodDateBegin <= beginDate <= *(periodDateEnd - 1)', and
+        // '*periodDateBegin <= endDate <= *(periodDateEnd - 1)'.  Note that
+        // reversing the order of 'beginDate' and 'endDate' negates the result;
+        // specifically,
+        // '|yearsDiff(b, e, pd, pyd) + yearsDiff(e, b, pd, pyd)| <= 1.0e-15'
+        // for all dates 'b' and 'e', periods 'pd', and year fraction per
+        // period 'pyd'.
+
+    static double yearsDiff(
+                           const bdlt::Date&                   beginDate,
+                           const bdlt::Date&                   endDate,
+                           const bsl::vector<bdlt::Date>&      periodDate,
+                           double                              periodYearDiff);
+    static double yearsDiff(
+                           const bdlt::Date&                   beginDate,
+                           const bdlt::Date&                   endDate,
+                           const std::vector<bdlt::Date>&      periodDate,
+                           double                              periodYearDiff);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    static double yearsDiff(
+                           const bdlt::Date&                   beginDate,
+                           const bdlt::Date&                   endDate,
+                           const std::pmr::vector<bdlt::Date>& periodDate,
+                           double                              periodYearDiff);
+#endif
         // Return the (signed fractional) number of years between the specified
         // 'beginDate' and 'endDate' according to the ICMA Actual/Actual
         // day-count convention with periods starting on the specified
@@ -122,6 +161,56 @@ int PeriodIcmaActualActual::daysDiff(const bdlt::Date& beginDate,
 {
     return endDate - beginDate;
 }
+
+inline
+double PeriodIcmaActualActual::yearsDiff(
+                                 const bdlt::Date&              beginDate,
+                                 const bdlt::Date&              endDate,
+                                 const bsl::vector<bdlt::Date>& periodDate,
+                                 double                         periodYearDiff)
+{
+    return yearsDiff(beginDate,
+                     endDate,
+                     periodDate.data(),
+                     periodDate.data() + periodDate.size(),
+                     periodYearDiff);
+}
+
+inline
+double PeriodIcmaActualActual::yearsDiff(
+                                 const bdlt::Date&              beginDate,
+                                 const bdlt::Date&              endDate,
+                                 const std::vector<bdlt::Date>& periodDate,
+                                 double                         periodYearDiff)
+{
+    // Some implmentations of 'std::vector', notably Aix and Solaris, do not
+    // provide the 'data' accessor.
+
+    const bdlt::Date *begin = periodDate.empty() ? 0 : &*periodDate.begin();
+    const bdlt::Date *end   = begin + periodDate.size();
+
+    return yearsDiff(beginDate,
+                     endDate,
+                     begin,
+                     end,
+                     periodYearDiff);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+inline
+double PeriodIcmaActualActual::yearsDiff(
+                            const bdlt::Date&                   beginDate,
+                            const bdlt::Date&                   endDate,
+                            const std::pmr::vector<bdlt::Date>& periodDate,
+                            double                              periodYearDiff)
+{
+    return yearsDiff(beginDate,
+                     endDate,
+                     periodDate.data(),
+                     periodDate.data() + periodDate.size(),
+                     periodYearDiff);
+}
+#endif
 
 }  // close package namespace
 }  // close enterprise namespace

@@ -9,10 +9,8 @@ BSLS_IDENT_RCSID(bbldc_periodicmaactualactual_cpp,"$Id$ $CSID$")
 
 #include <bsl_algorithm.h>
 
-namespace BloombergLP {
-namespace bbldc {
-
-// STATIC HELPER FUNCTIONS
+namespace {
+namespace u {
 
 template <class ITER>
 static bool isSortedAndUnique(const ITER& begin, const ITER& end)
@@ -37,24 +35,32 @@ static bool isSortedAndUnique(const ITER& begin, const ITER& end)
     return true;
 }
 
+}  // close namespace u
+}  // close unnamed namespace
+
+namespace BloombergLP {
+namespace bbldc {
+
+// STATIC HELPER FUNCTIONS
+
                       // -----------------------------
                       // struct PeriodIcmaActualActual
                       // -----------------------------
 
 // CLASS METHODS
-double PeriodIcmaActualActual::yearsDiff(
-                                 const bdlt::Date&              beginDate,
-                                 const bdlt::Date&              endDate,
-                                 const bsl::vector<bdlt::Date>& periodDate,
-                                 double                         periodYearDiff)
+double PeriodIcmaActualActual::yearsDiff(const bdlt::Date&  beginDate,
+                                         const bdlt::Date&  endDate,
+                                         const bdlt::Date  *periodDateBegin,
+                                         const bdlt::Date  *periodDateEnd,
+                                         double             periodYearDiff)
 {
-    BSLS_ASSERT(periodDate.size() >= 2);
-    BSLS_ASSERT(periodDate.front() <= beginDate);
-    BSLS_ASSERT(                      beginDate <= periodDate.back());
-    BSLS_ASSERT(periodDate.front() <= endDate);
-    BSLS_ASSERT(                      endDate   <= periodDate.back());
+    BSLS_ASSERT(2 <= periodDateEnd - periodDateBegin);
+    BSLS_ASSERT(*periodDateBegin <= beginDate);
+    BSLS_ASSERT(                    beginDate <= *(periodDateEnd - 1));
+    BSLS_ASSERT(*periodDateBegin <= endDate);
+    BSLS_ASSERT(                    endDate   <= *(periodDateEnd - 1));
 
-    BSLS_ASSERT_SAFE(isSortedAndUnique(periodDate.begin(), periodDate.end()));
+    BSLS_ASSERT_SAFE(u::isSortedAndUnique(periodDateBegin, periodDateEnd));
 
     if (beginDate == endDate) {
         return 0.0;                                                   // RETURN
@@ -86,15 +92,15 @@ double PeriodIcmaActualActual::yearsDiff(
 
     // Find the period dates bracketing 'minDate'.
 
-    bsl::vector<bdlt::Date>::const_iterator beginIter2 =
-               bsl::upper_bound(periodDate.begin(), periodDate.end(), minDate);
-    bsl::vector<bdlt::Date>::const_iterator beginIter1 = beginIter2 - 1;
+    const bdlt::Date *beginIter2 =
+                     bsl::upper_bound(periodDateBegin, periodDateEnd, minDate);
+    const bdlt::Date *beginIter1 = beginIter2 - 1;
 
     // Find the period dates bracketing 'maxDate'.
 
-    bsl::vector<bdlt::Date>::const_iterator endIter2 =
-               bsl::lower_bound(periodDate.begin(), periodDate.end(), maxDate);
-    bsl::vector<bdlt::Date>::const_iterator endIter1 = endIter2 - 1;
+    const bdlt::Date *endIter2 =
+                     bsl::lower_bound(periodDateBegin, periodDateEnd, maxDate);
+    const bdlt::Date *endIter1 = endIter2 - 1;
 
     // Compute the fractional number of periods * 'periodYearDiff'.
 

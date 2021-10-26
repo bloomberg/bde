@@ -92,6 +92,77 @@ void aSsErT(bool condition, const char *message, int line)
 
 typedef bbldc::PeriodIcmaActualActual Util;
 
+typedef bsl::vector<bdlt::Date>      BslVector;
+typedef std::vector<bdlt::Date>      StdVector;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+typedef std::pmr::vector<bdlt::Date> PmrVector;
+#endif
+
+enum VecType { e_BEGIN,
+               e_BSL = e_BEGIN,
+               e_STD,
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+               e_PMR,
+#endif
+               e_ITERATOR_PAIR,
+               e_END };
+
+//=============================================================================
+//                              FUNCTIONS
+//-----------------------------------------------------------------------------
+
+
+bsl::ostream& operator<<(bsl::ostream& stream, VecType vecType)
+    // Print the value of the specified 'vecType' to the specified 'stream' and
+    // return a reference to 'stream'.
+{
+    stream << (e_BSL == vecType
+             ? "bsl"
+             : e_STD == vecType
+             ? "std"
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+             : e_PMR == vecType
+             ? "pmr"
+#endif
+             : e_ITERATOR_PAIR == vecType
+             ? "pair"
+             : e_END == vecType
+             ? "end"
+             : "unknown vector type");
+
+    return stream;
+}
+
+namespace {
+namespace u {
+
+double doubleAbort()
+    // Call when a function returning a double is required, but you really
+    // want undefined behavior
+{
+    BSLS_ASSERT(0);
+
+    return 0;
+}
+
+template <class VECTOR>
+const typename VECTOR::value_type *data(const VECTOR& v)
+    // Return a pointer to the first element of the specified 'v', or null if
+    // 'v' is empty.  Note that 'std::vector' in some standard libraries do not
+    // support the 'data()' accessor.
+{
+    return v.empty() ? 0 : &*v.begin();
+}
+
+template <class VECTOR>
+const typename VECTOR::value_type *dataEnd(const VECTOR& v)
+{
+    return u::data(v) + v.size();
+}
+
+}  // close namespace u
+}  // close unnamed namespace
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -408,7 +479,13 @@ int main(int argc, char *argv[])
                 const int    LINE      = DATA[di].d_lineNum;
                 const double NUM_YEARS = DATA[di].d_numYears;
 
-                const bsl::vector<bdlt::Date>& SCHED = *DATA[di].d_sched;
+                const BslVector& SCHED_BSL = *DATA[di].d_sched;
+                const StdVector  SCHED_STD(SCHED_BSL.begin(), SCHED_BSL.end());
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                const PmrVector  SCHED_PMR(SCHED_BSL.begin(), SCHED_BSL.end());
+#endif
+                const bdlt::Date *SCHED_BEGIN = u::data(SCHED_BSL);
+                const bdlt::Date *SCHED_END   = u::dataEnd(SCHED_BSL);
 
                 const bdlt::Date X(DATA[di].d_year1,
                                    DATA[di].d_month1,
@@ -418,30 +495,65 @@ int main(int argc, char *argv[])
                                    DATA[di].d_day2);
 
                 if (veryVerbose) { T_;  P_(X);  P_(Y);  P_(NUM_YEARS); }
-                const double RESULT = Util::yearsDiff(X, Y, SCHED, 1.0);
 
-                if (veryVerbose) { P(RESULT); }
-                const double diff = NUM_YEARS - RESULT;
-                LOOP_ASSERT(LINE, -0.00005 <= diff && diff <= 0.00005);
+                for (int vti = e_BEGIN; vti < e_END; ++vti) {
+                    const VecType vt = static_cast<VecType>(vti);
 
-                // Verify the result is negated when the dates are reversed.
+                    const double result =
+                           e_BSL  == vt ? Util::yearsDiff(X, Y, SCHED_BSL, 1.0)
+                         : e_STD  == vt ? Util::yearsDiff(X, Y, SCHED_STD, 1.0)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                         : e_PMR  == vt ? Util::yearsDiff(X, Y, SCHED_PMR, 1.0)
+#endif
+                         : e_ITERATOR_PAIR == vt
+                                        ? Util::yearsDiff(X, Y, SCHED_BEGIN,
+                                                                SCHED_END, 1.0)
+                         : u::doubleAbort();
 
-                const double NRESULT = Util::yearsDiff(Y, X, SCHED, 1.0);
-                const double sum     = RESULT + NRESULT;
-                LOOP_ASSERT(LINE, 0.0 == sum);
+                    if (veryVerbose) { P_(vt); P(result); }
+                    const double diff = NUM_YEARS - result;
+                    ASSERTV(vt, LINE, -0.00005 <= diff && diff <= 0.00005);
+
+                    // Verify the result is exactly negated when the dates are
+                    // reversed.
+
+                    const double nresult =
+                           e_BSL  == vt ? Util::yearsDiff(Y, X, SCHED_BSL, 1.0)
+                         : e_STD  == vt ? Util::yearsDiff(Y, X, SCHED_STD, 1.0)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                         : e_PMR  == vt ? Util::yearsDiff(Y, X, SCHED_PMR, 1.0)
+#endif
+                         : e_ITERATOR_PAIR == vt
+                                        ? Util::yearsDiff(Y, X, SCHED_BEGIN,
+                                                                SCHED_END, 1.0)
+                         : u::doubleAbort();
+
+                    const double sum     = result + nresult;
+                    ASSERTV(vt, LINE, 0.0 == sum);
 
                 // Verify modifying the 'periodYearFraction' value works as
                 // expected.
 
-                for (int dj = 0; dj < NUM_PYD; ++dj) {
-                    const double pyd = PYD[dj];
+                    for (int dj = 0; dj < NUM_PYD; ++dj) {
+                        const double pyd = PYD[dj];
 
-                    const double RESULT2 = Util::yearsDiff(X, Y, SCHED, pyd);
-                    const double diff2 = NUM_YEARS * pyd - RESULT2;
+                        const double RESULT2 =
+                           e_BSL  == vt ? Util::yearsDiff(X, Y, SCHED_BSL, pyd)
+                         : e_STD  == vt ? Util::yearsDiff(X, Y, SCHED_STD, pyd)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                         : e_PMR  == vt ? Util::yearsDiff(X, Y, SCHED_PMR, pyd)
+#endif
+                         : e_ITERATOR_PAIR == vt
+                                        ? Util::yearsDiff(X, Y, SCHED_BEGIN,
+                                                                SCHED_END, pyd)
+                         : u::doubleAbort();
 
-                    LOOP2_ASSERT(LINE,
-                                 dj,
-                                 -0.00005 <= diff2 && diff2 <= 0.00005);
+                        const double diff2 = NUM_YEARS * pyd - RESULT2;
+
+                        LOOP2_ASSERT(LINE,
+                                     dj,
+                                     -0.00005 <= diff2 && diff2 <= 0.00005);
+                    }
                 }
 
             }
@@ -461,6 +573,12 @@ int main(int argc, char *argv[])
                 mA.push_back(bdlt::Date(2015, 4, 5));
                 mA.push_back(bdlt::Date(2015, 5, 5));
             }
+            std::vector<bdlt::Date>            mAS(A.begin(), A.end());
+            const std::vector<bdlt::Date>      AS = mAS;    (void) AS;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            std::pmr::vector<bdlt::Date>       mAP(A.begin(), A.end());
+            const std::pmr::vector<bdlt::Date> AP = mAP;    (void) AP;
+#endif
 
             // 'periodDate' with non-sorted values.
 
@@ -474,6 +592,12 @@ int main(int argc, char *argv[])
                 mE1.push_back(bdlt::Date(2015, 4, 5));
                 mE1.push_back(bdlt::Date(2015, 5, 5));
             }
+            std::vector<bdlt::Date>          mE1S(E1.begin(), E1.end());
+            const std::vector<bdlt::Date>    E1S = mE1S;    (void) E1S;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            std::pmr::vector<bdlt::Date>     mE1P(E1.begin(), E1.end());
+            const std::pmr::vector<bdlt::Date> E1P = mE1P;    (void) E1P;
+#endif
 
             // 'periodDate' with non-unique values.
 
@@ -488,6 +612,12 @@ int main(int argc, char *argv[])
                 mE2.push_back(bdlt::Date(2015, 4, 5));
                 mE2.push_back(bdlt::Date(2015, 5, 5));
             }
+            std::vector<bdlt::Date>          mE2S(E2.begin(), E2.end());
+            const std::vector<bdlt::Date>    E2S = mE2S;    (void) E2S;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            std::pmr::vector<bdlt::Date>     mE2P(E2.begin(), E2.end());
+            const std::pmr::vector<bdlt::Date> E2P = mE2P;    (void) E2P;
+#endif
 
             // 'periodDate' with only one value.
 
@@ -497,47 +627,129 @@ int main(int argc, char *argv[])
             {
                 mE3.push_back(bdlt::Date(2015, 1, 5));
             }
+            std::vector<bdlt::Date>          mE3S(E3.begin(), E3.end());
+            const std::vector<bdlt::Date>    E3S = mE3S;    (void) E3S;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            std::pmr::vector<bdlt::Date>     mE3P(E3.begin(), E3.end());
+            const std::pmr::vector<bdlt::Date> E3P = mE3P;    (void) E3P;
+#endif
 
             // 'periodDate' with no values.
 
             bsl::vector<bdlt::Date>        mE4;
             const bsl::vector<bdlt::Date>& E4 = mE4;
             (void)E4;
+            std::vector<bdlt::Date>            mE4S;
+            const std::vector<bdlt::Date>      E4S = mE4S;    (void) E4S;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            std::pmr::vector<bdlt::Date>       mE4P;
+            const std::pmr::vector<bdlt::Date> E4P = mE4P;    (void) E4P;
+#endif
 
             ASSERT_PASS(Util::yearsDiff(bdlt::Date(2015, 1, 5),
                                         bdlt::Date(2015, 5, 5),
                                         A,
                                         1.0));
+            ASSERT_PASS(Util::yearsDiff(bdlt::Date(2015, 1, 5),
+                                        bdlt::Date(2015, 5, 5),
+                                        AS,
+                                        1.0));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_PASS(Util::yearsDiff(bdlt::Date(2015, 1, 5),
+                                        bdlt::Date(2015, 5, 5),
+                                        AP,
+                                        1.0));
+#endif
 
             ASSERT_SAFE_FAIL(Util::yearsDiff(bdlt::Date(2015, 1, 5),
                                              bdlt::Date(2015, 5, 5),
                                              E1,
                                              1.0));
+            ASSERT_SAFE_FAIL(Util::yearsDiff(bdlt::Date(2015, 1, 5),
+                                             bdlt::Date(2015, 5, 5),
+                                             E1S,
+                                             1.0));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_SAFE_FAIL(Util::yearsDiff(bdlt::Date(2015, 1, 5),
+                                             bdlt::Date(2015, 5, 5),
+                                             E1P,
+                                             1.0));
+#endif
 
             ASSERT_SAFE_FAIL(Util::yearsDiff(bdlt::Date(2015, 1, 5),
                                              bdlt::Date(2015, 5, 5),
                                              E2,
                                              1.0));
+            ASSERT_SAFE_FAIL(Util::yearsDiff(bdlt::Date(2015, 1, 5),
+                                             bdlt::Date(2015, 5, 5),
+                                             E2S,
+                                             1.0));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_SAFE_FAIL(Util::yearsDiff(bdlt::Date(2015, 1, 5),
+                                             bdlt::Date(2015, 5, 5),
+                                             E2P,
+                                             1.0));
+#endif
 
             ASSERT_FAIL(Util::yearsDiff(bdlt::Date(2015, 1, 5),
                                         bdlt::Date(2015, 1, 5),
                                         E3,
                                         1.0));
+            ASSERT_FAIL(Util::yearsDiff(bdlt::Date(2015, 1, 5),
+                                        bdlt::Date(2015, 1, 5),
+                                        E3S,
+                                        1.0));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_FAIL(Util::yearsDiff(bdlt::Date(2015, 1, 5),
+                                        bdlt::Date(2015, 1, 5),
+                                        E3P,
+                                        1.0));
+#endif
 
             ASSERT_FAIL(Util::yearsDiff(bdlt::Date(2015, 1, 5),
                                         bdlt::Date(2015, 1, 5),
                                         E4,
                                         1.0));
+            ASSERT_FAIL(Util::yearsDiff(bdlt::Date(2015, 1, 5),
+                                        bdlt::Date(2015, 1, 5),
+                                        E4S,
+                                        1.0));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_FAIL(Util::yearsDiff(bdlt::Date(2015, 1, 5),
+                                        bdlt::Date(2015, 1, 5),
+                                        E4P,
+                                        1.0));
+#endif
 
             ASSERT_FAIL(Util::yearsDiff(bdlt::Date(2015, 1, 4),
                                         bdlt::Date(2015, 1, 5),
                                         A,
                                         1.0));
+            ASSERT_FAIL(Util::yearsDiff(bdlt::Date(2015, 1, 4),
+                                        bdlt::Date(2015, 1, 5),
+                                        AS,
+                                        1.0));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_FAIL(Util::yearsDiff(bdlt::Date(2015, 1, 4),
+                                        bdlt::Date(2015, 1, 5),
+                                        AP,
+                                        1.0));
+#endif
 
             ASSERT_FAIL(Util::yearsDiff(bdlt::Date(2015, 1, 5),
                                         bdlt::Date(2015, 5, 6),
                                         A,
                                         1.0));
+            ASSERT_FAIL(Util::yearsDiff(bdlt::Date(2015, 1, 5),
+                                        bdlt::Date(2015, 5, 6),
+                                        AS,
+                                        1.0));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_FAIL(Util::yearsDiff(bdlt::Date(2015, 1, 5),
+                                        bdlt::Date(2015, 5, 6),
+                                        AP,
+                                        1.0));
+#endif
         }
         {
             if (verbose) cout <<

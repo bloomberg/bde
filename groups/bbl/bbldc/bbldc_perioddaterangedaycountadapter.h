@@ -93,10 +93,15 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_integralconstant.h>
 
 #include <bsls_assert.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_review.h>
 
 #include <bsl_iterator.h>
 #include <bsl_vector.h>
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+# include <memory_resource>
+#endif
 
 namespace BloombergLP {
 namespace bbldc {
@@ -124,6 +129,7 @@ class PeriodDateRangeDayCountAdapter : public DateRangeDayCount {
         // are unique and sorted from minimum to maximum value, and 'false'
         // otherwise.
 
+  private:
     // NOT IMPLEMENTED
     PeriodDateRangeDayCountAdapter(const PeriodDateRangeDayCountAdapter&);
     PeriodDateRangeDayCountAdapter& operator=(
@@ -132,9 +138,19 @@ class PeriodDateRangeDayCountAdapter : public DateRangeDayCount {
   public:
     // CREATORS
     PeriodDateRangeDayCountAdapter(
-                           const bsl::vector<bdlt::Date>&  periodDate,
-                           double                          periodYearDiff,
-                           bslma::Allocator               *basicAllocator = 0);
+                      const bsl::vector<bdlt::Date>&       periodDate,
+                      double                               periodYearDiff,
+                      bslma::Allocator                    *basicAllocator = 0);
+    PeriodDateRangeDayCountAdapter(
+                      const std::vector<bdlt::Date>&       periodDate,
+                      double                               periodYearDiff,
+                      bslma::Allocator                    *basicAllocator = 0);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    PeriodDateRangeDayCountAdapter(
+                      const std::pmr::vector<bdlt::Date>&  periodDate,
+                      double                               periodYearDiff,
+                      bslma::Allocator                    *basicAllocator = 0);
+#endif
         // Create a day-count adapter that uses the specified 'periodDate' and
         // 'periodYearDiff' during invocations of 'yearsDiff'.  'periodDate'
         // provides the period starting dates and 'periodYearDiff' defines the
@@ -232,6 +248,36 @@ PeriodDateRangeDayCountAdapter<CONVENTION>::PeriodDateRangeDayCountAdapter(
 
     BSLS_ASSERT_SAFE(isSortedAndUnique(d_periodDate));
 }
+
+template <class CONVENTION>
+inline
+PeriodDateRangeDayCountAdapter<CONVENTION>::PeriodDateRangeDayCountAdapter(
+                                const std::vector<bdlt::Date>&  periodDate,
+                                double                          periodYearDiff,
+                                bslma::Allocator               *basicAllocator)
+: d_periodDate(periodDate.begin(), periodDate.end(), basicAllocator)
+, d_periodYearDiff(periodYearDiff)
+{
+    BSLS_ASSERT(d_periodDate.size() >= 2);
+
+    BSLS_ASSERT_SAFE(isSortedAndUnique(d_periodDate));
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+template <class CONVENTION>
+inline
+PeriodDateRangeDayCountAdapter<CONVENTION>::PeriodDateRangeDayCountAdapter(
+                           const std::pmr::vector<bdlt::Date>&  periodDate,
+                           double                               periodYearDiff,
+                           bslma::Allocator                    *basicAllocator)
+: d_periodDate(periodDate.begin(), periodDate.end(), basicAllocator)
+, d_periodYearDiff(periodYearDiff)
+{
+    BSLS_ASSERT(d_periodDate.size() >= 2);
+
+    BSLS_ASSERT_SAFE(isSortedAndUnique(d_periodDate));
+}
+#endif
 
 template <class CONVENTION>
 inline

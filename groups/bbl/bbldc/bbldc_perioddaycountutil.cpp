@@ -6,8 +6,6 @@ BSLS_IDENT_RCSID(bbldc_perioddaycountutil_cpp,"$Id$ $CSID$")
 
 #include <bbldc_periodicmaactualactual.h>
 
-#include <bdlt_date.h>
-
 #include <bsls_assert.h>
 
 namespace BloombergLP {
@@ -42,6 +40,42 @@ static bool isSortedAndUnique(const ITER& begin, const ITER& end)
                         // struct PeriodDayCountUtil
                         // -------------------------
 
+// PRIVATE CLASS METHODS
+double PeriodDayCountUtil::yearsDiffImp(
+                                     const bdlt::Date&         beginDate,
+                                     const bdlt::Date&         endDate,
+                                     const bdlt::Date         *periodDateBegin,
+                                     const bdlt::Date         *periodDateEnd,
+                                     double                    periodYearDiff,
+                                     DayCountConvention::Enum  convention)
+{
+    BSLS_ASSERT(2 <= periodDateEnd - periodDateBegin);
+    BSLS_ASSERT(*periodDateBegin <= beginDate);
+    BSLS_ASSERT(                    beginDate <= *(periodDateEnd - 1));
+    BSLS_ASSERT(*periodDateBegin <= endDate);
+    BSLS_ASSERT(                    endDate   <= *(periodDateEnd - 1));
+
+    BSLS_ASSERT_SAFE(isSortedAndUnique(periodDateBegin, periodDateEnd));
+
+    double numYears;
+
+    switch (convention) {
+      case DayCountConvention::e_PERIOD_ICMA_ACTUAL_ACTUAL: {
+        numYears = bbldc::PeriodIcmaActualActual::yearsDiff(beginDate,
+                                                            endDate,
+                                                            periodDateBegin,
+                                                            periodDateEnd,
+                                                            periodYearDiff);
+      } break;
+      default: {
+        BSLS_ASSERT_OPT(0 && "Unrecognized convention");
+        numYears = 0.0;
+      } break;
+    }
+
+    return numYears;
+}
+
 // CLASS METHODS
 int PeriodDayCountUtil::daysDiff(const bdlt::Date&        beginDate,
                                  const bdlt::Date&        endDate,
@@ -75,39 +109,6 @@ bool PeriodDayCountUtil::isSupported(DayCountConvention::Enum convention)
     }
 
     return rv;
-}
-
-double PeriodDayCountUtil::yearsDiff(
-                                 const bdlt::Date&              beginDate,
-                                 const bdlt::Date&              endDate,
-                                 const bsl::vector<bdlt::Date>& periodDate,
-                                 double                         periodYearDiff,
-                                 DayCountConvention::Enum       convention)
-{
-    BSLS_ASSERT(periodDate.size() >= 2);
-    BSLS_ASSERT(periodDate.front() <= beginDate);
-    BSLS_ASSERT(                      beginDate <= periodDate.back());
-    BSLS_ASSERT(periodDate.front() <= endDate);
-    BSLS_ASSERT(                      endDate   <= periodDate.back());
-
-    BSLS_ASSERT_SAFE(isSortedAndUnique(periodDate.begin(), periodDate.end()));
-
-    double numYears;
-
-    switch (convention) {
-      case DayCountConvention::e_PERIOD_ICMA_ACTUAL_ACTUAL: {
-        numYears = bbldc::PeriodIcmaActualActual::yearsDiff(beginDate,
-                                                            endDate,
-                                                            periodDate,
-                                                            periodYearDiff);
-      } break;
-      default: {
-        BSLS_ASSERT_OPT(0 && "Unrecognized convention");
-        numYears = 0.0;
-      } break;
-    }
-
-    return numYears;
 }
 
 }  // close package namespace

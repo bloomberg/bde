@@ -94,8 +94,54 @@ void aSsErT(bool condition, const char *message, int line)
 typedef bbldc::PeriodDayCountUtil       Util;
 typedef bbldc::DayCountConvention::Enum Enum;
 
+typedef bsl::vector<bdlt::Date>      BslVector;
+typedef std::vector<bdlt::Date>      StdVector;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+typedef std::pmr::vector<bdlt::Date> PmrVector;
+#endif
+
 const Enum PERIOD_ICMA_ACTUAL_ACTUAL =
                         bbldc::DayCountConvention::e_PERIOD_ICMA_ACTUAL_ACTUAL;
+
+enum VecType { e_BEGIN,
+               e_BSL = e_BEGIN,
+               e_STD,
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+               e_PMR,
+#endif
+               e_END };
+
+// ============================================================================
+//                       GLOBAL FUNCTIONS FOR TESTING
+// ----------------------------------------------------------------------------
+
+bsl::ostream& operator<<(bsl::ostream& stream, VecType vecType)
+    // Print the value of the specified 'vecType' to the specified 'stream' and
+    // return a reference to 'stream'.
+{
+    stream << (e_BSL == vecType
+             ? "bsl"
+             : e_STD == vecType
+             ? "std"
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+             : e_PMR == vecType
+             ? "pmr"
+#endif
+             : e_END == vecType
+             ? "end"
+             : "unknown vector type");
+
+    return stream;
+}
+
+double doubleAbort()
+    // Call when a function returning a double is required, but you really
+    // want undefined behavior
+{
+    BSLS_ASSERT(0);
+
+    return 0;
+}
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -205,13 +251,19 @@ int main(int argc, char *argv[])
                           << "===================" << endl;
 
         {
-            bsl::vector<bdlt::Date>        mSchedule;
-            const bsl::vector<bdlt::Date>& SCHEDULE = mSchedule;
+            BslVector        mSchedule;
+            const BslVector& SCHEDULE_BSL = mSchedule;
             {
                 for (unsigned year = 1990; year <= 2006; ++year) {
                     mSchedule.push_back(bdlt::Date(year, 1, 1));
                 }
             }
+            const StdVector SCHEDULE_STD(SCHEDULE_BSL.begin(),
+                                         SCHEDULE_BSL.end());
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            const PmrVector SCHEDULE_PMR(SCHEDULE_BSL.begin(),
+                                         SCHEDULE_BSL.end());
+#endif
 
             static const struct {
                 int    d_lineNum;   // source line number
@@ -279,38 +331,58 @@ int main(int argc, char *argv[])
                 }
             }
 
-            int di;
-            for (di = 0; di < NUM_DATA; ++di) {
-                const int    LINE      = DATA[di].d_lineNum;
-                const double NUM_YEARS = DATA[di].d_numYears;
-                const Enum   CONV      = DATA[di].d_type;
+            for (int vti = e_BEGIN; vti < e_END; ++vti) {
+                const VecType vt = static_cast<VecType>(vti);
 
-                const bdlt::Date X(DATA[di].d_year1,
-                                   DATA[di].d_month1,
-                                   DATA[di].d_day1);
+                int di;
+                for (di = 0; di < NUM_DATA; ++di) {
+                    const int    LINE      = DATA[di].d_lineNum;
+                    const double NUM_YEARS = DATA[di].d_numYears;
+                    const Enum   CONV      = DATA[di].d_type;
 
-                const bdlt::Date Y(DATA[di].d_year2,
-                                   DATA[di].d_month2,
-                                   DATA[di].d_day2);
+                    const bdlt::Date X(DATA[di].d_year1,
+                                       DATA[di].d_month1,
+                                       DATA[di].d_day1);
 
-                if (veryVerbose) {
-                    T_ P_(X) P_(Y) P(CONV);
-                    T_ T_ T_ T_ T_ T_ T_ P(NUM_YEARS);
-                    T_ T_ T_ T_ T_ T_ T_;
+                    const bdlt::Date Y(DATA[di].d_year2,
+                                       DATA[di].d_month2,
+                                       DATA[di].d_day2);
+
+                    if (veryVerbose) {
+                        T_ P_(X) P_(Y) P(CONV);
+                        T_ T_ T_ T_ T_ T_ T_ P(NUM_YEARS);
+                        T_ T_ T_ T_ T_ T_ T_;
+                    }
+
+                    const double RESULT = e_BSL == vt
+                                        ? Util::yearsDiff(X,
+                                                          Y,
+                                                          SCHEDULE_BSL,
+                                                          1.0,
+                                                          CONV)
+                                        : e_STD == vt
+                                        ? Util::yearsDiff(X,
+                                                          Y,
+                                                          SCHEDULE_STD,
+                                                          1.0,
+                                                          CONV)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                                        : e_PMR == vt
+                                        ? Util::yearsDiff(X,
+                                                          Y,
+                                                          SCHEDULE_PMR,
+                                                          1.0,
+                                                          CONV)
+#endif
+                                        : doubleAbort();
+
+                    if (veryVerbose) { P(RESULT); }
+                    const double diff = NUM_YEARS - RESULT;
+                    ASSERTV(vt, LINE,
+                                NUM_YEARS,
+                                RESULT,
+                                -0.00005 <= diff && diff <= 0.00005);
                 }
-
-                const double RESULT = Util::yearsDiff(X,
-                                                      Y,
-                                                      SCHEDULE,
-                                                      1.0,
-                                                      CONV);
-
-                if (veryVerbose) { P(RESULT); }
-                const double diff = NUM_YEARS - RESULT;
-                LOOP3_ASSERT(LINE,
-                             NUM_YEARS,
-                             RESULT,
-                             -0.00005 <= diff && diff <= 0.00005);
             }
         }
 
@@ -328,6 +400,10 @@ int main(int argc, char *argv[])
                 mA.push_back(bdlt::Date(2015, 4, 5));
                 mA.push_back(bdlt::Date(2015, 5, 5));
             }
+            const StdVector AS(A.begin(), A.end());    (void) AS;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            const PmrVector AP(A.begin(), A.end());    (void) AP;
+#endif
 
             // 'periodDate' with non-sorted values
 
@@ -341,7 +417,10 @@ int main(int argc, char *argv[])
                 mE1.push_back(bdlt::Date(2015, 4, 5));
                 mE1.push_back(bdlt::Date(2015, 5, 5));
             }
-
+            const StdVector E1S(E1.begin(), E1.end());    (void) E1S;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            const PmrVector E1P(E1.begin(), E1.end());    (void) E1P;
+#endif
             // 'periodDate' with non-unique values
 
             bsl::vector<bdlt::Date>        mE2;
@@ -355,6 +434,10 @@ int main(int argc, char *argv[])
                 mE2.push_back(bdlt::Date(2015, 4, 5));
                 mE2.push_back(bdlt::Date(2015, 5, 5));
             }
+            StdVector E2S(E2.begin(), E2.end());    (void) E2S;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            PmrVector E2P(E2.begin(), E2.end());    (void) E2P;
+#endif
 
             // 'periodDate' with only one value
 
@@ -364,12 +447,20 @@ int main(int argc, char *argv[])
             {
                 mE3.push_back(bdlt::Date(2015, 1, 5));
             }
+            StdVector E3S(E3.begin(), E3.end());    (void) E3S;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            PmrVector E3P(E3.begin(), E3.end());    (void) E3P;
+#endif
 
             // 'periodDate' with no values
 
             bsl::vector<bdlt::Date>        mE4;
             const bsl::vector<bdlt::Date>& E4 = mE4;
             (void)E4;
+            const StdVector E4S;    (void) E4S;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            const PmrVector E4P;    (void) E4P;
+#endif
 
             ASSERT_OPT_PASS(Util::yearsDiff(
                       bdlt::Date(2015, 1, 5),
@@ -377,6 +468,20 @@ int main(int argc, char *argv[])
                       A,
                       1.0,
                       bbldc::DayCountConvention::e_PERIOD_ICMA_ACTUAL_ACTUAL));
+            ASSERT_OPT_PASS(Util::yearsDiff(
+                      bdlt::Date(2015, 1, 5),
+                      bdlt::Date(2015, 5, 5),
+                      AS,
+                      1.0,
+                      bbldc::DayCountConvention::e_PERIOD_ICMA_ACTUAL_ACTUAL));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_OPT_PASS(Util::yearsDiff(
+                      bdlt::Date(2015, 1, 5),
+                      bdlt::Date(2015, 5, 5),
+                      AP,
+                      1.0,
+                      bbldc::DayCountConvention::e_PERIOD_ICMA_ACTUAL_ACTUAL));
+#endif
 
             ASSERT_SAFE_FAIL(Util::yearsDiff(
                       bdlt::Date(2015, 1, 5),
@@ -384,6 +489,20 @@ int main(int argc, char *argv[])
                       E1,
                       1.0,
                       bbldc::DayCountConvention::e_PERIOD_ICMA_ACTUAL_ACTUAL));
+            ASSERT_SAFE_FAIL(Util::yearsDiff(
+                      bdlt::Date(2015, 1, 5),
+                      bdlt::Date(2015, 5, 5),
+                      E1S,
+                      1.0,
+                      bbldc::DayCountConvention::e_PERIOD_ICMA_ACTUAL_ACTUAL));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_SAFE_FAIL(Util::yearsDiff(
+                      bdlt::Date(2015, 1, 5),
+                      bdlt::Date(2015, 5, 5),
+                      E1P,
+                      1.0,
+                      bbldc::DayCountConvention::e_PERIOD_ICMA_ACTUAL_ACTUAL));
+#endif
 
             ASSERT_SAFE_FAIL(Util::yearsDiff(
                       bdlt::Date(2015, 1, 5),
@@ -391,6 +510,20 @@ int main(int argc, char *argv[])
                       E2,
                       1.0,
                       bbldc::DayCountConvention::e_PERIOD_ICMA_ACTUAL_ACTUAL));
+            ASSERT_SAFE_FAIL(Util::yearsDiff(
+                      bdlt::Date(2015, 1, 5),
+                      bdlt::Date(2015, 5, 5),
+                      E2S,
+                      1.0,
+                      bbldc::DayCountConvention::e_PERIOD_ICMA_ACTUAL_ACTUAL));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_SAFE_FAIL(Util::yearsDiff(
+                      bdlt::Date(2015, 1, 5),
+                      bdlt::Date(2015, 5, 5),
+                      E2P,
+                      1.0,
+                      bbldc::DayCountConvention::e_PERIOD_ICMA_ACTUAL_ACTUAL));
+#endif
 
             ASSERT_FAIL(Util::yearsDiff(
                       bdlt::Date(2015, 1, 5),
@@ -398,6 +531,20 @@ int main(int argc, char *argv[])
                       E3,
                       1.0,
                       bbldc::DayCountConvention::e_PERIOD_ICMA_ACTUAL_ACTUAL));
+            ASSERT_FAIL(Util::yearsDiff(
+                      bdlt::Date(2015, 1, 5),
+                      bdlt::Date(2015, 1, 5),
+                      E3S,
+                      1.0,
+                      bbldc::DayCountConvention::e_PERIOD_ICMA_ACTUAL_ACTUAL));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_FAIL(Util::yearsDiff(
+                      bdlt::Date(2015, 1, 5),
+                      bdlt::Date(2015, 1, 5),
+                      E3P,
+                      1.0,
+                      bbldc::DayCountConvention::e_PERIOD_ICMA_ACTUAL_ACTUAL));
+#endif
 
             ASSERT_FAIL(Util::yearsDiff(
                       bdlt::Date(2015, 1, 5),
@@ -405,6 +552,20 @@ int main(int argc, char *argv[])
                       E4,
                       1.0,
                       bbldc::DayCountConvention::e_PERIOD_ICMA_ACTUAL_ACTUAL));
+            ASSERT_FAIL(Util::yearsDiff(
+                      bdlt::Date(2015, 1, 5),
+                      bdlt::Date(2015, 1, 5),
+                      E4S,
+                      1.0,
+                      bbldc::DayCountConvention::e_PERIOD_ICMA_ACTUAL_ACTUAL));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_FAIL(Util::yearsDiff(
+                      bdlt::Date(2015, 1, 5),
+                      bdlt::Date(2015, 1, 5),
+                      E4P,
+                      1.0,
+                      bbldc::DayCountConvention::e_PERIOD_ICMA_ACTUAL_ACTUAL));
+#endif
 
             ASSERT_FAIL(Util::yearsDiff(
                       bdlt::Date(2015, 1, 4),
@@ -412,6 +573,20 @@ int main(int argc, char *argv[])
                       A,
                       1.0,
                       bbldc::DayCountConvention::e_PERIOD_ICMA_ACTUAL_ACTUAL));
+            ASSERT_FAIL(Util::yearsDiff(
+                      bdlt::Date(2015, 1, 4),
+                      bdlt::Date(2015, 1, 5),
+                      AS,
+                      1.0,
+                      bbldc::DayCountConvention::e_PERIOD_ICMA_ACTUAL_ACTUAL));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_FAIL(Util::yearsDiff(
+                      bdlt::Date(2015, 1, 4),
+                      bdlt::Date(2015, 1, 5),
+                      AP,
+                      1.0,
+                      bbldc::DayCountConvention::e_PERIOD_ICMA_ACTUAL_ACTUAL));
+#endif
 
             ASSERT_FAIL(Util::yearsDiff(
                       bdlt::Date(2015, 1, 5),
@@ -419,6 +594,20 @@ int main(int argc, char *argv[])
                       A,
                       1.0,
                       bbldc::DayCountConvention::e_PERIOD_ICMA_ACTUAL_ACTUAL));
+            ASSERT_FAIL(Util::yearsDiff(
+                      bdlt::Date(2015, 1, 5),
+                      bdlt::Date(2015, 5, 6),
+                      AS,
+                      1.0,
+                      bbldc::DayCountConvention::e_PERIOD_ICMA_ACTUAL_ACTUAL));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_FAIL(Util::yearsDiff(
+                      bdlt::Date(2015, 1, 5),
+                      bdlt::Date(2015, 5, 6),
+                      AP,
+                      1.0,
+                      bbldc::DayCountConvention::e_PERIOD_ICMA_ACTUAL_ACTUAL));
+#endif
 
             ASSERT_OPT_FAIL(Util::yearsDiff(
                              bdlt::Date(2015, 1, 5),
@@ -426,6 +615,20 @@ int main(int argc, char *argv[])
                              A,
                              1.0,
                              bbldc::DayCountConvention::e_ISDA_ACTUAL_ACTUAL));
+            ASSERT_OPT_FAIL(Util::yearsDiff(
+                             bdlt::Date(2015, 1, 5),
+                             bdlt::Date(2015, 5, 6),
+                             AS,
+                             1.0,
+                             bbldc::DayCountConvention::e_ISDA_ACTUAL_ACTUAL));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_OPT_FAIL(Util::yearsDiff(
+                             bdlt::Date(2015, 1, 5),
+                             bdlt::Date(2015, 5, 6),
+                             AP,
+                             1.0,
+                             bbldc::DayCountConvention::e_ISDA_ACTUAL_ACTUAL));
+#endif
         }
       } break;
       case 2: {
