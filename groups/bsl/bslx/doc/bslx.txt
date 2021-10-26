@@ -9,7 +9,7 @@
  for an "in stream"), and provides concrete byte-array-based stream
  implementations of each kind of stream, including streams for testing.  In
  general, concrete streams must be used in matched pairs, as described in more
- detail below.
+ detail below; see also {Security Warning} below.
 
 /Hierarchical Synopsis
 /---------------------
@@ -81,6 +81,23 @@
 :
 : 'bslx_versionfunctions':
 :      Provide functions to return BDEX version information for types.
+
+/Security Warning
+/----------------
+ *Warning:* BDEX is *not* a secure protocol.  In particular, data purported to
+ be in BDEX format should be streamed in (i.e., via a BDEX input stream) only
+ when provided by a *trusted* source.  'bslx' is a low-level facility for
+ externalizing and unexternalizing data represented in C++ objects.  'bslx'
+ natively provides support for externalizing fundamental types, arrays, and
+ critical Standard Library types ('bsl::string' and 'bsl::vector');
+ higher-level user-defined types (i.e., classes and 'struct's) implement the
+ BDEX concepts on their own, and are responsible for performing validation when
+ data is streamed in from a BDEX byte stream.  Any input validation for
+ higher-level types is to be implemented in those types themselves -- i.e.,
+ there is no central facility for validating input -- so the strength of the
+ validation performed on an input stream is determined by the strength of the
+ validation for all of the individual types that will process input from the
+ stream.
 
 /Externalization
 /---------------
