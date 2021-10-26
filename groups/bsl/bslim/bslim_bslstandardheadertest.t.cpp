@@ -2,17 +2,18 @@
 #include <bslim_bslstandardheadertest.h>
 
 #include <bslim_testutil.h>
-#include <bsls_libraryfeatures.h>
-
 
 #include <bslma_constructionutil.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
+#include <bslh_hashpair.h>
+
 #include <bslmf_assert.h>
 #include <bslmf_movableref.h>
 
 #include <bsls_compilerfeatures.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_nameof.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
@@ -155,6 +156,8 @@
 #include <bsl_shared_mutex.h>
 #endif
 
+#include <utility>     // 'std::pair'
+
 #include <stdio.h>     // 'sprintf', 'snprintf' [NOT '<cstdio>', which does not
                        // include 'snprintf']
 #include <stdlib.h>    // 'atoi'
@@ -176,6 +179,7 @@ using namespace bslim;
 // defined in 'bslstl'.
 //
 //-----------------------------------------------------------------------------
+// [ 9] CONCERN: 'bslh::hashAppend' of 'std::pair'  is usable from 'bsl'.
 // [ 9] CONCERN: 'bslh::hashAppend' of 'std::tuple' is usable from 'bsl'.
 // [ 8] CONCERN: 'default_searcher'/'boyer_moore_horspool_searcher usable.
 // [ 8] CONCERN: 'boyer_moore_searcher' usable when available.
@@ -402,7 +406,6 @@ void MapTestDriver<CONTAINER>::testCase1()
     cout<< "here3\n";
 }
 
-
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -424,23 +427,64 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING 'bslh::hashAppend' OF 'std::tuple'
+        // TESTING 'bslh::hashAppend' OF 'std::pair' AND  'std::tuple'
         //
         // Concerns:
-        //: 1 The 'bslh::hashAppend' function defined for 'std::tuple' is found
-        //:   and usable by 'bsl' container classes that have a 'HASH' template
-        //:   parameter.
+        //: 1 The 'bslh::hashAppend' functions defined for 'std::pair' and
+        //:   'std::tuple' are found and usable by 'bsl' container classes that
+        //:   have a 'HASH' template parameter.
         //
         // Plan:
-        //: 1 Create an 'bsl::unordered_set' object keyed on instances of
-        //:   'std::tuple'.  Confirm that keys of the appropriate type can be
-        //:   inserted and later found.
+        //: 1 Create an 'bsl::unordered_set' objects keyed on instances of
+        //:   'std::pair' and 'std::tuple'.  Confirm that keys of the
+        //:   appropriate type can be inserted and later found.
         //
         // Testing:
+        //   CONCERN: 'bslh::hashAppend' of 'std::pair'  is usable from 'bsl'.
         //   CONCERN: 'bslh::hashAppend' of 'std::tuple' is usable from 'bsl'.
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTESTING 'bslh::hashAppend' OF 'std::tuple'"
-                            "\n==========================================\n");
+        if (verbose) printf(
+             "\nTESTING 'bslh::hashAppend' OF 'std::pair' AND 'std::tuple'"
+             "\n==========================================================\n");
+
+        if (verbose) printf("Testing 'hashAppend' of 'std::pair'\n");
+
+        typedef std::pair<int, int> StdKeyPair;
+        typedef bsl::pair<int, int> BslKeyPair;
+
+        ASSERT((!bsl::is_same<StdKeyPair, BslKeyPair>::value));
+
+        typedef bsl::unordered_set<StdKeyPair> SetOfStdKeyPairs;
+
+        ASSERT(0 == bsl::strcmp("bsl::hash<std::pair<int, int>>",
+                                bsls::NameOf<SetOfStdKeyPairs::hasher>()));
+
+        SetOfStdKeyPairs setOfStdKeyPairs;
+
+        StdKeyPair itemPair0 = std::make_pair(0, 0);
+        StdKeyPair itemPair1 = std::make_pair(1, 1);
+        StdKeyPair itemPair2 = std::make_pair(2, 2);
+
+        setOfStdKeyPairs.insert(itemPair0);
+        setOfStdKeyPairs.insert(itemPair1);
+        setOfStdKeyPairs.insert(itemPair2);
+
+        ASSERT(3 == setOfStdKeyPairs.size());
+
+        SetOfStdKeyPairs::const_iterator itrPair0 = setOfStdKeyPairs.find(
+                                                                    itemPair0);
+        SetOfStdKeyPairs::const_iterator itrPair1 = setOfStdKeyPairs.find(
+                                                                    itemPair1);
+        SetOfStdKeyPairs::const_iterator itrPair2 = setOfStdKeyPairs.find(
+                                                                    itemPair2);
+
+        ASSERT(setOfStdKeyPairs.end() != itrPair0);
+        ASSERT(setOfStdKeyPairs.end() != itrPair1);
+        ASSERT(setOfStdKeyPairs.end() != itrPair2);
+
+        ASSERT(itemPair0 == *itrPair0);
+        ASSERT(itemPair1 == *itrPair1);
+        ASSERT(itemPair2 == *itrPair2);
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
 
@@ -452,7 +496,6 @@ int main(int argc, char *argv[])
         ASSERT(( bsl::is_same<StdKeyTuple, BslKeyTuple>::value));
 
         typedef bsl::unordered_set<StdKeyTuple> SetOfStdKeyTuples;
-
 
         ASSERT(0 == bsl::strcmp("bsl::hash<std::tuple<int, int, int>>",
                                 bsls::NameOf<SetOfStdKeyTuples::hasher>()));
@@ -484,7 +527,7 @@ int main(int argc, char *argv[])
         ASSERT(itemTuple1 == *itrTuple1);
         ASSERT(itemTuple2 == *itrTuple2);
 #else
-        cout << "SKIP: 'std::tuple' not available" << endl;
+        if (verbose) cout << "SKIP: 'std::tuple' not available" << endl;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
 
       } break;
