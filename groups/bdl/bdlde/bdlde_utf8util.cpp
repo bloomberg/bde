@@ -112,6 +112,63 @@ int utf8Size(char character)
     return 4;
 }
 
+// BDE_VERIFY pragma: -SP01     // 'FFFF' is not a typo.
+
+template <class STRING>
+int appendUtf8CodePointImpl(STRING *output, unsigned int codePoint)
+    // Append the UTF-8 encoding of the specified Unicode 'codePoint' to the
+    // specified 'output' string.  Return 0 on success, and a non-zero value
+    // otherwise.
+{
+    ///IMPLEMENTATION NOTES
+    ///--------------------
+    // This UTF-8 documentation was copied verbatim from RFC 3629.  The
+    // original version was downloaded from:
+    //..
+    //     http://tools.ietf.org/html/rfc3629
+    //
+    ///////////////////////// BEGIN VERBATIM RFC TEXT /////////////////////////
+    //
+    // Char number range   |        UTF-8 octet sequence
+    //    (hexadecimal)    |              (binary)
+    // --------------------+---------------------------------------------
+    // 0000 0000-0000 007F | 0xxxxxxx
+    // 0000 0080-0000 07FF | 110xxxxx 10xxxxxx
+    // 0000 0800-0000 FFFF | 1110xxxx 10xxxxxx 10xxxxxx
+    // 0001 0000-0010 FFFF | 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+    //..
+    ////////////////////////// END VERBATIM RFC TEXT //////////////////////////
+
+    if (codePoint < 0x80U) {
+        *output += static_cast<char>( codePoint);
+        return 0;                                                     // RETURN
+    }
+    else if (codePoint < 0x800U) {
+        *output += static_cast<char>( (codePoint >>  6)          | 0xC0);
+        *output += static_cast<char>( (codePoint        & 0x3FU) | 0x80);
+        return 0;                                                     // RETURN
+    }
+    else if (codePoint < 0x10000U) {
+        *output += static_cast<char>(( codePoint >> 12)          | 0xE0);
+        *output += static_cast<char>(((codePoint >>  6) & 0x3FU) | 0x80);
+        *output += static_cast<char>(( codePoint        & 0x3FU) | 0x80);
+        return 0;                                                     // RETURN
+    }
+    else if (codePoint < 0x110000U) {
+        *output += static_cast<char>(( codePoint >> 18)          | 0xF0);
+        *output += static_cast<char>(((codePoint >> 12) & 0x3FU) | 0x80);
+        *output += static_cast<char>(((codePoint >>  6) & 0x3FU) | 0x80);
+        *output += static_cast<char>(( codePoint        & 0x3FU) | 0x80);
+        return 0;                                                     // RETURN
+    }
+
+    // Invalid code point.
+
+    return k_VALUE_LARGER_THAN_0X10FFFF;
+}
+
+// BDE_VERIFY pragma: pop
+
 }  // close unnamed namespace
 
 // STATIC HELPER FUNCTIONS
@@ -1137,60 +1194,29 @@ Utf8Util::IntPtr Utf8Util::advanceRaw(const char **result,
     return ret;
 }
 
-// BDE_VERIFY pragma: -SP01     // 'FFFF' is not a typo.
-
 int Utf8Util::appendUtf8CodePoint(bsl::string *output, unsigned int codePoint)
 {
     BSLS_ASSERT(output);
 
-    ///IMPLEMENTATION NOTES
-    ///--------------------
-    // This UTF-8 documentation was copied verbatim from RFC 3629.  The
-    // original version was downloaded from:
-    //..
-    //     http://tools.ietf.org/html/rfc3629
-    //
-    ///////////////////////// BEGIN VERBATIM RFC TEXT /////////////////////////
-    //
-    // Char number range   |        UTF-8 octet sequence
-    //    (hexadecimal)    |              (binary)
-    // --------------------+---------------------------------------------
-    // 0000 0000-0000 007F | 0xxxxxxx
-    // 0000 0080-0000 07FF | 110xxxxx 10xxxxxx
-    // 0000 0800-0000 FFFF | 1110xxxx 10xxxxxx 10xxxxxx
-    // 0001 0000-0010 FFFF | 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
-    //..
-    ////////////////////////// END VERBATIM RFC TEXT //////////////////////////
-
-    if (codePoint < 0x80U) {
-        *output += static_cast<char>( codePoint);
-        return 0;                                                     // RETURN
-    }
-    else if (codePoint < 0x800U) {
-        *output += static_cast<char>( (codePoint >>  6)          | 0xC0);
-        *output += static_cast<char>( (codePoint        & 0x3FU) | 0x80);
-        return 0;                                                     // RETURN
-    }
-    else if (codePoint < 0x10000U) {
-        *output += static_cast<char>(( codePoint >> 12)          | 0xE0);
-        *output += static_cast<char>(((codePoint >>  6) & 0x3FU) | 0x80);
-        *output += static_cast<char>(( codePoint        & 0x3FU) | 0x80);
-        return 0;                                                     // RETURN
-    }
-    else if (codePoint < 0x110000U) {
-        *output += static_cast<char>(( codePoint >> 18)          | 0xF0);
-        *output += static_cast<char>(((codePoint >> 12) & 0x3FU) | 0x80);
-        *output += static_cast<char>(((codePoint >>  6) & 0x3FU) | 0x80);
-        *output += static_cast<char>(( codePoint        & 0x3FU) | 0x80);
-        return 0;                                                     // RETURN
-    }
-
-    // Invalid code point.
-
-    return k_VALUE_LARGER_THAN_0X10FFFF;
+    return appendUtf8CodePointImpl(output, codePoint);
 }
 
-// BDE_VERIFY pragma: pop
+int Utf8Util::appendUtf8CodePoint(std::string *output, unsigned int codePoint)
+{
+    BSLS_ASSERT(output);
+
+    return appendUtf8CodePointImpl(output, codePoint);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+int Utf8Util::appendUtf8CodePoint(std::pmr::string *output,
+                                  unsigned int      codePoint)
+{
+    BSLS_ASSERT(output);
+
+    return appendUtf8CodePointImpl(output, codePoint);
+}
+#endif
 
 int Utf8Util::numBytesInCodePoint(const char *codePoint)
 {

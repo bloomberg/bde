@@ -114,6 +114,8 @@ using bsl::size_t;
 // [ 8] IntPtr advanceRaw(const char **, const char *, int);
 // [ 8] IntPtr advanceRaw(const char **, const char *, int, int);
 // [12] int appendUtf8CodePoint(bsl::string *, unsigned int);
+// [12] int appendUtf8CodePoint(std::string *, unsigned int);
+// [12] int appendUtf8CodePoint(std::pmr::string *, unsigned int);
 // [12] int appendUtf8Character(bsl::string *, unsigned int);
 // [11] int numBytesInCodePoint(const char *);
 // [11] int getByteSize(const char *);
@@ -4484,6 +4486,8 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   int appendUtf8CodePoint(bsl::string *, unsigned int);
+        //   int appendUtf8CodePoint(std::string *, unsigned int);
+        //   int appendUtf8CodePoint(std::pmr::string *, unsigned int);
         //   int appendUtf8Character(bsl::string *, unsigned int);
         // --------------------------------------------------------------------
 
@@ -4496,29 +4500,49 @@ int main(int argc, char *argv[])
             bsl::size_t   UTF8_LEN  = strlen(UTF8);
             unsigned int  CODEPOINT = u::legalCodepointData[ti].d_codePoint;
 
-            bsl::string   empty;
-            bsl::string   non_empty("Not an empty string");
-            bsl::size_t   non_empty_init_len = non_empty.length();
+            bsl::string   emptyBsl;
+            bsl::string   nonEmptyBsl("Not an empty string");
+            std::string   emptyStd;
+            std::string   nonEmptyStd("Not an empty string");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            std::string   emptyPmr;
+            std::string   nonEmptyPmr("Not an empty string");
+#endif
+            bsl::size_t   nonEmptyInitLen = nonEmptyBsl.length();
 
             if (veryVerbose) {
                 T_; P_(ti);
                 P_(LINE); P_(u::dumpStr(UTF8)); P_(UTF8_LEN); P(CODEPOINT);
             }
 
-            ASSERT(0 == Obj::appendUtf8CodePoint(&empty, CODEPOINT));
-            ASSERT(UTF8_LEN == empty.length());
+            ASSERT(0 == Obj::appendUtf8CodePoint(&emptyBsl, CODEPOINT));
+            ASSERT(UTF8_LEN == emptyBsl.length());
 
-            ASSERT(0 == Obj::appendUtf8CodePoint(&non_empty, CODEPOINT));
-            ASSERT(non_empty_init_len + UTF8_LEN == non_empty.length());
+            ASSERT(0 == Obj::appendUtf8CodePoint(&nonEmptyBsl, CODEPOINT));
+            ASSERT(nonEmptyInitLen + UTF8_LEN == nonEmptyBsl.length());
 
-            empty.clear();
-            non_empty.resize(non_empty_init_len);
+            ASSERT(0 == Obj::appendUtf8CodePoint(&emptyStd, CODEPOINT));
+            ASSERT(UTF8_LEN == emptyStd.length());
 
-            ASSERT(0 == Obj::appendUtf8Character(&empty, CODEPOINT));
-            ASSERT(UTF8_LEN == empty.length());
+            ASSERT(0 == Obj::appendUtf8CodePoint(&nonEmptyStd, CODEPOINT));
+            ASSERT(nonEmptyInitLen + UTF8_LEN == nonEmptyStd.length());
 
-            ASSERT(0 == Obj::appendUtf8Character(&non_empty, CODEPOINT));
-            ASSERT(non_empty_init_len + UTF8_LEN == non_empty.length());
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT(0 == Obj::appendUtf8CodePoint(&emptyPmr, CODEPOINT));
+            ASSERT(UTF8_LEN == emptyPmr.length());
+
+            ASSERT(0 == Obj::appendUtf8CodePoint(&nonEmptyPmr, CODEPOINT));
+            ASSERT(nonEmptyInitLen + UTF8_LEN == nonEmptyPmr.length());
+#endif
+
+            emptyBsl.clear();
+            nonEmptyBsl.resize(nonEmptyInitLen);
+
+            ASSERT(0 == Obj::appendUtf8Character(&emptyBsl, CODEPOINT));
+            ASSERT(UTF8_LEN == emptyBsl.length());
+
+            ASSERT(0 == Obj::appendUtf8Character(&nonEmptyBsl, CODEPOINT));
+            ASSERT(nonEmptyInitLen + UTF8_LEN == nonEmptyBsl.length());
         }
       } break;
       case 11: {
