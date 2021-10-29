@@ -1,5 +1,21 @@
-bsl-internal (3.92.0.0) unstable; urgency=low
+bsl-internal (3.93.0.0) unstable; urgency=low
 
+  * 70c805ada Bumped version to 3.93.0.0
+  * d4e4b0493 bde-4.0 for 'bdlde::Utf8Util::appendUtf8CodePoint' (#3450)
+  * 915d3b7a3 bbldc: BDE 4.0 interfaces (#3435)
+  * da87d02db drqs-167477789: 'bslh_hashpair': Initial. (#3452)
+  * 72176ef6f add security warning to bslx package-level doc (DRQS 167106830) (#3454)
+  * b1c60d6b3 Simcpp11 fix split test driver guard macros drqs166312437 (#3455)
+  * 82f9cbfa8 drqs-100939440: 'bslh_hashtuple': Initial. (#3445)
+  * 45d8f0d93 Leaky bucket related components have been moved from bte to bal. DRQS 167074983 (#3449)
+  * af89d04ff Class template deduction guides for bsl::optional (#3414)
+  * 7a93b4e36 Merge pull request #3448 from sbreitst/bacl_typeinfo-leak-drqs-167497166
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 29 Oct 2021 10:40:43 -0400
+
+bsl-internal (3.92.0.0) git; urgency=low
+
+  * 897a59c74 Changelog for version 3.92.0.0
   * ee21ddea8 Bumped version to 3.92.0.0
   * 43a86c70e Class template deduction guides for shared_ptr and weak_ptr (#3415)
   * 44c831040 bdlcc_skiplist: 'removeAll' zeroing out 'd_next_p' in nodes (#3447)
@@ -26,7 +42,7 @@ bsl-internal (3.92.0.0) unstable; urgency=low
   * 3c3af7b5d 'bdlbb::BlobUtil::hexDump' has been improved. DRQS 167253580 (#3422)
   * f7cd095ce Merge pull request #3433 from mgiroux/unwind-FixedThreadPool-DRQS167232024
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 15 Oct 2021 10:05:29 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 15 Oct 2021 10:08:32 -0400
 
 bsl-internal (3.91.0.0) git; urgency=low
 
