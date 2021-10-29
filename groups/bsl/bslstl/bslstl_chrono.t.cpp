@@ -1,9 +1,18 @@
 // bslstl_chrono.t.cpp                                                -*-C++-*-
 #include <bslstl_chrono.h>
 
+#include <bslmf_issame.h>
+
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_systemtime.h>
+#include <bsls_timeinterval.h>
+#include <bsls_types.h>
+
+#if defined (BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+#include <chrono>
+#endif
 
 #include <stdio.h>     // 'sprintf', 'snprintf' [NOT '<cstdio>', which does not
                        // include 'snprintf']
@@ -34,7 +43,8 @@ using namespace BloombergLP;
 // [1] bsl::chrono::nanoseconds  operator "" _ns (unsigned long long);
 // [1] bsl::chrono::duration     operator "" _ns (long double);
 // ----------------------------------------------------------------------------
-// [2] USAGE EXAMPLE
+// [3] USAGE EXAMPLE
+// [2] CONCERN: clocks match those in 'bsls::SystemTime'
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -114,6 +124,8 @@ static bool veryVerbose;
 static bool veryVeryVerbose;
 static bool veryVeryVeryVerbose;
 
+const bsls::Types::Int64 k_NANOSECONDS_PER_SECOND = 1000000000;
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -129,7 +141,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 2: {
+      case 3: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -180,7 +192,158 @@ int main(int argc, char *argv[])
                                   "does not support inline namespaces.\n"); }
 #endif
 
-      } break;
+    } break;
+    case 2: {
+        // --------------------------------------------------------------------
+        // CLOCK TESTS
+        //   Ensure 'bsl::realtime_clock' matches
+        //   'bsls::SystemTime::nowRealtimeClock' and 'bsl::monotonic_clock'
+        //   matches 'bsls::SystemTime::nowMonotonicClock'.
+        //
+        // Concerns:
+        //: 1 The epoch of 'bsl::realtime_clock' matches the epoch of
+        //:   'bsls::SystemTime::nowRealtimeClock'.
+        //:
+        //: 2 The epoch of 'bsl::monotonic_clock' matches the epoch of
+        //:   'bsls::SystemTime::nowMonotonicClock'.
+        //
+        // Plan:
+        //: 1 For each clock, repeatedly measure the number of nanoseconds
+        //:   since the epoch and verify the 90% percentile of these
+        //:   differences is small.  (C-1,2)
+        //
+        // Testing:
+        //   CONCERN: clocks match those in 'bsls::SystemTime'
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nCLOCK TESTS"
+                            "\n===========\n");
+
+#if defined (BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+        ASSERT(false == bsl::chrono::system_clock::is_steady);
+        ASSERT(true  == bsl::chrono::steady_clock::is_steady);
+
+        const int k_ITERATIONS = 50;
+
+        if (verbose) {
+            printf("'bsl::chrono::system_clock' matches 'nowRealtimeClock'\n");
+        }
+        {
+            int numSuccessCoarse = 0;
+            int numSuccessFine   = 0;
+            for (int i = 0; i < k_ITERATIONS; ++i) {
+                using namespace bsl::chrono;
+
+                nanoseconds::rep diff =
+                      duration_cast<nanoseconds>(
+                   bsl::chrono::system_clock::now().time_since_epoch()).count()
+                     - bsls::SystemTime::nowRealtimeClock().totalNanoseconds();
+
+                if (   -10 * k_NANOSECONDS_PER_SECOND <= diff
+                    &&  10 * k_NANOSECONDS_PER_SECOND >= diff) {
+                    ++numSuccessCoarse;
+                    if (-1050 <= diff && 950 >= diff) {
+                        // biased 50ns to account for duration of 'now' call
+
+                        ++numSuccessFine;
+                    }
+                }
+            }
+
+            ASSERTV(numSuccessCoarse,
+                    90 * k_ITERATIONS <= 100 * numSuccessCoarse);
+
+            ASSERTV(numSuccessFine, 80 * k_ITERATIONS <= 100 * numSuccessFine);
+        }
+
+        if (verbose) {
+            printf(
+                  "'bsl::chrono::steady_clock' matches 'nowMonotonicClock'\n");
+        }
+        {
+            int numSuccessCoarse = 0;
+            int numSuccessFine   = 0;
+            for (int i = 0; i < k_ITERATIONS; ++i) {
+                using namespace bsl::chrono;
+
+                nanoseconds::rep diff =
+                      duration_cast<nanoseconds>(
+                   bsl::chrono::steady_clock::now().time_since_epoch()).count()
+                    - bsls::SystemTime::nowMonotonicClock().totalNanoseconds();
+
+                if (   -10 * k_NANOSECONDS_PER_SECOND <= diff
+                    &&  10 * k_NANOSECONDS_PER_SECOND >= diff) {
+                    ++numSuccessCoarse;
+                    if (-1050 <= diff && 950 >= diff) {
+                        // biased 50ns to account for duration of 'now' call
+
+                        ++numSuccessFine;
+                    }
+                }
+            }
+
+            ASSERTV(numSuccessCoarse,
+                    90 * k_ITERATIONS <= 100 * numSuccessCoarse);
+
+            ASSERTV(numSuccessFine, 80 * k_ITERATIONS <= 100 * numSuccessFine);
+        }
+
+        if (false == (bsl::is_same<std::chrono::system_clock,
+                                   bsl::chrono::system_clock>::value)) {
+            if (verbose) {
+                printf("'std::chrono::system_clock' is not "
+                       "'bsl::chrono::system_clock'\n");
+            }
+
+            int numSuccess = 0;
+            for (int i = 0; i < k_ITERATIONS; ++i) {
+                using namespace bsl::chrono;
+
+                nanoseconds::rep diff =
+                       duration_cast<nanoseconds>(
+                   std::chrono::system_clock::now().time_since_epoch()).count()
+                     - duration_cast<nanoseconds>(
+                  bsl::chrono::system_clock::now().time_since_epoch()).count();
+
+                if (   -k_NANOSECONDS_PER_SECOND <= diff
+                    &&  k_NANOSECONDS_PER_SECOND >= diff) {
+                    ++numSuccess;
+                }
+            }
+
+            ASSERTV(numSuccess, 0 == numSuccess);
+        }
+
+        if (false == (bsl::is_same<std::chrono::steady_clock,
+                                   bsl::chrono::steady_clock>::value)) {
+            if (verbose) {
+                printf("'std::chrono::steady_clock' is not "
+                       "'bsl::chrono::steady_clock'\n");
+            }
+
+            int numSuccess = 0;
+            for (int i = 0; i < k_ITERATIONS; ++i) {
+                using namespace bsl::chrono;
+
+                nanoseconds::rep diff =
+                       duration_cast<nanoseconds>(
+                   std::chrono::steady_clock::now().time_since_epoch()).count()
+                     - duration_cast<nanoseconds>(
+                  bsl::chrono::steady_clock::now().time_since_epoch()).count();
+
+                if (   -k_NANOSECONDS_PER_SECOND <= diff
+                    &&  k_NANOSECONDS_PER_SECOND >= diff) {
+                    ++numSuccess;
+                }
+            }
+
+            ASSERTV(numSuccess, 0 == numSuccess);
+        }
+#else
+        if (veryVerbose) printf("Cannot test clocks in pre-C++11 mode.\n");
+#endif
+
+    } break;
     case 1: {
       // ----------------------------------------------------------------------
       // TESTING User-defined literal operators
@@ -378,7 +541,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2018 Bloomberg Finance L.P.
+// Copyright 2021 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
