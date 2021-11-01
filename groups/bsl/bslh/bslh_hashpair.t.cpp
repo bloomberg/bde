@@ -320,14 +320,14 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) printf("\tpair of integers\n");
         {
-            using PairInts = std::pair<int, int>;
+            typedef std::pair<int, int> PairInts;
 
             PairInts pairInts = std::make_pair(0, 1);
 
             MockAccumulatingHashingAlgorithm expd;
 
-            int elem0 = std::get<0>(pairInts);
-            int elem1 = std::get<1>(pairInts);
+            int elem0 = pairInts.first;
+            int elem1 = pairInts.second;
 
             hashAppend(expd, elem0);
             hashAppend(expd, elem1);
@@ -341,14 +341,14 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) printf("\theterogeneous pair\n");
         {
-            using PairMixed = std::pair<long, my::MyType>;
+            typedef std::pair<long, my::MyType> PairMixed;
 
             PairMixed pairMixed = std::make_pair(1L, my::MyType("Two"));
 
             MockAccumulatingHashingAlgorithm expd;
 
-            long       elem0 = std::get<0>(pairMixed);
-            my::MyType elem1 = std::get<1>(pairMixed);
+            long       elem0 = pairMixed.first;
+            my::MyType elem1 = pairMixed.second;
 
             hashAppend(expd, elem0);
             hashAppend(expd, elem1);
@@ -359,7 +359,7 @@ int main(int argc, char *argv[])
 
             ASSERT(expd == calc);
 
-            size_t offset = sizeof(int);
+            size_t offset = sizeof(long);
 
             ASSERT(0 == memcmp("Two",
                                expd.getData() + offset, strlen("Two")));

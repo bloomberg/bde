@@ -456,8 +456,12 @@ int main(int argc, char *argv[])
 
         typedef bsl::unordered_set<StdKeyPair> SetOfStdKeyPairs;
 
-        ASSERT(0 == bsl::strcmp("bsl::hash<std::pair<int, int>>",
-                                bsls::NameOf<SetOfStdKeyPairs::hasher>()));
+        const bsls::NameOf<SetOfStdKeyPairs::hasher> keyNamePairs;
+        const char * const expPair0 = "bsl::hash<std::pair<int, int>>";
+        const char * const expPair1 = "bsl::hash<std::pair<int,int>>";
+
+        ASSERT(0 == bsl::strcmp(expPair0, keyNamePairs)
+            || 0 == bsl::strcmp(expPair1, keyNamePairs));
 
         SetOfStdKeyPairs setOfStdKeyPairs;
 
@@ -490,15 +494,19 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("Testing 'hashAppend' of 'std::tuple'\n");
 
-        typedef std::tuple<int, int, int> StdKeyTuple;
-        typedef bsl::tuple<int, int, int> BslKeyTuple;
+        using StdKeyTuple = std::tuple<int, int, int>;
+        using BslKeyTuple = bsl::tuple<int, int, int>;
 
         ASSERT(( bsl::is_same<StdKeyTuple, BslKeyTuple>::value));
 
         typedef bsl::unordered_set<StdKeyTuple> SetOfStdKeyTuples;
 
-        ASSERT(0 == bsl::strcmp("bsl::hash<std::tuple<int, int, int>>",
-                                bsls::NameOf<SetOfStdKeyTuples::hasher>()));
+        const bsls::NameOf<SetOfStdKeyTuples::hasher> keyNameTuples;
+        const char * const expTuple0 = "bsl::hash<std::tuple<int, int, int>>";
+        const char * const expTuple1 = "bsl::hash<std::tuple<int,int,int>>";
+
+        ASSERT(0 == bsl::strcmp(expTuple0, keyNameTuples)
+            || 0 == bsl::strcmp(expTuple1, keyNameTuples));
 
         SetOfStdKeyTuples setOfStdKeyTuples;
 
