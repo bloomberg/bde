@@ -1047,6 +1047,14 @@ class ManagedPtr_Ref {
         // Return a pointer to the referenced object.
 };
 
+                    // =========================================
+                    // private struct ManagedPtr_TraitConstraint
+                    // =========================================
+
+struct ManagedPtr_TraitConstraint {
+    // This 'struct' is an empty type that exists solely to enable constructor
+    // access to be constrained by type trait.
+};
                            // ================
                            // class ManagedPtr
                            // ================
@@ -1218,20 +1226,33 @@ class ManagedPtr {
         // 'original' (if any) to this managed pointer, and reset 'original' to
         // empty.
 
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     template <class BDE_OTHER_TYPE>
-#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
-    ManagedPtr(bslmf::MovableRef<ManagedPtr<BDE_OTHER_TYPE> > original)
-                                                         BSLS_KEYWORD_NOEXCEPT;
-#else
-    ManagedPtr(bslmf::MovableRef<ManagedPtr<BDE_OTHER_TYPE> > original,
+    ManagedPtr(ManagedPtr<BDE_OTHER_TYPE>&& original,
                typename bsl::enable_if<
                    bsl::is_convertible<BDE_OTHER_TYPE *, TARGET_TYPE *>::value,
-                   void>::type * = 0)                    BSLS_KEYWORD_NOEXCEPT;
+                   ManagedPtr_TraitConstraint>::type =
+                       ManagedPtr_TraitConstraint())
+        BSLS_KEYWORD_NOEXCEPT;
+#elif defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
+    // sun compiler version 12.3 and earlier
+    template <class BDE_OTHER_TYPE>
+    ManagedPtr(bslmf::MovableRef<ManagedPtr<BDE_OTHER_TYPE> > original)
+        BSLS_KEYWORD_NOEXCEPT;
+#else // c++03 except old (version <= 12.3) sun compilers
+    template <class BDE_OTHER_TYPE>
+    ManagedPtr(bslmf::MovableRef<ManagedPtr<BDE_OTHER_TYPE> > original,
+               typename bsl::enable_if<
+                 bsl::is_convertible<BDE_OTHER_TYPE *, TARGET_TYPE *>::value,
+                 ManagedPtr_TraitConstraint>::type =
+                     ManagedPtr_TraitConstraint())
+        BSLS_KEYWORD_NOEXCEPT;
 #endif
         // Create a managed pointer having the same target object as the
         // specified 'original', transfer ownership of the object managed by
         // 'original' (if any) to this managed pointer, and reset 'original' to
-        // empty.
+        // empty.  'TARGET_TYPE' must be an accessible and unambiguous base of
+        // 'BDE_OTHER_TYPE'
 
     template <class ALIASED_TYPE>
     ManagedPtr(ManagedPtr<ALIASED_TYPE>& alias, TARGET_TYPE *ptr);
@@ -1383,23 +1404,34 @@ class ManagedPtr {
         // reset 'rhs' to empty, and return a reference to this managed
         // pointer.
 
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     template <class BDE_OTHER_TYPE>
-#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
-    ManagedPtr<TARGET_TYPE>&
-#else
     typename bsl::enable_if<
         bsl::is_convertible<BDE_OTHER_TYPE *, TARGET_TYPE *>::value,
         ManagedPtr<TARGET_TYPE> >::type&
-#endif
+    operator=(ManagedPtr<BDE_OTHER_TYPE>&& rhs) BSLS_KEYWORD_NOEXCEPT;
+#elif defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
+    // sun compiler version 12.3 and earlier
+    template <class BDE_OTHER_TYPE>
+    ManagedPtr<TARGET_TYPE>&
     operator=(bslmf::MovableRef<ManagedPtr<BDE_OTHER_TYPE> > rhs)
-                                                         BSLS_KEYWORD_NOEXCEPT;
+        BSLS_KEYWORD_NOEXCEPT;
+#else // c++03 except old (version <= 12.3) sun compilers
+    template <class BDE_OTHER_TYPE>
+    typename bsl::enable_if<
+        bsl::is_convertible<BDE_OTHER_TYPE *, TARGET_TYPE *>::value,
+        ManagedPtr<TARGET_TYPE> >::type&
+    operator=(bslmf::MovableRef<ManagedPtr<BDE_OTHER_TYPE> > rhs)
+        BSLS_KEYWORD_NOEXCEPT;
+#endif
         // If this object and the specified 'rhs' manage the same object,
         // return a reference to this managed pointer; otherwise, destroy the
         // managed object owned by this managed pointer, transfer ownership of
         // the managed object owned by 'rhs' to this managed pointer, set this
         // managed pointer to point to the target object referenced by 'rhs',
         // reset 'rhs' to empty, and return a reference to this managed
-        // pointer.
+        // pointer.  'TARGET_TYPE' must be an accessible and unambiguous base
+        // of 'BDE_OTHER_TYPE'
 
     ManagedPtr& operator=(ManagedPtr_Ref<TARGET_TYPE> ref)
                                                          BSLS_KEYWORD_NOEXCEPT;
@@ -1705,6 +1737,7 @@ struct ManagedPtr_DefaultDeleter {
         // 'MANAGED_TYPE *', and then call 'delete' with the cast pointer.
 };
 
+
 // ============================================================================
 //                          INLINE DEFINITIONS
 // ============================================================================
@@ -1871,23 +1904,55 @@ ManagedPtr<TARGET_TYPE>::ManagedPtr(bslmf::MovableRef<ManagedPtr> original)
 {
 }
 
-template <class TARGET_TYPE>
-template <class BDE_OTHER_TYPE>
-inline
-#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
-ManagedPtr<TARGET_TYPE>::ManagedPtr(
-   bslmf::MovableRef<ManagedPtr<BDE_OTHER_TYPE> > original)
-                                                          BSLS_KEYWORD_NOEXCEPT
-#else
-ManagedPtr<TARGET_TYPE>::ManagedPtr(
-    bslmf::MovableRef<ManagedPtr<BDE_OTHER_TYPE> > original,
-    typename bsl::enable_if<
-        bsl::is_convertible<BDE_OTHER_TYPE *, TARGET_TYPE *>::value,
-        void>::type *)                                    BSLS_KEYWORD_NOEXCEPT
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    template <class TARGET_TYPE>
+    template <class BDE_OTHER_TYPE>
+    inline
+    ManagedPtr<TARGET_TYPE>::ManagedPtr(
+            ManagedPtr<BDE_OTHER_TYPE> &&original,
+            typename bsl::enable_if<bsl::is_convertible<BDE_OTHER_TYPE *,
+                                                        TARGET_TYPE *>::value,
+                                    ManagedPtr_TraitConstraint>::type)
+        BSLS_KEYWORD_NOEXCEPT
+    : d_members(original.d_members)
+#elif defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
+    // sun compiler version 12.3 and earlier
+    template <class TARGET_TYPE>
+    template <class BDE_OTHER_TYPE>
+    inline
+    ManagedPtr<TARGET_TYPE>::ManagedPtr(
+            bslmf::MovableRef<ManagedPtr<BDE_OTHER_TYPE> > original)
+        BSLS_KEYWORD_NOEXCEPT
+    : d_members(MoveUtil::access(original).d_members)
+#else // c++03 except old (version <= 12.3) sun compilers
+    template <class TARGET_TYPE>
+    template <class BDE_OTHER_TYPE>
+    inline
+    ManagedPtr<TARGET_TYPE>::ManagedPtr(
+            bslmf::MovableRef<ManagedPtr<BDE_OTHER_TYPE> > original,
+            typename bsl::enable_if<bsl::is_convertible<BDE_OTHER_TYPE *,
+                                                        TARGET_TYPE *>::value,
+                                    ManagedPtr_TraitConstraint>::type)
+        BSLS_KEYWORD_NOEXCEPT
+    : d_members(MoveUtil::access(original).d_members)
 #endif
-: d_members(MoveUtil::access(original).d_members)
 {
+    // This constructor cannot be constrained using a type trait on old Sun
+    // compilers (version <= 12.3), so we need the check here.
+    #if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
+        BSLMF_ASSERT((bsl::is_convertible<BDE_OTHER_TYPE *,
+                                          TARGET_TYPE *>::VALUE));
+    #endif
+
+    // To deal with the possibility of multiple inheritance, we need to
+    // "correct" the target pointer.
+    d_members.setAliasPtr(
+        stripBasePointerType(
+            static_cast<TARGET_TYPE *>(
+                static_cast<BDE_OTHER_TYPE *>(
+                    d_members.pointer()))));
 }
+
 
 template <class TARGET_TYPE>
 template <class ALIASED_TYPE>
@@ -2060,21 +2125,54 @@ ManagedPtr<TARGET_TYPE>::operator=(bslmf::MovableRef<ManagedPtr> rhs)
     return *this;
 }
 
-template <class TARGET_TYPE>
-template <class BDE_OTHER_TYPE>
-inline
-#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
-ManagedPtr<TARGET_TYPE>&
-#else
-typename bsl::enable_if<
-    bsl::is_convertible<BDE_OTHER_TYPE *, TARGET_TYPE *>::value,
-    ManagedPtr<TARGET_TYPE> >::type&
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    template <class TARGET_TYPE>
+    template <class BDE_OTHER_TYPE>
+    inline
+    typename bsl::enable_if<
+        bsl::is_convertible<BDE_OTHER_TYPE*, TARGET_TYPE*>::value,
+        ManagedPtr<TARGET_TYPE> >::type&
+    ManagedPtr<TARGET_TYPE>::operator =(
+            ManagedPtr<BDE_OTHER_TYPE>&& rhs) BSLS_KEYWORD_NOEXCEPT
+#elif defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
+    // sun compiler version 12.3 and earlier
+    template <class TARGET_TYPE>
+    template <class BDE_OTHER_TYPE>
+    inline
+    ManagedPtr<TARGET_TYPE>&
+    ManagedPtr<TARGET_TYPE>::operator =(
+          bslmf::MovableRef<ManagedPtr<BDE_OTHER_TYPE> > rhs)
+        BSLS_KEYWORD_NOEXCEPT
+#else // c++03 except old (version <= 12.3) sun compilers
+    template <class TARGET_TYPE>
+    template <class BDE_OTHER_TYPE>
+    inline
+    typename bsl::enable_if<
+        bsl::is_convertible<BDE_OTHER_TYPE *, TARGET_TYPE *>::value,
+        ManagedPtr<TARGET_TYPE> >::type&
+    ManagedPtr<TARGET_TYPE>::operator =(
+          bslmf::MovableRef<ManagedPtr<BDE_OTHER_TYPE> > rhs)
+        BSLS_KEYWORD_NOEXCEPT
 #endif
-ManagedPtr<TARGET_TYPE>::operator =(
-      bslmf::MovableRef<ManagedPtr<BDE_OTHER_TYPE> > rhs) BSLS_KEYWORD_NOEXCEPT
 {
+    // This operator cannot be constrained using a type trait on Sun, so we
+    // need the check here.
+    #if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
+        BSLMF_ASSERT((bsl::is_convertible<BDE_OTHER_TYPE *,
+                                          TARGET_TYPE *>::VALUE));
+    #endif
+
     ManagedPtr<BDE_OTHER_TYPE>& lvalue = rhs;
     d_members.moveAssign(&lvalue.d_members);
+
+    // To deal with the possibility of multiple inheritance, we need to
+    // "correct" the target pointer.
+    d_members.setAliasPtr(
+        stripBasePointerType(
+            static_cast<TARGET_TYPE *>(
+                static_cast<BDE_OTHER_TYPE *>(
+                    d_members.pointer()))));
+
     return *this;
 }
 
