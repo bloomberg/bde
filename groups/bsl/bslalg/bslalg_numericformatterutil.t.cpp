@@ -3578,7 +3578,6 @@ template <class FLOAT_TYPE,
 void verifyRyuCall(const TEST_DATA_TYPE (&k_DATA)[k_NUM_DATA])
 {
     BSLMF_ASSERT(sizeof(FLOAT_TYPE) == 8 || sizeof(FLOAT_TYPE) == 4);
-    BSLMF_ASSERT(static_cast<FLOAT_TYPE>(.125) == .125);
 
     for (size_t i = 0; i < k_NUM_DATA; ++i) {
         const int         LINE            = k_DATA[i].d_line;
@@ -3654,7 +3653,6 @@ template <class FLOAT_TYPE,
 void verifyRyuCallInt(const TEST_DATA_TYPE (&k_DATA_INT)[k_NUM_DATA_INT])
 {
     BSLMF_ASSERT(sizeof(FLOAT_TYPE) == 8 || sizeof(FLOAT_TYPE) == 4);
-    BSLMF_ASSERT(static_cast<FLOAT_TYPE>(.125) == .125);
 
     for (size_t i = 0; i < k_NUM_DATA_INT; ++i) {
         typedef Flt<FLOAT_TYPE>       Flt;
