@@ -2334,10 +2334,6 @@ int SkipList<KEY, DATA>::removeAllMaybeUnlock(VECTOR *removed, bool unlock)
     }
     d_length = 0;
 
-    if (unlock) {
-        d_lock.unlock();
-    }
-
     if (removed) {
         const FactoryType factory(this);
 
@@ -2358,6 +2354,10 @@ int SkipList<KEY, DATA>::removeAllMaybeUnlock(VECTOR *removed, bool unlock)
 
             releaseNode(condemned);
         }
+    }
+
+    if (unlock) {
+        d_lock.unlock();
     }
 
     return numRemoved;

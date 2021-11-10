@@ -4507,6 +4507,64 @@ void run()
 
 }  // close namespace SKIPLIST_OLD_TEST_CASES_NAMEPSACE
 
+namespace SKIPLIST_REPRODUCE_DRQS_167716470 {
+
+enum { k_MILLION = 1000 * 1000 };
+
+typedef bdlcc::SkipList<int, int> SL;
+
+bslmt::Barrier barrier(20);
+
+enum { e_MODE_REMOVE_NODE,
+       e_MODE_UPDATE } mode;
+
+struct RemoveNodeFunctor {
+    SL *d_skipList_p;
+
+    void operator()();
+};
+
+void RemoveNodeFunctor::operator()()
+{
+    barrier.wait();
+
+    for (int ii = 0; ii < 1000; ++ii) {
+        for (int jj = 0; jj < 10; ++jj) {
+            d_skipList_p->add(ii, 7);
+        }
+        int rc;
+        do {
+            SL::Pair *pr;
+            rc = d_skipList_p->findRaw(&pr, ii);
+            if (0 == rc) {
+                if (e_MODE_UPDATE == mode) {
+                    (void) d_skipList_p->update(pr, ii + k_MILLION);
+                }
+                else {
+                    (void) d_skipList_p->remove(pr);
+                }
+            }
+        } while (0 == rc);
+    }
+}
+
+struct ReleaseAllFunctor {
+    SL *d_skipList_p;
+
+    void operator()();
+};
+        
+void ReleaseAllFunctor::operator()()
+{
+    barrier.wait();
+
+    for (int ii = 0; ii < 10 * 1000; ++ii) {
+        d_skipList_p->removeAll();
+    }
+};
+
+}  // close namespace SKIPLIST_REPRODUCE_DRQS_167716470
+
 // ============================================================================
 //                        CASE -100 RELATED ENTITIES
 // ----------------------------------------------------------------------------
@@ -4642,6 +4700,38 @@ int main(int argc, char *argv[])
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 28:
+      case 29: {
+        // --------------------------------------------------------------------
+        // Reproduce race condtiions in DRQS 167716470 / DRQS 167644288
+        //
+        // Plan:
+        //: 1 Test case 28 tests the race condition between 'removeAll' and
+        //:   'removeNode'.
+        //:
+        //: 2 Test case 29 tests the race condition between 'removeAll' and
+        //:   'update'.
+        // --------------------------------------------------------------------
+
+        namespace TC = SKIPLIST_REPRODUCE_DRQS_167716470;
+
+        TC::SL sl;
+
+        TC::RemoveNodeFunctor rnFunc = { &sl };
+        TC::ReleaseAllFunctor raFunc = { &sl };
+
+        bslmt::ThreadGroup tg;
+
+        TC::mode = 28 == test
+                 ? TC::e_MODE_REMOVE_NODE
+                 : TC::e_MODE_UPDATE;
+
+        tg.addThreads(rnFunc, 10);
+        tg.addThreads(raFunc, 10);
+        tg.joinAll();
+
+        sl.removeAll();
+      } break;
       case 27: {
         // --------------------------------------------------------------------
         // THOROUGH MULTI-THREADED ADD TEST
