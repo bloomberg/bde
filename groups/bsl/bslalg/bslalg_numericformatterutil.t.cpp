@@ -2,9 +2,11 @@
 #include <bslalg_numericformatterutil.h>
 
 #include <bslmf_assert.h>
+#include <bslmf_enableif.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_buildtarget.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_libraryfeatures.h>
 #include <bsls_nameof.h>
@@ -27,7 +29,8 @@
 #include <cstring>
 #include <cfloat>
 
-#include <stdint.h>  // ...we use the C header since 'std::' can't work
+#include <stdint.h>  // ...we use the C header due to C++03 support
+#include <math.h>    // we need the C header for 'nextafterf'
 
 #include <ryu/blp_ryu.h>
 #include <ryu/ryu.h>
@@ -53,31 +56,31 @@ using std::numeric_limits;
 // In the following cases, 'TYPE' means every integral fundamental type, signed
 // or unsigned, up to 64 bits long.
 // ----------------------------------------------------------------------------
-// [ 2] char *toChars(char *, char *, bsls::Types::Int64,  int);
-// [ 2] char *toChars(char *, char *, bsls::Types::Uint64, int);
-// [ 3] char *toChars(char *, char *, char,                int);
-// [ 3] char *toChars(char *, char *, signed char,         int);
-// [ 3] char *toChars(char *, char *, unsigned char,       int);
-// [ 3] char *toChars(char *, char *, short,               int);
-// [ 3] char *toChars(char *, char *, unsigned short,      int);
-// [ 3] char *toChars(char *, char *, int,                 int);
-// [ 3] char *toChars(char *, char *, unsigned,            int);
-// [ 3] char *toChars(char *, char *, long,                int);
-// [ 3] char *toChars(char *, char *, unsigned long,       int);
-// [ 3] char *toChars(char *, char *, bsls::Types::Int64,  int);
-// [ 3] char *toChars(char *, char *, bsls::Types::Uint64, int);
-// [ 4] char *toChars(char *, char *, char,               int);
-// [ 4] char *toChars(char *, char *, signed char,        int);
-// [ 4] char *toChars(char *, char *, short,              int);
-// [ 4] char *toChars(char *, char *, int,                int);
-// [ 4] char *toChars(char *, char *, long,               int);
-// [ 4] char *toChars(char *, char *, bsls::Types::Int64, int);
-// [ 5] char *toChars(char *, char *, char,                int);
-// [ 5] char *toChars(char *, char *, unsigned char,       int);
-// [ 5] char *toChars(char *, char *, unsigned short,      int);
-// [ 5] char *toChars(char *, char *, unsigned int,        int);
-// [ 5] char *toChars(char *, char *, unsigned long,       int);
-// [ 5] char *toChars(char *, char *, bsls::Types::Uint64, int);
+// [ 2] char *toChars(char *, char *, signed long long int,   int);
+// [ 2] char *toChars(char *, char *, unsigned long long int, int);
+// [ 3] char *toChars(char *, char *, char,                   int);
+// [ 3] char *toChars(char *, char *, signed char,            int);
+// [ 3] char *toChars(char *, char *, unsigned char,          int);
+// [ 3] char *toChars(char *, char *, short,                  int);
+// [ 3] char *toChars(char *, char *, unsigned short,         int);
+// [ 3] char *toChars(char *, char *, int,                    int);
+// [ 3] char *toChars(char *, char *, unsigned,               int);
+// [ 3] char *toChars(char *, char *, long,                   int);
+// [ 3] char *toChars(char *, char *, unsigned long,          int);
+// [ 3] char *toChars(char *, char *, signed long long int,   int);
+// [ 3] char *toChars(char *, char *, unsigned long long int, int);
+// [ 4] char *toChars(char *, char *, char,                   int);
+// [ 4] char *toChars(char *, char *, signed char,            int);
+// [ 4] char *toChars(char *, char *, short,                  int);
+// [ 4] char *toChars(char *, char *, int,                    int);
+// [ 4] char *toChars(char *, char *, long,                   int);
+// [ 4] char *toChars(char *, char *, signed long long int,   int);
+// [ 5] char *toChars(char *, char *, char,                   int);
+// [ 5] char *toChars(char *, char *, unsigned char,          int);
+// [ 5] char *toChars(char *, char *, unsigned short,         int);
+// [ 5] char *toChars(char *, char *, unsigned int,           int);
+// [ 5] char *toChars(char *, char *, unsigned long,          int);
+// [ 5] char *toChars(char *, char *, unsigned long long int, int);
 // [ 7] int blp_d2s_buffered_n(double, char *);
 // [ 8] int blp_f2s_buffered_n(float, char *);
 // [ 9] int blp_d2d_buffered_n(double, char *);
@@ -88,10 +91,11 @@ using std::numeric_limits;
 // [14] char *toChars(char *first, char *last, float value);
 // [15] char *toChars(char *first, char *last, double value, format);
 // [16] char *toChars(char *first, char *last, float value, format);
+// [17] ToCharsMaxLength<T, A>::k_VALUE
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 6] BLOOMBERG RYU INTERNALS
-// [17] USAGE EXAMPLE
+// [18] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -156,9 +160,8 @@ void aSsErT(bool condition, const char *message, int line)
 // ----------------------------------------------------------------------------
 
 typedef bslalg::NumericFormatterUtil Util;
-typedef bsls::Types::Uint64          Uint64;
-typedef bsls::Types::Int64           Int64;
-typedef bsls::Types::IntPtr          IntPtr;
+typedef unsigned long long int       Uint64;
+typedef signed long long int         Int64;
 
 static bool             verbose;
 static bool         veryVerbose;
@@ -176,6 +179,20 @@ static const char k_PREFILL_CHAR = '\02';
 // ----------------------------------------------------------------------------
 
 static const double dblNegZero = -1 / std::numeric_limits<double>::infinity();
+
+// ----------------------------------------------------------------------------
+//                  'double' test data builder functions
+
+static
+double makeSubnormalDouble(int64_t mantissa)
+    // Return a 'double' that is a (positive) subnormal and has the specified
+    // 'mantissa'.  The behavior is undefined unless '0 < mantissa < 2^53'.
+{
+    double d;
+    BSLMF_ASSERT(sizeof mantissa == sizeof d);
+    memcpy(&d, &mantissa, sizeof d);
+    return d;
+}
 
                             // ==============
                             // struct DblData
@@ -196,18 +213,19 @@ struct DblData {
 struct DblIntData {
     // Special 'double' test data line for precisely printed integer values.
 
-    int                 d_line;
-    bsls::Types::Int64  d_integer;
-    unsigned            d_exponent;  // Use when value is too large for 52 bits
-    const char         *d_expected;
+    int         d_line;
+    Int64       d_integer;
+    unsigned    d_exponent;  // Use when value is too large for 52 bits
+    const char *d_expected;
 };
 
 // ----------------------------------------------------------------------------
-// 'double' non-numeric values test data.
+// Verify 'double' assumptions.
 
 BSLMF_ASSERT(std::numeric_limits<double>::has_infinity);
 BSLMF_ASSERT(std::numeric_limits<double>::has_quiet_NaN);
 BSLMF_ASSERT(std::numeric_limits<double>::has_signaling_NaN);
+BSLMF_ASSERT(std::numeric_limits<double>::has_denorm);
 
 // ----------------------------------------------------------------------------
 // 'double' "minimal" format test data.  Macros for "minimal" data are named
@@ -239,13 +257,167 @@ static const DblData k_DBL_CPP[] = {
     D(dblNegZero, "-0"),  // Negative zero is written as negative
 
     // Extremes
-    D(DBL_MAX, "1.7976931348623157e+308"),
-    D(DBL_MIN, "2.2250738585072014e-308"),
-#ifdef DBL_TRUE_MIN
-    D(DBL_TRUE_MIN, "5e-324"),
-#else
-    D(DBL_MIN / (1ull << 52), "5e-324"),
-#endif
+    D(std::numeric_limits<double>::max(), "1.7976931348623157e+308"),
+    D(std::numeric_limits<double>::min(), "2.2250738585072014e-308"),
+
+    // Subnormal/denormalized numbers
+    D(std::numeric_limits<double>::denorm_min(), "5e-324"),
+
+    D(makeSubnormalDouble(0x0000000000001ull), "5"                  "e-324"),
+    D(makeSubnormalDouble(0x0000000000002ull), "1"                  "e-323"),
+    D(makeSubnormalDouble(0x0000000000004ull), "2"                  "e-323"),
+    D(makeSubnormalDouble(0x0000000000008ull), "4"                  "e-323"),
+    D(makeSubnormalDouble(0x0000000000010ull), "8"                  "e-323"),
+    D(makeSubnormalDouble(0x0000000000020ull), "1.6"                "e-322"),
+    D(makeSubnormalDouble(0x0000000000040ull), "3.16"               "e-322"),
+    D(makeSubnormalDouble(0x0000000000080ull), "6.3"                "e-322"),
+    D(makeSubnormalDouble(0x0000000000100ull), "1.265"              "e-321"),
+    D(makeSubnormalDouble(0x0000000000200ull), "2.53"               "e-321"),
+    D(makeSubnormalDouble(0x0000000000400ull), "5.06"               "e-321"),
+    D(makeSubnormalDouble(0x0000000000800ull), "1.012"              "e-320"),
+    D(makeSubnormalDouble(0x0000000001000ull), "2.0237"             "e-320"),
+    D(makeSubnormalDouble(0x0000000002000ull), "4.0474"             "e-320"),
+    D(makeSubnormalDouble(0x0000000004000ull), "8.095"              "e-320"),
+    D(makeSubnormalDouble(0x0000000008000ull), "1.61895"            "e-319"),
+    D(makeSubnormalDouble(0x0000000010000ull), "3.2379"             "e-319"),
+    D(makeSubnormalDouble(0x0000000020000ull), "6.4758"             "e-319"),
+    D(makeSubnormalDouble(0x0000000040000ull), "1.295163"           "e-318"),
+    D(makeSubnormalDouble(0x0000000080000ull), "2.590327"           "e-318"),
+    D(makeSubnormalDouble(0x0000000100000ull), "5.180654"           "e-318"),
+    D(makeSubnormalDouble(0x0000000200000ull), "1.036131"           "e-317"),
+    D(makeSubnormalDouble(0x0000000400000ull), "2.0722615"          "e-317"),
+    D(makeSubnormalDouble(0x0000000800000ull), "4.144523"           "e-317"),
+    D(makeSubnormalDouble(0x0000001000000ull), "8.289046"           "e-317"),
+    D(makeSubnormalDouble(0x0000002000000ull), "1.6578092"          "e-316"),
+    D(makeSubnormalDouble(0x0000004000000ull), "3.3156184"          "e-316"),
+    D(makeSubnormalDouble(0x0000008000000ull), "6.63123685"         "e-316"),
+    D(makeSubnormalDouble(0x0000010000000ull), "1.32624737"         "e-315"),
+    D(makeSubnormalDouble(0x0000020000000ull), "2.65249474"         "e-315"),
+    D(makeSubnormalDouble(0x0000040000000ull), "5.304989477"        "e-315"),
+    D(makeSubnormalDouble(0x0000080000000ull), "1.0609978955"       "e-314"),
+    D(makeSubnormalDouble(0x0000100000000ull), "2.121995791"        "e-314"),
+    D(makeSubnormalDouble(0x0000200000000ull), "4.243991582"        "e-314"),
+    D(makeSubnormalDouble(0x0000400000000ull), "8.487983164"        "e-314"),
+    D(makeSubnormalDouble(0x0000800000000ull), "1.69759663277"      "e-313"),
+    D(makeSubnormalDouble(0x0001000000000ull), "3.39519326554"      "e-313"),
+    D(makeSubnormalDouble(0x0002000000000ull), "6.7903865311"       "e-313"),
+    D(makeSubnormalDouble(0x0004000000000ull), "1.35807730622"      "e-312"),
+    D(makeSubnormalDouble(0x0008000000000ull), "2.716154612436"     "e-312"),
+    D(makeSubnormalDouble(0x0010000000000ull), "5.43230922487"      "e-312"),
+    D(makeSubnormalDouble(0x0020000000000ull), "1.086461844974"     "e-311"),
+    D(makeSubnormalDouble(0x0040000000000ull), "2.1729236899484"    "e-311"),
+    D(makeSubnormalDouble(0x0080000000000ull), "4.345847379897"     "e-311"),
+    D(makeSubnormalDouble(0x0100000000000ull), "8.691694759794"     "e-311"),
+    D(makeSubnormalDouble(0x0200000000000ull), "1.73833895195875"   "e-310"),
+    D(makeSubnormalDouble(0x0400000000000ull), "3.4766779039175"    "e-310"),
+    D(makeSubnormalDouble(0x0800000000000ull), "6.953355807835"     "e-310"),
+    D(makeSubnormalDouble(0x1000000000000ull), "1.390671161567"     "e-309"),
+    D(makeSubnormalDouble(0x2000000000000ull), "2.781342323134"     "e-309"),
+    D(makeSubnormalDouble(0x4000000000000ull), "5.562684646268003"  "e-309"),
+    D(makeSubnormalDouble(0x8000000000000ull), "1.1125369292536007" "e-308"),
+
+    D(makeSubnormalDouble(0x0000000000003ull), "1.5"                "e-323"),
+    D(makeSubnormalDouble(0x0000000000007ull), "3.5"                "e-323"),
+    D(makeSubnormalDouble(0x000000000000Full), "7.4"                "e-323"),
+    D(makeSubnormalDouble(0x000000000001Full), "1.53"               "e-322"),
+    D(makeSubnormalDouble(0x000000000003Full), "3.1"                "e-322"),
+    D(makeSubnormalDouble(0x000000000007Full), "6.27"               "e-322"),
+    D(makeSubnormalDouble(0x00000000000FFull), "1.26"               "e-321"),
+    D(makeSubnormalDouble(0x00000000001FFull), "2.525"              "e-321"),
+    D(makeSubnormalDouble(0x00000000003FFull), "5.054"              "e-321"),
+    D(makeSubnormalDouble(0x00000000007FFull), "1.0114"             "e-320"),
+    D(makeSubnormalDouble(0x0000000000FFFull), "2.023"              "e-320"),
+    D(makeSubnormalDouble(0x0000000001FFFull), "4.047"              "e-320"),
+    D(makeSubnormalDouble(0x0000000003FFFull), "8.0943"             "e-320"),
+    D(makeSubnormalDouble(0x0000000007FFFull), "1.6189"             "e-319"),
+    D(makeSubnormalDouble(0x000000000FFFFull), "3.23786"            "e-319"),
+    D(makeSubnormalDouble(0x000000001FFFFull), "6.47577"            "e-319"),
+    D(makeSubnormalDouble(0x000000003FFFFull), "1.29516"            "e-318"),
+    D(makeSubnormalDouble(0x000000007FFFFull), "2.59032"            "e-318"),
+    D(makeSubnormalDouble(0x00000000FFFFFull), "5.18065"            "e-318"),
+    D(makeSubnormalDouble(0x00000001FFFFFull), "1.0361303"          "e-317"),
+    D(makeSubnormalDouble(0x00000003FFFFFull), "2.072261"           "e-317"),
+    D(makeSubnormalDouble(0x00000007FFFFFull), "4.1445225"          "e-317"),
+    D(makeSubnormalDouble(0x0000000FFFFFFull), "8.2890456"          "e-317"),
+    D(makeSubnormalDouble(0x0000001FFFFFFull), "1.65780916"         "e-316"),
+    D(makeSubnormalDouble(0x0000003FFFFFFull), "3.31561837"         "e-316"),
+    D(makeSubnormalDouble(0x0000007FFFFFFull), "6.6312368"          "e-316"),
+    D(makeSubnormalDouble(0x000000FFFFFFFull), "1.326247364"        "e-315"),
+    D(makeSubnormalDouble(0x000001FFFFFFFull), "2.652494734"        "e-315"),
+    D(makeSubnormalDouble(0x000003FFFFFFFull), "5.304989472"        "e-315"),
+    D(makeSubnormalDouble(0x000007FFFFFFFull), "1.060997895"        "e-314"),
+    D(makeSubnormalDouble(0x00000FFFFFFFFull), "2.1219957905"       "e-314"),
+    D(makeSubnormalDouble(0x00001FFFFFFFFull), "4.2439915814"       "e-314"),
+    D(makeSubnormalDouble(0x00003FFFFFFFFull), "8.4879831634"       "e-314"),
+    D(makeSubnormalDouble(0x00007FFFFFFFFull), "1.6975966327"       "e-313"),
+    D(makeSubnormalDouble(0x0000FFFFFFFFFull), "3.3951932655"       "e-313"),
+    D(makeSubnormalDouble(0x0001FFFFFFFFFull), "6.79038653104"      "e-313"),
+    D(makeSubnormalDouble(0x0003FFFFFFFFFull), "1.358077306213"     "e-312"),
+    D(makeSubnormalDouble(0x0007FFFFFFFFFull), "2.71615461243"      "e-312"),
+    D(makeSubnormalDouble(0x000FFFFFFFFFFull), "5.432309224866"     "e-312"),
+    D(makeSubnormalDouble(0x001FFFFFFFFFFull), "1.0864618449737"    "e-311"),
+    D(makeSubnormalDouble(0x003FFFFFFFFFFull), "2.172923689948"     "e-311"),
+    D(makeSubnormalDouble(0x007FFFFFFFFFFull), "4.3458473798964"    "e-311"),
+    D(makeSubnormalDouble(0x00FFFFFFFFFFFull), "8.6916947597933"    "e-311"),
+    D(makeSubnormalDouble(0x01FFFFFFFFFFFull), "1.7383389519587"    "e-310"),
+    D(makeSubnormalDouble(0x03FFFFFFFFFFFull), "3.47667790391745"   "e-310"),
+    D(makeSubnormalDouble(0x07FFFFFFFFFFFull), "6.95335580783495"   "e-310"),
+    D(makeSubnormalDouble(0x0FFFFFFFFFFFFull), "1.390671161566996"  "e-309"),
+    D(makeSubnormalDouble(0x1FFFFFFFFFFFFull), "2.781342323133997"  "e-309"),
+    D(makeSubnormalDouble(0x3FFFFFFFFFFFFull), "5.562684646268"     "e-309"),
+    D(makeSubnormalDouble(0x7FFFFFFFFFFFFull), "1.1125369292536"    "e-308"),
+    D(makeSubnormalDouble(0xFFFFFFFFFFFFFull), "2.225073858507201"  "e-308"),
+
+    D(makeSubnormalDouble(0x0000000000005ull), "2.5"                "e-323"),
+    D(makeSubnormalDouble(0x000000000000Aull), "5"                  "e-323"),
+    D(makeSubnormalDouble(0x0000000000015ull), "1.04"               "e-322"),
+    D(makeSubnormalDouble(0x000000000002Aull), "2.08"               "e-322"),
+    D(makeSubnormalDouble(0x0000000000055ull), "4.2"                "e-322"),
+    D(makeSubnormalDouble(0x00000000000AAull), "8.4"                "e-322"),
+    D(makeSubnormalDouble(0x0000000000155ull), "1.685"              "e-321"),
+    D(makeSubnormalDouble(0x00000000002AAull), "3.37"               "e-321"),
+    D(makeSubnormalDouble(0x0000000000555ull), "6.744"              "e-321"),
+    D(makeSubnormalDouble(0x0000000000AAAull), "1.349"              "e-320"),
+    D(makeSubnormalDouble(0x0000000001555ull), "2.698"              "e-320"),
+    D(makeSubnormalDouble(0x0000000002AAAull), "5.396"              "e-320"),
+    D(makeSubnormalDouble(0x0000000005555ull), "1.0793"             "e-319"),
+    D(makeSubnormalDouble(0x000000000AAAAull), "2.15857"            "e-319"),
+    D(makeSubnormalDouble(0x0000000015555ull), "4.3172"             "e-319"),
+    D(makeSubnormalDouble(0x000000002AAAAull), "8.6344"             "e-319"),
+    D(makeSubnormalDouble(0x0000000055555ull), "1.726883"           "e-318"),
+    D(makeSubnormalDouble(0x00000000AAAAAull), "3.453766"           "e-318"),
+    D(makeSubnormalDouble(0x0000000155555ull), "6.907537"           "e-318"),
+    D(makeSubnormalDouble(0x00000002AAAAAull), "1.3815073"          "e-317"),
+    D(makeSubnormalDouble(0x0000000555555ull), "2.763015"           "e-317"),
+    D(makeSubnormalDouble(0x0000000AAAAAAull), "5.5260304"          "e-317"),
+    D(makeSubnormalDouble(0x0000001555555ull), "1.1052061"          "e-316"),
+    D(makeSubnormalDouble(0x0000002AAAAAAull), "2.21041225"         "e-316"),
+    D(makeSubnormalDouble(0x0000005555555ull), "4.42082455"         "e-316"),
+    D(makeSubnormalDouble(0x000000AAAAAAAull), "8.8416491"          "e-316"),
+    D(makeSubnormalDouble(0x0000015555555ull), "1.768329824"        "e-315"),
+    D(makeSubnormalDouble(0x000002AAAAAAAull), "3.53665965"         "e-315"),
+    D(makeSubnormalDouble(0x0000055555555ull), "7.0733193"          "e-315"),
+    D(makeSubnormalDouble(0x00000AAAAAAAAull), "1.4146638603"       "e-314"),
+    D(makeSubnormalDouble(0x0000155555555ull), "2.829327721"        "e-314"),
+    D(makeSubnormalDouble(0x00001AAAAAAAAull), "3.5366596513"       "e-314"),
+    D(makeSubnormalDouble(0x0000555555555ull), "1.1317310885"       "e-313"),
+    D(makeSubnormalDouble(0x0000AAAAAAAAAull), "2.263462177"        "e-313"),
+    D(makeSubnormalDouble(0x0001555555555ull), "4.52692435404"      "e-313"),
+    D(makeSubnormalDouble(0x0002AAAAAAAAAull), "9.0538487081"       "e-313"),
+    D(makeSubnormalDouble(0x0005555555555ull), "1.81076974162"      "e-312"),
+    D(makeSubnormalDouble(0x000AAAAAAAAAAull), "3.621539483244"     "e-312"),
+    D(makeSubnormalDouble(0x0015555555555ull), "7.243078966493"     "e-312"),
+    D(makeSubnormalDouble(0x002AAAAAAAAAAull), "1.4486157932986"    "e-311"),
+    D(makeSubnormalDouble(0x0055555555555ull), "2.897231586598"     "e-311"),
+    D(makeSubnormalDouble(0x00AAAAAAAAAAAull), "5.7944631731955"    "e-311"),
+    D(makeSubnormalDouble(0x0155555555555ull), "1.15889263463915"   "e-310"),
+    D(makeSubnormalDouble(0x02AAAAAAAAAAAull), "2.3177852692783"    "e-310"),
+    D(makeSubnormalDouble(0x0555555555555ull), "4.63557053855665"   "e-310"),
+    D(makeSubnormalDouble(0x0AAAAAAAAAAAAull), "9.2711410771133"    "e-310"),
+    D(makeSubnormalDouble(0x1555555555555ull), "1.854228215422666"  "e-309"),
+    D(makeSubnormalDouble(0x2AAAAAAAAAAAAull), "3.70845643084533"   "e-309"),
+    D(makeSubnormalDouble(0x5555555555555ull), "7.41691286169067"   "e-309"),
+    D(makeSubnormalDouble(0xAAAAAAAAAAAAAull), "1.483382572338134"  "e-308"),
 
     D(+1,      "1"  ), // Plus sign not written for integers
     D(+12,     "12" ),
@@ -1903,6 +2075,20 @@ static const DblIntData k_DBL_DEC_INT[] = {
 
 static const float  fltNegZero = -1 / std::numeric_limits<float>::infinity();
 
+// ----------------------------------------------------------------------------
+//                  'float' test data builder functions
+
+static
+float makeSubnormalFloat(int32_t mantissa)
+    // Return a 'float' that is a (positive) subnormal and has the specified
+    // 'mantissa'.  The behavior is undefined unless '0 < mantissa < 2^23'.
+{
+    float f;
+    memcpy(&f, &mantissa, sizeof f);
+    BSLMF_ASSERT(sizeof mantissa == sizeof f);
+    return f;
+}
+
                             // ==============
                             // struct FltData
                             // ==============
@@ -1927,6 +2113,14 @@ struct FltIntData {
     unsigned    d_exponent;  // Use when value is too large for 23 bits
     const char* d_expected;
 };
+
+// ----------------------------------------------------------------------------
+// Verify 'float' assumptions.
+
+BSLMF_ASSERT(std::numeric_limits<float>::has_infinity);
+BSLMF_ASSERT(std::numeric_limits<float>::has_quiet_NaN);
+BSLMF_ASSERT(std::numeric_limits<float>::has_signaling_NaN);
+BSLMF_ASSERT(std::numeric_limits<float>::has_denorm);
 
 // ----------------------------------------------------------------------------
 // 'float' "minimal" format test data
@@ -1954,6 +2148,76 @@ static const FltData k_FLT_CPP[] = {
     F(-1.2e7f,  "-1.2e+07"),
 
     F(fltNegZero, "-0"), // Negative zero is written as negative
+
+    // Extremes
+    F(std::numeric_limits<float>::max(), "3.4028235e+38"),
+    F(std::numeric_limits<float>::min(), "1.1754944e-38"),
+
+    // Subnormal/denormalized numbers
+    F(std::numeric_limits<float>::denorm_min(), "1e-45"),
+
+    F(makeSubnormalFloat(0x000001), "1"        "e-45"),
+    F(makeSubnormalFloat(0x000002), "3"        "e-45"),
+    F(makeSubnormalFloat(0x000004), "6"        "e-45"),
+    F(makeSubnormalFloat(0x000008), "1.1"      "e-44"),
+    F(makeSubnormalFloat(0x000010), "2.2"      "e-44"),
+    F(makeSubnormalFloat(0x000020), "4.5"      "e-44"),
+    F(makeSubnormalFloat(0x000040), "9"        "e-44"),
+    F(makeSubnormalFloat(0x000080), "1.8"      "e-43"),
+    F(makeSubnormalFloat(0x000100), "3.59"     "e-43"),
+    F(makeSubnormalFloat(0x000200), "7.17"     "e-43"),
+    F(makeSubnormalFloat(0x000400), "1.435"    "e-42"),
+    F(makeSubnormalFloat(0x000800), "2.87"     "e-42"),
+    F(makeSubnormalFloat(0x001000), "5.74"     "e-42"),
+    F(makeSubnormalFloat(0x002000), "1.148"    "e-41"),
+    F(makeSubnormalFloat(0x004000), "2.2959"   "e-41"),
+    F(makeSubnormalFloat(0x008000), "4.5918"   "e-41"),
+    F(makeSubnormalFloat(0x010000), "9.1835"   "e-41"),
+    F(makeSubnormalFloat(0x020000), "1.83671"  "e-40"),
+    F(makeSubnormalFloat(0x040000), "3.67342"  "e-40"),
+    F(makeSubnormalFloat(0x080000), "7.34684"  "e-40"),
+    F(makeSubnormalFloat(0x100000), "1.469368" "e-39"),
+
+    F(makeSubnormalFloat(0x000003), "4"        "e-45"),
+    F(makeSubnormalFloat(0x000007), "1"        "e-44"),
+    F(makeSubnormalFloat(0x00000F), "2.1"      "e-44"),
+    F(makeSubnormalFloat(0x00001F), "4.3"      "e-44"),
+    F(makeSubnormalFloat(0x00003F), "8.8"      "e-44"),
+    F(makeSubnormalFloat(0x00007F), "1.78"     "e-43"),
+    F(makeSubnormalFloat(0x0000FF), "3.57"     "e-43"),
+    F(makeSubnormalFloat(0x0001FF), "7.16"     "e-43"),
+    F(makeSubnormalFloat(0x0003FF), "1.434"    "e-42"),
+    F(makeSubnormalFloat(0x0007FF), "2.868"    "e-42"),
+    F(makeSubnormalFloat(0x000FFF), "5.738"    "e-42"),
+    F(makeSubnormalFloat(0x001FFF), "1.1478"   "e-41"),
+    F(makeSubnormalFloat(0x003FFF), "2.2957"   "e-41"),
+    F(makeSubnormalFloat(0x007FFF), "4.5916"   "e-41"),
+    F(makeSubnormalFloat(0x00FFFF), "9.1834"   "e-41"),
+    F(makeSubnormalFloat(0x01FFFF), "1.8367"   "e-40"),
+    F(makeSubnormalFloat(0x03FFFF), "3.6734"   "e-40"),
+    F(makeSubnormalFloat(0x07FFFF), "7.34683"  "e-40"),
+    F(makeSubnormalFloat(0x0FFFFF), "1.469367" "e-39"),
+    F(makeSubnormalFloat(0x1FFFFF), "2.938734" "e-39"),
+
+    F(makeSubnormalFloat(0x000005), "7"        "e-45"),
+    F(makeSubnormalFloat(0x00000A), "1.4"      "e-44"),
+    F(makeSubnormalFloat(0x000015), "3"        "e-44"),
+    F(makeSubnormalFloat(0x00002A), "5.9"      "e-44"),
+    F(makeSubnormalFloat(0x000055), "1.19"     "e-43"),
+    F(makeSubnormalFloat(0x0000AA), "2.38"     "e-43"),
+    F(makeSubnormalFloat(0x000155), "4.78"     "e-43"),
+    F(makeSubnormalFloat(0x0002AA), "9.56"     "e-43"),
+    F(makeSubnormalFloat(0x000555), "1.913"    "e-42"),
+    F(makeSubnormalFloat(0x000AAA), "3.826"    "e-42"),
+    F(makeSubnormalFloat(0x001555), "7.652"    "e-42"),
+    F(makeSubnormalFloat(0x002AAA), "1.5305"   "e-41"),
+    F(makeSubnormalFloat(0x005555), "3.0611"   "e-41"),
+    F(makeSubnormalFloat(0x00AAAA), "6.1223"   "e-41"),
+    F(makeSubnormalFloat(0x015555), "1.22447"  "e-40"),
+    F(makeSubnormalFloat(0x02AAAA), "2.44894"  "e-40"),
+    F(makeSubnormalFloat(0x055555), "4.89789"  "e-40"),
+    F(makeSubnormalFloat(0x0AAAAA), "9.79578"  "e-40"),
+    F(makeSubnormalFloat(0x155555), "1.959157" "e-39"),
 
     F(+1.f,      "1"  ), // Plus sign not written for integers
     F(+12.f,     "12" ),
@@ -2966,6 +3230,206 @@ static const FltIntData k_FLT_DEC_INT[] = {
 namespace {
 namespace u {
 
+class IncompleteType;
+    // Used in verifying compiler-error behavior, must not be defined.
+
+template <class T, int BASE>
+void verifyOneBaseMaxLenForSignedInType(const char *int_type_name)
+    // Verify correctness of the sufficient length reporting for a signed
+    // integer type 'T' for the specified 'BASE'.  The specified
+    // 'int_type_name' is used only to make assert messages more useful.  We
+    // have a separate function for signed and unsigned types because the
+    // longest (in print) value differs between the two.
+{
+    typedef std::numeric_limits<T> Lim;
+
+    const size_t k_HUGE_BUFFSIZE = 1024;
+        // We use huge buffer size as we have to assume errors may be present.
+    char buffer[k_HUGE_BUFFSIZE + 1];
+        // Plus one for a closing null character so we can print the buffer in
+        // an assert without tricks.
+
+    char * const p = Util::toChars(buffer,
+                                   buffer + k_HUGE_BUFFSIZE,
+                                   Lim::min(),
+                                   BASE);
+    const size_t lenOfMin = (p - buffer);
+    ASSERTV(int_type_name, BASE, lenOfMin, lenOfMin <= k_HUGE_BUFFSIZE);
+    if (lenOfMin > k_HUGE_BUFFSIZE) {
+        return;                                                       // RETURN
+    }
+
+    *p = '\0';  // Enable 'ASSERTV' printing of 'buffer'
+    ASSERTV(int_type_name,
+            BASE,
+            (bslalg::NumericFormatterUtil::ToCharsMaxLength<T, BASE>::k_VALUE),
+            lenOfMin,
+            buffer,
+            (Util::ToCharsMaxLength<T, BASE>::k_VALUE == lenOfMin));
+
+    // Paranoid  heck to make sure length needed to print 'max()' is one or two
+    // *less* than the length needed for the minimum, as for two's complement
+    // it should be.  Two less when the negative value prints as '-1' followed
+    // by zeros, like so: '"-10000"'.
+
+    const bool atEdge = lenOfMin > 1
+                     && ('1' == buffer[1])
+                     && (lenOfMin - 2 == strspn(buffer + 2, "0"));
+
+    const size_t minMaxLenDiff = atEdge ? 2 : 1;
+
+    char * const xp = Util::toChars(buffer,
+                                    buffer + k_HUGE_BUFFSIZE,
+                                    Lim::max(),
+                                    BASE);
+    const size_t lenOfMax = (xp - buffer);
+    ASSERTV(int_type_name, BASE, lenOfMax, lenOfMax <= k_HUGE_BUFFSIZE);
+    if (lenOfMax > k_HUGE_BUFFSIZE) {
+        return;                                                       // RETURN
+    }
+
+    *xp = '\0';  // Enable 'ASSERTV' printing of 'buffer'
+    ASSERTV(int_type_name, BASE, lenOfMax, lenOfMin, buffer, minMaxLenDiff,
+            lenOfMax + minMaxLenDiff == lenOfMin);
+}
+
+template <class T, int BASE>
+void verifyOneBaseMaxLenForUnsignedInType(const char *int_type_name)
+    // Verify correctness of the sufficient length reporting for an unsigned
+    // integer type 'T' for the specified 'BASE'.  The specified
+    // 'int_type_name' is used only to make assert messages more useful.  We
+    // have a separate function for signed and unsigned types because the
+    // longest (in print) value differs between the two.
+{
+    typedef std::numeric_limits<T> Lim;
+
+    const size_t k_HUGE_BUFFSIZE = 1024;
+        // We use huge buffer size as we have to assume errors may be present.
+    char buffer[k_HUGE_BUFFSIZE + 1];
+        // Plus one for a closing null character so we can print the buffer in
+        // an assert without tricks.
+
+    char * const p = Util::toChars(buffer,
+                                   buffer + k_HUGE_BUFFSIZE,
+                                   Lim::max(),
+                                   BASE);
+    const size_t lenOfMin = (p - buffer);
+    ASSERTV(int_type_name, BASE, lenOfMin, lenOfMin <= k_HUGE_BUFFSIZE);
+    if (lenOfMin > k_HUGE_BUFFSIZE) {
+        return;                                                       // RETURN
+    }
+
+    *p = '\0';  // Enable 'ASSERTV' printing of 'buffer'
+    ASSERTV(int_type_name,
+            BASE,
+            (bslalg::NumericFormatterUtil::ToCharsMaxLength<T, BASE>::k_VALUE),
+            lenOfMin,
+            buffer,
+            (Util::ToCharsMaxLength<T, BASE>::k_VALUE == lenOfMin));
+
+    // Paranoid check to make sure length needed to print 'min()' is length 1.
+
+    char * const np = Util::toChars(buffer,
+                                    buffer + k_HUGE_BUFFSIZE,
+                                    Lim::min(),
+                                    BASE);  // Should print 0
+    const size_t lenOfMax = (np - buffer);
+    ASSERTV(int_type_name, BASE, lenOfMax, lenOfMax <= k_HUGE_BUFFSIZE);
+    if (lenOfMax > k_HUGE_BUFFSIZE) {
+        return;                                                       // RETURN
+    }
+
+    *np = '\0';  // Enable 'ASSERTV' printing of 'buffer'
+    ASSERTV(int_type_name, BASE, lenOfMin, buffer,
+            1 == lenOfMax);
+}
+
+template <class T>
+void verifyAllMaxLenForAnIntType(const char *int_type_name)
+{
+    typedef std::numeric_limits<T> Lim;
+    if (veryVerbose) {
+        fputs(int_type_name, stdout);
+        fputs(Lim::is_signed ? "is signed" : "is unsigned", stdout);
+        printf(", sizeof: %u\n", (unsigned)sizeof(T));
+    }
+
+    if (Lim::is_signed) {
+        verifyOneBaseMaxLenForSignedInType<T,  2>(int_type_name);
+        verifyOneBaseMaxLenForSignedInType<T,  3>(int_type_name);
+        verifyOneBaseMaxLenForSignedInType<T,  4>(int_type_name);
+        verifyOneBaseMaxLenForSignedInType<T,  5>(int_type_name);
+        verifyOneBaseMaxLenForSignedInType<T,  6>(int_type_name);
+        verifyOneBaseMaxLenForSignedInType<T,  7>(int_type_name);
+        verifyOneBaseMaxLenForSignedInType<T,  8>(int_type_name);
+        verifyOneBaseMaxLenForSignedInType<T,  9>(int_type_name);
+        verifyOneBaseMaxLenForSignedInType<T, 10>(int_type_name);
+        verifyOneBaseMaxLenForSignedInType<T, 11>(int_type_name);
+        verifyOneBaseMaxLenForSignedInType<T, 12>(int_type_name);
+        verifyOneBaseMaxLenForSignedInType<T, 13>(int_type_name);
+        verifyOneBaseMaxLenForSignedInType<T, 14>(int_type_name);
+        verifyOneBaseMaxLenForSignedInType<T, 15>(int_type_name);
+        verifyOneBaseMaxLenForSignedInType<T, 16>(int_type_name);
+        verifyOneBaseMaxLenForSignedInType<T, 17>(int_type_name);
+        verifyOneBaseMaxLenForSignedInType<T, 18>(int_type_name);
+        verifyOneBaseMaxLenForSignedInType<T, 19>(int_type_name);
+        verifyOneBaseMaxLenForSignedInType<T, 20>(int_type_name);
+        verifyOneBaseMaxLenForSignedInType<T, 21>(int_type_name);
+        verifyOneBaseMaxLenForSignedInType<T, 22>(int_type_name);
+        verifyOneBaseMaxLenForSignedInType<T, 23>(int_type_name);
+        verifyOneBaseMaxLenForSignedInType<T, 24>(int_type_name);
+        verifyOneBaseMaxLenForSignedInType<T, 25>(int_type_name);
+        verifyOneBaseMaxLenForSignedInType<T, 26>(int_type_name);
+        verifyOneBaseMaxLenForSignedInType<T, 27>(int_type_name);
+        verifyOneBaseMaxLenForSignedInType<T, 28>(int_type_name);
+        verifyOneBaseMaxLenForSignedInType<T, 29>(int_type_name);
+        verifyOneBaseMaxLenForSignedInType<T, 30>(int_type_name);
+        verifyOneBaseMaxLenForSignedInType<T, 31>(int_type_name);
+        verifyOneBaseMaxLenForSignedInType<T, 32>(int_type_name);
+        verifyOneBaseMaxLenForSignedInType<T, 33>(int_type_name);
+        verifyOneBaseMaxLenForSignedInType<T, 34>(int_type_name);
+        verifyOneBaseMaxLenForSignedInType<T, 35>(int_type_name);
+        verifyOneBaseMaxLenForSignedInType<T, 36>(int_type_name);
+    }
+    else {
+        verifyOneBaseMaxLenForUnsignedInType<T,  2>(int_type_name);
+        verifyOneBaseMaxLenForUnsignedInType<T,  3>(int_type_name);
+        verifyOneBaseMaxLenForUnsignedInType<T,  4>(int_type_name);
+        verifyOneBaseMaxLenForUnsignedInType<T,  5>(int_type_name);
+        verifyOneBaseMaxLenForUnsignedInType<T,  6>(int_type_name);
+        verifyOneBaseMaxLenForUnsignedInType<T,  7>(int_type_name);
+        verifyOneBaseMaxLenForUnsignedInType<T,  8>(int_type_name);
+        verifyOneBaseMaxLenForUnsignedInType<T,  9>(int_type_name);
+        verifyOneBaseMaxLenForUnsignedInType<T, 10>(int_type_name);
+        verifyOneBaseMaxLenForUnsignedInType<T, 11>(int_type_name);
+        verifyOneBaseMaxLenForUnsignedInType<T, 12>(int_type_name);
+        verifyOneBaseMaxLenForUnsignedInType<T, 13>(int_type_name);
+        verifyOneBaseMaxLenForUnsignedInType<T, 14>(int_type_name);
+        verifyOneBaseMaxLenForUnsignedInType<T, 15>(int_type_name);
+        verifyOneBaseMaxLenForUnsignedInType<T, 16>(int_type_name);
+        verifyOneBaseMaxLenForUnsignedInType<T, 17>(int_type_name);
+        verifyOneBaseMaxLenForUnsignedInType<T, 18>(int_type_name);
+        verifyOneBaseMaxLenForUnsignedInType<T, 19>(int_type_name);
+        verifyOneBaseMaxLenForUnsignedInType<T, 20>(int_type_name);
+        verifyOneBaseMaxLenForUnsignedInType<T, 21>(int_type_name);
+        verifyOneBaseMaxLenForUnsignedInType<T, 22>(int_type_name);
+        verifyOneBaseMaxLenForUnsignedInType<T, 23>(int_type_name);
+        verifyOneBaseMaxLenForUnsignedInType<T, 24>(int_type_name);
+        verifyOneBaseMaxLenForUnsignedInType<T, 25>(int_type_name);
+        verifyOneBaseMaxLenForUnsignedInType<T, 26>(int_type_name);
+        verifyOneBaseMaxLenForUnsignedInType<T, 27>(int_type_name);
+        verifyOneBaseMaxLenForUnsignedInType<T, 28>(int_type_name);
+        verifyOneBaseMaxLenForUnsignedInType<T, 29>(int_type_name);
+        verifyOneBaseMaxLenForUnsignedInType<T, 30>(int_type_name);
+        verifyOneBaseMaxLenForUnsignedInType<T, 31>(int_type_name);
+        verifyOneBaseMaxLenForUnsignedInType<T, 32>(int_type_name);
+        verifyOneBaseMaxLenForUnsignedInType<T, 33>(int_type_name);
+        verifyOneBaseMaxLenForUnsignedInType<T, 34>(int_type_name);
+        verifyOneBaseMaxLenForUnsignedInType<T, 35>(int_type_name);
+        verifyOneBaseMaxLenForUnsignedInType<T, 36>(int_type_name);
+    }
+}
+
 template <class UINT64_T>
 void dblMantissaToHex(char (&hexout)[16], UINT64_T m52)
     // Write the specified 'm52' 52 bit mantissa to the specified 'hexout' as a
@@ -2993,7 +3457,7 @@ void dblMantissaToHex(char (&hexout)[16], UINT64_T m52)
     *be = '\0';
 }
 
-double dblPowerMult(bsls::Types::Int64 n, unsigned exponent)
+double dblPowerMult(Int64 n, unsigned exponent)
     // Return the specified 'n' multiplied by two to the power of the specified
     // 'exponent' as a 'double', or positive or negative infinity if that value
     // cannot be represented as a 'double'.
@@ -3621,7 +4085,6 @@ void verifyRyuCall(const TEST_DATA_TYPE (&k_DATA)[k_NUM_DATA])
     }
 }
 
-
                         // ===================
                         // template struct Flt
                         // ===================
@@ -3632,7 +4095,7 @@ struct Flt;
 
 template <>
 struct Flt<double> {
-    typedef bsls::Types::Int64 IntType;
+    typedef Int64 IntType;
     static double powerMult(IntType n, unsigned exponent) {
         return dblPowerMult(n, exponent);
     }
@@ -3989,6 +4452,21 @@ char *generateIntStringRep(char *back, Uint64 value, bool sign, unsigned base)
 
     return back;
 }
+
+                        // =======================
+                        // struct NumDecimalDigits
+                        // =======================
+
+template <int NUMBER, class = void>
+struct NumDecimalDigits {
+    static const size_t value = 1 + NumDecimalDigits<NUMBER / 10>::value;
+};
+
+template <int NUMBER>
+struct NumDecimalDigits<NUMBER, typename bslmf::EnableIf<NUMBER < 10>::type> {
+    static const size_t value = 1;
+};
+
 
 int parseInt(Uint64     *result,
              const char *first,
@@ -4499,8 +4977,10 @@ bool isnan(DoubleWrapper w)
 //..
 // Then, we declare a buffer long enough to store any 'int' value in decimal.
 //..
-        char buffer[11];        // size large enough to write 'INT_MIN', the
-                                // worst-case value, in decimal.
+        char buffer[bslalg::NumericFormatterUtil::
+                                               ToCharsMaxLength<int>::k_VALUE];
+                                   // size large enough to write 'INT_MIN', the
+                                   // worst-case value, in decimal.
 //..
 // Next, we call the function:
 //..
@@ -4560,8 +5040,10 @@ bool isnan(DoubleWrapper w)
 // Next, we declare a buffer long enough to store any 'double' value written in
 // this minimal-length form:
 //..
-        char buffer[24];   // large enough to write the longest 'double'
-                           // without a null terminator character.
+        char buffer[bslalg::NumericFormatterUtil::
+                                            ToCharsMaxLength<double>::k_VALUE];
+                                  // large enough to write the longest 'double'
+                                  // without a null terminator character.
 //..
 // Then, we call the function:
 //..
@@ -4593,7 +5075,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
-      case 17: {
+      case 18: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -4666,6 +5148,989 @@ int main(int argc, char *argv[])
     writeJsonScalar(sb, std::numeric_limits<double>::quiet_NaN(), true);
     ASSERT("\"NaN\"" == oss.str());  oss.str("");
 //..
+//
+///Example 3: Determining The Necessary Minimum Buffer Size
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose you are writing code that uses 'bslalg::NumericFormatterUtil' to
+// convert values to text.  Determining the necessary buffer sizes to ensure
+// successful conversions, especially for floating point types, is non-trivial,
+// and frankly usually strikes as a distraction in the flow of the work.  This
+// component provides the 'ToCharsMaxLength' 'struct' "overloaded" template
+// that parallels the overloaded 'toChars' function variants and provides the
+// well-vetted and tested minimum sufficient buffer size values as compile time
+// constants.
+//
+// Determining the sufficient buffer size for any conversion starts with
+// determining "What type are we converting?" and "Do we use an argument to
+// control the conversion, and is that argument a compile time time constant?
+//
+// First, because of the descriptive type names we may want to start by locally
+// shortening them using a 'typedef':
+//..
+    typedef bslalg::NumericFormatterUtil NfUtil;
+//..
+//
+// Next, we determine the sufficient buffer size for converting a 'long' to
+// decimal.  'long' is a type that has different 'sizeof' on different 64 bit
+// platforms, so it is especially convenient not to :
+//..
+    const size_t k_LONG_DEC_SIZE = NfUtil::ToCharsMaxLength<long>::k_VALUE;
+        // Sufficient buffer size to convert any 'long' value to decimal text.
+//..
+//
+// Then, we can write the longest possible 'long' successfully into a buffer:
+//..
+    char longDecimalBuffer[k_LONG_DEC_SIZE];
+        // We can write any 'long' in decimal into this buffer using
+        // 'NfUtil::toChars' safely.
+
+    char *p = NfUtil::toChars(longDecimalBuffer,
+                              longDecimalBuffer + sizeof longDecimalBuffer,
+                              LONG_MIN);
+    ASSERT(p != 0);
+//..
+//..
+//
+// Next, we can get the sufficient size for conversion of an 'unsigned int' to
+// octal:
+//..
+    const size_t k_UINT_OCT_SIZE = NfUtil::ToCharsMaxLength<unsigned,
+                                                            8>::k_VALUE;
+//..
+// Then, if we do not know what 'base' value 'toChars' will use we have to,
+// assume the longest, which is always base 2:
+//..
+    const size_t k_SHRT_MAX_SIZE = NfUtil::ToCharsMaxLength<short, 2>::k_VALUE;
+//..
+//
+// Now, floating point types have an optional 'format' argument instead of a
+// 'base', with "default" format as the default, and "fixed" and "scientific"
+// formats are selectable when a 'format' argument is specified:
+//..
+    const size_t k_DBL_DFL_SIZE = NfUtil::ToCharsMaxLength<double>::k_VALUE;
+
+    const size_t k_FLT_DEC_SIZE = NfUtil::ToCharsMaxLength<
+                                                     float,
+                                                     NfUtil::e_FIXED>::k_VALUE;
+
+    const size_t k_DBL_SCI_SIZE = NfUtil::ToCharsMaxLength<
+                                                double,
+                                                NfUtil::e_SCIENTIFIC>::k_VALUE;
+//..
+//
+// Finally, the longest floating point format is 'e_FIXED', so if the 'format'
+// argument is not known at compile time, 'e_FIXED' should be used:
+//..
+    const size_t k_DBL_MAX_SIZE = NfUtil::ToCharsMaxLength<
+                                                     double,
+                                                     NfUtil::e_FIXED>::k_VALUE;
+//..
+    (void)k_UINT_OCT_SIZE;
+    (void)k_SHRT_MAX_SIZE;
+    (void)k_SHRT_MAX_SIZE;
+    (void)k_DBL_DFL_SIZE;
+    (void)k_FLT_DEC_SIZE;
+    (void)k_DBL_SCI_SIZE;
+    (void)k_DBL_MAX_SIZE;
+      } break;
+      case 17: {
+        // --------------------------------------------------------------------
+        // MAXIMUM NECESSARY BUFFER LENGTH TESTS
+        //
+        // Concerns:
+        //:  1 A query using unsupported types results in comprehensible
+        //:    compilation error that helps identify the issue.  Special
+        //:    attention need be paid to the 'bool' type that is an integral
+        //:    type by 'numeric_limits' definition, but is excluded from
+        //:    'toChars' as it is not a number-type.
+        //:
+        //:  2 Same comprehensible compilation error occurs when the second,
+        //:    non-type template argument is specified for an unsupported type.
+        //:
+        //:  3 A query using a supported integral type and an out-of-contract
+        //:    'base' second (non-type) template argument value results in a
+        //:    comprehensible compilation error that helps identify that the
+        //:    value for 'base' is wrong.
+        //:
+        //:  4 A query using a supported floating type and a 'format' second
+        //:    (non-type) template argument that is not one of the supported
+        //:    enumerator values results in comprehensible a compilation error
+        //:    that helps identify the wrong 'base' value.  'long double' is
+        //:    not currently supported and must be tested as such.
+        //:
+        //:  5 Querying the supported integral types without providing a 'base'
+        //:    argument results in 'k_VALUE' indicating the decimal, or
+        //:    'base == 10' maximum necessary buffer length, with special care
+        //:    on 'char' whose "signedness" is platform dependent.
+        //:
+        //:  6 Querying the supported integral types and providing a valid
+        //:    'base' argument results in 'k_VALUE' indicating the maximum
+        //:    necessary buffer length for that specified 'base'.  See 'char'
+        //:    comment on C-7.
+        //:
+        //:  7 Querying 'float' without providing a 'format' argument results
+        //:    in a 'k_VALUE' indicating the "minimal" or default format, which
+        //:    in fact is the same as for scientific format.  Comprehensive
+        //:    (brute force) verification of the value is possible but time
+        //:    consuming, hence it is done in a (manual) negative test case.
+        //:
+        //:  8 Querying 'float' with an 'e_SCIENTIFIC' 'format' argument
+        //:    results in a 'k_VALUE' of 15.  Comprehensive (brute force)
+        //:    verification of the value is possible but time consuming, hence
+        //:    it is provided in test case -2.  See the {Implementation Notes}
+        //:    in the .cpp file for explanation for the value 15.
+        //:
+        //:  9 Querying 'float' with an 'e_FIXED' 'format' argument results in
+        //:    a 'k_VALUE' of 48.  Comprehensive (brute force) verification of
+        //:    the value is possible but time consuming, hence it is provided
+        //:    in test case -2.  See the {Implementation Notes} in the .cpp
+        //:    file for explanation for the value 48.
+        //:
+        //: 10 Querying 'double' without providing a 'format' argument results
+        //:    in a 'k_VALUE' indicating the "minimal" or default format, which
+        //:    in fact is the same as for scientific format.
+        //:
+        //: 11 Querying 'double' with an 'e_SCIENTIFIC' 'format' argument
+        //:    results in a 'k_VALUE' of 24.  Comprehensive (brute force)
+        //:    verification of the value is not possible as it would require
+        //:    2^63 numbers tested.  See the {Implementation Notes} in the .cpp
+        //:    file for explanation for the value 24.
+        //:
+        //: 12 Querying 'double' with an 'e_FIXED' 'format' argument results in
+        //:    a 'k_VALUE' of 327.  Comprehensive (brute force) verification of
+        //:    the value  of the value is not possible as it would strictly
+        //:    require 2^63 numbers tested.  See the {Implementation Notes} in
+        //:    the .cpp file for explanation for the value 24.
+        //:
+        //: 13 The correct maximum length in this test driver shall be
+        //:    determined by means other than the ones used in the production
+        //:    code that is tested.
+        //
+        // Plan:
+        //: 1 Provide commented out lines to the instantiation that should not
+        //:   compile and test them manually on all major platform flavors. C-1
+        //:   to C-4.
+        //:
+        //: 2 Integer types with default and specified 'base' are verified by
+        //:   converting 'bsl::numeric_limits::'max()' using that 'base' and
+        //:   verifying the length is shorter than 'k_VALUE', as well as
+        //:   converting 'bsl::numeric_limits::'min()' using that 'base' and
+        //:   verifying that the length is exactly 'k_VALUE'. C-5, C-6, C-15.
+        //:
+        //: 3 Floating point 'k_VALUES' are verified against the constants we
+        //:   expect to see.  Because brute-force testing would take too long
+        //:   time for a unit test we verify that the following numbers fit
+        //:   into buffers of 'k_VALUE' size in all 3 formats:
+        //:
+        //:   1 Negative boundary values from the corresponding
+        //:     'std::numeric_limits<T>': '-max()', '-min()',
+        //:     and '-denorm_min()'.
+        //:
+        //:   2 For 'double' we also verify many negative subnormal values that
+        //:     they fit into the decimal 'k_VALUE' size buffer, mostly to
+        //:     indicate that subnormals were considered and tested (see
+        //:     {Implementation Notes}).  The subnormals are created from a
+        //:     varying pattern binary significants of maximum 52 bits.
+        //
+        // Testing:
+        //   ToCharsMaxLength<T, A>::k_VALUE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("MAXIMUM NECESSARY BUFFER LENGTH TESTS\n"
+                            "=====================================\n");
+
+#define U_VERIFY_UNSUPPORTED_TYPE_COMPILER_ERROR(type) do {                   \
+        const size_t k_SIZE = Util::ToCharsMaxLength<type>::k_VALUE;          \
+        ASSERTV(k_SIZE,                                                       \
+                !"ToCharsMaxLength<" #type ">::k_VALUE should not compile");  \
+    } while (false)
+
+        // Uncomment a line below to verify the compiler error message
+
+        //U_VERIFY_UNSUPPORTED_TYPE_COMPILER_ERROR(char *);
+        //U_VERIFY_UNSUPPORTED_TYPE_COMPILER_ERROR(Util);
+        //U_VERIFY_UNSUPPORTED_TYPE_COMPILER_ERROR(u::IncompleteType);
+        //U_VERIFY_UNSUPPORTED_TYPE_COMPILER_ERROR(void);
+        //U_VERIFY_UNSUPPORTED_TYPE_COMPILER_ERROR(bool);
+        //U_VERIFY_UNSUPPORTED_TYPE_COMPILER_ERROR(long double);
+
+#undef U_VERIFY_UNSUPPORTED_TYPE_COMPILER_ERROR
+
+#define U_VERIFY_UNSUPPORTED_TYPE_COMPILER_ERROR2(type, arg) do {             \
+        const size_t k_SIZE = Util::ToCharsMaxLength<type, arg>::k_VALUE;     \
+        ASSERTV(k_SIZE,                                                       \
+                !"ToCharsMaxLength<" #type ", " #arg ">::k_VALUE should not"  \
+                                                                  "compile"); \
+    } while (false)
+
+        // Uncomment a line below to verify the compiler error message
+
+        //U_VERIFY_UNSUPPORTED_TYPE_COMPILER_ERROR2(char *, 3);
+        //U_VERIFY_UNSUPPORTED_TYPE_COMPILER_ERROR2(Util, 1);
+        //U_VERIFY_UNSUPPORTED_TYPE_COMPILER_ERROR2(u::IncompleteType, 8);
+        //U_VERIFY_UNSUPPORTED_TYPE_COMPILER_ERROR2(void, 4);
+        //U_VERIFY_UNSUPPORTED_TYPE_COMPILER_ERROR2(bool, Util::e_SCIENTIFIC);
+        //U_VERIFY_UNSUPPORTED_TYPE_COMPILER_ERROR2(long double, 16);
+
+#undef U_VERIFY_UNSUPPORTED_TYPE_COMPILER_ERROR2
+
+#define U_VERIFY_UNSUPPORTED_ARG_COMPILER_ERROR(type, arg) do {               \
+        const size_t k_SIZE = Util::ToCharsMaxLength<type, arg>::k_VALUE;     \
+        ASSERTV(k_SIZE,                                                       \
+                !"ToCharsMaxLength<" #type ", " #arg ">::k_VALUE should not"  \
+                                                                  "compile"); \
+    } while (false)
+
+        // Uncomment a line below to verify the compiler error message
+
+        //U_VERIFY_UNSUPPORTED_ARG_COMPILER_ERROR(char, 1);
+        //U_VERIFY_UNSUPPORTED_ARG_COMPILER_ERROR(signed char, 42);
+        //U_VERIFY_UNSUPPORTED_ARG_COMPILER_ERROR(unsigned char, -8);
+
+        //U_VERIFY_UNSUPPORTED_ARG_COMPILER_ERROR(  signed short int, 1);
+        //U_VERIFY_UNSUPPORTED_ARG_COMPILER_ERROR(unsigned short int, 37);
+
+        //U_VERIFY_UNSUPPORTED_ARG_COMPILER_ERROR(  signed int, 1);
+        //U_VERIFY_UNSUPPORTED_ARG_COMPILER_ERROR(unsigned int, 37);
+
+        //U_VERIFY_UNSUPPORTED_ARG_COMPILER_ERROR(  signed long int, 1);
+        //U_VERIFY_UNSUPPORTED_ARG_COMPILER_ERROR(unsigned long int, 37);
+
+        //U_VERIFY_UNSUPPORTED_ARG_COMPILER_ERROR(  signed long long int, 1);
+        //U_VERIFY_UNSUPPORTED_ARG_COMPILER_ERROR(unsigned long long int, 37);
+
+        //U_VERIFY_UNSUPPORTED_ARG_COMPILER_ERROR(float, 2);
+        //U_VERIFY_UNSUPPORTED_ARG_COMPILER_ERROR(float, -33);
+
+        //U_VERIFY_UNSUPPORTED_ARG_COMPILER_ERROR(double, 1);
+        //U_VERIFY_UNSUPPORTED_ARG_COMPILER_ERROR(double, 37);
+
+#undef U_VERIFY_UNSUPPORTED_ARG_COMPILER_ERROR
+
+        using u::verifyAllMaxLenForAnIntType;
+
+        verifyAllMaxLenForAnIntType<         char>(         "char");
+        verifyAllMaxLenForAnIntType<  signed char>(  "signed char");
+        verifyAllMaxLenForAnIntType<unsigned char>("unsigned char");
+
+        verifyAllMaxLenForAnIntType<  signed short int>(  "signed short int");
+        verifyAllMaxLenForAnIntType<unsigned short int>("unsigned short int");
+
+        verifyAllMaxLenForAnIntType<  signed int>(  "signed int");
+        verifyAllMaxLenForAnIntType<unsigned int>("unsigned int");
+
+        verifyAllMaxLenForAnIntType<  signed long int>(  "signed long int");
+        verifyAllMaxLenForAnIntType<unsigned long int>("unsigned long int");
+
+        verifyAllMaxLenForAnIntType<  signed long long int>(
+                                                       "signed long long int");
+        verifyAllMaxLenForAnIntType<unsigned long long int>(
+                                                     "unsigned long long int");
+
+        // Verification of floating point sufficient length reporting
+
+        if (veryVerbose) puts("Verifying 'double' 'ToCharsMaxLength'.");
+        {
+            typedef std::numeric_limits<double> Lim;
+            using u::NumDecimalDigits;
+
+            static const size_t MAX_SCIENTIFIC_DOUBLE_LENGTH =
+                // See further documentation of this calculation in the
+                // {Implementation Notes} in the '.cpp' file.
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+                Lim::max_digits10 +
+#else
+                17 +
+#endif                                                            //  17
+                NumDecimalDigits<-Lim::min_exponent10>::value +   // + 3 ==> 20
+                1 + // optional sign character                    // + 1 ==> 21
+                1 + // optional radix mark (decimal point)        // + 1 ==> 22
+                1 + // 'e' of the scientific format               // + 1 ==> 23
+                1;  // sign for the scientific form exponent      // + 1 ==> 24
+
+            const size_t MAX_DEFAULT_DOUBLE_LENGTH =
+                                                  MAX_SCIENTIFIC_DOUBLE_LENGTH;
+                // Default format falls back to scientific format when that is
+                // shorter than the fixed format, so its maximum possible
+                // length is the same as the scientific.
+
+            static const std::ptrdiff_t MAX_FIXED_DOUBLE_LENGTH =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+                Lim::max_digits10 +
+#else
+                17 +
+#endif                                                         //    17
+                (-Lim::min_exponent10) +                       // + 307 ==> 324
+                1 + // min() of double has -308 decimal exponent  +   1 ==> 325
+                1 + // optional sign character                    +   1 ==> 326
+                1;  // optional radix mark (decimal point)        +   1 ==> 327
+                // See the detailed explanation in {Implementation Notes} in
+                // the .cpp file, this is not the full picture!
+
+            ASSERTV(Util::ToCharsMaxLength<double>::k_VALUE,
+                    MAX_DEFAULT_DOUBLE_LENGTH,
+                    MAX_DEFAULT_DOUBLE_LENGTH ==
+                                      Util::ToCharsMaxLength<double>::k_VALUE);
+
+            ASSERTV(
+                 (Util::ToCharsMaxLength<double, Util::e_SCIENTIFIC>::k_VALUE),
+                  MAX_SCIENTIFIC_DOUBLE_LENGTH,
+                  MAX_SCIENTIFIC_DOUBLE_LENGTH ==
+                        (Util::ToCharsMaxLength<double,
+                                                Util::e_SCIENTIFIC>::k_VALUE));
+
+            ASSERTV((Util::ToCharsMaxLength<double, Util::e_FIXED>::k_VALUE),
+                    MAX_FIXED_DOUBLE_LENGTH,
+                    MAX_FIXED_DOUBLE_LENGTH ==
+                             (Util::ToCharsMaxLength<double,
+                                                     Util::e_FIXED>::k_VALUE));
+
+            const size_t k_HUGE_BUFFSIZE = 1024;
+                // We use huge buffer size as we have to assume errors may be
+                // present.
+
+            BSLMF_ASSERT(k_HUGE_BUFFSIZE > 3 * MAX_FIXED_DOUBLE_LENGTH);
+                // Let's make sure it *is* really huge.
+
+            char buffer[k_HUGE_BUFFSIZE + 1];
+                // Plus one for a closing null character so we can print the
+                // buffer in an assert without tricks.
+
+            if (veryVerbose) puts("Default format for 'double'.");
+            do {
+                // -std::numeric_limits<double>::min()
+                char * p = Util::toChars(buffer,
+                                         buffer + k_HUGE_BUFFSIZE,
+                                         -Lim::min());
+
+                size_t writtenLength = (p - buffer);
+                ASSERTV(writtenLength, writtenLength <= k_HUGE_BUFFSIZE);
+                if (writtenLength > k_HUGE_BUFFSIZE) {
+                    break;                                             // BREAK
+                }
+                *p = '\0';  // Enable 'ASSERTV' printing of 'buffer'
+                ASSERTV(Util::ToCharsMaxLength<double>::k_VALUE,
+                        writtenLength,
+                        buffer,
+                        (Util::ToCharsMaxLength<double>::k_VALUE
+                                                            >= writtenLength));
+
+                // -std::numeric_limits<double>::max()
+                p = Util::toChars(buffer,
+                                  buffer + k_HUGE_BUFFSIZE,
+                                  -Lim::max());
+
+                writtenLength = (p - buffer);
+                ASSERTV(writtenLength, writtenLength <= k_HUGE_BUFFSIZE);
+                if (writtenLength > k_HUGE_BUFFSIZE) {
+                    break;                                             // BREAK
+                }
+                *p = '\0';  // Enable 'ASSERTV' printing of 'buffer'
+
+                ASSERTV(Util::ToCharsMaxLength<double>::k_VALUE,
+                        writtenLength,
+                        buffer,
+                        (Util::ToCharsMaxLength<double>::k_VALUE
+                                                            >= writtenLength));
+
+                // smallest subnormal
+                p = Util::toChars(buffer,
+                                  buffer + k_HUGE_BUFFSIZE,
+                                  -Lim::denorm_min());
+
+                writtenLength = (p - buffer);
+                ASSERTV(writtenLength, writtenLength <= k_HUGE_BUFFSIZE);
+                if (writtenLength > k_HUGE_BUFFSIZE) {
+                    break;                                             // BREAK
+                }
+                *p = '\0';  // Enable 'ASSERTV' printing of 'buffer'
+
+                ASSERTV(Util::ToCharsMaxLength<double>::k_VALUE,
+                        writtenLength,
+                        buffer,
+                        (Util::ToCharsMaxLength<double>::k_VALUE
+                                                            >= writtenLength));
+            } while (false);
+
+            if (veryVerbose) puts("Scientific format for 'double'.");
+            do {
+                // -std::numeric_limits<double>::min()
+                char * p = Util::toChars(buffer,
+                                         buffer + k_HUGE_BUFFSIZE,
+                                         -Lim::min(),
+                                         Util::e_SCIENTIFIC);
+
+                size_t writtenLength = (p - buffer);
+                ASSERTV(writtenLength, writtenLength <= k_HUGE_BUFFSIZE);
+                if (writtenLength > k_HUGE_BUFFSIZE) {
+                    break;                                             // BREAK
+                }
+                *p = '\0';  // Enable 'ASSERTV' printing of 'buffer'
+
+                ASSERTV((Util::ToCharsMaxLength<double,
+                                                Util::e_SCIENTIFIC>::k_VALUE),
+                        writtenLength,
+                        buffer,
+                        (Util::ToCharsMaxLength<double,
+                                                Util::e_SCIENTIFIC>::k_VALUE
+                                                            >= writtenLength));
+
+                // -std::numeric_limits<double>::max()
+                p = Util::toChars(buffer,
+                                  buffer + k_HUGE_BUFFSIZE,
+                                  -Lim::max(),
+                                  Util::e_SCIENTIFIC);
+
+                writtenLength = (p - buffer);
+                ASSERTV(writtenLength, writtenLength <= k_HUGE_BUFFSIZE);
+                if (writtenLength > k_HUGE_BUFFSIZE) {
+                    break;                                             // BREAK
+                }
+                *p = '\0';  // Enable 'ASSERTV' printing of 'buffer'
+
+                ASSERTV((Util::ToCharsMaxLength<double,
+                                                Util::e_SCIENTIFIC>::k_VALUE),
+                        writtenLength,
+                        buffer,
+                        (Util::ToCharsMaxLength<double,
+                                                Util::e_SCIENTIFIC>::k_VALUE
+                                                            >= writtenLength));
+
+                // smallest subnormal
+                p = Util::toChars(buffer,
+                                  buffer + k_HUGE_BUFFSIZE,
+                                  -Lim::denorm_min(),
+                                  Util::e_SCIENTIFIC);
+
+                writtenLength = (p - buffer);
+                ASSERTV(writtenLength, writtenLength <= k_HUGE_BUFFSIZE);
+                if (writtenLength > k_HUGE_BUFFSIZE) {
+                    break;                                             // BREAK
+                }
+                *p = '\0';  // Enable 'ASSERTV' printing of 'buffer'
+
+                ASSERTV((Util::ToCharsMaxLength<double,
+                                                Util::e_SCIENTIFIC>::k_VALUE),
+                        writtenLength,
+                        buffer,
+                        (Util::ToCharsMaxLength<double,
+                                                Util::e_SCIENTIFIC>::k_VALUE
+                                                            >= writtenLength));
+            } while (false);
+
+            if (veryVerbose) puts("Fixed format for 'double'.");
+            do {
+                // -std::numeric_limits<double>::min()
+                char * p = Util::toChars(buffer,
+                                         buffer + k_HUGE_BUFFSIZE,
+                                         -Lim::min(),
+                                         Util::e_FIXED);
+
+                size_t writtenLength = (p - buffer);
+                ASSERTV(writtenLength, writtenLength <= k_HUGE_BUFFSIZE);
+                if (writtenLength > k_HUGE_BUFFSIZE) {
+                    break;                                             // BREAK
+                }
+                *p = '\0';  // Enable 'ASSERTV' printing of 'buffer'
+
+                ASSERTV((Util::ToCharsMaxLength<double,
+                                                Util::e_FIXED>::k_VALUE),
+                        writtenLength,
+                        buffer,
+                        (Util::ToCharsMaxLength<double,
+                                                Util::e_FIXED>::k_VALUE
+                                                            >= writtenLength));
+
+                // -std::numeric_limits<double>::max()
+                p = Util::toChars(buffer,
+                                  buffer + k_HUGE_BUFFSIZE,
+                                  -Lim::max(),
+                                  Util::e_FIXED);
+
+                writtenLength = (p - buffer);
+                ASSERTV(writtenLength, writtenLength <= k_HUGE_BUFFSIZE);
+                if (writtenLength > k_HUGE_BUFFSIZE) {
+                    break;                                             // BREAK
+                }
+                *p = '\0';  // Enable 'ASSERTV' printing of 'buffer'
+
+                ASSERTV((Util::ToCharsMaxLength<double,
+                                                Util::e_FIXED>::k_VALUE),
+                        writtenLength,
+                        buffer,
+                        (Util::ToCharsMaxLength<double,
+                                                Util::e_FIXED>::k_VALUE
+                                                            >= writtenLength));
+
+                // smallest subnormal
+                p = Util::toChars(buffer,
+                                  buffer + k_HUGE_BUFFSIZE,
+                                  -Lim::denorm_min(),
+                                  Util::e_FIXED);
+
+                writtenLength = (p - buffer);
+                ASSERTV(writtenLength, writtenLength <= k_HUGE_BUFFSIZE);
+                if (writtenLength > k_HUGE_BUFFSIZE) {
+                    break;                                             // BREAK
+                }
+                *p = '\0';  // Enable 'ASSERTV' printing of 'buffer'
+
+                ASSERTV((Util::ToCharsMaxLength<double,
+                                                Util::e_FIXED>::k_VALUE),
+                        writtenLength,
+                        buffer,
+                        (Util::ToCharsMaxLength<double,
+                                                Util::e_FIXED>::k_VALUE
+                                                            >= writtenLength));
+            } while (false);
+
+            // Longer Subnormals
+            struct {
+                int    d_line;
+                Uint64 d_mantissa;
+            } SUBNORMALS[] = {
+                { L_, 0x0000000000001ull }, // one bit walks up
+                { L_, 0x0000000000002ull },
+                { L_, 0x0000000000004ull },
+                { L_, 0x0000000000008ull },
+                { L_, 0x0000000000010ull },
+                { L_, 0x0000000000020ull },
+                { L_, 0x0000000000040ull },
+                { L_, 0x0000000000080ull },
+                { L_, 0x0000000000100ull },
+                { L_, 0x0000000000200ull },
+                { L_, 0x0000000000400ull },
+                { L_, 0x0000000000800ull },
+                { L_, 0x0000000001000ull },
+                { L_, 0x0000000002000ull },
+                { L_, 0x0000000004000ull },
+                { L_, 0x0000000008000ull },
+                { L_, 0x0000000010000ull },
+                { L_, 0x0000000020000ull },
+                { L_, 0x0000000040000ull },
+                { L_, 0x0000000080000ull },
+                { L_, 0x0000000100000ull },
+                { L_, 0x0000000200000ull },
+                { L_, 0x0000000400000ull },
+                { L_, 0x0000000800000ull },
+                { L_, 0x0000001000000ull },
+                { L_, 0x0000002000000ull },
+                { L_, 0x0000004000000ull },
+                { L_, 0x0000008000000ull },
+                { L_, 0x0000010000000ull },
+                { L_, 0x0000020000000ull },
+                { L_, 0x0000040000000ull },
+                { L_, 0x0000080000000ull },
+                { L_, 0x0000100000000ull },
+                { L_, 0x0000200000000ull },
+                { L_, 0x0000400000000ull },
+                { L_, 0x0000800000000ull },
+                { L_, 0x0001000000000ull },
+                { L_, 0x0002000000000ull },
+                { L_, 0x0004000000000ull },
+                { L_, 0x0008000000000ull },
+                { L_, 0x0010000000000ull },
+                { L_, 0x0020000000000ull },
+                { L_, 0x0040000000000ull },
+                { L_, 0x0080000000000ull },
+                { L_, 0x0100000000000ull },
+                { L_, 0x0200000000000ull },
+                { L_, 0x0400000000000ull },
+                { L_, 0x0800000000000ull },
+                { L_, 0x1000000000000ull },
+                { L_, 0x2000000000000ull },
+                { L_, 0x4000000000000ull },
+                { L_, 0x8000000000000ull },
+
+                { L_, 0x0000000000003ull }, // filling with ones from the right
+                { L_, 0x0000000000007ull },
+                { L_, 0x000000000000Full },
+                { L_, 0x000000000001Full },
+                { L_, 0x000000000003Full },
+                { L_, 0x000000000007Full },
+                { L_, 0x00000000000FFull },
+                { L_, 0x00000000001FFull },
+                { L_, 0x00000000003FFull },
+                { L_, 0x00000000007FFull },
+                { L_, 0x0000000000FFFull },
+                { L_, 0x0000000001FFFull },
+                { L_, 0x0000000003FFFull },
+                { L_, 0x0000000007FFFull },
+                { L_, 0x000000000FFFFull },
+                { L_, 0x000000001FFFFull },
+                { L_, 0x000000003FFFFull },
+                { L_, 0x000000007FFFFull },
+                { L_, 0x00000000FFFFFull },
+                { L_, 0x00000001FFFFFull },
+                { L_, 0x00000003FFFFFull },
+                { L_, 0x00000007FFFFFull },
+                { L_, 0x0000000FFFFFFull },
+                { L_, 0x0000001FFFFFFull },
+                { L_, 0x0000003FFFFFFull },
+                { L_, 0x0000007FFFFFFull },
+                { L_, 0x000000FFFFFFFull },
+                { L_, 0x000001FFFFFFFull },
+                { L_, 0x000003FFFFFFFull },
+                { L_, 0x000007FFFFFFFull },
+                { L_, 0x00000FFFFFFFFull },
+                { L_, 0x00001FFFFFFFFull },
+                { L_, 0x00003FFFFFFFFull },
+                { L_, 0x00007FFFFFFFFull },
+                { L_, 0x0000FFFFFFFFFull },
+                { L_, 0x0001FFFFFFFFFull },
+                { L_, 0x0003FFFFFFFFFull },
+                { L_, 0x0007FFFFFFFFFull },
+                { L_, 0x000FFFFFFFFFFull },
+                { L_, 0x001FFFFFFFFFFull },
+                { L_, 0x003FFFFFFFFFFull },
+                { L_, 0x007FFFFFFFFFFull },
+                { L_, 0x00FFFFFFFFFFFull },
+                { L_, 0x01FFFFFFFFFFFull },
+                { L_, 0x03FFFFFFFFFFFull },
+                { L_, 0x07FFFFFFFFFFFull },
+                { L_, 0x0FFFFFFFFFFFFull },
+                { L_, 0x1FFFFFFFFFFFFull },
+                { L_, 0x3FFFFFFFFFFFFull },
+                { L_, 0x7FFFFFFFFFFFFull },
+                { L_, 0xFFFFFFFFFFFFFull },
+
+                { L_, 0x0000000000002ull }, // 101010... pattern from the right
+                { L_, 0x0000000000005ull },
+                { L_, 0x000000000000Aull },
+                { L_, 0x0000000000015ull },
+                { L_, 0x000000000002Aull },
+                { L_, 0x0000000000055ull },
+                { L_, 0x00000000000AAull },
+                { L_, 0x0000000000155ull },
+                { L_, 0x00000000002AAull },
+                { L_, 0x0000000000555ull },
+                { L_, 0x0000000000AAAull },
+                { L_, 0x0000000001555ull },
+                { L_, 0x0000000002AAAull },
+                { L_, 0x0000000005555ull },
+                { L_, 0x000000000AAAAull },
+                { L_, 0x0000000015555ull },
+                { L_, 0x000000002AAAAull },
+                { L_, 0x0000000055555ull },
+                { L_, 0x00000000AAAAAull },
+                { L_, 0x0000000155555ull },
+                { L_, 0x00000002AAAAAull },
+                { L_, 0x0000000555555ull },
+                { L_, 0x0000000AAAAAAull },
+                { L_, 0x0000001555555ull },
+                { L_, 0x0000002AAAAAAull },
+                { L_, 0x0000005555555ull },
+                { L_, 0x000000AAAAAAAull },
+                { L_, 0x0000015555555ull },
+                { L_, 0x000002AAAAAAAull },
+                { L_, 0x0000055555555ull },
+                { L_, 0x00000AAAAAAAAull },
+                { L_, 0x0000155555555ull },
+                { L_, 0x00001AAAAAAAAull },
+                { L_, 0x0000555555555ull },
+                { L_, 0x0000AAAAAAAAAull },
+                { L_, 0x0001555555555ull },
+                { L_, 0x0002AAAAAAAAAull },
+                { L_, 0x0005555555555ull },
+                { L_, 0x000AAAAAAAAAAull },
+                { L_, 0x0015555555555ull },
+                { L_, 0x002AAAAAAAAAAull },
+                { L_, 0x0055555555555ull },
+                { L_, 0x00AAAAAAAAAAAull },
+                { L_, 0x0155555555555ull },
+                { L_, 0x02AAAAAAAAAAAull },
+                { L_, 0x0555555555555ull },
+                { L_, 0x0AAAAAAAAAAAAull },
+                { L_, 0x1555555555555ull },
+                { L_, 0x2AAAAAAAAAAAAull },
+                { L_, 0x5555555555555ull },
+                { L_, 0xAAAAAAAAAAAAAull },
+            };
+            const int NUM_SUBNORMALS = sizeof SUBNORMALS / sizeof * SUBNORMALS;
+
+            for (int i = 0; i < NUM_SUBNORMALS; ++i) {
+                const int    LINE  = SUBNORMALS[i].d_line;
+                const double VALUE =
+                                -makeSubnormalDouble(SUBNORMALS[i].d_mantissa);
+
+                char * p = Util::toChars(buffer,
+                                         buffer + k_HUGE_BUFFSIZE,
+                                         VALUE,
+                                         Util::e_FIXED);
+
+                const size_t writtenLength = (p - buffer);
+                ASSERTV(LINE, writtenLength, writtenLength <= k_HUGE_BUFFSIZE);
+                if (writtenLength > k_HUGE_BUFFSIZE) {
+                    break;                                             // BREAK
+                }
+                *p = '\0';  // Enable 'ASSERTV' printing of 'buffer'
+                ASSERTV(LINE,
+                        (Util::ToCharsMaxLength<double,
+                                                Util::e_FIXED>::k_VALUE),
+                        writtenLength,
+                        buffer,
+                        (Util::ToCharsMaxLength<double,
+                                                Util::e_FIXED>::k_VALUE
+                                                            >= writtenLength));
+            }
+        }
+
+        if (veryVerbose) puts("Verifying 'float' 'ToCharsMaxLength'.");
+        {
+            typedef std::numeric_limits<float> Lim;
+            using u::NumDecimalDigits;
+
+            static const size_t MAX_SCIENTIFIC_FLOAT_LENGTH =
+                // See further documentation of this calculation in the
+                // {Implementation Notes} in the '.cpp' file.
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+                Lim::max_digits10 +
+#else
+                9 +
+#endif                                                            //   9
+                NumDecimalDigits<-Lim::min_exponent10>::value +   // + 2 ==> 11
+                1 + // optional sign character                    // + 1 ==> 12
+                1 + // optional radix mark (decimal point)        // + 1 ==> 13
+                1 + // 'e' of the scientific format               // + 1 ==> 14
+                1;  // sign for the scientific form exponent      // + 1 ==> 15
+
+            const size_t MAX_DEFAULT_FLOAT_LENGTH =
+                                                   MAX_SCIENTIFIC_FLOAT_LENGTH;
+                // Default format falls back to scientific format when that is
+                // shorter than the fixed format, so its maximum possible
+                // length is the same as the scientific.
+
+        static const std::ptrdiff_t MAX_FIXED_FLOAT_LENGTH =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+                Lim::max_digits10 +
+#else
+                9 +
+#endif                                                           //    9
+                (-Lim::min_exponent10) +                         // + 37 ==> 46
+                1 + // optional sign character                      +  1 ==> 47
+                1;  // optional radix mark (decimal point)          +  1 ==> 48
+
+            ASSERTV(Util::ToCharsMaxLength<float>::k_VALUE,
+                    MAX_DEFAULT_FLOAT_LENGTH,
+                    MAX_DEFAULT_FLOAT_LENGTH ==
+                                       Util::ToCharsMaxLength<float>::k_VALUE);
+
+            ASSERTV(
+                 (Util::ToCharsMaxLength<float, Util::e_SCIENTIFIC>::k_VALUE),
+                  MAX_SCIENTIFIC_FLOAT_LENGTH,
+                  MAX_SCIENTIFIC_FLOAT_LENGTH ==
+                        (Util::ToCharsMaxLength<float,
+                                                Util::e_SCIENTIFIC>::k_VALUE));
+
+            ASSERTV((Util::ToCharsMaxLength<float, Util::e_FIXED>::k_VALUE),
+                    MAX_FIXED_FLOAT_LENGTH,
+                    MAX_FIXED_FLOAT_LENGTH ==
+                             (Util::ToCharsMaxLength<float,
+                                                     Util::e_FIXED>::k_VALUE));
+
+            const size_t k_HUGE_BUFFSIZE = 1024;
+                // We use huge buffer size as we have to assume errors may be
+                // present.
+            char buffer[k_HUGE_BUFFSIZE + 1];
+                // Plus one for a closing null character so we can print the
+                // buffer in an assert without tricks.
+
+            if (veryVerbose) puts("Default format for 'float'.");
+            do {
+                // -std::numeric_limits<double>::min()
+                char * p = Util::toChars(buffer,
+                                         buffer + k_HUGE_BUFFSIZE,
+                                         -Lim::min());
+
+                size_t writtenLength = (p - buffer);
+                ASSERTV(writtenLength, writtenLength <= k_HUGE_BUFFSIZE);
+                if (writtenLength > k_HUGE_BUFFSIZE) {
+                    break;                                             // BREAK
+                }
+                *p = '\0';  // Enable 'ASSERTV' printing of 'buffer'
+
+                ASSERTV(Util::ToCharsMaxLength<float>::k_VALUE,
+                        writtenLength,
+                        buffer,
+                        (Util::ToCharsMaxLength<float>::k_VALUE
+                                                            >= writtenLength));
+
+                // -std::numeric_limits<double>::max()
+                p = Util::toChars(buffer,
+                                  buffer + k_HUGE_BUFFSIZE,
+                                  -Lim::max());
+
+                writtenLength = (p - buffer);
+                ASSERTV(writtenLength, writtenLength <= k_HUGE_BUFFSIZE);
+                if (writtenLength > k_HUGE_BUFFSIZE) {
+                    break;                                             // BREAK
+                }
+                *p = '\0';  // Enable 'ASSERTV' printing of 'buffer'
+
+                ASSERTV(Util::ToCharsMaxLength<float>::k_VALUE,
+                        writtenLength,
+                        buffer,
+                        (Util::ToCharsMaxLength<float>::k_VALUE
+                                                            >= writtenLength));
+
+                // smallest subnormal
+                p = Util::toChars(buffer,
+                                  buffer + k_HUGE_BUFFSIZE,
+                                  -Lim::denorm_min());
+
+                writtenLength = (p - buffer);
+                ASSERTV(writtenLength, writtenLength <= k_HUGE_BUFFSIZE);
+                if (writtenLength > k_HUGE_BUFFSIZE) {
+                    break;                                             // BREAK
+                }
+                *p = '\0';  // Enable 'ASSERTV' printing of 'buffer'
+
+                ASSERTV(Util::ToCharsMaxLength<float>::k_VALUE,
+                        writtenLength,
+                        buffer,
+                        (Util::ToCharsMaxLength<float>::k_VALUE
+                                                            >= writtenLength));
+            } while (false);
+
+            if (veryVerbose) puts("Scientific format for 'float'.");
+            do {
+                // -std::numeric_limits<double>::min()
+                char * p = Util::toChars(buffer,
+                                         buffer + k_HUGE_BUFFSIZE,
+                                         -Lim::min(),
+                                         Util::e_SCIENTIFIC);
+
+                size_t writtenLength = (p - buffer);
+                ASSERTV(writtenLength, writtenLength <= k_HUGE_BUFFSIZE);
+                if (writtenLength > k_HUGE_BUFFSIZE) {
+                    break;                                             // BREAK
+                }
+                *p = '\0';  // Enable 'ASSERTV' printing of 'buffer'
+
+                ASSERTV((Util::ToCharsMaxLength<float,
+                                                Util::e_SCIENTIFIC>::k_VALUE),
+                        writtenLength,
+                        buffer,
+                        (Util::ToCharsMaxLength<float,
+                                                Util::e_SCIENTIFIC>::k_VALUE
+                                                            >= writtenLength));
+
+                // -std::numeric_limits<double>::max()
+                p = Util::toChars(buffer,
+                                  buffer + k_HUGE_BUFFSIZE,
+                                  -Lim::max(),
+                                  Util::e_SCIENTIFIC);
+
+                writtenLength = (p - buffer);
+                ASSERTV(writtenLength, writtenLength <= k_HUGE_BUFFSIZE);
+                if (writtenLength > k_HUGE_BUFFSIZE) {
+                    break;                                             // BREAK
+                }
+                *p = '\0';  // Enable 'ASSERTV' printing of 'buffer'
+
+                ASSERTV((Util::ToCharsMaxLength<float,
+                                                Util::e_SCIENTIFIC>::k_VALUE),
+                        writtenLength,
+                        buffer,
+                        (Util::ToCharsMaxLength<float,
+                                                Util::e_SCIENTIFIC>::k_VALUE
+                                                            >= writtenLength));
+
+                // smallest subnormal
+                p = Util::toChars(buffer,
+                                  buffer + k_HUGE_BUFFSIZE,
+                                  -Lim::denorm_min(),
+                                  Util::e_SCIENTIFIC);
+
+                writtenLength = (p - buffer);
+                ASSERTV(writtenLength, writtenLength <= k_HUGE_BUFFSIZE);
+                if (writtenLength > k_HUGE_BUFFSIZE) {
+                    break;                                             // BREAK
+                }
+                *p = '\0';  // Enable 'ASSERTV' printing of 'buffer'
+
+                ASSERTV((Util::ToCharsMaxLength<float,
+                                                Util::e_SCIENTIFIC>::k_VALUE),
+                        writtenLength,
+                        buffer,
+                        (Util::ToCharsMaxLength<float,
+                                                Util::e_SCIENTIFIC>::k_VALUE
+                                                            >= writtenLength));
+            } while (false);
+
+            if (veryVerbose) puts("Fixed format for 'floats'.");
+            do {
+                // -std::numeric_limits<double>::min()
+                char * p = Util::toChars(buffer,
+                                         buffer + k_HUGE_BUFFSIZE,
+                                         -Lim::min(),
+                                         Util::e_FIXED);
+
+                size_t writtenLength = (p - buffer);
+                ASSERTV(writtenLength, writtenLength <= k_HUGE_BUFFSIZE);
+                if (writtenLength > k_HUGE_BUFFSIZE) {
+                    break;                                             // BREAK
+                }
+                *p = '\0';  // Enable 'ASSERTV' printing of 'buffer'
+
+                ASSERTV((Util::ToCharsMaxLength<float,
+                                                Util::e_FIXED>::k_VALUE),
+                        writtenLength,
+                        buffer,
+                        (Util::ToCharsMaxLength<float,
+                                                Util::e_FIXED>::k_VALUE
+                                                            >= writtenLength));
+
+                p = Util::toChars(buffer,
+                                  buffer + k_HUGE_BUFFSIZE,
+                                  -Lim::min(),
+                                  Util::e_SCIENTIFIC);
+                writtenLength = (p - buffer);
+                *p = '\0';
+
+                // -std::numeric_limits<double>::max()
+                p = Util::toChars(buffer,
+                                  buffer + k_HUGE_BUFFSIZE,
+                                  -Lim::max(),
+                                  Util::e_FIXED);
+
+                writtenLength = (p - buffer);
+                ASSERTV(writtenLength, writtenLength <= k_HUGE_BUFFSIZE);
+                if (writtenLength > k_HUGE_BUFFSIZE) {
+                    break;                                             // BREAK
+                }
+                *p = '\0';  // Enable 'ASSERTV' printing of 'buffer'
+
+                ASSERTV((Util::ToCharsMaxLength<float,
+                                                Util::e_FIXED>::k_VALUE),
+                        writtenLength,
+                        buffer,
+                        (Util::ToCharsMaxLength<float,
+                                                Util::e_FIXED>::k_VALUE
+                                                            >= writtenLength));
+
+                // smallest subnormal
+                p = Util::toChars(buffer,
+                                  buffer + k_HUGE_BUFFSIZE,
+                                  -Lim::denorm_min(),
+                                  Util::e_FIXED);
+
+                writtenLength = (p - buffer);
+                ASSERTV(writtenLength, writtenLength <= k_HUGE_BUFFSIZE);
+                if (writtenLength > k_HUGE_BUFFSIZE) {
+                    break;                                             // BREAK
+                }
+                *p = '\0';  // Enable 'ASSERTV' printing of 'buffer'
+
+                ASSERTV((Util::ToCharsMaxLength<float,
+                                                Util::e_FIXED>::k_VALUE),
+                        writtenLength,
+                        buffer,
+                        (Util::ToCharsMaxLength<float,
+                                                Util::e_FIXED>::k_VALUE
+                                                            >= writtenLength));
+            } while (false);
+        }
       } break;
       case 16: {
         // --------------------------------------------------------------------
@@ -5720,12 +7185,12 @@ int main(int argc, char *argv[])
         //:   test.
         //
         // Testing:
-        //   char *toChars(char *, char *, char,                int);
-        //   char *toChars(char *, char *, unsigned char,       int);
-        //   char *toChars(char *, char *, unsigned short,      int);
-        //   char *toChars(char *, char *, unsigned int,        int);
-        //   char *toChars(char *, char *, unsigned long,       int);
-        //   char *toChars(char *, char *, bsls::Types::Uint64, int);
+        //   char *toChars(char *, char *, char,                   int);
+        //   char *toChars(char *, char *, unsigned char,          int);
+        //   char *toChars(char *, char *, unsigned short,         int);
+        //   char *toChars(char *, char *, unsigned int,           int);
+        //   char *toChars(char *, char *, unsigned long,          int);
+        //   char *toChars(char *, char *, unsigned long long int, int);
         // --------------------------------------------------------------------
 
         if (verbose) printf("RANDOM VALUES TEST -- UNSIGNED TYPES\n"
@@ -5770,12 +7235,12 @@ int main(int argc, char *argv[])
         //:   test.
         //
         // Testing:
-        //   char *toChars(char *, char *, char,               int);
-        //   char *toChars(char *, char *, signed char,        int);
-        //   char *toChars(char *, char *, short,              int);
-        //   char *toChars(char *, char *, int,                int);
-        //   char *toChars(char *, char *, long,               int);
-        //   char *toChars(char *, char *, bsls::Types::Int64, int);
+        //   char *toChars(char *, char *, char,                 int);
+        //   char *toChars(char *, char *, signed char,          int);
+        //   char *toChars(char *, char *, short,                int);
+        //   char *toChars(char *, char *, int,                  int);
+        //   char *toChars(char *, char *, long,                 int);
+        //   char *toChars(char *, char *, signed long long int, int);
         // --------------------------------------------------------------------
 
         if (verbose) printf("RANDOM VALUES TEST -- SIGNED TYPES\n"
@@ -5858,23 +7323,23 @@ int main(int argc, char *argv[])
         //: 3 For each base, test 0.
         //:
         //: 4 For each base, for the size of every integral type from 'char' to
-        //:   'bsls::Types::Uint64', test the maximum and minimum values the
-        //:   type can represent.
+        //:   'Uint64', test the maximum and minimum values the type can
+        //:   represent.
         //:
         //: 5 For each value 'N' that is tested, also test 'N + 1' and 'N - 1'.
         //
         // Testing:
-        //   char *toChars(char *, char *, char,                int);
-        //   char *toChars(char *, char *, signed char,         int);
-        //   char *toChars(char *, char *, unsigned char,       int);
-        //   char *toChars(char *, char *, short,               int);
-        //   char *toChars(char *, char *, unsigned short,      int);
-        //   char *toChars(char *, char *, int,                 int);
-        //   char *toChars(char *, char *, unsigned,            int);
-        //   char *toChars(char *, char *, long,                int);
-        //   char *toChars(char *, char *, unsigned long,       int);
-        //   char *toChars(char *, char *, bsls::Types::Int64,  int);
-        //   char *toChars(char *, char *, bsls::Types::Uint64, int);
+        //   char *toChars(char *, char *, char,                   int);
+        //   char *toChars(char *, char *, signed char,            int);
+        //   char *toChars(char *, char *, unsigned char,          int);
+        //   char *toChars(char *, char *, short,                  int);
+        //   char *toChars(char *, char *, unsigned short,         int);
+        //   char *toChars(char *, char *, int,                    int);
+        //   char *toChars(char *, char *, unsigned,               int);
+        //   char *toChars(char *, char *, long,                   int);
+        //   char *toChars(char *, char *, unsigned long,          int);
+        //   char *toChars(char *, char *, signed long long int,   int);
+        //   char *toChars(char *, char *, unsigned long long int, int);
         // --------------------------------------------------------------------
 
         if (verbose) printf("INTEGER CORNER CASES TEST\n"
@@ -6018,8 +7483,8 @@ int main(int argc, char *argv[])
         //:   pattern.
         //
         // Testing:
-        //   char *toChars(char *, char *, bsls::Types::Int64,  int);
-        //   char *toChars(char *, char *, bsls::Types::Uint64, int);
+        //   char *toChars(char *, char *, signed long long int,   int);
+        //   char *toChars(char *, char *, unsigned long long int, int);
         // --------------------------------------------------------------------
 
         if (verbose) printf("INT64 QUALITY & ACCURACY ON SOME BASES TEST\n"
@@ -7087,7 +8552,8 @@ int main(int argc, char *argv[])
         //  the optimization effort was focused.
         // --------------------------------------------------------------------
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV) && \
+    defined(BDE_BUILD_TARGET_OPT)
         puts("INTEGER BENCHMARKING");
 
         enum { k_HUNDRED_MILLION = 100 * 1000 * 1000 };
@@ -7243,8 +8709,198 @@ int main(int argc, char *argv[])
             }
         }
 #else
-        printf("INTEGER BENCHMARKING IS NOT SUPPORTED ON THIS PLATFORM\n");
+#if !defined(BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV)
+        puts("INTEGER BENCHMARKING IS NOT SUPPORTED ON THIS PLATFORM");
+#elif !defined(BDE_BUILD_TARGET_OPT)
+        puts("BUILD OPTIMIZED FOR INTEGER BENCHMARKING!");
 #endif
+#endif
+      } break;
+      case -2: {
+        // --------------------------------------------------------------------
+        // 'float' MAX-LENGTH BRUTE-FORCE CHECK
+        //
+        // Concern:
+        //: 1 The maximum buffer size for 'float both in scientific mode and
+        //:   decimal (fixed) mode fits all possible 'float' numerical values,
+        //:   including subnormals.
+        //
+        // Plan:
+        //: 1 Loop all 'float' numbers between zero not-included and positive
+        //:   infinity not-included.  (We test the length of zero and negative
+        //:   zero elsewhere.)  Note that we verify positive values only as
+        //:   they are the same as negative values, only 1 character shorter
+        //:   and slightly faster to do.
+        //:
+        //: 2 Use the original, unchanged Ryu 'ryu_f2s_buffered' function to
+        //:   get an oracle value.
+        //:
+        //: 3 Parse the original value into actual decimal significand number
+        //:   of digits as well the decimal exponent value.
+        //:
+        //: 4 From the parsed values calculate the C++-conforming scientific,
+        //:   as well as decimal length for negative values and verify that
+        //:   they do not exceed the maximum values.
+        //
+        // Testing:
+        //   ToCharsMaxLength<float>::k_VALUE
+        //   ToCharsMaxLength<float, e_FIXED>::k_VALUE
+        //   ToCharsMaxLength<float, e_SCIENTIFC>::k_VALUE
+        // --------------------------------------------------------------------
+
+        if (verbose) puts("\n'float' MAX-LENGTH BRUTE-FORCE CHECK"
+                          "\n=====================================");
+
+#if defined(BDE_BUILD_TARGET_OPT)
+        const size_t k_F2S_BUFFSIZE = 15;
+            // Ryu guarantees this is the maximum it will write.
+        char ryuBuf[k_F2S_BUFFSIZE + 1];
+            // Plus one for a closing null character.
+
+        const float inf = std::numeric_limits<float>::infinity();
+        bsls::Stopwatch sw;
+        sw.start();
+        for (float f = nextafterf(0, inf); f < inf; f = nextafterf(f, inf)) {
+            ryu_f2s_buffered(f, ryuBuf);
+            int nSignificandDigits = 0;
+            const char* p = ryuBuf;
+            for (; 'E' != *p; ++p) {
+                if ('.' == *p) continue;                            // CONTINUE
+                ++nSignificandDigits;
+            }
+
+            // 'p' is on the 'E' of the exponent
+            const int exp = atoi(p + 1);
+
+            // Calculate C++ scientific length for '-f'
+            const bool significandHasDecimals = nSignificandDigits > 1;
+            const size_t calculatedScientificLength =
+                1 +                                  // negative sign
+                nSignificandDigits +                 // significand
+                (significandHasDecimals ? 1 : 0) +   // radix mark
+                1 +                                  // 'e'
+                1 +                                  // sign for exponent
+                2;                                  // exponent itself 'float'
+                                                   // 'exponents are written 2
+                                                  // digits always in C and C++
+            ASSERTV(ryuBuf,
+                    calculatedScientificLength,
+                    (Util::ToCharsMaxLength<float,
+                                            Util::e_SCIENTIFIC>::k_VALUE),
+                    (calculatedScientificLength <=
+                         Util::ToCharsMaxLength<float,
+                                                Util::e_SCIENTIFIC>::k_VALUE));
+
+            // The code below verifies that our above calculation agrees with
+            // our actual scientific-writing code.
+            {
+                const size_t k_SCI_FLT_MAX =
+                           Util::ToCharsMaxLength<float,
+                                                  Util::e_SCIENTIFIC>::k_VALUE;
+                char blpSciBuf[k_SCI_FLT_MAX + 1];
+                const size_t blpScientificLength =
+                                             blp_f2s_buffered_n(-f, blpSciBuf);
+                blpSciBuf[blpScientificLength] = '\0';
+
+                ASSERTV(ryuBuf, blpSciBuf,
+                        calculatedScientificLength, blpScientificLength,
+                        calculatedScientificLength == blpScientificLength);
+            }
+
+            // Calculate C++ fixed length for '-f'
+            const bool isInteger = exp >= 0 && (nSignificandDigits - 1 <= exp);
+            const bool noIntPart = exp < 0;
+            // const bool hasIntAndFraction = !isInteger && !noIntPart;
+            const size_t calculatedDecimalLength =
+                1 +                                      // negative sign
+                (isInteger
+                    ? (exp + 1)                          // when integer
+                    : noIntPart
+                    ? (1 + nSignificandDigits - exp)     // when less than 1
+                    : (nSignificandDigits + 1));         // nnn.nnnn
+
+            ASSERTV(ryuBuf,
+                    calculatedDecimalLength,
+                    (Util::ToCharsMaxLength<float,
+                                            Util::e_FIXED>::k_VALUE),
+                    (calculatedScientificLength <=
+                              Util::ToCharsMaxLength<float,
+                                                     Util::e_FIXED>::k_VALUE));
+
+            // The code below verifies that our above calculation agrees with
+            // our actual decimal-format-writing code.  (C++ calls it 'fixed'
+            // format, but without a precision parameter there is nothing
+            // "fixed" about it, so we call it decimal here.)
+            {
+                const size_t k_DEC_FLT_MAX =
+                                Util::ToCharsMaxLength<float,
+                                                       Util::e_FIXED>::k_VALUE;
+                char blpDecBuf[k_DEC_FLT_MAX + 1];
+                const size_t blpDecimalLength = blp_f2d_buffered_n(-f,
+                                                                   blpDecBuf);
+                blpDecBuf[blpDecimalLength] = '\0';
+
+                if ((calculatedDecimalLength != blpDecimalLength) &&
+                    (1 == nSignificandDigits) &&
+                    (exp > 9))
+                {
+                    // Some integer values are printed exactly (according to
+                    // ISO C++ requirements), reducing the calculated length.
+                    // In such case we print the integer value using original
+                    // Ryu functionality.
+
+                    const size_t blpDecimalIntLength =
+                                      ryu_d2fixed_buffered_n(-f, 0, blpDecBuf);
+                    blpDecBuf[blpDecimalIntLength] = '\0';
+
+                    ASSERTV(ryuBuf, blpDecBuf,
+                           blpDecimalLength, blpDecimalIntLength,
+                           blpDecimalLength == blpDecimalIntLength);
+
+                }
+                else {
+                    ASSERTV(ryuBuf, blpDecBuf,
+                           calculatedDecimalLength, blpDecimalLength,
+                           calculatedDecimalLength == blpDecimalLength);
+                }
+            }
+
+            // Calculate C++ default format length for '-f'
+            const size_t calculatedDefaultFormatLength =
+                (calculatedScientificLength < calculatedDecimalLength)
+                ? calculatedScientificLength : calculatedDecimalLength;
+
+            ASSERTV(ryuBuf,
+                    calculatedDefaultFormatLength,
+                    (Util::ToCharsMaxLength<float>::k_VALUE),
+                    (calculatedDefaultFormatLength <=
+                                      Util::ToCharsMaxLength<float>::k_VALUE));
+
+            // The code below verifies that our above calculation agrees with
+            // our actual default-format-writing code.
+            {
+                const size_t k_DFL_FLT_MAX =
+                                        Util::ToCharsMaxLength<float>::k_VALUE;
+                char blpDflBuf[k_DFL_FLT_MAX + 1];
+                const size_t blpDefaultLength = blp_f2m_buffered_n(-f,
+                                                                   blpDflBuf);
+                blpDflBuf[blpDefaultLength] = '\0';
+
+                ASSERTV(ryuBuf, blpDflBuf,
+                        calculatedDefaultFormatLength,   blpDefaultLength,
+                        calculatedDefaultFormatLength == blpDefaultLength);
+            }
+        }
+        sw.stop();
+        const double wallTime = sw.accumulatedWallTime();
+        const int wallHrs = static_cast<int>(wallTime / 3600);
+        const int wallMin = static_cast<int>(wallTime / 60 - wallHrs * 60.);
+        const int wallSec = static_cast<int>(fmod(wallTime, 60));
+        printf("%dh %02dm %02ds\n", wallHrs, wallMin, wallSec);
+#else
+          puts("BUILD OPTIMIZED FOR BRUTE-FORCE ANALYSIS!");
+#endif
+
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
