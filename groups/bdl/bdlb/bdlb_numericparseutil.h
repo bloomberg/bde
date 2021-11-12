@@ -62,8 +62,8 @@ BSLS_IDENT("$Id: $")
 //      <INT64> must be in range
 //                           [-0x8000000000000000uLL .. 0x7FFFFFFFFFFFFFFFuLL].
 // <UNSIGNED> ::= <NUMBER>
-//      <UNSIGED> must be in range [0 .. UINT_MAX].
-// <UNSIGED64> ::= <NUMBER>
+//      <UNSIGNED> must be in range [0 .. UINT_MAX].
+// <UNSIGNED64> ::= <NUMBER>
 //      <UNSIGNED64> must be in range
 //                           [0 .. 0xFFFFFFFFFFFFFFFFuLL].
 // <REAL> ::= <OPTIONAL_SIGN>
