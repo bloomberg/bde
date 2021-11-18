@@ -195,7 +195,7 @@ BSLS_IDENT("$Id: $")
 //          }
 //          return;                                                   // RETURN
 //      }
-//      //..
+//..
 // Next, we declare a buffer long enough to store any 'double' value written in
 // this minimal-length form:
 //..
@@ -260,7 +260,6 @@ BSLS_IDENT("$Id: $")
 //..
 //  typedef bslalg::NumericFormatterUtil NfUtil;
 //..
-//
 // Next, we determine the sufficient buffer size for converting a 'long' to
 // decimal.  'long' is a type that has different 'sizeof' on different 64 bit
 // platforms, so it is especially convenient to have that difference hidden:
@@ -268,7 +267,6 @@ BSLS_IDENT("$Id: $")
 //  const size_t k_LONG_DEC_SIZE = NfUtil::ToCharsMaxLength<long>::k_VALUE;
 //      // Sufficient buffer size to convert any 'long' value to decimal text.
 //..
-//
 // Then, we can write the longest possible 'long' successfully into a buffer:
 //..
 //  char longDecimalBuffer[k_LONG_DEC_SIZE];
@@ -280,7 +278,6 @@ BSLS_IDENT("$Id: $")
 //                            LONG_MIN);
 //  assert(p != 0);
 //..
-//
 // Next, we can get the sufficient size for conversion of an 'unsigned int' to
 // octal:
 //..
@@ -292,7 +289,6 @@ BSLS_IDENT("$Id: $")
 //..
 //  const size_t k_SHRT_MAX_SIZE = NfUtil::ToCharsMaxLength<short, 2>::k_VALUE;
 //..
-//
 // Now, floating point types have an optional 'format' argument instead of a
 // 'base', with "default" format as the default, and "fixed" and "scientific"
 // formats are selectable when a 'format' argument is specified:
@@ -307,7 +303,6 @@ BSLS_IDENT("$Id: $")
 //                                              double,
 //                                              NfUtil::e_SCIENTIFIC>::k_VALUE;
 //..
-//
 // Finally, the longest floating point format is 'e_FIXED', so if the 'format'
 // argument is not known at compile time, 'e_FIXED' should be used:
 //..
