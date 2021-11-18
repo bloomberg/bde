@@ -165,7 +165,6 @@ BSLS_IDENT("$Id: $")
 // scheduler is used only in connection with the scheduler's condition variable
 // - thread-safe access to the 'bdlcc::SkipList' object does *not* require any
 // synchronization.
-//
 //..
 //  class SimpleScheduler
 //  {
@@ -364,7 +363,6 @@ BSLS_IDENT("$Id: $")
 //  assert(elapsed < 2.75);
 //..
 // Note that the destructor of 'scheduler' will call 'stop()'.
-//..
 
 #include <bdlscm_version.h>
 
