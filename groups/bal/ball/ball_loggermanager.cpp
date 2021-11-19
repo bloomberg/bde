@@ -40,6 +40,7 @@ BSLS_IDENT_RCSID(ball_loggermanager_cpp,"$Id$ $CSID$")
 #include <bsls_platform.h>
 #include <bsls_timeinterval.h>
 
+#include <bsl_cstddef.h>        // 'bsl::size_t'
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
 #include <bsl_functional.h>
@@ -105,6 +106,111 @@ namespace BloombergLP {
 namespace ball {
 
 namespace {
+
+                    // ==========================
+                    // struct RecordSharedPtrUtil
+                    // ==========================
+
+struct RecordSharedPtrUtil {
+    // This 'struct' provides a namespace for utilities on
+    // 'bsl::shared_ptr<Record>', specifically, shared pointers that are
+    // obtained from the shared object pool ('d_recordPool') of 'Logger'
+    // instances.  Note that we use this facility to maintain support for the
+    // function signature for 'Logger::getRecord', which returns a raw pointer
+    // to a 'Record' and was introduced prior to the use of
+    // 'bsl::shared_ptr<Record>' in this component.
+
+    // PUBLIC CLASS DATA
+    static std::size_t s_sharedObjectOffset;  // offset (in bytes) of the
+                                              // in-place object in the shared
+                                              // pointer "rep"
+
+    // TYPES
+    typedef bdlcc::SharedObjectPool<Record,
+                                    bdlcc::ObjectPoolFunctors::DefaultCreator,
+                                    bdlcc::ObjectPoolFunctors::Clear<Record> >
+                                                          SharedObjectPoolType;
+
+    typedef bdlcc::SharedObjectPool_Rep<Record,
+                                        SharedObjectPoolType::ResetterType>
+                                                                       RepType;
+
+    // CLASS METHODS
+    static
+    Record *disassembleSharedPtr(const bsl::shared_ptr<Record>& record);
+        // Acquire an additional reference to the specified 'record' shared
+        // pointer, and return a raw pointer its managed value.  The behavior
+        // is undefined unless 'initializeSharedObjectOffset' has been called.
+        // Note that the shared pointer must be reconstituted by a subsequent
+        // call to 'reassembleSharedPtr'.
+
+    static
+    bsl::shared_ptr<Record> reassembleSharedPtr(Record *record);
+        // Reassemble a shared pointer to the specified 'record' (taking
+        // ownership of the additional reference acquired when
+        // 'disassembleSharedPtr' was called), and return the shared pointer.
+        // The behavior is undefined unless 'initializeSharedObjectOffset' has
+        // been called and 'record' was obtained from a call to
+        // 'disassembleSharedPtr'.
+
+    static
+    void initializeSharedObjectOffset(const bsl::shared_ptr<Record>& record);
+        // Initialize 's_sharedObjectOffset' to the value of the offset (in
+        // bytes) of the specified 'record.ptr()' with respect to
+        // 'record.rep()'.  The behavior is undefined unless the shared object
+        // managed by 'record' is stored in-place within the concrete
+        // 'bslma::SharedPtrRep' object.
+};
+
+                    // --------------------------
+                    // struct RecordSharedPtrUtil
+                    // --------------------------
+
+// PUBLIC CLASS DATA
+std::size_t RecordSharedPtrUtil::s_sharedObjectOffset = 0;
+
+// CLASS METHODS
+Record *RecordSharedPtrUtil::disassembleSharedPtr(
+                                         const bsl::shared_ptr<Record>& record)
+{
+    BSLS_ASSERT_SAFE(s_sharedObjectOffset ==
+                                     reinterpret_cast<char *>(record.ptr())
+                                     - reinterpret_cast<char *>(record.rep()));
+
+    // Returning a raw pointer to a 'Record' that is shared, so manually bump
+    // the use count to ensure that 'record.rep()' persists.
+
+    record.rep()->acquireRef();
+
+    return record.get();
+}
+
+bsl::shared_ptr<Record>
+RecordSharedPtrUtil::reassembleSharedPtr(Record *record)
+{
+    BSLS_ASSERT_SAFE(0 != s_sharedObjectOffset);
+
+    RepType *rep = reinterpret_cast<RepType *>(
+                      reinterpret_cast<char *>(record) - s_sharedObjectOffset);
+
+    return bsl::shared_ptr<Record>(rep->ptr(), rep);
+}
+
+void RecordSharedPtrUtil::initializeSharedObjectOffset(
+                                         const bsl::shared_ptr<Record>& record)
+{
+    if (0 != s_sharedObjectOffset) {
+        return;                                                       // RETURN
+    }
+
+    // The following works because 'bdlcc::SharedObjectPool_Rep' stores the
+    // shared object in-place in the shared pointer "rep".
+
+    s_sharedObjectOffset = reinterpret_cast<char *>(record.ptr())
+                           - reinterpret_cast<char *>(record.rep());
+
+    BSLS_ASSERT_OPT(0 != s_sharedObjectOffset);
+}
 
 // HELPER FUNCTIONS
 void bufferPoolDeleter(void *buffer, void *pool)
@@ -248,7 +354,10 @@ void bslsLogMessage(bsls::LogSeverity::Enum  severity,
     }
 }
 
-const char *const k_DEFAULT_CATEGORY_NAME = "";
+const char *const k_DEFAULT_CATEGORY_NAME  = "";
+
+const char *const k_INTERNAL_OBSERVER_NAME = "__oBsErVeR__";
+
 const char *const k_TRIGGER_BEGIN =
                                  "--- BEGIN RECORD DUMP CAUSED BY TRIGGER ---";
 const char *const k_TRIGGER_END =  "--- END RECORD DUMP CAUSED BY TRIGGER ---";
@@ -268,8 +377,6 @@ void copyAttributesWithoutMessage(ball::Record                  *record,
     record->fixedFields().setCategory(srcAttribute.category());
     record->fixedFields().setSeverity(srcAttribute.severity());
 }
-
-const char *const k_INTERNAL_OBSERVER_NAME = "__oBsErVeR__";
 
 }  // close unnamed namespace
 
@@ -324,10 +431,25 @@ Logger::~Logger()
 }
 
 // PRIVATE MANIPULATORS
-void Logger::logMessage(const Category&            category,
-                        int                        severity,
-                        Record                    *record,
-                        const ThresholdAggregate&  levels)
+bsl::shared_ptr<Record> Logger::getRecordPtr(const char *fileName,
+                                             int         lineNumber)
+{
+    bsl::shared_ptr<Record> record = d_recordPool.getObject();
+
+    // Note that the records obtained from the record pool are guaranteed to
+    // have all custom fields removed and the message stream cleared.  So only
+    // the filename and line number fields are initialized here.
+
+    record->fixedFields().setFileName(fileName);
+    record->fixedFields().setLineNumber(lineNumber);
+
+    return record;
+}
+
+void Logger::logMessage(const Category&                category,
+                        int                            severity,
+                        const bsl::shared_ptr<Record>& record,
+                        const ThresholdAggregate&      levels)
 {
     record->fixedFields().setTimestamp(bdlt::CurrentTime::utc());
 
@@ -346,22 +468,21 @@ void Logger::logMessage(const Category&            category,
 
     // Invoke all collectors with a functor that adds the attribute to the log
     // record.
+
     d_attributeCollectors_p->collect(
         bdlf::BindUtil::bind(&ball::Record::addAttribute,
-                             record,
+                             record.get(),
                              bdlf::PlaceHolders::_1));
 
-    bsl::shared_ptr<Record> handle(record, &d_recordPool, d_allocator_p);
-
     if (levels.recordLevel() >= severity) {
-        d_recordBuffer_p->pushBack(handle);
+        d_recordBuffer_p->pushBack(record);
     }
 
     if (levels.passLevel() >= severity) {
 
         // Publish this record.
 
-        d_observer->publish(handle,
+        d_observer->publish(record,
                             Context(Transmission::e_PASSTHROUGH,
                                     0,                 // recordIndex
                                     1));               // sequenceLength
@@ -376,26 +497,24 @@ void Logger::logMessage(const Category&            category,
 
         if (Config::e_BEGIN_END_MARKERS == d_triggerMarkers) {
             Context triggerContext(Transmission::e_TRIGGER, 0, 1);
-            Record *marker = getRecord(record->fixedFields().fileName(),
-                                       record->fixedFields().lineNumber());
 
-            bsl::shared_ptr<Record> handle(marker,
-                                           &d_recordPool,
-                                           d_allocator_p);
+            bsl::shared_ptr<Record> marker =
+                              getRecordPtr(record->fixedFields().fileName(),
+                                           record->fixedFields().lineNumber());
 
-            copyAttributesWithoutMessage(handle.get(), record->fixedFields());
+            copyAttributesWithoutMessage(marker.get(), record->fixedFields());
 
-            handle->fixedFields().setMessage(k_TRIGGER_BEGIN);
+            marker->fixedFields().setMessage(k_TRIGGER_BEGIN);
 
-            d_observer->publish(handle, triggerContext);
+            d_observer->publish(marker, triggerContext);
 
             // Publish all records archived by *this* logger.
 
             publish(Transmission::e_TRIGGER);
 
-            handle->fixedFields().setMessage(k_TRIGGER_END);
+            marker->fixedFields().setMessage(k_TRIGGER_END);
 
-            d_observer->publish(handle, triggerContext);
+            d_observer->publish(marker, triggerContext);
         }
         else {
             // Publish all records archived by *this* logger.
@@ -410,26 +529,24 @@ void Logger::logMessage(const Category&            category,
 
         if (Config::e_BEGIN_END_MARKERS == d_triggerMarkers) {
             Context triggerContext(Transmission::e_TRIGGER, 0, 1);
-            Record *marker = getRecord(record->fixedFields().fileName(),
-                                       record->fixedFields().lineNumber());
 
-            bsl::shared_ptr<Record> handle(marker,
-                                           &d_recordPool,
-                                           d_allocator_p);
+            bsl::shared_ptr<Record> marker =
+                              getRecordPtr(record->fixedFields().fileName(),
+                                           record->fixedFields().lineNumber());
 
-            copyAttributesWithoutMessage(handle.get(), record->fixedFields());
+            copyAttributesWithoutMessage(marker.get(), record->fixedFields());
 
-            handle->fixedFields().setMessage(k_TRIGGER_ALL_BEGIN);
+            marker->fixedFields().setMessage(k_TRIGGER_ALL_BEGIN);
 
-            d_observer->publish(handle, triggerContext);
+            d_observer->publish(marker, triggerContext);
 
             // Publish all records archived by *all* loggers.
 
             d_publishAll(Transmission::e_TRIGGER_ALL);
 
-            handle->fixedFields().setMessage(k_TRIGGER_ALL_END);
+            marker->fixedFields().setMessage(k_TRIGGER_ALL_END);
 
-            d_observer->publish(handle, triggerContext);
+            d_observer->publish(marker, triggerContext);
         }
         else {
             // Publish all records archived by *all* loggers.
@@ -471,17 +588,13 @@ void Logger::publish(Transmission::Cause cause)
 }
 
 // MANIPULATORS
-Record *Logger::getRecord(const char *file, int line)
+Record *Logger::getRecord(const char *fileName, int lineNumber)
 {
-    Record *record = d_recordPool.getObject();
+   // The shared pointer returned by 'getRecordPtr' is reconstituted in the
+   // 3-argument 'logMessage' method.
 
-    // Note that the records obtained from the record pool are guaranteed to
-    // have all custom fields removed and the message stream cleared.  So only
-    // the filename and line number fields are initialized here.
-
-    record->fixedFields().setFileName(file);
-    record->fixedFields().setLineNumber(line);
-    return record;
+    return RecordSharedPtrUtil::disassembleSharedPtr(getRecordPtr(fileName,
+                                                                  lineNumber));
 }
 
 void Logger::logMessage(const Category&  category,
@@ -498,7 +611,8 @@ void Logger::logMessage(const Category&  category,
         return;                                                       // RETURN
     }
 
-    Record *record = getRecord(fileName, lineNumber);
+    bsl::shared_ptr<Record> record = getRecordPtr(fileName, lineNumber);
+
     record->fixedFields().setMessage(message);
     logMessage(category, severity, record, thresholds);
 }
@@ -507,12 +621,19 @@ void Logger::logMessage(const Category&  category,
                         int              severity,
                         Record          *record)
 {
+    // Reconstitute the shared pointer that was disassembled in the
+    // 'getRecord' method.
+
+    bsl::shared_ptr<Record> handle(
+                             RecordSharedPtrUtil::reassembleSharedPtr(record));
+
     ThresholdAggregate thresholds;
     if (!isCategoryEnabled(&thresholds, category, severity)) {
-        d_recordPool.deleteObject(record);
+        // The record will be automatically returned to the object pool.
+
         return;                                                       // RETURN
     }
-    logMessage(category, severity, record, thresholds);
+    logMessage(category, severity, handle, thresholds);
 }
 
 char *Logger::obtainMessageBuffer(bslmt::Mutex **mutex, int *bufferSize)
@@ -676,6 +797,11 @@ void LoggerManager::constructObject(
                                    d_defaultThresholdLevels.passLevel(),
                                    d_defaultThresholdLevels.triggerLevel(),
                                    d_defaultThresholdLevels.triggerAllLevel());
+
+    // Acquire a dummy 'bsl::shared_ptr<Record>' for offset calculation.
+
+    RecordSharedPtrUtil::initializeSharedObjectOffset(
+                                      d_logger_p->getRecordPtr("foo.cpp", 17));
 }
 
 void LoggerManager::publishAllImp(Transmission::Cause cause)
@@ -718,7 +844,7 @@ LoggerManager::createLoggerManager(
                   allocator);
 }
 
-Record *LoggerManager::getRecord(const char *file, int line)
+Record *LoggerManager::getRecord(const char *fileName, int lineNumber)
 {
     // This static method is called to obtain a record when the logger manager
     // singleton is not available (either has not been initialized or has been
@@ -728,8 +854,9 @@ Record *LoggerManager::getRecord(const char *file, int line)
     bslma::Allocator *allocator = bslma::Default::defaultAllocator();
     Record           *record    = new(*allocator) Record(allocator);
 
-    record->fixedFields().setFileName(file);
-    record->fixedFields().setLineNumber(line);
+    record->fixedFields().setFileName(fileName);
+    record->fixedFields().setLineNumber(lineNumber);
+
     return record;
 }
 

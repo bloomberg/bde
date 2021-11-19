@@ -63,14 +63,17 @@ int Log::format(char *buffer, bsl::size_t numBytes, const char *format, ...)
     return (signed)numBytes <= status ? -1 : status;
 }
 
-Record *Log::getRecord(const Category *category, const char *file, int line)
+Record *Log::getRecord(const Category *category,
+                       const char     *fileName,
+                       int             lineNumber)
 {
     if (category) {
-        return LoggerManager::singleton().getLogger().getRecord(file, line);
+        return LoggerManager::singleton().getLogger().getRecord(fileName,
+                                                                lineNumber);
                                                                       // RETURN
     }
     else {
-        return LoggerManager::getRecord(file, line);                  // RETURN
+        return LoggerManager::getRecord(fileName, lineNumber);        // RETURN
     }
 }
 

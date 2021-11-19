@@ -896,6 +896,7 @@ BSLS_IDENT("$Id: $")
 #include <ball_transmission.h>
 
 #include <bdlcc_objectpool.h>
+#include <bdlcc_sharedobjectpool.h>
 
 #include <bdlma_concurrentpool.h>
 
@@ -948,11 +949,11 @@ class Logger {
 
   private:
     // DATA
-    bdlcc::ObjectPool<Record,
-                      bdlcc::ObjectPoolFunctors::DefaultCreator,
-                      bdlcc::ObjectPoolFunctors::Clear<Record> >
+    bdlcc::SharedObjectPool<Record,
+                            bdlcc::ObjectPoolFunctors::DefaultCreator,
+                            bdlcc::ObjectPoolFunctors::Clear<Record> >
                   d_recordPool;                 // pool of records with a
-                                                // custom RESETTER
+                                                // custom 'RESETTER'
 
     const bsl::shared_ptr<Observer>
                   d_observer;                   // holds observer
@@ -1031,10 +1032,15 @@ class Logger {
         // Destroy this logger.
 
     // PRIVATE MANIPULATORS
-    void logMessage(const Category&            category,
-                    int                        severity,
-                    Record                    *record,
-                    const ThresholdAggregate&  levels);
+    bsl::shared_ptr<Record> getRecordPtr(const char *fileName, int lineNumber);
+        // Return a shared pointer to a modifiable record having the specified
+        // 'fileName' and 'lineNumber' attributes, and retrieved from the
+        // shared object pool managed by this logger.
+
+    void logMessage(const Category&                category,
+                    int                            severity,
+                    const bsl::shared_ptr<Record>& record,
+                    const ThresholdAggregate&      levels);
         // Log the specified 'record' after setting its category field to the
         // specified 'category', severity field to the specified 'severity',
         // and the rest of the fixed fields (except 'fileName', 'lineNumber',
@@ -1051,11 +1057,12 @@ class Logger {
         // Publish the entire contents of all buffers of all active loggers if
         // 'severity' is at least as severe as the "Trigger-All" threshold
         // level of 'levels' (i.e., via the callback supplied at construction).
-        // This method has no effect if 'severity' is less severe than all of
-        // the threshold levels of 'levels'.  The behavior is undefined unless
-        // 'severity' is in the range '[1 .. 255]', 'record' was previously
-        // obtained via a call to 'getRecord', and 'record' is not reused after
-        // invoking this method.
+        // Finally, dispose of 'record'.  This method has no effect (other than
+        // disposing of 'record') if 'severity' is less severe than each of the
+        // threshold levels of 'levels'.  The behavior is undefined unless
+        // 'severity' is in the range '[1 .. 255]' and 'record' was previously
+        // obtained via a call to 'getRecord'.  Note that 'record' will be
+        // invalid after this method returns.
 
     void publish(Transmission::Cause cause);
         // Publish to the observer held by this logger all records stored in
@@ -1064,10 +1071,12 @@ class Logger {
 
   public:
     // MANIPULATORS
-    Record *getRecord(const char *file, int line);
+    Record *getRecord(const char *fileName, int lineNumber);
         // Return the address of a modifiable record having the specified
-        // 'file' and 'line' attributes, and retrieved from the object pool
-        // managed by this logger.
+        // 'fileName' and 'lineNumber' attributes, and retrieved from the
+        // object pool managed by this logger.  Note that the returned 'Record'
+        // must subsequently be supplied to a call to the 3-argument
+        // 'logMessage' method on this logger.
 
     void logMessage(const Category&  category,
                     int              severity,
@@ -1109,13 +1118,14 @@ class Logger {
         // current "Trigger" threshold level of 'category'.  Publish the entire
         // contents of all buffers of all active loggers if 'severity' is at
         // least as severe as the current "Trigger-All" threshold level of
-        // 'category' (i.e., via the callback supplied at construction).  The
-        // behavior is undefined unless 'severity' is in the range
-        // '[1 .. 255]', both 'fileName' and 'message' are null-terminated, and
-        // 'record' was previously obtained by a call to 'getRecord' on this
-        // logger.  Note that this method will have no effect if 'severity' is
-        // less severe than all of the threshold levels of 'category'.  Also
-        // note that 'record' must not be reused after invoking this method.
+        // 'category' (i.e., via the callback supplied at construction).
+        // Finally, dispose of 'record'.  This method has no effect (other than
+        // disposing of 'record') if 'severity' is less severe than each of the
+        // threshold levels of 'category'.  The behavior is undefined unless
+        // 'severity' is in the range '[1 .. 255]', both 'fileName' and
+        // 'message' are null-terminated, and 'record' was previously obtained
+        // by a call to 'getRecord' on this logger.  Note that 'record' will be
+        // invalid after this method returns.
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     char *messageBuffer();
@@ -1402,10 +1412,12 @@ class LoggerManager {
         // the singleton logger manager used by the macros of the BALL logging
         // framework.
 
-    static Record *getRecord(const char *file, int line);
-        // Return the address of a modifiable record with the specified 'file'
-        // and 'line' attributes, and whose memory is supplied by the currently
-        // installed default allocator.
+    static Record *getRecord(const char *fileName, int lineNumber);
+        // Return the address of a modifiable record with the specified
+        // 'fileName' and 'lineNumber' attributes, and whose memory is supplied
+        // by the currently installed default allocator.  Note that the
+        // returned 'Record' must subsequently be supplied to a call to the
+        // 'LoggerManager::logMessage' method.
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     static LoggerManager& initSingleton(
@@ -1472,9 +1484,10 @@ class LoggerManager {
     static void logMessage(int severity, Record *record);
         // Publish the specified 'record' using
         // 'bsls::Log::platformDefaultMessageHandler' after setting its
-        // severity attribute to the specified 'severity'.  The behavior is
-        // undefined unless 'record' was obtained by a call to the
-        // 'LoggerManager::getRecord' method.
+        // severity attribute to the specified 'severity', and dispose of
+        // 'record'.  The behavior is undefined unless 'record' was obtained by
+        // a call to the 'LoggerManager::getRecord' method.  Note that 'record'
+        // will be invalid after this method returns.
 
     static char *obtainMessageBuffer(bslmt::Mutex **mutex, int *bufferSize);
         // Block until access to the static buffer used for formatting messages

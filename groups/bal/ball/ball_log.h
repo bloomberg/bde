@@ -1428,14 +1428,17 @@ struct Log {
         // functionality is provided here.
 
     static Record *getRecord(const Category *category,
-                             const char     *file,
-                             int             line);
+                             const char     *fileName,
+                             int             lineNumber);
         // Return the address of a modifiable record having the specified
-        // 'file' and 'line' attributes.  The memory for the record will be
-        // supplied by the allocator held by the logger manager singleton if
-        // the specified 'category' is non-null, or by the currently installed
-        // default allocator otherwise.  The behavior is undefined unless the
-        // logger manager singleton is initialized when 'category' is non-null.
+        // 'fileName' and 'lineNumber' attributes.  The memory for the record
+        // will be supplied by the allocator held by the logger manager
+        // singleton if the specified 'category' is non-null, or by the
+        // currently installed default allocator otherwise.  The behavior is
+        // undefined unless the logger manager singleton is initialized when
+        // 'category' is non-null.  Note that the returned 'Record' must
+        // subsequently be supplied to a call to the 3-argument 'logMessage'
+        // method.
 
     static void logMessage(const Category *category,
                            int             severity,
@@ -1479,11 +1482,13 @@ struct Log {
         // buffers of all loggers if 'severity' is at least as severe as the
         // current "Trigger-All" threshold level of 'category' (i.e., via the
         // callback supplied at construction of the logger manager singleton).
-        // This method has no effect if 'severity' is less severe than each of
-        // the threshold levels of 'category'.  The behavior is undefined
-        // unless 'severity' is in the range '[1 .. 255]', 'record' was
-        // obtained by a call to 'Log::getRecord', and, if 'category' is not
-        // 0, the logger manager singleton is initialized.
+        // Finally, dispose of 'record'.  This method has no effect (other than
+        // disposing of 'record') if 'severity' is less severe than each of the
+        // threshold levels of 'category'.  The behavior is undefined unless
+        // 'severity' is in the range '[1 .. 255]', 'record' was obtained by a
+        // call to 'Log::getRecord', and, if 'category' is not 0, the logger
+        // manager singleton is initialized.  Note that 'record' will be
+        // invalid after this method returns.
 
     static char *obtainMessageBuffer(bslmt::Mutex **mutex,
                                      int           *bufferSize);
@@ -1641,12 +1646,12 @@ class Log_Stream {
     // MANIPULATORS
     Record *record();
         // Return the address of the modifiable log record held by this logging
-        // stream.  The address is valid until this logging stream is
+        // stream.  The address remains valid until this logging stream is
         // destroyed.
 
     bsl::ostream& stream();
         // Return a reference to the modifiable stream held by this logging
-        // stream.  The reference is valid until this logging stream is
+        // stream.  The reference remains valid until this logging stream is
         // destroyed.
 
     // ACCESSORS
@@ -1656,8 +1661,8 @@ class Log_Stream {
 
     const Record *record() const;
         // Return the address of the non-modifiable log record held by this
-        // logging stream.  The address is valid until this logging stream is
-        // destroyed.
+        // logging stream.  The address remains valid until this logging stream
+        // is destroyed.
 
     int severity() const;
         // Return the severity held by this logging stream.
@@ -1721,13 +1726,13 @@ class Log_Formatter {
     // MANIPULATORS
     char *messageBuffer();
         // Return the address of the modifiable buffer held by this logging
-        // formatter.  The address is valid until this logging formatter is
-        // destroyed.
+        // formatter.  The address remains valid until this logging formatter
+        // is destroyed.
 
     Record *record();
         // Return the address of the modifiable log record held by this logging
-        // formatter.  The address is valid until this logging formatter is
-        // destroyed.
+        // formatter.  The address remains valid until this logging formatter
+        // is destroyed.
 
     // ACCESSORS
     const Category *category() const;
@@ -1740,7 +1745,7 @@ class Log_Formatter {
 
     const Record *record() const;
         // Return the address of the non-modifiable log record held by this
-        // logging formatter.  The address is valid until this logging
+        // logging formatter.  The address remains valid until this logging
         // formatter is destroyed.
 
     int severity() const;
