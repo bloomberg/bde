@@ -221,9 +221,9 @@ struct OptionValueUtil {
                         // ---------------------
 
 void OptionValueUtil::setLinkedVariableValue(
-                               void               *dst,
-                               bool                isOptionalLinkedVariable,
-                               const OptionValue&  src)
+                                  void               *dst,
+                                  bool                isOptionalLinkedVariable,
+                                  const OptionValue&  src)
 {
     BSLS_ASSERT(dst);
 
@@ -940,14 +940,17 @@ int CommandLine::postParse(bsl::ostream& stream)
             d_data1.push_back(defaultInfo.defaultValue());
         }
         else {
-            BSLS_ASSERT(!defaultInfo.isRequired());
-
             balcl::OptionValue element(thisOption.typeInfo().type());
+
             if (OptionInfo::e_FLAG == thisOption.argType()) {
                 element.set(false);
-            } else {
+                    // 'e_REQUIRED' is ignored for flags.
+            }
+            else {
+                BSLS_ASSERT(!defaultInfo.isRequired());
                 element.setNull();
             }
+
             d_data1.push_back(element);
         }
     }

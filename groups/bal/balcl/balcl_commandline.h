@@ -685,11 +685,15 @@ BSLS_IDENT("$Id: $")
 //:     'true'; however, one can determine the number of appearances by using
 //:     the 'position' accessor.
 //:
-//: o A boolean option type cannot be configured to be:
-//:   o required, or
+//: o A boolean option type cannot be configured to:
 //:   o have a default value, or
 //:   o have a constraint, or
 //:   o be linked to a 'bsl::optional<bool>' variable.
+//:
+//: o A boolean option type *can* be configured to be a required parameter;
+//:   however, that combination defeats the purpose of having a flag option so
+//:   the requirement that the flag appear on the command line is *not*
+//:   enforced.
 //:
 //: o The 'theBool' method returns the same value ('true' or 'false') as the
 //:   'isSpecified' method.  In contrast, the 'the*' accessor methods for the

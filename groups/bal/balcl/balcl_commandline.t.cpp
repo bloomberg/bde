@@ -248,6 +248,7 @@ using namespace bsl;
 // [19] TESTING OPTIONAL LINKED VARIABLES
 // [20] USAGE EXAMPLE
 // [ *] CONCERN: The global allocator is not used.
+// [21] CONCERN: DRQS 166843299
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -2045,6 +2046,154 @@ int main(int argc, const char *argv[])
     bslma::Default::setGlobalAllocator(&ga);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 21: {
+        // --------------------------------------------------------------------
+        // DRQS 166843299
+        //   'balcl_commandline': runtime error observed.
+        //
+        // Concerns:
+        //: 1 The observed runtime error is (first) reproduced and is no longer
+        //:   observed in the updated component.
+        //:
+        //: 2 Flags specified with 'e_REQUIRED' behave the same as flags
+        //:   specified with 'e_OPTIONAL'.
+        //:
+        //: 3 Options with 'e_REQUIRED' are allowed for all option values.
+        //
+        // Plan:
+        //: 1 Create a test case that demonstrated the problem (core dump)
+        //:   before the fix but now passes.  (C-1)
+        //:
+        //: 2 Create an option specification having two flags: one specified
+        //:   with 'e_REQUIRED', the other with 'e_OPTIONAL'.  Use the
+        //:   specification in two scenarios: one where the flags are supplied
+        //:   on the command line, the other where they are not.  Confirm that
+        //:   the flag with 'e_OPTIONAL' shows the expected value in both
+        //:   scenarios and the flag with 'e_REQUIRED' always shows a value
+        //:   that matches the other flag.  (C-2)
+        //:
+        //: 2 Create a series of option specifications where 'e_REQUIRED' is
+        //:   specified in each case while the option type takes on all allowed
+        //:   types.  Show that the 'isValidOptionSpecificationTable' function
+        //:   returns 'true' for each of these option specifications.  (C-3)
+        //
+        // Testing:
+        //   CONCERN: DRQS 166843299
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "DRQS 166843299" << endl
+                          << "==============" << endl;
+
+        if (veryVerbose) {
+            cout << "Demonstrate the presence/absence of the runtime error."
+                 << endl;
+        }
+        {
+            const OptionInfo SPEC_TABLE[] = {
+                {
+                    "r|reverse",                 // tag
+                    "isReverse",                 // name
+                    "sort in reverse order",     // description
+                    TypeInfo(Ot::k_BOOL),        // flag option
+                    OccurrenceInfo::e_REQUIRED   // occurrence required
+                }
+            };
+
+            ASSERT(true == Obj::isValidOptionSpecificationTable(SPEC_TABLE));
+
+            Obj obj(SPEC_TABLE);
+
+            const char *const  emptyCommandLine[] = { "programName" };
+
+            int rc = obj.parse(1, emptyCommandLine);
+            ASSERT(0 == rc);
+        }
+
+        if (veryVerbose) {
+            cout << "Flags with 'e_REQUIRED' or 'e_OPTIONAL' behave same."
+                 << endl;
+        }
+        {
+            const OptionInfo SPEC_TABLE[] = {
+                {
+                    "r|required",                // tag
+                    "requiredOption",            // name
+                    "Oxymoron",                  // description
+                    TypeInfo(Ot::k_BOOL),        // flag option
+                    OccurrenceInfo::e_REQUIRED   // occurrence required
+                }
+              , {
+                    "o|optional",                // tag
+                    "optionalOption",            // name
+                    "Redundant",                 // description
+                    TypeInfo(Ot::k_BOOL),        // flag option
+                    OccurrenceInfo::e_OPTIONAL   // occurrence required
+                }
+            };
+
+            ASSERT(Obj::isValidOptionSpecificationTable(SPEC_TABLE));
+
+            const char *const sansFlags[] = { "programName"        };
+            const char *const avecFlags[] = { "programName", "-ro" };
+
+            Obj mX(SPEC_TABLE); const Obj& X = mX;
+            Obj mY(SPEC_TABLE); const Obj& Y = mY;
+
+            int rcx = mX.parse(1, sansFlags);
+            int rcy = mY.parse(2, avecFlags);
+
+            ASSERT(0 == rcx);
+            ASSERT(0 == rcy);
+
+            ASSERT(false == X.theBool("requiredOption"));
+            ASSERT(false == X.theBool("optionalOption"));
+
+            ASSERT(true  == Y.theBool("requiredOption"));
+            ASSERT(true  == Y.theBool("optionalOption"));
+        }
+
+        if (veryVerbose) {
+            cout << "Check that 'e_REQUIRED' and be configured for each type."
+                 << endl;
+        }
+        {
+            const TypeInfo    ARRAY[] = { TypeInfo(Ot::k_BOOL)
+                                        , TypeInfo(Ot::k_CHAR)
+                                        , TypeInfo(Ot::k_INT)
+                                        , TypeInfo(Ot::k_INT64)
+                                        , TypeInfo(Ot::k_DOUBLE)
+                                        , TypeInfo(Ot::k_STRING)
+                                        , TypeInfo(Ot::k_DATETIME)
+                                        , TypeInfo(Ot::k_DATE)
+                                        , TypeInfo(Ot::k_TIME)
+                                        , TypeInfo(Ot::k_CHAR_ARRAY)
+                                        , TypeInfo(Ot::k_INT_ARRAY)
+                                        , TypeInfo(Ot::k_INT64_ARRAY)
+                                        , TypeInfo(Ot::k_DOUBLE_ARRAY)
+                                        , TypeInfo(Ot::k_STRING_ARRAY)
+                                        , TypeInfo(Ot::k_DATETIME_ARRAY)
+                                        , TypeInfo(Ot::k_DATE_ARRAY)
+                                        , TypeInfo(Ot::k_TIME_ARRAY)
+                                        };
+            const bsl::size_t numARRAY = sizeof ARRAY / sizeof *ARRAY;
+
+            for (bsl::size_t i = 0; i < numARRAY; ++i) {
+                const TypeInfo   TYPE_INFO = ARRAY[i];
+                const OptionInfo optInfo   = { "f|flag"
+                                             , "flagName"
+                                             , "Flag description."
+                                             , TYPE_INFO
+                                             , OccurrenceInfo::e_REQUIRED
+                                             };
+                if (veryVerbose) {
+                    P_(i) P_(optInfo.d_typeInfo) P(optInfo.d_defaultInfo)
+                }
+
+                ASSERT(Obj::isValidOptionSpecificationTable(&optInfo, 1));
+            }
+        }
+      } break;
       case 20: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
