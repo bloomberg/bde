@@ -92,9 +92,19 @@ int decodeObject(bdld::ManagedDatum *result,
             return -2;                                                // RETURN
         }
 
-        bsl::string_view newKey;
-        tokenizer->value(&newKey);
-        key.assign(newKey);
+        bslstl::StringRef tokenContents;
+        tokenizer->value(&tokenContents);
+
+        bsl::string key;
+        if (0 != baljsn::ParserUtil::getUnquotedString(&key, tokenContents))
+        {
+            if (errorStream) {
+                *errorStream
+                    << "decodeValue: getUnquotedString for key failed"
+                    << '\n';
+            }
+            return -3;                                                // RETURN
+        }
 
         // Advance from e_ELEMENT_NAME.  decodeValue checks the token, so we
         // don't need to do it here.

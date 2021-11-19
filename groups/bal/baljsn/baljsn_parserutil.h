@@ -128,12 +128,20 @@ struct ParserUtil {
         // Load into the specified 'value' the value in the specified 'data'.
         // Return 0 on success and a non-zero value otherwise.
 
-    static int getString(bsl::string *value, const bsl::string_view& data);
+  public:
+    // CLASS METHODS
+    static int getQuotedString(bsl::string             *value,
+                               const bsl::string_view&  data);
+        // Load into the specified 'value' the string value in the specified
+        // 'data'.  The string must be begin and end in '"' characters which
+        // are not part of the resulting 'value'.  Return 0 on success and a
+        // non-zero value otherwise.
+
+    static int getUnquotedString(bsl::string             *value,
+                               const bsl::string_view&  data);
         // Load into the specified 'value' the string value in the specified
         // 'data'.  Return 0 on success and a non-zero value otherwise.
 
-  public:
-    // CLASS METHODS
     static int getValue(bool                    *value,
                         const bsl::string_view&  data);
     static int getValue(char                    *value,
@@ -160,8 +168,6 @@ struct ParserUtil {
                         const bsl::string_view&  data);
     static int getValue(bdldfp::Decimal64       *value,
                         const bsl::string_view&  data);
-    static int getValue(bsl::string             *value,
-                        const bsl::string_view&  data);
     static int getValue(bdlt::Date              *value,
                         const bsl::string_view&  data);
     static int getValue(bdlt::Datetime          *value,
@@ -179,6 +185,13 @@ struct ParserUtil {
         // Load into the specified 'value' the characters read from the
         // specified 'data'.  Return 0 on success or a non-zero value on
         // failure.
+
+    static int getValue(bsl::string             *value,
+                        const bsl::string_view&  data);
+        // Load into the specified 'value' the string value in the specified
+        // 'data'.  The string must be begin and end in '"' characters which
+        // are not part of the resulting 'value'.  Return 0 on success and a
+        // non-zero value otherwise.
 };
 
 // ============================================================================
@@ -190,6 +203,22 @@ struct ParserUtil {
                             // -----------------
 
 // CLASS METHODS
+inline
+int ParserUtil::getQuotedString(bsl::string             *value,
+                                const bsl::string_view&  data)
+{
+    if (2 > data.size()) {
+        return -1;                                                    // RETURN
+    }
+
+    if (data[0] != '"' && data[data.size() - 1] != '"') {
+        return -1;                                                    // RETURN
+    }
+
+    bsl::string_view contents = data.substr(1, data.size() - 2);
+    return getUnquotedString(value, contents);
+}
+
 template <class TYPE>
 int ParserUtil::getUnsignedIntegralValue(TYPE                    *value,
                                          const bsl::string_view&  data)
@@ -349,9 +378,10 @@ int ParserUtil::getValue(float *value, const bsl::string_view& data)
 }
 
 inline
-int ParserUtil::getValue(bsl::string *value, const bsl::string_view& data)
+int ParserUtil::getValue(bsl::string             *value,
+                         const bsl::string_view&  data)
 {
-    return getString(value, data);
+    return getQuotedString(value, data);
 }
 
 inline

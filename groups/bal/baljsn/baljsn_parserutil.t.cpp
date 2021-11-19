@@ -45,7 +45,7 @@ using bsl::endl;
 //                             Overview
 //                             --------
 // The component under test implements a utility for parsing 'bdeat' compatible
-// simple types from a 'bslstl::StringRef'.  The parsing is done via overloaded
+// simple types from a 'bsl::string_view'.  The parsing is done via overloaded
 // 'getValue' functions that are provided for fundamental types and 'bdet'
 // types.  Since the functions are independent and do not share any state we
 // will test them independently.
@@ -55,27 +55,29 @@ using bsl::endl;
 // matches the expected value.
 // ----------------------------------------------------------------------------
 // CLASS METHODS
-// [ 2] static int getValue(bool                *v, bslstl::StringRef s);
-// [ 3] static int getValue(char                *v, bslstl::StringRef s);
-// [ 3] static int getValue(signed char         *v, bslstl::StringRef s);
-// [ 4] static int getValue(unsigned char       *v, bslstl::StringRef s);
-// [ 5] static int getValue(short               *v, bslstl::StringRef s);
-// [ 6] static int getValue(unsigned short      *v, bslstl::StringRef s);
-// [ 7] static int getValue(int                 *v, bslstl::StringRef s);
-// [ 8] static int getValue(unsigned int        *v, bslstl::StringRef s);
-// [ 9] static int getValue(bsls::Types::Int64  *v, bslstl::StringRef s);
-// [10] static int getValue(bsls::Types::Uint64 *v, bslstl::StringRef s);
-// [11] static int getValue(float               *v, bslstl::StringRef s);
-// [12] static int getValue(double              *v, bslstl::StringRef s);
-// [13] static int getValue(bsl::string         *v, bslstl::StringRef s);
-// [14] static int getValue(bdlt::Time          *v, bslstl::StringRef s);
-// [15] static int getValue(bdlt::TimeTz        *v, bslstl::StringRef s);
-// [16] static int getValue(bdlt::Date          *v, bslstl::StringRef s);
-// [17] static int getValue(bdlt::DateTz        *v, bslstl::StringRef s);
-// [18] static int getValue(bdlt::Datetime      *v, bslstl::StringRef s);
-// [19] static int getValue(bdlt::DatetimeTz    *v, bslstl::StringRef s);
-// [20] static int getValue(vector<char>        *v, bslstl::StringRef s);
-// [21] static int getValue(bdldfp::Decimal64   *v, bslstl::StringRef s);
+// [ 2] static int getValue(bool                 *v, bsl::string_view s);
+// [ 3] static int getValue(char                 *v, bsl::string_view s);
+// [ 3] static int getValue(signed char          *v, bsl::string_view s);
+// [ 4] static int getValue(unsigned char        *v, bsl::string_view s);
+// [ 5] static int getValue(short                *v, bsl::string_view s);
+// [ 6] static int getValue(unsigned short       *v, bsl::string_view s);
+// [ 7] static int getValue(int                  *v, bsl::string_view s);
+// [ 8] static int getValue(unsigned int         *v, bsl::string_view s);
+// [ 9] static int getValue(bsls::Types::Int64   *v, bsl::string_view s);
+// [10] static int getValue(bsls::Types::Uint64  *v, bsl::string_view s);
+// [11] static int getValue(float                *v, bsl::string_view s);
+// [12] static int getValue(double               *v, bsl::string_view s);
+// [13] static int getQuotedString(bsl::string   *v, bsl::string_view s);
+// [13] static int getUnquotedString(bsl::string *v, bsl::string_view s);
+// [13] static int getValue(bsl::string          *v, bsl::string_view s);
+// [14] static int getValue(bdlt::Time           *v, bsl::string_view s);
+// [15] static int getValue(bdlt::TimeTz         *v, bsl::string_view s);
+// [16] static int getValue(bdlt::Date           *v, bsl::string_view s);
+// [17] static int getValue(bdlt::DateTz         *v, bsl::string_view s);
+// [18] static int getValue(bdlt::Datetime       *v, bsl::string_view s);
+// [19] static int getValue(bdlt::DatetimeTz     *v, bsl::string_view s);
+// [20] static int getValue(vector<char>         *v, bsl::string_view s);
+// [21] static int getValue(bdldfp::Decimal64    *v, bsl::string_view s);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [22] USAGE EXAMPLE
@@ -128,7 +130,7 @@ void aSsErT(bool condition, const char *message, int line)
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bslstl::StringRef StringRef;
+typedef bsl::string_view StringRef;
 
 typedef baljsn::ParserUtil Util;
 
@@ -221,9 +223,9 @@ int main(int argc, char *argv[])
     const char *date = "\"1985-06-24\"";
     const char *age  = "21";
 
-    bslstl::StringRef nameRef(name);
-    bslstl::StringRef dateRef(date);
-    bslstl::StringRef ageRef(age);
+    bsl::string_view nameRef(name);
+    bsl::string_view dateRef(date);
+    bsl::string_view ageRef(age);
 //..
 // Now, we use the created string refs to populate the employee object:
 //..
@@ -270,7 +272,7 @@ int main(int argc, char *argv[])
         //:     otherwise.
         //
         // Testing:
-        //   static int getValue(bdldfp::Decimal64 *v, bslstl::StringRef s);
+        //   static int getValue(bdldfp::Decimal64 *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for Decimal64"
@@ -440,7 +442,7 @@ int main(int argc, char *argv[])
         //:     otherwise.
         //
         // Testing:
-        //   static int getValue(vector<char>     *v, bslstl::StringRef s);
+        //   static int getValue(vector<char>     *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for 'vector<char>'"
@@ -548,7 +550,7 @@ int main(int argc, char *argv[])
         //:     otherwise.
         //
         // Testing:
-        //   static int getValue(bdlt::DatetimeTz     *v, bslstl::StringRef s);
+        //   static int getValue(bdlt::DatetimeTz     *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for 'bdlt::DatetimeTz'"
@@ -967,7 +969,7 @@ int main(int argc, char *argv[])
         //:     otherwise.
         //
         // Testing:
-        //   static int getValue(bdlt::Datetime       *v, bslstl::StringRef s);
+        //   static int getValue(bdlt::Datetime       *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for 'bdlt::Datetime'"
@@ -1571,7 +1573,7 @@ int main(int argc, char *argv[])
         //:     otherwise.
         //
         // Testing:
-        //   static int getValue(bdlt::DateTz         *v, bslstl::StringRef s);
+        //   static int getValue(bdlt::DateTz         *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for 'bdlt::DateTz'"
@@ -1826,7 +1828,7 @@ int main(int argc, char *argv[])
         //:     otherwise.
         //
         // Testing:
-        //   static int getValue(bdlt::Date           *v, bslstl::StringRef s);
+        //   static int getValue(bdlt::Date           *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for 'bdlt::Date' types"
@@ -1992,7 +1994,7 @@ int main(int argc, char *argv[])
         //:     otherwise.
         //
         // Testing:
-        //   static int getValue(bdlt::TimeTz         *v, bslstl::StringRef s);
+        //   static int getValue(bdlt::TimeTz         *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for 'bdlt::TimeTz'"
@@ -2137,7 +2139,7 @@ int main(int argc, char *argv[])
         //:     otherwise.
         //
         // Testing:
-        //   static int getValue(bdlt::Time           *v, bslstl::StringRef s);
+        //   static int getValue(bdlt::Time           *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for 'bdlt::Time'"
@@ -2297,15 +2299,22 @@ int main(int argc, char *argv[])
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // TESTING 'getValue' for string values
+        // TESTING 'getQuotedString', 'getUnquotedString', and 'getValue' for
+        // string values
         //
         // Concerns:
         //: 1 Values in the valid range, including the maximum and minimum
-        //:   values for this type, are parsed correctly.
+        //:   values for this type, are parsed correctly, for 'getQuotedString'
+        //:   and 'getUnquotedString'.
         //:
-        //: 2 The passed in variable is unmodified if the data is not valid.
+        //: 2 'getValue' and 'getQuotedString' are equivalent.
         //:
-        //: 3 The return code is 0 on success and non-zero on failure.
+        //: 3 The passed in variable is unmodified if the data is not valid.
+        //:
+        //: 4 For 'getUnquotedString', embedded unescaped '"' characters are
+        //:   placed in the result.
+        //:
+        //: 5 The return code is 0 on success and non-zero on failure.
         //
         // Plan:
         //: 1 Using the table-driven technique, specify a set of distinct
@@ -2313,7 +2322,7 @@ int main(int argc, char *argv[])
         //:
         //: 2 For each row in the table of P-1:
         //:
-        //:   1 Provide the string value and a variable  to be parsed into to
+        //:   1 Provide the string value and a variable to be parsed into to
         //:     the 'getValue' function.  The variable is assigned a sentinel
         //:     value before invoking the function.
         //:
@@ -2323,16 +2332,34 @@ int main(int argc, char *argv[])
         //:
         //:   3 Confirm that the return code is 0 on success and non-zero
         //:     otherwise.
+        //:
+        //:   4 Call 'getQuotedString', making sure the result is identical in
+        //:     return code and/or value.
+        //:
+        //:   5 Call 'getUnquotedString', making sure the result (if
+        //:     successful) includes the extra outer '"'.
+        //:
+        //: 3 Using the table-driven technique, specify a different set of
+        //:   distinct rows of string value, expected parse value, and return
+        //:   code for testing 'getUnquotedString'.
         //
         // Testing:
-        //   static int getValue(bsl::string         *v, bslstl::StringRef s);
+        //   static int getQuotedString(bsl::string *, bsl::string_view);
+        //   static int getUnquotedString(bsl::string *, bsl::string_view);
+        //   static int getValue(bsl::string *, bsl::string_view);
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING 'getValue' for string"
-                               << "\n============================="
-                               << bsl::endl;
+        if (verbose)
+            bsl::cout << "\nTESTING 'getQuotedString', 'getUnquotedString', "
+                         "and 'getValue' for string values"
+                      << "\n================================================"
+                      << "================================"
+                      << bsl::endl;
         {
             typedef bsl::string Type;
+
+            const Type LDELIM("<<");
+            const Type RDELIM(">>");
 
             const char *ERROR_VALUE = "";
 
@@ -2426,6 +2453,11 @@ int main(int argc, char *argv[])
                 {  L_, "\"A\\U7G00B\"",  -1, "A",                     -1, 0  },
                 {  L_, "\"A\\UXXXXB\"",  -1, "A",                     -1, 0  },
 
+                // Do not allow early '"' in quoted strings
+                {  L_, "\"\"abcd\"",     -1, "",                      -1, 0  },
+                {  L_, "\"ab\"cd\"",     -1, "ab",                    -1, 0  },
+                {  L_, "\"abcd\"\"",     -1, "abcd",                  -1, 0  },
+
                 // Values that 'strtol' accepts - '{DRQS 162368243}'.
                 {  L_, "\"\\U0xFF\"",    -1, ERROR_VALUE,             -1, 0  },
                 {  L_, "\"\\U   4\"",    -1, ERROR_VALUE,             -1, 0  },
@@ -2497,17 +2529,68 @@ int main(int argc, char *argv[])
                 const bool         IS_VALID = data.d_isValid;
 
                 const StringRef isb(IN_P,  IN_LEN);
+                const StringRef unq_isb(IN_P + 1,  IN_LEN - 2);
                 const StringRef EXP(EXP_P, EXP_LEN);
 
                 Type value = ERROR_VALUE;
+                Type value2 = ERROR_VALUE;
+                Type value3 = ERROR_VALUE;
+
                 const int rc = Util::getValue(&value, isb);
+                const int rc2 = Util::getQuotedString(&value2, isb);
+                const int rc3 = Util::getUnquotedString(&value3, unq_isb);
+
+                ASSERTV(rc, rc2, rc == rc2);
+                ASSERTV(value, value2, value == value2);
+                ASSERTV(value, value3, value == value3);
+
                 if (IS_VALID) {
-                    LOOP2_ASSERT(LINE, rc, 0 == rc);
+                    ASSERTV(LINE, rc,   0 == rc);
+                    ASSERTV(LINE, rc3,  0 == rc3);
                 }
                 else {
-                    LOOP2_ASSERT(LINE, rc, rc);
+                    ASSERTV(LINE, rc, rc);
                 }
-                LOOP3_ASSERT(LINE, EXP, value, EXP == value);
+                ASSERTV(LINE, EXP, value, EXP == value);
+            }
+
+            static const Data DATA2[] = {
+                //line input             len exp                     isValid
+                //---- -----             --- ---                    -------
+                {  L_, "",               -1, "",                      -1, 1  },
+                {  L_, "a",              -1, "a",                      1, 1  },
+                {  L_, "ab",             -1, "ab",                     2, 1  },
+            };
+
+            const int NUM_DATA2 = sizeof(DATA2) / sizeof(*DATA2);
+
+            for (int i = 0; i < NUM_DATA2; ++i) {
+                const Data&        data     = DATA2[i];
+                const int          LINE     = data.d_line;
+                const char        *IN_P     = data.d_input_p;
+                const bsl::size_t  IN_LEN   = data.d_inputLen < 0
+                                            ? bsl::strlen(IN_P)
+                                            : data.d_inputLen;
+                const char        *EXP_P    = data.d_exp_p;
+                const bsl::size_t  EXP_LEN  = data.d_expLen < 0
+                                            ? bsl::strlen(EXP_P)
+                                            : data.d_expLen;
+                const bool         IS_VALID = data.d_isValid;
+
+                const StringRef isb(IN_P,  IN_LEN);
+                const StringRef EXP(EXP_P, EXP_LEN);
+
+                Type value = ERROR_VALUE;
+
+                const int rc = Util::getUnquotedString(&value, isb);
+
+                if (IS_VALID) {
+                    ASSERTV(LINE, rc, 0 == rc);
+                }
+                else {
+                    ASSERTV(LINE, rc, rc);
+                }
+                ASSERTV(LINE, EXP, value, EXP == value);
             }
         }
       } break;
@@ -2541,7 +2624,7 @@ int main(int argc, char *argv[])
         //:     otherwise.
         //
         // Testing:
-        //   static int getValue(double              *v, bslstl::StringRef s);
+        //   static int getValue(double              *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for double"
@@ -2781,7 +2864,7 @@ int main(int argc, char *argv[])
         //:     otherwise.
         //
         // Testing:
-        //   static int getValue(float               *v, bslstl::StringRef s);
+        //   static int getValue(float               *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for float"
@@ -3014,7 +3097,7 @@ int main(int argc, char *argv[])
         //:     otherwise.
         //
         // Testing:
-        //   static int getValue(bsls::Types::Uint64 *v, bslstl::StringRef s);
+        //   static int getValue(bsls::Types::Uint64 *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for Uint64"
@@ -3303,7 +3386,7 @@ int main(int argc, char *argv[])
         //:     otherwise.
         //
         // Testing:
-        //   static int getValue(bsls::Types::Int64  *v, bslstl::StringRef s);
+        //   static int getValue(bsls::Types::Int64  *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for Int64"
@@ -3656,7 +3739,7 @@ int main(int argc, char *argv[])
         //:     otherwise.
         //
         // Testing:
-        //   static int getValue(unsigned int        *v, bslstl::StringRef s);
+        //   static int getValue(unsigned int        *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for unsigned int"
@@ -3903,7 +3986,7 @@ int main(int argc, char *argv[])
         //:     otherwise.
         //
         // Testing:
-        //   static int getValue(int                 *v, bslstl::StringRef s);
+        //   static int getValue(int                 *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for int"
@@ -4198,7 +4281,7 @@ int main(int argc, char *argv[])
         //:     otherwise.
         //
         // Testing:
-        //   static int getValue(unsigned short      *v, bslstl::StringRef s);
+        //   static int getValue(unsigned short      *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for unsigned short"
@@ -4438,7 +4521,7 @@ int main(int argc, char *argv[])
         //:     otherwise.
         //
         // Testing:
-        //   static int getValue(short               *v, bslstl::StringRef s);
+        //   static int getValue(short               *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for short"
@@ -4716,7 +4799,7 @@ int main(int argc, char *argv[])
         //:     otherwise.
         //
         // Testing:
-        //   static int getValue(unsigned char       *v, bslstl::StringRef s);
+        //   static int getValue(unsigned char       *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for unsigned char"
@@ -4927,7 +5010,7 @@ int main(int argc, char *argv[])
         //:     otherwise.
         //
         // Testing:
-        //   static int getValue(char                *v, bslstl::StringRef s);
+        //   static int getValue(char                *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for signed char"
@@ -5147,7 +5230,7 @@ int main(int argc, char *argv[])
         //:   value is non-zero.
         //
         // Testing:
-        //   static int getValue(bool                *v, bslstl::StringRef s);
+        //   static int getValue(bool                *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'getValue' for bool"
@@ -5277,7 +5360,7 @@ int main(int argc, char *argv[])
             const bool        FLAG   = DATA[ti].d_validFlag;
             const double      EXP    = DATA[ti].d_result;
 
-            bslstl::StringRef iss(STRING);
+            bsl::string_view iss(STRING);
 
             double result;
             const int rc = Util::getValue(&result, iss);

@@ -152,18 +152,14 @@ namespace baljsn {
                              // -----------------
 
 // CLASS METHODS
-int ParserUtil::getString(bsl::string *value, const bsl::string_view& data)
+int ParserUtil::getUnquotedString(bsl::string             *value,
+                                  const bsl::string_view&  data)
 {
     const char *iter = data.data();
     const char *end  = data.data() + data.length();
 
-    if (iter == end || '"' != *iter) {
-        return -1;                                                    // RETURN
-    }
-
     value->clear();
 
-    ++iter;
     while (iter < end) {
         if ('\\' == *iter) {
             ++iter;
@@ -233,7 +229,7 @@ int ParserUtil::getString(bsl::string *value, const bsl::string_view& data)
 
                 if (0xD800 <= first && first <= 0xDBFF) {
                     // Check that another unicode escape sequence follows.
-                    if (iter + 2 * k_NUM_UNICODE_DIGITS + 2 >= end) {
+                    if (iter + 2 * k_NUM_UNICODE_DIGITS + 1 >= end) {
                         return -1;                                    // RETURN
                     }
                     if ('\\' != iter[k_NUM_UNICODE_DIGITS]) {
@@ -291,7 +287,8 @@ int ParserUtil::getString(bsl::string *value, const bsl::string_view& data)
             }
         }
         else if ('"' == *iter) {
-            return 0;                                                 // RETURN
+            // Do not allow early '"' in strings.
+            return -1;                                                // RETURN
         }
         else {
             *value += *iter;
@@ -299,7 +296,7 @@ int ParserUtil::getString(bsl::string *value, const bsl::string_view& data)
         ++iter;
     }
 
-    return -1;
+    return 0;
 }
 
 int ParserUtil::getValue(bdldfp::Decimal64       *value,

@@ -3172,6 +3172,25 @@ int main(int argc, char *argv[])
                          "\"Santa's LH\""
                               "]       ] "  // Note bad extra ']'
                   "}",                    -2,     2, m()                     },
+
+            // test character escape sequences in keys and values
+            { L_, "{\"a\\/b\":\"c\\/d\"}",
+                                           0,     1, m.m("a/b", "c/d")},
+            { L_, "{\"a\\bb\":\"c\\bd\"}",
+                                           0,     1, m.m("a\bb", "c\bd")},
+            { L_, "{\"a\\fb\":\"c\\fd\"}",
+                                           0,     1, m.m("a\fb", "c\fd")},
+            { L_, "{\"a\\nb\":\"c\\nd\"}",
+                                           0,     1, m.m("a\nb", "c\nd")},
+            { L_, "{\"a\\rb\":\"c\\rd\"}",
+                                           0,     1, m.m("a\rb", "c\rd")},
+            { L_, "{\"a\\tb\":\"c\\td\"}",
+                                           0,     1, m.m("a\tb", "c\td")},
+            { L_, "{\"a\\\\b\":\"c\\\\d\"}",
+                                           0,     1, m.m("a\\b", "c\\d")},
+            { L_, "{\"a\\u0020b\":\"c\\u0020d\"}",
+                                           0,     1, m.m("a b", "c d")},
+
             { L_, LONG_JSON_ARRAY,         0,     1, LONG_DATUM_ARRAY        },
             { L_, LONG_JSON_OBJECT,        0,     1, LONG_DATUM_OBJECT       },
             { L_, DEEP_JSON_ARRAY,         0,    96, DEEP_DATUM_ARRAY        },
