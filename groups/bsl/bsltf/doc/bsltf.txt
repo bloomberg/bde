@@ -13,7 +13,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bsltf' package currently has 35 components having 6 levels of physical
+ The 'bsltf' package currently has 36 components having 6 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -42,6 +42,7 @@
      bsltf_degeneratefunctor
      bsltf_enumeratedtesttype
      bsltf_evilbooleantype
+     bsltf_inputiterator
      bsltf_movestate
      bsltf_nonassignabletesttype
      bsltf_noncopyconstructibletesttype
@@ -97,6 +98,9 @@
 :
 : 'bsltf_evilbooleantype':
 :      Provide the most awkward type that is convertible to 'bool'.
+:
+: 'bsltf_inputiterator':
+:      Provide a pure input iterator capable of traversing a range.
 :
 : 'bsltf_movablealloctesttype':
 :      Provide an allocating test class that records when moved from.

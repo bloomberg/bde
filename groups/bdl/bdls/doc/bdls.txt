@@ -21,17 +21,17 @@
   3. bdls_fdstreambuf
      bdls_filedescriptorguard
      bdls_processutil
+     bdls_tempdirectoryguard
 
   2. bdls_filesystemutil
 
-  1. bdls_filesystemutil_transitionaluniximputil                     !PRIVATE!
-     bdls_filesystemutil_uniximputil                                 !PRIVATE!
-     bdls_filesystemutil_unixplatform                                !PRIVATE!
-     bdls_filesystemutil_windowsimputil                              !PRIVATE!
+  1. bdls_filesystemutil_transitionaluniximputil                      !PRIVATE!
+     bdls_filesystemutil_uniximputil                                  !PRIVATE!
+     bdls_filesystemutil_unixplatform                                 !PRIVATE!
+     bdls_filesystemutil_windowsimputil                               !PRIVATE!
      bdls_memoryutil
      bdls_pathutil
-     bdls_tempdirectoryguard
-     bdls_testutil                                      !DEPRECATED!
+     bdls_testutil                                       !DEPRECATED!
 ..
 
 /Component Synopsis
@@ -45,16 +45,16 @@
 : 'bdls_filesystemutil':
 :      Provide methods for filesystem access with multi-language names.
 :
-: 'bdls_filesystemutil_transitionaluniximputil':
+: 'bdls_filesystemutil_transitionaluniximputil':                      !PRIVATE!
 :      Provide testable 'bdls::FilesystemUtil' operations for some Unixes.
 :
-: 'bdls_filesystemutil_uniximputil':
+: 'bdls_filesystemutil_uniximputil':                                  !PRIVATE!
 :      Provide testable 'bdls::FilesystemUtil' operations for some Unixes.
 :
-: 'bdls_filesystemutil_unixplatform':
+: 'bdls_filesystemutil_unixplatform':                                 !PRIVATE!
 :      Provide maximum Unix file-offset type width detection macros.
 :
-: 'bdls_filesystemutil_windowsimputil':
+: 'bdls_filesystemutil_windowsimputil':                               !PRIVATE!
 :      Provide testable 'bdls::FilesystemUtil' operations on Windows.
 :
 : 'bdls_memoryutil':
@@ -72,5 +72,8 @@
 : 'bdls_processutil':
 :      Provide basic platform-independent utilities related to processes.
 :
-: 'bdls_testutil':
+: 'bdls_tempdirectoryguard':
+:      Provide a scoped guard that creates a unique temporary directory.
+:
+: 'bdls_testutil':                                       !DEPRECATED!
 :      Provide test utilities for components in 'bdl' and above.

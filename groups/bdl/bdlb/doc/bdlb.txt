@@ -54,7 +54,7 @@
      bdlb_randomdevice
      bdlb_scopeexit
      bdlb_stringrefutil                                  !DEPRECATED!
-     bdlb_testinputiterator
+     bdlb_testinputiterator                              !DEPRECATED!
      bdlb_tokenizer
      bdlb_topologicalsortutil
      bdlb_transformiterator
@@ -172,7 +172,7 @@
 : 'bdlb_stringviewutil':
 :      Provide utility functions on 'bsl::string_view' containers.
 :
-: 'bdlb_testinputiterator':
+: 'bdlb_testinputiterator':                              !DEPRECATED!
 :      Provide a pure input iterator for an empty range.
 :
 : 'bdlb_tokenizer':

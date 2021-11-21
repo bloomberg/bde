@@ -9,13 +9,14 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'balst' package currently has 12 components having 6 levels of physical
+ The 'balst' package currently has 13 components having 7 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  6. balst_stacktraceprinter
-     balst_stacktraceprintutil
+  7. balst_stacktraceprinter
+
+  6. balst_stacktraceprintutil
      balst_stacktracetestallocator
 
   5. balst_stacktraceutil
