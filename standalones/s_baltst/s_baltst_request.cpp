@@ -1,7 +1,7 @@
-// s_baltst_request.cpp        *DO NOT EDIT*         @generated -*-C++-*-
+// s_baltst_request.cpp           *DO NOT EDIT*            @generated -*-C++-*-
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(s_baltst_request_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(s_baltst_request_cpp, "$Id$ $CSID$")
 
 #include <s_baltst_request.h>
 
@@ -11,56 +11,16 @@ BSLS_IDENT_RCSID(s_baltst_request_cpp,"$Id$ $CSID$")
 #include <bdlb_printmethods.h>
 #include <bdlb_string.h>
 
-#include <s_baltst_address.h>
-#include <s_baltst_basicrecord.h>
-#include <s_baltst_customint.h>
-#include <s_baltst_customstring.h>
-#include <s_baltst_customizedstring.h>
-#include <s_baltst_enumerated.h>
-#include <s_baltst_mychoice.h>
-#include <s_baltst_myenumeration.h>
-#include <s_baltst_mysequence.h>
-#include <s_baltst_mysequencewithanonymouschoicechoice.h>
-#include <s_baltst_mysequencewitharray.h>
-#include <s_baltst_mysequencewithattributes.h>
-#include <s_baltst_mysequencewithnillable.h>
-#include <s_baltst_mysequencewithnullable.h>
-#include <s_baltst_mysimplecontent.h>
-#include <s_baltst_mysimpleintcontent.h>
-#include <s_baltst_rawdata.h>
-#include <s_baltst_rawdataswitched.h>
-#include <s_baltst_rawdataunformatted.h>
-#include <s_baltst_sequencewithanonymitychoice1.h>
-#include <s_baltst_simplerequest.h>
-#include <s_baltst_sqrt.h>
-#include <s_baltst_unsignedsequence.h>
-#include <s_baltst_voidsequence.h>
-#include <s_baltst_bigrecord.h>
-#include <s_baltst_employee.h>
-#include <s_baltst_mysequencewithanonymouschoice.h>
-#include <s_baltst_mysequencewithnillables.h>
-#include <s_baltst_mysequencewithnullables.h>
-#include <s_baltst_ratsnest.h>
-#include <s_baltst_ratsnest.h>
-#include <s_baltst_ratsnest.h>
-#include <s_baltst_ratsnest.h>
-#include <s_baltst_sequencewithanonymitychoice.h>
-#include <s_baltst_timingrequest.h>
-#include <s_baltst_ratsnest.h>
-#include <s_baltst_ratsnest.h>
-#include <s_baltst_ratsnest.h>
-#include <s_baltst_ratsnest.h>
-#include <s_baltst_ratsnest.h>
-#include <s_baltst_sequencewithanonymitychoice2.h>
-#include <s_baltst_sequencewithanonymity.h>
-#include <s_baltst_topchoice.h>
 #include <s_baltst_featuretestmessage.h>
+#include <s_baltst_simplerequest.h>
 #include <bslim_printer.h>
 #include <bsls_assert.h>
 
+#include <bsl_cstring.h>
 #include <bsl_iomanip.h>
 #include <bsl_limits.h>
 #include <bsl_ostream.h>
+#include <bsl_utility.h>
 
 namespace BloombergLP {
 namespace s_baltst {
@@ -133,12 +93,12 @@ Request::Request(
     switch (d_selectionId) {
       case SELECTION_ID_SIMPLE_REQUEST: {
         new (d_simpleRequest.buffer())
-            SimpleRequest(
+            s_baltst::SimpleRequest(
                 original.d_simpleRequest.object(), d_allocator_p);
       } break;
       case SELECTION_ID_FEATURE_REQUEST: {
         new (d_featureRequest.buffer())
-            FeatureTestMessage(
+            s_baltst::FeatureTestMessage(
                 original.d_featureRequest.object(), d_allocator_p);
       } break;
       default:
@@ -155,12 +115,12 @@ Request::Request(Request&& original) noexcept
     switch (d_selectionId) {
       case SELECTION_ID_SIMPLE_REQUEST: {
         new (d_simpleRequest.buffer())
-            SimpleRequest(
+            s_baltst::SimpleRequest(
                 bsl::move(original.d_simpleRequest.object()), d_allocator_p);
       } break;
       case SELECTION_ID_FEATURE_REQUEST: {
         new (d_featureRequest.buffer())
-            FeatureTestMessage(
+            s_baltst::FeatureTestMessage(
                 bsl::move(original.d_featureRequest.object()), d_allocator_p);
       } break;
       default:
@@ -177,12 +137,12 @@ Request::Request(
     switch (d_selectionId) {
       case SELECTION_ID_SIMPLE_REQUEST: {
         new (d_simpleRequest.buffer())
-            SimpleRequest(
+            s_baltst::SimpleRequest(
                 bsl::move(original.d_simpleRequest.object()), d_allocator_p);
       } break;
       case SELECTION_ID_FEATURE_REQUEST: {
         new (d_featureRequest.buffer())
-            FeatureTestMessage(
+            s_baltst::FeatureTestMessage(
                 bsl::move(original.d_featureRequest.object()), d_allocator_p);
       } break;
       default:
@@ -240,10 +200,12 @@ void Request::reset()
 {
     switch (d_selectionId) {
       case SELECTION_ID_SIMPLE_REQUEST: {
-        d_simpleRequest.object().~SimpleRequest();
+        typedef s_baltst::SimpleRequest Type;
+        d_simpleRequest.object().~Type();
       } break;
       case SELECTION_ID_FEATURE_REQUEST: {
-        d_featureRequest.object().~FeatureTestMessage();
+        typedef s_baltst::FeatureTestMessage Type;
+        d_featureRequest.object().~Type();
       } break;
       default:
         BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
@@ -281,7 +243,7 @@ int Request::makeSelection(const char *name, int nameLength)
     return makeSelection(selectionInfo->d_id);
 }
 
-SimpleRequest& Request::makeSimpleRequest()
+s_baltst::SimpleRequest& Request::makeSimpleRequest()
 {
     if (SELECTION_ID_SIMPLE_REQUEST == d_selectionId) {
         bdlat_ValueTypeFunctions::reset(&d_simpleRequest.object());
@@ -289,14 +251,14 @@ SimpleRequest& Request::makeSimpleRequest()
     else {
         reset();
         new (d_simpleRequest.buffer())
-                SimpleRequest(d_allocator_p);
+                s_baltst::SimpleRequest(d_allocator_p);
         d_selectionId = SELECTION_ID_SIMPLE_REQUEST;
     }
 
     return d_simpleRequest.object();
 }
 
-SimpleRequest& Request::makeSimpleRequest(const SimpleRequest& value)
+s_baltst::SimpleRequest& Request::makeSimpleRequest(const s_baltst::SimpleRequest& value)
 {
     if (SELECTION_ID_SIMPLE_REQUEST == d_selectionId) {
         d_simpleRequest.object() = value;
@@ -304,7 +266,7 @@ SimpleRequest& Request::makeSimpleRequest(const SimpleRequest& value)
     else {
         reset();
         new (d_simpleRequest.buffer())
-                SimpleRequest(value, d_allocator_p);
+                s_baltst::SimpleRequest(value, d_allocator_p);
         d_selectionId = SELECTION_ID_SIMPLE_REQUEST;
     }
 
@@ -313,7 +275,7 @@ SimpleRequest& Request::makeSimpleRequest(const SimpleRequest& value)
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-SimpleRequest& Request::makeSimpleRequest(SimpleRequest&& value)
+s_baltst::SimpleRequest& Request::makeSimpleRequest(s_baltst::SimpleRequest&& value)
 {
     if (SELECTION_ID_SIMPLE_REQUEST == d_selectionId) {
         d_simpleRequest.object() = bsl::move(value);
@@ -321,7 +283,7 @@ SimpleRequest& Request::makeSimpleRequest(SimpleRequest&& value)
     else {
         reset();
         new (d_simpleRequest.buffer())
-                SimpleRequest(bsl::move(value), d_allocator_p);
+                s_baltst::SimpleRequest(bsl::move(value), d_allocator_p);
         d_selectionId = SELECTION_ID_SIMPLE_REQUEST;
     }
 
@@ -329,7 +291,7 @@ SimpleRequest& Request::makeSimpleRequest(SimpleRequest&& value)
 }
 #endif
 
-FeatureTestMessage& Request::makeFeatureRequest()
+s_baltst::FeatureTestMessage& Request::makeFeatureRequest()
 {
     if (SELECTION_ID_FEATURE_REQUEST == d_selectionId) {
         bdlat_ValueTypeFunctions::reset(&d_featureRequest.object());
@@ -337,14 +299,14 @@ FeatureTestMessage& Request::makeFeatureRequest()
     else {
         reset();
         new (d_featureRequest.buffer())
-                FeatureTestMessage(d_allocator_p);
+                s_baltst::FeatureTestMessage(d_allocator_p);
         d_selectionId = SELECTION_ID_FEATURE_REQUEST;
     }
 
     return d_featureRequest.object();
 }
 
-FeatureTestMessage& Request::makeFeatureRequest(const FeatureTestMessage& value)
+s_baltst::FeatureTestMessage& Request::makeFeatureRequest(const s_baltst::FeatureTestMessage& value)
 {
     if (SELECTION_ID_FEATURE_REQUEST == d_selectionId) {
         d_featureRequest.object() = value;
@@ -352,7 +314,7 @@ FeatureTestMessage& Request::makeFeatureRequest(const FeatureTestMessage& value)
     else {
         reset();
         new (d_featureRequest.buffer())
-                FeatureTestMessage(value, d_allocator_p);
+                s_baltst::FeatureTestMessage(value, d_allocator_p);
         d_selectionId = SELECTION_ID_FEATURE_REQUEST;
     }
 
@@ -361,7 +323,7 @@ FeatureTestMessage& Request::makeFeatureRequest(const FeatureTestMessage& value)
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-FeatureTestMessage& Request::makeFeatureRequest(FeatureTestMessage&& value)
+s_baltst::FeatureTestMessage& Request::makeFeatureRequest(s_baltst::FeatureTestMessage&& value)
 {
     if (SELECTION_ID_FEATURE_REQUEST == d_selectionId) {
         d_featureRequest.object() = bsl::move(value);
@@ -369,7 +331,7 @@ FeatureTestMessage& Request::makeFeatureRequest(FeatureTestMessage&& value)
     else {
         reset();
         new (d_featureRequest.buffer())
-                FeatureTestMessage(bsl::move(value), d_allocator_p);
+                s_baltst::FeatureTestMessage(bsl::move(value), d_allocator_p);
         d_selectionId = SELECTION_ID_FEATURE_REQUEST;
     }
 
@@ -416,11 +378,11 @@ const char *Request::selectionName() const
 }  // close package namespace
 }  // close enterprise namespace
 
-// GENERATED BY BLP_BAS_CODEGEN_2020.03.30
-// USING bas_codegen.pl s_baltst.xsd -m msg -p s_baltst -C tmp_singles --msgSplit 1 --noExternalization --noHashSupport --noAggregateConversion
+// GENERATED BY BLP_BAS_CODEGEN_2021.10.31
+// USING bas_codegen.pl s_baltst_request.xsd --mode msg --includedir . --msgComponent request --noRecurse --noExternalization --noHashSupport --noAggregateConversion
 // ----------------------------------------------------------------------------
 // NOTICE:
-//      Copyright 2020 Bloomberg Finance L.P. All rights reserved.
+//      Copyright 2021 Bloomberg Finance L.P. All rights reserved.
 //      Property of Bloomberg Finance L.P. (BFLP)
 //      This software is made available solely pursuant to the
 //      terms of a BFLP license agreement which governs its use.

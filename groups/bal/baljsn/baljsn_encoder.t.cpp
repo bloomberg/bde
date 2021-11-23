@@ -64,6 +64,7 @@
 #include <s_baltst_featuretestmessage.h>
 #include <s_baltst_featuretestmessageutil.h>
 #include <s_baltst_mysequencewithchoice.h>
+#include <s_baltst_simplerequest.h>
 
 using namespace BloombergLP;
 using bsl::cout;

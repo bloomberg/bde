@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:bdem="http://bloomberg.com/schemas/bdem"
+           bdem:package="s_baltst"
+           elementFormDefault="qualified">
+
+  <xs:simpleType name="Enumerated" bdem:preserveEnumOrder="1">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="NEW_YORK"/>
+      <xs:enumeration value="NEW_JERSEY"/>
+      <xs:enumeration value="LONDON"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>

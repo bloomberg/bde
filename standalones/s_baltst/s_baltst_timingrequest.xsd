@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'
+           xmlns:bdem='http://bloomberg.com/schemas/bdem'
+           bdem:package='s_baltst'
+           elementFormDefault='qualified'>
+
+  <xs:include schemaLocation='s_baltst_basicrecord.xsd'/>
+  <xs:include schemaLocation='s_baltst_bigrecord.xsd'/>
+  <xs:include schemaLocation='s_baltst_sqrt.xsd'/>
+
+  <xs:complexType name='TimingRequest'>
+    <xs:annotation>
+      <xs:documentation>
+        A choice record representative of a typical request object.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:choice>
+      <xs:element name='sqrt'
+                  type='Sqrt'
+                  bdem:cppheader='s_baltst_sqrt.h'/>
+      <xs:element name='basic'
+                  type='BasicRecord'
+                  bdem:cppheader='s_baltst_basicrecord.h'/>
+      <xs:element name='big'
+                  type='BigRecord'
+                  bdem:cppheader='s_baltst_bigrecord.h'/>
+    </xs:choice>
+  </xs:complexType>
+
+</xs:schema>

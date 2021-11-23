@@ -1,9 +1,9 @@
-// s_baltst_topchoice.h         *DO NOT EDIT*          @generated -*-C++-*-
+// s_baltst_topchoice.h           *DO NOT EDIT*            @generated -*-C++-*-
 #ifndef INCLUDED_S_BALTST_TOPCHOICE
 #define INCLUDED_S_BALTST_TOPCHOICE
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(s_baltst_topchoice_h,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(s_baltst_topchoice_h, "$Id$ $CSID$")
 BSLS_IDENT_PRAGMA_ONCE
 
 //@PURPOSE: Provide value-semantic attribute classes
@@ -26,89 +26,11 @@ BSLS_IDENT_PRAGMA_ONCE
 
 #include <bsl_vector.h>
 
-#include <s_baltst_address.h>
-
-#include <s_baltst_basicrecord.h>
-
-#include <s_baltst_customint.h>
-
 #include <s_baltst_customstring.h>
-
-#include <s_baltst_customizedstring.h>
 
 #include <s_baltst_enumerated.h>
 
-#include <s_baltst_mychoice.h>
-
-#include <s_baltst_myenumeration.h>
-
-#include <s_baltst_mysequence.h>
-
-#include <s_baltst_mysequencewithanonymouschoicechoice.h>
-
-#include <s_baltst_mysequencewitharray.h>
-
-#include <s_baltst_mysequencewithattributes.h>
-
-#include <s_baltst_mysequencewithnillable.h>
-
-#include <s_baltst_mysequencewithnullable.h>
-
-#include <s_baltst_mysimplecontent.h>
-
-#include <s_baltst_mysimpleintcontent.h>
-
-#include <s_baltst_rawdata.h>
-
-#include <s_baltst_rawdataswitched.h>
-
-#include <s_baltst_rawdataunformatted.h>
-
-#include <s_baltst_sequencewithanonymitychoice1.h>
-
-#include <s_baltst_simplerequest.h>
-
-#include <s_baltst_sqrt.h>
-
-#include <s_baltst_unsignedsequence.h>
-
-#include <s_baltst_voidsequence.h>
-
-#include <s_baltst_bigrecord.h>
-
-#include <s_baltst_employee.h>
-
-#include <s_baltst_mysequencewithanonymouschoice.h>
-
-#include <s_baltst_mysequencewithnillables.h>
-
-#include <s_baltst_mysequencewithnullables.h>
-
 #include <s_baltst_ratsnest.h>
-
-#include <s_baltst_ratsnest.h>
-
-#include <s_baltst_ratsnest.h>
-
-#include <s_baltst_ratsnest.h>
-
-#include <s_baltst_sequencewithanonymitychoice.h>
-
-#include <s_baltst_timingrequest.h>
-
-#include <s_baltst_ratsnest.h>
-
-#include <s_baltst_ratsnest.h>
-
-#include <s_baltst_ratsnest.h>
-
-#include <s_baltst_ratsnest.h>
-
-#include <s_baltst_ratsnest.h>
-
-#include <s_baltst_sequencewithanonymitychoice2.h>
-
-#include <s_baltst_sequencewithanonymity.h>
 
 #include <bsl_iosfwd.h>
 #include <bsl_limits.h>
@@ -128,18 +50,18 @@ class Topchoice {
 
     // INSTANCE DATA
     union {
-        bsls::ObjectBuffer< Sequence1 >          d_selection1;
-        bsls::ObjectBuffer< bsl::vector<char> >  d_selection2;
-        bsls::ObjectBuffer< Sequence2 >          d_selection3;
-        Sequence3                              *d_selection4;
-        bsls::ObjectBuffer< bdlt::DatetimeTz >   d_selection5;
-        bsls::ObjectBuffer< CustomString >       d_selection6;
-        bsls::ObjectBuffer< Enumerated::Value >  d_selection7;
-        bsls::ObjectBuffer< Choice3 >            d_selection8;
+        bsls::ObjectBuffer< s_baltst::Sequence1 >          d_selection1;
+        bsls::ObjectBuffer< bsl::vector<char> >            d_selection2;
+        bsls::ObjectBuffer< s_baltst::Sequence2 >          d_selection3;
+        s_baltst::Sequence3                              *d_selection4;
+        bsls::ObjectBuffer< bdlt::DatetimeTz >             d_selection5;
+        bsls::ObjectBuffer< s_baltst::CustomString >       d_selection6;
+        bsls::ObjectBuffer< s_baltst::Enumerated::Value >  d_selection7;
+        bsls::ObjectBuffer< s_baltst::Choice3 >            d_selection8;
     };
 
-    int                                          d_selectionId;
-    bslma::Allocator                            *d_allocator_p;
+    int                                                    d_selectionId;
+    bslma::Allocator                                      *d_allocator_p;
 
   public:
     // TYPES
@@ -249,11 +171,11 @@ class Topchoice {
         // Return 0 on success, and non-zero value otherwise (i.e., the
         // selection is not found).
 
-    Sequence1& makeSelection1();
-    Sequence1& makeSelection1(const Sequence1& value);
+    s_baltst::Sequence1& makeSelection1();
+    s_baltst::Sequence1& makeSelection1(const s_baltst::Sequence1& value);
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    Sequence1& makeSelection1(Sequence1&& value);
+    s_baltst::Sequence1& makeSelection1(s_baltst::Sequence1&& value);
 #endif
         // Set the value of this object to be a "Selection1" value.  Optionally
         // specify the 'value' of the "Selection1".  If 'value' is not
@@ -269,21 +191,21 @@ class Topchoice {
         // specify the 'value' of the "Selection2".  If 'value' is not
         // specified, the default "Selection2" value is used.
 
-    Sequence2& makeSelection3();
-    Sequence2& makeSelection3(const Sequence2& value);
+    s_baltst::Sequence2& makeSelection3();
+    s_baltst::Sequence2& makeSelection3(const s_baltst::Sequence2& value);
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    Sequence2& makeSelection3(Sequence2&& value);
+    s_baltst::Sequence2& makeSelection3(s_baltst::Sequence2&& value);
 #endif
         // Set the value of this object to be a "Selection3" value.  Optionally
         // specify the 'value' of the "Selection3".  If 'value' is not
         // specified, the default "Selection3" value is used.
 
-    Sequence3& makeSelection4();
-    Sequence3& makeSelection4(const Sequence3& value);
+    s_baltst::Sequence3& makeSelection4();
+    s_baltst::Sequence3& makeSelection4(const s_baltst::Sequence3& value);
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    Sequence3& makeSelection4(Sequence3&& value);
+    s_baltst::Sequence3& makeSelection4(s_baltst::Sequence3&& value);
 #endif
         // Set the value of this object to be a "Selection4" value.  Optionally
         // specify the 'value' of the "Selection4".  If 'value' is not
@@ -299,27 +221,27 @@ class Topchoice {
         // specify the 'value' of the "Selection5".  If 'value' is not
         // specified, the default "Selection5" value is used.
 
-    CustomString& makeSelection6();
-    CustomString& makeSelection6(const CustomString& value);
+    s_baltst::CustomString& makeSelection6();
+    s_baltst::CustomString& makeSelection6(const s_baltst::CustomString& value);
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    CustomString& makeSelection6(CustomString&& value);
+    s_baltst::CustomString& makeSelection6(s_baltst::CustomString&& value);
 #endif
         // Set the value of this object to be a "Selection6" value.  Optionally
         // specify the 'value' of the "Selection6".  If 'value' is not
         // specified, the default "Selection6" value is used.
 
-    Enumerated::Value& makeSelection7();
-    Enumerated::Value& makeSelection7(Enumerated::Value value);
+    s_baltst::Enumerated::Value& makeSelection7();
+    s_baltst::Enumerated::Value& makeSelection7(s_baltst::Enumerated::Value value);
         // Set the value of this object to be a "Selection7" value.  Optionally
         // specify the 'value' of the "Selection7".  If 'value' is not
         // specified, the default "Selection7" value is used.
 
-    Choice3& makeSelection8();
-    Choice3& makeSelection8(const Choice3& value);
+    s_baltst::Choice3& makeSelection8();
+    s_baltst::Choice3& makeSelection8(const s_baltst::Choice3& value);
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    Choice3& makeSelection8(Choice3&& value);
+    s_baltst::Choice3& makeSelection8(s_baltst::Choice3&& value);
 #endif
         // Set the value of this object to be a "Selection8" value.  Optionally
         // specify the 'value' of the "Selection8".  If 'value' is not
@@ -333,7 +255,7 @@ class Topchoice {
         // invocation of 'manipulator' if this object has a defined selection,
         // and -1 otherwise.
 
-    Sequence1& selection1();
+    s_baltst::Sequence1& selection1();
         // Return a reference to the modifiable "Selection1" selection of this
         // object if "Selection1" is the current selection.  The behavior is
         // undefined unless "Selection1" is the selection of this object.
@@ -343,12 +265,12 @@ class Topchoice {
         // object if "Selection2" is the current selection.  The behavior is
         // undefined unless "Selection2" is the selection of this object.
 
-    Sequence2& selection3();
+    s_baltst::Sequence2& selection3();
         // Return a reference to the modifiable "Selection3" selection of this
         // object if "Selection3" is the current selection.  The behavior is
         // undefined unless "Selection3" is the selection of this object.
 
-    Sequence3& selection4();
+    s_baltst::Sequence3& selection4();
         // Return a reference to the modifiable "Selection4" selection of this
         // object if "Selection4" is the current selection.  The behavior is
         // undefined unless "Selection4" is the selection of this object.
@@ -358,17 +280,17 @@ class Topchoice {
         // object if "Selection5" is the current selection.  The behavior is
         // undefined unless "Selection5" is the selection of this object.
 
-    CustomString& selection6();
+    s_baltst::CustomString& selection6();
         // Return a reference to the modifiable "Selection6" selection of this
         // object if "Selection6" is the current selection.  The behavior is
         // undefined unless "Selection6" is the selection of this object.
 
-    Enumerated::Value& selection7();
+    s_baltst::Enumerated::Value& selection7();
         // Return a reference to the modifiable "Selection7" selection of this
         // object if "Selection7" is the current selection.  The behavior is
         // undefined unless "Selection7" is the selection of this object.
 
-    Choice3& selection8();
+    s_baltst::Choice3& selection8();
         // Return a reference to the modifiable "Selection8" selection of this
         // object if "Selection8" is the current selection.  The behavior is
         // undefined unless "Selection8" is the selection of this object.
@@ -400,7 +322,7 @@ class Topchoice {
         // structure.  Return the value returned from the invocation of
         // 'accessor' if this object has a defined selection, and -1 otherwise.
 
-    const Sequence1& selection1() const;
+    const s_baltst::Sequence1& selection1() const;
         // Return a reference to the non-modifiable "Selection1" selection of
         // this object if "Selection1" is the current selection.  The behavior
         // is undefined unless "Selection1" is the selection of this object.
@@ -410,12 +332,12 @@ class Topchoice {
         // this object if "Selection2" is the current selection.  The behavior
         // is undefined unless "Selection2" is the selection of this object.
 
-    const Sequence2& selection3() const;
+    const s_baltst::Sequence2& selection3() const;
         // Return a reference to the non-modifiable "Selection3" selection of
         // this object if "Selection3" is the current selection.  The behavior
         // is undefined unless "Selection3" is the selection of this object.
 
-    const Sequence3& selection4() const;
+    const s_baltst::Sequence3& selection4() const;
         // Return a reference to the non-modifiable "Selection4" selection of
         // this object if "Selection4" is the current selection.  The behavior
         // is undefined unless "Selection4" is the selection of this object.
@@ -425,17 +347,17 @@ class Topchoice {
         // this object if "Selection5" is the current selection.  The behavior
         // is undefined unless "Selection5" is the selection of this object.
 
-    const CustomString& selection6() const;
+    const s_baltst::CustomString& selection6() const;
         // Return a reference to the non-modifiable "Selection6" selection of
         // this object if "Selection6" is the current selection.  The behavior
         // is undefined unless "Selection6" is the selection of this object.
 
-    const Enumerated::Value& selection7() const;
+    const s_baltst::Enumerated::Value& selection7() const;
         // Return a reference to the non-modifiable "Selection7" selection of
         // this object if "Selection7" is the current selection.  The behavior
         // is undefined unless "Selection7" is the selection of this object.
 
-    const Choice3& selection8() const;
+    const s_baltst::Choice3& selection8() const;
         // Return a reference to the non-modifiable "Selection8" selection of
         // this object if "Selection8" is the current selection.  The behavior
         // is undefined unless "Selection8" is the selection of this object.
@@ -565,7 +487,7 @@ int Topchoice::manipulateSelection(MANIPULATOR& manipulator)
 }
 
 inline
-Sequence1& Topchoice::selection1()
+s_baltst::Sequence1& Topchoice::selection1()
 {
     BSLS_ASSERT(SELECTION_ID_SELECTION1 == d_selectionId);
     return d_selection1.object();
@@ -579,14 +501,14 @@ bsl::vector<char>& Topchoice::selection2()
 }
 
 inline
-Sequence2& Topchoice::selection3()
+s_baltst::Sequence2& Topchoice::selection3()
 {
     BSLS_ASSERT(SELECTION_ID_SELECTION3 == d_selectionId);
     return d_selection3.object();
 }
 
 inline
-Sequence3& Topchoice::selection4()
+s_baltst::Sequence3& Topchoice::selection4()
 {
     BSLS_ASSERT(SELECTION_ID_SELECTION4 == d_selectionId);
     return *d_selection4;
@@ -600,21 +522,21 @@ bdlt::DatetimeTz& Topchoice::selection5()
 }
 
 inline
-CustomString& Topchoice::selection6()
+s_baltst::CustomString& Topchoice::selection6()
 {
     BSLS_ASSERT(SELECTION_ID_SELECTION6 == d_selectionId);
     return d_selection6.object();
 }
 
 inline
-Enumerated::Value& Topchoice::selection7()
+s_baltst::Enumerated::Value& Topchoice::selection7()
 {
     BSLS_ASSERT(SELECTION_ID_SELECTION7 == d_selectionId);
     return d_selection7.object();
 }
 
 inline
-Choice3& Topchoice::selection8()
+s_baltst::Choice3& Topchoice::selection8()
 {
     BSLS_ASSERT(SELECTION_ID_SELECTION8 == d_selectionId);
     return d_selection8.object();
@@ -662,7 +584,7 @@ int Topchoice::accessSelection(ACCESSOR& accessor) const
 }
 
 inline
-const Sequence1& Topchoice::selection1() const
+const s_baltst::Sequence1& Topchoice::selection1() const
 {
     BSLS_ASSERT(SELECTION_ID_SELECTION1 == d_selectionId);
     return d_selection1.object();
@@ -676,14 +598,14 @@ const bsl::vector<char>& Topchoice::selection2() const
 }
 
 inline
-const Sequence2& Topchoice::selection3() const
+const s_baltst::Sequence2& Topchoice::selection3() const
 {
     BSLS_ASSERT(SELECTION_ID_SELECTION3 == d_selectionId);
     return d_selection3.object();
 }
 
 inline
-const Sequence3& Topchoice::selection4() const
+const s_baltst::Sequence3& Topchoice::selection4() const
 {
     BSLS_ASSERT(SELECTION_ID_SELECTION4 == d_selectionId);
     return *d_selection4;
@@ -697,21 +619,21 @@ const bdlt::DatetimeTz& Topchoice::selection5() const
 }
 
 inline
-const CustomString& Topchoice::selection6() const
+const s_baltst::CustomString& Topchoice::selection6() const
 {
     BSLS_ASSERT(SELECTION_ID_SELECTION6 == d_selectionId);
     return d_selection6.object();
 }
 
 inline
-const Enumerated::Value& Topchoice::selection7() const
+const s_baltst::Enumerated::Value& Topchoice::selection7() const
 {
     BSLS_ASSERT(SELECTION_ID_SELECTION7 == d_selectionId);
     return d_selection7.object();
 }
 
 inline
-const Choice3& Topchoice::selection8() const
+const s_baltst::Choice3& Topchoice::selection8() const
 {
     BSLS_ASSERT(SELECTION_ID_SELECTION8 == d_selectionId);
     return d_selection8.object();
@@ -827,11 +749,11 @@ bsl::ostream& s_baltst::operator<<(
 }  // close enterprise namespace
 #endif
 
-// GENERATED BY BLP_BAS_CODEGEN_2020.03.30
-// USING bas_codegen.pl s_baltst.xsd -m msg -p s_baltst -C tmp_singles --msgSplit 1 --noExternalization --noHashSupport --noAggregateConversion
+// GENERATED BY BLP_BAS_CODEGEN_2021.10.31
+// USING bas_codegen.pl s_baltst_topchoice.xsd --mode msg --includedir . --msgComponent topchoice --noRecurse --noExternalization --noHashSupport --noAggregateConversion
 // ----------------------------------------------------------------------------
 // NOTICE:
-//      Copyright 2020 Bloomberg Finance L.P. All rights reserved.
+//      Copyright 2021 Bloomberg Finance L.P. All rights reserved.
 //      Property of Bloomberg Finance L.P. (BFLP)
 //      This software is made available solely pursuant to the
 //      terms of a BFLP license agreement which governs its use.

@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'
+           xmlns:bdem='http://bloomberg.com/schemas/bdem'
+           bdem:package='s_baltst'
+           elementFormDefault='qualified'>
+
+  <xs:include schemaLocation='s_baltst_featuretestmessage.xsd'/>
+
+  <xs:complexType name='Response'>
+    <xs:choice>
+      <xs:element name='responseData'    type='xs:string'/>
+      <xs:element name='featureResponse'
+                  type='FeatureTestMessage'
+                  bdem:cppheader='s_baltst_featuretestmessage.h'/>
+    </xs:choice>
+  </xs:complexType>
+
+</xs:schema>

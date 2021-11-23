@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'
+           xmlns:bdem='http://bloomberg.com/schemas/bdem'
+           bdem:package='s_baltst'
+           elementFormDefault='qualified'>
+
+  <xs:complexType name='MySequenceWithAnonymousChoice'>
+    <xs:sequence>
+      <xs:element name='attribute1' type='xs:int' minOccurs='0'/>
+      <xs:choice>
+        <xs:element name='myChoice1' type='xs:int'/>
+        <xs:element name='myChoice2' type='xs:string'/>
+      </xs:choice>
+      <xs:element name='attribute2' type='xs:string' minOccurs='0'/>
+    </xs:sequence>
+  </xs:complexType>
+
+</xs:schema>

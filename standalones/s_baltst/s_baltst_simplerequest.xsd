@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'
+           xmlns:bdem='http://bloomberg.com/schemas/bdem'
+           bdem:package='s_baltst'
+           elementFormDefault='qualified'>
+
+  <xs:complexType name='SimpleRequest'>
+    <xs:sequence>
+      <xs:element name='data'           type='xs:string'/>
+      <xs:element name='responseLength' type='xs:int'/>
+    </xs:sequence>
+  </xs:complexType>
+
+</xs:schema>

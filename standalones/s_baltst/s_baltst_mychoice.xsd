@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'
+           xmlns:bdem='http://bloomberg.com/schemas/bdem'
+           bdem:package='s_baltst'
+           elementFormDefault='qualified'>
+
+  <xs:complexType name='MyChoice'>
+    <xs:choice>
+      <xs:element name='selection1' type='xs:int'/>
+      <xs:element name='selection2' type='xs:string'/>
+    </xs:choice>
+  </xs:complexType>
+
+</xs:schema>

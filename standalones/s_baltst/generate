@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+COMPONENT=${1%.xsd}
+COMPONENT=${COMPONENT#s_baltst_}
+
+bas_codegen.pl $1 --mode msg                       \
+                  --includedir .                   \
+                  --msgComponent $COMPONENT        \
+                  --noRecurse                      \
+                  --noExternalization              \
+                  --noHashSupport                  \
+                  --noAggregateConversion

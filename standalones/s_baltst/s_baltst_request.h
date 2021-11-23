@@ -1,9 +1,9 @@
-// s_baltst_request.h         *DO NOT EDIT*          @generated -*-C++-*-
+// s_baltst_request.h            *DO NOT EDIT*             @generated -*-C++-*-
 #ifndef INCLUDED_S_BALTST_REQUEST
 #define INCLUDED_S_BALTST_REQUEST
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(s_baltst_request_h,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(s_baltst_request_h, "$Id$ $CSID$")
 BSLS_IDENT_PRAGMA_ONCE
 
 //@PURPOSE: Provide value-semantic attribute classes
@@ -22,93 +22,9 @@ BSLS_IDENT_PRAGMA_ONCE
 
 #include <bsls_assert.h>
 
-#include <s_baltst_address.h>
-
-#include <s_baltst_basicrecord.h>
-
-#include <s_baltst_customint.h>
-
-#include <s_baltst_customstring.h>
-
-#include <s_baltst_customizedstring.h>
-
-#include <s_baltst_enumerated.h>
-
-#include <s_baltst_mychoice.h>
-
-#include <s_baltst_myenumeration.h>
-
-#include <s_baltst_mysequence.h>
-
-#include <s_baltst_mysequencewithanonymouschoicechoice.h>
-
-#include <s_baltst_mysequencewitharray.h>
-
-#include <s_baltst_mysequencewithattributes.h>
-
-#include <s_baltst_mysequencewithnillable.h>
-
-#include <s_baltst_mysequencewithnullable.h>
-
-#include <s_baltst_mysimplecontent.h>
-
-#include <s_baltst_mysimpleintcontent.h>
-
-#include <s_baltst_rawdata.h>
-
-#include <s_baltst_rawdataswitched.h>
-
-#include <s_baltst_rawdataunformatted.h>
-
-#include <s_baltst_sequencewithanonymitychoice1.h>
+#include <s_baltst_featuretestmessage.h>
 
 #include <s_baltst_simplerequest.h>
-
-#include <s_baltst_sqrt.h>
-
-#include <s_baltst_unsignedsequence.h>
-
-#include <s_baltst_voidsequence.h>
-
-#include <s_baltst_bigrecord.h>
-
-#include <s_baltst_employee.h>
-
-#include <s_baltst_mysequencewithanonymouschoice.h>
-
-#include <s_baltst_mysequencewithnillables.h>
-
-#include <s_baltst_mysequencewithnullables.h>
-
-#include <s_baltst_ratsnest.h>
-
-#include <s_baltst_ratsnest.h>
-
-#include <s_baltst_ratsnest.h>
-
-#include <s_baltst_ratsnest.h>
-
-#include <s_baltst_sequencewithanonymitychoice.h>
-
-#include <s_baltst_timingrequest.h>
-
-#include <s_baltst_ratsnest.h>
-
-#include <s_baltst_ratsnest.h>
-
-#include <s_baltst_ratsnest.h>
-
-#include <s_baltst_ratsnest.h>
-
-#include <s_baltst_ratsnest.h>
-
-#include <s_baltst_sequencewithanonymitychoice2.h>
-
-#include <s_baltst_sequencewithanonymity.h>
-
-#include <s_baltst_topchoice.h>
-
-#include <s_baltst_featuretestmessage.h>
 
 #include <bsl_iosfwd.h>
 #include <bsl_limits.h>
@@ -128,12 +44,12 @@ class Request {
 
     // INSTANCE DATA
     union {
-        bsls::ObjectBuffer< SimpleRequest >      d_simpleRequest;
-        bsls::ObjectBuffer< FeatureTestMessage > d_featureRequest;
+        bsls::ObjectBuffer< s_baltst::SimpleRequest >      d_simpleRequest;
+        bsls::ObjectBuffer< s_baltst::FeatureTestMessage > d_featureRequest;
     };
 
-    int                                          d_selectionId;
-    bslma::Allocator                            *d_allocator_p;
+    int                                                    d_selectionId;
+    bslma::Allocator                                      *d_allocator_p;
 
   public:
     // TYPES
@@ -231,21 +147,21 @@ class Request {
         // Return 0 on success, and non-zero value otherwise (i.e., the
         // selection is not found).
 
-    SimpleRequest& makeSimpleRequest();
-    SimpleRequest& makeSimpleRequest(const SimpleRequest& value);
+    s_baltst::SimpleRequest& makeSimpleRequest();
+    s_baltst::SimpleRequest& makeSimpleRequest(const s_baltst::SimpleRequest& value);
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    SimpleRequest& makeSimpleRequest(SimpleRequest&& value);
+    s_baltst::SimpleRequest& makeSimpleRequest(s_baltst::SimpleRequest&& value);
 #endif
         // Set the value of this object to be a "SimpleRequest" value.
         // Optionally specify the 'value' of the "SimpleRequest".  If 'value'
         // is not specified, the default "SimpleRequest" value is used.
 
-    FeatureTestMessage& makeFeatureRequest();
-    FeatureTestMessage& makeFeatureRequest(const FeatureTestMessage& value);
+    s_baltst::FeatureTestMessage& makeFeatureRequest();
+    s_baltst::FeatureTestMessage& makeFeatureRequest(const s_baltst::FeatureTestMessage& value);
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    FeatureTestMessage& makeFeatureRequest(FeatureTestMessage&& value);
+    s_baltst::FeatureTestMessage& makeFeatureRequest(s_baltst::FeatureTestMessage&& value);
 #endif
         // Set the value of this object to be a "FeatureRequest" value.
         // Optionally specify the 'value' of the "FeatureRequest".  If 'value'
@@ -259,13 +175,13 @@ class Request {
         // invocation of 'manipulator' if this object has a defined selection,
         // and -1 otherwise.
 
-    SimpleRequest& simpleRequest();
+    s_baltst::SimpleRequest& simpleRequest();
         // Return a reference to the modifiable "SimpleRequest" selection of
         // this object if "SimpleRequest" is the current selection.  The
         // behavior is undefined unless "SimpleRequest" is the selection of
         // this object.
 
-    FeatureTestMessage& featureRequest();
+    s_baltst::FeatureTestMessage& featureRequest();
         // Return a reference to the modifiable "FeatureRequest" selection of
         // this object if "FeatureRequest" is the current selection.  The
         // behavior is undefined unless "FeatureRequest" is the selection of
@@ -298,13 +214,13 @@ class Request {
         // structure.  Return the value returned from the invocation of
         // 'accessor' if this object has a defined selection, and -1 otherwise.
 
-    const SimpleRequest& simpleRequest() const;
+    const s_baltst::SimpleRequest& simpleRequest() const;
         // Return a reference to the non-modifiable "SimpleRequest" selection
         // of this object if "SimpleRequest" is the current selection.  The
         // behavior is undefined unless "SimpleRequest" is the selection of
         // this object.
 
-    const FeatureTestMessage& featureRequest() const;
+    const s_baltst::FeatureTestMessage& featureRequest() const;
         // Return a reference to the non-modifiable "FeatureRequest" selection
         // of this object if "FeatureRequest" is the current selection.  The
         // behavior is undefined unless "FeatureRequest" is the selection of
@@ -393,14 +309,14 @@ int Request::manipulateSelection(MANIPULATOR& manipulator)
 }
 
 inline
-SimpleRequest& Request::simpleRequest()
+s_baltst::SimpleRequest& Request::simpleRequest()
 {
     BSLS_ASSERT(SELECTION_ID_SIMPLE_REQUEST == d_selectionId);
     return d_simpleRequest.object();
 }
 
 inline
-FeatureTestMessage& Request::featureRequest()
+s_baltst::FeatureTestMessage& Request::featureRequest()
 {
     BSLS_ASSERT(SELECTION_ID_FEATURE_REQUEST == d_selectionId);
     return d_featureRequest.object();
@@ -430,14 +346,14 @@ int Request::accessSelection(ACCESSOR& accessor) const
 }
 
 inline
-const SimpleRequest& Request::simpleRequest() const
+const s_baltst::SimpleRequest& Request::simpleRequest() const
 {
     BSLS_ASSERT(SELECTION_ID_SIMPLE_REQUEST == d_selectionId);
     return d_simpleRequest.object();
 }
 
 inline
-const FeatureTestMessage& Request::featureRequest() const
+const s_baltst::FeatureTestMessage& Request::featureRequest() const
 {
     BSLS_ASSERT(SELECTION_ID_FEATURE_REQUEST == d_selectionId);
     return d_featureRequest.object();
@@ -505,11 +421,11 @@ bsl::ostream& s_baltst::operator<<(
 }  // close enterprise namespace
 #endif
 
-// GENERATED BY BLP_BAS_CODEGEN_2020.03.30
-// USING bas_codegen.pl s_baltst.xsd -m msg -p s_baltst -C tmp_singles --msgSplit 1 --noExternalization --noHashSupport --noAggregateConversion
+// GENERATED BY BLP_BAS_CODEGEN_2021.10.31
+// USING bas_codegen.pl s_baltst_request.xsd --mode msg --includedir . --msgComponent request --noRecurse --noExternalization --noHashSupport --noAggregateConversion
 // ----------------------------------------------------------------------------
 // NOTICE:
-//      Copyright 2020 Bloomberg Finance L.P. All rights reserved.
+//      Copyright 2021 Bloomberg Finance L.P. All rights reserved.
 //      Property of Bloomberg Finance L.P. (BFLP)
 //      This software is made available solely pursuant to the
 //      terms of a BFLP license agreement which governs its use.

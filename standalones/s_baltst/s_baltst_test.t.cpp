@@ -15,7 +15,6 @@
 #include <s_baltst_myenumeration.h>
 #include <s_baltst_mysequence.h>
 #include <s_baltst_mysequencewithanonymouschoice.h>
-#include <s_baltst_mysequencewithanonymouschoicechoice.h>
 #include <s_baltst_mysequencewitharray.h>
 #include <s_baltst_mysequencewithattributes.h>
 #include <s_baltst_mysequencewithnillable.h>
@@ -31,9 +30,6 @@
 #include <s_baltst_request.h>
 #include <s_baltst_response.h>
 #include <s_baltst_sequencewithanonymity.h>
-#include <s_baltst_sequencewithanonymitychoice.h>
-#include <s_baltst_sequencewithanonymitychoice1.h>
-#include <s_baltst_sequencewithanonymitychoice2.h>
 #include <s_baltst_simplerequest.h>
 #include <s_baltst_sqrt.h>
 #include <s_baltst_timingrequest.h>

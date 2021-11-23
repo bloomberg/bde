@@ -1,7 +1,7 @@
-// s_baltst_response.cpp        *DO NOT EDIT*         @generated -*-C++-*-
+// s_baltst_response.cpp           *DO NOT EDIT*           @generated -*-C++-*-
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(s_baltst_response_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(s_baltst_response_cpp, "$Id$ $CSID$")
 
 #include <s_baltst_response.h>
 
@@ -12,57 +12,15 @@ BSLS_IDENT_RCSID(s_baltst_response_cpp,"$Id$ $CSID$")
 #include <bdlb_string.h>
 
 #include <bsl_string.h>
-#include <s_baltst_address.h>
-#include <s_baltst_basicrecord.h>
-#include <s_baltst_customint.h>
-#include <s_baltst_customstring.h>
-#include <s_baltst_customizedstring.h>
-#include <s_baltst_enumerated.h>
-#include <s_baltst_mychoice.h>
-#include <s_baltst_myenumeration.h>
-#include <s_baltst_mysequence.h>
-#include <s_baltst_mysequencewithanonymouschoicechoice.h>
-#include <s_baltst_mysequencewitharray.h>
-#include <s_baltst_mysequencewithattributes.h>
-#include <s_baltst_mysequencewithnillable.h>
-#include <s_baltst_mysequencewithnullable.h>
-#include <s_baltst_mysimplecontent.h>
-#include <s_baltst_mysimpleintcontent.h>
-#include <s_baltst_rawdata.h>
-#include <s_baltst_rawdataswitched.h>
-#include <s_baltst_rawdataunformatted.h>
-#include <s_baltst_sequencewithanonymitychoice1.h>
-#include <s_baltst_simplerequest.h>
-#include <s_baltst_sqrt.h>
-#include <s_baltst_unsignedsequence.h>
-#include <s_baltst_voidsequence.h>
-#include <s_baltst_bigrecord.h>
-#include <s_baltst_employee.h>
-#include <s_baltst_mysequencewithanonymouschoice.h>
-#include <s_baltst_mysequencewithnillables.h>
-#include <s_baltst_mysequencewithnullables.h>
-#include <s_baltst_ratsnest.h>
-#include <s_baltst_ratsnest.h>
-#include <s_baltst_ratsnest.h>
-#include <s_baltst_ratsnest.h>
-#include <s_baltst_sequencewithanonymitychoice.h>
-#include <s_baltst_timingrequest.h>
-#include <s_baltst_ratsnest.h>
-#include <s_baltst_ratsnest.h>
-#include <s_baltst_ratsnest.h>
-#include <s_baltst_ratsnest.h>
-#include <s_baltst_ratsnest.h>
-#include <s_baltst_sequencewithanonymitychoice2.h>
-#include <s_baltst_sequencewithanonymity.h>
-#include <s_baltst_topchoice.h>
 #include <s_baltst_featuretestmessage.h>
-#include <s_baltst_request.h>
 #include <bslim_printer.h>
 #include <bsls_assert.h>
 
+#include <bsl_cstring.h>
 #include <bsl_iomanip.h>
 #include <bsl_limits.h>
 #include <bsl_ostream.h>
+#include <bsl_utility.h>
 
 namespace BloombergLP {
 namespace s_baltst {
@@ -140,7 +98,7 @@ Response::Response(
       } break;
       case SELECTION_ID_FEATURE_RESPONSE: {
         new (d_featureResponse.buffer())
-            FeatureTestMessage(
+            s_baltst::FeatureTestMessage(
                 original.d_featureResponse.object(), d_allocator_p);
       } break;
       default:
@@ -162,7 +120,7 @@ Response::Response(Response&& original) noexcept
       } break;
       case SELECTION_ID_FEATURE_RESPONSE: {
         new (d_featureResponse.buffer())
-            FeatureTestMessage(
+            s_baltst::FeatureTestMessage(
                 bsl::move(original.d_featureResponse.object()), d_allocator_p);
       } break;
       default:
@@ -184,7 +142,7 @@ Response::Response(
       } break;
       case SELECTION_ID_FEATURE_RESPONSE: {
         new (d_featureResponse.buffer())
-            FeatureTestMessage(
+            s_baltst::FeatureTestMessage(
                 bsl::move(original.d_featureResponse.object()), d_allocator_p);
       } break;
       default:
@@ -246,7 +204,8 @@ void Response::reset()
         d_responseData.object().~Type();
       } break;
       case SELECTION_ID_FEATURE_RESPONSE: {
-        d_featureResponse.object().~FeatureTestMessage();
+        typedef s_baltst::FeatureTestMessage Type;
+        d_featureResponse.object().~Type();
       } break;
       default:
         BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
@@ -332,7 +291,7 @@ bsl::string& Response::makeResponseData(bsl::string&& value)
 }
 #endif
 
-FeatureTestMessage& Response::makeFeatureResponse()
+s_baltst::FeatureTestMessage& Response::makeFeatureResponse()
 {
     if (SELECTION_ID_FEATURE_RESPONSE == d_selectionId) {
         bdlat_ValueTypeFunctions::reset(&d_featureResponse.object());
@@ -340,14 +299,14 @@ FeatureTestMessage& Response::makeFeatureResponse()
     else {
         reset();
         new (d_featureResponse.buffer())
-                FeatureTestMessage(d_allocator_p);
+                s_baltst::FeatureTestMessage(d_allocator_p);
         d_selectionId = SELECTION_ID_FEATURE_RESPONSE;
     }
 
     return d_featureResponse.object();
 }
 
-FeatureTestMessage& Response::makeFeatureResponse(const FeatureTestMessage& value)
+s_baltst::FeatureTestMessage& Response::makeFeatureResponse(const s_baltst::FeatureTestMessage& value)
 {
     if (SELECTION_ID_FEATURE_RESPONSE == d_selectionId) {
         d_featureResponse.object() = value;
@@ -355,7 +314,7 @@ FeatureTestMessage& Response::makeFeatureResponse(const FeatureTestMessage& valu
     else {
         reset();
         new (d_featureResponse.buffer())
-                FeatureTestMessage(value, d_allocator_p);
+                s_baltst::FeatureTestMessage(value, d_allocator_p);
         d_selectionId = SELECTION_ID_FEATURE_RESPONSE;
     }
 
@@ -364,7 +323,7 @@ FeatureTestMessage& Response::makeFeatureResponse(const FeatureTestMessage& valu
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-FeatureTestMessage& Response::makeFeatureResponse(FeatureTestMessage&& value)
+s_baltst::FeatureTestMessage& Response::makeFeatureResponse(s_baltst::FeatureTestMessage&& value)
 {
     if (SELECTION_ID_FEATURE_RESPONSE == d_selectionId) {
         d_featureResponse.object() = bsl::move(value);
@@ -372,7 +331,7 @@ FeatureTestMessage& Response::makeFeatureResponse(FeatureTestMessage&& value)
     else {
         reset();
         new (d_featureResponse.buffer())
-                FeatureTestMessage(bsl::move(value), d_allocator_p);
+                s_baltst::FeatureTestMessage(bsl::move(value), d_allocator_p);
         d_selectionId = SELECTION_ID_FEATURE_RESPONSE;
     }
 
@@ -419,11 +378,11 @@ const char *Response::selectionName() const
 }  // close package namespace
 }  // close enterprise namespace
 
-// GENERATED BY BLP_BAS_CODEGEN_2020.03.30
-// USING bas_codegen.pl s_baltst.xsd -m msg -p s_baltst -C tmp_singles --msgSplit 1 --noExternalization --noHashSupport --noAggregateConversion
+// GENERATED BY BLP_BAS_CODEGEN_2021.10.31
+// USING bas_codegen.pl s_baltst_response.xsd --mode msg --includedir . --msgComponent response --noRecurse --noExternalization --noHashSupport --noAggregateConversion
 // ----------------------------------------------------------------------------
 // NOTICE:
-//      Copyright 2020 Bloomberg Finance L.P. All rights reserved.
+//      Copyright 2021 Bloomberg Finance L.P. All rights reserved.
 //      Property of Bloomberg Finance L.P. (BFLP)
 //      This software is made available solely pursuant to the
 //      terms of a BFLP license agreement which governs its use.

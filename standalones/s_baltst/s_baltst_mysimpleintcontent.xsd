@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'
+           xmlns:bdem='http://bloomberg.com/schemas/bdem'
+           bdem:package='s_baltst'
+           elementFormDefault='qualified'>
+
+  <xs:complexType name='MySimpleIntContent'>
+    <xs:simpleContent>
+      <xs:extension base='xs:int'>
+        <xs:attribute name='attribute1' type='xs:boolean'/>
+        <xs:attribute name='attribute2' type='xs:string'/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+</xs:schema>

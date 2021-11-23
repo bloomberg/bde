@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'
+           xmlns:bdem='http://bloomberg.com/schemas/bdem'
+           bdem:package='s_baltst'
+           elementFormDefault='qualified'>
+
+  <xs:include schemaLocation='s_baltst_mysequence.xsd'/>
+
+  <xs:complexType name='MySequenceWithNillables'>
+    <xs:sequence>
+      <xs:element name='attribute1' type='xs:int' nillable='true'/>
+      <xs:element name='attribute2' type='xs:string' nillable='true'/>
+      <xs:element name='attribute3'
+                  type='MySequence'
+                  bdem:cppheader='s_baltst_mysequence.h'
+                  nillable='true'/>
+    </xs:sequence>
+  </xs:complexType>
+
+</xs:schema>

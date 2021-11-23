@@ -1,9 +1,9 @@
-// s_baltst_featuretestmessage.h         *DO NOT EDIT*          @generated -*-C++-*-
+// s_baltst_featuretestmessage.h       *DO NOT EDIT*       @generated -*-C++-*-
 #ifndef INCLUDED_S_BALTST_FEATURETESTMESSAGE
 #define INCLUDED_S_BALTST_FEATURETESTMESSAGE
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(s_baltst_featuretestmessage_h,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(s_baltst_featuretestmessage_h, "$Id$ $CSID$")
 BSLS_IDENT_PRAGMA_ONCE
 
 //@PURPOSE: Provide value-semantic attribute classes
@@ -26,91 +26,17 @@ BSLS_IDENT_PRAGMA_ONCE
 
 #include <bsl_vector.h>
 
-#include <s_baltst_address.h>
-
-#include <s_baltst_basicrecord.h>
-
-#include <s_baltst_customint.h>
-
 #include <s_baltst_customstring.h>
-
-#include <s_baltst_customizedstring.h>
 
 #include <s_baltst_enumerated.h>
 
-#include <s_baltst_mychoice.h>
+#include <s_baltst_ratsnest.h>
 
-#include <s_baltst_myenumeration.h>
-
-#include <s_baltst_mysequence.h>
-
-#include <s_baltst_mysequencewithanonymouschoicechoice.h>
-
-#include <s_baltst_mysequencewitharray.h>
-
-#include <s_baltst_mysequencewithattributes.h>
-
-#include <s_baltst_mysequencewithnillable.h>
-
-#include <s_baltst_mysequencewithnullable.h>
-
-#include <s_baltst_mysimplecontent.h>
-
-#include <s_baltst_mysimpleintcontent.h>
-
-#include <s_baltst_rawdata.h>
-
-#include <s_baltst_rawdataswitched.h>
-
-#include <s_baltst_rawdataunformatted.h>
-
-#include <s_baltst_sequencewithanonymitychoice1.h>
-
-#include <s_baltst_simplerequest.h>
-
-#include <s_baltst_sqrt.h>
+#include <s_baltst_sequencewithanonymity.h>
 
 #include <s_baltst_unsignedsequence.h>
 
 #include <s_baltst_voidsequence.h>
-
-#include <s_baltst_bigrecord.h>
-
-#include <s_baltst_employee.h>
-
-#include <s_baltst_mysequencewithanonymouschoice.h>
-
-#include <s_baltst_mysequencewithnillables.h>
-
-#include <s_baltst_mysequencewithnullables.h>
-
-#include <s_baltst_ratsnest.h>
-
-#include <s_baltst_ratsnest.h>
-
-#include <s_baltst_ratsnest.h>
-
-#include <s_baltst_ratsnest.h>
-
-#include <s_baltst_sequencewithanonymitychoice.h>
-
-#include <s_baltst_timingrequest.h>
-
-#include <s_baltst_ratsnest.h>
-
-#include <s_baltst_ratsnest.h>
-
-#include <s_baltst_ratsnest.h>
-
-#include <s_baltst_ratsnest.h>
-
-#include <s_baltst_ratsnest.h>
-
-#include <s_baltst_sequencewithanonymitychoice2.h>
-
-#include <s_baltst_sequencewithanonymity.h>
-
-#include <s_baltst_topchoice.h>
 
 #include <bsl_iosfwd.h>
 #include <bsl_limits.h>
@@ -130,21 +56,21 @@ class FeatureTestMessage {
 
     // INSTANCE DATA
     union {
-        bsls::ObjectBuffer< Sequence1 >              d_selection1;
-        bsls::ObjectBuffer< bsl::vector<char> >      d_selection2;
-        bsls::ObjectBuffer< Sequence2 >              d_selection3;
-        Sequence3                                  *d_selection4;
-        bsls::ObjectBuffer< bdlt::DatetimeTz >       d_selection5;
-        bsls::ObjectBuffer< CustomString >           d_selection6;
-        bsls::ObjectBuffer< Enumerated::Value >      d_selection7;
-        bsls::ObjectBuffer< Choice3 >                d_selection8;
-        bsls::ObjectBuffer< VoidSequence >           d_selection9;
-        bsls::ObjectBuffer< UnsignedSequence >       d_selection10;
-        bsls::ObjectBuffer< SequenceWithAnonymity >  d_selection11;
+        bsls::ObjectBuffer< s_baltst::Sequence1 >              d_selection1;
+        bsls::ObjectBuffer< bsl::vector<char> >                d_selection2;
+        bsls::ObjectBuffer< s_baltst::Sequence2 >              d_selection3;
+        s_baltst::Sequence3                                  *d_selection4;
+        bsls::ObjectBuffer< bdlt::DatetimeTz >                 d_selection5;
+        bsls::ObjectBuffer< s_baltst::CustomString >           d_selection6;
+        bsls::ObjectBuffer< s_baltst::Enumerated::Value >      d_selection7;
+        bsls::ObjectBuffer< s_baltst::Choice3 >                d_selection8;
+        bsls::ObjectBuffer< s_baltst::VoidSequence >           d_selection9;
+        bsls::ObjectBuffer< s_baltst::UnsignedSequence >       d_selection10;
+        bsls::ObjectBuffer< s_baltst::SequenceWithAnonymity >  d_selection11;
     };
 
-    int                                              d_selectionId;
-    bslma::Allocator                                *d_allocator_p;
+    int                                                        d_selectionId;
+    bslma::Allocator                                          *d_allocator_p;
 
   public:
     // TYPES
@@ -260,11 +186,11 @@ class FeatureTestMessage {
         // Return 0 on success, and non-zero value otherwise (i.e., the
         // selection is not found).
 
-    Sequence1& makeSelection1();
-    Sequence1& makeSelection1(const Sequence1& value);
+    s_baltst::Sequence1& makeSelection1();
+    s_baltst::Sequence1& makeSelection1(const s_baltst::Sequence1& value);
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    Sequence1& makeSelection1(Sequence1&& value);
+    s_baltst::Sequence1& makeSelection1(s_baltst::Sequence1&& value);
 #endif
         // Set the value of this object to be a "Selection1" value.  Optionally
         // specify the 'value' of the "Selection1".  If 'value' is not
@@ -280,21 +206,21 @@ class FeatureTestMessage {
         // specify the 'value' of the "Selection2".  If 'value' is not
         // specified, the default "Selection2" value is used.
 
-    Sequence2& makeSelection3();
-    Sequence2& makeSelection3(const Sequence2& value);
+    s_baltst::Sequence2& makeSelection3();
+    s_baltst::Sequence2& makeSelection3(const s_baltst::Sequence2& value);
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    Sequence2& makeSelection3(Sequence2&& value);
+    s_baltst::Sequence2& makeSelection3(s_baltst::Sequence2&& value);
 #endif
         // Set the value of this object to be a "Selection3" value.  Optionally
         // specify the 'value' of the "Selection3".  If 'value' is not
         // specified, the default "Selection3" value is used.
 
-    Sequence3& makeSelection4();
-    Sequence3& makeSelection4(const Sequence3& value);
+    s_baltst::Sequence3& makeSelection4();
+    s_baltst::Sequence3& makeSelection4(const s_baltst::Sequence3& value);
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    Sequence3& makeSelection4(Sequence3&& value);
+    s_baltst::Sequence3& makeSelection4(s_baltst::Sequence3&& value);
 #endif
         // Set the value of this object to be a "Selection4" value.  Optionally
         // specify the 'value' of the "Selection4".  If 'value' is not
@@ -310,57 +236,57 @@ class FeatureTestMessage {
         // specify the 'value' of the "Selection5".  If 'value' is not
         // specified, the default "Selection5" value is used.
 
-    CustomString& makeSelection6();
-    CustomString& makeSelection6(const CustomString& value);
+    s_baltst::CustomString& makeSelection6();
+    s_baltst::CustomString& makeSelection6(const s_baltst::CustomString& value);
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    CustomString& makeSelection6(CustomString&& value);
+    s_baltst::CustomString& makeSelection6(s_baltst::CustomString&& value);
 #endif
         // Set the value of this object to be a "Selection6" value.  Optionally
         // specify the 'value' of the "Selection6".  If 'value' is not
         // specified, the default "Selection6" value is used.
 
-    Enumerated::Value& makeSelection7();
-    Enumerated::Value& makeSelection7(Enumerated::Value value);
+    s_baltst::Enumerated::Value& makeSelection7();
+    s_baltst::Enumerated::Value& makeSelection7(s_baltst::Enumerated::Value value);
         // Set the value of this object to be a "Selection7" value.  Optionally
         // specify the 'value' of the "Selection7".  If 'value' is not
         // specified, the default "Selection7" value is used.
 
-    Choice3& makeSelection8();
-    Choice3& makeSelection8(const Choice3& value);
+    s_baltst::Choice3& makeSelection8();
+    s_baltst::Choice3& makeSelection8(const s_baltst::Choice3& value);
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    Choice3& makeSelection8(Choice3&& value);
+    s_baltst::Choice3& makeSelection8(s_baltst::Choice3&& value);
 #endif
         // Set the value of this object to be a "Selection8" value.  Optionally
         // specify the 'value' of the "Selection8".  If 'value' is not
         // specified, the default "Selection8" value is used.
 
-    VoidSequence& makeSelection9();
-    VoidSequence& makeSelection9(const VoidSequence& value);
+    s_baltst::VoidSequence& makeSelection9();
+    s_baltst::VoidSequence& makeSelection9(const s_baltst::VoidSequence& value);
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    VoidSequence& makeSelection9(VoidSequence&& value);
+    s_baltst::VoidSequence& makeSelection9(s_baltst::VoidSequence&& value);
 #endif
         // Set the value of this object to be a "Selection9" value.  Optionally
         // specify the 'value' of the "Selection9".  If 'value' is not
         // specified, the default "Selection9" value is used.
 
-    UnsignedSequence& makeSelection10();
-    UnsignedSequence& makeSelection10(const UnsignedSequence& value);
+    s_baltst::UnsignedSequence& makeSelection10();
+    s_baltst::UnsignedSequence& makeSelection10(const s_baltst::UnsignedSequence& value);
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    UnsignedSequence& makeSelection10(UnsignedSequence&& value);
+    s_baltst::UnsignedSequence& makeSelection10(s_baltst::UnsignedSequence&& value);
 #endif
         // Set the value of this object to be a "Selection10" value.
         // Optionally specify the 'value' of the "Selection10".  If 'value' is
         // not specified, the default "Selection10" value is used.
 
-    SequenceWithAnonymity& makeSelection11();
-    SequenceWithAnonymity& makeSelection11(const SequenceWithAnonymity& value);
+    s_baltst::SequenceWithAnonymity& makeSelection11();
+    s_baltst::SequenceWithAnonymity& makeSelection11(const s_baltst::SequenceWithAnonymity& value);
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    SequenceWithAnonymity& makeSelection11(SequenceWithAnonymity&& value);
+    s_baltst::SequenceWithAnonymity& makeSelection11(s_baltst::SequenceWithAnonymity&& value);
 #endif
         // Set the value of this object to be a "Selection11" value.
         // Optionally specify the 'value' of the "Selection11".  If 'value' is
@@ -374,7 +300,7 @@ class FeatureTestMessage {
         // invocation of 'manipulator' if this object has a defined selection,
         // and -1 otherwise.
 
-    Sequence1& selection1();
+    s_baltst::Sequence1& selection1();
         // Return a reference to the modifiable "Selection1" selection of this
         // object if "Selection1" is the current selection.  The behavior is
         // undefined unless "Selection1" is the selection of this object.
@@ -384,12 +310,12 @@ class FeatureTestMessage {
         // object if "Selection2" is the current selection.  The behavior is
         // undefined unless "Selection2" is the selection of this object.
 
-    Sequence2& selection3();
+    s_baltst::Sequence2& selection3();
         // Return a reference to the modifiable "Selection3" selection of this
         // object if "Selection3" is the current selection.  The behavior is
         // undefined unless "Selection3" is the selection of this object.
 
-    Sequence3& selection4();
+    s_baltst::Sequence3& selection4();
         // Return a reference to the modifiable "Selection4" selection of this
         // object if "Selection4" is the current selection.  The behavior is
         // undefined unless "Selection4" is the selection of this object.
@@ -399,32 +325,32 @@ class FeatureTestMessage {
         // object if "Selection5" is the current selection.  The behavior is
         // undefined unless "Selection5" is the selection of this object.
 
-    CustomString& selection6();
+    s_baltst::CustomString& selection6();
         // Return a reference to the modifiable "Selection6" selection of this
         // object if "Selection6" is the current selection.  The behavior is
         // undefined unless "Selection6" is the selection of this object.
 
-    Enumerated::Value& selection7();
+    s_baltst::Enumerated::Value& selection7();
         // Return a reference to the modifiable "Selection7" selection of this
         // object if "Selection7" is the current selection.  The behavior is
         // undefined unless "Selection7" is the selection of this object.
 
-    Choice3& selection8();
+    s_baltst::Choice3& selection8();
         // Return a reference to the modifiable "Selection8" selection of this
         // object if "Selection8" is the current selection.  The behavior is
         // undefined unless "Selection8" is the selection of this object.
 
-    VoidSequence& selection9();
+    s_baltst::VoidSequence& selection9();
         // Return a reference to the modifiable "Selection9" selection of this
         // object if "Selection9" is the current selection.  The behavior is
         // undefined unless "Selection9" is the selection of this object.
 
-    UnsignedSequence& selection10();
+    s_baltst::UnsignedSequence& selection10();
         // Return a reference to the modifiable "Selection10" selection of this
         // object if "Selection10" is the current selection.  The behavior is
         // undefined unless "Selection10" is the selection of this object.
 
-    SequenceWithAnonymity& selection11();
+    s_baltst::SequenceWithAnonymity& selection11();
         // Return a reference to the modifiable "Selection11" selection of this
         // object if "Selection11" is the current selection.  The behavior is
         // undefined unless "Selection11" is the selection of this object.
@@ -456,7 +382,7 @@ class FeatureTestMessage {
         // structure.  Return the value returned from the invocation of
         // 'accessor' if this object has a defined selection, and -1 otherwise.
 
-    const Sequence1& selection1() const;
+    const s_baltst::Sequence1& selection1() const;
         // Return a reference to the non-modifiable "Selection1" selection of
         // this object if "Selection1" is the current selection.  The behavior
         // is undefined unless "Selection1" is the selection of this object.
@@ -466,12 +392,12 @@ class FeatureTestMessage {
         // this object if "Selection2" is the current selection.  The behavior
         // is undefined unless "Selection2" is the selection of this object.
 
-    const Sequence2& selection3() const;
+    const s_baltst::Sequence2& selection3() const;
         // Return a reference to the non-modifiable "Selection3" selection of
         // this object if "Selection3" is the current selection.  The behavior
         // is undefined unless "Selection3" is the selection of this object.
 
-    const Sequence3& selection4() const;
+    const s_baltst::Sequence3& selection4() const;
         // Return a reference to the non-modifiable "Selection4" selection of
         // this object if "Selection4" is the current selection.  The behavior
         // is undefined unless "Selection4" is the selection of this object.
@@ -481,32 +407,32 @@ class FeatureTestMessage {
         // this object if "Selection5" is the current selection.  The behavior
         // is undefined unless "Selection5" is the selection of this object.
 
-    const CustomString& selection6() const;
+    const s_baltst::CustomString& selection6() const;
         // Return a reference to the non-modifiable "Selection6" selection of
         // this object if "Selection6" is the current selection.  The behavior
         // is undefined unless "Selection6" is the selection of this object.
 
-    const Enumerated::Value& selection7() const;
+    const s_baltst::Enumerated::Value& selection7() const;
         // Return a reference to the non-modifiable "Selection7" selection of
         // this object if "Selection7" is the current selection.  The behavior
         // is undefined unless "Selection7" is the selection of this object.
 
-    const Choice3& selection8() const;
+    const s_baltst::Choice3& selection8() const;
         // Return a reference to the non-modifiable "Selection8" selection of
         // this object if "Selection8" is the current selection.  The behavior
         // is undefined unless "Selection8" is the selection of this object.
 
-    const VoidSequence& selection9() const;
+    const s_baltst::VoidSequence& selection9() const;
         // Return a reference to the non-modifiable "Selection9" selection of
         // this object if "Selection9" is the current selection.  The behavior
         // is undefined unless "Selection9" is the selection of this object.
 
-    const UnsignedSequence& selection10() const;
+    const s_baltst::UnsignedSequence& selection10() const;
         // Return a reference to the non-modifiable "Selection10" selection of
         // this object if "Selection10" is the current selection.  The behavior
         // is undefined unless "Selection10" is the selection of this object.
 
-    const SequenceWithAnonymity& selection11() const;
+    const s_baltst::SequenceWithAnonymity& selection11() const;
         // Return a reference to the non-modifiable "Selection11" selection of
         // this object if "Selection11" is the current selection.  The behavior
         // is undefined unless "Selection11" is the selection of this object.
@@ -657,7 +583,7 @@ int FeatureTestMessage::manipulateSelection(MANIPULATOR& manipulator)
 }
 
 inline
-Sequence1& FeatureTestMessage::selection1()
+s_baltst::Sequence1& FeatureTestMessage::selection1()
 {
     BSLS_ASSERT(SELECTION_ID_SELECTION1 == d_selectionId);
     return d_selection1.object();
@@ -671,14 +597,14 @@ bsl::vector<char>& FeatureTestMessage::selection2()
 }
 
 inline
-Sequence2& FeatureTestMessage::selection3()
+s_baltst::Sequence2& FeatureTestMessage::selection3()
 {
     BSLS_ASSERT(SELECTION_ID_SELECTION3 == d_selectionId);
     return d_selection3.object();
 }
 
 inline
-Sequence3& FeatureTestMessage::selection4()
+s_baltst::Sequence3& FeatureTestMessage::selection4()
 {
     BSLS_ASSERT(SELECTION_ID_SELECTION4 == d_selectionId);
     return *d_selection4;
@@ -692,42 +618,42 @@ bdlt::DatetimeTz& FeatureTestMessage::selection5()
 }
 
 inline
-CustomString& FeatureTestMessage::selection6()
+s_baltst::CustomString& FeatureTestMessage::selection6()
 {
     BSLS_ASSERT(SELECTION_ID_SELECTION6 == d_selectionId);
     return d_selection6.object();
 }
 
 inline
-Enumerated::Value& FeatureTestMessage::selection7()
+s_baltst::Enumerated::Value& FeatureTestMessage::selection7()
 {
     BSLS_ASSERT(SELECTION_ID_SELECTION7 == d_selectionId);
     return d_selection7.object();
 }
 
 inline
-Choice3& FeatureTestMessage::selection8()
+s_baltst::Choice3& FeatureTestMessage::selection8()
 {
     BSLS_ASSERT(SELECTION_ID_SELECTION8 == d_selectionId);
     return d_selection8.object();
 }
 
 inline
-VoidSequence& FeatureTestMessage::selection9()
+s_baltst::VoidSequence& FeatureTestMessage::selection9()
 {
     BSLS_ASSERT(SELECTION_ID_SELECTION9 == d_selectionId);
     return d_selection9.object();
 }
 
 inline
-UnsignedSequence& FeatureTestMessage::selection10()
+s_baltst::UnsignedSequence& FeatureTestMessage::selection10()
 {
     BSLS_ASSERT(SELECTION_ID_SELECTION10 == d_selectionId);
     return d_selection10.object();
 }
 
 inline
-SequenceWithAnonymity& FeatureTestMessage::selection11()
+s_baltst::SequenceWithAnonymity& FeatureTestMessage::selection11()
 {
     BSLS_ASSERT(SELECTION_ID_SELECTION11 == d_selectionId);
     return d_selection11.object();
@@ -784,7 +710,7 @@ int FeatureTestMessage::accessSelection(ACCESSOR& accessor) const
 }
 
 inline
-const Sequence1& FeatureTestMessage::selection1() const
+const s_baltst::Sequence1& FeatureTestMessage::selection1() const
 {
     BSLS_ASSERT(SELECTION_ID_SELECTION1 == d_selectionId);
     return d_selection1.object();
@@ -798,14 +724,14 @@ const bsl::vector<char>& FeatureTestMessage::selection2() const
 }
 
 inline
-const Sequence2& FeatureTestMessage::selection3() const
+const s_baltst::Sequence2& FeatureTestMessage::selection3() const
 {
     BSLS_ASSERT(SELECTION_ID_SELECTION3 == d_selectionId);
     return d_selection3.object();
 }
 
 inline
-const Sequence3& FeatureTestMessage::selection4() const
+const s_baltst::Sequence3& FeatureTestMessage::selection4() const
 {
     BSLS_ASSERT(SELECTION_ID_SELECTION4 == d_selectionId);
     return *d_selection4;
@@ -819,42 +745,42 @@ const bdlt::DatetimeTz& FeatureTestMessage::selection5() const
 }
 
 inline
-const CustomString& FeatureTestMessage::selection6() const
+const s_baltst::CustomString& FeatureTestMessage::selection6() const
 {
     BSLS_ASSERT(SELECTION_ID_SELECTION6 == d_selectionId);
     return d_selection6.object();
 }
 
 inline
-const Enumerated::Value& FeatureTestMessage::selection7() const
+const s_baltst::Enumerated::Value& FeatureTestMessage::selection7() const
 {
     BSLS_ASSERT(SELECTION_ID_SELECTION7 == d_selectionId);
     return d_selection7.object();
 }
 
 inline
-const Choice3& FeatureTestMessage::selection8() const
+const s_baltst::Choice3& FeatureTestMessage::selection8() const
 {
     BSLS_ASSERT(SELECTION_ID_SELECTION8 == d_selectionId);
     return d_selection8.object();
 }
 
 inline
-const VoidSequence& FeatureTestMessage::selection9() const
+const s_baltst::VoidSequence& FeatureTestMessage::selection9() const
 {
     BSLS_ASSERT(SELECTION_ID_SELECTION9 == d_selectionId);
     return d_selection9.object();
 }
 
 inline
-const UnsignedSequence& FeatureTestMessage::selection10() const
+const s_baltst::UnsignedSequence& FeatureTestMessage::selection10() const
 {
     BSLS_ASSERT(SELECTION_ID_SELECTION10 == d_selectionId);
     return d_selection10.object();
 }
 
 inline
-const SequenceWithAnonymity& FeatureTestMessage::selection11() const
+const s_baltst::SequenceWithAnonymity& FeatureTestMessage::selection11() const
 {
     BSLS_ASSERT(SELECTION_ID_SELECTION11 == d_selectionId);
     return d_selection11.object();
@@ -994,11 +920,11 @@ bsl::ostream& s_baltst::operator<<(
 }  // close enterprise namespace
 #endif
 
-// GENERATED BY BLP_BAS_CODEGEN_2020.03.30
-// USING bas_codegen.pl s_baltst.xsd -m msg -p s_baltst -C tmp_singles --msgSplit 1 --noExternalization --noHashSupport --noAggregateConversion
+// GENERATED BY BLP_BAS_CODEGEN_2021.10.31
+// USING bas_codegen.pl s_baltst_featuretestmessage.xsd --mode msg --includedir . --msgComponent featuretestmessage --noRecurse --noExternalization --noHashSupport --noAggregateConversion
 // ----------------------------------------------------------------------------
 // NOTICE:
-//      Copyright 2020 Bloomberg Finance L.P. All rights reserved.
+//      Copyright 2021 Bloomberg Finance L.P. All rights reserved.
 //      Property of Bloomberg Finance L.P. (BFLP)
 //      This software is made available solely pursuant to the
 //      terms of a BFLP license agreement which governs its use.

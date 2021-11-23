@@ -1,9 +1,9 @@
-// s_baltst_response.h         *DO NOT EDIT*          @generated -*-C++-*-
+// s_baltst_response.h            *DO NOT EDIT*            @generated -*-C++-*-
 #ifndef INCLUDED_S_BALTST_RESPONSE
 #define INCLUDED_S_BALTST_RESPONSE
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(s_baltst_response_h,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(s_baltst_response_h, "$Id$ $CSID$")
 BSLS_IDENT_PRAGMA_ONCE
 
 //@PURPOSE: Provide value-semantic attribute classes
@@ -24,95 +24,7 @@ BSLS_IDENT_PRAGMA_ONCE
 
 #include <bsl_string.h>
 
-#include <s_baltst_address.h>
-
-#include <s_baltst_basicrecord.h>
-
-#include <s_baltst_customint.h>
-
-#include <s_baltst_customstring.h>
-
-#include <s_baltst_customizedstring.h>
-
-#include <s_baltst_enumerated.h>
-
-#include <s_baltst_mychoice.h>
-
-#include <s_baltst_myenumeration.h>
-
-#include <s_baltst_mysequence.h>
-
-#include <s_baltst_mysequencewithanonymouschoicechoice.h>
-
-#include <s_baltst_mysequencewitharray.h>
-
-#include <s_baltst_mysequencewithattributes.h>
-
-#include <s_baltst_mysequencewithnillable.h>
-
-#include <s_baltst_mysequencewithnullable.h>
-
-#include <s_baltst_mysimplecontent.h>
-
-#include <s_baltst_mysimpleintcontent.h>
-
-#include <s_baltst_rawdata.h>
-
-#include <s_baltst_rawdataswitched.h>
-
-#include <s_baltst_rawdataunformatted.h>
-
-#include <s_baltst_sequencewithanonymitychoice1.h>
-
-#include <s_baltst_simplerequest.h>
-
-#include <s_baltst_sqrt.h>
-
-#include <s_baltst_unsignedsequence.h>
-
-#include <s_baltst_voidsequence.h>
-
-#include <s_baltst_bigrecord.h>
-
-#include <s_baltst_employee.h>
-
-#include <s_baltst_mysequencewithanonymouschoice.h>
-
-#include <s_baltst_mysequencewithnillables.h>
-
-#include <s_baltst_mysequencewithnullables.h>
-
-#include <s_baltst_ratsnest.h>
-
-#include <s_baltst_ratsnest.h>
-
-#include <s_baltst_ratsnest.h>
-
-#include <s_baltst_ratsnest.h>
-
-#include <s_baltst_sequencewithanonymitychoice.h>
-
-#include <s_baltst_timingrequest.h>
-
-#include <s_baltst_ratsnest.h>
-
-#include <s_baltst_ratsnest.h>
-
-#include <s_baltst_ratsnest.h>
-
-#include <s_baltst_ratsnest.h>
-
-#include <s_baltst_ratsnest.h>
-
-#include <s_baltst_sequencewithanonymitychoice2.h>
-
-#include <s_baltst_sequencewithanonymity.h>
-
-#include <s_baltst_topchoice.h>
-
 #include <s_baltst_featuretestmessage.h>
-
-#include <s_baltst_request.h>
 
 #include <bsl_iosfwd.h>
 #include <bsl_limits.h>
@@ -132,12 +44,12 @@ class Response {
 
     // INSTANCE DATA
     union {
-        bsls::ObjectBuffer< bsl::string >        d_responseData;
-        bsls::ObjectBuffer< FeatureTestMessage > d_featureResponse;
+        bsls::ObjectBuffer< bsl::string >                  d_responseData;
+        bsls::ObjectBuffer< s_baltst::FeatureTestMessage > d_featureResponse;
     };
 
-    int                                          d_selectionId;
-    bslma::Allocator                            *d_allocator_p;
+    int                                                    d_selectionId;
+    bslma::Allocator                                      *d_allocator_p;
 
   public:
     // TYPES
@@ -245,11 +157,11 @@ class Response {
         // Optionally specify the 'value' of the "ResponseData".  If 'value' is
         // not specified, the default "ResponseData" value is used.
 
-    FeatureTestMessage& makeFeatureResponse();
-    FeatureTestMessage& makeFeatureResponse(const FeatureTestMessage& value);
+    s_baltst::FeatureTestMessage& makeFeatureResponse();
+    s_baltst::FeatureTestMessage& makeFeatureResponse(const s_baltst::FeatureTestMessage& value);
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    FeatureTestMessage& makeFeatureResponse(FeatureTestMessage&& value);
+    s_baltst::FeatureTestMessage& makeFeatureResponse(s_baltst::FeatureTestMessage&& value);
 #endif
         // Set the value of this object to be a "FeatureResponse" value.
         // Optionally specify the 'value' of the "FeatureResponse".  If 'value'
@@ -269,7 +181,7 @@ class Response {
         // behavior is undefined unless "ResponseData" is the selection of this
         // object.
 
-    FeatureTestMessage& featureResponse();
+    s_baltst::FeatureTestMessage& featureResponse();
         // Return a reference to the modifiable "FeatureResponse" selection of
         // this object if "FeatureResponse" is the current selection.  The
         // behavior is undefined unless "FeatureResponse" is the selection of
@@ -308,7 +220,7 @@ class Response {
         // behavior is undefined unless "ResponseData" is the selection of this
         // object.
 
-    const FeatureTestMessage& featureResponse() const;
+    const s_baltst::FeatureTestMessage& featureResponse() const;
         // Return a reference to the non-modifiable "FeatureResponse" selection
         // of this object if "FeatureResponse" is the current selection.  The
         // behavior is undefined unless "FeatureResponse" is the selection of
@@ -404,7 +316,7 @@ bsl::string& Response::responseData()
 }
 
 inline
-FeatureTestMessage& Response::featureResponse()
+s_baltst::FeatureTestMessage& Response::featureResponse()
 {
     BSLS_ASSERT(SELECTION_ID_FEATURE_RESPONSE == d_selectionId);
     return d_featureResponse.object();
@@ -441,7 +353,7 @@ const bsl::string& Response::responseData() const
 }
 
 inline
-const FeatureTestMessage& Response::featureResponse() const
+const s_baltst::FeatureTestMessage& Response::featureResponse() const
 {
     BSLS_ASSERT(SELECTION_ID_FEATURE_RESPONSE == d_selectionId);
     return d_featureResponse.object();
@@ -509,11 +421,11 @@ bsl::ostream& s_baltst::operator<<(
 }  // close enterprise namespace
 #endif
 
-// GENERATED BY BLP_BAS_CODEGEN_2020.03.30
-// USING bas_codegen.pl s_baltst.xsd -m msg -p s_baltst -C tmp_singles --msgSplit 1 --noExternalization --noHashSupport --noAggregateConversion
+// GENERATED BY BLP_BAS_CODEGEN_2021.10.31
+// USING bas_codegen.pl s_baltst_response.xsd --mode msg --includedir . --msgComponent response --noRecurse --noExternalization --noHashSupport --noAggregateConversion
 // ----------------------------------------------------------------------------
 // NOTICE:
-//      Copyright 2020 Bloomberg Finance L.P. All rights reserved.
+//      Copyright 2021 Bloomberg Finance L.P. All rights reserved.
 //      Property of Bloomberg Finance L.P. (BFLP)
 //      This software is made available solely pursuant to the
 //      terms of a BFLP license agreement which governs its use.

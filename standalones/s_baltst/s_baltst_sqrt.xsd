@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'
+           xmlns:bdem='http://bloomberg.com/schemas/bdem'
+           bdem:package='s_baltst'
+           elementFormDefault='qualified'>
+
+  <xs:complexType name='Sqrt'>
+    <xs:annotation>
+      <xs:documentation>
+          Simulate a square root request/response
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name='value' type='xs:double'/>
+    </xs:sequence>
+  </xs:complexType>
+
+</xs:schema>

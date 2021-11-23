@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:bdem="http://bloomberg.com/schemas/bdem"
+           bdem:package="s_baltst"
+           elementFormDefault="qualified">
+
+  <xs:complexType name="BasicRecord">
+    <xs:annotation>
+      <xs:documentation>
+        A representative small record type
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="i1" type="xs:int"/>
+      <xs:element name="i2" type="xs:int"/>
+      <xs:element name="dt" type="xs:dateTime"/>
+      <xs:element name="s" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+</xs:schema>

@@ -1,7 +1,7 @@
 // s_baltst_timingrequest.cpp        *DO NOT EDIT*         @generated -*-C++-*-
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(s_baltst_timingrequest_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(s_baltst_timingrequest_cpp, "$Id$ $CSID$")
 
 #include <s_baltst_timingrequest.h>
 
@@ -11,46 +11,17 @@ BSLS_IDENT_RCSID(s_baltst_timingrequest_cpp,"$Id$ $CSID$")
 #include <bdlb_printmethods.h>
 #include <bdlb_string.h>
 
-#include <s_baltst_address.h>
 #include <s_baltst_basicrecord.h>
-#include <s_baltst_customint.h>
-#include <s_baltst_customstring.h>
-#include <s_baltst_customizedstring.h>
-#include <s_baltst_enumerated.h>
-#include <s_baltst_mychoice.h>
-#include <s_baltst_myenumeration.h>
-#include <s_baltst_mysequence.h>
-#include <s_baltst_mysequencewithanonymouschoicechoice.h>
-#include <s_baltst_mysequencewitharray.h>
-#include <s_baltst_mysequencewithattributes.h>
-#include <s_baltst_mysequencewithnillable.h>
-#include <s_baltst_mysequencewithnullable.h>
-#include <s_baltst_mysimplecontent.h>
-#include <s_baltst_mysimpleintcontent.h>
-#include <s_baltst_rawdata.h>
-#include <s_baltst_rawdataswitched.h>
-#include <s_baltst_rawdataunformatted.h>
-#include <s_baltst_sequencewithanonymitychoice1.h>
-#include <s_baltst_simplerequest.h>
-#include <s_baltst_sqrt.h>
-#include <s_baltst_unsignedsequence.h>
-#include <s_baltst_voidsequence.h>
 #include <s_baltst_bigrecord.h>
-#include <s_baltst_employee.h>
-#include <s_baltst_mysequencewithanonymouschoice.h>
-#include <s_baltst_mysequencewithnillables.h>
-#include <s_baltst_mysequencewithnullables.h>
-#include <s_baltst_ratsnest.h>
-#include <s_baltst_ratsnest.h>
-#include <s_baltst_ratsnest.h>
-#include <s_baltst_ratsnest.h>
-#include <s_baltst_sequencewithanonymitychoice.h>
+#include <s_baltst_sqrt.h>
 #include <bslim_printer.h>
 #include <bsls_assert.h>
 
+#include <bsl_cstring.h>
 #include <bsl_iomanip.h>
 #include <bsl_limits.h>
 #include <bsl_ostream.h>
+#include <bsl_utility.h>
 
 namespace BloombergLP {
 namespace s_baltst {
@@ -132,16 +103,16 @@ TimingRequest::TimingRequest(
     switch (d_selectionId) {
       case SELECTION_ID_SQRT: {
         new (d_sqrt.buffer())
-            Sqrt(original.d_sqrt.object());
+            s_baltst::Sqrt(original.d_sqrt.object());
       } break;
       case SELECTION_ID_BASIC: {
         new (d_basic.buffer())
-            BasicRecord(
+            s_baltst::BasicRecord(
                 original.d_basic.object(), d_allocator_p);
       } break;
       case SELECTION_ID_BIG: {
         new (d_big.buffer())
-            BigRecord(
+            s_baltst::BigRecord(
                 original.d_big.object(), d_allocator_p);
       } break;
       default:
@@ -158,16 +129,16 @@ TimingRequest::TimingRequest(TimingRequest&& original) noexcept
     switch (d_selectionId) {
       case SELECTION_ID_SQRT: {
         new (d_sqrt.buffer())
-            Sqrt(bsl::move(original.d_sqrt.object()));
+            s_baltst::Sqrt(bsl::move(original.d_sqrt.object()));
       } break;
       case SELECTION_ID_BASIC: {
         new (d_basic.buffer())
-            BasicRecord(
+            s_baltst::BasicRecord(
                 bsl::move(original.d_basic.object()), d_allocator_p);
       } break;
       case SELECTION_ID_BIG: {
         new (d_big.buffer())
-            BigRecord(
+            s_baltst::BigRecord(
                 bsl::move(original.d_big.object()), d_allocator_p);
       } break;
       default:
@@ -184,16 +155,16 @@ TimingRequest::TimingRequest(
     switch (d_selectionId) {
       case SELECTION_ID_SQRT: {
         new (d_sqrt.buffer())
-            Sqrt(bsl::move(original.d_sqrt.object()));
+            s_baltst::Sqrt(bsl::move(original.d_sqrt.object()));
       } break;
       case SELECTION_ID_BASIC: {
         new (d_basic.buffer())
-            BasicRecord(
+            s_baltst::BasicRecord(
                 bsl::move(original.d_basic.object()), d_allocator_p);
       } break;
       case SELECTION_ID_BIG: {
         new (d_big.buffer())
-            BigRecord(
+            s_baltst::BigRecord(
                 bsl::move(original.d_big.object()), d_allocator_p);
       } break;
       default:
@@ -257,13 +228,16 @@ void TimingRequest::reset()
 {
     switch (d_selectionId) {
       case SELECTION_ID_SQRT: {
-        d_sqrt.object().~Sqrt();
+        typedef s_baltst::Sqrt Type;
+        d_sqrt.object().~Type();
       } break;
       case SELECTION_ID_BASIC: {
-        d_basic.object().~BasicRecord();
+        typedef s_baltst::BasicRecord Type;
+        d_basic.object().~Type();
       } break;
       case SELECTION_ID_BIG: {
-        d_big.object().~BigRecord();
+        typedef s_baltst::BigRecord Type;
+        d_big.object().~Type();
       } break;
       default:
         BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
@@ -304,7 +278,7 @@ int TimingRequest::makeSelection(const char *name, int nameLength)
     return makeSelection(selectionInfo->d_id);
 }
 
-Sqrt& TimingRequest::makeSqrt()
+s_baltst::Sqrt& TimingRequest::makeSqrt()
 {
     if (SELECTION_ID_SQRT == d_selectionId) {
         bdlat_ValueTypeFunctions::reset(&d_sqrt.object());
@@ -312,14 +286,14 @@ Sqrt& TimingRequest::makeSqrt()
     else {
         reset();
         new (d_sqrt.buffer())
-            Sqrt();
+            s_baltst::Sqrt();
         d_selectionId = SELECTION_ID_SQRT;
     }
 
     return d_sqrt.object();
 }
 
-Sqrt& TimingRequest::makeSqrt(const Sqrt& value)
+s_baltst::Sqrt& TimingRequest::makeSqrt(const s_baltst::Sqrt& value)
 {
     if (SELECTION_ID_SQRT == d_selectionId) {
         d_sqrt.object() = value;
@@ -327,7 +301,7 @@ Sqrt& TimingRequest::makeSqrt(const Sqrt& value)
     else {
         reset();
         new (d_sqrt.buffer())
-                Sqrt(value);
+                s_baltst::Sqrt(value);
         d_selectionId = SELECTION_ID_SQRT;
     }
 
@@ -336,7 +310,7 @@ Sqrt& TimingRequest::makeSqrt(const Sqrt& value)
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-Sqrt& TimingRequest::makeSqrt(Sqrt&& value)
+s_baltst::Sqrt& TimingRequest::makeSqrt(s_baltst::Sqrt&& value)
 {
     if (SELECTION_ID_SQRT == d_selectionId) {
         d_sqrt.object() = bsl::move(value);
@@ -344,7 +318,7 @@ Sqrt& TimingRequest::makeSqrt(Sqrt&& value)
     else {
         reset();
         new (d_sqrt.buffer())
-                Sqrt(bsl::move(value));
+                s_baltst::Sqrt(bsl::move(value));
         d_selectionId = SELECTION_ID_SQRT;
     }
 
@@ -352,7 +326,7 @@ Sqrt& TimingRequest::makeSqrt(Sqrt&& value)
 }
 #endif
 
-BasicRecord& TimingRequest::makeBasic()
+s_baltst::BasicRecord& TimingRequest::makeBasic()
 {
     if (SELECTION_ID_BASIC == d_selectionId) {
         bdlat_ValueTypeFunctions::reset(&d_basic.object());
@@ -360,14 +334,14 @@ BasicRecord& TimingRequest::makeBasic()
     else {
         reset();
         new (d_basic.buffer())
-                BasicRecord(d_allocator_p);
+                s_baltst::BasicRecord(d_allocator_p);
         d_selectionId = SELECTION_ID_BASIC;
     }
 
     return d_basic.object();
 }
 
-BasicRecord& TimingRequest::makeBasic(const BasicRecord& value)
+s_baltst::BasicRecord& TimingRequest::makeBasic(const s_baltst::BasicRecord& value)
 {
     if (SELECTION_ID_BASIC == d_selectionId) {
         d_basic.object() = value;
@@ -375,7 +349,7 @@ BasicRecord& TimingRequest::makeBasic(const BasicRecord& value)
     else {
         reset();
         new (d_basic.buffer())
-                BasicRecord(value, d_allocator_p);
+                s_baltst::BasicRecord(value, d_allocator_p);
         d_selectionId = SELECTION_ID_BASIC;
     }
 
@@ -384,7 +358,7 @@ BasicRecord& TimingRequest::makeBasic(const BasicRecord& value)
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-BasicRecord& TimingRequest::makeBasic(BasicRecord&& value)
+s_baltst::BasicRecord& TimingRequest::makeBasic(s_baltst::BasicRecord&& value)
 {
     if (SELECTION_ID_BASIC == d_selectionId) {
         d_basic.object() = bsl::move(value);
@@ -392,7 +366,7 @@ BasicRecord& TimingRequest::makeBasic(BasicRecord&& value)
     else {
         reset();
         new (d_basic.buffer())
-                BasicRecord(bsl::move(value), d_allocator_p);
+                s_baltst::BasicRecord(bsl::move(value), d_allocator_p);
         d_selectionId = SELECTION_ID_BASIC;
     }
 
@@ -400,7 +374,7 @@ BasicRecord& TimingRequest::makeBasic(BasicRecord&& value)
 }
 #endif
 
-BigRecord& TimingRequest::makeBig()
+s_baltst::BigRecord& TimingRequest::makeBig()
 {
     if (SELECTION_ID_BIG == d_selectionId) {
         bdlat_ValueTypeFunctions::reset(&d_big.object());
@@ -408,14 +382,14 @@ BigRecord& TimingRequest::makeBig()
     else {
         reset();
         new (d_big.buffer())
-                BigRecord(d_allocator_p);
+                s_baltst::BigRecord(d_allocator_p);
         d_selectionId = SELECTION_ID_BIG;
     }
 
     return d_big.object();
 }
 
-BigRecord& TimingRequest::makeBig(const BigRecord& value)
+s_baltst::BigRecord& TimingRequest::makeBig(const s_baltst::BigRecord& value)
 {
     if (SELECTION_ID_BIG == d_selectionId) {
         d_big.object() = value;
@@ -423,7 +397,7 @@ BigRecord& TimingRequest::makeBig(const BigRecord& value)
     else {
         reset();
         new (d_big.buffer())
-                BigRecord(value, d_allocator_p);
+                s_baltst::BigRecord(value, d_allocator_p);
         d_selectionId = SELECTION_ID_BIG;
     }
 
@@ -432,7 +406,7 @@ BigRecord& TimingRequest::makeBig(const BigRecord& value)
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-BigRecord& TimingRequest::makeBig(BigRecord&& value)
+s_baltst::BigRecord& TimingRequest::makeBig(s_baltst::BigRecord&& value)
 {
     if (SELECTION_ID_BIG == d_selectionId) {
         d_big.object() = bsl::move(value);
@@ -440,7 +414,7 @@ BigRecord& TimingRequest::makeBig(BigRecord&& value)
     else {
         reset();
         new (d_big.buffer())
-                BigRecord(bsl::move(value), d_allocator_p);
+                s_baltst::BigRecord(bsl::move(value), d_allocator_p);
         d_selectionId = SELECTION_ID_BIG;
     }
 
@@ -492,11 +466,11 @@ const char *TimingRequest::selectionName() const
 }  // close package namespace
 }  // close enterprise namespace
 
-// GENERATED BY BLP_BAS_CODEGEN_2020.03.30
-// USING bas_codegen.pl s_baltst.xsd -m msg -p s_baltst -C tmp_singles --msgSplit 1 --noExternalization --noHashSupport --noAggregateConversion
+// GENERATED BY BLP_BAS_CODEGEN_2021.10.31
+// USING bas_codegen.pl s_baltst_timingrequest.xsd --mode msg --includedir . --msgComponent timingrequest --noRecurse --noExternalization --noHashSupport --noAggregateConversion
 // ----------------------------------------------------------------------------
 // NOTICE:
-//      Copyright 2020 Bloomberg Finance L.P. All rights reserved.
+//      Copyright 2021 Bloomberg Finance L.P. All rights reserved.
 //      Property of Bloomberg Finance L.P. (BFLP)
 //      This software is made available solely pursuant to the
 //      terms of a BFLP license agreement which governs its use.

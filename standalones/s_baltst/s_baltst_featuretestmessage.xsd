@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:bdem="http://bloomberg.com/schemas/bdem"
+           bdem:package="s_baltst"
+           elementFormDefault="qualified">
+
+  <xs:include schemaLocation="s_baltst_customstring.xsd"/>
+  <xs:include schemaLocation="s_baltst_enumerated.xsd"/>
+  <xs:include schemaLocation="s_baltst_voidsequence.xsd"/>
+  <xs:include schemaLocation="s_baltst_unsignedsequence.xsd"/>
+  <xs:include schemaLocation="s_baltst_sequencewithanonymity.xsd"/>
+  <xs:include schemaLocation="s_baltst_ratsnest.xsd"/>
+
+  <xs:complexType name="FeatureTestMessage">
+    <xs:choice>
+      <xs:element name="selection1"
+                  type="Sequence1"
+                  bdem:cppheader="s_baltst_ratsnest.h"/>
+      <xs:element name="selection2" type="xs:hexBinary"/>
+      <xs:element name="selection3"
+                  type="Sequence2"
+                  bdem:cppheader="s_baltst_ratsnest.h"/>
+      <xs:element name="selection4"
+                  type="Sequence3"
+                  bdem:cppheader="s_baltst_ratsnest.h"/>
+      <xs:element name="selection5" type="xs:dateTime"/>
+      <xs:element name="selection6"
+                  type="CustomString"
+                  bdem:cppheader="s_baltst_customstring.h"/>
+      <xs:element name="selection7"
+                  type="Enumerated"
+                  bdem:cppheader="s_baltst_enumerated.h"/>
+      <xs:element name="selection8"
+                  type="Choice3"
+                  bdem:cppheader="s_baltst_ratsnest.h"/>
+      <xs:element name="selection9"
+                  type="VoidSequence"
+                  bdem:cppheader="s_baltst_voidsequence.h"/>
+      <xs:element name="selection10"
+                  type="UnsignedSequence"
+                  bdem:cppheader="s_baltst_unsignedsequence.h"/>
+      <xs:element name="selection11"
+                  type="SequenceWithAnonymity"
+                  bdem:cppheader="s_baltst_sequencewithanonymity.h"/>
+    </xs:choice>
+  </xs:complexType>
+
+</xs:schema>

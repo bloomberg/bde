@@ -3,7 +3,7 @@
 #define INCLUDED_S_BALTST_TIMINGREQUEST
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(s_baltst_timingrequest_h,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(s_baltst_timingrequest_h, "$Id$ $CSID$")
 BSLS_IDENT_PRAGMA_ONCE
 
 //@PURPOSE: Provide value-semantic attribute classes
@@ -22,73 +22,11 @@ BSLS_IDENT_PRAGMA_ONCE
 
 #include <bsls_assert.h>
 
-#include <s_baltst_address.h>
-
 #include <s_baltst_basicrecord.h>
-
-#include <s_baltst_customint.h>
-
-#include <s_baltst_customstring.h>
-
-#include <s_baltst_customizedstring.h>
-
-#include <s_baltst_enumerated.h>
-
-#include <s_baltst_mychoice.h>
-
-#include <s_baltst_myenumeration.h>
-
-#include <s_baltst_mysequence.h>
-
-#include <s_baltst_mysequencewithanonymouschoicechoice.h>
-
-#include <s_baltst_mysequencewitharray.h>
-
-#include <s_baltst_mysequencewithattributes.h>
-
-#include <s_baltst_mysequencewithnillable.h>
-
-#include <s_baltst_mysequencewithnullable.h>
-
-#include <s_baltst_mysimplecontent.h>
-
-#include <s_baltst_mysimpleintcontent.h>
-
-#include <s_baltst_rawdata.h>
-
-#include <s_baltst_rawdataswitched.h>
-
-#include <s_baltst_rawdataunformatted.h>
-
-#include <s_baltst_sequencewithanonymitychoice1.h>
-
-#include <s_baltst_simplerequest.h>
-
-#include <s_baltst_sqrt.h>
-
-#include <s_baltst_unsignedsequence.h>
-
-#include <s_baltst_voidsequence.h>
 
 #include <s_baltst_bigrecord.h>
 
-#include <s_baltst_employee.h>
-
-#include <s_baltst_mysequencewithanonymouschoice.h>
-
-#include <s_baltst_mysequencewithnillables.h>
-
-#include <s_baltst_mysequencewithnullables.h>
-
-#include <s_baltst_ratsnest.h>
-
-#include <s_baltst_ratsnest.h>
-
-#include <s_baltst_ratsnest.h>
-
-#include <s_baltst_ratsnest.h>
-
-#include <s_baltst_sequencewithanonymitychoice.h>
+#include <s_baltst_sqrt.h>
 
 #include <bsl_iosfwd.h>
 #include <bsl_limits.h>
@@ -109,13 +47,13 @@ class TimingRequest {
 
     // INSTANCE DATA
     union {
-        bsls::ObjectBuffer< Sqrt >        d_sqrt;
-        bsls::ObjectBuffer< BasicRecord > d_basic;
-        bsls::ObjectBuffer< BigRecord >   d_big;
+        bsls::ObjectBuffer< s_baltst::Sqrt >        d_sqrt;
+        bsls::ObjectBuffer< s_baltst::BasicRecord > d_basic;
+        bsls::ObjectBuffer< s_baltst::BigRecord >   d_big;
     };
 
-    int                                   d_selectionId;
-    bslma::Allocator                     *d_allocator_p;
+    int                                             d_selectionId;
+    bslma::Allocator                               *d_allocator_p;
 
   public:
     // TYPES
@@ -215,31 +153,31 @@ class TimingRequest {
         // Return 0 on success, and non-zero value otherwise (i.e., the
         // selection is not found).
 
-    Sqrt& makeSqrt();
-    Sqrt& makeSqrt(const Sqrt& value);
+    s_baltst::Sqrt& makeSqrt();
+    s_baltst::Sqrt& makeSqrt(const s_baltst::Sqrt& value);
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    Sqrt& makeSqrt(Sqrt&& value);
+    s_baltst::Sqrt& makeSqrt(s_baltst::Sqrt&& value);
 #endif
         // Set the value of this object to be a "Sqrt" value.  Optionally
         // specify the 'value' of the "Sqrt".  If 'value' is not specified, the
         // default "Sqrt" value is used.
 
-    BasicRecord& makeBasic();
-    BasicRecord& makeBasic(const BasicRecord& value);
+    s_baltst::BasicRecord& makeBasic();
+    s_baltst::BasicRecord& makeBasic(const s_baltst::BasicRecord& value);
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    BasicRecord& makeBasic(BasicRecord&& value);
+    s_baltst::BasicRecord& makeBasic(s_baltst::BasicRecord&& value);
 #endif
         // Set the value of this object to be a "Basic" value.  Optionally
         // specify the 'value' of the "Basic".  If 'value' is not specified,
         // the default "Basic" value is used.
 
-    BigRecord& makeBig();
-    BigRecord& makeBig(const BigRecord& value);
+    s_baltst::BigRecord& makeBig();
+    s_baltst::BigRecord& makeBig(const s_baltst::BigRecord& value);
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    BigRecord& makeBig(BigRecord&& value);
+    s_baltst::BigRecord& makeBig(s_baltst::BigRecord&& value);
 #endif
         // Set the value of this object to be a "Big" value.  Optionally
         // specify the 'value' of the "Big".  If 'value' is not specified, the
@@ -253,17 +191,17 @@ class TimingRequest {
         // invocation of 'manipulator' if this object has a defined selection,
         // and -1 otherwise.
 
-    Sqrt& sqrt();
+    s_baltst::Sqrt& sqrt();
         // Return a reference to the modifiable "Sqrt" selection of this object
         // if "Sqrt" is the current selection.  The behavior is undefined
         // unless "Sqrt" is the selection of this object.
 
-    BasicRecord& basic();
+    s_baltst::BasicRecord& basic();
         // Return a reference to the modifiable "Basic" selection of this
         // object if "Basic" is the current selection.  The behavior is
         // undefined unless "Basic" is the selection of this object.
 
-    BigRecord& big();
+    s_baltst::BigRecord& big();
         // Return a reference to the modifiable "Big" selection of this object
         // if "Big" is the current selection.  The behavior is undefined unless
         // "Big" is the selection of this object.
@@ -295,17 +233,17 @@ class TimingRequest {
         // structure.  Return the value returned from the invocation of
         // 'accessor' if this object has a defined selection, and -1 otherwise.
 
-    const Sqrt& sqrt() const;
+    const s_baltst::Sqrt& sqrt() const;
         // Return a reference to the non-modifiable "Sqrt" selection of this
         // object if "Sqrt" is the current selection.  The behavior is
         // undefined unless "Sqrt" is the selection of this object.
 
-    const BasicRecord& basic() const;
+    const s_baltst::BasicRecord& basic() const;
         // Return a reference to the non-modifiable "Basic" selection of this
         // object if "Basic" is the current selection.  The behavior is
         // undefined unless "Basic" is the selection of this object.
 
-    const BigRecord& big() const;
+    const s_baltst::BigRecord& big() const;
         // Return a reference to the non-modifiable "Big" selection of this
         // object if "Big" is the current selection.  The behavior is undefined
         // unless "Big" is the selection of this object.
@@ -400,21 +338,21 @@ int TimingRequest::manipulateSelection(MANIPULATOR& manipulator)
 }
 
 inline
-Sqrt& TimingRequest::sqrt()
+s_baltst::Sqrt& TimingRequest::sqrt()
 {
     BSLS_ASSERT(SELECTION_ID_SQRT == d_selectionId);
     return d_sqrt.object();
 }
 
 inline
-BasicRecord& TimingRequest::basic()
+s_baltst::BasicRecord& TimingRequest::basic()
 {
     BSLS_ASSERT(SELECTION_ID_BASIC == d_selectionId);
     return d_basic.object();
 }
 
 inline
-BigRecord& TimingRequest::big()
+s_baltst::BigRecord& TimingRequest::big()
 {
     BSLS_ASSERT(SELECTION_ID_BIG == d_selectionId);
     return d_big.object();
@@ -447,21 +385,21 @@ int TimingRequest::accessSelection(ACCESSOR& accessor) const
 }
 
 inline
-const Sqrt& TimingRequest::sqrt() const
+const s_baltst::Sqrt& TimingRequest::sqrt() const
 {
     BSLS_ASSERT(SELECTION_ID_SQRT == d_selectionId);
     return d_sqrt.object();
 }
 
 inline
-const BasicRecord& TimingRequest::basic() const
+const s_baltst::BasicRecord& TimingRequest::basic() const
 {
     BSLS_ASSERT(SELECTION_ID_BASIC == d_selectionId);
     return d_basic.object();
 }
 
 inline
-const BigRecord& TimingRequest::big() const
+const s_baltst::BigRecord& TimingRequest::big() const
 {
     BSLS_ASSERT(SELECTION_ID_BIG == d_selectionId);
     return d_big.object();
@@ -537,11 +475,11 @@ bsl::ostream& s_baltst::operator<<(
 }  // close enterprise namespace
 #endif
 
-// GENERATED BY BLP_BAS_CODEGEN_2020.03.30
-// USING bas_codegen.pl s_baltst.xsd -m msg -p s_baltst -C tmp_singles --msgSplit 1 --noExternalization --noHashSupport --noAggregateConversion
+// GENERATED BY BLP_BAS_CODEGEN_2021.10.31
+// USING bas_codegen.pl s_baltst_timingrequest.xsd --mode msg --includedir . --msgComponent timingrequest --noRecurse --noExternalization --noHashSupport --noAggregateConversion
 // ----------------------------------------------------------------------------
 // NOTICE:
-//      Copyright 2020 Bloomberg Finance L.P. All rights reserved.
+//      Copyright 2021 Bloomberg Finance L.P. All rights reserved.
 //      Property of Bloomberg Finance L.P. (BFLP)
 //      This software is made available solely pursuant to the
 //      terms of a BFLP license agreement which governs its use.

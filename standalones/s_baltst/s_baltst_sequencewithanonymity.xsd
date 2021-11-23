@@ -1,0 +1,43 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'
+           xmlns:bdem='http://bloomberg.com/schemas/bdem'
+           bdem:package='s_baltst'
+           elementFormDefault='qualified'>
+
+  <xs:include schemaLocation='s_baltst_customstring.xsd'/>
+  <xs:include schemaLocation='s_baltst_customint.xsd'/>
+  <xs:include schemaLocation='s_baltst_ratsnest.xsd'/>
+
+  <xs:complexType name='SequenceWithAnonymity'>
+    <xs:sequence>
+      <xs:choice>
+        <xs:element name='selection1'
+                    type='Sequence6'
+                    bdem:cppheader='s_baltst_ratsnest.h'/>
+        <xs:element name='selection2' type='xs:unsignedByte'/>
+        <xs:element name='selection3'
+                    type='CustomString'
+                    bdem:cppheader='s_baltst_customstring.h'/>
+        <xs:element name='selection4'
+                    type='CustomInt'
+                    bdem:cppheader='s_baltst_customint.h'/>
+      </xs:choice>
+      <xs:choice>
+        <xs:element name='selection5' type='xs:boolean'/>
+        <xs:element name='selection6' type='xs:string'/>
+      </xs:choice>
+      <xs:choice minOccurs='0' maxOccurs='1'>
+        <xs:element name='selection7'
+                    type='Sequence4'
+                    bdem:cppheader='s_baltst_ratsnest.h'/>
+        <xs:element name='selection8'
+                    type='Choice2'
+                    bdem:cppheader='s_baltst_ratsnest.h'/>
+      </xs:choice>
+      <xs:element name='element4'
+                  type='Sequence6'
+                  bdem:cppheader='s_baltst_ratsnest.h'/>
+    </xs:sequence>
+  </xs:complexType>
+
+</xs:schema>

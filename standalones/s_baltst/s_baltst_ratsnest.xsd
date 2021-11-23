@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+          xmlns:bdem="http://bloomberg.com/schemas/bdem"
+          bdem:package="s_baltst"
+          elementFormDefault="qualified">
+
+  <xs:include schemaLocation="s_baltst_customint.xsd"/>
+  <xs:include schemaLocation="s_baltst_customstring.xsd"/>
+  <xs:include schemaLocation="s_baltst_enumerated.xsd"/>
+
+  <xs:complexType name="Choice1">
+    <xs:choice>
+      <xs:element name="selection1" type="xs:int"/>
+      <xs:element name="selection2" type="xs:double"/>
+      <xs:element name="selection3" type="Sequence4"/>
+      <xs:element name="selection4" type="Choice2"/>
+    </xs:choice>
+  </xs:complexType>
+
+  <xs:complexType name="Choice2">
+    <xs:choice>
+      <xs:element name="selection1" type="xs:boolean"/>
+      <xs:element name="selection2" type="xs:string"/>
+      <xs:element name="selection3" type="Choice1"/>
+      <xs:element name="selection4" type="xs:unsignedInt"/>
+    </xs:choice>
+  </xs:complexType>
+
+  <xs:complexType name="Choice3">
+    <xs:choice>
+      <xs:element name="selection1" type="Sequence6"/>
+      <xs:element name="selection2" type="xs:unsignedByte"/>
+      <xs:element name="selection3"
+                  type="CustomString"
+                  bdem:cppheader="s_baltst_customstring.h"/>
+      <xs:element name="selection4"
+                  type="CustomInt"
+                  bdem:cppheader="s_baltst_customint.h"/>
+    </xs:choice>
+  </xs:complexType>
+
+  <xs:complexType name="Sequence1">
+    <xs:sequence>
+      <xs:element name="element1" type="Choice3" minOccurs="0"/>
+      <xs:element name="element2"
+                  type="Choice1"
+                  minOccurs="0"
+                  maxOccurs="unbounded"/>
+      <xs:element name="element3" type="Choice2"/>
+      <xs:element name="element4"
+                  type="Choice1"
+                  nillable="true"
+                  minOccurs="0"
+                  maxOccurs="unbounded"/>
+      <xs:element name="element5"
+                  type="Choice3"
+                  minOccurs="0"
+                  maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Sequence2">
+    <xs:sequence>
+      <xs:element name="element1" type="CustomString"/>
+      <xs:element name="element2" type="xs:unsignedByte"/>
+      <xs:element name="element3" type="xs:dateTime"/>
+      <xs:element name="element4" type="Choice1" minOccurs="0"/>
+      <xs:element name="element5" type="xs:double" minOccurs="0"/>
+      <xs:element name="element6"
+                  type="xs:string"
+                  nillable="true"
+                  minOccurs="0"
+                  maxOccurs="unbounded"/>
+      <xs:element name="element7"
+                  type="CustomString"
+                  bdem:cppheader="s_baltst_customstring.h"
+                  nillable="true"
+                  minOccurs="0"
+                  maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Sequence3">
+    <xs:sequence>
+      <xs:element name="element1"
+                  type="Enumerated"
+                  bdem:cppheader="s_baltst_enumerated.h"
+                  minOccurs="0"
+                  maxOccurs="unbounded"/>
+      <xs:element name="element2"
+                  type="xs:string"
+                  minOccurs="0"
+                  maxOccurs="unbounded"/>
+      <xs:element name="element3" type="xs:boolean" minOccurs="0"/>
+      <xs:element name="element4" type="xs:string" minOccurs="0"/>
+      <xs:element name="element5" type="Sequence5" minOccurs="0"/>
+      <xs:element name="element6"
+                  type="Enumerated"
+                  bdem:cppheader="s_baltst_enumerated.h"
+                  nillable="true"
+                  minOccurs="0"
+                  maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Sequence4">
+    <xs:sequence>
+      <xs:element name="element1"
+                  type="Sequence3"
+                  minOccurs="0"
+                  maxOccurs="unbounded"/>
+      <xs:element name="element2"
+                  type="Choice1"
+                  minOccurs="0"
+                  maxOccurs="unbounded"/>
+      <xs:element name="element3" type="xs:hexBinary" minOccurs="0"/>
+      <xs:element name="element4" type="xs:int" minOccurs="0"/>
+      <xs:element name="element5" type="xs:dateTime" minOccurs="0"/>
+      <xs:element name="element6"
+                  type="CustomString"
+                  bdem:cppheader="s_baltst_customstring.h"
+                  minOccurs="0"/>
+      <xs:element name="element7"
+                  type="Enumerated"
+                  bdem:cppheader="s_baltst_enumerated.h"
+                  minOccurs="0"/>
+      <xs:element name="element8" type="xs:boolean"/>
+      <xs:element name="element9" type="xs:string"/>
+      <xs:element name="element10" type="xs:double"/>
+      <xs:element name="element11" type="xs:hexBinary"/>
+      <xs:element name="element12" type="xs:int"/>
+      <xs:element name="element13"
+                  type="Enumerated"
+                  bdem:cppheader="s_baltst_enumerated.h"/>
+      <xs:element name="element14"
+                  type="xs:boolean"
+                  minOccurs="0"
+                  maxOccurs="unbounded"/>
+      <xs:element name="element15"
+                  type="xs:double"
+                  minOccurs="0"
+                  maxOccurs="unbounded"/>
+      <xs:element name="element16"
+                  type="xs:hexBinary"
+                  minOccurs="0"
+                  maxOccurs="unbounded"/>
+      <xs:element name="element17"
+                  type="xs:int"
+                  minOccurs="0"
+                  maxOccurs="unbounded"/>
+      <xs:element name="element18"
+                  type="xs:dateTime"
+                  minOccurs="0"
+                  maxOccurs="unbounded"/>
+      <xs:element name="element19"
+                  type="CustomString"
+                  bdem:cppheader="s_baltst_customstring.h"
+                  minOccurs="0"
+                  maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Sequence5">
+    <xs:sequence>
+      <xs:element name="element1" type="Sequence3"/>
+      <xs:element name="element2"
+                  type="xs:boolean"
+                  nillable="true"
+                  minOccurs="0"
+                  maxOccurs="unbounded"/>
+      <xs:element name="element3"
+                  type="xs:double"
+                  nillable="true"
+                  minOccurs="0"
+                  maxOccurs="unbounded"/>
+      <xs:element name="element4"
+                  type="xs:hexBinary"
+                  nillable="true"
+                  minOccurs="0"
+                  maxOccurs="unbounded"/>
+      <xs:element name="element5"
+                  type="xs:int"
+                  nillable="true"
+                  minOccurs="0"
+                  maxOccurs="unbounded"/>
+      <xs:element name="element6"
+                  type="xs:dateTime"
+                  nillable="true"
+                  minOccurs="0"
+                  maxOccurs="unbounded"/>
+      <xs:element name="element7"
+                  type="Sequence3"
+                  nillable="true"
+                  minOccurs="0"
+                  maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Sequence6">
+    <xs:sequence>
+      <xs:element name="element1" type="xs:unsignedByte" minOccurs="0"/>
+      <xs:element name="element2"
+                  type="CustomString"
+                  bdem:cppheader="s_baltst_customstring.h"
+                  minOccurs="0"/>
+      <xs:element name="element3"
+                  type="CustomInt"
+                  bdem:cppheader="s_baltst_customint.h"
+                  minOccurs="0"/>
+      <xs:element name="element4" type="xs:unsignedInt"/>
+      <xs:element name="element5" type="xs:unsignedByte"/>
+      <xs:element name="element6"
+                  type="CustomInt"
+                  bdem:cppheader="s_baltst_customint.h"
+                  nillable="true"
+                  minOccurs="0"
+                  maxOccurs="unbounded"/>
+      <xs:element name="element7"
+                  type="CustomString"
+                  bdem:cppheader="s_baltst_customstring.h"/>
+      <xs:element name="element8"
+                  type="CustomInt"
+                  bdem:cppheader="s_baltst_customint.h"/>
+      <xs:element name="element9" type="xs:unsignedInt" minOccurs="0"/>
+      <xs:element name="element10"
+                  type="xs:unsignedByte"
+                  minOccurs="0"
+                  maxOccurs="unbounded"/>
+      <xs:element name="element11"
+                  type="CustomString"
+                  bdem:cppheader="s_baltst_customstring.h"
+                  minOccurs="0"
+                  maxOccurs="unbounded"/>
+      <xs:element name="element12"
+                  type="xs:unsignedInt"
+                  minOccurs="0"
+                  maxOccurs="unbounded"/>
+      <xs:element name="element13"
+                  type="xs:unsignedByte"
+                  nillable="true"
+                  minOccurs="0"
+                  maxOccurs="unbounded"/>
+      <xs:element name="element14"
+                  type="CustomInt"
+                  bdem:cppheader="s_baltst_customint.h"
+                  minOccurs="0"
+                  maxOccurs="unbounded"/>
+      <xs:element name="element15"
+                  type="xs:unsignedInt"
+                  nillable="true"
+                  minOccurs="0"
+                  maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+</xs:schema>

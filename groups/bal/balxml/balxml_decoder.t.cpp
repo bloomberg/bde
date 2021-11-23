@@ -33,7 +33,6 @@
 #include <s_baltst_myenumeration.h>
 #include <s_baltst_mysequence.h>
 #include <s_baltst_mysequencewithanonymouschoice.h>
-#include <s_baltst_mysequencewithanonymouschoicechoice.h>
 #include <s_baltst_mysequencewithattributes.h>
 #include <s_baltst_mysequencewithnillables.h>
 #include <s_baltst_mysequencewithnullables.h>
