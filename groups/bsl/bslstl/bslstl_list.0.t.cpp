@@ -245,6 +245,7 @@ using namespace BloombergLP;
 // [29] CONCERN: All emplace methods handle rvalues.
 // [32] INCOMPLETE VALUE TYPES ARE SUPPORTED
 // [34] CONCERN: Methods qualified 'noexcept' in standard are so implemented.
+// [35] CLASS TEMPLATE DEDUCTION GUIDES
 //-----------------------------------------------------------------------------
 
 // ============================================================================

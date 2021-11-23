@@ -7678,6 +7678,150 @@ void TestDriver2<TYPE,ALLOC>::test12_constructorRange()
     test12_constructorRange(RandSeq<TYPE>());
 }
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+struct TestDeductionGuides {
+    // This struct provides a namespace for functions testing deduction guides.
+    // The tests are compile-time only; it is not necessary that these routines
+    // be called at run-time.  Note that the following constructors do not have
+    // associated deduction guides because the template parameters for
+    // 'bsl::list' cannot be deduced from the constructor parameters.
+    //..
+    // list()
+    // list(size_t)
+    // list(ALLOC)
+    // list(size_t, ALLOC)
+    //..
+
+#define ASSERT_SAME_TYPE(...) \
+ static_assert((bsl::is_same<__VA_ARGS__>::value), "Types differ unexpectedly")
+
+    static void SimpleConstructors ()
+        // Test that constructing a 'bsl::list' from various combinations of
+        // arguments deduces the correct type.
+        //..
+        // list(const list&  l)        -> decltype(l)
+        // list(const list&  l, ALLOC) -> decltype(l)
+        // list(      list&& l)        -> decltype(l)
+        // list(      list&& l, ALLOC) -> decltype(l)
+        // list(size_type, VALUE_TYPE)        -> list<VALUE_TYPE>
+        // list(size_type, VALUE_TYPE, ALLOC) -> list<VALUE_TYPE, ALLOC>
+        // list(iter, iter)        -> list<iter::VALUE_TYPE>
+        // list(iter, iter, ALLOC) -> list<iter::VALUE_TYPE, ALLOC>
+        // list(initializer_list<T>)        -> list<T>
+        // list(initializer_list<T>, ALLOC) -> list<T>
+        //..
+    {
+        bslma::Allocator     *a1 = nullptr;
+        bslma::TestAllocator *a2 = nullptr;
+
+        bsl::list<int> l1;
+        bsl::list      l1a(l1);
+        ASSERT_SAME_TYPE(decltype(l1a), bsl::list<int>);
+
+        typedef float T2;
+        bsl::list<T2> l2;
+        bsl::list     l2a(l2, bsl::allocator<T2>());
+        bsl::list     l2b(l2, a1);
+        bsl::list     l2c(l2, a2);
+        ASSERT_SAME_TYPE(decltype(l2a), bsl::list<T2, bsl::allocator<T2>>);
+        ASSERT_SAME_TYPE(decltype(l2b), bsl::list<T2, bsl::allocator<T2>>);
+        ASSERT_SAME_TYPE(decltype(l2c), bsl::list<T2, bsl::allocator<T2>>);
+
+        bsl::list<short> l3;
+        bsl::list        l3a(std::move(l3));
+        ASSERT_SAME_TYPE(decltype(l3a), bsl::list<short>);
+
+        typedef long double T4;
+        bsl::list<T4> l4;
+        bsl::list     l4a(std::move(l4), bsl::allocator<T4>());
+        bsl::list     l4b(std::move(l4), a1);
+        bsl::list     l4c(std::move(l4), a2);
+        ASSERT_SAME_TYPE(decltype(l4a), bsl::list<T4, bsl::allocator<T4>>);
+        ASSERT_SAME_TYPE(decltype(l4b), bsl::list<T4, bsl::allocator<T4>>);
+        ASSERT_SAME_TYPE(decltype(l4c), bsl::list<T4, bsl::allocator<T4>>);
+
+    // Turn off complaints about passing allocators in non-allocator positions
+    // BDE_VERIFY pragma: push
+    // BDE_VERIFY pragma: -AM01
+        bsl::list l5a(42, 3L);
+        bsl::list l5b(42, bsl::allocator<long>{});
+        bsl::list l5c(42, a1); // Deduce a list of 'bslma::Allocator *'
+        ASSERT_SAME_TYPE(decltype(l5a), bsl::list<long>);
+        ASSERT_SAME_TYPE(decltype(l5b), bsl::list<bsl::allocator<long>>);
+        ASSERT_SAME_TYPE(decltype(l5c), bsl::list<bslma::Allocator *>);
+    // BDE_VERIFY pragma: pop
+
+        typedef double T6;
+        bsl::list l6a(42, 3.0, bsl::allocator<T6>());
+        bsl::list l6b(42, 3.0, a1);
+        bsl::list l6c(42, 3.0, a2);
+        bsl::list l6d(42, 3.0, std::allocator<T6>());
+        ASSERT_SAME_TYPE(decltype(l6a), bsl::list<T6, bsl::allocator<T6>>);
+        ASSERT_SAME_TYPE(decltype(l6b), bsl::list<T6, bsl::allocator<T6>>);
+        ASSERT_SAME_TYPE(decltype(l6c), bsl::list<T6, bsl::allocator<T6>>);
+        ASSERT_SAME_TYPE(decltype(l6d), bsl::list<T6, std::allocator<T6>>);
+
+        typedef char T7;
+        T7                      *p7b = nullptr;
+        T7                      *p7e = nullptr;
+        bsl::list<T7>::iterator  i7b;
+        bsl::list<T7>::iterator  i7e;
+        bsl::list                l7a(p7b, p7e);
+        bsl::list                l7b(i7b, i7e);
+        ASSERT_SAME_TYPE(decltype(l7a), bsl::list<T7>);
+        ASSERT_SAME_TYPE(decltype(l7b), bsl::list<T7>);
+
+        typedef unsigned short T8;
+        T8                      *p8b = nullptr;
+        T8                      *p8e = nullptr;
+        bsl::list<T8>::iterator  i8b;
+        bsl::list<T8>::iterator  i8e;
+
+        bsl::list l8a(p8b, p8e, bsl::allocator<T8>());
+        bsl::list l8b(p8b, p8e, a1);
+        bsl::list l8c(p8b, p8e, a2);
+        bsl::list l8d(p8b, p8e, std::allocator<T8>());
+        bsl::list l8e(i8b, i8e, bsl::allocator<T8>());
+        bsl::list l8f(i8b, i8e, a1);
+        bsl::list l8g(i8b, i8e, a2);
+        bsl::list l8h(i8b, i8e, std::allocator<T8>());
+        ASSERT_SAME_TYPE(decltype(l8a), bsl::list<T8, bsl::allocator<T8>>);
+        ASSERT_SAME_TYPE(decltype(l8b), bsl::list<T8, bsl::allocator<T8>>);
+        ASSERT_SAME_TYPE(decltype(l8c), bsl::list<T8, bsl::allocator<T8>>);
+        ASSERT_SAME_TYPE(decltype(l8d), bsl::list<T8, std::allocator<T8>>);
+        ASSERT_SAME_TYPE(decltype(l8e), bsl::list<T8, bsl::allocator<T8>>);
+        ASSERT_SAME_TYPE(decltype(l8f), bsl::list<T8, bsl::allocator<T8>>);
+        ASSERT_SAME_TYPE(decltype(l8g), bsl::list<T8, bsl::allocator<T8>>);
+        ASSERT_SAME_TYPE(decltype(l8h), bsl::list<T8, std::allocator<T8>>);
+
+        bsl::list l9 {1LL, 2LL, 3LL, 4LL, 5LL};
+        ASSERT_SAME_TYPE(decltype(l9), bsl::list<long long>);
+
+        typedef long long T10;
+        std::initializer_list<T10> il = {1LL, 2LL, 3LL, 4LL, 5LL};
+        bsl::list                  l10a(il, bsl::allocator<T10>{});
+        bsl::list                  l10b(il, a1);
+        bsl::list                  l10c(il, a2);
+        bsl::list                  l10d(il, std::allocator<T10>{});
+        ASSERT_SAME_TYPE(decltype(l10a), bsl::list<T10, bsl::allocator<T10>>);
+        ASSERT_SAME_TYPE(decltype(l10b), bsl::list<T10, bsl::allocator<T10>>);
+        ASSERT_SAME_TYPE(decltype(l10c), bsl::list<T10, bsl::allocator<T10>>);
+        ASSERT_SAME_TYPE(decltype(l10d), bsl::list<T10, std::allocator<T10>>);
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // Compile-fail tests
+// #define BSLSTL_LIST_COMPILE_FAIL_POINTER_IS_NOT_A_VALUE_TYPE
+#if defined BSLSTL_LIST_COMPILE_FAIL_POINTER_IS_NOT_A_VALUE_TYPE
+        bsl::List_Node<char> *lnp = nullptr; // pointer to random class type
+        bsl::list l99(lnp, 3.0, a1);
+        // This should fail to compile (pointer is not a size)
+#endif
+    }
+
+#undef ASSERT_SAME_TYPE
+};
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_CTAD
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -7710,6 +7854,39 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 35: {
+        //---------------------------------------------------------------------
+        // TESTING CLASS TEMPLATE DEDUCTION GUIDES (AT COMPILE TIME)
+        //   Ensure that the deduction guides are properly specified to deduce
+        //   the template arguments from the arguments supplied to the
+        //   constructors.
+        //
+        // Concerns:
+        //: 1 Construction from iterators deduces the value type from the value
+        //:   type of the iterator.
+        //
+        //: 2 Construction with a 'bslma::Allocator *' deduces the correct
+        //:   specialization of 'bsl::allocator' for the type of the allocator.
+        //
+        // Plan:
+        //: 1 Create a list by invoking the constructor without supplying the
+        //:   template arguments explicitly.
+        //:
+        //: 2 Verify that the deduced type is correct.
+        //
+        // Testing:
+        //   CLASS TEMPLATE DEDUCTION GUIDES
+        //---------------------------------------------------------------------
+        if (verbose)
+            printf(
+              "\nTESTING CLASS TEMPLATE DEDUCTION GUIDES (AT COMPILE TIME)"
+              "\n=========================================================\n");
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+        // This is a compile-time only test case.
+        TestDeductionGuides test;
+#endif
+      } break;
       case 34: {
         // --------------------------------------------------------------------
         // 'noexcept' SPECIFICATION

@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Oct 21 10:11:37 2021
+// Generated on Tue Nov 23 07:12:08 2021
 // Command line: sim_cpp11_features.pl bslstl_list.h
 
 #ifdef COMPILING_BSLSTL_LIST_H
@@ -396,8 +396,9 @@ class list {
     typedef typename allocator_traits<ALLOCATOR>::const_pointer
                                                                const_pointer;
 
-    typedef typename AllocTraits::size_type       size_type;
-    typedef typename AllocTraits::difference_type difference_type;
+    typedef typename allocator_traits<ALLOCATOR>::size_type    size_type;
+    typedef typename allocator_traits<ALLOCATOR>::difference_type
+                                                               difference_type;
     typedef VALUE                                 value_type;
     typedef ALLOCATOR                             allocator_type;
     typedef bsl::reverse_iterator<iterator>       reverse_iterator;
@@ -1663,6 +1664,74 @@ class list {
         // list.
 };
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+// CLASS TEMPLATE DEDUCTION GUIDES
+
+template <
+    class VALUE,
+    class ALLOCATOR,
+    class ALLOC,
+    class = bsl::enable_if_t<std::is_convertible<ALLOC *, ALLOCATOR>::value>
+    >
+list(list<VALUE, ALLOCATOR>, ALLOC *) -> list<VALUE, ALLOCATOR>;
+    // Deduce the template parameters 'VALUE' and 'ALLOCATOR' from the
+    // corresponding template parameters of the 'bsl::list' supplied to the
+    // constructor of 'list'.
+
+template <
+    class SIZE_TYPE,
+    class VALUE,
+    class ALLOC,
+    class ALLOCATOR = bsl::allocator<VALUE>,
+    class = bsl::enable_if_t<std::is_convertible<ALLOC *, ALLOCATOR>::value>,
+    class = bsl::enable_if_t<
+              std::is_convertible_v<
+              SIZE_TYPE, typename bsl::allocator_traits<ALLOCATOR>::size_type>>
+    >
+list(SIZE_TYPE, VALUE, ALLOC *) -> list<VALUE, ALLOCATOR>;
+    // Deduce the template parameter 'VALUE' from the corresponding parameter
+    // supplied to the constructor of 'list'.  This deduction guide does not
+    // participate unless the supplied allocator is convertible to
+    // 'bsl::allocator<VALUE>'.
+
+template <
+    class INPUT_ITERATOR,
+    class VALUE = typename bsl::iterator_traits<INPUT_ITERATOR>::value_type>
+list(INPUT_ITERATOR, INPUT_ITERATOR) -> list<VALUE>;
+    // Deduce the template parameter 'VALUE' from the 'value_type' of the
+    // iterators supplied to the constructor of 'list'.
+
+template<
+    class INPUT_ITERATOR,
+    class ALLOCATOR,
+    class VALUE = typename bsl::iterator_traits<INPUT_ITERATOR>::value_type,
+    class = bsl::enable_if_t<bsl::IsStdAllocator_v<ALLOCATOR>>>
+list(INPUT_ITERATOR, INPUT_ITERATOR, ALLOCATOR) -> list<VALUE, ALLOCATOR>;
+    // Deduce the template parameters 'VALUE' and 'ALLOCATOR' from the
+    // parameters supplied to the constructor of 'list'.
+
+template<
+    class INPUT_ITERATOR,
+    class ALLOC,
+    class VALUE = typename bsl::iterator_traits<INPUT_ITERATOR>::value_type,
+    class ALLOCATOR = bsl::allocator<VALUE>,
+    class = bsl::enable_if_t<std::is_convertible<ALLOC *, ALLOCATOR>::value>>
+list(INPUT_ITERATOR, INPUT_ITERATOR, ALLOC *)
+-> list<VALUE, ALLOCATOR>;
+    // Deduce the template parameters 'VALUE' and 'ALLOCATOR' from the
+    // parameters supplied to the constructor of 'list'.
+
+template<
+    class VALUE,
+    class ALLOC,
+    class ALLOCATOR = bsl::allocator<VALUE>,
+    class = bsl::enable_if_t<std::is_convertible<ALLOC *, ALLOCATOR>::value>>
+list(std::initializer_list<VALUE>, ALLOC *)
+-> list<VALUE, ALLOCATOR>;
+    // Deduce the template parameters 'VALUE' and 'ALLOCATOR' from the
+    // parameters supplied to the constructor of 'list'.
+#endif
+
 // FREE OPERATORS
 template <class VALUE, class ALLOCATOR>
 bool operator==(const list<VALUE, ALLOCATOR>& lhs,
@@ -2167,6 +2236,10 @@ list<VALUE, ALLOCATOR>::list()
 : d_sentinel()
 , d_alloc_and_size(ALLOCATOR(), 0)
 {
+    BSLMF_ASSERT((bsl::is_same<size_type,
+                                     typename AllocTraits::size_type>::value));
+    BSLMF_ASSERT((bsl::is_same<difference_type,
+                               typename AllocTraits::difference_type>::value));
     createSentinel();
 }
 
