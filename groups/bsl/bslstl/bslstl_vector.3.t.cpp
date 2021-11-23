@@ -4328,6 +4328,155 @@ void MetaTestDriver3<TYPE>::testCase24()
     TestDriver3<TYPE, A11>::testCase24_dispatch();
 }
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+struct TestDeductionGuides {
+    // This struct provides a namespace for functions testing deduction guides.
+    // The tests are compile-time only; it is not necessary that these routines
+    // be called at run-time.  Note that the following constructors do not have
+    // associated deduction guides because the template parameters for
+    // 'bsl::vector' cannot be deduced from the constructor parameters.
+    //..
+    // vector()
+    // vector(ALLOC)
+    // vector(size_t, ALLOC)
+    //..
+
+#define ASSERT_SAME_TYPE(...) \
+ static_assert((bsl::is_same<__VA_ARGS__>::value), "Types differ unexpectedly")
+
+    static void SimpleConstructors ()
+        // Test that constructing a 'bsl::vector' from various combinations of
+        // arguments deduces the correct type.
+        //..
+        // vector(const vector&  v)        -> decltype(v)
+        // vector(const vector&  v, ALLOC) -> decltype(v)
+        // vector(      vector&& v)        -> decltype(v)
+        // vector(      vector&& v, ALLOC) -> decltype(v)
+        // vector(size_type, VALUE_TYPE)        -> vector<VALUE_TYPE>
+        // vector(size_type, VALUE_TYPE, ALLOC) -> vector<VALUE_TYPE, ALLOC>
+        // vector(iter, iter)        -> vector<iter::VALUE_TYPE>
+        // vector(iter, iter, ALLOC) -> vector<iter::VALUE_TYPE, ALLOC>
+        // vector(initializer_list<T>)        -> vector<T>
+        // vector(initializer_list<T>, ALLOC) -> vector<T>
+        //..
+    {
+        bslma::Allocator     *a1 = nullptr;
+        bslma::TestAllocator *a2 = nullptr;
+
+        bsl::vector<int> v1;
+        bsl::vector      v1a(v1);
+        ASSERT_SAME_TYPE(decltype(v1a), bsl::vector<int>);
+
+        typedef float T2;
+        bsl::vector<T2> v2;
+        bsl::vector     v2a(v2, bsl::allocator<T2>());
+        bsl::vector     v2b(v2, a1);
+        bsl::vector     v2c(v2, a2);
+        ASSERT_SAME_TYPE(decltype(v2a), bsl::vector<T2, bsl::allocator<T2>>);
+        ASSERT_SAME_TYPE(decltype(v2b), bsl::vector<T2, bsl::allocator<T2>>);
+        ASSERT_SAME_TYPE(decltype(v2c), bsl::vector<T2, bsl::allocator<T2>>);
+
+        bsl::vector<short> v3;
+        bsl::vector        v3a(std::move(v3));
+        ASSERT_SAME_TYPE(decltype(v3a), bsl::vector<short>);
+
+        typedef long double T4;
+        bsl::vector<T4> v4;
+        bsl::vector     v4a(std::move(v4), bsl::allocator<T4>());
+        bsl::vector     v4b(std::move(v4), a1);
+        bsl::vector     v4c(std::move(v4), a2);
+        ASSERT_SAME_TYPE(decltype(v4a), bsl::vector<T4, bsl::allocator<T4>>);
+        ASSERT_SAME_TYPE(decltype(v4b), bsl::vector<T4, bsl::allocator<T4>>);
+        ASSERT_SAME_TYPE(decltype(v4c), bsl::vector<T4, bsl::allocator<T4>>);
+
+    // Turn off complaints about passing allocators in non-allocator positions
+    // BDE_VERIFY pragma: push
+    // BDE_VERIFY pragma: -AM01
+        bsl::vector v5a(42, 3L);
+        bsl::vector v5b(42, bsl::allocator<long>{});
+        bsl::vector v5c(42, a1); // Deduce a vector of 'bslma::Allocator *'
+        bsl::vector v5d(42, std::allocator<long>{});
+        ASSERT_SAME_TYPE(decltype(v5a), bsl::vector<long>);
+        ASSERT_SAME_TYPE(decltype(v5b), bsl::vector<bsl::allocator<long>>);
+        ASSERT_SAME_TYPE(decltype(v5c), bsl::vector<bslma::Allocator *>);
+        ASSERT_SAME_TYPE(decltype(v5d), bsl::vector<std::allocator<long>>);
+    // BDE_VERIFY pragma: pop
+
+        typedef double T6;
+        bsl::vector v6a(42, 3.0, bsl::allocator<T6>());
+        bsl::vector v6b(42, 3.0, a1);
+        bsl::vector v6c(42, 3.0, a2);
+        bsl::vector v6d(42, 3.0, std::allocator<T6>());
+        ASSERT_SAME_TYPE(decltype(v6a), bsl::vector<T6, bsl::allocator<T6>>);
+        ASSERT_SAME_TYPE(decltype(v6b), bsl::vector<T6, bsl::allocator<T6>>);
+        ASSERT_SAME_TYPE(decltype(v6c), bsl::vector<T6, bsl::allocator<T6>>);
+        ASSERT_SAME_TYPE(decltype(v6d), bsl::vector<T6, std::allocator<T6>>);
+
+        typedef char T7;
+        T7                        *p7b = nullptr;
+        T7                        *p7e = nullptr;
+        bsl::vector<T7>::iterator  i7b;
+        bsl::vector<T7>::iterator  i7e;
+        bsl::vector                v7a(p7b, p7e);
+        bsl::vector                v7b(i7b, i7e);
+        ASSERT_SAME_TYPE(decltype(v7a), bsl::vector<T7>);
+        ASSERT_SAME_TYPE(decltype(v7b), bsl::vector<T7>);
+
+        typedef unsigned short T8;
+        T8                        *p8b = nullptr;
+        T8                        *p8e = nullptr;
+        bsl::vector<T8>::iterator  i8b;
+        bsl::vector<T8>::iterator  i8e;
+
+        bsl::vector v8a(p8b, p8e, bsl::allocator<T8>());
+        bsl::vector v8b(p8b, p8e, a1);
+        bsl::vector v8c(p8b, p8e, a2);
+        bsl::vector v8d(p8b, p8e, std::allocator<T8>());
+        bsl::vector v8e(i8b, i8e, bsl::allocator<T8>());
+        bsl::vector v8f(i8b, i8e, a1);
+        bsl::vector v8g(i8b, i8e, a2);
+        bsl::vector v8h(i8b, i8e, std::allocator<T8>());
+        ASSERT_SAME_TYPE(decltype(v8a), bsl::vector<T8, bsl::allocator<T8>>);
+        ASSERT_SAME_TYPE(decltype(v8b), bsl::vector<T8, bsl::allocator<T8>>);
+        ASSERT_SAME_TYPE(decltype(v8c), bsl::vector<T8, bsl::allocator<T8>>);
+        ASSERT_SAME_TYPE(decltype(v8d), bsl::vector<T8, std::allocator<T8>>);
+        ASSERT_SAME_TYPE(decltype(v8e), bsl::vector<T8, bsl::allocator<T8>>);
+        ASSERT_SAME_TYPE(decltype(v8f), bsl::vector<T8, bsl::allocator<T8>>);
+        ASSERT_SAME_TYPE(decltype(v8g), bsl::vector<T8, bsl::allocator<T8>>);
+        ASSERT_SAME_TYPE(decltype(v8h), bsl::vector<T8, std::allocator<T8>>);
+
+        bsl::vector v9({1LL, 2LL, 3LL, 4LL, 5LL});
+        ASSERT_SAME_TYPE(decltype(v9), bsl::vector<long long>);
+
+        typedef long long T10;
+        std::initializer_list<T10> il = {1LL, 2LL, 3LL, 4LL, 5LL};
+        bsl::vector                v10a(il, bsl::allocator<T10>{});
+        bsl::vector                v10b(il, a1);
+        bsl::vector                v10c(il, a2);
+        bsl::vector                v10d(il, std::allocator<T10>{});
+        ASSERT_SAME_TYPE(decltype(v10a), bsl::vector<T10,
+                                                         bsl::allocator<T10>>);
+        ASSERT_SAME_TYPE(decltype(v10b), bsl::vector<T10,
+                                                         bsl::allocator<T10>>);
+        ASSERT_SAME_TYPE(decltype(v10c), bsl::vector<T10,
+                                                         bsl::allocator<T10>>);
+        ASSERT_SAME_TYPE(decltype(v10d), bsl::vector<T10,
+                                                         std::allocator<T10>>);
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // Compile-fail tests
+// #define BSLSTL_VECTOR_COMPILE_FAIL_POINTER_IS_NOT_A_SIZE
+#if defined BSLSTL_VECTOR_COMPILE_FAIL_POINTER_IS_NOT_A_SIZE
+        bsl::Vector_Util *lnp = nullptr; // pointer to random class type
+        bsl::vector v99(lnp, 3.0, a1);
+        // This should fail to compile (pointer is not a size)
+#endif
+    }
+
+#undef ASSERT_SAME_TYPE
+};
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_CTAD
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -4369,10 +4518,43 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 39: {
+      case 40: {
         if (verbose) printf(
                     "\nUSAGE EXAMPLE TEST CASE IS IN 'bslstl_vector.t.cpp'"
                     "\n===================================================\n");
+      } break;
+      case 39: {
+        //---------------------------------------------------------------------
+        // TESTING CLASS TEMPLATE DEDUCTION GUIDES (AT COMPILE TIME)
+        //   Ensure that the deduction guides are properly specified to deduce
+        //   the template arguments from the arguments supplied to the
+        //   constructors.
+        //
+        // Concerns:
+        //: 1 Construction from iterators deduces the value type from the value
+        //:   type of the iterator.
+        //
+        //: 2 Construction with a 'bslma::Allocator *' deduces the correct
+        //:   specialization of 'bsl::allocator' for the type of the allocator.
+        //
+        // Plan:
+        //: 1 Create a vector by invoking the constructor without supplying the
+        //:   template arguments explicitly.
+        //:
+        //: 2 Verify that the deduced type is correct.
+        //
+        // Testing:
+        //   CLASS TEMPLATE DEDUCTION GUIDES
+        //---------------------------------------------------------------------
+        if (verbose)
+            printf(
+              "\nTESTING CLASS TEMPLATE DEDUCTION GUIDES (AT COMPILE TIME)"
+              "\n=========================================================\n");
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+        // This is a compile-time only test case.
+        TestDeductionGuides test;
+#endif
       } break;
       case 38: {
         // --------------------------------------------------------------------

@@ -575,6 +575,7 @@ BSL_OVERRIDES_STD mode"
 #include <bslma_allocator.h>
 #include <bslma_allocatortraits.h>
 #include <bslma_autodestructor.h>
+#include <bslma_isstdallocator.h>
 #include <bslma_stdallocator.h>
 #include <bslma_usesbslmaallocator.h>
 
@@ -1969,6 +1970,80 @@ class vector<VALUE_TYPE *, ALLOCATOR>
         a.d_impl.swap(b.d_impl);
     }
 };
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+// CLASS TEMPLATE DEDUCTION GUIDES
+
+template <
+    class VALUE,
+    class ALLOCATOR,
+    class ALLOC,
+    class = bsl::enable_if_t<std::is_convertible<ALLOC *, ALLOCATOR>::value>
+    >
+vector(vector<VALUE, ALLOCATOR>, ALLOC *) -> vector<VALUE, ALLOCATOR>;
+    // Deduce the template parameters 'VALUE' and 'ALLOCATOR' from the
+    // corresponding template parameters of the 'bsl::vector' supplied to the
+    // constructor of 'vector'.
+
+template <
+    class SIZE_TYPE,
+    class VALUE,
+    class ALLOC,
+    class ALLOCATOR = bsl::allocator<VALUE>,
+    class = bsl::enable_if_t<std::is_convertible<ALLOC *, ALLOCATOR>::value>,
+    class = bsl::enable_if_t<
+              std::is_convertible_v<
+              SIZE_TYPE, typename bsl::allocator_traits<ALLOCATOR>::size_type>>
+    >
+vector(SIZE_TYPE, VALUE, ALLOC *) -> vector<VALUE, ALLOCATOR>;
+    // Deduce the template parameter 'VALUE' from the corresponding parameter
+    // supplied to the constructor of 'vector'.  This deduction guide does not
+    // participate unless the supplied allocator is convertible to
+    // 'bsl::allocator<VALUE>'.
+
+template <
+    class INPUT_ITERATOR,
+    class VALUE = typename bsl::iterator_traits<INPUT_ITERATOR>::value_type>
+vector(INPUT_ITERATOR, INPUT_ITERATOR) -> vector<VALUE>;
+    // Deduce the template parameter 'VALUE' from the 'value_type' of the
+    // iterators supplied to the constructor of 'vector'.
+
+template<
+    class INPUT_ITERATOR,
+    class ALLOCATOR,
+    class VALUE = typename bsl::iterator_traits<INPUT_ITERATOR>::value_type,
+    class = bsl::enable_if_t<bsl::IsStdAllocator_v<ALLOCATOR>>>
+vector(INPUT_ITERATOR, INPUT_ITERATOR, ALLOCATOR) -> vector<VALUE, ALLOCATOR>;
+    // Deduce the template parameter 'VALUE' from the 'value_type' of the
+    // iterators supplied to the constructor of 'vector'.  This deduction
+    // guide does not participate unless the supplied allocator meets the
+    // requirements of a standard allocator.
+
+template<
+    class INPUT_ITERATOR,
+    class ALLOC,
+    class VALUE = typename bsl::iterator_traits<INPUT_ITERATOR>::value_type,
+    class ALLOCATOR = bsl::allocator<VALUE>,
+    class = bsl::enable_if_t<std::is_convertible<ALLOC *, ALLOCATOR>::value>>
+vector(INPUT_ITERATOR, INPUT_ITERATOR, ALLOC *)
+-> vector<VALUE, ALLOCATOR>;
+    // Deduce the template parameter 'VALUE' from the 'value_type' of the
+    // iterators supplied to the constructor of 'vector'.  This deduction
+    // guide does not participate unless the supplied allocator is convertible
+    // to 'bsl::allocator<VALUE>'.
+
+template<
+    class VALUE,
+    class ALLOC,
+    class ALLOCATOR = bsl::allocator<VALUE>,
+    class = bsl::enable_if_t<std::is_convertible<ALLOC *, ALLOCATOR>::value>>
+vector(std::initializer_list<VALUE>, ALLOC *)
+-> vector<VALUE, ALLOCATOR>;
+    // Deduce the template parameter 'VALUE' from the 'value_type' of the
+    // initializer_list supplied to the constructor of 'vector'.  This
+    // deduction guide does not participate unless the supplied allocator is
+    // convertible to 'bsl::allocator<VALUE>'.
+#endif
 
 
 // ============================================================================

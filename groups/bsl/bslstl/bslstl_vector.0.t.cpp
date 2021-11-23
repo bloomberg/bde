@@ -56,6 +56,7 @@
 
 #include <iterator>   // 'iterator_traits'
 #include <stdexcept>  // 'length_error', 'out_of_range'
+#include <utility>    // 'move'
 
 #include <ctype.h>
 #include <stddef.h>
@@ -235,6 +236,7 @@
 // [36] CONCERN: 'vector<bool>' is also verified
 // [37] CONCERN: Access through member pointers compiles
 // [38] CONCERN: Movable types are moved when growing a vector
+// [39] CLASS TEMPLATE DEDUCTION GUIDES
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
