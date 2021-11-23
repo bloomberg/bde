@@ -2309,7 +2309,7 @@ template <class TYPE,
           class = typename bsl::enable_if<
                     BloombergLP::bslma::UsesBslmaAllocator<TYPE>::value>::type,
           class = typename bsl::enable_if<
-                std::is_convertible<ALLOC, bsl::allocator<char>>::value>::type>
+                bsl::is_convertible<ALLOC, bsl::allocator<char>>::value>::type>
 optional(bsl::allocator_arg_t, ALLOC, TYPE)
 -> optional<TYPE>;
     // Deduce the specified type 'TYPE' from the corresponding type supplied to
@@ -2323,7 +2323,7 @@ template <class TYPE,
           class = typename bsl::enable_if<
                     BloombergLP::bslma::UsesBslmaAllocator<TYPE>::value>::type,
           class = typename bsl::enable_if<
-                std::is_convertible<ALLOC, bsl::allocator<char>>::value>::type>
+                bsl::is_convertible<ALLOC, bsl::allocator<char>>::value>::type>
 optional(bsl::allocator_arg_t, ALLOC, optional<TYPE>)
 -> optional<TYPE>;
     // Deduce the specified type 'TYPE' from the corresponding template

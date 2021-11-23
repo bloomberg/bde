@@ -1978,7 +1978,7 @@ template <
     class VALUE,
     class ALLOCATOR,
     class ALLOC,
-    class = bsl::enable_if_t<std::is_convertible<ALLOC *, ALLOCATOR>::value>
+    class = bsl::enable_if_t<bsl::is_convertible<ALLOC *, ALLOCATOR>::value>
     >
 vector(vector<VALUE, ALLOCATOR>, ALLOC *) -> vector<VALUE, ALLOCATOR>;
     // Deduce the template parameters 'VALUE' and 'ALLOCATOR' from the
@@ -1990,9 +1990,9 @@ template <
     class VALUE,
     class ALLOC,
     class ALLOCATOR = bsl::allocator<VALUE>,
-    class = bsl::enable_if_t<std::is_convertible<ALLOC *, ALLOCATOR>::value>,
+    class = bsl::enable_if_t<bsl::is_convertible<ALLOC *, ALLOCATOR>::value>,
     class = bsl::enable_if_t<
-              std::is_convertible_v<
+              bsl::is_convertible_v<
               SIZE_TYPE, typename bsl::allocator_traits<ALLOCATOR>::size_type>>
     >
 vector(SIZE_TYPE, VALUE, ALLOC *) -> vector<VALUE, ALLOCATOR>;
@@ -2024,7 +2024,7 @@ template<
     class ALLOC,
     class VALUE = typename bsl::iterator_traits<INPUT_ITERATOR>::value_type,
     class ALLOCATOR = bsl::allocator<VALUE>,
-    class = bsl::enable_if_t<std::is_convertible<ALLOC *, ALLOCATOR>::value>>
+    class = bsl::enable_if_t<bsl::is_convertible<ALLOC *, ALLOCATOR>::value>>
 vector(INPUT_ITERATOR, INPUT_ITERATOR, ALLOC *)
 -> vector<VALUE, ALLOCATOR>;
     // Deduce the template parameter 'VALUE' from the 'value_type' of the
@@ -2036,7 +2036,7 @@ template<
     class VALUE,
     class ALLOC,
     class ALLOCATOR = bsl::allocator<VALUE>,
-    class = bsl::enable_if_t<std::is_convertible<ALLOC *, ALLOCATOR>::value>>
+    class = bsl::enable_if_t<bsl::is_convertible<ALLOC *, ALLOCATOR>::value>>
 vector(std::initializer_list<VALUE>, ALLOC *)
 -> vector<VALUE, ALLOCATOR>;
     // Deduce the template parameter 'VALUE' from the 'value_type' of the

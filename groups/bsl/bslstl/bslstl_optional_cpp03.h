@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Oct 21 10:11:37 2021
+// Generated on Tue Nov 23 09:16:39 2021
 // Command line: sim_cpp11_features.pl bslstl_optional.h
 
 #ifdef COMPILING_BSLSTL_OPTIONAL_H
@@ -4156,7 +4156,7 @@ template <class TYPE,
           class = typename bsl::enable_if<
                     BloombergLP::bslma::UsesBslmaAllocator<TYPE>::value>::type,
           class = typename bsl::enable_if<
-                std::is_convertible<ALLOC, bsl::allocator<char>>::value>::type>
+                bsl::is_convertible<ALLOC, bsl::allocator<char>>::value>::type>
 optional(bsl::allocator_arg_t, ALLOC, TYPE)
 -> optional<TYPE>;
     // Deduce the specified type 'TYPE' from the corresponding type supplied to
@@ -4170,7 +4170,7 @@ template <class TYPE,
           class = typename bsl::enable_if<
                     BloombergLP::bslma::UsesBslmaAllocator<TYPE>::value>::type,
           class = typename bsl::enable_if<
-                std::is_convertible<ALLOC, bsl::allocator<char>>::value>::type>
+                bsl::is_convertible<ALLOC, bsl::allocator<char>>::value>::type>
 optional(bsl::allocator_arg_t, ALLOC, optional<TYPE>)
 -> optional<TYPE>;
     // Deduce the specified type 'TYPE' from the corresponding template

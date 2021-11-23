@@ -2878,7 +2878,7 @@ template<class ELEMENT_TYPE,
          class DELETER,
          class ALLOC,
          class = typename bsl::enable_if<
-           std::is_convertible<ALLOC *, BloombergLP::bslma::Allocator *>::value
+           bsl::is_convertible<ALLOC *, BloombergLP::bslma::Allocator *>::value
            >::type>
 shared_ptr(std::unique_ptr<ELEMENT_TYPE, DELETER>, ALLOC *)
 -> shared_ptr<ELEMENT_TYPE>;
@@ -2900,7 +2900,7 @@ shared_ptr(BloombergLP::bslma::ManagedPtr<ELEMENT_TYPE>)
 template<class ELEMENT_TYPE,
          class ALLOC,
          class = typename bsl::enable_if<
-           std::is_convertible<ALLOC *, BloombergLP::bslma::Allocator *>::value
+           bsl::is_convertible<ALLOC *, BloombergLP::bslma::Allocator *>::value
            >::type>
 shared_ptr(BloombergLP::bslma::ManagedPtr<ELEMENT_TYPE>, ALLOC *)
 -> shared_ptr<ELEMENT_TYPE>;

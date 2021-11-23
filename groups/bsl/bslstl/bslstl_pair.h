@@ -288,6 +288,7 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_integersequence.h>
 #include <bslmf_isbitwiseequalitycomparable.h>
 #include <bslmf_isbitwisemoveable.h>
+#include <bslmf_isconvertible.h>
 #include <bslmf_ispair.h>
 #include <bslmf_istriviallycopyable.h>
 #include <bslmf_istriviallydefaultconstructible.h>
@@ -1604,7 +1605,7 @@ template <
     class T2,
     class ALLOC,
     class = typename bsl::enable_if<
-         std::is_convertible<ALLOC *, BloombergLP::bslma::Allocator *>::value>
+         bsl::is_convertible<ALLOC *, BloombergLP::bslma::Allocator *>::value>
             ::type>
 pair(T1, T2, ALLOC *) -> pair<T1, T2>;
     // Deduce the specified types 'T1' and 'T2' from the corresponding types
@@ -1617,7 +1618,7 @@ template <
     class T2,
     class ALLOC,
     class = typename bsl::enable_if<
-         std::is_convertible<ALLOC *, BloombergLP::bslma::Allocator *>::value>
+         bsl::is_convertible<ALLOC *, BloombergLP::bslma::Allocator *>::value>
             ::type>
 pair(pair<T1, T2>, ALLOC *) -> pair<T1, T2>;
     // Deduce the specified types 'T1' and 'T2' from the corresponding template
@@ -1635,7 +1636,7 @@ template <
     class T2,
     class ALLOC,
     class = typename bsl::enable_if<
-         std::is_convertible<ALLOC *, BloombergLP::bslma::Allocator *>::value>
+         bsl::is_convertible<ALLOC *, BloombergLP::bslma::Allocator *>::value>
             ::type>
 pair(std::pair<T1, T2>, ALLOC *) -> pair<T1, T2>;
     // Deduce the specified types 'T1' and 'T2' from the corresponding template

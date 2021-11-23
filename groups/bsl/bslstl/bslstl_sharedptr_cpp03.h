@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Oct 21 10:11:37 2021
+// Generated on Tue Nov 23 09:16:39 2021
 // Command line: sim_cpp11_features.pl bslstl_sharedptr.h
 
 #ifdef COMPILING_BSLSTL_SHAREDPTR_H
@@ -1673,7 +1673,7 @@ template<class ELEMENT_TYPE,
          class DELETER,
          class ALLOC,
          class = typename bsl::enable_if<
-           std::is_convertible<ALLOC *, BloombergLP::bslma::Allocator *>::value
+           bsl::is_convertible<ALLOC *, BloombergLP::bslma::Allocator *>::value
            >::type>
 shared_ptr(std::unique_ptr<ELEMENT_TYPE, DELETER>, ALLOC *)
 -> shared_ptr<ELEMENT_TYPE>;
@@ -1695,7 +1695,7 @@ shared_ptr(BloombergLP::bslma::ManagedPtr<ELEMENT_TYPE>)
 template<class ELEMENT_TYPE,
          class ALLOC,
          class = typename bsl::enable_if<
-           std::is_convertible<ALLOC *, BloombergLP::bslma::Allocator *>::value
+           bsl::is_convertible<ALLOC *, BloombergLP::bslma::Allocator *>::value
            >::type>
 shared_ptr(BloombergLP::bslma::ManagedPtr<ELEMENT_TYPE>, ALLOC *)
 -> shared_ptr<ELEMENT_TYPE>;
