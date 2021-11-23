@@ -60,6 +60,7 @@
 #include <iterator>
 #include <new>         // placement 'new'
 #include <stdexcept>
+#include <utility>     // move
 
 #include <ctype.h>
 #include <stddef.h>
@@ -239,6 +240,7 @@
 //
 // ----------------------------------------------------------------------------
 // [31] CONCERN: Methods qualified 'noexcept' in standard are so implemented.
+// [32] CLASS TEMPLATE DEDUCTION GUIDES
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION

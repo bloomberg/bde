@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Oct 21 10:11:37 2021
+// Generated on Mon Nov 22 09:46:22 2021
 // Command line: sim_cpp11_features.pl bslstl_deque.h
 
 #ifdef COMPILING_BSLSTL_DEQUE_H
@@ -1401,6 +1401,80 @@ class deque : public  Deque_Base<VALUE_TYPE>
         // deque to a size greater than 'max_size()' is guaranteed to raise a
         // 'bsl::length_error' exception.
 };
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+// CLASS TEMPLATE DEDUCTION GUIDES
+
+template <
+    class VALUE,
+    class ALLOCATOR,
+    class ALLOC,
+    class = bsl::enable_if_t<std::is_convertible<ALLOC *, ALLOCATOR>::value>
+    >
+deque(deque<VALUE, ALLOCATOR>, ALLOC *) -> deque<VALUE, ALLOCATOR>;
+    // Deduce the template parameters 'VALUE' and 'ALLOCATOR' from the
+    // corresponding template parameters of the 'bsl::deque' supplied to the
+    // constructor of 'deque'.
+
+template <
+    class SIZE_TYPE,
+    class VALUE,
+    class ALLOC,
+    class ALLOCATOR = bsl::allocator<VALUE>,
+    class = bsl::enable_if_t<std::is_convertible_v<ALLOC *, ALLOCATOR>>,
+    class = bsl::enable_if_t<
+              std::is_convertible_v<
+              SIZE_TYPE, typename bsl::allocator_traits<ALLOCATOR>::size_type>>
+    >
+deque(SIZE_TYPE, VALUE, ALLOC *) -> deque<VALUE, ALLOCATOR>;
+    // Deduce the template parameter 'VALUE' from the corresponding parameter
+    // supplied to the constructor of 'deque'.  This deduction guide does not
+    // participate unless the supplied allocator is convertible to
+    // 'bsl::allocator<VALUE>'.
+
+template <
+    class INPUT_ITERATOR,
+    class VALUE = typename bsl::iterator_traits<INPUT_ITERATOR>::value_type>
+deque(INPUT_ITERATOR, INPUT_ITERATOR) -> deque<VALUE>;
+    // Deduce the template parameter 'VALUE' from the 'value_type' of the
+    // iterators supplied to the constructor of 'deque'.
+
+template<
+    class INPUT_ITERATOR,
+    class ALLOCATOR,
+    class VALUE = typename bsl::iterator_traits<INPUT_ITERATOR>::value_type,
+    class = bsl::enable_if_t<bsl::IsStdAllocator_v<ALLOCATOR>>>
+deque(INPUT_ITERATOR, INPUT_ITERATOR, ALLOCATOR) -> deque<VALUE, ALLOCATOR>;
+    // Deduce the template parameter 'VALUE' from the 'value_type' of the
+    // iterators supplied to the constructor of 'deque'.  This deduction guide
+    // does not participate unless the supplied allocator meets the
+    // requirements of a standard allocator.
+
+template<
+    class INPUT_ITERATOR,
+    class ALLOC,
+    class VALUE = typename bsl::iterator_traits<INPUT_ITERATOR>::value_type,
+    class ALLOCATOR = bsl::allocator<VALUE>,
+    class = bsl::enable_if_t<std::is_convertible<ALLOC *, ALLOCATOR>::value>>
+deque(INPUT_ITERATOR, INPUT_ITERATOR, ALLOC *)
+-> deque<VALUE, ALLOCATOR>;
+    // Deduce the template parameter 'VALUE' from the 'value_type' of the
+    // iterators supplied to the constructor of 'deque'.  This deduction guide
+    // does not participate unless the supplied allocator is convertible to
+    // 'bsl::allocator<VALUE>'.
+
+template<
+    class VALUE,
+    class ALLOC,
+    class ALLOCATOR = bsl::allocator<VALUE>,
+    class = bsl::enable_if_t<std::is_convertible<ALLOC *, ALLOCATOR>::value>>
+deque(std::initializer_list<VALUE>, ALLOC *)
+-> deque<VALUE, ALLOCATOR>;
+    // Deduce the template parameter 'VALUE' from the 'value_type' of the
+    // initializer_list supplied to the constructor of 'deque'.  This deduction
+    // guide does not participate unless the supplied allocator is convertible
+    // to 'bsl::allocator<VALUE>'.
+#endif
 
 // FREE OPERATORS
 template <class VALUE_TYPE, class ALLOCATOR>
