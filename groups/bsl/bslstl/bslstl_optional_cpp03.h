@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Tue Nov 23 09:16:39 2021
+// Generated on Tue Nov 23 10:02:20 2021
 // Command line: sim_cpp11_features.pl bslstl_optional.h
 
 #ifdef COMPILING_BSLSTL_OPTIONAL_H
@@ -4146,17 +4146,18 @@ class optional<TYPE, false> {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
 // CLASS TEMPLATE DEDUCTION GUIDES
 
-template<class TYPE>
+template <class TYPE>
 optional(TYPE) -> optional<TYPE>;
     // Deduce the specified type 'TYPE' from the corresponding type supplied to
     // the constructor of 'optional'.
 
 template <class TYPE,
           class ALLOC,
-          class = typename bsl::enable_if<
-                    BloombergLP::bslma::UsesBslmaAllocator<TYPE>::value>::type,
-          class = typename bsl::enable_if<
-                bsl::is_convertible<ALLOC, bsl::allocator<char>>::value>::type>
+          class = typename bsl::enable_if_t<
+                    BloombergLP::bslma::UsesBslmaAllocator<TYPE>::value>,
+          class = typename bsl::enable_if_t<
+                bsl::is_convertible_v<ALLOC, bsl::allocator<char>>>
+          >
 optional(bsl::allocator_arg_t, ALLOC, TYPE)
 -> optional<TYPE>;
     // Deduce the specified type 'TYPE' from the corresponding type supplied to
@@ -4167,10 +4168,11 @@ optional(bsl::allocator_arg_t, ALLOC, TYPE)
 
 template <class TYPE,
           class ALLOC,
-          class = typename bsl::enable_if<
-                    BloombergLP::bslma::UsesBslmaAllocator<TYPE>::value>::type,
-          class = typename bsl::enable_if<
-                bsl::is_convertible<ALLOC, bsl::allocator<char>>::value>::type>
+          class = typename bsl::enable_if_t<
+                    BloombergLP::bslma::UsesBslmaAllocator<TYPE>::value>,
+          class = typename bsl::enable_if_t<
+                bsl::is_convertible_v<ALLOC, bsl::allocator<char>>>
+          >
 optional(bsl::allocator_arg_t, ALLOC, optional<TYPE>)
 -> optional<TYPE>;
     // Deduce the specified type 'TYPE' from the corresponding template

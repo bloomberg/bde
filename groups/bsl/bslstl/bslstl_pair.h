@@ -1604,9 +1604,9 @@ template <
     class T1,
     class T2,
     class ALLOC,
-    class = typename bsl::enable_if<
-         bsl::is_convertible<ALLOC *, BloombergLP::bslma::Allocator *>::value>
-            ::type>
+    class = typename bsl::enable_if_t<
+         bsl::is_convertible_v<ALLOC *, BloombergLP::bslma::Allocator *>>
+    >
 pair(T1, T2, ALLOC *) -> pair<T1, T2>;
     // Deduce the specified types 'T1' and 'T2' from the corresponding types
     // supplied to the constructor of 'pair'.  This guide does not participate
@@ -1617,9 +1617,9 @@ template <
     class T1,
     class T2,
     class ALLOC,
-    class = typename bsl::enable_if<
-         bsl::is_convertible<ALLOC *, BloombergLP::bslma::Allocator *>::value>
-            ::type>
+    class = typename bsl::enable_if_t<
+         bsl::is_convertible_v<ALLOC *, BloombergLP::bslma::Allocator *>>
+    >
 pair(pair<T1, T2>, ALLOC *) -> pair<T1, T2>;
     // Deduce the specified types 'T1' and 'T2' from the corresponding template
     // parameters of the 'bsl::pair' supplied to the constructor of 'pair'.
@@ -1635,9 +1635,9 @@ template <
     class T1,
     class T2,
     class ALLOC,
-    class = typename bsl::enable_if<
-         bsl::is_convertible<ALLOC *, BloombergLP::bslma::Allocator *>::value>
-            ::type>
+    class = typename bsl::enable_if_t<
+         bsl::is_convertible_v<ALLOC *, BloombergLP::bslma::Allocator *>>
+    >
 pair(std::pair<T1, T2>, ALLOC *) -> pair<T1, T2>;
     // Deduce the specified types 'T1' and 'T2' from the corresponding template
     // parameters of the 'std::pair' supplied to the constructor of 'pair'.
