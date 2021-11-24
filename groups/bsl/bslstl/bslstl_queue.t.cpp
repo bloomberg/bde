@@ -38,10 +38,11 @@
 #include <algorithm>
 
 #include <stdlib.h>      // atoi
+#include <utility>       // move
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // Include version that can be compiled with C++03
-// Generated on Thu Oct 21 10:11:37 2021
+// Generated on Mon Nov 22 15:36:14 2021
 // Command line: sim_cpp11_features.pl bslstl_queue.t.cpp
 # define COMPILING_BSLSTL_QUEUE_T_CPP
 # include <bslstl_queue_cpp03.t.cpp>
@@ -114,7 +115,7 @@ using namespace bsl;
 // [ 4] size_type size() const;
 // [ 4] const_reference front() const;
 // [ 4] const_reference back() const;
-
+//
 // FREE FUNCTIONS
 // [ 6] bool operator==(const queue& lhs, const queue& rhs);
 // [ 6] bool operator!=(const queue& lhs, const queue& rhs);
@@ -138,7 +139,8 @@ using namespace bsl;
 // [ 5] TESTING OUTPUT: Not Applicable
 // [10] STREAMING: Not Applicable
 // [**] CONCERN: The object is compatible with STL allocator.
-// [20] CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
+// [20] CONCERN: Methods qualified 'noexcept' in standard are so implemented.
+// [21] CLASS TEMPLATE DEDUCTION GUIDES
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -343,7 +345,7 @@ void debugprint(const bsl::queue<VALUE, CONTAINER>& q)
     }
     else {
         using namespace bsls;
-        
+
         printf("size: %d, front: ", (int) q.size());
         bsls::BslTestUtil::callDebugprint(static_cast<char>(
                        bsltf::TemplateTestFacility::getIdentifier(q.front())));
@@ -1572,7 +1574,7 @@ void TestDriver<VALUE, CONTAINER>::testCase20()
     //:   specializations.
     //
     // Testing:
-    //   CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
+    //   CONCERN: Methods qualified 'noexcept' in standard are so implemented.
     // ------------------------------------------------------------------------
 
     if (verbose) {
@@ -1665,7 +1667,7 @@ void TestDriver<VALUE, CONTAINER>::testCase19MoveOnlyType()
             if (veryVerbose) { P(i) }
 
             const VALUE lastValue(i);
-                
+
             VALUE prValue1(0);
             static VALUE value0(MoveUtil::move(prValue1));
 
@@ -1932,7 +1934,7 @@ void TestDriver<VALUE, CONTAINER>::testCase18MoveOnlyType()
                 }
 
                 Obj& mY = *objPtr;  const Obj& Y = mY;  // test object
-                                
+
                 ASSERTV(
                   bsls::NameOf<CONTAINER>(),
                   LINE,
@@ -1948,7 +1950,7 @@ void TestDriver<VALUE, CONTAINER>::testCase18MoveOnlyType()
                 // variables
                 (void)objAllocatorPtr;
                 (void)Y;
-                
+
                 // Reclaim dynamically allocated source object.
 
                 delete pX;
@@ -5615,6 +5617,125 @@ void MessageProcessor::processMessages(int verbose)
 
 }  // close namespace UsageExample
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+struct TestDeductionGuides {
+
+#define ASSERT_SAME_TYPE(...) \
+ static_assert((bsl::is_same<__VA_ARGS__>::value), "Types differ unexpectedly")
+
+    // This struct provides a namespace for functions testing deduction guides.
+    // The tests are compile-time only; it is not necessary that these routines
+    // be called at run-time.  Note that the following constructors do not have
+    // associated deduction guides because the template parameters for
+    // 'bsl::queue' cannot be deduced from the constructor parameters.
+    //..
+    // queue()
+    // queue(ALLOC)
+    //..
+
+    void SimpleConstructors ()
+        // Test that constructing a 'bsl::queue' from various combinations of
+        // arguments deduces the correct type.
+        //..
+        // queue(const queue&  q)        -> decltype(q)
+        // queue(const queue&  q, ALLOC) -> decltype(q)
+        // queue(      queue&& q)        -> decltype(q)
+        // queue(      queue&& q, ALLOC) -> decltype(q)
+        // queue(const CONTAINER &) -> queue<CONTAINER, CONTAINER::vlue_type)
+        // queue(const CONTAINER &,  ALLOC)
+        //                            -> queue<CONTAINER, CONTAINER::vlue_type)
+        // queue(      CONTAINER &&)  -> queue<CONTAINER, CONTAINER::vlue_type)
+        // queue(      CONTAINER &&, ALLOC)
+        //                            -> queue<CONTAINER, CONTAINER::vlue_type)
+    {
+        bslma::Allocator     *a1 = nullptr;
+        bslma::TestAllocator *a2 = nullptr;
+
+        typedef int T1;
+        bsl::queue<T1> q1;
+        bsl::queue     q1a(q1);
+        ASSERT_SAME_TYPE(decltype(q1a), bsl::queue<T1>);
+
+        typedef float T2;
+        bsl::queue<T2> q2;
+        bsl::queue     q2a(q2, bsl::allocator<T2>());
+        bsl::queue     q2b(q2, a1);
+        bsl::queue     q2c(q2, a2);
+        ASSERT_SAME_TYPE(decltype(q2a), bsl::queue<T2>);
+        ASSERT_SAME_TYPE(decltype(q2b), bsl::queue<T2>);
+        ASSERT_SAME_TYPE(decltype(q2c), bsl::queue<T2>);
+
+        typedef short T3;
+        bsl::queue<T3> q3;
+        bsl::queue     q3a(std::move(q3));
+        ASSERT_SAME_TYPE(decltype(q3a), bsl::queue<T3>);
+
+        typedef long double T4;
+        bsl::queue<T4> q4;
+        bsl::queue     q4a(std::move(q4), bsl::allocator<T4>{});
+        bsl::queue     q4b(std::move(q4), a1);
+        bsl::queue     q4c(std::move(q4), a2);
+        ASSERT_SAME_TYPE(decltype(q4a), bsl::queue<T4>);
+        ASSERT_SAME_TYPE(decltype(q4b), bsl::queue<T4>);
+        ASSERT_SAME_TYPE(decltype(q4c), bsl::queue<T4>);
+
+        typedef long T5;
+        bsl::vector<T5>       v5;
+        NonAllocContainer<T5> nc5;
+        bsl::queue            q5a(v5);
+        bsl::queue            q5b(nc5);
+        ASSERT_SAME_TYPE(decltype(q5a), bsl::queue<T5, bsl::vector<T5>>);
+        ASSERT_SAME_TYPE(decltype(q5b), bsl::queue<T5, NonAllocContainer<T5>>);
+
+        typedef double T6;
+        bsl::vector<T6> v6;
+        bsl::queue      q6a(v6, bsl::allocator<T6>());
+        bsl::queue      q6b(v6, a1);
+        bsl::queue      q6c(v6, a2);
+        ASSERT_SAME_TYPE(decltype(q6a), bsl::queue<T6, bsl::vector<T6>>);
+        ASSERT_SAME_TYPE(decltype(q6b), bsl::queue<T6, bsl::vector<T6>>);
+        ASSERT_SAME_TYPE(decltype(q6c), bsl::queue<T6, bsl::vector<T6>>);
+
+        typedef long long T7;
+        bsl::vector<T7>       v7;
+        NonAllocContainer<T7> nc7;
+        bsl::queue            q7a(std::move(v7));
+        bsl::queue            q7b(std::move(nc7));
+        ASSERT_SAME_TYPE(decltype(q7a), bsl::queue<T7, bsl::vector<T7>>);
+        ASSERT_SAME_TYPE(decltype(q7b), bsl::queue<T7, NonAllocContainer<T7>>);
+
+        typedef double T8;
+        bsl::vector<T8> v8;
+        bsl::queue      q8a(std::move(v8), bsl::allocator<T6>());
+        bsl::queue      q8b(std::move(v8), a1);
+        bsl::queue      q8c(std::move(v8), a2);
+        ASSERT_SAME_TYPE(decltype(q6a), bsl::queue<T8, bsl::vector<T8>>);
+        ASSERT_SAME_TYPE(decltype(q8b), bsl::queue<T8, bsl::vector<T8>>);
+        ASSERT_SAME_TYPE(decltype(q8c), bsl::queue<T8, bsl::vector<T8>>);
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // Compile-fail tests
+// #define BSLSTL_QUEUE_COMPILE_FAIL_ALLOCATOR_IS_NOT_A_CONTAINER
+#ifdef  BSLSTL_QUEUE_COMPILE_FAIL_ALLOCATOR_IS_NOT_A_CONTAINER
+        bsl::queue q98(bsl::allocator<char>{});
+        // This should fail to compile (Allocator is not a container)
+#endif
+
+// #define BSLSTL_QUEUE_COMPILE_FAIL_NON_ALLOCATOR_AWARE_CONTAINER
+#ifdef  BSLSTL_QUEUE_COMPILE_FAIL_NON_ALLOCATOR_AWARE_CONTAINER
+        typedef unsigned short T99;
+        NonAllocContainer<T99> nc99;
+        bsl::queue             q99a(nc99, bsl::allocator<T99>{});
+        bsl::queue             q99b(std::move(nc99), bsl::allocator<T99>{});
+        // These should fail to compile (can't supply an allocator to a
+        // non-allocator-aware container.)
+#endif
+    }
+
+#undef ASSERT_SAME_TYPE
+};
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_CTAD
+
 // ============================================================================
 //                            MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -5640,6 +5761,39 @@ int main(int argc, char *argv[])
     bslma::TestAllocator ta(veryVeryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 21: {
+        //---------------------------------------------------------------------
+        // TESTING CLASS TEMPLATE DEDUCTION GUIDES (AT COMPILE TIME)
+        //   Ensure that the deduction guides are properly specified to deduce
+        //   the template arguments from the arguments supplied to the
+        //   constructors.
+        //
+        // Concerns:
+        //: 1 Construction from iterators deduces the value type from the value
+        //:   type of the iterator.
+        //
+        //: 2 Construction with a 'bslma::Allocator *' deduces the correct
+        //:   specialization of 'bsl::allocator' for the type of the allocator.
+        //
+        // Plan:
+        //: 1 Create a list by invoking the constructor without supplying the
+        //:   template arguments explicitly.
+        //:
+        //: 2 Verify that the deduced type is correct.
+        //
+        // Testing:
+        //   CLASS TEMPLATE DEDUCTION GUIDES
+        //---------------------------------------------------------------------
+        if (verbose)
+            printf(
+              "\nTESTING CLASS TEMPLATE DEDUCTION GUIDES (AT COMPILE TIME)"
+              "\n=========================================================\n");
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+        // This is a compile-time only test case.
+        TestDeductionGuides test;
+#endif
+      } break;
       case 20: {
         // --------------------------------------------------------------------
         // 'noexcept' SPECIFICATION
@@ -5723,7 +5877,7 @@ int main(int argc, char *argv[])
         typedef bsltf::WellBehavedMoveOnlyAllocTestType  WBMOATT;
         TestDriver<WBMOATT, MovableVector<WBMOATT> >::testCase19MoveOnlyType();
 #endif
-        
+
         // 'propagate_on_container_move_assignment' testing
 
 // TBD enable this
