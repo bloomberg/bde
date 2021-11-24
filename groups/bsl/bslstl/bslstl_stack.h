@@ -282,8 +282,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslalg_swaputil.h>
 
 #include <bslma_usesbslmaallocator.h>
+#include <bslma_isstdallocator.h>
 
 #include <bslmf_enableif.h>
+#include <bslmf_isconvertible.h>
 #include <bslmf_movableref.h>
 #include <bslmf_nestedtraitdeclaration.h>
 #include <bslmf_usesallocator.h>
@@ -511,6 +513,43 @@ class stack {
         // the top of this stack.  The behavior is undefined if the stack is
         // empty.
 };
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+// CLASS TEMPLATE DEDUCTION GUIDES
+
+template<class CONTAINER,
+         class = bsl::enable_if_t<!bsl::IsStdAllocator_v<CONTAINER>>
+        >
+stack(CONTAINER) -> stack<typename CONTAINER::value_type, CONTAINER>;
+    // Deduce the template parameters 'VALUE' and 'CONTAINER' from the
+    // parameters supplied to the constructor of 'stack'.  This deduction guide
+    // does not participate if the parameter meets the requirements for a
+    // standard allocator.
+
+template<
+    class CONTAINER,
+    class ALLOCATOR,
+    class = bsl::enable_if_t<bsl::uses_allocator<CONTAINER, ALLOCATOR>::value>
+    >
+stack(CONTAINER, ALLOCATOR)
+                           -> stack<typename CONTAINER::value_type, CONTAINER>;
+    // Deduce the template parameters 'VALUE' and 'CONTAINER' from the
+    // parameters supplied to the constructor of 'stack'. This deduction guide
+    // does not participate if the specified 'CONTAINER' is not an
+    // allocator-aware container.
+
+template<
+    class CONTAINER,
+    class ALLOC,
+    class ALLOCATOR = typename CONTAINER::allocator_type, /* HACK */
+    class = bsl::enable_if_t<bsl::is_convertible<ALLOC *, ALLOCATOR>::value>
+    >
+stack(CONTAINER, ALLOC *) -> stack<typename CONTAINER::value_type, CONTAINER>;
+    // Deduce the template parameters 'VALUE' and 'CONTAINER' from the
+    // parameters supplied to the constructor of 'stack'.  This deduction
+    // guide does not participate unless the supplied allocator is convertible
+    // to the underlying container's 'allocator_type'.
+#endif
 
 // FREE OPERATORS
 template <class VALUE, class CONTAINER>

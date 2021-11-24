@@ -31,7 +31,7 @@
 #include <algorithm>
 #include <functional>
 #include <typeinfo>
-#include <cstdio>
+#include <utility>  // move
 
 #include <cstdio>
 #include <cstdlib>
@@ -147,7 +147,8 @@ using namespace bsl;
 // [10] allocator
 // [ 3] Primary generator functions 'gg' and 'ggg'
 // [ 1] Breathing Test
-// [19] CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
+// [19] CONCERN: Methods qualified 'noexcept' in standard are so implemented.
+// [20] CLASS TEMPLATE DEDUCTION GUIDES
 //
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -2473,7 +2474,7 @@ void TestDriver<CONTAINER>::testCase19()
     //:   'TYPE' specializations.
     //
     // Testing:
-    //   CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
+    //   CONCERN: Methods qualified 'noexcept' in standard are so implemented.
     // ------------------------------------------------------------------------
 
     if (verbose) {
@@ -6445,6 +6446,126 @@ void TestDriver<CONTAINER>::testCase1(int    *testValues,
     }
 }
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+struct TestDeductionGuides {
+    // This struct provides a namespace for functions testing deduction guides.
+    // The tests are compile-time only; it is not necessary that these routines
+    // be called at run-time.  Note that the following constructors do not have
+    // associated deduction guides because the template parameters for
+    // 'bsl::stack' cannot be deduced from the constructor parameters.
+    //..
+    // stack()
+    // stack(ALLOC)
+    //..
+
+#define ASSERT_SAME_TYPE(...) \
+ static_assert((bsl::is_same<__VA_ARGS__>::value), "Types differ unexpectedly")
+
+    static void SimpleConstructors ()
+        // Test that constructing a 'bsl::stack' from various combinations of
+        // arguments deduces the correct type.
+        //..
+        // stack(const stack&  s)        -> decltype(s)
+        // stack(const stack&  s, ALLOC) -> decltype(s)
+        // stack(      stack&& s)        -> decltype(s)
+        // stack(      stack&& s, ALLOC) -> decltype(s)
+        // stack(const CONTAINER &)  -> stack<CONTAINER, CONTAINER::value_type)
+        // stack(const CONTAINER &,  ALLOC)
+        //                           -> stack<CONTAINER, CONTAINER::value_type)
+        // stack(      CONTAINER &&) -> stack<CONTAINER, CONTAINER::value_type)
+        // stack(      CONTAINER &&, ALLOC)
+        //                           -> stack<CONTAINER, CONTAINER::value_type)
+
+    {
+        bslma::Allocator     *a1 = nullptr;
+        bslma::TestAllocator *a2 = nullptr;
+
+        typedef int T1;
+        bsl::stack<T1> s1;
+        bsl::stack     s1a(s1);
+        ASSERT_SAME_TYPE(decltype(s1a), bsl::stack<T1>);
+
+        typedef float T2;
+        bsl::stack<T2> s2;
+        bsl::stack     s2a(s2, bsl::allocator<T2>());
+        bsl::stack     s2b(s2, a1);
+        bsl::stack     s2c(s2, a2);
+        ASSERT_SAME_TYPE(decltype(s2a), bsl::stack<T2>);
+        ASSERT_SAME_TYPE(decltype(s2b), bsl::stack<T2>);
+        ASSERT_SAME_TYPE(decltype(s2c), bsl::stack<T2>);
+
+        typedef short T3;
+        bsl::stack<T3> s3;
+        bsl::stack     s3a(std::move(s3));
+        ASSERT_SAME_TYPE(decltype(s3a), bsl::stack<T3>);
+
+        typedef long double T4;
+        bsl::stack<T4> s4;
+        bsl::stack     s4a(std::move(s4), bsl::allocator<T4>{});
+        bsl::stack     s4b(std::move(s4), a1);
+        bsl::stack     s4c(std::move(s4), a2);
+        ASSERT_SAME_TYPE(decltype(s4a), bsl::stack<T4>);
+        ASSERT_SAME_TYPE(decltype(s4b), bsl::stack<T4>);
+        ASSERT_SAME_TYPE(decltype(s4c), bsl::stack<T4>);
+
+        typedef long T5;
+        bsl::vector<T5>  v5;
+        NonAllocCont<T5> nc5;
+        bsl::stack       s5a(v5);
+        bsl::stack       s5b(nc5);
+        ASSERT_SAME_TYPE(decltype(s5a), bsl::stack<T5, bsl::vector<T5>>);
+        ASSERT_SAME_TYPE(decltype(s5b), bsl::stack<T5, NonAllocCont<T5>>);
+
+        typedef double T6;
+        bsl::vector<T6> v6;
+        bsl::stack      s6a(v6, bsl::allocator<T6>());
+        bsl::stack      s6b(v6, a1);
+        bsl::stack      s6c(v6, a2);
+        ASSERT_SAME_TYPE(decltype(s6a), bsl::stack<T6, bsl::vector<T6>>);
+        ASSERT_SAME_TYPE(decltype(s6b), bsl::stack<T6, bsl::vector<T6>>);
+        ASSERT_SAME_TYPE(decltype(s6c), bsl::stack<T6, bsl::vector<T6>>);
+
+        typedef long long T7;
+        bsl::vector<T7>  v7;
+        NonAllocCont<T7> nc7;
+        bsl::stack       s7a(std::move(v7));
+        bsl::stack       s7b(std::move(nc7));
+        ASSERT_SAME_TYPE(decltype(s7a), bsl::stack<T7, bsl::vector<T7>>);
+        ASSERT_SAME_TYPE(decltype(s7b), bsl::stack<T7, NonAllocCont<T7>>);
+
+        typedef double T8;
+        bsl::vector<T8> v8;
+        bsl::stack      s8a(std::move(v8), bsl::allocator<T6>());
+        bsl::stack      s8b(std::move(v8), a1);
+        bsl::stack      s8c(std::move(v8), a2);
+        ASSERT_SAME_TYPE(decltype(s6a), bsl::stack<T8, bsl::vector<T8>>);
+        ASSERT_SAME_TYPE(decltype(s8b), bsl::stack<T8, bsl::vector<T8>>);
+        ASSERT_SAME_TYPE(decltype(s8c), bsl::stack<T8, bsl::vector<T8>>);
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // Compile-fail tests
+// #define BSLSTL_STACK_COMPILE_FAIL_ALLOCATOR_IS_NOT_A_CONTAINER
+#ifdef  BSLSTL_STACK_COMPILE_FAIL_ALLOCATOR_IS_NOT_A_CONTAINER
+        bsl::stack q98(bsl::allocator<char>{});
+        // This should fail to compile (Allocator is not a container)
+#endif
+
+// #define BSLSTL_STACK_COMPILE_FAIL_NON_ALLOCATOR_AWARE_CONTAINER
+#ifdef  BSLSTL_STACK_COMPILE_FAIL_NON_ALLOCATOR_AWARE_CONTAINER
+        typedef unsigned short T99;
+        NonAllocCont<T99> nc99;
+        bsl::stack q99a(nc99, bsl::allocator<T99>{});
+        bsl::stack q99b(std::move(nc99), bsl::allocator<T99>{});
+        // These should fail to compile (can't supply an allocator to a
+        // non-allocator-aware container.)
+#endif
+    }
+
+#undef ASSERT_SAME_TYPE
+};
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_CTAD
+
+
 // ============================================================================
 //                            MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -6472,6 +6593,39 @@ int main(int argc, char *argv[])
     ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
 
     switch (test) { case 0:
+      case 20: {
+        //---------------------------------------------------------------------
+        // TESTING CLASS TEMPLATE DEDUCTION GUIDES (AT COMPILE TIME)
+        //   Ensure that the deduction guides are properly specified to deduce
+        //   the template arguments from the arguments supplied to the
+        //   constructors.
+        //
+        // Concerns:
+        //: 1 Construction from iterators deduces the value type from the value
+        //:   type of the iterator.
+        //
+        //: 2 Construction with a 'bslma::Allocator *' deduces the correct
+        //:   specialization of 'bsl::allocator' for the type of the allocator.
+        //
+        // Plan:
+        //: 1 Create a list by invoking the constructor without supplying the
+        //:   template arguments explicitly.
+        //:
+        //: 2 Verify that the deduced type is correct.
+        //
+        // Testing:
+        //   CLASS TEMPLATE DEDUCTION GUIDES
+        //---------------------------------------------------------------------
+        if (verbose)
+            printf(
+              "\nTESTING CLASS TEMPLATE DEDUCTION GUIDES (AT COMPILE TIME)"
+              "\n=========================================================\n");
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+        // This is a compile-time only test case.
+        TestDeductionGuides test;
+#endif
+      } break;
       case 19: {
         // --------------------------------------------------------------------
         // 'noexcept' SPECIFICATION
