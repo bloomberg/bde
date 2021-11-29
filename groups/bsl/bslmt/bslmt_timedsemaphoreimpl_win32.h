@@ -170,7 +170,8 @@ class TimedSemaphoreImpl<Platform::Win32TimedSemaphore> {
         // Clock-Types} in the component documentation).  If the timeout did
         // not expire before the count attained a positive value, atomically
         // decrement the count and return 0; otherwise, return a non-zero value
-        // with no effect on the count.
+        // with no effect on the count.  This method may return 'e_TIMED_OUT'
+        // slightly before 'absTime'.
 
     int tryWait();
         // Decrement the count of this semaphore if it is positive and return

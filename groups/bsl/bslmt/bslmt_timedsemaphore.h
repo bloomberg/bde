@@ -268,7 +268,9 @@ class TimedSemaphore {
         // 'absTime' timeout did expire, return 'e_TIMED_OUT' with no effect
         // on the count.  Any other value indicates that an error has occurred.
         // Errors are unrecoverable.  After an error, the semaphore may be
-        // destroyed, but any other use has undefined behavior.
+        // destroyed, but any other use has undefined behavior.  On Windows
+        // platforms, this method may return 'e_TIMED_OUT' slightly before
+        // 'absTime'.
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
     template <class CLOCK, class DURATION>
@@ -282,7 +284,9 @@ class TimedSemaphore {
         // 0.  If the 'absTime' timeout did expire, return 'e_TIMED_OUT' with
         // no effect on the count.  Any other value indicates that an error has
         // occurred.  Errors are unrecoverable.  After an error, the semaphore
-        // may be destroyed, but any other use has undefined behavior.
+        // may be destroyed, but any other use has undefined behavior.  On
+        // Windows platforms, this method may return 'e_TIMED_OUT' slightly
+        // before 'absTime'.
 #endif
 
     int tryWait();
