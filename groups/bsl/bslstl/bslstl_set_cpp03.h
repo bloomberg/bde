@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Mon Nov 29 18:16:40 2021
+// Generated on Mon Nov 29 18:44:30 2021
 // Command line: sim_cpp11_features.pl bslstl_set.h
 
 #ifdef COMPILING_BSLSTL_SET_H
@@ -1309,8 +1309,10 @@ template <
     class = bsl::enable_if_t<!bsl::IsStdAllocator_v<COMPARATOR>>,
     class = bsl::enable_if_t<bsl::IsStdAllocator_v<ALLOCATOR>>
     >
-set(INPUT_ITERATOR, INPUT_ITERATOR, COMPARATOR = COMPARATOR(),
-                                                       ALLOCATOR = ALLOCATOR())
+set(INPUT_ITERATOR,
+    INPUT_ITERATOR,
+    COMPARATOR = COMPARATOR(),
+    ALLOCATOR = ALLOCATOR())
 -> set<KEY, COMPARATOR, ALLOCATOR>;
     // Deduce the template parameter 'KEY' from the 'value_type' of the
     // iterators supplied to the constructor of 'set'. Deduce the template
@@ -1367,8 +1369,9 @@ template <
     class = bsl::enable_if_t<!bsl::IsStdAllocator_v<COMPARATOR>>,
     class = bsl::enable_if_t<bsl::IsStdAllocator_v<ALLOCATOR>>
     >
-set(std::initializer_list<KEY>, COMPARATOR = COMPARATOR(),
-                                                       ALLOCATOR = ALLOCATOR())
+set(std::initializer_list<KEY>,
+    COMPARATOR = COMPARATOR(),
+    ALLOCATOR = ALLOCATOR())
 -> set<KEY, COMPARATOR, ALLOCATOR>;
     // Deduce the template parameter 'KEY' from the 'value_type' of the
     // initializer_list supplied to the constructor of 'set'.  Deduce the
