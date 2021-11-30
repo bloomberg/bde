@@ -142,9 +142,9 @@ typedef BuildTargetExcNo BuildTargetExc;
 #endif
 
 BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(
-                                     const int,
-                                     bsls_buildtarget_coerce_exc,
-                                     bsls::BuildTargetExc::s_isBuildTargetExc);
+                                      const int,
+                                      bsls_buildtarget_coerce_exc,
+                                      bsls::BuildTargetExc::s_isBuildTargetExc)
 
 // ============================================================================
 //                           BDE_BUILD_TARGET_MT/BDE_BUILD_TARGET_NO_MT
@@ -185,9 +185,9 @@ typedef BuildTargetMtNo BuildTargetMt;
 #endif
 
 BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(
-                                       const int,
-                                       bsls_buildtarget_coerce_mt,
-                                       bsls::BuildTargetMt::s_isBuildTargetMt);
+                                        const int,
+                                        bsls_buildtarget_coerce_mt,
+                                        bsls::BuildTargetMt::s_isBuildTargetMt)
 
 
 
