@@ -331,7 +331,7 @@ class Datetime {
     bool validateAndTraceLogRepresentation() const;
         // Return 'true' if the representation is valid.  Invoke a review
         // failure notifying of an invalid use of a 'bdlt::Datetime' instance
-        // and return 'false' if the represenation is invalid and
+        // and return 'false' if the representation is invalid and
         // 'BSLS_ASSERT_SAFE' is inactive.  The behavior is undefined if the
         // representation is invalid and 'BSLS_ASSERT_SAFE' is active.
 
@@ -576,17 +576,17 @@ class Datetime {
 
     void setHour(int hour);
         // Set the "hour" attribute of this object to the specified 'hour'
-        // value.  If '24 == hour', set the 'minute', 'second', and
-        // 'millisecond' attributes to 0.  The behavior is undefined unless
-        // '0 <= hour <= 24'.  Note that this method has no effect on the
-        // "date" part of this object.
+        // value.  If '24 == hour', set the 'minute', 'second', 'millisecond',
+        // and 'microsecond' attributes to 0.  The behavior is undefined
+        // unless '0 <= hour <= 24'.  Note that this method has no effect on
+        // the "date" part of this object.
 
     int setHourIfValid(int hour);
         // Set the "hour" attribute of this object to the specified 'hour'
         // value if '0 <= hour <= 24'.  If '24 == hour', set the 'minute',
-        // 'second', and 'millisecond' attributes to 0.  Return 0 on success,
-        // and a non-zero value (with no effect) otherwise.  Note that this
-        // method has no effect on the "date" part of this object.
+        // 'second', 'millisecond', and 'microsecond' attributes to 0.  Return
+        // 0 on success, and a non-zero value (with no effect) otherwise.  Note
+        // that this method has no effect on the "date" part of this object.
 
     void setMinute(int minute);
         // Set the "minute" attribute of this object to the specified 'minute'
