@@ -38,4 +38,7 @@ bdlb_testinputiterator
 bdlb_tokenizer
 bdlb_topologicalsortutil
 bdlb_transformiterator
+bdlb_transparentequalto
+bdlb_transparenthash
+bdlb_transparentless
 bdlb_variant

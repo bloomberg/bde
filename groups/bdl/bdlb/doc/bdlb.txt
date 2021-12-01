@@ -10,7 +10,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlb' package currently has 41 components having 5 levels of physical
+ The 'bdlb' package currently has 44 components having 5 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -58,6 +58,9 @@
      bdlb_tokenizer
      bdlb_topologicalsortutil
      bdlb_transformiterator
+     bdlb_transparentequalto
+     bdlb_transparenthash
+     bdlb_transparentless
 
   1. bdlb_nullablevalue_cpp03                                         !PRIVATE!
 ..
@@ -183,6 +186,15 @@
 :
 : 'bdlb_transformiterator':
 :      Provide a wrapping iterator that invokes a functor on dereference.
+:
+: 'bdlb_transparentequalto':
+:      Provide a transparent equality predicate.
+:
+: 'bdlb_transparenthash':
+:      Provide a transparent hash functor.
+:
+: 'bdlb_transparentless':
+:      Provide a transparent less-than predicate.
 :
 : 'bdlb_variant':
 :      Provide a variant (discriminated 'union'-like) type.
