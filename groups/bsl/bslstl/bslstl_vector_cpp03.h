@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Mon Nov 22 09:38:51 2021
+// Generated on Tue Nov 23 10:03:25 2021
 // Command line: sim_cpp11_features.pl bslstl_vector.h
 
 #ifdef COMPILING_BSLSTL_VECTOR_H
@@ -2285,7 +2285,7 @@ template <
     class VALUE,
     class ALLOCATOR,
     class ALLOC,
-    class = bsl::enable_if_t<std::is_convertible<ALLOC *, ALLOCATOR>::value>
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>
     >
 vector(vector<VALUE, ALLOCATOR>, ALLOC *) -> vector<VALUE, ALLOCATOR>;
     // Deduce the template parameters 'VALUE' and 'ALLOCATOR' from the
@@ -2297,9 +2297,9 @@ template <
     class VALUE,
     class ALLOC,
     class ALLOCATOR = bsl::allocator<VALUE>,
-    class = bsl::enable_if_t<std::is_convertible<ALLOC *, ALLOCATOR>::value>,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>,
     class = bsl::enable_if_t<
-              std::is_convertible_v<
+              bsl::is_convertible_v<
               SIZE_TYPE, typename bsl::allocator_traits<ALLOCATOR>::size_type>>
     >
 vector(SIZE_TYPE, VALUE, ALLOC *) -> vector<VALUE, ALLOCATOR>;
@@ -2310,7 +2310,8 @@ vector(SIZE_TYPE, VALUE, ALLOC *) -> vector<VALUE, ALLOCATOR>;
 
 template <
     class INPUT_ITERATOR,
-    class VALUE = typename bsl::iterator_traits<INPUT_ITERATOR>::value_type>
+    class VALUE = typename bsl::iterator_traits<INPUT_ITERATOR>::value_type
+    >
 vector(INPUT_ITERATOR, INPUT_ITERATOR) -> vector<VALUE>;
     // Deduce the template parameter 'VALUE' from the 'value_type' of the
     // iterators supplied to the constructor of 'vector'.
@@ -2319,7 +2320,8 @@ template<
     class INPUT_ITERATOR,
     class ALLOCATOR,
     class VALUE = typename bsl::iterator_traits<INPUT_ITERATOR>::value_type,
-    class = bsl::enable_if_t<bsl::IsStdAllocator_v<ALLOCATOR>>>
+    class = bsl::enable_if_t<bsl::IsStdAllocator_v<ALLOCATOR>>
+    >
 vector(INPUT_ITERATOR, INPUT_ITERATOR, ALLOCATOR) -> vector<VALUE, ALLOCATOR>;
     // Deduce the template parameter 'VALUE' from the 'value_type' of the
     // iterators supplied to the constructor of 'vector'.  This deduction
@@ -2331,7 +2333,8 @@ template<
     class ALLOC,
     class VALUE = typename bsl::iterator_traits<INPUT_ITERATOR>::value_type,
     class ALLOCATOR = bsl::allocator<VALUE>,
-    class = bsl::enable_if_t<std::is_convertible<ALLOC *, ALLOCATOR>::value>>
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>
+    >
 vector(INPUT_ITERATOR, INPUT_ITERATOR, ALLOC *)
 -> vector<VALUE, ALLOCATOR>;
     // Deduce the template parameter 'VALUE' from the 'value_type' of the
@@ -2343,7 +2346,8 @@ template<
     class VALUE,
     class ALLOC,
     class ALLOCATOR = bsl::allocator<VALUE>,
-    class = bsl::enable_if_t<std::is_convertible<ALLOC *, ALLOCATOR>::value>>
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>
+    >
 vector(std::initializer_list<VALUE>, ALLOC *)
 -> vector<VALUE, ALLOCATOR>;
     // Deduce the template parameter 'VALUE' from the 'value_type' of the

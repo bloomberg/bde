@@ -418,6 +418,7 @@ BSL_OVERRIDES_STD mode"
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_assert.h>
+#include <bslmf_isconvertible.h>
 #include <bslmf_issame.h>
 #include <bslmf_matchanytype.h>
 #include <bslmf_matcharithmetictype.h>
@@ -1378,7 +1379,7 @@ template <
     class VALUE,
     class ALLOCATOR,
     class ALLOC,
-    class = bsl::enable_if_t<std::is_convertible<ALLOC *, ALLOCATOR>::value>
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>
     >
 deque(deque<VALUE, ALLOCATOR>, ALLOC *) -> deque<VALUE, ALLOCATOR>;
     // Deduce the template parameters 'VALUE' and 'ALLOCATOR' from the
@@ -1390,9 +1391,9 @@ template <
     class VALUE,
     class ALLOC,
     class ALLOCATOR = bsl::allocator<VALUE>,
-    class = bsl::enable_if_t<std::is_convertible_v<ALLOC *, ALLOCATOR>>,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>,
     class = bsl::enable_if_t<
-              std::is_convertible_v<
+              bsl::is_convertible_v<
               SIZE_TYPE, typename bsl::allocator_traits<ALLOCATOR>::size_type>>
     >
 deque(SIZE_TYPE, VALUE, ALLOC *) -> deque<VALUE, ALLOCATOR>;
@@ -1424,7 +1425,7 @@ template<
     class ALLOC,
     class VALUE = typename bsl::iterator_traits<INPUT_ITERATOR>::value_type,
     class ALLOCATOR = bsl::allocator<VALUE>,
-    class = bsl::enable_if_t<std::is_convertible<ALLOC *, ALLOCATOR>::value>>
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>>
 deque(INPUT_ITERATOR, INPUT_ITERATOR, ALLOC *)
 -> deque<VALUE, ALLOCATOR>;
     // Deduce the template parameter 'VALUE' from the 'value_type' of the
@@ -1436,7 +1437,7 @@ template<
     class VALUE,
     class ALLOC,
     class ALLOCATOR = bsl::allocator<VALUE>,
-    class = bsl::enable_if_t<std::is_convertible<ALLOC *, ALLOCATOR>::value>>
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>>
 deque(std::initializer_list<VALUE>, ALLOC *)
 -> deque<VALUE, ALLOCATOR>;
     // Deduce the template parameter 'VALUE' from the 'value_type' of the
