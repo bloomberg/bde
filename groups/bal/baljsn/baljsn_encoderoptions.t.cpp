@@ -309,7 +309,7 @@ const DefaultDataRow DEFAULT_DATA[] =
 //----  ------     ---     -----     ---    ---    ----- --- -- --  ---
 
 // default (must be first)
-{ L_,       0,       0,    COMPACT,  false, false, false, 3, 6, 15, true  },
+{ L_,       0,       0,    COMPACT,  false, false, false, 3, 0,  0, true  },
 
 // 'initialIndentLevel'
 { L_,       1,       0,    PRETTY,   false, false, false, 3, 9, 17, true  },
@@ -398,9 +398,8 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "USAGE EXAMPLE" << endl
-                          << "=============" << endl;
+        if (verbose) cout << "\nUSAGE EXAMPLE"
+                          << "\n=============" << endl;
 
 ///Usage
 ///-----
@@ -425,18 +424,16 @@ int main(int argc, char *argv[])
     const bool ENCODE_QUOTED_DECIMAL64   = false;
 
     baljsn::EncoderOptions options;
-    ASSERT(0 == options.initialIndentLevel());
-    ASSERT(0 == options.spacesPerLevel());
+    ASSERT(0     == options.initialIndentLevel());
+    ASSERT(0     == options.spacesPerLevel());
     ASSERT(baljsn::EncoderOptions::e_COMPACT == options.encodingStyle());
     ASSERT(false == options.encodeEmptyArrays());
     ASSERT(false == options.encodeNullElements());
     ASSERT(false == options.encodeInfAndNaNAsStrings());
     ASSERT(3     == options.datetimeFractionalSecondPrecision());
-    ASSERT(bsl::numeric_limits<float>::digits10
-                                               == options.maxFloatPrecision());
-    ASSERT(bsl::numeric_limits<double>::digits10
-                                              == options.maxDoublePrecision());
-    ASSERT(true == options.encodeQuotedDecimal64());
+    ASSERT(0     == options.maxFloatPrecision());
+    ASSERT(0     == options.maxDoublePrecision());
+    ASSERT(true  == options.encodeQuotedDecimal64());
 //..
 // Next, we populate that object to encode in a pretty format using a
 // pre-defined initial indent level and spaces per level:
@@ -520,9 +517,8 @@ int main(int argc, char *argv[])
         //   int accessAttributes(ACCESSOR&, const char *, int);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING ENCODE QUOTED DECIMAL64" << endl
-                          << "===============================" << endl;
+        if (verbose) cout << "\nTESTING ENCODE QUOTED DECIMAL64"
+                          << "\n===============================" << endl;
         // TESTING lookupAttributeInfo (P-1);
         {
             const int ATTRIBUTE_ID = Obj::ATTRIBUTE_ID_ENCODE_QUOTED_DECIMAL64;
@@ -634,7 +630,6 @@ int main(int argc, char *argv[])
             ASSERTV(L_, ATTRIBUTE_ID == mX.accessAttribute(a2, NAME, LENGTH));
             ASSERTV(L_, DEFAULT == a2.value());
         }
-
       } break;
       case 11: {
         // --------------------------------------------------------------------
@@ -664,9 +659,8 @@ int main(int argc, char *argv[])
         //   EncodeQuotedDecimal64Manipulator
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING THE TEST MACHINERY" << endl
-                          << "==========================" << endl;
+        if (verbose) cout << "\nTESTING THE TEST MACHINERY"
+                          << "\n==========================" << endl;
 
 
         const int ATTRIBUTE_ID = Obj::ATTRIBUTE_ID_ENCODE_QUOTED_DECIMAL64;
@@ -749,9 +743,8 @@ int main(int argc, char *argv[])
         //  Reserved for 'swap' testing.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING BDEX STREAMING" << endl
-                          << "======================" << endl;
+        if (verbose) cout << "\nTESTING BDEX STREAMING"
+                          << "\n======================" << endl;
       } break;
       case 9: {
         // --------------------------------------------------------------------
@@ -834,9 +827,8 @@ int main(int argc, char *argv[])
         //   operator=(const baljsn::EncoderOptions& rhs);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING COPY-ASSIGNMENT OPERATOR" << endl
-                          << "================================" << endl;
+        if (verbose) cout << "\nTESTING COPY-ASSIGNMENT OPERATOR"
+                          << "\n================================" << endl;
 
         if (verbose) cout <<
                  "\nAssign the address of the operator to a variable." << endl;
@@ -993,9 +985,9 @@ int main(int argc, char *argv[])
         //  Reserved for 'swap' testing.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING SWAP MEMBER AND FREE FUNCTIONS" << endl
-                          << "======================================" << endl;
+        if (verbose)
+                    cout << "\nTESTING SWAP MEMBER AND FREE FUNCTIONS"
+                         << "\n======================================" << endl;
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -1040,9 +1032,8 @@ int main(int argc, char *argv[])
         //   baljsn::EncoderOptions(const baljsn::EncoderOptions& o);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING COPY CONSTRUCTOR" << endl
-                          << "========================" << endl;
+        if (verbose) cout << "\nTESTING COPY CONSTRUCTOR"
+                          << "\n========================" << endl;
 
         if (verbose) cout << "\nUse table of distinct object values." << endl;
 
@@ -1112,7 +1103,6 @@ int main(int argc, char *argv[])
 
             LOOP3_ASSERT(LINE, ZZ, Z, ZZ == Z);
         }  // end foreach row
-
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -1185,9 +1175,8 @@ int main(int argc, char *argv[])
         //   bool operator!=(const baljsn::EncoderOptions& lhs, rhs);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING EQUALITY-COMPARISON OPERATORS" << endl
-                          << "=====================================" << endl;
+        if (verbose) cout << "\nTESTING EQUALITY-COMPARISON OPERATORS"
+                          << "\n=====================================" << endl;
 
         if (verbose) cout <<
                 "\nAssign the address of each operator to a variable." << endl;
@@ -1220,7 +1209,7 @@ int main(int argc, char *argv[])
         typedef int   T7;        // 'datetimeFractionalSecondPrecision'
         typedef int   T8;        // 'maxFloatPrecision'
         typedef int   T9;        // 'maxDoublePrecision'
-        typedef int   T10;       // 'encodeQuotedDecimal64'
+        typedef bool  T10;       // 'encodeQuotedDecimal64'
 
                  // ----------------------------------------
                  // Attribute 1 Values: 'initialIndentLevel'
@@ -1484,9 +1473,8 @@ int main(int argc, char *argv[])
         //   operator<<(ostream& s, const baljsn::EncoderOptions& d);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING PRINT AND OUTPUT OPERATOR" << endl
-                          << "=================================" << endl;
+        if (verbose) cout << "\nTESTING PRINT AND OUTPUT OPERATOR"
+                          << "\n=================================" << endl;
 
         bslma::TestAllocator         da("default", veryVeryVeryVerbose);
         bslma::DefaultAllocatorGuard dag(&da);
@@ -1551,8 +1539,8 @@ int main(int argc, char *argv[])
                                  "encodeNullElements = true"                 NL
                                  "encodeInfAndNaNAsStrings = true"           NL
                                  "datetimeFractionalSecondPrecision = 3"     NL
-                                 "maxFloatPrecision = 6"                     NL
-                                 "maxDoublePrecision = 15"                   NL
+                                 "maxFloatPrecision = 0"                     NL
+                                 "maxDoublePrecision = 0"                    NL
                                  "encodeQuotedDecimal64 = true"              NL
                                         "]"                                  NL
                                                                              },
@@ -1566,8 +1554,8 @@ int main(int argc, char *argv[])
                                  " encodeNullElements = true"                NL
                                  " encodeInfAndNaNAsStrings = true"          NL
                                  " datetimeFractionalSecondPrecision = 3"    NL
-                                 " maxFloatPrecision = 6"                    NL
-                                 " maxDoublePrecision = 15"                  NL
+                                 " maxFloatPrecision = 0"                    NL
+                                 " maxDoublePrecision = 0"                   NL
                                  " encodeQuotedDecimal64 = true"             NL
                                        "]"                                   NL
                                                                              },
@@ -1581,8 +1569,8 @@ int main(int argc, char *argv[])
                                  "encodeNullElements = false"                SP
                                  "encodeInfAndNaNAsStrings = true"           SP
                                  "datetimeFractionalSecondPrecision = 3"     SP
-                                 "maxFloatPrecision = 6"                     SP
-                                 "maxDoublePrecision = 15"                   SP
+                                 "maxFloatPrecision = 0"                     SP
+                                 "maxDoublePrecision = 0"                    SP
                                  "encodeQuotedDecimal64 = true"              SP
                                        "]"
                                                                              },
@@ -1603,8 +1591,8 @@ int main(int argc, char *argv[])
                                  "encodeNullElements = true"                 NL
                                  "encodeInfAndNaNAsStrings = true"           NL
                                  "datetimeFractionalSecondPrecision = 3"     NL
-                                 "maxFloatPrecision = 6"                     NL
-                                 "maxDoublePrecision = 15"                   NL
+                                 "maxFloatPrecision = 0"                     NL
+                                 "maxDoublePrecision = 0"                    NL
                                  "encodeQuotedDecimal64 = true"              NL
                                        "]"                                   NL
                                                                              },
@@ -1618,8 +1606,8 @@ int main(int argc, char *argv[])
                          "        encodeNullElements = false"                NL
                          "        encodeInfAndNaNAsStrings = true"           NL
                          "        datetimeFractionalSecondPrecision = 3"     NL
-                         "        maxFloatPrecision = 6"                     NL
-                         "        maxDoublePrecision = 15"                   NL
+                         "        maxFloatPrecision = 0"                     NL
+                         "        maxDoublePrecision = 0"                    NL
                          "        encodeQuotedDecimal64 = true"              NL
                                "      ]"                                     NL
                                                                              },
@@ -1633,8 +1621,8 @@ int main(int argc, char *argv[])
                                  "encodeNullElements = false"                SP
                                  "encodeInfAndNaNAsStrings = true"           SP
                                  "datetimeFractionalSecondPrecision = 3"     SP
-                                 "maxFloatPrecision = 6"                     SP
-                                 "maxDoublePrecision = 15"                   SP
+                                 "maxFloatPrecision = 0"                     SP
+                                 "maxDoublePrecision = 0"                    SP
                                  "encodeQuotedDecimal64 = true"              SP
                                        "]"
                                                                              },
@@ -1648,8 +1636,8 @@ int main(int argc, char *argv[])
                                  "encodeNullElements = true"                 NL
                                  "encodeInfAndNaNAsStrings = true"           NL
                                  "datetimeFractionalSecondPrecision = 3"     NL
-                                 "maxFloatPrecision = 6"                     NL
-                                 "maxDoublePrecision = 15"                   NL
+                                 "maxFloatPrecision = 0"                     NL
+                                 "maxDoublePrecision = 0"                    NL
                                  "encodeQuotedDecimal64 = true"              NL
                                        "]"                                   NL
                                                                              },
@@ -1663,8 +1651,8 @@ int main(int argc, char *argv[])
                          "        encodeNullElements = false"                NL
                          "        encodeInfAndNaNAsStrings = true"           NL
                          "        datetimeFractionalSecondPrecision = 3"     NL
-                         "        maxFloatPrecision = 6"                     NL
-                         "        maxDoublePrecision = 15"                   NL
+                         "        maxFloatPrecision = 0"                     NL
+                         "        maxDoublePrecision = 0"                    NL
                          "        encodeQuotedDecimal64 = true"              NL
                                "      ]"                                     NL
                                                                              },
@@ -1677,8 +1665,8 @@ int main(int argc, char *argv[])
                                  "encodeNullElements = true"                 SP
                                  "encodeInfAndNaNAsStrings = true"           SP
                                  "datetimeFractionalSecondPrecision = 3"     SP
-                                 "maxFloatPrecision = 6"                     SP
-                                 "maxDoublePrecision = 15"                   SP
+                                 "maxFloatPrecision = 0"                     SP
+                                 "maxDoublePrecision = 0"                    SP
                                  "encodeQuotedDecimal64 = false"             SP
                                        "]"
                                                                              },
@@ -1699,8 +1687,8 @@ int main(int argc, char *argv[])
                          "         encodeNullElements = true"                NL
                          "         encodeInfAndNaNAsStrings = true"          NL
                          "         datetimeFractionalSecondPrecision = 3"    NL
-                         "         maxFloatPrecision = 6"                    NL
-                         "         maxDoublePrecision = 15"                  NL
+                         "         maxFloatPrecision = 0"                    NL
+                         "         maxDoublePrecision = 0"                   NL
                          "         encodeQuotedDecimal64 = true"             NL
                                "      ]"                                     NL
                                                                              },
@@ -1721,8 +1709,8 @@ int main(int argc, char *argv[])
                                  "encodeNullElements = true"                 SP
                                  "encodeInfAndNaNAsStrings = true"           SP
                                  "datetimeFractionalSecondPrecision = 3"     SP
-                                 "maxFloatPrecision = 6"                     SP
-                                 "maxDoublePrecision = 15"                   SP
+                                 "maxFloatPrecision = 0"                     SP
+                                 "maxDoublePrecision = 0"                    SP
                                  "encodeQuotedDecimal64 = true"              SP
                                  "]" },
 
@@ -1735,8 +1723,8 @@ int main(int argc, char *argv[])
                                  "encodeNullElements = false"                SP
                                  "encodeInfAndNaNAsStrings = true"           SP
                                  "datetimeFractionalSecondPrecision = 3"     SP
-                                 "maxFloatPrecision = 6"                     SP
-                                 "maxDoublePrecision = 15"                   SP
+                                 "maxFloatPrecision = 0"                     SP
+                                 "maxDoublePrecision = 0"                    SP
                                  "encodeQuotedDecimal64 = true"              SP
                                  "]" },
 
@@ -1846,9 +1834,8 @@ int main(int argc, char *argv[])
         //   int   maxDoublePrecision() const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING ACCESSORS" << endl
-                          << "=================" << endl;
+        if (verbose) cout << "\nTESTING ACCESSORS"
+                          << "\n=================" << endl;
 
         // Attribute Types
 
@@ -1861,7 +1848,7 @@ int main(int argc, char *argv[])
         typedef int   T7;        // 'datetimeFractionalSecondPrecision'
         typedef int   T8;        // 'maxFloatPrecision'
         typedef int   T9;        // 'maxDoublePrecision'
-        typedef int   T10;       // 'encodeQuotedDecimal64'
+        typedef bool  T10;       // 'encodeQuotedDecimal64'
 
         if (verbose) cout << "\nEstablish suitable attribute values." << endl;
 
@@ -1869,16 +1856,16 @@ int main(int argc, char *argv[])
           // 'D' values: These are the default-constructed values.
           // -----------------------------------------------------
 
-        const int   D1   = 0;                    // 'initialIndentLevel'
-        const int   D2   = 0;                    // 'spacesPerLevel'
-        const Style D3   = Obj::e_COMPACT;        // 'encodingStyle'
-        const bool  D4   = false;                // 'encodeEmptyArrays'
-        const bool  D5   = false;                // 'encodeNullElements'
-        const bool  D6   = false;                // 'encodeInfAndNaNAsStrings'
-        const int   D7   = 3;                    // 'datetimePrecision'
-        const int   D8   = 6;                    // 'maxFloatPrecision'
-        const int   D9   = 15;                   // 'maxDoublePrecision'
-        const bool  D10  = true;                 // 'encodeQuotedDecimal64'
+        const T1  D1  = 0;                    // 'initialIndentLevel'
+        const T2  D2  = 0;                    // 'spacesPerLevel'
+        const T3  D3  = Obj::e_COMPACT;       // 'encodingStyle'
+        const T4  D4  = false;                // 'encodeEmptyArrays'
+        const T5  D5  = false;                // 'encodeNullElements'
+        const T6  D6  = false;                // 'encodeInfAndNaNAsStrings'
+        const T7  D7  = 3;                    // 'datetimePrecision'
+        const T8  D8  = 0;                    // 'maxFloatPrecision'
+        const T9  D9  = 0;                    // 'maxDoublePrecision'
+        const T10 D10 = true;                 // 'encodeQuotedDecimal64'
 
                        // ----------------------------
                        // 'A' values: Boundary values.
@@ -2073,9 +2060,8 @@ int main(int argc, char *argv[])
         //   setMaxDoublePrecision(int value);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING MANIPULATORS" << endl
-                          << "====================" << endl;
+        if (verbose) cout << "\nTESTING MANIPULATORS"
+                          << "\n====================" << endl;
 
         if (verbose) cout << "\nEstablish suitable attribute values." << endl;
 
@@ -2088,8 +2074,8 @@ int main(int argc, char *argv[])
         const bool  D5   = false;                // 'encodeNullElements'
         const bool  D6   = false;                // 'encodeInfAndNaNAsStrings'
         const int   D7   = 3;            // 'datetimeFractionalSecondPrecision'
-        const int   D8   = 6;                    // 'maxFloatPrecision'
-        const int   D9   = 15;                   // 'maxDoublePrecision'
+        const int   D8   = 0;                    // 'maxFloatPrecision'
+        const int   D9   = 0;                    // 'maxDoublePrecision'
         const bool  D10  = true;                 // 'encodeQuotedDecimal64'
         // 'A' values.
 
@@ -2707,22 +2693,6 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_FAIL(obj.setSpacesPerLevel(-1));
                 ASSERT_SAFE_PASS(obj.setSpacesPerLevel( 0));
             }
-
-            if (veryVerbose) cout << "\tmaxFloatPrecision" << endl;
-            {
-                ASSERT_SAFE_FAIL(obj.setMaxFloatPrecision(0));
-                ASSERT_SAFE_PASS(obj.setMaxFloatPrecision(1));
-                ASSERT_SAFE_PASS(obj.setMaxFloatPrecision(9));
-                ASSERT_SAFE_FAIL(obj.setMaxFloatPrecision(10));
-            }
-
-            if (veryVerbose) cout << "\tmaxDoublePrecision" << endl;
-            {
-                ASSERT_SAFE_FAIL(obj.setMaxDoublePrecision(0));
-                ASSERT_SAFE_PASS(obj.setMaxDoublePrecision(1));
-                ASSERT_SAFE_PASS(obj.setMaxDoublePrecision(17));
-                ASSERT_SAFE_FAIL(obj.setMaxDoublePrecision(18));
-            }
         }
       } break;
       case 2: {
@@ -2744,9 +2714,8 @@ int main(int argc, char *argv[])
         //   ~baljsn::EncoderOptions();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING CREATORS" << endl
-                          << "================" << endl;
+        if (verbose) cout << "\nTESTING CREATORS"
+                          << "\n================" << endl;
 
         if (verbose) cout << "\nEstablish suitable attribute values." << endl;
 
@@ -2759,8 +2728,8 @@ int main(int argc, char *argv[])
         const bool  D5   = false;                // 'encodeNullElements'
         const bool  D6   = false;                // 'encodeInfAndNaNAsStrings'
         const int   D7   = 3;            // 'datetimeFractionalSecondPrecision'
-        const int   D8   = 6;                    // 'maxFloatPrecision'
-        const int   D9   = 15;                   // 'maxDoublePrecision'
+        const int   D8   = 0;                    // 'maxFloatPrecision'
+        const int   D9   = 0;                    // 'maxDoublePrecision'
         const bool  D10  = true;                 // 'encodeQuotedDecimal64'
 
         if (verbose) cout <<
@@ -2812,9 +2781,8 @@ int main(int argc, char *argv[])
         //   BREATHING TEST
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "BREATHING TEST" << endl
-                          << "==============" << endl;
+        if (verbose) cout << "\nBREATHING TEST"
+                          << "\n==============" << endl;
 
         // Attribute Types
 
@@ -2866,12 +2834,12 @@ int main(int argc, char *argv[])
 
         // Attribute 8 Values: 'maxFloatPrecision'
 
-        const T8 D8 = 6;           // default value
+        const T8 D8 = 0;           // default value
         const T8 A8 = 6;
 
         // Attribute 9 Values: 'maxDoublePrecision'
 
-        const T9 D9 = 15;          // default value
+        const T9 D9 = 0;          // default value
         const T9 A9 = 9;
 
         // Attribute 10 Values: 'encodeQuotedDecimal64'
@@ -3154,7 +3122,6 @@ int main(int argc, char *argv[])
         ASSERT(1 == (X == X));        ASSERT(0 == (X != X));
         ASSERT(1 == (X == Y));        ASSERT(0 == (X != Y));
         ASSERT(0 == (X == Z));        ASSERT(1 == (X != Z));
-
       } break;
       default: {
         bsl::cerr << "WARNING: CASE `" << test << "' NOT FOUND." << bsl::endl;

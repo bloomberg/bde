@@ -90,6 +90,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_iso8601util.h>
 #include <bdlt_datetimeinterval.h>
 
+#include <bslalg_numericformatterutil.h>
+
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
@@ -117,9 +119,10 @@ struct PrintUtil {
     // PRIVATE CLASS METHODS
     template <class TYPE>
     static int maxStreamPrecision(const baljsn::EncoderOptions *options);
-        // Return the maximum precision for streaming values of the specified
-        // template parameter 'TYPE' using the specified 'options' to decide.
-        // The behavior is undefined unless 'TYPE' is 'float' or 'double'.
+        // If the specified 'options' is 0, return 0, otherwise return either
+        // 'options->maxFloatPrecision()' if the template parameter 'TYPE' is
+        // 'float', and 'options->maxDoublePrecision()' is 'double'. The
+        // supplied 'TYPE' must be either 'float' or 'double'.
 
   public:
     // CLASS METHODS
@@ -228,22 +231,18 @@ struct PrintUtil {
 // PRIVATE CLASS METHODS
 template <>
 inline
-int PrintUtil::maxStreamPrecision<float>(const baljsn::EncoderOptions *options)
+int
+PrintUtil::maxStreamPrecision<float>(const baljsn::EncoderOptions *options)
 {
-    return options
-           ? options->maxFloatPrecision()
-           : bsl::numeric_limits<float>::digits10;
+    return options ? options->maxFloatPrecision() : 0;
 }
 
 template <>
 inline
-int PrintUtil::maxStreamPrecision<double>(
-                                         const baljsn::EncoderOptions *options)
+int
+PrintUtil::maxStreamPrecision<double>(const baljsn::EncoderOptions *options)
 {
-
-    return options
-           ? options->maxDoublePrecision()
-           : bsl::numeric_limits<double>::digits10;
+    return options ? options->maxDoublePrecision() : 0;
 }
 
 // CLASS METHODS
@@ -300,23 +299,37 @@ int PrintUtil::printFloatingPoint(bsl::ostream&                 stream,
         }
       } break;
       default: {
-        const int k_SIZE = 32;
-        char      buffer[k_SIZE];
+        const int precision = maxStreamPrecision<TYPE>(options);
 
+        if (0 == precision) {
+            typedef bslalg::NumericFormatterUtil NumFmt;
+            char buffer[NumFmt::ToCharsMaxLength<TYPE>::k_VALUE];
+
+            const char * const endPtr = NumFmt::toChars(buffer,
+                                                        buffer + sizeof buffer,
+                                                        value);
+            BSLS_ASSERT(0 != endPtr);
+
+            const size_t len = endPtr - buffer;
+
+            stream.write(buffer, len);
+        }
+        else {
+            const int k_SIZE = 32;
+            char      buffer[k_SIZE];
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 #define snprintf _snprintf
 #endif
-
-        const int len = snprintf(buffer,
-                                 k_SIZE,
-                                 "%-1.*g",
-                                 maxStreamPrecision<TYPE>(options),
-                                 value);
-
+            const int len = snprintf(buffer,
+                                     k_SIZE,
+                                     "%-1.*g",
+                                     precision,
+                                     value);
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 #undef snprintf
 #endif
-        stream.write(buffer, len);
+            stream.write(buffer, len);
+        }
       }
     }
     return 0;

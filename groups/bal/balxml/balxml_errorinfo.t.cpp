@@ -22,6 +22,8 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
+#include <bsls_platform.h>
+
 using namespace BloombergLP;
 using namespace bsl;
 
@@ -239,6 +241,11 @@ bool getTestVector(TestVector *v, int index, bool skipUnsettable = true)
 // ============================================================================
 //                    CLASSES FOR TESTING USAGE EXAMPLES
 // ----------------------------------------------------------------------------
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#endif
 
 // In this example, we create a parser for a simple file of percentages.  The
 // file is formatted as a sequence of lines, with each line containing a
@@ -490,6 +497,10 @@ bool getTestVector(TestVector *v, int index, bool skipUnsettable = true)
         return 0;
     }
 //..
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
 
 // ============================================================================
 //                               MAIN PROGRAM

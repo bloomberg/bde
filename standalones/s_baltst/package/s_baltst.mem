@@ -35,6 +35,7 @@ s_baltst_response
 s_baltst_sequencewithanonymity
 s_baltst_simplerequest
 s_baltst_sqrt
+s_baltst_sqrtf
 s_baltst_test
 s_baltst_timingrequest
 s_baltst_topchoice

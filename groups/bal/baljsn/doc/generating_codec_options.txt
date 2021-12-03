@@ -59,23 +59,14 @@ aggregate conversion code from these components.
    * DecoderOptions::setMaxDepth(int value)
      * BSLS_ASSERT_SAFE(0 <= value);
 
-6. Set the default values for baljsn::EncoderOptions' 'maxFloatPrecision' and
-   'maxDoublePrecision' attributes as follows:
-
-const int EncoderOptions::DEFAULT_INITIALIZER_MAX_FLOAT_PRECISION =
-                                          bsl::numeric_limits<float>::digits10;
-const int EncoderOptions::DEFAULT_INITIALIZER_MAX_DOUBLE_PRECISION =
-                                         bsl::numeric_limits<double>::digits10;
-
-7. Replace the prefixes of the enumerator names in 'baljsn::EncodingStyle'
+6. Replace the prefixes of the enumerator names in 'baljsn::EncodingStyle'
    from 'E_' to 'e_'.
 
-8. Add an include for 'balscm_version.h' in all the header files.
+7. Add an include for 'balscm_version.h' in all the header files.
 
-9. Add back deprecated enumerator names in EncoderOptions:
+8. Add back deprecated enumerator names in EncoderOptions:
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BAEJSN_COMPACT = e_COMPACT
       , BAEJSN_PRETTY  = e_PRETTY
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
-

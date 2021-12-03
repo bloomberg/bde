@@ -6,13 +6,20 @@
 // These header are for testing only and the hierarchy level of 'baljsn' was
 // increase because of them.  They should be remove when possible.
 #include <balb_testmessages.h>
+
 #include <balxml_decoder.h>
 #include <balxml_decoderoptions.h>
 #include <balxml_minireader.h>
 #include <balxml_errorinfo.h>
 
+// For round-trip testing
+#include <baljsn_encoder.h>
+#include <baljsn_encoderoptions.h>
+
 #include <s_baltst_address.h>
 #include <s_baltst_employee.h>
+#include <s_baltst_sqrt.h>
+#include <s_baltst_sqrtf.h>
 
 #include <bdlat_attributeinfo.h>
 #include <bdlat_choicefunctions.h>
@@ -28,6 +35,8 @@
 #include <bdlsb_fixedmeminstreambuf.h>
 #include <bdlsb_fixedmemoutstreambuf.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bslmt_testutil.h>
 
 #include <bslim_printer.h>
@@ -36,10 +45,14 @@
 #include <bsl_string.h>
 #include <bsl_vector.h>
 #include <bsl_sstream.h>
+#include <bsl_climits.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
+#include <bsl_limits.h>
 #include <bsl_iostream.h>
 #include <bsl_vector.h>
+
+#include <bsls_libraryfeatures.h>
 
 using namespace BloombergLP;
 using bsl::cout;
@@ -76,9 +89,15 @@ namespace test = BloombergLP::s_baltst;
 // [ 4] bsl::string loggedMessages() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 7] USAGE EXAMPLE
-// [ 5] MULTI-THREADING TEST CASE
-// [ 6] DRQS 43702912
+// [ 3] TESTING SKIPPING UNKNOWN ELEMENTS
+// [ 4] TESTING INVALID JSON RETURNS AN ERROR
+// [ 5] MULTI-THREADING TEST CASE                           {DRQS 41660550<GO>}
+// [ 6] TESTING DECODING OF 'hexBinary' CUSTOMIZED TYPE     {DRQS 43702912<GO>}
+// [ 7] TESTING DECODING OF ENUM TYPES WITH ESCAPED CHARS
+// [ 8] TESTING CLEARING OF LOGGED MESSAGES ON DECODE CALLS
+// [ 9] TESTING UTF-8 DETECTION
+// [10] FLOATING-POINT VALUES ROUND-TRIP
+// [11] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -130,6 +149,7 @@ void aSsErT(bool condition, const char *message, int line)
 
 typedef baljsn::Decoder Obj;
 
+BSLA_MAYBE_UNUSED
 const char XML_SCHEMA[] =
 
 "<?xml version='1.0' encoding='UTF-8'?>"
@@ -12085,7 +12105,7 @@ static const struct {
 };
 
 static const int NUM_XML_TEST_MESSAGES =
-                      (sizeof(XML_TEST_MESSAGES) / sizeof(*XML_TEST_MESSAGES));
+                          sizeof XML_TEST_MESSAGES / sizeof *XML_TEST_MESSAGES;
 
 static const struct {
     int         d_line;                        // line number
@@ -33717,6 +33737,13 @@ BSLMF_ASSERT(NUM_JSON_COMPACT_MESSAGES == NUM_XML_TEST_MESSAGES);
 namespace BloombergLP {
 namespace s_baltst {
 
+                        // ============================
+                        // class template RoundTripData
+                        // ============================
+
+
+
+
                                 // ============
                                 // class Colors
                                 // ============
@@ -34407,15 +34434,15 @@ void constructFeatureTestMessage(
 
         int rc = decoder.decode(ss.rdbuf(), &object);
         if (0 != rc) {
-            bsl::cout << "Failed to decode from initialization data (i="
-                      << i << "): "
-                      << decoder.loggedMessages() << bsl::endl;
+            cout << "Failed to decode from initialization data (i="
+                 << i << "): "
+                 << decoder.loggedMessages() << endl;
         }
         if (balb::FeatureTestMessage::SELECTION_ID_UNDEFINED ==
                                                         object.selectionId()) {
-            bsl::cout << "Decoded unselected choice from initialization data"
-                      << " (LINE =" << XML_TEST_MESSAGES[i].d_lineNum << "):"
-                      << bsl::endl;
+            cout << "Decoded unselected choice from initialization data"
+                 << " (LINE =" << XML_TEST_MESSAGES[i].d_lineNum << "):"
+                 << endl;
             rc = 9;
         }
         ASSERT(0 == rc); // test invariant
@@ -34445,7 +34472,7 @@ extern "C" void *threadFunction(void *data)
 
         if (veryVerbose) {
             P(ti);    P(LINE);    P(PRETTY);
-            EXP.print(bsl::cout, 1, 4);
+            EXP.print(cout, 1, 4);
         }
 
         {
@@ -34483,7 +34510,7 @@ extern "C" void *threadFunction(void *data)
 
         if (veryVerbose) {
             P(ti);    P(LINE);    P(COMPACT);
-            EXP.print(bsl::cout, 1, 4);
+            EXP.print(cout, 1, 4);
         }
 
         {
@@ -36496,6 +36523,90 @@ struct IsEnumeration<test::Enumeration0> {
 
 
 // ============================================================================
+//                               TEST MACHINERY
+// ----------------------------------------------------------------------------
+
+
+template <class TESTED_TYPE> struct SelectEncodeableType;
+
+template <> struct SelectEncodeableType<float> {
+    typedef s_baltst::SqrtF Type;
+};
+
+template <> struct SelectEncodeableType<double> {
+    typedef s_baltst::Sqrt Type;
+};
+
+
+template <class FLOAT_TYPE>
+void roundTripTestNonNumericValues()
+{
+    typedef          FLOAT_TYPE                             Type;
+    typedef typename SelectEncodeableType<FLOAT_TYPE>::Type TestType;
+    typedef          bsl::numeric_limits<FLOAT_TYPE>        Limits;
+
+    const Type NAN_P = Limits::quiet_NaN();
+    // Negative NaN does not print for any floating point type, so we
+    // don't test it for round-trip (on purpose).
+    //const Type NAN_N = -NAN_P;
+    const Type INF_P = Limits::infinity();
+    const Type INF_N = -INF_P;
+
+    const struct {
+        int         d_line;
+        Type        d_value;
+    } DATA[] = {
+        //---------------
+        // LINE | VALUE |
+        //---------------
+        { L_,    NAN_P },
+        // Negative NaN does not print for any floating point type,
+        // so we don't test it for round-trip (on purpose).
+        //{ L_,    NAN_N },
+        { L_,    INF_P },
+        { L_,    INF_N },
+    };
+    const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+    for (int ti = 0; ti < NUM_DATA; ++ti) {
+        const int  LINE  = DATA[ti].d_line;
+        const Type VALUE = DATA[ti].d_value;
+
+        baljsn::EncoderOptions encoderOptions;
+        encoderOptions.setEncodeInfAndNaNAsStrings(true);
+
+        TestType toEncode;
+        toEncode.value() = VALUE;
+
+        // No options (NULL)
+        bsl::stringstream ss;
+        baljsn::Encoder   encoder;
+        ASSERTV(LINE, encoder.loggedMessages(),
+                0 == encoder.encode(ss, toEncode, encoderOptions));
+
+        TestType  decoded;
+        decoded.value() = Limits::quiet_NaN(); // A value we don't use
+        baljsn::Decoder decoder;
+        ASSERTV(LINE, decoder.loggedMessages(),
+                0 == decoder.decode(ss, &decoded, 0));
+        Type DECODED = decoded.value();
+        bsl::string encoded(ss.str());
+
+        if (VALUE != VALUE) { // A NaN
+            ASSERTV(LINE, encoded, VALUE, DECODED, DECODED != DECODED);
+        }
+        else {
+            ASSERTV(LINE, encoded, VALUE, DECODED, VALUE == DECODED);
+        }
+        // We also use 'memcmp' to ensure that we really get back the
+        // same binary IEEE-754.
+        ASSERTV(LINE, encoded, VALUE, DECODED,
+                0 == bsl::memcmp(&VALUE, &DECODED, sizeof VALUE));
+
+    }
+}
+
+// ============================================================================
 //                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
@@ -36508,7 +36619,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 10: {
+      case 11: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -36526,9 +36637,8 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "USAGE EXAMPLE" << endl
-                          << "=============" << endl;
+        if (verbose) cout << "\nUSAGE EXAMPLE"
+                          << "\n=============" << endl;
 
 ///Usage
 ///-----
@@ -36614,6 +36724,674 @@ int main(int argc, char *argv[])
     ASSERT("New York"      == employee.homeAddress().state());
     ASSERT(21              == employee.age());
 //..
+      } break;
+      case 10: {
+        // --------------------------------------------------------------------
+        // FLOATING-POINT VALUES ROUND-TRIP
+        //
+        // Concerns:
+        //: 1 Numbers encoded without precision restrictions decode back to the
+        //:   same number (round-trip).
+        //:
+        //: 2 Providing no options or default options does not change behavior.
+        //
+        // Plan:
+        //: 1 Use the table-driven technique:
+        //:
+        //:   1 Specify a set of valid values, including those that will test
+        //:     the precision of the output.
+        //:
+        //:   2 Encode, then decode each value and verify that the decoded
+        //:     value is as expected.
+        //:
+        //: 2 Do those for 'float' as well as 'double' values.
+        //
+        // Testing:
+        //  FLOATING-POINT VALUES ROUND-TRIP
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nFLOATING-POINT VALUES ROUND-TRIP"
+                          << "\n================================" << endl;
+
+        if (verbose) cout << "Round-trip 'float'" << endl;
+        {
+            typedef bsl::numeric_limits<float> Limits;
+
+            const float neg0 = copysignf(0.0f, -1.0f);
+
+            const struct {
+                int   d_line;
+                float d_value;
+            } DATA[] = {
+                //LINE        VALUE
+                //----  -------------
+                { L_,           0.0f },
+                { L_,         0.125f },
+                { L_,        1.0e-1f },
+                { L_,      0.123456f },
+                { L_,           1.0f },
+                { L_,           1.5f },
+                { L_,          10.0f },
+                { L_,         1.5e1f },
+                { L_,   1.23456e-20f },
+                { L_,   0.123456789f },
+                { L_,  0.1234567891f },
+
+                { L_,           neg0 },
+                { L_,        -0.125f },
+                { L_,       -1.0e-1f },
+                { L_,     -0.123456f },
+                { L_,          -1.0f },
+                { L_,          -1.5f },
+                { L_,         -10.0f },
+                { L_,        -1.5e1f },
+                { L_,  -1.23456e-20f },
+                { L_,  -0.123456789f },
+                { L_, -0.1234567891f },
+
+                // {DRQS 165162213} regression, 2^24 loses precision as float
+                { L_, 1.0f * 0xFFFFFF },
+
+                // Full Mantissa Integers
+                { L_, 1.0f * 0xFFFFFF },
+                { L_, 1.0f * 0xFFFFFF     // this happens to be also
+                       * (1ull << 63)     // 'NumLimits::max()'
+                       * (1ull << 41) },
+
+                // Boundary Values
+                { L_,  Limits::min()        },
+                { L_,  Limits::denorm_min() },
+                { L_,  Limits::max()        },
+                { L_, -Limits::min()        },
+                { L_, -Limits::denorm_min() },
+                { L_, -Limits::max()        },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int   LINE  = DATA[ti].d_line;
+                const float VALUE = DATA[ti].d_value;
+
+                s_baltst::SqrtF toEncode;
+                toEncode.value() = VALUE;
+
+                // No options (NULL)
+                bsl::stringstream ss;
+                baljsn::Encoder   encoder;
+                ASSERTV(LINE, encoder.loggedMessages(),
+                        0 == encoder.encode(ss, toEncode));
+
+                s_baltst::SqrtF  decoded;
+                decoded.value() = Limits::quiet_NaN(); // A value we don't use
+                baljsn::Decoder decoder;
+                ASSERTV(LINE, decoder.loggedMessages(),
+                        0 == decoder.decode(ss, &decoded, 0));
+                float DECODED = decoded.value();
+                bsl::string encoded(ss.str());
+                ASSERTV(LINE, encoded, VALUE, DECODED, VALUE == DECODED);
+                // We also use 'memcmp' to ensure that we really get back the
+                // exact same binary IEEE-754, bit-by-bit.
+                ASSERTV(LINE, encoded, VALUE, DECODED,
+                        0 == bsl::memcmp(&VALUE, &DECODED, sizeof VALUE));
+
+                // Default encoder options, no decoder options (NULL)
+                ss.str(""); ss.clear();
+                baljsn::EncoderOptions encoderOptions;
+                ASSERTV(LINE, encoder.loggedMessages(),
+                        0 == encoder.encode(ss, toEncode, &encoderOptions));
+
+                decoded.value() = Limits::quiet_NaN(); // A value we don't use
+                ASSERTV(LINE, decoder.loggedMessages(),
+                        0 == decoder.decode(ss, &decoded, 0));
+                DECODED = decoded.value();
+                encoded = ss.str();
+                ASSERTV(LINE, encoded, VALUE, DECODED, VALUE == DECODED);
+                // We also use 'memcmp' to ensure that we really get back the
+                // exact same binary IEEE-754, bit-by-bit.
+                ASSERTV(LINE, encoded, VALUE, DECODED,
+                        0 == bsl::memcmp(&VALUE, &DECODED, sizeof VALUE));
+
+                // Default encoder options, default decoder options
+                ss.str(""); ss.clear();
+                ASSERTV(LINE, encoder.loggedMessages(),
+                        0 == encoder.encode(ss, toEncode, &encoderOptions));
+
+                decoded.value() = Limits::quiet_NaN(); // A value we don't use
+                baljsn::DecoderOptions decoderOptions;
+                ASSERTV(LINE, decoder.loggedMessages(),
+                        0 == decoder.decode(ss, &decoded, &decoderOptions));
+                DECODED = decoded.value();
+                encoded = ss.str();
+                ASSERTV(LINE, encoded, VALUE, DECODED, VALUE == DECODED);
+                // We also use 'memcmp' to ensure that we really get back the
+                // exact same binary IEEE-754, bit-by-bit.
+                ASSERTV(LINE, encoded, VALUE, DECODED,
+                        0 == bsl::memcmp(&VALUE, &DECODED, sizeof VALUE));
+
+                // Encoder options enable NaN & Inf, default decoder options
+                // Should not cause change as we don't test those values here
+                ss.str(""); ss.clear();
+                encoderOptions.setEncodeInfAndNaNAsStrings(true);
+                ASSERTV(LINE, encoder.loggedMessages(),
+                        0 == encoder.encode(ss, toEncode, &encoderOptions));
+
+                decoded.value() = Limits::quiet_NaN(); // A value we don't use
+                ASSERTV(LINE, decoder.loggedMessages(),
+                        0 == decoder.decode(ss, &decoded, &decoderOptions));
+                DECODED = decoded.value();
+                encoded = ss.str();
+                ASSERTV(LINE, encoded, VALUE, DECODED, VALUE == DECODED);
+                // We also use 'memcmp' to ensure that we really get back the
+                // exact same binary IEEE-754, bit-by-bit.
+                ASSERTV(LINE, encoded, VALUE, DECODED,
+                        0 == bsl::memcmp(&VALUE, &DECODED, sizeof VALUE));
+
+                // Encoder options enable NaN & Inf, no decoder options (NULL)
+                // Should not cause change as we don't test those values here
+                ss.str(""); ss.clear();
+                encoderOptions.setEncodeInfAndNaNAsStrings(true);
+                ASSERTV(LINE, encoder.loggedMessages(),
+                        0 == encoder.encode(ss, toEncode, &encoderOptions));
+
+                decoded.value() = Limits::quiet_NaN(); // A value we don't use
+                ASSERTV(LINE, decoder.loggedMessages(),
+                        0 == decoder.decode(ss, &decoded, 0));
+                DECODED = decoded.value();
+                encoded = ss.str();
+                ASSERTV(LINE, encoded, VALUE, DECODED, VALUE == DECODED);
+                // We also use 'memcmp' to ensure that we really get back the
+                // exact same binary IEEE-754, bit-by-bit.
+                ASSERTV(LINE, encoded, VALUE, DECODED,
+                        0 == bsl::memcmp(&VALUE, &DECODED, sizeof VALUE));
+
+                // Encoder options set 'maxDoublePrecision', no decoder options
+                // (NULL).  Since we are encoding 'float', there should be no
+                // effect.
+                ss.str(""); ss.clear();
+                encoderOptions.reset();
+                encoderOptions.setMaxDoublePrecision(2);
+                ASSERTV(LINE, encoder.loggedMessages(),
+                        0 == encoder.encode(ss, toEncode, &encoderOptions));
+
+                decoded.value() = Limits::quiet_NaN(); // A value we don't use
+                ASSERTV(LINE, decoder.loggedMessages(),
+                        0 == decoder.decode(ss, &decoded, 0));
+                DECODED = decoded.value();
+                encoded = ss.str();
+                ASSERTV(LINE, encoded, VALUE, DECODED, VALUE == DECODED);
+                // We also use 'memcmp' to ensure that we really get back the
+                // exact same binary IEEE-754, bit-by-bit.
+                ASSERTV(LINE, encoded, VALUE, DECODED,
+                        0 == bsl::memcmp(&VALUE, &DECODED, sizeof VALUE));
+
+                // Encoder options set 'maxFloatPrecision', no decoder options
+                // (NULL).  We should get the same number back.
+                ss.str(""); ss.clear();
+                encoderOptions.reset();
+                encoderOptions.setMaxFloatPrecision(0);
+                ASSERTV(LINE, encoder.loggedMessages(),
+                        0 == encoder.encode(ss, toEncode, &encoderOptions));
+
+                decoded.value() = Limits::quiet_NaN(); // A value we don't use
+                ASSERTV(LINE, decoder.loggedMessages(),
+                        0 == decoder.decode(ss, &decoded, 0));
+                DECODED = decoded.value();
+                encoded = ss.str();
+                ASSERTV(LINE, encoded, VALUE, DECODED, VALUE == DECODED);
+                // We also use 'memcmp' to ensure that we really get back the
+                // exact same binary IEEE-754, bit-by-bit.
+                ASSERTV(LINE, encoded, VALUE, DECODED,
+                        0 == bsl::memcmp(&VALUE, &DECODED, sizeof VALUE));
+
+                // Encoder options set 'maxFloatPrecision' to maximum necessary
+                // for round trip, no decoder options (NULL).  We should get
+                // the same number back.
+                ss.str(""); ss.clear();
+                encoderOptions.reset();
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+                encoderOptions.setMaxFloatPrecision(Limits::max_digits10);
+#elif defined(FLT_DECIMAL_DIG)
+                encoderOptions.setMaxFloatPrecision(FLT_DECIMAL_DIG);
+#else
+                encoderOptions.setMaxFloatPrecision(9);
+#endif
+                ASSERTV(LINE, encoder.loggedMessages(),
+                        0 == encoder.encode(ss, toEncode, &encoderOptions));
+
+                decoded.value() = Limits::quiet_NaN(); // A value we don't use
+                ASSERTV(LINE, decoder.loggedMessages(),
+                        0 == decoder.decode(ss, &decoded, 0));
+                DECODED = decoded.value();
+                encoded = ss.str();
+                ASSERTV(LINE, encoded, VALUE, DECODED, VALUE == DECODED);
+                // We also use 'memcmp' to ensure that we really get back the
+                // exact same binary IEEE-754, bit-by-bit.
+                ASSERTV(LINE, encoded, VALUE, DECODED,
+                        0 == bsl::memcmp(&VALUE, &DECODED, sizeof VALUE));
+            }
+        }
+
+        if (verbose)
+            cout << "Round-trip 'float' with 'maxFloatPrecision' option"
+                 << endl;
+        {
+            float neg0 = copysignf(0.0f, -1.0f);
+
+            typedef bsl::numeric_limits<float> Limits;
+
+            const float ROUND_TRIPS = Limits::infinity();
+                // We use infinity to indicate that with the specified encoder
+                // options the exact same binary numeric value must be parsed
+                // back, as 'printValue'/'getValue' do not normally allow it as
+                // input.
+
+            const struct {
+                int   d_line;
+                float d_value;
+                int   d_maxFloatPrecision;
+                float d_expected;
+            } DATA[] = {
+                //LINE   VALUE             PRECISION     EXPECTED
+                //----   -----             ---------   ----------------
+
+                { L_,     0.0,             1,            ROUND_TRIPS    },
+                { L_,     0.0,             2,            ROUND_TRIPS    },
+                { L_,    neg0,             1,            ROUND_TRIPS    },
+                { L_,    neg0,             7,            ROUND_TRIPS    },
+                { L_,     1.0,             1,            ROUND_TRIPS    },
+                { L_,     1.0,             3,            ROUND_TRIPS    },
+                { L_,    10.0,             2,            ROUND_TRIPS    },
+                { L_,    10.0,             3,            ROUND_TRIPS    },
+                { L_,    -1.5,             1,          -2.0f            },
+                { L_,    -1.5,             2,            ROUND_TRIPS    },
+                { L_,     1.0e-1f,         1,            ROUND_TRIPS    },
+                { L_,     0.1234567891f,   1,           0.1f            },
+                { L_,     0.1234567891f,   4,           0.1235f         },
+                { L_,     0.1234567891f,   9,           0.123456791f    },
+
+                { L_,    10.0f,            1,            ROUND_TRIPS    },
+                { L_,    -1.5e1f,          1,          -20.0f           },
+                { L_,    -1.23456789e-20f, 1,          -1e-20f          },
+                { L_,    -1.23456789e-20f, 2,          -1.2e-20f        },
+                { L_,    -1.23456789e-20f, 8,          -1.2345679e-20f  },
+                { L_,    -1.23456789e-20f, 9,            ROUND_TRIPS    },
+                { L_,     1.23456789e-20f, 1,           1e-20f          },
+                { L_,     1.23456789e-20f, 9,           1.23456787e-20f },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int   LINE      = DATA[ti].d_line;
+                const float VALUE     = DATA[ti].d_value;
+                const int   PRECISION = DATA[ti].d_maxFloatPrecision;
+                const float EXPECTED  = DATA[ti].d_expected;
+
+                baljsn::EncoderOptions encoderOptions;
+                encoderOptions.setMaxFloatPrecision(PRECISION);
+
+                bsl::stringstream ss;
+
+                s_baltst::SqrtF toEncode;
+                toEncode.value() = VALUE;
+                baljsn::Encoder encoder;
+                ASSERTV(LINE, encoder.loggedMessages(),
+                        0 == encoder.encode(ss, toEncode, &encoderOptions));
+
+                s_baltst::SqrtF  decoded;
+                decoded.value() = Limits::quiet_NaN(); // A value we don't use
+                baljsn::Decoder decoder;
+                ASSERTV(LINE, decoder.loggedMessages(),
+                        0 == decoder.decode(ss, &decoded, 0));
+                float DECODED = decoded.value();
+                bsl::string encoded(ss.str());
+                if (EXPECTED == ROUND_TRIPS) {
+                    ASSERTV(LINE, encoded, VALUE, DECODED, VALUE == DECODED);
+                    // We also use 'memcmp' to ensure that we really get back
+                    // the same binary IEEE-754.
+                    ASSERTV(LINE, encoded, VALUE, DECODED,
+                            0 == bsl::memcmp(&VALUE, &DECODED, sizeof VALUE));
+                }
+                else {
+                    ASSERTV(LINE, encoded, EXPECTED, DECODED,
+                            EXPECTED == DECODED);
+                }
+            }
+        }
+
+        if (verbose) cout << "Round-trip 'float' Inf and NaN" << endl;
+        {
+            roundTripTestNonNumericValues<float>();
+        }
+
+        if (verbose) cout << "Round-trip 'double'" << endl;
+        {
+            typedef bsl::numeric_limits<double> Limits;
+
+            double neg0 = copysign(0.0, -1.0);
+
+            const struct {
+                int    d_line;
+                double d_value;
+            } DATA[] = {
+                //LINE            VALUE
+                //----   ----------------------
+                { L_,      0.0                  },
+                { L_,      1.0e-1               },
+                { L_,      0.125                },
+                { L_,      1.0                  },
+                { L_,      1.5                  },
+                { L_,     10.0                  },
+                { L_,      1.5e1                },
+                { L_,      9.9e100              },
+                { L_,      3.14e300             },
+                { L_,      2.23e-308            },
+                { L_,      0.12345678912345     },
+                { L_,      0.12345678901234567  },
+                { L_,      0.123456789012345678 },
+
+                { L_,   neg0                    },
+                { L_,     -1.0e-1               },
+                { L_,     -0.125                },
+                { L_,     -1.0                  },
+                { L_,     -1.5                  },
+                { L_,    -10.0                  },
+                { L_,     -1.5e1                },
+                { L_,     -9.9e100              },
+                { L_,     -3.14e300             },
+                { L_,     -2.23e-308            },
+                { L_,     -0.12345678912345     },
+                { L_,     -0.12345678901234567  },
+                { L_,     -0.123456789012345678 },
+
+                // Small Integers
+                { L_,      123456789012345.     },
+                { L_,      1234567890123456.    },
+
+                // Full Mantissa Integers
+                { L_, 1.0 * 0x1FFFFFFFFFFFFFull },
+                { L_, 1.0 * 0x1FFFFFFFFFFFFFull  // This is also limits::max()
+                      * (1ull << 63) * (1ull << 63) * (1ull << 63)
+                      * (1ull << 63) * (1ull << 63) * (1ull << 63)
+                      * (1ull << 63) * (1ull << 63) * (1ull << 63)
+                      * (1ull << 63) * (1ull << 63) * (1ull << 63)
+                      * (1ull << 63) * (1ull << 63) * (1ull << 63)
+                      * (1ull << 26)            },
+
+                // Boundary Values
+                { L_,  Limits::min()        },
+                { L_,  Limits::denorm_min() },
+                { L_,  Limits::max()        },
+                { L_, -Limits::min()        },
+                { L_, -Limits::denorm_min() },
+                { L_, -Limits::max()        },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int    LINE  = DATA[ti].d_line;
+                const double VALUE = DATA[ti].d_value;
+
+                s_baltst::Sqrt toEncode;
+                toEncode.value() = VALUE;
+
+                // No options (NULL)
+                bsl::stringstream ss;
+                baljsn::Encoder   encoder;
+                ASSERTV(LINE, encoder.loggedMessages(),
+                        0 == encoder.encode(ss, toEncode));
+
+                s_baltst::Sqrt  decoded;
+                decoded.value() = Limits::quiet_NaN(); // A value we don't use
+                baljsn::Decoder decoder;
+                ASSERTV(LINE, decoder.loggedMessages(),
+                        0 == decoder.decode(ss, &decoded, 0));
+                double DECODED = decoded.value();
+                bsl::string encoded(ss.str());
+                ASSERTV(LINE, encoded, VALUE, DECODED, VALUE == DECODED);
+                // We also use 'memcmp' to ensure that we really get back the
+                // exact same binary IEEE-754, bit-by-bit.
+                ASSERTV(LINE, encoded, VALUE, DECODED,
+                        0 == bsl::memcmp(&VALUE, &DECODED, sizeof VALUE));
+
+                // Default encoder options, no decoder options (NULL)
+                ss.str(""); ss.clear();
+                baljsn::EncoderOptions encoderOptions;
+                ASSERTV(LINE, encoder.loggedMessages(),
+                        0 == encoder.encode(ss, toEncode, &encoderOptions));
+
+                decoded.value() = Limits::quiet_NaN(); // A value we don't use
+                ASSERTV(LINE, decoder.loggedMessages(),
+                        0 == decoder.decode(ss, &decoded, 0));
+                DECODED = decoded.value();
+                encoded = ss.str();
+                ASSERTV(LINE, encoded, VALUE, DECODED, VALUE == DECODED);
+                // We also use 'memcmp' to ensure that we really get back the
+                // exact same binary IEEE-754, bit-by-bit.
+                ASSERTV(LINE, encoded, VALUE, DECODED,
+                        0 == bsl::memcmp(&VALUE, &DECODED, sizeof VALUE));
+
+                // Default encoder options, default decoder options
+                ss.str(""); ss.clear();
+                ASSERTV(LINE, encoder.loggedMessages(),
+                        0 == encoder.encode(ss, toEncode, &encoderOptions));
+
+                decoded.value() = Limits::quiet_NaN(); // A value we don't use
+                baljsn::DecoderOptions decoderOptions;
+                ASSERTV(LINE, decoder.loggedMessages(),
+                        0 == decoder.decode(ss, &decoded, &decoderOptions));
+                DECODED = decoded.value();
+                encoded = ss.str();
+                ASSERTV(LINE, encoded, VALUE, DECODED, VALUE == DECODED);
+                // We also use 'memcmp' to ensure that we really get back the
+                // exact same binary IEEE-754, bit-by-bit.
+                ASSERTV(LINE, encoded, VALUE, DECODED,
+                        0 == bsl::memcmp(&VALUE, &DECODED, sizeof VALUE));
+
+                // Encoder options enable NaN & Inf, default decoder options
+                // Should not cause change as we don't test those values here
+                ss.str(""); ss.clear();
+                encoderOptions.setEncodeInfAndNaNAsStrings(true);
+                ASSERTV(LINE, encoder.loggedMessages(),
+                        0 == encoder.encode(ss, toEncode, &encoderOptions));
+
+                decoded.value() = Limits::quiet_NaN(); // A value we don't use
+                ASSERTV(LINE, decoder.loggedMessages(),
+                        0 == decoder.decode(ss, &decoded, &decoderOptions));
+                DECODED = decoded.value();
+                encoded = ss.str();
+                ASSERTV(LINE, encoded, VALUE, DECODED, VALUE == DECODED);
+                // We also use 'memcmp' to ensure that we really get back the
+                // exact same binary IEEE-754, bit-by-bit.
+                ASSERTV(LINE, encoded, VALUE, DECODED,
+                        0 == bsl::memcmp(&VALUE, &DECODED, sizeof VALUE));
+
+                // Encoder options enable NaN & Inf, no decoder options (NULL)
+                // Should not cause change as we don't test those values here
+                ss.str(""); ss.clear();
+                encoderOptions.setEncodeInfAndNaNAsStrings(true);
+                ASSERTV(LINE, encoder.loggedMessages(),
+                        0 == encoder.encode(ss, toEncode, &encoderOptions));
+
+                decoded.value() = Limits::quiet_NaN(); // A value we don't use
+                ASSERTV(LINE, decoder.loggedMessages(),
+                        0 == decoder.decode(ss, &decoded, 0));
+                DECODED = decoded.value();
+                encoded = ss.str();
+                ASSERTV(LINE, encoded, VALUE, DECODED, VALUE == DECODED);
+                // We also use 'memcmp' to ensure that we really get back the
+                // exact same binary IEEE-754, bit-by-bit.
+                ASSERTV(LINE, encoded, VALUE, DECODED,
+                        0 == bsl::memcmp(&VALUE, &DECODED, sizeof VALUE));
+
+                // Encoder options set 'maxFloatPrecision', no decoder options
+                // (NULL).  Since we are encoding 'double', there should be no
+                // effect.
+                ss.str(""); ss.clear();
+                encoderOptions.reset();
+                encoderOptions.setMaxFloatPrecision(2);
+                ASSERTV(LINE, encoder.loggedMessages(),
+                        0 == encoder.encode(ss, toEncode, &encoderOptions));
+
+                decoded.value() = Limits::quiet_NaN(); // A value we don't use
+                ASSERTV(LINE, decoder.loggedMessages(),
+                        0 == decoder.decode(ss, &decoded, 0));
+                DECODED = decoded.value();
+                encoded = ss.str();
+                ASSERTV(LINE, encoded, VALUE, DECODED, VALUE == DECODED);
+                // We also use 'memcmp' to ensure that we really get back the
+                // exact same binary IEEE-754, bit-by-bit.
+                ASSERTV(LINE, encoded, VALUE, DECODED,
+                        0 == bsl::memcmp(&VALUE, &DECODED, sizeof VALUE));
+
+                // Encoder options set 'maxDoublePrecision', no decoder options
+                // (NULL).  We should get the same number back.
+                ss.str(""); ss.clear();
+                encoderOptions.reset();
+                encoderOptions.setMaxDoublePrecision(0);
+                ASSERTV(LINE, encoder.loggedMessages(),
+                        0 == encoder.encode(ss, toEncode, &encoderOptions));
+
+                decoded.value() = Limits::quiet_NaN(); // A value we don't use
+                ASSERTV(LINE, decoder.loggedMessages(),
+                        0 == decoder.decode(ss, &decoded, 0));
+                DECODED = decoded.value();
+                encoded = ss.str();
+                ASSERTV(LINE, encoded, VALUE, DECODED, VALUE == DECODED);
+                // We also use 'memcmp' to ensure that we really get back the
+                // exact same binary IEEE-754, bit-by-bit.
+                ASSERTV(LINE, encoded, VALUE, DECODED,
+                        0 == bsl::memcmp(&VALUE, &DECODED, sizeof VALUE));
+
+                // Encoder options set 'maxDoublePrecision' to maximum
+                // necessary for round trip, no decoder options (NULL).  We
+                // should get the same number back.
+                ss.str(""); ss.clear();
+                encoderOptions.reset();
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+                encoderOptions.setMaxDoublePrecision(Limits::max_digits10);
+#elif defined(DBL_DECIMAL_DIG)
+                encoderOptions.setMaxDoublePrecision(DBL_DECIMAL_DIG);
+#else
+                encoderOptions.setMaxDoublePrecision(17);
+#endif
+                ASSERTV(LINE, encoder.loggedMessages(),
+                        0 == encoder.encode(ss, toEncode, &encoderOptions));
+
+                decoded.value() = Limits::quiet_NaN(); // A value we don't use
+                ASSERTV(LINE, decoder.loggedMessages(),
+                        0 == decoder.decode(ss, &decoded, 0));
+                DECODED = decoded.value();
+                encoded = ss.str();
+                ASSERTV(LINE, encoded, VALUE, DECODED, VALUE == DECODED);
+                // We also use 'memcmp' to ensure that we really get back the
+                // exact same binary IEEE-754, bit-by-bit.
+                ASSERTV(LINE, encoded, VALUE, DECODED,
+                        0 == bsl::memcmp(&VALUE, &DECODED, sizeof VALUE));
+            }
+        }
+
+        if (verbose)
+            cout << "Round-trip 'double' with 'maxDoublePrecision' option"
+                 << endl;
+        {
+            typedef bsl::numeric_limits<double> Limits;
+
+            double neg0 = copysign(0.0, -1.0);
+
+            const double ROUND_TRIPS = Limits::infinity();
+                // We use infinity to indicate that with the specified encoder
+                // options the exact same binary numeric value must be parsed
+                // back, as 'printValue'/'getValue' do not normally allow it as
+                // input.
+
+            const struct {
+                int    d_line;
+                double d_value;
+                int    d_maxDoublePrecision;
+                double d_expected;
+            } DATA[] = {
+                //                            PRECISION
+                //LINE               VALUE        |         EXPECTED
+                //---  -----------------------   -v-  ---------------------
+
+                {L_,                       0.0,   1,             ROUND_TRIPS },
+                {L_,                       0.0,   2,             ROUND_TRIPS },
+                {L_,                      neg0,   1,             ROUND_TRIPS },
+                {L_,                      neg0,  17,             ROUND_TRIPS },
+                {L_,                       1.0,   1,             ROUND_TRIPS },
+                {L_,                       1.0,   3,             ROUND_TRIPS },
+                {L_,                      10.0,   2,             ROUND_TRIPS },
+                {L_,                      10.0,   3,             ROUND_TRIPS },
+                {L_,                      -1.5,   1,  -2.0                   },
+                {L_,                      -1.5,   2,             ROUND_TRIPS },
+                {L_,                  -9.9e100,   2,             ROUND_TRIPS },
+                {L_,                  -9.9e100,  15,             ROUND_TRIPS },
+                {L_,                  -9.9e100,  17,             ROUND_TRIPS },
+                {L_,                 -3.14e300,  15,             ROUND_TRIPS },
+                {L_,                 -3.14e300,  17,             ROUND_TRIPS },
+                {L_,                  3.14e300,   2,   3.1e+300              },
+                {L_,                  3.14e300,  17,             ROUND_TRIPS },
+                {L_,                    1.0e-1,   1,             ROUND_TRIPS },
+                {L_,                 2.23e-308,   2,   2.2e-308              },
+                {L_,                 2.23e-308,  17,             ROUND_TRIPS },
+                {L_,      0.123456789012345678,   1,   0.1                   },
+                {L_,      0.123456789012345678,   2,   0.12                  },
+                {L_,      0.123456789012345678,  15,   0.123456789012346     },
+                {L_,      0.123456789012345678,  16,   0.1234567890123457    },
+                {L_,      0.123456789012345678,  17,             ROUND_TRIPS },
+
+                {L_,                      10.0,   1,   1e+01                 },
+                {L_,                    -1.5e1,   1,  -2e+01                 },
+                {L_,   -1.2345678901234567e-20,   1,  -1e-20                 },
+                {L_,   -1.2345678901234567e-20,   2,  -1.2e-20               },
+                {L_,   -1.2345678901234567e-20,  15,  -1.23456789012346e-20  },
+                {L_,   -1.2345678901234567e-20,  16,  -1.234567890123457e-20 },
+                {L_,   -1.2345678901234567e-20,  17,             ROUND_TRIPS },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int    LINE      = DATA[ti].d_line;
+                const double VALUE     = DATA[ti].d_value;
+                const int    PRECISION = DATA[ti].d_maxDoublePrecision;
+                const double EXPECTED  = DATA[ti].d_expected;
+
+                baljsn::EncoderOptions encoderOptions;
+                encoderOptions.setMaxDoublePrecision(PRECISION);
+
+                bsl::stringstream ss;
+
+                s_baltst::Sqrt toEncode;
+                toEncode.value() = VALUE;
+                baljsn::Encoder encoder;
+                ASSERTV(LINE, encoder.loggedMessages(),
+                        0 == encoder.encode(ss, toEncode, &encoderOptions));
+
+                s_baltst::Sqrt  decoded;
+                decoded.value() = Limits::quiet_NaN(); // A value we don't use
+                baljsn::Decoder decoder;
+                ASSERTV(LINE, decoder.loggedMessages(),
+                        0 == decoder.decode(ss, &decoded, 0));
+                double DECODED = decoded.value();
+                bsl::string encoded(ss.str());
+                if (EXPECTED == ROUND_TRIPS) {
+                    ASSERTV(LINE, encoded, VALUE, DECODED, VALUE == DECODED);
+                    // We also use 'memcmp' to ensure that we really get back
+                    // the same binary IEEE-754.
+                    ASSERTV(LINE, encoded, VALUE, DECODED,
+                            0 == bsl::memcmp(&VALUE, &DECODED, sizeof VALUE));
+                }
+                else {
+                    ASSERTV(LINE, encoded, EXPECTED, DECODED,
+                            EXPECTED == DECODED);
+                }
+            }
+        }
+
+        if (verbose) cout << "Round-trip 'double' Inf and NaN" << endl;
+        {
+            roundTripTestNonNumericValues<double>();
+        }
       } break;
       case 9: {
         // ------------------------------------------------------------------
@@ -36870,9 +37648,9 @@ int main(int argc, char *argv[])
         //   int decode(bsl::streambuf *streamBuf, TYPE *y, options);
         // ------------------------------------------------------------------
 
-        if (verbose) cout << endl
-            << "TESTING CLEARING OF LOGGED MESSAGES ON DECODE CALLS" << endl
-            << "===================================================" << endl;
+        if (verbose) cout
+            << "\nTESTING CLEARING OF LOGGED MESSAGES ON DECODE CALLS"
+            << "\n===================================================" << endl;
 
         typedef test::Address SOType;
             // 'SOType' is the type of an object for which
@@ -37060,7 +37838,6 @@ int main(int argc, char *argv[])
                     mX.loggedMessages(),
                     LOGGED_MESSAGES == mX.loggedMessages());
         }
-
       } break;
       case 7: {
         // ------------------------------------------------------------------
@@ -37088,9 +37865,9 @@ int main(int argc, char *argv[])
         // Testing:
         // ------------------------------------------------------------------
 
-        if (verbose) cout << endl
-            << "TESTING DECODING OF ENUM TYPES WITH ESCAPED CHARS" << endl
-            << "=================================================" << endl;
+        if (verbose) cout
+            << "\nTESTING DECODING OF ENUM TYPES WITH ESCAPED CHARS"
+            << "\n=================================================" << endl;
 
         using bsl::string;
 
@@ -37203,9 +37980,9 @@ int main(int argc, char *argv[])
         //   DRQS 43702912
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-               << "TESTING DECODING OF 'hexBinary' CUSTOMIZED TYPE" << endl
-               << "===============================================" << endl;
+        if (verbose) cout
+               << "\nTESTING DECODING OF 'hexBinary' CUSTOMIZED TYPE"
+               << "\n===============================================" << endl;
 
         static const struct {
             int         d_line;      // source line number
@@ -37326,11 +38103,9 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout
-               << endl
-               << "TESTING DECODING FROM MULTIPLE DECODERS IN SEPARATE THREADS"
-               << endl
-               << "==========================================================="
-               << endl;
+             << "\nTESTING DECODING FROM MULTIPLE DECODERS IN SEPARATE THREADS"
+             << "\n==========================================================="
+             << endl;
 
         using namespace CASE5;
 
@@ -38582,9 +39357,8 @@ int main(int argc, char *argv[])
         //   bsl::string loggedMessages() const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING SKIPPING UNKNOWN ELEMENTS" << endl
-                          << "=================================" << endl;
+        if (verbose) cout << "\nTESTING SKIPPING UNKNOWN ELEMENTS"
+                          << "\n=================================" << endl;
 
         static const struct {
             int         d_lineNum;  // source line number
@@ -39178,9 +39952,8 @@ int main(int argc, char *argv[])
         //   int decode(bsl::istream& stream, TYPE *v, options);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING COMPLEX MESSAGES" << endl
-                          << "========================" << endl;
+        if (verbose) cout << "\nTESTING COMPLEX MESSAGES"
+                          << "\n========================" << endl;
 
         bsl::vector<balb::FeatureTestMessage> testObjects;
         constructFeatureTestMessage(&testObjects);
@@ -39194,7 +39967,7 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) {
                 P(ti);    P(LINE);    P(PRETTY);
-                EXP.print(bsl::cout, 1, 4);
+                EXP.print(cout, 1, 4);
             }
 
             {
@@ -39240,7 +40013,7 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) {
                 P(ti);    P(LINE);    P(COMPACT);
-                EXP.print(bsl::cout, 1, 4);
+                EXP.print(cout, 1, 4);
             }
 
             {
@@ -39278,9 +40051,8 @@ int main(int argc, char *argv[])
         //   BREATHING TEST
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "BREATHING TEST" << endl
-                          << "==============" << endl;
+        if (verbose) cout << "\nBREATHING TEST"
+                          << "\n==============" << endl;
 
         char jsonText[] =
             "{\n"

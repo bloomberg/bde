@@ -568,14 +568,12 @@ void testCase06(const TestCase6Data *data, int numData)
                 const int RC = RC_BY_STRICT[strictTypes];
                 opts.setStrictTypes(bool(RC));
 
-                if(veryVeryVerbose) {
+                if (veryVeryVerbose) {
                     T_ T_ P_(strictTypes) P(RC);
                 }
 
                 if (veryVeryVerbose)
-                    cout
-                        << "int encode(string*,const Datum&,Opts&);"
-                        << endl;
+                    cout << "int encode(string*,const Datum&,Opts&);" << endl;
                 {
                     STRING result;
 
@@ -1177,10 +1175,9 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "USAGE EXAMPLE" << endl
-                                  << "=============" << endl;
+        if (verbose) cout << "\nUSAGE EXAMPLE"
+                          << "\n=============" << endl;
 
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -2393,8 +2390,8 @@ int main(int argc, char *argv[])
         //   int encode(ostream&, const Datum&, const DEOptions*, Allocator *);
         //---------------------------------------------------------------------
 
-        if (verbose) cout << endl << "ENCODE AND PRINT TEST" << endl
-                                  << "=====================" << endl;
+        if (verbose) cout << "\nENCODE AND PRINT TEST"
+                          << "\n=====================" << endl;
 
         namespace TC = TestCase06;
 
@@ -2609,15 +2606,15 @@ int main(int argc, char *argv[])
                                                                      0,    1 },
            // e_INTEGER64
             { L, m(bsls::Types::Int64(8000000000LL)),
-                            CO,  0,  0,  "8000000000",               0,    1 },
+                            CO,  0,  0,  "8e+09",                   0,    1 },
             { L, m(bsls::Types::Int64(8000000000LL)),
-                            PR,  0,  0,  "8000000000",               0,    1 },
+                            PR,  0,  0,  "8e+09",                   0,    1 },
             { L, m(bsls::Types::Int64(8000000000LL)),
-                            PR,  1,  0,  "8000000000",               0,    1 },
+                            PR,  1,  0,  "8e+09",                   0,    1 },
             { L, m(bsls::Types::Int64(8000000000LL)),
-                            PR,  0,  1,  "8000000000",               0,    1 },
+                            PR,  0,  1,  "8e+09",                   0,    1 },
             { L, m(bsls::Types::Int64(8000000000LL)),
-                            PR,  1,  1,  " 8000000000",              0,    1 },
+                            PR,  1,  1,  " 8e+09",                  0,    1 },
 
            // e_USERDEFINED
             { L, bdld::Datum::createUdt(0, 1),
@@ -2855,8 +2852,8 @@ int main(int argc, char *argv[])
         //  int decode(MgedDatum*, ostream*, streamBuf*, const DDOptions&);
         //---------------------------------------------------------------------
 
-        if (verbose) cout << endl << "DECODE TEST" << endl
-                                  << "===========" << endl;
+        if (verbose) cout << "\nDECODE TEST"
+                          << "\n===========" << endl;
 
         bsls::AlignedBuffer<8 * 1024>      buffer;
         bdlma::BufferedSequentialAllocator bsa(
@@ -3645,10 +3642,8 @@ int main(int argc, char *argv[])
         //   BREATHING ROUND-TRIP TEST
         //---------------------------------------------------------------------
 
-        if (verbose)
-            cout << endl
-                 << "BREATHING ROUND-TRIP TEST" << endl
-                 << "=========================" << endl;
+        if (verbose)cout << "\nBREATHING ROUND-TRIP TEST"
+                         << "\n=========================" << endl;
 
         testCase04<bsl::string>();
         testCase04<std::string>();
@@ -3679,8 +3674,8 @@ int main(int argc, char *argv[])
         // ENCODE TEST
         //---------------------------------------------------------------------
 
-        if (verbose) cout << endl << "BREATHING ENCODE TEST" << endl
-                                  << "=====================" << endl;
+        if (verbose) cout  << "\nBREATHING ENCODE TEST"
+                           << "\n=====================" << endl;
 
         testCase03<bsl::string>();
         testCase03<std::string>();
@@ -3705,8 +3700,8 @@ int main(int argc, char *argv[])
         //   BREATHING DECODE TEST
         //---------------------------------------------------------------------
 
-        if (verbose) cout << endl << "BREATHING DECODE TEST" << endl
-                                  << "=====================" << endl;
+        if (verbose) cout << "\nBREATHING DECODE TEST"
+                          << "\n=====================" << endl;
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -3989,8 +3984,8 @@ int main(int argc, char *argv[])
         //   BREATHING TEST
         //---------------------------------------------------------------------
 
-        if (verbose) cout << endl << "BREATHING TEST" << endl
-                                  << "==============" << endl;
+        if (verbose) cout << "\nBREATHING TEST"
+                          << "\n==============" << endl;
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 

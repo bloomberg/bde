@@ -1516,7 +1516,8 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE, badPos, ERR_OFFSET, pos,
                                                    badPos + ERR_OFFSET == pos);
 
-                    int expLine, expCol;
+                    int expLine = -1;  // Initialized to avoid eager warnings
+                    int expCol  = -1;
                     ASSERT(0 == TC::findLoc(&expLine,
                                             &expCol,
                                             xmlStr,

@@ -5571,11 +5571,11 @@ int main(int argc, char *argv[])
             ASSERT(0 == Util::getValue(&isbX, &xx, &xConsumed));
             ASSERT(Float::k_POSITIVE_ZERO == Float::classifyFine(xx));
             ASSERT(static_cast<int>(sizeof(plusZeroSeq) == xConsumed));
-            
+
             ASSERT(0 == Util::getValue(&isbY, &yy, &yConsumed));
             ASSERT(Float::k_NEGATIVE_ZERO == Float::classifyFine(yy));
-            ASSERT(static_cast<int>(sizeof(minusZeroSeq) == yConsumed));     
-            
+            ASSERT(static_cast<int>(sizeof(minusZeroSeq) == yConsumed));
+
             ASSERT(!bsl::memcmp(&x, &xx, sizeof(x)));
             ASSERT(!bsl::memcmp(&y, &yy, sizeof(y)));
 
@@ -5616,11 +5616,11 @@ int main(int argc, char *argv[])
             ASSERT(0 == Util::getValue(&isbX, &xx, &xConsumed));
             ASSERT(Float::k_POSITIVE_ZERO == Float::classifyFine(xx));
             ASSERT(static_cast<int>(sizeof(plusZeroSeq) == xConsumed));
-            
+
             ASSERT(0 == Util::getValue(&isbY, &yy, &yConsumed));
             ASSERT(Float::k_NEGATIVE_ZERO == Float::classifyFine(yy));
-            ASSERT(static_cast<int>(sizeof(minusZeroSeq) == yConsumed));     
-            
+            ASSERT(static_cast<int>(sizeof(minusZeroSeq) == yConsumed));
+
             ASSERT(!bsl::memcmp(&x, &xx, sizeof(x)));
             ASSERT(!bsl::memcmp(&y, &yy, sizeof(y)));
 
@@ -5658,11 +5658,11 @@ int main(int argc, char *argv[])
             ASSERT(0 == Util::getValue(&isbX, &xx, &xConsumed));
             ASSERT(Float::k_POSITIVE_ZERO == Float::classifyFine(xx));
             ASSERT(static_cast<int>(sizeof(plusZeroSeq) == xConsumed));
-            
+
             ASSERT(0 == Util::getValue(&isbY, &yy, &yConsumed));
             ASSERT(Float::k_POSITIVE_ZERO == Float::classifyFine(yy));
-            ASSERT(static_cast<int>(sizeof(plusZeroSeq) == yConsumed));     
-            
+            ASSERT(static_cast<int>(sizeof(plusZeroSeq) == yConsumed));
+
             ASSERT(!bsl::memcmp(&x, &xx, sizeof(x)));
             ASSERT( bsl::memcmp(&y, &yy, sizeof(y)));
             ASSERT(!bsl::memcmp(&x, &yy, sizeof(x)));
@@ -5701,11 +5701,11 @@ int main(int argc, char *argv[])
             ASSERT(0 == Util::getValue(&isbX, &xx, &xConsumed));
             ASSERT(Float::k_POSITIVE_ZERO == Float::classifyFine(xx));
             ASSERT(static_cast<int>(sizeof(plusZeroSeq) == xConsumed));
-            
+
             ASSERT(0 == Util::getValue(&isbY, &yy, &yConsumed));
             ASSERT(Float::k_POSITIVE_ZERO == Float::classifyFine(yy));
             ASSERT(static_cast<int>(sizeof(plusZeroSeq) == yConsumed));
-            
+
             ASSERT(!bsl::memcmp(&x, &xx, sizeof(x)));
             ASSERT( bsl::memcmp(&y, &yy, sizeof(y)));
             ASSERT(!bsl::memcmp(&x, &yy, sizeof(x)));
@@ -16899,15 +16899,15 @@ int main(int argc, char *argv[])
                 {  L_,                      8388608,         4 },
                 {  L_,                   2147483646,         4 },
                 {  L_,                      INT_MAX,         4 },
-                {  L_,               0x7FFFFFFFFFLL,         5 },
-                {  L_,               0x8000000000LL,         6 },
-                {  L_,             0x7FFFFFFFFFFFLL,         6 },
-                {  L_,             0x800000000000LL,         7 },
-                {  L_,           0x7FFFFFFFFFFFFFLL,         7 },
-                {  L_,           0x80000000000000LL,         8 },
-                {  L_,         0x7FFFFFFFFFFFFFFFLL,         8 },
-                {  L_,         0x8000000000000000LL,         9 },
-                {  L_,         0xFFFFFFFFFFFFFFFFLL,         9 },
+                {  L_,               0x7FFFFFFFFFULL,        5 },
+                {  L_,               0x8000000000ULL,        6 },
+                {  L_,             0x7FFFFFFFFFFFULL,        6 },
+                {  L_,             0x800000000000ULL,        7 },
+                {  L_,           0x7FFFFFFFFFFFFFULL,        7 },
+                {  L_,           0x80000000000000ULL,        8 },
+                {  L_,         0x7FFFFFFFFFFFFFFFULL,        8 },
+                {  L_,         0x8000000000000000ULL,        9 },
+                {  L_,         0xFFFFFFFFFFFFFFFFULL,        9 },
             };
 
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);

@@ -1,6 +1,8 @@
 // baljsn_parserutil.t.cpp                                            -*-C++-*-
 #include <baljsn_parserutil.h>
 
+#include <baljsn_printutil.h> // For round-trip testing
+
 #include <bslim_testutil.h>
 
 #include <bdlt_date.h>
@@ -12,6 +14,8 @@
 #include <bsl_sstream.h>
 #include <bsl_cfloat.h>
 #include <bsl_climits.h>
+#include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
 #include <bsl_limits.h>
 #include <bsl_iostream.h>
 
@@ -31,7 +35,6 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
-#include <bsl_cstdlib.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -46,7 +49,7 @@ using bsl::endl;
 //                             --------
 // The component under test implements a utility for parsing 'bdeat' compatible
 // simple types from a 'bsl::string_view'.  The parsing is done via overloaded
-// 'getValue' functions that are provided for fundamental types and 'bdet'
+// 'getValue' functions that are provided for fundamental types and 'bdlt'
 // types.  Since the functions are independent and do not share any state we
 // will test them independently.
 //
@@ -80,7 +83,13 @@ using bsl::endl;
 // [21] static int getValue(bdldfp::Decimal64    *v, bsl::string_view s);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [22] USAGE EXAMPLE
+//
+// [22] BOOLEAN ROUND-TRIP
+// [23] STRINGS ROUND-TRIP
+// [24] NUMBERS ROUND-TRIP
+// [25] DATE AND TIME TYPES ROUND-TRIP
+//
+// [26] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -130,9 +139,16 @@ void aSsErT(bool condition, const char *message, int line)
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bsl::string_view StringRef;
-
 typedef baljsn::ParserUtil Util;
+
+typedef baljsn::PrintUtil  Print;
+
+typedef bsls::Types::Int64  Int64;
+typedef bsls::Types::Uint64 Uint64;
+
+// ============================================================================
+//                              TEST MACHINERY
+// ----------------------------------------------------------------------------
 
 bool areBuffersEqual(const char *lhs, const char *rhs)
     // Compare the data written to the specified 'lhs' with the data in the
@@ -153,6 +169,144 @@ bool areBuffersEqual(const char *lhs, const char *rhs)
     return true;
 }
 
+template <class FLOAT_TYPE>
+void roundTripTestNonNumericValues()
+{
+    typedef FLOAT_TYPE Type;
+
+    const Type NAN_P = bsl::numeric_limits<Type>::quiet_NaN();
+    // Negative NaN does not print for any floating point type, so we
+    // don't test it for round-trip (on purpose).
+    //const Type NAN_N = -NAN_P;
+    const Type INF_P = bsl::numeric_limits<Type>::infinity();
+    const Type INF_N = -INF_P;
+
+    const struct {
+        int         d_line;
+        Type        d_value;
+    } DATA[] = {
+        //---------------
+        // LINE | VALUE |
+        //---------------
+        { L_,    NAN_P },
+        // Negative NaN does not print for any floating point type,
+        // so we don't test it for round-trip (on purpose).
+        //{ L_,    NAN_N },
+        { L_,    INF_P },
+        { L_,    INF_N },
+    };
+    const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+    for (int ti = 0; ti < NUM_DATA; ++ti) {
+        const int  LINE  = DATA[ti].d_line;
+        const Type VALUE = DATA[ti].d_value;
+
+        baljsn::EncoderOptions options;
+        options.setEncodeInfAndNaNAsStrings(true);
+        bsl::ostringstream oss;
+        ASSERTV(LINE, 0 == Print::printValue(oss, VALUE, &options));
+
+        bsl::string result(oss.str());
+        Type decoded;
+        ASSERTV(LINE, 0 == Util::getValue(&decoded, result));
+        if (VALUE != VALUE) { // A NaN
+            ASSERTV(LINE, VALUE, result, decoded, decoded != decoded);
+        }
+        else {
+            ASSERTV(LINE, VALUE, result, decoded, VALUE == decoded);
+        }
+        // We also use 'memcmp' to ensure that we really get back the
+        // same binary IEEE-754.
+        ASSERTV(LINE, VALUE, result, decoded,
+                0 == bsl::memcmp(&VALUE, &decoded, sizeof VALUE));
+
+    }
+}
+
+template <class TYPE>
+bool canRepresentImpl(Int64 VALUE, bsl::true_type)  // a signed type
+{
+    typedef bsl::numeric_limits<TYPE> Limits;
+
+    const TYPE TYPE_MAX  = Limits::max();
+    const TYPE TYPE_MIN  = Limits::min();
+
+    return VALUE >= TYPE_MIN && VALUE <= TYPE_MAX;
+}
+
+template <class TYPE>
+bool canRepresentImpl(Int64 VALUE, bsl::false_type)  // an unsigned type
+{
+    if (VALUE < 0) {
+        return false;                                                 // RETURN
+    }
+
+    return static_cast<Uint64>(VALUE) <= bsl::numeric_limits<TYPE>::max();
+}
+
+template <class TYPE>
+bool canRepresent(Int64 VALUE)
+{
+    // Unfortunately at the moment 'bsl::is_signed' is not available on C++03
+    return canRepresentImpl<TYPE>(
+               VALUE,
+               bsl::integral_constant<bool,
+                                      bsl::numeric_limits<TYPE>::is_signed>());
+}
+
+template <class TYPE>
+void testIntegerTypeRoundTrip()
+{
+    const struct {
+        int         d_line;
+        Int64       d_value;
+    } DATA[] = {
+        //LINE      VALUE
+        //----  ---------
+        { L_,          -1 },
+        { L_,           0 },
+        { L_,           1 },
+        { L_,    SHRT_MIN },
+        { L_,    SHRT_MAX },
+        { L_,   USHRT_MAX },
+        { L_,     INT_MIN },
+        { L_,     INT_MAX },
+        { L_,    UINT_MAX },
+        { L_,   LLONG_MIN },
+        { L_,   LLONG_MAX }
+    };
+    const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+    for (int ti = 0; ti < NUM_DATA; ++ti) {
+        const int   LINE  = DATA[ti].d_line;
+        const Int64 VAL64 = DATA[ti].d_value;
+        const TYPE  VALUE = (TYPE)VAL64;
+
+        if (false == canRepresent<TYPE>(VAL64)) {
+            continue;                                               // CONTINUE
+        }
+
+        bsl::ostringstream oss;
+        ASSERTV(LINE, 0 == Print::printValue(oss, VALUE));
+
+        bsl::string result(oss.str());
+
+        TYPE decoded = 0;
+        ASSERTV(LINE, 0 == Util::getValue(&decoded, result));
+        ASSERTV(LINE, VALUE, result, decoded, VALUE == decoded);
+
+        // Verify that default options are the same as no options
+        const baljsn::EncoderOptions defaultOptions;
+
+        oss.str("");
+        ASSERTV(LINE, 0 == Print::printValue(oss, VALUE, &defaultOptions));
+
+        result = oss.str();
+        ASSERTV(LINE, 0 == Util::getValue(&decoded, result));
+        ASSERTV(LINE, VALUE, result, decoded, VALUE == decoded);
+    }
+}
+
 // ============================================================================
 //                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -164,17 +318,17 @@ int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;
 
-    bool verbose = argc > 2;
-    bool veryVerbose = argc > 3;
+    bool verbose         = argc > 2;
+    bool veryVerbose     = argc > 3;
     bool veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bslma::TestAllocator          globalAllocator("global", veryVeryVerbose);
+    bslma::TestAllocator globalAllocator("global", veryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 22: {
+      case 26: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -192,9 +346,8 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "USAGE EXAMPLE" << endl
-                          << "=============" << endl;
+        if (verbose) cout << "\nUSAGE EXAMPLE"
+                          << "\n=============" << endl;
 
 ///Usage
 ///-----
@@ -223,9 +376,9 @@ int main(int argc, char *argv[])
     const char *date = "\"1985-06-24\"";
     const char *age  = "21";
 
-    bsl::string_view nameRef(name);
-    bsl::string_view dateRef(date);
-    bsl::string_view ageRef(age);
+    const bsl::string_view nameRef(name);
+    const bsl::string_view dateRef(date);
+    const bsl::string_view ageRef(age);
 //..
 // Now, we use the created string refs to populate the employee object:
 //..
@@ -239,6 +392,850 @@ int main(int argc, char *argv[])
     ASSERT(bdlt::Date(1985, 06, 24) == employee.d_date);
     ASSERT(21                      == employee.d_age);
 //..
+      } break;
+      case 25: {
+        // --------------------------------------------------------------------
+        // DATE AND TIME TYPES ROUND-TRIP
+        //
+        // Concerns:
+        //: 1 Date/time values decode back to the same value.
+        //
+        // Plan:
+        //: 1 Use the table-driven technique:
+        //:
+        //:   1 Specify a set of valid values.
+        //:
+        //:   2 Encode, then decode each value and verify the decoded value is
+        //:     the same..
+        //:
+        //: 2 Perform step one for every date/time type.
+        //
+        // Testing:
+        //   DATE AND TIME TYPES ROUND-TRIP
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nDATE AND TIME TYPES ROUND-TRIP"
+                          << "\n==============================" << endl;
+
+        const struct {
+            int d_line;
+            int d_year;
+            int d_month;
+            int d_day;
+            int d_hour;
+            int d_minute;
+            int d_second;
+            int d_millisecond;
+            int d_microsecond;
+            int d_offset;
+        } DATA[] = {
+            //Line Year   Mon  Day  Hour  Min  Sec     ms   us   offset
+            //---- ----   ---  ---  ----  ---  ---     --   --   ------
+
+            // Valid dates and times
+            { L_,     1,   1,   1,    0,   0,   0,     0,    0,      0 },
+            { L_,  2005,   1,   1,    0,   0,   0,     0,    0,    -90 },
+            { L_,   123,   6,  15,   13,  40,  59,     0,    0,   -240 },
+            { L_,  1999,  10,  12,   23,   0,   1,     0,    0,   -720 },
+
+            // Vary milliseconds
+            { L_,  1999,  10,  12,   23,   0,   1,     0,    0,     90 },
+            { L_,  1999,  10,  12,   23,   0,   1,   456,    0,    240 },
+            { L_,  1999,  10,  12,   23,   0,   1,   456,  789,    240 },
+            { L_,  1999,  10,  12,   23,   0,   1,   999,  789,    720 },
+            { L_,  1999,  12,  31,   23,  59,  59,   999,  999,    720 }
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int LINE        = DATA[ti].d_line;
+            const int YEAR        = DATA[ti].d_year;
+            const int MONTH       = DATA[ti].d_month;
+            const int DAY         = DATA[ti].d_day;
+            const int HOUR        = DATA[ti].d_hour;
+            const int MINUTE      = DATA[ti].d_minute;
+            const int SECOND      = DATA[ti].d_second;
+            const int MILLISECOND = DATA[ti].d_millisecond;
+            const int MICROSECOND = DATA[ti].d_microsecond;
+            const int OFFSET      = DATA[ti].d_offset;;
+
+            const bdlt::Date       DATE(YEAR, MONTH, DAY);
+            const bdlt::Time       TIME(HOUR, MINUTE, SECOND,
+                                         MILLISECOND);
+            const bdlt::Datetime   DATETIME(YEAR, MONTH, DAY,
+                                            HOUR, MINUTE, SECOND,
+                                            MILLISECOND, MICROSECOND);
+
+            const bdlt::DateTz     DATETZ(DATE, OFFSET);
+            const bdlt::TimeTz     TIMETZ(TIME, OFFSET);
+            const bdlt::DatetimeTz DATETIMETZ(DATETIME, OFFSET);
+
+            // Options necessary to round-trip.
+            baljsn::EncoderOptions options;
+            options.setDatetimeFractionalSecondPrecision(6);
+
+            if (verbose) cout << "Round-trip 'Date'" << endl;
+            {
+                bsl::ostringstream oss;
+                ASSERTV(LINE, 0 == Print::printValue(oss, DATE, &options));
+
+                const bsl::string result(oss.str());
+
+                bdlt::Date decoded;
+                ASSERTV(LINE, 0 == Util::getValue(&decoded, result));
+                ASSERTV(LINE, DATE, result, decoded, DATE == decoded);
+            }
+
+            if (verbose) cout << "Round-trip 'DateTz'" << endl;
+            {
+                bsl::ostringstream oss;
+                ASSERTV(LINE, 0 == Print::printValue(oss, DATETZ, &options));
+
+                const bsl::string result(oss.str());
+
+                bdlt::DateTz decoded;
+                ASSERTV(LINE, 0 == Util::getValue(&decoded, result));
+                ASSERTV(LINE, DATETZ, result, decoded, DATETZ == decoded);
+            }
+
+            if (verbose) cout << "Round-trip 'Time'" << endl;
+            {
+                bsl::ostringstream oss;
+                ASSERTV(LINE, 0 == Print::printValue(oss, TIME, &options));
+
+                const bsl::string result(oss.str());
+
+                bdlt::Time decoded;
+                ASSERTV(LINE, 0 == Util::getValue(&decoded, result));
+                ASSERTV(LINE, TIME, result, decoded, TIME == decoded);
+            }
+
+            if (verbose) cout << "Round-trip 'TimeTz'" << endl;
+            {
+                bsl::ostringstream oss;
+                ASSERTV(LINE, 0 == Print::printValue(oss, TIMETZ, &options));
+
+                const bsl::string result(oss.str());
+
+                bdlt::TimeTz decoded;
+                ASSERTV(LINE, 0 == Util::getValue(&decoded, result));
+                ASSERTV(LINE, TIMETZ, result, decoded, TIMETZ == decoded);
+            }
+
+            if (verbose) cout << "Round-trip 'Datetime'" << endl;
+            {
+                bsl::ostringstream oss;
+                ASSERTV(LINE, 0 == Print::printValue(oss, DATETIME, &options));
+
+                const bsl::string result(oss.str());
+
+                bdlt::Datetime decoded;
+                ASSERTV(LINE, 0 == Util::getValue(&decoded, result));
+                ASSERTV(LINE, DATETIME, result, decoded, DATETIME == decoded);
+            }
+
+            if (verbose) cout << "Round-trip 'DatetimeTz'" << endl;
+            {
+                bsl::ostringstream oss;
+                ASSERTV(LINE,
+                        0 == Print::printValue(oss, DATETIMETZ, &options));
+
+                const bsl::string result(oss.str());
+
+                bdlt::DatetimeTz decoded;
+                ASSERTV(LINE, 0 == Util::getValue(&decoded, result));
+                ASSERTV(LINE, DATETIMETZ, result, decoded,
+                        DATETIMETZ == decoded);
+            }
+        }
+      } break;
+      case 24: {
+        // --------------------------------------------------------------------
+        // NUMBERS ROUND-TRIP
+        //
+        // Concerns:
+        //: 1 Numbers encoded without precisions round trip to the same number.
+        //:
+        //: 2 'unsigned char' values are treated as numbers.
+        //
+        // Plan:
+        //: 1 Use the table-driven technique:
+        //:
+        //:   1 Specify a set of valid values, including those that will test
+        //:     the precision of the output.
+        //:
+        //:   2 Encode, then decode each value and verify that the decoded
+        //:     value is as expected.
+        //
+        // Testing:
+        //  NUMBERS ROUND-TRIP
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nNUMBERS ROUND-TRIP"
+                          << "\n==================" << endl;
+
+        if (verbose) cout << "Round-trip 'float'" << endl;
+        {
+            typedef bsl::numeric_limits<float> Limits;
+
+            const float neg0 = copysignf(0.0f, -1.0f);
+
+            const struct {
+                int   d_line;
+                float d_value;
+            } DATA[] = {
+                //LINE        VALUE
+                //----  -------------
+                { L_,           0.0f },
+                { L_,         0.125f },
+                { L_,        1.0e-1f },
+                { L_,      0.123456f },
+                { L_,           1.0f },
+                { L_,           1.5f },
+                { L_,          10.0f },
+                { L_,         1.5e1f },
+                { L_,   1.23456e-20f },
+                { L_,   0.123456789f },
+                { L_,  0.1234567891f },
+
+                { L_,           neg0 },
+                { L_,        -0.125f },
+                { L_,       -1.0e-1f },
+                { L_,     -0.123456f },
+                { L_,          -1.0f },
+                { L_,          -1.5f },
+                { L_,         -10.0f },
+                { L_,        -1.5e1f },
+                { L_,  -1.23456e-20f },
+                { L_,  -0.123456789f },
+                { L_, -0.1234567891f },
+
+                // {DRQS 165162213} regression, 2^24 loses precision as float
+                { L_, 1.0f * 0xFFFFFF },
+
+                // Full Mantissa Integers
+                { L_, 1.0f * 0xFFFFFF },
+                { L_, 1.0f * 0xFFFFFF     // this happens to be also
+                       * (1ull << 63)     // 'NumLimits::max()'
+                       * (1ull << 41) },
+
+                // Boundary Values
+                { L_,  Limits::min()        },
+                { L_,  Limits::denorm_min() },
+                { L_,  Limits::max()        },
+                { L_, -Limits::min()        },
+                { L_, -Limits::denorm_min() },
+                { L_, -Limits::max()        },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int   LINE  = DATA[ti].d_line;
+                const float VALUE = DATA[ti].d_value;
+
+                bsl::ostringstream oss;
+                ASSERTV(LINE, 0 == Print::printValue(oss, VALUE));
+
+                bsl::string result(oss.str());
+
+                float decoded;
+                ASSERTV(LINE, 0 == Util::getValue(&decoded, result));
+                ASSERTV(LINE, VALUE, result, decoded, VALUE == decoded);
+                // We also use 'memcmp' to ensure that we really get back the
+                // same binary IEEE-754.
+                ASSERTV(LINE, VALUE, result, decoded,
+                        0 == bsl::memcmp(&VALUE, &decoded, sizeof VALUE));
+
+                // Verify that default-options-encoding round-trips as well
+                baljsn::EncoderOptions options;
+                oss.str("");
+                ASSERTV(LINE, 0 == Print::printValue(oss, VALUE, &options));
+
+                result = oss.str();
+                ASSERTV(LINE, 0 == Util::getValue(&decoded, result));
+                ASSERTV(LINE, VALUE, result, decoded, VALUE == decoded);
+                // We also use 'memcmp' to ensure that we really get back the
+                // same binary IEEE-754.
+                ASSERTV(LINE, VALUE, result, decoded,
+                        0 == bsl::memcmp(&VALUE, &decoded, sizeof VALUE));
+
+                // Verify that 'maxFloatPrecision == 0' round-trips as well
+                options.setMaxFloatPrecision(0);
+                oss.str("");
+                ASSERTV(LINE, 0 == Print::printValue(oss, VALUE, &options));
+
+                result = oss.str();
+                ASSERTV(LINE, 0 == Util::getValue(&decoded, result));
+                ASSERTV(LINE, VALUE, result, decoded, VALUE == decoded);
+                // We also use 'memcmp' to ensure that we really get back the
+                // same binary IEEE-754.
+                ASSERTV(LINE, VALUE, result, decoded,
+                        0 == bsl::memcmp(&VALUE, &decoded, sizeof VALUE));
+            }
+        }
+
+        if (verbose)
+            cout << "Round-trip 'float' with 'maxFloatPrecision' option"
+                 << endl;
+        {
+            float neg0 = copysignf(0.0f, -1.0f);
+
+            const float ROUND_TRIPS = bsl::numeric_limits<float>::infinity();
+                // We use infinity to indicate that with the specified encoder
+                // options the exact same binary numeric value must be parsed
+                // back, as 'printValue'/'getValue' do not normally allow it as
+                // input.
+
+            const struct {
+                int   d_line;
+                float d_value;
+                int   d_maxFloatPrecision;
+                float d_expected;
+            } DATA[] = {
+                //LINE   VALUE             PRECISION     EXPECTED
+                //----   -----             ---------   ----------------
+
+                { L_,     0.0,             1,            ROUND_TRIPS    },
+                { L_,     0.0,             2,            ROUND_TRIPS    },
+                { L_,    neg0,             1,            ROUND_TRIPS    },
+                { L_,    neg0,             7,            ROUND_TRIPS    },
+                { L_,     1.0,             1,            ROUND_TRIPS    },
+                { L_,     1.0,             3,            ROUND_TRIPS    },
+                { L_,    10.0,             2,            ROUND_TRIPS    },
+                { L_,    10.0,             3,            ROUND_TRIPS    },
+                { L_,    -1.5,             1,          -2.0f            },
+                { L_,    -1.5,             2,            ROUND_TRIPS    },
+                { L_,     1.0e-1f,         1,            ROUND_TRIPS    },
+                { L_,     0.1234567891f,   1,           0.1f            },
+                { L_,     0.1234567891f,   4,           0.1235f         },
+                { L_,     0.1234567891f,   9,           0.123456791f    },
+
+                { L_,    10.0f,            1,            ROUND_TRIPS    },
+                { L_,    -1.5e1f,          1,          -20.0f           },
+                { L_,    -1.23456789e-20f, 1,          -1e-20f          },
+                { L_,    -1.23456789e-20f, 2,          -1.2e-20f        },
+                { L_,    -1.23456789e-20f, 8,          -1.2345679e-20f  },
+                { L_,    -1.23456789e-20f, 9,            ROUND_TRIPS    },
+                { L_,     1.23456789e-20f, 1,           1e-20f          },
+                { L_,     1.23456789e-20f, 9,           1.23456787e-20f },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int   LINE      = DATA[ti].d_line;
+                const float VALUE     = DATA[ti].d_value;
+                const int   PRECISION = DATA[ti].d_maxFloatPrecision;
+                const float EXPECTED  = DATA[ti].d_expected;
+
+                baljsn::EncoderOptions options;
+                options.setMaxFloatPrecision(PRECISION);
+
+                bsl::ostringstream oss;
+                ASSERTV(LINE, 0 == Print::printValue(oss, VALUE, &options));
+
+                const bsl::string result(oss.str());
+                float decoded;
+                ASSERTV(LINE, 0 == Util::getValue(&decoded, result));
+                if (EXPECTED == ROUND_TRIPS) {
+                    ASSERTV(LINE, VALUE, result, decoded, VALUE == decoded);
+                    // We also use 'memcmp' to ensure that we really get back
+                    // the same binary IEEE-754.
+                    ASSERTV(LINE, VALUE, result, decoded,
+                            0 == bsl::memcmp(&VALUE, &decoded, sizeof VALUE));
+                }
+                else {
+                    ASSERTV(LINE, EXPECTED, result, decoded,
+                            EXPECTED == decoded);
+                }
+            }
+        }
+
+        if (verbose) cout << "Round-trip 'float' Inf and NaN" << endl;
+        {
+            roundTripTestNonNumericValues<float>();
+        }
+
+        if (verbose) cout << "Round-trip 'double'" << endl;
+        {
+            typedef bsl::numeric_limits<double> Limits;
+
+            double neg0 = copysign(0.0, -1.0);
+
+            const struct {
+                int    d_line;
+                double d_value;
+            } DATA[] = {
+                //LINE            VALUE
+                //----   ----------------------
+                { L_,      0.0                  },
+                { L_,      1.0e-1               },
+                { L_,      0.125                },
+                { L_,      1.0                  },
+                { L_,      1.5                  },
+                { L_,     10.0                  },
+                { L_,      1.5e1                },
+                { L_,      9.9e100              },
+                { L_,      3.14e300             },
+                { L_,      2.23e-308            },
+                { L_,      0.12345678912345     },
+                { L_,      0.12345678901234567  },
+                { L_,      0.123456789012345678 },
+
+                { L_,   neg0                    },
+                { L_,     -1.0e-1               },
+                { L_,     -0.125                },
+                { L_,     -1.0                  },
+                { L_,     -1.5                  },
+                { L_,    -10.0                  },
+                { L_,     -1.5e1                },
+                { L_,     -9.9e100              },
+                { L_,     -3.14e300             },
+                { L_,     -2.23e-308            },
+                { L_,     -0.12345678912345     },
+                { L_,     -0.12345678901234567  },
+                { L_,     -0.123456789012345678 },
+
+                // Small Integers
+                { L_,      123456789012345.     },
+                { L_,      1234567890123456.    },
+
+                // Full Mantissa Integers
+                { L_, 1.0 * 0x1FFFFFFFFFFFFFull },
+                { L_, 1.0 * 0x1FFFFFFFFFFFFFull  // This is also limits::max()
+                      * (1ull << 63) * (1ull << 63) * (1ull << 63)
+                      * (1ull << 63) * (1ull << 63) * (1ull << 63)
+                      * (1ull << 63) * (1ull << 63) * (1ull << 63)
+                      * (1ull << 63) * (1ull << 63) * (1ull << 63)
+                      * (1ull << 63) * (1ull << 63) * (1ull << 63)
+                      * (1ull << 26)            },
+
+                // Boundary Values
+                { L_,  Limits::min()        },
+                { L_,  Limits::denorm_min() },
+                { L_,  Limits::max()        },
+                { L_, -Limits::min()        },
+                { L_, -Limits::denorm_min() },
+                { L_, -Limits::max()        },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int    LINE  = DATA[ti].d_line;
+                const double VALUE = DATA[ti].d_value;
+
+                bsl::ostringstream oss;
+                ASSERTV(LINE, 0 == Print::printValue(oss, VALUE));
+
+                bsl::string result(oss.str());
+                double decoded;
+                ASSERTV(LINE, 0 == Util::getValue(&decoded, result));
+                ASSERTV(LINE, VALUE, result, decoded, VALUE == decoded);
+                // We also use 'memcmp' to ensure that we really get back the
+                // same binary IEEE-754.
+                ASSERTV(LINE, VALUE, result, decoded,
+                        0 == bsl::memcmp(&VALUE, &decoded, sizeof VALUE));
+
+
+                // Verify that default-options-encoding round-trips as well
+                baljsn::EncoderOptions options;
+                oss.str("");
+                ASSERTV(LINE, 0 == Print::printValue(oss, VALUE, &options));
+
+                result = oss.str();
+                ASSERTV(LINE, 0 == Util::getValue(&decoded, result));
+                ASSERTV(LINE, VALUE, result, decoded, VALUE == decoded);
+                // We also use 'memcmp' to ensure that we really get back the
+                // same binary IEEE-754.
+                ASSERTV(LINE, VALUE, result, decoded,
+                        0 == bsl::memcmp(&VALUE, &decoded, sizeof VALUE));
+
+                // Verify that 'maxDoublePrecision == 0' round-trips as well
+                options.setMaxDoublePrecision(0);
+                oss.str("");
+                ASSERTV(LINE, 0 == Print::printValue(oss, VALUE, &options));
+
+                result = oss.str();
+                ASSERTV(LINE, 0 == Util::getValue(&decoded, result));
+                ASSERTV(LINE, VALUE, result, decoded, VALUE == decoded);
+                // We also use 'memcmp' to ensure that we really get back the
+                // same binary IEEE-754.
+                ASSERTV(LINE, VALUE, result, decoded,
+                        0 == bsl::memcmp(&VALUE, &decoded, sizeof VALUE));
+            }
+        }
+
+        if (verbose)
+            cout << "Round-trip 'double' with 'maxDoublePrecision' option"
+                 << endl;
+        {
+            typedef bsl::numeric_limits<double> Limits;
+
+            double neg0 = copysign(0.0, -1.0);
+
+            const double ROUND_TRIPS = Limits::infinity();
+                // We use infinity to indicate that with the specified encoder
+                // options the exact same binary numeric value must be parsed
+                // back, as 'printValue'/'getValue' do not normally allow it as
+                // input.
+
+            const struct {
+                int    d_line;
+                double d_value;
+                int    d_maxDoublePrecision;
+                double d_expected;
+            } DATA[] = {
+                //                            PRECISION
+                //LINE               VALUE        |         EXPECTED
+                //---  -----------------------   -v-  ---------------------
+
+                {L_,                       0.0,   1,             ROUND_TRIPS },
+                {L_,                       0.0,   2,             ROUND_TRIPS },
+                {L_,                      neg0,   1,             ROUND_TRIPS },
+                {L_,                      neg0,  17,             ROUND_TRIPS },
+                {L_,                       1.0,   1,             ROUND_TRIPS },
+                {L_,                       1.0,   3,             ROUND_TRIPS },
+                {L_,                      10.0,   2,             ROUND_TRIPS },
+                {L_,                      10.0,   3,             ROUND_TRIPS },
+                {L_,                      -1.5,   1,  -2.0                   },
+                {L_,                      -1.5,   2,             ROUND_TRIPS },
+                {L_,                  -9.9e100,   2,             ROUND_TRIPS },
+                {L_,                  -9.9e100,  15,             ROUND_TRIPS },
+                {L_,                  -9.9e100,  17,             ROUND_TRIPS },
+                {L_,                 -3.14e300,  15,             ROUND_TRIPS },
+                {L_,                 -3.14e300,  17,             ROUND_TRIPS },
+                {L_,                  3.14e300,   2,   3.1e+300              },
+                {L_,                  3.14e300,  17,             ROUND_TRIPS },
+                {L_,                    1.0e-1,   1,             ROUND_TRIPS },
+                {L_,                 2.23e-308,   2,   2.2e-308              },
+                {L_,                 2.23e-308,  17,             ROUND_TRIPS },
+                {L_,      0.123456789012345678,   1,   0.1                   },
+                {L_,      0.123456789012345678,   2,   0.12                  },
+                {L_,      0.123456789012345678,  15,   0.123456789012346     },
+                {L_,      0.123456789012345678,  16,   0.1234567890123457    },
+                {L_,      0.123456789012345678,  17,             ROUND_TRIPS },
+
+                {L_,                      10.0,   1,   1e+01                 },
+                {L_,                    -1.5e1,   1,  -2e+01                 },
+                {L_,   -1.2345678901234567e-20,   1,  -1e-20                 },
+                {L_,   -1.2345678901234567e-20,   2,  -1.2e-20               },
+                {L_,   -1.2345678901234567e-20,  15,  -1.23456789012346e-20  },
+                {L_,   -1.2345678901234567e-20,  16,  -1.234567890123457e-20 },
+                {L_,   -1.2345678901234567e-20,  17,             ROUND_TRIPS },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int    LINE     = DATA[ti].d_line;
+                const double VALUE    = DATA[ti].d_value;
+                const int    PREC     = DATA[ti].d_maxDoublePrecision;
+                const double EXPECTED = DATA[ti].d_expected;
+
+                baljsn::EncoderOptions options;
+                options.setMaxDoublePrecision(PREC);
+
+                bsl::ostringstream oss;
+                ASSERTV(LINE, 0 == Print::printValue(oss, VALUE, &options));
+
+                const bsl::string result(oss.str());
+                double decoded;
+                ASSERTV(LINE, 0 == Util::getValue(&decoded, result));
+                if (EXPECTED == ROUND_TRIPS) {
+                    ASSERTV(LINE, VALUE, result, decoded, VALUE == decoded);
+                    // We also use 'memcmp' to ensure that we really get back
+                    // the same binary IEEE-754.
+                    ASSERTV(LINE, VALUE, result, decoded,
+                            0 == bsl::memcmp(&VALUE, &decoded, sizeof VALUE));
+                }
+                else {
+                    ASSERTV(LINE, EXPECTED, result, decoded,
+                            EXPECTED == decoded);
+                }
+            }
+        }
+
+        if (verbose) cout << "Round-trip 'double' Inf and NaN" << endl;
+        {
+            roundTripTestNonNumericValues<double>();
+        }
+
+        if (verbose) cout << "Round-trip 'Decimal64'" << endl;
+        {
+#define DEC(X) BDLDFP_DECIMAL_DD(X)
+
+            typedef bsl::numeric_limits<bdldfp::Decimal64> Limits;
+
+            const struct {
+                int               d_line;
+                bdldfp::Decimal64 d_value;
+            } DATA[] = {
+                //LINE  VALUE
+                //----  -----------------------------
+                {L_,    DEC( 0.0),                    },
+                {L_,    DEC(-0.0),                    },
+                {L_,    DEC( 1.13),                   },
+                {L_,    DEC(-9.876543210987654e307)   },
+                {L_,    DEC(-9.8765432109876548e307)  },
+                {L_,    DEC(-9.87654321098765482e307) },
+
+                // Boundary values
+                { L_,    Limits::min()        },
+                { L_,    Limits::denorm_min() },
+                { L_,    Limits::max()        },
+                { L_,   -Limits::min()        },
+                { L_,   -Limits::denorm_min() },
+                { L_,   -Limits::max()        },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int               LINE  = DATA[ti].d_line;
+                const bdldfp::Decimal64 VALUE = DATA[ti].d_value;
+
+                bsl::ostringstream oss;
+                ASSERTV(LINE, 0 == Print::printValue(oss, VALUE));
+
+                bsl::string result(oss.str());
+                bdldfp::Decimal64 decoded;
+                ASSERTV(LINE, 0 == Util::getValue(&decoded, result));
+                ASSERTV(LINE, VALUE, result, decoded, VALUE == decoded);
+                // We also use 'memcmp' to ensure that we really get back the
+                // same binary IEEE-754.
+                ASSERTV(LINE, VALUE, result, decoded,
+                        0 == bsl::memcmp(&VALUE, &decoded, sizeof VALUE));
+
+                // Verify that default options are the same as no options
+                //*** NOT done because the default without options is different
+
+                // Verify that 'setEncodeQuotedDecimal64' 'false' behaves the
+                // same way as no options in that it round trips.
+                baljsn::EncoderOptions options;
+                options.setEncodeQuotedDecimal64(false);
+
+                oss.str("");
+                ASSERTV(LINE, 0 == Print::printValue(oss, VALUE, &options));
+
+                result = oss.str();
+                ASSERTV(LINE, 0 == Util::getValue(&decoded, result));
+                ASSERTV(LINE, VALUE, result, decoded, VALUE == decoded);
+                // We also use 'memcmp' to ensure that we really get back the
+                // same binary IEEE-754.
+                ASSERTV(LINE, VALUE, result, decoded,
+                        0 == bsl::memcmp(&VALUE, &decoded, sizeof VALUE));
+
+                // Verify that 'setEncodeQuotedDecimal64' 'true' quotes the
+                // numbers as if they were strings
+                options.setEncodeQuotedDecimal64(true);
+
+                oss.str("");
+                ASSERTV(LINE, 0 == Print::printValue(oss, VALUE, &options));
+
+                result = oss.str();
+                ASSERTV(LINE, 0 == Util::getValue(&decoded, result));
+                ASSERTV(LINE, VALUE, result, decoded, VALUE == decoded);
+                // We also use 'memcmp' to ensure that we really get back the
+                // same binary IEEE-754.
+                ASSERTV(LINE, VALUE, result, decoded,
+                        0 == bsl::memcmp(&VALUE, &decoded, sizeof VALUE));
+            }
+#undef DEC
+        }
+
+        if (verbose) cout << "Round-trip 'Decimal64' Inf and NaN" << endl;
+        {
+            roundTripTestNonNumericValues<bdldfp::Decimal64>();
+        }
+
+        if (verbose) cout << "Encode int" << endl;
+        {
+            testIntegerTypeRoundTrip<char>();
+            testIntegerTypeRoundTrip<short>();
+            testIntegerTypeRoundTrip<int>();
+            testIntegerTypeRoundTrip<Int64>();
+            testIntegerTypeRoundTrip<unsigned char>();
+            testIntegerTypeRoundTrip<unsigned short>();
+            testIntegerTypeRoundTrip<unsigned int>();
+            testIntegerTypeRoundTrip<Uint64>();
+        }
+      } break;
+      case 23: {
+        // --------------------------------------------------------------------
+        // STRINGS ROUND-TRIP
+        //
+        // Concerns:
+        //: 1 Encoded single characters string read back as .
+        //:
+        //: 2 All escape characters are encoded corrected.
+        //:
+        //: 3 Control characters round-trip.
+        //
+        // Plan:
+        //: 1 Using the table-driven technique:
+        //:
+        //:   1 Specify a set of values that include all escaped characters and
+        //:     some control characters.
+        //:
+        //:   2 Encode the value and verify the results.
+        //
+        // Testing:
+        //  static int printValue(bsl::ostream& s, const char             *v);
+        //  static int printValue(bsl::ostream& s, const bsl::string&      v);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nSTRINGS ROUND-TRIP"
+                          << "\n==================" << endl;
+
+        const struct {
+            int         d_line;
+            const char *d_value;
+        } DATA[] = {
+            //LINE   VALUE
+            //----   -----
+            { L_,    ""     },
+            { L_,    " "    },
+            { L_,    "~"    },
+
+            // Text
+            { L_,    "test" },
+            { L_,    "A quick brown fox jump over a lazy dog!" },
+
+            // Escape sequences
+            { L_,    "\""   },
+            { L_,    "\\"   },
+            { L_,    "/"    },
+            { L_,    "\b"   },
+            { L_,    "\f"   },
+            { L_,    "\n"   },
+            { L_,    "\r"   },
+            { L_,    "\t"   },
+            { L_,    "\\/\b\f\n\r\t" },  // Combination of escape sequences
+
+            { L_,    "\xc2\x80"         },
+            { L_,    "\xdf\xbf"         },
+            { L_,    "\xe0\xa0\x80"     },
+            { L_,    "\xef\xbf\xbf"     },
+            { L_,    "\xf0\x90\x80\x80" },
+            { L_,    "\xf4\x8f\xbf\xbf" },
+
+            { L_,    "\x01" },
+            { L_,    "\x02" },
+            { L_,    "\x03" },
+            { L_,    "\x04" },
+            { L_,    "\x05" },
+            { L_,    "\x06" },
+            { L_,    "\x07" },
+            { L_,    "\x08" },  // Backspace
+            { L_,    "\x09" },  // Horizontal tab
+            { L_,    "\x0A" },  // New line
+            { L_,    "\x0B" },  // Vertical tab
+            { L_,    "\x0C" },  // Form feed
+            { L_,    "\x0D" },  // Carriage return
+            { L_,    "\x0E" },
+            { L_,    "\x0F" },
+            { L_,    "\x10" },
+            { L_,    "\x11" },
+            { L_,    "\x12" },
+            { L_,    "\x13" },
+            { L_,    "\x14" },
+            { L_,    "\x15" },  // NACK (Negative ACK)
+            { L_,    "\x16" },
+            { L_,    "\x17" },
+            { L_,    "\x18" },  // Cancel
+            { L_,    "\x19" },
+            { L_,    "\x1A" },
+            { L_,    "\x1B" },  // Escape
+            { L_,    "\x1C" },
+            { L_,    "\x1D" },
+            { L_,    "\x1E" },
+            { L_,    "\x1F" },
+            { L_,    "\x20" }   // Space
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int         LINE  = DATA[ti].d_line;
+            const char *const VALUE = DATA[ti].d_value;
+
+            bsl::ostringstream oss;
+            ASSERTV(LINE, 0 == Print::printValue(oss, VALUE));
+
+            const bsl::string result(oss.str());
+            bsl::string decoded;
+            ASSERTV(0 == Util::getValue(&decoded, result));
+            ASSERTV(result, decoded, VALUE == decoded);
+        }
+      } break;
+      case 22: {
+        // --------------------------------------------------------------------
+        // BOOLEAN ROUND-TRIP
+        //
+        // Concerns:
+        //: 1 Both 'bool' values read back as the same value when printed.
+        //
+        // Plan:
+        //: 1 Use a brute force approach to test both cases.
+        //
+        // Testing:
+        //   BOOLEAN ROUND-TRIP
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nBOOLEAN ROUND-TRIP"
+                          << "\n==================" << endl;
+
+        if (verbose) cout << "Round-trip 'true'" << endl;
+        {
+            bsl::ostringstream oss;
+            ASSERTV(0 == Print::printValue(oss, true));
+
+            {
+                const bsl::string result = oss.str();
+
+                bool decoded;
+                ASSERTV(0 == Util::getValue(&decoded, result));
+                ASSERTV(result, decoded, true == decoded);
+            }
+
+            // Verify that passing in options to encode round-trips as well
+            const baljsn::EncoderOptions defaultOptions;
+
+            oss.str("");
+            ASSERT(0 == Print::printValue(oss, true, &defaultOptions));
+
+            {
+                const bsl::string result = oss.str();
+
+                bool decoded;
+                ASSERTV(0 == Util::getValue(&decoded, result));
+                ASSERTV(result, decoded, true == decoded);
+            }
+        }
+
+        if (verbose) cout << "Encode 'false'" << endl;
+        {
+            bsl::ostringstream oss;
+            ASSERTV(0 == Print::printValue(oss, false));
+
+            {
+                const bsl::string result = oss.str();
+
+                bool decoded;
+                ASSERTV(0 == Util::getValue(&decoded, result));
+                ASSERTV(result, decoded, false == decoded);
+            }
+
+            // Verify that passing in options to encode round-trips as well
+            const baljsn::EncoderOptions defaultOptions;
+
+            oss.str("");
+            ASSERT(0 == Print::printValue(oss, false, &defaultOptions));
+
+            {
+                const bsl::string result = oss.str();
+
+                bool decoded;
+                ASSERTV(0 == Util::getValue(&decoded, result));
+                ASSERTV(result, decoded, false == decoded);
+            }
+        }
       } break;
       case 21: {
         // --------------------------------------------------------------------
@@ -275,9 +1272,8 @@ int main(int argc, char *argv[])
         //   static int getValue(bdldfp::Decimal64 *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING 'getValue' for Decimal64"
-                               << "\n================================"
-                               << bsl::endl;
+        if (verbose) cout << "\nTESTING 'getValue' for Decimal64"
+                          << "\n================================" << endl;
         {
 #define DEC(X) BDLDFP_DECIMAL_DD(X)
 
@@ -388,7 +1384,7 @@ int main(int argc, char *argv[])
                 const bool   IS_VALID = DATA[i].d_isValid;
                       Type   value    = ERROR_VALUE;
 
-                StringRef    isb(INPUT.data(), INPUT.length());
+                const bsl::string_view isb(INPUT);
 
                 bslma::TestAllocator         da("default", veryVeryVerbose);
                 bslma::DefaultAllocatorGuard dag(&da);
@@ -445,9 +1441,9 @@ int main(int argc, char *argv[])
         //   static int getValue(vector<char>     *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING 'getValue' for 'vector<char>'"
-                               << "\n======================================"
-                               << bsl::endl;
+        if (verbose) cout << "\nTESTING 'getValue' for 'vector<char>'"
+                          << "\n======================================"
+                          << endl;
         {
             static const struct {
                 int         d_line;      // source line number
@@ -497,7 +1493,8 @@ int main(int argc, char *argv[])
                 bslma::TestAllocator da(veryVeryVerbose);
                 bslma::DefaultAllocatorGuard guard(&da);
 
-                StringRef isb(INPUT);
+                const bsl::string_view isb(INPUT);
+
                 const int rc = Util::getValue(&value, isb);
                 if (IS_VALID) {
                     LOOP2_ASSERT(LINE, rc, 0 == rc);
@@ -553,9 +1550,9 @@ int main(int argc, char *argv[])
         //   static int getValue(bdlt::DatetimeTz     *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING 'getValue' for 'bdlt::DatetimeTz'"
-                               << "\n========================================"
-                               << bsl::endl;
+        if (verbose) cout << "\nTESTING 'getValue' for 'bdlt::DatetimeTz'"
+                          << "\n========================================"
+                          << endl;
         {
             static const struct {
                 int         d_line;      // source line number
@@ -927,7 +1924,8 @@ int main(int argc, char *argv[])
 
                 bdlt::DatetimeTz value;
 
-                StringRef isb(INPUT.data(), static_cast<int>(INPUT.length()));
+                const bsl::string_view isb(INPUT);
+
                 const int rc = Util::getValue(&value, isb);
                 if (IS_VALID) {
                     LOOP2_ASSERT(LINE, rc, 0 == rc);
@@ -972,9 +1970,9 @@ int main(int argc, char *argv[])
         //   static int getValue(bdlt::Datetime       *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING 'getValue' for 'bdlt::Datetime'"
-                               << "\n======================================"
-                               << bsl::endl;
+        if (verbose) cout << "\nTESTING 'getValue' for 'bdlt::Datetime'"
+                          << "\n======================================"
+                          << endl;
         {
             static const struct {
                 int         d_line;      // source line number
@@ -1531,7 +2529,8 @@ int main(int argc, char *argv[])
 
                 bdlt::Datetime value;
 
-                StringRef isb(INPUT.data(), static_cast<int>(INPUT.length()));
+                const bsl::string_view isb(INPUT);
+
                 const int rc = Util::getValue(&value, isb);
                 if (IS_VALID) {
                     LOOP2_ASSERT(LINE, rc, 0 == rc);
@@ -1576,9 +2575,8 @@ int main(int argc, char *argv[])
         //   static int getValue(bdlt::DateTz         *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING 'getValue' for 'bdlt::DateTz'"
-                               << "\n===================================="
-                               << bsl::endl;
+        if (verbose) cout << "\nTESTING 'getValue' for 'bdlt::DateTz'"
+                          << "\n====================================" << endl;
         {
             static const struct {
                 int         d_line;      // source line number
@@ -1786,7 +2784,8 @@ int main(int argc, char *argv[])
 
                 bdlt::DateTz value;
 
-                StringRef isb(INPUT.data(), static_cast<int>(INPUT.length()));
+                const bsl::string_view isb(INPUT);
+
                 const int rc = Util::getValue(&value, isb);
                 if (IS_VALID) {
                     LOOP2_ASSERT(LINE, rc, 0 == rc);
@@ -1831,9 +2830,9 @@ int main(int argc, char *argv[])
         //   static int getValue(bdlt::Date           *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING 'getValue' for 'bdlt::Date' types"
-                               << "\n========================================"
-                               << bsl::endl;
+        if (verbose) cout << "\nTESTING 'getValue' for 'bdlt::Date' types"
+                          << "\n========================================"
+                          << endl;
         {
             static const struct {
                 int         d_line;      // source line number
@@ -1952,7 +2951,8 @@ int main(int argc, char *argv[])
 
                 bdlt::Date value;
 
-                StringRef isb(INPUT.data(), static_cast<int>(INPUT.length()));
+                const bsl::string_view isb(INPUT);
+
                 const int rc = Util::getValue(&value, isb);
                 if (IS_VALID) {
                     LOOP2_ASSERT(LINE, rc, 0 == rc);
@@ -1997,9 +2997,8 @@ int main(int argc, char *argv[])
         //   static int getValue(bdlt::TimeTz         *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING 'getValue' for 'bdlt::TimeTz'"
-                               << "\n===================================="
-                               << bsl::endl;
+        if (verbose) cout << "\nTESTING 'getValue' for 'bdlt::TimeTz'"
+                          << "\n====================================" << endl;
         {
             static const struct {
                 int         d_line;      // source line number
@@ -2097,7 +3096,8 @@ int main(int argc, char *argv[])
 
                 bdlt::TimeTz value;
 
-                StringRef isb(INPUT.data(), static_cast<int>(INPUT.length()));
+                const bsl::string_view isb(INPUT);
+
                 const int rc = Util::getValue(&value, isb);
                 if (IS_VALID) {
                     LOOP2_ASSERT(LINE, rc, 0 == rc);
@@ -2142,9 +3142,8 @@ int main(int argc, char *argv[])
         //   static int getValue(bdlt::Time           *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING 'getValue' for 'bdlt::Time'"
-                               << "\n=================================="
-                               << bsl::endl;
+        if (verbose) cout << "\nTESTING 'getValue' for 'bdlt::Time'"
+                          << "\n==================================" << endl;
         {
             static const struct {
                 int         d_line;      // source line number
@@ -2285,7 +3284,8 @@ int main(int argc, char *argv[])
 
                 bdlt::Time value;
 
-                StringRef isb(INPUT.data(), static_cast<int>(INPUT.length()));
+                const bsl::string_view isb(INPUT);
+
                 const int rc = Util::getValue(&value, isb);
                 if (IS_VALID) {
                     LOOP2_ASSERT(LINE, rc, 0 == rc);
@@ -2350,11 +3350,10 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose)
-            bsl::cout << "\nTESTING 'getQuotedString', 'getUnquotedString', "
-                         "and 'getValue' for string values"
-                      << "\n================================================"
-                      << "================================"
-                      << bsl::endl;
+            cout << "\nTESTING 'getQuotedString', 'getUnquotedString', and "
+                    "'getValue' for string values"
+                    "\n===================================================="
+                    "============================" << endl;
         {
             typedef bsl::string Type;
 
@@ -2469,7 +3468,7 @@ int main(int argc, char *argv[])
                 // These error strings were copied from
                 // 'bdlde_charconvertutf32' test driver.
 
-                // values that are not valid unicode because they are in the
+                // values that are not valid Unicode because they are in the
                 // lower UTF-16 bit plane.
 
                 {  L_, "\"\\UD800\"",    -1, ERROR_VALUE,             -1, 0  },
@@ -2479,7 +3478,7 @@ int main(int argc, char *argv[])
                 {  L_, "\"\\Udb09\"",    -1, ERROR_VALUE,             -1, 0  },
                 {  L_, "\"\\UdbFF\"",    -1, ERROR_VALUE,             -1, 0  },
 
-                // values that are not valid unicode because they are in the
+                // values that are not valid Unicode because they are in the
                 // upper UTF-16 bit plane.
 
                 {  L_, "\"\\UDc00\"",    -1, ERROR_VALUE,             -1, 0  },
@@ -2528,15 +3527,15 @@ int main(int argc, char *argv[])
                                             : data.d_expLen;
                 const bool         IS_VALID = data.d_isValid;
 
-                const StringRef isb(IN_P,  IN_LEN);
-                const StringRef unq_isb(IN_P + 1,  IN_LEN - 2);
-                const StringRef EXP(EXP_P, EXP_LEN);
+                const bsl::string_view isb(IN_P,  IN_LEN);
+                const bsl::string_view unq_isb(IN_P + 1, IN_LEN - 2);
+                const bsl::string_view EXP(EXP_P, EXP_LEN);
 
-                Type value = ERROR_VALUE;
+                Type value  = ERROR_VALUE;
                 Type value2 = ERROR_VALUE;
                 Type value3 = ERROR_VALUE;
 
-                const int rc = Util::getValue(&value, isb);
+                const int rc  = Util::getValue(&value, isb);
                 const int rc2 = Util::getQuotedString(&value2, isb);
                 const int rc3 = Util::getUnquotedString(&value3, unq_isb);
 
@@ -2545,21 +3544,21 @@ int main(int argc, char *argv[])
                 ASSERTV(value, value3, value == value3);
 
                 if (IS_VALID) {
-                    ASSERTV(LINE, rc,   0 == rc);
-                    ASSERTV(LINE, rc3,  0 == rc3);
+                    ASSERTV(LINE, rc,  0 == rc);
+                    ASSERTV(LINE, rc3, 0 == rc3);
                 }
                 else {
-                    ASSERTV(LINE, rc, rc);
+                    ASSERTV(LINE, rc, 0 != rc);
                 }
                 ASSERTV(LINE, EXP, value, EXP == value);
             }
 
             static const Data DATA2[] = {
-                //line input             len exp                     isValid
-                //---- -----             --- ---                    -------
-                {  L_, "",               -1, "",                      -1, 1  },
-                {  L_, "a",              -1, "a",                      1, 1  },
-                {  L_, "ab",             -1, "ab",                     2, 1  },
+                //line   input   len    exp   expLen     isValid
+                //----   -----   ---    ---   ------     -------
+                {  L_,   "",     -1,    "",       -1,    true   },
+                {  L_,   "a",    -1,    "a",       1,    true   },
+                {  L_,   "ab",   -1,    "ab",      2,    true   },
             };
 
             const int NUM_DATA2 = sizeof(DATA2) / sizeof(*DATA2);
@@ -2577,8 +3576,8 @@ int main(int argc, char *argv[])
                                             : data.d_expLen;
                 const bool         IS_VALID = data.d_isValid;
 
-                const StringRef isb(IN_P,  IN_LEN);
-                const StringRef EXP(EXP_P, EXP_LEN);
+                const bsl::string_view isb(IN_P,  IN_LEN);
+                const bsl::string_view EXP(EXP_P, EXP_LEN);
 
                 Type value = ERROR_VALUE;
 
@@ -2627,9 +3626,8 @@ int main(int argc, char *argv[])
         //   static int getValue(double              *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING 'getValue' for double"
-                               << "\n============================="
-                               << bsl::endl;
+        if (verbose) cout << "\nTESTING 'getValue' for double"
+                          << "\n=============================" << endl;
         {
             typedef double Type;
 
@@ -2809,8 +3807,7 @@ int main(int argc, char *argv[])
                 const bool   IS_VALID = DATA[i].d_isValid;
                       Type   value    = ERROR_VALUE;
 
-                StringRef    isb(INPUT.data(),
-                                 static_cast<int>(INPUT.length()));
+                const bsl::string_view isb(INPUT);
 
                 bslma::TestAllocator         da("default", veryVeryVerbose);
                 bslma::DefaultAllocatorGuard dag(&da);
@@ -2867,9 +3864,8 @@ int main(int argc, char *argv[])
         //   static int getValue(float               *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING 'getValue' for float"
-                               << "\n============================"
-                               << bsl::endl;
+        if (verbose) cout << "\nTESTING 'getValue' for float"
+                          << "\n============================" << endl;
         {
             typedef float Type;
 
@@ -2909,11 +3905,11 @@ int main(int argc, char *argv[])
                 {  L_,   "8388607",              8388607,       true    },
                 {  L_,   "8388608",              8388608,       true    },
 
-                {  L_,   "2147483646",      2147483646.0,       true    },
-                {  L_,   "2147483647",      2147483647.0,       true    },
+                {  L_,   "2147483646",     2147483646.0f,       true    },
+                {  L_,   "2147483647",     2147483647.0f,       true    },
 
-                {  L_,   "4294967294",      4294967294.0,       true    },
-                {  L_,   "4294967295",      4294967295.0,       true    },
+                {  L_,   "4294967294",     4294967294.0f,       true    },
+                {  L_,   "4294967295",     4294967295.0f,       true    },
 
                 {  L_,    "1.1",                    1.1f,       true    },
                 {  L_,    "1.5",                    1.5f,       true    },
@@ -3042,8 +4038,7 @@ int main(int argc, char *argv[])
                 const bool   IS_VALID = DATA[i].d_isValid;
                       Type   value    = ERROR_VALUE;
 
-                StringRef    isb(INPUT.data(),
-                                 static_cast<int>(INPUT.length()));
+                const bsl::string_view isb(INPUT);
 
                 bslma::TestAllocator         da("default", veryVeryVerbose);
                 bslma::DefaultAllocatorGuard dag(&da);
@@ -3100,9 +4095,8 @@ int main(int argc, char *argv[])
         //   static int getValue(bsls::Types::Uint64 *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING 'getValue' for Uint64"
-                               << "\n============================="
-                               << bsl::endl;
+        if (verbose) cout << "\nTESTING 'getValue' for Uint64"
+                          << "\n=============================" << endl;
 
         {
             typedef Uint64 Type;
@@ -3328,7 +4322,7 @@ int main(int argc, char *argv[])
                 const bool   IS_VALID = DATA[i].d_isValid;
                       Type   value    = ERROR_VALUE;
 
-                StringRef isb(INPUT.data(), static_cast<int>(INPUT.length()));
+                const bsl::string_view isb(INPUT);
 
                 bslma::TestAllocator         da("default", veryVeryVerbose);
                 bslma::DefaultAllocatorGuard dag(&da);
@@ -3345,12 +4339,13 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, da.numBlocksTotal(), 0 == da.numBlocksTotal());
             }
 
-            for (int i = 0; i <= 255; ++i) {
-                char      c        = static_cast<char>(i);
-                StringRef isb(&c, 1);
-                bool      is_valid = '0' <= c && c <= '9';
-                Type      value    = ERROR_VALUE;
-                const int rc       = Util::getValue(&value, isb);
+            for (Type i = 0; i <= 255; ++i) {
+                char                   c        = static_cast<char>(i);
+                const bsl::string_view isb(&c, 1);
+                bool                   is_valid = '0' <= c && c <= '9';
+                Type                   value    = ERROR_VALUE;
+                const int              rc       = Util::getValue(&value, isb);
+
                 ASSERTV(rc, i, is_valid, is_valid == (0 == rc));
                 ASSERTV(value, is_valid, !is_valid || value == i - '0');
             }
@@ -3389,9 +4384,8 @@ int main(int argc, char *argv[])
         //   static int getValue(bsls::Types::Int64  *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING 'getValue' for Int64"
-                               << "\n============================"
-                               << bsl::endl;
+        if (verbose) cout << "\nTESTING 'getValue' for Int64"
+                          << "\n============================" << endl;
 
         {
             typedef Int64 Type;
@@ -3474,9 +4468,9 @@ int main(int argc, char *argv[])
     {  L_, "-9223372036854775807.0",       -9223372036854775807LL, true },
     {  L_, "-9223372036854775807.00000000",-9223372036854775807LL, true },
     {  L_, "-9223372036854775808.0",
-                   static_cast<long long>(-9223372036854775808LL), true },
+               static_cast<long long>(-9223372036854775807LL - 1), true },
     {  L_, "-9223372036854775808.00000000",
-                   static_cast<long long>(-9223372036854775808LL), true },
+               static_cast<long long>(-9223372036854775807LL - 1), true },
 
     {  L_,          "1e0",                    1,      true    },
     {  L_,          "1E0",                    1,      true    },
@@ -3522,68 +4516,68 @@ int main(int argc, char *argv[])
 { L_,"9223372036854775807.00e0",                   9223372036854775807LL,true},
 
 {L_,                 "-0.9223372036854775808e19",
-                          static_cast<long long>(-9223372036854775808LL),true},
+                      static_cast<long long>(-9223372036854775807LL - 1),true},
 {L_,                 "-9.22337203685477580800e18",
-                          static_cast<long long>(-9223372036854775808LL),true},
+                      static_cast<long long>(-9223372036854775807LL - 1),true},
 {L_,                "-92.2337203685477580800e17",
-                          static_cast<long long>(-9223372036854775808LL),true},
+                      static_cast<long long>(-9223372036854775807LL - 1),true},
 {L_,               "-922.337203685477580800e16",
-                          static_cast<long long>(-9223372036854775808LL),true},
+                      static_cast<long long>(-9223372036854775807LL - 1),true},
 {L_,              "-9223.37203685477580800e15",
-                          static_cast<long long>(-9223372036854775808LL),true},
+                      static_cast<long long>(-9223372036854775807LL - 1),true},
 {L_,             "-92233.7203685477580800e14",
-                          static_cast<long long>(-9223372036854775808LL),true},
+                      static_cast<long long>(-9223372036854775807LL - 1),true},
 {L_,            "-922337.203685477580800e13",
-                          static_cast<long long>(-9223372036854775808LL),true},
+                      static_cast<long long>(-9223372036854775807LL - 1),true},
 {L_,           "-9223372.03685477580800e12",
-                          static_cast<long long>(-9223372036854775808LL),true},
+                      static_cast<long long>(-9223372036854775807LL - 1),true},
 {L_,          "-92233720.3685477580800e11",
-                          static_cast<long long>(-9223372036854775808LL),true},
+                      static_cast<long long>(-9223372036854775807LL - 1),true},
 {L_,         "-922337203.685477580800e10",
-                          static_cast<long long>(-9223372036854775808LL),true},
+                      static_cast<long long>(-9223372036854775807LL - 1),true},
 {L_,        "-9223372036.85477580800e9",
-                          static_cast<long long>(-9223372036854775808LL),true},
+                      static_cast<long long>(-9223372036854775807LL - 1),true},
 {L_,       "-92233720368.5477580800e8",
-                          static_cast<long long>(-9223372036854775808LL),true},
+                      static_cast<long long>(-9223372036854775807LL - 1),true},
 {L_,      "-922337203685.477580800e7",
-                          static_cast<long long>(-9223372036854775808LL),true},
+                      static_cast<long long>(-9223372036854775807LL - 1),true},
 {L_,     "-9223372036854.77580800e6",
-                          static_cast<long long>(-9223372036854775808LL),true},
+                      static_cast<long long>(-9223372036854775807LL - 1),true},
 {L_,    "-92233720368547.7580800e5",
-                          static_cast<long long>(-9223372036854775808LL),true},
+                      static_cast<long long>(-9223372036854775807LL - 1),true},
 {L_,   "-922337203685477.580800e4",
-                          static_cast<long long>(-9223372036854775808LL),true},
+                      static_cast<long long>(-9223372036854775807LL - 1),true},
 {L_,  "-9223372036854775.80800e3",
-                          static_cast<long long>(-9223372036854775808LL),true},
+                      static_cast<long long>(-9223372036854775807LL - 1),true},
 {L_, "-92233720368547758.0800e2",
-                          static_cast<long long>(-9223372036854775808LL),true},
+                      static_cast<long long>(-9223372036854775807LL - 1),true},
 {L_,"-922337203685477580.800e1",
-                          static_cast<long long>(-9223372036854775808LL),true},
+                      static_cast<long long>(-9223372036854775807LL - 1),true},
 {L_, "-9223372036854775808.00e0",
-                          static_cast<long long>(-9223372036854775808LL),true},
+                      static_cast<long long>(-9223372036854775807LL - 1),true},
 
- {  L_,  "922337203685477580700000e-5",        9223372036854775807LL, true  },
- {  L_,  "922337203685477580700000.00000e-5",  9223372036854775807LL, true  },
- {  L_,   "92233720368547758070000e-4",        9223372036854775807LL, true  },
- {  L_,    "9223372036854775807000e-3",        9223372036854775807LL, true  },
- {  L_,     "922337203685477580700e-2",        9223372036854775807LL, true  },
- {  L_,      "92233720368547758070e-1",        9223372036854775807LL, true  },
- {  L_,       "9223372036854775807e-0",        9223372036854775807LL, true  },
+ {  L_,  "922337203685477580700000e-5",        9223372036854775807LL, true },
+ {  L_,  "922337203685477580700000.00000e-5",  9223372036854775807LL, true },
+ {  L_,   "92233720368547758070000e-4",        9223372036854775807LL, true },
+ {  L_,    "9223372036854775807000e-3",        9223372036854775807LL, true },
+ {  L_,     "922337203685477580700e-2",        9223372036854775807LL, true },
+ {  L_,      "92233720368547758070e-1",        9223372036854775807LL, true },
+ {  L_,       "9223372036854775807e-0",        9223372036854775807LL, true },
 
  {  L_,  "-922337203685477580800000e-5",
-                      static_cast<long long>(-9223372036854775808LL), true },
+                    static_cast<long long>(-9223372036854775807LL - 1), true },
  {  L_,  "-922337203685477580800000.00000e-5",
-                      static_cast<long long>(-9223372036854775808LL), true },
+                    static_cast<long long>(-9223372036854775807LL - 1), true },
  {  L_,   "-92233720368547758080000e-4",
-                      static_cast<long long>(-9223372036854775808LL), true },
+                    static_cast<long long>(-9223372036854775807LL - 1), true },
  {  L_,    "-9223372036854775808000e-3",
-                      static_cast<long long>(-9223372036854775808LL), true },
+                    static_cast<long long>(-9223372036854775807LL - 1), true },
  {  L_,     "-922337203685477580800e-2",
-                      static_cast<long long>(-9223372036854775808LL), true },
+                    static_cast<long long>(-9223372036854775807LL - 1), true },
  {  L_,      "-92233720368547758080e-1",
-                      static_cast<long long>(-9223372036854775808LL), true },
+                    static_cast<long long>(-9223372036854775807LL - 1), true },
  {  L_,       "-9223372036854775808e-0",
-                      static_cast<long long>(-9223372036854775808LL), true },
+                    static_cast<long long>(-9223372036854775807LL - 1), true },
 
     {  L_,          "1.0e0",                  1,      true    },
     {  L_,          "2.000e0",                2,      true    },
@@ -3691,7 +4685,7 @@ int main(int argc, char *argv[])
                 const bool   IS_VALID = DATA[i].d_isValid;
                       Type   value    = ERROR_VALUE;
 
-                StringRef isb(INPUT.data(), static_cast<int>(INPUT.length()));
+                const bsl::string_view isb(INPUT);
 
                 bslma::TestAllocator         da("default", veryVeryVerbose);
                 bslma::DefaultAllocatorGuard dag(&da);
@@ -3742,9 +4736,8 @@ int main(int argc, char *argv[])
         //   static int getValue(unsigned int        *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING 'getValue' for unsigned int"
-                               << "\n==================================="
-                               << bsl::endl;
+        if (verbose) cout << "\nTESTING 'getValue' for unsigned int"
+                          << "\n===================================" << endl;
 
         {
             typedef unsigned int Type;
@@ -3938,7 +4931,7 @@ int main(int argc, char *argv[])
                 const bool   IS_VALID = DATA[i].d_isValid;
                       Type   value    = ERROR_VALUE;
 
-                StringRef isb(INPUT.data(), static_cast<int>(INPUT.length()));
+                const bsl::string_view isb(INPUT);
 
                 bslma::TestAllocator         da("default", veryVeryVerbose);
                 bslma::DefaultAllocatorGuard dag(&da);
@@ -3989,9 +4982,8 @@ int main(int argc, char *argv[])
         //   static int getValue(int                 *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING 'getValue' for int"
-                               << "\n=========================="
-                               << bsl::endl;
+        if (verbose) cout << "\nTESTING 'getValue' for int"
+                          << "\n==========================" << endl;
         {
             typedef int Type;
 
@@ -4005,226 +4997,228 @@ int main(int argc, char *argv[])
                 Type        d_exp;     // exp unsigned value
                 bool        d_isValid; // isValid flag
             } DATA[] = {
-   //line          input                    exp     isValid
-   //----          -----                    ---     -------
-    {  L_,           "0",                     0,      true    },
-    {  L_,           "1",                     1,      true    },
-    {  L_,          "95",                    95,      true    },
-    {  L_,         "127",                   127,      true    },
-    {  L_,         "128",                   128,      true    },
-    {  L_,         "200",                   200,      true    },
-    {  L_,         "255",                   255,      true    },
-    {  L_,         "256",                   256,      true    },
-    {  L_,       "32766",                 32766,      true    },
-    {  L_,       "32767",                 32767,      true    },
-    {  L_,       "65534",                 65534,      true    },
-    {  L_,       "65535",                 65535,      true    },
-    {  L_,     "8388607",               8388607,      true    },
-    {  L_,     "8388608",               8388608,      true    },
+#define TLN(inp, exp, isvalid) { L_, inp, static_cast<Type>(exp), isvalid }
+                //          input                expected       isValid
+                //  ---------------------    ----------------   -------
+                TLN(           "0",                        0,     true ),
+                TLN(           "1",                        1,     true ),
+                TLN(          "95",                       95,     true ),
+                TLN(         "127",                      127,     true ),
+                TLN(         "128",                      128,     true ),
+                TLN(         "200",                      200,     true ),
+                TLN(         "255",                      255,     true ),
+                TLN(         "256",                      256,     true ),
+                TLN(       "32766",                    32766,     true ),
+                TLN(       "32767",                    32767,     true ),
+                TLN(       "65534",                    65534,     true ),
+                TLN(       "65535",                    65535,     true ),
+                TLN(     "8388607",                  8388607,     true ),
+                TLN(     "8388608",                  8388608,     true ),
 
-    {  L_,          "-1",                    -1,      true    },
-    {  L_,        "-128",                  -128,      true    },
-    {  L_,        "-129",                  -129,      true    },
-    {  L_,        "-255",                  -255,      true    },
-    {  L_,        "-256",                  -256,      true    },
-    {  L_,      "-32767",                -32767,      true    },
-    {  L_,      "-32768",                -32768,      true    },
-    {  L_,      "-65535",                -65535,      true    },
-    {  L_,      "-65536",                -65536,      true    },
+                TLN(          "-1",                       -1,     true ),
+                TLN(        "-128",                     -128,     true ),
+                TLN(        "-129",                     -129,     true ),
+                TLN(        "-255",                     -255,     true ),
+                TLN(        "-256",                     -256,     true ),
+                TLN(      "-32767",                   -32767,     true ),
+                TLN(      "-32768",                   -32768,     true ),
+                TLN(      "-65535",                   -65535,     true ),
+                TLN(      "-65536",                   -65536,     true ),
 
-    {  L_, "-2147483648",                   MIN,      true    },
-    {  L_, "-2147483647",               MIN + 1,      true    },
-    {  L_,  "2147483646",               MAX - 1,      true    },
-    {  L_,  "2147483647",                   MAX,      true    },
+                TLN( "-2147483648",                      MIN,     true ),
+                TLN( "-2147483647",                  MIN + 1,     true ),
+                TLN(  "2147483646",                  MAX - 1,     true ),
+                TLN(  "2147483647",                      MAX,     true ),
 
-    {  L_,           "0.0",                   0,      true    },
-    {  L_,           "0.0000000000000",       0,      true    },
-    {  L_,           "1.0",                   1,      true    },
-    {  L_,           "1.00000000000",         1,      true    },
-    {  L_,         "95.0",                   95,      true    },
-    {  L_,         "95.0000000000",          95,      true    },
-    {  L_,        "127.00",                 127,      true    },
-    {  L_,        "128.00",                 128,      true    },
-    {  L_,        "200.00",                 200,      true    },
-    {  L_,        "255.00",                 255,      true    },
-    {  L_,        "256.00",                 256,      true    },
-    {  L_, "2147483646.0",           2147483646,      true    },
-    {  L_, "2147483646.000000000",   2147483646,      true    },
-    {  L_, "2147483647.0",           2147483647,      true    },
-    {  L_, "2147483647.000000000",   2147483647,      true    },
+                TLN(           "0.0",                      0,     true ),
+                TLN(           "0.0000000000000",          0,     true ),
+                TLN(           "1.0",                      1,     true ),
+                TLN(           "1.00000000000",            1,     true ),
+                TLN(         "95.0",                      95,     true ),
+                TLN(         "95.0000000000",             95,     true ),
+                TLN(        "127.00",                    127,     true ),
+                TLN(        "128.00",                    128,     true ),
+                TLN(        "200.00",                    200,     true ),
+                TLN(        "255.00",                    255,     true ),
+                TLN(        "256.00",                    256,     true ),
+                TLN( "2147483646.0",              2147483646,     true ),
+                TLN( "2147483646.000000000",      2147483646,     true ),
+                TLN( "2147483647.0",              2147483647,     true ),
+                TLN( "2147483647.000000000",      2147483647,     true ),
 
-    {  L_,         "-1.00",                  -1,      true    },
-    {  L_,       "-127.00",                -127,      true    },
-    {  L_,       "-127.0000000",           -127,      true    },
-    {  L_,       "-128.00",                -128,      true    },
-    {  L_,       "-129.00",                -129,      true    },
-    {  L_,       "-255.00",                -255,      true    },
-    {  L_,       "-256.00",                -256,      true    },
-    {  L_,"-2147483647.0",          -2147483647,      true    },
-    {  L_,"-2147483647.000000000",  -2147483647,      true    },
-    {  L_,"-2147483648.0",          -2147483648,      true    },
-    {  L_,"-2147483648.000000000",  -2147483648,      true    },
+                TLN(         "-1.00",                     -1,     true ),
+                TLN(       "-127.00",                   -127,     true ),
+                TLN(       "-127.0000000",              -127,     true ),
+                TLN(       "-128.00",                   -128,     true ),
+                TLN(       "-129.00",                   -129,     true ),
+                TLN(       "-255.00",                   -255,     true ),
+                TLN(       "-256.00",                   -256,     true ),
+                TLN("-2147483647.0",             -2147483647,     true ),
+                TLN("-2147483647.000000000",     -2147483647,     true ),
+                TLN("-2147483648.0",         -2147483647 - 1,     true ),
+                TLN("-2147483648.000000000", -2147483647 - 1,     true ),
 
-    {  L_,          "1e0",                    1,      true    },
-    {  L_,          "1E0",                    1,      true    },
-    {  L_,          "1e+0",                   1,      true    },
-    {  L_,          "1E+0",                   1,      true    },
-    {  L_,          "1e-0",                   1,      true    },
-    {  L_,          "1E-0",                   1,      true    },
+                TLN(          "1e0",                       1,     true ),
+                TLN(          "1E0",                       1,     true ),
+                TLN(          "1e+0",                      1,     true ),
+                TLN(          "1E+0",                      1,     true ),
+                TLN(          "1e-0",                      1,     true ),
+                TLN(          "1E-0",                      1,     true ),
 
-    {  L_,          "1e1",                   10,      true    },
-    {  L_,          "2E1",                   20,      true    },
-    {  L_,          "3e+1",                  30,      true    },
-    {  L_,          "4E+1",                  40,      true    },
+                TLN(          "1e1",                      10,     true ),
+                TLN(          "2E1",                      20,     true ),
+                TLN(          "3e+1",                     30,     true ),
+                TLN(          "4E+1",                     40,     true ),
 
-    {  L_,          "2e2",                  200,      true    },
-    {  L_,          "3E2",                  300,      true    },
-    {  L_,          "4e+2",                 400,      true    },
-    {  L_,          "5E+2",                 500,      true    },
+                TLN(          "2e2",                     200,     true ),
+                TLN(          "3E2",                     300,     true ),
+                TLN(          "4e+2",                    400,     true ),
+                TLN(          "5E+2",                    500,     true ),
 
-    {  L_,          "0.1e1",                  1,      true    },
-    {  L_,          "0.2e2",                 20,      true    },
-    {  L_,          "0.30e2",                30,      true    },
-    {  L_,          "0.400e3",              400,      true    },
+                TLN(          "0.1e1",                     1,     true ),
+                TLN(          "0.2e2",                    20,     true ),
+                TLN(          "0.30e2",                   30,     true ),
+                TLN(          "0.400e3",                 400,     true ),
 
-    {  L_,          "0.214748364700e10", 2147483647,  true    },
-    {  L_,          "2.14748364700e9",   2147483647,  true    },
-    {  L_,         "21.4748364700e8",    2147483647,  true    },
-    {  L_,        "214.748364700e7",     2147483647,  true    },
-    {  L_,       "2147.48364700e6",      2147483647,  true    },
-    {  L_,      "21474.8364700e5",       2147483647,  true    },
-    {  L_,     "214748.364700e4",        2147483647,  true    },
-    {  L_,    "2147483.64700e3",         2147483647,  true    },
-    {  L_,   "21474836.4700e2",          2147483647,  true    },
-    {  L_,  "214748364.700e1",           2147483647,  true    },
-    {  L_, "2147483647.00e0",            2147483647,  true    },
+                TLN(          "0.214748364700e10",    2147483647, true ),
+                TLN(          "2.14748364700e9",      2147483647, true ),
+                TLN(         "21.4748364700e8",       2147483647, true ),
+                TLN(        "214.748364700e7",        2147483647, true ),
+                TLN(       "2147.48364700e6",         2147483647, true ),
+                TLN(      "21474.8364700e5",          2147483647, true ),
+                TLN(     "214748.364700e4",           2147483647, true ),
+                TLN(    "2147483.64700e3",            2147483647, true ),
+                TLN(   "21474836.4700e2",             2147483647, true ),
+                TLN(  "214748364.700e1",              2147483647, true ),
+                TLN( "2147483647.00e0",               2147483647, true ),
 
-    {  L_,         "-0.214748364800e10",-2147483648,  true    },
-    {  L_,         "-2.14748364800e9",  -2147483648,  true    },
-    {  L_,        "-21.4748364800e8",   -2147483648,  true    },
-    {  L_,       "-214.748364800e7",    -2147483648,  true    },
-    {  L_,      "-2147.48364800e6",     -2147483648,  true    },
-    {  L_,     "-21474.8364800e5",      -2147483648,  true    },
-    {  L_,    "-214748.364800e4",       -2147483648,  true    },
-    {  L_,   "-2147483.64800e3",        -2147483648,  true    },
-    {  L_,  "-21474836.4800e2",         -2147483648,  true    },
-    {  L_, "-214748364.800e1",          -2147483648,  true    },
-    {  L_,"-2147483648.00e0",           -2147483648,  true    },
+                TLN(         "-0.214748364800e10",   -2147483648, true ),
+                TLN(         "-2.14748364800e9",     -2147483648, true ),
+                TLN(        "-21.4748364800e8",      -2147483648, true ),
+                TLN(       "-214.748364800e7",       -2147483648, true ),
+                TLN(      "-2147.48364800e6",        -2147483648, true ),
+                TLN(     "-21474.8364800e5",         -2147483648, true ),
+                TLN(    "-214748.364800e4",          -2147483648, true ),
+                TLN(   "-2147483.64800e3",           -2147483648, true ),
+                TLN(  "-21474836.4800e2",            -2147483648, true ),
+                TLN( "-214748364.800e1",             -2147483648, true ),
+                TLN("-2147483648.00e0",              -2147483648, true ),
 
-    {  L_,  "214748364700000e-5",        2147483647,  true    },
-    {  L_,  "214748364700000.00000e-5",  2147483647,  true    },
-    {  L_,   "21474836470000e-4",        2147483647,  true    },
-    {  L_,    "2147483647000e-3",        2147483647,  true    },
-    {  L_,     "214748364700e-2",        2147483647,  true    },
-    {  L_,      "21474836470e-1",        2147483647,  true    },
-    {  L_,       "2147483647e-0",        2147483647,  true    },
+                TLN(  "214748364700000e-5",           2147483647, true ),
+                TLN(  "214748364700000.00000e-5",     2147483647, true ),
+                TLN(   "21474836470000e-4",           2147483647, true ),
+                TLN(    "2147483647000e-3",           2147483647, true ),
+                TLN(     "214748364700e-2",           2147483647, true ),
+                TLN(      "21474836470e-1",           2147483647, true ),
+                TLN(       "2147483647e-0",           2147483647, true ),
 
-    {  L_, "-214748364800000e-5",       -2147483648,  true    },
-    {  L_, "-214748364800000.00000e-5", -2147483648,  true    },
-    {  L_,  "-21474836480000e-4",       -2147483648,  true    },
-    {  L_,   "-2147483648000e-3",       -2147483648,  true    },
-    {  L_,    "-214748364800e-2",       -2147483648,  true    },
-    {  L_,     "-21474836480e-1",       -2147483648,  true    },
-    {  L_,      "-2147483648e-0",       -2147483648,  true    },
+                TLN( "-214748364800000e-5",          -2147483648, true ),
+                TLN( "-214748364800000.00000e-5",    -2147483648, true ),
+                TLN(  "-21474836480000e-4",          -2147483648, true ),
+                TLN(   "-2147483648000e-3",          -2147483648, true ),
+                TLN(    "-214748364800e-2",          -2147483648, true ),
+                TLN(     "-21474836480e-1",          -2147483648, true ),
+                TLN(      "-2147483648e-0",          -2147483648, true ),
 
-    {  L_,          "1.0e0",                  1,      true    },
-    {  L_,          "2.000e0",                2,      true    },
-    {  L_,          "3.0e1",                 30,      true    },
-    {  L_,          "4.5e1",                 45,      true    },
-    {  L_,          "6.00e1",                60,      true    },
-    {  L_,          "7.00e2",               700,      true    },
-    {  L_,          "8.0000e2",             800,      true    },
-    {  L_,          "9.12e2",               912,      true    },
-    {  L_,          "1.1200e2",             112,      true    },
+                TLN(          "1.0e0",                     1,     true ),
+                TLN(          "2.000e0",                   2,     true ),
+                TLN(          "3.0e1",                    30,     true ),
+                TLN(          "4.5e1",                    45,     true ),
+                TLN(          "6.00e1",                   60,     true ),
+                TLN(          "7.00e2",                  700,     true ),
+                TLN(          "8.0000e2",                800,     true ),
+                TLN(          "9.12e2",                  912,     true ),
+                TLN(          "1.1200e2",                112,     true ),
 
-    {  L_,           ".5",          ERROR_VALUE,      false   },
-    {  L_,           ".123",        ERROR_VALUE,      false   },
+                TLN(           ".5",             ERROR_VALUE,     false),
+                TLN(           ".123",           ERROR_VALUE,     false),
 
-    {  L_,          "1.1",          ERROR_VALUE,      false   },
-    {  L_,          "1.5",          ERROR_VALUE,      false   },
-    {  L_,          "1.9",          ERROR_VALUE,      false   },
+                TLN(          "1.1",             ERROR_VALUE,     false),
+                TLN(          "1.5",             ERROR_VALUE,     false),
+                TLN(          "1.9",             ERROR_VALUE,     false),
 
-    {  L_,        "100.123",        ERROR_VALUE,      false   },
-    {  L_,         "99.5",          ERROR_VALUE,      false   },
-    {  L_,          "0.86",         ERROR_VALUE,      false   },
+                TLN(        "100.123",           ERROR_VALUE,     false),
+                TLN(         "99.5",             ERROR_VALUE,     false),
+                TLN(          "0.86",            ERROR_VALUE,     false),
 
-    {  L_,        "255.01",         ERROR_VALUE,      false   },
-    {  L_,        "255.99",         ERROR_VALUE,      false   },
+                TLN(        "255.01",            ERROR_VALUE,     false),
+                TLN(        "255.99",            ERROR_VALUE,     false),
 
-    {  L_,          "1.234e+1",     ERROR_VALUE,      false   },
-    {  L_,          "1.987E+1",     ERROR_VALUE,      false   },
+                TLN(          "1.234e+1",        ERROR_VALUE,     false),
+                TLN(          "1.987E+1",        ERROR_VALUE,     false),
 
-    {  L_,          "1e1e1",        ERROR_VALUE,      false   },
-    {  L_,          "1e1e-1",       ERROR_VALUE,      false   },
+                TLN(          "1e1e1",           ERROR_VALUE,     false),
+                TLN(          "1e1e-1",          ERROR_VALUE,     false),
 
-    {  L_,         "12.34e-1",      ERROR_VALUE,      false   },
-    {  L_,         "29.87E-1",      ERROR_VALUE,      false   },
+                TLN(         "12.34e-1",         ERROR_VALUE,     false),
+                TLN(         "29.87E-1",         ERROR_VALUE,     false),
 
-    {  L_,         "12345e-1",      ERROR_VALUE,      false   },
-    {  L_,         "12345e-2",      ERROR_VALUE,      false   },
-    {  L_,         "12345e-4",      ERROR_VALUE,      false   },
-    {  L_,         "12345e-5",      ERROR_VALUE,      false   },
+                TLN(         "12345e-1",         ERROR_VALUE,     false),
+                TLN(         "12345e-2",         ERROR_VALUE,     false),
+                TLN(         "12345e-4",         ERROR_VALUE,     false),
+                TLN(         "12345e-5",         ERROR_VALUE,     false),
 
-    {  L_,         "-12345e-1",     ERROR_VALUE,      false   },
-    {  L_,         "-12345e-2",     ERROR_VALUE,      false   },
-    {  L_,         "-12345e-4",     ERROR_VALUE,      false   },
-    {  L_,         "-12345e-5",     ERROR_VALUE,      false   },
-    {  L_,         "-12345e-6",     ERROR_VALUE,      false   },
+                TLN(         "-12345e-1",        ERROR_VALUE,     false),
+                TLN(         "-12345e-2",        ERROR_VALUE,     false),
+                TLN(         "-12345e-4",        ERROR_VALUE,     false),
+                TLN(         "-12345e-5",        ERROR_VALUE,     false),
+                TLN(         "-12345e-6",        ERROR_VALUE,     false),
 
-    {  L_,         "123.45e-1",     ERROR_VALUE,      false   },
-    {  L_,         "1234.5e-2",     ERROR_VALUE,      false   },
+                TLN(         "123.45e-1",        ERROR_VALUE,     false),
+                TLN(         "1234.5e-2",        ERROR_VALUE,     false),
 
-    {  L_,          "1.0000000001", ERROR_VALUE,      false   },
-    {  L_,          "1.00001e0",    ERROR_VALUE,      false   },
+                TLN(          "1.0000000001",    ERROR_VALUE,     false),
+                TLN(          "1.00001e0",       ERROR_VALUE,     false),
 
-    {  L_,     "2147483648",        ERROR_VALUE,      false   },
-    {  L_,     "-2147483649",       ERROR_VALUE,      false   },
+                TLN(     "2147483648",           ERROR_VALUE,     false),
+                TLN(     "-2147483649",          ERROR_VALUE,     false),
 
-    {  L_,      "2147483647.01",    ERROR_VALUE,      false   },
-    {  L_,      "2147483647.99",    ERROR_VALUE,      false   },
-    {  L_,      "2147483648.01",    ERROR_VALUE,      false   },
-    {  L_,      "2147483648.99",    ERROR_VALUE,      false   },
+                TLN(      "2147483647.01",       ERROR_VALUE,     false),
+                TLN(      "2147483647.99",       ERROR_VALUE,     false),
+                TLN(      "2147483648.01",       ERROR_VALUE,     false),
+                TLN(      "2147483648.99",       ERROR_VALUE,     false),
 
-    {  L_,     "-2147483648.01",    ERROR_VALUE,      false   },
-    {  L_,     "-2147483648.99",    ERROR_VALUE,      false   },
-    {  L_,     "-2147483649.01",    ERROR_VALUE,      false   },
-    {  L_,     "-2147483649.99",    ERROR_VALUE,      false   },
+                TLN(     "-2147483648.01",       ERROR_VALUE,     false),
+                TLN(     "-2147483648.99",       ERROR_VALUE,     false),
+                TLN(     "-2147483649.01",       ERROR_VALUE,     false),
+                TLN(     "-2147483649.99",       ERROR_VALUE,     false),
 
-    {  L_,  "18446744073709551616", ERROR_VALUE,     false   },
+                TLN(  "18446744073709551616",    ERROR_VALUE,     false),
 
-    {  L_,        "-",              ERROR_VALUE,      false   },
-    {  L_,        ".5",             ERROR_VALUE,      false   },
-    {  L_,        "-.5",            ERROR_VALUE,      false   },
-    {  L_,        "e",              ERROR_VALUE,      false   },
-    {  L_,        "e1",             ERROR_VALUE,      false   },
-    {  L_,        "E",              ERROR_VALUE,      false   },
-    {  L_,        "E1",             ERROR_VALUE,      false   },
-    {  L_,        "e+",             ERROR_VALUE,      false   },
-    {  L_,        "e+1",            ERROR_VALUE,      false   },
-    {  L_,        "E+",             ERROR_VALUE,      false   },
-    {  L_,        "E+1",            ERROR_VALUE,      false   },
-    {  L_,        "e-",             ERROR_VALUE,      false   },
-    {  L_,        "e-1",            ERROR_VALUE,      false   },
-    {  L_,        "E-",             ERROR_VALUE,      false   },
-    {  L_,        "E-1",            ERROR_VALUE,      false   },
+                TLN(        "-",                 ERROR_VALUE,     false),
+                TLN(        ".5",                ERROR_VALUE,     false),
+                TLN(        "-.5",               ERROR_VALUE,     false),
+                TLN(        "e",                 ERROR_VALUE,     false),
+                TLN(        "e1",                ERROR_VALUE,     false),
+                TLN(        "E",                 ERROR_VALUE,     false),
+                TLN(        "E1",                ERROR_VALUE,     false),
+                TLN(        "e+",                ERROR_VALUE,     false),
+                TLN(        "e+1",               ERROR_VALUE,     false),
+                TLN(        "E+",                ERROR_VALUE,     false),
+                TLN(        "E+1",               ERROR_VALUE,     false),
+                TLN(        "e-",                ERROR_VALUE,     false),
+                TLN(        "e-1",               ERROR_VALUE,     false),
+                TLN(        "E-",                ERROR_VALUE,     false),
+                TLN(        "E-1",               ERROR_VALUE,     false),
 
-    {  L_,        "Z34.56e1",       ERROR_VALUE,      false   },
-    {  L_,        "3Z4.56e1",       ERROR_VALUE,      false   },
-    {  L_,        "34Z.56e1",       ERROR_VALUE,      false   },
-    {  L_,         "34+56e1",       ERROR_VALUE,      false   },
-    {  L_,         "34.Z6e1",       ERROR_VALUE,      false   },
-    {  L_,         "34.5Ze1",       ERROR_VALUE,      false   },
-    {  L_,         "34.56Z1",       ERROR_VALUE,      false   },
-    {  L_,         "34.56eZ",       ERROR_VALUE,      false   },
-    {  L_,         "34.56e+Z",      ERROR_VALUE,      false   },
-    {  L_,         "34.56e-Z",      ERROR_VALUE,      false   },
+                TLN(        "Z34.56e1",          ERROR_VALUE,     false),
+                TLN(        "3Z4.56e1",          ERROR_VALUE,     false),
+                TLN(        "34Z.56e1",          ERROR_VALUE,     false),
+                TLN(         "34+56e1",          ERROR_VALUE,     false),
+                TLN(         "34.Z6e1",          ERROR_VALUE,     false),
+                TLN(         "34.5Ze1",          ERROR_VALUE,     false),
+                TLN(         "34.56Z1",          ERROR_VALUE,     false),
+                TLN(         "34.56eZ",          ERROR_VALUE,     false),
+                TLN(         "34.56e+Z",         ERROR_VALUE,     false),
+                TLN(         "34.56e-Z",         ERROR_VALUE,     false),
 
-    {  L_,         "0x12",          ERROR_VALUE,      false   },
-    {  L_,         "0x256",         ERROR_VALUE,      false   },
-    {  L_,         "JUNK",          ERROR_VALUE,      false   },
-    {  L_,         "DEADBEEF",      ERROR_VALUE,      false   },
+                TLN(         "0x12",             ERROR_VALUE,     false),
+                TLN(         "0x256",            ERROR_VALUE,     false),
+                TLN(         "JUNK",             ERROR_VALUE,     false),
+                TLN(         "DEADBEEF",         ERROR_VALUE,     false),
+#undef TLN
             };
-            const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int    LINE     = DATA[i].d_line;
@@ -4233,7 +5227,7 @@ int main(int argc, char *argv[])
                 const bool   IS_VALID = DATA[i].d_isValid;
                       Type   value    = ERROR_VALUE;
 
-                StringRef isb(INPUT.data(), static_cast<int>(INPUT.length()));
+                const bsl::string_view isb(INPUT);
 
                 bslma::TestAllocator         da("default", veryVeryVerbose);
                 bslma::DefaultAllocatorGuard dag(&da);
@@ -4284,9 +5278,8 @@ int main(int argc, char *argv[])
         //   static int getValue(unsigned short      *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING 'getValue' for unsigned short"
-                               << "\n====================================="
-                               << bsl::endl;
+        if (verbose) cout << "\nTESTING 'getValue' for unsigned short"
+                          << "\n=====================================" << endl;
 
         {
             typedef unsigned short Type;
@@ -4473,7 +5466,7 @@ int main(int argc, char *argv[])
                 const bool   IS_VALID = DATA[i].d_isValid;
                       Type   value    = ERROR_VALUE;
 
-                StringRef isb(INPUT.data(), static_cast<int>(INPUT.length()));
+                const bsl::string_view isb(INPUT);
 
                 bslma::TestAllocator         da("default", veryVeryVerbose);
                 bslma::DefaultAllocatorGuard dag(&da);
@@ -4524,9 +5517,8 @@ int main(int argc, char *argv[])
         //   static int getValue(short               *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING 'getValue' for short"
-                               << "\n============================"
-                               << bsl::endl;
+        if (verbose) cout << "\nTESTING 'getValue' for short"
+                          << "\n============================" << endl;
         {
             typedef short Type;
 
@@ -4751,7 +5743,7 @@ int main(int argc, char *argv[])
                 const int    IS_VALID = DATA[i].d_isValid;
                       Type   value    = ERROR_VALUE;
 
-                StringRef isb(INPUT.data(), static_cast<int>(INPUT.length()));
+                const bsl::string_view isb(INPUT);
 
                 bslma::TestAllocator         da("default", veryVeryVerbose);
                 bslma::DefaultAllocatorGuard dag(&da);
@@ -4802,9 +5794,8 @@ int main(int argc, char *argv[])
         //   static int getValue(unsigned char       *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING 'getValue' for unsigned char"
-                               << "\n===================================="
-                               << bsl::endl;
+        if (verbose) cout << "\nTESTING 'getValue' for unsigned char"
+                          << "\n====================================" << endl;
         {
             typedef unsigned char Type;
 
@@ -4962,7 +5953,7 @@ int main(int argc, char *argv[])
                 const bool   IS_VALID = DATA[i].d_isValid;
                       Type   value    = ERROR_VALUE;
 
-                StringRef isb(INPUT.data(), static_cast<int>(INPUT.length()));
+                const bsl::string_view isb(INPUT);
 
                 bslma::TestAllocator         da("default", veryVeryVerbose);
                 bslma::DefaultAllocatorGuard dag(&da);
@@ -5013,9 +6004,8 @@ int main(int argc, char *argv[])
         //   static int getValue(char                *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING 'getValue' for signed char"
-                               << "\n=================================="
-                               << bsl::endl;
+        if (verbose) cout << "\nTESTING 'getValue' for signed char"
+                          << "\n==================================" << endl;
 
         {
             const char ERROR_VALUE = 'X';
@@ -5182,8 +6172,7 @@ int main(int argc, char *argv[])
 
                 // char values
                 {
-                    StringRef isb(INPUT.data(),
-                                  static_cast<int>(INPUT.length()));
+                    const bsl::string_view isb(INPUT);
                     const int rc = Util::getValue(&c, isb);
                     if (IS_VALID) {
                         LOOP2_ASSERT(LINE, rc, 0 == rc);
@@ -5196,8 +6185,7 @@ int main(int argc, char *argv[])
 
                 // signed char values
                 {
-                    StringRef isb(INPUT.data(),
-                                  static_cast<int>(INPUT.length()));
+                    const bsl::string_view isb(INPUT);
                     const int rc = Util::getValue(&sc, isb);
                     if (IS_VALID) {
                         LOOP2_ASSERT(LINE, rc, 0 == rc);
@@ -5230,11 +6218,11 @@ int main(int argc, char *argv[])
         //:   value is non-zero.
         //
         // Testing:
-        //   static int getValue(bool                *v, bsl::string_view s);
+        //   static int getValue(bool                *v, bsl::string_viewf s);
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING 'getValue' for bool"
-                               << "\n===========================" << bsl::endl;
+        if (verbose) cout << "\nTESTING 'getValue' for bool"
+                          << "\n===========================" << endl;
 
         {
             typedef bool Type;
@@ -5285,8 +6273,7 @@ int main(int argc, char *argv[])
                 if (veryVerbose) { P(LINE) P(INPUT) P(EXP) }
 
                 {
-                    StringRef isb(INPUT.data(),
-                                  static_cast<int>(INPUT.length()));
+                    const bsl::string_view isb(INPUT);
                     const int rc = Util::getValue(&value, isb);
                     if (IS_VALID) {
                         LOOP2_ASSERT(LINE, rc, 0 == rc);
@@ -5314,9 +6301,8 @@ int main(int argc, char *argv[])
         //   BREATHING TEST
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "BREATHING TEST" << endl
-                          << "==============" << endl;
+        if (verbose) cout << "\nBREATHING TEST"
+                          << "\n==============" << endl;
 
         const struct {
             int         d_line;
@@ -5360,7 +6346,7 @@ int main(int argc, char *argv[])
             const bool        FLAG   = DATA[ti].d_validFlag;
             const double      EXP    = DATA[ti].d_result;
 
-            bsl::string_view iss(STRING);
+            const bsl::string_view iss(STRING);
 
             double result;
             const int rc = Util::getValue(&result, iss);
