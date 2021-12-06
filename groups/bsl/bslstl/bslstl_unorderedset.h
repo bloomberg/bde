@@ -230,10 +230,7 @@ BSLS_IDENT("$Id: $")
 //  | a == b, a != b                                     | Best:  O[n]        |
 //  |                                                    | Worst: O[n^2]      |
 //  +----------------------------------------------------+--------------------+
-//  | a.swap(b), swap(a, b)                              | O[1] if 'a' and    |
-//  |                                                    | 'b' use the same   |
-//  |                                                    | allocator,         |
-//  |                                                    | O[n + m] otherwise |
+//  | a.swap(b), swap(a, b)                              | O[1]               |
 //  +----------------------------------------------------+--------------------+
 //  | a.key_eq()                                         | O[1]               |
 //  +----------------------------------------------------+--------------------+
@@ -1103,16 +1100,19 @@ class unordered_set {
         // position in the sequence provided by this container.
 
     void swap(unordered_set& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
-        // Exchange the value, hash function, and equality comparator of this
-        // object with the value, hash function, and equality comparator of the
-        // specified 'other' object.  Additionally, if
-        // 'bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap' is
-        // 'true', then exchange the allocator of this object with that of the
-        // 'other' object, and do not modify either allocator otherwise.  This
-        // method provides the no-throw exception-safety guarantee if and only
-        // if the hash function and equality comparator provide a no-throw
-        // swap.  The behavior is undefined unless either both 'a' and 'b' use
-        // the same allocator or 'propagate_on_container_swap' is 'true'.
+        // Exchange the value, hasher, key-equality functor, and
+        // 'max_load_factor' of this object with those of the specified 'other'
+        // object; also exchange the allocator of this object with that of
+        // 'other' if the (template parameter) type 'ALLOCATOR' has the
+        // 'propagate_on_container_swap' trait, and do not modify either
+        // allocator otherwise.  This method provides the no-throw
+        // exception-safety guarantee if and only if both the (template
+        // parameter) types 'HASH' and 'EQUAL' provide no-throw swap
+        // operations; if an exception is thrown, both objects are left in
+        // valid but unspecified states.  This operation guarantees 'O[1]'
+        // complexity.  The behavior is undefined unless either this object was
+        // created with the same allocator as 'other' or 'ALLOCATOR' has the
+        // 'propagate_on_container_swap' trait.
 
     void clear() BSLS_KEYWORD_NOEXCEPT;
         // Remove all entries from this unordered set.  Note that the set is
@@ -1420,18 +1420,18 @@ template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 void swap(unordered_set<KEY, HASH, EQUAL, ALLOCATOR>& a,
           unordered_set<KEY, HASH, EQUAL, ALLOCATOR>& b)
                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
-    // Exchange the value, hash function, and equality comparator of the
-    // specified 'a' object with the value, hash function, and equality
-    // comparator of the specified 'b' object.  Additionally, if
-    // 'bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap' is
-    // 'true', then exchange the allocator of 'a' with that of 'b', and do not
-    // modify either allocator otherwise.  This function provides the no-throw
-    // exception-safety guarantee if and only if the hash function and equality
-    // comparator provide a no-throw swap operation.  Note that 'a' and 'b' are
-    // left in valid but unspecified states if an exception is thrown (in the
-    // case where 'propagate_on_container_swap' is 'false' and 'a' and 'b' were
-    // created with different allocators), such as when the comparator objects
-    // are swapped.
+    // Exchange the value, hasher, key-equality functor, and 'max_load_factor'
+    // of the specified 'a' object with those of the specified 'b' object; also
+    // exchange the allocator of 'a' with that of 'b' if the (template
+    // parameter) type 'ALLOCATOR' has the 'propagate_on_container_swap' trait,
+    // and do not modify either allocator otherwise.  This function provides
+    // the no-throw exception-safety guarantee if and only if both the
+    // (template parameter) types 'HASH' and 'EQUAL' provide no-throw swap
+    // operations; if an exception is thrown, both objects are left in valid
+    // but unspecified states.  This operation guarantees 'O[1]' complexity.
+    // The behavior is undefined unless either 'a' was created with the same
+    // allocator as 'b' or 'ALLOCATOR' has the 'propagate_on_container_swap'
+    // trait.
 
 // ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS

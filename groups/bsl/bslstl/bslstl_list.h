@@ -170,116 +170,116 @@ BSLS_IDENT("$Id: $")
 //  +----------------------------------------------------+--------------------+
 //  | Operation                                          | Complexity         |
 //  +====================================================+====================+
-//  | list<V> a;    (default construction)               | O(1)               |
+//  | list<V> a;    (default construction)               | O[1]               |
 //  | list<V> a(al);                                     |                    |
 //  +----------------------------------------------------+--------------------+
-//  | list<V> a(b); (copy construction)                  | O(m)               |
+//  | list<V> a(b); (copy construction)                  | O[m]               |
 //  | list<V> a(b, al);                                  |                    |
 //  +----------------------------------------------------+--------------------+
-//  | list<V> a(rb); (move construction)                 | O(1)               |
-//  | list<V> a(rb, al);                                 | O(1) if 'a' and 'b'|
+//  | list<V> a(rb); (move construction)                 | O[1]               |
+//  | list<V> a(rb, al);                                 | O[1] if 'a' and 'b'|
 //  |                                                    | use the same       |
 //  |                                                    | allocator,         |
-//  |                                                    | O(m)     otherwise |
+//  |                                                    | O[m]     otherwise |
 //  +----------------------------------------------------+--------------------+
-//  | list<V> a(k);                                      | O(k)               |
+//  | list<V> a(k);                                      | O[k]               |
 //  | list<V> a(k, v);                                   |                    |
 //  | list<V> a(k, v, al);                               |                    |
 //  +----------------------------------------------------+--------------------+
-//  | list<V> a(i1, i2);                                 | O(distance(i1,i2)) |
+//  | list<V> a(i1, i2);                                 | O[distance(i1, i2)]|
 //  | list<V> a(i1, i2, al);                             |                    |
 //  +----------------------------------------------------+--------------------+
-//  | list<V> a({*}, al = A())                           | O(ni)              |
+//  | list<V> a({*}, al = A())                           | O[ni]              |
 //  +----------------------------------------------------+--------------------+
-//  | a.~list<V>(); (destruction)                        | O(n)               |
+//  | a.~list<V>(); (destruction)                        | O[n]               |
 //  +----------------------------------------------------+--------------------+
-//  | a = b;                (copy assignment)            | O(max(n, m))       |
+//  | a = b;                (copy assignment)            | O[max(n, m)]       |
 //  +----------------------------------------------------+--------------------+
-//  | a = {*};              (copy assignment)            | O(max(n, ni))      |
+//  | a = {*};              (copy assignment)            | O[max(n, ni)]      |
 //  +----------------------------------------------------+--------------------+
-//  | a = rb;               (move assignment)            | O(1) if 'a' and 'b'|
+//  | a = rb;               (move assignment)            | O[1] if 'a' and 'b'|
 //  |                                                    | use the same       |
 //  |                                                    | allocator,         |
-//  |                                                    | O(max(n, m))       |
+//  |                                                    | O[max(n, m)]       |
 //  |                                                    | otherwise          |
 //  +----------------------------------------------------+--------------------+
-//  | a.begin(), a.end(), a.cbegin(), a.cend(),          | O(1)               |
+//  | a.begin(), a.end(), a.cbegin(), a.cend(),          | O[1]               |
 //  | a.rbegin(), a.rend(), a.crbegin(), a.crend()       |                    |
 //  +----------------------------------------------------+--------------------+
-//  | a == b, a != b                                     | O(n)               |
+//  | a == b, a != b                                     | O[n]               |
 //  +----------------------------------------------------+--------------------+
-//  | a < b, a <= b, a > b, a >= b                       | O(n)               |
+//  | a < b, a <= b, a > b, a >= b                       | O[n]               |
 //  +----------------------------------------------------+--------------------+
-//  | a.swap(b), swap(a,b)                               | O(1) if 'a' and 'b'|
+//  | a.swap(b), swap(a, b)                              | O[1] if 'a' and 'b'|
 //  |                                                    | use the same       |
 //  |                                                    | allocator,         |
-//  |                                                    | O(n + m) otherwise |
+//  |                                                    | O[n + m] otherwise |
 //  +----------------------------------------------------+--------------------+
-//  | a.size()                                           | O(1)               |
+//  | a.size()                                           | O[1]               |
 //  +----------------------------------------------------+--------------------+
-//  | a.max_size()                                       | O(1)               |
+//  | a.max_size()                                       | O[1]               |
 //  +----------------------------------------------------+--------------------+
-//  | a.empty()                                          | O(1)               |
+//  | a.empty()                                          | O[1]               |
 //  +----------------------------------------------------+--------------------+
-//  | a.get_allocator()                                  | O(1)               |
+//  | a.get_allocator()                                  | O[1]               |
 //  +----------------------------------------------------+--------------------+
-//  | a.emplace(p1, args...)                             | O(1)               |
+//  | a.emplace(p1, args...)                             | O[1]               |
 //  +----------------------------------------------------+--------------------+
-//  | a.insert(p1, v)                                    | O(1)               |
+//  | a.insert(p1, v)                                    | O[1]               |
 //  +----------------------------------------------------+--------------------+
-//  | a.insert(p1, k, v)                                 | O(k)               |
+//  | a.insert(p1, k, v)                                 | O[k]               |
 //  +----------------------------------------------------+--------------------+
-//  | a.insert(p1, i1, i2)                               | O(distance(i1, i2))|
+//  | a.insert(p1, i1, i2)                               | O[distance(i1, i2)]|
 //  +----------------------------------------------------+--------------------+
-//  | a.insert(p1, rv)                                   | O(1)               |
+//  | a.insert(p1, rv)                                   | O[1]               |
 //  +----------------------------------------------------+--------------------+
-//  | a.insert(p1, {*})                                  | O(ni)              |
+//  | a.insert(p1, {*})                                  | O[ni]              |
 //  +----------------------------------------------------+--------------------|
-//  | a.erase(p1)                                        | O(1)               |
+//  | a.erase(p1)                                        | O[1]               |
 //  +----------------------------------------------------+--------------------+
-//  | a.erase(p1, p2)                                    | O(distance(p1, p2))|
+//  | a.erase(p1, p2)                                    | O[distance(p1, p2)]|
 //  +----------------------------------------------------+--------------------+
-//  | a.clear()                                          | O(n)               |
+//  | a.clear()                                          | O[n]               |
 //  +----------------------------------------------------+--------------------+
-//  | a.assign(i1,i2)                                    | O(distance(i1, i2))|
+//  | a.assign(i1,i2)                                    | O[distance(i1, i2)]|
 //  +----------------------------------------------------+--------------------+
-//  | a.assign(k, v)                                     | O(max(n, k))       |
+//  | a.assign(k, v)                                     | O[max(n, k)]       |
 //  +----------------------------------------------------+--------------------+
-//  | a.assign({*})                                      | O(max(n, ni))      |
+//  | a.assign({*})                                      | O[max(n, ni)]      |
 //  +----------------------------------------------------+--------------------+
-//  | a.front(), a.back()                                | O(1)               |
+//  | a.front(), a.back()                                | O[1]               |
 //  +----------------------------------------------------+--------------------+
-//  | a.emplace_front(args...), a.emplace_back(args...)  | O(1)               |
+//  | a.emplace_front(args...), a.emplace_back(args...)  | O[1]               |
 //  +----------------------------------------------------+--------------------+
 //  | a.push_front(v),                                   |                    |
-//  | a.push_back(v)                                     | O(1)               |
+//  | a.push_back(v)                                     | O[1]               |
 //  +----------------------------------------------------+--------------------+
 //  | a.push_front(rv),                                  |                    |
-//  | a.push_back(rv)                                    | O(1)               |
+//  | a.push_back(rv)                                    | O[1]               |
 //  +----------------------------------------------------+--------------------+
-//  | a.pop_front(), a.pop_back()                        | O(1)               |
+//  | a.pop_front(), a.pop_back()                        | O[1]               |
 //  +----------------------------------------------------+--------------------+
-//  | a.resize(k), a.resize(k, v)                        | O(k)               |
+//  | a.resize(k), a.resize(k, v)                        | O[k]               |
 //  +----------------------------------------------------+--------------------+
-//  | a.splice(p, b),  a.splice(p, b, s1)                | O(1)               |
+//  | a.splice(p, b),  a.splice(p, b, s1)                | O[1]               |
 //  +----------------------------------------------------+--------------------+
-//  | a.splice(p, rb), a.splice(p, rb, s1)               | O(1)               |
+//  | a.splice(p, rb), a.splice(p, rb, s1)               | O[1]               |
 //  +----------------------------------------------------+--------------------+
-//  | a.splice(p, b, s1, s2)                             | O(distance(s1, s2))|
+//  | a.splice(p, b, s1, s2)                             | O[distance(s1, s2)]|
 //  +----------------------------------------------------+--------------------+
-//  | a.splice(p, rb, s1, s2)                            | O(distance(s1, s2))|
+//  | a.splice(p, rb, s1, s2)                            | O[distance(s1, s2)]|
 //  +----------------------------------------------------+--------------------+
-//  | a.remove(t), a.remove_if(pred)                     | O(n)               |
+//  | a.remove(t), a.remove_if(pred)                     | O[n]               |
 //  +----------------------------------------------------+--------------------+
-//  | a.unique(), a.unique(binary_pred)                  | O(n)               |
+//  | a.unique(), a.unique(binary_pred)                  | O[n]               |
 //  +----------------------------------------------------+--------------------+
-//  | a.merge(b),  a.merge(b, comp)                      | O(n)               |
+//  | a.merge(b),  a.merge(b, comp)                      | O[n]               |
 //  +----------------------------------------------------+--------------------+
-//  | a.merge(rb), a.merge(rb, comp)                     | O(n)               |
+//  | a.merge(rb), a.merge(rb, comp)                     | O[n]               |
 //  +----------------------------------------------------+--------------------+
-//  | a.sort(), a.sort(comp)                             | O(n*log(n))        |
+//  | a.sort(), a.sort(comp)                             | O[n*log(n)]        |
 //  +----------------------------------------------------+--------------------+
-//  | a.reverse()                                        | O(n)               |
+//  | a.reverse()                                        | O[n]               |
 //  +----------------------------------------------------+--------------------+
 //..
 //
@@ -1724,15 +1724,20 @@ class list {
                               // *** misc ***
 
     void swap(list& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
-        // Exchange the value of this object with the value of the specified
-        // 'other' object.  Additionally, if
-        // 'bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap' is
-        // 'true', then exchange the allocator of this object with that of the
-        // 'other' object, and do not modify either allocator otherwise.  This
-        // method provides the no-throw exception-safety guarantee and
-        // guarantees 'O[1]' complexity.  The behavior is undefined unless
+        // Exchange the value of this object with that of the specified 'other'
+        // object; also exchange the allocator of this object with that of
+        // 'other' if the (template parameter) type 'ALLOCATOR' has the
+        // 'propagate_on_container_swap' trait, and do not modify either
+        // allocator otherwise.  This method provides the no-throw
+        // exception-safety guarantee.  This operation has 'O[1]' complexity if
         // either this object was created with the same allocator as 'other' or
-        // 'propagate_on_container_swap' is 'true'.
+        // 'ALLOCATOR' has the 'propagate_on_container_swap' trait; otherwise,
+        // it has 'O[n + m]' complexity, where 'n' and 'm' are the number of
+        // elements in this object and 'other', respectively.  Note that this
+        // method's support for swapping objects created with different
+        // allocators when 'ALLOCATOR' does not have the
+        // 'propagate_on_container_swap' trait is a departure from the
+        // C++ Standard.
 
     // ACCESSORS
 
@@ -1941,18 +1946,19 @@ bool operator>=(const list<VALUE, ALLOCATOR>& lhs,
 template <class VALUE, class ALLOCATOR>
 void swap(list<VALUE, ALLOCATOR>& a, list<VALUE, ALLOCATOR>& b)
                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
-    // Exchange the value and comparator of the specified 'a' object with the
-    // value and comparator of the specified 'b' object.  Additionally, if
-    // 'bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap' is
-    // 'true', then exchange the allocator of 'a' with that of 'b'.  If
-    // 'propagate_on_container_swap' is 'true' or 'a' and 'b' were created with
-    // the same allocator, then this method provides the no-throw
-    // exception-safety guarantee and has 'O[1]' complexity; otherwise, this
-    // method has 'O[n + m]' complexity, where 'n' and 'm' are the number of
-    // elements in 'a' and 'b', respectively.  Note that 'a' and 'b' are left
-    // in valid but unspecified states if an exception is thrown (in the case
-    // where 'propagate_on_container_swap' is 'false' and 'a' and 'b' were
-    // created with different allocators).
+    // Exchange the value of the specified 'a' object with that of the
+    // specified 'b' object; also exchange the allocator of 'a' with that of
+    // 'b' if the (template parameter) type 'ALLOCATOR' has the
+    // 'propagate_on_container_swap' trait, and do not modify either allocator
+    // otherwise.  This function provides the no-throw exception-safety
+    // guarantee.  This operation has 'O[1]' complexity if either 'a' was
+    // created with the same allocator as 'b' or 'ALLOCATOR' has the
+    // 'propagate_on_container_swap' trait; otherwise, it has 'O[n + m]'
+    // complexity, where 'n' and 'm' are the number of elements in 'a' and 'b',
+    // respectively.  Note that this function's support for swapping objects
+    // created with different allocators when 'ALLOCATOR' does not have the
+    // 'propagate_on_container_swap' trait is a departure from the C++
+    // Standard.
 
 // ============================================================================
 //                   INLINE AND TEMPLATE FUNCTION DEFINITIONS
@@ -3279,10 +3285,6 @@ void list<VALUE, ALLOCATOR>::swap(list& other)
 {
     // C++11 behavior for member 'swap': undefined for unequal allocators.
     // BSLS_ASSERT(allocatorImp() == other.allocatorImp());
-
-    // C++17 behavior for free 'swap': *defined* for unequal allocators (if a
-    // Bloomberg proposal to that effect is accepted).  Note that free 'swap'
-    // currently forwards to this implementation.
 
     if (AllocTraits::propagate_on_container_swap::value) {
         using std::swap;

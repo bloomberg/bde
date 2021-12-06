@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Tue Nov 23 10:02:20 2021
+// Generated on Wed Dec  1 13:29:03 2021
 // Command line: sim_cpp11_features.pl bslstl_deque.h
 
 #ifdef COMPILING_BSLSTL_DEQUE_H
@@ -1372,15 +1372,20 @@ class deque : public  Deque_Base<VALUE_TYPE>
 
     void swap(deque<VALUE_TYPE, ALLOCATOR>& other)
                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
-        // Exchange the value of this object with the value of the specified
-        // 'other' object.  Additionally, if
-        // 'bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap' is
-        // 'true', then exchange the allocator of this object with that of the
-        // 'other' object, and do not modify either allocator otherwise.  This
-        // method provides the no-throw exception-safety guarantee and
-        // guarantees 'O[1]' complexity.  The behavior is undefined unless
+        // Exchange the value of this object with that of the specified 'other'
+        // object; also exchange the allocator of this object with that of
+        // 'other' if the (template parameter) type 'ALLOCATOR' has the
+        // 'propagate_on_container_swap' trait, and do not modify either
+        // allocator otherwise.  This method provides the no-throw
+        // exception-safety guarantee.  This operation has 'O[1]' complexity if
         // either this object was created with the same allocator as 'other' or
-        // 'propagate_on_container_swap' is 'true'.
+        // 'ALLOCATOR' has the 'propagate_on_container_swap' trait; otherwise,
+        // it has 'O[n + m]' complexity, where 'n' and 'm' are the number of
+        // elements in this object and 'other', respectively.  Note that this
+        // method's support for swapping objects created with different
+        // allocators when 'ALLOCATOR' does not have the
+        // 'propagate_on_container_swap' trait is a departure from the
+        // C++ Standard.
 
     void clear() BSLS_KEYWORD_NOEXCEPT;
         // Remove all elements from this deque making its size 0.  Note that
@@ -1553,18 +1558,19 @@ bool operator>=(const deque<VALUE_TYPE, ALLOCATOR>& lhs,
 template <class VALUE_TYPE, class ALLOCATOR>
 void swap(deque<VALUE_TYPE, ALLOCATOR>& a, deque<VALUE_TYPE, ALLOCATOR>& b)
                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
-    // Exchange the value of the specified 'a' object with the value of the
-    // specified 'b' object.  Additionally, if
-    // 'bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap' is
-    // 'true', then exchange the allocator of 'a' with that of 'b'.  If
-    // 'propagate_on_container_swap' is 'true' or 'a' and 'b' were created with
-    // the same allocator, then this method provides the no-throw
-    // exception-safety guarantee and has 'O[1]' complexity; otherwise, this
-    // method has 'O[n + m]' complexity, where 'n' and 'm' are the number of
-    // elements in 'a' and 'b', respectively.  Note that 'a' and 'b' are left
-    // in valid but unspecified states if an exception is thrown, e.g., in the
-    // case where 'propagate_on_container_swap' is 'false' and 'a' and 'b' were
-    // created with different allocators.
+    // Exchange the value of the specified 'a' object with that of the
+    // specified 'b' object; also exchange the allocator of 'a' with that of
+    // 'b' if the (template parameter) type 'ALLOCATOR' has the
+    // 'propagate_on_container_swap' trait, and do not modify either allocator
+    // otherwise.  This function provides the no-throw exception-safety
+    // guarantee.  This operation has 'O[1]' complexity if either 'a' was
+    // created with the same allocator as 'b' or 'ALLOCATOR' has the
+    // 'propagate_on_container_swap' trait; otherwise, it has 'O[n + m]'
+    // complexity, where 'n' and 'm' are the number of elements in 'a' and 'b',
+    // respectively.  Note that this function's support for swapping objects
+    // created with different allocators when 'ALLOCATOR' does not have the
+    // 'propagate_on_container_swap' trait is a departure from the C++
+    // Standard.
 
                       // ========================
                       // class Deque_BlockCreator

@@ -234,7 +234,7 @@ BSLS_IDENT("$Id: $")
 //  | a.erase(p1, p2)                         | O[distance(p1, p2)            |
 //  |                                         |      + distance(p1, a.end())] |
 //  |-----------------------------------------+-------------------------------|
-//  | a.swap(b), swap(a,b)                    | O[1] if 'a' and 'b' use the   |
+//  | a.swap(b), swap(a, b)                   | O[1] if 'a' and 'b' use the   |
 //  |                                         | same allocator; O[n + m]      |
 //  |                                         | otherwise                     |
 //  |-----------------------------------------+-------------------------------|
@@ -1582,18 +1582,20 @@ class vector : public  vectorBase<VALUE_TYPE>
         // '[first .. cend()]' (both endpoints included).
 
     void swap(vector& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
-        // Exchange the value of this object with the value of the specified
-        // 'other' object.  Additionally, if
-        // 'bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap' is
-        // 'true', then exchange the allocator of this object with that of the
-        // 'other' object, and do not modify either allocator otherwise.  This
-        // method provides the no-throw exception-safety guarantee and
-        // guarantees 'O[1]' complexity.  Note that the exception specification
-        // is a stand in until 'bsl' can assume availability of all the traits
-        // for the 'noexcept' predicate on all supported platforms.  The
-        // behavior is undefined unless either this object was created with the
-        // same allocator as 'other' or 'propagate_on_container_swap' is
-        // 'true'.
+        // Exchange the value of this object with that of the specified 'other'
+        // object; also exchange the allocator of this object with that of
+        // 'other' if the (template parameter) type 'ALLOCATOR' has the
+        // 'propagate_on_container_swap' trait, and do not modify either
+        // allocator otherwise.  This method provides the no-throw
+        // exception-safety guarantee.  This operation has 'O[1]' complexity if
+        // either this object was created with the same allocator as 'other' or
+        // 'ALLOCATOR' has the 'propagate_on_container_swap' trait; otherwise,
+        // it has 'O[n + m]' complexity, where 'n' and 'm' are the number of
+        // elements in this object and 'other', respectively.  Note that this
+        // method's support for swapping objects created with different
+        // allocators when 'ALLOCATOR' does not have the
+        // 'propagate_on_container_swap' trait is a departure from the
+        // C++ Standard.
 
     void clear() BSLS_KEYWORD_NOEXCEPT;
         // Remove all elements from this vector making its size 0.  Note that
@@ -1695,20 +1697,19 @@ template <class VALUE_TYPE, class ALLOCATOR>
 void swap(vector<VALUE_TYPE, ALLOCATOR>& a,
           vector<VALUE_TYPE, ALLOCATOR>& b)
                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
-    // Exchange the value of the specified 'a' object with the value of the
-    // specified 'b' object.  Additionally, if
-    // 'bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap' is
-    // 'true', then exchange the allocator of 'a' with that of 'b'.  If
-    // 'propagate_on_container_swap' is 'true' or 'a' and 'b' were created with
-    // the same allocator, then this method provides the no-throw
-    // exception-safety guarantee and has 'O[1]' complexity; otherwise, this
-    // method has 'O[n + m]' complexity, where 'n' and 'm' are the number of
-    // elements in 'a' and 'b', respectively.  Note that 'a' and 'b' are left
-    // in valid but unspecified states if an exception is thrown, e.g., in the
-    // case where 'propagate_on_container_swap' is 'false' and 'a' and 'b' were
-    // created with different allocators.  Also note that the exception
-    // specification is a stand in until 'bsl' can assume availability of all
-    // the traits for the 'noexcept' predicate on all supported platforms.
+    // Exchange the value of the specified 'a' object with that of the
+    // specified 'b' object; also exchange the allocator of 'a' with that of
+    // 'b' if the (template parameter) type 'ALLOCATOR' has the
+    // 'propagate_on_container_swap' trait, and do not modify either allocator
+    // otherwise.  This function provides the no-throw exception-safety
+    // guarantee.  This operation has 'O[1]' complexity if either 'a' was
+    // created with the same allocator as 'b' or 'ALLOCATOR' has the
+    // 'propagate_on_container_swap' trait; otherwise, it has 'O[n + m]'
+    // complexity, where 'n' and 'm' are the number of elements in 'a' and 'b',
+    // respectively.  Note that this function's support for swapping objects
+    // created with different allocators when 'ALLOCATOR' does not have the
+    // 'propagate_on_container_swap' trait is a departure from the C++
+    // Standard.
 
 
                    // =====================================
@@ -2232,7 +2233,7 @@ class Vector_PushProctor {
                         // class Vector_PushProctor
                         // ------------------------
 
-    // CREATORS
+// CREATORS
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
 Vector_PushProctor<VALUE_TYPE,ALLOCATOR>::Vector_PushProctor(
@@ -2252,7 +2253,7 @@ Vector_PushProctor<VALUE_TYPE,ALLOCATOR>::~Vector_PushProctor()
     }
 }
 
-    // MANIPULATORS
+// MANIPULATORS
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
 void Vector_PushProctor<VALUE_TYPE,ALLOCATOR>::release()
@@ -4345,8 +4346,7 @@ void vector<VALUE_TYPE *, ALLOCATOR>::clear() BSLS_KEYWORD_NOEXCEPT
     d_impl.clear();
 }
 
-
-    // ACCESSORS
+// ACCESSORS
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
 typename vector<VALUE_TYPE *, ALLOCATOR>::allocator_type
