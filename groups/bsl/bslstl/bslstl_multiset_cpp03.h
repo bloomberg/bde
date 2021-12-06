@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Mon Nov 29 19:16:23 2021
+// Generated on Mon Dec  6 07:36:48 2021
 // Command line: sim_cpp11_features.pl bslstl_multiset.h
 
 #ifdef COMPILING_BSLSTL_MULTISET_H
@@ -1245,18 +1245,18 @@ template <
     class COMPARATOR,
     class ALLOCATOR,
     class ALLOC,
-    class = bsl::enable_if_t<std::is_convertible<ALLOC *, ALLOCATOR>::value>
+    class = bsl::enable_if_t<bsl::is_convertible<ALLOC *, ALLOCATOR>::value>
     >
 multiset(multiset<KEY, COMPARATOR, ALLOCATOR>, ALLOC *)
 -> multiset<KEY, COMPARATOR, ALLOCATOR>;
     // Deduce the template parameters 'KEY', 'COMPARATOR' and 'ALLOCATOR' from
-    // the corresponding template parameters of the 'bsl::set' supplied to the
-    // constructor of 'multiset'.  This deduction guide does not participate
-    // unless the specified 'ALLOC' is convertible to 'ALLOCATOR'.
+    // the corresponding template parameters of the 'bsl::multiset' supplied to
+    // the constructor of 'multiset'.  This deduction guide does not
+    // participate unless the specified 'ALLOC' is convertible to 'ALLOCATOR'.
 
 template <
     class INPUT_ITERATOR,
-    class KEY = typename std::iterator_traits<INPUT_ITERATOR>::value_type,
+    class KEY = typename bsl::iterator_traits<INPUT_ITERATOR>::value_type,
     class COMPARATOR = std::less<KEY>,
     class ALLOCATOR = bsl::allocator<KEY>,
     class = bsl::enable_if_t<!bsl::IsStdAllocator_v<COMPARATOR>>,
@@ -1268,15 +1268,17 @@ multiset(INPUT_ITERATOR,
          ALLOCATOR = ALLOCATOR())
 -> multiset<KEY, COMPARATOR, ALLOCATOR>;
     // Deduce the template parameter 'KEY' from the 'value_type' of the
-    // iterators supplied to the constructor of 'multiset'. Deduce the template
-    // parameters 'COMPARATOR' and 'ALLOCATOR' from the other parameters passed
-    // to the constructor.
+    // iterators supplied to the constructor of 'multiset'.  Deduce the
+    // template parameters 'COMPARATOR' and 'ALLOCATOR' from the other
+    // parameters passed to the constructor.  This guide does not participate
+    // unless the supplied (or defaulted) 'ALLOCATOR' meets the requirements of
+    // a standard allocator.
 
 template <
     class INPUT_ITERATOR,
     class COMPARATOR,
     class ALLOC,
-    class KEY = typename std::iterator_traits<INPUT_ITERATOR>::value_type,
+    class KEY = typename bsl::iterator_traits<INPUT_ITERATOR>::value_type,
     class ALLOCATOR = bsl::allocator<KEY>,
     class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>
     >
@@ -1291,7 +1293,7 @@ multiset(INPUT_ITERATOR, INPUT_ITERATOR, COMPARATOR, ALLOC *)
 template <
     class INPUT_ITERATOR,
     class ALLOCATOR,
-    class KEY = typename std::iterator_traits<INPUT_ITERATOR>::value_type,
+    class KEY = typename bsl::iterator_traits<INPUT_ITERATOR>::value_type,
     class = bsl::enable_if_t<bsl::IsStdAllocator_v<ALLOCATOR>>
     >
 multiset(INPUT_ITERATOR, INPUT_ITERATOR, ALLOCATOR)
@@ -1299,12 +1301,13 @@ multiset(INPUT_ITERATOR, INPUT_ITERATOR, ALLOCATOR)
     // Deduce the template parameter 'KEY' from the 'value_type' of the
     // iterators supplied to the constructor of 'multiset'.  Deduce the
     // template parameter 'ALLOCATOR' from the other parameter passed to the
-    // constructor.
+    // constructor.  This deduction guide does not participate unless the
+    // supplied allocator meets the requirements of a standard allocator.
 
 template <
     class INPUT_ITERATOR,
     class ALLOC,
-    class KEY = typename std::iterator_traits<INPUT_ITERATOR>::value_type,
+    class KEY = typename bsl::iterator_traits<INPUT_ITERATOR>::value_type,
     class ALLOCATOR = bsl::allocator<KEY>,
     class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>
     >

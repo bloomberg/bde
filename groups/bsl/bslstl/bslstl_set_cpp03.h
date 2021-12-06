@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Mon Nov 29 18:44:30 2021
+// Generated on Mon Dec  6 07:36:48 2021
 // Command line: sim_cpp11_features.pl bslstl_set.h
 
 #ifdef COMPILING_BSLSTL_SET_H
@@ -1292,7 +1292,7 @@ template <
     class COMPARATOR,
     class ALLOCATOR,
     class ALLOC,
-    class = bsl::enable_if_t<std::is_convertible<ALLOC *, ALLOCATOR>::value>
+    class = bsl::enable_if_t<bsl::is_convertible<ALLOC *, ALLOCATOR>::value>
     >
 set(set<KEY, COMPARATOR, ALLOCATOR>, ALLOC *)
 -> set<KEY, COMPARATOR, ALLOCATOR>;
@@ -1303,7 +1303,7 @@ set(set<KEY, COMPARATOR, ALLOCATOR>, ALLOC *)
 
 template <
     class INPUT_ITERATOR,
-    class KEY = typename std::iterator_traits<INPUT_ITERATOR>::value_type,
+    class KEY = typename bsl::iterator_traits<INPUT_ITERATOR>::value_type,
     class COMPARATOR = std::less<KEY>,
     class ALLOCATOR = bsl::allocator<KEY>,
     class = bsl::enable_if_t<!bsl::IsStdAllocator_v<COMPARATOR>>,
@@ -1315,15 +1315,17 @@ set(INPUT_ITERATOR,
     ALLOCATOR = ALLOCATOR())
 -> set<KEY, COMPARATOR, ALLOCATOR>;
     // Deduce the template parameter 'KEY' from the 'value_type' of the
-    // iterators supplied to the constructor of 'set'. Deduce the template
+    // iterators supplied to the constructor of 'set'.  Deduce the template
     // parameters 'COMPARATOR' and 'ALLOCATOR' from the other parameters passed
-    // to the constructor.
+    // to the constructor.  This guide does not participate unless the
+    // supplied (or defaulted) 'ALLOCATOR' meets the requirements of a
+    // standard allocator.
 
 template <
     class INPUT_ITERATOR,
     class COMPARATOR,
     class ALLOC,
-    class KEY = typename std::iterator_traits<INPUT_ITERATOR>::value_type,
+    class KEY = typename bsl::iterator_traits<INPUT_ITERATOR>::value_type,
     class ALLOCATOR = bsl::allocator<KEY>,
     class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>
     >
@@ -1338,7 +1340,7 @@ set(INPUT_ITERATOR, INPUT_ITERATOR, COMPARATOR, ALLOC *)
 template <
     class INPUT_ITERATOR,
     class ALLOCATOR,
-    class KEY = typename std::iterator_traits<INPUT_ITERATOR>::value_type,
+    class KEY = typename bsl::iterator_traits<INPUT_ITERATOR>::value_type,
     class = bsl::enable_if_t<bsl::IsStdAllocator_v<ALLOCATOR>>
     >
 set(INPUT_ITERATOR, INPUT_ITERATOR, ALLOCATOR)
@@ -1346,12 +1348,13 @@ set(INPUT_ITERATOR, INPUT_ITERATOR, ALLOCATOR)
     // Deduce the template parameter 'KEY' from the 'value_type' of the
     // iterators supplied to the constructor of 'set'.  Deduce the template
     // parameter 'ALLOCATOR' from the other parameter passed to the
-    // constructor.
+    // constructor.  This deduction guide does not participate unless the
+    // supplied allocator meets the requirements of a standard allocator.
 
 template <
     class INPUT_ITERATOR,
     class ALLOC,
-    class KEY = typename std::iterator_traits<INPUT_ITERATOR>::value_type,
+    class KEY = typename bsl::iterator_traits<INPUT_ITERATOR>::value_type,
     class ALLOCATOR = bsl::allocator<KEY>,
     class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>
     >

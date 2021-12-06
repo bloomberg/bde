@@ -7893,14 +7893,15 @@ int main(int argc, char *argv[])
         //   constructors.
         //
         // Concerns:
-        //: 1 Simple one argument constructors deduce the template argument.
-        //:
-        //: 2 Constructing an 'optional' from 'allocator_arg_t', an allocator
-        //:   and a value deduces the template argument.
+        //: 1 Construction from iterators deduces the value type from the value
+        //:   type of the iterator.
+        //
+        //: 2 Construction with a 'bslma::Allocator *' deduces the correct
+        //:   specialization of 'bsl::allocator' for the type of the allocator.
         //
         // Plan:
-        //: 1 Create an optional by invoking the constructor without supplying
-        //:   the template argument explicitly.
+        //: 1 Create a set by invoking the constructor without supplying the
+        //:   template arguments explicitly.
         //:
         //: 2 Verify that the deduced type is correct.
         //
