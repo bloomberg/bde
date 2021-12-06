@@ -7857,6 +7857,16 @@ struct TestDeductionGuides {
                               bsl::set<T8, std::less<T8>, bsl::allocator<T8>>);
         ASSERT_SAME_TYPE(decltype(s8d),
                               bsl::set<T8, std::less<T8>, std::allocator<T8>>);
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // Compile-fail tests
+// #define BSLSTL_SET_COMPILE_FAIL_SWAPPED_COMPARATOR_AND_ALLOCATOR
+#ifdef BSLSTL_SET_COMPILE_FAIL_SWAPPED_COMPARATOR_AND_ALLOCATOR
+        typedef long T99;
+        T99      *p99 = nullptr;
+        bsl::set  s99(p99, p99, bsl::allocator<T99>{}, std::less<T99>{});
+        // This should fail to compile (allocator and comparator are swapped)
+#endif
     }
 
 #undef ASSERT_SAME_TYPE
