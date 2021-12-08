@@ -189,21 +189,6 @@ BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(
                                         bsls_buildtarget_coerce_mt,
                                         bsls::BuildTargetMt::s_isBuildTargetMt)
 
-
-
-#ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ============================================================================
-//                           BACKWARD COMPATIBILITY
-// ============================================================================
-
-typedef bsls::BuildTargetExc bsls_ExcBuildTarget;
-    // This alias is defined for backward compatibility.
-
-typedef bsls::BuildTargetMt bsls_MtBuildTarget;
-    // This alias is defined for backward compatibility.
-
-#endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
-
 }  // close enterprise namespace
 
 #endif
