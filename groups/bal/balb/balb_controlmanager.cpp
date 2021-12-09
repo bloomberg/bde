@@ -12,7 +12,10 @@
 #include <bslmt_readlockguard.h>
 #include <bslmt_writelockguard.h>
 
+#include <bdlsb_fixedmeminstreambuf.h>
+
 #include <bdlb_string.h>
+#include <bdlb_stringviewutil.h>
 
 #include <bslma_default.h>
 #include <bsls_assert.h>
@@ -26,32 +29,20 @@
 #include <bsl_utility.h>
 
 namespace BloombergLP {
+namespace balb {
 
-namespace {
-
-template <class FIRST, class SECOND>
-struct MapKeyExtractor {
-   const FIRST& operator() (const bsl::pair<FIRST, SECOND>& pair) {
-      return pair.first;
-   }
-};
-
-template <class FIRST, class SECOND, class TC, class TA>
-MapKeyExtractor<FIRST, SECOND>
-GetExtractor(const bsl::map<FIRST, SECOND, TC, TA>&) {
-   return MapKeyExtractor<FIRST, SECOND>();
-}
+                    // --------------------------------------
+                    // class ControlManager::CaselessLessThan
+                    // --------------------------------------
 
 inline
-bool isLessThanCaseless(const bsl::string& lhsString,
-                        const bsl::string& rhsString)
+bool ControlManager::CaselessLessThan::operator()(
+                                             const bsl::string_view& lhs,
+                                             const bsl::string_view& rhs) const
 {
-   return -1 == bdlb::String::lowerCaseCmp(lhsString, rhsString);
+    return bdlb::StringViewUtil::lowerCaseCmp(lhs, rhs) < 0;
 }
 
-}  // close unnamed namespace
-
-namespace balb {
                             // --------------------
                             // class ControlManager
                             // --------------------
@@ -60,7 +51,7 @@ namespace balb {
 
 ControlManager::ControlManager(bslma::Allocator *basicAllocator)
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
-, d_registry(&isLessThanCaseless, basicAllocator)
+, d_registry(basicAllocator)
 { }
 
 ControlManager::~ControlManager()
@@ -68,42 +59,54 @@ ControlManager::~ControlManager()
 
 // MANIPULATORS
 
-int ControlManager::registerHandler(const bsl::string&    prefix,
-                                    const bsl::string&    arguments,
-                                    const bsl::string&    description,
-                                    const ControlHandler& handler)
+int ControlManager::registerHandler(const bsl::string_view& prefix,
+                                    const bsl::string_view& arguments,
+                                    const bsl::string_view& description,
+                                    const ControlHandler&   handler)
 {
+    typedef Registry::iterator Iterator;
+
     bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_registryMutex);
 
     int rc = 0;
     ControlManager_Entry entry(handler, arguments, description);
 
-    Registry::iterator it = d_registry.find(prefix);
+    Iterator it = d_registry.find(prefix);
     if (it != d_registry.end()) {
         it->second = entry;
         rc = 1;
     }
     else {
-        d_registry.insert(bsl::make_pair(prefix, entry));
+        bsl::pair<Iterator, bool> rcPair = d_registry.emplace(prefix, entry);
+        BSLS_ASSERT(rcPair.second);    (void) rcPair;
     }
 
     return rc;
 }
 
-int ControlManager::deregisterHandler(const bsl::string& prefix)
+int ControlManager::deregisterHandler(const bsl::string_view& prefix)
 {
     bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_registryMutex);
 
-    return (0 == d_registry.erase(prefix));
+    Registry::iterator it = d_registry.find(prefix);
+    if (d_registry.end() != it) {
+        d_registry.erase(it);
+
+        return 0;                                                     // RETURN
+    }
+
+    return 1;
 }
 
-int ControlManager::dispatchMessage(const bsl::string& message) const
+int ControlManager::dispatchMessage(const bsl::string_view& message) const
 {
-    BSLS_LOG_TRACE("Dispatching control message '%s'", message.c_str());
+    const int len = static_cast<int>(message.length());
+    BSLS_LOG_TRACE("Dispatching control message '%.*s'", len, message.data());
+
+    bdlsb::FixedMemInStreamBuf isb(message.data(), message.length());
+    bsl::istream messageStream(&isb);
 
     bsl::string token;
-    bsl::istringstream messageStream(message);
-
     messageStream >> token;
 
     bslmt::ReadLockGuard<bslmt::RWMutex> registryGuard(&d_registryMutex);
@@ -122,6 +125,9 @@ int ControlManager::dispatchMessage(const bsl::string& message) const
 int ControlManager::dispatchMessage(const bsl::string& prefix,
                                     bsl::istream&      stream) const
 {
+    // Imp note: 'prefix' has to be 'bsl::string' and not a string view for the
+    // sake of being able to be passed to the callback.
+
     BSLS_LOG_TRACE("Dispatching control message '%s'", prefix.c_str());
 
     bslmt::ReadLockGuard<bslmt::RWMutex> registryGuard(&d_registryMutex);
@@ -137,8 +143,8 @@ int ControlManager::dispatchMessage(const bsl::string& prefix,
     return -1;
 }
 
-void ControlManager::printUsage(bsl::ostream&      stream,
-                                const bsl::string& preamble) const
+void ControlManager::printUsage(bsl::ostream&           stream,
+                                const bsl::string_view& preamble) const
 {
     stream << preamble << bsl::endl;
     d_registryMutex.lockRead();
@@ -174,8 +180,8 @@ ControlManager::ControlManager_Entry::~ControlManager_Entry()
 
 ControlManager::ControlManager_Entry::ControlManager_Entry(
                          const ControlManager::ControlHandler&  callback,
-                         const bsl::string&                     arguments,
-                         const bsl::string&                     description,
+                         const bsl::string_view&                arguments,
+                         const bsl::string_view&                description,
                          bslma::Allocator                      *basicAllocator)
 : d_callback(bsl::allocator_arg_t(),
              bsl::allocator<ControlManager::ControlHandler>(basicAllocator),

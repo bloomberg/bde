@@ -20,12 +20,10 @@
 #include <bslmt_threadgroup.h>
 #include <bslmt_threadutil.h>
 
+#include <bdls_filesystemutil.h>
+#include <bdls_pathutil.h>
 #include <bdls_pipeutil.h>
-
-#include <bsl_algorithm.h>
-#include <bsl_cstdlib.h>
-#include <bsl_fstream.h>
-#include <bsl_iostream.h>
+#include <bdls_processutil.h>
 
 #include <bslma_testallocator.h>
 
@@ -35,9 +33,15 @@
 #include <bsls_platform.h>
 #include <bsls_timeinterval.h>
 
+#include <bsl_algorithm.h>
+#include <bsl_cstdlib.h>
+#include <bsl_cstdio.h>
+#include <bsl_cstring.h>
+#include <bsl_fstream.h>
+#include <bsl_iostream.h>
+
 #ifdef BSLS_PLATFORM_OS_UNIX
 #include <bsl_c_signal.h>
-#include <bsl_cstdio.h>
 
 #include <fcntl.h>
 #include <sys/types.h>
@@ -131,10 +135,44 @@ void aSsErT(bool condition, const char *message, int line)
 // ============================================================================
 //            GLOBAL TYPES, CONSTANTS, AND VARIABLES FOR TESTING
 // ----------------------------------------------------------------------------
-static int verbose = 0;
-static int veryVerbose = 0;
-static int veryVeryVerbose = 0;
-static int veryVeryVeryVerbose = 0;
+
+typedef bdls::FilesystemUtil FUtil;
+
+int verbose = 0;
+int veryVerbose = 0;
+int veryVeryVerbose = 0;
+int veryVeryVeryVerbose = 0;
+
+enum PipeNameForm { e_BEGIN
+                  , e_CONST_CHAR_STAR = e_BEGIN
+                  , e_BSL_STRING
+                  , e_STD_STRING
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                  , e_PMR_STRING
+#endif
+                  , e_STRING_REF
+                  , e_END };
+
+bsl::ostream& operator<<(bsl::ostream& stream, PipeNameForm pnf)
+{
+    const char *str = e_CONST_CHAR_STAR == pnf
+                    ? "'const char *'"
+                    : e_BSL_STRING == pnf
+                    ? "bsl::string"
+                    : e_STD_STRING == pnf
+                    ? "std::string"
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                    : e_PMR_STRING == pnf
+                    ? "pmr::string"
+#endif
+                    : e_STRING_REF == pnf
+                    ? "bslstl::StringRef"
+                    : e_END == pnf
+                    ? "end"
+                    : "unknown";
+
+    return stream << str;
+}
 
 extern "C"
 {
@@ -166,7 +204,8 @@ class ControlServer {
         }
     }
 
-    // UNIMPLEMENTED
+  private:
+    // NOT IMPLEMENTED
     ControlServer(const ControlServer&);             // = deleted
     ControlServer& operator=(const ControlServer&);  // = deleted
 
@@ -181,24 +220,29 @@ class ControlServer {
     {}
 
     // MANIPULATORS
-    int start(const bslstl::StringRef &pipeName) {
+    int start(const bslstl::StringRef &pipeName)
+    {
         return d_channel.start(pipeName);
     }
 
-    void shutdown() {
+    void shutdown()
+    {
         d_channel.shutdown();
     }
 
-    void stop() {
+    void stop()
+    {
         d_channel.stop();
     }
 
     // ACCESSORS
-    bsl::size_t numMessages() const {
+    bsl::size_t numMessages() const
+    {
         return d_messages.size();
     }
 
-    const bsl::string& message(int index) const {
+    const bsl::string& message(int index) const
+    {
         return d_messages[index];
     }
 };
@@ -264,7 +308,8 @@ void loadData(bsl::string *result, int length)
 }  // close unnamed namespace
 
 extern "C"
-void onSigPipe(int) {
+void onSigPipe(int)
+{
     BSLS_LOG_WARN("SIGPIPE received");
 }
 
@@ -341,8 +386,21 @@ int main(int argc, char *argv[])
         devnull.open("/dev/null");
     }
 #endif
+
+    // Pipe names are global to the CPU, among all processes.  A matrix build
+    // will often be running the same test driver multiple times at once, so
+    // the pipe name has to contain the pid.  Just containing the test case #
+    // won't be enough.  'pipeName' is used in many test cases.
+
+    bsl::string pipeName;
     if (test >= 0) {
         cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
+        char buffer[200];
+        bsl::sprintf(buffer, "ctrl.pcctest.%d.%d", test,
+                                            bdls::ProcessUtil::getProcessId());
+        ASSERT(0 == bdls::PipeUtil::makeCanonicalName(&pipeName, buffer));
+        if (veryVerbose) bsl::cerr << "pipeName: " << pipeName << bsl::endl;
     }
 
 #ifndef BSLS_PLATFORM_OS_WINDOWS
@@ -352,7 +410,7 @@ int main(int argc, char *argv[])
     switch (test) { case 0:
       case 12: {
         // --------------------------------------------------------------------
-        // TESTING THREAD ATTRIBUTES PASSING
+        // TESTING START, THREAD ATTRIBUTES PASSING
         //
         // Concerns:
         //: 1 The 'start' method correctly passes required thread attributes to
@@ -364,70 +422,169 @@ int main(int argc, char *argv[])
         //:   the desired thread configuration.  Pass some messages using that
         //:   mechanism and verify, that created tread has the expected
         //:   attributes.
+        //:
+        //: 2 Loop, testing all overloads of 'start', with and without the
+        //:   thread attributes passed, and with all 5 types of pipe name.
         //
         // Testing
         //   int start(const bsl::string&, const bslmt::ThreadAttributes&);
         //---------------------------------------------------------------------
 
         if (verbose) {
-            cout << "TESTING THREAD ATTRIBUTES PASSING" << endl
-                 << "=================================" << endl;
+            cout << "TESTING START, THREAD ATTRIBUTES PASSING\n"
+                    "========================================\n";
         }
 
-        bsl::string pipeName;
 
-        ASSERT(0 == bdls::PipeUtil::makeCanonicalName(
-                                                     &pipeName,
-                                                     "ctrl.attributestest12"));
+#if   defined(BSLS_PLATFORM_OS_LINUX)
+        // If no threadname is specified, the thread name is up to the first 15
+        // bytes of the basename of 'argv[0]'.
 
-        const bsl::string EXPECTED_THREAD_NAME("ctrl.attrtest12"         );
-        const bsl::string MSG                 ("this is the test message");
-        bsl::string       threadName;
-        bsl::string       message;
-        bslmt::Barrier    barrier(2);
+        bsl::string dfltThreadName = argv[0];
+        {
+            bsl::string s;
+            ASSERT(0 == bdls::PathUtil::getBasename(&s, dfltThreadName));
+            dfltThreadName = s;
+        }
+        dfltThreadName.resize(bsl::min<bsl::size_t>(
+                                                 15, dfltThreadName.length()));
+        const bsl::string& DFLT_THREAD_NAME(dfltThreadName);
+#else
+        // If no threadname is specified, the thread name is "".
+        const bsl::string  DFLT_THREAD_NAME;
+#endif
 
-        balb::PipeControlChannel pipeChannel(
+        const bsl::string RAW_EXP_THREAD_NAME("ctrl.attrtest12"         );
+        const bsl::string MSG                ("this is the test message");
+
+        bslmt::ThreadAttributes       rawAttributes;
+        ASSERT(rawAttributes.threadName().empty());
+        rawAttributes.setThreadName(RAW_EXP_THREAD_NAME);
+        const bslmt::ThreadAttributes SET_ATTR(rawAttributes);
+
+        const bsl::string PIPE_NAME_BSL(pipeName);
+
+        for (int attrI = 0; attrI < 2; ++attrI) {
+            const bool         PASS_ATTRIBUTES = attrI;
+            const bsl::string& EXP_THREAD_NAME = PASS_ATTRIBUTES
+                                               ? RAW_EXP_THREAD_NAME
+                                               : DFLT_THREAD_NAME;
+
+            for (int pnfi = e_BEGIN; pnfi < e_END; ++pnfi) {
+                const PipeNameForm PIPE_NAME_FORM = static_cast<PipeNameForm>(
+                                                                         pnfi);
+
+                bsl::string       threadName;
+                bsl::string       message;
+                bslmt::Barrier    barrier(2);
+
+                FUtil::remove(pipeName);
+
+                balb::PipeControlChannel pipeChannel(
                                   bdlf::BindUtil::bind(&attributesTestCallback,
-                                                      &threadName,
-                                                      &message,
-                                                      bdlf::PlaceHolders::_1,
-                                                      &barrier));
+                                                       &threadName,
+                                                       &message,
+                                                       bdlf::PlaceHolders::_1,
+                                                       &barrier));
 
-        bslmt::ThreadAttributes attributes;
-        attributes.setThreadName(EXPECTED_THREAD_NAME);
+                int rc = -1;
+                if (PASS_ATTRIBUTES) {
+                    switch (PIPE_NAME_FORM) {
+                      case e_CONST_CHAR_STAR: {
+                        rc = pipeChannel.start(PIPE_NAME_BSL.c_str(),
+                                               SET_ATTR);
+                      } break;
+                      case e_BSL_STRING: {
+                        rc = pipeChannel.start(PIPE_NAME_BSL, SET_ATTR);
+                      } break;
+                      case e_STD_STRING: {
+                        const std::string PIPE_NAME(PIPE_NAME_BSL);
+                        rc = pipeChannel.start(PIPE_NAME, SET_ATTR);
+                      } break;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                      case e_PMR_STRING: {
+                        const std::pmr::string PIPE_NAME(PIPE_NAME_BSL);
+                        rc = pipeChannel.start(PIPE_NAME, SET_ATTR);
+                      } break;
+#endif
+                      case e_STRING_REF: {
+                        const bslstl::StringRef PIPE_NAME(PIPE_NAME_BSL);
+                        rc = pipeChannel.start(PIPE_NAME, SET_ATTR);
+                      } break;
+                      default: {
+                        ASSERTV(pnfi, 0);
+                      }
+                    }
+                }
+                else {
+                    switch (PIPE_NAME_FORM) {
+                      case e_CONST_CHAR_STAR: {
+                        rc = pipeChannel.start(PIPE_NAME_BSL.c_str());
+                      } break;
+                      case e_BSL_STRING: {
+                        rc = pipeChannel.start(PIPE_NAME_BSL);
+                      } break;
+                      case e_STD_STRING: {
+                        const std::string PIPE_NAME(PIPE_NAME_BSL);
+                        rc = pipeChannel.start(PIPE_NAME);
+                      } break;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                      case e_PMR_STRING: {
+                        const std::pmr::string PIPE_NAME(PIPE_NAME_BSL);
+                        rc = pipeChannel.start(PIPE_NAME);
+                      } break;
+#endif
+                      case e_STRING_REF: {
+                        const bslstl::StringRef PIPE_NAME(PIPE_NAME_BSL);
+                        rc = pipeChannel.start(PIPE_NAME);
+                      } break;
+                      default: {
+                        ASSERTV(pnfi, 0);
+                      }
+                    }
+                }
 
-        int rc = pipeChannel.start(pipeName, attributes);
+                ASSERT(0 == rc);
+                if (0 == rc) {
+                    rc = bdls::PipeUtil::send(PIPE_NAME_BSL, MSG + "\n");
+                    ASSERTV(rc, 0 == rc);
+                }
 
-        if (0 == rc) {
-            rc = bdls::PipeUtil::send(pipeName, MSG + "\n");
-            ASSERTV(rc, 0 == rc);
-        }
+                // Wait for background processing thread.
+                barrier.wait();
 
-        // Wait for background processing thread.
-        barrier.wait();
+                pipeChannel.shutdown();
+                pipeChannel.stop();
 
-        pipeChannel.shutdown();
-        pipeChannel.stop();
-
-        ASSERTV(message, MSG == message);
+                ASSERTV(message, MSG == message);
 
 #if   defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN) ||  \
       defined(BSLS_PLATFORM_OS_SOLARIS)
-        ASSERTV(threadName, EXPECTED_THREAD_NAME == threadName);
+                ASSERTV(PIPE_NAME_FORM, threadName,
+                                                EXP_THREAD_NAME == threadName);
 #elif defined(BSLS_PLATFORM_OS_WINDOWS)
-        // The threadname will only be visible if we're running on Windows 10,
-        // version 1607 or later, otherwise it will be empty.  It breaks the
-        // test strategy, since we can not to rely on the thread name value.
-        // But since the behavior being tested is common for all platforms, we
-        // dare to say that it is correct on Windows if the tests pass
-        // successfully for other platforms.
+                // The threadname will only be visible if we're running on
+                // Windows 10, version 1607 or later, otherwise it will be
+                // empty.  It breaks the test strategy, since we can not to
+                // rely on the thread name value.  But since the behavior being
+                // tested is common for all platforms, we dare to say that it
+                // is correct on Windows if the tests pass successfully for
+                // other platforms.
 
-        ASSERTV(threadName, EXPECTED_THREAD_NAME == threadName
-                         || true                 == threadName.empty());
+                if (PASS_ATTRIBUTES) {
+                    ASSERTV(PIPE_NAME_FORM, threadName,
+                         threadName.empty() ||  EXP_THREAD_NAME == threadName);
+                }
+                else {
+                    ASSERTV(PIPE_NAME_FORM, threadName,
+                         threadName.empty() || DFLT_THREAD_NAME == threadName);
+                }
 #else
         // Thread names are not supported for other platforms.
-        ASSERTV(threadName, true                 == threadName.empty());
+                ASSERTV(threadName, threadName.empty());
 #endif
+            }
+        }
       } break;
       case 11: {
         // --------------------------------------------------------------------
@@ -478,7 +635,6 @@ int main(int argc, char *argv[])
             cout << "Skipping test case 11 on non-Windows OS..." << endl;
         }
 #else
-        const char PIPE_NAME[] = "\\\\.\\pipe\\ctrl.balb.pcctest11";
         bslmt::Mutex mutex;
         bslmt::Condition condition;
         bsls::AtomicBool conditionFlag(false);
@@ -488,10 +644,10 @@ int main(int argc, char *argv[])
                                                     &conditionFlag,
                                                     bdlf::PlaceHolders::_1));
 
-        pipeChannel.start(PIPE_NAME);
+        pipeChannel.start(pipeName);
         bslmt::ThreadUtil::Handle thread;
         int rc = bslmt::ThreadUtil::create(&thread, bdlf::BindUtil::bind(
-                                                      &sendHello, PIPE_NAME));
+                                                &sendHello, pipeName.c_str()));
         ASSERT(rc == 0);
         if (rc != 0) {
             break;                                                     // BREAK
@@ -527,7 +683,7 @@ int main(int argc, char *argv[])
         if (verbose) {
             cerr << "Case 10 client process starting" << endl;
         }
-        unlink(argv[3]);
+        FUtil::remove(argv[3]);
 
         bslmt::Barrier barrier(2);
         balb::PipeControlChannel channel(bdlf::BindUtil::bind(
@@ -564,11 +720,6 @@ int main(int argc, char *argv[])
             cout << "EINTR test" << endl
                  << "==========" << endl;
         }
-
-        bsl::string pipeName;
-
-        ASSERT(0 == bdls::PipeUtil::makeCanonicalName
-               (&pipeName, "ctrl.pcctest10"));
 
         char buffer[512];
         char verb = veryVeryVerbose ? 'A' :
@@ -629,9 +780,7 @@ int main(int argc, char *argv[])
             cerr << "Case 9 client process starting" << endl;
         }
 
-#ifdef BSLS_PLATFORM_OS_UNIX
-        unlink(argv[3]);
-#endif
+        FUtil::remove(argv[3]);
 
         const char MESSAGE[]
              = "Hello, world! The sick cat couldn't jump over even a lazy dog";
@@ -681,9 +830,7 @@ int main(int argc, char *argv[])
         channel.stop();
 
         bslmt::ThreadUtil::sleep(bsls::TimeInterval(1.0));
-
-        break;
-      }
+      } break;
       case 9: {
         // --------------------------------------------------------------------
         // TESTING PIPE-IN-USE SAFETY
@@ -702,11 +849,6 @@ int main(int argc, char *argv[])
             cout << "Pipe-in-use safety test" << endl
                  << "=======================" << endl;
         }
-
-        bsl::string pipeName;
-
-        ASSERT(0 == bdls::PipeUtil::makeCanonicalName
-               (&pipeName, "ctrl.safttest9"));
 
         char buffer[512];
         snprintf(buffer, 512, "%s -9 %c %s", argv[0],
@@ -727,7 +869,7 @@ int main(int argc, char *argv[])
         int rc;
         for (int i = 0; i < 5; ++i) {
             rc = server.start(pipeName);
-            LOOP_ASSERT(i, 0 != rc);
+            ASSERTV(i, pipeName, 0 != rc);
             bslmt::ThreadUtil::microSleep(100);
         }
 
@@ -757,9 +899,7 @@ int main(int argc, char *argv[])
             cerr << "Case 8 client process starting" << endl;
         }
 
-#ifdef BSLS_PLATFORM_OS_UNIX
-        unlink(argv[3]);
-#endif
+        FUtil::remove(argv[3]);
 
         balb::PipeControlChannel *channel =
                                            new balb::PipeControlChannel(&noop);
@@ -777,8 +917,7 @@ int main(int argc, char *argv[])
 #endif
 
         ASSERT(!"unreachable");
-        break;
-      }
+      } break;
       case 8: {
         // --------------------------------------------------------------------
         // TESTING CRASH RECOVERY
@@ -797,11 +936,6 @@ int main(int argc, char *argv[])
             cout << "Crash recovery test: \"Bus Error\" is OK" << endl
                  << "======================================" << endl;
         }
-
-        bsl::string pipeName;
-
-        ASSERT(0 == bdls::PipeUtil::makeCanonicalName
-               (&pipeName, "ctrl.restarttest8"));
 
         char buffer[512];
         snprintf(buffer, 512, "%s -8 %c %s", argv[0],
@@ -873,8 +1007,10 @@ int main(int argc, char *argv[])
 
 // Now, construct and run the server using a canonical name for the pipe:
 //..
+#if 0 // 'pipeName' in test driver (but not most situations) must contain pid.
     bsl::string pipeName;
     bdls::PipeUtil::makeCanonicalName(&pipeName, "ctrl.pcctest");
+#endif
 
     ControlServer server;
 
@@ -940,13 +1076,8 @@ int main(int argc, char *argv[])
 
         bslma::TestAllocator ta(veryVeryVeryVerbose);
         {
-            bsl::string pipeName;
+            FUtil::remove(pipeName.c_str());
 
-            ASSERT(0 == bdls::PipeUtil::makeCanonicalName
-                   (&pipeName, "ctrl.balb.pcctest6"));
-#ifdef BSLS_PLATFORM_OS_UNIX
-            unlink(pipeName.c_str());
-#endif
             enum { NUM_CLIENTS = 10, NUM_ITERATIONS = 100 };
 
             int DATA[] = {
@@ -1025,13 +1156,7 @@ int main(int argc, char *argv[])
 
         bslma::TestAllocator ta(veryVeryVeryVerbose);
         {
-            bsl::string pipeName;
-
-            ASSERT(0 == bdls::PipeUtil::makeCanonicalName
-                   (&pipeName, "ctrl.balb.pcctest5"));
-#ifdef BSLS_PLATFORM_OS_UNIX
-            unlink(pipeName.c_str());
-#endif
+            FUtil::remove(pipeName.c_str());
 
             const char MESSAGE[]  = "Hello, world!";
 
@@ -1081,19 +1206,13 @@ int main(int argc, char *argv[])
 
         bslma::TestAllocator ta(veryVeryVeryVerbose);
         {
-            bsl::string pipeName;
-
-            ASSERT(0 == bdls::PipeUtil::makeCanonicalName
-                   (&pipeName, "ctrl.balb.pcctest4"));
-#ifdef BSLS_PLATFORM_OS_UNIX
-            unlink(pipeName.c_str());
-#endif
+            FUtil::remove(pipeName);
 
             {
-            balb::PipeControlChannel channel(&noop, &ta);
+                balb::PipeControlChannel channel(&noop, &ta);
 
-            int rc = channel.start(pipeName);
-            ASSERT(0 == rc);
+                int rc = channel.start(pipeName);
+                ASSERT(0 == rc);
             }
 
             ASSERT("The calling thread is unblocked.");
@@ -1122,16 +1241,11 @@ int main(int argc, char *argv[])
 
         bslma::TestAllocator ta(veryVeryVeryVerbose);
         {
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-            const char PIPE_NAME[] = "\\\\.\\pipe\\ctrl.balb.pcctest3";
-#else
-            const char PIPE_NAME[] = "/tmp/ctrl.balb.pcctest3";
-            unlink(PIPE_NAME);
-#endif
+            FUtil::remove(pipeName);
 
             balb::PipeControlChannel channel(&noop, &ta);
 
-            int rc = channel.start(PIPE_NAME);
+            int rc = channel.start(pipeName);
             ASSERT(0 == rc);
 
             channel.shutdown();
@@ -1171,38 +1285,34 @@ int main(int argc, char *argv[])
         {
             int rc;
 
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-            const char PIPE_NAME1[] = "\\\\.\\pipe\\ctrl.pcctest2-1";
-            const char PIPE_NAME2[] = "\\\\.\\pipe\\ctrl.pcctest2-2";
-#else
-            const char PIPE_NAME1[] = "/tmp/ctrl.balb.pcctest2-1";
-            const char PIPE_NAME2[] = "/tmp/ctrl.balb.pcctest2-2";
-            unlink(PIPE_NAME1);
-            unlink(PIPE_NAME2);
-#endif
+            const bsl::string  pipeName1  = pipeName + "-1";
+            const bsl::string  pipeName2  = pipeName + "-2";
+
+            FUtil::remove(pipeName1);
+            FUtil::remove(pipeName2);
 
             balb::PipeControlChannel channel(&noop, &ta);
 
-            rc = channel.start(PIPE_NAME1);
+            rc = channel.start(pipeName1);
             ASSERT(0 == rc);
 
-            ASSERT(PIPE_NAME1 == channel.pipeName());
+            ASSERT(pipeName1 == channel.pipeName());
 
             channel.shutdown();
             channel.stop();
 
-            rc = channel.start(PIPE_NAME2);
+            rc = channel.start(pipeName2);
             ASSERT(0 == rc);
 
-            ASSERT(PIPE_NAME2 == channel.pipeName());
+            ASSERT(pipeName2 == channel.pipeName());
 
             channel.shutdown();
             channel.stop();
 
-            rc = channel.start(PIPE_NAME2);
+            rc = channel.start(pipeName2);
             ASSERT(0 == rc);
 
-            ASSERT(PIPE_NAME2 == channel.pipeName());
+            ASSERT(pipeName2 == channel.pipeName());
 
             channel.shutdown();
             channel.stop();
@@ -1233,19 +1343,13 @@ int main(int argc, char *argv[])
 
         bslma::TestAllocator ta(veryVeryVeryVerbose);
         {
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-            const char PIPE_NAME[] = "\\\\.\\pipe\\ctrl.balb.pcctest1";
-#else
-            const char PIPE_NAME[] = "/tmp/ctrl.balb.pcctest1";
-            unlink(PIPE_NAME);
-#endif
+            FUtil::remove(pipeName);
 
             balb::PipeControlChannel channel(&noop, &ta);
-
-            int rc = channel.start(PIPE_NAME);
+            int rc = channel.start(pipeName);
             ASSERT(0 == rc);
 
-            ASSERT(PIPE_NAME == channel.pipeName());
+            ASSERT(pipeName == channel.pipeName());
 
             channel.shutdown();
             channel.stop();

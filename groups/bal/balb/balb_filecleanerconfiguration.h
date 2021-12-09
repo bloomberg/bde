@@ -141,7 +141,7 @@ class FileCleanerConfiguration {
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
-    FileCleanerConfiguration(const bslstl::StringRef&   filePattern,
+    FileCleanerConfiguration(const bsl::string_view&    filePattern,
                              const bsls::TimeInterval&  maxAge,
                              int                        minNumber,
                              bslma::Allocator          *basicAllocator = 0);
@@ -168,7 +168,7 @@ class FileCleanerConfiguration {
         // of the specified 'rhs' object, and return a reference providing
         // modifiable access to this object.
 
-    void setFilePattern(const bslstl::StringRef& filePattern);
+    void setFilePattern(const bsl::string_view& filePattern);
         // Set the file pattern attribute of this object to the specified
         // 'filePattern'.
 
@@ -246,7 +246,7 @@ FileCleanerConfiguration::FileCleanerConfiguration(
 
 inline
 FileCleanerConfiguration::FileCleanerConfiguration(
-                                     const bslstl::StringRef&   filePattern,
+                                     const bsl::string_view&    filePattern,
                                      const bsls::TimeInterval&  maxAge,
                                      int                        minNumber,
                                      bslma::Allocator          *basicAllocator)
@@ -280,7 +280,7 @@ FileCleanerConfiguration::operator=(const FileCleanerConfiguration& rhs)
 
 inline
 void FileCleanerConfiguration::setFilePattern(
-                                          const bslstl::StringRef& filePattern)
+                                           const bsl::string_view& filePattern)
 {
     d_filePattern = filePattern;
 }
