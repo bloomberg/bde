@@ -4032,6 +4032,16 @@ class CopyOnlyTestType {
 }  // close namespace TYPES_FOR_TESTING_NON_COPYABLE_RETURN_VALUES
 
 // ============================================================================
+//                     GLOBAL HELPER FUNCTIONS FOR TESTING
+// ----------------------------------------------------------------------------
+
+template<class T>
+const T asConst(const T& t)
+{
+    return t;
+}
+
+// ============================================================================
 //                            OUT-OF-LINE TEST CASES
 // ----------------------------------------------------------------------------
 
@@ -4647,6 +4657,27 @@ void TestUtil::testCase26()
                                                                   W.the<TT>());
             ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
+
+        if (verbose) cout << "\tWith 'const' rvalue source." << endl;
+        {
+            // Using const rvalue as a parameter for assignment operator caused
+            // incorrect overload resolution.  See DRQS 167585741 for more
+            // information.
+
+            typedef bsltf::MovableTestType TT;
+
+            Obj        mX;
+            const Obj& X = mX;
+
+            mX = asConst(Obj(TT('A')));
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A') == X.the<TT>());
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            ASSERT(MoveState::e_NOT_MOVED == mStateX);
+        }
     }
 
     if (verbose) cout << "\nTesting 'bdlb::Variant2'." << endl;
@@ -4792,6 +4823,27 @@ void TestUtil::testCase26()
             MoveState::Enum mStateW = TstFacility::getMovedIntoState(
                                                                   W.the<TT>());
             ASSERT(EXPECTED_MOVE_STATE == mStateW);
+        }
+
+        if (verbose) cout << "\tWith 'const' rvalue source." << endl;
+        {
+            // Using const rvalue as a parameter for assignment operator caused
+            // incorrect overload resolution.  See DRQS 167585741 for more
+            // information.
+
+            typedef bsltf::MovableTestType TT;
+
+            Obj        mX;
+            const Obj& X = mX;
+
+            mX = asConst(Obj(TT('A')));
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A') == X.the<TT>());
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            ASSERT(MoveState::e_NOT_MOVED == mStateX);
         }
     }
 
@@ -4939,6 +4991,27 @@ void TestUtil::testCase26()
             MoveState::Enum mStateW = TstFacility::getMovedIntoState(
                                                                   W.the<TT>());
             ASSERT(EXPECTED_MOVE_STATE == mStateW);
+        }
+
+        if (verbose) cout << "\tWith 'const' rvalue source." << endl;
+        {
+            // Using const rvalue as a parameter for assignment operator caused
+            // incorrect overload resolution.  See DRQS 167585741 for more
+            // information.
+
+            typedef bsltf::MovableTestType TT;
+
+            Obj        mX;
+            const Obj& X = mX;
+
+            mX = asConst(Obj(TT('A')));
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A') == X.the<TT>());
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            ASSERT(MoveState::e_NOT_MOVED == mStateX);
         }
     }
 
@@ -5088,6 +5161,27 @@ void TestUtil::testCase26()
                                                                   W.the<TT>());
             ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
+
+        if (verbose) cout << "\tWith 'const' rvalue source." << endl;
+        {
+            // Using const rvalue as a parameter for assignment operator caused
+            // incorrect overload resolution.  See DRQS 167585741 for more
+            // information.
+
+            typedef bsltf::MovableTestType TT;
+
+            Obj        mX;
+            const Obj& X = mX;
+
+            mX = asConst(Obj(TT('A')));
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A') == X.the<TT>());
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            ASSERT(MoveState::e_NOT_MOVED == mStateX);
+        }
     }
 
     if (verbose) cout << "\nTesting 'bdlb::Variant5'." << endl;
@@ -5235,6 +5329,27 @@ void TestUtil::testCase26()
             MoveState::Enum mStateW = TstFacility::getMovedIntoState(
                                                                   W.the<TT>());
             ASSERT(EXPECTED_MOVE_STATE == mStateW);
+        }
+
+        if (verbose) cout << "\tWith 'const' rvalue source." << endl;
+        {
+            // Using const rvalue as a parameter for assignment operator caused
+            // incorrect overload resolution.  See DRQS 167585741 for more
+            // information.
+
+            typedef bsltf::MovableTestType TT;
+
+            Obj        mX;
+            const Obj& X = mX;
+
+            mX = asConst(Obj(TT('A')));
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A') == X.the<TT>());
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            ASSERT(MoveState::e_NOT_MOVED == mStateX);
         }
     }
 
@@ -5384,6 +5499,27 @@ void TestUtil::testCase26()
                                                                   W.the<TT>());
             ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
+
+        if (verbose) cout << "\tWith 'const' rvalue source." << endl;
+        {
+            // Using const rvalue as a parameter for assignment operator caused
+            // incorrect overload resolution.  See DRQS 167585741 for more
+            // information.
+
+            typedef bsltf::MovableTestType TT;
+
+            Obj        mX;
+            const Obj& X = mX;
+
+            mX = asConst(Obj(TT('A')));
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A') == X.the<TT>());
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            ASSERT(MoveState::e_NOT_MOVED == mStateX);
+        }
     }
 
     if (verbose) cout << "\nTesting 'bdlb::Variant7'." << endl;
@@ -5531,6 +5667,27 @@ void TestUtil::testCase26()
             MoveState::Enum mStateW = TstFacility::getMovedIntoState(
                                                                   W.the<TT>());
             ASSERT(EXPECTED_MOVE_STATE == mStateW);
+        }
+
+        if (verbose) cout << "\tWith 'const' rvalue source." << endl;
+        {
+            // Using const rvalue as a parameter for assignment operator caused
+            // incorrect overload resolution.  See DRQS 167585741 for more
+            // information.
+
+            typedef bsltf::MovableTestType TT;
+
+            Obj        mX;
+            const Obj& X = mX;
+
+            mX = asConst(Obj(TT('A')));
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A') == X.the<TT>());
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            ASSERT(MoveState::e_NOT_MOVED == mStateX);
         }
     }
 
@@ -5681,6 +5838,27 @@ void TestUtil::testCase26()
                                                                   W.the<TT>());
             ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
+
+        if (verbose) cout << "\tWith 'const' rvalue source." << endl;
+        {
+            // Using const rvalue as a parameter for assignment operator caused
+            // incorrect overload resolution.  See DRQS 167585741 for more
+            // information.
+
+            typedef bsltf::MovableTestType TT;
+
+            Obj        mX;
+            const Obj& X = mX;
+
+            mX = asConst(Obj(TT('A')));
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A') == X.the<TT>());
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            ASSERT(MoveState::e_NOT_MOVED == mStateX);
+        }
     }
 
     if (verbose) cout << "\nTesting 'bdlb::Variant9'." << endl;
@@ -5829,6 +6007,27 @@ void TestUtil::testCase26()
             MoveState::Enum mStateW = TstFacility::getMovedIntoState(
                                                                   W.the<TT>());
             ASSERT(EXPECTED_MOVE_STATE == mStateW);
+        }
+
+        if (verbose) cout << "\tWith 'const' rvalue source." << endl;
+        {
+            // Using const rvalue as a parameter for assignment operator caused
+            // incorrect overload resolution.  See DRQS 167585741 for more
+            // information.
+
+            typedef bsltf::MovableTestType TT;
+
+            Obj        mX;
+            const Obj& X = mX;
+
+            mX = asConst(Obj(TT('A')));
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A') == X.the<TT>());
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            ASSERT(MoveState::e_NOT_MOVED == mStateX);
         }
     }
 
@@ -5979,6 +6178,27 @@ void TestUtil::testCase26()
                                                                   W.the<TT>());
             ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
+
+        if (verbose) cout << "\tWith 'const' rvalue source." << endl;
+        {
+            // Using const rvalue as a parameter for assignment operator caused
+            // incorrect overload resolution.  See DRQS 167585741 for more
+            // information.
+
+            typedef bsltf::MovableTestType TT;
+
+            Obj        mX;
+            const Obj& X = mX;
+
+            mX = asConst(Obj(TT('A')));
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A') == X.the<TT>());
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            ASSERT(MoveState::e_NOT_MOVED == mStateX);
+        }
     }
 
     if (verbose) cout << "\nTesting 'bdlb::Variant11'." << endl;
@@ -6127,6 +6347,27 @@ void TestUtil::testCase26()
             MoveState::Enum mStateW = TstFacility::getMovedIntoState(
                                                                   W.the<TT>());
             ASSERT(EXPECTED_MOVE_STATE == mStateW);
+        }
+
+        if (verbose) cout << "\tWith 'const' rvalue source." << endl;
+        {
+            // Using const rvalue as a parameter for assignment operator caused
+            // incorrect overload resolution.  See DRQS 167585741 for more
+            // information.
+
+            typedef bsltf::MovableTestType TT;
+
+            Obj        mX;
+            const Obj& X = mX;
+
+            mX = asConst(Obj(TT('A')));
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A') == X.the<TT>());
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            ASSERT(MoveState::e_NOT_MOVED == mStateX);
         }
     }
 
@@ -6278,6 +6519,27 @@ void TestUtil::testCase26()
                                                                   W.the<TT>());
             ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
+
+        if (verbose) cout << "\tWith 'const' rvalue source." << endl;
+        {
+            // Using const rvalue as a parameter for assignment operator caused
+            // incorrect overload resolution.  See DRQS 167585741 for more
+            // information.
+
+            typedef bsltf::MovableTestType TT;
+
+            Obj        mX;
+            const Obj& X = mX;
+
+            mX = asConst(Obj(TT('A')));
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A') == X.the<TT>());
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            ASSERT(MoveState::e_NOT_MOVED == mStateX);
+        }
     }
 
     if (verbose) cout << "\nTesting 'bdlb::Variant13'." << endl;
@@ -6427,6 +6689,27 @@ void TestUtil::testCase26()
             MoveState::Enum mStateW = TstFacility::getMovedIntoState(
                                                                   W.the<TT>());
             ASSERT(EXPECTED_MOVE_STATE == mStateW);
+        }
+
+        if (verbose) cout << "\tWith 'const' rvalue source." << endl;
+        {
+            // Using const rvalue as a parameter for assignment operator caused
+            // incorrect overload resolution.  See DRQS 167585741 for more
+            // information.
+
+            typedef bsltf::MovableTestType TT;
+
+            Obj        mX;
+            const Obj& X = mX;
+
+            mX = asConst(Obj(TT('A')));
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A') == X.the<TT>());
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            ASSERT(MoveState::e_NOT_MOVED == mStateX);
         }
     }
 
@@ -6578,6 +6861,27 @@ void TestUtil::testCase26()
                                                                   W.the<TT>());
             ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
+
+        if (verbose) cout << "\tWith 'const' rvalue source." << endl;
+        {
+            // Using const rvalue as a parameter for assignment operator caused
+            // incorrect overload resolution.  See DRQS 167585741 for more
+            // information.
+
+            typedef bsltf::MovableTestType TT;
+
+            Obj        mX;
+            const Obj& X = mX;
+
+            mX = asConst(Obj(TT('A')));
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A') == X.the<TT>());
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            ASSERT(MoveState::e_NOT_MOVED == mStateX);
+        }
     }
 
     if (verbose) cout << "\nTesting 'bdlb::Variant15'." << endl;
@@ -6727,6 +7031,27 @@ void TestUtil::testCase26()
             MoveState::Enum mStateW = TstFacility::getMovedIntoState(
                                                                   W.the<TT>());
             ASSERT(EXPECTED_MOVE_STATE == mStateW);
+        }
+
+        if (verbose) cout << "\tWith 'const' rvalue source." << endl;
+        {
+            // Using const rvalue as a parameter for assignment operator caused
+            // incorrect overload resolution.  See DRQS 167585741 for more
+            // information.
+
+            typedef bsltf::MovableTestType TT;
+
+            Obj        mX;
+            const Obj& X = mX;
+
+            mX = asConst(Obj(TT('A')));
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A') == X.the<TT>());
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            ASSERT(MoveState::e_NOT_MOVED == mStateX);
         }
     }
 
@@ -6879,6 +7204,27 @@ void TestUtil::testCase26()
                                                                   W.the<TT>());
             ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
+
+        if (verbose) cout << "\tWith 'const' rvalue source." << endl;
+        {
+            // Using const rvalue as a parameter for assignment operator caused
+            // incorrect overload resolution.  See DRQS 167585741 for more
+            // information.
+
+            typedef bsltf::MovableTestType TT;
+
+            Obj        mX;
+            const Obj& X = mX;
+
+            mX = asConst(Obj(TT('A')));
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A') == X.the<TT>());
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            ASSERT(MoveState::e_NOT_MOVED == mStateX);
+        }
     }
 
     if (verbose) cout << "\nTesting 'bdlb::Variant17'." << endl;
@@ -7029,6 +7375,27 @@ void TestUtil::testCase26()
             MoveState::Enum mStateW = TstFacility::getMovedIntoState(
                                                                   W.the<TT>());
             ASSERT(EXPECTED_MOVE_STATE == mStateW);
+        }
+
+        if (verbose) cout << "\tWith 'const' rvalue source." << endl;
+        {
+            // Using const rvalue as a parameter for assignment operator caused
+            // incorrect overload resolution.  See DRQS 167585741 for more
+            // information.
+
+            typedef bsltf::MovableTestType TT;
+
+            Obj        mX;
+            const Obj& X = mX;
+
+            mX = asConst(Obj(TT('A')));
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A') == X.the<TT>());
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            ASSERT(MoveState::e_NOT_MOVED == mStateX);
         }
     }
 
@@ -7181,6 +7548,27 @@ void TestUtil::testCase26()
                                                                   W.the<TT>());
             ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
+
+        if (verbose) cout << "\tWith 'const' rvalue source." << endl;
+        {
+            // Using const rvalue as a parameter for assignment operator caused
+            // incorrect overload resolution.  See DRQS 167585741 for more
+            // information.
+
+            typedef bsltf::MovableTestType TT;
+
+            Obj        mX;
+            const Obj& X = mX;
+
+            mX = asConst(Obj(TT('A')));
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A') == X.the<TT>());
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            ASSERT(MoveState::e_NOT_MOVED == mStateX);
+        }
     }
 
     if (verbose) cout << "\nTesting 'bdlb::Variant19'." << endl;
@@ -7331,6 +7719,27 @@ void TestUtil::testCase26()
             MoveState::Enum mStateW = TstFacility::getMovedIntoState(
                                                                   W.the<TT>());
             ASSERT(EXPECTED_MOVE_STATE == mStateW);
+        }
+
+        if (verbose) cout << "\tWith 'const' rvalue source." << endl;
+        {
+            // Using const rvalue as a parameter for assignment operator caused
+            // incorrect overload resolution.  See DRQS 167585741 for more
+            // information.
+
+            typedef bsltf::MovableTestType TT;
+
+            Obj        mX;
+            const Obj& X = mX;
+
+            mX = asConst(Obj(TT('A')));
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A') == X.the<TT>());
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            ASSERT(MoveState::e_NOT_MOVED == mStateX);
         }
     }
 
@@ -7484,6 +7893,27 @@ void TestUtil::testCase26()
                                                                   W.the<TT>());
             ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
+
+        if (verbose) cout << "\tWith 'const' rvalue source." << endl;
+        {
+            // Using const rvalue as a parameter for assignment operator caused
+            // incorrect overload resolution.  See DRQS 167585741 for more
+            // information.
+
+            typedef bsltf::MovableTestType TT;
+
+            Obj        mX;
+            const Obj& X = mX;
+
+            mX = asConst(Obj(TT('A')));
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A') == X.the<TT>());
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            ASSERT(MoveState::e_NOT_MOVED == mStateX);
+        }
     }
 
     if (verbose) cout << "\nTesting 'bdlb::Variant' (with 1 type)." << endl;
@@ -7561,6 +7991,27 @@ void TestUtil::testCase26()
 
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith 'const' rvalue source." << endl;
+        {
+            // Using const rvalue as a parameter for assignment operator caused
+            // incorrect overload resolution.  See DRQS 167585741 for more
+            // information.
+
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj        mX;
+            const Obj& X = mX;
+
+            mX = asConst(Obj(TT('A')));
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A') == X.the<TT>());
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            ASSERT(MoveState::e_NOT_MOVED == mStateX);
         }
     }
 }

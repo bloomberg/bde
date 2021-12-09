@@ -633,6 +633,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_nestedtraitdeclaration.h>
 #include <bslmf_nil.h>
 #include <bslmf_removeconst.h>
+#include <bslmf_removecvref.h>
 #include <bslmf_removereference.h>
 #include <bslmf_typelist.h>
 #include <bslmf_util.h>    // 'forward(V)'
@@ -1447,7 +1448,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     typename bsl::enable_if<
         !bsl::is_same<SelfType,
-                      typename bsl::remove_reference<TYPE>::type>::value,
+                      typename bsl::remove_cvref<TYPE>::type>::value,
     SelfType>::type&
     operator=(TYPE&&                  value);
 #else
@@ -2500,7 +2501,7 @@ class Variant : public VariantImp<typename bslmf::TypeList<
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     typename bsl::enable_if<
         !bsl::is_same<SelfType,
-                      typename bsl::remove_reference<TYPE>::type>::value,
+                      typename bsl::remove_cvref<TYPE>::type>::value,
     SelfType>::type&
     operator=(TYPE&&                  value);
 #else
@@ -2682,7 +2683,7 @@ class Variant2 : public VariantImp<typename bslmf::TypeList2<
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     typename bsl::enable_if<
         !bsl::is_same<SelfType,
-                      typename bsl::remove_reference<TYPE>::type>::value,
+                      typename bsl::remove_cvref<TYPE>::type>::value,
     SelfType>::type&
     operator=(TYPE&&                  value);
 #else
@@ -2865,7 +2866,7 @@ class Variant3 : public VariantImp<typename bslmf::TypeList3<
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     typename bsl::enable_if<
         !bsl::is_same<SelfType,
-                      typename bsl::remove_reference<TYPE>::type>::value,
+                      typename bsl::remove_cvref<TYPE>::type>::value,
     SelfType>::type&
     operator=(TYPE&&                  value);
 #else
@@ -3048,7 +3049,7 @@ class Variant4 : public VariantImp<typename bslmf::TypeList4<
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     typename bsl::enable_if<
         !bsl::is_same<SelfType,
-                      typename bsl::remove_reference<TYPE>::type>::value,
+                      typename bsl::remove_cvref<TYPE>::type>::value,
     SelfType>::type&
     operator=(TYPE&&                  value);
 #else
@@ -3231,7 +3232,7 @@ class Variant5 : public VariantImp<typename bslmf::TypeList5<
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     typename bsl::enable_if<
         !bsl::is_same<SelfType,
-                      typename bsl::remove_reference<TYPE>::type>::value,
+                      typename bsl::remove_cvref<TYPE>::type>::value,
     SelfType>::type&
     operator=(TYPE&&                  value);
 #else
@@ -3414,7 +3415,7 @@ class Variant6 : public VariantImp<typename bslmf::TypeList6<
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     typename bsl::enable_if<
         !bsl::is_same<SelfType,
-                      typename bsl::remove_reference<TYPE>::type>::value,
+                      typename bsl::remove_cvref<TYPE>::type>::value,
     SelfType>::type&
     operator=(TYPE&&                  value);
 #else
@@ -3598,7 +3599,7 @@ class Variant7 : public VariantImp<typename bslmf::TypeList7<
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     typename bsl::enable_if<
         !bsl::is_same<SelfType,
-                      typename bsl::remove_reference<TYPE>::type>::value,
+                      typename bsl::remove_cvref<TYPE>::type>::value,
     SelfType>::type&
     operator=(TYPE&&                  value);
 #else
@@ -3782,7 +3783,7 @@ class Variant8 : public VariantImp<typename bslmf::TypeList8<
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     typename bsl::enable_if<
         !bsl::is_same<SelfType,
-                      typename bsl::remove_reference<TYPE>::type>::value,
+                      typename bsl::remove_cvref<TYPE>::type>::value,
     SelfType>::type&
     operator=(TYPE&&                  value);
 #else
@@ -3966,7 +3967,7 @@ class Variant9 : public VariantImp<typename bslmf::TypeList9<
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     typename bsl::enable_if<
         !bsl::is_same<SelfType,
-                      typename bsl::remove_reference<TYPE>::type>::value,
+                      typename bsl::remove_cvref<TYPE>::type>::value,
     SelfType>::type&
     operator=(TYPE&&                  value);
 #else
@@ -4151,7 +4152,7 @@ class Variant10 : public VariantImp<typename bslmf::TypeList10<
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     typename bsl::enable_if<
         !bsl::is_same<SelfType,
-                      typename bsl::remove_reference<TYPE>::type>::value,
+                      typename bsl::remove_cvref<TYPE>::type>::value,
     SelfType>::type&
     operator=(TYPE&&                  value);
 #else
@@ -4337,7 +4338,7 @@ class Variant11 : public VariantImp<typename bslmf::TypeList11<
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     typename bsl::enable_if<
         !bsl::is_same<SelfType,
-                      typename bsl::remove_reference<TYPE>::type>::value,
+                      typename bsl::remove_cvref<TYPE>::type>::value,
     SelfType>::type&
     operator=(TYPE&&                  value);
 #else
@@ -4523,7 +4524,7 @@ class Variant12 : public VariantImp<typename bslmf::TypeList12<
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     typename bsl::enable_if<
         !bsl::is_same<SelfType,
-                      typename bsl::remove_reference<TYPE>::type>::value,
+                      typename bsl::remove_cvref<TYPE>::type>::value,
     SelfType>::type&
     operator=(TYPE&&                  value);
 #else
@@ -4710,7 +4711,7 @@ class Variant13 : public VariantImp<typename bslmf::TypeList13<
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     typename bsl::enable_if<
         !bsl::is_same<SelfType,
-                      typename bsl::remove_reference<TYPE>::type>::value,
+                      typename bsl::remove_cvref<TYPE>::type>::value,
     SelfType>::type&
     operator=(TYPE&&                  value);
 #else
@@ -4900,7 +4901,7 @@ class Variant14 : public VariantImp<typename bslmf::TypeList14<
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     typename bsl::enable_if<
         !bsl::is_same<SelfType,
-                      typename bsl::remove_reference<TYPE>::type>::value,
+                      typename bsl::remove_cvref<TYPE>::type>::value,
     SelfType>::type&
     operator=(TYPE&&                  value);
 #else
@@ -5090,7 +5091,7 @@ class Variant15 : public VariantImp<typename bslmf::TypeList15<
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     typename bsl::enable_if<
         !bsl::is_same<SelfType,
-                      typename bsl::remove_reference<TYPE>::type>::value,
+                      typename bsl::remove_cvref<TYPE>::type>::value,
     SelfType>::type&
     operator=(TYPE&&                  value);
 #else
@@ -5281,7 +5282,7 @@ class Variant16 : public VariantImp<typename bslmf::TypeList16<
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     typename bsl::enable_if<
         !bsl::is_same<SelfType,
-                      typename bsl::remove_reference<TYPE>::type>::value,
+                      typename bsl::remove_cvref<TYPE>::type>::value,
     SelfType>::type&
     operator=(TYPE&&                  value);
 #else
@@ -5472,7 +5473,7 @@ class Variant17 : public VariantImp<typename bslmf::TypeList17<
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     typename bsl::enable_if<
         !bsl::is_same<SelfType,
-                      typename bsl::remove_reference<TYPE>::type>::value,
+                      typename bsl::remove_cvref<TYPE>::type>::value,
     SelfType>::type&
     operator=(TYPE&&                  value);
 #else
@@ -5663,7 +5664,7 @@ class Variant18 : public VariantImp<typename bslmf::TypeList18<
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     typename bsl::enable_if<
         !bsl::is_same<SelfType,
-                      typename bsl::remove_reference<TYPE>::type>::value,
+                      typename bsl::remove_cvref<TYPE>::type>::value,
     SelfType>::type&
     operator=(TYPE&&                  value);
 #else
@@ -5856,7 +5857,7 @@ class Variant19 : public VariantImp<typename bslmf::TypeList19<
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     typename bsl::enable_if<
         !bsl::is_same<SelfType,
-                      typename bsl::remove_reference<TYPE>::type>::value,
+                      typename bsl::remove_cvref<TYPE>::type>::value,
     SelfType>::type&
     operator=(TYPE&&                  value);
 #else
@@ -7306,7 +7307,7 @@ inline
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 typename bsl::enable_if<
     !bsl::is_same<VariantImp<TYPES>,
-                  typename bsl::remove_reference<TYPE>::type>::value,
+                  typename bsl::remove_cvref<TYPE>::type>::value,
 VariantImp<TYPES> >::type&
 VariantImp<TYPES>::operator=(TYPE&&                  value)
 #else
@@ -8224,7 +8225,7 @@ inline
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 typename bsl::enable_if<
     !bsl::is_same<Variant<TYPES...>,
-                  typename bsl::remove_reference<TYPE>::type>::value,
+                  typename bsl::remove_cvref<TYPE>::type>::value,
 Variant<TYPES...> >::type&
 Variant<TYPES...>::operator=(TYPE&&                  value)
 #else
@@ -8423,7 +8424,7 @@ typename bsl::enable_if<
     !bsl::is_same<Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,
                           A8,  A9,  A10, A11, A12, A13, A14,
                           A15, A16, A17, A18, A19, A20>,
-                  typename bsl::remove_reference<TYPE>::type>::value,
+                  typename bsl::remove_cvref<TYPE>::type>::value,
 Variant<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15,
         A16, A17, A18, A19, A20> >::type&
 Variant<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15,
@@ -8600,7 +8601,7 @@ inline
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 typename bsl::enable_if<
     !bsl::is_same<Variant2<A1, A2>,
-                  typename bsl::remove_reference<TYPE>::type>::value,
+                  typename bsl::remove_cvref<TYPE>::type>::value,
 Variant2<A1, A2> >::type&
 Variant2<A1, A2>::operator=(TYPE&&                  value)
 #else
@@ -8753,7 +8754,7 @@ inline
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 typename bsl::enable_if<
     !bsl::is_same<Variant3<A1, A2, A3>,
-                  typename bsl::remove_reference<TYPE>::type>::value,
+                  typename bsl::remove_cvref<TYPE>::type>::value,
 Variant3<A1, A2, A3> >::type&
 Variant3<A1, A2, A3>::operator=(TYPE&&                  value)
 #else
@@ -8906,7 +8907,7 @@ inline
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 typename bsl::enable_if<
     !bsl::is_same<Variant4<A1, A2, A3, A4>,
-                  typename bsl::remove_reference<TYPE>::type>::value,
+                  typename bsl::remove_cvref<TYPE>::type>::value,
 Variant4<A1, A2, A3, A4> >::type&
 Variant4<A1, A2, A3, A4>::operator=(TYPE&&                  value)
 #else
@@ -9059,7 +9060,7 @@ inline
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 typename bsl::enable_if<
     !bsl::is_same<Variant5<A1, A2, A3, A4, A5>,
-                  typename bsl::remove_reference<TYPE>::type>::value,
+                  typename bsl::remove_cvref<TYPE>::type>::value,
 Variant5<A1, A2, A3, A4, A5> >::type&
 Variant5<A1, A2, A3, A4, A5>::operator=(TYPE&&                  value)
 #else
@@ -9212,7 +9213,7 @@ inline
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 typename bsl::enable_if<
     !bsl::is_same<Variant6<A1, A2, A3, A4, A5, A6>,
-                  typename bsl::remove_reference<TYPE>::type>::value,
+                  typename bsl::remove_cvref<TYPE>::type>::value,
 Variant6<A1, A2, A3, A4, A5, A6> >::type&
 Variant6<A1, A2, A3, A4, A5, A6>::operator=(TYPE&&                  value)
 #else
@@ -9365,7 +9366,7 @@ inline
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 typename bsl::enable_if<
     !bsl::is_same<Variant7<A1, A2, A3, A4, A5, A6, A7>,
-                  typename bsl::remove_reference<TYPE>::type>::value,
+                  typename bsl::remove_cvref<TYPE>::type>::value,
 Variant7<A1, A2, A3, A4, A5, A6, A7> >::type&
 Variant7<A1, A2, A3, A4, A5, A6, A7>::operator=(TYPE&&                  value)
 #else
@@ -9530,7 +9531,7 @@ inline
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 typename bsl::enable_if<
     !bsl::is_same<Variant8<A1, A2, A3, A4, A5, A6, A7, A8>,
-                  typename bsl::remove_reference<TYPE>::type>::value,
+                  typename bsl::remove_cvref<TYPE>::type>::value,
 Variant8<A1, A2, A3, A4, A5, A6, A7, A8> >::type&
 Variant8<A1, A2, A3, A4, A5, A6, A7, A8>::
 operator=(TYPE&&                  value)
@@ -9700,7 +9701,7 @@ inline
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 typename bsl::enable_if<
     !bsl::is_same<Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>,
-                  typename bsl::remove_reference<TYPE>::type>::value,
+                  typename bsl::remove_cvref<TYPE>::type>::value,
 Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9> >::type&
 Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>::
 operator=(TYPE&&                  value)
@@ -9870,7 +9871,7 @@ inline
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 typename bsl::enable_if<
     !bsl::is_same<Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>,
-                  typename bsl::remove_reference<TYPE>::type>::value,
+                  typename bsl::remove_cvref<TYPE>::type>::value,
 Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10> >::type&
 Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>::
 operator=(TYPE&&                  value)
@@ -10041,7 +10042,7 @@ inline
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 typename bsl::enable_if<
     !bsl::is_same<Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>,
-                  typename bsl::remove_reference<TYPE>::type>::value,
+                  typename bsl::remove_cvref<TYPE>::type>::value,
 Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11> >::type&
 Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>::
 operator=(TYPE&&                  value)
@@ -10212,7 +10213,7 @@ inline
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 typename bsl::enable_if<
     !bsl::is_same<Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>,
-                  typename bsl::remove_reference<TYPE>::type>::value,
+                  typename bsl::remove_cvref<TYPE>::type>::value,
 Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12> >::type&
 Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>::
 operator=(TYPE&&                  value)
@@ -10394,7 +10395,7 @@ inline
 typename bsl::enable_if<
     !bsl::is_same<Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12,
                             A13>,
-                  typename bsl::remove_reference<TYPE>::type>::value,
+                  typename bsl::remove_cvref<TYPE>::type>::value,
 Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13> >::type&
 Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>::
 operator=(TYPE&&                  value)
@@ -10578,7 +10579,7 @@ inline
 typename bsl::enable_if<
     !bsl::is_same<Variant14<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12,
                             A13, A14>,
-                  typename bsl::remove_reference<TYPE>::type>::value,
+                  typename bsl::remove_cvref<TYPE>::type>::value,
 Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14> >::type&
 Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>::
 operator=(TYPE&&                  value)
@@ -10762,7 +10763,7 @@ inline
 typename bsl::enable_if<
     !bsl::is_same<Variant15<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11,
                             A12, A13, A14, A15>,
-                  typename bsl::remove_reference<TYPE>::type>::value,
+                  typename bsl::remove_cvref<TYPE>::type>::value,
 Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
           A15> >::type&
 Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>::
@@ -10957,7 +10958,7 @@ inline
 typename bsl::enable_if<
     !bsl::is_same<Variant16<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11,
                             A12, A13, A14, A15, A16>,
-                  typename bsl::remove_reference<TYPE>::type>::value,
+                  typename bsl::remove_cvref<TYPE>::type>::value,
 Variant16<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15,
           A16> >::type&
 Variant16<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15,
@@ -11157,7 +11158,7 @@ inline
 typename bsl::enable_if<
     !bsl::is_same<Variant17<A1,  A2,  A3,  A4,  A5,  A6, A7, A8, A9, A10, A11,
                             A12, A13, A14, A15, A16, A17>,
-                  typename bsl::remove_reference<TYPE>::type>::value,
+                  typename bsl::remove_cvref<TYPE>::type>::value,
 Variant17<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15,
           A16, A17> >::type&
 Variant17<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15,
@@ -11357,7 +11358,7 @@ inline
 typename bsl::enable_if<
     !bsl::is_same<Variant18<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10,
                             A11, A12, A13, A14, A15, A16, A17, A18>,
-                  typename bsl::remove_reference<TYPE>::type>::value,
+                  typename bsl::remove_cvref<TYPE>::type>::value,
 Variant18<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15,
           A16, A17, A18> >::type&
 Variant18<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15,
@@ -11567,7 +11568,7 @@ inline
 typename bsl::enable_if<
     !bsl::is_same<Variant19<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9, A10,
                             A11, A12, A13, A14, A15, A16, A17, A18, A19>,
-                  typename bsl::remove_reference<TYPE>::type>::value,
+                  typename bsl::remove_cvref<TYPE>::type>::value,
 Variant19<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15,
           A16, A17, A18, A19> >::type&
 Variant19<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15,
