@@ -37,6 +37,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <utility> // move
 
 // ============================================================================
 //                          ADL SWAP TEST HELPER
@@ -134,7 +135,8 @@ using namespace bsl;
 // [ 5] TESTING OUTPUT: Not Applicable
 // [10] STREAMING: Not Applicable
 // [**] CONCERN: The object is compatible with STL allocator.
-// [22] CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
+// [22] CONCERN: Methods qualified 'noexcept' in standard are so implemented.
+// [23] CLASS TEMPLATE DEDUCTION GUIDES
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -1864,7 +1866,7 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase22()
     //:   'TYPE' specializations.
     //
     // Testing:
-    //   CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
+    //   CONCERN: Methods qualified 'noexcept' in standard are so implemented.
     // ------------------------------------------------------------------------
 
     if (verbose) {
@@ -5956,6 +5958,187 @@ void taskFunction2(int taskId, int priority, int verbose)
 
 }  // close namespace UsageExample
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+struct TestDeductionGuides {
+
+#define ASSERT_SAME_TYPE(...) \
+ static_assert((bsl::is_same<__VA_ARGS__>::value), "Types differ unexpectedly")
+
+    // This struct provides a namespace for functions testing deduction guides.
+    // The tests are compile-time only; it is not necessary that these routines
+    // be called at run-time.  Note that the following constructors do not have
+    // associated deduction guides because the template parameters for
+    // 'bsl::stack' cannot be deduced from the constructor parameters.
+    //..
+    // priority_queue()
+    // priority_queue(COMPARATOR)
+    // priority_queue(ALLOCATOR)
+    // priority_queue(COMPARATOR, ALLOCATOR)
+    //..
+
+    void SimpleConstructors ()
+        // Test that constructing a 'bsl::priority_queue' from various
+        // combinations of arguments deduces the correct type.
+        //..
+        // priority_queue(const priority_queue&  pq)            -> decltype(pq)
+        // priority_queue(const priority_queue&  pq, ALLOCATOR) -> decltype(pq)
+        // priority_queue(      priority_queue&& pq)            -> decltype(pq)
+        // priority_queue(      priority_queue&& pq, ALLOCATOR) -> decltype(pq)
+        // priority_queue(COMPARATOR, const CONTAINER &)
+        // priority_queue(COMPARATOR,       CONTAINER &&)
+        // priority_queue(COMPARATOR, const CONTAINER & , ALLOCATOR)
+        // priority_queue(COMPARATOR,       CONTAINER &&, ALLOCATOR)
+        // priority_queue(Iter, Iter)
+        // priority_queue(Iter, Iter, COMPARATOR, const CONTAINER &)
+        // priority_queue(Iter, Iter, COMPARATOR,       CONTAINER &&)
+        //..
+    {
+        bslma::Allocator     *a1 = nullptr;
+        bslma::TestAllocator *a2 = nullptr;
+
+        typedef int T1;
+        bsl::priority_queue<T1> pq1;
+        bsl::priority_queue     pq1a(pq1);
+        ASSERT_SAME_TYPE(decltype(pq1a), bsl::priority_queue<T1>);
+
+        typedef float T2;
+        bsl::priority_queue<T2> pq2;
+        bsl::priority_queue     pq2a(pq2, bsl::allocator<T2>());
+        bsl::priority_queue     pq2b(pq2, a1);
+        bsl::priority_queue     pq2c(pq2, a2);
+        ASSERT_SAME_TYPE(decltype(pq2a), bsl::priority_queue<T2>);
+        ASSERT_SAME_TYPE(decltype(pq2b), bsl::priority_queue<T2>);
+        ASSERT_SAME_TYPE(decltype(pq2c), bsl::priority_queue<T2>);
+
+        typedef short T3;
+        bsl::priority_queue<T3> pq3;
+        bsl::priority_queue     pq3a(std::move(pq3));
+        ASSERT_SAME_TYPE(decltype(pq3a), bsl::priority_queue<T3>);
+
+        typedef long double T4;
+        bsl::priority_queue<T4> pq4;
+        bsl::priority_queue     pq4a(std::move(pq4), bsl::allocator<T4>{});
+        bsl::priority_queue     pq4b(std::move(pq4), a1);
+        bsl::priority_queue     pq4c(std::move(pq4), a2);
+        ASSERT_SAME_TYPE(decltype(pq4a), bsl::priority_queue<T4>);
+        ASSERT_SAME_TYPE(decltype(pq4b), bsl::priority_queue<T4>);
+        ASSERT_SAME_TYPE(decltype(pq4c), bsl::priority_queue<T4>);
+
+        typedef long T5;
+        typedef std::greater<T5> CompT5;
+        bsl::vector<T5>       v5;
+        NonAllocContainer<T5> nc5;
+        bsl::priority_queue   pq5a(CompT5{}, v5);
+        bsl::priority_queue   pq5b(CompT5{}, nc5);
+        ASSERT_SAME_TYPE(decltype(pq5a),
+                             bsl::priority_queue<T5, bsl::vector<T5>, CompT5>);
+        ASSERT_SAME_TYPE(decltype(pq5b),
+                       bsl::priority_queue<T5, NonAllocContainer<T5>, CompT5>);
+
+        typedef short T6;
+        typedef std::greater<T6> CompT6;
+        bsl::vector<T6>     v6;
+        bsl::priority_queue pq6a(CompT6{}, v6, bsl::allocator<T6>{});
+        bsl::priority_queue pq6b(CompT6{}, v6, a1);
+        bsl::priority_queue pq6c(CompT6{}, v6, a2);
+        ASSERT_SAME_TYPE(decltype(pq6a),
+                             bsl::priority_queue<T6, bsl::vector<T6>, CompT6>);
+        ASSERT_SAME_TYPE(decltype(pq6b),
+                             bsl::priority_queue<T6, bsl::vector<T6>, CompT6>);
+        ASSERT_SAME_TYPE(decltype(pq6c),
+                             bsl::priority_queue<T6, bsl::vector<T6>, CompT6>);
+
+        typedef double T7;
+        typedef std::less<T7> CompT7;
+        bsl::vector<T7>       v7;
+        NonAllocContainer<T7> nc7;
+        bsl::priority_queue   pq7a(CompT7{}, std::move(v7));
+        bsl::priority_queue   pq7b(CompT7{}, std::move(nc7));
+        ASSERT_SAME_TYPE(decltype(pq7a),
+                             bsl::priority_queue<T7, bsl::vector<T7>, CompT7>);
+        ASSERT_SAME_TYPE(decltype(pq7b),
+                       bsl::priority_queue<T7, NonAllocContainer<T7>, CompT7>);
+
+        typedef short T8;
+        typedef std::less<T8> CompT8;
+        bsl::vector<T8>     v8;
+        bsl::priority_queue pq8a(CompT8{}, v8, bsl::allocator<T8>{});
+        bsl::priority_queue pq8b(CompT8{}, v8, a1);
+        bsl::priority_queue pq8c(CompT8{}, v8, a2);
+        ASSERT_SAME_TYPE(decltype(pq8a),
+                             bsl::priority_queue<T8, bsl::vector<T8>, CompT8>);
+        ASSERT_SAME_TYPE(decltype(pq8b),
+                             bsl::priority_queue<T8, bsl::vector<T8>, CompT8>);
+        ASSERT_SAME_TYPE(decltype(pq8c),
+                             bsl::priority_queue<T8, bsl::vector<T8>, CompT8>);
+
+        typedef char T9;
+        T9                        *p9b = nullptr;
+        T9                        *p9e = nullptr;
+        bsl::vector<T9>::iterator  i9b;
+        bsl::vector<T9>::iterator  i9e;
+        bsl::priority_queue        pq9a(p9b, p9e);
+        bsl::priority_queue        pq9b(i9b, i9e);
+        ASSERT_SAME_TYPE(decltype(pq9a), bsl::priority_queue<T9>);
+        ASSERT_SAME_TYPE(decltype(pq9a), bsl::priority_queue<T9>);
+
+        typedef unsigned char T10;
+        typedef std::less<T10> Comp10;
+        T10                        *p10b = nullptr;
+        T10                        *p10e = nullptr;
+        bsl::vector<T10>::iterator  i10b;
+        bsl::vector<T10>::iterator  i10e;
+        bsl::vector<T10>            v10;
+
+        bsl::priority_queue pq10a(p10b, p10e, Comp10{}, v10);
+        bsl::priority_queue pq10b(i10b, i10e, Comp10{}, v10);
+        ASSERT_SAME_TYPE(decltype(pq10a),
+                           bsl::priority_queue<T10, bsl::vector<T10>, Comp10>);
+        ASSERT_SAME_TYPE(decltype(pq10a),
+                           bsl::priority_queue<T10, bsl::vector<T10>, Comp10>);
+
+        typedef signed char T11;
+        typedef std::less<T11> Comp11;
+        T11                        *p11b = nullptr;
+        T11                        *p11e = nullptr;
+        bsl::vector<T11>::iterator  i11b;
+        bsl::vector<T11>::iterator  i11e;
+        bsl::vector<T11>            v11;
+
+        bsl::priority_queue pq11a(p11b, p11e, Comp11{}, std::move(v11));
+        bsl::priority_queue pq11b(i11b, i11e, Comp11{}, std::move(v11));
+        ASSERT_SAME_TYPE(decltype(pq11a),
+                           bsl::priority_queue<T11, bsl::vector<T11>, Comp11>);
+        ASSERT_SAME_TYPE(decltype(pq11a),
+                           bsl::priority_queue<T11, bsl::vector<T11>, Comp11>);
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // Compile-fail tests
+// #define BSLSTL_PRIORITY_COMPILE_FAIL_ALLOCATOR_IS_NOT_A_CONTAINER
+#ifdef  BSLSTL_PRIORITY_COMPILE_FAIL_ALLOCATOR_IS_NOT_A_CONTAINER
+        typedef unsigned char  T98;
+        typedef std::less<T98> Comp98;
+        bsl::priority_queue    pq98a(Comp98{}, bsl::allocator<T98>{});
+        // This should fail to compile (Allocator is not a container)
+#endif
+
+// #define BSLSTL_PRIORITY_QUEUE_COMPILE_FAIL_NON_ALLOCATOR_AWARE_CONTAINER
+#ifdef  BSLSTL_PRIORITY_QUEUE_COMPILE_FAIL_NON_ALLOCATOR_AWARE_CONTAINER
+        typedef unsigned short T99;
+        typedef std::less<T99> Comp99;
+        NonAllocContainer<T99> nc99;
+        bsl::priority_queue    pq99a(Comp99{}, nc99, bsl::allocator<T99>{});
+        bsl::priority_queue    pq99b(Comp99{}, std::move(nc99),
+                                                       bsl::allocator<T99>{});
+        // These should fail to compile (can't supply an allocator to a
+        // non-allocator-aware container.)
+#endif
+    }
+
+#undef ASSERT_SAME_TYPE
+};
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_CTAD
+
 // ============================================================================
 //                            MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -5981,6 +6164,39 @@ int main(int argc, char *argv[])
     bslma::TestAllocator ta(veryVeryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 23: {
+        //---------------------------------------------------------------------
+        // TESTING CLASS TEMPLATE DEDUCTION GUIDES (AT COMPILE TIME)
+        //   Ensure that the deduction guides are properly specified to deduce
+        //   the template arguments from the arguments supplied to the
+        //   constructors.
+        //
+        // Concerns:
+        //: 1 Construction from iterators deduces the value type from the value
+        //:   type of the iterator.
+        //
+        //: 2 Construction with a 'bslma::Allocator *' deduces the correct
+        //:   specialization of 'bsl::allocator' for the type of the allocator.
+        //
+        // Plan:
+        //: 1 Create a list by invoking the constructor without supplying the
+        //:   template arguments explicitly.
+        //:
+        //: 2 Verify that the deduced type is correct.
+        //
+        // Testing:
+        //   CLASS TEMPLATE DEDUCTION GUIDES
+        //---------------------------------------------------------------------
+        if (verbose)
+            printf(
+              "\nTESTING CLASS TEMPLATE DEDUCTION GUIDES (AT COMPILE TIME)"
+              "\n=========================================================\n");
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+        // This is a compile-time only test case.
+        TestDeductionGuides test;
+#endif
+      } break;
       case 22: {
         // --------------------------------------------------------------------
         // 'noexcept' SPECIFICATION

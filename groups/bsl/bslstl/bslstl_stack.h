@@ -541,7 +541,7 @@ stack(CONTAINER, ALLOCATOR)
 template<
     class CONTAINER,
     class ALLOC,
-    class ALLOCATOR = typename CONTAINER::allocator_type, /* HACK */
+    class ALLOCATOR = typename CONTAINER::allocator_type,
     class = bsl::enable_if_t<bsl::is_convertible<ALLOC *, ALLOCATOR>::value>
     >
 stack(CONTAINER, ALLOC *) -> stack<typename CONTAINER::value_type, CONTAINER>;

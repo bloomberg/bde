@@ -317,10 +317,12 @@ BSLS_IDENT("$Id: $")
 
 #include <bslalg_swaputil.h>
 
+#include <bslma_isstdallocator.h>
 #include <bslma_stdallocator.h>
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_enableif.h>
+#include <bslmf_isconvertible.h>
 #include <bslmf_movableref.h>
 #include <bslmf_nestedtraitdeclaration.h>
 #include <bslmf_usesallocator.h>
@@ -601,6 +603,66 @@ class priority_queue {
         // effect, performs 'return c.front()'.  The behavior is undefined if
         // the priority queue is empty.
 };
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+// CLASS TEMPLATE DEDUCTION GUIDES
+
+template <
+    class COMPARATOR,
+    class CONTAINER,
+    class = bsl::enable_if_t<!bsl::IsStdAllocator_v<CONTAINER>>
+    >
+priority_queue(COMPARATOR, CONTAINER)
+  -> priority_queue<typename CONTAINER::value_type, CONTAINER, COMPARATOR>;
+    // Deduce the template parameter 'VALUE' and 'CONTAINER' from the
+    // parameters supplied to the constructor of 'priority_queue'.
+
+template <
+    class COMPARATOR,
+    class CONTAINER,
+    class ALLOCATOR
+    >
+priority_queue(COMPARATOR, CONTAINER, ALLOCATOR)
+  -> priority_queue<typename CONTAINER::value_type, CONTAINER, COMPARATOR>;
+    // Deduce the template parameters 'VALUE', 'CONTAINER' and 'COMPARATOR'
+    // from the parameters supplied to the constructor of 'priority_queue'.
+
+template <
+    class COMPARATOR,
+    class CONTAINER,
+    class ALLOC,
+    class ALLOCATOR = typename CONTAINER::allocator_type,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>
+    >
+priority_queue(COMPARATOR, CONTAINER, ALLOC *)
+  -> priority_queue<typename CONTAINER::value_type, CONTAINER, COMPARATOR>;
+    // Deduce the template parameters 'VALUE', 'CONTAINER' and 'COMPARATOR'
+    // from the parameters supplied to the constructor of 'priority_queue'.
+    // This deduction guide does not participate unless the supplied allocator
+    // is convertible to the underlying container's 'allocator_type'.
+
+template <
+    class INPUT_ITERATOR,
+    class VALUE = typename bsl::iterator_traits<INPUT_ITERATOR>::value_type
+    >
+priority_queue(INPUT_ITERATOR, INPUT_ITERATOR)
+  -> priority_queue<VALUE>;
+    // Deduce the template parameter 'VALUE' from the 'value_type' of the
+    // iterators supplied to the constructor of 'priority_queue'.
+
+template <
+    class INPUT_ITERATOR,
+    class COMPARATOR,
+    class CONTAINER,
+    class VALUE = typename bsl::iterator_traits<INPUT_ITERATOR>::value_type
+    >
+priority_queue(INPUT_ITERATOR, INPUT_ITERATOR, COMPARATOR, CONTAINER)
+  -> priority_queue<VALUE, CONTAINER, COMPARATOR>;
+    // Deduce the template parameter 'VALUE' from the 'value_type' of the
+    // iterators supplied to the constructor of 'priority_queue'.  Deduce the
+    // template parameters 'CONTAINER' and 'COMPARATOR' from the other
+    // parameters passed to the constructor.
+#endif
 
 // FREE FUNCTIONS
 template <class VALUE, class CONTAINER, class COMPARATOR>

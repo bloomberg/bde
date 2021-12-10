@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Tue Nov 23 08:20:53 2021
+// Generated on Wed Dec  1 08:45:19 2021
 // Command line: sim_cpp11_features.pl bslstl_queue.h
 
 #ifdef COMPILING_BSLSTL_QUEUE_H
@@ -427,7 +427,7 @@ queue(CONTAINER, ALLOCATOR)
 template<
     class CONTAINER,
     class ALLOC,
-    class ALLOCATOR = typename CONTAINER::allocator_type, /* HACK */
+    class ALLOCATOR = typename CONTAINER::allocator_type,
     class = bsl::enable_if_t<bsl::is_convertible<ALLOC *, ALLOCATOR>::value>
     >
 queue(CONTAINER, ALLOC *) -> queue<typename CONTAINER::value_type, CONTAINER>;
