@@ -336,6 +336,17 @@ class StackTraceResolver_DwarfReader {
         e_DW_TAG_template_alias = 0x43
     };
 
+    enum Dwarf5Enums {
+        e_DW_UT_compile = 0x1,
+        e_DW_UT_type = 0x2,
+        e_DW_UT_partial = 0x3,
+        e_DW_UT_skeleton = 0x4,
+        e_DW_UT_split_compile = 0x5,
+        e_DW_UT_split_type = 0x6,
+        e_DW_UT_lo_user = 0x80,
+        e_DW_UT_hi_user = 0xff
+    };
+
   private:
     // DATA
     balst::StackTraceResolver_FileHelper

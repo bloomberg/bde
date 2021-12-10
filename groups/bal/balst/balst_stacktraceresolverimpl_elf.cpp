@@ -1772,6 +1772,17 @@ struct u::StackTraceResolver::HiddenRec {
                                         Reader::e_DW_TAG_rvalue_reference_type,
         e_DW_TAG_template_alias          = Reader::e_DW_TAG_template_alias
     };
+
+    enum Dwarf5Enums {
+        e_DW_UT_compile                  = Reader::e_DW_UT_compile,
+        e_DW_UT_type                     = Reader::e_DW_UT_type,
+        e_DW_UT_partial                  = Reader::e_DW_UT_partial,
+        e_DW_UT_skeleton                 = Reader::e_DW_UT_skeleton,
+        e_DW_UT_split_compile            = Reader::e_DW_UT_split_compile,
+        e_DW_UT_split_type               = Reader::e_DW_UT_split_type,
+        e_DW_UT_lo_user                  = Reader::e_DW_UT_lo_user,
+        e_DW_UT_hi_user                  = Reader::e_DW_UT_hi_user
+    };
 #endif
 
     // PUBLIC DATA
@@ -1974,7 +1985,7 @@ int u::StackTraceResolver::HiddenRec::dwarfCheckRanges(
                                                     u::UintPtr  baseAddress,
                                                     u::Offset   offset)
 {
-    static const char rn[] = { "HiddenRec::dwarfCheckRanges:" };
+    static const char rn[] = { "HR::dwCheckRanges:" };
     int rc;
 
     *isMatch = false;
@@ -2047,7 +2058,7 @@ int u::StackTraceResolver::HiddenRec::dwarfCheckRanges(
 
 int u::StackTraceResolver::HiddenRec::dwarfReadAll()
 {
-    static const char rn[] = { "HiddenRec::dwarfReadAll:" };    (void) rn;
+    static const char rn[] = { "HR::dwReadAll:" };    (void) rn;
 
     u_TRACES && u_zprintf("%s starting\n", rn);
 
@@ -2083,7 +2094,7 @@ int u::StackTraceResolver::HiddenRec::dwarfReadAll()
 
 int u::StackTraceResolver::HiddenRec::dwarfReadAranges()
 {
-    static const char rn[] = { "HiddenRec::dwarfReadAranges:" };    (void) rn;
+    static const char rn[] = { "HR::dwReadAranges:" };    (void) rn;
 
     // Buffer use: this function usee only scratch buf A.
 
@@ -2257,7 +2268,7 @@ int u::StackTraceResolver::HiddenRec::dwarfReadCompileOrPartialUnit(
                                                    u::FrameRec *frameRec,
                                                    bool        *addressMatched)
 {
-    static const char rn[] = { "HiddenRec::dwarfReadCompileOrPartialUnit:" };
+    static const char rn[] = { "HR::dwReadCompileOrPartialUnit:" };
 
     int rc;
 
@@ -2499,7 +2510,7 @@ int u::StackTraceResolver::HiddenRec::dwarfReadCompileOrPartialUnit(
 
 int u::StackTraceResolver::HiddenRec::dwarfReadDebugInfo()
 {
-    static const char rn[] = { "HiddenRec::dwarfDebugInfo:" };    (void) rn;
+    static const char rn[] = { "HR::dwDebugInfo:" };    (void) rn;
 
     const u::FrameRecVecIt end = d_frameRecsEnd;
     for (u::FrameRecVecIt it = d_frameRecsBegin, prev = end; it < end;
@@ -2543,10 +2554,10 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugInfo()
 int u::StackTraceResolver::HiddenRec::dwarfReadDebugInfoFrameRec(
                                                          u::FrameRec *frameRec)
 {
-    static const char rn[] = { "HiddenRec::dwarfDebugInfoFrameRec:" };
+    static const char rn[] = { "HR::dwDebugInfoFrameRec:" };
     (void) rn;
 
-    static const int debugInfoTraces = u_TRACES ? 0 : 0;
+    static const int debugInfoTraces = u_TRACES ? 1 : 0;
         // A value of 1 means some traces, a value of 2 means display all the
         // tags we're skipping over.
 
@@ -2555,7 +2566,9 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugInfoFrameRec(
 
     u_ASSERT_BAIL(0 < d_infoSec  .d_size);
     u_ASSERT_BAIL(0 < d_abbrevSec.d_size);
+#if u_DWARF_CHECK_ADDRESSES
     u_ASSERT_BAIL(0 < d_rangesSec.d_size);
+#endif
     u_ASSERT_BAIL(0 < d_strSec   .d_size);
 
     u_TRACES && u_zprintf("%s reading frame %d, symbol: %s\n", rn,
@@ -2567,9 +2580,11 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugInfoFrameRec(
     rc = d_abbrevReader.init(d_helper_p, d_scratchBufB_p, d_abbrevSec,
                                                             d_libraryFileSize);
     u_ASSERT_BAIL(0 == rc);
+#if u_DWARF_CHECK_ADDRESSES
     rc = d_rangesReader.init(d_helper_p, d_scratchBufC_p, d_rangesSec,
                                                             d_libraryFileSize);
     u_ASSERT_BAIL(0 == rc);
+#endif
     rc = d_strReader.init(   d_helper_p, d_scratchBufD_p, d_strSec,
                                                             d_libraryFileSize);
     u_ASSERT_BAIL(0 == rc);
@@ -2595,38 +2610,65 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugInfoFrameRec(
             nextCompileUnitOffset = d_infoReader.offset() + compileUnitLength;
         }
 
-        {
-            unsigned short version;
-            rc = d_infoReader.readValue(&version);
-            u_ASSERT_BAIL(0 == rc && "read version failed");
-            u_ASSERT_BAIL((2 <= version && version <= 4) || u_P(version));
+        unsigned short version;
+        rc = d_infoReader.readValue(&version);
+        u_ASSERT_BAIL(0 == rc && "read version failed");
+        u_ASSERT_BAIL((2 <= version && version <= 5) || u_P(version));
 
-            u_TRACES && u_zprintf("%s DWARF version: %u\n", rn, version);
+        u_TRACES && u_zprintf("%s DWARF version: %u\n", rn, version);
+
+        unsigned int infoTagIdx = -1;
+
+        if (5 <= version) {
+            {
+                unsigned char unitType;
+                rc = d_infoReader.readValue(&unitType);
+                u_ASSERT_BAIL(0 == rc && "read unit type failed");
+                if (e_DW_UT_compile != unitType &&
+                                                 e_DW_UT_partial != unitType) {
+                    continue;
+                }
+            }
+
+            rc = d_infoReader.readAddressSize();
+            u_ASSERT_BAIL(0 == rc && "read address size failed");
+
+            {
+                u::Offset abbrevOffset;
+                rc = d_infoReader.readSectionOffset(&abbrevOffset);
+                u_ASSERT_BAIL(0 == rc && "read abbrev offset failed");
+
+                rc = d_abbrevReader.skipTo(
+                                          d_abbrevSec.d_offset + abbrevOffset);
+                u_ASSERT_BAIL(0 == rc);
+            }
         }
+        else {
+            {
+                u::Offset abbrevOffset;
+                rc = d_infoReader.readSectionOffset(&abbrevOffset);
+                u_ASSERT_BAIL(0 == rc && "read abbrev offset failed");
 
-        {
-            u::Offset abbrevOffset;
-            rc = d_infoReader.readSectionOffset(&abbrevOffset);
-            u_ASSERT_BAIL(0 == rc && "read abbrev offset failed");
+                rc = d_abbrevReader.skipTo(
+                                          d_abbrevSec.d_offset + abbrevOffset);
+                u_ASSERT_BAIL(0 == rc);
+            }
 
-            rc = d_abbrevReader.skipTo(d_abbrevSec.d_offset + abbrevOffset);
-            u_ASSERT_BAIL(0 == rc);
+            rc = d_infoReader.readAddressSize();
+            u_ASSERT_BAIL(0 == rc && "read address size failed");
         }
-
-        rc = d_infoReader.readAddressSize();
-        u_ASSERT_BAIL(0 == rc && "read address size failed");
 
         d_rangesReader.setAddressSize(d_infoReader.addressSize());
 
-        unsigned int infoTagIdx;
         rc = d_infoReader.readULEB128(&infoTagIdx);
         u_ASSERT_BAIL(0 == rc);
-        u_TRACES && u_zprintf("%s .debug_info tag idx 0x%llx\n",
+        u_TRACES && u_zprintf("%s .debug_info tag idx %llu\n",
                                                         rn, u::ll(infoTagIdx));
 
         bool firstTime = true;
         unsigned int tag;
-        for (unsigned int expectedIdx = 1; true; ++expectedIdx) {
+        for (unsigned int expectedIdx = 1; !d_abbrevReader.atEndOfSection();
+                                                               ++expectedIdx) {
             unsigned int abbrevTagIdx;
             rc = d_abbrevReader.readULEB128(&abbrevTagIdx);
             u_ASSERT_BAIL(0 == rc);
@@ -2635,23 +2677,37 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugInfoFrameRec(
                 u_ASSERT_BAIL(0 != abbrevTagIdx);
             }
             else {
-                // 3 0's in a row, end of abbrev section without having found
-                // the compile unit.
-
 #if 0 == u_DWARF_CHECK_ADDRESSES
-                u_ASSERT_BAIL(0 != abbrevTagIdx);
+                if (5 <= version) {
+                    // Meaningless zeroes sometimes happen here with version 5.
+
+                    while (0 == abbrevTagIdx) {
+                        u_zprintf("%s zero abbrevTagIdx, %u expected\n", rn,
+                                                                  expectedIdx);
+
+                        rc = d_abbrevReader.readULEB128(&abbrevTagIdx);
+                        u_ASSERT_BAIL(0 == rc);
+                    }
+                }
+                else {
+                    // 3 0's in a row, end of abbrev section without having
+                    // found the compile unit.
+
+                    u_ASSERT_BAIL(0 != abbrevTagIdx);
+                }
 #else
                 continue;
 #endif
             }
+
             if (debugInfoTraces && expectedIdx != abbrevTagIdx) {
                 if (expectedIdx + 1 == abbrevTagIdx) {
-                    u_zprintf("%s strange abbrev idx 0x%x one ahead, expected"
-                                     " 0x%x\n", rn, abbrevTagIdx, expectedIdx);
+                    u_zprintf("%s strange abbrev idx %u one ahead, expected"
+                                       " %u\n", rn, abbrevTagIdx, expectedIdx);
                 }
                 else {
-                    u_zprintf("%s strange abbrev idx 0x%x, expected"
-                                     " 0x%x\n", rn, abbrevTagIdx, expectedIdx);
+                    u_zprintf("%s strange abbrev idx %u, expected %u\n",
+                                                rn, abbrevTagIdx, expectedIdx);
                 }
             }
 
@@ -2661,6 +2717,7 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugInfoFrameRec(
             u_ASSERT_BAIL_SAFE(tag <= e_DW_TAG_template_alias ||
                         (e_DW_TAG_lo_user <= tag && tag <= e_DW_TAG_hi_user) ||
                                                                     u_PH(tag));
+            3 <= debugInfoTraces && u_zprintf("abbrev tag: %u\n", tag);
 
             BSLMF_ASSERT(0 == e_DW_CHILDREN_no && 1 == e_DW_CHILDREN_yes);
             unsigned char hasChildren;
@@ -2678,15 +2735,15 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugInfoFrameRec(
                     }
 
                     u_zprintf(
-                        "%s idx(expect: 0x%x, abbrev: 0x%x) tag: 0x%x %s %s\n",
-                                            rn, expectedIdx, abbrevTagIdx, tag,
+                        "%s idx(%2u) tag: 0x%x %s %s\n",
+                                            rn, expectedIdx, tag,
                          Reader::stringForTag(tag), hasChildren ? "yc" : "nc");
                 }
                 break;
             }
             else {
                 1 < debugInfoTraces && u_zprintf(
-                                     "%s   abbrev idx: 0x%x tag: 0x%x %s %s\n",
+                                               "%s idx(%2u) tag: 0x%x %s %s\n",
                               rn, abbrevTagIdx, tag, Reader::stringForTag(tag),
                                                     hasChildren ? "yc" : "nc");
             }
@@ -2735,7 +2792,7 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugInfoFrameRec(
 
 int u::StackTraceResolver::HiddenRec::dwarfReadDebugLine()
 {
-    static const char rn[] = { "HiddenRec::dwarfDebugLine:" };    (void) rn;
+    static const char rn[] = { "HR::dwDebugLine:" };    (void) rn;
 
     const u::FrameRecVecIt end = d_frameRecsEnd;
     for (u::FrameRecVecIt it = d_frameRecsBegin, prev = end; it < end;
@@ -2772,7 +2829,7 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLine()
 int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
                                                          u::FrameRec *frameRec)
 {
-    static const char rn[] = { "HiddenRec::dwarfDebugLineFrameRec:" };
+    static const char rn[] = { "HR::dwfDebugLineFrameRec:" };
     (void) rn;
 
     static const int lineTraces = u_TRACES ? 0 : 0;
