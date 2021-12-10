@@ -31,8 +31,9 @@ void bsls_AtomicOperations_Sparc_AssemblyContainer()
         ".type bsls_AtomicOperations_Sparc_GetInt,#function\n"
         "bsls_AtomicOperations_Sparc_GetInt:\n"
         "membar #StoreLoad\n"
+        "ld [%o0], %o0\n"
         "retl\n"
-        "ld [%o0], %o0");
+        "signx %o0");
 
     // void bsls_AtomicOperations_Sparc_SetInt(volatile int*, int);
 
@@ -55,7 +56,7 @@ void bsls_AtomicOperations_Sparc_AssemblyContainer()
         "cmp %o2, %o3\n"
         "bne,a,pn %icc,1b\n"
         "mov %o3, %o2\n"
-        "mov %o3, %o0\n"
+        "signx %o3, %o0\n"
         "retl\n"
         "membar #StoreLoad");
 
@@ -72,7 +73,7 @@ void bsls_AtomicOperations_Sparc_AssemblyContainer()
         "bne,a,pn %icc,1b\n"
         "mov %o3, %o2\n"
         "retl\n"
-        "mov %o3, %o0");
+        "signx %o3, %o0");
 
     // int bsls_AtomicOperations_Sparc_TestAndSwapInt(volatile int*, int, int);
 
@@ -80,7 +81,7 @@ void bsls_AtomicOperations_Sparc_AssemblyContainer()
         ".type bsls_AtomicOperations_Sparc_TestAndSwapInt,#function\n"
         "bsls_AtomicOperations_Sparc_TestAndSwapInt:\n"
         "cas [%o0], %o1, %o2\n"
-        "mov %o2, %o0\n"
+        "signx %o2, %o0\n"
         "retl\n"
         "membar #StoreLoad");
 
@@ -92,7 +93,7 @@ void bsls_AtomicOperations_Sparc_AssemblyContainer()
         "bsls_AtomicOperations_Sparc_TestAndSwapIntAcqRel:\n"
         "cas [%o0], %o1, %o2\n"
         "retl\n"
-        "mov %o2, %o0");
+        "signx %o2, %o0");
 
     // int bsls_AtomicOperations_Sparc_AddInt(volatile int*, int);
 
@@ -107,6 +108,7 @@ void bsls_AtomicOperations_Sparc_AssemblyContainer()
         "bne,a,pn %icc, 1b\n"       // retry if not
         "mov %o3, %o2\n"            // executed with the branch
         "add %o2, %o1, %o0\n"       // return the new value
+        "signx %o0\n"
         "retl\n"
         "membar #StoreLoad");
 
@@ -122,8 +124,9 @@ void bsls_AtomicOperations_Sparc_AssemblyContainer()
         "cmp %o2, %o3\n"            // old [%o0] is what's expected?
         "bne,a,pn %icc, 1b\n"       // retry if not
         "mov %o3, %o2\n"            // executed with the branch
+        "add %o2, %o1, %o0\n"
         "retl\n"
-        "add %o2, %o1, %o0\n");     // return the new value
+        "signx %o0");     // return the new value
 }
 
 }  // close enterprise namespace

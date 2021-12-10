@@ -150,6 +150,7 @@ using namespace std;
 // [ 1] Breathing test
 // [ 9] Alternative for other acquire/release tests.
 // [ 7] Usage examples
+// [13] TEST UPCASTING OF ATOMIC INT OPERATION RESULTS TO INT64
 //-----------------------------------------------------------------------------
 //=============================================================================
 //                    STANDARD BDE ASSERT TEST MACRO
@@ -2335,6 +2336,295 @@ int main(int argc, char *argv[]) {
 #endif
 
     switch (test) { case 0:
+      case 13: {
+        // --------------------------------------------------------------------
+        // TEST UPCASTING OF ATOMIC INT OPERATION RESULTS TO INT64
+        //
+        // Concerns:
+        //: 1 For the 'Int' atomic type, all operations returning an 'int'
+        //    behave correctly when the result is static cast to an 'int64'.
+        //    This tests an issue identified in optimized Sun builds in DRQS
+        //    167770817.
+        //
+        // Plan:
+        //: 1 For various input values, construct an 'AtomicTypes::Int'.
+        //: 2 Call each atomic operation which acts on an 'AtomicTypes::Int'
+        //    pointer and returns an 'int'.
+        //: 3 Cast the resulting 'int' to an 'Int64'.
+        //: 4 Check the resulting value is as expected.
+        //
+        // Testing:
+        //   TEST UPCASTING OF ATOMIC INT OPERATION RESULTS TO INT64
+        // --------------------------------------------------------------------
+
+        if (verbose)
+           cout << "\nTEST UPCASTING OF ATOMIC INT OPERATION RESULTS TO INT64"
+                << "\n======================================================="
+                << endl;
+
+        typedef bsls::Types::Int64 I64;
+
+        if (verbose) cout << "\nTesting 'bsls::AtomicInt' Primary Manipulators"
+                          << endl;
+        {
+            static const struct {
+                int d_lineNum;  // source line number
+                int d_value;    // input value
+            } VALUES[] = {
+                //line value
+                //---- ----
+                { L_,   0   },
+                { L_,   1   },
+                { L_,  -1   },
+                { L_,   2   },
+                { L_,  -2   }
+            };
+
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const int   VAL   = VALUES[i].d_value;
+                const I64   VAL64 = VALUES[i].d_value;
+
+                Types::Int x;
+                Obj::initInt(&x,VAL);
+
+                if (veryVerbose) {
+                    T_(); P_(Obj::getInt(&x)); P_(VAL); NL();
+                }
+                LOOP_ASSERT(i, VAL64 == static_cast<I64>(Obj::getInt(&x)));
+                LOOP_ASSERT(i,
+                            VAL64 == static_cast<I64>(Obj::getIntRelaxed(&x)));
+                LOOP_ASSERT(i,
+                            VAL64 == static_cast<I64>(Obj::getIntAcquire(&x)));
+            }
+        }
+
+        if (verbose) cout << "\nTesting 'bsls::AtomicInt' Inc and Dec"
+                    << endl;
+        {
+            static const struct {
+                int d_lineNum;  // source line number
+                int d_value;    // input value
+            } VALUES[] = {
+                //line value
+                //---- ----
+                { L_,   0   },
+                { L_,   1   },
+                { L_,  -1   },
+                { L_,   2   },
+                { L_,  -2   }
+            };
+
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const int   VAL   = VALUES[i].d_value;
+                const I64   VAL64 = VALUES[i].d_value;
+
+                Types::Int x;
+                if (veryVerbose) {
+                    T_(); P_(VAL); NL();
+                }
+                Obj::initInt(&x, VAL);
+                LOOP_ASSERT(
+                       i,
+                       VAL64 + 1 == static_cast<I64>(Obj::incrementIntNv(&x)));
+                Obj::initInt(&x, VAL);
+                LOOP_ASSERT(i,
+                            VAL64 + 1 == static_cast<I64>(
+                                               Obj::incrementIntNvAcqRel(&x)));
+                Obj::initInt(&x, VAL);
+                LOOP_ASSERT(
+                       i,
+                       VAL64 - 1 == static_cast<I64>(Obj::decrementIntNv(&x)));
+                Obj::initInt(&x, VAL);
+                LOOP_ASSERT(i,
+                            VAL64 - 1 == static_cast<I64>(
+                                               Obj::decrementIntNvAcqRel(&x)));
+            }
+        }
+
+        if (verbose) cout << "\nTesting 'bsls::AtomicInt' Add and Subtract"
+            << endl;
+        {
+            static const struct {
+                int d_lineNum;  // source line number
+                int d_value;    // input value
+            } VALUES[] = {
+                //line value
+                //---- ----
+                { L_,   0   },
+                { L_,   1   },
+                { L_,  -1   },
+                { L_,   2   },
+                { L_,  -2   }
+            };
+
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const int   VAL   = VALUES[i].d_value;
+                const I64   VAL64 = VALUES[i].d_value;
+
+                for (std::size_t j = 0; j < NUM_VALUES; ++j) {
+                    const int   VAL2 = VALUES[j].d_value;
+                    const bsls::Types::Int64 SUM  = VAL + VAL2;
+                    const bsls::Types::Int64 DIFF = VAL - VAL2;
+
+                    Types::Int x;
+                    if (veryVerbose) {
+                        T_();
+                        P_(VAL);
+                        P_(VAL2);
+                        P_(SUM);
+                        P_(DIFF);
+                        NL();
+                    }
+
+                    Obj::initInt(&x, VAL);
+                    LOOP2_ASSERT(
+                             i,
+                             j,
+                             SUM == static_cast<I64>(Obj::addIntNv(&x, VAL2)));
+                    Obj::initInt(&x, VAL);
+                    LOOP2_ASSERT(i,
+                                 j,
+                                 SUM == static_cast<I64>(
+                                               Obj::addIntNvAcqRel(&x, VAL2)));
+                    Obj::initInt(&x, VAL);
+                    LOOP2_ASSERT(i,
+                                 j,
+                                 SUM == static_cast<I64>(
+                                              Obj::addIntNvRelaxed(&x, VAL2)));
+
+                    Obj::initInt(&x, VAL);
+                    LOOP2_ASSERT(i,
+                                 j,
+                                 DIFF == static_cast<I64>(
+                                                Obj::subtractIntNv(&x, VAL2)));
+                    Obj::initInt(&x, VAL);
+                    LOOP2_ASSERT(
+                              i,
+                              j,
+                              DIFF == static_cast<I64>(
+                                          Obj::subtractIntNvAcqRel(&x, VAL2)));
+                    Obj::initInt(&x, VAL);
+                    LOOP2_ASSERT(
+                             i,
+                             j,
+                             DIFF == static_cast<I64>(
+                                         Obj::subtractIntNvRelaxed(&x, VAL2)));
+                }
+            }
+        }
+
+        if (verbose) cout << "\nTesting 'bsls::AtomicInt' Swap"
+            << endl;
+        {
+            static const struct {
+                int d_lineNum;  // source line number
+                int d_value;    // input value
+            } VALUES[] = {
+                //line value
+                //---- ----
+                { L_,   0   },
+                { L_,   1   },
+                { L_,  -1   },
+                { L_,   2   },
+                { L_,  -2   }
+            };
+
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const int   VAL   = VALUES[i].d_value;
+                const I64   VAL64 = VALUES[i].d_value;
+
+                for (std::size_t j = 0; j < NUM_VALUES; ++j) {
+                    const int   VAL2   = VALUES[j].d_value;
+                    const I64   VAL264 = VALUES[j].d_value;
+
+                    Types::Int x;
+                    if (veryVerbose) {
+                        T_();
+                        P_(VAL);
+                        P_(VAL2);
+                        P_(VAL64);
+                        P_(VAL264);
+                        NL();
+                    }
+
+                    Obj::initInt(&x, VAL);
+                    LOOP2_ASSERT(
+                            i,
+                            j,
+                            VAL64 == static_cast<I64>(Obj::swapInt(&x, VAL2)));
+                    Obj::initInt(&x, VAL);
+                    LOOP2_ASSERT(i,
+                                 j,
+                                 VAL64 == static_cast<I64>(
+                                                Obj::swapIntAcqRel(&x, VAL2)));
+
+                }
+
+                for (std::size_t j = 0; j < NUM_VALUES; ++j) {
+                    const int   VAL2   = VALUES[j].d_value;
+                    const I64   VAL264 = VALUES[j].d_value;
+
+                    for (std::size_t k = 0; k < NUM_VALUES; ++k) {
+                        const int   VAL3   = VALUES[k].d_value;
+                        const I64   VAL364 = VALUES[k].d_value;
+
+                        const int RES   = (VAL == VAL2) ? VAL3 : VAL;
+                        const int RES64 = RES;
+
+                        Types::Int x;
+                        if (veryVerbose) {
+                            T_();
+                            P_(VAL);
+                            P_(VAL2);
+                            P_(VAL3);
+                            P_(VAL64);
+                            P_(VAL264);
+                            P_(VAL364);
+                            P_(RES);
+                            P_(RES64);
+                            NL();
+                        }
+
+                        Obj::initInt(&x, VAL);
+                        LOOP3_ASSERT(
+                            i,
+                            j,
+                            k,
+                            VAL64 == static_cast<I64>(
+                                         Obj::testAndSwapInt(&x, VAL2, VAL3)));
+                        LOOP3_ASSERT(
+                                   i,
+                                   j,
+                                   k,
+                                   RES64 == static_cast<I64>(Obj::getInt(&x)));
+
+                        Obj::initInt(&x, VAL);
+                        LOOP3_ASSERT(
+                                i,
+                                j,
+                                k,
+                                VAL64 == static_cast<I64>(
+                                             Obj::testAndSwapIntAcqRel(&x,
+                                                                       VAL2,
+                                                                       VAL3)));
+                        LOOP3_ASSERT(
+                                   i,
+                                   j,
+                                   k,
+                                   RES64 == static_cast<I64>(Obj::getInt(&x)));
+                    }
+                }
+            }
+        }
+      } break;
       case 12: {
         // --------------------------------------------------------------------
         // TESTING GET/SET ACQUIRE/RELEASE MANIPULATORS:

@@ -172,7 +172,8 @@ using namespace std;
 // [ 7] SEQUENTIAL CONSISTENCY MEMORY ORDERING GUARANTEE TEST
 // [ 8] ACQUIRE/RELEASE MEMORY ORDERING GUARANTEE TEST
 // [ 9] TESTING MEMORY ORDERING OF ATOMIC OPERATIONS USED IN SHARED POINTER
-// [10] USAGE EXAMPLE
+// [10] TEST UPCASTING OF ATOMICINT FUNCTION RESULTS TO INT64
+// [11] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 //=============================================================================
@@ -1219,7 +1220,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 10: {
+      case 11: {
         // TESTING USAGE Examples
         //
         // Plan:
@@ -1230,6 +1231,257 @@ int main(int argc, char *argv[])
         }
         {
             my_CountedHandle<double> handle(NULL);
+        }
+      } break;
+      case 10: {
+        // --------------------------------------------------------------------
+        // TEST UPCASTING OF ATOMICINT FUNCTION RESULTS TO INT64
+        //
+        // Concerns:
+        //: 1 'AtomicInt' member functions returning an 'int' behave
+        //    correctly when the result is static cast to an 'Int64'.  This
+        //    tests an issue identified in optimized builds in DRQS 167770817.
+        //
+        // Plan:
+        //: 1 For various input values, construct an 'AtomicInt'.
+        //: 2 For various parameter values, call each function thereon
+        //    returning an 'int'.
+        //: 3 Cast the resulting 'int' to an 'Int64'.
+        //: 4 Check the resulting value is as expected.
+        //
+        // Testing:
+        //   TEST UPCASTING OF ATOMICINT FUNCTION RESULTS TO INT64
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            cout << "\nTEST UPCASTING OF ATOMICINT FUNCTION RESULTS TO INT64"
+                 << "\n====================================================="
+                 << endl;
+
+        if (verbose) cout << "\nTesting 'bsls::AtomicInt' Primary Manipulators"
+                          << endl;
+        {
+            static const struct {
+                int d_lineNum;  // source line number
+                int d_value;    // input value
+            } VALUES[] = {
+                //line value
+                //---- ----
+                { L_,   0   },
+                { L_,   1   },
+                { L_,  -1   },
+                { L_,   2   },
+                { L_,  -2   }
+            };
+
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const int   VAL   = VALUES[i].d_value;
+                const Int64 VAL64 = VALUES[i].d_value;
+
+                AI x;
+                x = VAL;
+                if (veryVerbose) {
+                    T_(); P_(x); P_(VAL); NL();
+                }
+                LOOP_ASSERT(i, VAL64 == static_cast<Int64>(x));
+                LOOP_ASSERT(i, VAL64 == static_cast<Int64>(x.load()));
+                LOOP_ASSERT(i, VAL64 == static_cast<Int64>(x.loadRelaxed()));
+                LOOP_ASSERT(i, VAL64 == static_cast<Int64>(x.loadAcquire()));
+            }
+        }
+
+        if (verbose) cout << "\nTesting 'bsls::AtomicInt' Inc and Dec"
+                    << endl;
+        {
+            static const struct {
+                int d_lineNum;  // source line number
+                int d_value;    // input value
+            } VALUES[] = {
+                //line value
+                //---- ----
+                { L_,   0   },
+                { L_,   1   },
+                { L_,  -1   },
+                { L_,   2   },
+                { L_,  -2   }
+            };
+
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const int   VAL   = VALUES[i].d_value;
+                const Int64 VAL64 = VALUES[i].d_value;
+
+                AI x;
+                if (veryVerbose) {
+                    T_(); P_(VAL); NL();
+                }
+                x = VAL;
+                LOOP_ASSERT(i, VAL64+0 == static_cast<Int64>(x++));
+                x = VAL;
+                LOOP_ASSERT(i, VAL64+1 == static_cast<Int64>(++x));
+                x = VAL;
+                LOOP_ASSERT(i, VAL64+0 == static_cast<Int64>(x--));
+                x = VAL;
+                LOOP_ASSERT(i, VAL64-1 == static_cast<Int64>(--x));
+            }
+        }
+
+        if (verbose) cout << "\nTesting 'bsls::AtomicInt' Add and Subtract"
+            << endl;
+        {
+            static const struct {
+                int d_lineNum;  // source line number
+                int d_value;    // input value
+            } VALUES[] = {
+                //line value
+                //---- ----
+                { L_,   0   },
+                { L_,   1   },
+                { L_,  -1   },
+                { L_,   2   },
+                { L_,  -2   }
+            };
+
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const int   VAL   = VALUES[i].d_value;
+                const Int64 VAL64 = VALUES[i].d_value;
+
+                for (std::size_t j = 0; j < NUM_VALUES; ++j) {
+                    const int   VAL2 = VALUES[j].d_value;
+                    const Int64 SUM  = VAL + VAL2;
+                    const Int64 DIFF = VAL - VAL2;
+
+                    AI x;
+                    if (veryVerbose) {
+                        T_();
+                        P_(VAL);
+                        P_(VAL2);
+                        P_(SUM);
+                        P_(DIFF);
+                        NL();
+                    }
+
+                    x = VAL;
+                    LOOP2_ASSERT(i, j,
+                        SUM == static_cast<Int64>(x.add(VAL2)));
+                    x = VAL;
+                    LOOP2_ASSERT(i, j,
+                        SUM == static_cast<Int64>(x.addAcqRel(VAL2)));
+                    x = VAL;
+                    LOOP2_ASSERT(i, j,
+                        SUM == static_cast<Int64>(x.addRelaxed(VAL2)));
+                    x = VAL;
+                    LOOP2_ASSERT(i, j,
+                        SUM == static_cast<Int64>(x+=VAL2));
+
+                    x = VAL;
+                    LOOP2_ASSERT(i, j,
+                        DIFF == static_cast<Int64>(x.subtract(VAL2)));
+                    x = VAL;
+                    LOOP2_ASSERT(i, j,
+                        DIFF == static_cast<Int64>(x.subtractAcqRel(VAL2)));
+                    x = VAL;
+                    LOOP2_ASSERT(i, j,
+                        DIFF == static_cast<Int64>(x.subtractRelaxed(VAL2)));
+                    x = VAL;
+                    LOOP2_ASSERT(i, j,
+                        DIFF == static_cast<Int64>(x-=VAL2));
+                }
+            }
+        }
+
+        if (verbose) cout << "\nTesting 'bsls::AtomicInt' Swap"
+            << endl;
+        {
+            static const struct {
+                int d_lineNum;  // source line number
+                int d_value;    // input value
+            } VALUES[] = {
+                //line value
+                //---- ----
+                { L_,   0   },
+                { L_,   1   },
+                { L_,  -1   },
+                { L_,   2   },
+                { L_,  -2   }
+            };
+
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const int   VAL   = VALUES[i].d_value;
+                const Int64 VAL64 = VALUES[i].d_value;
+
+                for (std::size_t j = 0; j < NUM_VALUES; ++j) {
+                    const int   VAL2   = VALUES[j].d_value;
+                    const Int64 VAL264 = VALUES[j].d_value;
+
+                    AI x;
+                    if (veryVerbose) {
+                        T_();
+                        P_(VAL);
+                        P_(VAL2);
+                        P_(VAL64);
+                        P_(VAL264);
+                        NL();
+                    }
+
+                    x = VAL;
+                    LOOP2_ASSERT(i, j,
+                        VAL64 == static_cast<Int64>(x.swap(VAL2)));
+                    x = VAL;
+                    LOOP2_ASSERT(i, j,
+                        VAL64 == static_cast<Int64>(x.swapAcqRel(VAL2)));
+
+                }
+
+                for (std::size_t j = 0; j < NUM_VALUES; ++j) {
+                    const int   VAL2   = VALUES[j].d_value;
+                    const Int64 VAL264 = VALUES[j].d_value;
+
+                    for (std::size_t k = 0; k < NUM_VALUES; ++k) {
+                        const int   VAL3   = VALUES[k].d_value;
+                        const Int64 VAL364 = VALUES[k].d_value;
+
+                        const int RES   = (VAL == VAL2) ? VAL3 : VAL;
+                        const int RES64 = RES;
+
+                        AI x;
+                        if (veryVerbose) {
+                            T_();
+                            P_(VAL);
+                            P_(VAL2);
+                            P_(VAL3);
+                            P_(VAL64);
+                            P_(VAL264);
+                            P_(VAL364);
+                            P_(RES);
+                            P_(RES64);
+                            NL();
+                        }
+
+                        x = VAL;
+                        LOOP3_ASSERT(i, j, k,
+                                    VAL64 == static_cast<Int64>(
+                                                   x.testAndSwap(VAL2, VAL3)));
+                        LOOP3_ASSERT(i, j, k,
+                            RES64 == static_cast<Int64>(x.load()));
+
+                        x = VAL;
+                        LOOP3_ASSERT(
+                                i, j, k,
+                                VAL64 == static_cast<Int64>(
+                                             x.testAndSwapAcqRel(VAL2, VAL3)));
+                        LOOP3_ASSERT(i, j, k,
+                            RES64 == static_cast<Int64>(x.load()));
+                    }
+                }
+            }
         }
       } break;
       case 9: {
