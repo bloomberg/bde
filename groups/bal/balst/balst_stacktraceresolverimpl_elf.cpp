@@ -2617,8 +2617,6 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugInfoFrameRec(
 
         u_TRACES && u_zprintf("%s DWARF version: %u\n", rn, version);
 
-        unsigned int infoTagIdx = -1;
-
         if (5 <= version) {
             {
                 unsigned char unitType;
@@ -2660,6 +2658,7 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugInfoFrameRec(
 
         d_rangesReader.setAddressSize(d_infoReader.addressSize());
 
+        unsigned int infoTagIdx = -1;
         rc = d_infoReader.readULEB128(&infoTagIdx);
         u_ASSERT_BAIL(0 == rc);
         u_TRACES && u_zprintf("%s .debug_info tag idx %llu\n",
