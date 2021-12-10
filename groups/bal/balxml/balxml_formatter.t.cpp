@@ -19,6 +19,8 @@
 #include <bdlt_date.h>
 #include <bdlt_time.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bslim_testutil.h>
 
 #include <bsls_assert.h>
@@ -496,8 +498,13 @@ FormatterModelAction::Enum FormatterModelAction::fromInt(int index)
     return static_cast<Enum>(index);
 }
 
+BSLA_MAYBE_UNUSED
 const char *FormatterModelAction::toChars(Enum value)
 {
+#ifndef BSLA_MAYBE_UNUSED_IS_ACTIVE
+    (void)&FormatterModelAction::toChars;
+#endif
+
     switch (value) {
       case e_ADD_ATTRIBUTE:
         return "e_ADD_ATTRIBUTE";
@@ -817,6 +824,8 @@ int FormatterModelUtil::getNextNestingDepth(State::Enum  state,
                                             int          nestingDepth,
                                             Action::Enum action)
 {
+    (void)state;
+
     if (Action::e_OPEN_ELEMENT_PRESERVE_WS == action ||
         Action::e_OPEN_ELEMENT_WORDWRAP == action ||
         Action::e_OPEN_ELEMENT_WORDWRAP_INDENT == action ||
@@ -2852,6 +2861,9 @@ int main(int argc, char *argv[])
                                                         // (c)
                                         expectedColumn = (INIT_INDENT + 1) *
                                             SPACES_PERLEVEL;
+                                    } break;
+                                    case Obj::e_PRESERVE_WHITESPACE: {
+                                        // Do nothing
                                     } break;
                                   }
                                   isFirstAtLine = true;

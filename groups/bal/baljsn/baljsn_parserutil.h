@@ -49,9 +49,9 @@ BSLS_IDENT("$Id: $")
 //  const char *date = "\"1985-06-24\"";
 //  const char *age  = "21";
 //
-//  bslstl::StringRef nameRef(name);
-//  bslstl::StringRef dateRef(date);
-//  bslstl::StringRef ageRef(age);
+//  const bsl::string_view nameRef(name);
+//  const bsl::string_view dateRef(date);
+//  const bsl::string_view ageRef(age);
 //..
 // Now, we use the created string refs to populate the employee object:
 //..
@@ -215,7 +215,7 @@ int ParserUtil::getQuotedString(bsl::string             *value,
         return -1;                                                    // RETURN
     }
 
-    bsl::string_view contents = data.substr(1, data.size() - 2);
+    const bsl::string_view contents = data.substr(1, data.size() - 2);
     return getUnquotedString(value, contents);
 }
 
@@ -378,8 +378,7 @@ int ParserUtil::getValue(float *value, const bsl::string_view& data)
 }
 
 inline
-int ParserUtil::getValue(bsl::string             *value,
-                         const bsl::string_view&  data)
+int ParserUtil::getValue(bsl::string *value, const bsl::string_view& data)
 {
     return getQuotedString(value, data);
 }

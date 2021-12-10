@@ -138,7 +138,8 @@ static const TestNode goodDocument[] = {
 
     { 0, Obj::e_NODE_TYPE_ELEMENT,
          "directory-entry" , 0            ,  0,
-         false, { "xmlns:dir"   , "http://bloomberg.com/schemas/directory" } },
+         false,
+         { { "xmlns:dir"  , "http://bloomberg.com/schemas/directory" } }     },
 
     { 0, Obj::e_NODE_TYPE_ELEMENT,
          "name"           , 0             , +1,
@@ -154,7 +155,7 @@ static const TestNode goodDocument[] = {
 
     { 0, Obj::e_NODE_TYPE_ELEMENT,
          "phone"          , 0             ,  0,
-         false, { "dir:phonetype", "cell"                                  } },
+         false, { { "dir:phonetype", "cell"} }                               },
 
     { 0, Obj::e_NODE_TYPE_TEXT,
          0                , "212-318-2000", +1,
@@ -190,7 +191,8 @@ static const TestNode badDocument[] = {
 
     { 0, Obj::e_NODE_TYPE_ELEMENT,
          "directory-entry" , 0            ,  0,
-         false, { "xmlns:dir"   , "http://bloomberg.com/schemas/directory" } },
+         false,
+         { { "xmlns:dir"  , "http://bloomberg.com/schemas/directory" } }     },
 
     { 0, Obj::e_NODE_TYPE_ELEMENT,
          "name"           , 0             , +1,
@@ -206,7 +208,7 @@ static const TestNode badDocument[] = {
 
     { 0, Obj::e_NODE_TYPE_ELEMENT,
          "phone"          , 0             ,  0,
-         false, { "dir:phonetype", "cell"                                  } },
+         false, { { "dir:phonetype", "cell"} }                               },
 
     { 0, Obj::e_NODE_TYPE_TEXT,
          0                , "212-318-2000", +1,

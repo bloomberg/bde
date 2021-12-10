@@ -147,8 +147,8 @@ class ControlManager_Entry {
 
     ControlManager_Entry(
                     const ControlManager::ControlHandler&  callback,
-                    const bsl::string&                     arguments,
-                    const bsl::string&                     description,
+                    const bsl::string_view&                arguments,
+                    const bsl::string_view&                description,
                     bslma::Allocator                      *basicAllocator = 0);
         // Create an ControlManager_Entry object with the specified initial
         // values.
@@ -193,9 +193,20 @@ class ControlManager_Entry {
         // object.
 };
 
+    struct CaselessLessThan {
+        // TYPES
+        typedef void is_transparent;
+
+        // ACCESSOR
+        bool operator()(const bsl::string_view& lhs,
+                        const bsl::string_view& rhs) const;
+            // Return 'true' if the specified 'lhs' is less than the specified
+            // 'rhs' in a case-insensitive comparison, and 'false' otherwise.
+    };
+
     typedef bsl::map<bsl::string,
                      ControlManager_Entry,
-                     bool(*)(const bsl::string&, const bsl::string&)> Registry;
+                     CaselessLessThan> Registry;
         // Defines a type alias for the ordered associative data structure
         // that maps a message prefix to a 'StringComparator' functor.
 
@@ -223,10 +234,10 @@ class ControlManager_Entry {
         // Destroy this object.
 
     // MANIPULATORS
-    int registerHandler(const bsl::string&    prefix,
-                        const bsl::string&    arguments,
-                        const bsl::string&    description,
-                        const ControlHandler& handler);
+    int registerHandler(const bsl::string_view&    prefix,
+                        const bsl::string_view&    arguments,
+                        const bsl::string_view&    description,
+                        const ControlHandler&      handler);
         // Register the specified 'handler' to be invoked whenever a control
         // message having the specified case-insensitive 'prefix' is received
         // for this control manager.  Also register the specified 'arguments'
@@ -236,13 +247,13 @@ class ControlManager_Entry {
         // callback was replaced, return 0 if no replacement occurred, and
         // return a negative value otherwise.
 
-    int deregisterHandler(const bsl::string& prefix);
+    int deregisterHandler(const bsl::string_view& prefix);
         // Deregister the callback function previously registered to handle the
         // specified 'prefix'.  Return 0 on success or a non-zero value
         // otherwise.
 
     // ACCESSOR
-    int dispatchMessage(const bsl::string& message) const;
+    int dispatchMessage(const bsl::string_view& message) const;
         // Parse the specified complete 'message' and dispatch it.  Return
         // 0 on success, and a non-zero value otherwise; in particular return
         // non-zero if no registered callback could be found for the
@@ -255,14 +266,15 @@ class ControlManager_Entry {
         // non-zero if no registered callback could be found for the
         // case-insensitive 'prefix'.
 
-    void printUsage(bsl::ostream& stream, const bsl::string& preamble) const;
+    void printUsage(bsl::ostream&           stream,
+                    const bsl::string_view& preamble) const;
         // Print to the specified 'stream' the specified 'preamble' text,
         // followed by the registered commands and documentation for this
         // control manager.  Note that a newline is appended to 'preamble' in
         // the output.
 
-    void printUsageHelper(bsl::ostream       *stream,
-                          const bsl::string&  preamble) const;
+    void printUsageHelper(bsl::ostream            *stream,
+                          const bsl::string_view&  preamble) const;
         // Invoke 'printUsage' passing the specified '*stream' and 'preamble'.
         // Suitable for binding using the bdlf::BindUtil package.
 
@@ -322,8 +334,8 @@ const bsl::string& ControlManager::ControlManager_Entry::description() const
 
 // ACCESSORS
 inline
-void ControlManager::printUsageHelper(bsl::ostream       *stream,
-                                      const bsl::string&  preamble) const
+void ControlManager::printUsageHelper(bsl::ostream            *stream,
+                                      const bsl::string_view&  preamble) const
 {
     printUsage(*stream, preamble);
 }

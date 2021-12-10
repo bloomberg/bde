@@ -176,9 +176,9 @@ typedef AssertImpUtil_UseContractsNo AssertImpUtil_UseContracts;
 #endif
 
 BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(
-                     const int,
-                     bsls_assertimputil_coerce_use_contracts,
-                     bsls::AssertImpUtil_UseContracts::s_isAssertUseContracts);
+                      const int,
+                      bsls_assertimputil_coerce_use_contracts,
+                      bsls::AssertImpUtil_UseContracts::s_isAssertUseContracts)
 
                             // ====================
                             // struct AssertImpUtil

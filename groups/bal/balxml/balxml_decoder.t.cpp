@@ -78,6 +78,7 @@
 #include <bslmf_issame.h>
 
 #include <bsls_assert.h>
+#include <bsls_buildtarget.h>
 #include <bsls_platform.h>
 #include <bsls_review.h>
 
@@ -8712,7 +8713,8 @@ void validAndInvalidUtf8Test(Mode mode, bool exhaustive = false)
             }
             ASSERTV(badPos, xmlStr.substr(0, badPos), 0 != rc);
 
-            int expLine, expCol;
+            int expLine = -1;  // Initialized to avoid eager compiler warnings
+            int expCol  = -1;
             ASSERT(0 == TC::findLoc(&expLine,
                                     &expCol,
                                     xmlStr,
@@ -8758,6 +8760,13 @@ void validAndInvalidUtf8Test(Mode mode, bool exhaustive = false)
 // Some test cases have been moved into separate functions to stop AIX xlC from
 // trying to optimize them and run out of memory.
 
+
+#if defined(BSLS_PLATFORM_CMP_GNU) &&                                         \
+    defined(BDE_BUILD_TARGET_OPT) && defined(BDE_BUILD_TARGET_DBG)
+// g++ gives an unhelpful warning (note) for this function about not being able
+// to track all variables for the debug info, probably due to loop unrolling
+__attribute__((optimize("no-var-tracking-assignments")))
+#endif
 void runTestCase19()
 {
     //-------------------------------------------------------------------------
@@ -8971,8 +8980,8 @@ void runTestCase19()
     // values of self-closing tags, and lines with a "3" verify the nullness of
     // decoded values of self-closing tags with  an 'xsi:nil="true"' attribute.
 
-    const TestCase19Row DATA[] = {
-//v---------^                       ENCODING RESULT
+    static const TestCase19Row DATA[] = {
+//v----------------^                ENCODING RESULT
 //                                 /  DECODING RESULT
 //LINE    BDLAT-AWARE OBJECT      /  /         XML STRUCTURE
 //---- ------------------------- -- -- -------------------------------
@@ -9693,7 +9702,7 @@ int main(int argc, char *argv[])
             // due to a failure in the 'bdlat_typeCategoryManipulateSequence'
             // function.
 
-        const TestCase20Row DATA[] = {
+        static const TestCase20Row DATA[] = {
             //LINE VALUE PLACEHOLDER    XML     DECODING SUCCESS STATUS
             //---- ----------------- ---------- -----------------------
             R(L_  ,            obj  , x(S, OBJ), yes, SuccessMsg   ),
@@ -9936,7 +9945,7 @@ int main(int argc, char *argv[])
         // non-modifiable reference to content number 5
         const Content& C5 = mC5;
 
-        const struct {
+        static const struct {
             int             d_line;    // line number
             TestXmlElement  d_xml;     // XML object representation
             const char     *d_string;  // expected printout of 'd_xml'
@@ -10193,7 +10202,7 @@ int main(int argc, char *argv[])
                                   "\n----------------------------"
                                << bsl::endl;
 
-        const bsl::string_view DATA[] = {
+        static const bsl::string_view DATA[] = {
         "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
         "<Topchoice xmlns=\"TestNamespace\"\n"
         "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
@@ -18283,7 +18292,7 @@ int main(int argc, char *argv[])
                 const balxml::Decoder& X = mX;
                 ASSERT(0 == X.numUnknownElementsSkipped());
 
-                const int DATA[] = { 0, 1, 5, 100, 2000 };
+                static const int DATA[] = { 0, 1, 5, 100, 2000 };
                 const int NUM_DATA = sizeof DATA / sizeof *DATA;
                 for (int i = 0; i < NUM_DATA; ++i) {
                     const int NUM_SKIPPED_ELEMS = DATA[i];
@@ -18413,7 +18422,7 @@ int main(int argc, char *argv[])
         {
             typedef Test::MySequence Type;
 
-            const struct {
+            static const struct {
                 int              d_line;
                 bsl::string_view d_xml;
                 int              d_numSkipped;
@@ -18550,7 +18559,7 @@ int main(int argc, char *argv[])
         {
             typedef Test::MySequenceWithAnonymousChoice Type;
 
-            const struct {
+            static const struct {
                 int              d_line;
                 bsl::string_view d_xml;
                 int              d_numSkipped;

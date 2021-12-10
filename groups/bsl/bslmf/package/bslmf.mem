@@ -67,6 +67,7 @@ bslmf_nthparameter_cpp03
 bslmf_removeconst
 bslmf_removecv
 bslmf_removecvq
+bslmf_removecvref
 bslmf_removeextent
 bslmf_removepointer
 bslmf_removereference

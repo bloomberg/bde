@@ -142,9 +142,9 @@ typedef BuildTargetExcNo BuildTargetExc;
 #endif
 
 BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(
-                                     const int,
-                                     bsls_buildtarget_coerce_exc,
-                                     bsls::BuildTargetExc::s_isBuildTargetExc);
+                                      const int,
+                                      bsls_buildtarget_coerce_exc,
+                                      bsls::BuildTargetExc::s_isBuildTargetExc)
 
 // ============================================================================
 //                           BDE_BUILD_TARGET_MT/BDE_BUILD_TARGET_NO_MT
@@ -185,24 +185,9 @@ typedef BuildTargetMtNo BuildTargetMt;
 #endif
 
 BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(
-                                       const int,
-                                       bsls_buildtarget_coerce_mt,
-                                       bsls::BuildTargetMt::s_isBuildTargetMt);
-
-
-
-#ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ============================================================================
-//                           BACKWARD COMPATIBILITY
-// ============================================================================
-
-typedef bsls::BuildTargetExc bsls_ExcBuildTarget;
-    // This alias is defined for backward compatibility.
-
-typedef bsls::BuildTargetMt bsls_MtBuildTarget;
-    // This alias is defined for backward compatibility.
-
-#endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
+                                        const int,
+                                        bsls_buildtarget_coerce_mt,
+                                        bsls::BuildTargetMt::s_isBuildTargetMt)
 
 }  // close enterprise namespace
 

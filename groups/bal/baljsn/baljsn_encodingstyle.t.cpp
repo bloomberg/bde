@@ -103,8 +103,6 @@ typedef baljsn::EncodingStyle        Obj;
 //                       GLOBAL CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-const int NUM_ENUMERATORS = 3;
-
 #define UNKNOWN_FORMAT "(* UNKNOWN *)"
 
 // ============================================================================
@@ -147,9 +145,8 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "USAGE EXAMPLE" << endl
-                                  << "=============" << endl;
-
+        if (verbose) cout << "\nUSAGE EXAMPLE"
+                          << "\n=============" << endl;
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

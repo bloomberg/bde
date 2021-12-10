@@ -32,10 +32,8 @@ BSLS_IDENT("$Id: $")
 //                      bool           true            none
 //  datetimeFractionalSecondPrecision
 //                      int            3               >= 0 and <= 6
-//  maxFloatPrecision   int            bsl::numeric_limits<float>::digits10
-//                                                     >= 1 and <= 9
-//  maxDoublePrecision  int            bsl::numeric_limits<double>::digits10
-//                                                     >= 1 and <= 17
+//  maxFloatPrecision   int            0               >= 1 and <= 9  or 0
+//  maxDoublePrecision  int            0               >= 1 and <= 17 or 0
 //..
 //: o 'encodingStyle': encoding style used to encode the JSON data.
 //:
@@ -71,11 +69,25 @@ BSLS_IDENT("$Id: $")
 //:                                        encoding 'Datetime' and
 //:                                        'DatetimeTz'.
 //:
-//: o 'maxFloatPrecision': option specifying the maximum number of decimal
-//:                        places used to encode each 'float' value.
+//: o 'maxFloatPrecision': [!DEPRECATED!] option specifying the maximum number
+//:                        of decimal places used to encode each 'float' value.
+//:                        When 0 (the default value) the encoder will use the
+//:                        minimum that is necessary to restore the binary
+//:                        value into a 'float'.  We recommend against setting
+//:                        this option: the option was provided prior to the
+//:                        current default behavior (of choosing the shortest
+//:                        presentation that can be restored to the original
+//:                        value) being available.
 //:
-//: o 'maxDoublePrecision': option specifying the maximum number of decimal
-//:                         places used to encode each 'double' value.
+//: o 'maxDoublePrecision': [!DEPRECATED!] option specifying the maximum number
+//:                         of decimal places used to encode each 'double'
+//:                         value.  When 0 (the default value) the encoder will
+//:                         use the minimum that is necessary to restore the
+//:                         binary value into a 'double'.  We recommend against
+//:                         setting this option: the option was provided prior
+//:                         to the current default behavior (of choosing the
+//:                         shortest presentation that can be restored to the
+//:                         original value) being available.
 //
 ///Implementation Note
 ///- - - - - - - - - -
@@ -113,14 +125,11 @@ BSLS_IDENT("$Id: $")
 //  assert(false == options.encodeNullElements());
 //  assert(false == options.encodeInfAndNaNAsStrings());
 //  assert(3     == options.datetimeFractionalSecondPrecision());
-//  assert(bsl::numeric_limits<float>::digits10
-//                                             == options.maxFloatPrecision());
-//  assert(bsl::numeric_limits<double>::digits10
-//                                            ==
-//                                            options.maxDoublePrecision());
-//  assert(true == options.encodeQuotedDecimal64());
+//  assert(0     == options.maxFloatPrecision());
+//  assert(0     == options.maxDoublePrecision());
+//  assert(true v== options.encodeQuotedDecimal64());
 //..
-// Next, we populate that object to encode in a pretty format using a
+// Next, we populate that object to encode in a prett format using a
 // pre-defined initial indent level and spaces per level:
 //..
 //  options.setEncodingStyle(baljsn::EncodingStyle::e_PRETTY);
@@ -197,7 +206,12 @@ class EncoderOptions {
     // milliseconds printed with date time values.  By default a precision of
     // '3' decimal places is used.  The 'MaxFloatPrecision' and
     // 'MaxDoublePrecision' attributes allow specifying the maximum precision
-    // for 'float' and 'double' values.
+    // for 'float' and 'double' values.  When not specified, or 0 is specified,
+    // the precision is determined automatically to use enough digits to ensure
+    // restoring the original binary floating point value by a reader.  We
+    // recommend against setting these options: they were provided prior to the
+    // current default behavior (of choosing the shortest presentation that can
+    // be restored to the original value) being available.
 
     // INSTANCE DATA
     int                   d_initialIndentLevel;
@@ -705,18 +719,12 @@ void EncoderOptions::setDatetimeFractionalSecondPrecision(int value)
 inline
 void EncoderOptions::setMaxFloatPrecision(int value)
 {
-    BSLS_ASSERT(1 <= value     );
-    BSLS_ASSERT(     value <= 9);
-
     d_maxFloatPrecision = value;
 }
 
 inline
 void EncoderOptions::setMaxDoublePrecision(int value)
 {
-    BSLS_ASSERT(1 <= value     );
-    BSLS_ASSERT(     value <= 17);
-
     d_maxDoublePrecision = value;
 }
 

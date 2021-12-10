@@ -16,17 +16,21 @@
 #include <bdlat_enumfunctions.h>
 #include <bdlat_typetraits.h>
 #include <bdlat_valuetypefunctions.h>
+
 #include <bdlb_chartype.h>
 #include <bdlb_float.h>
 #include <bdlb_nullablevalue.h>
 #include <bdlb_print.h>
 #include <bdlb_printmethods.h>
+
 #include <bdlt_datetime.h>
 
 #include <bslim_testutil.h>
 
 #include <bslalg_typetraits.h>
+
 #include <bslma_allocator.h>
+
 #include <bsls_assert.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
@@ -40,13 +44,14 @@
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
+#include <bsl_string_view.h>
 #include <bsl_vector.h>
 
 using namespace BloombergLP;
 using bsl::cout;
 using bsl::cerr;
 using bsl::endl;
-using bsl::flush;
+
 namespace test = BloombergLP::s_baltst;
 
 // ============================================================================
@@ -92,18 +97,13 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
-//                   MACROS FOR TESTING WORKAROUNDS
-// ----------------------------------------------------------------------------
-
-#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900
-    // 'snprintf' on older Windows libraries outputs an additional '0' in the
-    // exponent for scientific notation.
-# define BALXML_TYPESPRINTUTIL_EXTRA_ZERO_PADDING_FOR_EXPONENTS 1
-#endif
-
-// ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
+
+#if defined(BSLS_PLATFORM_CPU_64_BIT) && !defined(BSLS_PLATFORM_OS_WINDOWS)
+#define U_LONG_IS_64_BITS
+    // On 64 bit systems 'long' may be 32 or 64 bits.
+#endif
 
 typedef balxml::TypesPrintUtil Util;
 
@@ -119,7 +119,7 @@ class MyStringRef : public bslstl::StringRef {
     {}
 
     MyStringRef(const char *from, const char *to)
-                                               : bslstl::StringRef(from, to) {}
+    : bslstl::StringRef(from, to) {}
 };
 
                               // ===============
@@ -130,7 +130,7 @@ namespace TestNamespace {
 
 struct TestEnum {
     enum Value {
-        VALUE1= 1,
+        VALUE1 = 1,
         VALUE2 = 2,
         VALUE3 = 3
     };
@@ -200,7 +200,7 @@ namespace bdlat_EnumFunctions {
 //                       *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
-// test_customizedint.h   -*-C++-*-
+// test_customizedint.h                                               -*-C++-*-
 
 //@PURPOSE: todo: provide purpose.
 //
@@ -302,7 +302,6 @@ bsl::ostream& operator<<(bsl::ostream& stream, const CustomizedInt& rhs);
 // ============================================================================
 
 // CREATORS
-
 inline
 CustomizedInt::CustomizedInt()
 {
@@ -326,7 +325,6 @@ CustomizedInt::~CustomizedInt()
 }
 
 // MANIPULATORS
-
 inline
 CustomizedInt& CustomizedInt::operator=(const CustomizedInt& rhs)
 {
@@ -355,7 +353,6 @@ int CustomizedInt::fromInt(int value)
 }
 
 // ACCESSORS
-
 inline
 bsl::ostream& CustomizedInt::print(bsl::ostream& stream,
                                    int           level,
@@ -373,11 +370,9 @@ const int& CustomizedInt::toInt() const
 }  // close namespace s_baltst
 
 // TRAITS
-
 BDLAT_DECL_CUSTOMIZEDTYPE_TRAITS(test::CustomizedInt)
 
 // FREE OPERATORS
-
 inline
 bool test::operator==(const CustomizedInt& lhs, const CustomizedInt& rhs)
 {
@@ -402,7 +397,7 @@ bsl::ostream& test::operator<<(bsl::ostream& stream, const CustomizedInt& rhs)
 //                       *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
-// test_customizedint.cpp  -*-C++-*-
+// test_customizedint.cpp                                             -*-C++-*-
 
 namespace BloombergLP {
 namespace s_baltst {
@@ -411,24 +406,8 @@ namespace s_baltst {
                                // CONSTANTS
                                // ---------
 
-const char CustomizedInt::CLASS_NAME[] = "CustomizedInt";
+const char CustomizedInt::CLASS_NAME[] = "s_baltst::CustomizedInt";
     // the name of this class
-
-                                // -------------
-                                // CLASS METHODS
-                                // -------------
-
-                                // --------
-                                // CREATORS
-                                // --------
-
-                                // ------------
-                                // MANIPULATORS
-                                // ------------
-
-                                // ---------
-                                // ACCESSORS
-                                // ---------
 
 }  // close namespace s_baltst
 }  // close enterprise namespace
@@ -437,35 +416,89 @@ const char CustomizedInt::CLASS_NAME[] = "CustomizedInt";
 //                       *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
-bool testFloatPointResult(const char *result, const char *expected)
+bool matchFloatingPointResult(const bsl::string_view& result,
+                              const bsl::string_view& matchPattern)
+    // Match the specified floating point print 'result' against the specified
+    // 'matchPattern' and return 'true' if 'result' is considered a match, or
+    // 'false' if 'result' does not satisfy the 'matchPattern'.  The
+    // pattern-matching is very simple, only one character is considered
+    // special: 'X' matches any digit, every other character matches itself.
+    // Note that this means that the *length* of 'matchPattern' must match the
+    // length of 'result', there is no way (or need) to specify optional
+    // characters.
+    //..
+    // Pattern Examples:
+    // -----------------
+    //
+    // "0.125"    -- matches "0.125", and "0.125" only.
+    //
+    // "0.12X"    -- matches "0.120" to "0.129", but not "0.12" or "0.1234"
+    //..
 {
-    bsl::size_t lenRes = bsl::strlen(result);
-    bsl::size_t lenExp = bsl::strlen(expected);
-    if (lenRes != lenExp) {
+
+    const bsl::size_t lenRes = result.length();
+    const bsl::size_t lenPat = matchPattern.length();
+    if (lenRes != lenPat) {
         return false;                                                 // RETURN
     }
 
-    for (bsl::size_t i = 0; i < lenExp; ++i) {
-        if (expected[i] == 'X') {
-            continue;
+    for (bsl::size_t i = 0; i < lenPat; ++i) {
+        if (matchPattern[i] == 'X') {
+            if (0 == bsl::strchr("0123456789", result[i])) {
+                // Not a digit!
+
+                return false;                                         // RETURN
+            }
+            continue;                                               // CONTINUE
         }
-        if (expected[i] != result[i]) {
+        if (matchPattern[i] != result[i]) {
             return false;                                             // RETURN
         }
     }
     return true;
+}
 
-    //const char *pos = bsl::strchr(expected,'X');
+bool verifyFloatingPointResult(const bsl::string_view& result,
+                               const bsl::string_view& pattern)
+    // Verify the specified floating point print 'result' against the specified
+    // 'pattern' and return 'true' if 'result' is considered a match to the
+    // 'pattern', or 'false' if 'result' does not satisfy the 'pattern'.  The
+    // pattern-matching is very simple, only two characters are considered
+    // special: 'X' matches any digit, and a single '|' may be used to specify
+    // an alternate pattern considered on Microsoft Visual C++ builds only (see
+    // explanation in the code why that is needed).  In case an alternative is
+    // specified the first simple pattern (left of the '|') is considered
+    // on all platforms, and the second simple-pattern (after the '|') is
+    // considered *only* on MSVC.  Every other character matches itself.  Note
+    // that the *length* of a simple pattern must match the length of 'result',
+    // there is no way (or need) to specify optional characters.  See
+    // 'matchFloatingPointResult' above for examples of simple patterns and
+    // what they match.
+    //..
+    // Alternate Pattern Example:
+    // --------------------------
     //
-    //if (pos == 0) {  // no pattern matching, exact compare
-    //    return (0 == bsl::strcmp(result, expected));
-    //}
+    // "0.2|0.3" -- Will match "0.2" on *all* platforms, will *also* match
+    //              "0.3" on Microsoft Visual C++
+    //..
+{
 
-    //int lenCmp = pos - expected;
-    //
-    //return (lenRes <= lenExp) &&
-    //       (lenRes >= lenCmp) &&
-    //       (0 == bsl::memcmp(result, expected, lenCmp));
+    const bsl::size_t altPos = pattern.find('|', 0);
+
+    if (altPos != bsl::string_view::npos) {
+        // We have an alternative value for the broken MSVC 'sprintf' that may
+        // round the wrong way, depending on the C library version.  Since that
+        // may depend on the machine the executable is run on, we have to
+        // accept two alternates run-time, as we don't know compile-time which
+        // one it will be.
+        return matchFloatingPointResult(result, pattern.substr(0, altPos))
+#ifdef BSLS_PLATFORM_CMP_MSVC
+            || matchFloatingPointResult(result, pattern.substr(altPos + 1))
+#endif
+        ;                                                             // RETURN
+    }
+
+    return matchFloatingPointResult(result, pattern);
 }
 
 // ============================================================================
@@ -549,7 +582,7 @@ int main(int argc, char *argv[])
     int    test = argc > 1 ? bsl::atoi(argv[1]) : 0;
     int verbose = argc > 2;
 
-    bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
+    cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 9: {
@@ -567,8 +600,6 @@ int main(int argc, char *argv[])
         usageExample1();
 
         usageExample2();
-
-        if (verbose) cout << "\nEnd of Test." << endl;
       } break;
       case 8: {
         // --------------------------------------------------------------------
@@ -823,8 +854,6 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, ss.str(), RESULT == ss.str());
             }
         }
-
-        if (verbose) cout << "\nEnd of Test." << endl;
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -978,27 +1007,20 @@ int main(int argc, char *argv[])
                 Type        d_input;
                 const char *d_result;
             } DATA[] = {
-#if defined(BSLS_PLATFORM_CPU_64_BIT) && !defined(BSLS_PLATFORM_OS_WINDOWS)
-                //line    input                     result
-                //----    -----                     ------
-                { L_,     static_cast<Type>(-9223372036854775808ULL),
-                                                    "-9223372036854775808"   },
-                { L_,     -9223372036854775807LL,   "-9223372036854775807"   },
-                { L_,     -1LL,                     "-1"                     },
-                { L_,     0LL,                      "0"                      },
-                { L_,     1LL,                      "1"                      },
-                { L_,     9223372036854775806LL,    "9223372036854775806"    },
-                { L_,     9223372036854775807LL,    "9223372036854775807"    },
-#else
-                //line    input                     result
-                //----    -----                     ------
-                { L_,     -2147483647-1,            "-2147483648"   },
-                { L_,     -2147483647,              "-2147483647"   },
-                { L_,     -1,                       "-1"            },
-                { L_,     0,                        "0"             },
-                { L_,     1,                        "1"             },
-                { L_,     2147483646,               "2147483646"    },
-                { L_,     2147483647,               "2147483647"    },
+                //line  input                       result
+                //----  --------------------------  -------------------------
+                { L_,   -2147483647-1,              "-2147483648"            },
+                { L_,   -2147483647,                "-2147483647"            },
+                { L_,   -1,                         "-1"                     },
+                { L_,   0,                          "0"                      },
+                { L_,   1,                          "1"                      },
+                { L_,   2147483646,                 "2147483646"             },
+                { L_,   2147483647,                 "2147483647"             },
+#ifdef U_LONG_IS_64_BITS
+                { L_,   -9223372036854775807LL - 1, "-9223372036854775808"   },
+                { L_,   -9223372036854775807LL,     "-9223372036854775807"   },
+                { L_,   9223372036854775806LL,      "9223372036854775806"    },
+                { L_,   9223372036854775807LL,      "9223372036854775807"    },
 #endif
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -1025,16 +1047,15 @@ int main(int argc, char *argv[])
                 Type        d_input;
                 const char *d_result;
             } DATA[] = {
-                //line    input                     result
-                //----    -----                     ------
-                { L_,     static_cast<Type>(-9223372036854775808ULL),
-                                                    "-9223372036854775808"   },
-                { L_,     -9223372036854775807LL,   "-9223372036854775807"   },
-                { L_,     -1LL,                     "-1"                     },
-                { L_,     0LL,                      "0"                      },
-                { L_,     1LL,                      "1"                      },
-                { L_,     9223372036854775806LL,    "9223372036854775806"    },
-                { L_,     9223372036854775807LL,    "9223372036854775807"    },
+                //line  input                       result
+                //----  -----                       -----------------------
+                { L_,   -9223372036854775807LL - 1, "-9223372036854775808" },
+                { L_,   -9223372036854775807LL,     "-9223372036854775807" },
+                { L_,   -1LL,                       "-1"                   },
+                { L_,    0LL,                        "0"                   },
+                { L_,    1LL,                        "1"                   },
+                { L_,    9223372036854775806LL,      "9223372036854775806" },
+                { L_,    9223372036854775807LL,      "9223372036854775807" },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -1179,48 +1200,124 @@ int main(int argc, char *argv[])
         {
             typedef float Type;
 
-#if defined(BALXML_TYPESPRINTUTIL_EXTRA_ZERO_PADDING_FOR_EXPONENTS)
-#define ZERO   "0"
-#else
-#define ZERO
-#endif
+            typedef bsl::numeric_limits<Type> NumLimits;
+
+            const float neg0 = copysignf(0.0f, -1.0f);
 
             static const struct {
                 int         d_lineNum;
                 Type        d_input;
+                const char *d_inputStr;
                 const char *d_result;
             } DATA[] = {
-                //line    input           result
-                //----    -----           ------
-                { L_,     -1.0f,          "-1"                            },
-                { L_,     -0.1f,          "-0.1"                          },
-                { L_,     -0.1234567f,    "-0.1234567"                    },
-                { L_,     -1.234567e-35f, "-1.234567e-" ZERO "35"         },
-                { L_,     0.0f,           "0"                             },
-                { L_,     0.1f,           "0.1"                           },
-                { L_,     1.0f,           "1"                             },
-                { L_,     1234567.0f,     "1234567"                       },
-                { L_,     1.234567e35f,   "1.234567e+" ZERO "35"          },
-                { L_,     bsl::numeric_limits<float>::infinity(),
-                                          "+INF"                          },
-                { L_,    -bsl::numeric_limits<float>::infinity(),
-                                          "-INF"                          },
-                { L_,     bsl::numeric_limits<float>::signaling_NaN(),
-                                          "NaN"                           },
+#define F(input, result) { L_, input, #input, result }
+                //    input                  result
+                //--------------    -------------------
+                F( neg0,            "-0"               ),
+                F(-1.0f,            "-1"               ),
+                F(-0.1f,            "-0.1"             ),
+                F(-1234567.f,       "-1234567"         ),
+                F(-0.1234567f,      "-0.1234567"       ),
+                F(-1.234567e35f,    "-1.234567e+35"    ),
+                F(-1.234567e-35f,   "-1.234567e-35"    ),
+
+                F( 0.0f,             "0"               ),
+                F( 1.0f,             "1"               ),
+                F( 0.1f,             "0.1"             ),
+                F( 1234567.f,        "1234567"         ),
+                F( 0.1234567f,       "0.1234567"       ),
+                F( 1.234567e35f,     "1.234567e+35"    ),
+                F( 1.234567e-35f,    "1.234567e-35"    ),
+
+                // Values from 'balxml_encoder.t.cpp' 'runTestCase17'
+                F(1.1920928e-07f        , "1.1920928e-07" ),
+                F(2.3841856e-07f        , "2.3841856e-07" ),
+                F(1.5258789e-05f        , "1.5258789e-05" ),
+                F(2.4414062e-04f        , "0.00024414062" ),
+                F(3.90625e-03f          , "0.00390625"    ),
+                F(6.25e-02f             , "0.0625"        ),
+                F(5e-1f                 , "0.5"           ),
+                F(                  1.0f,             "1" ),
+                F(               1024.0f,          "1024" ),
+                F(           16777216.0f,      "16777216" ),
+                F(       137438953472.0f,  "137438953472" ),
+                F(   1125899906842624.0f, "1.1258999e+15" ),
+                F(  18014398509481984.0f, "1.8014399e+16" ),
+
+                // {DRQS 165162213} regression, 2^24 loses precision as float
+                F(1.0f * 0xFFFFFF, "16777215"),
+
+                // Full Mantissa Integers
+                F(1.0f * 0xFFFFFF      // this is also
+                       * (1ull << 63)  // 'NumLimits::max()'
+                       * (1ull << 41),  "3.4028235e+38"),
+                // Boundary Values
+                F( NumLimits::min(),    "1.1754944e-38"),
+                F( NumLimits::max(),    "3.4028235e+38"),
+                F(-NumLimits::min(),   "-1.1754944e-38"),
+                F(-NumLimits::max(),   "-3.4028235e+38"),
+
+                // Non-numeric Values
+                F( NumLimits::infinity(),      "+INF"),
+                F(-NumLimits::infinity(),      "-INF"),
+                F( NumLimits::signaling_NaN(),  "NaN"),
+                F( NumLimits::quiet_NaN(),      "NaN"),
+#undef F
             };
-#undef ZERO
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
+            const int DO_NOT_SET = -42;
+            static int TOTAL_DIGITS_DATA[] = { DO_NOT_SET, 6, 12 };
+            const int NUM_TOTAL_DIGITS =
+                          sizeof TOTAL_DIGITS_DATA / sizeof *TOTAL_DIGITS_DATA;
+
+            static int FRACTION_DIGITS_DATA[] = { DO_NOT_SET, 0, 1, 8 };
+            const int NUM_FRACTION_DIGITS =
+                                sizeof FRACTION_DIGITS_DATA
+                                                / sizeof *FRACTION_DIGITS_DATA;
+
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int   LINE   = DATA[i].d_lineNum;
-                const Type  INPUT  = DATA[i].d_input;
-                const char *RESULT = DATA[i].d_result;
+                const int   LINE      = DATA[i].d_lineNum;
+                const Type  INPUT     = DATA[i].d_input;
+                const char *INPUT_STR = DATA[i].d_inputStr;
+                const char *EXPECTED  = DATA[i].d_result;
 
                 bsl::stringstream ss;
 
                 Util::printDefault(ss, INPUT);
 
-                ASSERTV(LINE, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, INPUT_STR, ss.str(), EXPECTED,
+                        verifyFloatingPointResult(ss.str(), EXPECTED));
+
+                for (int j = 0; j < NUM_TOTAL_DIGITS; ++j) {
+                    for (int k = 0; k < NUM_FRACTION_DIGITS; ++k) {
+                        const int    TOTAL_DIGITS =    TOTAL_DIGITS_DATA[j];
+                        const int FRACTION_DIGITS = FRACTION_DIGITS_DATA[k];
+
+                        // Verify that decimal format options are *ignored* by
+                        // the default format printing, passing encoding
+                        // options should not change the resulting string.
+                        balxml::EncoderOptions options;
+                        if (TOTAL_DIGITS != DO_NOT_SET) {
+                            options.setMaxDecimalTotalDigits(TOTAL_DIGITS);
+                        }
+                        if (FRACTION_DIGITS != DO_NOT_SET) {
+                            options.setMaxDecimalFractionDigits(
+                                                              FRACTION_DIGITS);
+                        }
+
+                        bsl::stringstream optss;
+
+                        Util::printDefault(optss, INPUT, &options);
+
+                        ASSERTV(LINE, INPUT_STR, ss.str(), options,
+                                ss.str() == optss.str());
+
+                        ASSERTV(LINE, INPUT_STR, ss.str(), EXPECTED,
+                                verifyFloatingPointResult(optss.str(),
+                                                          EXPECTED));
+                    }
+                }
             }
         }
 
@@ -1228,38 +1325,129 @@ int main(int argc, char *argv[])
         {
             typedef double Type;
 
+            typedef bsl::numeric_limits<Type> NumLimits;
+
+            const double neg0 = copysign(0.0, -1.0);
+
             static const struct {
                 int         d_lineNum;
                 Type        d_input;
-                const char *d_result;
+                const char* d_inputStr;
+                const char* d_result;
             } DATA[] = {
-                //line    input       result
-                //----    -----       ------
-                { L_,     -1.0,       "-1"             },
-                { L_,     -0.1,       "-0.1"           },
-                { L_,-0.123456789012345,"-0.123456789012345"  },
-                { L_,-1.23456789012345e-105,"-1.23456789012345e-105"  },
-                { L_,     0.0,        "0"              },
-                { L_,     0.1,        "0.1"            },
-                { L_,     1.0,        "1"              },
-                { L_,123456789012345.0, "123456789012345"},
-                { L_,1.23456789012345e105,"1.23456789012345e+105"  },
-                { L_,  bsl::numeric_limits<double>::infinity(), "+INF"},
-                { L_, -bsl::numeric_limits<double>::infinity(), "-INF"},
-                { L_,  bsl::numeric_limits<double>::signaling_NaN(), "NaN"},
+#define D(input, result) { L_, input, #input, result }
+                //        input               result
+                //--------------------   ------------------------------------
+                D( neg0,                             "-0"),
+                D(-1.0,                              "-1"                    ),
+                D(-0.1,                              "-0.1"                  ),
+                D(-0.123456789012345,                "-0.123456789012345"    ),
+                D(-1.23456789012345e+105,            "-1.23456789012345e+105"),
+                D(-1.23456789012345e-105,            "-1.23456789012345e-105"),
+
+                D( 0.0,                               "0"                    ),
+                D( 0.1,                               "0.1"                  ),
+                D( 1.0,                               "1"                    ),
+                D( 1.23456789012345e105,              "1.23456789012345e+105"),
+                D( 123.4567,                        "123.4567"               ),
+                D(1234567890123456.,   "1234567890123456"                    ),
+
+                // Values from 'balxml_encoder.t.cpp' 'runTestCase17'
+                D(1.1920928955078125e-07, "1.1920928955078125e-07"           ),
+                D(2.384185791015625e-07 , "2.384185791015625e-07"            ),
+                D(1.52587890625e-05     , "1.52587890625e-05"                ),
+                D(2.44140625e-04        , "0.000244140625"                   ),
+                D(3.90625e-03           , "0.00390625"                       ),
+                D(6.25e-02              , "0.0625"                           ),
+                D(5e-1                  , "0.5"                              ),
+                D(                   1.0,                 "1"                ),
+                D(                1024.0,              "1024"                ),
+                D(            16777216.0,          "16777216"                ),
+                D(        137438953472.0,      "137438953472"                ),
+                D(    1125899906842624.0,  "1125899906842624"                ),
+                D(   18014398509481984.0, "18014398509481984"                ),
+
+                // Small Integers
+                D(123456789012345.,     "123456789012345"                    ),
+                D(1234567890123456.,   "1234567890123456"                    ),
+
+                // Full Mantissa Integers
+                D(1.0 * 0x1FFFFFFFFFFFFFull, "9007199254740991"),
+                D(1.0 * 0x1FFFFFFFFFFFFFull  // This is also 'NumLimits::max()'
+                      * (1ull << 63) * (1ull << 63) * (1ull << 63)
+                      * (1ull << 63) * (1ull << 63) * (1ull << 63)
+                      * (1ull << 63) * (1ull << 63) * (1ull << 63)
+                      * (1ull << 63) * (1ull << 63) * (1ull << 63)
+                      * (1ull << 63) * (1ull << 63) * (1ull << 63)
+                      * (1ull << 26),               "1.7976931348623157e+308"),
+
+                // Boundary Values
+                D( NumLimits::min(),                "2.2250738585072014e-308"),
+                D( NumLimits::max(),                "1.7976931348623157e+308"),
+                D(-NumLimits::min(),               "-2.2250738585072014e-308"),
+                D(-NumLimits::max(),               "-1.7976931348623157e+308"),
+
+                // Non-numeric Values
+                D( NumLimits::infinity(),      "+INF"),
+                D(-NumLimits::infinity(),      "-INF"),
+                D( NumLimits::signaling_NaN(),  "NaN"),
+                D( NumLimits::quiet_NaN(),      "NaN"),
+#undef D
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
+            const int DO_NOT_SET = -42;
+            static int TOTAL_DIGITS_DATA[] = { DO_NOT_SET, 6, 12 };
+            const int NUM_TOTAL_DIGITS =
+                          sizeof TOTAL_DIGITS_DATA / sizeof *TOTAL_DIGITS_DATA;
+
+            static int FRACTION_DIGITS_DATA[] = { DO_NOT_SET, 0, 1, 8 };
+            const int NUM_FRACTION_DIGITS =
+                                sizeof FRACTION_DIGITS_DATA
+                                                / sizeof *FRACTION_DIGITS_DATA;
+
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int   LINE   = DATA[i].d_lineNum;
-                const Type  INPUT  = DATA[i].d_input;
-                const char *RESULT = DATA[i].d_result;
+                const int   LINE      = DATA[i].d_lineNum;
+                const Type  INPUT     = DATA[i].d_input;
+                const char *INPUT_STR = DATA[i].d_inputStr;
+                const char *EXPECTED  = DATA[i].d_result;
 
                 bsl::stringstream ss;
 
                 Util::printDefault(ss, INPUT);
 
-                ASSERTV(LINE, ss.str(), RESULT == ss.str());
+                ASSERTV(LINE, INPUT_STR, ss.str(), EXPECTED,
+                        verifyFloatingPointResult(ss.str(), EXPECTED));
+
+                for (int j = 0; j < NUM_TOTAL_DIGITS; ++j) {
+                    for (int k = 0; k < NUM_FRACTION_DIGITS; ++k) {
+                        const int    TOTAL_DIGITS =    TOTAL_DIGITS_DATA[j];
+                        const int FRACTION_DIGITS = FRACTION_DIGITS_DATA[k];
+
+                        // Verify that decimal format options are *ignored* by
+                        // the default format printing, passing encoding
+                        // options should not change the resulting string.
+                        balxml::EncoderOptions options;
+                        if (TOTAL_DIGITS != DO_NOT_SET) {
+                            options.setMaxDecimalTotalDigits(TOTAL_DIGITS);
+                        }
+                        if (FRACTION_DIGITS != DO_NOT_SET) {
+                            options.setMaxDecimalFractionDigits(
+                                                              FRACTION_DIGITS);
+                        }
+
+                        bsl::stringstream optss;
+
+                        Util::printDefault(optss, INPUT, &options);
+
+                        ASSERTV(LINE, INPUT_STR, ss.str(), options,
+                                ss.str() == optss.str());
+
+                        ASSERTV(LINE, INPUT_STR, ss.str(), EXPECTED,
+                                verifyFloatingPointResult(optss.str(),
+                                                          EXPECTED));
+                    }
+                }
             }
         }
 
@@ -1285,6 +1473,13 @@ int main(int argc, char *argv[])
 { L_,  DFP(0.0),                    'N',  0,  "0.0",                     0 },
 { L_,  DFP(15.13),                  'N',  0,  "15.13",                   0 },
 { L_,  DFP(-9.876543210987654e307), 'N',  0,  "-9.876543210987654e+307", 0 },
+{ L_,  DFP(0.001),                  'N',  0,  "0.001",                   0 },
+{ L_,  DFP(0.01),                   'N',  0,  "0.01",                    0 },
+{ L_,  DFP(0.1),                    'N',  0,  "0.1",                     0 },
+{ L_,  DFP(1.),                     'N',  0,  "1",                       0 },
+{ L_,  DFP(1.0),                    'N',  0,  "1.0",                     0 },
+{ L_,  DFP(1.00),                   'N',  0,  "1.00",                    0 },
+{ L_,  DFP(1.000),                  'N',  0,  "1.000",                   0 },
 { L_,  Limits::max(),               'N',  0,  "9.999999999999999e+384",  0 },
 { L_,  -Limits::max(),              'N',  0,  "-9.999999999999999e+384", 0 },
 { L_,  Limits::min(),               'N',  0,  "1e-383",                  0 },
@@ -1297,6 +1492,33 @@ int main(int argc, char *argv[])
 { L_,  DFP(0.0),                    'F',  2,  "0.00",                    0 },
 { L_,  DFP(15.13),                  'F',  2,  "15.13",                   0 },
 { L_,  DFP(-9876543210987654.0),    'F',  0,  "-9876543210987654",       0 },
+{ L_,  DFP(0.001),                  'F',  0,  "0",                       0 },
+{ L_,  DFP(0.001),                  'F',  1,  "0.0",                     0 },
+{ L_,  DFP(0.001),                  'F',  2,  "0.00",                    0 },
+{ L_,  DFP(0.001),                  'F',  3,  "0.001",                   0 },
+{ L_,  DFP(0.001),                  'F',  4,  "0.0010",                  0 },
+{ L_,  DFP(0.01),                   'F',  0,  "0",                       0 },
+{ L_,  DFP(0.01),                   'F',  1,  "0.0",                     0 },
+{ L_,  DFP(0.01),                   'F',  2,  "0.01",                    0 },
+{ L_,  DFP(0.01),                   'F',  3,  "0.010",                   0 },
+{ L_,  DFP(0.1),                    'F',  0,  "0",                       0 },
+{ L_,  DFP(0.1),                    'F',  1,  "0.1",                     0 },
+{ L_,  DFP(0.1),                    'F',  2,  "0.10",                    0 },
+{ L_,  DFP(1.),                     'F',  0,  "1",                       0 },
+{ L_,  DFP(1.),                     'F',  0,  "1",                       0 },
+{ L_,  DFP(1.),                     'F',  1,  "1.0",                     0 },
+{ L_,  DFP(1.0),                    'F',  0,  "1",                       0 },
+{ L_,  DFP(1.0),                    'F',  1,  "1.0",                     0 },
+{ L_,  DFP(1.0),                    'F',  2,  "1.00",                    0 },
+{ L_,  DFP(1.00),                   'F',  0,  "1",                       0 },
+{ L_,  DFP(1.00),                   'F',  1,  "1.0",                     0 },
+{ L_,  DFP(1.00),                   'F',  2,  "1.00",                    0 },
+{ L_,  DFP(1.00),                   'F',  3,  "1.000",                   0 },
+{ L_,  DFP(1.000),                  'F',  0,  "1",                       0 },
+{ L_,  DFP(1.000),                  'F',  1,  "1.0",                     0 },
+{ L_,  DFP(1.000),                  'F',  2,  "1.00",                    0 },
+{ L_,  DFP(1.000),                  'F',  3,  "1.000",                   0 },
+{ L_,  DFP(1.000),                  'F',  4,  "1.0000",                  0 },
 { L_,  Limits::min(),               'F',  0,  "0",                       0 },
 { L_, -Limits::min(),               'F',  0,  "-0",                      0 },
 { L_,  Limits::infinity(),          'F',  0,   "INF",                    1 },
@@ -1307,6 +1529,27 @@ int main(int argc, char *argv[])
 { L_,  DFP(0.1),                    'S',  0,  "1e-01",                   0 },
 { L_,  DFP(15.13),                  'S',  3,  "1.513e+01",               0 },
 { L_,  DFP(-9.876543210987654e307), 'S', 11,  "-9.87654321099e+307",     0 },
+{ L_,  DFP(0.001),                  'S',  0,  "1e-03",                   0 },
+{ L_,  DFP(0.001),                  'S',  1,  "1.0e-03",                 0 },
+{ L_,  DFP(0.001),                  'S',  2,  "1.00e-03",                0 },
+{ L_,  DFP(0.01),                   'S',  0,  "1e-02",                   0 },
+{ L_,  DFP(0.01),                   'S',  1,  "1.0e-02",                 0 },
+{ L_,  DFP(0.01),                   'S',  2,  "1.00e-02",                0 },
+{ L_,  DFP(0.1),                    'S',  0,  "1e-01",                   0 },
+{ L_,  DFP(0.1),                    'S',  1,  "1.0e-01",                 0 },
+{ L_,  DFP(0.1),                    'S',  2,  "1.00e-01",                0 },
+{ L_,  DFP(1.),                     'S',  0,  "1e+00",                   0 },
+{ L_,  DFP(1.),                     'S',  1,  "1.0e+00",                 0 },
+{ L_,  DFP(1.),                     'S',  2,  "1.00e+00",                0 },
+{ L_,  DFP(1.0),                    'S',  0,  "1e+00",                   0 },
+{ L_,  DFP(1.0),                    'S',  1,  "1.0e+00",                 0 },
+{ L_,  DFP(1.0),                    'S',  2,  "1.00e+00",                0 },
+{ L_,  DFP(1.00),                   'S',  0,  "1e+00",                   0 },
+{ L_,  DFP(1.00),                   'S',  1,  "1.0e+00",                 0 },
+{ L_,  DFP(1.00),                   'S',  2,  "1.00e+00",                0 },
+{ L_,  DFP(1.000),                  'S',  0,  "1e+00",                   0 },
+{ L_,  DFP(1.000),                  'S',  1,  "1.0e+00",                 0 },
+{ L_,  DFP(1.000),                  'S',  2,  "1.00e+00",                0 },
 { L_,  Limits::max(),               'S',  0,  "1e+385",                  0 },
 { L_, -Limits::max(),               'S',  0,  "-1e+385",                 0 },
 { L_,  Limits::min(),               'S',  0,  "1e-383",                  0 },
@@ -1315,6 +1558,7 @@ int main(int argc, char *argv[])
 { L_, -Limits::infinity(),          'S',  0,  "-INF",                    1 },
 { L_,  Limits::signaling_NaN(),     'S',  0,   "NaN",                    1 },
 { L_,  Limits::quiet_NaN(),         'S',  0,   "NaN",                    1 },
+#undef DFP
             };
 
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -1343,795 +1587,8 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, SUCCESS, ss.str(), DECIMAL,
                                           (SUCCESS ? RESULT : "") == ss.str());
             }
-#undef DFP
         }
 
-        // TBD: Currently this test case is commented out till the
-        // implementation uses the encoderOptions that are passed in.
-#if 0
-        if (verbose) cout << "\nUsing 'double' with encoder options." << endl;
-        {
-            typedef double Type;
-
-            static const struct {
-                int         d_lineNum;
-                Type        d_input;
-                int         d_totalDigits;
-                int         d_fractionDigits;
-                const char *d_result;
-            } DATA[] = {
-                // No fractional digits
-                {
-                    L_,                       // line
-                    12345,                    // input
-                    0,                        // num total digits
-                    0,                        // num fractions digits
-                    "12345"                   // output
-                },
-                {
-                    L_,                       // line
-                    12345,                    // input
-                    4,                        // num total digits
-                    2,                        // num fractions digits
-                    "12345"                   // output
-                },
-                {
-                    L_,                       // line
-                    12345,                    // input
-                    5,                        // num total digits
-                    2,                        // num fractions digits
-                    "12345"                   // output
-                },
-                {
-                    L_,                       // line
-                    12345,                    // input
-                    6,                        // num total digits
-                    2,                        // num fractions digits
-                    "12345"                   // output
-                },
-                {
-                    L_,                       // line
-                    12345,                    // input
-                    7,                        // num total digits
-                    2,                        // num fractions digits
-                    "12345"                   // output
-                },
-                // Fractional digits
-                {
-                    L_,                       // line
-                    -1.1,                     // input
-                    0,                        // num total digits
-                    0,                        // num fractions digits
-                    "-1"                      // output
-                },
-                {
-                    L_,                       // line
-                    -1.1,                     // input
-                    0,                        // num total digits
-                    1,                        // num fractions digits
-                    "-1"                      // output
-                },
-                {
-                    L_,                       // line
-                    -1.1,                     // input
-                    0,                        // num total digits
-                    2,                        // num fractions digits
-                    "-1"                      // output
-                },
-                {
-                    L_,                       // line
-                    -1.1,                     // input
-                    0,                        // num total digits
-                    3,                        // num fractions digits
-                    "-1"                      // output
-                },
-                {
-                    L_,                       // line
-                    -1.1,                     // input
-                    1,                        // num total digits
-                    1,                        // num fractions digits
-                    "-1"                      // output
-                },
-                {
-                    L_,                       // line
-                    -1.1,                     // input
-                    2,                        // num total digits
-                    1,                        // num fractions digits
-                    "-1.1"                    // output
-                },
-                {
-                    L_,                       // line
-                    -1.1,                     // input
-                    3,                        // num total digits
-                    1,                        // num fractions digits
-                    "-1.1"                    // output
-                },
-                {
-                    L_,                       // line
-                    -1.1,                     // input
-                    4,                        // num total digits
-                    1,                        // num fractions digits
-                    "-1.1"                    // output
-                },
-                {
-                    L_,                       // line
-                    -1.1,                     // input
-                    1,                        // num total digits
-                    2,                        // num fractions digits
-                    "-1"                      // output
-                },
-                {
-                    L_,                       // line
-                    -1.1,                     // input
-                    2,                        // num total digits
-                    2,                        // num fractions digits
-                    "-1.1"                    // output
-                },
-                {
-                    L_,                       // line
-                    -1.1,                     // input
-                    3,                        // num total digits
-                    2,                        // num fractions digits
-                    "-1.1"                    // output
-                },
-                {
-                    L_,                       // line
-                    -1.1,                     // input
-                    4,                        // num total digits
-                    2,                        // num fractions digits
-                    "-1.1"                    // output
-                },
-                {
-                    L_,                       // line
-                    -1.1,                     // input
-                    5,                        // num total digits
-                    3,                        // num fractions digits
-                    "-1.1"                    // output
-                },
-                {
-                    L_,                       // line
-                    0.12345,                  // input
-                    0,                        // num total digits
-                    0,                        // num fractions digits
-                    "0"                       // output
-                },
-                {
-                    L_,                       // line
-                    0.12345,                  // input
-                    0,                        // num total digits
-                    1,                        // num fractions digits
-                    "0"                       // output
-                },
-                {
-                    L_,                       // line
-                    0.12345,                  // input
-                    0,                        // num total digits
-                    2,                        // num fractions digits
-                    "0"                       // output
-                },
-                {
-                    L_,                       // line
-                    0.12345,                  // input
-                    1,                        // num total digits
-                    0,                        // num fractions digits
-                    "0"                       // output
-                },
-                {
-                    L_,                       // line
-                    0.12345,                  // input
-                    1,                        // num total digits
-                    1,                        // num fractions digits
-                    "0"                       // output
-                },
-                {
-                    L_,                       // line
-                    0.12345,                  // input
-                    1,                        // num total digits
-                    2,                        // num fractions digits
-                    "0"                       // output
-                },
-                {
-                    L_,                       // line
-                    0.12345,                  // input
-                    2,                        // num total digits
-                    0,                        // num fractions digits
-                    "0"                       // output
-                },
-                {
-                    L_,                       // line
-                    0.12345,                  // input
-                    2,                        // num total digits
-                    1,                        // num fractions digits
-                    "0.1"                     // output
-                },
-                {
-                    L_,                       // line
-                    0.12345,                  // input
-                    2,                        // num total digits
-                    2,                        // num fractions digits
-                    "0.1"                     // output
-                },
-                {
-                    L_,                       // line
-                    0.12345,                  // input
-                    3,                        // num total digits
-                    0,                        // num fractions digits
-                    "0"                       // output
-                },
-                {
-                    L_,                       // line
-                    0.12345,                  // input
-                    3,                        // num total digits
-                    1,                        // num fractions digits
-                    "0.1"                       // output
-                },
-                {
-                    L_,                       // line
-                    0.12345,                  // input
-                    3,                        // num total digits
-                    2,                        // num fractions digits
-                    "0.12"                    // output
-                },
-                {
-                    L_,                       // line
-                    0.12345,                  // input
-                    4,                        // num total digits
-                    0,                        // num fractions digits
-                    "0"                       // output
-                },
-                {
-                    L_,                       // line
-                    0.12345,                  // input
-                    4,                        // num total digits
-                    1,                        // num fractions digits
-                    "0.1"                       // output
-                },
-                {
-                    L_,                       // line
-                    0.12345,                  // input
-                    4,                        // num total digits
-                    2,                        // num fractions digits
-                    "0.12"                       // output
-                },
-                {
-                    L_,                       // line
-                    0.12345,                  // input
-                    4,                        // num total digits
-                    3,                        // num fractions digits
-                    "0.123"                   // output
-                },
-                {
-                    L_,                       // line
-                    0.0,                      // input
-                    0,                        // num total digits
-                    0,                        // num fractions digits
-                    "0"                       // output
-                },
-                {
-                    L_,                       // line
-                    0.0,                      // input
-                    1,                        // num total digits
-                    0,                        // num fractions digits
-                    "0"                       // output
-                },
-                {
-                    L_,                       // line
-                    0.0,                      // input
-                    2,                        // num total digits
-                    0,                        // num fractions digits
-                    "0"                       // output
-                },
-                {
-                    L_,                       // line
-                    0.0,                      // input
-                    0,                        // num total digits
-                    1,                        // num fractions digits
-                    "0"                       // output
-                },
-                {
-                    L_,                       // line
-                    0.0,                      // input
-                    1,                        // num total digits
-                    1,                        // num fractions digits
-                    "0"                       // output
-                },
-                {
-                    L_,                       // line
-                    0.0,                      // input
-                    2,                        // num total digits
-                    0,                        // num fractions digits
-                    "0"                       // output
-                },
-                {
-                    L_,                       // line
-                    0.0,                      // input
-                    2,                        // num total digits
-                    1,                        // num fractions digits
-                    "0"                       // output
-                },
-                {
-                    L_,                       // line
-                    0.0,                      // input
-                    2,                        // num total digits
-                    2,                        // num fractions digits
-                    "0"                       // output
-                },
-                {
-                    L_,                       // line
-                    -1.23456789012345e-105,   // input
-                    0,                        // num total digits
-                    0,                        // num fractions digits
-                    "0"                       // output
-                },
-                {
-                    L_,                       // line
-                    123.123,                  // input
-                    0,                        // num total digits
-                    0,                        // num fractions digits
-                    "123"                     // output
-                },
-                {
-                    L_,                       // line
-                    123.123,                  // input
-                    1,                        // num total digits
-                    0,                        // num fractions digits
-                    "123"                     // output
-                },
-                {
-                    L_,                       // line
-                    123.123,                  // input
-                    2,                        // num total digits
-                    0,                        // num fractions digits
-                    "123"                     // output
-                },
-                {
-                    L_,                       // line
-                    123.123,                  // input
-                    3,                        // num total digits
-                    0,                        // num fractions digits
-                    "123"                     // output
-                },
-                {
-                    L_,                       // line
-                    123.123,                  // input
-                    4,                        // num total digits
-                    0,                        // num fractions digits
-                    "123"                     // output
-                },
-                {
-                    L_,                       // line
-                    123.123,                  // input
-                    5,                        // num total digits
-                    0,                        // num fractions digits
-                    "123"                     // output
-                },
-                {
-                    L_,                       // line
-                    123.123,                  // input
-                    0,                        // num total digits
-                    1,                        // num fractions digits
-                    "123"                     // output
-                },
-                {
-                    L_,                       // line
-                    123.123,                  // input
-                    1,                        // num total digits
-                    1,                        // num fractions digits
-                    "123"                     // output
-                },
-                {
-                    L_,                       // line
-                    123.123,                  // input
-                    2,                        // num total digits
-                    2,                        // num fractions digits
-                    "123"                     // output
-                },
-                {
-                    L_,                       // line
-                    123.123,                  // input
-                    3,                        // num total digits
-                    3,                        // num fractions digits
-                    "123"                     // output
-                },
-                {
-                    L_,                       // line
-                    123.123,                  // input
-                    4,                        // num total digits
-                    4,                        // num fractions digits
-                    "123.1"                   // output
-                },
-                {
-                    L_,                       // line
-                    123.123,                  // input
-                    4,                        // num total digits
-                    3,                        // num fractions digits
-                    "123.1"                   // output
-                },
-                {
-                    L_,                       // line
-                    123.123,                  // input
-                    4,                        // num total digits
-                    2,                        // num fractions digits
-                    "123.1"                   // output
-                },
-                {
-                    L_,                       // line
-                    123.123,                  // input
-                    4,                        // num total digits
-                    1,                        // num fractions digits
-                    "123.1"                   // output
-                },
-                {
-                    L_,                       // line
-                    123.123,                  // input
-                    4,                        // num total digits
-                    0,                        // num fractions digits
-                    "123"                     // output
-                },
-                {
-                    L_,                       // line
-                    123456789012345.0,        // input
-                    0,                        // num total digits
-                    0,                        // num fractions digits
-                    "123456789012345"         // output
-                },
-                {
-                    L_,                       // line
-                    -1.1,                     // input
-                    0,                        // num total digits
-                    0,                        // num fractions digits
-                    "-1"                      // output
-                },
-                {
-                    L_,                       // line
-                    -0.123456789012345,       // input
-                    0,                        // num total digits
-                    0,                        // num fractions digits
-                    "0"                       // output
-                },
-                {
-                    L_,                       // line
-                    -1.23456789012345e-105,   // input
-                    0,                        // num total digits
-                    0,                        // num fractions digits
-                    "0"                       // output
-                },
-                {
-                    L_,                       // line
-                    0.0,                      // input
-                    0,                        // num total digits
-                    0,                        // num fractions digits
-                    "0"                       // output
-                },
-                {
-                    L_,                       // line
-                    123.123,                  // input
-                    0,                        // num total digits
-                    0,                        // num fractions digits
-                    "123"                     // output
-                },
-                {
-                    L_,                       // line
-                    123456789012345.0,        // input
-                    0,                        // num total digits
-                    0,                        // num fractions digits
-                    "123456789012345"         // output
-                },
-
-#if BSLS_PLATFORM_OS_SOLARIS
-                {
-                    L_,                       // line
-                    DBL_MAX,                  // input
-                    0,                        // num total digits
-                    0,                        // num fractions digits
-                    "17976931348623157081452742373170435679807056752584499659"
-                    "89174768031572607800285387605895586327668781715404589535"
-                    "14382464234321326889464182768467546703537516986049910576"
-                    "55128207624549009038932894407586850845513394230458323690"
-                    "32229481658085593321233482747978262041447231687381771809"
-                    "19299881250404026184124858368"  // output
-                },
-                {
-                    L_,                       // line
-                    DBL_MAX,                  // input
-                    1,                        // num total digits
-                    0,                        // num fractions digits
-                    "17976931348623157081452742373170435679807056752584499659"
-                    "89174768031572607800285387605895586327668781715404589535"
-                    "14382464234321326889464182768467546703537516986049910576"
-                    "55128207624549009038932894407586850845513394230458323690"
-                    "32229481658085593321233482747978262041447231687381771809"
-                    "19299881250404026184124858368"  // output
-                },
-                {
-                    L_,                       // line
-                    DBL_MAX,                  // input
-                    100,                        // num total digits
-                    0,                        // num fractions digits
-                    "17976931348623157081452742373170435679807056752584499659"
-                    "89174768031572607800285387605895586327668781715404589535"
-                    "14382464234321326889464182768467546703537516986049910576"
-                    "55128207624549009038932894407586850845513394230458323690"
-                    "32229481658085593321233482747978262041447231687381771809"
-                    "19299881250404026184124858368"  // output
-                },
-                {
-                    L_,                       // line
-                    DBL_MAX,                  // input
-                    400,                        // num total digits
-                    0,                        // num fractions digits
-                    "17976931348623157081452742373170435679807056752584499659"
-                    "89174768031572607800285387605895586327668781715404589535"
-                    "14382464234321326889464182768467546703537516986049910576"
-                    "55128207624549009038932894407586850845513394230458323690"
-                    "32229481658085593321233482747978262041447231687381771809"
-                    "19299881250404026184124858368" // output
-                },
-                {
-                    L_,                       // line
-                    DBL_MAX,                  // input
-                    0,                        // num total digits
-                    1,                        // num fractions digits
-                    "17976931348623157081452742373170435679807056752584499659"
-                    "89174768031572607800285387605895586327668781715404589535"
-                    "14382464234321326889464182768467546703537516986049910576"
-                    "55128207624549009038932894407586850845513394230458323690"
-                    "32229481658085593321233482747978262041447231687381771809"
-                    "19299881250404026184124858368"  // output
-                },
-                {
-                    L_,                       // line
-                    DBL_MAX,                  // input
-                    1,                        // num total digits
-                    1,                        // num fractions digits
-                    "17976931348623157081452742373170435679807056752584499659"
-                    "89174768031572607800285387605895586327668781715404589535"
-                    "14382464234321326889464182768467546703537516986049910576"
-                    "55128207624549009038932894407586850845513394230458323690"
-                    "32229481658085593321233482747978262041447231687381771809"
-                    "19299881250404026184124858368"  // output
-                },
-                {
-                    L_,                       // line
-                    DBL_MAX,                  // input
-                    100,                        // num total digits
-                    1,                        // num fractions digits
-                    "17976931348623157081452742373170435679807056752584499659"
-                    "89174768031572607800285387605895586327668781715404589535"
-                    "14382464234321326889464182768467546703537516986049910576"
-                    "55128207624549009038932894407586850845513394230458323690"
-                    "32229481658085593321233482747978262041447231687381771809"
-                    "19299881250404026184124858368" // output
-                },
-                {
-                    L_,                       // line
-                    DBL_MAX,                  // input
-                    400,                        // num total digits
-                    1,                        // num fractions digits
-                    "17976931348623157081452742373170435679807056752584499659"
-                    "89174768031572607800285387605895586327668781715404589535"
-                    "14382464234321326889464182768467546703537516986049910576"
-                    "55128207624549009038932894407586850845513394230458323690"
-                    "32229481658085593321233482747978262041447231687381771809"
-                    "19299881250404026184124858368"  // output
-                },
-                {
-                    L_,                       // line
-                    DBL_MAX,                  // input
-                    0,                        // num total digits
-                    100,                        // num fractions digits
-                    "17976931348623157081452742373170435679807056752584499659"
-                    "89174768031572607800285387605895586327668781715404589535"
-                    "14382464234321326889464182768467546703537516986049910576"
-                    "55128207624549009038932894407586850845513394230458323690"
-                    "32229481658085593321233482747978262041447231687381771809"
-                    "19299881250404026184124858368"  // output
-                },
-                {
-                    L_,                       // line
-                    DBL_MAX,                  // input
-                    1,                        // num total digits
-                    100,                        // num fractions digits
-                    "17976931348623157081452742373170435679807056752584499659"
-                    "89174768031572607800285387605895586327668781715404589535"
-                    "14382464234321326889464182768467546703537516986049910576"
-                    "55128207624549009038932894407586850845513394230458323690"
-                    "32229481658085593321233482747978262041447231687381771809"
-                    "19299881250404026184124858368" // output
-                },
-                {
-                    L_,                       // line
-                    DBL_MAX,                  // input
-                    100,                        // num total digits
-                    100,                        // num fractions digits
-                    "17976931348623157081452742373170435679807056752584499659"
-                    "89174768031572607800285387605895586327668781715404589535"
-                    "14382464234321326889464182768467546703537516986049910576"
-                    "55128207624549009038932894407586850845513394230458323690"
-                    "32229481658085593321233482747978262041447231687381771809"
-                    "19299881250404026184124858368" // output
-                },
-                {
-                    L_,                       // line
-                    DBL_MAX,                  // input
-                    400,                        // num total digits
-                    100,                        // num fractions digits
-                    "17976931348623157081452742373170435679807056752584499659"
-                    "89174768031572607800285387605895586327668781715404589535"
-                    "14382464234321326889464182768467546703537516986049910576"
-                    "55128207624549009038932894407586850845513394230458323690"
-                    "32229481658085593321233482747978262041447231687381771809"
-                    "19299881250404026184124858368" // output
-                },
-#else BSLS_PLATFORM_OS_AIX
-                {
-                    L_,                       // line
-                    DBL_MAX,                  // input
-                    0,                        // num total digits
-                    0,                        // num fractions digits
-                    "17976931348623157081452742373200000000000000000000000000"
-                    "00000000000000000000000000000000000000000000000000000000"
-                    "00000000000000000000000000000000000000000000000000000000"
-                    "00000000000000000000000000000000000000000000000000000000"
-                    "00000000000000000000000000000000000000000000000000000000"
-                    "00000000000000000000000000000"  // output
-                },
-                {
-                    L_,                       // line
-                    DBL_MAX,                  // input
-                    1,                        // num total digits
-                    0,                        // num fractions digits
-                    "17976931348623157081452742373200000000000000000000000000"
-                    "00000000000000000000000000000000000000000000000000000000"
-                    "00000000000000000000000000000000000000000000000000000000"
-                    "00000000000000000000000000000000000000000000000000000000"
-                    "00000000000000000000000000000000000000000000000000000000"
-                    "00000000000000000000000000000"  // output
-                },
-                {
-                    L_,                       // line
-                    DBL_MAX,                  // input
-                    100,                        // num total digits
-                    0,                        // num fractions digits
-                    "17976931348623157081452742373200000000000000000000000000"
-                    "00000000000000000000000000000000000000000000000000000000"
-                    "00000000000000000000000000000000000000000000000000000000"
-                    "00000000000000000000000000000000000000000000000000000000"
-                    "00000000000000000000000000000000000000000000000000000000"
-                    "00000000000000000000000000000"  // output
-                },
-                {
-                    L_,                       // line
-                    DBL_MAX,                  // input
-                    400,                        // num total digits
-                    0,                        // num fractions digits
-                    "17976931348623157081452742373200000000000000000000000000"
-                    "00000000000000000000000000000000000000000000000000000000"
-                    "00000000000000000000000000000000000000000000000000000000"
-                    "00000000000000000000000000000000000000000000000000000000"
-                    "00000000000000000000000000000000000000000000000000000000"
-                    "00000000000000000000000000000"  // output
-                },
-                {
-                    L_,                       // line
-                    DBL_MAX,                  // input
-                    0,                        // num total digits
-                    1,                        // num fractions digits
-                    "17976931348623157081452742373200000000000000000000000000"
-                    "00000000000000000000000000000000000000000000000000000000"
-                    "00000000000000000000000000000000000000000000000000000000"
-                    "00000000000000000000000000000000000000000000000000000000"
-                    "00000000000000000000000000000000000000000000000000000000"
-                    "00000000000000000000000000000"  // output
-                },
-                {
-                    L_,                       // line
-                    DBL_MAX,                  // input
-                    1,                        // num total digits
-                    1,                        // num fractions digits
-                    "17976931348623157081452742373200000000000000000000000000"
-                    "00000000000000000000000000000000000000000000000000000000"
-                    "00000000000000000000000000000000000000000000000000000000"
-                    "00000000000000000000000000000000000000000000000000000000"
-                    "00000000000000000000000000000000000000000000000000000000"
-                    "00000000000000000000000000000"  // output
-                },
-                {
-                    L_,                       // line
-                    DBL_MAX,                  // input
-                    100,                        // num total digits
-                    1,                        // num fractions digits
-                    "17976931348623157081452742373200000000000000000000000000"
-                    "00000000000000000000000000000000000000000000000000000000"
-                    "00000000000000000000000000000000000000000000000000000000"
-                    "00000000000000000000000000000000000000000000000000000000"
-                    "00000000000000000000000000000000000000000000000000000000"
-                    "00000000000000000000000000000"  // output
-                },
-                {
-                    L_,                       // line
-                    DBL_MAX,                  // input
-                    400,                        // num total digits
-                    1,                        // num fractions digits
-                    "17976931348623157081452742373200000000000000000000000000"
-                    "00000000000000000000000000000000000000000000000000000000"
-                    "00000000000000000000000000000000000000000000000000000000"
-                    "00000000000000000000000000000000000000000000000000000000"
-                    "00000000000000000000000000000000000000000000000000000000"
-                    "00000000000000000000000000000"  // output
-                },
-                {
-                    L_,                       // line
-                    DBL_MAX,                  // input
-                    0,                        // num total digits
-                    100,                        // num fractions digits
-                    "17976931348623157081452742373200000000000000000000000000"
-                    "00000000000000000000000000000000000000000000000000000000"
-                    "00000000000000000000000000000000000000000000000000000000"
-                    "00000000000000000000000000000000000000000000000000000000"
-                    "00000000000000000000000000000000000000000000000000000000"
-                    "00000000000000000000000000000"  // output
-                },
-                {
-                    L_,                       // line
-                    DBL_MAX,                  // input
-                    1,                        // num total digits
-                    100,                        // num fractions digits
-                    "17976931348623157081452742373200000000000000000000000000"
-                    "00000000000000000000000000000000000000000000000000000000"
-                    "00000000000000000000000000000000000000000000000000000000"
-                    "00000000000000000000000000000000000000000000000000000000"
-                    "00000000000000000000000000000000000000000000000000000000"
-                    "00000000000000000000000000000"  // output
-                },
-                {
-                    L_,                       // line
-                    DBL_MAX,                  // input
-                    100,                        // num total digits
-                    100,                        // num fractions digits
-                    "17976931348623157081452742373200000000000000000000000000"
-                    "00000000000000000000000000000000000000000000000000000000"
-                    "00000000000000000000000000000000000000000000000000000000"
-                    "00000000000000000000000000000000000000000000000000000000"
-                    "00000000000000000000000000000000000000000000000000000000"
-                    "00000000000000000000000000000"  // output
-                },
-                {
-                    L_,                       // line
-                    DBL_MAX,                  // input
-                    400,                        // num total digits
-                    100,                        // num fractions digits
-                    "17976931348623157081452742373200000000000000000000000000"
-                    "00000000000000000000000000000000000000000000000000000000"
-                    "00000000000000000000000000000000000000000000000000000000"
-                    "00000000000000000000000000000000000000000000000000000000"
-                    "00000000000000000000000000000000000000000000000000000000"
-                    "00000000000000000000000000000"  // output
-                },
-#endif //#if BSLS_PLATFORM_OS_SOLARIS
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            for (int i = 0; i < NUM_DATA; ++i) {
-                const int   LINE   = DATA[i].d_lineNum;
-                const Type  INPUT  = DATA[i].d_input;
-                const int   TOTAL  = DATA[i].d_totalDigits;
-                const int   FRACTION = DATA[i].d_fractionDigits;
-                const char *RESULT = DATA[i].d_result;
-
-                balxml::EncoderOptions options;
-                options.setMaxDecimalTotalDigits(TOTAL);
-                options.setMaxDecimalFractionDigits(FRACTION);
-
-                bsl::stringstream ss;
-
-                Util::printDefault(ss, INPUT, &options);
-
-                ASSERTV(LINE, ss.str(), RESULT, RESULT == ss.str());
-            }
-        }
-
-#endif // #if 0
 
         if (verbose) cout << "\nUsing 'char*'." << endl;
         {
@@ -2758,7 +2215,6 @@ int main(int argc, char *argv[])
                 }
             }
         }
-        if (verbose) cout << "\nEnd of Test." << endl;
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -4117,8 +3573,6 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, ss.good());
             }
         }
-
-        if (verbose) cout << "\nEnd of Test." << endl;
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -4169,8 +3623,6 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, ss.str(), RESULT == ss.str());
             }
         }
-
-        if (verbose) cout << "\nEnd of Test." << endl;
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -4274,8 +3726,6 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, ss.str(), RESULT == ss.str());
             }
         }
-
-        if (verbose) cout << "\nEnd of Test." << endl;
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -4429,27 +3879,20 @@ int main(int argc, char *argv[])
                 Type        d_input;
                 const char *d_result;
             } DATA[] = {
-#if defined(BSLS_PLATFORM_CPU_64_BIT) && !defined(BSLS_PLATFORM_OS_WINDOWS)
-                //line    input                     result
-                //----    -----                     ------
-                { L_,     static_cast<Type>(-9223372036854775808ULL),
-                                                    "-9223372036854775808"   },
-                { L_,     -9223372036854775807LL,   "-9223372036854775807"   },
-                { L_,     -1LL,                     "-1"                     },
-                { L_,     0LL,                      "0"                      },
-                { L_,     1LL,                      "1"                      },
-                { L_,     9223372036854775806LL,    "9223372036854775806"    },
-                { L_,     9223372036854775807LL,    "9223372036854775807"    },
-#else
-                //line    input            result
-                //----    -----            ------
-                { L_,     -2147483647-1,   "-2147483648"   },
-                { L_,     -2147483647,     "-2147483647"   },
-                { L_,     -1,              "-1"            },
-                { L_,     0,               "0"             },
-                { L_,     1,               "1"             },
-                { L_,     2147483646,      "2147483646"    },
-                { L_,     2147483647,      "2147483647"    },
+                //line  input                       result
+                //----  --------------------------  -------------------------
+                { L_,   -2147483647 - 1,            "-2147483648"            },
+                { L_,   -2147483647,                "-2147483647"            },
+                { L_,   -1,                         "-1"                     },
+                { L_,    0,                          "0"                     },
+                { L_,    1,                          "1"                     },
+                { L_,    2147483646,                 "2147483646"            },
+                { L_,    2147483647,                 "2147483647"            },
+#ifdef U_LONG_IS_64_BITS
+                { L_,   -9223372036854775807LL - 1, "-9223372036854775808"   },
+                { L_,   -9223372036854775807LL,     "-9223372036854775807"   },
+                { L_,    9223372036854775806LL,      "9223372036854775806"   },
+                { L_,    9223372036854775807LL,      "9223372036854775807"   },
 #endif
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -4476,16 +3919,15 @@ int main(int argc, char *argv[])
                 Type        d_input;
                 const char *d_result;
             } DATA[] = {
-                //line    input                     result
-                //----    -----                     ------
-                { L_,     static_cast<Type>(-9223372036854775808ULL),
-                                                    "-9223372036854775808"   },
-                { L_,     -9223372036854775807LL,   "-9223372036854775807"   },
-                { L_,     -1LL,                     "-1"                     },
-                { L_,     0LL,                      "0"                      },
-                { L_,     1LL,                      "1"                      },
-                { L_,     9223372036854775806LL,    "9223372036854775806"    },
-                { L_,     9223372036854775807LL,    "9223372036854775807"    },
+                //line  input                       result
+                //----  -----                       -------------------------
+                { L_,   -9223372036854775807LL - 1, "-9223372036854775808"   },
+                { L_,   -9223372036854775807LL,     "-9223372036854775807"   },
+                { L_,   -1LL,                       "-1"                     },
+                { L_,    0LL,                        "0"                     },
+                { L_,    1LL,                        "1"                     },
+                { L_,    9223372036854775806LL,      "9223372036854775806"   },
+                { L_,    9223372036854775807LL,      "9223372036854775807"   },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -4604,20 +4046,17 @@ int main(int argc, char *argv[])
                 Type        d_input;
                 const char *d_result;
             } DATA[] = {
-#if defined(BSLS_PLATFORM_CPU_64_BIT) && !defined(BSLS_PLATFORM_OS_WINDOWS)
-                //line    input                     result
-                //----    -----                     ------
-                { L_,     0LL,                      "0"                      },
-                { L_,     1LL,                      "1"                      },
-                { L_,     18446744073709551614ULL,  "18446744073709551614"   },
-                { L_,     18446744073709551615ULL,  "18446744073709551615"   },
-#else
-                //line    input            result
-                //----    -----            ------
-                { L_,     0,               "0"             },
-                { L_,     1,               "1"             },
-                { L_,     4294967294UL,    "4294967294"    },
-                { L_,     4294967295UL,    "4294967295"    },
+                //line  input                    result
+                //----  -----------------------  -----------------------
+                { L_,   0,                       "0"                    },
+                { L_,   1,                       "1"                    },
+                { L_,   4294967294UL,            "4294967294"           },
+                { L_,   4294967295UL,            "4294967295"           },
+#ifdef U_LONG_IS_64_BITS
+                { L_,   0LL,                     "0"                    },
+                { L_,   1LL,                     "1"                    },
+                { L_,   18446744073709551614ULL, "18446744073709551614" },
+                { L_,   18446744073709551615ULL, "18446744073709551615" },
 #endif
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -4733,35 +4172,111 @@ int main(int argc, char *argv[])
         {
             typedef float Type;
 
+            typedef bsl::numeric_limits<Type> NumLimits;
+
             static const struct {
                 int         d_lineNum;
                 Type        d_input;
+                const char *d_inputStr;
                 const char *d_result;
             } DATA[] = {
-                //line    input       result
-                //----    -----       ------
-                { L_,     -1.0f,      "-1.0XXXXX"      },
-                { L_,     -0.1f,      "-0.1XXXXX"      },
-                { L_,     -0.123456f, "-0.123456"      },
-                { L_,     0.0f,       "0.0XXXXX"       },
-                { L_,     0.1f,       "0.1XXXXX"       },
-                { L_,     1.0f,       "1.0XXXXX"       },
-                { L_,     1234567.0f, "1234567.0X"     },
-                { L_,     123.4567f,  "123.4567XX"     },
-                { L_,  bsl::numeric_limits<float>::infinity(), "+INF"},
-                { L_, -bsl::numeric_limits<float>::infinity(), "-INF"},
-                { L_,  bsl::numeric_limits<float>::signaling_NaN(), "NaN"},
+#define F(input, result) { L_, input, #input, result }
+                //    input                result
+                //---------------     ---------------------------------------
+                F(   -1.0f,                "-1"                              ),
+                F(   -0.1f,                "-0.1"                            ),
+                F(   -0.123456f,           "-0.123456"                       ),
+                F(    0.0f,                 "0"                              ),
+                F(    0.1f,                 "0.1"                            ),
+                F(    1.0f,                 "1"                              ),
+                F(  123.4567f,            "123.4567"                         ),
+
+                // Values from 'balxml_encoder.t.cpp' 'runTestCase17'
+                F(1.5258789e-05f      ,                   "0.000015258789"),
+                F(3.0517578e-05f      ,                   "0.000030517578"),
+                F(6.1035156e-05f      ,                   "0.000061035156"),
+                F(1.2207031e-04f      ,                   "0.00012207031" ),
+                F(2.4414062e-04f      ,                   "0.00024414062" ),
+                F(4.8828125e-04f      ,                   "0.00048828125" ),
+                F(9.765625e-04f       ,                   "0.0009765625"  ),
+                F(1.953125e-03f       ,                   "0.001953125"   ),
+                F(3.90625e-03f        ,                   "0.00390625"    ),
+                F(7.8125e-03f         ,                   "0.0078125"     ),
+                F(1.5625e-02f         ,                   "0.015625"      ),
+                F(3.125e-02f          ,                   "0.03125"       ),
+                F(6.25e-02f           ,                   "0.0625"        ),
+                F(1.25e-01f           ,                   "0.125"         ),
+                F(2.5e-1f             ,                   "0.25"          ),
+                F(5e-1f               ,                   "0.5"           ),
+                F(                 1.f,                   "1"             ),
+                F(                 8.f,                   "8"             ),
+                F(                64.f,                  "64"             ),
+                F(               128.f,                 "128"             ),
+                F(              1024.f,                "1024"             ),
+                F(             16384.f,               "16384"             ),
+                F(            131072.f,              "131072"             ),
+                F(           1048576.f,             "1048576"             ),
+                F(          16777216.f,            "16777216"             ),
+                F(         134217728.f,           "134217728"             ),
+                F(        1073741824.f,          "1073741824"             ),
+                F(       17179869184.f,         "17179869184"             ),
+                F(      137438953472.f,        "137438953472"             ),
+                F(     1099511627776.f,       "1099511627776"             ),
+                F(    17592186044416.f,      "17592186044416"             ),
+                F(   140737488355328.f,     "140737488355328"             ),
+                F(  1125899906842624.f,    "1125899906842624"             ),
+                F( 18014398509481984.f,   "18014398509481984"             ),
+                F(144115188075855870.f,  "144115188075855872"             ),
+
+                // Arbitrary Large and Small Number
+                F( 1.234567e35f,   "123456XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"    ),
+                F(-1.234567e35f,  "-123456XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"    ),
+
+                F( 1.234567e-35f,
+                                "0.00000000000000000000000000000000001234567"),
+                F(-1.234567e-35f,
+                               "-0.00000000000000000000000000000000001234567"),
+
+                // Small Integers
+                F(    1234567.f,      "1234567"       ),
+                F(    12345678.f,    "12345678"       ),
+                F(    123456789.f,  "123456792"       ),
+
+                // Full Mantissa Integers
+                F(1.0f * 0xFFFFFF,   "16777215"       ),
+                F(1.0f * 0xFFFFFF * (1ull << 63) * (1ull << 41), // this's max
+                                    "340282346638528859811704183484516925440"),
+
+                // Boundary Values
+                F( NumLimits::min(),
+                            "0.000000000000000000000000000000000000011754944"),
+                F( NumLimits::max(),
+                                    "340282346638528859811704183484516925440"),
+                F(-NumLimits::min(),
+                           "-0.000000000000000000000000000000000000011754944"),
+                F(-NumLimits::max(),
+                                   "-340282346638528859811704183484516925440"),
+
+                // Non-numeric Values
+                F( NumLimits::infinity(),      "+INF"),
+                F(-NumLimits::infinity(),      "-INF"),
+                F( NumLimits::signaling_NaN(),  "NaN"),
+                F( NumLimits::quiet_NaN(),      "NaN"),
+#undef F
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int   LINE   = DATA[i].d_lineNum;
-                const Type  INPUT  = DATA[i].d_input;
-                const char *RESULT = DATA[i].d_result;
+                const int   LINE      = DATA[i].d_lineNum;
+                const Type  INPUT     = DATA[i].d_input;
+                const char *INPUT_STR = DATA[i].d_inputStr;
+                const char *RESULT    = DATA[i].d_result;
 
                 bsl::stringstream ss;
 
-                Util::printDecimal(ss, INPUT);
+                balxml::EncoderOptions options;
+                Util::printDecimal(ss, INPUT, &options);
+                // 'float' decimal printing uses no options
 
                 if (bdlb::Float::isNan(INPUT) ||
                     bdlb::Float::isInfinite(INPUT)) {
@@ -4769,10 +4284,14 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE, ss.str(), !ss);
                 }
                 else {
-                    bool rc = testFloatPointResult(ss.str().c_str(), RESULT);
-
-                    ASSERTV(LINE, ss.str(), RESULT, rc);
+                    ASSERTV(LINE, INPUT_STR, ss.str(), RESULT,
+                            verifyFloatingPointResult(ss.str(), RESULT));
                 }
+
+                bsl::stringstream noOptions;
+                Util::printDecimal(noOptions, INPUT, 0);
+                ASSERTV(LINE, INPUT_STR, noOptions.str(), ss.str(),
+                        noOptions.str() == ss.str());
             }
         }
 
@@ -4780,34 +4299,136 @@ int main(int argc, char *argv[])
         {
             typedef double Type;
 
+            typedef bsl::numeric_limits<Type> NumLimits;
+
             static const struct {
                 int         d_lineNum;
                 Type        d_input;
-                const char *d_result;
+                const char* d_inputStr;
+                const char* d_expected;
             } DATA[] = {
-                //line    input       result
-                //----    -----       ------
-                { L_,     -1.0,             "-1.0XXXXXXXXXXXXXX"   },
-                { L_,     -0.1,             "-0.1XXXXXXXXXXXXXX"   },
-                { L_, -0.123456789012345,   "-0.123456789012345"   },
-                { L_,     0.0,              "0.0XXXXXXXXXXXXXX"    },
-                { L_,     0.1,              "0.1XXXXXXXXXXXXXX"    },
-                { L_,     1.0,              "1.0XXXXXXXXXXXXXX"    },
-                { L_,     123.4567f,        "123.4567XXXXXXXXXXX"  },
-                { L_, 123456789012345.0,    "123456789012345.0XX"  },
-                { L_, 1234567890123456.0,   "1234567890123456.0X"  },
-                { L_, 12345678901234567.0,  "1234567890123456X.X"  },
-                { L_, 123456789012345678.0, "1234567890123456XX.X" },
-                { L_,  bsl::numeric_limits<double>::infinity(), "+INF"},
-                { L_, -bsl::numeric_limits<double>::infinity(), "-INF"},
-                { L_,  bsl::numeric_limits<double>::signaling_NaN(), "NaN"},
+#define D(input, expected) { L_, input, #input, expected }
+                //input               result
+                //------------------  -------------------------------------
+                D(-1.0,                                "-1"                ),
+                D(-0.1,                                "-0.1"              ),
+                D(-0.123456789012345,                  "-0.123456789012345"),
+                D( 0.0,                                 "0"                ),
+                D( 0.1,                                 "0.1"              ),
+                D( 1.0,                                 "1"                ),
+                D( 123.4567,                          "123.4567"           ),
+
+                // Values from 'balxml_encoder.t.cpp' 'runTestCase17'
+                D(1.52587890625e-05  ,                   "0.0000152587890625"),
+                D(3.0517578125e-05   ,                   "0.000030517578125" ),
+                D(6.103515625e-05    ,                   "0.00006103515625"  ),
+                D(1.220703125e-04    ,                   "0.0001220703125"   ),
+                D(2.44140625e-04     ,                   "0.000244140625"    ),
+                D(4.8828125e-04      ,                   "0.00048828125"     ),
+                D(9.765625e-04       ,                   "0.0009765625"      ),
+                D(1.953125e-03       ,                   "0.001953125"       ),
+                D(3.90625e-03        ,                   "0.00390625"        ),
+                D(7.8125e-03         ,                   "0.0078125"         ),
+                D(1.5625e-02         ,                   "0.015625"          ),
+                D(3.125e-02          ,                   "0.03125"           ),
+                D(6.25e-02           ,                   "0.0625"            ),
+                D(1.25e-01           ,                   "0.125"             ),
+                D(2.5e-1             ,                   "0.25"              ),
+                D(5e-1               ,                   "0.5"               ),
+                D(                 1.,                   "1"                 ),
+                D(                 8.,                   "8"                 ),
+                D(                64.,                  "64"                 ),
+                D(               128.,                 "128"                 ),
+                D(              1024.,                "1024"                 ),
+                D(             16384.,               "16384"                 ),
+                D(            131072.,              "131072"                 ),
+                D(           1048576.,             "1048576"                 ),
+                D(          16777216.,            "16777216"                 ),
+                D(         134217728.,           "134217728"                 ),
+                D(        1073741824.,          "1073741824"                 ),
+                D(       17179869184.,         "17179869184"                 ),
+                D(      137438953472.,        "137438953472"                 ),
+                D(     1099511627776.,       "1099511627776"                 ),
+                D(    17592186044416.,      "17592186044416"                 ),
+                D(   140737488355328.,     "140737488355328"                 ),
+                D(  1125899906842624.,    "1125899906842624"                 ),
+                D( 18014398509481984.,   "18014398509481984"                 ),
+                D(144115188075855870.,  "144115188075855872"                 ),
+
+                // Small Integers
+                D(123456789012345.,       "123456789012345"                ),
+                D(1234567890123456.,     "1234567890123456"                ),
+                D(12345678901234567.,   "1234567890123456X"                ),
+                D(123456789012345678., "1234567890123456XX"                ),
+
+                // Full Mantissa Integers
+                D(1.0 * 0x1FFFFFFFFFFFFFull, "9007199254740991"),
+                D(1.0 * 0x1FFFFFFFFFFFFFull // This is also 'NumLimits::max()'
+                      * (1ull << 63) * (1ull << 63) * (1ull << 63)
+                      * (1ull << 63) * (1ull << 63) * (1ull << 63)
+                      * (1ull << 63) * (1ull << 63) * (1ull << 63)
+                      * (1ull << 63) * (1ull << 63) * (1ull << 63)
+                      * (1ull << 63) * (1ull << 63) * (1ull << 63)
+                      * (1ull << 26),
+                  "17976931348623157081452742373170435679807056752584" //  50
+                  "49965989174768031572607800285387605895586327668781" // 100
+                  "71540458953514382464234321326889464182768467546703" // 150
+                  "53751698604991057655128207624549009038932894407586" // 200
+                  "85084551339423045832369032229481658085593321233482" // 250
+                  "74797826204144723168738177180919299881250404026184" // 300
+                  "124858368"),                                        // 309
+
+                // Boundary Values
+                D( NumLimits::min(), "0."                              //+2
+                  "00000000000000000000000000000000000000000000000000" //  50+2
+                  "00000000000000000000000000000000000000000000000000" // 100+2
+                  "00000000000000000000000000000000000000000000000000" // 150+2
+                  "00000000000000000000000000000000000000000000000000" // 200+2
+                  "00000000000000000000000000000000000000000000000000" // 250+2
+                  "00000000000000000000000000000000000000000000000000" // 300+2
+                  "000000022250738585072014"),                         // 324+2
+
+                D( NumLimits::max(),
+                  "17976931348623157081452742373170435679807056752584" //  50
+                  "49965989174768031572607800285387605895586327668781" // 100
+                  "71540458953514382464234321326889464182768467546703" // 150
+                  "53751698604991057655128207624549009038932894407586" // 200
+                  "85084551339423045832369032229481658085593321233482" // 250
+                  "74797826204144723168738177180919299881250404026184" // 300
+                  "124858368"),                                        // 309
+
+                D(-NumLimits::min(), "-0."                             // +3
+                  "00000000000000000000000000000000000000000000000000" //  50+3
+                  "00000000000000000000000000000000000000000000000000" // 100+3
+                  "00000000000000000000000000000000000000000000000000" // 150+3
+                  "00000000000000000000000000000000000000000000000000" // 200+3
+                  "00000000000000000000000000000000000000000000000000" // 250+3
+                  "00000000000000000000000000000000000000000000000000" // 300+3
+                  "000000022250738585072014"),                         // 324+3
+
+                D(-NumLimits::max(), "-"                               // +1
+                  "17976931348623157081452742373170435679807056752584" //  50+1
+                  "49965989174768031572607800285387605895586327668781" // 100+1
+                  "71540458953514382464234321326889464182768467546703" // 150+1
+                  "53751698604991057655128207624549009038932894407586" // 200+1
+                  "85084551339423045832369032229481658085593321233482" // 250+1
+                  "74797826204144723168738177180919299881250404026184" // 300+1
+                  "124858368"),                                        // 309+1
+
+                // Non-numeric Values
+                D( NumLimits::infinity(),       "+INF"),
+                D(-NumLimits::infinity(),       "-INF"),
+                D( NumLimits::signaling_NaN(),   "NaN"),
+                D( NumLimits::quiet_NaN(),       "NaN"),
+#undef D
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int   LINE   = DATA[i].d_lineNum;
-                const Type  INPUT  = DATA[i].d_input;
-                const char *RESULT = DATA[i].d_result;
+                const int   LINE      = DATA[i].d_lineNum;
+                const Type  INPUT     = DATA[i].d_input;
+                const char *INPUT_STR = DATA[i].d_inputStr;
+                const char *EXPECTED  = DATA[i].d_expected;
 
                 bsl::stringstream ss;
 
@@ -4820,10 +4441,14 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE, ss.str(), !ss);
                 }
                 else {
-                    bool rc = testFloatPointResult(ss.str().c_str(), RESULT);
-
-                    ASSERTV(LINE, ss.str(), RESULT, rc);
+                    ASSERTV(LINE, INPUT_STR, ss.str(), EXPECTED,
+                            verifyFloatingPointResult(ss.str(), EXPECTED));
                 }
+
+                bsl::stringstream noOptions;
+                Util::printDecimal(noOptions, INPUT, 0);
+                ASSERTV(LINE, INPUT_STR, noOptions.str(), ss.str(),
+                        noOptions.str() == ss.str());
             }
         }
 
@@ -4831,234 +4456,449 @@ int main(int argc, char *argv[])
         {
             typedef double Type;
 
+            typedef bsl::numeric_limits<Type> Limits;
+
+            const int N = -42;
+
             static const struct {
                 int         d_lineNum;
                 Type        d_input;
+                const char *d_inputStr;
                 int         d_maxTotalDigits;
                 int         d_maxFractionDigits;
-                const char *d_result;
+                const char *d_expected;
             } DATA[] = {
-        //line    input           TD     FD             result
-        //----    -----           --     --             ------
-         { L_,      0,             0,     0,           "0.0"    },
-         { L_,      1,             0,     0,           "1.0"    },
-         { L_,     -1,             0,     0,           "-1.0"   },
+#define D(input, maxTotalDigits, maxFractionDigits, expected)                 \
+             { L_, input, #input, maxTotalDigits, maxFractionDigits, expected }
+        //  input              TD   FD            result
+        // -------             --   --           ----------------------------
+        D(      0,              0,   0,           "0.0"                      ),
+        D(      1,              0,   0,           "1.0"                      ),
+        D(     -1,              0,   0,           "-1.0"                     ),
 
-         { L_,      0,             0,     1,           "0.0"    },
-         { L_,      1,             0,     1,           "1.0"    },
-         { L_,     -1,             0,     1,           "-1.0"   },
+        D(      0,              0,   1,           "0.0"                      ),
+        D(      1,              0,   1,           "1.0"                      ),
+        D(     -1,              0,   1,           "-1.0"                     ),
 
-         { L_,      0,             1,     0,           "0.0"    },
-         { L_,      1,             1,     0,           "1.0"    },
-         { L_,     -1,             1,     0,           "-1.0"   },
+        D(      0,              1,   0,           "0.0"                      ),
+        D(      1,              1,   0,           "1.0"                      ),
+        D(     -1,              1,   0,           "-1.0"                     ),
 
-         { L_,      0,             1,     1,           "0.0"    },
-         { L_,      1,             1,     1,           "1.0"    },
-         { L_,     -1,             1,     1,           "-1.0"   },
+        D(      0,              1,   1,           "0.0"                      ),
+        D(      1,              1,   1,           "1.0"                      ),
+        D(     -1,              1,   1,           "-1.0"                     ),
 
-         { L_,      0,             2,     1,           "0.0"    },
-         { L_,      1,             2,     1,           "1.0"    },
-         { L_,     -1,             2,     1,           "-1.0"   },
+        D(      0,              2,   1,           "0.0"                      ),
+        D(      1,              2,   1,           "1.0"                      ),
+        D(     -1,              2,   1,           "-1.0"                     ),
 
-         { L_,      0,             2,     2,           "0.0"    },
-         { L_,      1,             2,     2,           "1.0"    },
-         { L_,     -1,             2,     2,           "-1.0"   },
+        D(      0,              2,   2,           "0.0"                      ),
+        D(      1,              2,   2,           "1.0"                      ),
+        D(     -1,              2,   2,           "-1.0"                     ),
 
-         { L_,      0,             2,     3,           "0.0"    },
-         { L_,      1,             2,     3,           "1.0"    },
-         { L_,     -1,             2,     3,           "-1.0"   },
+        D(      0,              2,   3,           "0.0"                      ),
+        D(      1,              2,   3,           "1.0"                      ),
+        D(     -1,              2,   3,           "-1.0"                     ),
 
-         { L_,      0,             3,     1,           "0.0"    },
-         { L_,      1,             3,     1,           "1.0"    },
-         { L_,     -1,             3,     1,           "-1.0"   },
+        D(      0,              3,   1,           "0.0"                      ),
+        D(      1,              3,   1,           "1.0"                      ),
+        D(     -1,              3,   1,           "-1.0"                     ),
 
-         { L_,      0,             3,     2,           "0.00"   },
-         { L_,      1,             3,     2,           "1.00"   },
-         { L_,     -1,             3,     2,           "-1.00"  },
+        D(      0,              3,   2,           "0.00"                     ),
+        D(      1,              3,   2,           "1.00"                     ),
+        D(     -1,              3,   2,           "-1.00"                    ),
 
-         { L_,      0,             3,     3,           "0.00"   },
-         { L_,      1,             3,     3,           "1.00"   },
-         { L_,     -1,             3,     3,           "-1.00"  },
+        D(      0,              3,   3,           "0.00"                     ),
+        D(      1,              3,   3,           "1.00"                     ),
+        D(     -1,              3,   3,           "-1.00"                    ),
 
-         { L_,      0,             4,     2,           "0.00"   },
-         { L_,      1,             4,     2,           "1.00"   },
-         { L_,     -1,             4,     2,           "-1.00"  },
+        D(      0,              4,   2,           "0.00"                     ),
+        D(      1,              4,   2,           "1.00"                     ),
+        D(     -1,              4,   2,           "-1.00"                    ),
 
-         { L_,      0,             4,     3,           "0.000"   },
-         { L_,      1,             4,     3,           "1.000"   },
-         { L_,     -1,             4,     3,           "-1.000"  },
+        D(      0,              4,   3,           "0.000"                    ),
+        D(      1,              4,   3,           "1.000"                    ),
+        D(     -1,              4,   3,           "-1.000"                   ),
 
-         { L_,      0.0,           2,     0,           "0.0"    },
-         { L_,      1.0,           2,     0,           "1.0"    },
-         { L_,     -1.0,           2,     0,           "-1.0"   },
+        D(      0.0,            2,   0,           "0.0"                      ),
+        D(      1.0,            2,   0,           "1.0"                      ),
+        D(     -1.0,            2,   0,           "-1.0"                     ),
 
-         { L_,      0.0,           2,     1,           "0.0"    },
-         { L_,      1.0,           2,     1,           "1.0"    },
-         { L_,     -1.0,           2,     1,           "-1.0"   },
+        D(      0.0,            2,   1,           "0.0"                      ),
+        D(      1.0,            2,   1,           "1.0"                      ),
+        D(     -1.0,            2,   1,           "-1.0"                     ),
 
-         { L_,      0.0,           2,     2,           "0.0"    },
-         { L_,      1.0,           2,     2,           "1.0"    },
-         { L_,     -1.0,           2,     2,           "-1.0"   },
+        D(      0.0,            2,   2,           "0.0"                      ),
+        D(      1.0,            2,   2,           "1.0"                      ),
+        D(     -1.0,            2,   2,           "-1.0"                     ),
 
-         { L_,      0.0,           2,     3,           "0.0"    },
-         { L_,      1.0,           2,     3,           "1.0"    },
-         { L_,     -1.0,           2,     3,           "-1.0"   },
+        D(      0.0,            2,   3,           "0.0"                      ),
+        D(      1.0,            2,   3,           "1.0"                      ),
+        D(     -1.0,            2,   3,           "-1.0"                     ),
 
-         { L_,      0.0,           3,     2,           "0.00"   },
-         { L_,      1.0,           3,     2,           "1.00"   },
-         { L_,     -1.0,           3,     2,           "-1.00"  },
+        D(      0.0,            3,   2,           "0.00"                     ),
+        D(      1.0,            3,   2,           "1.00"                     ),
+        D(     -1.0,            3,   2,           "-1.00"                    ),
 
-         { L_,      0.0,           3,     3,           "0.00"   },
-         { L_,      1.0,           3,     3,           "1.00"   },
-         { L_,     -1.0,           3,     3,           "-1.00"  },
+        D(      0.0,            3,   3,           "0.00"                     ),
+        D(      1.0,            3,   3,           "1.00"                     ),
+        D(     -1.0,            3,   3,           "-1.00"                    ),
 
-         { L_,      0.1,           2,     0,           "0.1"    },
-         { L_,     -0.1,           2,     0,           "-0.1"   },
+        D(      0.1,            2,   0,           "0.1"                      ),
+        D(     -0.1,            2,   0,           "-0.1"                     ),
 
-         { L_,      0.1,           2,     1,           "0.1"    },
-         { L_,     -0.1,           2,     1,           "-0.1"   },
+        D(      0.1,            2,   1,           "0.1"                      ),
+        D(     -0.1,            2,   1,           "-0.1"                     ),
 
-         { L_,      0.1,           2,     2,           "0.1"    },
-         { L_,     -0.1,           2,     2,           "-0.1"   },
+        D(      0.1,            2,   2,           "0.1"                      ),
+        D(     -0.1,            2,   2,           "-0.1"                     ),
 
-         { L_,      0.1,           2,     3,           "0.1"    },
-         { L_,     -0.1,           2,     3,           "-0.1"   },
+        D(      0.1,            2,   3,           "0.1"                      ),
+        D(     -0.1,            2,   3,           "-0.1"                     ),
 
-         { L_,      0.1234,        0,     0,           "0.1"    },
-         { L_,     -0.1234,        0,     0,           "-0.1"   },
+        D(      0.1234,         0,   0,           "0.1"                      ),
+        D(     -0.1234,         0,   0,           "-0.1"                     ),
 
-         { L_,      0.1234,        1,     0,           "0.1"    },
-         { L_,     -0.1234,        1,     0,           "-0.1"   },
+        D(      0.1234,         1,   0,           "0.1"                      ),
+        D(     -0.1234,         1,   0,           "-0.1"                     ),
 
-         { L_,      0.1234,        0,     1,           "0.1"    },
-         { L_,     -0.1234,        0,     1,           "-0.1"   },
+        D(      0.1234,         0,   1,           "0.1"                      ),
+        D(     -0.1234,         0,   1,           "-0.1"                     ),
 
-         { L_,      0.1234,        1,     1,           "0.1"    },
-         { L_,     -0.1234,        1,     1,           "-0.1"   },
+        D(      0.1234,         1,   1,           "0.1"                      ),
+        D(     -0.1234,         1,   1,           "-0.1"                     ),
 
-         { L_,      79.864,        0,     0,           "79.9"    },
-         { L_,     -63.234,        0,     0,           "-63.2"   },
+        D(      79.864,         0,   0,           "79.9"                     ),
+        D(     -63.234,         0,   0,           "-63.2"                    ),
 
-         { L_,      79.864,        1,     0,           "79.9"    },
-         { L_,     -63.234,        1,     0,           "-63.2"   },
+        D(      79.864,         1,   0,           "79.9"                     ),
+        D(     -63.234,         1,   0,           "-63.2"                    ),
 
-         { L_,      79.864,        1,     1,           "79.9"    },
-         { L_,     -63.234,        1,     1,           "-63.2"   },
+        D(      79.864,         1,   1,           "79.9"                     ),
+        D(     -63.234,         1,   1,           "-63.2"                    ),
 
-         { L_,      79.864,        2,     1,           "79.9"    },
-         { L_,     -63.234,        2,     1,           "-63.2"   },
+        D(      79.864,         2,   1,           "79.9"                     ),
+        D(     -63.234,         2,   1,           "-63.2"                    ),
 
-         { L_,      79.864,        2,     2,           "79.9"    },
-         { L_,     -63.234,        2,     2,           "-63.2"   },
+        D(      79.864,         2,   2,           "79.9"                     ),
+        D(     -63.234,         2,   2,           "-63.2"                    ),
 
-         { L_,      79.864,        2,     3,           "79.9"    },
-         { L_,     -63.234,        2,     3,           "-63.2"   },
+        D(      79.864,         2,   3,           "79.9"                     ),
+        D(     -63.234,         2,   3,           "-63.2"                    ),
 
-         { L_,      79.864,        3,     3,           "79.8"    },
-         { L_,     -63.234,        3,     3,           "-63.2"   },
+        D(      79.864,         3,   3,           "79.8"                     ),
+        D(     -63.234,         3,   3,           "-63.2"                    ),
 
-         { L_,      79.864,        3,     2,           "79.8"    },
-         { L_,     -63.234,        3,     2,           "-63.2"   },
+        D(      79.864,         3,   2,           "79.8"                     ),
+        D(     -63.234,         3,   2,           "-63.2"                    ),
 
-         { L_,      79.864,        5,     3,           "79.864"  },
-         { L_,     -63.234,        5,     3,           "-63.234" },
+        D(      79.864,         5,   3,           "79.864"                   ),
+        D(     -63.234,         5,   3,           "-63.234"                  ),
 
-         { L_,      79.864,        5,     4,           "79.864"  },
-         { L_,     -63.234,        5,     4,           "-63.234" },
+        D(      79.864,         5,   4,           "79.864"                   ),
+        D(     -63.234,         5,   4,           "-63.234"                  ),
 
-         { L_,      79.864,        6,     3,           "79.864"  },
-         { L_,     -63.234,        6,     3,           "-63.234" },
+        D(      79.864,         6,   3,           "79.864"                   ),
+        D(     -63.234,         6,   3,           "-63.234"                  ),
 
-         { L_,      79.864,        6,     4,           "79.8640"  },
-         { L_,     -63.234,        6,     4,           "-63.2340" },
+        D(      79.864,         6,   4,           "79.8640"                  ),
+        D(     -63.234,         6,   4,           "-63.2340"                 ),
 
-         { L_, 123456789012345.0,  14,     0, "123456789012345.0"    },
-         { L_, 123456789012345.0,  15,     0, "123456789012345.0"    },
-         { L_, 123456789012345.0,  16,     0, "123456789012345.0"    },
-         { L_, 123456789012345.0,  17,     0, "123456789012345.0"    },
-         { L_, 123456789012345.0,  18,     0, "123456789012345.0"    },
-         { L_, 123456789012345.0,  19,     0, "123456789012345.0"    },
-         { L_, 123456789012345.0,  20,     0, "123456789012345.0"    },
+        // Examples from the implementation comments
+        D(      65.4321,        4,   N,            "65.43"                   ),
+        D(    1234.001,         4,   N,          "1234.0"                    ),
+        D(       1.45623,       4,   N,             "1.456"                  ),
+        D(      65.4321,        4,   2,            "65.43"                   ),
+        D(    1234.001,         4,   2,          "1234.0"                    ),
+        D(       1.45623,       4,   2,             "1.46"                   ),
 
-         { L_, 123456789012345.0,  14,     1, "123456789012345.0"    },
-         { L_, 123456789012345.0,  15,     1, "123456789012345.0"    },
-         { L_, 123456789012345.0,  16,     1, "123456789012345.0"    },
-         { L_, 123456789012345.0,  17,     1, "123456789012345.0"    },
-         { L_, 123456789012345.0,  18,     1, "123456789012345.0"    },
-         { L_, 123456789012345.0,  19,     1, "123456789012345.0"    },
-         { L_, 123456789012345.0,  20,     1, "123456789012345.0"    },
+        // Large integer parts writing more digits than asked for
+        D(  123456.001,         4,   N,          "123456.0"                  ),
 
-         { L_, 123456789012345.0,  14,     2, "123456789012345.0"     },
-         { L_, 123456789012345.0,  15,     2, "123456789012345.0"     },
-         { L_, 123456789012345.0,  16,     2, "123456789012345.0"     },
-         { L_, 123456789012345.0,  17,     2, "123456789012345.00"    },
-         { L_, 123456789012345.0,  18,     2, "123456789012345.00"    },
-         { L_, 123456789012345.0,  19,     2, "123456789012345.00"    },
-         { L_, 123456789012345.0,  20,     2, "123456789012345.00"    },
+        // Values from 'balxml_encoder.t.cpp' 'runTestCase17' (no opts set)
+        D(1.52587890625e-05  ,  N,   N,                  "0.0000152587890625"),
+        D(3.0517578125e-05   ,  N,   N,                  "0.000030517578125" ),
+        D(6.103515625e-05    ,  N,   N,                  "0.00006103515625"  ),
+        D(1.220703125e-04    ,  N,   N,                  "0.0001220703125"   ),
+        D(2.44140625e-04     ,  N,   N,                  "0.000244140625"    ),
+        D(4.8828125e-04      ,  N,   N,                  "0.00048828125"     ),
+        D(9.765625e-04       ,  N,   N,                  "0.0009765625"      ),
+        D(1.953125e-03       ,  N,   N,                  "0.001953125"       ),
+        D(3.90625e-03        ,  N,   N,                  "0.00390625"        ),
+        D(7.8125e-03         ,  N,   N,                  "0.0078125"         ),
+        D(1.5625e-02         ,  N,   N,                  "0.015625"          ),
+        D(3.125e-02          ,  N,   N,                  "0.03125"           ),
+        D(6.25e-02           ,  N,   N,                  "0.0625"            ),
+        D(1.25e-01           ,  N,   N,                  "0.125"             ),
+        D(2.5e-1             ,  N,   N,                  "0.25"              ),
+        D(5e-1               ,  N,   N,                  "0.5"               ),
+        D(                 1.,  N,   N,                  "1"                 ),
+        D(                 8.,  N,   N,                  "8"                 ),
+        D(                64.,  N,   N,                 "64"                 ),
+        D(               128.,  N,   N,                "128"                 ),
+        D(              1024.,  N,   N,               "1024"                 ),
+        D(             16384.,  N,   N,              "16384"                 ),
+        D(            131072.,  N,   N,             "131072"                 ),
+        D(           1048576.,  N,   N,            "1048576"                 ),
+        D(          16777216.,  N,   N,           "16777216"                 ),
+        D(         134217728.,  N,   N,          "134217728"                 ),
+        D(        1073741824.,  N,   N,         "1073741824"                 ),
+        D(       17179869184.,  N,   N,        "17179869184"                 ),
+        D(      137438953472.,  N,   N,       "137438953472"                 ),
+        D(     1099511627776.,  N,   N,      "1099511627776"                 ),
+        D(    17592186044416.,  N,   N,     "17592186044416"                 ),
+        D(   140737488355328.,  N,   N,    "140737488355328"                 ),
+        D(  1125899906842624.,  N,   N,   "1125899906842624"                 ),
+        D( 18014398509481984.,  N,   N,  "18014398509481984"                 ),
+        D(144115188075855870.,  N,   N, "144115188075855872"                 ),
 
-         { L_, 123456789012345.0,  15,     0, "123456789012345.0"    },
-         { L_, 123456789012345.0,  16,     0, "123456789012345.0"    },
-         { L_, 123456789012345.0,  17,     0, "123456789012345.0"    },
-         { L_, 123456789012345.0,  18,     0, "123456789012345.0"    },
-         { L_, 123456789012345.0,  19,     0, "123456789012345.0"    },
-         { L_, 123456789012345.0,  20,     0, "123456789012345.0"    },
+        // More from 'balxml_encoder.t.cpp' 'runTestCase17' (with options set)
+        D(1.52587890625e-05   ,   N,   0,                  "0.0"             ),
+        D(3.0517578125e-05    ,   N,   0,                  "0.0"             ),
+        D(6.103515625e-05     ,   N,   0,                  "0.0"             ),
+        D(1.220703125e-04     ,   N,   0,                  "0.0"             ),
+        D(2.44140625e-04      ,   N,   0,                  "0.0"             ),
+        D(4.8828125e-04       ,   N,   0,                  "0.0"             ),
+        D(9.765625e-04        ,   N,   0,                  "0.0"             ),
+        D(1.953125e-03        ,   N,   0,                  "0.0"             ),
+        D(3.90625e-03         ,   N,   0,                  "0.0"             ),
+        D(7.8125e-03          ,   N,   0,                  "0.0"             ),
+        D(1.5625e-02          ,   N,   0,                  "0.0"             ),
+        D(3.125e-02           ,   N,   0,                  "0.0"             ),
+        D(6.25e-02            ,   N,   0,                  "0.1"             ),
+        D(1.25e-01            ,   N,   0,                  "0.1"             ),
+        D(2.5e-1              ,   N,   0,                  "0.2|0.3"         ),
+        D(5e-1                ,   N,   0,                  "0.5"             ),
+        D(                 1.0,   N,   0,                  "1.0"             ),
+        D(                 8.0,   N,   0,                  "8.0"             ),
+        D(                64.0,   N,   0,                 "64.0"             ),
+        D(               128.0,   N,   0,                "128.0"             ),
+        D(              1024.0,   N,   0,               "1024.0"             ),
+        D(             16384.0,   N,   0,              "16384.0"             ),
+        D(            131072.0,   N,   0,             "131072.0"             ),
+        D(           1048576.0,   N,   0,            "1048576.0"             ),
+        D(          16777216.0,   N,   0,           "16777216.0"             ),
+        D(         134217728.0,   N,   0,          "134217728.0"             ),
+        D(        1073741824.0,   N,   0,         "1073741824.0"             ),
+        D(       17179869184.0,   N,   0,        "17179869184.0"             ),
+        D(      137438953472.0,   N,   0,       "137438953472.0"             ),
+        D(     1099511627776.0,   N,   0,      "1099511627776.0"             ),
+        D(    17592186044416.0,   N,   0,     "17592186044416.0"             ),
+        D(   140737488355328.0,   N,   0,    "140737488355328.0"             ),
+        D(  1125899906842624.0,   N,   0,   "1125899906842624.0"             ),
+        D( 18014398509481984.0,   N,   0,  "18014398509481984.0"             ),
+        D(144115188075855870.0,   N,   0, "144115188075855872.0"             ),
 
-         { L_, 123456789.012345,  14,     0, "123456789.0"          },
-         { L_, 123456789.012345,  15,     0, "123456789.0"          },
-         { L_, 123456789.012345,  16,     0, "123456789.0"          },
-         { L_, 123456789.012345,  17,     0, "123456789.0"          },
-         { L_, 123456789.012345,  18,     0, "123456789.0"          },
-         { L_, 123456789.012345,  19,     0, "123456789.0"          },
-         { L_, 123456789.012345,  20,     0, "123456789.0"          },
+        D(   123456789012345.0,  14,   0,    "123456789012345.0"             ),
+        D(   123456789012345.0,  15,   0,    "123456789012345.0"             ),
+        D(   123456789012345.0,  16,   0,    "123456789012345.0"             ),
+        D(   123456789012345.0,  17,   0,    "123456789012345.0"             ),
+        D(   123456789012345.0,  18,   0,    "123456789012345.0"             ),
+        D(   123456789012345.0,  19,   0,    "123456789012345.0"             ),
+        D(   123456789012345.0,  20,   0,    "123456789012345.0"             ),
 
-         { L_, 123456789.012345,  14,     1, "123456789.0"          },
-         { L_, 123456789.012345,  15,     1, "123456789.0"          },
-         { L_, 123456789.012345,  16,     1, "123456789.0"          },
-         { L_, 123456789.012345,  17,     1, "123456789.0"          },
-         { L_, 123456789.012345,  18,     1, "123456789.0"          },
-         { L_, 123456789.012345,  19,     1, "123456789.0"          },
-         { L_, 123456789.012345,  20,     1, "123456789.0"          },
+        D(   123456789012345.0,  14,   1,    "123456789012345.0"             ),
+        D(   123456789012345.0,  15,   1,    "123456789012345.0"             ),
+        D(   123456789012345.0,  16,   1,    "123456789012345.0"             ),
+        D(   123456789012345.0,  17,   1,    "123456789012345.0"             ),
+        D(   123456789012345.0,  18,   1,    "123456789012345.0"             ),
+        D(   123456789012345.0,  19,   1,    "123456789012345.0"             ),
+        D(   123456789012345.0,  20,   1,    "123456789012345.0"             ),
 
-         { L_, 123456789.012345,  14,     2, "123456789.01"          },
-         { L_, 123456789.012345,  15,     2, "123456789.01"          },
-         { L_, 123456789.012345,  16,     2, "123456789.01"          },
-         { L_, 123456789.012345,  17,     2, "123456789.01"          },
-         { L_, 123456789.012345,  18,     2, "123456789.01"          },
-         { L_, 123456789.012345,  19,     2, "123456789.01"          },
-         { L_, 123456789.012345,  20,     2, "123456789.01"          },
+        D(   123456789012345.0,  14,   2,    "123456789012345.0"             ),
+        D(   123456789012345.0,  15,   2,    "123456789012345.0"             ),
+        D(   123456789012345.0,  16,   2,    "123456789012345.0"             ),
+        D(   123456789012345.0,  17,   2,    "123456789012345.00"            ),
+        D(   123456789012345.0,  18,   2,    "123456789012345.00"            ),
+        D(   123456789012345.0,  19,   2,    "123456789012345.00"            ),
+        D(   123456789012345.0,  20,   2,    "123456789012345.00"            ),
 
-         { L_, 123456789.012345,  14,     6, "123456789.01234"       },
-         { L_, 123456789.012345,  15,     6, "123456789.012345"      },
-         { L_, 123456789.012345,  16,     6, "123456789.012345"      },
-         { L_, 123456789.012345,  17,     6, "123456789.012345"      },
-         { L_, 123456789.012345,  18,     6, "123456789.012345"      },
-         { L_, 123456789.012345,  19,     6, "123456789.012345"      },
-         { L_, 123456789.012345,  20,     6, "123456789.012345"      },
+        D(   123456789012345.0,  15,   0,    "123456789012345.0"             ),
+        D(   123456789012345.0,  16,   0,    "123456789012345.0"             ),
+        D(   123456789012345.0,  17,   0,    "123456789012345.0"             ),
+        D(   123456789012345.0,  18,   0,    "123456789012345.0"             ),
+        D(   123456789012345.0,  19,   0,    "123456789012345.0"             ),
+        D(   123456789012345.0,  20,   0,    "123456789012345.0"             ),
 
-         { L_, 123456789.012345,  14,     7, "123456789.01234"       },
-         { L_, 123456789.012345,  15,     7, "123456789.012345"      },
-         { L_, 123456789.012345,  16,     7, "123456789.0123450"     },
-         { L_, 123456789.012345,  17,     7, "123456789.0123450"     },
-         { L_, 123456789.012345,  18,     7, "123456789.0123450"     },
-         { L_, 123456789.012345,  19,     7, "123456789.0123450"     },
-         { L_, 123456789.012345,  20,     7, "123456789.0123450"     },
+        D(    123456789.012345,  14,   0,          "123456789.0"             ),
+        D(    123456789.012345,  15,   0,          "123456789.0"             ),
+        D(    123456789.012345,  16,   0,          "123456789.0"             ),
+        D(    123456789.012345,  17,   0,          "123456789.0"             ),
+        D(    123456789.012345,  18,   0,          "123456789.0"             ),
+        D(    123456789.012345,  19,   0,          "123456789.0"             ),
+        D(    123456789.012345,  20,   0,          "123456789.0"             ),
 
-         { L_,  bsl::numeric_limits<double>::infinity(), 0, 0, "+INF"},
-         { L_, -bsl::numeric_limits<double>::infinity(), 0, 0, "-INF"},
-         { L_,  bsl::numeric_limits<double>::signaling_NaN(), 0, 0, "NaN"},
+        D(    123456789.012345,  14,   1,          "123456789.0"             ),
+        D(    123456789.012345,  15,   1,          "123456789.0"             ),
+        D(    123456789.012345,  16,   1,          "123456789.0"             ),
+        D(    123456789.012345,  17,   1,          "123456789.0"             ),
+        D(    123456789.012345,  18,   1,          "123456789.0"             ),
+        D(    123456789.012345,  19,   1,          "123456789.0"             ),
+        D(    123456789.012345,  20,   1,          "123456789.0"             ),
+
+        D(    123456789.012345,  14,   2,          "123456789.01"            ),
+        D(    123456789.012345,  15,   2,          "123456789.01"            ),
+        D(    123456789.012345,  16,   2,          "123456789.01"            ),
+        D(    123456789.012345,  17,   2,          "123456789.01"            ),
+        D(    123456789.012345,  18,   2,          "123456789.01"            ),
+        D(    123456789.012345,  19,   2,          "123456789.01"            ),
+        D(    123456789.012345,  20,   2,          "123456789.01"            ),
+
+        D(    123456789.012345,  14,   6,          "123456789.01234"         ),
+        D(    123456789.012345,  15,   6,          "123456789.012345"        ),
+        D(    123456789.012345,  16,   6,          "123456789.012345"        ),
+        D(    123456789.012345,  17,   6,          "123456789.012345"        ),
+        D(    123456789.012345,  18,   6,          "123456789.012345"        ),
+        D(    123456789.012345,  19,   6,          "123456789.012345"        ),
+        D(    123456789.012345,  20,   6,          "123456789.012345"        ),
+
+        D(    123456789.012345,  14,   7,          "123456789.01234"         ),
+        D(    123456789.012345,  15,   7,          "123456789.012345"        ),
+        D(    123456789.012345,  16,   7,          "123456789.0123450"       ),
+        D(    123456789.012345,  17,   7,          "123456789.0123450"       ),
+        D(    123456789.012345,  18,   7,          "123456789.0123450"       ),
+        D(    123456789.012345,  19,   7,          "123456789.0123450"       ),
+        D(    123456789.012345,  20,   7,          "123456789.0123450"       ),
+
+        D(  Limits::infinity(),      0, 0, "+INF" ),
+        D( -Limits::infinity(),      0, 0, "-INF" ),
+        D(  Limits::signaling_NaN(), 0, 0,  "NaN" ),
+        D(  Limits::quiet_NaN(),     0, 0,  "NaN" ),
+
+        D(Limits::max(), N, N,
+          "179769313486231570814527423731704356798070567525844996598917" //  60
+          "476803157260780028538760589558632766878171540458953514382464" // 120
+          "234321326889464182768467546703537516986049910576551282076245" // 180
+          "490090389328944075868508455133942304583236903222948165808559" // 240
+          "332123348274797826204144723168738177180919299881250404026184" // 300
+          "124858368"),                                                  // 309
+
+#ifndef BSLS_PLATFORM_OS_AIX
+        D(Limits::max(), N, 0,
+          "179769313486231570814527423731704356798070567525844996598917" //  60
+          "476803157260780028538760589558632766878171540458953514382464" // 120
+          "234321326889464182768467546703537516986049910576551282076245" // 180
+          "490090389328944075868508455133942304583236903222948165808559" // 240
+          "332123348274797826204144723168738177180919299881250404026184" // 300
+          "124858368.0"),                                                // 311
+#else
+        // AIX 'sprintf' is "lazy"
+        D(Limits::max(), N, 0,
+          "179769313486231570814527423731704356800000000000000000000000" //  60
+          "000000000000000000000000000000000000000000000000000000000000" // 120
+          "000000000000000000000000000000000000000000000000000000000000" // 180
+          "000000000000000000000000000000000000000000000000000000000000" // 240
+          "000000000000000000000000000000000000000000000000000000000000" // 300
+          "000000000.0"),                                                // 311
+#endif
+
+#ifndef BSLS_PLATFORM_OS_AIX
+        D(Limits::max(), 326, 17,
+          "179769313486231570814527423731704356798070567525844996598917" //  60
+          "476803157260780028538760589558632766878171540458953514382464" // 120
+          "234321326889464182768467546703537516986049910576551282076245" // 180
+          "490090389328944075868508455133942304583236903222948165808559" // 240
+          "332123348274797826204144723168738177180919299881250404026184" // 300
+          "124858368.00000000000000000"),                                // 327
+#else
+        // AIX 'sprintf' is "lazy"
+        D(Limits::max(), 326, 17,
+          "179769313486231570814527423731704356800000000000000000000000" //  60
+          "000000000000000000000000000000000000000000000000000000000000" // 120
+          "000000000000000000000000000000000000000000000000000000000000" // 180
+          "000000000000000000000000000000000000000000000000000000000000" // 240
+          "000000000000000000000000000000000000000000000000000000000000" // 300
+          "000000000.00000000000000000"),                                // 327
+#endif
+        D(Limits::min(), N, N, "0."                                  //     + 2
+               "00000000000000000000000000000000000000000000000000"  //  50 + 2
+               "00000000000000000000000000000000000000000000000000"  // 100 + 2
+               "00000000000000000000000000000000000000000000000000"  // 150 + 2
+               "00000000000000000000000000000000000000000000000000"  // 200 + 2
+               "00000000000000000000000000000000000000000000000000"  // 250 + 2
+               "00000000000000000000000000000000000000000000000000"  // 300 + 2
+               "000000022250738585072014"),                          // 324 + 2
+
+        D(Limits::min(), 326, 17, "0.00000000000000000"),
+
+        D(Limits::min(), N, 0, "0.0" ),
+
+        D(-Limits::max(), N, N, "-"                                  //     + 1
+               "17976931348623157081452742373170435679807056752584"  //  50 + 1
+               "49965989174768031572607800285387605895586327668781"  // 100 + 1
+               "71540458953514382464234321326889464182768467546703"  // 150 + 1
+               "53751698604991057655128207624549009038932894407586"  // 200 + 1
+               "85084551339423045832369032229481658085593321233482"  // 250 + 1
+               "74797826204144723168738177180919299881250404026184"  // 300 + 1
+               "124858368"),                                         // 309 + 1
+
+#ifndef BSLS_PLATFORM_OS_AIX
+        D(-Limits::max(), N, 0, "-"                                  //     + 1
+               "17976931348623157081452742373170435679807056752584"  //  50 + 1
+               "49965989174768031572607800285387605895586327668781"  // 100 + 1
+               "71540458953514382464234321326889464182768467546703"  // 150 + 1
+               "53751698604991057655128207624549009038932894407586"  // 200 + 1
+               "85084551339423045832369032229481658085593321233482"  // 250 + 1
+               "74797826204144723168738177180919299881250404026184"  // 300 + 1
+               "124858368.0"),                                       // 311 + 1
+#else
+        // AIX 'sprintf' is "lazy"
+        D(-Limits::max(), N, 0, "-"                                  //     + 1
+               "17976931348623157081452742373170435680000000000000"  //  50 + 1
+               "00000000000000000000000000000000000000000000000000"  // 100 + 1
+               "00000000000000000000000000000000000000000000000000"  // 150 + 1
+               "00000000000000000000000000000000000000000000000000"  // 200 + 1
+               "00000000000000000000000000000000000000000000000000"  // 250 + 1
+               "00000000000000000000000000000000000000000000000000"  // 300 + 1
+               "000000000.0"),                                       // 311 + 1
+#endif
+
+#ifndef BSLS_PLATFORM_OS_AIX
+        D(-Limits::max(), 326, 17, "-"                               //     + 1
+               "17976931348623157081452742373170435679807056752584"  //  50 + 1
+               "49965989174768031572607800285387605895586327668781"  // 100 + 1
+               "71540458953514382464234321326889464182768467546703"  // 150 + 1
+               "53751698604991057655128207624549009038932894407586"  // 200 + 1
+               "85084551339423045832369032229481658085593321233482"  // 250 + 1
+               "74797826204144723168738177180919299881250404026184"  // 300 + 1
+               "124858368.00000000000000000"),                       // 327 + 1
+#else
+        // AIX 'sprintf' is "lazy"
+        D(-Limits::max(), 326, 17, "-"                               //     + 1
+               "17976931348623157081452742373170435680000000000000"  //  50 + 1
+               "00000000000000000000000000000000000000000000000000"  // 100 + 1
+               "00000000000000000000000000000000000000000000000000"  // 150 + 1
+               "00000000000000000000000000000000000000000000000000"  // 200 + 1
+               "00000000000000000000000000000000000000000000000000"  // 250 + 1
+               "00000000000000000000000000000000000000000000000000"  // 300 + 1
+               "000000000.00000000000000000"),                       // 327 + 1
+#endif
+
+        D(-Limits::min(), N, N, "-0."                                //     + 3
+           "00000000000000000000000000000000000000000000000000"      //  50 + 3
+           "00000000000000000000000000000000000000000000000000"      // 100 + 3
+           "00000000000000000000000000000000000000000000000000"      // 150 + 3
+           "00000000000000000000000000000000000000000000000000"      // 200 + 3
+           "00000000000000000000000000000000000000000000000000"      // 250 + 3
+           "00000000000000000000000000000000000000000000000000"      // 300 + 3
+           "000000022250738585072014"),                              // 324 + 3
+
+        D(-Limits::min(), 326, 17, "-0.00000000000000000"),
+
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int   LINE   = DATA[i].d_lineNum;
-                const Type  INPUT  = DATA[i].d_input;
-                const int   TD     = DATA[i].d_maxTotalDigits;
-                const int   FD     = DATA[i].d_maxFractionDigits;
-                const char *RESULT = DATA[i].d_result;
+                const int   LINE      = DATA[i].d_lineNum;
+                const Type  INPUT     = DATA[i].d_input;
+                const char *INPUT_STR = DATA[i].d_inputStr;
+                const int   TD        = DATA[i].d_maxTotalDigits;
+                const int   FD        = DATA[i].d_maxFractionDigits;
+                const char *EXPECTED  = DATA[i].d_expected;
 
                 balxml::EncoderOptions options;
-                options.setMaxDecimalTotalDigits(TD);
-                options.setMaxDecimalFractionDigits(FD);
+                if (TD != N) options.setMaxDecimalTotalDigits(TD);
+                if (FD != N) options.setMaxDecimalFractionDigits(FD);
 
                 bsl::stringstream ss;
 
@@ -5067,17 +4907,14 @@ int main(int argc, char *argv[])
                 if (bdlb::Float::isNan(INPUT) ||
                     bdlb::Float::isInfinite(INPUT)) {
 
-                    ASSERTV(LINE, ss.str(), !ss);
+                    ASSERTV(LINE, INPUT_STR, ss.str(), !ss);
                 }
                 else {
-                    bool rc = testFloatPointResult(ss.str().c_str(), RESULT);
-
-                    ASSERTV(LINE, ss.str(), RESULT, rc);
+                    ASSERTV(LINE, INPUT_STR, ss.str(), EXPECTED,
+                            verifyFloatingPointResult(ss.str(), EXPECTED));
                 }
             }
         }
-
-        if (verbose) cout << "\nEnd of Test." << endl;
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -5181,19 +5018,27 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, ss.str(), RESULT == ss.str());
             }
         }
-
-        if (verbose) cout << "\nEnd of Test." << endl;
       } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
+        //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
+        //: 1 The class is sufficiently functional to enable comprehensive
+        //:   testing in subsequent test cases.
         //
         // Plan:
+        //: 1 Use a string streams as output.
+        //: 2 Write some scalar values in different formatting modes.
+        //: 3 Write 'vector<char>' (stand-in for "binary data) in Base64 & Hex.
+        //
+        // Testing:
+        //   BREATHING TEST
         // --------------------------------------------------------------------
-        if (verbose) bsl::cout << "\nBREATHING TEST"
-                               << "\n==============" << bsl::endl;
+
+        if (verbose) cout << "\nBREATHING TEST"
+                          << "\n==============" << endl;
 
         {
             bsl::stringstream ss;

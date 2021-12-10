@@ -242,7 +242,7 @@ BSLS_IDENT("$Id: $")
 //  |                                         |  + min(distance(a.begin, p1), |
 //  |                                         |        distance(p2, a.end())] |
 //  |-----------------------------------------+-------------------------------|
-//  | a.swap(b), swap(a,b)                    | O[1] if 'a' and 'b' use the   |
+//  | a.swap(b), swap(a, b)                   | O[1] if 'a' and 'b' use the   |
 //  |                                         | same allocator; O[n + m]      |
 //  |                                         | otherwise                     |
 //  |-----------------------------------------+-------------------------------|
@@ -418,6 +418,7 @@ BSL_OVERRIDES_STD mode"
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_assert.h>
+#include <bslmf_isconvertible.h>
 #include <bslmf_issame.h>
 #include <bslmf_matchanytype.h>
 #include <bslmf_matcharithmetictype.h>
@@ -1341,15 +1342,20 @@ class deque : public  Deque_Base<VALUE_TYPE>
 
     void swap(deque<VALUE_TYPE, ALLOCATOR>& other)
                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
-        // Exchange the value of this object with the value of the specified
-        // 'other' object.  Additionally, if
-        // 'bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap' is
-        // 'true', then exchange the allocator of this object with that of the
-        // 'other' object, and do not modify either allocator otherwise.  This
-        // method provides the no-throw exception-safety guarantee and
-        // guarantees 'O[1]' complexity.  The behavior is undefined unless
+        // Exchange the value of this object with that of the specified 'other'
+        // object; also exchange the allocator of this object with that of
+        // 'other' if the (template parameter) type 'ALLOCATOR' has the
+        // 'propagate_on_container_swap' trait, and do not modify either
+        // allocator otherwise.  This method provides the no-throw
+        // exception-safety guarantee.  This operation has 'O[1]' complexity if
         // either this object was created with the same allocator as 'other' or
-        // 'propagate_on_container_swap' is 'true'.
+        // 'ALLOCATOR' has the 'propagate_on_container_swap' trait; otherwise,
+        // it has 'O[n + m]' complexity, where 'n' and 'm' are the number of
+        // elements in this object and 'other', respectively.  Note that this
+        // method's support for swapping objects created with different
+        // allocators when 'ALLOCATOR' does not have the
+        // 'propagate_on_container_swap' trait is a departure from the
+        // C++ Standard.
 
     void clear() BSLS_KEYWORD_NOEXCEPT;
         // Remove all elements from this deque making its size 0.  Note that
@@ -1378,7 +1384,7 @@ template <
     class VALUE,
     class ALLOCATOR,
     class ALLOC,
-    class = bsl::enable_if_t<std::is_convertible<ALLOC *, ALLOCATOR>::value>
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>
     >
 deque(deque<VALUE, ALLOCATOR>, ALLOC *) -> deque<VALUE, ALLOCATOR>;
     // Deduce the template parameters 'VALUE' and 'ALLOCATOR' from the
@@ -1390,9 +1396,9 @@ template <
     class VALUE,
     class ALLOC,
     class ALLOCATOR = bsl::allocator<VALUE>,
-    class = bsl::enable_if_t<std::is_convertible_v<ALLOC *, ALLOCATOR>>,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>,
     class = bsl::enable_if_t<
-              std::is_convertible_v<
+              bsl::is_convertible_v<
               SIZE_TYPE, typename bsl::allocator_traits<ALLOCATOR>::size_type>>
     >
 deque(SIZE_TYPE, VALUE, ALLOC *) -> deque<VALUE, ALLOCATOR>;
@@ -1424,7 +1430,7 @@ template<
     class ALLOC,
     class VALUE = typename bsl::iterator_traits<INPUT_ITERATOR>::value_type,
     class ALLOCATOR = bsl::allocator<VALUE>,
-    class = bsl::enable_if_t<std::is_convertible<ALLOC *, ALLOCATOR>::value>>
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>>
 deque(INPUT_ITERATOR, INPUT_ITERATOR, ALLOC *)
 -> deque<VALUE, ALLOCATOR>;
     // Deduce the template parameter 'VALUE' from the 'value_type' of the
@@ -1436,7 +1442,7 @@ template<
     class VALUE,
     class ALLOC,
     class ALLOCATOR = bsl::allocator<VALUE>,
-    class = bsl::enable_if_t<std::is_convertible<ALLOC *, ALLOCATOR>::value>>
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>>
 deque(std::initializer_list<VALUE>, ALLOC *)
 -> deque<VALUE, ALLOCATOR>;
     // Deduce the template parameter 'VALUE' from the 'value_type' of the
@@ -1522,18 +1528,19 @@ bool operator>=(const deque<VALUE_TYPE, ALLOCATOR>& lhs,
 template <class VALUE_TYPE, class ALLOCATOR>
 void swap(deque<VALUE_TYPE, ALLOCATOR>& a, deque<VALUE_TYPE, ALLOCATOR>& b)
                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
-    // Exchange the value of the specified 'a' object with the value of the
-    // specified 'b' object.  Additionally, if
-    // 'bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap' is
-    // 'true', then exchange the allocator of 'a' with that of 'b'.  If
-    // 'propagate_on_container_swap' is 'true' or 'a' and 'b' were created with
-    // the same allocator, then this method provides the no-throw
-    // exception-safety guarantee and has 'O[1]' complexity; otherwise, this
-    // method has 'O[n + m]' complexity, where 'n' and 'm' are the number of
-    // elements in 'a' and 'b', respectively.  Note that 'a' and 'b' are left
-    // in valid but unspecified states if an exception is thrown, e.g., in the
-    // case where 'propagate_on_container_swap' is 'false' and 'a' and 'b' were
-    // created with different allocators.
+    // Exchange the value of the specified 'a' object with that of the
+    // specified 'b' object; also exchange the allocator of 'a' with that of
+    // 'b' if the (template parameter) type 'ALLOCATOR' has the
+    // 'propagate_on_container_swap' trait, and do not modify either allocator
+    // otherwise.  This function provides the no-throw exception-safety
+    // guarantee.  This operation has 'O[1]' complexity if either 'a' was
+    // created with the same allocator as 'b' or 'ALLOCATOR' has the
+    // 'propagate_on_container_swap' trait; otherwise, it has 'O[n + m]'
+    // complexity, where 'n' and 'm' are the number of elements in 'a' and 'b',
+    // respectively.  Note that this function's support for swapping objects
+    // created with different allocators when 'ALLOCATOR' does not have the
+    // 'propagate_on_container_swap' trait is a departure from the C++
+    // Standard.
 
                       // ========================
                       // class Deque_BlockCreator

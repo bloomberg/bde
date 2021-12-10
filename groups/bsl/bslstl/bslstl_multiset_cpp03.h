@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Mon Dec  6 07:36:48 2021
+// Generated on Fri Dec 10 07:29:29 2021
 // Command line: sim_cpp11_features.pl bslstl_multiset.h
 
 #ifdef COMPILING_BSLSTL_MULTISET_H
@@ -798,15 +798,23 @@ class multiset {
         // 'last' position in the ordered sequence provided by this container.
 
     void swap(multiset& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
-        // Exchange the value and comparator of this object with the value and
-        // comparator of the specified 'other' object.  Additionally, if
-        // 'bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap' is
-        // 'true', then exchange the allocator of this object with that of the
-        // 'other' object, and do not modify either allocator otherwise.  This
-        // method provides the no-throw exception-safety guarantee and
-        // guarantees 'O[1]' complexity.  The behavior is undefined unless
-        // either this object was created with the same allocator as 'other' or
-        // 'propagate_on_container_swap' is 'true'.
+        // Exchange the value and comparator of this object with those of the
+        // specified 'other' object; also exchange the allocator of this object
+        // with that of 'other' if the (template parameter) type 'ALLOCATOR'
+        // has the 'propagate_on_container_swap' trait, and do not modify
+        // either allocator otherwise.  This method provides the no-throw
+        // exception-safety guarantee if and only if the (template parameter)
+        // type 'COMPARATOR' provides a no-throw swap operation, and provides
+        // the basic exception-safety guarantee otherwise; if an exception is
+        // thrown, both objects are left in valid but unspecified states.  This
+        // operation has 'O[1]' complexity if either this object was created
+        // with the same allocator as 'other' or 'ALLOCATOR' has the
+        // 'propagate_on_container_swap' trait; otherwise, it has 'O[n + m]'
+        // complexity, where 'n' and 'm' are the number of elements in this
+        // object and 'other', respectively.  Note that this method's support
+        // for swapping objects created with different allocators when
+        // 'ALLOCATOR' does not have the 'propagate_on_container_swap' trait is
+        // a departure from the C++ Standard.
 
     void clear() BSLS_KEYWORD_NOEXCEPT;
         // Remove all entries from this multiset.  Note that the multiset is
@@ -1452,19 +1460,23 @@ template <class KEY, class COMPARATOR, class ALLOCATOR>
 void swap(multiset<KEY, COMPARATOR, ALLOCATOR>& a,
           multiset<KEY, COMPARATOR, ALLOCATOR>& b)
                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
-    // Exchange the value and comparator of the specified 'a' object with the
-    // value and comparator of the specified 'b' object.  Additionally, if
-    // 'bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap' is
-    // 'true', then exchange the allocator of 'a' with that of 'b'.  If
-    // 'propagate_on_container_swap' is 'true' or 'a' and 'b' were created with
-    // the same allocator, then this method provides the no-throw
-    // exception-safety guarantee and has 'O[1]' complexity; otherwise, this
-    // method has 'O[n + m]' complexity, where 'n' and 'm' are the number of
-    // elements in 'a' and 'b', respectively.  Note that 'a' and 'b' are left
-    // in valid but unspecified states if an exception is thrown (in the case
-    // where 'propagate_on_container_swap' is 'false' and 'a' and 'b' were
-    // created with different allocators), such as when the comparator objects
-    // are swapped.
+    // Exchange the value and comparator of the specified 'a' object with those
+    // of the specified 'b' object; also exchange the allocator of 'a' with
+    // that of 'b' if the (template parameter) type 'ALLOCATOR' has the
+    // 'propagate_on_container_swap' trait, and do not modify either allocator
+    // otherwise.  This function provides the no-throw exception-safety
+    // guarantee if and only if the (template parameter) type 'COMPARATOR'
+    // provides a no-throw swap operation, and provides the basic
+    // exception-safety guarantee otherwise; if an exception is thrown, both
+    // objects are left in valid but unspecified states.  This operation has
+    // 'O[1]' complexity if either 'a' was created with the same allocator as
+    // 'b' or 'ALLOCATOR' has the 'propagate_on_container_swap' trait;
+    // otherwise, it has 'O[n + m]' complexity, where 'n' and 'm' are the
+    // number of elements in 'a' and 'b', respectively.  Note that this
+    // function's support for swapping objects created with different
+    // allocators when 'ALLOCATOR' does not have the
+    // 'propagate_on_container_swap' trait is a departure from the C++
+    // Standard.
 
 // ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
@@ -3076,10 +3088,6 @@ void multiset<KEY, COMPARATOR, ALLOCATOR>::swap(multiset& other)
     else {
         // C++11 behavior for member 'swap': undefined for unequal allocators.
         // BSLS_ASSERT(allocator() == other.allocator());
-
-        // C++17 behavior for free 'swap': *defined* for unequal allocators (if
-        // a Bloomberg proposal to that effect is accepted).  Note that free
-        // 'swap' currently forwards to this implementation.
 
         if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
                nodeFactory().allocator() == other.nodeFactory().allocator())) {

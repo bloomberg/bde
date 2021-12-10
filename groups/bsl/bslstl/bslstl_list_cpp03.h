@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Tue Nov 23 07:12:08 2021
+// Generated on Wed Dec  1 13:29:03 2021
 // Command line: sim_cpp11_features.pl bslstl_list.h
 
 #ifdef COMPILING_BSLSTL_LIST_H
@@ -1593,15 +1593,20 @@ class list {
                               // *** misc ***
 
     void swap(list& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
-        // Exchange the value of this object with the value of the specified
-        // 'other' object.  Additionally, if
-        // 'bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap' is
-        // 'true', then exchange the allocator of this object with that of the
-        // 'other' object, and do not modify either allocator otherwise.  This
-        // method provides the no-throw exception-safety guarantee and
-        // guarantees 'O[1]' complexity.  The behavior is undefined unless
+        // Exchange the value of this object with that of the specified 'other'
+        // object; also exchange the allocator of this object with that of
+        // 'other' if the (template parameter) type 'ALLOCATOR' has the
+        // 'propagate_on_container_swap' trait, and do not modify either
+        // allocator otherwise.  This method provides the no-throw
+        // exception-safety guarantee.  This operation has 'O[1]' complexity if
         // either this object was created with the same allocator as 'other' or
-        // 'propagate_on_container_swap' is 'true'.
+        // 'ALLOCATOR' has the 'propagate_on_container_swap' trait; otherwise,
+        // it has 'O[n + m]' complexity, where 'n' and 'm' are the number of
+        // elements in this object and 'other', respectively.  Note that this
+        // method's support for swapping objects created with different
+        // allocators when 'ALLOCATOR' does not have the
+        // 'propagate_on_container_swap' trait is a departure from the
+        // C++ Standard.
 
     // ACCESSORS
 
@@ -1671,7 +1676,7 @@ template <
     class VALUE,
     class ALLOCATOR,
     class ALLOC,
-    class = bsl::enable_if_t<std::is_convertible<ALLOC *, ALLOCATOR>::value>
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>
     >
 list(list<VALUE, ALLOCATOR>, ALLOC *) -> list<VALUE, ALLOCATOR>;
     // Deduce the template parameters 'VALUE' and 'ALLOCATOR' from the
@@ -1683,9 +1688,9 @@ template <
     class VALUE,
     class ALLOC,
     class ALLOCATOR = bsl::allocator<VALUE>,
-    class = bsl::enable_if_t<std::is_convertible<ALLOC *, ALLOCATOR>::value>,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>,
     class = bsl::enable_if_t<
-              std::is_convertible_v<
+              bsl::is_convertible_v<
               SIZE_TYPE, typename bsl::allocator_traits<ALLOCATOR>::size_type>>
     >
 list(SIZE_TYPE, VALUE, ALLOC *) -> list<VALUE, ALLOCATOR>;
@@ -1715,7 +1720,7 @@ template<
     class ALLOC,
     class VALUE = typename bsl::iterator_traits<INPUT_ITERATOR>::value_type,
     class ALLOCATOR = bsl::allocator<VALUE>,
-    class = bsl::enable_if_t<std::is_convertible<ALLOC *, ALLOCATOR>::value>>
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>>
 list(INPUT_ITERATOR, INPUT_ITERATOR, ALLOC *)
 -> list<VALUE, ALLOCATOR>;
     // Deduce the template parameters 'VALUE' and 'ALLOCATOR' from the
@@ -1725,7 +1730,7 @@ template<
     class VALUE,
     class ALLOC,
     class ALLOCATOR = bsl::allocator<VALUE>,
-    class = bsl::enable_if_t<std::is_convertible<ALLOC *, ALLOCATOR>::value>>
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>>
 list(std::initializer_list<VALUE>, ALLOC *)
 -> list<VALUE, ALLOCATOR>;
     // Deduce the template parameters 'VALUE' and 'ALLOCATOR' from the
@@ -1810,18 +1815,19 @@ bool operator>=(const list<VALUE, ALLOCATOR>& lhs,
 template <class VALUE, class ALLOCATOR>
 void swap(list<VALUE, ALLOCATOR>& a, list<VALUE, ALLOCATOR>& b)
                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
-    // Exchange the value and comparator of the specified 'a' object with the
-    // value and comparator of the specified 'b' object.  Additionally, if
-    // 'bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap' is
-    // 'true', then exchange the allocator of 'a' with that of 'b'.  If
-    // 'propagate_on_container_swap' is 'true' or 'a' and 'b' were created with
-    // the same allocator, then this method provides the no-throw
-    // exception-safety guarantee and has 'O[1]' complexity; otherwise, this
-    // method has 'O[n + m]' complexity, where 'n' and 'm' are the number of
-    // elements in 'a' and 'b', respectively.  Note that 'a' and 'b' are left
-    // in valid but unspecified states if an exception is thrown (in the case
-    // where 'propagate_on_container_swap' is 'false' and 'a' and 'b' were
-    // created with different allocators).
+    // Exchange the value of the specified 'a' object with that of the
+    // specified 'b' object; also exchange the allocator of 'a' with that of
+    // 'b' if the (template parameter) type 'ALLOCATOR' has the
+    // 'propagate_on_container_swap' trait, and do not modify either allocator
+    // otherwise.  This function provides the no-throw exception-safety
+    // guarantee.  This operation has 'O[1]' complexity if either 'a' was
+    // created with the same allocator as 'b' or 'ALLOCATOR' has the
+    // 'propagate_on_container_swap' trait; otherwise, it has 'O[n + m]'
+    // complexity, where 'n' and 'm' are the number of elements in 'a' and 'b',
+    // respectively.  Note that this function's support for swapping objects
+    // created with different allocators when 'ALLOCATOR' does not have the
+    // 'propagate_on_container_swap' trait is a departure from the C++
+    // Standard.
 
 // ============================================================================
 //                   INLINE AND TEMPLATE FUNCTION DEFINITIONS
@@ -4060,10 +4066,6 @@ void list<VALUE, ALLOCATOR>::swap(list& other)
 {
     // C++11 behavior for member 'swap': undefined for unequal allocators.
     // BSLS_ASSERT(allocatorImp() == other.allocatorImp());
-
-    // C++17 behavior for free 'swap': *defined* for unequal allocators (if a
-    // Bloomberg proposal to that effect is accepted).  Note that free 'swap'
-    // currently forwards to this implementation.
 
     if (AllocTraits::propagate_on_container_swap::value) {
         using std::swap;

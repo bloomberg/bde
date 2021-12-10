@@ -1,5 +1,26 @@
-bsl-internal (3.94.0.0) unstable; urgency=low
+bsl-internal (3.95.0.0) unstable; urgency=low
 
+  * f84e912f4 Bumped version to 3.95.0.0
+  * f34c01162 Drqs 167916160 baljsn balxml ryu changes (#3503)
+  * 15a7b2b76 Merge pull request #3490 from mclow3/CTAD-StdConvertible
+  * 2e3f2eeb7 Transparent comparators have been added. DRQS 164220683 (#3462)
+  * b667a44df Merge pull request #3501 from jmendelsohn4/drqs-167903305/bslmt_timedsemaphore-nb-20211201
+  * 653b33954 Merge pull request #3499 from sbreitst/bdlt_datetime-doc-drqs-167892298
+  * 6c97a6aa0 cleaning up ; warnings in uses of BSLS_LINKCOERCION (#3497)
+  * e2cd038ac Fix accidentally-quadratic repeated calls to BlobUtil::append() (#3483)
+  * e6d7ef0e8 Merge pull request #3495 from jmendelsohn4/drqs-166024031/bslmt_timedsemaphore-windows-early-return
+  * 971464b11 Add class template deduction guides to bsl::stack (#3487)
+  * e01223f0e Add class template deduction guides to bsl::queue (#3488)
+  * 792a23cd1 Refactor s_baltst: Provide 1-1 map from XSD's to components (#3470)
+  * 5d10a65e5 Add class template deduction guides to bsl::deque (#3480)
+  * 69fe2bfe3 Add class template deduction guides to bsl::vector (#3479)
+  * ff445582b Add template deduction guides for bsl::list (second try) (#3468)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 3 Dec 2021 20:01:31 -0500
+
+bsl-internal (3.94.0.0) git; urgency=low
+
+  * f31e8f001 Changelog for version 3.94.0.0
   * 36dc0b484 Bumped version to 3.94.0.0
   * 53e349a58 Baljsn datumutil decode key error drqs166186464 (#3469)
   * 668dfca7f Pool memory for shared ptr ball record (DRQS 165886076) (#3465)
@@ -12,7 +33,7 @@ bsl-internal (3.94.0.0) unstable; urgency=low
   * c8b2415c6 drqs-167627529: 'bslh_hashpair.t.cpp': Nightly build issues. (#3466)
   * c1d8e6d89 adding tests for clocks matching (#3464)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 20 Nov 2021 22:23:43 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 20 Nov 2021 22:29:36 -0500
 
 bsl-internal (3.93.0.0) git; urgency=low
 

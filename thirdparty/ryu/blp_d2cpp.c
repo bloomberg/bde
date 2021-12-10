@@ -707,7 +707,7 @@ static inline bool d2d_small_int(const uint64_t ieeeMantissa, const uint32_t iee
     return false;
   }
 
-  if (e2 < -52) {
+  if (e2 < -(DOUBLE_MANTISSA_BITS)) {
     // f < 1.
     return false;
   }

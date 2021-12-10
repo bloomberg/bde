@@ -251,7 +251,14 @@ int WaitForTimeout(bslmt::TimedSemaphore& mX, int secondsToWait)
                                            bsl::chrono::seconds(secondsToWait);
     int                        ret = mX.timedWait(tp);
     if (bslmt::TimedSemaphore::e_TIMED_OUT == ret) {
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+        // On Windows, 'timedWait' may return early due to rounding of the time
+        // to "ticks".
+
+        ASSERT(CLOCK::now() + bsl::chrono::microseconds(500) >= tp);
+#else
         ASSERT(CLOCK::now() >= tp);
+#endif
     }
     return ret;
 }
@@ -336,7 +343,16 @@ int main(int argc, char *argv[])
             bsls::TimeInterval ti = bsls::SystemTime::nowRealtimeClock() +
                                     bsls::TimeInterval(1);
             ASSERT(0 != mX.timedWait(ti));
+
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+            // On Windows, 'timedWait' may return early due to rounding of the
+            // time to "ticks".
+
+            ASSERT(bsls::SystemTime::nowRealtimeClock()
+                                        + bsls::TimeInterval(0, 500000) >= ti);
+#else
             ASSERT(bsls::SystemTime::nowRealtimeClock() >= ti);
+#endif
         }
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
         {

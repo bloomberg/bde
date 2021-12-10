@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Oct 21 10:11:37 2021
+// Generated on Wed Dec  1 13:29:03 2021
 // Command line: sim_cpp11_features.pl bslstl_unorderedmap.h
 
 #ifdef COMPILING_BSLSTL_UNORDEREDMAP_H
@@ -1005,17 +1005,19 @@ class unordered_map {
         // 'numElements <= size()'.
 
     void swap(unordered_map& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
-        // Exchange the value of this object as well as its hasher,
-        // key-equality functor, and 'max_load_factor' with those of the
-        // specified 'other' object.  If the 'ALLOCATOR' type has the trait
-        // 'propagate_on_container_swap', exchange the allocator of this object
-        // with that of the 'other' object, and do not modify either allocator
-        // otherwise.  This method provides the no-throw exception-safety
-        // guarantee and guarantees 'O[1]' complexity, as long as the (template
-        // parameter) 'HASH' and (template parameter) 'EQUAL' do not throw when
-        // swapped.  The behavior is undefined unless either this object was
-        // created with the same allocator as 'other' or the 'ALLOCATOR' type
-        // has the 'propagate_on_container_swap' trait.
+        // Exchange the value, hasher, key-equality functor, and
+        // 'max_load_factor' of this object with those of the specified 'other'
+        // object; also exchange the allocator of this object with that of
+        // 'other' if the (template parameter) type 'ALLOCATOR' has the
+        // 'propagate_on_container_swap' trait, and do not modify either
+        // allocator otherwise.  This method provides the no-throw
+        // exception-safety guarantee if and only if both the (template
+        // parameter) types 'HASH' and 'EQUAL' provide no-throw swap
+        // operations; if an exception is thrown, both objects are left in
+        // valid but unspecified states.  This operation guarantees 'O[1]'
+        // complexity.  The behavior is undefined unless either this object was
+        // created with the same allocator as 'other' or 'ALLOCATOR' has the
+        // 'propagate_on_container_swap' trait.
 
     // ACCESSORS
     typename add_lvalue_reference<const VALUE>::type at(const key_type& key)
@@ -1234,16 +1236,18 @@ template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 void swap(unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& a,
           unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& b)
                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
-    // Exchange the value, the hasher, the key-equality functor, and the
-    // 'max_load_factor' of the specified 'a' object with those of the
-    // specified 'b' object.  If the (template parameter) type 'ALLOCATOR' has
-    // the trait 'propagate_on_container_swap', exchange the allocator of 'a'
-    // with that of 'b', and do not modify either allocator otherwise.  This
-    // function provides the no-throw exception-safety guarantee and guarantees
-    // 'O[1]' complexity, as long as the (template parameter) type 'HASH' and
-    // the (template parameter) type 'EQUAL' do not throw when swapped.  The
-    // behavior is undefined unless 'a' and 'b' were created with the same
-    // allocator, or 'ALLOCATOR' has the 'propagate_on_container_swap' trait.
+    // Exchange the value, hasher, key-equality functor, and 'max_load_factor'
+    // of the specified 'a' object with those of the specified 'b' object; also
+    // exchange the allocator of 'a' with that of 'b' if the (template
+    // parameter) type 'ALLOCATOR' has the 'propagate_on_container_swap' trait,
+    // and do not modify either allocator otherwise.  This function provides
+    // the no-throw exception-safety guarantee if and only if both the
+    // (template parameter) types 'HASH' and 'EQUAL' provide no-throw swap
+    // operations; if an exception is thrown, both objects are left in valid
+    // but unspecified states.  This operation guarantees 'O[1]' complexity.
+    // The behavior is undefined unless either 'a' was created with the same
+    // allocator as 'b' or 'ALLOCATOR' has the 'propagate_on_container_swap'
+    // trait.
 
 }  // close namespace bsl
 

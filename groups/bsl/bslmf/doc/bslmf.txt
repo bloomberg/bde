@@ -4,7 +4,7 @@
 
 @MNEMONIC: Basic Standard Library Meta-Functions (bslmf)
 
-@DESCRIPTION: The 'bdemf' package provides meta-function equivalents of certain
+@DESCRIPTION: The 'bslmf' package provides meta-function equivalents of certain
  useful coding constructs.  A meta-function is a template-based, compile-time
  construct that behaves like a (runtime) function in that it "evaluates"
  arguments and does something different based on the input it is passed (in the
@@ -52,7 +52,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslmf' package currently has 82 components having 19 levels of physical
+ The 'bslmf' package currently has 83 components having 19 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -111,6 +111,7 @@
       bslmf_isvoid
       bslmf_memberfunctionpointertraits
       bslmf_removecvq
+      bslmf_removecvref
 
    5. bslmf_addpointer
       bslmf_addreference
@@ -367,6 +368,9 @@
 :
 : 'bslmf_removecvq':
 :      Provide a meta-function for removing 'const'/'volatile' qualifiers.
+:
+: 'bslmf_removecvref':
+:      Provide a meta-function for removing cv-qualifiers and reference-ness.
 :
 : 'bslmf_removeextent':
 :      Provide a metafunction to return an array type's element type.

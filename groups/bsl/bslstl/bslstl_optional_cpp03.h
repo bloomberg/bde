@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Oct 21 10:11:37 2021
+// Generated on Wed Dec  8 13:55:53 2021
 // Command line: sim_cpp11_features.pl bslstl_optional.h
 
 #ifdef COMPILING_BSLSTL_OPTIONAL_H
@@ -161,17 +161,6 @@ struct Optional_IsTriviallyDestructible : bsl::is_trivially_copyable<TYPE> {
 
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
-                         // ==========================
-                         // class Optional_RemoveCVRef
-                         // ==========================
-
-template <class TYPE>
-struct Optional_RemoveCVRef {
-    // Remove CV qualifiers and references from 'TYPE'.
-    typedef typename bsl::remove_cv<
-        typename bsl::remove_reference<TYPE>::type>::type type;
-};
-
 // As in 'std' implementation, if the 'TYPE' converts from any value category
 // of an optional type 'OPT_TYPE', we consider it convertible from that
 // optional type.
@@ -204,27 +193,23 @@ struct Optional_RemoveCVRef {
 #define BSLSTL_OPTIONAL_CONVERTS_FROM_BSL_OPTIONAL(TYPE, ANY_TYPE)            \
     BSLSTL_OPTIONAL_CONVERTS_FROM(                                            \
         TYPE,                                                                 \
-        bsl::optional<typename BloombergLP::bslstl::Optional_RemoveCVRef<     \
-            ANY_TYPE>::type>)
+        bsl::optional<typename bsl::remove_cvref<ANY_TYPE>::type>)
 
 #define BSLSTL_OPTIONAL_ASSIGNS_FROM_BSL_OPTIONAL(TYPE, ANY_TYPE)             \
     BSLSTL_OPTIONAL_ASSIGNS_FROM(                                             \
         TYPE,                                                                 \
-        bsl::optional<typename BloombergLP::bslstl::Optional_RemoveCVRef<     \
-            ANY_TYPE>::type>)
+        bsl::optional<typename bsl::remove_cvref<ANY_TYPE>::type>)
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 #define BSLSTL_OPTIONAL_CONVERTS_FROM_STD_OPTIONAL(TYPE, ANY_TYPE)            \
     BSLSTL_OPTIONAL_CONVERTS_FROM(                                            \
         TYPE,                                                                 \
-        std::optional<typename BloombergLP::bslstl::Optional_RemoveCVRef<     \
-            ANY_TYPE>::type>)
+        std::optional<typename bsl::remove_cvref<ANY_TYPE>::type>)
 
 #define BSLSTL_OPTIONAL_ASSIGNS_FROM_STD_OPTIONAL(TYPE, ANY_TYPE)             \
     BSLSTL_OPTIONAL_ASSIGNS_FROM(                                             \
         TYPE,                                                                 \
-        std::optional<typename BloombergLP::bslstl::Optional_RemoveCVRef<     \
-            ANY_TYPE>::type>)
+        std::optional<typename bsl::remove_cvref<ANY_TYPE>::type>)
 #else
 // The value of these macros is chosen to not affect the constraints these
 // macros appears in.
@@ -256,17 +241,13 @@ struct Optional_ConstructsFromType
 : bsl::integral_constant<
       bool,
       !bsl::is_same<ANY_TYPE, TYPE>::value &&
-           !bsl::is_same<typename BloombergLP::bslstl::Optional_RemoveCVRef<
-                            ANY_TYPE>::type,
+          !bsl::is_same<typename bsl::remove_cvref<ANY_TYPE>::type,
                         bsl::optional<TYPE> >::value &&
-          !bsl::is_same<typename BloombergLP::bslstl::Optional_RemoveCVRef<
-                            ANY_TYPE>::type,
+          !bsl::is_same<typename bsl::remove_cvref<ANY_TYPE>::type,
                         bsl::nullopt_t>::value &&
-          !bsl::is_same<typename BloombergLP::bslstl::Optional_RemoveCVRef<
-                            ANY_TYPE>::type,
+          !bsl::is_same<typename bsl::remove_cvref<ANY_TYPE>::type,
                         bsl::in_place_t>::value &&
-          !bsl::is_same<typename BloombergLP::bslstl::Optional_RemoveCVRef<
-                            ANY_TYPE>::type,
+          !bsl::is_same<typename bsl::remove_cvref<ANY_TYPE>::type,
                         bsl::allocator_arg_t>::value &&
           BSLSTL_OPTIONAL_IS_CONSTRUCTIBLE(TYPE, ANY_TYPE, true)> {
     // This metafunction is derived from 'bsl::true_type' if 'ANY_TYPE' is not
@@ -280,7 +261,7 @@ struct Optional_ConstructsFromType
                                                                ANY_TYPE)      \
     typename bsl::enable_if<                                                  \
         !BSLSTL_OPTIONAL_CONVERTS_FROM_BSL_OPTIONAL(TYPE, ANY_TYPE) &&        \
-            BSLSTL_OPTIONAL_IS_CONSTRUCTIBLE(TYPE, ANY_TYPE, true),         \
+            BSLSTL_OPTIONAL_IS_CONSTRUCTIBLE(TYPE, ANY_TYPE, true),           \
         BloombergLP::bslstl::Optional_OptNoSuchType>::type
 
 #define BSLSTL_OPTIONAL_DECLARE_IF_CONSTRUCTS_FROM_BSL_OPTIONAL(TYPE,         \
@@ -380,16 +361,16 @@ struct Optional_ConstructsFromType
 #define BSLSTL_OPTIONAL_ENABLE_ASSIGN_FROM_BSL_OPTIONAL(TYPE, ANY_TYPE)       \
     typename bsl::enable_if<                                                  \
         !BSLSTL_OPTIONAL_CONVERTS_FROM_BSL_OPTIONAL(TYPE, ANY_TYPE) &&        \
-            BSLSTL_OPTIONAL_IS_CONSTRUCTIBLE(TYPE, ANY_TYPE, true) &&       \
-            BSLSTL_OPTIONAL_IS_ASSIGNABLE(TYPE&, ANY_TYPE, true) &&         \
+            BSLSTL_OPTIONAL_IS_CONSTRUCTIBLE(TYPE, ANY_TYPE, true) &&         \
+            BSLSTL_OPTIONAL_IS_ASSIGNABLE(TYPE&, ANY_TYPE, true) &&           \
             !BSLSTL_OPTIONAL_ASSIGNS_FROM_BSL_OPTIONAL(TYPE, ANY_TYPE),       \
         optional<TYPE> >::type
 
 #define BSLSTL_OPTIONAL_ENABLE_ASSIGN_FROM_STD_OPTIONAL(TYPE, ANY_TYPE)       \
     typename bsl::enable_if<                                                  \
         !BSLSTL_OPTIONAL_CONVERTS_FROM_STD_OPTIONAL(TYPE, ANY_TYPE) &&        \
-            BSLSTL_OPTIONAL_IS_CONSTRUCTIBLE(TYPE, ANY_TYPE, true) &&       \
-            BSLSTL_OPTIONAL_IS_ASSIGNABLE(TYPE&, ANY_TYPE, true) &&         \
+            BSLSTL_OPTIONAL_IS_CONSTRUCTIBLE(TYPE, ANY_TYPE, true) &&         \
+            BSLSTL_OPTIONAL_IS_ASSIGNABLE(TYPE&, ANY_TYPE, true) &&           \
             !BSLSTL_OPTIONAL_ASSIGNS_FROM_STD_OPTIONAL(TYPE, ANY_TYPE),       \
         optional<TYPE> >::type
 
@@ -399,14 +380,14 @@ struct Optional_ConstructsFromType
             !(bsl::is_same<ANY_TYPE,                                          \
                            typename bsl::decay<TYPE>::type>::value &&         \
               std::is_scalar<TYPE>::value) &&                                 \
-            BSLSTL_OPTIONAL_IS_CONSTRUCTIBLE(TYPE, ANY_TYPE, true) &&       \
-            BSLSTL_OPTIONAL_IS_ASSIGNABLE(TYPE&, ANY_TYPE, true),           \
+            BSLSTL_OPTIONAL_IS_CONSTRUCTIBLE(TYPE, ANY_TYPE, true) &&         \
+            BSLSTL_OPTIONAL_IS_ASSIGNABLE(TYPE&, ANY_TYPE, true),             \
         optional<TYPE> >::type
 
 #define BSLSTL_OPTIONAL_ENABLE_IF_NOT_ALLOCATOR_TAG(ARG)                      \
     typename bsl::enable_if<                                                  \
         !bsl::is_same<                                                        \
-            typename BloombergLP::bslstl::Optional_RemoveCVRef<ARG>::type,    \
+            typename bsl::remove_cvref<ARG>::type,                            \
             bsl::allocator_arg_t>::value,                                     \
         optional<TYPE> >::type
 
@@ -4146,17 +4127,18 @@ class optional<TYPE, false> {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
 // CLASS TEMPLATE DEDUCTION GUIDES
 
-template<class TYPE>
+template <class TYPE>
 optional(TYPE) -> optional<TYPE>;
     // Deduce the specified type 'TYPE' from the corresponding type supplied to
     // the constructor of 'optional'.
 
 template <class TYPE,
           class ALLOC,
-          class = typename bsl::enable_if<
-                    BloombergLP::bslma::UsesBslmaAllocator<TYPE>::value>::type,
-          class = typename bsl::enable_if<
-                std::is_convertible<ALLOC, bsl::allocator<char>>::value>::type>
+          class = typename bsl::enable_if_t<
+                    BloombergLP::bslma::UsesBslmaAllocator<TYPE>::value>,
+          class = typename bsl::enable_if_t<
+                bsl::is_convertible_v<ALLOC, bsl::allocator<char>>>
+          >
 optional(bsl::allocator_arg_t, ALLOC, TYPE)
 -> optional<TYPE>;
     // Deduce the specified type 'TYPE' from the corresponding type supplied to
@@ -4167,10 +4149,11 @@ optional(bsl::allocator_arg_t, ALLOC, TYPE)
 
 template <class TYPE,
           class ALLOC,
-          class = typename bsl::enable_if<
-                    BloombergLP::bslma::UsesBslmaAllocator<TYPE>::value>::type,
-          class = typename bsl::enable_if<
-                std::is_convertible<ALLOC, bsl::allocator<char>>::value>::type>
+          class = typename bsl::enable_if_t<
+                    BloombergLP::bslma::UsesBslmaAllocator<TYPE>::value>,
+          class = typename bsl::enable_if_t<
+                bsl::is_convertible_v<ALLOC, bsl::allocator<char>>>
+          >
 optional(bsl::allocator_arg_t, ALLOC, optional<TYPE>)
 -> optional<TYPE>;
     // Deduce the specified type 'TYPE' from the corresponding template

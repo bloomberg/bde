@@ -51,9 +51,9 @@ const bool EncoderOptions::DEFAULT_INITIALIZER_ENCODE_INF_AND_NA_N_AS_STRINGS = 
 
 const int EncoderOptions::DEFAULT_INITIALIZER_DATETIME_FRACTIONAL_SECOND_PRECISION = 3;
 
-const int EncoderOptions::DEFAULT_INITIALIZER_MAX_FLOAT_PRECISION = bsl::numeric_limits<float>::digits10;
+const int EncoderOptions::DEFAULT_INITIALIZER_MAX_FLOAT_PRECISION = 0;
 
-const int EncoderOptions::DEFAULT_INITIALIZER_MAX_DOUBLE_PRECISION = bsl::numeric_limits<double>::digits10;
+const int EncoderOptions::DEFAULT_INITIALIZER_MAX_DOUBLE_PRECISION = 0;
 
 const bool EncoderOptions::DEFAULT_INITIALIZER_ENCODE_QUOTED_DECIMAL64 = true;
 

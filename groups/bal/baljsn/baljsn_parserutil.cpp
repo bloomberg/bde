@@ -222,13 +222,13 @@ int ParserUtil::getUnquotedString(bsl::string             *value,
                 int increment = 3;
 
                 // Check for supplementary plane encodings.  These consist of a
-                // pair of unicode 16-bit values, the first in 'D800..DBFF' and
+                // pair of Unicode 16-bit values, the first in 'D800..DBFF' and
                 // the second in 'DC00..DFFF'.
 
                 unsigned int first = utf32input;
 
                 if (0xD800 <= first && first <= 0xDBFF) {
-                    // Check that another unicode escape sequence follows.
+                    // Check that another Unicode escape sequence follows.
                     if (iter + 2 * k_NUM_UNICODE_DIGITS + 1 >= end) {
                         return -1;                                    // RETURN
                     }

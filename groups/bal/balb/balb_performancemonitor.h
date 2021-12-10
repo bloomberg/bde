@@ -553,7 +553,7 @@ class PerformanceMonitor {
         // Destroy this object.
 
     // MANIPULATORS
-    int registerPid(int pid, const bsl::string& description);
+    int registerPid(int pid, const bsl::string_view& description);
         // Register the specified process 'pid' having the specified
         // user-defined 'description' with this performance monitor.  After
         // registration, performance statistics will be collected for the
@@ -660,17 +660,20 @@ struct PerformanceMonitor_LinuxProcStatistics {
 
   private:
     // NOT IMPLEMENTED
-    PerformanceMonitor_LinuxProcStatistics(
-                                const PerformanceMonitor_LinuxProcStatistics&);
 
   public:
-    // CREATOR
+    // CREATORS
     PerformanceMonitor_LinuxProcStatistics();
         // Default construct all fields in this object.
 
-    // MANIPULATOR
-    // PerformanceMonitor_LinuxProcStatistics& operator=(
+    // PerformanceMonitor_LinuxProcStatistics(
     //                const PerformanceMonitor_LinuxProcStatistics&) = default;
+
+    // MANIPULATORS
+    // PerformanceMonitor_LinuxProcStatistics& operator=(
+    //            const PerformanceMonitor_LinuxProcStatistics& rhs) = default;
+        // Copy all fields of the specified 'rhs' to this object, and return a
+        // reference to it.
 
     int parseProcStatString(const bsl::string& procStatString, int pid);
         // Parse the specified 'procStatString' and populate all the fields in

@@ -159,7 +159,7 @@ BSLS_IDENT("$Id: $")
 //  |-----------------------------------------+-------------------------------|
 //  | a.erase(p1, p2)                         | O[1 + distance(p1, a.end())]  |
 //  |-----------------------------------------+-------------------------------|
-//  | a.swap(b), swap(a,b)                    | O[1] if 'a' and 'b' allocators|
+//  | a.swap(b), swap(a, b)                   | O[1] if 'a' and 'b' allocators|
 //  |                                         | compare equal, O[n + m]       |
 //  |                                         | otherwise                     |
 //  |-----------------------------------------+-------------------------------|
@@ -2184,16 +2184,19 @@ class basic_string
         // pointer.
 
     void swap(basic_string& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
-        // Exchange the value of this string with the value of the specified
-        // 'other' object.  Additionally, if
-        // 'bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap' is
-        // 'true', then exchange the allocator of this object with that of the
-        // 'other' object, and do not modify either allocator otherwise.  This
-        // method provides the no-throw exception-safety guarantee and
-        // guarantees 'O[1]' complexity if '*this' and 'other' allocators
-        // compare equal.  The behavior is undefined unless either '*this' and
-        // 'other' allocators compare equal or 'propagate_on_container_swap' is
-        // 'true'.
+        // Exchange the value of this object with that of the specified 'other'
+        // object; also exchange the allocator of this object with that of
+        // 'other' if the (template parameter) type 'ALLOCATOR' has the
+        // 'propagate_on_container_swap' trait, and do not modify either
+        // allocator otherwise.  This method provides the no-throw
+        // exception-safety guarantee.  This operation has 'O[1]' complexity if
+        // either this object was created with the same allocator as 'other' or
+        // 'ALLOCATOR' has the 'propagate_on_container_swap' trait; otherwise,
+        // it has 'O[n + m]' complexity, where 'n' and 'm' are the lengths of
+        // this object and 'other', respectively.  Note that this method's
+        // support for swapping objects created with different allocators when
+        // 'ALLOCATOR' does not have the 'propagate_on_container_swap' trait is
+        // a departure from the C++ Standard.
 
     // ACCESSORS
 
@@ -2852,18 +2855,19 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 void swap(basic_string<CHAR_TYPE,CHAR_TRAITS, ALLOCATOR>& a,
           basic_string<CHAR_TYPE,CHAR_TRAITS, ALLOCATOR>& b)
                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
-    // Exchange the value of the specified 'a' object with the value of the
-    // specified 'b' object.  Additionally, if
-    // 'bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap' is
-    // 'true', then exchange the allocator of 'a' with that of 'b'.  If
-    // 'propagate_on_container_swap' is 'true' or 'a' and 'b' allocators
-    // compare equal, then this method provides the no-throw exception-safety
-    // guarantee and has 'O[1]' complexity; otherwise, this method has
-    // 'O[n + m]' complexity where 'n' and 'm' are the lengths of 'a' and 'b',
-    // respectively.  Note that 'a' and 'b' are left in valid but unspecified
-    // states if an exception is thrown (in the case where
-    // 'propagate_on_container_swap' is 'false' and 'a' and 'b' allocators
-    // compare equal).
+    // Exchange the value of the specified 'a' object with that of the
+    // specified 'b' object; also exchange the allocator of 'a' with that of
+    // 'b' if the (template parameter) type 'ALLOCATOR' has the
+    // 'propagate_on_container_swap' trait, and do not modify either allocator
+    // otherwise.  This function provides the no-throw exception-safety
+    // guarantee.  This operation has 'O[1]' complexity if either 'a' was
+    // created with the same allocator as 'b' or 'ALLOCATOR' has the
+    // 'propagate_on_container_swap' trait; otherwise, it has 'O[n + m]'
+    // complexity, where 'n' and 'm' are the lengths of 'a' and 'b',
+    // respectively.  Note that this function's support for swapping objects
+    // created with different allocators when 'ALLOCATOR' does not have the
+    // 'propagate_on_container_swap' trait is a departure from the C++
+    // Standard.
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 std::basic_istream<CHAR_TYPE, CHAR_TRAITS>&

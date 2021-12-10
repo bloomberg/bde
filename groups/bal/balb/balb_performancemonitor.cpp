@@ -370,7 +370,7 @@ class PerformanceMonitor::Collector<bsls::Platform::OsLinux> {
     // MANIPULATORS
     int initialize(PerformanceMonitor::Statistics *stats,
                    int                             pid,
-                   const bsl::string&              description);
+                   const bsl::string_view&         description);
         // Initialize the specified 'stats' to represent the specified 'pid'
         // having the specified user-defined 'description'.  Return 0 on
         // success or a non-zero value otherwise.
@@ -407,7 +407,7 @@ PerformanceMonitor::Collector<bsls::Platform::OsLinux>
 }
 
 int PerformanceMonitor::Collector<bsls::Platform::OsLinux>
-::initialize(Statistics *stats, int pid, const bsl::string& description)
+::initialize(Statistics *stats, int pid, const bsl::string_view& description)
 {
     int rc;
 
@@ -646,7 +646,9 @@ class PerformanceMonitor::Collector<bsls::Platform::OsFreeBsd> {
 
     // METHODS
 
-    int initialize(Statistics *stats, int pid, const bsl::string &description);
+    int initialize(Statistics              *stats,
+                   int                      pid,
+                   const bsl::string_view&  description);
         // Initialize the specified 'stats' to represent the specified 'pid'
         // having the specified user-defined 'description'.  Return 0 on
         // success or a non-zero value otherwise.
@@ -700,7 +702,7 @@ PerformanceMonitor::Collector<bsls::Platform::OsFreeBsd>
 }
 
 int PerformanceMonitor::Collector<bsls::Platform::OsFreeBsd>
-::initialize(Statistics *stats, int pid, const bsl::string& description)
+::initialize(Statistics *stats, int pid, const bsl::string_view& description)
 {
     int rc;
 
@@ -822,7 +824,9 @@ class PerformanceMonitor::Collector<bsls::Platform::OsDarwin> {
         // the currently installed default allocator is used.
 
     // MANIPULATORS
-    int initialize(Statistics *stats, int pid, const bsl::string &description);
+    int initialize(Statistics              *stats,
+                   int                      pid,
+                   const bsl::string_view&  description);
         // Initialize the specified 'stats' to represent the specified 'pid'
         // having the specified user-defined 'description'.  Return 0 on
         // success or a non-zero value otherwise.
@@ -841,7 +845,7 @@ PerformanceMonitor::Collector<bsls::Platform::OsDarwin>
 
 // MANIPULATORS
 int PerformanceMonitor::Collector<bsls::Platform::OsDarwin>
-::initialize(Statistics *stats, int pid, const bsl::string &description)
+::initialize(Statistics *stats, int pid, const bsl::string_view &description)
 {
     stats->d_pid         = pid;
     stats->d_description = description;
@@ -967,7 +971,9 @@ class PerformanceMonitor::Collector<bsls::Platform::OsUnix> {
 
     // METHODS
 
-    int initialize(Statistics *stats, int pid, const bsl::string &description);
+    int initialize(Statistics              *stats,
+                   int                      pid,
+                   const bsl::string_view&  description);
         // Initialize the specified 'stats' to represent the specified 'pid'
         // having the specified user-defined 'description'.  Return 0 on
         // success or a non-zero value otherwise.
@@ -984,7 +990,7 @@ PerformanceMonitor::Collector<bsls::Platform::OsUnix>
 }
 
 int PerformanceMonitor::Collector<bsls::Platform::OsUnix>
-::initialize(Statistics *stats, int pid, const bsl::string &description)
+::initialize(Statistics *stats, int pid, const bsl::string_view& description)
 {
     stats->d_pid         = pid;
     stats->d_description = description;
@@ -1272,7 +1278,9 @@ struct PerformanceMonitor::Collector<bsls::Platform::OsWindows> {
 
     // METHODS
 
-    int initialize(Statistics *stats, int pid, const bsl::string &description);
+    int initialize(Statistics              *stats,
+                   int                      pid,
+                   const bsl::string_view&  description);
         // Initialize the specified 'stats' to represent the specified 'pid'
         // having the specified user-defined 'description'.  Return 0 on
         // success or a non-zero value otherwise.
@@ -1458,7 +1466,7 @@ PerformanceMonitor::Collector<bsls::Platform::OsWindows>::~Collector()
 }
 
 int PerformanceMonitor::Collector<bsls::Platform::OsWindows>
-::initialize(Statistics *stats, int pid, const bsl::string &description)
+::initialize(Statistics *stats, int pid, const bsl::string_view& description)
 {
     stats->d_pid         = pid;
     stats->d_description = description;
@@ -1785,7 +1793,8 @@ PerformanceMonitor::~PerformanceMonitor()
 
 // MANIPULATORS
 
-int PerformanceMonitor::registerPid(int pid, const bsl::string &description)
+int PerformanceMonitor::registerPid(int                     pid,
+                                    const bsl::string_view &description)
 {
     if (pid == 0) {
         pid = currentProcessPid();

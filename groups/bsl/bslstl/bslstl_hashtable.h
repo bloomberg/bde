@@ -2433,7 +2433,7 @@ class HashTable {
         // 'other' object, and do not modify either allocator otherwise.  This
         // method provides the no-throw exception-safety guarantee unless any
         // of the 'comparator' or 'hasher' functors throw when swapped, leaving
-        // both objects in an safely destructible, but otherwise unusable,
+        // both objects in a safely destructible, but otherwise unusable,
         // state.  The operation guarantees 'O[1]' complexity.  The behavior is
         // undefined unless either this object has an allocator that compares
         // equal to the allocator of 'other', or the trait
@@ -2616,8 +2616,8 @@ class HashTable {
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 void swap(HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>& x,
           HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>& y);
-    // Swap both the value, the hasher, the comparator and the 'maxLoadFactor'
-    // of the specified 'x' object with the value, the hasher, the comparator
+    // Swap both the value, the hasher, the comparator, and the 'maxLoadFactor'
+    // of the specified 'x' object with the value, the hasher, the comparator,
     // and the 'maxLoadFactor' of the specified 'y' object.  Additionally, if
     // 'bslstl::AllocatorTraits<ALLOCATOR>::propagate_on_container_swap' is
     // 'true', then exchange the allocator of 'x' with that of 'y', and do not
@@ -4688,7 +4688,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::hasSameValue(
             return false;   // different length subsequences          // RETURN
         }
 
-        // Efficiently compare identical prefixes: O(N) if sequences have the
+        // Efficiently compare identical prefixes: O[N] if sequences have the
         // same elements in the same order.  Note that comparison of values in
         // nodes is tested using 'operator==' and not the key-equality
         // comparator stored in the hash table.

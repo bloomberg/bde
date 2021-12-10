@@ -29,8 +29,9 @@
 
 #include <bslalg_typetraits.h>
 #include <bslma_allocator.h>
-#include <bsls_assert.h>
-#include <bsls_types.h>
+
+#include <bslmf_conditional.h>
+#include <bslmf_issame.h>
 
 #include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
@@ -41,6 +42,10 @@
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
+#include <bsl_string_view.h>
+
+#include <bsls_assert.h>
+#include <bsls_types.h>
 
 using namespace BloombergLP;
 using bsl::cout;
@@ -404,6 +409,256 @@ void printValue(bsl::ostream& out, const bsl::string& value)
 // ----------------------------------------------------------------------------
 
 typedef balxml::TypesParserUtil Util;
+
+typedef balxml::TypesPrintUtil  Print;
+
+
+// ============================================================================
+//                       ROUND TRIP TESTING MACHINERY
+// ----------------------------------------------------------------------------
+
+namespace TestMachinery {
+#if defined(BSLS_PLATFORM_CPU_64_BIT) && !defined(BSLS_PLATFORM_OS_WINDOWS)
+#define U_LONG_IS_64_BITS
+    // On 64 bit systems 'long' may be 32 or 64 bits.
+#endif
+
+template <class ENCODED_TYPE>
+struct GetDecodeType {
+    // Meta-function to chose a type we parse/decode into.  For most types we
+    // just use the type we encoded from.
+
+    typedef ENCODED_TYPE Type;
+
+};
+
+template <>
+struct GetDecodeType<signed long int> {
+    // 'signed long int' is not supported to parse/decode into, as it may have
+    // a differing size on different 64 bit platforms.
+
+#ifdef U_LONG_IS_64_BITS
+    typedef long long int          Type;
+#else
+    typedef int                    Type;
+#endif
+};
+
+template <>
+struct GetDecodeType<unsigned long int> {
+    // 'unsigned long int' is not supported to parse/decode into, as it may
+    // have a differing size on different 64 bit platforms.
+
+#ifdef U_LONG_IS_64_BITS
+    typedef unsigned long long int Type;
+#else
+    typedef unsigned int           Type;
+#endif
+};
+
+template <>
+struct GetDecodeType<const char *> {
+    // Can't parse into a 'const char *', but can into a 'bsl::string'.
+    typedef bsl::string Type;
+};
+
+template <>
+struct GetDecodeType<bslstl::StringRef> {
+    // Can't parse into a string reference, but can into a 'bsl::string'.
+    typedef bsl::string Type;
+};
+
+int intLength(const bsl::string_view& s)
+    // Return the length of 's' as an 'int' after verifying it fits in 'int'.
+    // The verifying part is more for show, we don't expect 2 gigabyte strings.
+{
+    ASSERTV(s.length(),
+            s.length() <=
+                    static_cast<bsl::size_t>(bsl::numeric_limits<int>::max()));
+
+    return static_cast<int>(s.length());
+}
+
+template <class       TEST_DATA,
+          bsl::size_t NUM_DATA>
+void printDecimalRoundTripTester(const TEST_DATA (&DATA)[NUM_DATA])
+    // Verify round trip of 'printDecimal'/'parseDecimal' for the values in the
+    // specified 'DATA' array of the deduced 'NUM_DATA' length.  The deduced
+    // 'TEST_DATA' must provide a member 'Type' that will be printed from, and
+    // parsed into.
+{
+    typedef typename TEST_DATA::Type Type;
+
+    typedef typename GetDecodeType<Type>::Type DecodeType;
+        // Some types we can print/encode from, but cannot parse/decode into.
+        // 'GetDecodeType' is the level of indirection that solves that issue.
+
+    for (bsl::size_t i = 0; i < NUM_DATA; ++i) {
+        const int   LINE  = DATA[i].d_line;
+        const Type  INPUT = DATA[i].d_input;
+
+        bsl::stringstream ss;
+        Print::printDecimal(ss, INPUT);
+        ASSERTV(LINE, ss.good());
+        const bsl::string ENCODED(ss.str());
+
+        DecodeType decoded;
+        int rc;
+        ASSERTV(LINE, 0 == (rc = Util::parseDecimal(&decoded,
+                                                    ENCODED.data(),
+                                                    intLength(ENCODED))));
+        if (0 == rc) {
+            // To avoid a "reading uninitialized 'decode'" warning
+            ASSERTV(LINE, ENCODED, decoded, INPUT, INPUT == decoded);
+        }
+    }
+}
+
+bsl::string replaceCharEntities(const bsl::string& withEntities)
+    // Replace select XML character references in the specified 'withEntities'
+    // with the corresponding ASCII character and return the result.
+    //
+    // The following pre-defined character entities are recognized only:
+    //..
+    //  Entity  Char    Name
+    //  ======  ====    ====
+    //  &lt;    <       Less-than
+    //  &gt;    >       Greater-than
+    //  &amp;   &       Ampersand
+    //  &apos;  '       Apostrophe
+    //  &quot;  "       Quote
+{
+    // This code is neither fast, nor clever, and it is only correct within the
+    // confines of the round trip testing in this test driver.
+
+    static const struct Entity {
+        const char  *d_ent;
+        bsl::size_t  d_len;
+        char         d_ch;
+    } ENTITIES[] = {
+        { "&lt;",   4, '<'  },
+        { "&gt;",   4, '>'  },
+        { "&amp;",  5, '&'  },
+        { "&apos;", 6, '\'' },
+        { "&quot;", 6, '"'  },
+        { 0, 0, 0 }
+    };
+
+    bsl::string rv(withEntities);
+
+    const Entity *entity = ENTITIES;
+    while (entity->d_ent) {
+        bsl::size_t pos = rv.find(entity->d_ent, 0);
+
+        while (pos != bsl::string::npos) {
+            rv.replace(pos, entity->d_len, 1, entity->d_ch);
+            pos = rv.find(entity->d_ent, pos + 1);
+        }
+
+        ++entity;
+    }
+
+    return rv;
+}
+
+template <class       TEST_DATA,
+          bsl::size_t NUM_DATA>
+void printTextRoundTripScalarTester(const TEST_DATA (&DATA)[NUM_DATA])
+    // Verify round trip of 'printDecimal'/'parseDecimal' for the values in the
+    // specified 'DATA' array of the deduced 'NUM_DATA' length.  The deduced
+    // 'TEST_DATA' must provide a member scalar 'Type' that will be printed
+    // from, and parsed into.
+{
+    typedef typename TEST_DATA::Type Type;
+
+    typedef typename GetDecodeType<Type>::Type DecodeType;
+        // Some types we can print/encode from, but cannot parse/decode into.
+        // 'GetDecodeType' is the level of indirection that solves that issue.
+
+    for (bsl::size_t i = 0; i < NUM_DATA; ++i) {
+        const int  LINE  = DATA[i].d_line;
+        const Type INPUT = DATA[i].d_input;
+
+        bsl::stringstream ss;
+        Print::printText(ss, INPUT);
+        ASSERTV(LINE, ss.good());
+        const bsl::string ENCODED(replaceCharEntities(ss.str()));
+
+        DecodeType decoded;
+        int rc;
+        ASSERTV(LINE, 0 == (rc = Util::parseText(&decoded,
+                                                 ENCODED.data(),
+                                                 intLength(ENCODED))));
+        if (0 == rc) {
+            // To avoid a "reading uninitialized 'decode'" warning
+            ASSERTV(LINE, ENCODED, decoded, INPUT, INPUT == decoded);
+        }
+    }
+}
+
+template <class OBJECT_TYPE>
+OBJECT_TYPE buildPrintTextInput(const bsl::string_view&  HEADER,
+                                const OBJECT_TYPE&       INPUT,
+                                const bsl::string_view&  TRAILER)
+    // Build, and return a 'printText' input by concatenating the specified
+    // 'HEADER', 'INPUT', and ' TRAILER'.
+{
+    OBJECT_TYPE rv(HEADER.begin(), HEADER.end());
+
+    rv.insert(rv.end(), INPUT.begin(), INPUT.end());
+
+    rv.insert(rv.end(), TRAILER.begin(), TRAILER.end());
+
+    return rv;
+}
+
+template <class       TEST_DATA,
+          bsl::size_t NUM_DATA>
+void printDefaultRoundTripTester(const TEST_DATA (&DATA)[NUM_DATA])
+    // Verify round trip of 'printDefault'/'parseDefault' for the values in the
+    // specified 'DATA' array of the deduced 'NUM_DATA' length.  The deduced
+    // 'TEST_DATA' must provide a member 'Type' that will be printed from, and
+    // parsed into.
+{
+    typedef typename TEST_DATA::Type Type;
+
+    typedef typename GetDecodeType<Type>::Type DecodeType;
+        // Some types we can print/encode from, but cannot parse/decode into.
+        // 'GetDecodeType' is the level of indirection that solves that issue.
+
+    for (bsl::size_t i = 0; i < NUM_DATA; ++i) {
+        const int   LINE  = DATA[i].d_line;
+        const Type  INPUT = DATA[i].d_input;
+
+        bsl::stringstream ss;
+        Print::printDefault(ss, INPUT);
+        ASSERTV(LINE, ss.good());
+        const bsl::string ENCODED(replaceCharEntities(ss.str()));
+
+        DecodeType decoded;
+        int rc;
+        ASSERTV(LINE, 0 == (rc = Util::parseDefault(&decoded,
+                                                    ENCODED.data(),
+                                                    intLength(ENCODED))));
+        if (0 == rc) {
+            // To avoid a "reading uninitialized 'decode'" warning
+            ASSERTV(LINE, ENCODED, decoded, INPUT, INPUT == decoded);
+        }
+    }
+}
+
+template <class INPUT_TYPE>
+struct RoundTripTestData {
+    // The non-local test data type that is required for test helper function
+    // templates to compile in C++03.
+
+    typedef INPUT_TYPE Type;
+
+    int  d_line;
+    Type d_input;
+};
+
+}  // close namespace TestMachinery
 
                               // ===============
                               // struct TestEnum
@@ -778,7 +1033,7 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 9: {
+      case 15: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -793,6 +1048,2319 @@ int main(int argc, char *argv[])
         usageExample();
 
         if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
+      } break;
+      case 14: {
+        // --------------------------------------------------------------------
+        // TESTING 'printDefault' ROUND TRIP
+        //
+        // Concerns:
+        //
+        // Plan:
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING 'printDefault' ROUND TRIP"
+                          << "\n=================================" << endl;
+
+        using TestMachinery::RoundTripTestData;
+        using TestMachinery::printDefaultRoundTripTester;
+
+        if (verbose) cout << "\nTesting 'bool'." << endl;
+        {
+            static const RoundTripTestData<bool> DATA[] =
+            {
+                //line    input
+                //----    -----
+                { L_,     true  },
+                { L_,     false },
+            };
+            printDefaultRoundTripTester(DATA);
+        }
+
+        if (verbose) cout << "\nTesting 'char'." << endl;
+        {
+            static const RoundTripTestData<char> DATA[] =
+            {
+                //line    input
+                //----    -----
+                { L_,     -128  },
+                { L_,     -127  },
+                { L_,     -1    },
+                { L_,     0     },
+                { L_,     1     },
+                { L_,     126   },
+                { L_,     127   },
+            };
+            printDefaultRoundTripTester(DATA);
+        }
+
+        if (verbose) cout << "\nTesting 'short'." << endl;
+        {
+            static const RoundTripTestData<short> DATA[] =
+            {
+                //line    input
+                //----    -----
+                { L_,     -32768  },
+                { L_,     -32767  },
+                { L_,     -1      },
+                { L_,     0       },
+                { L_,     1       },
+                { L_,     32766   },
+                { L_,     32767   },
+            };
+            printDefaultRoundTripTester(DATA);
+        }
+
+        if (verbose) cout << "\nTesting 'int'." << endl;
+        {
+            static const RoundTripTestData<int> DATA[] =
+            {
+                //line    input
+                //----    -----
+                { L_,     -2147483647 - 1 },
+                { L_,     -2147483647     },
+                { L_,     -1              },
+                { L_,     0               },
+                { L_,     1               },
+                { L_,     2147483646      },
+                { L_,     2147483647      },
+            };
+            printDefaultRoundTripTester(DATA);
+        }
+
+        if (verbose) cout << "\nTesting 'long'." << endl;
+        {
+            static const RoundTripTestData<long> DATA[] =
+            {
+                //line  input
+                //----  --------------------------
+                { L_,   -2147483647 - 1            },
+                { L_,   -2147483647                },
+                { L_,   -1                         },
+                { L_,   0                          },
+                { L_,   1                          },
+                { L_,   2147483646                 },
+                { L_,   2147483647                 },
+#ifdef U_LONG_IS_64_BITS
+                { L_,   -9223372036854775807LL - 1 },
+                { L_,   -9223372036854775807LL     },
+                { L_,   9223372036854775806LL      },
+                { L_,   9223372036854775807LL      },
+#endif
+            };
+            printDefaultRoundTripTester(DATA);
+        }
+
+        if (verbose) cout << "\nTesting 'bsls::Types::Int64'." << endl;
+        {
+            static const RoundTripTestData<bsls::Types::Int64> DATA[] =
+            {
+                //line  input
+                //----  -----
+                { L_,   -9223372036854775807LL - 1 },
+                { L_,   -9223372036854775807LL     },
+                { L_,   -1LL                       },
+                { L_,    0LL                       },
+                { L_,    1LL                       },
+                { L_,    9223372036854775806LL     },
+                { L_,    9223372036854775807LL     },
+            };
+            printDefaultRoundTripTester(DATA);
+        }
+
+        if (verbose) cout << "\nTesting 'unsigned char'." << endl;
+        {
+            static const RoundTripTestData<unsigned char> DATA[] =
+            {
+                //line    input
+                //----    -----
+                { L_,     0     },
+                { L_,     1     },
+                { L_,     254   },
+                { L_,     255   },
+            };
+            printDefaultRoundTripTester(DATA);
+        }
+
+        if (verbose) cout << "\nTesting 'unsigned short'." << endl;
+        {
+
+            static const RoundTripTestData<unsigned short> DATA[] =
+            {
+                    //line    input
+                //----    -----
+                { L_,     0     },
+                { L_,     1     },
+                { L_,     65534 },
+                { L_,     65535 },
+            };
+            printDefaultRoundTripTester(DATA);
+        }
+
+        if (verbose) cout << "\nTesting 'unsigned int'." << endl;
+        {
+            static const RoundTripTestData<unsigned int> DATA[] =
+            {
+                //line    input
+                //----    -----------
+                { L_,     0           },
+                { L_,     1           },
+                { L_,     4294967294U },
+                { L_,     4294967295U },
+            };
+            printDefaultRoundTripTester(DATA);
+        }
+
+        if (verbose) cout << "\nTesting 'bsls::Types::Uint64'." << endl;
+        {
+            static const RoundTripTestData<bsls::Types::Uint64> DATA[] =
+            {
+                //line    input
+                //----    -----
+                { L_,     0ULL                    },
+                { L_,     1ULL                    },
+                { L_,     18446744073709551614ULL },
+                { L_,     18446744073709551615ULL },
+            };
+            printDefaultRoundTripTester(DATA);
+        }
+
+        if (verbose) cout << "\nTesting 'float'." << endl;
+        {
+            typedef bsl::numeric_limits<float> NumLimits;
+
+            const float neg0 = copysignf(0.0f, -1.0f);
+
+            static const RoundTripTestData<float> DATA[] =
+            {
+                //line   input
+                //----  --------------------
+                { L_,    neg0                },
+                { L_,   -1.0f                },
+                { L_,   -0.1f                },
+                { L_,   -1234567.f           },
+                { L_,   -0.1234567f          },
+                { L_,   -1.234567e35f        },
+                { L_,   -1.234567e-35f       },
+
+                { L_,    0.0f                },
+                { L_,    1.0f                },
+                { L_,    0.1f                },
+                { L_,    1234567.f           },
+                { L_,    0.1234567f          },
+                { L_,    1.234567e35f        },
+                { L_,    1.234567e-35f       },
+
+                // Values from 'balxml_encoder.t.cpp' 'runTestCase17'
+                { L_,   1.1920928e-07f       },
+                { L_,   2.3841856e-07f       },
+                { L_,   1.5258789e-05f       },
+                { L_,   2.4414062e-04f       },
+                { L_,   3.90625e-03f         },
+                { L_,   6.25e-02f            },
+                { L_,   5e-1f                },
+                { L_,                   1.0f },
+                { L_,                1024.0f },
+                { L_,            16777216.0f },
+                { L_,        137438953472.0f },
+                { L_,    1125899906842624.0f },
+                { L_,   18014398509481984.0f },
+
+                // {DRQS 165162213} regression, 2^24 loses precision as float
+                { L_, 1.0f * 0xFFFFFF        },
+
+                // Full Mantissa Integers
+                { L_, 1.0f * 0xFFFFFF   // this is also
+                       * (1ull << 63)  // 'NumLimits::max()'
+                       * (1ull << 41)        },
+                // Boundary Values
+                { L_,  NumLimits::min()      },
+                { L_,  NumLimits::max()      },
+                { L_, -NumLimits::min()      },
+                { L_, -NumLimits::max()      },
+            };
+            printDefaultRoundTripTester(DATA);
+        }
+
+        if (verbose) cout << "\nTesting 'double'." << endl;
+        {
+            typedef bsl::numeric_limits<double> NumLimits;
+
+            const double neg0 = copysign(0.0, -1.0);
+
+            static const RoundTripTestData<double> DATA[] =
+            {
+                //line             input
+                //----  ------------------------------------
+                { L_,               neg0                     },
+                { L_,                 -1.0                   },
+                { L_,                 -0.1                   },
+                { L_,                 -0.123456789012345     },
+                { L_,                 -1.23456789012345e+105 },
+                { L_,                 -1.23456789012345e-105 },
+
+                { L_,                  0.0                   },
+                { L_,                  0.1                   },
+                { L_,                  1.0                   },
+                { L_,                  1.23456789012345e105  },
+                { L_,                 123.4567               },
+
+                // Values from 'balxml_encoder.t.cpp' 'runTestCase17'
+                { L_,                   1.0                  },
+                { L_,                1024.0                  },
+                { L_,            16777216.0                  },
+                { L_,        137438953472.0                  },
+                { L_,    1125899906842624.0                  },
+                { L_,   18014398509481984.0                  },
+
+                { L_, 1.1920928955078125e-07                 },
+                { L_, 2.384185791015625e-07                  },
+                { L_, 1.52587890625e-05                      },
+                { L_, 2.44140625e-04                         },
+                { L_, 3.90625e-03                            },
+                { L_, 6.25e-02                               },
+                { L_, 5e-1                                   },
+
+                // Small Integers
+                { L_,    123456789012345.                    },
+                { L_,   1234567890123456.                    },
+
+                // Full Mantissa Integers
+                { L_, 1.0 * 0x1FFFFFFFFFFFFFull              },
+                { L_, 1.0 * 0x1FFFFFFFFFFFFFull       // This number is also
+                      * (1ull << 63) * (1ull << 63)   // 'NumLimits::max()'
+                      * (1ull << 63) * (1ull << 63)
+                      * (1ull << 63) * (1ull << 63)
+                      * (1ull << 63) * (1ull << 63)
+                      * (1ull << 63) * (1ull << 63)
+                      * (1ull << 63) * (1ull << 63)
+                      * (1ull << 63) * (1ull << 63)
+                      * (1ull << 63) * (1ull << 26)          },
+
+                // Boundary Values
+                { L_,  NumLimits::min()                      },
+                { L_,  NumLimits::max()                      },
+                { L_, -NumLimits::min()                      },
+                { L_, -NumLimits::max()                      },
+            };
+            printDefaultRoundTripTester(DATA);
+        }
+
+        if (verbose) cout << "\nTesting 'Decimal64'." << endl;
+        {
+            typedef bdldfp::Decimal64         Type;
+            typedef bsl::numeric_limits<Type> Limits;
+
+#define DFP(X) BDLDFP_DECIMAL_DD(X)
+
+            const struct TestData {
+                int  d_line;
+                Type d_input;
+                char d_style;
+                int  d_precision;
+                bool d_weird;
+            } DATA[] = {
+//--------------------------------------------------------
+// LN  VALUE                      STYLE  PRECISION  WEIRD
+//--------------------------------------------------------
+{ L_,  DFP(0.0),                    'N',   0,         0 },
+{ L_,  DFP(15.13),                  'N',   0,         0 },
+{ L_,  DFP(-9.876543210987654e307), 'N',   0,         0 },
+{ L_,  DFP(0.001),                  'N',   0,         0 },
+{ L_,  DFP(0.01),                   'N',   0,         0 },
+{ L_,  DFP(0.1),                    'N',   0,         0 },
+{ L_,  DFP(1.),                     'N',   0,         0 },
+{ L_,  DFP(1.0),                    'N',   0,         0 },
+{ L_,  DFP(1.00),                   'N',   0,         0 },
+{ L_,  DFP(1.000),                  'N',   0,         0 },
+{ L_,  Limits::max(),               'N',   0,         0 },
+{ L_,  -Limits::max(),              'N',   0,         0 },
+{ L_,  Limits::min(),               'N',   0,         0 },
+{ L_,  -Limits::min(),              'N',   0,         0 },
+{ L_,  Limits::infinity(),          'N',   0,         1 },
+{ L_, -Limits::infinity(),          'N',   0,         1 },
+{ L_,  Limits::signaling_NaN(),     'N',   0,         1 },
+{ L_,  Limits::quiet_NaN(),         'N',   0,         1 },
+
+{ L_,  DFP(0.0),                    'F',   2,         0 },
+{ L_,  DFP(15.13),                  'F',   2,         0 },
+{ L_,  DFP(-9876543210987654.0),    'F',   0,         0 },
+{ L_,  DFP(0.001),                  'F',   3,         0 },
+{ L_,  DFP(0.001),                  'F',   4,         0 },
+{ L_,  DFP(0.01),                   'F',   2,         0 },
+{ L_,  DFP(0.01),                   'F',   3,         0 },
+{ L_,  DFP(0.1),                    'F',   1,         0 },
+{ L_,  DFP(0.1),                    'F',   2,         0 },
+{ L_,  DFP(1.),                     'F',   0,         0 },
+{ L_,  DFP(1.),                     'F',   0,         0 },
+{ L_,  DFP(1.),                     'F',   1,         0 },
+{ L_,  DFP(1.0),                    'F',   0,         0 },
+{ L_,  DFP(1.0),                    'F',   1,         0 },
+{ L_,  DFP(1.0),                    'F',   2,         0 },
+{ L_,  DFP(1.00),                   'F',   0,         0 },
+{ L_,  DFP(1.00),                   'F',   1,         0 },
+{ L_,  DFP(1.00),                   'F',   2,         0 },
+{ L_,  DFP(1.00),                   'F',   3,         0 },
+{ L_,  DFP(1.000),                  'F',   0,         0 },
+{ L_,  DFP(1.000),                  'F',   1,         0 },
+{ L_,  DFP(1.000),                  'F',   2,         0 },
+{ L_,  DFP(1.000),                  'F',   3,         0 },
+{ L_,  DFP(1.000),                  'F',   4,         0 },
+{ L_,  Limits::min(),               'F', 383,         0 },
+{ L_, -Limits::min(),               'F', 383,         0 },
+{ L_,  Limits::infinity(),          'F',   0,         1 },
+{ L_, -Limits::infinity(),          'F',   0,         1 },
+{ L_,  Limits::signaling_NaN(),     'F',   0,         1 },
+{ L_,  Limits::quiet_NaN(),         'F',   0,         1 },
+
+{ L_,  DFP(0.1),                    'S',   0,         0 },
+{ L_,  DFP(15.13),                  'S',   3,         0 },
+{ L_,  DFP(-9.876543210987654e307), 'S',  15,         0 },
+{ L_,  DFP(0.001),                  'S',   0,         0 },
+{ L_,  DFP(0.001),                  'S',   1,         0 },
+{ L_,  DFP(0.001),                  'S',   2,         0 },
+{ L_,  DFP(0.01),                   'S',   0,         0 },
+{ L_,  DFP(0.01),                   'S',   1,         0 },
+{ L_,  DFP(0.01),                   'S',   2,         0 },
+{ L_,  DFP(0.1),                    'S',   0,         0 },
+{ L_,  DFP(0.1),                    'S',   1,         0 },
+{ L_,  DFP(0.1),                    'S',   2,         0 },
+{ L_,  DFP(1.),                     'S',   0,         0 },
+{ L_,  DFP(1.),                     'S',   1,         0 },
+{ L_,  DFP(1.),                     'S',   2,         0 },
+{ L_,  DFP(1.0),                    'S',   0,         0 },
+{ L_,  DFP(1.0),                    'S',   1,         0 },
+{ L_,  DFP(1.0),                    'S',   2,         0 },
+{ L_,  DFP(1.00),                   'S',   0,         0 },
+{ L_,  DFP(1.00),                   'S',   1,         0 },
+{ L_,  DFP(1.00),                   'S',   2,         0 },
+{ L_,  DFP(1.000),                  'S',   0,         0 },
+{ L_,  DFP(1.000),                  'S',   1,         0 },
+{ L_,  DFP(1.000),                  'S',   2,         0 },
+{ L_,  Limits::max(),               'S',  15,         0 },
+{ L_, -Limits::max(),               'S',  15,         0 },
+{ L_,  Limits::min(),               'S',   0,         0 },
+{ L_, -Limits::min(),               'S',   0,         0 },
+{ L_,  Limits::infinity(),          'S',   0,         1 },
+{ L_, -Limits::infinity(),          'S',   0,         1 },
+{ L_,  Limits::signaling_NaN(),     'S',   0,         1 },
+{ L_,  Limits::quiet_NaN(),         'S',   0,         1 },
+#undef DFP
+            };
+
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int ti = 0; ti < 2 * NUM_DATA; ++ti) {
+                const bool      DECIMAL   = ti % 2;
+                const TestData& data      = DATA[ti / 2];
+                const int       LINE      = data.d_line;
+                const Type      INPUT     = data.d_input;
+                const char      STYLE     = data.d_style;
+                const int       PRECISION = data.d_precision;
+                const bool      WEIRD     = data.d_weird;
+
+                if (DECIMAL && WEIRD) {
+                    // SKIP unprintable combinations
+                    continue;                                       // CONTINUE
+                }
+
+                bsl::stringstream ss;
+                ss.precision(PRECISION);
+                if ('F' == STYLE) ss << bsl::fixed;
+                if ('S' == STYLE) ss << bsl::scientific;
+
+                DECIMAL ? Print::printDecimal(ss, INPUT)
+                        : Print::printDefault(ss, INPUT);
+
+                ASSERTV(LINE, false == ss.fail());
+
+                const bsl::string ENCODED(ss.str());
+                Type decoded;
+                if (DECIMAL) {
+                    using TestMachinery::intLength;
+                    ASSERTV(LINE, ENCODED, PRECISION, STYLE,
+                            0 == Util::parseDecimal(&decoded,
+                                                    ENCODED.data(),
+                                                    intLength(ENCODED)));
+                }
+                else {
+                    using TestMachinery::intLength;
+                    ASSERTV(LINE, ENCODED, PRECISION, STYLE,
+                            0 == Util::parseDefault(&decoded,
+                                                    ENCODED.data(),
+                                                    intLength(ENCODED)));
+                }
+
+                if (INPUT != INPUT) { // NaN
+                    ASSERTV(LINE, ENCODED, PRECISION, STYLE, INPUT, decoded,
+                            decoded != decoded);
+                }
+                else { // Comparable values
+                    ASSERTV(LINE, ENCODED, PRECISION, STYLE, INPUT, decoded,
+                            INPUT == decoded);
+                }
+            }
+        }
+
+
+        if (verbose) cout << "\nTesting 'char *'." << endl;
+        {
+            static const RoundTripTestData<const char *> DATA[] =
+            {
+                //line    input
+                //----    -----
+                { L_,     ""         },
+                { L_,     "Hello"    },
+                { L_,     "World!!"  },
+            };
+            printDefaultRoundTripTester(DATA);
+        }
+
+        if (verbose) cout << "\nTesting 'bsl::string'." << endl;
+        {
+            static const RoundTripTestData<bsl::string> DATA[] =
+            {
+                //line    input
+                //----    ------------------
+                { L_,     ""                 },
+                { L_,     "Hello"            },
+                { L_,     "World!!"          },
+                { L_,     "&AB"              },
+                { L_,     "A&B"              },
+                { L_,     "AB&"              },
+                { L_,     "<AB"              },
+                { L_,     "A<B"              },
+                { L_,     "AB<"              },
+                { L_,     ">AB"              },
+                { L_,     "A>B"              },
+                { L_,     "AB>"              },
+                { L_,     "\'AB"             },
+                { L_,     "A\'B"             },
+                { L_,     "AB\'"             },
+                { L_,     "\"AB"             },
+                { L_,     "A\"B"             },
+                { L_,     "AB\""             },
+                { L_,     "\xC3\xB6" "AB"    },
+                { L_,     "A" "\xC3\xB6" "B" },
+                { L_,     "AB" "\xC3\xB6"    },
+            };
+            printDefaultRoundTripTester(DATA);
+        }
+
+        if (verbose) cout << "\nTesting 'bslstl::StringRef'." << endl;
+        {
+            static const RoundTripTestData<bslstl::StringRef> DATA[] =
+            {
+                //line    input
+                //----    ------------------
+                { L_,     ""                 },
+                { L_,     "Hello"            },
+                { L_,     "World!!"          },
+                { L_,     "&AB"              },
+                { L_,     "A&B"              },
+                { L_,     "AB&"              },
+                { L_,     "<AB"              },
+                { L_,     "A<B"              },
+                { L_,     "AB<"              },
+                { L_,     ">AB"              },
+                { L_,     "A>B"              },
+                { L_,     "AB>"              },
+                { L_,     "\'AB"             },
+                { L_,     "A\'B"             },
+                { L_,     "AB\'"             },
+                { L_,     "\"AB"             },
+                { L_,     "A\"B"             },
+                { L_,     "AB\""             },
+                { L_,     "\xC3\xB6" "AB"    },
+                { L_,     "A" "\xC3\xB6" "B" },
+                { L_,     "AB" "\xC3\xB6"    },
+            };
+            printDefaultRoundTripTester(DATA);
+        }
+
+        if (verbose) cout << "\nTesting 'MyEnumeration::Value'." << endl;
+        {
+            static const RoundTripTestData<test::MyEnumeration::Value> DATA[] =
+            {
+                //line    input
+                //----    -----
+                { L_,     test::MyEnumeration::VALUE1 },
+                { L_,     test::MyEnumeration::VALUE2 },
+            };
+            printDefaultRoundTripTester(DATA);
+        }
+
+        if (verbose) cout << "\nTesting 'CustomizedString'." << endl;
+        {
+            typedef test::CustomizedString Type;
+
+            static const RoundTripTestData<Type> DATA[] =
+            {
+                //line    input
+                //----    -----
+                { L_,     Type("")      },
+                { L_,     Type("a")     },
+                { L_,     Type("ab")    },
+                { L_,     Type("abc")   },
+                { L_,     Type("abcd")  },
+                { L_,     Type("abcde") },
+            };
+            printDefaultRoundTripTester(DATA);
+        }
+
+        if (verbose) cout << "\nTesting 'CustomizedInt'." << endl;
+        {
+            typedef test::CustomizedInt Type;
+
+            static const RoundTripTestData<Type> DATA[] =
+            {
+                //line    input
+                //----    -----
+                { L_,     Type(-2147483647-1) },
+                { L_,     Type(-2147483647)   },
+                { L_,     Type(-1)            },
+                { L_,     Type(0)             },
+                { L_,     Type(1)             },
+                { L_,     Type(2)             },
+                { L_,     Type(3)             },
+                { L_,     Type(4)             },
+                { L_,     Type(5)             },
+            };
+            printDefaultRoundTripTester(DATA);
+        }
+
+        if (verbose) cout << "\nTesting date and time types." << endl;
+        {
+            static const struct TestData {
+                int d_line;
+                int d_year;
+                int d_month;
+                int d_day;
+                int d_hour;
+                int d_minute;
+                int d_second;
+                int d_millisecond;
+                int d_microsecond;
+                int d_offset;
+            } DATA[] = {
+                //Line Year   Mon  Day  Hour  Min  Sec     ms   us   offset
+                //---- ----   ---  ---  ----  ---  ---     --   --   ------
+
+                // Valid dates and times
+                { L_,     1,   1,   1,    0,   0,   0,     0,    0,      0 },
+                { L_,  2005,   1,   1,    0,   0,   0,     0,    0,    -90 },
+                { L_,   123,   6,  15,   13,  40,  59,     0,    0,   -240 },
+                { L_,  1999,  10,  12,   23,   0,   1,     0,    0,   -720 },
+
+                // Vary milliseconds
+                { L_,  1999,  10,  12,   23,   0,   1,     0,    0,     90 },
+                { L_,  1999,  10,  12,   23,   0,   1,   456,    0,    240 },
+                { L_,  1999,  10,  12,   23,   0,   1,   456,  789,    240 },
+                { L_,  1999,  10,  12,   23,   0,   1,   999,  789,    720 },
+                { L_,  1999,  12,  31,   23,  59,  59,   999,  999,    720 }
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int LINE        = DATA[ti].d_line;
+                const int YEAR        = DATA[ti].d_year;
+                const int MONTH       = DATA[ti].d_month;
+                const int DAY         = DATA[ti].d_day;
+                const int HOUR        = DATA[ti].d_hour;
+                const int MINUTE      = DATA[ti].d_minute;
+                const int SECOND      = DATA[ti].d_second;
+                const int MILLISECOND = DATA[ti].d_millisecond;
+                const int MICROSECOND = DATA[ti].d_microsecond;
+                const int OFFSET      = DATA[ti].d_offset;;
+
+                const bdlt::Date       IN_DATE(YEAR, MONTH, DAY);
+                const bdlt::Time       IN_TIME(HOUR, MINUTE, SECOND,
+                                               MILLISECOND);
+                const bdlt::Datetime   IN_DATETIME(YEAR, MONTH, DAY,
+                                                   HOUR, MINUTE, SECOND,
+                                                   MILLISECOND, MICROSECOND);
+
+                const bdlt::DateTz     IN_DATETZ(IN_DATE, OFFSET);
+                const bdlt::TimeTz     IN_TIMETZ(IN_TIME, OFFSET);
+                const bdlt::DatetimeTz IN_DATETIMETZ(IN_DATETIME, OFFSET);
+
+                using TestMachinery::intLength;
+
+                {
+                    bsl::ostringstream ss;
+                    Print::printDefault(ss, IN_DATE);
+                    ASSERTV(LINE, ss.good());
+
+                    const bsl::string ENCODED(ss.str());
+                    bdlt::Date decoded;
+                    ASSERTV(LINE, ENCODED,
+                            0 == Util::parseDefault(&decoded,
+                                                    ENCODED.data(),
+                                                    intLength(ENCODED)));
+                    ASSERTV(LINE, ENCODED, IN_DATE, decoded,
+                            IN_DATE == decoded);
+                }
+
+                {
+                    bsl::ostringstream ss;
+                    Print::printDefault(ss, IN_DATETZ);
+                    ASSERTV(LINE, ss.good());
+
+                    const bsl::string ENCODED(ss.str());
+                    bdlt::DateTz decoded;
+                    ASSERTV(LINE, ENCODED,
+                            0 == Util::parseDefault(&decoded,
+                                                    ENCODED.data(),
+                                                    intLength(ENCODED)));
+                    ASSERTV(LINE, ENCODED, IN_DATETZ, decoded,
+                            IN_DATETZ == decoded);
+                }
+
+                {
+                    balxml::EncoderOptions options;
+                    options.setUseZAbbreviationForUtc(true);
+
+                    bsl::ostringstream ss;
+                    Print::printDefault(ss, IN_DATETZ, &options);
+                    ASSERTV(LINE, ss.good());
+
+                    const bsl::string ENCODED(ss.str());
+                    bdlt::DateTz decoded;
+                    ASSERTV(LINE, ENCODED,
+                            0 == Util::parseDefault(&decoded,
+                                                    ENCODED.data(),
+                                                    intLength(ENCODED)));
+                    ASSERTV(LINE, ENCODED, IN_DATETZ, decoded,
+                            IN_DATETZ == decoded);
+                }
+
+                {
+                    bsl::ostringstream ss;
+                    Print::printDefault(ss, IN_TIME);
+                    ASSERTV(LINE, ss.good());
+
+                    const bsl::string ENCODED(ss.str());
+                    bdlt::Time decoded;
+                    ASSERTV(LINE, ENCODED,
+                            0 == Util::parseDefault(&decoded,
+                                                    ENCODED.data(),
+                                                    intLength(ENCODED)));
+                    ASSERTV(LINE, ENCODED, IN_TIME, decoded,
+                            IN_TIME == decoded);
+                }
+
+                {
+                    bsl::ostringstream ss;
+                    Print::printDefault(ss, IN_TIMETZ);
+                    ASSERTV(LINE, ss.good());
+
+                    const bsl::string ENCODED(ss.str());
+                    bdlt::TimeTz decoded;
+                    ASSERTV(LINE, ENCODED,
+                            0 == Util::parseDefault(&decoded,
+                                                    ENCODED.data(),
+                                                    intLength(ENCODED)));
+                    ASSERTV(LINE, ENCODED, IN_TIMETZ, decoded,
+                            IN_TIMETZ == decoded);
+                }
+
+                {
+                    balxml::EncoderOptions options;
+                    options.setUseZAbbreviationForUtc(true);
+
+                    bsl::ostringstream ss;
+                    Print::printDefault(ss, IN_TIMETZ, &options);
+                    ASSERTV(LINE, ss.good());
+
+                    const bsl::string ENCODED(ss.str());
+                    bdlt::TimeTz decoded;
+                    ASSERTV(LINE, ENCODED,
+                            0 == Util::parseDefault(&decoded,
+                                                    ENCODED.data(),
+                                                    intLength(ENCODED)));
+                    ASSERTV(LINE, ENCODED, IN_TIMETZ, decoded,
+                            IN_TIMETZ == decoded);
+                }
+
+                {
+                    bsl::ostringstream ss;
+                    Print::printDefault(ss, IN_DATETIME);
+                    ASSERTV(LINE, ss.good());
+
+                    const bsl::string ENCODED(ss.str());
+                    bdlt::Datetime decoded;
+                    ASSERTV(LINE, ENCODED,
+                            0 == Util::parseDefault(&decoded,
+                                                    ENCODED.data(),
+                                                    intLength(ENCODED)));
+                    ASSERTV(LINE, ENCODED, IN_DATETIME, decoded,
+                            IN_DATETIME == decoded);
+                }
+
+                {
+                    bsl::ostringstream ss;
+                    Print::printDefault(ss, IN_DATETIMETZ);
+                    ASSERTV(LINE, ss.good());
+
+                    const bsl::string ENCODED(ss.str());
+                    bdlt::DatetimeTz decoded;
+                    ASSERTV(LINE, ENCODED,
+                            0 == Util::parseDefault(&decoded,
+                                                    ENCODED.data(),
+                                                    intLength(ENCODED)));
+                    ASSERTV(LINE, ENCODED, IN_DATETIMETZ, decoded,
+                            IN_DATETIMETZ == decoded);
+                }
+
+                {
+                    balxml::EncoderOptions options;
+                    options.setUseZAbbreviationForUtc(true);
+
+                    bsl::ostringstream ss;
+                    Print::printDefault(ss, IN_DATETIMETZ, &options);
+                    ASSERTV(LINE, ss.good());
+
+                    const bsl::string ENCODED(ss.str());
+                    bdlt::DatetimeTz decoded;
+                    ASSERTV(LINE, ENCODED,
+                            0 == Util::parseDefault(&decoded,
+                                                    ENCODED.data(),
+                                                    intLength(ENCODED)));
+                    ASSERTV(LINE, ENCODED, IN_DATETIMETZ, decoded,
+                            IN_DATETIMETZ == decoded);
+                }
+            }
+        }
+      } break;
+      case 13: {
+        // --------------------------------------------------------------------
+        // TESTING 'printText' ROUND TRIP
+        //
+        // Concerns:
+        //: 1 That booleans and enumerations are printed as text properly.
+        //:
+        //: 2 That types that have the CustomizedString trait are printed
+        //:   correctly.
+        //:
+        //: 3 That invalid characters (single- and multi-bytes) are not
+        //:   printed.
+        //:
+        //: 4 That valid strings are printed correctly, and strings with
+        //:   invalid characters printed until the first invalid character.
+        //
+        // Plan:
+        //   Exercise 'printText' with typical data to ascertain that it prints
+        //   as expected for concerns 1 and 2.  For concerns 3 and 4, select
+        //   test data with the boundary and area testing methods, and verify
+        //   that output is as expected.  Note that since we are in effect
+        //   testing the internal method 'printTextReplacingXMLEscapes', there
+        //   is no need to test it for several types, since it is called on the
+        //   internal text buffer.  For this reason, we test only with 'char*'
+        //   data thoroughly, and trust that the forwarding for 'bsl::string'
+        //   and other string types will call the same method.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING 'printText' ROUND TRIP"
+                          << "\n==============================" << endl;
+
+        using TestMachinery::RoundTripTestData;
+        using TestMachinery::printTextRoundTripScalarTester;
+
+        if (verbose) cout << "\nTesting 'bool'." << endl;
+        {
+            static const RoundTripTestData<bool> DATA[] =
+            {
+                //line    input
+                //----    -----
+                { L_,     true  },
+                { L_,     false },
+            };
+            printTextRoundTripScalarTester(DATA);
+        }
+
+        if (verbose) cout << "\nTesting 'char'." << endl;
+        {
+            static const RoundTripTestData<char> DATA[] =
+            {
+                //line    input
+                //----    -----
+                { L_,     0x09  },
+                { L_,     0x0a  },
+                { L_,     0x0d  },
+                { L_,     0x20  },
+                { L_,     0x21  },
+                { L_,     0x22  },
+                { L_,     0x23  },
+                { L_,     0x24  },
+                { L_,     0x25  },
+                { L_,     0x26  },
+                { L_,     0x27  },
+                { L_,     0x28  },
+                { L_,     0x29  },
+                { L_,     0x2a  },
+                { L_,     0x2b  },
+                { L_,     0x2c  },
+                { L_,     0x2d  },
+                { L_,     0x2e  },
+                { L_,     0x2f  },
+                { L_,     0x30  },
+                { L_,     0x31  },
+                { L_,     0x32  },
+                { L_,     0x33  },
+                { L_,     0x34  },
+                { L_,     0x35  },
+                { L_,     0x36  },
+                { L_,     0x37  },
+                { L_,     0x38  },
+                { L_,     0x39  },
+                { L_,     0x3a  },
+                { L_,     0x3b  },
+                { L_,     0x3c  },
+                { L_,     0x3d  },
+                { L_,     0x3e  },
+                { L_,     0x3f  },
+                { L_,     0x40  },
+                { L_,     0x41  },
+                { L_,     'A'   },
+                // treat all uppercase (0x41 until 0x5a) as a region, and only
+                // test the boundaries.
+                { L_,     'Z'   },
+                { L_,     0x5a  },
+                { L_,     0x5b  },
+                { L_,     0x5c  },
+                { L_,     0x5d  },
+                { L_,     0x5e  },
+                { L_,     0x5f  },
+                { L_,     0x60  },
+                { L_,     0x61  },
+                { L_,     'a'   },
+                // treat all lowercase (0x61 until 0x7a) as a region, and only
+                // test the boundaries.
+                { L_,     'z'   },
+                { L_,     0x7a  },
+                { L_,     0x7b  },
+                { L_,     0x7c  },
+                { L_,     0x7d  },
+                { L_,     0x7e  },
+            };
+            printTextRoundTripScalarTester(DATA);
+        }
+
+        // Note that we have already tested the valid single byte characters
+        // individually, so the only concerns here are multibyte character
+        // strings and boundary conditions (empty string).  We follow the
+        // boundary and area selection methods, by picking the boundary values
+        // and a value in between at random, for each range, and taking the
+        // cross product of all these values for making sure that all boundary
+        // faces (in a hypercube) are covered.
+
+        {
+            static const struct TestData {
+                int         d_line;
+                const char *d_input;
+            } DATA[] = {
+                //line input
+                //---- -----
+                { L_,  ""                       },
+
+                { L_,  "\x09"                   },
+                { L_,  "\x0a"                   },
+                { L_,  "\x0d"                   },
+                { L_,  "\x22"                   },
+                { L_,  "\x26"                   },
+                { L_,  "\x27"                   },
+                { L_,  "\x3c"                   },
+                { L_,  "\x3e"                   },
+
+                { L_,  "Hello"                  },
+                { L_,  "Hello World!!"          },
+                { L_,  "Hello \t World"         },
+                { L_,  "Hello \n World"         },
+                { L_,  "Hello \x0d World"       },
+                { L_,  "Pi is < 3.15"           },
+                { L_,  "Pi is > 3.14"           },
+                { L_,  "Tom & Jerry"            },
+                { L_,  "'Hello' World!"         },
+                { L_,  "Hello \"World\""        },
+
+                { L_,  "<![CDATA&]]>"           },
+                { L_,  "![CDATA[&]]>"           },
+                { L_,  "<![CDATA[Hello]]>World" },
+
+                // Two-byte character sequences.
+
+                { L_,  "\xc2\x80"               },
+                { L_,  "\xc2\xa3"               },
+                { L_,  "\xc2\xbf"               },
+                { L_,  "\xd0\x80"               },
+                { L_,  "\xd0\x9d"               },
+                { L_,  "\xd0\xbf"               },
+                { L_,  "\xdf\x80"               },
+                { L_,  "\xdf\xa6"               },
+                { L_,  "\xdf\xbf"               },
+
+                // Three-byte character sequences.
+
+                // Note that first byte 0xe0 is special (second byte ranges in
+                // 0xa0..0xbf instead of the usual 0x80..0xbf).  Note also that
+                // first byte 0xed is special (second byte ranges in 0x80..0x9f
+                // instead of the usual 0x80..0xbf).
+
+                { L_,  "\xe0\xa0\x80"           },
+                { L_,  "\xe0\xa0\xa3"           },
+                { L_,  "\xe0\xa0\xbf"           },
+                { L_,  "\xe0\xb5\x80"           },
+                { L_,  "\xe0\xab\x9d"           },
+                { L_,  "\xe0\xa9\xbf"           },
+                { L_,  "\xe0\xbf\x80"           },
+                { L_,  "\xe0\xbf\xaf"           },
+                { L_,  "\xe0\xbf\xbf"           },
+
+                { L_,  "\xe1\x80\x80"           },
+                { L_,  "\xe1\x80\xa3"           },
+                { L_,  "\xe1\x80\xbf"           },
+                { L_,  "\xe1\x9a\x80"           },
+                { L_,  "\xe1\x85\x9d"           },
+                { L_,  "\xe1\xab\xbf"           },
+                { L_,  "\xe1\xbf\x80"           },
+                { L_,  "\xe1\xbf\xa6"           },
+                { L_,  "\xe1\xbf\xbf"           },
+
+                { L_,  "\xe7\x80\x80"           },
+                { L_,  "\xe7\x80\xa3"           },
+                { L_,  "\xe7\x80\xbf"           },
+                { L_,  "\xe7\x9a\x80"           },
+                { L_,  "\xe7\x85\x9d"           },
+                { L_,  "\xe7\xab\xbf"           },
+                { L_,  "\xe7\xbf\x80"           },
+                { L_,  "\xe7\xbf\xa6"           },
+                { L_,  "\xe7\xbf\xbf"           },
+
+                { L_,  "\xec\x80\x80"           },
+                { L_,  "\xec\x80\xa3"           },
+                { L_,  "\xec\x80\xbf"           },
+                { L_,  "\xec\x9a\x80"           },
+                { L_,  "\xec\xab\x9d"           },
+                { L_,  "\xec\xb3\xbf"           },
+                { L_,  "\xec\xbf\x80"           },
+                { L_,  "\xec\xbf\x98"           },
+                { L_,  "\xec\xbf\xbf"           },
+
+                { L_,  "\xed\x80\x80"           },
+                { L_,  "\xed\x80\x83"           },
+                { L_,  "\xed\x80\x9f"           },
+                { L_,  "\xed\x9a\x80"           },
+                { L_,  "\xed\x8b\x9d"           },
+                { L_,  "\xed\x93\xbf"           },
+                { L_,  "\xed\x9f\x80"           },
+                { L_,  "\xed\x9f\x98"           },
+                { L_,  "\xed\x9f\xbf"           },
+
+                { L_,  "\xee\x80\x80"           },
+                { L_,  "\xee\x80\xa3"           },
+                { L_,  "\xee\x80\xbf"           },
+                { L_,  "\xee\x9a\x80"           },
+                { L_,  "\xee\x85\x9d"           },
+                { L_,  "\xee\xab\xbf"           },
+                { L_,  "\xee\xbf\x80"           },
+                { L_,  "\xee\xbf\xa6"           },
+                { L_,  "\xee\xbf\xbf"           },
+
+                { L_,  "\xef\x80\x80"           },
+                { L_,  "\xef\x80\xa3"           },
+                { L_,  "\xef\x80\xbf"           },
+                { L_,  "\xef\x9a\x80"           },
+                { L_,  "\xef\xab\x9d"           },
+                { L_,  "\xef\xb3\xbf"           },
+                { L_,  "\xef\xbf\x80"           },
+                { L_,  "\xef\xbf\x98"           },
+                { L_,  "\xef\xbf\xbf"           },
+
+                // Four-byte character sequences.
+
+                // Note that first byte 0xf0 is special (second byte ranges in
+                // 0x90..0xbf instead of the usual 0x80..0xbf).  Note also that
+                // first byte 0xf4 is special (second byte ranges in 0x80..0x8f
+                // instead of the usual 0x80..0xbf).
+
+                { L_,  "\xf0\x90\x80\x80"       },
+                { L_,  "\xf0\x90\x80\x98"       },
+                { L_,  "\xf0\x90\x80\xbf"       },
+                { L_,  "\xf0\x90\xa7\x80"       },
+                { L_,  "\xf0\x90\x95\xa6"       },
+                { L_,  "\xf0\x90\xa5\xbf"       },
+                { L_,  "\xf0\x90\xbf\x80"       },
+                { L_,  "\xf0\x90\xbf\xa2"       },
+                { L_,  "\xf0\x90\xbf\xbf"       },
+                { L_,  "\xf0\xa1\x80\x80"       },
+                { L_,  "\xf0\xa2\x80\x85"       },
+                { L_,  "\xf0\xa5\x80\xbf"       },
+                { L_,  "\xf0\xa9\xa3\x80"       },
+                { L_,  "\xf0\x93\xa3\xa6"       },
+                { L_,  "\xf0\x95\xa3\xbf"       },
+                { L_,  "\xf0\x98\xbf\x80"       },
+                { L_,  "\xf0\x9d\xbf\xa6"       },
+                { L_,  "\xf0\x9f\xbf\xbf"       },
+                { L_,  "\xf0\xbf\x80\x80"       },
+                { L_,  "\xf0\xbf\x80\xa6"       },
+                { L_,  "\xf0\xbf\x80\xbf"       },
+                { L_,  "\xf0\xbf\xa3\x80"       },
+                { L_,  "\xf0\xbf\xa3\xa6"       },
+                { L_,  "\xf0\xbf\xa3\xbf"       },
+                { L_,  "\xf0\xbf\xbf\x80"       },
+                { L_,  "\xf0\xbf\xbf\xa6"       },
+                { L_,  "\xf0\xbf\xbf\xbf"       },
+
+                { L_,  "\xf1\x80\x80\x80"       },
+                { L_,  "\xf1\x80\x80\x98"       },
+                { L_,  "\xf1\x80\x80\xbf"       },
+                { L_,  "\xf1\x80\xa7\x80"       },
+                { L_,  "\xf1\x80\x95\xa6"       },
+                { L_,  "\xf1\x80\xa5\xbf"       },
+                { L_,  "\xf1\x80\xbf\x80"       },
+                { L_,  "\xf1\x80\xbf\xa2"       },
+                { L_,  "\xf1\x80\xbf\xbf"       },
+                { L_,  "\xf1\x81\x80\x80"       },
+                { L_,  "\xf1\xa2\x80\x85"       },
+                { L_,  "\xf1\x85\x80\xbf"       },
+                { L_,  "\xf1\xa9\xa3\x80"       },
+                { L_,  "\xf1\x93\xa3\xa6"       },
+                { L_,  "\xf1\x85\xa3\xbf"       },
+                { L_,  "\xf1\x98\xbf\x80"       },
+                { L_,  "\xf1\x9d\xbf\xa6"       },
+                { L_,  "\xf1\x9f\xbf\xbf"       },
+                { L_,  "\xf1\xbf\x80\x80"       },
+                { L_,  "\xf1\xbf\x80\xa6"       },
+                { L_,  "\xf1\xbf\x80\xbf"       },
+                { L_,  "\xf1\xbf\xa3\x80"       },
+                { L_,  "\xf1\xbf\xa3\xa6"       },
+                { L_,  "\xf1\xbf\xa3\xbf"       },
+                { L_,  "\xf1\xbf\xbf\x80"       },
+                { L_,  "\xf1\xbf\xbf\xa6"       },
+                { L_,  "\xf1\xbf\xbf\xbf"       },
+
+                { L_,  "\xf2\x80\x80\x80"       },
+                { L_,  "\xf2\x80\x80\x98"       },
+                { L_,  "\xf2\x80\x80\xbf"       },
+                { L_,  "\xf2\x80\xa7\x80"       },
+                { L_,  "\xf2\x80\x95\xa6"       },
+                { L_,  "\xf2\x80\xa5\xbf"       },
+                { L_,  "\xf2\x80\xbf\x80"       },
+                { L_,  "\xf2\x80\xbf\xa2"       },
+                { L_,  "\xf2\x80\xbf\xbf"       },
+                { L_,  "\xf2\x81\x80\x80"       },
+                { L_,  "\xf2\xa2\x80\x85"       },
+                { L_,  "\xf2\x85\x80\xbf"       },
+                { L_,  "\xf2\xa9\xa3\x80"       },
+                { L_,  "\xf2\x93\xa3\xa6"       },
+                { L_,  "\xf2\x85\xa3\xbf"       },
+                { L_,  "\xf2\x98\xbf\x80"       },
+                { L_,  "\xf2\x9d\xbf\xa6"       },
+                { L_,  "\xf2\x9f\xbf\xbf"       },
+                { L_,  "\xf2\xbf\x80\x80"       },
+                { L_,  "\xf2\xbf\x80\xa6"       },
+                { L_,  "\xf2\xbf\x80\xbf"       },
+                { L_,  "\xf2\xbf\xa3\x80"       },
+                { L_,  "\xf2\xbf\xa3\xa6"       },
+                { L_,  "\xf2\xbf\xa3\xbf"       },
+                { L_,  "\xf2\xbf\xbf\x80"       },
+                { L_,  "\xf2\xbf\xbf\xa6"       },
+                { L_,  "\xf2\xbf\xbf\xbf"       },
+
+                { L_,  "\xf3\x80\x80\x80"       },
+                { L_,  "\xf3\x80\x80\x98"       },
+                { L_,  "\xf3\x80\x80\xbf"       },
+                { L_,  "\xf3\x80\xa7\x80"       },
+                { L_,  "\xf3\x80\x95\xa6"       },
+                { L_,  "\xf3\x80\xa5\xbf"       },
+                { L_,  "\xf3\x80\xbf\x80"       },
+                { L_,  "\xf3\x80\xbf\xa2"       },
+                { L_,  "\xf3\x80\xbf\xbf"       },
+                { L_,  "\xf3\x81\x80\x80"       },
+                { L_,  "\xf3\xa2\x80\x85"       },
+                { L_,  "\xf3\x85\x80\xbf"       },
+                { L_,  "\xf3\xa9\xa3\x80"       },
+                { L_,  "\xf3\x93\xa3\xa6"       },
+                { L_,  "\xf3\x85\xa3\xbf"       },
+                { L_,  "\xf3\x98\xbf\x80"       },
+                { L_,  "\xf3\x9d\xbf\xa6"       },
+                { L_,  "\xf3\x9f\xbf\xbf"       },
+                { L_,  "\xf3\xbf\x80\x80"       },
+                { L_,  "\xf3\xbf\x80\xa6"       },
+                { L_,  "\xf3\xbf\x80\xbf"       },
+                { L_,  "\xf3\xbf\xa3\x80"       },
+                { L_,  "\xf3\xbf\xa3\xa6"       },
+                { L_,  "\xf3\xbf\xa3\xbf"       },
+                { L_,  "\xf3\xbf\xbf\x80"       },
+                { L_,  "\xf3\xbf\xbf\xa6"       },
+                { L_,  "\xf3\xbf\xbf\xbf"       },
+
+                { L_,  "\xf4\x80\x80\x80"       },
+                { L_,  "\xf4\x80\x80\x98"       },
+                { L_,  "\xf4\x80\x80\xbf"       },
+                { L_,  "\xf4\x80\xa7\x80"       },
+                { L_,  "\xf4\x80\x95\xa6"       },
+                { L_,  "\xf4\x80\xa5\xbf"       },
+                { L_,  "\xf4\x80\xbf\x80"       },
+                { L_,  "\xf4\x80\xbf\xa2"       },
+                { L_,  "\xf4\x80\xbf\xbf"       },
+                { L_,  "\xf4\x81\x80\x80"       },
+                { L_,  "\xf4\x82\x80\x85"       },
+                { L_,  "\xf4\x85\x80\xbf"       },
+                { L_,  "\xf4\x89\xa3\x80"       },
+                { L_,  "\xf4\x83\xa3\xa6"       },
+                { L_,  "\xf4\x85\xa3\xbf"       },
+                { L_,  "\xf4\x88\xbf\x80"       },
+                { L_,  "\xf4\x8d\xbf\xa6"       },
+                { L_,  "\xf4\x8e\xbf\xbf"       },
+                { L_,  "\xf4\x8f\x80\x80"       },
+                { L_,  "\xf4\x8f\x80\xa6"       },
+                { L_,  "\xf4\x8f\x80\xbf"       },
+                { L_,  "\xf4\x8f\xa3\x80"       },
+                { L_,  "\xf4\x8f\xa3\xa6"       },
+                { L_,  "\xf4\x8f\xa3\xbf"       },
+                { L_,  "\xf4\x8f\xbf\x80"       },
+                { L_,  "\xf4\x8f\xbf\xa6"       },
+                { L_,  "\xf4\x8f\xbf\xbf"       },
+
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            using TestMachinery::buildPrintTextInput;
+            using TestMachinery::replaceCharEntities;
+
+            // Use orthogonal perturbations for making sure that printing is
+            // correct regardless of position in the string: Use header,
+            // trailer, or both.
+
+            const bsl::string_view HEADER("HeAdEr");
+            const bsl::string_view TRAILER("TrAiLeR");
+
+            using TestMachinery::intLength;
+
+            if (verbose) cout << "\nTesting 'bsl::string'." << endl;
+            {
+                typedef bsl::string Type;
+
+                for (int i = 0; i < NUM_DATA; ++i) {
+                    const int  LINE  = DATA[i].d_line;
+                    const Type INPUT = DATA[i].d_input;
+
+                    bsl::stringstream ss;
+                    Print::printText(ss, INPUT);
+                    ASSERTV(LINE, ss.good());
+                    const bsl::string ENCODED(replaceCharEntities(ss.str()));
+                    Type decoded;
+                    ASSERTV(LINE, 0 == Util::parseText(&decoded,
+                                                       ENCODED.data(),
+                                                       intLength(ENCODED)));
+                    ASSERTV(LINE, ENCODED, decoded, INPUT, INPUT == decoded);
+
+                    const Type INPUT2(buildPrintTextInput(HEADER, INPUT, ""));
+                    ss.str("");
+                    Print::printText(ss, INPUT2);
+                    ASSERTV(LINE, ss.good());
+                    const bsl::string ENCODED2(replaceCharEntities(ss.str()));
+                    ASSERTV(LINE, 0 == Util::parseText(&decoded,
+                                                       ENCODED2.data(),
+                                                       intLength(ENCODED2)));
+                    ASSERTV(LINE, ENCODED2, decoded, INPUT2,
+                            INPUT2 == decoded);
+
+                    const Type INPUT3(buildPrintTextInput("", INPUT, TRAILER));
+                    ss.str("");
+                    Print::printText(ss, INPUT3);
+                    ASSERTV(LINE, ss.good());
+                    const bsl::string ENCODED3(replaceCharEntities(ss.str()));
+                    ASSERTV(LINE, 0 == Util::parseText(&decoded,
+                                                       ENCODED3.data(),
+                                                       intLength(ENCODED3)));
+                    ASSERTV(LINE, ENCODED3, decoded, INPUT3,
+                            INPUT3 == decoded);
+
+                    const Type INPUT4(buildPrintTextInput(HEADER,
+                                                          INPUT,
+                                                          TRAILER));
+                    ss.str("");
+                    Print::printText(ss, INPUT4);
+                    ASSERTV(LINE, ss.good());
+                    const bsl::string ENCODED4(replaceCharEntities(ss.str()));
+                    ASSERTV(LINE, 0 == Util::parseText(&decoded,
+                                                       ENCODED4.data(),
+                                                       intLength(ENCODED4)));
+                    ASSERTV(LINE, ENCODED4, decoded, INPUT4,
+                            INPUT4 == decoded);
+                }
+            }
+
+            if (verbose) cout << "\nUsing 'vector<char>'." << endl;
+            {
+                typedef bsl::vector<char> Type;
+
+                for (int i = 0; i < NUM_DATA; ++i) {
+                    const bsl::size_t  LENGTH = bsl::strlen(DATA[i].d_input);
+                    const int          LINE   = DATA[i].d_line;
+                    const char        *CINPUT = DATA[i].d_input;
+                    const Type         INPUT(CINPUT, CINPUT + LENGTH);
+
+                    bsl::stringstream ss;
+                    Print::printText(ss, INPUT);
+                    ASSERTV(LINE, ss.good());
+                    const bsl::string ENCODED(replaceCharEntities(ss.str()));
+                    Type decoded;
+                    ASSERTV(LINE, 0 == Util::parseText(&decoded,
+                                                       ENCODED.data(),
+                                                       intLength(ENCODED)));
+                    ASSERTV(LINE, ENCODED, decoded, INPUT, INPUT == decoded);
+
+                    const Type INPUT2(buildPrintTextInput(HEADER, INPUT, ""));
+                    ss.str("");
+                    Print::printText(ss, INPUT2);
+                    ASSERTV(LINE, ss.good());
+                    const bsl::string ENCODED2(replaceCharEntities(ss.str()));
+                    ASSERTV(LINE, 0 == Util::parseText(&decoded,
+                                                       ENCODED2.data(),
+                                                       intLength(ENCODED2)));
+                    ASSERTV(LINE, ENCODED2, decoded, INPUT2,
+                            INPUT2 == decoded);
+
+                    const Type INPUT3(buildPrintTextInput("", INPUT, TRAILER));
+                    ss.str("");
+                    Print::printText(ss, INPUT3);
+                    ASSERTV(LINE, ss.good());
+                    const bsl::string ENCODED3(replaceCharEntities(ss.str()));
+                    ASSERTV(LINE, 0 == Util::parseText(&decoded,
+                                                       ENCODED3.data(),
+                                                       intLength(ENCODED3)));
+                    ASSERTV(LINE, ENCODED3, decoded, INPUT3,
+                            INPUT3 == decoded);
+
+                    const Type INPUT4(buildPrintTextInput(HEADER,
+                                                          INPUT,
+                                                          TRAILER));
+                    ss.str("");
+                    Print::printText(ss, INPUT4);
+                    ASSERTV(LINE, ss.good());
+                    const bsl::string ENCODED4(replaceCharEntities(ss.str()));
+                    ASSERTV(LINE, 0 == Util::parseText(&decoded,
+                                                       ENCODED4.data(),
+                                                       intLength(ENCODED4)));
+                    ASSERTV(LINE, ENCODED4, decoded, INPUT4,
+                            INPUT4 == decoded);
+                }
+            }
+
+            if (verbose) cout << "\nUsing 'CustomizedString'." << endl;
+            {
+                typedef test::CustomizedString Type;
+
+                for (int i = 0; i < NUM_DATA; ++i) {
+                    const int          LINE  = DATA[i].d_line;
+                    const bsl::string  INSTR = DATA[i].d_input;
+                    const Type         INPUT(INSTR);
+
+                    bsl::stringstream ss;
+                    Print::printText(ss, INPUT);
+                    ASSERTV(LINE, ss.good());
+                    const bsl::string ENCODED(replaceCharEntities(ss.str()));
+                    Type decoded;
+                    ASSERTV(LINE, 0 == Util::parseText(&decoded,
+                                                       ENCODED.data(),
+                                                       intLength(ENCODED)));
+                    ASSERTV(LINE, ENCODED, decoded, INPUT, INPUT == decoded);
+
+                    if (25 < HEADER.size() + INSTR.size()) {
+                        continue;                                   // CONTINUE
+                    }
+                    const Type INPUT2(buildPrintTextInput(HEADER, INSTR, ""));
+                    ss.str("");
+                    Print::printText(ss, INPUT2);
+                    ASSERTV(LINE, ss.good());
+                    const bsl::string ENCODED2(replaceCharEntities(ss.str()));
+                    ASSERTV(LINE, 0 == Util::parseText(&decoded,
+                                                       ENCODED2.data(),
+                                                       intLength(ENCODED2)));
+                    ASSERTV(LINE, ENCODED2, decoded, INPUT2,
+                            INPUT2 == decoded);
+
+                    if (25 < INSTR.size() + TRAILER.size()) {
+                        continue;                                   // CONTINUE
+                    }
+                    const Type INPUT3(buildPrintTextInput("", INSTR, TRAILER));
+                    ss.str("");
+                    Print::printText(ss, INPUT3);
+                    ASSERTV(LINE, ss.good());
+                    const bsl::string ENCODED3(replaceCharEntities(ss.str()));
+                    ASSERTV(LINE, 0 == Util::parseText(&decoded,
+                                                       ENCODED3.data(),
+                                                       intLength(ENCODED3)));
+                    ASSERTV(LINE, ENCODED3, decoded, INPUT3,
+                            INPUT3 == decoded);
+
+                    if (25 < HEADER.size() + INSTR.size() + TRAILER.size()) {
+                        continue;                                   // CONTINUE
+                    }
+                    const Type INPUT4(buildPrintTextInput(HEADER,
+                                                          INSTR,
+                                                          TRAILER));
+                    ss.str("");
+                    Print::printText(ss, INPUT4);
+                    ASSERTV(LINE, ss.good());
+                    const bsl::string ENCODED4(replaceCharEntities(ss.str()));
+                    ASSERTV(LINE, 0 == Util::parseText(&decoded,
+                                                       ENCODED4.data(),
+                                                       intLength(ENCODED4)));
+                    ASSERTV(LINE, ENCODED4, decoded, INPUT4,
+                            INPUT4 == decoded);
+                }
+            }
+        }
+
+        if (verbose) cout << "\nTesting 'MyEnumeration::Value'." << endl;
+        {
+            static const RoundTripTestData<test::MyEnumeration::Value> DATA[] =
+            {
+                //line    input
+                //----    -----
+                { L_,     test::MyEnumeration::VALUE1 },
+                { L_,     test::MyEnumeration::VALUE2 },
+            };
+            printTextRoundTripScalarTester(DATA);
+        }
+      } break;
+      case 12: {
+        // --------------------------------------------------------------------
+        // TESTING 'printList' ROUND TRIP
+        //
+        // Concerns:
+        //
+        // Plan:
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING 'printList' ROUND TRIP"
+                          << "\n==============================" << endl;
+
+        typedef int                   ElemType;
+        typedef bsl::vector<ElemType> Type;
+
+        static const struct TestData {
+            int         d_line;
+            ElemType    d_input[5];
+            int         d_numInput;
+        } DATA[] = {
+            //line    input                numInput
+            //----    -----                --------
+            { L_,     { },                 0,       },
+            { L_,     { 1 },               1,       },
+            { L_,     { 1, 4 },            2,       },
+            { L_,     { 1, 4, 2 },         3,       },
+            { L_,     { 1, 4, 2, 8 },      4,       },
+            { L_,     { 1, 4, 2, 8, 23 },  5,       },
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int       LINE      = DATA[i].d_line;
+            const ElemType *INPUT     = DATA[i].d_input;
+            const int       NUM_INPUT = DATA[i].d_numInput;
+
+
+            const Type IN(INPUT, INPUT + NUM_INPUT);
+            bsl::stringstream ss;
+            Print::printList(ss, IN);
+            ASSERTV(LINE, ss.good());
+            const bsl::string ENCODED(ss.str());
+
+            using TestMachinery::intLength;
+
+            Type mDecoded; const Type& DECODED = mDecoded;
+            ASSERTV(LINE, 0 == Util::parseList(&mDecoded,
+                                               ENCODED.data(),
+                                               intLength(ENCODED)));
+
+            ASSERTV(LINE, ENCODED, DECODED, IN, IN == DECODED);
+
+        }
+      } break;
+      case 11: {
+        // --------------------------------------------------------------------
+        // TESTING 'printHex' ROUND TRIP
+        //
+        // Concerns:
+        //
+        // Plan:
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING 'printHex' ROUND TRIP"
+                          << "\n=============================" << endl;
+
+        static const struct TestData {
+            int         d_line;
+            const char *d_input;
+        } DATA[] = {
+            //line    input
+            //----    -------
+            { L_,     "",     },
+            { L_,     "a",    },
+            { L_,     "ab",   },
+            { L_,     "abc",  },
+            { L_,     "abcd", },
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int          LINE         = DATA[i].d_line;
+            const char        *INPUT        = DATA[i].d_input;
+            const bsl::size_t  INPUT_LENGTH = bsl::strlen(INPUT);
+
+            const bsl::string IN(INPUT, INPUT + INPUT_LENGTH);
+            bsl::stringstream ss;
+            Print::printHex(ss, IN);
+            ASSERTV(LINE, ss.good());
+            const bsl::string ENCODED(ss.str());
+
+            using TestMachinery::intLength;
+
+            {
+                typedef bsl::string Type;
+
+                Type mDecoded; const Type& DECODED = mDecoded;
+                ASSERTV(LINE, 0 == Util::parseHex(&mDecoded,
+                                                  ENCODED.data(),
+                                                  intLength(ENCODED)));
+
+                ASSERTV(LINE, ENCODED, DECODED, INPUT, INPUT == DECODED);
+            }
+            {
+                typedef bsl::vector<char> Type;
+
+                Type mDecoded; const Type& DECODED = mDecoded;
+                ASSERTV(LINE, 0 == Util::parseHex(&mDecoded,
+                                                  ENCODED.data(),
+                                                  intLength(ENCODED)));
+
+                const Type IN_VEC(IN.begin(), IN.end());
+                ASSERTV(LINE, ENCODED, DECODED, IN_VEC, IN_VEC == DECODED);
+            }
+        }
+      } break;
+      case 10: {
+        // --------------------------------------------------------------------
+        // TESTING 'printDecimal' ROUND TRIP
+        //
+        // Concerns:
+        //
+        // Plan:
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING 'printDecimal' ROUND TRIP"
+                          << "\n=================================" << endl;
+
+        using TestMachinery::RoundTripTestData;
+        using TestMachinery::printDecimalRoundTripTester;
+
+        if (verbose) cout << "\nTesting 'bool'." << endl;
+        {
+            static const RoundTripTestData<bool> DATA[] =
+            {
+                //line    input
+                //----    -----
+                { L_,     true   },
+                { L_,     false  },
+            };
+            printDecimalRoundTripTester(DATA);
+        }
+
+
+        if (verbose) cout << "\nTesting 'char'." << endl;
+        {
+            static const RoundTripTestData<char> DATA[] =
+            {
+                //line    input
+                //----    -----
+                { L_,     -128  },
+                { L_,     -127  },
+                { L_,     -1    },
+                { L_,     0     },
+                { L_,     1     },
+                { L_,     126   },
+                { L_,     127   },
+            };
+            printDecimalRoundTripTester(DATA);
+        }
+
+        if (verbose) cout << "\nTesting 'short'." << endl;
+        {
+            static const RoundTripTestData<short> DATA[] =
+            {
+                //line    input
+                //----    -----
+                { L_,     -32768  },
+                { L_,     -32767  },
+                { L_,     -1      },
+                { L_,     0       },
+                { L_,     1       },
+                { L_,     32766   },
+                { L_,     32767   },
+            };
+            printDecimalRoundTripTester(DATA);
+        }
+
+        if (verbose) cout << "\nTesting 'int'." << endl;
+        {
+            static const RoundTripTestData<int> DATA[] =
+            {
+                //line    input
+                //----    -----
+                { L_,     -2147483647-1 },
+                { L_,     -2147483647   },
+                { L_,     -1            },
+                { L_,     0             },
+                { L_,     1             },
+                { L_,     2147483646    },
+                { L_,     2147483647    },
+            };
+            printDecimalRoundTripTester(DATA);
+        }
+
+        if (verbose) cout << "\nUsing 'long'." << endl;
+        {
+            static const RoundTripTestData<long> DATA[] =
+            {
+                //line    input
+                //----    -----
+                { L_,     -2147483647-1  },
+                { L_,     -2147483647    },
+                { L_,     -1             },
+                { L_,     0              },
+                { L_,     1              },
+                { L_,     2147483646     },
+                { L_,     2147483647     },
+#ifdef U_LONG_IS_64_BITS
+                { L_,     -9223372036854775807LL - 1 },
+                { L_,     -9223372036854775807LL     },
+                { L_,     9223372036854775806LL      },
+                { L_,     9223372036854775807LL      },
+#endif
+            };
+            printDecimalRoundTripTester(DATA);
+        }
+
+        if (verbose) cout << "\nTesting 'bsls::Types::Int64'." << endl;
+        {
+            static const RoundTripTestData<bsls::Types::Int64> DATA[] =
+            {
+                //line    input
+                //----    -----
+                { L_,     -9223372036854775807LL - 1 },
+                { L_,     -9223372036854775807LL     },
+                { L_,     -1LL                       },
+                { L_,     0LL                        },
+                { L_,     1LL                        },
+                { L_,     9223372036854775806LL      },
+                { L_,     9223372036854775807LL      },
+            };
+            printDecimalRoundTripTester(DATA);
+        }
+
+        if (verbose) cout << "\nTesting 'unsigned char'." << endl;
+        {
+            static const RoundTripTestData<unsigned char> DATA[] =
+            {
+                //line    input
+                //----    -----
+                { L_,     0     },
+                { L_,     1     },
+                { L_,     254   },
+                { L_,     255   },
+            };
+            printDecimalRoundTripTester(DATA);
+        }
+
+        if (verbose) cout << "\nTesting 'unsigned short'." << endl;
+        {
+            static const RoundTripTestData<unsigned short> DATA[] =
+            {
+                //line    input
+                //----    -----
+                { L_,     0     },
+                { L_,     1     },
+                { L_,     65534 },
+                { L_,     65535 },
+            };
+            printDecimalRoundTripTester(DATA);
+        }
+
+        if (verbose) cout << "\nTesting 'unsigned int'." << endl;
+        {
+            static const RoundTripTestData<unsigned int> DATA[] =
+            {
+                //line    input
+                //----    -----
+                { L_,     0           },
+                { L_,     1           },
+                { L_,     4294967294U },
+                { L_,     4294967295U },
+            };
+            printDecimalRoundTripTester(DATA);
+        }
+
+        if (verbose) cout << "\nTesting 'unsigned long'." << endl;
+        {
+            static const RoundTripTestData<unsigned long> DATA[] =
+            {
+                //line    input
+                //----    -----
+                { L_,     0LL,                    },
+                { L_,     1LL,                    },
+                { L_,     4294967294U             },
+                { L_,     4294967295UL            },
+#ifdef U_LONG_IS_64_BITS
+                { L_,     18446744073709551614ULL },
+                { L_,     18446744073709551615ULL },
+#endif
+            };
+            printDecimalRoundTripTester(DATA);
+        }
+
+        if (verbose) cout << "\nTesting 'bsls::Types::Uint64'." << endl;
+        {
+            static const RoundTripTestData<bsls::Types::Uint64> DATA[] =
+            {
+                //line    input
+                //----    -----
+                { L_,     0ULL                    },
+                { L_,     1ULL                    },
+                { L_,     18446744073709551614ULL },
+                { L_,     18446744073709551615ULL },
+            };
+            printDecimalRoundTripTester(DATA);
+        }
+
+        if (verbose) cout << "\nTesting 'MyEnumeration::Value'." << endl;
+        {
+            static const RoundTripTestData<test::MyEnumeration::Value> DATA[] =
+            {
+                //line    input
+                //----    -----
+                { L_,     test::MyEnumeration::VALUE1 },
+                { L_,     test::MyEnumeration::VALUE2 },
+            };
+            printDecimalRoundTripTester(DATA);
+        }
+
+        if (verbose) cout << "\nTesting 'CustomizedInt'." << endl;
+        {
+            typedef test::CustomizedInt Type;
+
+            static const RoundTripTestData<Type> DATA[] =
+            {
+                //line    input
+                //----    -----
+                { L_,     Type(5)               },  // 'CustomizedInt' fails
+                { L_,     Type(4)               },  // to convert back from
+                { L_,     Type(3)               },  // integer for values not
+                { L_,     Type(2)               },  // less than 5.
+                { L_,     Type(1)               },
+                { L_,     Type(0)               },
+                { L_,     Type(-1)              },
+                { L_,     Type(-2)              },
+                { L_,     Type(-2147483647 - 1) },
+                { L_,     Type(-2147483647)     },
+            };
+            printDecimalRoundTripTester(DATA);
+        }
+
+        if (verbose) cout << "\nTesting 'float'." << endl;
+        {
+            typedef bsl::numeric_limits<float> NumLimits;
+
+            static const RoundTripTestData<float> DATA[] =
+            {
+                //line    input
+                //----   -----------
+                { L_,    -1.0f       },
+                { L_,    -0.1f       },
+                { L_,    -0.123456f  },
+                { L_,     0.0f       },
+                { L_,     0.1f       },
+                { L_,     1.0f       },
+                { L_,   123.4567f    },
+
+                // Values from 'balxml_encoder.t.cpp' 'runTestCase17'
+                { L_, 1.5258789e-05f       },
+                { L_, 3.0517578e-05f       },
+                { L_, 6.1035156e-05f       },
+                { L_, 1.2207031e-04f       },
+                { L_, 2.4414062e-04f       },
+                { L_, 4.8828125e-04f       },
+                { L_, 9.765625e-04f        },
+                { L_, 1.953125e-03f        },
+                { L_, 3.90625e-03f         },
+                { L_, 7.8125e-03f          },
+                { L_, 1.5625e-02f          },
+                { L_, 3.125e-02f           },
+                { L_, 6.25e-02f            },
+                { L_, 1.25e-01f            },
+                { L_, 2.5e-1f              },
+                { L_, 5e-1f                },
+                { L_,                  1.f },
+                { L_,                  8.f },
+                { L_,                 64.f },
+                { L_,                128.f },
+                { L_,               1024.f },
+                { L_,              16384.f },
+                { L_,             131072.f },
+                { L_,            1048576.f },
+                { L_,           16777216.f },
+                { L_,          134217728.f },
+                { L_,         1073741824.f },
+                { L_,        17179869184.f },
+                { L_,       137438953472.f },
+                { L_,      1099511627776.f },
+                { L_,     17592186044416.f },
+                { L_,    140737488355328.f },
+                { L_,   1125899906842624.f },
+                { L_,  18014398509481984.f },
+                { L_, 144115188075855870.f },
+
+                // Arbitrary Large and Small Number
+                { L_,  1.234567e35f        },
+                { L_, -1.234567e35f        },
+
+                { L_,  1.234567e-35f       },
+                { L_, -1.234567e-35f       },
+
+                // Small Integers
+                { L_,     1234567.f        },
+                { L_,     12345678.f       },
+                { L_,     123456789.f      },
+
+                // Full Mantissa Integers
+                { L_, 1.0f * 0xFFFFFF      },
+                { L_, 1.0f * 0xFFFFFF * (1ull << 63) * (1ull << 41) },
+                    // the above is 'bsl::numeric_limits<float>::max()'
+
+                // Boundary Values
+                { L_,  NumLimits::min()    },
+                { L_,  NumLimits::max()    },
+                { L_, -NumLimits::min()    },
+                { L_, -NumLimits::max()    },
+            };
+            printDecimalRoundTripTester(DATA);
+        }
+
+        if (verbose) cout << "\nTesting 'double'." << endl;
+        {
+            typedef bsl::numeric_limits<double> NumLimits;
+
+            static const RoundTripTestData<double> DATA[] =
+            {
+                //line  input
+                //----  -------------------
+                { L_,   -1.0               },
+                { L_,   -0.1               },
+                { L_,   -0.123456789012345 },
+                { L_,    0.0               },
+                { L_,    0.1               },
+                { L_,    1.0               },
+                { L_,    123.4567          },
+
+                // Values from 'balxml_encoder.t.cpp' 'runTestCase17'
+                { L_, 1.52587890625e-05    },
+                { L_, 3.0517578125e-05     },
+                { L_, 6.103515625e-05      },
+                { L_, 1.220703125e-04      },
+                { L_, 2.44140625e-04       },
+                { L_, 4.8828125e-04        },
+                { L_, 9.765625e-04         },
+                { L_, 1.953125e-03         },
+                { L_, 3.90625e-03          },
+                { L_, 7.8125e-03           },
+                { L_, 1.5625e-02           },
+                { L_, 3.125e-02            },
+                { L_, 6.25e-02             },
+                { L_, 1.25e-01             },
+                { L_, 2.5e-1               },
+                { L_, 5e-1                 },
+                { L_,                  1.  },
+                { L_,                  8.  },
+                { L_,                 64.  },
+                { L_,                128.  },
+                { L_,               1024.  },
+                { L_,              16384.  },
+                { L_,             131072.  },
+                { L_,            1048576.  },
+                { L_,           16777216.  },
+                { L_,          134217728.  },
+                { L_,         1073741824.  },
+                { L_,        17179869184.  },
+                { L_,       137438953472.  },
+                { L_,      1099511627776.  },
+                { L_,     17592186044416.  },
+                { L_,    140737488355328.  },
+                { L_,   1125899906842624.  },
+                { L_,  18014398509481984.  },
+                { L_, 144115188075855870.  },
+
+                // Small Integers
+                { L_, 123456789012345.     },
+                { L_, 1234567890123456.    },
+                { L_, 12345678901234567.   },
+                { L_, 123456789012345678.  },
+
+                // Full Mantissa Integers
+                { L_, 1.0 * 0x1FFFFFFFFFFFFFull },
+                { L_, 1.0 * 0x1FFFFFFFFFFFFFull
+                      * (1ull << 63) * (1ull << 63) * (1ull << 63)
+                      * (1ull << 63) * (1ull << 63) * (1ull << 63)
+                      * (1ull << 63) * (1ull << 63) * (1ull << 63)
+                      * (1ull << 63) * (1ull << 63) * (1ull << 63)
+                      * (1ull << 63) * (1ull << 63) * (1ull << 63)
+                      * (1ull << 26)                               },
+                      // The above is the value of 'NumLimits::max()'
+
+                // Boundary Values
+                { L_,  NumLimits::min() },
+                { L_,  NumLimits::max() },
+                { L_, -NumLimits::min() },
+                { L_, -NumLimits::max() },
+            };
+            printDecimalRoundTripTester(DATA);
+        }
+
+        if (verbose) cout << "\nTesting 'double' with encoder options" << endl;
+        {
+            typedef double Type;
+
+            typedef bsl::numeric_limits<Type> Limits;
+
+            const Type ROUND_TRIPS = Limits::infinity();
+                // We use infinity to indicate that with the specified encoder
+                // options the exact same binary numeric value must be parsed
+                // back, as 'printDecimal'/'parseDecimal' do not allow it as
+                // input/output.
+
+            const int N = -42;
+                // 'N' indicates an option not set.
+
+            static const struct TestData {
+                int  d_line;
+                Type d_input;
+                int  d_maxTotalDigits;
+                int  d_maxFractionDigits;
+                Type d_expected;
+            } DATA[] = {
+#define D(input, maxTotalDigits, maxFractionDigits, expected)                 \
+    {L_, input, maxTotalDigits, maxFractionDigits, expected }
+                //  input               TD   FD             result
+                // -------              --   --           ------------------
+                D(      0,               0,   0,          ROUND_TRIPS       ),
+                D(      1,               0,   0,          ROUND_TRIPS       ),
+                D(     -1,               0,   0,          ROUND_TRIPS       ),
+
+                D(      0,               0,   1,          ROUND_TRIPS       ),
+                D(      1,               0,   1,          ROUND_TRIPS       ),
+                D(     -1,               0,   1,          ROUND_TRIPS       ),
+
+                D(      0,               1,   0,          ROUND_TRIPS       ),
+                D(      1,               1,   0,          ROUND_TRIPS       ),
+                D(     -1,               1,   0,          ROUND_TRIPS       ),
+
+                D(      0,               1,   1,          ROUND_TRIPS       ),
+                D(      1,               1,   1,          ROUND_TRIPS       ),
+                D(     -1,               1,   1,          ROUND_TRIPS       ),
+
+                D(      0,               2,   1,          ROUND_TRIPS       ),
+                D(      1,               2,   1,          ROUND_TRIPS       ),
+                D(     -1,               2,   1,          ROUND_TRIPS       ),
+
+                D(      0,               2,   2,          ROUND_TRIPS       ),
+                D(      1,               2,   2,          ROUND_TRIPS       ),
+                D(     -1,               2,   2,          ROUND_TRIPS       ),
+
+                D(      0,               2,   3,          ROUND_TRIPS       ),
+                D(      1,               2,   3,          ROUND_TRIPS       ),
+                D(     -1,               2,   3,          ROUND_TRIPS       ),
+
+                D(      0,               3,   1,          ROUND_TRIPS       ),
+                D(      1,               3,   1,          ROUND_TRIPS       ),
+                D(     -1,               3,   1,          ROUND_TRIPS       ),
+
+                D(      0,               3,   2,          ROUND_TRIPS       ),
+                D(      1,               3,   2,          ROUND_TRIPS       ),
+                D(     -1,               3,   2,          ROUND_TRIPS       ),
+
+                D(      0,               3,   3,          ROUND_TRIPS       ),
+                D(      1,               3,   3,          ROUND_TRIPS       ),
+                D(     -1,               3,   3,          ROUND_TRIPS       ),
+
+                D(      0,               4,   2,          ROUND_TRIPS       ),
+                D(      1,               4,   2,          ROUND_TRIPS       ),
+                D(     -1,               4,   2,          ROUND_TRIPS       ),
+
+                D(      0,               4,   3,          ROUND_TRIPS       ),
+                D(      1,               4,   3,          ROUND_TRIPS       ),
+                D(     -1,               4,   3,          ROUND_TRIPS       ),
+
+                D(      0.0,             2,   0,          ROUND_TRIPS       ),
+                D(      1.0,             2,   0,          ROUND_TRIPS       ),
+                D(     -1.0,             2,   0,          ROUND_TRIPS       ),
+
+                D(      0.0,             2,   1,          ROUND_TRIPS       ),
+                D(      1.0,             2,   1,          ROUND_TRIPS       ),
+                D(     -1.0,             2,   1,          ROUND_TRIPS       ),
+
+                D(      0.0,             2,   2,          ROUND_TRIPS       ),
+                D(      1.0,             2,   2,          ROUND_TRIPS       ),
+                D(     -1.0,             2,   2,          ROUND_TRIPS       ),
+
+                D(      0.0,             2,   3,          ROUND_TRIPS       ),
+                D(      1.0,             2,   3,          ROUND_TRIPS       ),
+                D(     -1.0,             2,   3,          ROUND_TRIPS       ),
+
+                D(      0.0,             3,   2,          ROUND_TRIPS       ),
+                D(      1.0,             3,   2,          ROUND_TRIPS       ),
+                D(     -1.0,             3,   2,          ROUND_TRIPS       ),
+
+                D(      0.0,             3,   3,          ROUND_TRIPS       ),
+                D(      1.0,             3,   3,          ROUND_TRIPS       ),
+                D(     -1.0,             3,   3,          ROUND_TRIPS       ),
+
+                D(      0.1,             2,   0,          ROUND_TRIPS       ),
+                D(     -0.1,             2,   0,          ROUND_TRIPS       ),
+
+                D(      0.1,             2,   1,          ROUND_TRIPS       ),
+                D(     -0.1,             2,   1,          ROUND_TRIPS       ),
+
+                D(      0.1,             2,   2,          ROUND_TRIPS       ),
+                D(     -0.1,             2,   2,          ROUND_TRIPS       ),
+
+                D(      0.1,             2,   3,          ROUND_TRIPS       ),
+                D(     -0.1,             2,   3,          ROUND_TRIPS       ),
+
+                D(      0.1234,          0,   0,                   0.1      ),
+                D(     -0.1234,          0,   0,                  -0.1      ),
+
+                D(      0.1234,          1,   0,                   0.1      ),
+                D(     -0.1234,          1,   0,                  -0.1      ),
+
+                D(      0.1234,          0,   1,                   0.1      ),
+                D(     -0.1234,          0,   1,                  -0.1      ),
+
+                D(      0.1234,          1,   1,                   0.1      ),
+                D(     -0.1234,          1,   1,                  -0.1      ),
+
+                D(      79.864,          0,   0,                  79.9      ),
+                D(     -63.234,          0,   0,                 -63.2      ),
+
+                D(      79.864,          1,   0,                  79.9      ),
+                D(     -63.234,          1,   0,                 -63.2      ),
+
+                D(      79.864,          1,   1,                  79.9      ),
+                D(     -63.234,          1,   1,                 -63.2      ),
+
+                D(      79.864,          2,   1,                  79.9      ),
+                D(     -63.234,          2,   1,                 -63.2      ),
+
+                D(      79.864,          2,   2,                  79.9      ),
+                D(     -63.234,          2,   2,                 -63.2      ),
+
+                D(      79.864,          2,   3,                  79.9      ),
+                D(     -63.234,          2,   3,                 -63.2      ),
+
+                D(      79.864,          3,   3,                  79.8      ),
+                D(     -63.234,          3,   3,                 -63.2      ),
+
+                D(      79.864,          3,   2,                  79.8      ),
+                D(     -63.234,          3,   2,                 -63.2      ),
+                D(      79.864,          5,   3,          ROUND_TRIPS       ),
+                D(     -63.234,          5,   3,          ROUND_TRIPS       ),
+
+                D(      79.864,          5,   4,          ROUND_TRIPS       ),
+                D(     -63.234,          5,   4,          ROUND_TRIPS       ),
+
+                D(      79.864,          6,   3,          ROUND_TRIPS       ),
+                D(     -63.234,          6,   3,          ROUND_TRIPS       ),
+
+                D(      79.864,          6,   4,          ROUND_TRIPS       ),
+                D(     -63.234,          6,   4,          ROUND_TRIPS       ),
+
+                // Examples from the implementation comments
+                D(      65.4321,         4,   N,                  65.43     ),
+                D(    1234.001,          4,   N,                1234.0      ),
+                D(       1.45623,        4,   N,                   1.456    ),
+                D(      65.4321,         4,   2,                  65.43     ),
+                D(    1234.001,          4,   2,                1234.0      ),
+                D(       1.45623,        4,   2,                   1.46     ),
+
+                // Large integer parts writing more digits than asked for
+                D(  123456.001,          4,   N,              123456.0      ),
+
+                // Values from 'balxml_encoder.t.cpp' 'runTestCase17' (no opts)
+                D(1.52587890625e-05  ,   N,   N,          ROUND_TRIPS       ),
+                D(3.0517578125e-05   ,   N,   N,          ROUND_TRIPS       ),
+                D(6.103515625e-05    ,   N,   N,          ROUND_TRIPS       ),
+                D(1.220703125e-04    ,   N,   N,          ROUND_TRIPS       ),
+                D(2.44140625e-04     ,   N,   N,          ROUND_TRIPS       ),
+                D(4.8828125e-04      ,   N,   N,          ROUND_TRIPS       ),
+                D(9.765625e-04       ,   N,   N,          ROUND_TRIPS       ),
+                D(1.953125e-03       ,   N,   N,          ROUND_TRIPS       ),
+                D(3.90625e-03        ,   N,   N,          ROUND_TRIPS       ),
+                D(7.8125e-03         ,   N,   N,          ROUND_TRIPS       ),
+                D(1.5625e-02         ,   N,   N,          ROUND_TRIPS       ),
+                D(3.125e-02          ,   N,   N,          ROUND_TRIPS       ),
+                D(6.25e-02           ,   N,   N,          ROUND_TRIPS       ),
+                D(1.25e-01           ,   N,   N,          ROUND_TRIPS       ),
+                D(2.5e-1             ,   N,   N,          ROUND_TRIPS       ),
+                D(5e-1               ,   N,   N,          ROUND_TRIPS       ),
+                D(                 1.,   N,   N,          ROUND_TRIPS       ),
+                D(                 8.,   N,   N,          ROUND_TRIPS       ),
+                D(                64.,   N,   N,          ROUND_TRIPS       ),
+                D(               128.,   N,   N,          ROUND_TRIPS       ),
+                D(              1024.,   N,   N,          ROUND_TRIPS       ),
+                D(             16384.,   N,   N,          ROUND_TRIPS       ),
+                D(            131072.,   N,   N,          ROUND_TRIPS       ),
+                D(           1048576.,   N,   N,          ROUND_TRIPS       ),
+                D(          16777216.,   N,   N,          ROUND_TRIPS       ),
+                D(         134217728.,   N,   N,          ROUND_TRIPS       ),
+                D(        1073741824.,   N,   N,          ROUND_TRIPS       ),
+                D(       17179869184.,   N,   N,          ROUND_TRIPS       ),
+                D(      137438953472.,   N,   N,          ROUND_TRIPS       ),
+                D(     1099511627776.,   N,   N,          ROUND_TRIPS       ),
+                D(    17592186044416.,   N,   N,          ROUND_TRIPS       ),
+                D(   140737488355328.,   N,   N,          ROUND_TRIPS       ),
+                D(  1125899906842624.,   N,   N,          ROUND_TRIPS       ),
+                D( 18014398509481984.,   N,   N,          ROUND_TRIPS       ),
+                D(144115188075855870.,   N,   N,          ROUND_TRIPS       ),
+
+                // More from 'balxml_encoder.t.cpp' 'runTestCase17' (with opts)
+                D(1.52587890625e-05   ,   N,   0,                  0.0      ),
+                D(3.0517578125e-05    ,   N,   0,                  0.0      ),
+                D(6.103515625e-05     ,   N,   0,                  0.0      ),
+                D(1.220703125e-04     ,   N,   0,                  0.0      ),
+                D(2.44140625e-04      ,   N,   0,                  0.0      ),
+                D(4.8828125e-04       ,   N,   0,                  0.0      ),
+                D(9.765625e-04        ,   N,   0,                  0.0      ),
+                D(1.953125e-03        ,   N,   0,                  0.0      ),
+                D(3.90625e-03         ,   N,   0,                  0.0      ),
+                D(7.8125e-03          ,   N,   0,                  0.0      ),
+                D(1.5625e-02          ,   N,   0,                  0.0      ),
+                D(3.125e-02           ,   N,   0,                  0.0      ),
+                D(6.25e-02            ,   N,   0,                  0.1      ),
+                D(1.25e-01            ,   N,   0,                  0.1      ),
+//               D(2.5e-1              ,   N,   0,                  0.2      ),
+// The above line may trigger a bug in  Microsoft's 'sprintf' implementation
+// depending on what version of their C library ends up being used.  That
+// unfortunately may depends on the actual machine where the code runs, not
+// where it is built.  Since this value with the 0 'maxFractionDigits' (that
+// becomes the minim allowed 1) does not round-trip anyway, this line does
+// not add value to the round-trip test.  So instead of adding exra code to
+// accepting 0.3 as well as 0.2 (when using Microsoft 'sprintf') we just skip
+// this test line.
+
+                D(5e-1                ,   N,   0,         ROUND_TRIPS       ),
+                D(                 1.0,   N,   0,         ROUND_TRIPS       ),
+                D(                 8.0,   N,   0,         ROUND_TRIPS       ),
+                D(                64.0,   N,   0,         ROUND_TRIPS       ),
+                D(               128.0,   N,   0,         ROUND_TRIPS       ),
+                D(              1024.0,   N,   0,         ROUND_TRIPS       ),
+                D(             16384.0,   N,   0,         ROUND_TRIPS       ),
+                D(            131072.0,   N,   0,         ROUND_TRIPS       ),
+                D(           1048576.0,   N,   0,         ROUND_TRIPS       ),
+                D(          16777216.0,   N,   0,         ROUND_TRIPS       ),
+                D(         134217728.0,   N,   0,         ROUND_TRIPS       ),
+                D(        1073741824.0,   N,   0,         ROUND_TRIPS       ),
+                D(       17179869184.0,   N,   0,         ROUND_TRIPS       ),
+                D(      137438953472.0,   N,   0,         ROUND_TRIPS       ),
+                D(     1099511627776.0,   N,   0,         ROUND_TRIPS       ),
+                D(    17592186044416.0,   N,   0,         ROUND_TRIPS       ),
+                D(   140737488355328.0,   N,   0,         ROUND_TRIPS       ),
+                D(  1125899906842624.0,   N,   0,         ROUND_TRIPS       ),
+                D( 18014398509481984.0,   N,   0,         ROUND_TRIPS       ),
+                D(144115188075855870.0,   N,   0,         ROUND_TRIPS       ),
+
+                D(   123456789012345.0,  14,   0,         ROUND_TRIPS       ),
+                D(   123456789012345.0,  15,   0,         ROUND_TRIPS       ),
+                D(   123456789012345.0,  16,   0,         ROUND_TRIPS       ),
+                D(   123456789012345.0,  17,   0,         ROUND_TRIPS       ),
+                D(   123456789012345.0,  18,   0,         ROUND_TRIPS       ),
+                D(   123456789012345.0,  19,   0,         ROUND_TRIPS       ),
+                D(   123456789012345.0,  20,   0,         ROUND_TRIPS       ),
+
+                D(   123456789012345.0,  14,   1,         ROUND_TRIPS       ),
+                D(   123456789012345.0,  15,   1,         ROUND_TRIPS       ),
+                D(   123456789012345.0,  16,   1,         ROUND_TRIPS       ),
+                D(   123456789012345.0,  17,   1,         ROUND_TRIPS       ),
+                D(   123456789012345.0,  18,   1,         ROUND_TRIPS       ),
+                D(   123456789012345.0,  19,   1,         ROUND_TRIPS       ),
+                D(   123456789012345.0,  20,   1,         ROUND_TRIPS       ),
+
+                D(   123456789012345.0,  14,   2,         ROUND_TRIPS       ),
+                D(   123456789012345.0,  15,   2,         ROUND_TRIPS       ),
+                D(   123456789012345.0,  16,   2,         ROUND_TRIPS       ),
+                D(   123456789012345.0,  17,   2,         ROUND_TRIPS       ),
+                D(   123456789012345.0,  18,   2,         ROUND_TRIPS       ),
+                D(   123456789012345.0,  19,   2,         ROUND_TRIPS       ),
+                D(   123456789012345.0,  20,   2,         ROUND_TRIPS       ),
+
+                D(   123456789012345.0,  15,   0,         ROUND_TRIPS       ),
+                D(   123456789012345.0,  16,   0,         ROUND_TRIPS       ),
+                D(   123456789012345.0,  17,   0,         ROUND_TRIPS       ),
+                D(   123456789012345.0,  18,   0,         ROUND_TRIPS       ),
+                D(   123456789012345.0,  19,   0,         ROUND_TRIPS       ),
+                D(   123456789012345.0,  20,   0,         ROUND_TRIPS       ),
+
+                D(    123456789.012345,  14,   0,          123456789.0      ),
+                D(    123456789.012345,  15,   0,          123456789.0      ),
+                D(    123456789.012345,  16,   0,          123456789.0      ),
+                D(    123456789.012345,  17,   0,          123456789.0      ),
+                D(    123456789.012345,  18,   0,          123456789.0      ),
+                D(    123456789.012345,  19,   0,          123456789.0      ),
+                D(    123456789.012345,  20,   0,          123456789.0      ),
+
+                D(    123456789.012345,  14,   1,          123456789.0      ),
+                D(    123456789.012345,  15,   1,          123456789.0      ),
+                D(    123456789.012345,  16,   1,          123456789.0      ),
+                D(    123456789.012345,  17,   1,          123456789.0      ),
+                D(    123456789.012345,  18,   1,          123456789.0      ),
+                D(    123456789.012345,  19,   1,          123456789.0      ),
+                D(    123456789.012345,  20,   1,          123456789.0      ),
+
+                D(    123456789.012345,  14,   2,          123456789.01     ),
+                D(    123456789.012345,  15,   2,          123456789.01     ),
+                D(    123456789.012345,  16,   2,          123456789.01     ),
+                D(    123456789.012345,  17,   2,          123456789.01     ),
+                D(    123456789.012345,  18,   2,          123456789.01     ),
+                D(    123456789.012345,  19,   2,          123456789.01     ),
+                D(    123456789.012345,  20,   2,          123456789.01     ),
+
+                D(    123456789.012345,  14,   6,          123456789.01234  ),
+                D(    123456789.012345,  15,   6,         ROUND_TRIPS       ),
+                D(    123456789.012345,  16,   6,         ROUND_TRIPS       ),
+                D(    123456789.012345,  17,   6,         ROUND_TRIPS       ),
+                D(    123456789.012345,  18,   6,         ROUND_TRIPS       ),
+                D(    123456789.012345,  19,   6,         ROUND_TRIPS       ),
+                D(    123456789.012345,  20,   6,         ROUND_TRIPS       ),
+
+                D(    123456789.012345,  14,   7,           123456789.01234 ),
+                D(    123456789.012345,  15,   7,          ROUND_TRIPS      ),
+                D(    123456789.012345,  16,   7,          ROUND_TRIPS      ),
+                D(    123456789.012345,  17,   7,          ROUND_TRIPS      ),
+                D(    123456789.012345,  18,   7,          ROUND_TRIPS      ),
+                D(    123456789.012345,  19,   7,          ROUND_TRIPS      ),
+                D(    123456789.012345,  20,   7,          ROUND_TRIPS      ),
+
+                D( Limits::max(),         N,   N,          ROUND_TRIPS      ),
+                D( Limits::max(),         N,   0,          ROUND_TRIPS      ),
+                D( Limits::max(),       326,  17,          ROUND_TRIPS      ),
+
+                D( Limits::min(),         N,   N,          ROUND_TRIPS      ),
+                D( Limits::min(),       326,  17,                   0.0     ),
+                D( Limits::min(),         N,   0,                   0.0     ),
+
+                D(-Limits::max(),         N,   N,          ROUND_TRIPS      ),
+                D(-Limits::max(),         N,   0,          ROUND_TRIPS      ),
+                D(-Limits::max(),       326,  17,          ROUND_TRIPS      ),
+
+                D(-Limits::min(),         N,   N,          ROUND_TRIPS      ),
+                D(-Limits::min(),       326,  17,                   0.0     ),
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int   LINE      = DATA[i].d_line;
+                const Type  INPUT     = DATA[i].d_input;
+                const int   TD        = DATA[i].d_maxTotalDigits;
+                const int   FD        = DATA[i].d_maxFractionDigits;
+                const Type  EXPECTED  = DATA[i].d_expected;
+
+                balxml::EncoderOptions options;
+                if (TD != N) options.setMaxDecimalTotalDigits(TD);
+                if (FD != N) options.setMaxDecimalFractionDigits(FD);
+
+                bsl::stringstream ss;
+                Print::printDecimal(ss, INPUT, &options);
+                ASSERTV(LINE, ss.good());
+                const bsl::string ENCODED(ss.str());
+
+                using TestMachinery::intLength;
+                Type decoded;
+                ASSERTV(LINE, 0 == Util::parseDecimal(&decoded,
+                                                      ENCODED.data(),
+                                                      intLength(ENCODED)));
+
+
+                if (EXPECTED == ROUND_TRIPS) {
+                    ASSERTV(LINE, ENCODED, decoded, INPUT, INPUT == decoded);
+                }
+                else {
+                    ASSERTV(LINE, ENCODED, decoded, INPUT, EXPECTED,
+                            EXPECTED == decoded);
+                }
+            }
+        }
+      } break;
+      case 9: {
+        // --------------------------------------------------------------------
+        // TESTING 'printBase64' ROUND TRIP
+        //
+        // Concerns:
+        //
+        // Plan:
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING 'printBase64' ROUND TRIP"
+                          << "\n================================" << endl;
+
+        static const struct TestData {
+            int         d_line;
+            const char *d_input;
+        } DATA[] = {
+            //line    input
+            //----    -----
+            { L_,     ""     },
+            { L_,     "a"    },
+            { L_,     "ab"   },
+            { L_,     "abc"  },
+            { L_,     "abcd" },
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int          LINE         = DATA[i].d_line;
+            const char        *INPUT        = DATA[i].d_input;
+            const bsl::size_t  INPUT_LENGTH = bsl::strlen(INPUT);
+
+            const bsl::string IN(INPUT, INPUT + INPUT_LENGTH);
+            bsl::stringstream ss;
+            Print::printBase64(ss, IN);
+            ASSERTV(LINE, ss.good());
+            const bsl::string ENCODED(ss.str());
+
+            using TestMachinery::intLength;
+
+            {
+                typedef bsl::string Type;
+
+                Type mDecoded; const Type& DECODED = mDecoded;
+                ASSERTV(LINE, 0 == Util::parseBase64(&mDecoded,
+                                                     ENCODED.data(),
+                                                     intLength(ENCODED)));
+
+                ASSERTV(LINE, ENCODED, DECODED, INPUT, INPUT == DECODED);
+            }
+            {
+                typedef bsl::vector<char> Type;
+
+                Type mDecoded; const Type& DECODED = mDecoded;
+                ASSERTV(LINE, 0 == Util::parseBase64(&mDecoded,
+                                                     ENCODED.data(),
+                                                     intLength(ENCODED)));
+
+                const Type IN_VEC(IN.begin(), IN.end());
+                ASSERTV(LINE, ENCODED, DECODED, IN_VEC, IN_VEC == DECODED);
+            }
+        }
       } break;
       case 8: {
         // --------------------------------------------------------------------
@@ -1086,8 +3654,6 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(LINE, X,       EXPECTED_RESULT == X);
             }
         }
-
-        if (verbose) cout << "\nEnd of Test." << endl;
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -2474,7 +5040,6 @@ int main(int argc, char *argv[])
                 }
             }
         }
-        if (verbose) cout << "\nEnd of Test." << endl;
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -2753,8 +5318,6 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(LINE, retCode, 0 != retCode);
             }
         }
-
-        if (verbose) cout << "\nEnd of Test." << endl;
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -2808,8 +5371,6 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(LINE, X,       EXPECTED_RESULT == X);
             }
         }
-
-        if (verbose) cout << "\nEnd of Test." << endl;
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -2883,8 +5444,6 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(LINE, X,       EXPECTED_RESULT == X);
             }
         }
-
-        if (verbose) cout << "\nEnd of Test." << endl;
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -3462,8 +6021,6 @@ int main(int argc, char *argv[])
                 }
             }
         }
-
-        if (verbose) cout << "\nEnd of Test." << endl;
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -3537,8 +6094,6 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(LINE, X,       EXPECTED_RESULT == X);
             }
         }
-
-        if (verbose) cout << "\nEnd of Test." << endl;
       } break;
       case 1: {
         // --------------------------------------------------------------------

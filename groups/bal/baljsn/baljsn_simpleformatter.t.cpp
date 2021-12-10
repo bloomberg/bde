@@ -42,6 +42,7 @@
 
 #include <bsls_asserttest.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_platform.h>
 #include <bsls_review.h>
 #include <bsls_types.h>
 
@@ -57,7 +58,10 @@
 #include <bsl_vector.h>
 
 using namespace BloombergLP;
-using namespace bsl;
+
+using bsl::cout;
+using bsl::cerr;
+using bsl::endl;
 
 // Suppress some bde_verify warnings for test driver.
 // BDE_VERIFY pragma: -AL01
@@ -331,8 +335,8 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "USAGE EXAMPLE" << endl
-                                  << "=============" << endl;
+        if (verbose) cout << "\nUSAGE EXAMPLE"
+                          << "\n=============" << endl;
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -347,8 +351,8 @@ int main(int argc, char *argv[])
 //..
 {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
-    const bsl::string EXPECTED =
-R"JSON({
+            const bsl::string EXPECTED =
+                R"JSON({
   "Stocks" : [
     {
       "Name" : "International Business Machines Corp",
@@ -522,10 +526,8 @@ R"JSON({
         //   bslma::Allocator *allocator() const;
         // --------------------------------------------------------------------
 
-        if (verbose)
-            cout << "\n"
-                 << "TESTING 'allocator' METHOD" << "\n"
-                 << "==========================" << endl;
+        if (verbose) cout << "\nTESTING 'allocator' METHOD"
+                          << "\n==========================" << endl;
 
         bsl::ostringstream os;
         Obj                withoutAllocatorArg(os);
@@ -567,12 +569,9 @@ R"JSON({
         //   void openArray(bslstl::StringRef name, bool formatAsEmptyArray);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING INTERLEAVING OBJECT AND ARRAY CALLS"
-                          << endl
-                          << "==========================================="
+        if (verbose) cout << "\nTESTING INTERLEAVING OBJECT AND ARRAY CALLS"
+                          << "\n==========================================="
                           << endl;
-
 #define NL "\n"
 
         // Interleave 'openObject' and 'openArray'
@@ -745,9 +744,8 @@ R"JSON({
         //   bool isNameNeeded() const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING 'addValue' METHOD" << endl
-                          << "=========================" << endl;
+        if (verbose) cout << "\nTESTING 'addValue' METHOD"
+                          << "\n=========================" << endl;
 
         const bool                A = true;
         const char                B = 'A';
@@ -924,8 +922,7 @@ R"JSON({
 
             bsl::ostringstream os;
 
-            if (veryVerbose) cout << "\t\t'addMemberName()'"
-                                  << endl;
+            if (veryVerbose) cout << "\t\t'addMemberName()'" << endl;
             {
                 Obj mX(os);
                 ASSERT(!mX.isNameNeeded());
@@ -986,9 +983,8 @@ R"JSON({
         //   bool isCompleteJSON() const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\n"
-                          << "TESTING 'closeArray' METHOD" << "\n"
-                          << "===========================" << endl;
+        if (verbose) cout << "\nTESTING 'closeArray' METHOD"
+                          << "\n===========================" << endl;
 #define NL "\n"
 #define EMPTY Obj::e_EMPTY_ARRAY_FORMAT
 #define NORMAL Obj::e_REGULAR_ARRAY_FORMAT
@@ -1102,8 +1098,7 @@ R"JSON({
 
             bsl::ostringstream os;
 
-            if (veryVerbose) cout << "\t\t'closeArray()'"
-                                  << endl;
+            if (veryVerbose) cout << "\t\t'closeArray()'" << endl;
             {
                 Obj mX(os);
                 ASSERT_FAIL(mX.closeArray());
@@ -1139,9 +1134,8 @@ R"JSON({
         //   bool isFormattingArray() const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\n"
-                          << "TESTING 'openArray' METHOD" << "\n"
-                          << "==========================" << endl;
+        if (verbose) cout << "\nTESTING 'openArray' METHOD"
+                          << "\n==========================" << endl;
 #define NL "\n"
 #define EMPTY Obj::e_EMPTY_ARRAY_FORMAT
 #define NORMAL Obj::e_REGULAR_ARRAY_FORMAT
@@ -1253,9 +1247,8 @@ R"JSON({
         //   void closeObject();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING 'closeObject' METHOD" << endl
-                          << "============================" << endl;
+        if (verbose) cout << "\nTESTING 'closeObject' METHOD"
+                          << "\n============================" << endl;
 #define NL "\n"
 
         // Use a value of -1 to signify that that specific option should not be
@@ -1338,8 +1331,7 @@ R"JSON({
 
             bsl::ostringstream os;
 
-            if (veryVerbose) cout << "\t\t'closeObject()'"
-                                  << endl;
+            if (veryVerbose) cout << "\t\t'closeObject()'" << endl;
             {
                 Obj mX(os);
                 ASSERT_FAIL(mX.closeObject());
@@ -1377,9 +1369,8 @@ R"JSON({
         //   bool isFormattingObject() const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING 'openObject' METHOD" << endl
-                          << "===========================" << endl;
+        if (verbose) cout << "\nTESTING 'openObject' METHOD"
+                          << "\n===========================" << endl;
 #define NL "\n"
 
         // Use a value of -1 to signify that that specific option should not be
@@ -1472,8 +1463,7 @@ R"JSON({
             }
 
             if (veryVerbose) cout << "\t\t'openObject()' and "
-                                  << "'openObject(name)'"
-                                  << endl;
+                                     "'openObject(name)'" << endl;
             {
                 Obj mX(os);
                 ASSERT_FAIL(mX.openObject("name"));
@@ -1505,9 +1495,8 @@ R"JSON({
         //   ~SimpleFormatter();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING CREATORS" << endl
-                          << "================" << endl;
+        if (verbose) cout << "\nTESTING CREATORS"
+                          << "\n================" << endl;
 #define NL "\n"
 
         // Use a value of -1 to signify that that specific option should not be
@@ -1616,7 +1605,6 @@ R"JSON({
             ASSERTV(LINE, EXP, actual,    EXP == actual);
         }
 #undef NL
-
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -1634,9 +1622,8 @@ R"JSON({
         //   BREATHING TEST
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "BREATHING TEST" << endl
-                          << "==============" << endl;
+        if (verbose) cout << "\nBREATHING TEST"
+                          << "\n==============" << endl;
 
         bsl::ostringstream os;
 
@@ -1691,9 +1678,9 @@ R"JSON({
         // BDE_VERIFY pragma: -TP18
         // BDE_VERIFY pragma: -TP22
 
-        if (verbose) cout << endl
-                          << "SimpleFormatter<->Formatter comparison" << endl
-                          << "======================================" << endl;
+        if (verbose) cout << "\nSimpleFormatter<->Formatter comparison"
+                          << "\n======================================"
+                          << endl;
 
         struct {
             bsl::string d_description;

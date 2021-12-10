@@ -166,7 +166,8 @@ namespace UsageExample {
 
         { balxml::Reader::e_NODE_TYPE_ELEMENT,
           "directory-entry" , 0                              ,  0,
-          false, {"xmlns:dir"    , "http://bloomberg.com/schemas/directory"} },
+          false,
+          { { "xmlns:dir"  , "http://bloomberg.com/schemas/directory" } }    },
 
         { balxml::Reader::e_NODE_TYPE_ELEMENT,
           "name"           , 0                               , +1,
@@ -182,7 +183,7 @@ namespace UsageExample {
 
         { balxml::Reader::e_NODE_TYPE_ELEMENT,
           "phone"          , 0                               ,  0,
-          false, {"dir:phonetype", "cell"}                                   },
+          false, { { "dir:phonetype", "cell" } }                             },
 
         { balxml::Reader::e_NODE_TYPE_TEXT,
           0                , "212-318-2000"                  , +1,

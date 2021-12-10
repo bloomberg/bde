@@ -972,7 +972,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   FUZZ TEST
         // --------------------------------------------------------------------
-        
+
         bsl::string f = "xmlns=\"1\"\n";
         f += f; f += f; f += f; f += f; f += f; f += f;
         f += "xlll<a:e=\"1\"\n";
@@ -1114,7 +1114,8 @@ int main(int argc, char *argv[])
 
                 ASSERTV(badPos, badPos == reader.getCurrentPosition());
 
-                int expLine, expCol;
+                int expLine = -1; // Initialized to avoid eager warnings
+                int expCol  = -1;
                 ASSERT(0 == findLoc(&expLine,
                                     &expCol,
                                     xmlStr,
@@ -1543,6 +1544,7 @@ int main(int argc, char *argv[])
               "        </Node0>"
               "    </Node0>\n"
               "</xs:schema>";
+            enum { k_xmlStrLen = sizeof(xmlStr) - 1 };
 
             int rc = reader.open(xmlStr, k_xmlStrLen);
             ASSERT(-1 < rc);
@@ -1585,6 +1587,7 @@ int main(int argc, char *argv[])
               "        </Node0>"
               "    </Node0>\n"
               "</xs:schema>";
+            enum { k_xmlStrLen = sizeof(xmlStr) - 1 };
 
             int rc = reader.open(xmlStr, k_xmlStrLen);
             ASSERT(-1 < rc);
@@ -1627,6 +1630,7 @@ int main(int argc, char *argv[])
               "        </Node0>"
               "    </Node0>\n"
               "</xs:schema>";
+            enum { k_xmlStrLen = sizeof(xmlStr) - 1 };
 
             int rc = reader.open(xmlStr, k_xmlStrLen);
             ASSERT(-1 < rc);

@@ -92,7 +92,7 @@ int decodeObject(bdld::ManagedDatum *result,
             return -2;                                                // RETURN
         }
 
-        bslstl::StringRef tokenContents;
+        bsl::string_view tokenContents;
         tokenizer->value(&tokenContents);
 
         bsl::string key;
@@ -100,8 +100,7 @@ int decodeObject(bdld::ManagedDatum *result,
         {
             if (errorStream) {
                 *errorStream
-                    << "decodeValue: getUnquotedString for key failed"
-                    << '\n';
+                    << "decodeValue: getUnquotedString for key failed\n";
             }
             return -3;                                                // RETURN
         }

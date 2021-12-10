@@ -42,6 +42,8 @@
 #include <bdlt_time.h>
 #include <bdlt_timetz.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bslim_printer.h>
 
 #include <bslma_testallocator.h>
@@ -223,7 +225,7 @@ struct TestUtil {
                       const baljsn::EncodingStyle::Value ENCODING_STYLE,
                       const bool                         ENCODE_NULL_ELEMENTS,
                       const VALUE_TYPE&                  VALUE,
-                      const bslstl::StringRef&           EXPECTED_JSON_STRING);
+                      const bsl::string_view&            EXPECTED_JSON_STRING);
 };
 
                 // ==============================================
@@ -239,8 +241,8 @@ class AssertEncodingOverflowIsDetectedFunction {
                         const baljsn::Encoder&       encoder,
                         const int                    LINE,
                         const int                    SUCCESS,
-                        const bslstl::StringRef&     EXPECTED_JSON_STRING,
-                        const bslstl::StringRef&     EXPECTED_LOGGED_MESSAGES);
+                        const bsl::string_view&      EXPECTED_JSON_STRING,
+                        const bsl::string_view&      EXPECTED_LOGGED_MESSAGES);
         // Assert that the content of the specified 'streamBuf' is equal to
         // the specified 'EXPECTED_JSON_STRING', that the specified 'rc' is
         // 0 if the specified 'SUCCESS' is true, that 'rc' is non-zero if
@@ -254,12 +256,12 @@ class AssertEncodingOverflowIsDetectedFunction {
 
     // ACCESSORS
     template <class VALUE_TYPE>
-    void operator()(const int                LINE,
-                    const VALUE_TYPE&        VALUE,
-                    const int                BUFFER_SIZE,
-                    const bool               SUCCESS,
-                    const bslstl::StringRef& EXPECTED_JSON_STRING,
-                    const bslstl::StringRef& EXPECTED_LOGGED_MESSAGES) const;
+    void operator()(const int               LINE,
+                    const VALUE_TYPE&       VALUE,
+                    const int               BUFFER_SIZE,
+                    const bool              SUCCESS,
+                    const bsl::string_view& EXPECTED_JSON_STRING,
+                    const bsl::string_view& EXPECTED_LOGGED_MESSAGES) const;
         // Assert that encoding the specified 'VALUE' using 'baljsn::Encoder'
         // and a stream buffer that fails after its output sequence exceeds the
         // specified 'BUFFER_SIZE' number of bytes succeeds if the specified
@@ -286,7 +288,7 @@ class AssertEncodedValueIsEqualFunction {
                 const baljsn::EncodingStyle::Value ENCODING_STYLE,
                 const bool                         ENCODE_NULL_ELEMENTS,
                 const VALUE_TYPE&                  VALUE,
-                const bslstl::StringRef&           EXPECTED_JSON_STRING) const;
+                const bsl::string_view&            EXPECTED_JSON_STRING) const;
 };
 
                              // ==================
@@ -344,14 +346,7 @@ class EmptySequenceExampleSequence {
     // CREATORS
     EmptySequenceExampleSequence();
 
-    EmptySequenceExampleSequence(const EmptySequenceExampleSequence& original);
-
-    ~EmptySequenceExampleSequence();
-
     // MANIPULATORS
-    EmptySequenceExampleSequence& operator=(
-                                      const EmptySequenceExampleSequence& rhs);
-
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, int version);
 
@@ -433,13 +428,7 @@ class EmptySequenceExample {
     // CREATORS
     EmptySequenceExample();
 
-    EmptySequenceExample(const EmptySequenceExample& original);
-
-    ~EmptySequenceExample();
-
     // MANIPULATORS
-    EmptySequenceExample& operator=(const EmptySequenceExample& rhs);
-
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, int version);
 
@@ -642,12 +631,8 @@ int main(int argc, char *argv[])
         //   int encode(stream, value, options);
         // --------------------------------------------------------------------
 
-        if (verbose)
-            cout << endl
-                 << "TESTING ENCODING UNSET CHOICE"
-                 << endl
-                 << "============================="
-                 << endl;
+        if (verbose) cout << "\nTESTING ENCODING UNSET CHOICE"
+                          << "\n=============================" << endl;
 
         bsl::ostringstream                          out;
         BloombergLP::s_baltst::MySequenceWithChoice obj;
@@ -719,12 +704,8 @@ int main(int argc, char *argv[])
         //   int encode(stream, value);
         // --------------------------------------------------------------------
 
-        if (verbose)
-            cout << endl
-                 << "TESTING ENCODING OVERFLOW DETECTION"
-                 << endl
-                 << "==================================="
-                 << endl;
+        if (verbose) cout << "\nTESTING ENCODING OVERFLOW DETECTION"
+                          << "\n===================================" << endl;
 
         u::AssertEncodingOverflowIsDetectedFunction t;
 
@@ -743,14 +724,15 @@ int main(int argc, char *argv[])
         obj1.data()           = "Lorem ipsum dolor sit amet.";
         obj1.responseLength() = 42;
 
-        //            OBJECT
-        //           .------
-        //          /    BUFFER SIZE
-        //   LINE  /    .-----------
-        //  .---- /    /   ENCODING SUCCEEDS  EXPECTED ERROR MESSAGE
-        //  |    /    /   .-----------------  ----------------------.
-        //  |   /    /   /     EXPECTED STREAM BUFFER CONTENTS       \
-        // -- ----- --- -- --------------------------------------- -------
+        //.---------------------------------------------------------------.
+        //            OBJECT                                              |
+        //           .------                                              |
+        //          /    BUFFER SIZE                                      |
+        //   LINE  /    .-----------                                      |
+        //  .---- /    /   ENCODING SUCCEEDS  EXPECTED ERROR MESSAGE      |
+        //  |    /    /   .-----------------  ----------------------.     |
+        //  |   /    /   /     EXPECTED STREAM BUFFER CONTENTS       \    |
+        //`-- ----- --- -- --------------------------------------- -------'
         t( L_, obj0,  0, F, ""                                    , ERROR );
         t( L_, obj0,  1, F, "{"                                   , ERROR );
         t( L_, obj0,  2, F, "{\""                                 , ERROR );
@@ -777,7 +759,6 @@ int main(int argc, char *argv[])
                                            " sit amet.\","
                                 "\"responseLength\":42"
                             "}"                                   , ""    );
-
       } break;
       case 18: {
         // --------------------------------------------------------------------
@@ -817,11 +798,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << endl
-                 << "TESTING DEGENERATE CHOICE VALUES"
-                 << endl
-                 << "================================"
-                 << endl;
+            cout << "\nTESTING DEGENERATE CHOICE VALUES"
+                 << "\n================================" << endl;
 
         const u::AssertEncodedValueIsEqualFunction t;
 
@@ -858,7 +836,6 @@ int main(int argc, char *argv[])
         t( L_  , C   , T , obj1 , "{}"                                 );
         t( L_  , P   , F , obj1 , "{\n\n}\n"                           );
         t( L_  , P   , T , obj1 , "{\n\n}\n"                           );
-
       } break;
       case 17: {
         // --------------------------------------------------------------------
@@ -898,12 +875,10 @@ int main(int argc, char *argv[])
         //   int encode(bsl::streambuf *streambuf, const TYPE& v, options);
         // --------------------------------------------------------------------
 
-        if (verbose)
-            cout << endl
-                 << "TESTING SEQUENCES WITH ATTRIBUTES OF ALL VALUE CATEGORIES"
-                 << endl
-                 << "========================================================="
-                 << endl;
+        if (verbose) cout
+               << "\nTESTING SEQUENCES WITH ATTRIBUTES OF ALL VALUE CATEGORIES"
+               << "\n========================================================="
+               << endl;
 
         const u::AssertEncodedValueIsEqualFunction t;
 
@@ -969,7 +944,6 @@ int main(int argc, char *argv[])
                                  "    },\n"
                                  "    \"simple\" : 0\n"
                                  "}\n"                                 );
-
       } break;
       case 16: {
         // --------------------------------------------------------------------
@@ -1010,10 +984,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << endl
-                 << "TESTING CHOICES WITH SELECTIONS OF ALL VALUE CATEGORIES"
-                 << endl
-                 << "======================================================="
+            cout << "\nTESTING CHOICES WITH SELECTIONS OF ALL VALUE CATEGORIES"
+                 << "\n======================================================="
                  << endl;
 
         const u::AssertEncodedValueIsEqualFunction t;
@@ -1106,7 +1078,6 @@ int main(int argc, char *argv[])
         t( L_  , P   , T , obj5 , "{\n"
                                   "    \"simple\" : 0\n"
                                   "}\n"                                 );
-
       } break;
       case 15: {
         // --------------------------------------------------------------------
@@ -1146,10 +1117,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << endl
-                 << "TESTING FORMATTING OF SEQUENCES WITH EMPTY ELEMENTS"
-                 << endl
-                 << "==================================================="
+            cout << "\nTESTING FORMATTING OF SEQUENCES WITH EMPTY ELEMENTS"
+                 << "\n==================================================="
                  << endl;
 
         const u::AssertEncodedValueIsEqualFunction t;
@@ -1275,7 +1244,6 @@ int main(int argc, char *argv[])
         t( L_  , P   , T , obj14,
            "{\n    \"attribute0\" : 0,\n    \"attribute1\" : 0,\n"
            "    \"attribute2\" : 0\n}\n"                                );
-
       } break;
       case 14: {
         // --------------------------------------------------------------------
@@ -1308,11 +1276,9 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (veryVerbose)
-            bsl::cout << bsl::endl
-                      << "TESTING the log buffer clears on each 'encode' call"
-                      << bsl::endl
-                      << "==================================================="
-                      << bsl::endl;
+            cout << "\nTESTING the log buffer clears on each 'encode' call"
+                 << "\n==================================================="
+                 << endl;
 
         s_baltst::Address mS1;
             // 'mS1' is a modifiable object for which 'baljsn::Encoder::encode'
@@ -1456,8 +1422,7 @@ int main(int argc, char *argv[])
             const int          LINE          = DATA[i].d_line;
             const Instruction *INSTRUCTIONS  = DATA[i].d_instructions;
             const bool ENCODE_SUCCESS_STATUS = DATA[i].d_encodeSuccessStatus;
-            const bslstl::StringRef& LOGGED_MESSAGES =
-                DATA[i].d_loggedMessages;
+            const bsl::string_view& LOGGED_MESSAGES = DATA[i].d_loggedMessages;
 
             typedef baljsn::Encoder Obj;
             Obj                     mX;
@@ -1504,7 +1469,6 @@ int main(int argc, char *argv[])
                     mX.loggedMessages(),
                     LOGGED_MESSAGES == mX.loggedMessages());
         }
-
       } break;
       case 13: {
         // --------------------------------------------------------------------
@@ -2005,9 +1969,8 @@ int main(int argc, char *argv[])
         //   int encode(bsl::ostream& stream, const TYPE& v, options);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "ENCODING COMPLEX TEST MESSAGES" << endl
-                          << "==============================" << endl;
+        if (verbose) cout << "\nENCODING COMPLEX TEST MESSAGES"
+                          << "\n==============================" << endl;
 
         bsl::vector<s_baltst::FeatureTestMessage> testObjects;
         u::constructFeatureTestMessage(&testObjects);
@@ -2155,9 +2118,8 @@ int main(int argc, char *argv[])
         //   int encode(bsl::ostream& stream, const TYPE& v, options);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "ENCODING SEQUENCES" << endl
-                          << "==================" << endl;
+        if (verbose) cout << "\nENCODING SEQUENCES"
+                          << "\n==================" << endl;
 
         if (verbose) cout << "Encode empty sequence." << endl;
         {
@@ -2220,7 +2182,6 @@ int main(int argc, char *argv[])
                 ASSERTV(result, EXP, result == EXP);
             }
         }
-
       } break;
       case 9: {
         // --------------------------------------------------------------------
@@ -2258,9 +2219,8 @@ int main(int argc, char *argv[])
         //   int encode(bsl::ostream& stream, const TYPE& v, options);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "ENCODING CHOICES" << endl
-                          << "================" << endl;
+        if (verbose) cout << "\nENCODING CHOICES"
+                          << "\n================" << endl;
 
         if (verbose) cout << "Encode Choice" << endl;
         {
@@ -2399,7 +2359,6 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, result, EXP, result == EXP);
             }
         }
-
       } break;
       case 8: {
         // --------------------------------------------------------------------
@@ -2435,9 +2394,8 @@ int main(int argc, char *argv[])
         //   int encode(bsl::ostream& s, const bsl::vector<TYPE>& v, options);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "ENCODING ARRAYS" << endl
-                          << "===============" << endl;
+        if (verbose) cout << "\nENCODING ARRAYS"
+                          << "\n===============" << endl;
 
         if (verbose) cout << "Encode 'vector<char>'" << endl;
         {
@@ -3050,9 +3008,8 @@ int main(int argc, char *argv[])
         //   int encode(ostream& s, const bdlb::NullableValue<TYPE>& v, o);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "ENCODING NULL-ABLES" << endl
-                          << "===================" << endl;
+        if (verbose) cout << "\nENCODING NULL-ABLES"
+                          << "\n===================" << endl;
 
         if (verbose) cout << "Encode null value" << endl;
         {
@@ -3094,7 +3051,6 @@ int main(int argc, char *argv[])
                 ASSERTV(result, result == "null");
             }
         }
-
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -3115,9 +3071,8 @@ int main(int argc, char *argv[])
         //   int encode(ostream& s, const TYPE& v, o);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "ENCODING ENUMERATIONS" << endl
-                          << "=====================" << endl;
+        if (verbose) cout << "\nENCODING ENUMERATIONS"
+                          << "\n=====================" << endl;
 
         const int NUM_ENUMERATORS = balb::Enumerated::NUM_ENUMERATORS;
         for (int ti = 0; ti < NUM_ENUMERATORS; ++ti) {
@@ -3166,20 +3121,19 @@ int main(int argc, char *argv[])
         //   int encode(ostream& s, const TYPE& v, o);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "ENCODING DATE AND TIME TYPES" << endl
-                          << "============================" << endl;
+        if (verbose) cout << "\nENCODING DATE AND TIME TYPES"
+                          << "\n============================" << endl;
 
         const struct {
-            int         d_line;
-            int         d_year;
-            int         d_month;
-            int         d_day;
-            int         d_hour;
-            int         d_minute;
-            int         d_second;
-            int         d_millisecond;
-            int         d_offset;
+            int        d_line;
+            int        d_year;
+            int        d_month;
+            int        d_day;
+            int        d_hour;
+            int        d_minute;
+            int        d_second;
+            int        d_millisecond;
+            int        d_offset;
         } DATA[] = {
             //Line Year   Mon  Day  Hour  Min  Sec     ms   offset
             //---- ----   ---  ---  ----  ---  ---     --   ------
@@ -3421,49 +3375,88 @@ int main(int argc, char *argv[])
         //   int encode(ostream& s, const TYPE& v, o);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "ENCODING NUMBERS" << endl
-                          << "================" << endl;
+        if (verbose) cout << "\nENCODING NUMBERS"
+                          << "\n================" << endl;
 
-        if (verbose) cout << "Encode double" << endl;
+        if (verbose) cout << "Encode 'double'" << endl;
         {
+            typedef bsl::numeric_limits<double> Limits;
+
+            const double negZero = -1 / Limits::infinity();
+
             const struct {
                 int         d_line;
                 double      d_value;
                 const char *d_result;
             } DATA[] = {
-                //LINE    VAL        RESULT
-                //----    ---        ------
+                //LINE  VALUE                RESULT
+                //----  ----------------     -------------------------
+                { L_,    0.0,                    "0"                   },
+                { L_,    1.0e-1,                 "0.1"                 },
+                { L_,    0.125,                  "0.125"               },
+                { L_,    1.0,                    "1"                   },
+                { L_,    1.5,                    "1.5"                 },
+                { L_,   10.0,                   "10"                   },
+                { L_,    1.5e1,                 "15"                   },
+                { L_,    9.9e100,                "9.9e+100"            },
+                { L_,    3.14e300,               "3.14e+300"           },
+                { L_,    2.23e-308,              "2.23e-308"           },
+                { L_,    0.12345678912345,       "0.12345678912345"    },
+                { L_,    0.12345678901234567,    "0.12345678901234566" },
+                { L_,    0.123456789012345678,   "0.12345678901234568" },
 
-                { L_,     0.0,       "0" },
-                { L_,     0.125,     "0.125" },
-                { L_,     1.0,       "1" },
-                { L_,    10.0,       "10" },
-                { L_,    -1.5,       "-1.5" },
-                { L_,    -1.5e1,     "-15" },
-                { L_,    -9.9e100,   "-9.9e+100" },
-                { L_,    -3.14e300,  "-3.14e+300" },
-                { L_,    3.14e300,   "3.14e+300" },
-                { L_,    1.0e-1,     "0.1" },
-                { L_,    2.23e-308,  "2.23e-308" },
-                { L_,    0.12345678912345, "0.12345678912345" }
+                { L_, negZero,                  "-0"                   },
+                { L_,   -1.0e-1,                "-0.1"                 },
+                { L_,   -0.125,                 "-0.125"               },
+                { L_,   -1.0,                   "-1"                   },
+                { L_,   -1.5,                   "-1.5"                 },
+                { L_,  -10.0,                  "-10"                   },
+                { L_,   -1.5e1,                "-15"                   },
+                { L_,   -9.9e100,               "-9.9e+100"            },
+                { L_,   -3.14e300,              "-3.14e+300"           },
+                { L_,   -2.23e-308,             "-2.23e-308"           },
+                { L_,   -0.12345678912345,      "-0.12345678912345"    },
+                { L_,   -0.12345678901234567,   "-0.12345678901234566" },
+                { L_,   -0.123456789012345678,  "-0.12345678901234568" },
+
+                // Small Integers
+                { L_, 123456789012345.,           "123456789012345"    },
+                { L_, 1234567890123456.,          "1234567890123456"   },
+
+                // Full Mantissa Integers
+                { L_, 1.0 * 0x1FFFFFFFFFFFFFull, "9007199254740991"     },
+                { L_, 1.0 * 0x1FFFFFFFFFFFFFull  // This is also limits::max()
+                      * (1ull << 63) * (1ull << 63) * (1ull << 63)
+                      * (1ull << 63) * (1ull << 63) * (1ull << 63)
+                      * (1ull << 63) * (1ull << 63) * (1ull << 63)
+                      * (1ull << 63) * (1ull << 63) * (1ull << 63)
+                      * (1ull << 63) * (1ull << 63) * (1ull << 63)
+                      * (1ull << 26),         "1.7976931348623157e+308" },
+
+                // Boundary Values
+                { L_,  Limits::min(),         "2.2250738585072014e-308" },
+                { L_,  Limits::denorm_min(),  "5e-324"                  },
+                { L_,  Limits::max(),         "1.7976931348623157e+308" },
+                { L_, -Limits::min(),        "-2.2250738585072014e-308" },
+                { L_, -Limits::denorm_min(), "-5e-324"                  },
+                { L_, -Limits::max(),        "-1.7976931348623157e+308" },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int         LINE  = DATA[ti].d_line;
-                const double      VALUE = DATA[ti].d_value;
-                const char *const EXP   = DATA[ti].d_result;
+                const int         LINE      = DATA[ti].d_line;
+                const double      VALUE     = DATA[ti].d_value;
+                const char * const EXPECTED = DATA[ti].d_result;
 
                 bsl::ostringstream oss;
                 ASSERTV(LINE, 0 == ImplUtil::encode(&oss, VALUE));
 
-                bsl::string result = oss.str();
-                ASSERTV(LINE, result, EXP, result == EXP);
+                const bsl::string result = oss.str();
+                ASSERTV(LINE, result, EXPECTED, result == EXPECTED);
             }
         }
 
-        if (verbose) cout << "Encode invalid double" << endl;
+        if (verbose) cout << "Encode invalid 'double'" << endl;
         {
             bsl::ostringstream oss;
 
@@ -3485,7 +3478,124 @@ int main(int argc, char *argv[])
                         &oss, bsl::numeric_limits<double>::signaling_NaN()));
         }
 
-        if (verbose) cout << "Encode int" << endl;
+        if (verbose) cout << "Encode 'float'" << endl;
+        {
+            typedef bsl::numeric_limits<float> Limits;
+
+            const float negZero = -1 / Limits::infinity();
+
+            const struct {
+                int         d_line;
+                float       d_value;
+                const char *d_result;
+            } DATA[] = {
+                //LINE        VALUE         RESULT
+                //----  -------------  ---------------
+                { L_,           0.0f,   "0"           },
+                { L_,         0.125f,   "0.125"       },
+                { L_,        1.0e-1f,   "0.1"         },
+                { L_,      0.123456f,   "0.123456"    },
+                { L_,           1.0f,   "1"           },
+                { L_,           1.5f,   "1.5"         },
+                { L_,          10.0f,  "10"           },
+                { L_,         1.5e1f,  "15"           },
+                { L_,   1.23456e-20f,   "1.23456e-20" },
+                { L_,   0.123456789f,   "0.12345679"  },
+                { L_,  0.1234567891f,   "0.12345679"  },
+
+                { L_, negZero,         "-0"           },
+                { L_,        -0.125f,  "-0.125"       },
+                { L_,       -1.0e-1f,  "-0.1"         },
+                { L_,     -0.123456f,  "-0.123456"    },
+                { L_,          -1.0f,  "-1"           },
+                { L_,          -1.5f,  "-1.5"         },
+                { L_,         -10.0f, "-10"           },
+                { L_,        -1.5e1f,  "-15"          },
+                { L_,  -1.23456e-20f,  "-1.23456e-20" },
+                { L_,  -0.123456789f,  "-0.12345679"  },
+                { L_, -0.1234567891f,  "-0.12345679"  },
+
+                // {DRQS 165162213} regression, 2^24 loses precision as float
+                { L_, 1.0f * 0xFFFFFF,  "16777215"    },
+
+                // Full Mantissa Integers
+                { L_, 1.0f * 0xFFFFFF,  "16777215"        },
+                { L_, 1.0f * 0xFFFFFF      // this happens to be also
+                       * (1ull << 63)      // 'Limits::max()'
+                       * (1ull << 41),    "3.4028235e+38" },
+
+                // Boundary Values
+                { L_,  Limits::min(),         "1.1754944e-38" },
+                { L_,  Limits::denorm_min(),  "1e-45"         },
+                { L_,  Limits::max(),         "3.4028235e+38" },
+                { L_, -Limits::min(),        "-1.1754944e-38" },
+                { L_, -Limits::denorm_min(), "-1e-45"         },
+                { L_, -Limits::max(),        "-3.4028235e+38" },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int          LINE     = DATA[ti].d_line;
+                const float        VALUE    = DATA[ti].d_value;
+                const char * const EXPECTED = DATA[ti].d_result;
+
+                bsl::ostringstream oss;
+                ASSERTV(LINE, 0 == ImplUtil::encode(&oss, VALUE));
+
+                const bsl::string result = oss.str();
+                ASSERTV(LINE, result, EXPECTED, result == EXPECTED);
+            }
+        }
+
+        if (verbose) cout << "Encode 'Decimal64'" << endl;
+        {
+#define DEC(X) BDLDFP_DECIMAL_DD(X)
+            using bdldfp::Decimal64;
+
+            typedef bsl::numeric_limits<Decimal64> Limits;
+
+            const struct {
+                int         d_line;
+                Decimal64   d_value;
+                const char *d_result;
+            } DATA[] = {
+                //LINE  VALUE       RESULT
+                //----  -----       ------
+                { L_,   DEC(0.0),    "\"0.0\""                    },
+                { L_,   DEC(-0.0),  "\"-0.0\""                    },
+                { L_,   DEC(1.13),   "\"1.13\""                   },
+
+                { L_,   DEC(-9.876543210987654e307),
+                                    "\"-9.876543210987654e+307\"" },
+                { L_,   DEC(-9.8765432109876548e307),
+                                    "\"-9.876543210987655e+307\"" },
+                { L_,   DEC(-9.87654321098765482e307),
+                                    "\"-9.876543210987655e+307\"" },
+
+                { L_,    Limits::min(),         "\"1e-383\""                 },
+                { L_,    Limits::denorm_min(),  "\"1e-398\""                 },
+                { L_,    Limits::max(),         "\"9.999999999999999e+384\"" },
+                { L_,   -Limits::min(),        "\"-1e-383\""                 },
+                { L_,   -Limits::denorm_min(), "\"-1e-398\""                 },
+                { L_,   -Limits::max(),        "\"-9.999999999999999e+384\"" },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int          LINE     = DATA[ti].d_line;
+                const Decimal64    VALUE    = DATA[ti].d_value;
+                const char * const EXPECTED = DATA[ti].d_result;
+
+                bsl::ostringstream oss;
+                ASSERTV(LINE, 0 == ImplUtil::encode(&oss, VALUE));
+
+                const bsl::string result = oss.str();
+                ASSERTV(LINE, result, EXPECTED, result == EXPECTED);
+            }
+#undef DEC
+        }
+
+        if (verbose) cout << "Encode integral types" << endl;
         {
             u::testNumber<short>();
             u::testNumber<int>();
@@ -3522,9 +3632,8 @@ int main(int argc, char *argv[])
         //  int encode(const char *value);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "ENCODING STRINGS" << endl
-                          << "================" << endl;
+        if (verbose) cout << "\nENCODING STRINGS"
+                          << "\n================" << endl;
 
         if (verbose) cout << "Encode char" << endl;
         {
@@ -3655,9 +3764,8 @@ int main(int argc, char *argv[])
         //   ~baljsn::Encoder();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "ENCODING BOOLEAN" << endl
-                          << "================" << endl;
+        if (verbose) cout << "\nENCODING BOOLEAN"
+                          << "\n================" << endl;
 
         if (verbose) cout << "Encode 'true'" << endl;
         {
@@ -3692,9 +3800,8 @@ int main(int argc, char *argv[])
         //   BREATHING TEST
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "BREATHING TEST" << endl
-                          << "==============" << endl;
+        if (verbose) cout << "\nBREATHING TEST"
+                          << "\n==============" << endl;
 
         s_baltst::Employee bob;
 
@@ -3846,16 +3953,15 @@ void constructFeatureTestMessage(
 
         int rc = decoder.decode(ss.rdbuf(), &object);
         if (0 != rc) {
-            bsl::cout << "Failed to decode from initialization data (i="
-                      << i << "): "
-                      << decoder.loggedMessages() << bsl::endl;
+            cout << "Failed to decode from initialization data (i="
+                 << i << "): "
+                 << decoder.loggedMessages() << endl;
         }
 
         if (s_baltst::FeatureTestMessage::SELECTION_ID_UNDEFINED ==
                                                         object.selectionId()) {
-            bsl::cout << "Decoded unselected choice from initialization data"
-                      << " (i =" << i << ")"
-                      << bsl::endl;
+            cout << "Decoded unselected choice from initialization data"
+                 << " (i =" << i << ")" << endl;
             rc = 9;
         }
 
@@ -3878,8 +3984,8 @@ int populateTestObject(TYPE *object, const bsl::string& xmlString)
     int rc = decoder.decode(ss.rdbuf(), object);
 
     if (0 != rc) {
-        bsl::cout << "Failed to decode from initialization data: "
-                  << decoder.loggedMessages() << bsl::endl;
+        cout << "Failed to decode from initialization data: "
+             << decoder.loggedMessages() << endl;
     }
     return rc;
 }
@@ -3943,7 +4049,7 @@ void TestUtil::assertEncodedValueIsEqual(
                        const baljsn::EncodingStyle::Value ENCODING_STYLE,
                        const bool                         ENCODE_NULL_ELEMENTS,
                        const VALUE_TYPE&                  VALUE,
-                       const bslstl::StringRef&           EXPECTED_JSON_STRING)
+                       const bsl::string_view&            EXPECTED_JSON_STRING)
 {
     bdlsb::MemOutStreamBuf outStreamBuf;
     bsl::ostream           outStream(&outStreamBuf);
@@ -3958,9 +4064,9 @@ void TestUtil::assertEncodedValueIsEqual(
     int rc = encoder.encode(&outStreamBuf, VALUE, &options);
     LOOP1_ASSERT_EQ(LINE, 0, rc);
 
-    const bslstl::StringRef jsonStringRef(outStreamBuf.data(),
+    const bsl::string_view jsonStringView(outStreamBuf.data(),
                                           outStreamBuf.length());
-    LOOP1_ASSERT_EQ(LINE, EXPECTED_JSON_STRING, jsonStringRef);
+    LOOP1_ASSERT_EQ(LINE, EXPECTED_JSON_STRING, jsonStringView);
 }
 
                // ----------------------------------------------
@@ -3974,8 +4080,8 @@ void AssertEncodingOverflowIsDetectedFunction::assertExpectations(
                          const baljsn::Encoder&       encoder,
                          const int                    LINE,
                          const int                    SUCCESS,
-                         const bslstl::StringRef&     EXPECTED_JSON_STRING,
-                         const bslstl::StringRef&     EXPECTED_LOGGED_MESSAGES)
+                         const bsl::string_view&      EXPECTED_JSON_STRING,
+                         const bsl::string_view&      EXPECTED_LOGGED_MESSAGES)
 {
         if (SUCCESS) {
             LOOP1_ASSERT_EQ(LINE, 0, rc);
@@ -3985,12 +4091,13 @@ void AssertEncodingOverflowIsDetectedFunction::assertExpectations(
         }
 
         const bsl::streampos streamBufPosition =
-            streamBuf->pubseekoff(0, bsl::ios_base::cur);
+                                  streamBuf->pubseekoff(0, bsl::ios_base::cur);
 
-        const bslstl::StringRef jsonString(streamBuf->data(),
-                                           streamBufPosition);
+        const bsl::string_view jsonStringView(
+                                       streamBuf->data(),
+                                       static_cast<size_t>(streamBufPosition));
 
-        LOOP1_ASSERT_EQ(LINE, EXPECTED_JSON_STRING, jsonString);
+        LOOP1_ASSERT_EQ(LINE, EXPECTED_JSON_STRING, jsonStringView);
 
         LOOP1_ASSERT_EQ(
             LINE, EXPECTED_LOGGED_MESSAGES, encoder.loggedMessages());
@@ -4010,8 +4117,8 @@ void AssertEncodingOverflowIsDetectedFunction::operator()(
                        const VALUE_TYPE&        VALUE,
                        const int                BUFFER_SIZE,
                        const bool               SUCCESS,
-                       const bslstl::StringRef& EXPECTED_JSON_STRING,
-                       const bslstl::StringRef& EXPECTED_LOGGED_MESSAGES) const
+                       const bsl::string_view&  EXPECTED_JSON_STRING,
+                       const bsl::string_view&  EXPECTED_LOGGED_MESSAGES) const
 {
     // Assert the expectations of this object for each overload of
     // 'baljsn::Encoder::encode'.
@@ -4142,7 +4249,7 @@ void AssertEncodedValueIsEqualFunction::operator()(
                  const baljsn::EncodingStyle::Value ENCODING_STYLE,
                  const bool                         ENCODE_NULL_ELEMENTS,
                  const VALUE_TYPE&                  VALUE,
-                 const bslstl::StringRef&           EXPECTED_JSON_STRING) const
+                 const bsl::string_view&            EXPECTED_JSON_STRING) const
 {
     TestUtil::assertEncodedValueIsEqual(LINE,
                                         ENCODING_STYLE,
@@ -4178,18 +4285,30 @@ int EmptySequenceExampleSequence::maxSupportedBdexVersion()
     return 1;
 }
 
+BSLA_MAYBE_UNUSED
 const bdlat_AttributeInfo *EmptySequenceExampleSequence::lookupAttributeInfo(
                                                         const char *name,
                                                         int         nameLength)
 {
+#ifndef BSLA_MAYBE_UNUSED_IS_ACTIVE_
+    typedef const bdlat_AttributeInfo* (*StaticFunPtr)(const char *, int);
+    (void)(StaticFunPtr)(&EmptySequenceExampleSequence::lookupAttributeInfo);
+#endif
+
     (void)name;
     (void)nameLength;
     return 0;
 }
 
+BSLA_MAYBE_UNUSED
 const bdlat_AttributeInfo *EmptySequenceExampleSequence::lookupAttributeInfo(
                                                                         int id)
 {
+#ifndef BSLA_MAYBE_UNUSED_IS_ACTIVE_
+    typedef const bdlat_AttributeInfo* (*StaticFunPtr)(int);
+    (void)(StaticFunPtr)(&EmptySequenceExampleSequence::lookupAttributeInfo);
+#endif
+
     switch (id) {
       default:
         return 0;
@@ -4201,24 +4320,7 @@ EmptySequenceExampleSequence::EmptySequenceExampleSequence()
 {
 }
 
-EmptySequenceExampleSequence::EmptySequenceExampleSequence(
-                                  const EmptySequenceExampleSequence& original)
-{
-    (void)original;
-}
-
-EmptySequenceExampleSequence::~EmptySequenceExampleSequence()
-{
-}
-
 // MANIPULATORS
-EmptySequenceExampleSequence& EmptySequenceExampleSequence::operator=(
-                                       const EmptySequenceExampleSequence& rhs)
-{
-    (void)rhs;
-    return *this;
-}
-
 template <class STREAM>
 STREAM& EmptySequenceExampleSequence::bdexStreamIn(STREAM& stream, int version)
 {
@@ -4354,22 +4456,34 @@ int EmptySequenceExample::maxSupportedBdexVersion()
     return 1;
 }
 
+BSLA_MAYBE_UNUSED
 const bdlat_AttributeInfo *EmptySequenceExample::lookupAttributeInfo(int id)
 {
+#ifndef BSLA_MAYBE_UNUSED_IS_ACTIVE_
+    typedef const bdlat_AttributeInfo* (*StaticFunPtr)(int);
+    (void)(StaticFunPtr)(&EmptySequenceExample::lookupAttributeInfo);
+#endif
+
     switch (id) {
       case ATTRIBUTE_ID_SIMPLE_VALUE:
         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SIMPLE_VALUE];
       case ATTRIBUTE_ID_SEQUENCE:
         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SEQUENCE];
       default:
-        return 0;
+        return 0;                                                     // RETURN
     }
 }
 
+BSLA_MAYBE_UNUSED
 const bdlat_AttributeInfo *EmptySequenceExample::lookupAttributeInfo(
                                                         const char *name,
                                                         int         nameLength)
 {
+#ifndef BSLA_MAYBE_UNUSED_IS_ACTIVE_
+    typedef const bdlat_AttributeInfo* (*StaticFunPtr)(const char *, int);
+    (void)(StaticFunPtr)(&EmptySequenceExample::lookupAttributeInfo);
+#endif
+
     for (int i = 0; i < 2; ++i) {
         const bdlat_AttributeInfo& attributeInfo =
             EmptySequenceExample::ATTRIBUTE_INFO_ARRAY[i];
@@ -4388,29 +4502,7 @@ EmptySequenceExample::EmptySequenceExample()
 {
 }
 
-EmptySequenceExample::EmptySequenceExample(
-                                          const EmptySequenceExample& original)
-: d_simpleValue(original.d_simpleValue)
-, d_sequence(original.d_sequence)
-{
-}
-
-EmptySequenceExample::~EmptySequenceExample()
-{
-}
-
 // MANIPULATORS
-EmptySequenceExample& EmptySequenceExample::operator=(
-                                               const EmptySequenceExample& rhs)
-{
-    if (this != &rhs) {
-        d_simpleValue = rhs.d_simpleValue;
-        d_sequence    = rhs.d_sequence;
-    }
-
-    return *this;
-}
-
 template <class STREAM>
 STREAM& EmptySequenceExample::bdexStreamIn(STREAM& stream, int version)
 {
@@ -4478,8 +4570,13 @@ int EmptySequenceExample::manipulateAttributes(MANIPULATOR& manipulator)
     return ret;
 }
 
+BSLA_MAYBE_UNUSED
 void EmptySequenceExample::reset()
 {
+#ifndef BSLA_MAYBE_UNUSED_IS_ACTIVE_
+    (void)&EmptySequenceExample::reset;
+#endif
+
     bdlat_ValueTypeFunctions::reset(&d_simpleValue);
     bdlat_ValueTypeFunctions::reset(&d_sequence);
 }
@@ -4557,10 +4654,15 @@ STREAM& EmptySequenceExample::bdexStreamOut(STREAM& stream, int version) const
     return stream;
 }
 
+BSLA_MAYBE_UNUSED
 bsl::ostream& EmptySequenceExample::print(bsl::ostream& stream,
                                           int           level,
                                           int           spacesPerLevel) const
 {
+#ifndef BSLA_MAYBE_UNUSED_IS_ACTIVE_
+    (void)&EmptySequenceExample::print;
+#endif
+
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
     printer.printAttribute("simpleValue", d_simpleValue);

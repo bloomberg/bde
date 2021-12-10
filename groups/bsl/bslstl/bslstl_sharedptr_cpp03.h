@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Oct 21 10:11:37 2021
+// Generated on Tue Nov 23 10:02:20 2021
 // Command line: sim_cpp11_features.pl bslstl_sharedptr.h
 
 #ifdef COMPILING_BSLSTL_SHAREDPTR_H
@@ -1672,9 +1672,9 @@ shared_ptr(std::unique_ptr<ELEMENT_TYPE, DELETER>)
 template<class ELEMENT_TYPE,
          class DELETER,
          class ALLOC,
-         class = typename bsl::enable_if<
-           std::is_convertible<ALLOC *, BloombergLP::bslma::Allocator *>::value
-           >::type>
+         class = typename bsl::enable_if_t<
+               bsl::is_convertible_v<ALLOC *, BloombergLP::bslma::Allocator *>>
+         >
 shared_ptr(std::unique_ptr<ELEMENT_TYPE, DELETER>, ALLOC *)
 -> shared_ptr<ELEMENT_TYPE>;
     // Deduce the specified type 'ELEMENT_TYPE' corresponding template
@@ -1694,9 +1694,9 @@ shared_ptr(BloombergLP::bslma::ManagedPtr<ELEMENT_TYPE>)
 
 template<class ELEMENT_TYPE,
          class ALLOC,
-         class = typename bsl::enable_if<
-           std::is_convertible<ALLOC *, BloombergLP::bslma::Allocator *>::value
-           >::type>
+         class = typename bsl::enable_if_t<
+               bsl::is_convertible_v<ALLOC *, BloombergLP::bslma::Allocator *>>
+         >
 shared_ptr(BloombergLP::bslma::ManagedPtr<ELEMENT_TYPE>, ALLOC *)
 -> shared_ptr<ELEMENT_TYPE>;
     // Deduce the specified type 'ELEMENT_TYPE' corresponding template

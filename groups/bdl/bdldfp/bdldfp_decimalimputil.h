@@ -26,7 +26,7 @@ BSLS_IDENT("$Id$")
 // A common requirement for decimal floating point types is to be able to
 // create a value from independent "coefficient" and "exponent" values, where
 // the resulting decimal has the value 'coefficient * 10 ^ exponent'.  In the
-// following example we use such a 'coffecicient' and 'exponent' to create
+// following example we use such a 'coefficient' and 'exponent' to create
 // 'Decimal32', 'Decimal64', and 'Decimal128' values.
 //
 // First we define values representing the 'coefficient' and 'exponent' (note
@@ -62,7 +62,7 @@ BSLS_IDENT("$Id$")
 // demonstrate computing the sum of a sequence of security prices, where each
 // price is held in a 'DecimalImpUtil::ValueType64' value.
 //
-// First, we we define the signature of a function that computes the sum of an
+// First, we define the signature of a function that computes the sum of an
 // array of security prices, and returns that sum as a decimal floating point
 // value:
 //..

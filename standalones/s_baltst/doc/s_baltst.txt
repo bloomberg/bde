@@ -15,6 +15,12 @@
 : 's_baltst_basicrecord':
 :      Provide value-semantic attribute classes
 :
+: 's_baltst_basicschema':
+:      Provide value-semantic attribute classes
+:
+: 's_baltst_basicschemautil':
+:      Provide utilities for 's_baltst::BasicSchema' objects.
+:
 : 's_baltst_bigrecord':
 :      Provide value-semantic attribute classes
 :
@@ -51,13 +57,19 @@
 : 's_baltst_mysequencewithanonymouschoice':
 :      Provide value-semantic attribute classes
 :
-: 's_baltst_mysequencewithanonymouschoicechoice':
-:      Provide value-semantic attribute classes
-:
 : 's_baltst_mysequencewitharray':
 :      Provide value-semantic attribute classes
 :
 : 's_baltst_mysequencewithattributes':
+:      Provide value-semantic attribute classes
+:
+: 's_baltst_mysequencewithchoice':
+:      Provide value-semantic attribute classes
+:
+: 's_baltst_mysequencewithdecimalattribute':
+:      Provide value-semantic attribute classes
+:
+: 's_baltst_mysequencewithdoubleattribute':
 :      Provide value-semantic attribute classes
 :
 : 's_baltst_mysequencewithnillable':
@@ -70,6 +82,9 @@
 :      Provide value-semantic attribute classes
 :
 : 's_baltst_mysequencewithnullables':
+:      Provide value-semantic attribute classes
+:
+: 's_baltst_mysequencewithprecisiondecimalattribute':
 :      Provide value-semantic attribute classes
 :
 : 's_baltst_mysimplecontent':
@@ -99,19 +114,13 @@
 : 's_baltst_sequencewithanonymity':
 :      Provide value-semantic attribute classes
 :
-: 's_baltst_sequencewithanonymitychoice':
-:      Provide value-semantic attribute classes
-:
-: 's_baltst_sequencewithanonymitychoice1':
-:      Provide value-semantic attribute classes
-:
-: 's_baltst_sequencewithanonymitychoice2':
-:      Provide value-semantic attribute classes
-:
 : 's_baltst_simplerequest':
 :      Provide value-semantic attribute classes
 :
 : 's_baltst_sqrt':
+:      Provide value-semantic attribute classes
+:
+: 's_baltst_sqrtf':
 :      Provide value-semantic attribute classes
 :
 : 's_baltst_test':
@@ -146,8 +155,6 @@
   s_baltst_myenumeration                   MyEnumeration
   s_baltst_mysequence                      MySequence
   s_baltst_mysequencewithanonymouschoice   MySequenceWithAnonymousChoice
-  s_baltst_mysequencewithanonymouschoicechoice   
-                                           MySequenceWithAnonymousChoiceChoice
   s_baltst_mysequencewitharray             MySequenceWithArray
   s_baltst_mysequencewithattributes        MySequenceWithAttributes
   s_baltst_mysequencewithnillable          MySequenceWithNillable
@@ -160,6 +167,7 @@
   s_baltst_rawdataswitched                 RawDataSwitched
   s_baltst_rawdataunformatted              RawDataUnformatted
   s_baltst_sqrt                            Sqrt
+  s_baltst_sqrtf                           SqrtF
   s_baltst_timingrequest                   TimingRequest
   s_baltst_topchoice                       Topchoice
 ..
@@ -170,7 +178,7 @@
 ..
   s_baltst_ratsnest{choice{1,2,3},sequence{1,2,3,4,5,6}}
 ..
- define the nine classes: 
+ define the nine classes:
 ..
   Choice1
   Choice2

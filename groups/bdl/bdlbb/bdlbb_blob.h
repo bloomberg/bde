@@ -771,7 +771,8 @@ class Blob {
         // Allocate sufficient capacity to store at least the specified
         // 'numBuffers' buffers.  The behavior is undefined unless
         // '0 <= numBuffers'.  Note that this method does not change the length
-        // of this blob or add any buffers to it.
+        // of this blob or add any buffers to it.  Note also that the internal
+        // capacity will be increased to maintain a geometric growth factor.
 
     void setLength(int length);
         // Set the length of this blob to the specified 'length' and, if
@@ -993,7 +994,13 @@ void Blob::reserveBufferCapacity(int numBuffers)
 {
     BSLS_ASSERT(0 <= numBuffers);
 
-    d_buffers.reserve(numBuffers);
+    typedef bsl::vector<BlobBuffer>::size_type size_t;
+    size_t newCapacity = static_cast<size_t>(numBuffers);
+    if (newCapacity > d_buffers.capacity()) {
+        size_t geometric = d_buffers.capacity() * 2;
+        newCapacity = geometric > newCapacity ? geometric : newCapacity;
+        d_buffers.reserve(newCapacity);
+    }
 }
 
 // ACCESSORS

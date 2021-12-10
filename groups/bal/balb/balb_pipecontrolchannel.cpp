@@ -100,12 +100,12 @@ int PipeControlChannel::sendEmptyMessage()
 
     HANDLE pipe;
     if (!WaitNamedPipeW(wPipeName.c_str(), NMPWAIT_USE_DEFAULT_WAIT)) {
-        return -1;
+        return -1;                                                    // RETURN
     }
     pipe = CreateFileW(wPipeName.c_str(), GENERIC_WRITE, 0, NULL,
                        OPEN_EXISTING, 0, NULL);
     if (INVALID_HANDLE_VALUE == pipe) {
-        return 2;
+        return 2;                                                     // RETURN
     }
 
     DWORD mode = PIPE_READMODE_MESSAGE;
@@ -133,11 +133,11 @@ int PipeControlChannel::readNamedPipe()
         if (lastError != ERROR_PIPE_CONNECTED && lastError != ERROR_NO_DATA) {
             BSLS_LOG_TRACE("Failed to connect to named pipe '%s'",
                            d_pipeName.c_str());
-            return -1;
+            return -1;                                                // RETURN
         }
     }
 
-    while(1) {
+    while (true) {
         char buffer[MAX_PIPE_BUFFER_LEN];
         DWORD bytesRead = 0;
 
@@ -147,19 +147,20 @@ int PipeControlChannel::readNamedPipe()
                      &bytesRead,
                      NULL))
         {
-           if (bytesRead > 0) {
-               if (buffer[bytesRead - 1] == '\n') {
-                   bytesRead--;
-               }
-               bslstl::StringRef stringRef(buffer, bytesRead);
-               if (!stringRef.isEmpty()) {
-                   d_callback(stringRef);
-               }
-           }
-           else {
-              // reached EOF on a named pipe.
-              break;
-           }
+            if (bytesRead > 0) {
+                if (buffer[bytesRead - 1] == '\n') {
+                    bytesRead--;
+                }
+                bslstl::StringRef stringRef(buffer, bytesRead);
+                if (!stringRef.isEmpty()) {
+                    d_callback(stringRef);
+                }
+            }
+            else {
+                // reached EOF on a named pipe.
+
+                break;
+            }
         }
         else {
             BSLS_LOG_TRACE("Failed read from named pipe '%s': %s",
@@ -175,14 +176,14 @@ int PipeControlChannel::readNamedPipe()
 }
 
 int
-PipeControlChannel::createNamedPipe(const bsl::string& pipeName)
+PipeControlChannel::createNamedPipe(const char *pipeName)
 {
-    BSLS_LOG_TRACE("Creating named pipe '%s'", pipeName.c_str());
+    BSLS_LOG_TRACE("Creating named pipe '%s'", pipeName);
 
     if (bdls::PipeUtil::isOpenForReading(pipeName)) {
-        BSLS_LOG_ERROR("Named pipe '%s' already exists",
-                       pipeName.c_str());
-        return -2;
+        BSLS_LOG_ERROR("Named pipe '%s' already exists", pipeName);
+
+        return -2;                                                    // RETURN
     }
 
     bsl::wstring wPipeName;
@@ -206,7 +207,7 @@ PipeControlChannel::createNamedPipe(const bsl::string& pipeName)
         BSLS_LOG_TRACE("Failed to create named pipe '%s': %s",
                        d_pipeName.c_str(),
                        describeWin32Error(GetLastError()).c_str());
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     return 0;
@@ -357,7 +358,7 @@ PipeControlChannel::sendEmptyMessage()
 }
 
 int
-PipeControlChannel::createNamedPipe(const bsl::string& pipeName)
+PipeControlChannel::createNamedPipe(const char *pipeName)
 {
 //  BSLS_ASSERT(0 == d_impl.d_unix.d_readFd);
 
@@ -371,11 +372,11 @@ PipeControlChannel::createNamedPipe(const bsl::string& pipeName)
        // which case fail; otherwise unlink the pipe and continue.
        if (bdls::PipeUtil::isOpenForReading(pipeName)) {
            BSLS_LOG_ERROR("Named pipe '%s' is already in use by another "
-                          "process", pipeName.c_str());
+                          "process", pipeName);
 
            return -2;                                                 // RETURN
        }
-       bdls::FilesystemUtil::remove(pipeName.c_str());
+       bdls::FilesystemUtil::remove(pipeName);
     }
 
     bsl::string dirname;
@@ -387,42 +388,39 @@ PipeControlChannel::createNamedPipe(const bsl::string& pipeName)
         }
     }
 
-    const char *rawPipeName = pipeName.c_str();
-
-    int rc         = mkfifo(rawPipeName, 0666);
-
+    int rc = mkfifo(pipeName, 0666);
     if (0 != rc) {
         int savedErrno = errno;
         BSLS_LOG_ERROR("Unable to create pipe '%s'. errno = %d (%s)",
-                       rawPipeName, savedErrno, bsl::strerror(savedErrno));
+                       pipeName, savedErrno, bsl::strerror(savedErrno));
         return -4;                                                    // RETURN
     }
 
 #if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_SOLARIS)
-    d_impl.d_unix.d_readFd = open(rawPipeName,
+    d_impl.d_unix.d_readFd = open(pipeName,
                                   O_RDONLY | O_NONBLOCK | O_CLOEXEC);
 #else
-    d_impl.d_unix.d_readFd = open(rawPipeName, O_RDONLY | O_NONBLOCK);
+    d_impl.d_unix.d_readFd = open(pipeName, O_RDONLY | O_NONBLOCK);
 #endif
 
     if (-1 == d_impl.d_unix.d_readFd) {
         int savedErrno = errno;
         BSLS_LOG_ERROR("Unable to open pipe '%s' for reading. errno = %d (%s)",
-                       rawPipeName, savedErrno, bsl::strerror(savedErrno));
+                       pipeName, savedErrno, bsl::strerror(savedErrno));
 
         return -5;                                                    // RETURN
     }
 
 #if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_SOLARIS)
-    d_impl.d_unix.d_writeFd = open(rawPipeName, O_WRONLY | O_CLOEXEC);
+    d_impl.d_unix.d_writeFd = open(pipeName, O_WRONLY | O_CLOEXEC);
 #else
-    d_impl.d_unix.d_writeFd = open(rawPipeName, O_WRONLY);
+    d_impl.d_unix.d_writeFd = open(pipeName, O_WRONLY);
 #endif
 
     if (-1 == d_impl.d_unix.d_writeFd) {
         int savedErrno = errno;
         BSLS_LOG_ERROR("Unable to open pipe '%s' for writing. errno = %d (%s)",
-                       rawPipeName, savedErrno, bsl::strerror(savedErrno));
+                       pipeName, savedErrno, bsl::strerror(savedErrno));
         return -6;                                                    // RETURN
     }
 
@@ -431,7 +429,7 @@ PipeControlChannel::createNamedPipe(const bsl::string& pipeName)
         int savedErrno = errno;
         BSLS_LOG_ERROR(
              "Unable to set 'FD_CLOEXEC' on '%s' for reading. errno = %d (%s)",
-             rawPipeName,
+             pipeName,
              savedErrno,
              bsl::strerror(savedErrno));
         return -8;                                                    // RETURN
@@ -441,17 +439,18 @@ PipeControlChannel::createNamedPipe(const bsl::string& pipeName)
         int savedErrno = errno;
         BSLS_LOG_ERROR(
              "Unable to set 'FD_CLOEXEC' on '%s' for writing. errno = %d (%s)",
-             rawPipeName,
+             pipeName,
              savedErrno,
              bsl::strerror(savedErrno));
         return -9;                                                    // RETURN
     }
 #endif
 
-    BSLS_LOG_TRACE("Created named pipe '%s'", rawPipeName);
+    BSLS_LOG_TRACE("Created named pipe '%s'", pipeName);
 
     return 0;
 }
+
 }  // close package namespace
 
 #endif // END PLATFORM-SPECIFIC FUNCTION IMPLEMENTATIONS
@@ -500,16 +499,14 @@ void PipeControlChannel::backgroundProcessor()
     BSLS_LOG_TRACE("The background thread has stopped");
 }
 
-int PipeControlChannel::start(const bsl::string& pipeName)
+int PipeControlChannel::start(const char *pipeName)
 {
-    bslmt::ThreadAttributes attributes;
-    return start(pipeName, attributes);
+    return start(pipeName, bslmt::ThreadAttributes());
 }
 
-int PipeControlChannel::start(const bsl::string&             pipeName,
-                              const bslmt::ThreadAttributes& attributes)
+int PipeControlChannel::start(const char                     *pipeName,
+                              const bslmt::ThreadAttributes&  attributes)
 {
-
 // BSLS_ASSERT(!d_isRunningFlag); // TBD: DOES createNamedPipe FAIL???
     if (d_backgroundState == e_RUNNING) {
         return 2;                                                     // RETURN
@@ -518,14 +515,15 @@ int PipeControlChannel::start(const bsl::string&             pipeName,
     // See test driver case 9, on windows, createNamedPipe does not
     // fail if the named pipe is already open!!!!!
     // TBD
+
     if (d_isPipeOpen) {
-        return 3;
+        return 3;                                                     // RETURN
     }
 #endif
 
     if (0 != createNamedPipe(pipeName)) {
-        BSLS_LOG_ERROR("Unable to create named pipe '%s'", pipeName.c_str());
-        return 1;                                                    // RETURN
+        BSLS_LOG_ERROR("Unable to create named pipe '%s'", pipeName);
+        return 1;                                                     // RETURN
     }
 
     d_pipeName        = pipeName;
@@ -556,6 +554,7 @@ void PipeControlChannel::shutdown()
     if (bslmt::ThreadUtil::self() == d_thread) {
         // When 'shutdown' is called from the same thread as the background
         // thread perform a synchronous shutdown.
+
         return;                                                       // RETURN
     }
 

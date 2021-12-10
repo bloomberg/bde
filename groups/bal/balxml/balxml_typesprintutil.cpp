@@ -11,13 +11,163 @@
 
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(balxml_typesprintutil_cpp,"$Id$ $CSID$")
+///Implementation Notes
+///--------------------
+//
+///'printDecimalWithDigitsOptions' Buffer Size
+///- - - - - - - - - - - - - - - - - - - - - -
+// The 'printDecimalWithDigitsOptions' local method writes the value of an
+// IEEE-754 binary64 floating point number ('double') into a buffer in decimal
+// notation using 'sprintf' before possibly truncating it and then writing it
+// into an output stream.
+//
+// The number of digits written into the stream is governed by two options that
+// are arguments to the function: 'maxTotalDigits' and 'maxFractionDigits'.
+// Historically the meaning and/or purpose of these values was not very well
+// described.  Due to the amount of code that depends on *that* current
+// behavior we have to be very careful to take minimum risks in our necessary
+// modifications.
+//
+// We have strictly documented the options-behavior and the buffer size
+// calculation during the overhaul of the binary floating point printing,
+// because previously it was possible to create buffer overflow within this
+// function due to the buffer not being sufficiently large.  We have carefully
+// examined the current behavior of the code and added measures to prevent
+// buffer overflow, as well as described the behavior of the options.  We
+// also increased the buffer to a reasonable size and added measures to ensure
+// no option value can cause a buffer overrun.
+//
+// In these implementation notes we document the behavior we found, the limits
+// we added, and the method we calculated the necessary buffer size.
+//
+///The Meaning of The Max Digits Options
+///-  -  -  -  -  -  -  -  -  -  -  -  -
+// The max digits options are a bit tricky, as they don't necessarily always
+// define the maximum digits printed (into the stream), it also depends on the
+// floating point value printed.
+//
+//: 'maxTotalDigits': the maximum number of decimal digits printed (integer and
+//:                   fraction part together) unless that would remove digits
+//:                   from the left side of the decimal radix point), or in
+//:                   other words: we always print all integer digits
+//:
+//: 'maxFractionDigits': the maximum number of decimal digits (out of
+//:                      'maxTotalDigits') that may be printed on the right
+//:                      side of the decimal radix point, the fraction
+//
+// Naturally, 'maxFractionDigits' cannot be larger than 'maxTotalDigits', as it
+// "comes out of" 'maxTotalDigits'.
+//
+// There was an additional rule in the original code that there is always at
+// least one integer and one fraction digit printed.  This is expressed in code
+// by the following adjustments to the actual max digits options argument
+//  values:
+//: 1 The minimum value of 'maxTotalDigits' is 2.
+//: 2 The minimum value of 'maxFractionDigits' is 1.
+//: 3 The maximum value of 'maxFractionDigits' is 'maxTotalDigits - 1'.
+//
+// The two major rules here are: we do not drop integer digits, we reduce
+// fractional digits if the number has too many digits, and every printout has
+// at least one integer, and fractional digit.
+//
+// Examples of the behavior:
+//..
+// maxTotalDigits == 4, maxFractionDigits == 3
+//
+// printouts: "64.43", "1234.0", "1.456"
+//..
+// but if we reduce the number of fraction digits:
+//..
+// maxTotalDigits == 4, maxFractionDigits == 2
+//
+// printouts: "64.43", "1234.0", "1.46"
+//..
+//
+///Understanding The Way We Print
+///  -  -  -  -  -  -  -  -  -  -
+// The number is first printed in decimal notation using 'sprintf', then
+// truncated if necessary, then written to the output stream.  This is
+// necessary because "On Sun, formatting a 'double' using 'ostream' is 60%
+// slower than 'sprintf', even though the former calls the latter.  Also,
+// 'snprintf' is 15% slower than 'sprintf' on Sun." -- direct quote from the
+// old code.
+//
+// The '"%-#1.*f"' format string is used for printing into the buffer.  For the
+// buffer size calculations we can ignore the '-' character indicating
+// left-justification.  We also ignore the '#' flag that indicates we
+// always write the decimal point, it is redundant information, we know we
+// always print at least 1 fraction digit.  We can also ignore the '1' minimum
+// field width specifier, as we know we print at least one integer digit *and*
+// one fraction digit, so that is already 3 field width  So the remaining
+// "interesting" part of the format string (for planning the buffer length) is:
+// '"%.*f"'.  This format takes 2 arguments, an 'int' for the *exact* precision
+// of the printout (the *exact* number of fraction digits), followed by the
+// 'double' value itself.  The code uses the value of 'maxFractionDigits' for
+// the (exact) precision, and when necessary, the printout in the buffer is
+// truncated if it has more than 'maxTotalDigits'.  Therefore our buffer must
+// have more space than how long the final printout can be.
+//
+///Calculating The Maximum Buffer Size
+/// -  -  -  -  -  -  -  -  -  -  -  -
+// Now we can put together the longest number we may print.  We are printing
+// decimal, not scientific, so the printout can indeed be long.  The size of
+// the buffer for the longest possible (printed) number will have to be able to
+// contain a negative sign, followed by the maximum number of significant
+// decimal integer digits a 'double' can represent, followed by a decimal point,
+// followed by *exactly* 'maxFractionDigits' digits, and finally terminated by,
+// a null character of the C string.  We know the maximum number of integer
+// digits a 'double' can produce, it is the maximum value of a double, which we
+// know has a +308 decimal exponent in scientific format.  Scientific format
+// already has an integer digit, so the longest integer is 309 characters long.
+//
+// The theoretical upper limit for 'maxFractionDigits' in decimal notation is
+// large! We would need 324 characters for just the decimal digits if we wanted
+// to be able to print the smallest absolute value a 'double' can store with
+// its *necessary* decimal mantissa digits!(I)  If we want to be able to print
+// the smallest subnormal, 'bsl::numeric_limits<double>::denorm_min()', with
+// the human-expected (but unnecessary) 17 mantissa digits like all the normal
+// numbers we need 340 digits space for the fraction.(II)
+//
+// If we choose to print 324 decimal digits our maximum comes to 1 + 309 + 1 +
+// 324 + 1 (sign, integers, decimal point, fractional, closing null).  As that
+// is quite large buffer size, 636, we might as well allow space for 340 the
+// human and support friendlier(III) fractional digits with 652 bytes.
+//
+// (I) For those curious, where did 324 for 'maxFractionDigits' come from:
+// The 'abs(-308) + (17 - 1)', which is the absolute value of
+// the minimum possible decimal exponent in scientific notation, plus the
+// maximum theoretically necessary digits to reproduce the value, minus the one
+// digit that was the integer digit in the scientific notation that we had to
+// "skip over" as we moved the decimal point to the left.
+//
+// (II) 340 comes from the very simple calculation of 324 + 17 - 1, where 324
+// is the (absolute value) of the decimal exponent of 'denorm_min()' in
+// scientific form, 17 is the decimal (mantissa) digits we want to show, and -1
+// is the integer digit we need to "consume" as we move the decimal point 324
+// steps to the left.
+//
+// (III) **Human-friendlier**, because many sources display the "more precise"
+// minimum subnormal value as '4.9406564584124654e-324' in scientific form,
+// instead of the just-as-correct '5e-324'.  "More precise" is in quotes
+// because at that level of "smallness" the precision 'double' is able to
+// provide is way lower than the difference between '4.9406564584124654e-324'
+// and '5e-324'.  Going towards zero, the next number 'double' can represent
+// *is* zero.  Going away from zero, the next representable number is
+// '9.8813129168249309e-324', then '1.4821969375237396e-323' and so on.
+// **Support-friendlier**, because we do not have to explain to everyone why
+// do they seee '5e-324' in their printout when '<limits.h>' from C clearly has
+// 'DBL_TRUE_MIN' defined as '4.9406564584124654e-324'.
 
 #include <bdlb_print.h>
 #include <bdlde_base64encoder.h>
 #include <bdldfp_decimalutil.h>
 
 #include <bsla_fallthrough.h>
+
+#include <bslalg_numericformatterutil.h>
+
 #include <bsls_assert.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_platform.h>
 
 #include <bsl_cctype.h>
@@ -25,6 +175,7 @@ BSLS_IDENT_RCSID(balxml_typesprintutil_cpp,"$Id$ $CSID$")
 #include <bsl_cstdio.h>
 #include <bsl_cstring.h>
 #include <bsl_iterator.h>
+#include <bsl_limits.h>
 
 namespace BloombergLP {
 
@@ -571,92 +722,69 @@ const char *printTextReplacingXMLEscapes(
     return 0;
 }
 
-// The 'printDecimalImpl' function prints decimal values based on the specified
-// 'precision' value which signifies the maximum number of fraction digits that
-// must be output.  The 'printDecimalWithOptions' provides similar
-// functionality to this function and also allows specifying the maximum number
-// of total digits to print.  'printDecimalWithOptions' prints similar values
-// to the stream as 'printDecimalImpl' except when maxNumFractionDigits is
-// equal to maxNumTotalDigits in which case 'printDecimalWithOptions' (which
-// always prints the leading '0' before the decimal) prints one less fraction
-// digit then 'printDecimalImpl'.  Note that these two functions can be
-// factored in a subsequent release.
+// The 'printDecimalWithDigitsOptions' function implements legacy functionality
+// that allows specifying the maximum number of total digits to print, and the
+// maximum number of fraction digits to print.
+//
+// As IEEE-754 binary floating point numbers do not contain decimal precision
+// information (unlike decimal IEEE-754) 'printDecimalUsingNecessaryDigitsOnly'
+// function overloads for 'float', and 'double' are provided.  Those functions
+// write the shortest decimal representation that, while having at least one
+// integer digit (before the optional radix point) will write the minimum
+// number of digits that when read back will restore the same binary value.
+// The number of fraction digits written range from 0 up to
+// 'bsl::numeric_limits<FP>::max_digits10', where 'FP' is the floating point
+// type.  Integer values that are represented exactly by the binary floating
+// point type are written with no decimal (fraction digits), no decimal (radix)
+// point, and with all significant digits, even if all some of those integer
+// digits could be zero and we could still restore the original binary value.
 
-bsl::ostream& printDecimalImpl(bsl::ostream& stream,
-                               double        object,
-                               int           precision)
+bsl::ostream& printDecimalWithDigitsOptions(bsl::ostream& stream,
+                                            double        object,
+                                            int           maxTotalDigits,
+                                            int           maxFractionDigits)
+    // Write, to the specified 'stream' the decimal textual representation of
+    // the specified floating point number 'object', with precision governed by
+    // the specified 'maxTotalDigits', and 'maxFractionDigits' values such that
+    // the text will contain no more than 'maxTotalDigits' decimal digits out
+    // of which there will be exactly 'maxFractionDigits' digits after the
+    // decimal point unless that would violate one of the following rules:
+    //
+    //: 1 No less than 2 and no more than 326 total digits are written.
+    //:
+    //: 2 No less than one, and no more than 17 fractional digits are written.
+    //:
+    //: 3 At least one integer digit (before the decimal point) is written.
+    //:
+    //: 4 At least one fractional digit (after the decimal point) is written.
+    //:
+    //: 5 All significant integer digits (before the decimal dot) are written.
+    //
+    // If 'object' does not represent a numeric value set the 'failbit' of
+    // 'stream' and do not write anything.
+    //
+    // Return a modifiable reference to 'stream'.
 {
-    switch (bdlb::Float::classifyFine(object)) {
-      case bdlb::Float::k_POSITIVE_INFINITY:
-      case bdlb::Float::k_NEGATIVE_INFINITY:
-      case bdlb::Float::k_QNAN:
-      case bdlb::Float::k_SNAN: {
-        stream.setstate(bsl::ios_base::failbit);
-        return stream;                                                // RETURN
-      } break;
-      default: {
-        ;  // do nothing
-      } break;
-    }
-
-    BSLS_ASSERT(precision <= DBL_DIG);
-
-    // On Sun, formatting a 'double' using 'ostream' is 60% slower than
-    // 'sprintf', even though the former calls the latter.  Also, note that
-    // 'snprintf' is 15% slower than 'sprintf' on Sun.
-
-    char buffer[DBL_MAX_10_EXP + DBL_DIG + 4];  // buffer with headroom
-
-#if defined(BSLS_PLATFORM_CMP_MSVC)
-#pragma warning(push)
-#pragma warning(disable:4996)     // suppress 'sprintf' deprecation warning
+// Ensuring our assumptions about the 'double' type being IEEE-754 'binary64'.
+// These compile time assertions are important because the correctness of our
+// necessary 'sprintf' buffer size calculation holds only if 'double' is
+// precisely IEEE-754 binary64.
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    BSLMF_ASSERT( true == std::numeric_limits<double>::is_specialized);
+    BSLMF_ASSERT( true == std::numeric_limits<double>::is_signed);
+    BSLMF_ASSERT(false == std::numeric_limits<double>::is_exact);
+#ifndef BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD     // available
+    // Yet another Sun "anomaly"
+    BSLMF_ASSERT( true == std::numeric_limits<double>::is_iec559);
+#endif
+    BSLMF_ASSERT(    8 == sizeof(double));
 #endif
 
-    // format: "-"  forces left alignment, "#" always prints period
-    const int len = bsl::sprintf(buffer, "%-#1.*f", precision, object);
-    (void)len; BSLS_ASSERT(len < (int) sizeof buffer);
 
-#if defined(BSLS_PLATFORM_CMP_MSVC)
-#pragma warning(pop)
-#endif
-
-    const char *ptr = bsl::strchr(buffer, '.');
-    BSLS_ASSERT(ptr != 0);
-
-    int integralLen = static_cast<int>(ptr - buffer);
-
-    if (buffer[0] == '-') {
-        --integralLen;
-    }
-
-    // TBD the significance of "3" is not clear
-    int maxFractionLen = static_cast<int>(precision + 3 - integralLen);
-    if (maxFractionLen <= 0) {
-        maxFractionLen = 1;
-    }
-
-    ++ptr;  // move ptr to the first fraction digit
-
-    int fractionLen = static_cast<int>(bsl::strlen(ptr));
-
-    if (fractionLen > maxFractionLen) {
-        fractionLen = maxFractionLen;
-    }
-
-    stream.write(buffer, (ptr - buffer) + fractionLen);
-
-    return stream;
-}
-
-bsl::ostream& printDecimalWithOptions(bsl::ostream& stream,
-                                      double        object,
-                                      int           maxTotalDigits,
-                                      int           maxFractionDigits)
-{
     switch (bdlb::Float::classifyFine(object)) {
-      case bdlb::Float::k_POSITIVE_INFINITY:
-      case bdlb::Float::k_NEGATIVE_INFINITY:
-      case bdlb::Float::k_QNAN:
+      case bdlb::Float::k_POSITIVE_INFINITY:  BSLA_FALLTHROUGH;
+      case bdlb::Float::k_NEGATIVE_INFINITY:  BSLA_FALLTHROUGH;
+      case bdlb::Float::k_QNAN:               BSLA_FALLTHROUGH;
       case bdlb::Float::k_SNAN: {
         stream.setstate(bsl::ios_base::failbit);
 
@@ -666,30 +794,76 @@ bsl::ostream& printDecimalWithOptions(bsl::ostream& stream,
       } break;
     }
 
-    // Maximum number of digits in the number (excluding the decimal point).
-    // Ex: for totalDigits = 4, 65.43, 1234, 1.456 etc Maximum number of
-    // fraction digits refers to the digits following the decimal point.
+    // maxTotalDigits:
+    //    Maximum number of decimal digits written into the 'stream', unless
+    //    the number ('object') has more than 'maxTotalDigits - 1' significant
+    //    integer digits, or if 'maxTotalDigits' is out of range, in which case
+    //    it is updated to the closest value that is in-range (2..326).
+    //
+    // maxFractionDigits:
+    //    The maximum number of fractional digits, that is digits following the
+    //    decimal point, that may be written to the 'stream'.  The valid range
+    //    for 'maxFractionDigits' is 1 to 17, with the additional constraint
+    //    that its value may not be larger than 'maxTotalDigits - 1'.  In other
+    //    words here is always at least one integer digit written.
+    //
+    // E.g., for 'maxTotalDigits == 4' we may print 65.43, 1234.0, 1.456 etc.
+    // If we set 'maxFractionDigits' to 2, we get 65.43, 1234.0, and 1.46.
 
-    const int BUF_SIZE = 128;
-    char buffer[BUF_SIZE];
-    bsl::memset(buffer, 0, BUF_SIZE);
+    enum CharacterLimitsAndCounts {
+        // This 'enum' both documents the 'sprintf' 'buffer size calculation
+        // and gives symbolic names to the constants used in the calculation
+        // *as* *well* *as* the sanitization of the incoming options.  For a
+        // more detailed description see {'printDecimalWithDigitsOptions'
+        // Buffer Size} in the {Implementation Notes}.
 
-    if (maxTotalDigits < 2) {
-        // At least two digits must be printed one before and one after the
-        // decimal.
+        k_DBL_MAX_NUM_OF_INTEGER_DIGITS = 309,
 
-        maxTotalDigits = 2;
+        k_MAX_FRACTION_DIGITS_MINIMUM         =   1,
+        k_MAX_FRACTION_DIGITS_MAXIMUM_ALLOWED = 340,
+
+        k_MAX_TOTAL_DIGITS_MINIMUM = 2,
+        k_MAX_TOTAL_DIGITS_MAXIMUM = k_DBL_MAX_NUM_OF_INTEGER_DIGITS
+                                   + k_MAX_FRACTION_DIGITS_MAXIMUM_ALLOWED,
+
+        k_BUFFER_SIZE = 1                           // optional negative sign
+                      + k_MAX_TOTAL_DIGITS_MAXIMUM  // 649
+                      + 1                           // decimal point
+                      + 1 // == 652                 // closing null character
+    };
+
+    if (maxTotalDigits < k_MAX_TOTAL_DIGITS_MINIMUM) {
+        // At least two digits must be printed: one integer digit before, and
+        // one fractional after the decimal point.
+
+        maxTotalDigits = k_MAX_TOTAL_DIGITS_MINIMUM;
+    }
+    else if (maxTotalDigits > k_MAX_TOTAL_DIGITS_MAXIMUM) {
+        // We need to limit the total unless we want to dynamically allocate
+        // the buffer.
+
+        maxTotalDigits = k_MAX_TOTAL_DIGITS_MAXIMUM;
     }
 
-    if (maxFractionDigits < 1) {
-        // At least one digit must be printed after the decimal.
+    if (maxFractionDigits < k_MAX_FRACTION_DIGITS_MINIMUM) {
+        // At least one digit must be printed after the decimal point.
 
-        maxFractionDigits = 1;
+        maxFractionDigits = k_MAX_FRACTION_DIGITS_MINIMUM;
+    }
+    else if (maxFractionDigits > k_MAX_FRACTION_DIGITS_MAXIMUM_ALLOWED) {
+        // Number of digits after the decimal point is limited to 17.
+
+        maxFractionDigits = k_MAX_FRACTION_DIGITS_MAXIMUM_ALLOWED;
     }
 
     if (maxFractionDigits > maxTotalDigits - 1) {
+        // At least one integer digit is printed before the decimal point.
+
         maxFractionDigits = maxTotalDigits - 1;
     }
+
+    char buffer[k_BUFFER_SIZE];
+        // See explanation of the buffer size in the {Implementation Notes}.
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 #pragma warning(push)
@@ -698,7 +872,7 @@ bsl::ostream& printDecimalWithOptions(bsl::ostream& stream,
 
     // format: "-"  forces left alignment, "#" always prints period
     const int len = bsl::sprintf(buffer, "%-#1.*f", maxFractionDigits, object);
-    (void)len; BSLS_ASSERT(len < (int) sizeof buffer);
+    (void)len; BSLS_ASSERT(len < (int)sizeof buffer); BSLS_ASSERT(len > 0);
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 #pragma warning(pop)
@@ -726,13 +900,89 @@ bsl::ostream& printDecimalWithOptions(bsl::ostream& stream,
     return stream.write(buffer, (ptr - buffer) + fractionLen);
 }
 
+bsl::ostream& printDecimalUsingNecessaryDigitsOnly(bsl::ostream& stream,
+                                                   double        object)
+{
+    switch (bdlb::Float::classifyFine(object)) {
+      case bdlb::Float::k_POSITIVE_INFINITY:  BSLA_FALLTHROUGH;
+      case bdlb::Float::k_NEGATIVE_INFINITY:  BSLA_FALLTHROUGH;
+      case bdlb::Float::k_QNAN:               BSLA_FALLTHROUGH;
+      case bdlb::Float::k_SNAN: {
+        stream.setstate(bsl::ios_base::failbit);
+        return stream;                                                // RETURN
+      } break;
+      default: {
+        ;  // do nothing here
+      } break;
+    }
+
+    typedef bslalg::NumericFormatterUtil FmtUtil;
+    enum {
+        k_SIZE = FmtUtil::ToCharsMaxLength<double, FmtUtil::e_FIXED>::k_VALUE
+        // 'FmtUtil::ToCharsMaxLength<double, FmtUtil::e_FIXED>::k_VALUE' is
+        // the minimum size with which 'bslalg::NumericFormatterUtil::toChars'
+        // is guaranteed to never fail when 'toChars' is called with *any*
+        // 'double' value and 'e_FIXED' format, as we do below.
+    };
+    char buffer[k_SIZE];
+    const char * const endPtr = FmtUtil::toChars(buffer,
+                                                  buffer + sizeof buffer,
+                                                 object,
+                                                 FmtUtil::e_FIXED);
+    BSLS_ASSERT(0 != endPtr);
+
+    const bsl::size_t len = endPtr - buffer;
+
+    stream.write(buffer, len);
+
+    return stream;
+}
+
+bsl::ostream& printDecimalUsingNecessaryDigitsOnly(bsl::ostream& stream,
+                                                   float         object)
+{
+    switch (bdlb::Float::classifyFine(object)) {
+      case bdlb::Float::k_POSITIVE_INFINITY:  BSLA_FALLTHROUGH;
+      case bdlb::Float::k_NEGATIVE_INFINITY:  BSLA_FALLTHROUGH;
+      case bdlb::Float::k_QNAN:               BSLA_FALLTHROUGH;
+      case bdlb::Float::k_SNAN: {
+        stream.setstate(bsl::ios_base::failbit);
+        return stream;                                                // RETURN
+      } break;
+      default: {
+        ;  // do nothing here
+      } break;
+    }
+
+    typedef bslalg::NumericFormatterUtil FmtUtil;
+    enum {
+        k_SIZE = FmtUtil::ToCharsMaxLength<float, FmtUtil::e_FIXED>::k_VALUE
+        // 'FmtUtil::ToCharsMaxLength<float, FmtUtil::e_FIXED>::k_VALUE' is the
+        // minimum size with which 'bslalg::NumericFormatterUtil::toChars' is
+        // guaranteed to never fail when 'toChars' is called with *any* 'float'
+        // value and 'e_FIXED' format, as we do below.
+    };
+    char buffer[k_SIZE];
+    const char * const endPtr = FmtUtil::toChars(buffer,
+                                                  buffer + sizeof buffer,
+                                                 object,
+                                                 FmtUtil::e_FIXED);
+    BSLS_ASSERT(0 != endPtr);
+
+    const bsl::size_t len = endPtr - buffer;
+
+    stream.write(buffer, len);
+
+    return stream;
+}
+
 inline
-bsl::ostream& printDecimalImpl(bsl::ostream&              stream,
-                               const bdldfp::Decimal64&   object,
-                               bool                       decimalMode)
+bsl::ostream& printDecimalImpl(bsl::ostream&            stream,
+                               const bdldfp::Decimal64& object,
+                               bool                     decimalMode)
 {
     typedef bsl::numeric_limits<bdldfp::Decimal64> Limits;
-    typedef bdldfp::DecimalFormatConfig Config;
+    typedef bdldfp::DecimalFormatConfig            Config;
 
     Config cfg;
     if (stream.flags() & bsl::ios::floatfield) {
@@ -769,10 +1019,7 @@ bsl::ostream& printDecimalImpl(bsl::ostream&              stream,
         // 'bdldfp::Decimal64' type.
 
     char buffer[k_BUFFER_SIZE + 1];
-    int  len = bdldfp::DecimalUtil::format(buffer,
-                                           k_BUFFER_SIZE,
-                                           object,
-                                           cfg);
+    int  len = bdldfp::DecimalUtil::format(buffer, k_BUFFER_SIZE, object, cfg);
     BSLS_ASSERT(len <= k_BUFFER_SIZE);
     buffer[len] = 0;
     stream << buffer;
@@ -882,7 +1129,7 @@ TypesPrintUtil_Imp::printText(bsl::ostream&              stream,
 
     // This 'if' statement prevents us from invoking undefined behavior by
     // taking the address of the first element of an empty vector.
-    if (! object.empty()) {
+    if (!object.empty()) {
         u::printTextReplacingXMLEscapes(stream,
                                         &object[0],
                                         static_cast<int>(object.size()),
@@ -897,7 +1144,7 @@ TypesPrintUtil_Imp::printDecimal(bsl::ostream&               stream,
                                  const EncoderOptions       *,
                                  bdlat_TypeCategory::Simple)
 {
-    return u::printDecimalImpl(stream, object, FLT_DIG);
+    return u::printDecimalUsingNecessaryDigitsOnly(stream, object);
 }
 
 bsl::ostream&
@@ -907,9 +1154,9 @@ TypesPrintUtil_Imp::printDecimal(bsl::ostream&               stream,
                                  bdlat_TypeCategory::Simple)
 {
     if (!encoderOptions
-     || (encoderOptions->maxDecimalTotalDigits().isNull()
-      && encoderOptions->maxDecimalFractionDigits().isNull())) {
-        u::printDecimalImpl(stream, object, DBL_DIG);
+        || (encoderOptions->maxDecimalTotalDigits().isNull()
+            && encoderOptions->maxDecimalFractionDigits().isNull())) {
+        u::printDecimalUsingNecessaryDigitsOnly(stream, object);
     }
     else {
         const int maxTotalDigits =
@@ -922,120 +1169,81 @@ TypesPrintUtil_Imp::printDecimal(bsl::ostream&               stream,
                           ? DBL_DIG
                           : encoderOptions->maxDecimalFractionDigits().value();
 
-        u::printDecimalWithOptions(stream,
-                                   object,
-                                   maxTotalDigits,
-                                   maxFractionDigits);
+        u::printDecimalWithDigitsOptions(stream,
+                                         object,
+                                         maxTotalDigits,
+                                         maxFractionDigits);
     }
 
     return stream;
 }
 
-bsl::ostream& TypesPrintUtil_Imp::printDefault(
-                                            bsl::ostream&               stream,
-                                            const float&                object,
-                                            const EncoderOptions       *,
-                                            bdlat_TypeCategory::Simple)
+bsl::ostream&
+TypesPrintUtil_Imp::printDefault(bsl::ostream&               stream,
+                                 const float&                object,
+                                 const EncoderOptions       *,
+                                 bdlat_TypeCategory::Simple)
 {
-    switch (bdlb::Float::classifyFine(object)) {
-      case bdlb::Float::k_POSITIVE_INFINITY: {
-        stream << "+INF";
-      } break;
-      case bdlb::Float::k_NEGATIVE_INFINITY: {
-        stream << "-INF";
-      } break;
-      case bdlb::Float::k_QNAN:
-      case bdlb::Float::k_SNAN: {
-        stream << "NaN";
-      } break;
-      default: {
-        // not a NaN and not +/- INFINITY
+    typedef bslalg::NumericFormatterUtil NfUtil;
+        // The 'typedef' is necessary due to the very long type name.
+    char buffer[NfUtil::ToCharsMaxLength<float>::k_VALUE];
+        // 'NfUtil::ToCharsMaxLength<float>::k_VALUE' is the minimum size with
+        // which 'bslalg::NumericFormatterUtil::toChars' is guaranteed to never
+        // fail when called with *any* 'float' value and the default format as
+        // we do below.
 
-        // On Sun, formatting a 'double' using 'ostream' is 60% slower than
-        // 'sprintf', even though the former calls the latter.  Also, note that
-        // 'snprintf' is 15% slower than 'sprintf' on Sun.
+    const char * const endPtr = NfUtil::toChars(buffer,
+                                                buffer + sizeof buffer,
+                                                object);
+    BSLS_ASSERT(0 != endPtr);
 
-        char buffer[FLT_DIG + 20];  // buffer with headroom
+    const bsl::size_t len = endPtr - buffer;
 
-#if defined(BSLS_PLATFORM_CMP_MSVC)
-#pragma warning(push)
-#pragma warning(disable:4996)     // suppress 'sprintf' deprecation warning
-#endif
-
-        const int len =
-                    bsl::sprintf(buffer, "%.*g", FLT_DIG + 1, (double) object);
-        BSLS_ASSERT(len < (int) sizeof buffer);
-
-#if defined(BSLS_PLATFORM_CMP_MSVC)
-#pragma warning(pop)
-#endif
-
-        stream.write(buffer, len);
-      } break;
-    }
+    stream.write(buffer, len);
 
     return stream;
 }
 
-bsl::ostream& TypesPrintUtil_Imp::printDefault(
-                                            bsl::ostream&               stream,
-                                            const double&               object,
-                                            const EncoderOptions       *,
-                                            bdlat_TypeCategory::Simple)
+bsl::ostream&
+TypesPrintUtil_Imp::printDefault(bsl::ostream&               stream,
+                                 const double&               object,
+                                 const EncoderOptions       *,
+                                 bdlat_TypeCategory::Simple)
 {
-    switch (bdlb::Float::classifyFine(object)) {
-      case bdlb::Float::k_POSITIVE_INFINITY: {
-        stream << "+INF";
-      } break;
-      case bdlb::Float::k_NEGATIVE_INFINITY: {
-        stream << "-INF";
-      } break;
-      case bdlb::Float::k_QNAN:
-      case bdlb::Float::k_SNAN: {
-        stream << "NaN";
-      } break;
-      default: {
-        // not a NaN and not +/- INFINITY
+    typedef bslalg::NumericFormatterUtil NfUtil;
+        // The 'typedef' is necessary due to the very long type name.
+    char buffer[NfUtil::ToCharsMaxLength<double>::k_VALUE];
+        // 'NfUtil::ToCharsMaxLength<double>::k_VALUE' is the minimum size with
+        // which 'bslalg::NumericFormatterUtil::toChars' is guaranteed to never
+        // fail when called with *any* 'double' value and the default format as
+        // we do below.
 
-        // On Sun, formatting a 'double' using 'ostream' is 60% slower than
-        // 'sprintf', even though the former calls the latter.  Also, note that
-        // 'snprintf' is 15% slower than 'sprintf' on Sun.
+    const char * const endPtr = NfUtil::toChars(buffer,
+                                                buffer + sizeof buffer,
+                                                object);
+    BSLS_ASSERT(0 != endPtr);
 
-        char buffer[DBL_DIG + 20];  // buffer with headroom
+    const bsl::size_t len = endPtr - buffer;
 
-#if defined(BSLS_PLATFORM_CMP_MSVC)
-#pragma warning(push)
-#pragma warning(disable:4996)     // suppress 'sprintf' deprecation warning
-#endif
-
-        const int len = bsl::sprintf(buffer, "%.*g", DBL_DIG + 1, object);
-        BSLS_ASSERT(len < (int) sizeof buffer);
-
-#if defined(BSLS_PLATFORM_CMP_MSVC)
-#pragma warning(pop)
-#endif
-
-        stream.write(buffer, len);
-      } break;
-    }
+    stream.write(buffer, len);
 
     return stream;
 }
 
-bsl::ostream& TypesPrintUtil_Imp::printDecimal(
-                                             bsl::ostream&              stream,
-                                             const bdldfp::Decimal64&   object,
-                                             const EncoderOptions       *,
-                                             bdlat_TypeCategory::Simple)
+bsl::ostream&
+TypesPrintUtil_Imp::printDecimal(bsl::ostream&               stream,
+                                 const bdldfp::Decimal64&    object,
+                                 const EncoderOptions       *,
+                                 bdlat_TypeCategory::Simple)
 {
     return u::printDecimalImpl(stream, object, true);
 }
 
-bsl::ostream& TypesPrintUtil_Imp::printDefault(
-                                    bsl::ostream&               stream,
-                                    const bdldfp::Decimal64&    object,
-                                    const EncoderOptions       *,
-                                    bdlat_TypeCategory::Simple)
+bsl::ostream&
+TypesPrintUtil_Imp::printDefault(bsl::ostream&               stream,
+                                 const bdldfp::Decimal64&    object,
+                                 const EncoderOptions       *,
+                                 bdlat_TypeCategory::Simple)
 {
     return u::printDecimalImpl(stream, object, false);
 }
