@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Dec  1 13:29:03 2021
+// Generated on Fri Dec 10 07:29:29 2021
 // Command line: sim_cpp11_features.pl bslstl_set.h
 
 #ifdef COMPILING_BSLSTL_SET_H
@@ -1291,6 +1291,145 @@ class set {
 
     // BDE_VERIFY pragma: pop
 };
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+// CLASS TEMPLATE DEDUCTION GUIDES
+
+template <
+    class KEY,
+    class COMPARATOR,
+    class ALLOCATOR,
+    class ALLOC,
+    class = bsl::enable_if_t<bsl::is_convertible<ALLOC *, ALLOCATOR>::value>
+    >
+set(set<KEY, COMPARATOR, ALLOCATOR>, ALLOC *)
+-> set<KEY, COMPARATOR, ALLOCATOR>;
+    // Deduce the template parameters 'KEY', 'COMPARATOR' and 'ALLOCATOR' from
+    // the corresponding template parameters of the 'bsl::set' supplied to the
+    // constructor of 'set'.  This deduction guide does not participate unless
+    // the specified 'ALLOC' is convertible to 'ALLOCATOR'.
+
+template <
+    class INPUT_ITERATOR,
+    class KEY = typename bsl::iterator_traits<INPUT_ITERATOR>::value_type,
+    class COMPARATOR = std::less<KEY>,
+    class ALLOCATOR = bsl::allocator<KEY>,
+    class = bsl::enable_if_t<!bsl::IsStdAllocator_v<COMPARATOR>>,
+    class = bsl::enable_if_t<bsl::IsStdAllocator_v<ALLOCATOR>>
+    >
+set(INPUT_ITERATOR,
+    INPUT_ITERATOR,
+    COMPARATOR = COMPARATOR(),
+    ALLOCATOR = ALLOCATOR())
+-> set<KEY, COMPARATOR, ALLOCATOR>;
+    // Deduce the template parameter 'KEY' from the 'value_type' of the
+    // iterators supplied to the constructor of 'set'.  Deduce the template
+    // parameters 'COMPARATOR' and 'ALLOCATOR' from the other parameters passed
+    // to the constructor.  This guide does not participate unless the
+    // supplied (or defaulted) 'ALLOCATOR' meets the requirements of a
+    // standard allocator.
+
+template <
+    class INPUT_ITERATOR,
+    class COMPARATOR,
+    class ALLOC,
+    class KEY = typename bsl::iterator_traits<INPUT_ITERATOR>::value_type,
+    class ALLOCATOR = bsl::allocator<KEY>,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>
+    >
+set(INPUT_ITERATOR, INPUT_ITERATOR, COMPARATOR, ALLOC *)
+-> set<KEY, COMPARATOR, ALLOCATOR>;
+    // Deduce the template parameter 'KEY' from the 'value_type' of the
+    // iterators supplied to the constructor of 'set'.  Deduce the template
+    // parameter 'COMPARATOR' from the other parameter passed to the
+    // constructor.  This deduction guide does not participate unless the
+    // specified 'ALLOC' is convertible to 'bsl::allocator<KEY>'.
+
+template <
+    class INPUT_ITERATOR,
+    class ALLOCATOR,
+    class KEY = typename bsl::iterator_traits<INPUT_ITERATOR>::value_type,
+    class = bsl::enable_if_t<bsl::IsStdAllocator_v<ALLOCATOR>>
+    >
+set(INPUT_ITERATOR, INPUT_ITERATOR, ALLOCATOR)
+-> set<KEY, std::less<KEY>, ALLOCATOR>;
+    // Deduce the template parameter 'KEY' from the 'value_type' of the
+    // iterators supplied to the constructor of 'set'.  Deduce the template
+    // parameter 'ALLOCATOR' from the other parameter passed to the
+    // constructor.  This deduction guide does not participate unless the
+    // supplied allocator meets the requirements of a standard allocator.
+
+template <
+    class INPUT_ITERATOR,
+    class ALLOC,
+    class KEY = typename bsl::iterator_traits<INPUT_ITERATOR>::value_type,
+    class ALLOCATOR = bsl::allocator<KEY>,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>
+    >
+set(INPUT_ITERATOR, INPUT_ITERATOR, ALLOC *)
+-> set<KEY, std::less<KEY>, ALLOCATOR>;
+    // Deduce the template parameter 'KEY' from the 'value_type' of the
+    // iterators supplied to the constructor of 'set'.  This deduction guide
+    // does not participate unless the specified 'ALLOC' is convertible to
+    // 'bsl::allocator<KEY>'.
+
+template <
+    class KEY,
+    class COMPARATOR = std::less<KEY>,
+    class ALLOCATOR = bsl::allocator<KEY>,
+    class = bsl::enable_if_t<!bsl::IsStdAllocator_v<COMPARATOR>>,
+    class = bsl::enable_if_t<bsl::IsStdAllocator_v<ALLOCATOR>>
+    >
+set(std::initializer_list<KEY>,
+    COMPARATOR = COMPARATOR(),
+    ALLOCATOR = ALLOCATOR())
+-> set<KEY, COMPARATOR, ALLOCATOR>;
+    // Deduce the template parameter 'KEY' from the 'value_type' of the
+    // initializer_list supplied to the constructor of 'set'.  Deduce the
+    // template parameters 'COMPARATOR' and 'ALLOCATOR' from the other
+    // parameters passed to the constructor.
+
+template <
+    class KEY,
+    class COMPARATOR,
+    class ALLOC,
+    class ALLOCATOR = bsl::allocator<KEY>,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>
+    >
+set(std::initializer_list<KEY>, COMPARATOR, ALLOC *)
+-> set<KEY, COMPARATOR, ALLOCATOR>;
+    // Deduce the template parameter 'KEY' from the 'value_type' of the
+    // initializer_list supplied to the constructor of 'set'.  Deduce the
+    // template parameter 'COMPARATOR' from the other parameter passed to the
+    // constructor.  This deduction guide does not participate unless the
+    // specified 'ALLOC' is convertible to 'bsl::allocator<KEY>'.
+
+template <
+    class KEY,
+    class ALLOCATOR,
+    class = bsl::enable_if_t<bsl::IsStdAllocator_v<ALLOCATOR>>
+    >
+set(std::initializer_list<KEY>, ALLOCATOR)
+-> set<KEY, std::less<KEY>, ALLOCATOR>;
+    // Deduce the template parameter 'KEY' from the 'value_type' of the
+    // initializer_list supplied to the constructor of 'set'.  Deduce the
+    // template parameter 'ALLOCATOR' from the other parameter passed to the
+    // constructor.
+
+template <
+    class KEY,
+    class ALLOC,
+    class ALLOCATOR = bsl::allocator<KEY>,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>
+    >
+set(std::initializer_list<KEY>, ALLOC *)
+-> set<KEY, std::less<KEY>, ALLOCATOR>;
+    // Deduce the template parameter 'KEY' from the 'value_type' of the
+    // initializer_list supplied to the constructor of 'set'.  This deduction
+    // guide does not participate unless the specified 'ALLOC' is convertible
+    // to 'bsl::allocator<KEY>'.
+
+#endif
 
 // FREE OPERATORS
 template <class KEY, class COMPARATOR, class ALLOCATOR>

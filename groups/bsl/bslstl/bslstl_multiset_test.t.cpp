@@ -43,6 +43,7 @@
 
 #include <algorithm>
 #include <functional>
+#include <utility>     // move
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 #include <initializer_list>
@@ -184,6 +185,7 @@
 // [34] CONCERN: 'lower_bound' properly handles transparent comparators.
 // [34] CONCERN: 'upper_bound' properly handles transparent comparators.
 // [34] CONCERN: 'equal_range' properly handles transparent comparators.
+// [35] CLASS TEMPLATE DEDUCTION GUIDES
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -7865,6 +7867,189 @@ static void testRangeInsertOptimization()
     }
 }
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+struct TestDeductionGuides {
+    // This struct provides a namespace for functions testing deduction guides.
+    // The tests are compile-time only; it is not necessary that these routines
+    // be called at run-time.  Note that the following constructors do not have
+    // associated deduction guides because the template parameters for
+    // 'bsl::multiset' cannot be deduced from the constructor parameters.
+    //..
+    // multiset()
+    // explicit multiset(COMPARATOR, ALLOCATOR = ALLOCATOR());
+    // multiset(ALLOCATOR)
+    //..
+
+#define ASSERT_SAME_TYPE(...) \
+ static_assert((bsl::is_same<__VA_ARGS__>::value), "Types differ unexpectedly")
+
+    void SimpleConstructors ()
+        // Test that constructing a 'bsl::priority_queue' from various
+        // combinations of arguments deduces the correct type.
+        //..
+        // multiset(const multiset&  ms)            -> decltype(ms)
+        // multiset(const multiset&  ms, ALLOCATOR) -> decltype(ms)
+        // multiset(      multiset&& ms)            -> decltype(ms)
+        // multiset(      multiset&& ms, ALLOCATOR) -> decltype(ms)
+        //
+        // multiset(Iter, Iter, COMPARATOR = COMPARATOR(),
+        //                                             ALLOCATOR = ALLOCATOR())
+        // multiset(Iter, Iter, ALLOCATOR)
+        //
+        // multiset(initializer_list, COMPARATOR = COMPARATOR(),
+        //                                             ALLOCATOR = ALLOCATOR())
+        // multiset(initializer_list, ALLOCATOR)
+        //..
+    {
+        bslma::Allocator     *a1 = nullptr;
+        bslma::TestAllocator *a2 = nullptr;
+
+        typedef int T1;
+        bsl::multiset<T1> ms1;
+        bsl::multiset     ms1a(ms1);
+        ASSERT_SAME_TYPE(decltype(ms1a), bsl::multiset<T1>);
+
+        typedef float T2;
+        bsl::multiset<T2> ms2;
+        bsl::multiset     ms2a(ms2, bsl::allocator<T2>());
+        bsl::multiset     ms2b(ms2, a1);
+        bsl::multiset     ms2c(ms2, a2);
+        ASSERT_SAME_TYPE(decltype(ms2a), bsl::multiset<T2>);
+        ASSERT_SAME_TYPE(decltype(ms2b), bsl::multiset<T2>);
+        ASSERT_SAME_TYPE(decltype(ms2c), bsl::multiset<T2>);
+
+        typedef short T3;
+        bsl::multiset<T3> ms3;
+        bsl::multiset     ms3a(std::move(ms3));
+        ASSERT_SAME_TYPE(decltype(ms3a), bsl::multiset<T3>);
+
+        typedef long double T4;
+        bsl::multiset<T4> ms4;
+        bsl::multiset     ms4a(std::move(ms4), bsl::allocator<T4>{});
+        bsl::multiset     ms4b(std::move(ms4), a1);
+        bsl::multiset     ms4c(std::move(ms4), a2);
+        ASSERT_SAME_TYPE(decltype(ms4a), bsl::multiset<T4>);
+        ASSERT_SAME_TYPE(decltype(ms4b), bsl::multiset<T4>);
+        ASSERT_SAME_TYPE(decltype(ms4c), bsl::multiset<T4>);
+
+
+        typedef long T5;
+        typedef std::greater<T5> CompT5;
+        T5                          *p5b = nullptr;
+        T5                          *p5e = nullptr;
+        bsl::multiset<T5>::iterator  i5b;
+        bsl::multiset<T5>::iterator  i5e;
+
+        bsl::multiset ms5a(p5b, p5e);
+        bsl::multiset ms5b(i5b, i5e);
+        bsl::multiset ms5c(p5b, p5e, CompT5{});
+        bsl::multiset ms5d(i5b, i5e, CompT5{});
+        bsl::multiset ms5e(p5b, p5e, CompT5{}, bsl::allocator<T5>{});
+        bsl::multiset ms5f(p5b, p5e, CompT5{}, a1);
+        bsl::multiset ms5g(p5b, p5e, CompT5{}, a2);
+        bsl::multiset ms5h(p5b, p5e, CompT5{}, std::allocator<T5>{});
+        bsl::multiset ms5i(i5b, i5e, CompT5{}, bsl::allocator<T5>{});
+        bsl::multiset ms5j(i5b, i5e, CompT5{}, a1);
+        bsl::multiset ms5k(i5b, i5e, CompT5{}, a2);
+        bsl::multiset ms5l(i5b, i5e, CompT5{}, std::allocator<T5>{});
+
+        ASSERT_SAME_TYPE(decltype(ms5a), bsl::multiset<T5>);
+        ASSERT_SAME_TYPE(decltype(ms5b), bsl::multiset<T5>);
+        ASSERT_SAME_TYPE(decltype(ms5c), bsl::multiset<T5, CompT5>);
+        ASSERT_SAME_TYPE(decltype(ms5d), bsl::multiset<T5, CompT5>);
+        ASSERT_SAME_TYPE(decltype(ms5e),
+                                bsl::multiset<T5, CompT5, bsl::allocator<T5>>);
+        ASSERT_SAME_TYPE(decltype(ms5f),
+                                bsl::multiset<T5, CompT5, bsl::allocator<T5>>);
+        ASSERT_SAME_TYPE(decltype(ms5g),
+                                bsl::multiset<T5, CompT5, bsl::allocator<T5>>);
+        ASSERT_SAME_TYPE(decltype(ms5h),
+                                bsl::multiset<T5, CompT5, std::allocator<T5>>);
+        ASSERT_SAME_TYPE(decltype(ms5i),
+                                bsl::multiset<T5, CompT5, bsl::allocator<T5>>);
+        ASSERT_SAME_TYPE(decltype(ms5j),
+                                bsl::multiset<T5, CompT5, bsl::allocator<T5>>);
+        ASSERT_SAME_TYPE(decltype(ms5k),
+                                bsl::multiset<T5, CompT5, bsl::allocator<T5>>);
+        ASSERT_SAME_TYPE(decltype(ms5l),
+                                bsl::multiset<T5, CompT5, std::allocator<T5>>);
+
+
+        typedef short T6;
+        T6                          *p6b = nullptr;
+        T6                          *p6e = nullptr;
+        bsl::multiset<T6>::iterator  i6b;
+        bsl::multiset<T6>::iterator  i6e;
+
+        bsl::multiset ms6a(p6b, p6e, bsl::allocator<T6>{});
+        bsl::multiset ms6b(p6b, p6e, a1);
+        bsl::multiset ms6c(p6b, p6e, a2);
+        bsl::multiset ms6d(p6b, p6e, std::allocator<T6>{});
+
+        ASSERT_SAME_TYPE(decltype(ms6a),
+                         bsl::multiset<T6, std::less<T6>, bsl::allocator<T6>>);
+        ASSERT_SAME_TYPE(decltype(ms6b),
+                         bsl::multiset<T6, std::less<T6>, bsl::allocator<T6>>);
+        ASSERT_SAME_TYPE(decltype(ms6c),
+                         bsl::multiset<T6, std::less<T6>, bsl::allocator<T6>>);
+        ASSERT_SAME_TYPE(decltype(ms6d),
+                         bsl::multiset<T6, std::less<T6>, std::allocator<T6>>);
+
+
+        typedef long T7;
+        typedef std::greater<T7> CompT7;
+        std::initializer_list<T7> il7({1L, 2L, 3L});
+
+        bsl::multiset ms7a(il7);
+        bsl::multiset ms7b(il7, CompT7{});
+        bsl::multiset ms7c(il7, CompT7{}, bsl::allocator<T7>{});
+        bsl::multiset ms7d(il7, CompT7{}, a1);
+        bsl::multiset ms7e(il7, CompT7{}, a2);
+        bsl::multiset ms7f(il7, CompT7{}, std::allocator<T7>{});
+
+        ASSERT_SAME_TYPE(decltype(ms7a), bsl::multiset<T7>);
+        ASSERT_SAME_TYPE(decltype(ms7b), bsl::multiset<T7, CompT7>);
+        ASSERT_SAME_TYPE(decltype(ms7c),
+                                bsl::multiset<T7, CompT7, bsl::allocator<T7>>);
+        ASSERT_SAME_TYPE(decltype(ms7d),
+                                bsl::multiset<T7, CompT7, bsl::allocator<T7>>);
+        ASSERT_SAME_TYPE(decltype(ms7e),
+                                bsl::multiset<T7, CompT7, bsl::allocator<T7>>);
+        ASSERT_SAME_TYPE(decltype(ms7f),
+                                bsl::multiset<T7, CompT7, std::allocator<T7>>);
+
+        typedef long long T8;
+        std::initializer_list<T8> il8({3LL, 2LL, 1LL});
+
+        bsl::multiset ms8a(il8, bsl::allocator<T8>{});
+        bsl::multiset ms8b(il8, a1);
+        bsl::multiset ms8c(il8, a2);
+        bsl::multiset ms8d(il8, std::allocator<T8>{});
+
+        ASSERT_SAME_TYPE(decltype(ms8a),
+                         bsl::multiset<T8, std::less<T8>, bsl::allocator<T8>>);
+        ASSERT_SAME_TYPE(decltype(ms8b),
+                         bsl::multiset<T8, std::less<T8>, bsl::allocator<T8>>);
+        ASSERT_SAME_TYPE(decltype(ms8c),
+                         bsl::multiset<T8, std::less<T8>, bsl::allocator<T8>>);
+        ASSERT_SAME_TYPE(decltype(ms8d),
+                         bsl::multiset<T8, std::less<T8>, std::allocator<T8>>);
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // Compile-fail tests
+// #define BSLSTL_MULTISET_COMPILE_FAIL_SWAPPED_COMPARATOR_AND_ALLOCATOR
+#ifdef  BSLSTL_MULTISET_COMPILE_FAIL_SWAPPED_COMPARATOR_AND_ALLOCATOR
+        typedef long T99;
+        T99           *p99 = nullptr;
+        bsl::multiset  s99(p99, p99, bsl::allocator<T99>{}, std::less<T99>{});
+        // This should fail to compile (allocator and comparator are swapped)
+#endif
+    }
+
+#undef ASSERT_SAME_TYPE
+};
+#endif
+
 // ============================================================================
 //                            MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -7903,6 +8088,39 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
+      case 35: {
+        //---------------------------------------------------------------------
+        // TESTING CLASS TEMPLATE DEDUCTION GUIDES (AT COMPILE TIME)
+        //   Ensure that the deduction guides are properly specified to deduce
+        //   the template arguments from the arguments supplied to the
+        //   constructors.
+        //
+        // Concerns:
+        //: 1 Construction from iterators deduces the value type from the value
+        //:   type of the iterator.
+        //
+        //: 2 Construction with a 'bslma::Allocator *' deduces the correct
+        //:   specialization of 'bsl::allocator' for the type of the allocator.
+        //
+        // Plan:
+        //: 1 Create a multiset by invoking the constructor without supplying
+        //:   the template arguments explicitly.
+        //:
+        //: 2 Verify that the deduced type is correct.
+        //
+        // Testing:
+        //   CLASS TEMPLATE DEDUCTION GUIDES
+        //---------------------------------------------------------------------
+        if (verbose)
+            printf(
+              "\nTESTING CLASS TEMPLATE DEDUCTION GUIDES (AT COMPILE TIME)"
+              "\n=========================================================\n");
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+        // This is a compile-time only test case.
+        TestDeductionGuides test;
+#endif
+      } break;
       case 34: {
         // --------------------------------------------------------------------
         // TESTING TRANSPARENT COMPARATOR

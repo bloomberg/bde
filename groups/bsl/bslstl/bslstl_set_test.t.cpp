@@ -44,6 +44,7 @@
 
 #include <algorithm>
 #include <functional>
+#include <utility>      // move
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 #include <initializer_list>
@@ -196,6 +197,7 @@
 // [35] CONCERN: 'lower_bound' properly handles multi-value comparators.
 // [35] CONCERN: 'upper_bound' properly handles multi-value comparators.
 // [35] CONCERN: 'equal_range' properly handles multi-value comparators.
+// [36] CLASS TEMPLATE DEDUCTION GUIDES
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -7689,6 +7691,188 @@ static void testRangeInsertOptimization()
     }
 }
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+struct TestDeductionGuides {
+    // This struct provides a namespace for functions testing deduction guides.
+    // The tests are compile-time only; it is not necessary that these routines
+    // be called at run-time.  Note that the following constructors do not have
+    // associated deduction guides because the template parameters for
+    // 'bsl::set' cannot be deduced from the constructor parameters.
+    //..
+    // set()
+    // explicit set(COMPARATOR, ALLOCATOR = ALLOCATOR());
+    // set(ALLOCATOR)
+    //..
+
+#define ASSERT_SAME_TYPE(...) \
+ static_assert((bsl::is_same<__VA_ARGS__>::value), "Types differ unexpectedly")
+
+    void SimpleConstructors ()
+        // Test that constructing a 'bsl::set' from various combinations of
+        // arguments deduces the correct type.
+        //..
+        // set(const set&  s)            -> decltype(s)
+        // set(const set&  s, ALLOCATOR) -> decltype(s)
+        // set(      set&& s)            -> decltype(s)
+        // set(      set&& s, ALLOCATOR) -> decltype(s)
+        //
+        // set(Iter, Iter, COMPARATOR = COMPARATOR(), ALLOCATOR = ALLOCATOR())
+        // set(Iter, Iter, ALLOCATOR)
+        //
+        // set(initializer_list, COMPARATOR = COMPARATOR(),
+        //                                             ALLOCATOR = ALLOCATOR())
+        // set(initializer_list, ALLOCATOR)
+        //..
+    {
+        bslma::Allocator     *a1 = nullptr;
+        bslma::TestAllocator *a2 = nullptr;
+
+        typedef int T1;
+        bsl::set<T1> s1;
+        bsl::set     s1a(s1);
+        ASSERT_SAME_TYPE(decltype(s1a), bsl::set<T1>);
+
+        typedef float T2;
+        bsl::set<T2> s2;
+        bsl::set     s2a(s2, bsl::allocator<T2>());
+        bsl::set     s2b(s2, a1);
+        bsl::set     s2c(s2, a2);
+        ASSERT_SAME_TYPE(decltype(s2a), bsl::set<T2>);
+        ASSERT_SAME_TYPE(decltype(s2b), bsl::set<T2>);
+        ASSERT_SAME_TYPE(decltype(s2c), bsl::set<T2>);
+
+        typedef short T3;
+        bsl::set<T3> s3;
+        bsl::set     s3a(std::move(s3));
+        ASSERT_SAME_TYPE(decltype(s3a), bsl::set<T3>);
+
+        typedef long double T4;
+        bsl::set<T4> s4;
+        bsl::set     s4a(std::move(s4), bsl::allocator<T4>{});
+        bsl::set     s4b(std::move(s4), a1);
+        bsl::set     s4c(std::move(s4), a2);
+        ASSERT_SAME_TYPE(decltype(s4a), bsl::set<T4>);
+        ASSERT_SAME_TYPE(decltype(s4b), bsl::set<T4>);
+        ASSERT_SAME_TYPE(decltype(s4c), bsl::set<T4>);
+
+
+        typedef long T5;
+        typedef std::greater<T5> CompT5;
+        T5                       *p5b = nullptr;
+        T5                       *p5e = nullptr;
+        bsl::set<T5>::iterator    i5b;
+        bsl::set<T5>::iterator    i5e;
+
+        bsl::set s5a(p5b, p5e);
+        bsl::set s5b(i5b, i5e);
+        bsl::set s5c(p5b, p5e, CompT5{});
+        bsl::set s5d(i5b, i5e, CompT5{});
+        bsl::set s5e(p5b, p5e, CompT5{}, bsl::allocator<T5>{});
+        bsl::set s5f(p5b, p5e, CompT5{}, a1);
+        bsl::set s5g(p5b, p5e, CompT5{}, a2);
+        bsl::set s5h(p5b, p5e, CompT5{}, std::allocator<T5>{});
+        bsl::set s5i(i5b, i5e, CompT5{}, bsl::allocator<T5>{});
+        bsl::set s5j(i5b, i5e, CompT5{}, a1);
+        bsl::set s5k(i5b, i5e, CompT5{}, a2);
+        bsl::set s5l(i5b, i5e, CompT5{}, std::allocator<T5>{});
+
+        ASSERT_SAME_TYPE(decltype(s5a), bsl::set<T5>);
+        ASSERT_SAME_TYPE(decltype(s5b), bsl::set<T5>);
+        ASSERT_SAME_TYPE(decltype(s5c), bsl::set<T5, CompT5>);
+        ASSERT_SAME_TYPE(decltype(s5d), bsl::set<T5, CompT5>);
+        ASSERT_SAME_TYPE(decltype(s5e),
+                                     bsl::set<T5, CompT5, bsl::allocator<T5>>);
+        ASSERT_SAME_TYPE(decltype(s5f),
+                                     bsl::set<T5, CompT5, bsl::allocator<T5>>);
+        ASSERT_SAME_TYPE(decltype(s5g),
+                                     bsl::set<T5, CompT5, bsl::allocator<T5>>);
+        ASSERT_SAME_TYPE(decltype(s5h),
+                                     bsl::set<T5, CompT5, std::allocator<T5>>);
+        ASSERT_SAME_TYPE(decltype(s5i),
+                                     bsl::set<T5, CompT5, bsl::allocator<T5>>);
+        ASSERT_SAME_TYPE(decltype(s5j),
+                                     bsl::set<T5, CompT5, bsl::allocator<T5>>);
+        ASSERT_SAME_TYPE(decltype(s5k),
+                                     bsl::set<T5, CompT5, bsl::allocator<T5>>);
+        ASSERT_SAME_TYPE(decltype(s5l),
+                                     bsl::set<T5, CompT5, std::allocator<T5>>);
+
+
+        typedef short T6;
+        T6                       *p6b = nullptr;
+        T6                       *p6e = nullptr;
+        bsl::set<T6>::iterator    i6b;
+        bsl::set<T6>::iterator    i6e;
+
+        bsl::set s6a(p6b, p6e, bsl::allocator<T6>{});
+        bsl::set s6b(p6b, p6e, a1);
+        bsl::set s6c(p6b, p6e, a2);
+        bsl::set s6d(p6b, p6e, std::allocator<T6>{});
+
+        ASSERT_SAME_TYPE(decltype(s6a),
+                              bsl::set<T6, std::less<T6>, bsl::allocator<T6>>);
+        ASSERT_SAME_TYPE(decltype(s6b),
+                              bsl::set<T6, std::less<T6>, bsl::allocator<T6>>);
+        ASSERT_SAME_TYPE(decltype(s6c),
+                              bsl::set<T6, std::less<T6>, bsl::allocator<T6>>);
+        ASSERT_SAME_TYPE(decltype(s6d),
+                              bsl::set<T6, std::less<T6>, std::allocator<T6>>);
+
+
+        typedef long T7;
+        typedef std::greater<T7> CompT7;
+        std::initializer_list<T7> il7({1L, 2L, 3L});
+
+        bsl::set s7a(il7);
+        bsl::set s7b(il7, CompT7{});
+        bsl::set s7c(il7, CompT7{}, bsl::allocator<T7>{});
+        bsl::set s7d(il7, CompT7{}, a1);
+        bsl::set s7e(il7, CompT7{}, a2);
+        bsl::set s7f(il7, CompT7{}, std::allocator<T7>{});
+
+        ASSERT_SAME_TYPE(decltype(s7a), bsl::set<T7>);
+        ASSERT_SAME_TYPE(decltype(s7b), bsl::set<T7, CompT7>);
+        ASSERT_SAME_TYPE(decltype(s7c),
+                                     bsl::set<T7, CompT7, bsl::allocator<T7>>);
+        ASSERT_SAME_TYPE(decltype(s7d),
+                                     bsl::set<T7, CompT7, bsl::allocator<T7>>);
+        ASSERT_SAME_TYPE(decltype(s7e),
+                                     bsl::set<T7, CompT7, bsl::allocator<T7>>);
+        ASSERT_SAME_TYPE(decltype(s7f),
+                                     bsl::set<T7, CompT7, std::allocator<T7>>);
+
+        typedef long long T8;
+        std::initializer_list<T8> il8({3LL, 2LL, 1LL});
+
+        bsl::set s8a(il8, bsl::allocator<T8>{});
+        bsl::set s8b(il8, a1);
+        bsl::set s8c(il8, a2);
+        bsl::set s8d(il8, std::allocator<T8>{});
+
+        ASSERT_SAME_TYPE(decltype(s8a),
+                              bsl::set<T8, std::less<T8>, bsl::allocator<T8>>);
+        ASSERT_SAME_TYPE(decltype(s8b),
+                              bsl::set<T8, std::less<T8>, bsl::allocator<T8>>);
+        ASSERT_SAME_TYPE(decltype(s8c),
+                              bsl::set<T8, std::less<T8>, bsl::allocator<T8>>);
+        ASSERT_SAME_TYPE(decltype(s8d),
+                              bsl::set<T8, std::less<T8>, std::allocator<T8>>);
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // Compile-fail tests
+// #define BSLSTL_SET_COMPILE_FAIL_SWAPPED_COMPARATOR_AND_ALLOCATOR
+#ifdef BSLSTL_SET_COMPILE_FAIL_SWAPPED_COMPARATOR_AND_ALLOCATOR
+        typedef long T99;
+        T99      *p99 = nullptr;
+        bsl::set  s99(p99, p99, bsl::allocator<T99>{}, std::less<T99>{});
+        // This should fail to compile (allocator and comparator are swapped)
+#endif
+    }
+
+#undef ASSERT_SAME_TYPE
+};
+#endif
+
 // ============================================================================
 //                            MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -7711,6 +7895,39 @@ int main(int argc, char *argv[])
     ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
 
     switch (test) { case 0:
+      case 36: {
+        //---------------------------------------------------------------------
+        // TESTING CLASS TEMPLATE DEDUCTION GUIDES (AT COMPILE TIME)
+        //   Ensure that the deduction guides are properly specified to deduce
+        //   the template arguments from the arguments supplied to the
+        //   constructors.
+        //
+        // Concerns:
+        //: 1 Construction from iterators deduces the value type from the value
+        //:   type of the iterator.
+        //
+        //: 2 Construction with a 'bslma::Allocator *' deduces the correct
+        //:   specialization of 'bsl::allocator' for the type of the allocator.
+        //
+        // Plan:
+        //: 1 Create a set by invoking the constructor without supplying the
+        //:   template arguments explicitly.
+        //:
+        //: 2 Verify that the deduced type is correct.
+        //
+        // Testing:
+        //   CLASS TEMPLATE DEDUCTION GUIDES
+        //---------------------------------------------------------------------
+        if (verbose)
+            printf(
+              "\nTESTING CLASS TEMPLATE DEDUCTION GUIDES (AT COMPILE TIME)"
+              "\n=========================================================\n");
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+        // This is a compile-time only test case.
+        TestDeductionGuides test;
+#endif
+      } break;
       case 35: {
         // --------------------------------------------------------------------
         // TESTING TRANSPARENT COMPARATORS WITH MULTI-VALUE EQUAL RANGES
