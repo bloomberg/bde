@@ -11,12 +11,16 @@ function(pcre2_process_standalone_package retUOR listFile installOpts)
 
     set(TARGET pcre2)
 
-    set(headers
-        ${rootDir}/config.h
+    set(public_headers
         ${rootDir}/pcre2.h
         ${rootDir}/pcre2_internal.h
         ${rootDir}/pcre2_intmodedep.h
         ${rootDir}/pcre2_ucp.h
+    )
+
+    set(all_headers
+        ${rootDir}/config.h
+        ${public_headers}
     )
 
     set(sources
@@ -49,7 +53,7 @@ function(pcre2_process_standalone_package retUOR listFile installOpts)
         ${rootDir}/pcre2_xclass.c
     )
 
-    bde_ufid_add_library(${TARGET} ${sources} ${headers})
+    bde_ufid_add_library(${TARGET} ${sources} ${all_headers})
 
     # Set up PIC
     # This code does not work in 3.8, but will be fixed in later versions.
@@ -128,7 +132,7 @@ function(pcre2_process_standalone_package retUOR listFile installOpts)
     bde_struct_get_field(component ${installOpts} COMPONENT)
     bde_struct_get_field(includeInstallDir ${installOpts} INCLUDE_DIR)
     install(
-        FILES ${headers}
+        FILES ${public_headers}
         COMPONENT "${component}-headers"
         DESTINATION "${includeInstallDir}/${TARGET}"
     )
