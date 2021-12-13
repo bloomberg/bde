@@ -25,6 +25,10 @@ namespace bsl {
     using native_std::regex_search;
     using native_std::regex_replace;
     using native_std::regex_iterator;
+    using native_std::cregex_iterator;
+    using native_std::wcregex_iterator;
+    using native_std::sregex_iterator;
+    using native_std::wsregex_iterator;
     using native_std::regex_token_iterator;
     using native_std::basic_regex;
     using native_std::match_results;
