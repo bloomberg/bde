@@ -829,10 +829,10 @@ BSLS_IDENT("$Id: $")
 #   define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED
 #endif
 
-#if defined(__cpp_deduction_guides) && __cpp_deduction_guides >= 201611
-#define BSLS_COMPILERFEATURES_SUPPORT_CTAD
 #endif
 
+#if defined(__cpp_deduction_guides) && __cpp_deduction_guides >= 201611
+#define BSLS_COMPILERFEATURES_SUPPORT_CTAD
 #endif
 
 #if defined(__cplusplus)
