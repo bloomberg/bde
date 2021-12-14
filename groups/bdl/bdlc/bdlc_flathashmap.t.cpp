@@ -55,6 +55,10 @@
 #include <bsl_utility.h>
 #include <bsl_vector.h>
 
+#if defined(BDE_BUILD_TARGET_EXC)
+#include <stdexcept>
+#endif
+
 using namespace BloombergLP;
 using namespace bsl;
 
@@ -132,6 +136,7 @@ using namespace bsl;
 // [22] FlatHashMap& operator=(bsl::initializer_list<v_t> values);
 // #endif
 // [25] VALUE& operator[](FORWARD_REF(KEY) key);
+// [29] VALUE& at(const KEY& key);
 // [ 2] void clear();
 // [12] bsl::pair<iterator, iterator> equal_range(const KEY& key);
 // [ 2] size_t erase(const KEY&);
@@ -153,6 +158,7 @@ using namespace bsl;
 // [ 8] void swap(FlatHashMap&);
 //
 // ACCESSORS
+// [29] const VALUE& at(const KEY& key) const;
 // [ 4] size_t capacity() const;
 // [12] bool contains(const KEY&) const;
 // [12] bsl::size_t count(const KEY& key) const;
@@ -179,7 +185,7 @@ using namespace bsl;
 // FREE FUNCTIONS
 // [ 8] void swap(FlatHashMap&, FlatHashMap&);
 // ----------------------------------------------------------------------------
-// [29] USAGE EXAMPLE
+// [30] USAGE EXAMPLE
 // [26] CONCERN: 'FlatHashMap' has the necessary type traits
 // [27] DRQS 165583038: 'insert' with conversion can crash
 // [ 1] BREATHING TEST
@@ -989,7 +995,7 @@ int main(int argc, char *argv[])
     bslma::Default::setDefaultAllocatorRaw(&defaultAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 29: {
+      case 30: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -1136,6 +1142,134 @@ int main(int argc, char *argv[])
 //  them          3
 //  among         3
 //..
+      } break;
+      case 29: {
+        // --------------------------------------------------------------------
+        // TESTING 'at' METHOD
+        //   Ensure the 'at' method operates as expected.
+        //
+        // Concerns:
+        //: 1 The 'at' method correctly forwards to the underlying
+        //:   implementation and correctly forwards the return value.
+        //:
+        //: 2 The returned reference can be used to modify the container.
+        //:
+        //: 3 The methods throw 'std::out_of_range' exception if the key does
+        //:   not exist.
+        //:
+        //: 4 Any memory allocations come from the object's allocator.
+        //
+        // Plan:
+        //: 1 Create an object and fill it with some key-value pairs using a
+        //    loop-based approach.
+        //:
+        //: 2 For each key-value pair in the object:
+        //:
+        //:   1 Verify that both versions of 'at' return the expected 'VALUE'.
+        //:
+        //:   2 Set the value to something different using non-const version
+        //:     and verify the value is changed.  (C-1..2)
+        //:
+        //: 3 Invoke both versions of 'at' method with a key that does not
+        //:   exist in the container and verify 'std::out_of_range' is thrown.
+        //:   (C-3)
+        //:
+        //: 4 Verify no memory is allocated from the default allocator.  (C-4)
+        //
+        // Testing:
+        //   VALUE& at(const KEY&);
+        //   const VALUE& at(const KEY&) const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING 'at' METHOD" << endl
+                          << "===================" << endl;
+
+        typedef bdlc::FlatHashMap<int, int> Obj;
+
+        bslma::TestAllocator        oa("object", veryVeryVeryVerbose);
+        bslma::TestAllocatorMonitor dam(&defaultAllocator);
+
+        if (verbose)
+            cout << "\tVerify expected behavior for existing elements."
+                 << endl;
+        {
+            const int NUM_ELEMENTS = 10;
+
+            Obj        mX(&oa);
+            const Obj& X = mX;
+
+            // Fill container.
+
+            for (int i = 0; i < NUM_ELEMENTS; ++i) {
+                mX[i] = NUM_ELEMENTS - i;
+            }
+
+            // Check return values.
+
+            for (int i = 0; i < NUM_ELEMENTS; ++i) {
+                const int EXP = NUM_ELEMENTS - i;
+                ASSERTV(i,  mX.at(i), EXP == mX.at(i));
+                ASSERTV(i,   X.at(i), EXP ==  X.at(i));
+            }
+
+            // Check the possibility of container change.
+
+            for (int i = 0; i < NUM_ELEMENTS; ++i) {
+                mX.at(i) = i;
+            }
+
+            for (int i = 0; i < NUM_ELEMENTS; ++i) {
+                ASSERTV(i, X.at(i), i ==  X.at(i));
+            }
+        }
+
+#if defined(BDE_BUILD_TARGET_EXC)
+        if (verbose)
+            cout << "\tVerify expected behavior for non-existing elements."
+                 << endl;
+        {
+            const int NUM_ELEMENTS     = 5;
+            const int NON_EXISTING_KEY = NUM_ELEMENTS + 1;
+
+            Obj        mX(&oa);
+            const Obj& X = mX;
+
+            // Fill container.
+
+            for (int i = 0; i < NUM_ELEMENTS; ++i) {
+                mX[i] = NUM_ELEMENTS - i;
+            }
+
+            ASSERT(X.end() == X.find(NON_EXISTING_KEY));
+
+            // on 'const Obj'
+            {
+                bool exceptionCaught = false;
+                try {
+                    X.at(NON_EXISTING_KEY);
+                }
+                catch (const std::out_of_range&) {
+                    exceptionCaught = true;
+                }
+                ASSERT(true == exceptionCaught);
+            }
+
+            // on 'Obj'
+            {
+                bool exceptionCaught = false;
+                try {
+                    mX.at(NON_EXISTING_KEY);
+                }
+                catch (const std::out_of_range&) {
+                    exceptionCaught = true;
+                }
+                ASSERTV(true == exceptionCaught);
+            }
+        }
+#endif
+
+        ASSERT(dam.isTotalSame()); // default allocator unused
       } break;
       case 28: {
         // --------------------------------------------------------------------

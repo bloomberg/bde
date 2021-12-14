@@ -276,6 +276,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslstl_equalto.h>
 #include <bslstl_hash.h>
+#include <bslstl_stdexceptutil.h>
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 #include <bsl_initializer_list.h>
@@ -551,6 +552,12 @@ class FlatHashMap {
         // to the newly mapped value.  If 'key' is movable, 'key' is left in a
         // (valid) unspecified state.
 
+    VALUE& at(const KEY& key);
+        // Return a reference providing modifiable access to the mapped value
+        // associated with the specified 'key' in this map, if such an entry
+        // exists; otherwise throw a 'std::out_of_range' exception.  Note that
+        // this method is not exception-neutral.
+
     void clear();
         // Remove all elements from this map.  Note that this map will be empty
         // after calling this method, but allocated memory may be retained for
@@ -714,6 +721,12 @@ class FlatHashMap {
         // as 'other'.
 
     // ACCESSORS
+    const VALUE& at(const KEY& key) const;
+        // Return a reference providing non-modifiable access to the mapped
+        // value associated with the specified 'key' in this map, if such an
+        // entry exists; otherwise throw a 'std::out_of_range' exception.  Note
+        // that this method is not exception-neutral.
+
     bsl::size_t capacity() const;
         // Return the number of elements this map could hold if the load factor
         // were 1.
@@ -1151,6 +1164,20 @@ VALUE& FlatHashMap<KEY, VALUE, HASH, EQUAL>::operator[](
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
 inline
+VALUE& FlatHashMap<KEY, VALUE, HASH, EQUAL>::at(const KEY& key)
+{
+    iterator node = d_impl.find(key);
+
+    if (node == d_impl.end()) {
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
+                          "FlatHashMap<...>::at(key_type): invalid key value");
+    }
+
+    return node->second;
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL>
+inline
 void
 FlatHashMap<KEY, VALUE, HASH, EQUAL>::clear()
 {
@@ -1278,6 +1305,20 @@ void FlatHashMap<KEY, VALUE, HASH, EQUAL>::swap(FlatHashMap& other)
 }
 
 // ACCESSORS
+template <class KEY, class VALUE, class HASH, class EQUAL>
+inline
+const VALUE& FlatHashMap<KEY, VALUE, HASH, EQUAL>::at(const KEY& key) const
+{
+    const_iterator node = d_impl.find(key);
+
+    if (node == d_impl.end()) {
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
+                    "FlatHashMap<...>::at(key_type) const: invalid key value");
+    }
+
+    return node->second;
+}
+
 template <class KEY, class VALUE, class HASH, class EQUAL>
 inline
 bsl::size_t FlatHashMap<KEY, VALUE, HASH, EQUAL>::capacity() const
