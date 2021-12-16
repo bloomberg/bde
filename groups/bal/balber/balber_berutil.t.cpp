@@ -60,7 +60,6 @@
 #include <bsl_numeric.h>
 #include <bsl_ostream.h>
 #include <bsl_string.h>
-#include <bsl_string_view.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -269,6 +268,7 @@ typedef bsls::Types::Int64      Int64;
 typedef bsls::Types::Uint64     Uint64;
 
 typedef balber::BerUtil         Util;
+typedef bslstl::StringRef       StringRef;
 
 // ============================================================================
 //                    GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -2609,11 +2609,11 @@ void loadRandomValue(bsl::string *value, LOADER& loader)
 
         const char *word = k_WORDS[wordIdx];
 
-        valueStream << bsl::string_view(word);
+        valueStream << bslstl::StringRef(word);
     }
 
-    *value = bsl::string_view(valueStreamBuf.data(),
-                              valueStreamBuf.length());
+    *value = bslstl::StringRef(valueStreamBuf.data(),
+                               valueStreamBuf.length());
 }
 
 template <class LOADER>
@@ -5976,8 +5976,8 @@ int main(int argc, char *argv[])
                 LOOP1_ASSERT(LINE, BUFFERS_EQUAL);
                 if (!BUFFERS_EQUAL && veryVerbose) {
                     bsl::cout << "ACTUAL: ["
-                              << bsl::string_view(outStreamBuf.data(),
-                                                  outStreamBuf.length())
+                              << bslstl::StringRef(outStreamBuf.data(),
+                                                   outStreamBuf.length())
                               << "]"
                               << bsl::endl;
                 }
@@ -6290,8 +6290,8 @@ int main(int argc, char *argv[])
                 }
                 else if (!BUFFERS_EQUAL && veryVerbose) {
                     bsl::cout << "ACTUAL: ["
-                              << bsl::string_view(outStreamBuf.data(),
-                                                  outStreamBuf.length())
+                              << bslstl::StringRef(outStreamBuf.data(),
+                                                   outStreamBuf.length())
                               << "]"
                               << bsl::endl;
                 }
@@ -6792,8 +6792,8 @@ int main(int argc, char *argv[])
                 }
                 else if (!BUFFERS_EQUAL && veryVerbose) {
                     bsl::cout << "ACTUAL: ["
-                              << bsl::string_view(outStreamBuf.data(),
-                                                  outStreamBuf.length())
+                              << bslstl::StringRef(outStreamBuf.data(),
+                                                   outStreamBuf.length())
                               << "]"
                               << bsl::endl;
                 }
@@ -7410,8 +7410,8 @@ int main(int argc, char *argv[])
                 }
                 else if (!BUFFERS_EQUAL && veryVerbose) {
                     bsl::cout << "ACTUAL: ["
-                              << bsl::string_view(outStreamBuf.data(),
-                                                  outStreamBuf.length())
+                              << bslstl::StringRef(outStreamBuf.data(),
+                                                   outStreamBuf.length())
                               << "]"
                               << bsl::endl;
                 }
@@ -10310,7 +10310,7 @@ int main(int argc, char *argv[])
                                       DATA[i].d_encodeDateAndTimeTypesAsBinary;
             const bool PRESERVE_SIGN_OF_NEGATIVE_ZERO =
                                           DATA[i].d_preserveSignOfNegativeZero;
-            const bsl::string_view MD5 = DATA[i].d_md5;
+            const bslstl::StringRef MD5 = DATA[i].d_md5;
 
             u::GetValueFingerprint getValueFingerprint;
             getValueFingerprint.setSeed(RANDOM_SEED);
@@ -10464,7 +10464,7 @@ int main(int argc, char *argv[])
                                       DATA[i].d_encodeDateAndTimeTypesAsBinary;
             const bool PRESERVE_SIGN_OF_NEGATIVE_ZERO =
                                           DATA[i].d_preserveSignOfNegativeZero;
-            const bsl::string_view MD5 = DATA[i].d_md5;
+            const bslstl::StringRef MD5 = DATA[i].d_md5;
 
             u::PutValueFingerprint putValueFingerprint;
             putValueFingerprint.setSeed(RANDOM_SEED);
@@ -10603,8 +10603,8 @@ int main(int argc, char *argv[])
                 const char *const STRING      = DATA[i].d_string;
                 const char *const FINGERPRINT = DATA[i].d_fingerprint;
 
-                const bsl::string_view STRING_REF(STRING);
-                const bsl::string_view FINGERPRINT_REF(FINGERPRINT);
+                const bslstl::StringRef STRING_REF(STRING);
+                const bslstl::StringRef FINGERPRINT_REF(FINGERPRINT);
 
                 bsl::vector<unsigned char> data(STRING_REF.begin(),
                                                 STRING_REF.end());
@@ -10616,7 +10616,7 @@ int main(int argc, char *argv[])
                 bsl::ostream fingerprintStream(&fingerprintStreamBuf);
                 fingerprintStream << fingerprint;
 
-                const bsl::string_view fingerprintRef(
+                const bslstl::StringRef fingerprintRef(
                     fingerprintStreamBuf.data(),
                     fingerprintStreamBuf.length());
 
@@ -10770,7 +10770,7 @@ int main(int argc, char *argv[])
                 bsl::ostream fingerprintStream(&fingerprintStreamBuf);
                 fingerprintStream << fingerprint;
 
-                const bsl::string_view fingerprintString(
+                const bslstl::StringRef fingerprintString(
                     fingerprintStreamBuf.data(),
                     fingerprintStreamBuf.length());
 
@@ -10839,7 +10839,7 @@ int main(int argc, char *argv[])
                 bsl::ostream fingerprintStream(&fingerprintStreamBuf);
                 fingerprintStream << fingerprint;
 
-                const bsl::string_view fingerprintRef(
+                const bslstl::StringRef fingerprintRef(
                     fingerprintStreamBuf.data(),
                     fingerprintStreamBuf.length());
 
@@ -15388,7 +15388,7 @@ int main(int argc, char *argv[])
             const char              *EXP  = DATA[di].d_exp;
             const int                LEN  = numOctets(EXP);
 
-            if (veryVerbose) Q(bslstl::StringRef);
+            if (veryVerbose) Q(StringRef);
             {
                 string  val;
 

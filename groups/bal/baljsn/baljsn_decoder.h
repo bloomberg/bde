@@ -817,8 +817,8 @@ int Decoder::decodeImp(TYPE                      *value,
     int i = 0;
     while (Tokenizer::e_END_ARRAY != d_tokenizer.tokenType()) {
         if (Tokenizer::e_ELEMENT_VALUE == d_tokenizer.tokenType()
-         || Tokenizer::e_START_OBJECT  == d_tokenizer.tokenType()
-         || Tokenizer::e_START_ARRAY   == d_tokenizer.tokenType()) {
+         || Tokenizer::e_START_OBJECT  ==
+                                                     d_tokenizer.tokenType()) {
             ++i;
             bdlat_ArrayFunctions::resize(value, i);
 
