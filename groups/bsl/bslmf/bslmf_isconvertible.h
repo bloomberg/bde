@@ -18,7 +18,7 @@ BSLS_IDENT("$Id: $")
 // 'bsl::is_convertible' and 'BloombergLP::bslmf::IsConvertible' and a template
 // variable 'bsl::is_convertible_v', that represents the result value of the
 // 'bsl::is_convertible' meta-function.  All these meta-functions may be used
-// to check whether a conversion exists from one type to another.
+// to check whether an implicit conversion exists from one type to another.
 //
 // 'bsl::is_convertible' meets the requirements of the 'is_convertible'
 // template defined in the C++11 standard [meta.rel], while
@@ -65,17 +65,9 @@ BSLS_IDENT("$Id: $")
 // function (at compile time) based on the convertibility of one type to
 // another without causing a compiler error by actually trying the conversion.
 //
-// Suppose we are implementing a 'convertToInt' template method that converts a
-// given object of the (template parameter) 'TYPE' to 'int' type, and returns
-// the integer value.  If the given object can not convert to 'int', return 0.
-// The method calls an overloaded function, 'getIntValue', to get the converted
-// integer value.  The idea is to invoke one version of 'getIntValue' if the
-// type provides a conversion operator that returns an integer value, and
-// another version if the type does not provide such an operator.
-//
-// First, we define two classes, 'Foo' and 'Bar'.  The 'Foo' class has a
-// conversion operator that returns an integer value while the 'Bar' class does
-// not:
+// First, we define two classes, 'Foo' and 'Bar'.  The 'Foo' class has an
+// explict constructor from 'int', an implicit conversion operator that returns
+// an integer value while the 'Bar' class does neither:
 //..
 //  class Foo {
 //      // DATA
@@ -91,20 +83,41 @@ BSLS_IDENT("$Id: $")
 //
 //  class Bar {};
 //..
-// Then, we define the first 'getIntValue' function that takes a
-// 'bsl::false_type' as its last argument, whereas the second 'getIntValue'
-// function takes a 'bsl::true_type' object.  The result of the
-// 'bsl::is_convertible' meta-function (i.e., its 'type' member) is used to
-// create the last argument passed to 'getIntValue'.  Neither version of
-// 'getIntValue' makes use of this argument -- it is used only to differentiate
-// the argument list so we can overload the function.
+// Then, we run:
+//..
+//  assert(false == (bsl::is_convertible<int, Foo>::value));
+//  assert(false == (bsl::is_convertible<int, Bar>::value));
+//
+//  assert(true  == (bsl::is_convertible<Foo, int>::value));
+//  assert(false == (bsl::is_convertible<Bar, int>::value));
+//..
+// Note that 'int' to 'Foo' is false, even though 'Foo' has a constructor that
+// takes an 'int'.  This is because that constructor is explicit, and
+// 'is_converitble' ignores explicit constructors.
+//
+// Next, we go on to demonstrate how this could be used.  Suppose we are
+// implementing a 'convertToInt' template method that converts a given object
+// of the (template parameter) 'TYPE' to 'int' type, and returns the integer
+// value.  If the given object can not convert to 'int', return 0.  The method
+// calls an overloaded function, 'getIntValue', to get the converted integer
+// value.  The idea is to invoke one version of 'getIntValue' if the type
+// provides a conversion operator that returns an integer value, and another
+// version if the type does not provide such an operator.
+//
+// We define the first 'getIntValue' function that takes a 'bsl::false_type' as
+// its last argument, whereas the second 'getIntValue' function takes a
+// 'bsl::true_type' object.  The result of the 'bsl::is_convertible'
+// meta-function (i.e., its 'type' member) is used to create the last argument
+// passed to 'getIntValue'.  Neither version of 'getIntValue' makes use of this
+// argument -- it is used only to differentiate the argument list so we can
+// overload the function.
 //..
 //  template <class TYPE>
 //  inline
-//  int getIntValue(TYPE *object, bsl::false_type)
+//  int getIntValue(TYPE *, bsl::false_type)
 //  {
-//      // Return 0 because the specified 'object' of the (template parameter)
-//      // 'TYPE' is not convertible to the 'int' type.
+//      // Return 0 because the specified 'TYPE' is not convertible to the
+//      // 'int' type.
 //
 //      return 0;
 //  }
@@ -133,13 +146,13 @@ BSLS_IDENT("$Id: $")
 // 'bsl::true_type', and then call the corresponding overloaded 'getIntValue'
 // method.
 //
-// Finally, we call 'convertToInt' with both 'Foo' and 'Bar' classes:
+// Finally, we call our finished product and observe the return values:
 //..
 //  Foo foo(99);
 //  Bar bar;
 //
-//  printf("%d\n", convertToInt(&foo));
-//  printf("%d\n", convertToInt(&bar));
+//  assert(99 == convertToInt(&foo));
+//  assert(0  == convertToInt(&bar));
 //..
 
 #include <bslscm_version.h>
