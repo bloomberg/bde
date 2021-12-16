@@ -188,16 +188,28 @@ class LocalSequentialAllocator : public BufferedSequentialAllocator {
 
     // PRIVATE TYPES
     typedef BufferedSequentialAllocator                          AllocatorBase;
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS)
     typedef bsls::AlignmentToType<
                   bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT>::Type AlignmentType;
+#endif
 
     // DATA
+
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS)
+    // The C++11 implementation uses the 'alignas' keyword to ensure the
+    // alignment of 'd_buffer'.
+    alignas(bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT) char d_buffer[t_SIZE];
+#else
     union {
         // This anonymous union is 'bsls::AlignedBuffer', but typed out again
-        // so that extra template instantiations are avoided.
+        // so that extra template instantiations are avoided.  The C++03
+        // implementation uses a union data member to ensure the alignment of
+        // 'd_buffer'.
         char          d_buffer[t_SIZE];
         AlignmentType d_align;
     };
+#endif
 
   private:
     // NOT IMPLEMENTED

@@ -8,6 +8,7 @@
 #include <bslma_testallocator.h>
 
 #include <bsls_alignedbuffer.h>
+#include <bsls_alignmenttotype.h>
 #include <bsls_alignmentutil.h>
 #include <bsls_asserttest.h>
 #include <bsls_types.h>
@@ -59,7 +60,8 @@ using namespace bsl;
 // [ 4] void release();
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 6] USAGE TEST
+// [ 6] STACK ALIGNMENT TEST
+// [ 7] USAGE EXAMPLE
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -240,6 +242,51 @@ void populateDummyData(bsl::map<DatabaseKey, DatabaseValue> *values)
     values->insert(ValueType("MyKeyNumber5", "MyValueNumber5"));
 }
 
+
+//=============================================================================
+//    Additional Functionality Needed to Complete Stack Alignment Test Case
+//-----------------------------------------------------------------------------
+
+template<int TEST_OFFSET>
+bool doubleAlignmentTestImpl(bool                               verbose,
+                             BloombergLP::bslma::TestAllocator& ta)
+    // Perform an alignment test using an offset of the parameterized
+    // 'TEST_OFFSET', printing additional information if the specified
+    // 'verbose' is true.  The specified 'ta' is a test allocator that can be
+    // used to determine success or failure of the test.  Return 'true' if the
+    // test succeeds and 'false' otherwise.
+{
+    char dummy[TEST_OFFSET];
+
+    BloombergLP::bdlma::LocalSequentialAllocator<sizeof(double)> lsa(&ta);
+
+    if (verbose) {
+        cout << "Alignment=" << TEST_OFFSET << ":"
+             << " dummy = " << reinterpret_cast<void *>(dummy)
+             << " (%8=" << reinterpret_cast<bsl::uintptr_t>(dummy) % 8
+             << "),"
+             << " lsa=" << reinterpret_cast<void *>(&lsa)
+             << " (%8=" << reinterpret_cast<bsl::uintptr_t>(&lsa) % 8
+             << ")"
+             << endl;
+    }
+
+    void *p = lsa.allocate(sizeof(double));
+    lsa.deallocate(p);
+
+    return 0 == ta.numBlocksTotal();
+}
+
+template<int ALIGNMENT>
+bool doubleAlignmentTest(bool verbose)
+    // Perform an alignment test using an offset of the specified 'ALIGNMENT',
+    // printing additional information if the specified 'verbose' is true.
+    // Return 'true' if the test succeeds or 'false' otherwise.
+{
+    BloombergLP::bslma::TestAllocator ta;
+    return doubleAlignmentTestImpl<ALIGNMENT>(verbose, ta);
+}
+
 //=============================================================================
 //                                MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -271,7 +318,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -301,6 +348,53 @@ int main(int argc, char *argv[])
             updateRecords_1(values);
             updateRecords_2(values);
             updateRecords_3(values);
+        }
+
+      } break;
+      case 6: {
+        // --------------------------------------------------------------------
+        // STACK ALIGNMENT TEST
+        //   Check an 8-byte allocation succeeds when the allocator may not be
+        //   8-byte aligned.  This is a known issue with 32-bit windows when
+        //   uses a 4-byte alignment for stack objects. See DRQS 167891019 for
+        //   details.
+        //
+        // Concerns:
+        //: 1 That the LocalSequentialAllocator will be correctly aligned to be
+        //    able to allocate an 8-byte object.
+        //
+        // Plan:
+        //: 1 For various lengths, call a function that has, as automatic
+        //    variables, a 'char' array of the specified length, and a
+        //    LocalSequentialAllocator with a buffer of size 'sizeof(double)'.
+        //: 2 That function will attempt to call 'allocate(sizeof(double))'.
+        //: 3 Ensure the requested allocation takes place on the stack.
+        //
+        // Testing:
+        //   STACK ALIGNMENT TEST
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                    << "STACK ALIGNMENT TEST" << endl
+                    << "====================" << endl;
+
+        {
+            ASSERTV(doubleAlignmentTest< 1>(verbose));
+            ASSERTV(doubleAlignmentTest< 2>(verbose));
+            ASSERTV(doubleAlignmentTest< 3>(verbose));
+            ASSERTV(doubleAlignmentTest< 4>(verbose));
+            ASSERTV(doubleAlignmentTest< 5>(verbose));
+            ASSERTV(doubleAlignmentTest< 6>(verbose));
+            ASSERTV(doubleAlignmentTest< 7>(verbose));
+            ASSERTV(doubleAlignmentTest< 8>(verbose));
+            ASSERTV(doubleAlignmentTest< 9>(verbose));
+            ASSERTV(doubleAlignmentTest<10>(verbose));
+            ASSERTV(doubleAlignmentTest<11>(verbose));
+            ASSERTV(doubleAlignmentTest<12>(verbose));
+            ASSERTV(doubleAlignmentTest<13>(verbose));
+            ASSERTV(doubleAlignmentTest<14>(verbose));
+            ASSERTV(doubleAlignmentTest<15>(verbose));
+            ASSERTV(doubleAlignmentTest<16>(verbose));
         }
 
       } break;

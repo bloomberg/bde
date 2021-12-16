@@ -279,20 +279,25 @@ struct AlignmentToType {
     // the specified 'ALIGNMENT' requirement.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS) &&                         \
-    !defined(BSLS_PLATFORM_CMP_MSVC)
+    (!defined(BSLS_PLATFORM_CMP_MSVC)   ||                                    \
+      defined(BSLS_PLATFORM_CPU_64_BIT) ||                                    \
+      (_MSC_FULL_VER >= 192829913))
 
-    // Do not use 'alignas' with MSVC as it creates a "hard" alignment
-    // requirement that may inhibit the resulting type from being used as a
-    // *by-value* function argument.  See compiler error C2719:
-    // https://msdn.microsoft.com/en-us/library/373ak2y1.aspx The documentation
-    // talks about '__declspec(align(N))' but the same applies to 'alignas'.
+    // Do not use 'alignas' with 32-bit MSVC before version 16.9 as it creates
+    // a "hard" alignment requirement that may inhibit the resulting type from
+    // being used as a *by-value* function argument.
     //
-    // In addition, even when C2719 is not issued when passing the type as a
-    // *by-value* function argument, a compiler bug leading to crashes due to
-    // the destructor being invoked with an incorrect 'this' pointer has been
-    // observed on all versions of Microsoft compiler to date (up to MSVC 2019
-    // v. 16.3.9).  This bug has been observed only building for x86 (32-bit)
-    // platform in Debug mode (specifically with /Od /Ob0 flags), e.g.:
+    // In MSVC version 14.0 (2015) and earlier this produces compiler error
+    // C2719: https://msdn.microsoft.com/en-us/library/373ak2y1.aspx
+    // The documentation talks about '__declspec(align(N))' but the same
+    // applies to 'alignas'.
+    //
+    // In MSVC versions 14.10 (2017) through 16.8 (2019), error C2719 is not
+    // issued when passing the type as a *by-value* function argument, however
+    // a compiler bug leading to crashes due to the destructor being invoked
+    // with an incorrect 'this' pointer has been observed.  This bug is only
+    // present when building for x86 (32-bit) platform in Debug mode
+    // (specifically with /Od /Ob0 flags), e.g.:
     //..
     //  struct X {
     //      alignas(8) int d_buffer;
@@ -305,6 +310,11 @@ struct AlignmentToType {
     //      func(X());  // The destructor of 'X' is called with broken 'this'.
     //  }
     //..
+    //
+    // This bug was corrected by Microsoft in MSVC version 16.9 and documented
+    // at:
+    // https://developercommunity.visualstudio.com/t/incorrect-code-gen-missing-error/831543
+    //
     // An important specific example is the bind object created by
     // {'bdlf_bind'}.  Such objects store arguments to the bound function
     // (indirectly) using 'bsls::ObjectBuffer' which in turn uses

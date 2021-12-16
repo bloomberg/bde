@@ -48,14 +48,14 @@ BSLS_IDENT("$Id: $")
 //
 ///Known issues
 ///------------
-// On all versions of Microsoft compiler to date (up to MSVC 2019 v. 16.3.9),
-// passing 'AlignedBuffer' or an object containing 'AlignedBuffer' as a
-// *by-value* function argument could either lead to C2719 error (see
-// https://msdn.microsoft.com/en-us/library/373ak2y1.aspx), or can even trigger
-// a compiler bug leading to crashes due to the destructor being invoked with
-// an incorrect 'this' pointer.  This bug has been observed only building for
-// x86 (32-bit) platform in Debug mode (specifically with /Od /Ob0 flags),
-// e.g.:
+// On all versions of the Microsoft compiler prior to MSVC 14.0 (2015), passing
+// 'AlignedBuffer' or an object containing 'AlignedBuffer' as a *by-value*
+// function argument would lead to C2719 error (see
+// https://msdn.microsoft.com/en-us/library/373ak2y1.aspx).  In versions 14.10
+// (2017) through 16.8 (2019) it can trigger a compiler bug leading to crashes
+// due to the destructor being invoked with an incorrect 'this' pointer.  This
+// bug has been observed only building for x86 (32-bit) platform in Debug mode
+// (specifically with /Od /Ob0 flags), e.g.:
 //..
 //  struct X {
 //      bsls::AlignedBuffer<1, 8> d_buffer;
@@ -69,6 +69,9 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 // See DRQS 151904020 for more details.
+//
+// This was fixed my Microsoft in MSVC 2019 version 16.9, for details see:
+// https://developercommunity.visualstudio.com/t/incorrect-code-gen-missing-error/831543
 //
 ///Usage
 ///-----
