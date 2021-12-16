@@ -18,7 +18,7 @@ BSLS_IDENT("$Id: $")
 // 'bsl::is_convertible' and 'BloombergLP::bslmf::IsConvertible' and a template
 // variable 'bsl::is_convertible_v', that represents the result value of the
 // 'bsl::is_convertible' meta-function.  All these meta-functions may be used
-// to check whether a conversion exists from one type to another.
+// to check whether an implicit conversion exists from one type to another.
 //
 // 'bsl::is_convertible' meets the requirements of the 'is_convertible'
 // template defined in the C++11 standard [meta.rel], while
@@ -66,7 +66,7 @@ BSLS_IDENT("$Id: $")
 // another without causing a compiler error by actually trying the conversion.
 //
 // First, we define two classes, 'Foo' and 'Bar'.  The 'Foo' class has an
-// explict constructor from int, an implicit conversion operator that returns
+// explict constructor from 'int', an implicit conversion operator that returns
 // an integer value while the 'Bar' class does neither:
 //..
 //  class Foo {

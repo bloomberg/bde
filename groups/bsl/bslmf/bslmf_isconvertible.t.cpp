@@ -351,7 +351,7 @@ struct Movable {
 // another without causing a compiler error by actually trying the conversion.
 //
 // First, we define two classes, 'Foo' and 'Bar'.  The 'Foo' class has an
-// explict constructor from int, an implicit conversion operator that returns
+// explict constructor from 'int', an implicit conversion operator that returns
 // an integer value while the 'Bar' class does neither:
 //..
     class Foo {
