@@ -370,7 +370,7 @@
 :      Provide a meta-function for removing 'const'/'volatile' qualifiers.
 :
 : 'bslmf_removecvref':
-:      Provide a meta-function for removing cv-qualifiers and reference-ness.
+:      Provide a meta-func for removing reference-ness and cv-qualifiers.
 :
 : 'bslmf_removeextent':
 :      Provide a metafunction to return an array type's element type.
