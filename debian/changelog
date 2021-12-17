@@ -1,5 +1,27 @@
-bsl-internal (3.95.0.0) unstable; urgency=low
+bsl-internal (3.96.0.0) unstable; urgency=low
 
+  * 028ac5b32 Bumped version to 3.96.0.0
+  * ce02a9d6a Merge pull request #3461 from bchapman/bslmf_isconvertible-enhance-doc-drqs-167585149
+  * 13b36d061 Fix LocalSequentialAllocator stack alignment on 32-bit windows builds. (#3510)
+  * 26a957eb7 Revert "baljsn: Support arrays of arrays (#3457)" (#3517)
+  * 8a406cc0e Fix misplaced endif; thanks to MIKE WELLER for the help debugging (#3515)
+  * 64546a875 'at' methods have been added to 'bdlc::FlatHashMap' (#3511)
+  * ac80b7ca7 Remove pcre2 config from dpkg (#3513)
+  * 72a91fa69 'sregex_iterator' support has been added (#3506)
+  * 8510bb9d9 baljsn: Support arrays of arrays (#3457)
+  * 148197ca3 Fix AtomicInt cast to 64-bit ints on optimized Solaris. (#3494)
+  * 1e267952e Add class template deduction guides to bsl::priority_queue (#3496)
+  * 54983f1a1 Merge pull request #3498 from mclow3/CTAD-map
+  * cc6c2af2b Issue with const rvalue assignment has been fixed in 'bdlb_variant' DRQS 167585741 (#3481)
+  * 7b1e68c87 balb: BDE-4.0 interfaces (#3426)
+  * ea3af9bd5 Remove unused typedef (#3492)
+  * 4fe678e7c update 'swap' function-level doc for 'bsl' containers (#3504)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 17 Dec 2021 10:19:24 -0500
+
+bsl-internal (3.95.0.0) git; urgency=low
+
+  * 68803d5de Changelog for version 3.95.0.0
   * f84e912f4 Bumped version to 3.95.0.0
   * f34c01162 Drqs 167916160 baljsn balxml ryu changes (#3503)
   * 15a7b2b76 Merge pull request #3490 from mclow3/CTAD-StdConvertible
@@ -16,7 +38,7 @@ bsl-internal (3.95.0.0) unstable; urgency=low
   * 69fe2bfe3 Add class template deduction guides to bsl::vector (#3479)
   * ff445582b Add template deduction guides for bsl::list (second try) (#3468)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 3 Dec 2021 20:01:31 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 3 Dec 2021 20:06:37 -0500
 
 bsl-internal (3.94.0.0) git; urgency=low
 
