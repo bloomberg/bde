@@ -1,5 +1,12 @@
-bsl-internal (3.96.0.0) unstable; urgency=low
+bsl-internal (3.96.0.1) unstable; urgency=low
 
+  * cd297fc25 Revert PerformanceMonitor API method (#3523)
+
+ -- osubbotin <osubbotin@bloomberg.net>  Mon, 20 Dec 2021 18:11:43 -0500
+
+bsl-internal (3.96.0.0) git; urgency=low
+
+  * b97be140b Changelog for version 3.96.0.0
   * 028ac5b32 Bumped version to 3.96.0.0
   * ce02a9d6a Merge pull request #3461 from bchapman/bslmf_isconvertible-enhance-doc-drqs-167585149
   * 13b36d061 Fix LocalSequentialAllocator stack alignment on 32-bit windows builds. (#3510)
@@ -17,7 +24,7 @@ bsl-internal (3.96.0.0) unstable; urgency=low
   * ea3af9bd5 Remove unused typedef (#3492)
   * 4fe678e7c update 'swap' function-level doc for 'bsl' containers (#3504)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 17 Dec 2021 10:19:24 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 17 Dec 2021 10:20:40 -0500
 
 bsl-internal (3.95.0.0) git; urgency=low
 
