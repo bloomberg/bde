@@ -553,7 +553,7 @@ class PerformanceMonitor {
         // Destroy this object.
 
     // MANIPULATORS
-    int registerPid(int pid, const bsl::string_view& description);
+    int registerPid(int pid, const bsl::string& description);
         // Register the specified process 'pid' having the specified
         // user-defined 'description' with this performance monitor.  After
         // registration, performance statistics will be collected for the

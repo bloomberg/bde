@@ -1793,8 +1793,7 @@ PerformanceMonitor::~PerformanceMonitor()
 
 // MANIPULATORS
 
-int PerformanceMonitor::registerPid(int                     pid,
-                                    const bsl::string_view &description)
+int PerformanceMonitor::registerPid(int pid, const bsl::string& description)
 {
     if (pid == 0) {
         pid = currentProcessPid();
