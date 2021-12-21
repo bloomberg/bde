@@ -636,7 +636,7 @@ inline
 BlobUtilHexDumper::BlobUtilHexDumper(const Blob *blob, int offset, int length)
 : d_blob_p(blob)
 , d_offset(offset)
-, d_length(bsl::min(length, blob->length() - offset))
+, d_length((bsl::min)(length, blob->length() - offset))
 {
 }
 }  // close package namespace
