@@ -4422,10 +4422,13 @@ void
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::removeAll()
 {
     this->removeAllImp();
-    native_std::memset(
-                 d_anchor.bucketArrayAddress(),
-                 0,
-                 sizeof(bslalg::HashTableBucket) * d_anchor.bucketArraySize());
+    if (HashTable_ImpDetails::defaultBucketAddress() !=
+        d_anchor.bucketArrayAddress()) {
+        native_std::memset(d_anchor.bucketArrayAddress(),
+                           0,
+                           sizeof(bslalg::HashTableBucket) *
+                               d_anchor.bucketArraySize());
+    }
 
     d_anchor.setListRootAddress(0);
     d_size = 0;
