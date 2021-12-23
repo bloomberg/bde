@@ -100,7 +100,7 @@ using namespace bsl;
 // [ 4] bslma::Allocator *allocator() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [15] USAGE EXAMPLE
+// [16] USAGE EXAMPLE
 // [ 3] Obj& gg(Obj *object, const char *spec);
 // [ 3] int ggg(Obj *object, const char *spec);
 // [ 2] CONCERN: 0 == e_SUCCESS
@@ -111,6 +111,7 @@ using namespace bsl;
 // [12] DRQS 153332608: 'waitUntilEmpty' RACE WITH 'popFront'
 // [13] DRQS 164984269: 'removeAll' STARTED/FINISHED ISSUE
 // [14] DRQS 153332608: 'pushBack', 'pushBack', 'waitUntilEmpty'
+// [15] DRQS 168011541: 'waitUntilEmpty' RACE WITH 'disablePopFront'
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -504,7 +505,8 @@ const int k_DECISECOND = 100000;  // microseconds in 0.1 seconds
 //                   GLOBAL METHODS FOR TESTING
 // ----------------------------------------------------------------------------
 
-static bsls::AtomicInt s_continue;
+static bsls::AtomicInt  s_continue;
+static bslmt::Barrier  *s_barrier_p;
 
 extern "C" void *deferredDisablePopFront(void *arg)
 {
@@ -776,6 +778,20 @@ extern "C" void *pushWaitDisable(void *arg)
     mX.waitUntilEmpty();
 
     mX.disablePopFront();
+
+    return 0;
+}
+
+extern "C" void *popLoop(void *arg)
+{
+    Obj& mX = *static_cast<Obj *>(arg);
+    int value;
+
+    while (0 < s_continue) {
+        s_barrier_p->wait();
+        while (Obj::e_DISABLED != mX.popFront(&value));
+        s_barrier_p->wait();
+    }
 
     return 0;
 }
@@ -1084,7 +1100,7 @@ int main(int argc, char *argv[])
     ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 15: {
+      case 16: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -1119,6 +1135,86 @@ int main(int argc, char *argv[])
         myProducer(k_NUM_THREADS);
 
         s_continue = 0;
+
+        bslmt::ThreadUtil::join(watchdogHandle);
+      } break;
+      case 15: {
+        // --------------------------------------------------------------------
+        // DRQS 168011541: 'waitUntilEmpty' RACE WITH 'disablePopFront'
+        //
+        // Concerns:
+        //: 1 Given other threads running 'popFront' in a loop, a thread
+        //:   executing 'pushBack' operations, 'waitUntilEmpty', and
+        //:   'disablePopFront' should always then observe the queue as empty.
+        //
+        // Plan:
+        //: 1 Create a number of threads that execute 'popFront' and
+        //:   synchronize with the main thread using a barrier.  The main
+        //:   thread executes a 'pushBack' per background thread,
+        //:   'waitUntilEmpty', 'disablePopFront', and then verifies the queue
+        //:   is empty.
+        //
+        // Testing:
+        //   DRQS 168011541: 'waitUntilEmpty' RACE WITH 'disablePopFront'
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout
+              << "DRQS 168011541: 'waitUntilEmpty' RACE WITH 'disablePopFront'"
+              << endl
+              << "============================================================"
+              << endl;
+        }
+
+        Obj mX(32);
+
+        const int numThreads = 4;
+
+        bslmt::Barrier barrier(numThreads + 1);
+
+        s_continue  = 1;
+        s_barrier_p = &barrier;
+
+        bsl::vector<bslmt::ThreadUtil::Handle> handles(numThreads);
+
+        for (int i = 0; i < numThreads; ++i) {
+            bslmt::ThreadUtil::create(&handles[i], popLoop, &mX);
+        }
+
+        bslmt::ThreadUtil::Handle watchdogHandle;
+
+        bslmt::ThreadUtil::create(&watchdogHandle,
+                                  watchdog,
+                                  const_cast<char *>(
+                              "'waitUntilEmpty' race with 'disablePopFront'"));
+
+        for (int i = 0; i < 10000; ++i) {
+            mX.enablePopFront();
+            barrier.wait();
+
+            for (int j = 0; j < numThreads; ++j) {
+                mX.pushBack(j);
+            }
+
+            ASSERT(Obj::e_SUCCESS == mX.waitUntilEmpty());
+            mX.disablePopFront();
+
+            barrier.wait();
+
+            ASSERT(mX.isEmpty());
+        }
+
+        {
+            mX.enablePopFront();
+            barrier.wait();
+            s_continue = 0;
+            mX.disablePopFront();
+            barrier.wait();
+        }
+
+        for (int i = 0; i < numThreads; ++i){
+            bslmt::ThreadUtil::join(handles[i]);
+        }
 
         bslmt::ThreadUtil::join(watchdogHandle);
       } break;

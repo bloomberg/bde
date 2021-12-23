@@ -218,9 +218,8 @@ class BoundedQueue_PopCompleteGuard {
     // 'NODE' upon destruction.
 
     // DATA
-    TYPE *d_queue_p;      // managed queue owning the managed node
-    NODE *d_node_p;       // managed node
-    bool  d_signalEmpty;  // if true, the empty condition will be signalled
+    TYPE *d_queue_p;  // managed queue owning the managed node
+    NODE *d_node_p;   // managed node
 
     // NOT IMPLEMENTED
     BoundedQueue_PopCompleteGuard();
@@ -230,10 +229,9 @@ class BoundedQueue_PopCompleteGuard {
 
   public:
     // CREATORS
-    BoundedQueue_PopCompleteGuard(TYPE *queue, NODE *node, bool signalEmpty);
+    BoundedQueue_PopCompleteGuard(TYPE *queue, NODE *node);
         // Create a 'popComplete' guard managing the specified 'queue' and
-        // 'node' that will cause the empty condition to be signalled if the
-        // specified 'signalEmpty' is 'true'.
+        // 'node'.
 
     ~BoundedQueue_PopCompleteGuard();
         // Destroy this object and invoke the 'TYPE::popComplete' method with
@@ -501,12 +499,11 @@ class BoundedQueue {
         // 'd_popCount').
 
     // PRIVATE MANIPULATORS
-    void popComplete(Node *node, bool signalEmpty);
-        // Destruct the value stored in the specified 'node', mark the 'node'
-        // writable, and if the specified 'signalEmpty' is 'true' then signal
-        // the queue empty condition.  This method is used within
-        // 'popFrontHelper' by a guard to complete the reclamation of a node in
-        // the presence of an exception.
+    void popComplete(Node *node);
+        // Destruct the value stored in the specified 'node', and mark the
+        // 'node' writable.  This method is used within 'popFrontHelper' by a
+        // guard to complete the reclamation of a node in the presence of an
+        // exception.
 
     void popFrontHelper(TYPE *value);
         // Remove the element from the front of this queue and load that
@@ -701,12 +698,9 @@ class BoundedQueue {
 template <class TYPE, class NODE>
 inline
 BoundedQueue_PopCompleteGuard<TYPE, NODE>::
-                               BoundedQueue_PopCompleteGuard(TYPE *queue,
-                                                             NODE *node,
-                                                             bool  signalEmpty)
+                         BoundedQueue_PopCompleteGuard(TYPE *queue, NODE *node)
 : d_queue_p(queue)
 , d_node_p(node)
-, d_signalEmpty(signalEmpty)
 {
 }
 
@@ -714,7 +708,7 @@ template <class TYPE, class NODE>
 inline
 BoundedQueue_PopCompleteGuard<TYPE, NODE>::~BoundedQueue_PopCompleteGuard()
 {
-    d_queue_p->popComplete(d_node_p, d_signalEmpty);
+    d_queue_p->popComplete(d_node_p);
 }
 
              // -----------------------------------------------
@@ -852,7 +846,7 @@ bsls::Types::Uint64 BoundedQueue<TYPE>::unmarkStartedOperation(
 // PRIVATE MANIPULATORS
 template <class TYPE>
 inline
-void BoundedQueue<TYPE>::popComplete(Node *node, bool signalEmpty)
+void BoundedQueue<TYPE>::popComplete(Node *node)
 {
     node->d_value.object().~TYPE();
 
@@ -867,27 +861,22 @@ void BoundedQueue<TYPE>::popComplete(Node *node, bool signalEmpty)
                                               count,
                                               0) == count) {
             d_pushSemaphore.post(static_cast<int>(count & k_STARTED_MASK));
-        }
-    }
 
-    if (signalEmpty) {
-        {
-            bslmt::LockGuard<bslmt::Mutex> guard(&d_emptyMutex);
+            Uint emptyCount = AtomicOp::getUintAcquire(&d_emptyWaiterCount);
+
+            if (isEmpty() && updateEmptyCountSeen(emptyCount)) {
+                {
+                    bslmt::LockGuard<bslmt::Mutex> guard(&d_emptyMutex);
+                }
+                d_emptyCondition.broadcast();
+            }
         }
-        d_emptyCondition.broadcast();
     }
 }
 
 template <class TYPE>
 void BoundedQueue<TYPE>::popFrontHelper(TYPE *value)
 {
-    Uint emptyCount = AtomicOp::getUintAcquire(&d_emptyWaiterCount);
-
-    bool signalEmpty = false;
-    if (isEmpty()) {
-        signalEmpty = updateEmptyCountSeen(emptyCount);
-    }
-
     markStartedOperation(&d_popCount);
 
     // 'd_popIndex' stores the next location to use (want the original value)
@@ -910,10 +899,7 @@ void BoundedQueue<TYPE>::popFrontHelper(TYPE *value)
         node  = &d_element_p[index];
     }
 
-    BoundedQueue_PopCompleteGuard<BoundedQueue<TYPE>, Node>
-                                                      guard(this,
-                                                            node,
-                                                            signalEmpty);
+    BoundedQueue_PopCompleteGuard<BoundedQueue<TYPE>, Node> guard(this, node);
 
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     *value = bslmf::MovableRefUtil::move(node->d_value.object());
@@ -999,8 +985,8 @@ BoundedQueue<TYPE>::BoundedQueue(bsl::size_t       capacity,
     AtomicOp::initUint64(&d_popCount,  0);
     AtomicOp::initUint64(&d_popIndex,  0);
 
-    AtomicOp::initUint(&d_emptyWaiterCount,     0);
-    AtomicOp::initUint(&d_emptyCountSeen, 0);
+    AtomicOp::initUint(&d_emptyWaiterCount, 0);
+    AtomicOp::initUint(&d_emptyCountSeen,   0);
 
     d_element_p = static_cast<Node *>(
                               d_allocator_p->allocate(static_cast<bsl::size_t>(
@@ -1116,13 +1102,9 @@ int BoundedQueue<TYPE>::pushBack(bslmf::MovableRef<TYPE> value)
 template <class TYPE>
 void BoundedQueue<TYPE>::removeAll()
 {
-    Uint emptyCount = AtomicOp::getUintAcquire(&d_emptyWaiterCount);
-
     int reclaim = d_popSemaphore.takeAll();
 
     if (reclaim) {
-        bool signalEmpty = updateEmptyCountSeen(emptyCount);
-
         while (reclaim) {
             int count = reclaim;
 
@@ -1168,14 +1150,17 @@ void BoundedQueue<TYPE>::removeAll()
                     d_pushSemaphore.post(static_cast<int>(
                                                    popCount & k_STARTED_MASK));
                 }
-            }
-        }
 
-        if (signalEmpty) {
-            {
-                bslmt::LockGuard<bslmt::Mutex> guard(&d_emptyMutex);
+                Uint emptyCount = AtomicOp::getUintAcquire(
+                                                          &d_emptyWaiterCount);
+
+                if (isEmpty() && updateEmptyCountSeen(emptyCount)) {
+                    {
+                        bslmt::LockGuard<bslmt::Mutex> guard(&d_emptyMutex);
+                    }
+                    d_emptyCondition.broadcast();
+                }
             }
-            d_emptyCondition.broadcast();
         }
     }
 }
@@ -1326,7 +1311,7 @@ template <class TYPE>
 inline
 bool BoundedQueue<TYPE>::isEmpty() const
 {
-    return 0 == d_popSemaphore.getValue();
+    return d_capacity == static_cast<Uint64>(d_pushSemaphore.getValue());
 }
 
 template <class TYPE>
