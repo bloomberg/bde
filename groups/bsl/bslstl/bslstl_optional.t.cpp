@@ -7538,14 +7538,33 @@ void TestDriver<TYPE>::testCase15()
                "\n===========================\n");
 
     {
+        const char *valueTypeName = bsls::NameOf<ValueType>().name();
+        const char *objName       = bsls::NameOf<Obj>().name();
+
         ASSERT((bsl::is_same<typename Obj::value_type, ValueType>::value));
         ASSERT(
             (bsl::is_same<typename ObjC::value_type, const ValueType>::value));
 
-        ASSERT(bslma::UsesBslmaAllocator<Obj>::value ==
-               bslma::UsesBslmaAllocator<ValueType>::value);
-        ASSERT(bslmf::UsesAllocatorArgT<Obj>::value ==
-               bslma::UsesBslmaAllocator<ValueType>::value);
+        const bool allocatorObj = bslma::UsesBslmaAllocator<Obj>::value;
+        const bool allocatorValueType =
+                                   bslma::UsesBslmaAllocator<ValueType>::value;
+        const bool argTObj = bslmf::UsesAllocatorArgT<Obj>::value;
+        const bool argTValueType = bslmf::UsesAllocatorArgT<ValueType>::value;
+
+        const bool convObj = bsl::is_convertible<bslma::Allocator *,
+                                                 Obj>::value;
+        const bool convValueType = bsl::is_convertible<bslma::Allocator *,
+                                                       ValueType>::value;
+        if (veryVerbose) {
+            P_(valueTypeName);    P_(convObj);    P(convValueType);
+        }
+
+        ASSERTV(valueTypeName, objName, allocatorObj, allocatorValueType,
+                                           allocatorObj == allocatorValueType);
+        ASSERTV(valueTypeName, objName, argTObj, allocatorValueType,
+                                                argTObj == allocatorValueType);
+        ASSERTV(valueTypeName, objName, argTObj, allocatorObj,
+                                                      argTObj == allocatorObj);
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
         ASSERT(std::is_trivially_destructible<Obj>::value ==
@@ -12363,6 +12382,9 @@ int main(int argc, char **argv)
         RUN_EACH_TYPE(TestDriver,
                       testCase15,
                       BSLSTL_OPTIONAL_TEST_NESTED_TYPES);
+        RUN_EACH_TYPE(TestDriver,
+                      testCase15,
+                      bsl::allocator<char>);
         RUN_EACH_TYPE(TestDriver, testCase15b, MyClass2, MyClass2a);
         RUN_EACH_TYPE(TestDriver, testCase15b,
                       BSLSTL_OPTIONAL_TEST_NESTED_TYPE(MyClass2),

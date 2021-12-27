@@ -92,6 +92,9 @@ using bsls::NameOf;
 // [11] NullableValue(const NullableValue<OTHER_TYPE>&o, allocator);
 // [26] NullableValue(const NullOptType&);
 // [26] NullableValue(const NullOptType&, allocator);
+// [30] CONVERSION FROM BASE CLASS
+// [31] TESTING DEEPLY NESTED 'FROM' AND 'TO' TYPES
+// [32] TESTING 'TYPE' IS ALLOCATOR
 // [ 3] ~NullableValue();
 //
 // MANIPULATORS
@@ -300,6 +303,26 @@ BSLMF_ASSERT(sizeof SUFFICIENTLY_LONG_STRING > sizeof(bsl::string));
 //=============================================================================
 //                      GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
+
+bsl::ostream& operator<<(bsl::ostream& stream, bsltf::MoveState::Enum value)
+{
+    switch (value) {
+      case bsltf::MoveState::e_NOT_MOVED: {
+        stream << "e_NOT_MOVED";
+      } break;
+      case bsltf::MoveState::e_MOVED: {
+        stream << "e_MOVED";
+      } break;
+      case bsltf::MoveState::e_UNKNOWN: {
+        stream << "e_UNKNOWN";
+      } break;
+      default: {
+        stream << "<invalid>";
+      }
+    }
+
+    return stream;
+}
 
 template <class FIRST_TYPE, class SECOND_TYPE, class INIT_TYPE>
 void testRelationalOperationsNonNull(const INIT_TYPE& lesserVal,
@@ -6125,7 +6148,7 @@ void runTestCase29()
     RUN_EACH_TYPE(TestDriver, testCase29, TEST_TYPES);
 }
 
-namespace TestCase30 {
+namespace MoveFromAllocTypeSpace {
 
 // Needed types with 3 requirments:
 //: 1 type records whether it has been moved from
@@ -6138,6 +6161,50 @@ namespace TestCase30 {
 
 typedef bsltf::MoveState MS;
 
+#define ASSERT_IS_MOVED_FROM(exp)                                             \
+    ASSERTV((exp).d_from, MoveState::e_MOVED == (exp).d_from)
+
+#define ASSERT_IS_NOT_MOVED_FROM(exp)                                         \
+    ASSERTV((exp).d_from, MoveState::e_NOT_MOVED == (exp).d_from)
+
+#define ASSERT_IS_MOVED_INTO(exp)                                             \
+    ASSERTV((exp).d_into, MoveState::e_MOVED == (exp).d_into)
+
+#define ASSERT_IS_NOT_MOVED_INTO(exp)                                         \
+    ASSERTV((exp).d_into, MoveState::e_NOT_MOVED == (exp).d_into)
+
+template <class TYPE>
+void resetNull(TYPE *value)
+{
+    value->~TYPE();
+    for (char *p = reinterpret_cast<char *>(value), *end = p + sizeof(TYPE);
+                                                                p < end; ++p) {
+        *p = 0;
+    }
+    new (value) TYPE();
+}
+
+template <class TYPE>
+void resetNull(TYPE *value, const bsl::allocator<char>& alloc)
+{
+    value->~TYPE();
+    for (char *p = reinterpret_cast<char *>(value), *end = p + sizeof(TYPE);
+                                                                p < end; ++p) {
+        *p = 0;
+    }
+    new (value) TYPE(alloc);
+}
+
+unsigned unlikelyNumber;
+
+void initUnlikelyNumber(unsigned *variable)
+{
+    BSLS_ASSERT(unlikelyNumber != *variable);
+
+    *variable = unlikelyNumber;
+}
+
+
                                 // ==========
                                 // class From
                                 // ==========
@@ -6146,6 +6213,7 @@ struct From {
     // DATA
     int d_ii;
     MS::Enum d_from, d_into;
+    unsigned d_unlikelyVariable;
 
     // CREATORS
     From(int ii);                                                   // IMPLICIT
@@ -6170,17 +6238,23 @@ From::From(int ii)
 : d_ii(ii)
 , d_from(MS::e_NOT_MOVED)
 , d_into(MS::e_NOT_MOVED)
-{}
+{
+    initUnlikelyNumber(&d_unlikelyVariable);
+}
 
 From::From(const From& original)
 : d_ii(original.d_ii)
 , d_from(MS::e_NOT_MOVED)
 , d_into(MS::e_NOT_MOVED)
-{}
+{
+    initUnlikelyNumber(&d_unlikelyVariable);
+}
 
 // MANIPULATORS
 From& From::operator=(const From& rhs)
 {
+    BSLS_ASSERT_OPT(unlikelyNumber == d_unlikelyVariable);
+
     d_ii   = rhs.d_ii;
     d_from = MS::e_NOT_MOVED;
     d_into = MS::e_NOT_MOVED;
@@ -6190,6 +6264,8 @@ From& From::operator=(const From& rhs)
 
 void From::setData(int ii)
 {
+    BSLS_ASSERT_OPT(unlikelyNumber == d_unlikelyVariable);
+
     d_ii   = ii;
     d_from = MS::e_NOT_MOVED;
     d_into = MS::e_NOT_MOVED;
@@ -6198,6 +6274,8 @@ void From::setData(int ii)
 // ACCESSORS
 int From::data() const
 {
+    BSLS_ASSERT_OPT(unlikelyNumber == d_unlikelyVariable);
+
     return d_ii;
 }
 
@@ -6209,6 +6287,7 @@ struct To {
     // DATA
     int d_ii;
     MS::Enum d_from, d_into;
+    unsigned d_unlikelyVariable;
 
     // CREATORS
     To(int ii);                                                     // IMPLICIT
@@ -6244,19 +6323,25 @@ To::To(int ii)
 : d_ii(ii)
 , d_from(MS::e_NOT_MOVED)
 , d_into(MS::e_NOT_MOVED)
-{}
+{
+    initUnlikelyNumber(&d_unlikelyVariable);
+}
 
 To::To(const From& from)
 : d_ii(from.data())
 , d_from(MS::e_NOT_MOVED)
 , d_into(MS::e_NOT_MOVED)
-{}
+{
+    initUnlikelyNumber(&d_unlikelyVariable);
+}
 
 To::To(bslmf::MovableRef<From> from)
 : d_ii(bslmf::MovableRefUtil::access(from).data())
 , d_from(MS::e_NOT_MOVED)
 , d_into(MS::e_MOVED)
 {
+    initUnlikelyNumber(&d_unlikelyVariable);
+
     From& local = from;
 
     local.d_from = MS::e_MOVED;
@@ -6267,13 +6352,17 @@ To::To(const To& original)
 : d_ii(original.data())
 , d_from(MS::e_NOT_MOVED)
 , d_into(MS::e_NOT_MOVED)
-{}
+{
+    initUnlikelyNumber(&d_unlikelyVariable);
+}
 
 To::To(bslmf::MovableRef<To> original)
 : d_ii(bslmf::MovableRefUtil::access(original).data())
 , d_from(MS::e_NOT_MOVED)
 , d_into(MS::e_MOVED)
 {
+    initUnlikelyNumber(&d_unlikelyVariable);
+
     To& local = original;
 
     local.d_from = MS::e_MOVED;
@@ -6283,6 +6372,8 @@ To::To(bslmf::MovableRef<To> original)
 // MANIPULATORS
 To& To::operator=(const To& rhs)
 {
+    BSLS_ASSERT_OPT(unlikelyNumber == d_unlikelyVariable);
+
     d_ii = rhs.d_ii;
 
     d_into = MS::e_NOT_MOVED;
@@ -6292,6 +6383,8 @@ To& To::operator=(const To& rhs)
 
 To& To::operator=(bslmf::MovableRef<To> rhs)
 {
+    BSLS_ASSERT_OPT(unlikelyNumber == d_unlikelyVariable);
+
     To& local = rhs;
 
     d_ii = local.d_ii;
@@ -6305,6 +6398,8 @@ To& To::operator=(bslmf::MovableRef<To> rhs)
 
 To& To::operator=(const From& rhs)
 {
+    BSLS_ASSERT_OPT(unlikelyNumber == d_unlikelyVariable);
+
     d_ii = rhs.d_ii;
 
     d_into = MS::e_NOT_MOVED;
@@ -6314,6 +6409,8 @@ To& To::operator=(const From& rhs)
 
 To& To::operator=(bslmf::MovableRef<From> rhs)
 {
+    BSLS_ASSERT_OPT(unlikelyNumber == d_unlikelyVariable);
+
     From& local = rhs;
 
     d_ii = local.d_ii;
@@ -6327,6 +6424,8 @@ To& To::operator=(bslmf::MovableRef<From> rhs)
 
 void To::setData(int ii)
 {
+    BSLS_ASSERT_OPT(unlikelyNumber == d_unlikelyVariable);
+
     d_ii   = ii;
     d_from = MS::e_NOT_MOVED;
     d_into = MS::e_NOT_MOVED;
@@ -6335,6 +6434,8 @@ void To::setData(int ii)
 // ACCESSORS
 int To::data() const
 {
+    BSLS_ASSERT_OPT(unlikelyNumber == d_unlikelyVariable);
+
     return d_ii;
 }
 
@@ -6347,6 +6448,7 @@ struct AllocType {
     int d_ii;
     MS::Enum d_from, d_into;
     bsl::allocator<char> d_alloc;
+    unsigned d_unlikelyVariable;
 
     BSLMF_NESTED_TRAIT_DECLARATION(AllocType,
                                    bslma::UsesBslmaAllocator);
@@ -6364,6 +6466,14 @@ struct AllocType {
     AllocType(bslmf::MovableRef<AllocType> original,
               bsl::allocator<char> alloc = bsl::allocator<char>());
 
+    AllocType& operator=(const AllocType& rhs);
+
+    AllocType& operator=(bslmf::MovableRef<AllocType> rhs);
+
+    AllocType& operator=(const From& rhs);
+
+    AllocType& operator=(bslmf::MovableRef<From> rhs);
+
     // ACCESSORS
     int data() const;
 
@@ -6380,7 +6490,9 @@ AllocType::AllocType(const From& from,
 , d_from(MS::e_NOT_MOVED)
 , d_into(MS::e_NOT_MOVED)
 , d_alloc(alloc)
-{}
+{
+    initUnlikelyNumber(&d_unlikelyVariable);
+}
 
 AllocType::AllocType(bslmf::MovableRef<From> from,
                      bsl::allocator<char> alloc)
@@ -6389,6 +6501,8 @@ AllocType::AllocType(bslmf::MovableRef<From> from,
 , d_into(MS::e_MOVED)
 , d_alloc(alloc)
 {
+    initUnlikelyNumber(&d_unlikelyVariable);
+
     From& local = from;
 
     local.d_from = MS::e_MOVED;
@@ -6401,7 +6515,9 @@ AllocType::AllocType(const AllocType& original,
 , d_from(MS::e_NOT_MOVED)
 , d_into(MS::e_NOT_MOVED)
 , d_alloc(alloc)
-{}
+{
+    initUnlikelyNumber(&d_unlikelyVariable);
+}
 
 AllocType::AllocType(bslmf::MovableRef<AllocType> original,
                      bsl::allocator<char> alloc)
@@ -6410,23 +6526,83 @@ AllocType::AllocType(bslmf::MovableRef<AllocType> original,
 , d_into(MS::e_MOVED)
 , d_alloc(alloc)
 {
+    initUnlikelyNumber(&d_unlikelyVariable);
+
     AllocType& local = original;
 
     local.d_from = MS::e_MOVED;
     local.d_ii   = -1;
 }
 
+// MANIPULATORS
+AllocType& AllocType::operator=(const AllocType& rhs)
+{
+    BSLS_ASSERT_OPT(unlikelyNumber == d_unlikelyVariable);
+
+    d_ii = rhs.d_ii;
+
+    d_into = MS::e_NOT_MOVED;
+
+    return *this;
+}
+
+AllocType& AllocType::operator=(bslmf::MovableRef<AllocType> rhs)
+{
+    BSLS_ASSERT_OPT(unlikelyNumber == d_unlikelyVariable);
+
+    AllocType& local = rhs;
+
+    d_ii = local.d_ii;
+
+    d_into       = MS::e_MOVED;
+    local.d_from = MS::e_MOVED;
+    local.d_ii   = -1;
+
+    return *this;
+}
+
+AllocType& AllocType::operator=(const From& rhs)
+{
+    BSLS_ASSERT_OPT(unlikelyNumber == d_unlikelyVariable);
+
+    d_ii = rhs.d_ii;
+
+    d_into = MS::e_NOT_MOVED;
+
+    return *this;
+}
+
+AllocType& AllocType::operator=(bslmf::MovableRef<From> rhs)
+{
+    BSLS_ASSERT_OPT(unlikelyNumber == d_unlikelyVariable);
+
+    From& local = rhs;
+
+    d_ii = local.d_ii;
+
+    d_into       = MS::e_MOVED;
+    local.d_from = MS::e_MOVED;
+    local.d_ii   = -1;
+
+    return *this;
+}
+
+// ACCESSORS
 int AllocType::data() const
 {
+    BSLS_ASSERT_OPT(unlikelyNumber == d_unlikelyVariable);
+
     return d_ii;
 }
 
 bsl::allocator<char> AllocType::allocator() const
 {
+    BSLS_ASSERT_OPT(unlikelyNumber == d_unlikelyVariable);
+
     return d_alloc;
 }
 
-}  // close namespace TestCase30
+}  // close namespace MoveFromAllocTypeSpace
 
 // ============================================================================
 //                              MAIN PROGRAM
@@ -6451,7 +6627,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 32: {
+      case 34: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -6495,7 +6671,7 @@ int main(int argc, char *argv[])
 //..
 
       } break;
-      case 31: {
+      case 33: {
         // --------------------------------------------------------------------
         // TEST 'operator<<' FOR 'std::optional' AND 'std::variant'
         //
@@ -6588,20 +6764,1330 @@ int main(int argc, char *argv[])
                              "'std::optional', 'std::variant'" << endl;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
       } break;
+      case 32: {
+        // --------------------------------------------------------------------
+        // TESTING 'TYPE' IS ALLOCATOR
+        //
+        // Concerns:
+        //: 1 That the type under test can copy or move construct or assign
+        //:   when 'TYPE' is 'bsl::allocator'.
+        //:
+        //: 2 That the type under test can copy or move construct or assign
+        //:   when 'TYPE' is 'bslma::Allocator *'.
+        //:
+        //: 3 That the type under test can copy construct or assign when the
+        //:   'TYPE' of the 'from' is 'bslma::Allocator *' and the 'TYPE' of
+        //:   the 'to' is 'bsl::allocator'.
+        //:
+        //: 4 Note that move copies or assigns from a 'TYPE' of
+        //:   'bslma::Allocator *' to a 'TYPE' of 'bsl::allocator' are not
+        //:   tested because they don't compile on C++03.  This is because
+        //:   'bsl::allocator' has no move c'tor or assign declared taking
+        //:   'bslma::Allocator *', so the move would require two conversions
+        //:   -- one of 'MoveUtil::MovableRef<bslma::Allocator *>' to a simple
+        //:   reference, and the second from 'bslma::Allocator' to
+        //:   'bsl::allocator'.  Coverting moves into 'NullableValue'
+        //:   deliberately call the moves of the contained type, so we can't
+        //:   fix this in 'NullableValue' and extending 'bsl::allocator' would
+        //:   be WAY beyond the scope of this effort.
+        //
+        // Plan:
+        //: 1 Test, going from 'NullableValue' to 'NullableValue', for both
+        //:   'TYPE == bsl::allocator' && 'TYPE == bslma::Allocator *',
+        //:   o copy construct
+        //:
+        //:   o move construct
+        //:
+        //:   o copy assign
+        //:
+        //:   o move assign
+        //:
+        //: 2 Test, going from 'bsl::optional' to 'NullableValue', for both
+        //:   'TYPE == bsl::allocator' && 'TYPE == bslma::Allocator *',
+        //:   o copy construct
+        //:
+        //:   o move construct
+        //:
+        //:   o copy assign
+        //:
+        //:   o move assign
+        //
+        // Testing:
+        //   TYPE IS ALLOCATOR
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING 'TYPE' IS ALLOCATOR\n"
+                             "===========================\n";
+
+        typedef bslmf::MovableRefUtil                 MoveUtil;
+
+        typedef bsl::allocator<char>                  Alloc;
+        typedef bslma::Allocator                     *AllocPtr;
+        typedef bslma::TestAllocator                  TestAlloc;
+
+        typedef bsl::optional<Alloc>                  BaseAlloc;
+        typedef bsl::optional<AllocPtr>               BaseAllocPtr;
+
+        typedef bsl::optional<BaseAlloc>              BaseBaseAlloc;
+        typedef bsl::optional<BaseAllocPtr>           BaseBaseAllocPtr;
+
+        typedef bdlb::NullableValue<Alloc>            NVAlloc;
+        typedef bdlb::NullableValue<AllocPtr>         NVAllocPtr;
+
+        typedef bdlb::NullableValue<BaseAlloc>        NestedBaseAlloc;
+        typedef bdlb::NullableValue<BaseAllocPtr>     NestedBaseAllocPtr;
+
+        typedef bdlb::NullableValue<BaseBaseAlloc>    NestedBaseBaseAlloc;
+        typedef bdlb::NullableValue<BaseBaseAllocPtr> NestedBaseBaseAllocPtr;
+
+        ASSERT((bsl::is_convertible<BaseAlloc, BaseAlloc>::value));
+        ASSERT((bsl::is_convertible<const BaseAlloc, NestedBaseAlloc>::value));
+        ASSERT((bsl::is_convertible<Alloc, BaseAlloc>::value));
+        ASSERT(! bslma::UsesBslmaAllocator<Alloc>::value);
+        ASSERT(! bslmf::UsesAllocatorArgT<Alloc>::value);
+        ASSERT(! bslma::UsesBslmaAllocator<BaseAlloc>::value);
+        ASSERT(! bslmf::UsesAllocatorArgT<BaseAlloc>::value);
+        ASSERT(! bslma::UsesBslmaAllocator<bsl::optional<int> >::value);
+        ASSERT(! bslmf::UsesAllocatorArgT<bsl::optional<int> >::value);
+
+        if (verbose) cout << "Copy construct NV from NV\n";
+        {
+            TestAlloc taa;
+            Alloc     aa(&taa);
+
+            NVAlloc       raa(aa);    const NVAlloc& RAA = raa;
+            const NVAlloc nvAA(RAA);
+
+            ASSERT(RAA ->mechanism() == &taa);
+            ASSERT(nvAA->mechanism() == &taa);
+
+            NVAllocPtr       raap(&taa);    const NVAllocPtr& RAAP = raap;
+            const NVAllocPtr nvAAP(RAAP);
+
+            ASSERT(*RAAP  == &taa);
+            ASSERT(*nvAAP == &taa);
+        }
+
+        if (verbose) cout << "Move construct NV from NV\n";
+        {
+            TestAlloc taa;
+            Alloc     aa(&taa);
+
+            NVAlloc       raa(aa);    const NVAlloc& RAA = raa;
+            const NVAlloc nvAA(MoveUtil::move(raa));
+
+            ASSERT(RAA ->mechanism() == &taa);
+            ASSERT(nvAA->mechanism() == &taa);
+
+            NVAllocPtr       raap(&taa);    const NVAllocPtr& RAAP = raap;
+            const NVAllocPtr nvAAP(MoveUtil::move(raap));
+
+            ASSERT(*RAAP  == &taa);
+            ASSERT(*nvAAP == &taa);
+        }
+
+        if (verbose) cout << "Copy assign NV from NV\n";
+        {
+            TestAlloc taa, uaa;
+            Alloc     aa(&taa), ua(&uaa);
+
+            NVAlloc       raa(aa);     const NVAlloc& RAA  = raa;
+            NVAlloc       nvAA(ua);    const NVAlloc& NVAA = nvAA;
+            NVAlloc      *z_p = 0;
+
+            ASSERT(nvAA->mechanism() == &uaa);
+
+            z_p = &(nvAA = RAA);
+
+            ASSERT(&NVAA == z_p);
+            ASSERT(RAA ->mechanism() == &taa);
+            ASSERT(nvAA->mechanism() == &taa);
+
+            NVAllocPtr       raap(&taa);    const NVAllocPtr& RAAP  = raap;
+            NVAllocPtr       nvAAP(&uaa);   const NVAllocPtr& NVAAP = nvAAP;
+            NVAllocPtr      *zp_p = 0;
+
+            ASSERT(*nvAAP == &uaa);
+
+            zp_p = &(nvAAP = RAAP);
+
+            ASSERT(&NVAAP == zp_p);
+            ASSERT(*RAAP  == &taa);
+            ASSERT(*nvAAP == &taa);
+        }
+
+        if (verbose) cout << "Move assign NV from NV\n";
+        {
+            TestAlloc taa, uaa;
+            Alloc     aa(&taa), ua(&uaa);
+
+            NVAlloc       raa(aa);     const NVAlloc& RAA  = raa;
+            NVAlloc       nvAA(ua);    const NVAlloc& NVAA = nvAA;
+            NVAlloc      *z_p = 0;
+
+            ASSERT(nvAA->mechanism() == &uaa);
+
+            z_p = &(nvAA = MoveUtil::move(raa));
+
+            ASSERT(&NVAA == z_p);
+            ASSERT(RAA ->mechanism() == &taa);
+            ASSERT(nvAA->mechanism() == &taa);
+
+            NVAllocPtr       raap(&taa);    const NVAllocPtr& RAAP  = raap;
+            NVAllocPtr       nvAAP(&uaa);   const NVAllocPtr& NVAAP = nvAAP;
+            NVAllocPtr      *zp_p = 0;
+
+            ASSERT(*nvAAP == &uaa);
+
+            zp_p = &(nvAAP = MoveUtil::move(raap));
+
+            ASSERT(&NVAAP == zp_p);
+            ASSERT(*RAAP  == &taa);
+            ASSERT(*nvAAP == &taa);
+        }
+
+        if (verbose) cout << "Copy construct NV from Base\n";
+        {
+            TestAlloc taa;
+            Alloc     aa(&taa);
+
+            BaseAlloc     baa(aa);    const BaseAlloc& BAA = baa;
+            const NVAlloc nvAA(BAA);
+
+            ASSERT(BAA ->mechanism() == &taa);
+            ASSERT(nvAA->mechanism() == &taa);
+
+            BaseAllocPtr     baap(&taa);    const BaseAllocPtr& BAAP = baap;
+            const NVAllocPtr nvAAP(BAAP);
+
+            ASSERT(*BAAP  == &taa);
+            ASSERT(*nvAAP == &taa);
+        }
+
+        if (verbose) cout << "Move construct NV from Base\n";
+        {
+            TestAlloc taa;
+            Alloc     aa(&taa);
+
+            BaseAlloc     baa(aa);    const BaseAlloc& BAA = baa;
+            const NVAlloc nvAA(MoveUtil::move(baa));
+
+            ASSERT(BAA ->mechanism() == &taa);
+            ASSERT(nvAA->mechanism() == &taa);
+
+            BaseAllocPtr     baap(&taa);    const BaseAllocPtr& BAAP = baap;
+            const NVAllocPtr nvAAP(MoveUtil::move(baap));
+
+            ASSERT(*BAAP  == &taa);
+            ASSERT(*nvAAP == &taa);
+        }
+
+        if (verbose) cout << "Copy assign NV from Base\n";
+        {
+            TestAlloc taa, uaa;
+            Alloc     aa(&taa), ua(&uaa);
+
+            BaseAlloc     baa(aa);     const BaseAlloc& BAA = baa;
+            NVAlloc       nvAA(ua);    const NVAlloc&   NVAA = nvAA;
+            NVAlloc      *z_p = 0;
+
+            ASSERT(nvAA->mechanism() == &uaa);
+
+            z_p = &(nvAA = BAA);
+
+            ASSERT(&NVAA == z_p);
+            ASSERT(BAA ->mechanism() == &taa);
+            ASSERT(nvAA->mechanism() == &taa);
+
+            BaseAllocPtr     baap(&taa);    const BaseAllocPtr& BAAP = baap;
+            NVAllocPtr       nvAAP(&uaa);   const NVAllocPtr&   NVAAP = nvAAP;
+            NVAllocPtr      *zp_p = 0;
+
+            ASSERT(*nvAAP == &uaa);
+
+            zp_p = &(nvAAP = BAAP);
+
+            ASSERT(&NVAAP == zp_p);
+            ASSERT(*BAAP  == &taa);
+            ASSERT(*nvAAP == &taa);
+        }
+
+        if (verbose) cout << "Move assign NV from Base\n";
+        {
+            TestAlloc taa, uaa;
+            Alloc     aa(&taa), ua(&uaa);
+
+            BaseAlloc     baa(aa);     const BaseAlloc& BAA = baa;
+            NVAlloc       nvAA(ua);    const NVAlloc&   NVAA = nvAA;
+            NVAlloc      *z_p = 0;
+
+            ASSERT(nvAA->mechanism() == &uaa);
+
+            z_p = &(nvAA = MoveUtil::move(baa));
+
+            ASSERT(&NVAA == z_p);
+            ASSERT(BAA ->mechanism() == &taa);
+            ASSERT(nvAA->mechanism() == &taa);
+
+            BaseAllocPtr     baap(&taa);    const BaseAllocPtr& BAAP = baap;
+            NVAllocPtr       nvAAP(&uaa);   const NVAllocPtr&   NVAAP = nvAAP;
+            NVAllocPtr      *zp_p = 0;
+
+            ASSERT(*nvAAP == &uaa);
+
+            zp_p = &(nvAAP = MoveUtil::move(baap));
+
+            ASSERT(&NVAAP == zp_p);
+            ASSERT(*BAAP  == &taa);
+            ASSERT(*nvAAP == &taa);
+        }
+
+        if (verbose) cout << "Copy construct NV from NV diff\n";
+        {
+            TestAlloc taa;
+            Alloc     aa(&taa);
+
+            NVAllocPtr       raap(&taa);    const NVAllocPtr& RAAP = raap;
+            NVAlloc          raa(RAAP);     const NVAlloc&    RAA = raa;
+
+            ASSERT(*RAAP             == &taa);
+            ASSERT(RAA ->mechanism() == &taa);
+        }
+
+        if (verbose) cout << "Copy assign NV from NV diff\n";
+        {
+            TestAlloc taa, uaa;
+            Alloc     aa(&taa), ua(&uaa);
+
+            NVAllocPtr       raap(&taa);    const NVAllocPtr& RAAP = raap;
+            NVAlloc          nvAA(ua);      const NVAlloc& NVAA    = nvAA;
+            NVAlloc         *z_p = 0;
+
+            ASSERT(nvAA->mechanism() == &uaa);
+
+            z_p = &(nvAA = RAAP);
+
+            ASSERT(&NVAA == z_p);
+            ASSERT(*RAAP  == &taa);
+            ASSERT(NVAA->mechanism() == &taa);
+        }
+
+        if (verbose) cout << "Copy construct NV from Base diff\n";
+        {
+            TestAlloc taa;
+            Alloc     aa(&taa);
+
+            BaseAllocPtr     baap(&taa);    const BaseAllocPtr& BAAP = baap;
+            BaseAlloc        baa(BAAP);     const BaseAlloc&    BAA  = baa;
+
+            ASSERT(*BAAP             == &taa);
+            ASSERT(BAA ->mechanism() == &taa);
+        }
+
+        if (verbose) cout << "Copy assign NV from Base diff\n";
+        {
+            TestAlloc taa, uaa;
+            Alloc     aa(&taa), ua(&uaa);
+
+            BaseAllocPtr     baap(&taa);    const BaseAllocPtr& BAAP = baap;
+            NVAlloc          nvAA(ua);      const NVAlloc&      NVAA = nvAA;
+            NVAlloc         *z_p = 0;
+
+            ASSERT(nvAA->mechanism() == &uaa);
+
+            z_p = &(nvAA = BAAP);
+
+            ASSERT(&NVAA             == z_p);
+            ASSERT(*BAAP             == &taa);
+            ASSERT(nvAA->mechanism() == &taa);
+        }
+
+        {
+            TestAlloc taa;
+            Alloc aa(&taa), caa(&taa);
+            BaseAlloc ba(aa), ca(caa);
+
+            bslma::ConstructionUtil::construct(&ba, &taa, ca);
+        }
+
+        if (verbose) cout << "Copy construct Nested from Base\n";
+        {
+            TestAlloc taa;
+            Alloc     aa(&taa);
+
+            BaseAlloc             baa(aa);    const BaseAlloc& BAA = baa;
+            const NestedBaseAlloc nvAA(BAA);
+
+            ASSERT(BAA    ->mechanism() == &taa);
+            ASSERT((*nvAA)->mechanism() == &taa);
+
+            BaseAllocPtr             baap(&taa);
+            const BaseAllocPtr&      BAAP = baap;
+            const NestedBaseAllocPtr nvAAP(BAAP);
+
+            ASSERT(*BAAP   == &taa);
+            ASSERT(**nvAAP == &taa);
+        }
+
+        if (verbose) cout << "Move construct NV from Base\n";
+        {
+            TestAlloc taa;
+            Alloc     aa(&taa);
+
+            BaseAlloc             baa(aa);
+            const BaseAlloc&      BAA = baa;
+            const NestedBaseAlloc nvAA(MoveUtil::move(baa));
+
+            ASSERT(BAA    ->mechanism() == &taa);
+            ASSERT((*nvAA)->mechanism() == &taa);
+
+            BaseAllocPtr             baap(&taa);
+            const BaseAllocPtr&      BAAP = baap;
+            const NestedBaseAllocPtr nvAAP(MoveUtil::move(baap));
+
+            ASSERT(*BAAP   == &taa);
+            ASSERT(**nvAAP == &taa);
+        }
+
+        if (verbose) cout << "Copy construct Nested from BaseBase\n";
+        {
+            TestAlloc taa;
+            Alloc     aa(&taa);
+
+            BaseAlloc                 baa(aa);
+            const BaseAlloc&          BAA = baa;
+
+            BaseBaseAlloc             bbaa(BAA);
+            const BaseBaseAlloc&      BBAA = bbaa;
+
+            const NestedBaseBaseAlloc nvBBAA(BBAA);
+
+            ASSERT((*BBAA)   ->mechanism() == &taa);
+            ASSERT((**nvBBAA)->mechanism() == &taa);
+
+            BaseAllocPtr             baap(&taa);
+            const BaseAllocPtr&      BAAP = baap;
+
+            BaseBaseAllocPtr             bbaap(BAAP);
+            const BaseBaseAllocPtr&      BBAAP = bbaap;
+
+            const NestedBaseBaseAllocPtr nvBBAAPP(BBAAP);
+
+            ASSERT(**BBAAP     == &taa);
+            ASSERT(***nvBBAAPP == &taa);
+        }
+
+        if (verbose) cout << "Move construct NV from BaseBase\n";
+        {
+            TestAlloc taa;
+            Alloc     aa(&taa);
+
+            BaseAlloc                 baa(aa);
+            const BaseAlloc&          BAA = baa;
+
+            BaseBaseAlloc             bbaa(BAA);
+            const BaseBaseAlloc&      BBAA = bbaa;
+
+            const NestedBaseBaseAlloc nvBBAA(MoveUtil::move(bbaa));
+
+            ASSERT((*BBAA)   ->mechanism() == &taa);
+            ASSERT((**nvBBAA)->mechanism() == &taa);
+
+            BaseAllocPtr                 baap(&taa);
+            const BaseAllocPtr&          BAAP = baap;
+
+            BaseBaseAllocPtr             bbaap(BAAP);
+            const BaseBaseAllocPtr&      BBAAP = bbaap;
+
+            const NestedBaseBaseAllocPtr nvBBAAPP(MoveUtil::move(bbaap));
+
+            ASSERT(**BBAAP     == &taa);
+            ASSERT(***nvBBAAPP == &taa);
+        }
+
+        if (verbose) cout << "Copy assign NV from Base\n";
+        {
+            TestAlloc taa, uaa;
+            Alloc     aa(&taa), ua(&uaa);
+
+            BaseAlloc     baa(aa);     const BaseAlloc& BAA = baa;
+            NVAlloc       nvAA(ua);    const NVAlloc&   NVAA = nvAA;
+            NVAlloc      *z_p = 0;
+
+            ASSERT(nvAA->mechanism() == &uaa);
+
+            z_p = &(nvAA = BAA);
+
+            ASSERT(&NVAA == z_p);
+            ASSERT(BAA ->mechanism() == &taa);
+            ASSERT(nvAA->mechanism() == &taa);
+
+            BaseAllocPtr     baap(&taa);    const BaseAllocPtr& BAAP = baap;
+            NVAllocPtr       nvAAP(&uaa);   const NVAllocPtr&   NVAAP = nvAAP;
+            NVAllocPtr      *zp_p = 0;
+
+            ASSERT(*nvAAP == &uaa);
+
+            zp_p = &(nvAAP = BAAP);
+
+            ASSERT(&NVAAP == zp_p);
+            ASSERT(*BAAP  == &taa);
+            ASSERT(*nvAAP == &taa);
+        }
+
+        if (verbose) cout << "Move assign NV from Base\n";
+        {
+            TestAlloc taa, uaa;
+            Alloc     aa(&taa), ua(&uaa);
+
+            BaseAlloc     baa(aa);     const BaseAlloc& BAA = baa;
+            NVAlloc       nvAA(ua);    const NVAlloc&   NVAA = nvAA;
+            NVAlloc      *z_p = 0;
+
+            ASSERT(nvAA->mechanism() == &uaa);
+
+            z_p = &(nvAA = MoveUtil::move(baa));
+
+            ASSERT(&NVAA == z_p);
+            ASSERT(BAA ->mechanism() == &taa);
+            ASSERT(nvAA->mechanism() == &taa);
+
+            BaseAllocPtr     baap(&taa);    const BaseAllocPtr& BAAP = baap;
+            NVAllocPtr       nvAAP(&uaa);   const NVAllocPtr&   NVAAP = nvAAP;
+            NVAllocPtr      *zp_p = 0;
+
+            ASSERT(*nvAAP == &uaa);
+
+            zp_p = &(nvAAP = MoveUtil::move(baap));
+
+            ASSERT(&NVAAP == zp_p);
+            ASSERT(*BAAP  == &taa);
+            ASSERT(*nvAAP == &taa);
+        }
+
+        if (verbose) cout << "Copy construct NV from NV diff\n";
+        {
+            TestAlloc taa;
+            Alloc     aa(&taa);
+
+            NVAllocPtr       raap(&taa);    const NVAllocPtr& RAAP = raap;
+            NVAlloc          raa(RAAP);     const NVAlloc&    RAA = raa;
+
+            ASSERT(*RAAP             == &taa);
+            ASSERT(RAA ->mechanism() == &taa);
+        }
+
+        if (verbose) cout << "Copy assign NV from NV diff\n";
+        {
+            TestAlloc taa, uaa;
+            Alloc     aa(&taa), ua(&uaa);
+
+            NVAllocPtr       raap(&taa);    const NVAllocPtr& RAAP = raap;
+            NVAlloc          nvAA(ua);      const NVAlloc& NVAA    = nvAA;
+            NVAlloc         *z_p = 0;
+
+            ASSERT(nvAA->mechanism() == &uaa);
+
+            z_p = &(nvAA = RAAP);
+
+            ASSERT(&NVAA == z_p);
+            ASSERT(*RAAP  == &taa);
+            ASSERT(NVAA->mechanism() == &taa);
+        }
+
+        if (verbose) cout << "Copy construct NV from Base diff\n";
+        {
+            TestAlloc taa;
+            Alloc     aa(&taa);
+
+            BaseAllocPtr     baap(&taa);    const BaseAllocPtr& BAAP = baap;
+            BaseAlloc        baa(BAAP);     const BaseAlloc&    BAA  = baa;
+
+            ASSERT(*BAAP             == &taa);
+            ASSERT(BAA ->mechanism() == &taa);
+        }
+
+        if (verbose) cout << "Copy assign NV from Base diff\n";
+        {
+            TestAlloc taa, uaa;
+            Alloc     aa(&taa), ua(&uaa);
+
+            BaseAllocPtr     baap(&taa);    const BaseAllocPtr& BAAP = baap;
+            NVAlloc          nvAA(ua);      const NVAlloc&      NVAA = nvAA;
+            NVAlloc         *z_p = 0;
+
+            ASSERT(nvAA->mechanism() == &uaa);
+
+            z_p = &(nvAA = BAAP);
+
+            ASSERT(&NVAA             == z_p);
+            ASSERT(*BAAP             == &taa);
+            ASSERT(nvAA->mechanism() == &taa);
+        }
+
+        if (verbose) cout << "Copy assign Nested from BaseBase\n";
+        {
+            TestAlloc taa, txx;
+            Alloc     aa(&taa), xx(&txx);
+
+            BaseAlloc                 baa(aa);
+            const BaseAlloc&          BAA = baa;
+
+            BaseBaseAlloc             bbaa(BAA);
+            const BaseBaseAlloc&      BBAA = bbaa;
+
+            BaseAlloc                 bxx(xx);
+            const BaseAlloc&          BXX = bxx;
+
+            BaseBaseAlloc             bbxx(BXX);
+            const BaseBaseAlloc&      BBXX = bbxx;
+
+            NestedBaseBaseAlloc       nvBBAA(BBAA);
+            const NestedBaseBaseAlloc nvBBXX(BBXX);
+
+            ASSERT((*BBAA)   ->mechanism() == &taa);
+            ASSERT((**nvBBAA)->mechanism() == &taa);
+            ASSERT((**nvBBXX)->mechanism() == &txx);
+
+            NestedBaseBaseAlloc* p_z = &(nvBBAA = nvBBXX);
+
+            ASSERT(&nvBBAA == p_z);
+            ASSERT((**nvBBAA)->mechanism() == &txx);
+            ASSERT((**nvBBXX)->mechanism() == &txx);
+
+            BaseAllocPtr                 baap(&taa);
+            const BaseAllocPtr&          BAAP = baap;
+
+            BaseBaseAllocPtr             bbaap(BAAP);
+            const BaseBaseAllocPtr&      BBAAP = bbaap;
+
+            BaseAllocPtr                 bxxp(&txx);
+            const BaseAllocPtr&          BXXP = bxxp;
+
+            BaseBaseAllocPtr             bbxxp(BXXP);
+            const BaseBaseAllocPtr&      BBXXP = bbxxp;
+
+            NestedBaseBaseAllocPtr       nvBBAAP(BBAAP);
+            const NestedBaseBaseAllocPtr nvBBXXP(BBXXP);
+
+            ASSERT(**BBAAP    == &taa);
+            ASSERT(***nvBBAAP == &taa);
+            ASSERT(***nvBBXXP == &txx);
+
+            NestedBaseBaseAllocPtr* p_zp = &(nvBBAAP = BBXXP);
+
+            ASSERT(&nvBBAAP == p_zp);
+            ASSERT(***nvBBAAP == &txx);
+            ASSERT(***nvBBXXP == &txx);
+        }
+
+        if (verbose) cout << "Move assign Nested from BaseBase\n";
+        {
+            TestAlloc taa, txx;
+            Alloc     aa(&taa), xx(&txx);
+
+            BaseAlloc                 baa(aa);
+            const BaseAlloc&          BAA = baa;
+
+            BaseBaseAlloc             bbaa(BAA);
+            const BaseBaseAlloc&      BBAA = bbaa;
+
+            BaseAlloc                 bxx(xx);
+            const BaseAlloc&          BXX = bxx;
+
+            BaseBaseAlloc             bbxx(BXX);
+            const BaseBaseAlloc&      BBXX = bbxx;
+
+            NestedBaseBaseAlloc       nvBBAA(BBAA);
+            NestedBaseBaseAlloc       nvBBXX(BBXX);
+
+            ASSERT((*BBAA)   ->mechanism() == &taa);
+            ASSERT((**nvBBAA)->mechanism() == &taa);
+            ASSERT((**nvBBXX)->mechanism() == &txx);
+
+            NestedBaseBaseAlloc* p_z = &(nvBBAA = MoveUtil::move(nvBBXX));
+
+            ASSERT(&nvBBAA == p_z);
+            ASSERT((**nvBBAA)->mechanism() == &txx);
+            ASSERT((**nvBBXX)->mechanism() == &txx);
+
+            BaseAllocPtr                 baap(&taa);
+            const BaseAllocPtr&          BAAP = baap;
+
+            BaseBaseAllocPtr             bbaap(BAAP);
+            const BaseBaseAllocPtr&      BBAAP = bbaap;
+
+            BaseAllocPtr                 bxxp(&txx);
+            const BaseAllocPtr&          BXXP = bxxp;
+
+            BaseBaseAllocPtr             bbxxp(BXXP);
+            const BaseBaseAllocPtr&      BBXXP = bbxxp;
+
+            NestedBaseBaseAllocPtr       nvBBAAP(BBAAP);
+            NestedBaseBaseAllocPtr       nvBBXXP(BBXXP);
+
+            ASSERT(**BBAAP    == &taa);
+            ASSERT(***nvBBAAP == &taa);
+            ASSERT(***nvBBXXP == &txx);
+
+            NestedBaseBaseAllocPtr* p_zp = &(nvBBAAP =MoveUtil::move(nvBBXXP));
+
+            ASSERT(&nvBBAAP == p_zp);
+            ASSERT(***nvBBAAP == &txx);
+            ASSERT(***nvBBXXP == &txx);
+        }
+      } break;
+      case 31: {
+        // --------------------------------------------------------------------
+        // TESTING DEEPLY NESTED 'FROM' AND 'TO' TYPES
+        //
+        // Concerns:
+        //: 1 Test construct and assign of 'NullableValue' from
+        //:   'bsl::optional':
+        //:   o copy
+        //:
+        //:   o move
+        //:
+        //: 2 Test construct and assign of 'NullableValue' from
+        //:   'NullableValue':
+        //:   o copy
+        //:
+        //:   o move
+        //:
+        //: 3 Test C-1 and C-2 for the
+        //:   'NullableValue<optional<optional<TYPE> > >' and
+        //:   'optional<optional<OTHER_TYPE> >' where 'TYPE' and 'OTHER_TYPE'
+        //:   are both move-aware, where 'OTHER_TYPE' is convertible to 'TYPE'
+        //:   and where 'TYPE':
+        //:   o does not allocate memory
+        //:
+        //:   o allocates memory
+        //:
+        //: 4 Test C-1 and C-2 for the
+        //:   'NullableValue<optional<optional<TYPE> > >' and
+        //:   'NullableValue<optional<optional<OTHER_TYPE> > >' where 'TYPE'
+        //:   and 'OTHER_TYPE' are both move-aware, where 'OTHER_TYPE' is
+        //:   convertible to 'TYPE', and where 'TYPE':
+        //:   o does not allocate memory
+        //:
+        //:   o allocates memory
+        //:
+        //: 5 Test C-3 and C-4 on constructors for:
+        //:   o 'original' is null
+        //:
+        //:   o 'original' has a value
+        //:
+        //: 6 Test C-3 and C-4 on assignment for
+        //:   o null <- null
+        //:
+        //:   o null <- value
+        //:
+        //:   o value <- null
+        //:
+        //:   o value <- value
+        //
+        // Abbreviations:
+        // o BBF: 'optional<optional<From> >'
+        //
+        // o NBBF: 'NullableValue<optional<optional<From> > >'
+        //
+        // o NBBT: 'NullableValue<optional<optional<To> > >'
+        //
+        // Plan:
+        //: 1 Copy construct NBBT from BBF (C-5)
+        //:
+        //: 2 Copy construct NBBT from NBBF (C-5)
+        //:
+        //: 3 Move construct NBBT from BBF (C-5)
+        //:
+        //: 4 Move construct NBBT from NBBF (C-5)
+        //:
+        //: 5 Copy assign NBBT from BBF (C-6)
+        //:
+        //: 6 Copy assign NBBT from NBBF (C-6)
+        //:
+        //: 7 Move assign NBBT from BBF (C-6)
+        //:
+        //: 8 Move assign NBBT from NBBF (C-6)
+        //
+        // Testing:
+        //   TESTING DEEPLY NESTED 'FROM' AND 'TO' TYPES
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING DEEPLY NESTED 'FROM' AND 'TO' TYPES\n"
+                             "===========================================\n";
+
+        namespace TC = MoveFromAllocTypeSpace;
+
+        typedef TC::From          From;
+        typedef TC::To            To;
+        typedef TC::AllocType     AllocType;
+
+        typedef bsltf::MoveState                      MoveState;
+        typedef bslmf::MovableRefUtil                 MoveUtil;
+
+        typedef bsl::optional<From>                   BaseFrom;
+        typedef bsl::optional<To>                     BaseTo;
+        typedef bsl::optional<AllocType>              BaseAlloc;
+
+        typedef bsl::optional<BaseFrom>               BaseBaseFrom;
+        typedef bsl::optional<BaseTo>                 BaseBaseTo;
+        typedef bsl::optional<BaseAlloc>              BaseBaseAlloc;
+
+        typedef bdlb::NullableValue<BaseBaseFrom>     NestedBaseBaseFrom;
+        typedef bdlb::NullableValue<BaseBaseTo>       NestedBaseBaseTo;
+        typedef bdlb::NullableValue<BaseBaseAlloc>    NestedBaseBaseAlloc;
+
+        ASSERT((bsl::is_convertible<From, BaseTo>::value));
+        ASSERT((bsl::is_convertible<BaseFrom, BaseTo>::value));
+        ASSERT((bsl::is_convertible<const BaseBaseFrom,
+                                                    NestedBaseBaseTo>::value));
+
+        bslma::TestAllocator     ta;
+        bsl::allocator<char>     aa(&ta);
+
+        unsigned& unlikelyNumber = MoveFromAllocTypeSpace::unlikelyNumber;
+
+        unlikelyNumber = 987654321;
+
+        if (verbose) cout << "Copy construct NBBT from BBF\n";
+        {
+            const From             f5(5);
+            const BaseFrom         bf5(f5);
+            const BaseBaseFrom     bbf5(bf5), bbfn;
+
+            const NestedBaseBaseTo    nbbtn(bbfn);
+            const NestedBaseBaseTo    nbbt5(bbf5);
+            const NestedBaseBaseAlloc nbban(bbfn, aa);
+            const NestedBaseBaseAlloc nbba5(bbf5, aa);
+
+            ASSERT(nbbtn.has_value());
+            ASSERT(!nbbtn->has_value());
+            ASSERT(nbban.has_value());
+            ASSERT(!nbban->has_value());
+
+            ASSERT(5 == (**nbbt5)->data());
+            ASSERT(5 == (**nbba5)->data());
+
+            ASSERT_IS_NOT_MOVED_FROM(**bbf5);
+            ASSERT_IS_NOT_MOVED_INTO(***nbbt5);
+            ASSERT_IS_NOT_MOVED_INTO(***nbba5);
+
+            ASSERT(&ta == (**nbba5)->allocator().mechanism());
+        }
+
+        ++unlikelyNumber;
+
+        if (verbose) cout << "Copy construct NBBT from NBBF\n";
+        {
+            const From               f5(5);
+            const BaseFrom           bf5(f5);
+            const BaseBaseFrom       bbf5(bf5);
+
+            const NestedBaseBaseFrom  nbbfn;
+            const NestedBaseBaseFrom  nbbf5(bbf5);
+            const NestedBaseBaseTo    nbbtn(nbbfn);
+            const NestedBaseBaseTo    nbbt5(nbbf5);
+            const NestedBaseBaseAlloc nbban(nbbfn, aa);
+            const NestedBaseBaseAlloc nbba5(nbbf5, aa);
+
+            ASSERT(!nbbtn.has_value());
+            ASSERT(!nbban.has_value());
+
+            ASSERT(5 == (**nbbt5)->data());
+            ASSERT(5 == (**nbba5)->data());
+
+            ASSERT_IS_NOT_MOVED_FROM(***nbbf5);
+            ASSERT_IS_NOT_MOVED_INTO(***nbbt5);
+            ASSERT_IS_NOT_MOVED_INTO(***nbba5);
+
+            ASSERT(&ta == (**nbba5)->allocator().mechanism());
+        }
+
+        ++unlikelyNumber;
+
+        if (verbose) cout << "Move construct NBBT from BBF\n";
+        {
+            const From             f5(5);
+            const BaseFrom         bf5(f5);
+            BaseBaseFrom           bbf5(bf5), bbf5_b(bf5), bbfn, bbfn_b;
+
+            const NestedBaseBaseTo    nbbtn(MoveUtil::move(bbfn));
+            const NestedBaseBaseTo    nbbt5(MoveUtil::move(bbf5));
+            const NestedBaseBaseAlloc nbban(MoveUtil::move(bbfn_b), aa);
+            const NestedBaseBaseAlloc nbba5(MoveUtil::move(bbf5_b), aa);
+
+            ASSERT(nbbtn.has_value());
+            ASSERT(!nbbtn->has_value());
+            ASSERT(nbban.has_value());
+            ASSERT(!nbban->has_value());
+
+            ASSERT(5 == (**nbbt5)->data());
+            ASSERT(5 == (**nbba5)->data());
+
+            ASSERT_IS_MOVED_FROM(**bbf5);
+            ASSERT_IS_MOVED_FROM(**bbf5_b);
+            ASSERT_IS_MOVED_INTO(***nbbt5);
+            ASSERT_IS_MOVED_INTO(***nbba5);
+
+            ASSERT(&ta == (**nbba5)->allocator().mechanism());
+            ASSERT(&ta == nbban->get_allocator().mechanism());
+        }
+        ++unlikelyNumber;
+
+        if (verbose) cout << "Move construct NBBT from NBBF.\n";
+        {
+            const From               f5(5);
+            const BaseFrom           bf5(f5);
+            const BaseBaseFrom       bbf5(bf5);
+
+            NestedBaseBaseFrom          nbbf5(bbf5), nbbf5_b(bbf5);
+            NestedBaseBaseFrom          nbbfn, nbbfn_b;
+            const NestedBaseBaseTo      nbbtn(MoveUtil::move(nbbfn));
+            const NestedBaseBaseTo      nbbt5(MoveUtil::move(nbbf5));
+            const NestedBaseBaseAlloc   nbban(MoveUtil::move(nbbfn_b), aa);
+            const NestedBaseBaseAlloc   nbba5(MoveUtil::move(nbbf5_b), aa);
+
+            ASSERT(!nbbtn.has_value());
+            ASSERT(!nbban.has_value());
+
+            ASSERT(5 == (**nbbt5)->data());
+            ASSERT(5 == (**nbba5)->data());
+
+            ASSERT_IS_MOVED_FROM(***nbbf5);
+            ASSERT_IS_MOVED_FROM(***nbbf5_b);
+            ASSERT_IS_MOVED_INTO(***nbbt5);
+            ASSERT_IS_MOVED_INTO(***nbba5);
+
+            ASSERT(&ta == (**nbba5)->allocator().mechanism());
+        }
+
+        ++unlikelyNumber;
+
+        if (verbose) cout << "Copy assign NBBT from BBF\n";
+        {
+            const BaseBaseFrom     bbfn;
+
+            const From             f5(5);
+            const BaseFrom         bf5(f5);
+            const BaseBaseFrom     bbf5(bf5);
+
+            const From             f7(7);
+            const BaseFrom         bf7(f7);
+            const BaseBaseFrom     bbf7(bf7);
+
+            NestedBaseBaseTo    nbbtn;
+            NestedBaseBaseAlloc nbban(aa);
+
+            NestedBaseBaseTo    nbbt7(bbf7), *p_z;
+            NestedBaseBaseAlloc nbba7(bbf7, aa), *p_za;
+
+            ASSERT(!bbfn.has_value());
+            ASSERT(!nbbtn.has_value());
+            ASSERT(!nbban.has_value());
+
+            // null <- null
+
+            p_z  = &(nbbtn = bbfn);
+            p_za = &(nbban = bbfn);
+
+            ASSERT(&nbbtn == p_z);
+            ASSERT(&nbban == p_za);
+
+            ASSERT(nbbtn.has_value());
+            ASSERT(!nbbtn->has_value());
+
+            ASSERT(nbban.has_value());
+            ASSERT(!nbban->has_value());
+
+            ASSERT(&ta == nbban.get_allocator().mechanism());
+
+            // Make null again
+
+            TC::resetNull(&nbbtn);
+            TC::resetNull(&nbban, aa);
+
+            ASSERT(!bbfn.has_value());
+            ASSERT(!nbbtn.has_value());
+            ASSERT(!nbban.has_value());
+
+            // null <- value
+
+            p_z  = &(nbbtn = bbf5);
+            p_za = &(nbban = bbf5);
+
+            ASSERT(&nbbtn == p_z);
+            ASSERT(&nbban == p_za);
+            ASSERT(5 == (**nbbtn)->data());
+            ASSERT(5 == (**nbban)->data());
+
+            ASSERT_IS_NOT_MOVED_FROM(**bbf5);
+            ASSERT_IS_NOT_MOVED_INTO(***nbbtn);
+            ASSERT_IS_NOT_MOVED_INTO(***nbban);
+
+            ASSERT(&ta == (**nbban)->allocator().mechanism());
+
+            // value <- null
+
+            p_z  = &(nbbtn = bbfn);
+            p_za = &(nbban = bbfn);
+
+            ASSERT(&nbbtn == p_z);
+            ASSERT(&nbban == p_za);
+
+            ASSERT(!bbfn.has_value());
+            ASSERT(nbbtn.has_value());
+            ASSERT(nbban.has_value());
+            ASSERT(!nbbtn->has_value());
+            ASSERT(!nbban->has_value());
+
+            ASSERT(&ta == nbban.get_allocator().mechanism());
+
+            // value <- value
+
+            p_z  = &(nbbt7 = bbf5);
+            p_za = &(nbba7 = bbf5);
+
+            ASSERT(&nbbt7 == p_z);
+            ASSERT(&nbba7 == p_za);
+            ASSERT(5 == (**nbbt7)->data());
+            ASSERT(5 == (**nbba7)->data());
+
+            ASSERT_IS_NOT_MOVED_FROM(**bbf5);
+            ASSERT_IS_NOT_MOVED_INTO(***nbbt7);
+            ASSERT_IS_NOT_MOVED_INTO(***nbba7);
+
+            ASSERT(&ta == (**nbba7)->allocator().mechanism());
+        }
+
+        ++unlikelyNumber;
+
+        if (verbose) cout << "Copy assign NBBT from NBBF\n";
+        {
+            const From               f5(5);
+            const BaseFrom           bf5(f5);
+            const BaseBaseFrom       bbf5(bf5);
+
+            const From               f7(7);
+            const BaseFrom           bf7(f7);
+            const BaseBaseFrom       bbf7(bf7);
+
+            const NestedBaseBaseFrom nbbfn;
+            const NestedBaseBaseFrom nbbf7(bbf7);
+
+            NestedBaseBaseTo         nbbtn;
+            NestedBaseBaseAlloc      nbban(aa);
+            NestedBaseBaseTo         nbbt5(bbf5), *p_z;
+            NestedBaseBaseAlloc      nbba5(bbf5, aa), *p_za;
+
+            ASSERT(!nbbfn.has_value());
+            ASSERT(!nbbtn.has_value());
+            ASSERT(!nbban.has_value());
+
+            // null <- null
+
+            p_z  = &(nbbtn = nbbfn);
+            p_za = &(nbban = nbbfn);
+
+            ASSERT(&nbbtn == p_z);
+            ASSERT(&nbban == p_za);
+
+            ASSERT(!nbbfn.has_value());
+            ASSERT(!nbbtn.has_value());
+            ASSERT(!nbban.has_value());
+
+            ASSERT(&ta == nbban.get_allocator().mechanism());
+
+            // null <- value
+
+            p_z  = &(nbbtn = nbbf7);
+            p_za = &(nbban = nbbf7);
+
+            ASSERT(&nbbtn == p_z);
+            ASSERT(&nbban == p_za);
+
+            ASSERT(nbbf7.has_value());
+            ASSERT(nbbtn.has_value());
+            ASSERT(nbban.has_value());
+
+            ASSERT(7 == (**nbbtn)->data());
+            ASSERT(7 == (**nbban)->data());
+
+            ASSERT_IS_NOT_MOVED_FROM(***nbbf7);
+            ASSERT_IS_NOT_MOVED_INTO(***nbbtn);
+            ASSERT_IS_NOT_MOVED_INTO(***nbban);
+
+            ASSERT(&ta == (**nbban)->allocator().mechanism());
+
+            // value <- null
+
+            TC::resetNull(&nbbtn);
+            TC::resetNull(&nbban, aa);
+
+            ASSERT(!nbbfn.has_value());
+            ASSERT(nbbt5.has_value());
+            ASSERT(nbba5.has_value());
+
+            p_z  = &(nbbt5 = nbbfn);
+            p_za = &(nbba5 = nbbfn);
+
+            ASSERT(&nbbt5 == p_z);
+            ASSERT(&nbba5 == p_za);
+
+            ASSERT(!nbbfn.has_value());
+            ASSERT(!nbbt5.has_value());
+            ASSERT(!nbba5.has_value());
+
+            ASSERT(&ta == nbban.get_allocator().mechanism());
+
+            // value <- value
+
+            TC::resetNull(&nbbt5);
+            TC::resetNull(&nbba5, aa);
+
+            nbbt5 = bbf5;
+            nbba5 = bbf5;
+
+            ASSERT(5 == (**nbbt5)->data());
+            ASSERT(5 == (**nbba5)->data());
+
+            p_z  = &(nbbt5 = nbbf7);
+            p_za = &(nbba5 = nbbf7);
+
+            ASSERT(&nbbt5 == p_z);
+            ASSERT(&nbba5 == p_za);
+            ASSERT(7 == (**nbbt5)->data());
+            ASSERT(7 == (**nbba5)->data());
+
+            ASSERT_IS_NOT_MOVED_FROM(***nbbf7);
+            ASSERT_IS_NOT_MOVED_INTO(***nbbt5);
+            ASSERT_IS_NOT_MOVED_INTO(***nbba5);
+
+            ASSERT(&ta == (**nbba5)->allocator().mechanism());
+        }
+
+        ++unlikelyNumber;
+
+        if (verbose) cout << "Move assign NBBT from BBF\n";
+        {
+            const From             f5(5);
+            const BaseFrom         bf5(f5);
+            const BaseBaseFrom     bbf5(bf5);
+
+            const From             f7(7);
+            const BaseFrom         bf7(f7);
+            BaseBaseFrom           bbf7(bf7), bbf7_b(bf7);
+
+            BaseBaseFrom           bbfn, bbfn_b;
+
+            NestedBaseBaseTo       nbbt5(bbf5), *p_z;
+            NestedBaseBaseTo       nbbtn;
+            NestedBaseBaseAlloc    nbba5(bbf5, aa), *p_za;
+            NestedBaseBaseAlloc    nbban(aa);
+
+            // null <= null
+
+            p_z  = &(nbbtn = MoveUtil::move(bbfn));
+            p_za = &(nbban = MoveUtil::move(bbfn_b));
+
+            ASSERT(&nbbtn == p_z);
+            ASSERT(&nbban == p_za);
+
+            ASSERT(nbbtn.has_value());
+            ASSERT(nbban.has_value());
+            ASSERT(!nbbtn->has_value());
+            ASSERT(!nbban->has_value());
+
+            // null <- value
+
+            TC::resetNull(&nbbtn);
+            TC::resetNull(&nbban, aa);
+
+            p_z  = &(nbbtn = MoveUtil::move(bbf7));
+            p_za = &(nbban = MoveUtil::move(bbf7_b));
+
+            ASSERT(&nbbtn == p_z);
+            ASSERT(&nbban == p_za);
+            ASSERT(7 == (**nbbtn)->data());
+            ASSERT(7 == (**nbban)->data());
+
+            ASSERT(bbf7.has_value());
+            ASSERT(bbf7_b.has_value());
+            ASSERT(nbbtn.has_value());
+            ASSERT(nbban.has_value());
+
+            ASSERT_IS_MOVED_FROM(**bbf7);
+            ASSERT_IS_MOVED_FROM(**bbf7_b);
+            ASSERT_IS_MOVED_INTO(***nbbtn);
+            ASSERT_IS_MOVED_INTO(***nbban);
+
+            TC::resetNull(&nbbtn);
+            TC::resetNull(&nbban, aa);
+
+            TC::resetNull(&bbf7);
+            TC::resetNull(&bbf7_b);
+
+            bbf7   = bf7;
+            bbf7_b = bf7;
+
+            ASSERT_IS_NOT_MOVED_FROM(**bbf7);
+            ASSERT_IS_NOT_MOVED_FROM(**bbf7_b);
+            ASSERT_IS_NOT_MOVED_INTO(**bbf7);
+            ASSERT_IS_NOT_MOVED_INTO(**bbf7_b);
+
+            // value <- null
+
+            p_z  = &(nbbt5 = MoveUtil::move(bbfn));
+            p_za = &(nbba5 = MoveUtil::move(bbfn_b));
+
+            ASSERT(&nbbt5 == p_z);
+            ASSERT(&nbba5 == p_za);
+
+            ASSERT(nbbt5.has_value());
+            ASSERT(nbba5.has_value());
+            ASSERT(!nbbt5->has_value());
+            ASSERT(!nbba5->has_value());
+
+            TC::resetNull(&nbbt5);
+            TC::resetNull(&nbba5, aa);
+
+            nbbt5 = bbf5;
+            nbba5 = bbf5;
+
+            ASSERT_IS_NOT_MOVED_FROM(***nbbt5);
+            ASSERT_IS_NOT_MOVED_FROM(***nbba5);
+            ASSERT_IS_NOT_MOVED_INTO(***nbbt5);
+            ASSERT_IS_NOT_MOVED_INTO(***nbba5);
+
+            // value <- value
+
+            ASSERT(5 == (**nbbt5)->data());
+            ASSERT(5 == (**nbba5)->data());
+            ASSERT(7 == (*bbf7)->data());
+            ASSERT(7 == (*bbf7_b)->data());
+
+            p_z  = &(nbbt5 = MoveUtil::move(bbf7));
+            p_za = &(nbba5 = MoveUtil::move(bbf7_b));
+
+            ASSERT(&nbbt5 == p_z);
+            ASSERT(&nbba5 == p_za);
+            ASSERT(7 == (**nbbt5)->data());
+            ASSERT(7 == (**nbba5)->data());
+
+            ASSERT_IS_MOVED_FROM(**bbf7);
+            ASSERT_IS_MOVED_FROM(**bbf7_b);
+            ASSERT_IS_MOVED_INTO(***nbbt5);
+            ASSERT_IS_MOVED_INTO(***nbba5);
+
+            ASSERT(&ta == (**nbba5)->allocator().mechanism());
+        }
+
+        ++unlikelyNumber;
+
+        if (verbose) cout << "Move assign NBBT from NBBF\n";
+        {
+            const From               f5(5);
+            const BaseFrom           bf5(f5);
+            const BaseBaseFrom       bbf5(bf5);
+
+            const From               f7(7);
+            const BaseFrom           bf7(f7);
+            const BaseBaseFrom       bbf7(bf7);
+
+            NestedBaseBaseFrom       nbbf5(bbf5), nbbf5_b(bbf5);
+            NestedBaseBaseTo         nbbt7(bbf7), *p_z;
+            NestedBaseBaseAlloc      nbba7(bbf7, aa), *p_za;
+
+            p_z  = &(nbbt7 = MoveUtil::move(nbbf5));
+            p_za = &(nbba7 = MoveUtil::move(nbbf5_b));
+
+            ASSERT(&nbbt7 == p_z);
+            ASSERT(&nbba7 == p_za);
+            ASSERT(5 == (**nbbt7)->data());
+            ASSERT(5 == (**nbba7)->data());
+
+            ASSERT_IS_MOVED_FROM(***nbbf5);
+            ASSERT_IS_MOVED_FROM(***nbbf5_b);
+            ASSERT_IS_MOVED_INTO(***nbbt7);
+            ASSERT_IS_MOVED_INTO(***nbba7);
+
+            ASSERT(&ta == (*nbba7)->get_allocator().mechanism());
+        }
+      } break;
       case 30: {
         // --------------------------------------------------------------------
         // TESTING CONVERSION FROM OPTIONAL
+        //
+        // Concerns:
+        //: 1 Test construct and assign of 'NullableValue' from
+        //:   'bsl::optional'.
+        //:   o copy
+        //:
+        //:   o move
+        //:
+        //: 2 Test C-1 for the 'NullableValue' and 'bsl::optional' where 'TYPE'
+        //:   is the same.
+        //:
+        //: 3 Test C-1 for the 'NullableValue' and 'bsl::optional' where 'TYPE'
+        //:   is different.
+        //:
+        //: 4 Test construct and assign of 'NullableValue<bsl::optional>' from
+        //:   'bsl::optional'.
+        //:   o copy
+        //:
+        //:   o move
+        //:
+        //: 5 Test C-4 for the 'NullableValue<bsl::optional>' and
+        //:   'bsl::optional' where 'TYPE' is the same.
+        //:
+        //: 6 Test C-4 for the 'NullableValue<bsl::optional>' and
+        //:   'bsl::optional' where 'TYPE' is different.
+        //
+        // Plan:
+        //: 1 Test construct and assign of 'NullableValue' from
+        //:   'bsl::optional'.
+        //:   o copy
+        //:
+        //:   o move
+        //:
+        //: 2 Repeat P-1 for the 'NullableValue' and 'bsl::optional' where
+        //:   'TYPE' is the same.
+        //:
+        //: 3 Repeat P-1 for the 'NullableValue' and 'bsl::optional' where
+        //:   'TYPE' is different.
+        //:
+        //: 4 Test construct and assign of 'NullableValue<bsl::optional>' from
+        //:   'bsl::optional'.
+        //:   o copy
+        //:
+        //:   o move
+        //:
+        //: 5 Repeat P-4 for the 'NullableValue<bsl::optional>' and
+        //:   'bsl::optional' where 'TYPE' is the same.
+        //:
+        //: 6 Repeat P-4 for the 'NullableValue<bsl::optional>' and
+        //:   'bsl::optional' where 'TYPE' is different.
+        //
+        // Testing:
+        //   CONVERSION FROM BASE CLASS
         // --------------------------------------------------------------------
 
         if (verbose) cout << "TESTING CONVERSION FROM OPTIONAL\n"
                              "================================\n";
 
-        namespace TC = TestCase30;
+        namespace TC = MoveFromAllocTypeSpace;
 
         typedef bsltf::TemplateTestFacility Util;
         typedef bsltf::MovableTestType      MTT;
         typedef bsltf::MoveState            MState;
         typedef bslmf::MovableRefUtil       MoveUtil;
+
+        typedef bdlb::NullableValue<bsl::optional<TC::To> >        NestedTo;
+        typedef bdlb::NullableValue<bsl::optional<TC::AllocType> > NestedAlloc;
+
+        unsigned& unlikelyNumber = TC::unlikelyNumber;
+
+        unlikelyNumber = 987654321;
 
         if (verbose) cout << "Copy construction from opt of same type.\n";
         {
@@ -6618,6 +8104,8 @@ int main(int argc, char *argv[])
             ASSERT(!mNY.has_value());
         }
 
+        ++unlikelyNumber;
+
         if (verbose) cout << "Copy construction from opt of other type.\n";
         {
             bsl::optional<char> mC(' ');    const bsl::optional<char>& C = mC;
@@ -6630,6 +8118,8 @@ int main(int argc, char *argv[])
 
             ASSERT(!mNY.has_value());
         }
+
+        ++unlikelyNumber;
 
         if (verbose) cout << "Move construction from opt of same type.\n";
         {
@@ -6649,6 +8139,8 @@ int main(int argc, char *argv[])
             const bdlb::NullableValue<MTT> NMY(MoveUtil::move(oY));
             ASSERT(!NMY.has_value());
         }
+
+        ++unlikelyNumber;
 
         if (verbose) cout << "Move construction from opt of diff type.\n";
         {
@@ -6670,6 +8162,8 @@ int main(int argc, char *argv[])
             ASSERT(!mY.has_value());
         }
 
+        ++unlikelyNumber;
+
         if (verbose) cout << "Move construction from opt of diff type.\n";
         {
             TC::From mF(7);
@@ -6687,6 +8181,88 @@ int main(int argc, char *argv[])
             ASSERT(!nY.has_value());
             ASSERT(!oY.has_value());
         }
+
+        ++unlikelyNumber;
+
+        if (verbose) cout << "Copy c'tor nested from opt of same type.\n";
+        {
+            bsl::optional<int> mX(5);    const bsl::optional<int>& X = mX;
+            bdlb::NullableValue<bsl::optional<int> > mNV(X);
+
+            ASSERT(5 == *X);
+            ASSERT(5 == **mNV);
+
+            bsl::optional<int> mY;    const bsl::optional<int>& Y = mY;
+            ASSERT(!Y.has_value());
+            bdlb::NullableValue<bsl::optional<int> > mNY(Y);
+
+            ASSERT(mNY.has_value());
+            ASSERT(!(*mNY).has_value());
+        }
+
+        ++unlikelyNumber;
+
+        if (verbose) cout << "Copy c'tor nested from opt of other type.\n";
+        {
+            bsl::optional<char> mC(' ');    const bsl::optional<char>& C = mC;
+            bdlb::NullableValue<bsl::optional<int> > mNC(C);
+
+            ASSERT(' ' == mNC.value());
+
+            bsl::optional<char> mY;    const bsl::optional<char>& Y = mY;
+            bdlb::NullableValue<bsl::optional<int> > mNY(Y);
+
+            ASSERT(mNY.has_value());
+            ASSERT(!(*mNY).has_value());
+        }
+
+        ++unlikelyNumber;
+
+        if (verbose) cout << "Move c'tor nested from opt of same type.\n";
+        {
+            typedef bdlb::NullableValue<bsl::optional<MTT> > NestedMTT;
+
+            MTT mMTT(5);
+            bsl::optional<MTT> OMTT(mMTT);
+
+            NestedMTT NM(MoveUtil::move(OMTT));
+
+            ASSERT(!!NM);
+            ASSERT(5 == Util::getIdentifier((*NM)->data()));
+            MState::Enum movedFrom = Util::getMovedFromState(*OMTT);
+            ASSERTV(movedFrom, MState::e_MOVED == movedFrom);
+            MState::Enum movedInto = Util::getMovedIntoState(**NM);
+            ASSERTV(movedInto, MState::e_MOVED == movedInto);
+
+            bsl::optional<MTT> oY;
+            NestedMTT NMY(MoveUtil::move(oY));
+            ASSERT(NMY.has_value());
+            ASSERT(!NMY->has_value());
+        }
+
+        ++unlikelyNumber;
+
+        if (verbose) cout << "Move c'tor nested from opt of diff type.\n";
+        {
+            TC::From mF(7);
+            bsl::optional<TC::From> oF(mF);
+
+            NestedTo nvt(MoveUtil::move(oF));
+            ASSERT(7 == (*nvt)->data());
+            MState::Enum movedFrom = oF->d_from;
+            ASSERTV(movedFrom, MState::e_MOVED == movedFrom);
+            MState::Enum movedInto = (*nvt)->d_into;
+            ASSERTV(movedInto, MState::e_MOVED == movedInto);
+
+            bsl::optional<TC::From> mY;
+            ASSERT(!mY.has_value());
+
+            NestedTo ny(MoveUtil::move(mY));
+            ASSERT(!(*ny).has_value());
+            ASSERT(!mY.has_value());
+        }
+
+        ++unlikelyNumber;
 
         if (verbose) cout << "Copy c'tor w/ alloc from opt of same type.\n";
         {
@@ -6720,6 +8296,8 @@ int main(int argc, char *argv[])
             ASSERT(!mNY.has_value());
         }
 
+        ++unlikelyNumber;
+
         if (verbose) cout << "Move c'tor w/ alloc from opt of same type.\n";
         {
             bslma::TestAllocator ta;
@@ -6750,6 +8328,75 @@ int main(int argc, char *argv[])
             ASSERT(!nvY.has_value());
         }
 
+        ++unlikelyNumber;
+
+        if (verbose) cout << "Copy c'tor w/ from opt to NestedAlloc.\n";
+        {
+            bslma::TestAllocator ta;
+            bsl::allocator<char> aa(&ta);
+
+            bslma::TestAllocator tb;
+            bsl::allocator<char> ab(&tb);
+
+            TC::AllocType mX(7, aa);    const TC::AllocType& X = mX;
+            bsl::optional<TC::AllocType> oX(bsl::allocator_arg, aa, X);
+            const bsl::optional<TC::AllocType>& OX = oX;
+
+            ASSERT(aa == OX->allocator());
+
+            NestedAlloc nvt(OX, ab);
+
+            ASSERT(7 == (*nvt)->data());
+            MState::Enum movedFrom = OX->d_from;
+            ASSERTV(movedFrom, MState::e_NOT_MOVED == movedFrom);
+            MState::Enum movedInto = (*nvt)->d_into;
+            ASSERTV(movedInto, MState::e_NOT_MOVED == movedInto);
+            ASSERT(ab == (*nvt)->allocator());
+
+            bsl::optional<TC::AllocType> mY;
+            const bsl::optional<TC::AllocType>& Y = mY;
+            ASSERT(!Y.has_value());
+            NestedAlloc mNY(Y, ab);
+
+            ASSERT(!Y.has_value());
+            ASSERT(!(*mNY).has_value());
+        }
+
+        ++unlikelyNumber;
+
+        if (verbose) cout << "Move c'tor w/ alloc from opt to NestedAlloc.\n";
+        {
+            bslma::TestAllocator ta;
+            bsl::allocator<char> aa(&ta);
+
+            bslma::TestAllocator tb;
+            bsl::allocator<char> ab(&tb);
+
+            TC::AllocType mX(7, aa);    const TC::AllocType& X = mX;
+            bsl::optional<TC::AllocType> oX(bsl::allocator_arg, aa, X);
+
+            ASSERT(aa == oX->allocator());
+
+            NestedAlloc nvt(MoveUtil::move(oX), ab);
+
+            ASSERT(7 == (*nvt)->data());
+            MState::Enum movedFrom = oX->d_from;
+            ASSERTV(movedFrom, MState::e_MOVED == movedFrom);
+            MState::Enum movedInto = (*nvt)->d_into;
+            ASSERTV(movedInto, MState::e_MOVED == movedInto);
+            ASSERT(ab == (*nvt)->allocator());
+
+            bsl::optional<TC::AllocType> mY;
+            ASSERT(!mY.has_value());
+            NestedAlloc nvY(MoveUtil::move(mY), ab);
+
+            ASSERT(!mY.has_value());
+            ASSERT(nvY.has_value());
+            ASSERT(!nvY->has_value());
+        }
+
+        ++unlikelyNumber;
+
         if (verbose) cout << "Copy c'tor w/ alloc from opt of diff type.\n";
         {
             bslma::TestAllocator tb;
@@ -6776,6 +8423,8 @@ int main(int argc, char *argv[])
             ASSERT(!nvY.has_value());
         }
 
+        ++unlikelyNumber;
+
         if (verbose) cout << "Move c'tor w/ alloc from opt of diff type.\n";
         {
             bslma::TestAllocator tb;
@@ -6800,6 +8449,65 @@ int main(int argc, char *argv[])
             ASSERT(!Y.has_value());
             ASSERT(!nvY.has_value());
         }
+
+        ++unlikelyNumber;
+
+        if (verbose) cout << "Copy c'tor opt to NestedAlloc, diff type.\n";
+        {
+            bslma::TestAllocator tb;
+            bsl::allocator<char> ab(&tb);
+
+            TC::From mX(7);    const TC::From& X = mX;
+            bsl::optional<TC::From> oX(X);
+            const bsl::optional<TC::From>& OX = oX;
+
+            NestedAlloc nvt(OX, ab);
+
+            ASSERT(7 == (*nvt)->data());
+            MState::Enum movedFrom = OX->d_from;
+            ASSERTV(movedFrom, MState::e_NOT_MOVED == movedFrom);
+            MState::Enum movedInto = (*nvt)->d_into;
+            ASSERTV(movedInto, MState::e_NOT_MOVED == movedInto);
+            ASSERT(ab == (*nvt)->allocator());
+
+            bsl::optional<TC::From> oY;
+            const bsl::optional<TC::From>& Y = oY;
+            NestedAlloc nvY(Y, ab);
+
+            ASSERT(!Y.has_value());
+            ASSERT(nvY.has_value());
+            ASSERT(!nvY->has_value());
+        }
+
+        ++unlikelyNumber;
+
+        if (verbose) cout << "Move c'tor opt to NestedAlloc, diff type.\n";
+        {
+            bslma::TestAllocator tb;
+            bsl::allocator<char> ab(&tb);
+
+            TC::From mX(7);    const TC::From& X = mX;
+            bsl::optional<TC::From> oX(X);
+
+            NestedAlloc nvt(MoveUtil::move(oX), ab);
+
+            ASSERT(7 == (*nvt)->data());
+            MState::Enum movedFrom = oX->d_from;
+            ASSERTV(movedFrom, MState::e_MOVED == movedFrom);
+            MState::Enum movedInto = (*nvt)->d_into;
+            ASSERTV(movedInto, MState::e_MOVED == movedInto);
+            ASSERT(ab == (*nvt)->allocator());
+
+            bsl::optional<TC::From> oY;
+            const bsl::optional<TC::From>& Y = oY;
+            NestedAlloc nvY(MoveUtil::move(oY), ab);
+
+            ASSERT(!Y.has_value());
+            ASSERT(nvY.has_value());
+            ASSERT(!nvY->has_value());
+        }
+
+        ++unlikelyNumber;
 
         if (verbose) cout << "Copy assign Base to Obj.\n";
         {
@@ -6856,6 +8564,8 @@ int main(int argc, char *argv[])
 
             ASSERT(!Y.has_value());
         }
+
+        ++unlikelyNumber;
 
         if (verbose) cout << "Move assign Base to Obj.\n";
         {
@@ -6919,6 +8629,8 @@ int main(int argc, char *argv[])
 
             ASSERT(!Y.has_value());
         }
+
+        ++unlikelyNumber;
 
         if (verbose) cout << "Copy assign Base<From> to Obj<To>.\n";
         {
@@ -6984,6 +8696,8 @@ int main(int argc, char *argv[])
             ASSERT(!N.has_value());
         }
 
+        ++unlikelyNumber;
+
         if (verbose) cout << "Move assign Base<From> to Obj<To>.\n";
         {
             bsl::optional<TC::From> mX(7);
@@ -7045,6 +8759,281 @@ int main(int argc, char *argv[])
 
             ASSERT(&mY == z_p);
             ASSERT(!Y.has_value());
+            ASSERT(!N.has_value());
+        }
+
+        ++unlikelyNumber;
+
+        if (verbose) cout << "Copy assign Base to NestedTo.\n";
+        {
+            bsl::optional<TC::To> mX;   const bsl::optional<TC::To>& X = mX;
+
+            NestedTo mY;    const NestedTo& Y = mY;
+
+            NestedTo *z_p = 0;
+
+            // null <- null
+
+            z_p = &(mY = X);
+
+            ASSERT(&mY == z_p);
+            ASSERT(!Y->has_value());
+
+            // null <- value
+
+            z_p = 0;
+            mX = TC::To(7);
+            ASSERT(7 == X->data());
+
+            z_p = &(mY = X);
+
+            ASSERT(&mY == z_p);
+            ASSERT((*Y)->data() == 7);
+            MState::Enum movedFrom = X->d_from;
+            ASSERTV(movedFrom, MState::e_NOT_MOVED == movedFrom);
+            MState::Enum movedInto = (*Y)->d_into;
+            ASSERTV(movedInto, MState::e_NOT_MOVED == movedInto);
+
+            // value <- value
+
+            z_p = 0;
+            mX->setData(11);
+            ASSERT(11 == X->data());
+            movedFrom = X->d_from;
+            ASSERTV(movedFrom, MState::e_NOT_MOVED == movedFrom);
+
+            z_p = &(mY = X);
+
+            ASSERT(&mY == z_p);
+            ASSERT((*Y)->data() == 11);
+            movedFrom = X->d_from;
+            ASSERTV(movedFrom, MState::e_NOT_MOVED == movedFrom);
+            movedInto = (*Y)->d_into;
+            ASSERTV(movedInto, MState::e_NOT_MOVED == movedInto);
+
+            // value <- null
+
+            z_p = 0;
+            bsl::optional<TC::To> mN;   const bsl::optional<TC::To>& N = mN;
+
+            z_p = &(mY = N);
+
+            ASSERT(!(*Y).has_value());
+        }
+
+        ++unlikelyNumber;
+
+        if (verbose) cout << "Move assign Base to NestedTo.\n";
+        {
+            bsl::optional<TC::To> mX;   const bsl::optional<TC::To>& X = mX;
+
+            NestedTo mY;    const NestedTo& Y = mY;
+
+            NestedTo *z_p = 0;
+
+            // null <- null
+
+            z_p = &(mY = MoveUtil::move(mX));
+
+            ASSERT(&mY == z_p);
+            ASSERT(Y.has_value());
+            ASSERT(!Y->has_value());
+            ASSERT(!X.has_value());
+
+            mX = bsl::optional<TC::To>();
+            ASSERT(!X.has_value());
+
+            // null <- value
+
+            z_p = 0;
+            mX = TC::To(7);
+            ASSERT(7 == X->data());
+
+            z_p = &(mY = MoveUtil::move(mX));
+
+            ASSERT(&mY == z_p);
+            ASSERT((*Y)->data() == 7);
+            MState::Enum movedFrom = X->d_from;
+            ASSERTV(movedFrom, MState::e_MOVED == movedFrom);
+            MState::Enum movedInto = (*Y)->d_into;
+            ASSERTV(movedInto, MState::e_MOVED == movedInto);
+
+            // value <- value
+
+            z_p = 0;
+            mX->setData(11);
+            ASSERT(11 == X->data());
+            movedFrom = X->d_from;
+            ASSERTV(movedFrom, MState::e_NOT_MOVED == movedFrom);
+            (*mY)->setData(7);
+            ASSERT(7 == (*Y)->data());
+            movedInto = (*Y)->d_into;
+            ASSERTV(movedInto, MState::e_NOT_MOVED == movedInto);
+
+            z_p = &(mY = MoveUtil::move(mX));
+
+            ASSERT(&mY == z_p);
+            ASSERT((*Y)->data() == 11);
+            movedFrom = X->d_from;
+            ASSERTV(movedFrom, MState::e_MOVED == movedFrom);
+            movedInto = (*Y)->d_into;
+            ASSERTV(movedInto, MState::e_MOVED == movedInto);
+
+            // value <- null
+
+            z_p = 0;
+            (*mY)->setData(5);
+            bsl::optional<TC::To> mN;
+            movedInto = (*Y)->d_into;
+            ASSERTV(movedInto, MState::e_NOT_MOVED == movedInto);
+
+            z_p = &(mY = MoveUtil::move(mN));
+
+            ASSERT(!(*Y).has_value());
+        }
+
+        ++unlikelyNumber;
+
+        if (verbose) cout << "Copy assign Base<From> to NestedTo.\n";
+        {
+            bsl::optional<TC::From> mX(7);
+            const bsl::optional<TC::From>& X = mX;
+
+            NestedTo mY;    const NestedTo& Y = mY;
+            ASSERT(!Y.has_value());
+
+            NestedTo *z_p = 0;
+
+            // null = value
+
+            z_p = &(mY = X);
+
+            ASSERT(Y.has_value());
+            ASSERT(&mY == z_p);
+            ASSERT(Y.has_value());
+            ASSERT(Y->has_value());
+            ASSERT((*Y)->data() == 7);
+            MState::Enum movedFrom = X->d_from;
+            ASSERTV(movedFrom, MState::e_NOT_MOVED == movedFrom);
+            MState::Enum movedInto = (*Y)->d_into;
+            ASSERTV(movedInto, MState::e_NOT_MOVED == movedInto);
+
+            mX->setData(11);
+            z_p = 0;
+            movedFrom = X->d_from;
+            ASSERTV(movedFrom, MState::e_NOT_MOVED == movedFrom);
+
+            // value = value
+
+            z_p = &(mY = X);
+
+            ASSERT(&mY == z_p);
+            ASSERT(Y.has_value());
+            ASSERT(Y->has_value());
+            ASSERT((*Y)->data() == 11);
+            movedFrom = X->d_from;
+            ASSERTV(movedFrom, MState::e_NOT_MOVED == movedFrom);
+            movedInto = (*Y)->d_into;
+            ASSERTV(movedInto, MState::e_NOT_MOVED == movedInto);
+
+            z_p = 0;
+
+            // value = null
+
+            bsl::optional<TC::From> mN;
+            const bsl::optional<TC::From>& N = mN;
+            ASSERT(Y.has_value());
+            ASSERT(!N.has_value());
+
+            z_p = &(mY = N);
+
+            ASSERT(&mY == z_p);
+            ASSERT(Y.has_value());
+            ASSERT(!Y->has_value());
+            ASSERT(!N.has_value());
+
+            mN = bsl::optional<TC::From>();
+            ASSERT(!N.has_value());
+            z_p = 0;
+
+            // null = null
+
+            z_p = &(mY = N);
+
+            ASSERT(&mY == z_p);
+            ASSERT(Y.has_value());
+            ASSERT(!Y->has_value());
+            ASSERT(!N.has_value());
+        }
+
+        ++unlikelyNumber;
+
+        if (verbose) cout << "Move assign Base<From> to Obj<To>.\n";
+        {
+            bsl::optional<TC::From> mX(7);
+            const bsl::optional<TC::From>& X = mX;
+
+            NestedTo mY;    const NestedTo& Y = mY;
+            ASSERT(!Y.has_value());
+
+            NestedTo *z_p = 0;
+
+            // null = value
+
+            z_p = &(mY = MoveUtil::move(mX));
+
+            ASSERT(Y.has_value());
+            ASSERT((*Y).has_value());
+            ASSERT(&mY == z_p);
+            ASSERT((*Y)->data() == 7);
+            MState::Enum movedFrom = X->d_from;
+            ASSERTV(movedFrom, MState::e_MOVED == movedFrom);
+            MState::Enum movedInto = (*Y)->d_into;
+            ASSERTV(movedInto, MState::e_MOVED == movedInto);
+
+            mX->setData(11);
+            z_p = 0;
+            movedFrom = X->d_from;
+            ASSERTV(movedFrom, MState::e_NOT_MOVED == movedFrom);
+
+            // value = value
+
+            z_p = &(mY = MoveUtil::move(mX));
+
+            ASSERT(&mY == z_p);
+            ASSERT(Y.has_value());
+            ASSERT((*Y).has_value());
+            ASSERT((*Y)->data() == 11);
+            movedFrom = X->d_from;
+            ASSERTV(movedFrom, MState::e_MOVED == movedFrom);
+            movedInto = (*Y)->d_into;
+            ASSERTV(movedInto, MState::e_MOVED == movedInto);
+
+            z_p = 0;
+
+            // value = null
+
+            bsl::optional<TC::From> mN;
+            const bsl::optional<TC::From>& N = mN;
+
+            z_p = &(mY = MoveUtil::move(mN));
+
+            ASSERT(&mY == z_p);
+            ASSERT(Y.has_value());
+            ASSERT(!Y->has_value());
+            ASSERT(!N.has_value());
+
+            mN = bsl::optional<TC::From>();
+            ASSERT(!N.has_value());
+            z_p = 0;
+
+            // null = null
+
+            z_p = &(mY = MoveUtil::move(mN));
+
+            ASSERT(&mY == z_p);
+            ASSERT(Y.has_value());
+            ASSERT(!Y->has_value());
             ASSERT(!N.has_value());
         }
       } break;
@@ -8231,12 +10220,14 @@ int main(int argc, char *argv[])
                              "\n========================================"
                           << endl;
 
-        typedef TestCase30::From      From;
-        typedef TestCase30::To        To;
+        typedef MoveFromAllocTypeSpace::From      From;
+        typedef MoveFromAllocTypeSpace::To        To;
 
         bslma::TestAllocator da("default", veryVeryVeryVerbose);
 
         bslma::DefaultAllocatorGuard dag(&da);
+
+        unsigned& unlikelyNumber = MoveFromAllocTypeSpace::unlikelyNumber;
 
         if (verbose) cout << "\nUsing 'int' and 'double'." << endl;
         {
@@ -8251,6 +10242,8 @@ int main(int argc, char *argv[])
 
             ValueType1  mVALUE2  = 789;  const ValueType1& VALUE2 = mVALUE2;
             ValueType1& mRVALUE2 = mVALUE2;
+
+            unlikelyNumber = 987654321;
 
             if (verbose) cout << "\tcopy assignment" << endl;
             {
@@ -8286,6 +10279,8 @@ int main(int argc, char *argv[])
                 ASSERT(    mR2 == &obj2);
             }
 
+            ++unlikelyNumber;
+
             if (verbose) cout << "\tvalue assignment" << endl;
             {
                 ObjType2 obj2;  const ObjType2& OBJ2 = obj2;
@@ -8315,6 +10310,8 @@ int main(int argc, char *argv[])
                 obj2 = mRVALUE2;
                 ASSERT(VALUE2 == OBJ2.value());
             }
+
+            ++unlikelyNumber;
 
             if (verbose) cout << "\tmake value" << endl;
             {
@@ -8348,11 +10345,13 @@ int main(int argc, char *argv[])
             const int val1a = 123;
             const int val1b = 456;
 
-            const ValueType1 VALUE1a = val1a;
-            const ValueType1 VALUE1b = val1b;
+            ++unlikelyNumber;
 
             if (verbose) cout << "\tcopy assignment" << endl;
             {
+                const ValueType1 VALUE1a = val1a;
+                const ValueType1 VALUE1b = val1b;
+
                 const ObjType1 OBJ1a(VALUE1a);
                       ObjType1 obj1b(VALUE1b);
                 const ObjType1 OBJ1n;
@@ -8389,8 +10388,13 @@ int main(int argc, char *argv[])
                 ASSERT(    mR2 == &obj2);
             }
 
+            ++unlikelyNumber;
+
             if (verbose) cout << "\tmove assignment" << endl;
             {
+                const ValueType1 VALUE1a = val1a;
+                const ValueType1 VALUE1b = val1b;
+
                 const ObjType1  OBJ1a(VALUE1a);
                       ObjType1  obj1b(VALUE1b);
                 const ObjType1& OBJ1b = obj1b;
@@ -8446,14 +10450,11 @@ int main(int argc, char *argv[])
             typedef bdlb::NullableValue<ValueType1> ObjType1;
             typedef bdlb::NullableValue<ValueType2> ObjType2;
 
-            const ValueType1 VALUE1a = true;
-            const ValueType1 VALUE1b = false;
-
-            ValueType1  mVALUE2  = true;  const ValueType1& VALUE2 = mVALUE2;
-            ValueType1& mRVALUE2 = mVALUE2;
-
             if (verbose) cout << "\tcopy assignment" << endl;
             {
+                const ValueType1 VALUE1a = true;
+                const ValueType1 VALUE1b = false;
+
                 const ObjType1 OBJ1a(VALUE1a);
                       ObjType1 obj1b(VALUE1b);
                 const ObjType1 OBJ1n;
@@ -8488,6 +10489,13 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\tvalue assignment" << endl;
             {
+                const ValueType1 VALUE1a = true;
+                const ValueType1 VALUE1b = false;
+
+                ValueType1  mVALUE2  = true;
+                const ValueType1& VALUE2 = mVALUE2;
+                ValueType1& mRVALUE2 = mVALUE2;
+
                 ObjType2 obj2;  const ObjType2& OBJ2 = obj2;
                 ASSERT(OBJ2.isNull());
 
@@ -8518,6 +10526,9 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\tmake value" << endl;
             {
+                const ValueType1 VALUE1a = true;
+                const ValueType1 VALUE1b = false;
+
                 ObjType2 obj2;  const ObjType2& OBJ2 = obj2;
                 ASSERT(OBJ2.isNull());
 
