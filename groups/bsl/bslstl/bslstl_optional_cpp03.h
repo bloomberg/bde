@@ -22,6 +22,7 @@
 // '#include'd in the original header.
 //
 // Generated on Wed Jan 26 16:00:53 2022
+// Command line: sim_cpp11_features.pl bslstl_optional.h
 
 #ifdef COMPILING_BSLSTL_OPTIONAL_H
 
@@ -4121,6 +4122,7 @@ class optional<TYPE, false> {
         // not require them.
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 };
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY else
 
 }  // close namespace bsl
 
@@ -4134,8 +4136,6 @@ struct UsesBslmaAllocator<bsl::optional<TYPE, false> > : bsl::false_type {};
 }  // close enterprise namespace
 
 namespace bsl {
-
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
 // CLASS TEMPLATE DEDUCTION GUIDES
