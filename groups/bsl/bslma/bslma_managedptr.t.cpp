@@ -18,12 +18,12 @@
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
 
-#include <cstring>      // 'strlen', 'strncpy'
-#include <stddef.h>     // 'size_t'
+#include <utility>      // 'std::move'
+#include <cstring>      // 'std::strlen', 'std::strncpy'
 
+#include <stddef.h>     // 'size_t'
 #include <stdio.h>      // 'printf'
 #include <stdlib.h>     // 'atoi'
-#include <string.h>
 
 // These bde_verify warning suppressions should be eliminated in due course.
 // BDE_VERIFY pragma: -BW01  // bdewrap recommendation
@@ -10724,13 +10724,13 @@ int main(int argc, char *argv[])
             numDeletes = 0;
             {
                 SS *p = new (da) SS(&numDeletes);
-                strcpy(p->d_buf, "Woof meow");
+                std::strcpy(p->d_buf, "Woof meow");
 
                 SSObj s(p);
 
                 // testing * and -> references
-                ASSERT(0 == strcmp(&(*s).d_buf[5], "meow"));
-                ASSERT(0 == strcmp(&s->d_buf[5],   "meow"));
+                ASSERT(0 == std::strcmp(&(*s).d_buf[5], "meow"));
+                ASSERT(0 == std::strcmp(&s->d_buf[5],   "meow"));
             }
             ASSERT(da.numDeallocations() == numDeallocations + 1);
         }
@@ -12852,13 +12852,13 @@ int main(int argc, char *argv[])
         int numDeletes = 0;
         {
             SS *p = new SS(&numDeletes);
-            strcpy(p->d_buf, "Woof meow");
+            std::strcpy(p->d_buf, "Woof meow");
 
             SSObj s(p);
             ChObj c(s, &p->d_buf[5]);
 
             ASSERT(0 == s.get());
-            ASSERT(0 == strcmp(c.get(), "meow"));
+            ASSERT(0 == std::strcmp(c.get(), "meow"));
             ASSERT(0 == numDeletes);
         }
         ASSERTV(numDeletes, 1 == numDeletes);
@@ -12869,13 +12869,13 @@ int main(int argc, char *argv[])
         numDeletes = 0;
         {
             SS *p = new SS(&numDeletes);
-            strcpy(p->d_buf, "Woof meow");
+            std::strcpy(p->d_buf, "Woof meow");
 
             SSObj s(p);
             ChObj c(bslmf::MovableRefUtil::move(s), &p->d_buf[5]);
 
             ASSERT(0 == s.get());
-            ASSERT(0 == strcmp(c.get(), "meow"));
+            ASSERT(0 == std::strcmp(c.get(), "meow"));
             ASSERT(0 == numDeletes);
         }
         ASSERTV(numDeletes, 1 == numDeletes);
@@ -12887,9 +12887,9 @@ int main(int argc, char *argv[])
         numDeletes = 0;
         {
             SS *p = new SS(&numDeletes);
-            strcpy(p->d_buf, "Woof meow");
+            std::strcpy(p->d_buf, "Woof meow");
             char *pc = static_cast<char *>(da.allocate(5));
-            strcpy(pc, "Werf");
+            std::strcpy(pc, "Werf");
 
             SSObj s(p);
             ChObj c(pc, &da);
@@ -12899,7 +12899,7 @@ int main(int argc, char *argv[])
             ASSERT(da.numDeallocations() == numDeallocations + 1);
 
             ASSERT(0 == s.get());
-            ASSERT(0 == strcmp(c.get(), "meow"));
+            ASSERT(0 == std::strcmp(c.get(), "meow"));
         }
         ASSERT(da.numDeallocations() == numDeallocations + 1);
 

@@ -74,7 +74,7 @@
 #if !defined(BSLSTL_PAIR_DO_NOT_DEFAULT_THE_DEFAULT_CONSTRUCTOR)              \
   && defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
 // The presence of a default constructor of a pair is determined by the
-// default-constructibility of its consituent parts on sufficiently complete
+// default-constructibility of its constituent parts on sufficiently complete
 // C++11 or later compilers (in C++11 or later mode).  We need the presence of
 // the 'is_default_constructible' type trait to be able to test the
 // conditional presence of the 'pair' default constructor.  We should have
@@ -9597,6 +9597,7 @@ int main(int argc, char *argv[])
         ASSERT(! (bslma::UsesBslmaAllocator<              Pair13>::value));
         ASSERT(  (bslmf::IsBitwiseEqualityComparable<     Pair13>::value));
         ASSERT(  (bslmf::IsPair<                          Pair13>::value));
+#undef U_DECLARE_CONST_VARIANTS
 
 #if defined(BSLSTL_PAIR_TEST_CONDITIONAL_DEFAULT_CTOR)
 
@@ -9644,7 +9645,7 @@ int main(int argc, char *argv[])
 #undef ASSERT_DEFAULT_CONSTRUCTIBLE
 
         if (veryVerbose)
-            printf("All default constuctible pair combinations.\n");
+            printf("All default constructible pair combinations.\n");
 
 #define ASSERT_PAIR_DEFAULT_CONSTRUCTIBLE(TYPE1, TYPE2)                       \
         ASSERT((true == native_std::is_default_constructible<                 \
@@ -9673,7 +9674,7 @@ int main(int argc, char *argv[])
 #undef ASSERT_PAIR_DEFAULT_CONSTRUCTIBLE
 
         if (veryVerbose)
-            printf("All not default constuctible pair combinations.\n");
+            printf("All not default constructible pair combinations.\n");
 
 #define ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(TYPE1, TYPE2)                   \
         ASSERT((false == native_std::is_default_constructible<                \

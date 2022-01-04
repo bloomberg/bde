@@ -552,7 +552,7 @@ class basic_string_view {
         // the beginning of this view).  If 'numChars' is not specified, 'npos'
         // is used (i.e., the entire suffix from 'position' to the end of the
         // view is returned).  The behavior is undefined unless
-        // 'position < length()'.
+        // 'position <= length()'.
 
     BSLS_KEYWORD_CONSTEXPR
     int compare(basic_string_view other) const BSLS_KEYWORD_NOEXCEPT;

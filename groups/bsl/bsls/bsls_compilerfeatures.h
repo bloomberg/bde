@@ -821,7 +821,7 @@ BSLS_IDENT("$Id: $")
 #   define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
 #endif
 
-#if  __has_cpp_attribute(nodiscard)
+#if __has_cpp_attribute(nodiscard)
 #   define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD
 #endif
 

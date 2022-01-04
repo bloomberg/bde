@@ -2673,7 +2673,7 @@ void TestDriver<TYPE, TRAITS>::testCase17()
         catch (const std::out_of_range&) {
             caught = true;
         }
-        ASSERT(caught && "XEmpty.substr(1) failed");
+        ASSERT(caught && "XEmpty.substr(1) did not throw as expected");
 
         Obj         mXZero(STRING, 0);
         const Obj&  XZero = mXZero;
@@ -2687,7 +2687,7 @@ void TestDriver<TYPE, TRAITS>::testCase17()
         catch (const std::out_of_range&) {
             caught = true;
         }
-        ASSERT(caught && "XZero.substr(1) failed");
+        ASSERT(caught && "XZero.substr(1) did not throw as expected");
 
         Obj        mX(STRING, 1);
         const Obj& X = mX;
@@ -2704,7 +2704,7 @@ void TestDriver<TYPE, TRAITS>::testCase17()
         catch (const std::out_of_range&) {
             caught = true;
         }
-        ASSERT(caught && "X.substr(2) failed");
+        ASSERT(caught && "X.substr(2) did not throw as expected");
     }
 #endif
 }

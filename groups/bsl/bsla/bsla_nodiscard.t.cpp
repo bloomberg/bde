@@ -105,12 +105,11 @@ void aSsErT(bool condition, const char *message, int line)
 #define STRINGIFY(a) STRINGIFY2(a)
 
 // ============================================================================
-//                                USAGE EXAMPLE
+//                              USAGE EXAMPLES
 // ----------------------------------------------------------------------------
 
-//
-///Usage
-///-----
+///Usage Examples
+///--------------
 // This section illustrates intended use of this component.
 //
 ///Example 1: Square Root Function
@@ -137,16 +136,182 @@ void aSsErT(bool condition, const char *message, int line)
     }
 //..
 
+///Example 2: No-discard Type
+/// - - - - - - - - - - - - -
+// Suppose we create a guard type that is capable of closing delimiters that we
+// have opened while operating on an output stream.  The example uses C I/O and
+// string literals for brevity.
+//
+// First, we define a guard type 'DelimiterGuard0':
+//..
+    class DelimGuard0 {
+      private:
+        // DATA
+        const char *d_closingText_p;  // Held, not owned
+
+      public:
+        // CREATORS
+        explicit DelimGuard0(const char *closingText);
+            // Create a delimiter guard that upon its destruction prints the
+            // specified 'closingText' to 'stdout'.  The behavior is undefined
+            // unless 'closingText' outlives the created object.
+
+        ~DelimGuard0();
+            // Print the closing text to the output file, then destroy this
+            // object.
+    };
+//..
+// Then we can write code that uses the guard properly:
+//..
+    void guard0ProperUse()
+    {
+        printf("\n```ruby\n");  DelimGuard0 closeCode("```\n");
+
+        // Suppose long and complicated code with early returns writing some
+        // source code between the delimiters.  Instead we write something
+        // trivial for brevity:
+        printf("puts 'Hello World'\n");
+    }
+//..
+// Next, we demonstrate that the guard works as intended (see in 'main'):
+//..
+//  guard0ProperUse();  // prints: [\n]```ruby[\n]puts 'Hello World'[\n]```[\n]
+//..
+// Then, we write code missing the variable name for the guard.  By not giving
+// a variable name we turn what should be an automatic (local) variable
+// definition into a so-called expression statement: '<expression>;'.
+// Expression statements execute an expression for its side effects, then
+// destroy all temporaries created in the expression "at the semicolon".  All
+// the 'printf' function calls below are expression statements, they just don't
+// have any temporaries to destroy.
+//..
+    void discardedGuard0()
+    {
+        printf("(");  DelimGuard0(")\n");
+        printf("in-parens");
+    }
+//..
+// Next, we demonstrate the bug cause by the guard variable name missing:
+//..
+//  discardedGuard0();  // prints: ()[\n]in-parens
+//..
+// Then, we add the no-discard annotation to our guard type directly:
+//..
+    class BSLA_NODISCARD_CPP17 DelimGuardCpp17 {
+      private:
+        // DATA
+        const char *d_closingText_p;  // Held, not owned
+
+      public:
+        // CREATORS
+        explicit
+        DelimGuardCpp17(const char *closingText);
+            // Create a delimiter guard that upon its destruction prints the
+            // specified 'closingText' to 'stdout'.  The behavior is undefined
+            // unless 'closingText' outlives the created object.
+
+        ~DelimGuardCpp17();
+            // Print the closing text to the output file, then destroy this
+            // object.
+    };
+//..
+// The rest is omitted for brevity.
+//
+// Next, we can write the buggy code again using the annotated type:
+//..
+#if U_TRIGGER_WARNINGS
+    void discardedGuardCpp17()
+    {
+        printf("[");  DelimGuardCpp17("]");
+        printf("in-brackets");
+    }
+#endif
+//..
+// Finally, we can demonstrate using a C++17 compiler that we get a warning for
+// the buggy code:
+//..
+//  .../bsla_nodiscard.t.cpp:LLL:CC: warning: ignoring return value of 'double
+//  newtonsSqrt(double)', declared with attribute warn_unused_result
+//  [-Wunused-result]
+//       DelimGuardCpp17("]");
+//
+// ...\bsla_nodiscard.t.cpp(227,36): warning C4834: discarding return value of
+//                                          function with 'nodiscard' attribute
+//..
+
+                           // -----------------
+                           // class DelimGuard0
+                           // -----------------
+
+// CREATORS
+DelimGuard0::DelimGuard0(const char *closingText)
+: d_closingText_p(closingText)
+{
+    BSLS_ASSERT(closingText);
+}
+
+DelimGuard0::~DelimGuard0()
+{
+    fputs(d_closingText_p, stdout);
+}
+
+                        // ---------------------
+                        // class DelimGuardCpp17
+                        // ---------------------
+
+// CREATORS
+DelimGuardCpp17::DelimGuardCpp17(const char *closingText)
+: d_closingText_p(closingText)
+{
+    BSLS_ASSERT(closingText);
+}
+
+DelimGuardCpp17::~DelimGuardCpp17()
+{
+    fputs(d_closingText_p, stdout);
+}
+
 // ============================================================================
 //                  DECLARATION/DEFINITION OF ANNOTATED FUNCTIONS
 // ----------------------------------------------------------------------------
 
 BSLA_NODISCARD
 int test_NODISCARD();
+
 int test_NODISCARD()
     // Return 1.
 {
     return 1;
+}
+
+BSLA_NODISCARD_CPP17
+int test_NODISCARD_CPP17();
+
+int test_NODISCARD_CPP17()
+    // Return 1.
+{
+    return 1;
+}
+
+struct BSLA_NODISCARD_CPP17 Type_NODISCARD_CPP17;
+struct Type_NODISCARD_CPP17 {
+    // Any function call that creates or returns-by-copy an object of this type
+    // should behave as if that function had been marked 'BSLA_NODISCARD' when
+    // compiled on a C++17 compiler.
+
+    explicit Type_NODISCARD_CPP17(const char *) {}
+        // Just to avoid the most vexing parse without weird syntax.
+
+    Type_NODISCARD_CPP17() {}
+        // Must make a default constructor by hand due to having another one.
+};
+
+Type_NODISCARD_CPP17 test_Type_NODISCARD_CPP17();
+Type_NODISCARD_CPP17 test_Type_NODISCARD_CPP17()
+    // Return a 'Type_NODISCARD_CPP17' object.  This function is deliberately
+    // not marked with either of the 'BSLA_NODISCARD*' annotations.
+{
+    return Type_NODISCARD_CPP17();
 }
 
 // ============================================================================
@@ -167,6 +332,16 @@ int use_without_diagnostic_message_NODISCARD()
     return test_NODISCARD();
 }
 
+void use_without_diagnostic_message_NODISCARD_CPP17()
+    // Call 'testNODISCARD' and use the result.
+{
+    (void)test_NODISCARD_CPP17();
+
+    Type_NODISCARD_CPP17 varname("most vexing parse is ''fun''");
+
+    (void)test_Type_NODISCARD_CPP17();
+}
+
 // ============================================================================
 //                  USAGE WITH EXPECTED COMPILER WARNINGS
 // ----------------------------------------------------------------------------
@@ -174,16 +349,24 @@ int use_without_diagnostic_message_NODISCARD()
 #if U_TRIGGER_WARNINGS
 
 void use_with_warning_message_NODISCARD()
-    // Call 'testNODISCARD' and don't use the result.
+    // Call 'test_NODISCARD' and don't use the result.
 {
     test_NODISCARD();
 }
 
-#endif
+void use_with_warning_message_NODISCARD_CPP17()
+    // Call 'test_NODISCARD_CPP17', 'test_Type_NODISCARD_CPP17' and don't use
+    // the result.  Create a 'Type_NODISCARD_CPP17' object without a name and
+    // not use it.
+{
+    test_NODISCARD_CPP17();
 
-// ============================================================================
-//                  USAGE WITH EXPECTED COMPILER ERRORS
-// ----------------------------------------------------------------------------
+    Type_NODISCARD_CPP17();
+
+    test_Type_NODISCARD_CPP17();
+}
+
+#endif
 
 // ============================================================================
 //                              HELPER FUNCTIONS
@@ -199,9 +382,16 @@ static void printFlags()
 
     printf("\nprintFlags: bsls_annotation Macros\n");
 
-    printf("\nBSLA_NODISCARD: ");
+    printf("\n\tBSLA_NODISCARD: ");
 #ifdef BSLA_NODISCARD
     printf("%s\n", STRINGIFY(BSLA_NODISCARD) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\n\tBSLA_NODISCARD_CPP17: ");
+#ifdef BSLA_NODISCARD_CPP17
+    printf("%s\n", STRINGIFY(BSLA_NODISCARD_CPP17));
 #else
     printf("UNDEFINED\n");
 #endif
@@ -209,12 +399,13 @@ static void printFlags()
     printf("\n\n------------------------------\n");
     printf(    "printFlags: *_IS_ACTIVE Macros\n\n");
 
-    P(BSLA_NODISCARD_IS_ACTIVE);
+    T_ P(BSLA_NODISCARD_IS_ACTIVE);
+    T_ P(BSLA_NODISCARD_CPP17_IS_ACTIVE);
 
     printf("\n\n---------------------------------------------\n");
     printf(    "printFlags: bsls_annotation Referenced Macros\n");
 
-    printf("\nBSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD: ");
+    printf("\n\tBSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD: ");
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD
     printf("%s\n",
                 STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD) );
@@ -222,14 +413,14 @@ static void printFlags()
     printf("UNDEFINED\n");
 #endif
 
-    printf("\nBSLS_PLATFORM_CMP_CLANG: ");
+    printf("\n\tBSLS_PLATFORM_CMP_CLANG: ");
 #ifdef BSLS_PLATFORM_CMP_CLANG
     printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_CLANG) );
 #else
     printf("UNDEFINED\n");
 #endif
 
-    printf("\nBSLS_PLATFORM_CMP_GNU: ");
+    printf("\n\tBSLS_PLATFORM_CMP_GNU: ");
 #ifdef BSLS_PLATFORM_CMP_GNU
     printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_GNU) );
 #else
@@ -277,8 +468,6 @@ int main(int argc, char **argv)
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
 
-#if U_TRIGGER_WARNINGS
-
 // Then, in 'main', we call it normally a few times and observe that it works
 // with no compiler warnings generated:
 //..
@@ -291,12 +480,15 @@ if (verbose) {
 // Next, we call it and do nothing with the result, which will generate a
 // warning:
 //..
+
+#if U_TRIGGER_WARNINGS
     newtonsSqrt(36.0);
+#endif
 //..
 // Now, we call it and explicitly void the result, which, with gcc, still won't
 // suppress the "unused result" warning:
 //..
-    (void) newtonsSqrt(25.0);
+    (void)newtonsSqrt(25.0);
 //..
 // Finally, we observe the compiler warnings from the last 2 calls:
 //..
@@ -312,7 +504,94 @@ if (verbose) {
 //                               ^
 //..
 
-#endif
+///Example 2: No-discard Type
+/// - - - - - - - - - - - - -
+// Suppose we create a guard type that is capable of closing delimiters that we
+// have opened while operating on an output stream.  The example uses C I/O and
+// string literals for brevity.
+//
+// First, we define a guard type 'DelimiterGuard0':
+//..
+//  class DelimGuard0 {
+//    private:
+//      // DATA
+//      const char *d_closingText_p;  // Held, not owned
+//
+//    public:
+//      // CREATORS
+//      explicit DelimGuard0(const char *closingText);
+//          // Create a delimiter guard that upon its destruct  The behavior is
+//          // undefined unless both 'closingText' outlive the created object.
+//
+//      ~DelimGuard0();
+//          // Print the closing text to the output file, then destroy this
+//          // object.
+//  };
+//..
+// Then we can write code that uses the guard properly:
+//..
+//  void guard0ProperUse()
+//  {
+//      printf("\n```ruby\n");  DelimGuard0 closeCode("```\n");
+//
+//      // Suppose long and complicated code with early returns writing some
+//      // source code between the delimiters.  Instead we write something
+//      // trivial for brevity:
+//      printf("puts 'Hello World'\n");
+//  }
+//..
+// Next, we demonstrate that the guard works as intended:
+//..
+    if (verbose) {
+        guard0ProperUse();  // --> [\n]```ruby[\n]puts 'Hello World'[\n]```[\n]
+    }
+//..
+// Then, we write code missing the variable name for the guard.  By not giving
+// a variable name we turn what should be an automatic (local) variable
+// definition into a so-called expression statement: '<expression>;'.
+// Expression statements execute an expression for its side effects, then
+// destroy all temporaries created in the expression "at the semicolon".  All
+// the 'printf' function calls below are expression statements, they just don't
+// have any temporaries to destroy.
+//..
+//  void discardedGuard0()
+//  {
+//      printf("(");  DelimGuard0(")\n");
+//      printf("in-parens");
+//  }
+//..
+// Next, we demonstrate the bug when the guard variable name is missing:
+//..
+    if (verbose) {
+        discardedGuard0();  // prints: ()in-parens
+        printf("\n");  // add the missing new-line to the end
+    }
+//..
+// Then, we add the no-discard annotation to our guard type directly:
+//..
+//  class BSLA_NODISCARD_CPP17 DelimGuardCpp17 {
+//..
+// The rest is omitted for brevity.
+//
+// Next, we can write the buggy code again using the annotated type:
+//..
+//  void discardedGuardCpp17()
+//  {
+//      printf("[");  DelimGuardCpp17("]");
+//      printf("in-brackets");
+//  }
+//..
+// Finally, we can demonstrate using a C++17 compiler that we get a warning for
+// the buggy code:
+//..
+// .../bsla_nodiscard.t.cpp:LLL:CC: warning: ignoring temporary created by a
+//             constructor declared with 'nodiscard' attribute [-Wunused-value]
+//     printf("[");  DelimGuardCpp17("]");
+//                   ^~~~~~~~~~~~~~~~~~~~
+//
+// ...\bsla_nodiscard.t.cpp(227,36): warning C4834: discarding return value of
+//                                          function with 'nodiscard' attribute
+//..
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -346,7 +625,7 @@ if (verbose) {
                    "\nManually run build-time tests using a conforming "
                    "compiler.");
 
-            if (!veryVeryVerbose) printFlags();
+            if (verbose && !veryVeryVerbose) printFlags();
 
             ASSERT(true); // remove unused warning for 'aSsErT'
         }
