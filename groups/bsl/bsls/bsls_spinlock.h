@@ -292,7 +292,7 @@ extern "C" {
 #include <time.h>
 #endif
 
-#if !(defined(BSLS_PLATFORM_OS_SOLARIS)) && !(defined(BSLS_PLATFORM_OS_AIX))
+#if defined(BSLS_PLATFORM_CPU_X86) || defined(BSLS_PLATFORM_CPU_X86_64)
 #include <immintrin.h>
 #include <emmintrin.h>
 #endif
@@ -451,7 +451,7 @@ void SpinLock::doBackoff(int *count) {
 
 inline
 void SpinLock::pause() {
-#if !(defined(BSLS_PLATFORM_OS_SOLARIS)) && !(defined(BSLS_PLATFORM_OS_AIX))
+#if defined(BSLS_PLATFORM_CPU_X86) || defined(BSLS_PLATFORM_CPU_X86_64)
     _mm_pause();
 #endif
 }

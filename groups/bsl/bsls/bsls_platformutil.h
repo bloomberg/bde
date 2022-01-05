@@ -211,6 +211,13 @@ struct PlatformUtil {
         // defined in 'bsls_platform' instead.
 #endif
 
+#if defined(BSLS_PLATFORM_CPU_ARM)
+    #define BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN \
+                                                BSLS_PLATFORM_IS_LITTLE_ENDIAN
+        // DEPRECATED: Use preprocessor macro 'BSLS_PLATFORM_IS_LITTLE_ENDIAN'
+        // defined in 'bsls_platform' instead.
+#endif
+
 #if !defined(BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN)
    #define BSLS_PLATFORMUTIL_IS_BIG_ENDIAN BSLS_PLATFORM_IS_BIG_ENDIAN
        // DEPRECATED: Use preprocessor macro 'BSLS_PLATFORM_IS_BIG_ENDIAN'

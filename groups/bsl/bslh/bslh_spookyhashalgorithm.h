@@ -380,7 +380,7 @@ SpookyHashAlgorithm::SpookyHashAlgorithm()
 inline
 SpookyHashAlgorithm::SpookyHashAlgorithm(const char *seed)
 : d_state(
-#if !defined(BSLS_PLATFORM_CPU_X86_64) && !defined(BSLS_PLATFORM_CPU_X86)
+#if !defined(BSLS_PLATFORM_IS_LITTLE_ENDIAN)
           static_cast<Uint64>(seed[0])  << 56 |
           static_cast<Uint64>(seed[1])  << 48 |
           static_cast<Uint64>(seed[2])  << 40 |
