@@ -306,20 +306,7 @@ BSLMF_ASSERT(sizeof SUFFICIENTLY_LONG_STRING > sizeof(bsl::string));
 
 bsl::ostream& operator<<(bsl::ostream& stream, bsltf::MoveState::Enum value)
 {
-    switch (value) {
-      case bsltf::MoveState::e_NOT_MOVED: {
-        stream << "e_NOT_MOVED";
-      } break;
-      case bsltf::MoveState::e_MOVED: {
-        stream << "e_MOVED";
-      } break;
-      case bsltf::MoveState::e_UNKNOWN: {
-        stream << "e_UNKNOWN";
-      } break;
-      default: {
-        stream << "<invalid>";
-      }
-    }
+    stream << bsltf::MoveState::toAscii(value);
 
     return stream;
 }
@@ -6177,10 +6164,6 @@ template <class TYPE>
 void resetNull(TYPE *value)
 {
     value->~TYPE();
-    for (char *p = reinterpret_cast<char *>(value), *end = p + sizeof(TYPE);
-                                                                p < end; ++p) {
-        *p = 0;
-    }
     new (value) TYPE();
 }
 
@@ -6188,20 +6171,7 @@ template <class TYPE>
 void resetNull(TYPE *value, const bsl::allocator<char>& alloc)
 {
     value->~TYPE();
-    for (char *p = reinterpret_cast<char *>(value), *end = p + sizeof(TYPE);
-                                                                p < end; ++p) {
-        *p = 0;
-    }
     new (value) TYPE(alloc);
-}
-
-unsigned unlikelyNumber;
-
-void initUnlikelyNumber(unsigned *variable)
-{
-    BSLS_ASSERT(unlikelyNumber != *variable);
-
-    *variable = unlikelyNumber;
 }
 
 
@@ -6213,7 +6183,6 @@ struct From {
     // DATA
     int d_ii;
     MS::Enum d_from, d_into;
-    unsigned d_unlikelyVariable;
 
     // CREATORS
     From(int ii);                                                   // IMPLICIT
@@ -6238,23 +6207,17 @@ From::From(int ii)
 : d_ii(ii)
 , d_from(MS::e_NOT_MOVED)
 , d_into(MS::e_NOT_MOVED)
-{
-    initUnlikelyNumber(&d_unlikelyVariable);
-}
+{}
 
 From::From(const From& original)
 : d_ii(original.d_ii)
 , d_from(MS::e_NOT_MOVED)
 , d_into(MS::e_NOT_MOVED)
-{
-    initUnlikelyNumber(&d_unlikelyVariable);
-}
+{}
 
 // MANIPULATORS
 From& From::operator=(const From& rhs)
 {
-    BSLS_ASSERT_OPT(unlikelyNumber == d_unlikelyVariable);
-
     d_ii   = rhs.d_ii;
     d_from = MS::e_NOT_MOVED;
     d_into = MS::e_NOT_MOVED;
@@ -6264,8 +6227,6 @@ From& From::operator=(const From& rhs)
 
 void From::setData(int ii)
 {
-    BSLS_ASSERT_OPT(unlikelyNumber == d_unlikelyVariable);
-
     d_ii   = ii;
     d_from = MS::e_NOT_MOVED;
     d_into = MS::e_NOT_MOVED;
@@ -6274,8 +6235,6 @@ void From::setData(int ii)
 // ACCESSORS
 int From::data() const
 {
-    BSLS_ASSERT_OPT(unlikelyNumber == d_unlikelyVariable);
-
     return d_ii;
 }
 
@@ -6287,7 +6246,6 @@ struct To {
     // DATA
     int d_ii;
     MS::Enum d_from, d_into;
-    unsigned d_unlikelyVariable;
 
     // CREATORS
     To(int ii);                                                     // IMPLICIT
@@ -6323,25 +6281,19 @@ To::To(int ii)
 : d_ii(ii)
 , d_from(MS::e_NOT_MOVED)
 , d_into(MS::e_NOT_MOVED)
-{
-    initUnlikelyNumber(&d_unlikelyVariable);
-}
+{}
 
 To::To(const From& from)
 : d_ii(from.data())
 , d_from(MS::e_NOT_MOVED)
 , d_into(MS::e_NOT_MOVED)
-{
-    initUnlikelyNumber(&d_unlikelyVariable);
-}
+{}
 
 To::To(bslmf::MovableRef<From> from)
 : d_ii(bslmf::MovableRefUtil::access(from).data())
 , d_from(MS::e_NOT_MOVED)
 , d_into(MS::e_MOVED)
 {
-    initUnlikelyNumber(&d_unlikelyVariable);
-
     From& local = from;
 
     local.d_from = MS::e_MOVED;
@@ -6352,17 +6304,13 @@ To::To(const To& original)
 : d_ii(original.data())
 , d_from(MS::e_NOT_MOVED)
 , d_into(MS::e_NOT_MOVED)
-{
-    initUnlikelyNumber(&d_unlikelyVariable);
-}
+{}
 
 To::To(bslmf::MovableRef<To> original)
 : d_ii(bslmf::MovableRefUtil::access(original).data())
 , d_from(MS::e_NOT_MOVED)
 , d_into(MS::e_MOVED)
 {
-    initUnlikelyNumber(&d_unlikelyVariable);
-
     To& local = original;
 
     local.d_from = MS::e_MOVED;
@@ -6372,8 +6320,6 @@ To::To(bslmf::MovableRef<To> original)
 // MANIPULATORS
 To& To::operator=(const To& rhs)
 {
-    BSLS_ASSERT_OPT(unlikelyNumber == d_unlikelyVariable);
-
     d_ii = rhs.d_ii;
 
     d_into = MS::e_NOT_MOVED;
@@ -6383,8 +6329,6 @@ To& To::operator=(const To& rhs)
 
 To& To::operator=(bslmf::MovableRef<To> rhs)
 {
-    BSLS_ASSERT_OPT(unlikelyNumber == d_unlikelyVariable);
-
     To& local = rhs;
 
     d_ii = local.d_ii;
@@ -6398,8 +6342,6 @@ To& To::operator=(bslmf::MovableRef<To> rhs)
 
 To& To::operator=(const From& rhs)
 {
-    BSLS_ASSERT_OPT(unlikelyNumber == d_unlikelyVariable);
-
     d_ii = rhs.d_ii;
 
     d_into = MS::e_NOT_MOVED;
@@ -6409,8 +6351,6 @@ To& To::operator=(const From& rhs)
 
 To& To::operator=(bslmf::MovableRef<From> rhs)
 {
-    BSLS_ASSERT_OPT(unlikelyNumber == d_unlikelyVariable);
-
     From& local = rhs;
 
     d_ii = local.d_ii;
@@ -6424,8 +6364,6 @@ To& To::operator=(bslmf::MovableRef<From> rhs)
 
 void To::setData(int ii)
 {
-    BSLS_ASSERT_OPT(unlikelyNumber == d_unlikelyVariable);
-
     d_ii   = ii;
     d_from = MS::e_NOT_MOVED;
     d_into = MS::e_NOT_MOVED;
@@ -6434,8 +6372,6 @@ void To::setData(int ii)
 // ACCESSORS
 int To::data() const
 {
-    BSLS_ASSERT_OPT(unlikelyNumber == d_unlikelyVariable);
-
     return d_ii;
 }
 
@@ -6448,7 +6384,6 @@ struct AllocType {
     int d_ii;
     MS::Enum d_from, d_into;
     bsl::allocator<char> d_alloc;
-    unsigned d_unlikelyVariable;
 
     BSLMF_NESTED_TRAIT_DECLARATION(AllocType,
                                    bslma::UsesBslmaAllocator);
@@ -6490,9 +6425,7 @@ AllocType::AllocType(const From& from,
 , d_from(MS::e_NOT_MOVED)
 , d_into(MS::e_NOT_MOVED)
 , d_alloc(alloc)
-{
-    initUnlikelyNumber(&d_unlikelyVariable);
-}
+{}
 
 AllocType::AllocType(bslmf::MovableRef<From> from,
                      bsl::allocator<char> alloc)
@@ -6501,8 +6434,6 @@ AllocType::AllocType(bslmf::MovableRef<From> from,
 , d_into(MS::e_MOVED)
 , d_alloc(alloc)
 {
-    initUnlikelyNumber(&d_unlikelyVariable);
-
     From& local = from;
 
     local.d_from = MS::e_MOVED;
@@ -6515,9 +6446,8 @@ AllocType::AllocType(const AllocType& original,
 , d_from(MS::e_NOT_MOVED)
 , d_into(MS::e_NOT_MOVED)
 , d_alloc(alloc)
-{
-    initUnlikelyNumber(&d_unlikelyVariable);
-}
+{}
+
 
 AllocType::AllocType(bslmf::MovableRef<AllocType> original,
                      bsl::allocator<char> alloc)
@@ -6526,8 +6456,6 @@ AllocType::AllocType(bslmf::MovableRef<AllocType> original,
 , d_into(MS::e_MOVED)
 , d_alloc(alloc)
 {
-    initUnlikelyNumber(&d_unlikelyVariable);
-
     AllocType& local = original;
 
     local.d_from = MS::e_MOVED;
@@ -6537,8 +6465,6 @@ AllocType::AllocType(bslmf::MovableRef<AllocType> original,
 // MANIPULATORS
 AllocType& AllocType::operator=(const AllocType& rhs)
 {
-    BSLS_ASSERT_OPT(unlikelyNumber == d_unlikelyVariable);
-
     d_ii = rhs.d_ii;
 
     d_into = MS::e_NOT_MOVED;
@@ -6548,8 +6474,6 @@ AllocType& AllocType::operator=(const AllocType& rhs)
 
 AllocType& AllocType::operator=(bslmf::MovableRef<AllocType> rhs)
 {
-    BSLS_ASSERT_OPT(unlikelyNumber == d_unlikelyVariable);
-
     AllocType& local = rhs;
 
     d_ii = local.d_ii;
@@ -6563,8 +6487,6 @@ AllocType& AllocType::operator=(bslmf::MovableRef<AllocType> rhs)
 
 AllocType& AllocType::operator=(const From& rhs)
 {
-    BSLS_ASSERT_OPT(unlikelyNumber == d_unlikelyVariable);
-
     d_ii = rhs.d_ii;
 
     d_into = MS::e_NOT_MOVED;
@@ -6574,8 +6496,6 @@ AllocType& AllocType::operator=(const From& rhs)
 
 AllocType& AllocType::operator=(bslmf::MovableRef<From> rhs)
 {
-    BSLS_ASSERT_OPT(unlikelyNumber == d_unlikelyVariable);
-
     From& local = rhs;
 
     d_ii = local.d_ii;
@@ -6590,15 +6510,11 @@ AllocType& AllocType::operator=(bslmf::MovableRef<From> rhs)
 // ACCESSORS
 int AllocType::data() const
 {
-    BSLS_ASSERT_OPT(unlikelyNumber == d_unlikelyVariable);
-
     return d_ii;
 }
 
 bsl::allocator<char> AllocType::allocator() const
 {
-    BSLS_ASSERT_OPT(unlikelyNumber == d_unlikelyVariable);
-
     return d_alloc;
 }
 
@@ -6778,18 +6694,6 @@ int main(int argc, char *argv[])
         //: 3 That the type under test can copy construct or assign when the
         //:   'TYPE' of the 'from' is 'bslma::Allocator *' and the 'TYPE' of
         //:   the 'to' is 'bsl::allocator'.
-        //:
-        //: 4 Note that move copies or assigns from a 'TYPE' of
-        //:   'bslma::Allocator *' to a 'TYPE' of 'bsl::allocator' are not
-        //:   tested because they don't compile on C++03.  This is because
-        //:   'bsl::allocator' has no move c'tor or assign declared taking
-        //:   'bslma::Allocator *', so the move would require two conversions
-        //:   -- one of 'MoveUtil::MovableRef<bslma::Allocator *>' to a simple
-        //:   reference, and the second from 'bslma::Allocator' to
-        //:   'bsl::allocator'.  Coverting moves into 'NullableValue'
-        //:   deliberately call the moves of the contained type, so we can't
-        //:   fix this in 'NullableValue' and extending 'bsl::allocator' would
-        //:   be WAY beyond the scope of this effort.
         //
         // Plan:
         //: 1 Test, going from 'NullableValue' to 'NullableValue', for both
@@ -6825,28 +6729,28 @@ int main(int argc, char *argv[])
         typedef bslma::Allocator                     *AllocPtr;
         typedef bslma::TestAllocator                  TestAlloc;
 
-        typedef bsl::optional<Alloc>                  BaseAlloc;
-        typedef bsl::optional<AllocPtr>               BaseAllocPtr;
+        typedef bsl::optional<Alloc>                  OptAlloc;
+        typedef bsl::optional<AllocPtr>               OptAllocPtr;
 
-        typedef bsl::optional<BaseAlloc>              BaseBaseAlloc;
-        typedef bsl::optional<BaseAllocPtr>           BaseBaseAllocPtr;
+        typedef bsl::optional<OptAlloc>               OptOptAlloc;
+        typedef bsl::optional<OptAllocPtr>            OptOptAllocPtr;
 
         typedef bdlb::NullableValue<Alloc>            NVAlloc;
         typedef bdlb::NullableValue<AllocPtr>         NVAllocPtr;
 
-        typedef bdlb::NullableValue<BaseAlloc>        NestedBaseAlloc;
-        typedef bdlb::NullableValue<BaseAllocPtr>     NestedBaseAllocPtr;
+        typedef bdlb::NullableValue<OptAlloc>         NVOptAlloc;
+        typedef bdlb::NullableValue<OptAllocPtr>      NVOptAllocPtr;
 
-        typedef bdlb::NullableValue<BaseBaseAlloc>    NestedBaseBaseAlloc;
-        typedef bdlb::NullableValue<BaseBaseAllocPtr> NestedBaseBaseAllocPtr;
+        typedef bdlb::NullableValue<OptOptAlloc>      NVOptOptAlloc;
+        typedef bdlb::NullableValue<OptOptAllocPtr>   NVOptOptAllocPtr;
 
-        ASSERT((bsl::is_convertible<BaseAlloc, BaseAlloc>::value));
-        ASSERT((bsl::is_convertible<const BaseAlloc, NestedBaseAlloc>::value));
-        ASSERT((bsl::is_convertible<Alloc, BaseAlloc>::value));
+        ASSERT((bsl::is_convertible<OptAlloc, OptAlloc>::value));
+        ASSERT((bsl::is_convertible<const OptAlloc, NVOptAlloc>::value));
+        ASSERT((bsl::is_convertible<Alloc, OptAlloc>::value));
         ASSERT(! bslma::UsesBslmaAllocator<Alloc>::value);
         ASSERT(! bslmf::UsesAllocatorArgT<Alloc>::value);
-        ASSERT(! bslma::UsesBslmaAllocator<BaseAlloc>::value);
-        ASSERT(! bslmf::UsesAllocatorArgT<BaseAlloc>::value);
+        ASSERT(! bslma::UsesBslmaAllocator<OptAlloc>::value);
+        ASSERT(! bslmf::UsesAllocatorArgT<OptAlloc>::value);
         ASSERT(! bslma::UsesBslmaAllocator<bsl::optional<int> >::value);
         ASSERT(! bslmf::UsesAllocatorArgT<bsl::optional<int> >::value);
 
@@ -6939,6 +6843,7 @@ int main(int argc, char *argv[])
 
             ASSERT(*nvAAP == &uaa);
 
+            zp_p = 0;
             zp_p = &(nvAAP = MoveUtil::move(raap));
 
             ASSERT(&NVAAP == zp_p);
@@ -6946,48 +6851,48 @@ int main(int argc, char *argv[])
             ASSERT(*nvAAP == &taa);
         }
 
-        if (verbose) cout << "Copy construct NV from Base\n";
+        if (verbose) cout << "Copy construct NV from Opt\n";
         {
             TestAlloc taa;
             Alloc     aa(&taa);
 
-            BaseAlloc     baa(aa);    const BaseAlloc& BAA = baa;
+            OptAlloc     baa(aa);    const OptAlloc& BAA = baa;
             const NVAlloc nvAA(BAA);
 
             ASSERT(BAA ->mechanism() == &taa);
             ASSERT(nvAA->mechanism() == &taa);
 
-            BaseAllocPtr     baap(&taa);    const BaseAllocPtr& BAAP = baap;
+            OptAllocPtr     baap(&taa);    const OptAllocPtr& BAAP = baap;
             const NVAllocPtr nvAAP(BAAP);
 
             ASSERT(*BAAP  == &taa);
             ASSERT(*nvAAP == &taa);
         }
 
-        if (verbose) cout << "Move construct NV from Base\n";
+        if (verbose) cout << "Move construct NV from Opt\n";
         {
             TestAlloc taa;
             Alloc     aa(&taa);
 
-            BaseAlloc     baa(aa);    const BaseAlloc& BAA = baa;
+            OptAlloc     baa(aa);    const OptAlloc& BAA = baa;
             const NVAlloc nvAA(MoveUtil::move(baa));
 
             ASSERT(BAA ->mechanism() == &taa);
             ASSERT(nvAA->mechanism() == &taa);
 
-            BaseAllocPtr     baap(&taa);    const BaseAllocPtr& BAAP = baap;
+            OptAllocPtr     baap(&taa);    const OptAllocPtr& BAAP = baap;
             const NVAllocPtr nvAAP(MoveUtil::move(baap));
 
             ASSERT(*BAAP  == &taa);
             ASSERT(*nvAAP == &taa);
         }
 
-        if (verbose) cout << "Copy assign NV from Base\n";
+        if (verbose) cout << "Copy assign NV from Opt\n";
         {
             TestAlloc taa, uaa;
             Alloc     aa(&taa), ua(&uaa);
 
-            BaseAlloc     baa(aa);     const BaseAlloc& BAA = baa;
+            OptAlloc      baa(aa);     const OptAlloc& BAA = baa;
             NVAlloc       nvAA(ua);    const NVAlloc&   NVAA = nvAA;
             NVAlloc      *z_p = 0;
 
@@ -6999,7 +6904,7 @@ int main(int argc, char *argv[])
             ASSERT(BAA ->mechanism() == &taa);
             ASSERT(nvAA->mechanism() == &taa);
 
-            BaseAllocPtr     baap(&taa);    const BaseAllocPtr& BAAP = baap;
+            OptAllocPtr      baap(&taa);    const OptAllocPtr& BAAP = baap;
             NVAllocPtr       nvAAP(&uaa);   const NVAllocPtr&   NVAAP = nvAAP;
             NVAllocPtr      *zp_p = 0;
 
@@ -7012,12 +6917,12 @@ int main(int argc, char *argv[])
             ASSERT(*nvAAP == &taa);
         }
 
-        if (verbose) cout << "Move assign NV from Base\n";
+        if (verbose) cout << "Move assign NV from Opt\n";
         {
             TestAlloc taa, uaa;
             Alloc     aa(&taa), ua(&uaa);
 
-            BaseAlloc     baa(aa);     const BaseAlloc& BAA = baa;
+            OptAlloc      baa(aa);     const OptAlloc& BAA = baa;
             NVAlloc       nvAA(ua);    const NVAlloc&   NVAA = nvAA;
             NVAlloc      *z_p = 0;
 
@@ -7029,7 +6934,7 @@ int main(int argc, char *argv[])
             ASSERT(BAA ->mechanism() == &taa);
             ASSERT(nvAA->mechanism() == &taa);
 
-            BaseAllocPtr     baap(&taa);    const BaseAllocPtr& BAAP = baap;
+            OptAllocPtr      baap(&taa);    const OptAllocPtr& BAAP = baap;
             NVAllocPtr       nvAAP(&uaa);   const NVAllocPtr&   NVAAP = nvAAP;
             NVAllocPtr      *zp_p = 0;
 
@@ -7054,6 +6959,21 @@ int main(int argc, char *argv[])
             ASSERT(RAA ->mechanism() == &taa);
         }
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+        if (verbose) cout << "Move construct NV from NV diff\n";
+        {
+            TestAlloc taa;
+            Alloc     aa(&taa);
+
+            NVAllocPtr       raap(&taa);    const NVAllocPtr& RAAP = raap;
+            NVAlloc          raa(MoveUtil::move(raap));
+            const NVAlloc&   RAA = raa;
+
+            ASSERT(*RAAP             == &taa);
+            ASSERT(RAA ->mechanism() == &taa);
+        }
+#endif
+
         if (verbose) cout << "Copy assign NV from NV diff\n";
         {
             TestAlloc taa, uaa;
@@ -7072,24 +6992,59 @@ int main(int argc, char *argv[])
             ASSERT(NVAA->mechanism() == &taa);
         }
 
-        if (verbose) cout << "Copy construct NV from Base diff\n";
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+        if (verbose) cout << "Move assign NV from NV diff\n";
+        {
+            TestAlloc taa, uaa;
+            Alloc     aa(&taa), ua(&uaa);
+
+            NVAllocPtr       raap(&taa);    const NVAllocPtr& RAAP = raap;
+            NVAlloc          nvAA(ua);      const NVAlloc& NVAA    = nvAA;
+            NVAlloc         *z_p = 0;
+
+            ASSERT(nvAA->mechanism() == &uaa);
+
+            z_p = &(nvAA = MoveUtil::move(raap));
+
+            ASSERT(&NVAA == z_p);
+            ASSERT(*RAAP  == &taa);
+            ASSERT(NVAA->mechanism() == &taa);
+        }
+#endif
+
+        if (verbose) cout << "Copy construct NV from Opt diff\n";
         {
             TestAlloc taa;
             Alloc     aa(&taa);
 
-            BaseAllocPtr     baap(&taa);    const BaseAllocPtr& BAAP = baap;
-            BaseAlloc        baa(BAAP);     const BaseAlloc&    BAA  = baa;
+            OptAllocPtr     baap(&taa);    const OptAllocPtr& BAAP = baap;
+            OptAlloc        baa(BAAP);     const OptAlloc&    BAA  = baa;
 
             ASSERT(*BAAP             == &taa);
             ASSERT(BAA ->mechanism() == &taa);
         }
 
-        if (verbose) cout << "Copy assign NV from Base diff\n";
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+        if (verbose) cout << "Move construct NV from Opt diff\n";
+        {
+            TestAlloc taa;
+            Alloc     aa(&taa);
+
+            OptAllocPtr     baap(&taa);    const OptAllocPtr& BAAP = baap;
+            OptAlloc        baa(MoveUtil::move(baap));
+            const OptAlloc& BAA = baa;
+
+            ASSERT(*BAAP             == &taa);
+            ASSERT(BAA ->mechanism() == &taa);
+        }
+#endif
+
+        if (verbose) cout << "Copy assign NV from Opt diff\n";
         {
             TestAlloc taa, uaa;
             Alloc     aa(&taa), ua(&uaa);
 
-            BaseAllocPtr     baap(&taa);    const BaseAllocPtr& BAAP = baap;
+            OptAllocPtr      baap(&taa);    const OptAllocPtr& BAAP = baap;
             NVAlloc          nvAA(ua);      const NVAlloc&      NVAA = nvAA;
             NVAlloc         *z_p = 0;
 
@@ -7101,116 +7056,136 @@ int main(int argc, char *argv[])
             ASSERT(*BAAP             == &taa);
             ASSERT(nvAA->mechanism() == &taa);
         }
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+        if (verbose) cout << "Move assign NV from Opt diff\n";
+        {
+            TestAlloc taa, uaa;
+            Alloc     aa(&taa), ua(&uaa);
+
+            OptAllocPtr      baap(&taa);    const OptAllocPtr& BAAP = baap;
+            NVAlloc          nvAA(ua);      const NVAlloc&      NVAA = nvAA;
+            NVAlloc         *z_p = 0;
+
+            ASSERT(nvAA->mechanism() == &uaa);
+
+            z_p = &(nvAA = MoveUtil::move(baap));
+
+            ASSERT(&NVAA             == z_p);
+            ASSERT(*BAAP             == &taa);
+            ASSERT(nvAA->mechanism() == &taa);
+        }
+#endif
 
         {
             TestAlloc taa;
             Alloc aa(&taa), caa(&taa);
-            BaseAlloc ba(aa), ca(caa);
+            OptAlloc ba(aa), ca(caa);
 
             bslma::ConstructionUtil::construct(&ba, &taa, ca);
         }
 
-        if (verbose) cout << "Copy construct Nested from Base\n";
+        if (verbose) cout << "Copy construct NV from Opt\n";
         {
             TestAlloc taa;
             Alloc     aa(&taa);
 
-            BaseAlloc             baa(aa);    const BaseAlloc& BAA = baa;
-            const NestedBaseAlloc nvAA(BAA);
+            OptAlloc             baa(aa);    const OptAlloc& BAA = baa;
+            const NVOptAlloc     nvAA(BAA);
 
             ASSERT(BAA    ->mechanism() == &taa);
             ASSERT((*nvAA)->mechanism() == &taa);
 
-            BaseAllocPtr             baap(&taa);
-            const BaseAllocPtr&      BAAP = baap;
-            const NestedBaseAllocPtr nvAAP(BAAP);
+            OptAllocPtr             baap(&taa);
+            const OptAllocPtr&      BAAP = baap;
+            const NVOptAllocPtr     nvAAP(BAAP);
 
             ASSERT(*BAAP   == &taa);
             ASSERT(**nvAAP == &taa);
         }
 
-        if (verbose) cout << "Move construct NV from Base\n";
+        if (verbose) cout << "Move construct NV from Opt\n";
         {
             TestAlloc taa;
             Alloc     aa(&taa);
 
-            BaseAlloc             baa(aa);
-            const BaseAlloc&      BAA = baa;
-            const NestedBaseAlloc nvAA(MoveUtil::move(baa));
+            OptAlloc             baa(aa);
+            const OptAlloc&      BAA = baa;
+            const NVOptAlloc     nvAA(MoveUtil::move(baa));
 
             ASSERT(BAA    ->mechanism() == &taa);
             ASSERT((*nvAA)->mechanism() == &taa);
 
-            BaseAllocPtr             baap(&taa);
-            const BaseAllocPtr&      BAAP = baap;
-            const NestedBaseAllocPtr nvAAP(MoveUtil::move(baap));
+            OptAllocPtr             baap(&taa);
+            const OptAllocPtr&      BAAP = baap;
+            const NVOptAllocPtr     nvAAP(MoveUtil::move(baap));
 
             ASSERT(*BAAP   == &taa);
             ASSERT(**nvAAP == &taa);
         }
 
-        if (verbose) cout << "Copy construct Nested from BaseBase\n";
+        if (verbose) cout << "Copy construct NV from OptOpt\n";
         {
             TestAlloc taa;
             Alloc     aa(&taa);
 
-            BaseAlloc                 baa(aa);
-            const BaseAlloc&          BAA = baa;
+            OptAlloc                 baa(aa);
+            const OptAlloc&          BAA = baa;
 
-            BaseBaseAlloc             bbaa(BAA);
-            const BaseBaseAlloc&      BBAA = bbaa;
+            OptOptAlloc              bbaa(BAA);
+            const OptOptAlloc&       BBAA = bbaa;
 
-            const NestedBaseBaseAlloc nvBBAA(BBAA);
+            const NVOptOptAlloc      nvBBAA(BBAA);
 
             ASSERT((*BBAA)   ->mechanism() == &taa);
             ASSERT((**nvBBAA)->mechanism() == &taa);
 
-            BaseAllocPtr             baap(&taa);
-            const BaseAllocPtr&      BAAP = baap;
+            OptAllocPtr              baap(&taa);
+            const OptAllocPtr&       BAAP = baap;
 
-            BaseBaseAllocPtr             bbaap(BAAP);
-            const BaseBaseAllocPtr&      BBAAP = bbaap;
+            OptOptAllocPtr           bbaap(BAAP);
+            const OptOptAllocPtr&    BBAAP = bbaap;
 
-            const NestedBaseBaseAllocPtr nvBBAAPP(BBAAP);
+            const NVOptOptAllocPtr   nvBBAAPP(BBAAP);
 
             ASSERT(**BBAAP     == &taa);
             ASSERT(***nvBBAAPP == &taa);
         }
 
-        if (verbose) cout << "Move construct NV from BaseBase\n";
+        if (verbose) cout << "Move construct NV from OptOpt\n";
         {
             TestAlloc taa;
             Alloc     aa(&taa);
 
-            BaseAlloc                 baa(aa);
-            const BaseAlloc&          BAA = baa;
+            OptAlloc                 baa(aa);
+            const OptAlloc&          BAA = baa;
 
-            BaseBaseAlloc             bbaa(BAA);
-            const BaseBaseAlloc&      BBAA = bbaa;
+            OptOptAlloc              bbaa(BAA);
+            const OptOptAlloc&       BBAA = bbaa;
 
-            const NestedBaseBaseAlloc nvBBAA(MoveUtil::move(bbaa));
+            const NVOptOptAlloc      nvBBAA(MoveUtil::move(bbaa));
 
             ASSERT((*BBAA)   ->mechanism() == &taa);
             ASSERT((**nvBBAA)->mechanism() == &taa);
 
-            BaseAllocPtr                 baap(&taa);
-            const BaseAllocPtr&          BAAP = baap;
+            OptAllocPtr              baap(&taa);
+            const OptAllocPtr&       BAAP = baap;
 
-            BaseBaseAllocPtr             bbaap(BAAP);
-            const BaseBaseAllocPtr&      BBAAP = bbaap;
+            OptOptAllocPtr           bbaap(BAAP);
+            const OptOptAllocPtr&    BBAAP = bbaap;
 
-            const NestedBaseBaseAllocPtr nvBBAAPP(MoveUtil::move(bbaap));
+            const NVOptOptAllocPtr   nvBBAAPP(MoveUtil::move(bbaap));
 
             ASSERT(**BBAAP     == &taa);
             ASSERT(***nvBBAAPP == &taa);
         }
 
-        if (verbose) cout << "Copy assign NV from Base\n";
+        if (verbose) cout << "Copy assign NV from Opt\n";
         {
             TestAlloc taa, uaa;
             Alloc     aa(&taa), ua(&uaa);
 
-            BaseAlloc     baa(aa);     const BaseAlloc& BAA = baa;
+            OptAlloc      baa(aa);     const OptAlloc& BAA = baa;
             NVAlloc       nvAA(ua);    const NVAlloc&   NVAA = nvAA;
             NVAlloc      *z_p = 0;
 
@@ -7222,7 +7197,7 @@ int main(int argc, char *argv[])
             ASSERT(BAA ->mechanism() == &taa);
             ASSERT(nvAA->mechanism() == &taa);
 
-            BaseAllocPtr     baap(&taa);    const BaseAllocPtr& BAAP = baap;
+            OptAllocPtr      baap(&taa);    const OptAllocPtr& BAAP = baap;
             NVAllocPtr       nvAAP(&uaa);   const NVAllocPtr&   NVAAP = nvAAP;
             NVAllocPtr      *zp_p = 0;
 
@@ -7235,12 +7210,12 @@ int main(int argc, char *argv[])
             ASSERT(*nvAAP == &taa);
         }
 
-        if (verbose) cout << "Move assign NV from Base\n";
+        if (verbose) cout << "Move assign NV from Opt\n";
         {
             TestAlloc taa, uaa;
             Alloc     aa(&taa), ua(&uaa);
 
-            BaseAlloc     baa(aa);     const BaseAlloc& BAA = baa;
+            OptAlloc      baa(aa);     const OptAlloc& BAA = baa;
             NVAlloc       nvAA(ua);    const NVAlloc&   NVAA = nvAA;
             NVAlloc      *z_p = 0;
 
@@ -7252,7 +7227,7 @@ int main(int argc, char *argv[])
             ASSERT(BAA ->mechanism() == &taa);
             ASSERT(nvAA->mechanism() == &taa);
 
-            BaseAllocPtr     baap(&taa);    const BaseAllocPtr& BAAP = baap;
+            OptAllocPtr      baap(&taa);    const OptAllocPtr& BAAP = baap;
             NVAllocPtr       nvAAP(&uaa);   const NVAllocPtr&   NVAAP = nvAAP;
             NVAllocPtr      *zp_p = 0;
 
@@ -7277,6 +7252,21 @@ int main(int argc, char *argv[])
             ASSERT(RAA ->mechanism() == &taa);
         }
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+        if (verbose) cout << "Move construct NV from NV diff\n";
+        {
+            TestAlloc taa;
+            Alloc     aa(&taa);
+
+            NVAllocPtr       raap(&taa);    const NVAllocPtr& RAAP = raap;
+            NVAlloc          raa(MoveUtil::move(raap));
+            const NVAlloc&   RAA = raa;
+
+            ASSERT(*RAAP             == &taa);
+            ASSERT(RAA ->mechanism() == &taa);
+        }
+#endif
+
         if (verbose) cout << "Copy assign NV from NV diff\n";
         {
             TestAlloc taa, uaa;
@@ -7295,24 +7285,59 @@ int main(int argc, char *argv[])
             ASSERT(NVAA->mechanism() == &taa);
         }
 
-        if (verbose) cout << "Copy construct NV from Base diff\n";
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+        if (verbose) cout << "Move assign NV from NV diff\n";
+        {
+            TestAlloc taa, uaa;
+            Alloc     aa(&taa), ua(&uaa);
+
+            NVAllocPtr       raap(&taa);    const NVAllocPtr& RAAP = raap;
+            NVAlloc          nvAA(ua);      const NVAlloc& NVAA    = nvAA;
+            NVAlloc         *z_p = 0;
+
+            ASSERT(nvAA->mechanism() == &uaa);
+
+            z_p = &(nvAA = MoveUtil::move(raap));
+
+            ASSERT(&NVAA == z_p);
+            ASSERT(*RAAP  == &taa);
+            ASSERT(NVAA->mechanism() == &taa);
+        }
+#endif
+
+        if (verbose) cout << "Copy construct NV from Opt diff\n";
         {
             TestAlloc taa;
             Alloc     aa(&taa);
 
-            BaseAllocPtr     baap(&taa);    const BaseAllocPtr& BAAP = baap;
-            BaseAlloc        baa(BAAP);     const BaseAlloc&    BAA  = baa;
+            OptAllocPtr     baap(&taa);    const OptAllocPtr& BAAP = baap;
+            OptAlloc        baa(BAAP);     const OptAlloc&    BAA  = baa;
 
             ASSERT(*BAAP             == &taa);
             ASSERT(BAA ->mechanism() == &taa);
         }
 
-        if (verbose) cout << "Copy assign NV from Base diff\n";
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+        if (verbose) cout << "Move construct NV from Opt diff\n";
+        {
+            TestAlloc taa;
+            Alloc     aa(&taa);
+
+            OptAllocPtr     baap(&taa);    const OptAllocPtr& BAAP = baap;
+            OptAlloc        baa(MoveUtil::move(baap));
+            const OptAlloc& BAA  = baa;
+
+            ASSERT(*BAAP             == &taa);
+            ASSERT(BAA ->mechanism() == &taa);
+        }
+#endif
+
+        if (verbose) cout << "Copy assign NV from Opt diff\n";
         {
             TestAlloc taa, uaa;
             Alloc     aa(&taa), ua(&uaa);
 
-            BaseAllocPtr     baap(&taa);    const BaseAllocPtr& BAAP = baap;
+            OptAllocPtr      baap(&taa);    const OptAllocPtr& BAAP = baap;
             NVAlloc          nvAA(ua);      const NVAlloc&      NVAA = nvAA;
             NVAlloc         *z_p = 0;
 
@@ -7325,112 +7350,132 @@ int main(int argc, char *argv[])
             ASSERT(nvAA->mechanism() == &taa);
         }
 
-        if (verbose) cout << "Copy assign Nested from BaseBase\n";
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+        if (verbose) cout << "Move assign NV from Opt diff\n";
+        {
+            TestAlloc taa, uaa;
+            Alloc     aa(&taa), ua(&uaa);
+
+            OptAllocPtr      baap(&taa);    const OptAllocPtr& BAAP = baap;
+            NVAlloc          nvAA(ua);      const NVAlloc&      NVAA = nvAA;
+            NVAlloc         *z_p = 0;
+
+            ASSERT(nvAA->mechanism() == &uaa);
+
+            z_p = &(nvAA = MoveUtil::move(baap));
+
+            ASSERT(&NVAA             == z_p);
+            ASSERT(*BAAP             == &taa);
+            ASSERT(nvAA->mechanism() == &taa);
+        }
+#endif
+
+        if (verbose) cout << "Copy assign NV from OptOpt\n";
         {
             TestAlloc taa, txx;
             Alloc     aa(&taa), xx(&txx);
 
-            BaseAlloc                 baa(aa);
-            const BaseAlloc&          BAA = baa;
+            OptAlloc                 baa(aa);
+            const OptAlloc&          BAA = baa;
 
-            BaseBaseAlloc             bbaa(BAA);
-            const BaseBaseAlloc&      BBAA = bbaa;
+            OptOptAlloc              bbaa(BAA);
+            const OptOptAlloc&       BBAA = bbaa;
 
-            BaseAlloc                 bxx(xx);
-            const BaseAlloc&          BXX = bxx;
+            OptAlloc                 bxx(xx);
+            const OptAlloc&          BXX = bxx;
 
-            BaseBaseAlloc             bbxx(BXX);
-            const BaseBaseAlloc&      BBXX = bbxx;
+            OptOptAlloc              bbxx(BXX);
+            const OptOptAlloc&       BBXX = bbxx;
 
-            NestedBaseBaseAlloc       nvBBAA(BBAA);
-            const NestedBaseBaseAlloc nvBBXX(BBXX);
+            NVOptOptAlloc            nvBBAA(BBAA);
+            const NVOptOptAlloc      nvBBXX(BBXX);
 
             ASSERT((*BBAA)   ->mechanism() == &taa);
             ASSERT((**nvBBAA)->mechanism() == &taa);
             ASSERT((**nvBBXX)->mechanism() == &txx);
 
-            NestedBaseBaseAlloc* p_z = &(nvBBAA = nvBBXX);
+            NVOptOptAlloc* p_z = &(nvBBAA = nvBBXX);
 
             ASSERT(&nvBBAA == p_z);
             ASSERT((**nvBBAA)->mechanism() == &txx);
             ASSERT((**nvBBXX)->mechanism() == &txx);
 
-            BaseAllocPtr                 baap(&taa);
-            const BaseAllocPtr&          BAAP = baap;
+            OptAllocPtr                 baap(&taa);
+            const OptAllocPtr&          BAAP = baap;
 
-            BaseBaseAllocPtr             bbaap(BAAP);
-            const BaseBaseAllocPtr&      BBAAP = bbaap;
+            OptOptAllocPtr              bbaap(BAAP);
+            const OptOptAllocPtr&       BBAAP = bbaap;
 
-            BaseAllocPtr                 bxxp(&txx);
-            const BaseAllocPtr&          BXXP = bxxp;
+            OptAllocPtr                 bxxp(&txx);
+            const OptAllocPtr&          BXXP = bxxp;
 
-            BaseBaseAllocPtr             bbxxp(BXXP);
-            const BaseBaseAllocPtr&      BBXXP = bbxxp;
+            OptOptAllocPtr              bbxxp(BXXP);
+            const OptOptAllocPtr&       BBXXP = bbxxp;
 
-            NestedBaseBaseAllocPtr       nvBBAAP(BBAAP);
-            const NestedBaseBaseAllocPtr nvBBXXP(BBXXP);
+            NVOptOptAllocPtr            nvBBAAP(BBAAP);
+            const NVOptOptAllocPtr      nvBBXXP(BBXXP);
 
             ASSERT(**BBAAP    == &taa);
             ASSERT(***nvBBAAP == &taa);
             ASSERT(***nvBBXXP == &txx);
 
-            NestedBaseBaseAllocPtr* p_zp = &(nvBBAAP = BBXXP);
+            NVOptOptAllocPtr* p_zp = &(nvBBAAP = BBXXP);
 
             ASSERT(&nvBBAAP == p_zp);
             ASSERT(***nvBBAAP == &txx);
             ASSERT(***nvBBXXP == &txx);
         }
 
-        if (verbose) cout << "Move assign Nested from BaseBase\n";
+        if (verbose) cout << "Move assign NV from OptOpt\n";
         {
             TestAlloc taa, txx;
             Alloc     aa(&taa), xx(&txx);
 
-            BaseAlloc                 baa(aa);
-            const BaseAlloc&          BAA = baa;
+            OptAlloc                 baa(aa);
+            const OptAlloc&          BAA = baa;
 
-            BaseBaseAlloc             bbaa(BAA);
-            const BaseBaseAlloc&      BBAA = bbaa;
+            OptOptAlloc              bbaa(BAA);
+            const OptOptAlloc&       BBAA = bbaa;
 
-            BaseAlloc                 bxx(xx);
-            const BaseAlloc&          BXX = bxx;
+            OptAlloc                 bxx(xx);
+            const OptAlloc&          BXX = bxx;
 
-            BaseBaseAlloc             bbxx(BXX);
-            const BaseBaseAlloc&      BBXX = bbxx;
+            OptOptAlloc              bbxx(BXX);
+            const OptOptAlloc&       BBXX = bbxx;
 
-            NestedBaseBaseAlloc       nvBBAA(BBAA);
-            NestedBaseBaseAlloc       nvBBXX(BBXX);
+            NVOptOptAlloc            nvBBAA(BBAA);
+            NVOptOptAlloc            nvBBXX(BBXX);
 
             ASSERT((*BBAA)   ->mechanism() == &taa);
             ASSERT((**nvBBAA)->mechanism() == &taa);
             ASSERT((**nvBBXX)->mechanism() == &txx);
 
-            NestedBaseBaseAlloc* p_z = &(nvBBAA = MoveUtil::move(nvBBXX));
+            NVOptOptAlloc* p_z = &(nvBBAA = MoveUtil::move(nvBBXX));
 
             ASSERT(&nvBBAA == p_z);
             ASSERT((**nvBBAA)->mechanism() == &txx);
             ASSERT((**nvBBXX)->mechanism() == &txx);
 
-            BaseAllocPtr                 baap(&taa);
-            const BaseAllocPtr&          BAAP = baap;
+            OptAllocPtr                 baap(&taa);
+            const OptAllocPtr&          BAAP = baap;
 
-            BaseBaseAllocPtr             bbaap(BAAP);
-            const BaseBaseAllocPtr&      BBAAP = bbaap;
+            OptOptAllocPtr              bbaap(BAAP);
+            const OptOptAllocPtr&       BBAAP = bbaap;
 
-            BaseAllocPtr                 bxxp(&txx);
-            const BaseAllocPtr&          BXXP = bxxp;
+            OptAllocPtr                 bxxp(&txx);
+            const OptAllocPtr&          BXXP = bxxp;
 
-            BaseBaseAllocPtr             bbxxp(BXXP);
-            const BaseBaseAllocPtr&      BBXXP = bbxxp;
+            OptOptAllocPtr              bbxxp(BXXP);
+            const OptOptAllocPtr&       BBXXP = bbxxp;
 
-            NestedBaseBaseAllocPtr       nvBBAAP(BBAAP);
-            NestedBaseBaseAllocPtr       nvBBXXP(BBXXP);
+            NVOptOptAllocPtr            nvBBAAP(BBAAP);
+            NVOptOptAllocPtr            nvBBXXP(BBXXP);
 
             ASSERT(**BBAAP    == &taa);
             ASSERT(***nvBBAAP == &taa);
             ASSERT(***nvBBXXP == &txx);
 
-            NestedBaseBaseAllocPtr* p_zp = &(nvBBAAP =MoveUtil::move(nvBBXXP));
+            NVOptOptAllocPtr* p_zp = &(nvBBAAP =MoveUtil::move(nvBBXXP));
 
             ASSERT(&nvBBAAP == p_zp);
             ASSERT(***nvBBAAP == &txx);
@@ -7526,40 +7571,36 @@ int main(int argc, char *argv[])
         typedef bsltf::MoveState                      MoveState;
         typedef bslmf::MovableRefUtil                 MoveUtil;
 
-        typedef bsl::optional<From>                   BaseFrom;
-        typedef bsl::optional<To>                     BaseTo;
-        typedef bsl::optional<AllocType>              BaseAlloc;
+        typedef bsl::optional<From>                   OptFrom;
+        typedef bsl::optional<To>                     OptTo;
+        typedef bsl::optional<AllocType>              OptAlloc;
 
-        typedef bsl::optional<BaseFrom>               BaseBaseFrom;
-        typedef bsl::optional<BaseTo>                 BaseBaseTo;
-        typedef bsl::optional<BaseAlloc>              BaseBaseAlloc;
+        typedef bsl::optional<OptFrom>                OptOptFrom;
+        typedef bsl::optional<OptTo>                  OptOptTo;
+        typedef bsl::optional<OptAlloc>               OptOptAlloc;
 
-        typedef bdlb::NullableValue<BaseBaseFrom>     NestedBaseBaseFrom;
-        typedef bdlb::NullableValue<BaseBaseTo>       NestedBaseBaseTo;
-        typedef bdlb::NullableValue<BaseBaseAlloc>    NestedBaseBaseAlloc;
+        typedef bdlb::NullableValue<OptOptFrom>       NVOptOptFrom;
+        typedef bdlb::NullableValue<OptOptTo>         NVOptOptTo;
+        typedef bdlb::NullableValue<OptOptAlloc>      NVOptOptAlloc;
 
-        ASSERT((bsl::is_convertible<From, BaseTo>::value));
-        ASSERT((bsl::is_convertible<BaseFrom, BaseTo>::value));
-        ASSERT((bsl::is_convertible<const BaseBaseFrom,
-                                                    NestedBaseBaseTo>::value));
+        ASSERT((bsl::is_convertible<From, OptTo>::value));
+        ASSERT((bsl::is_convertible<OptFrom, OptTo>::value));
+        ASSERT((bsl::is_convertible<const OptOptFrom,
+                                                    NVOptOptTo>::value));
 
         bslma::TestAllocator     ta;
         bsl::allocator<char>     aa(&ta);
 
-        unsigned& unlikelyNumber = MoveFromAllocTypeSpace::unlikelyNumber;
-
-        unlikelyNumber = 987654321;
-
         if (verbose) cout << "Copy construct NBBT from BBF\n";
         {
             const From             f5(5);
-            const BaseFrom         bf5(f5);
-            const BaseBaseFrom     bbf5(bf5), bbfn;
+            const OptFrom         bf5(f5);
+            const OptOptFrom     bbf5(bf5), bbfn;
 
-            const NestedBaseBaseTo    nbbtn(bbfn);
-            const NestedBaseBaseTo    nbbt5(bbf5);
-            const NestedBaseBaseAlloc nbban(bbfn, aa);
-            const NestedBaseBaseAlloc nbba5(bbf5, aa);
+            const NVOptOptTo    nbbtn(bbfn);
+            const NVOptOptTo    nbbt5(bbf5);
+            const NVOptOptAlloc nbban(bbfn, aa);
+            const NVOptOptAlloc nbba5(bbf5, aa);
 
             ASSERT(nbbtn.has_value());
             ASSERT(!nbbtn->has_value());
@@ -7576,20 +7617,18 @@ int main(int argc, char *argv[])
             ASSERT(&ta == (**nbba5)->allocator().mechanism());
         }
 
-        ++unlikelyNumber;
-
         if (verbose) cout << "Copy construct NBBT from NBBF\n";
         {
             const From               f5(5);
-            const BaseFrom           bf5(f5);
-            const BaseBaseFrom       bbf5(bf5);
+            const OptFrom           bf5(f5);
+            const OptOptFrom       bbf5(bf5);
 
-            const NestedBaseBaseFrom  nbbfn;
-            const NestedBaseBaseFrom  nbbf5(bbf5);
-            const NestedBaseBaseTo    nbbtn(nbbfn);
-            const NestedBaseBaseTo    nbbt5(nbbf5);
-            const NestedBaseBaseAlloc nbban(nbbfn, aa);
-            const NestedBaseBaseAlloc nbba5(nbbf5, aa);
+            const NVOptOptFrom  nbbfn;
+            const NVOptOptFrom  nbbf5(bbf5);
+            const NVOptOptTo    nbbtn(nbbfn);
+            const NVOptOptTo    nbbt5(nbbf5);
+            const NVOptOptAlloc nbban(nbbfn, aa);
+            const NVOptOptAlloc nbba5(nbbf5, aa);
 
             ASSERT(!nbbtn.has_value());
             ASSERT(!nbban.has_value());
@@ -7604,18 +7643,16 @@ int main(int argc, char *argv[])
             ASSERT(&ta == (**nbba5)->allocator().mechanism());
         }
 
-        ++unlikelyNumber;
-
         if (verbose) cout << "Move construct NBBT from BBF\n";
         {
             const From             f5(5);
-            const BaseFrom         bf5(f5);
-            BaseBaseFrom           bbf5(bf5), bbf5_b(bf5), bbfn, bbfn_b;
+            const OptFrom         bf5(f5);
+            OptOptFrom           bbf5(bf5), bbf5_b(bf5), bbfn, bbfn_b;
 
-            const NestedBaseBaseTo    nbbtn(MoveUtil::move(bbfn));
-            const NestedBaseBaseTo    nbbt5(MoveUtil::move(bbf5));
-            const NestedBaseBaseAlloc nbban(MoveUtil::move(bbfn_b), aa);
-            const NestedBaseBaseAlloc nbba5(MoveUtil::move(bbf5_b), aa);
+            const NVOptOptTo    nbbtn(MoveUtil::move(bbfn));
+            const NVOptOptTo    nbbt5(MoveUtil::move(bbf5));
+            const NVOptOptAlloc nbban(MoveUtil::move(bbfn_b), aa);
+            const NVOptOptAlloc nbba5(MoveUtil::move(bbf5_b), aa);
 
             ASSERT(nbbtn.has_value());
             ASSERT(!nbbtn->has_value());
@@ -7633,20 +7670,19 @@ int main(int argc, char *argv[])
             ASSERT(&ta == (**nbba5)->allocator().mechanism());
             ASSERT(&ta == nbban->get_allocator().mechanism());
         }
-        ++unlikelyNumber;
 
         if (verbose) cout << "Move construct NBBT from NBBF.\n";
         {
             const From               f5(5);
-            const BaseFrom           bf5(f5);
-            const BaseBaseFrom       bbf5(bf5);
+            const OptFrom           bf5(f5);
+            const OptOptFrom       bbf5(bf5);
 
-            NestedBaseBaseFrom          nbbf5(bbf5), nbbf5_b(bbf5);
-            NestedBaseBaseFrom          nbbfn, nbbfn_b;
-            const NestedBaseBaseTo      nbbtn(MoveUtil::move(nbbfn));
-            const NestedBaseBaseTo      nbbt5(MoveUtil::move(nbbf5));
-            const NestedBaseBaseAlloc   nbban(MoveUtil::move(nbbfn_b), aa);
-            const NestedBaseBaseAlloc   nbba5(MoveUtil::move(nbbf5_b), aa);
+            NVOptOptFrom          nbbf5(bbf5), nbbf5_b(bbf5);
+            NVOptOptFrom          nbbfn, nbbfn_b;
+            const NVOptOptTo      nbbtn(MoveUtil::move(nbbfn));
+            const NVOptOptTo      nbbt5(MoveUtil::move(nbbf5));
+            const NVOptOptAlloc   nbban(MoveUtil::move(nbbfn_b), aa);
+            const NVOptOptAlloc   nbba5(MoveUtil::move(nbbf5_b), aa);
 
             ASSERT(!nbbtn.has_value());
             ASSERT(!nbban.has_value());
@@ -7662,25 +7698,23 @@ int main(int argc, char *argv[])
             ASSERT(&ta == (**nbba5)->allocator().mechanism());
         }
 
-        ++unlikelyNumber;
-
         if (verbose) cout << "Copy assign NBBT from BBF\n";
         {
-            const BaseBaseFrom     bbfn;
+            const OptOptFrom     bbfn;
 
             const From             f5(5);
-            const BaseFrom         bf5(f5);
-            const BaseBaseFrom     bbf5(bf5);
+            const OptFrom         bf5(f5);
+            const OptOptFrom     bbf5(bf5);
 
             const From             f7(7);
-            const BaseFrom         bf7(f7);
-            const BaseBaseFrom     bbf7(bf7);
+            const OptFrom         bf7(f7);
+            const OptOptFrom     bbf7(bf7);
 
-            NestedBaseBaseTo    nbbtn;
-            NestedBaseBaseAlloc nbban(aa);
+            NVOptOptTo    nbbtn;
+            NVOptOptAlloc nbban(aa);
 
-            NestedBaseBaseTo    nbbt7(bbf7), *p_z;
-            NestedBaseBaseAlloc nbba7(bbf7, aa), *p_za;
+            NVOptOptTo    nbbt7(bbf7), *p_z;
+            NVOptOptAlloc nbba7(bbf7, aa), *p_za;
 
             ASSERT(!bbfn.has_value());
             ASSERT(!nbbtn.has_value());
@@ -7760,25 +7794,23 @@ int main(int argc, char *argv[])
             ASSERT(&ta == (**nbba7)->allocator().mechanism());
         }
 
-        ++unlikelyNumber;
-
         if (verbose) cout << "Copy assign NBBT from NBBF\n";
         {
             const From               f5(5);
-            const BaseFrom           bf5(f5);
-            const BaseBaseFrom       bbf5(bf5);
+            const OptFrom           bf5(f5);
+            const OptOptFrom       bbf5(bf5);
 
             const From               f7(7);
-            const BaseFrom           bf7(f7);
-            const BaseBaseFrom       bbf7(bf7);
+            const OptFrom           bf7(f7);
+            const OptOptFrom       bbf7(bf7);
 
-            const NestedBaseBaseFrom nbbfn;
-            const NestedBaseBaseFrom nbbf7(bbf7);
+            const NVOptOptFrom nbbfn;
+            const NVOptOptFrom nbbf7(bbf7);
 
-            NestedBaseBaseTo         nbbtn;
-            NestedBaseBaseAlloc      nbban(aa);
-            NestedBaseBaseTo         nbbt5(bbf5), *p_z;
-            NestedBaseBaseAlloc      nbba5(bbf5, aa), *p_za;
+            NVOptOptTo         nbbtn;
+            NVOptOptAlloc      nbban(aa);
+            NVOptOptTo         nbbt5(bbf5), *p_z;
+            NVOptOptAlloc      nbba5(bbf5, aa), *p_za;
 
             ASSERT(!nbbfn.has_value());
             ASSERT(!nbbtn.has_value());
@@ -7866,24 +7898,22 @@ int main(int argc, char *argv[])
             ASSERT(&ta == (**nbba5)->allocator().mechanism());
         }
 
-        ++unlikelyNumber;
-
         if (verbose) cout << "Move assign NBBT from BBF\n";
         {
             const From             f5(5);
-            const BaseFrom         bf5(f5);
-            const BaseBaseFrom     bbf5(bf5);
+            const OptFrom         bf5(f5);
+            const OptOptFrom     bbf5(bf5);
 
             const From             f7(7);
-            const BaseFrom         bf7(f7);
-            BaseBaseFrom           bbf7(bf7), bbf7_b(bf7);
+            const OptFrom         bf7(f7);
+            OptOptFrom           bbf7(bf7), bbf7_b(bf7);
 
-            BaseBaseFrom           bbfn, bbfn_b;
+            OptOptFrom           bbfn, bbfn_b;
 
-            NestedBaseBaseTo       nbbt5(bbf5), *p_z;
-            NestedBaseBaseTo       nbbtn;
-            NestedBaseBaseAlloc    nbba5(bbf5, aa), *p_za;
-            NestedBaseBaseAlloc    nbban(aa);
+            NVOptOptTo       nbbt5(bbf5), *p_z;
+            NVOptOptTo       nbbtn;
+            NVOptOptAlloc    nbba5(bbf5, aa), *p_za;
+            NVOptOptAlloc    nbban(aa);
 
             // null <= null
 
@@ -7982,21 +8012,19 @@ int main(int argc, char *argv[])
             ASSERT(&ta == (**nbba5)->allocator().mechanism());
         }
 
-        ++unlikelyNumber;
-
         if (verbose) cout << "Move assign NBBT from NBBF\n";
         {
             const From               f5(5);
-            const BaseFrom           bf5(f5);
-            const BaseBaseFrom       bbf5(bf5);
+            const OptFrom           bf5(f5);
+            const OptOptFrom       bbf5(bf5);
 
             const From               f7(7);
-            const BaseFrom           bf7(f7);
-            const BaseBaseFrom       bbf7(bf7);
+            const OptFrom           bf7(f7);
+            const OptOptFrom       bbf7(bf7);
 
-            NestedBaseBaseFrom       nbbf5(bbf5), nbbf5_b(bbf5);
-            NestedBaseBaseTo         nbbt7(bbf7), *p_z;
-            NestedBaseBaseAlloc      nbba7(bbf7, aa), *p_za;
+            NVOptOptFrom       nbbf5(bbf5), nbbf5_b(bbf5);
+            NVOptOptTo         nbbt7(bbf7), *p_z;
+            NVOptOptAlloc      nbba7(bbf7, aa), *p_za;
 
             p_z  = &(nbbt7 = MoveUtil::move(nbbf5));
             p_za = &(nbba7 = MoveUtil::move(nbbf5_b));
@@ -8082,12 +8110,8 @@ int main(int argc, char *argv[])
         typedef bsltf::MoveState            MState;
         typedef bslmf::MovableRefUtil       MoveUtil;
 
-        typedef bdlb::NullableValue<bsl::optional<TC::To> >        NestedTo;
-        typedef bdlb::NullableValue<bsl::optional<TC::AllocType> > NestedAlloc;
-
-        unsigned& unlikelyNumber = TC::unlikelyNumber;
-
-        unlikelyNumber = 987654321;
+        typedef bdlb::NullableValue<bsl::optional<TC::To> >        NVTo;
+        typedef bdlb::NullableValue<bsl::optional<TC::AllocType> > NVAlloc;
 
         if (verbose) cout << "Copy construction from opt of same type.\n";
         {
@@ -8104,8 +8128,6 @@ int main(int argc, char *argv[])
             ASSERT(!mNY.has_value());
         }
 
-        ++unlikelyNumber;
-
         if (verbose) cout << "Copy construction from opt of other type.\n";
         {
             bsl::optional<char> mC(' ');    const bsl::optional<char>& C = mC;
@@ -8118,8 +8140,6 @@ int main(int argc, char *argv[])
 
             ASSERT(!mNY.has_value());
         }
-
-        ++unlikelyNumber;
 
         if (verbose) cout << "Move construction from opt of same type.\n";
         {
@@ -8139,8 +8159,6 @@ int main(int argc, char *argv[])
             const bdlb::NullableValue<MTT> NMY(MoveUtil::move(oY));
             ASSERT(!NMY.has_value());
         }
-
-        ++unlikelyNumber;
 
         if (verbose) cout << "Move construction from opt of diff type.\n";
         {
@@ -8162,8 +8180,6 @@ int main(int argc, char *argv[])
             ASSERT(!mY.has_value());
         }
 
-        ++unlikelyNumber;
-
         if (verbose) cout << "Move construction from opt of diff type.\n";
         {
             TC::From mF(7);
@@ -8182,8 +8198,6 @@ int main(int argc, char *argv[])
             ASSERT(!oY.has_value());
         }
 
-        ++unlikelyNumber;
-
         if (verbose) cout << "Copy c'tor nested from opt of same type.\n";
         {
             bsl::optional<int> mX(5);    const bsl::optional<int>& X = mX;
@@ -8200,8 +8214,6 @@ int main(int argc, char *argv[])
             ASSERT(!(*mNY).has_value());
         }
 
-        ++unlikelyNumber;
-
         if (verbose) cout << "Copy c'tor nested from opt of other type.\n";
         {
             bsl::optional<char> mC(' ');    const bsl::optional<char>& C = mC;
@@ -8216,16 +8228,14 @@ int main(int argc, char *argv[])
             ASSERT(!(*mNY).has_value());
         }
 
-        ++unlikelyNumber;
-
         if (verbose) cout << "Move c'tor nested from opt of same type.\n";
         {
-            typedef bdlb::NullableValue<bsl::optional<MTT> > NestedMTT;
+            typedef bdlb::NullableValue<bsl::optional<MTT> > NVMTT;
 
             MTT mMTT(5);
             bsl::optional<MTT> OMTT(mMTT);
 
-            NestedMTT NM(MoveUtil::move(OMTT));
+            NVMTT NM(MoveUtil::move(OMTT));
 
             ASSERT(!!NM);
             ASSERT(5 == Util::getIdentifier((*NM)->data()));
@@ -8235,19 +8245,17 @@ int main(int argc, char *argv[])
             ASSERTV(movedInto, MState::e_MOVED == movedInto);
 
             bsl::optional<MTT> oY;
-            NestedMTT NMY(MoveUtil::move(oY));
+            NVMTT NMY(MoveUtil::move(oY));
             ASSERT(NMY.has_value());
             ASSERT(!NMY->has_value());
         }
-
-        ++unlikelyNumber;
 
         if (verbose) cout << "Move c'tor nested from opt of diff type.\n";
         {
             TC::From mF(7);
             bsl::optional<TC::From> oF(mF);
 
-            NestedTo nvt(MoveUtil::move(oF));
+            NVTo nvt(MoveUtil::move(oF));
             ASSERT(7 == (*nvt)->data());
             MState::Enum movedFrom = oF->d_from;
             ASSERTV(movedFrom, MState::e_MOVED == movedFrom);
@@ -8257,12 +8265,10 @@ int main(int argc, char *argv[])
             bsl::optional<TC::From> mY;
             ASSERT(!mY.has_value());
 
-            NestedTo ny(MoveUtil::move(mY));
+            NVTo ny(MoveUtil::move(mY));
             ASSERT(!(*ny).has_value());
             ASSERT(!mY.has_value());
         }
-
-        ++unlikelyNumber;
 
         if (verbose) cout << "Copy c'tor w/ alloc from opt of same type.\n";
         {
@@ -8296,8 +8302,6 @@ int main(int argc, char *argv[])
             ASSERT(!mNY.has_value());
         }
 
-        ++unlikelyNumber;
-
         if (verbose) cout << "Move c'tor w/ alloc from opt of same type.\n";
         {
             bslma::TestAllocator ta;
@@ -8328,9 +8332,7 @@ int main(int argc, char *argv[])
             ASSERT(!nvY.has_value());
         }
 
-        ++unlikelyNumber;
-
-        if (verbose) cout << "Copy c'tor w/ from opt to NestedAlloc.\n";
+        if (verbose) cout << "Copy c'tor w/ from opt to NVAlloc.\n";
         {
             bslma::TestAllocator ta;
             bsl::allocator<char> aa(&ta);
@@ -8344,7 +8346,7 @@ int main(int argc, char *argv[])
 
             ASSERT(aa == OX->allocator());
 
-            NestedAlloc nvt(OX, ab);
+            NVAlloc nvt(OX, ab);
 
             ASSERT(7 == (*nvt)->data());
             MState::Enum movedFrom = OX->d_from;
@@ -8356,15 +8358,13 @@ int main(int argc, char *argv[])
             bsl::optional<TC::AllocType> mY;
             const bsl::optional<TC::AllocType>& Y = mY;
             ASSERT(!Y.has_value());
-            NestedAlloc mNY(Y, ab);
+            NVAlloc mNY(Y, ab);
 
             ASSERT(!Y.has_value());
             ASSERT(!(*mNY).has_value());
         }
 
-        ++unlikelyNumber;
-
-        if (verbose) cout << "Move c'tor w/ alloc from opt to NestedAlloc.\n";
+        if (verbose) cout << "Move c'tor w/ alloc from opt to NVAlloc.\n";
         {
             bslma::TestAllocator ta;
             bsl::allocator<char> aa(&ta);
@@ -8377,7 +8377,7 @@ int main(int argc, char *argv[])
 
             ASSERT(aa == oX->allocator());
 
-            NestedAlloc nvt(MoveUtil::move(oX), ab);
+            NVAlloc nvt(MoveUtil::move(oX), ab);
 
             ASSERT(7 == (*nvt)->data());
             MState::Enum movedFrom = oX->d_from;
@@ -8388,14 +8388,12 @@ int main(int argc, char *argv[])
 
             bsl::optional<TC::AllocType> mY;
             ASSERT(!mY.has_value());
-            NestedAlloc nvY(MoveUtil::move(mY), ab);
+            NVAlloc nvY(MoveUtil::move(mY), ab);
 
             ASSERT(!mY.has_value());
             ASSERT(nvY.has_value());
             ASSERT(!nvY->has_value());
         }
-
-        ++unlikelyNumber;
 
         if (verbose) cout << "Copy c'tor w/ alloc from opt of diff type.\n";
         {
@@ -8423,8 +8421,6 @@ int main(int argc, char *argv[])
             ASSERT(!nvY.has_value());
         }
 
-        ++unlikelyNumber;
-
         if (verbose) cout << "Move c'tor w/ alloc from opt of diff type.\n";
         {
             bslma::TestAllocator tb;
@@ -8450,9 +8446,7 @@ int main(int argc, char *argv[])
             ASSERT(!nvY.has_value());
         }
 
-        ++unlikelyNumber;
-
-        if (verbose) cout << "Copy c'tor opt to NestedAlloc, diff type.\n";
+        if (verbose) cout << "Copy c'tor opt to NVAlloc, diff type.\n";
         {
             bslma::TestAllocator tb;
             bsl::allocator<char> ab(&tb);
@@ -8461,7 +8455,7 @@ int main(int argc, char *argv[])
             bsl::optional<TC::From> oX(X);
             const bsl::optional<TC::From>& OX = oX;
 
-            NestedAlloc nvt(OX, ab);
+            NVAlloc nvt(OX, ab);
 
             ASSERT(7 == (*nvt)->data());
             MState::Enum movedFrom = OX->d_from;
@@ -8472,16 +8466,14 @@ int main(int argc, char *argv[])
 
             bsl::optional<TC::From> oY;
             const bsl::optional<TC::From>& Y = oY;
-            NestedAlloc nvY(Y, ab);
+            NVAlloc nvY(Y, ab);
 
             ASSERT(!Y.has_value());
             ASSERT(nvY.has_value());
             ASSERT(!nvY->has_value());
         }
 
-        ++unlikelyNumber;
-
-        if (verbose) cout << "Move c'tor opt to NestedAlloc, diff type.\n";
+        if (verbose) cout << "Move c'tor opt to NVAlloc, diff type.\n";
         {
             bslma::TestAllocator tb;
             bsl::allocator<char> ab(&tb);
@@ -8489,7 +8481,7 @@ int main(int argc, char *argv[])
             TC::From mX(7);    const TC::From& X = mX;
             bsl::optional<TC::From> oX(X);
 
-            NestedAlloc nvt(MoveUtil::move(oX), ab);
+            NVAlloc nvt(MoveUtil::move(oX), ab);
 
             ASSERT(7 == (*nvt)->data());
             MState::Enum movedFrom = oX->d_from;
@@ -8500,16 +8492,14 @@ int main(int argc, char *argv[])
 
             bsl::optional<TC::From> oY;
             const bsl::optional<TC::From>& Y = oY;
-            NestedAlloc nvY(MoveUtil::move(oY), ab);
+            NVAlloc nvY(MoveUtil::move(oY), ab);
 
             ASSERT(!Y.has_value());
             ASSERT(nvY.has_value());
             ASSERT(!nvY->has_value());
         }
 
-        ++unlikelyNumber;
-
-        if (verbose) cout << "Copy assign Base to Obj.\n";
+        if (verbose) cout << "Copy assign Opt to Obj.\n";
         {
             bsl::optional<TC::To> mX;   const bsl::optional<TC::To>& X = mX;
 
@@ -8565,9 +8555,7 @@ int main(int argc, char *argv[])
             ASSERT(!Y.has_value());
         }
 
-        ++unlikelyNumber;
-
-        if (verbose) cout << "Move assign Base to Obj.\n";
+        if (verbose) cout << "Move assign Opt to Obj.\n";
         {
             bsl::optional<TC::To> mX;   const bsl::optional<TC::To>& X = mX;
 
@@ -8630,9 +8618,7 @@ int main(int argc, char *argv[])
             ASSERT(!Y.has_value());
         }
 
-        ++unlikelyNumber;
-
-        if (verbose) cout << "Copy assign Base<From> to Obj<To>.\n";
+        if (verbose) cout << "Copy assign Opt<From> to Obj<To>.\n";
         {
             bsl::optional<TC::From> mX(7);
             const bsl::optional<TC::From>& X = mX;
@@ -8696,9 +8682,7 @@ int main(int argc, char *argv[])
             ASSERT(!N.has_value());
         }
 
-        ++unlikelyNumber;
-
-        if (verbose) cout << "Move assign Base<From> to Obj<To>.\n";
+        if (verbose) cout << "Move assign Opt<From> to Obj<To>.\n";
         {
             bsl::optional<TC::From> mX(7);
             const bsl::optional<TC::From>& X = mX;
@@ -8762,15 +8746,13 @@ int main(int argc, char *argv[])
             ASSERT(!N.has_value());
         }
 
-        ++unlikelyNumber;
-
-        if (verbose) cout << "Copy assign Base to NestedTo.\n";
+        if (verbose) cout << "Copy assign Opt to NVTo.\n";
         {
             bsl::optional<TC::To> mX;   const bsl::optional<TC::To>& X = mX;
 
-            NestedTo mY;    const NestedTo& Y = mY;
+            NVTo mY;    const NVTo& Y = mY;
 
-            NestedTo *z_p = 0;
+            NVTo *z_p = 0;
 
             // null <- null
 
@@ -8821,15 +8803,13 @@ int main(int argc, char *argv[])
             ASSERT(!(*Y).has_value());
         }
 
-        ++unlikelyNumber;
-
-        if (verbose) cout << "Move assign Base to NestedTo.\n";
+        if (verbose) cout << "Move assign Opt to NVTo.\n";
         {
             bsl::optional<TC::To> mX;   const bsl::optional<TC::To>& X = mX;
 
-            NestedTo mY;    const NestedTo& Y = mY;
+            NVTo mY;    const NVTo& Y = mY;
 
-            NestedTo *z_p = 0;
+            NVTo *z_p = 0;
 
             // null <- null
 
@@ -8892,17 +8872,15 @@ int main(int argc, char *argv[])
             ASSERT(!(*Y).has_value());
         }
 
-        ++unlikelyNumber;
-
-        if (verbose) cout << "Copy assign Base<From> to NestedTo.\n";
+        if (verbose) cout << "Copy assign Opt<From> to NVTo.\n";
         {
             bsl::optional<TC::From> mX(7);
             const bsl::optional<TC::From>& X = mX;
 
-            NestedTo mY;    const NestedTo& Y = mY;
+            NVTo mY;    const NVTo& Y = mY;
             ASSERT(!Y.has_value());
 
-            NestedTo *z_p = 0;
+            NVTo *z_p = 0;
 
             // null = value
 
@@ -8966,17 +8944,15 @@ int main(int argc, char *argv[])
             ASSERT(!N.has_value());
         }
 
-        ++unlikelyNumber;
-
-        if (verbose) cout << "Move assign Base<From> to Obj<To>.\n";
+        if (verbose) cout << "Move assign Opt<From> to Obj<To>.\n";
         {
             bsl::optional<TC::From> mX(7);
             const bsl::optional<TC::From>& X = mX;
 
-            NestedTo mY;    const NestedTo& Y = mY;
+            NVTo mY;    const NVTo& Y = mY;
             ASSERT(!Y.has_value());
 
-            NestedTo *z_p = 0;
+            NVTo *z_p = 0;
 
             // null = value
 
@@ -10227,8 +10203,6 @@ int main(int argc, char *argv[])
 
         bslma::DefaultAllocatorGuard dag(&da);
 
-        unsigned& unlikelyNumber = MoveFromAllocTypeSpace::unlikelyNumber;
-
         if (verbose) cout << "\nUsing 'int' and 'double'." << endl;
         {
             typedef int    ValueType1;
@@ -10242,8 +10216,6 @@ int main(int argc, char *argv[])
 
             ValueType1  mVALUE2  = 789;  const ValueType1& VALUE2 = mVALUE2;
             ValueType1& mRVALUE2 = mVALUE2;
-
-            unlikelyNumber = 987654321;
 
             if (verbose) cout << "\tcopy assignment" << endl;
             {
@@ -10279,8 +10251,6 @@ int main(int argc, char *argv[])
                 ASSERT(    mR2 == &obj2);
             }
 
-            ++unlikelyNumber;
-
             if (verbose) cout << "\tvalue assignment" << endl;
             {
                 ObjType2 obj2;  const ObjType2& OBJ2 = obj2;
@@ -10310,8 +10280,6 @@ int main(int argc, char *argv[])
                 obj2 = mRVALUE2;
                 ASSERT(VALUE2 == OBJ2.value());
             }
-
-            ++unlikelyNumber;
 
             if (verbose) cout << "\tmake value" << endl;
             {
@@ -10344,8 +10312,6 @@ int main(int argc, char *argv[])
 
             const int val1a = 123;
             const int val1b = 456;
-
-            ++unlikelyNumber;
 
             if (verbose) cout << "\tcopy assignment" << endl;
             {
@@ -10387,8 +10353,6 @@ int main(int argc, char *argv[])
                 ASSERT(OBJ2.isNull());
                 ASSERT(    mR2 == &obj2);
             }
-
-            ++unlikelyNumber;
 
             if (verbose) cout << "\tmove assignment" << endl;
             {

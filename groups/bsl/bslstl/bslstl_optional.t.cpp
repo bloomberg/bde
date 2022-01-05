@@ -7545,11 +7545,10 @@ void TestDriver<TYPE>::testCase15()
         ASSERT(
             (bsl::is_same<typename ObjC::value_type, const ValueType>::value));
 
-        const bool allocatorObj = bslma::UsesBslmaAllocator<Obj>::value;
-        const bool allocatorValueType =
+        const bool usesAllocatorObj = bslma::UsesBslmaAllocator<Obj>::value;
+        const bool usesAllocatorValueType =
                                    bslma::UsesBslmaAllocator<ValueType>::value;
-        const bool argTObj = bslmf::UsesAllocatorArgT<Obj>::value;
-        const bool argTValueType = bslmf::UsesAllocatorArgT<ValueType>::value;
+        const bool usesArgTObj = bslmf::UsesAllocatorArgT<Obj>::value;
 
         const bool convObj = bsl::is_convertible<bslma::Allocator *,
                                                  Obj>::value;
@@ -7559,12 +7558,13 @@ void TestDriver<TYPE>::testCase15()
             P_(valueTypeName);    P_(convObj);    P(convValueType);
         }
 
-        ASSERTV(valueTypeName, objName, allocatorObj, allocatorValueType,
-                                           allocatorObj == allocatorValueType);
-        ASSERTV(valueTypeName, objName, argTObj, allocatorValueType,
-                                                argTObj == allocatorValueType);
-        ASSERTV(valueTypeName, objName, argTObj, allocatorObj,
-                                                      argTObj == allocatorObj);
+        ASSERTV(valueTypeName, objName, usesAllocatorObj,
+                                                        usesAllocatorValueType,
+                                   usesAllocatorObj == usesAllocatorValueType);
+        ASSERTV(valueTypeName, objName, usesArgTObj, usesAllocatorValueType,
+                                        usesArgTObj == usesAllocatorValueType);
+        ASSERTV(valueTypeName, objName, usesArgTObj, usesAllocatorObj,
+                                              usesArgTObj == usesAllocatorObj);
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
         ASSERT(std::is_trivially_destructible<Obj>::value ==
