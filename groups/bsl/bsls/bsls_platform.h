@@ -483,8 +483,11 @@ struct bsls_Platform_Assert;
         #else
             #define BSLS_PLATFORM_CPU_SPARC_32 1
         #endif
-    #elif defined(__arm__)
+    #elif defined(__arm__) || defined(__arm64__)
         #define BSLS_PLATFORM_CPU_ARM 1
+        #if defined(__arm64__)
+            #define BSLS_PLATFORM_CPU_64_BIT 1
+        #endif
         #if defined(__ARM_ARCH)
             #if __ARM_ARCH == 6
                 #define BSLS_PLATFORM_CPU_ARM_V6
@@ -506,6 +509,11 @@ struct bsls_Platform_Assert;
             || defined(__ARM_ARCH_7M__)                                      \
             || defined(__ARM_ARCH_7R__)
             #define BSLS_PLATFORM_CPU_ARM_V7
+        #elif defined(__ARM64_ARCH_8__)                                       \
+            || defined(__ARM_ARCH_8_3__)                                      \
+            || defined(__ARM_ARCH_8_4__)                                      \
+            || defined(__ARM_ARCH_8_5__)
+            #define BSLS_PLATFORM_CPU_ARM_V8
         #else
             #error "Unsupported ARM platform."
         #endif
@@ -911,6 +919,8 @@ struct Platform {
     struct CpuArmv5 : CpuArm {};
     struct CpuArmv6 : CpuArm {};
     struct CpuArmv7 : CpuArm {};
+    struct CpuArmv8 : CpuArm {};
+    struct CpuArmv9 : CpuArm {};
 
                               // PLATFORM TRAITS
 
@@ -986,6 +996,12 @@ struct Platform {
     #endif
     #if defined(BSLS_PLATFORM_CPU_ARM_V7)
         typedef CpuArmv7 Cpu;
+    #endif
+    #if defined(BSLS_PLATFORM_CPU_ARM_V8)
+        typedef CpuArmv8 Cpu;
+    #endif
+    #if defined(BSLS_PLATFORM_CPU_ARM_V9)
+        typedef CpuArmv9 Cpu;
     #endif
 
 };
