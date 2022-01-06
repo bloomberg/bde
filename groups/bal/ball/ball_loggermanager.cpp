@@ -173,7 +173,7 @@ std::size_t RecordSharedPtrUtil::s_sharedObjectOffset = 0;
 Record *RecordSharedPtrUtil::disassembleSharedPtr(
                                          const bsl::shared_ptr<Record>& record)
 {
-    BSLS_ASSERT_SAFE(s_sharedObjectOffset ==
+    BSLS_ASSERT(s_sharedObjectOffset ==
                                      reinterpret_cast<char *>(record.ptr())
                                      - reinterpret_cast<char *>(record.rep()));
 
@@ -188,7 +188,7 @@ Record *RecordSharedPtrUtil::disassembleSharedPtr(
 bsl::shared_ptr<Record>
 RecordSharedPtrUtil::reassembleSharedPtr(Record *record)
 {
-    BSLS_ASSERT_SAFE(0 != s_sharedObjectOffset);
+    BSLS_ASSERT(0 != s_sharedObjectOffset);
 
     RepType *rep = reinterpret_cast<RepType *>(
                       reinterpret_cast<char *>(record) - s_sharedObjectOffset);
@@ -801,7 +801,7 @@ void LoggerManager::constructObject(
     // Acquire a dummy 'bsl::shared_ptr<Record>' for offset calculation.
 
     RecordSharedPtrUtil::initializeSharedObjectOffset(
-                                      d_logger_p->getRecordPtr("foo.cpp", 17));
+                                         d_logger_p->d_recordPool.getObject());
 }
 
 void LoggerManager::publishAllImp(Transmission::Cause cause)
@@ -931,6 +931,15 @@ LoggerManager::initSingleton(LoggerManager *singleton, bool adoptSingleton)
 
         s_singleton_p      = singleton;
         s_isSingletonOwned = adoptSingleton;
+
+        // We call 'initializeSharedObjectOffset' because this factory function
+        // supports initializing the logger manager for shared libraries on
+        // Windows (see function doc). In that case, the constructor of the
+        // LoggerManager being passed (from code that has been dynamically
+        // linked) may not have initialized the shared-ptr offset singleton.
+        // See {DRQS 168080356} for more details.
+        RecordSharedPtrUtil::initializeSharedObjectOffset(
+                              singleton->d_logger_p->d_recordPool.getObject());
 
         // Configure 'bsls::Log' to publish records using 'ball' via the
         // 'LoggerManager' singleton.
