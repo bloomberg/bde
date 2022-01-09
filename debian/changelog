@@ -1,8 +1,20 @@
-bsl-internal (3.96.0.1) unstable; urgency=low
+bsl-internal (3.97.0.0) unstable; urgency=low
 
+  * dc2d49a39 Bumped version to 3.97.0.0
+  * 038ecc280 Fix missing shared object initialization (#3526)
+  * 0055c554f Merge pull request #3512 from bchapman/balst-DWARF-5-drqs-167927647
+  * 2680c69df Data race has been fixed in 'bslstl_hashtable' (#3518)
+  * 60079c565 DO NOT MERGE: correct 'waitUntilEmpty' race with 'disablePopFront' (#3521)
+  * 2e8e6b2e0 Parenthesize missed bsl::min to work around Windows issue (#3524)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sun, 9 Jan 2022 08:54:59 -0500
+
+bsl-internal (3.96.0.1) git; urgency=low
+
+  * c1e082310 Changelog for version 3.96.0.1
   * cd297fc25 Revert PerformanceMonitor API method (#3523)
 
- -- osubbotin <osubbotin@bloomberg.net>  Mon, 20 Dec 2021 18:11:43 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 20 Dec 2021 18:14:34 -0500
 
 bsl-internal (3.96.0.0) git; urgency=low
 
