@@ -16,6 +16,8 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_dladdr,"$Id$ $CSID$")
 
 #ifdef BALST_OBJECTFILEFORMAT_RESOLVER_DLADDR
 
+#include <balst_stacktraceconfigurationutil.h>
+
 #include <bsl_cstring.h>
 
 #include <bdlb_string.h>
@@ -176,10 +178,13 @@ int u::StackTraceResolver::resolveFrame(balst::StackTraceFrame *frame)
 }
 
 // CLASS METHODS
-int u::StackTraceResolver::resolve(
-                                    balst::StackTrace *stackTrace,
-                                    bool               demanglingPreferredFlag)
+int u::StackTraceResolver::resolve(balst::StackTrace *stackTrace,
+                                   bool               demanglingPreferredFlag)
 {
+    if (balst::StackTraceConfigurationUtil::isResolutionDisabled()) {
+        return 0;                                                     // RETURN
+    }
+
     int retRc = 0;
     u::StackTraceResolver resolver(stackTrace,
                                    demanglingPreferredFlag);

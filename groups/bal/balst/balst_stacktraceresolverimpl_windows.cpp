@@ -16,6 +16,8 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_windows_cpp,"$Id$ $CSID$")
 
 #if defined(BALST_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
 
+#include <balst_stacktraceconfigurationutil.h>
+
 #include <bdlb_string.h>
 #include <bdlma_heapbypassallocator.h>
 
@@ -473,6 +475,10 @@ int StackTraceResolverImpl<ObjectFileFormat::Windows>::resolve(
     // always happens on Windows.  Return 0 if successful and a non-zero value
     // otherwise.
 {
+    if (balst::StackTraceConfigurationUtil::isResolutionDisabled()) {
+        return 0;                                                     // RETURN
+    }
+
     typedef bsl::map<HMODULE, const char *> LibNameMap;
 
     bslmt::LockGuard<bslmt::Mutex> guard(&u::DbgHelpRecord::mutexSingleton());

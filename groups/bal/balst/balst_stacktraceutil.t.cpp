@@ -10,6 +10,7 @@
 #include <balst_stacktraceutil.h>
 
 #include <balst_objectfileformat.h>
+#include <balst_stacktraceconfigurationutil.h>
 #include <balst_stacktrace.h>
 
 #include <bdlb_string.h>
@@ -1964,7 +1965,7 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
-      case 17: {
+      case 18: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE THREE
         //
@@ -1989,7 +1990,7 @@ int main(int argc, char *argv[])
         recurseExample3(&depth);
         ASSERT(5 == depth);
       } break;
-      case 16: {
+      case 17: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE TWO
         //
@@ -2016,7 +2017,7 @@ int main(int argc, char *argv[])
         ASSERTV(rc, 0 == rc);
         ASSERTV(depth, 5 == depth);
       } break;
-      case 15: {
+      case 16: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE ONE
         //
@@ -2042,6 +2043,74 @@ int main(int argc, char *argv[])
         int rc = recurseExample1(&depth);
         ASSERTV(rc, 0 == rc);
         ASSERTV(depth, 5 == depth);
+      } break;
+      case 15: {
+        // --------------------------------------------------------------------
+        // TESTING RESOLUTION DISABLE
+        //
+        // Concern:
+        //: 1 'balst::StackTraceConfigurationUtil' has ability to
+        //:   disable / enable symbol resolution.
+        //
+        // Plan:
+        //: 1 Disable resolution.  Load a stack trace.  Observe that addresses
+        //:   are known, but nothing else is.
+        //
+        // Testing:
+        //   balst::StackTraceConfigurationUtil
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING RESOLUTION DISABLE\n"
+                             "==========================\n";
+
+        ASSERT(! balst::StackTraceConfigurationUtil::isResolutionDisabled());
+
+
+        bslma::TestAllocator ta;
+        balst::StackTrace st(&ta);
+
+
+        for (int ti = 0; ti < 4; ++ti) {
+            balst::StackTraceConfigurationUtil::disableResolution();
+
+            ASSERT(0 == Util::loadStackTraceFromStack(&st));
+
+            for (int ii = 0; ii < st.length(); ++ii) {
+                const balst::StackTraceFrame& frame = st[ii];
+
+                ASSERT( frame.isAddressKnown());
+                ASSERT(!frame.isLibraryFileNameKnown());
+                ASSERT(!frame.isLineNumberKnown());
+                ASSERT(!frame.isMangledSymbolNameKnown());
+                ASSERT(!frame.isOffsetFromSymbolKnown());
+                ASSERT(!frame.isSourceFileNameKnown());
+                ASSERT(!frame.isSymbolNameKnown());
+
+                if (veryVerbose) {
+                    cout << "Unresolved(" << ii << "): " << frame << endl;
+                }
+            }
+
+            balst::StackTraceConfigurationUtil::enableResolution();
+
+            ASSERT(0 == Util::loadStackTraceFromStack(&st));
+
+            if (veryVerbose) {
+                for (int ii = 0; ii < st.length(); ++ii) {
+                    cout << "Resolved(" << ii << "): " << st[ii] << endl;
+                }
+            }
+
+            const balst::StackTraceFrame& topFrame = st[0];
+
+            ASSERT( topFrame.isAddressKnown());
+
+            if (!PLAT_WIN || DEBUG_ON) {
+                ASSERT(topFrame.isSymbolNameKnown());
+                ASSERT(npos != topFrame.mangledSymbolName().find("main"));
+                ASSERT(npos != topFrame.symbolName().find("main"));
+            }
+        }
       } break;
       case 14: {
         // --------------------------------------------------------------------

@@ -16,6 +16,7 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_xcoff_cpp,"$Id$ $CSID$")
 
 #ifdef BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF
 
+#include <balst_stacktraceconfigurationutil.h>
 #include <balst_stacktrace.h>
 #include <balst_stacktraceresolver_filehelper.h>
 
@@ -1850,6 +1851,10 @@ int StackTraceResolverImpl<ObjectFileFormat::Xcoff>::resolve(
                                                  balst::StackTrace *stackTrace,
                                                  bool               demangle)
 {
+    if (balst::StackTraceConfigurationUtil::isResolutionDisabled()) {
+        return 0;                                                     // RETURN
+    }
+
     StackTraceResolverImpl<ObjectFileFormat::Xcoff> resolver(stackTrace,
                                                              demangle);
 

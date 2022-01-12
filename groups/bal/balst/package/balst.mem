@@ -1,6 +1,7 @@
 #balst_assertionlogger
 balst_objectfileformat
 balst_stacktrace
+balst_stacktraceconfigurationutil
 balst_stacktraceframe
 balst_stacktraceprinter
 balst_stacktraceprintutil

@@ -16,6 +16,7 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_elf_cpp,"$Id$ $CSID$")
 
 #ifdef BALST_OBJECTFILEFORMAT_RESOLVER_ELF
 
+#include <balst_stacktraceconfigurationutil.h>
 #include <balst_stacktraceresolver_filehelper.h>
 
 #include <bdlb_string.h>
@@ -4150,6 +4151,10 @@ int u::StackTraceResolver::resolve(
                                     bool               demanglingPreferredFlag)
 {
     static const char rn[] = { "Resolver::resolve" };    (void) rn;
+
+    if (balst::StackTraceConfigurationUtil::isResolutionDisabled()) {
+        return 0;                                                     // RETURN
+    }
 
 #if defined(BSLS_PLATFORM_OS_HPUX)
 
