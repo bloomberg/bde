@@ -174,7 +174,7 @@ BSLS_IDENT("$Id: $")
 //      };
 //
 //      int maxProc = bsl::max(1,
-//                             ceil(double(MAX_THREADS) / (NUM_QUEUES-1))-1);
+//                             ceil(double(NUM_THREADS) / (NUM_QUEUES-1))-1);
 //
 //      bdlmt::FixedThreadPool tp(NUM_THREADS, MAX_QUEUESIZE);
 //      JobQueue             importantQueue(maxProc, &tp);
