@@ -36,6 +36,7 @@
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
+#include <bsltf_movabletesttype.h>
 #include <bsltf_templatetestfacility.h>
 #include <bsltf_testvaluesarray.h>
 
@@ -6149,110 +6150,32 @@ namespace MoveFromAllocTypeSpace {
 typedef bsltf::MoveState MS;
 
 #define ASSERT_IS_MOVED_FROM(exp)                                             \
-    ASSERTV((exp).d_from, MoveState::e_MOVED == (exp).d_from)
+    ASSERTV((exp).movedFrom(), MoveState::e_MOVED == (exp).movedFrom())
 
 #define ASSERT_IS_NOT_MOVED_FROM(exp)                                         \
-    ASSERTV((exp).d_from, MoveState::e_NOT_MOVED == (exp).d_from)
+    ASSERTV((exp).movedFrom(), MoveState::e_NOT_MOVED == (exp).movedFrom())
 
 #define ASSERT_IS_MOVED_INTO(exp)                                             \
-    ASSERTV((exp).d_into, MoveState::e_MOVED == (exp).d_into)
+    ASSERTV((exp).movedInto(), MoveState::e_MOVED == (exp).movedInto())
 
 #define ASSERT_IS_NOT_MOVED_INTO(exp)                                         \
-    ASSERTV((exp).d_into, MoveState::e_NOT_MOVED == (exp).d_into)
+    ASSERTV((exp).movedInto(), MoveState::e_NOT_MOVED == (exp).movedInto())
 
-template <class TYPE>
-void resetNull(TYPE *value)
-{
-    value->~TYPE();
-    new (value) TYPE();
-}
-
-template <class TYPE>
-void resetNull(TYPE *value, const bsl::allocator<char>& alloc)
-{
-    value->~TYPE();
-    new (value) TYPE(alloc);
-}
-
-
-                                // ==========
-                                // class From
-                                // ==========
-
-struct From {
-    // DATA
-    int d_ii;
-    MS::Enum d_from, d_into;
-
-    // CREATORS
-    From(int ii);                                                   // IMPLICIT
-
-    From(const From& original);
-
-    // MANIPULATORS
-    From& operator=(const From& rhs);
-
-    void setData(int ii);
-
-    // ACCESSORS
-    int data() const;
-};
-
-                                // ----------
-                                // class From
-                                // ----------
-
-// CREATORS
-From::From(int ii)
-: d_ii(ii)
-, d_from(MS::e_NOT_MOVED)
-, d_into(MS::e_NOT_MOVED)
-{}
-
-From::From(const From& original)
-: d_ii(original.d_ii)
-, d_from(MS::e_NOT_MOVED)
-, d_into(MS::e_NOT_MOVED)
-{}
-
-// MANIPULATORS
-From& From::operator=(const From& rhs)
-{
-    d_ii   = rhs.d_ii;
-    d_from = MS::e_NOT_MOVED;
-    d_into = MS::e_NOT_MOVED;
-
-    return *this;
-}
-
-void From::setData(int ii)
-{
-    d_ii   = ii;
-    d_from = MS::e_NOT_MOVED;
-    d_into = MS::e_NOT_MOVED;
-}
-
-// ACCESSORS
-int From::data() const
-{
-    return d_ii;
-}
 
                                     // ========
                                     // class To
                                     // ========
 
-struct To {
+struct To : bsltf::MovableTestType {
     // DATA
-    int d_ii;
-    MS::Enum d_from, d_into;
+    
 
     // CREATORS
     To(int ii);                                                     // IMPLICIT
 
-    To(const From& from);                                           // IMPLICIT
+    To(const bsltf::MovableTestType& from);                         // IMPLICIT
 
-    To(bslmf::MovableRef<From> from);                               // IMPLICIT
+    To(bslmf::MovableRef<bsltf::MovableTestType> from);             // IMPLICIT
 
     To(const To& original);
 
@@ -6263,14 +6186,9 @@ struct To {
 
     To& operator=(bslmf::MovableRef<To> rhs);
 
-    To& operator=(const From& rhs);
+    To& operator=(const bsltf::MovableTestType& rhs);
 
-    To& operator=(bslmf::MovableRef<From> rhs);
-
-    void setData(int ii);
-
-    // ACCESSORS
-    int data() const;
+    To& operator=(bslmf::MovableRef<bsltf::MovableTestType> rhs);
 };
 
                                     // --------
@@ -6278,121 +6196,88 @@ struct To {
                                     // --------
 
 To::To(int ii)
-: d_ii(ii)
-, d_from(MS::e_NOT_MOVED)
-, d_into(MS::e_NOT_MOVED)
+: bsltf::MovableTestType(ii)
 {}
 
-To::To(const From& from)
-: d_ii(from.data())
-, d_from(MS::e_NOT_MOVED)
-, d_into(MS::e_NOT_MOVED)
+To::To(const bsltf::MovableTestType& from)
+: bsltf::MovableTestType(from)
 {}
 
-To::To(bslmf::MovableRef<From> from)
-: d_ii(bslmf::MovableRefUtil::access(from).data())
-, d_from(MS::e_NOT_MOVED)
-, d_into(MS::e_MOVED)
-{
-    From& local = from;
-
-    local.d_from = MS::e_MOVED;
-    local.d_ii   = -1;
-}
+To::To(bslmf::MovableRef<bsltf::MovableTestType> from)
+: bsltf::MovableTestType(bslmf::MovableRefUtil::move(from))
+{}
 
 To::To(const To& original)
-: d_ii(original.data())
-, d_from(MS::e_NOT_MOVED)
-, d_into(MS::e_NOT_MOVED)
+: bsltf::MovableTestType(original)
 {}
 
 To::To(bslmf::MovableRef<To> original)
-: d_ii(bslmf::MovableRefUtil::access(original).data())
-, d_from(MS::e_NOT_MOVED)
-, d_into(MS::e_MOVED)
-{
-    To& local = original;
-
-    local.d_from = MS::e_MOVED;
-    local.d_ii   = -1;
-}
+: bsltf::MovableTestType(bslmf::MovableRefUtil::move(
+                      static_cast<bsltf::MovableTestType &>(
+                                     bslmf::MovableRefUtil::access(original))))
+{}
 
 // MANIPULATORS
 To& To::operator=(const To& rhs)
 {
-    d_ii = rhs.d_ii;
+    bsltf::MovableTestType&       baseThis = *this;
+    const bsltf::MovableTestType& baseRhs  = rhs;
 
-    d_into = MS::e_NOT_MOVED;
+    baseThis = baseRhs;
 
     return *this;
 }
 
 To& To::operator=(bslmf::MovableRef<To> rhs)
 {
-    To& local = rhs;
+    bsltf::MovableTestType& baseThis = *this;
+    bsltf::MovableTestType& baseRhs  = rhs;
 
-    d_ii = local.d_ii;
-
-    d_into       = MS::e_MOVED;
-    local.d_from = MS::e_MOVED;
-    local.d_ii   = -1;
+    baseThis = bslmf::MovableRefUtil::move(baseRhs);
 
     return *this;
 }
 
-To& To::operator=(const From& rhs)
+To& To::operator=(const bsltf::MovableTestType& rhs)
 {
-    d_ii = rhs.d_ii;
+    bsltf::MovableTestType& baseThis = *this;
 
-    d_into = MS::e_NOT_MOVED;
+    baseThis = rhs;
 
     return *this;
 }
 
-To& To::operator=(bslmf::MovableRef<From> rhs)
+To& To::operator=(bslmf::MovableRef<bsltf::MovableTestType> rhs)
 {
-    From& local = rhs;
+    bsltf::MovableTestType& baseThis = *this;
+    bsltf::MovableTestType& localRhs = rhs;
 
-    d_ii = local.d_ii;
-
-    d_into       = MS::e_MOVED;
-    local.d_from = MS::e_MOVED;
-    local.d_ii   = -1;
+    baseThis = bslmf::MovableRefUtil::move(localRhs);
 
     return *this;
 }
 
-void To::setData(int ii)
-{
-    d_ii   = ii;
-    d_from = MS::e_NOT_MOVED;
-    d_into = MS::e_NOT_MOVED;
-}
-
-// ACCESSORS
-int To::data() const
-{
-    return d_ii;
-}
 
                                 // ===============
                                 // class AllocType
                                 // ===============
 
-struct AllocType {
+struct AllocType : bsltf::MovableTestType {
     // DATA
-    int d_ii;
-    MS::Enum d_from, d_into;
     bsl::allocator<char> d_alloc;
 
+    // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(AllocType,
                                    bslma::UsesBslmaAllocator);
 
     // CREATORS
-    AllocType(const From& from,
+    AllocType(int                  data,
               bsl::allocator<char> alloc = bsl::allocator<char>()); // IMPLICIT
 
-    AllocType(bslmf::MovableRef<From> from,
+    AllocType(const bsltf::MovableTestType& from,
+              bsl::allocator<char> alloc = bsl::allocator<char>()); // IMPLICIT
+
+    AllocType(bslmf::MovableRef<bsltf::MovableTestType> from,
               bsl::allocator<char> alloc = bsl::allocator<char>()); // IMPLICIT
 
     AllocType(const AllocType& original,
@@ -6405,13 +6290,11 @@ struct AllocType {
 
     AllocType& operator=(bslmf::MovableRef<AllocType> rhs);
 
-    AllocType& operator=(const From& rhs);
+    AllocType& operator=(const bsltf::MovableTestType& rhs);
 
-    AllocType& operator=(bslmf::MovableRef<From> rhs);
+    AllocType& operator=(bslmf::MovableRef<bsltf::MovableTestType> rhs);
 
     // ACCESSORS
-    int data() const;
-
     bsl::allocator<char> allocator() const;
 };
 
@@ -6419,100 +6302,81 @@ struct AllocType {
                                 // class AllocType
                                 // ---------------
 
-AllocType::AllocType(const From& from,
+// CREATORS
+AllocType::AllocType(int                  data,
                      bsl::allocator<char> alloc)
-: d_ii(from.data())
-, d_from(MS::e_NOT_MOVED)
-, d_into(MS::e_NOT_MOVED)
+: bsltf::MovableTestType(data)
 , d_alloc(alloc)
 {}
 
-AllocType::AllocType(bslmf::MovableRef<From> from,
+AllocType::AllocType(const bsltf::MovableTestType& from,
                      bsl::allocator<char> alloc)
-: d_ii(bslmf::MovableRefUtil::access(from).data())
-, d_from(MS::e_NOT_MOVED)
-, d_into(MS::e_MOVED)
+: bsltf::MovableTestType(from)
 , d_alloc(alloc)
-{
-    From& local = from;
+{}
 
-    local.d_from = MS::e_MOVED;
-    local.d_ii   = -1;
-}
+AllocType::AllocType(bslmf::MovableRef<bsltf::MovableTestType> from,
+                     bsl::allocator<char> alloc)
+: bsltf::MovableTestType(bslmf::MovableRefUtil::move(from))
+, d_alloc(alloc)
+{}
 
 AllocType::AllocType(const AllocType& original,
                      bsl::allocator<char> alloc)
-: d_ii(original.data())
-, d_from(MS::e_NOT_MOVED)
-, d_into(MS::e_NOT_MOVED)
+: bsltf::MovableTestType(original)
 , d_alloc(alloc)
 {}
 
 
 AllocType::AllocType(bslmf::MovableRef<AllocType> original,
                      bsl::allocator<char> alloc)
-: d_ii(bslmf::MovableRefUtil::access(original).data())
-, d_from(MS::e_NOT_MOVED)
-, d_into(MS::e_MOVED)
+: bsltf::MovableTestType(bslmf::MovableRefUtil::move(
+                     static_cast<bsltf::MovableTestType &>(
+                                     bslmf::MovableRefUtil::access(original))))
 , d_alloc(alloc)
-{
-    AllocType& local = original;
-
-    local.d_from = MS::e_MOVED;
-    local.d_ii   = -1;
-}
+{}
 
 // MANIPULATORS
 AllocType& AllocType::operator=(const AllocType& rhs)
 {
-    d_ii = rhs.d_ii;
+    bsltf::MovableTestType&       thisBase = *this;
+    const bsltf::MovableTestType& rhsBase  = rhs;
 
-    d_into = MS::e_NOT_MOVED;
+    thisBase = rhsBase;
 
     return *this;
 }
 
 AllocType& AllocType::operator=(bslmf::MovableRef<AllocType> rhs)
 {
-    AllocType& local = rhs;
+    bsltf::MovableTestType& thisBase = *this;
+    bsltf::MovableTestType& rhsBase  = bslmf::MovableRefUtil::access(rhs);
 
-    d_ii = local.d_ii;
-
-    d_into       = MS::e_MOVED;
-    local.d_from = MS::e_MOVED;
-    local.d_ii   = -1;
+    thisBase = bslmf::MovableRefUtil::move(rhsBase);
 
     return *this;
 }
 
-AllocType& AllocType::operator=(const From& rhs)
+AllocType& AllocType::operator=(const bsltf::MovableTestType& rhs)
 {
-    d_ii = rhs.d_ii;
+    bsltf::MovableTestType& thisBase = *this;
 
-    d_into = MS::e_NOT_MOVED;
+    thisBase = rhs;
 
     return *this;
 }
 
-AllocType& AllocType::operator=(bslmf::MovableRef<From> rhs)
+AllocType& AllocType::operator=(bslmf::MovableRef<bsltf::MovableTestType> rhs)
 {
-    From& local = rhs;
+    bsltf::MovableTestType& thisBase = *this;
+    bsltf::MovableTestType& rhsLocal = rhs;
 
-    d_ii = local.d_ii;
-
-    d_into       = MS::e_MOVED;
-    local.d_from = MS::e_MOVED;
-    local.d_ii   = -1;
+    thisBase = bslmf::MovableRefUtil::move(rhsLocal);
 
     return *this;
 }
 
 // ACCESSORS
-int AllocType::data() const
-{
-    return d_ii;
-}
-
 bsl::allocator<char> AllocType::allocator() const
 {
     return d_alloc;
@@ -6856,16 +6720,16 @@ int main(int argc, char *argv[])
             TestAlloc taa;
             Alloc     aa(&taa);
 
-            OptAlloc     baa(aa);    const OptAlloc& BAA = baa;
-            const NVAlloc nvAA(BAA);
+            OptAlloc      oaa(aa);    const OptAlloc& OAA = oaa;
+            const NVAlloc nvAA(OAA);
 
-            ASSERT(BAA ->mechanism() == &taa);
+            ASSERT(OAA ->mechanism() == &taa);
             ASSERT(nvAA->mechanism() == &taa);
 
-            OptAllocPtr     baap(&taa);    const OptAllocPtr& BAAP = baap;
-            const NVAllocPtr nvAAP(BAAP);
+            OptAllocPtr     oaap(&taa);    const OptAllocPtr& OAAP = oaap;
+            const NVAllocPtr nvAAP(OAAP);
 
-            ASSERT(*BAAP  == &taa);
+            ASSERT(*OAAP  == &taa);
             ASSERT(*nvAAP == &taa);
         }
 
@@ -6874,16 +6738,16 @@ int main(int argc, char *argv[])
             TestAlloc taa;
             Alloc     aa(&taa);
 
-            OptAlloc     baa(aa);    const OptAlloc& BAA = baa;
-            const NVAlloc nvAA(MoveUtil::move(baa));
+            OptAlloc      oaa(aa);    const OptAlloc& OAA = oaa;
+            const NVAlloc nvAA(MoveUtil::move(oaa));
 
-            ASSERT(BAA ->mechanism() == &taa);
+            ASSERT(OAA ->mechanism() == &taa);
             ASSERT(nvAA->mechanism() == &taa);
 
-            OptAllocPtr     baap(&taa);    const OptAllocPtr& BAAP = baap;
-            const NVAllocPtr nvAAP(MoveUtil::move(baap));
+            OptAllocPtr     oaap(&taa);    const OptAllocPtr& OAAP = oaap;
+            const NVAllocPtr nvAAP(MoveUtil::move(oaap));
 
-            ASSERT(*BAAP  == &taa);
+            ASSERT(*OAAP  == &taa);
             ASSERT(*nvAAP == &taa);
         }
 
@@ -6892,28 +6756,28 @@ int main(int argc, char *argv[])
             TestAlloc taa, uaa;
             Alloc     aa(&taa), ua(&uaa);
 
-            OptAlloc      baa(aa);     const OptAlloc& BAA = baa;
-            NVAlloc       nvAA(ua);    const NVAlloc&   NVAA = nvAA;
+            OptAlloc      oaa(aa);     const OptAlloc& OAA = oaa;
+            NVAlloc       nvAA(ua);    const NVAlloc&  NVAA = nvAA;
             NVAlloc      *z_p = 0;
 
             ASSERT(nvAA->mechanism() == &uaa);
 
-            z_p = &(nvAA = BAA);
+            z_p = &(nvAA = OAA);
 
             ASSERT(&NVAA == z_p);
-            ASSERT(BAA ->mechanism() == &taa);
+            ASSERT(OAA ->mechanism() == &taa);
             ASSERT(nvAA->mechanism() == &taa);
 
-            OptAllocPtr      baap(&taa);    const OptAllocPtr& BAAP = baap;
-            NVAllocPtr       nvAAP(&uaa);   const NVAllocPtr&   NVAAP = nvAAP;
+            OptAllocPtr      oaap(&taa);    const OptAllocPtr& OAAP = oaap;
+            NVAllocPtr       nvAAP(&uaa);   const NVAllocPtr&  NVAAP = nvAAP;
             NVAllocPtr      *zp_p = 0;
 
             ASSERT(*nvAAP == &uaa);
 
-            zp_p = &(nvAAP = BAAP);
+            zp_p = &(nvAAP = OAAP);
 
             ASSERT(&NVAAP == zp_p);
-            ASSERT(*BAAP  == &taa);
+            ASSERT(*OAAP  == &taa);
             ASSERT(*nvAAP == &taa);
         }
 
@@ -6922,28 +6786,28 @@ int main(int argc, char *argv[])
             TestAlloc taa, uaa;
             Alloc     aa(&taa), ua(&uaa);
 
-            OptAlloc      baa(aa);     const OptAlloc& BAA = baa;
-            NVAlloc       nvAA(ua);    const NVAlloc&   NVAA = nvAA;
+            OptAlloc      oaa(aa);     const OptAlloc& OAA = oaa;
+            NVAlloc       nvAA(ua);    const NVAlloc&  NVAA = nvAA;
             NVAlloc      *z_p = 0;
 
             ASSERT(nvAA->mechanism() == &uaa);
 
-            z_p = &(nvAA = MoveUtil::move(baa));
+            z_p = &(nvAA = MoveUtil::move(oaa));
 
             ASSERT(&NVAA == z_p);
-            ASSERT(BAA ->mechanism() == &taa);
+            ASSERT(OAA ->mechanism() == &taa);
             ASSERT(nvAA->mechanism() == &taa);
 
-            OptAllocPtr      baap(&taa);    const OptAllocPtr& BAAP = baap;
-            NVAllocPtr       nvAAP(&uaa);   const NVAllocPtr&   NVAAP = nvAAP;
+            OptAllocPtr      oaap(&taa);    const OptAllocPtr& OAAP = oaap;
+            NVAllocPtr       nvAAP(&uaa);   const NVAllocPtr&  NVAAP = nvAAP;
             NVAllocPtr      *zp_p = 0;
 
             ASSERT(*nvAAP == &uaa);
 
-            zp_p = &(nvAAP = MoveUtil::move(baap));
+            zp_p = &(nvAAP = MoveUtil::move(oaap));
 
             ASSERT(&NVAAP == zp_p);
-            ASSERT(*BAAP  == &taa);
+            ASSERT(*OAAP  == &taa);
             ASSERT(*nvAAP == &taa);
         }
 
@@ -7017,11 +6881,11 @@ int main(int argc, char *argv[])
             TestAlloc taa;
             Alloc     aa(&taa);
 
-            OptAllocPtr     baap(&taa);    const OptAllocPtr& BAAP = baap;
-            OptAlloc        baa(BAAP);     const OptAlloc&    BAA  = baa;
+            OptAllocPtr     oaap(&taa);    const OptAllocPtr& OAAP = oaap;
+            OptAlloc        oaa(OAAP);     const OptAlloc&    OAA  = oaa;
 
-            ASSERT(*BAAP             == &taa);
-            ASSERT(BAA ->mechanism() == &taa);
+            ASSERT(*OAAP             == &taa);
+            ASSERT(OAA ->mechanism() == &taa);
         }
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
@@ -7030,12 +6894,12 @@ int main(int argc, char *argv[])
             TestAlloc taa;
             Alloc     aa(&taa);
 
-            OptAllocPtr     baap(&taa);    const OptAllocPtr& BAAP = baap;
-            OptAlloc        baa(MoveUtil::move(baap));
-            const OptAlloc& BAA = baa;
+            OptAllocPtr     oaap(&taa);    const OptAllocPtr& OAAP = oaap;
+            OptAlloc        oaa(MoveUtil::move(oaap));
+            const OptAlloc& OAA = oaa;
 
-            ASSERT(*BAAP             == &taa);
-            ASSERT(BAA ->mechanism() == &taa);
+            ASSERT(*OAAP             == &taa);
+            ASSERT(OAA ->mechanism() == &taa);
         }
 #endif
 
@@ -7044,16 +6908,16 @@ int main(int argc, char *argv[])
             TestAlloc taa, uaa;
             Alloc     aa(&taa), ua(&uaa);
 
-            OptAllocPtr      baap(&taa);    const OptAllocPtr& BAAP = baap;
-            NVAlloc          nvAA(ua);      const NVAlloc&      NVAA = nvAA;
+            OptAllocPtr      oaap(&taa);    const OptAllocPtr& OAAP = oaap;
+            NVAlloc          nvAA(ua);      const NVAlloc&     NVAA = nvAA;
             NVAlloc         *z_p = 0;
 
             ASSERT(nvAA->mechanism() == &uaa);
 
-            z_p = &(nvAA = BAAP);
+            z_p = &(nvAA = OAAP);
 
             ASSERT(&NVAA             == z_p);
-            ASSERT(*BAAP             == &taa);
+            ASSERT(*OAAP             == &taa);
             ASSERT(nvAA->mechanism() == &taa);
         }
 
@@ -7063,16 +6927,16 @@ int main(int argc, char *argv[])
             TestAlloc taa, uaa;
             Alloc     aa(&taa), ua(&uaa);
 
-            OptAllocPtr      baap(&taa);    const OptAllocPtr& BAAP = baap;
-            NVAlloc          nvAA(ua);      const NVAlloc&      NVAA = nvAA;
+            OptAllocPtr      oaap(&taa);    const OptAllocPtr& OAAP = oaap;
+            NVAlloc          nvAA(ua);      const NVAlloc&     NVAA = nvAA;
             NVAlloc         *z_p = 0;
 
             ASSERT(nvAA->mechanism() == &uaa);
 
-            z_p = &(nvAA = MoveUtil::move(baap));
+            z_p = &(nvAA = MoveUtil::move(oaap));
 
             ASSERT(&NVAA             == z_p);
-            ASSERT(*BAAP             == &taa);
+            ASSERT(*OAAP             == &taa);
             ASSERT(nvAA->mechanism() == &taa);
         }
 #endif
@@ -7080,9 +6944,9 @@ int main(int argc, char *argv[])
         {
             TestAlloc taa;
             Alloc aa(&taa), caa(&taa);
-            OptAlloc ba(aa), ca(caa);
+            OptAlloc oa(aa), ca(caa);
 
-            bslma::ConstructionUtil::construct(&ba, &taa, ca);
+            bslma::ConstructionUtil::construct(&oa, &taa, ca);
         }
 
         if (verbose) cout << "Copy construct NV from Opt\n";
@@ -7090,17 +6954,17 @@ int main(int argc, char *argv[])
             TestAlloc taa;
             Alloc     aa(&taa);
 
-            OptAlloc             baa(aa);    const OptAlloc& BAA = baa;
-            const NVOptAlloc     nvAA(BAA);
+            OptAlloc             oaa(aa);    const OptAlloc& OAA = oaa;
+            const NVOptAlloc     nvAA(OAA);
 
-            ASSERT(BAA    ->mechanism() == &taa);
+            ASSERT(OAA    ->mechanism() == &taa);
             ASSERT((*nvAA)->mechanism() == &taa);
 
-            OptAllocPtr             baap(&taa);
-            const OptAllocPtr&      BAAP = baap;
-            const NVOptAllocPtr     nvAAP(BAAP);
+            OptAllocPtr             oaap(&taa);
+            const OptAllocPtr&      OAAP = oaap;
+            const NVOptAllocPtr     nvAAP(OAAP);
 
-            ASSERT(*BAAP   == &taa);
+            ASSERT(*OAAP   == &taa);
             ASSERT(**nvAAP == &taa);
         }
 
@@ -7109,18 +6973,18 @@ int main(int argc, char *argv[])
             TestAlloc taa;
             Alloc     aa(&taa);
 
-            OptAlloc             baa(aa);
-            const OptAlloc&      BAA = baa;
-            const NVOptAlloc     nvAA(MoveUtil::move(baa));
+            OptAlloc             oaa(aa);
+            const OptAlloc&      OAA = oaa;
+            const NVOptAlloc     nvAA(MoveUtil::move(oaa));
 
-            ASSERT(BAA    ->mechanism() == &taa);
+            ASSERT(OAA    ->mechanism() == &taa);
             ASSERT((*nvAA)->mechanism() == &taa);
 
-            OptAllocPtr             baap(&taa);
-            const OptAllocPtr&      BAAP = baap;
-            const NVOptAllocPtr     nvAAP(MoveUtil::move(baap));
+            OptAllocPtr             oaap(&taa);
+            const OptAllocPtr&      OAAP = oaap;
+            const NVOptAllocPtr     nvAAP(MoveUtil::move(oaap));
 
-            ASSERT(*BAAP   == &taa);
+            ASSERT(*OAAP   == &taa);
             ASSERT(**nvAAP == &taa);
         }
 
@@ -7129,27 +6993,27 @@ int main(int argc, char *argv[])
             TestAlloc taa;
             Alloc     aa(&taa);
 
-            OptAlloc                 baa(aa);
-            const OptAlloc&          BAA = baa;
+            OptAlloc                 oaa(aa);
+            const OptAlloc&          OAA = oaa;
 
-            OptOptAlloc              bbaa(BAA);
-            const OptOptAlloc&       BBAA = bbaa;
+            OptOptAlloc              boaa(OAA);
+            const OptOptAlloc&       BOAA = boaa;
 
-            const NVOptOptAlloc      nvBBAA(BBAA);
+            const NVOptOptAlloc      nvBOAA(BOAA);
 
-            ASSERT((*BBAA)   ->mechanism() == &taa);
-            ASSERT((**nvBBAA)->mechanism() == &taa);
+            ASSERT((*BOAA)   ->mechanism() == &taa);
+            ASSERT((**nvBOAA)->mechanism() == &taa);
 
-            OptAllocPtr              baap(&taa);
-            const OptAllocPtr&       BAAP = baap;
+            OptAllocPtr              oaap(&taa);
+            const OptAllocPtr&       OAAP = oaap;
 
-            OptOptAllocPtr           bbaap(BAAP);
-            const OptOptAllocPtr&    BBAAP = bbaap;
+            OptOptAllocPtr           ooaap(OAAP);
+            const OptOptAllocPtr&    OOAAP = ooaap;
 
-            const NVOptOptAllocPtr   nvBBAAPP(BBAAP);
+            const NVOptOptAllocPtr   nvOOAAPP(OOAAP);
 
-            ASSERT(**BBAAP     == &taa);
-            ASSERT(***nvBBAAPP == &taa);
+            ASSERT(**OOAAP     == &taa);
+            ASSERT(***nvOOAAPP == &taa);
         }
 
         if (verbose) cout << "Move construct NV from OptOpt\n";
@@ -7157,27 +7021,27 @@ int main(int argc, char *argv[])
             TestAlloc taa;
             Alloc     aa(&taa);
 
-            OptAlloc                 baa(aa);
-            const OptAlloc&          BAA = baa;
+            OptAlloc                 oaa(aa);
+            const OptAlloc&          OAA = oaa;
 
-            OptOptAlloc              bbaa(BAA);
-            const OptOptAlloc&       BBAA = bbaa;
+            OptOptAlloc              ooaa(OAA);
+            const OptOptAlloc&       OOAA = ooaa;
 
-            const NVOptOptAlloc      nvBBAA(MoveUtil::move(bbaa));
+            const NVOptOptAlloc      nvOOAA(MoveUtil::move(ooaa));
 
-            ASSERT((*BBAA)   ->mechanism() == &taa);
-            ASSERT((**nvBBAA)->mechanism() == &taa);
+            ASSERT((*OOAA)   ->mechanism() == &taa);
+            ASSERT((**nvOOAA)->mechanism() == &taa);
 
-            OptAllocPtr              baap(&taa);
-            const OptAllocPtr&       BAAP = baap;
+            OptAllocPtr              oaap(&taa);
+            const OptAllocPtr&       OAAP = oaap;
 
-            OptOptAllocPtr           bbaap(BAAP);
-            const OptOptAllocPtr&    BBAAP = bbaap;
+            OptOptAllocPtr           ooaap(OAAP);
+            const OptOptAllocPtr&    OOAAP = ooaap;
 
-            const NVOptOptAllocPtr   nvBBAAPP(MoveUtil::move(bbaap));
+            const NVOptOptAllocPtr   nvOOAAPP(MoveUtil::move(ooaap));
 
-            ASSERT(**BBAAP     == &taa);
-            ASSERT(***nvBBAAPP == &taa);
+            ASSERT(**OOAAP     == &taa);
+            ASSERT(***nvOOAAPP == &taa);
         }
 
         if (verbose) cout << "Copy assign NV from Opt\n";
@@ -7185,28 +7049,28 @@ int main(int argc, char *argv[])
             TestAlloc taa, uaa;
             Alloc     aa(&taa), ua(&uaa);
 
-            OptAlloc      baa(aa);     const OptAlloc& BAA = baa;
-            NVAlloc       nvAA(ua);    const NVAlloc&   NVAA = nvAA;
+            OptAlloc      oaa(aa);     const OptAlloc& OAA = oaa;
+            NVAlloc       nvAA(ua);    const NVAlloc&  NVAA = nvAA;
             NVAlloc      *z_p = 0;
 
             ASSERT(nvAA->mechanism() == &uaa);
 
-            z_p = &(nvAA = BAA);
+            z_p = &(nvAA = OAA);
 
             ASSERT(&NVAA == z_p);
-            ASSERT(BAA ->mechanism() == &taa);
+            ASSERT(OAA ->mechanism() == &taa);
             ASSERT(nvAA->mechanism() == &taa);
 
-            OptAllocPtr      baap(&taa);    const OptAllocPtr& BAAP = baap;
-            NVAllocPtr       nvAAP(&uaa);   const NVAllocPtr&   NVAAP = nvAAP;
+            OptAllocPtr      oaap(&taa);    const OptAllocPtr& OAAP = oaap;
+            NVAllocPtr       nvAAP(&uaa);   const NVAllocPtr&  NVAAP = nvAAP;
             NVAllocPtr      *zp_p = 0;
 
             ASSERT(*nvAAP == &uaa);
 
-            zp_p = &(nvAAP = BAAP);
+            zp_p = &(nvAAP = OAAP);
 
             ASSERT(&NVAAP == zp_p);
-            ASSERT(*BAAP  == &taa);
+            ASSERT(*OAAP  == &taa);
             ASSERT(*nvAAP == &taa);
         }
 
@@ -7215,28 +7079,28 @@ int main(int argc, char *argv[])
             TestAlloc taa, uaa;
             Alloc     aa(&taa), ua(&uaa);
 
-            OptAlloc      baa(aa);     const OptAlloc& BAA = baa;
-            NVAlloc       nvAA(ua);    const NVAlloc&   NVAA = nvAA;
+            OptAlloc      oaa(aa);     const OptAlloc& OAA = oaa;
+            NVAlloc       nvAA(ua);    const NVAlloc&  NVAA = nvAA;
             NVAlloc      *z_p = 0;
 
             ASSERT(nvAA->mechanism() == &uaa);
 
-            z_p = &(nvAA = MoveUtil::move(baa));
+            z_p = &(nvAA = MoveUtil::move(oaa));
 
             ASSERT(&NVAA == z_p);
-            ASSERT(BAA ->mechanism() == &taa);
+            ASSERT(OAA ->mechanism() == &taa);
             ASSERT(nvAA->mechanism() == &taa);
 
-            OptAllocPtr      baap(&taa);    const OptAllocPtr& BAAP = baap;
-            NVAllocPtr       nvAAP(&uaa);   const NVAllocPtr&   NVAAP = nvAAP;
+            OptAllocPtr      oaap(&taa);    const OptAllocPtr& OAAP = oaap;
+            NVAllocPtr       nvAAP(&uaa);   const NVAllocPtr&  NVAAP = nvAAP;
             NVAllocPtr      *zp_p = 0;
 
             ASSERT(*nvAAP == &uaa);
 
-            zp_p = &(nvAAP = MoveUtil::move(baap));
+            zp_p = &(nvAAP = MoveUtil::move(oaap));
 
             ASSERT(&NVAAP == zp_p);
-            ASSERT(*BAAP  == &taa);
+            ASSERT(*OAAP  == &taa);
             ASSERT(*nvAAP == &taa);
         }
 
@@ -7310,11 +7174,11 @@ int main(int argc, char *argv[])
             TestAlloc taa;
             Alloc     aa(&taa);
 
-            OptAllocPtr     baap(&taa);    const OptAllocPtr& BAAP = baap;
-            OptAlloc        baa(BAAP);     const OptAlloc&    BAA  = baa;
+            OptAllocPtr     oaap(&taa);    const OptAllocPtr& OAAP = oaap;
+            OptAlloc        oaa(OAAP);     const OptAlloc&    OAA  = oaa;
 
-            ASSERT(*BAAP             == &taa);
-            ASSERT(BAA ->mechanism() == &taa);
+            ASSERT(*OAAP             == &taa);
+            ASSERT(OAA ->mechanism() == &taa);
         }
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
@@ -7323,12 +7187,12 @@ int main(int argc, char *argv[])
             TestAlloc taa;
             Alloc     aa(&taa);
 
-            OptAllocPtr     baap(&taa);    const OptAllocPtr& BAAP = baap;
-            OptAlloc        baa(MoveUtil::move(baap));
-            const OptAlloc& BAA  = baa;
+            OptAllocPtr     oaap(&taa);    const OptAllocPtr& OAAP = oaap;
+            OptAlloc        oaa(MoveUtil::move(oaap));
+            const OptAlloc& OAA  = oaa;
 
-            ASSERT(*BAAP             == &taa);
-            ASSERT(BAA ->mechanism() == &taa);
+            ASSERT(*OAAP             == &taa);
+            ASSERT(OAA ->mechanism() == &taa);
         }
 #endif
 
@@ -7337,16 +7201,16 @@ int main(int argc, char *argv[])
             TestAlloc taa, uaa;
             Alloc     aa(&taa), ua(&uaa);
 
-            OptAllocPtr      baap(&taa);    const OptAllocPtr& BAAP = baap;
+            OptAllocPtr      oaap(&taa);    const OptAllocPtr& OAAP = oaap;
             NVAlloc          nvAA(ua);      const NVAlloc&      NVAA = nvAA;
             NVAlloc         *z_p = 0;
 
             ASSERT(nvAA->mechanism() == &uaa);
 
-            z_p = &(nvAA = BAAP);
+            z_p = &(nvAA = OAAP);
 
             ASSERT(&NVAA             == z_p);
-            ASSERT(*BAAP             == &taa);
+            ASSERT(*OAAP             == &taa);
             ASSERT(nvAA->mechanism() == &taa);
         }
 
@@ -7356,16 +7220,16 @@ int main(int argc, char *argv[])
             TestAlloc taa, uaa;
             Alloc     aa(&taa), ua(&uaa);
 
-            OptAllocPtr      baap(&taa);    const OptAllocPtr& BAAP = baap;
-            NVAlloc          nvAA(ua);      const NVAlloc&      NVAA = nvAA;
+            OptAllocPtr      oaap(&taa);    const OptAllocPtr& OAAP = oaap;
+            NVAlloc          nvAA(ua);      const NVAlloc&     NVAA = nvAA;
             NVAlloc         *z_p = 0;
 
             ASSERT(nvAA->mechanism() == &uaa);
 
-            z_p = &(nvAA = MoveUtil::move(baap));
+            z_p = &(nvAA = MoveUtil::move(oaap));
 
             ASSERT(&NVAA             == z_p);
-            ASSERT(*BAAP             == &taa);
+            ASSERT(*OAAP             == &taa);
             ASSERT(nvAA->mechanism() == &taa);
         }
 #endif
@@ -7375,55 +7239,55 @@ int main(int argc, char *argv[])
             TestAlloc taa, txx;
             Alloc     aa(&taa), xx(&txx);
 
-            OptAlloc                 baa(aa);
-            const OptAlloc&          BAA = baa;
+            OptAlloc                 oaa(aa);
+            const OptAlloc&          OAA = oaa;
 
-            OptOptAlloc              bbaa(BAA);
-            const OptOptAlloc&       BBAA = bbaa;
+            OptOptAlloc              ooaa(OAA);
+            const OptOptAlloc&       OOAA = ooaa;
 
-            OptAlloc                 bxx(xx);
-            const OptAlloc&          BXX = bxx;
+            OptAlloc                 oxx(xx);
+            const OptAlloc&          OXX = oxx;
 
-            OptOptAlloc              bbxx(BXX);
-            const OptOptAlloc&       BBXX = bbxx;
+            OptOptAlloc              ooxx(OXX);
+            const OptOptAlloc&       OOXX = ooxx;
 
-            NVOptOptAlloc            nvBBAA(BBAA);
-            const NVOptOptAlloc      nvBBXX(BBXX);
+            NVOptOptAlloc            nvOOAA(OOAA);
+            const NVOptOptAlloc      nvOOXX(OOXX);
 
-            ASSERT((*BBAA)   ->mechanism() == &taa);
-            ASSERT((**nvBBAA)->mechanism() == &taa);
-            ASSERT((**nvBBXX)->mechanism() == &txx);
+            ASSERT((*OOAA)   ->mechanism() == &taa);
+            ASSERT((**nvOOAA)->mechanism() == &taa);
+            ASSERT((**nvOOXX)->mechanism() == &txx);
 
-            NVOptOptAlloc* p_z = &(nvBBAA = nvBBXX);
+            NVOptOptAlloc* p_z = &(nvOOAA = nvOOXX);
 
-            ASSERT(&nvBBAA == p_z);
-            ASSERT((**nvBBAA)->mechanism() == &txx);
-            ASSERT((**nvBBXX)->mechanism() == &txx);
+            ASSERT(&nvOOAA == p_z);
+            ASSERT((**nvOOAA)->mechanism() == &txx);
+            ASSERT((**nvOOXX)->mechanism() == &txx);
 
-            OptAllocPtr                 baap(&taa);
-            const OptAllocPtr&          BAAP = baap;
+            OptAllocPtr                 oaap(&taa);
+            const OptAllocPtr&          OAAP = oaap;
 
-            OptOptAllocPtr              bbaap(BAAP);
-            const OptOptAllocPtr&       BBAAP = bbaap;
+            OptOptAllocPtr              ooaap(OAAP);
+            const OptOptAllocPtr&       OOAAP = ooaap;
 
-            OptAllocPtr                 bxxp(&txx);
-            const OptAllocPtr&          BXXP = bxxp;
+            OptAllocPtr                 oxxp(&txx);
+            const OptAllocPtr&          OXXP = oxxp;
 
-            OptOptAllocPtr              bbxxp(BXXP);
-            const OptOptAllocPtr&       BBXXP = bbxxp;
+            OptOptAllocPtr              ooxxp(OXXP);
+            const OptOptAllocPtr&       OOXXP = ooxxp;
 
-            NVOptOptAllocPtr            nvBBAAP(BBAAP);
-            const NVOptOptAllocPtr      nvBBXXP(BBXXP);
+            NVOptOptAllocPtr            nvOOAAP(OOAAP);
+            const NVOptOptAllocPtr      nvOOXXP(OOXXP);
 
-            ASSERT(**BBAAP    == &taa);
-            ASSERT(***nvBBAAP == &taa);
-            ASSERT(***nvBBXXP == &txx);
+            ASSERT(**OOAAP    == &taa);
+            ASSERT(***nvOOAAP == &taa);
+            ASSERT(***nvOOXXP == &txx);
 
-            NVOptOptAllocPtr* p_zp = &(nvBBAAP = BBXXP);
+            NVOptOptAllocPtr* p_zp = &(nvOOAAP = OOXXP);
 
-            ASSERT(&nvBBAAP == p_zp);
-            ASSERT(***nvBBAAP == &txx);
-            ASSERT(***nvBBXXP == &txx);
+            ASSERT(&nvOOAAP == p_zp);
+            ASSERT(***nvOOAAP == &txx);
+            ASSERT(***nvOOXXP == &txx);
         }
 
         if (verbose) cout << "Move assign NV from OptOpt\n";
@@ -7431,55 +7295,55 @@ int main(int argc, char *argv[])
             TestAlloc taa, txx;
             Alloc     aa(&taa), xx(&txx);
 
-            OptAlloc                 baa(aa);
-            const OptAlloc&          BAA = baa;
+            OptAlloc                 oaa(aa);
+            const OptAlloc&          OAA = oaa;
 
-            OptOptAlloc              bbaa(BAA);
-            const OptOptAlloc&       BBAA = bbaa;
+            OptOptAlloc              ooaa(OAA);
+            const OptOptAlloc&       OOAA = ooaa;
 
-            OptAlloc                 bxx(xx);
-            const OptAlloc&          BXX = bxx;
+            OptAlloc                 oxx(xx);
+            const OptAlloc&          OXX = oxx;
 
-            OptOptAlloc              bbxx(BXX);
-            const OptOptAlloc&       BBXX = bbxx;
+            OptOptAlloc              ooxx(OXX);
+            const OptOptAlloc&       OOXX = ooxx;
 
-            NVOptOptAlloc            nvBBAA(BBAA);
-            NVOptOptAlloc            nvBBXX(BBXX);
+            NVOptOptAlloc            nvOOAA(OOAA);
+            NVOptOptAlloc            nvOOXX(OOXX);
 
-            ASSERT((*BBAA)   ->mechanism() == &taa);
-            ASSERT((**nvBBAA)->mechanism() == &taa);
-            ASSERT((**nvBBXX)->mechanism() == &txx);
+            ASSERT((*OOAA)   ->mechanism() == &taa);
+            ASSERT((**nvOOAA)->mechanism() == &taa);
+            ASSERT((**nvOOXX)->mechanism() == &txx);
 
-            NVOptOptAlloc* p_z = &(nvBBAA = MoveUtil::move(nvBBXX));
+            NVOptOptAlloc* p_z = &(nvOOAA = MoveUtil::move(nvOOXX));
 
-            ASSERT(&nvBBAA == p_z);
-            ASSERT((**nvBBAA)->mechanism() == &txx);
-            ASSERT((**nvBBXX)->mechanism() == &txx);
+            ASSERT(&nvOOAA == p_z);
+            ASSERT((**nvOOAA)->mechanism() == &txx);
+            ASSERT((**nvOOXX)->mechanism() == &txx);
 
-            OptAllocPtr                 baap(&taa);
-            const OptAllocPtr&          BAAP = baap;
+            OptAllocPtr                 oaap(&taa);
+            const OptAllocPtr&          OAAP = oaap;
 
-            OptOptAllocPtr              bbaap(BAAP);
-            const OptOptAllocPtr&       BBAAP = bbaap;
+            OptOptAllocPtr              ooaap(OAAP);
+            const OptOptAllocPtr&       OOAAP = ooaap;
 
-            OptAllocPtr                 bxxp(&txx);
-            const OptAllocPtr&          BXXP = bxxp;
+            OptAllocPtr                 oxxp(&txx);
+            const OptAllocPtr&          OXXP = oxxp;
 
-            OptOptAllocPtr              bbxxp(BXXP);
-            const OptOptAllocPtr&       BBXXP = bbxxp;
+            OptOptAllocPtr              ooxxp(OXXP);
+            const OptOptAllocPtr&       OOXXP = ooxxp;
 
-            NVOptOptAllocPtr            nvBBAAP(BBAAP);
-            NVOptOptAllocPtr            nvBBXXP(BBXXP);
+            NVOptOptAllocPtr            nvOOAAP(OOAAP);
+            NVOptOptAllocPtr            nvOOXXP(OOXXP);
 
-            ASSERT(**BBAAP    == &taa);
-            ASSERT(***nvBBAAP == &taa);
-            ASSERT(***nvBBXXP == &txx);
+            ASSERT(**OOAAP    == &taa);
+            ASSERT(***nvOOAAP == &taa);
+            ASSERT(***nvOOXXP == &txx);
 
-            NVOptOptAllocPtr* p_zp = &(nvBBAAP =MoveUtil::move(nvBBXXP));
+            NVOptOptAllocPtr* p_zp = &(nvOOAAP =MoveUtil::move(nvOOXXP));
 
-            ASSERT(&nvBBAAP == p_zp);
-            ASSERT(***nvBBAAP == &txx);
-            ASSERT(***nvBBXXP == &txx);
+            ASSERT(&nvOOAAP == p_zp);
+            ASSERT(***nvOOAAP == &txx);
+            ASSERT(***nvOOXXP == &txx);
         }
       } break;
       case 31: {
@@ -7532,28 +7396,28 @@ int main(int argc, char *argv[])
         //:   o value <- value
         //
         // Abbreviations:
-        // o BBF: 'optional<optional<From> >'
+        // o OOF: 'optional<optional<From> >'
         //
-        // o NBBF: 'NullableValue<optional<optional<From> > >'
+        // o NOOF: 'NullableValue<optional<optional<From> > >'
         //
-        // o NBBT: 'NullableValue<optional<optional<To> > >'
+        // o NOOT: 'NullableValue<optional<optional<To> > >'
         //
         // Plan:
-        //: 1 Copy construct NBBT from BBF (C-5)
+        //: 1 Copy construct NOOT from OOF (C-5)
         //:
-        //: 2 Copy construct NBBT from NBBF (C-5)
+        //: 2 Copy construct NOOT from NOOF (C-5)
         //:
-        //: 3 Move construct NBBT from BBF (C-5)
+        //: 3 Move construct NOOT from OOF (C-5)
         //:
-        //: 4 Move construct NBBT from NBBF (C-5)
+        //: 4 Move construct NOOT from NOOF (C-5)
         //:
-        //: 5 Copy assign NBBT from BBF (C-6)
+        //: 5 Copy assign NOOT from OOF (C-6)
         //:
-        //: 6 Copy assign NBBT from NBBF (C-6)
+        //: 6 Copy assign NOOT from NOOF (C-6)
         //:
-        //: 7 Move assign NBBT from BBF (C-6)
+        //: 7 Move assign NOOT from OOF (C-6)
         //:
-        //: 8 Move assign NBBT from NBBF (C-6)
+        //: 8 Move assign NOOT from NOOF (C-6)
         //
         // Testing:
         //   TESTING DEEPLY NESTED 'FROM' AND 'TO' TYPES
@@ -7564,9 +7428,9 @@ int main(int argc, char *argv[])
 
         namespace TC = MoveFromAllocTypeSpace;
 
-        typedef TC::From          From;
-        typedef TC::To            To;
-        typedef TC::AllocType     AllocType;
+        typedef bsltf::MovableTestType From;
+        typedef TC::To                 To;
+        typedef TC::AllocType          AllocType;
 
         typedef bsltf::MoveState                      MoveState;
         typedef bslmf::MovableRefUtil                 MoveUtil;
@@ -7591,455 +7455,455 @@ int main(int argc, char *argv[])
         bslma::TestAllocator     ta;
         bsl::allocator<char>     aa(&ta);
 
-        if (verbose) cout << "Copy construct NBBT from BBF\n";
+        if (verbose) cout << "Copy construct NOOT from OOF\n";
         {
             const From             f5(5);
-            const OptFrom         bf5(f5);
-            const OptOptFrom     bbf5(bf5), bbfn;
+            const OptFrom         of5(f5);
+            const OptOptFrom     oof5(of5), oofn;
 
-            const NVOptOptTo    nbbtn(bbfn);
-            const NVOptOptTo    nbbt5(bbf5);
-            const NVOptOptAlloc nbban(bbfn, aa);
-            const NVOptOptAlloc nbba5(bbf5, aa);
+            const NVOptOptTo    nootn(oofn);
+            const NVOptOptTo    noot5(oof5);
+            const NVOptOptAlloc nooan(oofn, aa);
+            const NVOptOptAlloc nooa5(oof5, aa);
 
-            ASSERT(nbbtn.has_value());
-            ASSERT(!nbbtn->has_value());
-            ASSERT(nbban.has_value());
-            ASSERT(!nbban->has_value());
+            ASSERT(nootn.has_value());
+            ASSERT(!nootn->has_value());
+            ASSERT(nooan.has_value());
+            ASSERT(!nooan->has_value());
 
-            ASSERT(5 == (**nbbt5)->data());
-            ASSERT(5 == (**nbba5)->data());
+            ASSERT(5 == (**noot5)->data());
+            ASSERT(5 == (**nooa5)->data());
 
-            ASSERT_IS_NOT_MOVED_FROM(**bbf5);
-            ASSERT_IS_NOT_MOVED_INTO(***nbbt5);
-            ASSERT_IS_NOT_MOVED_INTO(***nbba5);
+            ASSERT_IS_NOT_MOVED_FROM(**oof5);
+            ASSERT_IS_NOT_MOVED_INTO(***noot5);
+            ASSERT_IS_NOT_MOVED_INTO(***nooa5);
 
-            ASSERT(&ta == (**nbba5)->allocator().mechanism());
+            ASSERT(&ta == (**nooa5)->allocator().mechanism());
         }
 
-        if (verbose) cout << "Copy construct NBBT from NBBF\n";
+        if (verbose) cout << "Copy construct NOOT from NOOF\n";
         {
             const From               f5(5);
-            const OptFrom           bf5(f5);
-            const OptOptFrom       bbf5(bf5);
+            const OptFrom           of5(f5);
+            const OptOptFrom       oof5(of5);
 
-            const NVOptOptFrom  nbbfn;
-            const NVOptOptFrom  nbbf5(bbf5);
-            const NVOptOptTo    nbbtn(nbbfn);
-            const NVOptOptTo    nbbt5(nbbf5);
-            const NVOptOptAlloc nbban(nbbfn, aa);
-            const NVOptOptAlloc nbba5(nbbf5, aa);
+            const NVOptOptFrom  noofn;
+            const NVOptOptFrom  noof5(oof5);
+            const NVOptOptTo    nootn(noofn);
+            const NVOptOptTo    noot5(noof5);
+            const NVOptOptAlloc nooan(noofn, aa);
+            const NVOptOptAlloc nooa5(noof5, aa);
 
-            ASSERT(!nbbtn.has_value());
-            ASSERT(!nbban.has_value());
+            ASSERT(!nootn.has_value());
+            ASSERT(!nooan.has_value());
 
-            ASSERT(5 == (**nbbt5)->data());
-            ASSERT(5 == (**nbba5)->data());
+            ASSERT(5 == (**noot5)->data());
+            ASSERT(5 == (**nooa5)->data());
 
-            ASSERT_IS_NOT_MOVED_FROM(***nbbf5);
-            ASSERT_IS_NOT_MOVED_INTO(***nbbt5);
-            ASSERT_IS_NOT_MOVED_INTO(***nbba5);
+            ASSERT_IS_NOT_MOVED_FROM(***noof5);
+            ASSERT_IS_NOT_MOVED_INTO(***noot5);
+            ASSERT_IS_NOT_MOVED_INTO(***nooa5);
 
-            ASSERT(&ta == (**nbba5)->allocator().mechanism());
+            ASSERT(&ta == (**nooa5)->allocator().mechanism());
         }
 
-        if (verbose) cout << "Move construct NBBT from BBF\n";
+        if (verbose) cout << "Move construct NOOT from OOF\n";
         {
             const From             f5(5);
-            const OptFrom         bf5(f5);
-            OptOptFrom           bbf5(bf5), bbf5_b(bf5), bbfn, bbfn_b;
+            const OptFrom         of5(f5);
+            OptOptFrom           oof5(of5), oof5_b(of5), oofn, oofn_b;
 
-            const NVOptOptTo    nbbtn(MoveUtil::move(bbfn));
-            const NVOptOptTo    nbbt5(MoveUtil::move(bbf5));
-            const NVOptOptAlloc nbban(MoveUtil::move(bbfn_b), aa);
-            const NVOptOptAlloc nbba5(MoveUtil::move(bbf5_b), aa);
+            const NVOptOptTo    nootn(MoveUtil::move(oofn));
+            const NVOptOptTo    noot5(MoveUtil::move(oof5));
+            const NVOptOptAlloc nooan(MoveUtil::move(oofn_b), aa);
+            const NVOptOptAlloc nooa5(MoveUtil::move(oof5_b), aa);
 
-            ASSERT(nbbtn.has_value());
-            ASSERT(!nbbtn->has_value());
-            ASSERT(nbban.has_value());
-            ASSERT(!nbban->has_value());
+            ASSERT(nootn.has_value());
+            ASSERT(!nootn->has_value());
+            ASSERT(nooan.has_value());
+            ASSERT(!nooan->has_value());
 
-            ASSERT(5 == (**nbbt5)->data());
-            ASSERT(5 == (**nbba5)->data());
+            ASSERT(5 == (**noot5)->data());
+            ASSERT(5 == (**nooa5)->data());
 
-            ASSERT_IS_MOVED_FROM(**bbf5);
-            ASSERT_IS_MOVED_FROM(**bbf5_b);
-            ASSERT_IS_MOVED_INTO(***nbbt5);
-            ASSERT_IS_MOVED_INTO(***nbba5);
+            ASSERT_IS_MOVED_FROM(**oof5);
+            ASSERT_IS_MOVED_FROM(**oof5_b);
+            ASSERT_IS_MOVED_INTO(***noot5);
+            ASSERT_IS_MOVED_INTO(***nooa5);
 
-            ASSERT(&ta == (**nbba5)->allocator().mechanism());
-            ASSERT(&ta == nbban->get_allocator().mechanism());
+            ASSERT(&ta == (**nooa5)->allocator().mechanism());
+            ASSERT(&ta == nooan->get_allocator().mechanism());
         }
 
-        if (verbose) cout << "Move construct NBBT from NBBF.\n";
+        if (verbose) cout << "Move construct NOOT from NOOF.\n";
         {
             const From               f5(5);
-            const OptFrom           bf5(f5);
-            const OptOptFrom       bbf5(bf5);
+            const OptFrom           of5(f5);
+            const OptOptFrom       oof5(of5);
 
-            NVOptOptFrom          nbbf5(bbf5), nbbf5_b(bbf5);
-            NVOptOptFrom          nbbfn, nbbfn_b;
-            const NVOptOptTo      nbbtn(MoveUtil::move(nbbfn));
-            const NVOptOptTo      nbbt5(MoveUtil::move(nbbf5));
-            const NVOptOptAlloc   nbban(MoveUtil::move(nbbfn_b), aa);
-            const NVOptOptAlloc   nbba5(MoveUtil::move(nbbf5_b), aa);
+            NVOptOptFrom          noof5(oof5), noof5_b(oof5);
+            NVOptOptFrom          noofn, noofn_b;
+            const NVOptOptTo      nootn(MoveUtil::move(noofn));
+            const NVOptOptTo      noot5(MoveUtil::move(noof5));
+            const NVOptOptAlloc   nooan(MoveUtil::move(noofn_b), aa);
+            const NVOptOptAlloc   nooa5(MoveUtil::move(noof5_b), aa);
 
-            ASSERT(!nbbtn.has_value());
-            ASSERT(!nbban.has_value());
+            ASSERT(!nootn.has_value());
+            ASSERT(!nooan.has_value());
 
-            ASSERT(5 == (**nbbt5)->data());
-            ASSERT(5 == (**nbba5)->data());
+            ASSERT(5 == (**noot5)->data());
+            ASSERT(5 == (**nooa5)->data());
 
-            ASSERT_IS_MOVED_FROM(***nbbf5);
-            ASSERT_IS_MOVED_FROM(***nbbf5_b);
-            ASSERT_IS_MOVED_INTO(***nbbt5);
-            ASSERT_IS_MOVED_INTO(***nbba5);
+            ASSERT_IS_MOVED_FROM(***noof5);
+            ASSERT_IS_MOVED_FROM(***noof5_b);
+            ASSERT_IS_MOVED_INTO(***noot5);
+            ASSERT_IS_MOVED_INTO(***nooa5);
 
-            ASSERT(&ta == (**nbba5)->allocator().mechanism());
+            ASSERT(&ta == (**nooa5)->allocator().mechanism());
         }
 
-        if (verbose) cout << "Copy assign NBBT from BBF\n";
+        if (verbose) cout << "Copy assign NOOT from OOF\n";
         {
-            const OptOptFrom     bbfn;
+            const OptOptFrom     oofn;
 
             const From             f5(5);
-            const OptFrom         bf5(f5);
-            const OptOptFrom     bbf5(bf5);
+            const OptFrom         of5(f5);
+            const OptOptFrom     oof5(of5);
 
             const From             f7(7);
-            const OptFrom         bf7(f7);
-            const OptOptFrom     bbf7(bf7);
+            const OptFrom         of7(f7);
+            const OptOptFrom     oof7(of7);
 
-            NVOptOptTo    nbbtn;
-            NVOptOptAlloc nbban(aa);
+            NVOptOptTo    nootn;
+            NVOptOptAlloc nooan(aa);
 
-            NVOptOptTo    nbbt7(bbf7), *p_z;
-            NVOptOptAlloc nbba7(bbf7, aa), *p_za;
+            NVOptOptTo    noot7(oof7), *p_z;
+            NVOptOptAlloc nooa7(oof7, aa), *p_za;
 
-            ASSERT(!bbfn.has_value());
-            ASSERT(!nbbtn.has_value());
-            ASSERT(!nbban.has_value());
+            ASSERT(!oofn.has_value());
+            ASSERT(!nootn.has_value());
+            ASSERT(!nooan.has_value());
 
             // null <- null
 
-            p_z  = &(nbbtn = bbfn);
-            p_za = &(nbban = bbfn);
+            p_z  = &(nootn = oofn);
+            p_za = &(nooan = oofn);
 
-            ASSERT(&nbbtn == p_z);
-            ASSERT(&nbban == p_za);
+            ASSERT(&nootn == p_z);
+            ASSERT(&nooan == p_za);
 
-            ASSERT(nbbtn.has_value());
-            ASSERT(!nbbtn->has_value());
+            ASSERT(nootn.has_value());
+            ASSERT(!nootn->has_value());
 
-            ASSERT(nbban.has_value());
-            ASSERT(!nbban->has_value());
+            ASSERT(nooan.has_value());
+            ASSERT(!nooan->has_value());
 
-            ASSERT(&ta == nbban.get_allocator().mechanism());
+            ASSERT(&ta == nooan.get_allocator().mechanism());
 
             // Make null again
 
-            TC::resetNull(&nbbtn);
-            TC::resetNull(&nbban, aa);
+            nootn.reset();
+            nooan.reset();
 
-            ASSERT(!bbfn.has_value());
-            ASSERT(!nbbtn.has_value());
-            ASSERT(!nbban.has_value());
+            ASSERT(!oofn.has_value());
+            ASSERT(!nootn.has_value());
+            ASSERT(!nooan.has_value());
 
             // null <- value
 
-            p_z  = &(nbbtn = bbf5);
-            p_za = &(nbban = bbf5);
+            p_z  = &(nootn = oof5);
+            p_za = &(nooan = oof5);
 
-            ASSERT(&nbbtn == p_z);
-            ASSERT(&nbban == p_za);
-            ASSERT(5 == (**nbbtn)->data());
-            ASSERT(5 == (**nbban)->data());
+            ASSERT(&nootn == p_z);
+            ASSERT(&nooan == p_za);
+            ASSERT(5 == (**nootn)->data());
+            ASSERT(5 == (**nooan)->data());
 
-            ASSERT_IS_NOT_MOVED_FROM(**bbf5);
-            ASSERT_IS_NOT_MOVED_INTO(***nbbtn);
-            ASSERT_IS_NOT_MOVED_INTO(***nbban);
+            ASSERT_IS_NOT_MOVED_FROM(**oof5);
+            ASSERT_IS_NOT_MOVED_INTO(***nootn);
+            ASSERT_IS_NOT_MOVED_INTO(***nooan);
 
-            ASSERT(&ta == (**nbban)->allocator().mechanism());
+            ASSERT(&ta == (**nooan)->allocator().mechanism());
 
             // value <- null
 
-            p_z  = &(nbbtn = bbfn);
-            p_za = &(nbban = bbfn);
+            p_z  = &(nootn = oofn);
+            p_za = &(nooan = oofn);
 
-            ASSERT(&nbbtn == p_z);
-            ASSERT(&nbban == p_za);
+            ASSERT(&nootn == p_z);
+            ASSERT(&nooan == p_za);
 
-            ASSERT(!bbfn.has_value());
-            ASSERT(nbbtn.has_value());
-            ASSERT(nbban.has_value());
-            ASSERT(!nbbtn->has_value());
-            ASSERT(!nbban->has_value());
+            ASSERT(!oofn.has_value());
+            ASSERT(nootn.has_value());
+            ASSERT(nooan.has_value());
+            ASSERT(!nootn->has_value());
+            ASSERT(!nooan->has_value());
 
-            ASSERT(&ta == nbban.get_allocator().mechanism());
+            ASSERT(&ta == nooan.get_allocator().mechanism());
 
             // value <- value
 
-            p_z  = &(nbbt7 = bbf5);
-            p_za = &(nbba7 = bbf5);
+            p_z  = &(noot7 = oof5);
+            p_za = &(nooa7 = oof5);
 
-            ASSERT(&nbbt7 == p_z);
-            ASSERT(&nbba7 == p_za);
-            ASSERT(5 == (**nbbt7)->data());
-            ASSERT(5 == (**nbba7)->data());
+            ASSERT(&noot7 == p_z);
+            ASSERT(&nooa7 == p_za);
+            ASSERT(5 == (**noot7)->data());
+            ASSERT(5 == (**nooa7)->data());
 
-            ASSERT_IS_NOT_MOVED_FROM(**bbf5);
-            ASSERT_IS_NOT_MOVED_INTO(***nbbt7);
-            ASSERT_IS_NOT_MOVED_INTO(***nbba7);
+            ASSERT_IS_NOT_MOVED_FROM(**oof5);
+            ASSERT_IS_NOT_MOVED_INTO(***noot7);
+            ASSERT_IS_NOT_MOVED_INTO(***nooa7);
 
-            ASSERT(&ta == (**nbba7)->allocator().mechanism());
+            ASSERT(&ta == (**nooa7)->allocator().mechanism());
         }
 
-        if (verbose) cout << "Copy assign NBBT from NBBF\n";
+        if (verbose) cout << "Copy assign NOOT from NOOF\n";
         {
             const From               f5(5);
-            const OptFrom           bf5(f5);
-            const OptOptFrom       bbf5(bf5);
+            const OptFrom           of5(f5);
+            const OptOptFrom       oof5(of5);
 
             const From               f7(7);
-            const OptFrom           bf7(f7);
-            const OptOptFrom       bbf7(bf7);
+            const OptFrom           of7(f7);
+            const OptOptFrom       oof7(of7);
 
-            const NVOptOptFrom nbbfn;
-            const NVOptOptFrom nbbf7(bbf7);
+            const NVOptOptFrom noofn;
+            const NVOptOptFrom noof7(oof7);
 
-            NVOptOptTo         nbbtn;
-            NVOptOptAlloc      nbban(aa);
-            NVOptOptTo         nbbt5(bbf5), *p_z;
-            NVOptOptAlloc      nbba5(bbf5, aa), *p_za;
+            NVOptOptTo         nootn;
+            NVOptOptAlloc      nooan(aa);
+            NVOptOptTo         noot5(oof5), *p_z;
+            NVOptOptAlloc      nooa5(oof5, aa), *p_za;
 
-            ASSERT(!nbbfn.has_value());
-            ASSERT(!nbbtn.has_value());
-            ASSERT(!nbban.has_value());
+            ASSERT(!noofn.has_value());
+            ASSERT(!nootn.has_value());
+            ASSERT(!nooan.has_value());
 
             // null <- null
 
-            p_z  = &(nbbtn = nbbfn);
-            p_za = &(nbban = nbbfn);
+            p_z  = &(nootn = noofn);
+            p_za = &(nooan = noofn);
 
-            ASSERT(&nbbtn == p_z);
-            ASSERT(&nbban == p_za);
+            ASSERT(&nootn == p_z);
+            ASSERT(&nooan == p_za);
 
-            ASSERT(!nbbfn.has_value());
-            ASSERT(!nbbtn.has_value());
-            ASSERT(!nbban.has_value());
+            ASSERT(!noofn.has_value());
+            ASSERT(!nootn.has_value());
+            ASSERT(!nooan.has_value());
 
-            ASSERT(&ta == nbban.get_allocator().mechanism());
+            ASSERT(&ta == nooan.get_allocator().mechanism());
 
             // null <- value
 
-            p_z  = &(nbbtn = nbbf7);
-            p_za = &(nbban = nbbf7);
+            p_z  = &(nootn = noof7);
+            p_za = &(nooan = noof7);
 
-            ASSERT(&nbbtn == p_z);
-            ASSERT(&nbban == p_za);
+            ASSERT(&nootn == p_z);
+            ASSERT(&nooan == p_za);
 
-            ASSERT(nbbf7.has_value());
-            ASSERT(nbbtn.has_value());
-            ASSERT(nbban.has_value());
+            ASSERT(noof7.has_value());
+            ASSERT(nootn.has_value());
+            ASSERT(nooan.has_value());
 
-            ASSERT(7 == (**nbbtn)->data());
-            ASSERT(7 == (**nbban)->data());
+            ASSERT(7 == (**nootn)->data());
+            ASSERT(7 == (**nooan)->data());
 
-            ASSERT_IS_NOT_MOVED_FROM(***nbbf7);
-            ASSERT_IS_NOT_MOVED_INTO(***nbbtn);
-            ASSERT_IS_NOT_MOVED_INTO(***nbban);
+            ASSERT_IS_NOT_MOVED_FROM(***noof7);
+            ASSERT_IS_NOT_MOVED_INTO(***nootn);
+            ASSERT_IS_NOT_MOVED_INTO(***nooan);
 
-            ASSERT(&ta == (**nbban)->allocator().mechanism());
+            ASSERT(&ta == (**nooan)->allocator().mechanism());
 
             // value <- null
 
-            TC::resetNull(&nbbtn);
-            TC::resetNull(&nbban, aa);
+            nootn.reset();
+            nooan.reset();
 
-            ASSERT(!nbbfn.has_value());
-            ASSERT(nbbt5.has_value());
-            ASSERT(nbba5.has_value());
+            ASSERT(!noofn.has_value());
+            ASSERT(noot5.has_value());
+            ASSERT(nooa5.has_value());
 
-            p_z  = &(nbbt5 = nbbfn);
-            p_za = &(nbba5 = nbbfn);
+            p_z  = &(noot5 = noofn);
+            p_za = &(nooa5 = noofn);
 
-            ASSERT(&nbbt5 == p_z);
-            ASSERT(&nbba5 == p_za);
+            ASSERT(&noot5 == p_z);
+            ASSERT(&nooa5 == p_za);
 
-            ASSERT(!nbbfn.has_value());
-            ASSERT(!nbbt5.has_value());
-            ASSERT(!nbba5.has_value());
+            ASSERT(!noofn.has_value());
+            ASSERT(!noot5.has_value());
+            ASSERT(!nooa5.has_value());
 
-            ASSERT(&ta == nbban.get_allocator().mechanism());
+            ASSERT(&ta == nooan.get_allocator().mechanism());
 
             // value <- value
 
-            TC::resetNull(&nbbt5);
-            TC::resetNull(&nbba5, aa);
+            noot5.reset();
+            nooa5.reset();
 
-            nbbt5 = bbf5;
-            nbba5 = bbf5;
+            noot5 = oof5;
+            nooa5 = oof5;
 
-            ASSERT(5 == (**nbbt5)->data());
-            ASSERT(5 == (**nbba5)->data());
+            ASSERT(5 == (**noot5)->data());
+            ASSERT(5 == (**nooa5)->data());
 
-            p_z  = &(nbbt5 = nbbf7);
-            p_za = &(nbba5 = nbbf7);
+            p_z  = &(noot5 = noof7);
+            p_za = &(nooa5 = noof7);
 
-            ASSERT(&nbbt5 == p_z);
-            ASSERT(&nbba5 == p_za);
-            ASSERT(7 == (**nbbt5)->data());
-            ASSERT(7 == (**nbba5)->data());
+            ASSERT(&noot5 == p_z);
+            ASSERT(&nooa5 == p_za);
+            ASSERT(7 == (**noot5)->data());
+            ASSERT(7 == (**nooa5)->data());
 
-            ASSERT_IS_NOT_MOVED_FROM(***nbbf7);
-            ASSERT_IS_NOT_MOVED_INTO(***nbbt5);
-            ASSERT_IS_NOT_MOVED_INTO(***nbba5);
+            ASSERT_IS_NOT_MOVED_FROM(***noof7);
+            ASSERT_IS_NOT_MOVED_INTO(***noot5);
+            ASSERT_IS_NOT_MOVED_INTO(***nooa5);
 
-            ASSERT(&ta == (**nbba5)->allocator().mechanism());
+            ASSERT(&ta == (**nooa5)->allocator().mechanism());
         }
 
-        if (verbose) cout << "Move assign NBBT from BBF\n";
+        if (verbose) cout << "Move assign NOOT from OOF\n";
         {
             const From             f5(5);
-            const OptFrom         bf5(f5);
-            const OptOptFrom     bbf5(bf5);
+            const OptFrom         of5(f5);
+            const OptOptFrom     oof5(of5);
 
             const From             f7(7);
-            const OptFrom         bf7(f7);
-            OptOptFrom           bbf7(bf7), bbf7_b(bf7);
+            const OptFrom         of7(f7);
+            OptOptFrom           oof7(of7), oof7_b(of7);
 
-            OptOptFrom           bbfn, bbfn_b;
+            OptOptFrom           oofn, oofn_b;
 
-            NVOptOptTo       nbbt5(bbf5), *p_z;
-            NVOptOptTo       nbbtn;
-            NVOptOptAlloc    nbba5(bbf5, aa), *p_za;
-            NVOptOptAlloc    nbban(aa);
+            NVOptOptTo       noot5(oof5), *p_z;
+            NVOptOptTo       nootn;
+            NVOptOptAlloc    nooa5(oof5, aa), *p_za;
+            NVOptOptAlloc    nooan(aa);
 
             // null <= null
 
-            p_z  = &(nbbtn = MoveUtil::move(bbfn));
-            p_za = &(nbban = MoveUtil::move(bbfn_b));
+            p_z  = &(nootn = MoveUtil::move(oofn));
+            p_za = &(nooan = MoveUtil::move(oofn_b));
 
-            ASSERT(&nbbtn == p_z);
-            ASSERT(&nbban == p_za);
+            ASSERT(&nootn == p_z);
+            ASSERT(&nooan == p_za);
 
-            ASSERT(nbbtn.has_value());
-            ASSERT(nbban.has_value());
-            ASSERT(!nbbtn->has_value());
-            ASSERT(!nbban->has_value());
+            ASSERT(nootn.has_value());
+            ASSERT(nooan.has_value());
+            ASSERT(!nootn->has_value());
+            ASSERT(!nooan->has_value());
 
             // null <- value
 
-            TC::resetNull(&nbbtn);
-            TC::resetNull(&nbban, aa);
+            nootn.reset();
+            nooan.reset();
 
-            p_z  = &(nbbtn = MoveUtil::move(bbf7));
-            p_za = &(nbban = MoveUtil::move(bbf7_b));
+            p_z  = &(nootn = MoveUtil::move(oof7));
+            p_za = &(nooan = MoveUtil::move(oof7_b));
 
-            ASSERT(&nbbtn == p_z);
-            ASSERT(&nbban == p_za);
-            ASSERT(7 == (**nbbtn)->data());
-            ASSERT(7 == (**nbban)->data());
+            ASSERT(&nootn == p_z);
+            ASSERT(&nooan == p_za);
+            ASSERT(7 == (**nootn)->data());
+            ASSERT(7 == (**nooan)->data());
 
-            ASSERT(bbf7.has_value());
-            ASSERT(bbf7_b.has_value());
-            ASSERT(nbbtn.has_value());
-            ASSERT(nbban.has_value());
+            ASSERT(oof7.has_value());
+            ASSERT(oof7_b.has_value());
+            ASSERT(nootn.has_value());
+            ASSERT(nooan.has_value());
 
-            ASSERT_IS_MOVED_FROM(**bbf7);
-            ASSERT_IS_MOVED_FROM(**bbf7_b);
-            ASSERT_IS_MOVED_INTO(***nbbtn);
-            ASSERT_IS_MOVED_INTO(***nbban);
+            ASSERT_IS_MOVED_FROM(**oof7);
+            ASSERT_IS_MOVED_FROM(**oof7_b);
+            ASSERT_IS_MOVED_INTO(***nootn);
+            ASSERT_IS_MOVED_INTO(***nooan);
 
-            TC::resetNull(&nbbtn);
-            TC::resetNull(&nbban, aa);
+            nootn.reset();
+            nooan.reset();
 
-            TC::resetNull(&bbf7);
-            TC::resetNull(&bbf7_b);
+            oof7.reset();
+            oof7_b.reset();
 
-            bbf7   = bf7;
-            bbf7_b = bf7;
+            oof7   = of7;
+            oof7_b = of7;
 
-            ASSERT_IS_NOT_MOVED_FROM(**bbf7);
-            ASSERT_IS_NOT_MOVED_FROM(**bbf7_b);
-            ASSERT_IS_NOT_MOVED_INTO(**bbf7);
-            ASSERT_IS_NOT_MOVED_INTO(**bbf7_b);
+            ASSERT_IS_NOT_MOVED_FROM(**oof7);
+            ASSERT_IS_NOT_MOVED_FROM(**oof7_b);
+            ASSERT_IS_NOT_MOVED_INTO(**oof7);
+            ASSERT_IS_NOT_MOVED_INTO(**oof7_b);
 
             // value <- null
 
-            p_z  = &(nbbt5 = MoveUtil::move(bbfn));
-            p_za = &(nbba5 = MoveUtil::move(bbfn_b));
+            p_z  = &(noot5 = MoveUtil::move(oofn));
+            p_za = &(nooa5 = MoveUtil::move(oofn_b));
 
-            ASSERT(&nbbt5 == p_z);
-            ASSERT(&nbba5 == p_za);
+            ASSERT(&noot5 == p_z);
+            ASSERT(&nooa5 == p_za);
 
-            ASSERT(nbbt5.has_value());
-            ASSERT(nbba5.has_value());
-            ASSERT(!nbbt5->has_value());
-            ASSERT(!nbba5->has_value());
+            ASSERT(noot5.has_value());
+            ASSERT(nooa5.has_value());
+            ASSERT(!noot5->has_value());
+            ASSERT(!nooa5->has_value());
 
-            TC::resetNull(&nbbt5);
-            TC::resetNull(&nbba5, aa);
+            noot5.reset();
+            nooa5.reset();
 
-            nbbt5 = bbf5;
-            nbba5 = bbf5;
+            noot5 = oof5;
+            nooa5 = oof5;
 
-            ASSERT_IS_NOT_MOVED_FROM(***nbbt5);
-            ASSERT_IS_NOT_MOVED_FROM(***nbba5);
-            ASSERT_IS_NOT_MOVED_INTO(***nbbt5);
-            ASSERT_IS_NOT_MOVED_INTO(***nbba5);
+            ASSERT_IS_NOT_MOVED_FROM(***noot5);
+            ASSERT_IS_NOT_MOVED_FROM(***nooa5);
+            ASSERT_IS_NOT_MOVED_INTO(***noot5);
+            ASSERT_IS_NOT_MOVED_INTO(***nooa5);
 
             // value <- value
 
-            ASSERT(5 == (**nbbt5)->data());
-            ASSERT(5 == (**nbba5)->data());
-            ASSERT(7 == (*bbf7)->data());
-            ASSERT(7 == (*bbf7_b)->data());
+            ASSERT(5 == (**noot5)->data());
+            ASSERT(5 == (**nooa5)->data());
+            ASSERT(7 == (*oof7)->data());
+            ASSERT(7 == (*oof7_b)->data());
 
-            p_z  = &(nbbt5 = MoveUtil::move(bbf7));
-            p_za = &(nbba5 = MoveUtil::move(bbf7_b));
+            p_z  = &(noot5 = MoveUtil::move(oof7));
+            p_za = &(nooa5 = MoveUtil::move(oof7_b));
 
-            ASSERT(&nbbt5 == p_z);
-            ASSERT(&nbba5 == p_za);
-            ASSERT(7 == (**nbbt5)->data());
-            ASSERT(7 == (**nbba5)->data());
+            ASSERT(&noot5 == p_z);
+            ASSERT(&nooa5 == p_za);
+            ASSERT(7 == (**noot5)->data());
+            ASSERT(7 == (**nooa5)->data());
 
-            ASSERT_IS_MOVED_FROM(**bbf7);
-            ASSERT_IS_MOVED_FROM(**bbf7_b);
-            ASSERT_IS_MOVED_INTO(***nbbt5);
-            ASSERT_IS_MOVED_INTO(***nbba5);
+            ASSERT_IS_MOVED_FROM(**oof7);
+            ASSERT_IS_MOVED_FROM(**oof7_b);
+            ASSERT_IS_MOVED_INTO(***noot5);
+            ASSERT_IS_MOVED_INTO(***nooa5);
 
-            ASSERT(&ta == (**nbba5)->allocator().mechanism());
+            ASSERT(&ta == (**nooa5)->allocator().mechanism());
         }
 
-        if (verbose) cout << "Move assign NBBT from NBBF\n";
+        if (verbose) cout << "Move assign NOOT from NOOF\n";
         {
             const From               f5(5);
-            const OptFrom           bf5(f5);
-            const OptOptFrom       bbf5(bf5);
+            const OptFrom           of5(f5);
+            const OptOptFrom       oof5(of5);
 
             const From               f7(7);
-            const OptFrom           bf7(f7);
-            const OptOptFrom       bbf7(bf7);
+            const OptFrom           of7(f7);
+            const OptOptFrom       oof7(of7);
 
-            NVOptOptFrom       nbbf5(bbf5), nbbf5_b(bbf5);
-            NVOptOptTo         nbbt7(bbf7), *p_z;
-            NVOptOptAlloc      nbba7(bbf7, aa), *p_za;
+            NVOptOptFrom       noof5(oof5), noof5_b(oof5);
+            NVOptOptTo         noot7(oof7), *p_z;
+            NVOptOptAlloc      nooa7(oof7, aa), *p_za;
 
-            p_z  = &(nbbt7 = MoveUtil::move(nbbf5));
-            p_za = &(nbba7 = MoveUtil::move(nbbf5_b));
+            p_z  = &(noot7 = MoveUtil::move(noof5));
+            p_za = &(nooa7 = MoveUtil::move(noof5_b));
 
-            ASSERT(&nbbt7 == p_z);
-            ASSERT(&nbba7 == p_za);
-            ASSERT(5 == (**nbbt7)->data());
-            ASSERT(5 == (**nbba7)->data());
+            ASSERT(&noot7 == p_z);
+            ASSERT(&nooa7 == p_za);
+            ASSERT(5 == (**noot7)->data());
+            ASSERT(5 == (**nooa7)->data());
 
-            ASSERT_IS_MOVED_FROM(***nbbf5);
-            ASSERT_IS_MOVED_FROM(***nbbf5_b);
-            ASSERT_IS_MOVED_INTO(***nbbt7);
-            ASSERT_IS_MOVED_INTO(***nbba7);
+            ASSERT_IS_MOVED_FROM(***noof5);
+            ASSERT_IS_MOVED_FROM(***noof5_b);
+            ASSERT_IS_MOVED_INTO(***noot7);
+            ASSERT_IS_MOVED_INTO(***nooa7);
 
-            ASSERT(&ta == (*nbba7)->get_allocator().mechanism());
+            ASSERT(&ta == (*nooa7)->get_allocator().mechanism());
         }
       } break;
       case 30: {
@@ -8162,17 +8026,17 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Move construction from opt of diff type.\n";
         {
-            TC::From mF(7);
-            bsl::optional<TC::From> oF(mF);
+            bsltf::MovableTestType mF(7);
+            bsl::optional<bsltf::MovableTestType> oF(mF);
 
             bdlb::NullableValue<TC::To> nvt(MoveUtil::move(oF));
             ASSERT(7 == nvt->data());
-            MState::Enum movedFrom = oF->d_from;
+            MState::Enum movedFrom = oF->movedFrom();
             ASSERTV(movedFrom, MState::e_MOVED == movedFrom);
-            MState::Enum movedInto = nvt->d_into;
+            MState::Enum movedInto = nvt->movedInto();
             ASSERTV(movedInto, MState::e_MOVED == movedInto);
 
-            bsl::optional<TC::From> mY;
+            bsl::optional<bsltf::MovableTestType> mY;
             ASSERT(!mY.has_value());
 
             bdlb::NullableValue<TC::To> ny(MoveUtil::move(mY));
@@ -8182,17 +8046,17 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Move construction from opt of diff type.\n";
         {
-            TC::From mF(7);
-            bsl::optional<TC::From> oF(mF);
+            bsltf::MovableTestType mF(7);
+            bsl::optional<bsltf::MovableTestType> oF(mF);
 
             bdlb::NullableValue<TC::AllocType> nvt(MoveUtil::move(oF));
             ASSERT(7 == nvt->data());
-            MState::Enum movedFrom = oF->d_from;
+            MState::Enum movedFrom = oF->movedFrom();
             ASSERTV(movedFrom, MState::e_MOVED == movedFrom);
-            MState::Enum movedInto = nvt->d_into;
+            MState::Enum movedInto = nvt->movedInto();
             ASSERTV(movedInto, MState::e_MOVED == movedInto);
 
-            bsl::optional<TC::From> oY;
+            bsl::optional<bsltf::MovableTestType> oY;
             bdlb::NullableValue<TC::AllocType> nY(MoveUtil::move(oY));
             ASSERT(!nY.has_value());
             ASSERT(!oY.has_value());
@@ -8252,17 +8116,17 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Move c'tor nested from opt of diff type.\n";
         {
-            TC::From mF(7);
-            bsl::optional<TC::From> oF(mF);
+            bsltf::MovableTestType mF(7);
+            bsl::optional<bsltf::MovableTestType> oF(mF);
 
             NVTo nvt(MoveUtil::move(oF));
             ASSERT(7 == (*nvt)->data());
-            MState::Enum movedFrom = oF->d_from;
+            MState::Enum movedFrom = oF->movedFrom();
             ASSERTV(movedFrom, MState::e_MOVED == movedFrom);
-            MState::Enum movedInto = (*nvt)->d_into;
+            MState::Enum movedInto = (*nvt)->movedInto();
             ASSERTV(movedInto, MState::e_MOVED == movedInto);
 
-            bsl::optional<TC::From> mY;
+            bsl::optional<bsltf::MovableTestType> mY;
             ASSERT(!mY.has_value());
 
             NVTo ny(MoveUtil::move(mY));
@@ -8287,9 +8151,9 @@ int main(int argc, char *argv[])
             bdlb::NullableValue<TC::AllocType> nvt(OX, ab);
 
             ASSERT(7 == nvt->data());
-            MState::Enum movedFrom = OX->d_from;
+            MState::Enum movedFrom = OX->movedFrom();
             ASSERTV(movedFrom, MState::e_NOT_MOVED == movedFrom);
-            MState::Enum movedInto = nvt->d_into;
+            MState::Enum movedInto = nvt->movedInto();
             ASSERTV(movedInto, MState::e_NOT_MOVED == movedInto);
             ASSERT(ab == nvt->allocator());
 
@@ -8318,9 +8182,9 @@ int main(int argc, char *argv[])
             bdlb::NullableValue<TC::AllocType> nvt(MoveUtil::move(oX), ab);
 
             ASSERT(7 == nvt->data());
-            MState::Enum movedFrom = oX->d_from;
+            MState::Enum movedFrom = oX->movedFrom();
             ASSERTV(movedFrom, MState::e_MOVED == movedFrom);
-            MState::Enum movedInto = nvt->d_into;
+            MState::Enum movedInto = nvt->movedInto();
             ASSERTV(movedInto, MState::e_MOVED == movedInto);
             ASSERT(ab == nvt->allocator());
 
@@ -8349,9 +8213,9 @@ int main(int argc, char *argv[])
             NVAlloc nvt(OX, ab);
 
             ASSERT(7 == (*nvt)->data());
-            MState::Enum movedFrom = OX->d_from;
+            MState::Enum movedFrom = OX->movedFrom();
             ASSERTV(movedFrom, MState::e_NOT_MOVED == movedFrom);
-            MState::Enum movedInto = (*nvt)->d_into;
+            MState::Enum movedInto = (*nvt)->movedInto();
             ASSERTV(movedInto, MState::e_NOT_MOVED == movedInto);
             ASSERT(ab == (*nvt)->allocator());
 
@@ -8380,9 +8244,9 @@ int main(int argc, char *argv[])
             NVAlloc nvt(MoveUtil::move(oX), ab);
 
             ASSERT(7 == (*nvt)->data());
-            MState::Enum movedFrom = oX->d_from;
+            MState::Enum movedFrom = oX->movedFrom();
             ASSERTV(movedFrom, MState::e_MOVED == movedFrom);
-            MState::Enum movedInto = (*nvt)->d_into;
+            MState::Enum movedInto = (*nvt)->movedInto();
             ASSERTV(movedInto, MState::e_MOVED == movedInto);
             ASSERT(ab == (*nvt)->allocator());
 
@@ -8400,21 +8264,22 @@ int main(int argc, char *argv[])
             bslma::TestAllocator tb;
             bsl::allocator<char> ab(&tb);
 
-            TC::From mX(7);    const TC::From& X = mX;
-            bsl::optional<TC::From> oX(X);
-            const bsl::optional<TC::From>& OX = oX;
+            bsltf::MovableTestType mX(7);
+            const bsltf::MovableTestType& X = mX;
+            bsl::optional<bsltf::MovableTestType> oX(X);
+            const bsl::optional<bsltf::MovableTestType>& OX = oX;
 
             bdlb::NullableValue<TC::AllocType> nvt(OX, ab);
 
             ASSERT(7 == nvt->data());
-            MState::Enum movedFrom = OX->d_from;
+            MState::Enum movedFrom = OX->movedFrom();
             ASSERTV(movedFrom, MState::e_NOT_MOVED == movedFrom);
-            MState::Enum movedInto = nvt->d_into;
+            MState::Enum movedInto = nvt->movedInto();
             ASSERTV(movedInto, MState::e_NOT_MOVED == movedInto);
             ASSERT(ab == nvt->allocator());
 
-            bsl::optional<TC::From> oY;
-            const bsl::optional<TC::From>& Y = oY;
+            bsl::optional<bsltf::MovableTestType> oY;
+            const bsl::optional<bsltf::MovableTestType>& Y = oY;
             bdlb::NullableValue<TC::AllocType> nvY(Y, ab);
 
             ASSERT(!Y.has_value());
@@ -8426,20 +8291,21 @@ int main(int argc, char *argv[])
             bslma::TestAllocator tb;
             bsl::allocator<char> ab(&tb);
 
-            TC::From mX(7);    const TC::From& X = mX;
-            bsl::optional<TC::From> oX(X);
+            bsltf::MovableTestType mX(7);
+            const bsltf::MovableTestType& X = mX;
+            bsl::optional<bsltf::MovableTestType> oX(X);
 
             bdlb::NullableValue<TC::AllocType> nvt(MoveUtil::move(oX), ab);
 
             ASSERT(7 == nvt->data());
-            MState::Enum movedFrom = oX->d_from;
+            MState::Enum movedFrom = oX->movedFrom();
             ASSERTV(movedFrom, MState::e_MOVED == movedFrom);
-            MState::Enum movedInto = nvt->d_into;
+            MState::Enum movedInto = nvt->movedInto();
             ASSERTV(movedInto, MState::e_MOVED == movedInto);
             ASSERT(ab == nvt->allocator());
 
-            bsl::optional<TC::From> oY;
-            const bsl::optional<TC::From>& Y = oY;
+            bsl::optional<bsltf::MovableTestType> oY;
+            const bsl::optional<bsltf::MovableTestType>& Y = oY;
             bdlb::NullableValue<TC::AllocType> nvY(MoveUtil::move(oY), ab);
 
             ASSERT(!Y.has_value());
@@ -8451,21 +8317,22 @@ int main(int argc, char *argv[])
             bslma::TestAllocator tb;
             bsl::allocator<char> ab(&tb);
 
-            TC::From mX(7);    const TC::From& X = mX;
-            bsl::optional<TC::From> oX(X);
-            const bsl::optional<TC::From>& OX = oX;
+            bsltf::MovableTestType mX(7);
+            const bsltf::MovableTestType& X = mX;
+            bsl::optional<bsltf::MovableTestType> oX(X);
+            const bsl::optional<bsltf::MovableTestType>& OX = oX;
 
             NVAlloc nvt(OX, ab);
 
             ASSERT(7 == (*nvt)->data());
-            MState::Enum movedFrom = OX->d_from;
+            MState::Enum movedFrom = OX->movedFrom();
             ASSERTV(movedFrom, MState::e_NOT_MOVED == movedFrom);
-            MState::Enum movedInto = (*nvt)->d_into;
+            MState::Enum movedInto = (*nvt)->movedInto();
             ASSERTV(movedInto, MState::e_NOT_MOVED == movedInto);
             ASSERT(ab == (*nvt)->allocator());
 
-            bsl::optional<TC::From> oY;
-            const bsl::optional<TC::From>& Y = oY;
+            bsl::optional<bsltf::MovableTestType> oY;
+            const bsl::optional<bsltf::MovableTestType>& Y = oY;
             NVAlloc nvY(Y, ab);
 
             ASSERT(!Y.has_value());
@@ -8478,20 +8345,21 @@ int main(int argc, char *argv[])
             bslma::TestAllocator tb;
             bsl::allocator<char> ab(&tb);
 
-            TC::From mX(7);    const TC::From& X = mX;
-            bsl::optional<TC::From> oX(X);
+            bsltf::MovableTestType mX(7);
+            const bsltf::MovableTestType& X = mX;
+            bsl::optional<bsltf::MovableTestType> oX(X);
 
             NVAlloc nvt(MoveUtil::move(oX), ab);
 
             ASSERT(7 == (*nvt)->data());
-            MState::Enum movedFrom = oX->d_from;
+            MState::Enum movedFrom = oX->movedFrom();
             ASSERTV(movedFrom, MState::e_MOVED == movedFrom);
-            MState::Enum movedInto = (*nvt)->d_into;
+            MState::Enum movedInto = (*nvt)->movedInto();
             ASSERTV(movedInto, MState::e_MOVED == movedInto);
             ASSERT(ab == (*nvt)->allocator());
 
-            bsl::optional<TC::From> oY;
-            const bsl::optional<TC::From>& Y = oY;
+            bsl::optional<bsltf::MovableTestType> oY;
+            const bsl::optional<bsltf::MovableTestType>& Y = oY;
             NVAlloc nvY(MoveUtil::move(oY), ab);
 
             ASSERT(!Y.has_value());
@@ -8524,9 +8392,9 @@ int main(int argc, char *argv[])
             z_p = &(mY = X);
 
             ASSERT(Y->data() == 7);
-            MState::Enum movedFrom = X->d_from;
+            MState::Enum movedFrom = X->movedFrom();
             ASSERTV(movedFrom, MState::e_NOT_MOVED == movedFrom);
-            MState::Enum movedInto = Y->d_into;
+            MState::Enum movedInto = Y->movedInto();
             ASSERTV(movedInto, MState::e_NOT_MOVED == movedInto);
 
             // value <- value
@@ -8534,15 +8402,15 @@ int main(int argc, char *argv[])
             z_p = 0;
             mX->setData(11);
             ASSERT(11 == X->data());
-            movedFrom = X->d_from;
+            movedFrom = X->movedFrom();
             ASSERTV(movedFrom, MState::e_NOT_MOVED == movedFrom);
 
             z_p = &(mY = X);
 
             ASSERT(Y->data() == 11);
-            movedFrom = X->d_from;
+            movedFrom = X->movedFrom();
             ASSERTV(movedFrom, MState::e_NOT_MOVED == movedFrom);
-            movedInto = Y->d_into;
+            movedInto = Y->movedInto();
             ASSERTV(movedInto, MState::e_NOT_MOVED == movedInto);
 
             // value <- null
@@ -8584,9 +8452,9 @@ int main(int argc, char *argv[])
             z_p = &(mY = MoveUtil::move(mX));
 
             ASSERT(Y->data() == 7);
-            MState::Enum movedFrom = X->d_from;
+            MState::Enum movedFrom = X->movedFrom();
             ASSERTV(movedFrom, MState::e_MOVED == movedFrom);
-            MState::Enum movedInto = Y->d_into;
+            MState::Enum movedInto = Y->movedInto();
             ASSERTV(movedInto, MState::e_MOVED == movedInto);
 
             // value <- value
@@ -8594,18 +8462,18 @@ int main(int argc, char *argv[])
             z_p = 0;
             mX->setData(11);
             ASSERT(11 == X->data());
-            movedFrom = X->d_from;
+            movedFrom = X->movedFrom();
             ASSERTV(movedFrom, MState::e_NOT_MOVED == movedFrom);
             mY->setData(7);
             ASSERT(7 == Y->data());
-            movedInto = Y->d_into;
+            movedInto = Y->movedInto();
             ASSERTV(movedInto, MState::e_NOT_MOVED == movedInto);
 
             z_p = &(mY = MoveUtil::move(mX));
             ASSERT(Y->data() == 11);
-            movedFrom = X->d_from;
+            movedFrom = X->movedFrom();
             ASSERTV(movedFrom, MState::e_MOVED == movedFrom);
-            movedInto = Y->d_into;
+            movedInto = Y->movedInto();
             ASSERTV(movedInto, MState::e_MOVED == movedInto);
 
             // value <- null
@@ -8620,8 +8488,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Copy assign Opt<From> to Obj<To>.\n";
         {
-            bsl::optional<TC::From> mX(7);
-            const bsl::optional<TC::From>& X = mX;
+            bsl::optional<bsltf::MovableTestType> mX(7);
+            const bsl::optional<bsltf::MovableTestType>& X = mX;
 
             bdlb::NullableValue<TC::To> mY;
             const bdlb::NullableValue<TC::To>& Y = mY;
@@ -8636,14 +8504,14 @@ int main(int argc, char *argv[])
             ASSERT(Y.has_value());
             ASSERT(&mY == z_p);
             ASSERT(Y->data() == 7);
-            MState::Enum movedFrom = X->d_from;
+            MState::Enum movedFrom = X->movedFrom();
             ASSERTV(movedFrom, MState::e_NOT_MOVED == movedFrom);
-            MState::Enum movedInto = Y->d_into;
+            MState::Enum movedInto = Y->movedInto();
             ASSERTV(movedInto, MState::e_NOT_MOVED == movedInto);
 
             mX->setData(11);
             z_p = 0;
-            movedFrom = X->d_from;
+            movedFrom = X->movedFrom();
             ASSERTV(movedFrom, MState::e_NOT_MOVED == movedFrom);
 
             // value = value
@@ -8652,9 +8520,9 @@ int main(int argc, char *argv[])
 
             ASSERT(&mY == z_p);
             ASSERT(Y->data() == 11);
-            movedFrom = X->d_from;
+            movedFrom = X->movedFrom();
             ASSERTV(movedFrom, MState::e_NOT_MOVED == movedFrom);
-            movedInto = Y->d_into;
+            movedInto = Y->movedInto();
             ASSERTV(movedInto, MState::e_NOT_MOVED == movedInto);
 
             z_p = 0;
@@ -8684,8 +8552,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Move assign Opt<From> to Obj<To>.\n";
         {
-            bsl::optional<TC::From> mX(7);
-            const bsl::optional<TC::From>& X = mX;
+            bsl::optional<bsltf::MovableTestType> mX(7);
+            const bsl::optional<bsltf::MovableTestType>& X = mX;
 
             bdlb::NullableValue<TC::To> mY;
             const bdlb::NullableValue<TC::To>& Y = mY;
@@ -8700,14 +8568,14 @@ int main(int argc, char *argv[])
             ASSERT(Y.has_value());
             ASSERT(&mY == z_p);
             ASSERT(Y->data() == 7);
-            MState::Enum movedFrom = X->d_from;
+            MState::Enum movedFrom = X->movedFrom();
             ASSERTV(movedFrom, MState::e_MOVED == movedFrom);
-            MState::Enum movedInto = Y->d_into;
+            MState::Enum movedInto = Y->movedInto();
             ASSERTV(movedInto, MState::e_MOVED == movedInto);
 
             mX->setData(11);
             z_p = 0;
-            movedFrom = X->d_from;
+            movedFrom = X->movedFrom();
             ASSERTV(movedFrom, MState::e_NOT_MOVED == movedFrom);
 
             // value = value
@@ -8716,9 +8584,9 @@ int main(int argc, char *argv[])
 
             ASSERT(&mY == z_p);
             ASSERT(Y->data() == 11);
-            movedFrom = X->d_from;
+            movedFrom = X->movedFrom();
             ASSERTV(movedFrom, MState::e_MOVED == movedFrom);
-            movedInto = Y->d_into;
+            movedInto = Y->movedInto();
             ASSERTV(movedInto, MState::e_MOVED == movedInto);
 
             z_p = 0;
@@ -8771,9 +8639,9 @@ int main(int argc, char *argv[])
 
             ASSERT(&mY == z_p);
             ASSERT((*Y)->data() == 7);
-            MState::Enum movedFrom = X->d_from;
+            MState::Enum movedFrom = X->movedFrom();
             ASSERTV(movedFrom, MState::e_NOT_MOVED == movedFrom);
-            MState::Enum movedInto = (*Y)->d_into;
+            MState::Enum movedInto = (*Y)->movedInto();
             ASSERTV(movedInto, MState::e_NOT_MOVED == movedInto);
 
             // value <- value
@@ -8781,16 +8649,16 @@ int main(int argc, char *argv[])
             z_p = 0;
             mX->setData(11);
             ASSERT(11 == X->data());
-            movedFrom = X->d_from;
+            movedFrom = X->movedFrom();
             ASSERTV(movedFrom, MState::e_NOT_MOVED == movedFrom);
 
             z_p = &(mY = X);
 
             ASSERT(&mY == z_p);
             ASSERT((*Y)->data() == 11);
-            movedFrom = X->d_from;
+            movedFrom = X->movedFrom();
             ASSERTV(movedFrom, MState::e_NOT_MOVED == movedFrom);
-            movedInto = (*Y)->d_into;
+            movedInto = (*Y)->movedInto();
             ASSERTV(movedInto, MState::e_NOT_MOVED == movedInto);
 
             // value <- null
@@ -8833,9 +8701,9 @@ int main(int argc, char *argv[])
 
             ASSERT(&mY == z_p);
             ASSERT((*Y)->data() == 7);
-            MState::Enum movedFrom = X->d_from;
+            MState::Enum movedFrom = X->movedFrom();
             ASSERTV(movedFrom, MState::e_MOVED == movedFrom);
-            MState::Enum movedInto = (*Y)->d_into;
+            MState::Enum movedInto = (*Y)->movedInto();
             ASSERTV(movedInto, MState::e_MOVED == movedInto);
 
             // value <- value
@@ -8843,20 +8711,20 @@ int main(int argc, char *argv[])
             z_p = 0;
             mX->setData(11);
             ASSERT(11 == X->data());
-            movedFrom = X->d_from;
+            movedFrom = X->movedFrom();
             ASSERTV(movedFrom, MState::e_NOT_MOVED == movedFrom);
             (*mY)->setData(7);
             ASSERT(7 == (*Y)->data());
-            movedInto = (*Y)->d_into;
+            movedInto = (*Y)->movedInto();
             ASSERTV(movedInto, MState::e_NOT_MOVED == movedInto);
 
             z_p = &(mY = MoveUtil::move(mX));
 
             ASSERT(&mY == z_p);
             ASSERT((*Y)->data() == 11);
-            movedFrom = X->d_from;
+            movedFrom = X->movedFrom();
             ASSERTV(movedFrom, MState::e_MOVED == movedFrom);
-            movedInto = (*Y)->d_into;
+            movedInto = (*Y)->movedInto();
             ASSERTV(movedInto, MState::e_MOVED == movedInto);
 
             // value <- null
@@ -8864,7 +8732,7 @@ int main(int argc, char *argv[])
             z_p = 0;
             (*mY)->setData(5);
             bsl::optional<TC::To> mN;
-            movedInto = (*Y)->d_into;
+            movedInto = (*Y)->movedInto();
             ASSERTV(movedInto, MState::e_NOT_MOVED == movedInto);
 
             z_p = &(mY = MoveUtil::move(mN));
@@ -8874,8 +8742,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Copy assign Opt<From> to NVTo.\n";
         {
-            bsl::optional<TC::From> mX(7);
-            const bsl::optional<TC::From>& X = mX;
+            bsl::optional<bsltf::MovableTestType> mX(7);
+            const bsl::optional<bsltf::MovableTestType>& X = mX;
 
             NVTo mY;    const NVTo& Y = mY;
             ASSERT(!Y.has_value());
@@ -8891,14 +8759,14 @@ int main(int argc, char *argv[])
             ASSERT(Y.has_value());
             ASSERT(Y->has_value());
             ASSERT((*Y)->data() == 7);
-            MState::Enum movedFrom = X->d_from;
+            MState::Enum movedFrom = X->movedFrom();
             ASSERTV(movedFrom, MState::e_NOT_MOVED == movedFrom);
-            MState::Enum movedInto = (*Y)->d_into;
+            MState::Enum movedInto = (*Y)->movedInto();
             ASSERTV(movedInto, MState::e_NOT_MOVED == movedInto);
 
             mX->setData(11);
             z_p = 0;
-            movedFrom = X->d_from;
+            movedFrom = X->movedFrom();
             ASSERTV(movedFrom, MState::e_NOT_MOVED == movedFrom);
 
             // value = value
@@ -8909,17 +8777,17 @@ int main(int argc, char *argv[])
             ASSERT(Y.has_value());
             ASSERT(Y->has_value());
             ASSERT((*Y)->data() == 11);
-            movedFrom = X->d_from;
+            movedFrom = X->movedFrom();
             ASSERTV(movedFrom, MState::e_NOT_MOVED == movedFrom);
-            movedInto = (*Y)->d_into;
+            movedInto = (*Y)->movedInto();
             ASSERTV(movedInto, MState::e_NOT_MOVED == movedInto);
 
             z_p = 0;
 
             // value = null
 
-            bsl::optional<TC::From> mN;
-            const bsl::optional<TC::From>& N = mN;
+            bsl::optional<bsltf::MovableTestType> mN;
+            const bsl::optional<bsltf::MovableTestType>& N = mN;
             ASSERT(Y.has_value());
             ASSERT(!N.has_value());
 
@@ -8930,7 +8798,7 @@ int main(int argc, char *argv[])
             ASSERT(!Y->has_value());
             ASSERT(!N.has_value());
 
-            mN = bsl::optional<TC::From>();
+            mN = bsl::optional<bsltf::MovableTestType>();
             ASSERT(!N.has_value());
             z_p = 0;
 
@@ -8946,8 +8814,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Move assign Opt<From> to Obj<To>.\n";
         {
-            bsl::optional<TC::From> mX(7);
-            const bsl::optional<TC::From>& X = mX;
+            bsl::optional<bsltf::MovableTestType> mX(7);
+            const bsl::optional<bsltf::MovableTestType>& X = mX;
 
             NVTo mY;    const NVTo& Y = mY;
             ASSERT(!Y.has_value());
@@ -8962,14 +8830,14 @@ int main(int argc, char *argv[])
             ASSERT((*Y).has_value());
             ASSERT(&mY == z_p);
             ASSERT((*Y)->data() == 7);
-            MState::Enum movedFrom = X->d_from;
+            MState::Enum movedFrom = X->movedFrom();
             ASSERTV(movedFrom, MState::e_MOVED == movedFrom);
-            MState::Enum movedInto = (*Y)->d_into;
+            MState::Enum movedInto = (*Y)->movedInto();
             ASSERTV(movedInto, MState::e_MOVED == movedInto);
 
             mX->setData(11);
             z_p = 0;
-            movedFrom = X->d_from;
+            movedFrom = X->movedFrom();
             ASSERTV(movedFrom, MState::e_NOT_MOVED == movedFrom);
 
             // value = value
@@ -8980,17 +8848,17 @@ int main(int argc, char *argv[])
             ASSERT(Y.has_value());
             ASSERT((*Y).has_value());
             ASSERT((*Y)->data() == 11);
-            movedFrom = X->d_from;
+            movedFrom = X->movedFrom();
             ASSERTV(movedFrom, MState::e_MOVED == movedFrom);
-            movedInto = (*Y)->d_into;
+            movedInto = (*Y)->movedInto();
             ASSERTV(movedInto, MState::e_MOVED == movedInto);
 
             z_p = 0;
 
             // value = null
 
-            bsl::optional<TC::From> mN;
-            const bsl::optional<TC::From>& N = mN;
+            bsl::optional<bsltf::MovableTestType> mN;
+            const bsl::optional<bsltf::MovableTestType>& N = mN;
 
             z_p = &(mY = MoveUtil::move(mN));
 
@@ -8999,7 +8867,7 @@ int main(int argc, char *argv[])
             ASSERT(!Y->has_value());
             ASSERT(!N.has_value());
 
-            mN = bsl::optional<TC::From>();
+            mN = bsl::optional<bsltf::MovableTestType>();
             ASSERT(!N.has_value());
             z_p = 0;
 
@@ -10196,8 +10064,8 @@ int main(int argc, char *argv[])
                              "\n========================================"
                           << endl;
 
-        typedef MoveFromAllocTypeSpace::From      From;
-        typedef MoveFromAllocTypeSpace::To        To;
+        typedef bsltf::MovableTestType        From;
+        typedef MoveFromAllocTypeSpace::To    To;
 
         bslma::TestAllocator da("default", veryVeryVeryVerbose);
 
@@ -10315,8 +10183,8 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\tcopy assignment" << endl;
             {
-                const ValueType1 VALUE1a = val1a;
-                const ValueType1 VALUE1b = val1b;
+                const ValueType1 VALUE1a(val1a);
+                const ValueType1 VALUE1b(val1b);
 
                 const ObjType1 OBJ1a(VALUE1a);
                       ObjType1 obj1b(VALUE1b);
@@ -10329,16 +10197,16 @@ int main(int argc, char *argv[])
 
                 ASSERT(val1a == OBJ1a->data());
                 ASSERT(val1a == OBJ2->data());
-                ASSERT(MS::e_NOT_MOVED == OBJ1a->d_from);
-                ASSERT(MS::e_NOT_MOVED == OBJ2->d_into);
+                ASSERT(MS::e_NOT_MOVED == OBJ1a->movedFrom());
+                ASSERT(MS::e_NOT_MOVED == OBJ2->movedInto());
                 ASSERT(  mR2 == &obj2);
 
                 mR2 = &(obj2 = obj1b);            // non-null = non-null
 
                 ASSERT(val1b == obj1b->data());
                 ASSERT(val1b == OBJ2->data());
-                ASSERT(MS::e_NOT_MOVED == obj1b->d_from);
-                ASSERT(MS::e_NOT_MOVED == OBJ2->d_into);
+                ASSERT(MS::e_NOT_MOVED == obj1b->movedFrom());
+                ASSERT(MS::e_NOT_MOVED == OBJ2->movedInto());
                 ASSERT(  mR2 == &obj2);
 
                 mR2 = &(obj2 = OBJ1n);            // non-null = null
@@ -10356,8 +10224,8 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\tmove assignment" << endl;
             {
-                const ValueType1 VALUE1a = val1a;
-                const ValueType1 VALUE1b = val1b;
+                const ValueType1 VALUE1a(val1a);
+                const ValueType1 VALUE1b(val1b);
 
                 const ObjType1  OBJ1a(VALUE1a);
                       ObjType1  obj1b(VALUE1b);
@@ -10373,21 +10241,21 @@ int main(int argc, char *argv[])
                                                              // null = non-null
 
                 ASSERT(val1b == OBJ2->data());
-                ASSERTV(OBJ1b->d_from, MS::e_MOVED == OBJ1b->d_from);
-                ASSERTV(OBJ2->d_into,  MS::e_MOVED == OBJ2->d_into);
+                ASSERTV(OBJ1b->movedFrom(), MS::e_MOVED == OBJ1b->movedFrom());
+                ASSERTV(OBJ2->movedInto(),  MS::e_MOVED == OBJ2->movedInto());
                 ASSERT(  mR2 == &obj2);
 
                 obj1b->setData(val1b);
-                ASSERT(MS::e_NOT_MOVED == OBJ1b->d_from);
+                ASSERT(MS::e_NOT_MOVED == OBJ1b->movedFrom());
 
                 obj2->setData(val1a);
-                ASSERT(MS::e_NOT_MOVED == OBJ2->d_into);
+                ASSERT(MS::e_NOT_MOVED == OBJ2->movedInto());
 
                 mR2 = &(obj2 = MoveUtil::move(obj1b));   // non-null = non-null
 
                 ASSERT(val1b == OBJ2->data());
-                ASSERTV(obj1b->d_from, MS::e_MOVED == obj1b->d_from);
-                ASSERTV(OBJ2->d_into,  MS::e_MOVED == OBJ2->d_into);
+                ASSERTV(obj1b->movedFrom(), MS::e_MOVED == obj1b->movedFrom());
+                ASSERTV(OBJ2->movedInto(),  MS::e_MOVED == OBJ2->movedInto());
                 ASSERT(    mR2 == &obj2);
 
                 mR2 = &(obj2 = MoveUtil::move(obj1n));   // non-null = null
