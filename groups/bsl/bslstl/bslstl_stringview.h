@@ -1620,11 +1620,17 @@ basic_string_view<CHAR_TYPE, CHAR_TRAITS>
 basic_string_view<CHAR_TYPE, CHAR_TRAITS>::substr(size_type position,
                                                   size_type numChars) const
 {
-    BSLS_ASSERT_SAFE(position < length());
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(position > length())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
+                               "string_view::substr(pos,n): invalid position");
+    }
+
+    const size_type maxLen = length() - position;
 
     return basic_string_view<CHAR_TYPE, CHAR_TRAITS>(
-            data() + position,
-            numChars < (length() - position) ? numChars : length() - position);
+                                        data() + position,
+                                        numChars < maxLen ? numChars : maxLen);
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS>

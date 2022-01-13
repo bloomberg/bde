@@ -2584,7 +2584,7 @@ void TestDriver<TYPE, TRAITS>::testCase17()
     // object leads to undefined behavior.  Such scenarios will be tested at
     // the end of this case.
 
-    for (size_type i = 0; i < STRING_LENGTH; ++i) {
+    for (size_type i = 0; i <= STRING_LENGTH; ++i) {
         for (size_type j = 0; j <= STRING_LENGTH - i; ++j) {
             const size_type  OFFSET = i;
             const size_type  LENGTH = j;
@@ -2595,14 +2595,14 @@ void TestDriver<TYPE, TRAITS>::testCase17()
 
             // 'position' should be less than the length of the object.
 
-            for (size_type l = 0; l < LENGTH; ++l) {
+            for (size_type l = 0; l <= LENGTH; ++l) {
                 const size_type POSITION = l;
 
                 // But for the 'numChars' we do not have such restrictions, so
                 // we have to check values equal and greater than length of the
                 // object.
 
-                for (size_type k = 0; k < STRING_LENGTH; ++k) {
+                for (size_type k = 0; k <= STRING_LENGTH; ++k) {
                     const size_type  NUM_CHARS       = k;
                     const TYPE      *EXPECTED_DATA   = START + POSITION;
                     const size_type  EXPECTED_LENGTH =
@@ -2654,33 +2654,57 @@ void TestDriver<TYPE, TRAITS>::testCase17()
         }
     }
 
-#if !defined(BSLSTL_STRING_VIEW_IS_ALIASED)
+#if defined(BDE_BUILD_TARGET_EXC)
     if (verbose) printf("\tNegative testing.\n");
     {
         bsls::AssertTestHandlerGuard hG;
 
-        // Non-negative by definition 'position' can not be less then zero.  So
-        // calling the 'substr' method for empty object or for zero-length
-        // object always leads to undefined behavior.
         const TYPE *NULL_PTR = 0;
         Obj         mXEmpty(NULL_PTR, 0);
         const Obj&  XEmpty = mXEmpty;
 
-        ASSERT_SAFE_FAIL(XEmpty.substr(0));
-        ASSERT_SAFE_FAIL(XEmpty.substr(1));
+        (void) XEmpty.substr(0);
+        (void) XEmpty.substr(0, 10);
+
+        bool caught = false;
+        try {
+            XEmpty.substr(1);
+        }
+        catch (const std::out_of_range&) {
+            caught = true;
+        }
+        ASSERT(caught && "XEmpty.substr(1) failed");
 
         Obj         mXZero(STRING, 0);
         const Obj&  XZero = mXZero;
 
-        ASSERT_SAFE_FAIL(XZero.substr(0));
-        ASSERT_SAFE_FAIL(XZero.substr(1));
+        (void) XZero.substr(0);
+
+        caught = false;
+        try {
+            XZero.substr(1);
+        }
+        catch (const std::out_of_range&) {
+            caught = true;
+        }
+        ASSERT(caught && "XZero.substr(1) failed");
 
         Obj        mX(STRING, 1);
         const Obj& X = mX;
 
-        ASSERT_SAFE_PASS(X.substr(0));
-        ASSERT_SAFE_FAIL(X.substr(1));
-        ASSERT_SAFE_FAIL(X.substr(2));
+        (void) X.substr(0);
+        (void) X.substr(0, 10);
+        (void) X.substr(1);
+        (void) X.substr(1, 10);
+
+        caught = false;
+        try {
+            X.substr(2);
+        }
+        catch (const std::out_of_range&) {
+            caught = true;
+        }
+        ASSERT(caught && "X.substr(2) failed");
     }
 #endif
 }
