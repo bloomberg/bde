@@ -46,6 +46,10 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 
 #include <bslstl_iterator.h>  // iterator tags, distance
+#include <bslstl_pair.h>      // pair
+
+#include <bslmf_addconst.h>
+#include <bslmf_removeconst.h>
 
 #include <bsls_nativestd.h>
 #include <bsls_platform.h>
@@ -74,6 +78,39 @@ struct IteratorUtil {
         // behavior is undefined unless 'last' is reachable from 'first'.  Note
         // that this function always returns 0 when compiled with the Sun
         // compiler, while we work around issues in the Sun standard library.
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+    // These template aliases are 'convenience alises' defined in the standard
+    // as 'exposition-only' to simplify the specification of the deduction
+    // guides for the associative containers.
+
+    template <class INPUT_ITER>  // aka iter-val-type
+    using IterVal_t = typename bsl::iterator_traits<INPUT_ITER>::value_type;
+        // returns the 'value_type' of the specified iterator type.
+
+    template <class INPUT_ITER> // aka iter-key-type
+    using IterKey_t = bsl::remove_const_t<
+        typename bsl::iterator_traits<INPUT_ITER>::value_type::first_type>;
+        // returns the 'key-type' of the specified iterator type, which is
+        // expected to refer to a 'pair<KEY_TYPE, MAPPED_TYPE>'
+
+    template <class INPUT_ITER> // aka iter-mapped-type
+    using IterMapped_t =
+        typename bsl::iterator_traits<INPUT_ITER>::value_type::second_type;
+        // returns the 'mapped-type' of the specified iterator type, which is
+        // expected to refer to a 'pair<KEY_TYPE, MAPPED_TYPE>'
+
+    template <class INPUT_ITER>  // aka iter-to-alloc-type
+    using IterToAlloc_t = bsl::pair<
+        bsl::add_const_t<
+            typename bsl::iterator_traits<INPUT_ITER>::value_type::first_type>,
+            typename bsl::iterator_traits<INPUT_ITER>::value_type::second_type
+        >;
+        // returns the type that is actually stored in a map.  The supplied
+        // iterator type is expected to refer to a
+        // 'pair<KEY_TYPE, MAPPED_TYPE>'.
+#endif
+
 };
 
 // ============================================================================

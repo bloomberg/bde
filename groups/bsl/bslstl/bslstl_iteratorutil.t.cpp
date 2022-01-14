@@ -29,9 +29,10 @@ using namespace bslstl;
 // currently defined.
 //-----------------------------------------------------------------------------
 // [ 2] size_t insertDistance(InputIterator, InputIterator)
+// [ 3] TEMPLATE ALIASES FOR DEDUCTION GUIDES
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 3] USAGE EXAMPLE
+// [ 4] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -165,6 +166,70 @@ DISTANCE operator-(
 
 }  // close unnamed namespace
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+struct TestTemplateAliases {
+    // This struct provides a namespace for functions testing template aliases.
+    // The tests are compile-time only; it is not necessary that these routines
+    // be called at run-time.
+
+#define ASSERT_SAME_TYPE(...) \
+ static_assert((bsl::is_same<__VA_ARGS__>::value), "Types differ unexpectedly")
+
+    static void TemplateAliases ()
+        // Test the template aliases in this component 'return' the correct
+        // type when instantiated with both iterators and pointers.
+    {
+        using TAG = bsl::input_iterator_tag;
+
+        using T1    = int;
+        using PTR1  = T1*;
+        using ITER1 = TestIterator<TAG, T1>;
+
+        ASSERT_SAME_TYPE(IteratorUtil::IterVal_t<PTR1>,  T1);
+        ASSERT_SAME_TYPE(IteratorUtil::IterVal_t<ITER1>, T1);
+
+        using T2     = long;
+        using PTR2A  =                   bsl::pair<T2, char>*;
+        using ITER2A = TestIterator<TAG, bsl::pair<T2, char>>;
+        using PTR2B  =                   bsl::pair<const T2, char>*;
+        using ITER2B = TestIterator<TAG, bsl::pair<const T2, char>>;
+
+        ASSERT_SAME_TYPE(IteratorUtil::IterKey_t<PTR2A>,  T2);
+        ASSERT_SAME_TYPE(IteratorUtil::IterKey_t<ITER2A>, T2);
+        ASSERT_SAME_TYPE(IteratorUtil::IterKey_t<PTR2B>,  T2);
+        ASSERT_SAME_TYPE(IteratorUtil::IterKey_t<ITER2B>, T2);
+
+        using T3     = double;
+        using PTR3A  =                   bsl::pair<char, T3>*;
+        using ITER3A = TestIterator<TAG, bsl::pair<char, T3>>;
+        using PTR3B  =                   bsl::pair<const char, T3>*;
+        using ITER3B = TestIterator<TAG, bsl::pair<const char, T3>>;
+
+        ASSERT_SAME_TYPE(IteratorUtil::IterMapped_t<PTR3A>,  T3);
+        ASSERT_SAME_TYPE(IteratorUtil::IterMapped_t<ITER3A>, T3);
+        ASSERT_SAME_TYPE(IteratorUtil::IterMapped_t<PTR3B>,  T3);
+        ASSERT_SAME_TYPE(IteratorUtil::IterMapped_t<ITER3B>, T3);
+
+        using T4KEY     = unsigned;
+        using T4MAPPED  = float;
+        using PTR4A  =                   bsl::pair<T4KEY, T4MAPPED>*;
+        using ITER4A = TestIterator<TAG, bsl::pair<T4KEY, T4MAPPED>>;
+        using PTR4B  =                   bsl::pair<const T4KEY, T4MAPPED>*;
+        using ITER4B = TestIterator<TAG, bsl::pair<const T4KEY, T4MAPPED>>;
+
+        using EXPECTEDT4 = bsl::pair<const T4KEY, T4MAPPED>;
+        ASSERT_SAME_TYPE(IteratorUtil::IterToAlloc_t<PTR4A>,  EXPECTEDT4);
+        ASSERT_SAME_TYPE(IteratorUtil::IterToAlloc_t<ITER4A>, EXPECTEDT4);
+        ASSERT_SAME_TYPE(IteratorUtil::IterToAlloc_t<PTR4B>,  EXPECTEDT4);
+        ASSERT_SAME_TYPE(IteratorUtil::IterToAlloc_t<ITER4B>, EXPECTEDT4);
+
+    }
+
+
+#undef ASSERT_SAME_TYPE
+};
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_CTAD
+
 // ============================================================================
 //                            MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -187,7 +252,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
-      case 3: {
+      case 4: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -233,6 +298,36 @@ int main(int argc, char *argv[])
 
 //..
 
+      } break;
+      case 3: {
+        //---------------------------------------------------------------------
+        // TESTING TEMPLATE ALIASES (AT COMPILE TIME)
+        //   Ensure that the deduction guides are properly specified to deduce
+        //   the template arguments from the arguments supplied to the
+        //   constructors.
+        //
+        // Concerns:
+        //: 1 Instantiation with both pointers and iterators 'returns' the
+        //:   correct type.
+        //
+        // Plan:
+        //: 1 Instantiate the template aliases with different iterator and
+        //:   pointer types.
+        //:
+        //: 2 Verify that the 'returned' type is correct.
+        //
+        // Testing:
+        //   TEMPLATE ALIASES FOR DEDUCTION GUIDES
+        //---------------------------------------------------------------------
+        if (verbose)
+            printf(
+              "\nTESTING TEMPLATE ALIASES (AT COMPILE TIME)"
+              "\n==========================================\n");
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+        // This is a compile-time only test case.
+        TestTemplateAliases test;
+#endif
       } break;
       case 2: {
         // --------------------------------------------------------------------

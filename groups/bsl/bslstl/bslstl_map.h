@@ -487,6 +487,7 @@ BSL_OVERRIDES_STD mode"
 #include <bslalg_typetraithasstliterators.h>
 
 #include <bslma_constructionutil.h>
+#include <bslma_isstdallocator.h>
 #include <bslma_default.h>
 #include <bslma_destructorguard.h>
 #include <bslma_stdallocator.h>
@@ -1708,6 +1709,161 @@ class map {
 
     // BDE_VERIFY pragma: pop
 };
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+// CLASS TEMPLATE DEDUCTION GUIDES
+
+template <
+    class KEY,
+    class VALUE,
+    class COMPARATOR,
+    class ALLOCATOR,
+    class ALLOC,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>
+    >
+map(map<KEY, VALUE, COMPARATOR, ALLOCATOR>, ALLOC *)
+-> map<KEY, VALUE, COMPARATOR, ALLOCATOR>;
+    // Deduce the template parameters 'KEY', 'VALUE', 'COMPARATOR' and
+    // 'ALLOCATOR' from the corresponding template parameters of the
+    // 'bsl::map' supplied to the constructor of 'map'.
+
+template <
+    class INPUT_ITERATOR,
+    class KEY = BloombergLP::bslstl::IteratorUtil::IterKey_t<INPUT_ITERATOR>,
+    class VALUE =
+               BloombergLP::bslstl::IteratorUtil::IterMapped_t<INPUT_ITERATOR>,
+    class COMPARATOR = std::less<KEY>,
+    class ALLOCATOR = bsl::allocator<
+             BloombergLP::bslstl::IteratorUtil::IterToAlloc_t<INPUT_ITERATOR>>,
+    class = bsl::enable_if_t<!bsl::IsStdAllocator_v<COMPARATOR>>,
+    class = bsl::enable_if_t<bsl::IsStdAllocator_v<ALLOCATOR>>
+    >
+map(INPUT_ITERATOR,
+    INPUT_ITERATOR,
+    COMPARATOR = COMPARATOR(),
+    ALLOCATOR = ALLOCATOR())
+-> map<KEY, VALUE, COMPARATOR, ALLOCATOR>;
+    // Deduce the template parameters 'KEY' and 'VALUE' from the 'value_type'
+    // of the iterators supplied to the constructor of 'map'.  Deduce the
+    // template parameters 'COMPARATOR' and 'ALLOCATOR' from the other
+    // parameters passed to the constructor.  This deduction guide does not
+    // participate unless the supplied allocator meets the requirements of a
+    // standard allocator.
+
+template <
+    class INPUT_ITERATOR,
+    class COMPARATOR,
+    class ALLOC,
+    class KEY = BloombergLP::bslstl::IteratorUtil::IterKey_t<INPUT_ITERATOR>,
+    class VALUE =
+               BloombergLP::bslstl::IteratorUtil::IterMapped_t<INPUT_ITERATOR>,
+    class DEFAULT_ALLOCATOR = bsl::allocator<pair<const KEY, VALUE>>,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, DEFAULT_ALLOCATOR>>
+    >
+map(INPUT_ITERATOR, INPUT_ITERATOR, COMPARATOR, ALLOC *)
+-> map<KEY, VALUE, COMPARATOR>;
+    // Deduce the template parameters 'KEY' and 'VALUE' from the 'value_type'
+    // of the iterators supplied to the constructor of 'map'.  Deduce the
+    // template parameter 'COMPARATOR' from the other parameter passed to the
+    // constructor.  This deduction guide does not participate unless the
+    // supplied allocator is convertible to
+    // 'bsl::allocator<bsl::pair<const KEY, VALUE>>'.
+
+template <
+    class INPUT_ITERATOR,
+    class ALLOCATOR,
+    class KEY = BloombergLP::bslstl::IteratorUtil::IterKey_t<INPUT_ITERATOR>,
+    class VALUE =
+               BloombergLP::bslstl::IteratorUtil::IterMapped_t<INPUT_ITERATOR>,
+    class = bsl::enable_if_t<bsl::IsStdAllocator_v<ALLOCATOR>>
+    >
+map(INPUT_ITERATOR, INPUT_ITERATOR, ALLOCATOR)
+-> map<KEY, VALUE, std::less<KEY>, ALLOCATOR>;
+    // Deduce the template parameters 'KEY' and 'VALUE' from the 'value_type'
+    // of the iterators supplied to the constructor of 'map'.  This deduction
+    // guide does not participate unless the supplied allocator meets the
+    // requirements of a standard allocator.
+
+template <
+    class INPUT_ITERATOR,
+    class ALLOC,
+    class KEY = BloombergLP::bslstl::IteratorUtil::IterKey_t<INPUT_ITERATOR>,
+    class VALUE =
+               BloombergLP::bslstl::IteratorUtil::IterMapped_t<INPUT_ITERATOR>,
+    class DEFAULT_ALLOCATOR = bsl::allocator<pair<const KEY, VALUE>>,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, DEFAULT_ALLOCATOR>>
+    >
+map(INPUT_ITERATOR, INPUT_ITERATOR, ALLOC *)
+-> map<KEY, VALUE>;
+    // Deduce the template parameters 'KEY' and 'VALUE' from the 'value_type'
+    // of the iterators supplied to the constructor of 'map'.  This deduction
+    // guide does not participate unless the supplied allocator is convertible
+    // to 'bsl::allocator<bsl::pair<const KEY, VALUE>>'.
+
+template <
+    class KEY,
+    class VALUE,
+    class COMPARATOR = std::less<KEY>,
+    class ALLOCATOR = bsl::allocator<bsl::pair<const KEY, VALUE>>,
+    class = bsl::enable_if_t<!bsl::IsStdAllocator_v<COMPARATOR>>,
+    class = bsl::enable_if_t<bsl::IsStdAllocator_v<ALLOCATOR>>
+    >
+map(std::initializer_list<pair<const KEY, VALUE>>,
+    COMPARATOR = COMPARATOR(),
+    ALLOCATOR = ALLOCATOR())
+-> map<KEY, VALUE, COMPARATOR, ALLOCATOR>;
+    // Deduce the template parameters 'KEY' and 'VALUE' from the 'value_type'
+    // of the initializer_list supplied to the constructor of 'map'.  Deduce
+    // the template parameters 'COMPARATOR' and 'ALLOCATOR' from the other
+    // parameters passed to the constructor.  This deduction guide does not
+    // participate unless the supplied allocator meets the requirements of a
+    // standard allocator.
+
+template <
+    class KEY,
+    class VALUE,
+    class COMPARATOR,
+    class ALLOC,
+    class DEFAULT_ALLOCATOR = bsl::allocator<bsl::pair<const KEY, VALUE>>,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, DEFAULT_ALLOCATOR>>
+    >
+map(std::initializer_list<pair<const KEY, VALUE>>, COMPARATOR, ALLOC *)
+-> map<KEY, VALUE, COMPARATOR>;
+    // Deduce the template parameters 'KEY' and 'VALUE' from the 'value_type'
+    // of the initializer_list supplied to the constructor of 'map'.  Deduce
+    // the template parameter 'COMPARATOR' from the other parameters passed to
+    // the constructor.  This deduction guide does not participate unless the
+    // supplied allocator is convertible to
+    // 'bsl::allocator<bsl::pair<const KEY, VALUE>>'.
+
+template <
+    class KEY,
+    class VALUE,
+    class ALLOCATOR,
+    class = bsl::enable_if_t<bsl::IsStdAllocator_v<ALLOCATOR>>
+    >
+map(std::initializer_list<pair<const KEY, VALUE>>, ALLOCATOR)
+-> map<KEY, VALUE, std::less<KEY>, ALLOCATOR>;
+    // Deduce the template parameters 'KEY' and 'VALUE' from the 'value_type'
+    // of the initializer_list supplied to the constructor of 'map'.  Deduce
+    // the template parameter 'ALLOCATOR' from the other parameter passed to
+    // the constructor.  This deduction guide does not participate unless the
+    // supplied allocator meets the requirements of a standard allocator.
+
+template <
+    class KEY,
+    class VALUE,
+    class ALLOC,
+    class DEFAULT_ALLOCATOR = bsl::allocator<bsl::pair<const KEY, VALUE>>,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, DEFAULT_ALLOCATOR>>
+    >
+map(std::initializer_list<pair<const KEY, VALUE>>, ALLOC *)
+-> map<KEY, VALUE>;
+    // Deduce the template parameters 'KEY' and 'VALUE' from the 'value_type'
+    // of the initializer_list supplied to the constructor of 'map'.  This
+    // deduction guide does not participate unless the supplied allocator is
+    // convertible to 'bsl::allocator<bsl::pair<const KEY, VALUE>>'.
+#endif
 
 // FREE OPERATORS
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>

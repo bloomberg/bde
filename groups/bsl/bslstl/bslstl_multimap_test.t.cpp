@@ -47,6 +47,7 @@
 
 #include <algorithm>
 #include <functional>
+#include <utility>      // move
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 #include <initializer_list>
@@ -194,6 +195,7 @@
 // [36] CONCERN: 'lower_bound' properly handles transparent comparators.
 // [36] CONCERN: 'upper_bound' properly handles transparent comparators.
 // [36] CONCERN: 'equal_range' properly handles transparent comparators.
+// [37] CLASS TEMPLATE DEDUCTION GUIDES
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -8228,6 +8230,181 @@ static void testRangeInsertOptimization()
     }
 }
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+struct TestDeductionGuides {
+    // This struct provides a namespace for functions testing deduction guides.
+    // The tests are compile-time only; it is not necessary that these routines
+    // be called at run-time.  Note that the following constructors do not have
+    // associated deduction guides because the template parameters for
+    // 'bsl::multimap' cannot be deduced from the constructor parameters.
+    //..
+    // multimap()
+    // explicit multimap(COMPARATOR, ALLOCATOR = ALLOCATOR());
+    // multimap(ALLOCATOR)
+    //..
+
+#define ASSERT_SAME_TYPE(...) \
+ static_assert((bsl::is_same<__VA_ARGS__>::value), "Types differ unexpectedly")
+
+    static void SimpleConstructors ()
+        // Test that constructing a 'bsl::multimap' from various combinations
+        // of arguments deduces the correct type.
+        //..
+        // multimap(const multimap&  m)            -> decltype(m)
+        // multimap(const multimap&  m, ALLOCATOR) -> decltype(m)
+        // multimap(      multimap&& m)            -> decltype(m)
+        // multimap(      multimap&& m, ALLOCATOR) -> decltype(m)
+        //
+        // multimap(Iter, Iter, COMPARATOR = COMPARATOR(),
+        //                                             ALLOCATOR = ALLOCATOR())
+        // multimap(Iter, Iter, ALLOCATOR)
+        //
+        // multimap(initializer_list, COMPARATOR = COMPARATOR(),
+        //                                             ALLOCATOR = ALLOCATOR())
+        // multimap(initializer_list, ALLOCATOR)
+        //..
+    {
+        bslma::Allocator     *a1 = nullptr;
+        bslma::TestAllocator *a2 = nullptr;
+
+        typedef int T1;
+        bsl::multimap<T1, T1> m1;
+        bsl::multimap         m1a(m1);
+        ASSERT_SAME_TYPE(decltype(m1a), bsl::multimap<T1, T1>);
+
+        typedef float T2;
+        bsl::multimap<T2, T2> m2;
+        bsl::multimap         m2a(m2,
+                                  bsl::allocator<bsl::pair<const T2, T2>>());
+        bsl::multimap         m2b(m2, a1);
+        bsl::multimap         m2c(m2, a2);
+        ASSERT_SAME_TYPE(decltype(m2a), bsl::multimap<T2, T2>);
+        ASSERT_SAME_TYPE(decltype(m2b), bsl::multimap<T2, T2>);
+        ASSERT_SAME_TYPE(decltype(m2c), bsl::multimap<T2, T2>);
+
+        typedef short T3;
+        bsl::multimap<T3, T3> m3;
+        bsl::multimap         m3a(std::move(m3));
+        ASSERT_SAME_TYPE(decltype(m3a), bsl::multimap<T3, T3>);
+
+        typedef long double T4;
+        bsl::multimap<T4, T4> m4;
+        bsl::multimap         m4a(std::move(m4),
+                                  bsl::allocator<bsl::pair<const T4, T4>>{});
+        bsl::multimap         m4b(std::move(m4), a1);
+        bsl::multimap         m4c(std::move(m4), a2);
+        ASSERT_SAME_TYPE(decltype(m4a), bsl::multimap<T4, T4>);
+        ASSERT_SAME_TYPE(decltype(m4b), bsl::multimap<T4, T4>);
+        ASSERT_SAME_TYPE(decltype(m4c), bsl::multimap<T4, T4>);
+
+
+        typedef long T5;
+        typedef std::greater<T5> CompT5;
+        typedef bsl::allocator<bsl::pair<const T5, T5>> BA5;
+        typedef std::allocator<bsl::pair<const T5, T5>> SA5;
+
+        bsl::pair<T5, T5>               *p5b = nullptr;
+        bsl::pair<T5, T5>               *p5e = nullptr;
+        bsl::multimap<T5, T5>::iterator  i5b;
+        bsl::multimap<T5, T5>::iterator  i5e;
+
+        bsl::multimap m5a(p5b, p5e);
+        bsl::multimap m5b(i5b, i5e);
+        bsl::multimap m5c(p5b, p5e, CompT5{});
+        bsl::multimap m5d(i5b, i5e, CompT5{});
+        bsl::multimap m5e(p5b, p5e, CompT5{}, BA5{});
+        bsl::multimap m5f(p5b, p5e, CompT5{}, a1);
+        bsl::multimap m5g(p5b, p5e, CompT5{}, a2);
+        bsl::multimap m5h(p5b, p5e, CompT5{}, SA5{});
+        bsl::multimap m5i(i5b, i5e, CompT5{}, BA5{});
+        bsl::multimap m5j(i5b, i5e, CompT5{}, a1);
+        bsl::multimap m5k(i5b, i5e, CompT5{}, a2);
+        bsl::multimap m5l(i5b, i5e, CompT5{}, SA5{});
+
+        ASSERT_SAME_TYPE(decltype(m5a), bsl::multimap<T5, T5>);
+        ASSERT_SAME_TYPE(decltype(m5b), bsl::multimap<T5, T5>);
+        ASSERT_SAME_TYPE(decltype(m5c), bsl::multimap<T5, T5, CompT5>);
+        ASSERT_SAME_TYPE(decltype(m5d), bsl::multimap<T5, T5, CompT5>);
+        ASSERT_SAME_TYPE(decltype(m5e), bsl::multimap<T5, T5, CompT5, BA5>);
+        ASSERT_SAME_TYPE(decltype(m5f), bsl::multimap<T5, T5, CompT5, BA5>);
+        ASSERT_SAME_TYPE(decltype(m5g), bsl::multimap<T5, T5, CompT5, BA5>);
+        ASSERT_SAME_TYPE(decltype(m5h), bsl::multimap<T5, T5, CompT5, SA5>);
+        ASSERT_SAME_TYPE(decltype(m5i), bsl::multimap<T5, T5, CompT5, BA5>);
+        ASSERT_SAME_TYPE(decltype(m5j), bsl::multimap<T5, T5, CompT5, BA5>);
+        ASSERT_SAME_TYPE(decltype(m5k), bsl::multimap<T5, T5, CompT5, BA5>);
+        ASSERT_SAME_TYPE(decltype(m5l), bsl::multimap<T5, T5, CompT5, SA5>);
+
+
+        typedef short T6;
+        typedef bsl::allocator<bsl::pair<const T6, T6>> BA6;
+        typedef std::allocator<bsl::pair<const T6, T6>> SA6;
+
+        bsl::pair<T6, T6>               *p6b = nullptr;
+        bsl::pair<T6, T6>               *p6e = nullptr;
+        bsl::multimap<T6, T6>::iterator  i6b;
+        bsl::multimap<T6, T6>::iterator  i6e;
+
+        bsl::multimap m6a(p6b, p6e, BA6{});
+        bsl::multimap m6b(p6b, p6e, a1);
+        bsl::multimap m6c(p6b, p6e, a2);
+        bsl::multimap m6d(p6b, p6e, SA6{});
+
+        ASSERT_SAME_TYPE(decltype(m6a),
+                         bsl::multimap<T6, T6, std::less<T6>, BA6>);
+        ASSERT_SAME_TYPE(decltype(m6b),
+                         bsl::multimap<T6, T6, std::less<T6>, BA6>);
+        ASSERT_SAME_TYPE(decltype(m6c),
+                         bsl::multimap<T6, T6, std::less<T6>, BA6>);
+        ASSERT_SAME_TYPE(decltype(m6d),
+                         bsl::multimap<T6, T6, std::less<T6>, SA6>);
+
+
+        typedef long T7;
+        typedef std::greater<T7> CompT7;
+        typedef bsl::allocator       <bsl::pair<const T7, T7>> BA7;
+        typedef std::allocator       <bsl::pair<const T7, T7>> SA7;
+        typedef std::initializer_list<bsl::pair<const T7, T7>> IL7;
+
+        IL7           il7({{1L, 1L}, {2L, 3L}});
+        bsl::multimap m7a(il7);
+        bsl::multimap m7b(il7, CompT7{});
+        bsl::multimap m7c(il7, CompT7{}, BA7{});
+        bsl::multimap m7d(il7, CompT7{}, a1);
+        bsl::multimap m7e(il7, CompT7{}, a2);
+        bsl::multimap m7f(il7, CompT7{}, SA7{});
+
+        ASSERT_SAME_TYPE(decltype(m7a), bsl::multimap<T7, T7>);
+        ASSERT_SAME_TYPE(decltype(m7b), bsl::multimap<T7, T7, CompT7>);
+        ASSERT_SAME_TYPE(decltype(m7c), bsl::multimap<T7, T7, CompT7, BA7>);
+        ASSERT_SAME_TYPE(decltype(m7d), bsl::multimap<T7, T7, CompT7, BA7>);
+        ASSERT_SAME_TYPE(decltype(m7e), bsl::multimap<T7, T7, CompT7, BA7>);
+        ASSERT_SAME_TYPE(decltype(m7f), bsl::multimap<T7, T7, CompT7, SA7>);
+
+        typedef long long T8;
+        typedef bsl::allocator       <bsl::pair<const T8, T8>> BA8;
+        typedef std::allocator       <bsl::pair<const T8, T8>> SA8;
+        typedef std::initializer_list<bsl::pair<const T8, T8>> IL8;
+
+        IL8           il8({{3LL, 3LL}, {2LL, 1LL}});
+        bsl::multimap m8a(il8, BA8{});
+        bsl::multimap m8b(il8, a1);
+        bsl::multimap m8c(il8, a2);
+        bsl::multimap m8d(il8, SA8{});
+
+        ASSERT_SAME_TYPE(decltype(m8a),
+                         bsl::multimap<T8, T8, std::less<T8>, BA8>);
+        ASSERT_SAME_TYPE(decltype(m8b),
+                         bsl::multimap<T8, T8, std::less<T8>, BA8>);
+        ASSERT_SAME_TYPE(decltype(m8c),
+                         bsl::multimap<T8, T8, std::less<T8>, BA8>);
+        ASSERT_SAME_TYPE(decltype(m8d),
+                         bsl::multimap<T8, T8, std::less<T8>, SA8>);
+    }
+
+#undef ASSERT_SAME_TYPE
+};
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_CTAD
+
 // ============================================================================
 //                            MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -8264,6 +8441,39 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
+      case 37: {
+        //---------------------------------------------------------------------
+        // TESTING CLASS TEMPLATE DEDUCTION GUIDES (AT COMPILE TIME)
+        //   Ensure that the deduction guides are properly specified to deduce
+        //   the template arguments from the arguments supplied to the
+        //   constructors.
+        //
+        // Concerns:
+        //: 1 Construction from iterators deduces the value type from the value
+        //:   type of the iterator.
+        //
+        //: 2 Construction with a 'bslma::Allocator *' deduces the correct
+        //:   specialization of 'bsl::allocator' for the type of the allocator.
+        //
+        // Plan:
+        //: 1 Create a map by invoking the constructor without supplying the
+        //:   template arguments explicitly.
+        //:
+        //: 2 Verify that the deduced type is correct.
+        //
+        // Testing:
+        //   CLASS TEMPLATE DEDUCTION GUIDES
+        //---------------------------------------------------------------------
+        if (verbose)
+            printf(
+              "\nTESTING CLASS TEMPLATE DEDUCTION GUIDES (AT COMPILE TIME)"
+              "\n=========================================================\n");
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+        // This is a compile-time only test case.
+        TestDeductionGuides test;
+#endif
+      } break;
       case 36: {
         // --------------------------------------------------------------------
         // TESTING TRANSPARENT COMPARATOR

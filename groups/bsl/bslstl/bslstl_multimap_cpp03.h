@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Dec  1 13:29:03 2021
+// Generated on Wed Jan 12 09:03:52 2022
 // Command line: sim_cpp11_features.pl bslstl_multimap.h
 
 #ifdef COMPILING_BSLSTL_MULTIMAP_H
@@ -1118,6 +1118,162 @@ class multimap {
 
     // BDE_VERIFY pragma: pop
 };
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+// CLASS TEMPLATE DEDUCTION GUIDES
+
+template <
+    class KEY,
+    class VALUE,
+    class COMPARATOR,
+    class ALLOCATOR,
+    class ALLOC,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>
+    >
+multimap(multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>, ALLOC *)
+-> multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>;
+    // Deduce the template parameters 'KEY', 'VALUE', 'COMPARATOR' and
+    // 'ALLOCATOR' from the corresponding template parameters of the
+    // 'bsl::multimap' supplied to the constructor of 'multimap'.
+
+template <
+    class INPUT_ITERATOR,
+    class KEY = BloombergLP::bslstl::IteratorUtil::IterKey_t<INPUT_ITERATOR>,
+    class VALUE =
+               BloombergLP::bslstl::IteratorUtil::IterMapped_t<INPUT_ITERATOR>,
+    class COMPARATOR = std::less<KEY>,
+    class ALLOCATOR = bsl::allocator<
+             BloombergLP::bslstl::IteratorUtil::IterToAlloc_t<INPUT_ITERATOR>>,
+    class = bsl::enable_if_t<!bsl::IsStdAllocator_v<COMPARATOR>>,
+    class = bsl::enable_if_t<bsl::IsStdAllocator_v<ALLOCATOR>>
+    >
+multimap(INPUT_ITERATOR,
+    INPUT_ITERATOR,
+    COMPARATOR = COMPARATOR(),
+    ALLOCATOR = ALLOCATOR())
+-> multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>;
+    // Deduce the template parameters 'KEY' and 'VALUE' from the 'value_type'
+    // of the iterators supplied to the constructor of 'multimap'.  Deduce the
+    // template parameters 'COMPARATOR' and 'ALLOCATOR' from the other
+    // parameters passed to the constructor.  This deduction guide does not
+    // participate unless the supplied allocator meets the requirements of a
+    // standard allocator.
+
+template <
+    class INPUT_ITERATOR,
+    class COMPARATOR,
+    class ALLOC,
+    class KEY = BloombergLP::bslstl::IteratorUtil::IterKey_t<INPUT_ITERATOR>,
+    class VALUE =
+               BloombergLP::bslstl::IteratorUtil::IterMapped_t<INPUT_ITERATOR>,
+    class DEFAULT_ALLOCATOR = bsl::allocator<pair<const KEY, VALUE>>,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, DEFAULT_ALLOCATOR>>
+    >
+multimap(INPUT_ITERATOR, INPUT_ITERATOR, COMPARATOR, ALLOC *)
+-> multimap<KEY, VALUE, COMPARATOR>;
+    // Deduce the template parameters 'KEY' and 'VALUE' from the 'value_type'
+    // of the iterators supplied to the constructor of 'multimap'.  Deduce the
+    // template parameter 'COMPARATOR' from the other parameter passed to the
+    // constructor.  This deduction guide does not participate unless the
+    // supplied allocator is convertible to
+    // 'bsl::allocator<bsl::pair<const KEY, VALUE>>'.
+
+template <
+    class INPUT_ITERATOR,
+    class ALLOCATOR,
+    class KEY = BloombergLP::bslstl::IteratorUtil::IterKey_t<INPUT_ITERATOR>,
+    class VALUE =
+               BloombergLP::bslstl::IteratorUtil::IterMapped_t<INPUT_ITERATOR>,
+    class = bsl::enable_if_t<bsl::IsStdAllocator_v<ALLOCATOR>>
+    >
+multimap(INPUT_ITERATOR, INPUT_ITERATOR, ALLOCATOR)
+-> multimap<KEY, VALUE, std::less<KEY>, ALLOCATOR>;
+    // Deduce the template parameters 'KEY' and 'VALUE' from the 'value_type'
+    // of the iterators supplied to the constructor of 'multimap'.  This
+    // deduction guide does not participate unless the supplied allocator meets
+    // the requirements of a standard allocator.
+
+template <
+    class INPUT_ITERATOR,
+    class ALLOC,
+    class KEY = BloombergLP::bslstl::IteratorUtil::IterKey_t<INPUT_ITERATOR>,
+    class VALUE =
+               BloombergLP::bslstl::IteratorUtil::IterMapped_t<INPUT_ITERATOR>,
+    class DEFAULT_ALLOCATOR = bsl::allocator<pair<const KEY, VALUE>>,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, DEFAULT_ALLOCATOR>>
+    >
+multimap(INPUT_ITERATOR, INPUT_ITERATOR, ALLOC *)
+-> multimap<KEY, VALUE>;
+    // Deduce the template parameters 'KEY' and 'VALUE' from the 'value_type'
+    // of the iterators supplied to the constructor of 'multimap'.  This
+    // deduction guide does not participate unless the supplied allocator is
+    // convertible to 'bsl::allocator<bsl::pair<const KEY, VALUE>>'.
+
+template <
+    class KEY,
+    class VALUE,
+    class COMPARATOR = std::less<KEY>,
+    class ALLOCATOR = bsl::allocator<bsl::pair<const KEY, VALUE>>,
+    class = bsl::enable_if_t<!bsl::IsStdAllocator_v<COMPARATOR>>,
+    class = bsl::enable_if_t<bsl::IsStdAllocator_v<ALLOCATOR>>
+    >
+multimap(std::initializer_list<pair<const KEY, VALUE>>,
+         COMPARATOR = COMPARATOR(),
+         ALLOCATOR = ALLOCATOR())
+-> multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>;
+    // Deduce the template parameters 'KEY' and 'VALUE' from the 'value_type'
+    // of the initializer_list supplied to the constructor of 'multimap'.
+    // Deduce the template parameters 'COMPARATOR' and 'ALLOCATOR' from the
+    // other parameters passed to the constructor.  This deduction guide does
+    // not participate unless the supplied allocator meets the requirements of
+    // a standard allocator.
+
+template <
+    class KEY,
+    class VALUE,
+    class COMPARATOR,
+    class ALLOC,
+    class DEFAULT_ALLOCATOR = bsl::allocator<bsl::pair<const KEY, VALUE>>,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, DEFAULT_ALLOCATOR>>
+    >
+multimap(std::initializer_list<pair<const KEY, VALUE>>, COMPARATOR, ALLOC *)
+-> multimap<KEY, VALUE, COMPARATOR>;
+    // Deduce the template parameters 'KEY' and 'VALUE' from the 'value_type'
+    // of the initializer_list supplied to the constructor of 'multimap'.
+    // Deduce the template parameter 'COMPARATOR' from the other parameters
+    // passed to the constructor.  This deduction guide does not participate
+    // unless the supplied allocator is convertible to
+    // 'bsl::allocator<bsl::pair<const KEY, VALUE>>'.
+
+template <
+    class KEY,
+    class VALUE,
+    class ALLOCATOR,
+    class = bsl::enable_if_t<bsl::IsStdAllocator_v<ALLOCATOR>>
+    >
+multimap(std::initializer_list<pair<const KEY, VALUE>>, ALLOCATOR)
+-> multimap<KEY, VALUE, std::less<KEY>, ALLOCATOR>;
+    // Deduce the template parameters 'KEY' and 'VALUE' from the 'value_type'
+    // of the initializer_list supplied to the constructor of 'multimap'.
+    // Deduce the template parameter 'ALLOCATOR' from the other parameter
+    // passed to the constructor.  This deduction guide does not participate
+    // unless the supplied allocator meets the requirements of a standard
+    // allocator.
+
+template <
+    class KEY,
+    class VALUE,
+    class ALLOC,
+    class DEFAULT_ALLOCATOR = bsl::allocator<bsl::pair<const KEY, VALUE>>,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, DEFAULT_ALLOCATOR>>
+    >
+multimap(std::initializer_list<pair<const KEY, VALUE>>, ALLOC *)
+-> multimap<KEY, VALUE>;
+    // Deduce the template parameters 'KEY' and 'VALUE' from the 'value_type'
+    // of the initializer_list supplied to the constructor of 'multimap'.  This
+    // deduction guide does not participate unless the supplied allocator is
+    // convertible to 'bsl::allocator<bsl::pair<const KEY, VALUE>>'.
+#endif
 
 // FREE OPERATORS
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
@@ -2374,7 +2530,7 @@ struct UsesBslmaAllocator<bsl::multimap<KEY, VALUE, COMPARATOR, ALLOCATOR> >
 #endif // ! defined(INCLUDED_BSLSTL_MULTIMAP_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2021 Bloomberg Finance L.P.
+// Copyright 2022 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
