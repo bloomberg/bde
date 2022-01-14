@@ -1,5 +1,16 @@
-bsl-internal (3.97.0.0) unstable; urgency=low
+bsl-internal (3.98.0.0) unstable; urgency=low
 
+  * 66080e631 Bumped version to 3.98.0.0
+  * 681afa3ef bslstl_stringview: Make 'substr' conform to the standard (#3536)
+  * 954ddeb47 Balst disable resolving drqs 167270727 (#3507)
+  * 4ffdf8a06 Update bdlmt_threadmultiplexor.h (#3535)
+  * 9a9c3e146 Bslh wyhash final v3 2 drqs 150989750 (#3530)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 14 Jan 2022 13:39:29 -0500
+
+bsl-internal (3.97.0.0) git; urgency=low
+
+  * 59cbc48d7 Changelog for version 3.97.0.0
   * dc2d49a39 Bumped version to 3.97.0.0
   * 038ecc280 Fix missing shared object initialization (#3526)
   * 0055c554f Merge pull request #3512 from bchapman/balst-DWARF-5-drqs-167927647
@@ -7,7 +18,7 @@ bsl-internal (3.97.0.0) unstable; urgency=low
   * 60079c565 DO NOT MERGE: correct 'waitUntilEmpty' race with 'disablePopFront' (#3521)
   * 2e8e6b2e0 Parenthesize missed bsl::min to work around Windows issue (#3524)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Sun, 9 Jan 2022 08:54:59 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sun, 9 Jan 2022 08:59:41 -0500
 
 bsl-internal (3.96.0.1) git; urgency=low
 
