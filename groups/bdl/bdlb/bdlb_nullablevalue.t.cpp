@@ -6167,9 +6167,6 @@ typedef bsltf::MoveState MS;
                                     // ========
 
 struct To : bsltf::MovableTestType {
-    // DATA
-    
-
     // CREATORS
     To(int ii);                                                     // IMPLICIT
 
@@ -6327,7 +6324,6 @@ AllocType::AllocType(const AllocType& original,
 , d_alloc(alloc)
 {}
 
-
 AllocType::AllocType(bslmf::MovableRef<AllocType> original,
                      bsl::allocator<char> alloc)
 : bsltf::MovableTestType(bslmf::MovableRefUtil::move(
@@ -6350,7 +6346,7 @@ AllocType& AllocType::operator=(const AllocType& rhs)
 AllocType& AllocType::operator=(bslmf::MovableRef<AllocType> rhs)
 {
     bsltf::MovableTestType& thisBase = *this;
-    bsltf::MovableTestType& rhsBase  = bslmf::MovableRefUtil::access(rhs);
+    bsltf::MovableTestType& rhsBase  = rhs;
 
     thisBase = bslmf::MovableRefUtil::move(rhsBase);
 

@@ -1845,6 +1845,7 @@ bdlb::swap(NullableValue<TYPE>& lhs, NullableValue<TYPE>& rhs)
 
 #endif // End C++11 code
 
+#undef BDLB_NULLABLEVALUE_DEDUCE_MOVABLE_REF
 #endif  // INCLUDED_BDLB_NULLABLEVALUE
 
 // ----------------------------------------------------------------------------
