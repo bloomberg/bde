@@ -632,6 +632,7 @@ BSL_OVERRIDES_STD mode"
 
 #include <bslma_allocator.h>
 #include <bslma_allocatortraits.h>
+#include <bslma_isstdallocator.h>
 #include <bslma_stdallocator.h>
 #include <bslma_usesbslmaallocator.h>
 
@@ -1525,6 +1526,9 @@ class basic_string
         // specified, a default-constructed allocator is used.  Throw
         // 'out_of_range' if 'position > original.length()'.
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+    template <class = bsl::enable_if_t<bsl::IsStdAllocator<ALLOCATOR>::value>>
+#endif
     basic_string(const CHAR_TYPE  *characterString,
                  const ALLOCATOR&  basicAllocator = ALLOCATOR());   // IMPLICIT
         // Create a string having the same value as the specified
@@ -1544,6 +1548,9 @@ class basic_string
         // not specified, a default-constructed allocator is used.  Throw
         // 'out_of_range' if 'numChars >= npos'.
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+    template <class = bsl::enable_if_t<bsl::IsStdAllocator<ALLOCATOR>::value>>
+#endif
     basic_string(size_type        numChars,
                  CHAR_TYPE        character,
                  const ALLOCATOR& basicAllocator = ALLOCATOR());
@@ -2593,6 +2600,158 @@ class basic_string
         // conversion operator can be invoked implicitly (e.g., during argument
         // passing).
 };
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+// CLASS TEMPLATE DEDUCTION GUIDES
+
+template <
+    class CHAR_TYPE,
+    class CHAR_TRAITS,
+    class ALLOCATOR,
+    class ALLOC,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>
+    >
+basic_string(basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>, ALLOC *)
+-> basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>;
+    // Deduce the template parameters 'CHAR_TYPE', 'TRAITS', and 'ALLOCATOR'
+    // from the corresponding template parameters of the 'bsl::basic_string'
+    // passed to the constructor of 'basic_string'.  This deduction guide does
+    // not participate unless the specified 'ALLOC' is convertible to
+    // 'ALLOCATOR'.
+
+template <
+    class CHAR_TYPE,
+    class ALLOC,
+    class ALLOCATOR = bsl::allocator<CHAR_TYPE>,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>
+    >
+basic_string(const CHAR_TYPE *, ALLOC *)
+-> basic_string<CHAR_TYPE, char_traits<CHAR_TYPE>, ALLOCATOR>;
+    // Deduce the template parameters 'CHAR_TYPE' and 'ALLOCATOR' from the
+    // from parameters passed to the constructor of 'basic_string'.  This
+    // deduction guide does not participate unless the specified 'ALLOC' is
+    // convertible to 'bsl::allocator<CHAR_TYPE>'.
+
+template <
+    class CHAR_TYPE,
+    class ALLOC,
+    class SZ,
+    class ALLOCATOR = bsl::allocator<CHAR_TYPE>,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>,
+    class = bsl::enable_if_t<!bsl::is_pointer_v<SZ>>
+         // this last check eliminates an ambiguity for the case
+         //  basic_string(const char *, const char *, Allocator *)
+    >
+basic_string(const CHAR_TYPE *, SZ, ALLOC *)
+-> basic_string<CHAR_TYPE, char_traits<CHAR_TYPE>, ALLOCATOR>;
+    // Deduce the template parameters 'CHAR_TYPE' and 'ALLOCATOR' from the
+    // parameters passed to the constructor of 'basic_string'.  This deduction
+    // guide does not participate unless the specified 'ALLOC' is convertible
+    // to 'bsl::allocator<CHAR_TYPE>'.
+
+template <
+    class CHAR_TYPE,
+    class ALLOC,
+    class ALLOCATOR = bsl::allocator<CHAR_TYPE>,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>,
+    class SZ = typename bsl::allocator_traits<ALLOCATOR>::size_type
+    >
+basic_string(SZ, CHAR_TYPE, ALLOC *)
+-> basic_string<CHAR_TYPE, char_traits<CHAR_TYPE>, ALLOCATOR>;
+    // Deduce the template parameters 'CHAR_TYPE' and 'ALLOCATOR' from the
+    // parameters passed to the constructor of 'basic_string'.  This deduction
+    // guide does not participate unless the specified 'ALLOC' is convertible
+    // to 'bsl::allocator<CHAR_TYPE>'.
+
+template <
+    class CHAR_TYPE,
+    class CHAR_TRAITS,
+    class ALLOCATOR,
+    class ALLOC,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>,
+    class SZ = typename allocator_traits<ALLOCATOR>::size_type
+    >
+basic_string(basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>, SZ, SZ, ALLOC *)
+-> basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>;
+    // Deduce the template parameters 'CHAR_TYPE', 'TRAITS', and 'ALLOCATOR'
+    // from the corresponding template parameters of the 'bsl::basic_string'
+    // passed to the constructor of 'basic_string'.  This deduction guide does
+    // not participate unless the specified 'ALLOC' is convertible to
+    // 'ALLOCATOR'.
+
+template <
+    class INPUT_ITER,
+    class CHAR_TYPE = typename bsl::iterator_traits<INPUT_ITER>::value_type,
+    class ALLOCATOR = bsl::allocator<CHAR_TYPE>,
+    class = bsl::enable_if_t<bsl::IsStdAllocator_v<ALLOCATOR>>
+    >
+basic_string(INPUT_ITER, INPUT_ITER, ALLOCATOR = ALLOCATOR())
+  -> basic_string<CHAR_TYPE, char_traits<CHAR_TYPE>, ALLOCATOR>;
+    // Deduce the template parameter 'CHAR_TYPE' from the 'value_type' of the
+    // iterators passed to passed to the constructor of 'basic_string'.  Deduce
+    // the template parameter 'ALLOCATOR' from the optional argument passed to
+    // the constructor.  This deduction guide does not participate unless the
+    // specified 'ALLOCATOR' meets the requirements of a standard allocator.
+
+template <
+    class INPUT_ITER,
+    class CHAR_TYPE = typename bsl::iterator_traits<INPUT_ITER>::value_type,
+    class ALLOC,
+    class ALLOCATOR = bsl::allocator<CHAR_TYPE>,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>
+    >
+basic_string(INPUT_ITER, INPUT_ITER, ALLOC *)
+  -> basic_string<CHAR_TYPE, char_traits<CHAR_TYPE>, ALLOCATOR>;
+    // Deduce the template parameter 'CHAR_TYPE' from the 'value_type' of the
+    // iterators passed to passed to the constructor of 'basic_string'.  This
+    // deduction guide does not participate unless the specified 'ALLOC' is
+    // convertible to 'bsl::allocator<CHAR_TYPE>'.
+
+template <
+    class CHAR_TYPE,
+    class CHAR_TRAITS,
+    class ALLOCATOR = allocator<CHAR_TYPE>,
+    class = bsl::enable_if_t<bsl::IsStdAllocator_v<ALLOCATOR>>
+    >
+basic_string(basic_string_view<CHAR_TYPE, CHAR_TRAITS>,
+             ALLOCATOR = ALLOCATOR())
+  -> basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>;
+    // Deduce the template parameters 'CHAR_TYPE' and 'TRAITS' from the
+    // corresponding template parameters of the 'bsl::basic_string_view' passed
+    // to the constructor of 'basic_string'.  Deduce the template parameter
+    // 'ALLOCATOR' from the optional argument passed to the constructor.  This
+    // deduction guide does not participate unless the specified 'ALLOCATOR'
+    // meets the requirements of a standard allocator.
+
+template <
+    class CHAR_TYPE,
+    class CHAR_TRAITS,
+    class ALLOC,
+    class ALLOCATOR = bsl::allocator<CHAR_TYPE>,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>
+    >
+basic_string(basic_string_view<CHAR_TYPE, CHAR_TRAITS>, ALLOC *)
+  -> basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>;
+    // Deduce the template parameters 'CHAR_TYPE' and 'TRAITS' from the
+    // corresponding template parameters of the 'bsl::basic_string_view' passed
+    // to the constructor of 'basic_string'.  This deduction guide does not
+    // participate unless the specified 'ALLOC' is convertible to
+    // 'bsl::allocator<CHAR_TYPE>'.
+
+template<
+    class CHAR_TYPE,
+    class ALLOC,
+    class ALLOCATOR = bsl::allocator<CHAR_TYPE>,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>
+    >
+basic_string(std::initializer_list<CHAR_TYPE>, ALLOC *)
+-> basic_string<CHAR_TYPE, char_traits<CHAR_TYPE>, ALLOCATOR>;
+    // Deduce the template parameter 'CHAR_TYPE' from the 'value_type' of the
+    // 'initializer_list' passed to the constructor of 'basic_string'.  This
+    // deduction guide does not participate unless the specified 'ALLOC' is
+    // convertible to 'bsl::allocator<CHAR_TYPE>'.
+
+#endif
 
 // FREE OPERATORS
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
@@ -4221,6 +4380,9 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+template <class>
+#endif
 BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                                              const CHAR_TYPE  *characterString,
@@ -4248,6 +4410,9 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+template <class>
+#endif
 BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                                               size_type         numChars,

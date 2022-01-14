@@ -41,6 +41,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <typeinfo>
+#include <utility>      // 'move'
 
 #include <limits.h>     // 'CHAR_MAX'
 #include <stddef.h>
@@ -344,9 +345,10 @@ using bsls::nameOfType;
 // [37] string operator+(CHAR, const string&);
 // [37] string operator+(const nstd::string&, CHAR);
 // [37] string operator+(CHAR, const nstd::string&);
+// [38] CLASS TEMPLATE DEDUCTION GUIDES
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [35] USAGE EXAMPLE
+// [39] USAGE EXAMPLE
 // [11] CONCERN: The object has the necessary type traits
 // [26] 'npos' VALUE
 // [25] CONCERN: 'std::length_error' is used properly
@@ -15437,6 +15439,436 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCaseM1(const int /* NITER */,
     // F3) FIND_FIRST_NOT_OF AND FIND_LAST_NOT_OF OPERATIONS
 }
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+struct TestDeductionGuides {
+    // This struct provides a namespace for functions testing deduction guides.
+    // The tests are compile-time only; it is not necessary that these routines
+    // be called at run-time.  Note that the following constructors do not have
+    // associated deduction guides because the template parameters for
+    // 'bsl::basic_string' cannot be deduced from the constructor parameters.
+    //..
+    // basic_string()
+    // basic_string(size_t)
+    // basic_string(ALLOC)
+    // basic_string(size_t, ALLOC)
+    //..
+
+    // Also, we choose not to deduce from 'basic_string(StringRefData<T>)'
+
+    struct NarrowTraits : public bsl::char_traits<char> {
+        // A non-templated traits class used to test template argument
+        // deduction of narrow strings.
+    };
+    struct WideTraits : public bsl::char_traits<wchar_t> {
+        // A non-templated traits class used to test template argument
+        // deduction of wide strings.
+    };
+
+#define ASSERT_SAME_TYPE(...) \
+ static_assert((bsl::is_same<__VA_ARGS__>::value), "Types differ unexpectedly")
+
+    // We test that basic_string can be deduced from the following sets of
+    // construction parameters:
+    //..
+    // basic_string(const basic_string<CHAR_TYPE, Traits, Alloc>&  s)
+    //                                                           -> decltype(s)
+    // basic_string(const basic_string<CHAR_TYPE, Traits, Alloc>&  s, ALLOC)
+    //                                                           -> decltype(s)
+    // basic_string(      basic_string<CHAR_TYPE, Traits, Alloc>&& s)
+    //                                                           -> decltype(s)
+    // basic_string(      basic_string<CHAR_TYPE, Traits, Alloc>&& s, ALLOC)
+    //                                                           -> decltype(s)
+    //
+    // basic_string(const CHAR_TYPE *)            -> basic_string<CHAR_TYPE>
+    // basic_string(const CHAR_TYPE *, ALLOC)
+    //                -> basic_string<CHAR_TYPE, char_traits<CHAR_TYPE>, ALLOC>
+    // basic_string(const CHAR_TYPE *, Sz)        -> basic_string<CHAR_TYPE>
+    // basic_string(const CHAR_TYPE *, Sz, ALLOC)
+    //                -> basic_string<CHAR_TYPE, char_traits<CHAR_TYPE>, ALLOC>
+    //
+    // basic_string(const basic_string<CHAR_TYPE, Traits, Alloc>& s, Sz)
+    //                                                           -> decltype(s)
+    // basic_string(const basic_string<CHAR_TYPE, Traits, Alloc>& s, Sz, ALLOC)
+    //                                                           -> decltype(s)
+    // basic_string(const basic_string<CHAR_TYPE, Traits, Alloc>& s, Sz, Sz)
+    //                                                           -> decltype(s)
+    // basic_string(const basic_string<CHAR_TYPE, Traits, Alloc>& s,
+    //              Sz, Sz, ALLOC)                               -> decltype(s)
+    //
+    // basic_string(Sz, CHAR_TYPE)        -> basic_string<CHAR_TYPE>
+    // basic_string(Sz, CHAR_TYPE, ALLOC)
+    //                -> basic_string<CHAR_TYPE, char_traits<CHAR_TYPE>, ALLOC>
+    //
+    // basic_string(iter, iter)        -> basic_string<iter::VALUE_TYPE>
+    // basic_string(Iter, Iter, ALLOC)
+    //                 -> basic_string<iter::VALUE_TYPE, char_traits<T>, ALLOC>
+    //
+    // basic_string(initializer_list<CHAR_TYPE>) -> basic_string<CHAR_TYPE>
+    // basic_string(initializer_list<CHAR_TYPE>, ALLOC)
+    //               -> basic_string<CHAR_TYPE, char_traits<CHAR_TYPE>, ALLOC>
+    //
+    // explicit basic_string(basic_string_view<CHAR_TYPE, Traits>)
+    //                                       -> basic_string<CHAR_TYPE, Traits>
+    // explicit basic_string(basic_string_view<CHAR_TYPE, Traits>, ALLOC)
+    //                                -> basic_string<CHAR_TYPE, Traits, ALLOC>
+    //..
+
+    void NarrowStrings()
+        // Test that constructing a 'bsl::basic_string<char>' from various
+        // combinations of arguments deduces the correct type.
+    {
+        typedef char                 CT;
+        typedef bsl::char_traits<CT> Traits;
+        typedef NarrowTraits         OtherTraits;
+        typedef bsl::allocator<CT>   BA;
+        typedef std::allocator<CT>   SA;
+
+        bslma::Allocator     *a1 = nullptr;
+        bslma::TestAllocator *a2 = nullptr;
+        BA                    ba;
+        SA                    sa;
+
+        bsl::basic_string<CT>               s1a;
+        bsl::basic_string<CT, OtherTraits>  s1b;
+        bsl::basic_string                   str1a(s1a);
+        bsl::basic_string                   str1b(s1a, ba);
+        bsl::basic_string                   str1c(s1a, a1);
+        bsl::basic_string                   str1d(s1a, a2);
+        bsl::basic_string                   str1e(s1b);
+        bsl::basic_string                   str1f(s1b, ba);
+        bsl::basic_string                   str1g(s1b, a1);
+        bsl::basic_string                   str1h(s1b, a2);
+        ASSERT_SAME_TYPE(decltype(str1a), decltype(s1a));
+        ASSERT_SAME_TYPE(decltype(str1b), decltype(s1a));
+        ASSERT_SAME_TYPE(decltype(str1c), decltype(s1a));
+        ASSERT_SAME_TYPE(decltype(str1d), decltype(s1a));
+        ASSERT_SAME_TYPE(decltype(str1e), decltype(s1b));
+        ASSERT_SAME_TYPE(decltype(str1f), decltype(s1b));
+        ASSERT_SAME_TYPE(decltype(str1g), decltype(s1b));
+        ASSERT_SAME_TYPE(decltype(str1h), decltype(s1b));
+
+        bsl::basic_string<CT>               s2a;
+        bsl::basic_string<CT, OtherTraits>  s2b;
+        bsl::basic_string                   str2a(std::move(s2a));
+        bsl::basic_string                   str2b(std::move(s2a), ba);
+        bsl::basic_string                   str2c(std::move(s2a), a1);
+        bsl::basic_string                   str2d(std::move(s2a), a2);
+        bsl::basic_string                   str2e(std::move(s2b));
+        bsl::basic_string                   str2f(std::move(s2b), ba);
+        bsl::basic_string                   str2g(std::move(s2b), a1);
+        bsl::basic_string                   str2h(std::move(s2b), a2);
+        ASSERT_SAME_TYPE(decltype(str2a), decltype(s2a));
+        ASSERT_SAME_TYPE(decltype(str2b), decltype(s2a));
+        ASSERT_SAME_TYPE(decltype(str2c), decltype(s2a));
+        ASSERT_SAME_TYPE(decltype(str2d), decltype(s2a));
+        ASSERT_SAME_TYPE(decltype(str2e), decltype(s2b));
+        ASSERT_SAME_TYPE(decltype(str2f), decltype(s2b));
+        ASSERT_SAME_TYPE(decltype(str2g), decltype(s2b));
+        ASSERT_SAME_TYPE(decltype(str2h), decltype(s2b));
+
+        bsl::basic_string str3a("abc");
+        bsl::basic_string str3b("abc", ba);
+        bsl::basic_string str3c("abc", a1);
+        bsl::basic_string str3d("abc", a2);
+        ASSERT_SAME_TYPE(decltype(str3a), bsl::basic_string<CT>);
+        ASSERT_SAME_TYPE(decltype(str3b), bsl::basic_string<CT>);
+        ASSERT_SAME_TYPE(decltype(str3c), bsl::basic_string<CT>);
+        ASSERT_SAME_TYPE(decltype(str3d), bsl::basic_string<CT>);
+
+        bsl::basic_string str4a("abc", 1);
+        bsl::basic_string str4b("abc", 1, ba);
+        bsl::basic_string str4c("abc", 1, a1);
+        bsl::basic_string str4d("abc", 1, a2);
+        bsl::basic_string str4e("abc", 1, sa);
+        ASSERT_SAME_TYPE(decltype(str4a), bsl::basic_string<CT>);
+        ASSERT_SAME_TYPE(decltype(str4b), bsl::basic_string<CT>);
+        ASSERT_SAME_TYPE(decltype(str4c), bsl::basic_string<CT>);
+        ASSERT_SAME_TYPE(decltype(str4d), bsl::basic_string<CT>);
+        ASSERT_SAME_TYPE(decltype(str4e), bsl::basic_string<CT, Traits, SA>);
+
+
+        bsl::basic_string<CT>              s5a;
+        bsl::basic_string<CT, OtherTraits> s5b;
+        bsl::basic_string                  str5a(s5a, 3, 4);
+        bsl::basic_string                  str5b(s5a, 3, 4, ba);
+        bsl::basic_string                  str5c(s5a, 3, 4, a1);
+        bsl::basic_string                  str5d(s5a, 3, 4, a2);
+        bsl::basic_string                  str5e(s5b, 3, 4);
+        bsl::basic_string                  str5f(s5b, 3, 4, ba);
+        bsl::basic_string                  str5g(s5b, 3, 4, a1);
+        bsl::basic_string                  str5h(s5b, 3, 4, a2);
+        // We can't pass a std::allocator<CT> here, because we get back the
+        // same type that we started with.
+        ASSERT_SAME_TYPE(decltype(str5a), decltype(s5a));
+        ASSERT_SAME_TYPE(decltype(str5b), decltype(s5a));
+        ASSERT_SAME_TYPE(decltype(str5c), decltype(s5a));
+        ASSERT_SAME_TYPE(decltype(str5d), decltype(s5a));
+        ASSERT_SAME_TYPE(decltype(str5e), decltype(s5b));
+        ASSERT_SAME_TYPE(decltype(str5f), decltype(s5b));
+        ASSERT_SAME_TYPE(decltype(str5g), decltype(s5b));
+        ASSERT_SAME_TYPE(decltype(str5h), decltype(s5b));
+
+        CT                ch6 = 'a';
+        bsl::basic_string str6a(3, ch6);
+        bsl::basic_string str6b(3, ch6, ba);
+        bsl::basic_string str6c(3, ch6, a1);
+        bsl::basic_string str6d(3, ch6, a2);
+        bsl::basic_string str6e(3, ch6, sa);
+        ASSERT_SAME_TYPE(decltype(str6a), bsl::basic_string<CT>);
+        ASSERT_SAME_TYPE(decltype(str6b), bsl::basic_string<CT>);
+        ASSERT_SAME_TYPE(decltype(str6c), bsl::basic_string<CT>);
+        ASSERT_SAME_TYPE(decltype(str6d), bsl::basic_string<CT>);
+        ASSERT_SAME_TYPE(decltype(str6e), bsl::basic_string<CT, Traits, SA>);
+
+        bsl::basic_string_view<CT>  sv7;
+        CT                         *p7b = nullptr;
+        CT                         *p7e = nullptr;
+        bsl::basic_string           str7a(sv7.begin(), sv7.end());
+        bsl::basic_string           str7b(p7b, p7e);
+        ASSERT_SAME_TYPE(decltype(str7a), bsl::basic_string<CT>);
+        ASSERT_SAME_TYPE(decltype(str7b), bsl::basic_string<CT>);
+
+        bsl::basic_string_view<CT>  sv8;
+        CT                         *p8b = nullptr;
+        CT                         *p8e = nullptr;
+        bsl::basic_string           str8a(sv8.begin(), sv8.end(), ba);
+        bsl::basic_string           str8b(sv8.begin(), sv8.end(), a1);
+        bsl::basic_string           str8c(sv8.begin(), sv8.end(), a2);
+        bsl::basic_string           str8d(sv8.begin(), sv8.end(), sa);
+        bsl::basic_string           str8e(p8b, p8e, ba);
+        bsl::basic_string           str8f(p8b, p8e, a1);
+        bsl::basic_string           str8g(p8b, p8e, a2);
+        bsl::basic_string           str8h(p8b, p8e, sa);
+        ASSERT_SAME_TYPE(decltype(str8a), bsl::basic_string<CT>);
+        ASSERT_SAME_TYPE(decltype(str8b), bsl::basic_string<CT>);
+        ASSERT_SAME_TYPE(decltype(str8c), bsl::basic_string<CT>);
+        ASSERT_SAME_TYPE(decltype(str8d), bsl::basic_string<CT, Traits, SA>);
+        ASSERT_SAME_TYPE(decltype(str8e), bsl::basic_string<CT>);
+        ASSERT_SAME_TYPE(decltype(str8f), bsl::basic_string<CT>);
+        ASSERT_SAME_TYPE(decltype(str8g), bsl::basic_string<CT>);
+        ASSERT_SAME_TYPE(decltype(str8h), bsl::basic_string<CT, Traits, SA>);
+
+        bsl::basic_string str9({'a', 'b', 'c'});
+        ASSERT_SAME_TYPE(decltype(str9), bsl::basic_string<CT>);
+
+        std::initializer_list<CT> il10{'a', 'b', 'c'};
+        bsl::basic_string         str10a(il10, ba);
+        bsl::basic_string         str10b(il10, a1);
+        bsl::basic_string         str10c(il10, a2);
+        bsl::basic_string         str10d(il10, sa);
+        ASSERT_SAME_TYPE(decltype(str10a), bsl::basic_string<CT>);
+        ASSERT_SAME_TYPE(decltype(str10b), bsl::basic_string<CT>);
+        ASSERT_SAME_TYPE(decltype(str10c), bsl::basic_string<CT>);
+        ASSERT_SAME_TYPE(decltype(str10d), bsl::basic_string<CT, Traits, SA>);
+
+        bsl::basic_string_view<CT>              sv11a;
+        bsl::basic_string_view<CT, OtherTraits> sv11b;
+        bsl::basic_string                       str11a(sv11a);
+        bsl::basic_string                       str11b(sv11b);
+        ASSERT_SAME_TYPE(decltype(str11a), bsl::basic_string<CT>);
+        ASSERT_SAME_TYPE(decltype(str11b), bsl::basic_string<CT, OtherTraits>);
+
+        bsl::basic_string_view<CT>              sv12a;
+        bsl::basic_string_view<CT, OtherTraits> sv12b;
+        bsl::basic_string                       str12a(sv12a, ba);
+        bsl::basic_string                       str12b(sv12a, a1);
+        bsl::basic_string                       str12c(sv12a, a2);
+        bsl::basic_string                       str12d(sv12a, sa);
+        bsl::basic_string                       str12e(sv12b, ba);
+        bsl::basic_string                       str12f(sv12b, a1);
+        bsl::basic_string                       str12g(sv12b, a2);
+        bsl::basic_string                       str12h(sv12b, sa);
+        ASSERT_SAME_TYPE(decltype(str12a), bsl::basic_string<CT>);
+        ASSERT_SAME_TYPE(decltype(str12b), bsl::basic_string<CT>);
+        ASSERT_SAME_TYPE(decltype(str12c), bsl::basic_string<CT>);
+        ASSERT_SAME_TYPE(decltype(str12d), bsl::basic_string<CT, Traits, SA>);
+        ASSERT_SAME_TYPE(decltype(str12e), bsl::basic_string<CT, OtherTraits>);
+        ASSERT_SAME_TYPE(decltype(str12f), bsl::basic_string<CT, OtherTraits>);
+        ASSERT_SAME_TYPE(decltype(str12g), bsl::basic_string<CT, OtherTraits>);
+        ASSERT_SAME_TYPE(decltype(str12h),
+                                       bsl::basic_string<CT, OtherTraits, SA>);
+    }
+
+    void WideStrings()
+        // Test that constructing a 'bsl::basic_string<wchar_t>' from various
+        // combinations of arguments deduces the correct type.
+    {
+        typedef wchar_t              CT;
+        typedef bsl::char_traits<CT> Traits;
+        typedef WideTraits           OtherTraits;
+        typedef bsl::allocator<CT>   BA;
+        typedef std::allocator<CT>   SA;
+
+        bslma::Allocator     *a1 = nullptr;
+        bslma::TestAllocator *a2 = nullptr;
+        BA                    ba;
+        SA                    sa;
+
+        bsl::basic_string<CT>               s1a;
+        bsl::basic_string<CT, OtherTraits>  s1b;
+        bsl::basic_string                   str1a(s1a);
+        bsl::basic_string                   str1b(s1a, ba);
+        bsl::basic_string                   str1c(s1a, a1);
+        bsl::basic_string                   str1d(s1a, a2);
+        bsl::basic_string                   str1e(s1b);
+        bsl::basic_string                   str1f(s1b, ba);
+        bsl::basic_string                   str1g(s1b, a1);
+        bsl::basic_string                   str1h(s1b, a2);
+        ASSERT_SAME_TYPE(decltype(str1a), decltype(s1a));
+        ASSERT_SAME_TYPE(decltype(str1b), decltype(s1a));
+        ASSERT_SAME_TYPE(decltype(str1c), decltype(s1a));
+        ASSERT_SAME_TYPE(decltype(str1d), decltype(s1a));
+        ASSERT_SAME_TYPE(decltype(str1e), decltype(s1b));
+        ASSERT_SAME_TYPE(decltype(str1f), decltype(s1b));
+        ASSERT_SAME_TYPE(decltype(str1g), decltype(s1b));
+        ASSERT_SAME_TYPE(decltype(str1h), decltype(s1b));
+
+        bsl::basic_string<CT>               s2a;
+        bsl::basic_string<CT, OtherTraits>  s2b;
+        bsl::basic_string                   str2a(std::move(s2a));
+        bsl::basic_string                   str2b(std::move(s2a), ba);
+        bsl::basic_string                   str2c(std::move(s2a), a1);
+        bsl::basic_string                   str2d(std::move(s2a), a2);
+        bsl::basic_string                   str2e(std::move(s2b));
+        bsl::basic_string                   str2f(std::move(s2b), ba);
+        bsl::basic_string                   str2g(std::move(s2b), a1);
+        bsl::basic_string                   str2h(std::move(s2b), a2);
+        ASSERT_SAME_TYPE(decltype(str2a), decltype(s2a));
+        ASSERT_SAME_TYPE(decltype(str2b), decltype(s2a));
+        ASSERT_SAME_TYPE(decltype(str2c), decltype(s2a));
+        ASSERT_SAME_TYPE(decltype(str2d), decltype(s2a));
+        ASSERT_SAME_TYPE(decltype(str2e), decltype(s2b));
+        ASSERT_SAME_TYPE(decltype(str2f), decltype(s2b));
+        ASSERT_SAME_TYPE(decltype(str2g), decltype(s2b));
+        ASSERT_SAME_TYPE(decltype(str2h), decltype(s2b));
+
+        bsl::basic_string str3a(L"abc");
+        bsl::basic_string str3b(L"abc", ba);
+        bsl::basic_string str3c(L"abc", a1);
+        bsl::basic_string str3d(L"abc", a2);
+        ASSERT_SAME_TYPE(decltype(str3a), bsl::basic_string<CT>);
+        ASSERT_SAME_TYPE(decltype(str3b), bsl::basic_string<CT>);
+        ASSERT_SAME_TYPE(decltype(str3c), bsl::basic_string<CT>);
+        ASSERT_SAME_TYPE(decltype(str3d), bsl::basic_string<CT>);
+
+        bsl::basic_string str4a(L"abc", 1);
+        bsl::basic_string str4b(L"abc", 1, ba);
+        bsl::basic_string str4c(L"abc", 1, a1);
+        bsl::basic_string str4d(L"abc", 1, a2);
+        bsl::basic_string str4e(L"abc", 1, sa);
+        ASSERT_SAME_TYPE(decltype(str4a), bsl::basic_string<CT>);
+        ASSERT_SAME_TYPE(decltype(str4b), bsl::basic_string<CT>);
+        ASSERT_SAME_TYPE(decltype(str4c), bsl::basic_string<CT>);
+        ASSERT_SAME_TYPE(decltype(str4d), bsl::basic_string<CT>);
+        ASSERT_SAME_TYPE(decltype(str4e), bsl::basic_string<CT, Traits, SA>);
+
+
+        bsl::basic_string<CT>              s5a;
+        bsl::basic_string<CT, OtherTraits> s5b;
+        bsl::basic_string                  str5a(s5a, 3, 4);
+        bsl::basic_string                  str5b(s5a, 3, 4, ba);
+        bsl::basic_string                  str5c(s5a, 3, 4, a1);
+        bsl::basic_string                  str5d(s5a, 3, 4, a2);
+        bsl::basic_string                  str5e(s5b, 3, 4);
+        bsl::basic_string                  str5f(s5b, 3, 4, ba);
+        bsl::basic_string                  str5g(s5b, 3, 4, a1);
+        bsl::basic_string                  str5h(s5b, 3, 4, a2);
+        // We can't pass a std::allocator<CT> here, because we get back the
+        // same type that we started with.
+        ASSERT_SAME_TYPE(decltype(str5a), decltype(s5a));
+        ASSERT_SAME_TYPE(decltype(str5b), decltype(s5a));
+        ASSERT_SAME_TYPE(decltype(str5c), decltype(s5a));
+        ASSERT_SAME_TYPE(decltype(str5d), decltype(s5a));
+        ASSERT_SAME_TYPE(decltype(str5e), decltype(s5b));
+        ASSERT_SAME_TYPE(decltype(str5f), decltype(s5b));
+        ASSERT_SAME_TYPE(decltype(str5g), decltype(s5b));
+        ASSERT_SAME_TYPE(decltype(str5h), decltype(s5b));
+
+        CT                ch6 = L'a';
+        bsl::basic_string str6a(3, ch6);
+        bsl::basic_string str6b(3, ch6, ba);
+        bsl::basic_string str6c(3, ch6, a1);
+        bsl::basic_string str6d(3, ch6, a2);
+        bsl::basic_string str6e(3, ch6, sa);
+        ASSERT_SAME_TYPE(decltype(str6a), bsl::basic_string<CT>);
+        ASSERT_SAME_TYPE(decltype(str6b), bsl::basic_string<CT>);
+        ASSERT_SAME_TYPE(decltype(str6c), bsl::basic_string<CT>);
+        ASSERT_SAME_TYPE(decltype(str6d), bsl::basic_string<CT>);
+        ASSERT_SAME_TYPE(decltype(str6e), bsl::basic_string<CT, Traits, SA>);
+
+        bsl::basic_string_view<CT>  sv7;
+        CT                         *p7b = nullptr;
+        CT                         *p7e = nullptr;
+        bsl::basic_string           str7a(sv7.begin(), sv7.end());
+        bsl::basic_string           str7b(p7b, p7e);
+        ASSERT_SAME_TYPE(decltype(str7a), bsl::basic_string<CT>);
+        ASSERT_SAME_TYPE(decltype(str7b), bsl::basic_string<CT>);
+
+        bsl::basic_string_view<CT>  sv8;
+        CT                         *p8b = nullptr;
+        CT                         *p8e = nullptr;
+        bsl::basic_string           str8a(sv8.begin(), sv8.end(), ba);
+        bsl::basic_string           str8b(sv8.begin(), sv8.end(), a1);
+        bsl::basic_string           str8c(sv8.begin(), sv8.end(), a2);
+        bsl::basic_string           str8d(sv8.begin(), sv8.end(), sa);
+        bsl::basic_string           str8e(p8b, p8e, ba);
+        bsl::basic_string           str8f(p8b, p8e, a1);
+        bsl::basic_string           str8g(p8b, p8e, a2);
+        bsl::basic_string           str8h(p8b, p8e, sa);
+        ASSERT_SAME_TYPE(decltype(str8a), bsl::basic_string<CT>);
+        ASSERT_SAME_TYPE(decltype(str8b), bsl::basic_string<CT>);
+        ASSERT_SAME_TYPE(decltype(str8c), bsl::basic_string<CT>);
+        ASSERT_SAME_TYPE(decltype(str8d), bsl::basic_string<CT, Traits, SA>);
+        ASSERT_SAME_TYPE(decltype(str8e), bsl::basic_string<CT>);
+        ASSERT_SAME_TYPE(decltype(str8f), bsl::basic_string<CT>);
+        ASSERT_SAME_TYPE(decltype(str8g), bsl::basic_string<CT>);
+        ASSERT_SAME_TYPE(decltype(str8h), bsl::basic_string<CT, Traits, SA>);
+
+        bsl::basic_string str9({L'a', L'b', L'c'});
+        ASSERT_SAME_TYPE(decltype(str9), bsl::basic_string<CT>);
+
+        std::initializer_list<CT> il10{L'a', L'b', L'c'};
+        bsl::basic_string         str10a(il10, ba);
+        bsl::basic_string         str10b(il10, a1);
+        bsl::basic_string         str10c(il10, a2);
+        bsl::basic_string         str10d(il10, sa);
+        ASSERT_SAME_TYPE(decltype(str10a), bsl::basic_string<CT>);
+        ASSERT_SAME_TYPE(decltype(str10b), bsl::basic_string<CT>);
+        ASSERT_SAME_TYPE(decltype(str10c), bsl::basic_string<CT>);
+        ASSERT_SAME_TYPE(decltype(str10d), bsl::basic_string<CT, Traits, SA>);
+
+        bsl::basic_string_view<CT>              sv11a;
+        bsl::basic_string_view<CT, OtherTraits> sv11b;
+        bsl::basic_string                       str11a(sv11a);
+        bsl::basic_string                       str11b(sv11b);
+        ASSERT_SAME_TYPE(decltype(str11a), bsl::basic_string<CT>);
+        ASSERT_SAME_TYPE(decltype(str11b), bsl::basic_string<CT, OtherTraits>);
+
+        bsl::basic_string_view<CT>              sv12a;
+        bsl::basic_string_view<CT, OtherTraits> sv12b;
+        bsl::basic_string                       str12a(sv12a, ba);
+        bsl::basic_string                       str12b(sv12a, a1);
+        bsl::basic_string                       str12c(sv12a, a2);
+        bsl::basic_string                       str12d(sv12a, sa);
+        bsl::basic_string                       str12e(sv12b, ba);
+        bsl::basic_string                       str12f(sv12b, a1);
+        bsl::basic_string                       str12g(sv12b, a2);
+        bsl::basic_string                       str12h(sv12b, sa);
+        ASSERT_SAME_TYPE(decltype(str12a), bsl::basic_string<CT>);
+        ASSERT_SAME_TYPE(decltype(str12b), bsl::basic_string<CT>);
+        ASSERT_SAME_TYPE(decltype(str12c), bsl::basic_string<CT>);
+        ASSERT_SAME_TYPE(decltype(str12d), bsl::basic_string<CT, Traits, SA>);
+        ASSERT_SAME_TYPE(decltype(str12e), bsl::basic_string<CT, OtherTraits>);
+        ASSERT_SAME_TYPE(decltype(str12f), bsl::basic_string<CT, OtherTraits>);
+        ASSERT_SAME_TYPE(decltype(str12g), bsl::basic_string<CT, OtherTraits>);
+        ASSERT_SAME_TYPE(decltype(str12h),
+                                       bsl::basic_string<CT, OtherTraits, SA>);
+        }
+
+#undef ASSERT_SAME_TYPE
+};
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_CTAD
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -15481,6 +15913,39 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 38: {
+        //---------------------------------------------------------------------
+        // TESTING CLASS TEMPLATE DEDUCTION GUIDES (AT COMPILE TIME)
+        //   Ensure that the deduction guides are properly specified to deduce
+        //   the template arguments from the arguments supplied to the
+        //   constructors.
+        //
+        // Concerns:
+        //: 1 Construction from iterators deduces the value type from the value
+        //:   type of the iterator.
+        //
+        //: 2 Construction a 'bslma::Allocator *' deduces the correct
+        //:   specialization of 'bsl::allocator' for the type of the allocator.
+        //
+        // Plan:
+        //: 1 Create a list by invoking the constructor without supplying the
+        //:   template arguments explicitly.
+        //:
+        //: 2 Verify that the deduced type is correct.
+        //
+        // Testing:
+        //   CLASS TEMPLATE DEDUCTION GUIDES
+        //---------------------------------------------------------------------
+        if (verbose)
+            printf(
+              "\nTESTING CLASS TEMPLATE DEDUCTION GUIDES (AT COMPILE TIME)"
+              "\n=========================================================\n");
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+        // This is a compile-time only test case.
+        TestDeductionGuides test;
+#endif
+      } break;
       case 37: {
         // --------------------------------------------------------------------
         // TESTING 'data' MANIPULATOR

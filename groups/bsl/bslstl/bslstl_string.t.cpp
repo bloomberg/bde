@@ -327,7 +327,7 @@ using bsls::nameOfType;
 // [29] hashAppend(HASHALG& hashAlg, const native_std::basic_string& str);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [38] USAGE EXAMPLE
+// [39] USAGE EXAMPLE
 // [11] CONCERN: The object has the necessary type traits
 // [26] 'npos' VALUE
 // [25] CONCERN: 'std::length_error' is used properly
@@ -5776,7 +5776,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 38: {
+      case 39: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -5988,6 +5988,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
+      case 38:     BSLA_FALLTHROUGH;
       case 37:     BSLA_FALLTHROUGH;
       case 36:     BSLA_FALLTHROUGH;
       case 35:     BSLA_FALLTHROUGH;
