@@ -9373,6 +9373,7 @@ template <class TYPE>
 template <class DEST_TYPE, class SRC_TYPE, bool PROPAGATE_ON_MOVE>
 void TestDriver<TYPE>::testCase7a_imp_constmovebug()
 {
+#ifndef BSLS_PLATFORM_OS_WINDOWS
     {
         bslma::TestAllocator da("default", veryVeryVeryVerbose);
         bslma::TestAllocator oa("other", veryVeryVeryVerbose);
@@ -9400,6 +9401,7 @@ void TestDriver<TYPE>::testCase7a_imp_constmovebug()
         }
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
     }
+#endif
 }
 
 #if BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
