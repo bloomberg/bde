@@ -200,7 +200,8 @@ BSLS_IDENT("$Id: $")
 //      for (unsigned i = 0; i < numValues; ++i) {
 //          const TYPE& value = d_values[i];
 //          size_t idx;
-//          BSLS_ASSERT_OPT(!lookup(&idx, value, d_hasher(value)));
+//          const bool found = lookup(&idx, value, d_hasher(value));
+//          BSLS_ASSERT_OPT(!found);    (void) found;
 //          d_bucketArray[idx] = &d_values[i];
 //      }
 //  }
