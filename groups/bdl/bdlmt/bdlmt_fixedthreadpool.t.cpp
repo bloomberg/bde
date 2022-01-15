@@ -9,27 +9,33 @@
 
 #include <bdlmt_fixedthreadpool.h>
 
-#include <bslim_testutil.h>
-
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
-#include <bdlt_currenttime.h>
 #include <bslmt_barrier.h>
 #include <bslmt_lockguard.h>
+#include <bslmt_testutil.h>
+#include <bslmt_threadutil.h>
+#include <bslmt_throughputbenchmark.h>
+#include <bslmt_throughputbenchmarkresult.h>
 
+#include <bsls_assert.h>
+#include <bsls_asserttest.h>
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
 
+#include <bsl_algorithm.h>
 #include <bsl_cstddef.h>
 #include <bsl_cstdio.h>             // For FILE in usage example
 #include <bsl_cstdlib.h>            // for atoi
 #include <bsl_cstring.h>
 #include <bsl_functional.h>
 #include <bsl_iostream.h>
+#include <bsl_set.h>
 #include <bsl_string.h>
+#include <bsl_sstream.h>
 #include <bsl_vector.h>
 
 #include <bsl_c_signal.h>
@@ -42,7 +48,10 @@
 #endif
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using bsl::cout;
+using bsl::cerr;
+using bsl::endl;
+using bsl::flush;
 
 // ============================================================================
 //                             TEST PLAN
@@ -74,7 +83,7 @@ using namespace bsl;  // automatically added by script
 // [ 4] void shutdown();
 // [ 4] int queueCapacity() const;
 // [ 4] int numThreadsStarted() const;
-// [ 5] int tryenqueueJob(FixedThreadPoolJobFunc, void *);
+// [ 5] int tryEnqueueJob(FixedThreadPoolJobFunc, void *);
 // ----------------------------------------------------------------------------
 // [ 2] TESTING HELPER FUNCTIONS
 // [ 2] Breathing test
@@ -83,6 +92,9 @@ using namespace bsl;  // automatically added by script
 // [ 9] TESTING CPU consumption of an idle pool.
 // [11] Usage examples
 // [12] Usage examples
+// [16] CONCERN: 'start()' failure behavior
+// [17] CONCERN: 'drain', 'shutdown', 'stop' behavior when '!isStarted()'
+// [18] DRQS 167232024: 'drain' FAILS TO WAIT FOR ALL JOBS TO FINISH
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -110,29 +122,55 @@ void aSsErT(bool condition, const char *message, int line)
 //               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define ASSERT       BSLIM_TESTUTIL_ASSERT
-#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
+#define ASSERT                   BSLMT_TESTUTIL_ASSERT
+#define ASSERTV                  BSLMT_TESTUTIL_ASSERTV
 
-#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+#define GUARD                    BSLMT_TESTUTIL_GUARD
 
-#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
-#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
-#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
-#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_           BSLIM_TESTUTIL_L_  // current Line number
+#define Q                        BSLMT_TESTUTIL_Q
+#define P                        BSLMT_TESTUTIL_P
+#define P_                       BSLMT_TESTUTIL_P_
+#define T_                       BSLMT_TESTUTIL_T_
+#define L_                       BSLMT_TESTUTIL_L_
+
+#define GUARDED_STREAM(STREAM)   BSLMT_TESTUTIL_GUARDED_STREAM(STREAM)
+#define COUT                     BSLMT_TESTUTIL_COUT
+#define CERR                     BSLMT_TESTUTIL_CERR
+
+// ============================================================================
+//                     NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
+
+#define ASSERT_SAFE_PASS_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPR)
+#define ASSERT_SAFE_FAIL_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPR)
+#define ASSERT_PASS_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS_RAW(EXPR)
+#define ASSERT_FAIL_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPR)
+#define ASSERT_OPT_PASS_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPR)
+#define ASSERT_OPT_FAIL_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
 
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
 typedef bdlmt::FixedThreadPool Obj;
+
+const int k_DECISECOND = 100000;  // microseconds in 0.1 seconds
+
+// ============================================================================
+//                           GLOBAL VARIABLES FOR TESTING
+// ----------------------------------------------------------------------------
+
+int test;
+int verbose;
+int veryVerbose;
+int veryVeryVerbose;
 
 // ============================================================================
 //                             DEFAULT ALLOCATOR
@@ -144,6 +182,11 @@ bslma::TestAllocator taDefault;
 //                 HELPER CLASSES AND FUNCTIONS  FOR TESTING
 // ----------------------------------------------------------------------------
 
+void noop(void *)
+    // This function does nothing.
+{
+}
+
 #define STARTPOOL(x) \
     if (0 != x.start()) { \
         cout << "Thread start() failed.  Thread quota exceeded?" \
@@ -154,10 +197,10 @@ bslma::TestAllocator taDefault;
 struct TestJobFunctionArgs {
     bslmt::Condition *d_startCond;
     bslmt::Condition *d_stopCond;
-    bslmt::Mutex     *d_mutex;
-    volatile int     d_count;
-    volatile int     d_startSig;
-    volatile int     d_stopSig;
+    bslmt::Mutex     *d_mutex_p;
+    volatile int      d_count;
+    volatile int      d_startSig;
+    volatile int      d_stopSig;
 };
 
 struct TestJobFunctionArgs1 {
@@ -166,10 +209,8 @@ struct TestJobFunctionArgs1 {
     bsls::AtomicInt   d_count;
 };
 
-extern "C" {
-
 #if defined(BSLS_PLATFORM_OS_UNIX)
-void TestSynchronousSignals(void *ptr)
+extern "C" void TestSynchronousSignals(void *)
 {
     sigset_t blockedSet;
     sigemptyset(&blockedSet);
@@ -211,26 +252,38 @@ void testJobFunction1(void *ptr)
     // signaled.
 {
     TestJobFunctionArgs *args = (TestJobFunctionArgs*)ptr;
-    bslmt::LockGuard<bslmt::Mutex> lock(args->d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> lock(args->d_mutex_p);
     ++args->d_count;
     ++args->d_startSig;
     args->d_startCond->signal();
-    while( !args->d_stopSig ) {
-        args->d_stopCond->wait(args->d_mutex);
+    while ( !args->d_stopSig ) {
+        args->d_stopCond->wait(args->d_mutex_p);
     }
 }
 
-static void testJobFunction2( void *ptr )
+extern "C" void *testThreadJobFunction1(void *ptr)
+{
+    testJobFunction1(ptr);
+    return 0;
+}
+
+void testJobFunction2(void *ptr)
     // This function is used to simulate a thread pool job.  It accepts a
     // pointer to a pointer to a structure containing a mutex and a conditional
     // variable.  The function simply signals that it has started, increments
     // the supplied counter and returns.
 {
     TestJobFunctionArgs *args = (TestJobFunctionArgs*)ptr;
-    bslmt::LockGuard<bslmt::Mutex> lock(args->d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> lock(args->d_mutex_p);
     ++args->d_count;
     ++args->d_startSig;
     args->d_startCond->signal();
+}
+
+extern "C" void *testThreadJobFunction2(void *ptr)
+{
+    testJobFunction2(ptr);
+    return 0;
 }
 
 void testJobFunction3(void *ptr)
@@ -253,9 +306,13 @@ void testJobFunction3(void *ptr)
     }
 }
 
+extern "C" void *testThreadJobFunction3(void *ptr)
+{
+    testJobFunction3(ptr);
+    return 0;
 }
 
-int testJobFunction4(const int N)
+double testJobFunction4(const int N)
     // This function is used to simulate a thread pool job.  It accepts an int
     // which controls the time taken by that job.  We let the job compute some
     // quantity (the actually job does not matter, only the time it takes).
@@ -293,6 +350,116 @@ static double getCurrentCpuTime()
 #endif
 }
 
+static bsls::AtomicInt s_continue;
+
+static char s_watchdogText[128];
+
+void setWatchdogText(const char *value)
+    // Assign the specified 'value' to be displayed if the watchdog expires.
+{
+    memcpy(s_watchdogText, value, strlen(value) + 1);
+}
+
+extern "C" void *watchdog(void *arg)
+    // Watchdog function used to determine when a timeout should occur.  This
+    // function returns without expiration if '0 == s_continue' before one
+    // second elapses.  Upon expiration, 's_watchdogText' is displayed and the
+    // program is aborted.
+{
+    if (arg) {
+        setWatchdogText(static_cast<const char *>(arg));
+    }
+
+    const int MAX = 100;  // one iteration is a deci-second
+
+    int count = 0;
+
+    while (s_continue) {
+        bslmt::ThreadUtil::microSleep(k_DECISECOND);
+        ++count;
+
+        ASSERTV(s_watchdogText, count < MAX);
+
+        if (MAX == count && s_continue) {
+            // 'abort' is preferred here but, on Windows, may result in a
+            // dialog box and the process not terminating.
+
+#ifndef BSLS_PLATFORM_OS_WINDOWS
+            abort();
+#else
+            exit(1);
+#endif
+        }
+    }
+
+    return 0;
+}
+
+static bdlmt::FixedThreadPool *s_performanceTestPool_p;
+static bsls::Types::Int64      s_performanceTestPoolBusyWork;
+
+void performanceTestInitialize(bool)
+{
+    s_performanceTestPool_p->start();
+}
+
+void performanceTestShutdown(bool)
+{
+    s_performanceTestPool_p->shutdown();
+}
+
+void performanceTestCleanup(bool)
+{
+}
+
+void performanceTestJob()
+{
+    bslmt::ThroughputBenchmark::busyWork(s_performanceTestPoolBusyWork);
+}
+
+void performanceTestPush(int)
+{
+    s_performanceTestPool_p->enqueueJob(&performanceTestJob);
+}
+
+void performanceTest(FILE       *outputFile,
+                     const char *scenarioName,
+                     int         numPush,
+                     int         numPool,
+                     int         busyPush,
+                     int         busyPool)
+{
+    s_performanceTestPool_p       = new bdlmt::FixedThreadPool(numPool, 512);
+    s_performanceTestPoolBusyWork = busyPool;
+
+    bslmt::ThroughputBenchmark bench;
+
+    int id = bench.addThreadGroup(performanceTestPush, numPush, busyPush);
+
+    bslmt::ThroughputBenchmarkResult result;
+    bench.execute(&result,
+                  10,
+                  101,
+                  performanceTestInitialize,
+                  performanceTestShutdown,
+                  performanceTestCleanup);
+
+    bsl::vector<double> percentiles(11);
+    result.getPercentiles(&percentiles, id);
+
+    bsl::ostringstream ss;
+    ss << scenarioName;
+    for (bsl::size_t i = 0; i < percentiles.size(); ++i) {
+        ss << ',' << static_cast<int>(percentiles[i]);
+    }
+
+    fprintf(outputFile, "%s\n", ss.str().c_str());
+    fflush(outputFile);
+
+    delete s_performanceTestPool_p;
+    s_performanceTestPool_p = 0;
+}
+
 // ============================================================================
 //                               USAGE EXAMPLE
 // ----------------------------------------------------------------------------
@@ -300,34 +467,35 @@ static double getCurrentCpuTime()
 #define SEARCH_QUEUE_CAPACITY  50
 
 struct myFastSearchJobInfo {
-    const string        *d_word;    // word to search for
-    const string        *d_path;    // path of the file to search
-    bslmt::Mutex         *d_mutex;   // mutex to control access the result
-                                    // file list.
-    bsl::vector<string> *d_outList; // list of matching files
+    const bsl::string        *d_word_p;    // word to search for
+    const bsl::string        *d_path_p;    // path of the file to search
+    bslmt::Mutex             *d_mutex_p;   // mutex to control access the
+                                           // result file list.
+    bsl::vector<bsl::string> *d_outList_p; // list of matching files
 };
 
 extern "C" {
 
 static void myFastSearchJob(void *arg)
+    // Thread function, take arguments from the specified 'arg'.
 {
     FILE *file;
     myFastSearchJobInfo *job =  (myFastSearchJobInfo*)arg;
 
-    file = fopen(job->d_path->c_str(), "r");
+    file = fopen(job->d_path_p->c_str(), "r");
 
     if (file) {
      char  buffer[1024];
-     size_t nread;
-     int   wordLen = job->d_word->length();
-     const char *word = job->d_word->c_str();
+     bsl::size_t nread;
+     bsl::size_t wordLen = job->d_word_p->length();
+     const char *word = job->d_word_p->c_str();
 
      nread = fread( buffer, 1, sizeof(buffer)-1, file );
-     while( nread >= (size_t)wordLen ) {
+     while ( nread >= wordLen ) {
          buffer[nread] = 0;
          if (strstr(buffer, word)) {
-             bslmt::LockGuard<bslmt::Mutex> lock(job->d_mutex);
-             job->d_outList->push_back(*job->d_path);
+             bslmt::LockGuard<bslmt::Mutex> lock(job->d_mutex_p);
+             job->d_outList_p->push_back(*job->d_path_p);
              break;
 
          }
@@ -340,9 +508,12 @@ static void myFastSearchJob(void *arg)
 
 }
 
-static void myFastSearch(const string&         word,
-                         const vector<string>& fileList,
-                         vector<string>&       outFileList)
+static void myFastSearch(const bsl::string&              word,
+                         const bsl::vector<bsl::string>& fileList,
+                         bsl::vector<bsl::string>&       outFileList)
+    // Simultaneously search the files in the specified 'fileList' for the
+    // specified 'word, accumulated in the specified 'outFileList' the names of
+    // those files containing 'word'.
 {
     bslmt::Mutex            mutex;
     bslmt::ThreadAttributes defaultAttributes;
@@ -356,15 +527,15 @@ static void myFastSearch(const string&         word,
         return; // things are SNAFU                                   // RETURN
     }
 
-    int count = fileList.size();
+    bsl::size_t count = fileList.size();
     myFastSearchJobInfo  *jobInfoArray = new myFastSearchJobInfo[count];
 
-    for (int i=0; i<count; ++i) {
+    for (unsigned i=0; i<count; ++i) {
         myFastSearchJobInfo &job = jobInfoArray[i];
-        job.d_word    = &word;
-        job.d_path    = &fileList[i];
-        job.d_mutex   = &mutex;
-        job.d_outList = &outFileList;
+        job.d_word_p    = &word;
+        job.d_path_p    = &fileList[i];
+        job.d_mutex_p   = &mutex;
+        job.d_outList_p = &outFileList;
         pool.enqueueJob(myFastSearchJob, &job);
     }
     pool.drain();
@@ -377,20 +548,20 @@ static void myFastFunctorSearchJob(myFastSearchJobInfo *job)
 {
     FILE *file;
 
-    file = fopen(job->d_path->c_str(), "r");
+    file = fopen(job->d_path_p->c_str(), "r");
 
     if (file) {
         char  buffer[1024];
-        size_t nread;
-        int   wordLen = job->d_word->length();
-        const char *word = job->d_word->c_str();
+        bsl::size_t  nread;
+        bsl::size_t  wordLen = job->d_word_p->length();
+        const char  *word = job->d_word_p->c_str();
 
         nread = fread( buffer, 1, sizeof(buffer)-1, file );
-        while( nread >= (size_t)wordLen ) {
+        while ( nread >= wordLen ) {
             buffer[nread] = 0;
             if (strstr(buffer, word)) {
-                bslmt::LockGuard<bslmt::Mutex> lock(job->d_mutex);
-                job->d_outList->push_back(*job->d_path);
+                bslmt::LockGuard<bslmt::Mutex> lock(job->d_mutex_p);
+                job->d_outList_p->push_back(*job->d_path_p);
                 break;
 
             }
@@ -401,9 +572,12 @@ static void myFastFunctorSearchJob(myFastSearchJobInfo *job)
     }
 }
 
-static void myFastFunctorSearch(const string&         word,
-                                const vector<string>& fileList,
-                                vector<string>&       outFileList)
+static void myFastFunctorSearch(const bsl::string&              word,
+                                const bsl::vector<bsl::string>& fileList,
+                                bsl::vector<bsl::string>&       outFileList)
+    // Simultaneously search the files in the specified 'fileList' for the
+    // specified 'word, accumulated in the specified 'outFileList' the names of
+    // those files containing 'word'.
 {
     bslmt::Mutex            mutex;
     bslmt::ThreadAttributes defaultAttributes;
@@ -418,15 +592,15 @@ static void myFastFunctorSearch(const string&         word,
         return; // things are SNAFU                                   // RETURN
     }
 
-    int count = fileList.size();
+    bsl::size_t count = fileList.size();
     myFastSearchJobInfo  *jobInfoArray = new myFastSearchJobInfo[count];
 
-    for (int i=0; i<count; ++i) {
+    for (unsigned i=0; i<count; ++i) {
         myFastSearchJobInfo &job = jobInfoArray[i];
-        job.d_word    = &word;
-        job.d_path    = &fileList[i];
-        job.d_mutex   = &mutex;
-        job.d_outList = &outFileList;
+        job.d_word_p    = &word;
+        job.d_path_p    = &fileList[i];
+        job.d_mutex_p   = &mutex;
+        job.d_outList_p = &outFileList;
 
         bsl::function<void()> jobHandle =
                            bdlf::BindUtil::bind(&myFastFunctorSearchJob, &job);
@@ -437,70 +611,14 @@ static void myFastFunctorSearch(const string&         word,
 }
 
 // ============================================================================
-//                         CASE 14 RELATED ENTITIES
+//                         USAGE CASE RELATED ENTITIES
 // ----------------------------------------------------------------------------
 
-namespace FIXEDTHREADPOOL_CASE_14 {
+namespace FIXEDTHREADPOOL_USAGE {
 
-class ConcurrencyTest {
-    // Invoke a set of operations operations synchronously.
-
-    // DATA
-    bdlmt::FixedThreadPool   d_pool;
-    bslmt::Barrier          d_barrier;
-    bslma::Allocator      *d_allocator_p;
-
-    // PRIVATE MANIPULATORS
-    void execute();
-        // Execute a single test.
-
-    ConcurrencyTest(const ConcurrencyTest&);             // unimplemented
-    ConcurrencyTest& operator=(const ConcurrencyTest&);  // unimplemented
-
-  public:
-    // CREATORS
-    ConcurrencyTest(int               numThreads,
-                    bslma::Allocator *basicAllocator)
-    : d_pool(numThreads, 1000, basicAllocator)
-    , d_barrier(numThreads)
-    , d_allocator_p(basicAllocator)
-    {
-        d_pool.start();
-    }
-
-    ~ConcurrencyTest() {}
-
-    //  MANIPULATORS
-    void runTest();
-        // Run the test.
-};
-
-void ConcurrencyTest::execute()
-{
-    d_barrier.wait();
-}
-
-void ConcurrencyTest::runTest()
-{
-    bsl::function<void()> job =
-                         bdlf::BindUtil::bind(&ConcurrencyTest::execute, this);
-    for (int i = 0; i < d_pool.numThreads(); ++i) {
-        d_pool.enqueueJob(job);
-    }
-    d_pool.drain();
-}
-
-}  // close namespace FIXEDTHREADPOOL_CASE_14
-
-// ============================================================================
-//                         CASE 15 RELATED ENTITIES
-// ----------------------------------------------------------------------------
-
-namespace FIXEDTHREADPOOL_CASE_15 {
-
-                            // ===================
-                            // CopyCountingFunctor
-                            // ===================
+                           // ===================
+                           // CopyCountingFunctor
+                           // ===================
 
 class CopyCountingFunctor {
   private:
@@ -536,9 +654,9 @@ class CopyCountingFunctor {
         // Do noting.
 };
 
-                            // -------------------
-                            // CopyCountingFunctor
-                            // -------------------
+                           // -------------------
+                           // CopyCountingFunctor
+                           // -------------------
 
 // CREATORS
 CopyCountingFunctor::CopyCountingFunctor(int *counter)
@@ -580,8 +698,63 @@ void CopyCountingFunctor::operator()()
 {
 }
 
-}  // close namespace FIXEDTHREADPOOL_CASE_15
+}  // close namespace FIXEDTHREADPOOL_USAGE
 
+// ============================================================================
+//                         CASE 14 RELATED ENTITIES
+// ----------------------------------------------------------------------------
+
+namespace FIXEDTHREADPOOL_CASE_14 {
+
+class ConcurrencyTest {
+    // Invoke a set of operations operations synchronously.
+
+    // DATA
+    bdlmt::FixedThreadPool  d_pool;
+    bslmt::Barrier          d_barrier;
+    bslma::Allocator       *d_allocator_p;
+
+    // PRIVATE MANIPULATORS
+    void execute();
+        // Execute a single test.
+
+    ConcurrencyTest(const ConcurrencyTest&);             // unimplemented
+    ConcurrencyTest& operator=(const ConcurrencyTest&);  // unimplemented
+
+  public:
+    // CREATORS
+    ConcurrencyTest(int numThreads, bslma::Allocator *basicAllocator)
+    : d_pool(numThreads, 1000, basicAllocator)
+    , d_barrier(numThreads)
+    , d_allocator_p(basicAllocator)
+    {
+        d_pool.start();
+    }
+
+    ~ConcurrencyTest() {}
+        // Destroy this object.
+
+    //  MANIPULATORS
+    void runTest();
+        // Run the test.
+};
+
+void ConcurrencyTest::execute()
+{
+    d_barrier.wait();
+}
+
+void ConcurrencyTest::runTest()
+{
+    bsl::function<void()> job =
+                         bdlf::BindUtil::bind(&ConcurrencyTest::execute, this);
+    for (int i = 0; i < d_pool.numThreads(); ++i) {
+        d_pool.enqueueJob(job);
+    }
+    d_pool.drain();
+}
+
+}  // close namespace FIXEDTHREADPOOL_CASE_14
 
 // ============================================================================
 //                         CASE 11 RELATED ENTITIES
@@ -595,7 +768,7 @@ enum {
 };
 
 bdlmt::FixedThreadPool *threadPools[NUM_THREADPOOLS];
-bsls::AtomicInt64 numFertileRabbits(0);
+bsls::AtomicInt64       numFertileRabbits(0);
 
 struct EnqueueRabbit {
     bool d_fertile;
@@ -645,6 +818,17 @@ struct TryEnqueueRabbit {
     }
 };
 
+struct Delay {
+    bslmt::Barrier *d_barrier_p;
+
+    Delay(bslmt::Barrier *barrier) : d_barrier_p(barrier) {}
+
+    void operator()() {
+        d_barrier_p->wait();
+        bslmt::ThreadUtil::microSleep(1000);
+    }
+};
+
 }  // close namespace FIXEDTHREADPOOL_CASE_11
 
 // ============================================================================
@@ -691,17 +875,6 @@ extern "C" {
 }
 
 // ============================================================================
-//                          CASE 9 RELATED ENTITIES
-// ----------------------------------------------------------------------------
-
-static void counter(int *result, int num) {
-    while(num > 0) {
-        *result += 1;
-        --num;
-    }
-}
-
-// ============================================================================
 //                          CASE 6 RELATED ENTITIES
 // ----------------------------------------------------------------------------
 enum {
@@ -718,7 +891,7 @@ bsls::AtomicInt depthCounter;
 
 extern "C" {
 
-void testJobFunction5(void *ptr)
+void testJobFunction5(void *)
     // This function is used to simulate a thread pool job.  It enqueues itself
     // in the pool if the depth limit is not reached.
 {
@@ -752,10 +925,10 @@ int main(int argc, char *argv[])
        pool.  Verify that no functors have been skipped.
        -------------------------
     */
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2 ? (atoi(argv[2]) ? atoi(argv[2]) : 1) : 0;
-    int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
+    test = argc > 1 ? atoi(argv[1]) : 0;
+    verbose = argc > 2 ? (atoi(argv[2]) ? atoi(argv[2]) : 1) : 0;
+    veryVerbose = argc > 3;
+    veryVeryVerbose = argc > 4;
 
     bslma::DefaultAllocatorGuard guard(&taDefault);
     bslma::TestAllocator  testAllocator(veryVeryVerbose);
@@ -763,6 +936,198 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // case 0 is always the first case
+      case 18: {
+        // --------------------------------------------------------------------
+        // DRQS 167232024: 'drain' FAILS TO WAIT FOR ALL JOBS TO FINISH
+        //
+        // Concerns:
+        //: 1 When a thread enqueues some jobs and then invokes 'drain', there
+        //:   are no pending jobs.
+        //
+        // Plan:
+        //: 1 Verify '0 == numPendingJobs' after enqueuing a few jobs and
+        //:   invoking 'drain'.
+        //
+        // Testing:
+        //   DRQS 167232024: 'drain' FAILS TO WAIT FOR ALL JOBS TO FINISH
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout
+              << "DRQS 167232024: 'drain' FAILS TO WAIT FOR ALL JOBS TO FINISH"
+              << endl
+              << "============================================================"
+              << endl;
+        }
+
+        bslmt::ThreadUtil::Handle watchdogHandle;
+
+        s_continue = 1;
+
+        bslmt::ThreadUtil::create(&watchdogHandle,
+                                  watchdog,
+                                  const_cast<char *>("'drain'"));
+
+        Obj mX(4, 4);  const Obj& X = mX;
+
+        mX.start();
+
+        for (int i = 0; i < 10000; ++i) {
+            ASSERT(0 == mX.enqueueJob(noop, 0));
+            ASSERT(0 == mX.enqueueJob(noop, 0));
+            ASSERT(0 == mX.enqueueJob(noop, 0));
+
+            mX.drain();
+
+            ASSERT(0 == X.numPendingJobs());
+        }
+
+        s_continue = 0;
+
+        bslmt::ThreadUtil::join(watchdogHandle);
+      } break;
+      case 17: {
+        // --------------------------------------------------------------------
+        // 'drain', 'shutdown', 'stop' BEHAVIOR WHEN '!isStarted()'
+        //   When the thread pool is not started, the methods 'drain',
+        //   'shutdown', and 'stop' do nothing.
+        //
+        // Concerns:
+        //: 1 If the thread pool is not started, the methods 'drain', 'stop',
+        //    and 'shutdown' do nothing.
+        //
+        // Plan:
+        //: 1 Construct a 'bdlmt::FixedThreadPool', enable enqueueing, enqueue
+        //:   a job, and invoke 'drain'.  Use a watchdog thread to ensure the
+        //:   invoking thread returns timely.  Verify the enqueued job was not
+        //:   removed and the thread pool 'isEnabled()'.
+        //:
+        //: 2 Construct a 'bdlmt::FixedThreadPool', enable enqueueing, enqueue
+        //:   a job, and invoke 'shutdown'.  Verify the enqueued job was not
+        //:   removed and the thread pool 'isEnabled()'.
+        //:
+        //: 3 Construct a 'bdlmt::FixedThreadPool', enable enqueueing, enqueue
+        //:   a job, and invoke 'stop'.  Verify the enqueued job was not
+        //:   removed and the thread pool 'isEnabled()'.
+        //
+        // Testing:
+        //   CONCERN: 'drain', 'shutdown', 'stop' behavior when '!isStarted()'
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+    // -----^
+    cout << endl
+         << "'drain', 'shutdown', 'stop' BEHAVIOR WHEN '!isStarted()'" << endl
+         << "========================================================" << endl;
+    // -----v
+        }
+
+        if (verbose) cout << "Testing 'drain'." << endl;
+        {
+            bslmt::ThreadUtil::Handle watchdogHandle;
+
+            s_continue = 1;
+
+            bslmt::ThreadUtil::create(&watchdogHandle,
+                                      watchdog,
+                                      const_cast<char *>("'drain'"));
+
+            Obj mX(4, 4);  const Obj& X = mX;
+
+            mX.enable();
+
+            ASSERT(0 == mX.enqueueJob(noop, 0));
+
+            mX.drain();
+
+            ASSERT(1 == mX.numPendingJobs());
+            ASSERT(X.isEnabled());
+
+            s_continue = 0;
+
+            bslmt::ThreadUtil::join(watchdogHandle);
+        }
+
+        if (verbose) cout << "Testing 'shutdown'." << endl;
+        {
+            Obj mX(4, 4);  const Obj& X = mX;
+
+            mX.enable();
+
+            ASSERT(0 == mX.enqueueJob(noop, 0));
+
+            mX.shutdown();
+
+            ASSERT(1 == mX.numPendingJobs());
+            ASSERT(X.isEnabled());
+        }
+
+        if (verbose) cout << "Testing 'stop'." << endl;
+        {
+            Obj mX(4, 4);  const Obj& X = mX;
+
+            mX.enable();
+
+            ASSERT(0 == mX.enqueueJob(noop, 0));
+
+            mX.stop();
+
+            ASSERT(1 == mX.numPendingJobs());
+            ASSERT(X.isEnabled());
+        }
+      } break;
+      case 16: {
+        // --------------------------------------------------------------------
+        // 'start' FAILURE BEHAVIOR
+        //   If the 'start' method fails, the thread pool should behave as
+        //   expected.
+        //
+        // Concerns:
+        //: 1 If the thread start function fails, the 'start' method returns,
+        //    all pool threads are joined, and the method's return value
+        //    indicates failure.
+        //
+        // Plan:
+        //: 1 Construct a 'bdlmt::FixedThreadPool' with an unsatisfiable number
+        //:   of threads.  Start the pool and verify '0 != start()'.  Use a
+        //:   watchdog thread to ensure the test completes timely.
+        //
+        // Testing:
+        //   CONCERN: 'start()' failure behavior
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "'start' FAILURE BEHAVIOR" << endl
+                          << "========================" << endl;
+
+#if defined(BSLS_PLATFORM_OS_WINDOWS) || defined(BSLS_PLATFORM_OS_SOLARIS)
+        // Causing thread creation on Windows and Sun to fail can not be done
+        // with the available parameters.  Do not run this test on those
+        // platforms.
+
+        if (verbose) cout << "test not run" << endl;
+#else
+        const int k_NUM_THREADS = 1000000;
+        const int k_CAPACITY    =      32;
+
+        bslmt::ThreadUtil::Handle watchdogHandle;
+
+        s_continue = 1;
+
+        bslmt::ThreadUtil::create(
+                               &watchdogHandle,
+                               watchdog,
+                               const_cast<char *>("'start' failure behavior"));
+
+        bdlmt::FixedThreadPool mX(k_NUM_THREADS, k_CAPACITY);
+
+        ASSERT(0 != mX.start());
+
+        s_continue = 0;
+
+        bslmt::ThreadUtil::join(watchdogHandle);
+#endif
+      } break;
       case 15: {
         // --------------------------------------------------------------------
         // TESTING MOVING ENQUEUEJOB
@@ -777,7 +1142,11 @@ int main(int argc, char *argv[])
         //: 3 tryEnqueue one job using explicit move
         //: 4 enqueue an implicit rvalue reference (temporary) in C++11 mode
         //: 5 tryEnqueue an implicit rvalue reference (temporary) in C++11 mode
+        //
+        // Testing:
+        //   int enqueueJob(bslmf::MovableRef<Job>);
         // --------------------------------------------------------------------
+
         if (verbose) cout << "TESTING MOVING ENQUEUEJOB\n"
                           << "=========================" << endl ;
 
@@ -792,46 +1161,47 @@ int main(int argc, char *argv[])
         bdlmt::FixedThreadPool mX(NUM_THREADS, NUM_THREADS);
         mX.enable();
 
-        using namespace FIXEDTHREADPOOL_CASE_15;
+        using namespace FIXEDTHREADPOOL_USAGE;
 
         int counter = 0;
 
         CopyCountingFunctor f(&counter);
 
-        LOOP_ASSERT(counter, 0 == counter);
+        ASSERTV(counter, 0 == counter);
 
         Obj::Job job(f);
 
-        LOOP_ASSERT(counter, counter > 0);
+        ASSERTV(counter, counter > 0);
 
         const int buildCopyCounter = counter;
+        (void)buildCopyCounter;
 
         counter = 0;
 
         ASSERT(0 == mX.enqueueJob(bslmf::MovableRefUtil::move(job)));
 
-        LOOP_ASSERT(counter, 0 == counter);
+        ASSERTV(counter, 0 == counter);
 
         Obj::Job job2(f);
         counter = 0;
 
         ASSERT(0 == mX.tryEnqueueJob(bslmf::MovableRefUtil::move(job2)));
 
-        LOOP_ASSERT(counter, 0 == counter);
+        ASSERTV(counter, 0 == counter);
 
 #ifdef BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES
         // Moving of rvalues are only supported in C++11 mode.
 
         ASSERT(0 == mX.enqueueJob(Obj::Job(f)));
 
-        LOOP2_ASSERT(buildCopyCounter, counter,
-                     buildCopyCounter == counter);
+        ASSERTV(buildCopyCounter, counter,
+                buildCopyCounter == counter);
         counter = 0;
 
         ASSERT(0 == mX.tryEnqueueJob(Obj::Job(f)));
 
-        LOOP2_ASSERT(buildCopyCounter, counter,
-                     buildCopyCounter == counter);
+        ASSERTV(buildCopyCounter, counter,
+                buildCopyCounter == counter);
 #endif
       } break;
       case 14: {
@@ -839,9 +1209,11 @@ int main(int argc, char *argv[])
         // TEST CASE FOR WINDOWS TEST FAILURE
         //   This test case was created for a windows failure that occurred on
         //   8/17.  This essentially recreates the use of
-        //   'bdlmt_fixedthreadpool' in the 'baem' test drivers.
+        //   'bdlmt_fixedthreadpool' in the 'balm' test drivers.
         //
         // Plan:
+        // --------------------------------------------------------------------
+
         if (verbose) cout << "Check windows test failure\n"
                           << "==========================" << endl;
 
@@ -873,6 +1245,7 @@ int main(int argc, char *argv[])
         //   reproducing amongst the thread pools, shut them all down, then
         //   test the thread pools to see if any residual jobs were left in
         //   any of the thread pools.  Repeat the process.
+        // --------------------------------------------------------------------
 
         if (verbose) cout << "Check for race condition in shutdown().\n"
                           << "=======================================" << endl;
@@ -885,6 +1258,8 @@ int main(int argc, char *argv[])
             threadPools[i] = new bdlmt::FixedThreadPool(1,
                                                         THREADPOOL_QUEUE_SIZE);
         }
+
+        bslmt::Barrier barrier(2);
 
 #       ifdef BSLS_PLATFORM_OS_LINUX
             enum {
@@ -915,7 +1290,7 @@ int main(int argc, char *argv[])
                                              cout << "\n  " << flush;
 
             for (int i = 0; i < NUM_THREADPOOLS; ++i) {
-                threadPools[i]->start();
+                ASSERT(0 == threadPools[i]->start());
             }
 
             bsls::Types::Int64 pauseUntil =
@@ -931,6 +1306,14 @@ int main(int argc, char *argv[])
             } while (numFertileRabbits < pauseUntil);
 
             for (int i = 0; i < NUM_THREADPOOLS; ++i) {
+                // Create a temporal gap in 'shutdown' between the underlying
+                // queue being disabled and the threadpool's threads being
+                // joined to allow in-progress enqueues from other threadpools
+                // to complete.
+
+                threadPools[i]->enqueueJob(Delay(&barrier));
+                barrier.wait();
+
                 threadPools[i]->shutdown();
                 ASSERT(0 == threadPools[i]->numPendingJobs());
             }
@@ -954,7 +1337,7 @@ int main(int argc, char *argv[])
                                              cout << "\n  " << flush;
 
             for (int i = 0; i < NUM_THREADPOOLS; ++i) {
-                threadPools[i]->start();
+                ASSERT(0 == threadPools[i]->start());
             }
 
             bsls::Types::Int64 pauseUntil =
@@ -971,6 +1354,14 @@ int main(int argc, char *argv[])
             } while (numFertileRabbits < pauseUntil);
 
             for (int i = 0; i < NUM_THREADPOOLS; ++i) {
+                // Create a temporal gap in 'shutdown' between the underlying
+                // queue being disabled and the threadpool's threads being
+                // joined to allow in-progress enqueues from other threadpools
+                // to complete.
+
+                threadPools[i]->enqueueJob(Delay(&barrier));
+                barrier.wait();
+
                 threadPools[i]->shutdown();
                 ASSERT(0 == threadPools[i]->numPendingJobs());
             }
@@ -1013,8 +1404,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Testing: Usage Example" << endl
                           << "======================" << endl ;
         {
-            vector<string> fileList;
-            vector<string> outFileList;
+            bsl::vector<bsl::string> fileList;
+            bsl::vector<bsl::string> outFileList;
 
             myFastFunctorSearch("bcep", fileList, outFileList);
 
@@ -1039,8 +1430,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Testing: Usage Example\n"
                           << "====================================" << endl ;
         {
-            vector<string> fileList;
-            vector<string> outFileList;
+            bsl::vector<bsl::string> fileList;
+            bsl::vector<bsl::string> outFileList;
 
             myFastSearch("hello", fileList, outFileList);
             ASSERT(0 == outFileList.size());
@@ -1113,7 +1504,7 @@ int main(int argc, char *argv[])
 
             double startIdleCpuTime = getCurrentCpuTime();
             if (veryVerbose) {
-                T_ P(startIdleCpuTime)
+                T_ P(startIdleCpuTime);
             }
             bslmt::ThreadUtil::microSleep(0, SLEEP_TIME);
             double consumedIdleCpuTime = getCurrentCpuTime()
@@ -1121,7 +1512,7 @@ int main(int argc, char *argv[])
 
             startIdleCpuTime = getCurrentCpuTime();
             if (veryVerbose) {
-                T_ P_(consumedIdleCpuTime)
+                T_ P_(consumedIdleCpuTime);
             }
             double additiveFudge = 0.01 // to allow for imprecisions in timing
                                  + getCurrentCpuTime() - startIdleCpuTime;
@@ -1131,7 +1522,7 @@ int main(int argc, char *argv[])
                                 (additiveFudge +
                                  consumedIdleCpuTime * QUEUE_CAPACITY_THREADS);
             if (veryVerbose) {
-                P(maxConsumedCpuTime)
+                P(maxConsumedCpuTime);
             }
 
             Obj x(attr,
@@ -1142,29 +1533,30 @@ int main(int argc, char *argv[])
             STARTPOOL(x);
 
             if (veryVerbose) {
-                T_ P_(THREADS_THREADS) P_(QUEUE_CAPACITY_THREADS) P(SLEEP_TIME)
+                T_ P_(THREADS_THREADS); P_(QUEUE_CAPACITY_THREADS);
+                P(SLEEP_TIME);
             }
 
             double startCpuTime = getCurrentCpuTime();
             if (veryVerbose) {
-                 T_ P(startCpuTime)
+                 T_ P(startCpuTime);
             }
             bslmt::ThreadUtil::microSleep(0, SLEEP_TIME);
             double consumedCpuTime = getCurrentCpuTime() - startCpuTime;
 
             if (veryVerbose) {
-                T_ P(consumedCpuTime)
+                T_ P(consumedCpuTime);
             }
             x.stop();
 
             // Failure if more than 10 times idle CPU time consumed per thread
             // plus 50ms (to allow for imprecisions in timing)
             if (verbose && !(consumedCpuTime < maxConsumedCpuTime)) {
-                T_ P(maxConsumedCpuTime)
+                T_ P(maxConsumedCpuTime);
             }
-            LOOP2_ASSERT(consumedCpuTime,
-                         maxConsumedCpuTime,
-                         consumedCpuTime < maxConsumedCpuTime);
+            ASSERTV(consumedCpuTime,
+                    maxConsumedCpuTime,
+                    consumedCpuTime < maxConsumedCpuTime);
         }
       } break;
       case 8: {
@@ -1271,7 +1663,7 @@ int main(int argc, char *argv[])
             localX.enqueueJob(&testJobFunction5, NULL);
             barrier.wait();
             ASSERT(DEPTH_LIMIT == depthCounter);
-            if (veryVerbose) { T_ P(depthCounter) }
+            if (veryVerbose) { T_ P(depthCounter); }
         }
 
       } break;
@@ -1288,7 +1680,8 @@ int main(int argc, char *argv[])
         //   N jobs that block on a barrier.  Verify that the next M jobs are
         //   enqueued successfully, but that the next job fails to enqueue,
         //   returning a positive value.  Then free all the jobs to avoid a
-        //   timeout.
+        //   timeout.  Finally, verify asserted precondition violations are
+        //   detected when enabled.
         //
         // Testing:
         //   int tryEnqueueJob(FixedThreadPoolJobFunc , void *);
@@ -1301,7 +1694,6 @@ int main(int argc, char *argv[])
         } VALUES[] = {
             //line min threads max threads
             //---- ----------- -----------
-            { L_ ,         1 ,        1  },
             { L_ ,         2 ,        2 },
             { L_ ,         10,        10 },
             { L_ ,         10,        50 },
@@ -1333,23 +1725,49 @@ int main(int argc, char *argv[])
             STARTPOOL(x);
 
             for (int j = 0; j < THREADS; ++j) {
-                LOOP_ASSERT(i, 0 == x.tryEnqueueJob(testJobFunction3, &args));
+                ASSERTV(i, 0 == x.tryEnqueueJob(testJobFunction3, &args));
             }
             startBarrier.wait(); // make sure that threads have indeed started
-            LOOP_ASSERT(i, 0 == X.numPendingJobs()); // and that queue is empty
+            ASSERTV(i, 0 == X.numPendingJobs()); // and that queue is empty
 
             TestJobFunctionArgs1 emptyArgs;
             emptyArgs.d_startBarrier_p = 0;
             emptyArgs.d_stopBarrier_p  = 0;
 
             for (int j = 0; j < QUEUE_CAPACITY; ++j) {
-                LOOP_ASSERT(i, 0 == x.tryEnqueueJob(testJobFunction3,
-                                                    &emptyArgs));
+                ASSERTV(i, 0 == x.tryEnqueueJob(testJobFunction3,
+                                                &emptyArgs));
             }
             // queue must now be full
-            LOOP_ASSERT(i, 0 != x.tryEnqueueJob(testJobFunction3, &emptyArgs));
+            ASSERTV(i, Obj::e_FULL == x.tryEnqueueJob(testJobFunction3,
+                                                      &emptyArgs));
 
             stopBarrier.wait(); // unblock threads
+        }
+
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertTestHandlerGuard hG;
+
+            Obj mX(1, 1);
+
+            {
+                bdlmt::FixedThreadPool::Job job(bdlf::BindUtil::bindR<void>(
+                                                 testJobFunction1, (void *)0));
+
+                ASSERT_PASS(mX.tryEnqueueJob(job));
+                ASSERT_PASS(mX.tryEnqueueJob(
+                                            bslmf::MovableRefUtil::move(job)));
+                ASSERT_PASS(mX.tryEnqueueJob(testJobFunction1, 0));
+            }
+            {
+                bdlmt::FixedThreadPool::Job job;
+
+                ASSERT_FAIL(mX.tryEnqueueJob(job));
+                ASSERT_FAIL(mX.tryEnqueueJob(
+                                            bslmf::MovableRefUtil::move(job)));
+                ASSERT_FAIL(mX.tryEnqueueJob(0, 0));
+            }
         }
 
       } break;
@@ -1373,6 +1791,9 @@ int main(int argc, char *argv[])
         //   enqueued.  Next let the jobs complete and assert that after
         //   shutting down the pool, all the threads are stopped.
         //
+        //   Then, verify asserted precondition violations are detected when
+        //   enabled.
+        //
         //   Finally, verify that the global allocator was unused, verifying
         //   that the test allocator was used for thread creation.
         //
@@ -1388,9 +1809,8 @@ int main(int argc, char *argv[])
             int d_numThreads;
             int d_maxNumJobs;
         } VALUES[] = {
-            //line min threads max threads
-            //---- ----------- -----------
-            { L_ ,         1 ,        1  },
+            //line num threads max num jobs
+            //---- ----------- ------------
             { L_ ,         2 ,        2 },
             { L_ ,         10,        10 },
             { L_ ,         10,        50 },
@@ -1398,6 +1818,8 @@ int main(int argc, char *argv[])
             { L_ ,         25,        80}
         };
         const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+        ASSERT(0 == Obj::e_SUCCESS);
 
         if (verbose) cout << "Testing: 'drain', 'stop', and 'shutdown'\n"
                           << "=======================================" << endl;
@@ -1417,7 +1839,7 @@ int main(int argc, char *argv[])
             bslmt::Condition stopCond;
             TestJobFunctionArgs args;
 
-            args.d_mutex = &mutex;
+            args.d_mutex_p = &mutex;
             args.d_startCond = &startCond;
             args.d_stopCond = &stopCond;
             args.d_count = 0;
@@ -1426,39 +1848,39 @@ int main(int argc, char *argv[])
             Obj x(attr, THREADS, QUEUE_CAPACITY, &testAllocator);
             const Obj& X = x;
 
-            LOOP_ASSERT(i, THREADS        == X.numThreads());
-            LOOP_ASSERT(i, QUEUE_CAPACITY == X.queueCapacity());
-            LOOP_ASSERT(i, 0              == X.numThreadsStarted());
+            ASSERTV(i, THREADS        == X.numThreads());
+            ASSERTV(i, QUEUE_CAPACITY == X.queueCapacity());
+            ASSERTV(i, 0              == X.numThreadsStarted());
             if (veryVerbose) {
-                T_ P_(i) T_ P_(THREADS) P(QUEUE_CAPACITY)
+                T_ P_(i); T_ P_(THREADS); P(QUEUE_CAPACITY);
             }
 
-            ASSERT(0 != x.enqueueJob(testJobFunction1, &args));
+            ASSERT(Obj::e_DISABLED == x.enqueueJob(testJobFunction1, &args));
 
             STARTPOOL(x);
-            LOOP_ASSERT(i, 0 == x.numPendingJobs());
+            ASSERTV(i, 0 == x.numPendingJobs());
 
             mutex.lock();
             for (int j = 0; j < THREADS; j++) {
                 args.d_startSig = 0;
                 args.d_stopSig = 0;
                 x.enqueueJob(testJobFunction1, &args);
-                while( !args.d_startSig ) {
+                while ( !args.d_startSig ) {
                     startCond.wait(&mutex);
                 }
             }
             if (veryVeryVerbose) {
-                T_ P_(X.numActiveThreads()) P(X.numPendingJobs())
+                T_ P_(X.numActiveThreads()); P(X.numPendingJobs());
             }
             args.d_stopSig++;
             mutex.unlock();
             stopCond.broadcast();
             x.drain();
             if (veryVeryVerbose) {
-                T_ P_(X.numThreadsStarted()) P(X.queueCapacity())
+                T_ P_(X.numThreadsStarted()); P(X.queueCapacity());
             }
-            LOOP_ASSERT(i, THREADS == X.numThreadsStarted());
-            LOOP_ASSERT(i, 0       == X.numPendingJobs());
+            ASSERTV(i, THREADS == X.numThreadsStarted());
+            ASSERTV(i, 0       == X.numPendingJobs());
 
             // We can't assert necessarily that the number of active threads is
             // 0, since the threads that are running the barrier in drain() may
@@ -1478,7 +1900,7 @@ int main(int argc, char *argv[])
             bslmt::Condition stopCond;
             TestJobFunctionArgs args;
 
-            args.d_mutex = &mutex;
+            args.d_mutex_p = &mutex;
             args.d_startCond = &startCond;
             args.d_stopCond = &stopCond;
             args.d_count = 0;
@@ -1489,21 +1911,21 @@ int main(int argc, char *argv[])
             const Obj& X = x;
 
             if (veryVerbose) {
-                T_ P_(i) T_ P_(THREADS) P(QUEUE_CAPACITY)
+                T_ P_(i); T_ P_(THREADS); P(QUEUE_CAPACITY);
             }
 
-            LOOP_ASSERT(i, 0              == X.numThreadsStarted());
-            LOOP_ASSERT(i, QUEUE_CAPACITY == X.queueCapacity());
+            ASSERTV(i, 0              == X.numThreadsStarted());
+            ASSERTV(i, QUEUE_CAPACITY == X.queueCapacity());
 
             STARTPOOL(x);
-            LOOP_ASSERT(i, THREADS        == X.numThreadsStarted());
+            ASSERTV(i, THREADS        == X.numThreadsStarted());
 
             mutex.lock();
             for (int j = 0; j < QUEUE_CAPACITY; j++) {
                 args.d_startSig = 0;
                 args.d_stopSig = 0;
                 x.enqueueJob(testJobFunction1, &args);
-                while(j < THREADS && !args.d_startSig ) {
+                while (j < THREADS && !args.d_startSig ) {
                     startCond.wait(&mutex);
                 }
             }
@@ -1516,7 +1938,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == X.numActiveThreads());
             ASSERT(0 == X.numPendingJobs());
             if (veryVeryVerbose) {
-                T_ P_(X.numActiveThreads()) P(X.numPendingJobs())
+                T_ P_(X.numActiveThreads()); P(X.numPendingJobs());
             }
         }
 
@@ -1529,7 +1951,7 @@ int main(int argc, char *argv[])
             const int QUEUE_CAPACITY  = VALUES[i].d_maxNumJobs;
 
             if (veryVerbose) {
-                T_ P_(i) T_ P_(THREADS) P(QUEUE_CAPACITY)
+                T_ P_(i); T_ P_(THREADS); P(QUEUE_CAPACITY);
             }
 
             bslmt::Mutex mutex;
@@ -1537,7 +1959,7 @@ int main(int argc, char *argv[])
             bslmt::Condition stopCond;
             TestJobFunctionArgs args;
 
-            args.d_mutex = &mutex;
+            args.d_mutex_p = &mutex;
             args.d_startCond = &startCond;
             args.d_stopCond = &stopCond;
             args.d_count = 0;
@@ -1547,9 +1969,9 @@ int main(int argc, char *argv[])
 
             const Obj& X = x;
 
-            LOOP_ASSERT(i, THREADS        == X.numThreads());
-            LOOP_ASSERT(i, 0              == X.numThreadsStarted());
-            LOOP_ASSERT(i, QUEUE_CAPACITY == X.queueCapacity());
+            ASSERTV(i, THREADS        == X.numThreads());
+            ASSERTV(i, 0              == X.numThreadsStarted());
+            ASSERTV(i, QUEUE_CAPACITY == X.queueCapacity());
 
             if (veryVerbose) cout << "\tStarting pool.\n";
             STARTPOOL(x);
@@ -1558,25 +1980,25 @@ int main(int argc, char *argv[])
                 args.d_startSig = 0;
                 args.d_stopSig = 0;
                 x.enqueueJob(testJobFunction1,&args);
-                while(j < THREADS && !args.d_startSig ) {
+                while (j < THREADS && !args.d_startSig ) {
                     startCond.wait(&mutex);
                 }
             }
             ASSERT(THREADS                  == X.numThreadsStarted());
             ASSERT(QUEUE_CAPACITY - THREADS == X.numPendingJobs());
             if (veryVeryVerbose) {
-                T_ P(X.queueCapacity())
-                T_ P_(X.numActiveThreads()) P(x.numPendingJobs())
+                T_ P(X.queueCapacity());
+                T_ P_(X.numActiveThreads()); P(x.numPendingJobs());
             }
-            for(int j = 0; j < THREADS; ++j ) {
+            for (int j = 0; j < THREADS; ++j ) {
                 x.enqueueJob(&testJobFunction2, &args);
                 if (veryVerbose) cout << "\tEnqueuing job2.\n";
             }
             ASSERT(THREADS        == X.numThreadsStarted());
             ASSERT(QUEUE_CAPACITY == X.numPendingJobs());
             if (veryVeryVerbose) {
-                T_ P(X.queueCapacity())
-                T_ P_(X.numActiveThreads()) P(X.numPendingJobs())
+                T_ P(X.queueCapacity());
+                T_ P_(X.numActiveThreads()); P(X.numPendingJobs());
             }
             args.d_stopSig++;
             stopCond.broadcast();
@@ -1587,8 +2009,31 @@ int main(int argc, char *argv[])
             ASSERT(0 == X.numActiveThreads());
             ASSERT(0 == X.numPendingJobs());
             if (veryVeryVerbose) {
-                T_ P_(X.numThreadsStarted()) P(X.queueCapacity())
-                T_ P_(X.numActiveThreads()) P(X.numPendingJobs())
+                T_ P_(X.numThreadsStarted()); P(X.queueCapacity());
+                T_ P_(X.numActiveThreads()); P(X.numPendingJobs());
+            }
+        }
+
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertTestHandlerGuard hG;
+
+            Obj mX(1, 1);
+
+            {
+                bdlmt::FixedThreadPool::Job job(bdlf::BindUtil::bindR<void>(
+                                                 testJobFunction1, (void *)0));
+
+                ASSERT_PASS(mX.enqueueJob(job));
+                ASSERT_PASS(mX.enqueueJob(bslmf::MovableRefUtil::move(job)));
+                ASSERT_PASS(mX.enqueueJob(testJobFunction1, 0));
+            }
+            {
+                bdlmt::FixedThreadPool::Job job;
+
+                ASSERT_FAIL(mX.enqueueJob(job));
+                ASSERT_FAIL(mX.enqueueJob(bslmf::MovableRefUtil::move(job)));
+                ASSERT_FAIL(mX.enqueueJob(0, 0));
             }
         }
 
@@ -1623,7 +2068,6 @@ int main(int argc, char *argv[])
                 //line num threads queue capacity
                 //---- ----------- --------------
                 { L_ ,         10,        50 },
-                { L_ ,         1 ,        1  },
                 { L_ ,         50,        100},
                 { L_ ,         2 ,        22 },
                 { L_ ,        100,        200}
@@ -1641,12 +2085,12 @@ int main(int argc, char *argv[])
                 const Obj& X = x;
 
                 if (veryVerbose) {
-                    T_ P_(i) T_ P_(THREADS) P(QUEUE_CAPACITY)
+                    T_ P_(i); T_ P_(THREADS); P(QUEUE_CAPACITY);
                 }
 
-                LOOP_ASSERT(i, THREADS        == X.numThreads());
-                LOOP_ASSERT(i, 0              == X.numThreadsStarted());
-                LOOP_ASSERT(i, QUEUE_CAPACITY == X.queueCapacity());
+                ASSERTV(i, THREADS        == X.numThreads());
+                ASSERTV(i, 0              == X.numThreadsStarted());
+                ASSERTV(i, QUEUE_CAPACITY == X.queueCapacity());
             }
         }
       } break;
@@ -1724,7 +2168,7 @@ int main(int argc, char *argv[])
             bslmt::Condition stopCond;
             TestJobFunctionArgs args;
 
-            args.d_mutex = &mutex;
+            args.d_mutex_p = &mutex;
             args.d_startCond = &startCond;
             args.d_stopCond = &stopCond;
             args.d_count = 0;
@@ -1739,12 +2183,12 @@ int main(int argc, char *argv[])
                 bslmt::ThreadUtil::create(
                           &threadHandles[i],
                           attributes,
-                          (bslmt::ThreadUtil::ThreadFunction)&testJobFunction1,
+                          &testThreadJobFunction1,
                           &args);
-                while( !args.d_startSig ) {
+                while ( !args.d_startSig ) {
                     startCond.wait(&mutex);
                 }
-                LOOP_ASSERT(i, (i+1) == args.d_count);
+                ASSERTV(i, (i+1) == args.d_count);
             }
             args.d_stopSig++;
             stopCond.broadcast();
@@ -1766,7 +2210,7 @@ int main(int argc, char *argv[])
             bslmt::Condition stopCond;
             TestJobFunctionArgs args;
 
-            args.d_mutex = &mutex;
+            args.d_mutex_p = &mutex;
             args.d_startCond = &startCond;
             args.d_stopCond = &stopCond;
             args.d_count = 0;
@@ -1781,12 +2225,12 @@ int main(int argc, char *argv[])
                 bslmt::ThreadUtil::create(
                           &threadHandles[i],
                           attributes,
-                          (bslmt::ThreadUtil::ThreadFunction)&testJobFunction2,
+                          &testThreadJobFunction2,
                           &args);
-                while( !args.d_startSig ) {
+                while (!args.d_startSig) {
                     startCond.wait(&mutex);
                 }
-                LOOP_ASSERT(i, (i+1) == args.d_count);
+                ASSERTV(i, (i+1) == args.d_count);
                 mutex.unlock();
             }
             ASSERT(NITERATIONS == args.d_count);
@@ -1816,7 +2260,7 @@ int main(int argc, char *argv[])
                 bslmt::ThreadUtil::create(
                           &threadHandles[i],
                           attributes,
-                          (bslmt::ThreadUtil::ThreadFunction)&testJobFunction3,
+                          &testThreadJobFunction3,
                           &args);
             }
             ASSERT(0 == args.d_count);
@@ -1889,10 +2333,98 @@ int main(int argc, char *argv[])
             }
             localX.drain();
             double averageQueueSize = queueSize / ITERATIONS;
-            P(averageQueueSize)
-            P(timer.elapsedTime())
+            P(averageQueueSize);
+            P(timer.elapsedTime());
             localX.shutdown();
         }
+      } break;
+      case -2: {
+          if (4 != argc) {
+              cout << "USAGE: " << argv[0] << " <filename> <name>" << endl;
+              return 0;
+          }
+          bsl::string filename = argv[2];
+          bsl::string name     = argv[3];
+
+          bsl::set<bsl::string> have;
+          bool                  needHeader = false;
+          {
+              FILE *f = fopen(filename.c_str(), "r");
+              if (f) {
+                  char s[1024];
+                  fgets(s, sizeof s, f);  // skip header
+                  while (fgets(s, sizeof s, f)) {
+                      char *ss = s;
+                      for (int i = 0; i < 5; ++i) {
+                          while (*ss != ',') ++ss;
+                          ++ss;
+                      }
+                      --ss;
+                      *ss = '\0';
+                      cout << "have: " << s << endl;
+                      have.insert(s);
+                  }
+                  fclose(f);
+              }
+              else {
+                  needHeader = true;
+              }
+          }
+
+          FILE *f = fopen(filename.c_str(), "a");
+          if (!f) {
+              cout << "ERROR:  could not open " << filename << endl;
+              return 0;                                               // RETURN
+          }
+
+          if (needHeader) {
+              fprintf(f,
+                      "ALG,#PUSH,#POOL,PUSH BUSY,POOL BUSY,0%%,"
+                       "10%%,20%%,30%%,40%%,50%%,60%%,70%%,80%%,90%%,100%%\n");
+          }
+
+          int threadCount[]  = { 1, 2, 4, 8, 16 };
+          int numThreadCount = static_cast<int>(sizeof threadCount
+                                                        / sizeof *threadCount);
+
+          int busyWork[]  = { 20, 100, 500, 1000, 5000 };
+          int numBusyWork = static_cast<int>(sizeof busyWork
+                                                           / sizeof *busyWork);
+
+          for (int nPush = 0; nPush < numThreadCount; ++nPush) {
+              for (int nPool = 0; nPool < numThreadCount; ++nPool) {
+                  for (int bwPush = 0; bwPush < numBusyWork; ++bwPush) {
+                      for (int bwPool = 0; bwPool < numBusyWork; ++bwPool) {
+                          const int numPush  = threadCount[nPush];
+                          const int numPool  = threadCount[nPool];
+                          const int busyPush = busyWork[bwPush];
+                          const int busyPool = busyWork[bwPool];
+                          if (4 <= numPool) {
+                              char s[1024];
+                              sprintf(s, "%s,%i,%i,%i,%i",
+                                      name.c_str(),
+                                      numPush,
+                                      numPool,
+                                      busyPush,
+                                      busyPool);
+
+                              if (have.end() == have.find(s)) {
+                                  have.insert(s);
+                                  bsl::cout << s << bsl::endl;
+                                  performanceTest(f,
+                                                  s,
+                                                  numPush,
+                                                  numPool,
+                                                  busyPush,
+                                                  busyPool);
+                              }
+                          }
+                      }
+                  }
+              }
+          }
+
+          fclose(f);
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
@@ -1908,7 +2440,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2021 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
