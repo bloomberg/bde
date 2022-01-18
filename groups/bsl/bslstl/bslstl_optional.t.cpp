@@ -5889,7 +5889,7 @@ class TestDriver {
     template <class DEST_TYPE, class SRC_TYPE, bool PROPAGATE_ON_MOVE>
     static void testCase7a_imp();
     template <class DEST_TYPE, class SRC_TYPE, bool PROPAGATE_ON_MOVE>
-    static void testCase7a_imp_libgccbug();
+    static void testCase7a_imp_constmovebug();
     static void testCase7a();
         // TESTING CONSTRUCTION FROM OPTIONAL
 
@@ -9315,7 +9315,7 @@ void TestDriver<TYPE>::testCase7a_imp()
             source.emplace(3);
             TEST_COPY_FROM_ENGAGED_OPT(source);
             TEST_COPY_FROM_ENGAGED_OPT(csource);
-                // extracted to testCase7a_imp_libgccbug
+                // extracted to testCase7a_imp_constmovebug
                 // TEST_MOVE_FROM_ENGAGED_OPT(source, PROPAGATE_ON_MOVE);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
             // we call copy macro here because a move from a 'const optional'
@@ -9340,7 +9340,7 @@ void TestDriver<TYPE>::testCase7a_imp()
             source.emplace(3);
             TEST_COPY_FROM_ENGAGED_OPT(source);
             TEST_COPY_FROM_ENGAGED_OPT(csource);
-                // extracted to testCase7a_imp_libgccbug
+                // extracted to testCase7a_imp_constmovebug
                 //TEST_MOVE_FROM_ENGAGED_OPT(source, false);
             source.emplace(3);
             // we call copy macro here because a move from a 'const optional'
@@ -9352,7 +9352,7 @@ void TestDriver<TYPE>::testCase7a_imp()
 }
 template <class TYPE>
 template <class DEST_TYPE, class SRC_TYPE, bool PROPAGATE_ON_MOVE>
-void TestDriver<TYPE>::testCase7a_imp_libgccbug()
+void TestDriver<TYPE>::testCase7a_imp_constmovebug()
 {
     {
         bslma::TestAllocator da("default", veryVeryVeryVerbose);
@@ -9383,12 +9383,20 @@ void TestDriver<TYPE>::testCase7a_imp_libgccbug()
     }
 }
 
-#if (BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY &&                       \
-     BSLS_LIBRARYFEATURES_STDCPP_GNU &&                                       \
+#if BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+
+#if (BSLS_LIBRARYFEATURES_STDCPP_GNU &&                                       \
      (!defined(_GLIBCXX_RELEASE) ||                                           \
       (defined(_GLIBCXX_RELEASE) && _GLIBCXX_RELEASE <= 8)))
-#define STD_OPTIONAL_LIBCPP_BUG 1
+#define STD_OPTIONAL_CONST_MOVE_BUG 1
 #endif
+
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1929
+// Note that a bug report has been raised with Microsoft, see DRQS 168145193
+#define STD_OPTIONAL_CONST_MOVE_BUG 1
+#endif
+
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
 template <class TYPE>
 void TestDriver<TYPE>::testCase7a()
@@ -9402,21 +9410,21 @@ void TestDriver<TYPE>::testCase7a()
     testCase7a_imp<const TYPE, const TYPE, true>();
     testCase7a_imp<const TYPE, const int, false>();
 
-    testCase7a_imp_libgccbug<TYPE, TYPE, true>();
-    testCase7a_imp_libgccbug<TYPE, int, false>();
-    testCase7a_imp_libgccbug<TYPE, const TYPE, false>();
-    testCase7a_imp_libgccbug<TYPE, const int, false>();
-    testCase7a_imp_libgccbug<const TYPE, TYPE, true>();
-    testCase7a_imp_libgccbug<const TYPE, int, false>();
-#ifndef STD_OPTIONAL_LIBCPP_BUG
-    // In older version of CPPLIB, the constness of 'value_type' is not
-    // preserved when attempting to move construct from an 'optional' of
-    // 'const' 'value_type'.  This results in a move being invoked, despite the
-    // fact that the 'value_type' of the source 'optional' object should not be
-    // modifiable.
-    testCase7a_imp_libgccbug<const TYPE, const TYPE, true>();
+    testCase7a_imp_constmovebug<TYPE, TYPE, true>();
+    testCase7a_imp_constmovebug<TYPE, int, false>();
+    testCase7a_imp_constmovebug<TYPE, const TYPE, false>();
+    testCase7a_imp_constmovebug<TYPE, const int, false>();
+    testCase7a_imp_constmovebug<const TYPE, TYPE, true>();
+    testCase7a_imp_constmovebug<const TYPE, int, false>();
+#ifndef STD_OPTIONAL_CONST_MOVE_BUG
+    // In MSVC (see DRQS 168145193) and in older version of CPPLIB, the
+    // constness of 'value_type' is not preserved when attempting to move
+    // construct from an 'optional' of 'const' 'value_type'.  This results in a
+    // move being invoked, despite the fact that the 'value_type' of the source
+    // 'optional' object should not be modifiable.
+    testCase7a_imp_constmovebug<const TYPE, const TYPE, true>();
 #endif
-    testCase7a_imp_libgccbug<const TYPE, const int, false>();
+    testCase7a_imp_constmovebug<const TYPE, const int, false>();
 }
 
 template <class OPT_TYPE1, class OPT_TYPE2>
