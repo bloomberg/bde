@@ -1362,6 +1362,83 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
 #endif
 };
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+// CLASS TEMPLATE DEDUCTION GUIDES
+
+template<class RET, class... ARGS>
+function(RET(*)(ARGS...)) -> function<RET(ARGS...)>;
+    // Deduce the template parameter 'PROTOTYPE' from the signature of the
+    // function supplied to the constructor of 'function'.
+
+template<class ALLOC, class RET, class... ARGS>
+function(allocator_arg_t, ALLOC, RET(*)(ARGS...)) -> function<RET(ARGS...)>;
+    // Deduce the template parameter 'PROTOTYPE' from the signature of the
+    // function supplied to the constructor of 'function'.
+
+
+struct FunctionDeductionHelper {
+    // This struct provides a set of template 'meta-functions' that extract
+    // the signature of a class member function, stripping any qualifiers such
+    // as 'const', 'noexcept' or '&'.
+
+  public:
+    // PUBLIC TYPES
+    template<class FUNCTOR>
+    struct StripSignature {};
+
+    template<class RET, class FUNCTOR, class ...ARGS>
+    struct StripSignature<RET (FUNCTOR::*) (ARGS...)>
+        { using Sig = RET(ARGS...); };
+
+    template<class RET, class FUNCTOR, class ...ARGS>
+    struct StripSignature<RET (FUNCTOR::*) (ARGS...) const>
+        { using Sig = RET(ARGS...); };
+
+    template<class RET, class FUNCTOR, class ...ARGS>
+    struct StripSignature<RET (FUNCTOR::*) (ARGS...) noexcept>
+        { using Sig = RET(ARGS...); };
+
+    template<class RET, class FUNCTOR, class ...ARGS>
+    struct StripSignature<RET (FUNCTOR::*) (ARGS...) const noexcept>
+        { using Sig = RET(ARGS...); };
+
+    template<class RET, class FUNCTOR, class ...ARGS>
+    struct StripSignature<RET (FUNCTOR::*) (ARGS...) &>
+        { using Sig = RET(ARGS...); };
+
+    template<class RET, class FUNCTOR, class ...ARGS>
+    struct StripSignature<RET (FUNCTOR::*) (ARGS...) const &>
+        { using Sig = RET(ARGS...); };
+
+    template<class RET, class FUNCTOR, class ...ARGS>
+    struct StripSignature<RET (FUNCTOR::*) (ARGS...) & noexcept>
+        { using Sig = RET(ARGS...); };
+
+    template<class RET, class FUNCTOR, class ...ARGS>
+    struct StripSignature<RET (FUNCTOR::*) (ARGS...) const & noexcept>
+        { using Sig = RET(ARGS...); };
+};
+
+template <
+    class FP,
+    class PROTOTYPE = typename
+        FunctionDeductionHelper::StripSignature<decltype(&FP::operator())>::Sig
+    >
+function(FP) -> function<PROTOTYPE>;
+    // Deduce the template parameter 'PROTOTYPE' from the signature of the
+    // 'operator()' of the functor supplied to the constructor of 'function'.
+
+template <
+    class ALLOC,
+    class FP,
+    class PROTOTYPE = typename
+        FunctionDeductionHelper::StripSignature<decltype(&FP::operator())>::Sig
+    >
+function(allocator_arg_t, ALLOC, FP) -> function<PROTOTYPE>;
+    // Deduce the template parameter 'PROTOTYPE' from the signature of the
+    // 'operator()' of the functor supplied to the constructor of 'function'.
+#endif
+
 // FREE FUNCTIONS
 template <class PROTOTYPE>
 bool operator==(const function<PROTOTYPE>&, nullptr_t) BSLS_KEYWORD_NOEXCEPT;

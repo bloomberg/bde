@@ -28,6 +28,7 @@
 
 #include <algorithm>   // for 'std::swap'
 #include <functional>  // For 'std::plus'
+#include <utility>     // For 'std::move'
 
 #include <climits>
 #include <cstdio>
@@ -166,9 +167,10 @@ using std::printf;
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [23] USAGE EXAMPLE
+// [24] USAGE EXAMPLE
 // [ 3] 'TrackableValue' TEST INFRASTRUCTURE
 // [ 2] PRIMITIVE CONSTRUCTORS (BOOTSTRAP)
+// [23] CLASS TEMPLATE DEDUCTION GUIDES
 // [ 6] CONCERN: Construction from 'bdef_Function' does not double-wrap
 // [ 9] CONCERN: Assignment from 'bdef_Function' does not double-wrap
 // [19] CONCERN: Workaround for SunCC bug
@@ -4864,6 +4866,314 @@ OuterClass::NestedClass OuterClass::staticFunc(int value)
 }  // close unnamed namespace
 
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+struct TestDeductionGuides {
+    // This struct provides a namespace for functions testing deduction guides.
+    // The tests are compile-time only; it is not necessary that these routines
+    // be called at run-time.  Note that the following constructors do not have
+    // associated deduction guides because the template parameters for
+    // 'bsl::function' cannot be deduced from the constructor parameters.
+    //..
+    // function()
+    // function(nullptr_t);
+    // function(allocator_arg_t, ALLOCATOR)
+    // function(allocator_arg_t, ALLOCATOR, nullptr_t)
+    //..
+
+#define ASSERT_SAME_TYPE(...) \
+ static_assert((bsl::is_same<__VA_ARGS__>::value), "Types differ unexpectedly")
+
+    struct Callable {
+        float operator()(long)
+            // returns 0
+        {
+            return 0.f;
+        }
+    };
+
+    struct CallableConst {
+        float operator()(long) const
+            // returns 0
+        {
+            return 0.f;
+        }
+    };
+
+    struct CallableNoexcept {
+        float operator()(long) noexcept
+            // returns 0
+        {
+            return 0.f;
+        }
+    };
+
+    struct CallableConstNoexcept {
+        float operator()(long) const noexcept
+            // returns 0
+        {
+            return 0.f;
+        }
+    };
+
+    struct CallableLV {
+        float operator()(long) &
+            // returns 0
+        {
+            return 0.f;
+        }
+    };
+
+    struct CallableLVConst {
+        float operator()(long) const &
+            // returns 0
+        {
+            return 0.f;
+        }
+    };
+
+    struct CallableLVNoexcept {
+        float operator()(long) & noexcept
+            // returns 0
+        {
+            return 0.f;
+        }
+    };
+
+    struct CallableLVConstNoexcept {
+        float operator()(long) const & noexcept
+            // returns 0
+        {
+            return 0.f;
+        }
+    };
+
+    struct NotCallable {
+        float Named(long)
+            // returns 0
+        {
+            return 0.f;
+        }
+    };
+
+    struct MultipleCallable {
+        float operator()(long) const
+            // returns 0
+        {
+            return 0.f;
+        }
+
+        float operator()(double) const
+            // returns 0
+        {
+            return 0.f;
+        }
+    };
+
+    struct TemplateCallable {
+        template <class VALUE>
+        float operator ()(VALUE)
+            // returns 0
+        {
+            return 0.f;
+        }
+    };
+
+    void C_Variadic (const char *, ...) {}
+        // a C-style variadic function that does nothing.
+
+    using CallableType = float(long);
+        // stripped type of the CallableXXX::operator()
+
+    void SimpleConstructors ()
+        // Test that constructing a 'bsl::function' from various combinations
+        // of arguments deduces the correct type.
+        //..
+        // function(const function&  f)            -> decltype(f)
+        // function(allocator_arg_t, ALLOCATOR, const function&  f)
+        //                                                       -> decltype(f)
+        // function(      function&& f)            -> decltype(f)
+        // function(allocator_arg_t, ALLOCATOR,       function&& f)
+        //                                                       -> decltype(f)
+        //
+        // function(func)
+        // function(allocator_arg_t, ALLOCATOR, func)
+        //..
+    {
+        using LambaType = double(short);
+            // stripped type of the lb1 and lb2's callable method
+
+        bsl::allocator<char>  ba;
+        bslma::Allocator     *a1 = nullptr;
+        bslma::TestAllocator *a2 = nullptr;
+        auto                  lb1 = [](short)          -> double {return 0.0;};
+        auto                  lb2 = [](short) noexcept -> double {return 0.0;};
+
+        using RET1 = int;
+        using ARG1A = float;
+        bsl::function<RET1(ARG1A)> f1;
+        bsl::function              f1a(f1);
+        ASSERT_SAME_TYPE(decltype(f1a), bsl::function<RET1(ARG1A)>);
+
+        using RET2 = long;
+        using ARG2A = long long;
+        using ARG2B = unsigned char;
+        bsl::function<RET2(ARG2A, ARG2B)> f2;
+        bsl::function                     f2a(bsl::allocator_arg, ba, f2);
+        bsl::function                     f2b(bsl::allocator_arg, a1, f2);
+        bsl::function                     f2c(bsl::allocator_arg, a2, f2);
+        ASSERT_SAME_TYPE(decltype(f2a), bsl::function<RET2(ARG2A, ARG2B)>);
+        ASSERT_SAME_TYPE(decltype(f2b), bsl::function<RET2(ARG2A, ARG2B)>);
+        ASSERT_SAME_TYPE(decltype(f2c), bsl::function<RET2(ARG2A, ARG2B)>);
+
+        using RET3 = double;
+        using ARG3A = float;
+        using ARG3B = int;
+        bsl::function<RET3(ARG3A, ARG3B)> f3;
+        bsl::function                     f3a(std::move(f3));
+        ASSERT_SAME_TYPE(decltype(f3a), bsl::function<RET3(ARG3A, ARG3B)>);
+
+        using RET4 = bsl::allocator<double>;
+        using ARG4A = float;
+        bsl::function<RET4(ARG4A)> f4;
+        bsl::function              f4a(bsl::allocator_arg, ba, std::move(f4));
+        bsl::function              f4b(bsl::allocator_arg, a1, std::move(f4));
+        bsl::function              f4c(bsl::allocator_arg, a2, std::move(f4));
+        ASSERT_SAME_TYPE(decltype(f4a), bsl::function<RET4(ARG4A)>);
+        ASSERT_SAME_TYPE(decltype(f4b), bsl::function<RET4(ARG4A)>);
+        ASSERT_SAME_TYPE(decltype(f4c), bsl::function<RET4(ARG4A)>);
+
+        using RET5 = float;
+        using ARG5A = short;
+        using ARG5B = signed long;
+        RET5(*proc5)(ARG5A, ARG5B) = nullptr;
+
+        bsl::function               f5a(proc5);
+        bsl::function               f5b(Callable{});
+        bsl::function               f5c(CallableConst{});
+        bsl::function               f5d(CallableNoexcept{});
+        bsl::function               f5e(CallableConstNoexcept{});
+        bsl::function               f5f(CallableLV{});
+        bsl::function               f5g(CallableLVConst{});
+        bsl::function               f5h(CallableLVNoexcept{});
+        bsl::function               f5i(CallableLVConstNoexcept{});
+        bsl::function               f5j(lb1);
+        bsl::function               f5k(lb2);
+        ASSERT_SAME_TYPE(decltype(f5a), bsl::function<RET5(ARG5A, ARG5B)>);
+        ASSERT_SAME_TYPE(decltype(f5b), bsl::function<CallableType>);
+        ASSERT_SAME_TYPE(decltype(f5c), bsl::function<CallableType>);
+        ASSERT_SAME_TYPE(decltype(f5d), bsl::function<CallableType>);
+        ASSERT_SAME_TYPE(decltype(f5e), bsl::function<CallableType>);
+        ASSERT_SAME_TYPE(decltype(f5f), bsl::function<CallableType>);
+        ASSERT_SAME_TYPE(decltype(f5g), bsl::function<CallableType>);
+        ASSERT_SAME_TYPE(decltype(f5h), bsl::function<CallableType>);
+        ASSERT_SAME_TYPE(decltype(f5i), bsl::function<CallableType>);
+        ASSERT_SAME_TYPE(decltype(f5j), bsl::function<LambaType>);
+        ASSERT_SAME_TYPE(decltype(f5k), bsl::function<LambaType>);
+
+        using RET6 = float;
+        using ARG6A = short;
+        using ARG6B = signed long;
+        RET6(*proc6)(ARG6A, ARG6B) = nullptr;
+
+        bsl::function f6a1(bsl::allocator_arg, ba, proc6);
+        bsl::function f6a2(bsl::allocator_arg, a1, proc6);
+        bsl::function f6a3(bsl::allocator_arg, a2, proc6);
+        bsl::function f6b1(bsl::allocator_arg, ba, Callable{});
+        bsl::function f6b2(bsl::allocator_arg, a1, Callable{});
+        bsl::function f6b3(bsl::allocator_arg, a2, Callable{});
+        bsl::function f6c1(bsl::allocator_arg, ba, CallableConst{});
+        bsl::function f6c2(bsl::allocator_arg, a1, CallableConst{});
+        bsl::function f6c3(bsl::allocator_arg, a2, CallableConst{});
+        bsl::function f6d1(bsl::allocator_arg, ba, CallableNoexcept{});
+        bsl::function f6d2(bsl::allocator_arg, a1, CallableNoexcept{});
+        bsl::function f6d3(bsl::allocator_arg, a2, CallableNoexcept{});
+        bsl::function f6e1(bsl::allocator_arg, ba, CallableConstNoexcept{});
+        bsl::function f6e2(bsl::allocator_arg, a1, CallableConstNoexcept{});
+        bsl::function f6e3(bsl::allocator_arg, a2, CallableConstNoexcept{});
+        bsl::function f6f1(bsl::allocator_arg, ba, CallableLV{});
+        bsl::function f6f2(bsl::allocator_arg, a1, CallableLV{});
+        bsl::function f6f3(bsl::allocator_arg, a2, CallableLV{});
+        bsl::function f6g1(bsl::allocator_arg, ba, CallableLVConst{});
+        bsl::function f6g2(bsl::allocator_arg, a1, CallableLVConst{});
+        bsl::function f6g3(bsl::allocator_arg, a2, CallableLVConst{});
+        bsl::function f6h1(bsl::allocator_arg, ba, CallableLVNoexcept{});
+        bsl::function f6h2(bsl::allocator_arg, a1, CallableLVNoexcept{});
+        bsl::function f6h3(bsl::allocator_arg, a2, CallableLVNoexcept{});
+        bsl::function f6i1(bsl::allocator_arg, ba, CallableLVConstNoexcept{});
+        bsl::function f6i2(bsl::allocator_arg, a1, CallableLVConstNoexcept{});
+        bsl::function f6i3(bsl::allocator_arg, a2, CallableLVConstNoexcept{});
+        bsl::function f6j1(bsl::allocator_arg, ba, lb1);
+        bsl::function f6j2(bsl::allocator_arg, a1, lb1);
+        bsl::function f6j3(bsl::allocator_arg, a2, lb1);
+        bsl::function f6k1(bsl::allocator_arg, ba, lb2);
+        bsl::function f6k2(bsl::allocator_arg, a1, lb2);
+        bsl::function f6k3(bsl::allocator_arg, a2, lb2);
+
+        ASSERT_SAME_TYPE(decltype(f6a1), bsl::function<RET6(ARG6A, ARG6B)>);
+        ASSERT_SAME_TYPE(decltype(f6a2), bsl::function<RET6(ARG6A, ARG6B)>);
+        ASSERT_SAME_TYPE(decltype(f6a3), bsl::function<RET6(ARG6A, ARG6B)>);
+        ASSERT_SAME_TYPE(decltype(f6b1), bsl::function<CallableType>);
+        ASSERT_SAME_TYPE(decltype(f6b2), bsl::function<CallableType>);
+        ASSERT_SAME_TYPE(decltype(f6b3), bsl::function<CallableType>);
+        ASSERT_SAME_TYPE(decltype(f6c1), bsl::function<CallableType>);
+        ASSERT_SAME_TYPE(decltype(f6c2), bsl::function<CallableType>);
+        ASSERT_SAME_TYPE(decltype(f6c3), bsl::function<CallableType>);
+        ASSERT_SAME_TYPE(decltype(f6d1), bsl::function<CallableType>);
+        ASSERT_SAME_TYPE(decltype(f6d2), bsl::function<CallableType>);
+        ASSERT_SAME_TYPE(decltype(f6d3), bsl::function<CallableType>);
+        ASSERT_SAME_TYPE(decltype(f6e1), bsl::function<CallableType>);
+        ASSERT_SAME_TYPE(decltype(f6e2), bsl::function<CallableType>);
+        ASSERT_SAME_TYPE(decltype(f6e3), bsl::function<CallableType>);
+        ASSERT_SAME_TYPE(decltype(f6f1), bsl::function<CallableType>);
+        ASSERT_SAME_TYPE(decltype(f6f2), bsl::function<CallableType>);
+        ASSERT_SAME_TYPE(decltype(f6f3), bsl::function<CallableType>);
+        ASSERT_SAME_TYPE(decltype(f6g1), bsl::function<CallableType>);
+        ASSERT_SAME_TYPE(decltype(f6g2), bsl::function<CallableType>);
+        ASSERT_SAME_TYPE(decltype(f6g3), bsl::function<CallableType>);
+        ASSERT_SAME_TYPE(decltype(f6h1), bsl::function<CallableType>);
+        ASSERT_SAME_TYPE(decltype(f6h2), bsl::function<CallableType>);
+        ASSERT_SAME_TYPE(decltype(f6h3), bsl::function<CallableType>);
+        ASSERT_SAME_TYPE(decltype(f6i1), bsl::function<CallableType>);
+        ASSERT_SAME_TYPE(decltype(f6i2), bsl::function<CallableType>);
+        ASSERT_SAME_TYPE(decltype(f6i3), bsl::function<CallableType>);
+        ASSERT_SAME_TYPE(decltype(f6j1), bsl::function<LambaType>);
+        ASSERT_SAME_TYPE(decltype(f6j2), bsl::function<LambaType>);
+        ASSERT_SAME_TYPE(decltype(f6j3), bsl::function<LambaType>);
+        ASSERT_SAME_TYPE(decltype(f6k1), bsl::function<LambaType>);
+        ASSERT_SAME_TYPE(decltype(f6k2), bsl::function<LambaType>);
+        ASSERT_SAME_TYPE(decltype(f6k3), bsl::function<LambaType>);
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // Compile-fail tests
+// #define BSLSTL_FUNCTION_COMPILE_FAIL_C_VARIADIC
+#ifdef  BSLSTL_FUNCTION_COMPILE_FAIL_C_VARIADIC
+        bsl::function f97(C_Variadic);
+        // This should fail to compile (no unique signature to detect)
+#endif
+
+// #define BSLSTL_FUNCTION_COMPILE_FAIL_MULTIPLE_CALL_OPERATOR
+#ifdef  BSLSTL_FUNCTION_COMPILE_FAIL_MULTIPLE_CALL_OPERATOR
+        bsl::function f98(MultipleCallable{});
+        // This should fail to compile (no unique signature to detect)
+#endif
+
+// #define BSLSTL_FUNCTION_COMPILE_FAIL_TEMPLATE_CALL_OPERATOR
+#ifdef  BSLSTL_FUNCTION_COMPILE_FAIL_TEMPLATE_CALL_OPERATOR
+        bsl::function f98(TemplateCallable{});
+        // This should fail to compile (no unique signature to detect)
+#endif
+
+// #define BSLSTL_FUNCTION_COMPILE_FAIL_NO_CALL_OPERATOR
+#ifdef  BSLSTL_FUNCTION_COMPILE_FAIL_NO_CALL_OPERATOR
+        bsl::function f99(NotCallable{});
+        // This should fail to compile (no operator () to find)
+#endif
+    }
+
+#undef ASSERT_SAME_TYPE
+};
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_CTAD
+
 // ============================================================================
 //                              MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -4900,7 +5210,7 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:  // Zero is always the leading case.
 
-      case 23: {
+      case 24: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLES
         //
@@ -4923,6 +5233,40 @@ int main(int argc, char *argv[])
         usageExample2();
         usageExample3();
 
+      } break;
+
+      case 23: {
+        //---------------------------------------------------------------------
+        // TESTING CLASS TEMPLATE DEDUCTION GUIDES (AT COMPILE TIME)
+        //   Ensure that the deduction guides are properly specified to deduce
+        //   the template arguments from the arguments supplied to the
+        //   constructors.
+        //
+        // Concerns:
+        //: 1 Construction from iterators deduces the value type from the value
+        //:   type of the iterator.
+        //
+        //: 2 Construction with a 'bslma::Allocator *' deduces the correct
+        //:   specialization of 'bsl::allocator' for the type of the allocator.
+        //
+        // Plan:
+        //: 1 Create a vector by invoking the constructor without supplying the
+        //:   template arguments explicitly.
+        //:
+        //: 2 Verify that the deduced type is correct.
+        //
+        // Testing:
+        //   CLASS TEMPLATE DEDUCTION GUIDES
+        //---------------------------------------------------------------------
+        if (verbose)
+            printf(
+              "\nTESTING CLASS TEMPLATE DEDUCTION GUIDES (AT COMPILE TIME)"
+              "\n=========================================================\n");
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+        // This is a compile-time only test case.
+        TestDeductionGuides test;
+#endif
       } break;
 
       case 22: {
