@@ -30,6 +30,7 @@
 
 #include <bsls_asserttest.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_nameof.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
@@ -49,6 +50,12 @@
 #include <bsl_string.h>
 #include <bsl_typeinfo.h>
 #include <bsl_vector.h>
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#include <optional>
+#include <string>
+#include <variant>
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -155,13 +162,15 @@ using bsls::NameOf;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST 1: Using 'bsl::string'
 // [ 2] BREATHING TEST 2: Using 'int'
-// [30] USAGE EXAMPLE
+// [31] USAGE EXAMPLE
 // [24] Concern: Types that are not copy-assignable can be used.
 // [28] DRQS 166024189: 'NullableValue<T> -> bool' implicit conv. w/C++03.
 // [29] noexcept
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 // [ 8] int maxSupportedBdexVersion() const;
 #endif
+// [30] CONCERN: 'operator<<' handles 'std::optional' and 'std::variant'
+
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -390,7 +399,6 @@ void testRelationalOperationsNonNull(const INIT_TYPE& lesserVal,
     ASSERTV( (secondGreater >= firstGreater ));
 }
 
-
 template <class FIRST_NV_TYPE, class SECOND_TYPE, class INIT_TYPE>
 void testRelationalOperationsOneNull(const INIT_TYPE& initValue)
     // Test all the relational operations for the null 'bdlb::NullableValue'
@@ -450,7 +458,6 @@ void testRelationalOperationsBothNull()
 
     const  FIRST_NV_TYPE  firstNull;
     const SECOND_NV_TYPE secondNull;
-
 
     ASSERTV( (firstNull == secondNull));
     ASSERTV(!(firstNull != secondNull));
@@ -1054,7 +1061,6 @@ bslma::Allocator *TmvipAa<TYPE>::allocator() const
 {
     return d_allocator_p;
 }
-
 
 #ifdef BDE_BUILD_TARGET_EXC
 
@@ -1960,7 +1966,6 @@ bool FirstMethodComparableType::operator>=(
     return d_data >= rhs.data();
 }
 
-
                    // --------------------------------
                    // class SecondMethodComparableType
                    // --------------------------------
@@ -2046,7 +2051,6 @@ bool SecondMethodComparableType::operator>=(
 {
     return d_data >= rhs.data();
 }
-
 
                    // =================================
                    // class FirstFunctionComparableType
@@ -2703,7 +2707,6 @@ void hashAppend(HASHALG& hashAlg, RETURN (CLASS::*member)() const)
         bsltf::SimpleTestType,                                                \
         bsltf::MovableTestType,                                               \
         bsltf::BitwiseMoveableTestType
-
 
 #define TEST_TYPES_ALLOCATOR_ENABLED                                          \
         bsltf::AllocTestType,                                                 \
@@ -6141,7 +6144,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 30: {
+      case 31: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -6184,6 +6187,99 @@ int main(int argc, char *argv[])
     ASSERT( nullableInt.isNull());
 //..
 
+      } break;
+      case 30: {
+        // --------------------------------------------------------------------
+        // TEST 'operator<<' FOR 'std::optional' AND 'std::variant'
+        //
+        // Concerns:
+        //: 1 Support for 'std::optional' and 'std::variant' in
+        //:   'bdlb-printmethods' allows streaming of 'bdlb::NullableValue'
+        //:   objects using those Standard types.
+        //
+        // Plan:
+        //: 1 Ad-hoc tests that demonstrate that the 'operator<<' for the class
+        //:   under test finds the correct overload of 'bdlb::PrintMethods'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   CONCERN: 'operator<<' handles 'std::optional' and 'std::variant'
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+         << "TEST 'operator<<' FOR 'std::optional' AND 'std::variant'" << endl
+         << "========================================================" << endl;
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+
+        bsl::ostringstream oss;
+
+        using StdOptInt = std::optional<int>;
+
+        if (verbose) cout << "'operator<<' AND std::optional'"  << endl;
+        {
+            bdlb::NullableValue<StdOptInt> nv;
+            ASSERT( nv.isNull());
+            oss << nv;   ASSERTV(oss.str(), "NULL" == oss.str());       // TEST
+            oss.str(""); ASSERTV(oss.str(), ""     == oss.str());
+
+            nv.makeValue();  // default 'StdOptInt'
+            ASSERT(!nv.isNull());
+            ASSERT(!nv.value().has_value());
+            oss << nv;   ASSERTV(oss.str(), "EMPTY" == oss.str());      // TEST
+            oss.str(""); ASSERTV(oss.str(), ""      == oss.str());
+
+            nv.value() = 99;
+            ASSERT(!nv.isNull());
+            ASSERT( nv.value().has_value());
+            oss << nv;   ASSERTV(oss.str(), "99" == oss.str());         // TEST
+            oss.str(""); ASSERTV(oss.str(), ""   == oss.str());
+        }
+
+        using StdVariant = std::variant<std::monostate,
+                                        char,
+                                        short,
+                                        int,
+                                        long,
+                                        double,
+                                        std::string>;
+
+        const char             charValueA   =                   'A';
+        const short           shortValue2   = static_cast<short>(2);
+        const int               intValue3   =                    3;
+        const long             longValue4   =                    4L;
+        const double         doubleValue5   =                    5.0;
+        const std::string stdStringValueSix =                   "Six";
+
+        if (verbose) cout << "'operator<<' AND std::variant'"  << endl;
+        {
+            bdlb::NullableValue<StdVariant> nv;
+            ASSERT( nv.isNull());
+            oss << nv;   ASSERTV(oss.str(), "NULL" == oss.str());       // TEST
+            oss.str(""); ASSERTV(oss.str(), ""     == oss.str());
+
+            nv.makeValue();  // default 'StdVariant'
+            ASSERT(!nv.isNull());
+            oss << nv;   ASSERTV(oss.str(), "MONOSTATE" == oss.str()); // TEST
+            oss.str(""); ASSERTV(oss.str(), ""          == oss.str());
+
+#define TEST(VALUE, OUTPUT)                                                   \
+            nv.value() = VALUE;                                               \
+            ASSERT(!nv.isNull());                                             \
+            oss << nv;   ASSERTV(oss.str(), OUTPUT == oss.str()); /* TEST */  \
+            oss.str(""); ASSERTV(oss.str(), ""     == oss.str());
+
+            TEST(     charValueA,   "A");
+            TEST(    shortValue2,   "2");
+            TEST(      intValue3,   "3");
+            TEST(     longValue4,   "4");
+            TEST(   doubleValue5,   "5");
+            TEST(stdStringValueSix, "Six");
+        }
+#else
+        if (verbose) cout << "SKIP: Not Available: "
+                             "'std::optional', 'std::variant'" << endl;
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
       } break;
       case 29: {
         // --------------------------------------------------------------------
@@ -6316,7 +6412,6 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTESTING 'bdlb::nullOpt' COMPARISONS"
                              "\n===================================" << endl;
-
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
 # define ASSERT_N(         EXPRESSION  )        \

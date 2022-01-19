@@ -41,6 +41,8 @@
 #include <bslx_testinstreamexception.h>
 #include <bslx_testoutstream.h>
 
+#include <bsls_libraryfeatures.h>
+
 #include <bsl_cstddef.h>    // 'bsl::size_t'
 #include <bsl_cstdlib.h>    // 'atoi'
 #include <bsl_iostream.h>
@@ -48,6 +50,12 @@
 #include <bsl_sstream.h>
 #include <bsl_string.h>
 #include <bsl_vector.h>
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#include <optional>
+#include <string>
+#include <variant>
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
 #undef SS  // Solaris 5.10/x86 sys/regset.h via stdlib.h
 #undef ES
@@ -164,7 +172,7 @@ using bsls::NameOf;
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [28] USAGE EXAMPLE
+// [29] USAGE EXAMPLE
 // [18] CLASSES: 'bdlb::VariantN' and 'bdlb::Variant' (copy semantics)
 // [ 3] int ggg(Variant *, const char *, bool = true);
 // [ 3] VariantImp& gg(VariantImp *, const char *);
@@ -175,6 +183,7 @@ using bsls::NameOf;
 // [19] CONCERN: 'bslmf::IsBitwiseMoveable' trait
 // [20] CONCERN: 'applyRaw' accepts VISITORs w/o a 'bslmf::Nil' overload.
 // [27] CONCERN: Moving an object containing a 'const' variant compiles.
+// [28] CONCERN: 'operator<<' handles 'std::optional' and 'std::variant'
 // [10] Reserved for BDEX streaming.
 
 // ============================================================================
@@ -2309,7 +2318,6 @@ VARIANT& my_VariantWrapper<VARIANT>::variant()
 {
     return d_variant;
 }
-
 
 template <class VARIANT>
 template <class RET_TYPE, class VISITOR>
@@ -27718,7 +27726,6 @@ void TestUtil::testCase16()
     }
 }
 
-
 void TestUtil::testCase15()
 {
     if (verbose) cout << endl
@@ -28876,7 +28883,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // zero is always the leading case.
-      case 28: {
+      case 29: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -29285,6 +29292,123 @@ int main(int argc, char *argv[])
     }
 //..
         }
+
+      } break;
+      case 28: {
+        // --------------------------------------------------------------------
+        // TEST 'operator<<' FOR 'std::optional' AND 'std::variant'
+        //
+        // Concerns:
+        //: 1 Support for 'std::optional' and 'std::variant' in
+        //:   'bdlb-printmethods' allows streaming of 'bdlb::Variant' objects
+        //:   using those Standard types.
+        //
+        // Plan:
+        //: 1 Ad-hoc tests that demonstrate that the 'operator<<' for the class
+        //:   under test finds the correct overload of 'bdlb::PrintMethods'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   CONCERN: 'operator<<' handles 'std::optional' and 'std::variant'
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+         << "TEST 'operator<<' FOR 'std::optional' AND 'std::variant'" << endl
+         << "========================================================" << endl;
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+
+        using StdOptInt = std::optional<int>;
+
+        bsl::ostringstream oss;
+
+        if (verbose) cout << "'operator<<' AND std::optional'"  << endl;
+        {
+            bdlb::Variant<StdOptInt, std::string> var;
+            ASSERT( var.isUnset());
+            oss << var; ASSERT(""  == oss.str());                       // TEST
+
+            var.createInPlace<StdOptInt>();  // default 'StdOptInt'
+            ASSERT(!var.isUnset());
+            ASSERT( var.is<StdOptInt>());
+            ASSERT(!var.the<StdOptInt>().has_value());
+            oss << var;  ASSERTV(oss.str(), "EMPTY" == oss.str());      // TEST
+            oss.str(""); ASSERTV(oss.str(), "" == oss.str());
+
+            var.assignTo<StdOptInt>(99);
+            ASSERT(!var.isUnset());
+            ASSERT( var.is<StdOptInt>());
+            ASSERT( var.the<StdOptInt>().has_value());
+            oss << var;  ASSERTV(oss.str(), "99" == oss.str());         // TEST
+            oss.str(""); ASSERTV(oss.str(), "" == oss.str());
+
+            var.assignTo<std::string>("hello");
+            ASSERT(!var.isUnset());
+            ASSERT( var.is<std::string>());
+            oss << var;  ASSERTV(oss.str(), "hello" == oss.str());      // TEST
+            oss.str(""); ASSERTV(oss.str(), "" == oss.str());
+        }
+
+        using StdVariant = std::variant<std::monostate,
+                                        char,
+                                        short,
+                                        int,
+                                        long,
+                                        double,
+                                        std::string>;
+
+        const char             charValueA   =                   'A';
+        const short           shortValue2   = static_cast<short>(2);
+        const int               intValue3   =                    3;
+        const long             longValue4   =                    4L;
+        const double         doubleValue5   =                    5.0;
+        const std::string stdStringValueSix =                   "Six";
+
+        if (verbose) cout << "'operator<<' AND std::variant'"  << endl;
+        {
+            bdlb::Variant<StdVariant, std::string> var;
+            ASSERT( var.isUnset());
+            oss << var;  ASSERTV(oss.str(), "" == oss.str());           // TEST
+            oss.str(""); ASSERTV(oss.str(), "" == oss.str());
+
+            var.createInPlace<StdVariant>();  // default 'StdVariant'
+            ASSERT(!var.isUnset());
+            ASSERT( var.typeIndex() == 1);
+            ASSERT( var.is <StdVariant>());
+            ASSERT( var.the<StdVariant>().index() == 0);
+            oss << var;  ASSERTV(oss.str(), "MONOSTATE" == oss.str());  // TEST
+            oss.str(""); ASSERTV(oss.str(), ""          == oss.str());
+
+#define TEST(VALUE, TYPE_INDEX, INDEX, OUTPUT)                                \
+            var.assignTo<StdVariant>(VALUE);                                  \
+            ASSERT(!var.isUnset());                                           \
+            ASSERT( var.typeIndex() == TYPE_INDEX);                           \
+            ASSERT( var.is <StdVariant>());                                   \
+            ASSERT( var.the<StdVariant>().index() == INDEX);                  \
+            oss << var;  ASSERTV(oss.str(), OUTPUT == oss.str()); /* TEST */  \
+            oss.str(""); ASSERTV(oss.str(), ""     == oss.str());
+
+            TEST(     charValueA,   1, 1, "A");
+            TEST(    shortValue2,   1, 2, "2");
+            TEST(      intValue3,   1, 3, "3");
+            TEST(     longValue4,   1, 4, "4");
+            TEST(   doubleValue5,   1, 5, "5");
+            TEST(stdStringValueSix, 1, 6, "Six");
+
+#undef TEST
+
+            var.assignTo<std::string>("hello");
+            ASSERT(!var.isUnset());
+            ASSERT( var.typeIndex() == 2);
+            ASSERT( var.is <std::string>());
+            ASSERT( var.the<std::string>().length() == 5);
+            oss << var;  ASSERTV(oss.str(), "hello" == oss.str());      // TEST
+            oss.str(""); ASSERTV(oss.str(), ""      == oss.str());
+        }
+#else
+        if (verbose) cout << "SKIP: Not Available: "
+                             "'std::optional', 'std::variant'" << endl;
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
       } break;
       case 27: {

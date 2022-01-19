@@ -98,7 +98,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlscm_version.h>
 
-#include <bdlb_printmethods.h>
+#include <bdlb_printmethods.h> // 'bdlb::HasPrintMethod'
 
 #include <bslmf_istriviallycopyable.h>
 #include <bslmf_nestedtraitdeclaration.h>

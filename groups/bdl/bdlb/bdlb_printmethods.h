@@ -223,6 +223,8 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_nestedtraitdeclaration.h>
 #include <bslmf_selecttrait.h>
 
+#include <bsls_libraryfeatures.h>
+
 #include <bsl_iomanip.h>
 #include <bsl_ostream.h>
 #include <bsl_vector.h>
@@ -231,6 +233,11 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_typetraithasstliterators.h>
 #include <bslalg_typetraitpair.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#include <optional>
+#include <variant>
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
 namespace bsl {
 
@@ -338,16 +345,74 @@ bsl::ostream& print(bsl::ostream&                   stream,
     // printed using their hexadecimal representation.  If 'stream' is not
     // valid on entry, this operation has no effect.
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+
+template <class TYPE>
+bsl::ostream& print(bsl::ostream&              stream,
+                    const std::optional<TYPE>& object,
+                    int                        level          = 0,
+                    int                        spacesPerLevel = 4);
+    // Format the specified 'object' to the specified output 'stream' at the
+    // (absolute value of) the optionally specified indentation 'level' and
+    // return a reference to 'stream'.  If 'level' is specified, optionally
+    // specify 'spacesPerLevel', the number of spaces per indentation level for
+    // this and all of its nested objects.  If 'level' is negative, suppress
+    // indentation of the first line.  If 'spacesPerLevel' is negative, format
+    // the entire output on one line, suppressing all but the initial
+    // indentation (as governed by 'level').  If 'stream' is not valid on
+    // entry, this operation has no effect.  A descriptive, human-readable
+    // message, indented according to 'level' and 'spacesPerLevel', is output
+    // for objects having no value (i.e., 'false == object.has_value()').
+
+template <class ... TYPE>
+bsl::ostream& print(bsl::ostream&                 stream,
+                    const std::variant<TYPE ...>& object,
+                    int                           level          = 0,
+                    int                           spacesPerLevel = 4);
+    // Format the specified 'object' to the specified output 'stream' at the
+    // (absolute value of) the optionally specified indentation 'level' and
+    // return a reference to 'stream'.  If 'level' is specified, optionally
+    // specify 'spacesPerLevel', the number of spaces per indentation level for
+    // this and all of its nested objects.  If 'level' is negative, suppress
+    // indentation of the first line.  If 'spacesPerLevel' is negative, format
+    // the entire output on one line, suppressing all but the initial
+    // indentation (as governed by 'level').  If 'stream' is not valid on
+    // entry, this operation has no effect.  A descriptive, human-readable
+    // message, indented according to 'level' and 'spacesPerLevel', is output
+    // for objects holding the value of type 'std::monostate'.  Note that a
+    // 'std::variant' object can hold the 'std::monostate' value only if its
+    // template parameters explicitly mention the 'std::monostate' type.
+
+bsl::ostream& print(bsl::ostream&         stream,
+                    const std::monostate& object,
+                    int                   level          = 0,
+                    int                   spacesPerLevel = 4);
+    // Format the specified 'object' to the specified output 'stream' at the
+    // (absolute value of) the optionally specified indentation 'level' and
+    // return a reference to 'stream'.  If 'level' is specified, optionally
+    // specify 'spacesPerLevel', the number of spaces per indentation level for
+    // this and all of its nested objects.  If 'level' is negative, suppress
+    // indentation of the first line.  If 'spacesPerLevel' is negative, format
+    // the entire output on one line, suppressing all but the initial
+    // indentation (as governed by 'level').  If 'stream' is not valid on
+    // entry, this operation has no effect.  As all objects of this type have
+    // the same value, 'object' is *ignored* and a descriptive, human-readable
+    // message is output for all objects of this type.
+
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+
 }  // close namespace PrintMethods
 }  // close package namespace
 
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
 
 namespace bdlb {
 
                 // --------------------------------------------
                 // struct bdlb::PrintMethods_Imp<TYPE, SELECTOR>
                 // --------------------------------------------
-
 
 template <class TYPE, class SELECTOR>
 struct PrintMethods_Imp;
@@ -668,6 +733,60 @@ PrintMethods::print(bsl::ostream&                   stream,
 
     return stream;
 }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+
+template <class TYPE>
+bsl::ostream&
+PrintMethods::print(bsl::ostream&              stream,
+                    const std::optional<TYPE>& object,
+                    int                        level,
+                    int                        spacesPerLevel)
+{
+
+    if (object.has_value()) {
+        return PrintMethods::print(stream,
+                                   object.value(),
+                                   level,
+                                   spacesPerLevel);                   // RETURN
+
+    } else {
+        return PrintMethods::print(stream,
+                                   "EMPTY",
+                                   level,
+                                   spacesPerLevel);                   // RETURN
+    }
+}
+
+template <class ... TYPE>
+bsl::ostream&
+PrintMethods::print(bsl::ostream&                 stream,
+                    const std::variant<TYPE ...>& object,
+                    int                           level,
+                    int                           spacesPerLevel)
+{
+    const auto lambda = [&](const auto& x) -> bsl::ostream& {
+                            return PrintMethods::print(stream,
+                                                       x,
+                                                       level,
+                                                       spacesPerLevel);
+                        };
+    return std::visit(lambda, object);
+}
+
+inline
+bsl::ostream&
+PrintMethods::print(bsl::ostream&         stream,
+                    const std::monostate& ,
+                    int                   level,
+                    int                   spacesPerLevel)
+{
+    return PrintMethods::print(stream,
+                               "MONOSTATE",
+                               level,
+                               spacesPerLevel);                       // RETURN
+}
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
 }  // close package namespace
 }  // close enterprise namespace

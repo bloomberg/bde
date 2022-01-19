@@ -12,6 +12,8 @@
 #include <bslim_testutil.h>
 #include <bslmf_assert.h>
 #include <bslmf_nestedtraitdeclaration.h>
+
+#include <bsls_libraryfeatures.h>
 #include <bsls_timeinterval.h>
 
 #include <bsl_cctype.h>
@@ -20,6 +22,12 @@
 #include <bsl_map.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#include <optional>
+#include <string>
+#include <variant>
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -51,9 +59,12 @@ using namespace bsl;  // automatically added by script
 // [ 3] bdlb::PrintMethods_Imp<TYPE, bsl::false_type>::print(...);
 // [ 7] bdlb::PrintMethods::print(..., const TYPE&, ...);
 // [ 2] bdlb::PrintMethods::print(..., const vector<char, ALLOC>, ...);
+// [ 8] bdlb::PrintMethods::print(..., const optional<TYPE>, ...);
+// [ 8] bdlb::PrintMethods::print(..., const variant<T1,T2,...>, ...);
+// [ 8] bdlb::PrintMethods::print(..., const monostate, ...);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 8] USAGE EXAMPLE
+// [ 9] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -529,6 +540,50 @@ template <> struct IsPair<TestType_PrintMethod_StlIterators_Pair> :
 }  // close enterprise namespace
 
 // ============================================================================
+//                             HELPER FUNCTIONS
+// ----------------------------------------------------------------------------
+
+template <class TYPE>
+bool  testContainedValue(const TYPE&        containedValue,
+                         const std::string& result,
+                         int                level,
+                         int                spacesPerLevel,
+                         int                useDefault)
+    // Return 'true' if the specified 'result' is the same as that obtained by
+    // passing the specified 'containedValue' to the (appropriate overload of)
+    // 'bdlb::PrintMethods::print' with the specified 'level' and
+    // 'spacesPerLevel'.  If 'level' or 'spacesPerLevel' equals the specified
+    // 'useDefault' then that parameter is not provided in the call to the
+    // 'print' method.  Note that, per C++ syntax, when 'level' is not
+    // provided, neither is 'spacesPerLevel'.
+{
+    std::ostringstream ssContained;
+
+    if (useDefault != level && useDefault != spacesPerLevel) {
+
+        bdlb::PrintMethods::print(ssContained,
+                                  containedValue,
+                                  level,
+                                  spacesPerLevel);
+    } else if (useDefault != level) {
+
+        ASSERT(useDefault == spacesPerLevel);
+
+        bdlb::PrintMethods::print(ssContained,
+                                  containedValue,
+                                  level);
+    } else {
+        ASSERT(useDefault == level);
+        ASSERT(useDefault == spacesPerLevel);
+
+        bdlb::PrintMethods::print(ssContained,
+                                  containedValue);
+    }
+
+    return result == ssContained.str();
+}
+
+// ============================================================================
 //                               USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
@@ -703,7 +758,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 8: {
+      case 9: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -725,6 +780,521 @@ int main(int argc, char *argv[])
                                   "=============" "\n";
         usingMyWrapper();
 
+      } break;
+      case 8: {
+        // --------------------------------------------------------------------
+        // TEST SUPPORT FOR 'std::optional' AND 'std::variant'
+        //   Overloads are provided to handle cases when the template argument
+        //   'TYPE' is an instance of 'std::optional' or 'std::variant'.
+        //   Overloads are needed since neither of these Standard types
+        //   provides the infrastructure expected by 'bdlb::PrintMethods (i.e.,
+        //   an 'operator<<' or a 'print' method and corresponding trait).
+        //
+        // Concerns:
+        //: 1 The result generated to the output stream matches the expected
+        //:   value.
+        //:
+        //:   1 For the default constructed 'std::optional' the result is
+        //:     "EMPTY".
+        // ;
+        //:   2 For a 'std::variant' member 'std::monotonic' the result is
+        //:     "MONOTONIC".
+        //:
+        //:   3 Otherwise, the result is the same as the 'print' result of the
+        //:     contained value of 'std::optional' and 'std::variant'.
+        //:
+        //: 2 The return value of these 'print' overloads refer to the same
+        //:   'bsl::ostream' object passed (by reference) as the first
+        //:   argument.
+        //:
+        //: 3 The result is formatted as specified by the 'level' and
+        //:   'spacesPerLevel' arguments.
+        //:
+        //: 4 These overloads each specify a default value of 4 for
+        //:   'spacesPerLevel' and 0 for 'level'.
+        //
+        // Plan:
+        //: 1 This test defines a table, 'DATA', that specifies the expected
+        //:   level of indentation and suffix (empty string or newline) for a
+        //:   representative set of 'level' and 'spacesPerLevel' values.
+        //:   Additionally, an other wise unused value 'DFT' is used to inform
+        //:   the test code when 'spacesPerLevel' or both 'level' and
+        //:   'spacesPerLevel' should defaulted in the call to the 'print'
+        //:   overload.
+        //:
+        //: 2 Representative instances of the two standard types are used in
+        //:   these tests:
+        //:   1 'std::optional<int>'
+        //:   2 'std::variant' allowing an assortment of integral types,
+        //:     'double', 'std::string', and 'std::monotonic'.
+        //:
+        //: 3 Each of the representative instances describe in in P-2 is
+        //:   tested for one value in each of its possible stats.  (C-1.1,1.2)
+        //:   1 'std::optional' is tested when empty and not.
+        //:   2 'std::variant' is tested for each of the types is allows.
+        //:
+        //: 3 The result of the 'print' overloads is checked by comparing
+        //:   the address of the object returned (by reference) to the address
+        //:   of the first argument.  (C-2)
+        //:
+        //: 4 The result of each 'print' call is compared for equality to the
+        //:   (hard-coded) expected result and also to the 'print' result for
+        //:   the contained value.  Each value is tested for each combination
+        //:   of 'level' and 'spacesPerLevel' in the 'DATA' table described
+        //:   in P-1.  Note that these calls to 'print' are account for 'DFT'
+        //:   values in certain table entries.  (C-1.3,3,4)
+        //
+        // Testing:
+        //   bdlb::PrintMethods::print(..., const optional<TYPE>, ...);
+        //   bdlb::PrintMethods::print(..., const variant<T1,T2,...>, ...);
+        //   bdlb::PrintMethods::print(..., const monostate, ...);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+              << "TEST SUPPORT FOR 'std::optional' AND 'std::variant'" << endl
+              << "===================================================" << endl;
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+
+        const int DFT = -999;
+
+        static const struct {
+            int         d_lineNum;
+            int         d_level;
+            int         d_spacesPerLevel;
+            const char *d_expectedPrefix_p;
+            const char *d_expectedSuffix_p;
+        } DATA[] = {
+            //LINE   LEVEL   SPCS/LVL    PREFIX      SUFFIX
+            //----   -----   --------    ------      ------
+            { L_,     -2,     -2,        "",         ""     }
+          , { L_,     -2,     -1,        "",         ""     }
+          , { L_,     -2,      0,        "",         "\n"   }
+          , { L_,     -2,      1,        "",         "\n"   }
+          , { L_,     -2,      2,        "",         "\n"   }
+
+          , { L_,     -1,     -2,        "",         ""     }
+          , { L_,     -1,     -1,        "",         ""     }
+          , { L_,     -1,      0,        "",         "\n"   }
+          , { L_,     -1,      1,        "",         "\n"   }
+          , { L_,     -1,      2,        "",         "\n"   }
+
+          , { L_,      0,     -2,        "",         ""     }
+          , { L_,      0,     -1,        "",         ""     }
+          , { L_,      0,      0,        "",         "\n"   }
+          , { L_,      0,      1,        "",         "\n"   }
+          , { L_,      0,      2,        "",         "\n"   }
+
+          , { L_,      1,     -2,        "  ",       ""     }
+          , { L_,      1,     -1,        " ",        ""     }
+          , { L_,      1,      0,        "",         "\n"   }
+          , { L_,      1,      1,        " ",        "\n"   }
+          , { L_,      1,      2,        "  ",       "\n"   }
+
+          , { L_,      2,     -2,        "    ",     ""     }
+          , { L_,      2,     -1,        "  ",       ""     }
+          , { L_,      2,      0,        "",         "\n"   }
+          , { L_,      2,      1,        "  ",       "\n"   }
+          , { L_,      2,      2,        "    ",     "\n"   }
+
+          , { L_,     -2,    DFT,        "",         "\n"   }
+          , { L_,     -1,    DFT,        "",         "\n"   }
+          , { L_,      0,    DFT,        "",         "\n"   }
+          , { L_,      1,    DFT,        "    ",     "\n"   }
+          , { L_,      2,    DFT,        "        ", "\n"   }
+
+          , { L_,    DFT,    DFT,        "",         "\n"   }
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        if (verbose) cout << "Using 'std::optional<int>'." << bsl::endl;
+        {
+            using Type = std::optional<int>;
+
+            Type   VALUE;  // default state is "empty"
+            string EXPECTED_VALUE = "45";
+
+            for (char cfg = 'a'; cfg <= 'b'; ++cfg) {
+                const char CONFIG = cfg;
+
+                switch (CONFIG) {
+                  case 'a': {
+                    // 'VALUE' is left in default constructed state.
+                    EXPECTED_VALUE = "EMPTY";
+                  } break;
+                  case 'b': {
+                    VALUE          =  45;
+                    EXPECTED_VALUE = "45";
+                  } break;
+                  default: {
+                    ASSERTV(CONFIG, !"Reachable");
+                  } break;
+                }
+
+                if (veryVerbose) {
+                    T_ P_(CONFIG) P(EXPECTED_VALUE)
+                }
+
+                int countSpecify2 = 0;  // For default argument check.
+                int countSpecify1 = 0;  // For default argument check.
+                int countSpecify0 = 0;  // For default argument check.
+
+                for (int i = 0; i < NUM_DATA; ++i) {
+                    const int   LINE             = DATA[i].d_lineNum;
+                    const int   LEVEL            = DATA[i].d_level;
+                    const int   SPACES_PER_LEVEL = DATA[i].d_spacesPerLevel;
+                    const char *EXPECTED_PREFIX  = DATA[i].d_expectedPrefix_p;
+                    const char *EXPECTED_SUFFIX  = DATA[i].d_expectedSuffix_p;
+
+                    const string EXPECTED_RESULT = EXPECTED_PREFIX
+                                                 + EXPECTED_VALUE
+                                                 + EXPECTED_SUFFIX;
+
+                    if (veryVerbose) {
+                        T_ T_ P_(LINE)
+                              P_(LEVEL)
+                              P_(SPACES_PER_LEVEL)
+                              P(EXPECTED_RESULT)
+                    }
+
+                    stringstream ss;
+
+                    if (DFT != LEVEL
+                     && DFT != SPACES_PER_LEVEL) {
+
+                        ASSERT(DFT != LEVEL);             // Specify 'LEVEL;
+                        ASSERT(DFT != SPACES_PER_LEVEL);  // Specify SPL
+
+                        ASSERT(&ss == &bdlb::PrintMethods::print(
+                                                            ss,
+                                                            VALUE,
+                                                            LEVEL,
+                                                            SPACES_PER_LEVEL));
+                                                                        // TEST
+                        ++countSpecify2;
+                    } else if (DFT != LEVEL) {
+
+                        ASSERT(DFT != LEVEL);            // Specify 'level'
+                        ASSERT(DFT == SPACES_PER_LEVEL); // Default SPL
+
+                        ASSERT(&ss == &bdlb::PrintMethods::print(ss,
+                                                                 VALUE,
+                                                                 LEVEL));
+                                                                        // TEST
+                        ++countSpecify1;
+                    } else {
+
+                        ASSERT(DFT == LEVEL);            // Default 'LEVEL'
+                        ASSERT(DFT == SPACES_PER_LEVEL); // Default SPL
+
+                        ASSERT(&ss == &bdlb::PrintMethods::print(ss,
+                                                                 VALUE));
+                                                                        // TEST
+                        ++countSpecify0;
+                    }
+
+                    LOOP3_ASSERT(LINE, EXPECTED_RESULT,   ss.str(),
+                                       EXPECTED_RESULT == ss.str());
+
+                    if ('a' < CONFIG) {
+                        const int CONTAINED_VALUE = 45;
+                        stringstream ssContained;
+
+                        if (DFT != LEVEL
+                         && DFT != SPACES_PER_LEVEL) {
+
+                            bdlb::PrintMethods::print(ssContained,
+                                                      CONTAINED_VALUE,
+                                                      LEVEL,
+                                                      SPACES_PER_LEVEL);
+                        } else if (DFT != LEVEL) {
+                            bdlb::PrintMethods::print(ssContained,
+                                                      CONTAINED_VALUE,
+                                                      LEVEL);
+                        } else {
+                            bdlb::PrintMethods::print(ssContained,
+                                                      CONTAINED_VALUE);
+                        }
+
+                        LOOP3_ASSERT(LINE, ss.str(),   ssContained.str(),
+                                           ss.str() == ssContained.str());
+                    }
+                }
+
+                // Default argument checks.
+
+                ASSERT(1 == countSpecify0);
+                ASSERT(5 == countSpecify1);
+                ASSERT(NUM_DATA
+                    - countSpecify0
+                    - countSpecify1 == countSpecify2);
+            }
+        }
+
+        if (verbose) cout << "Using 'std::variant'." << bsl::endl;
+        {
+            using Type = std::variant<std::monostate,
+                                      char,
+                                      short,
+                                      int,
+                                      long,
+                                      double,
+                                      std::string>;
+
+            const char             charValueA   =                   'A';
+            const short           shortValue2   = static_cast<short>(2);
+            const int               intValue3   =                    3;
+            const long             longValue4   =                    4L;
+            const double         doubleValue5   =                    5.0;
+            const std::string stdStringValueSix =                   "Six";
+
+            Type   VALUE;  // default state is "monostate"
+            string EXPECTED_VALUE;
+
+            for (int cfg = 0; cfg <= 6; ++cfg) {
+                const int CONFIG = cfg;
+
+                switch (CONFIG) {
+                  case  0: {
+                    // 'VALUE' is left in default constucted state.
+                    EXPECTED_VALUE = "MONOSTATE";
+                  } break;
+                  case 1: {
+                    VALUE          =  charValueA;
+                    EXPECTED_VALUE = "A";
+                  } break;
+                  case 2: {
+                    VALUE          =  shortValue2;
+                    EXPECTED_VALUE = "2";
+                  } break;
+                  case 3: {
+                    VALUE          =  intValue3;
+                    EXPECTED_VALUE = "3";
+                  } break;
+                  case 4: {
+                    VALUE          =  longValue4;
+                    EXPECTED_VALUE = "4";
+                  } break;
+                  case 5: {
+                    VALUE          =  doubleValue5;
+                    EXPECTED_VALUE = "5";
+                  } break;
+                  case 6: {
+                    VALUE          =  stdStringValueSix;
+                    EXPECTED_VALUE = "Six";
+                  } break;
+                  default: {
+                    ASSERTV(CONFIG, !"Reachable");
+                  } break;
+                }
+
+                if (veryVerbose) {
+                    T_ P_(CONFIG) P(EXPECTED_VALUE)
+                }
+
+                int countSpecify2 = 0;
+                int countSpecify1 = 0;
+                int countSpecify0 = 0;
+
+                for (int i = 0; i < NUM_DATA; ++i) {
+                    const int   LINE             = DATA[i].d_lineNum;
+                    const int   LEVEL            = DATA[i].d_level;
+                    const int   SPACES_PER_LEVEL = DATA[i].d_spacesPerLevel;
+                    const char *EXPECTED_PREFIX  = DATA[i].d_expectedPrefix_p;
+                    const char *EXPECTED_SUFFIX  = DATA[i].d_expectedSuffix_p;
+
+                    const string EXPECTED_RESULT = EXPECTED_PREFIX
+                                                 + EXPECTED_VALUE
+                                                 + EXPECTED_SUFFIX;
+
+                    if (veryVerbose) {
+                        T_ T_ P_(LINE)
+                              P_(LEVEL)
+                              P_(SPACES_PER_LEVEL)
+                              P(EXPECTED_RESULT)
+                    }
+
+                    stringstream ss;
+
+                    if (DFT != LEVEL
+                     && DFT != SPACES_PER_LEVEL) {
+
+                        ASSERT(DFT != LEVEL);             // Specify 'LEVEL;
+                        ASSERT(DFT != SPACES_PER_LEVEL);  // Specify SPL
+
+                        ASSERT(&ss ==&bdlb::PrintMethods::print(
+                                                            ss,
+                                                            VALUE,
+                                                            LEVEL,
+                                                            SPACES_PER_LEVEL));
+                                                                        // TEST
+                        ++countSpecify2;
+                    } else if (DFT != LEVEL) {
+
+                        ASSERT(DFT != LEVEL);            // Specify 'level'
+                        ASSERT(DFT == SPACES_PER_LEVEL); // Default SPL
+
+                        ASSERT(&ss ==&bdlb::PrintMethods::print(ss,
+                                                                VALUE,
+                                                                LEVEL));
+                                                                        // TEST
+                        ++countSpecify1;
+                    } else {
+
+                        ASSERT(DFT == LEVEL);            // Default 'LEVEL'
+                        ASSERT(DFT == SPACES_PER_LEVEL); // Default SPL
+
+                        ASSERT(&ss ==&bdlb::PrintMethods::print(ss,
+                                                                VALUE));
+                                                                        // TEST
+                        ++countSpecify0;
+                    }
+
+                    LOOP3_ASSERT(LINE, EXPECTED_RESULT,   ss.str(),
+                                       EXPECTED_RESULT == ss.str());
+
+                    switch (CONFIG) {
+                      case 0: {
+                        ASSERT(testContainedValue(std::monostate(),
+                                                  ss.str(),
+                                                  LEVEL,
+                                                  SPACES_PER_LEVEL,
+                                                  DFT));
+                      } break;
+                      case 1: {
+                        ASSERT(testContainedValue(charValueA,
+                                                  ss.str(),
+                                                  LEVEL,
+                                                  SPACES_PER_LEVEL,
+                                                  DFT));
+                      } break;
+                      case 2: {
+                        ASSERT(testContainedValue(shortValue2,
+                                                  ss.str(),
+                                                  LEVEL,
+                                                  SPACES_PER_LEVEL,
+                                                  DFT));
+                      } break;
+                      case 3: {
+                        ASSERT(testContainedValue(intValue3,
+                                                  ss.str(),
+                                                  LEVEL,
+                                                  SPACES_PER_LEVEL,
+                                                  DFT));
+                      } break;
+                      case 4: {
+                        ASSERT(testContainedValue(longValue4,
+                                                  ss.str(),
+                                                  LEVEL,
+                                                  SPACES_PER_LEVEL,
+                                                  DFT));
+                      } break;
+                      case 5: {
+                        ASSERT(testContainedValue(doubleValue5,
+                                                  ss.str(),
+                                                  LEVEL,
+                                                  SPACES_PER_LEVEL,
+                                                  DFT));
+                      } break;
+                      case 6: {
+                        ASSERT(testContainedValue(stdStringValueSix,
+                                                  ss.str(),
+                                                  LEVEL,
+                                                  SPACES_PER_LEVEL,
+                                                  DFT));
+                      } break;
+                      default: {
+                        ASSERTV(CONFIG, !"Reachable");
+                      } break;
+                    }
+                }
+
+                ASSERT(1 == countSpecify0);
+                ASSERT(5 == countSpecify1);
+                ASSERT(NUM_DATA
+                    - countSpecify0
+                    - countSpecify1 == countSpecify2);
+            }
+        }
+
+        if (verbose) cout << "Using 'std::monostate'." << bsl::endl;
+        {
+            using Type = std::monostate;
+
+            Type   VALUE;
+            string EXPECTED_VALUE = "MONOSTATE";
+
+            int countSpecify2 = 0;  // For coverage check.
+            int countSpecify1 = 0;  // For coverage check.
+            int countSpecify0 = 0;  // For coverage check.
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int   LINE             = DATA[i].d_lineNum;
+                const int   LEVEL            = DATA[i].d_level;
+                const int   SPACES_PER_LEVEL = DATA[i].d_spacesPerLevel;
+                const char *EXPECTED_PREFIX  = DATA[i].d_expectedPrefix_p;
+                const char *EXPECTED_SUFFIX  = DATA[i].d_expectedSuffix_p;
+
+                const string EXPECTED_RESULT = EXPECTED_PREFIX
+                                             + EXPECTED_VALUE
+                                             + EXPECTED_SUFFIX;
+
+                if (veryVerbose) {
+                    T_ T_ P_(LINE)
+                          P_(LEVEL)
+                          P_(SPACES_PER_LEVEL)
+                          P(EXPECTED_RESULT)
+                }
+
+                stringstream ss;
+
+                if (DFT != LEVEL
+                 && DFT != SPACES_PER_LEVEL) {
+
+                    ASSERT(DFT != LEVEL);
+                    ASSERT(DFT != SPACES_PER_LEVEL);
+
+                    ASSERT(&ss == &bdlb::PrintMethods::print(
+                                                            ss,
+                                                            VALUE,
+                                                            LEVEL,
+                                                            SPACES_PER_LEVEL));
+                    ++countSpecify2;
+                } else if (DFT != LEVEL) {
+
+                    ASSERT(DFT != LEVEL);
+                    ASSERT(DFT == SPACES_PER_LEVEL);
+
+                    ASSERT(&ss == &bdlb::PrintMethods::print(ss,
+                                                             VALUE,
+                                                             LEVEL));
+                    ++countSpecify1;
+                } else {
+
+                    ASSERT(DFT == LEVEL);
+                    ASSERT(DFT == SPACES_PER_LEVEL);
+
+                    ASSERT(&ss == &bdlb::PrintMethods::print(ss,
+                                                             VALUE));
+                    ++countSpecify0;
+                }
+
+                LOOP3_ASSERT(LINE, EXPECTED_RESULT,   ss.str(),
+                                   EXPECTED_RESULT == ss.str());
+            }
+
+            // Coverage check.
+
+            ASSERT(1 == countSpecify0);
+            ASSERT(5 == countSpecify1);
+            ASSERT(NUM_DATA
+                - countSpecify0
+                - countSpecify1 == countSpecify2);
+        }
+#else
+        if (verbose) cout << "SKIP: Not Available: "
+                             "'std::optional', 'std::variant'" << endl;
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
       } break;
       case 7: {
         // --------------------------------------------------------------------
