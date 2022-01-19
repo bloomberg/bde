@@ -1952,7 +1952,7 @@ void test_case_10() {
         int rtValue = ConstexprFunctions::narrowConstexprFunction(34);
         ASSERT(rtValue == 34);
 
-#if BDE_BUILD_TARGET_EXC
+#ifdef BDE_BUILD_TARGET_EXC
         bsls::ReviewFailureHandlerGuard guard(bsls::Review::failByThrow);
 
         try {
@@ -3287,7 +3287,7 @@ void test_case_m2() {
         if (verbose) printf( "\nCALL FAIL THROW HANDLER"
                              "\n=======================\n" );
 
-#if BDE_BUILD_TARGET_EXC
+#ifdef BDE_BUILD_TARGET_EXC
         printf( "\nEXCEPTION BUILD\n" );
 
         fprintf( stderr, "\nTHE FOLLOWING SHOULD PRINT ON STDERR:\n"

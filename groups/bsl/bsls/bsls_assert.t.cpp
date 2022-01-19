@@ -1941,7 +1941,7 @@ void test_case_12() {
         int rtValue = ConstexprFunctions::narrowConstexprFunction(34);
         ASSERT(rtValue == 34);
 
-#if BDE_BUILD_TARGET_EXC
+#ifdef BDE_BUILD_TARGET_EXC
         bsls::AssertFailureHandlerGuard guard(bsls::Assert::failByThrow);
 
         try {
@@ -3917,7 +3917,7 @@ void test_case_m3() {
         if (verbose) printf( "\nCALL FAIL THROW HANDLER"
                              "\n=======================\n" );
 
-#if BDE_BUILD_TARGET_EXC
+#ifdef BDE_BUILD_TARGET_EXC
         printf( "\nEXCEPTION BUILD\n" );
 
         fprintf(stderr, "\nTHE FOLLOWING SHOULD PRINT ON STDERR:\n"
@@ -3988,7 +3988,7 @@ void test_case_m4() {
         if (verbose) printf( "\nCALL DEPRECATED FAIL THROW HANDLER"
                              "\n==================================\n" );
 
-#if BDE_BUILD_TARGET_EXC
+#ifdef BDE_BUILD_TARGET_EXC
         printf( "\nEXCEPTION BUILD\n" );
 
         fprintf(stderr, "\nTHE FOLLOWING SHOULD PRINT ON STDERR:\n"
