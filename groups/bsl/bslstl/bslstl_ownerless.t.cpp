@@ -2,6 +2,7 @@
 #include <bslstl_ownerless.h>
 
 #include <bslstl_sharedptr.h>
+#include <bslstl_map.h>
 
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
@@ -63,13 +64,17 @@ using namespace BloombergLP;
 // [ 1] bool operator()(const shared_ptr<TYPE>&, const shared_ptr<TYPE>&) const
 // [ 1] bool operator()(const weak_ptr<TYPE>&,   const shared_ptr<TYPE>&) const
 // [ 1] bool operator()(const weak_ptr<TYPE>&,   const weak_ptr<TYPE>&)   const
-
+//
 // bsl::owner_less<void>
 //---------------------------------
 // [ 1] bool operator()(const shared_ptr<T>&, const shared_ptr<U>&) const
 // [ 1] bool operator()(const shared_ptr<T>&, const weak_ptr<U>&)   const
 // [ 1] bool operator()(const weak_ptr<T>&,   const shared_ptr<U>&) const
 // [ 1] bool operator()(const weak_ptr<T>&,   const weak_ptr<U>&)   const
+// ----------------------------------------------------------------------------
+// [ 4] USAGE EXAMPLE
+// [ 2] TESTING TYPEDEF
+// [ 3] QoI: Support for empty base optimization
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -350,6 +355,178 @@ int main(int argc, char *argv[])
     ASSERT(&defaultAllocator == bslma::Default::defaultAllocator());
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 4: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //   Extracted from component header file.
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nUSAGE EXAMPLE"
+                            "\n=============\n");
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Use of 'owner_less<void>'
+/// - - - - - - - - - - - - - - - - - - - - -
+// Suppose we need a map accepting shared pointers as keys.  We also expect
+// that this container will be accessible from multiple threads and some of
+// them will store weak versions of smart pointers to break reference cycles.
+// To avoid excessive conversions we can use a transparent comparator to
+// enable heterogeneous lookup with 'bsl::weak_ptr' objects as parameters for
+// search functions.
+//
+// First, we create a container and populate it:
+//..
+        typedef bsl::map<bsl::shared_ptr<int>, int, bsl::owner_less<void> >
+                                                                           Map;
+        Map                  container;
+
+        bsl::shared_ptr<int> sharedPtr1 = bsl::make_shared<int>(1);
+        bsl::shared_ptr<int> sharedPtr2 = bsl::make_shared<int>(2);
+        bsl::weak_ptr<int>   weakPtr1(sharedPtr1);
+
+        container[sharedPtr1] = 1;
+        container[sharedPtr2] = 2;
+//..
+// Now, we make sure, that shared pointers can be used to perform lookup:
+//..
+        Map::const_iterator iter = container.find(sharedPtr1);
+        ASSERT(container.end() != iter        );
+        ASSERT(1               == iter->second);
+
+        iter = container.find(sharedPtr2);
+        ASSERT(container.end() != iter);
+        ASSERT(2               == iter->second);
+//..
+// Finally, we simulate the situation of accessing the container from another
+// thread and perform lookup using weak pointers:
+//..
+        iter = container.find(weakPtr1);
+        ASSERT(container.end() != iter        );
+        ASSERT(1               == iter->second);
+
+        bsl::weak_ptr<int> weakPtr3(bsl::make_shared<int>(3));
+        iter = container.find(weakPtr3);
+        ASSERT(container.end() == iter);
+//..
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // TESTING QOI: 'owner_less' IS AN EMPTY TYPE
+        //   As a quality of implementation issue, the class has no state and
+        //   should support the use of the empty base class optimization on
+        //   compilers that support it.
+        //
+        // Concerns:
+        //: 1 Class 'bsl::owner_less' does not increase the size of an object
+        //:   when used as a base class.
+        //:
+        //: 2 Object of 'bsl::owner_less' class increases size of an object
+        //:   when used as a class member.
+        //
+        // Plan:
+        //: 1 Define two identical non-empty classes with no padding, but
+        //:   derive one of them from 'bsl::owner_less', then assert that both
+        //:   classes have the same size. (C-1)
+        //:
+        //: 2 Create a non-empty class with an 'bsl::owner_less' additional
+        //:   member, assert that class size is larger than sum of other data
+        //:   member's sizes. (C-2)
+        //
+        // Testing:
+        //   QoI: Support for empty base optimization
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING QOI: 'owner_less' IS AN EMPTY TYPE"
+                            "\n==========================================\n");
+
+        typedef bsl::owner_less<bsl::shared_ptr<int> > SharedObj;
+        typedef bsl::owner_less<bsl::weak_ptr<int> >   WeakObj;
+        typedef bsl::owner_less<void>                  VoidObj;
+
+        struct TwoInts {
+            int d_a;
+            int d_b;
+        };
+
+        struct DerivedIntsShared : SharedObj {
+            int d_a;
+            int d_b;
+        };
+
+        struct DerivedIntsWeak : WeakObj {
+            int d_a;
+            int d_b;
+        };
+
+        struct DerivedIntsVoid : VoidObj {
+            int d_a;
+            int d_b;
+        };
+
+        struct IntWithMemberShared {
+            SharedObj d_dummy;
+            int       d_a;
+        };
+
+        struct IntWithMemberWeak {
+            WeakObj d_dummy;
+            int     d_a;
+        };
+
+        struct IntWithMemberVoid {
+            VoidObj d_dummy;
+            int     d_a;
+        };
+
+        ASSERT(sizeof(TwoInts) == sizeof(DerivedIntsShared));
+        ASSERT(sizeof(TwoInts) == sizeof(DerivedIntsWeak  ));
+        ASSERT(sizeof(TwoInts) == sizeof(DerivedIntsVoid  ));
+
+        ASSERT(sizeof(int)     <  sizeof(IntWithMemberShared));
+        ASSERT(sizeof(int)     <  sizeof(IntWithMemberWeak  ));
+        ASSERT(sizeof(int)     <  sizeof(IntWithMemberVoid  ));
+
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // TESTING TYPEDEF
+        //   Comparator's transparency is determined by the presence of the
+        //   'is_transparent' type.  We need to verify that the class offers
+        //   the required typedef.
+        //
+        // Concerns:
+        //: 1 The type 'is_transparent' is defined in 'bsl::owner_less<void>',
+        //:   publicly accessible and an alias for 'void'.
+        //
+        // Plan:
+        //: 1 ASSERT the typedef aliases the correct type using
+        //    'bsl::is_same'. (C-1)
+        //
+        // Testing:
+        //  TESTING TYPEDEF
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING TYPEDEF"
+                            "\n===============\n");
+
+        ASSERT((bsl::is_same<void,
+                             bsl::owner_less<void>::is_transparent>::value));
+
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // TEST 'owner_less' FUNCTOR

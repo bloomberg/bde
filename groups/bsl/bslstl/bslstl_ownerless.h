@@ -18,6 +18,54 @@ BSLS_IDENT("$Id$ $CSID$")
 // functor, 'bsl::owner_less', that determines the order of two smart pointer
 // objects by the relative order of the address of their 'bslma::SharedPtrRep'
 // data.  Note that this class is an empty POD type.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Use of 'owner_less<void>'
+/// - - - - - - - - - - - - - - - - - - - - -
+// Suppose we need a map accepting shared pointers as keys.  We also expect
+// that this container will be accessible from multiple threads and some of
+// them will store weak versions of smart pointers to break reference cycles.
+// To avoid excessive conversions we can use a transparent comparator to
+// enable heterogeneous lookup with 'bsl::weak_ptr' objects as parameters for
+// search functions.
+//
+// First, we create a container and populate it:
+//..
+//      typedef bsl::map<bsl::shared_ptr<int>, int, bsl::owner_less<void> >
+//                                                                         Map;
+//      Map                  container;
+//
+//      bsl::shared_ptr<int> sharedPtr1 = bsl::make_shared<int>(1);
+//      bsl::shared_ptr<int> sharedPtr2 = bsl::make_shared<int>(2);
+//      bsl::weak_ptr<int>   weakPtr1(sharedPtr1);
+//
+//      container[sharedPtr1] = 1;
+//      container[sharedPtr2] = 2;
+//..
+// Now, we make sure, that shared pointers can be used to perform lookup:
+//..
+//      Map::const_iterator iter = container.find(sharedPtr1);
+//      assert(container.end() != iter        );
+//      assert(1               == iter->second);
+//
+//      iter = container.find(sharedPtr2);
+//      assert(container.end() != iter);
+//      assert(2               == iter->second);
+//..
+// Finally, we simulate the situation of accessing the container from another
+// thread and perform lookup using weak pointers:
+//..
+//      iter = container.find(weakPtr1);
+//      assert(container.end() != iter        );
+//      assert(1               == iter->second);
+//
+//      bsl::weak_ptr<int> weakPtr3(bsl::make_shared<int>(3));
+//      iter = container.find(weakPtr3);
+//      assert(container.end() == iter);
+//..
 
 // Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.
@@ -35,7 +83,7 @@ template <class POINTER_TYPE = void>
 struct owner_less;
 
 template <class ELEMENT_TYPE>
-struct owner_less<weak_ptr<ELEMENT_TYPE> >;
+struct owner_less<shared_ptr<ELEMENT_TYPE> >;
 
 template <class ELEMENT_TYPE>
 struct owner_less<weak_ptr<ELEMENT_TYPE> >;
@@ -48,11 +96,12 @@ struct owner_less<void>;
 template <class ELEMENT_TYPE>
 struct owner_less<shared_ptr<ELEMENT_TYPE> > {
 
-    // STANDARD TYPEDEFS
-    typedef bool result_type;
+    // TYPES
+    typedef bool                     result_type;
     typedef shared_ptr<ELEMENT_TYPE> first_argument_type;
     typedef shared_ptr<ELEMENT_TYPE> second_argument_type;
 
+    // CREATORS
     //! owner_less() = default;
         // Create an 'owner_less' object.
 
@@ -89,11 +138,12 @@ struct owner_less<shared_ptr<ELEMENT_TYPE> > {
 template <class ELEMENT_TYPE>
 struct owner_less<weak_ptr<ELEMENT_TYPE> > {
 
-    // STANDARD TYPEDEFS
-    typedef bool result_type;
+    // TYPES
+    typedef bool                   result_type;
     typedef weak_ptr<ELEMENT_TYPE> first_argument_type;
     typedef weak_ptr<ELEMENT_TYPE> second_argument_type;
 
+    // CREATORS
     //! owner_less() = default;
         // Create an 'owner_less' object.
 
@@ -129,6 +179,12 @@ struct owner_less<weak_ptr<ELEMENT_TYPE> > {
 
 template<>
 struct owner_less<void> {
+
+    // TYPES
+    typedef void is_transparent;
+        // Type alias indicating this is a transparent comparator.
+
+    // CREATORS
     //! owner_less() = default;
         // Create an 'owner_less' object.
 
@@ -146,6 +202,7 @@ struct owner_less<void> {
         // that as 'owner_less' is an empty (stateless) type, this operation
         // has no observable effect.
 
+    // ACCESSORS
     template<class ELEMENT_TYPE_A, class ELEMENT_TYPE_B>
     bool operator()(const shared_ptr<ELEMENT_TYPE_A> &a,
                     const shared_ptr<ELEMENT_TYPE_B> &b) const;
@@ -273,9 +330,8 @@ bool owner_less<void>::operator()(const weak_ptr<ELEMENT_TYPE_A> &a,
 //                                TYPE TRAITS
 // ============================================================================
 
-// Type traits for 'equal_to'
-//: o 'equal_to' is a stateless POD, trivially constructible, copyable, and
-//:   moveable.
+// Type traits for 'owner_less'
+//: o 'owner_less' is a stateless POD, trivially constructible and copyable.
 
 template<class POINTER_TYPE>
 struct is_trivially_default_constructible<owner_less<POINTER_TYPE> >
