@@ -7,6 +7,7 @@
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_stdallocator.h>
+#include <bslma_stdtestallocator.h>
 #include <bslma_testallocator.h>
 #include <bslma_defaultallocatorguard.h>
 
@@ -48,6 +49,8 @@ using namespace BloombergLP;
 // [ 2] stringbuf(ios_base::openmode, const ALLOCATOR&)
 // [ 2] stringbuf(const string&, const ALLOCATOR&)
 // [ 2] stringbuf(const string&, ios_base::openmode, const ALLOCATOR&)
+// [ 2] stringbuf(const SALLOCSTR&, const ALLOCATOR&)
+// [ 2] stringbuf(const SALLOCSTR&, ios_base::openmode, const ALLOCATOR&)
 // [ 4] stringbuf(stringbuf&&)
 // [17] stringbuf(stringbuf&&, const ALLOCATOR&);
 // [ 4] operator=(stringbuf&&)
@@ -62,8 +65,10 @@ using namespace BloombergLP;
 // [ 3] allocator_type get_allocator() const;
 // [19] void str(const StringType& value);
 // [19] void str(BloombergLP::bslmf::MovableRef<StringType> value);
+// [19] void str(const basic_string<CHAR, TRAITS, SALLOC>& value);
 // [ 3] StringType str() const;
 // [ 3] StringType str() &&;
+// [ 3] StringType str(const SALLOC&);
 // [ 3] ViewType view() const;
 // [18] void swap(basic_stringbuf& other);
 //
@@ -203,6 +208,25 @@ void loadString(STRING *value, int length)
         (*value)[i] =
                      static_cast<typename STRING::value_type>('a' + (i % 26));
     }
+}
+
+template <class StringT>
+bool stringCouldBeMovedFrom(const StringT&                          s,
+                            const typename StringT::allocator_type& otherAlloc)
+    // Return 'true' if the specified string 's' could be moved to another
+    // string that uses the specified allocator 'otherAlloc', and 'false'
+    // otherwise.
+{
+    return s.size() >= LENGTH_OF_SUFFICIENTLY_LONG_STRING &&
+           s.get_allocator() == otherAlloc;
+}
+
+template <class StringT>
+bool stringWasMovedFrom(const StringT& s)
+    // Return 'true' if the specified string 's' was possibly moved from, and
+    // 'false' otherwise.
+{
+    return 0 == s.size();
 }
 
 template <class TYPE>
@@ -649,6 +673,8 @@ class StringBufTest : public bsl::basic_stringbuf<TYPE>
             { L_,  "ABCDEFGHIJKLABCDEFGHIJKLABCDEFGHIJKLABCDEFGHIJKLABCDEFG" },
         };
         const std::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+        typedef std::allocator<TYPE> OtherAllocator;
+        OtherAllocator otherAlloc;
 
         for (std::size_t i = 0; i != NUM_DATA; ++i) {
             const int   LINE = DATA[i].d_line;
@@ -704,11 +730,81 @@ class StringBufTest : public bsl::basic_stringbuf<TYPE>
                         &da == RESULT_S.get_allocator());
                 ASSERTV(LINE, CONFIG, initialString == RESULT_V);
 
+#ifndef BSLS_PLATFORM_CMP_SUN
+        // These calls are not supported on SunOS, because the std::allocator
+        // there does not support rebind.  This limitation can be lifted once
+        // we fully support C++20, where rebind is removed, and always goes
+        // through 'allocator_traits'.  See {DRQS 168075157} and
+        // https://github.com/bloomberg/bde/pull/268
+                    // test 'str(otherAllocator)'
+                const bsl::basic_string<
+                          TYPE,
+                          bsl::char_traits<TYPE>,
+                          OtherAllocator> otherAllocString = X.str(otherAlloc);
+
+                ASSERTV(LINE, CONFIG, X.view()           == otherAllocString);
+                ASSERTV(otherAllocString.get_allocator() == otherAlloc);
+#endif
+
                 fa.deleteObject(objPtr);
             }
         }
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
         {
+            // test 'str() &&'
+            for (std::size_t i = 0; i != NUM_DATA; ++i) {
+                const int   LINE = DATA[i].d_line;
+                const char *SPEC = DATA[i].d_spec_p;
+
+                StringType initialString;
+                populateString(&initialString, SPEC);
+
+                for (char cfg = 'a'; cfg <= 'b'; ++cfg) {
+
+                    const char CONFIG = cfg;  // how we specify the allocator
+
+                    bslma::TestAllocator da("default");
+                    bslma::TestAllocator fa("footprint");
+                    bslma::TestAllocator sa("supplied");
+
+                    bslma::DefaultAllocatorGuard dag(&da);
+
+                    Obj                  *objPtr = 0;
+                    bslma::TestAllocator *objAllocatorPtr = 0;
+
+                    switch (CONFIG) {
+                      case 'a': {
+                        objAllocatorPtr = &da;
+                        objPtr = new (fa) Obj(initialString);
+                      } break;
+                      case 'b': {
+                        objAllocatorPtr = &sa;
+                        objPtr = new (fa) Obj(initialString, objAllocatorPtr);
+                      } break;
+                      default: {
+                        BSLS_ASSERT_OPT(!"Bad allocator config.");
+                      } break;
+                    }
+
+                    Obj&                   mX = *objPtr;
+                    const Obj&              X  = mX;
+
+                    ASSERTV(LINE, CONFIG, initialString == X.str());
+                    ASSERTV(LINE, CONFIG, initialString == X.view());
+
+                    const StringType movedStr = std::move(mX).str();
+                    ASSERTV(LINE, CONFIG, initialString == movedStr);
+                    ASSERTV(LINE, CONFIG, X.view().empty());
+
+                    fa.deleteObject(objPtr);
+                }
+            }
+        }
+#endif
+
+        {
+            // test 'str(StringType)'
             bslma::TestAllocator ta("test allocator");
 
             static const struct {
@@ -773,54 +869,153 @@ class StringBufTest : public bsl::basic_stringbuf<TYPE>
             }
         }
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
         {
-            // test 'str() &&'
-            for (std::size_t i = 0; i != NUM_DATA; ++i) {
-                const int   LINE = DATA[i].d_line;
-                const char *SPEC = DATA[i].d_spec_p;
+            // test 'str(MoveableRef<String>)'
+            bslma::TestAllocator ta("test allocator");
 
-                StringType initialString;
-                populateString(&initialString, SPEC);
+            typedef BloombergLP::bslmf::MovableRefUtil MoveUtil;
 
-                for (char cfg = 'a'; cfg <= 'b'; ++cfg) {
+            static const struct {
+                int  d_line;
+                Mode d_mode;
+            } OPENMODE_DATA[] =
+            {
+                { L_, IosBase::in                                 },
+                { L_, IosBase::out                                },
+                { L_, IosBase::in  | IosBase::out                 },
+                { L_, IosBase::ate                                },
+                { L_, IosBase::in  | IosBase::ate                 },
+                { L_, IosBase::out | IosBase::ate                 },
+                { L_, IosBase::in  | IosBase::out | IosBase::ate  }
+            };
+            const int NUM_OPENMODE_DATA = sizeof  OPENMODE_DATA /
+                                          sizeof *OPENMODE_DATA;
 
-                    const char CONFIG = cfg;  // how we specify the allocator
+            for (int i = 0; i != NUM_OPENMODE_DATA; ++i) {
+                const int  LINE    = OPENMODE_DATA[i].d_line;
+                const Mode MODE    = OPENMODE_DATA[i].d_mode;
+                const char SPEC1[] = "ABCDEFGHIJKLABCDEFGHIJKLABCDEFGHIJKL";
+                const char SPEC2[] = "ABCDEFGHIJKLABCDEF";
 
-                    bslma::TestAllocator da("default");
-                    bslma::TestAllocator fa("footprint");
-                    bslma::TestAllocator sa("supplied");
+                StringType initialString1;
+                populateString(&initialString1, SPEC1);
 
-                    bslma::DefaultAllocatorGuard dag(&da);
+                StringBufTest mX(initialString1, MODE);
 
-                    Obj                  *objPtr = 0;
-                    bslma::TestAllocator *objAllocatorPtr = 0;
-
-                    switch (CONFIG) {
-                      case 'a': {
-                        objAllocatorPtr = &da;
-                        objPtr = new (fa) Obj(initialString);
-                      } break;
-                      case 'b': {
-                        objAllocatorPtr = &sa;
-                        objPtr = new (fa) Obj(initialString, objAllocatorPtr);
-                      } break;
-                      default: {
-                        BSLS_ASSERT_OPT(!"Bad allocator config.");
-                      } break;
+                if (MODE & IosBase::out) {
+                    ASSERTV(LINE, mX.pbase() && mX.epptr());
+                    if (MODE & IosBase::in) {
+                        ASSERTV(LINE, mX.eback() && mX.egptr());
                     }
+                    else {
+                        ASSERTV(LINE, (0 == mX.eback()) &&
+                                      (0 == mX.egptr()));
+                    }
+                    StringType STR1(mX.pbase(), mX.epptr(), &ta);
+                    ASSERTV(LINE, mX.str() == STR1);
 
-                    Obj&                   mX = *objPtr;
-                    const Obj&              X  = mX;
+                    StringType initialString2;
+                    populateString(&initialString2, SPEC2);
+                    StringType sourceString = initialString2;
+                    mX.str(MoveUtil::move(sourceString));
 
-                    ASSERTV(LINE, CONFIG, initialString == X.str());
-                    ASSERTV(LINE, CONFIG, initialString == X.view());
+                    ASSERTV(LINE, mX.str() != STR1);
+                    // test strings that will be changed by a move
+                    if (initialString2.size() >=
+                                          LENGTH_OF_SUFFICIENTLY_LONG_STRING) {
+                        ASSERT(sourceString.empty());
+                    }
+                    ASSERTV(LINE, mX.str() == initialString2);
+                    ASSERTV(LINE, mX.view() == initialString2);
+                }
+                else if (MODE & IosBase::in) {
+                    ASSERTV(LINE, mX.eback(), mX.eback() && mX.egptr());
+                    StringType STR(mX.eback(), mX.egptr(), &ta);
+                    ASSERTV(LINE, mX.str() == STR);
+                    ASSERTV(LINE, mX.view() == STR);
+                }
+                else {
+                    ASSERTV(LINE, mX.str().empty());
+                    ASSERTV(LINE, mX.view().empty());
+                }
+            }
+        }
 
-                    const StringType movedStr = std::move(mX).str();
-                    ASSERTV(LINE, CONFIG, initialString == movedStr);
-                    ASSERTV(LINE, CONFIG, X.view().empty());
+#ifndef BSLS_PLATFORM_CMP_SUN
+        // These calls are not supported on SunOS, because the std::allocator
+        // there does not support rebind.  This limitation can be lifted once
+        // we fully support C++20, where rebind is removed, and always goes
+        // through 'allocator_traits'.  See {DRQS 168075157} and
+        // https://github.com/bloomberg/bde/pull/268
+        {
+            // test 'str(String with different Allocator)'
+            bslma::TestAllocator ta("test allocator");
 
-                    fa.deleteObject(objPtr);
+            static const struct {
+                int  d_line;
+                Mode d_mode;
+            } OPENMODE_DATA[] =
+            {
+                { L_, IosBase::in                                 },
+                { L_, IosBase::out                                },
+                { L_, IosBase::in  | IosBase::out                 },
+                { L_, IosBase::ate                                },
+                { L_, IosBase::in  | IosBase::ate                 },
+                { L_, IosBase::out | IosBase::ate                 },
+                { L_, IosBase::in  | IosBase::out | IosBase::ate  }
+            };
+            const int NUM_OPENMODE_DATA = sizeof  OPENMODE_DATA /
+                                          sizeof *OPENMODE_DATA;
+
+            for (int i = 0; i != NUM_OPENMODE_DATA; ++i) {
+                const int  LINE    = OPENMODE_DATA[i].d_line;
+                const Mode MODE    = OPENMODE_DATA[i].d_mode;
+                const char SPEC1[] = "ABCDEFGHIJKLABCDEFGHIJKLABCDEFGHIJKL";
+                const char SPEC2[] = "ABCDEFGHIJKLABCDEF";
+
+                StringType initialString1;
+                populateString(&initialString1, SPEC1);
+
+                StringBufTest mX(initialString1, MODE);
+
+                if (MODE & IosBase::out) {
+                    ASSERTV(LINE, mX.pbase() && mX.epptr());
+                    if (MODE & IosBase::in) {
+                        ASSERTV(LINE, mX.eback() && mX.egptr());
+                    }
+                    else {
+                        ASSERTV(LINE, (0 == mX.eback()) &&
+                                      (0 == mX.egptr()));
+                    }
+                    StringType STR1(mX.pbase(), mX.epptr(), &ta);
+                    ASSERTV(LINE, mX.str() == STR1);
+
+                    StringType initialString2;
+                    populateString(&initialString2, SPEC2);
+
+                    bsl::basic_string<TYPE,
+                          bsl::char_traits<TYPE>,
+                          OtherAllocator>
+                                       otherAllocString(initialString2.data(),
+                                                        initialString2.size());
+
+                    mX.str(otherAllocString);
+
+                    StringType STR2(mX.pbase(), mX.epptr(), &ta);
+                    ASSERTV(LINE, mX.str() != STR2);
+                    ASSERTV(LINE, mX.str() == initialString2);
+                    ASSERTV(LINE, mX.view() == otherAllocString);
+                    ASSERTV(LINE, mX.view() == initialString2);
+                }
+                else if (MODE & IosBase::in) {
+                    ASSERTV(LINE, mX.eback(), mX.eback() && mX.egptr());
+                    StringType STR(mX.eback(), mX.egptr(), &ta);
+                    ASSERTV(LINE, mX.str() == STR);
+                    ASSERTV(LINE, mX.view() == STR);
+                }
+                else {
+                    ASSERTV(LINE, mX.str().empty());
+                    ASSERTV(LINE, mX.view().empty());
                 }
             }
         }
@@ -1716,6 +1911,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   void str(const StringType& value);
         //   void str(BloombergLP::bslmf::MovableRef<StringType> value);
+        //   void str(const basic_string<CHAR, TRAITS, SALLOC>& value);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING 'str' MANIPULATOR"
@@ -2703,6 +2899,7 @@ int main(int argc, char *argv[])
         //   allocator_type get_allocator() const;
         //   StringType str() const;
         //   StringType str() &&;
+        //   StringType str(const SALLOC&);
         //   ViewType view() const;
         // --------------------------------------------------------------------
 
@@ -2787,6 +2984,81 @@ int main(int argc, char *argv[])
         {
             bsl::stringbuf buf(bsl::string("something"));
             ASSERT(buf.str() == "something");
+
+            typedef bslmf::MovableRefUtil MoveUtil;
+            bslma::TestAllocator          ta1("Test Allocator #1");
+            bslma::TestAllocator          ta2("Test Allocator #2");
+            const bsl::ios_base::openmode mode = std::ios_base::in;
+
+            for (int tj = 0; tj < NUM_STRLEN_DATA; ++tj) {
+                const int LENGTH_TJ = STRLEN_DATA[tj].d_length;
+
+                // string used for comparisons
+                bsl::string oT;  bsl::string& O = oT;
+                loadString(&oT, LENGTH_TJ);
+
+                // strings used for constructions
+                bsl::string str1(&ta1);
+                bsl::string str2(&ta2);
+                ASSERT(str1.get_allocator() != str2.get_allocator());
+
+                // test bsl::stringbuf(MovableRef)
+                {
+                    loadString(&str1, LENGTH_TJ);
+                    bsl::stringbuf buf1(MoveUtil::move(str1));
+                    ASSERT(buf1.str() == O);
+                    ASSERT(buf1.get_allocator() == str1.get_allocator());
+                    if (stringCouldBeMovedFrom(str1, &ta1)) {
+                        ASSERT(stringWasMovedFrom(str1));
+                    }
+                }
+
+                // test bsl::stringbuf(MovableRef, mode)
+                {
+                    loadString(&str1, LENGTH_TJ);
+                    bsl::stringbuf buf1(MoveUtil::move(str1), mode);
+                    ASSERT(buf1.str() == O);
+                    ASSERT(buf1.get_allocator() == str1.get_allocator());
+                    if (stringCouldBeMovedFrom(str1, &ta1)) {
+                        ASSERT(stringWasMovedFrom(str1));
+                    }
+                }
+                // test bsl::stringbuf(MovableRef, allocator)
+                {
+                    loadString(&str1, LENGTH_TJ);
+                    loadString(&str2, LENGTH_TJ);
+                    bsl::stringbuf buf1(MoveUtil::move(str1), &ta1);
+                    bsl::stringbuf buf2(MoveUtil::move(str2), &ta1); // diff
+                    ASSERT(buf1.str() == O);
+                    ASSERT(buf1.get_allocator() == str1.get_allocator());
+                    if (stringCouldBeMovedFrom(str1, &ta1)) {
+                        ASSERT(stringWasMovedFrom(str1));
+                    }
+
+                    ASSERT(buf2.str() == O);
+                    ASSERT(buf2.get_allocator() == bsl::allocator<char>(&ta1));
+                    ASSERT(0 == LENGTH_TJ || !stringWasMovedFrom(str2));
+                }
+
+                // test bsl::stringbuf(MovableRef, mode, allocator)
+                {
+                    loadString(&str1, LENGTH_TJ);
+                    loadString(&str2, LENGTH_TJ);
+                    bsl::stringbuf buf1(MoveUtil::move(str1), mode, &ta1);
+                    bsl::stringbuf buf2(MoveUtil::move(str2), mode, &ta1);
+                    ASSERT(buf1.str() == O);
+                    ASSERT(buf1.get_allocator() == str1.get_allocator());
+                    if (stringCouldBeMovedFrom(str1, &ta1)) {
+                        ASSERT(stringWasMovedFrom(str1));
+                    }
+
+                    ASSERT(buf2.str() == O);
+                    ASSERT(buf2.get_allocator() == bsl::allocator<char>(&ta1));
+                    ASSERT(0 == LENGTH_TJ || !stringWasMovedFrom(str2));
+                }
+
+
+            }
         }
 
         if (veryVerbose)
@@ -2799,6 +3071,22 @@ int main(int argc, char *argv[])
             bsl::stringbuf buf3(bsl::string("something"),
                                 std::ios_base::in,
                                 bslma::Default::allocator());
+
+            bsl::basic_string<char,
+                              bsl::char_traits<char>,
+                              bslma::StdTestAllocator<char> > s1("something");
+
+            bsl::stringbuf buf4(s1);
+            ASSERT(buf4.str() == "something");
+
+            bsl::stringbuf buf5(s1, bsl::allocator<char>());
+            ASSERT(buf5.str() == "something");
+
+            bsl::stringbuf buf6(s1, std::ios_base::in);
+            ASSERT(buf6.str() == "something");
+
+            bsl::stringbuf buf7(s1, std::ios_base::in, bsl::allocator<char>());
+            ASSERT(buf7.str() == "something");
         }
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE

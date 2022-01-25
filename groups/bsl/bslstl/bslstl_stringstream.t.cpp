@@ -7,6 +7,7 @@
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_stdallocator.h>
+#include <bslma_stdtestallocator.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 
@@ -46,16 +47,22 @@
 // [ 3] stringstream(const A&& a);
 // [ 5] stringstream(openmode mask, const A& a = A());
 // [ 6] stringstream(const STRING& s, const A& a = A());
+// [ 6] stringstream(MovableRef<STRING> s, const A& a = A());
 // [ 7] stringstream(const STRING& s, openmode mask, const A& a = A());
+// [ 7] stringstream(MovableRef<STRING> s, openmode mask, const A& a = A());
+// [ 7] stringstream(const OTHER_STRING& s, const A& a = A());
+// [ 7] stringstream(const OTHER_STRING& s, openmode mask, const A& a = A());
 //
 // MANIPULATORS
 // [ 3] operator=(const A&& a);
 // [ 4] void str(const StringType& value);
 // [ 4] void str(MovableRef<StringType> value);
+// [ 4] void str(const StringType<CHAR_TYPE, CHAR_TRAITS, SALLOC>& value);
 //
 // ACCESSORS
 // [ 4] StringType str() const;
 // [ 4] StringType str() &&;
+// [ 4] StringType str(const SALLOC&);
 // [ 4] ViewType view() const;
 // [ 2] StreamBufType *rdbuf() const;
 // ----------------------------------------------------------------------------
@@ -206,6 +213,25 @@ void loadString(StringT *value, int length)
         (*value)[i] =
                      static_cast<typename StringT::value_type>('a' + (i % 26));
     }
+}
+
+template <class StringT>
+bool stringCouldBeMovedFrom(const StringT&                          s,
+                            const typename StringT::allocator_type& otherAlloc)
+    // Return 'true' if the specified string 's' could be moved to another
+    // string that uses the specified allocator 'otherAlloc', and 'false'
+    // otherwise.
+{
+    return s.size() >= LENGTH_OF_SUFFICIENTLY_LONG_STRING &&
+           s.get_allocator() == otherAlloc;
+}
+
+template <class StringT>
+bool stringWasMovedFrom(const StringT& s)
+    // Return 'true' if the specified string 's' was possibly moved from, and
+    // 'false' otherwise.
+{
+    return 0 == s.size();
 }
 
 template <class StreamT, class BaseT, class StringT, class CharT>
@@ -741,8 +767,10 @@ void testCase4()
     // Testing:
     //   void str(const StringType& value);
     //   void str(MovableRef<StringType> value);
+    //   void str(const StringType<CHAR_TYPE, CHAR_TRAITS, SALLOC>& value);
     //   StringType str() const;
     //   StringType str() &&;
+    //   StringType str(const SALLOC&);
     //   ViewType view() const;
     // ------------------------------------------------------------------------
 
@@ -778,6 +806,56 @@ void testCase4()
             ASSERT(X.str()  == T);
             ASSERT(X.view() == T);
         }
+
+        for (int tj = 0; tj < NUM_STRLEN_DATA; ++tj) {
+            const int LENGTH_TJ = STRLEN_DATA[tj].d_length;
+
+            typedef bsl::basic_string<
+                                   CharT,
+                                   typename StringT::traits_type,
+                                   bslma::StdTestAllocator<CharT> > TestString;
+
+            TestString oS;       const TestString& OS = oS;
+            loadString(&oS, LENGTH_TJ);
+
+            // same string as 'oS'; but easier to compare
+            StringT mT(&da);  const StringT& T = mT;
+            loadString(&mT, LENGTH_TJ);
+
+            mX.str(OS);
+            ASSERT(X.str()  == T);
+            ASSERT(X.view() == T);
+        }
+
+#ifndef BSLS_PLATFORM_CMP_SUN
+        // The call 'str(OtherAllocator) is not supported on SunOS, because the
+        // std::allocator there does not support rebind.  This limitation can
+        // be lifted once we fully support C++20, where rebind is removed, and
+        // always goes through 'allocator_traits'.  See {DRQS 168075157} and
+        // https://github.com/bloomberg/bde/pull/268
+        for (int tj = 0; tj < NUM_STRLEN_DATA; ++tj) {
+            typedef std::allocator<CharT> OtherAllocator;
+            typedef bsl::basic_string<CharT,
+                              typename StringT::traits_type,
+                              OtherAllocator>                      OtherString;
+
+            const int LENGTH_TJ = STRLEN_DATA[tj].d_length;
+
+            OtherString oS;       const OtherString& OS = oS;
+            loadString(&oS, LENGTH_TJ);
+
+            // same string as 'oS'; but easier to compare
+            StringT mT(&da);  const StringT& T = mT;
+            loadString(&mT, LENGTH_TJ);
+
+            mX.str(OS);
+            ASSERT(X.str()  == T);
+            ASSERT(X.view() == T);
+
+            OtherString oS2 = X.str(OtherAllocator());
+            ASSERT(oS2 == oS);
+        }
+#endif
 
         for (int tj = 0; tj < NUM_STRLEN_DATA; ++tj) {
             const int LENGTH_TJ = STRLEN_DATA[tj].d_length;
@@ -1081,6 +1159,8 @@ void testCase6()
     //
     // Testing:
     //   stringstream(const STRING& s, const A& a = A());
+    //   stringstream(MovableRef<STRING> s, const A& a = A());
+    //   stringstream(const OTHER_STRING& s, const A& a = A());
     // ------------------------------------------------------------------------
 
     if (verbose) printf("\nSTRING CTOR"
@@ -1187,6 +1267,189 @@ void testCase6()
             ASSERTV(CONFIG,  oa.numBlocksInUse(), 0 ==  oa.numBlocksInUse());
             ASSERTV(CONFIG, noa.numBlocksInUse(), 0 == noa.numBlocksInUse());
         }
+
+        // Once again, only with MovableRef
+        for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
+           typedef BloombergLP::bslmf::MovableRefUtil MoveUtil;
+
+            const char CONFIG = cfg;  // how we specify the allocator
+
+            bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+            bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+            bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
+
+            bslma::DefaultAllocatorGuard dag(&da);
+
+            if (veryVerbose) {
+                printf("\nTesting with various allocator configurations.\n");
+            }
+
+            StreamT              *objPtr;
+            bslma::TestAllocator *objAllocatorPtr;
+
+            StringT mS(&da);  const StringT& S = mS;
+            loadString(&mS, LENGTH);
+            StringT mO(&da);  const StringT& O = mO;
+            loadString(&mO, LENGTH);
+
+            switch (CONFIG) {
+              case 'a': {
+                objPtr = new (fa) StreamT(MoveUtil::move(mS));
+                objAllocatorPtr = &da;
+              } break;
+              case 'b': {
+                objPtr = new (fa) StreamT(MoveUtil::move(mS),
+                                          typename StreamT::allocator_type(0));
+                objAllocatorPtr = &da;
+              } break;
+              case 'c': {
+                objPtr = new (fa) StreamT(MoveUtil::move(mS), &sa);
+                objAllocatorPtr = &sa;
+              } break;
+              default: {
+                ASSERTV(CONFIG, !"Bad allocator config.");
+                return;                                               // RETURN
+              } break;
+            }
+
+            StreamT& mX = *objPtr;  const StreamT& X = mX;
+                                    const BaseT&   B =  X;
+
+            ASSERTV(CONFIG, X.rdbuf());
+            ASSERTV(CONFIG, X.rdbuf() == B.rdbuf());
+            ASSERTV(CONFIG, X.str()   == O);
+
+            if (stringCouldBeMovedFrom(S, objAllocatorPtr)) {
+                ASSERTV(CONFIG, O.size(), S.size(), stringWasMovedFrom(S));
+            }
+
+            mX << 'X';
+
+            if (O.empty()) { mO.resize(1); }
+            mO[0] = static_cast<CharT>('X');
+
+            ASSERTV(CONFIG, X.str() == O);
+
+            CharT c = 'Z';
+            mX >> c;
+
+            ASSERTV(CONFIG, 'X'     == c);
+            ASSERTV(CONFIG, X.str() == O);
+
+            // Reclaim dynamically allocated object under test.
+            fa.deleteObject(objPtr);
+        }
+
+        // And with a different string allocator
+        for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
+            typedef bsl::basic_string<
+                CharT,
+                bsl::char_traits<CharT>,
+                bslma::StdTestAllocator<CharT> > SallocString;
+
+            const char CONFIG = cfg;  // how we specify the allocator
+
+            bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+            bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+            bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
+
+            bslma::DefaultAllocatorGuard dag(&da);
+
+            if (veryVerbose) {
+                printf(
+                     "\nTesting with various allocator configurations.\n");
+            }
+
+            StreamT              *objPtr;
+            bslma::TestAllocator *objAllocatorPtr;
+
+            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+            SallocString        mSallocStr(&scratch);
+            const SallocString& sallocStr = mSallocStr;
+            loadString(&mSallocStr, LENGTH);
+
+            StringT mS(&scratch);  const StringT& S = mS;
+            loadString(&mS, LENGTH);
+
+            switch (CONFIG) {
+              case 'a': {
+                objPtr = new (fa) StreamT(sallocStr);
+                objAllocatorPtr = &da;
+              } break;
+              case 'b': {
+                objPtr = new (fa) StreamT(
+                                      sallocStr,
+                                      typename StreamT::allocator_type(0));
+                objAllocatorPtr = &da;
+              } break;
+              case 'c': {
+                objPtr = new (fa) StreamT(sallocStr, &sa);
+                objAllocatorPtr = &sa;
+              } break;
+              default: {
+                ASSERTV(CONFIG, !"Bad allocator config.");
+                return;                                               // RETURN
+              } break;
+            }
+
+            StreamT& mX = *objPtr;  const StreamT& X = mX;
+                                    const BaseT&   B =  X;
+
+            bslma::TestAllocator&  oa = *objAllocatorPtr;
+            bslma::TestAllocator& noa = 'c' != CONFIG ? sa : da;
+
+            // Verify allocations from the object/non-object allocators.
+
+            if ('N' == MEM) {
+                ASSERTV(CONFIG,  oa.numBlocksTotal(),
+                        0 ==  oa.numBlocksTotal());
+                ASSERTV(CONFIG, noa.numBlocksTotal(),
+                        0 == noa.numBlocksTotal());
+            }
+            else {
+                ASSERTV(CONFIG,  oa.numBlocksTotal(),
+                        0 !=  oa.numBlocksTotal());
+            }
+
+            ASSERTV(CONFIG, X.rdbuf());
+            ASSERTV(CONFIG, X.rdbuf() == B.rdbuf());
+            ASSERTV(CONFIG, X.str()   == S);
+
+            mX << 'X';
+
+            if (S.empty()) { mS.resize(1); }
+            mS[0] = static_cast<CharT>('X');
+
+            ASSERTV(CONFIG, X.str() == S);
+
+            CharT c = 'Z';
+            mX >> c;
+
+            ASSERTV(CONFIG, 'X'     == c);
+            ASSERTV(CONFIG, X.str() == S);
+
+            // Verify no temporary memory is allocated from the object
+            // allocator when supplied.
+
+            if ('c' == CONFIG) {
+                ASSERTV(CONFIG, oa.numBlocksTotal(), oa.numBlocksInUse(),
+                        oa.numBlocksTotal() == oa.numBlocksInUse());
+            }
+
+            // Reclaim dynamically allocated object under test.
+
+            fa.deleteObject(objPtr);
+
+            // Verify all memory is released on object destruction.
+
+            ASSERTV(CONFIG,  fa.numBlocksInUse(),
+                    0 ==  fa.numBlocksInUse());
+            ASSERTV(CONFIG,  oa.numBlocksInUse(),
+                    0 ==  oa.numBlocksInUse());
+            ASSERTV(CONFIG, noa.numBlocksInUse(),
+                    0 == noa.numBlocksInUse());
+        }
     }
 }
 
@@ -1251,6 +1514,8 @@ void testCase7()
     //
     // Testing:
     //   stringstream(const STRING& s, openmode mask, const A& a = A());
+    //   stringstream(MovableRef<STRING> s, openmode mask, const A& a = A());
+    //   stringstream(const OTHER_STRING& s, openmode mask, const A& a = A());
     // ------------------------------------------------------------------------
 
     if (verbose) printf("\nSTRING & OPENMODE CTOR"
@@ -1302,6 +1567,232 @@ void testCase7()
                   } break;
                   case 'c': {
                     objPtr = new (fa) StreamT(S, MODE, &sa);
+                    objAllocatorPtr = &sa;
+                  } break;
+                  default: {
+                    ASSERTV(CONFIG, !"Bad allocator config.");
+                    return;                                           // RETURN
+                  } break;
+                }
+
+                StreamT& mX = *objPtr;  const StreamT& X = mX;
+                                        const BaseT&   B =  X;
+
+                bslma::TestAllocator&  oa = *objAllocatorPtr;
+                bslma::TestAllocator& noa = 'c' != CONFIG ? sa : da;
+
+                // Verify allocations from the object/non-object allocators.
+
+                if ('N' == MEM) {
+                    ASSERTV(CONFIG,  oa.numBlocksTotal(),
+                            0 ==  oa.numBlocksTotal());
+                    ASSERTV(CONFIG, noa.numBlocksTotal(),
+                            0 == noa.numBlocksTotal());
+                }
+                else {
+                    ASSERTV(CONFIG,  oa.numBlocksTotal(),
+                            0 !=  oa.numBlocksTotal());
+                }
+
+                ASSERTV(CONFIG, X.rdbuf());
+                ASSERTV(CONFIG, X.rdbuf() == B.rdbuf());
+                ASSERTV(CONFIG, ti, tj, !IN_OUT || X.str() == S);
+
+                if ((MODE & IosBase::out) || !(MODE & IosBase::in)) {
+                    mX << 'X';  // '>>' test is perturbed if 'out' not set
+                }
+
+                if (MODE & IosBase::out) {
+                    if (MODE & IosBase::ate) {
+                        mS.push_back(static_cast<CharT>('X'));
+                    }
+                    else {
+                        if (S.empty()) { mS.resize(1); }
+                        mS[0] = static_cast<CharT>('X');
+                    }
+                }
+
+                ASSERTV(CONFIG, !IN_OUT || X.str() == S);
+
+                CharT c = 'Z';
+                mX >> c;
+
+                CharT EXPECTED;
+                if (MODE & IosBase::in) {
+                    EXPECTED = (0 == LENGTH) && !(MODE & IosBase::out)
+                               ? 'Z'
+                               : S[0];
+                }
+                else {
+                    EXPECTED = 'Z';
+                }
+
+                ASSERTV(CONFIG, EXPECTED == c);
+                ASSERTV(CONFIG, !IN_OUT || X.str()  == S);
+
+                // Verify no temporary memory is allocated from the object
+                // allocator when supplied.
+
+                if ('c' == CONFIG && !(MODE & IosBase::ate)) {
+                    ASSERTV(CONFIG, oa.numBlocksTotal(), oa.numBlocksInUse(),
+                            oa.numBlocksTotal() == oa.numBlocksInUse());
+                }
+
+                // Reclaim dynamically allocated object under test.
+
+                fa.deleteObject(objPtr);
+
+                // Verify all memory is released on object destruction.
+
+                ASSERTV(CONFIG,  fa.numBlocksInUse(),
+                        0 ==  fa.numBlocksInUse());
+                ASSERTV(CONFIG,  oa.numBlocksInUse(),
+                        0 ==  oa.numBlocksInUse());
+                ASSERTV(CONFIG, noa.numBlocksInUse(),
+                        0 == noa.numBlocksInUse());
+            }
+
+            // Once again, only with MovableRef
+            for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
+                typedef BloombergLP::bslmf::MovableRefUtil MoveUtil;
+
+                const char CONFIG = cfg;  // how we specify the allocator
+
+                bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+                bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+                bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
+
+                bslma::DefaultAllocatorGuard dag(&da);
+
+                if (veryVerbose) {
+                    printf(
+                         "\nTesting with various allocator configurations.\n");
+                }
+
+                StreamT              *objPtr;
+                bslma::TestAllocator *objAllocatorPtr;
+
+                StringT mS(&da);  const StringT& S = mS;
+                loadString(&mS, LENGTH);
+                StringT mO(&da);  const StringT& O = mO;
+                loadString(&mO, LENGTH);
+
+                switch (CONFIG) {
+                  case 'a': {
+                    objPtr = new (fa) StreamT(MoveUtil::move(mS), MODE);
+                    objAllocatorPtr = &da;
+                  } break;
+                  case 'b': {
+                    objPtr = new (fa) StreamT(
+                                          MoveUtil::move(mS),
+                                          MODE,
+                                          typename StreamT::allocator_type(0));
+                    objAllocatorPtr = &da;
+                  } break;
+                  case 'c': {
+                    objPtr = new (fa) StreamT(MoveUtil::move(mS), MODE, &sa);
+                    objAllocatorPtr = &sa;
+                  } break;
+                  default: {
+                    ASSERTV(CONFIG, !"Bad allocator config.");
+                    return;                                           // RETURN
+                  } break;
+                }
+
+                StreamT& mX = *objPtr;  const StreamT& X = mX;
+                                        const BaseT&   B =  X;
+
+                ASSERTV(CONFIG, X.rdbuf());
+                ASSERTV(CONFIG, X.rdbuf() == B.rdbuf());
+                ASSERTV(CONFIG, ti, tj, !IN_OUT || X.str() == O);
+
+                if (stringCouldBeMovedFrom(S, objAllocatorPtr)) {
+                    ASSERTV(CONFIG, O.size(), S.size(), stringWasMovedFrom(S));
+                }
+
+                if ((MODE & IosBase::out) || !(MODE & IosBase::in)) {
+                    mX << 'X';  // '>>' test is perturbed if 'out' not set
+                }
+
+                if (MODE & IosBase::out) {
+                    if (MODE & IosBase::ate) {
+                        mO.push_back(static_cast<CharT>('X'));
+                    }
+                    else {
+                        if (O.empty()) { mO.resize(1); }
+                        mO[0] = static_cast<CharT>('X');
+                    }
+                }
+
+                ASSERTV(CONFIG, !IN_OUT || X.str() == O);
+
+                CharT c = 'Z';
+                mX >> c;
+
+                CharT EXPECTED;
+                if (MODE & IosBase::in) {
+                    EXPECTED = (0 == LENGTH) && !(MODE & IosBase::out)
+                               ? 'Z'
+                               : O[0];
+                }
+                else {
+                    EXPECTED = 'Z';
+                }
+
+                ASSERTV(CONFIG, EXPECTED == c);
+                ASSERTV(CONFIG, !IN_OUT || X.str()  == O);
+
+                // Reclaim dynamically allocated object under test.
+
+                fa.deleteObject(objPtr);
+            }
+
+            // And with a different string allocator
+            for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
+                typedef bsl::basic_string<
+                    CharT,
+                    bsl::char_traits<CharT>,
+                    bslma::StdTestAllocator<CharT> > SallocString;
+
+                const char CONFIG = cfg;  // how we specify the allocator
+
+                bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+                bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+                bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
+
+                bslma::DefaultAllocatorGuard dag(&da);
+
+                if (veryVerbose) {
+                    printf(
+                         "\nTesting with various allocator configurations.\n");
+                }
+
+                StreamT              *objPtr;
+                bslma::TestAllocator *objAllocatorPtr;
+
+                bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+                SallocString        mSallocStr(&scratch);
+                const SallocString& sallocStr = mSallocStr;
+                loadString(&mSallocStr, LENGTH);
+
+                StringT mS(&scratch);  const StringT& S = mS;
+                loadString(&mS, LENGTH);
+
+                switch (CONFIG) {
+                  case 'a': {
+                    objPtr = new (fa) StreamT(sallocStr, MODE);
+                    objAllocatorPtr = &da;
+                  } break;
+                  case 'b': {
+                    objPtr = new (fa) StreamT(
+                                          sallocStr,
+                                          MODE,
+                                          typename StreamT::allocator_type(0));
+                    objAllocatorPtr = &da;
+                  } break;
+                  case 'c': {
+                    objPtr = new (fa) StreamT(sallocStr, MODE, &sa);
                     objAllocatorPtr = &sa;
                   } break;
                   default: {

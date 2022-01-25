@@ -99,13 +99,17 @@ BSL_OVERRIDES_STD mode"
 #endif
 #include <bslscm_version.h>
 
+#include <bslma_isstdallocator.h>
 #include <bslma_usesbslmaallocator.h>
 
+#include <bslmf_enableif.h>
+#include <bslmf_issame.h>
 #include <bslmf_movableref.h>
 
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
+#include <bsls_platform.h>
 
 #include <bslstl_string.h>
 #include <bslstl_stringview.h>
@@ -143,6 +147,8 @@ class basic_istringstream
     typedef native_std::basic_istream<CHAR_TYPE, CHAR_TRAITS>    BaseStream;
     typedef native_std::ios_base                                 ios_base;
 
+    typedef BloombergLP::bslmf::MovableRefUtil                   MoveUtil;
+
   private:
     // NOT IMPLEMENTED
     basic_istringstream(const basic_istringstream&);             // = delete
@@ -159,20 +165,16 @@ class basic_istringstream
 
     // CREATORS
     explicit
-    basic_istringstream(
-                      const allocator_type& basicAllocator = allocator_type());
+    basic_istringstream(const allocator_type& allocator = allocator_type());
     explicit
-    basic_istringstream(
-                      ios_base::openmode    modeBitMask,
-                      const allocator_type& basicAllocator = allocator_type());
+    basic_istringstream(ios_base::openmode    modeBitMask,
+                        const allocator_type& allocator = allocator_type());
     explicit
-    basic_istringstream(
-                      const StringType&     initialString,
-                      const allocator_type& basicAllocator = allocator_type());
-    basic_istringstream(
-                      const StringType&     initialString,
-                      ios_base::openmode    modeBitMask,
-                      const allocator_type& basicAllocator = allocator_type());
+    basic_istringstream(const StringType&     initialString,
+                        const allocator_type& allocator = allocator_type());
+    basic_istringstream(const StringType&     initialString,
+                        ios_base::openmode    modeBitMask,
+                        const allocator_type& allocator = allocator_type());
         // Create a 'basic_istringstream' object.  Optionally specify a
         // 'modeBitMask' indicating whether the underlying stream-buffer may
         // also be written to ('rdbuf' is created using
@@ -181,15 +183,98 @@ class basic_istringstream
         // 'initialString' indicating the sequence of characters from which
         // input will be streamed.  If 'initialString' is not supplied, there
         // will not be data to stream (until a subsequent call to the 'str'
-        // manipulator).  Optionally specify the 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is not supplied, a
-        // default-constructed object of the (template parameter) 'ALLOCATOR'
-        // type is used.  If the 'ALLOCATOR' argument is of type
-        // 'bsl::allocator' (the default), then 'basicAllocator', if supplied,
-        // shall be convertible to 'bslma::Allocator *'.  If the 'ALLOCATOR'
-        // argument is of type 'bsl::allocator' and 'basicAllocator' is not
-        // supplied, the currently installed default allocator will be used to
-        // supply memory.
+        // manipulator).  Optionally specify the 'allocator' used to supply
+        // memory.  If 'allocator' is not supplied, a default-constructed
+        // object of the (template parameter) 'ALLOCATOR' type is used.  If the
+        // 'ALLOCATOR' argument is of type 'bsl::allocator' (the default), then
+        // 'allocator', if supplied, shall be convertible to
+        // 'bslma::Allocator *'.  If the 'ALLOCATOR' argument is of type
+        // 'bsl::allocator' and 'allocator' is not supplied, the currently
+        // installed default allocator will be used to supply memory.  If
+        // 'initialString' is passed by 'MovableRef', it is left in a valid but
+        // unspecified state.
+
+    explicit
+    basic_istringstream(
+                     BloombergLP::bslmf::MovableRef<StringType> initialString);
+    basic_istringstream(
+                      BloombergLP::bslmf::MovableRef<StringType> initialString,
+                      const allocator_type&                      allocator);
+    basic_istringstream(
+                      BloombergLP::bslmf::MovableRef<StringType> initialString,
+                      ios_base::openmode                         modeBitMask);
+    basic_istringstream(
+                      BloombergLP::bslmf::MovableRef<StringType> initialString,
+                      ios_base::openmode                         modeBitMask,
+                      const allocator_type&                      allocator);
+        // Create a 'basic_istringstream' object.  Use the specified
+        // 'initialString' indicating the initial sequence of characters from
+        // which input will be streamed.  Optionally specify a 'modeBitMask'
+        // indicating whether the underlying stream-buffer may also be written
+        // to ('rdbuf' is created using 'modeBitMask | ios_base::in').  If
+        // 'modeBitMask' is not supplied, 'rdbuf' will be created using
+        // 'ios_base::in'.  Optionally specify the 'allocator' used to supply
+        // memory.  If 'allocator' is not supplied, the allocator in
+        // 'initialString' is used.  'initialString' is left in a valid but
+        // unspecified state.
+
+    template <class SALLOC>
+    basic_istringstream(
+        const bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, SALLOC>&
+                                                  initialString,
+        const allocator_type&                     allocator = allocator_type(),
+        typename bsl::enable_if<
+                    !bsl::is_same<ALLOCATOR, SALLOC>::value, void *>::type = 0)
+        // Create a 'basic_istringstream' object.  Use the specified
+        // 'initialString' indicating the sequence of characters from which
+        // input will be streamed.  'rdbuf' is created using 'ios_base::in'.
+        // Optionally specify the 'allocator' used to supply memory.  If
+        // 'allocator' is not supplied, a default-constructed object of the
+        // (template parameter) 'ALLOCATOR' type is used.  If the 'ALLOCATOR'
+        // argument is of type 'bsl::allocator' (the default), then
+        // 'allocator', if supplied, shall be convertible to
+        // 'bslma::Allocator *'.  If the 'ALLOCATOR' argument is of type
+        // 'bsl::allocator' and 'allocator' is not supplied, the currently
+        // installed default allocator will be used to supply memory.
+        //
+        // Note: implemented inline due to Sun CC compilation error.
+    : BaseType(initialString.begin(),
+               initialString.end(),
+               ios_base::in,
+               allocator)
+    , BaseStream(BaseType::rdbuf())
+    {
+    }
+
+    template <class SALLOC>
+    basic_istringstream(
+        const bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, SALLOC>&
+                                                  initialString,
+        ios_base::openmode                        modeBitMask,
+        const allocator_type&                     allocator = allocator_type(),
+        typename bsl::enable_if<
+                    !bsl::is_same<ALLOCATOR, SALLOC>::value, void *>::type = 0)
+        // Create a 'basic_istringstream' object.  Use the specified
+        // 'initialString' indicating the sequence of characters from which
+        // input will be streamed.  Use the specified 'modeBitMask' to indicate
+        // whether this buffer may be read from, written to, or both.
+        // Optionally specify the 'allocator' used to supply memory.  If
+        // 'allocator' is not supplied, a default-constructed object of the
+        // (template parameter) 'ALLOCATOR' type is used.  If the 'ALLOCATOR'
+        // argument is of type 'bsl::allocator' (the default), then
+        // 'allocator', if supplied, shall be convertible to
+        // 'bslma::Allocator *'.  If the 'ALLOCATOR' argument is of type
+        // 'bsl::allocator' and 'allocator' is not supplied, the currently
+        // installed default allocator will be used to supply memory.
+        //
+        // Note: implemented inline due to Sun CC compilation error.
+    : BaseType(initialString.begin(),
+               initialString.end(),
+               modeBitMask | ios_base::in,
+               allocator)
+    , BaseStream(BaseType::rdbuf())
+    {
+    }
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
     basic_istringstream(basic_istringstream&& original);
@@ -213,9 +298,18 @@ class basic_istringstream
 
     void str(const StringType& value);
     void str(BloombergLP::bslmf::MovableRef<StringType> value);
+    template <class SALLOC>
+    typename
+        bsl::enable_if<!bsl::is_same<ALLOCATOR, SALLOC>::value, void>::type
+    str(const basic_string<CHAR_TYPE, CHAR_TRAITS, SALLOC>& value)
         // Reset the internally buffered sequence of characters provided as
         // input by this stream to the specified 'value'.  If 'value' is passed
         // by 'MovableRef', it is left in a valid but unspecified state.
+        //
+        // Note: implemented inline due to Sun CC compilation error.
+    {
+        this->rdbuf()->str(value);
+    }
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
     StringType str() &&;
@@ -236,6 +330,23 @@ class basic_istringstream
 #endif
         // Return the internally buffered sequence of characters maintained by
         // this stream object.
+
+#ifndef BSLS_PLATFORM_CMP_SUN
+    // To be enabled once {DRQS 168075157} is resolved
+    template <class SALLOC>
+    typename bsl::enable_if<
+        bsl::IsStdAllocator<SALLOC>::value,
+        basic_string<CHAR_TYPE, CHAR_TRAITS, SALLOC> >::type
+    str(const SALLOC& allocator) const
+        // Return a copy of the internally buffered sequence of characters
+        // maintained by this stream object in a 'basic_string' that uses the
+        // specified 'allocator'.
+        //
+        // Note: implemented inline due to Sun CC compilation error.
+    {
+        return this->rdbuf()->str(allocator);
+    }
+#endif
 
     ViewType view() const BSLS_KEYWORD_NOEXCEPT;
         // Return a view of the internally buffered sequence of characters
@@ -260,8 +371,8 @@ typedef basic_istringstream<wchar_t, char_traits<wchar_t>, allocator<wchar_t> >
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
-basic_istringstream(const allocator_type& basicAllocator)
-: BaseType(ios_base::in, basicAllocator)
+basic_istringstream(const allocator_type& allocator)
+: BaseType(ios_base::in, allocator)
 , BaseStream(BaseType::rdbuf())
 {
 }
@@ -270,8 +381,8 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
 basic_istringstream(ios_base::openmode    modeBitMask,
-                    const allocator_type& basicAllocator)
-: BaseType(modeBitMask | ios_base::in, basicAllocator)
+                    const allocator_type& allocator)
+: BaseType(modeBitMask | ios_base::in, allocator)
 , BaseStream(BaseType::rdbuf())
 {
 }
@@ -280,8 +391,8 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
 basic_istringstream(const StringType&     initialString,
-                    const allocator_type& basicAllocator)
-: BaseType(initialString, ios_base::in, basicAllocator)
+                    const allocator_type& allocator)
+: BaseType(initialString, ios_base::in, allocator)
 , BaseStream(BaseType::rdbuf())
 {
 }
@@ -291,8 +402,50 @@ inline
 basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
 basic_istringstream(const StringType&     initialString,
                     ios_base::openmode    modeBitMask,
-                    const allocator_type& basicAllocator)
-: BaseType(initialString, modeBitMask | ios_base::in, basicAllocator)
+                    const allocator_type& allocator)
+: BaseType(initialString, modeBitMask | ios_base::in, allocator)
+, BaseStream(BaseType::rdbuf())
+{
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+inline
+basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
+basic_istringstream(BloombergLP::bslmf::MovableRef<StringType> initialString)
+: BaseType(MoveUtil::move(initialString), ios_base::in)
+, BaseStream(BaseType::rdbuf())
+{
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+inline
+basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
+basic_istringstream(BloombergLP::bslmf::MovableRef<StringType> initialString,
+                    const allocator_type&                      allocator)
+: BaseType(MoveUtil::move(initialString), ios_base::in, allocator)
+, BaseStream(BaseType::rdbuf())
+{
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+inline
+basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
+basic_istringstream(BloombergLP::bslmf::MovableRef<StringType> initialString,
+                    ios_base::openmode                         modeBitMask)
+: BaseType(MoveUtil::move(initialString), modeBitMask | ios_base::in)
+, BaseStream(BaseType::rdbuf())
+{
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+inline
+basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
+basic_istringstream(BloombergLP::bslmf::MovableRef<StringType> initialString,
+                    ios_base::openmode                         modeBitMask,
+                    const allocator_type&                      allocator)
+: BaseType(MoveUtil::move(initialString),
+           modeBitMask | ios_base::in,
+           allocator)
 , BaseStream(BaseType::rdbuf())
 {
 }
@@ -337,9 +490,7 @@ inline
 void basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::str(
                               BloombergLP::bslmf::MovableRef<StringType> value)
 {
-    typedef BloombergLP::bslmf::MovableRefUtil MoveUtil;
-    StringType& lvalue = value;
-    this->rdbuf()->str(MoveUtil::move(lvalue));
+    this->rdbuf()->str(MoveUtil::move(value));
 }
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
