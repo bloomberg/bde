@@ -22,7 +22,6 @@
 // '#include'd in the original header.
 //
 // Generated on Wed Jan 26 16:00:53 2022
-// Command line: sim_cpp11_features.pl bslstl_optional.h
 
 #ifdef COMPILING_BSLSTL_OPTIONAL_H
 
