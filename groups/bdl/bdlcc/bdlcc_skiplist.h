@@ -2322,8 +2322,8 @@ int SkipList<KEY, DATA>::removeAllMaybeUnlock(VECTOR *removed, bool unlock)
 
     BSLMT_MUTEXASSERT_IS_LOCKED(&d_lock);
 
-    Node * const begin      = d_head_p->d_ptrs[0].d_next_p;
-    Node * const end        = d_tail_p;
+    Node * const begin      = d_head_p;
+    Node * const end        = d_tail_p->d_ptrs[0].d_prev_p;
     int          numRemoved = d_length;
 
     for (int ii = 0; ii <= d_listLevel; ++ii) {
@@ -2332,30 +2332,36 @@ int SkipList<KEY, DATA>::removeAllMaybeUnlock(VECTOR *removed, bool unlock)
     }
     d_length = 0;
 
-    if (removed) {
-        const FactoryType factory(this);
-
-        removed->reserve(removed->size() + numRemoved);
-        for (Node *q = begin; end != q; ) {
-            Node *condemned = q;
-            q = q->d_ptrs[0].d_next_p;
-            condemned->d_ptrs[0].d_next_p = 0;
-
-            removed->push_back(factory(condemned));
-        }
-    }
-    else {
-        for (Node *q = begin; end != q; ) {
-            Node *condemned = q;
-            q = q->d_ptrs[0].d_next_p;
-            condemned->d_ptrs[0].d_next_p = 0;
-
-            releaseNode(condemned);
-        }
+    for (Node *q = end; begin != q; q = q->d_ptrs[0].d_prev_p) {
+        q->d_ptrs[0].d_next_p = 0;    // Marks node as removed from list,
+                                      // must be done before mutex unlock.
     }
 
     if (unlock) {
         d_lock.unlock();
+    }
+
+    if (removed) {
+        const FactoryType factory(this);
+
+        // 'oldSize' must be a signed type to be compared to the subtraction
+        // in the assertion after the loop.
+
+        const bsls::Types::IntPtr oldSize = removed->size();
+        removed->resize(oldSize + numRemoved);
+        typename VECTOR::reverse_iterator removedIt = removed->rbegin();
+        for (Node *q = end; begin != q; q = q->d_ptrs[0].d_prev_p) {
+            *removedIt++ = factory(q);
+        }
+        BSLS_ASSERT(oldSize == removed->rend() - removedIt);
+    }
+    else {
+        for (Node *q = end; begin != q; ) {
+            Node *condemned = q;
+            q = q->d_ptrs[0].d_prev_p;
+
+            releaseNode(condemned);
+        }
     }
 
     return numRemoved;
@@ -2854,7 +2860,7 @@ SkipList<KEY, DATA>::~SkipList()
 
         checkInvariants();
     }
-#endif    
+#endif
 
     Node *p = d_head_p->d_ptrs[0].d_next_p;
     while (p != d_tail_p) {

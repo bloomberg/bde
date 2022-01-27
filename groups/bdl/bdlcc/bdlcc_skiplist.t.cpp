@@ -4507,61 +4507,130 @@ void run()
 
 }  // close namespace SKIPLIST_OLD_TEST_CASES_NAMEPSACE
 
-namespace SKIPLIST_REPRODUCE_DRQS_167716470 {
+namespace SKIPLIST_REPRODUCE_DRQS_167644288 {
 
-enum { k_MILLION = 1000 * 1000 };
+// This test case is addressing a data race found in DRQS 167644288, between
+// 'update' and 'removeAll'.
 
-typedef bdlcc::SkipList<int, int> SL;
+enum { k_MILLION                = 1000 * 1000,
+       k_NUM_UPDATE_THREADS     = 10,
+       k_NUM_REMOVE_ALL_THREADS = 10 };
 
-bslmt::Barrier barrier(20);
+typedef bdlcc::SkipList<int, int> Obj;
 
-enum { e_MODE_REMOVE_NODE,
-       e_MODE_UPDATE } mode;
-
-struct RemoveNodeFunctor {
-    SL *d_skipList_p;
-
-    void operator()();
-};
-
-void RemoveNodeFunctor::operator()()
+void updateNodes(bslmt::Barrier *barrier_p, Obj *skiplist_p)
+    // Randomly add, find, and update nodes.
 {
-    barrier.wait();
+    barrier_p->wait();
 
-    for (int ii = 0; ii < 1000; ++ii) {
+    for (int ii = 0; ii < 2000; ++ii) {
         for (int jj = 0; jj < 10; ++jj) {
-            d_skipList_p->add(ii, 7);
+            skiplist_p->add(ii, 7);
         }
         int rc;
         do {
-            SL::Pair *pr;
-            rc = d_skipList_p->findRaw(&pr, ii);
+            Obj::Pair *pr;
+            rc = skiplist_p->findRaw(&pr, ii);
             if (0 == rc) {
-                if (e_MODE_UPDATE == mode) {
-                    (void) d_skipList_p->update(pr, ii + k_MILLION);
-                }
-                else {
-                    (void) d_skipList_p->remove(pr);
-                }
+                (void) skiplist_p->update(pr, ii + k_MILLION);
             }
         } while (0 == rc);
     }
 }
 
-struct ReleaseAllFunctor {
-    SL *d_skipList_p;
-
-    void operator()();
-};
-        
-void ReleaseAllFunctor::operator()()
+void removeAll(bslmt::Barrier *barrier_p, Obj *skiplist_p)
+    // Repeatedly call 'Skiplist::removeAll'.
 {
-    barrier.wait();
+    barrier_p->wait();
 
-    for (int ii = 0; ii < 10 * 1000; ++ii) {
-        d_skipList_p->removeAll();
+    for (int ii = 0; ii < 20 * 1000; ++ii) {
+        skiplist_p->removeAll();
+    }
+}
+
+void test()
+    // Spawn many thread that repeatly call 'update', and simultaneously spawn
+    // many threads that repeatedly call 'removeAll'.
+{
+    if (verbose) cout << "Data race update vs removeAll\n";
+
+    bslmt::Barrier barrier(k_NUM_UPDATE_THREADS + k_NUM_REMOVE_ALL_THREADS);
+    Obj mX;
+
+    bslmt::ThreadGroup tg;
+
+    tg.addThreads(bdlf::BindUtil::bind(&updateNodes, &barrier, &mX),
+                  k_NUM_UPDATE_THREADS);
+    tg.addThreads(bdlf::BindUtil::bind(&removeAll, &barrier, &mX),
+                  k_NUM_REMOVE_ALL_THREADS);
+    tg.joinAll();
+
+    mX.removeAll();
+}
+
+}  // close namespace SKIPLIST_REPRODUCE_DRQS_167644288
+
+namespace SKIPLIST_REPRODUCE_DRQS_167716470 {
+
+// This test case is addressing the data race found in DRQS 167716470 between
+// removeNode and removeAll.
+
+enum { k_NUM_REMOVE_NODE_THREADS = 10,
+       k_NUM_REMOVE_ALL_THREADS  = 10 };
+
+typedef bdlcc::SkipList<int, int> Obj;
+
+void removeNodes(bslmt::Barrier *barrier_p, Obj *skiplist_p)
+    // Randomly add, find, and remove nodes.
+{
+    barrier_p->wait();
+
+    for (int ii = 0; ii < 2000; ++ii) {
+        for (int jj = 0; jj < 10; ++jj) {
+            skiplist_p->add(ii, 7);
+        }
+        int rc;
+        do {
+            Obj::Pair *pr;
+            rc = skiplist_p->findRaw(&pr, ii);
+            if (0 == rc) {
+                (void) skiplist_p->remove(pr);
+            }
+        } while (0 == rc);
+    }
+}
+
+void releaseAll(bslmt::Barrier *barrier_p, Obj *skiplist_p)
+    // Repeatedly call 'Skiplist::removeAll'.
+{
+    barrier_p->wait();
+
+    for (int ii = 0; ii < 20 * 1000; ++ii) {
+        skiplist_p->removeAll();
     }
 };
+
+void test()
+    // Spawn many thread that repeatly call 'remove', and simultaneously spawn
+    // many threads that repeatedly call 'removeAll'.
+{
+    if (verbose) cout << "Data race removeNode vs removeAll\n";
+
+    Obj mX;
+
+    bslmt::Barrier barrier(
+                         k_NUM_REMOVE_NODE_THREADS + k_NUM_REMOVE_ALL_THREADS);
+
+    bslmt::ThreadGroup tg;
+
+    tg.addThreads(bdlf::BindUtil::bind(&removeNodes, &barrier, &mX),
+                  k_NUM_REMOVE_NODE_THREADS);
+    tg.addThreads(bdlf::BindUtil::bind(&releaseAll,  &barrier, &mX),
+                  k_NUM_REMOVE_ALL_THREADS);
+    tg.joinAll();
+
+    mX.removeAll();
+}
 
 }  // close namespace SKIPLIST_REPRODUCE_DRQS_167716470
 
@@ -4700,37 +4769,45 @@ int main(int argc, char *argv[])
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 28:
       case 29: {
         // --------------------------------------------------------------------
-        // Reproduce race condtiions in DRQS 167716470 / DRQS 167644288
+        // Reproduce data race in DRQS 167644288
+        //
+        // Concern:
+        //: 1 DRQS 167644288 identified a data race between 'removeAll' and
+        //:   'update'.  This was actually a data race between 'removeAll' and
+        //:   many parts of the component.  This test case was to reproduce the
+        //:   bug, and then verify the fix.
         //
         // Plan:
-        //: 1 Test case 28 tests the race condition between 'removeAll' and
-        //:   'removeNode'.
-        //:
-        //: 2 Test case 29 tests the race condition between 'removeAll' and
-        //:   'update'.
+        //: 1 Run many threads that repeatedly add and update individual nodes,
+        //:   and many other threads that call 'removeAll', and see if any
+        //:   segfaults happen.
+        // --------------------------------------------------------------------
+
+        namespace TC = SKIPLIST_REPRODUCE_DRQS_167644288;
+
+        TC::test();
+      } break;
+      case 28: {
+        // --------------------------------------------------------------------
+        // Reproduce data race in DRQS 167716470
+        //
+        // Concern:
+        //: 1 DRQS 167716470 identified a data race between 'removeAll' and
+        //:   'removeNode'.  This was actually a data race between 'removeAll'
+        //:   and many parts of the component.  This test case was to reproduce
+        //:   the bug, and then verify the fix.
+        //
+        // Plan:
+        //: 1 Run many threads that repeatedly add and remove individual
+        //:   nodes, and many other threads that call 'removeAll', and see
+        //:   if any segfaults happen.
         // --------------------------------------------------------------------
 
         namespace TC = SKIPLIST_REPRODUCE_DRQS_167716470;
 
-        TC::SL sl;
-
-        TC::RemoveNodeFunctor rnFunc = { &sl };
-        TC::ReleaseAllFunctor raFunc = { &sl };
-
-        bslmt::ThreadGroup tg;
-
-        TC::mode = 28 == test
-                 ? TC::e_MODE_REMOVE_NODE
-                 : TC::e_MODE_UPDATE;
-
-        tg.addThreads(rnFunc, 10);
-        tg.addThreads(raFunc, 10);
-        tg.joinAll();
-
-        sl.removeAll();
+        TC::test();
       } break;
       case 27: {
         // --------------------------------------------------------------------
