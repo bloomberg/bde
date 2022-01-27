@@ -8157,7 +8157,7 @@ Variant(TYPE&&                   value,
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
 #else
 Variant(bslmf::MovableRef<TYPE>  value)
-: Imp(MoveUtil::move(MoveUtil::access(value)))
+: Imp(MoveUtil::move(value))
 #endif
 {
 }
@@ -8178,7 +8178,7 @@ Variant(TYPE&&                   value,
 #else
 Variant(bslmf::MovableRef<TYPE>  value,
         bslma::Allocator        *basicAllocator)
-: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
+: Imp(MoveUtil::move(value), basicAllocator)
 #endif
 {
 }
@@ -8326,7 +8326,7 @@ Variant(TYPE&&                   value,
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
 #else
 Variant(bslmf::MovableRef<TYPE>  value)
-: Imp(MoveUtil::move(MoveUtil::access(value)))
+: Imp(MoveUtil::move(value))
 #endif
 {
 }
@@ -8351,7 +8351,7 @@ Variant(TYPE&&                   value,
 #else
 Variant(bslmf::MovableRef<TYPE>  value,
         bslma::Allocator        *basicAllocator)
-: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
+: Imp(MoveUtil::move(value), basicAllocator)
 #endif
 {
 }
@@ -8534,7 +8534,7 @@ Variant2(TYPE&&                   value,
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
 #else
 Variant2(bslmf::MovableRef<TYPE>  value)
-: Imp(MoveUtil::move(MoveUtil::access(value)))
+: Imp(MoveUtil::move(value))
 #endif
 {
 }
@@ -8555,7 +8555,7 @@ Variant2(TYPE&&                   value,
 #else
 Variant2(bslmf::MovableRef<TYPE>  value,
          bslma::Allocator        *basicAllocator)
-: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
+: Imp(MoveUtil::move(value), basicAllocator)
 #endif
 {
 }
@@ -8685,7 +8685,7 @@ Variant3(TYPE&&                   value,
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
 #else
 Variant3(bslmf::MovableRef<TYPE>  value)
-: Imp(MoveUtil::move(MoveUtil::access(value)))
+: Imp(MoveUtil::move(value))
 #endif
 {
 }
@@ -8706,7 +8706,7 @@ Variant3(TYPE&&                   value,
 #else
 Variant3(bslmf::MovableRef<TYPE>  value,
         bslma::Allocator         *basicAllocator)
-: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
+: Imp(MoveUtil::move(value), basicAllocator)
 #endif
 {
 }
@@ -8838,7 +8838,7 @@ Variant4(TYPE&&                   value,
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
 #else
 Variant4(bslmf::MovableRef<TYPE>  value)
-: Imp(MoveUtil::move(MoveUtil::access(value)))
+: Imp(MoveUtil::move(value))
 #endif
 {
 }
@@ -8859,7 +8859,7 @@ Variant4(TYPE&&                   value,
 #else
 Variant4(bslmf::MovableRef<TYPE>  value,
          bslma::Allocator        *basicAllocator)
-: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
+: Imp(MoveUtil::move(value), basicAllocator)
 #endif
 {
 }
@@ -8991,7 +8991,7 @@ Variant5(TYPE&&                   value,
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
 #else
 Variant5(bslmf::MovableRef<TYPE>  value)
-: Imp(MoveUtil::move(MoveUtil::access(value)))
+: Imp(MoveUtil::move(value))
 #endif
 {
 }
@@ -9012,7 +9012,7 @@ Variant5(TYPE&&                   value,
 #else
 Variant5(bslmf::MovableRef<TYPE>  value,
          bslma::Allocator        *basicAllocator)
-: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
+: Imp(MoveUtil::move(value), basicAllocator)
 #endif
 {
 }
@@ -9144,7 +9144,7 @@ Variant6(TYPE&&                   value,
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
 #else
 Variant6(bslmf::MovableRef<TYPE>  value)
-: Imp(MoveUtil::move(MoveUtil::access(value)))
+: Imp(MoveUtil::move(value))
 #endif
 {
 }
@@ -9165,7 +9165,7 @@ Variant6(TYPE&&                   value,
 #else
 Variant6(bslmf::MovableRef<TYPE>  value,
          bslma::Allocator        *basicAllocator)
-: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
+: Imp(MoveUtil::move(value), basicAllocator)
 #endif
 {
 }
@@ -9297,7 +9297,7 @@ Variant7(TYPE&&                   value,
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
 #else
 Variant7(bslmf::MovableRef<TYPE>  value)
-: Imp(MoveUtil::move(MoveUtil::access(value)))
+: Imp(MoveUtil::move(value))
 #endif
 {
 }
@@ -9318,7 +9318,7 @@ Variant7(TYPE&&                   value,
 #else
 Variant7(bslmf::MovableRef<TYPE>  value,
          bslma::Allocator        *basicAllocator)
-: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
+: Imp(MoveUtil::move(value), basicAllocator)
 #endif
 {
 }
@@ -9456,7 +9456,7 @@ Variant8(TYPE&&                   value,
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
 #else
 Variant8(bslmf::MovableRef<TYPE>  value)
-: Imp(MoveUtil::move(MoveUtil::access(value)))
+: Imp(MoveUtil::move(value))
 #endif
 {
 }
@@ -9478,7 +9478,7 @@ Variant8(TYPE&&                   value,
 #else
 Variant8(bslmf::MovableRef<TYPE>  value,
          bslma::Allocator        *basicAllocator)
-: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
+: Imp(MoveUtil::move(value), basicAllocator)
 #endif
 {
 }
@@ -9625,7 +9625,7 @@ Variant9(TYPE&&                   value,
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
 #else
 Variant9(bslmf::MovableRef<TYPE>  value)
-: Imp(MoveUtil::move(MoveUtil::access(value)))
+: Imp(MoveUtil::move(value))
 #endif
 {
 }
@@ -9647,7 +9647,7 @@ Variant9(TYPE&&                   value,
 #else
 Variant9(bslmf::MovableRef<TYPE>  value,
          bslma::Allocator        *basicAllocator)
-: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
+: Imp(MoveUtil::move(value), basicAllocator)
 #endif
 {
 }
@@ -9795,7 +9795,7 @@ Variant10(TYPE&&                   value,
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
 #else
 Variant10(bslmf::MovableRef<TYPE>  value)
-: Imp(MoveUtil::move(MoveUtil::access(value)))
+: Imp(MoveUtil::move(value))
 #endif
 {
 }
@@ -9817,7 +9817,7 @@ Variant10(TYPE&&                   value,
 #else
 Variant10(bslmf::MovableRef<TYPE>  value,
           bslma::Allocator        *basicAllocator)
-: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
+: Imp(MoveUtil::move(value), basicAllocator)
 #endif
 {
 }
@@ -9966,7 +9966,7 @@ Variant11(TYPE&&                   value,
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
 #else
 Variant11(bslmf::MovableRef<TYPE>  value)
-: Imp(MoveUtil::move(MoveUtil::access(value)))
+: Imp(MoveUtil::move(value))
 #endif
 {
 }
@@ -9988,7 +9988,7 @@ Variant11(TYPE&&                   value,
 #else
 Variant11(bslmf::MovableRef<TYPE>  value,
           bslma::Allocator        *basicAllocator)
-: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
+: Imp(MoveUtil::move(value), basicAllocator)
 #endif
 {
 }
@@ -10137,7 +10137,7 @@ Variant12(TYPE&&                   value,
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
 #else
 Variant12(bslmf::MovableRef<TYPE>  value)
-: Imp(MoveUtil::move(MoveUtil::access(value)))
+: Imp(MoveUtil::move(value))
 #endif
 {
 }
@@ -10159,7 +10159,7 @@ Variant12(TYPE&&                   value,
 #else
 Variant12(bslmf::MovableRef<TYPE>  value,
           bslma::Allocator        *basicAllocator)
-: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
+: Imp(MoveUtil::move(value), basicAllocator)
 #endif
 {
 }
@@ -10312,7 +10312,7 @@ Variant13(TYPE&&                   value,
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
 #else
 Variant13(bslmf::MovableRef<TYPE>  value)
-: Imp(MoveUtil::move(MoveUtil::access(value)))
+: Imp(MoveUtil::move(value))
 #endif
 {
 }
@@ -10335,7 +10335,7 @@ Variant13(TYPE&&                   value,
 #else
 Variant13(bslmf::MovableRef<TYPE>  value,
           bslma::Allocator        *basicAllocator)
-: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
+: Imp(MoveUtil::move(value), basicAllocator)
 #endif
 {
 }
@@ -10496,7 +10496,7 @@ Variant14(TYPE&&                   value,
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
 #else
 Variant14(bslmf::MovableRef<TYPE>  value)
-: Imp(MoveUtil::move(MoveUtil::access(value)))
+: Imp(MoveUtil::move(value))
 #endif
 {
 }
@@ -10519,7 +10519,7 @@ Variant14(TYPE&&                   value,
 #else
 Variant14(bslmf::MovableRef<TYPE>  value,
           bslma::Allocator        *basicAllocator)
-: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
+: Imp(MoveUtil::move(value), basicAllocator)
 #endif
 {
 }
@@ -10680,7 +10680,7 @@ Variant15(TYPE&&                   value,
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
 #else
 Variant15(bslmf::MovableRef<TYPE>  value)
-: Imp(MoveUtil::move(MoveUtil::access(value)))
+: Imp(MoveUtil::move(value))
 #endif
 {
 }
@@ -10703,7 +10703,7 @@ Variant15(TYPE&&                   value,
 #else
 Variant15(bslmf::MovableRef<TYPE>  value,
           bslma::Allocator        *basicAllocator)
-: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
+: Imp(MoveUtil::move(value), basicAllocator)
 #endif
 {
 }
@@ -10869,7 +10869,7 @@ Variant16(TYPE&&                   value,
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
 #else
 Variant16(bslmf::MovableRef<TYPE>  value)
-: Imp(MoveUtil::move(MoveUtil::access(value)))
+: Imp(MoveUtil::move(value))
 #endif
 {
 }
@@ -10893,7 +10893,7 @@ Variant16(TYPE&&                   value,
 #else
 Variant16(bslmf::MovableRef<TYPE>  value,
           bslma::Allocator        *basicAllocator)
-: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
+: Imp(MoveUtil::move(value), basicAllocator)
 #endif
 {
 }
@@ -11069,7 +11069,7 @@ Variant17(TYPE&&                   value,
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
 #else
 Variant17(bslmf::MovableRef<TYPE>  value)
-: Imp(MoveUtil::move(MoveUtil::access(value)))
+: Imp(MoveUtil::move(value))
 #endif
 {
 }
@@ -11093,7 +11093,7 @@ Variant17(TYPE&&                   value,
 #else
 Variant17(bslmf::MovableRef<TYPE>  value,
           bslma::Allocator        *basicAllocator)
-: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
+: Imp(MoveUtil::move(value), basicAllocator)
 #endif
 {
 }
@@ -11269,7 +11269,7 @@ Variant18(TYPE&&                   value,
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
 #else
 Variant18(bslmf::MovableRef<TYPE>  value)
-: Imp(MoveUtil::move(MoveUtil::access(value)))
+: Imp(MoveUtil::move(value))
 #endif
 {
 }
@@ -11293,7 +11293,7 @@ Variant18(TYPE&&                   value,
 #else
 Variant18(bslmf::MovableRef<TYPE>  value,
           bslma::Allocator        *basicAllocator)
-: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
+: Imp(MoveUtil::move(value), basicAllocator)
 #endif
 {
 }
@@ -11473,7 +11473,7 @@ Variant19(TYPE&&                   value,
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
 #else
 Variant19(bslmf::MovableRef<TYPE>  value)
-: Imp(MoveUtil::move(MoveUtil::access(value)))
+: Imp(MoveUtil::move(value))
 #endif
 {
 }
@@ -11498,7 +11498,7 @@ Variant19(TYPE&&                   value,
 #else
 Variant19(bslmf::MovableRef<TYPE>  value,
           bslma::Allocator        *basicAllocator)
-: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
+: Imp(MoveUtil::move(value), basicAllocator)
 #endif
 {
 }
