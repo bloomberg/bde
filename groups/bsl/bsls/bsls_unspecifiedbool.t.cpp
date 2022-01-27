@@ -415,13 +415,13 @@ int main(int argc, char *argv[])
             ASSERT(!br);
 
             // aggregate initialization (array)
-            const bool bar[] = { bt };
+            const bool bar[] = { static_cast<bool>(bt) };
             ASSERT(!bar[0]);
 
             // aggregate initialization
             struct Aggregate {
                 bool data;
-            } bag = { bt };
+            } bag = { static_cast<bool>(bt) };
             ASSERT(!bag.data);
 
             // member initialization
@@ -618,13 +618,13 @@ int main(int argc, char *argv[])
             ASSERT(!br);
 
             // aggregate initialization (array)
-            const bool bar[] = { babel };
+            const bool bar[] = { static_cast<bool>(babel) };
             ASSERT(!bar[0]);
 
             // aggregate initialization
             struct Aggregate {
                 bool data;
-            } bag = { babel };
+            } bag = { static_cast<bool>(babel) };
             ASSERT(!bag.data);
 
             // member initialization
