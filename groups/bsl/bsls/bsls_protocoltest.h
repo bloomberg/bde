@@ -171,7 +171,12 @@ BSLS_IDENT("$Id: $")
 // will be reported via standard test driver assertions (i.e., the standard
 // 'ASSERT' macro).
 
+#include <bsls_compilerfeatures.h>
 #include <bsls_libraryfeatures.h>
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
+#include <type_traits>
+#endif
 
 #include <cstddef>
 #include <cstdio>
@@ -186,6 +191,9 @@ namespace bsls {
 
 template <class T>
 struct ProtocolTest_IsAbstract {
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
+    enum { VALUE = std::is_abstract<T>::value };
+#else
     // This class template is a compile-time meta-function, parameterized with
     // type 'T', the output of which is 'VALUE', which will be 'true' if 'T' is
     // abstract and 'false' otherwise.  The 'IsAbstract' test makes use of the
@@ -205,6 +213,7 @@ struct ProtocolTest_IsAbstract {
     static YesType test(...);
 
     enum { VALUE = sizeof(test<T>(0)) == sizeof(YesType) };
+#endif
 };
 
                  // ===================================
