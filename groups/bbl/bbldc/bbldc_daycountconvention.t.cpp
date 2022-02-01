@@ -137,7 +137,7 @@ int main(int argc, char *argv[])
     int  test                = argc > 1 ? atoi(argv[1]) : 0;
     bool verbose             = argc > 2;
     bool veryVerbose         = argc > 3;
-    bool veryVeryVerbose     = argc > 4;
+    bool veryVeryVerbose     = argc > 4;  (void)veryVeryVerbose;
     bool veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;

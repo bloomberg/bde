@@ -1279,6 +1279,8 @@ void TestInStream::throwExceptionIfInputLimitExhausted(
             throw TestInStreamException(code);
         }
     }
+#else
+    (void)code;
 #endif
 }
 

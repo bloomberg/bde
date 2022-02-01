@@ -154,7 +154,7 @@ TestInStream& TestInStream::getLength(int& variable)
             // If 'length <= 127', 'length' is stored as one byte.
 
             if (isValid()) {
-                char tmp;
+                char tmp = 0;
                 getInt8(tmp);
                 variable = tmp;
             }
