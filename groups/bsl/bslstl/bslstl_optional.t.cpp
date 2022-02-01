@@ -5232,7 +5232,9 @@ struct ThrowMoveConstructible {
                                 // ------------
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-// Ensure that we can do 'bsl::optional<bslma::ManagedPtr<void> > on C++17.
+// Ensure that we can do 'bsl::optional<bslma::ManagedPtr<void> > on C++17.  As
+// per DRQS 168171178.  Note that there are differences in implementation
+// between pre-C++17 and C++17.
 
 // This is a compile-only test, and only test on C++17.
 
@@ -12914,7 +12916,8 @@ int main(int argc, char **argv)
         //
         // Concern:
         //: o That, on C++17 at least, 'optional<bslma::ManagedPtr<void>>'
-        //:   works.
+        //:   works as per DRQS 168171178.  Note that there are differences in
+        //:   implementation between pre-C++17 and C++17.
         //
         // Plan:
         //: 1 Do 'template class ...' declarations at file scope and see if
