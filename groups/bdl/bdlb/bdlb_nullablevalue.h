@@ -134,6 +134,7 @@ BSLS_IDENT("$Id: $")
 #include <bsl_algorithm.h>
 #include <bsl_iosfwd.h>
 #include <bsl_new.h>
+#include <bsl_type_traits.h>
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bslalg_typetraits.h>
@@ -466,6 +467,7 @@ class NullableValue : public bsl::optional<TYPE> {
         // of 'rhs' are either move-inserted into or move-assigned to this
         // object.  'rhs' is left in a valid but unspecified state.
 
+#ifdef BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND
     template <class BDE_OTHER_TYPE>
     NullableValue<TYPE>& operator=(const BDE_OTHER_TYPE& rhs);
         // Assign to this object the value of the specified 'rhs' object (of
@@ -483,6 +485,15 @@ class NullableValue : public bsl::optional<TYPE> {
         // providing modifiable access to this object.  Note that this method
         // will fail to compile if 'TYPE and 'BDE_OTHER_TYPE' are not
         // compatible.
+#else
+    template <class BDE_OTHER_TYPE>
+    typename bsl::enable_if<bsl::is_assignable<bsl::optional<TYPE>,
+                                               BDE_OTHER_TYPE>::value,
+                            NullableValue<TYPE>&>::type
+    operator=(BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) rhs);
+        // If 'rhs' is a const ref or lvalue, copy assign it to the base class.
+        // It it is an rvalue, move assign it to the base class.
+#endif
 
     NullableValue<TYPE>& operator=(const NullOptType&) BSLS_KEYWORD_NOEXCEPT;
         // Reset this object to the default constructed state (i.e., to have
@@ -1276,6 +1287,7 @@ NullableValue<TYPE>& NullableValue<TYPE>::operator=(
     return *this;
 }
 
+#ifdef BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND
 template <class TYPE>
 template <class BDE_OTHER_TYPE>
 inline
@@ -1310,6 +1322,23 @@ NullableValue<TYPE>::operator=(
     }
     return *this;
 }
+#else
+template <class TYPE>
+template <class BDE_OTHER_TYPE>
+inline
+typename bsl::enable_if<bsl::is_assignable<bsl::optional<TYPE>,
+                                           BDE_OTHER_TYPE>::value,
+                        NullableValue<TYPE>&>::type
+NullableValue<TYPE>::operator=(
+                         BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) rhs)
+{
+    Base& base = *this;
+
+    base = BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, rhs);
+
+    return *this;
+}
+#endif
 
 template <class TYPE>
 inline

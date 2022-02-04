@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Jan 26 16:01:04 2022
+// Generated on Fri Feb  4 17:02:58 2022
 // Command line: sim_cpp11_features.pl bdlb_nullablevalue.h
 
 #ifdef COMPILING_BDLB_NULLABLEVALUE_H
@@ -343,6 +343,7 @@ class NullableValue : public bsl::optional<TYPE> {
         // of 'rhs' are either move-inserted into or move-assigned to this
         // object.  'rhs' is left in a valid but unspecified state.
 
+#ifdef BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND
     template <class BDE_OTHER_TYPE>
     NullableValue<TYPE>& operator=(const BDE_OTHER_TYPE& rhs);
         // Assign to this object the value of the specified 'rhs' object (of
@@ -360,6 +361,15 @@ class NullableValue : public bsl::optional<TYPE> {
         // providing modifiable access to this object.  Note that this method
         // will fail to compile if 'TYPE and 'BDE_OTHER_TYPE' are not
         // compatible.
+#else
+    template <class BDE_OTHER_TYPE>
+    typename bsl::enable_if<bsl::is_assignable<bsl::optional<TYPE>,
+                                               BDE_OTHER_TYPE>::value,
+                            NullableValue<TYPE>&>::type
+    operator=(BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) rhs);
+        // If 'rhs' is a const ref or lvalue, copy assign it to the base class.
+        // It it is an rvalue, move assign it to the base class.
+#endif
 
     NullableValue<TYPE>& operator=(const NullOptType&) BSLS_KEYWORD_NOEXCEPT;
         // Reset this object to the default constructed state (i.e., to have
@@ -1201,6 +1211,7 @@ NullableValue<TYPE>& NullableValue<TYPE>::operator=(
     return *this;
 }
 
+#ifdef BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND
 template <class TYPE>
 template <class BDE_OTHER_TYPE>
 inline
@@ -1235,6 +1246,23 @@ NullableValue<TYPE>::operator=(
     }
     return *this;
 }
+#else
+template <class TYPE>
+template <class BDE_OTHER_TYPE>
+inline
+typename bsl::enable_if<bsl::is_assignable<bsl::optional<TYPE>,
+                                           BDE_OTHER_TYPE>::value,
+                        NullableValue<TYPE>&>::type
+NullableValue<TYPE>::operator=(
+                         BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) rhs)
+{
+    Base& base = *this;
+
+    base = BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, rhs);
+
+    return *this;
+}
+#endif
 
 template <class TYPE>
 inline

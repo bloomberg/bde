@@ -6150,16 +6150,18 @@ namespace MoveFromAllocTypeSpace {
 typedef bsltf::MoveState MS;
 
 #define ASSERT_IS_MOVED_FROM(exp)                                             \
-    ASSERTV((exp).movedFrom(), MoveState::e_MOVED == (exp).movedFrom())
+    ASSERTV((exp).movedFrom(), bsltf::MoveState::e_MOVED == (exp).movedFrom())
 
 #define ASSERT_IS_NOT_MOVED_FROM(exp)                                         \
-    ASSERTV((exp).movedFrom(), MoveState::e_NOT_MOVED == (exp).movedFrom())
+    ASSERTV((exp).movedFrom(),                                                \
+                            bsltf::MoveState::e_NOT_MOVED == (exp).movedFrom())
 
 #define ASSERT_IS_MOVED_INTO(exp)                                             \
-    ASSERTV((exp).movedInto(), MoveState::e_MOVED == (exp).movedInto())
+    ASSERTV((exp).movedInto(), bsltf::MoveState::e_MOVED == (exp).movedInto())
 
 #define ASSERT_IS_NOT_MOVED_INTO(exp)                                         \
-    ASSERTV((exp).movedInto(), MoveState::e_NOT_MOVED == (exp).movedInto())
+    ASSERTV((exp).movedInto(),                                                \
+                            bsltf::MoveState::e_NOT_MOVED == (exp).movedInto())
 
 
                                     // ========
@@ -6403,7 +6405,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 34: {
+      case 35: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -6446,6 +6448,67 @@ int main(int argc, char *argv[])
     ASSERT( nullableInt.isNull());
 //..
 
+      } break;
+      case 34: {
+        // --------------------------------------------------------------------
+        // REPRODUCE BUG FROM 168410920
+        //
+        // Concern:
+        //: 1 Sometimes an argument was interpreted as a "movable reference"
+        //:   when, in fact, it was a forwarding reference.
+        //
+        // Plan:
+        //: 1 Do a non-moving assignment of an object to a nullablevalue
+        //:   containing another type the object is convertible to.
+        // --------------------------------------------------------------------
+
+        namespace TC = MoveFromAllocTypeSpace;
+
+        typedef bslmf::MovableRefUtil MoveUtil;
+
+        bsltf::MovableTestType mX(5);    const bsltf::MovableTestType& X = mX;
+        bdlb::NullableValue<TC::To> mY;
+
+        mY = mX;
+
+        ASSERT_IS_NOT_MOVED_FROM(mX);
+        ASSERT_IS_NOT_MOVED_INTO(mY.value());
+        ASSERT(mY->data() == 5);
+
+        mX = bsltf::MovableTestType(7);
+
+        mY = X;
+
+        ASSERT_IS_NOT_MOVED_FROM(X);
+        ASSERT_IS_NOT_MOVED_INTO(mY.value());
+        ASSERT(mY->data() == 7);
+
+        bsl::optional<bsltf::MovableTestType> mOX(bsltf::MovableTestType(3));
+
+        mY = mOX;
+
+        ASSERT_IS_NOT_MOVED_FROM(mOX.value());
+        ASSERT_IS_NOT_MOVED_INTO(mY.value());
+        ASSERT(mOX->data() == 3);
+        ASSERT(mY->data() == 3);
+
+        mX.setData(10);
+        mY->setData(5);
+
+        mY = MoveUtil::move(mX);
+
+        ASSERT_IS_MOVED_FROM(mX);
+        ASSERT_IS_MOVED_INTO(mY.value());
+        ASSERT(mY->data() == 10);
+
+        mOX->setData(4);
+        mY->setData(5);
+
+        mY = MoveUtil::move(mOX);
+
+        ASSERT_IS_MOVED_FROM(mOX.value());
+        ASSERT_IS_MOVED_INTO(mY.value());
+        ASSERT(mY->data() == 4);
       } break;
       case 33: {
         // --------------------------------------------------------------------
@@ -7428,7 +7491,6 @@ int main(int argc, char *argv[])
         typedef TC::To                 To;
         typedef TC::AllocType          AllocType;
 
-        typedef bsltf::MoveState                      MoveState;
         typedef bslmf::MovableRefUtil                 MoveUtil;
 
         typedef bsl::optional<From>                   OptFrom;
