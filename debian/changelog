@@ -1,12 +1,37 @@
-bsl-internal (3.98.0.0) unstable; urgency=low
+bsl-internal (3.99.0.0) unstable; urgency=low
 
+  * ccb734f47 Revert "Bdlb nullablevalue from optional 2 drqs 166581401 (#3528)" (#3561)
+  * 9761883b8 Bumped version to 3.99.0.0
+  * f507e7715 correct build warnings (#3557)
+  * 1f3810b9e correct implementation for detecting abstract class (#3558)
+  * e37f826f3 Bdlcc skiplist race condtion elegant 2 master drqs 167716470 (#3537)
+  * 804ac2372 adding casts in aggregate initialization because some narrowing conversions are not allowed by clang (#3554)
+  * e709c41a0 removed useless calls to MovableRefUtil::access within MovableRefUtil::move (#3546)
+  * c4d5dd4af Bdlb nullablevalue from optional 2 drqs 166581401 (#3528)
+  * 8e4c2e10f baljsn::Decoder::decode to provide more 'not good' detail (#3549)
+  * 3bf629cbc Allocator-aware constructors and str() calls to stringbufs (second try) (#3522)
+  * bc65db208 Transparency is added for 'bsl::owner_less<void>' (#3527)
+  * d701b22b0 Unify build define usage. (#3545)
+  * 4e1f31c2a Deduction guides for bsl::function (Second try) (#3544)
+  * 088439c6b drqs-162623462: 'bdlb_printmethods': Support 'std::optional'/'std::va… (#3534)
+  * 17f2e63f6 Suppress bslstl_optional MSVC errors due to reported compiler bug (#3533)
+  * 66151ba1f unrevert the changes and add a test case for the DRQS (#3540)
+  * 4447a1678 bslh_wyhashalgorithm: side effects of 'BSLS_ASSERT_OPT' in usage example (#3542)
+  * 8f504ddde Add class template deduction guides to bsl::map and multimap (second try) (#3514)
+  * c4a17936c Add template deduction guides for bsl::basic_string (#3476)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 4 Feb 2022 16:29:58 -0500
+
+bsl-internal (3.98.0.0) git; urgency=low
+
+  * b6bcc0e24 Changelog for version 3.98.0.0
   * 66080e631 Bumped version to 3.98.0.0
   * 681afa3ef bslstl_stringview: Make 'substr' conform to the standard (#3536)
   * 954ddeb47 Balst disable resolving drqs 167270727 (#3507)
   * 4ffdf8a06 Update bdlmt_threadmultiplexor.h (#3535)
   * 9a9c3e146 Bslh wyhash final v3 2 drqs 150989750 (#3530)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 14 Jan 2022 13:39:29 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 14 Jan 2022 13:44:09 -0500
 
 bsl-internal (3.97.0.0) git; urgency=low
 
