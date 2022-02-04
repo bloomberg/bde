@@ -21,23 +21,12 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Jan 26 16:01:04 2022
+// Generated on Thu Oct 21 10:11:37 2021
 // Command line: sim_cpp11_features.pl bdlb_nullablevalue.h
 
 #ifdef COMPILING_BDLB_NULLABLEVALUE_H
 
 namespace BloombergLP {
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-    // Declaring rvalue references as 'bslmf::MovableRef<T>' does not work in
-    // some contexts in this file in C++11 and beyond, in those cases the
-    // syntax 'T&&' does.
-
-# define BDLB_NULLABLEVALUE_DEDUCE_MOVABLE_REF(TYPE)  TYPE&&
-#else
-# define BDLB_NULLABLEVALUE_DEDUCE_MOVABLE_REF(TYPE)  bslmf::MovableRef<TYPE>
-#endif
-
 namespace bdlb {
 
 template <class TYPE>
@@ -67,6 +56,7 @@ class NullableValue : public bsl::optional<TYPE> {
     // overloads unary 'operator&', or 'bdlb::NullOptType'.
 
     // PRIVATE TYPES
+
     typedef bslmf::MovableRefUtil MoveUtil;
 
     struct EnableType {
@@ -91,9 +81,6 @@ class NullableValue : public bsl::optional<TYPE> {
 
   public:
     // TYPES
-    typedef bsl::optional<TYPE>   Base;
-        // Base class of this type.
-
     typedef TYPE ValueType;
         // 'ValueType' is an alias for the underlying 'TYPE' upon which this
         // template class is instantiated, and represents the type of the
@@ -196,55 +183,6 @@ class NullableValue : public bsl::optional<TYPE> {
         // 'BDE_OTHER_TYPE' is convertible to 'TYPE'.
 
     template <class BDE_OTHER_TYPE>
-    NullableValue(const bsl::optional<BDE_OTHER_TYPE>& value,
-                  typename bsl::enable_if<
-                     bsl::is_convertible<BDE_OTHER_TYPE, TYPE>::value &&
-                     !bsl::is_same<bsl::optional<BDE_OTHER_TYPE>, TYPE>::value,
-                     EnableType>::type = EnableType());             // IMPLICIT
-
-    template <class BDE_OTHER_TYPE>
-    NullableValue(const bsl::optional<BDE_OTHER_TYPE>& value,
-                  const allocator_type&                allocator,
-                  typename bsl::enable_if<
-                     bsl::is_convertible<BDE_OTHER_TYPE, TYPE>::value &&
-                     !bsl::is_same<bsl::optional<BDE_OTHER_TYPE>, TYPE>::value,
-                     EnableType>::type = EnableType());             // IMPLICIT
-
-    template <class BDE_OTHER_TYPE>
-    NullableValue(BDLB_NULLABLEVALUE_DEDUCE_MOVABLE_REF(
-                                          NullableValue<BDE_OTHER_TYPE>) value,
-                  typename bsl::enable_if<
-                     bsl::is_convertible<BDE_OTHER_TYPE, TYPE>::value &&
-                     !bsl::is_same<bsl::optional<BDE_OTHER_TYPE>, TYPE>::value,
-                     EnableType>::type = EnableType());             // IMPLICIT
-
-    template <class BDE_OTHER_TYPE>
-    NullableValue(BDLB_NULLABLEVALUE_DEDUCE_MOVABLE_REF(
-                                      NullableValue<BDE_OTHER_TYPE>) value,
-                  const allocator_type&                              allocator,
-                  typename bsl::enable_if<
-                     bsl::is_convertible<BDE_OTHER_TYPE, TYPE>::value &&
-                     !bsl::is_same<bsl::optional<BDE_OTHER_TYPE>, TYPE>::value,
-                     EnableType>::type = EnableType());             // IMPLICIT
-
-    template <class BDE_OTHER_TYPE>
-    NullableValue(BDLB_NULLABLEVALUE_DEDUCE_MOVABLE_REF(
-                                          bsl::optional<BDE_OTHER_TYPE>) value,
-                  typename bsl::enable_if<
-                     bsl::is_convertible<BDE_OTHER_TYPE, TYPE>::value &&
-                     !bsl::is_same<bsl::optional<BDE_OTHER_TYPE>, TYPE>::value,
-                     EnableType>::type = EnableType());             // IMPLICIT
-
-    template <class BDE_OTHER_TYPE>
-    NullableValue(BDLB_NULLABLEVALUE_DEDUCE_MOVABLE_REF(
-                                      bsl::optional<BDE_OTHER_TYPE>) value,
-                  const allocator_type&                              allocator,
-                  typename bsl::enable_if<
-                     bsl::is_convertible<BDE_OTHER_TYPE, TYPE>::value &&
-                     !bsl::is_same<bsl::optional<BDE_OTHER_TYPE>, TYPE>::value,
-                     EnableType>::type = EnableType());             // IMPLICIT
-
-    template <class BDE_OTHER_TYPE>
     explicit NullableValue(const NullableValue<BDE_OTHER_TYPE>& original);
         // Create a nullable object having the null value if the specified
         // 'original' object is null, and the value of 'original.value()' (of
@@ -302,37 +240,6 @@ class NullableValue : public bsl::optional<TYPE> {
         // modifiable access to this object.  Note that this method will fail
         // to compile if 'TYPE and 'BDE_OTHER_TYPE' are not compatible.
 
-    template <class BDE_OTHER_TYPE>
-    NullableValue<TYPE>& operator=(
-                            BDLB_NULLABLEVALUE_DEDUCE_MOVABLE_REF(
-                                           NullableValue<BDE_OTHER_TYPE>) rhs);
-        // Assign to this object the null value if the specified 'rhs' object
-        // is null, and the value of 'rhs.value()' (of 'BDE_OTHER_TYPE')
-        // converted to 'TYPE' otherwise.  Return a reference providing
-        // modifiable access to this object.  Note that this method will fail
-        // to compile if 'TYPE and 'BDE_OTHER_TYPE' are not compatible.
-
-    template <class BDE_OTHER_TYPE>
-    typename bsl::enable_if<bsl::is_convertible<BDE_OTHER_TYPE, TYPE>::value,
-                            NullableValue<TYPE>&>::type
-    operator=(const bsl::optional<BDE_OTHER_TYPE>& rhs);
-        // Assign to this object the null value if the specified 'rhs' object
-        // is null, and the value of 'rhs.value()' (of 'BDE_OTHER_TYPE')
-        // converted to 'TYPE' otherwise.  Return a reference providing
-        // modifiable access to this object.  Note that this method will fail
-        // to compile if 'TYPE and 'BDE_OTHER_TYPE' are not compatible.
-
-    template <class BDE_OTHER_TYPE>
-    typename bsl::enable_if<bsl::is_convertible<BDE_OTHER_TYPE, TYPE>::value,
-                            NullableValue<TYPE>&>::type
-    operator=(BDLB_NULLABLEVALUE_DEDUCE_MOVABLE_REF(
-                                           bsl::optional<BDE_OTHER_TYPE>) rhs);
-        // Assign to this object the null value if the specified 'rhs' object
-        // is null, and the value of 'rhs.value()' (of 'BDE_OTHER_TYPE')
-        // converted to 'TYPE' otherwise.  Return a reference providing
-        // modifiable access to this object.  Note that this method will fail
-        // to compile if 'TYPE and 'BDE_OTHER_TYPE' are not compatible.
-
     NullableValue<TYPE>& operator=(const TYPE& rhs);
         // Assign to this object the value of the specified 'rhs', and return a
         // reference providing modifiable access to this object.
@@ -345,16 +252,6 @@ class NullableValue : public bsl::optional<TYPE> {
 
     template <class BDE_OTHER_TYPE>
     NullableValue<TYPE>& operator=(const BDE_OTHER_TYPE& rhs);
-        // Assign to this object the value of the specified 'rhs' object (of
-        // 'BDE_OTHER_TYPE') converted to 'TYPE', and return a reference
-        // providing modifiable access to this object.  Note that this method
-        // will fail to compile if 'TYPE and 'BDE_OTHER_TYPE' are not
-        // compatible.
-
-    template <class BDE_OTHER_TYPE>
-    typename bsl::enable_if<bsl::is_convertible<BDE_OTHER_TYPE, TYPE>::value,
-                            NullableValue<TYPE>&>::type
-    operator=(BDLB_NULLABLEVALUE_DEDUCE_MOVABLE_REF(BDE_OTHER_TYPE) rhs);
         // Assign to this object the value of the specified 'rhs' object (of
         // 'BDE_OTHER_TYPE') converted to 'TYPE', and return a reference
         // providing modifiable access to this object.  Note that this method
@@ -841,7 +738,6 @@ swap(NullableValue<TYPE>& lhs, NullableValue<TYPE>& rhs);
 //                           INLINE DEFINITIONS
 // ============================================================================
 
-
                       // -------------------------
                       // class NullableValue<TYPE>
                       // -------------------------
@@ -850,48 +746,54 @@ swap(NullableValue<TYPE>& lhs, NullableValue<TYPE>& rhs);
 template <class TYPE>
 inline
 NullableValue<TYPE>::NullableValue() BSLS_KEYWORD_NOEXCEPT
-{}
+{
+}
 
 template <class TYPE>
 inline
 NullableValue<TYPE>::NullableValue(
                          const allocator_type& allocator) BSLS_KEYWORD_NOEXCEPT
-: Base(bsl::allocator_arg, allocator)
-{}
+: bsl::optional<TYPE>(bsl::allocator_arg, allocator)
+{
+}
 
 template <class TYPE>
 inline
 NullableValue<TYPE>::NullableValue(const NullableValue& original)
-: Base(static_cast<const bsl::optional<TYPE>&>(original))
-{}
+: bsl::optional<TYPE>(static_cast<const bsl::optional<TYPE>&>(original))
+{
+}
 
 template <class TYPE>
 inline
 NullableValue<TYPE>::NullableValue(const NullableValue&  original,
                                    const allocator_type& allocator)
-: Base(bsl::allocator_arg,
-       allocator,
-       static_cast<const bsl::optional<TYPE>&>(original))
-{}
+: bsl::optional<TYPE>(bsl::allocator_arg,
+                      allocator,
+                      static_cast<const bsl::optional<TYPE>&>(original))
+{
+}
 
 template <class TYPE>
 inline
 NullableValue<TYPE>::NullableValue(bslmf::MovableRef<NullableValue> original)
                        BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
                                bsl::is_nothrow_move_constructible<TYPE>::value)
-: Base(MoveUtil::move(
-       static_cast<bsl::optional<TYPE>&>(MoveUtil::access(original))))
-{}
+: bsl::optional<TYPE>(MoveUtil::move(
+      static_cast<bsl::optional<TYPE>&>(MoveUtil::access(original))))
+{
+}
 
 template <class TYPE>
 inline
 NullableValue<TYPE>::NullableValue(bslmf::MovableRef<NullableValue> original,
                                    const allocator_type&            allocator)
-: Base(bsl::allocator_arg,
-       allocator,
-       MoveUtil::move(static_cast<bsl::optional<TYPE>&>(
-                                                  MoveUtil::access(original))))
-{}
+: bsl::optional<TYPE>(bsl::allocator_arg,
+                      allocator,
+                      MoveUtil::move(static_cast<bsl::optional<TYPE>&>(
+                          MoveUtil::access(original))))
+{
+}
 
 template <class TYPE>
 template <class BDE_OTHER_TYPE>
@@ -902,8 +804,9 @@ NullableValue<TYPE>::NullableValue(
         bsl::is_convertible<BDE_OTHER_TYPE, TYPE>::value &&
             !bsl::is_convertible<BDE_OTHER_TYPE, allocator_type>::value,
         EnableType>::type)
-: Base(BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, value))
-{}
+: bsl::optional<TYPE>(BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, value))
+{
+}
 
 template <class TYPE>
 template <class BDE_OTHER_TYPE>
@@ -913,99 +816,21 @@ NullableValue<TYPE>::NullableValue(
     const allocator_type&                             allocator,
     typename bsl::enable_if<bsl::is_convertible<BDE_OTHER_TYPE, TYPE>::value,
                             EnableType>::type)
-: Base(bsl::allocator_arg,
-       allocator,
-       BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, value))
-{}
-
-template <class TYPE>
-template <class BDE_OTHER_TYPE>
-inline
-NullableValue<TYPE>::NullableValue(
-                  const bsl::optional<BDE_OTHER_TYPE>& value,
-                  typename bsl::enable_if<
-                     bsl::is_convertible<BDE_OTHER_TYPE, TYPE>::value &&
-                     !bsl::is_same<bsl::optional<BDE_OTHER_TYPE>, TYPE>::value,
-                     EnableType>::type)
-: Base(value)
-{}
-
-template <class TYPE>
-template <class BDE_OTHER_TYPE>
-inline
-NullableValue<TYPE>::NullableValue(
-                  const bsl::optional<BDE_OTHER_TYPE>& value,
-                  const allocator_type&                allocator,
-                  typename bsl::enable_if<
-                     bsl::is_convertible<BDE_OTHER_TYPE, TYPE>::value &&
-                     !bsl::is_same<bsl::optional<BDE_OTHER_TYPE>, TYPE>::value,
-                     EnableType>::type)
-: Base(bsl::allocator_arg, allocator, value)
-{}
-
-template <class TYPE>
-template <class BDE_OTHER_TYPE>
-inline
-NullableValue<TYPE>::NullableValue(BDLB_NULLABLEVALUE_DEDUCE_MOVABLE_REF(
-                                          NullableValue<BDE_OTHER_TYPE>) value,
-                  typename bsl::enable_if<
-                     bsl::is_convertible<BDE_OTHER_TYPE, TYPE>::value &&
-                     !bsl::is_same<bsl::optional<BDE_OTHER_TYPE>, TYPE>::value,
-                     EnableType>::type)
-: Base(MoveUtil::move(static_cast<bsl::optional<BDE_OTHER_TYPE>&>(
-                                                     MoveUtil::access(value))))
-{}
-
-template <class TYPE>
-template <class BDE_OTHER_TYPE>
-inline
-NullableValue<TYPE>::NullableValue(BDLB_NULLABLEVALUE_DEDUCE_MOVABLE_REF(
-                                      NullableValue<BDE_OTHER_TYPE>) value,
-                  const allocator_type&                              allocator,
-                  typename bsl::enable_if<
-                     bsl::is_convertible<BDE_OTHER_TYPE, TYPE>::value &&
-                     !bsl::is_same<bsl::optional<BDE_OTHER_TYPE>, TYPE>::value,
-                     EnableType>::type)
-: Base(bsl::allocator_arg,
-       allocator,
-       MoveUtil::move(static_cast<bsl::optional<BDE_OTHER_TYPE>&>(
-                                                     MoveUtil::access(value))))
-{}
-
-template <class TYPE>
-template <class BDE_OTHER_TYPE>
-inline
-NullableValue<TYPE>::NullableValue(
-                  BDLB_NULLABLEVALUE_DEDUCE_MOVABLE_REF(
-                                          bsl::optional<BDE_OTHER_TYPE>) value,
-                  typename bsl::enable_if<
-                     bsl::is_convertible<BDE_OTHER_TYPE, TYPE>::value &&
-                     !bsl::is_same<bsl::optional<BDE_OTHER_TYPE>, TYPE>::value,
-                     EnableType>::type)
-: Base(MoveUtil::move(value))
-{}
-
-template <class TYPE>
-template <class BDE_OTHER_TYPE>
-inline
-NullableValue<TYPE>::NullableValue(
-                  BDLB_NULLABLEVALUE_DEDUCE_MOVABLE_REF(
-                                      bsl::optional<BDE_OTHER_TYPE>) value,
-                  const allocator_type&                              allocator,
-                  typename bsl::enable_if<
-                     bsl::is_convertible<BDE_OTHER_TYPE, TYPE>::value &&
-                     !bsl::is_same<bsl::optional<BDE_OTHER_TYPE>, TYPE>::value,
-                     EnableType>::type)
-: Base(bsl::allocator_arg, allocator, MoveUtil::move(value))
-{}
+: bsl::optional<TYPE>(bsl::allocator_arg,
+                      allocator,
+                      BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, value))
+{
+}
 
 template <class TYPE>
 template <class BDE_OTHER_TYPE>
 inline
 NullableValue<TYPE>::NullableValue(
     const NullableValue<BDE_OTHER_TYPE>& original)
-: Base(static_cast<const bsl::optional<BDE_OTHER_TYPE>&>(original))
-{}
+: bsl::optional<TYPE>(
+      static_cast<const bsl::optional<BDE_OTHER_TYPE>&>(original))
+{
+}
 
 template <class TYPE>
 template <class BDE_OTHER_TYPE>
@@ -1013,24 +838,28 @@ inline
 NullableValue<TYPE>::NullableValue(
     const NullableValue<BDE_OTHER_TYPE>& original,
     const allocator_type&                allocator)
-: Base(bsl::allocator_arg,
-       allocator,
-       static_cast<const bsl::optional<BDE_OTHER_TYPE>&>(original))
-{}
+: bsl::optional<TYPE>(
+      bsl::allocator_arg,
+      allocator,
+      static_cast<const bsl::optional<BDE_OTHER_TYPE>&>(original))
+{
+}
 
 template <class TYPE>
 inline
 NullableValue<TYPE>::NullableValue(const NullOptType&) BSLS_KEYWORD_NOEXCEPT
-: Base()
-{}
+: bsl::optional<TYPE>()
+{
+}
 
 template <class TYPE>
 inline
 NullableValue<TYPE>::NullableValue(
                          const NullOptType&,
                          const allocator_type& allocator) BSLS_KEYWORD_NOEXCEPT
-: Base(bsl::allocator_arg, allocator)
-{}
+: bsl::optional<TYPE>(bsl::allocator_arg, allocator)
+{
+}
 
 // MANIPULATORS
 template <class TYPE>
@@ -1100,47 +929,6 @@ NullableValue<TYPE>& NullableValue<TYPE>::operator=(
     else {
         this->reset();
     }
-    return *this;
-}
-
-template <class TYPE>
-template <class BDE_OTHER_TYPE>
-NullableValue<TYPE>& NullableValue<TYPE>::operator=(
-      BDLB_NULLABLEVALUE_DEDUCE_MOVABLE_REF(NullableValue<BDE_OTHER_TYPE>) rhs)
-{
-    Base& base                           = *this;
-    bsl::optional<BDE_OTHER_TYPE>& local = rhs;
-
-    base = MoveUtil::move(local);
-
-    return *this;
-}
-
-template <class TYPE>
-template <class BDE_OTHER_TYPE>
-typename bsl::enable_if<bsl::is_convertible<BDE_OTHER_TYPE, TYPE>::value,
-                        NullableValue<TYPE>&>::type
-NullableValue<TYPE>::operator=(const bsl::optional<BDE_OTHER_TYPE>& rhs)
-{
-    Base& base  = *this;
-
-    base = rhs;
-
-    return *this;
-}
-
-template <class TYPE>
-template <class BDE_OTHER_TYPE>
-typename bsl::enable_if<bsl::is_convertible<BDE_OTHER_TYPE, TYPE>::value,
-                        NullableValue<TYPE>&>::type
-NullableValue<TYPE>::operator=(
-      BDLB_NULLABLEVALUE_DEDUCE_MOVABLE_REF(bsl::optional<BDE_OTHER_TYPE>) rhs)
-{
-    Base&                          base  = *this;
-    bsl::optional<BDE_OTHER_TYPE>& local = rhs;
-
-    base = MoveUtil::move(local);
-
     return *this;
 }
 
@@ -1215,23 +1003,6 @@ NullableValue<TYPE>& NullableValue<TYPE>::operator=(const BDE_OTHER_TYPE& rhs)
     }
     else {
         this->emplace(rhs);
-    }
-    return *this;
-}
-
-template <class TYPE>
-template <class BDE_OTHER_TYPE>
-inline
-typename bsl::enable_if<bsl::is_convertible<BDE_OTHER_TYPE, TYPE>::value,
-                        NullableValue<TYPE>&>::type
-NullableValue<TYPE>::operator=(
-                     BDLB_NULLABLEVALUE_DEDUCE_MOVABLE_REF(BDE_OTHER_TYPE) rhs)
-{
-    if (this->has_value()) {
-        this->value() = MoveUtil::move(rhs);
-    }
-    else {
-        this->emplace(MoveUtil::move(rhs));
     }
     return *this;
 }
@@ -1883,7 +1654,7 @@ bdlb::swap(NullableValue<TYPE>& lhs, NullableValue<TYPE>& rhs)
 #endif // ! defined(INCLUDED_BDLB_NULLABLEVALUE_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2022 Bloomberg Finance L.P.
+// Copyright 2021 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

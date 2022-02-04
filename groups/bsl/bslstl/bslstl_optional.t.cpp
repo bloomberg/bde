@@ -7538,33 +7538,14 @@ void TestDriver<TYPE>::testCase15()
                "\n===========================\n");
 
     {
-        const char *valueTypeName = bsls::NameOf<ValueType>().name();
-        const char *objName       = bsls::NameOf<Obj>().name();
-
         ASSERT((bsl::is_same<typename Obj::value_type, ValueType>::value));
         ASSERT(
             (bsl::is_same<typename ObjC::value_type, const ValueType>::value));
 
-        const bool usesAllocatorObj = bslma::UsesBslmaAllocator<Obj>::value;
-        const bool usesAllocatorValueType =
-                                   bslma::UsesBslmaAllocator<ValueType>::value;
-        const bool usesArgTObj = bslmf::UsesAllocatorArgT<Obj>::value;
-
-        const bool convObj = bsl::is_convertible<bslma::Allocator *,
-                                                 Obj>::value;
-        const bool convValueType = bsl::is_convertible<bslma::Allocator *,
-                                                       ValueType>::value;
-        if (veryVerbose) {
-            P_(valueTypeName);    P_(convObj);    P(convValueType);
-        }
-
-        ASSERTV(valueTypeName, objName, usesAllocatorObj,
-                                                        usesAllocatorValueType,
-                                   usesAllocatorObj == usesAllocatorValueType);
-        ASSERTV(valueTypeName, objName, usesArgTObj, usesAllocatorValueType,
-                                        usesArgTObj == usesAllocatorValueType);
-        ASSERTV(valueTypeName, objName, usesArgTObj, usesAllocatorObj,
-                                              usesArgTObj == usesAllocatorObj);
+        ASSERT(bslma::UsesBslmaAllocator<Obj>::value ==
+               bslma::UsesBslmaAllocator<ValueType>::value);
+        ASSERT(bslmf::UsesAllocatorArgT<Obj>::value ==
+               bslma::UsesBslmaAllocator<ValueType>::value);
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
         ASSERT(std::is_trivially_destructible<Obj>::value ==
@@ -9373,7 +9354,6 @@ template <class TYPE>
 template <class DEST_TYPE, class SRC_TYPE, bool PROPAGATE_ON_MOVE>
 void TestDriver<TYPE>::testCase7a_imp_constmovebug()
 {
-#ifndef BSLS_PLATFORM_OS_WINDOWS
     {
         bslma::TestAllocator da("default", veryVeryVeryVerbose);
         bslma::TestAllocator oa("other", veryVeryVeryVerbose);
@@ -9401,7 +9381,6 @@ void TestDriver<TYPE>::testCase7a_imp_constmovebug()
         }
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
     }
-#endif
 }
 
 #if BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
@@ -12384,9 +12363,6 @@ int main(int argc, char **argv)
         RUN_EACH_TYPE(TestDriver,
                       testCase15,
                       BSLSTL_OPTIONAL_TEST_NESTED_TYPES);
-        RUN_EACH_TYPE(TestDriver,
-                      testCase15,
-                      bsl::allocator<char>);
         RUN_EACH_TYPE(TestDriver, testCase15b, MyClass2, MyClass2a);
         RUN_EACH_TYPE(TestDriver, testCase15b,
                       BSLSTL_OPTIONAL_TEST_NESTED_TYPE(MyClass2),
