@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlb::ScopeExit: executes a function upon destruction
 //  bdlb::ScopeExitAny: an alias to 'ScopeExit<bsl::function<void()>>'
-//  bdlb::ScopeExitUtil: Modern C++ factory method for creating guards
+//  bdlb::ScopeExitUtil: C++11 or later factory method for creating guards
 //
 //@MACROS:
 //  BDLB_SCOPEEXIT_GUARD: creates a scope guard using an exit function
@@ -22,9 +22,7 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION:
 // This component provides a class template mechanism 'bdlb::ScopeExit', that
-// will invoke a client supplied function upon its destruction.  The component
-// has been inspired by P0052R6 a since not-adopted ISO C++ Library proposal,
-// but has been extended to support C++03, BDE methodology, and attributes.
+// will invoke a client supplied function upon its destruction.
 // 'bdlb::ScopeExit' is intended to facilitate creating scoped-proctors
 // (similar to those found in {'bslma'}) that run a user-specified exit
 // function upon their destruction, unless 'release()'-d.  The primary purpose
@@ -32,25 +30,28 @@ BSLS_IDENT("$Id: $")
 // the complete chain of operations was not successful (exception thrown or
 // early return).  The proctor may also be used as a guard to unconditionally
 // run its exit function upon exiting a scope, however for such guards
-// dedicated classes are highly recommended.  See also {Guard vs Proctor}.  In
-// case of Modern C++ platform (C++11 or later) this component also defines a
-// utility 'bdlb::ScopeExitUtil' containing a factory method for creating
-// 'bdlb::ScopeExit' objects ('makeScopeExit').  This component also defines a
-// type alias 'bdlb::ScopeExitAny' that may be used in C++03 code to create a
-// proctor where the type of the exit function is not known (for example it is
-// the result of a bind expression). Finally, this component defines two
-// macros that hide the differences in creating 'bdlb::ScopeExit' objects under
-// C++03 and Modern C++.  The first, 'BDLB_SCOPEEXIT_PROCTOR' creates a scope
-// proctor with a given variable name and exit function.  The second,
-// 'BDLB_SCOPEEXIT_GUARD' creates a scope guard variable of unspecified name
-// given only an exit function argument.  See also {Guard vs Proctor}, and
-// {C++03 Restrictions When Exit Function Type is Unknown}.
+// dedicated classes are highly recommended (see also {Guard vs Proctor}.  In
+// case of a sufficiently functional C++11 or later platform this component
+// also defines a utility 'bdlb::ScopeExitUtil' containing a factory method for
+// creating 'bdlb::ScopeExit' objects ('makeScopeExit').  This component also
+// defines a type alias 'bdlb::ScopeExitAny' that is used in C++03 code to
+// create a proctor where the type of the exit function is not known (for
+// example it is the result of a bind expression).  Finally, this component
+// defines two macros that allow creating the 'bdlb::ScopeExit' objects,
+// without mentioning the exit function type, in a uniform way for platforms
+// limited to C++03 and those supporting sufficiently functional C++11 or
+// later, but with a more efficient implementation for the latter.  The first
+// macro, 'BDLB_SCOPEEXIT_PROCTOR' creates a scope proctor with a given
+// variable name and exit function.  The second macro, 'BDLB_SCOPEEXIT_GUARD'
+// creates a scope guard variable of unspecified name given only an exit
+// function argument.  See also {Guard vs Proctor}, and {C++03 Restrictions
+// When Exit Function Type is Unknown}.
 //
 ///Guard vs Proctor
 ///----------------
 // Guard and Proctor are terminology used by BDE methodology (see below).
 // Because 'bdlb::ScopeExit' is so general (its exit function is provided by
-// its user) it can be used both as a Guard and as a Proctor.  Below are the
+// the user) it can be used both as a Guard and as a Proctor.  Below are the
 // BDE definitions followed by an explanation of how they apply to this
 // component.
 //
@@ -96,7 +97,7 @@ BSLS_IDENT("$Id: $")
 // lot of boilerplate code on the user side, making the use of the component
 // way too cumbersome to use under C++03.
 //
-// The second restriction is caused by the absence of the type-deducting 'auto'
+// The second restriction is caused by the absence of the type-deducing 'auto'
 // keyword in C++03.  Although we can deduce the type of the exit function in
 // the factory method, without the type deduction capabilities provided by
 // 'auto' we cannot turn that return type into the type of a variable.
@@ -112,7 +113,7 @@ BSLS_IDENT("$Id: $")
 // expression) we are facing the same above two restrictions (see also
 // {Example 3: Unknown Exit Function Type In C++03}).
 //
-// Given the C+003 restrictions the following design decisions have been made:
+// Given the C+03 restrictions, the following design decisions have been made:
 //: 1. Do not provide the utility and factory function when compiling with
 //:    C++03.
 //:
@@ -121,16 +122,16 @@ BSLS_IDENT("$Id: $")
 //:    'bdlb::ScopeExitAny' can be created without having to name the type of
 //:    the exit function it is constructed from because 'bsl::function'
 //:    provides type erasure.  The downside is the runtime performance cost of
-//:    the type erasure (virtual function call that inhibits inlining) and
+//:    type erasure (virtual function call that might inhibit inlining) and
 //:    potential memory allocation for stored arguments - all of which are the
 //:    cost of using 'bsl::function'.
 //:
-//: 3. Provide 'BDLB_SCOPEEXIT_PROCTOR' and 'BDLB_SCOPEEXIT_GUARD' macro that
+//: 3. Provide 'BDLB_SCOPEEXIT_PROCTOR' and 'BDLB_SCOPEEXIT_GUARD' macros that
 //:    hide the difference between using a legacy C++03 'bdlb::ScopeExitAny',
-//:    or Modern C++ 'auto' type deduction from the factory function call.
-//:    The macros thereby will select the most efficient 'bdlb::ScopeExit' type
-//:    that is feasible on the given compiler platform without having to
-//:    specify the exact type of the exit function (the template parameter to
+//:    or C++ 'auto' type deduction from the factory function call.  The macros
+//:    thereby will select the most efficient 'bdlb::ScopeExit' type that is
+//:    feasible on the given compiler platform without having to specify the
+//:    exact type of the exit function (the template parameter to
 //:    'bdlb::ScopeExit').
 //
 ///Memory Allocation and Relationship with BDE Allocators
@@ -143,19 +144,25 @@ BSLS_IDENT("$Id: $")
 // created on the stack and automatic variables are supposed to use the
 // default allocator, therefore no allocator support was added.
 //
+///Notes
+///-----
+// This component has been inspired by P0052R6 a since not-adopted ISO C++
+// Library proposal, but has been extended to support C++03, BDE methodology,
+// and attributes.
+//
 ///Usage Examples
 ///--------------
 // This section illustrates intended use of this component.
 //
-///Example 1: Using a Scope Exit Proctor in Modern C++
-///- - - - - - - - - - - - - - - - - - - - - - - - - -
-// In this example we assume a Modern C++ compiler supporting C++11 or later.
-// Suppose we are creating a simple database that stores names and their
-// associated addresses and we store the names and addresses in two separate
-// tables.  While adding data, these tables may fail the insertion, in which
-// case we need to roll back the already inserted data, such as if we inserted
-// the address first, we need to remove it if insertion of the associated name
-// fails.
+///Example 1: Using a Scope Exit Proctor in C++11 or later
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// In this example we assume a C++ compiler supporting sufficiently functional
+// C++11 or later.  Suppose we are creating a simple database that stores names
+// and their associated addresses and we store the names and addresses in two
+// separate tables.  While adding data, these tables may fail the insertion,
+// in which case we need to roll back the already inserted data, such as if we
+// inserted the address first, we need to remove it if insertion of the
+// associated name fails.
 //
 // First, we emulate our database access with the following simple functions:
 //..
@@ -200,16 +207,16 @@ BSLS_IDENT("$Id: $")
 //..
 //      const int custId = insertCustomer(name, addressId);
 //..
-// As our dummy 'insertCustomer' function will fail first time (when
-// 'removedAddressId' is zero) with an exception, and we exist this function to
-// the caller's error handling 'catch' clause.  While exiting the function via
-// the exception the local stack is unwound.  All local variables having
-// non-trivial destructors get destroyed by calling them.  On this stack there
-// is only 'addressProctor' with a destructor, and it calls its exist function,
-// which will save our non-zero 'addressId' value into the global
-// 'removedAddressId' variable.
+// As our dummy 'insertCustomer' function will fail first time by throwing an
+// exception (when'removedAddressId' is zero) we exit this function to the
+// caller's error handling 'catch' clause.  While exiting the function due to
+// the exception, the local stack is unwound.  The non-trivial destructors of
+// local variables are invoked (in the opposite order of their creation).  In
+// this case, the destructor of 'addressProctor' invokes its exit function,
+// saving our non-zero 'addressId' value into the global 'removedAddressId'
+// variable.
 //
-// On a second call to this function, because 'removedAddressId' is now
+// On the second call to this function, because 'removedAddressId' is now
 // non-zero, 'insertCustomer' will not fail, and we continue execution here.
 //
 // Next, if the insertion succeeded we are done, so we need to release the
@@ -223,7 +230,7 @@ BSLS_IDENT("$Id: $")
 // Now we can verify that a first attempt to add a customer fails with the
 // "right" exception and that 'removedAddressId' is the expected value:
 //..
-// bool seenException = false;
+//  bool seenException = false;
 //  try {
 //      addCustomer11("Quibi", "6555 Barton Ave, Los Angeles, CA, 90038");
 //  }
@@ -243,14 +250,14 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 2: Using a Scope Exit Guard in C++03
 /// - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we are in the same situation as in the Modern C++ example, but we
-// have to create a solution that supports C++03 as well.
+// Suppose we are in the same situation as in the C++11 or later example, but
+// we have to create a solution that supports C++03 as well.
 //
 // First, we have to hand-craft a functor that calls 'removeAddress' with a
-// given ID because Because C++03 does not support lambdas:
+// given ID because C++03 does not support lambdas:
 //..
 //  class RemoveAddress {
-//      int d_id;  // The identifier of the address (row) to remove
+//      int d_id;  // the identifier of the address (row) to remove
 //
 //    public:
 //      explicit RemoveAddress(int id)
@@ -270,8 +277,9 @@ BSLS_IDENT("$Id: $")
 //  {
 //      const int addressId = insertAddress(address);
 //..
-// The code is almost the same code as was in 'addCustomer11' for Modern C++,
-// except for the upcoming proctor variable definition.
+// The code is almost the same code as was in 'addCustomer11' (the
+// implementation that requires sufficiently functional C++11 or later
+// platform), except for the proctor variable definition.
 //
 // Next, we define the proctor variable with an explicitly spelled out type
 // (that uses the functor type template argument), and a functor object
@@ -279,12 +287,12 @@ BSLS_IDENT("$Id: $")
 //..
 //      bdlb::ScopeExit<RemoveAddress> addrProctor((RemoveAddress(addressId)));
 //..
-// Notice the extra parenthesis we had to use to avoid "the most vexing parse"
+// Notice the extra parentheses we had to use to avoid "the most vexing parse"
 // (https://en.wikipedia.org/wiki/Most_vexing_parse) issue.  Since we are in
 // C++03, we cannot use (curly) brace initialization to avoid that issue.
 //
 // Now, we can complete the rest of the 'addCustomer03', which is exactly the
-// same as the corresponding part of the modern 'addCustomer11' variation:
+// same as the corresponding part of the 'addCustomer11' variant:
 //..
 //      const int custId = insertCustomer(name, addressId);
 //      addrProctor.release();
@@ -295,7 +303,7 @@ BSLS_IDENT("$Id: $")
 // Finally, we can verify that both during the failing first attempt to add a
 // customer to our imaginary database and the successful second attempt the
 // 'RemoveAddress' functor based proctor works just as well as the lambda based
-// modern variant did:
+// 'addCustomer11' variant did:
 //..
 //  removedAddressId = 0;
 //  seenException = false;
@@ -317,8 +325,8 @@ BSLS_IDENT("$Id: $")
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose that we decide not to write a functor class for removing an address
 // but use the function itself directly with 'bdlf::BindUtil::bind' and that
-// way keep the roll-back-code near the rest like lambdas allow us in
-// Modern C++, albeit with a less fortunate syntax.
+// way keep the roll-back-code near the point of use like lambdas allow us in
+// C++11 and later, albeit with a less elegant syntax.
 //
 // First, we design our bind expression as
 // 'bdlf::BindUtil::bind(&removeAddress, addressId)'.
@@ -335,7 +343,7 @@ BSLS_IDENT("$Id: $")
 // idea what its type is so we cannot make a variable for it.
 //
 // Next, we create yet another customer adding function that differs only in
-// its proctor definition from the Modern C++ variant:
+// its proctor definition from the 'addCustomer11' variant:
 //..
 //  int addCustomerAny(const char *name, const char *address)
 //  {
@@ -382,18 +390,22 @@ BSLS_IDENT("$Id: $")
 ///Example 4: Using the Scope Exit Proctor Macro
 ///- - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we have to create portable code that will compile with C++03 as well
-// as modern compilers.  We would like to keep things easy to remember, so we
-// don't want to remember and write different, long macro names for the case
-// when the type of the exit function is known, and when it is not.  But we
-// also want our code to use the more efficient 'auto' and factory-method
-// variation when compiled with modern C++, and only fall back to the slower
-// 'bdlb::ScopeExitAny' solution on C++03 big iron compilers.
+// as C++11 and later compilers.  We also want our code to use the more
+// efficient type-deducing 'auto' with factory-method variant when compiled
+// with a sufficiently functional C++11 or later compiler, and only fall back
+// to the slower 'bdlb::ScopeExitAny' solution on C++03 compilers.
 //
 // We still need to use either functor ('RemoveAddress' in our examples) or a
-// bind expression for the exit function because C++03 has no lambdas, so
-// portable code cannot use them.  But we *can* chose the easy-to-use
-// 'BDLB_SCOPEEXIT_PROCTOR' macro and not sprinkle the customer adder function
-// with '#ifdef' to see which proctor definition to use.
+// bind expression for the exit function because C++03 has no lambdas,
+// therefore our portable code cannot use lambdas.  But we *can* choose the
+// easy-to-use 'BDLB_SCOPEEXIT_PROCTOR' macro and not sprinkle the add customer
+// function with '#ifdef' to see which proctor definition to use.
+//
+// To keep things simple this component provides a single proctor macro
+// instead of two macro names to remember (one for the case case when the type
+// of the exit function is known and one when it isn't).  In case the exit
+// function name is known we can just directly use
+// 'bdlb::ScopeExit< --ExitFunctionType-- >' on any compiler.
 //
 // First, we start the add customer function as usual:
 //..
@@ -406,10 +418,6 @@ BSLS_IDENT("$Id: $")
 //      BDLB_SCOPEEXIT_PROCTOR(proctor, bdlf::BindUtil::bind(&removeAddress,
 //                                                           addressId));
 //..
-// Significantly less effort than creating code to chose between the faster
-// running Modern C++ variation and the C++03 variation, and then also write
-// both implementations at every proctor variable definition.
-//
 // Alternatively, we could have also written a functor and write the shorter
 // 'BDLB_SCOPEEXIT_PROCTOR(proctor, RemoveAddress(addressId))' for the proctor.
 //
@@ -441,75 +449,86 @@ BSLS_IDENT("$Id: $")
 // that it is really easy to forget to print the closing the delimiter.  So we
 // look for a simple way to automate them.  We decide we don't want to change
 // the printing of the opening delimiters, just have a way to automate the
-// printing of the close delimiters without worry about early returns or
+// printing of the close delimiters without worrying about early returns or
 // 'break', 'continue', or other control flow changes.
 //
 // First, we create a functor type that prints closing delimiters:
 //..
 //  class CloseDelimPrinter {
-//      const char *d_closingChars; // Using string literals for brevity
+//      const char *d_closingChars_p;  // held, not owned
 //
 //    public:
 //      explicit CloseDelimPrinter(const char *s)
-//      : d_closingChars(s)
+//      : d_closingChars_p(s)
 //      {
 //      }
 //
 //      void operator()() const
 //      {
-//          outStream << d_closingChars; // To a fixed stream for brevity
+//          outStream << d_closingChars_p; // To a fixed stream for brevity
 //      }
 //  };
 //..
 // Then, we can use the above functor and a scope exit guard to automate
 // closing of delimiters in the printing functions:
 //..
-//  void printText(const bsl::string_view& text)
+//  void printTemplateWithArgs(
+//                           const bsl::string_view>&             templateName,
+//                           const bsl::vector<bsl::string_view>& args)
 //  {
 //..
-// Although this function is very simplistic it serves only as a teaching tool.
-//
 // Next, we can move the printing of the opening delimiter and the closing one
 // near each other in code, so it is clearly visible if an opened delimiter is
 // closed:
 //..
-//      outStream << '"';  BDLB_SCOPEEXIT_GUARD(CloseDelimPrinter("\""));
+//      outStream << templateName << '<';
+//      BDLB_SCOPEEXIT_GUARD(CloseDelimPrinter(">"));
 //..
-// 'BDLB_SCOPEEXIT_GUARD' provides a very simple way of doing this.  Notice
-// that we did not need to provide a name for the guard variable, the macro
-// gave it a unique name.  We did not need to worry about "the most vexing
-// parse", the macro takes care of adding the extra pair of parenthesis.  We do
-// not need to suppress an unused variable compiler warning, the macro does
-// that.  And of course C++03 compatibility is included as well.
-//
-// What is the name of the guard variable?  It is unspecified.  Since this is a
-// guard, meaning we do not want to 'release()' it (like a proctor), we do not
-// need to know the name.  If you need to call 'release()', use the other
-// macro: 'BDLB_SCOPEEXIT_PROCTOR'.
+// The macro works in C++03 and C++11 and later, gives the guard variable a
+// unique (but unspecified) name, adds an extra set of parentheses to take care
+// of "the most vexing parse" and suppresses unused variable compiler warnings.
+// The name for the guard variable created is unspecified.  Because this is a
+// guard meaning we do not need to call 'release()' (unlike a proctor),
+// therefore the name is unimportant.
 //
 // Now, we can just print what goes inside the delimiters, and we are done:
 //..
-//      bsl::string_view::size_type pos = 0;
-//      for(;;) {
-//          const bsl::string_view::size_type end = text.find('"', pos);
-//          outStream << text.substr(pos,
-//                                   end != bsl::string_view::npos ?
-//                                   end - pos :  end);
-//          if (end == bsl::string_view::npos) {
-//              break;                                                 // BREAK
-//          }
-//          outStream << "\\\"";
-//          pos = end + 1;
+//      if (args.empty()) {
+//          // Safe to just return, the guard takes care of closing the '<'
+//          return;                                                   // RETURN
+//      }
+//
+//      typedef bsl::vector<bsl::string_view>::const_iterator Cit;
+//
+//      Cit cit = args.begin();
+//      outStream << *cit;  // Print first argument
+//      ++cit;
+//
+//      for (;cit != args.end(); ++cit) {
+//          outStream << ", " << *cit;  // Print subsequent argument
+//      }
+//
+//      const bsl::string_view last = *(args.end() - 1);
+//      if (last.back() == '>') {
+//          outStream << ' ';
 //      }
 //  }
 //..
-// Finally, we can print text and verify that it is indeed delimited:
+// Finally, we can print some templates and verify that the argument
+// delimiters are closed:
 //..
-//  printText("simple text");
-//  assert(outStreamContent() == "\"simple text\"");
+//  bsl::vector<bsl::string_view> targs;
+//  printTemplateWithArgs("TypeList", targs);
+//  assert(outStreamContent() == "TypeList<>");
 //
-//  printText("\"simple\" \"text\"");
-//  assert(outStreamContent() == "\"\\\"simple\\\" \\\"text\\\"\"");
+//  targs.push_back("bsl::string_view");
+//  printTemplateWithArgs("bsl::vector", targs);
+//  assert(outStreamContent() == "bsl::vector<bsl::string_view>");
+//
+//  targs.push_back("bsl::vector<bsl::string_view>");
+//  printTemplateWithArgs("bsl::unordered_map", targs);
+//  assert(outStreamContent() ==
+//     "bsl::unordered_map<bsl::string_view, bsl::vector<bsl::string_view> >");
 //..
 
 #include <bdlscm_version.h>
@@ -533,47 +552,56 @@ BSLS_IDENT("$Id: $")
 #include <bsl_functional.h>
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
-#include <bsl_type_traits.h>
+    #include <bsl_type_traits.h>
+#endif
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+    #include <bsl_utility.h>  // 'bsl::move'
 #endif
 
 #include <bsls_buildtarget.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
 #include <bsls_platform.h>
+#include <bsls_util.h>
 
 // ============================================================================
 //                                 MACROS
 // ============================================================================
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-// 'BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L' is implied by
-// 'BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES'.
-#define BDLB_SCOPEEXIT_USES_MODERN_CPP
+    BSLMF_ASSERT(BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L);
+        // 'BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L' is implied here.
+
+    #define BDLB_SCOPEEXIT_USES_MODERN_CPP
+        // This macro determines if we have a sufficiently functional C++11 or
+        // later compiler so the type-deducing 'auto' with factory-method can
+        // be compiled and works as expected.  When the macro is not defined
+        // (C++03 form) no utility 'struct' (therefore no factory method) will
+        // be defined by this component and the variable definition macros (for
+        // Proctor and Guard) will use 'bdlb::ScopeExitAny'.  When this macro
+        // is defined (C++11 or later that has sufficiently operation rvalue
+        // references and type-deducing 'auto' keyword implementation) the
+        // factory method and its utility 'struct' will be defined and the
+        // variable definition macros will use 'auto' to determine the type of
+        // the 'bdlb::ScopeExit' variable.  This macro is only internally in
+        // this component header and therefore it is undefined at the end of
+        // the file.
 #endif
-    // This macro controls if C++03 form, or Modern C++ (C++11 or later) form.
-    // When the macro is not defined (C++03 form) no utility 'struct'
-    // (therefore no factory method) will be defined by this component and the
-    // variable definition macros will use the type 'bdlb::ScopeExitAny'.  When
-    // This macro is defined (Modern C++ form) the factory method and its
-    // utility 'struct' will be defined and the variable definition macros will
-    // use 'auto' to determine the type of the variable.  This macro is only
-    // for internal use in this component header only and therefore it is
-    // undefined at the end of the file.
 
 #ifdef BDE_BUILD_TARGET_EXC
-#define BDLB_SCOPEEXIT_NOEXCEPT_SPEC BSLS_KEYWORD_NOEXCEPT_SPECIFICATION
+    #define BDLB_SCOPEEXIT_NOEXCEPT_SPEC BSLS_KEYWORD_NOEXCEPT_SPECIFICATION
 #else
-#define BDLB_SCOPEEXIT_NOEXCEPT_SPEC(...)
+    #define BDLB_SCOPEEXIT_NOEXCEPT_SPEC(...)
 #endif
     // This macro is for internal use only and is undefined at the end of the
     // file.
 
 #ifdef BDLB_SCOPEEXIT_USES_MODERN_CPP
-#define BDLB_SCOPEEXIT_PROCTOR(NAME, EXIT_FUNC) \
-    auto NAME{BloombergLP::bdlb::ScopeExitUtil::makeScopeExit(EXIT_FUNC)}
+    #define BDLB_SCOPEEXIT_PROCTOR(NAME, EXIT_FUNC) \
+        auto NAME{ BloombergLP::bdlb::ScopeExitUtil::makeScopeExit(EXIT_FUNC) }
 #else
-#define BDLB_SCOPEEXIT_PROCTOR(NAME, EXIT_FUNC) \
-    BloombergLP::bdlb::ScopeExitAny NAME((EXIT_FUNC))
+    #define BDLB_SCOPEEXIT_PROCTOR(NAME, EXIT_FUNC) \
+        BloombergLP::bdlb::ScopeExitAny NAME((EXIT_FUNC))
 #endif
     // Create a local variable with the specified 'NAME' with a type that is an
     // instantiation of 'bdlb::ScopeExit' initialized with the specified
@@ -581,27 +609,35 @@ BSLS_IDENT("$Id: $")
     // depend on available language features.
 
 
-#define BDLB_SCOPEEXIT_CAT(X, Y) BDLB_SCOPEEXIT_CAT_IMP(X, Y)
-#define BDLB_SCOPEEXIT_CAT_IMP(X, Y) X##Y
-    // Second layer needed to ensure that arguments are expanded before
-    // concatenation.  This macro is for use by this component only.
+#define BDLB_SCOPEEXIT_PRIVATE_CAT(X, Y) BDLB_SCOPEEXIT_PRIVATE_CAT_IMP(X, Y)
+    // This macro is for use by 'BDLB_SCOPEEXIT_GUARD' only to provide unique
+    // variable names.  It is *not* undefined by the end of the file but its
+    // direct use is not supported under any circumstances.
+#define BDLB_SCOPEEXIT_PRIVATE_CAT_IMP(X, Y) X##Y
+    // This macro is for use by 'BDLB_SCOPEEXIT_GUARD' only to provide unique
+    // variable names.  It is *not* undefined by the end of the file but its
+    // direct use is not supported under any circumstances.
 
 #if defined(BSLS_PLATFORM_CMP_MSVC) || defined(BSLS_PLATFCORM_CMP_GNU) ||     \
     defined(BSLS_PLATFCORM_CMP_CLANG)
-#define BDLB_SCOPEEXIT_UNIQNUM __COUNTER__
     // MSVC: The '__LINE__' macro breaks when '/ZI' is used (see Q199057 or
     // KB199057).  Fortunately the '__COUNTER__' extension provided by MSVC
-    // is even better.  Since '__COUNTER__' is also available on our other
-    // modern C++ platforms (GNU g++ and clang) we use it there as well.
+    // is even better.  Since '__COUNTER__' is also available on all our
+    // supported newer C++ platforms (GNU g++ and clang) we use it there as
+    // well.
+    #define BDLB_SCOPEEXIT_PRIVATE_UNIQNUM __COUNTER__
 #else
-#define BDLB_SCOPEEXIT_UNIQNUM __LINE__
+    #define BDLB_SCOPEEXIT_PRIVATE_UNIQNUM __LINE__
 #endif
-    // This macro is for use by 'BDLB_SCOPEEXIT_GUARD' only.
+    // This macro is for use by 'BDLB_SCOPEEXIT_GUARD' only to provide unique
+    // variable names.  It is *not* undefined by the end of the file but its
+    // direct use is not supported under any circumstances.
 
 #define BDLB_SCOPEEXIT_GUARD(EXIT_FUNC)                                       \
     BSLA_MAYBE_UNUSED                                                         \
     const BDLB_SCOPEEXIT_PROCTOR(                                             \
-        BDLB_SCOPEEXIT_CAT(bdlbScopeExitGuard_, BDLB_SCOPEEXIT_UNIQNUM),      \
+        BDLB_SCOPEEXIT_PRIVATE_CAT(bdlbScopeExitGuard_,                       \
+                                   BDLB_SCOPEEXIT_PRIVATE_UNIQNUM),           \
                            EXIT_FUNC)
     // Create a local variable with a generated unique name and with a type
     // that is an instantiation of 'bdlb::ScopeExit' initialized with the
@@ -617,14 +653,15 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace bdlb {
+
                              // ===============
                              // class ScopeExit
                              // ===============
 
 template <class EXIT_FUNC>
-class BSLA_NODISCARD ScopeExit
-    // 'ScopeExit' is a general-purpose scope guard class template that is
-    // intended to use an an automatic (stack) variable and it calls an exit
+class BSLA_NODISCARD_CPP17 ScopeExit {
+    // 'ScopeExit' is a general-purpose scope proctor class template that is
+    // intended to be used as an automatic (stack) variable that calls an exit
     // function upon its destruction (when its scope is exited).
     //
     // The template argument 'EXIT_FUNC' shall be a function object type, or a
@@ -633,16 +670,16 @@ class BSLA_NODISCARD ScopeExit
     // *MoveConstructible* as specified by the ISO C++ standard.  Note that to
     // fulfill the *MoveConstructible* constraint a type does not have to
     // implement a move constructor.  If it has a copy constructor, that will
-    // work fine as long at the move constructor is not deleted (or in case
-    // of C++03 emulated moves 'private').  The behavior is undefined if
-    // calling (the member instance of) 'EXIT_FUNC' throws an exception (as it
-    // will be called from the destructor).
-{
+    // work fine as long at the move constructor is not deleted (or in case of
+    // C++03 emulated moves, 'private').  The behavior is undefined if calling
+    // (the member instance of) 'EXIT_FUNC' throws an exception (as it will be
+    // called from the destructor).
+
   private:
     // TEMPLATE PARAMETER CONTRACT
     BSLMF_ASSERT(
-        !bsl::is_pointer<EXIT_FUNC>::value
-        || bsl::is_function<
+        !bsl::is_pointer<EXIT_FUNC>::value ||
+        bsl::is_function<
                         typename bsl::remove_pointer<EXIT_FUNC>::type>::value);
         // Only function pointers are allowed, no other pointers.
 
@@ -655,6 +692,7 @@ class BSLA_NODISCARD ScopeExit
     // chance of passing non-destructible or non-callable 'EXIT_FUNC' argument
     // is low, and they will result in a reasonable error message.
 
+  private:
     // PRIVATE DATA
     EXIT_FUNC d_exitFunction;          // A function pointer or functor to call
     bool      d_executeOnDestruction;  // 'false' if 'release' was called
@@ -673,21 +711,52 @@ class BSLA_NODISCARD ScopeExit
     explicit ScopeExit(
         BSLS_COMPILERFEATURES_FORWARD_REF(EXIT_FUNC_PARAM) function,
         typename bsl::enable_if<
-            !bsl::is_same<ScopeExit<EXIT_FUNC>,
-                          typename bsl::decay<EXIT_FUNC_PARAM>::type>::value &&
-            bsl::is_convertible<EXIT_FUNC_PARAM,
-                                EXIT_FUNC>::value>::type * = 0);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
+    // Enable explicit conversions on platforms where we can.  Since this
+    // constructor itself is 'explicit' we are not enabling anything extra.
+        bsl::is_constructible<
+            EXIT_FUNC,
+            const typename bsl::decay<EXIT_FUNC_PARAM>::type&
+                             >::value                                        ||
+        bsl::is_constructible<
+            EXIT_FUNC,
+            bslmf::MovableRef<typename bsl::decay<EXIT_FUNC_PARAM>::type>
+                             >::value
+#else
+        bsl::is_convertible<
+            const typename bsl::decay<EXIT_FUNC_PARAM>::type&,
+            EXIT_FUNC      >::value                                          ||
+        bsl::is_convertible<
+            bslmf::MovableRef<typename bsl::decay<EXIT_FUNC_PARAM>::type>,
+            EXIT_FUNC      >::value
+#endif
+                               >::type * = 0);
         // Create a 'ScopeExit' object, which, upon its destruction will invoke
         // the specified 'function' (or functor) unless its 'release' method
         // was called.  If 'function' is copied into the 'EXIT_FUNC' member,
         // and that copy throws an exception, invoke 'function' and rethrow the
         // exception.  If 'EXIT_FUNC_PARAM' cannot be move converted to
         // 'EXIT_FUNC' via no-throw means (either because such conversion does
-        // not exist or it it not marked as non-throwing), 'function' will
-        // always be copied into the member.  The behavior is undefined if
-        // 'function', when called, throws an exception.  The behavior is also
-        // undefined if calling the resulting member instance of 'EXIT_FUNC'
-        // throws an exception.
+        // not exist or it is not marked as non-throwing), 'function' will
+        // always be copied into the member.  This constructor participates in
+        // overload resolution only if 'EXIT_FUNC_PARAM' is neither 'EXIT_FUNC'
+        // nor 'bdlb::ScopeExit<EXIT_FUNC>' and 'EXIT_FUNC_PARAM' is
+        // convertible to 'EXIT_FUNC'.  The behavior is undefined if 'function'
+        // or the member instance of 'EXIT_FUNC' throws an exception upon
+        // invocation.
+
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -AQS01
+
+    explicit ScopeExit(void (*function)());
+        // Create a 'ScopeExit' object, which, upon its destruction will invoke
+        // the specified 'function' unless the 'release' method was called.
+        // If 'function' is copied into the 'EXIT_FUNC' member, and that copy
+        // throws an exception, invoke 'function' and rethrow the exception.
+        // The behavior is undefined if 'function' or the member instance of
+        // 'EXIT_FUNC' throws an exception upon invocation.
+
+// BDE_VERIFY pragma: pop
 
     ScopeExit(bslmf::MovableRef<ScopeExit> original)
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
@@ -703,7 +772,7 @@ class BSLA_NODISCARD ScopeExit
         // construct the exit function from the specified 'original'.  If
         // construction succeeds, call 'release()' on 'original'.
 
-    ~ScopeExit() BSLS_KEYWORD_NOEXCEPT;
+    ~ScopeExit();
         // Destroy this object.  Execute the exit function unless 'release()'
         // has been called on this object.
 
@@ -711,37 +780,33 @@ class BSLA_NODISCARD ScopeExit
     // MANIPULATORS
     void release();
         // Turn off the execution of the exit function of this object on
-        // destruction.  The exact semantic meaning of releasing a
-        // 'bdlb::ScopeExit' object depends on what its exit function does.
+        // destruction.
 };
 
-// ============================================================================
-//                                TYPE TRAITS
-// ============================================================================
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -AQS01
 
-#ifndef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
-// In case there is no reliable '<type_traits>' header we use 'bsl' a trait to
-// mark our class no-throw-move-constructible, if the single member is.
+// CLASS TEMPLATE DEDUCTION GUIDES
+template <class EXIT_FUNC_PARAM>
+explicit
+ScopeExit(BSLS_COMPILERFEATURES_FORWARD_REF(EXIT_FUNC_PARAM) function) ->
+                         ScopeExit<typename bsl::decay<EXIT_FUNC_PARAM>::type>;
 
-}  // close package namespace
-}  // close enterprise namespace
-
-namespace bsl {
-template <class EXIT_FUNC>
-struct is_nothrow_move_constructible<BloombergLP::bdlb::ScopeExit<EXIT_FUNC> >
-: is_nothrow_move_constructible<EXIT_FUNC>
-{};
-}  // close 'bsl' namespace
-
-// Reopen enterprise and package namespace
-namespace BloombergLP {
-namespace bdlb {
-
+// BDE_VERIFY pragma: pop
 #endif
+                             // ====================
+                             // typedef ScopeExitAny
+                             // ====================
+
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -TR17
 
 typedef ScopeExit<bsl::function<void()> > ScopeExitAny;
     // 'ScopeExitAny' is an alias to 'ScopeExit<bsl::function<void()> >',
     // effectively making it a polymorphic scope exit type.
+
+// BDE_VERIFY pragma: pop
 
 #ifdef BDLB_SCOPEEXIT_USES_MODERN_CPP
 
@@ -750,16 +815,20 @@ typedef ScopeExit<bsl::function<void()> > ScopeExitAny;
                              // ===================
 
 struct ScopeExitUtil {
-    // A utility that provides a factory function for Modern C++ scope guards.
-    // Notice that the utility type does not exist on C++03 systems.
+    // A utility that provides a factory function for sufficiently function
+    // C++11 or later platforms to create scope guards using the type-deducing
+    // 'auto' keyword.  Notice that the utility type does not exist on C++03
+    // platforms.
 
     // CLASS METHODS
-    template <class EXIT_FUNC>
+    template <class EXIT_FUNC_PARAM>
+    BSLA_NODISCARD
     static
-    ScopeExit<typename bsl::decay<EXIT_FUNC>::type>
-    makeScopeExit(EXIT_FUNC&& function);
-        // Return a 'ScopeExit' guard that has the specified 'function' as its
-        // exit function.
+    ScopeExit<typename bsl::decay<EXIT_FUNC_PARAM>::type>
+    makeScopeExit(EXIT_FUNC_PARAM&& function);
+        // Return a 'ScopeExit' guard that uses the specified 'function' as its
+        // exit function, and has the decayed type of 'function' (class type or
+        // or function pointer type) as its exit function member type.
 };
 #endif // BDLB_SCOPEEXIT_USES_MODERN_CPP
 
@@ -778,9 +847,24 @@ inline
 ScopeExit<EXIT_FUNC>::ScopeExit(
     BSLS_COMPILERFEATURES_FORWARD_REF(EXIT_FUNC_PARAM) function,
     typename bsl::enable_if<
-        !bsl::is_same<ScopeExit<EXIT_FUNC>,
-                      typename bsl::decay<EXIT_FUNC_PARAM>::type>::value &&
-        bsl::is_convertible<EXIT_FUNC_PARAM, EXIT_FUNC>::value>::type *)
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
+        bsl::is_constructible<
+            EXIT_FUNC,
+            const typename bsl::decay<EXIT_FUNC_PARAM>::type&
+                             >::value                                        ||
+        bsl::is_constructible<
+            EXIT_FUNC,
+            bslmf::MovableRef<typename bsl::decay<EXIT_FUNC_PARAM>::type>
+                             >::value
+#else
+        bsl::is_convertible<
+            const typename bsl::decay<EXIT_FUNC_PARAM>::type&,
+            EXIT_FUNC      >::value                                          ||
+        bsl::is_convertible<
+            bslmf::MovableRef<typename bsl::decay<EXIT_FUNC_PARAM>::type>,
+            EXIT_FUNC      >::value
+#endif
+                           >::type *)
 #ifdef BDE_BUILD_TARGET_EXC
 try
 #endif
@@ -818,6 +902,22 @@ catch (...)
 #endif
 
 template <class EXIT_FUNC>
+inline ScopeExit<EXIT_FUNC>::ScopeExit(void (*function)())
+#ifdef BDE_BUILD_TARGET_EXC
+try
+#endif
+: d_exitFunction(function)
+, d_executeOnDestruction(true)
+{
+}
+#ifdef BDE_BUILD_TARGET_EXC
+catch (...)
+{
+    function();
+}
+#endif
+
+template <class EXIT_FUNC>
 inline
 ScopeExit<EXIT_FUNC>::ScopeExit(bslmf::MovableRef<ScopeExit> original)
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
@@ -837,7 +937,7 @@ ScopeExit<EXIT_FUNC>::ScopeExit(bslmf::MovableRef<ScopeExit> original)
 
 template <class EXIT_FUNC>
 inline
-ScopeExit<EXIT_FUNC>::~ScopeExit() BSLS_KEYWORD_NOEXCEPT
+ScopeExit<EXIT_FUNC>::~ScopeExit()
 {
     if (d_executeOnDestruction) {
         d_exitFunction();
@@ -859,19 +959,35 @@ void ScopeExit<EXIT_FUNC>::release()
                          // -------------------
 
 // CLASS METHODS
-template <class EXIT_FUNC>
+template <class EXIT_FUNC_PARAM>
 inline
-ScopeExit<typename bsl::decay<EXIT_FUNC>::type>
-ScopeExitUtil::makeScopeExit(EXIT_FUNC&& function)
+ScopeExit<typename bsl::decay<EXIT_FUNC_PARAM>::type>
+ScopeExitUtil::makeScopeExit(EXIT_FUNC_PARAM&& function)
 {
-    return ScopeExit<typename bsl::decay<EXIT_FUNC>::type>(
-                                    bslmf::Util::forward<EXIT_FUNC>(function));
+    return ScopeExit<typename bsl::decay<EXIT_FUNC_PARAM>::type>(
+                              bslmf::Util::forward<EXIT_FUNC_PARAM>(function));
 }
 
 #endif // BDLB_SCOPEEXIT_USES_MODERN_CPP
 
 }  // close package namespace
 }  // close enterprise namespace
+
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
+// In case there is no reliable '<type_traits>' header we use 'bsl' a trait to
+// mark our class no-throw-move-constructible, if the single member is.
+
+namespace bsl {
+template <class EXIT_FUNC>
+struct is_nothrow_move_constructible<BloombergLP::bdlb::ScopeExit<EXIT_FUNC> >
+: is_nothrow_move_constructible<EXIT_FUNC>
+{};
+}  // close 'bsl' namespace
+#endif
 
 #ifdef BDLB_SCOPEEXIT_USES_MODERN_CPP
 #undef BDLB_SCOPEEXIT_USES_MODERN_CPP

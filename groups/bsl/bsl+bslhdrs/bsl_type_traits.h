@@ -269,9 +269,18 @@ template <class TYPE>
 BSLS_KEYWORD_INLINE_VARIABLE
 constexpr bool is_pod_v = native_std::is_pod<TYPE>::value;
 
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 110000 &&  \
+    BSLS_COMPILERFEATURES_CPLUSPLUS >= 201703L
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
 template <class TYPE>
 BSLS_KEYWORD_INLINE_VARIABLE
 constexpr bool is_literal_type_v = native_std::is_literal_type<TYPE>::value;
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 110000 &&  \
+    BSLS_COMPILERFEATURES_CPLUSPLUS >= 201703L
+#pragma GCC diagnostic pop
+#endif
 
 template <class TYPE>
 BSLS_KEYWORD_INLINE_VARIABLE

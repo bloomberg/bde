@@ -10,6 +10,12 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <stdexcept>
 #include <string>
 
+#ifdef BDE_BUILD_TARGET_EXC
+    #define U_UNUSED_ARG_WHEN_EXCEPTIONS_DISABLED(x) do{}while(false)
+#else
+    #define U_UNUSED_ARG_WHEN_EXCEPTIONS_DISABLED(x) (void)(x)
+#endif
+
 namespace BloombergLP {
 namespace bslstl {
 
@@ -22,54 +28,72 @@ BSLS_ANNOTATION_NORETURN
 void StdExceptUtil::throwRuntimeError(const char *message)
 {
     BSLS_THROW(std::runtime_error(message));
+
+    U_UNUSED_ARG_WHEN_EXCEPTIONS_DISABLED(message);
 }
 
 BSLS_ANNOTATION_NORETURN
 void StdExceptUtil::throwLogicError(const char *message)
 {
     BSLS_THROW(std::logic_error(message));
+
+    U_UNUSED_ARG_WHEN_EXCEPTIONS_DISABLED(message);
 }
 
 BSLS_ANNOTATION_NORETURN
 void StdExceptUtil::throwDomainError(const char *message)
 {
     BSLS_THROW(std::domain_error(message));
+
+    U_UNUSED_ARG_WHEN_EXCEPTIONS_DISABLED(message);
 }
 
 BSLS_ANNOTATION_NORETURN
 void StdExceptUtil::throwInvalidArgument(const char *message)
 {
     BSLS_THROW(std::invalid_argument(message));
+
+    U_UNUSED_ARG_WHEN_EXCEPTIONS_DISABLED(message);
 }
 
 BSLS_ANNOTATION_NORETURN
 void StdExceptUtil::throwLengthError(const char *message)
 {
     BSLS_THROW(std::length_error(message));
+
+    U_UNUSED_ARG_WHEN_EXCEPTIONS_DISABLED(message);
 }
 
 BSLS_ANNOTATION_NORETURN
 void StdExceptUtil::throwOutOfRange(const char *message)
 {
     BSLS_THROW(std::out_of_range(message));
+
+    U_UNUSED_ARG_WHEN_EXCEPTIONS_DISABLED(message);
 }
 
 BSLS_ANNOTATION_NORETURN
 void StdExceptUtil::throwRangeError(const char *message)
 {
     BSLS_THROW(std::range_error(message));
+
+    U_UNUSED_ARG_WHEN_EXCEPTIONS_DISABLED(message);
 }
 
 BSLS_ANNOTATION_NORETURN
 void StdExceptUtil::throwOverflowError(const char *message)
 {
     BSLS_THROW(std::overflow_error(message));
+
+    U_UNUSED_ARG_WHEN_EXCEPTIONS_DISABLED(message);
 }
 
 BSLS_ANNOTATION_NORETURN
 void StdExceptUtil::throwUnderflowError(const char *message)
 {
     BSLS_THROW(std::underflow_error(message));
+
+    U_UNUSED_ARG_WHEN_EXCEPTIONS_DISABLED(message);
 }
 
 }  // close package namespace
