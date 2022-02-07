@@ -1,5 +1,6 @@
 bdlat_arrayfunctions
 bdlat_arrayiterators
+bdlat_arrayutil
 bdlat_attributeinfo
 bdlat_bdeatoverrides
 bdlat_choicefunctions
@@ -8,6 +9,7 @@ bdlat_enumeratorinfo
 bdlat_enumfunctions
 bdlat_formattingmode
 bdlat_nullablevaluefunctions
+bdlat_nullablevalueutil
 bdlat_selectioninfo
 bdlat_sequencefunctions
 bdlat_symbolicconverter
