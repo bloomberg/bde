@@ -710,10 +710,16 @@ class MultiQueueThreadPool {
 
     int deleteQueue(int id);
         // Disable enqueuing to the queue associated with the specified 'id',
-        // and block the calling thread until a currently-executing job (or
-        // batch of jobs), if any, is completed; then destroy the queue.
-        // Return 0 on success, and a non-zero value otherwise.  Note that this
-        // function will fail if this pool is stopped.
+        // and when the currently executing job (or batch of jobs) of that
+        // queue, if any, is complete, then destroy the queue.  Return 0 on
+        // success, and a non-zero value otherwise.  This function will fail if
+        // the pool is stopped.  Any other (non-executing) jobs on the queue
+        // are deleted asynchronously.  The calling thread blocks until
+        // completion of the currently executing job (or batch of jobs), except
+        // when 'deleteQueue' is called from a job in the queue being deleted.
+        // In that latter case, no block takes place, the queue is deleted (no
+        // longer observable from the 'MultiQueueThreadPool'), and the job
+        // completes.
 
     int disableQueue(int id);
         // Disable enqueuing to the queue associated with the specified 'id'.
