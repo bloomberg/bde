@@ -38,7 +38,9 @@ BSLS_IDENT("$Id: $")
 // The 'bdlcc::Cache' class template is fully thread-safe (see
 // 'bsldoc_glossary') provided that the allocator supplied at construction and
 // the default allocator in effect during the lifetime of cached items are both
-// fully thread-safe.
+// fully thread-safe.  The thread-safety of the container does not extend to
+// thread-safety of the contained objects.  Thread-safety for the contained
+// objects, if needed, must be arranged by the user separately.
 //
 ///Thread Contention
 ///-----------------
@@ -86,11 +88,13 @@ BSLS_IDENT("$Id: $")
 // | insert                                             | Average: O[1]      |
 // |                                                    | Worst:   O[n]      |
 // +----------------------------------------------------+--------------------+
-// | tryGetValue                                        | O[1]               |
+// | tryGetValue                                        | Average: O[1]      |
+// |                                                    | Worst:   O[n]      |
 // +----------------------------------------------------+--------------------+
 // | popFront                                           | O[1]               |
 // +----------------------------------------------------+--------------------+
-// | erase                                              | O[1]               |
+// | erase                                              | Average: O[1]      |
+// |                                                    | Worst:   O[n]      |
 // +----------------------------------------------------+--------------------+
 // | visit                                              | O[n]               |
 // +----------------------------------------------------+--------------------+
