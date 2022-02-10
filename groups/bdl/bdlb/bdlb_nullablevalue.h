@@ -467,8 +467,7 @@ class NullableValue : public bsl::optional<TYPE> {
         // of 'rhs' are either move-inserted into or move-assigned to this
         // object.  'rhs' is left in a valid but unspecified state.
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) &&               \
-                                     201103L <= BSLS_COMPILERFEATURES_CPLUSPLUS
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
     // 'is_assignable' is only available in C++11 and beyond.
 
     template <class BDE_OTHER_TYPE>
@@ -476,8 +475,11 @@ class NullableValue : public bsl::optional<TYPE> {
                                                BDE_OTHER_TYPE>::value,
                             NullableValue<TYPE>&>::type
     operator=(BDE_OTHER_TYPE&& rhs);
-        // If 'rhs' is a const ref or lvalue, copy assign it to the base class.
-        // It it is an rvalue, move assign it to the base class.
+        // Assign to this object the value of the specified 'rhs' object (of
+        // 'BDE_OTHER_TYPE') converted to 'TYPE', and return a reference
+        // providing modifiable access to this object.  Note that this method
+        // will fail to compile if 'TYPE' and 'BDE_OTHER_TYPE' are not
+        // compatible.
 #else
     template <class BDE_OTHER_TYPE>
     NullableValue<TYPE>& operator=(const BDE_OTHER_TYPE& rhs);
@@ -492,7 +494,7 @@ class NullableValue : public bsl::optional<TYPE> {
         // Assign to this object the value of the specified 'rhs' object (of
         // 'BDE_OTHER_TYPE') converted to 'TYPE', and return a reference
         // providing modifiable access to this object.  Note that this method
-        // will fail to compile if 'TYPE and 'BDE_OTHER_TYPE' are not
+        // will fail to compile if 'TYPE' and 'BDE_OTHER_TYPE' are not
         // compatible.
 #endif
 
