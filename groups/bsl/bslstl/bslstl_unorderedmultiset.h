@@ -652,6 +652,7 @@ BSL_OVERRIDES_STD mode"
 #include <bslalg_typetraithasstliterators.h>
 
 #include <bslma_allocatortraits.h>
+#include <bslma_isstdallocator.h>
 #include <bslma_stdallocator.h>        // Can probably escape with a fwd-decl,
                                        // but not very user friendly
 #include <bslma_usesbslmaallocator.h>
@@ -921,19 +922,39 @@ class unordered_multiset
         // 'bsl::allocator' (the default).
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+# ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+    template <
+    class = bsl::enable_if_t<std::is_invocable_v<HASH, const KEY &>>,
+    class = bsl::enable_if_t<
+                         std::is_invocable_v<EQUAL, const KEY &, const KEY &>>,
+    class = bsl::enable_if_t< bsl::IsStdAllocator_v<ALLOCATOR>>
+    >
+# endif
     unordered_multiset(
                       std::initializer_list<KEY> values,
                       size_type                  initialNumBuckets = 0,
                       const HASH&                hashFunction = HASH(),
                       const EQUAL&               keyEqual = EQUAL(),
                       const ALLOCATOR&           basicAllocator = ALLOCATOR());
+# ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+    template <
+    class = bsl::enable_if_t<std::is_invocable_v<HASH, const KEY &>>,
+    class = bsl::enable_if_t<bsl::IsStdAllocator<ALLOCATOR>::value>
+    >
+# endif
     unordered_multiset(std::initializer_list<KEY> values,
                        size_type                  initialNumBuckets,
                        const HASH&                hashFunction,
                        const ALLOCATOR&           basicAllocator);
+# ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+    template <class = bsl::enable_if_t<bsl::IsStdAllocator<ALLOCATOR>::value>>
+# endif
     unordered_multiset(std::initializer_list<KEY> values,
                        size_type                  initialNumBuckets,
                        const ALLOCATOR&           basicAllocator);
+# ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+    template <class = bsl::enable_if_t<bsl::IsStdAllocator<ALLOCATOR>::value>>
+# endif
     unordered_multiset(std::initializer_list<KEY> values,
                        const ALLOCATOR&           basicAllocator);
         // Create an unordered multiset and insert each 'value_type' object in
@@ -1466,6 +1487,319 @@ class unordered_multiset
 
 };
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+// CLASS TEMPLATE DEDUCTION GUIDES
+
+template <
+    class KEY,
+    class HASH,
+    class EQUAL,
+    class ALLOCATOR,
+    class ALLOC,
+    class = bsl::enable_if_t<std::is_convertible<ALLOC *, ALLOCATOR>::value>
+    >
+unordered_multiset(unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>, ALLOC *)
+-> unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>;
+    // Deduce the template parameters 'KEY', 'HASH', 'EQUAL' and 'ALLOCATOR'
+    // from the corresponding template parameters of the
+    // 'bsl::unordered_multiset' supplied to the constructor of
+    // 'unordered_multiset'.  This deduction guide does not participate unless
+    // the supplied allocator is convertible to 'bsl::allocator<KEY>'.
+
+
+template <
+    class INPUT_ITERATOR,
+    class KEY = BloombergLP::bslstl::IteratorUtil::IterVal_t<INPUT_ITERATOR>,
+    class HASH = bsl::hash<KEY>,
+    class EQUAL = bsl::equal_to<KEY>,
+    class ALLOCATOR = bsl::allocator<KEY>,
+    class = bsl::enable_if_t<std::is_invocable_v<HASH, const KEY&>>,
+    class = bsl::enable_if_t<
+                           std::is_invocable_v<EQUAL, const KEY&, const KEY&>>,
+    class = bsl::enable_if_t< bsl::IsStdAllocator_v<ALLOCATOR>>
+    >
+unordered_multiset(INPUT_ITERATOR,
+                   INPUT_ITERATOR,
+                   typename bsl::allocator_traits<ALLOCATOR>::size_type = 0,
+                   HASH      = HASH(),
+                   EQUAL     = EQUAL(),
+                   ALLOCATOR = ALLOCATOR())
+-> unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>;
+    // Deduce the template parameter 'KEY' from the 'value_type' of the
+    // iterators supplied to the constructor of 'unordered_multiset'.  Deduce
+    // the template parameters 'HASH', 'EQUAL' and 'ALLOCATOR' from the other
+    // parameters passed to the constructor.  This deduction guide does not
+    // participate unless: (1) the supplied 'HASH' is invocable with a 'KEY',
+    // (2) the supplied 'EQUAL' is invocable with two 'KEY's, and (3) the
+    // supplied allocator meets the requirements of a standard allocator.
+
+template <
+    class INPUT_ITERATOR,
+    class KEY = BloombergLP::bslstl::IteratorUtil::IterVal_t<INPUT_ITERATOR>,
+    class HASH,
+    class EQUAL,
+    class ALLOC,
+    class DEFAULT_ALLOCATOR = bsl::allocator<KEY>,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, DEFAULT_ALLOCATOR>>
+    >
+unordered_multiset(
+    INPUT_ITERATOR,
+    INPUT_ITERATOR,
+    typename bsl::allocator_traits<DEFAULT_ALLOCATOR>::size_type,
+    HASH,
+    EQUAL,
+    ALLOC *)
+-> unordered_multiset<KEY, HASH, EQUAL>;
+    // Deduce the template parameter 'KEY' from the 'value_type' of the
+    // iterators supplied to the constructor of 'unordered_multiset'.  Deduce
+    // the template parameters 'HASH' and 'EQUAL' from the other parameters
+    // passed to the constructor.  This deduction guide does not participate
+    // unless the supplied allocator is convertible to 'bsl::allocator<KEY>'.
+
+template <
+    class INPUT_ITERATOR,
+    class KEY = BloombergLP::bslstl::IteratorUtil::IterVal_t<INPUT_ITERATOR>,
+    class HASH,
+    class ALLOCATOR,
+    class = bsl::enable_if_t<std::is_invocable_v<HASH, const KEY &>>,
+    class = bsl::enable_if_t< bsl::IsStdAllocator_v<ALLOCATOR>>
+    >
+unordered_multiset(INPUT_ITERATOR,
+                   INPUT_ITERATOR,
+                   typename bsl::allocator_traits<ALLOCATOR>::size_type,
+                   HASH,
+                   ALLOCATOR)
+-> unordered_multiset<KEY, HASH, bsl::equal_to<KEY>, ALLOCATOR>;
+    // Deduce the template parameter 'KEY' from the 'value_type' of the
+    // iterators supplied to the constructor of 'unordered_multiset'.  Deduce
+    // the template parameters 'HASH' and 'ALLOCATOR' from the other parameters
+    // passed to the constructor.  This deduction guide does not participate
+    // unless the supplied 'HASH' is invocable with a 'KEY', and the supplied
+    // allocator meets the requirements of a standard allocator.
+
+template <
+    class INPUT_ITERATOR,
+    class KEY = BloombergLP::bslstl::IteratorUtil::IterVal_t<INPUT_ITERATOR>,
+    class HASH,
+    class ALLOC,
+    class DEFAULT_ALLOCATOR = bsl::allocator<KEY>,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, DEFAULT_ALLOCATOR>>
+    >
+unordered_multiset(
+    INPUT_ITERATOR,
+    INPUT_ITERATOR,
+    typename bsl::allocator_traits<DEFAULT_ALLOCATOR>::size_type,
+    HASH,
+    ALLOC *)
+-> unordered_multiset<KEY, HASH>;
+    // Deduce the template parameter 'KEY' from the 'value_type' of the
+    // iterators supplied to the constructor of 'unordered_multiset'.  Deduce
+    // the template parameter 'HASH' from the other parameters passed to the
+    // constructor.  This deduction guide does not participate unless the
+    // supplied allocator is convertible to 'bsl::allocator<KEY>'.
+
+template <
+    class INPUT_ITERATOR,
+    class ALLOCATOR,
+    class KEY = BloombergLP::bslstl::IteratorUtil::IterVal_t<INPUT_ITERATOR>,
+    class = bsl::enable_if_t<bsl::IsStdAllocator_v<ALLOCATOR>>
+    >
+unordered_multiset(INPUT_ITERATOR,
+                   INPUT_ITERATOR,
+                   typename bsl::allocator_traits<ALLOCATOR>::size_type,
+                   ALLOCATOR)
+-> unordered_multiset<KEY, bsl::hash<KEY>, bsl::equal_to<KEY>, ALLOCATOR>;
+    // Deduce the template parameter 'KEY' from the 'value_type' of the
+    // iterators supplied to the constructor of 'unordered_multiset'.   This
+    // deduction guide does not participate unless the supplied allocator meets
+    // the requirements of a standard allocator.
+
+template <
+    class INPUT_ITERATOR,
+    class KEY = BloombergLP::bslstl::IteratorUtil::IterVal_t<INPUT_ITERATOR>,
+    class ALLOC,
+    class DEFAULT_ALLOCATOR = bsl::allocator<KEY>,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, DEFAULT_ALLOCATOR>>
+    >
+unordered_multiset(
+    INPUT_ITERATOR,
+    INPUT_ITERATOR,
+    typename bsl::allocator_traits<DEFAULT_ALLOCATOR>::size_type,
+    ALLOC *)
+-> unordered_multiset<KEY>;
+    // Deduce the template parameter 'KEY' from the 'value_type' of the
+    // iterators supplied to the constructor of 'unordered_multiset'.  This
+    // deduction guide does not participate unless the supplied allocator is
+    // convertible to 'bsl::allocator<KEY>'.
+
+template <
+    class INPUT_ITERATOR,
+    class ALLOCATOR,
+    class KEY = BloombergLP::bslstl::IteratorUtil::IterVal_t<INPUT_ITERATOR>,
+    class = bsl::enable_if_t<bsl::IsStdAllocator_v<ALLOCATOR>>
+    >
+unordered_multiset(INPUT_ITERATOR, INPUT_ITERATOR, ALLOCATOR)
+-> unordered_multiset<KEY, bsl::hash<KEY>, bsl::equal_to<KEY>, ALLOCATOR>;
+    // Deduce the template parameter 'KEY' from the 'value_type' of the
+    // iterators supplied to the constructor of 'unordered_multiset'.   This
+    // deduction guide does not participate unless the supplied allocator meets
+    // the requirements of a standard allocator.
+
+template <
+    class INPUT_ITERATOR,
+    class KEY = BloombergLP::bslstl::IteratorUtil::IterVal_t<INPUT_ITERATOR>,
+    class ALLOC,
+    class DEFAULT_ALLOCATOR = bsl::allocator<KEY>,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, DEFAULT_ALLOCATOR>>
+    >
+unordered_multiset(INPUT_ITERATOR, INPUT_ITERATOR, ALLOC *)
+-> unordered_multiset<KEY>;
+    // Deduce the template parameter 'KEY' from the 'value_type' of the
+    // iterators supplied to the constructor of 'unordered_multiset'.  This
+    // deduction guide does not participate unless the supplied allocator is
+    // convertible to 'bsl::allocator<KEY>'.
+
+template <
+    class KEY,
+    class HASH = bsl::hash<KEY>,
+    class EQUAL = bsl::equal_to<KEY>,
+    class ALLOCATOR = bsl::allocator<KEY>,
+    class = bsl::enable_if_t<std::is_invocable_v<HASH, const KEY&>>,
+    class = bsl::enable_if_t<
+                           std::is_invocable_v<EQUAL, const KEY&, const KEY&>>,
+    class = bsl::enable_if_t< bsl::IsStdAllocator_v<ALLOCATOR>>
+    >
+unordered_multiset(std::initializer_list<KEY>,
+                   typename bsl::allocator_traits<ALLOCATOR>::size_type = 0,
+                   HASH      = HASH(),
+                   EQUAL     = EQUAL(),
+                   ALLOCATOR = ALLOCATOR())
+-> unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>;
+    // Deduce the template parameter 'KEY' from the 'value_type' of the
+    // initializer_list supplied to the constructor of 'unordered_multiset'.
+    // Deduce the template parameters 'HASH', EQUAL and 'ALLOCATOR' from the
+    // other parameters passed to the constructor.  This deduction guide does
+    // not participate unless: (1) the supplied 'HASH' is invocable with a
+    // 'KEY', (2) the supplied 'EQUAL' is invocable with two 'KEY's, and (3)
+    // the supplied allocator meets the requirements of a standard allocator.
+
+template <
+    class KEY,
+    class HASH,
+    class EQUAL,
+    class ALLOC,
+    class DEFAULT_ALLOCATOR = bsl::allocator<KEY>,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, DEFAULT_ALLOCATOR>>
+    >
+unordered_multiset(
+                  std::initializer_list<KEY>,
+                  typename bsl::allocator_traits<DEFAULT_ALLOCATOR>::size_type,
+                  HASH,
+                  EQUAL,
+                  ALLOC *)
+-> unordered_multiset<KEY, HASH, EQUAL>;
+    // Deduce the template parameter 'KEY' from the 'value_type' of the
+    // initializer_list supplied to the constructor of 'unordered_multiset'.
+    // Deduce the template parameters 'HASH' and 'EQUAL' from the other
+    // parameters passed to the constructor.  This deduction guide does not
+    // participate unless the supplied allocator is convertible to
+    // 'bsl::allocator<KEY>'.
+
+template <
+    class KEY,
+    class HASH,
+    class ALLOCATOR,
+    class = bsl::enable_if_t<std::is_invocable_v<HASH, const KEY &>>,
+    class = bsl::enable_if_t< bsl::IsStdAllocator_v<ALLOCATOR>>
+    >
+unordered_multiset(std::initializer_list<KEY>,
+                   typename bsl::allocator_traits<ALLOCATOR>::size_type,
+                   HASH,
+                   ALLOCATOR)
+-> unordered_multiset<KEY, HASH, bsl::equal_to<KEY>, ALLOCATOR>;
+    // Deduce the template parameter 'KEY' from the 'value_type' of the
+    // initializer_list supplied to the constructor of 'unordered_multiset'.
+    // Deduce the template parameters 'HASH' and 'ALLOCATOR' from the other
+    // parameters passed to the constructor.  This deduction guide does not
+    // participate unless the supplied 'HASH' is invocable with a 'KEY', and
+    // the supplied allocator meets the requirements of a standard allocator.
+
+
+template <
+    class KEY,
+    class HASH,
+    class ALLOC,
+    class DEFAULT_ALLOCATOR = bsl::allocator<KEY>,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, DEFAULT_ALLOCATOR>>
+    >
+unordered_multiset(
+                  std::initializer_list<KEY>,
+                  typename bsl::allocator_traits<DEFAULT_ALLOCATOR>::size_type,
+                  HASH,
+                  ALLOC *)
+-> unordered_multiset<KEY, HASH>;
+    // Deduce the template parameter 'KEY' from the 'value_type' of the
+    // initializer_list supplied to the constructor of 'unordered_multiset'.
+    // Deduce the template parameter 'HASH' from the other parameters passed to
+    // the constructor.  This deduction guide does not participate unless the
+    // supplied allocator is convertible to 'bsl::allocator<KEY>'.
+
+template <
+    class KEY,
+    class ALLOCATOR,
+    class = bsl::enable_if_t<bsl::IsStdAllocator_v<ALLOCATOR>>
+    >
+unordered_multiset(std::initializer_list<KEY>,
+                   typename bsl::allocator_traits<ALLOCATOR>::size_type,
+                   ALLOCATOR)
+-> unordered_multiset<KEY, bsl::hash<KEY>, bsl::equal_to<KEY>, ALLOCATOR>;
+    // Deduce the template parameter 'KEY' from the 'value_type' of the
+    // initializer_list supplied to the constructor of 'unordered_multiset'.
+    // This deduction guide does not participate unless the supplied allocator
+    // meets the requirements of a standard allocator.
+
+template <
+    class KEY,
+    class ALLOC,
+    class DEFAULT_ALLOCATOR = bsl::allocator<KEY>,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, DEFAULT_ALLOCATOR>>
+    >
+unordered_multiset(
+                  std::initializer_list<KEY>,
+                  typename bsl::allocator_traits<DEFAULT_ALLOCATOR>::size_type,
+                  ALLOC *)
+-> unordered_multiset<KEY>;
+    // Deduce the template parameter 'KEY' from the 'value_type' of the
+    // initializer_list supplied to the constructor of 'unordered_multiset'.
+    // This deduction guide does not participate unless the supplied allocator
+    // is convertible to 'bsl::allocator<KEY>'.
+
+template <
+    class KEY,
+    class ALLOCATOR,
+    class = bsl::enable_if_t<bsl::IsStdAllocator_v<ALLOCATOR>>
+    >
+unordered_multiset(std::initializer_list<KEY>, ALLOCATOR)
+-> unordered_multiset<KEY, bsl::hash<KEY>, bsl::equal_to<KEY>, ALLOCATOR>;
+    // Deduce the template parameter 'KEY' from the 'value_type' of the
+    // initializer_list supplied to the constructor of 'unordered_multiset'.
+    // This deduction guide does not participate unless the supplied allocator
+    // meets the requirements of a standard allocator.
+
+template <
+    class KEY,
+    class ALLOC,
+    class DEFAULT_ALLOCATOR = bsl::allocator<KEY>,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, DEFAULT_ALLOCATOR>>
+    >
+unordered_multiset(std::initializer_list<KEY>, ALLOC *)
+-> unordered_multiset<KEY>;
+    // Deduce the template parameter 'KEY' from the 'value_type' of the
+    // initializer_list supplied to the constructor of 'unordered_multiset'.
+    // This deduction guide does not participate unless the supplied allocator
+    // is convertible to 'bsl::allocator<KEY>'.
+#endif
+
 // FREE OPERATORS
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 bool operator==(const unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& lhs,
@@ -1653,6 +1987,9 @@ unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::unordered_multiset(
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+template <class, class, class>
+#endif
 inline
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::unordered_multiset(
                                   std::initializer_list<KEY> values,
@@ -1670,6 +2007,9 @@ unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::unordered_multiset(
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+template <class, class>
+#endif
 inline
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::unordered_multiset(
                                   std::initializer_list<KEY> values,
@@ -1686,11 +2026,14 @@ unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::unordered_multiset(
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+template <class>
+#endif
 inline
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::unordered_multiset(
-                                 std::initializer_list<KEY> values,
-                                 size_type                  initialNumBuckets,
-                                 const ALLOCATOR&           basicAllocator)
+                                  std::initializer_list<KEY> values,
+                                  size_type                  initialNumBuckets,
+                                  const ALLOCATOR&           basicAllocator)
 : unordered_multiset(values.begin(),
                      values.end(),
                      initialNumBuckets,
@@ -1701,10 +2044,13 @@ unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::unordered_multiset(
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+template <class>
+#endif
 inline
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::unordered_multiset(
-                                 std::initializer_list<KEY> values,
-                                 const ALLOCATOR&           basicAllocator)
+                                     std::initializer_list<KEY> values,
+                                     const ALLOCATOR&           basicAllocator)
 : unordered_multiset(values.begin(),
                      values.end(),
                      0,

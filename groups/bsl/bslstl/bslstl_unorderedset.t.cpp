@@ -198,7 +198,7 @@ using bsls::NameOf;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] default construction (only)
-// [34] USAGE EXAMPLE
+// [36] USAGE EXAMPLE
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 //*[ 3] int ggg(unordered_set<K,H,E,A> *object, const char *spec, int verbose);
@@ -210,6 +210,7 @@ using bsls::NameOf;
 //*[23] TBD: Not yet working for all types.
 //*[  ] CONCERN: The type provides the full interface defined by the standard.
 // [33] CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
+// [35] CLASS TEMPLATE DEDUCTION GUIDES
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -4699,7 +4700,7 @@ int main(int argc, char *argv[])
     ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
 
     switch (test) { case 0:
-      case 34: {
+      case 36: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -4854,6 +4855,8 @@ if (verbose) {
 // See the material in {'bslstl_unorderedmap'|Example 2}.
 
       } break;
+      case 35: // falls through
+      case 34: // falls through
       case 33: // falls through
       case 32: // falls through
       case 31: // falls through

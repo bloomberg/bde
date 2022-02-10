@@ -204,7 +204,8 @@ using bsls::NameOf;
 // [22] CONCERN: The object is compatible with STL allocators.
 // [23] CONCERN: The object has the necessary type traits
 // [27] CONCERN: The values are spread into different buckets.
-// [35] CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
+// [35] CONCERN: Methods qualified 'noexcept' in standard are so implemented.
+// [36] CLASS TEMPLATE DEDUCTION GUIDES
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -4651,7 +4652,7 @@ int main(int argc, char *argv[])
     ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
 
     switch (test) { case 0:
-      case 36: {
+      case 37: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -4804,6 +4805,7 @@ int main(int argc, char *argv[])
 // See the material in {'bslstl_unorderedmap'|Example 2}.
 
       } break;
+      case 36: // falls through
       case 35: // falls through
       case 34: // falls through
       case 33: // falls through
