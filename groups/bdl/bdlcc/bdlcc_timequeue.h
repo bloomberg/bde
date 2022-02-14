@@ -623,6 +623,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_timeinterval.h>
 
 #include <bsl_cstdint.h>
+#include <bsl_limits.h>
 #include <bsl_map.h>
 #include <bsl_vector.h>
 
@@ -632,7 +633,7 @@ BSLS_IDENT("$Id: $")
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-# include <memory_resource>
+#include <memory_resource>
 #endif
 
 namespace BloombergLP {
@@ -761,7 +762,8 @@ class TimeQueue {
     typedef bsl::map<bsls::TimeInterval, Node*> NodeMap;
         // Internal typedef for the time index map.
 
-    typedef typename NodeMap::iterator         MapIter;
+    typedef typename NodeMap::iterator       MapIter;
+    typedef typename NodeMap::const_iterator MapCIter;
         // Internal typedefs for the iterator used to navigate the time index.
 
     // PRIVATE DATA MEMBERS
@@ -1045,6 +1047,10 @@ class TimeQueue {
         // Load into the specified 'buffer', the time value of the lowest time
         // in this queue.  Return 0 on success, and a non-zero value if this
         // queue is empty.
+
+    int countLE(const bsls::TimeInterval& time) const;
+        // Return a "snapshot" of the current number of items in this queue
+        // that have a time value less than or equal to the specified 'time'.
 };
 
                             // ====================
@@ -1872,6 +1878,31 @@ int TimeQueue<DATA>::minTime(bsls::TimeInterval *buffer) const
 
     *buffer = d_map.begin()->first;
     return 0;
+}
+
+template <class DATA>
+inline
+int TimeQueue<DATA>::countLE(const bsls::TimeInterval& time) const
+{
+    int count = 0;
+
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+
+    for (MapCIter it = d_map.cbegin();
+         (it != d_map.cend()) && (it->first <= time) &&
+         (bsl::numeric_limits<int>::max() != count);
+         ++it) {
+        Node *first = it->second;
+        Node *node  = first;
+
+        do {
+            ++count;
+            node = node->d_next_p;
+        } while ((node != first) &&
+                 (bsl::numeric_limits<int>::max() != count));
+    }
+
+    return count;
 }
 
                             // --------------------

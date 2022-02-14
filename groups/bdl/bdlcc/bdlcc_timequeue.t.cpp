@@ -2987,24 +2987,27 @@ int main(int argc, char *argv[])
             const char VD[] = "D";
             const char VE[] = "E";
 
+            const bsls::TimeInterval COUNTLETIME(1,9999999);
+
             static const struct {
                 int         d_lineNum;     // Source line number
                 int         d_secs;
                 int         d_nsecs;
                 const char* d_value;
                 int         d_isNewTop;
+                int         d_countLE;
             } VALUES[] = {
-                //line secs  nsecs    value    isNewTop
-                //---- ----- -------- -------- --------
-                { L_,   2  , 1000000, VA     , 1       },
-                { L_,   2  , 1000000, VB     , 0       },
-                { L_,   2  , 1000000, VC     , 0       },
-                { L_,   2  , 1000001, VB     , 0       },
-                { L_,   1  , 9999998, VC     , 1       },
-                { L_,   1  , 9999999, VD     , 0       },
-                { L_,   1  , 9999999, VE     , 0       },
-                { L_,   1  , 9999999, VC     , 0       },
-                { L_,   0  , 0000000, VE     , 1       }
+                //line secs  nsecs    value    isNewTop countLE
+                //---- ----- -------- -------- -------- -------
+                { L_,   2  , 1000000, VA     , 1      , 0      },
+                { L_,   2  , 1000000, VB     , 0      , 0      },
+                { L_,   2  , 1000000, VC     , 0      , 0      },
+                { L_,   2  , 1000001, VB     , 0      , 0      },
+                { L_,   1  , 9999998, VC     , 1      , 1      },
+                { L_,   1  , 9999999, VD     , 0      , 2      },
+                { L_,   1  , 9999999, VE     , 0      , 3      },
+                { L_,   1  , 9999999, VC     , 0      , 4      },
+                { L_,   0  , 0000000, VE     , 1      , 5      }
             };
 
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
@@ -3037,6 +3040,7 @@ int main(int argc, char *argv[])
                 const int   NSECS       = VALUES[i].d_nsecs;
                 const int   ISNEWTOP    = VALUES[i].d_isNewTop;
                 const bsls::TimeInterval TIME(SECS,NSECS);
+                const int   COUNTLE     = VALUES[i].d_countLE;
 
                 for (int j = 0; j < NUM_OBJS; ++j) {
                     Obj& mX = *OBJS[j]; const Obj& X = mX;
@@ -3055,6 +3059,7 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE, (i+1) == newLength);
                     ASSERTV(LINE, (i+1) == X.length());
                     ASSERTV(LINE, true == X.isRegisteredHandle(handle));
+                    ASSERTV(LINE, COUNTLE == X.countLE(COUNTLETIME));
                 }
             }
         }
