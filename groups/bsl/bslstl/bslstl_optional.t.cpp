@@ -3,6 +3,8 @@
 
 #include <bslstl_string.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bslalg_constructorproxy.h>
 
 #include <bsltf_templatetestfacility.h>
@@ -385,6 +387,10 @@ struct MyClass1 {
 
     static int s_copyConstructorInvocations;
     static int s_moveConstructorInvocations;
+    static int s_lvalueConstructorInvocations;
+    static int s_rvalueConstructorInvocations;
+    static int s_copyAssignmentInvocations;
+    static int s_moveAssignmentInvocations;
     static int s_destructorInvocations;
 
     // CREATORS
@@ -421,6 +427,7 @@ struct MyClass1 {
     MyClass1& operator=(const MyClass1& rhs)
     {
         d_def.d_value = rhs.d_def.d_value;
+        ++s_copyAssignmentInvocations;
         return *this;
     }
 
@@ -429,6 +436,7 @@ struct MyClass1 {
         MyClass1& otherRef     = MoveUtil::access(rhs);
         d_def.d_value          = otherRef.d_def.d_value;
         otherRef.d_def.d_value = k_MOVED_FROM_VAL;
+        ++s_moveAssignmentInvocations;
         return *this;
     }
 
@@ -445,9 +453,13 @@ bool operator==(const MyClass1& lhs, const MyClass1& rhs)
     return (lhs.value() == rhs.value());
 }
 // CLASS DATA
-int MyClass1::s_copyConstructorInvocations = 0;
-int MyClass1::s_moveConstructorInvocations = 0;
-int MyClass1::s_destructorInvocations      = 0;
+int MyClass1::s_copyConstructorInvocations   = 0;
+int MyClass1::s_moveConstructorInvocations   = 0;
+int MyClass1::s_lvalueConstructorInvocations = 0;
+int MyClass1::s_rvalueConstructorInvocations = 0;
+int MyClass1::s_copyAssignmentInvocations    = 0;
+int MyClass1::s_moveAssignmentInvocations    = 0;
+int MyClass1::s_destructorInvocations        = 0;
 
                               // ===============
                               // class MyClass1a
@@ -461,6 +473,10 @@ struct MyClass1a {
     MyClass1   d_data;
     static int s_copyConstructorInvocations;
     static int s_moveConstructorInvocations;
+    static int s_lvalueConstructorInvocations;
+    static int s_rvalueConstructorInvocations;
+    static int s_copyAssignmentInvocations;
+    static int s_moveAssignmentInvocations;
     static int s_destructorInvocations;
 
     // CREATORS
@@ -478,12 +494,14 @@ struct MyClass1a {
     MyClass1a(bslmf::MovableRef<MyClass1> v)  // IMPLICIT
     : d_data(MoveUtil::move(MoveUtil::access(v)))
     {
+        ++s_rvalueConstructorInvocations;
     }
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     MyClass1a(bslmf::MovableRef<const MyClass1> v)
     : d_data(MoveUtil::access(v))
     {
+        ++s_lvalueConstructorInvocations;
     }   // IMPLICIT
 #endif  //#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
@@ -511,18 +529,21 @@ struct MyClass1a {
     MyClass1a& operator=(const MyClass1a& rhs)
     {
         d_data. operator=(rhs.d_data);
+        ++s_copyAssignmentInvocations;
         return *this;
     }
 
     MyClass1a& operator=(bslmf::MovableRef<MyClass1a> rhs)
     {
         d_data. operator=(MoveUtil::move(MoveUtil::access(rhs).d_data));
+        ++s_moveAssignmentInvocations;
         return *this;
     }
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     MyClass1a& operator=(bslmf::MovableRef<const MyClass1a> rhs)
     {
         d_data. operator=(MoveUtil::access(rhs).d_data);
+        ++s_copyAssignmentInvocations;
         return *this;
     }
 #endif  //#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
@@ -542,9 +563,14 @@ struct MyClass1a {
     int value() const { return d_data.value(); }
 };
 // CLASS DATA
-int MyClass1a::s_copyConstructorInvocations = 0;
-int MyClass1a::s_moveConstructorInvocations = 0;
-int MyClass1a::s_destructorInvocations      = 0;
+int MyClass1a::s_copyConstructorInvocations   = 0;
+int MyClass1a::s_moveConstructorInvocations   = 0;
+int MyClass1a::s_lvalueConstructorInvocations = 0;
+int MyClass1a::s_rvalueConstructorInvocations = 0;
+int MyClass1a::s_copyAssignmentInvocations    = 0;
+int MyClass1a::s_moveAssignmentInvocations    = 0;
+int MyClass1a::s_destructorInvocations        = 0;
+
 bool operator==(const MyClass1a& lhs, const MyClass1a& rhs)
 {
     return (lhs.value() == rhs.value());
@@ -570,6 +596,10 @@ struct MyClass2 {
 
     static int s_copyConstructorInvocations;
     static int s_moveConstructorInvocations;
+    static int s_lvalueConstructorInvocations;
+    static int s_rvalueConstructorInvocations;
+    static int s_copyAssignmentInvocations;
+    static int s_moveAssignmentInvocations;
     static int s_destructorInvocations;
 
 
@@ -640,6 +670,7 @@ struct MyClass2 {
     {
         d_def.d_value       = rhs.d_def.d_value;
         d_def.d_allocator_p = a;
+        s_lvalueConstructorInvocations++;
     }
 
     MyClass2(bslmf::MovableRef<MyClass1> other, bslma::Allocator *a = 0)
@@ -649,6 +680,7 @@ struct MyClass2 {
         d_def.d_value          = otherRef.d_def.d_value;
         otherRef.d_def.d_value = k_MOVED_FROM_VAL;
         d_def.d_allocator_p    = a;
+        s_rvalueConstructorInvocations++;
     }
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     MyClass2(bslmf::MovableRef<const MyClass1> other, bslma::Allocator *a = 0)
@@ -657,6 +689,7 @@ struct MyClass2 {
         const MyClass1& otherRef = MoveUtil::access(other);
         d_def.d_value            = otherRef.d_def.d_value;
         d_def.d_allocator_p      = a;
+        s_lvalueConstructorInvocations++;
     }
 #endif  //#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
@@ -674,6 +707,7 @@ struct MyClass2 {
     {
         d_def.d_value = rhs.d_def.d_value;
         // do not touch allocator!
+        ++s_copyAssignmentInvocations;
         return *this;
     }
 
@@ -683,6 +717,7 @@ struct MyClass2 {
         d_def.d_value          = otherRef.d_def.d_value;
         otherRef.d_def.d_value = k_MOVED_FROM_VAL;
         // do not touch allocator!
+        ++s_moveAssignmentInvocations;
         return *this;
     }
 
@@ -692,6 +727,7 @@ struct MyClass2 {
         const MyClass2& otherRef = MoveUtil::access(rhs);
         d_def.d_value            = otherRef.d_def.d_value;
         // do not touch allocator!
+        ++s_copyAssignmentInvocations;
         return *this;
     }
 #endif  //#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
@@ -710,9 +746,13 @@ struct MyClass2 {
     bsl::allocator<char> get_allocator() const { return d_def.d_allocator_p; }
 };
 // CLASS DATA
-int MyClass2::s_copyConstructorInvocations = 0;
-int MyClass2::s_moveConstructorInvocations = 0;
-int MyClass2::s_destructorInvocations      = 0;
+int MyClass2::s_copyConstructorInvocations   = 0;
+int MyClass2::s_moveConstructorInvocations   = 0;
+int MyClass2::s_lvalueConstructorInvocations = 0;
+int MyClass2::s_rvalueConstructorInvocations = 0;
+int MyClass2::s_copyAssignmentInvocations    = 0;
+int MyClass2::s_moveAssignmentInvocations    = 0;
+int MyClass2::s_destructorInvocations        = 0;
 
 bool operator==(const MyClass2& lhs, const MyClass2& rhs)
 {
@@ -808,6 +848,10 @@ struct MyClass2a {
 
     static int s_copyConstructorInvocations;
     static int s_moveConstructorInvocations;
+    static int s_lvalueConstructorInvocations;
+    static int s_rvalueConstructorInvocations;
+    static int s_copyAssignmentInvocations;
+    static int s_moveAssignmentInvocations;
     static int s_destructorInvocations;
 
 
@@ -834,18 +878,20 @@ struct MyClass2a {
     MyClass2a(const MyClass2& rhs)  // IMPLICIT
     : d_data(rhs)
     {
+        ++s_lvalueConstructorInvocations;
     }
 
     MyClass2a(bslmf::MovableRef<MyClass2> rhs)  // IMPLICIT
     : d_data(MoveUtil::move(MoveUtil::access(rhs)))
     {
+        ++s_rvalueConstructorInvocations;
     }
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     MyClass2a(bslmf::MovableRef<const MyClass2> rhs)  // IMPLICIT
     : d_data(MoveUtil::access(rhs))
     {
-        ++s_copyConstructorInvocations;
+        ++s_lvalueConstructorInvocations;
     }
 #endif  //#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
@@ -876,6 +922,7 @@ struct MyClass2a {
     MyClass2a(bsl::allocator_arg_t, bslma::Allocator *a, const MyClass2& v)
     : d_data(v, a)
     {
+        ++s_lvalueConstructorInvocations;
     }
 
     MyClass2a(bsl::allocator_arg_t,
@@ -883,6 +930,7 @@ struct MyClass2a {
               bslmf::MovableRef<MyClass2>  v)
     : d_data(MoveUtil::move(MoveUtil::access(v)), a)
     {
+        ++s_rvalueConstructorInvocations;
     }
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
@@ -891,6 +939,7 @@ struct MyClass2a {
               bslmf::MovableRef<const MyClass2>  v)
     : d_data(MoveUtil::access(v), a)
     {
+        ++s_lvalueConstructorInvocations;
     }
 #endif  //#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
@@ -927,12 +976,14 @@ struct MyClass2a {
     MyClass2a& operator=(const MyClass2a& rhs)
     {
         d_data. operator=(rhs.d_data);
+        ++s_copyAssignmentInvocations;
         return *this;
     }
 
     MyClass2a& operator=(bslmf::MovableRef<MyClass2a> rhs)
     {
         d_data. operator=(MoveUtil::move(MoveUtil::access(rhs).d_data));
+        ++s_moveAssignmentInvocations;
         return *this;
     }
 
@@ -940,6 +991,7 @@ struct MyClass2a {
     MyClass2a& operator=(bslmf::MovableRef<const MyClass2a> rhs)
     {
         d_data. operator=(MoveUtil::access(rhs).d_data);
+        ++s_copyAssignmentInvocations;
         return *this;
     }
 
@@ -962,9 +1014,13 @@ bool operator==(const MyClass2a& lhs, const MyClass2a& rhs)
 {
     return (lhs.value() == rhs.value());
 }
-int MyClass2a::s_copyConstructorInvocations = 0;
-int MyClass2a::s_moveConstructorInvocations = 0;
-int MyClass2a::s_destructorInvocations      = 0;
+int MyClass2a::s_copyConstructorInvocations   = 0;
+int MyClass2a::s_moveConstructorInvocations   = 0;
+int MyClass2a::s_lvalueConstructorInvocations = 0;
+int MyClass2a::s_rvalueConstructorInvocations = 0;
+int MyClass2a::s_copyAssignmentInvocations    = 0;
+int MyClass2a::s_moveAssignmentInvocations    = 0;
+int MyClass2a::s_destructorInvocations        = 0;
 
 
                                  // =========
@@ -1245,6 +1301,10 @@ class ConstructTestTypeNoAlloc {
     // PUBLIC DATA
     static int s_copyConstructorInvocations;
     static int s_moveConstructorInvocations;
+    static int s_lvalueConstructorInvocations;
+    static int s_rvalueConstructorInvocations;
+    static int s_copyAssignmentInvocations;
+    static int s_moveAssignmentInvocations;
 
     int        d_ilsum;  // sum of initializer_list argument values
 
@@ -2105,8 +2165,13 @@ class ConstructTestTypeNoAlloc {
     }
 #endif  //BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
 };
-int ConstructTestTypeNoAlloc::s_copyConstructorInvocations = 0;
-int ConstructTestTypeNoAlloc::s_moveConstructorInvocations = 0;
+
+int ConstructTestTypeNoAlloc::s_copyConstructorInvocations   = 0;
+int ConstructTestTypeNoAlloc::s_moveConstructorInvocations   = 0;
+int ConstructTestTypeNoAlloc::s_lvalueConstructorInvocations = 0;
+int ConstructTestTypeNoAlloc::s_rvalueConstructorInvocations = 0;
+int ConstructTestTypeNoAlloc::s_copyAssignmentInvocations    = 0;
+int ConstructTestTypeNoAlloc::s_moveAssignmentInvocations    = 0;
 
 // FREE OPERATORS
 bool operator==(const ConstructTestTypeNoAlloc& lhs,
@@ -2186,6 +2251,10 @@ class ConstructTestTypeAlloc {
     // PUBLIC DATA
     static int        s_copyConstructorInvocations;
     static int        s_moveConstructorInvocations;
+    static int        s_lvalueConstructorInvocations;
+    static int        s_rvalueConstructorInvocations;
+    static int        s_copyAssignmentInvocations;
+    static int        s_moveAssignmentInvocations;
 
     int               d_ilsum;  // sum of initializer_list argument values
 
@@ -3852,8 +3921,13 @@ class ConstructTestTypeAlloc {
     bsl::allocator<char> get_allocator() const { return d_allocator_p; }
 };
 
-int ConstructTestTypeAlloc::s_copyConstructorInvocations = 0;
-int ConstructTestTypeAlloc::s_moveConstructorInvocations = 0;
+int ConstructTestTypeAlloc::s_copyConstructorInvocations   = 0;
+int ConstructTestTypeAlloc::s_moveConstructorInvocations   = 0;
+int ConstructTestTypeAlloc::s_lvalueConstructorInvocations = 0;
+int ConstructTestTypeAlloc::s_rvalueConstructorInvocations = 0;
+int ConstructTestTypeAlloc::s_copyAssignmentInvocations    = 0;
+int ConstructTestTypeAlloc::s_moveAssignmentInvocations    = 0;
+
 // FREE OPERATORS
 bool operator==(const ConstructTestTypeAlloc& lhs,
                 const ConstructTestTypeAlloc& rhs)
@@ -3934,6 +4008,10 @@ class ConstructTestTypeAllocArgT {
     // PUBLIC DATA
     static int        s_copyConstructorInvocations;
     static int        s_moveConstructorInvocations;
+    static int        s_lvalueConstructorInvocations;
+    static int        s_rvalueConstructorInvocations;
+    static int        s_copyAssignmentInvocations;
+    static int        s_moveAssignmentInvocations;
 
 
     int               d_ilsum;
@@ -4926,8 +5004,12 @@ class ConstructTestTypeAllocArgT {
 };
 
 
-int ConstructTestTypeAllocArgT::s_copyConstructorInvocations = 0;
-int ConstructTestTypeAllocArgT::s_moveConstructorInvocations = 0;
+int ConstructTestTypeAllocArgT::s_copyConstructorInvocations   = 0;
+int ConstructTestTypeAllocArgT::s_moveConstructorInvocations   = 0;
+int ConstructTestTypeAllocArgT::s_lvalueConstructorInvocations = 0;
+int ConstructTestTypeAllocArgT::s_rvalueConstructorInvocations = 0;
+int ConstructTestTypeAllocArgT::s_copyAssignmentInvocations    = 0;
+int ConstructTestTypeAllocArgT::s_moveAssignmentInvocations    = 0;
 
 // FREE OPERATORS
 bool operator==(const ConstructTestTypeAllocArgT& lhs,
@@ -5186,24 +5268,58 @@ bool isConstPtr(const T *)
     return true;
 }
 
+#define TEST_HELPER_SET_EXP_COUNTS                                            \
+    int              expCopy   = ValueType::s_copyConstructorInvocations;     \
+    int              expMove   = ValueType::s_moveConstructorInvocations;     \
+    int              expLvalue = ValueType::s_lvalueConstructorInvocations;   \
+    int              expRvalue = ValueType::s_rvalueConstructorInvocations;   \
+    int              expCopyA  = ValueType::s_copyAssignmentInvocations;      \
+    int              expMoveA  = ValueType::s_moveAssignmentInvocations;      \
+
+#define TEST_HELPER_UPDATE_EXP_COUNTS                                         \
+    expCopy   = ValueType::s_copyConstructorInvocations   - expCopy;          \
+    expMove   = ValueType::s_moveConstructorInvocations   - expMove;          \
+    expLvalue = ValueType::s_lvalueConstructorInvocations - expLvalue;        \
+    expRvalue = ValueType::s_rvalueConstructorInvocations - expRvalue;        \
+    expCopyA  = ValueType::s_copyAssignmentInvocations    - expCopyA;         \
+    expMoveA  = ValueType::s_moveAssignmentInvocations    - expMoveA;         \
+
+#define TEST_HELPER_SET_NUM_COUNTS                                            \
+    int          numCopy   = ValueType::s_copyConstructorInvocations;         \
+    int          numMove   = ValueType::s_moveConstructorInvocations;         \
+    int          numLvalue = ValueType::s_lvalueConstructorInvocations;       \
+    int          numRvalue = ValueType::s_rvalueConstructorInvocations;       \
+    int          numCopyA  = ValueType::s_copyAssignmentInvocations;          \
+    int          numMoveA  = ValueType::s_moveAssignmentInvocations;          \
+
+#define TEST_HELPER_UPDATE_NUM_COUNTS                                         \
+    numCopy   = ValueType::s_copyConstructorInvocations   - numCopy;          \
+    numMove   = ValueType::s_moveConstructorInvocations   - numMove;          \
+    numLvalue = ValueType::s_lvalueConstructorInvocations - numLvalue;        \
+    numRvalue = ValueType::s_rvalueConstructorInvocations - numRvalue;        \
+    numCopyA  = ValueType::s_copyAssignmentInvocations    - numCopyA;         \
+    numMoveA  = ValueType::s_moveAssignmentInvocations    - numMoveA;         \
+
+#define TEST_HELPER_CHECK_COUNTS                                              \
+    ASSERTV(expMove,   numMove,   expMove   == numMove);                      \
+    ASSERTV(expCopy,   numCopy,   expCopy   == numCopy);                      \
+    ASSERTV(expLvalue, numLvalue, expLvalue == numLvalue);                    \
+    ASSERTV(expRvalue, numRvalue, expRvalue == numRvalue);                    \
+    ASSERTV(expMoveA,  numMoveA,  expMoveA  == numMoveA);                     \
+    ASSERTV(expCopyA,  numCopyA,  expCopyA  == numCopyA);                     \
+
 #define TEST_EMPLACE(expArgs, emplaceArgs)                                    \
     {                                                                         \
-        int              expCopy = ValueType::s_copyConstructorInvocations;   \
-        int              expMove = ValueType::s_moveConstructorInvocations;   \
+        TEST_HELPER_SET_EXP_COUNTS                                            \
         ValWithAllocator valBuffer expArgs;                                   \
         ValueType&                 EXP = valBuffer.object();                  \
-        expCopy = ValueType::s_copyConstructorInvocations - expCopy;          \
-        expMove = ValueType::s_moveConstructorInvocations - expMove;          \
+        TEST_HELPER_UPDATE_EXP_COUNTS                                         \
         ObjWithAllocator objBuffer(&oa);                                      \
         Obj&             obj     = objBuffer.object();                        \
-        int              numCopy = ValueType::s_copyConstructorInvocations;   \
-        int              numMove = ValueType::s_moveConstructorInvocations;   \
+        TEST_HELPER_SET_NUM_COUNTS                                            \
         ValueType& retVal        = obj.emplace emplaceArgs;                   \
-        numCopy = ValueType::s_copyConstructorInvocations - numCopy;          \
-        numMove = ValueType::s_moveConstructorInvocations - numMove;          \
-        ASSERT(expCopy == numCopy);                                           \
-        ASSERTV(expMove, expMove == numMove);                                 \
-        ASSERTV(numMove, expMove == numMove);                                 \
+        TEST_HELPER_UPDATE_NUM_COUNTS                                         \
+        TEST_HELPER_CHECK_COUNTS                                              \
         ASSERT(EXP == obj.value());                                           \
         ASSERT(checkAllocator(obj.value(), &oa));                             \
         ASSERT(createdAlike(EXP, obj.value()) == true);                       \
@@ -5213,21 +5329,16 @@ bool isConstPtr(const T *)
 
 #define TEST_ASSIGN_VAL_EMPTY(source)                                         \
     {                                                                         \
-        int       expCopy = ValueType::s_copyConstructorInvocations;          \
-        int       expMove = ValueType::s_moveConstructorInvocations;          \
+        TEST_HELPER_SET_EXP_COUNTS                                            \
         ValueType expVal(source);                                             \
-        expCopy = ValueType::s_copyConstructorInvocations - expCopy;          \
-        expMove = ValueType::s_moveConstructorInvocations - expMove;          \
+        TEST_HELPER_UPDATE_EXP_COUNTS                                         \
         ObjWithAllocator objBuffer(&oa);                                      \
         Obj&             obj = objBuffer.object();                            \
         ASSERT(!obj.has_value());                                             \
-        int numCopy = ValueType::s_copyConstructorInvocations;                \
-        int numMove = ValueType::s_moveConstructorInvocations;                \
+        TEST_HELPER_SET_NUM_COUNTS                                            \
         obj         = source;                                                 \
-        numCopy     = ValueType::s_copyConstructorInvocations - numCopy;      \
-        numMove     = ValueType::s_moveConstructorInvocations - numMove;      \
-        ASSERT(expCopy == numCopy);                                           \
-        ASSERT(expMove == numMove);                                           \
+        TEST_HELPER_UPDATE_NUM_COUNTS                                         \
+        TEST_HELPER_CHECK_COUNTS                                              \
         ASSERT(obj.has_value());                                              \
         ASSERT(obj.value() == expVal);                                        \
         ASSERT(checkAllocator(obj.value(), &oa));                             \
@@ -5235,21 +5346,16 @@ bool isConstPtr(const T *)
 #define TEST_MOVE_ASSIGN_VAL_EMPTY(source)                                    \
     {                                                                         \
         ValueType srcCopy(source);                                            \
-        int       expCopy = ValueType::s_copyConstructorInvocations;          \
-        int       expMove = ValueType::s_moveConstructorInvocations;          \
+        TEST_HELPER_SET_EXP_COUNTS                                            \
         ValueType expVal(MoveUtil::move(srcCopy));                            \
-        expCopy = ValueType::s_copyConstructorInvocations - expCopy;          \
-        expMove = ValueType::s_moveConstructorInvocations - expMove;          \
+        TEST_HELPER_UPDATE_EXP_COUNTS                                         \
         ObjWithAllocator objBuffer(&oa);                                      \
         Obj&             obj = objBuffer.object();                            \
         ASSERT(!obj.has_value());                                             \
-        int numCopy = ValueType::s_copyConstructorInvocations;                \
-        int numMove = ValueType::s_moveConstructorInvocations;                \
+        TEST_HELPER_SET_NUM_COUNTS                                            \
         obj         = MoveUtil::move(source);                                 \
-        numCopy     = ValueType::s_copyConstructorInvocations - numCopy;      \
-        numMove     = ValueType::s_moveConstructorInvocations - numMove;      \
-        ASSERT(expCopy == numCopy);                                           \
-        ASSERT(expMove == numMove);                                           \
+        TEST_HELPER_UPDATE_NUM_COUNTS                                         \
+        TEST_HELPER_CHECK_COUNTS                                              \
         ASSERT(obj.has_value());                                              \
         ASSERT(obj.value() == expVal);                                        \
         ASSERT(checkAllocator(obj.value(), &oa));                             \
@@ -5257,47 +5363,37 @@ bool isConstPtr(const T *)
 #define TEST_ASSIGN_VAL_ENGAGED(source)                                       \
     {                                                                         \
         ValueType expVal;                                                     \
-        int       expCopy = ValueType::s_copyConstructorInvocations;          \
-        int       expMove = ValueType::s_moveConstructorInvocations;          \
+        TEST_HELPER_SET_EXP_COUNTS                                            \
         expVal            = source;                                           \
-        expCopy           = ValueType::s_copyConstructorInvocations - expCopy;\
-        expMove           = ValueType::s_moveConstructorInvocations - expMove;\
+        TEST_HELPER_UPDATE_EXP_COUNTS                                         \
         ObjWithAllocator objBuffer(&oa);                                      \
         Obj&             obj = objBuffer.object();                            \
         obj.emplace();                                                        \
         ASSERT(obj.has_value());                                              \
-        int numCopy = ValueType::s_copyConstructorInvocations;                \
-        int numMove = ValueType::s_moveConstructorInvocations;                \
+        TEST_HELPER_SET_NUM_COUNTS                                            \
         obj         = source;                                                 \
-        numCopy     = ValueType::s_copyConstructorInvocations - numCopy;      \
-        numMove     = ValueType::s_moveConstructorInvocations - numMove;      \
-        ASSERT(expCopy == numCopy);                                           \
-        ASSERT(expMove == numMove);                                           \
+        TEST_HELPER_UPDATE_NUM_COUNTS                                         \
+        TEST_HELPER_CHECK_COUNTS                                              \
         ASSERT(obj.has_value());                                              \
         ASSERT(obj.value() == expVal);                                        \
         ASSERT(checkAllocator(obj.value(), &oa));                             \
     }
 
-#define TEST_MOVE_ASSIGN_VAL_ENGAGED(source)                                  \
+#define TEST_MOVE_ASSIGN_VAL_ENGAGED(SourceType, source)                      \
     {                                                                         \
-        ValueType srcCopy(source);                                            \
+        SourceType srcCopy(source);                                           \
         ValueType expVal;                                                     \
-        int       expCopy = ValueType::s_copyConstructorInvocations;          \
-        int       expMove = ValueType::s_moveConstructorInvocations;          \
+        TEST_HELPER_SET_EXP_COUNTS                                            \
         expVal            = MoveUtil::move(srcCopy);                          \
-        expCopy           = ValueType::s_copyConstructorInvocations - expCopy;\
-        expMove           = ValueType::s_moveConstructorInvocations - expMove;\
+        TEST_HELPER_UPDATE_EXP_COUNTS                                         \
         ObjWithAllocator objBuffer(&oa);                                      \
         Obj&             obj = objBuffer.object();                            \
         obj.emplace();                                                        \
         ASSERT(obj.has_value());                                              \
-        int numCopy = ValueType::s_copyConstructorInvocations;                \
-        int numMove = ValueType::s_moveConstructorInvocations;                \
+        TEST_HELPER_SET_NUM_COUNTS                                            \
         obj         = MoveUtil::move(source);                                 \
-        numCopy     = ValueType::s_copyConstructorInvocations - numCopy;      \
-        numMove     = ValueType::s_moveConstructorInvocations - numMove;      \
-        ASSERT(expCopy == numCopy);                                           \
-        ASSERT(expMove == numMove);                                           \
+        TEST_HELPER_UPDATE_NUM_COUNTS                                         \
+        TEST_HELPER_CHECK_COUNTS                                              \
         ASSERT(obj.has_value());                                              \
         ASSERT(obj.value() == expVal);                                        \
         ASSERT(checkAllocator(obj.value(), &oa));                             \
@@ -5327,21 +5423,16 @@ bool isConstPtr(const T *)
 
 #define TEST_ASSIGN_OPT_EMPTY_FROM_ENGAGED(source)                            \
     {                                                                         \
-        int       expCopy = ValueType::s_copyConstructorInvocations;          \
-        int       expMove = ValueType::s_moveConstructorInvocations;          \
-        ValueType expVal(source.value());                                     \
-        expCopy = ValueType::s_copyConstructorInvocations - expCopy;          \
-        expMove = ValueType::s_moveConstructorInvocations - expMove;          \
+        TEST_HELPER_SET_EXP_COUNTS                                            \
+        ValueType expVal(source.value());                                    \
+        TEST_HELPER_UPDATE_EXP_COUNTS                                         \
         ObjWithAllocator objBuffer(&oa);                                      \
         Obj&             obj = objBuffer.object();                            \
         ASSERT(!obj.has_value());                                             \
-        int numCopy = ValueType::s_copyConstructorInvocations;                \
-        int numMove = ValueType::s_moveConstructorInvocations;                \
+        TEST_HELPER_SET_NUM_COUNTS                                            \
         obj         = source;                                                 \
-        numCopy     = ValueType::s_copyConstructorInvocations - numCopy;      \
-        numMove     = ValueType::s_moveConstructorInvocations - numMove;      \
-        ASSERT(expCopy == numCopy);                                           \
-        ASSERT(expMove == numMove);                                           \
+        TEST_HELPER_UPDATE_NUM_COUNTS                                         \
+        TEST_HELPER_CHECK_COUNTS                                              \
         ASSERT(obj.has_value());                                              \
         ASSERT(obj.value() == expVal);                                        \
         ASSERT(checkAllocator(obj.value(), &oa));                             \
@@ -5350,21 +5441,16 @@ bool isConstPtr(const T *)
 #define TEST_MOVE_ASSIGN_OPT_EMPTY_FROM_ENGAGED(source)                       \
     {                                                                         \
         OPT_TYPE  srcCopy(source);                                            \
-        int       expCopy = ValueType::s_copyConstructorInvocations;          \
-        int       expMove = ValueType::s_moveConstructorInvocations;          \
+        TEST_HELPER_SET_EXP_COUNTS                                            \
         ValueType expVal(MoveUtil::move(srcCopy.value()));                    \
-        expCopy = ValueType::s_copyConstructorInvocations - expCopy;          \
-        expMove = ValueType::s_moveConstructorInvocations - expMove;          \
+        TEST_HELPER_UPDATE_EXP_COUNTS                                         \
         ObjWithAllocator objBuffer(&oa);                                      \
         Obj&             obj = objBuffer.object();                            \
         ASSERT(!obj.has_value());                                             \
-        int numCopy = ValueType::s_copyConstructorInvocations;                \
-        int numMove = ValueType::s_moveConstructorInvocations;                \
+        TEST_HELPER_SET_NUM_COUNTS                                            \
         obj         = MoveUtil::move(source);                                 \
-        numCopy     = ValueType::s_copyConstructorInvocations - numCopy;      \
-        numMove     = ValueType::s_moveConstructorInvocations - numMove;      \
-        ASSERT(expCopy == numCopy);                                           \
-        ASSERT(expMove == numMove);                                           \
+        TEST_HELPER_UPDATE_NUM_COUNTS                                         \
+        TEST_HELPER_CHECK_COUNTS                                              \
         ASSERT(obj.has_value());                                              \
         ASSERT(obj.value() == expVal);                                        \
         ASSERT(source.value() == srcCopy.value());                            \
@@ -5373,22 +5459,17 @@ bool isConstPtr(const T *)
 #define TEST_ASSIGN_OPT_ENGAGED_FROM_ENGAGED(source)                          \
     {                                                                         \
         ValueType expVal;                                                     \
-        int       expCopy = ValueType::s_copyConstructorInvocations;          \
-        int       expMove = ValueType::s_moveConstructorInvocations;          \
+        TEST_HELPER_SET_EXP_COUNTS                                            \
         expVal            = source.value();                                   \
-        expCopy           = ValueType::s_copyConstructorInvocations - expCopy;\
-        expMove           = ValueType::s_moveConstructorInvocations - expMove;\
+        TEST_HELPER_UPDATE_EXP_COUNTS                                         \
         ObjWithAllocator objBuffer(&oa);                                      \
         Obj&             obj = objBuffer.object();                            \
         obj.emplace();                                                        \
         ASSERT(obj.has_value());                                              \
-        int numCopy = ValueType::s_copyConstructorInvocations;                \
-        int numMove = ValueType::s_moveConstructorInvocations;                \
+        TEST_HELPER_SET_NUM_COUNTS                                            \
         obj         = source;                                                 \
-        numCopy     = ValueType::s_copyConstructorInvocations - numCopy;      \
-        numMove     = ValueType::s_moveConstructorInvocations - numMove;      \
-        ASSERT(expCopy == numCopy);                                           \
-        ASSERT(expMove == numMove);                                           \
+        TEST_HELPER_UPDATE_NUM_COUNTS                                         \
+        TEST_HELPER_CHECK_COUNTS                                              \
         ASSERT(obj.has_value());                                              \
         ASSERT(obj.value() == expVal);                                        \
         ASSERT(checkAllocator(obj.value(), &oa));                             \
@@ -5397,22 +5478,17 @@ bool isConstPtr(const T *)
     {                                                                         \
         OPT_TYPE  srcCopy(source);                                            \
         ValueType expVal;                                                     \
-        int       expCopy = ValueType::s_copyConstructorInvocations;          \
-        int       expMove = ValueType::s_moveConstructorInvocations;          \
+        TEST_HELPER_SET_EXP_COUNTS                                            \
         expVal            = MoveUtil::move(srcCopy.value());                  \
-        expCopy           = ValueType::s_copyConstructorInvocations - expCopy;\
-        expMove           = ValueType::s_moveConstructorInvocations - expMove;\
+        TEST_HELPER_UPDATE_EXP_COUNTS                                         \
         ObjWithAllocator objBuffer(&oa);                                      \
         Obj&             obj = objBuffer.object();                            \
         obj.emplace();                                                        \
         ASSERT(obj.has_value());                                              \
-        int numCopy = ValueType::s_copyConstructorInvocations;                \
-        int numMove = ValueType::s_moveConstructorInvocations;                \
+        TEST_HELPER_SET_NUM_COUNTS                                            \
         obj         = MoveUtil::move(source);                                 \
-        numCopy     = ValueType::s_copyConstructorInvocations - numCopy;      \
-        numMove     = ValueType::s_moveConstructorInvocations - numMove;      \
-        ASSERT(expCopy == numCopy);                                           \
-        ASSERT(expMove == numMove);                                           \
+        TEST_HELPER_UPDATE_NUM_COUNTS                                         \
+        TEST_HELPER_CHECK_COUNTS                                              \
         ASSERT(obj.has_value());                                              \
         ASSERT(obj.value() == expVal);                                        \
         ASSERT(checkAllocator(obj.value(), &oa));                             \
@@ -5442,18 +5518,13 @@ bool isConstPtr(const T *)
 
 #define TEST_COPY_FROM_ENGAGED_OPT(source)                                    \
     {                                                                         \
-        int       expCopy = ValueType::s_copyConstructorInvocations;          \
-        int       expMove = ValueType::s_moveConstructorInvocations;          \
+        TEST_HELPER_SET_EXP_COUNTS                                            \
         DEST_TYPE expVal(source.value());                                     \
-        expCopy     = ValueType::s_copyConstructorInvocations - expCopy;      \
-        expMove     = ValueType::s_moveConstructorInvocations - expMove;      \
-        int numCopy = ValueType::s_copyConstructorInvocations;                \
-        int numMove = ValueType::s_moveConstructorInvocations;                \
+        TEST_HELPER_UPDATE_EXP_COUNTS                                         \
+        TEST_HELPER_SET_NUM_COUNTS                                            \
         bsl::optional<DEST_TYPE> obj(source);                                 \
-        numCopy = ValueType::s_copyConstructorInvocations - numCopy;          \
-        numMove = ValueType::s_moveConstructorInvocations - numMove;          \
-        ASSERT(expCopy == numCopy);                                           \
-        ASSERT(expMove == numMove);                                           \
+        TEST_HELPER_UPDATE_NUM_COUNTS                                         \
+        TEST_HELPER_CHECK_COUNTS                                              \
         ASSERT(obj.has_value());                                              \
         ASSERT(obj.value() == expVal);                                        \
         ASSERT(checkAllocator(obj, &da));                                     \
@@ -5463,18 +5534,13 @@ bool isConstPtr(const T *)
     {                                                                         \
         SRC_OPT_TYPE          srcCopy(source);                                \
         bslma::TestAllocator& expAlloc = (propagate ? oa : da);               \
-        int       expCopy = ValueType::s_copyConstructorInvocations;          \
-        int       expMove = ValueType::s_moveConstructorInvocations;          \
+        TEST_HELPER_SET_EXP_COUNTS                                            \
         DEST_TYPE expVal(MoveUtil::move(srcCopy.value()));                    \
-        expCopy     = ValueType::s_copyConstructorInvocations - expCopy;      \
-        expMove     = ValueType::s_moveConstructorInvocations - expMove;      \
-        int numCopy = ValueType::s_copyConstructorInvocations;                \
-        int numMove = ValueType::s_moveConstructorInvocations;                \
+        TEST_HELPER_UPDATE_EXP_COUNTS                                         \
+        TEST_HELPER_SET_NUM_COUNTS                                            \
         bsl::optional<DEST_TYPE> obj(MoveUtil::move(source));                 \
-        numCopy = ValueType::s_copyConstructorInvocations - numCopy;          \
-        numMove = ValueType::s_moveConstructorInvocations - numMove;          \
-        ASSERTV(expCopy, numCopy, expCopy == numCopy);                        \
-        ASSERTV(expMove, numMove, expMove == numMove);                        \
+        TEST_HELPER_UPDATE_NUM_COUNTS                                         \
+        TEST_HELPER_CHECK_COUNTS                                              \
         ASSERT(obj.has_value());                                              \
         ASSERT(obj.value() == expVal);                                        \
         ASSERT(checkAllocator(obj, &expAlloc));                               \
@@ -5503,18 +5569,13 @@ bool isConstPtr(const T *)
 
 #define TEST_EXT_COPY_FROM_ENGAGED_OPT(source)                                \
     {                                                                         \
-        int       expCopy = ValueType::s_copyConstructorInvocations;          \
-        int       expMove = ValueType::s_moveConstructorInvocations;          \
+        TEST_HELPER_SET_EXP_COUNTS                                            \
         DEST_TYPE expVal(source.value());                                     \
-        expCopy = ValueType::s_copyConstructorInvocations - expCopy;          \
-        expMove = ValueType::s_moveConstructorInvocations - expMove;          \
-        int           numCopy = ValueType::s_copyConstructorInvocations;      \
-        int           numMove = ValueType::s_moveConstructorInvocations;      \
+        TEST_HELPER_UPDATE_EXP_COUNTS                                         \
+        TEST_HELPER_SET_NUM_COUNTS                                            \
         DEST_OPT_TYPE obj(bsl::allocator_arg, &ta, source);                   \
-        numCopy = ValueType::s_copyConstructorInvocations - numCopy;          \
-        numMove = ValueType::s_moveConstructorInvocations - numMove;          \
-        ASSERT(expCopy == numCopy);                                           \
-        ASSERT(expMove == numMove);                                           \
+        TEST_HELPER_UPDATE_NUM_COUNTS                                         \
+        TEST_HELPER_CHECK_COUNTS                                              \
         ASSERT(obj.has_value());                                              \
         ASSERT(obj.value() == expVal);                                        \
         ASSERT(checkAllocator(obj, &ta));                                     \
@@ -5523,18 +5584,13 @@ bool isConstPtr(const T *)
 #define TEST_EXT_MOVE_FROM_ENGAGED_OPT(source)                                \
     {                                                                         \
         SRC_OPT_TYPE srcCopy(source);                                         \
-        int          expCopy = ValueType::s_copyConstructorInvocations;       \
-        int          expMove = ValueType::s_moveConstructorInvocations;       \
+        TEST_HELPER_SET_EXP_COUNTS                                            \
         DEST_TYPE    expVal(MoveUtil::move(srcCopy.value()));                 \
-        expCopy = ValueType::s_copyConstructorInvocations - expCopy;          \
-        expMove = ValueType::s_moveConstructorInvocations - expMove;          \
-        int           numCopy = ValueType::s_copyConstructorInvocations;      \
-        int           numMove = ValueType::s_moveConstructorInvocations;      \
+        TEST_HELPER_UPDATE_EXP_COUNTS                                         \
+        TEST_HELPER_SET_NUM_COUNTS                                            \
         DEST_OPT_TYPE obj(bsl::allocator_arg, &ta, MoveUtil::move(source));   \
-        numCopy = ValueType::s_copyConstructorInvocations - numCopy;          \
-        numMove = ValueType::s_moveConstructorInvocations - numMove;          \
-        ASSERT(expCopy == numCopy);                                           \
-        ASSERT(expMove == numMove);                                           \
+        TEST_HELPER_UPDATE_NUM_COUNTS                                         \
+        TEST_HELPER_CHECK_COUNTS                                              \
         ASSERT(obj.has_value());                                              \
         ASSERT(obj.value() == expVal);                                        \
         ASSERT(checkAllocator(obj, &ta));                                     \
@@ -5543,18 +5599,13 @@ bool isConstPtr(const T *)
 
 #define TEST_COPY_FROM_VALUE(source)                                          \
     {                                                                         \
-        int       expCopy = ValueType::s_copyConstructorInvocations;          \
-        int       expMove = ValueType::s_moveConstructorInvocations;          \
+        TEST_HELPER_SET_EXP_COUNTS                                            \
         DEST_TYPE expVal(source);                                             \
-        expCopy     = ValueType::s_copyConstructorInvocations - expCopy;      \
-        expMove     = ValueType::s_moveConstructorInvocations - expMove;      \
-        int numCopy = ValueType::s_copyConstructorInvocations;                \
-        int numMove = ValueType::s_moveConstructorInvocations;                \
+        TEST_HELPER_UPDATE_EXP_COUNTS                                         \
+        TEST_HELPER_SET_NUM_COUNTS                                            \
         bsl::optional<DEST_TYPE> obj(source);                                 \
-        numCopy = ValueType::s_copyConstructorInvocations - numCopy;          \
-        numMove = ValueType::s_moveConstructorInvocations - numMove;          \
-        ASSERT(expCopy == numCopy);                                           \
-        ASSERT(expMove == numMove);                                           \
+        TEST_HELPER_UPDATE_NUM_COUNTS                                         \
+        TEST_HELPER_CHECK_COUNTS                                              \
         ASSERT(obj.has_value());                                              \
         ASSERT(obj.value() == expVal);                                        \
         ASSERT(checkAllocator(obj, &da));                                     \
@@ -5563,18 +5614,13 @@ bool isConstPtr(const T *)
 #define TEST_MOVE_FROM_VALUE(source)                                          \
     {                                                                         \
         SRC_TYPE  srcCopy(source);                                            \
-        int       expCopy = ValueType::s_copyConstructorInvocations;          \
-        int       expMove = ValueType::s_moveConstructorInvocations;          \
+        TEST_HELPER_SET_EXP_COUNTS                                            \
         DEST_TYPE expVal(MoveUtil::move(srcCopy));                            \
-        expCopy     = ValueType::s_copyConstructorInvocations - expCopy;      \
-        expMove     = ValueType::s_moveConstructorInvocations - expMove;      \
-        int numCopy = ValueType::s_copyConstructorInvocations;                \
-        int numMove = ValueType::s_moveConstructorInvocations;                \
+        TEST_HELPER_UPDATE_EXP_COUNTS                                         \
+        TEST_HELPER_SET_NUM_COUNTS                                            \
         bsl::optional<DEST_TYPE> obj(MoveUtil::move(source));                 \
-        numCopy = ValueType::s_copyConstructorInvocations - numCopy;          \
-        numMove = ValueType::s_moveConstructorInvocations - numMove;          \
-        ASSERT(expCopy == numCopy);                                           \
-        ASSERT(expMove == numMove);                                           \
+        TEST_HELPER_UPDATE_NUM_COUNTS                                         \
+        TEST_HELPER_CHECK_COUNTS                                              \
         ASSERT(obj.has_value());                                              \
         ASSERT(obj.value() == expVal);                                        \
         ASSERT(checkAllocator(obj, &da));                                     \
@@ -5583,18 +5629,13 @@ bool isConstPtr(const T *)
 
 #define TEST_EXT_COPY_FROM_VALUE(source)                                      \
     {                                                                         \
-        int       expCopy = ValueType::s_copyConstructorInvocations;          \
-        int       expMove = ValueType::s_moveConstructorInvocations;          \
+        TEST_HELPER_SET_EXP_COUNTS                                            \
         DEST_TYPE expVal(source);                                             \
-        expCopy = ValueType::s_copyConstructorInvocations - expCopy;          \
-        expMove = ValueType::s_moveConstructorInvocations - expMove;          \
-        int           numCopy = ValueType::s_copyConstructorInvocations;      \
-        int           numMove = ValueType::s_moveConstructorInvocations;      \
+        TEST_HELPER_UPDATE_EXP_COUNTS                                         \
+        TEST_HELPER_SET_NUM_COUNTS                                            \
         DEST_OPT_TYPE obj(bsl::allocator_arg, &ta, source);                   \
-        numCopy = ValueType::s_copyConstructorInvocations - numCopy;          \
-        numMove = ValueType::s_moveConstructorInvocations - numMove;          \
-        ASSERT(expCopy == numCopy);                                           \
-        ASSERT(expMove == numMove);                                           \
+        TEST_HELPER_UPDATE_NUM_COUNTS                                         \
+        TEST_HELPER_CHECK_COUNTS                                              \
         ASSERT(obj.has_value());                                              \
         ASSERT(obj.value() == expVal);                                        \
         ASSERT(checkAllocator(obj, &ta));                                     \
@@ -5603,18 +5644,13 @@ bool isConstPtr(const T *)
 #define TEST_EXT_MOVE_FROM_VALUE(source)                                      \
     {                                                                         \
         SRC_TYPE  srcCopy(source);                                            \
-        int       expCopy = ValueType::s_copyConstructorInvocations;          \
-        int       expMove = ValueType::s_moveConstructorInvocations;          \
+        TEST_HELPER_SET_EXP_COUNTS                                            \
         DEST_TYPE expVal(MoveUtil::move(srcCopy));                            \
-        expCopy = ValueType::s_copyConstructorInvocations - expCopy;          \
-        expMove = ValueType::s_moveConstructorInvocations - expMove;          \
-        int           numCopy = ValueType::s_copyConstructorInvocations;      \
-        int           numMove = ValueType::s_moveConstructorInvocations;      \
+        TEST_HELPER_UPDATE_EXP_COUNTS                                         \
+        TEST_HELPER_SET_NUM_COUNTS                                            \
         DEST_OPT_TYPE obj(bsl::allocator_arg, &ta, MoveUtil::move(source));   \
-        numCopy = ValueType::s_copyConstructorInvocations - numCopy;          \
-        numMove = ValueType::s_moveConstructorInvocations - numMove;          \
-        ASSERT(expCopy == numCopy);                                           \
-        ASSERT(expMove == numMove);                                           \
+        TEST_HELPER_UPDATE_NUM_COUNTS                                         \
+        TEST_HELPER_CHECK_COUNTS                                              \
         ASSERT(obj.has_value());                                              \
         ASSERT(obj.value() == expVal);                                        \
         ASSERT(checkAllocator(obj, &ta));                                     \
@@ -5623,19 +5659,14 @@ bool isConstPtr(const T *)
 
 #define TEST_IN_PLACE_CONSTRUCT(init, expArgs, expAlloc)                      \
     {                                                                         \
-        int              expCopy = ValueType::s_copyConstructorInvocations;   \
-        int              expMove = ValueType::s_moveConstructorInvocations;   \
+        TEST_HELPER_SET_EXP_COUNTS                                            \
         ValWithAllocator valBuffer expArgs;                                   \
         ValueType&                 EXP = valBuffer.object();                  \
-        expCopy     = ValueType::s_copyConstructorInvocations - expCopy;      \
-        expMove     = ValueType::s_moveConstructorInvocations - expMove;      \
-        int numCopy = ValueType::s_copyConstructorInvocations;                \
-        int numMove = ValueType::s_moveConstructorInvocations;                \
+        TEST_HELPER_UPDATE_EXP_COUNTS                                         \
+        TEST_HELPER_SET_NUM_COUNTS                                            \
         Obj obj init;                                                         \
-        numCopy = ValueType::s_copyConstructorInvocations - numCopy;          \
-        numMove = ValueType::s_moveConstructorInvocations - numMove;          \
-        ASSERT(expCopy == numCopy);                                           \
-        ASSERT(expMove == numMove);                                           \
+        TEST_HELPER_UPDATE_NUM_COUNTS                                         \
+        TEST_HELPER_CHECK_COUNTS                                              \
         ASSERT(EXP == obj.value());                                           \
         ASSERT(obj.has_value());                                              \
         ASSERT(checkAllocator(obj, expAlloc));                                \
@@ -5644,18 +5675,13 @@ bool isConstPtr(const T *)
 
 #define TEST_MAKE_OPTIONAL_DEDUCED(source)                                    \
     {                                                                         \
-        int expCopy = ValueType::s_copyConstructorInvocations;                \
-        int expMove = ValueType::s_moveConstructorInvocations;                \
+        TEST_HELPER_SET_EXP_COUNTS                                            \
         bsl::optional<ValueType> expObj(bsl::in_place, source);               \
-        expCopy     = ValueType::s_copyConstructorInvocations - expCopy;      \
-        expMove     = ValueType::s_moveConstructorInvocations - expMove;      \
-        int numCopy = ValueType::s_copyConstructorInvocations;                \
-        int numMove = ValueType::s_moveConstructorInvocations;                \
+        TEST_HELPER_UPDATE_EXP_COUNTS                                         \
+        TEST_HELPER_SET_NUM_COUNTS                                            \
         bsl::optional<ValueType> obj = bsl::make_optional(source);            \
-        numCopy = ValueType::s_copyConstructorInvocations - numCopy;          \
-        numMove = ValueType::s_moveConstructorInvocations - numMove;          \
-        ASSERTV(expCopy, numCopy, expCopy == numCopy);                        \
-        ASSERTV(expMove, numMove, expMove == numMove);                        \
+        TEST_HELPER_UPDATE_NUM_COUNTS                                         \
+        TEST_HELPER_CHECK_COUNTS                                              \
         ASSERT(obj.has_value());                                              \
         ASSERT(obj.value() == source);                                        \
         ASSERT(checkAllocator(obj, &da));                                     \
@@ -5664,19 +5690,13 @@ bool isConstPtr(const T *)
 
 #define TEST_MAKE_OPTIONAL(expArgs, args)                                     \
     {                                                                         \
-        int expCopy = ValueType::s_copyConstructorInvocations;                \
-        int expMove = ValueType::s_moveConstructorInvocations;                \
+        TEST_HELPER_SET_EXP_COUNTS                                            \
         bsl::optional<ValueType> expObj expArgs;                              \
-        expCopy     = ValueType::s_copyConstructorInvocations - expCopy;      \
-        expMove     = ValueType::s_moveConstructorInvocations - expMove;      \
-        int numCopy = ValueType::s_copyConstructorInvocations;                \
-        int numMove = ValueType::s_moveConstructorInvocations;                \
+        TEST_HELPER_UPDATE_EXP_COUNTS                                         \
+        TEST_HELPER_SET_NUM_COUNTS                                            \
         bsl::optional<ValueType> obj = bsl::make_optional<ValueType> args;    \
-        numCopy = ValueType::s_copyConstructorInvocations - numCopy;          \
-        numMove = ValueType::s_moveConstructorInvocations - numMove;          \
-        ASSERT(expCopy == numCopy);                                           \
-        ASSERTV(expMove, expMove == numMove);                                 \
-        ASSERTV(numMove, expMove == numMove);                                 \
+        TEST_HELPER_UPDATE_NUM_COUNTS                                         \
+        TEST_HELPER_CHECK_COUNTS                                              \
         ASSERT(checkAllocator(obj, &da));                                     \
         ASSERT(checkAllocator(obj.value(), &da));                             \
         ASSERT(createdAlike(expObj.value(), obj.value()) == true);            \
@@ -5684,19 +5704,14 @@ bool isConstPtr(const T *)
 
 #define TEST_MAKE_OPTIONAL_WITH_ALLOC_DEDUCED(source)                         \
     {                                                                         \
-        int expCopy = ValueType::s_copyConstructorInvocations;                \
-        int expMove = ValueType::s_moveConstructorInvocations;                \
+        TEST_HELPER_SET_EXP_COUNTS                                            \
         bsl::optional<ValueType> expObj(bsl::in_place, source);               \
-        expCopy     = ValueType::s_copyConstructorInvocations - expCopy;      \
-        expMove     = ValueType::s_moveConstructorInvocations - expMove;      \
-        int numCopy = ValueType::s_copyConstructorInvocations;                \
-        int numMove = ValueType::s_moveConstructorInvocations;                \
+        TEST_HELPER_UPDATE_EXP_COUNTS                                         \
+        TEST_HELPER_SET_NUM_COUNTS                                            \
         bsl::optional<ValueType> obj =                                        \
             bsl::make_optional(bsl::allocator_arg, &ta, source);              \
-        numCopy = ValueType::s_copyConstructorInvocations - numCopy;          \
-        numMove = ValueType::s_moveConstructorInvocations - numMove;          \
-        ASSERTV(expCopy, numCopy, expCopy == numCopy);                        \
-        ASSERTV(expMove, numMove, expMove == numMove);                        \
+        TEST_HELPER_UPDATE_NUM_COUNTS                                         \
+        TEST_HELPER_CHECK_COUNTS                                              \
         ASSERT(obj.has_value());                                              \
         ASSERT(obj.value() == source);                                        \
         ASSERT(checkAllocator(obj, &ta));                                     \
@@ -5705,19 +5720,13 @@ bool isConstPtr(const T *)
 
 #define TEST_MAKE_OPTIONAL_WITH_ALLOC(expArgs, args, alloc)                   \
     {                                                                         \
-        int expCopy = ValueType::s_copyConstructorInvocations;                \
-        int expMove = ValueType::s_moveConstructorInvocations;                \
+        TEST_HELPER_SET_EXP_COUNTS                                            \
         bsl::optional<ValueType> expObj expArgs;                              \
-        expCopy     = ValueType::s_copyConstructorInvocations - expCopy;      \
-        expMove     = ValueType::s_moveConstructorInvocations - expMove;      \
-        int numCopy = ValueType::s_copyConstructorInvocations;                \
-        int numMove = ValueType::s_moveConstructorInvocations;                \
+        TEST_HELPER_UPDATE_EXP_COUNTS                                         \
+        TEST_HELPER_SET_NUM_COUNTS                                            \
         bsl::optional<ValueType> obj = bsl::make_optional<ValueType> args;    \
-        numCopy = ValueType::s_copyConstructorInvocations - numCopy;          \
-        numMove = ValueType::s_moveConstructorInvocations - numMove;          \
-        ASSERT(expCopy == numCopy);                                           \
-        ASSERTV(expMove, expMove == numMove);                                 \
-        ASSERTV(numMove, expMove == numMove);                                 \
+        TEST_HELPER_UPDATE_NUM_COUNTS                                         \
+        TEST_HELPER_CHECK_COUNTS                                              \
         ASSERT(checkAllocator(obj, alloc));                                   \
         ASSERT(checkAllocator(obj.value(), alloc));                           \
         ASSERT(createdAlike(expObj.value(), obj.value()) == true);            \
@@ -8691,7 +8700,7 @@ void TestDriver<TYPE>::testCase10c()
 
             ValWithAllocator valBuffer2(2, &da);
             ValueType&       vi2 = valBuffer2.object();
-            TEST_MOVE_ASSIGN_VAL_ENGAGED(vi2);
+            TEST_MOVE_ASSIGN_VAL_ENGAGED(ValueType, vi2);
             ASSERT(vi2.value() == k_MOVED_FROM_VAL);
 
             const ValueType& cvi = valBuffer.object();
@@ -8700,7 +8709,7 @@ void TestDriver<TYPE>::testCase10c()
 
             int i = 3;
             TEST_ASSIGN_VAL_ENGAGED(i);
-            TEST_MOVE_ASSIGN_VAL_ENGAGED(i);
+            TEST_MOVE_ASSIGN_VAL_ENGAGED(int, i);
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
             // C++03 MovableRef isn't const friendly which will make this test
@@ -8891,6 +8900,33 @@ void TestDriver<TYPE>::testCase10b()
 #endif  //BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 }
 
+template <class DEST_TYPE, class SRC_TYPE>
+void testCase10b_udts_imp()
+    // Perform the 10b test between optionals of UDTs
+{
+    TestDriver<DEST_TYPE>::template
+        testCase10b_imp<bsl::optional<SRC_TYPE> >();
+    TestDriver<DEST_TYPE>::template
+        testCase10b_imp<bsl::optional<const SRC_TYPE> >();
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+    TestDriver<DEST_TYPE>::template
+        testCase10b_imp<std::optional<SRC_TYPE> >();
+    TestDriver<DEST_TYPE>::template
+        testCase10b_imp<std::optional<const SRC_TYPE> >();
+#endif  //BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+}
+
+void testCase10b_udts()
+    // Perform the 10b test between optionals of UDTs. Note that, unlike the
+    // copy/move test (7a) we do not attempt to run this test with types
+    // '<MyClass2a, Myclass1>', because 'MyClass2a' is constructible from
+    // 'MyClass1' (via 'MyClass2&&'), but is not assignable from 'MyClass1'.
+{
+    testCase10b_udts_imp<MyClass1a, MyClass1>();
+    testCase10b_udts_imp<MyClass2,  MyClass1>();
+    testCase10b_udts_imp<MyClass2a, MyClass2>();
+}
 
 template <class TYPE>
 void TestDriver<TYPE>::testCase10a_imp()
@@ -9426,6 +9462,40 @@ void TestDriver<TYPE>::testCase7a()
 #endif
     testCase7a_imp_constmovebug<const TYPE, const int, false>();
 }
+
+template <class DEST_TYPE, class SRC_TYPE>
+void testCase7a_udts_imp()
+    // Perform the 7a test between optionals of UDTs
+{
+    TestDriver<DEST_TYPE>::template
+        testCase7a_imp<DEST_TYPE, SRC_TYPE, false>();
+    TestDriver<DEST_TYPE>::template
+        testCase7a_imp<const DEST_TYPE, SRC_TYPE, false>();
+    TestDriver<DEST_TYPE>::template
+        testCase7a_imp<DEST_TYPE, const SRC_TYPE, false>();
+    TestDriver<DEST_TYPE>::template
+        testCase7a_imp<const DEST_TYPE, const SRC_TYPE, false>();
+
+    TestDriver<DEST_TYPE>::template
+        testCase7a_imp_constmovebug<DEST_TYPE, SRC_TYPE, false>();
+    TestDriver<DEST_TYPE>::template
+        testCase7a_imp_constmovebug<const DEST_TYPE, SRC_TYPE, false>();
+    TestDriver<DEST_TYPE>::template
+        testCase7a_imp_constmovebug<DEST_TYPE, const SRC_TYPE, false>();
+    TestDriver<DEST_TYPE>::template
+        testCase7a_imp_constmovebug<
+            const DEST_TYPE, const SRC_TYPE, false>();
+}
+
+void testCase7a_udts()
+    // Perform the 7a test between optionals of UDTs
+{
+    testCase7a_udts_imp<MyClass1a, MyClass1>();
+    testCase7a_udts_imp<MyClass2,  MyClass1>();
+    testCase7a_udts_imp<MyClass2a, MyClass1>();
+    testCase7a_udts_imp<MyClass2a, MyClass2>();
+}
+
 
 template <class OPT_TYPE1, class OPT_TYPE2>
 void testCase6_imp_a()
@@ -10135,7 +10205,7 @@ void TestDriver<TYPE>::testCase4b()
 
         bool bad_optional_exception_caught = false;
         try {
-            mX.value();
+            (void) mX.value();
         }
         catch (const bsl::bad_optional_access&) {
             bad_optional_exception_caught = true;
@@ -10162,7 +10232,7 @@ void TestDriver<TYPE>::testCase4b()
 
         mX.reset();
         try {
-            mX.value();
+            (void) mX.value();
         }
         catch (bsl::bad_optional_access&) {
             bad_optional_exception_caught = true;
@@ -12316,6 +12386,7 @@ int main(int argc, char **argv)
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
         // This is a compile-time only test case.
+        BSLA_MAYBE_UNUSED
         TestDeductionGuides test;
 #endif
       } break;
@@ -12422,6 +12493,11 @@ int main(int argc, char **argv)
                       BSLSTL_OPTIONAL_TEST_TYPES_INSTANCE_COUNTING);
 
         if (verbose)
+            printf("\nTESTING UDTS 'operator=(optional_type)'"
+                   "\n==================================\n");
+        testCase10b_udts();
+
+        if (verbose)
             printf("\nTESTING 'operator=(non_optional_type)'"
                    "\n======================================"
                    "\n");
@@ -12459,6 +12535,12 @@ int main(int argc, char **argv)
             printf("\nTESTING ALLOCATOR EXTENDED COPY/MOVE CONSTRUCTION"
                    "\n=================================================\n");
         RUN_EACH_TYPE(TestDriver, testCase7b, MyClass2, MyClass2a);
+
+        if (verbose)
+            printf("\nTESTING UDTS MOVE CONSTRUCTION"
+                   "\n==============================\n");
+        testCase7a_udts();
+
         break;
       case 6:
         if (verbose)
