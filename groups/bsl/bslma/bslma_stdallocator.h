@@ -828,31 +828,38 @@ bool operator!=(const allocator<T1>& lhs, const allocator<T2>& rhs);
 
 template <class TYPE>
 inline
-bool operator==(const allocator<TYPE>&               lhs,
-                const BloombergLP::bslma::Allocator *rhs);
+bool operator==(const allocator<TYPE>&         lhs,
+                BloombergLP::bslma::Allocator *rhs);
     // Return 'true' if the specified 'lhs' is a proxy for the specified 'rhs',
-    // and 'false' otherwise.
+    // and 'false' otherwise.  Note that 'rhs' points to a *modifiable*
+    // 'bslma::Allocator', as 'bsl::Allocator' cannot proxy a 'const
+    // bslma::Allocator *'
 
 template <class TYPE>
 inline
-bool operator!=(const allocator<TYPE>&               lhs,
-                const BloombergLP::bslma::Allocator *rhs);
+bool operator!=(const allocator<TYPE>&         lhs,
+                BloombergLP::bslma::Allocator *rhs);
     // Return 'true' unless the specified 'lhs' is a proxy for the specified
-    // 'rhs', in which case return 'false'.
-
+    // 'rhs', in which case return 'false'.  Note that 'rhs' points to a
+    // *modifiable* 'bslma::Allocator', as 'bsl::Allocator' cannot proxy a
+    // 'const bslma::Allocator *'
 template <class TYPE>
 inline
-bool operator==(const BloombergLP::bslma::Allocator *lhs,
-                const allocator<TYPE>&               rhs);
+bool operator==(BloombergLP::bslma::Allocator *lhs,
+                const allocator<TYPE>&         rhs);
     // Return 'true' if the specified 'rhs' is a proxy for the specified 'lhs',
-    // and 'false' otherwise.
+    // and 'false' otherwise.  Note that 'lhs' points to a *modifiable*
+    // 'bslma::Allocator', as 'bsl::Allocator' cannot proxy a 'const
+    // bslma::Allocator *'
 
 template <class TYPE>
 inline
-bool operator!=(const BloombergLP::bslma::Allocator *lhs,
-                const allocator<TYPE>&               rhs);
+bool operator!=(BloombergLP::bslma::Allocator *lhs,
+                const allocator<TYPE>&         rhs);
     // Return 'true' unless the specified 'rhs' is a proxy for the specified
-    // 'lhs', in which case return 'false'.
+    // 'lhs', in which case return 'false'.  Note that 'lhs' points to a
+    // *modifiable* 'bslma::Allocator', as 'bsl::Allocator' cannot proxy a
+    // 'const bslma::Allocator *'
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
@@ -1050,32 +1057,32 @@ bool operator!=(const allocator<T1>& lhs, const allocator<T2>& rhs)
 
 template <class TYPE>
 inline
-bool operator==(const allocator<TYPE>&               lhs,
-                const BloombergLP::bslma::Allocator *rhs)
+bool operator==(const allocator<TYPE>&         lhs,
+                BloombergLP::bslma::Allocator *rhs)
 {
     return lhs.mechanism() == rhs;
 }
 
 template <class TYPE>
 inline
-bool operator!=(const allocator<TYPE>&               lhs,
-                const BloombergLP::bslma::Allocator *rhs)
+bool operator!=(const allocator<TYPE>&         lhs,
+                BloombergLP::bslma::Allocator *rhs)
 {
     return !(lhs == rhs);
 }
 
 template <class TYPE>
 inline
-bool operator==(const BloombergLP::bslma::Allocator *lhs,
-                const allocator<TYPE>&               rhs)
+bool operator==(BloombergLP::bslma::Allocator *lhs,
+                const allocator<TYPE>&         rhs)
 {
     return lhs == rhs.mechanism();
 }
 
 template <class TYPE>
 inline
-bool operator!=(const BloombergLP::bslma::Allocator *lhs,
-                const allocator<TYPE>&               rhs)
+bool operator!=(BloombergLP::bslma::Allocator *lhs,
+                const allocator<TYPE>&         rhs)
 {
     return !(lhs == rhs);
 }
