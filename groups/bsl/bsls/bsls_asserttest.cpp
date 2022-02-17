@@ -423,7 +423,7 @@ void AssertTest::failTestDriver(const AssertViolation &violation)
     printError(violation.comment(),
                violation.fileName(),
                violation.lineNumber());
-    abort();
+    std::abort();
 #endif
 }
 
@@ -438,7 +438,7 @@ void AssertTest::failTestDriverByReview(const ReviewViolation &violation)
     printError(violation.comment(),
                violation.fileName(),
                violation.lineNumber());
-    abort();
+    std::abort();
 #endif
 }
 
