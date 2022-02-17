@@ -24,6 +24,7 @@
 #include <cstdlib>    // for 'native_std::atoi'
 #include <cstring>    // for 'native_std::strlen'
 #include <functional> // for 'native_std::equal_to'
+#include <utility>    // for 'std::move'
 
 #include <assert.h>
 #include <float.h>    // for 'FLT_MAX' and 'FLT_MIN'
@@ -67,7 +68,8 @@ namespace BSL = native_std;  // for Usage examples
 // [ 2] EQUAL equal() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 5] USAGE EXAMPLE
+// [ 5] CLASS TEMPLATE DEDUCTION GUIDES
+// [ 6] USAGE EXAMPLE
 // [ 4] default_searcher: facade forwards correctly
 
 // ============================================================================
@@ -3134,6 +3136,126 @@ int getDataForHaystack(const DATA_t **DATA,
     return 0;
 }
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+struct TestDeductionGuides {
+    // This struct provides a namespace for functions testing deduction guides.
+    // The tests are compile-time only; it is not necessary that these routines
+    // be called at run-time.
+
+#define ASSERT_SAME_TYPE(...) \
+ static_assert((bsl::is_same<__VA_ARGS__>::value), "Types differ unexpectedly")
+
+    template <class KEY_TYPE>
+    struct StupidEqual {
+        bool operator()(const KEY_TYPE&, const KEY_TYPE&) const
+            // Always return true
+        {
+            return true;
+        }
+    };
+
+    template <class KEY_TYPE>
+    static size_t StupidEqualFn(const KEY_TYPE&, const KEY_TYPE&)
+        // Always return true
+    {
+        return true;
+    }
+
+    void TestBSLSearcher ()
+        // Test that constructing a 'bslstl::DefaultSearcher' from various
+        // combinations of arguments deduces the correct type.
+        //..
+        //  DefaultSearcher(const DefaultSearcher&  s) -> decltype(s)
+        //  DefaultSearcher(      DefaultSearcher&& s) -> decltype(s)
+        //
+        //  DefaultSearcher(Iter, Iter, BinaryPredicate = BinaryPredicate())
+        //..
+    {
+        typedef int T1;
+
+        T1                            *p1b = nullptr;
+        T1                            *p1e = nullptr;
+        bslstl::DefaultSearcher<T1 *>  ds1(p1b, p1e);
+        bslstl::DefaultSearcher        ds1a(ds1);
+        ASSERT_SAME_TYPE(decltype(ds1a), bslstl::DefaultSearcher<T1 *>);
+
+
+        typedef long T2;
+
+        T2                            *p2b = nullptr;
+        T2                            *p2e = nullptr;
+        bslstl::DefaultSearcher<T2 *>  ds2(p2b, p2e);
+        bslstl::DefaultSearcher        ds2a(std::move(ds2));
+        ASSERT_SAME_TYPE(decltype(ds2a), bslstl::DefaultSearcher<T2 *>);
+
+
+        typedef float                       T3;
+        typedef StupidEqual<T3>             EqualT3;
+        typedef decltype(StupidEqualFn<T3>) EqualFnT3;
+
+        T3                      *p3b = nullptr;
+        T3                      *p3e = nullptr;
+        bslstl::DefaultSearcher  ds3a(p3b, p3e);
+        bslstl::DefaultSearcher  ds3b(p3b, p3e, StupidEqual<T3>{});
+        bslstl::DefaultSearcher  ds3c(p3b, p3e, StupidEqualFn<T3>);
+
+        ASSERT_SAME_TYPE(decltype(ds3a), bslstl::DefaultSearcher<T3 *>);
+        ASSERT_SAME_TYPE(decltype(ds3b),
+                         bslstl::DefaultSearcher<T3 *, EqualT3>);
+        ASSERT_SAME_TYPE(decltype(ds3c),
+                         bslstl::DefaultSearcher<T3 *, EqualFnT3 *>);
+    }
+
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS
+    void TestSTLSearcher ()
+        // Test that constructing a 'bsl::default_searcher' from various
+        // combinations of arguments deduces the correct type.
+        //..
+        //  default_searcher(const default_searcher&  s) -> decltype(s)
+        //  default_searcher(      default_searcher&& s) -> decltype(s)
+        //
+        //  default_searcher(Iter, Iter, BinaryPredicate = BinaryPredicate())
+        //..
+    {
+        typedef int T1;
+
+        T1                          *p1b = nullptr;
+        T1                          *p1e = nullptr;
+        bsl::default_searcher<T1 *>  ds1(p1b, p1e);
+        bsl::default_searcher        ds1a(ds1);
+        ASSERT_SAME_TYPE(decltype(ds1a), bsl::default_searcher<T1 *>);
+
+
+        typedef long T2;
+
+        T2                          *p2b = nullptr;
+        T2                          *p2e = nullptr;
+        bsl::default_searcher<T2 *>  ds2(p2b, p2e);
+        bsl::default_searcher        ds2a(std::move(ds2));
+        ASSERT_SAME_TYPE(decltype(ds2a), bsl::default_searcher<T2 *>);
+
+
+        typedef float                       T3;
+        typedef StupidEqual<T3>             EqualT3;
+        typedef decltype(StupidEqualFn<T3>) EqualFnT3;
+
+        T3                    *p3b = nullptr;
+        T3                    *p3e = nullptr;
+        bsl::default_searcher  ds3a(p3b, p3e);
+        bsl::default_searcher  ds3b(p3b, p3e, StupidEqual<T3>{});
+        bsl::default_searcher  ds3c(p3b, p3e, StupidEqualFn<T3>);
+
+        ASSERT_SAME_TYPE(decltype(ds3a), bsl::default_searcher<T3 *>);
+        ASSERT_SAME_TYPE(decltype(ds3b), bsl::default_searcher<T3 *, EqualT3>);
+        ASSERT_SAME_TYPE(decltype(ds3c),
+                         bsl::default_searcher<T3 *, EqualFnT3 *>);
+    }
+#endif
+
+#undef ASSERT_SAME_TYPE
+};
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_CTAD
+
 // ============================================================================
 //                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -3151,7 +3273,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
-      case 5: {
+      case 6: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -3174,6 +3296,41 @@ int main(int argc, char *argv[])
                             "\n" "=============" "\n");
         usage();
 
+      } break;
+      case 5: {
+        //---------------------------------------------------------------------
+        // TESTING CLASS TEMPLATE DEDUCTION GUIDES (AT COMPILE TIME)
+        //   Ensure that the deduction guides are properly specified to deduce
+        //   the template arguments from the arguments supplied to the
+        //   constructors.
+        //
+        // Concerns:
+        //: 1 Construction from iterators deduces the value type from the value
+        //:   type of the iterator.
+        //
+        // Plan:
+        //: 1 Create a 'DefaultSearcher' by invoking the constructor without
+        //:   supplying the template arguments explicitly.
+        //:
+        //: 2 If we are not using the system's 'default_searcher', create a
+        //:   'bsl::default_searcher' by invoking the constructor without
+        //:   supplying the template arguments explicitly.
+        //:
+        //: 3 Verify that the deduced types are correct.
+        //
+        // Testing:
+        //   CLASS TEMPLATE DEDUCTION GUIDES
+        //---------------------------------------------------------------------
+        if (verbose)
+            printf(
+              "\nTESTING CLASS TEMPLATE DEDUCTION GUIDES (AT COMPILE TIME)"
+              "\n=========================================================\n");
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+        // This is a compile-time only test case.
+        TestDeductionGuides test;
+        (void) test;  // This variable only exists for ease of IDE navigation.
+#endif
       } break;
       case 4: {
         // --------------------------------------------------------------------

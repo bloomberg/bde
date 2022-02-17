@@ -85,7 +85,8 @@ namespace BSL = native_std;  // for Usage examples
 // [ 2] BloombergLP::bslma::Allocator *allocator() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [10] USAGE EXAMPLE
+// [11] USAGE EXAMPLE
+// [10] CLASS TEMPLATE DEDUCTION GUIDES
 // [ 8] boyer_moore_horspool_searcher: facade forwards correctly
 // [ 9] TRAITS
 // [ 9] PUBLIC TYPES
@@ -3709,6 +3710,225 @@ static void testMoveConstructors()
     }
 }
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+struct TestDeductionGuides {
+    // This struct provides a namespace for functions testing deduction guides.
+    // The tests are compile-time only; it is not necessary that these routines
+    // be called at run-time.
+
+#define ASSERT_SAME_TYPE(...) \
+ static_assert((bsl::is_same<__VA_ARGS__>::value), "Types differ unexpectedly")
+
+    template <class KEY_TYPE>
+    struct StupidEqual {
+        bool operator()(const KEY_TYPE&, const KEY_TYPE&) const
+            // Always return true
+        {
+            return true;
+        }
+    };
+
+    template <class KEY_TYPE>
+    static size_t StupidEqualFn(const KEY_TYPE&, const KEY_TYPE&)
+        // Always return true
+    {
+        return true;
+    }
+
+    template <class KEY_TYPE>
+    struct StupidHash {
+        size_t operator()(const KEY_TYPE&) const
+            // Always hash to bucket #0
+        {
+            return 0U;
+        }
+    };
+
+    template <class KEY_TYPE>
+    static size_t StupidHashFn(const KEY_TYPE&)
+        // Always hash to bucket #0
+    {
+        return 0U;
+    }
+
+    void TestBSLSearcher ()
+        // Test that constructing a 'bslstl::BoyerMooreHorspoolSearcher' from
+        // various combinations of arguments deduces the correct type.
+        //..
+        //  BoyerMooreHorspoolSearcher(const BoyerMooreHorspoolSearcher&  s)
+        //                                                       -> decltype(s)
+        //  BoyerMooreHorspoolSearcher(      BoyerMooreHorspoolSearcher&& s)
+        //                                                       -> decltype(s)
+        //
+        //  BoyerMooreHorspoolSearcher(Iter, Iter, HASH=HASH(), EQUAL=EQUAL())
+        //
+        //..
+    {
+        typedef int T1;
+
+        T1                                       *p1b = nullptr;
+        T1                                       *p1e = nullptr;
+        bslstl::BoyerMooreHorspoolSearcher<T1 *>  ds1(p1b, p1e);
+        bslstl::BoyerMooreHorspoolSearcher        ds1a(ds1);
+        ASSERT_SAME_TYPE(decltype(ds1a),
+                         bslstl::BoyerMooreHorspoolSearcher<T1 *>);
+
+
+        typedef long T2;
+
+        T2                                       *p2b = nullptr;
+        T2                                       *p2e = nullptr;
+        bslstl::BoyerMooreHorspoolSearcher<T2 *>  ds2(p2b, p2e);
+        bslstl::BoyerMooreHorspoolSearcher        ds2a(std::move(ds2));
+        ASSERT_SAME_TYPE(decltype(ds2a),
+                         bslstl::BoyerMooreHorspoolSearcher<T2 *>);
+
+
+        typedef float                       T3;
+        typedef StupidHash<T3>              HashT3;
+        typedef StupidEqual<T3>             EqualT3;
+        typedef decltype(StupidHashFn<T3>)  HashFnT3;
+        typedef decltype(StupidEqualFn<T3>) EqualFnT3;
+
+        T3                                 *p3b = nullptr;
+        T3                                 *p3e = nullptr;
+        bslstl::BoyerMooreHorspoolSearcher  ds3a(p3b, p3e);
+        bslstl::BoyerMooreHorspoolSearcher  ds3b(p3b, p3e, StupidHash<T3>{});
+        bslstl::BoyerMooreHorspoolSearcher  ds3c(p3b, p3e, StupidHashFn<T3>);
+        bslstl::BoyerMooreHorspoolSearcher  ds3d(p3b,
+                                                 p3e,
+                                                 StupidHash<T3>{},
+                                                 StupidEqual<T3>{});
+        bslstl::BoyerMooreHorspoolSearcher  ds3e(p3b,
+                                                 p3e,
+                                                 StupidHash<T3>{},
+                                                 StupidEqualFn<T3>);
+        bslstl::BoyerMooreHorspoolSearcher  ds3f(p3b,
+                                                 p3e,
+                                                 StupidHashFn<T3>,
+                                                 StupidEqual<T3>{});
+        bslstl::BoyerMooreHorspoolSearcher  ds3g(p3b,
+                                                 p3e,
+                                                 StupidHashFn<T3>,
+                                                 StupidEqualFn<T3>);
+
+        ASSERT_SAME_TYPE(decltype(ds3a),
+                         bslstl::BoyerMooreHorspoolSearcher<T3 *>);
+        ASSERT_SAME_TYPE(decltype(ds3b),
+                         bslstl::BoyerMooreHorspoolSearcher<T3 *, HashT3>);
+        ASSERT_SAME_TYPE(decltype(ds3c),
+                         bslstl::BoyerMooreHorspoolSearcher<T3 *, HashFnT3 *>);
+        ASSERT_SAME_TYPE(decltype(ds3d),
+                         bslstl::BoyerMooreHorspoolSearcher<T3 *,
+                                                            HashT3,
+                                                            EqualT3>);
+        ASSERT_SAME_TYPE(decltype(ds3e),
+                         bslstl::BoyerMooreHorspoolSearcher<T3 *,
+                                                            HashT3,
+                                                            EqualFnT3 *>);
+        ASSERT_SAME_TYPE(decltype(ds3f),
+                         bslstl::BoyerMooreHorspoolSearcher<T3 *,
+                                                            HashFnT3 *,
+                                                            EqualT3>);
+        ASSERT_SAME_TYPE(decltype(ds3g),
+                         bslstl::BoyerMooreHorspoolSearcher<T3 *,
+                                                            HashFnT3 *,
+                                                            EqualFnT3 *>);
+
+    }
+
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS
+    void TestSTLSearcher ()
+        // Test that constructing a 'bsl::boyer_moore_horspool_searcher' from
+        // various combinations of arguments deduces the correct type.
+        //..
+        //  boyer_moore_horspool_searcher(
+        //              const boyer_moore_horspool_searcher&  s) -> decltype(s)
+        //  boyer_moore_horspool_searcher(
+        //                    boyer_moore_horspool_searcher&& s) -> decltype(s)
+        //
+        //  boyer_moore_horspool_searcher(Iter, Iter,
+        //                               HASH = HASH(), EQUAL = EQUAL())
+        //
+        //..
+    {
+        typedef int T1;
+
+        T1                                       *p1b = nullptr;
+        T1                                       *p1e = nullptr;
+        bsl::boyer_moore_horspool_searcher<T1 *>  ds1(p1b, p1e);
+        bsl::boyer_moore_horspool_searcher        ds1a(ds1);
+        ASSERT_SAME_TYPE(decltype(ds1a),
+                         bsl::boyer_moore_horspool_searcher<T1 *>);
+
+
+        typedef long T2;
+
+        T2                                       *p2b = nullptr;
+        T2                                       *p2e = nullptr;
+        bsl::boyer_moore_horspool_searcher<T2 *>  ds2(p2b, p2e);
+        bsl::boyer_moore_horspool_searcher        ds2a(std::move(ds2));
+        ASSERT_SAME_TYPE(decltype(ds2a),
+                         bsl::boyer_moore_horspool_searcher<T2 *>);
+
+
+        typedef float                       T3;
+        typedef StupidHash<T3>              HashT3;
+        typedef StupidEqual<T3>             EqualT3;
+        typedef decltype(StupidHashFn<T3>)  HashFnT3;
+        typedef decltype(StupidEqualFn<T3>) EqualFnT3;
+
+        T3                                 *p3b = nullptr;
+        T3                                 *p3e = nullptr;
+        bsl::boyer_moore_horspool_searcher  ds3a(p3b, p3e);
+        bsl::boyer_moore_horspool_searcher  ds3b(p3b, p3e, StupidHash<T3>{});
+        bsl::boyer_moore_horspool_searcher  ds3c(p3b, p3e, StupidHashFn<T3>);
+        bsl::boyer_moore_horspool_searcher  ds3d(p3b,
+                                                 p3e,
+                                                 StupidHash<T3>{},
+                                                 StupidEqual<T3>{});
+        bsl::boyer_moore_horspool_searcher  ds3e(p3b,
+                                                 p3e,
+                                                 StupidHash<T3>{},
+                                                 StupidEqualFn<T3>);
+        bsl::boyer_moore_horspool_searcher  ds3f(p3b,
+                                                 p3e,
+                                                 StupidHashFn<T3>,
+                                                 StupidEqual<T3>{});
+        bsl::boyer_moore_horspool_searcher  ds3g(p3b,
+                                                 p3e,
+                                                 StupidHashFn<T3>,
+                                                 StupidEqualFn<T3>);
+
+        ASSERT_SAME_TYPE(decltype(ds3a),
+                         bsl::boyer_moore_horspool_searcher<T3 *>);
+        ASSERT_SAME_TYPE(decltype(ds3b),
+                         bsl::boyer_moore_horspool_searcher<T3 *, HashT3>);
+        ASSERT_SAME_TYPE(decltype(ds3c),
+                         bsl::boyer_moore_horspool_searcher<T3 *, HashFnT3 *>);
+        ASSERT_SAME_TYPE(decltype(ds3d),
+                         bsl::boyer_moore_horspool_searcher<T3 *,
+                                                            HashT3,
+                                                            EqualT3>);
+        ASSERT_SAME_TYPE(decltype(ds3e),
+                         bsl::boyer_moore_horspool_searcher<T3 *,
+                                                            HashT3,
+                                                            EqualFnT3 *>);
+        ASSERT_SAME_TYPE(decltype(ds3f),
+                         bsl::boyer_moore_horspool_searcher<T3 *,
+                                                            HashFnT3 *,
+                                                            EqualT3>);
+        ASSERT_SAME_TYPE(decltype(ds3g),
+                         bsl::boyer_moore_horspool_searcher<T3 *,
+                                                            HashFnT3 *,
+                                                            EqualFnT3 *>);
+    }
+#endif
+
+#undef ASSERT_SAME_TYPE
+};
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_CTAD
+
 // ============================================================================
 //                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -3726,7 +3946,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
-      case 10: {
+      case 11: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -3749,6 +3969,41 @@ int main(int argc, char *argv[])
                             "\n" "=============" "\n");
         usage();
 
+      } break;
+      case 10: {
+        //---------------------------------------------------------------------
+        // TESTING CLASS TEMPLATE DEDUCTION GUIDES (AT COMPILE TIME)
+        //   Ensure that the deduction guides are properly specified to deduce
+        //   the template arguments from the arguments supplied to the
+        //   constructors.
+        //
+        // Concerns:
+        //: 1 Construction from iterators deduces the value type from the value
+        //:   type of the iterator.
+        //
+        // Plan:
+        //: 1 Create a 'BoyerMooreHorspoolSearcher' by invoking the constructor
+        //:   without supplying the template arguments explicitly.
+        //:
+        //: 2 If we are not using the system's 'boyer_moore_horspool_searcher',
+        //:   create a 'bsl::boyer_moore_horspool_searcher' by invoking the
+        //:   constructor without supplying the template arguments explicitly.
+        //:
+        //: 3 Verify that the deduced types are correct.
+        //
+        // Testing:
+        //   CLASS TEMPLATE DEDUCTION GUIDES
+        //---------------------------------------------------------------------
+        if (verbose)
+            printf(
+              "\nTESTING CLASS TEMPLATE DEDUCTION GUIDES (AT COMPILE TIME)"
+              "\n=========================================================\n");
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+        // This is a compile-time only test case.
+        TestDeductionGuides test;
+        (void) test;  // This variable only exists for ease of IDE navigation.
+#endif
       } break;
       case 9: {
         // --------------------------------------------------------------------
