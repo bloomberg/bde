@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Feb 10 13:35:02 2022
+// Generated on Thu Feb 17 16:13:09 2022
 // Command line: sim_cpp11_features.pl bdlb_nullablevalue.h
 
 #ifdef COMPILING_BDLB_NULLABLEVALUE_H
@@ -347,8 +347,7 @@ class NullableValue : public bsl::optional<TYPE> {
     // 'is_assignable' is only available in C++11 and beyond.
 
     template <class BDE_OTHER_TYPE>
-    typename bsl::enable_if<bsl::is_assignable<bsl::optional<TYPE>,
-                                               BDE_OTHER_TYPE>::value,
+    typename bsl::enable_if<bsl::is_assignable<TYPE, BDE_OTHER_TYPE>::value,
                             NullableValue<TYPE>&>::type
     operator=(BDE_OTHER_TYPE&& rhs);
         // Assign to this object the value of the specified 'rhs' object (of
@@ -1050,10 +1049,17 @@ template <class TYPE>
 inline
 NullableValue<TYPE>& NullableValue<TYPE>::operator=(const NullableValue& rhs)
 {
-    Base& lhsBase       = *this;
-    const Base& rhsBase = rhs;
-
-    lhsBase = rhsBase;
+    if (rhs.has_value()) {
+        if (this->has_value()) {
+            this->value() = rhs.value();
+        }
+        else {
+            this->emplace(rhs.value());
+        }
+    }
+    else {
+        this->reset();
+    }
 
     return *this;
 }
@@ -1063,10 +1069,19 @@ inline
 NullableValue<TYPE>& NullableValue<TYPE>::operator=(
                                           bslmf::MovableRef<NullableValue> rhs)
 {
-    Base& lhsBase = *this;
-    Base& rhsBase = rhs;
+    NullableValue& localRhs = rhs;
 
-    lhsBase = MoveUtil::move(rhsBase);
+    if (localRhs.has_value()) {
+        if (this->has_value()) {
+            this->value() = MoveUtil::move(localRhs.value());
+        }
+        else {
+            this->emplace(MoveUtil::move(localRhs.value()));
+        }
+    }
+    else {
+        this->reset();
+    }
 
     return *this;
 }
@@ -1076,10 +1091,17 @@ template <class BDE_OTHER_TYPE>
 NullableValue<TYPE>& NullableValue<TYPE>::operator=(
                                       const NullableValue<BDE_OTHER_TYPE>& rhs)
 {
-    Base&                                lhsBase = *this;
-    const bsl::optional<BDE_OTHER_TYPE>& rhsBase = rhs;
-
-    lhsBase = rhsBase;
+    if (rhs.has_value()) {
+        if (this->has_value()) {
+            this->value() = rhs.value();
+        }
+        else {
+            this->emplace(rhs.value());
+        }
+    }
+    else {
+        this->reset();
+    }
 
     return *this;
 }
@@ -1089,10 +1111,22 @@ template <class BDE_OTHER_TYPE>
 NullableValue<TYPE>& NullableValue<TYPE>::operator=(
       BDLB_NULLABLEVALUE_DEDUCE_MOVABLE_REF(NullableValue<BDE_OTHER_TYPE>) rhs)
 {
-    Base&                          lhsBase = *this;
-    bsl::optional<BDE_OTHER_TYPE>& rhsBase = rhs;
+    // bsl::optional<TYPE>::operator=(bsl::optional<BDE_OTHER_TYPE>&)' is more
+    // constrained than this, so just assign directly across the value.
 
-    lhsBase = MoveUtil::move(rhsBase);
+    NullableValue<BDE_OTHER_TYPE>& rhsLocal = rhs;
+
+    if (rhsLocal.has_value()) {
+        if (this->has_value()) {
+            this->value() = MoveUtil::move(rhsLocal.value());
+        }
+        else {
+            this->emplace(MoveUtil::move(rhsLocal.value()));
+        }
+    }
+    else {
+        this->reset();
+    }
 
     return *this;
 }
@@ -1128,9 +1162,12 @@ template <class TYPE>
 inline
 NullableValue<TYPE>& NullableValue<TYPE>::operator=(const TYPE& rhs)
 {
-    Base& base = *this;
-
-    base = rhs;
+    if (this->has_value()) {
+        this->value() = rhs;
+    }
+    else {
+        this->emplace(rhs);
+    }
 
     return *this;
 }
@@ -1140,9 +1177,12 @@ inline
 NullableValue<TYPE>& NullableValue<TYPE>::operator=(
                                                    bslmf::MovableRef<TYPE> rhs)
 {
-    Base& base = *this;
-
-    base = MoveUtil::move(rhs);
+    if (this->has_value()) {
+        this->value() = MoveUtil::move(rhs);
+    }
+    else {
+        this->emplace(MoveUtil::move(rhs));
+    }
 
     return *this;
 }
@@ -1152,14 +1192,16 @@ NullableValue<TYPE>& NullableValue<TYPE>::operator=(
 template <class TYPE>
 template <class BDE_OTHER_TYPE>
 inline
-typename bsl::enable_if<bsl::is_assignable<bsl::optional<TYPE>,
-                                           BDE_OTHER_TYPE>::value,
+typename bsl::enable_if<bsl::is_assignable<TYPE, BDE_OTHER_TYPE>::value,
                         NullableValue<TYPE>&>::type
 NullableValue<TYPE>::operator=(BDE_OTHER_TYPE&& rhs)
 {
-    Base& base = *this;
-
-    base = BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, rhs);
+    if (this->has_value()) {
+        this->value() = BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, rhs);
+    }
+    else {
+        this->emplace(BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, rhs));
+    }
 
     return *this;
 }
@@ -1169,9 +1211,12 @@ template <class BDE_OTHER_TYPE>
 inline
 NullableValue<TYPE>& NullableValue<TYPE>::operator=(const BDE_OTHER_TYPE& rhs)
 {
-    Base& base = *this;
-
-    base = rhs;
+    if (this->has_value()) {
+        this->value() = rhs;
+    }
+    else {
+        this->emplace(rhs);
+    }
 
     return *this;
 }
@@ -1182,9 +1227,12 @@ inline
 NullableValue<TYPE>&
           NullableValue<TYPE>::operator=(bslmf::MovableRef<BDE_OTHER_TYPE> rhs)
 {
-    Base& base = *this;
-
-    base = MoveUtil::move(rhs);
+    if (this->has_value()) {
+        this->value() = MoveUtil::move(rhs);
+    }
+    else {
+        this->emplace(MoveUtil::move(rhs));
+    }
 
     return *this;
 }

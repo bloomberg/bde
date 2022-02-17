@@ -45,6 +45,7 @@
 
 #include <bsl_cstdlib.h>    // 'atoi', 'abs'
 #include <bsl_exception.h>
+#include <bsl_functional.h>
 #include <bsl_iomanip.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
@@ -2686,6 +2687,21 @@ void swap(SwappableWithAllocator& a, SwappableWithAllocator& b)
 void dummyFunction()
     // Do nothing.
 {
+}
+
+int func0()
+{
+    return 0;
+}
+
+int func1()
+{
+    return 1;
+}
+
+int func2()
+{
+    return 2;
 }
 
 struct EmptyStruct { };  // for CASE 28
@@ -10433,6 +10449,110 @@ int main(int argc, char *argv[])
                 ASSERT(  addr2 == &obj2.value());
             }
         }
+
+        if (verbose) cout << "\nUsing 'int' and 'bool'." << endl;
+        {
+            typedef int     ValueType1;
+            typedef bool    ValueType2;
+
+            typedef bdlb::NullableValue<ValueType1> ObjType1;
+            typedef bdlb::NullableValue<ValueType2> ObjType2;
+
+            if (verbose) cout << "\tcopy assignment" << endl;
+            {
+                const ValueType1 VALUE1a = true;
+                const ValueType1 VALUE1b = false;
+
+                const ObjType1 OBJ1a(VALUE1a);
+                      ObjType1 obj1b(VALUE1b);
+                const ObjType1 OBJ1n;
+
+                      ObjType2 obj2;  const ObjType2& OBJ2 = obj2;
+                ASSERT(OBJ1n.isNull());
+                ASSERT(OBJ2.isNull());
+
+                ObjType2 *mR2 = &(obj2 = OBJ1a);  // null = non-null
+
+                ASSERT(VALUE1a == OBJ1a.value());
+                ASSERT(VALUE1a == OBJ2.value());
+                ASSERT(    mR2 == &obj2);
+
+                mR2 = &(obj2 = obj1b);            // non-null = non-null
+
+                ASSERT(VALUE1b == obj1b.value());
+                ASSERTV(VALUE1b, OBJ2.value(), VALUE1b == OBJ2.value());
+                ASSERT(    mR2 == &obj2);
+
+                mR2 = &(obj2 = OBJ1n);            // non-null = null
+
+                ASSERT(OBJ1n.isNull());
+                ASSERT(OBJ2.isNull());
+                ASSERT(    mR2 == &obj2);
+
+                mR2 = &(obj2 = OBJ1n);            // null = null
+
+                ASSERT(OBJ1n.isNull());
+                ASSERT(OBJ2.isNull());
+                ASSERT(    mR2 == &obj2);
+            }
+
+            if (verbose) cout << "\tvalue assignment" << endl;
+            {
+                const ValueType1 VALUE1a = true;
+                const ValueType1 VALUE1b = false;
+
+                ValueType1  mVALUE2  = true;
+                const ValueType1& VALUE2 = mVALUE2;
+                ValueType1& mRVALUE2 = mVALUE2;
+
+                ObjType2 obj2;  const ObjType2& OBJ2 = obj2;
+                ASSERT(OBJ2.isNull());
+
+                ObjType2 *mR2 = &(obj2 = VALUE1a);
+
+                ASSERT(VALUE1a == OBJ2.value());
+                ASSERT(    mR2 == &obj2);
+
+                mR2 = &(obj2 = VALUE1b);
+
+                ASSERT(VALUE1b == OBJ2.value());
+                ASSERT(    mR2 == &obj2);
+
+                // testing non-'const' source object
+
+                obj2.reset();
+                ASSERT(OBJ2.isNull());
+
+                obj2 = mVALUE2;
+                ASSERT(VALUE2 == OBJ2.value());
+
+                obj2.reset();
+                ASSERT(OBJ2.isNull());
+
+                obj2 = mRVALUE2;
+                ASSERT(VALUE2 == OBJ2.value());
+            }
+
+            if (verbose) cout << "\tmake value" << endl;
+            {
+                const ValueType1 VALUE1a = true;
+                const ValueType1 VALUE1b = false;
+
+                ObjType2 obj2;  const ObjType2& OBJ2 = obj2;
+                ASSERT(OBJ2.isNull());
+
+                ValueType2 *addr2 = &obj2.makeValue(VALUE1a);
+
+                ASSERT(VALUE1a == OBJ2.value());
+                ASSERT(  addr2 == &obj2.value());
+
+                addr2 = &obj2.makeValue(VALUE1b);
+
+                ASSERT(VALUE1b == OBJ2.value());
+                ASSERT(  addr2 == &obj2.value());
+            }
+        }
+
         if (verbose) cout << "\nUsing 'bsl::string' and 'char *' + ALLOC."
                           << endl;
         {
@@ -11523,6 +11643,46 @@ int main(int argc, char *argv[])
                 ASSERTV(mR, mU, mR == &mU);
                 ASSERT(dam.isTotalSame());  // no temporaries
             }
+        }
+        ASSERT(0 == da.numBlocksInUse());
+
+        if (verbose) cout <<
+                      "\nUsing 'bdlb::NullableValue<bsl::function<int()> >.\n";
+        {
+            typedef bsl::function<int()>           ValueType;
+            typedef bdlb::NullableValue<ValueType> Obj;
+
+            const int NUM_VALUES = 3;
+
+            // 'bsl::function' does not have 'operator==' so we use 'func0',
+            // 'func1', and 'func2', which return 0, 1, and 2 respectively, and
+            // call the 'bsl::function' to see which it contains.
+
+            const ValueType FUNCS[3] = { &func0, &func1, &func2 };
+
+            bslma::TestAllocatorMonitor dam(&da);
+
+            for (int i = 0; i < NUM_VALUES; ++i) {
+                ASSERT(FUNCS[i]() == i);
+
+                for (int j = 0; j < NUM_VALUES; ++j) {
+                    Obj mU(FUNCS[i]);  const Obj& U = mU;
+
+                    ASSERTV((*U)(), i, (*U)() == i);
+
+                    const Obj V(FUNCS[j]);
+
+                    Obj *mR = &(mU = V);
+
+                    ASSERTV((*U)(), j, (*U)() == j);
+                    ASSERTV((*V)(), j, (*V)() == j);
+                    ASSERTV(mR == &mU);
+                }
+
+                ASSERT(FUNCS[i]() == i);
+            }
+
+            ASSERT(dam.isTotalSame());  // no temporaries
         }
         ASSERT(0 == da.numBlocksInUse());
 
