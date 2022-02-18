@@ -6398,6 +6398,15 @@ bsl::allocator<char> AllocType::allocator() const
 
 }  // close namespace MoveFromAllocTypeSpace
 
+struct EasilyCoerced {
+    operator unsigned int() const;
+};
+
+EasilyCoerced::operator unsigned int() const
+{
+    return 5;
+}
+
 // ============================================================================
 //                              MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -11335,10 +11344,8 @@ int main(int argc, char *argv[])
         }
 
         {
-            struct {
-                operator unsigned int() const { return 5; }
-            } s;
             bdlb::NullableValue<unsigned int> nv;
+            EasilyCoerced s;
 
             nv = s;
         }
