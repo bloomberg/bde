@@ -11334,6 +11334,14 @@ int main(int argc, char *argv[])
             ASSERT(S == Y.value());
         }
 
+        {
+            struct {
+                operator unsigned int() const { return 5; }
+            } s;
+            bdlb::NullableValue<unsigned int> nv;
+
+            nv = s;
+        }
       } break;
       case 9: {
         // --------------------------------------------------------------------

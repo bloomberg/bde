@@ -471,7 +471,8 @@ class NullableValue : public bsl::optional<TYPE> {
     // 'is_assignable' is only available in C++11 and beyond.
 
     template <class BDE_OTHER_TYPE>
-    typename bsl::enable_if<bsl::is_assignable<TYPE, BDE_OTHER_TYPE>::value,
+    typename bsl::enable_if<bsl::is_assignable<bsl::optional<TYPE>,
+                                               BDE_OTHER_TYPE>::value,
                             NullableValue<TYPE>&>::type
     operator=(BDE_OTHER_TYPE&& rhs);
         // Assign to this object the value of the specified 'rhs' object (of
@@ -1268,16 +1269,14 @@ NullableValue<TYPE>& NullableValue<TYPE>::operator=(
 template <class TYPE>
 template <class BDE_OTHER_TYPE>
 inline
-typename bsl::enable_if<bsl::is_assignable<TYPE, BDE_OTHER_TYPE>::value,
+typename bsl::enable_if<bsl::is_assignable<bsl::optional<TYPE>,
+                                           BDE_OTHER_TYPE>::value,
                         NullableValue<TYPE>&>::type
 NullableValue<TYPE>::operator=(BDE_OTHER_TYPE&& rhs)
 {
-    if (this->has_value()) {
-        this->value() = BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, rhs);
-    }
-    else {
-        this->emplace(BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, rhs));
-    }
+    Base& base = *this;
+
+    base = BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, rhs);
 
     return *this;
 }
