@@ -3,6 +3,7 @@
 
 #include <bsls_assert.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_buildtarget.h>
 
 #include <stdio.h>
 #include <stdlib.h>  // 'abort', 'atoi', 'getenv'
@@ -108,7 +109,8 @@ void aSsErT(bool condition, const char *message, int line)
 //                                USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
-//
+#ifdef BDE_BUILD_TARGET_EXC
+
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -166,6 +168,8 @@ void aSsErT(bool condition, const char *message, int line)
 //  }
 //  ^
 //..
+
+#endif  // defined(BDE_BUILD_TARGET_EXC)
 
 #if BSLA_NORETURN_IS_ACTIVE
 BSLA_NORETURN void f()

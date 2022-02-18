@@ -136,6 +136,13 @@ void aSsErT(bool condition, const char *message, int line)
     // are supported by our implementation.  The 'bdlb::ScopeExit<EXIT_FUNC>'
     // converting constructor itself is 'explicit' so this is fine.
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    #define U_DECLVAL(type) bsl::declval<type>()
+#else
+    #define U_DECLVAL(type) (*(type*)(0))
+#endif
+    // "Portable 'std::declval<>()'".
+
 // ============================================================================
 //                           HELPER TYPE ALIASES
 // ----------------------------------------------------------------------------
@@ -479,11 +486,8 @@ class MoveThrowsExitFunction {
     MoveThrowsExitFunction& operator=(const MoveThrowsExitFunction&)
                                                           BSLS_KEYWORD_DELETED;
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-// BDE_VERIFY pragma: push
-// BDE_VERIFY pragma: -FD01
     MoveThrowsExitFunction& operator=(MoveThrowsExitFunction&&)
                                                           BSLS_KEYWORD_DELETED;
-// BDE_VERIFY pragma: pop
 #endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
   public:
@@ -553,12 +557,9 @@ class CopyThrowsExitFunction {
     CopyThrowsExitFunction& operator=(const CopyThrowsExitFunction&)
                                                           BSLS_KEYWORD_DELETED;
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-// BDE_VERIFY pragma: push
-// BDE_VERIFY pragma: -FD01
     CopyThrowsExitFunction(CopyThrowsExitFunction&&);
     CopyThrowsExitFunction& operator=(CopyThrowsExitFunction&&)
                                                           BSLS_KEYWORD_DELETED;
-// BDE_VERIFY pragma: pop
 #endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
   public:
@@ -627,11 +628,8 @@ class BothThrowExitFunction {
     BothThrowExitFunction& operator=(const BothThrowExitFunction&)
                                                           BSLS_KEYWORD_DELETED;
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-// BDE_VERIFY pragma: push
-// BDE_VERIFY pragma: -FD01
     BothThrowExitFunction& operator=(BothThrowExitFunction&&)
                                                           BSLS_KEYWORD_DELETED;
-// BDE_VERIFY pragma: pop
 #endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
   public:
@@ -710,11 +708,8 @@ class MoveOnlyExitFunctionParam {
     MoveOnlyExitFunctionParam& operator=(const MoveOnlyExitFunctionParam&)
                                                           BSLS_KEYWORD_DELETED;
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-// BDE_VERIFY pragma: push
-// BDE_VERIFY pragma: -FD01
     MoveOnlyExitFunctionParam& operator=(MoveOnlyExitFunctionParam&&)
                                                           BSLS_KEYWORD_DELETED;
-// BDE_VERIFY pragma: pop
 #endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
   public:
@@ -827,11 +822,8 @@ class MoveOnlyExitFunction {
     MoveOnlyExitFunction& operator=(const MoveOnlyExitFunction&)
                                                           BSLS_KEYWORD_DELETED;
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-// BDE_VERIFY pragma: push
-// BDE_VERIFY pragma: -FD01
     MoveOnlyExitFunction& operator=(MoveOnlyExitFunction&&)
                                                           BSLS_KEYWORD_DELETED;
-// BDE_VERIFY pragma: pop
 #endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
   public:
@@ -936,13 +928,10 @@ class CopyOnlyExitFunction {
     int *d_counter_p;  // held, not owned
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-// BDE_VERIFY pragma: push
-// BDE_VERIFY pragma: -FD01
   private:
     // NOT IMPLEMENTED
     CopyOnlyExitFunction& operator=(CopyOnlyExitFunction&&)
                                                           BSLS_KEYWORD_DELETED;
-// BDE_VERIFY pragma: pop
 #endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
   public:
@@ -1062,11 +1051,8 @@ class MoveCopyExitFunction : public MoveCopyCounts {
     MoveCopyExitFunction& operator=(const MoveCopyExitFunction&)
                                                           BSLS_KEYWORD_DELETED;
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-// BDE_VERIFY pragma: push
-// BDE_VERIFY pragma: -FD01
     MoveCopyExitFunction& operator=(MoveCopyExitFunction&&)
                                                           BSLS_KEYWORD_DELETED;
-// BDE_VERIFY pragma: pop
 #endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
   public:
@@ -1193,7 +1179,7 @@ void freeExitFunction()
                        // VerifyExplicitConstructorUtil
                        // =============================
 
-template <class TESTED_TYPE, class EXIT_FUNC_PARAM>
+template <class TESTED_TYPE, class PARAM_TYPE>
 struct VerifyExplicitConstructorUtil {
     struct LargerThanChar { char d_a[42]; };
 
@@ -1202,25 +1188,19 @@ struct VerifyExplicitConstructorUtil {
         // An overload set that is used to determine if 'EXIT_FUNC_PARAM'
         // converts explicitly to 'TESTED_TYPE'.  See the compile time 'bool'
         // definition of 'k_PASSED' below.
-
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-#define U_DECLVAL bsl::declval<EXIT_FUNC_PARAM>()
-#else
-#define U_DECLVAL \
-    static_cast<const EXIT_FUNC_PARAM&>(*(const EXIT_FUNC_PARAM*)(0))
-#endif
 #ifdef BSLS_PLATFORM_CMP_AIX
 #pragma  report(disable, "1540-2924")
     // 1540-2924 (W) Cannot pass an argument of non - POD class type "<type>"
     // through ellipsis.  Obviously no argument is passed through ellipsis,
     // because 'testcall' is within 'sizeof', a *non-evaluated* context.
 #endif
-    static const bool k_PASSED = sizeof(testcall(U_DECLVAL)) == sizeof(char)
-                    && sizeof(testcall(TESTED_TYPE(U_DECLVAL))) > sizeof(char);
+    static const bool k_PASSED =
+        sizeof(testcall(            U_DECLVAL(PARAM_TYPE))) == sizeof(char) &&
+        sizeof(testcall(TESTED_TYPE(U_DECLVAL(PARAM_TYPE)))) > sizeof(char);
 #ifdef BSLS_PLATFORM_CMP_AIX
 #pragma  report(pop)
 #endif
-#undef U_DECLVAL
+#undef U_PARAM
 };
 
              // ================================================
@@ -1999,7 +1979,6 @@ int main(int argc, char *argv[])
         const bsl::string_view secondGuardText(
                                   U_STRINGIFY(BDLB_SCOPEEXIT_GUARD(exitFunc)));
 
-
         ASSERTV(secondGuardText, EXPECTED,
                 testMacroText(EXPECTED, secondGuardText));
 
@@ -2422,12 +2401,6 @@ int main(int argc, char *argv[])
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
     // We can only test 'noexcept' specification if it is supported.
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-# define U_DECLVAL(type) bsl::declval<type>()
-#else
-# define U_DECLVAL(type) (*(const type*)(0))
-#endif
-
         ASSERT(bsl::is_nothrow_move_constructible<
                                     bdlb::ScopeExit<MoveNoexceptCopyNotFunctor>
                                                          >::value);
@@ -2451,15 +2424,13 @@ int main(int argc, char *argv[])
                                     bdlb::ScopeExit<CopyNoexceptMoveNotFunctor>
                                                          >::value);
 #endif
-#undef U_DECLVAL
 #endif // BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
 #endif // BDE_BUILD_TARGET_EXC
-
 #undef U_MAKE_MANAGED
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // VALUE CONSTRUCTORS
+        // CONVERTING CONSTRUCTOR
         //
         // Concerns:
         //: 1 The converting constructor:
@@ -2507,8 +2478,8 @@ int main(int argc, char *argv[])
         //   explicit ScopeExit(void (*function)())
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nVALUE CONSTRUCTORS"
-                          << "\n==================" << endl;
+        if (verbose) cout << "\nCONVERTING CONSTRUCTOR"
+                          << "\n======================" << endl;
 
         int counter = 0;
 

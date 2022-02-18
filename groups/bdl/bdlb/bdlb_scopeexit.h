@@ -693,6 +693,11 @@ class BSLA_NODISCARD_CPP17 ScopeExit {
     // is low, and they will result in a reasonable error message.
 
   private:
+    // PRIVATE TYPES
+    typedef bslmf::MovableRefUtil MoveUtil;
+        // Shorter lines for more readable code.
+
+  private:
     // PRIVATE DATA
     EXIT_FUNC d_exitFunction;          // A function pointer or functor to call
     bool      d_executeOnDestruction;  // 'false' if 'release' was called
@@ -712,23 +717,30 @@ class BSLA_NODISCARD_CPP17 ScopeExit {
         BSLS_COMPILERFEATURES_FORWARD_REF(EXIT_FUNC_PARAM) function,
         typename bsl::enable_if<
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
-    // Enable explicit conversions on platforms where we can.  Since this
-    // constructor itself is 'explicit' we are not enabling anything extra.
-        bsl::is_constructible<
+    // Enable explicit conversions on platforms where we can use
+    // 'bsl::is_constructible'.  Since this converting constructor itself is
+    // marked 'explicit' we are not enabling anything extra by allowing
+    // 'explicit' conversions when 'EXIT_FUNC' is already explicitly
+    // convertible.
+        bsl::is_constructible<  // Copy construct
             EXIT_FUNC,
-            const typename bsl::decay<EXIT_FUNC_PARAM>::type&
-                             >::value                                        ||
-        bsl::is_constructible<
+            const typename MoveUtil::Decay<EXIT_FUNC_PARAM>::type&
+        >::value                                                             ||
+        bsl::is_constructible<  // Move construct
             EXIT_FUNC,
-            bslmf::MovableRef<typename bsl::decay<EXIT_FUNC_PARAM>::type>
-                             >::value
+            bslmf::MovableRef<typename MoveUtil::Decay<EXIT_FUNC_PARAM>::type>
+        >::value
 #else
-        bsl::is_convertible<
-            const typename bsl::decay<EXIT_FUNC_PARAM>::type&,
-            EXIT_FUNC      >::value                                          ||
-        bsl::is_convertible<
-            bslmf::MovableRef<typename bsl::decay<EXIT_FUNC_PARAM>::type>,
-            EXIT_FUNC      >::value
+    // 'bsl::is_convertible' will not allow 'explicit' conversions as we cannot
+    // check their existence in C++03 without running into a compilation error.
+        bsl::is_convertible<  // "Copy convert"
+            const typename MoveUtil::Decay<EXIT_FUNC_PARAM>::type&,
+            EXIT_FUNC
+        >::value                                                             ||
+        bsl::is_convertible<  // "Move convert"
+            bslmf::MovableRef<typename MoveUtil::Decay<EXIT_FUNC_PARAM>::type>,
+            EXIT_FUNC
+        >::value
 #endif
                                >::type * = 0);
         // Create a 'ScopeExit' object, which, upon its destruction will invoke
@@ -745,18 +757,18 @@ class BSLA_NODISCARD_CPP17 ScopeExit {
         // or the member instance of 'EXIT_FUNC' throws an exception upon
         // invocation.
 
-// BDE_VERIFY pragma: push
-// BDE_VERIFY pragma: -AQS01
-
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
     explicit ScopeExit(void (*function)());
         // Create a 'ScopeExit' object, which, upon its destruction will invoke
         // the specified 'function' unless the 'release' method was called.
         // If 'function' is copied into the 'EXIT_FUNC' member, and that copy
         // throws an exception, invoke 'function' and rethrow the exception.
         // The behavior is undefined if 'function' or the member instance of
-        // 'EXIT_FUNC' throws an exception upon invocation.
-
-// BDE_VERIFY pragma: pop
+        // 'EXIT_FUNC' throws an exception upon invocation.  Note that this
+        // separate constructor for function pointers exists because without it
+        // the forwarding logic in the templated constructor implementation
+        // generates warnings about meaningless types generated.
+#endif
 
     ScopeExit(bslmf::MovableRef<ScopeExit> original)
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
@@ -784,29 +796,19 @@ class BSLA_NODISCARD_CPP17 ScopeExit {
 };
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
-// BDE_VERIFY pragma: push
-// BDE_VERIFY pragma: -AQS01
-
 // CLASS TEMPLATE DEDUCTION GUIDES
 template <class EXIT_FUNC_PARAM>
 explicit
 ScopeExit(BSLS_COMPILERFEATURES_FORWARD_REF(EXIT_FUNC_PARAM) function) ->
                          ScopeExit<typename bsl::decay<EXIT_FUNC_PARAM>::type>;
-
-// BDE_VERIFY pragma: pop
 #endif
                              // ====================
                              // typedef ScopeExitAny
                              // ====================
 
-// BDE_VERIFY pragma: push
-// BDE_VERIFY pragma: -TR17
-
 typedef ScopeExit<bsl::function<void()> > ScopeExitAny;
     // 'ScopeExitAny' is an alias to 'ScopeExit<bsl::function<void()> >',
     // effectively making it a polymorphic scope exit type.
-
-// BDE_VERIFY pragma: pop
 
 #ifdef BDLB_SCOPEEXIT_USES_MODERN_CPP
 
@@ -848,21 +850,23 @@ ScopeExit<EXIT_FUNC>::ScopeExit(
     BSLS_COMPILERFEATURES_FORWARD_REF(EXIT_FUNC_PARAM) function,
     typename bsl::enable_if<
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
-        bsl::is_constructible<
+        bsl::is_constructible<  // Copy construct
             EXIT_FUNC,
-            const typename bsl::decay<EXIT_FUNC_PARAM>::type&
-                             >::value                                        ||
-        bsl::is_constructible<
+            const typename MoveUtil::Decay<EXIT_FUNC_PARAM>::type&
+        >::value                                                             ||
+        bsl::is_constructible<  // Move construct
             EXIT_FUNC,
-            bslmf::MovableRef<typename bsl::decay<EXIT_FUNC_PARAM>::type>
-                             >::value
+            bslmf::MovableRef<typename MoveUtil::Decay<EXIT_FUNC_PARAM>::type>
+        >::value
 #else
-        bsl::is_convertible<
-            const typename bsl::decay<EXIT_FUNC_PARAM>::type&,
-            EXIT_FUNC      >::value                                          ||
-        bsl::is_convertible<
-            bslmf::MovableRef<typename bsl::decay<EXIT_FUNC_PARAM>::type>,
-            EXIT_FUNC      >::value
+        bsl::is_convertible<  // "Copy convert"
+            const typename MoveUtil::Decay<EXIT_FUNC_PARAM>::type&,
+            EXIT_FUNC
+        >::value                                                             ||
+        bsl::is_convertible<  // "Move convert"
+            bslmf::MovableRef<typename MoveUtil::Decay<EXIT_FUNC_PARAM>::type>,
+            EXIT_FUNC
+        >::value
 #endif
                            >::type *)
 #ifdef BDE_BUILD_TARGET_EXC
@@ -870,19 +874,20 @@ try
 #endif
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
 : d_exitFunction(
-      bslmf::Util::forward<
-          typename bsl::conditional<
-              bsl::is_nothrow_constructible<EXIT_FUNC,
+    bslmf::Util::forward<
+        typename bsl::conditional<
+            bsl::is_nothrow_constructible<EXIT_FUNC,
                                             EXIT_FUNC_PARAM>::value ||
-              !bsl::is_constructible<
-                  EXIT_FUNC,
-                  const typename bslmf::MovableRefUtil::RemoveReference<
-                      EXIT_FUNC_PARAM>::type&
-              >::value,
-              EXIT_FUNC_PARAM,
-              const typename bslmf::MovableRefUtil::RemoveReference<
-                  EXIT_FUNC_PARAM>::type&
-      >::type>(function))
+            !bsl::is_constructible<
+                EXIT_FUNC,
+                const typename MoveUtil::RemoveReference<
+                                                    EXIT_FUNC_PARAM>::type&
+            >::value,
+            EXIT_FUNC_PARAM,
+            const typename MoveUtil::RemoveReference<
+                                                    EXIT_FUNC_PARAM>::type&
+        >::type
+    >(function))
 #else  // BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
 : d_exitFunction(BSLS_COMPILERFEATURES_FORWARD(EXIT_FUNC_PARAM, function))
     // When we are unable to determine if it's safe to move the 'function'
@@ -897,10 +902,11 @@ try
 #ifdef BDE_BUILD_TARGET_EXC
 catch (...)
 {
-    bslmf::MovableRefUtil::access(function)();
+    MoveUtil::access(function)();
 }
 #endif
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
 template <class EXIT_FUNC>
 inline ScopeExit<EXIT_FUNC>::ScopeExit(void (*function)())
 #ifdef BDE_BUILD_TARGET_EXC
@@ -916,6 +922,7 @@ catch (...)
     function();
 }
 #endif
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
 
 template <class EXIT_FUNC>
 inline
@@ -928,11 +935,11 @@ ScopeExit<EXIT_FUNC>::ScopeExit(bslmf::MovableRef<ScopeExit> original)
        BDLB_SCOPEEXIT_NOEXCEPT_SPEC(
                           bsl::is_nothrow_move_constructible<EXIT_FUNC>::value)
 #endif
-: d_exitFunction(bslmf::MovableRefUtil::move_if_noexcept(
-                       bslmf::MovableRefUtil::access(original).d_exitFunction))
+: d_exitFunction(MoveUtil::move_if_noexcept(
+                                    MoveUtil::access(original).d_exitFunction))
 , d_executeOnDestruction(true)
 {
-    bslmf::MovableRefUtil::access(original).release();
+    MoveUtil::access(original).release();
 }
 
 template <class EXIT_FUNC>

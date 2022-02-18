@@ -27,9 +27,11 @@
 #include <bslmf_movableref.h>
 
 #include <bslmt_threadutil.h>
+
 #include <bsls_annotation.h>
 #include <bsls_assert.h>
 #include <bsls_atomic.h>
+#include <bsls_buildtarget.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_systemtime.h>
 #include <bsls_timeinterval.h>
@@ -471,6 +473,8 @@ struct CondDisconnectAndWait {
     }
 };
 
+#if defined(BDE_BUILD_TARGET_EXC)
+
 struct ThrowOnCall {
     // Throws an instance of 'ThrowOnCall::ExceptionType' on call.
 
@@ -514,12 +518,12 @@ struct ThrowOnCopy {
         // NOTHING
     }
 };
+#endif   // defined(BDE_BUILD_TARGET_EXC)
 
                                 // -----
                                 // Usage
                                 // -----
 
-//
 ///Usage
 ///-----
 // Suppose we want to implement a GUI button class that allows users to
@@ -819,6 +823,7 @@ static void callOperator()
                              "1#1:X_1#2:X_1#3:X_");
     }
 
+#if defined(BDE_BUILD_TARGET_EXC)
     // 2. slot throws an exception
     {
         bsl::ostringstream      out(&alloc);
@@ -850,6 +855,7 @@ static void callOperator()
         // the invocation sequence was interrupted
         ASSERT_EQ(out.str(), "1_2_");
     }
+#endif   // defined(BDE_BUILD_TARGET_EXC)
 
     // 3. use lvalue references in signaler's call signature
     {
@@ -1029,7 +1035,8 @@ static void test4_signaler_connect()
     }
 #endif
 
-    if (veryVerbose) cout << "3. connect a slot that thows on copy\n";
+#if defined(BDE_BUILD_TARGET_EXC)
+    if (veryVerbose) cout << "3. connect a slot that throws on copy\n";
     {
         bsl::ostringstream      out(&alloc);
         bdlmt::Signaler<void()> sig(&alloc);
@@ -1077,6 +1084,7 @@ static void test4_signaler_connect()
         // it works
         ASSERT_EQ(out.str(), "1_2_3_");
     }
+#endif   // defined(BDE_BUILD_TARGET_EXC)
 }
 
 namespace test5_signaler {

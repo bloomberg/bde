@@ -565,6 +565,9 @@ BSLS_IDENT("$Id: $")
 #define BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPRESSION_UNDER_TEST)                \
                                                    { EXPRESSION_UNDER_TEST; }
 
+#define BSLS_ASSERTTEST_ASSERT_INVOKE_PASS(EXPRESSION_UNDER_TEST)             \
+                                                   { EXPRESSION_UNDER_TEST; }
+
 #define BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPRESSION_UNDER_TEST)           \
                                                    { EXPRESSION_UNDER_TEST; }
 
@@ -572,6 +575,9 @@ BSLS_IDENT("$Id: $")
                                                    { EXPRESSION_UNDER_TEST; }
 
 #define BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPRESSION_UNDER_TEST)            \
+                                                   { EXPRESSION_UNDER_TEST; }
+
+#define BSLS_ASSERTTEST_ASSERT_INVOKE_PASS_RAW(EXPRESSION_UNDER_TEST)         \
                                                    { EXPRESSION_UNDER_TEST; }
 
 #define BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPRESSION_UNDER_TEST)               \
@@ -618,7 +624,7 @@ BSLS_IDENT("$Id: $")
 
 #define BSLS_ASSERTTEST_ASSERT_INVOKE_PASS(EXPRESSION_UNDER_TEST)             \
                                                    { EXPRESSION_UNDER_TEST; }
-#else
+#else  // optimized msvc
 #define BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPRESSION_UNDER_TEST)               \
              BSLS_ASSERTTEST_BRUTE_FORCE_IMP('P', 'S', EXPRESSION_UNDER_TEST)
 
@@ -630,7 +636,7 @@ BSLS_IDENT("$Id: $")
 
 #define BSLS_ASSERTTEST_ASSERT_INVOKE_PASS(EXPRESSION_UNDER_TEST)             \
              BSLS_ASSERTTEST_BRUTE_FORCE_IMP('P', 'I', EXPRESSION_UNDER_TEST)
-#endif
+#endif  // not (msvc and optimized)
 
 #if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
 #   define BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPRESSION_UNDER_TEST)            \

@@ -245,16 +245,16 @@ void testVectorArrayAccess()
     ASSERT_SAFE_FAIL( A[-1]);
     ASSERT_PASS     ( A[ 0]);
     ASSERT_SAFE_FAIL( A[ 1]);
-#else   // BDE_BUILD_TARGET_EXC
+#else   // defined(BDE_BUILD_TARGET_EXC)
 //..
 // If exceptions are not available, then we write a diagnostic message to the
 // console alerting the user that this part of the test has not run, without
 // failing the test.
 //..
     if (globalVerbose) printf(
-                       "\tDISABLED in this (non-exception) build mode.\n");
+                           "\tDISABLED in this (non-exception) build mode.\n");
 
-#endif  // BDE_BUILD_TARGET_EXC
+#endif   // !defined(BDE_BUILD_TARGET_EXC)
 }
 //..
 //
@@ -298,7 +298,7 @@ void testVectorArrayAccess2()
     ASSERT_SAFE_FAIL( A[-1]);
     ASSERT_SAFE_PASS( A[ 0]);
     ASSERT_SAFE_FAIL( A[ 1]);
-#endif   // BDE_BUILD_TARGET_EXC
+#endif   // defined(BDE_BUILD_TARGET_EXC)
 }
 //..
 
@@ -1813,7 +1813,7 @@ int main(int argc, char *argv[])
                              TESTLINE == ex.lineNumber());
             }
         }
-#endif
+#endif   // defined(BDE_BUILD_TARGET_EXC)
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -3016,7 +3016,7 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
 //    echo("    }")
 //    echo("#line BSLS_ASSERTTEST_SET_DIFFERENT_FILENAME")
 //    echo("""// [10] Define a local struct 'Production' which makes use of
-//  //     the current definitionss of the 'BSLS_ASSERT' macros with an
+//  //     the current definitions of the 'BSLS_ASSERT' macros with an
 //  //     alternate filename in place.""")
 //    printLocalClasses()
 //    echo("        // Restore filename before evaluating the test macros")
@@ -3145,7 +3145,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
     ASSERT(!BSLS_ASSERTTEST_CHECK_LEVEL_ARG)
 
 // [6] Define a local struct 'Production' which makes use of the current
-//     definitionss of the 'BSLS_ASSERT' macros.
+//     definitions of the 'BSLS_ASSERT' macros.
     {
         struct Production {
             static void callOpt(bool pass) {

@@ -1,6 +1,7 @@
 // bslstl_error.t.cpp                                                 -*-C++-*-
 #include <bslstl_error.h>
 
+#include <bsls_buildtarget.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_keyword.h>
 
@@ -209,7 +210,7 @@ struct concrete_error_category : public bsl::error_category
 native_std::string concrete_error_category::message(int) const
 {
     ASSERT(false);
-    throw;
+    abort();
 }
 
 const char *concrete_error_category::name() const BSLS_KEYWORD_NOEXCEPT
