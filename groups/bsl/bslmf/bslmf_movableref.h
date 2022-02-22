@@ -114,7 +114,7 @@ BSLS_IDENT("$Id: $")
 //:   always wrong.  In particular note that the same life-time issues apply to
 //:   'MovableRef<TYPE>' as they do to references of objects: when returning a
 //:   reference the object referred to cannot be on the stack, i.e., returning
-//:   a 'MovableRef<TYPE>' refering to a local variable or a by-value function
+//:   a 'MovableRef<TYPE>' referring to a local variable or a by-value function
 //:   parameter is certainly wrong.  Returning a 'MovableRef<TYPE>' to a
 //:   function parameter received as a reference type can be correct.
 //:
@@ -200,7 +200,7 @@ BSLS_IDENT("$Id: $")
 //          // Create an empty Vector.
 //
 //      Vector(bslmf::MovableRef<Vector> other);                    // IMPLICIT
-//          // Create a Vector by transfering the content of the specified
+//          // Create a Vector by transferring the content of the specified
 //          // 'other'.
 //
 //      Vector(const Vector& other);

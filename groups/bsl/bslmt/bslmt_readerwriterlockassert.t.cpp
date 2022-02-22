@@ -15,26 +15,27 @@
 
 #include <bslim_testutil.h>
 
-#include <bsls_assert.h>
-#include <bsls_asserttestexception.h>
-#include <bsls_atomic.h>
-#include <bsls_nameof.h>
-
 #include <bsl_cstdlib.h>
-#include <bsl_cstring.h> // 'BSL::strcpy' 'BSL::strcat'
+#include <bsl_cstring.h>    // 'bsl::strcpy' 'bsl::strcat'
 #include <bsl_deque.h>
 #include <bsl_iostream.h>
 #include <bsl_map.h>
+#include <bsl_numeric.h>    // 'bsl::accumulate'
+#include <bsl_utility.h>    // 'bsl::make_pair'
 #include <bsl_vector.h>
 
-#include <algorithm>  // 'BSL::for_each'
-#include <numeric>    // 'BSL::accumulate'
-#include <utility>    // 'BSL::make_pair'
+#include <bsls_assert.h>
+#include <bsls_asserttestexception.h>
+#include <bsls_atomic.h>
+#include <bsls_buildtarget.h>
+#include <bsls_nameof.h>
 
 #include <float.h>    // 'DBL_MIN'
 
 using namespace BloombergLP;
-using namespace bsl;
+using bsl::cout;
+using bsl::cerr;
+using bsl::endl;
 namespace BSL = native_std;  // for Usage Examples
 
 //=============================================================================
@@ -323,7 +324,7 @@ int veryVeryVerbose;
     {
         BSLMT_READERWRITERLOCKASSERT_IS_LOCKED(&d_rwLock);
 
-        int numElements = d_deque.size();
+        int numElements = static_cast<int>(d_deque.size());
 
         if (0 == numElements) {
             return BSL::make_pair(numElements, DBL_MIN);              // RETURN
@@ -399,8 +400,6 @@ struct TestCase3SubThread {
 
 namespace TestCase2 {
 
-#ifdef BDE_BUILD_TARGET_EXC
-
 enum AssertMode {
     e_NO_THROW
   , e_SAFE_MODE
@@ -413,6 +412,7 @@ int         expectedLine;
 char        cfg;
 const char *expectedLevel;
 
+#ifdef BDE_BUILD_TARGET_EXC
 void myViolationHandler(const bsls::AssertViolation& violation)
     // Confirm that the specified 'violation' has attributes consistent with
     // those set in the global variables 'mode', 'expectedLine', 'cfg', and
@@ -460,6 +460,7 @@ void myViolationHandler(const bsls::AssertViolation& violation)
                                     violation.lineNumber(),
                                     violation.assertLevel());
 }
+#endif   // BDE_BUILD_TARGET_EXC
 
 template <class RW_LOCK>
 void test()
@@ -642,13 +643,11 @@ void test()
     }
 #else  // BDE_BUILD_TARGET_EXC
 
-    if (verbose) cout << "Some tests skipped in non-exception build"
+    if (verbose) cout << "Some tests are skipped in non-exception builds."
                       << endl;
 
 #endif // BDE_BUILD_TARGET_EXC
 }
-
-#endif // BDE_BUILD_TARGET_EXC
 
 }  // close namespace TestCase2
 
@@ -733,7 +732,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   CONCERN: Testing macros on locks held by the current thread.
-        //   CONCERN: Testing macros on unlocked lock objectss.
+        //   CONCERN: Testing macros on unlocked lock objects.
         // --------------------------------------------------------------------
 
         if (verbose) cout

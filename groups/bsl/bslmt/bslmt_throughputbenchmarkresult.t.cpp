@@ -154,7 +154,9 @@ typedef bslmt::ThroughputBenchmarkResult_TestUtil TestUtil;
 //                    EXCEPTION TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
+#ifdef BDE_BUILD_TARGET_EXC
 #define EXCEPTION_COUNT bslmaExceptionCounter
+#endif
 
 // ============================================================================
 //                             GLOBAL TEST DATA
@@ -2383,6 +2385,7 @@ int main(int argc, char *argv[])
 
         }
 
+#ifdef BDE_BUILD_TARGET_EXC
         if (verbose) cout << "\nTesting with injected exceptions." << endl;
         {
             // Note that any string arguments are now of type 'string', which
@@ -2464,6 +2467,7 @@ int main(int argc, char *argv[])
                 ASSERT_FAIL(Obj(NUMSAMPLES, threadGroupSizes));
             }
         }
+#endif // defined(BDE_BUILD_TARGET_EXC)
       } break;
       case 4: {
         // --------------------------------------------------------------------

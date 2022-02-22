@@ -11,6 +11,7 @@ BSLS_IDENT("$Id: $")
 //
 //@MACROS:
 //  BSLS_KEYWORD_CONSTEXPR: C++11 'constexpr' keyword
+//  BSLS_KEYWORD_CONSTEXPR_MEMBER: for 'static constexpr' data members
 //  BSLS_KEYWORD_CONSTEXPR_RELAXED: C++14 'constexpr' keyword (Deprecated)
 //  BSLS_KEYWORD_CONSTEXPR_CPP14: C++14 'constexpr' keyword
 //  BSLS_KEYWORD_CONSTEXPR_CPP17: C++17 'constexpr' keyword
@@ -368,7 +369,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Then, just like 'useComplexConstexprFunc', we can invoke
 // 'moreComplexConstexprFunc' to populate a compile-time constant when it is
-// suported:
+// supported:
 //..
 //  void useMoreComplexConstexprFunc()
 //  {

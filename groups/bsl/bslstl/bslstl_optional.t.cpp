@@ -17,8 +17,9 @@
 
 #include <bslmf_issame.h>
 
-#include <bsls_nameof.h>
+#include <bsls_buildtarget.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_nameof.h>
 
 // A list of disabled tests :
 //
@@ -10198,11 +10199,15 @@ void TestDriver<TYPE>::testCase4b()
     //
     // --------------------------------------------------------------------
 
+
+#ifdef BDE_BUILD_TARGET_EXC
     bool unexpected_exception_thrown = false;
     try {
+#endif
         Obj        mX;
         const Obj& X = mX;
 
+#ifdef BDE_BUILD_TARGET_EXC
         bool bad_optional_exception_caught = false;
         try {
             (void) mX.value();
@@ -10212,6 +10217,7 @@ void TestDriver<TYPE>::testCase4b()
         }
         ASSERT(bad_optional_exception_caught);
         bad_optional_exception_caught = false;
+#endif
 
         mX.emplace(3);
         ASSERT(mX.value().value() == 3);
@@ -10230,6 +10236,7 @@ void TestDriver<TYPE>::testCase4b()
         ASSERT(isRvalueRef(ObjC(4).value()));
 #endif  // defined(BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS)
 
+#ifdef BDE_BUILD_TARGET_EXC
         mX.reset();
         try {
             (void) mX.value();
@@ -10245,6 +10252,7 @@ void TestDriver<TYPE>::testCase4b()
     }
     ASSERT(unexpected_exception_thrown == false);
     unexpected_exception_thrown = false;
+#endif  // defined(BDE_BUILD_TARGET_EXC)
 }
 
 template <class TYPE>

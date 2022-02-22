@@ -157,7 +157,7 @@ namespace {
             // Create an empty Vector.
 
         Vector(bslmf::MovableRef<Vector> other);                    // IMPLICIT
-            // Create a Vector by transfering the content of the specified
+            // Create a Vector by transferring the content of the specified
             // 'other'.
 
         Vector(const Vector& other);
