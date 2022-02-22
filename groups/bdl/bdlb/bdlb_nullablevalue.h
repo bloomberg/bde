@@ -134,7 +134,6 @@ BSLS_IDENT("$Id: $")
 #include <bsl_algorithm.h>
 #include <bsl_iosfwd.h>
 #include <bsl_new.h>
-#include <bsl_type_traits.h>
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bslalg_typetraits.h>
@@ -467,20 +466,6 @@ class NullableValue : public bsl::optional<TYPE> {
         // of 'rhs' are either move-inserted into or move-assigned to this
         // object.  'rhs' is left in a valid but unspecified state.
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-    // 'is_assignable' is only available in C++11 and beyond.
-
-    template <class BDE_OTHER_TYPE>
-    typename bsl::enable_if<bsl::is_assignable<bsl::optional<TYPE>,
-                                               BDE_OTHER_TYPE>::value,
-                            NullableValue<TYPE>&>::type
-    operator=(BDE_OTHER_TYPE&& rhs);
-        // Assign to this object the value of the specified 'rhs' object (of
-        // 'BDE_OTHER_TYPE') converted to 'TYPE', and return a reference
-        // providing modifiable access to this object.  Note that this method
-        // will fail to compile if 'TYPE' and 'BDE_OTHER_TYPE' are not
-        // compatible.
-#else
     template <class BDE_OTHER_TYPE>
     NullableValue<TYPE>& operator=(const BDE_OTHER_TYPE& rhs);
         // Assign to this object the value of the specified 'rhs' object (of
@@ -488,6 +473,10 @@ class NullableValue : public bsl::optional<TYPE> {
         // providing modifiable access to this object.  Note that this method
         // will fail to compile if 'TYPE' and 'BDE_OTHER_TYPE' are not
         // compatible.
+
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    // Disable on and after C++11.  Turns into perfect forwarding, causing
+    // complications.
 
     template <class BDE_OTHER_TYPE>
     NullableValue<TYPE>& operator=(bslmf::MovableRef<BDE_OTHER_TYPE> rhs);
@@ -1264,23 +1253,6 @@ NullableValue<TYPE>& NullableValue<TYPE>::operator=(
     return *this;
 }
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) &&               \
-                                     201103L <= BSLS_COMPILERFEATURES_CPLUSPLUS
-template <class TYPE>
-template <class BDE_OTHER_TYPE>
-inline
-typename bsl::enable_if<bsl::is_assignable<bsl::optional<TYPE>,
-                                           BDE_OTHER_TYPE>::value,
-                        NullableValue<TYPE>&>::type
-NullableValue<TYPE>::operator=(BDE_OTHER_TYPE&& rhs)
-{
-    Base& base = *this;
-
-    base = BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, rhs);
-
-    return *this;
-}
-#else
 template <class TYPE>
 template <class BDE_OTHER_TYPE>
 inline
@@ -1296,6 +1268,7 @@ NullableValue<TYPE>& NullableValue<TYPE>::operator=(const BDE_OTHER_TYPE& rhs)
     return *this;
 }
 
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 template <class TYPE>
 template <class BDE_OTHER_TYPE>
 inline

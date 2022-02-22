@@ -6480,11 +6480,15 @@ int main(int argc, char *argv[])
         //
         // Concern:
         //: 1 Sometimes an argument was interpreted as a "movable reference"
-        //:   when, in fact, it was a forwarding reference.
+        //:   when, in fact, it was a forwarding reference.  Actually, the
+        //:   code had to be re-written -- the forwarding reference turned out
+        //:   to be very problematic, so on C++11 and beyond, we only support
+        //:   assignment from a const reference.
         //
         // Plan:
-        //: 1 Do a non-moving assignment of an object to a nullablevalue
-        //:   containing another type the object is convertible to.
+        //: 1 Do non-moving & moving assignment of an object to a nullablevalue
+        //:   containing another type the object is convertible to.  Observe
+        //:   that the moving behavior is as expected.
         // --------------------------------------------------------------------
 
         namespace TC = MoveFromAllocTypeSpace;
@@ -6522,8 +6526,17 @@ int main(int argc, char *argv[])
 
         mY = MoveUtil::move(mX);
 
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
         ASSERT_IS_MOVED_FROM(mX);
         ASSERT_IS_MOVED_INTO(mY.value());
+#else
+        // Move assignment was interpreted as perfect forwarding on C++11 and
+        // beyond, was problematic, overload removed, only const ref overload
+        // supported.
+
+        ASSERT_IS_NOT_MOVED_FROM(mX);
+        ASSERT_IS_NOT_MOVED_INTO(mY.value());
+#endif
         ASSERT(mY->data() == 10);
 
         mOX->setData(4);
