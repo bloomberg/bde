@@ -103,7 +103,7 @@ int PipeControlChannel::sendEmptyMessage()
         return -1;                                                    // RETURN
     }
     pipe = CreateFileW(wPipeName.c_str(), GENERIC_WRITE, 0, NULL,
-                       OPEN_EXISTING, 0, NULL);
+                       OPEN_EXISTING, FILE_FLAG_OVERLAPPED, NULL);
     if (INVALID_HANDLE_VALUE == pipe) {
         return 2;                                                     // RETURN
     }
@@ -353,6 +353,16 @@ int PipeControlChannel::readNamedPipe()
 int
 PipeControlChannel::sendEmptyMessage()
 {
+    if (-1 == fcntl(d_impl.d_unix.d_writeFd, F_SETFL, O_NONBLOCK)) {
+        int savedErrno = errno;
+        BSLS_LOG_ERROR(
+             "Unable to set 'O_NONBLOCK' on '%s' for writing. errno = %d (%s)",
+             d_pipeName.c_str(),
+             savedErrno,
+             bsl::strerror(savedErrno));
+        return 3;                                                     // RETURN
+    }
+
     write(d_impl.d_unix.d_writeFd, "\n", 1);
     return 0;
 }
@@ -495,7 +505,10 @@ void PipeControlChannel::backgroundProcessor()
         }
     }
 
+    bslmt::ThreadUtil::microSleep(2 * 1000 * 1000);
+
     d_backgroundState = e_STOPPED;
+
     BSLS_LOG_TRACE("The background thread has stopped");
 }
 
