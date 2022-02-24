@@ -505,8 +505,6 @@ void PipeControlChannel::backgroundProcessor()
         }
     }
 
-    bslmt::ThreadUtil::microSleep(2 * 1000 * 1000);
-
     d_backgroundState = e_STOPPED;
 
     BSLS_LOG_TRACE("The background thread has stopped");
