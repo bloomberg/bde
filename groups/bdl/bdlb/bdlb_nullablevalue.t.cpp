@@ -6526,11 +6526,16 @@ int main(int argc, char *argv[])
 
         mY = MoveUtil::move(mX);
 
-        // Move assignment was interpreted as perfect forwarding on C++11 and
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES        // Move assignment was interpreted as perfect forwarding on C++11 and
         // beyond, was problematic, overload removed, only copies supported.
+        // We get an 'accidental' move on C++03 but only a copy on C++11.
 
         ASSERT_IS_NOT_MOVED_FROM(mX);
         ASSERT_IS_NOT_MOVED_INTO(mY.value());
+#else
+        ASSERT_IS_MOVED_FROM(mX);
+        ASSERT_IS_MOVED_INTO(mY.value());
+#endif
 
         ASSERT(mY->data() == 10);
 
