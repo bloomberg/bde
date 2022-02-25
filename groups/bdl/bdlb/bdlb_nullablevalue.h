@@ -475,8 +475,19 @@ class NullableValue : public bsl::optional<TYPE> {
         // compatible.
 
 #ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-    // Disable on and after C++11.  Turns into perfect forwarding, causing
-    // complications.
+    // The above method and the one below were combined into perfect forwarding
+    // on C++11, but that turned out to be problematic so we disabled moves
+    // of 'BDE_OTHER_TYPE' in assignment.
+
+    // However, on C++03, in the above method, if 'BDE_OTHER_TYPE' is
+    // 'bslmf::MovableRef<TYPE3>' and 'TYPE' supports move assigns or
+    // construction from 'bslmf::MovableRef<TYPE3>', then moves will happen.
+    // In C++11, if a 'BDE_OTHER_TYPE&&' is passed to the above method, a copy
+    // will happen.
+
+    // To thwart his and make the move behavior the same across C++11, we
+    // introduce the following assignment, which takes a
+    // 'MovableRef<BDE_OTHER_TYPE>' and just does a copy.
 
     template <class BDE_OTHER_TYPE>
     NullableValue<TYPE>& operator=(bslmf::MovableRef<BDE_OTHER_TYPE> rhs);
@@ -1275,11 +1286,13 @@ inline
 NullableValue<TYPE>&
           NullableValue<TYPE>::operator=(bslmf::MovableRef<BDE_OTHER_TYPE> rhs)
 {
+    const BDE_OTHER_TYPE& rhsLocal = rhs;
+
     if (this->has_value()) {
-        this->value() = MoveUtil::move(rhs);
+        this->value() = rhsLocal;
     }
     else {
-        this->emplace(MoveUtil::move(rhs));
+        this->emplace(rhsLocal);
     }
 
     return *this;

@@ -6526,17 +6526,12 @@ int main(int argc, char *argv[])
 
         mY = MoveUtil::move(mX);
 
-#ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-        ASSERT_IS_MOVED_FROM(mX);
-        ASSERT_IS_MOVED_INTO(mY.value());
-#else
         // Move assignment was interpreted as perfect forwarding on C++11 and
-        // beyond, was problematic, overload removed, only const ref overload
-        // supported.
+        // beyond, was problematic, overload removed, only copies supported.
 
         ASSERT_IS_NOT_MOVED_FROM(mX);
         ASSERT_IS_NOT_MOVED_INTO(mY.value());
-#endif
+
         ASSERT(mY->data() == 10);
 
         mOX->setData(4);
