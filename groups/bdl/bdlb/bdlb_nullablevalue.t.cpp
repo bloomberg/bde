@@ -6526,7 +6526,8 @@ int main(int argc, char *argv[])
 
         mY = MoveUtil::move(mX);
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES        // Move assignment was interpreted as perfect forwarding on C++11 and
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+        // Move assignment was interpreted as perfect forwarding on C++11 and
         // beyond, was problematic, overload removed, only copies supported.
         // We get an 'accidental' move on C++03 but only a copy on C++11.
 
