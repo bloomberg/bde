@@ -131,7 +131,7 @@ int PipeControlChannel::readNamedPipe()
 
         DWORD lastError = GetLastError();
         if (lastError != ERROR_PIPE_CONNECTED && lastError != ERROR_NO_DATA) {
-            BSLS_LOG_TRACE("Failed to connect to named pipe '%s'",
+            BSLS_LOG_ERROR("Failed to connect to named pipe '%s'",
                            d_pipeName.c_str());
             return -1;                                                // RETURN
         }
@@ -301,7 +301,7 @@ int PipeControlChannel::readNamedPipe()
         }
 
         if ((fds.revents & POLLERR) || (fds.revents & POLLNVAL)) {
-            BSLS_LOG_TRACE("Polled POLLERROR or POLLINVAL from file "
+            BSLS_LOG_ERROR("Polled POLLERROR or POLLINVAL from file "
                            "descriptor of pipe '%s', errno = %d: %s",
                            d_pipeName.c_str(), savedErrno,
                            bsl::strerror(savedErrno));
@@ -353,14 +353,20 @@ int PipeControlChannel::readNamedPipe()
 int
 PipeControlChannel::sendEmptyMessage()
 {
-    if (-1 == fcntl(d_impl.d_unix.d_writeFd, F_SETFL, O_NONBLOCK)) {
-        int savedErrno = errno;
-        BSLS_LOG_ERROR(
-             "Unable to set 'O_NONBLOCK' on '%s' for writing. errno = %d (%s)",
-             d_pipeName.c_str(),
-             savedErrno,
-             bsl::strerror(savedErrno));
-        return 3;                                                     // RETURN
+    const int flags = fcntl(d_impl.d_unix.d_writeFd, F_GETFL);
+    if (-1 != flags && !(flags & O_NONBLOCK)) {
+        if (-1 == fcntl(d_impl.d_unix.d_writeFd,
+                        F_SETFL,
+                        flags | O_NONBLOCK)) {
+            int savedErrno = errno;
+            BSLS_LOG_ERROR("Unable to set 'O_NONBLOCK' on '%s' for"
+                                                   " writing. errno = %d (%s)",
+                           d_pipeName.c_str(),
+                           savedErrno,
+                           bsl::strerror(savedErrno));
+
+            return 3;                                                 // RETURN
+        }
     }
 
     write(d_impl.d_unix.d_writeFd, "\n", 1);
@@ -501,7 +507,8 @@ void PipeControlChannel::backgroundProcessor()
         if (0 != readNamedPipe()) {
             BSLS_LOG_WARN("Error processing M-trap: unable to read from named"
                           " pipe '%s'", d_pipeName.c_str());
-            return;                                                   // RETURN
+
+            break;
         }
     }
 
