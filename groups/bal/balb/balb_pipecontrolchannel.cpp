@@ -563,11 +563,9 @@ int PipeControlChannel::start(const char                     *pipeName,
 
 void PipeControlChannel::shutdown()
 {
-    if (d_backgroundState != e_RUNNING) {
+    if (e_RUNNING != d_backgroundState.testAndSwap(e_RUNNING, e_STOPPING)) {
         return;                                                       // RETURN
     }
-
-    d_backgroundState = e_STOPPING;
 
     if (bslmt::ThreadUtil::self() == d_thread) {
         // When 'shutdown' is called from the same thread as the background
