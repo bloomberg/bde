@@ -1645,12 +1645,12 @@ int main(int argc, char *argv[])
             interval = bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)
                      - interval;
 
+            bslmt::ThreadUtil::join(handle);
+
             ASSERT(   s_deferredPopFrontInterval.totalSecondsAsDouble() * 0.8
                                            <= interval.totalSecondsAsDouble()
                    && s_deferredPopFrontInterval.totalSecondsAsDouble() * 1.5
                                            >= interval.totalSecondsAsDouble());
-
-            bslmt::ThreadUtil::join(handle);
 
             s_continue = 0;
 
