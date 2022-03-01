@@ -64,6 +64,7 @@ bslmf_nestedtraitdeclaration
 bslmf_nil
 bslmf_nthparameter
 bslmf_nthparameter_cpp03
+bslmf_pointertomembertraits
 bslmf_removeconst
 bslmf_removecv
 bslmf_removecvq
@@ -81,3 +82,4 @@ bslmf_usesallocator
 bslmf_usesallocatorargt
 bslmf_util
 bslmf_voidtype
+
