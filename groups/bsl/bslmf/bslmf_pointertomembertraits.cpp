@@ -2,7 +2,7 @@
 #include <bslmf_pointertomembertraits.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bslmf_pointertomembertraits_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bslmf_pointertomembertraits_cpp, "$Id$ $CSID$")
 
 namespace BloombergLP {
 namespace bslmf {
