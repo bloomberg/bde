@@ -1,6 +1,8 @@
 // bdlt_dateutil.t.cpp                                                -*-C++-*-
 #include <bdlt_dateutil.h>
 
+#include <bslim_fuzzdataview.h>
+#include <bslim_fuzzutil.h>
 #include <bslim_testutil.h>
 
 #include <bsls_asserttest.h>
@@ -115,6 +117,72 @@ const bdlt::DayOfWeek::Enum e_WED = bdlt::DayOfWeek::e_WED;
 const bdlt::DayOfWeek::Enum e_THU = bdlt::DayOfWeek::e_THU;
 const bdlt::DayOfWeek::Enum e_FRI = bdlt::DayOfWeek::e_FRI;
 const bdlt::DayOfWeek::Enum e_SAT = bdlt::DayOfWeek::e_SAT;
+
+//=============================================================================
+//                              FUZZ TESTING
+//-----------------------------------------------------------------------------
+//                              Overview
+//                              --------
+// The following function, 'LLVMFuzzerTestOneInput', is the entry point for the
+// clang fuzz testing facility.  See {http://bburl/BDEFuzzTesting} for details
+// on how to build and run with fuzz testing enabled.
+//-----------------------------------------------------------------------------
+
+#ifdef BDE_ACTIVATE_FUZZ_TESTING
+#define main test_driver_main
+#endif
+
+extern "C"
+int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
+    // Use the specified 'data' array of 'size' bytes as input to methods of
+    // this component and return zero.
+{
+    bslim::FuzzDataView fdv(data, size);
+    int test = bslim::FuzzUtil::consumeNumberInRange<int>(&fdv, 1, 1);
+
+    switch (test) { case 0:  // Zero is always the leading case.
+      case 1: {
+        // --------------------------------------------------------------------
+        // FUZZ TESTING 'lastDayInMonth'
+        //
+        // Concern:
+        //: 1 That if integers in the prescribed ranges for 'year' and 'month'
+        //:   are passed as arguments to the function, a valid 'Date' is
+        //:   returned.
+        //
+        // Plan:
+        //: 1 Create a 'bslim::FuzzDataView' from the fuzz data.  Pass it to
+        //:   'bslim::FuzzUtil' to generate valid 'int' values (i.e., [1 .. 12]
+        //:   for 'month' and [1 .. 9999] for 'year') and invoke
+        //:   'DateUtil::lastDayInMonth' with these values.
+        //:
+        //: 2 Verify that the 'Date' returned from the function is valid.
+        //
+        // Testing:
+        //   DateUtil::lastDayInMonth(int year, int month);
+        // --------------------------------------------------------------------
+
+        int month = bslim::FuzzUtil::consumeNumberInRange<int>(&fdv, 1, 12);
+        int year  = bslim::FuzzUtil::consumeNumberInRange<int>(&fdv, 1, 9999);
+
+        bdlt::Date date = bdlt::DateUtil::lastDayInMonth(year, month);
+
+        int y, m, d;
+        date.getYearMonthDay(&y, &m, &d);
+        ASSERT(bdlt::Date::isValidYearMonthDay(y, m, d));
+      } break;
+      default: {
+      } break;
+    }
+
+    if (testStatus > 0) {
+        BSLS_ASSERT_INVOKE("FUZZ TEST FAILURES");
+    }
+
+    return 0;
+}
+
+
 
 // ============================================================================
 //                                 MAIN PROGRAM
