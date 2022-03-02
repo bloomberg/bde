@@ -156,6 +156,11 @@ struct BASE{
             TEST_PARAMETER_1)
         {return d_class;}
 
+    int funcWithElipses(...) {return d_int;}
+    int funcRValueRef() && {return d_int;}
+    int funcLValueRef() & {return d_int;}
+    int funcNoExcept() noexcept {return d_int;}
+
     // default constructor setting const members
     BASE()
         : d_constInt(0)
@@ -237,6 +242,11 @@ typedef TEST_CLASS_TYPE
 typedef TEST_CLASS_TYPE
     (BASE::*PtrToMemberFuncReturningClassWithParams)(TEST_PARAMETER_0,
                                                      TEST_PARAMETER_1);
+
+typedef int (BASE::*PtrToMemberFuncWithElipses)(...);
+typedef int (BASE::*PtrToMemberFuncRValueRef)() &&;
+typedef int (BASE::*PtrToMemberFuncLValueRef)() &;
+typedef int (BASE::*PtrToMemberFuncNoExcept)() noexcept;
 
 // ============================================================================
 //                                   USAGE
@@ -598,6 +608,38 @@ int main(int argc, char *argv[])
         TestType v = &BASE::virtualFuncReturningClassWithParams; (void) v;
         ASSERT_SAME(TEST_CLASS_TYPE (TEST_PARAMETER_0, TEST_PARAMETER_1),
                 X::MemberType);
+        ASSERT_SAME(BASE, X::ClassType);
+    }
+//typedef int (BASE::*PtrToMemberFuncWithElipses)(...);
+    {
+        typedef PtrToMemberFuncWithElipses TestType;
+        typedef bslmf::PointerToMemberTraits<TestType> X;
+        TestType x = &BASE::funcWithElipses; (void) x;
+        ASSERT_SAME(int (...), X::MemberType);
+        ASSERT_SAME(BASE, X::ClassType);
+    }
+//typedef int (BASE::*PtrToMemberFuncRValueRef)() &&;
+    {
+        typedef PtrToMemberFuncRValueRef TestType;
+        typedef bslmf::PointerToMemberTraits<TestType> X;
+        TestType x = &BASE::funcRValueRef; (void) x;
+        ASSERT_SAME(int ()  &&, X::MemberType);
+        ASSERT_SAME(BASE, X::ClassType);
+    }
+//typedef int (BASE::*PtrToMemberFuncLValueRef)() &;
+    {
+        typedef PtrToMemberFuncLValueRef TestType;
+        typedef bslmf::PointerToMemberTraits<TestType> X;
+        TestType x = &BASE::funcLValueRef; (void) x;
+        ASSERT_SAME(int () &, X::MemberType);
+        ASSERT_SAME(BASE, X::ClassType);
+    }
+//typedef int (BASE::*PtrToMemberFuncNoExcept)() noexcept;
+    {
+        typedef PtrToMemberFuncNoExcept TestType;
+        typedef bslmf::PointerToMemberTraits<TestType> X;
+        TestType x = &BASE::funcNoExcept; (void) x;
+        ASSERT_SAME(int () noexcept, X::MemberType);
         ASSERT_SAME(BASE, X::ClassType);
     }
       } break;
