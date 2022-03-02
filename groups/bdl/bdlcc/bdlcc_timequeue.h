@@ -763,8 +763,12 @@ class TimeQueue {
         // Internal typedef for the time index map.
 
     typedef typename NodeMap::iterator       MapIter;
+        // Internal typedef for the iterator type used to navigate the time
+        // index.
+
     typedef typename NodeMap::const_iterator MapCIter;
-        // Internal typedefs for the iterator used to navigate the time index.
+        // Internal typedef for the const-iterator type used to navigate the
+        // time index.
 
     // PRIVATE DATA MEMBERS
     const int                d_indexMask;
@@ -1036,7 +1040,8 @@ class TimeQueue {
 
     // ACCESSORS
     int length() const;
-        // Return a "snapshot" of the current number of items in this queue.
+        // Return number of items in this queue.  Note that the value returned
+        // may be obsolete by the time it is received.
 
     bool isRegisteredHandle(Handle handle) const;
     bool isRegisteredHandle(Handle handle, const Key& key) const;
@@ -1049,8 +1054,9 @@ class TimeQueue {
         // queue is empty.
 
     int countLE(const bsls::TimeInterval& time) const;
-        // Return a "snapshot" of the current number of items in this queue
-        // that have a time value less than or equal to the specified 'time'.
+        // Return the number of items in this queue that have a time value less
+        // than or equal to the specified 'time'.  Note that the value returned
+        // may be obsolete by the time it is received.
 };
 
                             // ====================
@@ -1889,8 +1895,7 @@ int TimeQueue<DATA>::countLE(const bsls::TimeInterval& time) const
     bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
     for (MapCIter it = d_map.cbegin();
-         (it != d_map.cend()) && (it->first <= time) &&
-         (bsl::numeric_limits<int>::max() != count);
+         it != d_map.cend() && it->first <= time;
          ++it) {
         Node *first = it->second;
         Node *node  = first;
@@ -1898,8 +1903,7 @@ int TimeQueue<DATA>::countLE(const bsls::TimeInterval& time) const
         do {
             ++count;
             node = node->d_next_p;
-        } while ((node != first) &&
-                 (bsl::numeric_limits<int>::max() != count));
+        } while (node != first);
     }
 
     return count;

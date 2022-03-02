@@ -79,6 +79,7 @@ using namespace bsl;  // automatically added by script
 // [3 ] int length() const;
 // [3 ] bool isRegisteredHandle(int handle) const;
 // [3 ] int minTime(bsls::TimeInterval *buffer);
+// [3 ] int countLE(const bsls::TimeInterval& time) const;
 //-----------------------------------------------------------------------------
 // [1 ] BREATHING TEST
 // [2 ] CLASS 'bdlcc::TimeQueueItem'
@@ -2973,6 +2974,7 @@ int main(int argc, char *argv[])
         //   int length() const;
         //   bool isRegisteredHandle(int handle) const;
         //   int minTime(bsls::TimeInterval *buffer);
+        //   int countLE(const bsls::TimeInterval& time) const;
         // --------------------------------------------------------------------
 
         if (verbose)
