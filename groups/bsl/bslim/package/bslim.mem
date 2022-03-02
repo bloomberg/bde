@@ -1,5 +1,7 @@
 bslim_bslstandardheadertest
 bslim_formatguard
+bslim_fuzzdataview
+bslim_fuzzutil
 bslim_gtestutil
 bslim_printer
 bslim_testutil
