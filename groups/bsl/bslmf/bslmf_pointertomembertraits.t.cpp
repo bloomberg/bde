@@ -583,7 +583,6 @@ int main(int argc, char *argv[])
                 X::MemberType);
         ASSERT_SAME(BASE, X::ClassType);
     }
-//typedef int (BASE::*PtrToMemberFuncWithElipses)(...);
     {
         typedef PtrToMemberFuncWithElipses TestType;
         typedef bslmf::PointerToMemberTraits<TestType> X;
@@ -591,7 +590,6 @@ int main(int argc, char *argv[])
         ASSERT_SAME(int (...), X::MemberType);
         ASSERT_SAME(BASE, X::ClassType);
     }
-//typedef int (BASE::*PtrToMemberFuncRValueRef)() &&;
     {
         typedef PtrToMemberFuncRValueRef TestType;
         typedef bslmf::PointerToMemberTraits<TestType> X;
@@ -599,7 +597,6 @@ int main(int argc, char *argv[])
         ASSERT_SAME(int ()  &&, X::MemberType);
         ASSERT_SAME(BASE, X::ClassType);
     }
-//typedef int (BASE::*PtrToMemberFuncLValueRef)() &;
     {
         typedef PtrToMemberFuncLValueRef TestType;
         typedef bslmf::PointerToMemberTraits<TestType> X;
@@ -607,7 +604,6 @@ int main(int argc, char *argv[])
         ASSERT_SAME(int () &, X::MemberType);
         ASSERT_SAME(BASE, X::ClassType);
     }
-//typedef int (BASE::*PtrToMemberFuncNoExcept)() noexcept;
     {
         typedef PtrToMemberFuncNoExcept TestType;
         typedef bslmf::PointerToMemberTraits<TestType> X;
