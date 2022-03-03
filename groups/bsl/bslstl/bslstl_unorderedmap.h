@@ -956,6 +956,7 @@ BSL_OVERRIDES_STD mode"
 #include <bslma_allocatortraits.h>
 #include <bslma_allocatortraits.h>
 #include <bslma_destructorguard.h>
+#include <bslma_isstdallocator.h>
 #include <bslma_stdallocator.h>
 #include <bslma_usesbslmaallocator.h>
 
@@ -1187,19 +1188,43 @@ class unordered_map {
         // bucket allocation strategy of the hash-table (but never fewer).
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+# ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+    template <
+    class = bsl::enable_if_t<std::is_invocable_v<HASH, const KEY &>>,
+    class = bsl::enable_if_t<
+                         std::is_invocable_v<EQUAL, const KEY &, const KEY &>>,
+    class = bsl::enable_if_t< bsl::IsStdAllocator_v<ALLOCATOR>>
+    >
+# endif
     unordered_map(
             std::initializer_list<value_type> values,
             size_type                         initialNumBuckets = 0,
             const HASH&                       hashFunction      = HASH(),
             const EQUAL&                      keyEqual          = EQUAL(),
             const ALLOCATOR&                  basicAllocator    = ALLOCATOR());
+# ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+    template <
+    class = bsl::enable_if_t<std::is_invocable_v<HASH, const KEY &>>,
+    class = bsl::enable_if_t< bsl::IsStdAllocator_v<ALLOCATOR>>
+    >
+# endif
     unordered_map(std::initializer_list<value_type> values,
                   size_type                         initialNumBuckets,
                   const HASH&                       hashFunction,
                   const ALLOCATOR&                  basicAllocator);
+# ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+    template <
+    class = bsl::enable_if_t< bsl::IsStdAllocator_v<ALLOCATOR>>
+    >
+# endif
     unordered_map(std::initializer_list<value_type> values,
                   size_type                         initialNumBuckets,
                   const ALLOCATOR&                  basicAllocator);
+# ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+    template <
+    class = bsl::enable_if_t< bsl::IsStdAllocator_v<ALLOCATOR>>
+    >
+# endif
     unordered_map(std::initializer_list<value_type> values,
                   const ALLOCATOR&                  basicAllocator);
         // Create an empty unordered map, having a 'max_load_factor' of 1.0,
@@ -1875,6 +1900,346 @@ class unordered_map {
         // resources.
 };
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+// CLASS TEMPLATE DEDUCTION GUIDES
+
+template <
+    class KEY,
+    class VALUE,
+    class HASH,
+    class EQUAL,
+    class ALLOCATOR,
+    class ALLOC,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>
+    >
+unordered_map(unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>, ALLOC *)
+-> unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>;
+    // Deduce the template parameters 'KEY', 'VALUE', 'HASH', 'EQUAL' and
+    // 'ALLOCATOR' from the corresponding template parameters of the
+    // 'bsl::unordered_map' supplied to the constructor of 'unordered_map'.
+
+template <
+    class INPUT_ITERATOR,
+    class KEY = BloombergLP::bslstl::IteratorUtil::IterKey_t<INPUT_ITERATOR>,
+    class VALUE =
+               BloombergLP::bslstl::IteratorUtil::IterMapped_t<INPUT_ITERATOR>,
+    class HASH = bsl::hash<KEY>,
+    class EQUAL = bsl::equal_to<KEY>,
+    class ALLOCATOR = bsl::allocator<pair<const KEY, VALUE>>,
+    class = bsl::enable_if_t<std::is_invocable_v<HASH, const KEY &>>,
+    class = bsl::enable_if_t<
+                         std::is_invocable_v<EQUAL, const KEY &, const KEY &>>,
+    class = bsl::enable_if_t<bsl::IsStdAllocator_v<ALLOCATOR>>
+    >
+unordered_map(INPUT_ITERATOR,
+              INPUT_ITERATOR,
+              typename bsl::allocator_traits<ALLOCATOR>::size_type = 0,
+              HASH = HASH(),
+              EQUAL = EQUAL(),
+              ALLOCATOR = ALLOCATOR())
+-> unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>;
+    // Deduce the template parameters 'KEY' and 'VALUE' from the 'value_type'
+    // of the iterators supplied to the constructor of 'unordered_map'.  Deduce
+    // the template parameters 'HASH', 'EQUAL' and 'ALLOCATOR' from the other
+    // parameters passed to the constructor of 'unordered_map'.  This deduction
+    // guide does not participate unless: (1) the supplied 'HASH' is invokable
+    // with a 'KEY', (2) the supplied 'EQUAL' is invokable with two 'KEY's, and
+    // (3) the supplied allocator meets the requirements of a standard
+    // allocator.
+template <
+    class INPUT_ITERATOR,
+    class HASH,
+    class EQUAL,
+    class ALLOC,
+    class KEY = BloombergLP::bslstl::IteratorUtil::IterKey_t<INPUT_ITERATOR>,
+    class VALUE =
+               BloombergLP::bslstl::IteratorUtil::IterMapped_t<INPUT_ITERATOR>,
+    class DEFAULT_ALLOCATOR = bsl::allocator<pair<const KEY, VALUE>>,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, DEFAULT_ALLOCATOR>>
+    >
+unordered_map(INPUT_ITERATOR,
+              INPUT_ITERATOR,
+              typename bsl::allocator_traits<DEFAULT_ALLOCATOR>::size_type,
+              HASH,
+              EQUAL,
+              ALLOC *)
+-> unordered_map<KEY, VALUE, HASH, EQUAL>;
+    // Deduce the template parameters 'KEY' and 'VALUE' from the 'value_type'
+    // of the iterators supplied to the constructor of 'unordered_map'.  Deduce
+    // the template parameters 'HASH' and "EQUAL' from the other parameters
+    // passed to the constructor of 'unordered_map'.  This deduction guide does
+    // not participate unless the supplied allocator is convertible to
+    // 'bsl::allocator<bsl::pair<const KEY, VALUE>>'.
+
+template <
+    class INPUT_ITERATOR,
+    class HASH,
+    class ALLOCATOR,
+    class KEY = BloombergLP::bslstl::IteratorUtil::IterKey_t<INPUT_ITERATOR>,
+    class VALUE =
+               BloombergLP::bslstl::IteratorUtil::IterMapped_t<INPUT_ITERATOR>,
+    class = bsl::enable_if_t<std::is_invocable_v<HASH, const KEY &>>,
+    class = bsl::enable_if_t<bsl::IsStdAllocator_v<ALLOCATOR>>
+    >
+unordered_map(INPUT_ITERATOR,
+              INPUT_ITERATOR,
+              typename bsl::allocator_traits<ALLOCATOR>::size_type,
+              HASH,
+              ALLOCATOR)
+-> unordered_map<KEY, VALUE, HASH, bsl::equal_to<KEY>, ALLOCATOR>;
+    // Deduce the template parameters 'KEY' and 'VALUE' from the 'value_type'
+    // of the iterators supplied to the constructor of 'unordered_map'.  Deduce
+    // the template parameters 'HASH' and 'ALLOCATOR' from the other
+    // parameters passed to the constructor of 'unordered_map'.  This deduction
+    // guide does not participate unless the supplied hash is invokable with a
+    // 'KEY' and the supplied allocator meets the requirements of a standard
+    // allocator.
+
+template <
+    class INPUT_ITERATOR,
+    class HASH,
+    class ALLOC,
+    class KEY = BloombergLP::bslstl::IteratorUtil::IterKey_t<INPUT_ITERATOR>,
+    class VALUE =
+               BloombergLP::bslstl::IteratorUtil::IterMapped_t<INPUT_ITERATOR>,
+    class DEFAULT_ALLOCATOR = bsl::allocator<bsl::pair<const KEY, VALUE>>,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, DEFAULT_ALLOCATOR>>
+    >
+unordered_map(INPUT_ITERATOR,
+              INPUT_ITERATOR,
+              typename bsl::allocator_traits<DEFAULT_ALLOCATOR>::size_type,
+              HASH,
+              ALLOC *)
+-> unordered_map<KEY, VALUE, HASH>;
+    // Deduce the template parameters 'KEY' and 'VALUE' from the 'value_type'
+    // of the iterators supplied to the constructor of 'unordered_map'.  Deduce
+    // the template parameter 'HASH' from the other parameters passed to the
+    // constructor of 'unordered_map'.  This deduction guide does not
+    // participate unless the supplied allocator is convertible to
+    // 'bsl::allocator<bsl::pair<const KEY, VALUE>>'.
+
+template <
+    class INPUT_ITERATOR,
+    class ALLOCATOR,
+    class KEY = BloombergLP::bslstl::IteratorUtil::IterKey_t<INPUT_ITERATOR>,
+    class VALUE =
+               BloombergLP::bslstl::IteratorUtil::IterMapped_t<INPUT_ITERATOR>,
+    class = bsl::enable_if_t<bsl::IsStdAllocator_v<ALLOCATOR>>
+    >
+unordered_map(INPUT_ITERATOR,
+              INPUT_ITERATOR,
+              typename bsl::allocator_traits<ALLOCATOR>::size_type,
+              ALLOCATOR)
+-> unordered_map<KEY, VALUE, bsl::hash<KEY>, bsl::equal_to<KEY>, ALLOCATOR>;
+    // Deduce the template parameters 'KEY' and 'VALUE' from the 'value_type'
+    // of the iterators supplied to the constructor of 'unordered_map'.  Deduce
+    // the template parameter 'ALLOCATOR' from the other parameter passed to
+    // the constructor of 'unordered_map'.  This deduction guide does not
+    // participate unless the supplied allocator meets the requirements of a
+    // standard allocator.
+
+template <
+    class INPUT_ITERATOR,
+    class ALLOC,
+    class KEY = BloombergLP::bslstl::IteratorUtil::IterKey_t<INPUT_ITERATOR>,
+    class VALUE =
+               BloombergLP::bslstl::IteratorUtil::IterMapped_t<INPUT_ITERATOR>,
+    class DEFAULT_ALLOCATOR = bsl::allocator<bsl::pair<const KEY, VALUE>>,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, DEFAULT_ALLOCATOR>>
+    >
+unordered_map(INPUT_ITERATOR,
+              INPUT_ITERATOR,
+              typename bsl::allocator_traits<DEFAULT_ALLOCATOR>::size_type,
+              ALLOC *)
+-> unordered_map<KEY, VALUE>;
+    // Deduce the template parameters 'KEY' and 'VALUE' from the 'value_type'
+    // of the iterators supplied to the constructor of 'unordered_map'.  This
+    // deduction guide does not participate unless the supplied allocator is
+    // convertible to 'bsl::allocator<bsl::pair<const KEY, VALUE>>'.
+
+template <
+    class INPUT_ITERATOR,
+    class ALLOCATOR,
+    class KEY = BloombergLP::bslstl::IteratorUtil::IterKey_t<INPUT_ITERATOR>,
+    class VALUE =
+               BloombergLP::bslstl::IteratorUtil::IterMapped_t<INPUT_ITERATOR>,
+    class = bsl::enable_if_t<bsl::IsStdAllocator_v<ALLOCATOR>>
+    >
+unordered_map(INPUT_ITERATOR, INPUT_ITERATOR, ALLOCATOR)
+-> unordered_map<KEY, VALUE, bsl::hash<KEY>, bsl::equal_to<KEY>, ALLOCATOR>;
+    // Deduce the template parameters 'KEY' and 'VALUE' from the 'value_type'
+    // of the iterators supplied to the constructor of 'unordered_map'.  Deduce
+    // the template parameter 'ALLOCATOR' from the other parameter passed to
+    // the constructor of 'unordered_map'.  This deduction guide does not
+    // participate unless the supplied allocator meets the requirements of a
+    // standard allocator.
+
+template <
+    class INPUT_ITERATOR,
+    class ALLOC,
+    class KEY = BloombergLP::bslstl::IteratorUtil::IterKey_t<INPUT_ITERATOR>,
+    class VALUE =
+               BloombergLP::bslstl::IteratorUtil::IterMapped_t<INPUT_ITERATOR>,
+    class DEFAULT_ALLOCATOR = bsl::allocator<bsl::pair<const KEY, VALUE>>,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, DEFAULT_ALLOCATOR>>
+    >
+unordered_map(INPUT_ITERATOR, INPUT_ITERATOR, ALLOC *)
+-> unordered_map<KEY, VALUE>;
+    // Deduce the template parameters 'KEY' and 'VALUE' from the 'value_type'
+    // of the iterators supplied to the constructor of 'unordered_map'.  This
+    // deduction guide does not participate unless the supplied allocator is
+    // convertible to 'bsl::allocator<bsl::pair<const KEY, VALUE>>'.
+
+template <
+    class KEY,
+    class VALUE,
+    class HASH = bsl::hash<KEY>,
+    class EQUAL = bsl::equal_to<KEY>,
+    class ALLOCATOR = bsl::allocator<bsl::pair<const KEY, VALUE>>,
+    class = bsl::enable_if_t<std::is_invocable_v<HASH, const KEY &>>,
+    class = bsl::enable_if_t<
+                         std::is_invocable_v<EQUAL, const KEY &, const KEY &>>,
+    class = bsl::enable_if_t<bsl::IsStdAllocator_v<ALLOCATOR>>
+    >
+unordered_map(std::initializer_list<bsl::pair<const KEY, VALUE>>,
+              typename bsl::allocator_traits<ALLOCATOR>::size_type = 0,
+              HASH      = HASH(),
+              EQUAL     = EQUAL(),
+              ALLOCATOR = ALLOCATOR())
+-> unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>;
+    // Deduce the template parameters 'KEY' and 'VALUE' from the 'value_type'
+    // of the initializer_list supplied to the constructor of 'unordered_map'.
+    // Deduce the template parameters 'HASH', 'EQUAL' and 'ALLOCATOR' from the
+    // other parameters supplied to the constructor of 'unordered_map'.  This
+    // deduction guide does not participate unless: (1) the supplied 'HASH' is
+    // invokable with a 'KEY', (2) the supplied 'EQUAL' is invokable with two
+    // 'KEY's, and (3) the supplied allocator meets the requirements of a
+    // standard allocator.
+
+template <
+    class KEY,
+    class VALUE,
+    class HASH,
+    class EQUAL,
+    class ALLOC,
+    class DEFAULT_ALLOCATOR = bsl::allocator<bsl::pair<const KEY, VALUE>>,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, DEFAULT_ALLOCATOR>>
+    >
+unordered_map(std::initializer_list<bsl::pair<const KEY, VALUE>>,
+              typename bsl::allocator_traits<DEFAULT_ALLOCATOR>::size_type,
+              HASH,
+              EQUAL,
+              ALLOC *)
+-> unordered_map<KEY, VALUE, HASH, EQUAL>;
+    // Deduce the template parameters 'KEY' and 'VALUE' from the 'value_type'
+    // of the initializer_list supplied to the constructor of 'unordered_map'.
+    // Deduce the template parameters 'HASH' and 'EQUAL' from the other
+    // parameters supplied to the constructor of 'unordered_map'.  This
+    // deduction guide does not participate unless the supplied allocator is
+    // convertible to 'bsl::allocator<bsl::pair<const KEY, VALUE>>'.
+
+template <
+    class KEY,
+    class VALUE,
+    class HASH,
+    class ALLOCATOR,
+    class = bsl::enable_if_t<std::is_invocable_v<HASH, const KEY &>>,
+    class = bsl::enable_if_t<bsl::IsStdAllocator_v<ALLOCATOR>>
+    >
+unordered_map(std::initializer_list<bsl::pair<const KEY, VALUE>>,
+              typename bsl::allocator_traits<ALLOCATOR>::size_type,
+              HASH,
+              ALLOCATOR)
+-> unordered_map<KEY, VALUE, HASH, bsl::equal_to<KEY>, ALLOCATOR>;
+    // Deduce the template parameters 'KEY' and 'VALUE' from the 'value_type'
+    // of the initializer_list supplied to the constructor of 'unordered_map'.
+    // Deduce the template parameters 'HASH' and 'ALLOCATOR' from the other
+    // parameters supplied to the constructor of 'unordered_map'.  This
+    // deduction guide does not participate unless the supplied 'HASH' is
+    // invokable with a 'KEY', and the supplied allocator meets the
+    // requirements of a standard allocator.
+
+template <
+    class KEY,
+    class VALUE,
+    class HASH,
+    class ALLOC,
+    class DEFAULT_ALLOCATOR = bsl::allocator<bsl::pair<const KEY, VALUE>>,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, DEFAULT_ALLOCATOR>>
+    >
+unordered_map(std::initializer_list<bsl::pair<const KEY, VALUE>>,
+              typename bsl::allocator_traits<DEFAULT_ALLOCATOR>::size_type,
+              HASH,
+              ALLOC *)
+-> unordered_map<KEY, VALUE, HASH>;
+    // Deduce the template parameters 'KEY' and 'VALUE' from the 'value_type'
+    // of the initializer_list supplied to the constructor of 'unordered_map'.
+    // Deduce the template parameter 'HASH' from the other parameters supplied
+    // to the constructor of 'unordered_map'.  This deduction guide does not
+    // participate unless the supplied allocator is convertible to
+    // 'bsl::allocator<bsl::pair<const KEY, VALUE>>'.
+
+template <
+    class KEY,
+    class VALUE,
+    class ALLOCATOR,
+    class = bsl::enable_if_t<bsl::IsStdAllocator_v<ALLOCATOR>>
+    >
+unordered_map(std::initializer_list<bsl::pair<const KEY, VALUE>>,
+              typename bsl::allocator_traits<ALLOCATOR>::size_type,
+              ALLOCATOR)
+-> unordered_map<KEY, VALUE, bsl::hash<KEY>, bsl::equal_to<KEY>, ALLOCATOR>;
+    // Deduce the template parameters 'KEY' and 'VALUE' from the 'value_type'
+    // of the initializer_list supplied to the constructor of 'unordered_map'.
+    // This deduction guide does not participate unless the supplied allocator
+    // meets the requirements of a standard allocator.
+
+template <
+    class KEY,
+    class VALUE,
+    class ALLOC,
+    class DEFAULT_ALLOCATOR = bsl::allocator<bsl::pair<const KEY, VALUE>>,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, DEFAULT_ALLOCATOR>>
+    >
+unordered_map(std::initializer_list<bsl::pair<const KEY, VALUE>>,
+              typename bsl::allocator_traits<DEFAULT_ALLOCATOR>::size_type,
+              ALLOC *)
+-> unordered_map<KEY, VALUE>;
+    // Deduce the template parameters 'KEY' and 'VALUE' from the 'value_type'
+    // of the initializer_list supplied to the constructor of 'unordered_map'.
+    // This deduction guide does not participate unless the supplied allocator
+    // is convertible to 'bsl::allocator<bsl::pair<const KEY, VALUE>>'.
+
+template <
+    class KEY,
+    class VALUE,
+    class ALLOCATOR,
+    class = bsl::enable_if_t<bsl::IsStdAllocator_v<ALLOCATOR>>
+    >
+unordered_map(std::initializer_list<bsl::pair<const KEY, VALUE>>, ALLOCATOR)
+-> unordered_map<KEY, VALUE, bsl::hash<KEY>, bsl::equal_to<KEY>, ALLOCATOR>;
+    // Deduce the template parameters 'KEY' and 'VALUE' from the 'value_type'
+    // of the initializer_list supplied to the constructor of 'unordered_map'.
+    // Deduce the template parameter 'ALLOCATOR' from the other parameters
+    // supplied to the constructor of 'unordered_map'.  This deduction guide
+    // does not participate unless the supplied allocator meets the
+    // requirements of a standard allocator.
+
+template <
+    class KEY,
+    class VALUE,
+    class ALLOC,
+    class DEFAULT_ALLOCATOR = bsl::allocator<bsl::pair<const KEY, VALUE>>,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, DEFAULT_ALLOCATOR>>
+    >
+unordered_map(std::initializer_list<bsl::pair<const KEY, VALUE>>, ALLOC *)
+-> unordered_map<KEY, VALUE>;
+    // Deduce the template parameters 'KEY' and 'VALUE' from the 'value_type'
+    // of the initializer_list supplied to the constructor of 'unordered_map'.
+    // This deduction guide does not participate unless the supplied allocator
+    // is convertible to 'bsl::allocator<bsl::pair<const KEY, VALUE>>'.
+#endif
+
 // FREE OPERATORS
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 bool operator==(const unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& lhs,
@@ -2031,6 +2396,9 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_map(
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+# ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+template <class, class, class>
+# endif
 inline
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_map(
                            std::initializer_list<value_type> values,
@@ -2044,6 +2412,9 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_map(
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+# ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+template <class, class>
+# endif
 inline
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_map(
                            std::initializer_list<value_type> values,
@@ -2056,6 +2427,9 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_map(
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+# ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+template <class>
+# endif
 inline
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_map(
                            std::initializer_list<value_type> values,
@@ -2067,6 +2441,9 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_map(
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+# ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+template <class>
+# endif
 inline
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_map(
                               std::initializer_list<value_type> values,

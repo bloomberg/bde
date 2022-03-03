@@ -227,7 +227,8 @@ using bsl::pair;
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [40] USAGE EXAMPLE
+// [41] CLASS TEMPLATE DEDUCTION GUIDES
+// [42] USAGE EXAMPLE
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int  ggg(Obj *, const char *, bool verbose = true);
@@ -8269,6 +8270,455 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase12()
     ASSERTV(DEFAULT_NUM_MAX_LENGTH == done);
 }
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+struct TestDeductionGuides {
+    // This struct provides a namespace for functions testing deduction guides.
+    // The tests are compile-time only; it is not necessary that these routines
+    // be called at run-time.  Note that the following constructors do not have
+    // associated deduction guides because the template parameters for
+    // 'bsl::unordered_map' cannot be deduced from the constructor parameters.
+    //..
+    // unordered_map()
+    // explicit unordered_map(size_t, HASH=HASH(), EQUAL=EQUAL(),
+    //                                                  ALLOCATOR=ALLOCATOR());
+    // unordered_map(size_t, HASH, ALLOCATOR);
+    // unordered_map(size_t, ALLOCATOR);
+    // explicit unordered_map(ALLOCATOR);
+    //..
+
+    template <class KEY_TYPE>
+    struct StupidEqual {
+        bool operator()(const KEY_TYPE&, const KEY_TYPE&) const
+            // Always return true
+        {
+            return true;
+        }
+    };
+
+    template <class KEY_TYPE>
+    static size_t StupidEqualFn(const KEY_TYPE&, const KEY_TYPE&)
+        // Always return true
+    {
+        return true;
+    }
+
+    template <class KEY_TYPE>
+    struct StupidHash {
+        size_t operator()(const KEY_TYPE&) const
+            // Always hash to bucket #0
+        {
+            return 0U;
+        }
+    };
+
+    template <class KEY_TYPE>
+    static size_t StupidHashFn(const KEY_TYPE&)
+        // Always hash to bucket #0
+    {
+        return 0U;
+    }
+
+#define ASSERT_SAME_TYPE(...) \
+ static_assert((bsl::is_same<__VA_ARGS__>::value), "Types differ unexpectedly")
+
+    void TestConstructors ()
+        // Test that constructing a 'bsl::unordered_map' from various
+        // combinations of arguments deduces the correct type.
+        //..
+        // unordered_map(const unordered_map&  s)            -> decltype(s)
+        // unordered_map(const unordered_map&  s, ALLOCATOR) -> decltype(s)
+        // unordered_map(      unordered_map&& s)            -> decltype(s)
+        // unordered_map(      unordered_map&& s, ALLOCATOR) -> decltype(s)
+        //..
+    {
+        bslma::Allocator     *a1 = nullptr;
+        bslma::TestAllocator *a2 = nullptr;
+
+        typedef int T1;
+        bsl::unordered_map<T1, T1> us1;
+        bsl::unordered_map         us1a(us1);
+        ASSERT_SAME_TYPE(decltype(us1a), bsl::unordered_map<T1, T1>);
+
+        typedef float T2;
+        typedef bsl::allocator<bsl::pair<const T2, T2>> BA2;
+
+        bsl::unordered_map<T2, T2> us2;
+        bsl::unordered_map         us2a(us2, BA2{});
+        bsl::unordered_map         us2b(us2, a1);
+        bsl::unordered_map         us2c(us2, a2);
+        ASSERT_SAME_TYPE(decltype(us2a), bsl::unordered_map<T2, T2>);
+        ASSERT_SAME_TYPE(decltype(us2b), bsl::unordered_map<T2, T2>);
+        ASSERT_SAME_TYPE(decltype(us2c), bsl::unordered_map<T2, T2>);
+
+        typedef short T3;
+        bsl::unordered_map<T3, T3> us3;
+        bsl::unordered_map         us3a(std::move(us3));
+        ASSERT_SAME_TYPE(decltype(us3a), bsl::unordered_map<T3, T3>);
+
+        typedef long double T4;
+        typedef bsl::allocator<bsl::pair<const T4, T4>> BA4;
+
+        bsl::unordered_map<T4, T4> us4;
+        bsl::unordered_map         us4a(std::move(us4), BA4{});
+        bsl::unordered_map         us4b(std::move(us4), a1);
+        bsl::unordered_map         us4c(std::move(us4), a2);
+        ASSERT_SAME_TYPE(decltype(us4a), bsl::unordered_map<T4, T4>);
+        ASSERT_SAME_TYPE(decltype(us4b), bsl::unordered_map<T4, T4>);
+        ASSERT_SAME_TYPE(decltype(us4c), bsl::unordered_map<T4, T4>);
+    }
+
+    void TestIteratorConstructors ()
+        // Test that constructing a 'bsl::unordered_map' from a pair of
+        // iterators and various combinations of other arguments deduces the
+        // correct type.
+        //..
+        // unordered_map(Iter, Iter, size_type = N, HASH=HASH(), EQUAL=EQUAL(),
+        //                                              ALLOCATOR=ALLOCATOR());
+        // unordered_map(Iter, Iter, size_type, HASH, ALLOCATOR);
+        // unordered_map(Iter, Iter, size_type, ALLOCATOR);
+        // unordered_map(Iter, Iter, ALLOCATOR)
+        //..
+    {
+        bslma::Allocator     *a1 = nullptr;
+        bslma::TestAllocator *a2 = nullptr;
+
+        typedef long                                    T1;
+        typedef StupidHash<T1>                          HashT1;
+        typedef StupidEqual<T1>                         EqualT1;
+        typedef decltype(StupidHashFn<T1>)              HashFnT1;
+        typedef decltype(StupidEqualFn<T1>)             EqualFnT1;
+        typedef bsl::allocator<bsl::pair<const T1, T1>> BA1;
+        typedef std::allocator<bsl::pair<const T1, T1>> SA1;
+
+        bsl::pair<T1, T1>                    *p1b = nullptr;
+        bsl::pair<T1, T1>                    *p1e = nullptr;
+        bsl::unordered_map<T1, T1>::iterator  i1b;
+        bsl::unordered_map<T1, T1>::iterator  i1e;
+
+        bsl::unordered_map us1a(p1b, p1e);
+        bsl::unordered_map us1b(i1b, i1e);
+        bsl::unordered_map us1c(p1b, p1e, 3);
+        bsl::unordered_map us1d(i1b, i1e, 3);
+
+        bsl::unordered_map us1e(p1b, p1e, 3, HashT1{});
+        bsl::unordered_map us1f(p1b, p1e, 3, StupidHashFn<T1>);
+        bsl::unordered_map us1g(i1b, i1e, 3, HashT1{});
+        bsl::unordered_map us1h(i1b, i1e, 3, StupidHashFn<T1>);
+
+        bsl::unordered_map us1i(p1b, p1e, 3, HashT1{}, EqualT1{});
+        bsl::unordered_map us1j(i1b, i1e, 3, HashT1{}, StupidEqualFn<T1>);
+        bsl::unordered_map us1k(p1b, p1e, 3, StupidHashFn<T1>, EqualT1{});
+        bsl::unordered_map us1l(i1b, i1e, 3,
+                                          StupidHashFn<T1>, StupidEqualFn<T1>);
+
+        bsl::unordered_map us1m(p1b, p1e, 3, HashT1{}, EqualT1{}, BA1{});
+        bsl::unordered_map us1n(p1b, p1e, 3, HashT1{}, EqualT1{}, a1);
+        bsl::unordered_map us1o(p1b, p1e, 3, HashT1{}, EqualT1{}, a2);
+        bsl::unordered_map us1p(p1b, p1e, 3, HashT1{}, EqualT1{}, SA1{});
+        bsl::unordered_map us1q(i1b, i1e, 3, HashT1{}, EqualT1{}, BA1{});
+        bsl::unordered_map us1r(i1b, i1e, 3, HashT1{}, EqualT1{}, a1);
+        bsl::unordered_map us1s(i1b, i1e, 3, HashT1{}, EqualT1{}, a2);
+        bsl::unordered_map us1t(i1b, i1e, 3, HashT1{}, EqualT1{}, SA1{});
+
+        ASSERT_SAME_TYPE(decltype(us1a), bsl::unordered_map<T1, T1>);
+        ASSERT_SAME_TYPE(decltype(us1b), bsl::unordered_map<T1, T1>);
+        ASSERT_SAME_TYPE(decltype(us1c), bsl::unordered_map<T1, T1>);
+        ASSERT_SAME_TYPE(decltype(us1d), bsl::unordered_map<T1, T1>);
+        ASSERT_SAME_TYPE(decltype(us1e), bsl::unordered_map<T1, T1, HashT1>);
+        ASSERT_SAME_TYPE(decltype(us1f),
+                         bsl::unordered_map<T1, T1, HashFnT1 *>);
+        ASSERT_SAME_TYPE(decltype(us1g), bsl::unordered_map<T1, T1, HashT1>);
+        ASSERT_SAME_TYPE(decltype(us1h),
+                         bsl::unordered_map<T1, T1, HashFnT1 *>);
+        ASSERT_SAME_TYPE(decltype(us1i),
+                         bsl::unordered_map<T1, T1, HashT1, EqualT1>);
+        ASSERT_SAME_TYPE(decltype(us1j),
+                         bsl::unordered_map<T1, T1, HashT1, EqualFnT1 *>);
+        ASSERT_SAME_TYPE(decltype(us1k),
+                         bsl::unordered_map<T1, T1, HashFnT1 *, EqualT1>);
+        ASSERT_SAME_TYPE(decltype(us1l),
+                         bsl::unordered_map<T1, T1, HashFnT1 *, EqualFnT1 *>);
+
+        ASSERT_SAME_TYPE(decltype(us1m),
+                         bsl::unordered_map<T1, T1, HashT1, EqualT1, BA1>);
+        ASSERT_SAME_TYPE(decltype(us1n),
+                         bsl::unordered_map<T1, T1, HashT1, EqualT1, BA1>);
+        ASSERT_SAME_TYPE(decltype(us1o),
+                         bsl::unordered_map<T1, T1, HashT1, EqualT1, BA1>);
+        ASSERT_SAME_TYPE(decltype(us1p),
+                         bsl::unordered_map<T1, T1, HashT1, EqualT1, SA1>);
+        ASSERT_SAME_TYPE(decltype(us1q),
+                         bsl::unordered_map<T1, T1, HashT1, EqualT1, BA1>);
+        ASSERT_SAME_TYPE(decltype(us1r),
+                         bsl::unordered_map<T1, T1, HashT1, EqualT1, BA1>);
+        ASSERT_SAME_TYPE(decltype(us1s),
+                         bsl::unordered_map<T1, T1, HashT1, EqualT1, BA1>);
+        ASSERT_SAME_TYPE(decltype(us1t),
+                         bsl::unordered_map<T1, T1, HashT1, EqualT1, SA1>);
+
+        typedef double                      T2;
+        typedef StupidHash<T2>              HashT2;
+        typedef decltype(StupidHashFn<T2>)  HashFnT2;
+        typedef bsl::allocator<bsl::pair<const T2, T2>> BA2;
+        typedef std::allocator<bsl::pair<const T2, T2>> SA2;
+        bsl::pair<T2, T2>                    *p2b = nullptr;
+        bsl::pair<T2, T2>                    *p2e = nullptr;
+        bsl::unordered_map<T2, T2>::iterator  i2b;
+        bsl::unordered_map<T2, T2>::iterator  i2e;
+
+        bsl::unordered_map us2a(p2b, p2e, 3, HashT2{}, BA2{});
+        bsl::unordered_map us2b(p2b, p2e, 3, HashT2{}, a1);
+        bsl::unordered_map us2c(p2b, p2e, 3, HashT2{}, a2);
+        bsl::unordered_map us2d(p2b, p2e, 3, HashT2{}, SA2{});
+        bsl::unordered_map us2e(p2b, p2e, 3, StupidHashFn<T2>, BA2{});
+        bsl::unordered_map us2f(p2b, p2e, 3, StupidHashFn<T2>, a1);
+        bsl::unordered_map us2g(p2b, p2e, 3, StupidHashFn<T2>, a2);
+        bsl::unordered_map us2h(p2b, p2e, 3, StupidHashFn<T2>, SA2{});
+        bsl::unordered_map us2i(i2b, i2e, 3, HashT2{}, BA2{});
+        bsl::unordered_map us2j(i2b, i2e, 3, HashT2{}, a1);
+        bsl::unordered_map us2k(i2b, i2e, 3, HashT2{}, a2);
+        bsl::unordered_map us2l(i2b, i2e, 3, HashT2{}, SA2{});
+        bsl::unordered_map us2m(i2b, i2e, 3, StupidHashFn<T2>, BA2{});
+        bsl::unordered_map us2n(i2b, i2e, 3, StupidHashFn<T2>, a1);
+        bsl::unordered_map us2o(i2b, i2e, 3, StupidHashFn<T2>, a2);
+        bsl::unordered_map us2p(i2b, i2e, 3, StupidHashFn<T2>, SA2{});
+
+        ASSERT_SAME_TYPE(decltype(us2a), bsl::unordered_map<T2, T2, HashT2>);
+        ASSERT_SAME_TYPE(decltype(us2b), bsl::unordered_map<T2, T2, HashT2>);
+        ASSERT_SAME_TYPE(decltype(us2c), bsl::unordered_map<T2, T2, HashT2>);
+        ASSERT_SAME_TYPE(
+                   decltype(us2d),
+                   bsl::unordered_map<T2, T2, HashT2, bsl::equal_to<T2>, SA2>);
+        ASSERT_SAME_TYPE(decltype(us2e),
+                                       bsl::unordered_map<T2, T2, HashFnT2 *>);
+        ASSERT_SAME_TYPE(decltype(us2f),
+                                       bsl::unordered_map<T2, T2, HashFnT2 *>);
+        ASSERT_SAME_TYPE(decltype(us2g),
+                                       bsl::unordered_map<T2, T2, HashFnT2 *>);
+        ASSERT_SAME_TYPE(
+               decltype(us2h),
+               bsl::unordered_map<T2, T2, HashFnT2 *, bsl::equal_to<T2>, SA2>);
+        ASSERT_SAME_TYPE(decltype(us2i), bsl::unordered_map<T2, T2, HashT2>);
+        ASSERT_SAME_TYPE(decltype(us2j), bsl::unordered_map<T2, T2, HashT2>);
+        ASSERT_SAME_TYPE(decltype(us2k), bsl::unordered_map<T2, T2, HashT2>);
+        ASSERT_SAME_TYPE(
+                   decltype(us2l),
+                   bsl::unordered_map<T2, T2, HashT2, bsl::equal_to<T2>, SA2>);
+        ASSERT_SAME_TYPE(decltype(us2m),
+                         bsl::unordered_map<T2, T2, HashFnT2 *>);
+        ASSERT_SAME_TYPE(decltype(us2n),
+                         bsl::unordered_map<T2, T2, HashFnT2 *>);
+        ASSERT_SAME_TYPE(decltype(us2o),
+                         bsl::unordered_map<T2, T2, HashFnT2 *>);
+        ASSERT_SAME_TYPE(
+               decltype(us2p),
+               bsl::unordered_map<T2, T2, HashFnT2 *, bsl::equal_to<T2>, SA2>);
+
+
+        typedef int                                     T3;
+        typedef bsl::allocator<bsl::pair<const T3, T3>> BA3;
+        typedef std::allocator<bsl::pair<const T3, T3>> SA3;
+        bsl::pair<T3, T3>                    *p3b = nullptr;
+        bsl::pair<T3, T3>                    *p3e = nullptr;
+        bsl::unordered_map<T3, T3>::iterator  i3b;
+        bsl::unordered_map<T3, T3>::iterator  i3e;
+
+        bsl::unordered_map us3a(p3b, p3e, 3, BA3{});
+        bsl::unordered_map us3b(p3b, p3e, 3, a1);
+        bsl::unordered_map us3c(p3b, p3e, 3, a2);
+        bsl::unordered_map us3d(p3b, p3e, 3, SA3{});
+        bsl::unordered_map us3e(i3b, i3e, 3, BA3{});
+        bsl::unordered_map us3f(i3b, i3e, 3, a1);
+        bsl::unordered_map us3g(i3b, i3e, 3, a2);
+        bsl::unordered_map us3h(i3b, i3e, 3, SA3{});
+
+        ASSERT_SAME_TYPE(decltype(us3a), bsl::unordered_map<T3, T3>);
+        ASSERT_SAME_TYPE(decltype(us3b), bsl::unordered_map<T3, T3>);
+        ASSERT_SAME_TYPE(decltype(us3c), bsl::unordered_map<T3, T3>);
+        ASSERT_SAME_TYPE(
+            decltype(us3d),
+            bsl::unordered_map<T3, T3, bsl::hash<T3>, bsl::equal_to<T3>, SA3>);
+        ASSERT_SAME_TYPE(decltype(us3e), bsl::unordered_map<T3, T3>);
+        ASSERT_SAME_TYPE(decltype(us3f), bsl::unordered_map<T3, T3>);
+        ASSERT_SAME_TYPE(decltype(us3g), bsl::unordered_map<T3, T3>);
+        ASSERT_SAME_TYPE(
+            decltype(us3h),
+            bsl::unordered_map<T3, T3, bsl::hash<T3>, bsl::equal_to<T3>, SA3>);
+
+
+        typedef char                                    T4;
+        typedef bsl::allocator<bsl::pair<const T4, T4>> BA4;
+        typedef std::allocator<bsl::pair<const T4, T4>> SA4;
+        bsl::pair<T4, T4>                    *p4b = nullptr;
+        bsl::pair<T4, T4>                    *p4e = nullptr;
+        bsl::unordered_map<T4, T4>::iterator  i4b;
+        bsl::unordered_map<T4, T4>::iterator  i4e;
+
+        bsl::unordered_map us4a(p4b, p4e, BA4{});
+        bsl::unordered_map us4b(p4b, p4e, a1);
+        bsl::unordered_map us4c(p4b, p4e, a2);
+        bsl::unordered_map us4d(p4b, p4e, SA4{});
+        bsl::unordered_map us4e(i4b, i4e, BA4{});
+        bsl::unordered_map us4f(i4b, i4e, a1);
+        bsl::unordered_map us4g(i4b, i4e, a2);
+        bsl::unordered_map us4h(i4b, i4e, SA4{});
+
+        ASSERT_SAME_TYPE(decltype(us4a), bsl::unordered_map<T4, T4>);
+        ASSERT_SAME_TYPE(decltype(us4b), bsl::unordered_map<T4, T4>);
+        ASSERT_SAME_TYPE(decltype(us4c), bsl::unordered_map<T4, T4>);
+        ASSERT_SAME_TYPE(
+            decltype(us4d),
+            bsl::unordered_map<T4, T4, bsl::hash<T4>, bsl::equal_to<T4>, SA4>);
+
+        ASSERT_SAME_TYPE(decltype(us4e), bsl::unordered_map<T4, T4>);
+        ASSERT_SAME_TYPE(decltype(us4f), bsl::unordered_map<T4, T4>);
+        ASSERT_SAME_TYPE(decltype(us4g), bsl::unordered_map<T4, T4>);
+        ASSERT_SAME_TYPE(
+            decltype(us4h),
+            bsl::unordered_map<T4, T4, bsl::hash<T4>, bsl::equal_to<T4>, SA4>);
+    }
+
+    void TestStdInitializerListConstructors ()
+        // Test that constructing a 'bsl::unordered_map' from an
+        // initializer_list and various combinations of other arguments deduces
+        // the correct type.
+        //..
+        // unordered_map(initializer_list, size_type = N, HASH=HASH(),
+        //                               EQUAL=EQUAL(), ALLOCATOR=ALLOCATOR());
+        // unordered_map(initializer_list, size_type, HASH, ALLOCATOR);
+        // unordered_map(initializer_list, size_type, ALLOCATOR);
+        // unordered_map(initializer_list, ALLOCATOR)
+        //..
+    {
+        bslma::Allocator     *a1 = nullptr;
+        bslma::TestAllocator *a2 = nullptr;
+
+        typedef long                                           T1;
+        typedef bsl::allocator<bsl::pair<const T1, T1>>        BA1;
+        typedef std::allocator<bsl::pair<const T1, T1>>        SA1;
+        typedef std::initializer_list<bsl::pair<const T1, T1>> IL1;
+
+        typedef StupidHash<T1>              HashT1;
+        typedef StupidEqual<T1>             EqualT1;
+        typedef decltype(StupidHashFn<T1>)  HashFnT1;
+        typedef decltype(StupidEqualFn<T1>) EqualFnT1;
+        IL1 il1 = {{1L, 2L}, {3L, 4L}};
+
+
+        bsl::unordered_map us1a(il1);
+        bsl::unordered_map us1b(il1, 3);
+        bsl::unordered_map us1c(il1, 3, HashT1{});
+        bsl::unordered_map us1d(il1, 3, StupidHashFn<T1>);
+        bsl::unordered_map us1e(il1, 3, HashT1{}, EqualT1{});
+        bsl::unordered_map us1f(il1, 3, HashT1{}, StupidEqualFn<T1>);
+        bsl::unordered_map us1g(il1, 3, StupidHashFn<T1>, EqualT1{});
+        bsl::unordered_map us1h(il1, 3, StupidHashFn<T1>, StupidEqualFn<T1>);
+
+        bsl::unordered_map us1i(il1, 3, HashT1{}, EqualT1{}, BA1{});
+        bsl::unordered_map us1j(il1, 3, HashT1{}, EqualT1{}, a1);
+        bsl::unordered_map us1k(il1, 3, HashT1{}, EqualT1{}, a2);
+        bsl::unordered_map us1l(il1, 3, HashT1{}, EqualT1{}, SA1{});
+
+        ASSERT_SAME_TYPE(decltype(us1a), bsl::unordered_map<T1, T1>);
+        ASSERT_SAME_TYPE(decltype(us1b), bsl::unordered_map<T1, T1>);
+        ASSERT_SAME_TYPE(decltype(us1c), bsl::unordered_map<T1, T1, HashT1>);
+        ASSERT_SAME_TYPE(decltype(us1d),
+                         bsl::unordered_map<T1, T1, HashFnT1 *>);
+        ASSERT_SAME_TYPE(decltype(us1e),
+                         bsl::unordered_map<T1, T1, HashT1, EqualT1>);
+        ASSERT_SAME_TYPE(decltype(us1f),
+                         bsl::unordered_map<T1, T1, HashT1, EqualFnT1 *>);
+        ASSERT_SAME_TYPE(decltype(us1g),
+                         bsl::unordered_map<T1, T1, HashFnT1 *, EqualT1>);
+        ASSERT_SAME_TYPE(decltype(us1h),
+                         bsl::unordered_map<T1, T1, HashFnT1 *, EqualFnT1 *>);
+
+        ASSERT_SAME_TYPE(decltype(us1i),
+                         bsl::unordered_map<T1, T1, HashT1, EqualT1, BA1>);
+        ASSERT_SAME_TYPE(decltype(us1j),
+                         bsl::unordered_map<T1, T1, HashT1, EqualT1, BA1>);
+        ASSERT_SAME_TYPE(decltype(us1k),
+                         bsl::unordered_map<T1, T1, HashT1, EqualT1, BA1>);
+        ASSERT_SAME_TYPE(decltype(us1l),
+                         bsl::unordered_map<T1, T1, HashT1, EqualT1, SA1>);
+
+
+        typedef double                                         T2;
+        typedef bsl::allocator<bsl::pair<const T2, T2>>        BA2;
+        typedef std::allocator<bsl::pair<const T2, T2>>        SA2;
+        typedef std::initializer_list<bsl::pair<const T2, T2>> IL2;
+        typedef StupidHash<T2>              HashT2;
+        typedef decltype(StupidHashFn<T2>)  HashFnT2;
+        IL2 il2 = {{1.0, 2.0}, {3.0, 4.0}};
+
+        bsl::unordered_map us2a(il2, 3, HashT2{}, BA2{});
+        bsl::unordered_map us2b(il2, 3, HashT2{}, a1);
+        bsl::unordered_map us2c(il2, 3, HashT2{}, a2);
+        bsl::unordered_map us2d(il2, 3, HashT2{}, SA2{});
+        bsl::unordered_map us2e(il2, 3, StupidHashFn<T2>, BA2{});
+        bsl::unordered_map us2f(il2, 3, StupidHashFn<T2>, a1);
+        bsl::unordered_map us2g(il2, 3, StupidHashFn<T2>, a2);
+        bsl::unordered_map us2h(il2, 3, StupidHashFn<T2>, SA2{});
+
+        ASSERT_SAME_TYPE(decltype(us2a), bsl::unordered_map<T2, T2, HashT2>);
+        ASSERT_SAME_TYPE(decltype(us2b), bsl::unordered_map<T2, T2, HashT2>);
+        ASSERT_SAME_TYPE(decltype(us2c), bsl::unordered_map<T2, T2, HashT2>);
+        ASSERT_SAME_TYPE(
+                   decltype(us2d),
+                   bsl::unordered_map<T2, T2, HashT2, bsl::equal_to<T2>, SA2>);
+        ASSERT_SAME_TYPE(decltype(us2e),
+                         bsl::unordered_map<T2, T2, HashFnT2 *>);
+        ASSERT_SAME_TYPE(decltype(us2f),
+                         bsl::unordered_map<T2, T2, HashFnT2 *>);
+        ASSERT_SAME_TYPE(decltype(us2g),
+                         bsl::unordered_map<T2, T2, HashFnT2 *>);
+        ASSERT_SAME_TYPE(
+               decltype(us2h),
+               bsl::unordered_map<T2, T2, HashFnT2 *, bsl::equal_to<T2>, SA2>);
+
+
+        typedef int                                            T3;
+        typedef bsl::allocator<bsl::pair<const T3, T3>>        BA3;
+        typedef std::allocator<bsl::pair<const T3, T3>>        SA3;
+        typedef std::initializer_list<bsl::pair<const T3, T3>> IL3;
+        IL3 il3 = {{1, 2}, {3, 4}};
+
+        bsl::unordered_map us3a(il3, 3, BA3{});
+        bsl::unordered_map us3b(il3, 3, a1);
+        bsl::unordered_map us3c(il3, 3, a2);
+        bsl::unordered_map us3d(il3, 3, SA3{});
+
+        ASSERT_SAME_TYPE(decltype(us3a), bsl::unordered_map<T3, T3>);
+        ASSERT_SAME_TYPE(decltype(us3b), bsl::unordered_map<T3, T3>);
+        ASSERT_SAME_TYPE(decltype(us3c), bsl::unordered_map<T3, T3>);
+        ASSERT_SAME_TYPE(
+            decltype(us3d),
+            bsl::unordered_map<T3, T3, bsl::hash<T3>, bsl::equal_to<T3>, SA3>);
+
+
+        typedef char                                           T4;
+        typedef bsl::allocator<bsl::pair<const T4, T4>>        BA4;
+        typedef std::allocator<bsl::pair<const T4, T4>>        SA4;
+        typedef std::initializer_list<bsl::pair<const T4, T4>> IL4;
+        IL4 il4 = {{'1', '2'}, {'3', '4'}};
+
+        bsl::unordered_map us4a(il4, BA4{});
+        bsl::unordered_map us4b(il4, a1);
+        bsl::unordered_map us4c(il4, a2);
+        bsl::unordered_map us4d(il4, SA4{});
+
+        ASSERT_SAME_TYPE(decltype(us4a), bsl::unordered_map<T4, T4>);
+        ASSERT_SAME_TYPE(decltype(us4b), bsl::unordered_map<T4, T4>);
+        ASSERT_SAME_TYPE(decltype(us4c), bsl::unordered_map<T4, T4>);
+        ASSERT_SAME_TYPE(
+            decltype(us4d),
+            bsl::unordered_map<T4, T4, bsl::hash<T4>, bsl::equal_to<T4>, SA4>);
+    }
+
+#undef ASSERT_SAME_TYPE
+};
+#endif
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -8291,6 +8741,40 @@ int main(int argc, char *argv[])
     ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
 
     switch (test) { case 0:
+      case 41: {
+        //---------------------------------------------------------------------
+        // TESTING CLASS TEMPLATE DEDUCTION GUIDES (AT COMPILE TIME)
+        //   Ensure that the deduction guides are properly specified to deduce
+        //   the template arguments from the arguments supplied to the
+        //   constructors.
+        //
+        // Concerns:
+        //: 1 Construction from iterators deduces the value type from the value
+        //:   type of the iterator.
+        //
+        //: 2 Construction with a 'bslma::Allocator *' deduces the correct
+        //:   specialization of 'bsl::allocator' for the type of the allocator.
+        //
+        // Plan:
+        //: 1 Create an unordered_map by invoking the constructor without
+        //:   supplying the template arguments explicitly.
+        //:
+        //: 2 Verify that the deduced type is correct.
+        //
+        // Testing:
+        //   CLASS TEMPLATE DEDUCTION GUIDES
+        //---------------------------------------------------------------------
+        if (verbose)
+            printf(
+              "\nTESTING CLASS TEMPLATE DEDUCTION GUIDES (AT COMPILE TIME)"
+              "\n=========================================================\n");
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+        // This is a compile-time only test case.
+        TestDeductionGuides test;
+        (void) test; // This variable only exits for ease of IDE navigation
+#endif
+      } break;
       case 40: {
         // --------------------------------------------------------------------
         // TESTING TRANSPARENT COMPARATOR
