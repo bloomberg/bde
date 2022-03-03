@@ -122,9 +122,6 @@ struct BASE{
 
     // member functions returning primitives
     int funcReturningInt(){return d_int;}
-    const int funcReturningConstInt(){return d_int;}
-    volatile int funcReturningVolatileInt(){return d_int;}
-    const volatile int funcReturningConstVolatileInt(){return d_int;}
     int constFuncReturningInt() const {return d_int;}
     int volatileFuncReturningInt() volatile {return d_int;}
     int constVolatileFuncReturningInt() const volatile {return d_int;}
@@ -225,9 +222,6 @@ typedef const volatile TEST_CLASS_TYPE
 
 // pointer to member function typedefs
 typedef int (BASE::*PtrToMemberFuncReturningInt)();
-typedef const int (BASE::*PtrToMemberFuncReturningConstInt)();
-typedef volatile int (BASE::*PtrToMemberFuncReturningVolatileInt)();
-typedef const volatile int (BASE::*PtrToMemberFuncReturningConstVolatileInt)();
 typedef int (BASE::*PtrToMemberConstFuncReturningInt)() const;
 typedef int (BASE::*PtrToMemberVolatileFuncReturningInt)() volatile;
 typedef int (BASE::*PtrToMemberConstVolatileFuncReturningInt)() const volatile;
@@ -517,27 +511,6 @@ int main(int argc, char *argv[])
         TestType x = &BASE::funcReturningInt; (void) x;
         TestType v = &BASE::virtualFuncReturningInt; (void) v;
         ASSERT_SAME(int(), X::MemberType);
-        ASSERT_SAME(BASE, X::ClassType);
-    }
-    {
-        typedef PtrToMemberFuncReturningConstInt TestType;
-        typedef bslmf::PointerToMemberTraits<TestType> X;
-        TestType x = &BASE::funcReturningConstInt; (void) x;
-        ASSERT_SAME(const int(), X::MemberType);
-        ASSERT_SAME(BASE, X::ClassType);
-    }
-    {
-        typedef PtrToMemberFuncReturningVolatileInt TestType;
-        typedef bslmf::PointerToMemberTraits<TestType> X;
-        TestType x = &BASE::funcReturningVolatileInt; (void) x;
-        ASSERT_SAME(volatile int (), X::MemberType);
-        ASSERT_SAME(BASE, X::ClassType);
-    }
-    {
-        typedef PtrToMemberFuncReturningConstVolatileInt TestType;
-        typedef bslmf::PointerToMemberTraits<TestType> X;
-        TestType x = &BASE::funcReturningConstVolatileInt; (void) x;
-        ASSERT_SAME(const volatile int (), X::MemberType);
         ASSERT_SAME(BASE, X::ClassType);
     }
     {
