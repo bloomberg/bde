@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Dec  1 13:29:03 2021
+// Generated on Tue Feb  1 19:13:30 2022
 // Command line: sim_cpp11_features.pl bslstl_vector.h
 
 #ifdef COMPILING_BSLSTL_VECTOR_H
@@ -2297,13 +2297,14 @@ template <
     class SIZE_TYPE,
     class VALUE,
     class ALLOC,
-    class ALLOCATOR = bsl::allocator<VALUE>,
-    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>,
+    class DEFAULT_ALLOCATOR = bsl::allocator<VALUE>,
     class = bsl::enable_if_t<
               bsl::is_convertible_v<
-              SIZE_TYPE, typename bsl::allocator_traits<ALLOCATOR>::size_type>>
+                SIZE_TYPE,
+                typename bsl::allocator_traits<DEFAULT_ALLOCATOR>::size_type>>,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, DEFAULT_ALLOCATOR>>
     >
-vector(SIZE_TYPE, VALUE, ALLOC *) -> vector<VALUE, ALLOCATOR>;
+vector(SIZE_TYPE, VALUE, ALLOC *) -> vector<VALUE>;
     // Deduce the template parameter 'VALUE' from the corresponding parameter
     // supplied to the constructor of 'vector'.  This deduction guide does not
     // participate unless the supplied allocator is convertible to
@@ -2311,7 +2312,8 @@ vector(SIZE_TYPE, VALUE, ALLOC *) -> vector<VALUE, ALLOCATOR>;
 
 template <
     class INPUT_ITERATOR,
-    class VALUE = typename bsl::iterator_traits<INPUT_ITERATOR>::value_type
+    class VALUE =
+         typename BloombergLP::bslstl::IteratorUtil::IterVal_t<INPUT_ITERATOR>
     >
 vector(INPUT_ITERATOR, INPUT_ITERATOR) -> vector<VALUE>;
     // Deduce the template parameter 'VALUE' from the 'value_type' of the
@@ -2320,7 +2322,8 @@ vector(INPUT_ITERATOR, INPUT_ITERATOR) -> vector<VALUE>;
 template<
     class INPUT_ITERATOR,
     class ALLOCATOR,
-    class VALUE = typename bsl::iterator_traits<INPUT_ITERATOR>::value_type,
+    class VALUE =
+         typename BloombergLP::bslstl::IteratorUtil::IterVal_t<INPUT_ITERATOR>,
     class = bsl::enable_if_t<bsl::IsStdAllocator_v<ALLOCATOR>>
     >
 vector(INPUT_ITERATOR, INPUT_ITERATOR, ALLOCATOR) -> vector<VALUE, ALLOCATOR>;
@@ -2332,12 +2335,13 @@ vector(INPUT_ITERATOR, INPUT_ITERATOR, ALLOCATOR) -> vector<VALUE, ALLOCATOR>;
 template<
     class INPUT_ITERATOR,
     class ALLOC,
-    class VALUE = typename bsl::iterator_traits<INPUT_ITERATOR>::value_type,
-    class ALLOCATOR = bsl::allocator<VALUE>,
-    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>
+    class VALUE =
+         typename BloombergLP::bslstl::IteratorUtil::IterVal_t<INPUT_ITERATOR>,
+    class DEFAULT_ALLOCATOR = bsl::allocator<VALUE>,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, DEFAULT_ALLOCATOR>>
     >
 vector(INPUT_ITERATOR, INPUT_ITERATOR, ALLOC *)
--> vector<VALUE, ALLOCATOR>;
+-> vector<VALUE>;
     // Deduce the template parameter 'VALUE' from the 'value_type' of the
     // iterators supplied to the constructor of 'vector'.  This deduction
     // guide does not participate unless the supplied allocator is convertible
@@ -2346,11 +2350,11 @@ vector(INPUT_ITERATOR, INPUT_ITERATOR, ALLOC *)
 template<
     class VALUE,
     class ALLOC,
-    class ALLOCATOR = bsl::allocator<VALUE>,
-    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>
+    class DEFAULT_ALLOCATOR = bsl::allocator<VALUE>,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, DEFAULT_ALLOCATOR>>
     >
 vector(std::initializer_list<VALUE>, ALLOC *)
--> vector<VALUE, ALLOCATOR>;
+-> vector<VALUE>;
     // Deduce the template parameter 'VALUE' from the 'value_type' of the
     // initializer_list supplied to the constructor of 'vector'.  This
     // deduction guide does not participate unless the supplied allocator is
@@ -5627,7 +5631,7 @@ extern template class bsl::vector<const char *>;
 #endif // ! defined(INCLUDED_BSLSTL_VECTOR_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2021 Bloomberg Finance L.P.
+// Copyright 2022 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

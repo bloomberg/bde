@@ -314,6 +314,7 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 
 #include <bslstl_vector.h>
+#include <bslstl_iteratorutil.h>
 
 #include <bslalg_swaputil.h>
 
@@ -643,7 +644,8 @@ priority_queue(COMPARATOR, CONTAINER, ALLOC *)
 
 template <
     class INPUT_ITERATOR,
-    class VALUE = typename bsl::iterator_traits<INPUT_ITERATOR>::value_type
+    class VALUE =
+          typename BloombergLP::bslstl::IteratorUtil::IterVal_t<INPUT_ITERATOR>
     >
 priority_queue(INPUT_ITERATOR, INPUT_ITERATOR)
   -> priority_queue<VALUE>;
@@ -654,7 +656,8 @@ template <
     class INPUT_ITERATOR,
     class COMPARATOR,
     class CONTAINER,
-    class VALUE = typename bsl::iterator_traits<INPUT_ITERATOR>::value_type
+    class VALUE =
+          typename BloombergLP::bslstl::IteratorUtil::IterVal_t<INPUT_ITERATOR>
     >
 priority_queue(INPUT_ITERATOR, INPUT_ITERATOR, COMPARATOR, CONTAINER)
   -> priority_queue<VALUE, CONTAINER, COMPARATOR>;

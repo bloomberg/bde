@@ -5964,6 +5964,22 @@ struct TestDeductionGuides {
 #define ASSERT_SAME_TYPE(...) \
  static_assert((bsl::is_same<__VA_ARGS__>::value), "Types differ unexpectedly")
 
+    template <class KEY_TYPE>
+    struct StupidLess {
+        bool operator()(const KEY_TYPE&, const KEY_TYPE&) const
+            // Always return true
+        {
+            return true;
+        }
+    };
+
+    template <class KEY_TYPE>
+    static size_t StupidLessFn(const KEY_TYPE&, const KEY_TYPE&)
+        // Always return true
+    {
+        return true;
+    }
+
     // This struct provides a namespace for functions testing deduction guides.
     // The tests are compile-time only; it is not necessary that these routines
     // be called at run-time.  Note that the following constructors do not have
@@ -6024,53 +6040,100 @@ struct TestDeductionGuides {
         ASSERT_SAME_TYPE(decltype(pq4b), bsl::priority_queue<T4>);
         ASSERT_SAME_TYPE(decltype(pq4c), bsl::priority_queue<T4>);
 
-        typedef long T5;
-        typedef std::greater<T5> CompT5;
+
+        typedef long                       T5;
+        typedef StupidLess<T5>             CompT5;
+        typedef decltype(StupidLessFn<T5>) CompFnT5;
+
         bsl::vector<T5>       v5;
         NonAllocContainer<T5> nc5;
         bsl::priority_queue   pq5a(CompT5{}, v5);
         bsl::priority_queue   pq5b(CompT5{}, nc5);
+        bsl::priority_queue   pq5c(StupidLessFn<T5>, v5);
+        bsl::priority_queue   pq5d(StupidLessFn<T5>, nc5);
         ASSERT_SAME_TYPE(decltype(pq5a),
-                             bsl::priority_queue<T5, bsl::vector<T5>, CompT5>);
-        ASSERT_SAME_TYPE(decltype(pq5b),
+                         bsl::priority_queue<T5, bsl::vector<T5>, CompT5>);
+        ASSERT_SAME_TYPE(
+                       decltype(pq5b),
                        bsl::priority_queue<T5, NonAllocContainer<T5>, CompT5>);
+        ASSERT_SAME_TYPE(decltype(pq5c),
+                         bsl::priority_queue<T5, bsl::vector<T5>, CompFnT5 *>);
+        ASSERT_SAME_TYPE(
+                   decltype(pq5d),
+                   bsl::priority_queue<T5, NonAllocContainer<T5>, CompFnT5 *>);
 
-        typedef short T6;
-        typedef std::greater<T6> CompT6;
+
+        typedef short                      T6;
+        typedef StupidLess<T6>             CompT6;
+        typedef decltype(StupidLessFn<T6>) CompFnT6;
+
         bsl::vector<T6>     v6;
         bsl::priority_queue pq6a(CompT6{}, v6, bsl::allocator<T6>{});
         bsl::priority_queue pq6b(CompT6{}, v6, a1);
         bsl::priority_queue pq6c(CompT6{}, v6, a2);
+        bsl::priority_queue pq6d(StupidLessFn<T6>, v6, bsl::allocator<T6>{});
+        bsl::priority_queue pq6e(StupidLessFn<T6>, v6, a1);
+        bsl::priority_queue pq6f(StupidLessFn<T6>, v6, a2);
         ASSERT_SAME_TYPE(decltype(pq6a),
-                             bsl::priority_queue<T6, bsl::vector<T6>, CompT6>);
+                         bsl::priority_queue<T6, bsl::vector<T6>, CompT6>);
         ASSERT_SAME_TYPE(decltype(pq6b),
-                             bsl::priority_queue<T6, bsl::vector<T6>, CompT6>);
+                         bsl::priority_queue<T6, bsl::vector<T6>, CompT6>);
         ASSERT_SAME_TYPE(decltype(pq6c),
-                             bsl::priority_queue<T6, bsl::vector<T6>, CompT6>);
+                         bsl::priority_queue<T6, bsl::vector<T6>, CompT6>);
+        ASSERT_SAME_TYPE(decltype(pq6d),
+                         bsl::priority_queue<T6, bsl::vector<T6>, CompFnT6 *>);
+        ASSERT_SAME_TYPE(decltype(pq6e),
+                         bsl::priority_queue<T6, bsl::vector<T6>, CompFnT6 *>);
+        ASSERT_SAME_TYPE(decltype(pq6f),
+                         bsl::priority_queue<T6, bsl::vector<T6>, CompFnT6 *>);
 
-        typedef double T7;
-        typedef std::less<T7> CompT7;
+
+        typedef double                     T7;
+        typedef StupidLess<T7>             CompT7;
+        typedef decltype(StupidLessFn<T7>) CompFnT7;
+
         bsl::vector<T7>       v7;
         NonAllocContainer<T7> nc7;
         bsl::priority_queue   pq7a(CompT7{}, std::move(v7));
         bsl::priority_queue   pq7b(CompT7{}, std::move(nc7));
+        bsl::priority_queue   pq7c(StupidLessFn<T7>, std::move(v7));
+        bsl::priority_queue   pq7d(StupidLessFn<T7>, std::move(nc7));
         ASSERT_SAME_TYPE(decltype(pq7a),
-                             bsl::priority_queue<T7, bsl::vector<T7>, CompT7>);
-        ASSERT_SAME_TYPE(decltype(pq7b),
+                         bsl::priority_queue<T7, bsl::vector<T7>, CompT7>);
+        ASSERT_SAME_TYPE(
+                       decltype(pq7b),
                        bsl::priority_queue<T7, NonAllocContainer<T7>, CompT7>);
+        ASSERT_SAME_TYPE(decltype(pq7c),
+                         bsl::priority_queue<T7, bsl::vector<T7>, CompFnT7 *>);
+        ASSERT_SAME_TYPE(
+                   decltype(pq7d),
+                   bsl::priority_queue<T7, NonAllocContainer<T7>, CompFnT7 *>);
 
-        typedef short T8;
-        typedef std::less<T8> CompT8;
+
+        typedef short                      T8;
+        typedef StupidLess<T8>             CompT8;
+        typedef decltype(StupidLessFn<T8>) CompFnT8;
+
         bsl::vector<T8>     v8;
         bsl::priority_queue pq8a(CompT8{}, v8, bsl::allocator<T8>{});
         bsl::priority_queue pq8b(CompT8{}, v8, a1);
         bsl::priority_queue pq8c(CompT8{}, v8, a2);
+        bsl::priority_queue pq8d(StupidLessFn<T8>, v8, bsl::allocator<T8>{});
+        bsl::priority_queue pq8e(StupidLessFn<T8>, v8, a1);
+        bsl::priority_queue pq8f(StupidLessFn<T8>, v8, a2);
         ASSERT_SAME_TYPE(decltype(pq8a),
                              bsl::priority_queue<T8, bsl::vector<T8>, CompT8>);
         ASSERT_SAME_TYPE(decltype(pq8b),
                              bsl::priority_queue<T8, bsl::vector<T8>, CompT8>);
         ASSERT_SAME_TYPE(decltype(pq8c),
                              bsl::priority_queue<T8, bsl::vector<T8>, CompT8>);
+        ASSERT_SAME_TYPE(decltype(pq8d),
+                         bsl::priority_queue<T8, bsl::vector<T8>, CompFnT8 *>);
+        ASSERT_SAME_TYPE(decltype(pq8e),
+                         bsl::priority_queue<T8, bsl::vector<T8>, CompFnT8 *>);
+        ASSERT_SAME_TYPE(decltype(pq8f),
+                         bsl::priority_queue<T8, bsl::vector<T8>, CompFnT8 *>);
+
 
         typedef char T9;
         T9                        *p9b = nullptr;
@@ -6082,35 +6145,62 @@ struct TestDeductionGuides {
         ASSERT_SAME_TYPE(decltype(pq9a), bsl::priority_queue<T9>);
         ASSERT_SAME_TYPE(decltype(pq9a), bsl::priority_queue<T9>);
 
-        typedef unsigned char T10;
-        typedef std::less<T10> Comp10;
+
+        typedef unsigned char               T10;
+        typedef StupidLess<T10>             CompT10;
+        typedef decltype(StupidLessFn<T10>) CompFnT10;
+
         T10                        *p10b = nullptr;
         T10                        *p10e = nullptr;
         bsl::vector<T10>::iterator  i10b;
         bsl::vector<T10>::iterator  i10e;
         bsl::vector<T10>            v10;
 
-        bsl::priority_queue pq10a(p10b, p10e, Comp10{}, v10);
-        bsl::priority_queue pq10b(i10b, i10e, Comp10{}, v10);
+        bsl::priority_queue pq10a(p10b, p10e, CompT10{}, v10);
+        bsl::priority_queue pq10b(i10b, i10e, CompT10{}, v10);
+        bsl::priority_queue pq10c(p10b, p10e, StupidLessFn<T10>, v10);
+        bsl::priority_queue pq10d(i10b, i10e, StupidLessFn<T10>, v10);
         ASSERT_SAME_TYPE(decltype(pq10a),
-                           bsl::priority_queue<T10, bsl::vector<T10>, Comp10>);
+                         bsl::priority_queue<T10, bsl::vector<T10>, CompT10>);
         ASSERT_SAME_TYPE(decltype(pq10a),
-                           bsl::priority_queue<T10, bsl::vector<T10>, Comp10>);
+                         bsl::priority_queue<T10, bsl::vector<T10>, CompT10>);
+        ASSERT_SAME_TYPE(
+                      decltype(pq10c),
+                      bsl::priority_queue<T10, bsl::vector<T10>, CompFnT10 *>);
+        ASSERT_SAME_TYPE(
+                      decltype(pq10d),
+                      bsl::priority_queue<T10, bsl::vector<T10>, CompFnT10 *>);
 
-        typedef signed char T11;
-        typedef std::less<T11> Comp11;
+
+        typedef signed char                 T11;
+        typedef StupidLess<T11>             CompT11;
+        typedef decltype(StupidLessFn<T11>) CompFnT11;
         T11                        *p11b = nullptr;
         T11                        *p11e = nullptr;
         bsl::vector<T11>::iterator  i11b;
         bsl::vector<T11>::iterator  i11e;
         bsl::vector<T11>            v11;
 
-        bsl::priority_queue pq11a(p11b, p11e, Comp11{}, std::move(v11));
-        bsl::priority_queue pq11b(i11b, i11e, Comp11{}, std::move(v11));
+        bsl::priority_queue pq11a(p11b, p11e, CompT11{}, std::move(v11));
+        bsl::priority_queue pq11b(i11b, i11e, CompT11{}, std::move(v11));
+        bsl::priority_queue pq11c(p11b,
+                                  p11e,
+                                  StupidLessFn<T11>,
+                                  std::move(v11));
+        bsl::priority_queue pq11d(i11b,
+                                  i11e,
+                                  StupidLessFn<T11>,
+                                  std::move(v11));
         ASSERT_SAME_TYPE(decltype(pq11a),
-                           bsl::priority_queue<T11, bsl::vector<T11>, Comp11>);
+                         bsl::priority_queue<T11, bsl::vector<T11>, CompT11>);
         ASSERT_SAME_TYPE(decltype(pq11a),
-                           bsl::priority_queue<T11, bsl::vector<T11>, Comp11>);
+                         bsl::priority_queue<T11, bsl::vector<T11>, CompT11>);
+        ASSERT_SAME_TYPE(
+                      decltype(pq11c),
+                      bsl::priority_queue<T11, bsl::vector<T11>, CompFnT11 *>);
+        ASSERT_SAME_TYPE(
+                      decltype(pq11d),
+                      bsl::priority_queue<T11, bsl::vector<T11>, CompFnT11 *>);
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // Compile-fail tests
@@ -6195,6 +6285,7 @@ int main(int argc, char *argv[])
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
         // This is a compile-time only test case.
         TestDeductionGuides test;
+        (void) test; // This variable only exists for ease of IDE navigation.
 #endif
       } break;
       case 22: {

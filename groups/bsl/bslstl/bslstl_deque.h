@@ -400,6 +400,7 @@ BSL_OVERRIDES_STD mode"
 #include <bslscm_version.h>
 
 #include <bslstl_iterator.h>
+#include <bslstl_iteratorutil.h>
 #include <bslstl_randomaccessiterator.h>
 #include <bslstl_stdexceptutil.h>
 
@@ -1395,13 +1396,14 @@ template <
     class SIZE_TYPE,
     class VALUE,
     class ALLOC,
-    class ALLOCATOR = bsl::allocator<VALUE>,
-    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>,
+    class DEFAULT_ALLOCATOR = bsl::allocator<VALUE>,
     class = bsl::enable_if_t<
               bsl::is_convertible_v<
-              SIZE_TYPE, typename bsl::allocator_traits<ALLOCATOR>::size_type>>
+                SIZE_TYPE,
+                typename bsl::allocator_traits<DEFAULT_ALLOCATOR>::size_type>>,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, DEFAULT_ALLOCATOR>>
     >
-deque(SIZE_TYPE, VALUE, ALLOC *) -> deque<VALUE, ALLOCATOR>;
+deque(SIZE_TYPE, VALUE, ALLOC *) -> deque<VALUE>;
     // Deduce the template parameter 'VALUE' from the corresponding parameter
     // supplied to the constructor of 'deque'.  This deduction guide does not
     // participate unless the supplied allocator is convertible to
@@ -1409,7 +1411,9 @@ deque(SIZE_TYPE, VALUE, ALLOC *) -> deque<VALUE, ALLOCATOR>;
 
 template <
     class INPUT_ITERATOR,
-    class VALUE = typename bsl::iterator_traits<INPUT_ITERATOR>::value_type>
+    class VALUE =
+          typename BloombergLP::bslstl::IteratorUtil::IterVal_t<INPUT_ITERATOR>
+    >
 deque(INPUT_ITERATOR, INPUT_ITERATOR) -> deque<VALUE>;
     // Deduce the template parameter 'VALUE' from the 'value_type' of the
     // iterators supplied to the constructor of 'deque'.
@@ -1417,7 +1421,8 @@ deque(INPUT_ITERATOR, INPUT_ITERATOR) -> deque<VALUE>;
 template<
     class INPUT_ITERATOR,
     class ALLOCATOR,
-    class VALUE = typename bsl::iterator_traits<INPUT_ITERATOR>::value_type,
+    class VALUE =
+         typename BloombergLP::bslstl::IteratorUtil::IterVal_t<INPUT_ITERATOR>,
     class = bsl::enable_if_t<bsl::IsStdAllocator_v<ALLOCATOR>>>
 deque(INPUT_ITERATOR, INPUT_ITERATOR, ALLOCATOR) -> deque<VALUE, ALLOCATOR>;
     // Deduce the template parameter 'VALUE' from the 'value_type' of the
@@ -1428,11 +1433,13 @@ deque(INPUT_ITERATOR, INPUT_ITERATOR, ALLOCATOR) -> deque<VALUE, ALLOCATOR>;
 template<
     class INPUT_ITERATOR,
     class ALLOC,
-    class VALUE = typename bsl::iterator_traits<INPUT_ITERATOR>::value_type,
-    class ALLOCATOR = bsl::allocator<VALUE>,
-    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>>
+    class VALUE =
+         typename BloombergLP::bslstl::IteratorUtil::IterVal_t<INPUT_ITERATOR>,
+    class DEFAULT_ALLOCATOR = bsl::allocator<VALUE>,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, DEFAULT_ALLOCATOR>>
+    >
 deque(INPUT_ITERATOR, INPUT_ITERATOR, ALLOC *)
--> deque<VALUE, ALLOCATOR>;
+-> deque<VALUE>;
     // Deduce the template parameter 'VALUE' from the 'value_type' of the
     // iterators supplied to the constructor of 'deque'.  This deduction guide
     // does not participate unless the supplied allocator is convertible to
@@ -1441,10 +1448,11 @@ deque(INPUT_ITERATOR, INPUT_ITERATOR, ALLOC *)
 template<
     class VALUE,
     class ALLOC,
-    class ALLOCATOR = bsl::allocator<VALUE>,
-    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>>
+    class DEFAULT_ALLOCATOR = bsl::allocator<VALUE>,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, DEFAULT_ALLOCATOR>>
+    >
 deque(std::initializer_list<VALUE>, ALLOC *)
--> deque<VALUE, ALLOCATOR>;
+-> deque<VALUE>;
     // Deduce the template parameter 'VALUE' from the 'value_type' of the
     // initializer_list supplied to the constructor of 'deque'.  This deduction
     // guide does not participate unless the supplied allocator is convertible

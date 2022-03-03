@@ -1578,12 +1578,13 @@ template <
     class INPUT_ITERATOR,
     class COMPARATOR,
     class ALLOC,
-    class KEY = typename bsl::iterator_traits<INPUT_ITERATOR>::value_type,
-    class ALLOCATOR = bsl::allocator<KEY>,
-    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>
+    class KEY =
+         typename BloombergLP::bslstl::IteratorUtil::IterVal_t<INPUT_ITERATOR>,
+    class DEFAULT_ALLOCATOR = bsl::allocator<KEY>,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, DEFAULT_ALLOCATOR>>
     >
 set(INPUT_ITERATOR, INPUT_ITERATOR, COMPARATOR, ALLOC *)
--> set<KEY, COMPARATOR, ALLOCATOR>;
+-> set<KEY, COMPARATOR>;
     // Deduce the template parameter 'KEY' from the 'value_type' of the
     // iterators supplied to the constructor of 'set'.  Deduce the template
     // parameter 'COMPARATOR' from the other parameter passed to the
@@ -1593,7 +1594,8 @@ set(INPUT_ITERATOR, INPUT_ITERATOR, COMPARATOR, ALLOC *)
 template <
     class INPUT_ITERATOR,
     class ALLOCATOR,
-    class KEY = typename bsl::iterator_traits<INPUT_ITERATOR>::value_type,
+    class KEY =
+         typename BloombergLP::bslstl::IteratorUtil::IterVal_t<INPUT_ITERATOR>,
     class = bsl::enable_if_t<bsl::IsStdAllocator_v<ALLOCATOR>>
     >
 set(INPUT_ITERATOR, INPUT_ITERATOR, ALLOCATOR)
@@ -1607,12 +1609,13 @@ set(INPUT_ITERATOR, INPUT_ITERATOR, ALLOCATOR)
 template <
     class INPUT_ITERATOR,
     class ALLOC,
-    class KEY = typename bsl::iterator_traits<INPUT_ITERATOR>::value_type,
-    class ALLOCATOR = bsl::allocator<KEY>,
-    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>
+    class KEY =
+         typename BloombergLP::bslstl::IteratorUtil::IterVal_t<INPUT_ITERATOR>,
+    class DEFAULT_ALLOCATOR = bsl::allocator<KEY>,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, DEFAULT_ALLOCATOR>>
     >
 set(INPUT_ITERATOR, INPUT_ITERATOR, ALLOC *)
--> set<KEY, std::less<KEY>, ALLOCATOR>;
+-> set<KEY>;
     // Deduce the template parameter 'KEY' from the 'value_type' of the
     // iterators supplied to the constructor of 'set'.  This deduction guide
     // does not participate unless the specified 'ALLOC' is convertible to
@@ -1638,11 +1641,11 @@ template <
     class KEY,
     class COMPARATOR,
     class ALLOC,
-    class ALLOCATOR = bsl::allocator<KEY>,
-    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>
+    class DEFAULT_ALLOCATOR = bsl::allocator<KEY>,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, DEFAULT_ALLOCATOR>>
     >
 set(std::initializer_list<KEY>, COMPARATOR, ALLOC *)
--> set<KEY, COMPARATOR, ALLOCATOR>;
+-> set<KEY, COMPARATOR>;
     // Deduce the template parameter 'KEY' from the 'value_type' of the
     // initializer_list supplied to the constructor of 'set'.  Deduce the
     // template parameter 'COMPARATOR' from the other parameter passed to the
@@ -1664,11 +1667,11 @@ set(std::initializer_list<KEY>, ALLOCATOR)
 template <
     class KEY,
     class ALLOC,
-    class ALLOCATOR = bsl::allocator<KEY>,
-    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>
+    class DEFAULT_ALLOCATOR = bsl::allocator<KEY>,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, DEFAULT_ALLOCATOR>>
     >
 set(std::initializer_list<KEY>, ALLOC *)
--> set<KEY, std::less<KEY>, ALLOCATOR>;
+-> set<KEY>;
     // Deduce the template parameter 'KEY' from the 'value_type' of the
     // initializer_list supplied to the constructor of 'set'.  This deduction
     // guide does not participate unless the specified 'ALLOC' is convertible
