@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Dec  1 08:50:39 2021
+// Generated on Tue Feb  1 19:27:34 2022
 // Command line: sim_cpp11_features.pl bslstl_priorityqueue.h
 
 #ifdef COMPILING_BSLSTL_PRIORITYQUEUE_H
@@ -477,7 +477,8 @@ priority_queue(COMPARATOR, CONTAINER, ALLOC *)
 
 template <
     class INPUT_ITERATOR,
-    class VALUE = typename bsl::iterator_traits<INPUT_ITERATOR>::value_type
+    class VALUE =
+          typename BloombergLP::bslstl::IteratorUtil::IterVal_t<INPUT_ITERATOR>
     >
 priority_queue(INPUT_ITERATOR, INPUT_ITERATOR)
   -> priority_queue<VALUE>;
@@ -488,7 +489,8 @@ template <
     class INPUT_ITERATOR,
     class COMPARATOR,
     class CONTAINER,
-    class VALUE = typename bsl::iterator_traits<INPUT_ITERATOR>::value_type
+    class VALUE =
+          typename BloombergLP::bslstl::IteratorUtil::IterVal_t<INPUT_ITERATOR>
     >
 priority_queue(INPUT_ITERATOR, INPUT_ITERATOR, COMPARATOR, CONTAINER)
   -> priority_queue<VALUE, CONTAINER, COMPARATOR>;
@@ -1088,7 +1090,7 @@ void swap(priority_queue<VALUE, CONTAINER, COMPARATOR>& a,
 #endif // ! defined(INCLUDED_BSLSTL_PRIORITYQUEUE_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2021 Bloomberg Finance L.P.
+// Copyright 2022 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

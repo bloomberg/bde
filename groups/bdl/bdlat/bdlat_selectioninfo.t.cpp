@@ -12,6 +12,8 @@
 
 #include <bslim_testutil.h>
 
+#include <bsls_compilerfeatures.h>
+
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
@@ -167,6 +169,30 @@ int main(int argc, char *argv[])
 
         ASSERT(1 == (mMI == mMI2));
         ASSERT(0 == (mMI != mMI2));
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
+        {
+            constexpr Obj MI3 = { 1, "foo", 3, "desc", 0 };
+
+            constexpr int         id             = MI3.id();
+            constexpr const char *name           = MI3.name();
+            constexpr int         nameLength     = MI3.nameLength();
+            constexpr const char *annotation     = MI3.annotation();
+            constexpr int         formattingMode = MI3.formattingMode();
+
+            ASSERT(1 == id                             );
+            ASSERT(0 == bsl::strcmp("foo",  name      ));
+            ASSERT(3 == nameLength                     );
+            ASSERT(0 == bsl::strcmp("desc", annotation));
+            ASSERT(0 == formattingMode                 );
+
+            (void) id;               // suppress compiler warning
+            (void) name;             // suppress compiler warning
+            (void) nameLength;       // suppress compiler warning
+            (void) annotation;       // suppress compiler warning
+            (void) formattingMode ;  // suppress compiler warning
+        }
+#endif
 
       } break;
       default: {

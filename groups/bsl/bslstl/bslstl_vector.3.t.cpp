@@ -4554,6 +4554,7 @@ int main(int argc, char *argv[])
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
         // This is a compile-time only test case.
         TestDeductionGuides test;
+        (void) test; // This variable only exists for ease of IDE navigation.
 #endif
       } break;
       case 38: {

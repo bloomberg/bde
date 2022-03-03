@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Dec  1 13:29:03 2021
+// Generated on Wed Mar  2 08:25:04 2022
 // Command line: sim_cpp11_features.pl bslstl_list.h
 
 #ifdef COMPILING_BSLSTL_LIST_H
@@ -1681,19 +1681,22 @@ template <
 list(list<VALUE, ALLOCATOR>, ALLOC *) -> list<VALUE, ALLOCATOR>;
     // Deduce the template parameters 'VALUE' and 'ALLOCATOR' from the
     // corresponding template parameters of the 'bsl::list' supplied to the
-    // constructor of 'list'.
+    // constructor of 'list'.  This deduction guide does not participate unless
+    // the supplied allocator is convertible to 'ALLOCATOR'.
 
 template <
     class SIZE_TYPE,
     class VALUE,
     class ALLOC,
-    class ALLOCATOR = bsl::allocator<VALUE>,
-    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>,
+    class DEFAULT_ALLOCATOR = bsl::allocator<VALUE>,
+    class = bsl::enable_if_t<
+                            bsl::is_convertible_v<ALLOC *, DEFAULT_ALLOCATOR>>,
     class = bsl::enable_if_t<
               bsl::is_convertible_v<
-              SIZE_TYPE, typename bsl::allocator_traits<ALLOCATOR>::size_type>>
+                 SIZE_TYPE,
+                 typename bsl::allocator_traits<DEFAULT_ALLOCATOR>::size_type>>
     >
-list(SIZE_TYPE, VALUE, ALLOC *) -> list<VALUE, ALLOCATOR>;
+list(SIZE_TYPE, VALUE, ALLOC *) -> list<VALUE>;
     // Deduce the template parameter 'VALUE' from the corresponding parameter
     // supplied to the constructor of 'list'.  This deduction guide does not
     // participate unless the supplied allocator is convertible to
@@ -1701,7 +1704,9 @@ list(SIZE_TYPE, VALUE, ALLOC *) -> list<VALUE, ALLOCATOR>;
 
 template <
     class INPUT_ITERATOR,
-    class VALUE = typename bsl::iterator_traits<INPUT_ITERATOR>::value_type>
+    class VALUE = typename
+                   BloombergLP::bslstl::IteratorUtil::IterVal_t<INPUT_ITERATOR>
+    >
 list(INPUT_ITERATOR, INPUT_ITERATOR) -> list<VALUE>;
     // Deduce the template parameter 'VALUE' from the 'value_type' of the
     // iterators supplied to the constructor of 'list'.
@@ -1709,32 +1714,43 @@ list(INPUT_ITERATOR, INPUT_ITERATOR) -> list<VALUE>;
 template<
     class INPUT_ITERATOR,
     class ALLOCATOR,
-    class VALUE = typename bsl::iterator_traits<INPUT_ITERATOR>::value_type,
+    class VALUE = typename
+                  BloombergLP::bslstl::IteratorUtil::IterVal_t<INPUT_ITERATOR>,
     class = bsl::enable_if_t<bsl::IsStdAllocator_v<ALLOCATOR>>>
 list(INPUT_ITERATOR, INPUT_ITERATOR, ALLOCATOR) -> list<VALUE, ALLOCATOR>;
-    // Deduce the template parameters 'VALUE' and 'ALLOCATOR' from the
-    // parameters supplied to the constructor of 'list'.
+    // Deduce the template parameter 'VALUE' from the 'value_type' of the
+    // iterators supplied to the constructor of 'list'.  Deduce the template
+    // parameter 'ALLOCATOR' from the allocator supplied to the constructor of
+    // 'list'.  This deduction guide does not participate unless the supplied
+    // allocator meets the requirements of a standard allocator.
 
 template<
     class INPUT_ITERATOR,
     class ALLOC,
-    class VALUE = typename bsl::iterator_traits<INPUT_ITERATOR>::value_type,
-    class ALLOCATOR = bsl::allocator<VALUE>,
-    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>>
+    class VALUE = typename
+                  BloombergLP::bslstl::IteratorUtil::IterVal_t<INPUT_ITERATOR>,
+    class DEFAULT_ALLOCATOR = bsl::allocator<VALUE>,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, DEFAULT_ALLOCATOR>>
+    >
 list(INPUT_ITERATOR, INPUT_ITERATOR, ALLOC *)
--> list<VALUE, ALLOCATOR>;
-    // Deduce the template parameters 'VALUE' and 'ALLOCATOR' from the
-    // parameters supplied to the constructor of 'list'.
+-> list<VALUE>;
+    // Deduce the template parameter 'VALUE' from the value_type of the
+    // iterators supplied to the constructor of 'list'.  This deduction guide
+    // does not participate unless the specified 'ALLOC' is convertible to
+    // 'bsl::allocator<CHAR_TYPE>'.
 
 template<
     class VALUE,
     class ALLOC,
-    class ALLOCATOR = bsl::allocator<VALUE>,
-    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>>
+    class DEFAULT_ALLOCATOR = bsl::allocator<VALUE>,
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, DEFAULT_ALLOCATOR>>
+    >
 list(std::initializer_list<VALUE>, ALLOC *)
--> list<VALUE, ALLOCATOR>;
-    // Deduce the template parameters 'VALUE' and 'ALLOCATOR' from the
-    // parameters supplied to the constructor of 'list'.
+-> list<VALUE>;
+    // Deduce the template parameter 'VALUE' from the value_type of the
+    // intializer_list supplied to the constructor of 'list'.  This deduction
+    // guide does not participate unless the specified 'ALLOC' is convertible
+    // to 'bsl::allocator<CHAR_TYPE>'.
 #endif
 
 // FREE OPERATORS
@@ -4339,7 +4355,7 @@ struct IsBitwiseMoveable<bsl::list<VALUE, ALLOCATOR> >
 #endif // ! defined(INCLUDED_BSLSTL_LIST_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2021 Bloomberg Finance L.P.
+// Copyright 2022 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

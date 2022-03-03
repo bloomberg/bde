@@ -39,6 +39,8 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_istriviallydefaultconstructible.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
+#include <bsls_keyword.h>
+
 #include <bsl_climits.h>
 #include <bsl_cstring.h>
 #include <bsl_iosfwd.h>
@@ -107,16 +109,20 @@ struct bdlat_EnumeratorInfo {
         // object.
 
     // ACCESSORS
+    BSLS_KEYWORD_CONSTEXPR
     const char *annotation() const;
         // Return the non-modifiable annotation of this enumerator info object.
 
+    BSLS_KEYWORD_CONSTEXPR
     const char *name() const;
         // Return the non-modifiable name of this enumerator info object.
 
+    BSLS_KEYWORD_CONSTEXPR
     int nameLength() const;
         // Return the length of the name of this enumerator info object.  Note
         // that the 0-terminator is not included in the length.
 
+    BSLS_KEYWORD_CONSTEXPR
     int value() const;
         // Return the index of this enumerator info object.
 };
@@ -176,24 +182,28 @@ int& bdlat_EnumeratorInfo::value()
 // ACCESSORS
 
 inline
+BSLS_KEYWORD_CONSTEXPR
 const char *bdlat_EnumeratorInfo::annotation() const
 {
     return d_annotation_p;
 }
 
 inline
+BSLS_KEYWORD_CONSTEXPR
 const char *bdlat_EnumeratorInfo::name() const
 {
     return d_name_p;
 }
 
 inline
+BSLS_KEYWORD_CONSTEXPR
 int bdlat_EnumeratorInfo::nameLength() const
 {
     return d_nameLength;
 }
 
 inline
+BSLS_KEYWORD_CONSTEXPR
 int bdlat_EnumeratorInfo::value() const
 {
     return d_value;

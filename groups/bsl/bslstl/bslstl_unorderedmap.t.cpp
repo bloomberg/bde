@@ -225,7 +225,8 @@ using bsl::pair;
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [40] USAGE EXAMPLE
+// [41] CLASS TEMPLATE ARGUMENT DEDUCTION
+// [42] USAGE EXAMPLE
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int  ggg(Obj *, const char *, bool verbose = true);
@@ -10436,7 +10437,7 @@ int main(int argc, char *argv[])
     ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
 
     switch (test) { case 0:
-      case 40: {
+      case 42: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -10456,6 +10457,8 @@ int main(int argc, char *argv[])
                             "\n=============\n");
         usage();
       } break;
+      case 41: // falls through
+      case 40: // falls through
       case 39: // falls through
       case 38: // falls through
       case 37: // falls through
