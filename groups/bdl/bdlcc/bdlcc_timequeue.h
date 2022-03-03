@@ -622,8 +622,8 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #include <bsls_timeinterval.h>
 
+#include <bsl_climits.h>
 #include <bsl_cstdint.h>
-#include <bsl_limits.h>
 #include <bsl_map.h>
 #include <bsl_vector.h>
 
@@ -1904,7 +1904,7 @@ int TimeQueue<DATA>::countLE(const bsls::TimeInterval& time) const
             BSLS_ASSERT(count < (1 << k_NUM_INDEX_BITS_MAX) - 1);
                 // container size is bounded to 2^24-1
             BSLMF_ASSERT((1 << k_NUM_INDEX_BITS_MAX) - 1 <
-                    bsl::numeric_limits<int>::max());
+                    INT_MAX);
                 // container size bound prevents overflow of 'count'
             ++count;
             node = node->d_next_p;
