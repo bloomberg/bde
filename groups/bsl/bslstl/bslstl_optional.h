@@ -2276,7 +2276,20 @@ class optional<TYPE, false> {
         // not require them.
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 };
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY else
+
+}  // close namespace bsl
+
+namespace BloombergLP {
+namespace bslma {
+
+template <class TYPE>
+struct UsesBslmaAllocator<bsl::optional<TYPE, false> > : bsl::false_type {};
+
+}  // close namespace bslma
+}  // close enterprise namespace
+
+namespace bsl {
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
 // CLASS TEMPLATE DEDUCTION GUIDES
