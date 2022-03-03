@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Fri Feb 25 10:40:38 2022
+// Generated on Thu Mar  3 14:02:24 2022
 // Command line: sim_cpp11_features.pl bdlb_nullablevalue.h
 
 #ifdef COMPILING_BDLB_NULLABLEVALUE_H
@@ -1030,6 +1030,10 @@ template <class TYPE>
 inline
 NullableValue<TYPE>& NullableValue<TYPE>::operator=(const NullableValue& rhs)
 {
+    // Constraints on 'bsl::optional' assignment operator may affect the
+    // assignment.  In order to avoid changes to behavior, we implement the
+    // assignment or conversion directly.
+
     if (rhs.has_value()) {
         if (this->has_value()) {
             this->value() = rhs.value();
@@ -1050,6 +1054,10 @@ inline
 NullableValue<TYPE>& NullableValue<TYPE>::operator=(
                                           bslmf::MovableRef<NullableValue> rhs)
 {
+    // Constraints on 'bsl::optional' assignment operator may affect the
+    // assignment.  In order to avoid changes to behavior, we implement the
+    // assignment or conversion directly.
+
     NullableValue& localRhs = rhs;
 
     if (localRhs.has_value()) {
@@ -1072,6 +1080,10 @@ template <class BDE_OTHER_TYPE>
 NullableValue<TYPE>& NullableValue<TYPE>::operator=(
                                       const NullableValue<BDE_OTHER_TYPE>& rhs)
 {
+    // Constraints on 'bsl::optional' assignment operator may affect the
+    // assignment.  In order to avoid changes to behavior, we implement the
+    // assignment or conversion directly.
+
     if (rhs.has_value()) {
         if (this->has_value()) {
             this->value() = rhs.value();
@@ -1092,8 +1104,9 @@ template <class BDE_OTHER_TYPE>
 NullableValue<TYPE>& NullableValue<TYPE>::operator=(
       BDLB_NULLABLEVALUE_DEDUCE_MOVABLE_REF(NullableValue<BDE_OTHER_TYPE>) rhs)
 {
-    // bsl::optional<TYPE>::operator=(bsl::optional<BDE_OTHER_TYPE>&)' is more
-    // constrained than this, so just assign directly across the value.
+    // Constraints on 'bsl::optional' assignment operator may affect the
+    // assignment.  In order to avoid changes to behavior, we implement the
+    // assignment or conversion directly.
 
     NullableValue<BDE_OTHER_TYPE>& rhsLocal = rhs;
 
@@ -1143,6 +1156,10 @@ template <class TYPE>
 inline
 NullableValue<TYPE>& NullableValue<TYPE>::operator=(const TYPE& rhs)
 {
+    // Constraints on 'bsl::optional' assignment operator may affect the
+    // assignment.  In order to avoid changes to behavior, we implement the
+    // assignment or conversion directly.
+
     if (this->has_value()) {
         this->value() = rhs;
     }
@@ -1158,6 +1175,10 @@ inline
 NullableValue<TYPE>& NullableValue<TYPE>::operator=(
                                                    bslmf::MovableRef<TYPE> rhs)
 {
+    // Constraints on 'bsl::optional' assignment operator may affect the
+    // assignment.  In order to avoid changes to behavior, we implement the
+    // assignment or conversion directly.
+
     if (this->has_value()) {
         this->value() = MoveUtil::move(rhs);
     }
@@ -1173,6 +1194,10 @@ template <class BDE_OTHER_TYPE>
 inline
 NullableValue<TYPE>& NullableValue<TYPE>::operator=(const BDE_OTHER_TYPE& rhs)
 {
+    // Constraints on 'bsl::optional' assignment operator may affect the
+    // assignment.  In order to avoid changes to behavior, we implement the
+    // assignment or conversion directly.
+
     if (this->has_value()) {
         this->value() = rhs;
     }
