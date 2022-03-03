@@ -76,10 +76,10 @@ using namespace bsl;  // automatically added by script
 // [3 ] int add(const bsls::TimeInterval& time, const DATA& data, ...
 // [3 ] int add(const bdlcc::TimeQueueItem<DATA> &item, int *isNewTop=0...
 // [8 ] int update(int handle, const bsls::TimeInterval &newTime,...
-// [3 ] int length() const;
+// [11] int length() const;
 // [3 ] bool isRegisteredHandle(int handle) const;
 // [3 ] int minTime(bsls::TimeInterval *buffer);
-// [3 ] int countLE(const bsls::TimeInterval& time) const;
+// [11] int countLE(const bsls::TimeInterval& time) const;
 //-----------------------------------------------------------------------------
 // [1 ] BREATHING TEST
 // [2 ] CLASS 'bdlcc::TimeQueueItem'
@@ -442,14 +442,19 @@ void *testAddUpdatePopRemoveAll(void *arg)
     return NULL;
 }
 
-void *testLength(void *)
-    // Invoke 'length' in a loop.
+void *testLengthAndCountLE(void *)
+    // Invoke 'length' and 'countLE' in a loop.
 {
     barrier.wait();
     for (int i = 0; i < k_NUM_ITERATIONS; ++i) {
         int len = timequeue.length();
         ASSERTV(i, len, len >= 0);
         ASSERTV(i, len, len <= k_NUM_THREADS);
+
+        const bsls::TimeInterval TIME(k_NUM_ITERATIONS / 2);
+        const int count = timequeue.countLE(TIME);
+        ASSERTV(i, count, count >= 0);
+        ASSERTV(i, count, count <= k_NUM_THREADS);
     }
     return NULL;
 }
@@ -1919,15 +1924,15 @@ int main(int argc, char *argv[])
         // Plan:
         //   Create a time queue.  Create 'k_NUM_THREADS' threads and let each
         //   thread invoke 'add', 'find', 'update', 'popFront', and 'popLE' in
-        //   a loop.  Create a thread, let it invoke 'length' in a loop and
-        //   verify that there are at least 0 and no more than 'k_NUM_THREADS'
-        //   elements at any given time.  At periodic intervals, let another
-        //   thread invoke 'removeAll'.  Let all threads run concurrently.
-        //   This test is mostly to verify that races don't happen, we are only
-        //   going to do a mild error checking.  Nevertheless, let each thread
-        //   gather all the items it removes in its own container, and check
-        //   that the total size of those containers is the number of elements
-        //   added.
+        //   a loop.  Create a thread, let it invoke 'length' and 'countLE' in
+        //   a loop and verify that there are at least 0 and no more than
+        //   'k_NUM_THREADS' elements at any given time.  At periodic
+        //   intervals, let another thread invoke 'removeAll'.  Let all threads
+        //   run concurrently.  This test is mostly to verify that races don't
+        //   happen, we are only going to do a mild error checking.
+        //   Nevertheless, let each thread gather all the items it removes in
+        //   its own container, and check that the total size of those
+        //   containers is the number of elements added.
         //
         // Testing:
         //   CONCERN: CONCURRENCY TEST
@@ -1951,7 +1956,9 @@ int main(int argc, char *argv[])
                                      (void *)&info[i]);
         }
 
-        bslmt::ThreadUtil::create(&threads[k_NUM_THREADS], testLength, NULL);
+        bslmt::ThreadUtil::create(&threads[k_NUM_THREADS],
+                                   testLengthAndCountLE,
+                                   NULL);
 
         int size = 0;
         for (int i = 0; i < k_NUM_THREADS; ++i) {
