@@ -291,9 +291,11 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
-#include <bsls_assert.h>
+#include <bslh_wyhashalgorithm.h>
 
-#include <bslh_spookyhashalgorithm.h>
+#include <bslmf_assert.h>
+
+#include <bsls_assert.h>
 
 namespace BloombergLP {
 
@@ -306,7 +308,7 @@ class DefaultSeededHashAlgorithm {
 
   private:
     // PRIVATE TYPES
-    typedef bslh::SpookyHashAlgorithm InternalHashAlgorithm;
+    typedef bslh::WyHashAlgorithm InternalHashAlgorithm;
         // Typedef indicating the algorithm currently being used by
         // 'bslh::DefualtHashAlgorithm' to compute hashes.  This algorithm is
         // subject to change.
@@ -333,13 +335,16 @@ class DefaultSeededHashAlgorithm {
     enum { k_SEED_LENGTH = InternalHashAlgorithm::k_SEED_LENGTH };
         // Seed length in bytes.
 
+    BSLMF_ASSERT(0 < k_SEED_LENGTH);
+
     // CREATORS
     explicit DefaultSeededHashAlgorithm(const char *seed);
-        // Create a 'bslh::DefaultSeededHashAlgorithm', seeded with a 128-bit
+        // Create a 'bslh::DefaultSeededHashAlgorithm', seeded with the
         // ('k_SEED_LENGTH' bytes) seed pointed to by the specified 'seed'.
         // Each bit of the supplied seed will contribute to the final hash
         // produced by 'computeHash()'.  The behaviour is undefined unless
-        // 'seed' points to at least 16 bytes of initialized memory.
+        // 'seed' points to at least 'k_SEED_LENGTH' bytes of initialized
+        // memory.
 
     //! ~DefaultSeededHashAlgorithm() = default;
         // Destroy this object.

@@ -3,14 +3,17 @@
 #include <bslh_defaultseededhashalgorithm.h>
 #include <bslh_seedgenerator.h>
 #include <bslh_siphashalgorithm.h>
+#include <bslh_spookyhashalgorithm.h>
+#include <bslh_wyhashalgorithm.h>
 
 #include <bslmf_issame.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_byteorder.h>
 #include <bsls_platform.h>
-#include <bsls_bsltestutil.h>
+#include <bsls_types.h>
 
 #include <math.h>
 #include <wchar.h>
@@ -20,7 +23,6 @@
 
 using namespace BloombergLP;
 using namespace bslh;
-
 
 //=============================================================================
 //                                  TEST PLAN
@@ -110,6 +112,12 @@ void aSsErT(bool condition, const char *message, int line)
 
 #define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
 #define U64 BSLS_BSLTESTUTIL_FORMAT_U64
+
+// ============================================================================
+//                              GLOBAL TYPEDEFS
+// ----------------------------------------------------------------------------
+
+typedef bsls::Types::Uint64 Uint64;
 
 //=============================================================================
 //                             USAGE EXAMPLE
@@ -282,11 +290,11 @@ class MockRNG {
     // in testing.
 
   public:
-    typedef unsigned long long result_type;
+    typedef Uint64 result_type;
         // The type of the random data that 'operator()' will return.
 
   private:
-    unsigned long long counter;
+    result_type d_counter;
         // Counter that provides some variance in the random numbers returned.
 
   public:
@@ -297,10 +305,17 @@ class MockRNG {
         // Return a predictable "random" number of 'result_type'.
 };
 
-MockRNG::MockRNG() : counter(0) { }
+MockRNG::MockRNG()
+: d_counter(0)
+{}
 
-MockRNG::result_type MockRNG::operator()() {
-    return ++counter;
+MockRNG::result_type MockRNG::operator()()
+{
+    ++d_counter;
+
+    // Make the result always little-endian.
+
+    return BSLS_BYTEORDER_HOST_U64_TO_LE(d_counter);
 }
 
 template<class EXPECTED_TYPE>
@@ -469,6 +484,9 @@ int main(int argc, char *argv[])
             ASSERT((bslmf::IsSame<size_t,
                                   SeededHash<SeedGen, SpookyHashAlgorithm>
                                                        ::result_type>::VALUE));
+            ASSERT((bslmf::IsSame<size_t,
+                                  SeededHash<SeedGen, WyHashAlgorithm>
+                                                       ::result_type>::VALUE));
         }
 
         if (verbose) printf("Invoke 'operator()' and verify the return type is"
@@ -477,12 +495,15 @@ int main(int argc, char *argv[])
             typedef SeededHash<SeedGen, DefaultSeededHashAlgorithm> S1;
             typedef SeededHash<SeedGen, SipHashAlgorithm>           S2;
             typedef SeededHash<SeedGen, SpookyHashAlgorithm>        S3;
+            typedef SeededHash<SeedGen, WyHashAlgorithm>            S4;
 
             ASSERT(TypeChecker<S1::result_type>::isCorrectType(S1()(1)));
 
             ASSERT(TypeChecker<S1::result_type>::isCorrectType(S2()(1)));
 
             ASSERT(TypeChecker<S1::result_type>::isCorrectType(S3()(1)));
+
+            ASSERT(TypeChecker<S1::result_type>::isCorrectType(S4()(1)));
         }
 
       } break;
@@ -515,45 +536,54 @@ int main(int argc, char *argv[])
             int d_value;
             u64 d_expectedHash;
         } DATA[] = {
-        // LINE    DATA              HASH
-         {  L_,        1,  9778072230994240314ULL,},
-         {  L_,        3, 16874605512690156844ULL,},
-         {  L_,        9,  6609278684846086166ULL,},
-         {  L_,       27, 14610053422485613907ULL,},
-         {  L_,       81,  4473763709117720193ULL,},
-         {  L_,      243,  6469189993869193617ULL,},
-         {  L_,      729, 18245170745653607298ULL,},
-         {  L_,     2187,  4418771231001558887ULL,},
-         {  L_,     6561,  8361494415593539480ULL,},
-         {  L_,    19683,  8034516711244389554ULL,},
-         {  L_,    59049, 15257840606198213647ULL,},
-         {  L_,   177147,  9838846006369268307ULL,},
-         {  L_,   531441,  2891007685366740764ULL,},
-         {  L_,  1594323,  3005240762459740192ULL,},
-         {  L_,  4782969,  3383268391725748969ULL,},
+            // LINE   DATA              HASH
+            { L_,        1,     850780076440683384ULL },
+            { L_,        3,   18306243112761280582ULL },
+            { L_,        9,    2046726731786988215ULL },
+            { L_,       27,    3846592182643804693ULL },
+            { L_,       81,   11358861492603661239ULL },
+            { L_,      243,    9429205782022548368ULL },
+            { L_,      729,    5205273266420042710ULL },
+            { L_,     2187,   10754904480246034408ULL },
+            { L_,     6561,    2070163649115326234ULL },
+            { L_,    19683,    3217175676195189320ULL },
+            { L_,    59049,    2815950756720552042ULL },
+            { L_,   177147,    4635811678511157567ULL },
+            { L_,   531441,    7539576847008949288ULL },
+            { L_,  1594323,   10753838002839432121ULL },
+            { L_,  4782969,   10048672953098544131ULL },
         };
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
-        if (verbose) printf("Create 'const' strings and hash them.  Compare"
-                            " the results against known good values."
+        if (verbose) printf("Create little-endian 'int's and hash them."
+                            "  Compare the results against known good values."
                             "  (C-1,2)\n");
         {
             for (int i = 0; i != NUM_DATA; ++i) {
-                const int     LINE  = DATA[i].d_line;
-                const int     VALUE = DATA[i].d_value;
-                const u64 HASH  = DATA[i].d_expectedHash;
+                const int LINE     = DATA[i].d_line;
+                const int VALUE    = DATA[i].d_value;
+                const int LE_VALUE = BSLS_BYTEORDER_HOST_U32_TO_LE(VALUE);
+                const u64 HASH     = DATA[i].d_expectedHash;
 
                 Obj hash = Obj();
-                const u64 result = hash(VALUE);
+                const u64 result = hash(LE_VALUE);
+
+                if (sizeof(Obj::result_type) == sizeof(HASH)) {
+                    ASSERT(HASH == result);
+                }
+
                 size_t truncResult = size_t(result);
                 size_t truncExpect = size_t(HASH);
-                if (veryVerbose) printf(
-                             "Hashing: %i, Expecting: " U64 ", Got: " U64 "\n",
-                             VALUE, u64(truncExpect), u64(truncResult));
+
+                if (veryVerbose) {
+                    printf("            { L_, %8d, %22lluULL },\n", VALUE,
+                                                                       result);
+                }
+
                 LOOP_ASSERT(LINE, truncResult == truncExpect);
 
                 const Obj constHash = Obj();
-                size_t constTruncResult = size_t(constHash(VALUE));
+                size_t constTruncResult = size_t(constHash(LE_VALUE));
                 LOOP_ASSERT(LINE, constTruncResult == truncExpect);
             }
         }
