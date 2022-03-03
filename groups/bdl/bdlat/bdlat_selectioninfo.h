@@ -80,6 +80,8 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_istriviallydefaultconstructible.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
+#include <bsls_keyword.h>
+
 #include <bsl_climits.h>
 #include <bsl_cstring.h>
 #include <bsl_iosfwd.h>
@@ -152,18 +154,23 @@ struct bdlat_SelectionInfo {
         // in the length.
 
     // ACCESSORS
+    BSLS_KEYWORD_CONSTEXPR
     const char *annotation() const;
         // Return the non-modifiable annotation of this selection info object.
 
+    BSLS_KEYWORD_CONSTEXPR
     int formattingMode() const;
         // Return the formatting mode of this selection info object.
 
+    BSLS_KEYWORD_CONSTEXPR
     int id() const;
         // Return the id of this selection info object.
 
+    BSLS_KEYWORD_CONSTEXPR
     const char *name() const;
         // Return the non-modifiable name of this selection info object.
 
+    BSLS_KEYWORD_CONSTEXPR
     int nameLength() const;
         // Return the length of the name of this selection info object.  Note
         // that the 0-terminator is not included in the length.
@@ -196,7 +203,6 @@ bsl::ostream& operator<<(bsl::ostream&              stream,
     // 'stream'.
 
 // MANIPULATORS
-
 inline
 const char *& bdlat_SelectionInfo::annotation()
 {
@@ -228,32 +234,36 @@ int& bdlat_SelectionInfo::nameLength()
 }
 
 // ACCESSORS
-
 inline
+BSLS_KEYWORD_CONSTEXPR
 const char *bdlat_SelectionInfo::annotation() const
 {
     return d_annotation_p;
 }
 
 inline
+BSLS_KEYWORD_CONSTEXPR
 int bdlat_SelectionInfo::formattingMode() const
 {
     return d_formattingMode;
 }
 
 inline
+BSLS_KEYWORD_CONSTEXPR
 int bdlat_SelectionInfo::id() const
 {
     return d_id;
 }
 
 inline
+BSLS_KEYWORD_CONSTEXPR
 const char *bdlat_SelectionInfo::name() const
 {
     return d_name_p;
 }
 
 inline
+BSLS_KEYWORD_CONSTEXPR
 int bdlat_SelectionInfo::nameLength() const
 {
     return d_nameLength;

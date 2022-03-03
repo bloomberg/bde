@@ -80,6 +80,8 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_istriviallydefaultconstructible.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
+#include <bsls_keyword.h>
+
 #include <bsl_climits.h>
 #include <bsl_cstring.h>
 #include <bsl_iosfwd.h>
@@ -153,18 +155,23 @@ struct bdlat_AttributeInfo {
         // in the length.
 
     // ACCESSORS
+    BSLS_KEYWORD_CONSTEXPR
     const char *annotation() const;
         // Return the non-modifiable annotation of this attribute info object.
 
+    BSLS_KEYWORD_CONSTEXPR
     int formattingMode() const;
         // Return the formatting mode of this attribute info object.
 
+    BSLS_KEYWORD_CONSTEXPR
     int id() const;
         // Return the id of this attribute info object.
 
+    BSLS_KEYWORD_CONSTEXPR
     const char *name() const;
         // Return the non-modifiable name of this attribute info object.
 
+    BSLS_KEYWORD_CONSTEXPR
     int nameLength() const;
         // Return the length of the name of this attribute info object.  Note
         // that the 0-terminator is not included in the length.
@@ -197,7 +204,6 @@ bsl::ostream& operator<<(bsl::ostream&              stream,
     // 'stream'.
 
 // MANIPULATORS
-
 inline
 const char *& bdlat_AttributeInfo::annotation()
 {
@@ -229,32 +235,36 @@ int& bdlat_AttributeInfo::nameLength()
 }
 
 // ACCESSORS
-
 inline
+BSLS_KEYWORD_CONSTEXPR
 const char *bdlat_AttributeInfo::annotation() const
 {
     return d_annotation_p;
 }
 
 inline
+BSLS_KEYWORD_CONSTEXPR
 int bdlat_AttributeInfo::formattingMode() const
 {
     return d_formattingMode;
 }
 
 inline
+BSLS_KEYWORD_CONSTEXPR
 int bdlat_AttributeInfo::id() const
 {
     return d_id;
 }
 
 inline
+BSLS_KEYWORD_CONSTEXPR
 const char *bdlat_AttributeInfo::name() const
 {
     return d_name_p;
 }
 
 inline
+BSLS_KEYWORD_CONSTEXPR
 int bdlat_AttributeInfo::nameLength() const
 {
     return d_nameLength;
