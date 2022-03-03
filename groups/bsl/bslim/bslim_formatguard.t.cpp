@@ -529,6 +529,8 @@ int main(int argc, char *argv[])
                   case 5: {
                     // Write 'bool's in alphanumeric form
 
+                    // This test fails when using libc++ because of
+                    // https://cplusplus.github.io/LWG/lwg-active.html#2703
                     oss.width(7);
                     oss.fill('%');
                     oss << bsl::right << bsl::boolalpha << false << ' ';
@@ -536,7 +538,11 @@ int main(int argc, char *argv[])
                     oss << true;
                     const bsl::string& outputBool = oss.str();
                     if (veryVerbose) P(outputBool);
+#if defined(_LIBCPP_VERSION)
+                    ASSERTV(outputBool, "false%%%%%% true" == outputBool);
+#else
                     ASSERTV(outputBool, "%%false %%%true" == outputBool);
+#endif
                   } break;
                   case 6: {
                     quit = true;

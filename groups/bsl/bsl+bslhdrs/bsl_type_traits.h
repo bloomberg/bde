@@ -227,7 +227,24 @@ using native_std::conjunction;
 using native_std::disjunction;
 using native_std::negation;
 
-// void_t is supplied by bslmf_voidtype.h
+    // 23.15.4.3, type properties
+using native_std::has_unique_object_representations;
+using native_std::is_aggregate;
+
+    // 23.15.6, type relations
+using native_std::is_invocable;
+using native_std::is_invocable_r;
+using native_std::is_nothrow_invocable;
+using native_std::is_nothrow_invocable_r;
+
+    // 23.15.4.3, type properties
+using native_std::is_swappable;
+using native_std::is_swappable_with;
+using native_std::is_nothrow_swappable;
+using native_std::is_nothrow_swappable_with;
+
+// void_t is supplied by bslmf_voidtype.h, as is invoke_result
+// (bslmf_invokeresult.h) and bool_constant (bslmf_integralconstant.h)
 #endif
 
 #if defined BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
@@ -417,6 +434,67 @@ constexpr std::size_t extent_v = native_std::extent<TYPE>::value;
 template <class TYPE1, class TYPE2>
 BSLS_KEYWORD_INLINE_VARIABLE
 constexpr bool is_base_of_v = native_std::is_base_of<TYPE1, TYPE2>::value;
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+template <class ...Bools>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool conjunction_v = native_std::conjunction<Bools...>::value;
+
+template <class ...Bools>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool disjunction_v = native_std::disjunction<Bools...>::value;
+
+template <class BOOL>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool negation_v = native_std::negation<BOOL>::value;
+
+template <class TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr std::size_t has_unique_object_representations_v =
+                    native_std::has_unique_object_representations<TYPE>::value;
+
+template <class TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr std::size_t is_aggregate_v = native_std::is_aggregate<TYPE>::value;
+
+template <class TYPE, class ...Args>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr std::size_t is_invocable_v =
+                                native_std::is_invocable<TYPE, Args...>::value;
+
+template <class RET, class TYPE, class ...Args>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr std::size_t is_invocable_r_v =
+                         native_std::is_invocable_r<RET, TYPE, Args...>::value;
+
+template <class TYPE, class ...Args>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr std::size_t is_nothrow_invocable_v =
+                        native_std::is_nothrow_invocable<TYPE, Args...>::value;
+
+template <class RET, class TYPE, class ...Args>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr std::size_t is_nothrow_invocable_r_v =
+                 native_std::is_nothrow_invocable_r<RET, TYPE, Args...>::value;
+
+template <class TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr std::size_t is_swappable_v = native_std::is_swappable<TYPE>::value;
+
+template <class TYPE1, class TYPE2>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr std::size_t is_swappable_with_v =
+                            native_std::is_swappable_with<TYPE1, TYPE2>::value;
+template <class TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr std::size_t is_nothrow_swappable_v =
+                                 native_std::is_nothrow_swappable<TYPE>::value;
+
+template <class TYPE1, class TYPE2>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr std::size_t is_nothrow_swappable_with_v =
+                    native_std::is_nothrow_swappable_with<TYPE1, TYPE2>::value;
+#endif
 #endif
 
 #if 0

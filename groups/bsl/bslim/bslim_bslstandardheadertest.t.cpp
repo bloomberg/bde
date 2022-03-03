@@ -179,6 +179,7 @@ using namespace bslim;
 // defined in 'bslstl'.
 //
 //-----------------------------------------------------------------------------
+// [10] C++17 TYPE ALIASES
 // [ 9] CONCERN: 'bslh::hashAppend' of 'std::pair'  is usable from 'bsl'.
 // [ 9] CONCERN: 'bslh::hashAppend' of 'std::tuple' is usable from 'bsl'.
 // [ 8] CONCERN: 'default_searcher'/'boyer_moore_horspool_searcher usable.
@@ -406,6 +407,172 @@ void MapTestDriver<CONTAINER>::testCase1()
     cout<< "here3\n";
 }
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+namespace TestCxx17TypeAliases {
+    // This namespace is for testing the C++17 type aliases that have been to
+    // bsl.  The goal here is not to ensure that the platform standard library
+    // has implemented this functionality correctly, but instead to ensure that
+    // the aliases and inline variables added to  bsl match the types and
+    // values from the platform library.
+
+namespace SW {
+    struct SwapA {
+        // a class that can't be copied or assigned, so the default
+        // implementation of 'swap' will not work.
+        SwapA           (SwapA const&) = delete;
+        SwapA& operator=(SwapA const&) = delete;
+    };
+
+    struct SwapB {
+        // a class that can't be copied or assigned, so the default
+        // implementation of 'swap' will not work.
+        SwapB           (SwapB const&) = delete;
+        SwapB& operator=(SwapB const&) = delete;
+    };
+
+    struct SwapC {};
+
+    void swap(SwapA&, SwapA&)
+        // Exchange two variables of type 'SwapA'.
+    {}
+
+    void swap(SwapA&, SwapB&) noexcept
+        // Exchange the contents of a 'SwapA' and 'SwapB', w/o throwing.
+    {}
+
+    void swap(SwapB&, SwapA&) noexcept
+        // Exchange the contents of a 'SwapB' and 'SwapA', w/o throwing.
+    {}
+
+    void swap(SwapA&, SwapC&) noexcept
+        // Exchange the contents of a 'SwapB' and 'SwapA', w/o throwing.
+    {}
+
+    void swap(SwapC&, SwapA&)
+        // Exchange the contents of a 'SwapA' and 'SwapC'.
+    {}
+}  // close namespace SW
+
+void Conjunction ()
+    // Test that 'bsl::conjunction_v<TYPES...>' returns the same value as
+    // 'bsl::conjunction<TYPES...>::value.
+{
+    typedef bsl::false_type F;
+    typedef bsl::true_type  T;
+
+    static_assert(bsl::conjunction  <F>::value == bsl::conjunction_v<F>);
+    static_assert(bsl::conjunction  <T>::value == bsl::conjunction_v<T>);
+    static_assert(bsl::conjunction  <F, F>::value == bsl::conjunction_v<F, F>);
+    static_assert(bsl::conjunction  <F, T>::value == bsl::conjunction_v<F, T>);
+    static_assert(bsl::conjunction  <T, F>::value == bsl::conjunction_v<T, F>);
+    static_assert(bsl::conjunction  <T, T>::value == bsl::conjunction_v<T, T>);
+}
+
+void Disjunction ()
+    // Test that 'bsl::disjunction_v<TYPES...>' returns the same value as
+    // 'bsl::disjunction<TYPES...>::value.
+{
+    typedef bsl::false_type F;
+    typedef bsl::true_type  T;
+
+    static_assert(bsl::disjunction<F>::value    == bsl::disjunction_v<F>);
+    static_assert(bsl::disjunction<T>::value    == bsl::disjunction_v<T>);
+    static_assert(bsl::disjunction  <F, F>::value == bsl::disjunction_v<F, F>);
+    static_assert(bsl::disjunction  <F, T>::value == bsl::disjunction_v<F, T>);
+    static_assert(bsl::disjunction  <T, F>::value == bsl::disjunction_v<T, F>);
+    static_assert(bsl::disjunction  <T, T>::value == bsl::disjunction_v<T, T>);
+}
+
+void HasUniqueObjectReps ()
+    // Test that 'bsl::has_unique_object_representations_v<TYPE>' returns the
+    // same value as 'bsl::has_unique_object_representations<TYPE>::value'.
+{
+    struct S { int d_i; };
+
+    static_assert(bsl::has_unique_object_representations  <int>::value ==
+                  bsl::has_unique_object_representations_v<int>);
+    static_assert(bsl::has_unique_object_representations  <S>::value ==
+                  bsl::has_unique_object_representations_v<S>);
+
+}
+
+void IsAggregate ()
+    // Test that 'bsl::is_aggregate_v<TYPE>' returns the same value as
+    // 'bsl::is_aggregate<TYPE>::value'.
+{
+    struct S { int d_i; };
+
+    static_assert(bsl::is_aggregate  <int>::value == bsl::is_aggregate_v<int>);
+    static_assert(bsl::is_aggregate<S>::value == bsl::is_aggregate_v<S>);
+}
+
+void IsInvocable ()
+    // Test that 'bsl::is_invocable_v<FN, Args...>' returns the same value as
+    // 'bsl::is_invocable<FN, Args...>::value'.
+{
+    static_assert(bsl::is_invocable  <int>::value == bsl::is_invocable_v<int>);
+    static_assert(bsl::is_invocable  <int(), long>::value ==
+                  bsl::is_invocable_v<int(), long>);
+}
+
+void IsInvocableR ()
+    // Test that 'bsl::is_invocable_r_v<RET, FN, Args...>' returns the same
+    // value as 'bsl::is_invocable_r<RET, FN, Args...>::value'.
+{
+    static_assert(bsl::is_invocable  <void, int>::value ==
+                  bsl::is_invocable_v<void, int>);
+    static_assert(bsl::is_invocable  <float, float(int), int>::value ==
+                  bsl::is_invocable_v<float, float(int), int>);
+}
+
+void IsSwappable ()
+    // Test that 'bsl::is_swappable_v<TYPE>' and
+    // 'bsl::is_nothrow_swappable_v<TYPE>' return the same values as
+    // 'bsl::is_swappable<TYPE>::value' and
+    // 'bsl::is_nothrow_swappable<TYPE>::value', respectively.
+{
+    static_assert(bsl::is_swappable  <SW::SwapA>::value ==
+                  bsl::is_swappable_v<SW::SwapA>);
+    static_assert(bsl::is_swappable  <char>::value ==
+                  bsl::is_swappable_v<char>);
+    static_assert(bsl::is_nothrow_swappable  <SW::SwapA>::value ==
+                  bsl::is_nothrow_swappable_v<SW::SwapA>);
+    static_assert(bsl::is_nothrow_swappable  <char>::value ==
+                  bsl::is_nothrow_swappable_v<char>);
+}
+
+void IsSwappableWith ()
+    // Test that 'bsl::is_swappable_with_v<TYPE>' and
+    // 'bsl::is_nothrow_swappable_with_v<TYPE>' return the same values as
+    // 'bsl::is_swappable_with<TYPE>::value' and
+    // 'bsl::is_nothrow_swappable_with<TYPE>::value', respectively.
+{
+    static_assert(bsl::is_swappable_with  <SW::SwapA, SW::SwapB>::value ==
+                  bsl::is_swappable_with_v<SW::SwapA, SW::SwapB>);
+    static_assert(bsl::is_swappable_with  <SW::SwapA, SW::SwapC>::value ==
+                  bsl::is_swappable_with_v<SW::SwapA, SW::SwapC>);
+    static_assert(
+        bsl::is_nothrow_swappable_with  <SW::SwapA, SW::SwapB>::value ==
+        bsl::is_nothrow_swappable_with_v<SW::SwapA, SW::SwapB>);
+    static_assert(
+        bsl::is_nothrow_swappable_with  <SW::SwapA, SW::SwapC>::value ==
+        bsl::is_nothrow_swappable_with_v<SW::SwapA, SW::SwapC>);
+}
+
+void Negation ()
+    // Test that 'bsl::negation_v<TYPE>' returns the same value as
+    // 'bsl::negation<TYPE>::value'.
+{
+    typedef bsl::false_type F;
+    typedef bsl::true_type  T;
+
+    static_assert(bsl::negation<F>::value == bsl::negation_v<F>);
+    static_assert(bsl::negation<T>::value == bsl::negation_v<T>);
+}
+
+}  // close namespace TestCxx17TypeAliases
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -425,9 +592,44 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << "\n";
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 10: {
+        // --------------------------------------------------------------------
+        // TESTING C++17 TYPE ALIASES
+        //
+        // Concerns:
+        //: 1 The *_v inline variable definitions added for C++17 type alias
+        //:   features are available and return the correct answers.
+        //
+        // Plan:
+        //: 1 Ensure that 'bsl::xxx_v<values>' (which we implement) is equal to
+        //:   'bsl::xxx<values>::value' (which we import).
+        //
+        // Testing:
+        //   C++17 TYPE ALIASES
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING C++17 TYPE ALIASES"
+                            "\n==========================\n");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+        // We don't really need to call these routines, because all they do is
+        // 'static_assert', but this keeps the compiler from warning about
+        // "unused functions".
+        TestCxx17TypeAliases::Conjunction();
+        TestCxx17TypeAliases::Disjunction();
+        TestCxx17TypeAliases::HasUniqueObjectReps();
+        TestCxx17TypeAliases::IsAggregate();
+        TestCxx17TypeAliases::IsInvocable();
+        TestCxx17TypeAliases::IsInvocableR();
+        TestCxx17TypeAliases::IsSwappable();
+        TestCxx17TypeAliases::IsSwappableWith();
+        TestCxx17TypeAliases::Negation();
+#endif
+
+      } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING 'bslh::hashAppend' OF 'std::pair' AND  'std::tuple'
+        // TESTING 'bslh::hashAppend' OF 'std::pair' AND 'std::tuple'
         //
         // Concerns:
         //: 1 The 'bslh::hashAppend' functions defined for 'std::pair' and
@@ -457,11 +659,14 @@ int main(int argc, char *argv[])
         typedef bsl::unordered_set<StdKeyPair> SetOfStdKeyPairs;
 
         const bsls::NameOf<SetOfStdKeyPairs::hasher> keyNamePairs;
-        const char * const expPair0 = "bsl::hash<std::pair<int, int>>";
-        const char * const expPair1 = "bsl::hash<std::pair<int,int>>";
+
+        const char * expPair0 = "bsl::hash<std::pair<int, int>>";
+        const char * expPair1 = "bsl::hash<std::pair<int,int>>";
+        const char * expPair2 = "bsl::hash<std::__1::pair<int, int>>";
 
         ASSERT(0 == bsl::strcmp(expPair0, keyNamePairs)
-            || 0 == bsl::strcmp(expPair1, keyNamePairs));
+            || 0 == bsl::strcmp(expPair1, keyNamePairs)
+            || 0 == bsl::strcmp(expPair2, keyNamePairs));
 
         SetOfStdKeyPairs setOfStdKeyPairs;
 
@@ -502,11 +707,14 @@ int main(int argc, char *argv[])
         typedef bsl::unordered_set<StdKeyTuple> SetOfStdKeyTuples;
 
         const bsls::NameOf<SetOfStdKeyTuples::hasher> keyNameTuples;
-        const char * const expTuple0 = "bsl::hash<std::tuple<int, int, int>>";
-        const char * const expTuple1 = "bsl::hash<std::tuple<int,int,int>>";
+
+        const char * expTuple0 = "bsl::hash<std::tuple<int, int, int>>";
+        const char * expTuple1 = "bsl::hash<std::tuple<int,int,int>>";
+        const char * expTuple2 = "bsl::hash<std::__1::tuple<int, int, int>>";
 
         ASSERT(0 == bsl::strcmp(expTuple0, keyNameTuples)
-            || 0 == bsl::strcmp(expTuple1, keyNameTuples));
+            || 0 == bsl::strcmp(expTuple1, keyNameTuples)
+            || 0 == bsl::strcmp(expTuple2, keyNameTuples));
 
         SetOfStdKeyTuples setOfStdKeyTuples;
 
