@@ -90,6 +90,12 @@ namespace balb {
 
 int PipeControlChannel::sendEmptyMessage()
 {
+    // The goal of this function is to do an asynchronous write to the pipe in
+    // case the background thread is blocked on a synchronous 'read'.  So we
+    // open our handle with 'FILE_FLAG_OVERLAPPED' to indicate asynchronous
+    // I/O.  We write asynchronously because the background thread might have
+    // terminated in which case it will never read the pipe, so we have to do a
+    // non-blocking 'WriteFile'.
 
     bsl::wstring wPipeName;
 
@@ -111,11 +117,37 @@ int PipeControlChannel::sendEmptyMessage()
     DWORD mode = PIPE_READMODE_MESSAGE;
     SetNamedPipeHandleState(pipe, &mode, NULL, NULL);
 
+    OVERLAPPED overlapped;
+    bsl::memset(&overlapped, 0, sizeof(overlapped));
     DWORD dummy;
-    bool result = WriteFile(pipe, "\n", 1, &dummy, 0);
-    CloseHandle(pipe);
-    return result ? 0 : 3;
+    char buffer[] = { "\n" };
+    bool rc = WriteFile(pipe, buffer, 1, &dummy, &overlapped);
+    if (!rc) {
+        // 'WriteFile' did not complete so the write is pending.  This means
+        // that the I/O could complete at an unpredictable time in the future.
+        // This would be problematic if it happened after we left this
+        // function, since it would read 'buffer' and update 'overlapped',
+        // neither of which would still exist, meaning memory corruption.
+        //
+        // So we have to cancel the pending I/O on 'pipe'.
+        //
+        // 'CloseHandle' below probably cancels all pending I/O from the
+        // current thread on 'pipe', but MSDN never makes that clear, so let's
+        // explicitly cancel it.
 
+        (void) CancelIo(pipe);  // cancel any pending 'write' from this thread
+                                // on 'pipe'.  Note that the 'write' might have
+                                // completed before we got here, in which case
+                                // 'CancelIo' would fail, but we don't care
+                                // and we ignore the return value.
+    }
+    else {
+        // 'WriteFile' completed, no cancellation necessary.
+    }
+
+    CloseHandle(pipe);
+
+    return 0;
 }
 
 int PipeControlChannel::readNamedPipe()
