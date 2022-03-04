@@ -5,6 +5,7 @@
 #include <bslmf_issame.h>
 
 #include <bsls_bsltestutil.h>
+#include <bsls_compilerfeatures.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,15 +15,17 @@
 // ----------------------------------------------------------------------------
 //                                 Overview
 //                                 --------
-//  This test driver verifies that MemberType and ClassType are as expected for
-//  pointers to c-v qualified member primitives, classes, pointers to
-//  primitives and classes, and member functions.  A struct 'BASE' is provided
-//  with members of all these types, to ensure that the spelling of the typedef
-//  matches the expected form of the pointed to member.
+// The component under test defines only one public facing meta-function,
+// 'bslmf::PointerToMemberTraits', that determines the types of the pointed to
+// member 'MemberType', and the class 'ClassType' to which the member bleongs.
+// These tests will ensure that all types of pointers to members provide the
+// correct types.
 // ----------------------------------------------------------------------------
+// PUBLIC CLASS DATA
+// [2 ] BloombergLP::bslmf::PointerToMemberTraits::MemberType
+// [2 ] BloombergLP::bslmf::PointerToMemberTraits::ClassType
 // ----------------------------------------------------------------------------
 // [1 ] Usage example
-// [2 ] Verify expected MemberType and ClassType types
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -85,13 +88,13 @@ struct BASE{
     const volatile int d_constVolatileInt;
 
     // pointer-to-primitive members
-    int* d_ptrToInt;
-    const int* d_ptrToConstInt;
-    volatile int* d_ptrToVolatileInt;
-    const volatile int* d_ptrToConstVolatileInt;
-    int * const d_constPtrToInt;
-    int * volatile d_volatilePtrToint;
-    int * const volatile d_constVolatilePtrToInt;
+    int* d_ptrToInt_p;
+    const int* d_ptrToConstInt_p;
+    volatile int* d_ptrToVolatileInt_p;
+    const volatile int* d_ptrToConstVolatileInt_p;
+    int * const d_constPtrToInt_p;
+    int * volatile d_volatilePtrToInt_p;
+    int * const volatile d_constVolatilePtrToInt_p;
 
     // non-primitive members
     TEST_CLASS_TYPE d_class;
@@ -100,13 +103,13 @@ struct BASE{
     const volatile TEST_CLASS_TYPE d_constVolatileClass;
 
     // pointer-to-non-primitive members
-    TEST_CLASS_TYPE* d_ptrToClass;
-    const TEST_CLASS_TYPE* d_ptrToConstClass;
-    volatile TEST_CLASS_TYPE* d_ptrToVolatileClass;
-    const volatile TEST_CLASS_TYPE* d_ptrToConstVolatileClass;
-    TEST_CLASS_TYPE * const d_constPtrToClass;
-    TEST_CLASS_TYPE * volatile d_volatilePtrToClass;
-    TEST_CLASS_TYPE * const volatile d_constVolatilePtrToClass;
+    TEST_CLASS_TYPE* d_ptrToClass_p;
+    const TEST_CLASS_TYPE* d_ptrToConstClass_p;
+    volatile TEST_CLASS_TYPE* d_ptrToVolatileClass_p;
+    const volatile TEST_CLASS_TYPE* d_ptrToConstVolatileClass_p;
+    TEST_CLASS_TYPE * const d_constPtrToClass_p;
+    TEST_CLASS_TYPE * volatile d_volatilePtrToClass_p;
+    TEST_CLASS_TYPE * const volatile d_constVolatilePtrToClass_p;
 
     // array of primitive members
     int d_arrayOfInt[4];
@@ -154,20 +157,25 @@ struct BASE{
         {return d_class;}
 
     int funcWithElipses(...) {return d_int;}
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     int funcRValueRef() && {return d_int;}
     int funcLValueRef() & {return d_int;}
+#endif
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES
     int funcNoExcept() noexcept {return d_int;}
+#endif
 
     // default constructor setting const members
     BASE()
         : d_constInt(0)
         , d_constVolatileInt(0)
-        , d_constPtrToInt()
-        , d_constVolatilePtrToInt()
+        , d_constPtrToInt_p()
+        , d_constVolatilePtrToInt_p()
         , d_constClass()
         , d_constVolatileClass()
-        , d_constPtrToClass()
-        , d_constVolatilePtrToClass()
+        , d_constPtrToClass_p()
+        , d_constVolatilePtrToClass_p()
         , d_constArrayOfInt()
         , d_constVolatileArrayOfInt()
         , d_constArrayOfClass()
@@ -238,9 +246,15 @@ typedef TEST_CLASS_TYPE
                                                      TEST_PARAMETER_1);
 
 typedef int (BASE::*PtrToMemberFuncWithElipses)(...);
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 typedef int (BASE::*PtrToMemberFuncRValueRef)() &&;
 typedef int (BASE::*PtrToMemberFuncLValueRef)() &;
+#endif
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES
 typedef int (BASE::*PtrToMemberFuncNoExcept)() noexcept;
+#endif
 
 // ============================================================================
 //                                   USAGE
@@ -295,6 +309,29 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:
       case 2: {
+        // --------------------------------------------------------------------
+        // 'bslmf::PointerToMemberTraits'
+        //   Ensure that the typedef 'MemberType' matches expectations for each
+        //   tested member type, and Ensure that the typedef 'ClassType' is the
+        //   type to which the member belongs.
+        //
+        // Concerns:
+        //: 1 'pointerToMemberTraits::ClassType' is 'BASE' for all member
+        //:   types.
+        //:
+        //: 2 'pointerToMemberTraits::MemberType' is as expected for all member
+        //:   types.
+        //:
+        //: 3 A member of BASE of the corresponding type (including virtual and
+        //:   non-virtual functions) can be assigned to the tested type.
+        //
+        // Plan:
+        //   Assert correct types, and instantiate a local variable pointing to
+        //   an actual member of all types to be tested.
+        //
+        // Testing:
+        //   bslmf::PointerToMemberTraits
+        // --------------------------------------------------------------------
     {
         typedef PtrToMemberInt TestType;
         typedef bslmf::PointerToMemberTraits<TestType> X;
@@ -326,49 +363,49 @@ int main(int argc, char *argv[])
     {
         typedef PtrToMemberPtrToInt TestType;
         typedef bslmf::PointerToMemberTraits<TestType> X;
-        TestType x = &BASE::d_ptrToInt; (void) x;
+        TestType x = &BASE::d_ptrToInt_p; (void) x;
         ASSERT_SAME(int*, X::MemberType);
         ASSERT_SAME(BASE, X::ClassType);
     }
     {
         typedef PtrToMemberPtrToConstInt TestType;
         typedef bslmf::PointerToMemberTraits<TestType> X;
-        TestType x = &BASE::d_ptrToConstInt; (void) x;
+        TestType x = &BASE::d_ptrToConstInt_p; (void) x;
         ASSERT_SAME(const int*, X::MemberType);
         ASSERT_SAME(BASE, X::ClassType);
     }
     {
         typedef PtrToMemberPtrToVolatileInt TestType;
         typedef bslmf::PointerToMemberTraits<TestType> X;
-        TestType x = &BASE::d_ptrToVolatileInt; (void) x;
+        TestType x = &BASE::d_ptrToVolatileInt_p; (void) x;
         ASSERT_SAME(volatile int*, X::MemberType);
         ASSERT_SAME(BASE, X::ClassType);
     }
     {
         typedef PtrToMemberPtrToConstVolatileInt TestType;
         typedef bslmf::PointerToMemberTraits<TestType> X;
-        TestType x = &BASE::d_ptrToConstVolatileInt; (void) x;
+        TestType x = &BASE::d_ptrToConstVolatileInt_p; (void) x;
         ASSERT_SAME(const volatile int*, X::MemberType);
         ASSERT_SAME(BASE, X::ClassType);
     }
     {
         typedef PtrToMemberConstPtrToInt TestType;
         typedef bslmf::PointerToMemberTraits<TestType> X;
-        TestType x = &BASE::d_constPtrToInt; (void) x;
+        TestType x = &BASE::d_constPtrToInt_p; (void) x;
         ASSERT_SAME(int * const, X::MemberType);
         ASSERT_SAME(BASE, X::ClassType);
     }
     {
         typedef PtrToMemberVolatilePtrToint TestType;
         typedef bslmf::PointerToMemberTraits<TestType> X;
-        TestType x = &BASE::d_volatilePtrToint; (void) x;
+        TestType x = &BASE::d_volatilePtrToInt_p; (void) x;
         ASSERT_SAME(int * volatile, X::MemberType);
         ASSERT_SAME(BASE, X::ClassType);
     }
     {
         typedef PtrToMemberConstVolatilePtrToInt TestType;
         typedef bslmf::PointerToMemberTraits<TestType> X;
-        TestType x = &BASE::d_constVolatilePtrToInt; (void) x;
+        TestType x = &BASE::d_constVolatilePtrToInt_p; (void) x;
         ASSERT_SAME(int * const volatile, X::MemberType);
         ASSERT_SAME(BASE, X::ClassType);
     }
@@ -403,49 +440,49 @@ int main(int argc, char *argv[])
     {
         typedef PtrToMemberPtrToClass TestType;
         typedef bslmf::PointerToMemberTraits<TestType> X;
-        TestType x = &BASE::d_ptrToClass; (void) x;
+        TestType x = &BASE::d_ptrToClass_p; (void) x;
         ASSERT_SAME(TEST_CLASS_TYPE*, X::MemberType);
         ASSERT_SAME(BASE, X::ClassType);
     }
     {
         typedef PtrToMemberPtrToConstClass TestType;
         typedef bslmf::PointerToMemberTraits<TestType> X;
-        TestType x = &BASE::d_ptrToConstClass; (void) x;
+        TestType x = &BASE::d_ptrToConstClass_p; (void) x;
         ASSERT_SAME(const TEST_CLASS_TYPE*, X::MemberType);
         ASSERT_SAME(BASE, X::ClassType);
     }
     {
         typedef PtrToMemberPtrToVolatileClass TestType;
         typedef bslmf::PointerToMemberTraits<TestType> X;
-        TestType x = &BASE::d_ptrToVolatileClass; (void) x;
+        TestType x = &BASE::d_ptrToVolatileClass_p; (void) x;
         ASSERT_SAME(volatile TEST_CLASS_TYPE*, X::MemberType);
         ASSERT_SAME(BASE, X::ClassType);
     }
     {
         typedef PtrToMemberPtrToConstVolatileClass TestType;
         typedef bslmf::PointerToMemberTraits<TestType> X;
-        TestType x = &BASE::d_ptrToConstVolatileClass; (void) x;
+        TestType x = &BASE::d_ptrToConstVolatileClass_p; (void) x;
         ASSERT_SAME(const volatile TEST_CLASS_TYPE*, X::MemberType);
         ASSERT_SAME(BASE, X::ClassType);
     }
     {
         typedef PtrToMemberConstPtrToClass TestType;
         typedef bslmf::PointerToMemberTraits<TestType> X;
-        TestType x = &BASE::d_constPtrToClass; (void) x;
+        TestType x = &BASE::d_constPtrToClass_p; (void) x;
         ASSERT_SAME(TEST_CLASS_TYPE * const, X::MemberType);
         ASSERT_SAME(BASE, X::ClassType);
     }
     {
         typedef PtrToMemberVolatilePtrToClass TestType;
         typedef bslmf::PointerToMemberTraits<TestType> X;
-        TestType x = &BASE::d_volatilePtrToClass; (void) x;
+        TestType x = &BASE::d_volatilePtrToClass_p; (void) x;
         ASSERT_SAME(TEST_CLASS_TYPE * volatile, X::MemberType);
         ASSERT_SAME(BASE, X::ClassType);
     }
     {
         typedef PtrToMemberConstVolatilePtrToClass TestType;
         typedef bslmf::PointerToMemberTraits<TestType> X;
-        TestType x = &BASE::d_constVolatilePtrToClass; (void) x;
+        TestType x = &BASE::d_constVolatilePtrToClass_p; (void) x;
         ASSERT_SAME(TEST_CLASS_TYPE * const volatile, X::MemberType);
         ASSERT_SAME(BASE, X::ClassType);
     }
@@ -590,6 +627,7 @@ int main(int argc, char *argv[])
         ASSERT_SAME(int (...), X::MemberType);
         ASSERT_SAME(BASE, X::ClassType);
     }
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     {
         typedef PtrToMemberFuncRValueRef TestType;
         typedef bslmf::PointerToMemberTraits<TestType> X;
@@ -604,6 +642,9 @@ int main(int argc, char *argv[])
         ASSERT_SAME(int () &, X::MemberType);
         ASSERT_SAME(BASE, X::ClassType);
     }
+#endif
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES
     {
         typedef PtrToMemberFuncNoExcept TestType;
         typedef bslmf::PointerToMemberTraits<TestType> X;
@@ -611,6 +652,7 @@ int main(int argc, char *argv[])
         ASSERT_SAME(int () noexcept, X::MemberType);
         ASSERT_SAME(BASE, X::ClassType);
     }
+#endif
       } break;
       case 1: {
         // --------------------------------------------------------------------

@@ -4,16 +4,6 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bslmf_pointertomembertraits_cpp, "$Id$ $CSID$")
 
-namespace BloombergLP {
-namespace bslmf {
-
-                        // ---------------------------
-                        // class PointerToMemberTraits
-                        // ---------------------------
-
-}  // close package namespace
-}  // close enterprise namespace
-
 // ----------------------------------------------------------------------------
 // Copyright 2022 Bloomberg Finance L.P.
 //

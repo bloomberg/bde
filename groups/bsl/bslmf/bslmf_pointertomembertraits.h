@@ -5,18 +5,17 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-///@PURPOSE: Provide meta-function to detect pointer to member traits.
+//@PURPOSE: Provide meta-function to detect pointer to member traits.
 //
 //@CLASSES:
-//  bslmf::PointerToMemberTraits: meta-function for detecting member function
-//  pointer traits
+//  bslmf::PointerToMemberTraits: meta-function to get member pointer traits
 //
 //@SEE_ALSO: bslmf_memberfunctionpointertraits
 //
-//@DESCRIPTION: This component provides a meta-function for determining the
-// traits of a pointer to member.  'bslmf::PointerToMemberTraits' determines
-// the traits of a pointer to member type, including the type of the object
-// that it is a member of, and the type of the member which is pointed to.
+//@DESCRIPTION: This component provides a meta-function,
+// 'bslmf::PointerToMemberTraits', that determines traits of a
+// pointer-to-member type, including the type of the object that it is a member
+// of, and the type of the member it addresses.
 //
 ///Usage
 ///-----
@@ -34,8 +33,10 @@ BSLS_IDENT("$Id: $")
 //  void checkMemberPointer(TYPE pointer)
 //  {
 //      (void) pointer;
-//      typedef typename bslmf::PointerToMemberTraits<TYPE>::MemberType MemberType;
-//      typedef typename bslmf::PointerToMemberTraits<TYPE>::ClassType ClassType;
+//      typedef typename bslmf::PointerToMemberTraits<TYPE>::MemberType
+//          MemberType;
+//      typedef typename bslmf::PointerToMemberTraits<TYPE>::ClassType
+//          ClassType;
 //      assert(1 == (bsl::is_same<MemberType, MEMBER>::value));
 //      assert(1 == (bsl::is_same<ClassType, CLASS>::value));
 //  }
@@ -48,6 +49,8 @@ BSLS_IDENT("$Id: $")
 //      checkMemberPointer<int, MyTestClass>(&MyTestClass::d_int);
 //  }
 //..
+
+#include <bslscm_version.h>
 
 #include <bslmf_removecv.h>
 
@@ -65,17 +68,24 @@ template <class TYPE>
 struct PointerToMemberTraits
 : public PointerToMemberTraits_Imp<typename bsl::remove_cv<TYPE>::type> {
     // This utility 'struct' template provides the following nested typedefs:
-    //: 'ClassType': The type of the class for which the specified 'TYPE' is a
-    //:              pointer to member object.
+    //: 'ClassType':  The type of the class for which the specified 'TYPE' is a
+    //:               pointer to member object.
     //: 'MemberType': The type of the member object of the class for which the
-    //:               specified 'TYPE' is a pointer to member object.  These
-    // typedefs will only be defined if 'TYPE' is a pointer-to-member-object
-    // type.  The primary (unspecialized) template is defined and empty.
+    //:               specified 'TYPE' is a pointer to member object.
+    // These typedefs will only be defined if 'TYPE' is a
+    // pointer-to-member-object type.  The primary (unspecialized)
+    // PointerToMemberTraits_Imp template is defined and empty.
 };
 
                       // ===============================
                       // class PointerToMemberTraits_Imp
                       // ===============================
+
+template <class TYPE>
+struct PointerToMemberTraits_Imp
+{
+    // Empty
+};
 
 template <class MEMBER_TYPE, class CLASS_TYPE>
 struct PointerToMemberTraits_Imp<MEMBER_TYPE CLASS_TYPE::*> {
@@ -88,14 +98,6 @@ struct PointerToMemberTraits_Imp<MEMBER_TYPE CLASS_TYPE::*> {
         // 'MemberType' is an alias to the type of object to which the member
         // object points.
 };
-
-// ============================================================================
-//                            INLINE DEFINITIONS
-// ============================================================================
-
-                        // ---------------------------
-                        // class PointerToMemberTraits
-                        // ---------------------------
 
 }  // close package namespace
 }  // close enterprise namespace
