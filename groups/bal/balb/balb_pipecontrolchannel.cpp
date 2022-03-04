@@ -382,7 +382,8 @@ int PipeControlChannel::readNamedPipe()
     }
 
     BSLS_LOG_FATAL("unreachable code in 'readNamedPipe'");
-    bsl::abort();
+
+    return -1;    // error
 }
 
 int

@@ -315,8 +315,9 @@ class PipeControlChannel {
         // 'std::pmr::string' (if supported), or 'bslstl::StringRef'.
 
     void shutdown();
-        // Stop reading from the pipe and dispatching messages.  Note that this
-        // method does not block.
+        // Stop reading from the pipe and dispatching messages.  If the
+        // background thread has begun processing a message, this method will
+        // block until a message that is currently being processed completes.
 
     void stop();
         // Block until the background thread has been terminated by a call to
