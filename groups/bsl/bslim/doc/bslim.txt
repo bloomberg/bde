@@ -45,7 +45,7 @@
 :      Provide a view of a buffer of fuzz data bytes.
 :
 : 'bslim_fuzzutil':
-:      Provide fuzz test utilities for fundamental types.
+:      Provide fuzz test utilities for basic types.
 :
 : 'bslim_gtestutil':
 :      Provide facilities for debugging BDE with gtest.

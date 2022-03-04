@@ -58,6 +58,7 @@
       bslstl_function_test                                            !PRIVATE!
       bslstl_hashtable_test1                                          !PRIVATE!
       bslstl_hashtable_test2                                          !PRIVATE!
+      bslstl_priorityqueue
       bslstl_string_test                                              !PRIVATE!
       bslstl_stringbuf
       bslstl_stringref
@@ -69,9 +70,11 @@
 
    5. bslstl_function
       bslstl_hashtable
+      bslstl_list
       bslstl_randomaccessiterator
       bslstl_string
       bslstl_systemerror
+      bslstl_vector
 
    4. bslstl_algorithmworkaround
       bslstl_bidirectionaliterator
@@ -80,7 +83,7 @@
       bslstl_function_invokerutil                                     !PRIVATE!
       bslstl_hashtablebucketiterator
       bslstl_hashtableiterator
-      bslstl_priorityqueue
+      bslstl_iteratorutil
       bslstl_stringrefdata
 
    3. bslstl_array
@@ -89,13 +92,10 @@
       bslstl_errc
       bslstl_forwarditerator
       bslstl_function_rep                                             !PRIVATE!
-      bslstl_iteratorutil
-      bslstl_list
       bslstl_optional
       bslstl_pair
       bslstl_stringview
       bslstl_treeiterator
-      bslstl_vector
 
    2. bslstl_algorithm
       bslstl_allocator                                   !DEPRECATED!

@@ -164,7 +164,7 @@
 :      Provide a common interface to a system's random number generator.
 :
 : 'bdlb_scopeexit':
-:      Provide a general-purpose guard object for scope-exit logic.
+:      Provide a general-purpose proctor object for scope-exit logic.
 :
 : 'bdlb_string':
 :      Provide utility functions on STL-style and C-style strings.

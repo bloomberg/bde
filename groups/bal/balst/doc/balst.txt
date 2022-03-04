@@ -9,7 +9,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'balst' package currently has 13 components having 7 levels of physical
+ The 'balst' package currently has 14 components having 7 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -32,6 +32,7 @@
      balst_stacktraceresolver_filehelper                              !PRIVATE!
 
   1. balst_objectfileformat
+     balst_stacktraceconfigurationutil
      balst_stacktraceframe
 ..
 
@@ -42,6 +43,9 @@
 :
 : 'balst_stacktrace':
 :      Provide a description of a function-call stack.
+:
+: 'balst_stacktraceconfigurationutil':
+:      Provide utility for global configuration of stack trace.
 :
 : 'balst_stacktraceframe':
 :      Provide an attribute class describing an execution stack frame.

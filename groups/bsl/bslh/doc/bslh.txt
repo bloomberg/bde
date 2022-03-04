@@ -813,28 +813,28 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslh' package currently has 13 components having 5 levels of physical
+ The 'bslh' package currently has 14 components having 4 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  5. bslh_hashoptional
+  4. bslh_hashoptional
      bslh_hashpair
      bslh_hashtuple
      bslh_hashvariant
      bslh_seededhash
 
-  4. bslh_hash
+  3. bslh_hash
 
-  3. bslh_defaulthashalgorithm
+  2. bslh_defaulthashalgorithm
      bslh_defaultseededhashalgorithm
-
-  2. bslh_spookyhashalgorithm
+     bslh_spookyhashalgorithm
 
   1. bslh_fibonaccibadhashwrapper
      bslh_seedgenerator
      bslh_siphashalgorithm
      bslh_spookyhashalgorithmimp
+     bslh_wyhashalgorithm
 ..
 
 /Component Synopsis
@@ -877,6 +877,9 @@
 :
 : 'bslh_spookyhashalgorithmimp':
 :      Provide BDE style encapsulation of 3rd party SpookyHash code.
+:
+: 'bslh_wyhashalgorithm':
+:      Provide an implementation of the WyHash algorithm final v3.
 
 /Component Overview
 /------------------
