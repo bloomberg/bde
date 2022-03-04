@@ -17,6 +17,8 @@ BSLS_IDENT_RCSID(balb_pipecontrolchannel_cpp,"$Id$ $CSID$")
 #include <bdls_pathutil.h>
 #include <bdls_pipeutil.h>
 
+#include <bslmt_threadutil.h>
+
 #include <bslma_default.h>
 
 #include <bsls_assert.h>
@@ -90,6 +92,12 @@ namespace balb {
 
 int PipeControlChannel::sendEmptyMessage()
 {
+    // The goal of this function is to do an asynchronous write to the pipe in
+    // case the background thread is blocked on a synchronous 'read'.  So we
+    // open our handle with 'FILE_FLAG_OVERLAPPED' to indicate asynchronous
+    // I/O.  We write asynchronously because the background thread might have
+    // terminated in which case it will never read the pipe, so we have to do a
+    // non-blocking 'WriteFile'.
 
     bsl::wstring wPipeName;
 
@@ -103,7 +111,7 @@ int PipeControlChannel::sendEmptyMessage()
         return -1;                                                    // RETURN
     }
     pipe = CreateFileW(wPipeName.c_str(), GENERIC_WRITE, 0, NULL,
-                       OPEN_EXISTING, 0, NULL);
+                       OPEN_EXISTING, FILE_FLAG_OVERLAPPED, NULL);
     if (INVALID_HANDLE_VALUE == pipe) {
         return 2;                                                     // RETURN
     }
@@ -111,11 +119,34 @@ int PipeControlChannel::sendEmptyMessage()
     DWORD mode = PIPE_READMODE_MESSAGE;
     SetNamedPipeHandleState(pipe, &mode, NULL, NULL);
 
+    OVERLAPPED overlapped;
+    bsl::memset(&overlapped, 0, sizeof(overlapped));
     DWORD dummy;
-    bool result = WriteFile(pipe, "\n", 1, &dummy, 0);
-    CloseHandle(pipe);
-    return result ? 0 : 3;
+    char buffer[] = { "\n" };
+    bool rc = WriteFile(pipe, buffer, 1, &dummy, &overlapped);
+    if (!rc) {
+        // 'WriteFile' did not complete so the write is pending.  This means
+        // that the I/O could complete at an unpredictable time in the future.
+        // This would be problematic if it happened after we left this
+        // function, since it would read 'buffer' and update 'overlapped',
+        // neither of which would still exist, meaning memory corruption.
+        //
+        // So we have to cancel the pending I/O on 'pipe'.
+        //
+        // 'CloseHandle' below probably cancels all pending I/O from the
+        // current thread on 'pipe', but MSDN never makes that clear, so let's
+        // explicitly cancel it.
 
+        (void) CancelIo(pipe);  // cancel any pending 'write' from this thread
+                                // on 'pipe'.  Note that the 'write' might have
+                                // completed before we got here, in which case
+                                // 'CancelIo' would fail, but we don't care
+                                // and we ignore the return value.
+    }
+
+    CloseHandle(pipe);
+
+    return 0;
 }
 
 int PipeControlChannel::readNamedPipe()
@@ -131,7 +162,7 @@ int PipeControlChannel::readNamedPipe()
 
         DWORD lastError = GetLastError();
         if (lastError != ERROR_PIPE_CONNECTED && lastError != ERROR_NO_DATA) {
-            BSLS_LOG_TRACE("Failed to connect to named pipe '%s'",
+            BSLS_LOG_ERROR("Failed to connect to named pipe '%s'",
                            d_pipeName.c_str());
             return -1;                                                // RETURN
         }
@@ -301,7 +332,7 @@ int PipeControlChannel::readNamedPipe()
         }
 
         if ((fds.revents & POLLERR) || (fds.revents & POLLNVAL)) {
-            BSLS_LOG_TRACE("Polled POLLERROR or POLLINVAL from file "
+            BSLS_LOG_ERROR("Polled POLLERROR or POLLINVAL from file "
                            "descriptor of pipe '%s', errno = %d: %s",
                            d_pipeName.c_str(), savedErrno,
                            bsl::strerror(savedErrno));
@@ -347,14 +378,50 @@ int PipeControlChannel::readNamedPipe()
         }
     }
 
-    BSLS_ASSERT(!"unreachable");
+    BSLS_LOG_FATAL("unreachable code in 'readNamedPipe'");
+
+    return -1;    // error
 }
 
 int
 PipeControlChannel::sendEmptyMessage()
 {
-    write(d_impl.d_unix.d_writeFd, "\n", 1);
-    return 0;
+    const int flags = fcntl(d_impl.d_unix.d_writeFd, F_GETFL);
+    if (-1 == flags) {
+        const int savedErrno = errno;
+        BSLS_LOG_ERROR("Unable to get 'fcntl' flags on '%s' for"
+                                                   " writing. errno = %d (%s)",
+                       d_pipeName.c_str(),
+                       savedErrno,
+                       bsl::strerror(savedErrno));
+
+        return 1;                                                     // RETURN
+    }
+
+    if (0 == (flags & O_NONBLOCK)) {
+        if (-1 == fcntl(d_impl.d_unix.d_writeFd,
+                        F_SETFL,
+                        flags | O_NONBLOCK)) {
+            const int savedErrno = errno;
+            BSLS_LOG_ERROR("Unable to set 'O_NONBLOCK' on '%s' for"
+                                                   " writing. errno = %d (%s)",
+                           d_pipeName.c_str(),
+                           savedErrno,
+                           bsl::strerror(savedErrno));
+
+            return 2;                                                 // RETURN
+        }
+    }
+
+    // Ignore return value of 'write' -- we don't care whether it succeeds or
+    // not.  'shutdown', the calling function, will keep calling us until the
+    // background thread changes 'd_backgroundState'.  This function only
+    // returns an error status if the state of 'd_impl.d_unix.d_writeFd' is
+    // such that we would be unable to write.
+
+    (void) write(d_impl.d_unix.d_writeFd, "\n", 1);
+
+    return 0;    // success
 }
 
 int
@@ -456,8 +523,8 @@ PipeControlChannel::createNamedPipe(const char *pipeName)
 #endif // END PLATFORM-SPECIFIC FUNCTION IMPLEMENTATIONS
 
 namespace balb {
-// CREATORS
 
+// CREATORS
 PipeControlChannel::PipeControlChannel(const ControlCallback&  callback,
                                        bslma::Allocator       *basicAllocator)
 : d_callback(bsl::allocator_arg_t(),
@@ -484,18 +551,19 @@ PipeControlChannel::~PipeControlChannel()
 }
 
 // MANIPULATORS
-
 void PipeControlChannel::backgroundProcessor()
 {
     while (d_backgroundState == e_RUNNING) {
         if (0 != readNamedPipe()) {
-            BSLS_LOG_WARN("Error processing M-trap: unable to read from named"
-                          " pipe '%s'", d_pipeName.c_str());
-            return;                                                   // RETURN
+            BSLS_LOG_ERROR("Error processing M-trap: unable to read from named"
+                           " pipe '%s'", d_pipeName.c_str());
+
+            break;
         }
     }
 
     d_backgroundState = e_STOPPED;
+
     BSLS_LOG_TRACE("The background thread has stopped");
 }
 
@@ -545,11 +613,9 @@ int PipeControlChannel::start(const char                     *pipeName,
 
 void PipeControlChannel::shutdown()
 {
-    if (d_backgroundState != e_RUNNING) {
+    if (e_RUNNING != d_backgroundState.testAndSwap(e_RUNNING, e_STOPPING)) {
         return;                                                       // RETURN
     }
-
-    d_backgroundState = e_STOPPING;
 
     if (bslmt::ThreadUtil::self() == d_thread) {
         // When 'shutdown' is called from the same thread as the background
@@ -558,14 +624,40 @@ void PipeControlChannel::shutdown()
         return;                                                       // RETURN
     }
 
-    // The background thread is blocked on a call to 'ReadFile'.  Shutdown the
-    // background thread by a) indicating that the thread should perform no
-    // more reads and b) unblocking the background thread by sending an "empty"
-    // message to the named pipe.
+    // Note that 'microSleep' usually won't do anything unless requested to
+    // sleep for at least 10,000 microseconds, but also, if requested to sleep
+    // for a short time, will often sleep for 2 seconds (particularly on
+    // Solaris).  For this reason, we avoid doing any 'microSleep's until we've
+    // been through the loop many times, doing a 'yield' each time.
 
+    enum { k_MIN_MICRO_SLEEP_TIME =  10 * 1024,
+           k_MAX_MICRO_SLEEP_TIME = 250 * 1000 };
+
+    int microSleepTime = k_MIN_MICRO_SLEEP_TIME / 256;   // don't sleep until
+                                                         // 8th pass
     while (d_backgroundState != e_STOPPED) {
+        // The background thread will set 'd_backgroundState' to 'e_STOPPED'
+        // when it exits.  In the meantime, it might or might not be blocked
+        // reading from the pipe.  So we iterate doing non-blocking writes,
+        // writing empty commands to the pipe.  Once the background thread
+        // completes a 'read', it will see that 'd_backgroundState' is no
+        // longer 'e_RUNNING', set 'd_backgroundState' to 'e_STOPPED', and
+        // exit.
+
         if (sendEmptyMessage() > 0) {  // Fatal errors
             break;                                                     // BREAK
+        }
+
+        // Sleep for increasing times up to a quarter second.
+
+        microSleepTime = bsl::min<int>(k_MAX_MICRO_SLEEP_TIME,
+                                       2 * microSleepTime);
+
+        if (k_MIN_MICRO_SLEEP_TIME <= microSleepTime) {
+            bslmt::ThreadUtil::microSleep(microSleepTime);
+        }
+        else {
+            bslmt::ThreadUtil::yield();
         }
     }
 }

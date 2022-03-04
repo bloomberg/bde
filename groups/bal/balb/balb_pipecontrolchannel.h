@@ -271,7 +271,8 @@ class PipeControlChannel {
         // Writes a '\n' character, only, to the pipe.  Returns 0 on success, a
         // value greater than 0 on error, and a value less than 0 in case of a
         // timeout.  Used to unblock the reading thread so it can detect a
-        // shutdown condition.
+        // shutdown condition.  Note that this method is not to be called
+        // anywhere except from 'shutdown'.
 
   private:
     // NOT IMPLEMENTED
@@ -314,8 +315,9 @@ class PipeControlChannel {
         // 'std::pmr::string' (if supported), or 'bslstl::StringRef'.
 
     void shutdown();
-        // Stop reading from the pipe and dispatching messages.  Note that this
-        // method does not block.
+        // Stop reading from the pipe and dispatching messages.  If the
+        // background thread has begun processing a message, this method will
+        // block until a message that is currently being processed completes.
 
     void stop();
         // Block until the background thread has been terminated by a call to
