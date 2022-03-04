@@ -17,6 +17,8 @@ BSLS_IDENT_RCSID(balb_pipecontrolchannel_cpp,"$Id$ $CSID$")
 #include <bdls_pathutil.h>
 #include <bdls_pipeutil.h>
 
+#include <bslmt_threadutil.h>
+
 #include <bslma_default.h>
 
 #include <bsls_assert.h>
@@ -379,7 +381,8 @@ int PipeControlChannel::readNamedPipe()
         }
     }
 
-    BSLS_ASSERT(!"unreachable");
+    BSLS_LOG_FATAL("unreachable code in 'readNamedPipe'");
+    bsl::abort();
 }
 
 int
@@ -394,7 +397,7 @@ PipeControlChannel::sendEmptyMessage()
                        savedErrno,
                        bsl::strerror(savedErrno));
 
-        return 2;                                                     // RETURN
+        return 1;                                                     // RETURN
     }
 
     if (0 == (flags & O_NONBLOCK)) {
@@ -408,13 +411,15 @@ PipeControlChannel::sendEmptyMessage()
                            savedErrno,
                            bsl::strerror(savedErrno));
 
-            return 3;                                                 // RETURN
+            return 2;                                                 // RETURN
         }
     }
 
     // Ignore return value of 'write' -- we don't care whether it succeeds or
     // not.  'shutdown', the calling function, will keep calling us until the
-    // background thread changes 'd_backgroundState'.
+    // background thread changes 'd_backgroundState'.  This function only
+    // returns an error status if the state of 'd_impl.d_unix.d_writeFd' is
+    // such that we would be unable to write.
 
     (void) write(d_impl.d_unix.d_writeFd, "\n", 1);
 
@@ -621,6 +626,17 @@ void PipeControlChannel::shutdown()
         return;                                                       // RETURN
     }
 
+    // Note that 'microSleep' usually won't do anything unless requested to
+    // sleep for at least 10,000 microseconds, but also, if requested to sleep
+    // for a short time, will often sleep for 2 seconds (particularly on
+    // Solaris).  For this reason, we avoid doing any 'microSleep's until we've
+    // been through the loop many times, doing a 'yield' each time.
+
+    enum { k_MIN_MICRO_SLEEP_TIME =  10 * 1024,
+           k_MAX_MICRO_SLEEP_TIME = 250 * 1000 };
+
+    int microSleepTime = k_MIN_MICRO_SLEEP_TIME / 256;   // don't sleep until
+                                                         // 8th pass
     while (d_backgroundState != e_STOPPED) {
         // The background thread will set 'd_backgroundState' to 'e_STOPPED'
         // when it exits.  In the meantime, it might or might not be blocked
@@ -632,6 +648,18 @@ void PipeControlChannel::shutdown()
 
         if (sendEmptyMessage() > 0) {  // Fatal errors
             break;                                                     // BREAK
+        }
+
+        // Sleep for increasing times up to a quarter second.
+
+        microSleepTime = bsl::min<int>(k_MAX_MICRO_SLEEP_TIME,
+                                       2 * microSleepTime);
+
+        if (k_MIN_MICRO_SLEEP_TIME <= microSleepTime) {
+            bslmt::ThreadUtil::microSleep(microSleepTime);
+        }
+        else {
+            bslmt::ThreadUtil::yield();
         }
     }
 }
