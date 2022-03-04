@@ -1,5 +1,29 @@
-bsl-internal (3.99.0.0) unstable; urgency=low
+bsl-internal (3.100.0.0) unstable; urgency=low
 
+  * a6e0c7475 Bumped version to 3.100.0.0
+  * bb1e7a080 Merge pull request #3578 from bchapman/bdlb_nullablevalue-fix-perfect-forwarding-2-drqs-168425654
+  * afdb927e3 Add C++17 type aliases to bsl_type_traits.h (#3575)
+  * 164f0e9ea Bslh wyhash make default 2 drqs 166864744 (#3583)
+  * 1fe50fbc2 'constexpr' specifier has been added to 'bdlat_enumeratorinfo' accessors (#3564)
+  * fa724994b Add class template deduction guides for unordered_map and multimap (#3565)
+  * 58f2ec45f Clean up the recently added template deduction guides (#3559)
+  * 4e0e0b28c Fuzzing additions bslim (#3508)
+  * cb37e84f5 correct tsan issue (#3585)
+  * 0e9977289 Merge pull request #3560 from afeher/drqs-168244924-bdefy-scopeexit_proctor-changes
+  * f5fbfc322 Add tests for the implicit deduction guides for the searchers (#3571)
+  * 38cd8ab70 Merge pull request #3572 from afeher/drqs-168473012-add-nodiscard-for-types
+  * 9a3c592f3 Add move tests between bsl::optionals of UDTs (#3550)
+  * 9c17f0041 fixed initialization of bsl::string with bsl::string_view on windows (#3570)
+  * 9266b9730 Add class template deduction guides for unordered_set and multiset (#3556)
+  * fa032ad2d bdlcc_cache thread safety notes {DRQS 167241695} (#3563)
+  * 05a9effa6 bdlat: Add utility components for arrays and nullables (#3531)
+  * 440530555 Update MQTP deleteQueue doc to reflect same-thread behavior (#3547)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 4 Mar 2022 11:23:42 -0500
+
+bsl-internal (3.99.0.0) git; urgency=low
+
+  * 031c96e5d Changelog for version 3.99.0.0
   * ccb734f47 Revert "Bdlb nullablevalue from optional 2 drqs 166581401 (#3528)" (#3561)
   * 9761883b8 Bumped version to 3.99.0.0
   * f507e7715 correct build warnings (#3557)
@@ -8,6 +32,7 @@ bsl-internal (3.99.0.0) unstable; urgency=low
   * 804ac2372 adding casts in aggregate initialization because some narrowing conversions are not allowed by clang (#3554)
   * e709c41a0 removed useless calls to MovableRefUtil::access within MovableRefUtil::move (#3546)
   * c4d5dd4af Bdlb nullablevalue from optional 2 drqs 166581401 (#3528)
+  * 9655e080d bdlb_nullable, bslstl_optional: conversions / assignments between both
   * 8e4c2e10f baljsn::Decoder::decode to provide more 'not good' detail (#3549)
   * 3bf629cbc Allocator-aware constructors and str() calls to stringbufs (second try) (#3522)
   * bc65db208 Transparency is added for 'bsl::owner_less<void>' (#3527)
@@ -20,7 +45,7 @@ bsl-internal (3.99.0.0) unstable; urgency=low
   * 8f504ddde Add class template deduction guides to bsl::map and multimap (second try) (#3514)
   * c4a17936c Add template deduction guides for bsl::basic_string (#3476)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 4 Feb 2022 16:29:58 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 4 Feb 2022 16:33:42 -0500
 
 bsl-internal (3.98.0.0) git; urgency=low
 
