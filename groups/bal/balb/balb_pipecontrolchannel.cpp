@@ -143,9 +143,6 @@ int PipeControlChannel::sendEmptyMessage()
                                 // 'CancelIo' would fail, but we don't care
                                 // and we ignore the return value.
     }
-    else {
-        // 'WriteFile' completed, no cancellation necessary.
-    }
 
     CloseHandle(pipe);
 
