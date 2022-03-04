@@ -386,11 +386,22 @@ int
 PipeControlChannel::sendEmptyMessage()
 {
     const int flags = fcntl(d_impl.d_unix.d_writeFd, F_GETFL);
-    if (-1 != flags && !(flags & O_NONBLOCK)) {
+    if (-1 == flags) {
+        const int savedErrno = errno;
+        BSLS_LOG_ERROR("Unable to get 'fcntl' flags on '%s' for"
+                                                   " writing. errno = %d (%s)",
+                       d_pipeName.c_str(),
+                       savedErrno,
+                       bsl::strerror(savedErrno));
+
+        return 2;                                                     // RETURN
+    }
+
+    if (0 == (flags & O_NONBLOCK)) {
         if (-1 == fcntl(d_impl.d_unix.d_writeFd,
                         F_SETFL,
                         flags | O_NONBLOCK)) {
-            int savedErrno = errno;
+            const int savedErrno = errno;
             BSLS_LOG_ERROR("Unable to set 'O_NONBLOCK' on '%s' for"
                                                    " writing. errno = %d (%s)",
                            d_pipeName.c_str(),
@@ -401,8 +412,13 @@ PipeControlChannel::sendEmptyMessage()
         }
     }
 
-    write(d_impl.d_unix.d_writeFd, "\n", 1);
-    return 0;
+    // Ignore return value of 'write' -- we don't care whether it succeeds or
+    // not.  'shutdown', the calling function, will keep calling us until the
+    // background thread changes 'd_backgroundState'.
+
+    (void) write(d_impl.d_unix.d_writeFd, "\n", 1);
+
+    return 0;    // success
 }
 
 int
@@ -504,8 +520,8 @@ PipeControlChannel::createNamedPipe(const char *pipeName)
 #endif // END PLATFORM-SPECIFIC FUNCTION IMPLEMENTATIONS
 
 namespace balb {
-// CREATORS
 
+// CREATORS
 PipeControlChannel::PipeControlChannel(const ControlCallback&  callback,
                                        bslma::Allocator       *basicAllocator)
 : d_callback(bsl::allocator_arg_t(),
@@ -532,13 +548,12 @@ PipeControlChannel::~PipeControlChannel()
 }
 
 // MANIPULATORS
-
 void PipeControlChannel::backgroundProcessor()
 {
     while (d_backgroundState == e_RUNNING) {
         if (0 != readNamedPipe()) {
-            BSLS_LOG_WARN("Error processing M-trap: unable to read from named"
-                          " pipe '%s'", d_pipeName.c_str());
+            BSLS_LOG_ERROR("Error processing M-trap: unable to read from named"
+                           " pipe '%s'", d_pipeName.c_str());
 
             break;
         }
@@ -606,12 +621,15 @@ void PipeControlChannel::shutdown()
         return;                                                       // RETURN
     }
 
-    // The background thread is blocked on a call to 'ReadFile'.  Shutdown the
-    // background thread by a) indicating that the thread should perform no
-    // more reads and b) unblocking the background thread by sending an "empty"
-    // message to the named pipe.
-
     while (d_backgroundState != e_STOPPED) {
+        // The background thread will set 'd_backgroundState' to 'e_STOPPED'
+        // when it exits.  In the meantime, it might or might not be blocked
+        // reading from the pipe.  So we iterate doing non-blocking writes,
+        // writing empty commands to the pipe.  Once the background thread
+        // completes a 'read', it will see that 'd_backgroundState' is no
+        // longer 'e_RUNNING', set 'd_backgroundState' to 'e_STOPPED', and
+        // exit.
+
         if (sendEmptyMessage() > 0) {  // Fatal errors
             break;                                                     // BREAK
         }
