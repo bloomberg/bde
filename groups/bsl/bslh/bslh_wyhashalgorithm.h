@@ -336,12 +336,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isbitwisemoveable.h>
 
 #include <bsls_assert.h>
-#include <bsls_byteorder.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
 #include <stddef.h>  // for 'size_t'
-#include <string.h>  // for 'memcpy'
 
 namespace BloombergLP {
 
@@ -356,18 +354,11 @@ class WyHashAlgorithm {
     // This class wraps an implementation of the "SpookyHash" hash algorithm in
     // an interface that is usable in the modular hashing system in 'bslh'.
 
+  private:
     // PRIVATE TYPES
     typedef bsls::Types::Uint64 Uint64;
         // Typedef for a 64-bit integer type used in the hashing algorithm.
 
-  public:
-    // TYPES
-    typedef Uint64 result_type;
-        // Typedef indicating the value type returned by this algorithm.
-
-    enum { k_SEED_LENGTH = sizeof(Uint64) };
-
-  private:
     // DATA
     Uint64 d_data;
 
@@ -377,16 +368,16 @@ class WyHashAlgorithm {
     WyHashAlgorithm& operator=(const WyHashAlgorithm&); // = delete;
 
   public:
+    // TYPES
+    typedef bsls::Types::Uint64 result_type;
+        // Typedef indicating the value type returned by this algorithm.
+
     // CREATORS
     WyHashAlgorithm();
         // Create a 'WyHashAlgorithm' using a default initial seed.
 
-    explicit WyHashAlgorithm(Uint64 seed);
-         // Create a 'bslh::WyHashAlgorithm', seeded with the specified 'seed'.
-
-    explicit WyHashAlgorithm(const char *seed);
-         // Create a 'bslh::WyHashAlgorithm', seeded with 'k_SEED_LENGTH' bytes
-         // of data starting at the specified 'seed'.
+    explicit WyHashAlgorithm(const Uint64 seed);
+        // Create a 'bslh::WyHashAlgorithm', seeded with the specified 'seed'.
 
     //! ~WyHashAlgorithm() = default;
         // Destroy this object.
@@ -425,26 +416,9 @@ WyHashAlgorithm::WyHashAlgorithm()
 }
 
 inline
-WyHashAlgorithm::WyHashAlgorithm(Uint64 seed)
+WyHashAlgorithm::WyHashAlgorithm(const Uint64 seed)
 : d_data(seed)
-{
-    BSLMF_ASSERT(sizeof(d_data) == sizeof(seed));
-}
-
-inline
-WyHashAlgorithm::WyHashAlgorithm(const char *seed)
-{
-    BSLMF_ASSERT(sizeof(d_data) == k_SEED_LENGTH);
-
-    ::memcpy(&d_data, seed, k_SEED_LENGTH);
-        // optimizes to a read of 'Uint64 *' on x86
-
-    // Make sure that we will generate the same result, regardless of byte
-    // order.  'Seed' is always interpreted as little-endian.
-
-    d_data = BSLS_BYTEORDER_LE_U64_TO_HOST(d_data);
-        // optimizes to nothing on little-endian
-}
+{}
 
 inline
 WyHashAlgorithm::result_type WyHashAlgorithm::computeHash()

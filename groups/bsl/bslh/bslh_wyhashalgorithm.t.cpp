@@ -342,14 +342,14 @@ void aSsErT(bool condition, const char *message, int line)
     }
 //..
 // Next, we need a hash functor for 'Future'.  We are going to use the
-// 'WyHashAlgorithm' because it is a fast, general purpose hashing algorithm
-// that will provide an easy way to combine the attributes of 'Future' objects
-// that are salient to hashing into one reasonable hash that will distribute
-// the items evenly throughout the hash table.
+// 'SpookyHashAlgorithm' because it is a fast, general purpose hashing
+// algorithm that will provide an easy way to combine the attributes of
+// 'Future' objects that are salient to hashing into one reasonable hash that
+// will distribute the items evenly throughout the hash table.
 //..
     struct HashFuture {
-        // This struct is a functor that will apply the 'WyHashAlgorithm' to
-        // objects of type 'Future'.
+        // This struct is a functor that will apply the 'SpookyHashAlgorithm'
+        // to objects of type 'Future'.
 
         bsls::Types::Uint64 d_seed;
 
@@ -375,7 +375,7 @@ void aSsErT(bool condition, const char *message, int line)
         // MANIPULATOR
         size_t operator()(const Future& future) const
             // Return the hash of the of the specified 'future'.  Note that
-            // this uses the 'WyHashAlgorithm' to quickly combine the
+            // this uses the 'SpookyHashAlgorithm' to quickly combine the
             // attributes of 'Future' objects that are salient to hashing into
             // a hash suitable for a hash table.
         {
@@ -870,19 +870,14 @@ int main(int argc, char *argv[])
             u::mmixRandMemory(buffer, LEN);
             Uint64 seed;
             u::mmixRandVal(&seed);
-            Uint64 leSeed = BSLS_BYTEORDER_HOST_U64_TO_LE(seed);
 
             if (veryVerbose) {
                 P_(buffer[0]);    P_(buffer[LEN - 1]);    P(seed);
             }
 
-            Obj hash(reinterpret_cast<const char *>(&leSeed));
+            Obj hash(seed);
             hash(buffer, LEN);
             const Uint64 hashVal = hash.computeHash();
-
-            Obj hash2(seed);
-            hash2(buffer, LEN);
-            const Uint64 hash2Val = hash2.computeHash();
 
             Obj seedlessHash;
             seedlessHash(buffer, LEN);
@@ -894,7 +889,6 @@ int main(int argc, char *argv[])
 #endif
 
             ASSERTV(LINE, HASH, hashVal, HASH == hashVal);
-            ASSERTV(LINE, HASH, hashVal, HASH == hash2Val);
             ASSERTV(LINE, SEEDLESS_HASH, seedlessHashVal,
                                              SEEDLESS_HASH == seedlessHashVal);
         }
@@ -1003,7 +997,7 @@ int main(int argc, char *argv[])
                     }
 
                     for (int tj = 0; tj < k_DATA_LEN; ++tj) {
-                        const Uint64 seed   = data[tj];
+                        const Uint64 seed = data[tj];
 
                         TC::Alg oldH(seed);
                         oldH(pBegin, numBytes);
@@ -1165,8 +1159,8 @@ int main(int argc, char *argv[])
         //   Verify the class provides an overload for the function call
         //   operator that can be called with some bytes and a length.  Verify
         //   that calling 'operator()' will permute the algorithm's internal
-        //   state as specified by WyHash.  Verify that 'computeHash()'
-        //   returns the final value specified by the canonical WyHash
+        //   state as specified by SpookyHash.  Verify that 'computeHash()'
+        //   returns the final value specified by the canonical spooky hash
         //   implementation.
         //
         // Concerns:
@@ -1179,8 +1173,8 @@ int main(int argc, char *argv[])
         //: 3 Byte sequences passed in to 'operator()' with a length of 0 will
         //:   not contribute to the final hash
         //:
-        //: 4 'computeHash()' and returns the appropriate value according to
-        //:   the WyHash specification.
+        //: 4 'computeHash()' and returns the appropriate value
+        //:   according to the SpookyHash specification.
         //:
         //: 5 'operator()' does a BSLS_ASSERT for null pointers and non-zero
         //:   length, and not for null pointers and zero length.
@@ -1231,8 +1225,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 Objects can be created using the default constructor.
         //:
-        //: 2 Objects can be created using either of the parameterized
-        //:   constructors.
+        //: 2 Objects can be created using the parameterized constructor.
         //:
         //: 3 Objects can be destroyed.
         //
@@ -1245,7 +1238,6 @@ int main(int argc, char *argv[])
         // Testing:
         //   Obj();
         //   Obj(const char *seed);
-        //   Obj(Uint64 seed);
         //   ~Obj();
         // --------------------------------------------------------------------
 
@@ -1264,8 +1256,7 @@ int main(int argc, char *argv[])
                             " (C-2)\n");
         {
             Uint64 seed = 5;
-            Obj alg1(reinterpret_cast<const char *>(&seed));
-            Obj alg2(seed);
+            Obj alg1(seed);
         }
 
       } break;

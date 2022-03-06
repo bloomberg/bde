@@ -368,8 +368,8 @@ int main(int argc, char *argv[])
     int                 test = argc > 1 ? atoi(argv[1]) : 0;
     bool             verbose = argc > 2;
     bool         veryVerbose = argc > 3;
-    bool     veryVeryVerbose = argc > 4;    (void) veryVeryVerbose;
-    bool veryVeryVeryVerbose = argc > 5;    (void) veryVeryVeryVerbose;
+    bool     veryVeryVerbose = argc > 4;
+    bool veryVeryVeryVerbose = argc > 5;
 
     (void)veryVeryVeryVerbose;  // suppress warning
 
@@ -434,7 +434,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 The typedef 'result_type' is publicly accessible and an alias for
-        //:   'bslh::WyHashAlgorithm::result_type'.
+        //:   'bslh::SpookyHashAlgorithm::result_type'.
         //:
         //: 2 'computeHash()' returns 'result_type'
         //
@@ -456,7 +456,7 @@ int main(int argc, char *argv[])
                             " correct type using 'bslmf::IsSame'. (C-1)\n");
         {
             ASSERT((bslmf::IsSame<Obj::result_type,
-                                  WyHashAlgorithm::result_type>::VALUE));
+                                  SpookyHashAlgorithm::result_type>::VALUE));
         }
 
         if (verbose) printf("Declare the expected signature of 'computeHash()'"
@@ -477,8 +477,8 @@ int main(int argc, char *argv[])
         //   operator that can be called with some bytes and a length.  Verify
         //   that calling 'operator()' will permute the algorithm's internal
         //   state as specified by the underlying hashing algorithm
-        //   (bslh::WyHashAlgorithm).  Verify that 'computeHash()' returns the
-        //   final value specified by the canonical implementation of the
+        //   (bslh::SpookyHashAlgorithm).  Verify that 'computeHash()' returns
+        //   the final value specified by the canonical implementation of the
         //   underlying hashing algorithm.
         //
         // Concerns:
@@ -494,7 +494,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Hash a number of values with 'bslh::DefaultHashAlgorithm' and
-        //:   'bslh::WyHashAlgorithm' and verify that the outputs match.
+        //:   'bslh::SpookyHashAlgorithm' and verify that the outputs match.
         //:   (C-1,2,3)
         //:
         //: 2 Call 'operator()' with a null pointer. (C-4)
@@ -538,7 +538,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("Hash a number of values with"
                             " 'bslh::DefaultHashAlgorithm' and"
-                            " 'bslh::WyHashAlgorithm' and verify that the"
+                            " 'bslh::SpookyHashAlgorithm' and verify that the"
                             " outputs match. (C-1,2,3)\n");
         {
             for (int i = 0; i != NUM_DATA; ++i) {
@@ -547,15 +547,26 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) printf("Hashing: %s\n with"
                                         " 'bslh::DefaultHashAlgorithm' and"
-                                        " 'bslh::WyHashAlgorithm'", VALUE);
+                                        " 'bslh::SpookyHashAlgorithm'", VALUE);
 
-                Obj             contiguousHash;
-                WyHashAlgorithm cannonicalHashAlgorithm;
+                Obj                 contiguousHash;
+                Obj                 dispirateHash;
+                SpookyHashAlgorithm cannonicalHashAlgorithm;
 
                 cannonicalHashAlgorithm(VALUE, strlen(VALUE));
                 contiguousHash(VALUE, strlen(VALUE));
-                ASSERTV(LINE, cannonicalHashAlgorithm.computeHash() == 
-                                                 contiguousHash.computeHash());
+
+                for (unsigned int j = 0; j < strlen(VALUE); ++j){
+                    if (veryVeryVerbose) printf("Hashing by char: %c\n",
+                                                                     VALUE[j]);
+                    dispirateHash(&VALUE[j], sizeof(char));
+                }
+
+                SpookyHashAlgorithm::result_type hash =
+                                         cannonicalHashAlgorithm.computeHash();
+
+                LOOP_ASSERT(LINE, hash == contiguousHash.computeHash());
+                LOOP_ASSERT(LINE, hash == dispirateHash.computeHash());
             }
         }
 

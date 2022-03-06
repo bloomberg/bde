@@ -476,7 +476,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Access 'k_SEED_LENGTH' and ASSERT it is equal to the value
-        //:   defined by 'bslh::WyHashAlgorithm. (C-1,2)
+        //:   defined by 'bslh::SpookyHashAlgorithm. (C-1,2)
         //
         // Testing:
         //   enum { k_SEED_LENGTH = InternalHashAlgorithm::k_SEED_LENGTH };
@@ -486,10 +486,10 @@ int main(int argc, char *argv[])
                             "\n=======================\n");
 
         if (verbose) printf("Access 'k_SEED_LENGTH' and ASSERT it is equal to"
-                            " the value defined by 'bslh::WyHashAlgorithm."
+                            " the value defined by 'bslh::SpookyHashAlgorithm."
                             " (C-1,2)\n");
         {
-            ASSERT(int(WyHashAlgorithm::k_SEED_LENGTH) ==
+            ASSERT(int(SpookyHashAlgorithm::k_SEED_LENGTH) ==
                    int(Obj::k_SEED_LENGTH));
         }
 
@@ -502,7 +502,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 The typedef 'result_type' is publicly accessible and an alias for
-        //:   'bslh::WyHashAlgorithm::result_type'.
+        //:   'bslh::SpookyHashAlgorithm::result_type'.
         //:
         //: 2 'computeHash()' returns 'result_type'
         //
@@ -524,7 +524,7 @@ int main(int argc, char *argv[])
                             " correct type using 'bslmf::IsSame'. (C-1)\n");
         {
             ASSERT((bslmf::IsSame<Obj::result_type,
-                                  WyHashAlgorithm::result_type>::VALUE));
+                                  SpookyHashAlgorithm::result_type>::VALUE));
         }
 
         if (verbose) printf("Declare the expected signature of 'computeHash()'"
@@ -545,7 +545,7 @@ int main(int argc, char *argv[])
         //   operator that can be called with some bytes and a length.  Verify
         //   that calling 'operator()' will permute the algorithm's internal
         //   state as specified by the underlying hashing algorithm
-        //   (bslh::WyHashAlgorithm).  Verify that 'computeHash()' returns
+        //   (bslh::SpookyHashAlgorithm).  Verify that 'computeHash()' returns
         //   the final value specified by the canonical implementation of the
         //   underlying hashing algorithm.
         //
@@ -562,8 +562,8 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Hash a number of values with 'bslh::DefaultSeededHashAlgorithm'
-        //:   and 'bslh::WyHashAlgorithm' and verify that the outputs match.
-        //:   (C-1,2,3)
+        //:   and 'bslh::SpookyHashAlgorithm' and verify that the outputs
+        //:   match. (C-1,2,3)
         //:
         //: 2 Call 'operator()' with a null pointer. (C-4)
         //
@@ -606,7 +606,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("Hash a number of values with"
                             " 'bslh::DefaultSeededHashAlgorithm' and"
-                            " 'bslh::WyHashAlgorithm' and verify that the"
+                            " 'bslh::SpookyHashAlgorithm' and verify that the"
                             " outputs match. (C-1,2,3)\n");
         {
             for (int i = 0; i != NUM_DATA; ++i) {
@@ -615,24 +615,27 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) printf("Hashing: %s\n with"
                                         " 'bslh::DefaultSeededHashAlgorithm'"
-                                        " and 'bslh::WyHashAlgorithm'",
+                                        " and 'bslh::SpookyHashAlgorithm'",
                                         VALUE);
 
-                Obj             contiguousHash(globalSeed);
-                WyHashAlgorithm cannonicalHashAlgorithm(globalSeed);
+                Obj                 contiguousHash(globalSeed);
+                Obj                 dispirateHash(globalSeed);
+                SpookyHashAlgorithm cannonicalHashAlgorithm(globalSeed);
 
                 cannonicalHashAlgorithm(VALUE, strlen(VALUE));
                 contiguousHash(VALUE, strlen(VALUE));
 
-                const Obj::result_type contHash = contiguousHash.computeHash();
-                const WyHashAlgorithm::result_type canHash =
+                for (unsigned int j = 0; j < strlen(VALUE); ++j){
+                    if (veryVeryVerbose) printf("Hashing by char: %c\n",
+                                                                     VALUE[j]);
+                    dispirateHash(&VALUE[j], sizeof(char));
+                }
+
+                SpookyHashAlgorithm::result_type hash =
                                          cannonicalHashAlgorithm.computeHash();
 
-                BSLMF_ASSERT((bsl::is_same<
-                                        Obj::result_type,
-                                        WyHashAlgorithm::result_type>::value));
-
-                ASSERTV(contHash, canHash, contHash == canHash);
+                LOOP_ASSERT(LINE, hash == contiguousHash.computeHash());
+                LOOP_ASSERT(LINE, hash == dispirateHash.computeHash());
             }
         }
 

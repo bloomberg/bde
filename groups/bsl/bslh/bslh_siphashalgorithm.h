@@ -65,10 +65,10 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This algorithm is designed to be fast in comparison to other algorithms
 // making similar guarantees.  It is still slower than other commonly accepted
-// and used hashes such as WyHash or SpookyHash.  This algorithm should only be
-// used when protection from malicious input is required.  Otherwise, an
-// algorithm that documents better performance properties should be used, such
-// as 'bslh::WyHashAlgorithm'.
+// and used hashes such as SpookyHash.  This algorithm should only be used when
+// protection from malicious input is required.  Otherwise, an algorithm that
+// documents better performance properties should be used, such as
+// 'bslh::SpookyHashAlgorithm'.
 //
 ///Hash Distribution
 ///-----------------

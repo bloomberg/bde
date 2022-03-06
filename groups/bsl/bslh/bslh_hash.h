@@ -81,10 +81,9 @@ BSLS_IDENT("$Id: $")
 ///------------------
 // There are algorithms implemented in the 'bslh' package that can be passed in
 // and used as template parameters for 'bslh::Hash' or other 'struct's like it.
-// Some of these algorithms, such as 'bslh::SpookyHashAlgorithm' or
-// 'bslh::WyHashAlgorithm', are named for the algorithm they implement.  These
-// named algorithms are intended for use by those who want a specific
-// algorithm.  There are other algorithms, such as
+// Some of these algorithms, such as 'bslh::SpookyHashAlgorithm', are named for
+// the algorithm they implement.  These named algorithms are intended for use
+// by those who want a specific algorithm.  There are other algorithms, such as
 // 'bslh::DefaultHashAlgorithm', which wrap an unspecified algorithm and
 // describe the properties of the wrapped algorithm.  The descriptive
 // algorithms are intended for use by those who need specific properties and
