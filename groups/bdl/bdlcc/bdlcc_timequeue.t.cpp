@@ -76,9 +76,10 @@ using namespace bsl;  // automatically added by script
 // [3 ] int add(const bsls::TimeInterval& time, const DATA& data, ...
 // [3 ] int add(const bdlcc::TimeQueueItem<DATA> &item, int *isNewTop=0...
 // [8 ] int update(int handle, const bsls::TimeInterval &newTime,...
-// [3 ] int length() const;
+// [11] int length() const;
 // [3 ] bool isRegisteredHandle(int handle) const;
 // [3 ] int minTime(bsls::TimeInterval *buffer);
+// [11] int countLE(const bsls::TimeInterval& time) const;
 //-----------------------------------------------------------------------------
 // [1 ] BREATHING TEST
 // [2 ] CLASS 'bdlcc::TimeQueueItem'
@@ -441,14 +442,19 @@ void *testAddUpdatePopRemoveAll(void *arg)
     return NULL;
 }
 
-void *testLength(void *)
-    // Invoke 'length' in a loop.
+void *testLengthAndCountLE(void *)
+    // Invoke 'length' and 'countLE' in a loop.
 {
     barrier.wait();
     for (int i = 0; i < k_NUM_ITERATIONS; ++i) {
         int len = timequeue.length();
         ASSERTV(i, len, len >= 0);
         ASSERTV(i, len, len <= k_NUM_THREADS);
+
+        const bsls::TimeInterval TIME(k_NUM_ITERATIONS / 2);
+        const int count = timequeue.countLE(TIME);
+        ASSERTV(i, count, count >= 0);
+        ASSERTV(i, count, count <= k_NUM_THREADS);
     }
     return NULL;
 }
@@ -1918,15 +1924,15 @@ int main(int argc, char *argv[])
         // Plan:
         //   Create a time queue.  Create 'k_NUM_THREADS' threads and let each
         //   thread invoke 'add', 'find', 'update', 'popFront', and 'popLE' in
-        //   a loop.  Create a thread, let it invoke 'length' in a loop and
-        //   verify that there are at least 0 and no more than 'k_NUM_THREADS'
-        //   elements at any given time.  At periodic intervals, let another
-        //   thread invoke 'removeAll'.  Let all threads run concurrently.
-        //   This test is mostly to verify that races don't happen, we are only
-        //   going to do a mild error checking.  Nevertheless, let each thread
-        //   gather all the items it removes in its own container, and check
-        //   that the total size of those containers is the number of elements
-        //   added.
+        //   a loop.  Create a thread, let it invoke 'length' and 'countLE' in
+        //   a loop and verify that there are at least 0 and no more than
+        //   'k_NUM_THREADS' elements at any given time.  At periodic
+        //   intervals, let another thread invoke 'removeAll'.  Let all threads
+        //   run concurrently.  This test is mostly to verify that races don't
+        //   happen, we are only going to do a mild error checking.
+        //   Nevertheless, let each thread gather all the items it removes in
+        //   its own container, and check that the total size of those
+        //   containers is the number of elements added.
         //
         // Testing:
         //   CONCERN: CONCURRENCY TEST
@@ -1950,7 +1956,9 @@ int main(int argc, char *argv[])
                                      (void *)&info[i]);
         }
 
-        bslmt::ThreadUtil::create(&threads[k_NUM_THREADS], testLength, NULL);
+        bslmt::ThreadUtil::create(&threads[k_NUM_THREADS],
+                                   testLengthAndCountLE,
+                                   NULL);
 
         int size = 0;
         for (int i = 0; i < k_NUM_THREADS; ++i) {
@@ -2973,6 +2981,7 @@ int main(int argc, char *argv[])
         //   int length() const;
         //   bool isRegisteredHandle(int handle) const;
         //   int minTime(bsls::TimeInterval *buffer);
+        //   int countLE(const bsls::TimeInterval& time) const;
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -2987,24 +2996,27 @@ int main(int argc, char *argv[])
             const char VD[] = "D";
             const char VE[] = "E";
 
+            const bsls::TimeInterval COUNTLETIME(1,9999999);
+
             static const struct {
                 int         d_lineNum;     // Source line number
                 int         d_secs;
                 int         d_nsecs;
                 const char* d_value;
                 int         d_isNewTop;
+                int         d_countLE;
             } VALUES[] = {
-                //line secs  nsecs    value    isNewTop
-                //---- ----- -------- -------- --------
-                { L_,   2  , 1000000, VA     , 1       },
-                { L_,   2  , 1000000, VB     , 0       },
-                { L_,   2  , 1000000, VC     , 0       },
-                { L_,   2  , 1000001, VB     , 0       },
-                { L_,   1  , 9999998, VC     , 1       },
-                { L_,   1  , 9999999, VD     , 0       },
-                { L_,   1  , 9999999, VE     , 0       },
-                { L_,   1  , 9999999, VC     , 0       },
-                { L_,   0  , 0000000, VE     , 1       }
+                //line secs  nsecs    value    isNewTop countLE
+                //---- ----- -------- -------- -------- -------
+                { L_,   2  , 1000000, VA     , 1      , 0      },
+                { L_,   2  , 1000000, VB     , 0      , 0      },
+                { L_,   2  , 1000000, VC     , 0      , 0      },
+                { L_,   2  , 1000001, VB     , 0      , 0      },
+                { L_,   1  , 9999998, VC     , 1      , 1      },
+                { L_,   1  , 9999999, VD     , 0      , 2      },
+                { L_,   1  , 9999999, VE     , 0      , 3      },
+                { L_,   1  , 9999999, VC     , 0      , 4      },
+                { L_,   0  , 0000000, VE     , 1      , 5      }
             };
 
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
@@ -3037,6 +3049,7 @@ int main(int argc, char *argv[])
                 const int   NSECS       = VALUES[i].d_nsecs;
                 const int   ISNEWTOP    = VALUES[i].d_isNewTop;
                 const bsls::TimeInterval TIME(SECS,NSECS);
+                const int   COUNTLE     = VALUES[i].d_countLE;
 
                 for (int j = 0; j < NUM_OBJS; ++j) {
                     Obj& mX = *OBJS[j]; const Obj& X = mX;
@@ -3055,6 +3068,7 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE, (i+1) == newLength);
                     ASSERTV(LINE, (i+1) == X.length());
                     ASSERTV(LINE, true == X.isRegisteredHandle(handle));
+                    ASSERTV(LINE, COUNTLE == X.countLE(COUNTLETIME));
                 }
             }
         }
