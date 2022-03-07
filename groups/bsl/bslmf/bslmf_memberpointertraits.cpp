@@ -1,8 +1,8 @@
-// bslmf_pointertomembertraits.cpp                                    -*-C++-*-
-#include <bslmf_pointertomembertraits.h>
+// bslmf_memberpointertraits.cpp                                      -*-C++-*-
+#include <bslmf_memberpointertraits.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bslmf_pointertomembertraits_cpp, "$Id$ $CSID$")
+BSLS_IDENT_RCSID(bslmf_memberpointertraits_cpp, "$Id$ $CSID$")
 
 // ----------------------------------------------------------------------------
 // Copyright 2022 Bloomberg Finance L.P.

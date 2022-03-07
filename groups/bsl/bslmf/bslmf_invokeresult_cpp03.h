@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Mar  3 11:17:03 2022
+// Generated on Mon Mar  7 15:28:39 2022
 // Command line: sim_cpp11_features.pl bslmf_invokeresult.h
 
 #ifdef COMPILING_BSLMF_INVOKERESULT_H
@@ -10789,7 +10789,7 @@ struct InvokeResult_MemObjPtrImp<FN, ARGTYPE>
 : InvokeResult_MemObjPtrImpDispatch<
       void,
       InvokeResult_IsBaseOf<
-          typename PointerToMemberTraits<FN>::ClassType,
+          typename MemberPointerTraits<FN>::ClassType,
           typename bsl::remove_reference<ARGTYPE>::type>::value,
       IsReferenceWrapper<typename bsl::remove_const<
           typename bsl::remove_reference<ARGTYPE>::type>::type>::value,
@@ -11334,7 +11334,7 @@ struct InvokeResult_MemObjPtrImp<FN, ARGTYPE>
 : InvokeResult_MemObjPtrImpDispatch<
       void,
       InvokeResult_IsBaseOf<
-          typename PointerToMemberTraits<FN>::ClassType,
+          typename MemberPointerTraits<FN>::ClassType,
           typename bsl::remove_reference<ARGTYPE>::type>::value,
       IsReferenceWrapper<typename bsl::remove_const<
           typename bsl::remove_reference<ARGTYPE>::type>::type>::value,

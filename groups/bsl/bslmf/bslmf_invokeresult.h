@@ -214,8 +214,8 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isrvaluereference.h>
 #include <bslmf_isvoid.h>
 #include <bslmf_memberfunctionpointertraits.h>
+#include <bslmf_memberpointertraits.h>
 #include <bslmf_movableref.h>
-#include <bslmf_pointertomembertraits.h>
 #include <bslmf_removecv.h>
 #include <bslmf_resulttype.h>
 #include <bslmf_tag.h>
@@ -1319,7 +1319,7 @@ struct InvokeResult_MemObjPtrImp<FN, ARGTYPE>
 : InvokeResult_MemObjPtrImpDispatch<
       void,
       InvokeResult_IsBaseOf<
-          typename PointerToMemberTraits<FN>::ClassType,
+          typename MemberPointerTraits<FN>::ClassType,
           typename bsl::remove_reference<ARGTYPE>::type>::value,
       IsReferenceWrapper<typename bsl::remove_const<
           typename bsl::remove_reference<ARGTYPE>::type>::type>::value,
