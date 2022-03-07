@@ -2,7 +2,7 @@
 
 // Automatically generated file.  **DO NOT EDIT**
 
-// Generated on Fri Jan 22 13:54:57 2021
+// Generated on Mon Mar  7 17:09:27 2022
 // Command line: sim_cpp11_features.pl bslstl_optional.cpp
 
 #define INCLUDED_BSLSTL_OPTIONAL_CPP03  // Disable inclusion
@@ -16,7 +16,7 @@
 #endif // defined(COMPILING_BSLSTL_OPTIONAL_CPP)
 
 // ----------------------------------------------------------------------------
-// Copyright 2021 Bloomberg Finance L.P.
+// Copyright 2022 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
