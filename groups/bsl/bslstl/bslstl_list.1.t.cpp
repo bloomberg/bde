@@ -2177,6 +2177,7 @@ void TestDriver1<TYPE,ALLOC>::test04_basicAccessors()
 
             ASSERTV(ti, LENGTH == static_cast<int>(X.size()));
             ASSERTV(ti, (LENGTH == 0) == X.empty());
+            ASSERTV(ti, (LENGTH == 0) == bsl::empty(X));
 
             if (veryVerbose) {
                 printf( "\ton objects of length %d:\n", LENGTH);
@@ -2236,6 +2237,7 @@ void TestDriver1<TYPE,ALLOC>::test04_basicAccessors()
 
             ASSERTV(ti, LENGTH == X.size()); // same lengths
             ASSERTV(ti, (LENGTH == 0) == X.empty());
+            ASSERTV(ti, (LENGTH == 0) == bsl::empty(X));
 
             if (veryVerbose) {
                 printf("\tOn objects of length " ZU ":\n", LENGTH);

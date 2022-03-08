@@ -3579,6 +3579,8 @@ void TestDriver2<TYPE, ALLOC>::testCase15()
             TYPE *const       dataMptr = mX.data();
             const TYPE *const dataCptr = X.data();
             ASSERTV(LINE, dataMptr, dataCptr, dataMptr == dataCptr);
+            ASSERT(dataMptr == bsl::data(mX));
+            ASSERT(dataCptr == bsl::data(X));
 
             for (size_t j = 0; j < LENGTH; ++j) {
                 // TYPE element;
@@ -4015,11 +4017,13 @@ void TestDriver2<TYPE, ALLOC>::testCase14()
 
               Obj mX(xta);  const Obj& X = mX;
               ASSERTV(ti, X.empty());
+              ASSERTV(ti, bsl::empty(X));
 
               stretch(&mX, CAP);
               ASSERTV(ti, CAP == X.size());
               ASSERTV(ti, CAP <= X.capacity());
               ASSERTV(ti, !(bool)X.size() == X.empty());
+              ASSERTV(ti, !(bool)X.size() == bsl::empty(X));
 
               ta.setAllocationLimit(AL);
 
@@ -4077,6 +4081,7 @@ void TestDriver2<TYPE, ALLOC>::testCase14()
 
               stretchRemoveAll(&mX, CAP);
               ASSERTV(ti, X.empty());
+              ASSERTV(ti, bsl::empty(X));
               ASSERTV(ti, 0   == X.size());
               ASSERTV(ti, CAP <= X.capacity());
 
@@ -4135,11 +4140,13 @@ void TestDriver2<TYPE, ALLOC>::testCase14()
 
               Obj mX(xta);  const Obj& X = mX;
               ASSERTV(ti, X.empty());
+              ASSERTV(ti, bsl::empty(X));
 
               stretch(&mX, CAP);
               ASSERTV(ti, CAP == X.size());
               ASSERTV(ti, CAP <= X.capacity());
               ASSERTV(ti, !(bool)X.size() == X.empty());
+              ASSERTV(ti, !(bool)X.size() == bsl::empty(X));
 
               ta.setAllocationLimit(AL);
               const bsls::Types::Int64     NUM_ALLOC_BEFORE =
@@ -4190,6 +4197,7 @@ void TestDriver2<TYPE, ALLOC>::testCase14()
 
               stretchRemoveAll(&mX, CAP);
               ASSERTV(ti, X.empty());
+              ASSERTV(ti, bsl::empty(X));
               ASSERTV(ti, 0   == X.size());
               ASSERTV(ti, CAP <= X.capacity());
 
@@ -4239,6 +4247,7 @@ void TestDriver2<TYPE, ALLOC>::testCase14()
 
             Obj mX(xta);  const Obj& X = mX;
             ASSERTV(ti, X.empty());
+            ASSERTV(ti, bsl::empty(X));
 
             stretch(&mX,
                     NE,
@@ -4248,6 +4257,7 @@ void TestDriver2<TYPE, ALLOC>::testCase14()
             ASSERTV(ti, NE <= X.capacity());
             const size_t DELTA = X.capacity() - NE;
             ASSERTV(ti, !(bool)X.size() == X.empty());
+            ASSERTV(ti, !(bool)X.size() == bsl::empty(X));
 
             ta.setAllocationLimit(AL);
             const bsls::Types::Int64     NUM_ALLOC_BEFORE =

@@ -5323,9 +5323,10 @@ void TestDriver<TYPE, TRAITS>::testCase9()
         Obj         mXEmpty(NULL_PTR, 0);
         const Obj&  XEmpty = mXEmpty;
 
-        ASSERTV(XEmpty.size(),     0            == XEmpty.size()    );
-        ASSERTV(XEmpty.max_size(), MAX_MAX_SIZE >= XEmpty.max_size());
-        ASSERTV(XEmpty.empty(),    true         == XEmpty.empty()   );
+        ASSERTV(XEmpty.size(),      0            == XEmpty.size()     );
+        ASSERTV(XEmpty.max_size(),  MAX_MAX_SIZE >= XEmpty.max_size() );
+        ASSERTV(XEmpty.empty(),     true         == XEmpty.empty()    );
+        ASSERTV(bsl::empty(XEmpty), true         == bsl::empty(XEmpty));
     }
 
     // Testing non-empty objects.
@@ -5339,9 +5340,10 @@ void TestDriver<TYPE, TRAITS>::testCase9()
             Obj         mX(START, LENGTH);
             const Obj&  X = mX;
 
-            ASSERTV(i, j, X.size(),     LENGTH             == X.size()    );
-            ASSERTV(i, j, X.max_size(), MAX_MAX_SIZE       >= X.max_size());
-            ASSERTV(i, j, X.empty(),    EXPECTED_EMPTINESS == X.empty()   );
+            ASSERTV(i, j, X.size(),      LENGTH             == X.size()     );
+            ASSERTV(i, j, X.max_size(),  MAX_MAX_SIZE       >= X.max_size() );
+            ASSERTV(i, j, X.empty(),     EXPECTED_EMPTINESS == X.empty()    );
+            ASSERTV(i, j, bsl::empty(X), EXPECTED_EMPTINESS == bsl::empty(X));
         }
     }
 
@@ -6446,8 +6448,9 @@ void TestDriver<TYPE, TRAITS>::testCase2()
         Obj&                  mXEmpty     = *emptyObjPtr;
         const Obj&            XEmpty      = mXEmpty;
 
-        ASSERTV(0 == XEmpty.data()  );
-        ASSERTV(0 == XEmpty.length());
+        ASSERTV(0 == XEmpty.data()    );
+        ASSERTV(0 == bsl::data(XEmpty));
+        ASSERTV(0 == XEmpty.length()  );
 
         ASSERTV(efa.numBytesInUse(), sizeof(Obj) == efa.numBytesInUse());
 
@@ -6466,8 +6469,9 @@ void TestDriver<TYPE, TRAITS>::testCase2()
             Obj&        mX     = *objPtr;
             const Obj&  X      = mX;
 
-            ASSERTV(i, j, START,  X.data(),   START  == X.data()  );
-            ASSERTV(i, j, LENGTH, X.length(), LENGTH == X.length());
+            ASSERTV(i, j, START,  X.data(),     START  == X.data()    );
+            ASSERTV(i, j, START,  bsl::data(X), START  == bsl::data(X));
+            ASSERTV(i, j, LENGTH, X.length(),   LENGTH == X.length()  );
 
             ASSERTV(i, j, fa.numBytesInUse(),
                     sizeof(Obj) == fa.numBytesInUse());

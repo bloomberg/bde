@@ -186,7 +186,7 @@ using namespace bslim;
 // [ 8] CONCERN: 'boyer_moore_searcher' usable when available.
 // [ 8] CONCERN: 'bsl::search' function is usable.
 // [ 5] CONCERN: Range functions are not ambiguous with 'std' under ADL
-// [ 6] CONCERN: 'forward_list' is available in C++11 builds
+// [ 7] CONCERN: 'forward_list' is available in C++11 builds
 // [ 4] maps of smart pointers
 // [ 3] string vector resize
 // [ 2] CONCERN: REGRESSION TEST FOR C99 FEATURES
@@ -815,11 +815,15 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 'bsl::forward_list' is available in baseline C++11 builds.
         //: 2 'bsl::forward_list' correctly uses 'bslma' allocators
+        //: 3 Including 'bsl_forward_list.h' gives access to 'bsl::begin'
         //
         // Plan:
         //: 1 Create a 'bsl::forward_list<bsl::string>' using a test allocator,
         //:   emplace a string into the container, and verify that the emplaced
         //:   string is using the correct allocator.
+        //: 2 Call 'bsl::begin' on both const and non-const versions of the
+        //:   container, and ensure that the calls return the first element
+        //:   in the container.
         //
         // Testing
         //   CONCERN: 'forward_list' is available in C++11 builds
@@ -857,6 +861,12 @@ int main(int argc, char *argv[])
 
             ASSERT(
                  X.front() == "One final test string that must not be short.");
+
+            Obj::iterator       itM = bsl::begin(mX);
+            Obj::const_iterator itC = bsl::begin(X);
+            ASSERT(*itM == X.front());
+            ASSERT(*itC == X.front());
+
             ASSERTV(da.numBytesInUse(), 0 == da.numBytesInUse());
             ASSERTV(ta.numBlocksInUse(),
                     ta.numBlocksInUse() == EXPECTED_ALLOCATIONS);

@@ -182,6 +182,7 @@ BSL_OVERRIDES_STD mode"
 #include <bslscm_version.h>
 
 #include <bsls_compilerfeatures.h>
+#include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
 #include <bsls_nativestd.h>
 #include <bsls_platform.h>
@@ -195,12 +196,7 @@ BSL_OVERRIDES_STD mode"
 # define BSLSTL_ITERATOR_SIZE_NATIVE 0
 #endif
 
-// We have observed that clang-10.0.0 does not support 'std::ssize' in C++20,
-// and we are speculating that later releases of the compiler will support it.
-
-#if 202002L <= BSLS_COMPILERFEATURES_CPLUSPLUS &&                             \
-    (!defined(BSLS_PLATFORM_CMP_CLANG) ||                                     \
-        (BSLS_PLATFORM_CMP_CLANG && 100000 < BSLS_PLATFORM_CMP_VERSION))
+#if 201703L < BSLS_COMPILERFEATURES_CPLUSPLUS
 # define BSLSTL_ITERATOR_SSIZE_NATIVE 1
 #else
 # define BSLSTL_ITERATOR_SSIZE_NATIVE 0
@@ -213,11 +209,8 @@ BSL_OVERRIDES_STD mode"
 # define BSLSTL_ITERATOR_SSIZE_ADVANCED_IMPL 0
 #endif
 
-#if !BSLSTL_ITERATOR_SSIZE_NATIVE
-# include <bsls_keyword.h>
-# if BSLSTL_ITERATOR_SSIZE_ADVANCED_IMPL
-#   include <type_traits>    // 'common_type', 'make_signed'
-# endif
+#if !BSLSTL_ITERATOR_SSIZE_NATIVE && BSLSTL_ITERATOR_SSIZE_ADVANCED_IMPL
+#include <type_traits>    // 'common_type', 'make_signed'
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
@@ -1088,8 +1081,64 @@ operator+(DIFF_TYPE n, const reverse_iterator<ITER>& rhs)
 #endif
 
                                     // ====
-                                    // size
+                                    // data
                                     // ====
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS
+using native_std::data;
+#else
+
+template <class CONTAINER>
+inline BSLS_KEYWORD_CONSTEXPR
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+auto data(CONTAINER& container) -> decltype(container.data())
+#else
+typename CONTAINER::value_type *data(CONTAINER& container)
+#endif
+    // Return an pointer providing modifiable access to the first valid
+    // element of the specified 'container'.  The 'CONTAINER' template
+    // parameter type must provide a 'data' accessor.
+
+{
+    return container.data();
+}
+
+template <class CONTAINER>
+inline BSLS_KEYWORD_CONSTEXPR
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+auto data(const CONTAINER& container) -> decltype(container.data())
+#else
+typename CONTAINER::value_type const *data(const CONTAINER& container)
+#endif
+    // Return a pointer providing non-modifiable access to the first valid
+    // element of the specified 'container'.  The 'CONTAINER' template
+    // parameter type must provide a 'data' accessor.
+{
+    return container.data();
+}
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS
+
+                                  // =====
+                                  // empty
+                                  // =====
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS
+using native_std::empty;
+#else
+template <class CONTAINER>
+inline
+BSLS_KEYWORD_CONSTEXPR bool empty(const CONTAINER& container)
+    // Return whether or not the specified 'container' contains zero elements.
+    // The 'CONTAINER' template parameter type must provide a 'size' accessor.
+{
+    return container.size() == 0;
+}
+
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS
+
+                                  // ====
+                                  // size
+                                  // ====
 
 #if BSLSTL_ITERATOR_SIZE_NATIVE
 

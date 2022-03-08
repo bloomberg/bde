@@ -6875,6 +6875,7 @@ int main(int argc, char *argv[])
         for (int i = 7; i < 22; ++i) {
             mX.push(i);
             ASSERT(! mX.empty());              ASSERT(! X.empty());
+            ASSERT(! bsl::empty(mX));          ASSERT(! bsl::empty(X));
             ASSERT(i - 6 == (int) mX.size());  ASSERT(i - 6 == (int) X.size());
             ASSERT(i == X.top());
 
@@ -6885,11 +6886,13 @@ int main(int argc, char *argv[])
 
         for (size_t i = X.size(); i > 0; --i, mX.pop()) {
             ASSERT(! mX.empty());             ASSERT(! X.empty());
+            ASSERT(! bsl::empty(mX));         ASSERT(! bsl::empty(X));
             ASSERT(i == X.size());
             ASSERT(X.top() == static_cast<int>(i));
         }
 
         ASSERT(mX.empty());         ASSERT(X.empty());
+        ASSERT(bsl::empty(mX));     ASSERT(bsl::empty(X));
         ASSERT(0 == mX.size());     ASSERT(0 == X.size());
       } break;
       case 14: {

@@ -15,7 +15,7 @@
 // delimited regions of C++11 code, then this test driver is a minimal 'main'
 // program that tests nothing and is not '#include'd in the original.
 //
-// Generated on Tue Nov 23 08:21:01 2021
+// Generated on Mon Feb 28 13:59:58 2022
 // Command line: sim_cpp11_features.pl bslstl_queue.t.cpp
 
 // Expanded test driver only when compiling bslstl_queue.cpp
@@ -3360,12 +3360,14 @@ void TestDriver<VALUE, CONTAINER>::testCase14()
             // Verify 'empty' returns correct values.
 
             ASSERTV(LINE, SPEC, (0 == ti) == X.empty());
+            ASSERTV(LINE, SPEC, (0 == ti) == bsl::empty(X));
 
             for (size_t tj = 0; tj < strlen(SPEC); ++tj) {
                 mX.pop();
             }
 
             ASSERTV(LINE, SPEC, true == X.empty());
+            ASSERTV(LINE, SPEC, true == bsl::empty(X));
         }
     }
 }
@@ -6811,7 +6813,7 @@ int main() {
 #endif // defined(COMPILING_BSLSTL_QUEUE_T_CPP)
 
 // ----------------------------------------------------------------------------
-// Copyright 2021 Bloomberg Finance L.P.
+// Copyright 2022 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -3134,6 +3134,7 @@ void TestDriver2<TYPE,ALLOC>::testCase13()
         Int64 newBlocks;
         size_type iterations  = 0;
         ASSERT(X.empty());
+        ASSERT(bsl::empty(X));
         ASSERT(2 == initBlocks);   // first block + array of block pointers
 
         // Note that 'findRoomierEnd' may both deallocate and allocate.
@@ -3467,10 +3468,12 @@ void TestDriver2<TYPE,ALLOC>::testCase13()
 
             Obj mX(xoa);  const Obj& X = mX;
             ASSERT(X.empty());
+            ASSERT(bsl::empty(X));
             ASSERTV(LINE, 0 > ggg(&mX, SPEC));
             ASSERTV(LINE, X.size(), SZ, X.size() == SZ);
             ASSERTV(SZ <= PAGE_LENGTH);
             ASSERT((0 == SZ) == X.empty());
+            ASSERT((0 == SZ) == bsl::empty(X));
 
             typename Obj::iterator it = mX.begin();
             TYPE v = *it;
@@ -3494,6 +3497,7 @@ void TestDriver2<TYPE,ALLOC>::testCase13()
             ASSERT(X == mY);    // capacity may have changed, but not salient
             LOOP_ASSERT(ti, SZ == X.size());
             ASSERT((0 == SZ) == X.empty());
+            ASSERT((0 == SZ) == bsl::empty(X));
 
             Int64 numBlocksAfter = oa.numBlocksInUse();
             if (NE <= preCap - SZ) {
@@ -3600,6 +3604,7 @@ void TestDriver2<TYPE,ALLOC>::testCase13()
 
             mX.clear();
             ASSERT(X.empty());
+            ASSERT(bsl::empty(X));
         }
     }
 
@@ -3623,6 +3628,7 @@ void TestDriver2<TYPE,ALLOC>::testCase13()
 
               stretchRemoveAll(&mX, CAP);
               LOOP_ASSERT(ti, X.empty());
+              LOOP_ASSERT(ti, bsl::empty(X));
               LOOP_ASSERT(ti, 0   == X.size());
               LOOP_ASSERT(ti, CAP <= X.capacity());
 
@@ -3719,6 +3725,7 @@ void TestDriver2<TYPE,ALLOC>::testCase13()
 
               stretchRemoveAll(&mX, CAP);
               LOOP_ASSERT(ti, X.empty());
+              LOOP_ASSERT(ti, bsl::empty(X));
               LOOP_ASSERT(ti, 0   == X.size());
               LOOP_ASSERT(ti, CAP <= X.capacity());
 

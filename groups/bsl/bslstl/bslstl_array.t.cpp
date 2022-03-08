@@ -2453,6 +2453,8 @@ void TestDriver<TYPE, SIZE>::testCase20()
 
     ASSERTV(mX.d_data == mX.data());
     ASSERTV( X.d_data ==  X.data());
+    ASSERTV(mX.d_data == bsl::data(mX));
+    ASSERTV( X.d_data == bsl::data( X));
 }
 
 template<class TYPE>
@@ -2721,8 +2723,10 @@ void TestDriver<TYPE, SIZE>::testCase17()
     Obj mX2; const Obj& X2 = gg(&mX2, SPEC);
 
     ASSERT((0 == SIZE) == X1.empty());
+    ASSERT((0 == SIZE) == bsl::empty(X1));
     ASSERT(SIZE        == X1.max_size());
     ASSERT((0 == SIZE) == X2.empty());
+    ASSERT((0 == SIZE) == bsl::empty(X2));
     ASSERT(SIZE        == X2.max_size());
 }
 

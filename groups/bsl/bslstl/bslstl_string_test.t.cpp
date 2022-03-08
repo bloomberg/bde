@@ -11653,11 +11653,13 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase14()
 
               Obj mX(Z);  const Obj& X = mX;
               LOOP_ASSERT(ti, X.empty());
+              LOOP_ASSERT(ti, bsl::empty(X));
 
               stretch(&mX, CAP);
               LOOP_ASSERT(ti, CAP == X.size());
               LOOP_ASSERT(ti, CAP <= X.capacity());
               LOOP_ASSERT(ti, !(bool)X.size() == X.empty());
+              LOOP_ASSERT(ti, !(bool)X.size() == bsl::empty(X));
 
               testAllocator.setAllocationLimit(AL);
 
@@ -11709,6 +11711,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase14()
 
               stretchRemoveAll(&mX, CAP);
               LOOP_ASSERT(ti, X.empty());
+              LOOP_ASSERT(ti, bsl::empty(X));
               LOOP_ASSERT(ti, 0   == X.size());
               LOOP_ASSERT(ti, CAP <= X.capacity());
 
@@ -11762,11 +11765,13 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase14()
 
               Obj mX(Z);  const Obj& X = mX;
               LOOP_ASSERT(ti, X.empty());
+              LOOP_ASSERT(ti, bsl::empty(X));
 
               stretch(&mX, CAP);
               LOOP_ASSERT(ti, CAP == X.size());
               LOOP_ASSERT(ti, CAP <= X.capacity());
               LOOP_ASSERT(ti, !(bool)X.size() == X.empty());
+              LOOP_ASSERT(ti, !(bool)X.size() == bsl::empty(X));
 
               testAllocator.setAllocationLimit(AL);
               const Int64 NUM_ALLOC_BEFORE = testAllocator.numAllocations();
@@ -11818,6 +11823,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase14()
 
               stretchRemoveAll(&mX, CAP);
               LOOP_ASSERT(ti, X.empty());
+              LOOP_ASSERT(ti, bsl::empty(X));
               LOOP_ASSERT(ti, 0   == X.size());
               LOOP_ASSERT(ti, CAP <= X.capacity());
 
