@@ -494,9 +494,10 @@ struct Optional_ConstructsFromType
             !BSLSTL_OPTIONAL_ASSIGNS_FROM_STD_OPTIONAL(TYPE, ANY_TYPE),       \
         optional<TYPE> >::type
 
-#define BSLSTL_OPTIONAL_ENABLE_ASSIGN_FROM(TYPE, ANY_TYPE)                    \
+#define BSLSTL_OPTIONAL_ENABLE_ASSIGN_FROM_FORWARD_REF(TYPE, ANY_TYPE)        \
     typename bsl::enable_if<                                                  \
-        !bsl::is_same<ANY_TYPE, optional<TYPE> >::value &&                    \
+            !bsl::is_same<typename bsl::remove_cvref<ANY_TYPE>::type,         \
+                          optional<TYPE> >::value &&                          \
             !(bsl::is_same<ANY_TYPE,                                          \
                            typename bsl::decay<TYPE>::type>::value &&         \
               std::is_scalar<TYPE>::value) &&                                 \
@@ -1296,20 +1297,19 @@ class optional {
         // 'ANY_TYPE' overloads for optional types.
 
     template <class ANY_TYPE = TYPE>
-    BSLSTL_OPTIONAL_ENABLE_ASSIGN_FROM(TYPE, ANY_TYPE) &
+    BSLSTL_OPTIONAL_ENABLE_ASSIGN_FROM_FORWARD_REF(TYPE, ANY_TYPE) &
     operator=(ANY_TYPE&& rhs);
         // Assign to this object the value of the specified 'rhs' object
         // converted to 'TYPE', and return a reference providing modifiable
         // access to this object.  Note that this method may invoke assignment
         // from 'rhs', or construction from 'rhs', depending on whether this
         // object is engaged.
-        // BSLSTL_OPTIONAL_ENABLE_ASSIGN_FROM(TYPE, ANY_TYPE) contains a check
-        // that disables this overload if 'ANY_TYPE' is 'optional<TYPE>'.
-        // This is needed to prevent this assignment operator being a better
-        // match for non const 'optional<TYPE>' lvalues than
-        // 'operator=(const optional& rhs)'.
-        // This function needs to be a worse match than 'operator=(optional)'
-        // so cases like :
+        // BSLSTL_OPTIONAL_ENABLE_ASSIGN_FROM_FORWARD_REF(TYPE, ANY_TYPE)
+        // contains a check that disables this overload if 'ANY_TYPE' is
+        // 'optional<TYPE>'.  This is needed to prevent this assignment
+        // operator being a better match for non const 'optional<TYPE>' lvalues
+        // than 'operator=(const optional& rhs)'.  This function needs to be a
+        // worse match than 'operator=(optional)' so cases like :
         //..
         //      bsl::optional<int> oi;
         //      oi = {};
@@ -1756,13 +1756,14 @@ class optional<TYPE, false> : public std::optional<TYPE> {
         // 'ANY_TYPE' are compatible.
 
     template <class ANY_TYPE = TYPE>
-    BSLSTL_OPTIONAL_ENABLE_ASSIGN_FROM(TYPE, ANY_TYPE) &
+    BSLSTL_OPTIONAL_ENABLE_ASSIGN_FROM_FORWARD_REF(TYPE, ANY_TYPE) &
     operator=(ANY_TYPE&& rhs);
       // Assign to this object the value of the specified 'rhs' object
       // converted to 'TYPE', and return a reference providing modifiable
       // access to this object.  Note that this method may invoke assignment
       // from 'rhs', or construction from 'rhs', depending on whether this
-      // object is engaged.  BSLSTL_OPTIONAL_ENABLE_ASSIGN_FROM(TYPE, ANY_TYPE)
+      // object is engaged.
+      // BSLSTL_OPTIONAL_ENABLE_ASSIGN_FROM_FORWARD_REF(TYPE, ANY_TYPE)
       // contains a check that disables this overload if 'ANY_TYPE' is
       // 'optional<TYPE>'.  This is needed to prevent this assignment operator
       // being a better match for non const 'optional<TYPE>' lvalues than
@@ -2100,13 +2101,13 @@ class optional<TYPE, false> {
         // 'ANY_TYPE' overloads for optional types.
 
     template <class ANY_TYPE = TYPE>
-    BSLSTL_OPTIONAL_ENABLE_ASSIGN_FROM(TYPE, ANY_TYPE) &
+    BSLSTL_OPTIONAL_ENABLE_ASSIGN_FROM_FORWARD_REF(TYPE, ANY_TYPE) &
     operator=(ANY_TYPE&& rhs);
         // Assign to this object the value of the specified 'rhs' object
         // converted to 'TYPE', and return a reference providing modifiable
         // access to this object.  Note that this method may invoke assignment
         // from 'rhs', or construction from 'rhs', depending on whether this
-        // object is engaged.  BSLSTL_OPTIONAL_ENABLE_ASSIGN_FROM_ANYTYPE
+        // object is engaged.  BSLSTL_OPTIONAL_ENABLE_ASSIGN_FROM_FORWARD_REF
         // contains a check that disables this overload if 'ANY_TYPE' is
         // 'optional<TYPE>'.  This is needed to prevent this assignment
         // operator being a better match for non const 'optional<TYPE>' lvalues
@@ -3656,7 +3657,7 @@ template <class TYPE, bool USES_BSLMA_ALLOC>
 template <class TYPE, bool USES_BSLMA_ALLOC>
 template <class ANY_TYPE>
 inline
-BSLSTL_OPTIONAL_ENABLE_ASSIGN_FROM(TYPE, ANY_TYPE)&
+BSLSTL_OPTIONAL_ENABLE_ASSIGN_FROM_FORWARD_REF(TYPE, ANY_TYPE)&
 optional<TYPE, USES_BSLMA_ALLOC>::operator=(ANY_TYPE&& rhs)
 {
     if (has_value()) {
@@ -4289,7 +4290,7 @@ optional<TYPE, false>::operator=(std::optional<ANY_TYPE>&& rhs)
 template <class TYPE>
 template <class ANY_TYPE>
 inline
-BSLSTL_OPTIONAL_ENABLE_ASSIGN_FROM(TYPE, ANY_TYPE)&
+BSLSTL_OPTIONAL_ENABLE_ASSIGN_FROM_FORWARD_REF(TYPE, ANY_TYPE)&
 optional<TYPE, false>::operator=(ANY_TYPE&& rhs)
 {
     if (this->has_value()) {
@@ -4714,7 +4715,7 @@ optional<TYPE, false>::operator=(optional<ANY_TYPE>&& rhs)
 template <class TYPE>
 template <class ANY_TYPE>
 inline
-BSLSTL_OPTIONAL_ENABLE_ASSIGN_FROM(TYPE, ANY_TYPE)&
+BSLSTL_OPTIONAL_ENABLE_ASSIGN_FROM_FORWARD_REF(TYPE, ANY_TYPE)&
 optional<TYPE, false>::operator=(ANY_TYPE&& rhs)
 {
     if (has_value()) {
