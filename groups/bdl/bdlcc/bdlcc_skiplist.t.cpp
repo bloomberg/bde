@@ -7,13 +7,14 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-
 #include <bdlcc_skiplist.h>
 
 #include <bdlf_bind.h>
 #include <bdlt_currenttime.h>
 #include <bdlt_intervalconversionutil.h>
 #include <bdlt_datetime.h>
+
+#include <bdlb_bitutil.h>
 
 #include <bslmt_lockguard.h>
 #include <bslmt_barrier.h>
@@ -167,7 +168,7 @@ typedef bsls::Types::IntPtr         IntPtr;
     bsltf::MovableAllocTestType,                                              \
     bsltf::NonTypicalOverloadsTestType
 
-#if defined(BSLS_PLATFORM_OS_WINDOWS)
+#if defined(BSLS_PLATFORM_OS_WINDOWS) || defined(BDE_BUILD_TARGET_TSAN)
 # define U_TEST_TYPES_REGULAR                                                 \
          U_TEST_TYPES_PRIMITIVE,                                              \
          U_WINDOWS_TEST_TYPES_USER_DEFINED
@@ -222,6 +223,7 @@ enum AddMode {
     e_ADD_UNIQUE_RAW_R_PAIR,                         // exists
 
     e_END,
+    k_ADD_MODE_MOD = e_END - e_BEGIN,
 
     // The following enumeration is to be the last one used in the iteration,
     // it indicates that nodes are added with 'add', and in this case and only
@@ -493,7 +495,9 @@ class RandGen {
     // MMIX algorithm.
 
     bsls::Types::Uint64    d_seed;
+    unsigned               d_bits;
     static bsls::AtomicInt s_globalSeed;
+
   public:
     RandGen();
         // Initialize the generator with the global seed, and modify the global
@@ -505,6 +509,9 @@ class RandGen {
 
     unsigned operator()();
         // Return the next random number in the series;
+
+    unsigned bits(unsigned numBits);
+        // Return the specified number of random bits;
 };
 
 // DATA
@@ -514,8 +521,11 @@ bsls::AtomicInt RandGen::s_globalSeed(0);
 inline
 RandGen::RandGen()
 : d_seed(++s_globalSeed)
+, d_bits(0)
 {
     (void) (*this)();
+    (void) (*this)();
+    d_seed ^= d_seed >> 32;
     (void) (*this)();
     (void) (*this)();
 }
@@ -526,6 +536,8 @@ RandGen::RandGen(int startSeed)
 {
     (void) (*this)();
     (void) (*this)();
+    d_seed ^= d_seed >> 32;
+    (void) (*this)();
     (void) (*this)();
 }
                                                                               \
@@ -535,6 +547,119 @@ unsigned RandGen::operator()()
 {
     d_seed = d_seed * 6364136223846793005ULL + 1442695040888963407ULL;
     return static_cast<unsigned>(d_seed >> 32);
+}
+
+inline
+unsigned RandGen::bits(unsigned bits)
+{
+    BSLS_ASSERT_OPT(bits <= 31);
+
+    static const unsigned hiBit = 1u << 31;
+
+    const unsigned mask = (1u << bits) - 1;
+
+    if (0 == (d_bits & ~mask)) {
+        d_bits = (*this)() | hiBit;
+    }
+
+    const unsigned ret = d_bits & mask;
+    d_bits >>= bits;
+
+    BSLS_ASSERT_SAFE(d_bits);
+
+    return ret;
+}
+
+                              // ================
+                              // class RandGenMod
+                              // ================
+
+template <class EnumType, unsigned MOD>
+struct RandGenMod {
+    // DATA
+    static unsigned char s_shift;
+
+    RandGenMod();
+        // Create this object.
+
+    EnumType operator()(RandGen *randGen_p);
+        // Return an random 'EnumType' value with an even distribution over
+        // '[ 0 .. MOD )'.
+};
+
+template <class EnumType, unsigned MOD>
+RandGenMod<EnumType, MOD>::RandGenMod()
+{
+    BSLMF_ASSERT(1u < MOD);
+    BSLMF_ASSERT(MOD < (1u << 31));
+
+    BSLMT_ONCE_DO {
+        s_shift = static_cast<unsigned char>(
+                             32 - bdlb::BitUtil::numLeadingUnsetBits(MOD - 1));
+    }
+}
+
+template <class EnumType, unsigned MOD>
+inline
+EnumType RandGenMod<EnumType, MOD>::operator()(RandGen *randGen_p)
+{
+    unsigned ret;
+    do {
+        ret = randGen_p->bits(s_shift);
+    } while (MOD <= ret);
+
+    return static_cast<EnumType>(ret);
+}
+
+template <class EnumType, unsigned MOD>
+unsigned char RandGenMod<EnumType, MOD>::s_shift;
+
+                            // ===================
+                            // class VectorRandGen
+                            // ===================
+
+class VectorRandGen {
+    // This 'class' seeks to be a higher-speed random number generator, by
+    // populating a vector with a large number of random numbers generated
+    // at creation (before the clock starts) and then just cycling through
+    // them.
+
+    // DATA
+    bsl::vector<unsigned> d_randTable;
+    const unsigned        d_size;
+    const unsigned        d_mask;
+    unsigned              d_idx;
+
+  public:
+    // CREATORS
+    VectorRandGen();
+
+    // MANIPULATORS
+    unsigned operator()();
+};
+
+                            // -------------------
+                            // class VectorRandGen
+                            // -------------------
+
+VectorRandGen::VectorRandGen()
+: d_size(1 << 16)
+, d_mask(d_size - 1)
+, d_idx(0)
+{
+    RandGen rg;
+
+    d_randTable.reserve(d_size);
+    for (unsigned uu = 0; uu < d_size; ++uu) {
+        d_randTable.push_back(rg());
+    }
+}
+
+unsigned VectorRandGen::operator()()
+{
+    d_idx = (d_idx + 1) & d_mask;
+
+    return d_randTable[d_idx];
 }
 
 }  // close namespace u
@@ -893,14 +1018,15 @@ class TestDriver {
         // 'manyThreadsRandomModesOnOneSkipListThread'.
 
     static void manyThreadsRandomModesOnOneSkipListThread(
-                                            Obj             *mX_p,
-                                            bsls::AtomicInt *numNodesForKeyVal,
-                                            bslmt::Barrier  *barrier);
+                                           Obj              *mX_p,
+                                           bsls::AtomicInt  *numNodesForKeyVal,
+                                           bslmt::Barrier   *barrier,
+                                           bsls::AtomicBool *doneFlag);
         // Do many adds calling random 'add' methods to add nodes with random
         // keys to the specified '*mX_p', and keep a tally of how many nodes
         // were added in the specified array 'numNodesForKeyVal' of length
         // 'k_KEY_VALUE_MOD'.  Block on the specified 'barrier' at the
-        // beginning.
+        // beginning, and loop until the specified '*doneFlag' is set.
 
     static void valueSemanticTest();
         // Test the equality and inequality comparitors, and verify that the
@@ -1060,7 +1186,7 @@ TestDriver<KEY_TYPE, DATA_TYPE>::addByMode(Obj              *dst,
             ASSERT(pr2);
             const Node *node = reinterpret_cast<const Node *>(pr2);
 
-            ASSERTV(node->level(), level, node->level() == level);
+            ASSERTV(node->d_level, level, node->d_level == level);
         }
 
         if (ph) {
@@ -1354,7 +1480,7 @@ int TestDriver<KEY_TYPE, DATA_TYPE>::raiseMaximumLevel(Obj *dst)
         ++ret;
 
         node = reinterpret_cast<const Node *>(pr);
-        nodeLevel = node->level();
+        nodeLevel = node->d_level;
         dst->releaseReferenceRaw(pr);
     } while (nodeLevel < k_ADD_BY_MODE_MAX_LEVEL);
 
@@ -1688,6 +1814,12 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::manyThreadsRandomModesOnOneSkipListMain()
                            ", " << bsls::NameOf<DATA_TYPE>() << ">();" << endl;
 
 
+#if defined(BDE_BUILD_TARGET_TSAN)
+    enum { k_WAIT_MICROSECONDS = (1000 * 1000) / 22 };
+#else
+    enum { k_WAIT_MICROSECONDS = (7 * 1000 * 1000) / 22 };
+#endif
+
     bslma::TestAllocator ta;
 
     Obj mX(&ta);
@@ -1705,14 +1837,20 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::manyThreadsRandomModesOnOneSkipListMain()
     const int numThreads = 175;
 #endif
     bslmt::ThreadGroup tg(&ta);
+    bsls::AtomicBool doneFlag(false);
     bslmt::Barrier barrier(numThreads);
 
     tg.addThreads(bdlf::BindUtil::bind(
                                     &manyThreadsRandomModesOnOneSkipListThread,
                                     &mX,
                                     numNodesForKeyVal + 0,
-                                    &barrier),
+                                    &barrier,
+                                    &doneFlag),
                   numThreads);
+
+    bslmt::ThreadUtil::microSleep(k_WAIT_MICROSECONDS);
+    doneFlag = true;
+
     tg.joinAll();
 
     TD::checkContainer(mX, numNodesForKeyVal);
@@ -1723,7 +1861,8 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::
                              manyThreadsRandomModesOnOneSkipListThread(
                                            Obj              *mX_p,
                                            bsls::AtomicInt  *numNodesForKeyVal,
-                                           bslmt::Barrier   *barrier)
+                                           bslmt::Barrier   *barrier,
+                                           bsls::AtomicBool *doneFlag)
 {
     int threadId = u::masterThreadId++;
 
@@ -1739,7 +1878,7 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::
 
     barrier->wait();
 
-    for (int ii = 0; ii < 100; ++ii) {
+    while (!*doneFlag) {
         const int keyVal = randGen() % k_KEY_VALUE_MOD;
 
         u::AddMode addMode = static_cast<u::AddMode>(randGen() % u::e_END);
@@ -4203,7 +4342,7 @@ class KeyValue {
 }  // close namespace SKIPLIST_TEST_CASE_NO_DEFAULT_CTOR_KEY_VALUE
 
 // ============================================================================
-//                         CASE 28 DRQS 144652915
+//                         CASE 14 DRQS 144652915
 // ----------------------------------------------------------------------------
 
 namespace SKIPLIST_TEST_CASE_DRQS_144652915 {
@@ -4248,9 +4387,9 @@ void addNodes(bslmt::Barrier *barrier)
 //                         CASE 101 RELATED ENTITIES
 // ----------------------------------------------------------------------------
 
-namespace SKIPLIST_OLD_TEST_CASES_NAMEPSACE {
+namespace SKIPLIST_OLD_TEST_CASES_NAMESPACE {
 
-namespace TC = SKIPLIST_OLD_TEST_CASES_NAMEPSACE;
+namespace TC = SKIPLIST_OLD_TEST_CASES_NAMESPACE;
 
 struct DATA {
     int         l;
@@ -4505,7 +4644,7 @@ void run()
     VERIFY_LIST_EX(list, VALUES2);
 }
 
-}  // close namespace SKIPLIST_OLD_TEST_CASES_NAMEPSACE
+}  // close namespace SKIPLIST_OLD_TEST_CASES_NAMESPACE
 
 namespace SKIPLIST_REPRODUCE_DRQS_167644288 {
 
@@ -4533,6 +4672,7 @@ void updateNodes(bslmt::Barrier *barrier_p, Obj *skiplist_p)
             rc = skiplist_p->findRaw(&pr, ii);
             if (0 == rc) {
                 (void) skiplist_p->update(pr, ii + k_MILLION);
+                skiplist_p->releaseReferenceRaw(pr);
             }
         } while (0 == rc);
     }
@@ -4595,6 +4735,7 @@ void removeNodes(bslmt::Barrier *barrier_p, Obj *skiplist_p)
             rc = skiplist_p->findRaw(&pr, ii);
             if (0 == rc) {
                 (void) skiplist_p->remove(pr);
+                skiplist_p->releaseReferenceRaw(pr);
             }
         } while (0 == rc);
     }
@@ -4633,6 +4774,1160 @@ void test()
 }
 
 }  // close namespace SKIPLIST_REPRODUCE_DRQS_167716470
+
+// ============================================================================
+//                            BENCHMARK THRASH TEST
+//
+// The intention of this benchmark is to test the impact of a modification of
+// the memory pool implementation, so the idea is to randomly thrash a skip
+// list in such a way as to do as little as possible other than add and remove
+// nodes at random.  Concern was expressed that the Heavy Thrash test might
+// have been spending too much time in the random number generator, so we
+// introduced 'u::VectorRandGen' which generates a vector of random numbers
+// before the clock starts, and then just reads from them in a loop.
+// ----------------------------------------------------------------------------
+
+namespace BenchmarkThrashTest {
+
+typedef bdlcc::SkipList<int, int>      Obj;
+typedef Obj::PairHandle                PairHandle;
+
+enum { k_NUM_KEYS_SHIFT     = 10,
+       k_NUM_KEYS           = (1 << k_NUM_KEYS_SHIFT),
+       k_NUM_KEYS_MASK      = k_NUM_KEYS - 1,
+
+       k_ACTION_SHIFT       = 14,
+       k_ACTION_IDX_MASK    = (1 << k_ACTION_SHIFT) - 1 };
+
+BSLMF_ASSERT(k_NUM_KEYS_SHIFT + k_ACTION_SHIFT < sizeof(unsigned) * 8);
+
+bsls::AtomicBool    doneFlag(false);
+bsls::AtomicInt64   totalIterations(0);
+
+                            // ====================
+                            // struct ThrashFunctor
+                            // ====================
+
+struct ThrashFunctor {
+    // DATA
+    Obj&            d_list;
+    bslmt::Barrier& d_barrier;
+
+    // CREATORS
+    ThrashFunctor(Obj            *list,
+                  bslmt::Barrier *barrier);
+
+    // ThrashFunctor(const ThrashFunctor&) = default;
+
+    // ACCESSORS
+    void operator()() const;
+};
+
+                            // --------------------
+                            // struct ThrashFunctor
+                            // --------------------
+
+// CREATORS
+ThrashFunctor::ThrashFunctor(Obj            *list,
+                             bslmt::Barrier *barrier)
+
+: d_list(*list)
+, d_barrier(*barrier)
+{}
+
+// ACCESSORS
+void ThrashFunctor::operator()() const
+{
+    u::VectorRandGen rg;
+    Int64 numIterations = 0;
+
+    d_barrier.wait();
+
+    for (; !doneFlag; ++numIterations) {
+        unsigned rand      = rg();
+        int      key       = rand & k_NUM_KEYS_MASK;
+        rand >>= k_NUM_KEYS_SHIFT;
+        int      actionIdx = rand & k_ACTION_IDX_MASK;
+
+        if (d_list.length() / 4 < actionIdx) {
+            d_list.add(key, key);
+        }
+        else {
+            PairHandle ph;
+
+            d_list.findLowerBound(&ph, key);
+            if (!ph) {
+                (void) d_list.popFront();
+            }
+            else {
+                (void) d_list.remove(ph);
+            }
+        }
+    }
+
+    d_barrier.wait();
+
+    totalIterations += numIterations;
+}
+
+}  // close namespace BenchmarkThrashTest
+
+// ============================================================================
+//                            SIMPLE THRASH TEST
+// ----------------------------------------------------------------------------
+
+namespace SimpleThrashTest {
+
+typedef bdlcc::SkipList<int, int>      Obj;
+typedef Obj::PairHandle                PairHandle;
+
+enum { k_NUM_VALUES_SHIFT     = 10,
+       k_NUM_VALUES           = (1 << k_NUM_VALUES_SHIFT),
+
+       k_NUM_THREADS = 24 };
+
+bsls::AtomicInt  masterRandSeed(0);
+bsls::AtomicBool doneFlag(false);
+
+struct ThrashFunctor {
+    Obj&         d_list;
+    u::RandGen   d_rand;
+
+    // CREATORS
+    explicit
+    ThrashFunctor(Obj *list);
+        // Create an object bound to the specified 'list'.
+
+    ThrashFunctor(const ThrashFunctor& original);
+        // Copy the specified 'original' to the object, except use a unique
+        // random number seed obtained from 'masterRandSeed'.
+
+    // MANIPULATOR
+    void operator()();
+        // Iterate until 'doneFlag' is set, doing random operations on the
+        // '*d_list_p'.
+};
+
+// CREATORS
+ThrashFunctor::ThrashFunctor(Obj *list)
+: d_list(*list)
+, d_rand(masterRandSeed++)
+{
+}
+
+ThrashFunctor::ThrashFunctor(const ThrashFunctor& original)
+: d_list(original.d_list)
+, d_rand(masterRandSeed++)
+{}
+
+// MANIPULATOR
+void ThrashFunctor::operator()()
+{
+    while (!doneFlag) {
+        switch (d_rand.bits(4)) {
+          case 0: {
+            // do this rarely, because it nukes the whole container
+
+            if (0 == d_rand.bits(3)) {
+                d_list.removeAll();
+            }
+          } break;
+          case 1: BSLA_FALLTHROUGH;
+          case 2: BSLA_FALLTHROUGH;
+          case 3: BSLA_FALLTHROUGH;
+          case 4: {
+            // Add an element
+
+            unsigned key = d_rand.bits(k_NUM_VALUES_SHIFT);
+            d_list.add(key, key + 10);
+          } break;
+          case 5: BSLA_FALLTHROUGH;
+          case 6: BSLA_FALLTHROUGH;
+          case 7: BSLA_FALLTHROUGH;
+          case 8: BSLA_FALLTHROUGH;
+          case 9: BSLA_FALLTHROUGH;
+          case 10: BSLA_FALLTHROUGH;
+          case 11: {
+            PairHandle ph;
+            unsigned key = d_rand.bits(k_NUM_VALUES_SHIFT);
+            d_list.add(&ph, key, key + 10);
+            d_list.remove(ph);
+          } break;
+          case 12: BSLA_FALLTHROUGH;
+          case 13: BSLA_FALLTHROUGH;
+          case 14: {
+            (void) d_list.popFront(0);
+          } break;
+          case 15: {
+            PairHandle ph;
+            int rc = d_list.findUpperBound(&ph, k_NUM_VALUES);
+            ASSERT(!ph == !!rc);
+            if (0 == rc) {
+                d_list.remove(ph);
+            }
+          } break;
+          default: {
+            BSLS_ASSERT_OPT(0);
+          }
+        }
+    }
+}
+
+}  // close namespace SimpleThrashTest
+
+// ============================================================================
+//                              HEAVY THRASH TEST
+// ----------------------------------------------------------------------------
+
+namespace HeavyThrashTest {
+
+typedef bdlcc::SkipList<int, int>      Obj;
+typedef Obj::PairHandle                PairHandle;
+typedef Obj::Pair                      Pair;
+
+enum { k_NUM_VALUES_SHIFT     = 10,
+       k_NUM_VALUES           = (1 << k_NUM_VALUES_SHIFT),
+       k_VALUES_MASK          = k_NUM_VALUES - 1,
+       k_VALUES_UPDATE_TOGGLE = 0x10,
+
+       k_NUM_THREADS = 24,
+
+       k_LEVEL_SHIFT = 5,
+       k_LEVEL_MASK  = (1 << k_LEVEL_SHIFT) - 1 };
+
+u::RandGenMod<u::AddMode, u::k_ADD_MODE_MOD> addModeRand;
+
+enum FindExactMode {
+                e_FIND,
+                e_FINDR,
+                e_FIND_EXACT_MOD };
+
+static u::RandGenMod<FindExactMode, e_FIND_EXACT_MOD> findExactRand;
+
+enum FindVagueMode {
+                e_FIND_LOWER_BOUND,
+                e_FIND_LOWER_BOUNDR,
+                e_FIND_UPPER_BOUND,
+                e_FIND_UPPER_BOUNDR,
+                e_FRONT,
+                e_BACK,
+                e_FIND_VAGUE_MOD };
+
+u::RandGenMod<FindVagueMode, e_FIND_VAGUE_MOD> vagueRand;
+
+enum SkipMode { e_SKIP_NONE,
+                e_SKIP_NEXT,
+                e_SKIP_PREVIOUS,
+                e_SKIP_SKIP_FORWARD,
+                e_SKIP_SKIP_BACKWARD,
+                e_SKIP_MOD };
+
+u::RandGenMod<SkipMode, e_SKIP_MOD> skipRand;
+
+enum MinorModifyMode {
+                e_REMOVE,
+                e_UPDATE,
+                e_UPDATER,
+                e_MINOR_MODIFY_MOD };
+
+u::RandGenMod<MinorModifyMode, e_MINOR_MODIFY_MOD> minorRand;
+
+enum ContainerMajorMode {
+                e_REMOVEALL,
+                e_REMOVEALL_RAW,
+                e_COPY_COMPARE,
+                e_COPY_ASSIGN_COMPARE,
+                e_CONTAINER_MAJOR_MOD };
+
+u::RandGenMod<ContainerMajorMode, e_CONTAINER_MAJOR_MOD> containRand;
+
+enum ContainerMinorMode {
+                e_POP_FRONT,
+                e_POP_FRONT_RAW,
+                e_ADD_REMOVE,
+                e_ADD_REMOVE_RAW,
+                e_CONTAINER_MINOR_MOD };
+
+u::RandGenMod<ContainerMinorMode, e_CONTAINER_MINOR_MOD> containMinorRand;
+
+bsls::AtomicInt    maxLevel(0);
+bsls::AtomicBool   doneFlag(false);
+double             totalIterations(0);
+bsls::AtomicInt    masterRandSeed(0);
+
+class ThrashFunctor {
+    // DATA
+    Obj&            d_list;
+    bslmt::Barrier& d_barrier;
+    u::RandGen      d_rand;
+
+
+    // PRIVATE CLASS METHODS
+    int dataForKey(int key);
+        // Return the expected value of 'data' for the specified 'key'.
+
+    int cmpKeyAndData(const Pair *h, int key = -1, bool flatten = false);
+        // For the element '*h', check that the 'data' field is appropriate
+        // given its 'key' field and return its key.  If the specified 'key' is
+        // non-negative, then assert that 'h->key() == key'.  If 'flatten' is
+        // 'true', return 'key' with the toggle bit masked out, otherwise
+        // return 'h->key()'.
+
+    int cmpKeyAndData(const PairHandle ph, int key = -1, bool flatten = false);
+        // For the element referred to by 'ph', check that the 'data' field is
+        // appropriate given its 'key' field and return its key.  If the
+        // specified 'key' is non-negative, then assert that 'ph.key() == key'.
+        // If 'flatten' is 'true', return 'key' with the toggle bit masked out,
+        // otherwise return 'ph.key()'.
+
+    // PRIVATE MANIPULATORS
+    int  addRand();
+        // Call a randomly selected 'add*' method to add a single node to
+        // '*d_skipList_p'.  If an 'addUnique' method was selected and
+        // it fails, randomly choose a new key and a new 'add*' method and
+        // keep iterating until the add succeeds.  Return the key of the
+        // newly-added element'.
+
+    void changeMajor();
+        // Do a major operation on '*d_list_p' -- either 'removeAll', copy
+        // construct, or copy assign.  In the case of copy construct or
+        // copy assign, apply 'operator==' and 'operator!=' to the results.
+
+    void changeMinor();
+        // Attempt to pop an element off the front of '*d_list_p'.
+
+    void findChangeMinorHandle(int key);
+    void findChangeMinorRaw(int key);
+        // Attempt an exact 'find*' on the specified 'key'.  If that fails, use
+        // a 'vague' find such as 'findUpperBound*' or 'findLowerBound'.  Once
+        // an element has been found, go to the next or previous element with a
+        // randomly selected method.  Once that is done, either remove or
+        // update the found element.
+        //
+        // In the case of 'findChangeMinorHandle', access the found element
+        // using a 'PairHandle', in the case of 'findChangeMinorRaw', access
+        // the found element using a 'Pair *'.
+
+  public:
+    // CREATORS
+    explicit
+    ThrashFunctor(Obj *list, bslmt::Barrier *barrier);
+        // Create an object bound to the specified 'list' and 'barrier'.
+
+    ThrashFunctor(const ThrashFunctor& original);
+        // Copy the specified 'original' to the object, except use a unique
+        // random number seed obtained from 'masterRandSeed'.
+
+    // MANIPULATOR
+    void operator()();
+        // Iterate until 'doneFlag' is set, doing random operations on the
+        // '*d_list_p'.
+};
+
+// PRIVATE CLASS METHODS
+inline
+int ThrashFunctor::dataForKey(int key)
+{
+    ASSERT(!(key & ~k_VALUES_MASK));
+
+    return (key & ~k_VALUES_UPDATE_TOGGLE) + 10;
+}
+
+inline
+int ThrashFunctor::cmpKeyAndData(const Pair *h, int key, bool flatten)
+{
+    int readKey = h->key();
+    if (-1 != key) {
+        ASSERT((readKey & ~k_VALUES_UPDATE_TOGGLE) ==
+                                          (key & ~k_VALUES_UPDATE_TOGGLE));
+    }
+    ASSERT(h->data() == dataForKey(readKey));
+
+    return flatten ? (readKey & ~k_VALUES_UPDATE_TOGGLE)
+                   :  readKey;
+}
+
+inline
+int ThrashFunctor::cmpKeyAndData(const PairHandle ph, int key, bool flatten)
+{
+    int readKey = ph.key();
+    if (-1 != key) {
+        ASSERT((readKey & ~k_VALUES_UPDATE_TOGGLE) ==
+                                          (key & ~k_VALUES_UPDATE_TOGGLE));
+    }
+    ASSERT(ph.data() == dataForKey(readKey));
+
+    return flatten ? (readKey & ~k_VALUES_UPDATE_TOGGLE)
+                   :  readKey;
+}
+
+// PRIVATE MANIPULATORS
+int ThrashFunctor::addRand()
+{
+    enum { k_LIMIT = 10 };
+
+    Pair       *h     = 0;
+    PairHandle  ph;
+    int         key   = -1;
+    int         level;
+    int         data;
+     u::AddMode mode;
+    int         oldMaxLevel;
+
+    int ii;
+    for (ii = 0; ii < k_LIMIT; ++ii) {
+        h = 0;
+
+        mode = addModeRand(&d_rand);
+
+        if (-1 == key) {
+            key = d_rand.bits(k_NUM_VALUES_SHIFT);
+        }
+        data = dataForKey(key);
+
+        level = -1;
+        if (u::isLevelAddMode(mode)) {
+            // randomly generate 'level' in the range '[ 0 .. 31 ]', biased
+            // toward lower values.
+
+            level = k_LEVEL_MASK;
+            for (int ii = 0; ii < 3; ++ii) {
+                level = bsl::min<int>(level, d_rand.bits(k_LEVEL_SHIFT));
+            }
+
+            ASSERT(0 <= level);
+            ASSERT(level <= k_LEVEL_MASK);
+        }
+
+        oldMaxLevel = maxLevel;
+
+        int rc = 0;
+        switch (mode) {
+          case u::e_ADD: {
+            d_list.add(key, data);
+          } break;
+          case u::e_ADD_R: {
+            d_list.addR(key, data);
+          } break;
+          case u::e_ADD_HANDLE: {
+            d_list.add(&ph, key, data);
+            ASSERT(ph);
+          } break;
+          case u::e_ADD_HANDLE_R: {
+            d_list.addR(&ph, key, data);
+            ASSERT(ph);
+          } break;
+          case u::e_ADD_RAW: {
+            d_list.addRaw(0, key, data);
+          } break;
+          case u::e_ADD_RAW_R: {
+            d_list.addRawR(0, key, data);
+          } break;
+          case u::e_ADD_RAW_PAIR: {
+            d_list.addRaw(&h, key, data);
+            ASSERT(h);
+          } break;
+          case u::e_ADD_RAW_R_PAIR: {
+            d_list.addRawR(&h, key, data);
+            ASSERT(h);
+          } break;
+          case u::e_ADD_AT_LEVEL_RAW: {
+            d_list.addAtLevelRaw(0, level, key, data);
+          } break;
+          case u::e_ADD_AT_LEVEL_RAW_R: {
+            d_list.addAtLevelRawR(0, level, key, data);
+          } break;
+          case u::e_ADD_AT_LEVEL_RAW_PAIR: {
+            d_list.addAtLevelRaw(&h, level, key, data);
+            ASSERT(h);
+          } break;
+          case u::e_ADD_AT_LEVEL_RAW_R_PAIR: {
+            d_list.addAtLevelRawR(&h, level, key, data);
+            ASSERT(h);
+          } break;
+          case u::e_ADD_AT_LEVEL_UNIQUE_RAW: {
+            rc = d_list.addAtLevelUniqueRaw(0, level, key, data);
+          } break;
+          case u::e_ADD_AT_LEVEL_UNIQUE_RAW_R: {
+            rc = d_list.addAtLevelUniqueRawR(0, level, key, data);
+          } break;
+          case u::e_ADD_AT_LEVEL_UNIQUE_RAW_PAIR: {
+            rc = d_list.addAtLevelUniqueRaw(&h, level, key, data);
+          } break;
+          case u::e_ADD_AT_LEVEL_UNIQUE_RAW_R_PAIR: {
+            rc = d_list.addAtLevelUniqueRawR(&h, level, key, data);
+          } break;
+          case u::e_ADD_UNIQUE: {
+            rc = d_list.addUnique(key, data);
+          } break;
+          case u::e_ADD_UNIQUE_R: {
+            rc = d_list.addUniqueR(key, data);
+          } break;
+          case u::e_ADD_UNIQUE_HANDLE: {
+            rc = d_list.addUnique(&ph, key, data);
+          } break;
+          case u::e_ADD_UNIQUE_R_HANDLE: {
+            rc = d_list.addUniqueR(&ph, key, data);
+          } break;
+          case u::e_ADD_UNIQUE_RAW: {
+            rc = d_list.addUniqueRaw(0, key, data);
+          } break;
+          case u::e_ADD_UNIQUE_RAW_R: {
+            rc = d_list.addUniqueRawR(0, key, data);
+          } break;
+          case u::e_ADD_UNIQUE_RAW_PAIR: {
+            rc = d_list.addUniqueRaw(&h, key, data);
+          } break;
+          case u::e_ADD_UNIQUE_RAW_R_PAIR: {
+            rc = d_list.addUniqueRawR(&h, key, data);
+          } break;
+          default: {
+            P(mode);
+            BSLS_ASSERT(0);
+          } break;
+        }
+
+        if (0 != rc) {
+            ASSERT(!h);
+            ASSERT(!ph);
+            ASSERT(u::isUniqueAdd(mode));
+            key = -1;
+            continue;
+        }
+
+        break;
+    }
+
+    if (ii == k_LIMIT) {
+        return -1;                                                    // RETURN
+    }
+
+    ASSERT(!(h && ph));
+
+    if (ph) {
+        cmpKeyAndData(ph, key);
+
+        if (0 <= level) {
+            if (level <= oldMaxLevel) {
+                ASSERTV(Obj::level(h), level, oldMaxLevel, mode,
+                                                       Obj::level(h) == level);
+            }
+        }
+
+        level = Obj::level(ph);
+        if (oldMaxLevel < level) {
+            maxLevel.testAndSwap(oldMaxLevel, level);
+        }
+    }
+    else if (h) {
+        cmpKeyAndData(h, key);
+
+        if (0 <= level) {
+            if (level <= oldMaxLevel) {
+                ASSERTV(Obj::level(h), level, oldMaxLevel, mode,
+                                                       Obj::level(h) == level);
+            }
+        }
+
+        level = Obj::level(h);
+        if (oldMaxLevel < level) {
+            maxLevel.testAndSwap(oldMaxLevel, level);
+        }
+
+        d_list.releaseReferenceRaw(h);
+    }
+
+    return key;
+}
+
+void ThrashFunctor::changeMajor()
+{
+    const ContainerMajorMode containerMajorMode = containRand(&d_rand);
+
+    switch (containerMajorMode) {
+      case e_REMOVEALL: {
+        PairHandle ph;
+        const unsigned preSize = d_rand.bits(3);
+        bsl::vector<PairHandle> removeVec(preSize, ph);
+
+        d_list.removeAll((d_rand.bits(1)) ? &removeVec : 0);
+
+        for (unsigned uu = 0; uu < preSize; ++uu) {
+            ASSERT(removeVec[uu] == ph);
+        }
+        removeVec.erase(removeVec.begin(), removeVec.begin() + preSize);
+
+        if (!removeVec.empty()) {
+            int key = -1, readKey;
+            for (unsigned uu = 0; uu < removeVec.size(); ++uu, key = readKey) {
+                readKey = cmpKeyAndData(removeVec[uu]);
+                ASSERT(key <= readKey);
+            }
+            ASSERT(0 == (key & ~k_VALUES_MASK));
+        }
+      } break;
+      case e_REMOVEALL_RAW: {
+        Pair *h = 0;
+        const unsigned preSize = d_rand.bits(3);
+        bsl::vector<Pair *> removeVec(preSize, h);
+
+        d_list.removeAllRaw((d_rand.bits(1)) ? &removeVec : 0);
+
+        for (unsigned uu = 0; uu < preSize; ++uu) {
+            ASSERT(removeVec[uu] == h);
+        }
+        removeVec.erase(removeVec.begin(), removeVec.begin() + preSize);
+
+        if (!removeVec.empty()) {
+            int key = -1, readKey;
+            for (unsigned uu = 0; uu < removeVec.size(); ++uu, key = readKey) {
+                h = removeVec[uu];
+
+                readKey = cmpKeyAndData(h);
+                ASSERT(key <= readKey);
+
+                d_list.releaseReferenceRaw(h);
+            }
+            ASSERT(0 == (key & ~k_VALUES_MASK));
+        }
+      } break;
+      case e_COPY_COMPARE: {
+        Obj mY(d_list);    const Obj& Y = mY;
+        const Obj& X = d_list;
+
+        (void) (X == Y);
+        (void) (Y == X);
+        (void) (X == X);
+        ASSERT( Y == Y);
+
+        (void)  (X != Y);
+        (void)  (Y != X);
+        (void)  (X != X);
+        ASSERT(!(Y != Y));
+      } break;
+      case e_COPY_ASSIGN_COMPARE: {
+        Obj mU;    const Obj& U = mU;
+        Obj mV;    const Obj& V = mV;
+        const Obj& X = d_list;
+
+        mU = d_list;
+
+        (void) (X == U);
+        (void) (U == X);
+        ASSERT( X == X);
+        ASSERT( U == U);
+
+        (void)  (X != U);
+        (void)  (U != X);
+        ASSERT(!(X != X));
+        ASSERT(!(U != U));
+
+        mV = U;
+
+        ASSERT(U == V);
+        ASSERT(V == U);
+        ASSERT(!(U != V));
+        ASSERT(!(V != U));
+
+        const int key = d_rand.bits(k_NUM_VALUES_SHIFT);
+        mU.add(key, dataForKey(key));
+
+        ASSERT(U != V);
+        ASSERT(V != U);
+        ASSERT(!(U == V));
+        ASSERT(!(V == U));
+
+        d_list = U;
+
+        (void) (X == U);
+        (void) (U == X);
+        (void) (X != U);
+        (void) (U != X);
+      } break;
+      default: {
+        BSLS_ASSERT_OPT(0);
+      } break;
+    }
+}
+
+void ThrashFunctor::changeMinor()
+{
+    ContainerMinorMode mode = containMinorRand(&d_rand);
+
+    const int key = d_rand.bits(k_NUM_VALUES_SHIFT);
+
+    switch (mode) {
+      case e_POP_FRONT: {
+        PairHandle ph;
+
+        int rc = d_list.popFront(&ph);
+        ASSERT((0 != rc) == !ph);
+      } break;
+      case e_POP_FRONT_RAW: {
+        Pair *h = 0;
+
+        int rc = d_list.popFrontRaw(&h);
+        if (0 != rc) {
+            ASSERT(0 == h);
+            return;                                                   // RETURN
+        }
+        ASSERT(h);
+
+        d_list.releaseReferenceRaw(h);
+      } break;
+      case e_ADD_REMOVE: {
+        PairHandle ph;
+
+        d_list.add(&ph, key, dataForKey(key));
+        d_list.remove(ph);
+      } break;
+      case e_ADD_REMOVE_RAW: {
+        Pair *h;
+
+        d_list.addRaw(&h, key, dataForKey(key));
+        d_list.remove(h);
+        d_list.releaseReferenceRaw(h);
+      } break;
+      default: {
+        BSLS_ASSERT_OPT(0);
+      }
+    }
+}
+
+void ThrashFunctor::findChangeMinorHandle(int key)
+{
+    enum { k_LIMIT = 10 };
+
+    int numMisses = 0;
+    for (int ii = 0; ii < k_LIMIT; ++ii) {
+        PairHandle ph;
+
+        if (key < 0) {
+            key = d_rand.bits(k_NUM_VALUES_SHIFT);
+        }
+
+        const FindExactMode findExactMode = findExactRand(&d_rand);
+
+        int rc;
+        switch (findExactMode) {
+          case e_FIND: {
+            rc = d_list.find(&ph, key);
+          } break;
+          case e_FINDR: {
+            rc = d_list.findR(&ph, key);
+          } break;
+          default: {
+            BSLS_ASSERT_OPT(0);
+            continue;
+          }
+        }
+
+        if (0 != rc) {
+            ++numMisses;
+            ASSERT(!ph);
+
+            enum { k_NUM_MISSES_BEFORE_ADD = 16,
+                   k_NUM_MISSES_BEFORE_VAGUE = 8 };
+
+            if (k_NUM_MISSES_BEFORE_ADD <= numMisses) {
+                numMisses = 0;
+                d_list.add(key, dataForKey(key));
+                continue;
+            }
+
+            const FindVagueMode findVagueMode = vagueRand(&d_rand);
+
+            switch (findVagueMode) {
+              case e_FIND_LOWER_BOUND: {
+                rc = d_list.findLowerBound(&ph, key);
+              } break;
+              case e_FIND_LOWER_BOUNDR: {
+                rc = d_list.findLowerBoundR(&ph, key);
+              } break;
+              case e_FIND_UPPER_BOUND: {
+                rc = d_list.findUpperBound(&ph, key);
+              } break;
+              case e_FIND_UPPER_BOUNDR: {
+                rc = d_list.findUpperBoundR(&ph, key);
+              } break;
+              case e_FRONT: {
+                rc = d_list.front(&ph);
+
+                // if that didn't work, add a node next time
+
+                numMisses = k_NUM_MISSES_BEFORE_ADD;
+              } break;
+              case e_BACK: {
+                rc = d_list.back(&ph);
+
+                // if that didn't work, add a node next time
+
+                numMisses = k_NUM_MISSES_BEFORE_ADD;
+              } break;
+              default: {
+                BSLS_ASSERT_OPT(0);
+                continue;
+              }
+            }
+
+            if (0 != rc) {
+                key = -1;
+                continue;
+            }
+
+            key = cmpKeyAndData(ph);
+        }
+        BSLS_ASSERT(0 == rc);
+        numMisses = 0;
+
+        cmpKeyAndData(ph, key);
+        key = -1;
+
+        SkipMode skipMode = skipRand(&d_rand);
+
+        switch (skipMode) {
+          case e_SKIP_NONE: {
+            ;
+          } break;
+          case e_SKIP_NEXT: {
+            PairHandle next;
+            rc = d_list.next(&next, ph);
+            if (0 == rc) {
+                ph = next;
+            }
+          } break;
+          case e_SKIP_PREVIOUS: {
+            PairHandle prev;
+            rc = d_list.previous(&prev, ph);
+            if (0 == rc) {
+                ph = prev;
+            }
+          } break;
+          case e_SKIP_SKIP_FORWARD: {
+            rc = d_list.skipForward(&ph);
+            if (!ph) {
+                continue;
+            }
+          } break;
+          case e_SKIP_SKIP_BACKWARD: {
+            rc = d_list.skipBackward(&ph);
+            if (!ph) {
+                continue;
+            }
+          } break;
+          default: {
+            BSLS_ASSERT_OPT(0);
+            continue;
+          } break;
+        }
+
+        key = cmpKeyAndData(ph);
+
+        const int exactKey = key;
+
+        const MinorModifyMode changeMode = minorRand(&d_rand);
+
+        const bool allowDuplicates = d_rand.bits(1);
+        bool newFront = false;
+
+        switch (changeMode) {
+          case e_REMOVE: {
+            rc = d_list.remove(ph);
+          } break;
+          case e_UPDATE: {
+            rc = d_list.update(ph,
+                               key ^ k_VALUES_UPDATE_TOGGLE,
+                               &newFront,
+                               allowDuplicates);
+          } break;
+          case e_UPDATER: {
+            rc = d_list.updateR(ph,
+                                key ^ k_VALUES_UPDATE_TOGGLE,
+                                &newFront,
+                                allowDuplicates);
+          } break;
+          default: {
+            BSLS_ASSERT_OPT(0);
+            continue;
+          } break;
+        }
+
+        ASSERT(!newFront || 0 == rc);
+
+        key = cmpKeyAndData(ph);
+        ASSERT(0 == ((exactKey ^ key) & ~k_VALUES_UPDATE_TOGGLE));
+
+        break;
+    }
+}
+
+void ThrashFunctor::findChangeMinorRaw(int key)
+{
+    enum { k_LIMIT = 10 };
+
+    Pair *h;
+    int numMisses = 0;
+    for (int ii = 0; ii < k_LIMIT; ++ii) {
+        h = 0;
+
+        if (key < 0) {
+            key = d_rand.bits(k_NUM_VALUES_SHIFT);
+        }
+
+        const FindExactMode findExactMode = findExactRand(&d_rand);
+
+        int rc;
+        switch (findExactMode) {
+          case e_FIND: {
+            rc = d_list.findRaw(&h, key);
+          } break;
+          case e_FINDR: {
+            rc = d_list.findRRaw(&h, key);
+          } break;
+          default: {
+            BSLS_ASSERT_OPT(0);
+            continue;
+          }
+        }
+
+        if (0 != rc) {
+            ++numMisses;
+            ASSERT(!h);
+
+            enum { k_NUM_MISSES_BEFORE_ADD = 16,
+                   k_NUM_MISSES_BEFORE_VAGUE = 8 };
+
+            if (k_NUM_MISSES_BEFORE_ADD <= numMisses) {
+                numMisses = 0;
+                d_list.add(key, dataForKey(key));
+                continue;
+            }
+
+            const FindVagueMode findVagueMode = vagueRand(&d_rand);
+
+            switch (findVagueMode) {
+              case e_FIND_LOWER_BOUND: {
+                rc = d_list.findLowerBoundRaw(&h, key);
+              } break;
+              case e_FIND_LOWER_BOUNDR: {
+                rc = d_list.findLowerBoundRRaw(&h, key);
+              } break;
+              case e_FIND_UPPER_BOUND: {
+                rc = d_list.findUpperBoundRaw(&h, key);
+              } break;
+              case e_FIND_UPPER_BOUNDR: {
+                rc = d_list.findUpperBoundRRaw(&h, key);
+              } break;
+              case e_FRONT: {
+                rc = d_list.frontRaw(&h);
+
+                // if that didn't work, add a node next time
+
+                numMisses = k_NUM_MISSES_BEFORE_ADD;
+              } break;
+              case e_BACK: {
+                rc = d_list.backRaw(&h);
+
+                // if that didn't work, add a node next time
+
+                numMisses = k_NUM_MISSES_BEFORE_ADD;
+              } break;
+              default: {
+                BSLS_ASSERT_OPT(0);
+                continue;
+              }
+            }
+
+            if (0 != rc) {
+                ASSERT(0 == h);
+                key = -1;
+                continue;
+            }
+
+            key = cmpKeyAndData(h);
+        }
+        BSLS_ASSERT(0 == rc);
+        numMisses = 0;
+
+        cmpKeyAndData(h, key);
+        key = -1;
+
+        const SkipMode skipMode = skipRand(&d_rand);
+
+        switch (skipMode) {
+          case e_SKIP_NONE: {
+            ;
+          } break;
+          case e_SKIP_NEXT: {
+            Pair *next;
+            rc = d_list.nextRaw(&next, h);
+            if (0 == rc) {
+                d_list.releaseReferenceRaw(h);
+                h = next;
+            }
+          } break;
+          case e_SKIP_PREVIOUS: {
+            Pair *prev;
+            rc = d_list.previousRaw(&prev, h);
+            if (0 == rc) {
+                d_list.releaseReferenceRaw(h);
+                h = prev;
+            }
+          } break;
+          case e_SKIP_SKIP_FORWARD: {
+            rc = d_list.skipForwardRaw(&h);
+            if (!h) {
+                continue;
+            }
+          } break;
+          case e_SKIP_SKIP_BACKWARD: {
+            rc = d_list.skipBackwardRaw(&h);
+            if (!h) {
+                continue;
+            }
+          } break;
+          default: {
+            BSLS_ASSERT_OPT(0);
+            continue;
+          } break;
+        }
+
+        key = cmpKeyAndData(h);
+
+        const int exactKey = key;
+
+        const MinorModifyMode changeMode = minorRand(&d_rand);
+
+        const bool allowDuplicates = d_rand.bits(1);
+        bool newFront = false;
+
+        switch (changeMode) {
+          case e_REMOVE: {
+            rc = d_list.remove(h);
+          } break;
+          case e_UPDATE: {
+            rc = d_list.update(h,
+                               key ^ k_VALUES_UPDATE_TOGGLE,
+                               &newFront,
+                               allowDuplicates);
+          } break;
+          case e_UPDATER: {
+            rc = d_list.updateR(h,
+                                key ^ k_VALUES_UPDATE_TOGGLE,
+                                &newFront,
+                                allowDuplicates);
+          } break;
+          default: {
+            BSLS_ASSERT_OPT(0);
+            continue;
+          } break;
+        }
+
+        ASSERT(!newFront || 0 == rc);
+
+        key = cmpKeyAndData(h);
+        ASSERT(0 == ((exactKey ^ key) & ~k_VALUES_UPDATE_TOGGLE));
+
+        d_list.releaseReferenceRaw(h);
+
+        break;
+    }
+}
+
+// CREATORS
+ThrashFunctor::ThrashFunctor(Obj *list, bslmt::Barrier *barrier)
+: d_list(*list)
+, d_barrier(*barrier)
+, d_rand(masterRandSeed++)
+{
+}
+
+ThrashFunctor::ThrashFunctor(const ThrashFunctor& original)
+: d_list(original.d_list)
+, d_barrier(original.d_barrier)
+, d_rand(masterRandSeed++)
+{}
+
+// MANIPULATORS
+void ThrashFunctor::operator()()
+{
+    int key = -1;
+
+    d_barrier.wait();
+
+    Int64 ti;
+    for (ti = 0; !doneFlag; ++ti) {
+        if (d_rand.bits(1)) {
+            key = -1;
+        }
+
+        // Random numbers are generated in the range '[ 0 .. 1023 ]'.  These
+        // 3 thresholds are varied with the number of elements in the
+        // container to make increasing its size more likely if there are few
+        // elements and to make decreasing its size more likely if there are
+        // many elements.
+
+        unsigned changeMajorThreshold;
+        unsigned findChangeMinorThreshold;
+        unsigned changeMinorThreshold;
+        {
+            const int len = d_list.length();
+            if      (768 <= len) {
+                changeMajorThreshold     = 30;
+                findChangeMinorThreshold = 800;
+                changeMinorThreshold     = 950;
+            }
+            else if (512 <= len) {
+                changeMajorThreshold     = 16;
+                findChangeMinorThreshold = 700;
+                changeMinorThreshold     = 768;
+            }
+            else if (256 <= len) {
+                changeMajorThreshold     = 8;
+                findChangeMinorThreshold = 450;
+                changeMinorThreshold     = 512;
+            }
+            else {
+                changeMajorThreshold     = 4;
+                findChangeMinorThreshold = 25;
+                changeMinorThreshold     = 36;
+            }
+        }
+
+        const unsigned operationRand = d_rand.bits(10);
+
+        if (operationRand < changeMajorThreshold) {
+            changeMajor();
+            key = -1;
+            continue;
+        }
+
+        if (operationRand < findChangeMinorThreshold) {
+            if (d_rand.bits(1)) {
+                findChangeMinorRaw(key);
+            }
+            else {
+                findChangeMinorHandle(key);
+            }
+            key = -1;
+            continue;
+        }
+
+        if (operationRand < changeMinorThreshold) {
+            changeMinor();
+            key = -1;
+            continue;
+        }
+
+        key = addRand();
+    }
+
+    totalIterations += static_cast<double>(ti);
+
+    d_barrier.wait();
+}
+
+}  // close namespace HeavyThrashTest
 
 // ============================================================================
 //                        CASE -100 RELATED ENTITIES
@@ -4752,6 +6047,208 @@ void run()
 }  // close namespace SKIPLIST_TEST_CASE_MINUS_100
 
 // ============================================================================
+//                        CASE -102 RELATED ENTITIES
+// ----------------------------------------------------------------------------
+
+namespace SKIPLIST_TEST_CASE_MINUS_102 {
+
+template <class EnumType, unsigned MOD>
+void test()
+{
+    u::RandGen rand;
+    u::RandGenMod<EnumType, MOD> rgm;
+
+    bsl::vector<unsigned> v(MOD, 0);
+
+    enum { k_ITERATIONS = 10 * 1000 * MOD };
+
+    bsls::Types::Uint64 distTotal = 0;
+    unsigned prev = 0;
+    for (int ii = 0; ii < k_ITERATIONS; ++ii) {
+        EnumType value = rgm(&rand);
+        ASSERT(0 <= value);
+        ASSERT(value < MOD);
+
+        ++v[value];
+        const unsigned dist = ((value + MOD) - prev) % MOD;
+        distTotal += dist;
+    }
+
+    const double distAvg = (double) distTotal / k_ITERATIONS;
+
+    int maxValue = -1, minValue = k_ITERATIONS + 1;
+    for (unsigned ii = 0; ii < MOD; ++ii) {
+        maxValue = bsl::max<int>(v[ii], maxValue);
+        minValue = bsl::min<int>(v[ii], minValue);
+    }
+
+    ASSERT(0 <= minValue);
+    ASSERT(0 <= maxValue);
+    double ratio = (double) maxValue / minValue;
+
+    ASSERT(ratio < 1.07);
+
+    P_(MOD);    P_(ratio);    P(distAvg);
+}
+
+}  // close namespace SKIPLIST_TEST_CASE_MINUS_102
+
+// ============================================================================
+//                        CASE -103 RELATED ENTITIES
+// ----------------------------------------------------------------------------
+
+namespace SKIPLIST_TEST_CASE_MINUS_103 {
+
+struct Node {
+    Node *d_next_p;
+
+    explicit
+    Node(Node *next) : d_next_p(next) {}
+};
+
+struct Data {
+    const char *d_string_p;
+};
+
+enum { k_NUM_THREADS = 24 };
+
+bslmt::Barrier barrier(k_NUM_THREADS);
+bsls::AtomicPointer<Node> head(0);
+
+struct ReadFunctor {
+    static
+    void setKillroy(Data *data_p);
+
+    static
+    bool swapOut(Node *p);
+
+    void operator()();
+};
+
+#ifndef BDE_BUILD_TARGET_TSAN
+inline
+#endif
+void ReadFunctor::setKillroy(Data *data_p)
+{
+    data_p->d_string_p = "Killroy Was Here";
+}
+
+#ifndef BDE_BUILD_TARGET_TSAN
+inline
+#endif
+bool ReadFunctor::swapOut(Node *p)
+{
+    return head.testAndSwap(p, p->d_next_p) == p;
+}
+
+void ReadFunctor::operator()()
+{
+    Node *p;
+
+    barrier.wait();
+
+    while ((p = head)) {
+        if (swapOut(p)) {
+            Data *data_p = reinterpret_cast<Data *>(p);
+            setKillroy(data_p);
+        }
+    }
+}
+
+}  // close namespace SKIPLIST_TEST_CASE_MINUS_103
+
+// ============================================================================
+//                        CASE -104 RELATED ENTITIES
+// ----------------------------------------------------------------------------
+
+namespace SKIPLIST_TEST_CASE_MINUS_104 {
+
+struct Node {
+    Node *d_next_p;
+    int   d_counter;
+
+    explicit
+    Node(Node *next) : d_next_p(next), d_counter(0) {}
+};
+
+enum { k_NUM_THREADS = 24 };
+
+bslmt::Barrier barrier(k_NUM_THREADS);
+bsls::AtomicPointer<Node> head(0);
+bsls::AtomicBool          doneFlag(false);
+bsls::AtomicInt           numDone(0);
+
+struct Functor {
+    static
+    bool checkCounter(Node *);
+
+    static
+    void incCounter(Node *p);
+
+    static
+    bool swapOut(Node *p);
+
+    static
+    bool swapIn(Node *p);
+
+    void operator()()
+    {
+        Node *p;
+
+        barrier.wait();
+
+        while (!doneFlag && (p = head)) {
+            if (swapOut(p)) {
+                incCounter(p);
+                if (checkCounter(p)) {
+                    while (!swapIn(p)) {
+                        ;
+                    }
+                }
+            }
+        }
+
+        ++numDone;
+    }
+};
+
+#ifndef BDE_BUILD_TARGET_TSAN
+inline
+#endif
+bool Functor::checkCounter(Node *p)
+{
+    return p->d_counter < 4;
+}
+
+#ifndef BDE_BUILD_TARGET_TSAN
+inline
+#endif
+void Functor::incCounter(Node *p)
+{
+    ++p->d_counter;
+}
+
+#ifndef BDE_BUILD_TARGET_TSAN
+inline
+#endif
+bool Functor::swapIn(Node *p)
+{
+    Node *oldHead = head;
+    p->d_next_p = oldHead;
+    return head.testAndSwap(oldHead, p) == oldHead;
+}
+
+#ifndef BDE_BUILD_TARGET_TSAN
+inline
+#endif
+bool Functor::swapOut(Node *p)
+{
+    return head.testAndSwap(p, p->d_next_p) == p;
+}
+
+}  // close namespace SKIPLIST_TEST_CASE_MINUS_104
+
+// ============================================================================
 //                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
@@ -4769,6 +6266,251 @@ int main(int argc, char *argv[])
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 32: {
+        // --------------------------------------------------------------------
+        // DELIBERATELY LEAK A NODE
+        //
+        // Concerns:
+        //: 1 That the 'U_FAIL_ON_LEAKED_NODES' testing in the imp file is
+        //:   disabled when this component is shipped.  It is possible for
+        //:   client who obtains a node via the 'raw' methods, or even via a
+        //:   'PairHandle' that outlives the skip list, will have leaked nodes,
+        //:   and our existing user base probably has many such clients, so it
+        //:   is important that we never ship this component with that
+        //:   assert enabled.
+        //
+        // Plan:
+        //: 1 Deliberately leak a node so that when the check is enabled this
+        //:   test will fail, providing a heads-up in the matrix build and in
+        //:   the nightly build that this component is not ready for shipping.
+        //
+        // Testing:
+        //   DELIBERATELY LEAK A NODE
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "DELIBERATELY LEAK A NODE\n"
+                             "========================\n";
+
+        bool leak = false;
+        if (verbose) {
+            const bsl::string cmd = argv[2];
+            if (cmd == "leak") {
+                leak = true;
+#if defined(BSLS_REVIEW_SAFE_IS_ACTIVE)
+
+                cout << "Leak test: should be caught:\n";
+#else
+                cout << "Leak test: shouldn't be caught:\n";
+#endif
+            }
+            else {
+                cout << "To run leak test, say \"" << argv[0] << ' ' << test <<
+                                                     " leak\" in safe mode.\n";
+            }
+        }
+
+#if !defined(BSLS_REVIEW_SAFE_IS_ACTIVE)
+        leak = true;
+
+        if (verbose) {
+            cout << "Not in safe mode, will leak\n";
+        }
+#endif
+
+        if (leak) {
+            typedef bdlcc::SkipList<int, int> Obj;
+            Obj mX;
+            mX.add(1, 2);
+            Obj::Pair *pr = 0;
+            ASSERT(0 == mX.popFrontRaw(&pr));
+            ASSERT(pr);
+            ASSERT(1 == pr->key());
+            ASSERT(2 == pr->data());
+        }
+      } break;
+      case 31: {
+        // --------------------------------------------------------------------
+        // SIMPLE THRASH TEST
+        //
+        // History
+        //: o This component, when originally written, did not detect leaked
+        //:   nodes.
+        //:
+        //: o During maintenance, examination of the node freeing algorithm,
+        //:   which was a convoluted lockless algorithm, raised suspicions that
+        //:   it was leaking nodes, and when the imp was intrumented, many
+        //:   leaked nodes were detected under heavy contention.  The tests
+        //:   were complex, and it was possible that the leaks were caused by
+        //:   errors in the tests, so the goal here was to create heavy
+        //:   contention in a simple test that we could be sure contained no
+        //:   errors causing leaks.
+        //:
+        //: o This confirmed that the lockless node allocation algorithm was
+        //:   leaking nodes like a sieve.  The allocator pools were replaced
+        //:   with a mutex-based algorithm that ran just as fast and did not
+        //:   leak.
+        //
+        // Concern:
+        //: o Provide a simple test to observe leaks.
+        //
+        // Plan:
+        //: 1 Create 24 threads which randomly create and delete individual
+        //:   nodes.
+        //
+        // Testing:
+        //   SIMPLE THRASH TEST
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "SIMPLE THRASH TEST\n"
+                             "==================\n";
+
+        namespace TC = SimpleThrashTest;
+
+        int periods = 10;
+        if (verbose && bsl::atoi(argv[2])) {
+            periods = bsl::atoi(argv[2]);
+            P(periods);
+        }
+
+        int secondsToRun = 8;
+        if (veryVerbose) {
+            secondsToRun = bsl::atoi(argv[3]);
+        }
+
+        if (veryVeryVerbose) {
+            TC::masterRandSeed = 0;
+        }
+        else {
+            bsls::TimeInterval ti = bsls::SystemTime::nowMonotonicClock();
+            TC::masterRandSeed =
+                                static_cast<int>(ti.totalNanoseconds() ^
+                                                (ti.totalNanoseconds() >> 32));
+        }
+        if (verbose) P(TC::masterRandSeed);
+
+        TC::Obj mX;    const TC::Obj& X = mX;
+
+        bslmt::ThreadGroup tg;
+        tg.addThreads(TC::ThrashFunctor(&mX), TC::k_NUM_THREADS);
+
+        const unsigned sleepTime = static_cast<unsigned>(
+                              ((double) secondsToRun / periods) * 1000 * 1000);
+        for (int ii = 0; ii < periods; ++ii) {
+            bslmt::ThreadUtil::microSleep(sleepTime);
+            if (verbose) P(X.length());
+        }
+
+        TC::doneFlag = true;
+
+        tg.joinAll();
+      } break;
+      case 30: {
+        // --------------------------------------------------------------------
+        // HEAVY THRASH TEST
+        //
+        // Concern:
+        //: 1 Heavily test the component to find data races.
+        //
+        // Plan:
+        //: 1 Run a large number of threads, each with its own random number
+        //:   generator, and all of the random number generators on the threads
+        //:   seeded differently.  All threads operate on a single, shared
+        //:   'SkipList'.
+        //:
+        //: 2 Each thread iterates, and in each iteration, randomly choose an
+        //:   operation to perform on the shared skip list.  The set of
+        //:   possible operations contains every manipulator in the 'class',
+        //:   and every 'find*' operation in the 'class'.
+        //:
+        //: 3 Vary the parameters of the random selection of operations so
+        //:   that, when the 'length()' of the skip list is high, operations
+        //:   that remove elements are more likely, and when the 'length()' is
+        //:   low, operations that add elements are more likely.  But for any
+        //:   value of 'length()', any operation is possible.
+        //:
+        //; 4 Run the test for a configurable number of seconds, then set an
+        //:   atomic flag to coordinate all the threads terminating.  Record
+        //:   'TC::totalIterations', the total number of operations performed
+        //:   by all threads on the skip list.
+        //
+        // Testing:
+        //   All Manipulators
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "HEAVY THRASH TEST\n"
+                             "=================\n";
+
+        namespace TC = HeavyThrashTest;
+
+        int periods = 10;
+        if (verbose && bsl::atoi(argv[2])) {
+            periods = bsl::atoi(argv[2]);
+        }
+
+        int secondsToRun = 8;
+        if (veryVerbose) {
+            secondsToRun = bsl::atoi(argv[3]);
+        }
+
+        if (veryVeryVerbose) {
+            TC::masterRandSeed = bsl::atoi(argv[4]);
+        }
+        else {
+            bsls::TimeInterval ti = bsls::SystemTime::nowMonotonicClock();
+            TC::masterRandSeed =
+                                static_cast<int>(ti.totalNanoseconds() ^
+                                                (ti.totalNanoseconds() >> 32));
+        }
+
+        int numThreads = TC::k_NUM_THREADS;
+        if (veryVeryVeryVerbose) {
+            numThreads = bsl::atoi(argv[5]);
+        }
+
+        if (verbose) {
+            P_(periods);    P_(secondsToRun);    P_(TC::masterRandSeed);
+            P(numThreads);
+        }
+
+        TC::Obj mX;    const TC::Obj& X = mX;
+        bslmt::Barrier barrier(numThreads + 1);
+
+        bslmt::ThreadGroup tg;
+        tg.addThreads(TC::ThrashFunctor(&mX, &barrier), numThreads);
+
+        bsls::Stopwatch sw;
+
+        barrier.wait();
+        sw.start(true);
+
+        const unsigned sleepTime = static_cast<unsigned>(
+                              ((double) secondsToRun / periods) * 1000 * 1000);
+        for (int ii = 0; ii < periods; ++ii) {
+            bslmt::ThreadUtil::microSleep(sleepTime);
+            if (verbose) P(X.length());
+        }
+
+        TC::doneFlag = true;
+
+        barrier.wait();
+        sw.stop();
+
+        tg.joinAll();
+
+        if (verbose) {
+            const double userPlusSysTime = sw.accumulatedUserTime() +
+                                                    sw.accumulatedSystemTime();
+            const double nsUSPerIteration = 1e9 * userPlusSysTime /
+                                                           TC::totalIterations;
+
+            const double nsWallPerIterationPerThread =
+                                  1e9 * sw.accumulatedWallTime() * numThreads /
+                                                           TC::totalIterations;
+            P_(TC::totalIterations);    P(TC::maxLevel);
+            P_(userPlusSysTime);        P(sw.accumulatedWallTime());
+            P_(nsUSPerIteration);       P(nsWallPerIterationPerThread);
+        }
+      } break;
       case 29: {
         // --------------------------------------------------------------------
         // Reproduce data race in DRQS 167644288
@@ -4780,9 +6522,9 @@ int main(int argc, char *argv[])
         //:   bug, and then verify the fix.
         //
         // Plan:
-        //: 1 Run many threads that repeatedly add and update individual nodes,
-        //:   and many other threads that call 'removeAll', and see if any
-        //:   segfaults happen.
+        //: 1 Run many threads that repeatedly add and update individual
+        //:   nodes, and many other threads that call 'removeAll', and see
+        //:   if any segfaults happen.
         // --------------------------------------------------------------------
 
         namespace TC = SKIPLIST_REPRODUCE_DRQS_167644288;
@@ -4794,7 +6536,7 @@ int main(int argc, char *argv[])
         // Reproduce data race in DRQS 167716470
         //
         // Concern:
-        //: 1 DRQS 167716470 identified a data race between 'removeAll' and
+        //: 1 DRQS 167644288 identified a data race between 'removeAll' and
         //:   'removeNode'.  This was actually a data race between 'removeAll'
         //:   and many parts of the component.  This test case was to reproduce
         //:   the bug, and then verify the fix.
@@ -5034,7 +6776,7 @@ int main(int argc, char *argv[])
         // add / addR stability test
         // --------------------------------------------------------------------
 
-        using namespace SKIPLIST_OLD_TEST_CASES_NAMEPSACE;
+        using namespace SKIPLIST_OLD_TEST_CASES_NAMESPACE;
 
         DATA VALUES1[] = {
             // line,  key,  data,  level
@@ -5140,7 +6882,7 @@ int main(int argc, char *argv[])
         // findLowerBoundR / findUpperBoundR test
         // --------------------------------------------------------------------
 
-        using namespace SKIPLIST_OLD_TEST_CASES_NAMEPSACE;
+        using namespace SKIPLIST_OLD_TEST_CASES_NAMESPACE;
 
         DATA VALUES1[] = {
             // line,  key,  data,  level
@@ -5352,7 +7094,7 @@ int main(int argc, char *argv[])
         // findLowerBound / findUpperBound test
         // --------------------------------------------------------------------
 
-        using namespace SKIPLIST_OLD_TEST_CASES_NAMEPSACE;
+        using namespace SKIPLIST_OLD_TEST_CASES_NAMESPACE;
 
         if (verbose) cout << endl
                           << "findLowerBound/findUpperBound test" << endl
@@ -6106,11 +7848,336 @@ if (veryVerbose) cout << "Elapsed: " << elapsed << " seconds\n";
             ASSERT(ret == Obj::e_NOT_FOUND);
         }
       } break;
+      case -105: {
+        // --------------------------------------------------------------------
+        // SPEED BENCHMARK
+        // --------------------------------------------------------------------
+
+        namespace TC = BenchmarkThrashTest;
+
+        enum { k_NUM_RUNS = 101,
+               k_DISPLAY_DELTA = 10,
+               k_MEDIAN_IDX = k_NUM_RUNS / 2 / k_DISPLAY_DELTA,
+
+#if defined(BDE_BUILD_TARGET_OPT) && !defined(BDE_BUILD_TARGET_DBG)
+               k_OPTIMIZED = 1 };
+#else
+               k_OPTIMIZED = 0 };
+#endif
+
+        int numThreads = 24;
+        if (verbose) {
+            numThreads = bsl::atoi(argv[2]);
+        }
+
+        bslmt::Barrier barrier(numThreads + 1);
+
+        cout << "Benchmark Thrash Test\n";
+        cout << (4 == sizeof(void *) ? "32" : "64") << "-bit";
+
+#if   defined(BSLS_PLATFORM_OS_AIX)
+        cout << " AIX";
+#elif defined(BSLS_PLATFORM_OS_LINUX)
+        cout << " Linux";
+#elif defined(BSLS_PLATFORM_OS_SOLARIS) || defined(BSLS_PLATFORM_OS_SUNOS)
+        cout << " Solaris";
+#elif defined(BSLS_PLATFORM_OS_WINDOWS)
+        cout << " Windows";
+#else
+# error "unrecognized platform"
+#endif
+
+        cout << ' ' << numThreads << " threads " << (k_OPTIMIZED
+                                                     ? "optimized\n"
+                                                     : "not optimized\n");
+
+        const unsigned sleepTime = 5 * 1000 * 1000;                // 5 seconds
+        bsl::vector<double> userTimes, systemTimes, wallTimes;
+        userTimes.reserve(k_NUM_RUNS);
+        systemTimes.reserve(k_NUM_RUNS);
+        wallTimes.reserve(k_NUM_RUNS);
+
+        bsls::Stopwatch sw;
+
+        for (int runIdx = 0; runIdx < k_NUM_RUNS; ++runIdx) {
+            sw.reset();
+            TC::doneFlag = false;
+            TC::totalIterations = 0;
+
+            TC::Obj mX;
+
+            bslmt::ThreadGroup tg;
+            tg.addThreads(TC::ThrashFunctor(&mX, &barrier), numThreads);
+
+            barrier.wait();
+            sw.start(true);
+
+            bslmt::ThreadUtil::microSleep(sleepTime);
+
+            TC::doneFlag = true;
+            barrier.wait();
+            sw.stop();
+
+            tg.joinAll();
+
+            const double iterations = static_cast<double>(TC::totalIterations);
+
+            userTimes.push_back(1e9 * sw.accumulatedUserTime() / iterations);
+            systemTimes.push_back(1e9 * sw.accumulatedSystemTime() /
+                                                                   iterations);
+            wallTimes.push_back(
+                                  1e9 * sw.accumulatedWallTime() * numThreads /
+                                                                   iterations);
+        }
+
+        bsl::sort(userTimes.  begin(), userTimes.  end());
+        bsl::sort(systemTimes.begin(), systemTimes.end());
+        bsl::sort(wallTimes.  begin(), wallTimes.  end());
+
+        bsl::vector<double> medians;
+        medians.resize(3);
+
+        cout << ",,,\n";
+        cout << "Times in nanoseconds per iteration:\n";
+        cout << ",User,System,Wall (* " << numThreads << " threads)\n";
+        for (int ii = 0; ii < k_NUM_RUNS; ii += k_DISPLAY_DELTA) {
+            const int displayIdx = ii / k_DISPLAY_DELTA;
+
+            if (k_MEDIAN_IDX == displayIdx) {
+                cout << ",,,\n";
+
+                medians[0] = userTimes[ii];
+                medians[1] = systemTimes[ii];
+                medians[2] = wallTimes[ii];
+            }
+
+            cout << (100.0 * ii / (k_NUM_RUNS - 1)) << "th percentile:,";
+
+            cout << userTimes[ii] << ',' <<
+                               systemTimes[ii] << ',' << wallTimes[ii] << endl;
+
+            if (0 == displayIdx || k_MEDIAN_IDX == displayIdx) {
+                cout << ",,,\n";
+            }
+        }
+        cout << ",,,\n";
+
+        bsl::vector<double> means;
+        means.resize(3);
+
+        bsl::vector<double> stddevs;
+        stddevs.resize(3);
+
+        for (int vecI = 0; vecI < 3; ++vecI) {
+            const bsl::vector<double>& vec = 0 == vecI
+                                           ? userTimes
+                                           : 1 == vecI
+                                           ? systemTimes
+                                           : wallTimes;
+
+            double& mean = means[vecI];
+            mean = 0.0;
+            for (int ii = 0; ii < k_NUM_RUNS; ++ii) {
+                mean += vec[ii];
+            }
+            mean /= k_NUM_RUNS;
+
+            double variance = 0.0;
+            for (int ii = 0; ii < k_NUM_RUNS; ++ii) {
+                const double xx = vec[ii] - mean;
+                variance += xx * xx;
+            }
+            variance /= (k_NUM_RUNS - 1);
+            stddevs[vecI] = bsl::sqrt(variance);
+        }
+
+        cout << "Average:";
+        for (int vecI = 0; vecI < 3; ++vecI) {
+            cout << ',' << means[vecI];
+        }
+        cout << endl;
+
+        cout << "Standard Dev:";
+        for (int vecI = 0; vecI < 3; ++vecI) {
+            cout << ',' << stddevs[vecI];
+        }
+        cout << endl;
+
+        cout << ",,,\n";
+        cout << "Stdev/Minimum %:,";
+        if (userTimes[0]) {
+            cout << 100.0 * stddevs[0] / userTimes[0];
+        }
+        else {
+            cout << '*';
+        }
+        cout << ',';
+        if (systemTimes[0]) {
+            cout << 100.0 * stddevs[1] / systemTimes[0];
+        }
+        else {
+            cout << '*';
+        }
+        cout << ',';
+        if (wallTimes[0]) {
+            cout << 100.0 * stddevs[2] / wallTimes[0];
+        }
+        else {
+            cout << '*';
+        }
+        cout << '\n';
+
+        cout << "Stdev/Median %:";
+        for (int vecI = 0; vecI < 3; ++vecI) {
+            cout << ',' << (100.0 * stddevs[vecI] / medians[vecI]);
+        }
+        cout << endl;
+        cout << "Stdev/Avg %:";
+        for (int vecI = 0; vecI < 3; ++vecI) {
+            cout << ',' << (100.0 * stddevs[vecI] / means[vecI]);
+        }
+        cout << endl;
+      } break;
+      case -104: {
+        // --------------------------------------------------------------------
+        // DEMONSTRATE NON-BENIGHN RACE
+        // --------------------------------------------------------------------
+
+        using namespace SKIPLIST_TEST_CASE_MINUS_104;
+
+        enum { k_NUM_ELEMENTS = 10 * 1000 };
+
+        bsl::vector<Node *> v;
+        v.reserve(k_NUM_ELEMENTS);
+        for (int ii = 0; ii < k_NUM_ELEMENTS; ++ii) {
+            Node *p = new Node(head);
+            head = p;
+            v.push_back(p);
+        }
+
+        bslmt::ThreadGroup tg;
+        tg.addThreads(Functor(), k_NUM_THREADS);
+
+        bslmt::ThreadUtil::microSleep(10 * 1000 * 1000);
+        if (numDone < k_NUM_THREADS) {
+            doneFlag = true;
+        }
+
+        tg.joinAll();
+
+        int num4s = 0, numLow = 0, numHigh = 0;
+        int maxCounter = 0, minCounter = 4;
+        for (int ii = 0; ii < k_NUM_ELEMENTS; ++ii) {
+            const int counter = v[ii]->d_counter;
+            num4s   += 4 == counter;
+            numLow  += counter < 4;
+            numHigh += counter > 4;
+            maxCounter = bsl::max(maxCounter, counter);
+            minCounter = bsl::min(minCounter, counter);
+        }
+        P_(num4s);    P_(numLow);    P(numHigh);
+        P_(minCounter);    P(maxCounter);
+
+        for (int ii = 0; ii < k_NUM_ELEMENTS; ++ii) {
+            v[ii]->d_counter = 0;
+        }
+        Node *p;
+        int loopLength = 0;
+        for (p = head; p && 0 == p->d_counter; p = p->d_next_p) {
+            p->d_counter = 1;
+            ++loopLength;
+        }
+        ASSERTV(loopLength, 0 == loopLength);
+        ASSERTV(!p && "list is circular");
+      } break;
+      case -103: {
+        // --------------------------------------------------------------------
+        // DEMONSTRATE BENIGHN RACE
+        // --------------------------------------------------------------------
+
+        using namespace SKIPLIST_TEST_CASE_MINUS_103;
+
+        for (int ii = 1000 * 1000; 0 < ii--; ) {
+            Node *p = new Node(head);
+            head = p;
+        }
+
+        bslmt::ThreadGroup tg;
+        tg.addThreads(ReadFunctor(), k_NUM_THREADS);
+        tg.joinAll();
+      } break;
+      case -102: {
+        // --------------------------------------------------------------------
+        // TEST MACHINERY
+        //
+        // Concern:
+        //: 1 That the bitwise random number generator works properly
+        //
+        // Plan:
+        //: 1 Generate a large number of random numbers and observe the
+        //:   distribution.
+        // --------------------------------------------------------------------
+
+        namespace TC = SKIPLIST_TEST_CASE_MINUS_102;
+
+        enum { k_ITERATIONS = 1 << 24 };
+
+        int bits = 10;
+
+        if (verbose) {
+            bits = bsl::atoi(argv[2]);
+        }
+        const int numPossibleValues = 1 << bits;
+
+        bsl::vector<int> hits(numPossibleValues, 0);
+        bsl::vector<int> hamming(bits + 1, 0);
+        u::RandGen rand;
+
+        unsigned prev = 0;
+        const int noMask = ~((1 << bits) - 1);
+        for (int ii = k_ITERATIONS; 0 < ii; --ii) {
+            const unsigned value = rand.bits(bits);
+            ASSERT(0 == (value & noMask));
+
+            ++hits[value];
+
+            ++hamming[bdlb::BitUtil::numBitsSet(value ^ prev)];
+            prev = value;
+        }
+
+        int minVal = (1 << 30) + 1;
+        int maxVal = -1;
+        for (int ii = 0; ii < numPossibleValues; ++ii) {
+            minVal = bsl::min(minVal, hits[ii]);
+            maxVal = bsl::max(maxVal, hits[ii]);
+        }
+
+        double ratio = (double) maxVal / minVal;
+        cout << "Bits: " << bits << " Ratio: " << ((ratio - 1) * 100) << "%\n";
+
+        double hammingAvg = 0;
+        for (int uu = 0; uu <= bits; ++uu) {
+            hammingAvg += (double) hamming[uu] * uu;
+        }
+        hammingAvg /= k_ITERATIONS;
+        P(hammingAvg);
+
+        TC::test<u::AddMode,  5>();
+        TC::test<u::AddMode,  7>();
+        TC::test<u::AddMode,  8>();
+        TC::test<u::AddMode,  9>();
+        TC::test<u::AddMode, 19>();
+        TC::test<u::AddMode, 24>();
+        TC::test<u::AddMode, 30>();
+        TC::test<u::AddMode, 31>();
+        TC::test<u::AddMode, 32>();
+        TC::test<u::AddMode, 33>();
+      } break;
       case -101: {
         // --------------------------------------------------------------------
         // The thread-safety test
         // --------------------------------------------------------------------
-        SKIPLIST_OLD_TEST_CASES_NAMEPSACE::run();
+        SKIPLIST_OLD_TEST_CASES_NAMESPACE::run();
       } break;
       case -100: {
         // --------------------------------------------------------------------

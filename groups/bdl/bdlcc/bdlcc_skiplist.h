@@ -37,13 +37,7 @@ BSLS_IDENT("$Id: $")
 // "'bdlcc::SkipListPair' Usage Rules" below.  'bdlcc::SkipListPair' and
 // 'bdlcc::SkipListPairHandle' objects are optionally populated when new
 // associations are added, and are also populated whenever associations are
-// looked up (either by key or by position).  There is an
-// implementation-defined maximum number of references (whether by
-// 'bdlcc::SkipListPairHandle' or 'bdlcc::SkipListPair' pointer) to any single
-// association element in the list, not less than
-// '2^bdlcc::SkipList_Control::k_NUM_REFERENCE_BITS - 1'.  The behavior of this
-// component is undefined if more than that number of references are
-// simultaneously acquired for a single element.  Note that in addition to
+// looked up (either by key or by position).  Note that in addition to
 // 'addPairReferenceRaw', member functions of 'bdlcc::SkipList' such as
 // 'front', 'back', and 'find' also add a reference to the specified element.
 //
@@ -393,6 +387,8 @@ BSLS_IDENT("$Id: $")
 #include <bsls_types.h>
 #include <bsls_util.h>
 
+#include <bsl_algorithm.h>
+#include <bsl_functional.h>
 #include <bsl_ostream.h>
 #include <bsl_vector.h>
 
@@ -410,48 +406,6 @@ namespace bdlcc {
 template <class KEY, class DATA>
 class SkipList;
 
-                        // ============================
-                        // local class SkipList_Control
-                        // ============================
-
-struct SkipList_Control {
-    // This component-private structure stores the "control word" and level of
-    // a list node.
-
-    // TYPES
-    enum {
-        k_NUM_REFERENCE_BITS = 20  // minimum; implementation may have more
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , BCEC_NUM_REFERENCE_BITS = k_NUM_REFERENCE_BITS
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
-    };
-
-    // PUBLIC DATA
-    bsls::AtomicInt d_cw;   // control word; reference count, release flag, and
-                           // acquire count for a node in the list
-
-    unsigned char  d_level;
-
-    // MANIPULATORS
-    int decrementRefCount();
-        // Subtract 1 from the reference count portion of this control word.
-        // Return the new reference count.  The behavior is undefined if the
-        // reference count is 0.
-
-    int incrementRefCount();
-        // Add 1 to the reference count portion of this control word.  Return
-        // the new reference count.  The behavior is undefined if the reference
-        // count is at the implementation-defined maximum.
-
-    void init(int level);
-        // Set the value of this control word to the initial state for a node
-        // at the specified 'level'.
-
-    // ACCESSORS
-    int level() const;
-        // Return the level stored in this control word.
-};
 
                          // =========================
                          // local class SkipList_Node
@@ -462,7 +416,6 @@ struct SkipList_Node {
     // This component-private structure is a node in the SkipList.
 
     // TYPES
-    typedef SkipList_Control         Control;
     typedef SkipList_Node<KEY, DATA> Node;
 
     struct Ptrs {
@@ -472,28 +425,28 @@ struct SkipList_Node {
     };
 
     // PUBLIC DATA
-    Control        d_control;    // must be first!
+    bsls::AtomicInt  d_refCount;
+    int              d_level;      // values in range '[ 0 .. 31 ]'
+    DATA             d_data;
+    KEY              d_key;
+    Ptrs             d_ptrs[1];    // Must be last; each node has space for
+                                   // extra 'Ptrs' allocated based on its
+                                   // level.
+};
 
-    DATA           d_data;
+                   // ====================================
+                   // local class SkipList_DoubleLockGuard
+                   // ====================================
 
-    KEY            d_key;
+class SkipList_DoubleLockGuard {
+    // DATA
+    bslmt::LockGuard<bslmt::Mutex> d_firstGuard, d_lastGuard;
 
-    Ptrs           d_ptrs[1];    // Must be last; each node has space for extra
-                                 // 'Ptrs' allocated based on its level.
-
-    // MANIPULATORS
-    int  decrementRefCount();
-        // Decrement the reference count.
-
-    int  incrementRefCount();
-        // Increment the reference count.
-
-    void initControlWord(int level);
-        // Initialize the control word, set to the specified 'level'.
-
-    // ACCESSORS
-    int level() const;
-        // Return the 'level' field from the control word..
+  public:
+    // CREATOR
+    SkipList_DoubleLockGuard(bslmt::Mutex *lock1, bslmt::Mutex *lock2);
+        // Lock both 'lock1' and 'lock2', the one in the lower memory location
+        // first.
 };
 
                  // =========================================
@@ -506,9 +459,9 @@ class SkipList_RandomLevelGenerator {
 
     // PRIVATE TYPES
     enum {
-        k_MAX_LEVEL = 31,         // Also defined in SkipList and PoolManager
-
-        k_SEED      = 0x12b9b0a1  // arbitrary
+        k_MAX_LEVEL      = 31,         // Also defined in SkipList and
+                                       // PoolManager
+        k_SEED           = 0x12b9b0a1  // arbitrary
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BCEC_MAX_LEVEL = k_MAX_LEVEL
@@ -532,13 +485,9 @@ class SkipList_RandomLevelGenerator {
         // Return a random integer between 0 and k_MAX_LEVEL.
 };
 
-}  // close package namespace
-
                     // ====================================
                     // local class bdlcc::SkipList_PoolUtil
                     // ====================================
-
-namespace bdlcc {
 
 class SkipList_PoolManager;
 
@@ -776,20 +725,22 @@ class SkipList {
     };
 
     // TYPES
-    typedef SkipListPair<KEY, DATA>       Pair;
-    typedef SkipListPairHandle<KEY, DATA> PairHandle;
+    typedef SkipListPair<KEY, DATA>           Pair;
+    typedef SkipListPairHandle<KEY, DATA>     PairHandle;
 
   private:
     // PRIVATE TYPES
-    typedef SkipList_PoolManager          PoolManager;
-    typedef SkipList_PoolUtil             PoolUtil;
+    typedef SkipList_PoolManager              PoolManager;
+    typedef SkipList_PoolUtil                 PoolUtil;
 
-    typedef SkipList_Node<KEY, DATA>      Node;
+    typedef SkipList_Node<KEY, DATA>          Node;
     typedef SkipList_NodeCreationHelper<KEY, DATA>
-                                               NodeGuard;
+                                              NodeGuard;
 
-    typedef bslmt::Mutex                        Lock;
-    typedef bslmt::LockGuard<bslmt::Mutex>      LockGuard;
+    typedef bslmt::Mutex                      Lock;
+    typedef bslmt::LockGuard<bslmt::Mutex>    LockGuard;
+
+    typedef SkipList_DoubleLockGuard          DoubleLockGuard;
 
     template <class VECTOR, class VALUE_TYPE>
     class IsVector;
@@ -1004,8 +955,9 @@ class SkipList {
         // This method acquires and releases the lock.
 
     void checkInvariants() const;
-        // This function is normally never called -- it is useful in
-        // debugging.  The behavior is undefined unless the mutex is locked.
+        // This function is normally never called -- it is useful in debugging.
+        // If this function is called from anywhere other than the destructor,
+        // it is important that the mutex be locked.
 
     Node *findNode(const KEY& key) const;
         // Return the node with the specified 'key', or 0 if no node could be
@@ -1710,6 +1662,17 @@ class SkipList<KEY, DATA>::PairHandleFactory {
 //                            INLINE DEFINITIONS
 // ============================================================================
 
+                          // ------------------------
+                          // SkipList_DoubleLockGuard
+                          // ------------------------
+
+inline
+SkipList_DoubleLockGuard::SkipList_DoubleLockGuard(bslmt::Mutex *lock1,
+                                                   bslmt::Mutex *lock2)
+: d_firstGuard(bsl::min(lock1, lock2, bsl::less<bslmt::Mutex *>()))
+, d_lastGuard( bsl::max(lock1, lock2, bsl::less<bslmt::Mutex *>()))
+{}
+
                              // ------------------
                              // class SkipListPair
                              // ------------------
@@ -1857,37 +1820,6 @@ bdlcc::SkipListPairHandle<KEY, DATA>::
 }
 
 namespace bdlcc {
-                            // -------------------
-                            // class SkipList_Node
-                            // -------------------
-
-template<class KEY, class DATA>
-inline
-int SkipList_Node<KEY, DATA>::decrementRefCount()
-{
-    return d_control.decrementRefCount();
-}
-
-template<class KEY, class DATA>
-inline
-int SkipList_Node<KEY, DATA>::incrementRefCount()
-{
-    return d_control.incrementRefCount();
-}
-
-template<class KEY, class DATA>
-inline
-void SkipList_Node<KEY, DATA>::initControlWord(int level)
-{
-    d_control.init(level);
-}
-
-template<class KEY, class DATA>
-inline
-int SkipList_Node<KEY, DATA>::level() const
-{
-    return d_control.level();
-}
 
                      // ---------------------------------
                      // class SkipList_NodeCreationHelper
@@ -2138,7 +2070,7 @@ SkipList<KEY, DATA>::allocateNode(int level, const KEY& key, const DATA& data)
 
     nodeGuard.construct(key, data);
 
-    node->incrementRefCount();
+    ++node->d_refCount;
     node->d_ptrs[0].d_next_p = 0;
 
     return node;
@@ -2190,7 +2122,7 @@ void SkipList<KEY, DATA>::insertImp(bool *newFrontFlag,
     BSLS_ASSERT(location);
     BSLS_ASSERT(node);
 
-    int level = node->level();
+    int level = node->d_level;
     if (level > d_listLevel) {
         BSLS_ASSERT(level == d_listLevel + 1);
 
@@ -2231,7 +2163,7 @@ void SkipList<KEY, DATA>::moveImp(bool *newFrontFlag,
     BSLS_ASSERT(location);
     BSLS_ASSERT(node);
 
-    int level = node->level();
+    int level = node->d_level;
     BSLS_ASSERT(level <= d_listLevel);
 
     for (int k = 0; k <= level; ++k) {
@@ -2273,7 +2205,7 @@ SkipList_Node<KEY, DATA> *SkipList<KEY, DATA>::popFrontImp()
         return 0;                                                     // RETURN
     }
 
-    int level = node->level();
+    int level = node->d_level;
 
     for (int k = level; k >= 0; --k) {
         Node *q = node->d_ptrs[k].d_next_p;
@@ -2293,7 +2225,7 @@ void SkipList<KEY, DATA>::releaseNode(Node *node)
 {
     BSLS_ASSERT(node);
 
-    int refCnt = node->decrementRefCount();
+    int refCnt = --node->d_refCount;
 
     if (!refCnt) {
         node->d_key.~KEY();
@@ -2386,7 +2318,7 @@ int SkipList<KEY, DATA>::removeNode(Node *node)
         return e_NOT_FOUND;                                           // RETURN
     }
 
-    int level = node->level();
+    int level = node->d_level;
 
     for (int k = level; k >= 0; --k) {
         Node *p = node->d_ptrs[k].d_prev_p;
@@ -2482,17 +2414,13 @@ SkipList<KEY, DATA>::backNode() const
         return 0;                                                     // RETURN
     }
 
-    node->incrementRefCount();
+    ++node->d_refCount;
     return node;
 }
 
 template<class KEY, class DATA>
 void SkipList<KEY, DATA>::checkInvariants() const
 {
-    enum { k_MASK = (1 << SkipList_Control::k_NUM_REFERENCE_BITS) - 1 };
-
-    BSLMT_MUTEXASSERT_IS_LOCKED(&d_lock);
-
     for (int ii = 0; ii <= d_listLevel; ++ii) {
         int numNodes = 0;
         Node *prev = d_head_p;
@@ -2502,9 +2430,9 @@ void SkipList<KEY, DATA>::checkInvariants() const
 
             BSLS_ASSERT(q->d_ptrs[ii].d_prev_p == prev);
 
-            BSLS_ASSERT(q->d_control.d_cw & k_MASK);
-            BSLS_ASSERT(q->d_control.d_level >= ii);
-            BSLS_ASSERT(q->d_control.d_level <= d_listLevel);
+            BSLS_ASSERT(0 < q->d_refCount);
+            BSLS_ASSERT(q->d_level >= ii);
+            BSLS_ASSERT(q->d_level <= d_listLevel);
 
             for (int jj = ii - 1; 0 <= jj; --jj) {
                 BSLS_ASSERT(q->d_ptrs[jj].d_next_p);
@@ -2530,7 +2458,7 @@ SkipList_Node<KEY, DATA> *SkipList<KEY, DATA>::findNode(const KEY& key) const
 
     Node *q = locator[0];
     if (q != d_tail_p && q->d_key == key) {
-        q->incrementRefCount();
+        ++q->d_refCount;
         return q;                                                     // RETURN
     }
 
@@ -2549,7 +2477,7 @@ SkipList_Node<KEY, DATA> *SkipList<KEY, DATA>::findNodeR(const KEY& key) const
     if (d_head_p != p) {
         p = p->d_ptrs[0].d_prev_p;
         if (d_head_p != p && key == p->d_key) {
-            p->incrementRefCount();
+            ++p->d_refCount;
             return p;                                                 // RETURN
         }
     }
@@ -2568,7 +2496,7 @@ SkipList_Node<KEY, DATA> *SkipList<KEY, DATA>::findNodeLowerBound(
 
     Node *q = locator[0];
     if (q != d_tail_p) {
-        q->incrementRefCount();
+        ++q->d_refCount;
         return q;                                                     // RETURN
     }
 
@@ -2586,7 +2514,7 @@ SkipList_Node<KEY, DATA> *SkipList<KEY, DATA>::findNodeUpperBound(
 
     Node *q = locator[0];
     if (q != d_tail_p) {
-        q->incrementRefCount();
+        ++q->d_refCount;
         return q;                                                     // RETURN
     }
 
@@ -2604,7 +2532,7 @@ SkipList_Node<KEY, DATA> *SkipList<KEY, DATA>::findNodeLowerBoundR(
 
     Node *q = locator[0];
     if (q != d_tail_p) {
-        q->incrementRefCount();
+        ++q->d_refCount;
         return q;                                                     // RETURN
     }
 
@@ -2622,7 +2550,7 @@ SkipList_Node<KEY, DATA> *SkipList<KEY, DATA>::findNodeUpperBoundR(
 
     Node *q = locator[0];
     if (q != d_tail_p) {
-        q->incrementRefCount();
+        ++q->d_refCount;
         return q;                                                     // RETURN
     }
 
@@ -2639,7 +2567,7 @@ SkipList_Node<KEY, DATA> *SkipList<KEY, DATA>::frontNode() const
         return 0;                                                     // RETURN
     }
 
-    node->incrementRefCount();
+    ++node->d_refCount;
     return node;
 }
 
@@ -2726,7 +2654,7 @@ SkipList<KEY, DATA>::nextNode(Node *node) const
         return 0;                                                     // RETURN
     }
 
-    next->incrementRefCount();
+    ++next->d_refCount;
     return next;
 }
 
@@ -2747,7 +2675,7 @@ SkipList<KEY, DATA>::prevNode(Node *node) const
         return 0;                                                     // RETURN
     }
 
-    prev->incrementRefCount();
+    ++prev->d_refCount;
     return prev;
 }
 
@@ -2769,8 +2697,8 @@ int SkipList<KEY, DATA>::skipBackward(Node **node) const
         return e_NOT_FOUND;                                           // RETURN
     }
 
-    const int count = current->decrementRefCount();
-    BSLS_ASSERT(count);
+    const int count = --current->d_refCount;
+    BSLS_ASSERT(0 < count);
     (void) count;    // suppress 'unused variable' warnings
 
     Node *prev = current->d_ptrs[0].d_prev_p;
@@ -2779,7 +2707,7 @@ int SkipList<KEY, DATA>::skipBackward(Node **node) const
         return 0;                                                     // RETURN
     }
 
-    prev->incrementRefCount();
+    ++prev->d_refCount;
     *node = prev;
     return 0;
 }
@@ -2802,8 +2730,8 @@ int SkipList<KEY, DATA>::skipForward(Node **node) const
         return e_NOT_FOUND;                                           // RETURN
     }
 
-    const int count = current->decrementRefCount();
-    BSLS_ASSERT(count);
+    const int count = --current->d_refCount;
+    BSLS_ASSERT(0 < count);
     (void) count;    // suppress 'unused variable' warnings
 
     Node *next = current->d_ptrs[0].d_next_p;
@@ -2812,7 +2740,7 @@ int SkipList<KEY, DATA>::skipForward(Node **node) const
         return 0;                                                     // RETURN
     }
 
-    next->incrementRefCount();
+    ++next->d_refCount;
     *node = next;
     return 0;
 }
@@ -2825,7 +2753,7 @@ int SkipList<KEY, DATA>::level(const Pair *reference)
     BSLS_ASSERT(reference);
 
     Node *node = pairToNode(reference);
-    return node->level();
+    return node->d_level;
 }
 
 // CREATORS
@@ -2848,6 +2776,7 @@ SkipList<KEY, DATA>::SkipList(const SkipList&   original,
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     initialize();
+
     *this = original;
 }
 
@@ -2855,23 +2784,21 @@ template<class KEY, class DATA>
 SkipList<KEY, DATA>::~SkipList()
 {
 #if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
-    {
-        LockGuard guard(&d_lock);
-
-        checkInvariants();
-    }
+    checkInvariants();
 #endif
 
-    Node *p = d_head_p->d_ptrs[0].d_next_p;
-    while (p != d_tail_p) {
-        const int count = p->decrementRefCount();
-        BSLS_ASSERT(0 == count);
-        (void) count;    // suppress 'unused variable' warnings
+    for (Node *p = d_tail_p->d_ptrs[0].d_prev_p; d_head_p != p; ) {
+        BSLS_ASSERT(1 == p->d_refCount);
 
-        p->d_key.~KEY();
-        p->d_data.~DATA();
-        p = p->d_ptrs[0].d_next_p;
+        Node *condemned = p;
+        p = p->d_ptrs[0].d_prev_p;
+        condemned->d_ptrs[0].d_next_p = 0;
+
+        releaseNode(condemned);
     }
+
+    PoolUtil::deallocate(d_poolManager_p, d_head_p);
+    PoolUtil::deallocate(d_poolManager_p, d_tail_p);
 
     PoolUtil::deletePoolManager(d_allocator_p, d_poolManager_p);
 }
@@ -2885,17 +2812,15 @@ SkipList<KEY, DATA>::operator=(const SkipList& rhs)
         return *this;                                                 // RETURN
     }
 
+    DoubleLockGuard guard(&d_lock, &rhs.d_lock);
+
     // first empty this list
 
-    LockGuard guard(&d_lock);
     removeAllMaybeUnlock(static_cast<bsl::vector<Pair *> *>(0), false);
 
-    // Now lock the other list and get handles to all its elements.  Once we
-    // have locked it, we need to do all operations manually because the
-    // important functions of 'rhs' (like frontNode and nextNode) will lock the
-    // mutex.
-
-    LockGuard rhsGuard(&rhs.d_lock);
+    // Now get handles to all of 'rhs's elements.  Since rhs.d_lock is locked,
+    // we need to do all operations manually because the important functions of
+    // 'rhs' (like frontNode and nextNode) will lock the mutex.
 
     bsl::vector<PairHandle> rhsElements;
     rhsElements.reserve(rhs.d_length);
@@ -2903,17 +2828,15 @@ SkipList<KEY, DATA>::operator=(const SkipList& rhs)
          node && node != rhs.d_tail_p;
          node = node->d_ptrs[0].d_next_p)
     {
-        node->incrementRefCount();
+        ++node->d_refCount;
         rhsElements.insert(rhsElements.end(),
                            PairHandle())->reset(
                                                &rhs,
                                                reinterpret_cast<Pair *>(node));
     }
 
-    // Now we can unlock the other list, since our handles will remain valid
-    // even if the referenced elements are removed.
-
-    rhsGuard.release()->unlock();
+    // Note that unlocking 'rhs.d_lock' here causes a data race if another
+    // thread calls 'update' or 'updateR' on a node in 'rhs'.
 
     for (typename bsl::vector<PairHandle>::iterator it = rhsElements.begin();
          it != rhsElements.end(); ++it) {
@@ -2967,7 +2890,7 @@ void SkipList<KEY, DATA>::addAtLevelRaw(Pair        **result,
 {
     Node *node = allocateNode(level, key, data);
     if (result) {
-        node->incrementRefCount();
+        ++node->d_refCount;
         *result = reinterpret_cast<Pair *>(node);
     }
 
@@ -2983,14 +2906,14 @@ int SkipList<KEY, DATA>::addAtLevelUniqueRaw(Pair        **result,
 {
     Node *node = allocateNode(level, key, data);
     if (result) {
-        node->incrementRefCount();
+        ++node->d_refCount;
         *result = reinterpret_cast<Pair *>(node);
     }
 
     int ret = addNodeUnique(newFrontFlag, node);
     if (ret) {
         if (result) {
-            node->decrementRefCount();
+            --node->d_refCount;
             *result = 0;
         }
         releaseNode(node);
@@ -3060,7 +2983,7 @@ void SkipList<KEY, DATA>::addAtLevelRawR(Pair        **result,
 {
     Node *node = allocateNode(level, key, data);
     if (result) {
-        node->incrementRefCount();
+        ++node->d_refCount;
         *result = reinterpret_cast<Pair *>(node);
     }
 
@@ -3076,14 +2999,14 @@ int SkipList<KEY, DATA>::addAtLevelUniqueRawR(Pair        **result,
 {
     Node *node = allocateNode(level, key, data);
     if (result) {
-        node->incrementRefCount();
+        ++node->d_refCount;
         *result = reinterpret_cast<Pair *>(node);
     }
 
     int ret = addNodeUniqueR(newFrontFlag, node);
     if (ret) {
         if (result) {
-            node->decrementRefCount();
+            --node->d_refCount;
             *result = 0;
         }
         releaseNode(node);
@@ -3313,7 +3236,7 @@ SkipListPair<KEY, DATA> *
 SkipList<KEY, DATA>::addPairReferenceRaw(const Pair *reference) const
 {
     Node *node = pairToNode(reference);
-    node->incrementRefCount();
+    ++node->d_refCount;
     return const_cast<Pair *>(reference);
 }
 
@@ -3430,7 +3353,7 @@ SkipList<KEY, DATA>::print(bsl::ostream& stream,
 
             const int levelPlus2 = level + 2;
             bdlb::Print::indent(stream, levelPlus2, spacesPerLevel);
-            stream << "level = " << node->level() << "\n";
+            stream << "level = " << node->d_level << "\n";
 
             bdlb::PrintMethods::print(stream,
                                       node->d_key,
@@ -3460,7 +3383,7 @@ SkipList<KEY, DATA>::print(bsl::ostream& stream,
         for (Node *node = d_head_p->d_ptrs[0].d_next_p;
              node && node != d_tail_p;
              node = node->d_ptrs[0].d_next_p) {
-            stream << "[ (level = " << node->level() << ") ";
+            stream << "[ (level = " << node->d_level << ") ";
 
             bdlb::PrintMethods::print(stream, node->d_key, 0, -1);
             stream << " => ";
@@ -3693,7 +3616,7 @@ SkipList<KEY, DATA>::previousRaw(Pair **prevPair, const Pair *reference) const
     BSLS_ASSERT(reference);
 
     Node *node = pairToNode(reference);
-    *prevPair = prevNode(node);
+    *prevPair = reinterpret_cast<Pair *>(prevNode(node));
     return *prevPair ? 0 : -1;
 }
 
@@ -3757,16 +3680,7 @@ bool bdlcc::operator==(const SkipList<KEY, DATA>& lhs,
         return true;                                                  // RETURN
     }
 
-    // Lock the lock with the lower address first, to force the order of
-    // locking, and avoid deadlock.
-
-    bslmt::Mutex *firstLock_p =
-        &lhs.d_lock < &rhs.d_lock ? &lhs.d_lock : &rhs.d_lock;
-    bslmt::Mutex *lastLock_p =
-        &lhs.d_lock < &rhs.d_lock ? &rhs.d_lock : &lhs.d_lock;
-
-    bslmt::LockGuard<bslmt::Mutex> lhsGuard(firstLock_p);
-    bslmt::LockGuard<bslmt::Mutex> rhsGuard(lastLock_p);
+    bdlcc::SkipList_DoubleLockGuard guard(&lhs.d_lock, &rhs.d_lock);
 
     // Once we have locked the lists, we need to do all operations manually
     // because the important functions of the lists (like frontNode and
@@ -3811,16 +3725,7 @@ bool bdlcc::operator!=(const SkipList<KEY, DATA>& lhs,
         return false;                                                 // RETURN
     }
 
-    // Lock the lock with the lower address first, to force the order of
-    // locking, and avoid deadlock.
-
-    bslmt::Mutex *firstLock_p =
-        &lhs.d_lock < &rhs.d_lock ? &lhs.d_lock : &rhs.d_lock;
-    bslmt::Mutex *lastLock_p =
-        &lhs.d_lock < &rhs.d_lock ? &rhs.d_lock : &lhs.d_lock;
-
-    bslmt::LockGuard<bslmt::Mutex> lhsGuard(firstLock_p);
-    bslmt::LockGuard<bslmt::Mutex> rhsGuard(lastLock_p);
+    bdlcc::SkipList_DoubleLockGuard guard(&lhs.d_lock, &rhs.d_lock);
 
     // Once we have locked the lists, we need to do all operations manually
     // because the important functions of the lists (like frontNode and
