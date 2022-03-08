@@ -1,4 +1,4 @@
-// bslmf_memberpointertraits.t.cpp                                  -*-C++-*-
+// bslmf_memberpointertraits.t.cpp                                    -*-C++-*-
 #include <bslmf_memberpointertraits.h>
 
 #include <bsla_maybeunused.h>
@@ -332,6 +332,10 @@ int main(int argc, char *argv[])
         // Testing:
         //   bslmf::MemberPointerTraits
         // --------------------------------------------------------------------
+    if (verbose) {
+        printf("TESTING 'bslmf::MemberPointerTraits\n");
+        printf("===================================\n");
+    }
     {
         typedef PtrToMemberInt TestType;
         typedef bslmf::MemberPointerTraits<TestType> X;
