@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Oct 21 10:11:37 2021
+// Generated on Mon Mar  7 15:28:39 2022
 // Command line: sim_cpp11_features.pl bslmf_invokeresult.h
 
 #ifdef COMPILING_BSLMF_INVOKERESULT_H
@@ -1327,33 +1327,6 @@ struct InvokeResult_IsBaseOf
     // This component-private 'struct' template provides an implementation
     // of the 'std::is_base_of' type trait that may be used when a C++11
     // baseline library is not necessarily available.
-};
-
-               // =============================================
-               // struct InvokeResult_MemberObjectPointerTraits
-               // =============================================
-
-template <class TYPE>
-struct InvokeResult_MemberObjectPointerTraits;
-    // This component-private utility 'struct' template provides the following
-    // nested typedefs:
-    //: 'ClassType': The type of the class for which the specified 'TYPE' is a
-    //:              pointer to member object.
-    //: 'MemberType': The type of the member object of the class for which the
-    //:               specified 'TYPE' is a pointer to member object.
-    // Instantiation will fail unless 'TYPE' is a pointer-to-member-object
-    // type.  This primary (unspecialized) template is not defined.
-
-template <class MEMBER_TYPE, class CLASS_TYPE>
-struct InvokeResult_MemberObjectPointerTraits<MEMBER_TYPE CLASS_TYPE::*> {
-    // TYPES
-    typedef CLASS_TYPE ClassType;
-        // 'ClassType' is an alias to the type of the class for which the
-        // specified 'TYPE' is a pointer to member object.
-
-    typedef MEMBER_TYPE MemberType;
-        // 'MemberType' is an alias to the type of the member object of the
-        // class for which the specified 'TYPE' is a pointer to member object.
 };
 
                       // ===============================
@@ -10816,7 +10789,7 @@ struct InvokeResult_MemObjPtrImp<FN, ARGTYPE>
 : InvokeResult_MemObjPtrImpDispatch<
       void,
       InvokeResult_IsBaseOf<
-          typename InvokeResult_MemberObjectPointerTraits<FN>::ClassType,
+          typename MemberPointerTraits<FN>::ClassType,
           typename bsl::remove_reference<ARGTYPE>::type>::value,
       IsReferenceWrapper<typename bsl::remove_const<
           typename bsl::remove_reference<ARGTYPE>::type>::type>::value,
@@ -11361,7 +11334,7 @@ struct InvokeResult_MemObjPtrImp<FN, ARGTYPE>
 : InvokeResult_MemObjPtrImpDispatch<
       void,
       InvokeResult_IsBaseOf<
-          typename InvokeResult_MemberObjectPointerTraits<FN>::ClassType,
+          typename MemberPointerTraits<FN>::ClassType,
           typename bsl::remove_reference<ARGTYPE>::type>::value,
       IsReferenceWrapper<typename bsl::remove_const<
           typename bsl::remove_reference<ARGTYPE>::type>::type>::value,
@@ -11463,7 +11436,7 @@ true,
 #endif // ! defined(INCLUDED_BSLMF_INVOKERESULT_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2021 Bloomberg Finance L.P.
+// Copyright 2022 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

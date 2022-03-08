@@ -214,6 +214,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isrvaluereference.h>
 #include <bslmf_isvoid.h>
 #include <bslmf_memberfunctionpointertraits.h>
+#include <bslmf_memberpointertraits.h>
 #include <bslmf_movableref.h>
 #include <bslmf_removecv.h>
 #include <bslmf_resulttype.h>
@@ -405,33 +406,6 @@ struct InvokeResult_IsBaseOf
     // This component-private 'struct' template provides an implementation
     // of the 'std::is_base_of' type trait that may be used when a C++11
     // baseline library is not necessarily available.
-};
-
-               // =============================================
-               // struct InvokeResult_MemberObjectPointerTraits
-               // =============================================
-
-template <class TYPE>
-struct InvokeResult_MemberObjectPointerTraits;
-    // This component-private utility 'struct' template provides the following
-    // nested typedefs:
-    //: 'ClassType': The type of the class for which the specified 'TYPE' is a
-    //:              pointer to member object.
-    //: 'MemberType': The type of the member object of the class for which the
-    //:               specified 'TYPE' is a pointer to member object.
-    // Instantiation will fail unless 'TYPE' is a pointer-to-member-object
-    // type.  This primary (unspecialized) template is not defined.
-
-template <class MEMBER_TYPE, class CLASS_TYPE>
-struct InvokeResult_MemberObjectPointerTraits<MEMBER_TYPE CLASS_TYPE::*> {
-    // TYPES
-    typedef CLASS_TYPE ClassType;
-        // 'ClassType' is an alias to the type of the class for which the
-        // specified 'TYPE' is a pointer to member object.
-
-    typedef MEMBER_TYPE MemberType;
-        // 'MemberType' is an alias to the type of the member object of the
-        // class for which the specified 'TYPE' is a pointer to member object.
 };
 
                       // ===============================
@@ -1345,7 +1319,7 @@ struct InvokeResult_MemObjPtrImp<FN, ARGTYPE>
 : InvokeResult_MemObjPtrImpDispatch<
       void,
       InvokeResult_IsBaseOf<
-          typename InvokeResult_MemberObjectPointerTraits<FN>::ClassType,
+          typename MemberPointerTraits<FN>::ClassType,
           typename bsl::remove_reference<ARGTYPE>::type>::value,
       IsReferenceWrapper<typename bsl::remove_const<
           typename bsl::remove_reference<ARGTYPE>::type>::type>::value,
