@@ -1,6 +1,6 @@
 // bslmf_memberpointertraits.h                                        -*-C++-*-
-#ifndef INCLUDED_BSLMF_POINTERTOMEMBERTRAITS
-#define INCLUDED_BSLMF_POINTERTOMEMBERTRAITS
+#ifndef INCLUDED_BSLMF_MEMBERPOINTERTRAITS
+#define INCLUDED_BSLMF_MEMBERPOINTERTRAITS
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
@@ -13,9 +13,9 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bslmf_memberfunctionpointertraits
 //
 //@DESCRIPTION: This component provides a meta-function,
-// 'bslmf::MemberPointerTraits', that determines traits of a
-// pointer-to-member type, including the type of the object that it is a member
-// of, and the type of the member it addresses.
+// 'bslmf::MemberPointerTraits', that determines traits of a pointer-to-member
+// type, including the type of the object that it is a member of, and the type
+// of the member it addresses.
 //
 ///Usage
 ///-----
@@ -60,9 +60,9 @@ namespace bslmf {
 template <class TYPE>
 struct MemberPointerTraits_Imp;
 
-                        // ===========================
-                        // class MemberPointerTraits
-                        // ===========================
+                         // =========================
+                         // class MemberPointerTraits
+                         // =========================
 
 template <class TYPE>
 struct MemberPointerTraits
@@ -77,13 +77,12 @@ struct MemberPointerTraits
     // MemberPointerTraits_Imp template is defined and empty.
 };
 
-                      // ===============================
-                      // class MemberPointerTraits_Imp
-                      // ===============================
+                       // =============================
+                       // class MemberPointerTraits_Imp
+                       // =============================
 
 template <class TYPE>
-struct MemberPointerTraits_Imp
-{
+struct MemberPointerTraits_Imp {
     // Empty
 };
 
@@ -102,7 +101,7 @@ struct MemberPointerTraits_Imp<MEMBER_TYPE CLASS_TYPE::*> {
 }  // close package namespace
 }  // close enterprise namespace
 
-#endif  // INCLUDED_BSLMF_POINTERTOMEMBERTRAITS
+#endif  // INCLUDED_BSLMF_MEMBERPOINTERTRAITS
 
 // ----------------------------------------------------------------------------
 // Copyright 2022 Bloomberg Finance L.P.
