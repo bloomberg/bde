@@ -444,9 +444,9 @@ template <class ...Bools>
 BSLS_KEYWORD_INLINE_VARIABLE
 constexpr bool disjunction_v = native_std::disjunction<Bools...>::value;
 
-template <class BOOL>
+template <class BOOLEAN_VALUE>
 BSLS_KEYWORD_INLINE_VARIABLE
-constexpr bool negation_v = native_std::negation<BOOL>::value;
+constexpr bool negation_v = native_std::negation<BOOLEAN_VALUE>::value;
 
 template <class TYPE>
 BSLS_KEYWORD_INLINE_VARIABLE
