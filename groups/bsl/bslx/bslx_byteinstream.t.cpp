@@ -175,12 +175,7 @@ typedef ByteInStream Obj;
 typedef ByteOutStream Out;
 
 const int VERSION_SELECTOR = 20131127;
-const int SIZEOF_INT64   = 8;
-const int SIZEOF_INT32   = 4;
-const int SIZEOF_INT16   = 2;
 const int SIZEOF_INT8    = 1;
-const int SIZEOF_FLOAT64 = 8;
-const int SIZEOF_FLOAT32 = 4;
 
 // ============================================================================
 //                      GLOBAL TEST CLASSES

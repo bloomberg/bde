@@ -225,6 +225,7 @@ extern "C" void *consumer(void *arg_p)
             // there are work requests in the queue.
 
             my_WorkItem item = queue->d_queue.front();
+            (void) item;
             queue->d_queue.pop_front();
             queue->d_mx.unlock();
 

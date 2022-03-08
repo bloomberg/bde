@@ -437,11 +437,6 @@ typedef bsl::String_Imp<char, size_t>                    Imp;
 typedef bslma::TestAllocatorMonitor                      Tam;
 
 // CONSTANTS
-const int MAX_ALIGN      = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
-const int MAX_ALIGN_MASK = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1;
-
-const char UNINITIALIZED_VALUE = '_';
-const char DEFAULT_VALUE       = 'z';
 const char VA = 'A';
 const char VB = 'B';
 const char VC = 'C';
@@ -1224,8 +1219,8 @@ int TestDriver<TYPE,TRAITS,ALLOC>::getValues(const TYPE **values)
                                       &bslma::NewDeleteAllocator::singleton());
 
     const int NUM_VALUES = 12;
-    static const TYPE initValues[NUM_VALUES] = { // avoid 'DEFAULT_VALUE' and
-        TYPE(VA),                                // 'UNINITIALIZED_VALUE'.
+    static const TYPE initValues[NUM_VALUES] = {
+        TYPE(VA),
         TYPE(VB),
         TYPE(VC),
         TYPE(VD),

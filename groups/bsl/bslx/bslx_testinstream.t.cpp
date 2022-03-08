@@ -198,16 +198,7 @@ typedef TestOutStream Out;
 typedef TypeCode FC;
 
 const int VERSION_SELECTOR = 20131127;
-const int SIZEOF_INT64   = 8;
-const int SIZEOF_INT56   = 7;
-const int SIZEOF_INT48   = 6;
-const int SIZEOF_INT40   = 5;
-const int SIZEOF_INT32   = 4;
-const int SIZEOF_INT24   = 3;
-const int SIZEOF_INT16   = 2;
 const int SIZEOF_INT8    = 1;
-const int SIZEOF_FLOAT64 = 8;
-const int SIZEOF_FLOAT32 = 4;
 const int SIZEOF_VERSION = 1;
 const int VERSION        = 1;
 const int SIZEOF_CODE    = 1;

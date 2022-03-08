@@ -425,9 +425,6 @@ enum { DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA };
 static const size_t DEFAULT_MAX_LENGTH = 17;        // length of longest spec
 static const size_t DEFAULT_NUM_MAX_LENGTH = 2;     // # of specs that length
 
-static const char TV_SPEC[] = {
-                      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" };
-
 // Define values used to initialize positional arguments for
 // 'bsltf::EmplacableTestType' and 'bsltf::AllocEmplacableTestType'
 // constructors.  Note, that you cannot change those values as they are used by

@@ -332,8 +332,6 @@ static bool veryVeryVeryVerbose;
 
 // Define DEFAULT DATA used in multiple test cases.
 
-static const size_t DEFAULT_MAX_LENGTH = 32;
-
 struct DefaultDataRow {
     int         d_line;     // source line number
     int         d_index;    // lexical order
@@ -387,18 +385,6 @@ const DefaultDataRow DEFAULT_DATA[] = {
 };
 static const int DEFAULT_NUM_DATA = static_cast<int>(
                                    sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA);
-
-// Define values used to initialize positional arguments for
-// 'bsltf::EmplacableTestType' and 'bsltf::AllocEmplacableTestType'
-// constructors.  Note, that you cannot change those values as they are used by
-// 'TemplateTestFacility::getIdentifier' to map the constructed emplacable
-// objects to their integer identifiers.
-static const int K01 = 1;
-static const int K02 = 20;
-static const int K03 = 23;
-static const int V01 = 44;
-static const int V02 = 68;
-static const int V03 = 912;
 
 typedef bsltf::NonDefaultConstructibleTestType TestKeyType;
 typedef bsltf::NonTypicalOverloadsTestType     TestValueType;

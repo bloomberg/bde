@@ -106,8 +106,6 @@ const unsigned TRAIT_HASPOINTERSEMANTICS          = 0x0080;
 const unsigned TRAIT_POD = (TRAIT_BITWISEMOVEABLE |
                             TRAIT_BITWISECOPYABLE |
                             TRAIT_HASTRIVIALDEFAULTCONSTRUCTOR);
-const unsigned TRAIT_EQPOD = (TRAIT_POD |
-                              TRAIT_BITWISEEQUALITYCOMPARABLE);
 
 template <class TYPE>
 unsigned traitBits()

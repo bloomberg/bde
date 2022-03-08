@@ -1604,6 +1604,7 @@ int main(int argc, char *argv[])
             ASSERT(!(itA != itC));
 
             const_iterator itD(itC);
+            (void) itD;
 
             ASSERT(  itA == itC);
             ASSERT(!(itA != itC));

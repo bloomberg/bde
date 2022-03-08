@@ -2002,7 +2002,7 @@ vector(SIZE_TYPE, VALUE, ALLOC *) -> vector<VALUE>;
     // Deduce the template parameter 'VALUE' from the corresponding parameter
     // supplied to the constructor of 'vector'.  This deduction guide does not
     // participate unless the supplied allocator is convertible to
-    // 'bsl::allocator<VALUE>'. Dummy text here.
+    // 'bsl::allocator<VALUE>'.
 
 template <
     class INPUT_ITERATOR,

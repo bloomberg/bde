@@ -5925,6 +5925,9 @@ int main(int argc, char *argv[])
             ObjL mX(0, 0);
             ObjR mY(0, 0);
             ObjP mZ(0, 0);
+            (void) mX;
+            (void) mY;
+            (void) mZ;
         }
 
 #if 0   // This test requires a 'bslmf' implementation of 'is_constructible' in

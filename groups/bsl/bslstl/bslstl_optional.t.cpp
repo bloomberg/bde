@@ -6036,6 +6036,7 @@ void TestDriver<TYPE>::testCase19()
 
     bsl::optional<bsl::optional<TYPE> > s;
     bsl::optional<bsl::optional<TYPE> > ss(s);
+    (void) ss;
 }
 
 template <class TYPE>

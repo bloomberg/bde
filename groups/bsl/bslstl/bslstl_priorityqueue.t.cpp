@@ -211,11 +211,6 @@ static bool veryVeryVeryVerbose;
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-// Define DEFAULT DATA used in multiple test cases.
-
-const char UNINITIALIZED_VALUE = '_';
-const char DEFAULT_VALUE       = 'z';
-
 // Define default data for testing 'bsl::priority_queue'.
 
 struct DefaultDataRow {
@@ -2127,7 +2122,6 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::
     // Create control and source objects.
     for (int ti = 0; ti < NUM_SPECS; ++ti) {
         const char *const ISPEC   = SPECS[ti];
-        const size_t      ILENGTH = strlen(ISPEC);
 
         TestValues IVALUES(ISPEC);
 
@@ -2146,7 +2140,6 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::
         // Create target object.
         for (int tj = 0; tj < NUM_SPECS; ++tj) {
             const char *const JSPEC   = SPECS[tj];
-            const size_t      JLENGTH = strlen(JSPEC);
 
             TestValues JVALUES(JSPEC);
 
@@ -3301,7 +3294,6 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::
     // Create control and source objects.
     for (int ti = 0; ti < NUM_SPECS; ++ti) {
         const char *const ISPEC   = SPECS[ti];
-        const size_t      ILENGTH = strlen(ISPEC);
 
         TestValues IVALUES(ISPEC);
 
@@ -3320,7 +3312,6 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::
         // Create target object.
         for (int tj = 0; tj < NUM_SPECS; ++tj) {
             const char *const JSPEC   = SPECS[tj];
-            const size_t      JLENGTH = strlen(JSPEC);
 
             TestValues JVALUES(JSPEC);
 
@@ -3703,7 +3694,6 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::
 
     for (int ti = 0; ti < NUM_SPECS; ++ti) {
         const char *const ISPEC   = SPECS[ti];
-        const size_t      ILENGTH = strlen(ISPEC);
 
         TestValues IVALUES(ISPEC);
 
@@ -3721,7 +3711,6 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::
 
         for (int tj = 0; tj < NUM_SPECS; ++tj) {
             const char *const JSPEC   = SPECS[tj];
-            const size_t      JLENGTH = strlen(JSPEC);
 
             TestValues JVALUES(JSPEC);
 

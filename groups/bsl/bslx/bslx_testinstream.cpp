@@ -24,8 +24,6 @@ typedef MarshallingUtil Util;
 
 static const int k_SIZEOF_CODE    = Util::k_SIZEOF_INT8;   // size of type code
                                                            // value
-static const int k_SIZEOF_VERSION = Util::k_SIZEOF_INT8;   // size of version
-                                                           // value
 static const int k_SIZEOF_ARRLEN  = Util::k_SIZEOF_INT32;  // size of array
                                                            // length value
     // The sizes (in bytes) of auxiliary data elements streamed in from a

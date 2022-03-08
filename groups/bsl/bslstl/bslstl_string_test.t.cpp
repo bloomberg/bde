@@ -469,10 +469,6 @@ typedef bsl::String_Imp<char, size_t>                    Imp;
 typedef bslma::TestAllocatorMonitor                      Tam;
 
 // CONSTANTS
-const int MAX_ALIGN      = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
-const int MAX_ALIGN_MASK = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1;
-
-const char UNINITIALIZED_VALUE = '_';
 const char DEFAULT_VALUE       = 'z';
 const char VA = 'A';
 const char VB = 'B';

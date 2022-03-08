@@ -3557,8 +3557,8 @@ void testCase8_elementADL()
     const char *SPEC1 = "ABCDEFGHIJKLMNOPQRSTUV";
     const char *SPEC2 = "VUTSRQPONMLKJIHGFEDCBA";
 
-    Obj mX1; const Obj& X1 = gg(&mX1, SPEC1);
-    Obj mX2; const Obj& X2 = gg(&mX2, SPEC2);
+    Obj mX1;
+    Obj mX2;
 
     if (veryVerbose)
         printf("\t\t\tTesting element ADL of free 'swap' function\n");

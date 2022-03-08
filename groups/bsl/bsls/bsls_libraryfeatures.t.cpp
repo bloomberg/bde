@@ -1451,15 +1451,19 @@ int main(int argc, char *argv[])
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
         {
             std::any x;
+            (void) x;
         }
         {
             std::optional<int> x;
+            (void) x;
         }
         {
             std::string_view x;
+            (void) x;
         }
         {
             std::variant<int> x;
+            (void) x;
         }
 #endif
 
@@ -1549,9 +1553,6 @@ int main(int argc, char *argv[])
 
         const char *result = search(haystackFirst, haystackLast, searcher);
         ASSERT(haystackLast == result);
-
-        (void) needleFirst;
-        (void) needleLast;
 #endif
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS)
@@ -1561,6 +1562,9 @@ int main(int argc, char *argv[])
                                                               needleLast);
         native_std::boyer_moore_horspool_searcher bmhSearcher(needleFirst,
                                                               needleLast);
+#else
+        (void) needleFirst;
+        (void) needleLast;
 #endif
         if (veryVeryVerbose) P(BSLS_PLATFORM_CMP_VERSION);
       } break;

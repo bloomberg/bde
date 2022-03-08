@@ -1134,7 +1134,6 @@ void TestHarness<ALLOCATOR>::testCase6(bool verbose,
     Obj_Alloc   alloc1(alloc_base);
     TCObj_Alloc alloc2(&ta);
 
-    bsls::Types::Int64 numAllocations   = ta.numAllocations();
     bsls::Types::Int64 numDeallocations = ta.numDeallocations();
     {
         bsls::Types::Int64 numDeletes = 0;

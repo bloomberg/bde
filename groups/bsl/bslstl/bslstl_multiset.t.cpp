@@ -328,8 +328,6 @@ typedef bsls::Types::Int64 Int64;
 
 // Define DEFAULT DATA used in multiple test cases.
 
-static const size_t DEFAULT_MAX_LENGTH = 32;
-
 struct DefaultDataRow {
     int         d_line;     // source line number
     int         d_index;    // lexical order
@@ -383,22 +381,6 @@ const DefaultDataRow DEFAULT_DATA[] = {
 };
 static const size_t DEFAULT_NUM_DATA =
                                     sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
-
-// Define values used to initialize positional arguments for
-// 'bsltf::EmplacableTestType' and 'bsltf::AllocEmplacableTestType'
-// constructors.  Note, that you cannot change those values as they are used by
-// 'TemplateTestFacility::getIdentifier' to map the constructed emplacable
-// objects to their integer identifiers.
-static const int V01 = 1;
-static const int V02 = 20;
-static const int V03 = 23;
-static const int V04 = 44;
-static const int V05 = 66;
-static const int V06 = 176;
-static const int V07 = 878;
-static const int V08 = 8;
-static const int V09 = 912;
-static const int V10 = 102;
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING

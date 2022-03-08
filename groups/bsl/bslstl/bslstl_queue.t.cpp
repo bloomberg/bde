@@ -215,11 +215,6 @@ static bool veryVeryVeryVerbose;
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-// Define DEFAULT DATA used in multiple test cases.
-
-const char UNINITIALIZED_VALUE = '_';
-const char DEFAULT_VALUE       = 'z';
-
 // Define default data for testing 'bsl::queue'.
 
 struct DefaultDataRow {
@@ -2009,7 +2004,6 @@ void TestDriver<VALUE, CONTAINER>::
     // Create control and source objects.
     for (int ti = 0; ti < NUM_SPECS; ++ti) {
         const char *const ISPEC   = SPECS[ti];
-        const size_t      ILENGTH = strlen(ISPEC);
 
         TestValues IVALUES(ISPEC);
 
@@ -2028,7 +2022,6 @@ void TestDriver<VALUE, CONTAINER>::
         // Create target object.
         for (int tj = 0; tj < NUM_SPECS; ++tj) {
             const char *const JSPEC   = SPECS[tj];
-            const size_t      JLENGTH = strlen(JSPEC);
 
             TestValues JVALUES(JSPEC);
 
@@ -2548,7 +2541,8 @@ void TestDriver<VALUE, CONTAINER>::testCase18(bool isMovableContainer)
                 // Create value ('CONTAINER') object
                       CONTAINER  mC(&sa);
                 const CONTAINER& C = CONTAINER::GG(&mC, SPEC);
-
+                (void) C;
+                
                 // Install default allocator.
                 bslma::DefaultAllocatorGuard dag(&da);
 
@@ -3203,7 +3197,6 @@ void TestDriver<VALUE, CONTAINER>::
     // Create control and source objects.
     for (int ti = 0; ti < NUM_SPECS; ++ti) {
         const char *const ISPEC   = SPECS[ti];
-        const size_t      ILENGTH = strlen(ISPEC);
 
         TestValues IVALUES(ISPEC);
 
@@ -3222,7 +3215,6 @@ void TestDriver<VALUE, CONTAINER>::
         // Create target object.
         for (int tj = 0; tj < NUM_SPECS; ++tj) {
             const char *const JSPEC   = SPECS[tj];
-            const size_t      JLENGTH = strlen(JSPEC);
 
             TestValues JVALUES(JSPEC);
 
@@ -3610,7 +3602,6 @@ void TestDriver<VALUE, CONTAINER>::
 
     for (int ti = 0; ti < NUM_SPECS; ++ti) {
         const char *const ISPEC   = SPECS[ti];
-        const size_t      ILENGTH = strlen(ISPEC);
 
         TestValues IVALUES(ISPEC);
 
@@ -3628,7 +3619,6 @@ void TestDriver<VALUE, CONTAINER>::
 
         for (int tj = 0; tj < NUM_SPECS; ++tj) {
             const char *const JSPEC   = SPECS[tj];
-            const size_t      JLENGTH = strlen(JSPEC);
 
             TestValues JVALUES(JSPEC);
 

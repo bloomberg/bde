@@ -414,18 +414,6 @@ static const size_t DEFAULT_NUM_MAX_LENGTH = 2;     // # of specs that length
 static const char TV_SPEC[] = {
                       "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" };
 
-// Define values used to initialize positional arguments for
-// 'bsltf::EmplacableTestType' and 'bsltf::AllocEmplacableTestType'
-// constructors.  Note, that you cannot change those values as they are used by
-// 'TemplateTestFacility::getIdentifier' to map the constructed emplacable
-// objects to their integer identifiers.
-static const int K01 = 1;
-static const int K02 = 20;
-static const int K03 = 23;
-static const int V01 = 44;
-static const int V02 = 68;
-static const int V03 = 912;
-
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
