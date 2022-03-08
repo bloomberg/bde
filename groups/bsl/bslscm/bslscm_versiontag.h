@@ -54,11 +54,11 @@ BSLS_IDENT("$Id: $")
 #define BSL_VERSION_MINOR    100
     // Provide the minor version number of the current (latest) BSL release.
 
-#define BSL_MAKE_VERSION(major, minor) ((major) * 10000 \
-                                      + (minor) *   100)
-    // Construct a composite version number in the range '[0 .. 999900]' from
+#define BSL_MAKE_VERSION(major, minor) ((major) * 1000000 \
+                                      + (minor) *     100)
+    // Construct a composite version number in the range '[0 .. 99999900]' from
     // the specified 'major' and 'minor' version numbers.  The resulting value,
-    // when expressed as a 6-digit decimal string, has "00" as the two
+    // when expressed as a 8-digit decimal string, has "00" as the two
     // lowest-order decimal digits, 'minor' as the next two digits, and 'major'
     // as the highest-order digits.  The result is unique for each combination
     // of 'major' and 'minor', and is sortable such that a value composed from
@@ -68,16 +68,16 @@ BSLS_IDENT("$Id: $")
     // integral constants, then the resulting expression is also a compile-time
     // integral constant.  Also note that the patch version number is
     // intentionally not included.  The behavior is undefined unless 'major'
-    // and 'minor' are integral values in the range '[0 .. 99]'.
+    // is an integral value in the range '[0 .. 99]' and 'minor' is an integral
+    // value in the range '[0 .. 9999]'.
 
 #define BSL_VERSION BSL_MAKE_VERSION(BSL_VERSION_MAJOR, \
                                      BSL_VERSION_MINOR)
-    // Construct a composite version number in the range '[0 .. 999900]' from
-    // the specified 'BSL_VERSION_MAJOR' and 'BSL_VERSION_MINOR' numbers
-    // corresponding to the major and minor version numbers, respectively, of
-    // the current (latest) BSL release.  Note that the patch version number is
-    // intentionally not included.  For example, 'BSL_VERSION' produces 10300
-    // (decimal) for BSL version 1.3.1.
+    // Construct an integer (unique to the specified 'BSL_VERSION_MAJOR' and
+    // 'BSL_VERSION_MINOR' numbers) corresponding to the major and minor
+    // version numbers, respectively, of the current (latest) BSL release.
+    // Note that the patch version number is intentionally not included.  For
+    // example, 'BSL_VERSION' produces 1000300 (decimal) for BSL version 1.3.1.
 
 #endif
 

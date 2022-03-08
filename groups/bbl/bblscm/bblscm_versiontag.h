@@ -47,12 +47,11 @@ BSLS_IDENT("$Id: $")
 
 #define BBL_VERSION BSL_MAKE_VERSION(BBL_VERSION_MAJOR, \
                                      BBL_VERSION_MINOR)
-    // Construct a composite version number in the range '[ 0 .. 999900 ]' from
-    // the specified 'BBL_VERSION_MAJOR' and 'BBL_VERSION_MINOR' numbers
-    // corresponding to the major and minor version numbers, respectively, of
-    // the current (latest) BBL release.  Note that the patch version number is
-    // intentionally not included.  For example, 'BBL_VERSION' produces 10300
-    // (decimal) for BBL version 1.3.1.
+    // Construct an integer (unique to the specified 'BBL_VERSION_MAJOR' and
+    // 'BBL_VERSION_MINOR' numbers) corresponding to the major and minor
+    // version numbers, respectively, of the current (latest) BBL release.
+    // Note that the patch version number is intentionally not included.  For
+    // example, 'BBL_VERSION' produces 1000300 (decimal) for BBL version 1.3.1.
 
 #define BBL_VERSION_DEPRECATION_THRESHOLD BSLS_DEPRECATE_MAKE_VER(3, 1)
     // Declare that deprecations for this UOR introduced in the specified

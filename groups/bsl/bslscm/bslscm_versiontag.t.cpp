@@ -127,18 +127,20 @@ int main(int argc, char *argv[])
         // TEST BSL_MAKE_VERSION MACRO
         //
         // Concerns:
-        //   That BSL_MAKE_VERSION create a compile-time constant if its
+        //   That BSL_MAKE_VERSION creates a compile-time constant if its
         //   arguments are all compile-time constants.
-        //   That BSL_MAKE_VERSION correctly composes a major, minor, and
-        //   patch version number into a single integer.  Each component can
-        //   be in the range 0-99.
+        //   That BSL_MAKE_VERSION correctly composes a 'major' and 'minor'
+        //   patch version number into a single (distinct) integer.  'major'
+        //   can be in the range 0-99, while 'minor' can be in the range
+        //   0-9999.
         //
         // Plan:
         //   Use the result of BSL_MAKE_VERSION as an array dimension to
         //   prove that it is a compile-time constant.
         //   Using ad-hoc data selection, create a number of version values
         //   using the 'BSL_MAKE_VERSION' macro and verify that the expected
-        //   value matches the actual value.
+        //   value matches the actual value.  Make sure that different
+        //   major/minor values result in distinct results.
         //
         // Testing:
         //   BSL_MAKE_VERSION(major, minor)
@@ -146,46 +148,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nTEST BSL_MAKE_VERSION MACRO"
                             "\n===========================\n");
-#if 0
 
-        // Test that 'BSL_MAKE_VERSION(0,1,2)' is a compile-time constant.
-        static const char COMPILE_ASSERT[BSL_MAKE_VERSION(0,1,2)] = { 0 };
-        ASSERT(sizeof(COMPILE_ASSERT) == 102);
-
-        static struct {
-            int d_line;
-            int d_major;
-            int d_minor;
-            int d_patch;
-            int d_version;
-        } const DATA[] = {
-            //line major minor patch  version
-            //---- ----- ----- -----  -------
-            {  L_,    0,    0,    0,        0 },
-            {  L_,    0,    0,    1,        1 },
-            {  L_,    0,    1,    0,      100 },
-            {  L_,    0,    1,    1,      101 },
-            {  L_,    1,    0,    0,    10000 },
-            {  L_,    1,    0,    1,    10001 },
-            {  L_,    1,    1,    0,    10100 },
-            {  L_,   12,   34,   56,   123456 },
-            {  L_,   99,   99,   99,   999999 },
-            {  L_,    9,    9,    9,    90909 },
-            {  L_,   10,   20,   30,   102030 }
-        };
-
-        static const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
-
-        for (int i = 0; i < NUM_DATA; ++i) {
-            const int LINE  = DATA[i].d_line;
-            const int MAJOR = DATA[i].d_major;
-            const int MINOR = DATA[i].d_minor;
-            const int PATCH = DATA[i].d_patch;
-            const int EXP   = DATA[i].d_version;
-
-            LOOP_ASSERT(LINE, EXP == BSL_MAKE_VERSION(MAJOR, MINOR, PATCH));
-        }
-#endif
         static const char COMPILE_ASSERT[BSL_MAKE_VERSION(0,1)] = { 0 };
         ASSERT(sizeof(COMPILE_ASSERT) == 100);
 
@@ -197,14 +160,19 @@ int main(int argc, char *argv[])
         } const DATA[] = {
             //line major minor version
             //---- ----- ----- -------
-            {  L_,    0,    0,       0 },
-            {  L_,    0,    1,     100 },
-            {  L_,    1,    0,   10000 },
-            {  L_,    1,    1,   10100 },
-            {  L_,   12,   34,  123400 },
-            {  L_,   99,   99,  999900 },
-            {  L_,    9,    9,   90900 },
-            {  L_,   10,   20,  102000 }
+            {  L_,    0,    0,         0 },
+            {  L_,    0,    1,       100 },
+            {  L_,    1,    0,   1000000 },
+            {  L_,    1,    1,   1000100 },
+            {  L_,    9,    9,   9000900 },
+            {  L_,   10,   20,  10002000 },
+            {  L_,   12,   34,  12003400 },
+            {  L_,    0,   99,      9900 },
+            {  L_,   99,    0,  99000000 },
+            {  L_,   99,   99,  99009900 },
+            {  L_,    0, 9999,    999900 },
+            {  L_,   88, 9999,  88999900 },
+            {  L_,   99, 9999,  99999900 },
         };
 
         enum { NUM_DATA = sizeof(DATA) / sizeof(*DATA) };
@@ -215,7 +183,28 @@ int main(int argc, char *argv[])
             const int MINOR = DATA[i].d_minor;
             const int EXP   = DATA[i].d_version;
 
-            LOOP_ASSERT(LINE, EXP == BSL_MAKE_VERSION(MAJOR, MINOR));
+            ASSERTV(LINE,
+                    EXP,
+                    MAJOR,
+                    MINOR,
+                    BSL_MAKE_VERSION(MAJOR, MINOR),
+                    EXP == BSL_MAKE_VERSION(MAJOR, MINOR));
+
+            // Make sure each major/minor pair results in a unique result
+            for(int j = 0; j < NUM_DATA; ++j) {
+                const int LINE2  = DATA[j].d_line;
+                const int MAJOR2 = DATA[j].d_major;
+                const int MINOR2 = DATA[j].d_minor;
+
+                if (j != i) {
+                    ASSERTV(LINE,
+                            BSL_MAKE_VERSION(MAJOR, MINOR),
+                            LINE2,
+                            BSL_MAKE_VERSION(MAJOR2, MINOR2),
+                            BSL_MAKE_VERSION(MAJOR, MINOR) !=
+                                BSL_MAKE_VERSION(MAJOR2, MINOR2));
+                }
+            }
         }
 
       } break;
@@ -241,11 +230,11 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTEST VERSION CONSISTENCY"
                             "\n========================\n");
 
-        int major = (BSL_VERSION / 10000) % 100;
-        int minor = (BSL_VERSION / 100) % 100;
+        int major = (BSL_VERSION / 1000000) % 100;
+        int minor = (BSL_VERSION / 100)     % 10000;
 
-        ASSERT(BSL_VERSION_MAJOR == major);
-        ASSERT(BSL_VERSION_MINOR == minor);
+        ASSERTV(BSL_VERSION_MAJOR, major, BSL_VERSION_MAJOR == major);
+        ASSERTV(BSL_VERSION_MINOR, minor, BSL_VERSION_MINOR == minor);
 
       } break;
 
