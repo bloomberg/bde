@@ -239,6 +239,7 @@ void processorWithTurnstile(
     for (int i = 0; i < numTurns; ++i) {
         turnstile.waitTurn();
         double rv = bsl::sqrt(static_cast<double>(i));
+        (void) rv;
         elapsed = timer.elapsedTime();
     }
 
@@ -264,6 +265,7 @@ void processorWithSleep(
     timer.start();
     for (int i = 0; i < numTurns; ++i) {
         double rv = bsl::sqrt(static_cast<double>(i));
+        (void) rv;
         if (i + 1 == numTurns) break;
         bslmt::ThreadUtil::microSleep(sleepInterval);
         elapsed = timer.elapsedTime();

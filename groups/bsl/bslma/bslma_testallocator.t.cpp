@@ -157,10 +157,12 @@ void aSsErT(bool condition, const char *message, int line)
 
 typedef bslma::TestAllocator Obj;
 
+#if 0
 // This is copied from 'bslma_testallocator.cpp' to compare with scribbled
 // deallocated memory.
 const unsigned char SCRIBBLED_MEMORY = 0xA5;   // byte used to scribble
                                                // deallocated memory
+#endif
 
 enum { PADDING_SIZE = sizeof(bsls::AlignmentUtil::MaxAlignedType) };
                                                     // size of the padding

@@ -228,7 +228,7 @@ struct TestTemplateAliases {
 
 #undef ASSERT_SAME_TYPE
 };
-#endif  // BSLS_COMPILERFEATURES_SUPPORT_CTAD
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 
 // ============================================================================
 //                            MAIN PROGRAM
@@ -327,6 +327,7 @@ int main(int argc, char *argv[])
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
         // This is a compile-time only test case.
         TestTemplateAliases test;
+        (void) test; // This variable only exists for ease of IDE navigation.
 #endif
       } break;
       case 2: {

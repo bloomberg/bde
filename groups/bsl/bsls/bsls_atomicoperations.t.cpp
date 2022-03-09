@@ -2469,8 +2469,8 @@ int main(int argc, char *argv[]) {
 
                 for (std::size_t j = 0; j < NUM_VALUES; ++j) {
                     const int   VAL2 = VALUES[j].d_value;
-                    const bsls::Types::Int64 SUM  = VAL + VAL2;
-                    const bsls::Types::Int64 DIFF = VAL - VAL2;
+                    const bsls::Types::Int64 SUM  = VAL64 + VAL2;
+                    const bsls::Types::Int64 DIFF = VAL64 - VAL2;
 
                     Types::Int x;
                     if (veryVerbose) {

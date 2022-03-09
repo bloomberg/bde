@@ -284,16 +284,12 @@ class TestDeque : public TestDeque_Type<ALLOCATOR>::AllocatorType
 
         size_type numBytes = static_cast<size_type>(sizeof(BlockPtr))
                                                                   * d_blockNum;
-        size_type numMaxAlignedType =
-                       (numBytes + bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1)
-                                     / bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
+        size_type numMaxAlignedType = (numBytes + MAX_ALIGN - 1) / MAX_ALIGN;
         d_blocks_p = (BlockPtr *)
                      AllocatorTraits::allocate(allocator(), numMaxAlignedType);
 
         for (int i = 0; i < d_blockNum; ++i) {
-            numMaxAlignedType =
-                  (sizeof(Block) + bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1)
-                                     / bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
+            numMaxAlignedType = (sizeof(Block) + MAX_ALIGN - 1) / MAX_ALIGN;
             d_blocks_p[i] = (Block *)
                      AllocatorTraits::allocate(allocator(), numMaxAlignedType);
         }
@@ -311,17 +307,14 @@ class TestDeque : public TestDeque_Type<ALLOCATOR>::AllocatorType
     {
         for (int i = 0; i < d_blockNum; ++i) {
             size_type numMaxAlignedType =
-                  (sizeof(Block) + bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1)
-                                     / bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
+                                   (sizeof(Block) + MAX_ALIGN - 1) / MAX_ALIGN;
             AllocatorTraits::deallocate(allocator(),
                          (bsls::AlignmentUtil::MaxAlignedType *) d_blocks_p[i],
                                         numMaxAlignedType);
         }
         size_type numBytes = static_cast<size_type>(sizeof(BlockPtr))
                                                                   + d_blockNum;
-        size_type numMaxAlignedType =
-                       (numBytes + bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1)
-                                     / bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
+        size_type numMaxAlignedType = (numBytes + MAX_ALIGN - 1) / MAX_ALIGN;
         AllocatorTraits::deallocate(allocator(),
                             (bsls::AlignmentUtil::MaxAlignedType *) d_blocks_p,
                                     numMaxAlignedType);

@@ -225,8 +225,6 @@ static bool veryVeryVeryVerbose;
 
 // Define DEFAULT DATA used in multiple test cases.
 
-static const size_t DEFAULT_MAX_LENGTH = 32;
-
 struct DefaultDataRow {
     int         d_line;     // source line number
     const char *d_spec;     // specification string, for input to 'gg' function
@@ -2903,7 +2901,6 @@ void TestDriver<CONTAINER>::
     // Create control and source objects.
     for (int ti = 0; ti < NUM_SPECS; ++ti) {
         const char *const ISPEC   = SPECS[ti];
-        const size_t      ILENGTH = strlen(ISPEC);
 
         TestValues IVALUES(ISPEC);
 
@@ -2922,7 +2919,6 @@ void TestDriver<CONTAINER>::
         // Create target object.
         for (int tj = 0; tj < NUM_SPECS; ++tj) {
             const char *const JSPEC   = SPECS[tj];
-            const size_t      JLENGTH = strlen(JSPEC);
 
             TestValues JVALUES(JSPEC);
 
@@ -3429,7 +3425,8 @@ void TestDriver<CONTAINER>::testCase17(bool isMovableContainer)
                 // Create value ('CONTAINER') object
                       CONTAINER  mC(&sa);
                 const CONTAINER&  C = CONTAINER::GG(&mC, SPEC);
-
+                (void) C;
+                
                 // Install default allocator.
                 bslma::DefaultAllocatorGuard dag(&da);
 
@@ -3937,7 +3934,6 @@ void TestDriver<CONTAINER>::
     // Create control and source objects.
     for (int ti = 0; ti < NUM_SPECS; ++ti) {
         const char *const ISPEC   = SPECS[ti];
-        const size_t      ILENGTH = strlen(ISPEC);
 
         TestValues IVALUES(ISPEC);
 
@@ -3956,7 +3952,6 @@ void TestDriver<CONTAINER>::
         // Create target object.
         for (int tj = 0; tj < NUM_SPECS; ++tj) {
             const char *const JSPEC   = SPECS[tj];
-            const size_t      JLENGTH = strlen(JSPEC);
 
             TestValues JVALUES(JSPEC);
 
@@ -4363,7 +4358,6 @@ void TestDriver<CONTAINER>::testCase8_propagate_on_container_swap_dispatch()
 
     for (int ti = 0; ti < NUM_SPECS; ++ti) {
         const char *const ISPEC   = SPECS[ti];
-        const size_t      ILENGTH = strlen(ISPEC);
 
         TestValues IVALUES(ISPEC);
 
@@ -4381,7 +4375,6 @@ void TestDriver<CONTAINER>::testCase8_propagate_on_container_swap_dispatch()
 
         for (int tj = 0; tj < NUM_SPECS; ++tj) {
             const char *const JSPEC   = SPECS[tj];
-            const size_t      JLENGTH = strlen(JSPEC);
 
             TestValues JVALUES(JSPEC);
 

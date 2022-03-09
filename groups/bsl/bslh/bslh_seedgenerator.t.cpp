@@ -696,6 +696,7 @@ int main(int argc, char *argv[])
             Obj generator1(rng);
             Obj generator2(generator1);
             Obj generator3 = generator1;
+            (void)generator2;
             (void)generator3;
         }
 
@@ -707,6 +708,7 @@ int main(int argc, char *argv[])
             const Obj generator1 = Obj(rng);
             Obj generator2(generator1);
             Obj generator3 = generator1;
+            (void)generator2;
             (void)generator3;
         }
 

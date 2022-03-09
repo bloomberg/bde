@@ -823,7 +823,6 @@ void *testCase3(int threadNum, const MyTask& task)
          guard.lock(data->d_qlock);
 
          int  original = data->d_count;
-         int  sleepTime = rand.get() % 1000;
 
          // This will take too long time
          //int  sleepTime = rand.get() % 1000;

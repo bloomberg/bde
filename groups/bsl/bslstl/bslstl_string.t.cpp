@@ -438,10 +438,7 @@ typedef bslma::TestAllocatorMonitor                      Tam;
 
 // CONSTANTS
 const int MAX_ALIGN      = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
-const int MAX_ALIGN_MASK = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1;
 
-const char UNINITIALIZED_VALUE = '_';
-const char DEFAULT_VALUE       = 'z';
 const char VA = 'A';
 const char VB = 'B';
 const char VC = 'C';
@@ -456,7 +453,7 @@ const char VK = 'K';
 const char VL = 'L';
     // All test types have character value type.
 
-const int  LARGE_SIZE_VALUE = 2 * bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
+const int  LARGE_SIZE_VALUE = 2 * MAX_ALIGN;
     // Declare a large value for insertions into the string.  Note this value
     // will cause multiple resizes during insertion into the string.
 
@@ -471,6 +468,7 @@ const size_t INITIAL_CAPACITY_FOR_NON_EMPTY_OBJECT = 1;
     // The capacity of a default constructed object after the first
     // 'push_back', according to our implementation.
 
+#if 0
 const int NUM_ALLOCS[] = {
     // Number of allocations (blocks) to create a string of the following size
     // by using 'push_back' repeatedly (without initial reserve):
@@ -492,6 +490,7 @@ const int NUM_ALLOCS[] = {
        2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  3,  3,  3
 #endif
 };
+#endif
 
 // Provide expected values for short string buffer capacity.  Note that we
 // clearly call out the expected values on Windows and Unix (2/4-btye 'wchar_t'
@@ -1224,8 +1223,8 @@ int TestDriver<TYPE,TRAITS,ALLOC>::getValues(const TYPE **values)
                                       &bslma::NewDeleteAllocator::singleton());
 
     const int NUM_VALUES = 12;
-    static const TYPE initValues[NUM_VALUES] = { // avoid 'DEFAULT_VALUE' and
-        TYPE(VA),                                // 'UNINITIALIZED_VALUE'.
+    static const TYPE initValues[NUM_VALUES] = {
+        TYPE(VA),
         TYPE(VB),
         TYPE(VC),
         TYPE(VD),

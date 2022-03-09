@@ -385,8 +385,6 @@ typedef bsls::Types::Int64 Int64;
 
 // Define DEFAULT DATA used in multiple test cases.
 
-static const size_t DEFAULT_MAX_LENGTH = 32;
-
 struct DefaultDataRow {
     int         d_line;     // source line number
     int         d_index;    // lexical order

@@ -77,7 +77,6 @@ enum {
     C2  = 1 + BSLMF_TAG_TO_INT(tag<2>())   // 3
 };
 
-const unsigned U5  = -5;
 const unsigned C5  = BSLMF_TAG_TO_UINT(tag<-5u>());  // (unsigned)-5
 const int      CM5 = BSLMF_TAG_TO_INT(tag<-5u>());   // -5
 

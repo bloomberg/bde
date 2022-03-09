@@ -686,6 +686,7 @@ int main(int argc, char *argv[])
 
         Obj mX; const Obj& X = mX;
         Obj mY(X);
+        (void) mY;
 
         ObjF Z(X);
         ObjV ZZ(X);
