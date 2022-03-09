@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
     bsl::printf("TEST %s CASE %d\n", __FILE__, test);
 
     switch (test) { case 0:
-      case 3: {
+      case 2: {
         //--------------------------------------------------------------------
         // TEST USAGE EXAMPLE
         //
@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
 // occurrence, but disruptive when it does happen), disruption can be minimized
 // by conditionally calling the old or new function name using conditional
 // compilation.  The '#if' directive compares 'BBL_VERSION' to a specified
-// major, minor, and patch version 4 composed using 'BBL_MAKE_VERSION':
+// major, minor, and patch version 4 composed using 'BSL_MAKE_VERSION':
 //..
     #if BBL_VERSION > BSL_MAKE_VERSION(1, 2)
         // Call 'newFunction' for BBL version 1.2 and later:
@@ -105,65 +105,6 @@ int main(int argc, char *argv[])
 
         ASSERT(result);
 //..
-      } break;
-
-      case 2: {
-        //--------------------------------------------------------------------
-        // TEST BBL_MAKE_VERSION MACRO
-        //
-        // Concerns:
-        //   That BBL_MAKE_VERSION create a compile-time constant if its
-        //   arguments are all compile-time constants.
-        //   That BBL_MAKE_VERSION correctly composes a major, minor, and
-        //   patch version number into a single integer.  Each component can
-        //   be in the range 0-99.
-        //
-        // Plan:
-        //   Use the result of BBL_MAKE_VERSION as an array dimension to
-        //   prove that it is a compile-time constant.
-        //   Using ad-hoc data selection, create a number of version values
-        //   using the 'BBL_MAKE_VERSION' macro and verify that the expected
-        //   value matches the actual value.
-        //
-        // Testing:
-        //   BBL_MAKE_VERSION(major, minor)
-        //--------------------------------------------------------------------
-
-        if (verbose) bsl::printf("\nTEST BBL_MAKE_VERSION MACRO"
-                                 "\n===========================\n");
-
-        static const char COMPILE_ASSERT[BSL_MAKE_VERSION(0,1)] = { 0 };
-        ASSERT(sizeof(COMPILE_ASSERT) == 100);
-
-        static struct {
-            int d_line;
-            int d_major;
-            int d_minor;
-            int d_version;
-        } const DATA[] = {
-            //line major minor version
-            //---- ----- ----- -------
-            {  L_,    0,    0,       0 },
-            {  L_,    0,    1,     100 },
-            {  L_,    1,    0,   10000 },
-            {  L_,    1,    1,   10100 },
-            {  L_,   12,   34,  123400 },
-            {  L_,   99,   99,  999900 },
-            {  L_,    9,    9,   90900 },
-            {  L_,   10,   20,  102000 }
-        };
-
-        static const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
-
-        for (int i = 0; i < NUM_DATA; ++i) {
-            const int LINE  = DATA[i].d_line;
-            const int MAJOR = DATA[i].d_major;
-            const int MINOR = DATA[i].d_minor;
-            const int EXP   = DATA[i].d_version;
-
-            LOOP_ASSERT(LINE, EXP == BSL_MAKE_VERSION(MAJOR, MINOR));
-        }
-
       } break;
 
       case 1: {
@@ -187,8 +128,8 @@ int main(int argc, char *argv[])
         if (verbose) bsl::printf("\nTEST VERSION CONSISTENCY"
                                  "\n========================\n");
 
-        int major = (BBL_VERSION / 10000) % 100;
-        int minor = (BBL_VERSION / 100) % 100;
+        int major = (BBL_VERSION / 1000000) % 100;
+        int minor = (BBL_VERSION / 100)     % 10000;
 
         ASSERT(BBL_VERSION_MAJOR == major);
         ASSERT(BBL_VERSION_MINOR == minor);

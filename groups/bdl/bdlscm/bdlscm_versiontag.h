@@ -51,12 +51,11 @@ BSLS_IDENT("$Id: $")
 
 #define BDL_VERSION BSL_MAKE_VERSION(BDL_VERSION_MAJOR, \
                                      BDL_VERSION_MINOR)
-    // Construct a composite version number in the range '[ 0 .. 999900 ]' from
-    // the specified 'BDL_VERSION_MAJOR' and 'BDL_VERSION_MINOR' numbers
-    // corresponding to the major and minor version numbers, respectively, of
-    // the current (latest) BDL release.  Note that the patch version number is
-    // intentionally not included.  For example, 'BDL_VERSION' produces 10300
-    // (decimal) for BDL version 1.3.1.
+    // Construct an integer (unique to the specified 'BDL_VERSION_MAJOR' and
+    // 'BDL_VERSION_MINOR' numbers) corresponding to the major and minor
+    // version numbers, respectively, of the current (latest) BDL release.
+    // Note that the patch version number is intentionally not included.  For
+    // example, 'BDL_VERSION' produces 1000300 (decimal) for BDL version 1.3.1.
 
 #define BDL_VERSION_DEPRECATION_THRESHOLD BSLS_DEPRECATE_MAKE_VER(3, 1)
     // Declare that deprecations for this UOR introduced in the specified

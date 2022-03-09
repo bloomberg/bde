@@ -88,6 +88,9 @@ using namespace BloombergLP;
 // [14] T::const_reverse_iterator crend(const T& container);
 // [16] size_t size(const CONTAINER&);
 // [16] ptrdiff_t ssize(const CONTAINER&);
+// [17] bool empty(const CONTAINER&);
+// [18] T const *empty(const CONTAINER&);
+// [18] T       *empty(CONTAINER&);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 3] TESTING (PRIMITIVE) GENERATORS
@@ -97,8 +100,7 @@ using namespace BloombergLP;
 // [ 9] TESTING ASSIGNMENT OPERATOR: Not Applicable
 // [10] STREAMING FUNCTIONALITY:     Not Applicable
 // [15] CONCERN: Range functions are not ambiguous with 'std' under ADL
-// [16] TEST CONTAINER SIZE CALLS
-// [17] USAGE EXAMPLE 1
+// [19] USAGE EXAMPLE 1
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -281,6 +283,14 @@ class MyFixedSizeArray
     const VALUE& operator[](int i) const;
         // Return the reference providing non-modifiable access of the
         // specified 'i'th element of this object.
+
+    const VALUE *data() const;
+        // Return a pointer providing non-modifiable access to the initial
+        // element of this object.
+
+    VALUE *data();
+        // Return a pointer providing modifiable access to the initial element
+        // of this object.
 };
 
 // ...
@@ -365,6 +375,20 @@ inline
 const VALUE& MyFixedSizeArray<VALUE,SIZE>::operator[](int i) const
 {
     return d_array[i];
+}
+
+template<class VALUE, int SIZE>
+inline
+const VALUE *MyFixedSizeArray<VALUE,SIZE>::data() const
+{
+    return &d_array[0];
+}
+
+template<class VALUE, int SIZE>
+inline
+VALUE *MyFixedSizeArray<VALUE,SIZE>::data()
+{
+    return &d_array[0];
 }
 
 // FREE FUNCTIONS
@@ -652,7 +676,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 17: {
+      case 19: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         // --------------------------------------------------------------------
@@ -710,6 +734,65 @@ int main(int argc, char *argv[])
 //       Element: 1
 //..
       } break;
+      case 18: {
+        // --------------------------------------------------------------------
+        // TESTING CONTAINER DATA CALLS
+        //
+        // Concern:
+        //: 1 That the function under test returns the same value as the member
+        //:   function 'data()' of the containers
+        //
+        // Plan:
+        //: 1 Create containers of different types.
+        //:
+        //: 3 Call the functions under test on those containers.
+        //
+        // Testing:
+        //   T const *empty(const CONTAINER&);
+        //   T       *empty(CONTAINER&);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("TESTING CONTAINER DATA CALLS\n"
+                            "============================\n");
+
+        testcontainer::MyFixedSizeArray<int, 1>    c1;
+        testcontainer::MyFixedSizeArray<float, 2>  c2;
+        testcontainer::MyFixedSizeArray<double, 3> c3;
+        ASSERT(bsl::data(c1) == c1.data());
+        ASSERT(bsl::data(c2) == c2.data());
+        ASSERT(bsl::data(c3) == c3.data());
+      } break;
+      case 17: {
+        // --------------------------------------------------------------------
+        // TESTING CONTAINER EMPTY CALLS
+        //
+        // Concern:
+        //: 1 That the function under test returns 'true' when the container
+        //:   contains no elements, and 'false' otherwise.
+        //
+        // Plan:
+        //: 1 Create containers of different sizes.
+        //:
+        //: 3 Call the functions under test on those containers.
+        //
+        // Testing:
+        //   bool empty(const CONTAINER&);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("TESTING CONTAINER EMPTY CALLS\n"
+                            "=============================\n");
+
+        SizeContainer c0(0U);     const SizeContainer& C0  = c0;
+        SizeContainer c1(1U);     const SizeContainer& C1  = c1;
+        SizeContainer c10(10U);   const SizeContainer& C10 = c10;
+        ASSERT( bsl::empty(c0));
+        ASSERT( bsl::empty(C0));
+        ASSERT(!bsl::empty(c1));
+        ASSERT(!bsl::empty(C1));
+        ASSERT(!bsl::empty(c10));
+        ASSERT(!bsl::empty(C10));
+      } break;
+
       case 16: {
         // --------------------------------------------------------------------
         // TEST CONTAINER SIZE CALLS

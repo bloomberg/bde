@@ -6407,6 +6407,43 @@ EasilyCoerced::operator unsigned int() const
     return 5;
 }
 
+                              // ------------
+                              // Test Case 34
+                              // ------------
+
+struct EasyConvert {
+    // This 'struct' is intended to mimic the problematic aspects of
+    // 'bdef_Function'.  It can be:
+    //: o default-constructed
+    //:
+    //: o copy-constructed
+    //:
+    //: o copy-assigned
+    //:
+    //: o constructed from other types, but fails when this happens
+    //:
+    //: o assigned from other types, but fails when this happens
+
+    // CREATORS
+    EasyConvert() {}
+
+    template <class ANY_TYPE>
+    EasyConvert(const ANY_TYPE& a) { a.nonExistent(); }
+
+    EasyConvert(const EasyConvert&) {}
+
+    // MANIPULATORS
+    EasyConvert& operator=(const EasyConvert&) { return *this; }
+
+    template <class ANY_TYPE>
+    EasyConvert& operator=(const ANY_TYPE& a)
+    {
+        a.nonExistent();
+
+        return *this;
+    }
+};
+
 // ============================================================================
 //                              MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -6430,7 +6467,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 35: {
+      case 36: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -6474,7 +6511,7 @@ int main(int argc, char *argv[])
 //..
 
       } break;
-      case 34: {
+      case 35: {
         // --------------------------------------------------------------------
         // REPRODUCE BUG FROM 168410920
         //
@@ -6548,6 +6585,53 @@ int main(int argc, char *argv[])
         ASSERT_IS_MOVED_FROM(mOX.value());
         ASSERT_IS_MOVED_INTO(mY.value());
         ASSERT(mY->data() == 4);
+      } break;
+      case 34: {
+        // --------------------------------------------------------------------
+        // Handling 'bdef_Function'-like type.
+        //
+        // Concerns:
+        //: 1 'NullableValue::operator=' works with
+        //:   'TYPE == bdef_Function<FUNC>'.  'bdef_Function<FUNC>' has the
+        //:   problematic quality of having overloads that match assignment
+        //:   from any 'FUNC', but then fail to compile unless 'FUNC' has
+        //:   specific properties.
+        //
+        // Plan:
+        //: 1 'bdef_Function' is in the 'bde-classic' repo, which is
+        //:   inaccessible from here, so we create 'EasyConvert' which mimics
+        //:   its problematic aspects, and do assignments for
+        //:   'NullableValue<EasyConvert>'.
+        // --------------------------------------------------------------------
+
+        const EasyConvert                ec;
+        bdlb::NullableValue<EasyConvert> a(ec);
+#ifdef U_NULLABLEVALUE_EASY_CONVERT_COPY_CTOR_WORKS_TBD
+        // TBD: fix copy construction on C++11 and beyond someday.
+
+        bdlb::NullableValue<EasyConvert> b(a);
+#else
+        // Note that it is known that the copy-construction fails in C++11 and
+        // later for 'bdlb::NullableValue<EasyConvert>'.  We deliberately made
+        // a decision to not spend time fixing this issue because it arises
+        // from using two deprecated types together ('bdlb::NullableValue' and
+        // 'bdef_Function' are deprecated in favor of 'bsl::optional' and
+        // 'bsl::function', respectively).
+
+        bdlb::NullableValue<EasyConvert> b(ec);
+#endif
+        bdlb::NullableValue<EasyConvert> c, d, e;
+
+        a = b;    // full  <- full
+        b = c;    // full  <- empty
+        d = a;    // empty <- full
+        c = e;    // empty <- empty
+
+        ASSERT( a.has_value());
+        ASSERT(!c.has_value());
+
+        a = ec;    // full  <- TYPE
+        c = ec;    // empty <- TYPE
       } break;
       case 33: {
         // --------------------------------------------------------------------

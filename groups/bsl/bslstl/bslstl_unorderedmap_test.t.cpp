@@ -6969,27 +6969,33 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase20()
 
             ASSERTV(LENGTH == X.size());
             ASSERTV(LINE, SPEC, (0 == LENGTH) == X.empty());
+            ASSERTV(LINE, SPEC, (0 == LENGTH) == bsl::empty(X));
 
             mX.clear();
 
             ASSERTV(LINE, SPEC, true == X.empty());
+            ASSERTV(LINE, SPEC, true == bsl::empty(X));
 
             gg(&mX, SPEC);
 
             ASSERTV(X.size() == LENGTH);
             ASSERTV(!LENGTH == X.empty());
+            ASSERTV(!LENGTH == bsl::empty(X));
 
             for (size_t tj = LENGTH; tj > 0; ) {
                 ASSERTV(!X.empty());
+                ASSERTV(!bsl::empty(X));
                 ASSERTV(X.size() == tj);
 
                 ASSERTV(1 == mX.erase(tv[--tj].first));
 
                 ASSERTV(X.size() == tj);
                 ASSERTV(!tj == X.empty());
+                ASSERTV(!tj == bsl::empty(X));
             }
 
             ASSERTV(X.empty());
+            ASSERTV(bsl::empty(X));
         }
     }
 }

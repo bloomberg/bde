@@ -3209,6 +3209,7 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase13()
             // Verify 'empty' returns correct values.
 
             ASSERTV(LINE, SPEC, (0 == ti) == X.empty());
+            ASSERTV(LINE, SPEC, (0 == ti) == bsl::empty(X));
 
             for (size_t tj = 0; tj < strlen(SPEC); ++tj) {
                 ASSERTV(LINE, SPEC, tj, false == X.empty());
@@ -3216,6 +3217,7 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase13()
             }
 
             ASSERTV(LINE, SPEC, true == X.empty());
+            ASSERTV(LINE, SPEC, true == bsl::empty(X));
         }
     }
 }

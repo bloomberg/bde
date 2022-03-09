@@ -4460,6 +4460,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase4()
             const TYPE   *dataPtr = X.data();
             const size_t  LENGTH  = X.length();
 
+            ASSERT(dataPtr == bsl::data(X));
             for (size_t i = 0; i < LENGTH; ++i) {
                 LOOP3_ASSERT(LINE, X[i], *(cStrPtr + i),
                              X[i] == *(cStrPtr + i));

@@ -888,30 +888,47 @@ OBJECT abs(const OBJECT& x) {
 }
 
 struct Recurser {
-    int d_recurseDepth;
+    IntPtr d_recurseDepth;
     char *d_topPtr;
     static bool s_finished;
 
-    void deepRecurser() {
-        char buffer[BUFSIZE];
+    IntPtr deepRecurser(char *prevMidBuf) {
+        union {
+            char  d_buffer[BUFSIZE];
+            char *d_midBuf;
+        } u;
 
-        int curDepth = static_cast<int>(abs(buffer - d_topPtr));
+        u.d_midBuf = u.d_buffer + BUFSIZE / 2;
+        BSLS_ASSERT_OPT(prevMidBuf != u.d_midBuf);  // if this fails, we're
+                                                    // inlined and infinite
+                                                    // looping
+
+        IntPtr curDepth = abs(u.d_midBuf - d_topPtr);
 
         if (veryVerbose) {
             cout << "Depth: " << curDepth << endl;
         }
 
+        IntPtr diff = 0;
         if (curDepth < d_recurseDepth) {
+            // There was a problem in optimized builds on Linux gcc-11
+            // implemented this recursion as a loop, which resulted in an
+            // infinite loop.  Corrected by making this function more complex.
+
             // recurse
-            this->deepRecurser();
+            diff = this->deepRecurser(u.d_midBuf);
+            BSLS_ASSERT_OPT(0 < diff);
         }
+
+        return curDepth;
     }
 
     void operator()() {
         char topRef;
 
         d_topPtr = &topRef;
-        this->deepRecurser();
+        const IntPtr diff = this->deepRecurser(&topRef);
+        BSLS_ASSERT_OPT(0 < diff);
 
         s_finished = true;
     }

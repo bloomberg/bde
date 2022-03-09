@@ -155,8 +155,8 @@ int main(int argc, char *argv[])
                           << "TEST VERSION CONSISTENCY" << endl
                           << "========================" << endl;
 
-        int major = (BAL_VERSION / 10000) % 100;
-        int minor = (BAL_VERSION / 100) % 100;
+        int major = (BAL_VERSION / 1000000) % 100;
+        int minor = (BAL_VERSION / 100)     % 10000;
         int patch = BAL_VERSION % 100;
 
         (void)patch;

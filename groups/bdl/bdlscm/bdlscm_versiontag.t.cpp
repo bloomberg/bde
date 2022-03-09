@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 3: {
+      case 2: {
         //--------------------------------------------------------------------
         // TEST USAGE EXAMPLE
         //
@@ -117,65 +117,6 @@ int main(int argc, char *argv[])
 
         (void)result;
       } break;
-      case 2: {
-        //--------------------------------------------------------------------
-        // TEST BDL_MAKE_VERSION MACRO
-        //
-        // Concerns:
-        //   That BDL_MAKE_VERSION create a compile-time constant if its
-        //   arguments are all compile-time constants.
-        //   That BDL_MAKE_VERSION correctly composes a major, minor, and
-        //   patch version number into a single integer.  Each component can
-        //   be in the range 0-99.
-        //
-        // Plan:
-        //   Use the result of BDL_MAKE_VERSION as an array dimension to
-        //   prove that it is a compile-time constant.
-        //   Using ad-hoc data selection, create a number of version values
-        //   using the 'BDL_MAKE_VERSION' macro and verify that the expected
-        //   value matches the actual value.
-        //
-        // Testing:
-        //   BDL_MAKE_VERSION(major, minor)
-        //--------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "TEST BDL_MAKE_VERSION MACRO" << endl
-                          << "===========================" << endl;
-
-        static const char COMPILE_ASSERT[BSL_MAKE_VERSION(0,1)] = { 0 };
-        ASSERT(sizeof(COMPILE_ASSERT) == 100);
-
-        static struct {
-            int d_line;
-            int d_major;
-            int d_minor;
-            int d_version;
-        } const DATA[] = {
-            //line major minor version
-            //---- ----- ----- -------
-            {  L_,    0,    0,       0 },
-            {  L_,    0,    1,     100 },
-            {  L_,    1,    0,   10000 },
-            {  L_,    1,    1,   10100 },
-            {  L_,   12,   34,  123400 },
-            {  L_,   99,   99,  999900 },
-            {  L_,    9,    9,   90900 },
-            {  L_,   10,   20,  102000 }
-        };
-
-        static const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
-
-        for (int i = 0; i < NUM_DATA; ++i) {
-            const int LINE  = DATA[i].d_line;
-            const int MAJOR = DATA[i].d_major;
-            const int MINOR = DATA[i].d_minor;
-            const int EXP   = DATA[i].d_version;
-
-            LOOP_ASSERT(LINE, EXP == BSL_MAKE_VERSION(MAJOR, MINOR));
-        }
-
-      } break;
 
       case 1: {
         //--------------------------------------------------------------------
@@ -199,8 +140,8 @@ int main(int argc, char *argv[])
                           << "TEST VERSION CONSISTENCY" << endl
                           << "========================" << endl;
 
-        int major = (BDL_VERSION / 10000) % 100;
-        int minor = (BDL_VERSION / 100) % 100;
+        int major = (BDL_VERSION / 1000000) % 100;
+        int minor = (BDL_VERSION / 100)     % 10000;
 
         ASSERT(BDL_VERSION_MAJOR == major);
         ASSERT(BDL_VERSION_MINOR == minor);

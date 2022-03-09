@@ -126,6 +126,7 @@ using namespace bsl;
 // [10] optional& operator=(TYPE&&);
 // [10] optional& operator=(const ANY_TYPE&);
 // [10] optional& operator=(ANY_TYPE&&);
+// [22] operator=(optional<bdef_Function>);
 // [ 4] TYPE *operator->();
 // [ 4] TYPE&  operator*() &;
 // [ 4] TYPE&& operator*() &&;
@@ -5809,6 +5810,43 @@ bool hasSameAllocator(const TYPE& obj1, const TYPE& obj2)
 {
     return Test_Util<TYPE>::hasSameAllocator(obj1, obj2);
 }
+
+                              // ------------
+                              // Test Case 22
+                              // ------------
+
+struct EasyConvert {
+    // This 'struct' is intended to mimic the problematic aspects of
+    // 'bdef_Function'.  It can be:
+    //: o default-constructed
+    //:
+    //: o copy-constructed
+    //:
+    //: o copy-assigned
+    //:
+    //: o constructed from other types, but fails when this happens
+    //:
+    //: o assigned from other types, but fails when this happens
+
+    // CREATORS
+    EasyConvert() {}
+
+    template <class ANY_TYPE>
+    EasyConvert(const ANY_TYPE& a) { a.nonExistent(); }
+
+    EasyConvert(const EasyConvert&) {}
+
+    // MANIPULATORS
+    EasyConvert& operator=(const EasyConvert&) { return *this; }
+
+    template <class ANY_TYPE>
+    EasyConvert& operator=(const ANY_TYPE& a)
+    {
+        a.nonExistent();
+
+        return *this;
+    }
+};
 
 // ============================================================================
 //                          TEST DRIVER TEMPLATE
@@ -12383,8 +12421,66 @@ int main(int argc, char **argv)
     // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
-    switch (test) {
-      case 0:
+    switch (test) {  case 0:
+      case 22: {
+        //---------------------------------------------------------------------
+        // REPRODUCE DRQS 168615744 bsl::optional<bdef_Function>
+        //
+        // Formerly, assignment got confused with 'TYPE' == 'bdef_Function'
+        // because 'bdef_Function' was constructible and assignable from any
+        // type, including 'bsl::optional<bdef_Function>'.  But when
+        // non-callable types are actually assigned to 'bdef_Function', a
+        // very complex compile failure occurs.
+        //
+        // Concern:
+        //: 1 Copy-assignment is a better match than a perfect-forwarding
+        //:   assignment when assigning 'optional<T>' to 'optional<T>' even
+        //:   when 'T' is convertible / assignable from 'optional<T>'.
+        //
+        // Plan:
+        //: 1 We don't have access to 'bdef_Function' from bslstl, so create a
+        //:   type 'EasyConvert' that is
+        //:   o default constructible.
+        //:
+        //:   o convertible / assignable from itself with no errors
+        //:
+        //:   o convertible / assignable from any other type, but which
+        //:     generates compile errors if such a conversion or assignment is
+        //:     attempted.
+        //:
+        //: 2 Create an instance 'a' of 'optional<EasyConvert>' containing a
+        //:   default-constructed 'EasyConvert' object.
+        //:
+        //: 3 Copy construct an instance 'b' of the same type from 'a'.
+        //:
+        //: 4 Construct empty values 'c', 'd', and 'e'.
+        //:
+        //: 5 Assign between all possibilities of 'empty' and 'full' values.
+        //:
+        //: 6 Assign 'full' and 'empty' values from an 'EasyConvert' object.
+        //
+        // Testing:
+        //   operator=(optional<bdef_Function>);
+        //---------------------------------------------------------------------
+
+        if (verbose) printf("Testing operator=(optional<bdef_Function>);\n"
+                            "===========================================\n");
+
+        const EasyConvert          ec;
+        bsl::optional<EasyConvert> a(ec);
+        bsl::optional<EasyConvert> b(a), c, d, e;
+
+        a = b;    // full  <- full
+        b = c;    // full  <- empty
+        d = a;    // empty <- full
+        c = e;    // empty <- empty
+
+        ASSERT( a.has_value());
+        ASSERT(!c.has_value());
+
+        a = ec;    // full  <- TYPE
+        c = ec;    // empty <- TYPE
+      } break;
       case 21: {
         //---------------------------------------------------------------------
         // TESTING CLASS TEMPLATE DEDUCTION GUIDES (AT COMPILE TIME)

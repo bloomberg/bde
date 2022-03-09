@@ -6038,10 +6038,12 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase20()
             Obj mX(&oa); const Obj& X = gg(&mX, SPEC);
 
             ASSERTV(LINE, SPEC, (0 == ti) == X.empty());
+            ASSERTV(LINE, SPEC, (0 == ti) == bsl::empty(X));
 
             mX.clear();
 
             ASSERTV(LINE, SPEC, true == X.empty());
+            ASSERTV(LINE, SPEC, true == bsl::empty(X));
         }
     }
 }
