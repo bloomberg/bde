@@ -152,7 +152,7 @@ struct TestData {
     const char *d_tns;
 };
 
-TestData data[] = {
+TestData DATA[] = {
     {
         "<schema elementFormDefault='qualified'></schema>",
         false,
@@ -207,9 +207,9 @@ int main(int argc, char *argv[])
                 << "========================================" << bsl::endl;
 
 
-            for (bsl::size_t i=0; i < sizeof(data)/sizeof(data[0]); ++i) {
-                const bsl::string xsd(data[i].d_schema);
-                bsl::string_view  tnsExpected(data[i].d_tns);
+            for (bsl::size_t i=0; i < sizeof(DATA)/sizeof(DATA[0]); ++i) {
+                const bsl::string xsd(DATA[i].d_schema);
+                bsl::string_view  tnsExpected(DATA[i].d_tns);
 
                 {
                     bsl::string        tnsReal;
@@ -218,8 +218,8 @@ int main(int argc, char *argv[])
                     bool rc = balxml::Util::extractNamespaceFromXsd(is.rdbuf(),
                                                                     &tnsReal);
 
-                    LOOP3_ASSERT(i, rc, data[i].d_result,
-                                                       rc == data[i].d_result);
+                    LOOP3_ASSERT(i, rc, DATA[i].d_result,
+                                                       rc == DATA[i].d_result);
 
                     if (rc) {
                         LOOP3_ASSERT(i,
@@ -236,8 +236,8 @@ int main(int argc, char *argv[])
                     bool rc = balxml::Util::extractNamespaceFromXsd(is.rdbuf(),
                                                                     &tnsReal);
 
-                    LOOP3_ASSERT(i, rc, data[i].d_result,
-                                                       rc == data[i].d_result);
+                    LOOP3_ASSERT(i, rc, DATA[i].d_result,
+                                                       rc == DATA[i].d_result);
 
                     if (rc) {
                         LOOP3_ASSERT(i,
@@ -255,8 +255,8 @@ int main(int argc, char *argv[])
                     bool rc = balxml::Util::extractNamespaceFromXsd(is.rdbuf(),
                                                                     &tnsReal);
 
-                    LOOP3_ASSERT(i, rc, data[i].d_result,
-                                                       rc == data[i].d_result);
+                    LOOP3_ASSERT(i, rc, DATA[i].d_result,
+                                                       rc == DATA[i].d_result);
 
                     if (rc) {
                         LOOP3_ASSERT(i,
@@ -281,10 +281,10 @@ int main(int argc, char *argv[])
                 << "========================================" << bsl::endl;
 
 
-            for (bsl::size_t i=0; i < sizeof(data)/sizeof(data[0]); ++i) {
+            for (bsl::size_t i=0; i < sizeof(DATA)/sizeof(DATA[0]); ++i) {
 
-                bsl::string_view xsd(data[i].d_schema);
-                bsl::string_view tnsExpected(data[i].d_tns);
+                bsl::string_view xsd(DATA[i].d_schema);
+                bsl::string_view tnsExpected(DATA[i].d_tns);
 
                 {
                     bsl::string tnsReal;
@@ -292,8 +292,8 @@ int main(int argc, char *argv[])
                     bool rc = balxml::Util::extractNamespaceFromXsd(xsd,
                                                                     &tnsReal);
 
-                    LOOP3_ASSERT(i, rc, data[i].d_result,
-                                                       rc == data[i].d_result);
+                    LOOP3_ASSERT(i, rc, DATA[i].d_result,
+                                                       rc == DATA[i].d_result);
 
                     if (rc) {
                         LOOP3_ASSERT(i,
@@ -309,8 +309,8 @@ int main(int argc, char *argv[])
                     bool rc = balxml::Util::extractNamespaceFromXsd(xsd,
                                                                     &tnsReal);
 
-                    LOOP3_ASSERT(i, rc, data[i].d_result,
-                                                       rc == data[i].d_result);
+                    LOOP3_ASSERT(i, rc, DATA[i].d_result,
+                                                       rc == DATA[i].d_result);
 
                     if (rc) {
                         LOOP3_ASSERT(i,
@@ -327,8 +327,8 @@ int main(int argc, char *argv[])
                     bool rc = balxml::Util::extractNamespaceFromXsd(xsd,
                                                                     &tnsReal);
 
-                    LOOP3_ASSERT(i, rc, data[i].d_result,
-                                                       rc == data[i].d_result);
+                    LOOP3_ASSERT(i, rc, DATA[i].d_result,
+                                                       rc == DATA[i].d_result);
 
                     if (rc) {
                         LOOP3_ASSERT(i,
