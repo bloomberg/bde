@@ -11,9 +11,18 @@
 #include <bsls_asserttest.h>
 
 #include <bsl_algorithm.h>  // bsl::generate_n
+#include <bsl_cstdint.h>
 #include <bsl_cstdlib.h>
-#include <bsl_iostream.h>
 #include <bsl_cstring.h>
+#include <bsl_iostream.h>
+
+// On some older platforms, 'bsl_cstdint.h' does not define 'SIZE_MAX'.  On
+// these platforms, define 'SIZE_MAX' using 'numeric_limits'.
+
+#if !defined(SIZE_MAX)
+    #include <bsl_limits.h>
+    #define SIZE_MAX bsl::numeric_limits<bsl::size_t>::max()
+#endif
 
 using namespace BloombergLP;
 using bsl::cerr;
