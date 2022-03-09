@@ -5127,7 +5127,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase27()
                 const int         LINE2   = DATA[tj].d_line;
                 const int         INDEX2  = DATA[tj].d_index;
                 const char *const SPEC2   = DATA[tj].d_spec;
-                const size_t      LENGTH2 = strlen(RESULT1);
+                const char *const RESULT2 = DATA[tj].d_results;
+                const size_t      LENGTH2 = strlen(RESULT2);
 
                 if (4 < LENGTH2 && NUM_DATA-1 != tj) {
                     continue;

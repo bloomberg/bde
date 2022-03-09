@@ -1622,8 +1622,6 @@ int main(int argc, char *argv[])
         // Losers may each finish up to 50ms behind winner
         static const int MAX_NOOP_DELAY = 50;
 
-        static const int THREAD_COUNT1[] = { 1, 2, 3, 4, 8, 12, 15 };
-
         int numThreads = MAX_THREADS;
 
         for (int repetition = 0; repetition < REPEAT_COUNT; ++repetition) {

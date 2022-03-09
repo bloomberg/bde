@@ -228,7 +228,7 @@ struct TestTemplateAliases {
 
 #undef ASSERT_SAME_TYPE
 };
-#endif  // BSLS_COMPILERFEATURES_SUPPORT_CTAD
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 
 // ============================================================================
 //                            MAIN PROGRAM
