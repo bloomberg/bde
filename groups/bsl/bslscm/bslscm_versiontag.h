@@ -13,8 +13,8 @@ BSLS_IDENT("$Id: $")
 //@MACROS:
 //  BSL_VERSION_MAJOR: current release major version number
 //  BSL_VERSION_MINOR: current release minor version number
-//  BSL_MAKE_VERSION(MA, MI): create combined, 6-digit version number (MAMI00)
-//  BSL_VERSION: combined, 6-digit version number for current release
+//  BSL_MAKE_VERSION(MA, MINR): create combined version number (MAMINR00)
+//  BSL_VERSION: combined, up to 8-digit version number for current release
 //
 //@SEE_ALSO: bslscm_version
 //
