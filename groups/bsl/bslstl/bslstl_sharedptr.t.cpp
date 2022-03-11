@@ -639,6 +639,25 @@ void aSsErT(bool condition, const char *message, int line)
     // that declares a function instead.
 #endif
 
+#if defined(BSLSTL_SHAREDPTR_SUPPORTS_SFINAE_CHECKS)
+# if !defined(BSLS_PLATFORM_CMP_CLANG)                             \
+  || !defined(__APPLE_CC__) && BSLS_PLATFORM_CMP_VERSION >= 120000 \
+  ||  defined(__APPLE_CC__) && BSLS_PLATFORM_CMP_VERSION >  130000
+    // There are some compilers that, while they support expression SFINAE, do
+    // not check for substitution failures in discarded-value expressions (as
+    // in, for example, a 'static_cast<void>(expression)').  As a result, for
+    // these compilers, 'bsl::shared_ptr' does not discard the value of SFINAE
+    // conditions when used as the left-hand side of a comma operator.
+    // Ordinarily, 'bsl::shared_ptr' would discard SFINAE conditions when used
+    // on the left-hand side of the comma operator in order to prevent the
+    // possibility of the expression having unintended meaning due to the
+    // operator being overloaded.  See the notes above the definition of
+    // 'BSLSTL_SHAREDPTR_SFINAE_DISCARD' in this component's header for more
+    // information.
+#  define BSLSTL_SHAREDPTR_SUPPORTS_SFINAE_DISCARDING
+# endif
+#endif
+
 // ============================================================================
 //                              USAGE EXAMPLES
 // ----------------------------------------------------------------------------
@@ -1593,7 +1612,13 @@ Evil::Fail operator,(const CommaTest&, const OTHER&) BSLS_KEYWORD_DELETED;
 
 
 struct FactoryDeleter {
+    ///Implementation Note
+    ///-------------------
+    // The constructor sfinae checks of 'bsl::shared_ptr' are resilient to
+    // overloading of the comma operator only when the compiler is correctly
+    // able to require well-formedness of discarded-value expressions.
 
+#if defined(BSLSTL_SHAREDPTR_SUPPORTS_SFINAE_DISCARDING)
     template <class TYPE>
     const CommaTest& deleteObject(TYPE *)
         // Return a type that overloads the comma operator in an attempt to
@@ -1602,6 +1627,13 @@ struct FactoryDeleter {
     {
         return CommaTest::value;
     }
+#else
+    template <class TYPE>
+    void deleteObject(TYPE *)
+        // Do nothing.
+    {
+    }
+#endif
 
 #if 0   // This matches current test driver expectations, but should actually
         // be removed to provide a more interesting test case
@@ -7910,7 +7942,7 @@ int main(int argc, char *argv[])
         // for each constructor that might create a new rep object.  There are
         // a limited number of constructors that also support a std allocator.
 
-#if defined(BSLS_SHAREDPTR_SUPPORTS_SFINAE_CHECKS)
+#if defined(BSLSTL_SHAREDPTR_SUPPORTS_SFINAE_CHECKS)
         using std::is_constructible;
 
         // TBD: TESTS STILL MISSING
@@ -7999,7 +8031,7 @@ int main(int argc, char *argv[])
                                 , bsl::nullptr_t
                                 >::value));
         ASSERT( (is_constructible<bsl::shared_ptr<bslma::TestAllocator>
-                                , bsl::shared_ptr<bslma::TestAllocator>,
+                                , bsl::shared_ptr<bslma::TestAllocator>
                                 , bsl::nullptr_t
                                 >::value));
         ASSERT( (is_constructible<bsl::shared_ptr<bslma::TestAllocator>
@@ -8117,7 +8149,7 @@ int main(int argc, char *argv[])
                                 , std::unique_ptr<int,
                                                   support::TypedDeleter<void> >
                                 >::value));
-        ASSERT( (is_constructible<bsl::shared_ptr<bslma::TestAllocator>,
+        ASSERT( (is_constructible<bsl::shared_ptr<bslma::TestAllocator>
                                 , std::unique_ptr<bslma::Allocator,
                                                   support::DoNotDeleter >
                                 >::value));
@@ -8168,7 +8200,7 @@ int main(int argc, char *argv[])
         ASSERT( (is_constructible<bsl::shared_ptr<bslma::Allocator>
                                 , std::unique_ptr<bslma::Allocator>
                                 >::value));
-        ASSERT(!(is_constructible<bsl::shared_ptr<bslma::Allocator>,
+        ASSERT(!(is_constructible<bsl::shared_ptr<bslma::Allocator>
                                 , std::unique_ptr<bslma::TestAllocator,
                                                   support::TypedDeleter<void> >
                                 >::value));
@@ -8186,7 +8218,7 @@ int main(int argc, char *argv[])
         ASSERT(!(is_constructible<bsl::shared_ptr<bslma::Allocator>
                                 , bsl::weak_ptr<void>
                                 >::value));
-        ASSERT( (is_constructible<bsl::shared_ptr<bslma::Allocator>,
+        ASSERT( (is_constructible<bsl::shared_ptr<bslma::Allocator>
                                 , bslma::ManagedPtr<bslma::TestAllocator>
                                 >::value));
         ASSERT( (is_constructible<bsl::shared_ptr<bslma::Allocator>
@@ -9455,7 +9487,7 @@ int main(int argc, char *argv[])
         // for each constructor that might create a new rep object.  There are
         // a limited number of constructors that also support a std allocator.
 
-#if defined(BSLS_SHAREDPTR_SUPPORTS_SFINAE_CHECKS)
+#if defined(BSLSTL_SHAREDPTR_SUPPORTS_SFINAE_CHECKS)
         using std::is_constructible;
 
         // TBD: TESTS STILL MISSING
@@ -9464,7 +9496,6 @@ int main(int argc, char *argv[])
         //
         //  actual runtime checks with '0' as null literal, to see if any issue
         //      deducing as 'int' and a SFINAE-tag.
-
 
         // First, some quick checks of the component-specific traits classes.
 
@@ -9934,7 +9965,6 @@ int main(int argc, char *argv[])
                                       , bslma::ManagedPtr<void>
                                       , bslma::TestAllocator *
                                       >::value));
-
 
         // 2 arguments: [target, factory deleter object]
 

@@ -1613,6 +1613,28 @@ BSL_OVERRIDES_STD mode"
 # define BSLSTL_SHAREDPTR_DEFINE_IF_NULLPTR_DELETER(FUNCTOR)
 #endif  // BSLSTL_SHAREDPTR_SUPPORTS_SFINAE_CHECKS
 
+// Some SFINAE checks, when enabled, make use of discarded-value expressions
+// (as the left-hand side of a comma operator). Clang compilers based on
+// versions of LLVM earlier than 12 contain a bug in which substitution
+// failures are not caught in discarded-value expressions when used in SFINAE
+// contexts (this includes Clang 11 and earlier, and Apple Clang 13 and
+// earlier).  In order to ensure that these compilers catch substitution
+// failures in such expressions, this component does not discard them.  Note
+// that this is dangerous, because not discarding the expression allows the
+// possibility that the comma operator will be overloaded on the type of the
+// expression, and so it is preferable to discard the expression where
+// possible.
+#if defined(BSLSTL_SHAREDPTR_SUPPORTS_SFINAE_CHECKS)
+# if !defined(BSLS_PLATFORM_CMP_CLANG)                             \
+  || !defined(__APPLE_CC__) && BSLS_PLATFORM_CMP_VERSION >= 120000 \
+  ||  defined(__APPLE_CC__) && BSLS_PLATFORM_CMP_VERSION >  130000
+#  define BSLSTL_SHAREDPTR_SFINAE_DISCARD(EXPRESSION) \
+     static_cast<void>(EXPRESSION)
+# else
+#  define BSLSTL_SHAREDPTR_SFINAE_DISCARD(EXPRESSION) \
+     (EXPRESSION)
+# endif
+#endif
 
 namespace BloombergLP {
 namespace bslstl {
@@ -3756,21 +3778,28 @@ struct SharedPtr_TestIsCallable {
     // PRIVATE TYPES
     typedef BloombergLP::bslmf::Util Util;
 
-    struct TrueType  { char d_padding; };
-    struct FalseType { char d_padding[17]; };
-        // The two structs 'TrueType' and 'FalseType' are guaranteed to have
-        // distinct sizes, so that a 'sizeof(expression)' query, where
-        // 'expression' returns one of these two types, will give different
-        // answers depending on which type is returned.
+    struct TrueType {
+        char d_padding;
+    };
+    struct FalseType {
+        char d_padding[17];
+    };
+
+    // The two structs 'TrueType' and 'FalseType' are guaranteed to have
+    // distinct sizes, so that a 'sizeof(expression)' query, where 'expression'
+    // returns one of these two types, will give different answers depending on
+    // which type is returned.
 
   public:
     // CLASS METHODS
     template <class ARG>
     static FalseType test(...);
     template <class ARG>
-    static TrueType test(typename bsl::enable_if<static_cast<bool>(sizeof(
-                      ((void)Util::declval<FUNCTOR>()(Util::declval<ARG>())), 0
-                                                                  ))>::type *);
+    static TrueType
+    test(typename bsl::enable_if<static_cast<bool>(
+                    sizeof(BSLSTL_SHAREDPTR_SFINAE_DISCARD(
+                               Util::declval<FUNCTOR>()(Util::declval<ARG>())),
+                           0))>::type *);
         // This function is never defined.  It provides a property-checker that
         // an entity of (template parameter) type 'FACTORY' can be called like
         // a function with a single argument, which is a pointer to an object
@@ -3779,8 +3808,9 @@ struct SharedPtr_TestIsCallable {
         // enclosed expression, and the ', 0' ensures that the 'sizeof' check
         // remains valid, even if the expression returns 'void'.  Similarly,
         // the cast to 'void' ensures that there are no surprises with types
-        // that overload the comma operator.
-
+        // that overload the comma operator.  Note that the cast to 'void' is
+        // elided for Clang compilers using versions of LLVM prior to 12, which
+        // fail to evaluate the trait properly.
 };
 
 #if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1920
@@ -3871,17 +3901,22 @@ struct SharedPtr_IsCallable {
 struct SharedPtr_IsFactoryFor_Impl {
   private:
     // PRIVATE TYPES
-    struct TrueType  { char d_padding; };
-    struct FalseType { char d_padding[17]; };
+    struct TrueType {
+        char d_padding;
+    };
+    struct FalseType {
+        char d_padding[17];
+    };
 
   public:
     // CLASS METHODS
     template <class FACTORY, class ARG>
     static FalseType test(...);
     template <class FACTORY, class ARG>
-    static TrueType test(typename bsl::enable_if<static_cast<bool>(
-                     sizeof(((void)(*(FACTORY *)0)->deleteObject((ARG *)0)), 0)
-                                                                   )>::type *);
+    static TrueType test(typename bsl::enable_if<static_cast<bool>(sizeof(
+                                  BSLSTL_SHAREDPTR_SFINAE_DISCARD(
+                                      (*(FACTORY *)0)->deleteObject((ARG *)0)),
+                                  0))>::type *);
         // This function is never defined.  It provides a property-checker that
         // an object of (template parameter) type 'FACTORY' has a
         // member-function called 'deleteObject' that can be called with a
@@ -3891,7 +3926,9 @@ struct SharedPtr_IsFactoryFor_Impl {
         // expression, and the ', 0' ensures that the 'sizeof' check remains
         // valid, even if the expression returns 'void'.  Similarly, the cast
         // to 'void' ensures that there are no surprises with types that
-        // overload the comma operator.
+        // overload the comma operator.  Note that the cast to 'void' is elided
+        // for Clang compilers using versions of LLVM prior to 12, which fail
+        // to evaluate the trait properly.
 };
 
 template <class FACTORY, class ARG>
@@ -3905,17 +3942,22 @@ struct SharedPtr_IsFactoryFor {
 struct SharedPtr_IsNullableFactory_Impl {
   private:
     // PRIVATE TYPES
-    struct TrueType  { char d_padding; };
-    struct FalseType { char d_padding[17]; };
+    struct TrueType {
+        char d_padding;
+    };
+    struct FalseType {
+        char d_padding[17];
+    };
 
   public:
     // CLASS METHODS
     template <class FACTORY>
     static FalseType test(...);
     template <class FACTORY>
-    static TrueType test(typename bsl::enable_if<static_cast<bool>(
-                      sizeof(((void)(*(FACTORY *)0)->deleteObject(nullptr)), 0)
-                                                                   )>::type *);
+    static TrueType test(typename bsl::enable_if<static_cast<bool>(sizeof(
+                                   BSLSTL_SHAREDPTR_SFINAE_DISCARD(
+                                       (*(FACTORY *)0)->deleteObject(nullptr)),
+                                   0))>::type *);
         // This function is never defined.  It provides a property-checker that
         // an object of (template parameter) type 'FACTORY' has a
         // member-function called 'deleteObject' that can be called with a
@@ -3925,7 +3967,9 @@ struct SharedPtr_IsNullableFactory_Impl {
         // expression, and the ', 0' ensures that the 'sizeof' check remains
         // valid, even if the expression returns 'void'.  Similarly, the cast
         // to 'void' ensures that there are no surprises with types that
-        // overload the comma operator.
+        // overload the comma operator.  Note that the cast to 'void' is elided
+        // for Clang compilers using versions of LLVM prior to 12, which fail
+        // to evaluate the trait properly.
 };
 
 template <class FACTORY>
@@ -5804,6 +5848,8 @@ struct IsBitwiseMoveable< ::bsl::weak_ptr<ELEMENT_TYPE> >
 
 #undef BSLSTL_SHAREDPTR_DECLARE_IF_NULLPTR_DELETER
 #undef BSLSTL_SHAREDPTR_DEFINE_IF_NULLPTR_DELETER
+
+#undef BSLSTL_SHAREDPTR_SFINAE_DISCARD
 
 #endif // End C++11 code
 
