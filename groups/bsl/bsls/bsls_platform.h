@@ -495,8 +495,6 @@ struct bsls_Platform_Assert;
                 #define BSLS_PLATFORM_CPU_ARM_V7
             #elif __ARM_ARCH == 8
                 #define BSLS_PLATFORM_CPU_ARM_V8
-            #elif __ARM_ARCH == 9
-                #define BSLS_PLATFORM_CPU_ARM_V9
             #endif
         #elif defined(__ARM_ARCH_5T__)                                       \
             || defined(__ARM_ARCH_5TE__)                                     \
@@ -1000,10 +998,6 @@ struct Platform {
     #if defined(BSLS_PLATFORM_CPU_ARM_V8)
         typedef CpuArmv8 Cpu;
     #endif
-    #if defined(BSLS_PLATFORM_CPU_ARM_V9)
-        typedef CpuArmv9 Cpu;
-    #endif
-
 };
 
 }  // close package namespace

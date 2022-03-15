@@ -448,37 +448,42 @@ struct MachTimerUtil {
 
   private:
     // CLASS DATA
-    static bsls::Types::Uint64           s_initialTime;
+    static bsls::AtomicOperations::AtomicTypes::Int
+                                         s_initRequired;
+
+    static bsls::Types::Int64            s_initialTime;
                                               // initial time for the Mach
                                               // hardware timer
 
+    static mach_timebase_info_data_t     s_timeBase;
+                                              // time base used to scale the
+                                              // absolute raw timer values
+
   public:
     // CLASS METHODS
-    static bsls::Types::Uint64 getNanosecondsUptime();
-        // Return converted to nanoseconds the current uptime as reported by
-        // clock_gettime_nsec_np.
-
     static void initialize();
         // Initialize the static data used by 'MachTimerUtil' (currently the
-        // 's_initialTime' value).
+        // 's_initialTime' and the 's_timeBase' values).
 
-    static bsls::Types::Uint64 getTimerRaw();
+    static bsls::Types::Int64 getTimerRaw();
         // Return a machine-dependent value representing the current time.
+        // 'timeValue' must be converted by the 'convertRawTime' method to
+        // conventional units (nanoseconds).  This method is intended to
+        // facilitate accurate timing of small segments of code, and care must
+        // be used in interpreting the results.  The behavior is undefined
+        // unless 'initialize' has been called.  Note that this method is
+        // thread-safe only if 'initialize' has been called before.
+
+    static bsls::Types::Int64 convertRawTime(bsls::Types::Int64 rawTime);
+        // Convert the specified 'rawTime' to a value in nanoseconds,
+        // referenced to an arbitrary but fixed origin, and return the result
+        // of the conversion.  The behavior is undefined unless 'initialize'
+        // has been called.  Note that this method is thread-safe only if
+        // 'initialize' has been called before.
 };
 
-bsls::Types::Uint64 MachTimerUtil::s_initialTime    = {0};
-
-inline
-bsls::Types::Uint64 MachTimerUtil::getNanosecondsUptime()
-{
-    // The original implementation used 'mach_absolute_time()', which is
-    // considered deprecated (since it requires scaling on Apple Silicon).
-    //
-    //: o https://developer.apple.com/documentation/kernel/1462446-mach_absolute_time
-
-    return static_cast<bsls::Types::Uint64>(
-            clock_gettime_nsec_np(CLOCK_UPTIME_RAW));
-}
+bsls::Types::Int64        MachTimerUtil::s_initialTime    = {-1};
+mach_timebase_info_data_t MachTimerUtil::s_timeBase;
 
 inline
 void MachTimerUtil::initialize()
@@ -488,17 +493,69 @@ void MachTimerUtil::initialize()
     bsls::BslOnceGuard onceGuard;
     if (onceGuard.enter(&once)) {
 
-        s_initialTime = getNanosecondsUptime();
+        // There is little official documentation on 'mach_absolute_time'
+        // and 'mach_timebase_info'.  The 'mach_absolute_time' return value
+        // is declared 'uint64_t' in 'mach/mach_time.h' and it has been
+        // observed to have the high bit set on hardware with an uptime of
+        // only 18 days.  Therefore, a base value is saved in 'initialize'
+        // and all returned 'getTimerRaw' values are relative to that value.
+        //
+        // According to a technical question found on Apple's website, the
+        // value returned by 'mach_absolute_time' can be scaled correctly
+        // without a dependency on the 'CoreServices' framework by calling
+        // 'mach_timebase_info' and using the returned values.  The values
+        // do not change, so they are cached in 'initialize'.
+        //
+        //: o https://developer.apple.com/library/mac/documentation/darwin
+        //:           /conceptual/kernelprogramming/services/services.html
+        //: o https://developer.apple.com/library/mac/qa/qa1398/_index.html
+
+        s_initialTime = (bsls::Types::Int64) mach_absolute_time();
+
+        (void) mach_timebase_info(&s_timeBase);
+
+        BSLS_ASSERT(0 < s_timeBase.numer);
+        BSLS_ASSERT(0 < s_timeBase.denom);
     }
 }
 
 inline
-bsls::Types::Uint64 MachTimerUtil::getTimerRaw()
+bsls::Types::Int64 MachTimerUtil::convertRawTime(bsls::Types::Int64 rawTime)
 {
     initialize();
 
-    return static_cast<bsls::Types::Uint64>(
-                                       getNanosecondsUptime() - s_initialTime);
+#ifdef __SIZEOF_INT128__
+
+    // Use the built-in '__int128' type to avoid any potential overflow.
+
+    __int128 result = (__int128) rawTime *
+                      (__int128) s_timeBase.numer /
+                      (__int128) s_timeBase.denom;
+    return static_cast<bsls::Types::Int64>(result);
+
+#else // !__SIZEOF_INT128__
+
+    // In practice, it is not expected that multiplying 'rawTime' by
+    // 's_timeBase.numer' will overflow an Int64.  The 'numer' and
+    // 'denom' values have been observed to both be 1 on a late model
+    // laptop and Mac mini.  Just to be safe, the overflow is checked in safe
+    // builds.
+
+    BSLS_ASSERT_SAFE(LLONG_MAX / s_timeBase.numer >= rawTime &&
+                     LLONG_MIN / s_timeBase.numer <= rawTime);
+
+    return rawTime * s_timeBase.numer / s_timeBase.denom;
+
+#endif // !__SIZEOF_INT128__
+}
+
+inline
+bsls::Types::Int64 MachTimerUtil::getTimerRaw()
+{
+    initialize();
+
+    return static_cast<bsls::Types::Int64>(
+                                         mach_absolute_time() - s_initialTime);
 }
 
 #endif
@@ -549,7 +606,7 @@ TimeUtil::convertRawTime(TimeUtil::OpaqueNativeTime rawTime)
 
 #elif defined BSLS_PLATFORM_OS_DARWIN
 
-    return rawTime.d_opaque;
+    return MachTimerUtil::convertRawTime(rawTime.d_opaque);
 
 #elif defined BSLS_PLATFORM_OS_UNIX
 

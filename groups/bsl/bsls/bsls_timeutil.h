@@ -222,17 +222,17 @@ struct TimeUtil {
 
     // TYPES
 #if   defined BSLS_PLATFORM_OS_SOLARIS
-    typedef struct { Types::Int64 d_opaque; }  OpaqueNativeTime;
+    typedef struct { Types::Int64 d_opaque; } OpaqueNativeTime;
 #elif defined BSLS_PLATFORM_OS_AIX
-    typedef timebasestruct_t                   OpaqueNativeTime;
+    typedef timebasestruct_t                  OpaqueNativeTime;
 #elif defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_CYGWIN)
-    typedef timespec                           OpaqueNativeTime;
+    typedef timespec                          OpaqueNativeTime;
 #elif defined BSLS_PLATFORM_OS_DARWIN
-    typedef struct { Types::Uint64 d_opaque; } OpaqueNativeTime;
+    typedef struct { Types::Int64 d_opaque; } OpaqueNativeTime;
 #elif defined BSLS_PLATFORM_OS_UNIX
-    typedef timeval                            OpaqueNativeTime;
+    typedef timeval                           OpaqueNativeTime;
 #elif defined BSLS_PLATFORM_OS_WINDOWS
-    typedef struct { Types::Int64 d_opaque; }  OpaqueNativeTime;
+    typedef struct { Types::Int64 d_opaque; } OpaqueNativeTime;
 #endif
 
     // CLASS METHODS
