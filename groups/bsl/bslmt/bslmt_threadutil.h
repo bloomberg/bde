@@ -555,9 +555,10 @@ struct ThreadUtil {
     static void microSleep(int microseconds, int seconds = 0);
         // Suspend execution of the current thread for a period of at least the
         // specified 'microseconds' and the optionally specified 'seconds'
-        // (relative time).  Note that the actual time suspended depends on
-        // many factors including system scheduling and system timer
-        // resolution, and may be significantly longer than the time requested.
+        // (relative time), or an interrupting signal is received.  Note that
+        // the actual time suspended depends on many factors including system
+        // scheduling and system timer resolution, and may be significantly
+        // longer than the time requested.
 
     static void setThreadName(const bslstl::StringRef& threadName);
         // Set the name of the current thread to the specified 'threadName'.
@@ -568,33 +569,33 @@ struct ThreadUtil {
 
     static void sleep(const bsls::TimeInterval& sleepTime);
         // Suspend execution of the current thread for a period of at least the
-        // specified (relative) 'sleepTime'.  Note that the actual time
-        // suspended depends on many factors including system scheduling and
-        // system timer resolution.
+        // specified (relative) 'sleepTime', or an interrupting signal is
+        // received.  Note that the actual time suspended depends on many
+        // factors including system scheduling and system timer resolution.
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
     template <class REP_TYPE, class PERIOD_TYPE>
     static void sleep(
                 const bsl::chrono::duration<REP_TYPE, PERIOD_TYPE>& sleepTime);
         // Suspend execution of the current thread for a period of at least the
-        // specified (relative) 'sleepTime'.  Note that the actual time
-        // suspended depends on many factors including system scheduling and
-        // system timer resolution.
+        // specified (relative) 'sleepTime', or an interrupting signal is
+        // received.  Note that the actual time suspended depends on many
+        // factors including system scheduling and system timer resolution.
 #endif
 
     static void sleepUntil(const bsls::TimeInterval&   absoluteTime,
                            bsls::SystemClockType::Enum clockType
                                           = bsls::SystemClockType::e_REALTIME);
         // Suspend execution of the current thread until the specified
-        // 'absoluteTime'.  Optionally specify 'clockType' which determines the
-        // epoch from which the interval 'absoluteTime' is measured (see
-        // {Supported Clock-Types} in the component documentation).  The
-        // behavior is undefined unless 'absoluteTime' represents a time after
-        // January 1, 1970 and before the end of December 31, 9999 (i.e., a
-        // time interval greater than or equal to 0, and less than
-        // 253,402,300,800 seconds).  Note that the actual time suspended
-        // depends on many factors including system scheduling and system timer
-        // resolution.
+        // 'absoluteTime', or an interrupting signal is received.  Optionally
+        // specify 'clockType' which determines the epoch from which the
+        // interval 'absoluteTime' is measured (see {Supported Clock-Types} in
+        // the component documentation).  The behavior is undefined unless
+        // 'absoluteTime' represents a time after January 1, 1970 and before
+        // the end of December 31, 9999 (i.e., a time interval greater than or
+        // equal to 0, and less than 253,402,300,800 seconds).  Note that the
+        // actual time suspended depends on many factors including system
+        // scheduling and system timer resolution.
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
     template <class CLOCK, class DURATION>
