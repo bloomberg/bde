@@ -309,10 +309,9 @@ public:
 
 template <class WRAPPED_ITERATOR>
 class VerifyingOutputIterator {
-    // This 'class' 'VerifyingOutputIterator' is an output-iterator that wraps
-    // another iterator type and verifies proper output iterator use.  It
-    // asserts if not incremented between assignments or incremented but not
-    // assigned.
+    // This 'class' is an output-iterator that wraps another iterator type and
+    // verifies proper output iterator use.  It asserts if not incremented
+    // between assignments or incremented but not assigned.
 
   public:
     // TYPES
@@ -327,9 +326,10 @@ public:
     typedef typename WrappedIterator::reference       reference;
 
     typedef bsl::output_iterator_tag iterator_category;
-    // This type is an output iterator, hence 'iterator_category' is
-    // 'bsl::output_iterator_tag'.  Since no other iterator elements are
-    // implemented even if the wrapped iterator could do more, this one cannot.
+        // This type is an output iterator, hence 'iterator_category' is
+        // 'bsl::output_iterator_tag'.  Since no other iterator functionality
+        // is implemented even if the wrapped iterator could do more, the
+        // wrapped one cannot.
 
   private:
     // DATA
@@ -364,7 +364,7 @@ public:
     VerifyingOutputIterator& operator=(const TYPE& value)
         // Set the iterator wrapped iterator to the specified 'value', set the
         // verification state such that an increment is required before the
-        // next assignment, and return '*this'.  An error is reported if the
+        // next assignment, and return '*this'.  Report an error if the
         // iterator is not in the state where it is assignable.
     {
         ASSERTV(d_line, d_assigned, d_incremented,
@@ -386,9 +386,8 @@ public:
 
     VerifyingOutputIterator& operator++()
         // Increment the wrapped iterator, set this iterator to the state where
-        // it is allowed to assign to it, and return '*this'.  An error is
-        // reported if the iterator has not been assigned-to yet in its current
-        // position.
+        // it is allowed to assign to it, and return '*this'.  Report an error
+        // if the iterator has not been assigned yet in its current position.
     {
         ASSERTV(d_line, true == d_assigned && false == d_incremented);
 
@@ -778,7 +777,7 @@ int main(int argc, char *argv[])
         //:   other valid orders.
         //
         // Testing:
-        //   sort(relationsBegin, relationsEnd, result, unsorted)
+        //   sort(relationsBegin, relationsEnd, resultOutIter, unsortedOutIter)
         //   TopologicalSortUtilEdgeTraits
         // --------------------------------------------------------------------
 

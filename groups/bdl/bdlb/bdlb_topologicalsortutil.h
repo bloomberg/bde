@@ -566,8 +566,6 @@ class TopologicalSortUtil_Helper {
     Fifo     d_readyNodes;     // elements whose predecessors have all already
                                // been sorted (or never had predecessors)
 
-    bool     d_cycleDetected;  // flag denoting whether a cycle was found
-
   private:
     // NOT IMPLEMENTED
       TopologicalSortUtil_Helper(const TopologicalSortUtil_Helper&);
@@ -590,28 +588,23 @@ class TopologicalSortUtil_Helper {
 
     // MANIPULATORS
     template <class OUTPUT_ITER>
-    bool processNextNodeInOrder(OUTPUT_ITER *result_p);
+    bool processNextNodeInOrder(OUTPUT_ITER *resultOutIter_p);
         // Write the next element in order that doesn't have any predecessors
-        // into the specified 'result_p' output iterator then increment it and
-        // return 'true' or, if there are still elements left but none of them
-        // has zero predecessor count set the cycle-detection flag to 'true'
-        // and return false or, if the input set is fully processed return
-        // 'false'.
+        // into the specified 'resultOutIter_p' output iterator then increment
+        // it and return 'true'.  If there are still elements left but all of
+        // them still have predecessors do nothing and return 'false'.  The
+        // behavior is undefined unless 'true == haveMoreNodesToSort()'.
 
-    template <class UNSORTED_OUT_ITER>
-    void reportYetUnsorted(UNSORTED_OUT_ITER unsortedOut);
-        // Load elements that have not yet been sorted due to a cycle being
-        // detected into the specified 'unsortedOut' output iterator.  Note
-        // that the behavior is undefined unless this method is called after
-        // 'processNext' method returned 'false' and the 'cycleDetected'
-        // returns 'true'.
-
-    // ACCESSORS
-    bool cycleDetected() const;
-        // Return 'true' if relations specified at construction time contains a
-        // cycle, otherwise returns 'false'.  The behavior is undefined unless
-        // 'processNext' has been called, and the most recent invocation of
-        // 'processNext' returned 'false'.
+    template <class OUTPUT_ITER, class UNSORTED_OUT_ITER>
+    bool sortImpl(OUTPUT_ITER       resultOutIter,
+                  UNSORTED_OUT_ITER unsortedOutIter);
+        // Sort the input elements provided during construction in topological
+        // order and write the resulting linear ordered set into the specified
+        // 'resultOutIter' and return 'true'.  If the sort is unsuccessful (the
+        // input is not an acyclic directed graph) write the nodes that have
+        // not been sorted to the specified 'unsortedOutIter' output and return
+        // 'false'.  See 'TopologicalSortUtil::sort' "iterators overload" for
+        // more detailed specification.
 };
 
                         // =====================
@@ -635,18 +628,14 @@ struct TopologicalSortUtil {
         // linear ordered set into the specified 'resultOutIter'.  If the
         // sort is unsuccessful (the input is not an acyclic directed graph)
         // write the elements that have not been sorted to the specified
-        // 'unsorted' output; the input elements are provided (conceptually)
-        // as a sequence of pairs between the specified 'relationsBegin' and
-        // 'relationsEnd', where the "from" element of the pair must precede
-        // the "to" element in the resulting sort (see
-        // 'TopologicalSortUtilEdgeTraits' for description of "from" and "to").
-        // Return 'true' on success, and 'false' if the sort fails due to a
-        // cycle in the input.  The input ('relationshipBegin' and
-        // 'relationshipEnd') is provided as a sequence of (conceptual or
-        // physical) pairs of the form (U, V) where U precedes V in the output.
+        // 'unsortedOutIter' output.  The input elements are provided as a
+        // sequence of (conceptual or physical) pairs between the specified
+        // 'relationsBegin' and 'relationsEnd' of the form (U, V), where U and
+        // V are nodes, and U precedes V in the output.   Return 'true' on
+        // success, and 'false' if the sort fails due to a cycle in the input.
         // The type 'bsl::iterator_traits<INPUT_ITER>::value_type' must either
-        // be 'bsl::pair' where the 'first_type' and 'second_type' are the same
-        // as 'bsl::iterator_traits<OUTPUT_ITER>::value_type' or
+        // be 'bsl' or 'std::pair' where the 'first_type' and 'second_type' are
+        // the same as 'bsl::iterator_traits<OUTPUT_ITER>::value_type' or
         // 'TopologicalSortUtilEdgeTraits' must be specialized for the type,
         // i.e., the supplied 'bsl::iterator_traits<INPUT_ITER>::value_type'
         // must support the following syntax:
@@ -664,16 +653,16 @@ struct TopologicalSortUtil {
         //                  it != relationshipPairsEnd;
         //                  ++it) {
         //
-        //      *result++ = Traits::from(*it);
-        //      *result++ = Traits::to(*it);
+        //      *result++ = Traits::from(*it);  // U
+        //      *result++ = Traits::to(*it);    // V
         //  }
         //..
-        // Note that even if the method returns 'false', 'result' may contain
-        // only a subset of the elements in the right topological order,
+        // Note that when the method returns 'false', 'resultOutIter' may
+        // contain a subset of the elements in the right topological order,
         // essentially the elements that the routine was able to sort before
         // the cycle was discovered.  In that case, the elements that the
-        // routine was unable were written to the specified 'unsortedOutIter'
-        // output iterator.
+        // routine was unable to sort were written to the 'unsortedOutIter'
+        // output iterator, in an unspecified order.
 
     template <class NODE_TYPE>
     static bool sort(
@@ -756,7 +745,6 @@ TopologicalSortUtil_Helper<INPUT_ITER>::TopologicalSortUtil_Helper(
                                               bslma::Allocator *allocator)
 : d_workSet(allocator)
 , d_readyNodes(allocator)
-, d_cycleDetected(false)
 {
     // Iterate through the input list of edges and iteratively fill in the
     // relations information needed for sorting.
@@ -772,11 +760,10 @@ TopologicalSortUtil_Helper<INPUT_ITER>::TopologicalSortUtil_Helper(
     // don't have any predecessors and hence are the first in order.  We put
     // these nodes into a queue that is ready to be written to the result.
 
-    for (LinksMapIter setIter = d_workSet.begin();
-                      setIter != d_workSet.end();
-                    ++setIter ) {
-        if (0 == setIter->second.d_predecessorCount) {
-            d_readyNodes.push(setIter->first);
+    const LinksMapConstIter end = d_workSet.end();
+    for (LinksMapConstIter iter = d_workSet.begin(); iter != end; ++iter) {
+        if (0 == iter->second.d_predecessorCount) {
+            d_readyNodes.push(iter->first);
         }
     }
 }
@@ -785,13 +772,11 @@ TopologicalSortUtil_Helper<INPUT_ITER>::TopologicalSortUtil_Helper(
 template <class INPUT_ITER>
 template <class OUTPUT_ITER>
 bool TopologicalSortUtil_Helper<INPUT_ITER>::processNextNodeInOrder(
-                                                         OUTPUT_ITER *result_p)
+                                                  OUTPUT_ITER *resultOutIter_p)
 {
-    BSLS_ASSERT(result_p);
-
     // process the next element with no predecessors
 
-    if (! d_readyNodes.empty()) {
+    if (false == d_readyNodes.empty()) {
 
         NodeType     processed     = d_readyNodes.front();
         LinksMapIter processedNode = d_workSet.find(processed);
@@ -829,43 +814,47 @@ bool TopologicalSortUtil_Helper<INPUT_ITER>::processNextNodeInOrder(
 
         // remove this node from the d_readyNodes and return
 
-        *(*result_p) = processed;
-        ++(*result_p); // output iterator must be moved forward after a write
+        *(*resultOutIter_p) = processed;
+        ++(*resultOutIter_p); // output iterator must be moved after a write
 
         d_readyNodes.pop();
         return true;                                                  // RETURN
     }
 
     // If the queue is empty but the input set is not then we have at least one
-    // cycle.  Set the flag and return.
-
-    d_cycleDetected = !d_workSet.empty();
+    // cycle.
 
     return false;
 }
 
-// ACCESSORS
 template <class INPUT_ITER>
-inline
-bool TopologicalSortUtil_Helper<INPUT_ITER>::cycleDetected() const
+template <class OUTPUT_ITER, class UNSORTED_OUT_ITER>
+bool TopologicalSortUtil_Helper<INPUT_ITER>::sortImpl(
+                                             OUTPUT_ITER       resultOutIter,
+                                             UNSORTED_OUT_ITER unsortedOutIter)
 {
-    return d_cycleDetected;
-}
+    while (false == d_workSet.empty()) {
+        if (false == processNextNodeInOrder(&resultOutIter)) {
+            // A cycle was detected.  Write all the nodes still present in the
+            // work set to 'unsortedOutIter'.  The nodes in the work set may be
+            // in more than one cycle, or interconnected cycles, but our
+            // algorithm ensures that all nodes left here *are* part of at
+            // least one cycle.
 
-template <class INPUT_ITER>
-template <class UNSORTED_OUT_ITER>
-void TopologicalSortUtil_Helper<INPUT_ITER>::reportYetUnsorted(
-                                                UNSORTED_OUT_ITER unsortedOut)
-{
+            // Implementation note: 'bsl::transform' is not used here because
+            // the ancient SunOS implementation does not use the output
+            // iterator properly (two increments to one write) which breaks our
+            // test driver that verifies proper output iterator use.
 
-    BSLS_ASSERT(d_cycleDetected == true);
-
-    // Write all the elements still present in the work-set into 'unsortedOut'
-
-    for (LinksMapConstIter i = d_workSet.begin(); i != d_workSet.end(); ++i) {
-        *unsortedOut = i->first;
-        ++unsortedOut;
+            const LinksMapConstIter end = d_workSet.end();
+            for (LinksMapConstIter i = d_workSet.begin(); i != end; ++i) {
+                *unsortedOutIter = i->first;
+                ++unsortedOutIter;
+            }
+            return false;                                             // RETURN
+        }
     }
+    return true;
 }
 
                         // -------------------------
@@ -876,25 +865,19 @@ void TopologicalSortUtil_Helper<INPUT_ITER>::reportYetUnsorted(
 template <class INPUT_ITER, class OUTPUT_ITER, class UNSORTED_OUT_ITER>
 bool TopologicalSortUtil::sort(INPUT_ITER        relationsBegin,
                                INPUT_ITER        relationsEnd,
-                               OUTPUT_ITER       result,
-                               UNSORTED_OUT_ITER unsortedOut)
+                               OUTPUT_ITER       resultOutIter,
+                               UNSORTED_OUT_ITER unsortedOutIter)
 {
-    TopologicalSortUtil_Helper<INPUT_ITER> tSortHelper(relationsBegin,
-                                                       relationsEnd);
+    typedef TopologicalSortUtil_Helper<INPUT_ITER> MyHelper;
 
-    while (tSortHelper.processNextNodeInOrder(&result));
-
-    if (tSortHelper.cycleDetected()) {
-        tSortHelper.reportYetUnsorted(unsortedOut);
-        return false;                                                 // RETURN
-    }
-    return true;
+    return MyHelper(relationsBegin, relationsEnd).sortImpl(resultOutIter,
+                                                           unsortedOutIter);
 }
 
 template <class NODE_TYPE>
 bool TopologicalSortUtil::sort(
            bsl::vector<NODE_TYPE>                               *result,
-           bsl::vector<NODE_TYPE>                               *unsortedOut,
+           bsl::vector<NODE_TYPE>                               *unsorted,
            const bsl::vector<bsl::pair<NODE_TYPE, NODE_TYPE> >&  relations)
 {
     typedef bsl::vector<NODE_TYPE> vector_type;
@@ -902,7 +885,7 @@ bool TopologicalSortUtil::sort(
     return sort(relations.begin(),
                 relations.end(),
                 bsl::back_insert_iterator<vector_type>(*result),
-                bsl::back_insert_iterator<vector_type>(*unsortedOut));
+                bsl::back_insert_iterator<vector_type>(*unsorted));
 }
 
 }  // close package namespace
