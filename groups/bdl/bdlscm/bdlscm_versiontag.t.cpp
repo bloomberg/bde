@@ -140,12 +140,11 @@ int main(int argc, char *argv[])
                           << "TEST VERSION CONSISTENCY" << endl
                           << "========================" << endl;
 
-        int major = (BDL_VERSION / 1000000) % 100;
-        int minor = (BDL_VERSION / 100)     % 10000;
+        int major = BSL_GET_VERSION_MAJOR(BDL_VERSION);
+        int minor = BSL_GET_VERSION_MINOR(BDL_VERSION);
 
-        ASSERT(BDL_VERSION_MAJOR == major);
-        ASSERT(BDL_VERSION_MINOR == minor);
-
+        ASSERTV(BDL_VERSION_MAJOR, major, BDL_VERSION_MAJOR == major);
+        ASSERTV(BDL_VERSION_MINOR, minor, BDL_VERSION_MINOR == minor);
       } break;
 
       default: {

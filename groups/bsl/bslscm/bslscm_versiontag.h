@@ -13,8 +13,10 @@ BSLS_IDENT("$Id: $")
 //@MACROS:
 //  BSL_VERSION_MAJOR: current release major version number
 //  BSL_VERSION_MINOR: current release minor version number
-//  BSL_MAKE_VERSION(MA, MINR): create combined version number (MAMINR00)
-//  BSL_VERSION: combined, up to 8-digit version number for current release
+//  BSL_MAKE_VERSION(MA, MI): create combined, 6-digit version number (MAMI00)
+//  BSL_VERSION: combined, 6-digit version number for current release
+//  BSL_GET_VERSION_MAJOR(vers): extract from 'vers' the major version
+//  BSL_GET_VERSION_MINOR(vers): extract from 'vers' the minor version
 //
 //@SEE_ALSO: bslscm_version
 //
@@ -51,14 +53,14 @@ BSLS_IDENT("$Id: $")
 #define BSL_VERSION_MAJOR    3
     // Provide the major version number of the current (latest) BSL release.
 
-#define BSL_VERSION_MINOR    100
+#define BSL_VERSION_MINOR    99
     // Provide the minor version number of the current (latest) BSL release.
 
-#define BSL_MAKE_VERSION(major, minor) ((major) * 1000000 \
-                                      + (minor) *     100)
-    // Construct a composite version number in the range '[0 .. 99999900]' from
+#define BSL_MAKE_VERSION(major, minor) ((major) * 10000 \
+                                      + (minor) *   100)
+    // Construct a composite version number in the range '[0 .. 999900]' from
     // the specified 'major' and 'minor' version numbers.  The resulting value,
-    // when expressed as a 8-digit decimal string, has "00" as the two
+    // when expressed as a 6-digit decimal string, has "00" as the two
     // lowest-order decimal digits, 'minor' as the next two digits, and 'major'
     // as the highest-order digits.  The result is unique for each combination
     // of 'major' and 'minor', and is sortable such that a value composed from
@@ -69,7 +71,17 @@ BSLS_IDENT("$Id: $")
     // integral constant.  Also note that the patch version number is
     // intentionally not included.  The behavior is undefined unless 'major'
     // is an integral value in the range '[0 .. 99]' and 'minor' is an integral
-    // value in the range '[0 .. 9999]'.
+    // value in the range '[0 .. 99]'.
+
+#define BSL_GET_VERSION_MAJOR(version) ((version / 10000) % 100)
+    // Extract from the specified 'version' the corresponding major version.
+    // 'version' is the result of a 'BSL_MAKE_VERSION(major, minor)'
+    // invocation, and this macro returns 'major'.
+
+#define BSL_GET_VERSION_MINOR(version) ((version / 100) % 100)
+    // Extract from the specified 'version' the corresponding minor version.
+    // 'version' is the result of a 'BSL_MAKE_VERSION(major, minor)'
+    // invocation, and this macro returns 'minor'.
 
 #define BSL_VERSION BSL_MAKE_VERSION(BSL_VERSION_MAJOR, \
                                      BSL_VERSION_MINOR)
@@ -77,7 +89,7 @@ BSLS_IDENT("$Id: $")
     // 'BSL_VERSION_MINOR' numbers) corresponding to the major and minor
     // version numbers, respectively, of the current (latest) BSL release.
     // Note that the patch version number is intentionally not included.  For
-    // example, 'BSL_VERSION' produces 1000300 (decimal) for BSL version 1.3.1.
+    // example, 'BSL_VERSION' produces 10300 (decimal) for BSL version 1.3.1.
 
 #endif
 

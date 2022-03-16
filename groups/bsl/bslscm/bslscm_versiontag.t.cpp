@@ -124,93 +124,6 @@ int main(int argc, char *argv[])
 
       case 2: {
         //--------------------------------------------------------------------
-        // TEST BSL_MAKE_VERSION MACRO
-        //
-        // Concerns:
-        //   That BSL_MAKE_VERSION creates a compile-time constant if its
-        //   arguments are all compile-time constants.
-        //   That BSL_MAKE_VERSION correctly composes a 'major' and 'minor'
-        //   patch version number into a single (distinct) integer.  'major'
-        //   can be in the range 0-99, while 'minor' can be in the range
-        //   0-9999.
-        //
-        // Plan:
-        //   Use the result of BSL_MAKE_VERSION as an array dimension to
-        //   prove that it is a compile-time constant.
-        //   Using ad-hoc data selection, create a number of version values
-        //   using the 'BSL_MAKE_VERSION' macro and verify that the expected
-        //   value matches the actual value.  Make sure that different
-        //   major/minor values result in distinct results.
-        //
-        // Testing:
-        //   BSL_MAKE_VERSION(major, minor)
-        //--------------------------------------------------------------------
-
-        if (verbose) printf("\nTEST BSL_MAKE_VERSION MACRO"
-                            "\n===========================\n");
-
-        static const char COMPILE_ASSERT[BSL_MAKE_VERSION(0,1)] = { 0 };
-        ASSERT(sizeof(COMPILE_ASSERT) == 100);
-
-        static struct {
-            int d_line;
-            int d_major;
-            int d_minor;
-            int d_version;
-        } const DATA[] = {
-            //line major minor version
-            //---- ----- ----- -------
-            {  L_,    0,    0,         0 },
-            {  L_,    0,    1,       100 },
-            {  L_,    1,    0,   1000000 },
-            {  L_,    1,    1,   1000100 },
-            {  L_,    9,    9,   9000900 },
-            {  L_,   10,   20,  10002000 },
-            {  L_,   12,   34,  12003400 },
-            {  L_,    0,   99,      9900 },
-            {  L_,   99,    0,  99000000 },
-            {  L_,   99,   99,  99009900 },
-            {  L_,    0, 9999,    999900 },
-            {  L_,   88, 9999,  88999900 },
-            {  L_,   99, 9999,  99999900 },
-        };
-
-        enum { NUM_DATA = sizeof(DATA) / sizeof(*DATA) };
-
-        for (int i = 0; i < NUM_DATA; ++i) {
-            const int LINE  = DATA[i].d_line;
-            const int MAJOR = DATA[i].d_major;
-            const int MINOR = DATA[i].d_minor;
-            const int EXP   = DATA[i].d_version;
-
-            ASSERTV(LINE,
-                    EXP,
-                    MAJOR,
-                    MINOR,
-                    BSL_MAKE_VERSION(MAJOR, MINOR),
-                    EXP == BSL_MAKE_VERSION(MAJOR, MINOR));
-
-            // Make sure each major/minor pair results in a unique result
-            for(int j = 0; j < NUM_DATA; ++j) {
-                const int LINE2  = DATA[j].d_line;
-                const int MAJOR2 = DATA[j].d_major;
-                const int MINOR2 = DATA[j].d_minor;
-
-                if (j != i) {
-                    ASSERTV(LINE,
-                            BSL_MAKE_VERSION(MAJOR, MINOR),
-                            LINE2,
-                            BSL_MAKE_VERSION(MAJOR2, MINOR2),
-                            BSL_MAKE_VERSION(MAJOR, MINOR) !=
-                                BSL_MAKE_VERSION(MAJOR2, MINOR2));
-                }
-            }
-        }
-
-      } break;
-
-      case 1: {
-        //--------------------------------------------------------------------
         // TEST VERSION CONSISTENCY
         //
         // Concerns:
@@ -230,11 +143,135 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTEST VERSION CONSISTENCY"
                             "\n========================\n");
 
-        int major = (BSL_VERSION / 1000000) % 100;
-        int minor = (BSL_VERSION / 100)     % 10000;
+        int major = BSL_GET_VERSION_MAJOR(BSL_VERSION);
+        int minor = BSL_GET_VERSION_MINOR(BSL_VERSION);
 
         ASSERTV(BSL_VERSION_MAJOR, major, BSL_VERSION_MAJOR == major);
         ASSERTV(BSL_VERSION_MINOR, minor, BSL_VERSION_MINOR == minor);
+      } break;
+
+      case 1: {
+        //--------------------------------------------------------------------
+        // TEST BSL_MAKE_VERSION, BSL_GET_VERSION_* MACROS
+        //
+        // Concerns:
+        //   That BSL_MAKE_VERSION creates a compile-time constant if its
+        //   arguments are all compile-time constants.
+        //   That BSL_MAKE_VERSION correctly composes a 'major' and 'minor'
+        //   patch version number into a single (distinct) integer.  'major'
+        //   can be in the range 0-99, while 'minor' can be in the range
+        //   0-9999.
+        //   That BSL_GET_VERSION_MAJOR and BSL_GET_VERSION_MINOR return the
+        //   expected values.
+        //
+        // Plan:
+        //   Use the result of BSL_MAKE_VERSION as an array dimension to
+        //   prove that it is a compile-time constant.
+        //   Using ad-hoc data selection, create a number of version values
+        //   using the 'BSL_MAKE_VERSION' macro and verify that the expected
+        //   value matches the actual value.  Make sure that different
+        //   major/minor values result in distinct results.  Make sure that
+        //   BSL_GET_VERSION_MAJOR and BSL_GET_VERSION_MINOR return the
+        //   original values.
+        //
+        // Testing:
+        //   BSL_MAKE_VERSION(major, minor)
+        //   BSL_GET_VERSION_MAJOR(version)
+        //   BSL_GET_VERSION_MINOR(version)
+        //--------------------------------------------------------------------
+
+        if (verbose)
+            printf("\nTEST BSL_MAKE_VERSION, BSL_GET_VERSION_* MACROS"
+                   "\n===============================================\n");
+
+        static const char COMPILE_ASSERT[BSL_MAKE_VERSION(0,1)] = { 0 };
+        ASSERT(sizeof(COMPILE_ASSERT) == 100);
+
+        static struct {
+            int d_line;
+            int d_major;
+            int d_minor;
+            int d_version;
+        } const DATA[] = {
+            //line major minor version
+            //---- ----- ----- -------
+#if BSL_MAKE_VERSION(3,100) == 3010000
+            {  L_,    0,    0,         0 },
+            {  L_,    0,    1,       100 },
+            {  L_,    0,   99,      9900 },
+            {  L_,    0, 9999,    999900 },
+            {  L_,    1,    0,   1000000 },
+            {  L_,    1,    1,   1000100 },
+            {  L_,    1,   22,   1002200 },
+            {  L_,    1, 9999,   1999900 },
+            {  L_,    9,    9,   9000900 },
+            {  L_,   10,   20,  10002000 },
+            {  L_,   12,   34,  12003400 },
+            {  L_,   99,    0,  99000000 },
+            {  L_,   99,   99,  99009900 },
+            {  L_,   88, 9999,  88999900 },
+            {  L_,   99, 9999,  99999900 },
+#else
+            {  L_,    0,    0,         0 },
+            {  L_,    0,    1,       100 },
+            {  L_,    0,   99,      9900 },
+            {  L_,    1,    0,     10000 },
+            {  L_,    1,    1,     10100 },
+            {  L_,    9,    9,     90900 },
+            {  L_,   10,   20,    102000 },
+            {  L_,   12,   34,    123400 },
+            {  L_,   99,    0,    990000 },
+            {  L_,   99,   99,    999900 },
+#endif
+        };
+
+        enum { NUM_DATA = sizeof(DATA) / sizeof(*DATA) };
+
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int LINE  = DATA[i].d_line;
+            const int MAJOR = DATA[i].d_major;
+            const int MINOR = DATA[i].d_minor;
+            const int EXP   = DATA[i].d_version;
+
+            ASSERTV(LINE,
+                    EXP,
+                    MAJOR,
+                    MINOR,
+                    BSL_MAKE_VERSION(MAJOR, MINOR),
+                    EXP == BSL_MAKE_VERSION(MAJOR, MINOR));
+
+            ASSERTV(LINE,
+                    EXP,
+                    MAJOR,
+                    BSL_MAKE_VERSION(MAJOR, MINOR),
+                    BSL_GET_VERSION_MAJOR(BSL_MAKE_VERSION(MAJOR, MINOR)),
+                    MAJOR ==
+                        BSL_GET_VERSION_MAJOR(BSL_MAKE_VERSION(MAJOR, MINOR)));
+
+            ASSERTV(LINE,
+                    EXP,
+                    MINOR,
+                    BSL_MAKE_VERSION(MAJOR, MINOR),
+                    BSL_GET_VERSION_MINOR(BSL_MAKE_VERSION(MAJOR, MINOR)),
+                    MINOR ==
+                        BSL_GET_VERSION_MINOR(BSL_MAKE_VERSION(MAJOR, MINOR)));
+
+            // Make sure each major/minor pair results in a unique result
+            for(int j = 0; j < NUM_DATA; ++j) {
+                const int LINE2  = DATA[j].d_line;
+                const int MAJOR2 = DATA[j].d_major;
+                const int MINOR2 = DATA[j].d_minor;
+
+                if (j != i) {
+                    ASSERTV(LINE,
+                            BSL_MAKE_VERSION(MAJOR, MINOR),
+                            LINE2,
+                            BSL_MAKE_VERSION(MAJOR2, MINOR2),
+                            BSL_MAKE_VERSION(MAJOR, MINOR) !=
+                                BSL_MAKE_VERSION(MAJOR2, MINOR2));
+                }
+            }
+        }
 
       } break;
 

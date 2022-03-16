@@ -148,21 +148,17 @@ int main(int argc, char *argv[])
         //   BAL_VERSION
         //   BAL_VERSION_MAJOR
         //   BAL_VERSION_MINOR
-        //   BAL_VERSION_PATCH
         //--------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "TEST VERSION CONSISTENCY" << endl
                           << "========================" << endl;
 
-        int major = (BAL_VERSION / 1000000) % 100;
-        int minor = (BAL_VERSION / 100)     % 10000;
-        int patch = BAL_VERSION % 100;
+        int major = BSL_GET_VERSION_MAJOR(BAL_VERSION);
+        int minor = BSL_GET_VERSION_MINOR(BAL_VERSION);
 
-        (void)patch;
-
-        ASSERT(BAL_VERSION_MAJOR == major);
-        ASSERT(BAL_VERSION_MINOR == minor);
+        ASSERTV(BAL_VERSION_MAJOR, major, BAL_VERSION_MAJOR == major);
+        ASSERTV(BAL_VERSION_MINOR, minor, BAL_VERSION_MINOR == minor);
 
       } break;
 
