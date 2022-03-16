@@ -918,7 +918,6 @@ struct Platform {
     struct CpuArmv6 : CpuArm {};
     struct CpuArmv7 : CpuArm {};
     struct CpuArmv8 : CpuArm {};
-    struct CpuArmv9 : CpuArm {};
 
                               // PLATFORM TRAITS
 
