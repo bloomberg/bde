@@ -121,7 +121,7 @@ static u64 u8to64_le(const u8* p)
 {
     BSLS_ASSERT(p);
 
-#if defined(BSLS_PLATFORM_CPU_X86) || defined(BSLS_PLATFORM_CPU_X86_64)
+#if defined(BSLS_PLATFORM_IS_LITTLE_ENDIAN)
     return *reinterpret_cast<const u64 *>(p);  // Ignore alignment.
 #else
     u64 ret;

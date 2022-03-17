@@ -68,6 +68,8 @@ namespace {
 static const bool k_IS_JIT_SUPPORTED =
 #if defined(BSLS_PLATFORM_CPU_SPARC) && defined (BSLS_PLATFORM_CPU_64_BIT)
 false;
+#elif defined(BSLS_PLATFORM_CPU_ARM) && defined (BSLS_PLATFORM_CPU_64_BIT)
+false;
 #else
 true;
 #endif
