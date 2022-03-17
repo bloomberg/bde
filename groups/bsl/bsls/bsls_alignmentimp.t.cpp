@@ -415,6 +415,8 @@ int main(int argc, char *argv[])
             EXP_U1_ALIGNMENT              = 8;
 #if defined(BSLS_PLATFORM_CPU_POWERPC) && defined(BSLS_PLATFORM_OS_LINUX)
             EXP_LONG_DOUBLE_ALIGNMENT     = 8;
+#elif defined(BSLS_PLATFORM_CPU_ARM)
+            EXP_LONG_DOUBLE_ALIGNMENT     = 8;
 #else
             EXP_LONG_DOUBLE_ALIGNMENT     = 16;
 #endif
