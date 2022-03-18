@@ -519,9 +519,6 @@ class TopologicalSortUtil_Helper {
     typedef typename List::const_iterator            ListConstIter;
         // An ordered list of nodes and their iterators
 
-    typedef bsl::queue<NodeType> Fifo;
-        // FIFO queue of nodes to process
-
     struct Links {
         // Relations information for a given node in the format necessary for
         // topological sorting.  The attributes are:
@@ -558,13 +555,17 @@ class TopologicalSortUtil_Helper {
     typedef typename LinksMap::const_iterator   LinksMapConstIter;
         // Mapping of nodes to their collected relations-information
 
+    typedef bsl::queue<LinksMapIter> Fifo;
+        // FIFO queue of nodes to process
+
   private:
     // DATA
     LinksMap d_workSet;        // mapping from nodes to their relations
                                // information (predecessorCount, successors)
 
     Fifo     d_readyNodes;     // elements whose predecessors have all already
-                               // been sorted (or never had predecessors)
+                               // been sorted (or never had predecessors) as
+                               // iterators into the mapping ('d_workSet')
 
   private:
     // NOT IMPLEMENTED
@@ -593,7 +594,7 @@ class TopologicalSortUtil_Helper {
         // into the specified 'resultOutIter_p' output iterator then increment
         // it and return 'true'.  If there are still elements left but all of
         // them still have predecessors do nothing and return 'false'.  The
-        // behavior is undefined unless 'true == haveMoreNodesToSort()'.
+        // behavior is undefined unless '!d_workSet.empty()'.
 
     template <class OUTPUT_ITER, class UNSORTED_OUT_ITER>
     bool sortImpl(OUTPUT_ITER       resultOutIter,
@@ -760,10 +761,10 @@ TopologicalSortUtil_Helper<INPUT_ITER>::TopologicalSortUtil_Helper(
     // don't have any predecessors and hence are the first in order.  We put
     // these nodes into a queue that is ready to be written to the result.
 
-    const LinksMapConstIter end = d_workSet.end();
-    for (LinksMapConstIter iter = d_workSet.begin(); iter != end; ++iter) {
+    const LinksMapIter end = d_workSet.end();
+    for (LinksMapIter iter = d_workSet.begin(); iter != end; ++iter) {
         if (0 == iter->second.d_predecessorCount) {
-            d_readyNodes.push(iter->first);
+            d_readyNodes.push(iter);
         }
     }
 }
@@ -774,57 +775,44 @@ template <class OUTPUT_ITER>
 bool TopologicalSortUtil_Helper<INPUT_ITER>::processNextNodeInOrder(
                                                   OUTPUT_ITER *resultOutIter_p)
 {
-    // process the next element with no predecessors
+    if (d_readyNodes.empty()) {
+        // If the queue is empty but the input set is not then we have at least
+        // one cycle.  We know *here* that the input set is not empty because
+        // it is a precondition for calling this function.
 
-    if (false == d_readyNodes.empty()) {
-
-        NodeType     processed     = d_readyNodes.front();
-        LinksMapIter processedNode = d_workSet.find(processed);
-
-        // iterate through the successor list of the node and reduce
-        // predecessor count of each successor.  Further if this count becomes
-        // zero add it to 'd_readyNodes'.
-
-        const Links& processedNodeInfo = processedNode->second;
-        typename bsl::vector<NodeType>::const_iterator  sListIter =
-                                      (processedNodeInfo.d_successors).begin();
-        typename bsl::vector<NodeType>::const_iterator  endIter =
-                                        (processedNodeInfo.d_successors).end();
-
-        for (; sListIter != endIter; ++sListIter) {
-
-            LinksMapIter successor = d_workSet.find((*sListIter));
-            NodeType     sValue    = successor->first;
-            Links&       sNodeInfo = successor->second;
-
-            // update predecessor count
-
-            --(sNodeInfo.d_predecessorCount);
-
-            // add node to ordered if all predecessors processed
-
-            if ((sNodeInfo.d_predecessorCount) == 0) {
-                d_readyNodes.push(sValue);
-            }
-        }
-
-        // remove this node from the set since it was already processed
-
-        d_workSet.erase(processedNode);
-
-        // remove this node from the d_readyNodes and return
-
-        *(*resultOutIter_p) = processed;
-        ++(*resultOutIter_p); // output iterator must be moved after a write
-
-        d_readyNodes.pop();
-        return true;                                                  // RETURN
+        return false;
     }
 
-    // If the queue is empty but the input set is not then we have at least one
-    // cycle.
+    // process the next element (in 'd_readyNodes' FIFO) with no predecessors
+    const LinksMapIter mapIter = d_readyNodes.front();
+    d_readyNodes.pop();  // delete from the FIFO
 
-    return false;
+    // move the processed node to the sorted output
+
+    *(*resultOutIter_p) = mapIter->first;
+    ++(*resultOutIter_p); // output iterator must be moved after a write
+
+    // Iterate through the successor list of the node and reduce predecessor
+    // count of each successor.  Further, if that count becomes zero add that
+    // successor to 'd_readyNodes'.
+
+    for (ListIter successorIter =  mapIter->second.d_successors.begin();
+                  successorIter != mapIter->second.d_successors.end();
+                ++successorIter) {
+
+        LinksMapIter succMapIter = d_workSet.find((*successorIter));
+        Links&       succLinks   = succMapIter->second;
+
+        // One less predecessor now.
+        if (--(succLinks.d_predecessorCount) == 0) { // No more predecessors?
+            // This successor node is ready.
+            d_readyNodes.push(succMapIter);
+        }
+    }
+
+    d_workSet.erase(mapIter);  // Remove the processed node from the work set.
+
+    return true;
 }
 
 template <class INPUT_ITER>
@@ -833,18 +821,13 @@ bool TopologicalSortUtil_Helper<INPUT_ITER>::sortImpl(
                                              OUTPUT_ITER       resultOutIter,
                                              UNSORTED_OUT_ITER unsortedOutIter)
 {
-    while (false == d_workSet.empty()) {
-        if (false == processNextNodeInOrder(&resultOutIter)) {
+    while (!d_workSet.empty()) {
+        if (!processNextNodeInOrder(&resultOutIter)) {
             // A cycle was detected.  Write all the nodes still present in the
             // work set to 'unsortedOutIter'.  The nodes in the work set may be
             // in more than one cycle, or interconnected cycles, but our
             // algorithm ensures that all nodes left here *are* part of at
             // least one cycle.
-
-            // Implementation note: 'bsl::transform' is not used here because
-            // the ancient SunOS implementation does not use the output
-            // iterator properly (two increments to one write) which breaks our
-            // test driver that verifies proper output iterator use.
 
             const LinksMapConstIter end = d_workSet.end();
             for (LinksMapConstIter i = d_workSet.begin(); i != end; ++i) {
