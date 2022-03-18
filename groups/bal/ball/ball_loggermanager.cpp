@@ -121,9 +121,9 @@ struct RecordSharedPtrUtil {
     // 'bsl::shared_ptr<Record>' in this component.
 
     // PUBLIC CLASS DATA
-    static std::size_t s_sharedObjectOffset;  // offset (in bytes) of the
-                                              // in-place object in the shared
-                                              // pointer "rep"
+    static std::ptrdiff_t s_sharedObjectOffset;  // offset (in bytes) of the
+                                                 // in-place object in the
+                                                 // shared pointer "rep"
 
     // TYPES
     typedef bdlcc::SharedObjectPool<Record,
@@ -167,7 +167,7 @@ struct RecordSharedPtrUtil {
                     // --------------------------
 
 // PUBLIC CLASS DATA
-std::size_t RecordSharedPtrUtil::s_sharedObjectOffset = 0;
+std::ptrdiff_t RecordSharedPtrUtil::s_sharedObjectOffset = 0;
 
 // CLASS METHODS
 Record *RecordSharedPtrUtil::disassembleSharedPtr(
