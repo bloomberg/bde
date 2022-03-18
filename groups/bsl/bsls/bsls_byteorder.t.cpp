@@ -51,6 +51,10 @@
 // [ 2] BSLS_BYTEORDER_HOST_U16_TO_BE
 // [ 2] BSLS_BYTEORDER_HOST_U32_TO_BE
 // [ 2] BSLS_BYTEORDER_HOST_U64_TO_BE
+// [ 2] BSLS_BYTEORDER_LE_TO_HOST
+// [ 2] BSLS_BYTEORDER_BE_TO_HOST
+// [ 2] BSLS_BYTEORDER_HOST_TO_LE
+// [ 2] BSLS_BYTEORDER_HOST_TO_BE
 //-----------------------------------------------------------------------------
 // [ 4] USAGE EXAMPLE
 // [ 3] MACRO SAFETY
@@ -90,6 +94,8 @@ static void aSsErT(int c, const char *s, int i)
 
 #define T_ std::cout << "\t" << std::flush;             // Print tab w/o
                                                         // newline
+
+#define SS_ std::cout << "  " << std::flush;            // Print 2 spaces.
 
 #define L_ __LINE__                                     // current Line number
 
@@ -280,6 +286,13 @@ int main(int argc, char *argv[])
             else
                 ++unbracketedLoggingFlag;
             ASSERT(LEEXP16 == result);
+
+            result = 0;
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+                result = BSLS_BYTEORDER_LE_TO_HOST(INPUT16);
+            else
+                ++unbracketedLoggingFlag;
+            ASSERT(LEEXP16 == result);
         }
 
         {
@@ -289,6 +302,13 @@ int main(int argc, char *argv[])
             int result = 0;
             if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
                 result = BSLS_BYTEORDER_LE_U32_TO_HOST(INPUT32);
+            else
+                ++unbracketedLoggingFlag;
+            ASSERT(LEEXP32 == result);
+
+            result = 0;
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+                result = BSLS_BYTEORDER_LE_TO_HOST(INPUT32);
             else
                 ++unbracketedLoggingFlag;
             ASSERT(LEEXP32 == result);
@@ -304,6 +324,13 @@ int main(int argc, char *argv[])
             else
                 ++unbracketedLoggingFlag;
             ASSERT(LEEXP64 == result);
+
+            result = 0;
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+                result = BSLS_BYTEORDER_LE_TO_HOST(INPUT64);
+            else
+                ++unbracketedLoggingFlag;
+            ASSERT(LEEXP64 == result);
         }
 
         {
@@ -313,6 +340,13 @@ int main(int argc, char *argv[])
             short result = 0;
             if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
                 result = BSLS_BYTEORDER_BE_U16_TO_HOST(INPUT16);
+            else
+                ++unbracketedLoggingFlag;
+            ASSERT(BEEXP16 == result);
+
+            result = 0;
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+                result = BSLS_BYTEORDER_BE_TO_HOST(INPUT16);
             else
                 ++unbracketedLoggingFlag;
             ASSERT(BEEXP16 == result);
@@ -328,6 +362,13 @@ int main(int argc, char *argv[])
             else
                 ++unbracketedLoggingFlag;
             ASSERT(BEEXP32 == result);
+
+            result = 0;
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+                result = BSLS_BYTEORDER_BE_TO_HOST(INPUT32);
+            else
+                ++unbracketedLoggingFlag;
+            ASSERT(BEEXP32 == result);
         }
 
         {
@@ -337,6 +378,13 @@ int main(int argc, char *argv[])
             Int64 result = 0;
             if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
                 result = BSLS_BYTEORDER_BE_U64_TO_HOST(INPUT64);
+            else
+                ++unbracketedLoggingFlag;
+            ASSERT(BEEXP64 == result);
+
+            result = 0;
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+                result = BSLS_BYTEORDER_BE_TO_HOST(INPUT64);
             else
                 ++unbracketedLoggingFlag;
             ASSERT(BEEXP64 == result);
@@ -352,6 +400,13 @@ int main(int argc, char *argv[])
             else
                 ++unbracketedLoggingFlag;
             ASSERT(LEEXP16 == result);
+
+            result = 0;
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+                result = BSLS_BYTEORDER_HOST_TO_LE(INPUT16);
+            else
+                ++unbracketedLoggingFlag;
+            ASSERT(LEEXP16 == result);
         }
 
         {
@@ -361,6 +416,13 @@ int main(int argc, char *argv[])
             int result = 0;
             if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
                 result = BSLS_BYTEORDER_HOST_U32_TO_LE(INPUT32);
+            else
+                ++unbracketedLoggingFlag;
+            ASSERT(LEEXP32 == result);
+
+            result = 0;
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+                result = BSLS_BYTEORDER_HOST_TO_LE(INPUT32);
             else
                 ++unbracketedLoggingFlag;
             ASSERT(LEEXP32 == result);
@@ -376,6 +438,13 @@ int main(int argc, char *argv[])
             else
                 ++unbracketedLoggingFlag;
             ASSERT(LEEXP64 == result);
+
+            result = 0;
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+                result = BSLS_BYTEORDER_HOST_TO_LE(INPUT64);
+            else
+                ++unbracketedLoggingFlag;
+            ASSERT(LEEXP64 == result);
         }
 
         {
@@ -385,6 +454,13 @@ int main(int argc, char *argv[])
             short result = 0;
             if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
                 result = BSLS_BYTEORDER_HOST_U16_TO_BE(INPUT16);
+            else
+                ++unbracketedLoggingFlag;
+            ASSERT(BEEXP16 == result);
+
+            result = 0;
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+                result = BSLS_BYTEORDER_HOST_TO_BE(INPUT16);
             else
                 ++unbracketedLoggingFlag;
             ASSERT(BEEXP16 == result);
@@ -400,6 +476,13 @@ int main(int argc, char *argv[])
             else
                 ++unbracketedLoggingFlag;
             ASSERT(BEEXP32 == result);
+
+            result = 0;
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+                result = BSLS_BYTEORDER_HOST_TO_BE(INPUT32);
+            else
+                ++unbracketedLoggingFlag;
+            ASSERT(BEEXP32 == result);
         }
 
         {
@@ -409,6 +492,13 @@ int main(int argc, char *argv[])
             Int64 result = 0;
             if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
                 result = BSLS_BYTEORDER_HOST_U64_TO_BE(INPUT64);
+            else
+                ++unbracketedLoggingFlag;
+            ASSERT(BEEXP64 == result);
+
+            result = 0;
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+                result = BSLS_BYTEORDER_HOST_TO_BE(INPUT64);
             else
                 ++unbracketedLoggingFlag;
             ASSERT(BEEXP64 == result);
@@ -423,6 +513,13 @@ int main(int argc, char *argv[])
             else
                 ++unbracketedLoggingFlag;
             ASSERT(BEEXP16 == result);
+
+            result = 0;
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+                result = BSLS_BYTEORDER_HTON(INPUT16);
+            else
+                ++unbracketedLoggingFlag;
+            ASSERT(BEEXP16 == result);
         }
 
         {
@@ -431,6 +528,13 @@ int main(int argc, char *argv[])
             int result = 0;
             if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
                 result = BSLS_BYTEORDER_HTONL(INPUT32);
+            else
+                ++unbracketedLoggingFlag;
+            ASSERT(BEEXP32 == result);
+
+            result = 0;
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+                result = BSLS_BYTEORDER_HTON(INPUT32);
             else
                 ++unbracketedLoggingFlag;
             ASSERT(BEEXP32 == result);
@@ -445,6 +549,13 @@ int main(int argc, char *argv[])
             else
                 ++unbracketedLoggingFlag;
             ASSERT(BEEXP64 == result);
+
+            result = 0;
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+                result = BSLS_BYTEORDER_HTON(INPUT64);
+            else
+                ++unbracketedLoggingFlag;
+            ASSERT(BEEXP64 == result);
         }
 
         {
@@ -453,6 +564,13 @@ int main(int argc, char *argv[])
             short result = 0;
             if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
                 result = BSLS_BYTEORDER_NTOHS(INPUT16);
+            else
+                ++unbracketedLoggingFlag;
+            ASSERT(BEEXP16 == result);
+
+            result = 0;
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+                result = BSLS_BYTEORDER_NTOH(INPUT16);
             else
                 ++unbracketedLoggingFlag;
             ASSERT(BEEXP16 == result);
@@ -467,6 +585,13 @@ int main(int argc, char *argv[])
             else
                 ++unbracketedLoggingFlag;
             ASSERT(BEEXP32 == result);
+
+            result = 0;
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+                result = BSLS_BYTEORDER_NTOH(INPUT32);
+            else
+                ++unbracketedLoggingFlag;
+            ASSERT(BEEXP32 == result);
         }
 
         {
@@ -475,6 +600,13 @@ int main(int argc, char *argv[])
             Int64 result = 0;
             if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
                 result = BSLS_BYTEORDER_NTOHLL(INPUT64);
+            else
+                ++unbracketedLoggingFlag;
+            ASSERT(BEEXP64 == result);
+
+            result = 0;
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+                result = BSLS_BYTEORDER_NTOH(INPUT64);
             else
                 ++unbracketedLoggingFlag;
             ASSERT(BEEXP64 == result);
@@ -557,10 +689,9 @@ int main(int argc, char *argv[])
                 if (veryVerbose) { T_ P_(LINE) PH(INPUT) }
 
                 {
-
-                    const unsigned short LEToHost =
+                    unsigned short LEToHost =
                                           BSLS_BYTEORDER_LE_U16_TO_HOST(INPUT);
-                    const unsigned short hostToLE =
+                    unsigned short hostToLE =
                                           BSLS_BYTEORDER_HOST_U16_TO_LE(INPUT);
 
                     if (veryVeryVerbose) { T_ T_ PH_(LEToHost) PH_(hostToLE) }
@@ -575,6 +706,13 @@ int main(int argc, char *argv[])
                     LOOP_ASSERT(LINE, EXP == LEToHost);
                     LOOP_ASSERT(LINE, EXP == hostToLE);
 
+                    LEToHost = BSLS_BYTEORDER_LE_TO_HOST(INPUT);
+                    hostToLE = BSLS_BYTEORDER_HOST_TO_LE(INPUT);
+
+                    if (veryVeryVerbose) { T_ T_ PH_(LEToHost) PH_(hostToLE) }
+
+                    LOOP_ASSERT(LINE, EXP == LEToHost);
+                    LOOP_ASSERT(LINE, EXP == hostToLE);
                 }
 
                 {
@@ -592,6 +730,14 @@ int main(int argc, char *argv[])
                     const unsigned short EXP = INPUT;
 #endif
                     if (veryVeryVerbose) { PH(EXP) }
+
+                    LOOP_ASSERT(LINE, EXP == BEToHost);
+                    LOOP_ASSERT(LINE, EXP == hostToBE);
+
+                    BEToHost = BSLS_BYTEORDER_BE_TO_HOST(INPUT);
+                    hostToBE = BSLS_BYTEORDER_HOST_TO_BE(INPUT);
+
+                    if (veryVeryVerbose) { T_ T_ PH_(BEToHost) PH_(hostToBE) }
 
                     LOOP_ASSERT(LINE, EXP == BEToHost);
                     LOOP_ASSERT(LINE, EXP == hostToBE);
@@ -649,6 +795,14 @@ int main(int argc, char *argv[])
 
                     LOOP_ASSERT(LINE, EXP == LEToHost);
                     LOOP_ASSERT(LINE, EXP == hostToLE);
+
+                    LEToHost = BSLS_BYTEORDER_LE_TO_HOST(INPUT);
+                    hostToLE = BSLS_BYTEORDER_HOST_TO_LE(INPUT);
+
+                    if (veryVeryVerbose) { T_ T_ PH_(LEToHost) PH_(hostToLE) }
+
+                    LOOP_ASSERT(LINE, EXP == LEToHost);
+                    LOOP_ASSERT(LINE, EXP == hostToLE);
                 }
 
                 {
@@ -666,6 +820,14 @@ int main(int argc, char *argv[])
                     const unsigned int EXP = INPUT;
 #endif
                     if (veryVeryVerbose) { PH(EXP) }
+
+                    LOOP_ASSERT(LINE, EXP == BEToHost);
+                    LOOP_ASSERT(LINE, EXP == hostToBE);
+
+                    BEToHost = BSLS_BYTEORDER_BE_TO_HOST(INPUT);
+                    hostToBE = BSLS_BYTEORDER_HOST_TO_BE(INPUT);
+
+                    if (veryVeryVerbose) { T_ T_ PH_(BEToHost) PH_(hostToBE) }
 
                     LOOP_ASSERT(LINE, EXP == BEToHost);
                     LOOP_ASSERT(LINE, EXP == hostToBE);
@@ -721,6 +883,14 @@ int main(int argc, char *argv[])
 
                     LOOP_ASSERT(LINE, EXP == LEToHost);
                     LOOP_ASSERT(LINE, EXP == hostToLE);
+
+                    LEToHost = BSLS_BYTEORDER_LE_TO_HOST(INPUT);
+                    hostToLE = BSLS_BYTEORDER_HOST_TO_LE(INPUT);
+
+                    if (veryVeryVerbose) { T_ T_ PH_(LEToHost) PH_(hostToLE) }
+
+                    LOOP_ASSERT(LINE, EXP == LEToHost);
+                    LOOP_ASSERT(LINE, EXP == hostToLE);
                 }
 
                 {
@@ -735,6 +905,14 @@ int main(int argc, char *argv[])
                     const Uint64 EXP = INPUT;
 #endif
                     if (veryVeryVerbose) { PH(EXP) }
+
+                    LOOP_ASSERT(LINE, EXP == BEToHost);
+                    LOOP_ASSERT(LINE, EXP == hostToBE);
+
+                    BEToHost = BSLS_BYTEORDER_BE_TO_HOST(INPUT);
+                    hostToBE = BSLS_BYTEORDER_HOST_TO_BE(INPUT);
+
+                    if (veryVeryVerbose) { T_ T_ PH_(BEToHost) PH_(hostToBE) }
 
                     LOOP_ASSERT(LINE, EXP == BEToHost);
                     LOOP_ASSERT(LINE, EXP == hostToBE);
@@ -812,26 +990,30 @@ int main(int argc, char *argv[])
                 {
                     const short ORACLE    = htons(VALUE);
                     const short NEWVALUE  = BSLS_BYTEORDER_HTONS(VALUE);
-                    const short NEWVALUE2 =
+                    const short NEWVALUE2 = BSLS_BYTEORDER_HTON(VALUE);
+                    const short NEWVALUE3 =
                                           BSLS_BYTEORDER_HTONS_CONSTANT(VALUE);
 
-                    if (veryVeryVerbose) { T_ T_ P_(NEWVALUE) P_(NEWVALUE2)
-                                                                    P(ORACLE) }
+                    if (veryVeryVerbose) { SS_ P_(NEWVALUE) P_(NEWVALUE2)
+                                                       P(NEWVALUE3) P(ORACLE) }
 
                     LOOP_ASSERT(LINE, ORACLE == NEWVALUE);
                     LOOP_ASSERT(LINE, ORACLE == NEWVALUE2);
+                    LOOP_ASSERT(LINE, ORACLE == NEWVALUE3);
                 }
                 {
                     const short ORACLE    = ntohs(VALUE);
                     const short NEWVALUE  = BSLS_BYTEORDER_NTOHS(VALUE);
-                    const short NEWVALUE2 =
+                    const short NEWVALUE2 = BSLS_BYTEORDER_NTOH(VALUE);
+                    const short NEWVALUE3 =
                                           BSLS_BYTEORDER_NTOHS_CONSTANT(VALUE);
 
-                    if (veryVeryVerbose) { T_ T_ P_(NEWVALUE) P_(NEWVALUE2)
-                                                                    P(ORACLE) }
+                    if (veryVeryVerbose) { SS_ P_(NEWVALUE) P_(NEWVALUE2)
+                                                       P(NEWVALUE3) P(ORACLE) }
 
                     LOOP_ASSERT(LINE, ORACLE == NEWVALUE);
                     LOOP_ASSERT(LINE, ORACLE == NEWVALUE2);
+                    LOOP_ASSERT(LINE, ORACLE == NEWVALUE3);
                 }
             }
         }
@@ -873,24 +1055,28 @@ int main(int argc, char *argv[])
                 {
                     const int ORACLE    = htonl(VALUE);
                     const int NEWVALUE  = BSLS_BYTEORDER_HTONL(VALUE);
-                    const int NEWVALUE2 = BSLS_BYTEORDER_HTONL_CONSTANT(VALUE);
+                    const int NEWVALUE2 = BSLS_BYTEORDER_HTON(VALUE);
+                    const int NEWVALUE3 = BSLS_BYTEORDER_HTONL_CONSTANT(VALUE);
 
-                    if (veryVeryVerbose) { T_ T_ P_(NEWVALUE) P_(NEWVALUE2)
-                                                                    P(ORACLE) }
+                    if (veryVeryVerbose) { SS_ P_(NEWVALUE) P_(NEWVALUE2)
+                                                       P(NEWVALUE3) P(ORACLE) }
 
                     LOOP_ASSERT(LINE, ORACLE == NEWVALUE);
                     LOOP_ASSERT(LINE, ORACLE == NEWVALUE2);
+                    LOOP_ASSERT(LINE, ORACLE == NEWVALUE3);
                 }
                 {
                     const int ORACLE    = ntohl(VALUE);
                     const int NEWVALUE  = BSLS_BYTEORDER_NTOHL(VALUE);
-                    const int NEWVALUE2 = BSLS_BYTEORDER_NTOHL_CONSTANT(VALUE);
+                    const int NEWVALUE2 = BSLS_BYTEORDER_NTOH(VALUE);
+                    const int NEWVALUE3 = BSLS_BYTEORDER_NTOHL_CONSTANT(VALUE);
 
-                    if (veryVeryVerbose) { T_ T_ P_(NEWVALUE) P_(NEWVALUE2)
-                                                                    P(ORACLE) }
+                    if (veryVeryVerbose) { SS_ P_(NEWVALUE) P_(NEWVALUE2)
+                                                       P(NEWVALUE3) P(ORACLE) }
 
                     LOOP_ASSERT(LINE, ORACLE == NEWVALUE);
                     LOOP_ASSERT(LINE, ORACLE == NEWVALUE2);
+                    LOOP_ASSERT(LINE, ORACLE == NEWVALUE3);
                 }
             }
         }
@@ -947,40 +1133,56 @@ int main(int argc, char *argv[])
 #if defined (BSLS_PLATFORM_IS_BIG_ENDIAN)
                 {
                     const Uint64 NEWVALUE  = BSLS_BYTEORDER_HTONLL(VALUE);
-                    const Uint64 NEWVALUE2 =
+                    const Uint64 NEWVALUE2 = BSLS_BYTEORDER_HTON(VALUE);
+                    const Uint64 NEWVALUE3 =
                                          BSLS_BYTEORDER_HTONLL_CONSTANT(VALUE);
 
-                    if (veryVeryVerbose) { T_ T_ P_(NEWVALUE) P(NEWVALUE2) }
+                    if (veryVeryVerbose) { SS_ P_(NEWVALUE) P_(NEWVALUE2)
+                                                       P_(NEWVALUE3) P(VALUE) }
+
                     LOOP_ASSERT(LINE, VALUE == NEWVALUE);
                     LOOP_ASSERT(LINE, VALUE == NEWVALUE2);
+                    LOOP_ASSERT(LINE, VALUE == NEWVALUE3);
                 }
                 {
                     const Uint64 NEWVALUE  = BSLS_BYTEORDER_NTOHLL(VALUE);
-                    const Uint64 NEWVALUE2 =
+                    const Uint64 NEWVALUE2 = BSLS_BYTEORDER_NTOH(VALUE);
+                    const Uint64 NEWVALUE3 =
                                          BSLS_BYTEORDER_NTOHLL_CONSTANT(VALUE);
 
-                    if (veryVeryVerbose) { T_ T_ P_(NEWVALUE) P(NEWVALUE2) }
+                    if (veryVeryVerbose) { SS_ P_(NEWVALUE) P_(NEWVALUE2)
+                                                       P_(NEWVALUE3) P(VALUE) }
+
                     LOOP_ASSERT(LINE, VALUE == NEWVALUE);
                     LOOP_ASSERT(LINE, VALUE == NEWVALUE2);
+                    LOOP_ASSERT(LINE, VALUE == NEWVALUE3);
                 }
 #else
                 {
                     const Uint64 NEWVALUE  = BSLS_BYTEORDER_HTONLL(VALUE);
-                    const Uint64 NEWVALUE2 =
+                    const Uint64 NEWVALUE2 = BSLS_BYTEORDER_HTON(VALUE);
+                    const Uint64 NEWVALUE3 =
                                          BSLS_BYTEORDER_HTONLL_CONSTANT(VALUE);
 
-                    if (veryVeryVerbose) { T_ T_ P_(NEWVALUE) P(NEWVALUE2) }
+                    if (veryVeryVerbose) { SS_ P_(NEWVALUE) P_(NEWVALUE2)
+                                                    P_(NEWVALUE3) P(EXPECTED) }
+
                     LOOP_ASSERT(LINE, EXPECTED == NEWVALUE);
                     LOOP_ASSERT(LINE, EXPECTED == NEWVALUE2);
+                    LOOP_ASSERT(LINE, EXPECTED == NEWVALUE3);
                 }
                 {
                     const Uint64 NEWVALUE  = BSLS_BYTEORDER_NTOHLL(VALUE);
-                    const Uint64 NEWVALUE2 =
+                    const Uint64 NEWVALUE2 = BSLS_BYTEORDER_NTOH(VALUE);
+                    const Uint64 NEWVALUE3 =
                                          BSLS_BYTEORDER_NTOHLL_CONSTANT(VALUE);
 
-                    if (veryVeryVerbose) { T_ T_ P_(NEWVALUE) P(NEWVALUE2) }
+                    if (veryVeryVerbose) { SS_ P_(NEWVALUE) P_(NEWVALUE2)
+                                                    P_(NEWVALUE3) P(EXPECTED) }
+
                     LOOP_ASSERT(LINE, EXPECTED == NEWVALUE);
                     LOOP_ASSERT(LINE, EXPECTED == NEWVALUE2);
+                    LOOP_ASSERT(LINE, EXPECTED == NEWVALUE3);
                 }
 #endif
             }

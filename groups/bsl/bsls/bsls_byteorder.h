@@ -12,30 +12,38 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bsls_byteorderutil
 //
 //@MACROS:
+//  BSLS_BYTEORDER_HTON(x):   Convert value from host to network order
 //  BSLS_BYTEORDER_HTONS(x):  Convert 16-bit value from host to network order
 //  BSLS_BYTEORDER_HTONL(x):  Convert 32-bit value from host to network order
 //  BSLS_BYTEORDER_HTONLL(x): Convert 64-bit value from host to network order
+//  BSLS_BYTEORDER_NTOH(x):   Convert value from network to host order
 //  BSLS_BYTEORDER_NTOHS(x):  Convert 16-bit value from network to host order
 //  BSLS_BYTEORDER_NTOHL(x):  Convert 32-bit value from network to host order
 //  BSLS_BYTEORDER_NTOHLL(x): Convert 64-bit value from network to host order
 //
+//  BSLS_BYTEORDER_HTON_CONSTANT(x):   static host to network order
 //  BSLS_BYTEORDER_HTONS_CONSTANT(x):  static 16-bit network to host order
 //  BSLS_BYTEORDER_HTONL_CONSTANT(x):  static 32-bit network to host order
 //  BSLS_BYTEORDER_HTONLL_CONSTANT(x): static 64-bit network to host order
+//  BSLS_BYTEORDER_NTOH_CONSTANT(x):   static network to host order
 //  BSLS_BYTEORDER_NTOHS_CONSTANT(x):  static 16-bit network to host order
 //  BSLS_BYTEORDER_NTOHL_CONSTANT(x):  static 32-bit network to host order
 //  BSLS_BYTEORDER_NTOHLL_CONSTANT(x): static 64-bit network to host order
 //
+//  BSLS_BYTEORDER_LE_TO_HOST(x):     little-endian to host-endian
 //  BSLS_BYTEORDER_LE_U16_TO_HOST(x): 16-bit little-endian to host-endian
 //  BSLS_BYTEORDER_LE_U32_TO_HOST(x): 32-bit little-endian to host-endian
 //  BSLS_BYTEORDER_LE_U64_TO_HOST(x): 64-bit little-endian to host-endian
+//  BSLS_BYTEORDER_BE_TO_HOST(x):     big-endian to host-endian
 //  BSLS_BYTEORDER_BE_U16_TO_HOST(x): 16-bit    big-endian to host-endian
 //  BSLS_BYTEORDER_BE_U32_TO_HOST(x): 32-bit    big-endian to host-endian
 //  BSLS_BYTEORDER_BE_U64_TO_HOST(x): 64-bit    big-endian to host-endian
 //
+//  BSLS_BYTEORDER_HOST_TO_LE(x):     host-endian to little-endian
 //  BSLS_BYTEORDER_HOST_U16_TO_LE(x): 16-bit host-endian to little-endian
 //  BSLS_BYTEORDER_HOST_U32_TO_LE(x): 32-bit host-endian to little-endian
 //  BSLS_BYTEORDER_HOST_U64_TO_LE(x): 64-bit host-endian to little-endian
+//  BSLS_BYTEORDER_HOST_TO_BE(x):     host-endian to big-endian
 //  BSLS_BYTEORDER_HOST_U16_TO_BE(x): 16-bit host-endian to    big-endian
 //  BSLS_BYTEORDER_HOST_U32_TO_BE(x): 32-bit host-endian to    big-endian
 //  BSLS_BYTEORDER_HOST_U64_TO_BE(x): 64-bit host-endian to    big-endian
@@ -44,9 +52,11 @@ BSLS_IDENT("$Id: $")
 // that replace the standard 'htonl', 'htons', 'ntohl', and 'ntohs' functions,
 // and which do not require including any system header files:
 //..
+//  BSLS_BYTEORDER_HTON(x)
 //  BSLS_BYTEORDER_HTONS(x)
 //  BSLS_BYTEORDER_HTONL(x)
 //  BSLS_BYTEORDER_HTONLL(x)
+//  BSLS_BYTEORDER_NTOH(x)
 //  BSLS_BYTEORDER_NTOHS(x)
 //  BSLS_BYTEORDER_NTOHL(x)
 //  BSLS_BYTEORDER_NTOHLL(x)
@@ -55,9 +65,15 @@ BSLS_IDENT("$Id: $")
 // their applicability to 16-bit ('short'), 32-bit ('int', *not* 'long'), and
 // 64-bit ('long long') values, respectively.
 //
+// The macros without "S", "L", or "LL" suffices in their names indicate that
+// they take the word size to be swapped from the word size of 'x', and return
+// a value of the same type as 'x'.  These should only be passed fundamental
+// integral types, and not 'enum' values, as the sizes of 'enum' values are
+// implementation defined.
+//
 // This set of host-to-network and network-to-host conversion macros are very
 // efficient, but sacrifices the ability to perform compile-time
-// initialization.  To compensate, another set of functionally equivalent
+// initialization.  To compensate, the following set of functionally equivalent
 // "CONSTANT" macros are provided.  These macros can be used for compile-time
 // initialization, but are less efficient than non-"CONSTANT" versions:
 //..
@@ -72,9 +88,11 @@ BSLS_IDENT("$Id: $")
 // byte order to host-endian order.  The macros take 16-, 32- or 64-bit values
 // and perform the indicated byte-order conversion on those values:
 //..
+//  BSLS_BYTEORDER_LE_TO_HOST(x)
 //  BSLS_BYTEORDER_LE_U16_TO_HOST(x)
 //  BSLS_BYTEORDER_LE_U32_TO_HOST(x)
 //  BSLS_BYTEORDER_LE_U64_TO_HOST(x)
+//  BSLS_BYTEORDER_BE_TO_HOST(x)
 //  BSLS_BYTEORDER_BE_U16_TO_HOST(x)
 //  BSLS_BYTEORDER_BE_U32_TO_HOST(x)
 //  BSLS_BYTEORDER_BE_U64_TO_HOST(x)
@@ -85,9 +103,11 @@ BSLS_IDENT("$Id: $")
 // Finally, a complementary set of macros provides conversion from host-endian
 // byte order to big-endian or little-endian order:
 //..
+//  BSLS_BYTEORDER_HOST_TO_LE(x)
 //  BSLS_BYTEORDER_HOST_U16_TO_LE(x)
 //  BSLS_BYTEORDER_HOST_U32_TO_LE(x)
 //  BSLS_BYTEORDER_HOST_U64_TO_LE(x)
+//  BSLS_BYTEORDER_HOST_TO_BE(x)
 //  BSLS_BYTEORDER_HOST_U16_TO_BE(x)
 //  BSLS_BYTEORDER_HOST_U32_TO_BE(x)
 //  BSLS_BYTEORDER_HOST_U64_TO_BE(x)
@@ -176,10 +196,12 @@ BSLS_IDENT("$Id: $")
 
 #if defined(BSLS_PLATFORM_IS_BIG_ENDIAN)
 
+#define BSLS_BYTEORDER_NTOH(x)   (x)
 #define BSLS_BYTEORDER_NTOHS(x)  (x)
 #define BSLS_BYTEORDER_NTOHL(x)  (x)
 #define BSLS_BYTEORDER_NTOHLL(x) (x)
 
+#define BSLS_BYTEORDER_HTON(x)   (x)
 #define BSLS_BYTEORDER_HTONS(x)  (x)
 #define BSLS_BYTEORDER_HTONL(x)  (x)
 #define BSLS_BYTEORDER_HTONLL(x) (x)
@@ -194,6 +216,8 @@ BSLS_IDENT("$Id: $")
 
 #else  // BSLS_PLATFORM_IS_LITTLE_ENDIAN
 
+#define BSLS_BYTEORDER_NTOH(x) BloombergLP::bsls::ByteOrderUtil::swapBytes(x)
+
 #define BSLS_BYTEORDER_NTOHS(x)                                               \
                                BloombergLP::bsls::ByteOrderUtil::swapBytes16(x)
 
@@ -202,6 +226,8 @@ BSLS_IDENT("$Id: $")
 
 #define BSLS_BYTEORDER_NTOHLL(x)                                              \
                                BloombergLP::bsls::ByteOrderUtil::swapBytes64(x)
+
+#define BSLS_BYTEORDER_HTON(x)   BSLS_BYTEORDER_NTOH(x)
 
 #define BSLS_BYTEORDER_HTONS(x)  BSLS_BYTEORDER_NTOHS(x)
 
@@ -277,6 +303,13 @@ BSLS_IDENT("$Id: $")
 #define BSLS_BYTEORDER_HOST_U64_TO_BE(x)                                      \
                                BloombergLP::bsls::ByteOrderUtil::swapBytes64(x)
 
+#define BSLS_BYTEORDER_LE_TO_HOST(x) (x)
+#define BSLS_BYTEORDER_HOST_TO_LE(x) (x)
+#define BSLS_BYTEORDER_BE_TO_HOST(x)                                          \
+                                 BloombergLP::bsls::ByteOrderUtil::swapBytes(x)
+#define BSLS_BYTEORDER_HOST_TO_BE(x)                                          \
+                                 BloombergLP::bsls::ByteOrderUtil::swapBytes(x)
+
 #else  // BSLS_PLATFORM_IS_BIG_ENDIAN
 
 #define BSLS_BYTEORDER_LE_U16_TO_HOST(x)                                      \
@@ -300,6 +333,13 @@ BSLS_IDENT("$Id: $")
 #define BSLS_BYTEORDER_HOST_U16_TO_BE(x) (x)
 #define BSLS_BYTEORDER_HOST_U32_TO_BE(x) (x)
 #define BSLS_BYTEORDER_HOST_U64_TO_BE(x) (x)
+
+#define BSLS_BYTEORDER_LE_TO_HOST(x)                                          \
+                                 BloombergLP::bsls::ByteOrderUtil::swapBytes(x)
+#define BSLS_BYTEORDER_HOST_TO_LE(x)                                          \
+                                 BloombergLP::bsls::ByteOrderUtil::swapBytes(x)
+#define BSLS_BYTEORDER_BE_TO_HOST(x) (x)
+#define BSLS_BYTEORDER_HOST_TO_BE(x) (x)
 
 #endif  // BSLS_PLATFORM_IS_LITTLE_ENDIAN
 
