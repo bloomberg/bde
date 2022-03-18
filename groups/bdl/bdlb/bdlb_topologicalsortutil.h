@@ -556,7 +556,11 @@ class TopologicalSortUtil_Helper {
         // Mapping of nodes to their collected relations-information
 
     typedef bsl::queue<LinksMapIter> Fifo;
-        // FIFO queue of nodes to process
+        // FIFO queue of nodes to process.  Note that it is safe to store
+        // iterators into the work-set/mapping in the queue because
+        // 'bsl::unordered_map' guarantees the stability of every iterator
+        // after a delete, except the iterators pointing to the deleted entry
+        // itself.
 
   private:
     // DATA
@@ -779,23 +783,19 @@ bool TopologicalSortUtil_Helper<INPUT_ITER>::processNextNodeInOrder(
         // If the queue is empty but the input set is not then we have at least
         // one cycle.  We know *here* that the input set is not empty because
         // it is a precondition for calling this function.
-
-        return false;
+        return false;                                                 // RETURN
     }
 
     // process the next element (in 'd_readyNodes' FIFO) with no predecessors
     const LinksMapIter mapIter = d_readyNodes.front();
-    d_readyNodes.pop();  // delete from the FIFO
 
     // move the processed node to the sorted output
-
     *(*resultOutIter_p) = mapIter->first;
     ++(*resultOutIter_p); // output iterator must be moved after a write
 
     // Iterate through the successor list of the node and reduce predecessor
     // count of each successor.  Further, if that count becomes zero add that
     // successor to 'd_readyNodes'.
-
     for (ListIter successorIter =  mapIter->second.d_successors.begin();
                   successorIter != mapIter->second.d_successors.end();
                 ++successorIter) {
@@ -810,6 +810,7 @@ bool TopologicalSortUtil_Helper<INPUT_ITER>::processNextNodeInOrder(
         }
     }
 
+    d_readyNodes.pop();        // Drop the map iterator from the FIFO.
     d_workSet.erase(mapIter);  // Remove the processed node from the work set.
 
     return true;
