@@ -3,10 +3,16 @@
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
+#include <bslma_destructionutil.h>
 #include <bslma_testallocator.h>
+
+#include <bslmf_assert.h>
+#include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+
+#include <cstddef>      // std::size_t
 
 #include <stdio.h>      // 'printf'
 #include <stdlib.h>     // 'atoi'
@@ -38,6 +44,7 @@ using namespace BloombergLP;
 // [ 4] SharedPtrOutofplaceRep(TYPE *ptr, const...BCEMA_ALLOCATOR_PTR>);
 // [ 4] SharedPtrOutofplaceRep(TYPE *ptr, const...BCEMA_FACTORY_PTR>);
 // [ 4] SharedPtrOutofplaceRep(TYPE *ptr, ...BCEMA_FUNCTOR_WITH_ALLOC>);
+// [ 4] SharedPtrOutofplaceRep(TYPE ...BCEMA_FUNCTOR_WITH_ALLOC_ARG_T>);
 // [ 4] SharedPtrOutofplaceRep(TYPE *pt...BCEMA_FUNCTOR_WITHOUT_ALLOC>);
 // [ 4] SharedPtrOutofplaceRep<TYPE, DELETER> *makeOutofplaceRep(...);
 // [ 2] void disposeRep();
@@ -134,6 +141,102 @@ typedef void (*DeleteFunction)(MyTestObject *);
 //              GLOBAL HELPER CLASSES AND FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
+                          // ========================
+                          // class MyBslTestAllocator
+                          // ========================
+
+template <class TYPE>
+class MyBslTestAllocator {
+    // This class meets enough of the standard 'Allocator' requirements in
+    // order to test the out-of-place creation apparatus with such allocators
+    // that are convertible from 'bslma::Allocator *' (e.g. 'bsl::allocator').
+
+    BSLMF_ASSERT((!bsl::is_same<TYPE, void>::value));
+        // 'Allocator' implementations with a 'void' 'value_type' have to
+        // provide a different interface.  Support for this is not necessary
+        // for this test driver.
+
+  public:
+    // TYPES
+    typedef TYPE value_type;
+
+  private:
+    // DATA
+    bslma::Allocator *d_allocator_p;
+
+  public:
+    // CREATORS
+    MyBslTestAllocator();
+
+    MyBslTestAllocator(bslma::Allocator *allocator);                // IMPLICIT
+
+    MyBslTestAllocator(const MyBslTestAllocator& original);
+
+    template <class OTHER_TYPE>
+    MyBslTestAllocator(const MyBslTestAllocator<OTHER_TYPE>& original);
+
+    // MANIPULATORS
+    TYPE *allocate(std::size_t n);
+
+    void deallocate(TYPE *pointer, std::size_t n);
+
+    template <class ELEMENT_TYPE>
+    void destroy(ELEMENT_TYPE *address);
+};
+
+                          // ------------------------
+                          // class MyBslTestAllocator
+                          // ------------------------
+
+// CREATORS
+template <class TYPE>
+MyBslTestAllocator<TYPE>::MyBslTestAllocator()
+: d_allocator_p(bslma::Default::allocator())
+{
+}
+
+template <class TYPE>
+MyBslTestAllocator<TYPE>::MyBslTestAllocator(bslma::Allocator *allocator)
+: d_allocator_p(allocator)
+{
+}
+
+template <class TYPE>
+MyBslTestAllocator<TYPE>::MyBslTestAllocator(
+                                            const MyBslTestAllocator& original)
+: d_allocator_p(original.d_allocator_p)
+{
+}
+
+template <class TYPE>
+template <class OTHER_TYPE>
+MyBslTestAllocator<TYPE>::MyBslTestAllocator(
+                                const MyBslTestAllocator<OTHER_TYPE>& original)
+: d_allocator_p(original.d_allocator_p)
+{
+}
+
+// MANIPULATORS
+template <class TYPE>
+TYPE *MyBslTestAllocator<TYPE>::allocate(std::size_t n)
+{
+    return static_cast<TYPE *>(d_allocator_p->allocate(n * sizeof(TYPE)));
+}
+
+template <class TYPE>
+void MyBslTestAllocator<TYPE>::deallocate(TYPE *pointer, std::size_t)
+{
+    d_allocator_p->deallocate(pointer);
+}
+
+
+template <class TYPE>
+template <class ELEMENT_TYPE>
+void MyBslTestAllocator<TYPE>::destroy(ELEMENT_TYPE *address)
+{
+    bslma::DestructionUtil::destroy(address);
+}
+
                          // ==================
                          // class MyTestObject
                          // ==================
@@ -210,9 +313,13 @@ class MyAllocTestDeleter {
     // DATA
     bslma::Allocator *d_allocator_p;
     bslma::Allocator *d_deleter_p;
-    void             *d_someMemory;
+    void             *d_memory_p;
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(MyAllocTestDeleter,
+                                   bslma::UsesBslmaAllocator);
+
     // CREATORS
     explicit MyAllocTestDeleter(bslma::Allocator *deleter,
                                 bslma::Allocator *basicAllocator = 0);
@@ -230,13 +337,6 @@ class MyAllocTestDeleter {
     void operator()(TYPE *ptr) const;
 };
 
-namespace BloombergLP {
-namespace bslma {
-template <>
-struct UsesBslmaAllocator<MyAllocTestDeleter> : bsl::true_type {};
-}  // close package namespace
-}  // close enterprise namespace
-
                           // ------------------------
                           // class MyAllocTestDeleter
                           // ------------------------
@@ -247,7 +347,7 @@ MyAllocTestDeleter::MyAllocTestDeleter(bslma::Allocator *deleter,
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_deleter_p(deleter)
 {
-    d_someMemory = d_allocator_p->allocate(13);
+    d_memory_p = d_allocator_p->allocate(13);
 }
 
 MyAllocTestDeleter::MyAllocTestDeleter(
@@ -256,19 +356,19 @@ MyAllocTestDeleter::MyAllocTestDeleter(
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_deleter_p(original.d_deleter_p)
 {
-    d_someMemory = d_allocator_p->allocate(13);
+    d_memory_p = d_allocator_p->allocate(13);
 }
 
 MyAllocTestDeleter::~MyAllocTestDeleter()
 {
-    d_allocator_p->deallocate(d_someMemory);
+    d_allocator_p->deallocate(d_memory_p);
 }
 
 // MANIPULATORS
 MyAllocTestDeleter& MyAllocTestDeleter::operator=(
                                                  const MyAllocTestDeleter& rhs)
 {
-    ASSERT(!"I think we do not use operator =");
+    ASSERT(!"'MyAllocTestDeleter::operator=' should not be used.");
     d_deleter_p = rhs.d_deleter_p;
     return *this;
 }
@@ -276,6 +376,209 @@ MyAllocTestDeleter& MyAllocTestDeleter::operator=(
 // ACCESSORS
 template <class TYPE>
 void MyAllocTestDeleter::operator()(TYPE *ptr) const
+{
+    d_deleter_p->deleteObject(ptr);
+}
+
+                        // ===========================
+                        // class MyAllocArgTestDeleter
+                        // ===========================
+
+class MyAllocArgTestDeleter {
+
+    // DATA
+    bslma::Allocator *d_allocator_p;
+    bslma::Allocator *d_deleter_p;
+    void             *d_memory_p;
+
+  public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(MyAllocArgTestDeleter,
+                                   bslma::UsesBslmaAllocator);
+
+    BSLMF_NESTED_TRAIT_DECLARATION(MyAllocArgTestDeleter,
+                                   bslmf::UsesAllocatorArgT);
+
+    // CREATORS
+    MyAllocArgTestDeleter(bsl::allocator_arg_t,
+                          bslma::Allocator *basicAllocator,
+                          bslma::Allocator *deleter);
+
+    MyAllocArgTestDeleter(const MyAllocArgTestDeleter& original);
+
+    MyAllocArgTestDeleter(bsl::allocator_arg_t,
+                          bslma::Allocator             *basicAllocator,
+                          const MyAllocArgTestDeleter&  original);
+
+    ~MyAllocArgTestDeleter();
+
+    // MANIPULATORS
+    MyAllocArgTestDeleter& operator=(const MyAllocArgTestDeleter& rhs);
+
+    // ACCESSORS
+    template <class TYPE>
+    void operator()(TYPE *ptr) const;
+};
+
+                        // ---------------------------
+                        // class MyAllocArgTestDeleter
+                        // ---------------------------
+
+// CREATORS
+MyAllocArgTestDeleter::MyAllocArgTestDeleter(
+                                          bsl::allocator_arg_t,
+                                          bslma::Allocator     *basicAllocator,
+                                          bslma::Allocator     *deleter)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
+, d_deleter_p(deleter)
+, d_memory_p(d_allocator_p->allocate(13))
+{
+}
+
+MyAllocArgTestDeleter::MyAllocArgTestDeleter(
+                                         const MyAllocArgTestDeleter& original)
+: d_allocator_p(original.d_allocator_p)
+, d_deleter_p(original.d_deleter_p)
+, d_memory_p(d_allocator_p->allocate(13))
+{
+    ASSERT(!"'MyAllocArgTestDeleter::MyAllocArgTestDeleter(original)' should"
+            " not be used.");
+}
+
+MyAllocArgTestDeleter::MyAllocArgTestDeleter(
+                                  bsl::allocator_arg_t,
+                                  bslma::Allocator             *basicAllocator,
+                                  const MyAllocArgTestDeleter&  original)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
+, d_deleter_p(original.d_deleter_p)
+, d_memory_p(d_allocator_p->allocate(13))
+{
+}
+
+MyAllocArgTestDeleter::~MyAllocArgTestDeleter()
+{
+    d_allocator_p->deallocate(d_memory_p);
+}
+
+// MANIPULATORS
+MyAllocArgTestDeleter& MyAllocArgTestDeleter::operator=(
+                                              const MyAllocArgTestDeleter& rhs)
+{
+    ASSERT(!"'MyAllocArgTestDeleter::operator=' should not be used.");
+    d_deleter_p = rhs.d_deleter_p;
+    return *this;
+}
+
+// ACCESSORS
+template <class TYPE>
+void MyAllocArgTestDeleter::operator()(TYPE *ptr) const
+{
+    d_deleter_p->deleteObject(ptr);
+}
+
+                       // ==============================
+                       // class MyBslAllocArgTestDeleter
+                       // ==============================
+
+class MyBslAllocArgTestDeleter {
+
+  public:
+    // TYPES
+    typedef MyBslTestAllocator<char> allocator_type;
+
+  private:
+    // DATA
+    allocator_type    d_allocator;
+    bslma::Allocator *d_deleter_p;
+    void             *d_memory_p;
+
+  public:
+    // CREATORS
+    MyBslAllocArgTestDeleter(bsl::allocator_arg_t,
+                             const allocator_type&  allocator,
+                             bslma::Allocator      *deleter);
+
+    MyBslAllocArgTestDeleter(const MyBslAllocArgTestDeleter& original);
+
+    MyBslAllocArgTestDeleter(bsl::allocator_arg_t,
+                             const allocator_type&           allocator,
+                             const MyBslAllocArgTestDeleter& original);
+
+    ~MyBslAllocArgTestDeleter();
+
+    // MANIPULATORS
+    MyBslAllocArgTestDeleter& operator=(const MyBslAllocArgTestDeleter& rhs);
+
+    // ACCESSORS
+    template <class TYPE>
+    void operator()(TYPE *ptr) const;
+};
+
+namespace BloombergLP {
+namespace bslma {
+template <>
+struct UsesBslmaAllocator<MyBslAllocArgTestDeleter> : bsl::true_type {
+};
+}  // close package namespace
+
+namespace bslmf {
+template <>
+struct UsesAllocatorArgT<MyBslAllocArgTestDeleter> : bsl::true_type {
+};
+}  // close namespace bslmf
+}  // close enterprise namespace
+
+                       // ------------------------------
+                       // class MyBslAllocArgTestDeleter
+                       // ------------------------------
+
+// CREATORS
+MyBslAllocArgTestDeleter::MyBslAllocArgTestDeleter(
+                                              bsl::allocator_arg_t,
+                                              const allocator_type&  allocator,
+                                              bslma::Allocator      *deleter)
+: d_allocator(allocator)
+, d_deleter_p(deleter)
+, d_memory_p(d_allocator.allocate(13))
+{
+}
+
+MyBslAllocArgTestDeleter::MyBslAllocArgTestDeleter(
+                                      const MyBslAllocArgTestDeleter& original)
+: d_allocator()
+, d_deleter_p(original.d_deleter_p)
+, d_memory_p(d_allocator.allocate(13))
+{
+    ASSERT(!"'MyBslAllocArgTestDeleter::MyBslAllocArgTestDeleter(original)'"
+            " should not be used.");
+}
+
+MyBslAllocArgTestDeleter::MyBslAllocArgTestDeleter(
+                                     bsl::allocator_arg_t,
+                                     const allocator_type&           allocator,
+                                     const MyBslAllocArgTestDeleter& original)
+: d_allocator(allocator)
+, d_deleter_p(original.d_deleter_p)
+, d_memory_p(d_allocator.allocate(13))
+{
+}
+
+MyBslAllocArgTestDeleter::~MyBslAllocArgTestDeleter()
+{
+    d_allocator.deallocate(static_cast<char *>(d_memory_p), 13);
+}
+
+// MANIPULATORS
+MyBslAllocArgTestDeleter& MyBslAllocArgTestDeleter::operator=(
+                                           const MyBslAllocArgTestDeleter& rhs)
+{
+    ASSERT(!"'MyBslAllocArgTestDeleter::operator=' should not be used.");
+    return *this;
+}
+
+// ACCESSORS
+template <class TYPE>
+void MyBslAllocArgTestDeleter::operator()(TYPE *ptr) const
 {
     d_deleter_p->deleteObject(ptr);
 }
@@ -464,6 +767,7 @@ int main(int argc, char *argv[])
         //   SharedPtrOutofplaceRep(TYPE *ptr, const...BCEMA_ALLOCATOR_PTR>);
         //   SharedPtrOutofplaceRep(TYPE *ptr, const...BCEMA_FACTORY_PTR>);
         //   SharedPtrOutofplaceRep(TYPE *ptr, ...BCEMA_FUNCTOR_WITH_ALLOC>);
+        //   SharedPtrOutofplaceRep(TYPE ...BCEMA_FUNCTOR_WITH_ALLOC_ARG_T>);
         //   SharedPtrOutofplaceRep(TYPE *pt...BCEMA_FUNCTOR_WITHOUT_ALLOC>);
         // --------------------------------------------------------------------
 
@@ -490,11 +794,6 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting Factory Deleter"
                             "\n-----------------------\n");
         {
-            enum { DELETER_TYPE =
-            bslma::SharedPtrOutofplaceRep_DeleterDiscriminator<MyTestFactory *>
-                                                                        ::VALUE
-            };
-
             MyTestFactory factory = MyTestFactory();
 
 
@@ -515,11 +814,6 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting Function Deleter"
                             "\n------------------------\n");
         {
-            enum { DELETER_TYPE =
-             bslma::SharedPtrOutofplaceRep_DeleterDiscriminator<DeleteFunction>
-                                                                        ::VALUE
-            };
-
             typedef bslma::SharedPtrOutofplaceRep<MyTestObject, DeleteFunction>
                                                                        TestRep;
 
@@ -542,11 +836,6 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting Functor Deleter Without Alloc"
                             "\n-------------------------------------\n");
         {
-            enum { DELETER_TYPE =
-            bslma::SharedPtrOutofplaceRep_DeleterDiscriminator<MyDeleteFunctor>
-                                                                        ::VALUE
-            };
-
             typedef bslma::SharedPtrOutofplaceRep<MyTestObject,
                                                   MyDeleteFunctor> TestRep;
             MyDeleteFunctor deleteFunctor;
@@ -565,11 +854,6 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting Functor Deleter With Alloc"
                             "\n----------------------------------\n");
         {
-            enum { DELETER_TYPE =
-         bslma::SharedPtrOutofplaceRep_DeleterDiscriminator<MyAllocTestDeleter>
-                                                                        ::VALUE
-            };
-
             TObj* t = new(ta) TObj();
             MyAllocTestDeleter deleteFunctor(&ta, &ta);
 
@@ -585,6 +869,50 @@ int main(int argc, char *argv[])
 
             x.releaseRef();
             ASSERT(5 == TObj::getNumDeletes());
+        }
+
+        if (verbose) printf("\nTesting Functor Deleter With Alloc Arg"
+                            "\n--------------------------------------\n");
+        {
+            TObj* t = new(ta) TObj();
+            MyAllocArgTestDeleter deleteFunctor(bsl::allocator_arg, &ta, &ta);
+
+            typedef bslma::SharedPtrOutofplaceRep<MyTestObject,
+                                                  MyAllocArgTestDeleter>
+                TestRep;
+
+            TestRep  *xPtr = TestRep::makeOutofplaceRep(t, deleteFunctor, &ta);
+            TestRep&  x    = *xPtr;   const TestRep& X = x;
+
+            ASSERT(1 == X.numReferences());
+            ASSERT(0 == X.numWeakReferences());
+            ASSERT(true == X.hasUniqueOwner());
+
+            x.releaseRef();
+            ASSERT(6 == TObj::getNumDeletes());
+        }
+
+        if (verbose) printf("\nTesting Functor Deleter With BSL Alloc Arg"
+                            "\n------------------------------------------\n");
+        {
+            TObj* t = new(ta) TObj();
+            MyBslAllocArgTestDeleter  deleteFunctor(bsl::allocator_arg,
+                                                    &ta,
+                                                    &ta);
+
+            typedef bslma::SharedPtrOutofplaceRep<MyTestObject,
+                                                  MyBslAllocArgTestDeleter>
+                TestRep;
+
+            TestRep  *xPtr = TestRep::makeOutofplaceRep(t, deleteFunctor, &ta);
+            TestRep&  x    = *xPtr;   const TestRep& X = x;
+
+            ASSERT(1 == X.numReferences());
+            ASSERT(0 == X.numWeakReferences());
+            ASSERT(true == X.hasUniqueOwner());
+
+            x.releaseRef();
+            ASSERT(7 == TObj::getNumDeletes());
         }
       } break;
       case 3: {

@@ -194,6 +194,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslma_sharedptrrep.h>
 #include <bslma_usesbslmaallocator.h>
 
+#include <bslmf_allocatorargt.h>
 #include <bslmf_conditional.h>
 #include <bslmf_functionpointertraits.h>
 #include <bslmf_integralconstant.h>
@@ -201,6 +202,8 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslmf_isfunction.h>
 #include <bslmf_ispointer.h>
 #include <bslmf_issame.h>
+#include <bslmf_usesallocatorargt.h>
+
 #include <bsls_util.h>
 
 #include <typeinfo>
@@ -238,7 +241,13 @@ struct SharedPtrOutofplaceRep_DeleterType {
                                      // functor that takes an allocator at
                                      // construction.
 
-        BSLMA_FUNCTOR_WITHOUT_ALLOC = 3
+        BSLMA_FUNCTOR_WITH_ALLOC_ARG_T = 3,
+                                     // Used to indicate that a deleter is a
+                                     // functor that takes an allocator at
+                                     // construction using the
+                                     // 'bsl::allocator_arg' idiom.
+
+        BSLMA_FUNCTOR_WITHOUT_ALLOC = 4
                                      // Used to indicate that a deleter is a
                                      // functor that does not take an allocator
                                      // at construction.
@@ -267,10 +276,14 @@ class SharedPtrOutofplaceRep : public SharedPtrRep {
         // shared object.
 
     // DATA
-    Deleter           d_deleter;     // deleter for this out-of-place instance
-    TYPE             *d_ptr_p;       // pointer to out-of-place instance (held,
-                                     // not owned)
-    Allocator *d_allocator_p; // memory allocator (held, not owned)
+    Deleter                            d_deleter;
+        // deleter for this out-of-place instance
+
+    TYPE                              *d_ptr_p;
+        // pointer to out-of-place instance (held, not owned)
+
+    Allocator                         *d_allocator_p;
+        // memory allocator (held, not owned)
 
   private:
     // NOT IMPLEMENTED
@@ -293,6 +306,12 @@ class SharedPtrOutofplaceRep : public SharedPtrRep {
            const DELETER&  deleter,
            Allocator      *basicAllocator,
            bsl::integral_constant<int, DeleterType::BSLMA_FUNCTOR_WITH_ALLOC>);
+    SharedPtrOutofplaceRep(
+          TYPE           *ptr,
+          const DELETER&  deleter,
+          Allocator      *basicAllocator,
+          bsl::integral_constant<int,
+                                 DeleterType::BSLMA_FUNCTOR_WITH_ALLOC_ARG_T>);
     SharedPtrOutofplaceRep(
         TYPE           *ptr,
         const DELETER&  deleter,
@@ -377,6 +396,8 @@ class SharedPtrOutofplaceRep_DeleterDiscriminator_Imp {
 
         BSLMA_USES_ALLOC = UsesBslmaAllocator<DELETER>::value,
 
+        BSLMA_USES_ALLOC_ARG_T = bslmf::UsesAllocatorArgT<DELETER>::value,
+
         BSLMA_IS_OBJ_PTR = bsl::is_pointer<DELETER>::value
                        && !bslmf::IsFunctionPointer<DELETER>::value
     };
@@ -390,7 +411,9 @@ class SharedPtrOutofplaceRep_DeleterDiscriminator_Imp {
     enum {
         // This enumeration contains the return value of the meta-function.
         VALUE = BSLMA_USES_ALLOC
-                ? DeleterType::BSLMA_FUNCTOR_WITH_ALLOC
+                ? BSLMA_USES_ALLOC_ARG_T
+                  ? DeleterType::BSLMA_FUNCTOR_WITH_ALLOC_ARG_T
+                  : DeleterType::BSLMA_FUNCTOR_WITH_ALLOC
                 : !BSLMA_IS_OBJ_PTR
                   ? DeleterType::BSLMA_FUNCTOR_WITHOUT_ALLOC
                   : DeleterType::BSLMA_FACTORY_PTR
@@ -492,6 +515,16 @@ struct SharedPtrOutofplaceRep_DeleterHelper {
         // Delete the specified 'ptr' using the specified 'deleter' that is a
         // functor that takes an allocator at construction and can be invoked
         // to delete 'ptr'.
+
+    template <class TYPE, class DELETER>
+    static void deleteObject(
+          TYPE     *ptr,
+          DELETER&  deleter,
+          bsl::integral_constant<int,
+                                 DeleterType::BSLMA_FUNCTOR_WITH_ALLOC_ARG_T>);
+        // Delete the specified 'ptr' using the specified 'deleter' that is a
+        // functor that takes an allocator at construction using the
+        // 'bsl::allocator_arg' idiom and can be invoked to delete 'ptr'.
 
     template <class TYPE, class DELETER>
     static void deleteObject(
@@ -622,6 +655,18 @@ SharedPtrOutofplaceRep<TYPE, DELETER>::SharedPtrOutofplaceRep(
 
 template <class TYPE, class DELETER>
 SharedPtrOutofplaceRep<TYPE, DELETER>::SharedPtrOutofplaceRep(
+      TYPE           *ptr,
+      const DELETER&  deleter,
+      Allocator      *basicAllocator,
+      bsl::integral_constant<int, DeleterType::BSLMA_FUNCTOR_WITH_ALLOC_ARG_T>)
+: d_deleter(bsl::allocator_arg, basicAllocator, deleter)
+, d_ptr_p(ptr)
+, d_allocator_p(basicAllocator)
+{
+}
+
+template <class TYPE, class DELETER>
+SharedPtrOutofplaceRep<TYPE, DELETER>::SharedPtrOutofplaceRep(
          TYPE           *ptr,
          const DELETER&  deleter,
          Allocator      *basicAllocator,
@@ -727,6 +772,16 @@ void SharedPtrOutofplaceRep_DeleterHelper::deleteObject(
 template <class TYPE, class DELETER>
 inline
 void SharedPtrOutofplaceRep_DeleterHelper::deleteObject(
+      TYPE     *ptr,
+      DELETER&  deleter,
+      bsl::integral_constant<int, DeleterType::BSLMA_FUNCTOR_WITH_ALLOC_ARG_T>)
+{
+    deleter(ptr);
+}
+
+template <class TYPE, class DELETER>
+inline
+void SharedPtrOutofplaceRep_DeleterHelper::deleteObject(
          TYPE     *ptr,
          DELETER&  deleter,
          bsl::integral_constant<int, DeleterType::BSLMA_FUNCTOR_WITHOUT_ALLOC>)
@@ -756,7 +811,7 @@ void SharedPtrOutofplaceRep_DeleterHelper::deleteObject(TYPE     *ptr,
 template <class TYPE, class DELETER>
 inline
 SharedPtrOutofplaceRep_InitProctor<TYPE, DELETER>::
-SharedPtrOutofplaceRep_InitProctor(TYPE *ptr, const DELETER&  deleter)
+SharedPtrOutofplaceRep_InitProctor(TYPE *ptr, const DELETER& deleter)
 : d_ptr_p(ptr)
 , d_deleter(deleter)
 {

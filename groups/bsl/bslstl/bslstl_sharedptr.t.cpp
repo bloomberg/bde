@@ -6,14 +6,18 @@
 #include <bslalg_autoscalardestructor.h>
 #include <bslalg_hastrait.h>
 #include <bslalg_typetraitusesbslmaallocator.h>
+
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_newdeleteallocator.h>
+#include <bslma_stdallocator.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 #include <bslma_usesbslmaallocator.h>
+
 #include <bslmf_assert.h>
 #include <bslmf_integralconstant.h>
 #include <bslmf_issame.h>
+
 #include <bsls_alignmenttotype.h>
 #include <bsls_alignmentutil.h>
 #include <bsls_asserttest.h>
@@ -28,6 +32,7 @@
 #include <bsls_objectbuffer.h>
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
+
 #include <bsltf_allocargumenttype.h>
 #include <bsltf_allocemplacabletesttype.h>
 #include <bsltf_argumenttype.h>
@@ -1529,6 +1534,8 @@ class MyPDTestObject;
 class MyTestObjectFactory;
 class MyTestDeleter;
 class MyAllocTestDeleter;
+class MyAllocArgTestDeleter;
+class MyBslAllocArgTestDeleter;
 
 // TEST-CASE SUPPORT TYPES
 template <class POINTER>
@@ -2103,6 +2110,10 @@ class MyAllocTestDeleter {
     void             *d_someMemory;    // dynamically allocated state
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(MyAllocTestDeleter,
+                                   bslma::UsesBslmaAllocator);
+
     // CREATORS
     explicit MyAllocTestDeleter(bslma::Allocator *deleter,
                                 bslma::Allocator *basicAllocator = 0);
@@ -2129,6 +2140,129 @@ class MyAllocTestDeleter {
         // Assign to this object the deleter of the specified 'rhs'.
 
     // ACCESSORS
+    template <class OBJECT_TYPE>
+    void operator()(OBJECT_TYPE *ptr) const;
+        // Destroy the object pointed to by the specified 'ptr' using the
+        // deleter supplied to this object's constructor.
+};
+
+                        // ===========================
+                        // class MyAllocArgTestDeleter
+                        // ===========================
+
+class MyAllocArgTestDeleter {
+    // This class provides a prototypical function-like deleter that takes a
+    // 'bslma::Allocator' at construction using the leading-allocator
+    // convention.  It is used to check that the allocator used to construct
+    // the representation is passed correctly to the deleter.
+
+    // DATA
+    bslma::Allocator *d_allocator_p;  // allocator for object's state
+    bslma::Allocator *d_deleter_p;    // allocator to use as a deleter
+    void             *d_memory_p;     // dynamically allocated data
+
+  public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(MyAllocArgTestDeleter,
+                                   bslma::UsesBslmaAllocator);
+
+    BSLMF_NESTED_TRAIT_DECLARATION(MyAllocArgTestDeleter,
+                                   bslmf::UsesAllocatorArgT);
+
+    // CREATORS
+    MyAllocArgTestDeleter(bsl::allocator_arg_t,
+                          bslma::Allocator     *basicAllocator,
+                          bslma::Allocator     *deleter);
+        // Create a 'MyAllocArgTestDeleter' using the specified 'deleter' to
+        // destroy objects passed to the overloaded function call operator,
+        // and using the specified 'basicAllocator' to allocate some additional
+        // state for test purposes only.
+
+    MyAllocArgTestDeleter(const MyAllocArgTestDeleter& original);
+    MyAllocArgTestDeleter(bsl::allocator_arg_t,
+                          bslma::Allocator             *basicAllocator,
+                          const MyAllocArgTestDeleter&  original);
+        // Create a 'MyAllocArgTestDeleter' object having the same deleter as
+        // the specified 'original' object, and having a copy of the dummy
+        // state.  Optionally specify a 'basicAllocator' used to supply memory.
+        // If 'basicAllocator' is 0, the currently installed default allocator
+        // is used.
+
+    ~MyAllocArgTestDeleter();
+        // Destroy this object.
+
+    // MANIPULATORS
+    MyAllocArgTestDeleter& operator=(const MyAllocArgTestDeleter& rhs);
+        // Assign to this object the deleter of the specified 'rhs'.
+
+    // ACCESSORS
+    bslma::Allocator *allocator() const;
+        // Return the 'basicAllocator' supplied to this object's constructor.
+
+    template <class OBJECT_TYPE>
+    void operator()(OBJECT_TYPE *ptr) const;
+        // Destroy the object pointed to by the specified 'ptr' using the
+        // deleter supplied to this object's constructor.
+};
+
+                       // ==============================
+                       // class MyBslAllocArgTestDeleter
+                       // ==============================
+
+class MyBslAllocArgTestDeleter {
+    // This class provides a prototypical function-like deleter that takes a
+    // 'bsl::allocator<char>' at construction using the leading-allocator
+    // convention.  It is used to check that the allocator used to construct
+    // the representation is passed correctly to the deleter.
+
+  public:
+    // TYPES
+    typedef bsl::allocator<char> allocator_type;
+
+  private:
+    // DATA
+    allocator_type    d_allocator;  // allocator for object's state
+    bslma::Allocator *d_deleter_p;  // allocator for use as a deleter
+    void             *d_memory_p;   // dynamically allocated data
+
+  public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(MyBslAllocArgTestDeleter,
+                                   bslma::UsesBslmaAllocator);
+
+    BSLMF_NESTED_TRAIT_DECLARATION(MyBslAllocArgTestDeleter,
+                                   bslmf::UsesAllocatorArgT);
+
+    // CREATORS
+    MyBslAllocArgTestDeleter(bsl::allocator_arg_t,
+                             const allocator_type&  allocator,
+                             bslma::Allocator      *deleter);
+        // Create a 'MyBslAllocArgTestDeleter' using the specified 'deleter' to
+        // destroy objects passed to the overloaded function call operator, and
+        // using the specified 'allocator' to allocate some additional state
+        // for test purposes only.
+
+    MyBslAllocArgTestDeleter(const MyBslAllocArgTestDeleter& original);
+    MyBslAllocArgTestDeleter(bsl::allocator_arg_t,
+                             const allocator_type&           allocator,
+                             const MyBslAllocArgTestDeleter& original);
+        // Create a 'MyBslAllocArgTestDeleter' object having the same deleter
+        // as the specified 'original' object, and having a copy of the dummy
+        // state.  Optionally specify an 'allocator' used to supply memory.  If
+        // 'allocator' is not specified, the currently installed default
+        // allocator is used.
+
+    ~MyBslAllocArgTestDeleter();
+        // Destroy this object.
+
+    // MANIPULATORS
+    MyBslAllocArgTestDeleter& operator=(const MyBslAllocArgTestDeleter& rhs);
+        // Assign to this object the deleter of the specified 'rhs'.
+
+    // ACCESSORS
+    allocator_type allocator() const;
+        // Return the allocator supplied to this object's constructor.
+
     template <class OBJECT_TYPE>
     void operator()(OBJECT_TYPE *ptr) const;
         // Destroy the object pointed to by the specified 'ptr' using the
@@ -2570,6 +2704,127 @@ MyAllocTestDeleter& MyAllocTestDeleter::operator=(
 // ACCESSORS
 template <class OBJECT_TYPE>
 void MyAllocTestDeleter::operator()(OBJECT_TYPE *ptr) const
+{
+    d_deleter_p->deleteObject(ptr);
+}
+
+                        // ---------------------------
+                        // class MyAllocArgTestDeleter
+                        // ---------------------------
+
+// CREATORS
+MyAllocArgTestDeleter::MyAllocArgTestDeleter(
+                                          bsl::allocator_arg_t,
+                                          bslma::Allocator     *basicAllocator,
+                                          bslma::Allocator     *deleter)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
+, d_deleter_p(deleter)
+, d_memory_p(d_allocator_p->allocate(13))
+{
+}
+
+MyAllocArgTestDeleter::MyAllocArgTestDeleter(
+                                         const MyAllocArgTestDeleter& original)
+: d_allocator_p(bslma::Default::allocator())
+, d_deleter_p(original.d_deleter_p)
+, d_memory_p(d_allocator_p->allocate(13))
+{
+}
+
+MyAllocArgTestDeleter::MyAllocArgTestDeleter(
+                                  bsl::allocator_arg_t,
+                                  bslma::Allocator             *basicAllocator,
+                                  const MyAllocArgTestDeleter&  original)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
+, d_deleter_p(original.d_deleter_p)
+, d_memory_p(d_allocator_p->allocate(13))
+{
+}
+
+MyAllocArgTestDeleter::~MyAllocArgTestDeleter()
+{
+    d_allocator_p->deallocate(d_memory_p);
+}
+
+// MANIPULATORS
+MyAllocArgTestDeleter& MyAllocArgTestDeleter::operator=(
+                                              const MyAllocArgTestDeleter& rhs)
+{
+    ASSERT(!"'MyAllocArgTestDeleter::operator=(const MyAllocArgTestDeleter&)'"
+            " should not be used.");
+    d_deleter_p = rhs.d_deleter_p;
+    return *this;
+}
+
+// ACCESSORS
+bslma::Allocator *MyAllocArgTestDeleter::allocator() const
+{
+    return d_allocator_p;
+}
+
+template <class OBJECT_TYPE>
+void MyAllocArgTestDeleter::operator()(OBJECT_TYPE *ptr) const
+{
+    d_deleter_p->deleteObject(ptr);
+}
+
+                       // ------------------------------
+                       // class MyBslAllocArgTestDeleter
+                       // ------------------------------
+
+// CREATORS
+MyBslAllocArgTestDeleter::MyBslAllocArgTestDeleter(
+                                              bsl::allocator_arg_t,
+                                              const allocator_type&  allocator,
+                                              bslma::Allocator      *deleter)
+: d_allocator(allocator)
+, d_deleter_p(deleter)
+, d_memory_p(d_allocator.allocate(13))
+{
+}
+
+MyBslAllocArgTestDeleter::MyBslAllocArgTestDeleter(
+                                      const MyBslAllocArgTestDeleter& original)
+: d_allocator(allocator_type())
+, d_deleter_p(original.d_deleter_p)
+, d_memory_p(d_allocator.allocate(13))
+{
+}
+
+MyBslAllocArgTestDeleter::MyBslAllocArgTestDeleter(
+                                     bsl::allocator_arg_t,
+                                     const allocator_type&           allocator,
+                                     const MyBslAllocArgTestDeleter& original)
+: d_allocator(allocator)
+, d_deleter_p(original.d_deleter_p)
+, d_memory_p(d_allocator.allocate(13))
+{
+}
+
+MyBslAllocArgTestDeleter::~MyBslAllocArgTestDeleter()
+{
+    d_allocator.deallocate(static_cast<char *>(d_memory_p));
+}
+
+// MANIPULATORS
+MyBslAllocArgTestDeleter& MyBslAllocArgTestDeleter::operator=(
+                                           const MyBslAllocArgTestDeleter& rhs)
+{
+    ASSERT(!"'MyBslAllocArgTestDeleter::operator=("
+            "const MyBslAllocArgTestDeleter&)' should not be used.");
+    d_deleter_p = rhs.d_deleter_p;
+    return *this;
+}
+
+// ACCESSORS
+MyBslAllocArgTestDeleter::allocator_type
+MyBslAllocArgTestDeleter::allocator() const
+{
+    return d_allocator;
+}
+
+template <class OBJECT_TYPE>
+void MyBslAllocArgTestDeleter::operator()(OBJECT_TYPE *ptr) const
 {
     d_deleter_p->deleteObject(ptr);
 }
@@ -20390,6 +20645,114 @@ int main(int argc, char *argv[])
         ASSERT(1 == numDeletes);
         ASSERT((numDeallocations+2) == ta.numDeallocations());
 
+        if (verbose)
+            printf(
+         "\nTesting constructor (with leading-AA deleter and bslma::allocator)"
+         "\n------------------------------------------------------------------"
+         "\n");
+
+        numDeallocations = ta.numDeallocations();
+        {
+            numDeletes = 0;
+            TObj *p = new (ta) TObj(&numDeletes);
+            numAllocations = ta.numAllocations();
+
+            MyAllocArgTestDeleter deleter(bsl::allocator_arg, &ta, &ta);
+            bslma::Allocator *ba = &ta;
+            Obj x(p, deleter, ba); const Obj& X = x;
+            ASSERT(numAllocations+=2 == ta.numAllocations());
+
+            if (veryVerbose) {
+                P_(numDeletes); P(X.use_count());
+            }
+            ASSERT(0 == numDeletes);
+            ASSERT(p == X.get());
+            ASSERT(1 == X.use_count());
+
+            MyAllocArgTestDeleter *const deleterPtr =
+                                    bsl::get_deleter<MyAllocArgTestDeleter>(x);
+            ASSERT(0 != deleterPtr);
+            ASSERT(deleterPtr->allocator() == &ta);
+        }
+        if (veryVerbose) {
+            P_(numDeletes); P_(numDeallocations); P(ta.numDeallocations());
+        }
+
+        ASSERT(1 == numDeletes);
+        ASSERT((numDeallocations+4) == ta.numDeallocations());
+
+        if (verbose)
+            printf(
+     "\nTesting constructor (with leading-bsl-AA deleter and bslma::allocator)"
+     "\n----------------------------------------------------------------------"
+     "\n");
+
+        numDeallocations = ta.numDeallocations();
+        {
+            numDeletes = 0;
+            TObj *p = new (ta) TObj(&numDeletes);
+            numAllocations = ta.numAllocations();
+
+            MyBslAllocArgTestDeleter deleter(bsl::allocator_arg, &ta, &ta);
+            bslma::Allocator *ba = &ta;
+            Obj x(p, deleter, ba); const Obj& X = x;
+            ASSERT(numAllocations+=2 == ta.numAllocations());
+
+            if (veryVerbose) {
+                P_(numDeletes); P(X.use_count());
+            }
+            ASSERT(0 == numDeletes);
+            ASSERT(p == X.get());
+            ASSERT(1 == X.use_count());
+
+            MyBslAllocArgTestDeleter *const deleterPtr =
+                                 bsl::get_deleter<MyBslAllocArgTestDeleter>(x);
+            ASSERT(0 != deleterPtr);
+            ASSERT(deleterPtr->allocator() == &ta);
+        }
+        if (veryVerbose) {
+            P_(numDeletes); P_(numDeallocations); P(ta.numDeallocations());
+        }
+
+        ASSERT(1 == numDeletes);
+        ASSERT((numDeallocations+4) == ta.numDeallocations());
+
+        if (verbose)
+            printf(
+               "\nTesting constructor (with bsl-AA deleter and bsl::allocator)"
+               "\n------------------------------------------------------------"
+               "\n");
+
+        numDeallocations = ta.numDeallocations();
+        {
+            numDeletes = 0;
+            TObj *p = new (ta) TObj(&numDeletes);
+            numAllocations = ta.numAllocations();
+
+            MyBslAllocArgTestDeleter deleter(bsl::allocator_arg, &ta, &ta);
+            bslma::Allocator *ba = &ta;
+            Obj x(p, deleter, bsl::allocator<char>(ba)); const Obj& X = x;
+            ASSERT(numAllocations+=2 == ta.numAllocations());
+
+            if (veryVerbose) {
+                P_(numDeletes); P(X.use_count());
+            }
+            ASSERT(0 == numDeletes);
+            ASSERT(p == X.get());
+            ASSERT(1 == X.use_count());
+
+            MyBslAllocArgTestDeleter *const deleterPtr =
+                                 bsl::get_deleter<MyBslAllocArgTestDeleter>(x);
+            ASSERT(0 != deleterPtr);
+            ASSERT(deleterPtr->allocator() == &defaultAllocator);
+
+        }
+        if (veryVerbose) {
+            P_(numDeletes); P_(numDeallocations); P(ta.numDeallocations());
+        }
+
+        ASSERT(1 == numDeletes);
+        ASSERT((numDeallocations+3) == ta.numDeallocations());
 
         if (verbose) printf(
                "\nTesting constructor (with deleter and derived allocator)"
