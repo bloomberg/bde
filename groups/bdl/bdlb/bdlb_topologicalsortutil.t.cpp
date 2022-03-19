@@ -4,8 +4,10 @@
 
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
+
 #include <bslim_testutil.h>
 
+#include <bsl_algorithm.h>
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 #include <bsl_iterator.h>
@@ -38,17 +40,17 @@ using namespace bdlb;
 //-----------------------------------------------------------------------------
 //
 // CLASS METHODS
-// [2] sort(result, unorderedList, relations)
+// [2] sort(result, unsortedOut, relations)
 //
-// [3] sort(result, unorderedList, relations)
+// [3] sort(result, unsortedOut, relations)
 //
-// [4] sort(result, unorderedList, relations)
+// [4] sort(result, unsortedOut, relations)
 //
-// [5] sort(result, unorderedList, relations)
+// [5] sort(result, unsortedOut, relations)
 //
-// [6] sort(result, unorderedList, relations)
+// [6] sort(result, unsortedOut, relations)
 //
-// [7] sort(relationsBegin, relationsEnd, result, unordered)
+// [7] sort(relationsBegin, relationsEnd, resultOutIter, unsortedOutIter)
 // [7] TopologicalSortUtilEdgeTraits
 //-----------------------------------------------------------------------------
 // [1] BREATHING TEST
@@ -103,18 +105,87 @@ void aSsErT(bool condition, const char *message, int line)
 //               GLOBAL HELPER CLASSES AND FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-class CustomEdge {
-    // 'CustomMapping' is an example attribute class used in demonstrating
+                            // ================
+                            // class CustomNode
+                            // ================
+
+class CustomNode {
+    // 'CustomNode' is an example attribute class used in demonstrating
     // customizing 'TopologicalSortUtil::sort' using
-    // 'TopologicalSortUtilMappingTraits'.
+    // 'TopologicalSortUtilEdgeTraits'.
 
     // DATA
-    int d_from;
-    int d_to;
+    int d_identifier;
 
   public:
     // CREATORS
-    CustomEdge(int from, int to)
+    explicit CustomNode(int identifier)
+        // Create a custom node object with the specified 'identifier' value.
+    : d_identifier(identifier)
+    {
+    }
+
+    // ACCESSORS
+    int identifier() const
+        // Return the 'identifier' attribute of this object.
+    {
+        return d_identifier;
+    }
+
+    bool operator==(const CustomNode& lhs) const
+        // Return 'true' if the specified 'lhs' has the same value as this
+        // object.  Two 'CustomNode' objects have the same value if their
+        // 'identifier' has the same value.
+    {
+        return d_identifier == lhs.d_identifier;
+    }
+};
+
+                                // Aspects
+
+bsl::ostream& operator<<(bsl::ostream& os, const CustomNode& node)
+    // Print the specified 'node' to the specified 'os' output stream and
+    // return 'os'.
+{
+    return os << "CustomNode{" << node.identifier() << '}';
+}
+
+template <class HASH_ALGORITHM>
+inline
+void hashAppend(HASH_ALGORITHM& algo, CustomNode const& key)
+    // Append the hash input value of the specified 'key' to the specified
+    // 'algo'.
+{
+    hashAppend(algo, key.identifier());
+}
+
+struct CustomComparator {
+    // To sort the unsorted output.
+
+    bool operator()(const CustomNode& lhs, const CustomNode& rhs)
+        // Return 'true' if the specified 'lhs' should come before the
+        // specified 'rhs' in sorting.
+    {
+        return lhs.identifier() < rhs.identifier();
+    }
+};
+
+                            // ================
+                            // class CustomEdge
+                            // ================
+
+class CustomEdge {
+    // 'CustomMapping' is an example attribute class used in demonstrating
+    // customizing 'TopologicalSortUtil::sort' using
+    // 'TopologicalSortUtilEdgeTraits'.
+
+    // DATA
+    CustomNode d_from;
+    CustomNode d_to;
+
+  public:
+    // CREATORS
+    CustomEdge(CustomNode from, CustomNode to)
         // Create a custom mapping object with the specified 'from' and 'to'
         // attributes.
     : d_from(from)
@@ -122,14 +193,22 @@ class CustomEdge {
     {
     }
 
+    CustomEdge(int fromId, int toId)
+        // Create a custom mapping object with node sof the specified 'fromId'
+        // and 'toId'.
+    : d_from(fromId)
+    , d_to(toId)
+    {
+    }
+
     // ACCESSORS
-    int from() const
+    CustomNode from() const
         // Return the 'from' attribute of this object.
     {
         return d_from;
     }
 
-    int to() const
+    CustomNode to() const
         // Return the 'to' attribute of this object.
     {
         return d_to;
@@ -148,7 +227,7 @@ struct TopologicalSortUtilEdgeTraits<CustomEdge> {
     typedef CustomEdge EdgeType;
         // The type that represents a connection in the graph.
 
-    typedef int NodeType;
+    typedef CustomNode NodeType;
         // The type that represents a node/vertex of the graph.
 
     static NodeType from(const CustomEdge& edge)
@@ -176,28 +255,28 @@ class NullOutputIterator {
     // 'output_iterator' category that supports all output iterator methods and
     // all methods do nothing.  It is also able to accept any type for output.
 
-  public:
+public:
     // TYPES
     typedef void container_type;
-        // This iterator type does not serve a specific container, hence the
-        // 'container_type' is 'void'.
+    // This iterator type does not serve a specific container, hence the
+    // 'container_type' is 'void'.
 
     typedef void value_type;
-        // This iterator type does not serve a specific value type, hence the
-        // 'value_type' is 'void'.
+    // This iterator type does not serve a specific value type, hence the
+    // 'value_type' is 'void'.
 
     typedef void difference_type;
-        // 'difference_type' for output iterators is 'void' by definition.
+    // 'difference_type' for output iterators is 'void' by definition.
 
     typedef void pointer;
-        // 'pointer_type' for output iterators is 'void' by definition.
+    // 'pointer_type' for output iterators is 'void' by definition.
 
     typedef void reference;
-        // 'reference' type for output iterators is 'void' by definition.
+    // 'reference' type for output iterators is 'void' by definition.
 
     typedef bsl::output_iterator_tag iterator_category;
-        // This iterator type is an output iterator, hence 'iterator_category'
-        // is 'bsl::output_iterator_tag'.
+    // This iterator type is an output iterator, hence 'iterator_category' is
+    // 'bsl::output_iterator_tag'.
 
     template <class TYPE>
     NullOutputIterator& operator=(const TYPE&)
@@ -224,6 +303,153 @@ class NullOutputIterator {
         return *this;
     }
 };
+                        // =======================
+                        // VerifyingOutputIterator
+                        // =======================
+
+template <class WRAPPED_ITERATOR>
+class VerifyingOutputIterator {
+    // This 'class' is an output-iterator that wraps another iterator type and
+    // verifies proper output iterator use.  It asserts if not incremented
+    // between assignments or incremented but not assigned.
+
+  public:
+    // TYPES
+    typedef WRAPPED_ITERATOR WrappedIterator;
+
+public:
+    // TYPES
+    typedef typename WrappedIterator::container_type  container_type;
+    typedef typename WrappedIterator::value_type      value_type;
+    typedef typename WrappedIterator::difference_type difference_type;
+    typedef typename WrappedIterator::pointer         pointer;
+    typedef typename WrappedIterator::reference       reference;
+
+    typedef bsl::output_iterator_tag iterator_category;
+        // This type is an output iterator, hence 'iterator_category' is
+        // 'bsl::output_iterator_tag'.  Since no other iterator functionality
+        // is implemented even if the wrapped iterator could do more, the
+        // wrapped one cannot.
+
+  private:
+    // DATA
+    bool            d_assigned;
+    bool            d_incremented;
+    int             d_line;
+    WrappedIterator d_iterator;
+
+  public:
+    // CREATORS
+    template <class ITER_INIT>
+    explicit VerifyingOutputIterator(int line, ITER_INIT init)
+        // Create a 'VerifyingOutputIterator' with the wrapped iterator
+        // constructed from the specified 'init' value and use the specified
+        // 'line' number in asserts.
+    : d_assigned(false)
+    , d_incremented(false)
+    , d_line(line)
+    , d_iterator(init)
+    {}
+
+    explicit VerifyingOutputIterator(int line)
+        // Create a 'VerifyingOutputIterator' with a default constructed
+        // wrapped iterator that uses the specified 'line' number in asserts.
+    : d_assigned(false)
+    , d_incremented(false)
+    , d_line(line)
+    , d_iterator()
+    {}
+
+    template <class TYPE>
+    VerifyingOutputIterator& operator=(const TYPE& value)
+        // Set the iterator wrapped iterator to the specified 'value', set the
+        // verification state such that an increment is required before the
+        // next assignment, and return '*this'.  Report an error if the
+        // iterator is not in the state where it is assignable.
+    {
+        ASSERTV(d_line, d_assigned, d_incremented,
+                 false == d_assigned || true == d_incremented);
+
+        d_incremented    = false;
+        d_assigned       = true;
+
+        d_iterator = value;
+
+        return *this;
+    }
+
+    VerifyingOutputIterator& operator*()
+        // Do nothing and return '*this'.
+    {
+        return *this;
+    }
+
+    VerifyingOutputIterator& operator++()
+        // Increment the wrapped iterator, set this iterator to the state where
+        // it is allowed to assign to it, and return '*this'.  Report an error
+        // if the iterator has not been assigned yet in its current position.
+    {
+        ASSERTV(d_line, true == d_assigned && false == d_incremented);
+
+        d_incremented = true;
+        d_assigned    = false;
+
+        ++d_iterator;
+
+        return *this;
+    }
+
+    VerifyingOutputIterator operator++(int)
+        // Increment the wrapped iterator, set this iterator to the state where
+        // it is allowed to assign to it, and return '*this'.  An error is
+        // reported if the iterator has not been assigned-to yet in its current
+        // position.
+    {
+        ASSERTV(d_line, false == d_incremented);
+
+        VerifyingOutputIterator rv(*this);
+
+        d_incremented    = true;
+        d_assigned       = false;
+
+        ++d_iterator;
+
+        return rv;
+    }
+};
+                  // ====================================
+                  // Verifying Inserter Factory Functions
+                  // ====================================
+
+template <class Container>
+VerifyingOutputIterator<bsl::insert_iterator<Container> >
+verifyingInserter(int                          line,
+                  Container&                   container,
+                  typename Container::iterator position)
+    // Return a 'VerifyingOutputIterator' that reports issues using the
+    // specified 'line' number, and wraps a 'bsl::insert_iterator' for the
+    // specified 'container' that inserts after the specified 'position'.
+{
+    typedef VerifyingOutputIterator<bsl::insert_iterator<Container> >
+                                                       VerifyingInsertIterator;
+    return VerifyingInsertIterator(line, bsl::inserter(container, position));
+}
+
+template <class Container>
+VerifyingOutputIterator<bsl::back_insert_iterator<Container> >
+verifyingBackInserter(int line, Container& container)
+    // Return a 'VerifyingOutputIterator' that reports issues using the
+    // specified 'line' number, and wraps a 'bsl::back_insert_iterator' for the
+    // specified 'container'.
+{
+    typedef VerifyingOutputIterator<bsl::back_insert_iterator<Container> >
+                                                   VerifyingBackInsertIterator;
+    return VerifyingBackInsertIterator(line, bsl::back_inserter(container));
+}
+
+#define U_INSERTER(c)       verifyingInserter(__LINE__, c, c.end())
+
+#define U_BACK_INSERTER(c) verifyingBackInserter(__LINE__, c)
 
 //=============================================================================
 //                                   MAIN
@@ -299,9 +525,9 @@ int main(int argc, char *argv[])
 // referenced in the relations:
 //..
     bsl::vector<int> results;
-    bsl::vector<int> unordered;
+    bsl::vector<int> unsorted;
     bool             sorted = TopologicalSortUtil::sort(&results,
-                                                        &unordered,
+                                                        &unsorted,
                                                         relations);
 //..
 // Finally, we verify that the call to 'sort' populates the supplied 'results'
@@ -311,7 +537,7 @@ int main(int argc, char *argv[])
 //..
     bool calculated[5] = { 0 };
     ASSERT(sorted == true);
-    ASSERT(unordered.empty());
+    ASSERT(unsorted.empty());
 
     for (bsl::vector<int>::const_iterator iter = results.begin(),
                                           end  = results.end();
@@ -384,16 +610,16 @@ int main(int argc, char *argv[])
 // Now, we apply the topological sort routine on the input:
 //..
     bsl::vector<int> results2;
-    bsl::vector<int> unordered2;
+    bsl::vector<int> unsorted2;
     bool             sorted2 = TopologicalSortUtil::sort(&results2,
-                                                         &unordered2,
+                                                         &unsorted2,
                                                          relations2);
 //..
 // Finally, we verify whether the routine recognizes that there is a cycle and
 // returns false:
 //..
     ASSERT(sorted2           == false);
-    ASSERT(unordered2.size() == 3);
+    ASSERT(unsorted2.size() == 3);
 //..
 ///Example 3: Using Topological Sort with Self Relations
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -424,23 +650,23 @@ int main(int argc, char *argv[])
 // Now, we apply the topological sort routine on the input:
 //..
     bsl::vector<int> results3;
-    bsl::vector<int> unordered3;
+    bsl::vector<int> unsorted3;
     bool             sorted3 = TopologicalSortUtil::sort(&results3,
-                                                         &unordered3,
+                                                         &unsorted3,
                                                          relations3);
 //..
 // Finally, we verify that the self relations causes the cycle:
 //..
     ASSERT(sorted3           == false);
     ASSERT(results3.size()   == 1);
-    ASSERT(unordered3.size() == 2);
+    ASSERT(unsorted3.size() == 2);
 
     if (veryVeryVerbose) {
         cout << "Size of results3 vector is "
              << results3.size() << endl;
 
-        cout << "Size of unordered3 vector is "
-             << unordered3.size() << endl;
+        cout << "Size of unsorted3 vector is "
+             << unsorted3.size() << endl;
     }
 
     if (veryVeryVerbose)
@@ -449,8 +675,8 @@ int main(int argc, char *argv[])
                 cout << "results3[" << i << "] is " << results3[i] << "\n";
         }
 
-        for (bsl::size_t i = 0; i < unordered3.size(); ++i) {
-                cout << "unordered3[" << i << "] is " << unordered3[i] << "\n";
+        for (bsl::size_t i = 0; i < unsorted3.size(); ++i) {
+                cout << "unsorted3[" << i << "] is " << unsorted3[i] << "\n";
         }
     }
 //..
@@ -471,19 +697,19 @@ int main(int argc, char *argv[])
 // Now, we apply the topological sort routine on the input:
 //..
     bsl::vector<int> results4;
-    bsl::vector<int> unordered4;
+    bsl::vector<int> unsorted4;
     typedef bsl::back_insert_iterator<bsl::vector<int> > OutIter;
     bool sorted4 = TopologicalSortUtil::sort(relations4.begin(),
                                              relations4.end(),
                                              OutIter(results4),
-                                             OutIter(unordered3));
+                                             OutIter(unsorted3));
 //..
 // Finally, we verify that the sort is successful, there are no nodes in the
-// 'unordered' output (there is no cycle) and the nodes are listed in the
+// 'unsorted' output (there is no cycle) and the nodes are listed in the
 // proper order in 'results4':
 //..
     ASSERT(sorted4           == true);
-    ASSERT(unordered4.size() == 0);
+    ASSERT(unsorted4.size() == 0);
     ASSERT(results4.size() == 3);
 
     ASSERT(results4[0] == 1);
@@ -493,7 +719,7 @@ int main(int argc, char *argv[])
 ///Example 5: Using Topological Sort with Iterators as Output
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we want our result in a 'bsl::list' instead of a 'bsl::vector' and
-// we do not care about the unordered elements so we do not want to pay for
+// we do not care about the unsorted elements so we do not want to pay for
 // storing them if they exist.  First, we would define a Null Output Iterator
 // that writes to nowhere.  See 'NullOutputIterator' before 'main' (local
 // classes cannot be templates and cannot have member templates in C++03).
@@ -543,7 +769,7 @@ int main(int argc, char *argv[])
         //: 3 Verify that with the fully specialized
         //:   'TopologicalSortUtilEdgeTraits' the code compiles and links.
         //:
-        //: 4 Verify that 'sort' returned 'true', the resulting 'unordered'
+        //: 4 Verify that 'sort' returned 'true', the resulting 'unsorted'
         //:   'vector' is empty, and 'results' contains an acceptable
         //:   topological ordering of the nodes.  Note that for brevity and
         //:   simplicity of the testing code we verify the *exact* order of the
@@ -551,7 +777,7 @@ int main(int argc, char *argv[])
         //:   other valid orders.
         //
         // Testing:
-        //   sort(relationsBegin, relationsEnd, result, unordered)
+        //   sort(relationsBegin, relationsEnd, resultOutIter, unsortedOutIter)
         //   TopologicalSortUtilEdgeTraits
         // --------------------------------------------------------------------
 
@@ -559,28 +785,86 @@ int main(int argc, char *argv[])
                           << "CUSTOM EDGE CLASS TEST" << endl
                           << "======================" << endl;
 
-        bsl::vector<CustomEdge> relations;
+        if (veryVerbose) cout << "Iterator interface\n";
+        {
+            bsl::vector<CustomEdge> relations;
 
-        relations.emplace_back(1, 2);
-        relations.emplace_back(2, 3);
-        relations.emplace_back(3, 1);
+            relations.emplace_back(1, 2);
+            relations.emplace_back(2, 3);
+            relations.emplace_back(3, 1);
 
-        bsl::vector<int> results;
-        bsl::vector<int> unordered;
-        typedef bsl::back_insert_iterator<bsl::vector<int> > OutIter;
-        bool sorted = TopologicalSortUtil::sort(relations.begin(),
-                                                relations.end(),
-                                                OutIter(results),
-                                                OutIter(unordered));
-        ASSERT(false == sorted);
-        ASSERT(results.empty());
+            bsl::vector<CustomNode> results;
+            bsl::vector<CustomNode> unsorted;
+            bool sorted = TopologicalSortUtil::sort(relations.begin(),
+                                                    relations.end(),
+                                                    U_BACK_INSERTER(results),
+                                                    U_BACK_INSERTER(unsorted));
+            ASSERT(false == sorted);
+            ASSERT(results.empty());
 
-        ASSERT(unordered.size() == 3);
+            ASSERTV(unsorted.size(), unsorted.size() == 3);
+            bsl::sort(unsorted.begin(), unsorted.end(), CustomComparator());
+            ASSERTV(unsorted[0], unsorted[0].identifier() == 1);
+            ASSERTV(unsorted[1], unsorted[1].identifier() == 2);
+            ASSERTV(unsorted[2], unsorted[2].identifier() == 3);
 
-        LOOP_ASSERT(unordered[0], unordered[0] == 3);
-        LOOP_ASSERT(unordered[1], unordered[1] == 2);
-        LOOP_ASSERT(unordered[2], unordered[2] == 1);
+            // Make it sortable
+            relations.back() = CustomEdge(2, 4);
 
+            results.clear();
+            unsorted.clear();
+            sorted = TopologicalSortUtil::sort(relations.begin(),
+                                               relations.end(),
+                                               U_BACK_INSERTER(results),
+                                               U_BACK_INSERTER(unsorted));
+            ASSERT(true  == sorted);
+            ASSERT(unsorted.empty());
+
+            ASSERTV(results.size(), 4 == results.size());
+            ASSERTV(results[0], results[0].identifier() == 1);
+            ASSERTV(results[1], results[1].identifier() == 2);
+            ASSERTV(results[2], results[2].identifier() == 3);
+            ASSERTV(results[3], results[3].identifier() == 4);
+        }
+
+        if (veryVerbose) cout << "Vector interface\n";
+        {
+            bsl::vector<bsl::pair<CustomNode, CustomNode> > relations;
+
+            relations.emplace_back(CustomNode(1), CustomNode(2));
+            relations.emplace_back(CustomNode(2), CustomNode(3));
+            relations.emplace_back(CustomNode(3), CustomNode(1));
+
+            bsl::vector<CustomNode> results;
+            bsl::vector<CustomNode> unsorted;
+            bool sorted = TopologicalSortUtil::sort(&results,
+                                                    &unsorted,
+                                                    relations);
+            ASSERT(false == sorted);
+            ASSERT(results.empty());
+
+            ASSERTV(unsorted.size(), unsorted.size() == 3);
+            bsl::sort(unsorted.begin(), unsorted.end(), CustomComparator());
+            ASSERTV(unsorted[0], unsorted[0].identifier() == 1);
+            ASSERTV(unsorted[1], unsorted[1].identifier() == 2);
+            ASSERTV(unsorted[2], unsorted[2].identifier() == 3);
+
+            // Make it sortable
+            relations.back().first  = CustomNode(2);
+            relations.back().second = CustomNode(4);
+
+            results.clear();
+            unsorted.clear();
+            sorted = TopologicalSortUtil::sort(&results, &unsorted, relations);
+            ASSERT(true  == sorted);
+            ASSERT(unsorted.empty());
+
+            ASSERTV(results.size(), 4 == results.size());
+            ASSERTV(results[0], results[0].identifier() == 1);
+            ASSERTV(results[1], results[1].identifier() == 2);
+            ASSERTV(results[2], results[2].identifier() == 3);
+            ASSERTV(results[3], results[3].identifier() == 4);
+        }
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -590,22 +874,22 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 A graph with a cycle does not sort successfully.
         //:
-        //: 2 The cycle is reported in the 'unordered' argument.
+        //: 2 The cycle is reported in the 'unsorted' argument.
         //
         // Plan:
         //: 1 Create a set of input edges that contains a cycle.
         //:
         //: 2 Call the simple (non-iterator) version of the 'sort' function.
         //:
-        //: 3 Verify that 'sort' returned 'false', the resulting 'unordered'
+        //: 3 Verify that 'sort' returned 'false', the resulting 'unsorted'
         //:   'vector' contains the nodes in the cycle, and 'results' is empty.
         //:   Note that for brevity and simplicity of the test driver we are
-        //:   testing the 'unordered' nodes in a static order; however the
+        //:   testing the 'unsorted' nodes in a static order; however the
         //:   algorithm contract does not make any promise about the order in
         //:   which the offending nodes are reported.
         //
         // Testing:
-        //   sort(result, unorderedList, relations)
+        //   sort(result, unsortedOut, relations)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -619,19 +903,19 @@ int main(int argc, char *argv[])
         relations.push_back(bsl::make_pair(3, 1));
 
         bsl::vector<int> results;
-        bsl::vector<int> unordered;
+        bsl::vector<int> unsorted;
         bool             sorted = TopologicalSortUtil::sort(&results,
-                                                            &unordered,
+                                                            &unsorted,
                                                             relations);
         ASSERT(false == sorted);
         ASSERT(results.empty());
 
-        ASSERT(unordered.size() == 3);
+        ASSERTV(unsorted.size(), unsorted.size() == 3);
 
-        LOOP_ASSERT(unordered[0], unordered[0] == 3);
-        LOOP_ASSERT(unordered[1], unordered[1] == 2);
-        LOOP_ASSERT(unordered[2], unordered[2] == 1);
-
+        bsl::sort(unsorted.begin(), unsorted.end());
+        ASSERTV(unsorted[0], unsorted[0] == 1);
+        ASSERTV(unsorted[1], unsorted[1] == 2);
+        ASSERTV(unsorted[2], unsorted[2] == 3);
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -651,11 +935,11 @@ int main(int argc, char *argv[])
         //:
         //: 2 Call the simple (non-iterator) version of the 'sort' function.
         //:
-        //: 3 Verify that 'sort' returned 'false', the resulting 'unordered'
+        //: 3 Verify that 'sort' returned 'false', the resulting 'unsorted'
         //:   'vector' contains the single input node, and 'results' is empty.
         //
         // Testing:
-        //   sort(result, unorderedList, relations)
+        //   sort(result, unsortedOut, relations)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -667,17 +951,16 @@ int main(int argc, char *argv[])
         relations.push_back(bsl::make_pair(1, 1));
 
         bsl::vector<int> results;
-        bsl::vector<int> unordered;
-        bool             sorted = TopologicalSortUtil::sort(&results,
-                                                            &unordered,
+        bsl::vector<int> unsorted;
+        const bool       sorted = TopologicalSortUtil::sort(&results,
+                                                            &unsorted,
                                                             relations);
         ASSERT(false == sorted);
         ASSERT(results.empty());
 
-        ASSERT(unordered.size() == 1);
+        ASSERTV(unsorted.size(), unsorted.size() == 1);
 
-        LOOP_ASSERT(unordered[0], unordered[0] == 1);
-
+        ASSERTV(unsorted[0], unsorted[0] == 1);
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -698,14 +981,14 @@ int main(int argc, char *argv[])
         //:
         //: 2 Call the simple (non-iterator) version of the 'sort' function.
         //:
-        //: 3 Verify that 'sort' returned 'true', the resulting 'unordered'
+        //: 3 Verify that 'sort' returned 'true', the resulting 'unsorted'
         //:   'vector' is empty, and 'results' contains the nodes a proper
         //:   order.  Note that for brevity and simplicity of the testing code
         //:   we verify the *exact* order of the elements.  As noted in the
         //:   component documentation there may be other valid orders.
         //
         // Testing:
-        //   sort(result, unorderedList, relations)
+        //   sort(result, unsortedOut, relations)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -721,20 +1004,20 @@ int main(int argc, char *argv[])
         relations.push_back(bsl::make_pair(4, 5)); // duplicated
 
         bsl::vector<int> results;
-        bsl::vector<int> unordered;
+        bsl::vector<int> unsorted;
         bool             sorted = TopologicalSortUtil::sort(&results,
-                                                            &unordered,
+                                                            &unsorted,
                                                             relations);
         ASSERT(true == sorted);
-        ASSERT(unordered.empty());
+        ASSERT(unsorted.empty());
 
-        ASSERT(results.size() == 5);
+        ASSERTV(results.size(), results.size() == 5);
 
-        LOOP_ASSERT(results[0], results[0] == 4);
-        LOOP_ASSERT(results[1], results[1] == 1);
-        LOOP_ASSERT(results[2], results[2] == 5);
-        LOOP_ASSERT(results[3], results[3] == 2);
-        LOOP_ASSERT(results[4], results[4] == 3);
+        ASSERTV(results[0], results[0] == 4);
+        ASSERTV(results[1], results[1] == 1);
+        ASSERTV(results[2], results[2] == 5);
+        ASSERTV(results[3], results[3] == 2);
+        ASSERTV(results[4], results[4] == 3);
 
       } break;
       case 3: {
@@ -753,14 +1036,14 @@ int main(int argc, char *argv[])
         //:
         //: 2 Call the simple (non-iterator) version of the 'sort' function.
         //:
-        //: 3 Verify that 'sort' returned 'true', the resulting 'unordered'
+        //: 3 Verify that 'sort' returned 'true', the resulting 'unsorted'
         //:   'vector' is empty, and 'results' contains the nodes a proper
         //:   order.  Note that for brevity and simplicity of the testing code
         //:   we verify the *exact* order of the elements.  As noted in the
         //:   component documentation there may be other valid orders.
         //
         // Testing:
-        //   sort(result, unorderedList, relations)
+        //   sort(result, unsortedOut, relations)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -774,21 +1057,20 @@ int main(int argc, char *argv[])
         relations.push_back(bsl::make_pair(4, 5));
 
         bsl::vector<int> results;
-        bsl::vector<int> unordered;
+        bsl::vector<int> unsorted;
         bool             sorted = TopologicalSortUtil::sort(&results,
-                                                            &unordered,
+                                                            &unsorted,
                                                             relations);
         ASSERT(true == sorted);
-        ASSERT(unordered.empty());
+        ASSERT(unsorted.empty());
 
-        ASSERT(results.size() == 5);
+        ASSERTV(results.size(), results.size() == 5);
 
-        LOOP_ASSERT(results[0], results[0] == 4);
-        LOOP_ASSERT(results[1], results[1] == 1);
-        LOOP_ASSERT(results[2], results[2] == 5);
-        LOOP_ASSERT(results[3], results[3] == 2);
-        LOOP_ASSERT(results[4], results[4] == 3);
-
+        ASSERTV(results[0], results[0] == 4);
+        ASSERTV(results[1], results[1] == 1);
+        ASSERTV(results[2], results[2] == 5);
+        ASSERTV(results[3], results[3] == 2);
+        ASSERTV(results[4], results[4] == 3);
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -806,7 +1088,7 @@ int main(int argc, char *argv[])
         //: 2 Invoke the simple (non-iterator) version of 'sort'.
         //:
         //: 3 Verify that the function returns 'true' and both the 'result',
-        //:   and the 'unordered' 'vector's are empty.
+        //:   and the 'unsorted' 'vector's are empty.
         //:
         //: 4 Add a single edge (edge as in graph theory, not to be confused
         //:   with edge cases in software testing) to the input.
@@ -815,10 +1097,10 @@ int main(int argc, char *argv[])
         //:
         //: 6 Verify that the function returns 'true', the 'result' 'vector'
         //:   contains the nodes in the same order as they were in the edge,
-        //:   and the 'unordered' 'vector' is empty.
+        //:   and the 'unsorted' 'vector' is empty.
         //
         // Testing:
-        //   sort(result, unorderedList, relations)
+        //   sort(result, unsortedOut, relations)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -828,12 +1110,12 @@ int main(int argc, char *argv[])
         bsl::vector<bsl::pair<bsl::string, bsl::string> > relations;
 
         bsl::vector<bsl::string> results;
-        bsl::vector<bsl::string> unordered;
+        bsl::vector<bsl::string> unsorted;
         bool                     sorted = TopologicalSortUtil::sort(&results,
-                                                                    &unordered,
+                                                                    &unsorted,
                                                                     relations);
         ASSERT(true == sorted);
-        ASSERT(unordered.empty());
+        ASSERT(unsorted.empty());
 
         ASSERT(results.size() == 0);
 
@@ -842,15 +1124,14 @@ int main(int argc, char *argv[])
         relations.push_back(bsl::make_pair(bsl::string("1"),
                                            bsl::string("2")));
 
-        sorted = TopologicalSortUtil::sort(&results, &unordered, relations);
+        sorted = TopologicalSortUtil::sort(&results, &unsorted, relations);
         ASSERT(true == sorted);
-        ASSERT(unordered.empty());
+        ASSERT(unsorted.empty());
 
-        ASSERT(results.size() == 2);
+        ASSERTV(results.size(), results.size() == 2);
 
-        LOOP_ASSERT(results[0], results[0] == "1");
-        LOOP_ASSERT(results[1], results[1] == "2");
-
+        ASSERTV(results[0], results[0] == "1");
+        ASSERTV(results[1], results[1] == "2");
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -865,14 +1146,14 @@ int main(int argc, char *argv[])
         //:  1 Create the input of 'vector' of 'pair's of 'int's that describes
         //:    a directed acyclic graph.
         //:
-        //:  2 Create two empty 'vectors' 'results', and 'unordered' for the
+        //:  2 Create two empty 'vectors' 'results', and 'unsorted' for the
         //:    two output arguments of the 'sort' function.
         //:
         //:  3 Run the simple (non-iterator) variant of the 'sort' function.
         //:
         //:  4 Verify that the sort is successful ('sort' returns 'true')
         //:
-        //:  5 verify that the 'unordered' output is empty.
+        //:  5 verify that the 'unsorted' output is empty.
         //:
         //:  6 Verify the order of nodes/vertexes in the 'results' vector.
         //:    Note that for brevity and simplicity of the testing code we
@@ -883,16 +1164,16 @@ int main(int argc, char *argv[])
         //:    directed acyclic graph.
         //:
         //:  2 Create an empty 'vector' for 'results', and an empty 'set' for
-        //:    'unordered' for the two output arguments of the 'sort' function.
+        //:    'unsorted' for the two output arguments of the 'sort' function.
         //:
         //:  3 Run the iterator variant of the 'sort' function using the input
         //:    'bsl::list::begin' and 'bsl::list::end' for the input range, a
         //:    back insert iterator for the 'results' 'vector' and an insert
-        //:    iterator for the 'unordered' 'set'.
+        //:    iterator for the 'unsorted' 'set'.
         //:
         //:  4 Verify that the sort is successful ('sort' returns 'true')
         //:
-        //:  5 verify that the 'unordered' output is empty.
+        //:  5 verify that the 'unsorted' output is empty.
         //:
         //:  6 Verify the order of nodes/vertexes in the 'results' vector.
         //:    Note that for brevity and simplicity of the testing code we
@@ -921,23 +1202,23 @@ int main(int argc, char *argv[])
             relations.push_back(bsl::make_pair(11, 10));
 
             bsl::vector<int> results;
-            bsl::vector<int> unordered;
+            bsl::vector<int> unsorted;
             const bool       sorted = TopologicalSortUtil::sort(&results,
-                                                                &unordered,
+                                                                &unsorted,
                                                                 relations);
             ASSERT(true == sorted);
-            ASSERT(unordered.empty());
+            ASSERT(unsorted.empty());
 
-            LOOP_ASSERT(results.size(), results.size() == 8);
+            ASSERTV(results.size(), results.size() == 8);
 
-            LOOP_ASSERT(results[0], results[0] == 7);
-            LOOP_ASSERT(results[1], results[1] == 3);
-            LOOP_ASSERT(results[2], results[2] == 5);
-            LOOP_ASSERT(results[3], results[3] == 8);
-            LOOP_ASSERT(results[4], results[4] == 11);
-            LOOP_ASSERT(results[5], results[5] == 2);
-            LOOP_ASSERT(results[6], results[6] == 9);
-            LOOP_ASSERT(results[7], results[7] == 10);
+            ASSERTV(results[0], results[0] == 7);
+            ASSERTV(results[1], results[1] == 3);
+            ASSERTV(results[2], results[2] == 5);
+            ASSERTV(results[3], results[3] == 8);
+            ASSERTV(results[4], results[4] == 11);
+            ASSERTV(results[5], results[5] == 2);
+            ASSERTV(results[6], results[6] == 9);
+            ASSERTV(results[7], results[7] == 10);
         }
 
         if (veryVerbose) cout << "Iterator interface" << endl;
@@ -955,29 +1236,26 @@ int main(int argc, char *argv[])
             relations.push_back(bsl::make_pair(11, 10));
 
             bsl::vector<int> results;
-            bsl::set<int>    unordered;
-            typedef bsl::back_insert_iterator<bsl::vector<int> > OutIter;
+            bsl::set<int>    unsorted;
             const bool sorted = TopologicalSortUtil::sort(
-                                                    relations.begin(),
-                                                    relations.end(),
-                                                    OutIter(results),
-                                                    inserter(unordered,
-                                                             unordered.end()));
+                                                      relations.begin(),
+                                                      relations.end(),
+                                                      U_BACK_INSERTER(results),
+                                                      U_INSERTER(unsorted));
             ASSERT(true == sorted);
-            ASSERT(unordered.empty());
+            ASSERT(unsorted.empty());
 
-            LOOP_ASSERT(results.size(), results.size() == 8);
+            ASSERTV(results.size(), results.size() == 8);
 
-            LOOP_ASSERT(results[0], results[0] == 7);
-            LOOP_ASSERT(results[1], results[1] == 3);
-            LOOP_ASSERT(results[2], results[2] == 5);
-            LOOP_ASSERT(results[3], results[3] == 8);
-            LOOP_ASSERT(results[4], results[4] == 11);
-            LOOP_ASSERT(results[5], results[5] == 2);
-            LOOP_ASSERT(results[6], results[6] == 9);
-            LOOP_ASSERT(results[7], results[7] == 10);
+            ASSERTV(results[0], results[0] == 7);
+            ASSERTV(results[1], results[1] == 3);
+            ASSERTV(results[2], results[2] == 5);
+            ASSERTV(results[3], results[3] == 8);
+            ASSERTV(results[4], results[4] == 11);
+            ASSERTV(results[5], results[5] == 2);
+            ASSERTV(results[6], results[6] == 9);
+            ASSERTV(results[7], results[7] == 10);
         }
-
       } break;
       default: {
         cerr << "WARNING: CASE '" << test << "' NOT FOUND." << endl;
