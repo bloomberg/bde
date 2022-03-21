@@ -1,9 +1,9 @@
-// s_baltst_mysequencewithchoice.h      *DO NOT EDIT*      @generated -*-C++-*-
-#ifndef INCLUDED_S_BALTST_MYSEQUENCEWITHCHOICE
-#define INCLUDED_S_BALTST_MYSEQUENCEWITHCHOICE
+// s_baltst_mysequencewithnullableanonymouschoice.h*DO NOT EDIT*@generated -*-C++-*-
+#ifndef INCLUDED_S_BALTST_MYSEQUENCEWITHNULLABLEANONYMOUSCHOICE
+#define INCLUDED_S_BALTST_MYSEQUENCEWITHNULLABLEANONYMOUSCHOICE
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(s_baltst_mysequencewithchoice_h, "$Id$ $CSID$")
+BSLS_IDENT_RCSID(s_baltst_mysequencewithnullableanonymouschoice_h,"$Id$ $CSID$")
 BSLS_IDENT_PRAGMA_ONCE
 
 //@PURPOSE: Provide value-semantic attribute classes
@@ -20,24 +20,27 @@ BSLS_IDENT_PRAGMA_ONCE
 
 #include <bsls_assert.h>
 
+#include <bdlb_nullablevalue.h>
+
 #include <bsl_iosfwd.h>
 #include <bsl_limits.h>
 
 namespace BloombergLP {
 
-namespace s_baltst { class MySequenceWithChoiceChoice; }
-namespace s_baltst { class MySequenceWithChoice; }
+namespace s_baltst { class MySequenceWithNullableAnonymousChoiceChoice; }
+namespace s_baltst { class MySequenceWithNullableAnonymousChoice; }
 namespace s_baltst {
 
-                      // ================================
-                      // class MySequenceWithChoiceChoice
-                      // ================================
+             // =================================================
+             // class MySequenceWithNullableAnonymousChoiceChoice
+             // =================================================
 
-class MySequenceWithChoiceChoice {
+class MySequenceWithNullableAnonymousChoiceChoice {
 
     // INSTANCE DATA
     union {
         bsls::ObjectBuffer< int > d_choiceA;
+        bsls::ObjectBuffer< int > d_choiceB;
     };
 
     int                           d_selectionId;
@@ -48,14 +51,16 @@ class MySequenceWithChoiceChoice {
     enum {
         SELECTION_ID_UNDEFINED = -1
       , SELECTION_ID_CHOICE_A = 0
+      , SELECTION_ID_CHOICE_B = 1
     };
 
     enum {
-        NUM_SELECTIONS = 1
+        NUM_SELECTIONS = 2
     };
 
     enum {
         SELECTION_INDEX_CHOICE_A = 0
+      , SELECTION_INDEX_CHOICE_B = 1
     };
 
     // CONSTANTS
@@ -76,33 +81,35 @@ class MySequenceWithChoiceChoice {
         // exists, and 0 otherwise.
 
     // CREATORS
-    MySequenceWithChoiceChoice();
-        // Create an object of type 'MySequenceWithChoiceChoice' having the
-        // default value.
+    MySequenceWithNullableAnonymousChoiceChoice();
+        // Create an object of type
+        // 'MySequenceWithNullableAnonymousChoiceChoice' having the default
+        // value.
 
-    MySequenceWithChoiceChoice(const MySequenceWithChoiceChoice& original);
-        // Create an object of type 'MySequenceWithChoiceChoice' having the
-        // value of the specified 'original' object.
+    MySequenceWithNullableAnonymousChoiceChoice(const MySequenceWithNullableAnonymousChoiceChoice& original);
+        // Create an object of type
+        // 'MySequenceWithNullableAnonymousChoiceChoice' having the value of
+        // the specified 'original' object.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    MySequenceWithChoiceChoice(MySequenceWithChoiceChoice&& original) noexcept;
-        // Create an object of type 'MySequenceWithChoiceChoice' having the
-        // value of the specified 'original' object.  After performing this
-        // action, the 'original' object will be left in a valid, but
-        // unspecified state.
+    MySequenceWithNullableAnonymousChoiceChoice(MySequenceWithNullableAnonymousChoiceChoice&& original) noexcept;
+        // Create an object of type
+        // 'MySequenceWithNullableAnonymousChoiceChoice' having the value of
+        // the specified 'original' object.  After performing this action, the
+        // 'original' object will be left in a valid, but unspecified state.
 #endif
 
-    ~MySequenceWithChoiceChoice();
+    ~MySequenceWithNullableAnonymousChoiceChoice();
         // Destroy this object.
 
     // MANIPULATORS
-    MySequenceWithChoiceChoice& operator=(const MySequenceWithChoiceChoice& rhs);
+    MySequenceWithNullableAnonymousChoiceChoice& operator=(const MySequenceWithNullableAnonymousChoiceChoice& rhs);
         // Assign to this object the value of the specified 'rhs' object.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    MySequenceWithChoiceChoice& operator=(MySequenceWithChoiceChoice&& rhs);
+    MySequenceWithNullableAnonymousChoiceChoice& operator=(MySequenceWithNullableAnonymousChoiceChoice&& rhs);
         // Assign to this object the value of the specified 'rhs' object.
         // After performing this action, the 'rhs' object will be left in a
         // valid, but unspecified state.
@@ -129,6 +136,12 @@ class MySequenceWithChoiceChoice {
         // specify the 'value' of the "ChoiceA".  If 'value' is not specified,
         // the default "ChoiceA" value is used.
 
+    int& makeChoiceB();
+    int& makeChoiceB(int value);
+        // Set the value of this object to be a "ChoiceB" value.  Optionally
+        // specify the 'value' of the "ChoiceB".  If 'value' is not specified,
+        // the default "ChoiceB" value is used.
+
     template<class MANIPULATOR>
     int manipulateSelection(MANIPULATOR& manipulator);
         // Invoke the specified 'manipulator' on the address of the modifiable
@@ -141,6 +154,11 @@ class MySequenceWithChoiceChoice {
         // Return a reference to the modifiable "ChoiceA" selection of this
         // object if "ChoiceA" is the current selection.  The behavior is
         // undefined unless "ChoiceA" is the selection of this object.
+
+    int& choiceB();
+        // Return a reference to the modifiable "ChoiceB" selection of this
+        // object if "ChoiceB" is the current selection.  The behavior is
+        // undefined unless "ChoiceB" is the selection of this object.
 
     // ACCESSORS
     bsl::ostream& print(bsl::ostream& stream,
@@ -174,8 +192,17 @@ class MySequenceWithChoiceChoice {
         // object if "ChoiceA" is the current selection.  The behavior is
         // undefined unless "ChoiceA" is the selection of this object.
 
+    const int& choiceB() const;
+        // Return a reference to the non-modifiable "ChoiceB" selection of this
+        // object if "ChoiceB" is the current selection.  The behavior is
+        // undefined unless "ChoiceB" is the selection of this object.
+
     bool isChoiceAValue() const;
         // Return 'true' if the value of this object is a "ChoiceA" value, and
+        // return 'false' otherwise.
+
+    bool isChoiceBValue() const;
+        // Return 'true' if the value of this object is a "ChoiceB" value, and
         // return 'false' otherwise.
 
     bool isUndefinedValue() const;
@@ -188,19 +215,19 @@ class MySequenceWithChoiceChoice {
 
 // FREE OPERATORS
 inline
-bool operator==(const MySequenceWithChoiceChoice& lhs, const MySequenceWithChoiceChoice& rhs);
+bool operator==(const MySequenceWithNullableAnonymousChoiceChoice& lhs, const MySequenceWithNullableAnonymousChoiceChoice& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'MySequenceWithChoiceChoice' objects have the same
+    // value, and 'false' otherwise.  Two 'MySequenceWithNullableAnonymousChoiceChoice' objects have the same
     // value if either the selections in both objects have the same ids and
     // the same values, or both selections are undefined.
 
 inline
-bool operator!=(const MySequenceWithChoiceChoice& lhs, const MySequenceWithChoiceChoice& rhs);
+bool operator!=(const MySequenceWithNullableAnonymousChoiceChoice& lhs, const MySequenceWithNullableAnonymousChoiceChoice& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
     // same values, as determined by 'operator==', and 'false' otherwise.
 
 inline
-bsl::ostream& operator<<(bsl::ostream& stream, const MySequenceWithChoiceChoice& rhs);
+bsl::ostream& operator<<(bsl::ostream& stream, const MySequenceWithNullableAnonymousChoiceChoice& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
@@ -208,23 +235,23 @@ bsl::ostream& operator<<(bsl::ostream& stream, const MySequenceWithChoiceChoice&
 
 // TRAITS
 
-BDLAT_DECL_CHOICE_WITH_BITWISEMOVEABLE_TRAITS(s_baltst::MySequenceWithChoiceChoice)
+BDLAT_DECL_CHOICE_WITH_BITWISEMOVEABLE_TRAITS(s_baltst::MySequenceWithNullableAnonymousChoiceChoice)
 
 namespace s_baltst {
 
-                         // ==========================
-                         // class MySequenceWithChoice
-                         // ==========================
+                // ===========================================
+                // class MySequenceWithNullableAnonymousChoice
+                // ===========================================
 
-class MySequenceWithChoice {
+class MySequenceWithNullableAnonymousChoice {
 
     // INSTANCE DATA
-    MySequenceWithChoiceChoice  d_mode;
+    bdlb::NullableValue<MySequenceWithNullableAnonymousChoiceChoice>  d_choice;
 
   public:
     // TYPES
     enum {
-        ATTRIBUTE_ID_MODE = 0
+        ATTRIBUTE_ID_CHOICE = 0
     };
 
     enum {
@@ -232,7 +259,7 @@ class MySequenceWithChoice {
     };
 
     enum {
-        ATTRIBUTE_INDEX_MODE = 0
+        ATTRIBUTE_INDEX_CHOICE = 0
     };
 
     // CONSTANTS
@@ -254,32 +281,33 @@ class MySequenceWithChoice {
         // exists, and 0 otherwise.
 
     // CREATORS
-    MySequenceWithChoice();
-        // Create an object of type 'MySequenceWithChoice' having the default
-        // value.
+    MySequenceWithNullableAnonymousChoice();
+        // Create an object of type 'MySequenceWithNullableAnonymousChoice'
+        // having the default value.
 
-    MySequenceWithChoice(const MySequenceWithChoice& original);
-        // Create an object of type 'MySequenceWithChoice' having the value of
-        // the specified 'original' object.
+    MySequenceWithNullableAnonymousChoice(const MySequenceWithNullableAnonymousChoice& original);
+        // Create an object of type 'MySequenceWithNullableAnonymousChoice'
+        // having the value of the specified 'original' object.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    MySequenceWithChoice(MySequenceWithChoice&& original) = default;
-        // Create an object of type 'MySequenceWithChoice' having the value of
-        // the specified 'original' object.  After performing this action, the
-        // 'original' object will be left in a valid, but unspecified state.
+    MySequenceWithNullableAnonymousChoice(MySequenceWithNullableAnonymousChoice&& original) = default;
+        // Create an object of type 'MySequenceWithNullableAnonymousChoice'
+        // having the value of the specified 'original' object.  After
+        // performing this action, the 'original' object will be left in a
+        // valid, but unspecified state.
 #endif
 
-    ~MySequenceWithChoice();
+    ~MySequenceWithNullableAnonymousChoice();
         // Destroy this object.
 
     // MANIPULATORS
-    MySequenceWithChoice& operator=(const MySequenceWithChoice& rhs);
+    MySequenceWithNullableAnonymousChoice& operator=(const MySequenceWithNullableAnonymousChoice& rhs);
         // Assign to this object the value of the specified 'rhs' object.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    MySequenceWithChoice& operator=(MySequenceWithChoice&& rhs);
+    MySequenceWithNullableAnonymousChoice& operator=(MySequenceWithNullableAnonymousChoice&& rhs);
         // Assign to this object the value of the specified 'rhs' object.
         // After performing this action, the 'rhs' object will be left in a
         // valid, but unspecified state.
@@ -318,8 +346,8 @@ class MySequenceWithChoice {
         // returned from the invocation of 'manipulator' if 'name' identifies
         // an attribute of this class, and -1 otherwise.
 
-    MySequenceWithChoiceChoice& mode();
-        // Return a reference to the modifiable "Mode" attribute of this
+    bdlb::NullableValue<MySequenceWithNullableAnonymousChoiceChoice>& choice();
+        // Return a reference to the modifiable "Choice" attribute of this
         // object.
 
     // ACCESSORS
@@ -366,27 +394,27 @@ class MySequenceWithChoice {
         // invocation of 'accessor' if 'name' identifies an attribute of this
         // class, and -1 otherwise.
 
-    const MySequenceWithChoiceChoice& mode() const;
-        // Return a reference offering non-modifiable access to the "Mode"
+    const bdlb::NullableValue<MySequenceWithNullableAnonymousChoiceChoice>& choice() const;
+        // Return a reference offering non-modifiable access to the "Choice"
         // attribute of this object.
 };
 
 // FREE OPERATORS
 inline
-bool operator==(const MySequenceWithChoice& lhs, const MySequenceWithChoice& rhs);
+bool operator==(const MySequenceWithNullableAnonymousChoice& lhs, const MySequenceWithNullableAnonymousChoice& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
     // the same value, and 'false' otherwise.  Two attribute objects have the
     // same value if each respective attribute has the same value.
 
 inline
-bool operator!=(const MySequenceWithChoice& lhs, const MySequenceWithChoice& rhs);
+bool operator!=(const MySequenceWithNullableAnonymousChoice& lhs, const MySequenceWithNullableAnonymousChoice& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
     // have the same value, and 'false' otherwise.  Two attribute objects do
     // not have the same value if one or more respective attributes differ in
     // values.
 
 inline
-bsl::ostream& operator<<(bsl::ostream& stream, const MySequenceWithChoice& rhs);
+bsl::ostream& operator<<(bsl::ostream& stream, const MySequenceWithNullableAnonymousChoice& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
@@ -394,7 +422,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const MySequenceWithChoice& rhs);
 
 // TRAITS
 
-BDLAT_DECL_SEQUENCE_WITH_BITWISEMOVEABLE_TRAITS(s_baltst::MySequenceWithChoice)
+BDLAT_DECL_SEQUENCE_WITH_BITWISEMOVEABLE_TRAITS(s_baltst::MySequenceWithNullableAnonymousChoice)
 
 // ============================================================================
 //                         INLINE FUNCTION DEFINITIONS
@@ -402,59 +430,72 @@ BDLAT_DECL_SEQUENCE_WITH_BITWISEMOVEABLE_TRAITS(s_baltst::MySequenceWithChoice)
 
 namespace s_baltst {
 
-                      // --------------------------------
-                      // class MySequenceWithChoiceChoice
-                      // --------------------------------
+             // -------------------------------------------------
+             // class MySequenceWithNullableAnonymousChoiceChoice
+             // -------------------------------------------------
 
 // CLASS METHODS
 // CREATORS
 inline
-MySequenceWithChoiceChoice::MySequenceWithChoiceChoice()
+MySequenceWithNullableAnonymousChoiceChoice::MySequenceWithNullableAnonymousChoiceChoice()
 : d_selectionId(SELECTION_ID_UNDEFINED)
 {
 }
 
 inline
-MySequenceWithChoiceChoice::~MySequenceWithChoiceChoice()
+MySequenceWithNullableAnonymousChoiceChoice::~MySequenceWithNullableAnonymousChoiceChoice()
 {
     reset();
 }
 
 // MANIPULATORS
 template <class MANIPULATOR>
-int MySequenceWithChoiceChoice::manipulateSelection(MANIPULATOR& manipulator)
+int MySequenceWithNullableAnonymousChoiceChoice::manipulateSelection(MANIPULATOR& manipulator)
 {
     switch (d_selectionId) {
-      case MySequenceWithChoiceChoice::SELECTION_ID_CHOICE_A:
+      case MySequenceWithNullableAnonymousChoiceChoice::SELECTION_ID_CHOICE_A:
         return manipulator(&d_choiceA.object(),
                 SELECTION_INFO_ARRAY[SELECTION_INDEX_CHOICE_A]);
+      case MySequenceWithNullableAnonymousChoiceChoice::SELECTION_ID_CHOICE_B:
+        return manipulator(&d_choiceB.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_CHOICE_B]);
       default:
-        BSLS_ASSERT(MySequenceWithChoiceChoice::SELECTION_ID_UNDEFINED == d_selectionId);
+        BSLS_ASSERT(MySequenceWithNullableAnonymousChoiceChoice::SELECTION_ID_UNDEFINED == d_selectionId);
         return -1;
     }
 }
 
 inline
-int& MySequenceWithChoiceChoice::choiceA()
+int& MySequenceWithNullableAnonymousChoiceChoice::choiceA()
 {
     BSLS_ASSERT(SELECTION_ID_CHOICE_A == d_selectionId);
     return d_choiceA.object();
 }
 
+inline
+int& MySequenceWithNullableAnonymousChoiceChoice::choiceB()
+{
+    BSLS_ASSERT(SELECTION_ID_CHOICE_B == d_selectionId);
+    return d_choiceB.object();
+}
+
 // ACCESSORS
 inline
-int MySequenceWithChoiceChoice::selectionId() const
+int MySequenceWithNullableAnonymousChoiceChoice::selectionId() const
 {
     return d_selectionId;
 }
 
 template <class ACCESSOR>
-int MySequenceWithChoiceChoice::accessSelection(ACCESSOR& accessor) const
+int MySequenceWithNullableAnonymousChoiceChoice::accessSelection(ACCESSOR& accessor) const
 {
     switch (d_selectionId) {
       case SELECTION_ID_CHOICE_A:
         return accessor(d_choiceA.object(),
                 SELECTION_INFO_ARRAY[SELECTION_INDEX_CHOICE_A]);
+      case SELECTION_ID_CHOICE_B:
+        return accessor(d_choiceB.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_CHOICE_B]);
       default:
         BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
         return -1;
@@ -462,52 +503,65 @@ int MySequenceWithChoiceChoice::accessSelection(ACCESSOR& accessor) const
 }
 
 inline
-const int& MySequenceWithChoiceChoice::choiceA() const
+const int& MySequenceWithNullableAnonymousChoiceChoice::choiceA() const
 {
     BSLS_ASSERT(SELECTION_ID_CHOICE_A == d_selectionId);
     return d_choiceA.object();
 }
 
 inline
-bool MySequenceWithChoiceChoice::isChoiceAValue() const
+const int& MySequenceWithNullableAnonymousChoiceChoice::choiceB() const
+{
+    BSLS_ASSERT(SELECTION_ID_CHOICE_B == d_selectionId);
+    return d_choiceB.object();
+}
+
+inline
+bool MySequenceWithNullableAnonymousChoiceChoice::isChoiceAValue() const
 {
     return SELECTION_ID_CHOICE_A == d_selectionId;
 }
 
 inline
-bool MySequenceWithChoiceChoice::isUndefinedValue() const
+bool MySequenceWithNullableAnonymousChoiceChoice::isChoiceBValue() const
+{
+    return SELECTION_ID_CHOICE_B == d_selectionId;
+}
+
+inline
+bool MySequenceWithNullableAnonymousChoiceChoice::isUndefinedValue() const
 {
     return SELECTION_ID_UNDEFINED == d_selectionId;
 }
 
 
-                         // --------------------------
-                         // class MySequenceWithChoice
-                         // --------------------------
+                // -------------------------------------------
+                // class MySequenceWithNullableAnonymousChoice
+                // -------------------------------------------
 
 // CLASS METHODS
 // MANIPULATORS
 template <class MANIPULATOR>
-int MySequenceWithChoice::manipulateAttributes(MANIPULATOR& manipulator)
+int MySequenceWithNullableAnonymousChoice::manipulateAttributes(MANIPULATOR& manipulator)
 {
     int ret;
 
-    ret = manipulator(&d_mode, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MODE]);
+    ret = manipulator(&d_choice, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHOICE]);
     if (ret) {
         return ret;
     }
 
-    return 0;
+    return ret;
 }
 
 template <class MANIPULATOR>
-int MySequenceWithChoice::manipulateAttribute(MANIPULATOR& manipulator, int id)
+int MySequenceWithNullableAnonymousChoice::manipulateAttribute(MANIPULATOR& manipulator, int id)
 {
     enum { NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_MODE: {
-        return manipulator(&d_mode, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MODE]);
+      case ATTRIBUTE_ID_CHOICE: {
+        return manipulator(&d_choice, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHOICE]);
       }
       default:
         return NOT_FOUND;
@@ -515,7 +569,7 @@ int MySequenceWithChoice::manipulateAttribute(MANIPULATOR& manipulator, int id)
 }
 
 template <class MANIPULATOR>
-int MySequenceWithChoice::manipulateAttribute(
+int MySequenceWithNullableAnonymousChoice::manipulateAttribute(
         MANIPULATOR&  manipulator,
         const char   *name,
         int           nameLength)
@@ -532,33 +586,33 @@ int MySequenceWithChoice::manipulateAttribute(
 }
 
 inline
-MySequenceWithChoiceChoice& MySequenceWithChoice::mode()
+bdlb::NullableValue<MySequenceWithNullableAnonymousChoiceChoice>& MySequenceWithNullableAnonymousChoice::choice()
 {
-    return d_mode;
+    return d_choice;
 }
 
 // ACCESSORS
 template <class ACCESSOR>
-int MySequenceWithChoice::accessAttributes(ACCESSOR& accessor) const
+int MySequenceWithNullableAnonymousChoice::accessAttributes(ACCESSOR& accessor) const
 {
     int ret;
 
-    ret = accessor(d_mode, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MODE]);
+    ret = accessor(d_choice, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHOICE]);
     if (ret) {
         return ret;
     }
 
-    return 0;
+    return ret;
 }
 
 template <class ACCESSOR>
-int MySequenceWithChoice::accessAttribute(ACCESSOR& accessor, int id) const
+int MySequenceWithNullableAnonymousChoice::accessAttribute(ACCESSOR& accessor, int id) const
 {
     enum { NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_MODE: {
-        return accessor(d_mode, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MODE]);
+      case ATTRIBUTE_ID_CHOICE: {
+        return accessor(d_choice, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHOICE]);
       }
       default:
         return NOT_FOUND;
@@ -566,7 +620,7 @@ int MySequenceWithChoice::accessAttribute(ACCESSOR& accessor, int id) const
 }
 
 template <class ACCESSOR>
-int MySequenceWithChoice::accessAttribute(
+int MySequenceWithNullableAnonymousChoice::accessAttribute(
         ACCESSOR&   accessor,
         const char *name,
         int         nameLength) const
@@ -583,9 +637,9 @@ int MySequenceWithChoice::accessAttribute(
 }
 
 inline
-const MySequenceWithChoiceChoice& MySequenceWithChoice::mode() const
+const bdlb::NullableValue<MySequenceWithNullableAnonymousChoiceChoice>& MySequenceWithNullableAnonymousChoice::choice() const
 {
-    return d_mode;
+    return d_choice;
 }
 
 }  // close package namespace
@@ -594,14 +648,16 @@ const MySequenceWithChoiceChoice& MySequenceWithChoice::mode() const
 
 inline
 bool s_baltst::operator==(
-        const s_baltst::MySequenceWithChoiceChoice& lhs,
-        const s_baltst::MySequenceWithChoiceChoice& rhs)
+        const s_baltst::MySequenceWithNullableAnonymousChoiceChoice& lhs,
+        const s_baltst::MySequenceWithNullableAnonymousChoiceChoice& rhs)
 {
-    typedef s_baltst::MySequenceWithChoiceChoice Class;
+    typedef s_baltst::MySequenceWithNullableAnonymousChoiceChoice Class;
     if (lhs.selectionId() == rhs.selectionId()) {
         switch (rhs.selectionId()) {
           case Class::SELECTION_ID_CHOICE_A:
             return lhs.choiceA() == rhs.choiceA();
+          case Class::SELECTION_ID_CHOICE_B:
+            return lhs.choiceB() == rhs.choiceB();
           default:
             BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED == rhs.selectionId());
             return true;
@@ -614,8 +670,8 @@ bool s_baltst::operator==(
 
 inline
 bool s_baltst::operator!=(
-        const s_baltst::MySequenceWithChoiceChoice& lhs,
-        const s_baltst::MySequenceWithChoiceChoice& rhs)
+        const s_baltst::MySequenceWithNullableAnonymousChoiceChoice& lhs,
+        const s_baltst::MySequenceWithNullableAnonymousChoiceChoice& rhs)
 {
     return !(lhs == rhs);
 }
@@ -623,7 +679,7 @@ bool s_baltst::operator!=(
 inline
 bsl::ostream& s_baltst::operator<<(
         bsl::ostream& stream,
-        const s_baltst::MySequenceWithChoiceChoice& rhs)
+        const s_baltst::MySequenceWithNullableAnonymousChoiceChoice& rhs)
 {
     return rhs.print(stream, 0, -1);
 }
@@ -631,16 +687,16 @@ bsl::ostream& s_baltst::operator<<(
 
 inline
 bool s_baltst::operator==(
-        const s_baltst::MySequenceWithChoice& lhs,
-        const s_baltst::MySequenceWithChoice& rhs)
+        const s_baltst::MySequenceWithNullableAnonymousChoice& lhs,
+        const s_baltst::MySequenceWithNullableAnonymousChoice& rhs)
 {
-    return  lhs.mode() == rhs.mode();
+    return  lhs.choice() == rhs.choice();
 }
 
 inline
 bool s_baltst::operator!=(
-        const s_baltst::MySequenceWithChoice& lhs,
-        const s_baltst::MySequenceWithChoice& rhs)
+        const s_baltst::MySequenceWithNullableAnonymousChoice& lhs,
+        const s_baltst::MySequenceWithNullableAnonymousChoice& rhs)
 {
     return !(lhs == rhs);
 }
@@ -648,7 +704,7 @@ bool s_baltst::operator!=(
 inline
 bsl::ostream& s_baltst::operator<<(
         bsl::ostream& stream,
-        const s_baltst::MySequenceWithChoice& rhs)
+        const s_baltst::MySequenceWithNullableAnonymousChoice& rhs)
 {
     return rhs.print(stream, 0, -1);
 }
@@ -656,8 +712,8 @@ bsl::ostream& s_baltst::operator<<(
 }  // close enterprise namespace
 #endif
 
-// GENERATED BY @BLP_BAS_CODEGEN_VERSION@
-// USING bas_codegen.pl s_baltst_mysequencewithchoice.xsd --mode msg --includedir . --msgComponent mysequencewithchoice --noRecurse --noExternalization --noHashSupport --noAggregateConversion
+// GENERATED BY BLP_BAS_CODEGEN_2021.08.08
+// USING bas_codegen.pl s_baltst_mysequencewithnullableanonymouschoice.xsd -m msg -C mysequencewithnullableanonymouschoice -p s_baltst --noExternalization --noHashSupport --noAggregateConversion
 // ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright 2021 Bloomberg Finance L.P. All rights reserved.

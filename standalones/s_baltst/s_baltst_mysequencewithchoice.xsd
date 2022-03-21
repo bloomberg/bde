@@ -12,7 +12,7 @@
 
   <xs:complexType name='MySequenceWithChoiceChoice'>
     <xs:choice>
-      <xs:element name='choiceA' type='int'/>
+      <xs:element name='choiceA' type='xs:int'/>
     </xs:choice>
   </xs:complexType>
 
