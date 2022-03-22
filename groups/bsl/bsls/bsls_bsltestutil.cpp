@@ -12,6 +12,13 @@ namespace bsls {
                            // ------------------
                            // struct BslTestUtil
                            // ------------------
+
+// PRIVATE CLASS METHODS
+void *BslTestUtil::identityPtr(void *ptr)
+{
+    return ptr;
+}
+
 // CLASS METHODS
 void BslTestUtil::flush()
 {

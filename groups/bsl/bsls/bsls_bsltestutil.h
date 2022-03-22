@@ -582,6 +582,14 @@ struct BslTestUtil {
     // iostream facilities, which is typical of test drivers in the 'bsl'
     // package group.
 
+  private:
+    // PRIVATE CLASS METHODS
+    static void *identityPtr(void *ptr);
+        // Return 'ptr' without modification.  Note that this is NOT an inline
+        // function, so that if the caller is not in the same module, the
+        // compiler has no way of knowing that it's an identity transform.
+
+  public:
     // CLASS METHODS
     static void flush();
         // Write any unwritten text in the output buffer to 'stdout'.
@@ -604,6 +612,24 @@ struct BslTestUtil {
         // be printed after 'object'.  If 'leadingString' is 0, then nothing
         // will be printed before 'object'.  If 'trailingString' is 0, then
         // nothing will be printed after 'object'.
+
+    template <class FUNCTION_PTR>
+    static FUNCTION_PTR makeFunctionCallNonInline(FUNCTION_PTR functionPtr);
+        // Return the specified 'functionPtr' (expected to be a static function
+        // pointer) without modification.  The value of 'functionPtr' is
+        // transformed through 'identityPtr' so that if the caller is in a
+        // different module, the compiler will have no way of knowing that this
+        // is an identity transform and thus no way of inlining the call.
+        //
+        // Note: the Windows optimizer is still able to inline the call, it may
+        // be comparing the result of this function with the argument and
+        // branching to inline on equality and call on inequality, so the
+        // Windows optimizer has to be turned off with
+        // '# pragma optimize("", off)'.
+        //
+        // Also note that even with an optimizer that can't figure out that
+        // this is an identity transform, there is still the possibility of
+        // chaining the call.
 };
 
 // FREE FUNCTIONS
@@ -685,6 +711,16 @@ void BslTestUtil::callDebugprint(const TYPE& obj,
         BloombergLP::bsls::BslTestUtil::printStringNoFlush(trailingString);
     }
     flush();
+}
+
+template <class FUNCTION_PTR>
+inline
+FUNCTION_PTR BslTestUtil::makeFunctionCallNonInline(FUNCTION_PTR function)
+{
+    enum { k_STATIC_ASSERT = 1 / (sizeof(FUNCTION_PTR) == sizeof(void *)) };
+
+    return reinterpret_cast<FUNCTION_PTR>(identityPtr(reinterpret_cast<void *>(
+                                                                   function)));
 }
 
 }  // close package namespace
