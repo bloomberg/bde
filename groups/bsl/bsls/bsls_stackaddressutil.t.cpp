@@ -125,6 +125,7 @@ void aSsErT(bool condition, const char *message, int line)
 typedef bsls::Types::UintPtr UintPtr;
 int verbose;
 int veryVerbose;
+int veryVeryVerbose;
 
 // ============================================================================
 //                    GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -241,12 +242,17 @@ void topOfTheStack(int idMod)
                               : k_MAX_FRAMES_TO_CAPTURE;
     ASSERTV(framesToCapture, framesToCapture <= k_MAX_FRAMES_TO_CAPTURE);
 
+    if (veryVeryVerbose) P(framesToCapture);
+
     void *addresses[k_MAX_FRAMES_TO_CAPTURE];
 
     const int rc = bsls::StackAddressUtil::getStackAddresses(
                                                    addresses, framesToCapture);
     if (framesToCaptureBase) {
         ASSERTV(rc, framesToCapture, rc == framesToCapture);
+    }
+    else {
+        ASSERT(rc < framesToCapture);
     }
 
     switch (mode) {
@@ -275,14 +281,18 @@ void topOfTheStack(int idMod)
             while (addresses[ii-1] != addresses[ii] &&
                                                 ii < k_MAX_FRAMES_TO_CAPTURE) {
                 ++ii;
+                if (veryVeryVerbose) printf("1st loop: ii = %d\n", ii);
             }
             while (addresses[ii-1] == addresses[ii] &&
                                                 ii < k_MAX_FRAMES_TO_CAPTURE) {
                 ++ii;
+                if (veryVeryVerbose) printf("2nd loop: ii = %d\n", ii);
             }
+            if (veryVeryVerbose) P(ii);
             ASSERTV(ii, 10 <= ii);
             ASSERTV(ii, ii < k_MAX_FRAMES_TO_CAPTURE - 1);
             framesToCaptureBase = ii + 1;
+            if (veryVeryVerbose) P(framesToCaptureBase);
         }
       } break;
       case e_COMPARE_ADDRESSES: {
@@ -306,10 +316,14 @@ void topOfTheStack(int idMod)
 void recurseABunchOfTimes(int *depth, int, void *, int, int idMod)
 {
     if (--*depth <= 0) {
+        if (veryVeryVerbose) printf("recurseABunchOfTimes: done\n");
         topOfTheStack(idMod);
     }
     else {
-        recurseABunchOfTimes(depth, 0, depth, 0, idMod);
+        if (veryVeryVerbose) printf("recurseABunchOfTimes: depth: %d\n",
+                                                                       *depth);
+        (*bsls::BslTestUtil::makeFunctionCallNonInline(recurseABunchOfTimes))
+                                                   (depth, 0, depth, 0, idMod);
     }
 
     ++*depth;
@@ -321,11 +335,15 @@ void *loopForEightSeconds(void *arg)
     const int expDepth = 10 + idMod;
     const int iterations = arg ? 100 : 1;
 
+    if (veryVeryVerbose) { P_(idMod);    P_(expDepth);    P(iterations); }
+
     do {
         int depth = expDepth;
 
         for (int ii = 0; ii < iterations; ++ii, ++tracesDone) {
-            u::foilOptimizer(recurseABunchOfTimes)(&depth, 0, &ii, 0, idMod);
+            (*bsls::BslTestUtil::makeFunctionCallNonInline(
+                                                        recurseABunchOfTimes))(
+                                                     &depth, 0, &ii, 0, idMod);
             ASSERT(expDepth == depth);
         }
     } while ((bsls::SystemTime::nowMonotonicClock() -
@@ -465,10 +483,11 @@ static int findIndex(const void *retAddress)
 // Next, we define a set of functions that will be called in a nested fashion
 // -- 'func5' calls 'func4' who calls 'fun3' and so on.
 
-#define CASE4_FUNC(nMinus1, n)                                  \
-    static unsigned int func ## n()                             \
-    {                                                           \
-            return n * u::foilOptimizer(func ## nMinus1)();     \
+#define CASE4_FUNC(nMinus1, n)                                                \
+    static unsigned int func ## n()                                           \
+    {                                                                         \
+            return n * (*bsls::BslTestUtil::makeFunctionCallNonInline(        \
+                                                     func ## nMinus1))();     \
     }
 
 static unsigned int func1();
@@ -603,12 +622,12 @@ static int findIndex(AddressEntry *entries, int numAddresses, UintPtr funcP)
     return ret;
 }
 
-#define CASE3_FUNC(nMinus1, n)                                               \
-    void func ## n(int *pi)                                                  \
-    {                                                                        \
-        ++*pi;                                                               \
-        u::foilOptimizer(func ## nMinus1)(pi);                               \
-        ++*pi;                                                               \
+#define CASE3_FUNC(nMinus1, n)                                                \
+    void func ## n(int *pi)                                                   \
+    {                                                                         \
+        ++*pi;                                                                \
+        (*bsls::BslTestUtil::makeFunctionCallNonInline(func ## nMinus1))(pi); \
+        ++*pi;                                                                \
     }
 
 void func0(int *pi);
@@ -713,7 +732,7 @@ void recurser(int *depth)
 {
 
     if (--*depth > 0) {
-        u::foilOptimizer(recurser)(depth);
+        (*bsls::BslTestUtil::makeFunctionCallNonInline(recurser))(depth);
     }
     else {
         void *buffer[BUFFER_LENGTH];
@@ -780,7 +799,8 @@ void recurser(int  iterations,
         }
     }
     else {
-        u::foilOptimizer(recurser)(iterations, depth);
+        (*bsls::BslTestUtil::makeFunctionCallNonInline(recurser))(
+                                                            iterations, depth);
     }
 
     ++*depth;         // prevent tail recursion optimization
@@ -797,6 +817,7 @@ int main(int argc, char *argv[])
     int test = argc > 1 ? atoi(argv[1]) : 0;
     verbose  = argc > 2;
     veryVerbose = argc > 3 ? (atoi(argv[3]) ? atoi(argv[3]) : 1) : 0;
+    veryVeryVerbose = argc > 4;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -1162,7 +1183,8 @@ int main(int argc, char *argv[])
         // 'thunk' functions that just call the actual routine.  I wish they
         // wouldn't do that.
 
-        unsigned int result = u::foilOptimizer(CASE_FOUR::func6)();
+        unsigned int result = (*bsls::BslTestUtil::makeFunctionCallNonInline(
+                                                          CASE_FOUR::func6))();
         ASSERTV(result, 6 * 5 * 4 * 3 * 2, result == 6 * 5 * 4 * 3 * 2);
 #endif
       }  break;
@@ -1208,7 +1230,7 @@ int main(int argc, char *argv[])
         // wouldn't do that.
 
         int i = 0;
-        u::foilOptimizer(CASE_THREE::func5)(&i);
+        (*bsls::BslTestUtil::makeFunctionCallNonInline(CASE_THREE::func5))(&i);
         ASSERTV(i, 12 == i);
 #endif
       }  break;
@@ -1272,7 +1294,7 @@ int main(int argc, char *argv[])
         veryVerbose = std::max(0, veryVerbose);
         TC::recurseDepth += veryVerbose;
         int depth = TC::recurseDepth;
-        u::foilOptimizer(TC::recurser)(&depth);
+        (*bsls::BslTestUtil::makeFunctionCallNonInline(TC::recurser))(&depth);
         ASSERT(TC::recurseDepth == depth);
 
         if (verbose) P(BSLS_PLATFORM_CMP_VERSION);      // Used to calculate
