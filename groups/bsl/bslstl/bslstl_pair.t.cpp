@@ -2368,6 +2368,8 @@ class my_NoAllocString : public my_AllocArgString<bsl::allocator<char> >
     typedef my_AllocArgString<bsl::allocator<char> > Base;
 
   public:
+    typedef void allocator_type;  // Don't inherit this type from base class
+
     my_NoAllocString();
     my_NoAllocString(const char              *s);                   // IMPLICIT
     my_NoAllocString(const my_NoAllocString&  original);

@@ -1350,6 +1350,8 @@ class TestDriver {
     typedef bslmf::MovableRefUtil              MoveUtil;
     typedef TestMovableTypeUtil<Iter, KEY>     TstMovUtil;
 
+    typedef typename ALLOC::template rebind<KEY>::other KeyAllocator;
+
     enum { k_TYPE_ALLOC = bslma::UsesBslmaAllocator<KEY>::value };
 
   public:
@@ -1543,7 +1545,7 @@ int TestDriver<KEY, HASH, EQUAL, ALLOC>::ggg(Obj        *object,
     enum { SUCCESS = -1 };
 
     bslma::TestAllocator scratch;
-    bsl::allocator<KEY>  xscratch(&scratch);
+    KeyAllocator         xscratch(&scratch);
     for (int i = 0; spec[i]; ++i) {
         if ('A' <= spec[i] && spec[i] <= 'Z') {
             primaryManipulator(object, spec[i], xscratch);
@@ -1661,7 +1663,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase11()
     if (verbose) printf("\nTesting '%s'.\n", NameOf<KEY>().name());
 
     bslma::TestAllocator oa(veryVeryVerbose);
-    bsl::allocator<KEY>  xoa(&oa);
+    KeyAllocator         xoa(&oa);
 
     static const char *SPECS[] = {
         "",
@@ -2071,7 +2073,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase9()
             const char *const SPEC1   = DATA[ti].d_spec;
 
             bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
-            bsl::allocator<KEY>  xscratch(&scratch);
+            KeyAllocator         xscratch(&scratch);
 
             Obj mZ(xscratch);  const Obj& Z  = gg(&mZ,  SPEC1);
             Obj mZZ(xscratch); const Obj& ZZ = gg(&mZZ, SPEC1);
@@ -2096,7 +2098,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase9()
                 const char *const SPEC2   = DATA[tj].d_spec;
 
                 bslma::TestAllocator oa("object", veryVeryVeryVerbose);
-                bsl::allocator<KEY>  xoa(&oa);
+                KeyAllocator         xoa(&oa);
 
                 {
                     Obj mX( xoa); const Obj& X  = gg(&mX,   SPEC2);
@@ -2584,8 +2586,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase8()
 
         bslma::TestAllocator oa("object",  veryVeryVeryVerbose);
         bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
-        bsl::allocator<KEY>  xoa(&oa);
-        bsl::allocator<KEY>  xscratch(&scratch);
+        KeyAllocator         xoa(&oa);
+        KeyAllocator         xscratch(&scratch);
 
         Obj        mW(xoa);
         const Obj& W = gg(&mW,  SPEC1);
@@ -2792,8 +2794,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase8()
 
         bslma::TestAllocator oa("object",  veryVeryVeryVerbose);
         bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
-        bsl::allocator<KEY>  xoa(&oa);
-        bsl::allocator<KEY>  xscratch(&scratch);
+        KeyAllocator         xoa(&oa);
+        KeyAllocator         xscratch(&scratch);
 
         Obj        mX(xoa);
         const Obj& X = mX;
@@ -3114,7 +3116,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase7()
         enum { NUM_SPECS = sizeof SPECS / sizeof *SPECS };
 
         bslma::TestAllocator oa(veryVeryVerbose);
-        bsl::allocator<KEY>  xoa(&oa);
+        KeyAllocator         xoa(&oa);
 
         for (int ti = 0; ti < NUM_SPECS; ++ti) {
             const char *const SPEC   = SPECS[ti];
@@ -3353,7 +3355,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase6()
             // Ensure an object compares correctly with itself (alias test).
             {
                 bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
-                bsl::allocator<KEY>  xscratch(&scratch);
+                KeyAllocator         xscratch(&scratch);
 
                 Obj mX(xscratch); const Obj& X = gg(&mX, SPEC1);
 
@@ -3387,8 +3389,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase6()
                     bslma::TestAllocator& xa = oax;
                     bslma::TestAllocator& ya = 'a' == CONFIG ? oax : oay;
 
-                    bsl::allocator<KEY> xxa(&xa);
-                    bsl::allocator<KEY> xya(&ya);
+                    KeyAllocator        xxa(&xa);
+                    KeyAllocator        xya(&ya);
 
                     Obj mX(xxa); const Obj& X = gg(&mX, SPEC1);
                     Obj mY(xya); const Obj& Y = gg(&mY, SPEC2);
@@ -3663,7 +3665,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase3()
     if (verbose) printf("\nTesting '%s'.\n", NameOf<KEY>().name());
 
     bslma::TestAllocator oa(veryVeryVerbose);
-    bsl::allocator<KEY>  xoa(&oa);
+    KeyAllocator         xoa(&oa);
 
     if (verbose) printf("\tTesting generator on valid specs.\n");
     {
@@ -3920,7 +3922,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
             bslma::TestAllocator da("default",   veryVeryVeryVerbose);
             bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
             bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
-            bsl::allocator<KEY>  xsa(&sa);
+            KeyAllocator         xsa(&sa);
 
             bslma::DefaultAllocatorGuard dag(&da);
 
@@ -4075,7 +4077,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
             if (veryVerbose) { printf("\t\tTesting 'insert' (bootstrap).\n"); }
 
             bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
-            bsl::allocator<KEY>  xscratch(&scratch);
+            KeyAllocator         xscratch(&scratch);
 
             if (0 < LENGTH) {
                 if (verbose) printf(
@@ -4106,7 +4108,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
                     printf("\t\t Testing allocator exceptions\n");
                 }
                 bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
-                bsl::allocator<KEY>  xscratch(&scratch);
+                KeyAllocator         xscratch(&scratch);
 
                 if (&oa == &da) {
                     int id = TstFacility::getIdentifier(VALUES[LENGTH - 1]);
@@ -4342,7 +4344,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
             {
                 bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
                 bslma::TestAllocator da("default",   veryVeryVeryVerbose);
-                bsl::allocator<KEY>  xsa(&sa);
+                KeyAllocator         xsa(&sa);
 
                 bslma::DefaultAllocatorGuard dag(&da);
 

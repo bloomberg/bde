@@ -86,12 +86,16 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 
 #include <bslma_allocatortraits.h>
+#include <bslma_stdallocator.h>
 
+#include <bslmf_integralconstant.h>
+#include <bslmf_isconvertible.h>
 #include <bslmf_usesallocator.h>
 #include <bslmf_util.h>    // 'forward(V)'
 
 #include <bsls_assert.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_nullptr.h>
 #include <bsls_util.h>     // 'forward<T>(V)'
 
 #include <new>
@@ -173,9 +177,13 @@ class StdAllocatorAdaptor : public ALLOCATOR {
         // Create a standard allocator adaptor object for a default-constructed
         // allocator object of the (template parameter) type 'ALLOCATOR'.
 
-    StdAllocatorAdaptor(const ALLOCATOR& allocator);
+    explicit StdAllocatorAdaptor(const ALLOCATOR& allocator);
         // Create a standard allocator adaptor object for the specified
         // 'allocator' of the (template parameter) type 'ALLOCATOR'.
+
+    explicit StdAllocatorAdaptor(bsl::nullptr_t);
+        // Create a standard allocator adaptor object from the null pointer
+        // constant.
 
     template <class ANY_TYPE>
     StdAllocatorAdaptor(const StdAllocatorAdaptor<ANY_TYPE>& other);
@@ -301,6 +309,13 @@ StdAllocatorAdaptor<ALLOCATOR>::StdAllocatorAdaptor(const ALLOCATOR& allocator)
 }
 
 template <class ALLOCATOR>
+inline
+StdAllocatorAdaptor<ALLOCATOR>::StdAllocatorAdaptor(bsl::nullptr_t)
+: ALLOCATOR(0)
+{
+}
+
+template <class ALLOCATOR>
 template <class ANY_TYPE>
 inline
 StdAllocatorAdaptor<ALLOCATOR>::StdAllocatorAdaptor(
@@ -317,11 +332,21 @@ inline void
 StdAllocatorAdaptor<ALLOCATOR>::construct(ELEMENT_TYPE *address,
                                           Args&&...     arguments)
 {
+    // If 'ELEMENT_TYPE' can use this allocator, then pass this allocator as at
+    // the end of the constructor argument list.  However, if this
+    // instantiation of 'StdAllocatorAdaptor' is derived from 'bsl::allocator',
+    // then this extra argument will passed automatically by
+    // 'bsl::allocator::construct' and should not be added by
+    // 'privateConstruct'.  Thus 'k_PassSelfAtEnd' is 'true' if 'ELEMENT_TYPE'
+    // uses this allocator but does NOT use 'bsl::allocator'.
+    enum { k_PassSelfAtEnd =
+        bsl::uses_allocator<ELEMENT_TYPE, StdAllocatorAdaptor>::value &&
+        ! bsl::is_convertible<StdAllocatorAdaptor *,
+                              bsl::allocator<value_type> *>::value
+    };
+
     privateConstruct(
-        typename bsl::uses_allocator<
-            ELEMENT_TYPE,
-            StdAllocatorAdaptor<typename ALLOCATOR::template rebind<
-                ELEMENT_TYPE>::other> >::type(),
+        bsl::integral_constant<bool, (bool) k_PassSelfAtEnd>(),
         address,
         BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...);
 }

@@ -1352,7 +1352,7 @@ int main(int argc, char *argv[])
 #else
                 bool equal = i == j;
 #endif
-                ASSERT(equal == (hasher(ci) == hasher(cj)));
+                ASSERTV(equal, equal == (hasher(ci) == hasher(cj)));
             }
         }
 

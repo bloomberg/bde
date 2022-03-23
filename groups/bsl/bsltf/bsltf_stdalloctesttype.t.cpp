@@ -206,24 +206,36 @@ void exitHandler(const bsls::AssertViolation &)
 // First, we create a function template 'printTypeTraits' with a parameterized
 // 'TYPE':
 //..
-template <class TYPE>
-void printTypeTraits()
-    // Prints the traits of the parameterized 'TYPE' to the console.
-{
-    if (bslma::UsesBslmaAllocator<TYPE>::value) {
-        printf("Type defines bslma::UsesBslmaAllocator.\n");
-    }
-    else {
-        printf("Type does not define bslma::UsesBslmaAllocator.\n");
-    }
+    template <class TYPE>
+    void printTypeTraits()
+        // Prints the traits of the parameterized 'TYPE' to the console.
+    {
+        if (bslma::UsesBslmaAllocator<TYPE>::value) {
+            printf("Type defines bslma::UsesBslmaAllocator.\n");
+        }
+        else {
+            printf("Type does not define bslma::UsesBslmaAllocator.\n");
+        }
 
-    if (bslmf::IsBitwiseMoveable<TYPE>::value) {
-        printf("Type defines bslmf::IsBitwiseMoveable.\n");
+        if (bslmf::IsBitwiseMoveable<TYPE>::value) {
+            printf("Type defines bslmf::IsBitwiseMoveable.\n");
+        }
+        else {
+            printf("Type does not define bslmf::IsBitwiseMoveable.\n");
+        }
     }
-    else {
-        printf("Type does not define bslmf::IsBitwiseMoveable.\n");
-    }
-}
+//..
+// Next, we create an STL-style allocator:
+//..
+    template <class TYPE>
+    struct StlAllocator {
+        // An STL-compliant allocator type.
+
+        typedef TYPE value_type;
+
+        TYPE *allocate(std::size_t);
+        void deallocate(TYPE *, std::size_t);
+    };
 //..
 
 //=============================================================================
@@ -270,13 +282,17 @@ int main(int argc, char *argv[])
                             "\n=============\n");
 
 // Now, we invoke the 'printTypeTraits' function template using 'AllocTestType'
-// as the parameterized 'TYPE':
+// as the parameterized 'TYPE', using both 'bsl::allocator' and 'StlAllocator'
+// as the 'ALLOC' parameter:
 //..
           printTypeTraits<StdAllocTestType<bsl::allocator<int> > >();
+          printTypeTraits<StdAllocTestType<StlAllocator<int> > >();
 //..
 // Finally, we observe the console output:
 //..
 //  Type defines bslma::UsesBslmaAllocator.
+//  Type does not define bslmf::IsBitwiseMoveable.
+//  Type does not bslma::UsesBslmaAllocator.
 //  Type does not define bslmf::IsBitwiseMoveable.
 //..
       } break;
@@ -368,7 +384,8 @@ int main(int argc, char *argv[])
         //   guarantee its expected behavior.
         //
         // Concerns:
-        //: 1 The object has the 'bslma::UsesBslmaAllocator' trait.
+        //: 1 The object has the 'bslma::UsesBslmaAllocator' trait if 'ALLOC'
+        //:   is 'bsl::allocator' and does not have the trait otherwise.
         //:
         //: 2 The object is not bitwise-moveable.
         //
@@ -382,8 +399,12 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING TYPE TRAITS"
                             "\n===================\n");
 
-        BSLMF_ASSERT(!bslma::UsesBslmaAllocator<Obj>::value);
+        typedef StdAllocTestType<StlAllocator<int> > Obj2;
+
+        BSLMF_ASSERT( bslma::UsesBslmaAllocator<Obj>::value);
+        BSLMF_ASSERT(!bslma::UsesBslmaAllocator<Obj2>::value);
         BSLMF_ASSERT(!bslmf::IsBitwiseMoveable<Obj>::value);
+        BSLMF_ASSERT(!bslmf::IsBitwiseMoveable<Obj2>::value);
       } break;
       case 10: {
         // --------------------------------------------------------------------

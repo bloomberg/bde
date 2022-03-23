@@ -1738,7 +1738,7 @@ int main(int argc, char *argv[])
             const ObjType ANOTHER(&ata);
 
             Obj           *objPtr = 0;
-            const ObjType *expected;
+            const ObjType *expected = &DEFAULT;
 
             switch (CONFIG) {
               case 'a': {
@@ -1758,7 +1758,7 @@ int main(int argc, char *argv[])
                 expected = &ANOTHER;
               } break;
               default: {
-                  BSLS_ASSERT_INVOKE_NORETURN("Bad constructor config.");
+                BSLS_ASSERT_INVOKE_NORETURN("Bad constructor config.");
               } break;
             }
 

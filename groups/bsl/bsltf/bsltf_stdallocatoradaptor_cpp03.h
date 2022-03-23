@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Fri Feb 10 08:55:48 2023
+// Generated on Mon Feb 28 19:11:05 2022
 // Command line: sim_cpp11_features.pl bsltf_stdallocatoradaptor.h
 
 #ifdef COMPILING_BSLTF_STDALLOCATORADAPTOR_H
@@ -671,9 +671,13 @@ class StdAllocatorAdaptor : public ALLOCATOR {
         // Create a standard allocator adaptor object for a default-constructed
         // allocator object of the (template parameter) type 'ALLOCATOR'.
 
-    StdAllocatorAdaptor(const ALLOCATOR& allocator);
+    explicit StdAllocatorAdaptor(const ALLOCATOR& allocator);
         // Create a standard allocator adaptor object for the specified
         // 'allocator' of the (template parameter) type 'ALLOCATOR'.
+
+    explicit StdAllocatorAdaptor(bsl::nullptr_t);
+        // Create a standard allocator adaptor object from the null pointer
+        // constant.
 
     template <class ANY_TYPE>
     StdAllocatorAdaptor(const StdAllocatorAdaptor<ANY_TYPE>& other);
@@ -2097,6 +2101,13 @@ StdAllocatorAdaptor<ALLOCATOR>::StdAllocatorAdaptor(const ALLOCATOR& allocator)
 }
 
 template <class ALLOCATOR>
+inline
+StdAllocatorAdaptor<ALLOCATOR>::StdAllocatorAdaptor(bsl::nullptr_t)
+: ALLOCATOR(0)
+{
+}
+
+template <class ALLOCATOR>
 template <class ANY_TYPE>
 inline
 StdAllocatorAdaptor<ALLOCATOR>::StdAllocatorAdaptor(
@@ -2121,11 +2132,14 @@ template <class ELEMENT_TYPE>
 inline void
 StdAllocatorAdaptor<ALLOCATOR>::construct(ELEMENT_TYPE *address)
 {
+    enum { k_PassSelfAtEnd =
+        bsl::uses_allocator<ELEMENT_TYPE, StdAllocatorAdaptor>::value &&
+        ! bsl::is_convertible<StdAllocatorAdaptor *,
+                              bsl::allocator<value_type> *>::value
+    };
+
     privateConstruct(
-        typename bsl::uses_allocator<
-            ELEMENT_TYPE,
-            StdAllocatorAdaptor<typename ALLOCATOR::template rebind<
-                ELEMENT_TYPE>::other> >::type(),
+        bsl::integral_constant<bool, (bool) k_PassSelfAtEnd>(),
         address);
 }
 #endif  // BSLTF_STDALLOCATORADAPTOR_VARIADIC_LIMIT_D >= 0
@@ -2137,11 +2151,14 @@ inline void
 StdAllocatorAdaptor<ALLOCATOR>::construct(ELEMENT_TYPE *address,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01)
 {
+    enum { k_PassSelfAtEnd =
+        bsl::uses_allocator<ELEMENT_TYPE, StdAllocatorAdaptor>::value &&
+        ! bsl::is_convertible<StdAllocatorAdaptor *,
+                              bsl::allocator<value_type> *>::value
+    };
+
     privateConstruct(
-        typename bsl::uses_allocator<
-            ELEMENT_TYPE,
-            StdAllocatorAdaptor<typename ALLOCATOR::template rebind<
-                ELEMENT_TYPE>::other> >::type(),
+        bsl::integral_constant<bool, (bool) k_PassSelfAtEnd>(),
         address,
         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01));
 }
@@ -2156,11 +2173,14 @@ StdAllocatorAdaptor<ALLOCATOR>::construct(ELEMENT_TYPE *address,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02)
 {
+    enum { k_PassSelfAtEnd =
+        bsl::uses_allocator<ELEMENT_TYPE, StdAllocatorAdaptor>::value &&
+        ! bsl::is_convertible<StdAllocatorAdaptor *,
+                              bsl::allocator<value_type> *>::value
+    };
+
     privateConstruct(
-        typename bsl::uses_allocator<
-            ELEMENT_TYPE,
-            StdAllocatorAdaptor<typename ALLOCATOR::template rebind<
-                ELEMENT_TYPE>::other> >::type(),
+        bsl::integral_constant<bool, (bool) k_PassSelfAtEnd>(),
         address,
         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02));
@@ -2178,11 +2198,14 @@ StdAllocatorAdaptor<ALLOCATOR>::construct(ELEMENT_TYPE *address,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03)
 {
+    enum { k_PassSelfAtEnd =
+        bsl::uses_allocator<ELEMENT_TYPE, StdAllocatorAdaptor>::value &&
+        ! bsl::is_convertible<StdAllocatorAdaptor *,
+                              bsl::allocator<value_type> *>::value
+    };
+
     privateConstruct(
-        typename bsl::uses_allocator<
-            ELEMENT_TYPE,
-            StdAllocatorAdaptor<typename ALLOCATOR::template rebind<
-                ELEMENT_TYPE>::other> >::type(),
+        bsl::integral_constant<bool, (bool) k_PassSelfAtEnd>(),
         address,
         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
@@ -2203,11 +2226,14 @@ StdAllocatorAdaptor<ALLOCATOR>::construct(ELEMENT_TYPE *address,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04)
 {
+    enum { k_PassSelfAtEnd =
+        bsl::uses_allocator<ELEMENT_TYPE, StdAllocatorAdaptor>::value &&
+        ! bsl::is_convertible<StdAllocatorAdaptor *,
+                              bsl::allocator<value_type> *>::value
+    };
+
     privateConstruct(
-        typename bsl::uses_allocator<
-            ELEMENT_TYPE,
-            StdAllocatorAdaptor<typename ALLOCATOR::template rebind<
-                ELEMENT_TYPE>::other> >::type(),
+        bsl::integral_constant<bool, (bool) k_PassSelfAtEnd>(),
         address,
         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
@@ -2231,11 +2257,14 @@ StdAllocatorAdaptor<ALLOCATOR>::construct(ELEMENT_TYPE *address,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05)
 {
+    enum { k_PassSelfAtEnd =
+        bsl::uses_allocator<ELEMENT_TYPE, StdAllocatorAdaptor>::value &&
+        ! bsl::is_convertible<StdAllocatorAdaptor *,
+                              bsl::allocator<value_type> *>::value
+    };
+
     privateConstruct(
-        typename bsl::uses_allocator<
-            ELEMENT_TYPE,
-            StdAllocatorAdaptor<typename ALLOCATOR::template rebind<
-                ELEMENT_TYPE>::other> >::type(),
+        bsl::integral_constant<bool, (bool) k_PassSelfAtEnd>(),
         address,
         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
@@ -2262,11 +2291,14 @@ StdAllocatorAdaptor<ALLOCATOR>::construct(ELEMENT_TYPE *address,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06)
 {
+    enum { k_PassSelfAtEnd =
+        bsl::uses_allocator<ELEMENT_TYPE, StdAllocatorAdaptor>::value &&
+        ! bsl::is_convertible<StdAllocatorAdaptor *,
+                              bsl::allocator<value_type> *>::value
+    };
+
     privateConstruct(
-        typename bsl::uses_allocator<
-            ELEMENT_TYPE,
-            StdAllocatorAdaptor<typename ALLOCATOR::template rebind<
-                ELEMENT_TYPE>::other> >::type(),
+        bsl::integral_constant<bool, (bool) k_PassSelfAtEnd>(),
         address,
         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
@@ -2296,11 +2328,14 @@ StdAllocatorAdaptor<ALLOCATOR>::construct(ELEMENT_TYPE *address,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07)
 {
+    enum { k_PassSelfAtEnd =
+        bsl::uses_allocator<ELEMENT_TYPE, StdAllocatorAdaptor>::value &&
+        ! bsl::is_convertible<StdAllocatorAdaptor *,
+                              bsl::allocator<value_type> *>::value
+    };
+
     privateConstruct(
-        typename bsl::uses_allocator<
-            ELEMENT_TYPE,
-            StdAllocatorAdaptor<typename ALLOCATOR::template rebind<
-                ELEMENT_TYPE>::other> >::type(),
+        bsl::integral_constant<bool, (bool) k_PassSelfAtEnd>(),
         address,
         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
@@ -2333,11 +2368,14 @@ StdAllocatorAdaptor<ALLOCATOR>::construct(ELEMENT_TYPE *address,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08)
 {
+    enum { k_PassSelfAtEnd =
+        bsl::uses_allocator<ELEMENT_TYPE, StdAllocatorAdaptor>::value &&
+        ! bsl::is_convertible<StdAllocatorAdaptor *,
+                              bsl::allocator<value_type> *>::value
+    };
+
     privateConstruct(
-        typename bsl::uses_allocator<
-            ELEMENT_TYPE,
-            StdAllocatorAdaptor<typename ALLOCATOR::template rebind<
-                ELEMENT_TYPE>::other> >::type(),
+        bsl::integral_constant<bool, (bool) k_PassSelfAtEnd>(),
         address,
         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
@@ -2373,11 +2411,14 @@ StdAllocatorAdaptor<ALLOCATOR>::construct(ELEMENT_TYPE *address,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09)
 {
+    enum { k_PassSelfAtEnd =
+        bsl::uses_allocator<ELEMENT_TYPE, StdAllocatorAdaptor>::value &&
+        ! bsl::is_convertible<StdAllocatorAdaptor *,
+                              bsl::allocator<value_type> *>::value
+    };
+
     privateConstruct(
-        typename bsl::uses_allocator<
-            ELEMENT_TYPE,
-            StdAllocatorAdaptor<typename ALLOCATOR::template rebind<
-                ELEMENT_TYPE>::other> >::type(),
+        bsl::integral_constant<bool, (bool) k_PassSelfAtEnd>(),
         address,
         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
@@ -2416,11 +2457,14 @@ StdAllocatorAdaptor<ALLOCATOR>::construct(ELEMENT_TYPE *address,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10)
 {
+    enum { k_PassSelfAtEnd =
+        bsl::uses_allocator<ELEMENT_TYPE, StdAllocatorAdaptor>::value &&
+        ! bsl::is_convertible<StdAllocatorAdaptor *,
+                              bsl::allocator<value_type> *>::value
+    };
+
     privateConstruct(
-        typename bsl::uses_allocator<
-            ELEMENT_TYPE,
-            StdAllocatorAdaptor<typename ALLOCATOR::template rebind<
-                ELEMENT_TYPE>::other> >::type(),
+        bsl::integral_constant<bool, (bool) k_PassSelfAtEnd>(),
         address,
         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
@@ -2462,11 +2506,14 @@ StdAllocatorAdaptor<ALLOCATOR>::construct(ELEMENT_TYPE *address,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11)
 {
+    enum { k_PassSelfAtEnd =
+        bsl::uses_allocator<ELEMENT_TYPE, StdAllocatorAdaptor>::value &&
+        ! bsl::is_convertible<StdAllocatorAdaptor *,
+                              bsl::allocator<value_type> *>::value
+    };
+
     privateConstruct(
-        typename bsl::uses_allocator<
-            ELEMENT_TYPE,
-            StdAllocatorAdaptor<typename ALLOCATOR::template rebind<
-                ELEMENT_TYPE>::other> >::type(),
+        bsl::integral_constant<bool, (bool) k_PassSelfAtEnd>(),
         address,
         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
@@ -2511,11 +2558,14 @@ StdAllocatorAdaptor<ALLOCATOR>::construct(ELEMENT_TYPE *address,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12)
 {
+    enum { k_PassSelfAtEnd =
+        bsl::uses_allocator<ELEMENT_TYPE, StdAllocatorAdaptor>::value &&
+        ! bsl::is_convertible<StdAllocatorAdaptor *,
+                              bsl::allocator<value_type> *>::value
+    };
+
     privateConstruct(
-        typename bsl::uses_allocator<
-            ELEMENT_TYPE,
-            StdAllocatorAdaptor<typename ALLOCATOR::template rebind<
-                ELEMENT_TYPE>::other> >::type(),
+        bsl::integral_constant<bool, (bool) k_PassSelfAtEnd>(),
         address,
         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
@@ -2563,11 +2613,14 @@ StdAllocatorAdaptor<ALLOCATOR>::construct(ELEMENT_TYPE *address,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13)
 {
+    enum { k_PassSelfAtEnd =
+        bsl::uses_allocator<ELEMENT_TYPE, StdAllocatorAdaptor>::value &&
+        ! bsl::is_convertible<StdAllocatorAdaptor *,
+                              bsl::allocator<value_type> *>::value
+    };
+
     privateConstruct(
-        typename bsl::uses_allocator<
-            ELEMENT_TYPE,
-            StdAllocatorAdaptor<typename ALLOCATOR::template rebind<
-                ELEMENT_TYPE>::other> >::type(),
+        bsl::integral_constant<bool, (bool) k_PassSelfAtEnd>(),
         address,
         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
@@ -2618,11 +2671,14 @@ StdAllocatorAdaptor<ALLOCATOR>::construct(ELEMENT_TYPE *address,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_14) arguments_14)
 {
+    enum { k_PassSelfAtEnd =
+        bsl::uses_allocator<ELEMENT_TYPE, StdAllocatorAdaptor>::value &&
+        ! bsl::is_convertible<StdAllocatorAdaptor *,
+                              bsl::allocator<value_type> *>::value
+    };
+
     privateConstruct(
-        typename bsl::uses_allocator<
-            ELEMENT_TYPE,
-            StdAllocatorAdaptor<typename ALLOCATOR::template rebind<
-                ELEMENT_TYPE>::other> >::type(),
+        bsl::integral_constant<bool, (bool) k_PassSelfAtEnd>(),
         address,
         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
@@ -2650,11 +2706,14 @@ inline void
 StdAllocatorAdaptor<ALLOCATOR>::construct(ELEMENT_TYPE *address,
                           BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments)
 {
+    enum { k_PassSelfAtEnd =
+        bsl::uses_allocator<ELEMENT_TYPE, StdAllocatorAdaptor>::value &&
+        ! bsl::is_convertible<StdAllocatorAdaptor *,
+                              bsl::allocator<value_type> *>::value
+    };
+
     privateConstruct(
-        typename bsl::uses_allocator<
-            ELEMENT_TYPE,
-            StdAllocatorAdaptor<typename ALLOCATOR::template rebind<
-                ELEMENT_TYPE>::other> >::type(),
+        bsl::integral_constant<bool, (bool) k_PassSelfAtEnd>(),
         address,
         BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...);
 }

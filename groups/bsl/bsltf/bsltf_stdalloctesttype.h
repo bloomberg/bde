@@ -16,7 +16,9 @@ BSLS_IDENT("$Id: $")
 // (value-semantic) attribute class, 'StdAllocTestType', that takes a standard
 // allocator type as a template argument and uses an object of that type to
 // allocate memory.  Note that this class does NOT set the trait
-// 'bslma::UsesBslmaAllocator'.  Furthermore, this class is not
+// 'bslma::UsesBslmaAllocator', but the trait will automatically be 'true' if
+// 'ALLOC' is convertible from 'bslma::Allocator *' (e.g., if it is an
+// instantiation of 'bsl::allocator').  Furthermore, this class is not
 // bitwise-moveable, and will assert on destruction if it has been moved.  This
 // class is primarily provided to facilitate testing of templates by defining a
 // simple type representative of user-defined types using a standard allocator.
@@ -34,8 +36,8 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Printing the Supported Traits
-/// - - - - - - - - - - - - - - - - - - - -
+///Example 1: Printing the Supported Traits of This Type
+///- - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we wanted to print the supported traits of this test type.
 //
 // First, we create a function template 'printTypeTraits' with a parameterized
@@ -49,8 +51,7 @@ BSLS_IDENT("$Id: $")
 //          printf("Type defines bslma::UsesBslmaAllocator.\n");
 //      }
 //      else {
-//          printf(
-//              "Type does not define bslma::UsesBslmaAllocator.\n");
+//          printf("Type does not define bslma::UsesBslmaAllocator.\n");
 //      }
 //
 //      if (bslmf::IsBitwiseMoveable<TYPE>::value) {
@@ -61,14 +62,30 @@ BSLS_IDENT("$Id: $")
 //      }
 //  }
 //..
-// Now, we invoke the 'printTypeTraits' function template using
-// 'StdAllocTestType' as the parameterized 'TYPE':
+// Next, we create an STL-style allocator:
 //..
-//  printTypeTraits<StdAllocTestType>();
+//  template <class TYPE>
+//  struct StlAllocator {
+//      // An STL-compliant allocator type.
+//
+//      typedef TYPE value_type;
+//
+//      TYPE *allocate(std::size_t);
+//      void deallocate(TYPE *, std::size_t);
+//  };
+//..
+// Now, we invoke the 'printTypeTraits' function template using 'AllocTestType'
+// as the parameterized 'TYPE', using both 'bsl::allocator' and 'StlAllocator'
+// as the 'ALLOC' parameter:
+//..
+//  printTypeTraits<StdAllocTestType<bsl::allocator<int> > >();
+//  printTypeTraits<StdAllocTestType<StlAllocator<int> > >();
 //..
 // Finally, we observe the console output:
 //..
-//  Type does not define bslma::UsesBslmaAllocator.
+//  Type defines bslma::UsesBslmaAllocator.
+//  Type does not define bslmf::IsBitwiseMoveable.
+//  Type does not bslma::UsesBslmaAllocator.
 //  Type does not define bslmf::IsBitwiseMoveable.
 //..
 
@@ -86,13 +103,15 @@ namespace bsltf {
 template <class ALLOC>
 class StdAllocTestType {
     // This unconstrained (value-semantic) attribute class uses a standard
-    // allocator of (template parameter) type 'ALLOC' to allocate memory.
-    // This class does NOT define the type trait 'bslma::UsesBslmaAllocator'.
-    // This class is primarily provided to facilitate testing of templates by
-    // defining a simple type representative of user-defined types using a
-    // standard allocator.  See the Attributes section under @DESCRIPTION in
-    // the component-level documentation for information on the class
-    // attributes.
+    // allocator of (template parameter) type 'ALLOC' to allocate memory.  This
+    // class does NOT define the type trait 'bslma::UsesBslmaAllocator', but
+    // the trait will be 'true' if 'ALLOC' is convertible from
+    // 'bslma::Allocator *' (e.g., if it is an instantiation of
+    // 'bsl::allocator').  This class is primarily provided to facilitate
+    // testing of templates by defining a simple type representative of
+    // user-defined types using a standard allocator.  See the Attributes
+    // section under @DESCRIPTION in the component-level documentation for
+    // information on the class attributes.
 
     // DATA
     int                     *d_data_p;      // pointer to the data value

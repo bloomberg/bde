@@ -505,7 +505,6 @@ template <class TYPE>
 struct AAModelIsSupported<TYPE, AAModelLegacy>
     : bsl::integral_constant<bool,
                              UsesBslmaAllocator<TYPE>::value               ||
-                             bsl::uses_allocator<TYPE, Allocator *>::value ||
                              AAModelIsSupported<TYPE, AAModelBsl>::value>
 {
     // Specialization of 'AAModelIsSupported' for 'MODEL == AAModelStl',

@@ -1052,6 +1052,9 @@ class LimitAllocator : public ALLOC {
 
     // ACCESSORS
     size_type max_size() const { return d_limit; }
+    LimitAllocator select_on_container_copy_construction() const {
+        return LimitAllocator();
+    }
 };
 
 template <class TYPE, class TRAITS, class ALLOC>

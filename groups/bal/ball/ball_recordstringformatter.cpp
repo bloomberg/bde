@@ -284,8 +284,6 @@ class AttributesFormatter {
         // 'SkipAttributes' is an alias for a set of keys of attributes that
         // should not be printed as part of '%a' format specifier.
 
-    typedef bsl::allocator<char>                       allocator_type;
-
     // DATA
     const SkipAttributes *d_skipAttributes_p;  // collection of keys of skipped
                                                // attributes (held, not owned)
@@ -303,9 +301,8 @@ class AttributesFormatter {
         // construction of this object to the specified 'result' string.
 
   public:
-    // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(AttributesFormatter,
-                                   bslma::UsesBslmaAllocator);
+    // TYPES
+    typedef bsl::allocator<char> allocator_type;
 
     // CREATORS
     explicit AttributesFormatter(

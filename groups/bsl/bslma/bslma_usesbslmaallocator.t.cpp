@@ -3,8 +3,11 @@
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_assert.h>
+#include <bslmf_movableref.h>
 #include <bslmf_nestedtraitdeclaration.h>
+
 #include <bsls_bsltestutil.h>
+#include <bsls_keyword.h>
 
 #include <stdio.h>      // 'printf'
 #include <stdlib.h>     // 'atoi'
@@ -17,15 +20,25 @@ using namespace BloombergLP;
 //                             Overview
 //                             --------
 // The component provides a meta-function for associating a trait with a type
-// and detecting whether a trait is associated with a type.
+// and detecting whether a trait is associated with a type.  Testing involves
+// invoking the trait with the different types for which the trait should be
+// 'true' as well as other types for which the trait should be 'false',
+// including all combinations of cv- and ref-qualifiers.
 // ----------------------------------------------------------------------------
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 2] USAGE EXAMPLE
+// [ 2] FULL TEST
+// [ 3] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-// BDE_VERIFY pragma: -TP19
+#ifdef BDE_VERIFY
+#pragma bde_verify -AL01  // class needs allocator() method
+#pragma bde_verify -AP02  // class needs d_allocator_p member
+#pragma bde_verify -AT02  // class uses allocator but does not have trait
+#pragma bde_verify -FD03  // parameter not documented
+#pragma bde_verify -TP19
+#endif
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -55,15 +68,6 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
 #define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
-#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
-
 #define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
 #define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
 #define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
@@ -88,9 +92,6 @@ void aSsErT(bool condition, const char *message, int line)
 //-----------------------------------------------------------------------------
 
 // Suppress some bde_verify warnings for the usage example
-
-// BDE_VERIFY pragma: push
-// BDE_VERIFY pragma: -FD03  // parameter not documented warning
 
 class DoesNotUseAnAllocatorType {
 };
@@ -151,7 +152,7 @@ class DoesNotUseAnAllocatorType {
             // ...
     };
 
-    }  // close package namespace
+    }  // close namespace xyz
 
     // TRAITS
     namespace BloombergLP {
@@ -161,38 +162,94 @@ class DoesNotUseAnAllocatorType {
                                                                  bsl::true_type
     {};
 
-    }  // close namespace bslma
+    }  // close package namespace
     }  // close enterprise namespace
 //..
 // Notice that the specialization must be performed in the 'BloombergLP::bslma'
 // namespace.
 
-// BDE_VERIFY pragma: pop
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
 namespace {
 
-struct SniffUsesBslmaAllocatorFromConstructor
-{
-    SniffUsesBslmaAllocatorFromConstructor(bslma::Allocator *);     // IMPLICIT
-        // Create a 'SniffUsesBslmaAllocatorFromConstructor' object.
+struct DerivedAllocator : bslma::Allocator {
+    // A 'bslma'-style allocator type.
+    void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE;  // Never called
+    void deallocate(void *address) BSLS_KEYWORD_OVERRIDE;  // Never called
 };
 
-struct ConstructFromAnyPointer
-{
+void *DerivedAllocator::allocate(size_type) { return 0; }
+void DerivedAllocator::deallocate(void *) { }
+
+struct BslmaCompatibleSTLAllocator {
+    // This STL-like allocator class is implicitly convertible from
+    // 'bslma::Allocator*'.  A class where 'allocator_type' is an alias for
+    // this class should implicitly have the 'UsesBslmaAllocator' trait.
+
+    typedef int value_type;
+
+    BslmaCompatibleSTLAllocator(bslma::Allocator *);                // IMPLICIT
+
+    value_type* allocate(std::size_t);          // No body needed for this test
+    void deallocate(value_type *, std::size_t); // No body needed for this test
+};
+
+struct HasSniffableTrait {
+    // The 'UsesBslmaAllocator' trait is sniffable (i.e., detectable as being
+    // 'true') from this class's conversion constructor.  Note that this method
+    // of associating the trait with a class is deprecated.
+
+    HasSniffableTrait(bslma::Allocator *);                          // IMPLICIT
+        // Create a 'HasSniffableTrait' object.
+};
+
+struct HasExplicitlyTrueTrait {
+    // This class has the 'UsesBslmaAllocator' trait explicitly specialized as
+    // 'true_type', below.
+};
+
+struct HasExplicitlyFalseTrait {
+    // This class has the 'UsesBslmaAllocator' trait explicitly specialized as
+    // 'false_type', below.  Note that the explicit specialization overrides
+    // the implicitly sniffed trait arizing from the implicit constructor.
+
+    HasExplicitlyFalseTrait(bslma::Allocator *);                    // IMPLICIT
+};
+
+struct HasNestedTrait {
+    // This class defines the 'UsesBslmaAllocator' trait to be 'true' by means
+    // of 'BSLMF_NESTED_TRAIT_DECLARATION'.
+    BSLMF_NESTED_TRAIT_DECLARATION(HasNestedTrait, bslma::UsesBslmaAllocator);
+};
+
+struct HasCompatibleAllocatorType {
+    // This class defines the 'UsesBslmaAllocator' trait to be 'true' by means
+    // of having a nested 'allocator_type' that is an alias for a type
+    // convertible from 'bslma::Allocator *'.
+
+    typedef BslmaCompatibleSTLAllocator allocator_type;
+};
+
+struct EmptyClass {
+};
+
+struct ConstructibleFromAnyPointer {
+    // Class implicitly convertible from any pointer type.  Even though it is
+    // implicitly convertible from 'bslma::Allocator *', the
+    // 'UsesBslmaAllocator' trait should be 'false' for this type.
+
     template <class TYPE>
-    ConstructFromAnyPointer(TYPE *);
-        // Create a 'ConstructFromAnyPointer' object.
+    ConstructibleFromAnyPointer(TYPE *);                            // IMPLICIT
 };
 
-struct ClassUsingBslmaAllocator
-{
-};
+struct HasIncompatibleAllocatorType {
+    // The 'BslmaUsesAllocator' should be 'false' for this type even though it
+    // has an 'allocator_type' member because there is no implicit conversion
+    // from 'bslma::Allocator *' to 'allocator_type'.
 
-struct DerivedAllocator : bslma::Allocator
-{
+    struct allocator_type { };
 };
 
 struct ConvertibleToAny {
@@ -213,7 +270,10 @@ namespace BloombergLP {
 namespace bslma {
 
 template <>
-struct UsesBslmaAllocator<ClassUsingBslmaAllocator> : bsl::true_type {};
+struct UsesBslmaAllocator<HasExplicitlyTrueTrait> : bsl::true_type {};
+
+template <>
+struct UsesBslmaAllocator<HasExplicitlyFalseTrait> : bsl::false_type {};
 
 template <>
 struct UsesBslmaAllocator<ConvertibleToAny> : bsl::true_type {
@@ -225,9 +285,48 @@ struct UsesBslmaAllocator<ConvertibleToAny> : bsl::true_type {
 }  // close package namespace
 }  // close enterprise namespace
 
-//=============================================================================
-//                  CLASSES FOR TESTING USAGE EXAMPLES
-//-----------------------------------------------------------------------------
+namespace {
+
+template <bool TF>
+BSLS_KEYWORD_CONSTEXPR bool isTrueType(const bsl::integral_constant<bool, TF>&)
+    // Return 'true' if the argument is convertible to 'bsl::true_type' and
+    // 'false' if the argument is convertible to 'bsl::false_type'.  A call to
+    // this function template will fail during overload resolution unless the
+    // argument is convertible to one of 'true_type' or 'false_type'.
+{
+    return TF;
+}
+
+template <class TYPE, bool EXP>
+void testTrait(const int L)
+    // For a call from the specified line, 'L', verify that
+    // 'bslma::UsesBslmaAllocator<TYPE>::value' equals 'EXP' and that adding
+    // cv-qualifiers to 'TYPE' does not change the result, but that adding a
+    // reference qualifier to 'TYPE' always produces a 'false' result.
+{
+    using bslma::UsesBslmaAllocator;
+
+    // Check with all CV qualifiers
+    ASSERTV(L, EXP == isTrueType(UsesBslmaAllocator<TYPE>()));
+    ASSERTV(L, EXP == isTrueType(UsesBslmaAllocator<const TYPE>()));
+    ASSERTV(L, EXP == isTrueType(UsesBslmaAllocator<volatile TYPE>()));
+    ASSERTV(L, EXP == isTrueType(UsesBslmaAllocator<const volatile TYPE>()));
+
+    // Always false with lvalue reference qualifiers
+    ASSERTV(L, !isTrueType(UsesBslmaAllocator<TYPE&>()));
+    ASSERTV(L, !isTrueType(UsesBslmaAllocator<const TYPE&>()));
+    ASSERTV(L, !isTrueType(UsesBslmaAllocator<volatile TYPE&>()));
+    ASSERTV(L, !isTrueType(UsesBslmaAllocator<const volatile TYPE&>()));
+
+    using bslmf::MovableRef;
+    ASSERTV(L, !isTrueType(UsesBslmaAllocator<MovableRef<TYPE> >()));
+    ASSERTV(L, !isTrueType(UsesBslmaAllocator<MovableRef<const TYPE> >()));
+    ASSERTV(L, !isTrueType(UsesBslmaAllocator<MovableRef<volatile TYPE> >()));
+    ASSERTV(L, !isTrueType(UsesBslmaAllocator<
+                           MovableRef<const volatile TYPE> >()));
+}
+
+}  // close unnamed namespace
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -248,18 +347,20 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 2: {
+      case 3: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
-        //   The usage example provided in the component header file must
-        //   compile, link, and run on all platforms as shown.
+        //
+        // Concerns:
+        //: 1 That the usage examples shown in the component-level
+        //:   documentation compile and run as described.
         //
         // Plan:
-        //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //: 1 Copy the usage examples from the component header, changing
+        //    'assert' to 'ASSERT' and execute them.
         //
         // Testing:
-        //   USAGE EXAMPLE
+        //     USAGE EXAMPLE
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nUSAGE EXAMPLE"
@@ -302,49 +403,135 @@ int main(int argc, char *argv[])
 //..
 
       } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // FULL TEST
+        //
+        // Concerns:
+        //: 1 If 'TYPE' is implicitly convertible from 'bslma::Allocator *',
+        //:   then 'UsesBslmaAllocator<TYPE>' derives from 'bsl::true_type'.
+        //: 2 If 'bslma::UsesBslmaAllocator<TYPE>' is explicitly specialized
+        //:   for 'TYPE', then the specialization will be used instead of the
+        //:   primary template.
+        //: 3 If 'TYPE' is a class that explicitly associates itself with the
+        //:   'bslma::UsesBslmaAllocator' trait by means of the
+        //:   'BSLMF_NESTED_TRAIT_DECLARATION' macro, then
+        //:   'UsesBslmaAllocator<TYPE>' derives from 'bsl::true_type'.
+        //: 4 If 'TYPE' has a nested type, 'allocator_type', and if
+        //:   'bslma::Allocator *' is convertible to 'allocator_type', then
+        //:   'UsesBslmaAllocator<TYPE>' derives from 'bsl::true_type'.
+        //: 5 Otherwise, if none of the above conditions are true, then
+        //:   'UsesBslmaAllocator<TYPE>' derives from 'bsl::false_type'.  This
+        //:   concern applies to all pointer types (even thouse convertible
+        //:   to 'bslma::Allocator'), all reference types, and all function
+        //:   types.
+        //: 6 Concern 1 does not apply if 'TYPE' is convertible from *any*
+        //:   arbitrary pointer, regardless of whether that pointer is related
+        //:   to 'bslma::Allocator*'.  In this case, 'UsesBslmaAllocator<TYPE>'
+        //:   derives from 'bsl::false_type' unless one of the conditions in
+        //:   concerns 2 through 4 apply.
+        //: 7 Condition 4 does not apply to 'TYPE's having an 'allocator_type'
+        //:   that is *not* convertible from 'bslma::Allocator *'.  In this
+        //:   case, 'UsesBslmaAllocator<TYPE>' derives from 'bsl::false_type'
+        //:   unless one of the conditions in concerns 1 through 3 apply.
+        //: 8 The cv-qualification of a 'TYPE' has no effect on the result of
+        //:   invoking 'UsesBslmaAllocator<TYPE>'.
+        //
+        // Plan:
+        //: 1 Define a class that is implicitly constructible from
+        //:   'bslma::Allocator*', verify that 'UsesBslmaAllocator' is 'true'
+        //:   for that type.  (C-1)
+        //: 2 Define a pair of classes, and explicitly specialize
+        //:   'UsesBslmaAllocator' for each -- one derived from 'true_type',
+        //:   the other derived from 'false_type'.  Verify that instantiating
+        //:   the trait for each type yields the value of the specialization.
+        //:   (C-2)
+        //: 3 Define a class that uses 'BSLMF_NESTED_TRAIT_DECLARATION' to
+        //:   associate itself with the 'UsesBslmaAllocator' trait.  Verify
+        //:   that invoking the trait on that class type yields 'true'.  (C-3)
+        //: 4 Define an STL-style allocator that is implicitly constructible
+        //:   from 'bslma::Allocator *' and define a class with a nested
+        //:   'allocator_type' alias to that STL-style allocator.  Verify that
+        //:   invoking 'UsesBslmaAllocator' on that class yields 'true'.  (C-4)
+        //: 5 Invoke 'UsesBslmaAllocator' on scalar types, pointer types,
+        //:   reference types, function types, and empty class types and verify
+        //:   that the result is 'false'.  (C-5)
+        //: 6 Define a class having an implicit constructor template that
+        //:   accepts a pointer to any pointer type but is otherwise not an
+        //:   allocator-aware type.  Verify that 'UsesBslmaAllocator' yields
+        //:   false for that class.  (C-6)
+        //: 7 Define a class having a nested 'allocator_type' that is not
+        //:   convertible from 'bslma::Allocator*'. Verify that
+        //:   'UsesBslmaAllocator' yields false for that class.  (C-7)
+        //: 8 Repeat steps 1 through 7, adding cv qualifications to each type
+        //:   and verify that the results are the same.  (C-8)
+        //
+        // Testing:
+        //     FULL TEST
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nFULL TEST"
+                            "\n=========\n");
+
+#define TEST(TYPE, EXP) testTrait<TYPE, EXP>(L_)
+
+        //   Type                           Exp
+        //   ----------------------------   -----
+        TEST(HasSniffableTrait            , true );  // Step 1
+
+        TEST(HasExplicitlyTrueTrait       , true );  // Step 2
+        TEST(HasExplicitlyFalseTrait      , false);  // Step 2
+        TEST(ConvertibleToAny             , true );  // Step 2
+
+        TEST(HasNestedTrait               , true );  // Step 3
+
+        TEST(HasCompatibleAllocatorType   , true );  // Step 4
+
+        TEST(int                          , false);  // Step 5
+        TEST(EmptyClass                   , false);  // Step 5
+        TEST(void *                       , false);  // Step 5
+        TEST(const void *                 , false);  // Step 5
+        TEST(bslma::Allocator *           , false);  // Step 5
+        TEST(const bslma::Allocator *     , false);  // Step 5
+        TEST(DerivedAllocator *           , false);  // Step 5
+
+        TEST(ConstructibleFromAnyPointer  , false);  // Step 6
+
+        TEST(HasIncompatibleAllocatorType , false);  // Step 7
+
+        // Note that step 8 is built into the 'testTrait' function template.
+
+#undef TEST
+
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
+        //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
+        //: 1 The class is sufficiently functional to enable comprehensive
+        //:   testing in subsequent test cases.
         //
         // Plan:
+        //: 1 Execute each method to verify functionality for simple cases.
         //
         // Testing:
-        //  BREATHING TEST
+        //      BREATHING TEST
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
-        ASSERT(bslma::UsesBslmaAllocator<
-                    SniffUsesBslmaAllocatorFromConstructor>::value);
-        ASSERT(bslma::UsesBslmaAllocator<
-                    SniffUsesBslmaAllocatorFromConstructor const>::value);
-        ASSERT(bslma::UsesBslmaAllocator<
-                    SniffUsesBslmaAllocatorFromConstructor volatile>::value);
-        ASSERT(!bslma::UsesBslmaAllocator<
-                    SniffUsesBslmaAllocatorFromConstructor&>::value);
-        ASSERT(!bslma::UsesBslmaAllocator<
-                    SniffUsesBslmaAllocatorFromConstructor const&>::value);
+        using bslma::UsesBslmaAllocator;
 
-        ASSERT(bslma::UsesBslmaAllocator<
-                    ClassUsingBslmaAllocator>::value);
-        ASSERT(bslma::UsesBslmaAllocator<
-                    ClassUsingBslmaAllocator const>::value);
-        ASSERT(bslma::UsesBslmaAllocator<
-                    ClassUsingBslmaAllocator volatile>::value);
+        ASSERT(UsesBslmaAllocator<HasSniffableTrait>::value);
+        ASSERT(UsesBslmaAllocator<HasNestedTrait>::value);
 
-        ASSERT(!bslma::UsesBslmaAllocator<ConstructFromAnyPointer>::value);
-        ASSERT(!bslma::UsesBslmaAllocator<bslma::Allocator *>::value);
-        ASSERT(!bslma::UsesBslmaAllocator<bslma::Allocator const *>::value);
-        ASSERT(!bslma::UsesBslmaAllocator<bslma::Allocator volatile *>::value);
-        ASSERT(!bslma::UsesBslmaAllocator<bslma::Allocator *&>::value);
-        ASSERT(!bslma::UsesBslmaAllocator<bslma::Allocator *const&>::value);
+        ASSERT(! UsesBslmaAllocator<int>::value);
+        ASSERT(! UsesBslmaAllocator<void *>::value);
+        ASSERT(! UsesBslmaAllocator<bslma::Allocator *>::value);
 
-        ASSERT(!bslma::UsesBslmaAllocator<DerivedAllocator *>::value);
-
-        ASSERT(bslma::UsesBslmaAllocator<ConvertibleToAny>::value);
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

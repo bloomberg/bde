@@ -964,7 +964,8 @@ class TestDriver {
     typedef TestComparatorNonConst<KEY>           NonConstComp;
         // Comparator functor with a non-'const' function call operator.
 
-    typedef bsl::allocator_traits<ALLOC>          AllocatorTraits;
+    typedef bsl::allocator_traits<ALLOC>                AllocatorTraits;
+    typedef typename ALLOC::template rebind<KEY>::other KeyAllocator;
 
     enum AllocCategory { e_BSLMA, e_STDALLOC, e_ADAPTOR, e_STATEFUL };
 
@@ -1902,7 +1903,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase7()
                         TYPE_ALLOC);
 
     bslma::TestAllocator oa(veryVeryVerbose);
-    bsl::allocator<KEY>  xoa(&oa);
+    KeyAllocator         xoa(&oa);
 
     const TestValues VALUES;
 
@@ -2213,7 +2214,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase6()
             // Ensure an object compares correctly with itself (alias test).
             {
                 bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
-                bsl::allocator<KEY>  xscratch(&scratch);
+                KeyAllocator         xscratch(&scratch);
 
                 Obj mX(xscratch); const Obj& X = gg(&mX, SPEC1);
 
@@ -2246,8 +2247,8 @@ void TestDriver<KEY, COMP, ALLOC>::testCase6()
                     bslma::TestAllocator& xa = oax;
                     bslma::TestAllocator& ya = 'a' == CONFIG ? oax : oay;
 
-                    bsl::allocator<KEY> xxa(&xa);
-                    bsl::allocator<KEY> xya(&ya);
+                    KeyAllocator        xxa(&xa);
+                    KeyAllocator        xya(&ya);
 
                     Obj mX(xxa); const Obj& X = gg(&mX, SPEC1);
                     Obj mY(xya); const Obj& Y = gg(&mY, SPEC2);
@@ -2495,7 +2496,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase3()
                         TYPE_ALLOC);
 
     bslma::TestAllocator oa(veryVeryVerbose);
-    bsl::allocator<KEY>  xoa(&oa);
+    KeyAllocator         xoa(&oa);
 
     if (verbose) printf("\nTesting generator on valid specs.\n");
     {
@@ -2746,7 +2747,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase2()
             bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
             bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
 
-            bsl::allocator<KEY>  xsa(&sa);
+            KeyAllocator         xsa(&sa);
 
             bslma::DefaultAllocatorGuard dag(&da);
 
@@ -2800,7 +2801,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase2()
             if (veryVerbose) { printf("\n\tTesting 'insert' (bootstrap).\n"); }
 
             bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
-            bsl::allocator<KEY>  xscratch(&scratch);
+            KeyAllocator         xscratch(&scratch);
 
             if (0 < LENGTH) {
                 if (verbose) {
