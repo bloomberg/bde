@@ -15,7 +15,7 @@
 // delimited regions of C++11 code, then this test driver is a minimal 'main'
 // program that tests nothing and is not '#include'd in the original.
 //
-// Generated on Thu Oct 21 10:11:37 2021
+// Generated on Wed Mar 23 13:33:13 2022
 // Command line: sim_cpp11_features.pl bslstl_function_invokerutil.t.cpp
 
 // Expanded test driver only when compiling bslstl_function_invokerutil.cpp
@@ -149,6 +149,30 @@ int veryVeryVeryVerbose = 0; // For test allocators
 #define CLANG_11 1
 #else
 #define CLANG_11 0
+#endif
+
+#if defined(BSLS_PLATFORM_CMP_CLANG)    \
+ && BSLS_PLATFORM_CMP_VERSION >= 120000 \
+ && BSLS_PLATFORM_CMP_VERSION <  130000
+#define CLANG_12 1
+#else
+#define CLANG_12 0
+#endif
+
+#if defined(BSLS_PLATFORM_CMP_GNU)      \
+ && BSLS_PLATFORM_CMP_VERSION >= 100000 \
+ && BSLS_PLATFORM_CMP_VERSION <  110000
+#define GNU_10 1
+#else
+#define GNU_10 0
+#endif
+
+#if defined(BSLS_PLATFORM_CMP_GNU)      \
+ && BSLS_PLATFORM_CMP_VERSION >= 110000 \
+ && BSLS_PLATFORM_CMP_VERSION <  120000
+#define GNU_11 1
+#else
+#define GNU_11 0
 #endif
 
 typedef bslstl::Function_InvokerUtil             Util;
@@ -2303,7 +2327,6 @@ void testPtrToMemFunc()
                       (&rep, gen.obj(), a1, a2, a3, a4, a5, a6, a7, a8, a9)));
     ASSERT(gen.check(0x2001));
 
-
     // Test void 'RET'
     getInvoker<void, TYPE, ARG>
         (&rep, &IntWrapper::increment1)
@@ -2897,7 +2920,10 @@ int main(int argc, char *argv[])
           TEST.run<void (   AI),  void       ( rrPI)  >(L_, NO );
           TEST.run<void (   AI),  void       (rrPcI)  >(L_, !MSVC
                                                          && !CLANG_10
-                                                         && !CLANG_11);
+                                                         && !CLANG_11
+                                                         && !CLANG_12
+                                                         && !GNU_10
+                                                         && !GNU_11);
           TEST.run<void (  AcI),  void       (   PI)  >(L_, NO );
           TEST.run<void (  AcI),  void       (  PcI)  >(L_, YES);
           TEST.run<void (  AcI),  void       (  rPI)  >(L_, NO );
@@ -2956,6 +2982,10 @@ int main(int argc, char *argv[])
           TEST.run<int  (D    ),   int  D::*          >(L_, YES);
           TEST.run<int  (D    ),   int (D::*)(     )  >(L_, YES);
 
+#ifdef BSLS_PLATFORM_CMP_GNU
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wignored-qualifiers"
+#endif
           // invocations that drop the return type
           TEST.run<void (     ),      I      (     )  >(L_, YES);
           TEST.run<void (     ),     cI      (     )  >(L_, YES);
@@ -2967,6 +2997,9 @@ int main(int argc, char *argv[])
           TEST.run<void (     ),   rcvI      (     )  >(L_, YES);
           TEST.run<void (     ),    rrI      (     )  >(L_, YES);
           TEST.run<void (     ),   rrcI      (     )  >(L_, YES);
+#ifdef BSLS_PLATFORM_CMP_GNU
+#pragma GCC diagnostic pop
+#endif
 
           // invocations that perform cvr-qualification conversions of
           // class return types
@@ -3624,7 +3657,6 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nPOINTER TO FUNCTION TARGET"
                             "\n==========================\n");
 
-
         bslstl::Function_Rep rep(&ta);
 
         if (veryVerbose) printf("Plan step 1: Null invoker\n");
@@ -4076,7 +4108,7 @@ int main() {
 #endif // defined(COMPILING_BSLSTL_FUNCTION_INVOKERUTIL_T_CPP)
 
 // ----------------------------------------------------------------------------
-// Copyright 2021 Bloomberg Finance L.P.
+// Copyright 2022 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
