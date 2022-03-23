@@ -717,7 +717,11 @@ template <class FUNCTION_PTR>
 inline
 FUNCTION_PTR BslTestUtil::makeFunctionCallNonInline(FUNCTION_PTR function)
 {
-    enum { k_STATIC_ASSERT = 1 / (sizeof(FUNCTION_PTR) == sizeof(void *)) };
+    // Cast necessary because dividing by 'bool' gives compiler warning on
+    // Windows.
+
+    enum { k_STATIC_ASSERT = 1 / 
+                    static_cast<int>(sizeof(FUNCTION_PTR) == sizeof(void *)) };
 
     return reinterpret_cast<FUNCTION_PTR>(identityPtr(reinterpret_cast<void *>(
                                                                    function)));
