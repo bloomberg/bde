@@ -241,13 +241,17 @@ int main(int argc, char *argv[])
         //:   appropriately.
         //:
         //: 5 That no bytes in the original data buffer are modified.
+        //:
+        //: 6 That the function behaves as expected if the source object was
+        //:   created with (0, 0).
         //
         // Plan:
         //: 1 First, using the table-driven approach, define a representative
         //:   set of valid inputs.  Verify that the function returns the
-        //:   correct value.
+        //:   correct value.  (C-2)
         //:
-        //: 2 Verify that 'n' bytes were removed from the source object.  (C-1)
+        //: 2 Verify that 'min(numBytes, source.length())' bytes were removed
+        //:   from the source object.  (C-1)
         //:
         //: 3 Before invoking 'removeSuffix', make a copy of the original
         //:   and then verify that the returned bytes are those expected.
@@ -261,10 +265,16 @@ int main(int argc, char *argv[])
         //:   removing 0 and SIZE_MAX bytes.  (C-4)
         //:
         //: 6 Generate random fuzz data buffers and exercise the function
-        //:   with random data.  (C-3)
+        //:   with random data.  Verify that if we try to remove more bytes
+        //:   than contained in the source, the method will return all bytes
+        //:   contained in the source.  (C-3)
         //:
-        //: 7 Using a Generator Function, populate a buffer with random bytes
-        //:   and use this to create the source object.
+        //: 7 For each iteration through the table, create a source object with
+        //:   null data and size of 0, and verify that the function behaves as
+        //:   expected.  (C-6)
+        //:
+        //: 8 Using 'bsl::equal', verify that no bytes in the original data
+        //:   buffer were modified.  (C-5)
         //
         // Testing:
         //   FuzzDataView removeSuffix(bsl::size_t numBytes);
@@ -275,38 +285,37 @@ int main(int argc, char *argv[])
                  << "METHOD 'removeSuffix'" << endl
                  << "=====================" << endl;
 
-         static const struct {
+        static const struct {
             int            d_line;              // source line number
             bsl::size_t    d_numBytesToRemove;  // suffix size
         } DATA[] = {
             //LINE  NUM_BYTES_TO_REMOVE
             //----  -------------------
-            {L_,            0         },
-            {L_,            1         },
-            {L_,            2         },
-            {L_,            4         },
-            {L_,            7         },
-            {L_,           15         },
-            {L_,          128         },
-            {L_,          256         },
-            {L_,        SIZE_MAX      }
+            {L_,             0 },
+            {L_,             1 },
+            {L_,             2 },
+            {L_,             4 },
+            {L_,             7 },
+            {L_,             8 },
+            {L_,            15 },
+            {L_,           128 },
+            {L_,           256 },
+            {L_,      SIZE_MAX }
         };
 
         enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int         BUFLEN = 128;
-
             for (int inBytes = 0; inBytes < BUFLEN; ++inBytes) {
-                const int         LINE     = DATA[ti].d_line;
-                const bsl::size_t NUM_BYTES = DATA[ti].d_numBytesToRemove;
-
                 bsl::uint8_t      FUZZ_BUF[BUFLEN];
                 bsl::uint8_t      SAVE_BUF[BUFLEN];
-
+                const int         LINE          = DATA[ti].d_line;
+                const bsl::size_t NUM_BYTES     = DATA[ti].d_numBytesToRemove;
+                
                 generateBytes(FUZZ_BUF, BUFLEN, inBytes);
-                bsl::memcpy(SAVE_BUF, FUZZ_BUF, inBytes);
-
+                bsl::copy(FUZZ_BUF, FUZZ_BUF + inBytes, SAVE_BUF);
+                    
                 Obj mX(FUZZ_BUF, inBytes); const Obj& X = mX;
 
                 const bsl::size_t EXP_SUFFIX_LENGTH =
@@ -319,17 +328,48 @@ int main(int argc, char *argv[])
                     T_ P_(LINE) P_(inBytes) P(NUM_BYTES);
                 }
 
-                ASSERT(S.length() == EXP_SUFFIX_LENGTH);
-                ASSERT(S.data()   == FUZZ_BUF + inBytes - EXP_SUFFIX_LENGTH);
-                ASSERT(S.begin()  == FUZZ_BUF + inBytes - EXP_SUFFIX_LENGTH);
-                ASSERT(S.end()    == FUZZ_BUF + inBytes);
+                ASSERT(EXP_SUFFIX_LENGTH                      == S.length());
+                ASSERT(FUZZ_BUF + inBytes - EXP_SUFFIX_LENGTH == S.data());
+                ASSERT(FUZZ_BUF + inBytes - EXP_SUFFIX_LENGTH == S.begin());
+                ASSERT(FUZZ_BUF + inBytes                     == S.end());
 
-                ASSERT(X.length() == inBytes - EXP_SUFFIX_LENGTH);
-                ASSERT(X.data()   == FUZZ_BUF);
-                ASSERT(X.begin()  == FUZZ_BUF);
-                ASSERT(X.end()    == FUZZ_BUF + inBytes - EXP_SUFFIX_LENGTH);
+                ASSERT(inBytes - EXP_SUFFIX_LENGTH            == X.length());
+                ASSERT(FUZZ_BUF                               == X.data());
+                ASSERT(FUZZ_BUF                               == X.begin());
+                ASSERT(FUZZ_BUF + inBytes - EXP_SUFFIX_LENGTH == X.end());
 
-                ASSERT(0 == bsl::memcmp(SAVE_BUF, FUZZ_BUF, inBytes));
+                ASSERT(true ==
+                       bsl::equal(FUZZ_BUF, FUZZ_BUF + inBytes, SAVE_BUF));
+            }
+        }
+        {
+            if (verbose) {
+                cout << "\nTesting 'removeSuffix' with FuzzDataView(0, 0)"
+                     << endl;
+            }
+            Obj        mX(0, 0);
+            const Obj& X = mX;
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int         LINE      = DATA[ti].d_line;
+                const bsl::size_t NUM_BYTES = DATA[ti].d_numBytesToRemove;
+
+                Obj        mS = mX.removeSuffix(NUM_BYTES);
+                const Obj& S  = mS;
+
+                if (veryVerbose) {
+                    T_ P_(LINE) P(NUM_BYTES);
+                }
+
+                ASSERT(0 == S.length());
+                ASSERT(0 == S.data());
+                ASSERT(0 == S.begin());
+                ASSERT(0 == S.end());
+
+                ASSERT(0 == X.length());
+                ASSERT(0 == X.data());
+                ASSERT(0 == X.begin());
+                ASSERT(0 == X.end());
             }
         }
       } break;
@@ -338,22 +378,29 @@ int main(int argc, char *argv[])
         // METHOD 'removePrefix'
         //
         // Concerns:
-        //: 1 That the source object has the first 'n' bytes removed.
+        //: 1 That the source object has the 'min(numBytes, source.length())'
+        //:   first bytes removed.
         //:
-        //: 2 That the object returned has those returned 'n' bytes.
+        //: 2 That the object returned has those bytes that were removed.
         //:
         //: 3 That if we try to remove more bytes than contained in the source,
         //:   the method will return all bytes contained in the source.
         //:
         //: 4 That corner cases of removing 0 bytes and SIZE_MAX are handled
         //:   appropriately.
+        //:
+        //: 5 That no bytes in the original data buffer are modified.
+        //:
+        //: 6 That the function behaves as expected if the source object was
+        //:   created with (0, 0).
         //
         // Plan:
-        //: 1 Using the table-driven approach,define a representative set of
-        //:   valid inputs.  Verify that the function returns the correct
-        //:   value.  (C-1)
+        //: 1 First, using the table-driven approach, define a representative
+        //:   set of valid inputs.  Verify that the function returns the
+        //:   correct value.  (C-2)
         //:
-        //: 2 Verify that 'n' bytes were removed from the source object.  (C-1)
+        //: 2 Verify that 'min(numBytes, source.length())' bytes were removed
+        //:   from the source object.  (C-1)
         //:
         //: 3 Before invoking 'removePrefix', make a copy of the original
         //:   and then verify that the returned bytes are those expected.
@@ -366,8 +413,17 @@ int main(int argc, char *argv[])
         //: 5 Using the table-driven approach, test the corner cases of
         //:   removing 0 and SIZE_MAX bytes.  (C-4)
         //:
-        //: 6 Using a Generator Function, populate a buffer with random bytes
-        //:   and use this to create the source object.
+        //: 6 Generate random fuzz data buffers and exercise the function
+        //:   with random data.  Verify that if we try to remove more bytes
+        //:   than contained in the source, the method will return all bytes
+        //:   contained in the source.  (C-3)
+        //:
+        //: 7 For each iteration through the table, create a source object with
+        //:   null data and size of 0, and verify that the function behaves as
+        //:   expected.  (C-6)
+        //:
+        //: 8 Using 'bsl::equal', verify that no bytes in the original data
+        //:   buffer were modified.  (C-5)
         //
         // Testing:
         //   FuzzDataView removePrefix(bsl::size_t numBytes);
@@ -384,52 +440,87 @@ int main(int argc, char *argv[])
         } DATA[] = {
             //LINE  NUM_BYTES_TO_REMOVE
             //----  -------------------
-            {L_,            0         },
-            {L_,            1         },
-            {L_,            2         },
-            {L_,            4         },
-            {L_,            7         },
-            {L_,           15         },
-            {L_,          128         },
-            {L_,          256         },
-            {L_,        SIZE_MAX      }
+            {L_,             0 },
+            {L_,             1 },
+            {L_,             2 },
+            {L_,             4 },
+            {L_,             7 },
+            {L_,             8 },
+            {L_,            15 },
+            {L_,           128 },
+            {L_,           256 },
+            {L_,      SIZE_MAX }
         };
 
-        const int         BUFLEN = 128;
-        bsl::uint8_t      FUZZ_BUF[BUFLEN];
-        bsl::uint8_t      SAVE_BUF[BUFLEN];
         enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int         BUFLEN = 128;
             for (int inBytes = 0; inBytes < BUFLEN; ++inBytes) {
-                const int         LINE     = DATA[ti].d_line;
-                const bsl::size_t numBytes = DATA[ti].d_numBytesToRemove;
+                bsl::uint8_t      FUZZ_BUF[BUFLEN];
+                bsl::uint8_t      SAVE_BUF[BUFLEN];
+                const int         LINE          = DATA[ti].d_line;
+                const bsl::size_t NUM_BYTES     = DATA[ti].d_numBytesToRemove;
+
                 generateBytes(FUZZ_BUF, BUFLEN, inBytes);
-                bsl::memcpy(SAVE_BUF, FUZZ_BUF, inBytes);
+                bsl::copy(FUZZ_BUF, FUZZ_BUF + inBytes, SAVE_BUF);
+
+                    
 
                 Obj mX(FUZZ_BUF, inBytes); const Obj& X = mX;
 
                 const bsl::size_t maxLengthReturned =
-                    bsl::min(numBytes, X.length());
+                        bsl::min(NUM_BYTES, X.length());
 
-                Obj        mP = mX.removePrefix(numBytes);
+                Obj        mP = mX.removePrefix(NUM_BYTES);
                 const Obj& P  = mP;
 
                 if (veryVerbose) {
-                    T_ P_(LINE) P_(inBytes) P(numBytes);
+                    T_ P_(LINE) P_(inBytes) P(NUM_BYTES);
                 }
 
-                ASSERT(P.length() == maxLengthReturned);
-                ASSERT(P.data()   == FUZZ_BUF);
-                ASSERT(P.begin()  == FUZZ_BUF);
-                ASSERT(P.end()    == FUZZ_BUF + maxLengthReturned);
+                ASSERT(maxLengthReturned            == P.length());
+                ASSERT(FUZZ_BUF                     == P.data());
+                ASSERT(FUZZ_BUF                     == P.begin());
+                ASSERT(FUZZ_BUF + maxLengthReturned == P.end());
 
-                ASSERT(X.length() == inBytes - maxLengthReturned);
-                ASSERT(X.data()   == FUZZ_BUF + maxLengthReturned);
-                ASSERT(X.begin()  == FUZZ_BUF + maxLengthReturned);
-                ASSERT(X.end()    == FUZZ_BUF + inBytes);
+                ASSERT(inBytes - maxLengthReturned  == X.length());
+                ASSERT(FUZZ_BUF + maxLengthReturned == X.data());
+                ASSERT(FUZZ_BUF + maxLengthReturned == X.begin());
+                ASSERT(FUZZ_BUF + inBytes           == X.end());
 
-                ASSERT(0 == bsl::memcmp(SAVE_BUF, FUZZ_BUF, inBytes));
+                ASSERT(true ==
+                       bsl::equal(FUZZ_BUF, FUZZ_BUF + inBytes, SAVE_BUF));
+            }
+        }
+        {
+            if (verbose) {
+                cout << "\nTesting 'removePrefix' with FuzzDataView(0, 0)"
+                     << endl;
+            }
+            Obj        mX(0, 0);
+            const Obj& X = mX;
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int         LINE      = DATA[ti].d_line;
+                const bsl::size_t NUM_BYTES = DATA[ti].d_numBytesToRemove;
+
+                Obj        mS = mX.removePrefix(NUM_BYTES);
+                const Obj& S  = mS;
+
+                if (veryVerbose) {
+                    T_ P_(LINE) P(NUM_BYTES);
+                }
+
+                ASSERT(0 == S.length());
+                ASSERT(0 == S.data());
+                ASSERT(0 == S.begin());
+                ASSERT(0 == S.end());
+
+                ASSERT(0 == X.length());
+                ASSERT(0 == X.data());
+                ASSERT(0 == X.begin());
+                ASSERT(0 == X.end());
             }
         }
       } break;
@@ -443,14 +534,21 @@ int main(int argc, char *argv[])
         //: 2 Accessor methods return the correct values.
         //:
         //: 3 No bytes were modified in the original data buffer.
+        //:
+        //: 4 An object can be created with 'size == 0' as well as both
+        //:   'data == 0' and 'size == 0'.  The resulting object behaves as
+        //:   expected.
         //
         // Plan:
         //: 1 Using the table-driven approach,define a representative set of
         //:   valid inputs.  Verify that the function returns the correct
         //:   value and that the source object is correct.  (C-1..2)
         //:
-        //: 2 Using 'memcmp' verify that the original data buffer used to
-        //    construct the 'FuzzDataView' has not been modified.  (C-3)
+        //: 2 Using 'bsl::equal' verify that the original data buffer used to
+        //:   construct the 'FuzzDataView' has not been modified.  (C-3)
+        //:
+        //: 3 Create objects passing '0' for 'size' as well as '0, 0' to the
+        //:   constructor ('data' and 'size').  Invoke the accessors. (C-4)
         //
         // Testing:
         //   FuzzDataView(const bsl::uint8_t *data, bsl::size_t size);
@@ -469,28 +567,29 @@ int main(int argc, char *argv[])
         bsl::uint8_t SAVE_BUF[BUFLEN];
 
         static const struct {
-            int            d_line;    // source line number
-            bsl::size_t    d_length;  // suffix size
+            int            d_line;        // source line number
+            bsl::size_t    d_length;      // suffix size
         } DATA[] = {
-            //LINE        LENGTH
-            //----        ------
-            {L_,            0         },
-            {L_,            1         },
-            {L_,            2         },
-            {L_,            4         },
-            {L_,            7         },
-            {L_,           25         },
-            {L_,          BUFLEN      }
+            //LINE        LENGTH     USE_NULL_DATA
+            //----        ------     -------------
+            {L_,             0 },
+            {L_,             1 },
+            {L_,             2 },
+            {L_,             4 },
+            {L_,             7 },
+            {L_,             8 },
+            {L_,            15 },
+            {L_,        BUFLEN }
         };
 
         enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int         LINE = DATA[ti].d_line;
-            const bsl::size_t LEN  = DATA[ti].d_length;
+            const int         LINE          = DATA[ti].d_line;
+            const bsl::size_t LEN           = DATA[ti].d_length;
 
-            generateBytes(FUZZ_BUF, BUFLEN, LEN);  // generate into FUZZ_BUF
-            bsl::memcpy(SAVE_BUF, FUZZ_BUF, LEN);  // copy into SAVE_BUF
+            generateBytes(FUZZ_BUF, BUFLEN, LEN);
+            bsl::copy(FUZZ_BUF, FUZZ_BUF + LEN, SAVE_BUF);
 
             Obj mX(FUZZ_BUF, LEN);  const Obj& X = mX;
 
@@ -499,20 +598,33 @@ int main(int argc, char *argv[])
             ASSERT(FUZZ_BUF       == X.data());
             ASSERT(FUZZ_BUF + LEN == X.end());
 
-            ASSERT(0 == bsl::memcmp(SAVE_BUF, FUZZ_BUF, LEN));
+            ASSERT(true ==
+                   bsl::equal(FUZZ_BUF, FUZZ_BUF + LEN, SAVE_BUF));
 
             if (veryVerbose) {
                 T_ P_(LINE) P_(X.length()) P(LEN);
             }
         }
-
-        if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertTestHandlerGuard hG;
-            {
-                ASSERT_PASS(Obj(FUZZ_BUF, 0));
+            if (verbose)
+                cout << "\nTesting 'FuzzDataView(0, 0)'." << endl;
+            Obj        mX(0, 0);
+            const Obj& X = mX;
 
-                ASSERT_FAIL(Obj(0, 0));
+            ASSERT(0 == X.length());
+            ASSERT(0 == X.begin());
+            ASSERT(0 == X.data());
+            ASSERT(0 == X.end());
+        }
+        {
+            if (verbose)
+                cout << "\nNegative Testing." << endl;
+            {
+                bsls::AssertTestHandlerGuard hG;
+                {
+                    ASSERT_PASS(Obj(0, 0));
+                    ASSERT_FAIL(Obj(0, 1));
+                }
             }
         }
       } break;
@@ -566,7 +678,7 @@ int main(int argc, char *argv[])
             Obj view1 = view0.removePrefix(1);
             ASSERT(FUZZ_BUF[0] == *(view1.data()));
 
-            ASSERT(1 == view1.length());
+            ASSERT(1  == view1.length());
             ASSERT(11 == view0.length());
             bsl::string s(view1.begin(), view1.end());
 
@@ -585,7 +697,7 @@ int main(int argc, char *argv[])
 
             Obj view1 = view0.removeSuffix(1);
 
-            ASSERT(1 == view1.length());
+            ASSERT(1  == view1.length());
             ASSERT(11 == view0.length());
             ASSERT(FUZZ_BUF[11] == *view1.data());
         }

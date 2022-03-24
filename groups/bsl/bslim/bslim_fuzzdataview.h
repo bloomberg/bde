@@ -96,7 +96,7 @@ class FuzzDataView {
     // CREATORS
     FuzzDataView(const bsl::uint8_t *data, bsl::size_t size);
         // Create a 'FuzzDataView' object from the specified fuzz 'data' and
-        // 'size'.
+        // 'size'. The behavior is undefined unless 'data || (0 == size)'.
 
     // FuzzDataView(const FuzzDataView& original)  = default;
         // Create a 'FuzzDataView' having the value of the specified 'original'
@@ -155,7 +155,7 @@ FuzzDataView::FuzzDataView(const bsl::uint8_t *data, bsl::size_t size)
 : d_data_p(data)
 , d_length(size)
 {
-    BSLS_ASSERT(data);
+    BSLS_ASSERT(data || (0 == size));
 }
 
 // MANIPULATORS
