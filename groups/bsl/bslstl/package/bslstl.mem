@@ -108,5 +108,6 @@ bslstl_unorderedset
 bslstl_unorderedset_cpp03
 bslstl_unorderedset_test
 bslstl_unorderedsetkeyconfiguration
+bslstl_utility
 bslstl_vector
 bslstl_vector_cpp03

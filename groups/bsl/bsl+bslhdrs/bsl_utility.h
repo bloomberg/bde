@@ -20,6 +20,9 @@ BSLS_IDENT("$Id: $")
 #include <bsls_libraryfeatures.h>
 #include <bsls_nativestd.h>
 
+#include <bslstl_inplace.h>
+#include <bslstl_utility.h>
+
 #include <utility>
 
 namespace bsl {

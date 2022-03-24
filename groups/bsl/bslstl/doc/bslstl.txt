@@ -17,7 +17,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslstl' package currently has 112 components having 10 levels of physical
+ The 'bslstl' package currently has 113 components having 10 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -142,6 +142,7 @@
       bslstl_unorderedmultimap_cpp03                                  !PRIVATE!
       bslstl_unorderedmultiset_cpp03                                  !PRIVATE!
       bslstl_unorderedset_cpp03                                       !PRIVATE!
+      bslstl_utility                                                  !PRIVATE!
       bslstl_vector_cpp03                                             !PRIVATE!
 ..
 
@@ -476,6 +477,9 @@
 :
 : 'bslstl_unorderedsetkeyconfiguration':
 :      Provide a configuration class to use a whole object as its own key.
+:
+: 'bslstl_utility':                                                   !PRIVATE!
+:      Provide an implementation of 'as_const' for pre-C++17 systems.
 :
 : 'bslstl_vector':
 :      Provide an STL-compliant vector class.

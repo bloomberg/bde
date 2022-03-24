@@ -1983,7 +1983,7 @@ int main(int argc, char *argv[])
             bsl::array<char, NUM_DATA>        a;
             const bsl::array<char, NUM_DATA>& A = a;
             for (size_t i = 0; i < NUM_DATA; ++i) {
-                a[i] = uniqKeys[i];
+                a[i] = (char) uniqKeys[i];
             }
 
             bsl::ostringstream out;
@@ -2010,7 +2010,7 @@ int main(int argc, char *argv[])
             bsl::array<char, NUM_DATA>        a;
             const bsl::array<char, NUM_DATA>& A = a;
             for (size_t i = 0; i < NUM_DATA; ++i) {
-                a[i] = uniqKeys[i];
+                a[i] = (char) uniqKeys[i];
             }
 
             bsl::ostringstream out;

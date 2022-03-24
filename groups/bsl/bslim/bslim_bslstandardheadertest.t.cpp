@@ -179,6 +179,9 @@ using namespace bslim;
 // defined in 'bslstl'.
 //
 //-----------------------------------------------------------------------------
+// [11] bsl::in_place_t
+// [11] bsl::in_place
+// [11] bsl::add_const<TYPE>::type& as_const(TYPE& value);
 // [10] C++17 TYPE ALIASES
 // [ 9] CONCERN: 'bslh::hashAppend' of 'std::pair'  is usable from 'bsl'.
 // [ 9] CONCERN: 'bslh::hashAppend' of 'std::tuple' is usable from 'bsl'.
@@ -592,6 +595,45 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << "\n";
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 11: {
+        // --------------------------------------------------------------------
+        // TESTING C++17 <BSL_UTILITY.H> ADDITIONS
+        //
+        // Concerns:
+        //: 1 The call 'bsl::as_const' returns it's parameter as a const &.
+        //
+        // Plan:
+        //: 1 Statically check that the return type of 'bsl::as_const' is
+        //:   correct.
+        //: 2 Dynamically check that the return value of 'bsl::as_const' is
+        //:   correct.
+        //: 3 Check that 'bsl::in_place' and 'in_place_t' are accessible here.
+        //
+        //
+        // Testing:
+        //   bsl::add_const<TYPE>::type& as_const(TYPE& value);
+        //   bsl::in_place_t
+        //   bsl::in_place
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING C++17 <BSL_UTILITY.H> ADDITIONS"
+                            "\n=======================================\n");
+        typedef bsl::pair<int, double> Obj;
+
+        Obj X;
+        X.first = 23;
+        X.second = 42.0;
+        const Obj &cX = bsl::as_const(X);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+        ASSERT((bsl::is_same<decltype(bsl::as_const(X)), const Obj &>::value));
+#endif
+        ASSERT(&cX.first == &X.first);  // same object
+
+        // Just check that the identifiers are accessible
+        bsl::in_place_t my_inplace = bsl::in_place;
+        (void) my_inplace;
+
+      } break;
       case 10: {
         // --------------------------------------------------------------------
         // TESTING C++17 TYPE ALIASES
