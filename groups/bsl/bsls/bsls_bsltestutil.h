@@ -717,8 +717,14 @@ template <class FUNCTION_PTR>
 inline
 FUNCTION_PTR BslTestUtil::makeFunctionCallNonInline(FUNCTION_PTR function)
 {
-    // Cast necessary because dividing by 'bool' gives compiler warning on
-    // Windows.
+    // 'static_assert' isn't available pre-C++11, and 'BSLMF_ASSERT' is not
+    // accessible from here in bsls, so we divide by the boolean expression
+    // under test -- if the boolean expression is 'false', it will be a
+    // divide-by-zero in an enum and fail to compile, thus providing us with a
+    // "poor man's" compile-time assert.
+    //
+    // The cast to 'int' is necessary because dividing by 'bool' gives a
+    // compiler warning on Windows.
 
     enum { k_STATIC_ASSERT = 1 / 
                     static_cast<int>(sizeof(FUNCTION_PTR) == sizeof(void *)) };
