@@ -82,16 +82,13 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
+#include <bslmf_if.h>
 #include <bslmf_integralconstant.h>
 #include <bslmf_removecv.h>
 #include <bslmf_tag.h>
 #include <bslmf_typelist.h>
 
 #include <bsls_compilerfeatures.h>
-
-#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-#include <bslmf_if.h>
-#endif  // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 namespace bslmf {
