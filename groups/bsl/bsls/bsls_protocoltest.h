@@ -170,9 +170,19 @@ BSLS_IDENT("$Id: $")
 // These steps conclude the protocol testing.  If there are any failures, they
 // will be reported via standard test driver assertions (i.e., the standard
 // 'ASSERT' macro).
+//
+///Implementation Note
+///- - - - - - - - - -
+// This component has a number of private meta-functions on some platforms,
+// e.g., 'ProtocolTest_EnableIf', 'ProtocolTest_IsClass', and
+// 'ProtocolTest_IsAbstract'.  These mimic, to a limited extent, standard
+// library meta-functions in the namespace 'std' that are not available on all
+// platforms.  For general use, see the {'bslmf'} package and the {'bsl'}
+// namespace for portable implementations of some of these meta-functions.
 
 #include <bsls_compilerfeatures.h>
 #include <bsls_libraryfeatures.h>
+#include <bsls_platform.h>
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
 #include <type_traits>
@@ -182,26 +192,216 @@ BSLS_IDENT("$Id: $")
 #include <cstdio>
 
 namespace BloombergLP {
-
 namespace bsls {
 
-                    // =============================
-                    // class ProtocolTest_IsAbstract
-                    // =============================
+                        // =============================
+                        // class ProtocolTest_IsAbstract
+                        // =============================
+
+template <class T>
+struct ProtocolTest_IsAbstract;
+    // This class template is a compile-time meta-function, parameterized with
+    // type 'T', the output of which is 'VALUE', which will be 'true' if 'T' is
+    // abstract and 'false' otherwise.  On some platforms, the 'IsAbstract'
+    // test makes use of the fact that a type 'an array of objects of an
+    // abstract type' (e.g., 'T[1]') cannot exist.  Note that it is only an
+    // approximation, because this is also true for an incomplete type.  But,
+    // this approximation is good enough for the purpose of testing protocol
+    // classes.  On certain other platforms, the 'IsAbstract' test will make
+    // use of the fact that abstract types cannot be returned.  This
+    // approximation also has issues, noted below, but is also good enough for
+    // the purpose of testing protocol classes.
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
 
 template <class T>
 struct ProtocolTest_IsAbstract {
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
     enum { VALUE = std::is_abstract<T>::value };
+};
+
+#elif defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 110000
+
+///Implementation Note
+///-------------------
+// GCC 11 and later adhere to the core language changes resulting from the
+// paper P0929, which was approved as a defect report and applied to C++03 and
+// later.  One effect of this paper is that it became well-formed to name the
+// type 'T[1]' where 'T' is an abstract class type.  As a result, platforms
+// that apply P0929 require a different implementation of an abstractness test
+// in C++03 mode.
+
+template <class T>
+struct ProtocolTest_VoidType {
+    // This component-private, meta-function 'struct' template provides a
+    // single-parameter type trait that behaves like the 'bslmf::VoidType'
+    // meta-function for use in the implementation of the
+    // 'ProtocolTest_IsAbstract' meta-function when compiling in C++03 mode on
+    // compilers that apply P0929 to that mode.  Note that this component is in
+    // the 'bsls' package, which is levelized below 'bslmf', and so cannot
+    // depend on 'bslmf::VoidType'.
+
+    typedef void Type;
+};
+
+template <class VOID_TYPE, class T>
+struct ProtocolTest_IsClassTypeImp {
+    // This component-private, meta-function (primary) 'struct' template
+    // provides part of the implementation of a type trait that behaves like
+    // 'std::is_class' for use in the implementation of the
+    // 'ProtocolTest_IsAbstract' meta-function when compiling in C++03 mode on
+    // compilers that apply P0929 to that mode.  Note that in this mode,
+    // 'std::is_class' is not available.
+
+    enum { VALUE = false };
+};
+
+template <class T>
+struct ProtocolTest_IsClassTypeImp<
+    typename ProtocolTest_VoidType<int T::*>::Type,
+    T> {
+    // This component-private, meta-function 'struct' template (partial
+    // specialization) provides part of the implementation of a type trait that
+    // behaves like 'std::is_class' for use in the implementation of the
+    // 'ProtocolTest_IsAbstract' meta-function when compiling in C++03 mode on
+    // compilers that apply P0929 to that mode.  Note that in this mode,
+    // 'std::is_class' is not available.
+
+    enum { VALUE = true };
+};
+
+template <class T>
+struct ProtocolTest_IsClassType {
+    // This component-private, meta-function 'struct' template provides the
+    // implementation of a type trait that behaves like 'std::is_class' for use
+    // in the implementation of the 'ProtocolTest_IsAbstract' meta-function
+    // when compiling in C++03 mode on compilers that apply P0929 to that mode.
+    // Note that in this mode, 'std::is_class' is not available.
+
+    enum {
+        VALUE = ProtocolTest_IsClassTypeImp<void, T>::VALUE
+    };
+};
+
+template <bool CONDITION, class T = void>
+struct ProtocolTest_EnableIf {
+    // This component-private, meta-function (primary) 'struct' template
+    // provides part of the implementation of a type trait that behaves like
+    // 'std::enable_if' for use in the implementation of the
+    // 'ProtocolTest_IsAbstract' meta-function when compiling in C++03 mode on
+    // compilers that apply P0929 to that mode.  Note that in this mode,
+    // 'std::enable_if' is not available.
+};
+
+template <class T>
+struct ProtocolTest_EnableIf<true, T> {
+    // This component-private, meta-function 'struct' template (partial
+    // specialization) provides part of the implementation of a type trait that
+    // behaves like 'std::enable_if' for use in the implementation of the
+    // 'ProtocolTest_IsAbstract' meta-function when compiling in C++03 mode on
+    // compilers that apply P0929 to that mode.  Note that in this mode,
+    // 'std::enable_if' is not available.
+
+    typedef T Type;
+};
+
+struct ProtocolTest_NoType {
+    // this component-private 'struct' provides a type having a size that is
+    // guaranteed to be different than the size of 'ProtocolTest_YesType', and
+    // is used in the implementation of the 'ProtocolTest_IsAbstract'
+    // meta-function when compiling in C++03 mode on compilers that apply P0929
+    // to that mode.
+
+    char d_padding;
+};
+
+struct ProtocolTest_YesType {
+    // this component-private 'struct' provides a type having a size that is
+    // guaranteed to be different than the size of 'ProtocolTest_NoType', and
+    // is used in the implementation of the 'ProtocolTest_IsAbstract'
+    // meta-function when compiling in C++03 mode on compilers that apply P0929
+    // to that mode.
+
+    char d_padding[17];
+};
+
+struct ProtocolTest_IsReturnableImpUtil {
+    // This component-private 'struct' provides a namespace for a 'test'
+    // overload set used to determine if a specified type can be returned from
+    // a function-call expression or not.  This 'struct' is used in the
+    // implementation of the 'ProtocolTest_IsAbstract' meta-function when
+    // compiling in C++03 mode on compilers that apply P0929 to that mode.
+
+  private:
+    // PRIVATE CLASS METHODS
+    template <class T>
+    static T returnThe();
+        // Return a prvalue of the specified 'T' type.  Note that this function
+        // is declared but not defined.  It is similar in nature to
+        // 'std::declval', with the important distinction that return type of
+        // 'std::declval' is a reference type, and the return type of this
+        // function is not (necessarily) a reference type.
+
+  public:
+    // CLASS METHODS
+    template <class T>
+    static ProtocolTest_NoType test(...);
+    template <class T>
+    static ProtocolTest_YesType
+    test(typename ProtocolTest_EnableIf<static_cast<bool>(
+             sizeof(static_cast<void>(returnThe<T>()), 0))>::Type *);
+        // Return a 'ProtocolTest_YesType' prvalue if the specified 'T' type
+        // can be returned from a function-call expression, and return a
+        // 'ProtocolTest_NoType' prvalue otherwise.  The behavior is undefined
+        // unless this function is invoked with a single argument that is
+        // convertible to a 'void *'.  Note that this function is declared but
+        // not defined.
+};
+
+template <class T>
+struct ProtocolTest_IsReturnable {
+    // This component-private, meta-function 'struct' template provides a
+    // compile-time constant 'VALUE' class member with the value 'true' if the
+    // supplied 'T' type can be returned from a function-call expression, and
+    // provides a 'VALUE' class member with the value 'false' otherwise.  This
+    // meta-function is used in the implementation of the
+    // 'ProtocolTest_IsAbstract' meta-function when compiling in C++03 mode on
+    // compilers that apply P0929 to that mode.
+
+    enum {
+        VALUE = sizeof(ProtocolTest_YesType) ==
+                sizeof(ProtocolTest_IsReturnableImpUtil::test<T>(0))
+    };
+};
+
+
+template <class T>
+struct ProtocolTest_IsAbstract {
+    // This component-private, meta-function 'struct' template provides a
+    // compile-time constant 'VALUE' class member with the value 'true' if the
+    // supplied 'T' type is an abstract class type (or, and this is a defect,
+    // if 'T' is a class type with a private destructor), and provides a
+    // 'VALUE' class member with the value 'false' otherwise.  This
+    // meta-function matches the behavior 'std::is_abstract' would have if it
+    // were available except for non-abstract types with a private destructor,
+    // and is for use when compiling in C++03 mode on compilers that apply
+    // P0929 to that mode.
+
+    enum {
+        VALUE = ProtocolTest_IsClassType<T>::VALUE &&
+                !ProtocolTest_IsReturnable<T>::VALUE
+    };
+};
+
 #else
-    // This class template is a compile-time meta-function, parameterized with
-    // type 'T', the output of which is 'VALUE', which will be 'true' if 'T' is
-    // abstract and 'false' otherwise.  The 'IsAbstract' test makes use of the
-    // fact that a type 'an array of objects of an abstract type' (e.g.,
-    // 'U (*)[1]') cannot exist.  Note that it is only an approximation,
-    // because this is also true for an incomplete type.  But this
-    // approximation is good enough for the purpose of testing protocol
-    // classes.
+
+template <class T>
+struct ProtocolTest_IsAbstract {
+    // This component-private, meta-function 'struct' template provides a
+    // compile-time constant 'VALUE' class member with the value 'true' if the
+    // supplied 'T' type is an abstract class type, and provides a 'VALUE'
+    // class member with the value 'false' otherwise.  This meta-function
+    // matches the behavior 'std::is_abstract' would have if it were
+    // available on C++03 platforms.
 
     typedef char                    YesType;
     typedef struct { char a[2]; }   NoType;
@@ -213,12 +413,13 @@ struct ProtocolTest_IsAbstract {
     static YesType test(...);
 
     enum { VALUE = sizeof(test<T>(0)) == sizeof(YesType) };
-#endif
 };
 
-                 // ===================================
-                 // class ProtocolTest_MethodReturnType
-                 // ===================================
+#endif
+
+                     // ===================================
+                     // class ProtocolTest_MethodReturnType
+                     // ===================================
 
 struct ProtocolTest_MethodReturnType {
     // This class is a proxy for a return type designed to simplify testing
@@ -237,9 +438,9 @@ struct ProtocolTest_MethodReturnType {
         // Type 'T' is required to be default-constructible.
 };
 
-                // ======================================
-                // class ProtocolTest_MethodReturnRefType
-                // ======================================
+                   // ======================================
+                   // class ProtocolTest_MethodReturnRefType
+                   // ======================================
 
 struct ProtocolTest_MethodReturnRefType {
     // This class is a proxy for a return type designed to simplify testing
@@ -256,9 +457,9 @@ struct ProtocolTest_MethodReturnRefType {
         // should not be used and should be immediately discarded.
 };
 
-                       // =======================
-                       // class ProtocolTest_Dtor
-                       // =======================
+                           // =======================
+                           // class ProtocolTest_Dtor
+                           // =======================
 
 template <class BSLS_TESTIMP>
 struct ProtocolTest_Dtor : BSLS_TESTIMP {
@@ -275,9 +476,9 @@ struct ProtocolTest_Dtor : BSLS_TESTIMP {
         // the base class's destructor was declared 'virtual'.
 };
 
-                      // =========================
-                      // class ProtocolTest_Status
-                      // =========================
+                          // =========================
+                          // class ProtocolTest_Status
+                          // =========================
 
 class ProtocolTest_Status {
     // This class keeps track of the test status, which includes the status of
@@ -313,9 +514,9 @@ class ProtocolTest_Status {
         // has yet completed), and 'false' if it failed.
 };
 
-                    // ===========================
-                    // class ProtocolTest_AsBigAsT
-                    // ===========================
+                         // ===========================
+                         // class ProtocolTest_AsBigAsT
+                         // ===========================
 
 template <class T>
 class ProtocolTest_AsBigAsT {
@@ -338,9 +539,9 @@ class ProtocolTest_AsBigAsT {
 #endif
 };
 
-                          // =====================
-                          // class ProtocolTestImp
-                          // =====================
+                            // =====================
+                            // class ProtocolTestImp
+                            // =====================
 
 template <class BSLS_PROTOCOL>
 class ProtocolTestImp : public BSLS_PROTOCOL {
@@ -417,9 +618,9 @@ class ProtocolTestImp : public BSLS_PROTOCOL {
         // indicate that virtual methods were overridden correctly.
 };
 
-                       // ==================
-                       // class ProtocolTest
-                       // ==================
+                             // ==================
+                             // class ProtocolTest
+                             // ==================
 
 template <class BSLS_TESTIMP>
 class ProtocolTest {
@@ -489,9 +690,9 @@ class ProtocolTest {
 
 }  // close package namespace
 
-                         // ========================
-                         // BSLS_PROTOCOLTEST_ASSERT
-                         // ========================
+                          // ========================
+                          // BSLS_PROTOCOLTEST_ASSERT
+                          // ========================
 
 // This macro provides a test for method-related concerns of a protocol class.
 // It ensures that a method is publicly accessible and declared 'virtual'.  It
