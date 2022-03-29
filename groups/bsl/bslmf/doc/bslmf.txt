@@ -52,7 +52,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslmf' package currently has 83 components having 19 levels of physical
+ The 'bslmf' package currently has 84 components having 19 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -110,6 +110,7 @@
       bslmf_ispointer
       bslmf_isvoid
       bslmf_memberfunctionpointertraits
+      bslmf_memberpointertraits
       bslmf_removecvq
       bslmf_removecvref
 
@@ -341,6 +342,9 @@
 :
 : 'bslmf_memberfunctionpointertraits':
 :      Provide meta-functions to detect member function pointer traits.
+:
+: 'bslmf_memberpointertraits':
+:      Provide meta-function to detect pointer to member traits.
 :
 : 'bslmf_metaint':                                       !DEPRECATED!
 :      Provide a meta-function to map integral constants to unique types.

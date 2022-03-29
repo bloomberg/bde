@@ -1,12 +1,19 @@
 // bslmf_voidtype.t.cpp                                               -*-C++-*-
 #include <bslmf_voidtype.h>
 
+#include <bslmf_enableif.h>
+
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_platform.h>
 
 #include <stdio.h>   // 'printf'
 #include <stdlib.h>  // 'atoi'
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#include <type_traits> // 'std::void_t', 'std::true_type', 'std::false_type'
+#endif
 
 using namespace BloombergLP;
 
@@ -191,6 +198,115 @@ void aSsErT(bool condition, const char *message, int line)
 //                  GLOBAL CLASS TEMPLATES FOR TESTING
 //-----------------------------------------------------------------------------
 
+                        // ====================================
+                        // struct IsMediumClass<bool CONDITION>
+                        // ====================================
+
+template <bool CONDITION, class TYPE = void>
+struct TestEnableIf
+{
+    // Replicate the definition of 'bsl::enable_if' to avoid a dependency
+    // on 'bslmf_enableif' as doing so would introduce a cyclic dependency into
+    // this package.
+
+    typedef TYPE type;
+};
+
+template <class TYPE>
+struct TestEnableIf<false, TYPE>
+{
+};
+
+                        // ================================
+                        // struct IsMediumClass<class TYPE>
+                        // ================================
+
+template <class TYPE, class = void>
+struct IsMediumClass {
+
+    enum { k_VALUE = false };
+};
+
+template <class TYPE>
+struct IsMediumClass<
+TYPE,
+BSLMF_VOIDTYPES(
+    int TYPE::*,                                                 // is  "class"
+    typename TestEnableIf<(sizeof(TYPE) >  sizeof(char))>::type, // not "small"
+    typename TestEnableIf<(sizeof(TYPE) <= sizeof(int ))>::type  // not "large"
+)> {
+    enum { k_VALUE = true };
+};
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+
+                        // ======================================
+                        // struct IsMediumClassOracle<class TYPE>
+                        // ======================================
+
+template <class TYPE, class = void>
+struct IsMediumClassOracle : std::false_type {
+};
+
+template <class TYPE>
+struct IsMediumClassOracle<
+TYPE,
+std::void_t<
+int TYPE::*,                                                   // is  "class"
+typename std::enable_if<(sizeof(TYPE) >  sizeof(char))>::type, // not "small"
+typename std::enable_if<(sizeof(TYPE) <= sizeof(int ))>::type  // not "large"
+> > : std::true_type {
+};
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+
+// Sample Classes
+
+class MyEmptyClass {
+};
+
+struct MyEmptyStruct {
+};
+
+struct MyMediumStruct {
+    char d_data[3];
+};
+
+class MySmallClass {
+  public:
+    char d_data;
+};
+
+class MyMediumClass {
+  public:
+    int d_data;
+};
+
+class MyBigClass {
+  public:
+    int d_data1;
+    int d_data2;
+};
+
+enum MyEnumNotClass {
+    e_Value = 10
+};
+
+union MySmallUnion {
+    char d_char;
+};
+
+union MyMediumUnion {
+    char  d_char;
+    short d_short;
+};
+
+union MyBigUnion {
+    char  d_char;
+    long  d_int[2];
+};
+
+// ----------------------------------------------------------------------------
+
 template <class TYPE, class = void>
 struct IsNonAbstractClass {
     // This trait provides a nested enumerator 'k_VALUE' that is 'true' if the
@@ -220,7 +336,6 @@ template <class TYPE>
 struct IsClassType<TYPE, BSLMF_VOIDTYPE(int TYPE::*)> {
     enum { k_VALUE = true };
 };
-
 
 template <class TYPE, class = void>
 struct IsReasonable {
@@ -353,8 +468,10 @@ int main(int argc, char *argv[])
         //:   'T1, T2, ... TN' forms an invalid (dependant) type expression.
         //
         // Plan:
-        //: 1 Create a metafunction, 'IsNonAbstractClass', using the macro
+        //: 1 Create a metafunction, 'IsMediumClass', using the macro
         //:   'BSLMF_VOIDTYPES' to filter types on some set of properties.
+        //:   At least three properies are tested to distinguish this test
+        //:   from that of 'BSLMF_VOIDTYPE2' (test case 5).
         //:
         //: 2 Instantiate that metafunction for a wide variety of types that
         //:   cover the potential syntax space.
@@ -366,51 +483,79 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING 'BSLMF_VOIDTYPES'"
                             "\n=========================\n");
 
-        typedef Incomplete T;   // abbreviation for table below
+       typedef Incomplete T;   // abbreviation for table below
 
-        ASSERT(!IsNonAbstractClass<      void    >::k_VALUE);
-        ASSERT(!IsNonAbstractClass<const void    >::k_VALUE);
-        ASSERT(!IsNonAbstractClass<const void *  >::k_VALUE);
-        ASSERT(!IsNonAbstractClass<      int     >::k_VALUE);
-        ASSERT(!IsNonAbstractClass<const int     >::k_VALUE);
-        ASSERT(!IsNonAbstractClass<const int *   >::k_VALUE);
-        ASSERT(!IsNonAbstractClass<const int&    >::k_VALUE);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
-#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
-        ASSERT( IsNonAbstractClass<Abstract      >::k_VALUE);
-#else   // Expect the wrong answer on Sun CC compilers prior to CC 12.4
-        ASSERT(!IsNonAbstractClass<Abstract      >::k_VALUE);
+    #define IS_MEDIUM_CLASS(TYPE, EXPECTED)                   \
+            ASSERT(IsMediumClass<TYPE>::k_VALUE == EXPECTED); \
+            ASSERT(IsMediumClass<TYPE>::k_VALUE ==            \
+                   IsMediumClassOracle<TYPE>::value);
+#else // Oracle unavailable
+
+    #define IS_MEDIUM_CLASS(TYPE, EXPECTED)                   \
+            ASSERT(IsMediumClass<TYPE>::k_VALUE == EXPECTED);
+
 #endif
-        ASSERT( IsNonAbstractClass<Incomplete    >::k_VALUE);
-        ASSERT(!IsNonAbstractClass<      MyEnum  >::k_VALUE);
-        ASSERT( IsNonAbstractClass<      MyStruct>::k_VALUE);
-        ASSERT( IsNonAbstractClass<const MyStruct>::k_VALUE);
-        ASSERT( IsNonAbstractClass<      MyUnion >::k_VALUE);
 
-        ASSERT(!IsNonAbstractClass<int T::*      >::k_VALUE);
-        ASSERT(!IsNonAbstractClass<int(T::*)()const>::k_VALUE);
+        IS_MEDIUM_CLASS(MyEmptyClass,   false);
+        IS_MEDIUM_CLASS(MyEmptyStruct,  false);
+        IS_MEDIUM_CLASS(MySmallClass,   false);
+        IS_MEDIUM_CLASS(MyBigClass,     false);
+        IS_MEDIUM_CLASS(MyEnumNotClass, false);
+        IS_MEDIUM_CLASS(MySmallUnion,   false);
+        IS_MEDIUM_CLASS(MyBigUnion,     false);
 
-        ASSERT(!IsNonAbstractClass<int    [ ]    >::k_VALUE);
-        ASSERT(!IsNonAbstractClass<int (*)[ ]    >::k_VALUE);
-        ASSERT(!IsNonAbstractClass<int (&)[ ]    >::k_VALUE);
-        ASSERT(!IsNonAbstractClass<int    [2]    >::k_VALUE);
-        ASSERT(!IsNonAbstractClass<int (*)[3]    >::k_VALUE);
-        ASSERT(!IsNonAbstractClass<int (&)[4]    >::k_VALUE);
+        IS_MEDIUM_CLASS(      MyMediumClass,  true );
+        IS_MEDIUM_CLASS(const MyMediumClass,  true );
+        IS_MEDIUM_CLASS(      MyMediumStruct, true );
+        IS_MEDIUM_CLASS(const MyMediumStruct, true );
+        IS_MEDIUM_CLASS(      MyMediumUnion,  true );
+        IS_MEDIUM_CLASS(const MyMediumUnion,  true );
 
-        ASSERT(!IsNonAbstractClass<void   ()     >::k_VALUE);
-        ASSERT(!IsNonAbstractClass<void(*)()     >::k_VALUE);
-        ASSERT(!IsNonAbstractClass<void(&)()     >::k_VALUE);
+        IS_MEDIUM_CLASS(      void    , false);
+        IS_MEDIUM_CLASS(const void    , false);
+        IS_MEDIUM_CLASS(const void *  , false);
+        IS_MEDIUM_CLASS(      int     , false);
+        IS_MEDIUM_CLASS(const int     , false);
+        IS_MEDIUM_CLASS(const int *   , false);
+        IS_MEDIUM_CLASS(const int&    , false);
+
+#ifndef BSLS_PLATFORM_CMP_IBM
+        IS_MEDIUM_CLASS(Incomplete    , false);
+#endif
+        IS_MEDIUM_CLASS(      MyEnum  , false);
+        IS_MEDIUM_CLASS(      MyStruct, true );
+        IS_MEDIUM_CLASS(const MyStruct, true );
+        IS_MEDIUM_CLASS(      MyUnion , true );
+
+        IS_MEDIUM_CLASS(int T::*        , false);
+        IS_MEDIUM_CLASS(int(T::*)()const, false);
+
+        IS_MEDIUM_CLASS(int    [ ]      , false);
+        IS_MEDIUM_CLASS(int (*)[ ]      , false);
+        IS_MEDIUM_CLASS(int (&)[ ]      , false);
+        IS_MEDIUM_CLASS(int    [2]      , false);
+        IS_MEDIUM_CLASS(int (*)[3]      , false);
+        IS_MEDIUM_CLASS(int (&)[4]      , false);
+
+        IS_MEDIUM_CLASS(void   ()       , false);
+        IS_MEDIUM_CLASS(void(*)()       , false);
+        IS_MEDIUM_CLASS(void(&)()       , false);
 #if !defined(BSLMF_VOIDTYPE_NO_ABOMINABLE_TYPES)
-        ASSERT(!IsNonAbstractClass<void   ()const>::k_VALUE);
+        IS_MEDIUM_CLASS(void   ()const  , false);
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES)
-        ASSERT(!IsNonAbstractClass<void   ()        noexcept>::k_VALUE);
-        ASSERT(!IsNonAbstractClass<void(*)()        noexcept>::k_VALUE);
-        ASSERT(!IsNonAbstractClass<void(&)()        noexcept>::k_VALUE);
-        ASSERT(!IsNonAbstractClass<void   ()  const noexcept>::k_VALUE);
-        ASSERT(!IsNonAbstractClass<int(T::*)()const noexcept>::k_VALUE);
+        IS_MEDIUM_CLASS(void   ()        noexcept, false);
+        IS_MEDIUM_CLASS(void(*)()        noexcept, false);
+        IS_MEDIUM_CLASS(void(&)()        noexcept, false);
+        IS_MEDIUM_CLASS(void   ()  const noexcept, false);
+        IS_MEDIUM_CLASS(int(T::*)()const noexcept, false);
 #endif
+
+
+#undef IS_MEDIUM_CLASS
       } break;
       case 5: {
         // --------------------------------------------------------------------
