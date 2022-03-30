@@ -1,4 +1,5 @@
 bslma_aamodel
+bslma_aatypeutil
 bslma_allocator
 bslma_allocatoradaptor
 bslma_allocatortraits

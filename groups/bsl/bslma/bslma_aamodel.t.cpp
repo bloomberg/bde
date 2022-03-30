@@ -1,6 +1,6 @@
 // bslma_aamodel.t.cpp                                                -*-C++-*-
 
-#include "bslma_aamodel.h"
+#include <bslma_aamodel.h>
 
 #include <bslma_default.h>
 #include <bslma_testallocator.h>

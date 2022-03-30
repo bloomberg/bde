@@ -1,6 +1,6 @@
 // bslma_convertibleallocator.t.cpp                                   -*-C++-*-
 
-#include "bslma_convertibleallocator.h"
+#include <bslma_convertibleallocator.h>
 
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
