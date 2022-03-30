@@ -390,8 +390,8 @@ int main(int argc, char *argv[])
             ASSERT(0 == rc);
         }
 
-#if defined BSLS_PLATFORM_OS_CYGWIN || defined BSLS_PLATFORM_OS_HPUX
-        // These two platforms can't handle spaces in the executable name.
+#if defined BSLS_PLATFORM_OS_CYGWIN
+        // This platform can't handle spaces in the executable name.
 
         const char * const execName = "case4.exec.t";
         const char * const linkName = "case4.link.t";
@@ -562,7 +562,7 @@ int main(int argc, char *argv[])
 
 #if defined BSLS_PLATFORM_OS_AIX || defined BSLS_PLATFORM_OS_LINUX
         const bool expFindExec = procExists || !argv0IsRelative;
-#elif defined BSLS_PLATFORM_OS_CYGWIN || defined BSLS_PLATFORM_OS_HPUX
+#elif defined BSLS_PLATFORM_OS_CYGWIN
         const bool expFindExec = !argv0IsRelative;
 #else
         const bool expFindExec = true;

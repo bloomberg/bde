@@ -796,13 +796,6 @@ static
         struct Test8bytesAlign  { char c; Test8BytesAlignedType
                                                d_8BytesAlignedType; };
 #endif
-// TBD broke *lots* of stuff (bdem, etc.)
-#if 0
-#if defined(BSLS_PLATFORM_OS_HPUX)
-        struct Test16bytesAlign { char c; __float80 d_float80;      };
-#endif
-#endif
-
         struct MaxAlignAlign    { char c; Class::MaxAlignedType d_maxAlign; };
 
         const int EXP =
@@ -821,12 +814,6 @@ static
  && (defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG))
                 | (offsetof(Test8bytesAlign,
                             d_8BytesAlignedType)           - 1)
-#endif
-// TBD broke *lots* of stuff (bdem, etc.)
-#if 0
-#if defined(BSLS_PLATFORM_OS_HPUX)
-                | (offsetof(Test16bytesAlign, d_float80)   - 1)
-#endif
 #endif
                 );
 

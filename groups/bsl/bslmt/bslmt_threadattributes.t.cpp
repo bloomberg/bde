@@ -191,14 +191,6 @@ typedef bslmt::ThreadAttributes Obj;
 
         stackSize += 8192;
 
-    #ifdef BSLS_PLATFORM_OS_HPUX
-        // The Itanium divides the stack into two sections: a variable stack
-        // and a control stack.  To make 'stackSize' have the same meaning
-        // across platforms, we must double it on this platform.
-
-        stackSize *= 2;
-    #endif
-
         int guardSize = attributes.guardSize();
         if (bslmt::ThreadAttributes::e_UNSET_GUARD_SIZE == guardSize) {
             guardSize = MY_DEFAULT_GUARD_SIZE;
@@ -524,7 +516,6 @@ int main(int argc, char *argv[])
         //   Sg: Solaris gcc
         //   SC: Solaris CC
         //   AI: AIX
-        //   HP: HPUX
         //   Li: Linux
         //
         //   Sg 32: Other (-20, 0, 20), Fifo (0, 0, 59), RR (0, 0, 59)

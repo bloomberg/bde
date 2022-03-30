@@ -735,11 +735,10 @@ BSLS_IDENT("$Id: $")
 #elif defined(BSLS_PLATFORM_CPU_SPARC_32) \
       && (defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_SUN))
 #   include <bsls_atomicoperations_sparc32_sun_cc.h>
+
 #elif defined(BSLS_PLATFORM_CPU_SPARC_V9) \
       && (defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_SUN))
 #   include <bsls_atomicoperations_sparc64_sun_cc.h>
-#elif defined(BSLS_PLATFORM_CPU_IA64) && defined(BSLS_PLATFORM_OS_HPUX)
-#   include <bsls_atomicoperations_ia64_hp_acc.h>
 
 #elif defined(BSLS_PLATFORM_CPU_ARM)
 #   if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)

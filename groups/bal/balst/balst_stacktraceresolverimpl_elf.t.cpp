@@ -189,23 +189,9 @@ const void *addFixedOffset(bsls::Types::UintPtr funcAddress)
     // Given a function pointer stored in a 'UintPtr', add an offset to the
     // pointer and return it as a 'const void *'.
 {
-#ifdef BSLS_PLATFORM_OS_HPUX
-    // On HPUX, '&functionName' is a ptr to a ptr to a record consisting of 2
-    // words, one of which is a pointer to the actual code.
-
-    const char **ptr = (const char **) funcAddress;
-
-#if defined(BSLS_PLATFORM_CPU_32_BIT)
-    return ptr[1] + 4;
-#else
-    return ptr[0] + 4;
-#endif
-
-#else
     const char *ptr = (const char *) funcAddress;
 
     return ptr + 4;
-#endif
 }
 
 static

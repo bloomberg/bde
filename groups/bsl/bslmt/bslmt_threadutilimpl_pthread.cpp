@@ -45,8 +45,6 @@ BSLS_IDENT_RCSID(bslmt_threadutilimpl_pthread_cpp,"$Id$ $CSID$")
 # include <sys/utsname.h>
 #elif defined(BSLS_PLATFORM_OS_LINUX)
 # include <sys/prctl.h>
-#elif defined(BSLS_PLATFORM_OS_HPUX)
-# include <sys/mpctl.h>
 #endif
 
 #include <errno.h>         // constant 'EINTR'
@@ -88,13 +86,8 @@ int localPthreadsPolicy(int policy)
       case Attr::e_SCHED_OTHER:   return SCHED_OTHER;                 // RETURN
       case Attr::e_SCHED_FIFO:    return SCHED_FIFO;                  // RETURN
       case Attr::e_SCHED_RR:      return SCHED_RR;                    // RETURN
-#if defined(BSLS_PLATFORM_OS_HPUX)
       case Attr::e_SCHED_DEFAULT:
-      default:                        return SCHED_HPUX;              // RETURN
-#else
-      case Attr::e_SCHED_DEFAULT:
-      default:                        return SCHED_OTHER;             // RETURN
-#endif
+      default:                    return SCHED_OTHER;                 // RETURN
     }
 
     BSLS_ASSERT_OPT(0);
@@ -156,14 +149,6 @@ static int initPthreadAttribute(pthread_attr_t                 *destination,
         // '*destination' to its default, initialized state.
 
         BSLS_ASSERT_OPT(stackSize > 0);
-
-#if defined(BSLS_PLATFORM_OS_HPUX)
-        // The Itanium divides the stack into two sections: a variable stack
-        // and a control stack.  To make 'stackSize' have the same meaning
-        // across platforms, we must double it on this platform.
-
-        stackSize *= 2;
-#endif
 
 #if defined(PTHREAD_STACK_MIN)
         // Note sometimes PTHREAD_STACK_MIN is a function so cache the call to

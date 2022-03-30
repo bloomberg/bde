@@ -329,8 +329,6 @@ BSLS_IDENT_PRAGMA_ONCE
  *   (This leads to strings being present in .comment section, minus the first
  *    character, and then not showing up when 'ident' is run, but present with
  *    strings -a) (Bug filed with Sun and has been fixed in latest Studio 12).
- *
- * HP-UX supports _Pragma() only in ANSI (-Aa) and ANSI extended (-Ae) mode.
  */
 
 #endif // INCLUDED_BSLS_IDENT

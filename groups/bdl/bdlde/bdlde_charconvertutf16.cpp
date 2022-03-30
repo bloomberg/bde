@@ -1922,9 +1922,9 @@ namespace BloombergLP {
 // complaining about routines multiply-defined and we will need to '#ifdef'
 // away all the routines taking a 'const wchar_t *' pointer as input on that
 // platform (at which point everything will then work).  'wchar_t' is 4 bytes
-// on Linux, Solaris (CC and gcc), HP-UX, and Darwin.  On AIX and Windows,
-// 'wchar_t' is unsigned and the size of 'short', but it is a compiler-defined
-// type considered distinct from 'unsigned short'.
+// on Linux, Solaris (CC and gcc), and Darwin.  On AIX and Windows, 'wchar_t'
+// is unsigned and the size of 'short', but it is a compiler-defined type
+// considered distinct from 'unsigned short'.
 
 BSLMF_ASSERT(!(bslmf::IsSame<wchar_t, unsigned short>::VALUE));
 

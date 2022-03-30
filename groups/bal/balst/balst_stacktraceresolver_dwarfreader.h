@@ -17,9 +17,9 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides a class,
 // 'balst::StackTraceResolver_DwarfReader', that is optimized for reading
 // information from object files that are in the DWARF format.  The Elf object
-// file format is used on Linux, Solaris, and HP-UX platforms, and the DWARF
-// file format is used within ELF files to encode source file name and line
-// number information.  The Elf format is described by documents at:
+// file format is used on Linux and Solaris platforms, and the DWARF file
+// format is used within ELF files to encode source file name and line number
+// information.  The Elf format is described by documents at:
 //: o 'http://en.wikipedia.org/wiki/Executable_and_Linkable_Format'
 //: o 'http://downloads.openwatcom.org/ftp/devel/docs/elf-64-gen.pdf'
 //: o 'http://www.sco.com/developers/gabi/latest/contents.html'

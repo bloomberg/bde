@@ -3579,7 +3579,7 @@ int main(int argc, char *argv[])
         //
         // Results:
         //   32 bit: This test succeeds on Linux, Solaris, and Windows, fails
-        //   on HPUX and AIX.
+        //   on AIX.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "5G file with fstream I/O test, no FdStreamBuf\n"

@@ -177,9 +177,6 @@
 : 'bsls_atomicoperations_default':                                    !PRIVATE!
 :      Provide default implementation for atomic operations.
 :
-: 'bsls_atomicoperations_ia64_hp_acc':                                !PRIVATE!
-:      Provide implementations of atomic operations for HPUX/IA64.
-:
 : 'bsls_atomicoperations_powerpc32_aix_xlc':                          !PRIVATE!
 :      Provide implementations of atomic operations for PowerPC/AIX-32bit.
 :

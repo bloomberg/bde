@@ -19,11 +19,10 @@ BSLS_IDENT("$Id: $")
 // drive the details with which the stack trace is to be performed.  Not all
 // properties of a stack trace are printed on all platforms because the set of
 // properties describing a stack trace that are obtainable varies according to
-// both the platform and build parameters.  For example, on Solaris and HP-UX,
-// source file names and line numbers are not provided.  Function names and
-// addresses are provided on all platforms.  Streaming a
-// 'balst::StackTracePrinter' always prints a description of the stack of the
-// calling thread.
+// both the platform and build parameters.  For example, on Solaris, source
+// file names and line numbers are not provided.  Function names and addresses
+// are provided on all platforms.  Streaming a 'balst::StackTracePrinter'
+// always prints a description of the stack of the calling thread.
 //
 ///Usage
 ///-----

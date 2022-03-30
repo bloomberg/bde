@@ -483,9 +483,7 @@ CASE4_FUNC(5, 6)
 // function's code, which is a non-trivial and platform-dependent exercise.
 // Note: this doesn't work on Windows for global routines.
 
-#if   defined(BSLS_PLATFORM_OS_HPUX)
-# define FUNC_ADDRESS(p) (((void **) (void *) (p))[sizeof(void *) == 4])
-#elif defined(BSLS_PLATFORM_OS_AIX)
+#if defined(BSLS_PLATFORM_OS_AIX)
 # define FUNC_ADDRESS(p) (((void **) (void *) (p))[0])
 #else
 # define FUNC_ADDRESS(p) ((void *) (p))
@@ -618,10 +616,7 @@ CASE3_FUNC(2, 3)
 CASE3_FUNC(3, 4)
 CASE3_FUNC(4, 5)
 
-#if    defined(BSLS_PLATFORM_OS_HPUX) && defined(BSLS_PLATFORM_CPU_32_BIT)
-# define FUNC_ADDRESS_NUM(p) (((UintPtr *) (UintPtr) (p))[1])
-#elif (defined(BSLS_PLATFORM_OS_HPUX) && defined(BSLS_PLATFORM_CPU_64_BIT)) \
-    || defined(BSLS_PLATFORM_OS_AIX)
+#if defined(BSLS_PLATFORM_OS_AIX)
 # define FUNC_ADDRESS_NUM(p) (((UintPtr *) (UintPtr) (p))[0])
 #else
 # define FUNC_ADDRESS_NUM(p) ((UintPtr) (p))

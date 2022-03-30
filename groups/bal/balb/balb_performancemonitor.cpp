@@ -59,9 +59,6 @@ BSLS_IDENT_RCSID(balb_performancemonitor_cpp,"$Id$ $CSID$")
 #include <bsl_string.h>
 #elif defined(BSLS_PLATFORM_OS_DARWIN)
 #include <libproc.h>
-#elif defined(BSLS_PLATFORM_OS_HPUX)
-#include <sys/pstat.h>
-#include <sys/param.h>
 #elif defined(BSLS_PLATFORM_OS_LINUX)
 #include <dirent.h>
 #include <sys/procfs.h>
@@ -995,7 +992,6 @@ int PerformanceMonitor::Collector<bsls::Platform::OsUnix>
     stats->d_pid         = pid;
     stats->d_description = description;
 
-#ifndef BSLS_PLATFORM_OS_HPUX
     bsl::stringstream procfsInfo;
     procfsInfo << "/proc/" << stats->d_pid << "/psinfo";
 
@@ -1016,19 +1012,6 @@ int PerformanceMonitor::Collector<bsls::Platform::OsUnix>
         info.pr_start.tv_sec, static_cast<int>(info.pr_start.tv_nsec));
 
     close(fd);
-#else
-    pst_status status;
-    int rc = pstat_getproc(&status, sizeof status, 0, stats->d_pid);
-    if (-1 == rc)
-    {
-        BSLS_LOG_DEBUG("Failed to read /proc filesystem for pid %d (%s)",
-                       stats->d_pid, stats->d_description.c_str());
-        return -1;
-    }
-
-    // TBD only seconds on HPUX??
-    stats->d_startTime = bsls::TimeInterval(status.pst_start, 0);
-#endif
 
     stats->d_startTimeUtc = bdlt::EpochUtil::epoch();
     stats->d_startTimeUtc.addSeconds(stats->d_startTime.seconds());
@@ -1048,7 +1031,6 @@ int PerformanceMonitor::Collector<bsls::Platform::OsUnix>
     double cpuTimeU;
     double cpuTimeS;
 
-#ifndef BSLS_PLATFORM_OS_HPUX
     int fd;
 
     bsl::stringstream procfsInfo;
@@ -1105,43 +1087,6 @@ int PerformanceMonitor::Collector<bsls::Platform::OsUnix>
                    .totalSecondsAsDouble();
 
     close(fd);
-#else
-    int rc;
-
-    struct pst_static pstatic;
-    rc = pstat_getstatic(&pstatic, sizeof pstatic, 1, 0);
-    if (-1 == rc) {
-        BSLS_LOG_DEBUG("Failed to call 'pstat_getstatic' for pid %d (%s)"
-                       stats->d_pid, stats->d_description.c_str());
-        return -1;
-    }
-
-    pst_status status;
-    rc = pstat_getproc(&status, sizeof status, 0, stats->d_pid);
-    if (-1 == rc)
-    {
-        BSLS_LOG_DEBUG("Failed to call 'pstat_getproc' for pid %d (%s)"
-                       stats->d_pid, stats->d_description.c_str());
-        return -1;
-    }
-    numThreads = status.pst_nlwps;
-
-    stats->d_lstData[e_NUM_THREADS]   = static_cast<double>(numThreads);
-    stats->d_lstData[e_RESIDENT_SIZE] =
-                  static_cast<double>(status.pst_rssize) * pstatic.page_size
-                   / (1024 * 1024);
-
-    stats->d_lstData[e_VIRTUAL_SIZE]  =
-                     (static_cast<double>(status.pst_vdsize *
-                                          pstatic.page_size) / (1024 * 1024);
-
-    // TBD -- only seconds resolution??
-    cpuTimeU = bsls::TimeInterval(static_cast<double>(status.pst_utime,) 0).
-                                                        totalSecondsAsDouble();
-
-    cpuTimeS = bsls::TimeInterval(static_cast<double>(status.pst_stime,) 0).
-                                                        totalSecondsAsDouble();
-#endif
 
     // Calculate CPU utilization
 

@@ -38,8 +38,7 @@ BSLS_IDENT("$Id: $")
 //  Type                Subtype                 Version
 //  -----------------   -------------------     -----------------
 //  @_OS_UNIX           @_OS_AIX                @_OS_VER_MAJOR
-//                      @_OS_HPUX               @_OS_VER_MINOR
-//                      @_OS_LINUX
+//                      @_OS_LINUX              @_OS_VER_MINOR
 //                      @_OS_FREEBSD
 //                      @_OS_SOLARIS
 //                      @_OS_SUNOS
@@ -256,35 +255,6 @@ struct bsls_Platform_Assert;
         #define BSLS_PLATFORM_CPU_32_BIT 1
     #endif
 // ---------------------------------------------------------------------------
-#elif defined(__HP_aCC)
-    #define BSLS_PLATFORM_CMP_HP 1
-    #define BSLS_PLATFORM_CMP_VERSION __HP_aCC
-
-    // which OS -- should always be HPUX
-    #if defined(hpux) || defined(__hpux) || defined(_HPUX_SOURCE)
-        #define BSLS_PLATFORM_OS_UNIX 1
-        #define BSLS_PLATFORM_OS_HPUX 1
-    #else
-        #error "Unable to determine on which OS the HP compiler is running."
-        BSLS_PLATFORM_COMPILER_ERROR;
-    #endif
-
-    // which CPU -- should always be HPPA
-    #if defined(__hppa__) || defined(__hppa)
-        #define BSLS_PLATFORM_CPU_HPPA 1
-    #elif defined(__ia64)                      // Itanium
-        #define BSLS_PLATFORM_CPU_IA64 1
-
-        #if defined(_LP64) || defined(__LP64__)
-            #define BSLS_PLATFORM_CPU_64_BIT 1
-        #else  // defined(_ILP32)
-            #define BSLS_PLATFORM_CPU_32_BIT 1
-        #endif
-    #else
-        #error "Unable to determine on which CPU the HP compiler is running."
-        BSLS_PLATFORM_COMPILER_ERROR;
-    #endif
-// ---------------------------------------------------------------------------
 #elif defined(_MSC_VER)
     #define BSLS_PLATFORM_CMP_MSVC 1
     #define BSLS_PLATFORM_CMP_VERSION _MSC_VER
@@ -413,8 +383,6 @@ struct bsls_Platform_Assert;
     // which OS -- GNU and EDG/Como are implemented almost everywhere
     #if defined(_AIX)
         #define BSLS_PLATFORM_OS_AIX 1
-    #elif defined(hpux) || defined(__hpux)
-        #define BSLS_PLATFORM_OS_HPUX 1
     #elif defined(__CYGWIN__) || defined(cygwin) || defined(__cygwin)
         #define BSLS_PLATFORM_OS_CYGWIN 1
     #elif defined(linux) || defined(__linux)
@@ -650,15 +618,6 @@ struct bsls_Platform_Assert;
 #   define BSLS_PLATFORM_IS_BIG_ENDIAN 1
 #endif
 
-// HPUX
-#elif defined(BSLS_PLATFORM_OS_HPUX)
-#include <machine/param.h>
-#if defined(_LITTLE_ENDIAN)
-#   define BSLS_PLATFORM_IS_LITTLE_ENDIAN 1
-#elif defined(_BIG_ENDIAN)
-#   define BSLS_PLATFORM_IS_BIG_ENDIAN 1
-#endif
-
 // MSVC and Windows
 #elif defined(BSLS_PLATFORM_OS_WINDOWS)
 #   define BSLS_PLATFORM_IS_LITTLE_ENDIAN 1
@@ -797,7 +756,6 @@ struct bsls_Platform_Assert;
 #define BSLS_PLATFORM_OS_SUBTYPE_COUNT                                       \
     BSLS_PLATFORM_OS_AIX                                                     \
   + BSLS_PLATFORM_OS_DARWIN                                                  \
-  + BSLS_PLATFORM_OS_HPUX                                                    \
   + BSLS_PLATFORM_OS_LINUX                                                   \
   + BSLS_PLATFORM_OS_FREEBSD                                                 \
   + BSLS_PLATFORM_OS_SOLARIS                                                 \
@@ -940,9 +898,6 @@ struct Platform {
             typedef OsSolaris_V8     Os;
         #endif
     #endif
-    #if defined(BSLS_PLATFORM_OS_HPUX)
-        typedef OsHpux              Os;
-    #endif
     #if defined(BSLS_PLATFORM_OS_CYGWIN)
         typedef OsCygwin            Os;
     #endif
@@ -1064,9 +1019,6 @@ typedef bsls::Platform bsls_Platform;
 #ifdef BSLS_PLATFORM_OS_FREEBSD
 # define BDES_PLATFORM__OS_FREEBSD BSLS_PLATFORM_OS_FREEBSD
 #endif
-#ifdef BSLS_PLATFORM_OS_HPUX
-# define BDES_PLATFORM__OS_HPUX BSLS_PLATFORM_OS_HPUX
-#endif
 #ifdef BSLS_PLATFORM_OS_LINUX
 # define BDES_PLATFORM__OS_LINUX BSLS_PLATFORM_OS_LINUX
 #endif
@@ -1162,9 +1114,6 @@ typedef bsls::Platform bsls_Platform;
 #endif
 #ifdef BSLS_PLATFORM_OS_DARWIN
 # define BSLS_PLATFORM__OS_DARWIN BSLS_PLATFORM_OS_DARWIN
-#endif
-#ifdef BSLS_PLATFORM_OS_HPUX
-# define BSLS_PLATFORM__OS_HPUX BSLS_PLATFORM_OS_HPUX
 #endif
 #ifdef BSLS_PLATFORM_OS_LINUX
 # define BSLS_PLATFORM__OS_LINUX BSLS_PLATFORM_OS_LINUX

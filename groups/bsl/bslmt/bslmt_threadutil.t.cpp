@@ -1943,11 +1943,6 @@ int main(int argc, char *argv[])
 
         namespace TC = MULTIPRIORITY_EFFECTIVENESS_TEST_CASE;
 
-#if defined(BSLS_PLATFORM_OS_HPUX)
-        break;    // Spawning threads fails on HPUX if 'inheritSchedule' is not
-                  // 1
-#endif
-
         TC::priorityEffectivenessTest();
       }  break;
       case 13: {
@@ -1998,9 +1993,7 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_POLICIES; ++i) {
             const Attr::SchedulingPolicy policy = policies[i];
 
-#ifdef BSLS_PLATFORM_OS_HPUX
-            const bool willFail = true;
-#elif defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_AIX)
+#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_AIX)
             const bool willFail = (Attr::e_SCHED_FIFO == policy ||
                                    Attr::e_SCHED_RR   == policy);
 #elif defined(BSLS_PLATFORM_OS_SOLARIS)
@@ -2226,12 +2219,11 @@ int main(int argc, char *argv[])
         //   at all.  This is just to demonstrate the interface.
         // --------------------------------------------------------------------
 
-#if defined(BSLS_PLATFORM_OS_HPUX) || defined(BSLS_PLATFORM_OS_CYGWIN)
-        // Spawning threads fails on HP-UX and Cygwin unless
-        // 'inheritSchedule == true'.
+#if defined(BSLS_PLATFORM_OS_CYGWIN)
+        // Spawning threads fails on Cygwin unless 'inheritSchedule == true'.
 
         if (verbose) {
-            cout << "Skipping case 11 on HP-UX and Cygwin..." << endl;
+            cout << "Skipping case 11 on Cygwin..." << endl;
         }
 #else
         using namespace MULTIPRIORITY_USAGE_TEST_CASE;
@@ -2810,8 +2802,8 @@ int main(int argc, char *argv[])
         //
         // Concern:
         //   How big is the stack, really?  The main concern here is that the
-        //   stack size on HPUX is being properly adjusted so that the
-        //   specified stack size really is close to the effective stack size.
+        //   stack size is being properly adjusted so that the specified stack
+        //   size really is close to the effective stack size.
         //
         // Plan:
         //   Recurse, printing out how deep we are, until we overflow.
@@ -2819,7 +2811,6 @@ int main(int argc, char *argv[])
         // Observations:
         //   So: Solaris
         //   AI: AIX
-        //   HP: HPUX
         //   Li: Linux
         //   Wi: Windows
         //
@@ -2839,9 +2830,6 @@ int main(int argc, char *argv[])
         //   AI 32:   112128
         //   AI 64:   213760
         //
-        //   HP 32:   110240
-        //   HP 64:   110240
-        //
         //   Li 32: 66691239
         //   Li 64: 66359287
         //
@@ -2856,9 +2844,6 @@ int main(int argc, char *argv[])
         //   AI 32:  1020832
         //   AI 64:  1118720
         //
-        //   HP 32:   966160
-        //   HP 64:   966160
-        //
         //   Li 32:   976567
         //   Li 64:   991159
         //
@@ -2872,9 +2857,6 @@ int main(int argc, char *argv[])
         //
         //   AI 32:   884176
         //   AI 64:   806400
-        //
-        //   HP 32:   771680
-        //   HP 64:   771680
         //
         //   Li 32:   780391
         //   Li 64:   775735

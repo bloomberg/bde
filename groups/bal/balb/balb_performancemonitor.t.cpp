@@ -418,21 +418,6 @@ class MmapAllocator : public bslma::Allocator {
 
         return result;
 
-#elif defined(BSLS_PLATFORM_OS_HPUX)
-
-        void *result = mmap(0,
-                            size,
-                            PROT_READ | PROT_WRITE,
-                            MAP_ANONYMOUS | MAP_PRIVATE,
-                            -1,
-                            0);
-
-        BSLS_ASSERT(reinterpret_cast<void*>(-1) != result);
-
-        d_map.insert(bsl::make_pair(result, size));
-
-        return result;
-
 #elif defined(BSLS_PLATFORM_OS_LINUX)  \
    || defined(BSLS_PLATFORM_OS_DARWIN) \
    || defined(BSLS_PLATFORM_OS_CYGWIN)

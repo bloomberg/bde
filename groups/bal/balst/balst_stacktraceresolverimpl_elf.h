@@ -26,7 +26,7 @@ BSLS_IDENT("$Id: $")
 // 'balst::StackTraceResolver<Elf>', that, given a vector of
 // 'balst::StackTraceFrame's that have only their 'address' fields set,
 // resolves all other fields in those frames.  The Elf object file format is
-// used on Linux, Solaris, and HP-UX platforms.  The Elf format is described by
+// used on Linux and Solaris platforms.  The Elf format is described by
 // documents at:
 //: o 'http://en.wikipedia.org/wiki/Executable_and_Linkable_Format'
 //: o 'ftp://ftp.openwatcom.org/pub/devel/docs/elf-64-gen.pdf'
@@ -70,9 +70,9 @@ class StackTraceResolverImpl<ObjectFileFormat::Elf> {
     // This class provides a public static 'resolve' method that, given a
     // vector of 'StackTraceFrame's that have only their 'address' fields set,
     // resolves as many other fields in those frames as possible.  The Elf
-    // object file format is used on Linux, Solaris, and HP-UX platforms.  On
-    // Linux, some Elf sections contain data in the DWARF format, which makes
-    // it possible to resolve line numbers and file names.
+    // object file format is used on Linux and Solaris platforms.  On Linux,
+    // some Elf sections contain data in the DWARF format, which makes it
+    // possible to resolve line numbers and file names.
 
     // TYPES
     typedef bsls::Types::UintPtr UintPtr;   // 32 bit unsigned on 32 bit, 64

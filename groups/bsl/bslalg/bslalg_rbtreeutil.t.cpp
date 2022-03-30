@@ -808,10 +808,6 @@ const char *tempFileName(bool verboseFlag)
     char tmpPathBuf[MAX_PATH], tmpNameBuf[MAX_PATH];
     GetTempPath(MAX_PATH, tmpPathBuf);
     GetTempFileName(tmpPathBuf, "bael", 0, result);
-#elif defined(BSLS_PLATFORM_OS_HPUX)
-    char tmpPathBuf[L_tmpnam];
-    char *temp = tempnam(tmpPathBuf, "bael");
-    strncpy(result, temp, MAX_LENGTH);
 #else
     char *temp = tempnam(0, "bael");
     strncpy(result, temp, MAX_LENGTH);

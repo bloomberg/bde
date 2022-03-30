@@ -508,12 +508,6 @@ static void printFlags()
     D_MACRO(BSLS_PLATFORM_OS_FREEBSD);
 #endif
 
-#if defined(BSLS_PLATFORM_OS_HPUX)
-    P_MACRO(BSLS_PLATFORM_OS_HPUX);
-#else
-    D_MACRO(BSLS_PLATFORM_OS_HPUX);
-#endif
-
 #if defined(BSLS_PLATFORM_OS_LINUX)
     P_MACRO(BSLS_PLATFORM_OS_LINUX);
 #else
@@ -732,12 +726,6 @@ static void printFlags()
     D_MACRO(BSLS_PLATFORM__OS_DARWIN);
 #endif
 
-#if defined(BSLS_PLATFORM__OS_HPUX)
-    P_MACRO(BSLS_PLATFORM__OS_HPUX);
-#else
-    D_MACRO(BSLS_PLATFORM__OS_HPUX);
-#endif
-
 #if defined(BSLS_PLATFORM__OS_LINUX)
     P_MACRO(BSLS_PLATFORM__OS_LINUX);
 #else
@@ -832,12 +820,6 @@ static void printFlags()
     P_MACRO(BDES_PLATFORM__OS_FREEBSD);
 #else
     D_MACRO(BDES_PLATFORM__OS_FREEBSD);
-#endif
-
-#if defined(BDES_PLATFORM__OS_HPUX)
-    P_MACRO(BDES_PLATFORM__OS_HPUX);
-#else
-    D_MACRO(BDES_PLATFORM__OS_HPUX);
 #endif
 
 #if defined(BDES_PLATFORM__OS_LINUX)
@@ -962,12 +944,6 @@ static void printFlags()
     P_MACRO(_BIG_ENDIAN);
 #else
     D_MACRO(_BIG_ENDIAN);
-#endif
-
-#if defined(_HPUX_SOURCE)
-    P_MACRO(_HPUX_SOURCE);
-#else
-    D_MACRO(_HPUX_SOURCE);
 #endif
 
 #if defined(_IA64)
@@ -1919,9 +1895,6 @@ int main(int argc, char *argv[])
         #endif
         #if defined(BSLS_PLATFORM_OS_AIX)
             MACRO_TESTEQ(BSLS_PLATFORM_OS_AIX, 1);
-        #endif
-        #if defined(BSLS_PLATFORM_OS_HPUX)
-            MACRO_TESTEQ(BSLS_PLATFORM_OS_HPUX, 1);
         #endif
         #if defined(BSLS_PLATFORM_OS_CYGWIN)
             MACRO_TESTEQ(BSLS_PLATFORM_OS_CYGWIN, 1);

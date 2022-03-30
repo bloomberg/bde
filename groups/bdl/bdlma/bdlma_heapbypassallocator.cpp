@@ -161,18 +161,6 @@ HeapBypassAllocator::HeapBypassAllocator()
     GetSystemInfo(&si);
     d_pageSize = si.dwAllocationGranularity;
 #endif
-#ifdef BSLS_PLATFORM_OS_HPUX
-    // 128-bit alignment is required on HP-UX for bdesu_stacktrace,
-    // 'BSLS_MAX_ALIGNMENT' at the time of this writing is only 64 bits on
-    // HP-UX, which causes bus traps on alignment errors.
-
-    struct {
-        char      d_dummyChar;
-        __float80 d_dummyFloat80;
-    } s;
-
-    d_alignment = (char *)&s.d_dummyFloat80 - &s.d_dummyChar;
-#endif
 
     BSLS_ASSERT(d_alignment >= bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
     BSLS_ASSERT(0 == (d_alignment & (d_alignment - 1)));  // is power of 2

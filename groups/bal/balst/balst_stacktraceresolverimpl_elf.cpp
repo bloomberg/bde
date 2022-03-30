@@ -51,15 +51,9 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_elf_cpp,"$Id$ $CSID$")
 # define u_DWARF 1
 #endif
 
-#if defined(BSLS_PLATFORM_OS_HPUX)
-
-# include <dl.h>
-# include <aCC/acxx_demangle.h>
-
-#elif defined(BSLS_PLATFORM_OS_LINUX)
+#if defined(BSLS_PLATFORM_OS_LINUX)
 
 # include <cxxabi.h>
-
 # include <dlfcn.h>
 # include <execinfo.h>
 # include <link.h>
@@ -261,37 +255,6 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_elf_cpp,"$Id$ $CSID$")
 //     unsigned long long int dlpi_subs;
 // };
 //..
-// HPUX:
-// ----------------------------------------------------------------------------
-//..
-// struct shl_descriptor {
-//     unsigned long  tstart;                   // start address of the shared
-//                                              // library text segment
-//
-//     unsigned long  tend;                     // end address of the shared
-//                                              // library text segment
-//
-//     unsigned long  dstart;
-//     unsigned long  dend;
-//     void          *ltptr;
-//     shl_t          handle;
-//     char           filename[MAXPATHLEN + 1];
-//     void          *initializer;
-//     unsigned long  ref_count;
-//     unsigned long  reserved3;
-//     unsigned long  reserved2;
-//     unsigned long  reserved1;
-//     unsigned long  reserved0;
-// };
-//
-// int shl_get_r(int index, struct shl_descriptor *desc);
-//     // Load into the specified 'desc' information about the loaded library
-//     // at the specified 'index'.  For libraries loaded implicitly (at
-//     // startup time), 'index' is the ordinal number of the library as it
-//     // appeared on the command line.  Return 0 on success and a non-zero
-//     // value otherwise.  Note that an 'index' value of 0 refers to the main
-//     // program itself and -1 refers to the dynamic loader.
-//..
 
 // ----------------------------------------------------------------------------
 // Bill's:
@@ -361,8 +324,8 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_elf_cpp,"$Id$ $CSID$")
 // The above definitions describe the data within one file.  However, if the
 // executable is dynamically linked, that usually being the case, multiple
 // files must be traversed.  Unfortunately, no one strategy for traversing the
-// files works for more than one platform -- so for the 3 platform currently
-// supported, Solaris, Linux, and HPUX, we have a 3 custom strategies.
+// files works for more than one platform -- so for the 2 platforms currently
+// supported, Solaris and Linux we have 2 custom strategies.
 //
 // Solaris:
 // ----------------------------------------------------------------------------
@@ -420,27 +383,6 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_elf_cpp,"$Id$ $CSID$")
 //                                                     // headers
 //     short                             dlpi_phnum;   // base address
 // };
-//..
-// HPUX:
-// ----------------------------------------------------------------------------
-//..
-// struct shl_descriptor {
-//     unsigned long  tstart;                   // start address of the shared
-//                                              // library text segment
-//
-//     unsigned long  tend;                     // end address of the shared
-//                                              // library text segment
-//
-//     char           filename[MAXPATHLEN + 1];
-// };
-//
-// int shl_get_r(int index, struct shl_descriptor *desc);
-//     // Load into the specified 'desc' information about the loaded library
-//     // at the specified 'index'.  For libraries loaded implicitly (at
-//     // startup time), 'index' is the ordinal number of the library as it
-//     // appeared on the command line.  Return 0 on success and a non-zero
-//     // value otherwise.  Note that an 'index' value of 0 refers to the main
-//     // program itself and -1 refers to the dynamic loader.
 //..
 // ============================================================================
 //
@@ -3638,9 +3580,6 @@ int u::StackTraceResolver::processLoadedImage(const char *fileName,
 
     d_hidden.reset();
 
-#if defined(BSLS_PLATFORM_OS_HPUX)
-    const char *name = fileName;
-#else
     const char *name = 0;
     if (fileName && fileName[0]) {
         if (u::e_IS_LINUX) {
@@ -3675,7 +3614,7 @@ int u::StackTraceResolver::processLoadedImage(const char *fileName,
             return -1;                                                // RETURN
         }
     }
-#endif
+
     name = bdlb::String::copy(name, &d_hbpAlloc);   // so we can trash the
                                                     // scratch buffers later
 
@@ -3698,10 +3637,9 @@ int u::StackTraceResolver::processLoadedImage(const char *fileName,
         const u::ElfProgramHeader *ph =
                   static_cast<const u::ElfProgramHeader *>(programHeaders) + i;
         if (PT_LOAD == ph->p_type) {
-            // on Linux, textSegPtr will be 0, on Solaris && HPUX, baseAddress
-            // will be 0.  We will always have 1 of the two, and since they
-            // differ by ph->p_vaddr, we can always calculate the one we don't
-            // have.
+            // on Linux, textSegPtr will be 0, on Solaris, baseAddress will be
+            // 0.  We will always have one of the two, and since they differ by
+            // ph->p_vaddr, we can always calculate the one we don't have.
 
             void *localTextSegPtr  = textSegPtr;
             void *localBaseAddress = baseAddress;
@@ -4000,7 +3938,7 @@ void u::StackTraceResolver::setFrameSymbolName(
 {
 #if !defined(BSLS_PLATFORM_OS_SOLARIS)                                        \
  || defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
-    // Linux or Sun g++ or HPUX
+    // Linux or Sun g++
 
     (void) buffer;    // silence 'unused' warning
     (void) bufferLen; // silence 'unused' warning
@@ -4009,18 +3947,11 @@ void u::StackTraceResolver::setFrameSymbolName(
     if (d_demangle) {
         // note the demangler uses 'malloc' to allocate its result
 
-#if defined(BSLS_PLATFORM_OS_HPUX)
-        char *demangled = __cxa_demangle(frame->mangledSymbolName().c_str(),
-                                         0,
-                                         0,
-                                         &status);
-#else
         char *demangled = abi::__cxa_demangle(
                                             frame->mangledSymbolName().c_str(),
                                             0,
                                             0,
                                             &status);
-#endif
         u::FreeGuard guard(demangled);
         frame->setSymbolName(demangled ? demangled : "");
     }
@@ -4029,6 +3960,7 @@ void u::StackTraceResolver::setFrameSymbolName(
         frame->setSymbolName(frame->mangledSymbolName());
     }
 #endif
+
 #if defined(BSLS_PLATFORM_OS_SOLARIS)                                         \
  && !(defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG))
     // Sun CC
@@ -4156,81 +4088,7 @@ int u::StackTraceResolver::resolve(
         return 0;                                                     // RETURN
     }
 
-#if defined(BSLS_PLATFORM_OS_HPUX)
-
-    int rc;
-
-    u::StackTraceResolver resolver(stackTrace,
-                                   demanglingPreferredFlag);
-
-    // The HPUX compiler, 'aCC', doesn't accept the -Bstatic option, suggesting
-    // we are never statically linked on HPUX, so 'shl_get_r' should always
-    // work.
-
-    shl_descriptor desc = {};
-    u::bruteMemset(&desc, 0, sizeof(shl_descriptor));
-
-    // 'programHeaders' will point to a segment of memory we will allocate and
-    // reallocated to the needed size indicated by the 'ElfHeader's we
-    // encounter.  The max is the number of program headers that will fit in
-    // the allcoated segment.
-
-    u::ElfProgramHeader *programHeaders = 0;
-    int maxNumProgramHeaders = 0;
-
-    u::ElfHeader elfHeader;
-    for (int i = -1;
-                0 < resolver.numUnmatchedFrames() && -1 != shl_get_r(i, &desc);
-                                                                         ++i) {
-        int numProgramHeaders = 0;
-
-        {
-            // this block limits the lifetime of 'helper' below
-
-            u_TRACES && u_zprintf("(%d) %s 0x%lx-0x%lx\n",
-                    i,
-                    desc.filename && desc.fileName[0] ? desc.fileName :"(null)"
-                    desc.tstart,
-                    desc.tend);
-
-            // index 0 is for the main executable
-
-            resolver.d_hidden.d_isMainExecutable = (0 == i);
-
-            // note this will be opened twice, here and in 'processLoadedImage'
-
-            balst::StackTraceResolver_FileHelper helper;
-            rc = helper.initialize(desc.filename);
-            u_ASSERT_BAIL(0 == rc);
-
-            rc = helper.readExact(&elfHeader, sizeof(elfHeader), 0);
-            u_ASSERT_BAIL(0 == rc);
-
-            numProgramHeaders = elfHeader.e_phnum;
-            if (numProgramHeaders > maxNumProgramHeaders) {
-                programHeaders = static_cast<u::ElfProgramHeader *>(
-                       resolver.d_hbpAlloc.allocate(
-                         numProgramHeaders * sizeof(u::ElfProgramHeader)));
-                maxNumProgramHeaders = numProgramHeaders;
-            }
-
-            rc = helper.readExact(
-                           programHeaders,
-                           numProgramHeaders * sizeof(u::ElfProgramHeader),
-                           elfHeader.e_phoff);
-            u_ASSERT_BAIL(0 == rc);
-        }
-
-        rc = resolver.processLoadedImage(
-                                   desc.filename,
-                                   programHeaders,
-                                   numProgramHeaders,
-                                   static_cast<void *>(desc.tstart),
-                                   0);
-        u_ASSERT_BAIL(0 == rc);
-    }
-
-#elif defined(BSLS_PLATFORM_OS_LINUX)
+#if defined(BSLS_PLATFORM_OS_LINUX)
 
     u::StackTraceResolver resolver(stackTrace,
                                        demanglingPreferredFlag);

@@ -225,7 +225,7 @@ struct AlignedAllocatorTestImp :
         if (0 != errno) {
             bsls::BslExceptionUtil::throwBadAlloc();
         }
-    #elif defined(BSLS_PLATFORM_OS_SOLARIS) || defined(BSLS_PLATFORM_OS_HPUX)
+    #elif defined(BSLS_PLATFORM_OS_SOLARIS)
         ret = memalign(alignment, size);
         if (0 == ret) {
             bsls::BslExceptionUtil::throwBadAlloc();

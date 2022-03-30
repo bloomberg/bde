@@ -91,7 +91,7 @@ BSLS_IDENT("$Id: $")
 //:   transitional-compilation environment is enabled, and a value of 'No'
 //:   indicates that it is not.  Different macros enable this environment on
 //:   different Unixes, if they support it.  This environment is enabled on AIX
-//:   if the '_LARGE_FILE' macro is defined, and it is enabled on HP-UX, Linux,
+//:   if the '_LARGE_FILE' macro is defined, and it is enabled on Linux,
 //:   Solaris, and SunOS if the '_LARGEFILE64_SOURCE' macro is defined.
 //:   Neither Cygwin, Darwin, nor FreeBSD support this environment, because
 //:   they natively support large (64-bit) file operations in all compilation
@@ -144,10 +144,6 @@ BSLS_IDENT("$Id: $")
 //  | Cygiwn  |  N/A |    N/A | N/A | 'off_t'  |       64 | *_64_BIT_OFF  |
 //  | Darwin  |  N/A |    N/A | N/A | 'off_t'  |       64 | *_64_BIT_OFF  |
 //  | FreeBSD |  N/A |    N/A | N/A | 'off_t'  |       64 | *_64_BIT_OFF  |
-//  | HP-UX   |   32 |     No |  No | 'off_t'  |       32 | *_32_BIT_OFF  |
-//  | HP-UX   |   32 |     No | Yes | 'off64_t'|       64 | *_64_BIT_OFF64|
-//  | HP-UX   |   32 |    Yes | N/A | 'off_t'  |       64 | *_64_BIT_OFF  |
-//  | HP-UX   |   64 |    N/A | N/A | 'off_t'  |       64 | *_64_BIT_OFF  |
 //  | Linux   |   32 |     No |  No | 'off_t'  |       32 | *_32_BIT_OFF  |
 //  | Linux   |   32 |     No | Yes | 'off64_t'|       64 | *_64_BIT_OFF64|
 //  | Linux   |   32 |    Yes | N/A | 'off_t'  |       64 | *_64_BIT_OFF  |
@@ -204,37 +200,6 @@ BSLS_IDENT("$Id: $")
                                   // FreeBSD
 
     #elif defined(BSLS_PLATFORM_OS_FREEBSD)
-
-        #define BDLS_FILESYSTEMUTIL_UNIXPLATFORM_64_BIT_OFF 1
-
-                 // 32-Bit HP-UX with '_FILE_OFFSET_BITS = 64'
-
-    #elif defined(BSLS_PLATFORM_OS_HPUX)    \
-       && defined(BSLS_PLATFORM_CPU_32_BIT) \
-       && defined(_FILE_OFFSET_BITS)        \
-       && _FILE_OFFSET_BITS == 64
-
-        #define BDLS_FILESYSTEMUTIL_UNIXPLATFORM_64_BIT_OFF 1
-
-                  // 32-Bit HP-UX with '_LARGEFILE64_SOURCE'
-
-    #elif defined(BSLS_PLATFORM_OS_HPUX)    \
-       && defined(BSLS_PLATFORM_CPU_32_BIT) \
-       && defined(_LARGEFILE64_SOURCE)
-
-        #define BDLS_FILESYSTEMUTIL_UNIXPLATFORM_64_BIT_OFF64 1
-
-                                // 32-Bit HP-UX
-
-    #elif defined(BSLS_PLATFORM_OS_HPUX)  \
-       && defined(BSLS_PLATFORM_CPU_32_BIT)
-
-        #define BDLS_FILESYSTEMUTIL_UNIXPLATFORM_32_BIT_OFF 1
-
-                                // 64-Bit HP-UX
-
-    #elif defined(BSLS_PLATFORM_OS_LINUX)  \
-       && defined(BSLS_PLATFORM_CPU_64_BIT)
 
         #define BDLS_FILESYSTEMUTIL_UNIXPLATFORM_64_BIT_OFF 1
 

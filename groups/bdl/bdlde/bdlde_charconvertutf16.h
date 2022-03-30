@@ -68,8 +68,8 @@ BSLS_IDENT("$Id: $")
 ///-------------------
 // UTF-16 (or UTF-8, for that matter) can be stored in 'wstring's, but note
 // that the size of a 'wstring::value_type', also known as a 'wchar_t' word,
-// varies across different platforms -- it is 4 bytes on Solaris, Linux, HP-UX,
-// and Darwin, and 2 bytes on AIX and Windows.  So a file of 'wchar_t' words
+// varies across different platforms -- it is 4 bytes on Solaris, Linux, and
+// Darwin, and 2 bytes on AIX and Windows.  So a file of 'wchar_t' words
 // written by one platform may not be readable by another.  Byte order is also
 // a consideration, and a non-host byte order can be handled by using the
 // optional 'byteOrder' argument of these functions.  Another factor is that,

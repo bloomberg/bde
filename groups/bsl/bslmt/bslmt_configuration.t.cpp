@@ -116,12 +116,9 @@ int main(int argc, char *argv[])
 // BCE configured default stack sizes, and then to set the default stack size
 // used by BCE.  Note that the value returned by 'defaultThreadStackSize' may
 // be adjusted from that provided by the underlying operating system to reflect
-// the actual amount of stack memory available to a created thread.  For
-// example, on Itanium platforms (HPUX) the value will be scaled down from the
-// operating system supplied value to account for the extra stack space devoted
-// to storing registers.  Note that operations creating a thread should perform
-// a similar inverse adjustment when configuring the new thread's stack size
-// (see 'bslmt_threadutil').
+// the actual amount of stack memory available to a created thread.  Note that
+// operations creating a thread should perform a similar inverse adjustment
+// when configuring the new thread's stack size (see 'bslmt_threadutil').
 //
 // First, we examine the platform's native thread stack size:
 //..
@@ -275,7 +272,6 @@ int main(int argc, char *argv[])
         // Observed Results:
         //   So: Solaris
         //   AI: AIX
-        //   HP: HPUX
         //   Li: Linux
         //   Wi: Windows
         //
@@ -284,9 +280,6 @@ int main(int argc, char *argv[])
         //
         //   AI 32: defaultStackSize = 98304, guardSize = 4096
         //   AI 64: defaultStackSize = 196608, guardSize = 4096
-        //
-        //   HP 32: defaultStackSize = 131072, guardSize = 4096
-        //   HP 64: defaultStackSize = 131072, guardSize = 4096
         //
         //   Li 32: defaultStackSize = 67108864, guardSize = 4096
         //   Li 64: defaultStackSize = 67108864, guardSize = 4096

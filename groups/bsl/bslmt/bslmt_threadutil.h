@@ -95,10 +95,6 @@ BSLS_IDENT("$Id: $")
 //               and 'getMinSchedulingPriority == getMaxSchedulingPriority' if
 //               the policy has any other value.
 //
-// HPUX          Non-privileged clients *can* *not* make effective use of
-//               thread priorities -- spawning of threads fails if
-//               'inheritSchedule' is 'false'.
-//
 // Darwin        Non-privileged clients *can* *not* make effective use of
 //               thread priorities -- there is no observable difference in
 //               urgency between high priority and low priority threads.

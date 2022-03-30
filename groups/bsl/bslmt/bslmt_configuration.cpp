@@ -71,17 +71,6 @@ static int nativeDefaultThreadStackSizeImp()
     BSLS_ASSERT(threadStackSize >= PTHREAD_STACK_MIN);
 #  endif
 
-#  ifdef BSLS_PLATFORM_OS_HPUX
-    // On HPUX (Itanium) there is an additional stack for register storage,
-    // effectively halving the amount of memory available to clients, so we
-    // adjust the returned value to reflect the amount of memory that will be
-    // available to clients for initializing data on the stack.  Note that
-    // mechanisms for creating a thread should have a corresponding inverse of
-    // this adjustment (see 'bslmt_threadutil').
-
-    threadStackSize /= 2;
-#  endif
-
     return static_cast<int>(threadStackSize);
 }
 # endif

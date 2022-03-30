@@ -1362,8 +1362,6 @@ int main(int argc, char *argv[])
         const char *platform = "darwin";
 #elif defined(BSLS_PLATFORM_OS_FREEBSD)
         const char *platform = "freebsd";
-#elif defined(BSLS_PLATFORM_OS_HPUX)
-        const char *platform = "hpux";
 #elif defined(BSLS_PLATFORM_OS_LINUX)
         const char *platform = "linux";
 #elif defined(BSLS_PLATFORM_OS_SOLARIS)

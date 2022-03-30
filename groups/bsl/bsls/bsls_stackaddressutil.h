@@ -159,9 +159,7 @@ BSLS_IDENT("$Id: $")
 // function's code, which is a non-trivial and platform-dependent exercise.
 // Note: this doesn't work on Windows for global routines.
 //..
-//  #if   defined(BSLS_PLATFORM_OS_HPUX)
-//  # define FUNC_ADDRESS(p) (((void **) (void *) (p))[sizeof(void *) == 4])
-//  #elif defined(BSLS_PLATFORM_OS_AIX)
+//  #if defined(BSLS_PLATFORM_OS_AIX)
 //  # define FUNC_ADDRESS(p) (((void **) (void *) (p))[0])
 //  #else
 //  # define FUNC_ADDRESS(p) ((void *) (p))

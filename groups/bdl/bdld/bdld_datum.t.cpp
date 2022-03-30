@@ -949,7 +949,7 @@ double Stopwatch::getCPUTime()
 
 #elif defined(__unix__) || defined(__unix) || defined(unix) \
     || (defined(__APPLE__) && defined(__MACH__))
-    /* AIX, BSD, Cygwin, HP-UX, Linux, OSX, and Solaris --------- */
+    /* AIX, BSD, Cygwin, Linux, OSX, and Solaris --------- */
 
 #if _POSIX_TIMERS > 0
     /* Prefer high-res POSIX timers, when available. */
@@ -964,7 +964,7 @@ double Stopwatch::getCPUTime()
             /* Use known clock id for AIX, Linux, or Solaris. */
             id = CLOCK_PROCESS_CPUTIME_ID;
 #elif defined(CLOCK_VIRTUAL)
-        /* Use known clock id for BSD or HP-UX. */
+        /* Use known clock id for BSD. */
         id = CLOCK_VIRTUAL;
 #else
         id = (clockid_t)-1;

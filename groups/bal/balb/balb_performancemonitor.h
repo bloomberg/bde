@@ -225,8 +225,6 @@ class PerformanceMonitor {
     typedef bsls::Platform::OsFreeBsd OsType;
 #elif defined(BSLS_PLATFORM_OS_DARWIN)
     typedef bsls::Platform::OsDarwin  OsType;
-//  #elif defined(BSLS_PLATFORM_OS_HPUX)
-//      typedef bsls::Platform::OsHpUx OsType;
 #elif defined(BSLS_PLATFORM_OS_UNIX)
     typedef bsls::Platform::OsUnix    OsType;
 #elif defined(BSLS_PLATFORM_OS_WINDOWS)

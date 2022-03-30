@@ -286,10 +286,8 @@ void aSsErT(bool condition, const char *message, int line)
 
 static bool globalVeryVerbose = false;
 
-// In optimize mode, the HPUX compiler fails to take into account that
-// '*.allocate' can possibly call 'new' and '*.deallocate' can call 'delete'
-// and fails to save relevant statics to RAM.  Declare these to be 'volatile'
-// to ensure the compiler saves their values to RAM.
+// Declare these to be 'volatile' to ensure the compiler saves their values to
+// RAM.
 
 static volatile int    globalNewCalledCount = 0;
 static volatile int    globalNewCalledCountIsEnabled = 0;

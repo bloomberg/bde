@@ -305,8 +305,6 @@ enum {
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     k_PATH_BUFFER_SIZE   = MAX_PATH
-#elif defined(BSLS_PLATFORM_OS_HPUX)
-    k_PATH_BUFFER_SIZE   = L_tmpnam
 #else
     k_PATH_BUFFER_SIZE   = PATH_MAX
 #endif
@@ -350,10 +348,6 @@ bool tempFileName(char *result)
     if (! GetTempPath(MAX_PATH, tmpPathBuf) ||
         ! GetTempFileName(tmpPathBuf, "bsls", 0, result)) {
         return false;                                                 // RETURN
-    }
-#elif defined(BSLS_PLATFORM_OS_HPUX)
-    if(! tempnam(result, "bsls")) {
-        return false;
     }
 #else
     char *fn = tempnam(0, "bsls");

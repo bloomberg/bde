@@ -68,9 +68,7 @@ BSLS_IDENT("$Id: $")
 // variable of the configured 'stackSize' bytes in its thread-entry function.
 // Note that, on some platforms, an adjusted value derived from the 'stackSize'
 // attribute may be supplied to the underlying representation by the thread
-// creation function -- for example, on Itanium (HPUX), the 'stackSize'
-// attribute value must be scaled up to account for the extra stack space
-// devoted to register storage.
+// creation function.
 //
 ///'guardSize' Attribute
 ///- - - - - - - - - - -
@@ -238,14 +236,6 @@ BSLS_IDENT("$Id: $")
 //      // declare an object of 'stackSize' bytes on the stack safely.
 //
 //      stackSize += 8192;
-//
-//  #ifdef BSLS_PLATFORM_OS_HPUX
-//      // The Itanium divides the stack into two sections: a variable stack
-//      // and a control stack.  To make 'stackSize' have the same meaning
-//      // across platforms, we must double it on this platform.
-//
-//      stackSize *= 2;
-//  #endif
 //
 //      int guardSize = attributes.guardSize();
 //      if (bslmt::ThreadAttributes::e_UNSET_GUARD_SIZE == guardSize) {
