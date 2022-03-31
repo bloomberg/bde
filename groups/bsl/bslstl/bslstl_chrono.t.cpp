@@ -242,8 +242,15 @@ int main(int argc, char *argv[])
                 if (   -10 * k_NANOSECONDS_PER_SECOND <= diff
                     &&  10 * k_NANOSECONDS_PER_SECOND >= diff) {
                     ++numSuccessCoarse;
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
+		    // Resolution on Windows is poor and acquisition is slow.
+		    const bsls::Types::Int64 k_THRESHOLD =
+		                                 k_NANOSECONDS_PER_SECOND / 10;
+                    if (-k_THRESHOLD <= diff && k_THRESHOLD >= diff) {
+#else
                     if (-1050 <= diff && 950 >= diff) {
                         // biased 50ns to account for duration of 'now' call
+#endif
 
                         ++numSuccessFine;
                     }
