@@ -22,6 +22,7 @@ bslmf_integersequence
 bslmf_integralconstant
 bslmf_invokeresult
 bslmf_invokeresult_cpp03
+bslmf_isaccessiblebaseof
 bslmf_isarithmetic
 bslmf_isarray
 bslmf_isbitwiseequalitycomparable

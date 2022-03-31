@@ -205,6 +205,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_decay.h>
 #include <bslmf_enableif.h>
 #include <bslmf_functionpointertraits.h>
+#include <bslmf_isaccessiblebaseof.h>
 #include <bslmf_isclass.h>
 #include <bslmf_isconvertible.h>
 #include <bslmf_islvaluereference.h>
@@ -390,23 +391,6 @@ struct InvokeResult_BaseCalcUtil {
 };
 
 #endif
-
-                        // ============================
-                        // struct InvokeResult_IsBaseOf
-                        // ============================
-
-template <class BASE, class DERIVED>
-struct InvokeResult_IsBaseOf
-: bsl::integral_constant<
-    bool,
-    bsl::is_class<typename bsl::remove_cv<BASE>::type>::value
- && bsl::is_class<typename bsl::remove_cv<DERIVED>::type>::value
- && bsl::is_convertible<typename bsl::remove_cv<DERIVED>::type *,
-                        typename bsl::remove_cv<BASE>::type *>::value> {
-    // This component-private 'struct' template provides an implementation
-    // of the 'std::is_base_of' type trait that may be used when a C++11
-    // baseline library is not necessarily available.
-};
 
                       // ===============================
                       // struct InvokeResult_VoidChecker
@@ -1146,7 +1130,7 @@ template <class FN, class ARG1TYPE, class... ARGTYPES>
 struct InvokeResult_MemFuncPtrImp<FN, ARG1TYPE, ARGTYPES...>
 : InvokeResult_MemFuncPtrImpDispatch<
       void,
-      InvokeResult_IsBaseOf<
+      IsAccessibleBaseOf<
           typename MemberFunctionPointerTraits<FN>::ClassType,
           typename bsl::remove_reference<ARG1TYPE>::type>::value,
       IsReferenceWrapper<typename bsl::remove_const<
@@ -1318,7 +1302,7 @@ template <class FN, class ARGTYPE>
 struct InvokeResult_MemObjPtrImp<FN, ARGTYPE>
 : InvokeResult_MemObjPtrImpDispatch<
       void,
-      InvokeResult_IsBaseOf<
+      IsAccessibleBaseOf<
           typename MemberPointerTraits<FN>::ClassType,
           typename bsl::remove_reference<ARGTYPE>::type>::value,
       IsReferenceWrapper<typename bsl::remove_const<

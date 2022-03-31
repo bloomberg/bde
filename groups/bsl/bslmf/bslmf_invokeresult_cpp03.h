@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Mon Mar  7 15:28:39 2022
+// Generated on Mon Mar 14 14:18:23 2022
 // Command line: sim_cpp11_features.pl bslmf_invokeresult.h
 
 #ifdef COMPILING_BSLMF_INVOKERESULT_H
@@ -1311,23 +1311,6 @@ struct InvokeResult_BaseCalcUtil {
 
 // }}} END GENERATED CODE
 #endif
-
-                        // ============================
-                        // struct InvokeResult_IsBaseOf
-                        // ============================
-
-template <class BASE, class DERIVED>
-struct InvokeResult_IsBaseOf
-: bsl::integral_constant<
-    bool,
-    bsl::is_class<typename bsl::remove_cv<BASE>::type>::value
- && bsl::is_class<typename bsl::remove_cv<DERIVED>::type>::value
- && bsl::is_convertible<typename bsl::remove_cv<DERIVED>::type *,
-                        typename bsl::remove_cv<BASE>::type *>::value> {
-    // This component-private 'struct' template provides an implementation
-    // of the 'std::is_base_of' type trait that may be used when a C++11
-    // baseline library is not necessarily available.
-};
 
                       // ===============================
                       // struct InvokeResult_VoidChecker
@@ -7764,7 +7747,7 @@ template <class FN, class ARG1TYPE>
 struct InvokeResult_MemFuncPtrImp<FN, ARG1TYPE>
 : InvokeResult_MemFuncPtrImpDispatch<
       void,
-      InvokeResult_IsBaseOf<
+      IsAccessibleBaseOf<
           typename MemberFunctionPointerTraits<FN>::ClassType,
           typename bsl::remove_reference<ARG1TYPE>::type>::value,
       IsReferenceWrapper<typename bsl::remove_const<
@@ -7779,7 +7762,7 @@ template <class FN, class ARG1TYPE, class ARGTYPES_01>
 struct InvokeResult_MemFuncPtrImp<FN, ARG1TYPE, ARGTYPES_01>
 : InvokeResult_MemFuncPtrImpDispatch<
       void,
-      InvokeResult_IsBaseOf<
+      IsAccessibleBaseOf<
           typename MemberFunctionPointerTraits<FN>::ClassType,
           typename bsl::remove_reference<ARG1TYPE>::type>::value,
       IsReferenceWrapper<typename bsl::remove_const<
@@ -7797,7 +7780,7 @@ struct InvokeResult_MemFuncPtrImp<FN, ARG1TYPE, ARGTYPES_01,
                                                 ARGTYPES_02>
 : InvokeResult_MemFuncPtrImpDispatch<
       void,
-      InvokeResult_IsBaseOf<
+      IsAccessibleBaseOf<
           typename MemberFunctionPointerTraits<FN>::ClassType,
           typename bsl::remove_reference<ARG1TYPE>::type>::value,
       IsReferenceWrapper<typename bsl::remove_const<
@@ -7818,7 +7801,7 @@ struct InvokeResult_MemFuncPtrImp<FN, ARG1TYPE, ARGTYPES_01,
                                                 ARGTYPES_03>
 : InvokeResult_MemFuncPtrImpDispatch<
       void,
-      InvokeResult_IsBaseOf<
+      IsAccessibleBaseOf<
           typename MemberFunctionPointerTraits<FN>::ClassType,
           typename bsl::remove_reference<ARG1TYPE>::type>::value,
       IsReferenceWrapper<typename bsl::remove_const<
@@ -7842,7 +7825,7 @@ struct InvokeResult_MemFuncPtrImp<FN, ARG1TYPE, ARGTYPES_01,
                                                 ARGTYPES_04>
 : InvokeResult_MemFuncPtrImpDispatch<
       void,
-      InvokeResult_IsBaseOf<
+      IsAccessibleBaseOf<
           typename MemberFunctionPointerTraits<FN>::ClassType,
           typename bsl::remove_reference<ARG1TYPE>::type>::value,
       IsReferenceWrapper<typename bsl::remove_const<
@@ -7869,7 +7852,7 @@ struct InvokeResult_MemFuncPtrImp<FN, ARG1TYPE, ARGTYPES_01,
                                                 ARGTYPES_05>
 : InvokeResult_MemFuncPtrImpDispatch<
       void,
-      InvokeResult_IsBaseOf<
+      IsAccessibleBaseOf<
           typename MemberFunctionPointerTraits<FN>::ClassType,
           typename bsl::remove_reference<ARG1TYPE>::type>::value,
       IsReferenceWrapper<typename bsl::remove_const<
@@ -7899,7 +7882,7 @@ struct InvokeResult_MemFuncPtrImp<FN, ARG1TYPE, ARGTYPES_01,
                                                 ARGTYPES_06>
 : InvokeResult_MemFuncPtrImpDispatch<
       void,
-      InvokeResult_IsBaseOf<
+      IsAccessibleBaseOf<
           typename MemberFunctionPointerTraits<FN>::ClassType,
           typename bsl::remove_reference<ARG1TYPE>::type>::value,
       IsReferenceWrapper<typename bsl::remove_const<
@@ -7932,7 +7915,7 @@ struct InvokeResult_MemFuncPtrImp<FN, ARG1TYPE, ARGTYPES_01,
                                                 ARGTYPES_07>
 : InvokeResult_MemFuncPtrImpDispatch<
       void,
-      InvokeResult_IsBaseOf<
+      IsAccessibleBaseOf<
           typename MemberFunctionPointerTraits<FN>::ClassType,
           typename bsl::remove_reference<ARG1TYPE>::type>::value,
       IsReferenceWrapper<typename bsl::remove_const<
@@ -7968,7 +7951,7 @@ struct InvokeResult_MemFuncPtrImp<FN, ARG1TYPE, ARGTYPES_01,
                                                 ARGTYPES_08>
 : InvokeResult_MemFuncPtrImpDispatch<
       void,
-      InvokeResult_IsBaseOf<
+      IsAccessibleBaseOf<
           typename MemberFunctionPointerTraits<FN>::ClassType,
           typename bsl::remove_reference<ARG1TYPE>::type>::value,
       IsReferenceWrapper<typename bsl::remove_const<
@@ -8007,7 +7990,7 @@ struct InvokeResult_MemFuncPtrImp<FN, ARG1TYPE, ARGTYPES_01,
                                                 ARGTYPES_09>
 : InvokeResult_MemFuncPtrImpDispatch<
       void,
-      InvokeResult_IsBaseOf<
+      IsAccessibleBaseOf<
           typename MemberFunctionPointerTraits<FN>::ClassType,
           typename bsl::remove_reference<ARG1TYPE>::type>::value,
       IsReferenceWrapper<typename bsl::remove_const<
@@ -8049,7 +8032,7 @@ struct InvokeResult_MemFuncPtrImp<FN, ARG1TYPE, ARGTYPES_01,
                                                 ARGTYPES_10>
 : InvokeResult_MemFuncPtrImpDispatch<
       void,
-      InvokeResult_IsBaseOf<
+      IsAccessibleBaseOf<
           typename MemberFunctionPointerTraits<FN>::ClassType,
           typename bsl::remove_reference<ARG1TYPE>::type>::value,
       IsReferenceWrapper<typename bsl::remove_const<
@@ -8094,7 +8077,7 @@ struct InvokeResult_MemFuncPtrImp<FN, ARG1TYPE, ARGTYPES_01,
                                                 ARGTYPES_11>
 : InvokeResult_MemFuncPtrImpDispatch<
       void,
-      InvokeResult_IsBaseOf<
+      IsAccessibleBaseOf<
           typename MemberFunctionPointerTraits<FN>::ClassType,
           typename bsl::remove_reference<ARG1TYPE>::type>::value,
       IsReferenceWrapper<typename bsl::remove_const<
@@ -8142,7 +8125,7 @@ struct InvokeResult_MemFuncPtrImp<FN, ARG1TYPE, ARGTYPES_01,
                                                 ARGTYPES_12>
 : InvokeResult_MemFuncPtrImpDispatch<
       void,
-      InvokeResult_IsBaseOf<
+      IsAccessibleBaseOf<
           typename MemberFunctionPointerTraits<FN>::ClassType,
           typename bsl::remove_reference<ARG1TYPE>::type>::value,
       IsReferenceWrapper<typename bsl::remove_const<
@@ -8193,7 +8176,7 @@ struct InvokeResult_MemFuncPtrImp<FN, ARG1TYPE, ARGTYPES_01,
                                                 ARGTYPES_13>
 : InvokeResult_MemFuncPtrImpDispatch<
       void,
-      InvokeResult_IsBaseOf<
+      IsAccessibleBaseOf<
           typename MemberFunctionPointerTraits<FN>::ClassType,
           typename bsl::remove_reference<ARG1TYPE>::type>::value,
       IsReferenceWrapper<typename bsl::remove_const<
@@ -10788,7 +10771,7 @@ template <class FN, class ARGTYPE>
 struct InvokeResult_MemObjPtrImp<FN, ARGTYPE>
 : InvokeResult_MemObjPtrImpDispatch<
       void,
-      InvokeResult_IsBaseOf<
+      IsAccessibleBaseOf<
           typename MemberPointerTraits<FN>::ClassType,
           typename bsl::remove_reference<ARGTYPE>::type>::value,
       IsReferenceWrapper<typename bsl::remove_const<
@@ -11233,7 +11216,7 @@ template <class FN, class ARG1TYPE, class... ARGTYPES>
 struct InvokeResult_MemFuncPtrImp<FN, ARG1TYPE, ARGTYPES...>
 : InvokeResult_MemFuncPtrImpDispatch<
       void,
-      InvokeResult_IsBaseOf<
+      IsAccessibleBaseOf<
           typename MemberFunctionPointerTraits<FN>::ClassType,
           typename bsl::remove_reference<ARG1TYPE>::type>::value,
       IsReferenceWrapper<typename bsl::remove_const<
@@ -11333,7 +11316,7 @@ template <class FN, class ARGTYPE>
 struct InvokeResult_MemObjPtrImp<FN, ARGTYPE>
 : InvokeResult_MemObjPtrImpDispatch<
       void,
-      InvokeResult_IsBaseOf<
+      IsAccessibleBaseOf<
           typename MemberPointerTraits<FN>::ClassType,
           typename bsl::remove_reference<ARGTYPE>::type>::value,
       IsReferenceWrapper<typename bsl::remove_const<
