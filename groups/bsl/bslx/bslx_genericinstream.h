@@ -1856,7 +1856,7 @@ GenericInStream<STREAMBUF>::getString(bsl::string& variable)
         return *this;                                                 // RETURN
     }
 
-    int length;
+    int length = 0;
     getLength(length);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {

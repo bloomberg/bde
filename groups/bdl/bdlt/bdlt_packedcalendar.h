@@ -2279,7 +2279,7 @@ STREAM& PackedCalendar::bdexStreamIn(STREAM& stream, int version)
 
             int length = lastDate - firstDate + 1;
 
-            int transitionsLength;
+            int transitionsLength = 0;
             stream.getLength(transitionsLength);
 
             if (!stream || transitionsLength < 0) {
@@ -2410,7 +2410,7 @@ STREAM& PackedCalendar::bdexStreamIn(STREAM& stream, int version)
             }
             int length = inCal.d_lastDate - inCal.d_firstDate + 1;
 
-            int transitionsLength;
+            int transitionsLength = 0;
             stream.getLength(transitionsLength);
             if (!stream || transitionsLength < 0)
             {
@@ -2418,7 +2418,7 @@ STREAM& PackedCalendar::bdexStreamIn(STREAM& stream, int version)
                 return stream;                                        // RETURN
             }
 
-            int offsetsLength;
+            int offsetsLength = 0;
             stream.getLength(offsetsLength);
             if (!stream
              || (inCal.d_firstDate >  inCal.d_lastDate
@@ -2430,7 +2430,7 @@ STREAM& PackedCalendar::bdexStreamIn(STREAM& stream, int version)
             }
             BSLS_ASSERT(offsetsLength >= 0);
 
-            int codesLength;
+            int codesLength = 0;
             stream.getLength(codesLength);
             if (!stream || (0 == offsetsLength && codesLength != 0)) {
                 stream.invalidate();
@@ -2592,7 +2592,7 @@ STREAM& PackedCalendar::bdexStreamIn(STREAM& stream, int version)
                 inCal.addWeekendDays(weekendDays);
             }
 
-            int offsetsLength;
+            int offsetsLength = 0;
             stream.getLength(offsetsLength);
             if (!stream
              || (inCal.d_firstDate >  inCal.d_lastDate
@@ -2604,7 +2604,7 @@ STREAM& PackedCalendar::bdexStreamIn(STREAM& stream, int version)
             }
             BSLS_ASSERT(offsetsLength >= 0);
 
-            int codesLength;
+            int codesLength = 0;
             stream.getLength(codesLength);
             if (!stream || (0 == offsetsLength && codesLength != 0)) {
                 stream.invalidate();
