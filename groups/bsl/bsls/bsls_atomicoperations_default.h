@@ -2118,7 +2118,7 @@ Types::Uint64 AtomicOperations_DefaultUint64<IMP>::swapUint64(
     return static_cast<Types::Uint64>(
               IMP::swapInt64(
                    reinterpret_cast<typename AtomicTypes::Int64 *>(atomicUint),
-                   static_cast<Types::Uint64>(swapValue)));
+                   static_cast<Types::Int64>(swapValue)));
 }
 
 template <class IMP>

@@ -80,15 +80,15 @@ BSLS_IDENT("$Id: $")
 //
 ///Remainder Output Parameter
 ///--------------------------
-// The parsing functions provided by 'NumericParseUtil' typically return an
-// optional, second, output parameter named 'remainder'.  The output parameter
-// 'remainder' is loaded with a string reference starting at the character
-// following the last character successfully parsed as part of the numeric
-// value, and ending at the character one past the end of the input string.  If
-// the entire input string is parsed successfully, 'remainder' is loaded with
-// an empty string reference. However, if the parse function is not successful
-// (i.e., it returns a non-zero error status), then it will not modify the
-// value of 'remainder'.
+// The parsing functions provided by 'bdlb::NumericParseUtil' typically return
+// an optional, second, output parameter named 'remainder'.  The output
+// parameter 'remainder' is loaded with a string reference starting at the
+// character following the last character successfully parsed as part of the
+// numeric value, and ending at the character one past the end of the input
+// string.  If the entire input string is parsed successfully, 'remainder' is
+// loaded with an empty string reference.  However, if the parse function is
+// not successful (i.e., it returns a non-zero error status), then it will not
+// modify the value of 'remainder'.
 //
 ///Floating Point Values
 ///---------------------
@@ -96,6 +96,19 @@ BSLS_IDENT("$Id: $")
 // representable value to the decimal text.  Note that this is the same as for
 // the standard library function 'strtod'.  For example, the ASCII string
 // "3.14159" is converted, on some platforms, to 3.1415899999999999.
+//
+// The 'strtod' function is locale-dependent.  It uses the 'LC_CTYPE' and
+// 'LC_NUMERIC' locale categories from the C standard global locale established
+// by 'setlocale'.  'LC_CTYPE' is used by 'strtod' to skip leading whitespace,
+// whereas 'LC_NUMERIC' is used in the actual parsing of the number.  Our
+// implementation forbids leading whitespace.  When verifying the lack of
+// leading whitespace we use both our own locale-independent character
+// classification function (in case 'LC_CTYPE' would not classify ASCII
+// whitespace properly), as well as the C global locale-dependent
+// 'bsl::isspace' to ensure that 'strtod' will not skip some special whitespace
+// characters and parse a string as fully-a-number by mistake.  That allows us
+// to ignore the 'LC_CTYPE' locale category, however we still have to require
+// 'LC_NUMERIC' to be set to the "C" locale for 'strtod' itself.
 //
 ///Special Floating Point Values
 ///- - - - - - - - - - - - - - -
@@ -147,7 +160,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Next we call the parser function:
 //..
-//  int rv = NumericParseUtil::parseInt(&year, &rest, input);
+//  int rv = bdlb::NumericParseUtil::parseInt(&year, &rest, input);
 //..
 // Then we verify the results:
 //..
@@ -172,8 +185,8 @@ namespace bdlb {
                           // =======================
 
 struct NumericParseUtil {
-    // This 'struct' 'NumericParseUtil' provides a namespace for a suite of
-    // stateless procedures that perform low-level parsing functionality.
+    // This 'struct' provides a namespace for a suite of stateless procedures
+    // that perform parsing functionality for numbers.
 
   public:
     // TYPES
@@ -202,9 +215,10 @@ struct NumericParseUtil {
         // successfully parsed text, or the position at which a parse failure
         // was detected.  Return zero on success, and a non-zero value
         // otherwise.  The value of 'result' is unchanged if a parse failure
-        // occurs.  The behavior is undefined unless the current locale is the
-        // "C" locale, such that 'strcmp(setlocale(0, 0), "C") == 0'.  For more
-        // information see {Floating Point Values}.
+        // occurs.  The behavior is undefined unless the current numeric locale
+        // is the "C" locale, such that
+        // 'strcmp(setlocale(LC_NUMERIC, 0), "C") == 0'.  For more information
+        // see {Floating Point Values}.
 
     static int parseInt(int                     *result,
                         const bsl::string_view&  inputString,

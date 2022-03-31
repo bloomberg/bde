@@ -12,8 +12,9 @@ BSLS_IDENT("$Id: $")
 //
 //@MACROS:
 //  BSLS_PLATFORM_OS_*: operating system type, sub-type, and version
-//  BSLS_PLATFORM_CPU_* instruction set, instruction width, and version
+//  BSLS_PLATFORM_CPU_*: instruction set, instruction width, and version
 //  BSLS_PLATFORM_CMP_*: compiler vendor, and version
+//  BSLS_PLATFORM_COMPILER_ERROR: trigger a compiler error
 //  BSLS_PLATFORM_AGGRESSIVE_INLINE: inline code for speed over text size
 //
 //@SEE_ALSO: bsls_compilerfeatures, bsls_libraryfeatures
@@ -81,9 +82,18 @@ BSLS_IDENT("$Id: $")
 //  =============================================================
 //
 //  =============================================================
+//        ENSURE A COMPILER ERROR FOR UNSUPPORTED PLATFORMS
+// --------------------------------------------------------------
+//  Macro
+//  ---------------
+// @_COMPILER_ERROR
+//
+//  =============================================================
+//
+//  =============================================================
 //                              INLINING
 //  -------------------------------------------------------------
-//  Flag
+//  Macro
 //  -----------------
 //  @_AGGRESSIVE_INLINE
 //
@@ -106,6 +116,16 @@ BSLS_IDENT("$Id: $")
 // possible.  Even on those platforms, the symbol will be defined as 'inline'
 // if 'BDE_BUILD_TARGET_AGGRESSIVE_INLINE' is passed in via the '-D' option of
 // the compiler.
+//
+// The compiler-error triggering macro 'BSLS_PLATFORM_COMPILER_ERROR' is
+// defined to a sequence of tokens that guarantees a compilation error on every
+// supported compiler.  This is necessary because not all compilers will
+// respect the fairly obvious goal of the '#error' preprocessor directive even
+// though they support it, and just issue a warning (claiming that the C++
+// standard does not make a difference between a warning and an error, it knows
+// only about diagnostic messages).  Code using 'bsls_platform' macros will
+// often want to prevent compilation for unsupported platforms, hence this
+// component provides a macro that can be used to ensure that.
 //
 ///Usage
 ///-----

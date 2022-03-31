@@ -100,7 +100,7 @@ struct RegEx_ImpUtil {
         // 'length' to the specified 'value'.  Note that the specified
         // 'subject' is unused in this overload.
     {
-        (const void*)subject;
+        (void)subject;
         *value =  bsl::make_pair(offset, length);
     }
 
