@@ -437,7 +437,8 @@ int main(int argc, char *argv[])
 
                 LOOP2_ASSERT(wtime, j, wtime >= 0);
                 LOOP2_ASSERT(wtime, j, wtime < 10);
-                LOOP2_ASSERT(wtime, j, wtime >= delayTime);
+
+                if (2 == j) LOOP2_ASSERT(wtime, j, wtime >= delayTime);
 
                 if (veryVeryVerbose) {
                     P_(j) P_(stime);    P_(utime);    P(wtime);
