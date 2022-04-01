@@ -1,5 +1,48 @@
-bsl-internal (3.100.0.0) unstable; urgency=low
+bsl-internal (3.99.2.0) unstable; urgency=low
 
+  * 73975deda Bumped version to 3.99.2.0
+  * 6d4222bba Drqs 168909332/bdl reduce volatile (#3632)
+  * 50cd23ef6 Reduce locale assert scope & minor cleanup. (#3615)
+  * a1717506d bslmf_isaccessiblebaseof (#3608)
+  * 5cafbb8f2 correct nb issue (#3637)
+  * c8f81263e correct build warnings (#3636)
+  * cc8b07bad Fix bsls timeutil m1 (#3631)
+  * c76addffa Remove unsupported HP-UX platform. (#3618)
+  * e85717f90 Gcc11 bslmf_voidtype drqs-168732943.1 Fix TC6 (#3629)
+  * 18bee0e7b bsls_protocoltest: Fix nightly build failures (#3622)
+  * ba3a37b6d Make include unconditional in bslmf_memberfunctionpointertraits.h (#3621)
+  * 43276bca8 Enable 'FuzzDataView' CTOR to accept '0,0' as arguments (#3609)
+  * b2246842c Add C++17 type-traits changes to bsl_utility.h (#3593)
+  * 131542846 Bslstl function invokerutil tc6 drqs 168815752 (#3627)
+  * 2c1cfb81a s_baltst: Add value-type generating facilities (#3568)
+  * 6f568b94a drqs-168815752: 'bslstl_function_invokerutil': Fix TC6 for GCC10/GCC11/Clang12. (#3620)
+  * dd6f74c8b Merge pull request #3607 from afeher/drqs-168644926-fix-bdlb_topologicalsortutil-output-iterator-handling
+  * 70d8d89fe bsls_byteorder: provide size-flexible macros (#3576)
+  * c0691ae65 Store byte offset as ptrdiff_t (#3616)
+  * 65205aad3 bslstl_sharedptr: Support leading-allocators in deleters (#3567)
+  * 716de7ab6 Merge pull request #3612 from hversche/apple_m1_fixes
+  * 128557565 Master with 3.99.1 changes applied. (#3613)
+  * 3352bad79 improve doc for sleep methods w.r.t. signals (#3610)
+  * 4f7f949fa bslstl_sharedptr: re-enable constructor sfinae tests (#3596)
+  * b85cd98d0 versiontag comment fix, correcting format (#3597)
+  * f5d519467 balxml_util: Fix nightly build failure. (#3599)
+  * 2f5fed0de add definition of SIZE_MAX when needed (#3598)
+  * 22c6486b0 Merge pull request #3594 from mclow3/warning001
+  * af195ffe7 bslstl_optional: qualify perfect forwarding ANY_TYPE to not match ide… (#3582)
+  * e3c2747b7 Bdlcc skiplist pool mutexes 3 drqs 167728720 (#3584)
+  * 481174635 Support versions up to 99.9999.yy (#3592)
+  * 68f18b609 Merge pull request #3587 from jfevold/bslmf_pointertomembertraits-replace-invokeresult-local-calss-DRQS-165847280
+  * b1c210ed3 Add bsl::empty and bsl::data (#3581)
+  * b05f900c1 Rename template parameter from 'BOOL' to 'BOOLEAN_VALUE' (#3591)
+  * b59e46880 Merge pull request #3573 from jfevold/bdlcc_timequeue-countLE-DRQS-168288025
+  * f0ef0af73 Revert "Bslh wyhash make default 2 drqs 166864744 (#3583)" (#3590)
+  * ffd588ede Merge pull request #3579 from bchapman/balb_pipecontrolchannel-data-race-drqs-168492074
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 1 Apr 2022 10:14:55 -0400
+
+bsl-internal (3.100.0.0) git; urgency=low
+
+  * 75d2272ff Changelog for version 3.100.0.0
   * a6e0c7475 Bumped version to 3.100.0.0
   * bb1e7a080 Merge pull request #3578 from bchapman/bdlb_nullablevalue-fix-perfect-forwarding-2-drqs-168425654
   * afdb927e3 Add C++17 type aliases to bsl_type_traits.h (#3575)
@@ -19,7 +62,7 @@ bsl-internal (3.100.0.0) unstable; urgency=low
   * 05a9effa6 bdlat: Add utility components for arrays and nullables (#3531)
   * 440530555 Update MQTP deleteQueue doc to reflect same-thread behavior (#3547)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 4 Mar 2022 11:23:42 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 4 Mar 2022 11:25:17 -0500
 
 bsl-internal (3.99.0.0) git; urgency=low
 
