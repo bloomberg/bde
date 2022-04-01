@@ -34,10 +34,13 @@
 
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocatormonitor.h>
+
+#include <bsls_atomic.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_stopwatch.h>
 #include <bsls_timeutil.h>
 #include <bsls_types.h>
+
 #include <bsltf_moveonlyalloctesttype.h>
 #include <bsltf_movablealloctesttype.h>
 
@@ -360,13 +363,13 @@ struct ThreadArgs {
     bslmt::Condition  d_startCond;
     bslmt::Condition  d_goCond;
     bslmt::Mutex      d_mutex;
-    Obj              d_queue;
-    volatile int     d_iterations;
-    volatile int     d_count;
-    volatile int     d_startSig;
-    volatile int     d_goSig;
-    volatile int     d_stopSig;
-    char            *d_reserved;
+    Obj               d_queue;
+    int               d_iterations;
+    int               d_count;
+    int               d_startSig;
+    int               d_goSig;
+    int               d_stopSig;
+    char             *d_reserved;
 
     ThreadArgs(int iterations, int size=20*1000);
 
@@ -445,7 +448,7 @@ void* popFrontTestThread(void *ptr)
 
 }
 
-void case9pusher(bdlcc::FixedQueue<int> *queue, volatile bool *done)
+void case9pusher(bdlcc::FixedQueue<int> *queue, bsls::AtomicBool *done)
 {
     while (!*done) {
         queue->pushBack(static_cast<int>(bslmt::ThreadUtil::selfIdAsInt()));
@@ -488,6 +491,8 @@ void case9disabler(bdlcc::FixedQueue<int> *queue,
 struct StressNode {
     int thread;
     int value;
+
+    StressNode() : thread(0), value(0) {}
 };
 
 struct StressData {
@@ -1833,10 +1838,8 @@ int main(int argc, char *argv[])
                           << "'length()' Stress Test" << endl
                           << "======================" << endl;
 
-        enum {
-            k_NUM_PUSHPOP_THREADS = 6,
-            k_TEST_DURATION = 3 // in seconds
-        };
+        const int k_NUM_PUSHPOP_THREADS = 6;
+        const int k_TEST_DURATION       = 3;  // in seconds
 
         bdlcc::FixedQueue<int> queue (k_NUM_PUSHPOP_THREADS*2);
 
@@ -2065,16 +2068,14 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) cout << "...Initial queue state test" << endl;
 
-        enum {
-            k_QUEUE_SIZE_SINGLETHREAD = 4,
-            k_NUM_FULL_ITERATIONS = 1200,
-            k_QUEUE_SIZE_MT = 30,
-            k_NUM_PUSHERS = 12,
-            k_QUEUE_SIZE_LARGE = 500000,
-            k_NUM_PUSHERS_MORE = 20,
-            k_NUM_PUSHERS_LESS = 2,
-            k_EMPTY_VERIFY_MS = 1500
-        };
+        const int k_QUEUE_SIZE_SINGLETHREAD = 4;
+        const int k_NUM_FULL_ITERATIONS = 1200;
+        const int k_QUEUE_SIZE_MT = 30;
+        const int k_NUM_PUSHERS = 12;
+        const int k_QUEUE_SIZE_LARGE = 500000;
+        const int k_NUM_PUSHERS_MORE = 20;
+        const int k_NUM_PUSHERS_LESS = 2;
+        const int k_EMPTY_VERIFY_MS = 1500;
 
         bdlcc::FixedQueue<int> queue(k_QUEUE_SIZE_SINGLETHREAD);
         ASSERT(queue.isEnabled());
@@ -2122,11 +2123,11 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) cout << "...Disable-while-pushing test" << endl;
         {
-            volatile bool done = false;
+            bsls::AtomicBool done(false);
             bslmt::ThreadGroup pusherGroup;
             pusherGroup.addThreads(bdlf::BindUtil::bind(&case9pusher,
-                                                       &mtQueue,
-                                                       &done),
+                                                        &mtQueue,
+                                                        &done),
                                    k_NUM_PUSHERS);
             mtQueue.disable();
             mtQueue.removeAll();
@@ -2154,13 +2155,13 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) cout << "...Non-full-queue test (less)" << endl;
         {
-            volatile bool done = false;
+            bsls::AtomicBool done(false);
             bdlcc::FixedQueue<int> queue(k_QUEUE_SIZE_LARGE);
 
             bslmt::ThreadGroup pusherGroup;
             pusherGroup.addThreads(bdlf::BindUtil::bind(&case9pusher,
-                                                       &queue,
-                                                       &done),
+                                                        &queue,
+                                                        &done),
                                    k_NUM_PUSHERS_LESS);
 
             queue.disable();
@@ -2200,13 +2201,13 @@ int main(int argc, char *argv[])
         }
         if (veryVerbose) cout << "...Non-full-queue test (more)" << endl;
         {
-            volatile bool done = false;
+            bsls::AtomicBool done(false);
             bdlcc::FixedQueue<int> queue(k_QUEUE_SIZE_LARGE);
 
             bslmt::ThreadGroup pusherGroup;
             pusherGroup.addThreads(bdlf::BindUtil::bind(&case9pusher,
-                                                       &queue,
-                                                       &done),
+                                                        &queue,
+                                                        &done),
                                    k_NUM_PUSHERS_MORE);
 
             // Sleep for up to 2 ms just to let some stuff get into the queue
@@ -2839,23 +2840,21 @@ int main(int argc, char *argv[])
       } break;
 
       case -3: {
-        enum {
-            k_QUEUE_SIZE_LARGE = 500000,
-            k_NUM_PUSHERS_MORE = 20,
-            k_EMPTY_VERIFY_MS = 1500
-        };
+        const int k_QUEUE_SIZE_LARGE = 500000;
+        const int k_NUM_PUSHERS_MORE = 20;
+        const int k_EMPTY_VERIFY_MS  = 1500;
 
         cout << "...Non-full-queue test (more)" << endl;
         int numIterations = verbose ? atoi(argv[2]) : 1000;
         for (int a = 0; a < numIterations; ++a)
         {
-            volatile bool done = false;
+            bsls::AtomicBool done(false);
             bdlcc::FixedQueue<int> queue(k_QUEUE_SIZE_LARGE);
 
             bslmt::ThreadGroup pusherGroup;
             pusherGroup.addThreads(bdlf::BindUtil::bind(&case9pusher,
-                                                       &queue,
-                                                       &done),
+                                                        &queue,
+                                                        &done),
                                    k_NUM_PUSHERS_MORE);
 
             // Sleep for up to 2 ms just to let some stuff get into the queue

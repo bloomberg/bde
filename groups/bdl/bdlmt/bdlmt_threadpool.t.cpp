@@ -171,9 +171,9 @@ struct TestJobFunctionArgs {
     bslmt::Condition *d_startCond;
     bslmt::Condition *d_stopCond;
     bslmt::Mutex     *d_mutex;
-    volatile int     d_count;
-    volatile int     d_startSig;
-    volatile int     d_stopSig;
+    bsls::AtomicInt   d_count;
+    bsls::AtomicInt   d_startSig;
+    bsls::AtomicInt   d_stopSig;
 };
 
 struct TestJobFunctionArgs1 {
@@ -219,6 +219,37 @@ void TestSynchronousSignals(void *)
 
 }
 #endif
+
+void *TestThreadFunction1(void *ptr)
+    // This function is used to simulate a thread function.  It accepts a
+    // pointer to a pointer to a structure containing a mutex and a conditional
+    // variable.  The function simply blocks until the conditional variable is
+    // signaled.
+{
+    TestJobFunctionArgs *args = (TestJobFunctionArgs*)ptr;
+    bslmt::LockGuard<bslmt::Mutex> lock(args->d_mutex);
+    ++args->d_count;
+    ++args->d_startSig;
+    args->d_startCond->signal();
+    while ( !args->d_stopSig ) {
+        args->d_stopCond->wait(args->d_mutex);
+    }
+    return 0;
+}
+
+static void *TestThreadFunction2( void *ptr )
+    // This function is used to simulate a thread function.  It accepts a
+    // pointer to a pointer to a structure containing a mutex and a conditional
+    // variable.  The function simply signals that it has started, increments
+    // the supplied counter and returns.
+{
+    TestJobFunctionArgs *args = (TestJobFunctionArgs*)ptr;
+    bslmt::LockGuard<bslmt::Mutex> lock(args->d_mutex);
+    ++args->d_count;
+    ++args->d_startSig;
+    args->d_startCond->signal();
+    return 0;
+}
 
 void TestJobFunction1(void *ptr)
     // This function is used to simulate a thread pool job.  It accepts a
@@ -844,18 +875,16 @@ int main(int argc, char *argv[])
             cout << "TESTING MOVING ENQUEUEJOB METHOD" << endl
                  << "================================" << endl;
 
-        enum {
-            MIN_THREADS    = 1, // must be 1 for the blocking to work
-            MAX_THREADS    = 1, // must be 1 for the blocking to work
-            IDLE_TIME      = 0
-        };
+        const int k_MIN_THREADS = 1;  // must be 1 for the blocking to work
+        const int k_MAX_THREADS = 1;  // must be 1 for the blocking to work
+        const int k_IDLE_TIME   = 0;
 
         bslmt::Latch latch(1); // The latch has to outlive the pool
         bslmt::ThreadAttributes attributes;
         Obj                     mX(attributes,
-                                   MIN_THREADS,
-                                   MAX_THREADS,
-                                   IDLE_TIME,
+                                   k_MIN_THREADS,
+                                   k_MAX_THREADS,
+                                   k_IDLE_TIME,
                                    &testAllocator);
         mX.start();
 
@@ -914,12 +943,12 @@ int main(int argc, char *argv[])
         //   the threadpool in its destructor.
         // --------------------------------------------------------------------
 
-        enum { MIN_THREADS = 1,
-               MAX_THREADS = 1,
-               IDLE_TIME   = 0 };
+        const int k_MIN_THREADS = 1;
+        const int k_MAX_THREADS = 1;
+        const int k_IDLE_TIME   = 0;
 
         bslmt::ThreadAttributes attr;
-        Obj mX(attr, MIN_THREADS, MAX_THREADS, IDLE_TIME);
+        Obj mX(attr, k_MIN_THREADS, k_MAX_THREADS, k_IDLE_TIME);
 
         STARTPOOL(mX);
 
@@ -957,18 +986,16 @@ int main(int argc, char *argv[])
         {
             bslmt::ThreadAttributes attr;
 
-            enum {
-                MIN_THREADS = 25,
-                MAX_THREADS = MIN_THREADS,
-                IDLE_TIME   = 0,            //
-                SLEEP_TIME  = 10            // in seconds
-            };
+            const int k_MIN_THREADS = 25;
+            const int k_MAX_THREADS = k_MIN_THREADS;
+            const int k_IDLE_TIME   = 0;
+            const int k_SLEEP_TIME  = 10;  // in seconds
 
             double startIdleCpuTime = getCurrentCpuTime();
             if (veryVerbose) {
                 T_ P(startIdleCpuTime);
             }
-            bslmt::ThreadUtil::microSleep(0, SLEEP_TIME);
+            bslmt::ThreadUtil::microSleep(0, k_SLEEP_TIME);
             double consumedIdleCpuTime = getCurrentCpuTime()
                                        - startIdleCpuTime;
 
@@ -981,25 +1008,25 @@ int main(int argc, char *argv[])
                                         // to allow for I/O operations!!!
             double fudgeFactor   = 10;  // to allow for imprecisions in timing
             double maxConsumedCpuTime = fudgeFactor *
-                           (additiveFudge + consumedIdleCpuTime * MAX_THREADS);
+                         (additiveFudge + consumedIdleCpuTime * k_MAX_THREADS);
             if (veryVerbose) {
                 P(maxConsumedCpuTime);
             }
 
-            Obj x(attr, MIN_THREADS, MAX_THREADS, IDLE_TIME);
+            Obj x(attr, k_MIN_THREADS, k_MAX_THREADS, k_IDLE_TIME);
 
             STARTPOOL(x);
 
             if (veryVerbose) {
-                T_ P_(IDLE_TIME); P_(MIN_THREADS); P_(MAX_THREADS);
-                P(SLEEP_TIME);
+                T_ P_(k_IDLE_TIME); P_(k_MIN_THREADS); P_(k_MAX_THREADS);
+                P(k_SLEEP_TIME);
             }
 
             double startCpuTime = getCurrentCpuTime();
             if (veryVerbose) {
                  T_ P(startCpuTime);
             }
-            bslmt::ThreadUtil::microSleep(0, SLEEP_TIME);
+            bslmt::ThreadUtil::microSleep(0, k_SLEEP_TIME);
             double consumedCpuTime = getCurrentCpuTime() - startCpuTime;
 
             if (veryVerbose) {
@@ -2015,10 +2042,10 @@ int main(int argc, char *argv[])
                 args.d_startSig = 0;
                 args.d_stopSig = 0;
                 bslmt::ThreadUtil::create(
-                           &threadHandles[i],
-                           attributes,
-                           (bslmt::ThreadUtil::ThreadFunction)TestJobFunction1,
-                           &args);
+                        &threadHandles[i],
+                        attributes,
+                        (bslmt::ThreadUtil::ThreadFunction)TestThreadFunction1,
+                        &args);
                 while ( !args.d_startSig ) {
                     startCond.wait(&mutex);
                 }
@@ -2058,9 +2085,10 @@ int main(int argc, char *argv[])
                 args.d_startSig=0;
                 args.d_stopSig=0;
                 bslmt::ThreadUtil::create(
-                           &threadHandles[i], attributes,
-                           (bslmt::ThreadUtil::ThreadFunction)TestJobFunction2,
-                           &args);
+                        &threadHandles[i],
+                        attributes,
+                        (bslmt::ThreadUtil::ThreadFunction)TestThreadFunction2,
+                        &args);
                 while ( !args.d_startSig ) {
                     startCond.wait(&mutex);
                 }

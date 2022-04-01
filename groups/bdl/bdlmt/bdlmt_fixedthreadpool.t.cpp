@@ -22,6 +22,7 @@
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_atomic.h>
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
@@ -198,9 +199,9 @@ struct TestJobFunctionArgs {
     bslmt::Condition *d_startCond;
     bslmt::Condition *d_stopCond;
     bslmt::Mutex     *d_mutex_p;
-    volatile int      d_count;
-    volatile int      d_startSig;
-    volatile int      d_stopSig;
+    bsls::AtomicInt   d_count;
+    bsls::AtomicInt   d_startSig;
+    bsls::AtomicInt   d_stopSig;
 };
 
 struct TestJobFunctionArgs1 {

@@ -58,13 +58,15 @@ struct ThreadPoolWaitNode {
 
     bslmt::Condition             d_jobCond; // signaled when 'd_hasJob' is set
 
-    ThreadPoolWaitNode* volatile d_next;    // pointer to the next waiting
+    bsls::AtomicPointer<ThreadPoolWaitNode>
+                                 d_next;    // pointer to the next waiting
                                             // thread
 
-    ThreadPoolWaitNode* volatile d_prev;    // pointer to the previous waiting
+    bsls::AtomicPointer<ThreadPoolWaitNode>
+                                 d_prev;    // pointer to the previous waiting
                                             // thread
 
-    volatile int                 d_hasJob;  // 1 if a job has been enqueued, 0
+    bsls::AtomicInt              d_hasJob;  // 1 if a job has been enqueued, 0
                                             // otherwise
 
     // CREATORS
@@ -115,7 +117,7 @@ void ThreadPool::wakeThreadIfNeeded()
 
         // And pop the current thread from the wait list.
 
-        d_waitHead = d_waitHead->d_next;
+        d_waitHead = d_waitHead->d_next.load();
         if (d_waitHead) {
             d_waitHead->d_prev = 0;
         }
@@ -248,13 +250,12 @@ void ThreadPool::workerThread()
                 if (d_waitHead) {
                     d_waitHead->d_prev = &waitNode;
                 }
-                waitNode.d_next = d_waitHead;
+                waitNode.d_next = d_waitHead.load();
                 d_waitHead = &waitNode;
 
                 // Let this thread wait until either there is a job available
                 // or 'd_maxIdleTime' elapses.
 
-                ++d_numWaiting;
                 if (d_minThreads <= d_numActiveThreads) {
                     // This thread should be removed if it times out.
 
@@ -282,7 +283,6 @@ void ThreadPool::workerThread()
                         waitNode.d_jobCond.wait(&d_mutex);
                     }
                 }
-                --d_numWaiting;
 
                 if (0 == waitNode.d_hasJob ) {
                     // We haven't been signaled, so must have timed out.
@@ -291,13 +291,13 @@ void ThreadPool::workerThread()
                     // iteration.
 
                     if (waitNode.d_next) {
-                        waitNode.d_next->d_prev = waitNode.d_prev;
+                        waitNode.d_next->d_prev = waitNode.d_prev.load();
                     }
                     if (waitNode.d_prev) {
-                        waitNode.d_prev->d_next = waitNode.d_next;
+                        waitNode.d_prev->d_next = waitNode.d_next.load();
                     }
                     else {
-                        d_waitHead = waitNode.d_next;
+                        d_waitHead = waitNode.d_next.load();
                     }
 
                     // In addition, in the following case, we may simply shut
@@ -356,7 +356,6 @@ ThreadPool::ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
 , d_createFailures(0)
 , d_maxIdleTime(maxIdleTime)
 , d_numActiveThreads(0)
-, d_numWaiting(0)
 , d_enabled(0)
 , d_waitHead(0)
 , d_lastResetTime(bsls::TimeUtil::getTimer()) // now

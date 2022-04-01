@@ -424,39 +424,36 @@ class ThreadPool {
                                            // thread attributes to be used when
                                            // constructing processing threads
 
-    volatile int         d_maxThreads;     // maximum number of processing
+    const int            d_maxThreads;     // maximum number of processing
                                            // threads that can be started at
                                            // any given time by this thread
                                            // pool
 
-    volatile int         d_minThreads;     // minimum number of processing
+    const int            d_minThreads;     // minimum number of processing
                                            // threads that must running at any
                                            // given time
 
-    volatile int         d_threadCount;    // current number of processing
+    int                  d_threadCount;    // current number of processing
                                            // threads started by this thread
                                            // pool
 
-    volatile int         d_createFailures; // number of thread create failures
+    bsls::AtomicInt      d_createFailures; // number of thread create failures
 
-    volatile int         d_maxIdleTime;    // maximum time (in milliseconds)
+    const int            d_maxIdleTime;    // maximum time (in milliseconds)
                                            // that threads (in excess of the
                                            // minimum number of threads) can
                                            // remain idle before being shut
                                            // down
 
-    volatile int         d_numActiveThreads;
+    int                  d_numActiveThreads;
                                            // current number of threads that
                                            // are actively processing a job
 
-    volatile int         d_numWaiting;     // number of thread currently
-                                           // blocked waiting for a job
-
-    volatile int         d_enabled;        // indicates the enabled state of
+    bsls::AtomicInt      d_enabled;        // indicates the enabled state of
                                            // queue; queuing is disabled when
                                            // 0, enabled otherwise
 
-    ThreadPoolWaitNode* volatile
+    bsls::AtomicPointer<ThreadPoolWaitNode>
                          d_waitHead;       // pointer to the 'WaitNode' control
                                            // structure of the first thread
                                            // that is waiting for a request
@@ -489,8 +486,9 @@ class ThreadPool {
 
     int startThreadIfNeeded();
         // Start a new thread if needed and the maximum number of threads are
-        // not yet running.  Return 0 if at least one thread is running, and a
-        // non-zero value otherwise.
+        // not yet running.  This method must be called with 'd_mutex' locked.
+        // Return 0 if at least one thread is running, and a non-zero value
+        // otherwise.
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
     void initBlockSet();
@@ -499,8 +497,7 @@ class ThreadPool {
 
     int startNewThread();
         // Internal method to spawn a new processing thread and increment the
-        // current count.  Note that this method must be called with 'd_mutex'
-        // locked.
+        // current count.  This method must be called with 'd_mutex' locked.
 
     void workerThread();
         // Processing thread function.

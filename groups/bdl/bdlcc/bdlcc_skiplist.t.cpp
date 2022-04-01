@@ -333,7 +333,7 @@ const struct Data {
     { L_, "78a78a", 0 },
     { L_, "78abcd", 1 }
 };
-enum { k_NUM_DATA = U_LENGTH(DATA) };
+const int k_NUM_DATA = U_LENGTH(DATA);
 
                                 // =============
                                 // CountedDelete
@@ -1947,7 +1947,7 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::valueSemanticTest()
     bslma::TestAllocator da("da", veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard defaultAllocGuard(&da);
 
-    enum { k_NUM_I_ITERATIONS = u::k_NUM_DATA * TC::e_LEVELS_END };
+    const int k_NUM_I_ITERATIONS = u::k_NUM_DATA * TC::e_LEVELS_END;
 
     u::RandGen randGen;     // Constructed differently from global seed each
                             // time.
@@ -4169,7 +4169,7 @@ namespace USAGE {
         bslmt::Condition           d_emptyCond;
         bslmt::Barrier             d_startBarrier;
         bslmt::Mutex               d_condMutex;
-        volatile int               d_doneFlag;
+        bsls::AtomicInt            d_doneFlag;
 
       private:
         // NOT IMPLEMENTED
@@ -6060,7 +6060,7 @@ void test()
 
     bsl::vector<unsigned> v(MOD, 0);
 
-    enum { k_ITERATIONS = 10 * 1000 * MOD };
+    const int k_ITERATIONS = 10 * 1000 * MOD;
 
     bsls::Types::Uint64 distTotal = 0;
     unsigned prev = 0;
@@ -7855,14 +7855,14 @@ if (veryVerbose) cout << "Elapsed: " << elapsed << " seconds\n";
 
         namespace TC = BenchmarkThrashTest;
 
-        enum { k_NUM_RUNS = 101,
-               k_DISPLAY_DELTA = 10,
-               k_MEDIAN_IDX = k_NUM_RUNS / 2 / k_DISPLAY_DELTA,
+        const int k_NUM_RUNS = 101;
+        const int k_DISPLAY_DELTA = 10;
+        const int k_MEDIAN_IDX = k_NUM_RUNS / 2 / k_DISPLAY_DELTA;
 
 #if defined(BDE_BUILD_TARGET_OPT) && !defined(BDE_BUILD_TARGET_DBG)
-               k_OPTIMIZED = 1 };
+        const int k_OPTIMIZED = 1;
 #else
-               k_OPTIMIZED = 0 };
+        const int k_OPTIMIZED = 0;
 #endif
 
         int numThreads = 24;
@@ -8122,7 +8122,7 @@ if (veryVerbose) cout << "Elapsed: " << elapsed << " seconds\n";
 
         namespace TC = SKIPLIST_TEST_CASE_MINUS_102;
 
-        enum { k_ITERATIONS = 1 << 24 };
+        const int k_ITERATIONS = 1 << 24;
 
         int bits = 10;
 

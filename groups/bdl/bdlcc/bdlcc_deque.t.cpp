@@ -3447,8 +3447,8 @@ typedef bdlcc::Deque<Item>::Proctor Proctor;
 // the deque, the two values will not be equal.  If the container performs as
 // it should, the numbers will be equal.
 
-bsls::AtomicInt64           popperTotalsByPusher[NUM_PUSHERS];    // default 0
-volatile Int64              pusherTotals[        NUM_PUSHERS];
+bsls::AtomicInt64 popperTotalsByPusher[NUM_PUSHERS];    // default 0
+Int64             pusherTotals[        NUM_PUSHERS];
 
 bdlcc::Deque<Item>          deque(HIGH_WATER_MARK,
                                   &bslma::NewDeleteAllocator::singleton());
@@ -6641,6 +6641,10 @@ int main(int argc, char *argv[])
                              "====================\n";
 
         using namespace RANDOM_PUSH_POP_TEST;
+
+        for (int ii = 0; ii < NUM_PUSHERS; ++ii) {
+            pusherTotals[ii] = 0;
+        }
 
         bslmt::ThreadGroup tg(&ta);
 

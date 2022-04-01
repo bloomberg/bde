@@ -172,7 +172,7 @@ BSLS_IDENT("$Id: $")
 //      bslmt::Condition           d_emptyCond;
 //      bslmt::Barrier             d_startBarrier;
 //      bslmt::Mutex               d_condMutex;
-//      volatile int               d_doneFlag;
+//      bsls::AtomicInt            d_doneFlag;
 //
 //    private:
 //      // NOT IMPLEMENTED

@@ -424,6 +424,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_threadutil.h>
 
 #include <bsls_assert.h>
+#include <bsls_atomic.h>
 
 #include <bsl_climits.h>
 #include <bsl_cstdint.h>
@@ -546,14 +547,14 @@ class MultipriorityQueue {
     NodePtrVector         d_tails;         // pointers to tails of linked lists
                                            // -- one for each priority
 
-    volatile int          d_notEmptyFlags; // bit mask indicating priorities
+    int                   d_notEmptyFlags; // bit mask indicating priorities
                                            // for which there is data, where
                                            // bit 0 is the lowest order bit,
                                            // representing most urgent priority
 
     bdlma::ConcurrentPool d_pool;          // memory pool used for node storage
 
-    volatile int          d_length;        // total number of items in this
+    bsls::AtomicInt       d_length;        // total number of items in this
                                            // multipriority queue
 
     bool                  d_enabledFlag;   // enabled/disabled state of pushes

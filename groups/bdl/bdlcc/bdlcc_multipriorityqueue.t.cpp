@@ -961,7 +961,7 @@ Thrower::Thrower(bslmf::MovableRef<Thrower> original)
     d_throwOnAssign        = local.d_throwOnAssign;
     d_throwOnMoveAssign    = local.d_throwOnMoveAssign;
 
-    bsl::memset(&local, 0, sizeof(local));
+    bsl::memset(reinterpret_cast<char *>(&local), 0, sizeof(local));
 }
 
 Thrower& Thrower::operator=(const Thrower& rhs)
@@ -993,7 +993,7 @@ Thrower& Thrower::operator=(bslmf::MovableRef<Thrower> rhs)
     d_throwOnAssign        = local.d_throwOnAssign;
     d_throwOnMoveAssign    = local.d_throwOnMoveAssign;
 
-    bsl::memset(&local, 0, sizeof(local));
+    bsl::memset(reinterpret_cast<char *>(&local), 0, sizeof(local));
 
     return *this;
 }
@@ -1242,12 +1242,10 @@ bsls::AtomicInt *ConsumerThread::s_outPairVecIdx;
 namespace MULTIPRIORITYQUEUE_TEST_CASE_7 {
 
 struct TestFunctor7 {
-    enum {
-        k_GARBAGE_VALUE = -178,
-        k_PUSH_PRIORITY  = 4,
-        k_FIRST_PUSHVAL  = 1,
-        k_SECOND_PUSHVAL = 2
-    };
+    static const int k_GARBAGE_VALUE  = -178;
+    static const int k_PUSH_PRIORITY  =    4;
+    static const int k_FIRST_PUSHVAL  =    1;
+    static const int k_SECOND_PUSHVAL =    2;
 
     Obj *d_pMX;
     bslmt::Barrier *d_barrier;
@@ -1653,16 +1651,14 @@ int main(int argc, char *argv[])
             cout << "Test not run without exception support.\n";
         }
 #else
-        enum {
-            k_A_VAL = 38,
-            k_B_VAL = 39,
-            k_C_VAL = 40,
-            k_D_VAL = 41,
-            k_E_VAL = 42,
-            k_F_VAL = 43,
-            k_G_VAL = 44,
-            k_H_VAL = 44
-        };
+        const int k_A_VAL = 38;
+        const int k_B_VAL = 39;
+        const int k_C_VAL = 40;
+        const int k_D_VAL = 41;
+        const int k_E_VAL = 42;
+        const int k_F_VAL = 43;
+        const int k_G_VAL = 44;
+        const int k_H_VAL = 45;
 
         ASSERT(0 == Element::s_allocCount);
 
@@ -1678,7 +1674,7 @@ int main(int argc, char *argv[])
             Thrower thrD(k_D_VAL, 0, 0, 0, 0);     // never throws
             Thrower thrE(k_E_VAL, 0, 0, 0, 0);     // never throws
             Thrower thrF(k_F_VAL, 0, 1, 0, 0);     // throws on move construct
-            Thrower thrG(k_F_VAL, 0, 0, 0, 1);     // throws on move assign
+            Thrower thrG(k_G_VAL, 0, 0, 0, 1);     // throws on move assign
             Thrower thrH(k_H_VAL, 0, 0, 0, 0);     // throws on move assign
 
             ASSERT(8 == Element::s_allocCount);

@@ -797,7 +797,7 @@ struct ChronoRecurringTest {
                 << d_callTimes.size()
                 << endl;
         ASSERT(d_callTimes.size() <= maxExpectedCalls);
-        ASSERT(d_callTimes.size() >= 0.9 * maxExpectedCalls);
+        ASSERT(d_callTimes.size() >= 9 * maxExpectedCalls / 10);
 
         for (size_t i = 0; i < d_callTimes.size(); ++i) {
             using namespace bsl::chrono;
@@ -2774,6 +2774,11 @@ int main(int argc, char *argv[])
             steadyClockTest.checkResults("steady clock");
             anotherClockTest.checkResults("another clock");
             halfClockTest.checkResults("half speed clock");
+
+            x.releaseEventRaw(system_handle);
+            x.releaseEventRaw(steady_handle);
+            x.releaseEventRaw(another_handle);
+            x.releaseEventRaw(half_handle);
         }
 #endif
       } break;
@@ -2814,6 +2819,7 @@ int main(int argc, char *argv[])
             scheduler.start();
             done.wait();
             scheduler.stop();
+            scheduler.releaseEventRaw(event);
         }
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
@@ -2835,6 +2841,7 @@ int main(int argc, char *argv[])
             scheduler.start();
             done.wait();
             scheduler.stop();
+            scheduler.releaseEventRaw(event);
         }
 
         {
@@ -2855,6 +2862,7 @@ int main(int argc, char *argv[])
             scheduler.start();
             done.wait();
             scheduler.stop();
+            scheduler.releaseEventRaw(event);
         }
 #endif
       } break;
