@@ -52,7 +52,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslmf' package currently has 84 components having 19 levels of physical
+ The 'bslmf' package currently has 85 components having 19 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -78,7 +78,8 @@
   15. bslmf_detectnestedtrait
       bslmf_isenum
 
-  14. bslmf_isconvertibletoany
+  14. bslmf_isaccessiblebaseof
+      bslmf_isconvertibletoany
       bslmf_nestedtraitdeclaration
       bslmf_usesallocator
 
@@ -234,6 +235,9 @@
 :
 : 'bslmf_invokeresult_cpp03':                                         !PRIVATE!
 :      Provide C++03 implementation for bslmf_invokeresult.h
+:
+: 'bslmf_isaccessiblebaseof':
+:      Provide a compile-time check for derived classes.
 :
 : 'bslmf_isarithmetic':
 :      Provide a compile-time check for determining arithmetic types.

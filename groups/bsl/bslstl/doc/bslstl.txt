@@ -121,6 +121,7 @@
       bslstl_stdexceptutil
       bslstl_unorderedmapkeyconfiguration
       bslstl_unorderedsetkeyconfiguration
+      bslstl_utility
 
    1. bslstl_bidirectionalnodepool_cpp03                              !PRIVATE!
       bslstl_deque_cpp03                                              !PRIVATE!
@@ -142,7 +143,6 @@
       bslstl_unorderedmultimap_cpp03                                  !PRIVATE!
       bslstl_unorderedmultiset_cpp03                                  !PRIVATE!
       bslstl_unorderedset_cpp03                                       !PRIVATE!
-      bslstl_utility                                                  !PRIVATE!
       bslstl_vector_cpp03                                             !PRIVATE!
 ..
 
@@ -478,8 +478,8 @@
 : 'bslstl_unorderedsetkeyconfiguration':
 :      Provide a configuration class to use a whole object as its own key.
 :
-: 'bslstl_utility':                                                   !PRIVATE!
-:      Provide an implementation of 'as_const' for pre-C++17 systems.
+: 'bslstl_utility':
+:      Provide implementations for utilities not in the system library.
 :
 : 'bslstl_vector':
 :      Provide an STL-compliant vector class.
