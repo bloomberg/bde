@@ -143,7 +143,7 @@ BSLS_IDENT("$Id: $")
 //: o '#include' this component header, 'bsls_asserttest.h'.
 //: o Supply an implementation of an 'ASSERT' macro in your test driver.
 //: o Register 'bsls::AssertTest::failTestDriver' as the active
-//:   assertion-failure handler (preferrably with an instance of
+//:   assertion-failure handler (preferably with an instance of
 //:   'AssertTestHandlerGuard').
 //
 ///Validating Disabled Macro Expressions
@@ -296,7 +296,7 @@ BSLS_IDENT("$Id: $")
 //      ASSERT_SAFE_FAIL( A[-1]);
 //      ASSERT_PASS     ( A[ 0]);
 //      ASSERT_SAFE_FAIL( A[ 1]);
-//  #else   // BDE_BUILD_TARGET_EXC
+//  #else   // defined(BDE_BUILD_TARGET_EXC)
 //..
 // If exceptions are not available, then we write a diagnostic message to the
 // console alerting the user that this part of the test has not run, without
@@ -305,7 +305,7 @@ BSLS_IDENT("$Id: $")
 //      if (globalVerbose) printf(
 //                         "\tDISABLED in this (non-exception) build mode.\n");
 //
-//  #endif  // BDE_BUILD_TARGET_EXC
+//  #endif  // !defined(BDE_BUILD_TARGET_EXC)
 //  }
 //..
 //
@@ -349,7 +349,7 @@ BSLS_IDENT("$Id: $")
 //      ASSERT_SAFE_FAIL( A[-1]);
 //      ASSERT_SAFE_PASS( A[ 0]);
 //      ASSERT_SAFE_FAIL( A[ 1]);
-//  #endif   // BDE_BUILD_TARGET_EXC
+//  #endif  // defined(BDE_BUILD_TARGET_EXC)
 //  }
 //..
 
@@ -525,10 +525,11 @@ BSLS_IDENT("$Id: $")
     try {                                                                     \
         EXPRESSION_UNDER_TEST;                                                \
                                                                               \
-        ASSERT(bsls::AssertTest::tryProbe(RESULT,LVL));                       \
+        ASSERT(BloombergLP::bsls::AssertTest::tryProbe(RESULT, LVL));         \
     }                                                                         \
-    catch (const bsls::AssertTestException& e) {                              \
-        ASSERT(bsls::AssertTest::catchProbe(RESULT,                           \
+    catch (const BloombergLP::bsls::AssertTestException& e) {                 \
+        ASSERT(BloombergLP::bsls::AssertTest::catchProbe(                     \
+                                            RESULT,                           \
                                             BSLS_ASSERTTEST_CHECK_LEVEL_ARG,  \
                                             LVL,                              \
                                             e,                                \
@@ -547,10 +548,10 @@ BSLS_IDENT("$Id: $")
 #if !defined(BDE_BUILD_TARGET_EXC)
 // In non-exception enabled builds there is no way to safely use the
 // ASSERT_FAIL macros as they require installing an assert-handler that throws
-// a specific exception.  As ASSERT_FAIL negative tests require calling a
-// method under test with out-of-contract values, running those tests, without
-// a functioning assert-handler, would trigger undefined behavior with no
-// protection, so we choose to simple not execute the test calls that are
+// a specific exception.  ASSERT_FAIL negative tests require calling a method
+// under test with out-of-contract values; running those tests without a
+// functioning assert-handler would trigger undefined behavior with no
+// protection so we choose to simple not execute the test calls that are
 // designed to fail by expanding the test macros to an empty statement, '{ }'.
 // All of the ASSERT_PASS macros are expanded however, as such tests call
 // methods with in-contract values, and they may still be needed to guarantee
@@ -671,10 +672,10 @@ BSLS_IDENT("$Id: $")
     try {                                                                     \
         EXPRESSION_UNDER_TEST;                                                \
                                                                               \
-        ASSERT(bsls::AssertTest::tryProbeRaw(RESULT,LVL));                    \
+        ASSERT(BloombergLP::bsls::AssertTest::tryProbeRaw(RESULT, LVL));      \
     }                                                                         \
-    catch (const bsls::AssertTestException& e) {                              \
-        ASSERT(bsls::AssertTest::catchProbeRaw(                               \
+    catch (const BloombergLP::bsls::AssertTestException& e) {                 \
+        ASSERT(BloombergLP::bsls::AssertTest::catchProbeRaw(                  \
                                             RESULT,                           \
                                             BSLS_ASSERTTEST_CHECK_LEVEL_ARG,  \
                                             LVL,                              \
@@ -751,7 +752,6 @@ BSLS_IDENT("$Id: $")
 #define BSLS_ASSERTTEST_RECURSIVELY_INCLUDED_TESTDRIVER_GUARD
 
 namespace BloombergLP {
-
 namespace bsls {
 
                               // ================
@@ -762,7 +762,9 @@ struct AssertTest {
     // This utility 'struct' provides a suite of methods designed for use in
     // conjunction with preprocessor macros during the negative testing of
     // defensive checks using the facilities provided by the 'bsls_assert'
-    // component.
+    // component.  Unlike usual BDE functionality methods in this 'struct'
+    // provide wide contracts because they need to function without assertion
+    // failures during testing, under unforeseen circumstances.
 
     // CLASS METHODS
 
@@ -779,7 +781,8 @@ struct AssertTest {
         // 'BSLS_ASSERT_SAFE', 'BSLS_ASSERT', 'BSLS_ASSERT_OPT', and
         // 'BSLS_ASSERT_INVOKE', and the optional '2' is intended to indicate
         // that the component (and program as a whole) was built with
-        // 'BDE_BUILD_TARGET_SAFE_2' defined.
+        // 'BDE_BUILD_TARGET_SAFE_2' defined.  The behavior is undefined unless
+        // 'specString' points to a null terminated string (C string).
 
     static bool isValidExpected(char specChar);
         // Return 'true' if the specified 'specChar' represents a valid
@@ -814,18 +817,18 @@ struct AssertTest {
                            bool                        checkLevel,
                            char                        expectedLevel,
                            const AssertTestException&  caughtException,
-                           const char                 *componentFileName);
+                           const char                 *testDriverFileName);
         // Return 'true' if the specified 'expectedResult' is 'F' (for Fail),
         // the specified 'checkLevel' flag is 'false' or the 'expectedLevel' is
         // as wide or wider than the actual assertion failure level, the
         // specified 'caughtException' contains valid fields, and the specified
-        // 'componentFileName' is either null or refers to the same (valid)
+        // 'testDriverFileName' is either null or refers to the same (valid)
         // component name as the filename in 'caughtException'; otherwise,
-        // return 'false'.  If 'expectedResult', 'componentFileName', or any
+        // return 'false'.  If 'expectedResult', 'testDriverFileName', or any
         // field of 'caughtException' is invalid (i.e., an invalid filename,
         // null or empty expression text, or a non-positive line number), this
         // function reports the invalid value(s) to 'stdout' before returning
-        // 'false'.  If 'componentFileName' is not null, but does not reflect
+        // 'false'.  If 'testDriverFileName' is not null, but does not reflect
         // the same component name as the otherwise valid filename in
         // 'caughtException', this function prints a message delineating the
         // mismatching deduced component names to 'stdout' before returning
@@ -900,9 +903,15 @@ class AssertTestHandlerGuard {
         // the current assertion handler.
 };
 
+
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
+
+
+                      // ------------------------
+                      // class AssertHandlerGuard
+                      // ------------------------
 
 inline
 AssertTestHandlerGuard::AssertTestHandlerGuard()

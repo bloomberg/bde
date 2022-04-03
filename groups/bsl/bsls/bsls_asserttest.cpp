@@ -5,21 +5,22 @@
 BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_assertimputil.h>
+#include <bsls_bslsourcenameparserutil.h>
 #include <bsls_bsltestutil.h>        // for testing only
 #include <bsls_log.h>
 #include <bsls_logseverity.h>
 #include <bsls_macroincrement.h>     // for testing only
+#include <bsls_platform.h>
 
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-
-using std::printf;
+#include <stdio.h>   // Must use C (not C++) headers in bsl
+#include <stdlib.h>
+#include <string.h>
 
 //-----------------------------------------------------------------------------
 // STATIC HELPER FUNCTIONS
 
 namespace BloombergLP {
+namespace bsls {
 
 namespace {
 
@@ -32,8 +33,8 @@ void printError(const char *text, const char *file, int line)
 {
     // Note that we deliberately use 'stdio' rather than 'iostream' to avoid
     // issues pertaining to memory allocation for file-scope 'static' objects
-    // such as 'std::cerr'.  Also note that the '<iostream>' components are
-    // located in a package higher in the levelization of 'bsl'.
+    // such as 'cerr'.  Also note that the '<iostream>' components are located
+    // in a package higher in the levelization of 'bsl'.
 
     if (!text) {
         text = "(* Unspecified Expression Text *)";
@@ -49,137 +50,157 @@ void printError(const char *text, const char *file, int line)
         file = "(* Empty File Name *)";
     }
 
-    BloombergLP::bsls::Log::logFormattedMessage(
-        BloombergLP::bsls::LogSeverity::e_ERROR,
+    Log::logFormattedMessage(
+        LogSeverity::e_ERROR,
         file,
         line,
         "Assertion failed: %s",
         text);
 }
 
-static
-const char *stripPath(const char* filename)
-    // Return a pointer to the first character of the specified 'filename'
-    // after the last path delimiter.
+class ComponentName {
+    // A minimalistic reference type to a non-null terminated string determined
+    // by a pointer and a length.  It is used to store the component name that
+    // is "parsed out" of a source file name (without copying it).  This
+    // reference type makes 'areTheSameComponent' easier to understand.
+
+  private:
+    // DATA
+    const char  *d_str_p;
+    size_t       d_length;
+
+  public:
+    // CREATORS
+    explicit ComponentName(const char* sourceFilename);
+        // Create an empty 'ComponentName' object and fill it from the
+        // specified 'sourceFilename'.  If 'sourceFilename' is 0 or points to
+        // an empty string set this object to the empty state.  Otherwise if
+        // parsing of 'sourceFilename' succeeds fill this object to refer to
+        // the resulting component name.  If parsing fails set this object to
+        // the error state state, and print a brief error message to 'stdout'.
+        // The parsing expect 'sourceFilename' to conform to Lakos Large Scale
+        // C++ Design source file naming rules does not fully validate, so:
+        // The resulting component name referred by this object may be a valid,
+        // but unspecified string.
+
+
+    // ACCESSORS
+    bool isEmpty() const;
+        // We use this method to indicate a null pointer source name string, as
+        // well as empty source name strings, because there is no difference in
+        // handling those two cases.
+
+    bool isError() const;
+        // For brevity we store errors as a non-zero 'd_length' with a zero
+        // 'd_str_p' pointer.
+
+    size_t length() const;
+        // Return the number of characters of the component name referred by
+        // this object.  Note that this function may return 0 if this object
+        // is in the empty state, or an unspecified error code if this object
+        // is in an error state, therefore is it not advised to use this
+        // accessor if 'isEmpty() || isError()'.
+
+    const char *str() const;
+        // Return the pointer to the first character of the component name.
+        // Note that this function may return 0 (null pointer) if this object
+        // is in the empty state or in an error state, therefore is it not
+        // advised to use this accessor if 'isEmpty() || isError()'.  Note that
+        // the returned component name will not be null terminated.
+};
+
+// CREATORS
+ComponentName::ComponentName(const char *sourceFilename)
 {
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-    static const char pathSeparators[] = ":/\\";
-#else
-    static const char pathSeparators[] = "/";
-#endif
-    const char *delim_p;
-    while ((delim_p = std::strpbrk(filename, pathSeparators))) {
-        filename = delim_p + 1;
+    // null or empty allowed by default
+    if (0 == sourceFilename || sourceFilename[0] == '\0') {
+        d_str_p  = 0;
+        d_length = 0;
+        return;                                                       // RETURN
     }
 
-    return filename;
+    const int rc = BslSourceNameParserUtil::getComponentName(&d_str_p,
+                                                             &d_length,
+                                                             sourceFilename);
+    if (rc != 0) {
+        puts(BslSourceNameParserUtil::errorMessage(rc));
+        d_str_p  = 0;
+        d_length = static_cast<size_t>(rc);
+    }
+}
+
+// ACCESSORS
+bool ComponentName::isEmpty() const
+{
+    return d_str_p == 0 && d_length == 0;
+}
+
+bool ComponentName::isError() const
+{
+    return d_str_p == 0 && d_length != 0;
+}
+
+size_t ComponentName::length() const
+{
+    return d_length;
+}
+
+const char* ComponentName::str() const
+{
+    return d_str_p;
+}
+
+// FREE FUNCTIONS
+bool operator==(const ComponentName& lhs, const ComponentName& rhs)
+    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+    // value, and 'false' otherwise.  Two 'ComponentName' objects have the same
+    // value if their 'length' is the same, and their 'str' points to 'length'
+    // characters that compare equal.  Since the compare operation dereferences
+    // this type, and this type has two non-reference values (empty and error):
+    // The behavior is undefined if either 'lhs' or 'rhs' is empty or an error.
+{
+    return lhs.length() == rhs.length() &&
+           0 == memcmp(lhs.str(), rhs.str(), lhs.length());
 }
 
 static
-bool extractTestedComponentName(const char **testedComponentName,
-                                int         *length,
-                                const char  *filename)
-    // Return 'true' if the specified 'filename' corresponds to a valid
-    // filename for a BDE component, and 'false' otherwise.  If 'filename'
-    // corresponds to a valid component name, the specified
-    // 'testedComponentName' will be set to point to the start of the "tested"
-    // component name within 'filename', and the specified 'length' will store
-    // the length of that component name.  The "Tested" component is generally
-    // the full component name, but for subordinate test components (those
-    // where the subordinate part begins with "test") it is the parent
-    // component.  Note that this sub-string will *not* be null-terminated.
+bool areTheSameComponent(const ComponentName& throwName,
+                         const ComponentName& testName)
+    // Return 'true' if the specified 'throwName' and 'testName' component
+    // names are considered the same in testing:
+    //: o If either of the names was missing, we assume they are the same.
+    //: o If both component names are provided they must match, including case.
 {
-    // A component filename is a filename ending in one of the following set
-    // of file extensions: '.h', '.cpp', '.t.cpp', '.g.cpp', sometimes with
-    // the suffix '_cpp03' before the extension and/or the suffix '_test'.
-    // The component name is the component filename minus the extension, any
-    // suffix, and any pathname.
+    // For backwards compatibility reasons we do not verify if 'testName' is
+    // actually a test driver, or if either is not the name of a subordinate
+    // test component source (note that by definition the test driver is not
+    // part of a component).  (Subordinate test components should not contain
+    // executable code of any kind.)  We also do not check if the component
+    // names are valid or not, as that might also break existing code due to
+    // Hyrum's law.
 
-    // Suffixes in descending order of length
-    static const char *const suffixes[] = {
-        "_cpp03.t.cpp",
-        "_cpp03.g.cpp",
-        "_cpp03.cpp",
-        "_cpp03.h",
-        ".t.cpp",
-        ".g.cpp",
-        ".cpp",
-        ".h"
-    };
-
-    static const int numSuffixes = sizeof(suffixes) / sizeof(suffixes[0]);
-
-    if (!testedComponentName || !length || !filename) {
-        printf("passed at least one null pointer\n");
-        return false;                                                 // RETURN
-    }
-
-    // Discard path
-    filename = stripPath(filename);
-    std::size_t len = std::strlen(filename);
-    const char *end = filename + len;
-
-    // Iterate through the suffixes. When one matches the end of the filename,
-    // strip it off and stop iterating.  If none match, return error.
-    std::size_t cut = 0;
-    for (int i = 0; i < numSuffixes; ++i) {
-        const char* suffix = suffixes[i];
-        std::size_t suffixLen = std::strlen(suffix);
-        if (suffixLen >= len) {
-            continue;  // Filename is no longer than suffix
-        }
-        if (0 == std::strncmp(end - suffixLen, suffix, suffixLen)) {
-            // Found matching suffix
-            cut = suffixLen;
-            break;
-        }
-    }
-
-    if (cut) {
-        end -= cut;
-    }
-    else {
-        printf("filename does not name a component\n");
-        return false;                                                 // RETURN
-    }
-
-    // If filename has two or more underscores and last underscore is followed
-    // by the word "test", then cut from the last underscore onward.
-    const char* firstUnderscore = std::strchr(filename, '_');
-    const char* lastUnderscore  = (firstUnderscore ?
-                                   std::strrchr(filename, '_') : 0);
-    if (firstUnderscore != lastUnderscore &&
-        0 == std::strncmp(lastUnderscore + 1, "test", 4)) {
-        end = lastUnderscore;
-    }
-
-    *testedComponentName = filename;
-    *length = static_cast<int>(end - filename);
-    return true;
+    return testName.isEmpty()     // Considered valid, no need to compare
+#ifndef BSLS_ASSERTIMPUTIL_AVOID_STRING_CONSTANTS
+        || throwName.isEmpty()     // Considered valid, no need to compare
+#endif
+        || throwName == testName;  // Component names must match
 }
 
 }  // close unnamed namespace
-
-//-----------------------------------------------------------------------------
-
-namespace bsls {
 
                               // ----------------
                               // class AssertTest
                               // ----------------
 
 // CLASS METHODS
+
+                    // Test Specification Validation
+
 bool AssertTest::isValidAssertBuild(const char *specString)
 {
-    if (specString) {
-        switch (*specString) {
-          case 'S':
-          case 'A':
-          case 'O':
-          case 'I':
-            return '\0' == specString[1]
-                || ('2' == specString[1] && '\0' == specString[2]);   // RETURN
-        }
+    if (specString && isValidExpectedLevel(specString[0])) {
+        return '\0' == specString[1]
+            || ('2' == specString[1] && '\0' == specString[2]);       // RETURN
     }
     return false;
 }
@@ -191,8 +212,8 @@ bool AssertTest::isValidExpected(char specChar)
 
 bool AssertTest::isValidExpectedLevel(char specChar)
 {
-    return 'S' == specChar || 'A' == specChar || 'O' == specChar || 'I' ==
-                                                                      specChar;
+    static const char k_VALIDS[] = { 'S', 'O', 'A', 'I' };
+    return memchr(k_VALIDS, specChar, sizeof k_VALIDS) != 0;
 }
 
                             // Testing Apparatus
@@ -201,56 +222,84 @@ bool AssertTest::catchProbe(char                        expectedResult,
                             bool                        checkLevel,
                             char                        expectedLevel,
                             const AssertTestException&  caughtException,
-                            const char                 *componentFileName)
+                            const char                 *testDriverFileName)
 {
-    // First we see if the component names passed in are valid.
+    bool validArguments = true;  // Assume success
 
-    bool validArguments = true;
+    //----------------------------------------------------
+    // Extract the throwing component name and validate it
 
-    const char *text = caughtException.expression();
-    const char *file = caughtException.filename();
-
-    const char *exceptionComponent = NULL;
-    int         exceptionNameLength = 0;
-    if (file && *file && !extractTestedComponentName(&exceptionComponent,
-                                                     &exceptionNameLength,
-                                                     file)) {
-        printf("Bad component name in exception caught by catchProbe: %s\n",
-               file);
+    const char * const  throwingFilename(caughtException.filename());
+    const ComponentName throwingComponent(throwingFilename);
+    if (throwingComponent.isError()) {
+        printf("Component source file name is malformed in the violation "
+               "exception caught by 'bsls::AssertTest::catchProbe': \"%s\"\n",
+               caughtException.filename());
         validArguments = false;
     }
-
-    validArguments = validArguments && caughtException.lineNumber() > 0
-                                    && text
-                                    && *text;
-
 #ifndef BSLS_ASSERTIMPUTIL_AVOID_STRING_CONSTANTS
-    validArguments = validArguments && exceptionComponent
-                                    && *exceptionComponent;
+    // Unless we save memory by dropping file names they should be present in
+    // the exception:
+    else if (throwingComponent.isEmpty()) {
+        puts("Unexpected empty asserting-component source file name.");
+        validArguments = false;
+    }
 #endif
 
-    if (!validArguments) {
-        printError(text, file, caughtException.lineNumber());
-    }
+    //----------------------------------------------------------------------
+    // Validate throwing line number and the assertion text of the exception
 
-    // Note that 'componentFileName' is permitted to be NULL.
-
-    const char *thisComponent;
-    int         thisNameLength;
-    if (componentFileName && !extractTestedComponentName(&thisComponent,
-                                                         &thisNameLength,
-                                                         componentFileName)) {
-        printf("Bad component name for test driver in catchProbe: %s\n",
-               componentFileName);
+    const int assertLineNumber = caughtException.lineNumber();
+    if (assertLineNumber <= 0) {
+        puts("Invalid assertion line number.");
         validArguments = false;
     }
+
+    const char * const assertText = caughtException.expression();
+    if (0 == assertText || 0 == *assertText) {
+        puts("Null or empty assert text/expression.");
+        validArguments = false;
+    }
+
+    //-------------------------------------------------------------------
+    // Print error to 'stderror' in case the exception was not built well
+
+    if (!validArguments) {
+        printError(assertText, throwingFilename, assertLineNumber);
+    }
+
+    // 'testDriverFileName' may be 0/'nullptr', but not an empty string.
+    if (testDriverFileName && testDriverFileName[0] == '\0') {
+        puts("Empty test source file name.");
+        // Return early here, no sense to parse an invalid file name
+        return false;                                                 // RETURN
+    }
+
+    const ComponentName componentOfTestDriver(testDriverFileName);
+    if (componentOfTestDriver.isError()) {
+        printf("Bad component source file name for test driver in "
+               "'bsls::AssertTest::catchProbe': \"%s\"\n",
+               testDriverFileName);
+        return false;                                                 // RETURN
+    }
+
+    //--------------------------------------------------------------------
+    // All sanity-validations finished, return an error if any has failed.
+
+    // We return here as the validation until now check for errors of more
+    // Machiavelli, and rare kind (won't happen if the proper macros are used
+    // and files are named properly).  The validation this conditional return
+    // checks for more likely errors that would come from bugs in the tested
+    // component, or its test driver.  For example bad expression, calling a
+    // narrow-contract function in an asserted-expression and violate its
+    // contract (so not the tested component throws) etc.
 
     if (!validArguments) {
         return false;                                                 // RETURN
     }
 
     // After diagnosing any invalid component-related arguments we can delegate
-    // to catchProbeRaw to check the common issues.
+    // to catchProbeRaw to check for common issues.
 
     if (!catchProbeRaw(expectedResult,
                        checkLevel,
@@ -259,36 +308,16 @@ bool AssertTest::catchProbe(char                        expectedResult,
         return false;                                                 // RETURN
     }
 
-    // If 'exceptionComponent' is null (only when macros are built in a more
-    // limitted mode that does not include the full filename) we cannot do any
-    // additional component checking.
+    // Finally it makes sense if the exception comes from the component the
+    // test driver belongs to.
 
-    // If 'componentFilename' is null then it is deemed to match any filename.
-
-    if ((0 != exceptionComponent) && (0 != componentFileName)) {
-        // Two component filenames match if they are the same component name,
-        // regardless of path, and regardless of file-extension.
-
-        if (thisNameLength != exceptionNameLength ||
-            0 != std::strncmp(
-                     thisComponent, exceptionComponent, thisNameLength)) {
-            printf("Failure in component %.*s but expected component %.*s\n",
-                   exceptionNameLength,
-                   exceptionComponent,
-                   thisNameLength,
-                   thisComponent);
-            return false;                                             // RETURN
-        }
-    }
-
-    return true;
+    return areTheSameComponent(throwingComponent, componentOfTestDriver);
 }
 
-bool AssertTest::catchProbeRaw(
-                              char                             expectedResult,
-                              bool                             checkLevel,
-                              char                             expectedLevel,
-                              const bsls::AssertTestException &caughtException)
+bool AssertTest::catchProbeRaw(char                       expectedResult,
+                               bool                       checkLevel,
+                               char                       expectedLevel,
+                               const AssertTestException &caughtException)
 {
     if (!isValidExpected(expectedResult)) {
         printf("Invalid 'expectedResult' passed to a 'catchProbeRaw': '%c'\n",
@@ -304,7 +333,7 @@ bool AssertTest::catchProbeRaw(
 
     if ('F' != expectedResult)
     {
-        printf("Unexpected assertion failure.\n");
+        puts("Unexpected assertion failure.");
         return false;                                                 // RETURN
     }
 
@@ -315,10 +344,10 @@ bool AssertTest::catchProbeRaw(
         switch (expectedLevel)
         {
           case 'S':
-            if (std::strcmp(level,bsls::Review::k_LEVEL_SAFE) != 0 &&
-                std::strcmp(level,bsls::Assert::k_LEVEL_SAFE) != 0)
+            if (strcmp(level, Review::k_LEVEL_SAFE) != 0 &&
+                strcmp(level, Assert::k_LEVEL_SAFE) != 0)
             {
-                printf("Expected SAFE failure but got level:%s\n",level);
+                printf("Expected SAFE failure but got level:%s\n", level);
                 return false;                                         // RETURN
             }
             break;
@@ -326,12 +355,12 @@ bool AssertTest::catchProbeRaw(
             // if built in safe mode it's possible for a 'BSLS_ASSERT_SAFE' to
             // prevent execution from reaching a 'BSLS_ASSERT', so both levels
             // are allowed
-            if (std::strcmp(level,bsls::Review::k_LEVEL_REVIEW) != 0 &&
-                std::strcmp(level,bsls::Assert::k_LEVEL_ASSERT) != 0 &&
-                std::strcmp(level,bsls::Review::k_LEVEL_SAFE) != 0 &&
-                std::strcmp(level,bsls::Assert::k_LEVEL_SAFE) != 0)
+            if (strcmp(level, Review::k_LEVEL_REVIEW) != 0 &&
+                strcmp(level, Assert::k_LEVEL_ASSERT) != 0 &&
+                strcmp(level, Review::k_LEVEL_SAFE) != 0 &&
+                strcmp(level, Assert::k_LEVEL_SAFE) != 0)
             {
-                printf("Expected ASSERT failure but got level:%s\n",level);
+                printf("Expected ASSERT failure but got level:%s\n", level);
                 return false;                                         // RETURN
             }
             break;
@@ -339,14 +368,14 @@ bool AssertTest::catchProbeRaw(
             // if built in safe mode it's possible for a 'BSLS_ASSERT_SAFE' or
             // 'BSLS_ASSERT' to prevent execution from reaching a
             // 'BSLS_ASSERT_OPT', so all levels are allowed
-            if (std::strcmp(level,bsls::Review::k_LEVEL_OPT) != 0 &&
-                std::strcmp(level,bsls::Assert::k_LEVEL_OPT) != 0 &&
-                std::strcmp(level,bsls::Review::k_LEVEL_REVIEW) != 0 &&
-                std::strcmp(level,bsls::Assert::k_LEVEL_ASSERT) != 0 &&
-                std::strcmp(level,bsls::Review::k_LEVEL_SAFE) != 0 &&
-                std::strcmp(level,bsls::Assert::k_LEVEL_SAFE) != 0)
+            if (strcmp(level, Review::k_LEVEL_OPT) != 0 &&
+                strcmp(level, Assert::k_LEVEL_OPT) != 0 &&
+                strcmp(level, Review::k_LEVEL_REVIEW) != 0 &&
+                strcmp(level, Assert::k_LEVEL_ASSERT) != 0 &&
+                strcmp(level, Review::k_LEVEL_SAFE) != 0 &&
+                strcmp(level, Assert::k_LEVEL_SAFE) != 0)
             {
-                printf("Expected OPT failure but got level:%s\n",level);
+                printf("Expected OPT failure but got level:%s\n", level);
                 return false;                                         // RETURN
             }
             break;
@@ -423,7 +452,7 @@ void AssertTest::failTestDriver(const AssertViolation &violation)
     printError(violation.comment(),
                violation.fileName(),
                violation.lineNumber());
-    std::abort();
+    abort();
 #endif
 }
 
@@ -438,7 +467,7 @@ void AssertTest::failTestDriverByReview(const ReviewViolation &violation)
     printError(violation.comment(),
                violation.fileName(),
                violation.lineNumber());
-    std::abort();
+    abort();
 #endif
 }
 

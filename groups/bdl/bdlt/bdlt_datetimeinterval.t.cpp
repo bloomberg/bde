@@ -2089,10 +2089,10 @@ if (veryVerbose)
 
             ASSERT_PASS(Obj(0));
 
-            ASSERT_PASS(Obj(k_DAYS_MAX));
-            ASSERT_FAIL(Obj(k_DAYS_MAX, 24));
-
-            ASSERT_PASS(Obj(k_DAYS_MIN));
+            ASSERT_PASS((Obj(k_DAYS_MAX)));  // [Vexing parse!]   Without extra
+            ASSERT_FAIL(Obj(k_DAYS_MAX, 24));  // parenthesis these shadow the
+                                               // two constants with 'Obj k_*;'
+            ASSERT_PASS((Obj(k_DAYS_MIN)));  // [Vexing parse!]   declarations!
             ASSERT_FAIL(Obj(k_DAYS_MIN, -24));
 
             ASSERT_FAIL(Obj(0, k_HOURS_MAX, k_MINS_MAX));

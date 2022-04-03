@@ -50,6 +50,8 @@
 //  'LOOP4_ASSERT'        'ANNOTATED4_ASSERT'
 //  'LOOP5_ASSERT'        not used
 //  'LOOP6_ASSERT'        not used
+//  'LOOP7_ASSERT'        not used
+//  'LOOP8_ASSERT'        not used
 //  'Q'                   not used
 //  'P'                   'PRINT'
 //  'P_'                  'PRINT_'
@@ -90,6 +92,8 @@
 // [ 8] BSLS_BSLTESTUTIL_LOOP4_ASSERT(I,J,K,L,X)
 // [ 8] BSLS_BSLTESTUTIL_LOOP5_ASSERT(I,J,K,L,M,X)
 // [ 8] BSLS_BSLTESTUTIL_LOOP6_ASSERT(I,J,K,L,M,N,X)
+// [ 8] BSLS_BSLTESTUTIL_LOOP7_ASSERT(I,J,K,L,M,N,O,X)
+// [ 8] BSLS_BSLTESTUTIL_LOOP8_ASSERT(I,J,K,L,M,N,O,V,X)
 //
 // STANDARD OUTPUT MACROS
 // [ 7] BSLS_BSLTESTUTIL_Q(X)
@@ -281,6 +285,8 @@ static void realaSsErT(bool b, const char *s, int i)
     #define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
     #define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
     #define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
+    #define LOOP7_ASSERT BSLS_BSLTESTUTIL_LOOP7_ASSERT
+    #define LOOP8_ASSERT BSLS_BSLTESTUTIL_LOOP8_ASSERT
 
     #define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
     #define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
@@ -627,6 +633,8 @@ int xyza::BlockList::length()
 #undef LOOP4_ASSERT
 #undef LOOP5_ASSERT
 #undef LOOP6_ASSERT
+#undef LOOP7_ASSERT
+#undef LOOP8_ASSERT
 
 #undef Q
 #undef P
@@ -1448,6 +1456,8 @@ void TestDriver::testCase8(OutputRedirector *output)
     //   BSLS_BSLTESTUTIL_LOOP4_ASSERT(I,J,K,L,X)
     //   BSLS_BSLTESTUTIL_LOOP5_ASSERT(I,J,K,L,M,X)
     //   BSLS_BSLTESTUTIL_LOOP6_ASSERT(I,J,K,L,M,N,X)
+    //   BSLS_BSLTESTUTIL_LOOP7_ASSERT(I,J,K,L,M,N,O,X)
+    //   BSLS_BSLTESTUTIL_LOOP8_ASSERT(I,J,K,L,M,N,O,V,X)
     // ------------------------------------------------------------------------
 
     // [ 8] BSLS_BSLTESTUTIL_LOOP_ASSERT(I,X)
@@ -1694,7 +1704,7 @@ void TestDriver::testCase8(OutputRedirector *output)
             const int J = idx + 1;
             const int K = idx + 2;
             const int L = idx + 3;
-            const int M = idx + 3;
+            const int M = idx + 4;
 
             if (veryVerbose) {
                 PRINT(idx, "%d");
@@ -1715,7 +1725,7 @@ void TestDriver::testCase8(OutputRedirector *output)
             const int J = idx + 1;
             const int K = idx + 2;
             const int L = idx + 3;
-            const int M = idx + 3;
+            const int M = idx + 4;
 
             if (veryVerbose) {
                 PRINT(idx, "%d");
@@ -1759,8 +1769,8 @@ void TestDriver::testCase8(OutputRedirector *output)
             const int J = idx + 1;
             const int K = idx + 2;
             const int L = idx + 3;
-            const int M = idx + 3;
-            const int N = idx + 3;
+            const int M = idx + 4;
+            const int N = idx + 5;
 
             if (veryVerbose) {
                 PRINT(idx, "%d");
@@ -1781,8 +1791,8 @@ void TestDriver::testCase8(OutputRedirector *output)
             const int J = idx + 1;
             const int K = idx + 2;
             const int L = idx + 3;
-            const int M = idx + 3;
-            const int N = idx + 3;
+            const int M = idx + 4;
+            const int N = idx + 5;
 
             if (veryVerbose) {
                 PRINT(idx, "%d");
@@ -1812,12 +1822,176 @@ void TestDriver::testCase8(OutputRedirector *output)
         }
         testStatus = 0;
     }
+
+    // [ 8] BSLS_BSLTESTUTIL_LOOP7_ASSERT(I,J,K,L,M,N,O,X)
+    {
+        if (verbose) {
+            fprintf(stderr,
+                    "\nTESTING BSLS_BSLTESTUTIL_LOOP7_ASSERT"
+                    "\n-------------------------------------\n");
+        }
+
+        ASSERT(testStatus == 0);
+        for (int idx = 0; idx < LOOP_ITERATIONS; ++idx) {
+            const int I = idx;
+            const int J = idx + 1;
+            const int K = idx + 2;
+            const int L = idx + 3;
+            const int M = idx + 4;
+            const int N = idx + 5;
+            const int O = idx + 6;
+
+            if (veryVerbose) {
+                PRINT(idx, "%d");
+            }
+
+            output->reset();
+            BSLS_BSLTESTUTIL_LOOP7_ASSERT(I, J, K, L, M, N, O,
+                                          idx < LOOP_ITERATIONS);
+            ANNOTATED_ASSERT(testStatus, "%d", testStatus == 0);
+            ASSERT(output->load());
+            ANNOTATED_ASSERT(output->getOutput(), "%s",
+                             0 == output->compare(""));
+        }
+
+        ASSERT(testStatus == 0);
+        for (int idx = 0; idx < LOOP_ITERATIONS; ++idx) {
+            const int I = idx;
+            const int J = idx + 1;
+            const int K = idx + 2;
+            const int L = idx + 3;
+            const int M = idx + 4;
+            const int N = idx + 5;
+            const int O = idx + 6;
+
+            if (veryVerbose) {
+                PRINT(idx, "%d");
+            }
+
+            output->reset();
+#define LOOP7_ASSERT BSLS_BSLTESTUTIL_LOOP7_ASSERT
+                // The gcc 9 compiler preprocessor extends the '__LINE__' macro
+                // inserted in the 'BSLS_BSLTESTUTIL_LOOP7_ASSERT' macro to the
+                // first line of the call statement, even if the statement is
+                // split over multiple lines.  To make all versions of gcc
+                // preprocessors expand '__LINE__' to the same value, we define
+                // a new macro with shorter name ('LOOP7_ASSERT') to fit a
+                // single line.
+
+            const int LINE = __LINE__ + 1;
+            LOOP7_ASSERT(I,J,K,L,M,N,O, idx > LOOP_ITERATIONS);
+#undef LOOP7_ASSERT
+            ANNOTATED2_ASSERT(testStatus, "%d", idx, "%d",
+                              testStatus == idx + 1);
+            ASSERT(output->load());
+            snprintf(s_expectedOutput,
+                     BUFFER_SIZE,
+                     "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\tN: %d\tO: %d\n"
+                           "Error %s(%d): idx > LOOP_ITERATIONS    (failed)\n",
+                     I,
+                     J,
+                     K,
+                     L,
+                     M,
+                     N,
+                     O,
+                     __FILE__,
+                     LINE);
+            ANNOTATED2_ASSERT(s_expectedOutput, "%s",
+                              output->getOutput(), "%s",
+                              0 == output->compare(s_expectedOutput));
+        }
+        testStatus = 0;
+    }
+
+    // [ 8] BSLS_BSLTESTUTIL_LOOP8_ASSERT(I,J,K,L,M,N,O,V,X)
+    {
+        if (verbose) {
+            fprintf(stderr,
+                    "\nTESTING BSLS_BSLTESTUTIL_LOOP8_ASSERT"
+                    "\n-------------------------------------\n");
+        }
+
+        ASSERT(testStatus == 0);
+        for (int idx = 0; idx < LOOP_ITERATIONS; ++idx) {
+            const int I = idx;
+            const int J = idx + 1;
+            const int K = idx + 2;
+            const int L = idx + 3;
+            const int M = idx + 4;
+            const int N = idx + 5;
+            const int O = idx + 6;
+            const int V = idx + 7;
+
+            if (veryVerbose) {
+                PRINT(idx, "%d");
+            }
+
+            output->reset();
+            BSLS_BSLTESTUTIL_LOOP8_ASSERT(I, J, K, L, M, N, O, V,
+                                          idx < LOOP_ITERATIONS);
+            ANNOTATED_ASSERT(testStatus, "%d", testStatus == 0);
+            ASSERT(output->load());
+            ANNOTATED_ASSERT(output->getOutput(), "%s",
+                             0 == output->compare(""));
+        }
+
+        ASSERT(testStatus == 0);
+        for (int idx = 0; idx < LOOP_ITERATIONS; ++idx) {
+            const int I = idx;
+            const int J = idx + 1;
+            const int K = idx + 2;
+            const int L = idx + 3;
+            const int M = idx + 4;
+            const int N = idx + 5;
+            const int O = idx + 6;
+            const int V = idx + 7;
+
+            if (veryVerbose) {
+                PRINT(idx, "%d");
+            }
+
+            output->reset();
+#define LOOP8_ASSERT BSLS_BSLTESTUTIL_LOOP8_ASSERT
+            // The gcc 9 compiler preprocessor extends the '__LINE__' macro
+            // inserted in the 'BSLS_BSLTESTUTIL_LOOP8_ASSERT' macro to the
+            // first line of the call statement, even if the statement is
+            // split over multiple lines.  To make all versions of gcc
+            // preprocessors expand '__LINE__' to the same value, we define a
+            // new macro with shorter name ('LOOP8_ASSERT') to fit a single
+            // line.
+            const int LINE = __LINE__ + 1;
+            LOOP8_ASSERT(I,J,K,L,M,N,O,V, idx > LOOP_ITERATIONS);
+#undef LOOP8_ASSERT
+            ANNOTATED2_ASSERT(testStatus, "%d", idx, "%d",
+                              testStatus == idx + 1);
+            ASSERT(output->load());
+            snprintf(s_expectedOutput,
+                     BUFFER_SIZE,
+                     "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\tN: %d\tO: %d\tV: %d\n"
+                           "Error %s(%d): idx > LOOP_ITERATIONS    (failed)\n",
+                     I,
+                     J,
+                     K,
+                     L,
+                     M,
+                     N,
+                     O,
+                     V,
+                     __FILE__,
+                     LINE);
+            ANNOTATED2_ASSERT(s_expectedOutput, "%s",
+                              output->getOutput(), "%s",
+                              0 == output->compare(s_expectedOutput));
+        }
+        testStatus = 0;
+    }
 }
 
 template <class TEST_TYPE, size_t NUM_DATA>
 void TestDriver::testCase3(OutputRedirector                   *output,
-                                   const DataRow<TEST_TYPE>(&  DATA)[NUM_DATA],
-                                   const char                 *formatString)
+                           const DataRow<TEST_TYPE>        (&  DATA)[NUM_DATA],
+                           const char                         *formatString)
 {
     // ------------------------------------------------------------------------
     // FORMATTED OUTPUT TEST
@@ -1908,11 +2082,18 @@ void TestDriver::testCase3(OutputRedirector                   *output,
 // This generates warnings that must be suppressed with a GCC pragma.  Some
 // versions of the gcc compiler do not allow pragmas inside function bodies
 // (i.e., inside 'main'), so the test has been factored out into a separate
-// function.
+// function.  We do need the pragmas to disable warnings about the obviously
+// wrong format string we have to use to execute this verification.
 
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat"
+#elif BSLS_PLATFORM_CMP_MSVC
+#pragma warning( push )
+#pragma warning( disable : 4477 )
+// C4477: The compiler detected a mismatch between the type of argument
+//        required to satisfy the placeholder in a format string, and the type
+//        of argument supplied.
 #endif
 
 void checkStackCorruptionTest()
@@ -1970,6 +2151,8 @@ void checkStackCorruptionTest()
 
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic pop
+#elif BSLS_PLATFORM_CMP_MSVC
+#pragma warning( pop )
 #endif
 
 // ============================================================================
@@ -2356,6 +2539,8 @@ int main(int argc, char *argv[])
         //   BSLS_BSLTESTUTIL_LOOP4_ASSERT(I,J,K,L,X)
         //   BSLS_BSLTESTUTIL_LOOP5_ASSERT(I,J,K,L,M,X)
         //   BSLS_BSLTESTUTIL_LOOP6_ASSERT(I,J,K,L,M,N,X)
+        //   BSLS_BSLTESTUTIL_LOOP7_ASSERT(I,J,K,L,M,N,O,X)
+        //   BSLS_BSLTESTUTIL_LOOP8_ASSERT(I,J,K,L,M,N,O,V,X)
         // ------------------------------------------------------------------
 
         if (verbose) {
