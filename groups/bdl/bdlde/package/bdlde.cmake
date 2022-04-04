@@ -9,7 +9,7 @@ function(bdlde_process_package retPackage)
     bde_interface_target_compile_options(
         ${interfaceTarget}
         PRIVATE
-            $<$<AND:$<PLATFORM_ID:Darwin>,$<STREQUAL:${CMAKE_HOST_SYSTEM_PROCESSOR},"x86_64">>:-msse4.2>
+            $<$<AND:$<PLATFORM_ID:Darwin>,$<STREQUAL:${CMAKE_HOST_SYSTEM_PROCESSOR},x86_64>>:-msse4.2>
             $<$<PLATFORM_ID:Linux>:-msse4.2>
             $<$<PLATFORM_ID:SunOs>:-xarch=sparc4>
     )
