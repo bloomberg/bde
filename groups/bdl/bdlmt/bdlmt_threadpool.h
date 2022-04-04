@@ -119,12 +119,12 @@ BSLS_IDENT("$Id: $")
 // case, the maximum number of files to search.  However, if the maximum is too
 // large for a given platform, it may cause a bottleneck as the operating
 // system spends significant resources switching context among multiple
-// threads.
+// threads.  Also we use a very short idle time since new jobs will arrive only
+// at startup.
 //..
-//   #define MIN_SEARCH_THREADS     10
-//   #define MAX_SEARCH_THREADS     50
-//   #define MAX_SEARCH_THREAD_IDLE 100 // use a very short idle time since new
-//                                      // jobs will arrive only at startup
+//  const int                MIN_SEARCH_THREADS = 10;
+//  const int                MAX_SEARCH_THREADS = 50;
+//  const bsls::TimeInterval MAX_SEARCH_THREAD_IDLE(0, 100000000);
 //..
 // Below is the structure that will be used to pass arguments to the file
 // search function.  Since each job will be searching a separate file, a
@@ -203,16 +203,16 @@ BSLS_IDENT("$Id: $")
 //                      const bsl::vector<bsl::string>& fileList,
 //                      bsl::vector<bsl::string>&       outFileList)
 //   {
-//       bslmt::Mutex     mutex;
+//       bslmt::Mutex            mutex;
 //       bslmt::ThreadAttributes defaultAttributes;
 //..
 // We initialize the thread pool using default thread attributes.  We then
 // start the pool so that the threads can begin while we prepare the jobs.
 //..
-//       bdlmt::ThreadPool pool(defaultAttributes,
-//                              MIN_SEARCH_THREADS,
-//                              MAX_SEARCH_THREADS,
-//                              MAX_SEARCH_THREAD_IDLE);
+//       bdlmt::ThreadPool       pool(defaultAttributes,
+//                                    MIN_SEARCH_THREADS,
+//                                    MAX_SEARCH_THREADS,
+//                                    MAX_SEARCH_THREAD_IDLE);
 //
 //       if (0 != pool.start()) {
 //           bsl::cerr << "Failed to start minimum number of threads.\n";
@@ -342,10 +342,15 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
+#include <bdlf_bind.h>
+
 #include <bdlscm_version.h>
 
+#include <bslma_allocator.h>
 #include <bslma_usesbslmaallocator.h>
 
+#include <bslmf_functionpointertraits.h>
+#include <bslmf_movableref.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bslmt_threadattributes.h>
@@ -356,13 +361,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_atomic.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_platform.h>  // BSLS_PLATFORM_OS_UNIX
-
-#include <bslmf_functionpointertraits.h>
-#include <bslmf_movableref.h>
-
-#include <bdlf_bind.h>
-
-#include <bslma_allocator.h>
+#include <bsls_timeinterval.h>
 
 #include <bsl_deque.h>
 #if defined(BSLS_PLATFORM_OS_UNIX)
@@ -439,11 +438,11 @@ class ThreadPool {
 
     bsls::AtomicInt      d_createFailures; // number of thread create failures
 
-    const int            d_maxIdleTime;    // maximum time (in milliseconds)
-                                           // that threads (in excess of the
-                                           // minimum number of threads) can
-                                           // remain idle before being shut
-                                           // down
+
+    bsls::TimeInterval   d_maxIdleTime;    // maximum time that threads (in
+                                           // excess of the minimum number of
+                                           // threads) can remain idle before
+                                           // being shut down
 
     int                  d_numActiveThreads;
                                            // current number of threads that
@@ -526,6 +525,21 @@ class ThreadPool {
         // used.  The behavior is undefined unless '0 <= minThreads',
         // 'minThreads <= maxThreads', and '0 <= maxIdleTime'.
 
+    ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
+               int                             minThreads,
+               int                             maxThreads,
+               bsls::TimeInterval              maxIdleTime,
+               bslma::Allocator               *basicAllocator = 0);
+        // Construct a thread pool with the specified 'threadAttributes', the
+        // specified 'minThreads' minimum number of threads, the specified
+        // 'maxThreads' maximum number of threads, and the specified
+        // 'maxIdleTime' maximum idle time.  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.  The behavior is
+        // undefined unless '0 <= minThreads', 'minThreads <= maxThreads',
+        // '0 <= maxIdleTime', and the 'maxIdleTime' has a value less than
+        // or equal to 'INT_MAX' milliseconds.
+
     ~ThreadPool();
         // Call 'shutdown()' and destroy this thread pool.
 
@@ -590,6 +604,10 @@ class ThreadPool {
         // Return the maximum amount of time (in milliseconds) a thread may
         // remain idle before being shut down when there are more than min
         // threads started.
+
+    bsls::TimeInterval maxIdleTimeInterval() const;
+        // Return the maximum amount of time a thread may remain idle before
+        // being shut down when there are more than min threads started.
 
     int minThreads() const;
         // Return the minimum number of threads that must be started at any
@@ -666,8 +684,15 @@ int ThreadPool::threadFailures() const
 inline
 int ThreadPool::maxIdleTime() const
 {
+    return static_cast<int>(d_maxIdleTime.totalMilliseconds());
+}
+
+inline
+bsls::TimeInterval ThreadPool::maxIdleTimeInterval() const
+{
     return d_maxIdleTime;
 }
+
 }  // close package namespace
 
 }  // close enterprise namespace

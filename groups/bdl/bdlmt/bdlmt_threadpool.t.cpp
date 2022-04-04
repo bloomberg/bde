@@ -11,8 +11,6 @@
 
 #include <bslmt_configuration.h>
 
-#include <bslma_default.h>
-#include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
 #include <bdlf_bind.h>
@@ -27,6 +25,7 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_atomic.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
 #include <bsls_systemtime.h>
@@ -46,6 +45,10 @@
 
 #include <bsl_c_signal.h>
 
+#if BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+#include <chrono>
+#endif
+
 // for collecting CPU time
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 #        include <windows.h>
@@ -61,8 +64,9 @@ using namespace bsl;  // automatically added by script
 // ----------------------------------------------------------------------------
 //                              OVERVIEW
 //
-// [3 ] bdlmt::ThreadPool(const bslmt::Attributes&,int , int , int );
-// [3 ] ~bdlmt::ThreadPool();
+// [3 ] ThreadPool(const Attributes&, int, int, TimeInterval,Allocator *);
+// [6 ] ThreadPool(const Attributes&, int, int, int ,Allocator *);
+// [3 ] ~ThreadPool();
 // [  ] int enqueueJob(bsl::function<void()>);
 // [4 ] int enqueueJob(ThreadPoolJobFunc , void *);
 // [4 ] void start();
@@ -75,19 +79,21 @@ using namespace bsl;  // automatically added by script
 // [4 ] int numPendingJobs() const;
 // [3 ] int minThreads() const;
 // [3 ] int maxThreads() const;
-// [3 ] int maxIdleTime() const;
+// [6 ] int maxIdleTime() const;
+// [3 ] bsls::TimeInterval maxIdleTimeInterval() const;
 // [3 ] int threadFailures() const;
-// [8 ] double percentBusy() const
-// [8 ] double resetPercentBusy()
+// [9 ] double percentBusy() const
+// [9 ] double resetPercentBusy()
 // ----------------------------------------------------------------------------
 // [1 ] Breathing test
-// [6 ] Max idle time functionality
+// [7 ] Max idle time functionality
 // [5 ] Min/max thread functionality
-// [7 ] TESTING a job enqueuing other jobs
-// [9 ] TESTING SYNCHRONOUS SIGNALS
-// [10] USAGE EXAMPLE
-// [11] USAGE EXAMPLE (Functor Interface)
-// [12] TESTING CPU consumption of an idle pool.
+// [8 ] TESTING a job enqueuing other jobs
+// [10] TESTING SYNCHRONOUS SIGNALS
+// [11] USAGE EXAMPLE
+// [12] USAGE EXAMPLE (Functor Interface)
+// [13] TESTING CPU consumption of an idle pool.
+// [15] TESTING MOVING ENQUEUEJOB METHOD
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -138,10 +144,23 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_PASS(expr) BSLS_ASSERTTEST_ASSERT_PASS(expr)
 
 // ============================================================================
+//                  MACROS FOR PLATFORM SPECIFIC TESTS
+// ----------------------------------------------------------------------------
+
+#ifndef BSL_OVERRIDES_STD
+#if BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+#define BSLS_TIMEINTERVAL_PROVIDES_CHRONO_CONVERSIONS
+     // This macro definition parallels that defined in the 'bsls_timeinterval'
+     // header file.
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+#endif  // BSL_OVERRIDES_STD
+
+// ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bdlmt::ThreadPool Obj;
+typedef bdlmt::ThreadPool  Obj;
+typedef bsls::TimeInterval TimeInterval;
 
 // ============================================================================
 //                          GLOBAL VARIABLES FOR TESTING
@@ -357,12 +376,12 @@ namespace THREADPOOL_USAGE_EXAMPLE {
 // case, the maximum number of files to search.  However, if the maximum is too
 // large for a given platform, it may cause a bottleneck as the operating
 // system spends significant resources switching context among multiple
-// threads.
+// threads.  Also we use a very short idle time since new jobs will arrive only
+// at startup.
 //..
-    #define MIN_SEARCH_THREADS     10
-    #define MAX_SEARCH_THREADS     50
-    #define MAX_SEARCH_THREAD_IDLE 100 // use a very short idle time since new
-                                       // jobs will arrive only at startup
+    const int                MIN_SEARCH_THREADS = 10;
+    const int                MAX_SEARCH_THREADS = 50;
+    const bsls::TimeInterval MAX_SEARCH_THREAD_IDLE(0, 100000000);
 //..
 // Below is the structure that will be used to pass arguments to the file
 // search function.  Since each job will be searching a separate file, a
@@ -856,7 +875,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0: // 0 is always the first test case
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // TESTING MOVING ENQUEUEJOB METHOD
         //   Verify that the moving 'enqueueJob' method really moves.
@@ -929,7 +948,7 @@ int main(int argc, char *argv[])
 #endif
         latch.arrive();
       } break;
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // VERIFY that functor are destroyed when the thread pool is not
         // holding the lock.
@@ -961,7 +980,7 @@ int main(int argc, char *argv[])
         barrier.wait();
 
       } break;
-      case 12: {
+      case 13: {
         // --------------------------------------------------------------------
         // TESTING CPU time consumption of an idle pool.
         //   Verify that a threadpool consumes negligible CPU time when
@@ -1044,7 +1063,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 11: {
+      case 12: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE with Functor Interface
         //   This is a duplicate of test case 10, except that we use the
@@ -1072,7 +1091,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 10: {
+      case 11: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //   Because of the nature of the example in the header file, we cannot
@@ -1100,7 +1119,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
         // TESTING SYNCHRONOUS SIGNALS
         //   Verify that threads managed by the thread pool block all but the
@@ -1132,7 +1151,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 8: {
+      case 9: {
         // --------------------------------------------------------------------
         // TESTING 'percentBusy' and 'resetPercentBusy' METHODS
         //   Verify that percent busy metric is reported as expected.
@@ -1251,7 +1270,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
         // TESTING a job enqueuing other jobs
         //   Verify that an enqueued job, when executed, can enqueue jobs.
@@ -1279,7 +1298,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // TESTING max idle time functionality
         //   Verify that the threadpool properly destroys threads beyond
@@ -1386,7 +1405,7 @@ int main(int argc, char *argv[])
             bslmt::ThreadUtil::yield();
             ASSERT(0 <= x.numWaitingThreads());
             if (0 < x.numWaitingThreads()) {
-                cout << "WARNING: Failure in case 6 (still "
+                cout << "WARNING: Failure in case 7 (still "
                      << x.numWaitingThreads() << " threads waiting)"
                      << endl;
             }
@@ -1400,7 +1419,7 @@ int main(int argc, char *argv[])
             bslmt::ThreadUtil::microSleep(IDLE * 1300);
             bslmt::ThreadUtil::yield();
             if (0 < x.numActiveThreads()) {
-                cout << "WARNING: Failure in case 6 (still "
+                cout << "WARNING: Failure in case 7 (still "
                      << x.numActiveThreads() << " threads active after IDLE)"
                      << endl;
                 while (0 < x.numActiveThreads()) {
@@ -1411,12 +1430,80 @@ int main(int argc, char *argv[])
             ASSERT(    0 == x.numActiveThreads());
             ASSERT(  MIN <= x.numWaitingThreads());
             if (MIN < x.numWaitingThreads()) {
-                cout << "WARNING: Failure in case 6 (still "
+                cout << "WARNING: Failure in case 7 (still "
                      << x.numWaitingThreads() << " threads waiting)"
                      << endl;
             }
         }
 
+      } break;
+      case 6: {
+        // --------------------------------------------------------------------
+        // TESTING METHODS REPRESENTING TIME VALUE AS INT
+        //
+        // Plan:
+        //   For each of a sequence of independent min/max threads and idle
+        //   time values represented by integer value, construct a threadpool
+        //   object and verify that the values are as expected.
+        //
+        // Testing:
+        //   ThreadPool(const Attributes&, int, int, int, Allocator *);
+        //   int maxIdleTime() const;
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            cout << "TESTING METHODS REPRESENTING TIME VALUE AS INT\n"
+                 << "================================================"
+                 << endl;
+
+        static const struct {
+            int d_lineNum;     // line number
+            int d_minThreads;  // minimum number of threads
+            int d_maxThreads;  // maximum number of threads
+            int d_maxIdle;     // maximum idle time (in milliseconds)
+        } VALUES[] = {
+            //line min threads max threads max idle
+            //---- ----------- ----------- -----------
+            { L_ ,         10,        50 ,     30*1000 },
+            { L_ ,         1 ,        1  ,      1*1000 },
+            { L_ ,         50,        100,     60*1000 },
+            { L_ ,         2 ,        22 ,     72*1000 },
+            { L_ ,        100,        200,     15*1000 }
+        };
+
+        const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+        for (int i = 0; i < NUM_VALUES; ++i) {
+            const int          MIN  = VALUES[i].d_minThreads;
+            const int          MAX  = VALUES[i].d_maxThreads;
+            const int          IDLE = VALUES[i].d_maxIdle;
+            const TimeInterval INTERVAL(IDLE/1000, 0);
+
+            bslmt::ThreadAttributes attr;
+
+            Obj        mX(attr, MIN, MAX, IDLE);
+            const Obj& X = mX;
+
+            if (veryVerbose) {
+                T_ P_(i); P(IDLE); T_ P_(MIN); P(MAX);
+            }
+
+            ASSERTV(i, MIN      == X.minThreads());
+            ASSERTV(i, MAX      == X.maxThreads());
+            ASSERTV(i, INTERVAL == X.maxIdleTimeInterval());
+            ASSERTV(i, IDLE     == X.maxIdleTime());
+            ASSERTV(i, 0        == X.threadFailures());
+        }
+
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertTestHandlerGuard hG;
+
+            bslmt::ThreadAttributes attr;
+
+            ASSERT_PASS(Obj(attr,  10,  10, 1000));
+            ASSERT_FAIL(Obj(attr,  10,  10,   -1));
+        }
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -1442,18 +1529,18 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         {
             static const struct {
-                int d_lineNum;
-                int d_minThreads;
-                int d_maxThreads;
-                int d_maxIdle;
+                int d_lineNum;         // line number
+                int d_minThreads;      // minimum number of threads
+                int d_maxThreads;      // maximum number of threads
+                int d_maxIdleSeconds;  // maximum idle time (in seconds)
             } VALUES[] = {
                 //line min threads max threads max idle
-                //---- ----------- ----------- -----------
-                { L_ ,         10,        50 ,     30*1000},
-                { L_ ,         1 ,        1  ,      1*1000},
-                { L_ ,         50,        80,      60*1000},
-                { L_ ,         2 ,        22 ,     72*1000},
-                { L_ ,         20,        80,     15*1000}
+                //---- ----------- ----------- --------
+                { L_ ,         10,         50,       30 },
+                { L_ ,         1 ,         1 ,        1 },
+                { L_ ,         50,         80,       60 },
+                { L_ ,         2 ,         22,       72 },
+                { L_ ,         20,         80,       15 }
             };
 
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
@@ -1468,13 +1555,14 @@ int main(int argc, char *argv[])
                                   << endl;
 
             for (int i = 0; i < NUM_VALUES; ++i) {
-                const int MIN  = VALUES[i].d_minThreads;
-                const int MAX  = VALUES[i].d_maxThreads;
-                const int IDLE = VALUES[i].d_maxIdle;
+                const int          MIN  = VALUES[i].d_minThreads;
+                const int          MAX  = VALUES[i].d_maxThreads;
+                const int          SECONDS = VALUES[i].d_maxIdleSeconds;
+                const TimeInterval IDLE(SECONDS, 0);
 
-                bslmt::Mutex mutex;
-                bslmt::Condition startCond;
-                bslmt::Condition stopCond;
+                bslmt::Mutex        mutex;
+                bslmt::Condition    startCond;
+                bslmt::Condition    stopCond;
                 TestJobFunctionArgs args;
 
                 args.d_mutex = &mutex;
@@ -1493,7 +1581,7 @@ int main(int argc, char *argv[])
 
                 ASSERTV(i, MIN == X.minThreads());
                 ASSERTV(i, MAX == X.maxThreads());
-                ASSERTV(i, IDLE== X.maxIdleTime());
+                ASSERTV(i, IDLE== X.maxIdleTimeInterval());
 
                 if (0 != x.start()) {
                     bsl::cout << "Case 5: Thread start failure.  Skipping:\n";
@@ -1543,13 +1631,14 @@ int main(int argc, char *argv[])
                                   << endl;
 
             for (int i = 0; i < NUM_VALUES; ++i) {
-                const int MIN  = VALUES[i].d_minThreads;
-                const int MAX  = VALUES[i].d_maxThreads;
-                const int IDLE = VALUES[i].d_maxIdle;
+                const int          MIN  = VALUES[i].d_minThreads;
+                const int          MAX  = VALUES[i].d_maxThreads;
+                const int          SECONDS = VALUES[i].d_maxIdleSeconds;
+                const TimeInterval IDLE(SECONDS, 0);
 
-                bslmt::Mutex mutex;
-                bslmt::Condition startCond;
-                bslmt::Condition stopCond;
+                bslmt::Mutex        mutex;
+                bslmt::Condition    startCond;
+                bslmt::Condition    stopCond;
                 TestJobFunctionArgs args;
 
                 args.d_mutex = &mutex;
@@ -1568,7 +1657,7 @@ int main(int argc, char *argv[])
 
                 ASSERTV(i, MIN == X.minThreads());
                 ASSERTV(i, MAX == X.maxThreads());
-                ASSERTV(i, IDLE== X.maxIdleTime());
+                ASSERTV(i, IDLE== X.maxIdleTimeInterval());
 
                 if (0 != x.start()) {
                     bsl::cout << "Case 5: Thread start failure.  Skipping:\n";
@@ -1661,18 +1750,18 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         static const struct {
-            int d_lineNum;
-            int d_minThreads;
-            int d_maxThreads;
-            int d_maxIdle;
+            int d_lineNum;         // line number
+            int d_minThreads;      // minimum number of threads
+            int d_maxThreads;      // maximum number of threads
+            int d_maxIdleSeconds;  // maximum idle time (in seconds)
         } VALUES[] = {
             //line min threads max threads max idle
-            //---- ----------- ----------- -----------
-            { L_ ,         10,        50 ,     30*1000},
-            { L_ ,         1 ,        1  ,      1*1000},
-            { L_ ,         50,         75,     60*1000},
-            { L_ ,         2 ,        22 ,     72*1000},
-            { L_ ,         25,         80,     15*1000}
+            //---- ----------- ----------- --------
+            { L_ ,         10,        50 ,       30 },
+            { L_ ,         1 ,        1  ,        1 },
+            { L_ ,         50,         75,       60 },
+            { L_ ,         2 ,        22 ,       72 },
+            { L_ ,         25,         80,       15 }
 
         };
 
@@ -1685,13 +1774,14 @@ int main(int argc, char *argv[])
                               << "\t----------------" << endl;
 
         for (int i = 0; i < NUM_VALUES; ++i) {
-            const int MIN  = VALUES[i].d_minThreads;
-            const int MAX  = VALUES[i].d_maxThreads;
-            const int IDLE = VALUES[i].d_maxIdle;
+            const int          MIN  = VALUES[i].d_minThreads;
+            const int          MAX  = VALUES[i].d_maxThreads;
+            const int          SECONDS = VALUES[i].d_maxIdleSeconds;
+            const TimeInterval IDLE(SECONDS, 0);
 
-            bslmt::Mutex mutex;
-            bslmt::Condition startCond;
-            bslmt::Condition stopCond;
+            bslmt::Mutex        mutex;
+            bslmt::Condition    startCond;
+            bslmt::Condition    stopCond;
             TestJobFunctionArgs args;
 
             args.d_mutex = &mutex;
@@ -1710,7 +1800,7 @@ int main(int argc, char *argv[])
 
             ASSERTV(i, MIN == X.minThreads());
             ASSERTV(i, MAX == X.maxThreads());
-            ASSERTV(i, IDLE== X.maxIdleTime());
+            ASSERTV(i, IDLE== X.maxIdleTimeInterval());
 
             STARTPOOL(x);
             ASSERT(1 == x.enabled());
@@ -1742,13 +1832,14 @@ int main(int argc, char *argv[])
                               << "\n\t--------------" << endl;
 
         for (int i = 0; i < NUM_VALUES; ++i) {
-            const int MIN  = VALUES[i].d_minThreads;
-            const int MAX  = VALUES[i].d_maxThreads;
-            const int IDLE = VALUES[i].d_maxIdle;
+            const int          MIN  = VALUES[i].d_minThreads;
+            const int          MAX  = VALUES[i].d_maxThreads;
+            const int          SECONDS = VALUES[i].d_maxIdleSeconds;
+            const TimeInterval IDLE(SECONDS, 0);
 
-            bslmt::Mutex mutex;
-            bslmt::Condition startCond;
-            bslmt::Condition stopCond;
+            bslmt::Mutex        mutex;
+            bslmt::Condition    startCond;
+            bslmt::Condition    stopCond;
             TestJobFunctionArgs args;
 
             args.d_mutex = &mutex;
@@ -1767,7 +1858,7 @@ int main(int argc, char *argv[])
 
             ASSERTV(i, MIN == X.minThreads());
             ASSERTV(i, MAX == X.maxThreads());
-            ASSERTV(i, IDLE== X.maxIdleTime());
+            ASSERTV(i, IDLE== X.maxIdleTimeInterval());
 
             STARTPOOL(x);
             ASSERT(1 == x.enabled());
@@ -1800,13 +1891,14 @@ int main(int argc, char *argv[])
                               << endl;
 
         for (int i = 0; i < NUM_VALUES; ++i) {
-            const int MIN  = VALUES[i].d_minThreads;
-            const int MAX  = VALUES[i].d_maxThreads;
-            const int IDLE = VALUES[i].d_maxIdle;
+            const int          MIN  = VALUES[i].d_minThreads;
+            const int          MAX  = VALUES[i].d_maxThreads;
+            const int          SECONDS = VALUES[i].d_maxIdleSeconds;
+            const TimeInterval IDLE(SECONDS, 0);
 
-            bslmt::Mutex mutex;
-            bslmt::Condition startCond;
-            bslmt::Condition stopCond;
+            bslmt::Mutex        mutex;
+            bslmt::Condition    startCond;
+            bslmt::Condition    stopCond;
             TestJobFunctionArgs args;
 
             args.d_mutex = &mutex;
@@ -1825,7 +1917,7 @@ int main(int argc, char *argv[])
 
             ASSERTV(i, MIN == X.minThreads());
             ASSERTV(i, MAX == X.maxThreads());
-            ASSERTV(i, IDLE== X.maxIdleTime());
+            ASSERTV(i, IDLE== X.maxIdleTimeInterval());
 
             STARTPOOL(x);
             mutex.lock();
@@ -1864,7 +1956,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING DIRECT ACCESSORS:
         //   Verify that the threadpool correctly initializes with the
-        //   specified max/min threads and idle time values.
+        //   specified max/min threads and idle time values represented by
+        //   'bsls::TimeInterval' and 'std::chrono::Duration' objects.
         //
         // Plan:
         //   For each of a sequence of independent min/max threads and idle
@@ -1874,50 +1967,130 @@ int main(int argc, char *argv[])
         // Testing:
         //   int minThreads() const;
         //   int maxThreads() const;
-        //   int maxIdleTime() const;
-        //   bdlmt::ThreadPool(const bslmt::Attributes&,int , int , int );
-        //   ~bdlmt::ThreadPool();
+        //   bsls::TimeInterval maxIdleTime() const;
+        //   ThreadPool(const Attributes&, int, int, TimeInterval,Allocator *);
+        //   ~ThreadPool();
         // --------------------------------------------------------------------
 
         if (verbose) cout << "Testing: direct accessors\n"
                           << "========================" << endl;
         {
             static const struct {
-                int d_lineNum;
-                int d_minThreads;
-                int d_maxThreads;
-                int d_maxIdle;
+                int d_lineNum;             // line number
+                int d_minThreads;          // minimum number of threads
+                int d_maxThreads;          // maximum number of threads
+                int d_maxIdleSeconds;      // seconds     of maximum idle time
+                int d_maxIdleNanoseconds;  // nanoseconds of maximum idle time
             } VALUES[] = {
-                //line min threads max threads max idle
-                //---- ----------- ----------- -----------
-                { L_ ,         10,        50 ,     30*1000},
-                { L_ ,         1 ,        1  ,      1*1000},
-                { L_ ,         50,        100,     60*1000},
-                { L_ ,         2 ,        22 ,     72*1000},
-                { L_ ,        100,        200,     15*1000}
+                //line min threads  max threads  idle secs  idle nanosecs
+                //---- -----------  -----------  ---------  -------------
+                { L_ ,         10,         50 ,        0 ,        0     },
+                { L_ ,         1 ,         1  ,        1 ,        1     },
+                { L_ ,         50,         100,        60,        30    },
+                { L_ ,         2 ,         22 ,        72,        1000  },
+                { L_ ,        100,         200,        15,        500000}
             };
 
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
             for (int i = 0; i < NUM_VALUES; ++i) {
-                const int MIN  = VALUES[i].d_minThreads;
-                const int MAX  = VALUES[i].d_maxThreads;
-                const int IDLE = VALUES[i].d_maxIdle;
+                const int MIN     = VALUES[i].d_minThreads;
+                const int MAX     = VALUES[i].d_maxThreads;
+                const int SEC     = VALUES[i].d_maxIdleSeconds;
+                const int NANOSEC = VALUES[i].d_maxIdleNanoseconds;
 
-                bslmt::ThreadAttributes attr;
-                Obj x(attr, MIN, MAX, IDLE);
+                const bsls::TimeInterval IDLE_TIME(SEC, NANOSEC);
+                bslmt::ThreadAttributes  attr;
 
-                const Obj& X = x;
+                Obj        mX(attr, MIN, MAX, IDLE_TIME);
+                const Obj& X = mX;
 
                 if (veryVerbose) {
-                    T_ P_(i); P(IDLE); T_ P_(MIN); P(MAX);
+                    T_ P_(i); P(IDLE_TIME); T_ P_(MIN); P(MAX);
                 }
 
-                ASSERTV(i, MIN  == X.minThreads());
-                ASSERTV(i, MAX  == X.maxThreads());
-                ASSERTV(i, IDLE == X.maxIdleTime());
-                ASSERTV(i, 0    == X.threadFailures());
+                ASSERTV(i, MIN       == X.minThreads());
+                ASSERTV(i, MAX       == X.maxThreads());
+                ASSERTV(i, IDLE_TIME == X.maxIdleTimeInterval());
+                ASSERTV(i, 0         == X.threadFailures());
             }
+
+#ifdef BSLS_TIMEINTERVAL_PROVIDES_CHRONO_CONVERSIONS
+
+            if (verbose) cout << "\nTesting compatibility with 'bsl::chrono'."
+                              << endl;
+            {
+                // See DRQS 168601740.
+                // 'bsls::TimeInterval' has implicit conversions from some
+                // 'std::chrono::duration' types. We want to ensure that
+                // 'bdlmt::ThreadPool' objects can be constructed using both
+                // 'std::chrono::duration' objects and 'std::chrono_literals'.
+
+                using Seconds     = std::chrono::duration<int, std::ratio<1> >;
+                using Nanoseconds = std::chrono::duration<int, std::nano     >;
+
+                bslmt::ThreadAttributes attr;
+
+                {
+                    Seconds     second(1);
+                    Seconds     threeSeconds(3);
+                    Nanoseconds nanosecond(1);
+                    Nanoseconds tenNanoseconds(10);
+
+                    Obj        mX1(attr, 0, 100, second);
+                    const Obj& X1 = mX1;
+
+                    TimeInterval result = X1.maxIdleTimeInterval();
+                    ASSERTV(result, TimeInterval(1, 0) == result);
+
+                    Obj        mX2(attr, 0, 100, threeSeconds);
+                    const Obj& X2 = mX2;
+
+                    result = X2.maxIdleTimeInterval();
+                    ASSERTV(result, TimeInterval(3, 0) == result);
+
+                    Obj        mX3(attr, 0, 100, nanosecond);
+                    const Obj& X3 = mX3;
+
+                    result = X3.maxIdleTimeInterval();
+                    ASSERTV(result, TimeInterval(0, 1) == result);
+
+                    Obj        mX4(attr, 0, 100, tenNanoseconds);
+                    const Obj& X4 = mX4;
+
+                    result = X4.maxIdleTimeInterval();
+                    ASSERTV(result, TimeInterval(0, 10) == result);
+                }
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
+                using namespace std::chrono_literals;
+                {
+                    Obj        mX1(attr, 0, 100, 1s);
+                    const Obj& X1 = mX1;
+
+                    TimeInterval result = X1.maxIdleTimeInterval();
+                    ASSERTV(result, TimeInterval(1, 0) == result);
+
+                    Obj        mX2(attr, 0, 100, 3s);
+                    const Obj& X2 = mX2;
+
+                    result = X2.maxIdleTimeInterval();
+                    ASSERTV(result, TimeInterval(3, 0) == result);
+
+                    Obj        mX3(attr, 0, 100, 1ns);
+                    const Obj& X3 = mX3;
+
+                    result = X3.maxIdleTimeInterval();
+                    ASSERTV(result, TimeInterval(0, 1) == result);
+
+                    Obj        mX4(attr, 0, 100, 10ns);
+                    const Obj& X4 = mX4;
+
+                    result = X4.maxIdleTimeInterval();
+                    ASSERTV(result, TimeInterval(0, 10) == result);
+                }
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
+            }
+#endif  // BSLS_TIMEINTERVAL_PROVIDES_CHRONO_CONVERSIONS
 
             if (verbose) cout << "\nNegative Testing." << endl;
             {
@@ -1926,14 +2099,21 @@ int main(int argc, char *argv[])
                 if (verbose) cout << "\t'Value CTOR'" << endl;
                 {
                     bslmt::ThreadAttributes attr;
-                    ASSERT_PASS(Obj(attr,   0, 100, 1000));
-                    ASSERT_FAIL(Obj(attr,  -1, 100, 1000));
-                    ASSERT_FAIL(Obj(attr,  11,  10, 1000));
-                    ASSERT_PASS(Obj(attr,  10,  10, 1000));
-                    ASSERT_PASS(Obj(attr,   9,  10, 1000));
-                    ASSERT_FAIL(Obj(attr,  10,  10,   -1));
-                }
+                    ASSERT_PASS(Obj(attr,   0, 100, TimeInterval( 1,  0)));
+                    ASSERT_FAIL(Obj(attr,  -1, 100, TimeInterval( 1,  0)));
+                    ASSERT_FAIL(Obj(attr,  11,  10, TimeInterval( 1,  0)));
+                    ASSERT_PASS(Obj(attr,  10,  10, TimeInterval( 1,  0)));
+                    ASSERT_PASS(Obj(attr,   9,  10, TimeInterval( 1,  0)));
+                    ASSERT_FAIL(Obj(attr,  10,  10, TimeInterval(-1, -1)));
 
+                    TimeInterval VALID;
+                    VALID.setTotalMilliseconds(INT_MAX);
+                    TimeInterval INVALID(VALID);
+                    INVALID.addMilliseconds(1);
+
+                    ASSERT_PASS(Obj(attr,  9,  10, VALID  ));
+                    ASSERT_FAIL(Obj(attr,  9,  10, INVALID));
+                }
             }
         }
 

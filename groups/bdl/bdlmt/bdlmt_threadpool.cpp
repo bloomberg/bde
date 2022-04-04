@@ -21,8 +21,6 @@ BSLS_IDENT_RCSID(bdlmt_threadpool_cpp,"$Id$ $CSID$")
 #include <bsls_timeutil.h>
 #include <bsls_types.h>
 
-#include <bsl_deque.h>
-
 #include <bslmt_barrier.h>    // for testing only
 #include <bslmt_lockguard.h>  // for testing only
 #include <bslmt_threadattributes.h>     // for testing only
@@ -32,6 +30,7 @@ BSLS_IDENT_RCSID(bdlmt_threadpool_cpp,"$Id$ $CSID$")
 #include <bsl_c_signal.h>              // sigfillset
 #endif
 
+#include <bsl_climits.h>  // 'INT_MAX'
 #include <bsl_cstdlib.h>
 
 namespace BloombergLP {
@@ -260,8 +259,7 @@ void ThreadPool::workerThread()
                     // This thread should be removed if it times out.
 
                     bsls::TimeInterval endTime =
-                                          bsls::SystemTime::nowMonotonicClock()
-                                               .addMilliseconds(d_maxIdleTime);
+                        bsls::SystemTime::nowMonotonicClock() + d_maxIdleTime;
                     do {
                         if (waitNode.d_jobCond.timedWait(&d_mutex, endTime)) {
                             // This thread timed out its max idle time.
@@ -354,7 +352,6 @@ ThreadPool::ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
 , d_minThreads(minThreads)
 , d_threadCount(0)
 , d_createFailures(0)
-, d_maxIdleTime(maxIdleTime)
 , d_numActiveThreads(0)
 , d_enabled(0)
 , d_waitHead(0)
@@ -363,6 +360,40 @@ ThreadPool::ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
     BSLS_ASSERT(0          <= minThreads);
     BSLS_ASSERT(minThreads <= maxThreads);
     BSLS_ASSERT(0          <= maxIdleTime);
+
+    d_maxIdleTime.setTotalMilliseconds(maxIdleTime);
+
+    // Force all threads to be detached.
+
+    d_threadAttributes.setDetachedState(
+                                   bslmt::ThreadAttributes::e_CREATE_DETACHED);
+
+#if defined(BSLS_PLATFORM_OS_UNIX)
+    initBlockSet();
+#endif
+}
+
+ThreadPool::ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
+                       int                             minThreads,
+                       int                             maxThreads,
+                       bsls::TimeInterval              maxIdleTime,
+                       bslma::Allocator               *basicAllocator)
+: d_queue(basicAllocator)
+, d_threadAttributes(threadAttributes, basicAllocator)
+, d_maxThreads(maxThreads)
+, d_minThreads(minThreads)
+, d_threadCount(0)
+, d_createFailures(0)
+, d_maxIdleTime(maxIdleTime)
+, d_numActiveThreads(0)
+, d_enabled(0)
+, d_waitHead(0)
+, d_lastResetTime(bsls::TimeUtil::getTimer()) // now
+{
+    BSLS_ASSERT(0                        <= minThreads);
+    BSLS_ASSERT(minThreads               <= maxThreads);
+    BSLS_ASSERT(bsls::TimeInterval(0, 0) <= maxIdleTime);
+    BSLS_ASSERT(INT_MAX                  >= maxIdleTime.totalMilliseconds());
 
     // Force all threads to be detached.
 
