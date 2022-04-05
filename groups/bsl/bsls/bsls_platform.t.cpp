@@ -1616,10 +1616,19 @@ int main(int argc, char *argv[])
         // TESTING SSE MACROS
         //
         // Concerns:
-        //: 1 Runtime detection of SSE availability matches macro definitions.
+        //: 1 If an SSE-detection macro is defined, 'cpuid' indicates that the
+        //:   associated instruction set is supported.  Note that the converse
+        //:   need not be true because the compiler can be configured to not
+        //:   emit SSE instructions even if the target supports them.
+        //:
+        //: 2 If any SSE-detection macro is defined, then either or both of
+        //:   the x86-family-detection macros are also defined.
         //
         // Plan:
         //: 1 Use 'cpuinfo' to verify macro settings.
+        //:
+        //: 2 Ensure that either the x86- or x86_64-detection macro is defined
+        //:   if any SSE-detection macro is defined.
         //
         // Testing
         //   BSLS_PLATFORM_CPU_SSE*
@@ -1637,21 +1646,53 @@ int main(int argc, char *argv[])
         }
 
         #ifdef BSLS_PLATFORM_CPU_SSE
-            ASSERT(1  == ((info[3] >> 23) & 0x1));
-        #else
-            ASSERT(0  == ((info[3] >> 23) & 0x1));
+            ASSERT(1 == ((info[3] >> 25) & 0x1));
         #endif
 
         #ifdef BSLS_PLATFORM_CPU_SSE2
             ASSERT(1 == ((info[3] >> 26) & 0x1));
-        #else
-            ASSERT(0 == ((info[3] >> 26) & 0x1));
         #endif
 
         #ifdef BSLS_PLATFORM_CPU_SSE3
             ASSERT(1 == ((info[2] >>  0) & 0x1));
-        #else
-            ASSERT(0 == ((info[2] >>  0) & 0x1));
+        #endif
+
+        #ifdef BSLS_PLATFORM_CPU_SSE4_1
+            ASSERT(1 == ((info[2] >> 19) & 0x1));
+        #endif
+
+        #ifdef BSLS_PLATFORM_CPU_SSE4_2
+            ASSERT(1 == ((info[2] >> 20) & 0x1));
+        #endif
+
+        #if  defined(BSLS_PLATFORM_CPU_SSE)    \
+         && !defined(BSLS_PLATFORM_CPU_X86)    \
+         && !defined(BSLS_PLATFORM_CPU_X86_64)
+            ASSERT(false);
+        #endif
+
+        #if  defined(BSLS_PLATFORM_CPU_SSE2)   \
+         && !defined(BSLS_PLATFORM_CPU_X86)    \
+         && !defined(BSLS_PLATFORM_CPU_X86_64)
+            ASSERT(false);
+        #endif
+
+        #if  defined(BSLS_PLATFORM_CPU_SSE3)   \
+         && !defined(BSLS_PLATFORM_CPU_X86)    \
+         && !defined(BSLS_PLATFORM_CPU_X86_64)
+            ASSERT(false);
+        #endif
+
+        #if  defined(BSLS_PLATFORM_CPU_SSE4_1) \
+         && !defined(BSLS_PLATFORM_CPU_X86)    \
+         && !defined(BSLS_PLATFORM_CPU_X86_64)
+            ASSERT(false);
+        #endif
+
+        #if  defined(BSLS_PLATFORM_CPU_SSE4_2) \
+         && !defined(BSLS_PLATFORM_CPU_X86)    \
+         && !defined(BSLS_PLATFORM_CPU_X86_64)
+            ASSERT(false);
         #endif
       } break;
       case 4: {

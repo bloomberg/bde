@@ -723,6 +723,24 @@ struct bsls_Platform_Assert;
     #define BSLS_PLATFORM_HAS_MACRO_PUSH_POP 1
 #endif
 
+///Implementation Note
+///- - - - - - - - - -
+// When compiling with Microsoft Visual Studio, as indicated by the macro
+// '_MSC_VER' being defined, this component assumes that the SSE, SSE2, and
+// SSE3 instruction set extensions are available on x86 platforms.  Therefore,
+// x86 processors lacking these extensions are not supported when compiling
+// with Visual Studio.  Later extensions, such as SSE4.1, SSE4.2, and AVX, are
+// not assumed.  As of the writing of this note, Visual Studio does not provide
+// a reliable way to detect whether x86 instruction set extensions are enabled.
+//
+// Note that it is not necessarily safe to change this component to assume
+// later instruction set extensions are available when compiling with Visual
+// Studio.  Doing so may lead to dependent components using instructions that
+// are not available on some x86 platforms.
+//  
+// Clang and GCC (as well as compilers with EDG front-ends) provide macros to
+// detect whether most x86 instruction set extensions are enabled.
+
 #if defined(_MSC_VER)
     #define BSLS_PLATFORM_CPU_SSE  1
     #define BSLS_PLATFORM_CPU_SSE2 1
@@ -736,6 +754,12 @@ struct bsls_Platform_Assert;
     #endif
     #if defined(__SSE3__)
         #define BSLS_PLATFORM_CPU_SSE3 1
+    #endif
+    #if defined(__SSE4_1__)
+        #define BSLS_PLATFORM_CPU_SSE4_1 1
+    #endif
+    #if defined(__SSE4_2__)
+        #define BSLS_PLATFORM_CPU_SSE4_2 1
     #endif
 #endif
 

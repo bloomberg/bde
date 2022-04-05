@@ -23,14 +23,14 @@ BSLS_IDENT_RCSID(bdlde_crc32c_cpp,"$Id$ $CSID$")
 #include <bsls_types.h>
 
 // Compiler-specific and platform-specific
-#if defined(BSLS_PLATFORM_CPU_X86) || defined(BSLS_PLATFORM_CPU_X86_64)
-#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
-#define LIKE_X86_GCC
-#endif
-#endif
-
-#if defined(LIKE_X86_GCC)
-#include <cpuid.h>
+#if defined(BSLS_PLATFORM_CPU_SSE4_2) && defined(BSLS_PLATFORM_CMP_GNU)
+# include <cpuid.h>
+# define BDLDE_CRC32C_SSE4_2_ENABLED
+# define BDLDE_CRC32C_CPUID_SSE4_2_BIT_MASK bit_SSE4_2
+#elif defined(BSLS_PLATFORM_CPU_SSE4_2) && defined(BSLS_PLATFORM_CMP_CLANG)
+# include <cpuid.h>
+# define BDLDE_CRC32C_SSE4_2_ENABLED
+# define BDLDE_CRC32C_CPUID_SSE4_2_BIT_MASK bit_SSE42
 #endif
 
 // #define BDLDE_SUPPORT_SPARC_HARDWARE_OPTIMIZATION
@@ -42,7 +42,7 @@ BSLS_IDENT_RCSID(bdlde_crc32c_cpp,"$Id$ $CSID$")
 
 #if defined(BSLS_PLATFORM_CPU_SPARC) && \
     defined(BDLDE_SUPPORT_SPARC_HARDWARE_OPTIMIZATION)
-#include <sparc_crc32c.h>
+# include <sparc_crc32c.h>
 #endif
 
 namespace BloombergLP {
@@ -837,7 +837,7 @@ unsigned int crc32cSoftware(const unsigned char *data,
     return ~crc;
 }
 
-#if defined(LIKE_X86_GCC)
+#ifdef BDLDE_CRC32C_SSE4_2_ENABLED
 
 #  ifdef BSLS_PLATFORM_CPU_64_BIT
 
@@ -1203,7 +1203,7 @@ unsigned int crc32cHardwareSerial(const unsigned char *data,
     return ~sum;
 }
 
-#endif  // LIKE_X86_GCC
+#endif  // BDLDE_CRC32C_SSE4_2_ENABLED
 
                         //-----------------------
                         // class Crc32cCalculator
@@ -1213,47 +1213,39 @@ Crc32cCalculator::Crc32cFn Crc32cCalculator::s_crc32cFn = 0;
 
 Crc32cCalculator::Crc32cCalculator()
 {
-#if defined(BSLS_PLATFORM_CPU_X86) || defined(BSLS_PLATFORM_CPU_X86_64)
+#ifdef BDLDE_CRC32C_SEE4_2_ENABLED
+    // SSE4.2 intrinsics are available on the target platform and the current
+    // compiler's intrinsics are supported.  Note that this is the case when
+    // compiling for x86 platforms with Clang or GCC and the "-msse4.2" flag is
+    // supplied at compile time.
 
-#if defined(BSLS_PLATFORM_CMP_CLANG)
-#    define BDLDE_SSE4_2 bit_SSE42
-#elif defined(BSLS_PLATFORM_CMP_GNU)
-#    define BDLDE_SSE4_2 bit_SSE4_2
-#endif
-
-#ifdef BDLDE_SSE4_2
     unsigned int eax, ebx, ecx, edx;
     __cpuid(1, eax, ebx, ecx, edx);
 
-    if (ecx & BDLDE_SSE4_2) { // SSE 4.2 Support for CRC32-C
-
-#ifdef BSLS_PLATFORM_CPU_64_BIT
+    // Check SSE 4.2 Support for CRC32-C.
+    if (ecx & BDLDE_CRC32_CPUID_SSE4_2_BIT_MASK) {
+# ifdef BSLS_PLATFORM_CPU_64_BIT
         BSLS_LOG_INFO("Using hardware version for CRC32-C computation "
                       "(SSE4.2 instructions available, 64-bit mode)");
         s_crc32cFn = crc32cSse64bit;
 
-#else
+# else
         BSLS_LOG_INFO("Using hardware version (serial) for CRC32-C "
                       "computation (SSE4.2 instructions available, "
                       "32-bit mode)");
         s_crc32cFn = crc32cHardwareSerial;
-#endif  // BSLS_PLATFORM_CPU_64_BIT
-#undef BDLDE_SSE4_2
+# endif
     }
     else {
         BSLS_LOG_INFO("Using software version for CRC32-C computation "
                       "(SSE4.2 instructions not available)");
         s_crc32cFn = crc32cSoftware;
     }
-#else  // BDLDE_SSE4_2.  Unsupported compiler.  Note that Windows hardware
-       // implementation will be chosen here when supported.
-    BSLS_LOG_INFO("Using software version for CRC32-C computation "
-                  "(unsupported compiler)");
-    s_crc32cFn = crc32cSoftware;
-#endif
-
 #elif defined(BSLS_PLATFORM_CPU_SPARC) && \
       defined(BDLDE_SUPPORT_SPARC_HARDWARE_OPTIMIZATION)
+    // Sparc CRC32-C intrinsics are available on the target platform and use
+    // of these intrinsics has been enabled.
+
     if (is_sparc_crc32c_avail()) {
         BSLS_LOG_INFO("Using hardware version for CRC32-C computation "
                       "(sparc hardware support available)");
@@ -1263,13 +1255,23 @@ Crc32cCalculator::Crc32cCalculator()
                       "(sparc hardware not available)");
         s_crc32cFn = crc32cSoftware;
     }
-#else  // BSLS_PLATFORM_CPU_X86 || BSLS_PLATFORM_CPU_X86_64
-       // Not supported architecture.  Note that IBM AIX hardware
-       // implementation will be chosen here when supported.
+#else
+    // There is no hardware-accelerated implementation of CRC32-C available
+    // for the current platform.  This is the case if any of the following
+    // conditions apply:
+    //: 1 the current platform is x86 and supports SSE4.2 but this component
+    //:   does not support the compiler's SSE4.2 intrinsics (if they exist),
+    //: 2 the current platform is x86 but does not support SSE4.2,
+    //: 3 the current platform is Sparc but the Sparc CRC32-C intrinsics are
+    //:   not enabled, or
+    //: 4 the current platform is any other architecture
+    // Note that #1 is true when compiling with Microsoft Visual Studio, and #4
+    // is true when compiling for AIX or PowerPC platforms.
+
     BSLS_LOG_INFO("Using software version for CRC32-C computation "
-                  "(neither an x86 nor SPARC architecture)");
+                  "(unsupported architecture or compiler)");
     s_crc32cFn = crc32cSoftware;
-#endif // BSLS_PLATFORM_CPU_X86 || BSLS_PLATFORM_CPU_X86_64
+#endif
 }
 
 Crc32cCalculator& Crc32cCalculator::instance()
@@ -1351,7 +1353,7 @@ unsigned int Crc32c_Impl::calculateHardwareSerial(const void   *data,
     }
 
     const unsigned char *dataUchar = static_cast<const unsigned char *>(data);
-#if defined(LIKE_X86_GCC)
+#if defined(BDLDE_CRC32C_SSE4_2_ENABLED)
     return crc32cHardwareSerial(dataUchar, length, crc);
 #else
     return crc32cSoftware(dataUchar, length, crc);
@@ -1361,6 +1363,8 @@ unsigned int Crc32c_Impl::calculateHardwareSerial(const void   *data,
 }  // close package namespace
 }  // close enterprise namespace
 
+#undef BDLDE_CRC32C_CPUID_SSE4_2_BIT_MASK
+#undef BDLDE_CRC32C_SSE4_2_ENABLED
 
 // ----------------------------------------------------------------------------
 // Copyright 2018 Bloomberg Finance L.P.
