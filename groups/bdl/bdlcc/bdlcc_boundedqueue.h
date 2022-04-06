@@ -17,7 +17,9 @@ BSLS_IDENT("$Id: $")
 // provides an efficient, thread-aware bounded (capacity fixed at construction)
 // queue of values.  This class is ideal for synchronization and communication
 // between threads in a producer-consumer model when a bounded queue is
-// appropriate.
+// appropriate.   Under most cicrumstances developers should prefer
+// this component to the older {bdlcc_fixedqueue} (see {Comparison to
+// FixedQueue}).
 //
 // The queue provides 'pushBack' and 'popFront' methods for pushing data into
 // the queue and popping data from the queue.  When the queue is full, the
@@ -41,6 +43,17 @@ BSLS_IDENT("$Id: $")
 // blocked in 'popFront' when the queue is dequeue disabled return from
 // 'popFront' immediately and return an error code.  The queue may be restored
 // to normal operation with the 'enablePopFront' method.
+//
+///Comparison To FixedQueue
+///------------------------
+// Both 'bdlcc::FixedQueue' and 'bdlcc::BoundedQueue' provide thread-aware
+// bounded queues.  Under most circumstances developers should prefer
+// {bdlcc_boundedqueue}: it is newer, has additional features, and provides
+// better performance under most circumstances.  'bdlcc::BoundedQueue' is not
+// quite a drop in replacement for 'bdlcc::FixedQueue' so both types are
+// currently maintained.  There is additional information about
+// performance of various queues in the article Concurrent Queue Evaluation
+// (https://tinyurl.com/mr2un9f7).
 //
 ///Template Requirements
 ///---------------------

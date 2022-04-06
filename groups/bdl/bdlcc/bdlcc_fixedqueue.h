@@ -13,15 +13,16 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a thread-enabled fixed-size queue of values.
+//@PURPOSE: Provide a thread-aware fixed-size queue of values.
 //
 //@CLASSES:
-//  bdlcc::FixedQueue: thread-enabled fixed-size queue of 'TYPE' values
+//  bdlcc::FixedQueue: thread-aware fixed-size queue of 'TYPE' values
 //
 //@DESCRIPTION: This component defines a type, 'bdlcc::FixedQueue', that
-// provides an efficient, thread-enabled fixed-size queue of values.  This
+// provides an efficient, thread-aware fixed-size queue of values.  This
 // class is ideal for synchronization and communication between threads in a
-// producer-consumer model.
+// producer-consumer model.  Under most cicrumstances developers should prefer
+// the newer {bdlcc_boundedqueue} (see {Comparison to BoundedQueue}).
 //
 // The queue provides 'pushBack' and 'popFront' methods for pushing data into
 // the queue and popping it from the queue.  In case of overflow (queue full
@@ -41,6 +42,17 @@ BSLS_IDENT("$Id: $")
 // 'bdlc::Queue', so there is no API for direct access to the underlying queue.
 // These limitations are a trade-off for significant gain in performance
 // compared to 'bdlcc::Queue'.
+//
+///Comparison To BoundedQueue
+///--------------------------
+// Both 'bdlcc::FixedQueue' and 'bdlcc::BoundedQueue' provide thread-aware
+// bounded queues.  Under most circumstances developers should prefer
+// {bdlcc_boundedqueue}: it is newer, has additional features, and provides
+// better performance under most circumstances.  'bdlcc::BoundedQueue' is not
+// quite a drop in replacement for 'bdlcc::FixedQueue' so both types are
+// currently maintained.  There is additional information about
+// performance of various queues in the article Concurrent Queue Evaluation
+// (https://tinyurl.com/mr2un9f7).
 //
 ///Template Requirements
 ///---------------------
@@ -216,7 +228,7 @@ namespace bdlcc {
 
 template <class TYPE>
 class FixedQueue {
-    // This class provides a thread-enabled, lock-free, fixed-size queue of
+    // This class provides a thread-aware, lock-free, fixed-size queue of
     // values.
 
   private:
@@ -278,7 +290,7 @@ class FixedQueue {
     // CREATORS
     explicit
     FixedQueue(bsl::size_t capacity, bslma::Allocator *basicAllocator = 0);
-        // Create a thread-enabled lock-free queue having the specified
+        // Create a thread-aware lock-free queue having the specified
         // 'capacity'.  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
         // allocator is used.  The behavior is undefined unless '0 < capacity'
