@@ -38,7 +38,8 @@ BSLS_IDENT("$Id: $")
 //:     This annotation, passed a variable-length list of positive integers,
 //:     indicates that a compiler warning is to be issued if null is passed to
 //:     a pointer argument at any of the specified indices, where the first
-//:     argument of the annotated function has an index of 1.
+//:     argument of the annotated function has an index of 1. Note that for
+//:     non-static member functions, the implicit 'this' argument has index 1.
 //
 //: 'BSLA_NONNULLARG_IS_ACTIVE'
 //: 'BSLS_NONNULLARGS_IS_ACTIVE'
