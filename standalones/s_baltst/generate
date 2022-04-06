@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 COMPONENT=${1%.xsd}
 COMPONENT=${COMPONENT#s_baltst_}

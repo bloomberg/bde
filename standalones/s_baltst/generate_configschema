@@ -1,0 +1,6 @@
+#!/bin/sh
+
+bas_codegen.pl --mode cfg \
+               --includeDir . \
+               --configSchema y \
+               s_baltst_configschema.xsd

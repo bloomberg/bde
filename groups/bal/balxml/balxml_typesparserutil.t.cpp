@@ -18,11 +18,16 @@
 #include <bdlat_enumfunctions.h>
 #include <bdlat_typetraits.h>
 #include <bdlat_valuetypefunctions.h>
+
 #include <bdlb_chartype.h>
 #include <bdlb_float.h>  // for printing vector
 #include <bdlb_print.h>
 #include <bdlb_printmethods.h>
+
 #include <bdldfp_decimalutil.h>
+
+#include <bdlsb_fixedmeminstreambuf.h>
+
 #include <bdlt_datetime.h>
 
 #include <bslim_testutil.h>
@@ -46,6 +51,10 @@
 
 #include <bsls_assert.h>
 #include <bsls_types.h>
+
+#include <s_baltst_generatetestarray.h>
+#include <s_baltst_generatetestnullablevalue.h>
+#include <s_baltst_testplaceholder.h>
 
 using namespace BloombergLP;
 using bsl::cout;
@@ -108,6 +117,32 @@ void aSsErT(bool condition, const char *message, int line)
 // ============================================================================
 //                       TEMPLATIZED OUTPUT FUNCTIONS
 // ============================================================================
+
+                       // =============================
+                       // class AssertParsedTextIsEqual
+                       // =============================
+
+class AssertParsedTextIsEqual {
+  public:
+    // CREATORS
+    AssertParsedTextIsEqual() {}
+
+    // ACCESSORS
+    template <class TYPE>
+    void operator()(int                     line,
+                    const bsl::string_view& xml,
+                    const TYPE&             expectedValue,
+                    int                     formattingMode) const
+    {
+        TYPE value;
+        int  rc = balxml::TypesParserUtil::parse(&value,
+                                                 xml.data(),
+                                                 static_cast<int>(xml.length()),
+                                                 formattingMode);
+        LOOP1_ASSERT(line, 0 == rc);
+        LOOP1_ASSERT(line, expectedValue == value);
+    }
+};
 
 template <class T>
 void printValue(bsl::ostream& out, const T& value)
@@ -1033,7 +1068,7 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 15: {
+      case 16: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -1048,6 +1083,127 @@ int main(int argc, char *argv[])
         usageExample();
 
         if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
+      } break;
+      case 15: {
+        // --------------------------------------------------------------------
+        // TESTING PARSING LISTS OF NULLABLE SIMPLE TYPES
+        //   This case tests that whitespace-delimited representations of
+        //   simple types can be decoded into arrays of the corresponding
+        //   nullable simple type.
+        //
+        // Concerns:
+        //: 1 Whitespace-separated representations of simple types can be
+        //:   decoded into arrays of the corresponding nullable simple type
+        //:   if the array has the list formatting mode.
+        //:
+        //: 2 The amount of whitespace between elements is insignificant.
+        //:
+        //: 3 The resulting array has no null elements.  Note that this
+        //:   property results from the fact that the encoded representation
+        //:   of null elements is the empty string.
+        //
+        // Plan:
+        //: 1 Given two simple types, 'int' and 'bsl::string', do the
+        //:   following:
+        //:
+        //:   1 Enumerate all possible textual representations of lists of
+        //:     simple values up to length 3, parse these representations into
+        //:     arrays of the corresponding simple types, and verify parsing
+        //:     succeeds.
+        //:
+        //:   2 Enumerate all possible textual representations of lists of
+        //:     simple values up to length 3, parse these representations into
+        //:     arrays of the corresponding nullable simple types, and verify
+        //:     parsing succeeds and that no elements of the resulting arrays
+        //:     are null.
+        //:
+        //: 2 Repeat the above for textual representations that contain
+        //:   insignificant whitespace.
+        //
+        // Testing:
+        //   PARSING LISTS OF NULLABLE SIMPLE TYPES
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            cout << "\nTESTING PARSING LISTS OF NULLABLE SIMPLE TYPES"
+                 << "\n==============================================" << endl;
+
+        const AssertParsedTextIsEqual TEST;
+
+        const s_baltst::TestPlaceHolder<int>            ip;
+        const s_baltst::TestPlaceHolder<bsl::string>    sp;
+        const s_baltst::GenerateTestArray               a_;
+        const s_baltst::GenerateTestNullableValue       n_;
+        const s_baltst::GenerateTestNullablePlaceHolder np;
+
+        const bsl::string s("S");
+
+        const int LIST = bdlat_FormattingMode::e_LIST;
+
+        // LINE     TEXT           EXPECTED ARRAY        FMT MODE
+        //   -- ------------ --------------------------- --------
+        TEST(L_, ""         , a_(ip                    ), LIST   );
+        TEST(L_, "1"        , a_( 1                    ), LIST   );
+        TEST(L_, "1 1"      , a_( 1, 1                 ), LIST   );
+        TEST(L_, "1 1 1"    , a_( 1, 1, 1              ), LIST   );
+
+        TEST(L_, "1"        , a_(n_( 1)                ), LIST   );
+        TEST(L_, "1 1"      , a_(n_( 1), n_( 1)        ), LIST   );
+        TEST(L_, "1 1 1"    , a_(n_( 1), n_( 1), n_( 1)), LIST   );
+
+        TEST(L_, ""         , a_(sp                    ), LIST   );
+        TEST(L_, "S"        , a_( s                    ), LIST   );
+        TEST(L_, "S S"      , a_( s, s                 ), LIST   );
+        TEST(L_, "S S S"    , a_( s, s, s              ), LIST   );
+
+        TEST(L_, "S"        , a_(n_( s)                ), LIST   );
+        TEST(L_, "S S"      , a_(n_( s), n_( s)        ), LIST   );
+        TEST(L_, "S S S"    , a_(n_( s), n_( s), n_( s)), LIST   );
+
+        TEST(L_, " 1"       , a_( 1                    ), LIST   );
+        TEST(L_, "  1"      , a_( 1                    ), LIST   );
+        TEST(L_, "1 "       , a_( 1                    ), LIST   );
+        TEST(L_, "1  "      , a_( 1                    ), LIST   );
+        TEST(L_, " 1  "     , a_( 1                    ), LIST   );
+        TEST(L_, "  1  "    , a_( 1                    ), LIST   );
+
+        TEST(L_, "1 1"      , a_( 1, 1                 ), LIST   );
+        TEST(L_, " 1 1"     , a_( 1, 1                 ), LIST   );
+        TEST(L_, "  1 1"    , a_( 1, 1                 ), LIST   );
+        TEST(L_, "1 1 "     , a_( 1, 1                 ), LIST   );
+        TEST(L_, "1 1  "    , a_( 1, 1                 ), LIST   );
+        TEST(L_, "1  1"     , a_( 1, 1                 ), LIST   );
+        TEST(L_, " 1  1"    , a_( 1, 1                 ), LIST   );
+        TEST(L_, "  1  1"   , a_( 1, 1                 ), LIST   );
+        TEST(L_, "1  1 "    , a_( 1, 1                 ), LIST   );
+        TEST(L_, "1  1  "   , a_( 1, 1                 ), LIST   );
+        TEST(L_, " 1  1 "   , a_( 1, 1                 ), LIST   );
+        TEST(L_, " 1  1  "  , a_( 1, 1                 ), LIST   );
+        TEST(L_, "  1  1 "  , a_( 1, 1                 ), LIST   );
+        TEST(L_, "  1  1  " , a_( 1, 1                 ), LIST   );
+
+        TEST(L_, " S"       , a_( s                    ), LIST   );
+        TEST(L_, "  S"      , a_( s                    ), LIST   );
+        TEST(L_, "S "       , a_( s                    ), LIST   );
+        TEST(L_, "S  "      , a_( s                    ), LIST   );
+        TEST(L_, " S  "     , a_( s                    ), LIST   );
+        TEST(L_, "  S  "    , a_( s                    ), LIST   );
+
+        TEST(L_, "S S"      , a_( s, s                 ), LIST   );
+        TEST(L_, " S S"     , a_( s, s                 ), LIST   );
+        TEST(L_, "  S S"    , a_( s, s                 ), LIST   );
+        TEST(L_, "S S "     , a_( s, s                 ), LIST   );
+        TEST(L_, "S S  "    , a_( s, s                 ), LIST   );
+        TEST(L_, "S  S"     , a_( s, s                 ), LIST   );
+        TEST(L_, " S  S"    , a_( s, s                 ), LIST   );
+        TEST(L_, "  S  S"   , a_( s, s                 ), LIST   );
+        TEST(L_, "S  S "    , a_( s, s                 ), LIST   );
+        TEST(L_, "S  S  "   , a_( s, s                 ), LIST   );
+        TEST(L_, " S  S "   , a_( s, s                 ), LIST   );
+        TEST(L_, " S  S  "  , a_( s, s                 ), LIST   );
+        TEST(L_, "  S  S "  , a_( s, s                 ), LIST   );
+        TEST(L_, "  S  S  " , a_( s, s                 ), LIST   );
+
       } break;
       case 14: {
         // --------------------------------------------------------------------

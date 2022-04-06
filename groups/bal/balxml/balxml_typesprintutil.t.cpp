@@ -9,9 +9,6 @@
 
 #include <balxml_typesprintutil.h>
 
-#include <s_baltst_customizedstring.h>
-#include <s_baltst_myenumeration.h>
-
 #include <bdlat_enumeratorinfo.h>
 #include <bdlat_enumfunctions.h>
 #include <bdlat_typetraits.h>
@@ -23,7 +20,11 @@
 #include <bdlb_print.h>
 #include <bdlb_printmethods.h>
 
+#include <bdlsb_memoutstreambuf.h>
+
 #include <bdlt_datetime.h>
+
+#include <bslalg_typetraits.h>
 
 #include <bslim_testutil.h>
 
@@ -34,6 +35,12 @@
 #include <bsls_assert.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
+
+#include <s_baltst_customizedstring.h>
+#include <s_baltst_generatetestarray.h>
+#include <s_baltst_generatetestnullablevalue.h>
+#include <s_baltst_myenumeration.h>
+#include <s_baltst_testplaceholder.h>
 
 #include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
@@ -90,6 +97,9 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT       BSLIM_TESTUTIL_ASSERT
 #define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
+#define LOOP1_ASSERT(L, X) ASSERTV(L, X)
+#define LOOP1_ASSERT_EQ(L, X, Y) ASSERTV(L, X, Y, X == Y)
+
 #define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
 #define P            BSLIM_TESTUTIL_P   // Print identifier and value.
 #define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
@@ -106,6 +116,85 @@ void aSsErT(bool condition, const char *message, int line)
 #endif
 
 typedef balxml::TypesPrintUtil Util;
+
+                       // ==============================
+                       // class AssertPrintedTextIsEqual
+                       // ==============================
+
+class AssertPrintedTextIsEqual {
+
+  public:
+    // CREATORS
+    AssertPrintedTextIsEqual()
+    {
+    }
+
+    // ACCESSORS
+    template <class TYPE>
+    void operator()(int                     line,
+                    const TYPE&             value,
+                    int                     formattingMode,
+                    const bsl::string_view& expectedXml) const
+    {
+        bdlsb::MemOutStreamBuf streamBuffer;
+        bsl::ostream           stream(&streamBuffer);
+
+        Util::print(stream, value, formattingMode);
+        LOOP1_ASSERT(line, static_cast<bool>(stream));
+
+        const bsl::string_view actualXml(streamBuffer.data(),
+                                         streamBuffer.length());
+
+        LOOP1_ASSERT_EQ(line, expectedXml, actualXml);
+    }
+};
+
+                            // ====================
+                            // class GenerateVector
+                            // ====================
+
+template <class ELEMENT_TYPE>
+class GenerateVector {
+
+  public:
+    // CREATORS
+    GenerateVector()
+    {
+    }
+
+    // ACCESSORS
+    bsl::vector<ELEMENT_TYPE> operator()() const
+    {
+        return bsl::vector<ELEMENT_TYPE>();
+    }
+
+    bsl::vector<ELEMENT_TYPE> operator()(const ELEMENT_TYPE& element0) const
+    {
+        bsl::vector<ELEMENT_TYPE> result;
+        result.push_back(element0);
+        return result;
+    }
+
+    bsl::vector<ELEMENT_TYPE> operator()(const ELEMENT_TYPE& element0,
+                                         const ELEMENT_TYPE& element1) const
+    {
+        bsl::vector<ELEMENT_TYPE> result;
+        result.push_back(element0);
+        result.push_back(element1);
+        return result;
+    }
+
+    bsl::vector<ELEMENT_TYPE> operator()(const ELEMENT_TYPE& element0,
+                                         const ELEMENT_TYPE& element1,
+                                         const ELEMENT_TYPE& element2) const
+    {
+        bsl::vector<ELEMENT_TYPE> result;
+        result.push_back(element0);
+        result.push_back(element1);
+        result.push_back(element2);
+        return result;
+    }
+};
 
 class MyStringRef : public bslstl::StringRef {
   public:
@@ -585,7 +674,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -600,6 +689,109 @@ int main(int argc, char *argv[])
         usageExample1();
 
         usageExample2();
+      } break;
+      case 9: {
+        // --------------------------------------------------------------------
+        // TESTING PRINTING LISTS OF NULLABLE SIMPLE TYPES
+        //   This case tests that printing lists of nullable simple types
+        //   results in empty strings for null values, and the expected
+        //   representation of non-null values, and correctly space-delimits
+        //   individual list elements (that are not empty strings).
+        //
+        // Concerns:
+        //: 1 list-formatted array of nullable, simple types can be printed.
+        //:
+        //: 2 The textual representation of a nullable simple type that is
+        //:   not null is the same as the simple type.
+        //:
+        //: 3 The textual representation of any null value is the empty string.
+        //:
+        //: 4 Non-null elements are delimited by 1 space character even if
+        //:   separated by one or more null elements.
+        //
+        // Plan:
+        //: 1 Given two simple types, 'int' and 'bsl::string', do the
+        //:   following:
+        //:
+        //:   1 Enumerate arrays of length 0 to 3 and verify the textual
+        //:     representation of the array contains space-delimited
+        //:     representations of the value.
+        //:
+        //:   2 Enumerate arrays of nullable elements of length 0 to 3,
+        //:     with all possible permutations of null and non-null values,
+        //:     and verify the textual representation of the array contains
+        //:     space-delimited representations of the value.
+        //
+        // Testing:
+        //   PRINTING LISTS OF NULLABLE SIMPLE TYPES
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            cout << "\nTESTING PRINTING LISTS OF NULLABLE SIMPLE TYPES"
+                 << "\n==============================================="
+                 << endl;
+
+        const AssertPrintedTextIsEqual TEST;
+
+        const s_baltst::TestPlaceHolder<int>            ip;
+        const s_baltst::TestPlaceHolder<bsl::string>    sp;
+        const s_baltst::GenerateTestArray               a_;
+        const s_baltst::GenerateTestNullableValue       n_;
+        const s_baltst::GenerateTestNullablePlaceHolder np;
+
+        const bsl::string s("S");
+
+        const int LIST = bdlat_FormattingMode::e_LIST;
+
+        //                   FORMATTING MODE
+        //                   ---------------.
+        // LINE           ARRAY              \.   EXPECTED OUTPUT
+        //   -- --------------------------- ----- ---------------
+        TEST(L_, a_(ip                    ), LIST, ""            );
+        TEST(L_, a_( 1                    ), LIST, "1"           );
+        TEST(L_, a_( 1, 1                 ), LIST, "1 1"         );
+        TEST(L_, a_( 1, 1, 1              ), LIST, "1 1 1"       );
+
+        TEST(L_, a_(np(ip)                ), LIST, ""            );
+        TEST(L_, a_(n_(ip)                ), LIST, ""            );
+        TEST(L_, a_(n_( 1)                ), LIST, "1"           );
+
+        TEST(L_, a_(n_(ip), n_(ip)        ), LIST, ""            );
+        TEST(L_, a_(n_(ip), n_( 1)        ), LIST, "1"           );
+        TEST(L_, a_(n_( 1), n_(ip)        ), LIST, "1"           );
+        TEST(L_, a_(n_( 1), n_( 1)        ), LIST, "1 1"         );
+
+        TEST(L_, a_(n_(ip), n_(ip), n_(ip)), LIST, ""            );
+        TEST(L_, a_(n_(ip), n_(ip), n_( 1)), LIST, "1"           );
+        TEST(L_, a_(n_(ip), n_( 1), n_(ip)), LIST, "1"           );
+        TEST(L_, a_(n_(ip), n_( 1), n_( 1)), LIST, "1 1"         );
+        TEST(L_, a_(n_( 1), n_(ip), n_(ip)), LIST, "1"           );
+        TEST(L_, a_(n_( 1), n_(ip), n_( 1)), LIST, "1 1"         );
+        TEST(L_, a_(n_( 1), n_( 1), n_(ip)), LIST, "1 1"         );
+        TEST(L_, a_(n_( 1), n_( 1), n_( 1)), LIST, "1 1 1"       );
+
+        TEST(L_, a_(sp                    ), LIST, ""            );
+        TEST(L_, a_( s                    ), LIST, "S"           );
+        TEST(L_, a_( s, s                 ), LIST, "S S"         );
+        TEST(L_, a_( s, s, s              ), LIST, "S S S"       );
+
+        TEST(L_, a_(np(sp)                ), LIST, ""            );
+        TEST(L_, a_(n_(sp)                ), LIST, ""            );
+        TEST(L_, a_(n_( s)                ), LIST, "S"           );
+
+        TEST(L_, a_(n_(sp), n_(sp)        ), LIST, ""            );
+        TEST(L_, a_(n_(sp), n_( s)        ), LIST, "S"           );
+        TEST(L_, a_(n_( s), n_(sp)        ), LIST, "S"           );
+        TEST(L_, a_(n_( s), n_( s)        ), LIST, "S S"         );
+
+        TEST(L_, a_(n_(sp), n_(sp), n_(sp)), LIST, ""            );
+        TEST(L_, a_(n_(sp), n_(sp), n_( s)), LIST, "S"           );
+        TEST(L_, a_(n_(sp), n_( s), n_(sp)), LIST, "S"           );
+        TEST(L_, a_(n_(sp), n_( s), n_( s)), LIST, "S S"         );
+        TEST(L_, a_(n_( s), n_(sp), n_(sp)), LIST, "S"           );
+        TEST(L_, a_(n_( s), n_(sp), n_( s)), LIST, "S S"         );
+        TEST(L_, a_(n_( s), n_( s), n_(sp)), LIST, "S S"         );
+        TEST(L_, a_(n_( s), n_( s), n_( s)), LIST, "S S S"       );
       } break;
       case 8: {
         // --------------------------------------------------------------------

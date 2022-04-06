@@ -140,9 +140,9 @@ BSLS_IDENT("$Id: $")
 //  template <class ACCESSOR>
 //  int bdlat_nullableValueAccessValue(const MyNullableValue& object,
 //                                     ACCESSOR&              accessor);
-//      // Invoke the specified 'accessor' on a 'const'-reference to the value  
-//      // stored in the specified "nullable" 'object'.  Return the value from  
-//      // the invocation of 'accessor'.  The behavior is undefined if 'object' 
+//      // Invoke the specified 'accessor' on a 'const'-reference to the value
+//      // stored in the specified "nullable" 'object'.  Return the value from
+//      // the invocation of 'accessor'.  The behavior is undefined if 'object'
 //      // contains a null value.
 //
 //  bool bdlat_nullableValueIsNull(const MyNullableValue& object);

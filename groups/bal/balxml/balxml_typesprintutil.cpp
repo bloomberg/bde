@@ -1178,11 +1178,11 @@ TypesPrintUtil_Imp::printDecimal(bsl::ostream&               stream,
     return stream;
 }
 
-bsl::ostream&
-TypesPrintUtil_Imp::printDefault(bsl::ostream&               stream,
-                                 const float&                object,
-                                 const EncoderOptions       *,
-                                 bdlat_TypeCategory::Simple)
+bsl::ostream& TypesPrintUtil_Imp::printDefault(
+                                            bsl::ostream&               stream,
+                                            const float&                object,
+                                            const EncoderOptions       *,
+                                            bdlat_TypeCategory::Simple)
 {
     typedef bslalg::NumericFormatterUtil NfUtil;
         // The 'typedef' is necessary due to the very long type name.
@@ -1204,11 +1204,11 @@ TypesPrintUtil_Imp::printDefault(bsl::ostream&               stream,
     return stream;
 }
 
-bsl::ostream&
-TypesPrintUtil_Imp::printDefault(bsl::ostream&               stream,
-                                 const double&               object,
-                                 const EncoderOptions       *,
-                                 bdlat_TypeCategory::Simple)
+bsl::ostream& TypesPrintUtil_Imp::printDefault(
+                                            bsl::ostream&               stream,
+                                            const double&               object,
+                                            const EncoderOptions       *,
+                                            bdlat_TypeCategory::Simple)
 {
     typedef bslalg::NumericFormatterUtil NfUtil;
         // The 'typedef' is necessary due to the very long type name.
@@ -1230,20 +1230,20 @@ TypesPrintUtil_Imp::printDefault(bsl::ostream&               stream,
     return stream;
 }
 
-bsl::ostream&
-TypesPrintUtil_Imp::printDecimal(bsl::ostream&               stream,
-                                 const bdldfp::Decimal64&    object,
-                                 const EncoderOptions       *,
-                                 bdlat_TypeCategory::Simple)
+bsl::ostream& TypesPrintUtil_Imp::printDecimal(
+                                             bsl::ostream&              stream,
+                                             const bdldfp::Decimal64&   object,
+                                             const EncoderOptions       *,
+                                             bdlat_TypeCategory::Simple)
 {
     return u::printDecimalImpl(stream, object, true);
 }
 
-bsl::ostream&
-TypesPrintUtil_Imp::printDefault(bsl::ostream&               stream,
-                                 const bdldfp::Decimal64&    object,
-                                 const EncoderOptions       *,
-                                 bdlat_TypeCategory::Simple)
+bsl::ostream& TypesPrintUtil_Imp::printDefault(
+                                    bsl::ostream&               stream,
+                                    const bdldfp::Decimal64&    object,
+                                    const EncoderOptions       *,
+                                    bdlat_TypeCategory::Simple)
 {
     return u::printDecimalImpl(stream, object, false);
 }

@@ -142,8 +142,7 @@
                   maxOccurs="unbounded"/>
       <xs:element name="element16"
                   type="xs:hexBinary"
-                  minOccurs="0"
-                  maxOccurs="unbounded"/>
+                  minOccurs="0"/>
       <xs:element name="element17"
                   type="xs:int"
                   minOccurs="0"
@@ -176,8 +175,7 @@
       <xs:element name="element4"
                   type="xs:hexBinary"
                   nillable="true"
-                  minOccurs="0"
-                  maxOccurs="unbounded"/>
+                  minOccurs="0"/>
       <xs:element name="element5"
                   type="xs:int"
                   nillable="true"

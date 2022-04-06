@@ -1,4 +1,6 @@
-#!/usr/bin/env bash
+#!/bin/sh
+
+./generate_configschema
 
 ./generate s_baltst_address.xsd
 ./generate s_baltst_basicrecord.xsd

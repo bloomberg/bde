@@ -12,4 +12,90 @@
     </xs:sequence>
   </xs:complexType>
 
+  <xs:complexType name='MySequenceWithNillableBase64Binary'>
+    <xs:sequence>
+      <xs:element name='attribute1' type='xs:base64Binary' nillable='true'/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name='MySequenceWithNillableHexBinary'>
+    <xs:sequence>
+      <xs:element name='attribute1' type='xs:hexBinary' nillable='true'/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name='MySequenceWithNillableIntArray'>
+    <xs:sequence>
+      <xs:element name='attribute1'
+                  type='xs:int'
+                  maxOccurs='unbounded'
+                  nillable='true'/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name='MySequenceWithNillableIntList'>
+    <xs:sequence>
+      <xs:element name='attribute1'
+                  type='MySequenceWithNillableIntList_List'
+                  nillable='true'/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name='MySequenceWithNillableIntList_List'>
+    <xs:list itemType='xs:int'/>
+  </xs:simpleType>
+
+  <xs:complexType name='MySequenceWithNillableStringArray'>
+    <xs:sequence>
+      <xs:element name='attribute1'
+                  type='xs:string'
+                  maxOccurs='unbounded'
+                  nillable='true'/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name='MySequenceWithNillableIntSequenceArray'>
+    <xs:sequence>
+      <xs:element name='attribute1'
+                  type='MySequenceWithNillableIntSequenceArray_Sequence'
+                  maxOccurs='unbounded'
+                  nillable='true'/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name='MySequenceWithNillableIntSequenceArray_Sequence'>
+    <xs:sequence>
+      <xs:element name='attribute1' type='xs:int'/>
+    </xs:sequence>
+  </xs:complexType>
+
+
+  <xs:complexType name='MySequenceWithNillableStringList'>
+    <xs:sequence>
+      <xs:element name='attribute1'
+                  type='MySequenceWithNillableStringList_List'
+                  nillable='true'>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name='MySequenceWithNillableStringList_List'>
+    <xs:list itemType='xs:string'/>
+  </xs:simpleType>
+
+  <xs:complexType name='MySequenceWithNillableStringSequenceArray'>
+    <xs:sequence>
+      <xs:element name='attribute1'
+                  type='MySequenceWithNillableStringSequenceArray_Sequence'
+                  maxOccurs='unbounded'
+                  nillable='true'/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name='MySequenceWithNillableStringSequenceArray_Sequence'>
+    <xs:sequence>
+      <xs:element name='attribute1' type='xs:string'/>
+    </xs:sequence>
+  </xs:complexType>
+
 </xs:schema>

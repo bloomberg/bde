@@ -184,9 +184,11 @@ BSLS_IDENT("$Id: $")
 #include <balxml_encoderoptions.h>
 
 #include <bdlat_arrayfunctions.h>
+#include <bdlat_arrayutil.h>
 #include <bdlat_customizedtypefunctions.h>
 #include <bdlat_enumfunctions.h>
 #include <bdlat_formattingmode.h>
+#include <bdlat_nullablevalueutil.h>
 #include <bdlat_typecategory.h>
 
 #include <bdldfp_decimal.h>
@@ -216,11 +218,11 @@ BSLS_IDENT("$Id: $")
 #include <bsl_vector.h>
 
 namespace BloombergLP {
-
 namespace balxml {
-                           // ============================
+
+                           // =====================
                            // struct TypesPrintUtil
-                           // ============================
+                           // =====================
 
 struct TypesPrintUtil {
     // This 'struct' contains functions for printing objects to output streams
@@ -324,13 +326,6 @@ struct TypesPrintUtil_Imp {
 
                             // BASE64 FUNCTIONS
 
-    template <class TYPE>
-    static bsl::ostream& printBase64(
-                               bsl::ostream&                    stream,
-                               const TYPE&                      object,
-                               const EncoderOptions            *encoderOptions,
-                               bdlat_TypeCategory::DynamicType);
-
     template <class TYPE, class ANY_CATEGORY>
     static bsl::ostream& printBase64(bsl::ostream&         stream,
                                      const TYPE&           object,
@@ -342,26 +337,17 @@ struct TypesPrintUtil_Imp {
                                     const bsl::string_view&     object,
                                     const EncoderOptions       *encoderOptions,
                                     bdlat_TypeCategory::Simple);
-    template <typename TYPE>
-    static bsl::ostream& printBase64(
-                        bsl::ostream&                           stream,
-                        const TYPE&                             object,
-                        const EncoderOptions                   *encoderOptions,
-                        bdlat_TypeCategory::Simple,
-                        typename bsl::enable_if<bsl::is_class<TYPE>::value &&
-                                     bsl::is_convertible<
-                                         TYPE,
-                                         bsl::string_view>::value>::type * = 0)
-    {
-        // Function templates using 'enable_if' must be defined inline inside
-        // the class definition, as VC 2010 does not recognise a defintion
-        // outside the class as matching the same signature.
 
-        return printBase64(stream,
-                           static_cast<const bsl::string_view&>(object),
-                           encoderOptions,
-                           bdlat_TypeCategory::Simple());
-    }
+    template <class TYPE>
+    static typename bsl::enable_if<
+        bsl::is_class<TYPE>::value &&
+            bsl::is_convertible<TYPE, bsl::string_view>::value,
+        bsl::ostream&>::type
+    printBase64(bsl::ostream&         stream,
+                const TYPE&           object,
+                const EncoderOptions *encoderOptions,
+                bdlat_TypeCategory::Simple);
+
     static bsl::ostream& printBase64(bsl::ostream&              stream,
                                      const bsl::vector<char>&   object,
                                      const EncoderOptions      *encoderOptions,
@@ -382,13 +368,6 @@ struct TypesPrintUtil_Imp {
                             const TYPE&                         object,
                             const EncoderOptions               *encoderOptions,
                             bdlat_TypeCategory::CustomizedType);
-
-    template <class TYPE>
-    static bsl::ostream& printDecimal(
-                               bsl::ostream&                    stream,
-                               const TYPE&                      object,
-                               const EncoderOptions            *encoderOptions,
-                               bdlat_TypeCategory::DynamicType);
 
     template <class TYPE, class ANY_CATEGORY>
     static bsl::ostream& printDecimal(bsl::ostream&         stream,
@@ -487,10 +466,10 @@ struct TypesPrintUtil_Imp {
 
     template <class TYPE>
     static bsl::ostream& printDefault(
-                               bsl::ostream&                    stream,
-                               const TYPE&                      object,
-                               const EncoderOptions            *encoderOptions,
-                               bdlat_TypeCategory::DynamicType);
+                             bsl::ostream&                      stream,
+                             const TYPE&                        object,
+                             const EncoderOptions              *encoderOptions,
+                             bdlat_TypeCategory::NullableValue);
 
     template <class TYPE, class ANY_CATEGORY>
     static bsl::ostream& printDefault(bsl::ostream&         stream,
@@ -578,25 +557,17 @@ struct TypesPrintUtil_Imp {
                                     const bsl::string_view&     object,
                                     const EncoderOptions       *encoderOptions,
                                     bdlat_TypeCategory::Simple);
-    template <typename TYPE>
-    static bsl::ostream& printDefault(
-                        bsl::ostream&                           stream,
-                        const TYPE&                             object,
-                        const EncoderOptions                   *encoderOptions,
-                        bdlat_TypeCategory::Simple,
-                        typename bsl::enable_if<bsl::is_class<TYPE>::value &&
-                                     bsl::is_convertible<TYPE,
-                                         bsl::string_view>::value>::type * = 0)
-    {
-        // Function templates using 'enable_if' must be defined inline inside
-        // the class definition, as VC 2010 does not recognise a defintion
-        // outside the class as matching the same signature.
 
-        return printDefault(stream,
-                            static_cast<const bsl::string_view&>(object),
-                            encoderOptions,
-                            bdlat_TypeCategory::Simple());
-    }
+    template <class TYPE>
+    static typename bsl::enable_if<
+        bsl::is_class<TYPE>::value &&
+            bsl::is_convertible<TYPE, bsl::string_view>::value,
+        bsl::ostream&>::type
+    printDefault(bsl::ostream&         stream,
+                const TYPE&           object,
+                const EncoderOptions *encoderOptions,
+                bdlat_TypeCategory::Simple);
+
     static bsl::ostream& printDefault(
                                     bsl::ostream&               stream,
                                     const bdlt::Date&           object,
@@ -635,13 +606,6 @@ struct TypesPrintUtil_Imp {
 
                             // HEX FUNCTIONS
 
-    template <class TYPE>
-    static bsl::ostream& printHex(
-                               bsl::ostream&                    stream,
-                               const TYPE&                      object,
-                               const EncoderOptions            *encoderOptions,
-                               bdlat_TypeCategory::DynamicType);
-
     template <class TYPE, class ANY_CATEGORY>
     static bsl::ostream& printHex(bsl::ostream&         stream,
                                   const TYPE&           object,
@@ -652,25 +616,17 @@ struct TypesPrintUtil_Imp {
                                   const bsl::string_view&     object,
                                   const EncoderOptions       *encoderOptions,
                                   bdlat_TypeCategory::Simple);
-    template <typename TYPE>
-    static bsl::ostream& printHex(
-                        bsl::ostream&                           stream,
-                        const TYPE&                             object,
-                        const EncoderOptions                   *encoderOptions,
-                        bdlat_TypeCategory::Simple,
-                        typename bsl::enable_if<bsl::is_class<TYPE>::value &&
-                                     bsl::is_convertible<TYPE,
-                                         bsl::string_view>::value>::type * = 0)
-    {
-        // Function templates using 'enable_if' must be defined inline inside
-        // the class definition, as VC 2010 does not recognise a defintion
-        // outside the class as matching the same signature.
 
-        return printHex(stream,
-                        static_cast<const bsl::string_view&>(object),
-                        encoderOptions,
-                        bdlat_TypeCategory::Simple());
-    }
+    template <class TYPE>
+    static typename bsl::enable_if<
+        bsl::is_class<TYPE>::value &&
+            bsl::is_convertible<TYPE, bsl::string_view>::value,
+        bsl::ostream&>::type
+    printHex(bsl::ostream&         stream,
+             const TYPE&           object,
+             const EncoderOptions *encoderOptions,
+             bdlat_TypeCategory::Simple);
+
     static bsl::ostream& printHex(bsl::ostream&              stream,
                                   const bsl::vector<char>&   object,
                                   const EncoderOptions      *encoderOptions,
@@ -683,13 +639,6 @@ struct TypesPrintUtil_Imp {
                                    const TYPE&                object,
                                    const EncoderOptions      *encoderOptions,
                                    bdlat_TypeCategory::Array);
-
-    template <class TYPE>
-    static bsl::ostream& printList(
-                               bsl::ostream&                    stream,
-                               const TYPE&                      object,
-                               const EncoderOptions            *encoderOptions,
-                               bdlat_TypeCategory::DynamicType);
 
     template <class TYPE, class ANY_CATEGORY>
     static bsl::ostream& printList(bsl::ostream&         stream,
@@ -713,13 +662,6 @@ struct TypesPrintUtil_Imp {
                             const EncoderOptions               *encoderOptions,
                             bdlat_TypeCategory::CustomizedType);
 
-    template <class TYPE>
-    static bsl::ostream& printText(
-                               bsl::ostream&                    stream,
-                               const TYPE&                      object,
-                               const EncoderOptions            *encoderOptions,
-                               bdlat_TypeCategory::DynamicType);
-
     template <class TYPE, class ANY_CATEGORY>
     static bsl::ostream& printText(bsl::ostream&         stream,
                                    const TYPE&           object,
@@ -742,25 +684,16 @@ struct TypesPrintUtil_Imp {
                                    const bsl::string_view&     object,
                                    const EncoderOptions       *encoderOptions,
                                    bdlat_TypeCategory::Simple);
-    template <typename TYPE>
-    static bsl::ostream& printText(
-                        bsl::ostream&                           stream,
-                        const TYPE&                             object,
-                        const EncoderOptions                   *encoderOptions,
-                        bdlat_TypeCategory::Simple,
-                        typename bsl::enable_if<bsl::is_class<TYPE>::value &&
-                                     bsl::is_convertible<TYPE,
-                                         bsl::string_view>::value>::type * = 0)
-    {
-        // Function templates using 'enable_if' must be defined inline inside
-        // the class definition, as VC 2010 does not recognise a defintion
-        // outside the class as matching the same signature.
 
-        return printText(stream,
-                         static_cast<const bsl::string_view&>(object),
-                         encoderOptions,
-                         bdlat_TypeCategory::Simple());
-    }
+    template <class TYPE>
+    static typename bsl::enable_if<
+        bsl::is_class<TYPE>::value &&
+            bsl::is_convertible<TYPE, bsl::string_view>::value,
+        bsl::ostream&>::type
+    printText(bsl::ostream&         stream,
+              const TYPE&           object,
+              const EncoderOptions *encoderOptions,
+              bdlat_TypeCategory::Simple);
 
     static bsl::ostream& printText(bsl::ostream&              stream,
                                    const bsl::vector<char>&   object,
@@ -772,257 +705,309 @@ struct TypesPrintUtil_Imp {
 //                               PROXY CLASSES
 // ============================================================================
 
-                  // =======================================
-                  // struct TypesPrintUtil_printDefaultProxy
-                  // =======================================
+                    // ===================================
+                    // class TypesPrintUtilImp_PrintBase64
+                    // ===================================
 
-struct TypesPrintUtil_printDefaultProxy {
+class TypesPrintUtilImp_PrintBase64 {
     // Component-private struct.  Do not use.
 
-    // DATA MEMBERS
-    bsl::ostream                *d_stream_p;
+    // DATA
+    bsl::ostream         *d_stream_p;
     const EncoderOptions *d_encoderOptions_p;
 
+  public:
     // CREATORS
-
-    // Creators have been omitted to allow simple static initialization of
-    // this struct.
-
-    // MANIPULATORS
-    template <class TYPE>
-    inline
-    int operator()(const TYPE& object)
+    TypesPrintUtilImp_PrintBase64(bsl::ostream         *stream,
+                                  const EncoderOptions *encoderOptions)
+    : d_stream_p(stream)
+    , d_encoderOptions_p(encoderOptions)
     {
-        TypesPrintUtil::printDefault(*d_stream_p, object, d_encoderOptions_p);
-        return 0;  // returned value is ignored
-    }
-};
-
-                 // ==========================================
-                 // struct TypesPrintUtil_Imp_printBase64Proxy
-                 // ==========================================
-
-struct TypesPrintUtil_Imp_printBase64Proxy {
-    // Component-private struct.  Do not use.
-
-    // DATA MEMBERS
-    bsl::ostream                *d_stream_p;
-    const EncoderOptions *d_encoderOptions_p;
-
-    // CREATORS
-
-    // Creators have been omitted to allow simple static initialization of
-    // this struct.
-
-    // MANIPULATORS
-    template <class TYPE>
-    inline
-    int operator()(const TYPE&, bslmf::Nil)
-    {
-        BSLS_ASSERT_SAFE(0);
-
-        return -1;
     }
 
+    // ACCESSORS
     template <class TYPE, class ANY_CATEGORY>
-    inline
-    int operator()(const TYPE& object, ANY_CATEGORY category)
+    int operator()(const TYPE& object, ANY_CATEGORY category) const
     {
         TypesPrintUtil_Imp::printBase64(*d_stream_p,
                                         object,
                                         d_encoderOptions_p,
                                         category);
-        return 0;  // returned value is ignored
+        return static_cast<bool>(*d_stream_p) ? 0 : -1;
     }
-};
 
-                // ===========================================
-                // struct TypesPrintUtil_Imp_printDecimalProxy
-                // ===========================================
-
-struct TypesPrintUtil_Imp_printDecimalProxy {
-    // Component-private struct.  Do not use.
-
-    // DATA MEMBERS
-    bsl::ostream                *d_stream_p;
-    const EncoderOptions *d_encoderOptions_p;
-
-    // CREATORS
-
-    // Creators have been omitted to allow simple static initialization of
-    // this struct.
-
-    // MANIPULATORS
     template <class TYPE>
-    inline
-    int operator()(const TYPE&, bslmf::Nil)
+    int operator()(const TYPE&, bslmf::Nil) const
     {
         BSLS_ASSERT_SAFE(0);
 
         return -1;
     }
+};
 
+                    // ====================================
+                    // class TypesPrintUtilImp_PrintDecimal
+                    // ====================================
+
+class TypesPrintUtilImp_PrintDecimal {
+    // Component-private class.  Do not use.
+
+    // DATA
+    bsl::ostream         *d_stream_p;
+    const EncoderOptions *d_encoderOptions_p;
+
+  public:
+    // CREATORS
+    TypesPrintUtilImp_PrintDecimal(bsl::ostream         *stream,
+                                   const EncoderOptions *encoderOptions)
+    : d_stream_p(stream)
+    , d_encoderOptions_p(encoderOptions)
+    {
+    }
+
+    // ACCESSORS
     template <class TYPE, class ANY_CATEGORY>
-    inline
-    int operator()(const TYPE& object, ANY_CATEGORY category)
+    int operator()(const TYPE& object, ANY_CATEGORY category) const
     {
         TypesPrintUtil_Imp::printDecimal(*d_stream_p,
                                          object,
                                          d_encoderOptions_p,
                                          category);
-        return 0;  // returned value is ignored
+        return static_cast<bool>(*d_stream_p) ? 0 : -1;
     }
-};
 
-                // ===========================================
-                // struct TypesPrintUtil_Imp_printDefaultProxy
-                // ===========================================
-
-struct TypesPrintUtil_Imp_printDefaultProxy {
-    // Component-private struct.  Do not use.
-
-    // DATA MEMBERS
-    bsl::ostream                *d_stream_p;
-    const EncoderOptions *d_encoderOptions_p;
-
-    // CREATORS
-
-    // Creators have been omitted to allow simple static initialization of
-    // this struct.
-
-    // MANIPULATORS
     template <class TYPE>
-    inline
-    int operator()(const TYPE&, bslmf::Nil)
+    int operator()(const TYPE&, bslmf::Nil) const
     {
         BSLS_ASSERT_SAFE(0);
 
         return -1;
     }
+};
 
+                    // ====================================
+                    // class TypesPrintUtilImp_PrintDefault
+                    // ====================================
+
+class TypesPrintUtilImp_PrintDefault {
+    // Component-private class.  Do not use.
+
+    // DATA
+    bsl::ostream         *d_stream_p;
+    const EncoderOptions *d_encoderOptions_p;
+
+  public:
+    // CREATORS
+    TypesPrintUtilImp_PrintDefault(bsl::ostream         *stream,
+                                   const EncoderOptions *encoderOptions)
+    : d_stream_p(stream)
+    , d_encoderOptions_p(encoderOptions)
+    {
+    }
+
+    // ACCESSORS
     template <class TYPE, class ANY_CATEGORY>
-    inline
-    int operator()(const TYPE& object, ANY_CATEGORY category)
+    int operator()(const TYPE& object, ANY_CATEGORY category) const
     {
         TypesPrintUtil_Imp::printDefault(*d_stream_p,
                                          object,
                                          d_encoderOptions_p,
                                          category);
-        return 0;  // returned value is ignored
+        return static_cast<bool>(*d_stream_p) ? 0 : -1;
     }
-};
 
-                  // =======================================
-                  // struct TypesPrintUtil_Imp_printHexProxy
-                  // =======================================
-
-struct TypesPrintUtil_Imp_printHexProxy {
-    // Component-private struct.  Do not use.
-
-    // DATA MEMBERS
-    bsl::ostream                *d_stream_p;
-    const EncoderOptions *d_encoderOptions_p;
-
-    // CREATORS
-
-    // Creators have been omitted to allow simple static initialization of
-    // this struct.
-
-    // MANIPULATORS
     template <class TYPE>
-    inline
-    int operator()(const TYPE&, bslmf::Nil)
+    int operator()(const TYPE&, bslmf::Nil) const
     {
         BSLS_ASSERT_SAFE(0);
 
         return -1;
     }
+};
 
+                      // ================================
+                      // class TypesPrintUtilImp_PrintHex
+                      // ================================
+
+class TypesPrintUtilImp_PrintHex {
+    // Component-private class.  Do not use.
+
+    // DATA
+    bsl::ostream         *d_stream_p;
+    const EncoderOptions *d_encoderOptions_p;
+
+  public:
+    // CREATORS
+    TypesPrintUtilImp_PrintHex(bsl::ostream         *stream,
+                               const EncoderOptions *encoderOptions)
+    : d_stream_p(stream)
+    , d_encoderOptions_p(encoderOptions)
+    {
+    }
+
+    // ACCESSORS
     template <class TYPE, class ANY_CATEGORY>
-    inline
-    int operator()(const TYPE& object, ANY_CATEGORY category)
+    int operator()(const TYPE& object, ANY_CATEGORY category) const
     {
         TypesPrintUtil_Imp::printHex(*d_stream_p,
                                      object,
                                      d_encoderOptions_p,
                                      category);
-        return 0;  // returned value is ignored
+        return static_cast<bool>(*d_stream_p) ? 0 : -1;
     }
-};
 
-                  // ========================================
-                  // struct TypesPrintUtil_Imp_printListProxy
-                  // ========================================
-
-struct TypesPrintUtil_Imp_printListProxy {
-    // Component-private struct.  Do not use.
-
-    // DATA MEMBERS
-    bsl::ostream                *d_stream_p;
-    const EncoderOptions *d_encoderOptions_p;
-
-    // CREATORS
-
-    // Creators have been omitted to allow simple static initialization of
-    // this struct.
-
-    // MANIPULATORS
     template <class TYPE>
-    inline
-    int operator()(const TYPE&, bslmf::Nil)
+    int operator()(const TYPE&, bslmf::Nil) const
     {
         BSLS_ASSERT_SAFE(0);
 
         return -1;
     }
+};
 
+                     // =================================
+                     // class TypesPrintUtilImp_PrintList
+                     // =================================
+
+class TypesPrintUtilImp_PrintList {
+    // Component-private class.  Do not use.
+
+    // DATA
+    bsl::ostream         *d_stream_p;
+    const EncoderOptions *d_encoderOptions_p;
+
+  public:
+    // CREATORS
+    TypesPrintUtilImp_PrintList(bsl::ostream         *stream,
+                                const EncoderOptions *encoderOptions)
+    : d_stream_p(stream)
+    , d_encoderOptions_p(encoderOptions)
+    {
+    }
+
+    // ACCESSORS
     template <class TYPE, class ANY_CATEGORY>
-    inline
-    int operator()(const TYPE& object, ANY_CATEGORY category)
+    int operator()(const TYPE& object, ANY_CATEGORY category) const
     {
         TypesPrintUtil_Imp::printList(*d_stream_p,
                                       object,
                                       d_encoderOptions_p,
                                       category);
-        return 0;  // returned value is ignored
+        return static_cast<bool>(*d_stream_p) ? 0 : -1;
+    }
+
+    template <class TYPE>
+    int operator()(const TYPE&, bslmf::Nil) const
+    {
+        BSLS_ASSERT_SAFE(0);
+
+        return -1;
     }
 };
 
-                  // ========================================
-                  // struct TypesPrintUtil_Imp_printTextProxy
-                  // ========================================
+              // ===============================================
+              // class TypesPrintUtilImp_PrintListElementDefault
+              // ===============================================
 
-struct TypesPrintUtil_Imp_printTextProxy {
-    // Component-private struct.  Do not use.
+class TypesPrintUtilImp_PrintListElementDefault {
+    // Component-private class.  Do not use.
 
-    // DATA MEMBERS
-    bsl::ostream                *d_stream_p;
+    // DATA
+    bool                  d_doesNextElemNeedDelimiter;
+    bsl::ostream         *d_stream_p;
     const EncoderOptions *d_encoderOptions_p;
 
+  public:
     // CREATORS
-
-    // Creators have been omitted to allow simple static initialization of
-    // this struct.
+    TypesPrintUtilImp_PrintListElementDefault(
+                                          bsl::ostream         *stream,
+                                          const EncoderOptions *encoderOptions)
+    : d_doesNextElemNeedDelimiter(false)
+    , d_stream_p(stream)
+    , d_encoderOptions_p(encoderOptions)
+    {
+    }
 
     // MANIPULATORS
     template <class TYPE>
-    inline
+    int operator()(const TYPE& object, bdlat_TypeCategory::NullableValue)
+    {
+        if (bdlat_NullableValueFunctions::isNull(object)) {
+            return static_cast<bool>(*d_stream_p) ? 0 : -1;           // RETURN
+        }
+
+        if (d_doesNextElemNeedDelimiter) {
+            *d_stream_p << " ";
+        }
+
+        d_doesNextElemNeedDelimiter = true;
+        TypesPrintUtilImp_PrintDefault printDefault(d_stream_p,
+                                                    d_encoderOptions_p);
+        return bdlat::NullableValueUtil::accessValueByCategory(object,
+                                                               printDefault);
+    }
+
+    template <class TYPE, class OTHER_CATEGORY>
+    int operator()(const TYPE& object, OTHER_CATEGORY category)
+    {
+        if (d_doesNextElemNeedDelimiter) {
+            *d_stream_p << " ";
+        }
+
+        d_doesNextElemNeedDelimiter = true;
+        TypesPrintUtil_Imp::printDefault(*d_stream_p,
+                                         object,
+                                         d_encoderOptions_p,
+                                         category);
+        return static_cast<bool>(*d_stream_p) ? 0 : -1;
+    }
+
+    template <class TYPE>
     int operator()(const TYPE&, bslmf::Nil)
     {
         BSLS_ASSERT_SAFE(0);
 
         return -1;
     }
+};
 
+                     // =================================
+                     // class TypesPrintUtilImp_PrintText
+                     // =================================
+
+class TypesPrintUtilImp_PrintText {
+    // Component-private class.  Do not use.
+
+    // DATA
+    bsl::ostream         *d_stream_p;
+    const EncoderOptions *d_encoderOptions_p;
+
+  public:
+    // CREATORS
+    TypesPrintUtilImp_PrintText(bsl::ostream         *stream,
+                                const EncoderOptions *encoderOptions)
+    : d_stream_p(stream)
+    , d_encoderOptions_p(encoderOptions)
+    {
+    }
+
+    // ACCESSORS
     template <class TYPE, class ANY_CATEGORY>
-    inline
-    int operator()(const TYPE& object, ANY_CATEGORY category)
+    int operator()(const TYPE& object, ANY_CATEGORY category) const
     {
         TypesPrintUtil_Imp::printText(*d_stream_p,
                                       object,
                                       d_encoderOptions_p,
                                       category);
-        return 0;  // returned value is ignored
+        return static_cast<bool>(*d_stream_p) ? 0 : -1;
+    }
+
+    template <class TYPE>
+    int operator()(const TYPE&, bslmf::Nil) const
+    {
+        BSLS_ASSERT_SAFE(0);
+
+        return -1;
     }
 };
 
@@ -1040,54 +1025,34 @@ bsl::ostream& TypesPrintUtil::print(bsl::ostream&         stream,
                                     int                   formattingMode,
                                     const EncoderOptions *encoderOptions)
 {
-    typedef typename bdlat_TypeCategory::Select<TYPE>::Type Tag;
-
     if (formattingMode & bdlat_FormattingMode::e_LIST) {
-        return TypesPrintUtil_Imp::printList(stream,
-                                             object,
-                                             encoderOptions,
-                                             Tag());                  // RETURN
+        return TypesPrintUtil::printList(stream, object, encoderOptions);
     }
 
     switch (formattingMode & bdlat_FormattingMode::e_TYPE_MASK) {
       case bdlat_FormattingMode::e_BASE64: {
-        return TypesPrintUtil_Imp::printBase64(stream,
-                                               object,
-                                               encoderOptions,
-                                               Tag());                // RETURN
+        return TypesPrintUtil::printBase64(stream, object, encoderOptions);
       } break;
       case bdlat_FormattingMode::e_DEC: {
-        return TypesPrintUtil_Imp::printDecimal(stream,
-                                                object,
-                                                encoderOptions,
-                                                Tag());               // RETURN
+        return TypesPrintUtil::printDecimal(stream, object, encoderOptions);
       } break;
       case bdlat_FormattingMode::e_DEFAULT: {
-        return TypesPrintUtil_Imp::printDefault(stream,
-                                                object,
-                                                encoderOptions,
-                                                Tag());               // RETURN
+        return TypesPrintUtil::printDefault(stream, object, encoderOptions);
       } break;
       case bdlat_FormattingMode::e_HEX: {
-        return TypesPrintUtil_Imp::printHex(stream,
-                                            object,
-                                            encoderOptions,
-                                            Tag());                   // RETURN
+        return TypesPrintUtil::printHex(stream, object, encoderOptions);
       } break;
       case bdlat_FormattingMode::e_TEXT: {
-        return TypesPrintUtil_Imp::printText(stream,
-                                             object,
-                                             encoderOptions,
-                                             Tag());                  // RETURN
+        return TypesPrintUtil::printText(stream, object, encoderOptions);
       } break;
       default: {
         BSLS_ASSERT_SAFE(!"Unsupported operation!");
-
         stream.setstate(bsl::ios_base::failbit);
-
         return stream;                                                // RETURN
       } break;
     }
+
+    return stream;
 }
 
 template <class TYPE>
@@ -1096,12 +1061,14 @@ bsl::ostream& TypesPrintUtil::printBase64(bsl::ostream&         stream,
                                           const TYPE&           object,
                                           const EncoderOptions *encoderOptions)
 {
-    typedef typename bdlat_TypeCategory::Select<TYPE>::Type Tag;
+    const TypesPrintUtilImp_PrintBase64 printBase64(&stream, encoderOptions);
 
-    return TypesPrintUtil_Imp::printBase64(stream,
-                                           object,
-                                           encoderOptions,
-                                           Tag());
+    const int rc =
+        bdlat_TypeCategoryUtil::accessByCategory(object, printBase64);
+    if (0 != rc) {
+        stream.setstate(bsl::ios_base::failbit);
+    }
+    return stream;
 }
 
 template <class TYPE>
@@ -1111,12 +1078,15 @@ bsl::ostream& TypesPrintUtil::printDecimal(
                                           const TYPE&           object,
                                           const EncoderOptions *encoderOptions)
 {
-    typedef typename bdlat_TypeCategory::Select<TYPE>::Type Tag;
+    const TypesPrintUtilImp_PrintDecimal printDecimal(&stream,
+                                                       encoderOptions);
 
-    return TypesPrintUtil_Imp::printDecimal(stream,
-                                            object,
-                                            encoderOptions,
-                                            Tag());
+    const int rc =
+        bdlat_TypeCategoryUtil::accessByCategory(object, printDecimal);
+    if (0 != rc) {
+        stream.setstate(bsl::ios_base::failbit);
+    }
+    return stream;
 }
 
 template <class TYPE>
@@ -1126,12 +1096,15 @@ bsl::ostream& TypesPrintUtil::printDefault(
                                           const TYPE&           object,
                                           const EncoderOptions *encoderOptions)
 {
-    typedef typename bdlat_TypeCategory::Select<TYPE>::Type Tag;
+    const TypesPrintUtilImp_PrintDefault printDefault(&stream,
+                                                       encoderOptions);
 
-    return TypesPrintUtil_Imp::printDefault(stream,
-                                            object,
-                                            encoderOptions,
-                                            Tag());
+    const int rc =
+        bdlat_TypeCategoryUtil::accessByCategory(object, printDefault);
+    if (0 != rc) {
+        stream.setstate(bsl::ios_base::failbit);
+    }
+    return stream;
 }
 
 template <class TYPE>
@@ -1140,12 +1113,12 @@ bsl::ostream& TypesPrintUtil::printHex(bsl::ostream&         stream,
                                        const TYPE&           object,
                                        const EncoderOptions *encoderOptions)
 {
-    typedef typename bdlat_TypeCategory::Select<TYPE>::Type Tag;
-
-    return TypesPrintUtil_Imp::printHex(stream,
-                                        object,
-                                        encoderOptions,
-                                        Tag());
+    const TypesPrintUtilImp_PrintHex printHex(&stream, encoderOptions);
+    const int rc = bdlat_TypeCategoryUtil::accessByCategory(object, printHex);
+    if (0 != rc) {
+        stream.setstate(bsl::ios_base::failbit);
+    }
+    return stream;
 }
 
 template <class TYPE>
@@ -1154,12 +1127,12 @@ bsl::ostream& TypesPrintUtil::printList(bsl::ostream&         stream,
                                         const TYPE&           object,
                                         const EncoderOptions *encoderOptions)
 {
-    typedef typename bdlat_TypeCategory::Select<TYPE>::Type Tag;
-
-    return TypesPrintUtil_Imp::printList(stream,
-                                         object,
-                                         encoderOptions,
-                                         Tag());
+    const TypesPrintUtilImp_PrintList printList(&stream, encoderOptions);
+    const int rc = bdlat_TypeCategoryUtil::accessByCategory(object, printList);
+    if (0 != rc) {
+        stream.setstate(bsl::ios_base::failbit);
+    }
+    return stream;
 }
 
 template <class TYPE>
@@ -1168,12 +1141,12 @@ bsl::ostream& TypesPrintUtil::printText(bsl::ostream&         stream,
                                         const TYPE&           object,
                                         const EncoderOptions *encoderOptions)
 {
-    typedef typename bdlat_TypeCategory::Select<TYPE>::Type Tag;
-
-    return TypesPrintUtil_Imp::printText(stream,
-                                         object,
-                                         encoderOptions,
-                                         Tag());
+    const TypesPrintUtilImp_PrintText printText(&stream, encoderOptions);
+    const int rc = bdlat_TypeCategoryUtil::accessByCategory(object, printText);
+    if (0 != rc) {
+        stream.setstate(bsl::ios_base::failbit);
+    }
+    return stream;
 }
 
                          // -------------------------
@@ -1182,17 +1155,20 @@ bsl::ostream& TypesPrintUtil::printText(bsl::ostream&         stream,
 
 // BASE64 FUNCTIONS
 
-template <class TYPE>
+template <typename TYPE>
 inline
-bsl::ostream& TypesPrintUtil_Imp::printBase64(
-                               bsl::ostream&                    stream,
-                               const TYPE&                      object,
-                               const EncoderOptions            *encoderOptions,
-                               bdlat_TypeCategory::DynamicType)
+typename bsl::enable_if<bsl::is_class<TYPE>::value &&
+                            bsl::is_convertible<TYPE, bsl::string_view>::value,
+                        bsl::ostream&>::type
+TypesPrintUtil_Imp::printBase64(bsl::ostream&         stream,
+                                 const TYPE&           object,
+                                 const EncoderOptions *encoderOptions,
+                                 bdlat_TypeCategory::Simple)
 {
-    TypesPrintUtil_Imp_printBase64Proxy proxy = { &stream, encoderOptions };
-    bdlat_TypeCategoryUtil::accessByCategory(object, proxy);
-    return stream;
+    return printBase64(stream,
+                       static_cast<bsl::string_view>(object),
+                       encoderOptions,
+                       bdlat_TypeCategory::Simple());
 }
 
 template <class TYPE, class ANY_CATEGORY>
@@ -1243,19 +1219,6 @@ bsl::ostream& TypesPrintUtil_Imp::printDecimal(
                       stream,
                       bdlat_CustomizedTypeFunctions::convertToBaseType(object),
                       encoderOptions);
-}
-
-template <class TYPE>
-inline
-bsl::ostream& TypesPrintUtil_Imp::printDecimal(
-                               bsl::ostream&                    stream,
-                               const TYPE&                      object,
-                               const EncoderOptions            *encoderOptions,
-                               bdlat_TypeCategory::DynamicType)
-{
-    TypesPrintUtil_Imp_printDecimalProxy proxy = { &stream, encoderOptions };
-    bdlat_TypeCategoryUtil::accessByCategory(object, proxy);
-    return stream;
 }
 
 template <class TYPE, class ANY_CATEGORY>
@@ -1419,13 +1382,17 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
 template <class TYPE>
 inline
 bsl::ostream& TypesPrintUtil_Imp::printDefault(
-                               bsl::ostream&                    stream,
-                               const TYPE&                      object,
-                               const EncoderOptions            *encoderOptions,
-                               bdlat_TypeCategory::DynamicType)
+                             bsl::ostream&                      stream,
+                             const TYPE&                        object,
+                             const EncoderOptions              *encoderOptions,
+                             bdlat_TypeCategory::NullableValue)
 {
-    TypesPrintUtil_Imp_printDefaultProxy proxy = { &stream, encoderOptions };
-    bdlat_TypeCategoryUtil::accessByCategory(object, proxy);
+    if (bdlat_NullableValueFunctions::isNull(object)) {
+        return stream;                                                // RETURN
+    }
+
+    TypesPrintUtilImp_PrintDefault printDefault(&stream, encoderOptions);
+    bdlat::NullableValueUtil::accessValueByCategory(object, printDefault);
     return stream;
 }
 
@@ -1613,6 +1580,21 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
 }
 
 template <class TYPE>
+typename bsl::enable_if<bsl::is_class<TYPE>::value &&
+                            bsl::is_convertible<TYPE, bsl::string_view>::value,
+                        bsl::ostream&>::type
+TypesPrintUtil_Imp::printDefault(bsl::ostream&         stream,
+                                  const TYPE&           object,
+                                  const EncoderOptions *encoderOptions,
+                                  bdlat_TypeCategory::Simple)
+{
+    return printDefault(stream,
+                        static_cast<const bsl::string_view&>(object),
+                        encoderOptions,
+                        bdlat_TypeCategory::Simple());
+}
+
+template <class TYPE>
 inline
 bsl::ostream& TypesPrintUtil_Imp::printDateAndTime(
                                           bsl::ostream&         stream,
@@ -1709,19 +1691,6 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
 
 // HEX FUNCTIONS
 
-template <class TYPE>
-inline
-bsl::ostream& TypesPrintUtil_Imp::printHex(
-                               bsl::ostream&                    stream,
-                               const TYPE&                      object,
-                               const EncoderOptions            *encoderOptions,
-                               bdlat_TypeCategory::DynamicType)
-{
-    TypesPrintUtil_Imp_printHexProxy proxy = { &stream, encoderOptions };
-    bdlat_TypeCategoryUtil::accessByCategory(object, proxy);
-    return stream;
-}
-
 template <class TYPE, class ANY_CATEGORY>
 inline
 bsl::ostream& TypesPrintUtil_Imp::printHex(bsl::ostream&         stream,
@@ -1739,6 +1708,22 @@ bsl::ostream& TypesPrintUtil_Imp::printHex(bsl::ostream&         stream,
     return stream;
 }
 
+template <class TYPE>
+inline
+typename bsl::enable_if<bsl::is_class<TYPE>::value &&
+                            bsl::is_convertible<TYPE, bsl::string_view>::value,
+                        bsl::ostream&>::type
+TypesPrintUtil_Imp::printHex(bsl::ostream&         stream,
+                             const TYPE&           object,
+                             const EncoderOptions *encoderOptions,
+                             bdlat_TypeCategory::Simple)
+{
+    return printHex(stream,
+                    static_cast<const bsl::string_view&>(object),
+                    encoderOptions,
+                    bdlat_TypeCategory::Simple());
+}
+
 // LIST FUNCTIONS
 
 template <class TYPE>
@@ -1748,34 +1733,21 @@ bsl::ostream& TypesPrintUtil_Imp::printList(
                                      const EncoderOptions      *encoderOptions,
                                      bdlat_TypeCategory::Array)
 {
-    int size = (int)bdlat_ArrayFunctions::size(object);
+    const bsl::size_t size = bdlat_ArrayFunctions::size(object);
 
     if (0 == size) {
         return stream;                                                // RETURN
     }
 
-    TypesPrintUtil_printDefaultProxy proxy = { &stream, encoderOptions };
+    TypesPrintUtilImp_PrintListElementDefault printElement(&stream,
+                                                            encoderOptions);
+    bdlat::ArrayUtil::accessElementByCategory(object, printElement, 0);
 
-    bdlat_ArrayFunctions::accessElement(object, proxy, 0);
-
-    for (int i = 1; i < size; ++i) {
-        stream << " ";
-        bdlat_ArrayFunctions::accessElement(object, proxy, i);
+    for (bsl::size_t idx = 1; idx != size; ++idx) {
+        bdlat::ArrayUtil::accessElementByCategory(
+            object, printElement, static_cast<int>(idx));
     }
 
-    return stream;
-}
-
-template <class TYPE>
-inline
-bsl::ostream& TypesPrintUtil_Imp::printList(
-                               bsl::ostream&                    stream,
-                               const TYPE&                      object,
-                               const EncoderOptions            *encoderOptions,
-                               bdlat_TypeCategory::DynamicType)
-{
-    TypesPrintUtil_Imp_printListProxy proxy = { &stream, encoderOptions };
-    bdlat_TypeCategoryUtil::accessByCategory(object, proxy);
     return stream;
 }
 
@@ -1792,6 +1764,7 @@ bsl::ostream& TypesPrintUtil_Imp::printList(bsl::ostream&         stream,
 
     return stream;
 }
+
 // TEXT FUNCTIONS
 
 template <class TYPE>
@@ -1823,19 +1796,6 @@ bsl::ostream& TypesPrintUtil_Imp::printText(
                       encoderOptions);
 }
 
-template <class TYPE>
-inline
-bsl::ostream& TypesPrintUtil_Imp::printText(
-                               bsl::ostream&                    stream,
-                               const TYPE&                      object,
-                               const EncoderOptions            *encoderOptions,
-                               bdlat_TypeCategory::DynamicType)
-{
-    TypesPrintUtil_Imp_printTextProxy proxy = { &stream, encoderOptions };
-    bdlat_TypeCategoryUtil::accessByCategory(object, proxy);
-    return stream;
-}
-
 template <class TYPE, class ANY_CATEGORY>
 inline
 bsl::ostream& TypesPrintUtil_Imp::printText(bsl::ostream&         stream,
@@ -1857,6 +1817,21 @@ bsl::ostream& TypesPrintUtil_Imp::printText(bsl::ostream&               stream,
                                             bdlat_TypeCategory::Simple)
 {
     return stream << (object ? "true" : "false");
+}
+
+template <class TYPE>
+typename bsl::enable_if<bsl::is_class<TYPE>::value &&
+                            bsl::is_convertible<TYPE, bsl::string_view>::value,
+                        bsl::ostream&>::type
+TypesPrintUtil_Imp::printText(bsl::ostream&         stream,
+                              const TYPE&           object,
+                              const EncoderOptions *encoderOptions,
+                              bdlat_TypeCategory::Simple)
+{
+    return printText(stream,
+                     static_cast<const bsl::string_view&>(object),
+                     encoderOptions,
+                     bdlat_TypeCategory::Simple());
 }
 
 }  // close package namespace

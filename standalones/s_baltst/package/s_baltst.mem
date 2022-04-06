@@ -3,6 +3,7 @@ s_baltst_basicrecord
 s_baltst_basicschema
 s_baltst_basicschemautil
 s_baltst_bigrecord
+s_baltst_configschema
 s_baltst_customint
 s_baltst_customizedstring
 s_baltst_customstring
