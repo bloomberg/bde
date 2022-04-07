@@ -711,9 +711,7 @@ class FileObserver2 : public Observer {
         // Return 'true' if file logging is enabled for this file observer, and
         // 'false' otherwise.  Load the specified 'result' with the name of the
         // current log file if file logging is enabled, and leave 'result'
-        // unmodified otherwise.  Note that records received through the
-        // 'publish' method of this file observer may still be logged to
-        // 'stdout' when this method returns 'false'.
+        // unmodified otherwise.
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
 
     bool isPublishInLocalTimeEnabled() const;
