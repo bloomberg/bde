@@ -1,6 +1,6 @@
-// bsl_numeric.h                                                      -*-C++-*-
-#ifndef INCLUDED_BSL_NUMERIC
-#define INCLUDED_BSL_NUMERIC
+// bsl_execution.h                                                    -*-C++-*-
+#ifndef INCLUDED_BSL_EXECUTION
+#define INCLUDED_BSL_EXECUTION
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
@@ -18,46 +18,40 @@ BSLS_IDENT("$Id: $")
 #include <bsls_libraryfeatures.h>
 #include <bsls_nativestd.h>
 
-#include <numeric>
+#if BSLS_LIBRARYFEATURES_HAS_CPP17_PARALLEL_ALGORITHMS
+
+#include <execution>
 
 namespace bsl {
-    // Import selected symbols into bsl namespace
-    using native_std::accumulate;
-    using native_std::adjacent_difference;
-    using native_std::inner_product;
-    using native_std::partial_sum;
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-    using native_std::iota;
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    using native_std::is_execution_policy;
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-    using native_std::exclusive_scan;
-    using native_std::inclusive_scan;
-    using native_std::lcm;
-    using native_std::gcd;
-    using native_std::transform_exclusive_scan;
-    using native_std::transform_inclusive_scan;
-    using native_std::reduce;
-    using native_std::transform_reduce;
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+    namespace execution {
+        // Import selected symbols into bsl namespace
+        using native_std::execution::par;
+        using native_std::execution::par_unseq;
+        using native_std::execution::parallel_policy;
+        using native_std::execution::parallel_unsequenced_policy;
+        using native_std::execution::seq;
+        using native_std::execution::sequenced_policy;
+    }  // close execution namespace
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    // Import additional names expected by existing code, but not mandated by
-    // the standard header.
-    using native_std::bidirectional_iterator_tag;
-    using native_std::forward_iterator_tag;
-    using native_std::input_iterator_tag;
-    using native_std::iterator;
-    using native_std::output_iterator_tag;
-    using native_std::random_access_iterator_tag;
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+template <class TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool is_execution_policy_v =
+                       native_std::is_execution_policy<TYPE>::value;
+
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+
 }  // close package namespace
+
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_PARALLEL_ALGORITHMS
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2022 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

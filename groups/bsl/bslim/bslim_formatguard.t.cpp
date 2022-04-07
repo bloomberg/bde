@@ -538,7 +538,7 @@ int main(int argc, char *argv[])
                     oss << true;
                     const bsl::string& outputBool = oss.str();
                     if (veryVerbose) P(outputBool);
-#if defined(_LIBCPP_VERSION)
+#ifdef BSLS_LIBRARYFEATURES_STDCPP_LLVM
                     ASSERTV(outputBool, "false%%%%%% true" == outputBool);
 #else
                     ASSERTV(outputBool, "%%false %%%true" == outputBool);

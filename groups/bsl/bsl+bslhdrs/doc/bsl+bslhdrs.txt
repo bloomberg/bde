@@ -61,6 +61,7 @@
      bsl_cwchar.h
      bsl_cwctype.h
      bsl_deque.h
+     bsl_excecution.h
      bsl_exception.h
      bsl_functional.h
      bsl_hash_map.h

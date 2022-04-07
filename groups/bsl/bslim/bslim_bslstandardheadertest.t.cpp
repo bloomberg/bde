@@ -85,6 +85,7 @@
 #include <bsl_cwctype.h>
 #include <bsl_deque.h>
 #include <bsl_exception.h>
+#include <bsl_execution.h>
 #include <bsl_fstream.h>
 #include <bsl_functional.h>
 #include <bsl_iomanip.h>
@@ -179,6 +180,14 @@ using namespace bslim;
 // defined in 'bslstl'.
 //
 //-----------------------------------------------------------------------------
+// [12] bsl::exclusive_scan()
+// [12] bsl::inclusive_scan()
+// [12] bsl::gcd()
+// [12] bsl::lcm()
+// [12] bsl::transform_exclusive_scan()
+// [12] bsl::transform_inclusive_scan()
+// [12] bsl::reduce()
+// [12] bsl::transform_reduce()
 // [11] bsl::in_place_t
 // [11] bsl::in_place
 // [11] bsl::add_const<TYPE>::type& as_const(TYPE& value);
@@ -574,6 +583,16 @@ void Negation ()
 }
 
 }  // close namespace TestCxx17TypeAliases
+
+
+struct addOne {
+    template <class TYPE>
+    constexpr auto operator()(TYPE x) const noexcept
+        // return the specified 'x' + 1
+    {
+        return static_cast<TYPE>(x + 1);
+    }
+};
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
 //=============================================================================
@@ -595,6 +614,119 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << "\n";
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 12: {
+        // --------------------------------------------------------------------
+        // TESTING C++17 <BSL_NUMERIC.H> ADDITIONS
+        //
+        // Concerns:
+        //: 1 The C++17 numeric algorithms are available in 'bsl' to users who
+        //:   include 'bsl_numeric.h'.
+        //
+        // Plan:
+        //: 1 Create a simple example that uses these algorithms.  Compilation
+        //:   of the example demonstrates that the classes can be found in
+        //:   'bsl'.
+        //
+        // Testing
+        //   bsl::exclusive_scan()
+        //   bsl::inclusive_scan()
+        //   bsl::gcd()
+        //   bsl::lcm()
+        //   bsl::transform_exclusive_scan()
+        //   bsl::transform_inclusive_scan()
+        //   bsl::reduce()
+        //   bsl::transform_reduce()
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING C++17 <BSL_NUMERIC.H> ADDITIONS"
+                            "\n=======================================\n");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+        {
+            bsl::array<size_t, 10> v;
+            bsl::fill(v.begin(), v.end(), 3);
+            bsl::exclusive_scan(v.begin(), v.end(), v.begin(), size_t{50});
+            for (size_t i = 0; i < v.size(); ++i)
+            {
+                ASSERT(v[i] == 50 + i * 3);
+            }
+        }
+
+        {
+            bsl::array<size_t, 10> v;
+            bsl::fill(v.begin(), v.end(), 3);
+            bsl::inclusive_scan(v.begin(), v.end(), v.begin());
+            for (size_t i = 0; i < v.size(); ++i)
+            {
+                ASSERT(v[i] == (i+1) * 3);
+            }
+        }
+
+        ASSERT(2  == bsl::gcd(6, 8));
+        ASSERT(24 == bsl::lcm(6, 8));
+
+        {
+            bsl::array<size_t, 10> v;
+            bsl::fill(v.begin(), v.end(), 3);
+            bsl::transform_exclusive_scan(v.begin(),
+                                          v.end(),
+                                          v.begin(),
+                                          size_t{50},
+                                          bsl::plus<>(),
+                                          addOne{});
+            for (size_t i = 0; i < v.size(); ++i)
+            {
+                ASSERT(v[i] == 50 + i * 4);
+            }
+        }
+
+        {
+            bsl::array<size_t, 10> v;
+            bsl::fill(v.begin(), v.end(), 3);
+            bsl::transform_inclusive_scan(v.begin(),
+                                          v.end(),
+                                          v.begin(),
+                                          bsl::plus<>(),
+                                          addOne{},
+                                          size_t{50});
+            for (size_t i = 0; i < v.size(); ++i)
+            {
+                ASSERT(v[i] == 50 + (i + 1) * 4);
+            }
+        }
+
+        {
+            bsl::array<size_t, 10> v;
+            bsl::fill(v.begin(), v.end(), 3);
+            ASSERT(30 == bsl::reduce(v.begin(), v.end()));
+        }
+
+        {
+            bsl::array<size_t, 10> v1;
+            bsl::array<size_t, 10> v2;
+            bsl::fill(v1.begin(), v1.end(), 3);
+            bsl::fill(v2.begin(), v2.end(), 5);
+            ASSERT (200 == bsl::transform_reduce(v1.begin(),
+                                                 v1.end(),
+                                                 v2.begin(),
+                                                 size_t{50}));
+        }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PARALLEL_ALGORITHMS
+        // Check that the types exist
+        ASSERT(
+             bsl::is_execution_policy<bsl::execution::parallel_policy>::value);
+        ASSERT(bsl::is_execution_policy_v<bsl::execution::sequenced_policy>);
+
+        ASSERT((!bsl::is_same<bsl::execution::sequenced_policy,
+                              bsl::execution::parallel_policy>::value));
+        ASSERT((!bsl::is_same<bsl::execution::parallel_unsequenced_policy,
+                              bsl::execution::sequenced_policy>::value));
+#endif
+
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+
+      } break;
       case 11: {
         // --------------------------------------------------------------------
         // TESTING C++17 <BSL_UTILITY.H> ADDITIONS
@@ -799,7 +931,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Create a simple example that uses both classes.  Compilation of
-        //:   the exmaple demonstrates that the classes can be found in 'bsl'.
+        //:   the example demonstrates that the classes can be found in 'bsl'.
         //
         // Testing
         //   CONCERN: 'default_searcher'/'boyer_moore_horspool_searcher usable.
