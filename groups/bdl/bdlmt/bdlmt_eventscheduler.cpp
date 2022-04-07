@@ -320,16 +320,14 @@ EventScheduler::scheduleEvent(EventHandle               *event,
     }
 }
 
-void EventScheduler::scheduleEventRaw(EventHandle               **event,
-                                      const bsls::TimeInterval&   epochTime,
-                                      const EventData&            eventData)
+void EventScheduler::scheduleEvent(const bsls::TimeInterval&   epochTime,
+                                   const EventData&            eventData)
 {
     bool newTop;
 
-    d_eventQueue.addRawR((EventQueue::Pair **)event,
-                         epochTime.totalMicroseconds(),
-                         eventData,
-                         &newTop);
+    d_eventQueue.addR(epochTime.totalMicroseconds(),
+                      eventData,
+                      &newTop);
 
     if (newTop) {
         bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);

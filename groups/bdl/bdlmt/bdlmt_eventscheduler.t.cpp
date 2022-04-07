@@ -2814,7 +2814,7 @@ int main(int argc, char *argv[])
                     &event,
                     bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)
                                                        + bsls::TimeInterval(1),
-                    bdlf::BindUtil::bind(signalLatchCallback, bsl::ref(done)));
+                   bdlf::BindUtil::bind(signalLatchCallback, bsl::ref(done)));
 
             scheduler.start();
             done.wait();

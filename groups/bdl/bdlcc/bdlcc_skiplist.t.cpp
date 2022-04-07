@@ -6296,24 +6296,24 @@ int main(int argc, char *argv[])
             const bsl::string cmd = argv[2];
             if (cmd == "leak") {
                 leak = true;
-#if defined(BSLS_REVIEW_SAFE_IS_ACTIVE)
+#if defined(BSLS_REVIEW_IS_ACTIVE)
 
-                cout << "Leak test: should be caught:\n";
+                cout << "Leak test: will leak, should be caught:\n";
 #else
-                cout << "Leak test: shouldn't be caught:\n";
+                cout << "Leak test: will leak, shouldn't be caught:\n";
 #endif
             }
             else {
                 cout << "To run leak test, say \"" << argv[0] << ' ' << test <<
-                                                     " leak\" in safe mode.\n";
+                                                      " leak\" in dbg mode.\n";
             }
         }
 
-#if !defined(BSLS_REVIEW_SAFE_IS_ACTIVE)
+#if !defined(BSLS_REVIEW_IS_ACTIVE)
         leak = true;
 
         if (verbose) {
-            cout << "Not in safe mode, will leak\n";
+            cout << "Not in dbg mode, will leak\n";
         }
 #endif
 

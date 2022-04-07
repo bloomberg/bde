@@ -97,23 +97,41 @@ BSLS_IDENT("$Id: $")
 // the specific pair found by 'find' may (or may not) be different from the one
 // found by 'findR'.
 //
-///'bdlcc::SkipListPair' Usage Rules
-///---------------------------------
-// For safe and correct behavior of this component, it is critical that
-// 'bdlcc::SkipListPair' pointers be treated similarly to HANDLEs in the
-// Windows API: they should be released (using 'releaseReferenceRaw') when they
-// are no longer needed, they must not be used after being released, and they
-// must be released only once.  To use a 'bdlcc::SkipListPair' pointer that
-// refers to a particular pair in multiple places - e.g., in different
-// functions or in different threads - use the 'addPairReferenceRaw' method to
-// add additional references to the same pair.  Remember that
-// 'releaseReferenceRaw' must be called for *each* such pair reference when it
-// is no longer needed.
+///Referring to Elements in the Container
+///--------------------------------------
+// 'bdlcc::SkipList' has two 'handle' types for referring to elements in the
+// container:
+//
+//: o 'bdlcc::SkipList::Pair *' -- raw pointer, no destructor,
+//:   'bdlcc::SkipList::releaseReferenceRaw' must be called on these pointers
+//:   before the container is destroyed.
+//:
+//: o 'bdlcc::SkipList::PairHandle' -- 'class', has a destructor which will
+//:   release the pair handle when it goes out of scope via RAII.  If the pair
+//:   handle will not be destroyed before the container is, it is necessary to
+//:   call 'bdlcc::SkipList::PairHandle::release' before the container is
+//:   destroyed.
+//
+// The 'PairHandle' type has an implicit conversion to 'Pair *'.  In most cases
+// 'bdlcc::SkipList' provides dual functions supporting 'Pair *' and
+// 'PairHandle'.  Some functions, however, only support 'Pair *' parameters;
+// for these functions, either a 'Pair *' or a 'PairHandle' may be passed.
+//
+// Unless the client has some reason to prefer the 'Pair *' interface, the
+// 'PairHandle' interface is recommended since it provides RAII, making it
+// harder to leak nodes.
+//
+// Note that in some build modes, 'SkipList' will attempt to detect leaked
+// nodes, i.e., those that were referred to by 'Pair *'s for which
+// 'releaseReferenceRaw' hasn't been called, and nodes referred to by
+// 'PairHandle's that haven't been destroyed or 'release'd at the time of the
+// skip list's destruction.
 //
 ///Thread Safety
 ///-------------
 // 'bdlcc::SkipList' is thread-safe and thread-aware; that is, multiple threads
 // may use their own Skip List objects or may concurrently use the same object.
+//
 // Note that safe usage of the component depends upon correct usage of
 // 'bdlcc::SkipListPair' objects (see above).
 //
@@ -1551,6 +1569,12 @@ class SkipList {
         // the list.
 
     int skipBackward(PairHandle *item) const;
+        // If the item identified by the specified 'item' is not at the front
+        // of the list, load a reference to the previous item in the list into
+        // 'item'; otherwise reset the value of 'item'.  Return 0 on success,
+        // and 'e_NOT_FOUND' (with no effect on the value of 'item') if 'item'
+        // is no longer in the list.
+
     int skipBackwardRaw(Pair **item) const;
         // If the item identified by the specified 'item' is not at the front
         // of the list, load a reference to the previous item in the list into
@@ -1559,6 +1583,12 @@ class SkipList {
         // is no longer in the list.
 
     int skipForward(PairHandle *item) const;
+        // If the item identified by the specified 'item' is not at the end of
+        // the list, load a reference to the next item in the list into 'item';
+        // otherwise reset the value of 'item'.  Return 0 on success, and
+        // 'e_NOT_FOUND' (with no effect on the value of 'item') if 'item' is
+        // no longer in the list.
+
     int skipForwardRaw(Pair **item) const;
         // If the item identified by the specified 'item' is not at the end of
         // the list, load a reference to the next item in the list into 'item';
@@ -2225,8 +2255,7 @@ void SkipList<KEY, DATA>::releaseNode(Node *node)
 {
     BSLS_ASSERT(node);
 
-    int refCnt = --node->d_refCount;
-
+    const int refCnt = --node->d_refCount;
     if (!refCnt) {
         node->d_key.~KEY();
         node->d_data.~DATA();
@@ -2234,6 +2263,9 @@ void SkipList<KEY, DATA>::releaseNode(Node *node)
         BSLS_ASSERT(0 == node->d_ptrs[0].d_next_p);
 
         PoolUtil::deallocate(d_poolManager_p, node);
+    }
+    else {
+        BSLS_ASSERT_SAFE(0 < refCnt);
     }
 }
 

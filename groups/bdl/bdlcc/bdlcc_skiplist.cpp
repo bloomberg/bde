@@ -18,6 +18,7 @@ BSLS_IDENT_RCSID(bdlcc_skiplist_cpp,"$Id$ $CSID$")
 #include <bslma_allocator.h>
 #include <bslmf_assert.h>
 #include <bsls_assert.h>
+#include <bsls_log.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_limits.h>
@@ -98,19 +99,12 @@ class SkipList_PoolManager {
         // PUBLIC DATA
         bslmt::Mutex  d_poolMutex;
         Node         *d_freeList;
-#if defined(BSLS_REVIEW_SAFE_IS_ACTIVE)
+#if defined(BSLS_REVIEW_IS_ACTIVE)
         int           d_numNodes;    // Number of nodes allocated and not freed
 #endif
         int           d_objectSize;
         int           d_numObjectsToAllocate;
         int           d_level;
-
-#if defined(BSLS_REVIEW_SAFE_IS_ACTIVE)
-        // CREATOR
-        ~Pool();
-            // If 'BSLS_REVIEW_SAFE_IS_ACTIVE' is defined and
-            // '0 != d_numNodes', fail a review.
-#endif
     };
 
     // DATA
@@ -141,7 +135,7 @@ class SkipList_PoolManager {
         // 'numPools > k_MAX_POOLS'.
 
     ~SkipList_PoolManager();
-        // d'tor -- if 'BSLS_REVIEW_SAFE_IS_ACTIVE' is defined, fail a review
+        // d'tor -- if 'BSLS_REVIEW_IS_ACTIVE' is defined, fail a review
         // if any nodes are leaked.
 
   public:
@@ -175,13 +169,6 @@ class SkipList_PoolManager {
     void deallocate(void *node);
         // Free the specified 'node' and return it to its appropriate pool.
 };
-
-#if defined(BSLS_REVIEW_SAFE_IS_ACTIVE)
-SkipList_PoolManager::Pool::~Pool()
-{
-    BSLS_REVIEW_SAFE(0 == d_numNodes && "node(s) leaked");
-}
-#endif
                             // --------------------
                             // SkipList_PoolManager
                             // --------------------
@@ -212,6 +199,44 @@ SkipList_PoolManager::SkipList_PoolManager(int              *objectSizes,
 inline
 SkipList_PoolManager::~SkipList_PoolManager()
 {
+#if defined(BSLS_REVIEW_IS_ACTIVE)
+    int numLeakedNodes = 0;
+    for (int ii = 0; ii < k_MAX_POOLS; ++ii) {
+        const int numNodes = d_pools[ii].d_numNodes;
+
+        BSLS_ASSERT_OPT(0 <= numNodes);
+        numLeakedNodes += numNodes;
+    }
+
+    // If the following review check fails, it probably means that you have
+    // been referring to nodes via 'bdlcc::SkipList::Pair *', which is an
+    // interface that is very prone to accidentally leaking nodes.
+
+    // Switch to using the 'bdlcc::SkipList::PairHandle' interface.
+    // 'PairHandle' has a destructor and properly cleans up after itself,
+    // provided all the 'PairHandle' objects have been destroyed or released
+    // before the container is destroyed.
+
+    // If you encounter this using 'EventScheduler', the same goes for
+    // 'bdlmt::EventScheduler::Event *' and
+    // 'bdlmt::EvenScheduler::RecurringEvent *' which, which are really just
+    // cast to 'bdlcc::Skiplist::Pair *'.  Switch to using
+    // 'bdlmt::EventScheduler::EventHandle' or
+    // 'bdlmt::EventScheduler::RecurringEventHandle'.
+
+    // If you were using 'bcec_SkipList', that is just an alias to
+    // 'bdlcc::SkipList'.
+
+    // If you were using 'bcep_EventScheduler', note that that is just an alias
+    // to 'bdlmt::EventScheduler'.
+
+    if (0 != numLeakedNodes) {
+        BSLS_LOG_ERROR(
+             "bdlcc::SkipList:~SkipList: %d node(s) leaked\n", numLeakedNodes);
+
+        BSLS_REVIEW(0 == numLeakedNodes && "node(s) leaked");
+    }
+#endif
 }
 
 // MANIPULATORS
@@ -231,7 +256,7 @@ void *SkipList_PoolManager::allocate(Pool *pool)
 
     pool->d_freeList = p->d_next_p;
 
-#if defined(BSLS_REVIEW_SAFE_IS_ACTIVE)
+#if defined(BSLS_REVIEW_IS_ACTIVE)
     ++pool->d_numNodes;
 #endif
 
@@ -246,7 +271,7 @@ void SkipList_PoolManager::deallocate(Pool *pool, void *node)
     p->d_next_p = pool->d_freeList;
     pool->d_freeList = p;
 
-#if defined(BSLS_REVIEW_SAFE_IS_ACTIVE)
+#if defined(BSLS_REVIEW_IS_ACTIVE)
     --pool->d_numNodes;
 #endif
 }
@@ -255,7 +280,7 @@ inline
 void SkipList_PoolManager::initPool(Pool *pool, int level, int objectSize)
 {
     pool->d_freeList = 0;
-#if defined(BSLS_REVIEW_SAFE_IS_ACTIVE)
+#if defined(BSLS_REVIEW_IS_ACTIVE)
     pool->d_numNodes = 0;
 #endif
     pool->d_objectSize = objectSize;
