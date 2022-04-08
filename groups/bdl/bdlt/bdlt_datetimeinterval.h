@@ -890,9 +890,9 @@ bsls::Types::Int64 DatetimeInterval::totalSeconds() const
 inline
 double DatetimeInterval::totalSecondsAsDouble() const
 {
-    return static_cast<double>(totalSeconds())
-              + static_cast<double>(d_microseconds % TimeUnitRatio::k_US_PER_S)
-                                           / (1.0 * TimeUnitRatio::k_US_PER_S);
+    return d_days * static_cast<double>(TimeUnitRatio::k_S_PER_D) +
+                         static_cast<double>(d_microseconds) /
+                                static_cast<double>(TimeUnitRatio::k_US_PER_S);
 }
 
 inline
