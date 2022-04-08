@@ -41,9 +41,11 @@ using namespace bsl;
 //: o 'setInitialIndentLevel'
 //: o 'setSpacesPerLevel'
 //: o 'setEncodingStyle'
+//: o 'setEncodeQuotedDecimal64'
 //
 // Basic Accessors:
 //: o 'strictTypes'
+//: o 'encodeQuotedDecimal64'
 //: o 'spacesPerLevel'
 //: o 'encodingStyle'
 //
@@ -74,9 +76,11 @@ using namespace bsl;
 // [ 3] setSpacesPerLevel(int value);
 // [ 3] setEncodingStyle(EncodingStyle::Value value);
 // [ 3] setStrictTypes(bool value);
+// [ 3] setEncodeQuotedDecimal64(bool value);
 //
 // ACCESSORS
 // [ 4] bool strictTypes() const;
+// [ 4] bool encodeQuotedDecimal64() const;
 // [ 4] int initialIndentLevel() const;
 // [ 4] int spacesPerLevel() const;
 // [ 4] EncodingStyle::Value encodingStyle() const;
@@ -173,6 +177,7 @@ typedef baljsn::EncodingStyle::Value            Style;
 struct DefaultDataRow {
     int          d_line;                // source line number
     bool         d_strictTypes;
+    bool         d_encodeQuotedDecimal64;
     int          d_initialIndentLevel;
     int          d_spacesPerLevel;
     Style        d_encodingStyle;
@@ -185,37 +190,43 @@ static
 const DefaultDataRow DEFAULT_DATA[] =
 {
 
-//LINE  STRICT    INDENT     SPL     STYLE
-//----  ------    ------     ---     -----
+//LINE  STRICT    QUOTED    INDENT     SPL     STYLE
+//----  ------    ------    ------     ---     -----
 
 // default (must be first)
-{ L_,    false,       0,       0,    COMPACT    },
+{ L_,    false,     true,       0,       0,    COMPACT    },
 
 // 'strict': false
 //    'initialIndentLevel'
-{ L_,    false,       1,       0,    PRETTY     },
-{ L_,    false, INT_MAX,       0,    COMPACT    },
+{ L_,    false,     true,       1,       0,    PRETTY     },
+{ L_,    false,     true, INT_MAX,       0,    COMPACT    },
+
+//    'encodeQuotedDecimal64'
+{ L_,    false,    false,       0,       0,    COMPACT    },
 
 //    'spacesPerLevel'
-{ L_,    false,       0,       1,    PRETTY     },
-{ L_,    false,       0, INT_MAX,    COMPACT    },
+{ L_,    false,     true,       0,       1,    PRETTY     },
+{ L_,    false,     true,       0, INT_MAX,    COMPACT    },
 
 //    'encodingStyle'
-{ L_,    false, INT_MAX,       1,    PRETTY     },
-{ L_,    false,       1, INT_MAX,    COMPACT    },
+{ L_,    false,     true, INT_MAX,       1,    PRETTY     },
+{ L_,    false,     true,       1, INT_MAX,    COMPACT    },
 
 // 'strict': true
 //    'initialIndentLevel'
-{ L_,     true,       1,       0,    PRETTY     },
-{ L_,     true, INT_MAX,       0,    COMPACT    },
+{ L_,     true,     true,       1,       0,    PRETTY     },
+{ L_,     true,     true, INT_MAX,       0,    COMPACT    },
+
+//    'encodeQuotedDecimal64'
+{ L_,     true,    false,       0,       0,    COMPACT    },
 
 //    'spacesPerLevel'
-{ L_,     true,       0,       1,    PRETTY     },
-{ L_,     true,       0, INT_MAX,    COMPACT    },
+{ L_,     true,     true,       0,       1,    PRETTY     },
+{ L_,     true,     true,       0, INT_MAX,    COMPACT    },
 
 //    'encodingStyle'
-{ L_,     true, INT_MAX,       1,    PRETTY     },
-{ L_,     true,       1, INT_MAX,    COMPACT    }
+{ L_,     true,     true, INT_MAX,       1,    PRETTY     },
+{ L_,     true,     true,       1, INT_MAX,    COMPACT    }
 
 };
 
@@ -416,18 +427,21 @@ int main(int argc, char *argv[])
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int   LINE1    = DATA[ti].d_line;
             const bool  STRICT1  = DATA[ti].d_strictTypes;
+            const bool  ENCODE1  = DATA[ti].d_encodeQuotedDecimal64;
             const int   INDENT1  = DATA[ti].d_initialIndentLevel;
             const int   SPL1     = DATA[ti].d_spacesPerLevel;
             const Style STYLE1   = DATA[ti].d_encodingStyle;
 
             Obj mZ;  const Obj& Z = mZ;
             mZ.setStrictTypes(STRICT1);
+            mZ.setEncodeQuotedDecimal64(ENCODE1);
             mZ.setInitialIndentLevel(INDENT1);
             mZ.setSpacesPerLevel(SPL1);
             mZ.setEncodingStyle(STYLE1);
 
             Obj mZZ;  const Obj& ZZ = mZZ;
             mZZ.setStrictTypes(STRICT1);
+            mZZ.setEncodeQuotedDecimal64(ENCODE1);
             mZZ.setInitialIndentLevel(INDENT1);
             mZZ.setSpacesPerLevel(SPL1);
             mZZ.setEncodingStyle(STYLE1);
@@ -446,12 +460,14 @@ int main(int argc, char *argv[])
             for (int tj = 0; tj < NUM_DATA; ++tj) {
                 const int   LINE2    = DATA[tj].d_line;
                 const bool  STRICT2  = DATA[tj].d_strictTypes;
+                const bool  ENCODE2  = DATA[tj].d_encodeQuotedDecimal64;
                 const int   INDENT2  = DATA[tj].d_initialIndentLevel;
                 const int   SPL2     = DATA[tj].d_spacesPerLevel;
                 const Style STYLE2   = DATA[tj].d_encodingStyle;
 
                 Obj mX;  const Obj& X = mX;
                 mX.setStrictTypes(STRICT2);
+                mX.setEncodeQuotedDecimal64(ENCODE2);
                 mX.setInitialIndentLevel(INDENT2);
                 mX.setSpacesPerLevel(SPL2);
                 mX.setEncodingStyle(STYLE2);
@@ -472,12 +488,14 @@ int main(int argc, char *argv[])
             {
                 Obj mX;
                 mX.setStrictTypes(STRICT1);
+                mX.setEncodeQuotedDecimal64(ENCODE1);
                 mX.setInitialIndentLevel(INDENT1);
                 mX.setSpacesPerLevel(SPL1);
                 mX.setEncodingStyle(STYLE1);
 
                 Obj mZZ;  const Obj& ZZ = mZZ;
                 mZZ.setStrictTypes(STRICT1);
+                mZZ.setEncodeQuotedDecimal64(ENCODE1);
                 mZZ.setInitialIndentLevel(INDENT1);
                 mZZ.setSpacesPerLevel(SPL1);
                 mZZ.setEncodingStyle(STYLE1);
@@ -923,6 +941,7 @@ int main(int argc, char *argv[])
             int         d_spl;
 
             bool        d_strictTypes;
+            bool        d_encodeQuotedDecimal64;
             int         d_initialIndentLevel;
             int         d_spacesPerLevel;
             Style       d_encodingStyle;
@@ -937,30 +956,33 @@ int main(int argc, char *argv[])
    // P-2.1.1: { A } x { 0 } x { 0, 1, -1 } --> 3 expected outputs
    // ------------------------------------------------------------------
 
-//LINE  L  SPL    STR  IND  SPL S EXP
-//----  -  ---    ---  ---  --- - ---
+//LINE  L  SPL    STR     ENC   IND  SPL S  EXP
+//----  -  ---    ---     ---   ---  --- -  ---
 
-{ L_,  0,  0,   false,   89,  10, C, "["                                     NL
+{ L_,  0,  0,   false, false,   89,  10, C, "["                              NL
 
                                  "strictTypes = false"                       NL
+                                 "encodeQuotedDecimal64 = false"             NL
                                  "initialIndentLevel = 89"                   NL
                                  "spacesPerLevel = 10"                       NL
                                  "encodingStyle = e_COMPACT"                 NL
                                         "]"                                  NL
                                                                              },
 
-{ L_,  0,  1,   false,   89,  10, P, "["                                     NL
+{ L_,  0,  1,   false, false,  89,  10, P, "["                               NL
 
                                  " strictTypes = false"                      NL
+                                 " encodeQuotedDecimal64 = false"            NL
                                  " initialIndentLevel = 89"                  NL
                                  " spacesPerLevel = 10"                      NL
                                  " encodingStyle = e_PRETTY"                 NL
                                        "]"                                   NL
                                                                              },
 
-{ L_,  0,  -1,  false,    89,  10, C, "["                                    SP
+{ L_,  0,  -1,  false, false,  89,  10, C, "["                               SP
 
                                  "strictTypes = false"                       SP
+                                 "encodeQuotedDecimal64 = false"             SP
                                  "initialIndentLevel = 89"                   SP
                                  "spacesPerLevel = 10"                       SP
                                  "encodingStyle = e_COMPACT"                 SP
@@ -971,56 +993,62 @@ int main(int argc, char *argv[])
    // P-2.1.2: { A } x { 3, -3 } x { 0, 2, -2 }  -->  6 expected outputs
    // ------------------------------------------------------------------
 
-//LINE  L SPL    STR   IND  SPL S EXP
-//----  - ---    ---   ---  --- - ---
+//LINE  L  SPL    STR     ENC   IND  SPL S  EXP
+//----  -  ---    ---     ---   ---  --- -  ---
 
-{ L_,  3,   0, false,   89,  10, C, "["                                      NL
+{ L_,  3,   0, false,  false,   89,  10, C, "["                              NL
 
                                  "strictTypes = false"                       NL
+                                 "encodeQuotedDecimal64 = false"             NL
                                  "initialIndentLevel = 89"                   NL
                                  "spacesPerLevel = 10"                       NL
                                  "encodingStyle = e_COMPACT"                 NL
                                        "]"                                   NL
                                                                              },
 
-{ L_,  3,   2, false,   89,  10, P,
+{ L_,  3,   2, false, false,   89,  10, P,
                                "      ["                                     NL
                          "        strictTypes = false"                       NL
+                         "        encodeQuotedDecimal64 = false"             NL
                          "        initialIndentLevel = 89"                   NL
                          "        spacesPerLevel = 10"                       NL
                          "        encodingStyle = e_PRETTY"                  NL
                                "      ]"                                     NL
                                                                              },
 
-{ L_,  3,  -2, false,   89,  10, C, "      ["                                SP
+{ L_,  3,  -2, false, false,   89,  10, C, "      ["                         SP
 
                                  "strictTypes = false"                       SP
+                                 "encodeQuotedDecimal64 = false"             SP
                                  "initialIndentLevel = 89"                   SP
                                  "spacesPerLevel = 10"                       SP
                                  "encodingStyle = e_COMPACT"                 SP
                                        "]"
                                                                              },
 
-{ L_, -3,   0,  true,   89,  10, P, "["                                      NL
+{ L_, -3,   0,  true, false,   89,  10, P, "["                               NL
 
                                  "strictTypes = true"                        NL
+                                 "encodeQuotedDecimal64 = false"             NL
                                  "initialIndentLevel = 89"                   NL
                                  "spacesPerLevel = 10"                       NL
                                  "encodingStyle = e_PRETTY"                  NL
                                        "]"                                   NL
                                                                              },
 
-{ L_, -3,   2,  true,   89,  10, P, "["                                      NL
+{ L_, -3,   2,  true, false,   89,  10, P, "["                               NL
 
                          "        strictTypes = true"                        NL
+                         "        encodeQuotedDecimal64 = false"             NL
                          "        initialIndentLevel = 89"                   NL
                          "        spacesPerLevel = 10"                       NL
                          "        encodingStyle = e_PRETTY"                  NL
                                "      ]"                                     NL
                                                                              },
 
-{ L_, -3,  -2, false,   89,  10, C, "["                                     SP
+{ L_, -3,  -2, false, false,   89,  10, C, "["                               SP
                                  "strictTypes = false"                       SP
+                                 "encodeQuotedDecimal64 = false"             SP
                                  "initialIndentLevel = 89"                   SP
                                  "spacesPerLevel = 10"                       SP
                                  "encodingStyle = e_COMPACT"                 SP
@@ -1031,12 +1059,13 @@ int main(int argc, char *argv[])
    // P-2.1.3: { B } x { 2 }     x { 3 }         -->  1 expected output
    // -----------------------------------------------------------------
 
-//LINE  L SPL    STR   IND  SPL S EXP
-//----  - ---    ---   ---  --- - ---
+//LINE  L  SPL    STR     ENC   IND  SPL S  EXP
+//----  -  ---    ---     ---   ---  --- -  ---
 
-{ L_,  2,   3, false,   89,  10, P,
+{ L_,  2,   3,  false,  false,   89,  10, P,
                          "      ["                                           NL
                          "         strictTypes = false"                      NL
+                         "         encodeQuotedDecimal64 = false"            NL
                          "         initialIndentLevel = 89"                  NL
                          "         spacesPerLevel = 10"                      NL
                          "         encodingStyle = e_PRETTY"                 NL
@@ -1047,20 +1076,22 @@ int main(int argc, char *argv[])
         // P-2.1.4: { A B } x { -9 }   x { -9 }      -->  2 expected outputs
         // -----------------------------------------------------------------
 
-//LINE  L SPL    STR     IND  SPL S EXP
-//----  - ---    ---     ---  --- - ---
+//LINE  L  SPL    STR     ENC   IND  SPL S  EXP
+//----  -  ---    ---     ---   ---  --- -  ---
 
-{ L_, -9,  -9, false,    89,  10,    C,
+{ L_, -9,  -9, false,  false,   89,  10,    C,
                                  "["                                         SP
                                  "strictTypes = false"                       SP
+                                 "encodeQuotedDecimal64 = false"             SP
                                  "initialIndentLevel = 89"                   SP
                                  "spacesPerLevel = 10"                       SP
                                  "encodingStyle = e_COMPACT"                 SP
                                  "]" },
 
-{ L_, -9,  -9,  true,     7,   5,    P,
+{ L_, -9,  -9,  true,  false,    7,   5,    P,
                                  "["                                         SP
                                  "strictTypes = true"                        SP
+                                 "encodeQuotedDecimal64 = false"             SP
                                  "initialIndentLevel = 7"                    SP
                                  "spacesPerLevel = 5"                        SP
                                  "encodingStyle = e_PRETTY"                  SP
@@ -1081,6 +1112,7 @@ int main(int argc, char *argv[])
                 const int   S    = DATA[ti].d_spl;
 
                 const bool  STRICT_T = DATA[ti].d_strictTypes;
+                const bool  QUOTED   = DATA[ti].d_encodeQuotedDecimal64;
                 const int   INDENT   = DATA[ti].d_initialIndentLevel;
                 const int   SPL      = DATA[ti].d_spacesPerLevel;
                 const Style STYLE    = DATA[ti].d_encodingStyle;
@@ -1093,6 +1125,7 @@ int main(int argc, char *argv[])
 
                 Obj mX;  const Obj& X = mX;
                 mX.setStrictTypes(STRICT_T);
+                mX.setEncodeQuotedDecimal64(QUOTED);
                 mX.setInitialIndentLevel(INDENT);
                 mX.setSpacesPerLevel(SPL);
                 mX.setEncodingStyle(STYLE);
@@ -1151,6 +1184,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   bool strictTypes() const;
+        //   bool encodeQuotedDecimal64() const;
         //   int initialIndentLevel() const;
         //   int spacesPerLevel() const;
         //   EncodingStyle::Value encodingStyle() const;
@@ -1294,6 +1328,7 @@ int main(int argc, char *argv[])
         //   setSpacesPerLevel(int value);
         //   setEncodingStyle(EncodingStyle::Value value);
         //   setStrictTypes(bool value);
+        //   setEncodeQuotedDecimal64(bool value);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl

@@ -59,10 +59,21 @@ BSLS_IDENT("$Id: $")
 //:                               decoding the generated JSON can handle
 //:                               doubles as strings.
 //:
-//: o 'encodeQuotedDecimal64': option specifying a way to encode 'Decimal64'
-//:                            values.  If the option value is 'true' then the
-//:                            'Decimal64' value is encoded enclosed in quotes,
-//:                            and as a JSON number otherwise.
+///: o 'encodeQuotedDecimal64': option specifying a way to encode 'Decimal64'
+//:                             values.  If the 'encodeQuotedDecimal64'
+//:                             attribute value is 'true' (the default), the
+//:                             'Decimal64' values will be encoded quoted,
+//:                             and otherwise they will be encoded as numbers.
+//:                             Encoding a Decimal64 as a JSON number will
+//:                             frequently result in it being later decoded as
+//:                             a binary floating point number, and in the
+//:                             process losing digits of precision that were
+//:                             the point of using the Decimal64 type in the
+//:                             first place.  Care should be taken when setting
+//:                             this option to 'false' (though it may be useful
+//:                             when communicating with endpoints that are
+//:                             known to correctly handle high precision JSON
+//:                             numbers).
 //:
 //: o 'datetimeFractionalSecondPrecision': option specifying the number of
 //:                                        decimal places used for seconds when
@@ -127,7 +138,7 @@ BSLS_IDENT("$Id: $")
 //  assert(3     == options.datetimeFractionalSecondPrecision());
 //  assert(0     == options.maxFloatPrecision());
 //  assert(0     == options.maxDoublePrecision());
-//  assert(true v== options.encodeQuotedDecimal64());
+//  assert(true  == options.encodeQuotedDecimal64());
 //..
 // Next, we populate that object to encode in a prett format using a
 // pre-defined initial indent level and spaces per level:

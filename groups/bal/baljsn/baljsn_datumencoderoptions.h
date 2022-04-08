@@ -24,6 +24,8 @@ BSLS_IDENT("$Id: $")
 //  ------------------  -----------    -------         ------------------
 //  strictTypes         bool           false           none
 //  encodingStyle       EncodingStyle  e_COMPACT       none
+//  encodeQuotedDecimal64
+//                      bool           true            none
 //  initialIndentLevel  int            0               >= 0
 //  spacesPerLevel      int            0               >= 0
 //..
@@ -33,6 +35,22 @@ BSLS_IDENT("$Id: $")
 //:   'double', 'bool', 'null', 'array', 'map']).
 //:
 //: o 'encodingStyle': encoding style used to encode the JSON data.
+//:
+//: o 'encodeQuotedDecimal64': option specifying a way to encode 'Decimal64'
+//:                            values.  If the 'encodeQuotedDecimal64'
+//:                            attribute in the 'DatumEncoderOptions' is 'true'
+//:                            (the default), the 'Decimal64' values will be
+//:                            encoded as strings, otherwise they will be
+//:                            encoded as numbers. Encoding a Decimal64 as a
+//:                            JSON numbers will frequently result it being
+//:                            later decoded as binary floating point number,
+//:                            and in the process losing digits of precision
+//:                            that were the point of using the Decimal64 type
+//:                            in the first place.  Care should be taken when
+//:                            setting this option to 'false' (though it may be
+//:                            useful when communicating with endpoints that
+//:                            are known to correctly handle high precision
+//:                            JSON numbers).
 //:
 //: o 'initialIndentLevel': Initial indent level for the topmost element.
 //:
@@ -50,15 +68,17 @@ BSLS_IDENT("$Id: $")
 //
 // First, we default-construct a 'baljsn::DatumEncoderOptions' object:
 //..
-//  const bool STRICT_TYPES         = true;
-//  const int  INITIAL_INDENT_LEVEL = 1;
-//  const int  SPACES_PER_LEVEL     = 4;
+//  const bool STRICT_TYPES             = true;
+//  const int  INITIAL_INDENT_LEVEL     = 1;
+//  const int  SPACES_PER_LEVEL         = 4;
+//  const bool ENCODE_QUOTED_DECIMAL64  = false;
 //
 //  baljsn::DatumEncoderOptions options;
 //  assert(false == options.strictTypes());
 //  assert(0     == options.initialIndentLevel());
 //  assert(0     == options.spacesPerLevel());
 //  assert(baljsn::EncodingStyle::e_COMPACT == options.encodingStyle());
+//  assert(true  == options.encodeQuotedDecimal64());
 //..
 // Next, we populate that object to check strict types and encode in a pretty
 // format using a pre-defined initial indent level and spaces per level:
@@ -68,6 +88,9 @@ BSLS_IDENT("$Id: $")
 //
 //  options.setEncodingStyle(baljsn::EncodingStyle::e_PRETTY);
 //  assert(baljsn::EncodingStyle::e_PRETTY == options.encodingStyle());
+//
+//  options.setEncodeQuotedDecimal64(ENCODE_QUOTED_DECIMAL64);
+//  ASSERT(ENCODE_QUOTED_DECIMAL64 == options.encodeQuotedDecimal64());
 //
 //  options.setInitialIndentLevel(INITIAL_INDENT_LEVEL);
 //  assert(INITIAL_INDENT_LEVEL == options.initialIndentLevel());
@@ -110,6 +133,11 @@ class DatumEncoderOptions {
     bool                          d_strictTypes;
         // whether strict type validation is performed
 
+    bool                          d_encodeQuotedDecimal64;
+        // option specifying a way to encode 'Decimal64' values.  If the option
+        // value is 'true' then the 'Decimal64' value is encoded quoted
+        // { "dec": "1.2e-5" }, and unquoted { "dec": 1.2e-5 } otherwise.
+
     int                           d_initialIndentLevel;
         // initial indentation level for the topmost element
 
@@ -122,6 +150,8 @@ class DatumEncoderOptions {
   public:
     // CONSTANTS
     static const bool s_DEFAULT_INITIALIZER_STRICT_TYPES;
+
+    static const bool s_DEFAULT_INITIALIZER_ENCODE_QUOTED_DECIMAL64;
 
     static const int  s_DEFAULT_INITIALIZER_INITIAL_INDENT_LEVEL;
 
@@ -167,6 +197,10 @@ class DatumEncoderOptions {
         // Set the "EncodingStyle" attribute of this object to the specified
         // 'value'.
 
+    void setEncodeQuotedDecimal64(bool value);
+        // Set the "EncodeQuotedDecimal64" attribute of this object to the
+        // specified 'value'.
+
     // ACCESSORS
     bool strictTypes() const;
         // Return the "StrictTypes" attribute of this object.
@@ -179,6 +213,10 @@ class DatumEncoderOptions {
 
     baljsn::EncodingStyle::Value encodingStyle() const;
         // Return the "EncodingStyle" attribute of this object.
+
+    bool encodeQuotedDecimal64() const;
+        // Return the value of the "EncodeQuotedDecimal64" attribute of this
+        // object.
 
                                   // Aspects
 
@@ -259,6 +297,12 @@ void DatumEncoderOptions::setStrictTypes(bool value)
     d_strictTypes = value;
 }
 
+inline
+void DatumEncoderOptions::setEncodeQuotedDecimal64(bool value)
+{
+    d_encodeQuotedDecimal64 = value;
+}
+
 // ACCESSORS
 inline
 baljsn::EncodingStyle::Value DatumEncoderOptions::encodingStyle() const
@@ -284,6 +328,12 @@ bool DatumEncoderOptions::strictTypes() const
     return d_strictTypes;
 }
 
+inline
+bool DatumEncoderOptions::encodeQuotedDecimal64() const
+{
+    return d_encodeQuotedDecimal64;
+}
+
 }  // close package namespace
 
 // ============================================================================
@@ -294,20 +344,22 @@ inline
 bool baljsn::operator==(const baljsn::DatumEncoderOptions& lhs,
                         const baljsn::DatumEncoderOptions& rhs)
 {
-    return  lhs.strictTypes()        == rhs.strictTypes()
-         && lhs.initialIndentLevel() == rhs.initialIndentLevel()
-         && lhs.spacesPerLevel()     == rhs.spacesPerLevel()
-         && lhs.encodingStyle()      == rhs.encodingStyle();
+    return  lhs.strictTypes()           == rhs.strictTypes()
+         && lhs.initialIndentLevel()    == rhs.initialIndentLevel()
+         && lhs.spacesPerLevel()        == rhs.spacesPerLevel()
+         && lhs.encodingStyle()         == rhs.encodingStyle()
+         && lhs.encodeQuotedDecimal64() == rhs.encodeQuotedDecimal64();
 }
 
 inline
 bool baljsn::operator!=(const baljsn::DatumEncoderOptions& lhs,
                         const baljsn::DatumEncoderOptions& rhs)
 {
-    return  lhs.strictTypes()        != rhs.strictTypes()
-         || lhs.initialIndentLevel() != rhs.initialIndentLevel()
-         || lhs.spacesPerLevel()     != rhs.spacesPerLevel()
-         || lhs.encodingStyle()      != rhs.encodingStyle();
+    return  lhs.strictTypes()           != rhs.strictTypes()
+         || lhs.initialIndentLevel()    != rhs.initialIndentLevel()
+         || lhs.spacesPerLevel()        != rhs.spacesPerLevel()
+         || lhs.encodingStyle()         != rhs.encodingStyle()
+         || lhs.encodeQuotedDecimal64() != rhs.encodeQuotedDecimal64();
 }
 
 inline

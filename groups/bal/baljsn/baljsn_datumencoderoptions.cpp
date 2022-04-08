@@ -32,6 +32,9 @@ namespace baljsn {
 
 const bool DatumEncoderOptions::s_DEFAULT_INITIALIZER_STRICT_TYPES = false;
 
+const bool DatumEncoderOptions::s_DEFAULT_INITIALIZER_ENCODE_QUOTED_DECIMAL64
+                                                                        = true;
+
 const int DatumEncoderOptions::s_DEFAULT_INITIALIZER_INITIAL_INDENT_LEVEL = 0;
 
 const int DatumEncoderOptions::s_DEFAULT_INITIALIZER_SPACES_PER_LEVEL = 0;
@@ -44,6 +47,7 @@ const baljsn::EncodingStyle::Value
 
 DatumEncoderOptions::DatumEncoderOptions()
 : d_strictTypes(s_DEFAULT_INITIALIZER_STRICT_TYPES)
+, d_encodeQuotedDecimal64(s_DEFAULT_INITIALIZER_ENCODE_QUOTED_DECIMAL64)
 , d_initialIndentLevel(s_DEFAULT_INITIALIZER_INITIAL_INDENT_LEVEL)
 , d_spacesPerLevel(s_DEFAULT_INITIALIZER_SPACES_PER_LEVEL)
 , d_encodingStyle(s_DEFAULT_INITIALIZER_ENCODING_STYLE)
@@ -52,6 +56,7 @@ DatumEncoderOptions::DatumEncoderOptions()
 
 DatumEncoderOptions::DatumEncoderOptions(const DatumEncoderOptions& original)
 : d_strictTypes(original.d_strictTypes)
+, d_encodeQuotedDecimal64(original.d_encodeQuotedDecimal64)
 , d_initialIndentLevel(original.d_initialIndentLevel)
 , d_spacesPerLevel(original.d_spacesPerLevel)
 , d_encodingStyle(original.d_encodingStyle)
@@ -71,6 +76,7 @@ DatumEncoderOptions::operator=(const DatumEncoderOptions& rhs)
 {
     if (this != &rhs) {
         d_strictTypes = rhs.d_strictTypes;
+        d_encodeQuotedDecimal64 = rhs.d_encodeQuotedDecimal64;
         d_initialIndentLevel = rhs.d_initialIndentLevel;
         d_spacesPerLevel = rhs.d_spacesPerLevel;
         d_encodingStyle = rhs.d_encodingStyle;
@@ -82,6 +88,7 @@ DatumEncoderOptions::operator=(const DatumEncoderOptions& rhs)
 void DatumEncoderOptions::reset()
 {
     d_strictTypes = s_DEFAULT_INITIALIZER_STRICT_TYPES;
+    d_encodeQuotedDecimal64 = s_DEFAULT_INITIALIZER_ENCODE_QUOTED_DECIMAL64;
     d_initialIndentLevel = s_DEFAULT_INITIALIZER_INITIAL_INDENT_LEVEL;
     d_spacesPerLevel = s_DEFAULT_INITIALIZER_SPACES_PER_LEVEL;
     d_encodingStyle = s_DEFAULT_INITIALIZER_ENCODING_STYLE;
@@ -98,6 +105,7 @@ bsl::ostream& DatumEncoderOptions::print(bsl::ostream& stream,
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
     printer.printAttribute("strictTypes", d_strictTypes);
+    printer.printAttribute("encodeQuotedDecimal64", d_encodeQuotedDecimal64);
     printer.printAttribute("initialIndentLevel", d_initialIndentLevel);
     printer.printAttribute("spacesPerLevel", d_spacesPerLevel);
     printer.printAttribute("encodingStyle", d_encodingStyle);

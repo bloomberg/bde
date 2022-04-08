@@ -549,6 +549,7 @@ int DatumUtil::encode(bsl::ostream&              stream,
     EncoderOptions encoderOptions;
 
     encoderOptions.setEncodingStyle(options.encodingStyle());
+    encoderOptions.setEncodeQuotedDecimal64(options.encodeQuotedDecimal64());
     encoderOptions.setInitialIndentLevel(options.initialIndentLevel());
     encoderOptions.setSpacesPerLevel(options.spacesPerLevel());
 

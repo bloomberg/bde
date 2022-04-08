@@ -134,6 +134,10 @@ void aSsErT(bool condition, const char *message, int line)
     }
 }
 
+bool verbose = false;
+bool veryVerbose = false;
+bool veryVeryVerbose = false;
+
 }  // close unnamed namespace
 
 // ============================================================================
@@ -203,8 +207,45 @@ void testPutValue(int            line,
                   int            spl,
                   const TYPE&    value,
                   const Options *options,
-                  bool           isValid)
+                  bool           isValid,
+                  bool           testEncodeQuotedDecimal64 = false)
 {
+    if (veryVerbose) {
+        P_(line);
+        P_(callLine);
+        P_(style);
+        P_(indent);
+        P_(spl);
+        P_(value);
+        P(isValid);
+    }
+
+    // 'testEncodeQuotedDecimal64' is set to 'true' when testing 'putValue' for
+    // Decimal64.
+    if (testEncodeQuotedDecimal64) {
+        bsl::ostringstream os;
+        bsl::ostringstream exp;
+
+        Options encoderOptions(*options);
+
+        encoderOptions.setEncodeQuotedDecimal64(false);
+
+        Obj mX(os, encoderOptions);
+        const int rc = mX.addValue(value);
+        ASSERTV(rc, 0 == rc);
+
+        baljsn::PrintUtil::printValue(exp, value, &encoderOptions);
+
+        if (veryVerbose) {
+            cout << "\ttestEncodeQuotedDecimal64:\n";
+            T_; T_; P(os.str());
+            T_; T_; P(exp.str());
+        }
+
+        ASSERTV(
+            line, callLine, os.str(), exp.str(), os.str() == exp.str());
+    }
+
     for (int i = 0; i < 2; ++i) {
         // i == 0, output as the value of an element, i.e. without indentation
         // i == 1, output as an array element, i.e. with indentation
@@ -276,6 +317,12 @@ void testPutValue(int            line,
             baljsn::PrintUtil::printValue(exp, value, options);
             ASSERTV(line, callLine, exp.good());
 
+            if (veryVerbose) {
+                T_; P(i);
+                T_; T_; P(os.str());
+                T_; T_; P(exp.str());
+            }
+
             ASSERTV(
                 line, callLine, os.str(), exp.str(), os.str() == exp.str());
         }
@@ -304,9 +351,10 @@ void testPutValue(int            line,
 int main(int argc, char *argv[])
 {
     int             test = argc > 1 ? atoi(argv[1]) : 0;
-    bool         verbose = argc > 2;
-    bool     veryVerbose = argc > 3;
-    bool veryVeryVerbose = argc > 4;
+
+    verbose = argc > 2;
+    veryVerbose = argc > 3;
+    veryVeryVerbose = argc > 4;
 
     (void)veryVerbose;
     (void)veryVeryVerbose;
@@ -830,7 +878,7 @@ int main(int argc, char *argv[])
             testPutValue(LINE, L_, ES, IIL, SPL, L,    DP,   true);
             testPutValue(LINE, L_, ES, IIL, SPL, M,    DP,   true);
             testPutValue(LINE, L_, ES, IIL, SPL, N,    DP,   true);
-            testPutValue(LINE, L_, ES, IIL, SPL, O,    DP,   true);
+            testPutValue(LINE, L_, ES, IIL, SPL, O,    DP,   true, true);
             testPutValue(LINE, L_, ES, IIL, SPL, PA,   DP,   true);
             testPutValue(LINE, L_, ES, IIL, SPL, QA,   DP,   true);
             testPutValue(LINE, L_, ES, IIL, SPL, R,    DP,   true);

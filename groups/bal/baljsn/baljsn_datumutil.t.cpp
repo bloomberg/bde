@@ -150,7 +150,7 @@ void aSsErT(bool condition, const char *message, int line)
 #define PVVV(X) if (veryVeryVerbose) cout << endl << X << endl;
 
 // ============================================================================
-//                          GLOBRAL VARIABLES
+//                          GLOBAL VARIABLES
 // ----------------------------------------------------------------------------
 
 bool             verbose;
@@ -563,6 +563,27 @@ void testCase06(const TestCase6Data *data, int numData)
             opts.setEncodingStyle(ES);
             opts.setInitialIndentLevel(IIL);
             opts.setSpacesPerLevel(SPL);
+
+            if (bdld::Datum::e_DECIMAL64 == DATUM.type()) {
+                // Test when 'EncodeQuotedDecimal64' set to 'false'.
+                baljsn::DatumEncoderOptions opts2(opts);
+
+                opts2.setEncodeQuotedDecimal64(false);
+
+                STRING result;
+                int rc = Util::encode(&result, DATUM, opts2);
+
+                ASSERTV(rc, 0 == rc);
+
+                bsl::string exp(JSON);
+                size_t offset = bsl::string::npos;
+                while (bsl::string::npos !=
+                                     (offset = exp.find_first_of('"'))) {
+                    exp.erase(offset, 1);
+                }
+
+                ASSERTV(result, exp, exp == result);
+            }
 
             for (int strictTypes = 0; strictTypes < 2; ++strictTypes) {
                 const int RC = RC_BY_STRICT[strictTypes];
