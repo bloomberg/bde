@@ -1981,6 +1981,17 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Thread Policy and Priority Creation Test\n"
                              "========================================\n";
 
+#if defined(BSLS_PLATFORM_CPU_32_BIT) \
+    && defined(BSLS_PLATFORM_CMP_GNU) \
+    && (BSLS_PLATFORM_CMP_VERSION >= 110000) \
+    && (BSLS_PLATFORM_CMP_VERSION < 120000)
+        if (veryVerbose) cout << "This test case is skipped for 32-bit builds"
+            " on gcc-11, due to issues described in DRQS 168808291 and DRQS"
+            " 168914766.  Once the issue is resolved, tests should be"
+            " reinstated.\n";
+#else
+
+
         namespace TC = BSLMT_THREAD_POLICY_CREATION_TEST;
 
         Attr::SchedulingPolicy policies[] = { Attr::e_SCHED_OTHER,
@@ -2052,6 +2063,7 @@ int main(int argc, char *argv[])
                 }
             }
         }
+#endif // gcc-11 bug workaround
       }  break;
       case 12: {
         // --------------------------------------------------------------------
