@@ -16,6 +16,8 @@
 #include <bsl_functional.h>     // 'ref', 'cref'
 #include <bsl_string.h>
 
+#include <bsla_maybeunused.h>
+
 //=============================================================================
 //                                TEST PLAN
 //-----------------------------------------------------------------------------
@@ -211,6 +213,34 @@ typedef bsls::Types::Int64 Int64;
 bool globalVerbose = false;
 
 // ----------------------------------------------------------------------------
+//                   TESTING FUNCTIONS/CLASSES FOR CASE 11
+// ----------------------------------------------------------------------------
+
+namespace BDLF_BIND_TEST_CASE_11 {
+
+void myTinyTrivialFunction(int x)
+    // Small function to test small object optimization.  The specified 'x' is
+    // an unused parameter, though is assigned to avoid optimizer issues.
+{
+    BSLA_MAYBE_UNUSED volatile int y = x;
+}
+
+struct BigThing {
+    // Large object used to prevent small object optimization.
+    int d_data[2048];
+};
+
+void bigThingProcessor(const BigThing& bt, int y)
+    // Function taking a large parameter reference to test binding parameters
+    // too large for small object optimization.  The specified 'bt' and 'y' are
+    // used in the body to avoid optimizer issues.
+{
+    myTinyTrivialFunction(bt.d_data[y] + y);
+}
+
+}  // close namespace BDLF_BIND_TEST_CASE_11
+
+// ----------------------------------------------------------------------------
 //                   TESTING FUNCTIONS/CLASSES FOR CASE 9
 // ----------------------------------------------------------------------------
 
@@ -314,11 +344,11 @@ struct MyFunctionObjectWithBothResultTypes {
     // 'result_type' should be used.
 
     // TYPES
-    typedef int   result_type;
-    typedef void  ResultType;
+    typedef long long result_type;
+    typedef void      ResultType;
 
     // ACCESSORS
-    long operator()(int x) const
+    int operator()(short x) const
     {
         return x;
     }
@@ -1692,6 +1722,87 @@ void enqueuedJob2(const MyInt& ptr1, const MyInt& ptr2) {
 // ----------------------------------------------------------------------------
 
 
+DEFINE_TEST_CASE(11)
+{
+    // ------------------------------------------------------------------
+    // TESTING DRQS 168419206
+    //
+    // Concerns:
+    //: 1 That a 'bsl::function' containing a 'BindWrapper' (which itself only
+    //:   contains a 'shared_ptr') object or containing a sufficiently small
+    //:   'Bind' object always makes use of the small function object
+    //:   optimization facilities provided by 'bsl::function'.
+    //
+    // Plan:
+    //: 1 Construct two test allocators, 'funcAlloc' and 'bindAlloc', and a
+    //:   'bsl::function' object constructed with 'funcAlloc'.
+    //: 2 Call 'bind' with a small object optimizable function, assign the
+    //:   result to a 'bsl::function' and check that no allocations have taken
+    //:   place.
+    //: 3 Repeat test 2 using 'bindS', supplied with 'bindAlloc'.
+    //:   Verify that small object optimization has been used by checking that
+    //:   although 'bindAlloc' has an in-use allocation, 'funcAlloc' does not.
+    //: 4 Repeat test 2 using a large function parameter that is not suitable
+    //:   for small object optimization.  Check that 'funcAlloc' has an in-use
+    //:   allocation, implying that small object optimization did not take
+    //:   place.
+    //: 5 Repeat test 3 using a large function parameter that is not suitable
+    //:   for small object optimization.  As in test 3, verify that small
+    //:   object optimization has been used by checking that, although
+    //:   'bindAlloc' has an in-use allocation, 'funcAlloc' does not.
+    //
+    // Testing:
+    //      DRQS 168419206
+    // ------------------------------------------------------------------
+
+    if (verbose)
+        printf("\nTESTING DRQS 168419206"
+               "\n======================\n");
+
+    using namespace BDLF_BIND_TEST_CASE_11;
+
+    {
+        (void)veryVerbose;
+        (void)veryVeryVerbose;
+
+        bslma::TestAllocator funcAlloc;
+        bslma::TestAllocator bindAlloc;
+
+        bslma::TestAllocatorMonitor funcAllocMonitor(&funcAlloc);
+        bslma::TestAllocatorMonitor bindAllocMonitor(&bindAlloc);
+
+        bsl::function<void()> func(bsl::allocator_arg, &funcAlloc);
+        ASSERTV(funcAlloc.numBlocksInUse(), funcAllocMonitor.isInUseSame());
+        ASSERTV(bindAlloc.numBlocksInUse(), bindAllocMonitor.isInUseSame());
+
+        func = bdlf::BindUtil::bind(&myTinyTrivialFunction, 123);
+        ASSERTV(funcAlloc.numBlocksInUse(), funcAllocMonitor.isInUseSame());
+        ASSERTV(bindAlloc.numBlocksInUse(), bindAllocMonitor.isInUseSame());
+
+        func = bdlf::BindUtil::bindS(&bindAlloc, &myTinyTrivialFunction, 123);
+        ASSERTV(funcAlloc.numBlocksInUse(), funcAllocMonitor.isInUseSame());
+        ASSERTV(bindAlloc.numBlocksInUse(), bindAllocMonitor.isInUseUp());
+
+        BigThing bt;
+
+        // In this case we are too large for 'InplaceBuffer', so expect an
+        // allocation.
+        func = bdlf::BindUtil::bind(&bigThingProcessor, bt, 123);
+        ASSERTV(funcAlloc.numBlocksInUse(), funcAllocMonitor.isInUseUp());
+        ASSERTV(bindAlloc.numBlocksInUse(), bindAllocMonitor.isInUseSame());
+
+        func = bdlf::BindUtil::bindS(&bindAlloc, &bigThingProcessor, bt, 123);
+        ASSERTV(funcAlloc.numBlocksInUse(), funcAllocMonitor.isInUseSame());
+        ASSERTV(bindAlloc.numBlocksInUse(), bindAllocMonitor.isInUseUp());
+
+        // Verify that resetting 'func' to an empty function deallocates as
+        // expected.
+        func = bsl::function<void()>();
+        ASSERTV(funcAlloc.numBlocksInUse(), funcAllocMonitor.isInUseSame());
+        ASSERTV(bindAlloc.numBlocksInUse(), bindAllocMonitor.isInUseSame());
+    }
+}
+
 DEFINE_TEST_CASE(10) {
         // ------------------------------------------------------------------
         // TESTING DRQS 165560983
@@ -2299,7 +2410,7 @@ DEFINE_TEST_CASE(6) {
         {
             MyFunctionObjectWithBothResultTypes mX;
 
-            ASSERT(5 == bdlf::BindUtil::bind(mX, _1)(5));
+            ASSERT(5 == bdlf::BindUtil::bind(mX, _1)(static_cast<short>(5)));
         }
 
         if (verbose)
@@ -3539,6 +3650,8 @@ DEFINE_TEST_CASE(3) {
         //   work as intended.
         //
         // Plan:
+        //   'isNothrowMoveableType': Returns true if called on nothrow
+        //       moveable types and false otherwise.
         //   'isBitwiseMoveableType': Returns true if called on bitwise
         //       moveable types and false otherwise.
         //   '...NoAllocSlots':      set slots in sequence to produce the
@@ -3564,7 +3677,14 @@ DEFINE_TEST_CASE(3) {
         if (verbose) printf("\tTestUtil machinery.\n");
         ASSERT( TestUtil::isBitwiseMoveableType(3));
         ASSERT( TestUtil::isBitwiseMoveableType(NoAllocTestArg<1>(0)));
+        ASSERT( TestUtil::isBitwiseMoveableType(NoAllocTestType(0)));
         ASSERT(!TestUtil::isBitwiseMoveableType(AllocTestArg<1>(0)));
+        ASSERT(!TestUtil::isBitwiseMoveableType(AllocTestType(0)));
+        ASSERT( TestUtil::isNothrowMoveableType(3));
+        ASSERT( TestUtil::isNothrowMoveableType(NoAllocTestArg<1>(0)));
+        ASSERT( TestUtil::isNothrowMoveableType(NoAllocTestType(0)));
+        ASSERT(!TestUtil::isNothrowMoveableType(AllocTestArg<1>(0)));
+        ASSERT(!TestUtil::isNothrowMoveableType(AllocTestType(0)));
 
         if (verbose) printf("\tNoAllocSlots machinery.\n");
         {
@@ -4710,6 +4830,7 @@ int main(int argc, char *argv[])
       case NUMBER: {                                                          \
         testCase##NUMBER(verbose, veryVerbose, veryVeryVerbose);              \
       } break
+        CASE(11);
         CASE(10);
         CASE(9);
         CASE(8);

@@ -876,6 +876,8 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_forwardingreftype.h>
 #include <bslmf_functionpointertraits.h>
 #include <bslmf_haspointersemantics.h>
+#include <bslmf_isbitwisemoveable.h>
+#include <bslmf_isnothrowmoveconstructible.h>
 #include <bslmf_matchanytype.h>
 #include <bslmf_memberfunctionpointertraits.h>
 #include <bslmf_nestedtraitdeclaration.h>
@@ -886,6 +888,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_voidtype.h>
 
 #include <bsls_compilerfeatures.h>
+#include <bsls_keyword.h>
 
 #include <bsl_functional.h>
 #include <bsl_memory.h>
@@ -1164,12 +1167,21 @@ class BindWrapper {
     // wrapper will forward the invocation to the non-modifiable binder shared
     // by that wrapper, even though pointer semantics have it .
 
+  private:
+    // PRIVATE TYPES
+    typedef BloombergLP::bslmf::MovableRefUtil MoveUtil;
+        // This 'typedef' is a convenient alias for the utility associated with
+        // movable references.
+
     // DATA
     bsl::shared_ptr<const bdlf::Bind<RET,FUNC,TUPLE> > d_impl;
 
   public:
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(BindWrapper, bslmf::HasPointerSemantics);
+    BSLMF_NESTED_TRAIT_DECLARATION(BindWrapper, bslmf::IsBitwiseMoveable);
+    BSLMF_NESTED_TRAIT_DECLARATION(BindWrapper,
+                                   bsl::is_nothrow_move_constructible);
 
     // PUBLIC TYPES
     typedef typename bdlf::Bind<RET,FUNC,TUPLE>::ResultType ResultType;
@@ -1190,6 +1202,15 @@ class BindWrapper {
         // Create a wrapper that shares ownership of the binder of the
         // specified 'original'.  Optionally specify the 'allocator'.
     : d_impl(original.d_impl)
+    {
+    }
+
+    BindWrapper(bslmf::MovableRef<BindWrapper<RET, FUNC, TUPLE> >
+                    original)
+        BSLS_KEYWORD_NOEXCEPT
+        // Create a wrapper that assumes ownership of the binder of the
+        // specified 'original'.
+    : d_impl(MoveUtil::move(MoveUtil::access(original).d_impl))
     {
     }
 

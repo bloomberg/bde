@@ -331,6 +331,7 @@ using namespace BloombergLP;
 // [43] REGRESSIONS
 // [44] CLASS TEMPLATE DEDUCTION GUIDES
 // [-1] PERFORMANCE
+// [45] TESTING BITWISE AND NOTHROW MOVEABILITY
 // Further, there are a number of behaviors that explicitly should not compile
 // by accident that we will provide tests for.  These tests should fail to
 // compile if the appropriate macro is defined.  Each such test will use a
@@ -2476,6 +2477,77 @@ class ShareThisDerived : public ShareThis
         // also increment the same integer, for a combined raise of 11.
     {
         *d_destructorCount_p += 10;
+    }
+};
+
+                   // ======================================
+                   // class NothrowAndBitwiseMovableTestType
+                   // ======================================
+
+struct NothrowAndBitwiseMovableTestType {
+    // This trivial type specializes the 'bslmf::IsBitwiseMoveable' and
+    // 'bsl::is_nothrow_move_constructible' traits to be 'true'.
+
+  private:
+    // DATA
+
+    // 'bslmf::IsBitwiseMoveable' has special logic for empty types, so we need
+    // to include data to ensure that our tests work as intended.
+    BSLA_MAYBE_UNUSED int dummy_d;
+
+  public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(NothrowAndBitwiseMovableTestType,
+                                   bslmf::IsBitwiseMoveable);
+    BSLMF_NESTED_TRAIT_DECLARATION(NothrowAndBitwiseMovableTestType,
+                                   bsl::is_nothrow_move_constructible);
+
+    // CREATORS
+    NothrowAndBitwiseMovableTestType(int)
+        // Test user defined constructor.
+    {
+    }
+
+    NothrowAndBitwiseMovableTestType(
+                              const NothrowAndBitwiseMovableTestType& original)
+        // Test user defined copy constructor.
+    {
+    }
+
+    NothrowAndBitwiseMovableTestType(
+     bslmf::MovableRef<NothrowAndBitwiseMovableTestType>) BSLS_KEYWORD_NOEXCEPT
+        // Test user defined nothrow move constructor.
+    {
+    }
+};
+
+                // ============================================
+                // class NonNothrowAndNonBitwiseMovableTestType
+                // ============================================
+
+struct NonNothrowAndNonBitwiseMovableTestType {
+    // This trivial type is defined in a way such that the
+    // 'bslmf::IsBitwiseMoveable' and 'bsl::is_nothrow_move_constructible'
+    // traits are 'false'.
+
+  private:
+    // DATA
+
+    // 'bslmf::IsBitwiseMoveable' has special logic for empty types, so we need
+    // to include data to ensure that our tests work as intended.
+    BSLA_MAYBE_UNUSED int dummy_d;
+
+  public:
+    // CREATORS
+    NonNothrowAndNonBitwiseMovableTestType(int)
+        // Test user defined constructor.
+    {
+    }
+
+    NonNothrowAndNonBitwiseMovableTestType(
+                                 const NonNothrowAndNonBitwiseMovableTestType&)
+        // Test user defined copy constructor.
+    {
     }
 };
 
@@ -7853,7 +7925,89 @@ int main(int argc, char *argv[])
                                            defaultAllocator.numDeallocations();
     bsls::Types::Int64 numDefaultAllocations =
                                              defaultAllocator.numAllocations();
+
     switch (test) { case 0:  // Zero is always the leading case.
+      case 45: {
+        //---------------------------------------------------------------------
+        // TESTING BITWISE AND NOTHROW MOVEABILITY
+        //   Ensure that 'shared_ptr' and 'weak_ptr' are both bitwise moveable
+        //   and nothrow move constructible
+        //
+        // Concerns:
+        //: 1 That the test types 'NothrowAndBitwiseMovableTestType' and
+        //:   'NonNothrowAndNonBitwiseMovableTestType' satisfy the relevant
+        //:   type traits for this test.
+        //:
+        //: 2 That 'shared_ptr' and 'weak_ptr' are both bitwise moveable and
+        //:   nothrow move constructible, regardless of whether the type of the
+        //:   object to which they point satisfied these constraints.
+        //:
+        //
+        // Plan:
+        //: 1 Verify that 'NothrowAndBitwiseMovableTestType' is both bitwise
+        //:   moveable and nothrow move constructible.
+        //:
+        //: 2 Verify that 'NonNothrowAndNonBitwiseMovableTestType' is neither
+        //:   bitwise moveable nor nothrow move constructible.
+        //:
+        //: 3 Verify that 'shared_ptr<NothrowAndBitwiseMovableTestType>' is
+        //:   both bitwise moveable and nothrow move constructible.
+        //:
+        //: 4 Verify that 'weak_ptr<NothrowAndBitwiseMovableTestType>' is both
+        //:   bitwise moveable and nothrow move constructible.
+        //:
+        //: 5 Verify that 'shared_ptr<NonNothrowAndNonBitwiseMovableTestType>'
+        //:   is both bitwise moveable and nothrow move constructible.
+        //:
+        //: 6 Verify that 'weak_ptr<NonNothrowAndNonBitwiseMovableTestType>' is
+        //:   both bitwise moveable and nothrow move constructible.
+        //
+        // Testing:
+        //   TESTING BITWISE AND NOTHROW MOVEABILITY
+        //---------------------------------------------------------------------
+        if (verbose)
+            printf(
+              "\nTESTING BITWISE AND NOTHROW MOVEABILITY"
+              "\n=======================================\n");
+
+        // Verify the bitwise moveability of the test classes is as expected.
+        ASSERT(bslmf::IsBitwiseMoveable<
+               NothrowAndBitwiseMovableTestType>::value);
+        ASSERT(!bslmf::IsBitwiseMoveable<
+               NonNothrowAndNonBitwiseMovableTestType>::value);
+
+        // Verify shared_ptr is always bitwise moveable.
+        ASSERT(bslmf::IsBitwiseMoveable<bsl::shared_ptr<
+               NothrowAndBitwiseMovableTestType> >::value);
+        ASSERT(bslmf::IsBitwiseMoveable<bsl::shared_ptr<
+               NonNothrowAndNonBitwiseMovableTestType> >::value);
+
+        // Verify weak_ptr is always bitwise moveable.
+        ASSERT(bslmf::IsBitwiseMoveable<bsl::weak_ptr<
+               NothrowAndBitwiseMovableTestType> >::value);
+        ASSERT(bslmf::IsBitwiseMoveable<bsl::weak_ptr<
+               NonNothrowAndNonBitwiseMovableTestType> >::value);
+
+        // Verify the nothrow move constructibility of the test classes is as
+        // expected.
+        ASSERT(bsl::is_nothrow_move_constructible<
+               NothrowAndBitwiseMovableTestType>::value);
+        ASSERT(!bsl::is_nothrow_move_constructible<
+               NonNothrowAndNonBitwiseMovableTestType>::value);
+
+        // Verify shared_ptr is always nothrow move constructible.
+        ASSERT(bsl::is_nothrow_move_constructible<bsl::shared_ptr<
+               NothrowAndBitwiseMovableTestType> >::value);
+        ASSERT(bsl::is_nothrow_move_constructible<bsl::shared_ptr<
+               NonNothrowAndNonBitwiseMovableTestType> >::value);
+
+        // Verify weak_ptr is always nothrow move constructible.
+        ASSERT(bsl::is_nothrow_move_constructible<bsl::weak_ptr<
+               NothrowAndBitwiseMovableTestType> >::value);
+        ASSERT(bsl::is_nothrow_move_constructible<bsl::weak_ptr<
+               NonNothrowAndNonBitwiseMovableTestType> >::value);
+
+      } break;
       case 44: {
         //---------------------------------------------------------------------
         // TESTING CLASS TEMPLATE DEDUCTION GUIDES (AT COMPILE TIME)

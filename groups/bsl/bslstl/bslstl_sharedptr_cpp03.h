@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Mar 10 17:58:58 2022
+// Generated on Thu Mar 24 17:16:37 2022
 // Command line: sim_cpp11_features.pl bslstl_sharedptr.h
 
 #ifdef COMPILING_BSLSTL_SHAREDPTR_H
@@ -289,6 +289,10 @@ class shared_ptr {
         // currently installed default allocator to supply memory.
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(shared_ptr<ELEMENT_TYPE>,
+                                   bsl::is_nothrow_move_constructible);
+
     // TYPES
     typedef ELEMENT_TYPE element_type;
         // 'element_type' is an alias to the 'ELEMENT_TYPE' template parameter.
@@ -2930,6 +2934,10 @@ class weak_ptr {
     friend struct BloombergLP::bslstl::SharedPtr_ImpUtil;
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(weak_ptr<ELEMENT_TYPE>,
+                                   bsl::is_nothrow_move_constructible);
+
     // TYPES
     typedef ELEMENT_TYPE element_type;
         // 'element_type' is an alias for the 'ELEMENT_TYPE' parameter of this

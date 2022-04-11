@@ -1468,6 +1468,7 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_isfunction.h>
 #include <bslmf_ispointer.h>
 #include <bslmf_movableref.h>
+#include <bslmf_nestedtraitdeclaration.h>
 #include <bslmf_util.h>
 
 #include <bsls_assert.h>
@@ -1760,6 +1761,10 @@ class shared_ptr {
         // currently installed default allocator to supply memory.
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(shared_ptr<ELEMENT_TYPE>,
+                                   bsl::is_nothrow_move_constructible);
+
     // TYPES
     typedef ELEMENT_TYPE element_type;
         // 'element_type' is an alias to the 'ELEMENT_TYPE' template parameter.
@@ -3226,6 +3231,10 @@ class weak_ptr {
     friend struct BloombergLP::bslstl::SharedPtr_ImpUtil;
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(weak_ptr<ELEMENT_TYPE>,
+                                   bsl::is_nothrow_move_constructible);
+
     // TYPES
     typedef ELEMENT_TYPE element_type;
         // 'element_type' is an alias for the 'ELEMENT_TYPE' parameter of this

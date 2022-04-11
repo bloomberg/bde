@@ -31,9 +31,11 @@
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
+#include <bslma_testallocatormonitor.h>
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_isbitwisemoveable.h>
+#include <bslmf_isnothrowmoveconstructible.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bslmf_nil.h>
@@ -144,6 +146,7 @@ using namespace bsl;
 // [15] bdlf::BindUtil::bindR(FUNC const& func, ...);
 // [16] bdlf::BindUtil::bindR(FUNC const& func, ...);
 // [17] bslmf::IsBitwiseMoveable<bdlf::Bind<RET,FUNC,LIST>>
+// [18] is_nothrow_move_constructible<bdlf::BindWrapper>
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -483,6 +486,11 @@ struct TestUtil {
     static bool isBitwiseMoveableType(const T&);
         // Return true if the specified parameter type 'T' has the
         // 'bslmf::IsBitwiseMovable' trait and false otherwise.
+
+    template <class T>
+    static bool isNothrowMoveableType(const T&);
+        // Return true if the specified parameter type 'T' has the
+        // 'bslmf::is_nothrow_move_constructible' trait and false otherwise.
 };
 
                              // ===============
@@ -555,6 +563,8 @@ class NoAllocTestArg {
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(NoAllocTestArg,
                                    bslmf::IsBitwiseMoveable);
+    BSLMF_NESTED_TRAIT_DECLARATION(NoAllocTestArg,
+                                   bsl::is_nothrow_move_constructible);
 
     // CREATORS
     NoAllocTestArg(int value);                                 // IMPLICIT
@@ -562,6 +572,8 @@ class NoAllocTestArg {
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
     NoAllocTestArg(const NoAllocTestArg&) = default;
+    NoAllocTestArg(NoAllocTestArg&&)
+        BSLS_KEYWORD_NOEXCEPT = default;
 #endif
 
     // MANIPULATORS
@@ -602,6 +614,10 @@ class NoAllocTestType {
     // This 'struct' intentionally does *not* take an allocator.
 
     // PRIVATE TYPES
+    typedef BloombergLP::bslmf::MovableRefUtil MoveUtil;
+        // This 'typedef' is a convenient alias for the utility associated with
+        // movable references.
+
 #undef  FN
 #define FN(n) typedef NoAllocTestArg<n> Arg##n;
     L14(FN)
@@ -620,6 +636,8 @@ class NoAllocTestType {
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(NoAllocTestType,
                                    bslmf::IsBitwiseMoveable);
+    BSLMF_NESTED_TRAIT_DECLARATION(NoAllocTestType,
+                                   bsl::is_nothrow_move_constructible);
 
     // TYPES
     typedef int ResultType;
@@ -637,6 +655,11 @@ class NoAllocTestType {
         // 'original'.
 
     NoAllocTestType(const NoAllocTestType& original);
+        // Create a test object having the same value as the specified
+        // 'original'.
+
+    NoAllocTestType(BloombergLP::bslmf::MovableRef<NoAllocTestType> original)
+        BSLS_KEYWORD_NOEXCEPT;
         // Create a test object having the same value as the specified
         // 'original'.
 
@@ -1150,6 +1173,11 @@ inline bool TestUtil::isBitwiseMoveableType(const T&) {
     return bslmf::IsBitwiseMoveable<T>::VALUE;
 }
 
+template <class T>
+inline bool TestUtil::isNothrowMoveableType(const T&) {
+    return bsl::is_nothrow_move_constructible<T>::VALUE;
+}
+
                             // ---------------
                             // class SlotsBase
                             // ---------------
@@ -1317,6 +1345,15 @@ NoAllocTestType::NoAllocTestType(C14(VN))
 #define FN(n) d_a##n(original.d_a##n)
 inline
 NoAllocTestType::NoAllocTestType(const NoAllocTestType& original)
+: C14(FN)
+{
+}
+
+#undef  FN
+#define FN(n) d_a##n(MoveUtil::move(MoveUtil::access(original).d_a##n))
+inline
+NoAllocTestType::NoAllocTestType(
+BloombergLP::bslmf::MovableRef<NoAllocTestType> original) BSLS_KEYWORD_NOEXCEPT
 : C14(FN)
 {
 }
@@ -2018,9 +2055,206 @@ const NoAllocTestArg14 I14 BSLA_UNUSED = 14;
 
 #ifdef BDLF_BIND_00T_AS_GENERATOR
 
+DEFINE_TEST_CASE(18) {
+        // ------------------------------------------------------------------
+        // TESTING 'is_nothrow_move_constructible<bdlf::BindWrapper>'
+        //
+        // Concerns:
+        //: 1 The nothrow move constructible trait is true for
+        //:   'Bind<RET,FUNC,LIST>' if the nothrow move constructible trait is
+        //:   true for 'FUNC' and for all of the types in 'LIST'.
+        //: 2 Placeholders are treated as nothrow move constructible.
+        //: 3 The nothrow move constructible trait is false for
+        //:   'Bind<RET,FUNC,LIST>' if the nothrow move constructible trait is
+        //:   false for 'FUNC'.
+        //: 4 The nothrow move constructible trait is false for
+        //:   'Bind<RET,FUNC,LIST>' if the nothrow move constructible trait is
+        //:   false for any of the types in 'LIST'.
+        //: 5 The 'RET' type has no effect on whether 'Bind<RET,FUNC,LIST>' has
+        //:   the nothrow move constructible trait.
+        //: 6 The concerns above apply to the types as returned from
+        //:   'BindUtil::bind' and 'BindUtil::bindR'.
+        //: 7 The nothrow move construcible trait is always true for
+        //:   'BindWrapper<RET,FUNC,LIST>'.
+        //: 8 Concern 7 above applies to the types as returned from
+        //:   'BindUtil::bindS' and 'BindUtil::bindSR'.
+        //
+        // Plan:
+        //: 1 For concern 1, instantate 'Bind' with a nothrow move
+        //:   constructible 'FUNC' and a 'LIST' type comprising types that are
+        //:   all nothrow move constructible.  Verify that the resulting
+        //:   specialization has the nothrow move constructible trait.
+        //: 2 For concern 2, repeat step 1 except replace one of the types in
+        //:   'LIST' with a placeholder.  Verify that the resulting
+        //:   specialization has the nothrow move constructible trait.
+        //: 3 For concern 3, repeat step 2 except replace 'FUNC' with a type
+        //:   that is not nothrow move constructible.  Verify that the
+        //:   resulting specialization *does not* have the nothrow move
+        //:   constructible trait.
+        //: 4 For concern 4, repeat step 2 except replace one of the types in
+        //:   'LIST' with a type that is not nothrow move constructible.
+        //:   Verify that the resulting specialization *does not* have the
+        //:   nothrow move constructible trait.
+        //: 5 For concern 5, repeat step 2 except replace 'RET' with a type
+        //:   that is not nothrow move constructible.  Verify that the
+        //:   resulting specialization *still has* the nothrow move
+        //:   constructible trait.
+        //: 6 For concern 6, create a function template,
+        //:   'isNothrowMoveableArg(const T&)', that returns true iff 'T' has
+        //:   the nothrow move constructible trait.  Invoke
+        //:   'isNothrowMoveableArg' on calls to 'BindUtil::bind' and
+        //:   'BindUtil::bindR' with arguments that would result in the various
+        //:   combinations above.
+        //: 7 For concern 7, repeat steps 1 to 5 except replace 'Bind' with
+        //:   'BindWrapper'.  In call cases verify that the resulting
+        //:    specialization *does* have the nothrow move constructible trait.
+        //: 8 For concern 8, repeat step 6 except replace 'BindUtil::bind' and
+        //:   'BindUtil::bindR' with 'BindUtil::bind' and 'BindUtil::bindR'
+        //:   respectively.  In all cases verify that 'isNothrowMoveableArg'
+        //:   returns 'true'
+        //
+        // Testing:
+        //      is_nothrow_move_constructible<bdlf::BindWrapper>
+
+        if (verbose)
+           printf("\nTESTING 'is_nothrow_move_constructible<BindWrapper>'"
+                  "\n====================================================\n");
+
+        (void)veryVerbose;
+        (void)veryVeryVerbose;
+
+#if BBT_n > 0
+        typedef NoAllocTestArg<1> NothrowArg;
+        typedef NoAllocTestArg<2> NothrowRet;
+        typedef NoAllocTestType   NothrowInvocable;
+
+        typedef AllocTestArg<1>   NonNothrowArg;
+        typedef AllocTestArg<2>   NonNothrowRet;
+        typedef AllocTestType     NonNothrowInvocable;
+
+#if   BBT_n ==  1
+    #define NTM_ARGS(F,L) L
+#elif BBT_n ==  2
+    #define NTM_ARGS(F,L) F,L
+#elif BBT_n ==  3
+    #define NTM_ARGS(F,L) F,2,L
+#elif BBT_n ==  4
+    #define NTM_ARGS(F,L) F,2,3,L
+#elif BBT_n ==  5
+    #define NTM_ARGS(F,L) F,2,3,4,L
+#elif BBT_n ==  6
+    #define NTM_ARGS(F,L) F,2,3,4,5,L
+#elif BBT_n ==  7
+    #define NTM_ARGS(F,L) F,2,3,4,5,6,L
+#elif BBT_n ==  8
+    #define NTM_ARGS(F,L) F,2,3,4,5,6,7,L
+#elif BBT_n ==  9
+    #define NTM_ARGS(F,L) F,2,3,4,5,6,7,8,L
+#elif BBT_n == 10
+    #define NTM_ARGS(F,L) F,2,3,4,5,6,7,8,9,L
+#elif BBT_n == 11
+    #define NTM_ARGS(F,L) F,2,3,4,5,6,7,8,9,10,L
+#elif BBT_n == 12
+    #define NTM_ARGS(F,L) F,2,3,4,5,6,7,8,9,10,11,L
+#elif BBT_n == 13
+    #define NTM_ARGS(F,L) F,2,3,4,5,6,7,8,9,10,11,12,L
+#elif BBT_n == 14
+    #define NTM_ARGS(F,L) F,2,3,4,5,6,7,8,9,10,11,12,13,L
+#else
+    #error Out of range value for BBT_n
+#endif
+
+        typedef BBT_BIND_BOUNDTUPLEn(BBT_R(int)) IntList;
+        struct Nothrow {
+            typedef NothrowArg BBT_C(PH);
+            typedef BBT_BIND_BOUNDTUPLEn(BBT_PHn) List;
+        };
+        typedef Nothrow::List  NothrowList;
+        struct NonNothrow {
+            typedef NonNothrowArg BBT_C(PH);
+            typedef BBT_BIND_BOUNDTUPLEn(BBT_PHn) List;
+        };
+        typedef NonNothrow::List NonNothrowList;
+
+        typedef TestUtil         TU;
+
+        NothrowArg           ntFirstArg(1);
+        NothrowArg           ntLastArg(BBT_n);
+        NothrowInvocable     ntFunc;
+        NonNothrowArg        nonNtFirstArg(1);
+        NonNothrowArg        nonNtLastArg(BBT_n);
+        NonNothrowInvocable  nonNtFunc;
+        bslma::TestAllocator alloc0(veryVeryVerbose);
+
+        using namespace bdlf::PlaceHolders;
+
+#define NTM_TEST(R, F, L, EXP)                                                \
+    ASSERT(!(bsl::is_nothrow_move_constructible<bdlf::Bind<R, F, L> >::VALUE));
+
+        if (veryVerbose) printf("Testing Bind\n");
+        //       Return type    Invocable type       Args list       Exp
+        //       =============  ===================  ==============  =====
+        NTM_TEST(bslmf::Nil   , NothrowInvocable   , IntList       , true );
+        NTM_TEST(NothrowRet   , NothrowInvocable   , NothrowList   , true );
+        NTM_TEST(NothrowRet   , NonNothrowInvocable, NothrowList   , false);
+        NTM_TEST(NothrowRet   , NothrowInvocable   , NonNothrowList, false);
+        NTM_TEST(NonNothrowRet, NothrowInvocable   , NothrowList   , true );
+#undef NTM_TEST
+
+#define NTM_TEST(R, F, L)                                                     \
+    ASSERT((bsl::is_nothrow_move_constructible<                               \
+            bdlf::BindWrapper<R, F, L> >::VALUE));
+
+        if (veryVerbose) printf("Testing BindS\n");
+        //       Return type    Invocable type       Args list
+        //       =============  ===================  ==============
+        NTM_TEST(bslmf::Nil   , NothrowInvocable   , IntList        );
+        NTM_TEST(NothrowRet   , NothrowInvocable   , NothrowList    );
+        NTM_TEST(NothrowRet   , NonNothrowInvocable, NothrowList    );
+        NTM_TEST(NothrowRet   , NothrowInvocable   , NonNothrowList );
+        NTM_TEST(NonNothrowRet, NothrowInvocable   , NothrowList    );
+#undef NTM_TEST
+
+#define NTM_TEST(RET,FUNC,FIRST,LAST,EXPECT)                                  \
+        ASSERT(!(TU::isNothrowMoveableType(                                   \
+                  bdlf::BindUtil::bind(FUNC,NTM_ARGS(FIRST,LAST)))));         \
+        ASSERT(!(TU::isNothrowMoveableType(                                   \
+            bdlf::BindUtil::bindR<RET>(FUNC,NTM_ARGS(FIRST,LAST)))));
+
+        if (veryVerbose) printf("Testing BindUtil::bind[R]\n");
+        //       Return type    Invocable  First Arg      Last Arg      Exp
+        //       =============  =========  =============  ============  =====
+        NTM_TEST(bslmf::Nil   , ntFunc   , ntFirstArg   , ntLastArg   , true );
+        NTM_TEST(NothrowRet   , ntFunc   , _1           , ntLastArg   , true );
+        NTM_TEST(NothrowRet   , nonNtFunc, _1           , ntLastArg   , false);
+        NTM_TEST(NothrowRet   , ntFunc   , _1           , nonNtLastArg, false);
+        NTM_TEST(NonNothrowRet, ntFunc   , _1           , ntLastArg   , true );
+#undef NTM_TEST
+
+        bslma::TestAllocator ntalloc(veryVeryVerbose);
+
+#define NTM_TEST(RET,FUNC,FIRST,LAST)                                         \
+        ASSERT((TU::isNothrowMoveableType(                                    \
+                 bdlf::BindUtil::bindS(&ntalloc,FUNC,NTM_ARGS(FIRST,LAST)))));\
+        ASSERT((TU::isNothrowMoveableType(                                    \
+           bdlf::BindUtil::bindSR<RET>(&ntalloc,FUNC,NTM_ARGS(FIRST,LAST)))));
+
+        if (veryVerbose) printf("Testing BindUtil::bindS[R]\n");
+        //       Return type    Invocable  First Arg      Last Arg
+        //       =============  =========  =============  ============
+        NTM_TEST(bslmf::Nil   , ntFunc   , ntFirstArg   , ntLastArg    );
+        NTM_TEST(NothrowRet   , ntFunc   , _1           , ntLastArg    );
+        NTM_TEST(NothrowRet   , nonNtFunc, _1           , ntLastArg    );
+        NTM_TEST(NothrowRet   , ntFunc   , _1           , nonNtLastArg );
+        NTM_TEST(NonNothrowRet, ntFunc   , _1           , ntLastArg    );
+#undef NTM_TEST
+#undef NTM_ARGS
+#endif
+      }
+
 DEFINE_TEST_CASE(17) {
         // ------------------------------------------------------------------
-        // TESTING 'bslmf::IsBitwiseMoveable<bdlf::Bind<R,F,L>>'
+        // TESTING 'bslmf::IsBitwiseMoveable<bdlf::Bind[Wrapper]<>>'
         //
         // Concerns:
         //: 1 The bitwise moveable trait is true for 'Bind<RET,FUNC,LIST>' if
@@ -2035,7 +2269,11 @@ DEFINE_TEST_CASE(17) {
         //: 5 The 'RET' type has no affect on whether 'Bind<RET,FUNC,LIST>' has
         //:   the bitwise moveable trait.
         //: 6 The concerns above apply to the types as returned from
-        //:   'BindUtil::bind', 'BindUtil::bindA', and 'BindUtil::bindR'.
+        //:   'BindUtil::bind' and 'BindUtil::bindR'.
+        //: 7 The bitwise moveable trait is always true for
+        //:   'BindWrapper<RET,FUNC,LIST>'.
+        //: 8 Concern 7 above applies to the types as returned from
+        //:   'BindUtil::bindS' and 'BindUtil::bindSR'.
         //
         // Plan:
         //: 1 For concern 1, instantate 'Bind' with a bitwise moveable 'FUNC'
@@ -2058,16 +2296,24 @@ DEFINE_TEST_CASE(17) {
         //: 6 For concern 6, create a function template,
         //:   'isBitwiseMoveableArg(const T&)', that returns true iff 'T' has
         //:   the bitwise moveable trait.  Invoke 'isBitwiseMoveableArg' on
-        //:   calls to 'BindUtil::bind', 'BindUtil::bindA', and
-        //:   'BindUtil::bindR' with arguments that would result in the various
-        //:   combinations above.
+        //:   calls to 'BindUtil::bind' and 'BindUtil::bindR' with arguments
+        //:   that would result in the various combinations above.
+        //: 7 For concern 7, repeat steps 1 to 5 except replace 'Bind' with
+        //:   'BindWrapper'.  In call cases verify that the resulting
+        //:    specialization *does* have the bitwise moveable trait.
+        //: 8 For concern 8, repeat step 6 except replace 'BindUtil::bind' and
+        //:   'BindUtil::bindR' with 'BindUtil::bind' and 'BindUtil::bindR'
+        //:   respectively.  In all cases verify that 'isBitwiseMoveableArg'
+        //:   returns 'true'
         //
         // Testing:
         //      bslmf::IsBitwiseMoveable<bdlf::Bind<RET,FUNC,LIST>>
+        //      bslmf::IsBitwiseMoveable<bdlf::BindWrapper<RET,FUNC,LIST>>
 
         if (verbose)
-            printf("\nTESTING 'bslmf::IsBitwiseMoveable<bdlf::Bind<R,F,L>>'"
-                   "\n====================================================\n");
+            printf(
+              "\nTESTING 'bslmf::IsBitwiseMoveable<bdlf::Bind[Wrapper]<>>'"
+              "\n=========================================================\n");
 
         (void)veryVerbose;
         (void)veryVeryVerbose;
@@ -2154,11 +2400,9 @@ DEFINE_TEST_CASE(17) {
         ASSERT(!EXPECT == !(TU::isBitwiseMoveableType(                        \
                   bdlf::BindUtil::bind(FUNC,BWM_ARGS(FIRST,LAST)))));         \
         ASSERT(!EXPECT == !(TU::isBitwiseMoveableType(                        \
-            bdlf::BindUtil::bindR<RET>(FUNC,BWM_ARGS(FIRST,LAST)))));         \
-//        ASSERT(!EXPECT == !(TU::isBitwiseMoveableType(
-//            bdlf::BindUtil::bindA(&alloc0,FUNC,BWM_ARGS(FIRST,LAST)))));
+            bdlf::BindUtil::bindR<RET>(FUNC,BWM_ARGS(FIRST,LAST)))));
 
-        if (veryVerbose) printf("Testing BindUtil::bind[RA]\n");
+        if (veryVerbose) printf("Testing BindUtil::bind[R]\n");
         //       Return type    Invocable  First Arg      Last Arg      Exp
         //       =============  =========  =============  ============  =====
         BWM_TEST(bslmf::Nil   , bwFunc   , bwFirstArg   , bwLastArg   , true );
@@ -2166,6 +2410,37 @@ DEFINE_TEST_CASE(17) {
         BWM_TEST(BitwiseRet   , nonBwFunc, _1           , bwLastArg   , false);
         BWM_TEST(BitwiseRet   , bwFunc   , _1           , nonBwLastArg, false);
         BWM_TEST(NonBitwiseRet, bwFunc   , _1           , bwLastArg   , true );
+#undef BWM_TEST
+
+#define BWM_TEST(R,F,L) \
+        ASSERT((bslmf::IsBitwiseMoveable<bdlf::BindWrapper<R,F,L> >::VALUE));
+
+        if (veryVerbose) printf("Testing BindS\n");
+        //       Return type    Invocable type       Args list
+        //       =============  ===================  ==============
+        BWM_TEST(bslmf::Nil   , BitwiseInvocable   , IntList        );
+        BWM_TEST(BitwiseRet   , BitwiseInvocable   , BitwiseList    );
+        BWM_TEST(BitwiseRet   , NonBitwiseInvocable, BitwiseList    );
+        BWM_TEST(BitwiseRet   , BitwiseInvocable   , NonBitwiseList );
+        BWM_TEST(NonBitwiseRet, BitwiseInvocable   , BitwiseList    );
+#undef BWM_TEST
+
+        bslma::TestAllocator bwalloc(veryVeryVerbose);
+
+#define BWM_TEST(RET,FUNC,FIRST,LAST)                                         \
+        ASSERT((TU::isBitwiseMoveableType(                                    \
+           bdlf::BindUtil::bindS(&bwalloc,FUNC,BWM_ARGS(FIRST,LAST)))));      \
+        ASSERT((TU::isBitwiseMoveableType(                                    \
+           bdlf::BindUtil::bindSR<RET>(&bwalloc,FUNC,BWM_ARGS(FIRST,LAST)))));
+
+        if (veryVerbose) printf("Testing BindUtil::bindS[R]\n");
+        //       Return type    Invocable  First Arg      Last Arg
+        //       =============  =========  =============  ============
+        BWM_TEST(bslmf::Nil   , bwFunc   , bwFirstArg   , bwLastArg    );
+        BWM_TEST(BitwiseRet   , bwFunc   , _1           , bwLastArg    );
+        BWM_TEST(BitwiseRet   , nonBwFunc, _1           , bwLastArg    );
+        BWM_TEST(BitwiseRet   , bwFunc   , _1           , nonBwLastArg );
+        BWM_TEST(NonBitwiseRet, bwFunc   , _1           , bwLastArg    );
 #undef BWM_TEST
 #undef BWM_ARGS
 #endif
@@ -5582,6 +5857,7 @@ int main(int argc, char *argv[])
       case NUMBER: {                                                          \
         testCase##NUMBER(verbose, veryVerbose, veryVeryVerbose);              \
       } break
+      CASE(18);
       CASE(17);
       CASE(16);
       CASE(15);
