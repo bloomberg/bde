@@ -1992,25 +1992,27 @@ int main(int argc, char *argv[])
             };
 
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
-
             for (int i = 0; i < NUM_VALUES; ++i) {
-                const int MIN     = VALUES[i].d_minThreads;
-                const int MAX     = VALUES[i].d_maxThreads;
-                const int SEC     = VALUES[i].d_maxIdleSeconds;
-                const int NANOSEC = VALUES[i].d_maxIdleNanoseconds;
+                // SEC and NANOSEC conflict with Solaris macros
+                // DRQS 169029388
 
-                const bsls::TimeInterval IDLE_TIME(SEC, NANOSEC);
+                const int k_MIN     = VALUES[i].d_minThreads;
+                const int k_MAX     = VALUES[i].d_maxThreads;
+                const int k_SEC     = VALUES[i].d_maxIdleSeconds;
+                const int k_NANOSEC = VALUES[i].d_maxIdleNanoseconds;
+
+                const bsls::TimeInterval IDLE_TIME(k_SEC, k_NANOSEC);
                 bslmt::ThreadAttributes  attr;
 
-                Obj        mX(attr, MIN, MAX, IDLE_TIME);
+                Obj        mX(attr, k_MIN, k_MAX, IDLE_TIME);
                 const Obj& X = mX;
 
                 if (veryVerbose) {
-                    T_ P_(i); P(IDLE_TIME); T_ P_(MIN); P(MAX);
+                    T_ P_(i); P(IDLE_TIME); T_ P_(k_MIN); P(k_MAX);
                 }
 
-                ASSERTV(i, MIN       == X.minThreads());
-                ASSERTV(i, MAX       == X.maxThreads());
+                ASSERTV(i, k_MIN     == X.minThreads());
+                ASSERTV(i, k_MAX     == X.maxThreads());
                 ASSERTV(i, IDLE_TIME == X.maxIdleTimeInterval());
                 ASSERTV(i, 0         == X.threadFailures());
             }
