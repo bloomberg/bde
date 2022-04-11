@@ -87,10 +87,10 @@ class Base {
 class Derived : public Base {
 };
 
-#ifndef BSLS_PLATFORM_CMP_IBM
-// There is a bug in the XLC compiler which causes these tests to fail.  The
-// problem impacts bslmf_isconvertible, so if a workaround is applied, it would
-// appear in that component instead of this one.
+#if (BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L) \
+        || defined (BSLS_PLATFORM_CMP_SUN)
+        // Prior to C++11 these are ill-formed and not expected to compile, but
+        // the SUN compiler is permissive
 class PrivatelyDerived : private Base {
   public:
     bool IsBaseTest()
@@ -145,7 +145,8 @@ class DerivedOfProtectedlyDerived : private ProtectedlyDerived {
                                          DerivedOfProtectedlyDerived>::value;
     }
 };
-#endif  // BSLS_PLATFORM_CMP_IBM
+
+#endif  // C++11 or SUN
 
 class TransitivelyDerived : public Derived {
 };
@@ -306,10 +307,10 @@ int main(int argc, char *argv[])
                 bslmf::IsAccessibleBaseOf<Base, AmbiguousLeft>::value));
         ASSERT((true ==
                 bslmf::IsAccessibleBaseOf<Base, AmbiguousRight>::value));
-#ifndef BSLS_PLATFORM_CMP_IBM
-        // There is a bug in the XLC compiler which causes these tests to fail.
-        // The problem impacts bslmf_isconvertible, so if a workaround is
-        // applied, it would appear in that component instead of this one.
+#if (BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L) \
+        || defined (BSLS_PLATFORM_CMP_SUN)
+        // Prior to C++11 these are ill-formed and not expected to compile, but
+        // the SUN compiler is permissive
         ASSERT((false ==
                 bslmf::IsAccessibleBaseOf<Base, PrivatelyDerived>::value));
         ASSERT((false ==
@@ -320,7 +321,7 @@ int main(int argc, char *argv[])
                                          DerivedOfProtectedlyDerived>::value));
         ASSERT((false ==
                 bslmf::IsAccessibleBaseOf<Base, AmbiguousTop>::value));
-#endif  // BSLS_PLATFORM_CMP_IBM
+#endif  // C++11 or SUN
         ASSERT((false == bslmf::IsAccessibleBaseOf<Base, OtherBase>::value));
 
         ASSERT((false == bslmf::IsAccessibleBaseOf<Derived, Base>::value));
@@ -343,18 +344,18 @@ int main(int argc, char *argv[])
         ASSERT((false == bslmf::IsAccessibleBaseOf<void, void>::value));
         ASSERT((false == bslmf::IsAccessibleBaseOf<Incomplete, void>::value));
 
-#ifndef BSLS_PLATFORM_CMP_IBM
-        // There is a bug in the XLC compiler which causes these tests to fail.
-        // The problem impacts bslmf_isconvertible, so if a workaround is
-        // applied, it would appear in that component instead of this one.
-        ASSERT(false == PrivatelyDerived{}.IsBaseTest());
-        ASSERT(false == ProtectedlyDerived{}.IsBaseTest());
-        ASSERT(false == DerivedOfProtectedlyDerived{}.IsBaseTest());
+#if (BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L) \
+        || defined (BSLS_PLATFORM_CMP_SUN)
+        // Prior to C++11 these are ill-formed and not expected to compile, but
+        // the SUN compiler is permissive
+        ASSERT(false == PrivatelyDerived().IsBaseTest());
+        ASSERT(false == ProtectedlyDerived().IsBaseTest());
+        ASSERT(false == DerivedOfProtectedlyDerived().IsBaseTest());
 
         ASSERT(false == PrivatelyDerived::IsBaseStaticTest());
         ASSERT(false == ProtectedlyDerived::IsBaseStaticTest());
         ASSERT(false == DerivedOfProtectedlyDerived::IsBaseStaticTest());
-#endif  // BSLS_PLATFORM_CMP_IBM
+#endif  // C++11 or SUN
       } break;
       case 1: {
         // --------------------------------------------------------------------

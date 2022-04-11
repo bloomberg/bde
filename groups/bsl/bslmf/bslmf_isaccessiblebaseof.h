@@ -17,7 +17,7 @@ BSLS_IDENT("$Id: $")
 // 'BASE' class is an accessible base class of, or the same class as, the
 // template parameter 'DERIVED'.  Otherwise, 'bslmf::IsAccessibleBaseOf::value'
 // is 'false'.  The specific cases of private, protected, and ambiguous
-// inheritance are not supported for the IBM xlC compiler.
+// inheritance are not supported for versions of C++ prior to 11.
 //
 ///Usage
 ///-----
