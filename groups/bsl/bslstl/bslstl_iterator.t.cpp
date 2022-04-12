@@ -422,7 +422,7 @@ class AccessTestContainer
         e_CONST_END           = 32,
         e_REVERSE_END         = 64,
         e_CONST_REVERSE_END   = 128,
-        e_SIZE                = 256,
+        e_SIZE                = 256
     };
 
     // DATA
