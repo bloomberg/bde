@@ -43,8 +43,15 @@ using namespace BloombergLP;
 // [1] bsl::chrono::nanoseconds  operator "" _ns (unsigned long long);
 // [1] bsl::chrono::duration     operator "" _ns (long double);
 // ----------------------------------------------------------------------------
-// [3] USAGE EXAMPLE
+// [4] USAGE EXAMPLE
 // [2] CONCERN: clocks match those in 'bsls::SystemTime'
+// [3] bsl::chrono::abs(std::chrono::duration)
+// [3] bsl::chrono::ceil(std::chrono::duration)
+// [3] bsl::chrono::floor(std::chrono::duration)
+// [3] bsl::chrono::round(std::chrono::duration)
+// [3] bsl::chrono::ceil(std::chrono::time_point)
+// [3] bsl::chrono::floor(std::chrono::time_point)
+// [3] bsl::chrono::round(std::chrono::time_point)
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -141,7 +148,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 3: {
+      case 4: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -157,7 +164,7 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting Usage Example"
+        if (verbose) printf("\nTESTING USAGE EXAMPLE"
                             "\n=====================\n");
 
 #if defined (BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY) && \
@@ -193,6 +200,52 @@ int main(int argc, char *argv[])
 #endif
 
     } break;
+    case 3: {
+      // ----------------------------------------------------------------------
+      // TESTING C++17 MATH ADDITIONS TO <CHRONO>
+      //
+      // Concerns:
+      //: 1 That the functions 'chrono::abs', chrono::ceil, chrono::floor and
+      //:   chrono::round have been imported into the 'bsl::chrono' namespace.
+      //
+      // Plan:
+      //: 1 Verify that simple calls to these functions successfully compile
+      //:   and that they return sane results.
+      //
+      // Testing:
+      //   bsl::chrono::abs(std::chrono::duration)
+      //   bsl::chrono::ceil(std::chrono::duration)
+      //   bsl::chrono::floor(std::chrono::duration)
+      //   bsl::chrono::round(std::chrono::duration)
+      //   bsl::chrono::ceil(std::chrono::time_point)
+      //   bsl::chrono::floor(std::chrono::time_point)
+      //   bsl::chrono::round(std::chrono::time_point)
+      // ----------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING C++17 MATH ADDITIONS TO <CHRONO>"
+                            "\n========================================\n");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+        using namespace bsl::chrono_literals;
+
+        ASSERT(42s == std::chrono::abs(-42s));
+        ASSERT(2min == std::chrono::ceil<bsl::chrono::minutes>(112s));
+        ASSERT(1min == std::chrono::floor<bsl::chrono::minutes>(112s));
+        ASSERT(2min == std::chrono::round<bsl::chrono::minutes>(112s));
+
+        using TimePoint = bsl::chrono::time_point<bsl::chrono::system_clock,
+                                                  bsl::chrono::seconds>;
+        TimePoint tp{112s};
+        ASSERT(2min ==
+               std::chrono::ceil<bsl::chrono::minutes>(tp).time_since_epoch());
+        ASSERT(1min ==
+              std::chrono::floor<bsl::chrono::minutes>(tp).time_since_epoch());
+        ASSERT(2min ==
+              std::chrono::round<bsl::chrono::minutes>(tp).time_since_epoch());
+
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+
+      } break;
     case 2: {
         // --------------------------------------------------------------------
         // CLOCK TESTS

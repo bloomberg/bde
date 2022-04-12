@@ -130,6 +130,12 @@ namespace bsl {
     using native_std::shuffle;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+    using native_std::clamp;
+    using native_std::for_each_n;
+    using native_std::sample;
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // Import additional names expected by existing code, but not mandated by
     // the standard header.

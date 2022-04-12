@@ -180,6 +180,9 @@ using namespace bslim;
 // defined in 'bslstl'.
 //
 //-----------------------------------------------------------------------------
+// [13] bsl::clamp();
+// [13] bsl::for_each_n();
+// [13] bsl::sample();
 // [12] bsl::exclusive_scan()
 // [12] bsl::inclusive_scan()
 // [12] bsl::gcd()
@@ -595,6 +598,23 @@ struct addOne {
 };
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
+namespace {
+
+struct CountingFunctor {
+    static size_t s_count;
+    // A functor that does nothing but call how many times it is called.
+
+    template <class TYPE>
+    void operator () (const TYPE &) const
+        // update the count of times that this has been called
+    {
+        ++s_count;
+    }
+};
+
+size_t CountingFunctor::s_count = 0;
+}  // close unnamed namespace
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -614,6 +634,47 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << "\n";
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 13: {
+        // --------------------------------------------------------------------
+        // TESTING C++17 <BSL_ALGORITHM.H> ADDITIONS
+        //
+        // Concerns:
+        //: 1 The calls 'bsl::clamp', 'bls:for_each_n', and 'bsl::sample' all
+        //    exist and return expected values for simple cases.
+        //
+        // Plan:
+        //: 1 Call each of the three algorithms with simple inputs and verify
+        //:   that the result is correct.
+        //
+        // Testing:
+        //   bsl::clamp();
+        //   bsl::for_each_n();
+        //   bsl::sample();
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING C++17 <BSL_ALGORITHM.H> ADDITIONS"
+                            "\n=========================================\n");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+        ASSERT(3 == bsl::clamp(3, 1, 10));
+
+        const bsl::string source = "abcdef";
+        bsl::string       dest;
+
+        CountingFunctor::s_count = 0;
+        bsl::for_each_n(source.begin(), 3, CountingFunctor{});
+        ASSERT(3 == CountingFunctor::s_count);
+
+        dest.clear();
+        bsl::sample(source.begin(),
+                    source.end(),
+                    bsl::back_inserter(dest),
+                    5,
+                    bsl::mt19937{bsl::random_device{}()});
+        ASSERT(5 == dest.size());
+#endif
+
+      } break;
       case 12: {
         // --------------------------------------------------------------------
         // TESTING C++17 <BSL_NUMERIC.H> ADDITIONS
@@ -725,7 +786,6 @@ int main(int argc, char *argv[])
 #endif
 
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-
       } break;
       case 11: {
         // --------------------------------------------------------------------

@@ -104,6 +104,12 @@ namespace bsl {
             // 'native_std::chrono::treat_as_floating_point' meta-function.
 #endif
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
+        using native_std::chrono::abs;
+        using native_std::chrono::ceil;
+        using native_std::chrono::floor;
+        using native_std::chrono::round;
+#endif
     }  // close namespace chrono
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
