@@ -1,5 +1,28 @@
-bsl-internal (3.99.2.0) unstable; urgency=low
+bsl-internal (3.99.3.0) unstable; urgency=low
 
+  * 6a2d0ec96 Bumped version to 3.99.3.0
+  * 17c27e617 Cxx17 additions for bsl_algorithm and bsl_chrono (#3652)
+  * b22b71316 Fix bdlmt_threadpool.t.cpp build on solaris (#3655)
+  * cb63ec31d Elide test 13 for gcc-11 (#3639)
+  * 7086dfc30 bslmf_isaccessiblebaseof C++03 test fixes (#3651)
+  * 25455f63e Make BindWrapper bitwise movable and nothrow move constructible. drqs 168419206 (#3624)
+  * e57a99721 bdlt_datetimeinterval: totalSecondsAsDouble hit g++11 compiler bug with mixed Int64-double arithmetic, simplified expression (#3653)
+  * 137d81cf3 Quoting options for decimal64 drqs166617828 (#3648)
+  * ba0bf4fae Bdlcc skiplist leak detection review drqs 168745524 (#3611)
+  * 290854869 Add the C++17 aliases to bsl_numeric.h and bsl_execution.h (#3638)
+  * fb707303b Adjust fixed queue doc (#3647)
+  * e8357c264 balxml: Support Lists of Nillable Scalars (#3625)
+  * 2dedc372c Update bsla_nonnullarg docs to note that BSLA_NONNULLARG indexing includes 'this' - DRQS 168976878 (#3645)
+  * 295d8c5dc bdlde_crc32c: Restrict SSE4.2 detection to SSE4.2-enabled targets (#3641)
+  * a206c2808 bdlde.cmake: Fix Darwin Builds (#3644)
+  * 29dd6ba65 'bsls::TimeInterval' overload has been added to 'bdlmt::ThreadPool' (#3614)
+  * 599e149c2 Merge pull request #3626 from bchapman/bsls_stackaddressutil-gcc-11-test-failure-drqs-168818131
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Thu, 14 Apr 2022 18:50:33 -0400
+
+bsl-internal (3.99.2.0) git; urgency=low
+
+  * 6f2c07b05 Changelog for version 3.99.2.0
   * 73975deda Bumped version to 3.99.2.0
   * 6d4222bba Drqs 168909332/bdl reduce volatile (#3632)
   * 50cd23ef6 Reduce locale assert scope & minor cleanup. (#3615)
@@ -38,7 +61,7 @@ bsl-internal (3.99.2.0) unstable; urgency=low
   * f0ef0af73 Revert "Bslh wyhash make default 2 drqs 166864744 (#3583)" (#3590)
   * ffd588ede Merge pull request #3579 from bchapman/balb_pipecontrolchannel-data-race-drqs-168492074
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 1 Apr 2022 10:14:55 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 1 Apr 2022 10:18:46 -0400
 
 bsl-internal (3.100.0.0) git; urgency=low
 
