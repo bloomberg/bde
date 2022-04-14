@@ -87,7 +87,7 @@
 :      Provide a fully thread-safe deque container.
 :
 : 'bdlcc_fixedqueue':
-:      Provide a thread-enabled fixed-size queue of values.
+:      Provide a thread-aware fixed-size queue of values.
 :
 : 'bdlcc_fixedqueueindexmanager':
 :      Provide thread-enabled state management for a fixed-size queue.
