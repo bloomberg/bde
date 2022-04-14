@@ -300,13 +300,68 @@ struct UsesBslmaAllocator<const volatile TYPE> : UsesBslmaAllocator<TYPE>::type
 //                TEMPLATE AND INLINE FUNCTION IMPLEMENTATIONS
 // ============================================================================
 
+                        // ==============================
+                        // class UsesBslmaAllocator_Sniff
+                        // ==============================
+
+template <class TYPE, bool BYPASS>
+struct UsesBslmaAllocator_Sniff {
+    // This class has a constant 'value' that is 'true' if the specified
+    // 'TYPE' is implicitly convertible from 'bslma::Allocator *'.  It thus
+    // "sniffs" whether 'UsesBslmaAllocator<TYPE>::value' should be 'true'.
+    // If the specified 'BYPASS' parameter is 'true', the conversion check is
+    // skipped and 'value' is hard-coded to 'true'.  The bypass is needed
+    // because the xlC compiler will sometimes instantiate the copy
+    // constructor for 'TYPE', leading to compilation errors if 'TYPE' is not
+    // copy constructible.  This automatic sniffing is deprecated; having a
+    // type implicitly convertible from an allocator pointer is discouraged.
+
+  private:
+    // PRIVATE TYPES
+    struct UniqueType {
+        // A class convertible from 'UniqueType *' can be deduced to be
+        // convertible from EVERY pointer type, either because it has a
+        // non-explicit constructor taking a single argument of type 'void *'
+        // or because it has a non-explicit constructor template taking a
+        // single template argument that matches any pointer.
+    };
+
+    enum {
+        // If a pointer to 'Allocator' is convertible to 'T', then 'T' has a
+        // non-explicit constructor taking an allocator.
+        k_BSLMA_POINTER_CTOR = bsl::is_convertible<Allocator *, TYPE>::value,
+
+        // If a pointer to 'UniqueType' is convertible to 'T', it can only mean
+        // that ANY POINTER is convertible to 'T'.
+        k_ANY_POINTER_CTOR = bsl::is_convertible<UniqueType *, TYPE>::value
+    };
+
+  public:
+    // TYPES
+    enum {
+        // We can "sniff" out a class that uses 'bslma::Allocator *' if it is
+        // convertible from 'bslma::Allocator *', but that conversion is
+        // *specific* to 'Allocator' pointers, not to arbitrary pointers.
+        // Note that "Sniffing" the trait is this way is deprecated.
+        value = k_BSLMA_POINTER_CTOR && !k_ANY_POINTER_CTOR
+    };
+};
+
+template <class TYPE>
+struct UsesBslmaAllocator_Sniff<TYPE, true> {
+    // Specialization of 'UsesBslmaAllocator_Sniff' for which 'BYPASS'
+    // is 'true'.
+
+    enum { value = true };
+};
+
+
                         // ============================
                         // class UsesBslmaAllocator_Imp
                         // ============================
 
 template <class TYPE>
-struct UsesBslmaAllocator_Imp
-{
+struct UsesBslmaAllocator_Imp {
     // Implementation of 'UsesBslmaAllocator'.  This class has a constant,
     // 'value', that is 'true' if ANY of the following is true:
     //
@@ -321,14 +376,6 @@ struct UsesBslmaAllocator_Imp
 
   private:
     // PRIVATE TYPES
-    struct UniqueType {
-        // A class convertible from 'UniqueType *' can be deduced to be
-        // convertible from EVERY pointer type, either because it has a
-        // non-explicit constructor taking a single argument of type 'void *'
-        // or because it has a non-explicit constructor template taking a
-        // single template argument that matches any pointer.
-    };
-
     enum {
         k_NESTED_TRAIT = bslmf::DetectNestedTrait<TYPE,
                                                   UsesBslmaAllocator>::value,
@@ -338,25 +385,14 @@ struct UsesBslmaAllocator_Imp
         // 'UsesBslmaAllocator<T>::value' should be 'true'.
         k_COMPATIBLE_ALLOC_TYPE = bsl::uses_allocator<TYPE,Allocator *>::value,
 
-        // If a pointer to 'Allocator' is convertible to 'T', then 'T' has a
-        // non-explicit constructor taking an allocator.
-        k_BSLMA_POINTER_CTOR = bsl::is_convertible<Allocator *, TYPE>::value,
-
-        // If a pointer to 'UniqueType' is convertible to 'T', it can only mean
-        // that ANY POINTER is convertible to 'T'.
-        k_ANY_POINTER_CTOR = bsl::is_convertible<UniqueType *, TYPE>::value,
-
-        // We can "sniff" out a class that uses 'bslma::Allocator *' if it is
-        // convertible from 'bslma::Allocator *', but that conversion is
-        // *specific* to 'Allocator' pointers, not to arbitrary pointers.
-        // Note that "Sniffing" the trait is this way is deprecated.
-        k_SNIFF_USES_BSLMA = k_BSLMA_POINTER_CTOR && !k_ANY_POINTER_CTOR
+        // If either of the previous two constants is 'true', the it is not
+        // necessary to "sniff" further for this trait.
+        k_BYPASS_SNIFFING = k_NESTED_TRAIT || k_COMPATIBLE_ALLOC_TYPE
     };
 
   public:
-    enum { value = (k_NESTED_TRAIT          ||
-                    k_COMPATIBLE_ALLOC_TYPE ||
-                    k_SNIFF_USES_BSLMA) };
+    // TYPES
+    enum { value = UsesBslmaAllocator_Sniff<TYPE, k_BYPASS_SNIFFING>::value };
 };
 
 }  // close package namespace

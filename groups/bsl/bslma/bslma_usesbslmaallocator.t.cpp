@@ -183,6 +183,8 @@ struct DerivedAllocator : bslma::Allocator {
 void *DerivedAllocator::allocate(size_type) { return 0; }
 void DerivedAllocator::deallocate(void *) { }
 
+DerivedAllocator unusedObj;  // Silence warnings on unused virtual functions
+
 struct BslmaCompatibleSTLAllocator {
     // This STL-like allocator class is implicitly convertible from
     // 'bslma::Allocator*'.  A class where 'allocator_type' is an alias for
@@ -222,6 +224,36 @@ struct HasNestedTrait {
     // This class defines the 'UsesBslmaAllocator' trait to be 'true' by means
     // of 'BSLMF_NESTED_TRAIT_DECLARATION'.
     BSLMF_NESTED_TRAIT_DECLARATION(HasNestedTrait, bslma::UsesBslmaAllocator);
+};
+
+class NotCopyConstructible {
+    // Class with private copy constructor.
+    NotCopyConstructible(const NotCopyConstructible&);
+
+  public:
+    NotCopyConstructible();
+};
+
+class HasSniffableAndNestedTrait {
+    // The 'UsesBslmaAllocator' trait is sniffable (i.e., detectable as being
+    // 'true') from this class's conversion constructor.  Additionally, this
+    // class defines the 'UsesBslmaAllocator' trait to be 'true' by means of
+    // 'BSLMF_NESTED_TRAIT_DECLARATION'.
+
+    NotCopyConstructible d_obj;
+        // Prevent generation of implicit copy constructor.  Trait sniffing
+        // has been known to cause compilation errors on IBM by instantiating
+        // a deleted implicit copy constructor.  However, the explicit trait
+        // *should* suppress that error because sniffing is not needed in that
+        // case.
+
+  public:
+
+    HasSniffableAndNestedTrait(bslma::Allocator *);                 // IMPLICIT
+        // Create a 'HasSniffableAndNestedTrait' object.
+
+    BSLMF_NESTED_TRAIT_DECLARATION(HasSniffableAndNestedTrait,
+                                   bslma::UsesBslmaAllocator);
 };
 
 struct HasCompatibleAllocatorType {
@@ -484,6 +516,7 @@ int main(int argc, char *argv[])
         TEST(ConvertibleToAny             , true );  // Step 2
 
         TEST(HasNestedTrait               , true );  // Step 3
+        TEST(HasSniffableAndNestedTrait   , true );  // Step 3
 
         TEST(HasCompatibleAllocatorType   , true );  // Step 4
 
