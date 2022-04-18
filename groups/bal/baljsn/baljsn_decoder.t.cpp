@@ -28,19 +28,47 @@
 #include <bdlat_sequencefunctions.h>
 #include <bdlat_typetraits.h>
 #include <bdlat_valuetypefunctions.h>
+
 #include <bdlb_chartype.h>
 #include <bdlb_print.h>
 #include <bdlb_printmethods.h>  // for printing vector
+
 #include <bdlde_utf8util.h>
+
 #include <bdlsb_fixedmeminstreambuf.h>
 #include <bdlsb_fixedmemoutstreambuf.h>
 
-#include <bsla_maybeunused.h>
+#include <bdlpcre_regex.h>
 
 #include <bslmt_testutil.h>
 
 #include <bslim_printer.h>
 #include <bslmt_threadutil.h>
+
+#include <s_baltst_address.h>
+#include <s_baltst_employee.h>
+#include <s_baltst_generatetestarray.h>
+#include <s_baltst_generatetestchoice.h>
+#include <s_baltst_generatetestcustomizedtype.h>
+#include <s_baltst_generatetestdynamictype.h>
+#include <s_baltst_generatetestenumeration.h>
+#include <s_baltst_generatetestnullablevalue.h>
+#include <s_baltst_generatetestsequence.h>
+#include <s_baltst_generatetesttaggedvalue.h>
+#include <s_baltst_mysequencewithchoice.h>
+#include <s_baltst_testchoice.h>
+#include <s_baltst_testcustomizedtype.h>
+#include <s_baltst_testdynamictype.h>
+#include <s_baltst_testenumeration.h>
+#include <s_baltst_testnilvalue.h>
+#include <s_baltst_testplaceholder.h>
+#include <s_baltst_testselection.h>
+#include <s_baltst_testsequence.h>
+#include <s_baltst_testtaggedvalue.h>
+
+#include <bsla_maybeunused.h>
+
+#include <bsls_libraryfeatures.h>
 
 #include <bsl_string.h>
 #include <bsl_vector.h>
@@ -51,8 +79,6 @@
 #include <bsl_limits.h>
 #include <bsl_iostream.h>
 #include <bsl_vector.h>
-
-#include <bsls_libraryfeatures.h>
 
 using namespace BloombergLP;
 using bsl::cout;
@@ -147,11 +173,14 @@ void aSsErT(bool condition, const char *message, int line)
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
+#if defined(BSLS_PLATFORM_CMP_IBM)
+#define U_SKIP_DUE_TO_COMPILER_RESOURCE_LIMITATIONS
+#endif
+
 typedef baljsn::Decoder Obj;
 
 BSLA_MAYBE_UNUSED
 const char XML_SCHEMA[] =
-
 "<?xml version='1.0' encoding='UTF-8'?>"
 "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'"
 "           xmlns:bdem='http://bloomberg.com/schemas/bdem'"
@@ -36486,7 +36515,7 @@ int bdlat_enumFromInt(Enumeration0 *, int number)
 int bdlat_enumFromString(Enumeration0 *, const char *string,
                          int stringLength)
 {
-    const bslstl::StringRef stringRef(string, stringLength);
+    const bsl::string_view stringRef(string, stringLength);
 
     if ("zero" == stringRef) {
         return 0;                                                     // RETURN
@@ -36521,6 +36550,235 @@ struct IsEnumeration<test::Enumeration0> {
 }  // close bdlat_EnumFunctions namespace
 }  // close enterprise namespace
 
+namespace BloombergLP {
+namespace baljsn {
+namespace decoder {
+namespace u {
+
+                      // ===============================
+                      // NAMES FOR BLDAT TYPE GENERATION
+                      // ===============================
+
+extern const char k_ATTRIBUTE_1_NAME[]  = "a1";
+extern const char k_ATTRIBUTE_2_NAME[]  = "a2";
+extern const char k_ATTRIBUTE_3_NAME[]  = "a3";
+extern const char k_ENUMERATOR_1_NAME[] = "e1";
+extern const char k_ENUMERATOR_2_NAME[] = "e2";
+extern const char k_SELECTION_1_NAME[]  = "s1";
+extern const char k_SELECTION_2_NAME[]  = "s2";
+
+extern const char k_EMPTY_STRING[] = "";
+
+}  // close namespace u
+}  // close namespace encoder
+}  // close package namespace
+}  // close enterprise namespace
+
+namespace u {
+
+                              // ===============
+                              // struct TestUtil
+                              // ===============
+
+struct TestUtil {
+    // CLASS METHODS
+    template <class VALUE_TYPE>
+    static void assertDecodedValueIsEqual(int                     LINE,
+                                          const bsl::string_view& JSON,
+                                          bool                    IS_VALID,
+                                          const VALUE_TYPE&       VALUE)
+        // Assert that decoding the specified 'JSON' using 'baljsn::Decoder'
+        // with a default set of options yields the specified 'VALUE' if
+        // 'IS_VALID' is 'true', and fails otherwise.
+    {
+        typedef baljsn::Decoder Obj;
+        Obj mX;
+
+        baljsn::DecoderOptions options;
+
+        bdlsb::FixedMemInStreamBuf streamBuffer(JSON.data(), JSON.size());
+
+        VALUE_TYPE result;
+        int rc = mX.decode(&streamBuffer, &result, options);
+        if (IS_VALID) {
+            ASSERTV(LINE, rc, 0 == rc);
+            ASSERTV(LINE, rc, result == VALUE);
+        }
+        else {
+            ASSERTV(LINE, rc, 0 != rc);
+        }
+    }
+};
+
+                               // =============
+                               // class Replace
+                               // =============
+
+class Replace {
+  public:
+    // CREATORS
+    Replace() { }
+
+    // ACCESSORS
+    bsl::string operator()(const bsl::string_view& original,
+                           const bsl::string_view& subject,
+                           const bsl::string_view& replacement) const
+        // Return the result of replacing each occurrence of the specified
+        // 'subject' with the specified 'replacement' in the specified
+        // 'original' string.
+    {
+        bdlpcre::RegEx regex;
+        bsl::string    prepareErrorMessage;
+        bsl::size_t    prepareErrorOffset = 0;
+        bsl::string    subjectCopy(subject);
+        int rc = regex.prepare(
+            &prepareErrorMessage, &prepareErrorOffset, subjectCopy.c_str());
+        if (0 != rc) {
+            P(prepareErrorMessage);
+        }
+        BSLS_ASSERT(0 == rc);
+        BSLS_ASSERT(0 == prepareErrorOffset);
+
+
+        bsl::string result;
+        int         errorOffset = 0;
+
+        rc = regex.replace(&result,
+                           &errorOffset,
+                           original,
+                           replacement,
+                           bdlpcre::RegEx::k_REPLACE_LITERAL |
+                               bdlpcre::RegEx::k_REPLACE_GLOBAL);
+        if (0 > rc) {
+            P(prepareErrorMessage);
+        }
+        BSLS_ASSERT(0 <= rc);
+        BSLS_ASSERT(0 == errorOffset);
+        return result;
+    }
+};
+
+
+                  // =======================================
+                  // class AssertDecodedValueIsEqualFunction
+                  // =======================================
+
+class AssertDecodedValueIsEqualFunction {
+  public:
+    // CREATORS
+    AssertDecodedValueIsEqualFunction()
+    {
+    }
+
+    // ACCESSORS
+    template <class VALUE_TYPE>
+    void operator()(int                     LINE,
+                    const bsl::string_view& JSON,
+                    const VALUE_TYPE&       VALUE) const
+        // Assert that decoding the specified 'JSON' using 'baljsn::Decoder'
+        // with a default set of options yields the specified 'VALUE'.
+    {
+        TestUtil::assertDecodedValueIsEqual(LINE, JSON, true, VALUE);
+    }
+
+    template <class VALUE_TYPE>
+    void operator()(int                     LINE,
+                    const bsl::string_view& JSON,
+                    bool                    IS_VALID,
+                    const VALUE_TYPE&       VALUE) const
+        // Assert that decoding the specified 'JSON' using 'baljsn::Decoder'
+        // with a default set of options yields the specified 'VALUE' if
+        // 'IS_VALID' is 'true', and fails otherwise.
+    {
+        TestUtil::assertDecodedValueIsEqual(LINE, JSON, IS_VALID, VALUE);
+    }
+};
+
+class AssertDecodedArrayOfValuesIsEqualFunction {
+
+  public:
+    // CREATORS
+    AssertDecodedArrayOfValuesIsEqualFunction()
+    {
+    }
+
+    // ACCESSORS
+    template <class ELEMENT_TYPE>
+    void operator()(int                    LINE,
+                    const bsl::string_view ELEMENT_JSON,
+                    const ELEMENT_TYPE&    EXPECTED_ELEMENT) const
+        // Assert that decoding various nested and non-nested JSON arrays
+        // having the specified 'ELEMENT_JSON' as terminal element(s) using
+        // 'baljsn::Decoder' with a default set of options yields an
+        // equivalently-structured 'bsl::vector' specialization having the
+        // zero or more copies of the specified terminal 'EXPECTED_ELEMENT'.
+    {
+        const AssertDecodedValueIsEqualFunction       TEST;
+        const s_baltst::TestPlaceHolder<ELEMENT_TYPE> e;
+        const s_baltst::GenerateTestArray             a;
+        const Replace                                 fmt;
+
+        const int               L = LINE;
+        const ELEMENT_TYPE&     E = EXPECTED_ELEMENT;
+        const bsl::string_view  S = ELEMENT_JSON;
+
+        TEST(L, fmt("[]"                 , "S",S), a(e)                   );
+        TEST(L, fmt("[S]"                , "S",S), a(E)                   );
+        TEST(L, fmt("[S,S]"              , "S",S), a(E,E)                 );
+        TEST(L, fmt("[S,S,S]"            , "S",S), a(E,E,E)               );
+        TEST(L, fmt("[[]]"               , "S",S), a(a(e))                );
+        TEST(L, fmt("[[S]]"              , "S",S), a(a(E))                );
+        TEST(L, fmt("[[S,S]]"            , "S",S), a(a(E,E))              );
+        TEST(L, fmt("[[S,S,S]]"          , "S",S), a(a(E,E,E))            );
+        TEST(L, fmt("[[],[]]"            , "S",S), a(a(e),a(e))           );
+        TEST(L, fmt("[[],[S]]"           , "S",S), a(a(e),a(E))           );
+        TEST(L, fmt("[[],[S,S]]"         , "S",S), a(a(e),a(E,E))         );
+        TEST(L, fmt("[[],[S,S,S]]"       , "S",S), a(a(e),a(E,E,E))       );
+#ifndef U_SKIP_DUE_TO_COMPILER_RESOURCE_LIMITATIONS
+        TEST(L, fmt("[[S],[]]"           , "S",S), a(a(E),a(e))           );
+        TEST(L, fmt("[[S],[S]]"          , "S",S), a(a(E),a(E))           );
+        TEST(L, fmt("[[S],[S,S]]"        , "S",S), a(a(E),a(E,E))         );
+        TEST(L, fmt("[[S],[S,S,S]]"      , "S",S), a(a(E),a(E,E,E))       );
+        TEST(L, fmt("[[S,S],[]]"         , "S",S), a(a(E,E),a(e))         );
+        TEST(L, fmt("[[S,S],[S]]"        , "S",S), a(a(E,E),a(E))         );
+        TEST(L, fmt("[[S,S],[S,S]]"      , "S",S), a(a(E,E),a(E,E))       );
+        TEST(L, fmt("[[S,S],[S,S,S]]"    , "S",S), a(a(E,E),a(E,E,E))     );
+        TEST(L, fmt("[[S,S,S],[]]"       , "S",S), a(a(E,E,E),a(e))       );
+        TEST(L, fmt("[[S,S,S],[S]]"      , "S",S), a(a(E,E,E),a(E))       );
+        TEST(L, fmt("[[S,S,S],[S,S]]"    , "S",S), a(a(E,E,E),a(E,E))     );
+        TEST(L, fmt("[[S,S,S],[S,S,S]]"  , "S",S), a(a(E,E,E),a(E,E,E))   );
+        TEST(L, fmt("[[],[],[]]"         , "S",S), a(a(e),a(e),a(e))      );
+        TEST(L, fmt("[[],[],[S]]"        , "S",S), a(a(e),a(e),a(E))      );
+        TEST(L, fmt("[[],[],[S,S]]"      , "S",S), a(a(e),a(e),a(E,E))    );
+        TEST(L, fmt("[[],[S],[]]"        , "S",S), a(a(e),a(E),a(e))      );
+        TEST(L, fmt("[[],[S],[S]]"       , "S",S), a(a(e),a(E),a(E))      );
+        TEST(L, fmt("[[],[S],[S,S]]"     , "S",S), a(a(e),a(E),a(E,E))    );
+        TEST(L, fmt("[[],[S,S],[]]"      , "S",S), a(a(e),a(E,E),a(e))    );
+        TEST(L, fmt("[[],[S,S],[S]]"     , "S",S), a(a(e),a(E,E),a(E))    );
+        TEST(L, fmt("[[],[S,S],[S,S]]"   , "S",S), a(a(e),a(E,E),a(E,E))  );
+        TEST(L, fmt("[[S],[],[]]"        , "S",S), a(a(E),a(e),a(e))      );
+        TEST(L, fmt("[[S],[],[S]]"       , "S",S), a(a(E),a(e),a(E))      );
+        TEST(L, fmt("[[S],[],[S,S]]"     , "S",S), a(a(E),a(e),a(E,E))    );
+        TEST(L, fmt("[[S],[S],[]]"       , "S",S), a(a(E),a(E),a(e))      );
+        TEST(L, fmt("[[S],[S],[S]]"      , "S",S), a(a(E),a(E),a(E))      );
+        TEST(L, fmt("[[S],[S],[S,S]]"    , "S",S), a(a(E),a(E),a(E,E))    );
+        TEST(L, fmt("[[S],[S,S],[]]"     , "S",S), a(a(E),a(E,E),a(e))    );
+        TEST(L, fmt("[[S],[S,S],[S]]"    , "S",S), a(a(E),a(E,E),a(E))    );
+        TEST(L, fmt("[[S],[S,S],[S,S]]"  , "S",S), a(a(E),a(E,E),a(E,E))  );
+        TEST(L, fmt("[[S,S],[],[]]"      , "S",S), a(a(E,E),a(e),a(e))    );
+        TEST(L, fmt("[[S,S],[],[S]]"     , "S",S), a(a(E,E),a(e),a(E))    );
+        TEST(L, fmt("[[S,S],[],[S,S]]"   , "S",S), a(a(E,E),a(e),a(E,E))  );
+        TEST(L, fmt("[[S,S],[S],[]]"     , "S",S), a(a(E,E),a(E),a(e))    );
+        TEST(L, fmt("[[S,S],[S],[S]]"    , "S",S), a(a(E,E),a(E),a(E))    );
+        TEST(L, fmt("[[S,S],[S],[S,S]]"  , "S",S), a(a(E,E),a(E),a(E,E))  );
+#endif
+        TEST(L, fmt("[[S,S],[S,S],[]]"   , "S",S), a(a(E,E),a(E,E),a(e))  );
+        TEST(L, fmt("[[S,S],[S,S],[S]]"  , "S",S), a(a(E,E),a(E,E),a(E))  );
+        TEST(L, fmt("[[S,S],[S,S],[S,S]]", "S",S), a(a(E,E),a(E,E),a(E,E)));
+    }
+};
+
+}  // close u namespace
 
 // ============================================================================
 //                               TEST MACHINERY
@@ -36619,7 +36877,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 11: {
+      case 12: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -36725,7 +36983,7 @@ int main(int argc, char *argv[])
     ASSERT(21              == employee.age());
 //..
       } break;
-      case 10: {
+      case 11: {
         // --------------------------------------------------------------------
         // FLOATING-POINT VALUES ROUND-TRIP
         //
@@ -37393,6 +37651,288 @@ int main(int argc, char *argv[])
             roundTripTestNonNumericValues<double>();
         }
       } break;
+      case 10: {
+        // --------------------------------------------------------------------
+        // TESTING DECODING VECTORS OF VECTORS
+        //   This case tests that arrays of arrays can be decoded into vectors
+        //   of vectors
+        //
+        // Concerns:
+        //: 1 The decoder can decode nested JSON arrays into nested
+        //:   'bsl::vector' objects having arbitrary 'bdlat'-compatible
+        //:   elements.
+        //
+        // Plan:
+        //: 1 Perform depth-ordered enumeration of all JSON representation of
+        //:   an array of arrays of integers up to depth 2 and length 2, and
+        //:   verify that such a string successfully decodes into the
+        //:   corresponding vector of vector of integers.  Longer arrays
+        //:   are tested in the next step of the plan.
+        //:
+        //: 2 For a large number of different JSON value representations and
+        //:   compatible 'bdlat' element types, enumerate a large number of
+        //:   different nested and non-nested JSON arrays of these elements and
+        //:   verify that the JSON array decodes into the corresponding nested
+        //:   or non-nested 'bsl::vector' value.
+        // --------------------------------------------------------------------
+
+
+        if (verbose)
+            cout << endl
+                 << "TESTING DECODING VECTORS OF VECTORS" << endl
+                 << "===================================" << endl;
+
+        if (veryVerbose)
+            cout << endl
+                 << "Testing decoding vectors of vectors of integers" << endl
+                 << "-----------------------------------------------" << endl;
+
+        static const int MAX_SIZE = 4;
+
+        static const bool NO  = false;
+        static const bool YES = true;
+
+        const struct {
+            int         d_line;
+            const char *d_json_p;
+            bool        d_isValid;
+            int         d_topLevelSize;
+            int         d_nestedSizes[MAX_SIZE];
+        } DATA[] = {
+            //    LINE       IS VALID        TOP LEVEL SIZE
+            //   .----       --------.      .--------------
+            //  /       JSON          \.   /   NESTED SIZES
+            // -- ------------------ ---- -- ----------------
+            // Note that this test table stops at a (nested) array length of 2.
+            // Longer (nested) arrays are tested below.
+            { L_, ""                ,  NO, 0, {            } },
+            { L_, "[]"              , YES, 0, {            } },
+            { L_, "[[]]"            , YES, 1, { 0          } },
+            { L_, "[[0]]"           , YES, 1, { 1          } },
+            { L_, "[[0,0]]"         , YES, 1, { 2          } },
+            { L_, "[[],[]]"         , YES, 2, { 0, 0       } },
+            { L_, "[[],[0]]"        , YES, 2, { 0, 1       } },
+            { L_, "[[],[0,0]]"      , YES, 2, { 0, 2       } },
+            { L_, "[[0],[]]"        , YES, 2, { 1, 0       } },
+            { L_, "[[0],[0]]"       , YES, 2, { 1, 1       } },
+            { L_, "[[0],[0,0]]"     , YES, 2, { 1, 2       } },
+            { L_, "[[0,0],[]]"      , YES, 2, { 2, 0       } },
+            { L_, "[[0,0],[0]]"     , YES, 2, { 2, 1       } },
+            { L_, "[[0,0],[0,0]]"   , YES, 2, { 2, 2       } },
+
+            // Test missing brackets.
+            { L_, "["               ,  NO, 0, {            } },
+            { L_, "[["              ,  NO, 0, {            } },
+            { L_, "[[]"             ,  NO, 0, {            } },
+            { L_, "]"               ,  NO, 0, {            } },
+            { L_, "]]"              ,  NO, 0, {            } },
+            { L_, "[]]"             , YES, 0, {            } }, // *
+            // * This test vector is accepted because the decoder does not read
+            // any tokens after a document is complete.
+
+            // Test incomplete arrays-of-arrays.
+            { L_, "["               ,  NO, 0, {            } },
+            { L_, "[["              ,  NO, 0, {            } },
+            { L_, "[[0"             ,  NO, 0, {            } },
+            { L_, "[[0,"            ,  NO, 0, {            } },
+            { L_, "[[0,0"           ,  NO, 0, {            } },
+            { L_, "[[0,0]"          ,  NO, 0, {            } },
+            { L_, "[[0,0]]"         , YES, 1, { 2          } },
+            { L_, "[[0,0],]"        ,  NO, 0, {            } },
+            { L_, "[[0,0],[]"       ,  NO, 0, {            } },
+            { L_, "[[0,0],[0]"      ,  NO, 0, {            } },
+            { L_, "[[0,0],[0,]"     ,  NO, 0, {            } },
+            { L_, "[[0,0],[0,0]"    ,  NO, 0, {            } },
+            { L_, "[[0,0],[0,0]]"   , YES, 2, { 2, 2       } },
+
+            // Test a misplaced commas.
+            { L_, "[[0]]"           , YES, 1, { 1          } },
+            { L_, "[,[0]]"          ,  NO, 0, {            } },
+            { L_, "[[,0]]"          ,  NO, 0, {            } },
+            { L_, "[[0,]]"          ,  NO, 0, {            } },
+            { L_, "[[0],]"          ,  NO, 0, {            } },
+            { L_, "[[0]],"          , YES, 1, { 1          } }, // *
+            // * This test vector is accepted because the decoder does not read
+            // any tokens after a document is complete.
+
+            // Test misplaced commas in documents with other commas.
+            { L_, "[[0,0]]"         , YES, 1, { 2          } },
+            { L_, "[,[0,0]]"        ,  NO, 0, {            } },
+            { L_, "[[,0,0]]"        ,  NO, 0, {            } },
+            { L_, "[[0,,0]]"        , YES, 1, { 2          } }, // *
+            { L_, "[[0,,,0]]"       , YES, 1, { 2          } }, // *
+            { L_, "[[0,0,]]"        ,  NO, 0, {            } },
+            { L_, "[[0,0],]"        ,  NO, 0, {            } },
+            { L_, "[[0,0]],"        , YES, 1, { 2          } },
+            { L_, "[[0],,[0]]"      , YES, 2, { 1, 1       } }, // *
+            { L_, "[[0],,,[0]]"     , YES, 2, { 1, 1       } }, // *
+            // * These test vectors illustrate a known issue with the decoder,
+            // which is that it accepts consecutive commas between array
+            // elements.
+
+            // Test nested arrays where the inner arrays have mis-matched
+            // types.
+            { L_, "[[0,0]]"         , YES, 1, { 2          } },
+            { L_, "[[[],0]]"        ,  NO, 0, {            } },
+            { L_, "[[{},0]]"        ,  NO, 0, {            } },
+            { L_, "[[\"\",0]]"      ,  NO, 0, {            } },
+            { L_, "[[true,0]]"      ,  NO, 0, {            } },
+            { L_, "[[false,0]]"     ,  NO, 0, {            } },
+            { L_, "[[null,0]]"      ,  NO, 0, {            } },
+            { L_, "[[0,[]]]"        ,  NO, 0, {            } },
+            { L_, "[[0,{}]]"        ,  NO, 0, {            } },
+            { L_, "[[0,\"\"]]"      ,  NO, 0, {            } },
+            { L_, "[[0,true]]"      ,  NO, 0, {            } },
+            { L_, "[[0,false]]"     ,  NO, 0, {            } },
+            { L_, "[[0,null]]"      ,  NO, 0, {            } },
+            { L_, "[[0,0],[]]"      , YES, 2, { 2, 0       } },
+            { L_, "[[0,0],[[]]]"    ,  NO, 0, {            } },
+            { L_, "[[0,0],[[]],[]]" ,  NO, 0, {            } },
+        };
+
+        const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
+
+        for (int i = 0; i != NUM_DATA; ++i) {
+            const int         LINE             = DATA[i].d_line;
+            const char *const JSON             = DATA[i].d_json_p;
+            const bool        IS_VALID         = DATA[i].d_isValid;
+            const int         TOP_LEVEL_SIZE   = DATA[i].d_topLevelSize;
+
+            const int(&NESTED_SIZES)[MAX_SIZE] = DATA[i].d_nestedSizes;
+
+            if (veryVerbose) {
+                T_;
+                P_(LINE);
+                P_(JSON);
+                P_(IS_VALID);
+                P(TOP_LEVEL_SIZE);
+            }
+
+            typedef baljsn::Decoder Obj;
+            Obj mX;
+
+            baljsn::DecoderOptions options;
+
+            bdlsb::FixedMemInStreamBuf streamBuffer(JSON, bsl::strlen(JSON));
+
+            typedef bsl::vector<int>       IntVector;
+            typedef bsl::vector<IntVector> IntMatrix;
+
+            IntMatrix MATRIX(TOP_LEVEL_SIZE);
+            for (int j = 0; j != TOP_LEVEL_SIZE; ++j) {
+                MATRIX[j].resize(NESTED_SIZES[j]);
+            }
+
+            IntMatrix matrix;
+
+            int rc = mX.decode(&streamBuffer, &matrix, options);
+            if (IS_VALID) {
+                ASSERTV(LINE, rc, 0 == rc);
+                ASSERTV(LINE, MATRIX == matrix);
+            }
+            else {
+                ASSERTV(LINE, rc, 0 != rc);
+            }
+        }
+
+        if (veryVerbose)
+            cout << endl
+                 << "Testing decoding vectors of vectors of objects" << endl
+                 << "----------------------------------------------" << endl;
+
+        const u::AssertDecodedValueIsEqualFunction TEST;
+
+        namespace ux = baljsn::decoder::u;
+
+        typedef s_baltst::TestAttribute<1, ux::k_ATTRIBUTE_1_NAME>   At1;
+        typedef s_baltst::TestAttribute<2, ux::k_ATTRIBUTE_2_NAME>   At2;
+        typedef s_baltst::TestAttribute<3, ux::k_ATTRIBUTE_3_NAME>   At3;
+        typedef s_baltst::TestEnumerator<1, ux::k_ENUMERATOR_1_NAME> En1;
+        typedef s_baltst::TestSelection<1, ux::k_SELECTION_1_NAME>   Se1;
+
+        const At1 at1;
+        const At2 at2;
+        const At3 at3;
+        const En1 en1;
+        const Se1 se1;
+
+        const s_baltst::TestPlaceHolder<int>                  ip;
+        const s_baltst::GenerateTestArray                     a_;
+        const s_baltst::GenerateTestArrayPlaceHolder          ap;
+        const s_baltst::GenerateTestChoice                    c_;
+        const s_baltst::GenerateTestChoicePlaceHolder         cp;
+        const s_baltst::GenerateTestCustomizedType            t_;
+        const s_baltst::GenerateTestEnumeration               e_;
+        const s_baltst::GenerateTestEnumerationPlaceHolder    ep;
+        const s_baltst::GenerateTestNullableValue             n_;
+        const s_baltst::GenerateTestSequence                  s_;
+        const s_baltst::GenerateTestSequencePlaceHolder       sp;
+
+        static const bool T = true;
+
+#define STR(...) #__VA_ARGS__
+        // This macro stringifies its arguments, as a rough approximation to
+        // C++11 raw string literals.
+
+        //      LINE                      JSON IS VALID
+        //     .----                     .-------------
+        //    /         JSON            /     EXPECTED DECODED OBJECT
+        //   -- ---------------------- -- ----------------------------------
+        TEST(L_, STR({"a1":0})        , T, s_(at1,0)                        );
+        TEST(L_, STR({})              , T, s_(at1,a_(ip))                   );
+        TEST(L_, STR({"a1":[0]})      , T, s_(at1,a_(0))                    );
+        TEST(L_, STR({})              , T, s_(at1,a_(ap(ip)))               );
+        TEST(L_, STR({"a1":[]})       , T, s_(at1,a_(ap(ip)))               );
+        TEST(L_, STR({"a1":[[]]})     , T, s_(at1,a_(a_(ip)))               );
+        TEST(L_, STR({"a1":[[0]]})    , T, s_(at1,a_(a_(0)))                );
+        TEST(L_, STR({"a1":[[],[]]})  , T, s_(at1,a_(a_(ip),a_(ip)))        );
+#ifndef U_SKIP_DUE_TO_COMPILER_RESOURCE_LIMITATIONS
+        TEST(L_, STR({"a1":[[],[0]]}) , T, s_(at1,a_(a_(ip),a_(0)))         );
+        TEST(L_, STR({"a1":[[0],[]]}) , T, s_(at1,a_(a_(0),a_(ip)))         );
+        TEST(L_, STR({"a1":[[0],[0]]}), T, s_(at1,a_(a_(0),a_(0)))          );
+        TEST(L_, STR([])              , T, a_(sp(at1,ip))                   );
+        TEST(L_, STR([])              , T, a_(ap(sp(at1,ip)))               );
+        TEST(L_, STR([[]])            , T, a_(a_(sp(at1,ip)))               );
+        TEST(L_, STR([[],[]])         , T, a_(a_(sp(at1,ip)),a_(sp(at1,ip))));
+#endif
+
+
+        const u::AssertDecodedArrayOfValuesIsEqualFunction TEST2;
+
+#ifndef U_SKIP_DUE_TO_COMPILER_RESOURCE_LIMITATIONS
+        TEST2(L_, STR(1)              , 1                 );
+        TEST2(L_, STR([1])            , a_(1)             );
+        TEST2(L_, STR({"s1":1})       , c_(se1, 1)        );
+        TEST2(L_, STR(1)              , t_(1, ip)         );
+        TEST2(L_, STR("e1")           , e_(en1, 1)        );
+        TEST2(L_, STR(null)           , n_(ip)            );
+        TEST2(L_, STR(1)              , n_(1)             );
+        TEST2(L_, STR({"a1":1})       , s_(at1, 1)        );
+        TEST2(L_, STR({"a1":1,"a2":2}), s_(at1, at2, 1, 2));
+
+        TEST2(L_, STR({"s1":[]})              , c_(se1,a_(ip))              );
+        TEST2(L_, STR({"s1":[1]})             , c_(se1,a_(1))               );
+        TEST2(L_, STR({"s1":[1,1]})           , c_(se1,a_(1,1))             );
+        TEST2(L_, STR({"s1":[1,1,1]})         , c_(se1,a_(1,1,1))           );
+        TEST2(L_, STR({})                     , s_(at1,a_(ip))              );
+        TEST2(L_, STR({"a1":[1]})             , s_(at1,a_(1))               );
+        TEST2(L_, STR({"a1":[1,1]})           , s_(at1,a_(1,1))             );
+        TEST2(L_, STR({"a1":[1,1,1]})         , s_(at1,a_(1,1,1))           );
+        TEST2(L_, STR({})                     , s_(at1,at2,a_(ip),a_(ip))   );
+        TEST2(L_, STR({"a1":[1]})             , s_(at1,at2,a_(1),a_(ip))    );
+        TEST2(L_, STR({"a1":[1,1]})           , s_(at1,at2,a_(1,1),a_(ip))  );
+        TEST2(L_, STR({"a1":[1,1,1]})         , s_(at1,at2,a_(1,1,1),a_(ip)));
+        TEST2(L_, STR({"a2":[1]})             , s_(at1,at2,a_(ip),a_(1))    );
+        TEST2(L_, STR({"a1":[1],"a2":[1]})    , s_(at1,at2,a_(1),a_(1))     );
+        TEST2(L_, STR({"a1":[1,1],"a2":[1]})  , s_(at1,at2,a_(1,1),a_(1))   );
+        TEST2(L_, STR({"a1":[1,1,1],"a2":[1]}), s_(at1,at2,a_(1,1,1),a_(1)) );
+
+        TEST2(L_, STR({"a1":[1,1,1],"a2":[1,1],"a3":[1]}),
+                  s_(at1,at2,at3,a_(1,1,1),a_(1,1),a_(1)) );
+#endif
+#undef STR
+
+      } break;
       case 9: {
         // ------------------------------------------------------------------
         // TESTING UTF-8 DETECTION
@@ -37792,7 +38332,7 @@ int main(int argc, char *argv[])
             const SuccessStatus      DECODE_SUCCESS_STATUS =
                                                     DATA[tj].
                                                          d_decodeSuccessStatus;
-            const bslstl::StringRef  LOGGED_MESSAGES =
+            const bsl::string_view   LOGGED_MESSAGES =
                                                     DATA[tj].d_loggedMessages;
 
             typedef baljsn::Decoder Obj;
@@ -37810,7 +38350,7 @@ int main(int argc, char *argv[])
                       // do nothing, in just the right way
                   } break;
                   case SOId: {
-                      const bslstl::StringRef string(instructionPtr->d_string);
+                      const bsl::string_view string(instructionPtr->d_string);
                       bdlsb::FixedMemInStreamBuf streamBuf(string.data(),
                                                            string.length());
 
@@ -37818,7 +38358,7 @@ int main(int argc, char *argv[])
                       decodeStatus |= mX.decode(&streamBuf, &output, options);
                   } break;
                   case FOId: {
-                      const bslstl::StringRef string(instructionPtr->d_string);
+                      const bsl::string_view string(instructionPtr->d_string);
                       bdlsb::FixedMemInStreamBuf streamBuf(string.data(),
                                                            string.length());
 
@@ -40096,6 +40636,10 @@ int main(int argc, char *argv[])
 
     return testStatus;
 }
+
+#ifdef U_SKIP_DUE_TO_COMPILER_RESOURCE_LIMITATIONS
+#undef U_SKIP_DUE_TO_COMPILER_RESOURCE_LIMITATIONS
+#endif
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.

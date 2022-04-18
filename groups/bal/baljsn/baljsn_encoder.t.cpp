@@ -35,6 +35,8 @@
 #include <bdlb_nullableallocatedvalue.h>
 #include <bdlb_nullablevalue.h>
 
+#include <bdlpcre_regex.h>
+
 #include <bdlt_date.h>
 #include <bdlt_datetz.h>
 #include <bdlt_datetime.h>
@@ -67,6 +69,26 @@
 #include <s_baltst_featuretestmessageutil.h>
 #include <s_baltst_mysequencewithchoice.h>
 #include <s_baltst_simplerequest.h>
+#include <s_baltst_mysequencewithnullableanonymouschoice.h>
+#include <s_baltst_generatetestarray.h>
+#include <s_baltst_generatetestchoice.h>
+#include <s_baltst_generatetestcustomizedtype.h>
+#include <s_baltst_generatetestdynamictype.h>
+#include <s_baltst_generatetestenumeration.h>
+#include <s_baltst_generatetestnullablevalue.h>
+#include <s_baltst_generatetestsequence.h>
+#include <s_baltst_generatetesttaggedvalue.h>
+#include <s_baltst_mysequencewithchoice.h>
+#include <s_baltst_mysequencewithnullableanonymouschoice.h>
+#include <s_baltst_testchoice.h>
+#include <s_baltst_testcustomizedtype.h>
+#include <s_baltst_testdynamictype.h>
+#include <s_baltst_testenumeration.h>
+#include <s_baltst_testnilvalue.h>
+#include <s_baltst_testplaceholder.h>
+#include <s_baltst_testselection.h>
+#include <s_baltst_testsequence.h>
+#include <s_baltst_testtaggedvalue.h>
 
 using namespace BloombergLP;
 using bsl::cout;
@@ -102,7 +124,10 @@ using bsl::endl;
 // [13] bsl::string loggedMessages() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [14] USAGE EXAMPLE
+// [20] ENCODING UNSET CHOICE
+// [21] ENCODING NULL CHOICE
+// [22] ENCODING VECTORS OF VECTORS
+// [23] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -160,6 +185,10 @@ void aSsErT(bool condition, const char *message, int line)
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
+#if defined(BSLS_PLATFORM_CMP_IBM)
+#define U_SKIP_DUE_TO_COMPILER_RESOURCE_LIMITATIONS
+#endif
+
 typedef baljsn::Encoder                       Obj;
 typedef baljsn::Encoder_EncodeImplUtil        ImplUtil;
 typedef baljsn::EncoderOptions                Options;
@@ -172,6 +201,27 @@ typedef bsls::Types::Uint64                   Uint64;
 // ----------------------------------------------------------------------------
 
 namespace BloombergLP {
+namespace baljsn {
+namespace encoder {
+namespace u {
+
+                      // ===============================
+                      // NAMES FOR BLDAT TYPE GENERATION
+                      // ===============================
+
+extern const char k_ATTRIBUTE_1_NAME[]  = "a1";
+extern const char k_ATTRIBUTE_2_NAME[]  = "a2";
+extern const char k_ENUMERATOR_1_NAME[] = "e1";
+extern const char k_ENUMERATOR_2_NAME[] = "e2";
+extern const char k_SELECTION_1_NAME[]  = "s1";
+extern const char k_SELECTION_2_NAME[]  = "s2";
+
+extern const char k_EMPTY_STRING[] = "";
+
+}  // close namespace u
+}  // close namespace encoder
+}  // close package namespace
+
 namespace {
 namespace u {
 
@@ -179,27 +229,190 @@ namespace u {
                                // FREE FUNCTIONS
                                // ==============
 
-void printStringDifferences(const bsl::string& lhs, const bsl::string& rhs);
+void printStringDifferences(const bsl::string& lhs, const bsl::string& rhs)
     // Print to stdout the length and the characters that are difference in the
     // specified 'lhs' and 'rhs' strings.
+{
+    const bsl::size_t len1 = lhs.size();
+    const bsl::size_t len2 = rhs.size();
+    P(len1) P(len2)
+    for (bsl::size_t i = 0; i < len1; ++i) {
+        if (lhs[i] != rhs[i]) {
+            P(i)
+            cout << '\'' << lhs[i] << '\'' << endl;
+            cout << '\'' << rhs[i] << '\'' << endl;
+            P(bsl::string(lhs.begin(), lhs.begin() + i));
+            P(bsl::string(rhs.begin(), rhs.begin() + i));
+            return;                                                   // RETURN
+        }
+    }
+}
 
 void constructFeatureTestMessage(
-                           bsl::vector<s_baltst::FeatureTestMessage> *objects);
-    // Decode the sequence of 's_baltst::FeatureTestMessage' objects defined by
-    // 's_baltst::FeatureTestMessage::s_XML_MESSAGES' as if by using
+                            bsl::vector<s_baltst::FeatureTestMessage> *objects)
+    // Decode the sequence of of 's_baltst::FeatureTestMessage' objects defined
+    // by 's_baltst::FeatureTestMessage::s_XML_MESSAGES' as if by using
     // 'balxml::Decoder' and load the sequence to the specified 'objects'.
+{
+    balxml::MiniReader reader;
+    balxml::DecoderOptions options;
+    balxml::ErrorInfo e;
+    balxml::Decoder decoder(&options, &reader, &e);
+
+    typedef s_baltst::FeatureTestMessageUtil MessageUtil;
+
+    for (int i = 0; i < MessageUtil::k_NUM_MESSAGES; ++i) {
+        s_baltst::FeatureTestMessage object;
+        bsl::istringstream ss(MessageUtil::s_XML_MESSAGES[i]);
+
+        balxml::MiniReader     reader;
+        balxml::DecoderOptions options;
+        balxml::ErrorInfo      e;
+        balxml::Decoder        decoder(&options, &reader, &e);
+
+        int rc = decoder.decode(ss.rdbuf(), &object);
+        if (0 != rc) {
+            bsl::cout << "Failed to decode from initialization data (i="
+                      << i << "): "
+                      << decoder.loggedMessages() << bsl::endl;
+        }
+
+        if (s_baltst::FeatureTestMessage::SELECTION_ID_UNDEFINED ==
+                                                        object.selectionId()) {
+            bsl::cout << "Decoded unselected choice from initialization data"
+                      << " (i =" << i << ")"
+                      << bsl::endl;
+            rc = 9;
+        }
+
+        ASSERTV(i, 0 == rc); // test invariant
+
+        objects->push_back(object);
+    }
+}
 
 template <class TYPE>
-int populateTestObject(TYPE *object, const bsl::string& xmlString);
+int populateTestObject(TYPE *object, const bsl::string& xmlString)
     // Decode the specified 'xmlString' to an object of the specified 'TYPE'
     // as if by using 'balxml::Decoder' and load the object to the specified
     // 'object'.  Return 0 on success, and a non-zero value otherwise.
+{
+    bsl::istringstream ss(xmlString);
+
+    balxml::MiniReader reader;
+    balxml::DecoderOptions options;
+    balxml::ErrorInfo e;
+    balxml::Decoder decoder(&options, &reader, &e);
+
+    int rc = decoder.decode(ss.rdbuf(), object);
+
+    if (0 != rc) {
+        bsl::cout << "Failed to decode from initialization data: "
+                  << decoder.loggedMessages() << bsl::endl;
+    }
+    return rc;
+}
 
 template <class TYPE>
-void testNumber();
+void testNumber()
     // Assert that 'baljsn::Encoder' can encode a diverse set of values of
     // the specified integral 'TYPE' to a JSON number literal, and that the
     // encoding loses no precision of the original value.
+{
+    // Test non-negative numbers.
+
+    const struct {
+        int         d_line;
+        Uint64      d_value;
+        const char *d_result;
+    } DATA_1[] = {
+        //LINE   VALUE            RESULT
+        //---- ---------  -----------------------
+        { L_,          0,                    "0" },
+        { L_,          1,                    "1" },
+        { L_,  UCHAR_MAX,                  "255" },
+        { L_,   SHRT_MAX,                "32767" },
+        { L_,  USHRT_MAX,                "65535" },
+        { L_,    INT_MAX,           "2147483647" },
+        { L_,   UINT_MAX,           "4294967295" },
+#if   defined(BSLS_PLATFORM_CPU_32_BIT)
+        { L_,   LONG_MAX,           "2147483647" },
+        { L_,  ULONG_MAX,           "4294967295" },
+#elif defined(BSLS_PLATFORM_CPU_64_BIT)
+        { L_,   LONG_MAX,  "9223372036854775807" },
+        { L_,  ULONG_MAX, "18446744073709551615" },
+#else
+# error "baljsn_encoder.t.cpp does not support the platform's bitness."
+#endif
+        { L_,  LLONG_MAX,  "9223372036854775807" },
+        { L_, ULLONG_MAX, "18446744073709551615" }
+    };
+
+    const int NUM_DATA_1 = sizeof DATA_1 / sizeof *DATA_1;
+
+    for (int ti = 0; ti < NUM_DATA_1; ++ti) {
+        const int         LINE  = DATA_1[ti].d_line;
+        const Uint64      VALUE = DATA_1[ti].d_value;
+        const char *const EXP   = DATA_1[ti].d_result;
+
+        if (VALUE > static_cast<Uint64>(bsl::numeric_limits<TYPE>::max())) {
+            continue;                                               // CONTINUE
+        }
+
+        const TYPE VALUE_AS_TYPE = static_cast<TYPE>(VALUE);
+
+        Obj                encoder;
+        bsl::ostringstream oss;
+        ASSERTV(LINE, 0 == ImplUtil::encode(&oss, VALUE_AS_TYPE));
+
+        bsl::string result = oss.str();
+        ASSERTV(LINE, result, EXP, result == EXP);
+    }
+
+    // Test negative numbers.
+
+    const struct {
+        int         d_line;
+        Int64       d_value;
+        const char *d_result;
+    } DATA_2[] = {
+        //LINE   VALUE            RESULT
+        //---- ---------  -----------------------
+        { L_,         -1,                   "-1" },
+        { L_,  SCHAR_MIN,                 "-128" },
+        { L_,   SHRT_MIN,               "-32768" },
+        { L_,    INT_MIN,          "-2147483648" },
+#if   defined(BSLS_PLATFORM_CPU_32_BIT)
+        { L_,   LONG_MIN,          "-2147483648" },
+#elif defined(BSLS_PLATFORM_CPU_64_BIT)
+        { L_,   LONG_MIN, "-9223372036854775808" },
+#else
+# error "baljsn_encoder.t.cpp does not support the platform's bitness."
+#endif
+        { L_,  LLONG_MIN, "-9223372036854775808" }
+    };
+
+    const int NUM_DATA_2 = sizeof DATA_2 / sizeof *DATA_2;
+
+    for (int ti = 0; ti < NUM_DATA_2; ++ti) {
+        const int         LINE  = DATA_2[ti].d_line;
+        const Int64       VALUE = DATA_2[ti].d_value;
+        const char *const EXP   = DATA_2[ti].d_result;
+
+        if (VALUE < static_cast<Int64>(bsl::numeric_limits<TYPE>::min())) {
+            continue;                                               // CONTINUE
+        }
+
+        const TYPE VALUE_AS_TYPE = static_cast<TYPE>(VALUE);
+
+        Obj                encoder;
+        bsl::ostringstream oss;
+        ASSERTV(LINE, 0 == ImplUtil::encode(&oss, VALUE_AS_TYPE));
+
+        bsl::string result = oss.str();
+        ASSERTV(LINE, result, EXP, result == EXP);
+    }
+}
 
                              // ==================
                              // struct TestMessage
@@ -213,6 +426,20 @@ struct TestMessage {
 };
 
 
+struct EncodeNullElements {
+    enum Enum {
+        e_NO,
+        e_YES
+    };
+};
+
+struct EncodeEmptyArrays {
+    enum Enum {
+        e_NO,
+        e_YES
+    };
+};
+
                                // ===============
                                // struct TestUtil
                                // ===============
@@ -221,11 +448,88 @@ struct TestUtil {
     // CLASS METHODS
     template <class VALUE_TYPE>
     static void assertEncodedValueIsEqual(
-                      const int                          LINE,
-                      const baljsn::EncodingStyle::Value ENCODING_STYLE,
-                      const bool                         ENCODE_NULL_ELEMENTS,
-                      const VALUE_TYPE&                  VALUE,
-                      const bsl::string_view&            EXPECTED_JSON_STRING);
+                             int                          LINE,
+                             baljsn::EncodingStyle::Value ENCODING_STYLE,
+                             EncodeNullElements::Enum     ENCODE_NULL_ELEMENTS,
+                             EncodeEmptyArrays::Enum      ENCODE_EMPTY_ARRAYS,
+                             const VALUE_TYPE&            VALUE,
+                             const bsl::string_view&      EXPECTED_JSON_STRING)
+        // Assert that encoding the specified 'VALUE' using 'baljsn::Encoder'
+        // with the specified 'ENCODING_STYLE', 'ENCODE_NULL_ELEMENTS', and
+        // 'ENCODE_EMPTY_ARRAYS' options yields the specified
+        // 'EXPECTED_JSON_STRING'.
+    {
+        bdlsb::MemOutStreamBuf outStreamBuf;
+        bsl::ostream           outStream(&outStreamBuf);
+
+        baljsn::EncoderOptions options;
+        options.setEncodingStyle(ENCODING_STYLE);
+        options.setEncodeNullElements(EncodeNullElements::e_YES ==
+                                      ENCODE_NULL_ELEMENTS);
+        options.setEncodeEmptyArrays(EncodeEmptyArrays::e_YES ==
+                                     ENCODE_EMPTY_ARRAYS);
+        options.setInitialIndentLevel(0);
+        options.setSpacesPerLevel(4);
+
+        baljsn::Encoder encoder;
+        int             rc = encoder.encode(&outStreamBuf, VALUE, &options);
+        LOOP1_ASSERT_EQ(LINE, 0, rc);
+        if (0 != rc) {
+            P_(encoder.loggedMessages());
+        }
+
+        const bsl::string_view jsonStringRef(outStreamBuf.data(),
+                                             outStreamBuf.length());
+        LOOP1_ASSERT_EQ(LINE, EXPECTED_JSON_STRING, jsonStringRef);
+    }
+};
+
+                               // =============
+                               // class Replace
+                               // =============
+
+class Replace {
+  public:
+    // CREATORS
+    Replace() { }
+
+    // ACCESSORS
+    bsl::string operator()(const bsl::string_view& original,
+                           const bsl::string_view& subject,
+                           const bsl::string_view& replacement) const
+        // Return the result of replacing each occurrence of the specified
+        // 'subject' with the specified 'replacement' in the specified
+        // 'original' string.
+    {
+        bdlpcre::RegEx regex;
+        bsl::string    prepareErrorMessage;
+        bsl::size_t    prepareErrorOffset = 0;
+        bsl::string    subjectCopy(subject);
+        int rc = regex.prepare(
+            &prepareErrorMessage, &prepareErrorOffset, subjectCopy.c_str());
+        if (0 != rc) {
+            P(prepareErrorMessage);
+        }
+        BSLS_ASSERT(0 == rc);
+        BSLS_ASSERT(0 == prepareErrorOffset);
+
+
+        bsl::string result;
+        int         errorOffset = 0;
+
+        rc = regex.replace(&result,
+                           &errorOffset,
+                           original,
+                           replacement,
+                           bdlpcre::RegEx::k_REPLACE_LITERAL |
+                               bdlpcre::RegEx::k_REPLACE_GLOBAL);
+        if (0 > rc) {
+            P(prepareErrorMessage);
+        }
+        BSLS_ASSERT(0 <= rc);
+        BSLS_ASSERT(0 == errorOffset);
+        return result;
+    }
 };
 
                 // ==============================================
@@ -236,23 +540,41 @@ class AssertEncodingOverflowIsDetectedFunction {
   private:
     // PRIVATE CLASS METHODS
     static void assertExpectations(
-                        bdlsb::FixedMemOutStreamBuf *streamBuf,
-                        const int                    rc,
-                        const baljsn::Encoder&       encoder,
-                        const int                    LINE,
-                        const int                    SUCCESS,
-                        const bsl::string_view&      EXPECTED_JSON_STRING,
-                        const bsl::string_view&      EXPECTED_LOGGED_MESSAGES);
-        // Assert that the content of the specified 'streamBuf' is equal to
-        // the specified 'EXPECTED_JSON_STRING', that the specified 'rc' is
+                         bdlsb::FixedMemOutStreamBuf *streamBuf,
+                         const int                    rc,
+                         const baljsn::Encoder&       encoder,
+                         const int                    LINE,
+                         const int                    SUCCESS,
+                         const bsl::string_view&      EXPECTED_JSON_STRING,
+                         const bsl::string_view&      EXPECTED_LOGGED_MESSAGES)
+        // Assert that the content of the specified 'streamBuf' is equal to the
+        // specified 'EXPECTED_JSON_STRING', that the specified 'rc' is
         // 0 if the specified 'SUCCESS' is true, that 'rc' is non-zero if
         // 'SUCCESS' is false, and that the 'loggedMessages' of the specified
         // 'encoder' is equal to the specified 'EXPECTED_LOGGED_MESSAGES'.
+    {
+        if (SUCCESS) {
+            LOOP1_ASSERT_EQ(LINE, 0, rc);
+        }
+        else {
+            LOOP1_ASSERT_NE(LINE, 0, rc);
+        }
+
+        const bsl::streampos streamBufPosition =
+            streamBuf->pubseekoff(0, bsl::ios_base::cur);
+
+        const bsl::string_view jsonString(streamBuf->data(),
+                                          streamBufPosition);
+
+        LOOP1_ASSERT_EQ(LINE, EXPECTED_JSON_STRING, jsonString);
+
+        LOOP1_ASSERT_EQ(
+            LINE, EXPECTED_LOGGED_MESSAGES, encoder.loggedMessages());
+    }
 
   public:
     // CREATORS
-    AssertEncodingOverflowIsDetectedFunction();
-        // Create an 'AssertEncodingOverflowIsDetectedFunction' object.
+    AssertEncodingOverflowIsDetectedFunction() {}
 
     // ACCESSORS
     template <class VALUE_TYPE>
@@ -261,7 +583,7 @@ class AssertEncodingOverflowIsDetectedFunction {
                     const int               BUFFER_SIZE,
                     const bool              SUCCESS,
                     const bsl::string_view& EXPECTED_JSON_STRING,
-                    const bsl::string_view& EXPECTED_LOGGED_MESSAGES) const;
+                    const bsl::string_view& EXPECTED_LOGGED_MESSAGES) const
         // Assert that encoding the specified 'VALUE' using 'baljsn::Encoder'
         // and a stream buffer that fails after its output sequence exceeds the
         // specified 'BUFFER_SIZE' number of bytes succeeds if the specified
@@ -270,6 +592,123 @@ class AssertEncodingOverflowIsDetectedFunction {
         // specified 'EXPECTED_JSON_STRING', and the content of the
         // 'loggedMessages' of the 'baljsn::Encoder' is equal to the specified
         // 'EXPECTED_LOGGED_MESSAGES'.
+    {
+        {
+            baljsn::Encoder encoder;
+
+            bsl::vector<char>           buffer(BUFFER_SIZE);
+            bdlsb::FixedMemOutStreamBuf streamBuffer(buffer.data(),
+                                                     BUFFER_SIZE);
+            baljsn::EncoderOptions      encoderOptions;
+
+            const int rc =
+                encoder.encode(&streamBuffer, VALUE, encoderOptions);
+
+            assertExpectations(&streamBuffer,
+                               rc,
+                               encoder,
+                               LINE,
+                               SUCCESS,
+                               EXPECTED_JSON_STRING,
+                               EXPECTED_LOGGED_MESSAGES);
+        }
+
+        {
+            baljsn::Encoder encoder;
+
+            bsl::vector<char>           buffer(BUFFER_SIZE);
+            bdlsb::FixedMemOutStreamBuf streamBuffer(buffer.data(),
+                                                     BUFFER_SIZE);
+            baljsn::EncoderOptions      encoderOptions;
+
+            int rc = encoder.encode(&streamBuffer, VALUE, &encoderOptions);
+
+            assertExpectations(&streamBuffer,
+                               rc,
+                               encoder,
+                               LINE,
+                               SUCCESS,
+                               EXPECTED_JSON_STRING,
+                               EXPECTED_LOGGED_MESSAGES);
+        }
+
+        {
+            baljsn::Encoder encoder;
+
+            bsl::vector<char>           buffer(BUFFER_SIZE);
+            bdlsb::FixedMemOutStreamBuf streamBuffer(buffer.data(),
+                                                     BUFFER_SIZE);
+            bsl::ostream                stream(&streamBuffer);
+            baljsn::EncoderOptions      encoderOptions;
+
+            int rc = encoder.encode(stream, VALUE, encoderOptions);
+
+            assertExpectations(&streamBuffer,
+                               rc,
+                               encoder,
+                               LINE,
+                               SUCCESS,
+                               EXPECTED_JSON_STRING,
+                               EXPECTED_LOGGED_MESSAGES);
+        }
+
+        {
+            baljsn::Encoder encoder;
+
+            bsl::vector<char>           buffer(BUFFER_SIZE);
+            bdlsb::FixedMemOutStreamBuf streamBuffer(buffer.data(),
+                                                     BUFFER_SIZE);
+            bsl::ostream                stream(&streamBuffer);
+            baljsn::EncoderOptions      encoderOptions;
+
+            int rc = encoder.encode(stream, VALUE, &encoderOptions);
+
+            assertExpectations(&streamBuffer,
+                               rc,
+                               encoder,
+                               LINE,
+                               SUCCESS,
+                               EXPECTED_JSON_STRING,
+                               EXPECTED_LOGGED_MESSAGES);
+        }
+
+        {
+            baljsn::Encoder encoder;
+
+            bsl::vector<char>           buffer(BUFFER_SIZE);
+            bdlsb::FixedMemOutStreamBuf streamBuffer(buffer.data(),
+                                                     BUFFER_SIZE);
+
+            int rc = encoder.encode(&streamBuffer, VALUE);
+
+            assertExpectations(&streamBuffer,
+                               rc,
+                               encoder,
+                               LINE,
+                               SUCCESS,
+                               EXPECTED_JSON_STRING,
+                               EXPECTED_LOGGED_MESSAGES);
+        }
+
+        {
+            baljsn::Encoder encoder;
+
+            bsl::vector<char>           buffer(BUFFER_SIZE);
+            bdlsb::FixedMemOutStreamBuf streamBuffer(buffer.data(),
+                                                     BUFFER_SIZE);
+            bsl::ostream                stream(&streamBuffer);
+
+            int rc = encoder.encode(stream, VALUE);
+
+            assertExpectations(&streamBuffer,
+                               rc,
+                               encoder,
+                               LINE,
+                               SUCCESS,
+                               EXPECTED_JSON_STRING,
+                               EXPECTED_LOGGED_MESSAGES);
+        }
+    }
 };
 
                    // =======================================
@@ -279,16 +718,228 @@ class AssertEncodingOverflowIsDetectedFunction {
 class AssertEncodedValueIsEqualFunction {
   public:
     // CREATORS
-    AssertEncodedValueIsEqualFunction();
+    AssertEncodedValueIsEqualFunction()
+    {
+    }
 
     // ACCESSORS
     template <class VALUE_TYPE>
-    void operator()(
-                const int                          LINE,
-                const baljsn::EncodingStyle::Value ENCODING_STYLE,
-                const bool                         ENCODE_NULL_ELEMENTS,
-                const VALUE_TYPE&                  VALUE,
-                const bsl::string_view&            EXPECTED_JSON_STRING) const;
+    void operator()(int                     LINE,
+                    const VALUE_TYPE&       VALUE,
+                    const bsl::string_view& EXPECTED_JSON_STRING) const
+        // Assert that encoding the specified 'VALUE' using 'baljsn::Encoder'
+        // with default options yields the specified 'EXPECTED_JSON_STRING'.
+    {
+        TestUtil::assertEncodedValueIsEqual(LINE,
+                                            baljsn::EncodingStyle::e_COMPACT,
+                                            EncodeNullElements::e_NO,
+                                            EncodeEmptyArrays::e_NO,
+                                            VALUE,
+                                            EXPECTED_JSON_STRING);
+    }
+
+    template <class VALUE_TYPE>
+    void operator()(int                     LINE,
+                    bool                    ENCODE_NULL_ELEMENTS,
+                    const VALUE_TYPE&       VALUE,
+                    const bsl::string_view& EXPECTED_JSON_STRING) const
+        // Assert that encoding the specified 'VALUE' using 'baljsn::Encoder'
+        // with the specified 'ENCODE_NULL_ELEMENTS' option yields the
+        // specified 'EXPECTED_JSON_STRING'.
+    {
+        return TestUtil::assertEncodedValueIsEqual(
+            LINE,
+            baljsn::EncodingStyle::e_COMPACT,
+            ENCODE_NULL_ELEMENTS ? EncodeNullElements::e_YES
+                                 : EncodeNullElements::e_NO,
+            EncodeEmptyArrays::e_NO,
+            VALUE,
+            EXPECTED_JSON_STRING);
+    }
+
+    template <class VALUE_TYPE>
+    void operator()(int                          LINE,
+                    baljsn::EncodingStyle::Value ENCODING_STYLE,
+                    bool                         ENCODE_NULL_ELEMENTS,
+                    const VALUE_TYPE&            VALUE,
+                    const bsl::string_view&      EXPECTED_JSON_STRING) const
+        // Assert that encoding the specified 'VALUE' using 'baljsn::Encoder'
+        // with the specified 'ENCODING_STYLE' and 'ENCODE_NULL_ELEMENTS'
+        // options yields the specified 'EXPECTED_JSON_STRING'.
+    {
+        TestUtil::assertEncodedValueIsEqual(LINE,
+                                            ENCODING_STYLE,
+                                            ENCODE_NULL_ELEMENTS
+                                                ? EncodeNullElements::e_YES
+                                                : EncodeNullElements::e_NO,
+                                            EncodeEmptyArrays::e_NO,
+                                            VALUE,
+                                            EXPECTED_JSON_STRING);
+    }
+
+    template <class VALUE_TYPE>
+    void operator()(int                     LINE,
+                    EncodeEmptyArrays::Enum ENCODE_EMPTY_ARRAYS,
+                    const VALUE_TYPE&       VALUE,
+                    const bsl::string_view& EXPECTED_JSON_STRING) const
+        // Assert that encoding the specified 'VALUE' using 'baljsn::Encoder'
+        // with the specified 'ENCODE_EMPTY_ARRAYS' option yields the specified
+        // 'EXPECTED_JSON_STRING'.
+    {
+        TestUtil::assertEncodedValueIsEqual(LINE,
+                                            baljsn::EncodingStyle::e_COMPACT,
+                                            EncodeNullElements::e_NO,
+                                            ENCODE_EMPTY_ARRAYS,
+                                            VALUE,
+                                            EXPECTED_JSON_STRING);
+    }
+};
+
+              // ===============================================
+              // class AssertEncodedArrayOfValuesIsEqualFunction
+              // ===============================================
+
+class AssertEncodedArrayOfValuesIsEqualFunction {
+  public:
+    // CREATORS
+    AssertEncodedArrayOfValuesIsEqualFunction() {}
+
+    // ACCESSORS
+    template <class ELEMENT_TYPE>
+    void operator()(int                     LINE,
+                    const ELEMENT_TYPE&     ELEMENT,
+                    const bsl::string_view& EXPECTED_ELEMENT_STRING) const
+        // Assert that encoding various nested and non-nested 'bsl::vector'
+        // objects with copies of the specified 'ELEMENT' as terminal
+        // element(s) using 'baljsn::Encoder' with all permutations of the
+        // 'EncodeEmptyArrays' option yields an equivalently-structured nested
+        // or non-nested JSON array with the specified terminal
+        // 'EXPECTED_ELEMENT_STRING'.
+    {
+        const AssertEncodedValueIsEqualFunction       TEST;
+        const s_baltst::TestPlaceHolder<ELEMENT_TYPE> e;
+        const s_baltst::GenerateTestArray             a;
+        const Replace                                 fmt;
+
+        const int              L = LINE;
+        const ELEMENT_TYPE&    E = ELEMENT;
+        const bsl::string_view S = EXPECTED_ELEMENT_STRING;
+
+        typedef u::EncodeEmptyArrays Option;
+        static const Option::Enum    Y = Option::e_YES;
+        static const Option::Enum    N = Option::e_NO;
+
+        //     LINE
+        //    .----
+        //    |    ENCODE EMPTY ARRAYS
+        //    |   .-------------------
+        //    |  /     ARRAY OBJECT                  EXPECTED JSON
+        //   -- - ------------------------ ----------------------------------
+        TEST(L, N, a(e)                   , fmt(""                   , "S",S));
+        TEST(L, N, a(E)                   , fmt("[S]"                , "S",S));
+        TEST(L, N, a(E,E)                 , fmt("[S,S]"              , "S",S));
+        TEST(L, N, a(E,E,E)               , fmt("[S,S,S]"            , "S",S));
+#ifndef U_SKIP_DUE_TO_COMPILER_RESOURCE_LIMITATIONS
+        TEST(L, N, a(a(e))                , fmt("[]"                 , "S",S));
+        TEST(L, N, a(a(E))                , fmt("[[S]]"              , "S",S));
+        TEST(L, N, a(a(E,E))              , fmt("[[S,S]]"            , "S",S));
+        TEST(L, N, a(a(E,E,E))            , fmt("[[S,S,S]]"          , "S",S));
+        TEST(L, N, a(a(e),a(e))           , fmt("[]"                 , "S",S));
+        TEST(L, N, a(a(e),a(E))           , fmt("[[S]]"              , "S",S));
+        TEST(L, N, a(a(e),a(E,E))         , fmt("[[S,S]]"            , "S",S));
+        TEST(L, N, a(a(e),a(E,E,E))       , fmt("[[S,S,S]]"          , "S",S));
+        TEST(L, N, a(a(E),a(e))           , fmt("[[S]]"              , "S",S));
+        TEST(L, N, a(a(E),a(E))           , fmt("[[S],[S]]"          , "S",S));
+        TEST(L, N, a(a(E),a(E,E))         , fmt("[[S],[S,S]]"        , "S",S));
+        TEST(L, N, a(a(E),a(E,E,E))       , fmt("[[S],[S,S,S]]"      , "S",S));
+        TEST(L, N, a(a(E,E),a(e))         , fmt("[[S,S]]"            , "S",S));
+        TEST(L, N, a(a(E,E),a(E))         , fmt("[[S,S],[S]]"        , "S",S));
+        TEST(L, N, a(a(E,E),a(E,E))       , fmt("[[S,S],[S,S]]"      , "S",S));
+        TEST(L, N, a(a(E,E),a(E,E,E))     , fmt("[[S,S],[S,S,S]]"    , "S",S));
+        TEST(L, N, a(a(E,E,E),a(e))       , fmt("[[S,S,S]]"          , "S",S));
+        TEST(L, N, a(a(E,E,E),a(E))       , fmt("[[S,S,S],[S]]"      , "S",S));
+        TEST(L, N, a(a(E,E,E),a(E,E))     , fmt("[[S,S,S],[S,S]]"    , "S",S));
+        TEST(L, N, a(a(E,E,E),a(E,E,E))   , fmt("[[S,S,S],[S,S,S]]"  , "S",S));
+        TEST(L, N, a(a(e),a(e),a(e))      , fmt("[]"                 , "S",S));
+        TEST(L, N, a(a(e),a(e),a(E))      , fmt("[[S]]"              , "S",S));
+        TEST(L, N, a(a(e),a(e),a(E,E))    , fmt("[[S,S]]"            , "S",S));
+        TEST(L, N, a(a(e),a(E),a(e))      , fmt("[[S]]"              , "S",S));
+        TEST(L, N, a(a(e),a(E),a(E))      , fmt("[[S],[S]]"          , "S",S));
+        TEST(L, N, a(a(e),a(E),a(E,E))    , fmt("[[S],[S,S]]"        , "S",S));
+        TEST(L, N, a(a(e),a(E,E),a(e))    , fmt("[[S,S]]"            , "S",S));
+        TEST(L, N, a(a(e),a(E,E),a(E))    , fmt("[[S,S],[S]]"        , "S",S));
+        TEST(L, N, a(a(e),a(E,E),a(E,E))  , fmt("[[S,S],[S,S]]"      , "S",S));
+        TEST(L, N, a(a(E),a(e),a(e))      , fmt("[[S]]"              , "S",S));
+        TEST(L, N, a(a(E),a(e),a(E))      , fmt("[[S],[S]]"          , "S",S));
+        TEST(L, N, a(a(E),a(e),a(E,E))    , fmt("[[S],[S,S]]"        , "S",S));
+        TEST(L, N, a(a(E),a(E),a(e))      , fmt("[[S],[S]]"          , "S",S));
+        TEST(L, N, a(a(E),a(E),a(E))      , fmt("[[S],[S],[S]]"      , "S",S));
+        TEST(L, N, a(a(E),a(E),a(E,E))    , fmt("[[S],[S],[S,S]]"    , "S",S));
+        TEST(L, N, a(a(E),a(E,E),a(e))    , fmt("[[S],[S,S]]"        , "S",S));
+        TEST(L, N, a(a(E),a(E,E),a(E))    , fmt("[[S],[S,S],[S]]"    , "S",S));
+        TEST(L, N, a(a(E),a(E,E),a(E,E))  , fmt("[[S],[S,S],[S,S]]"  , "S",S));
+        TEST(L, N, a(a(E,E),a(e),a(e))    , fmt("[[S,S]]"            , "S",S));
+        TEST(L, N, a(a(E,E),a(e),a(E))    , fmt("[[S,S],[S]]"        , "S",S));
+        TEST(L, N, a(a(E,E),a(e),a(E,E))  , fmt("[[S,S],[S,S]]"      , "S",S));
+        TEST(L, N, a(a(E,E),a(E),a(e))    , fmt("[[S,S],[S]]"        , "S",S));
+        TEST(L, N, a(a(E,E),a(E),a(E))    , fmt("[[S,S],[S],[S]]"    , "S",S));
+        TEST(L, N, a(a(E,E),a(E),a(E,E))  , fmt("[[S,S],[S],[S,S]]"  , "S",S));
+        TEST(L, N, a(a(E,E),a(E,E),a(e))  , fmt("[[S,S],[S,S]]"      , "S",S));
+        TEST(L, N, a(a(E,E),a(E,E),a(E))  , fmt("[[S,S],[S,S],[S]]"  , "S",S));
+        TEST(L, N, a(a(E,E),a(E,E),a(E,E)), fmt("[[S,S],[S,S],[S,S]]", "S",S));
+        TEST(L, Y, a(e)                   , fmt("[]"                 , "S",S));
+        TEST(L, Y, a(E)                   , fmt("[S]"                , "S",S));
+        TEST(L, Y, a(E,E)                 , fmt("[S,S]"              , "S",S));
+        TEST(L, Y, a(E,E,E)               , fmt("[S,S,S]"            , "S",S));
+        TEST(L, Y, a(a(e))                , fmt("[[]]"               , "S",S));
+        TEST(L, Y, a(a(E))                , fmt("[[S]]"              , "S",S));
+        TEST(L, Y, a(a(E,E))              , fmt("[[S,S]]"            , "S",S));
+        TEST(L, Y, a(a(E,E,E))            , fmt("[[S,S,S]]"          , "S",S));
+        TEST(L, Y, a(a(e),a(e))           , fmt("[[],[]]"            , "S",S));
+        TEST(L, Y, a(a(e),a(E))           , fmt("[[],[S]]"           , "S",S));
+        TEST(L, Y, a(a(e),a(E,E))         , fmt("[[],[S,S]]"         , "S",S));
+        TEST(L, Y, a(a(e),a(E,E,E))       , fmt("[[],[S,S,S]]"       , "S",S));
+        TEST(L, Y, a(a(E),a(e))           , fmt("[[S],[]]"           , "S",S));
+        TEST(L, Y, a(a(E),a(E))           , fmt("[[S],[S]]"          , "S",S));
+        TEST(L, Y, a(a(E),a(E,E))         , fmt("[[S],[S,S]]"        , "S",S));
+        TEST(L, Y, a(a(E),a(E,E,E))       , fmt("[[S],[S,S,S]]"      , "S",S));
+        TEST(L, Y, a(a(E,E),a(e))         , fmt("[[S,S],[]]"         , "S",S));
+        TEST(L, Y, a(a(E,E),a(E))         , fmt("[[S,S],[S]]"        , "S",S));
+        TEST(L, Y, a(a(E,E),a(E,E))       , fmt("[[S,S],[S,S]]"      , "S",S));
+        TEST(L, Y, a(a(E,E),a(E,E,E))     , fmt("[[S,S],[S,S,S]]"    , "S",S));
+        TEST(L, Y, a(a(E,E,E),a(e))       , fmt("[[S,S,S],[]]"       , "S",S));
+        TEST(L, Y, a(a(E,E,E),a(E))       , fmt("[[S,S,S],[S]]"      , "S",S));
+        TEST(L, Y, a(a(E,E,E),a(E,E))     , fmt("[[S,S,S],[S,S]]"    , "S",S));
+        TEST(L, Y, a(a(E,E,E),a(E,E,E))   , fmt("[[S,S,S],[S,S,S]]"  , "S",S));
+        TEST(L, Y, a(a(e),a(e),a(e))      , fmt("[[],[],[]]"         , "S",S));
+        TEST(L, Y, a(a(e),a(e),a(E))      , fmt("[[],[],[S]]"        , "S",S));
+        TEST(L, Y, a(a(e),a(e),a(E,E))    , fmt("[[],[],[S,S]]"      , "S",S));
+        TEST(L, Y, a(a(e),a(E),a(e))      , fmt("[[],[S],[]]"        , "S",S));
+        TEST(L, Y, a(a(e),a(E),a(E))      , fmt("[[],[S],[S]]"       , "S",S));
+        TEST(L, Y, a(a(e),a(E),a(E,E))    , fmt("[[],[S],[S,S]]"     , "S",S));
+        TEST(L, Y, a(a(e),a(E,E),a(e))    , fmt("[[],[S,S],[]]"      , "S",S));
+        TEST(L, Y, a(a(e),a(E,E),a(E))    , fmt("[[],[S,S],[S]]"     , "S",S));
+        TEST(L, Y, a(a(e),a(E,E),a(E,E))  , fmt("[[],[S,S],[S,S]]"   , "S",S));
+        TEST(L, Y, a(a(E),a(e),a(e))      , fmt("[[S],[],[]]"        , "S",S));
+        TEST(L, Y, a(a(E),a(e),a(E))      , fmt("[[S],[],[S]]"       , "S",S));
+        TEST(L, Y, a(a(E),a(e),a(E,E))    , fmt("[[S],[],[S,S]]"     , "S",S));
+        TEST(L, Y, a(a(E),a(E),a(e))      , fmt("[[S],[S],[]]"       , "S",S));
+        TEST(L, Y, a(a(E),a(E),a(E))      , fmt("[[S],[S],[S]]"      , "S",S));
+        TEST(L, Y, a(a(E),a(E),a(E,E))    , fmt("[[S],[S],[S,S]]"    , "S",S));
+        TEST(L, Y, a(a(E),a(E,E),a(e))    , fmt("[[S],[S,S],[]]"     , "S",S));
+        TEST(L, Y, a(a(E),a(E,E),a(E))    , fmt("[[S],[S,S],[S]]"    , "S",S));
+        TEST(L, Y, a(a(E),a(E,E),a(E,E))  , fmt("[[S],[S,S],[S,S]]"  , "S",S));
+        TEST(L, Y, a(a(E,E),a(e),a(e))    , fmt("[[S,S],[],[]]"      , "S",S));
+        TEST(L, Y, a(a(E,E),a(e),a(E))    , fmt("[[S,S],[],[S]]"     , "S",S));
+        TEST(L, Y, a(a(E,E),a(e),a(E,E))  , fmt("[[S,S],[],[S,S]]"   , "S",S));
+        TEST(L, Y, a(a(E,E),a(E),a(e))    , fmt("[[S,S],[S],[]]"     , "S",S));
+        TEST(L, Y, a(a(E,E),a(E),a(E))    , fmt("[[S,S],[S],[S]]"    , "S",S));
+        TEST(L, Y, a(a(E,E),a(E),a(E,E))  , fmt("[[S,S],[S],[S,S]]"  , "S",S));
+#endif
+        TEST(L, Y, a(a(E,E),a(E,E),a(e))  , fmt("[[S,S],[S,S],[]]"   , "S",S));
+        TEST(L, Y, a(a(E,E),a(E,E),a(E))  , fmt("[[S,S],[S,S],[S]]"  , "S",S));
+        TEST(L, Y, a(a(E,E),a(E,E),a(E,E)), fmt("[[S,S],[S,S],[S,S]]", "S",S));
+    }
 };
 
                              // ==================
@@ -337,8 +988,10 @@ class EmptySequenceExampleSequence {
     // CLASS METHODS
     static int maxSupportedBdexVersion();
 
+    BSLA_MAYBE_UNUSED
     static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
 
+    BSLA_MAYBE_UNUSED
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
@@ -419,8 +1072,10 @@ class EmptySequenceExample {
     // CLASS METHODS
     static int maxSupportedBdexVersion();
 
+    BSLA_MAYBE_UNUSED
     static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
 
+    BSLA_MAYBE_UNUSED
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
@@ -429,6 +1084,9 @@ class EmptySequenceExample {
     EmptySequenceExample();
 
     // MANIPULATORS
+    BSLA_MAYBE_UNUSED
+    EmptySequenceExample& operator=(const EmptySequenceExample& rhs);
+
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, int version);
 
@@ -443,6 +1101,7 @@ class EmptySequenceExample {
     template <class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
 
+    BSLA_MAYBE_UNUSED
     void reset();
 
     EmptySequenceExampleSequence& sequence();
@@ -464,6 +1123,7 @@ class EmptySequenceExample {
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM& stream, int version) const;
 
+    BSLA_MAYBE_UNUSED
     bsl::ostream& print(bsl::ostream& stream,
                         int           level          = 0,
                         int           spacesPerLevel = 4) const;
@@ -499,7 +1159,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 21: {
+      case 23: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -516,6 +1176,11 @@ int main(int argc, char *argv[])
         // Testing:
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
+
+        if (verbose)
+            cout << endl
+                 << "TESTING USAGE EXAMPLE" << endl
+                 << "=====================" << endl;
 
         namespace test = ::BloombergLP::s_baltst;
 
@@ -611,6 +1276,187 @@ int main(int argc, char *argv[])
     ASSERT(EXP_OUTPUT == os.str());
 //..
       } break;
+      case 22: {
+        // --------------------------------------------------------------------
+        // TESTING ENCODING VECTORS OF VECTORS
+        //   This case tests that 'baljsn::Encoder::encode' supports encoding
+        //   vectors of vectors.
+        //
+        // Concerns:
+        //: 1 Encoding a vector of vectors of a 'bdlat'-compatible type
+        //:   emits valid JSON array of arrays.
+        //
+        // Plan:
+        //: 1 Perform a depth-ordered enumeration of encoding all vectors of
+        //:   vectors of integers up to depth 2 and width 2, and verify that
+        //:   the encoded JSON is the corresponding array of arrays.
+        //:
+        //: 2 For some terminal 'bdlat' element types, enumerate a large
+        //:   number of different nested and non-nested arrays of these types
+        //:   and verify that the array encodes to a corresponding nested or
+        //:   non-nested JSON array.
+        //
+        // Testing:
+        //   ENCODING VECTORS OF VECTORS
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            cout << endl
+                 << "TESTING ENCODING VECTORS OF VECTORS" << endl
+                 << "===================================" << endl;
+
+
+        namespace ux = baljsn::encoder::u;
+
+        typedef s_baltst::TestAttribute<1, ux::k_ATTRIBUTE_1_NAME>   At1;
+        typedef s_baltst::TestAttribute<2, ux::k_ATTRIBUTE_2_NAME>   At2;
+        typedef s_baltst::TestEnumerator<1, ux::k_ENUMERATOR_1_NAME> En1;
+        typedef s_baltst::TestSelection<1, ux::k_SELECTION_1_NAME>   Se1;
+
+        const At1 at1;
+        const At2 at2;
+        const En1 en1;
+        const Se1 se1;
+
+        const s_baltst::TestPlaceHolder<int>                  ip;
+        const s_baltst::GenerateTestArray                     a_;
+        const s_baltst::GenerateTestArrayPlaceHolder          ap;
+        const s_baltst::GenerateTestChoice                    c_;
+        const s_baltst::GenerateTestChoicePlaceHolder         cp;
+        const s_baltst::GenerateTestCustomizedType            t_;
+        const s_baltst::GenerateTestEnumeration               e_;
+        const s_baltst::GenerateTestEnumerationPlaceHolder    ep;
+        const s_baltst::GenerateTestNullableValue             n_;
+        const s_baltst::GenerateTestSequence                  s_;
+        const s_baltst::GenerateTestSequencePlaceHolder       sp;
+
+
+#define JSON(...) #__VA_ARGS__
+
+        const u::AssertEncodedArrayOfValuesIsEqualFunction TEST;
+
+
+        //      LINE
+        //     .----
+        //    /  OBJECT TO ENCODE        EXPECTED JSON
+        //   -- ------------------- ----------------------
+        TEST(L_, 1                 , JSON(1)              );
+        TEST(L_, a_(1)             , JSON([1])            );
+#ifndef U_SKIP_DUE_TO_COMPILER_RESOURCE_LIMITATIONS
+        TEST(L_, c_(se1, 1)        , JSON({"s1":1})       );
+        TEST(L_, t_(1, ip)         , JSON(1)              );
+        TEST(L_, e_(en1, 1)        , JSON("e1")           );
+        TEST(L_, n_(ip)            , JSON(null)           );
+        TEST(L_, n_(1)             , JSON(1)              );
+        TEST(L_, s_(at1, 1)        , JSON({"a1":1})       );
+        TEST(L_, s_(at1, at2, 1, 2), JSON({"a1":1,"a2":2}));
+#endif
+
+        const u::AssertEncodedValueIsEqualFunction TEST2;
+
+        //      LINE
+        //     .----
+        //    /       OBJECT TO ENCODE                 EXPECTED JSON
+        //   -- ------------------------------ ------------------------------
+        TEST2(L_, c_(se1,a_(ip))              , JSON({"s1":[]})              );
+        TEST2(L_, c_(se1,a_(1))               , JSON({"s1":[1]})             );
+        TEST2(L_, c_(se1,a_(1,1))             , JSON({"s1":[1,1]})           );
+        TEST2(L_, c_(se1,a_(1,1,1))           , JSON({"s1":[1,1,1]})         );
+        TEST2(L_, s_(at1,a_(ip))              , JSON({})                     );
+        TEST2(L_, s_(at1,a_(1))               , JSON({"a1":[1]})             );
+        TEST2(L_, s_(at1,a_(1,1))             , JSON({"a1":[1,1]})           );
+        TEST2(L_, s_(at1,a_(1,1,1))           , JSON({"a1":[1,1,1]})         );
+        TEST2(L_, s_(at1,at2,a_(ip),a_(ip))   , JSON({})                     );
+        TEST2(L_, s_(at1,at2,a_(1),a_(ip))    , JSON({"a1":[1]})             );
+        TEST2(L_, s_(at1,at2,a_(1,1),a_(ip))  , JSON({"a1":[1,1]})           );
+        TEST2(L_, s_(at1,at2,a_(1,1,1),a_(ip)), JSON({"a1":[1,1,1]})         );
+        TEST2(L_, s_(at1,at2,a_(ip),a_(1))    , JSON({"a2":[1]})             );
+        TEST2(L_, s_(at1,at2,a_(1),a_(1))     , JSON({"a1":[1],"a2":[1]})    );
+        TEST2(L_, s_(at1,at2,a_(1,1),a_(1))   , JSON({"a1":[1,1],"a2":[1]})  );
+        TEST2(L_, s_(at1,at2,a_(1,1,1),a_(1)) , JSON({"a1":[1,1,1],"a2":[1]}));
+
+#undef JSON
+
+      } break;
+      case 21: {
+        // --------------------------------------------------------------------
+        // TESTING ENCODING NULL CHOICE
+        //   This case tests that 'baljsn::Encoder::encode' returns a non-zero
+        //   value if the supplied object contains a null choice.
+        //
+        // Concerns:
+        //: 1 When encoding an object containing null nullable choice, and
+        //:   'encodeNullElements' is 'false' then the encoder succeeds and
+        //:   returns valid json (DRQS 165224090)
+        //: 2 When encoding an object containing null nullable choice, and
+        //:   'encodeNullElements' is 'false' then the encoder returns a non-0
+        //:   value, and does not trigger any assertions (DRQS 165224090)
+        //
+        // Plan:
+        //: 1 Create a message object of type
+        //:   'MySequenceWithNullableAnonymousChoice' which contains an null
+        //:   choice and ensure that 'encode' returns a 0 value and returns
+        //:   json "{}".
+        //: 2 Create a message object of type
+        //:   'MySequenceWithNullableAnonymousChoice' which contains an null
+        //:   choice and ensure that, when 'encodeNullElements' is set,
+        //:   'encode' returns a non-0 value.
+        //
+        // Testing:
+        //   ENCODING NULL CHOICE
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING ENCODING UNSET CHOICE"
+                          << "\n=============================" << endl;
+
+        {
+            bsl::ostringstream                          out;
+            BloombergLP::s_baltst::MySequenceWithChoice obj;
+
+            baljsn::Encoder        encoder;
+            baljsn::EncoderOptions options;
+            options.setEncodingStyle(baljsn::EncoderOptions::e_PRETTY);
+
+            const int rc = encoder.encode(out, obj, options);
+            ASSERT(0 != rc);
+            if (verbose) { P(rc); P(encoder.loggedMessages()); P(out.str()); }
+        }
+        // Two iterations to cover both possible settings for
+        // 'encodeNullElements'
+        for (int loop = 0; loop <= 1; loop++) {
+            if (veryVerbose)
+                bsl::cout << "Running test for encodeNullElements="
+                          << ((0 == loop) ? "false\n" : "true\n");
+
+            bsl::ostringstream                                           out;
+            BloombergLP::s_baltst::MySequenceWithNullableAnonymousChoice obj;
+
+            baljsn::Encoder        encoder;
+            baljsn::EncoderOptions options;
+            options.setEncodingStyle(baljsn::EncoderOptions::e_PRETTY);
+            if (0 == loop) {
+                options.setEncodeNullElements(false);
+            }
+            else {
+                options.setEncodeNullElements(true);
+            }
+
+            const int rc = encoder.encode(out, obj, options);
+
+            if (0 == loop) {
+                ASSERTV(rc, 0 == rc);
+                ASSERTV(out.str(), "{\n\n}\n" == out.str());
+            }
+            else {
+                ASSERTV(rc, 0 != rc);
+            }
+            if (veryVerbose) {
+                P(rc);
+                P(encoder.loggedMessages());
+                P(out.str());
+            }
+        }
+      } break;
       case 20: {
         // --------------------------------------------------------------------
         // TESTING ENCODING UNSET CHOICE
@@ -622,28 +1468,31 @@ int main(int argc, char *argv[])
         //:   returns a non-0 value, and does not trigger any assertions.
         //
         // Plan:
-        //: 1 Create a message object of type 'drqs165920075::MyType' which
+        //: 1 Create a message object of type 'MySequenceWithChoice' which
         //:   contains an unset choice in its sub-object of type
-        //:   'drqs165920075::MyChoice' and ensure than 'encode' returns a
+        //:   'MySequenceWithChoice' and ensure than 'encode' returns a
         //:   non-0 value.
         //
         // Testing:
-        //   int encode(stream, value, options);
+        //   ENCODING UNSET CHOICE
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING ENCODING UNSET CHOICE"
-                          << "\n=============================" << endl;
+        if (verbose)
+            cout << endl
+                 << "TESTING ENCODING UNSET CHOICE" << endl
+                 << "=============================" << endl;
+        {
+            bsl::ostringstream                          out;
+            BloombergLP::s_baltst::MySequenceWithChoice obj;
 
-        bsl::ostringstream                          out;
-        BloombergLP::s_baltst::MySequenceWithChoice obj;
+            baljsn::Encoder        encoder;
+            baljsn::EncoderOptions options;
+            options.setEncodingStyle(baljsn::EncoderOptions::e_PRETTY);
 
-        baljsn::Encoder        encoder;
-        baljsn::EncoderOptions options;
-        options.setEncodingStyle(baljsn::EncoderOptions::e_PRETTY);
-
-        const int rc = encoder.encode(out, obj, options);
-        ASSERT(0 != rc);
-        if (verbose) { P(rc); P(encoder.loggedMessages()); P(out.str()); }
+            const int rc = encoder.encode(out, obj, options);
+            ASSERT(0 != rc);
+            if (verbose) { P(rc); P(encoder.loggedMessages()); P(out.str()); }
+        }
       } break;
       case 19: {
         // --------------------------------------------------------------------
@@ -724,15 +1573,14 @@ int main(int argc, char *argv[])
         obj1.data()           = "Lorem ipsum dolor sit amet.";
         obj1.responseLength() = 42;
 
-        //.---------------------------------------------------------------.
-        //            OBJECT                                              |
-        //           .------                                              |
-        //          /    BUFFER SIZE                                      |
-        //   LINE  /    .-----------                                      |
-        //  .---- /    /   ENCODING SUCCEEDS  EXPECTED ERROR MESSAGE      |
-        //  |    /    /   .-----------------  ----------------------.     |
-        //  |   /    /   /     EXPECTED STREAM BUFFER CONTENTS       \    |
-        //`-- ----- --- -- --------------------------------------- -------'
+        //            OBJECT
+        //           .------
+        //          /    BUFFER SIZE
+        //   LINE  /    .-----------
+        //  .---- /    /   ENCODING SUCCEEDS   EXPECTED ERROR MESSAGE
+        //  |    /    /   .-----------------   ----------------------.
+        //  |   /    /   /     EXPECTED STREAM BUFFER CONTENTS       |
+        // -- ----- --- -- --------------------------------------- -------
         t( L_, obj0,  0, F, ""                                    , ERROR );
         t( L_, obj0,  1, F, "{"                                   , ERROR );
         t( L_, obj0,  2, F, "{\""                                 , ERROR );
@@ -3911,354 +4759,6 @@ namespace BloombergLP {
 namespace {
 namespace u {
 
-                               // --------------
-                               // FREE FUNCTIONS
-                               // --------------
-
-void printStringDifferences(const bsl::string& lhs, const bsl::string& rhs)
-{
-    const bsl::size_t len1 = lhs.size();
-    const bsl::size_t len2 = rhs.size();
-    P(len1) P(len2)
-    for (bsl::size_t i = 0; i < len1; ++i) {
-        if (lhs[i] != rhs[i]) {
-            P(i)
-            cout << '\'' << lhs[i] << '\'' << endl;
-            cout << '\'' << rhs[i] << '\'' << endl;
-            P(bsl::string(lhs.begin(), lhs.begin() + i));
-            P(bsl::string(rhs.begin(), rhs.begin() + i));
-            return;                                                   // RETURN
-        }
-    }
-}
-
-void constructFeatureTestMessage(
-                            bsl::vector<s_baltst::FeatureTestMessage> *objects)
-{
-    balxml::MiniReader reader;
-    balxml::DecoderOptions options;
-    balxml::ErrorInfo e;
-    balxml::Decoder decoder(&options, &reader, &e);
-
-    typedef s_baltst::FeatureTestMessageUtil MessageUtil;
-
-    for (int i = 0; i < MessageUtil::k_NUM_MESSAGES; ++i) {
-        s_baltst::FeatureTestMessage object;
-        bsl::istringstream ss(MessageUtil::s_XML_MESSAGES[i]);
-
-        balxml::MiniReader     reader;
-        balxml::DecoderOptions options;
-        balxml::ErrorInfo      e;
-        balxml::Decoder        decoder(&options, &reader, &e);
-
-        int rc = decoder.decode(ss.rdbuf(), &object);
-        if (0 != rc) {
-            cout << "Failed to decode from initialization data (i="
-                 << i << "): "
-                 << decoder.loggedMessages() << endl;
-        }
-
-        if (s_baltst::FeatureTestMessage::SELECTION_ID_UNDEFINED ==
-                                                        object.selectionId()) {
-            cout << "Decoded unselected choice from initialization data"
-                 << " (i =" << i << ")" << endl;
-            rc = 9;
-        }
-
-        ASSERTV(i, 0 == rc); // test invariant
-
-        objects->push_back(object);
-    }
-}
-
-template <class TYPE>
-int populateTestObject(TYPE *object, const bsl::string& xmlString)
-{
-    bsl::istringstream ss(xmlString);
-
-    balxml::MiniReader reader;
-    balxml::DecoderOptions options;
-    balxml::ErrorInfo e;
-    balxml::Decoder decoder(&options, &reader, &e);
-
-    int rc = decoder.decode(ss.rdbuf(), object);
-
-    if (0 != rc) {
-        cout << "Failed to decode from initialization data: "
-             << decoder.loggedMessages() << endl;
-    }
-    return rc;
-}
-
-template <class TYPE>
-void testNumber()
-{
-    const struct {
-        int         d_line;
-        Int64       d_value;
-        const char *d_result;
-    } DATA[] = {
-        //LINE     VALUE  RESULT
-        //----     -----  ------
-        { L_,         -1, "-1" },
-        { L_,          0, "0" },
-        { L_,          1, "1" },
-        { L_,  UCHAR_MAX, "255" },
-        { L_,   SHRT_MIN, "-32768" },
-        { L_,   SHRT_MAX, "32767" },
-        { L_,  USHRT_MAX, "65535" },
-        { L_,    INT_MIN, "-2147483648" },
-        { L_,    INT_MAX, "2147483647" },
-        { L_,   UINT_MAX, "4294967295" },
-        { L_,  LLONG_MIN, "-9223372036854775808" },
-        { L_,  LLONG_MAX, "9223372036854775807" },
-    };
-
-    const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-    for (int ti = 0; ti < NUM_DATA; ++ti) {
-        const int         LINE  = DATA[ti].d_line;
-        const Int64       VALUE = DATA[ti].d_value;
-        const char *const EXP   = DATA[ti].d_result;
-
-        if (VALUE > static_cast<Int64>(bsl::numeric_limits<TYPE>::max())
-         || VALUE < static_cast<Int64>(bsl::numeric_limits<TYPE>::min())){
-            continue;                                               // CONTINUE
-        }
-
-        const TYPE VALUE_AS_TYPE = static_cast<TYPE>(VALUE);
-
-        Obj                encoder;
-        bsl::ostringstream oss;
-        ASSERTV(LINE, 0 == ImplUtil::encode(&oss, VALUE_AS_TYPE));
-
-        bsl::string result = oss.str();
-        ASSERTV(LINE, result, EXP, result == EXP);
-    }
-}
-
-
-                               // ---------------
-                               // struct TestUtil
-                               // ---------------
-
-// CLASS METHODS
-template <class VALUE_TYPE>
-void TestUtil::assertEncodedValueIsEqual(
-                       const int                          LINE,
-                       const baljsn::EncodingStyle::Value ENCODING_STYLE,
-                       const bool                         ENCODE_NULL_ELEMENTS,
-                       const VALUE_TYPE&                  VALUE,
-                       const bsl::string_view&            EXPECTED_JSON_STRING)
-{
-    bdlsb::MemOutStreamBuf outStreamBuf;
-    bsl::ostream           outStream(&outStreamBuf);
-
-    baljsn::EncoderOptions options;
-    options.setEncodingStyle(ENCODING_STYLE);
-    options.setEncodeNullElements(ENCODE_NULL_ELEMENTS);
-    options.setInitialIndentLevel(0);
-    options.setSpacesPerLevel(4);
-
-    baljsn::Encoder encoder;
-    int rc = encoder.encode(&outStreamBuf, VALUE, &options);
-    LOOP1_ASSERT_EQ(LINE, 0, rc);
-
-    const bsl::string_view jsonStringView(outStreamBuf.data(),
-                                          outStreamBuf.length());
-    LOOP1_ASSERT_EQ(LINE, EXPECTED_JSON_STRING, jsonStringView);
-}
-
-               // ----------------------------------------------
-               // class AssertEncodingOverflowIsDetectedFunction
-               // ----------------------------------------------
-
-// PRIVATE CLASS METHODS
-void AssertEncodingOverflowIsDetectedFunction::assertExpectations(
-                         bdlsb::FixedMemOutStreamBuf *streamBuf,
-                         const int                    rc,
-                         const baljsn::Encoder&       encoder,
-                         const int                    LINE,
-                         const int                    SUCCESS,
-                         const bsl::string_view&      EXPECTED_JSON_STRING,
-                         const bsl::string_view&      EXPECTED_LOGGED_MESSAGES)
-{
-        if (SUCCESS) {
-            LOOP1_ASSERT_EQ(LINE, 0, rc);
-        }
-        else {
-            LOOP1_ASSERT_NE(LINE, 0, rc);
-        }
-
-        const bsl::streampos streamBufPosition =
-                                  streamBuf->pubseekoff(0, bsl::ios_base::cur);
-
-        const bsl::string_view jsonStringView(
-                                       streamBuf->data(),
-                                       static_cast<size_t>(streamBufPosition));
-
-        LOOP1_ASSERT_EQ(LINE, EXPECTED_JSON_STRING, jsonStringView);
-
-        LOOP1_ASSERT_EQ(
-            LINE, EXPECTED_LOGGED_MESSAGES, encoder.loggedMessages());
-}
-
-
-// CREATORS
-AssertEncodingOverflowIsDetectedFunction::
-    AssertEncodingOverflowIsDetectedFunction()
-{
-}
-
-// ACCESSORS
-template <class VALUE_TYPE>
-void AssertEncodingOverflowIsDetectedFunction::operator()(
-                       const int                LINE,
-                       const VALUE_TYPE&        VALUE,
-                       const int                BUFFER_SIZE,
-                       const bool               SUCCESS,
-                       const bsl::string_view&  EXPECTED_JSON_STRING,
-                       const bsl::string_view&  EXPECTED_LOGGED_MESSAGES) const
-{
-    // Assert the expectations of this object for each overload of
-    // 'baljsn::Encoder::encode'.
-
-    {
-        baljsn::Encoder encoder;
-
-        bsl::vector<char>           buffer(BUFFER_SIZE);
-        bdlsb::FixedMemOutStreamBuf streamBuffer(buffer.data(), BUFFER_SIZE);
-        baljsn::EncoderOptions      encoderOptions;
-
-        const int rc = encoder.encode(&streamBuffer, VALUE, encoderOptions);
-
-        assertExpectations(&streamBuffer,
-                           rc,
-                           encoder,
-                           LINE,
-                           SUCCESS,
-                           EXPECTED_JSON_STRING,
-                           EXPECTED_LOGGED_MESSAGES);
-    }
-
-    {
-        baljsn::Encoder encoder;
-
-        bsl::vector<char>           buffer(BUFFER_SIZE);
-        bdlsb::FixedMemOutStreamBuf streamBuffer(buffer.data(), BUFFER_SIZE);
-        baljsn::EncoderOptions      encoderOptions;
-
-        int rc = encoder.encode(&streamBuffer, VALUE, &encoderOptions);
-
-        assertExpectations(&streamBuffer,
-                           rc,
-                           encoder,
-                           LINE,
-                           SUCCESS,
-                           EXPECTED_JSON_STRING,
-                           EXPECTED_LOGGED_MESSAGES);
-    }
-
-    {
-        baljsn::Encoder encoder;
-
-        bsl::vector<char>           buffer(BUFFER_SIZE);
-        bdlsb::FixedMemOutStreamBuf streamBuffer(buffer.data(), BUFFER_SIZE);
-        bsl::ostream                stream(&streamBuffer);
-        baljsn::EncoderOptions      encoderOptions;
-
-        int rc = encoder.encode(stream, VALUE, encoderOptions);
-
-        assertExpectations(&streamBuffer,
-                           rc,
-                           encoder,
-                           LINE,
-                           SUCCESS,
-                           EXPECTED_JSON_STRING,
-                           EXPECTED_LOGGED_MESSAGES);
-    }
-
-    {
-        baljsn::Encoder encoder;
-
-        bsl::vector<char>           buffer(BUFFER_SIZE);
-        bdlsb::FixedMemOutStreamBuf streamBuffer(buffer.data(), BUFFER_SIZE);
-        bsl::ostream                stream(&streamBuffer);
-        baljsn::EncoderOptions      encoderOptions;
-
-        int rc = encoder.encode(stream, VALUE, &encoderOptions);
-
-        assertExpectations(&streamBuffer,
-                           rc,
-                           encoder,
-                           LINE,
-                           SUCCESS,
-                           EXPECTED_JSON_STRING,
-                           EXPECTED_LOGGED_MESSAGES);
-    }
-
-    {
-        baljsn::Encoder encoder;
-
-        bsl::vector<char>           buffer(BUFFER_SIZE);
-        bdlsb::FixedMemOutStreamBuf streamBuffer(buffer.data(), BUFFER_SIZE);
-
-        int rc = encoder.encode(&streamBuffer, VALUE);
-
-        assertExpectations(&streamBuffer,
-                           rc,
-                           encoder,
-                           LINE,
-                           SUCCESS,
-                           EXPECTED_JSON_STRING,
-                           EXPECTED_LOGGED_MESSAGES);
-    }
-
-    {
-        baljsn::Encoder encoder;
-
-        bsl::vector<char>           buffer(BUFFER_SIZE);
-        bdlsb::FixedMemOutStreamBuf streamBuffer(buffer.data(), BUFFER_SIZE);
-        bsl::ostream                stream(&streamBuffer);
-
-        int rc = encoder.encode(stream, VALUE);
-
-        assertExpectations(&streamBuffer,
-                           rc,
-                           encoder,
-                           LINE,
-                           SUCCESS,
-                           EXPECTED_JSON_STRING,
-                           EXPECTED_LOGGED_MESSAGES);
-    }
-}
-
-                  // ---------------------------------------
-                  // class AssertEncodedValueIsEqualFunction
-                  // ---------------------------------------
-
-// CREATORS
-AssertEncodedValueIsEqualFunction::AssertEncodedValueIsEqualFunction()
-{
-}
-
-// ACCESSORS
-template <class VALUE_TYPE>
-void AssertEncodedValueIsEqualFunction::operator()(
-                 const int                          LINE,
-                 const baljsn::EncodingStyle::Value ENCODING_STYLE,
-                 const bool                         ENCODE_NULL_ELEMENTS,
-                 const VALUE_TYPE&                  VALUE,
-                 const bsl::string_view&            EXPECTED_JSON_STRING) const
-{
-    TestUtil::assertEncodedValueIsEqual(LINE,
-                                        ENCODING_STYLE,
-                                        ENCODE_NULL_ELEMENTS,
-                                        VALUE,
-                                        EXPECTED_JSON_STRING);
-}
-
-
                              // ------------------
                              // class Enumeration0
                              // ------------------
@@ -4686,6 +5186,10 @@ const EmptySequenceExampleSequence& EmptySequenceExample::sequence() const
 }  // close u namespace
 }  // close unnamed namespace
 }  // close enterprise namespace
+
+#ifdef U_SKIP_DUE_TO_COMPILER_RESOURCE_LIMITATIONS
+#undef U_SKIP_DUE_TO_COMPILER_RESOURCE_LIMITATIONS
+#endif
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.
