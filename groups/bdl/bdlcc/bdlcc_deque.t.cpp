@@ -301,7 +301,6 @@ static const double DECI_SEC      = 0.1;
 static const int MICRO_100TH_SEC =    10000;
                                        // number of micro seconds in .1 seconds
 
-
 static const bsltf::MoveState::Enum e_NOT_MOVED = MoveState::e_NOT_MOVED;
 static const bsltf::MoveState::Enum e_MOVED     = MoveState::e_MOVED;
 static const bsltf::MoveState::Enum e_UNKNOWN   = MoveState::e_UNKNOWN;
@@ -2954,7 +2953,6 @@ void testForcePushRemoveAllAux(const bool       match,
         P_(match);    P_(moveFlag);    P_(pushFront);    P(vecType);
     }
 
-
     bslma::TestAllocator da("default", veryVeryVeryVerbose);
     bslma::TestAllocator ta("test",    veryVeryVeryVerbose);
     bslma::TestAllocator oa("other",   veryVeryVeryVerbose);
@@ -3180,7 +3178,6 @@ class MultiThreadedForcePushTest {
         barrier.wait();
         if (veryVerbose) bsl::printf(
                                "Producer %u forward pass start\n", d_id >> 30);
-
 
         // Do pushes of 'unsigned's to the back of the container.  3 Types of
         // pushes will be made:
@@ -4190,15 +4187,24 @@ class EmptyDequeFunctor {
     // DATA
     Obj                *d_deque_p;
     bslmt::Barrier     *d_barrier_p;
+    int                *d_status_p;
     bsls::TimeInterval  d_timeout;
 
   public:
-    EmptyDequeFunctor(Obj *deque, bslmt::Barrier *barrier)
-        // Create a test object that will access the specified '*deque' and
-        // block on the specified '*barrier'.
+    EmptyDequeFunctor(Obj *deque, bslmt::Barrier *barrier, int *status)
+        // Create a test object that will access the specified '*deque', block
+        // on the specified '*barrier', and assign an exit status to the
+        // specified 'status'.  The exit status is set to 0 when an element
+        // having the 'TERMINATE' value is found on 'deque' and a non-zero
+        // value if a blocking operation on 'deque' or 'barrier' times out.
     : d_deque_p(deque)
     , d_barrier_p(barrier)
+    , d_status_p(status)
     {
+        ASSERT(deque);
+        ASSERT(barrier);
+        ASSERT(status);
+
         // have everything time out 4 seconds after thread object creation
 
         d_timeout = u::now() + bsls::TimeInterval(4.0);
@@ -4219,7 +4225,9 @@ class EmptyDequeFunctor {
         for (bool back = false; true; back = !back) {
             ASSERT((sts = d_barrier_p->timedWait(d_timeout), !sts));
             if (sts) {
-                bslmt::ThreadUtil::exit(reinterpret_cast<void *>(2));
+                ASSERT(bslmt::Barrier::e_TIMED_OUT == sts);
+                *d_status_p = 2;
+                break;
             }
 
             if (back) {
@@ -4229,18 +4237,23 @@ class EmptyDequeFunctor {
                 ASSERT((sts = d_deque_p->timedPopFront(&e, d_timeout), !sts));
             }
             if (sts) {
-                bslmt::ThreadUtil::exit(reinterpret_cast<void *>(1));
+                ASSERT(bslmt::Barrier::e_TIMED_OUT == sts);
+                *d_status_p = 1;
+                break;
             }
 
             if (TERMINATE == e) {
-                bslmt::ThreadUtil::exit(reinterpret_cast<void *>(0));
+                *d_status_p = 0;
+                break;
             }
             ASSERT(VALID_VAL == e);
 
             sts = d_barrier_p->timedWait(d_timeout);
             ASSERT(!sts);
             if (sts) {
-                bslmt::ThreadUtil::exit(reinterpret_cast<void *>(2));
+                ASSERT(bslmt::Barrier::e_TIMED_OUT == sts);
+                *d_status_p = 3;
+                break;
             }
         }
     }
@@ -6851,7 +6864,9 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == mX.length());
 
-        TC::EmptyDequeFunctor functor(&mX, &barrier);
+        int status = -1;
+
+        TC::EmptyDequeFunctor functor(&mX, &barrier, &status);
 
         bslmt::ThreadUtil::create(&handle, functor);
 
@@ -6889,7 +6904,8 @@ int main(int argc, char *argv[])
         {
             void *sts;
             bslmt::ThreadUtil::join(handle, &sts);
-            ASSERTV(sts, !sts);
+            ASSERTV(sts,    !sts);
+            ASSERTV(status, 0 == status);  // Expected after 'TERMINATE'.
         }
 
         ASSERT(u::now() < timeout);
