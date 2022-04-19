@@ -346,7 +346,7 @@ BSLS_IDENT("$Id: $")
 // function.  Notably, a lambda can now be defined in such a function (and, if
 // not called at compile time, does not itself need to be 'constexpr').  To
 // take advantage of this there is a separate macro
-// 'BSLS_KEYWORD_CONSTEXPR_CPP14' that can be used to mark functions
+// 'BSLS_KEYWORD_CONSTEXPR_CPP17' that can be used to mark functions
 // 'constexpr' when compiling with C++17 mode:
 //..
 //  BSLS_KEYWORD_CONSTEXPR_CPP17
