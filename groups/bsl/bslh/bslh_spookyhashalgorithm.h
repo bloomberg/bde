@@ -380,7 +380,29 @@ SpookyHashAlgorithm::SpookyHashAlgorithm()
 inline
 SpookyHashAlgorithm::SpookyHashAlgorithm(const char *seed)
 : d_state(
-#if !defined(BSLS_PLATFORM_CPU_X86_64) && !defined(BSLS_PLATFORM_CPU_X86)
+#if defined(BSLS_PLATFORM_CPU_X86_64) || defined(BSLS_PLATFORM_CPU_X86)
+// Intel x86 processors allow for unaligned memory reads
+          reinterpret_cast<const Uint64 *>(seed)[0],
+          reinterpret_cast<const Uint64 *>(seed)[1]
+#else
+#if defined(BSLS_PLATFORM_IS_LITTLE_ENDIAN)
+          static_cast<Uint64>(seed[0])        |
+          static_cast<Uint64>(seed[1])  <<  8 |
+          static_cast<Uint64>(seed[2])  << 16 |
+          static_cast<Uint64>(seed[3])  << 24 |
+          static_cast<Uint64>(seed[4])  << 32 |
+          static_cast<Uint64>(seed[5])  << 40 |
+          static_cast<Uint64>(seed[6])  << 48 |
+          static_cast<Uint64>(seed[7])  << 56,
+          static_cast<Uint64>(seed[8])        |
+          static_cast<Uint64>(seed[9])  << 8  |
+          static_cast<Uint64>(seed[10]) << 16 |
+          static_cast<Uint64>(seed[11]) << 24 |
+          static_cast<Uint64>(seed[12]) << 32 |
+          static_cast<Uint64>(seed[13]) << 40 |
+          static_cast<Uint64>(seed[14]) << 48 |
+          static_cast<Uint64>(seed[15]) << 56
+#else  // big endian
           static_cast<Uint64>(seed[0])  << 56 |
           static_cast<Uint64>(seed[1])  << 48 |
           static_cast<Uint64>(seed[2])  << 40 |
@@ -397,9 +419,7 @@ SpookyHashAlgorithm::SpookyHashAlgorithm(const char *seed)
           static_cast<Uint64>(seed[13]) << 16 |
           static_cast<Uint64>(seed[14]) << 8  |
           static_cast<Uint64>(seed[15])
-#else
-          reinterpret_cast<const Uint64 *>(seed)[0],
-          reinterpret_cast<const Uint64 *>(seed)[1]
+#endif
 #endif
           )
 {

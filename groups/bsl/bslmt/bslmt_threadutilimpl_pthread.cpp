@@ -501,74 +501,22 @@ int bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::sleepUntil(
     BSLS_ASSERT(absoluteTime <  bsls::TimeInterval(253402300800LL, 0));
 
     // POSIX defines 'clock_nanosleep' which is used for most UNIX platforms,
-    // Darwin does not provide that function,and provides the alternative
-    // 'clock_sleep'.
+    // Darwin does not provide that function.  Originally, we implemented this
+    // using the kernel funciton clock_sleep, but have moved to a simpler
+    // implementation.
 
 #if defined(BSLS_PLATFORM_OS_DARWIN)
-    // According 'mach.h' ('/user/include/mach/') the 'clock_sleep' signature
-    // is:
-    //..
-    //  kern_return_t clock_sleep(
-    //        mach_port_t, int, mach_timespec_t, mach_timespec_t *);
-    //..
-    // According to 'mach_interface.h' mach_timespec_t is a simple struct that
-    // is equivalent to 'timespec' on other UNIX platforms.  Many identifier
-    // types used in the mach interface are aliases to 'mach_port_t', including
-    // 'clock_serv_t' which is returned by 'host_get_clock_service'.  The
-    // signature for 'host_get_clock_service' is in 'mach_host.h':
-    //..
-    //  kern_return_t host_get_clock_service(host_t, clock_id_t,clock_serv_t *)
-    //..
-    // There is little official documentation of these APIs.  Some information
-    // can be found:
-    //: o http://felinemenace.org/~nemo/mach/manpages/
-    //: o http://boredzo.org/blog/archives/2006-11-26/how-to-use-mach-clocks/
-    //: o Mac OS X Internals: A Systems Approach (On Safari-Online)
+    bsls::TimeInterval relativeTime =
+        absoluteTime - bsls::SystemTime::now(clockType);
 
-    // This implementation is very sensitive to the 'clockType'.  For safety,
-    // we will assert the value is one of the two currently expected values.
-
-    BSLS_ASSERT(bsls::SystemClockType::e_REALTIME ==  clockType ||
-                bsls::SystemClockType::e_MONOTONIC == clockType);
-
-    bsls::TimeInterval sleepUntilTime(absoluteTime);
-    if (clockType != bsls::SystemClockType::e_MONOTONIC) {
-        // since we will be operating with the monotonic clock, adjust the
-        // timeout value to make it consistent with the monotonic clock
-
-        sleepUntilTime += bsls::SystemTime::nowMonotonicClock() -
-                          bsls::SystemTime::now(clockType);
+    while (relativeTime > bsls::TimeInterval()) {
+        int rc = sleep(relativeTime);
+        if (0 != rc) {
+            return rc;                                                 // RETURN
+        }
+        relativeTime = absoluteTime - bsls::SystemTime::now(clockType);
     }
-
-    clock_serv_t clock;
-
-    // Unfortunately the 'CALENDAR_CLOCK', which is based on unix-epoch time
-    // does not provide 'clock_sleep'.  'REALTIME_CLOCK' is guaranteed to
-    // support 'clock_sleep', but uses the system boot-time as the unix epoch.
-
-    kern_return_t status = host_get_clock_service(mach_host_self(),
-                                                  REALTIME_CLOCK,
-                                                  &clock);
-    u::MachClockGuard clockGuard(clock);
-
-    if (0 != status) {
-        return status;                                                // RETURN
-    }
-
-    if (sleepUntilTime <= bsls::TimeInterval()) {
-        return 0;                                                     // RETURN
-    }
-
-    mach_timespec_t clockTime;
-    mach_timespec_t resultTime;
-
-    SaturatedTimeConversionImpUtil::toTimeSpec(&clockTime,
-                                                     sleepUntilTime);
-
-    status = clock_sleep(clock, TIME_ABSOLUTE, clockTime, &resultTime);
-
-    return KERN_ABORTED == status ? 0 : status;
-
+    return 0;
 #else
     timespec clockTime;
     SaturatedTimeConversionImpUtil::toTimeSpec(&clockTime, absoluteTime);

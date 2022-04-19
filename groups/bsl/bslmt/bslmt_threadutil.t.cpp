@@ -787,14 +787,14 @@ extern "C" void *priorityEffectivenessTest(void *arg)
         bslmt::ThreadUtil::yield();
     }
 
-#if defined(BSLS_PLATFORM_OS_SOLARIS)
+#if defined(BSLS_PLATFORM_OS_SOLARIS) || defined (BSLS_PLATFORM_OS_DARWIN)
 
     // On some operating systems (e.g., Solaris) the thread priority has little
     // effect except on the exit order from a synchronization primitive.
 
     for (int i = 0; i < k_ITER; ++i) {
         s_priorityEffectivenessTest_mutex.lock();
-        bslmt::ThreadUtil::microSleep(200);
+        bslmt::ThreadUtil::yield();
         s_priorityEffectivenessTest_mutex.unlock();
     }
 

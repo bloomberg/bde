@@ -137,28 +137,10 @@ int veryVeryVeryVerbose = 0; // For test allocators
 #define MSVC_2019 0
 #endif
 
-#if defined(BSLS_PLATFORM_CMP_CLANG)    \
- && BSLS_PLATFORM_CMP_VERSION >= 100000 \
- && BSLS_PLATFORM_CMP_VERSION <  110000
-#define CLANG_10 1
+#if defined(BSLS_PLATFORM_CMP_CLANG)
+#define CLANG 1
 #else
-#define CLANG_10 0
-#endif
-
-#if defined(BSLS_PLATFORM_CMP_CLANG)    \
- && BSLS_PLATFORM_CMP_VERSION >= 110000 \
- && BSLS_PLATFORM_CMP_VERSION <  120000
-#define CLANG_11 1
-#else
-#define CLANG_11 0
-#endif
-
-#if defined(BSLS_PLATFORM_CMP_CLANG)    \
- && BSLS_PLATFORM_CMP_VERSION >= 120000 \
- && BSLS_PLATFORM_CMP_VERSION <  130000
-#define CLANG_12 1
-#else
-#define CLANG_12 0
+#define CLANG 0
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_GNU)      \
@@ -1508,12 +1490,10 @@ int main(int argc, char *argv[])
           TEST.run<void (   AI),  void       (  rPI)  >(L_, YES);
           TEST.run<void (   AI),  void       ( rPcI)  >(L_, NO );
           TEST.run<void (   AI),  void       ( rrPI)  >(L_, NO );
-          TEST.run<void (   AI),  void       (rrPcI)  >(L_, !MSVC
-                                                         && !CLANG_10
-                                                         && !CLANG_11
-                                                         && !CLANG_12
-                                                         && !GNU_10
-                                                         && !GNU_11);
+          TEST.run<void (   AI),  void       (rrPcI)  >(L_, !(MSVC
+                                                              || CLANG
+                                                              || GNU_10
+                                                              || GNU_11));
           TEST.run<void (  AcI),  void       (   PI)  >(L_, NO );
           TEST.run<void (  AcI),  void       (  PcI)  >(L_, YES);
           TEST.run<void (  AcI),  void       (  rPI)  >(L_, NO );

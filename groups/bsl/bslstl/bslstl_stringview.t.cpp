@@ -15,6 +15,7 @@
 #include <bsls_asserttest.h>
 #include <bsls_nameof.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_libraryfeatures.h>
 
 #include <cstring>     // memcpy(), memcmp()
 #include <iostream>
@@ -5315,8 +5316,15 @@ void TestDriver<TYPE, TRAITS>::testCase9()
 
     const TYPE      *STRING        = s_testString;
     const size_type  STRING_LENGTH = s_testStringLength;
-    const size_type  MAX_MAX_SIZE  = (Obj::npos - 1) / sizeof(TYPE);
 
+    // libc++ defines string_view::max_size using numeric_limits<size_type> see
+    // https://github.com/llvm-mirror/libcxx/blob/master/include/string_view
+    const size_type  MAX_MAX_SIZE =
+#if !defined(BSLS_LIBRARYFEATURES_STDCPP_LLVM)
+        (Obj::npos - 1) / sizeof(TYPE);
+#else
+        std::numeric_limits<typename Obj::size_type>::max();
+#endif
     // Testing empty object.
     {
         const TYPE *NULL_PTR = 0;

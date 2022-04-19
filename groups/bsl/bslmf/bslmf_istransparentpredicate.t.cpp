@@ -564,10 +564,14 @@ typedef PublicChildOfTransparentTemplateType<NonTransparentComp> PCOTTTNTC;
 struct AnotherTransparentComp
     // This final class has a nested type 'is_transparent' and should be
     // classified as a transparent by the 'bslmf::IsTransparentPredicate'
-    // metafunction.
+    // metafunction.  Note that we deliberately choose a type other than
+    // 'void' to ensure this definition of 'is_transparent' conflicts with
+    // 'TransparentComp::is_transparent' (newer versions of Clang do not
+    // report an error when using a type alias defined by multiple base
+    // classes if the aliased types are the same).
 {
     // TYPES
-    typedef void is_transparent;
+    typedef void *is_transparent;
 };
 
 struct AmbiguousChildOfTransparentType : public TransparentComp

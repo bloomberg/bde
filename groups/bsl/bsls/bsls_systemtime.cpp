@@ -6,6 +6,7 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_atomicoperations.h>
 #include <bsls_bsltestutil.h>        // for testing only
+#include <bsls_libraryfeatures.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
@@ -38,113 +39,8 @@ namespace bsls {
 
 // CLASS METHODS
 
-#if defined(BSLS_PLATFORM_OS_DARWIN)
 
-                            // - - - - - - - - - - -
-                            // Darwin Implementation
-                            // - - - - - - - - - - -
-
-typedef bsls::AtomicOperations::AtomicTypes::Int AtomicOpInt;
-
-static const int k_UNINITIALIZED_CLOCK = 0;
-static AtomicOpInt g_calendarClock = { k_UNINITIALIZED_CLOCK };
-static AtomicOpInt g_realtimeClock = { k_UNINITIALIZED_CLOCK };
-
-class MachClockGuard {
-    // A guard that deallocates a Darwin (Mach kernel) 'clock_serv_t' on its
-    // destruction.
-
-    // DATA
-    AtomicOpInt *d_clock_p;  // clock identifier
-
-  private:
-    // NOT IMPLEMENTED
-    MachClockGuard(const MachClockGuard&);
-    MachClockGuard operator=(const MachClockGuard&);
-
-  public:
-
-    // CREATORS
-    explicit MachClockGuard(AtomicOpInt *clock)
-        : d_clock_p(clock) {}
-
-    ~MachClockGuard()
-    {
-        int clock = bsls::AtomicOperations::swapInt(d_clock_p,
-                                                    k_UNINITIALIZED_CLOCK);
-        if (clock != k_UNINITIALIZED_CLOCK) {
-            mach_port_deallocate(mach_task_self(),
-                                 static_cast<clock_serv_t>(clock));
-        }
-    }
-};
-
-#define BSLS_SYSTEMTIME_ASSERT(x) extern int ____dummy[(x) ? 1 : -1];
-    // A simple compile-time assert (since we are below 'bslmf').
-
-static
-clock_serv_t getClockService(clock_id_t clockId, AtomicOpInt *atomicClockStore)
-    // Return a Mach clock service handle for the specified 'clockId'.  Use the
-    // specified 'atomicClockStore' for single-time initialization of the
-    // clock service handle.
-{
-    BSLS_SYSTEMTIME_ASSERT(sizeof(clock_serv_t) == sizeof(int));
-
-    // One-time initialization (note: the successfully initialized clock
-    // service is released at the task's destruction).
-
-    typedef bsls::AtomicOperations AtomicOp;
-
-    if (k_UNINITIALIZED_CLOCK == AtomicOp::getIntAcquire(atomicClockStore)) {
-        static MachClockGuard s_calendarClockGuard(&g_calendarClock);
-        static MachClockGuard s_realtimeClockGuard(&g_realtimeClock);
-
-        clock_serv_t clockServ;
-        kern_return_t rc = host_get_clock_service(mach_host_self(),
-                                                  clockId,
-                                                  &clockServ);
-        (void) rc; BSLS_ASSERT_OPT(KERN_SUCCESS == rc);
-
-        if (AtomicOp::testAndSwapInt(atomicClockStore,
-                                     k_UNINITIALIZED_CLOCK,
-                                     static_cast<int>(clockServ))
-            != k_UNINITIALIZED_CLOCK)
-        {
-            // 'atomicClockStore' was already initialized by another thread;
-            // release 'clockServ'.
-
-            rc = mach_port_deallocate(mach_task_self(), clockServ);
-            (void)rc; BSLS_ASSERT_OPT(KERN_SUCCESS == rc);
-        }
-    }
-
-    return static_cast<clock_serv_t>(
-                                    AtomicOp::getIntRelaxed(atomicClockStore));
-}
-
-static inline
-TimeInterval getNowTime(clock_id_t clockId, AtomicOpInt *atomicClockStore)
-    // Return the current time for the specified 'clockId' using the specified
-    // 'atomicClockStore' as storage for an appropriate Mach clock service
-    // handle.
-{
-    mach_timespec_t mts;
-    clock_serv_t clockServ = getClockService(clockId, atomicClockStore);
-    clock_get_time(clockServ, &mts);
-    return TimeInterval(mts.tv_sec, mts.tv_nsec);
-}
-
-TimeInterval SystemTime::nowRealtimeClock()
-{
-    return getNowTime(CALENDAR_CLOCK, &g_calendarClock);
-}
-
-TimeInterval SystemTime::nowMonotonicClock()
-{
-    return getNowTime(SYSTEM_CLOCK, &g_realtimeClock);
-}
-
-#elif defined(BSLS_PLATFORM_OS_WINDOWS)
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
 
                             //- - - - - - - - - - - -
                             // Windows Implementation
@@ -227,7 +123,24 @@ TimeInterval getNowTime(clockid_t clockId)
 // CLASS METHODS
 TimeInterval SystemTime::nowMonotonicClock()
 {
-    return getNowTime(CLOCK_MONOTONIC);
+    return getNowTime(
+#if defined(BSLS_PLATFORM_OS_DARWIN) && \
+    defined(BSLS_LIBRARYFEATURES_STDCPP_LLVM)
+        // Currently libc++ (llvm) uses CLOCK_MONOTONIC_RAW on Darwin and
+        // CLOCK_MONOTONIC elsewhere.  Similarly libstdc++ (gnu) uses
+        // CLOCK_MONOTONIC.  We believe this should become CLOCK_MONOTONIC_RAW
+        // universally as CLOCK_MONOTONIC does not necessarily guarantee
+        // monotonicity (wrt to, for example, ntp), but for the time being
+        // choose to match the platform standard library.
+        //
+        // Tracking issue for libstdc++:
+        // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=102001
+
+            CLOCK_MONOTONIC_RAW
+#else
+            CLOCK_MONOTONIC
+#endif
+        );
 }
 
 TimeInterval SystemTime::nowRealtimeClock()
