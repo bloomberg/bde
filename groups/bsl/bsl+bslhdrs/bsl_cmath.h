@@ -115,6 +115,73 @@ namespace bsl {
     using native_std::tgamma;
     using native_std::trunc;
 #endif  //  BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_SPECIAL_MATH_FUNCTIONS
+    using native_std::assoc_laguerre;
+    using native_std::assoc_laguerref;
+    using native_std::assoc_laguerrel;
+    using native_std::assoc_legendre;
+    using native_std::assoc_legendref;
+    using native_std::assoc_legendrel;
+    using native_std::beta;
+    using native_std::betaf;
+    using native_std::betal;
+    using native_std::comp_ellint_1;
+    using native_std::comp_ellint_1f;
+    using native_std::comp_ellint_1l;
+    using native_std::comp_ellint_2;
+    using native_std::comp_ellint_2f;
+    using native_std::comp_ellint_2l;
+    using native_std::comp_ellint_3;
+    using native_std::comp_ellint_3f;
+    using native_std::comp_ellint_3l;
+    using native_std::cyl_bessel_i;
+    using native_std::cyl_bessel_if;
+    using native_std::cyl_bessel_il;
+    using native_std::cyl_bessel_j;
+    using native_std::cyl_bessel_jf;
+    using native_std::cyl_bessel_jl;
+    using native_std::cyl_bessel_k;
+    using native_std::cyl_bessel_kf;
+    using native_std::cyl_bessel_kl;
+    using native_std::cyl_neumann;
+    using native_std::cyl_neumannf;
+    using native_std::cyl_neumannl;
+    using native_std::ellint_1;
+    using native_std::ellint_1f;
+    using native_std::ellint_1l;
+    using native_std::ellint_2;
+    using native_std::ellint_2f;
+    using native_std::ellint_2l;
+    using native_std::ellint_3;
+    using native_std::ellint_3f;
+    using native_std::ellint_3l;
+    using native_std::expint;
+    using native_std::expintf;
+    using native_std::expintl;
+    using native_std::hermite;
+    using native_std::hermitef;
+    using native_std::hermitel;
+    using native_std::legendre;
+    using native_std::legendref;
+    using native_std::legendrel;
+    using native_std::laguerre;
+    using native_std::laguerref;
+    using native_std::laguerrel;
+    using native_std::riemann_zeta;
+    using native_std::riemann_zetaf;
+    using native_std::riemann_zetal;
+    using native_std::sph_bessel;
+    using native_std::sph_besself;
+    using native_std::sph_bessell;
+    using native_std::sph_legendre;
+    using native_std::sph_legendref;
+    using native_std::sph_legendrel;
+    using native_std::sph_neumann;
+    using native_std::sph_neumannf;
+    using native_std::sph_neumannl;
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_SPECIAL_MATH_FUNCTIONS
+
 }  // close package namespace
 
 #endif

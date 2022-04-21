@@ -180,6 +180,69 @@ using namespace bslim;
 // defined in 'bslstl'.
 //
 //-----------------------------------------------------------------------------
+// [17] bsl::assoc_laguerre();
+// [17] bsl::assoc_laguerref();
+// [17] bsl::assoc_laguerrel();
+// [17] bsl::assoc_legendre();
+// [17] bsl::assoc_legendref();
+// [17] bsl::assoc_legendrel();
+// [17] bsl::beta();
+// [17] bsl::betaf();
+// [17] bsl::betal();
+// [17] bsl::comp_ellint_1();
+// [17] bsl::comp_ellint_1f();
+// [17] bsl::comp_ellint_1l();
+// [17] bsl::comp_ellint_2();
+// [17] bsl::comp_ellint_2f();
+// [17] bsl::comp_ellint_2l();
+// [17] bsl::comp_ellint_3();
+// [17] bsl::comp_ellint_3f();
+// [17] bsl::comp_ellint_3l();
+// [17] bsl::cyl_bessel_i();
+// [17] bsl::cyl_bessel_if();
+// [17] bsl::cyl_bessel_il();
+// [17] bsl::cyl_bessel_j();
+// [17] bsl::cyl_bessel_jf();
+// [17] bsl::cyl_bessel_jl();
+// [17] bsl::cyl_bessel_k();
+// [17] bsl::cyl_bessel_kf();
+// [17] bsl::cyl_bessel_kl();
+// [17] bsl::cyl_neumann();
+// [17] bsl::cyl_neumannf();
+// [17] bsl::cyl_neumannl();
+// [17] bsl::ellint_1();
+// [17] bsl::ellint_1f();
+// [17] bsl::ellint_1l();
+// [17] bsl::ellint_2();
+// [17] bsl::ellint_2f();
+// [17] bsl::ellint_2l();
+// [17] bsl::ellint_3();
+// [17] bsl::ellint_3f();
+// [17] bsl::ellint_3l();
+// [17] bsl::expint();
+// [17] bsl::expintf();
+// [17] bsl::expintl();
+// [17] bsl::hermite();
+// [17] bsl::hermitef();
+// [17] bsl::hermitel();
+// [17] bsl::legendre();
+// [17] bsl::legendref();
+// [17] bsl::legendrel();
+// [17] bsl::laguerre();
+// [17] bsl::laguerref();
+// [17] bsl::laguerrel();
+// [17] bsl::riemann_zeta();
+// [17] bsl::riemann_zetaf();
+// [17] bsl::riemann_zetal();
+// [17] bsl::sph_bessel();
+// [17] bsl::sph_besself();
+// [17] bsl::sph_bessell();
+// [17] bsl::sph_legendre();
+// [17] bsl::sph_legendref();
+// [17] bsl::sph_legendrel();
+// [17] bsl::sph_neumann();
+// [17] bsl::sph_neumannf();
+// [17] bsl::sph_neumannl();
 // [13] bsl::clamp();
 // [13] bsl::for_each_n();
 // [13] bsl::sample();
@@ -634,6 +697,214 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << "\n";
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 17: {
+        // --------------------------------------------------------------------
+        // TESTING C++17 <BSL_CMATH.H> ADDITIONS
+        //
+        // Concerns:
+        //: 1 The calls 'bsl::clamp', 'bls:for_each_n', and 'bsl::sample' all
+        //    exist and return expected values for simple cases.
+        //
+        // Plan:
+        //: 1 Call each of the three algorithms with simple inputs and verify
+        //:   that the result is correct.
+        //
+        // Testing:
+        //   bsl::assoc_laguerre();
+        //   bsl::assoc_laguerref();
+        //   bsl::assoc_laguerrel();
+        //   bsl::assoc_legendre();
+        //   bsl::assoc_legendref();
+        //   bsl::assoc_legendrel();
+        //   bsl::beta();
+        //   bsl::betaf();
+        //   bsl::betal();
+        //   bsl::comp_ellint_1();
+        //   bsl::comp_ellint_1f();
+        //   bsl::comp_ellint_1l();
+        //   bsl::comp_ellint_2();
+        //   bsl::comp_ellint_2f();
+        //   bsl::comp_ellint_2l();
+        //   bsl::comp_ellint_3();
+        //   bsl::comp_ellint_3f();
+        //   bsl::comp_ellint_3l();
+        //   bsl::cyl_bessel_i();
+        //   bsl::cyl_bessel_if();
+        //   bsl::cyl_bessel_il();
+        //   bsl::cyl_bessel_j();
+        //   bsl::cyl_bessel_jf();
+        //   bsl::cyl_bessel_jl();
+        //   bsl::cyl_bessel_k();
+        //   bsl::cyl_bessel_kf();
+        //   bsl::cyl_bessel_kl();
+        //   bsl::cyl_neumann();
+        //   bsl::cyl_neumannf();
+        //   bsl::cyl_neumannl();
+        //   bsl::ellint_1();
+        //   bsl::ellint_1f();
+        //   bsl::ellint_1l();
+        //   bsl::ellint_2();
+        //   bsl::ellint_2f();
+        //   bsl::ellint_2l();
+        //   bsl::ellint_3();
+        //   bsl::ellint_3f();
+        //   bsl::ellint_3l();
+        //   bsl::expint();
+        //   bsl::expintf();
+        //   bsl::expintl();
+        //   bsl::hermite();
+        //   bsl::hermitef();
+        //   bsl::hermitel();
+        //   bsl::legendre();
+        //   bsl::legendref();
+        //   bsl::legendrel();
+        //   bsl::laguerre();
+        //   bsl::laguerref();
+        //   bsl::laguerrel();
+        //   bsl::riemann_zeta();
+        //   bsl::riemann_zetaf();
+        //   bsl::riemann_zetal();
+        //   bsl::sph_bessel();
+        //   bsl::sph_besself();
+        //   bsl::sph_bessell();
+        //   bsl::sph_legendre();
+        //   bsl::sph_legendref();
+        //   bsl::sph_legendrel();
+        //   bsl::sph_neumann();
+        //   bsl::sph_neumannf();
+        //   bsl::sph_neumannl();
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING C++17 <BSL_CMATH.H> ADDITIONS"
+                            "\n=====================================\n");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_SPECIAL_MATH_FUNCTIONS
+
+        bsl::assoc_laguerre (1U, 10U, 0);
+        bsl::assoc_laguerre (1U, 10U, 0.5F);
+        bsl::assoc_laguerre (1U, 10U, 0.5);
+        bsl::assoc_laguerre (1U, 10U, 0.5L);
+        bsl::assoc_laguerref(1U, 10U, 0.5F);
+        bsl::assoc_laguerrel(1U, 10U, 0.5L);
+
+        bsl::beta (4,    6);
+        bsl::beta (4.0,  6.0);
+        bsl::betaf(4.0F, 6.0F);
+        bsl::betal(4.0L, 6.0L);
+
+        bsl::comp_ellint_1 (2);
+        bsl::comp_ellint_1 (1.5F);
+        bsl::comp_ellint_1 (1.5);
+        bsl::comp_ellint_1 (1.5L);
+        bsl::comp_ellint_1f(1.5F);
+        bsl::comp_ellint_1l(1.5L);
+
+        bsl::comp_ellint_2 (2);
+        bsl::comp_ellint_2 (1.5F);
+        bsl::comp_ellint_2 (1.5);
+        bsl::comp_ellint_2 (1.5L);
+        bsl::comp_ellint_2f(1.5F);
+        bsl::comp_ellint_2l(1.5L);
+
+        bsl::comp_ellint_3 (2,    0);
+        bsl::comp_ellint_3 (1.5F, 0.0F);
+        bsl::comp_ellint_3 (1.5,  0.0);
+        bsl::comp_ellint_3 (1.5L, 0.0F);
+        bsl::comp_ellint_3f(1.5F, 0.0F);
+        bsl::comp_ellint_3l(1.5L, 0.0L);
+
+        bsl::cyl_bessel_i (0,    1);
+        bsl::cyl_bessel_i (0.0,  1.0);
+        bsl::cyl_bessel_if(0.0F, 1.0F);
+        bsl::cyl_bessel_il(0.0L, 1.0L);
+
+        bsl::cyl_bessel_j (0,    1);
+        bsl::cyl_bessel_j (0.0,  1.0);
+        bsl::cyl_bessel_jf(0.0F, 1.0F);
+        bsl::cyl_bessel_jl(0.0L, 1.0L);
+
+        bsl::cyl_bessel_k (0,    1);
+        bsl::cyl_bessel_k (0.0 , 1.0);
+        bsl::cyl_bessel_kf(0.0F, 1.0F);
+        bsl::cyl_bessel_kl(0.0L, 1.0L);
+
+        bsl::cyl_neumann (0,    1);
+        bsl::cyl_neumann (0.0 , 1.0);
+        bsl::cyl_neumannf(0.0F, 1.0F);
+        bsl::cyl_neumannl(0.0L, 1.0L);
+
+        bsl::ellint_1 (0,    1);
+        bsl::ellint_1 (0.0 , 1.0);
+        bsl::ellint_1f(0.0F, 1.0F);
+        bsl::ellint_1l(0.0L, 1.0L);
+
+        bsl::ellint_2 (0,    1);
+        bsl::ellint_2 (0.0 , 1.0);
+        bsl::ellint_2f(0.0F, 1.0F);
+        bsl::ellint_2l(0.0L, 1.0L);
+
+        bsl::ellint_3 (0,    1,    1);
+        bsl::ellint_3 (0.0 , 1.0,  1.0);
+        bsl::ellint_3f(0.0F, 1.0F, 1.0F);
+        bsl::ellint_3l(0.0L, 1.0L, 1.0L);
+
+        bsl::expint (1);
+        bsl::expint (1.0);
+        bsl::expintf(1.0F);
+        bsl::expintl(1.0L);
+
+        bsl::hermite (3U, 10);
+        bsl::hermite (3U, 10.0F);
+        bsl::hermite (3U, 10.0);
+        bsl::hermite (3U, 10.0L);
+        bsl::hermitef(3U, 10.0F);
+        bsl::hermitel(3U, 10.0L);
+
+        bsl::legendre (3U, 10);
+        bsl::legendre (3U, 10.0F);
+        bsl::legendre (3U, 10.0);
+        bsl::legendre (3U, 10.0L);
+        bsl::legendref(3U, 10.0F);
+        bsl::legendrel(3U, 10.0L);
+
+        bsl::laguerre (3U, 10);
+        bsl::laguerre (3U, 10.0F);
+        bsl::laguerre (3U, 10.0);
+        bsl::laguerre (3U, 10.0L);
+        bsl::laguerref(3U, 10.0F);
+        bsl::laguerrel(3U, 10.0L);
+
+        bsl::riemann_zeta (0);
+        bsl::riemann_zeta (0.0F);
+        bsl::riemann_zeta (0.0);
+        bsl::riemann_zeta (0.0L);
+        bsl::riemann_zetaf(0.0F);
+        bsl::riemann_zetal(0.0L);
+
+        bsl::sph_bessel (3U, 10);
+        bsl::sph_bessel (3U, 10.0F);
+        bsl::sph_bessel (3U, 10.0);
+        bsl::sph_bessel (3U, 10.0L);
+        bsl::sph_besself(3U, 10.0F);
+        bsl::sph_bessell(3U, 10.0L);
+
+        bsl::sph_legendre (3U, 1U, 10);
+        bsl::sph_legendre (3U, 1U, 10.0F);
+        bsl::sph_legendre (3U, 1U, 10.0);
+        bsl::sph_legendre (3U, 1U, 10.0L);
+        bsl::sph_legendref(3U, 1U, 10.0F);
+        bsl::sph_legendrel(3U, 1U, 10.0L);
+
+        bsl::sph_neumann (3U, 10);
+        bsl::sph_neumann (3U, 10.0F);
+        bsl::sph_neumann (3U, 10.0);
+        bsl::sph_neumann (3U, 10.0L);
+        bsl::sph_neumannf(3U, 10.0F);
+        bsl::sph_neumannl(3U, 10.0L);
+
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_SPECIAL_MATH_FUNCTIONS
+
+      } break;
       case 13: {
         // --------------------------------------------------------------------
         // TESTING C++17 <BSL_ALGORITHM.H> ADDITIONS

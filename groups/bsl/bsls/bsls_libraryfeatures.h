@@ -802,6 +802,12 @@ BSLS_IDENT("$Id: $")
 // native type is obviated so 'BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT' is
 // being removed.
 //
+///'BSLS_LIBRARYFEATURES_HAS_CPP17_SPECIAL_MATH_FUNCTIONS'
+///--------------------------------------------
+// The 'BSLS_LIBRARYFEATURES_HAS_CPP17_SPECIAL_MATH_FUNCTIONS' is defined if
+// the special math functions such as 'std::assoc_laguerre', 'std::beta' and
+// others are provided by the native standard library in the '<cmath>' header.
+//
 ///'BSLS_LIBRARYFEATURES_STDCPP_GNU_LIBSTDCPP'
 ///-------------------------------------------
 // The 'BSLS_LIBRARYFEATURES_STDCPP_GNU' macro is defined if the C++ standard
@@ -1130,6 +1136,7 @@ BSLS_IDENT("$Id: $")
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_FLOAT_FROM_CHARS_CHARCONV  1
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV                   1
         #endif
+        #define BSLS_LIBRARYFEATURES_HAS_CPP17_SPECIAL_MATH_FUNCTIONS         1
     #endif
     #if defined(__cpp_lib_atomic_is_always_lock_free)
         // There is no pre-processor define declared in libstdc++ to indicate
@@ -1272,6 +1279,7 @@ BSLS_IDENT("$Id: $")
             //  #define BSLS_LIBRARYFEATURES_HAS_CPP17_FILESYSTEM             1
             //  #define BSLS_LIBRARYFEATURES_HAS_CPP17_PARALLEL_ALGORITHMS    1
             //  #define BSLS_LIBRARYFEATURES_HAS_CPP17_PMR                    1
+            //  #define BSLS_LIBRARYFEATURES_HAS_CPP17_SPECIAL_MATH_FUNCTIONS 1
         #endif
 
     #elif BSLS_PLATFORM_CMP_VERSION >= 30000
@@ -1419,6 +1427,7 @@ BSLS_IDENT("$Id: $")
 
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS           1
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY          1
+            #define BSLS_LIBRARYFEATURES_HAS_CPP17_SPECIAL_MATH_FUNCTIONS    1
         #endif
     #endif
 
