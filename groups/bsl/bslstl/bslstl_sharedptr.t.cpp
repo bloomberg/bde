@@ -263,7 +263,7 @@ using namespace BloombergLP;
 // [19] shared_ptr<TARGET> const_pointer_cast(const shared_ptr<SRC>& ptr)
 // [19] shared_ptr<TARGET> dynamic_pointer_cast(const shared_ptr<SRC>& ptr)
 // [19] shared_ptr<TARGET> static_pointer_cast(const shared_ptr<SRC>& ptr)
-// [33] shared_ptr<T> allocate_shared<T, ALLOC>(ALLOC, ARGS&&...)
+// [19] shared_ptr<TARGET> reinterpret_pointer_cast(const shared_ptr<SRC>&)
 // [33] shared_ptr<T> allocate_shared<T, ALLOC>(ALLOC, const ARGS&...)
 // [33] shared_ptr<T> allocate_shared<T, A>(A)
 // [33] shared_ptr<T> allocate_shared<T, A>(A, const A1& a1)
@@ -2508,8 +2508,7 @@ struct NothrowAndBitwiseMovableTestType {
     {
     }
 
-    NothrowAndBitwiseMovableTestType(
-                              const NothrowAndBitwiseMovableTestType& original)
+    NothrowAndBitwiseMovableTestType(const NothrowAndBitwiseMovableTestType&)
         // Test user defined copy constructor.
     {
     }
@@ -8046,7 +8045,10 @@ int main(int argc, char *argv[])
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
         // This is a compile-time only test case.
         TestSharedPtrDeductionGuides testShared;
+        (void) testShared; // This variable exists for ease of IDE navigation.
+
         TestWeakPtrDeductionGuides   testWeak;
+        (void) testWeak;   // This variable exists for ease of IDE navigation.
 #endif
       } break;
       case 43: {
@@ -16616,6 +16618,7 @@ int main(int argc, char *argv[])
         //  shared_ptr<TARGET> const_pointer_cast(const shared_ptr<SRC>& ptr)
         //  shared_ptr<TARGET> dynamic_pointer_cast(const shared_ptr<SRC>& ptr)
         //  shared_ptr<TARGET> static_pointer_cast(const shared_ptr<SRC>& ptr)
+        //  shared_ptr<TARGET> reinterpret_pointer_cast(const shared_ptr<SRC>&)
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING EXPLICIT CAST OPERATIONS"
@@ -16842,6 +16845,34 @@ int main(int argc, char *argv[])
             Obj y(::bsl::const_pointer_cast<TObj>(X)); const Obj& Y=y;
 
             ASSERT(const_cast<TObj*>(p) == Y.get());
+            ASSERT(2 == X.use_count());
+            ASSERT(2 == Y.use_count());
+            ASSERT(numAllocations == ta.numAllocations());
+            ASSERT(numDeallocations == ta.numDeallocations());
+            ASSERT(0 == numDeletes);
+        }
+        ASSERT(++numDeallocations == ta.numDeallocations());
+        ASSERT(1 == numDeletes);
+
+        if (verbose) printf("\nTesting 'reinterpret_pointer_cast'"
+                            "\n---------------------------------\n");
+
+        numDeallocations = ta.numDeallocations();
+        {
+            numDeletes = 0;
+            MyTestDerivedObject *p = new(ta) MyTestDerivedObject(&numDeletes);
+            bsl::shared_ptr<MyTestDerivedObject> x(p, &ta, 0);
+            const bsl::shared_ptr<MyTestDerivedObject>& X = x;
+
+            numAllocations = ta.numAllocations();
+            ASSERT(p == X.get());
+            ASSERT(1 == X.use_count());
+
+            typedef bsl::shared_ptr<MyTestObject2> REObj;
+            REObj        y(bsl::reinterpret_pointer_cast<MyTestObject2>(X));
+            const REObj& Y=y;
+
+            ASSERT(reinterpret_cast<MyTestObject2*>(p) == Y.get());
             ASSERT(2 == X.use_count());
             ASSERT(2 == Y.use_count());
             ASSERT(numAllocations == ta.numAllocations());

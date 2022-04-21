@@ -54,6 +54,18 @@ namespace bsl {
     using native_std::make_unique;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+    using native_std::destroy;
+    using native_std::destroy_at;
+    using native_std::destroy_n;
+    using native_std::uninitialized_default_construct;
+    using native_std::uninitialized_default_construct_n;
+    using native_std::uninitialized_move;
+    using native_std::uninitialized_move_n;
+    using native_std::uninitialized_value_construct;
+    using native_std::uninitialized_value_construct_n;
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
     using native_std::align;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES

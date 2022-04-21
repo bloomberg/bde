@@ -17,6 +17,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_nativestd.h>
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+
 #include <mutex>
 
 namespace bsl {
@@ -38,7 +40,13 @@ namespace bsl {
     using native_std::lock;
     using native_std::call_once;
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+    using native_std::scoped_lock;
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+
 }  // close package namespace
+
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
 #endif
 

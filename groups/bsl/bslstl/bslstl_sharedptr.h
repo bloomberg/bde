@@ -3147,6 +3147,17 @@ shared_ptr<TO_TYPE> static_pointer_cast(const shared_ptr<FROM_TYPE>& source)
     // statically cast to 'TO_TYPE *', then a compiler diagnostic will be
     // emitted indicating the error.
 
+template<class TO_TYPE, class FROM_TYPE>
+shared_ptr<TO_TYPE> reinterpret_pointer_cast(
+                    const shared_ptr<FROM_TYPE>& source) BSLS_KEYWORD_NOEXCEPT;
+    // Return a 'shared_ptr<TO_TYPE>' object sharing ownership of the same
+    // object as the specified 'source' shared pointer to the (template
+    // parameter) 'FROM_TYPE', and referring to
+    // 'reinterpret_cast<TO_TYPE *>(source.get())'.  Note that if 'source'
+    // cannot be reinterpret_cast-ed to 'TO_TYPE *', then a compiler diagnostic
+    // will be emitted indicating the error.
+
+
 // STANDARD FACTORY FUNCTIONS
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=14
 template<class ELEMENT_TYPE, class ALLOC, class... ARGS>
@@ -5718,6 +5729,16 @@ bsl::static_pointer_cast(const shared_ptr<FROM_TYPE>& source)
                                                           BSLS_KEYWORD_NOEXCEPT
 {
     return shared_ptr<TO_TYPE>(source, static_cast<TO_TYPE *>(source.get()));
+}
+
+template<class TO_TYPE, class FROM_TYPE>
+inline
+bsl::shared_ptr<TO_TYPE>
+bsl::reinterpret_pointer_cast(const shared_ptr<FROM_TYPE>& source)
+                                                          BSLS_KEYWORD_NOEXCEPT
+{
+    return shared_ptr<TO_TYPE>(source,
+                               reinterpret_cast<TO_TYPE *>(source.get()));
 }
 
 // STANDARD FACTORY FUNCTIONS

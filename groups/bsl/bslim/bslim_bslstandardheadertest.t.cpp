@@ -99,6 +99,7 @@
 #include <bsl_locale.h>
 #include <bsl_map.h>
 #include <bsl_memory.h>
+#include <bsl_mutex.h>
 #include <bsl_new.h>
 #include <bsl_numeric.h>
 #include <bsl_ostream.h>
@@ -243,6 +244,18 @@ using namespace bslim;
 // [17] bsl::sph_neumann();
 // [17] bsl::sph_neumannf();
 // [17] bsl::sph_neumannl();
+// [16] bsl::destroy()
+// [16] bsl::destroy_at()
+// [16] bsl::destroy_n()
+// [16] bsl::uninitialized_default_construct()
+// [16] bsl::uninitialized_default_construct_n()
+// [16] bsl::uninitialized_move()
+// [16] bsl::uninitialized_move_n()
+// [16] bsl::uninitialized_value_construct()
+// [16] bsl::uninitialized_value_construct_n()
+// [15] bsl::scoped_lock;
+// [14] bsl::align_val_t
+// [14] bsl::launder()
 // [13] bsl::clamp();
 // [13] bsl::for_each_n();
 // [13] bsl::sample();
@@ -702,12 +715,11 @@ int main(int argc, char *argv[])
         // TESTING C++17 <BSL_CMATH.H> ADDITIONS
         //
         // Concerns:
-        //: 1 The calls 'bsl::clamp', 'bls:for_each_n', and 'bsl::sample' all
-        //    exist and return expected values for simple cases.
+        //: 1 The C++17 special math functions all exist in namespace 'bsl'.
         //
         // Plan:
-        //: 1 Call each of the three algorithms with simple inputs and verify
-        //:   that the result is correct.
+        //: 1 Create a simple example that uses these algorithms.  Compilation
+        //:   of the example demonstrates that the calls can be found in 'bsl'.
         //
         // Testing:
         //   bsl::assoc_laguerre();
@@ -799,19 +811,19 @@ int main(int argc, char *argv[])
         bsl::comp_ellint_1f(1.5F);
         bsl::comp_ellint_1l(1.5L);
 
-        bsl::comp_ellint_2 (2);
-        bsl::comp_ellint_2 (1.5F);
-        bsl::comp_ellint_2 (1.5);
-        bsl::comp_ellint_2 (1.5L);
-        bsl::comp_ellint_2f(1.5F);
-        bsl::comp_ellint_2l(1.5L);
+        bsl::comp_ellint_2 (1);
+        bsl::comp_ellint_2 (0.5F);
+        bsl::comp_ellint_2 (0.5);
+        bsl::comp_ellint_2 (0.5L);
+        bsl::comp_ellint_2f(0.5F);
+        bsl::comp_ellint_2l(0.5L);
 
-        bsl::comp_ellint_3 (2,    0);
-        bsl::comp_ellint_3 (1.5F, 0.0F);
-        bsl::comp_ellint_3 (1.5,  0.0);
-        bsl::comp_ellint_3 (1.5L, 0.0F);
-        bsl::comp_ellint_3f(1.5F, 0.0F);
-        bsl::comp_ellint_3l(1.5L, 0.0L);
+        bsl::comp_ellint_3 (0,    0);
+        bsl::comp_ellint_3 (0.5F, 0.0F);
+        bsl::comp_ellint_3 (0.5,  0.0);
+        bsl::comp_ellint_3 (0.5L, 0.0F);
+        bsl::comp_ellint_3f(0.5F, 0.0F);
+        bsl::comp_ellint_3l(0.5L, 0.0L);
 
         bsl::cyl_bessel_i (0,    1);
         bsl::cyl_bessel_i (0.0,  1.0);
@@ -905,6 +917,109 @@ int main(int argc, char *argv[])
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_SPECIAL_MATH_FUNCTIONS
 
       } break;
+      case 16: {
+        // --------------------------------------------------------------------
+        // TESTING C++17 <BSL_MEMORY.H> ADDITIONS
+        //
+        // Concerns:
+        //: 1 The C++17 memory algorithms are available in 'bsl' to users who
+        //:   include 'bsl_memory.h'.
+        //
+        // Plan:
+        //: 1 Create a simple example that uses these algorithms.  Compilation
+        //:   of the example demonstrates that the calls can be found in 'bsl'.
+        //
+        // Testing:
+        //   bsl::destroy()
+        //   bsl::destroy_at()
+        //   bsl::destroy_n()
+        //   bsl::uninitialized_default_construct()
+        //   bsl::uninitialized_default_construct_n()
+        //   bsl::uninitialized_move()
+        //   bsl::uninitialized_move_n()
+        //   bsl::uninitialized_value_construct()
+        //   bsl::uninitialized_value_construct_n()
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING C++17 <BSL_MEMORY.H> ADDITIONS"
+                            "\n======================================\n");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+        int vals[5];
+        bsl::destroy   (vals, vals+5);
+        bsl::destroy_n (vals,      5);
+        bsl::destroy_at(vals);
+
+        bsl::uninitialized_default_construct  (vals, vals+5);
+        bsl::uninitialized_default_construct_n(vals,      5);
+
+        bsl::uninitialized_move  (vals, vals+2, vals+3);
+        bsl::uninitialized_move_n(vals,      2, vals+3);
+
+        bsl::uninitialized_value_construct  (vals, vals+5);
+        bsl::uninitialized_value_construct_n(vals,      5);
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+
+      } break;
+      case 15: {
+        // --------------------------------------------------------------------
+        // TESTING C++17 <BSL_MUTEX.H> ADDITIONS
+        //
+        // Concerns:
+        //: 1 The C++17 mutex primitives are available in 'bsl' to users who
+        //:   include 'bsl_mutex.h'.
+        //
+        // Plan:
+        //: 1 Attempt to use these routines in a simple example.  Compilation
+        //:   of the example demonstrates that the types can be found in 'bsl'.
+        //
+        // Testing:
+        //   bsl::scoped_lock;
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING C++17 <BSL_MUTEX.H> ADDITIONS"
+                            "\n=====================================\n");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+
+        bsl::mutex mtx;
+        {
+            bsl::scoped_lock sl(mtx);
+            if (veryVerbose)
+            {
+                puts("scoped_lock acquired lock");
+            }
+        }
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+
+      } break;
+      case 14: {
+        // --------------------------------------------------------------------
+        // TESTING C++17 <BSL_NEW.H> ADDITIONS
+        //
+        // Concerns:
+        //: 1 The C++17 memory algorithms are available in 'bsl' to users who
+        //:   include 'bsl_new.h'.
+        //
+        // Plan:
+        //: 1 Create a simple example that uses these algorithms.  Compilation
+        //:   of the example demonstrates that the classes can be found in
+        //:   'bsl'.
+        //
+        // Testing:
+        //   bsl::align_val_t
+        //   bsl::launder()
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING C++17 <BSL_NEW.H> ADDITIONS"
+                            "\n===================================\n");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+        typedef bsl::align_val_t MyAlign;
+        MyAlign ma;
+        (void) bsl::launder(&ma);
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+      } break;
       case 13: {
         // --------------------------------------------------------------------
         // TESTING C++17 <BSL_ALGORITHM.H> ADDITIONS
@@ -944,7 +1059,6 @@ int main(int argc, char *argv[])
                     bsl::mt19937{bsl::random_device{}()});
         ASSERT(5 == dest.size());
 #endif
-
       } break;
       case 12: {
         // --------------------------------------------------------------------
@@ -959,7 +1073,7 @@ int main(int argc, char *argv[])
         //:   of the example demonstrates that the classes can be found in
         //:   'bsl'.
         //
-        // Testing
+        // Testing:
         //   bsl::exclusive_scan()
         //   bsl::inclusive_scan()
         //   bsl::gcd()

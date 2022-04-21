@@ -58,6 +58,15 @@ namespace bsl {
 #  endif // MSVC, or C++2017
 # endif // BSLS_PLATFORM_CMP_IBM or BSLS_PLATFORM_CMP_SUN
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+    using native_std::align_val_t;
+//  As of Apr-2022, no one (libc++, libstdc++, MSVC) has implemented these.
+//     using native_std::hardware_constructive_interference_size;
+//     using native_std::hardware_destructive_interference_size;
+    using native_std::launder;
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+
 }  // close package namespace
 
 #endif

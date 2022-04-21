@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Mar 24 17:16:37 2022
+// Generated on Tue Apr 12 13:36:17 2022
 // Command line: sim_cpp11_features.pl bslstl_sharedptr.h
 
 #ifdef COMPILING_BSLSTL_SHAREDPTR_H
@@ -1940,6 +1940,17 @@ shared_ptr<TO_TYPE> static_pointer_cast(const shared_ptr<FROM_TYPE>& source)
     // 'static_cast<TO_TYPE *>(source.get())'.  Note that if 'source' cannot be
     // statically cast to 'TO_TYPE *', then a compiler diagnostic will be
     // emitted indicating the error.
+
+template<class TO_TYPE, class FROM_TYPE>
+shared_ptr<TO_TYPE> reinterpret_pointer_cast(
+                    const shared_ptr<FROM_TYPE>& source) BSLS_KEYWORD_NOEXCEPT;
+    // Return a 'shared_ptr<TO_TYPE>' object sharing ownership of the same
+    // object as the specified 'source' shared pointer to the (template
+    // parameter) 'FROM_TYPE', and referring to
+    // 'reinterpret_cast<TO_TYPE *>(source.get())'.  Note that if 'source'
+    // cannot be reinterpret_cast-ed to 'TO_TYPE *', then a compiler diagnostic
+    // will be emitted indicating the error.
+
 
 // STANDARD FACTORY FUNCTIONS
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
@@ -5958,6 +5969,16 @@ bsl::static_pointer_cast(const shared_ptr<FROM_TYPE>& source)
                                                           BSLS_KEYWORD_NOEXCEPT
 {
     return shared_ptr<TO_TYPE>(source, static_cast<TO_TYPE *>(source.get()));
+}
+
+template<class TO_TYPE, class FROM_TYPE>
+inline
+bsl::shared_ptr<TO_TYPE>
+bsl::reinterpret_pointer_cast(const shared_ptr<FROM_TYPE>& source)
+                                                          BSLS_KEYWORD_NOEXCEPT
+{
+    return shared_ptr<TO_TYPE>(source,
+                               reinterpret_cast<TO_TYPE *>(source.get()));
 }
 
 // STANDARD FACTORY FUNCTIONS
