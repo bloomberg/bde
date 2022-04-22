@@ -758,18 +758,11 @@ class TestPopBack {
 
 namespace QUEUE_TEST_CASE_11 {
 
-int exitCode1;
-int exitCode2;
-int exitCode3;
-
-void *const THREAD_EXIT_1 = &exitCode1;
-void *const THREAD_EXIT_2 = &exitCode2;
-void *const THREAD_EXIT_3 = &exitCode3;
-
 class TestClass13 {      // this class is a functor passed to thread::create
     Obj                *d_queue;
     bslmt::Barrier     *d_barrier;
     bsls::TimeInterval  d_timeout;
+    int                *d_status_p;
 
   public:
     static int         s_pushCount;
@@ -778,11 +771,12 @@ class TestClass13 {      // this class is a functor passed to thread::create
         k_INVALID_VAL = 46
     };
 
-    TestClass13(Obj *queue, bslmt::Barrier *barrier)
+    TestClass13(Obj *queue, bslmt::Barrier *barrier, int *status)
         // c'tor
     {
         d_queue = queue;
         d_barrier = barrier;
+        d_status_p = status;
         s_pushCount = 0;
 
         // have everything time out 2 seconds after thread object creation
@@ -813,17 +807,19 @@ class TestClass13 {      // this class is a functor passed to thread::create
                 ASSERT((sts = d_queue->timedPushFront(e, d_timeout), !sts));
             }
             if (sts) {
-                bslmt::ThreadUtil::exit(THREAD_EXIT_1);
+                *d_status_p = 1;
+                return;                                               // RETURN
             }
 
             ++s_pushCount;
 
             ASSERT((sts = d_barrier->timedWait(d_timeout), !sts));
             if (sts) {
-                bslmt::ThreadUtil::exit(THREAD_EXIT_2);
+                *d_status_p = 2;
+                return;                                               // RETURN
             }
         }
-        bslmt::ThreadUtil::exit(THREAD_EXIT_3);
+        *d_status_p = 3;
     }
 };
 int TestClass13::s_pushCount;
@@ -837,20 +833,21 @@ int TestClass13::s_pushCount;
 namespace QUEUE_TEST_CASE_11 {
 
 class TestClass12 {      // this class is a functor passed to thread::create
-    Obj              *d_queue;
-    bslmt::Barrier    *d_barrier;
-    bsls::TimeInterval d_timeout;
-
+    Obj                *d_queue;
+    bslmt::Barrier     *d_barrier;
+    bsls::TimeInterval  d_timeout;
+    int                *d_status_p;
   public:
     enum {
         k_VALID_VAL = 45,
         k_TERMINATE = 46
     };
-    TestClass12(Obj *queue, bslmt::Barrier *barrier)
+    TestClass12(Obj *queue, bslmt::Barrier *barrier, int *status)
         // c'tor
     {
         d_queue = queue;
         d_barrier = barrier;
+        d_status_p = status;
 
         // have everything time out 4 seconds after thread object creation
 
@@ -871,7 +868,8 @@ class TestClass12 {      // this class is a functor passed to thread::create
         for (bool back = false; true; back = !back) {
             ASSERT((sts = d_barrier->timedWait(d_timeout), !sts));
             if (sts) {
-                bslmt::ThreadUtil::exit((void *) 2);
+                *d_status_p = 2;
+                return;                                               // RETURN
             }
 
             if (back) {
@@ -881,11 +879,13 @@ class TestClass12 {      // this class is a functor passed to thread::create
                 ASSERT((sts = d_queue->timedPopFront(&e, d_timeout), !sts));
             }
             if (sts) {
-                bslmt::ThreadUtil::exit((void *) 1);
+                *d_status_p = 1;
+                return;                                               // RETURN
             }
 
             if (k_TERMINATE == e) {
-                bslmt::ThreadUtil::exit((void *) 0);
+                *d_status_p = 0;
+                return;                                               // RETURN
             }
 
             ASSERT(k_VALID_VAL == e);
@@ -893,7 +893,8 @@ class TestClass12 {      // this class is a functor passed to thread::create
             sts = d_barrier->timedWait(d_timeout);
             ASSERT(!sts);
             if (sts) {
-                bslmt::ThreadUtil::exit((void *) 2);
+                *d_status_p = 2;
+                return;                                               // RETURN
             }
         }
     }
@@ -2393,7 +2394,7 @@ int main(int argc, char *argv[])
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // TEST BLOCKING ON EMPTY QUEUE
+        // TEST BLOCKING ON HIGH WATERMARK
         //
         // Concern:
         //   That the queue blocks pushes properly when it is at the high
@@ -2407,6 +2408,11 @@ int main(int argc, char *argv[])
         //   pushFront
         //   pushBack
         // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout <<  endl << "TEST BLOCKING ON HIGH WATERMARK" << endl
+                          << "===============================" << endl;
+        }
 
         using namespace QUEUE_TEST_CASE_11;
 
@@ -2422,7 +2428,9 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == mX.length());
 
-        TestClass13 tc13(&mX, &barrier);
+        int status = -1;
+
+        TestClass13 tc13(&mX, &barrier, &status);
 
         bslmt::ThreadUtil::create(&handle, tc13);
 
@@ -2466,7 +2474,8 @@ int main(int argc, char *argv[])
         {
             void *sts = 0;
             bslmt::ThreadUtil::join(handle, &sts);
-            LOOP_ASSERT(sts, THREAD_EXIT_3 == sts);
+            LOOP_ASSERT(sts,    0 == sts);
+            LOOP_ASSERT(status, 3 == status);
         }
 
         ASSERT(u::now() < timeout);
@@ -2486,6 +2495,11 @@ int main(int argc, char *argv[])
         //   int timedPopBack(TYPE *, const bsls::TimeInterval&);
         //   int timedPopFront(TYPE *, const bsls::TimeInterval&);
         // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout <<  endl << "TEST BLOCKING ON EMPTY QUEUE" << endl
+                          << "============================" << endl;
+        }
 
         using namespace QUEUE_TEST_CASE_11;
 
@@ -2507,7 +2521,9 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == mX.length());
 
-        TestClass12 tc12(&mX, &barrier);
+        int status = -1;
+
+        TestClass12 tc12(&mX, &barrier, &status);
 
         bslmt::ThreadUtil::create(&handle, tc12);
 
@@ -2543,9 +2559,10 @@ int main(int argc, char *argv[])
         ASSERT(!barrier.timedWait(timeout));
 
         {
-            void *sts;
+            void *sts = 0;
             bslmt::ThreadUtil::join(handle, &sts);
-            LOOP_ASSERT(sts, !sts);
+            LOOP_ASSERT(sts,    0 == sts);
+            LOOP_ASSERT(status, 0 == status );
         }
 
         ASSERT(u::now() < timeout);
