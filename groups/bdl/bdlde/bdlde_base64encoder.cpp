@@ -59,7 +59,6 @@ namespace bdlde {
 // CLASS DATA
 const char *const Base64Encoder::s_base64Alphabet_p     = base64;
 const char *const Base64Encoder::s_base64UrlAlphabet_p  = base64url;
-const int         Base64Encoder::s_defaultMaxLineLength = 76;
 
 // CREATORS
 Base64Encoder::~Base64Encoder()
@@ -70,6 +69,23 @@ Base64Encoder::~Base64Encoder()
     BSLS_ASSERT(d_state <= e_DONE_STATE);
     BSLS_ASSERT(0 <= d_maxLineLength);
     BSLS_ASSERT(0 <= d_outputLength);
+}
+
+// FREE OPERATORS
+bool operator==(const Base64Encoder::Options& lhs,
+                const Base64Encoder::Options& rhs)
+{
+    return lhs.d_isAlphabetUrl == rhs.d_isAlphabetUrl &&
+           lhs.d_isPadded      == rhs.d_isPadded      &&
+           lhs.d_maxLineLength == rhs.d_maxLineLength;
+}
+
+bool operator!=(const Base64Encoder::Options& lhs,
+                const Base64Encoder::Options& rhs)
+{
+    return lhs.d_isAlphabetUrl != rhs.d_isAlphabetUrl ||
+           lhs.d_isPadded      != rhs.d_isPadded      ||
+           lhs.d_maxLineLength != rhs.d_maxLineLength;
 }
 
 }  // close package namespace

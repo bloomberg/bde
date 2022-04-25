@@ -103,42 +103,52 @@ using bsl::flush;
 // arguments, 'bdeut::InputIterator' for 'convert' and 'bdeut::OutputIterator'
 // for both of these template methods.
 //-----------------------------------------------------------------------------
-// [ 8] static int encodedLength(int numInputBytes, int maxLineLength);
-// [11] bdlde::Base64Encoder(Alphabet alphabet);
+// [ 9] static int encodedLength(int numInputBytes, int maxLineLength);
+// [12] bdlde::Base64Encoder(Alphabet alphabet);
 // [ 2] bdlde::Base64Encoder(int maxLineLength, Alphabet alphabet);
-// [ 3] ~bdlde::Base64Encoder();
-// [ 9] int convert(char *o, int *no, int *ni, begin, end, int mno);
-// [ 9] int endConvert(char *out, int *numOut, int maxNumOut);
-// [ 8] int convert(char *o, int *no, int*ni, const char*b, const char*e);
-// [ 8] int endConvert(char *out, int *numOut);
-// [ 7] TEST MACHINERY
-// [ 7] int LLVMFuzzerTestOneInput(const uint8_t *, size_t);
-// [10] void resetState();
-// [ 3] bool isAcceptable() const;
-// [ 3] bool isDone() const;
-// [ 3] bool isError() const;
-// [ 3] bool isInitialState() const;
+// [ 4] ~bdlde::Base64Encoder();
+// [10] int convert(char *o, int *no, int *ni, begin, end, int mno);
+// [10] int endConvert(char *out, int *numOut, int maxNumOut);
+// [ 9] int convert(char *o, int *no, int*ni, const char*b, const char*e);
+// [ 9] int endConvert(char *out, int *numOut);
+// [ 8] TEST MACHINERY
+// [ 8] int LLVMFuzzerTestOneInput(const uint8_t *, size_t);
+// [11] void resetState();
+// [ 4] bool isAcceptable() const;
+// [ 4] bool isDone() const;
+// [ 4] bool isError() const;
+// [ 4] bool isInitialState() const;
 // [ 2] int maxLineLength() const;
-// [ 3] int outputLength() const;
+// [ 4] int outputLength() const;
+// [ 3] Options();
+// [ 3] Options& Options::setIsAlphabetUrl();
+// [ 3] Options& Options::setPadded();
+// [ 3] Options& Options::setMaxLineLength();
+// [ 3] bool Options::isAlphabertUtl() const;
+// [ 3] bool Options::isPadded() const;
+// [ 3] bool Options::maxLineLength() const;
+// [ 3] Options Obj::options();
+// [ 3] bool operator==(const Options&, const Options&);
+// [ 3] bool operator!=(const Options&, const Options&);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST -- (developer's sandbox)
-// [12] USAGE EXAMPLE
+// [13] USAGE EXAMPLE
 // [ ?] That the input iterator can have *minimal* functionality.
 // [ ?] That the output iterator can have *minimal* functionality.
 // [ 1] ::myMin(const T& a, const T& b);
 // [ 1] ::printCharN(ostream& output, const char* sequence, int length)
-// [ 3] That we can reach each of the major processing states.
-// [ 3] void ::setState(Obj *obj, int state, const char *input);
-// [ 3] bool ::isState(Obj *obj, int state);
-// [ 5] BOOTSTRAP: 'convert' - transitions
-// [ 4] BOOTSTRAP: 'endConvert'- transitions
-// [ 6] That each internal table has no defective entries.
-// [ 8] DFLT convert(char *o, int *no, int *ni, begin, end, int mno = -1);
-// [ 8] DFLT endConvert(char *out, int *numOut, int maxNumOut = -1);
-// [ 8] That each bit of a 3-byte quantum finds its appropriate spot.
-// [ 8] That each bit of a 2-byte quantum finds its appropriate spot.
-// [ 8] That each bit of a 1-byte quantum finds its appropriate spot.
-// [ 8] That output length is calculated properly.
+// [ 4] That we can reach each of the major processing states.
+// [ 4] void ::setState(Obj *obj, int state, const char *input);
+// [ 4] bool ::isState(Obj *obj, int state);
+// [ 6] BOOTSTRAP: 'convert' - transitions
+// [ 5] BOOTSTRAP: 'endConvert'- transitions
+// [ 7] That each internal table has no defective entries.
+// [ 9] DFLT convert(char *o, int *no, int *ni, begin, end, int mno = -1);
+// [ 9] DFLT endConvert(char *out, int *numOut, int maxNumOut = -1);
+// [ 9] That each bit of a 3-byte quantum finds its appropriate spot.
+// [ 9] That each bit of a 2-byte quantum finds its appropriate spot.
+// [ 9] That each bit of a 1-byte quantum finds its appropriate spot.
+// [ 9] That output length is calculated properly.
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -194,7 +204,8 @@ void aSsErT(bool condition, const char *message, int line)
 //                         GLOBAL TYPEDEFS/CONSTANTS
 // ----------------------------------------------------------------------------
 
-typedef bdlde::Base64Encoder Obj;
+typedef bdlde::Base64Encoder          Obj;
+typedef bdlde::Base64Encoder::Options EncoderOptions;
 
                         // ==================
                         // Named STATE Values
@@ -1248,7 +1259,8 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 
         bsls::ObjectBuffer<Obj> ob;
         if (passArg) {
-            new (ob.address()) Obj(LINE_LENGTH);
+            new (ob.address()) Obj(
+                               EncoderOptions().setMaxLineLength(LINE_LENGTH));
         }
         else {
             new (ob.address()) Obj();
@@ -1384,7 +1396,8 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 
         bsls::ObjectBuffer<Obj> ob;
         if (passArg) {
-            new (ob.address()) Obj(LINE_LENGTH);
+            new (ob.address()) Obj(
+                               EncoderOptions().setMaxLineLength(LINE_LENGTH));
         }
         else {
             new (ob.address()) Obj();
@@ -1673,7 +1686,7 @@ int main(int argc, char *argv[])
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // TESTING OPTIONAL NUMIN, NUMOUT
         //   This case is available to be used as a developers' sandbox.
@@ -1876,7 +1889,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // STRESS TEST
         //   Demonstrate that the encoder/decoder can encode/decode a large
@@ -2396,7 +2409,7 @@ int main(int argc, char *argv[])
             delete[] decoded;
         }
       } break;
-      case 12: {
+      case 13: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Demonstrate that the example compiles, links, and runs.
@@ -2450,7 +2463,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == strcmp(BLOOMBERG_NEWS, backInStream.str().c_str()));
 
       } break;
-      case 11: {
+      case 12: {
         // --------------------------------------------------------------------
         // DEFAULT CONSTRUCTOR:
         //   Verify initial configuration defaults.
@@ -2485,12 +2498,15 @@ int main(int argc, char *argv[])
         {
             Obj obj;
             ASSERT(76 == obj.maxLineLength());
+            ASSERT(76 == obj.options().maxLineLength());
             ASSERT( 1 == obj.isAcceptable());
             ASSERT( 0 == obj.isDone());
             ASSERT( 0 == obj.isError());
             ASSERT( 1 == obj.isInitialState());
             ASSERT( 0 == obj.outputLength());
             ASSERT(Obj::e_BASIC == obj.alphabet());
+            ASSERT(false == obj.options().isAlphabetUrl());
+            ASSERT(true == obj.options().isPadded());
 
             ASSERT(isState(&obj, e_INITIAL_STATE));
         }
@@ -2499,14 +2515,17 @@ int main(int argc, char *argv[])
             "\nVerify default configuration and initial state, e_BASIC "
             "alphabet." << endl;
         {
-            Obj obj(Obj::e_BASIC);
+            Obj obj(EncoderOptions().setIsAlphabetUrl(false));
             ASSERT(76 == obj.maxLineLength());
+            ASSERT(76 == obj.options().maxLineLength());
             ASSERT( 1 == obj.isAcceptable());
             ASSERT( 0 == obj.isDone());
             ASSERT( 0 == obj.isError());
             ASSERT( 1 == obj.isInitialState());
             ASSERT( 0 == obj.outputLength());
             ASSERT(Obj::e_BASIC == obj.alphabet());
+            ASSERT(false == obj.options().isAlphabetUrl());
+            ASSERT(true == obj.options().isPadded());
 
             ASSERT(isState(&obj, e_INITIAL_STATE));
         }
@@ -2515,14 +2534,17 @@ int main(int argc, char *argv[])
             "\nVerify default configuration and initial state, e_URL alphabet."
             << endl;
         {
-            Obj obj(Obj::e_URL);
+            Obj obj(EncoderOptions().setIsAlphabetUrl());
             ASSERT(76 == obj.maxLineLength());
+            ASSERT(76 == obj.options().maxLineLength());
             ASSERT( 1 == obj.isAcceptable());
             ASSERT( 0 == obj.isDone());
             ASSERT( 0 == obj.isError());
             ASSERT( 1 == obj.isInitialState());
             ASSERT( 0 == obj.outputLength());
             ASSERT(Obj::e_URL == obj.alphabet());
+            ASSERT(true == obj.options().isAlphabetUrl());
+            ASSERT(true == obj.options().isPadded());
 
             ASSERT(isState(&obj, e_INITIAL_STATE));
         }
@@ -2591,7 +2613,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 10: {
+      case 11: {
         // --------------------------------------------------------------------
         // RESET STATE
         //   Verify the 'resetState' method.
@@ -2625,7 +2647,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\tWith 'maxLineLength' = 0." << endl;
         {
             for (int i = 0; i < NUM_STATES; ++i) {
-                Obj obj(0);
+                Obj obj(EncoderOptions().setMaxLineLength(0));
                 if (verbose) cout << "\t\t" << STATE_NAMES[i] << '.' << endl;
                 setState(&obj, i);
                 const bool SAME = e_INITIAL_STATE == i;
@@ -2641,7 +2663,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\tWith 'maxLineLength' = 5." << endl;
         {
             for (int i = 0; i < NUM_STATES; ++i) {
-                Obj obj(5);
+                Obj obj(EncoderOptions().setMaxLineLength(5));
                 if (verbose) cout << "\t\t" << STATE_NAMES[i] << '.' << endl;
                 setState(&obj, i);
                 const bool SAME = e_INITIAL_STATE == i;
@@ -2654,7 +2676,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
         // TESTING 'endConvert'
         //
@@ -2699,7 +2721,8 @@ int main(int argc, char *argv[])
 
                 char *out = outBuf;
 
-                Obj mX(LINE_LENGTH);    const Obj& X = mX;
+                Obj mX(EncoderOptions().setMaxLineLength(LINE_LENGTH));
+                const Obj& X = mX;
 
                 const char *beginIn     = &input[0];
                 const char *end         = beginIn + len;
@@ -2780,7 +2803,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 8: {
+      case 9: {
         // --------------------------------------------------------------------
         // PRIMARY MANIPULATORS WITH DEFAULT ARGUMENTS.
         //   Continue testing 'convert' and 'endConvert' with defaults
@@ -3062,7 +3085,7 @@ int main(int argc, char *argv[])
                 const int OUTPUT_BUFFER_SIZE = 100; // overrun will be detected
                 const int TRAILING_OUTPUT_WINDOW = 30; // detect extra output
 
-                Obj obj(MAX_LEN);
+                Obj obj(EncoderOptions().setMaxLineLength(MAX_LEN));
 
                 const int newDepth = IN_LEN + MAX_LEN;
 
@@ -3148,7 +3171,8 @@ int main(int argc, char *argv[])
                 for (int index = 0; index <= IN_LEN; ++index) {
                     if (veryVeryVerbose) { T_ T_ T_ T_ P(index) }
 
-                    Obj               localObj(MAX_LEN);
+                    Obj               localObj(
+                                   EncoderOptions().setMaxLineLength(MAX_LEN));
                     const char *const M = B + index;
                     char              localBuf[sizeof outputBuffer];
                     memset(localBuf, '$', sizeof localBuf);
@@ -3246,7 +3270,7 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
         } // end block
 
       } break;
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
         // TEST MACHINERY
         //
@@ -3307,7 +3331,7 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
             }
         }
       } break;
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // VERIFY INTERNAL TABLES.
         //   Ensure that each internal table has the appropriate entries.
@@ -3353,7 +3377,7 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
                 end = start + 26;
                 for (int i = start; i < end; ++i) {
                     if (veryVerbose) { T_ T_ P(i) }
-                    Obj obj(0);
+                    Obj obj(EncoderOptions().setMaxLineLength(0));
                     input = char(4 * i);
                     LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                     LOOP_ASSERT(i, 1 == nOut);
@@ -3374,7 +3398,7 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
                 end = start + 26;
                 for (int i = start; i < end; ++i) {
                     if (veryVerbose) { T_ T_ P(i) }
-                    Obj obj(0);
+                    Obj obj(EncoderOptions().setMaxLineLength(0));
                     input = char(4 * i);
                     LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                     LOOP_ASSERT(i, 1 == nOut);
@@ -3395,7 +3419,7 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
                 end = start + 10;
                 for (int i = start; i < end; ++i) {
                     if (veryVerbose) { T_ T_ P(i) }
-                    Obj obj(0);
+                    Obj obj(EncoderOptions().setMaxLineLength(0));
                     input = char(4 * i);
                     LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                     LOOP_ASSERT(i, 1 == nOut);
@@ -3416,7 +3440,7 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
                 end = start + 1;
                 for (int i = start; i < end; ++i) {
                     if (veryVerbose) { T_ T_ P(i) }
-                    Obj obj(0);
+                    Obj obj(EncoderOptions().setMaxLineLength(0));
                     input = char(4 * i);
                     LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                     LOOP_ASSERT(i, 1 == nOut);
@@ -3436,7 +3460,7 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
                 int start = end;
                 end = start + 1;
                 for (int i = start; i < end; ++i) {
-                    Obj obj(0);
+                    Obj obj(EncoderOptions().setMaxLineLength(0));
                     input = char(4 * i);
                     LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                     LOOP_ASSERT(i, 1 == nOut);
@@ -3463,7 +3487,8 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
                 end = start + 26;
                 for (int i = start; i < end; ++i) {
                     if (veryVerbose) { T_ T_ P(i) }
-                    Obj obj(0, Obj::e_URL);
+                    Obj obj(EncoderOptions().setMaxLineLength(0).
+                                                           setIsAlphabetUrl());
                     input = char(4 * i);
                     LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                     LOOP_ASSERT(i, 1 == nOut);
@@ -3484,7 +3509,8 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
                 end = start + 26;
                 for (int i = start; i < end; ++i) {
                     if (veryVerbose) { T_ T_ P(i) }
-                    Obj obj(0, Obj::e_URL);
+                    Obj obj(EncoderOptions().setMaxLineLength(0).
+                                                           setIsAlphabetUrl());
                     input = char(4 * i);
                     LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                     LOOP_ASSERT(i, 1 == nOut);
@@ -3505,7 +3531,8 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
                 end = start + 10;
                 for (int i = start; i < end; ++i) {
                     if (veryVerbose) { T_ T_ P(i) }
-                    Obj obj(0, Obj::e_URL);
+                    Obj obj(EncoderOptions().setMaxLineLength(0).
+                                                           setIsAlphabetUrl());
                     input = char(4 * i);
                     LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                     LOOP_ASSERT(i, 1 == nOut);
@@ -3526,7 +3553,8 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
                 end = start + 1;
                 for (int i = start; i < end; ++i) {
                     if (veryVerbose) { T_ T_ P(i) }
-                    Obj obj(0, Obj::e_URL);
+                    Obj obj(EncoderOptions().setMaxLineLength(0).
+                                                           setIsAlphabetUrl());
                     input = char(4 * i);
                     LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                     LOOP_ASSERT(i, 1 == nOut);
@@ -3546,7 +3574,8 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
                 int start = end;
                 end = start + 1;
                 for (int i = start; i < end; ++i) {
-                    Obj obj(0, Obj::e_URL);
+                    Obj obj(EncoderOptions().setMaxLineLength(0).
+                                                           setIsAlphabetUrl());
                     input = char(4 * i);
                     LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                     LOOP_ASSERT(i, 1 == nOut);
@@ -3564,7 +3593,7 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
         }
 
       } break;
-      case 5: {
+      case 6: {
         // --------------------------------------------------------------------
         // BOOTSTRAP: 'convert' - transitions
         //   Verify 'convert' transitions for all states.
@@ -3679,7 +3708,7 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
                 const int RTN = -(e_ERROR_STATE == END);
                 const char *const E = B + COUNT;
 
-                Obj obj(0);
+                Obj obj(EncoderOptions().setMaxLineLength(0));
 
                 if (COUNT != lastNumInputs) {
                     if (verbose) cout << '\t' << COUNT << " input character"
@@ -3709,7 +3738,7 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
         } // end block
 
       } break;
-      case 4: {
+      case 5: {
         // --------------------------------------------------------------------
         // BOOTSTRAP: 'endConvert' - transitions
         //   Verify 'endConvert' transitions for all states.
@@ -3763,7 +3792,7 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
                 const int END   = DATA[ti].d_endState;
                 const int RTN = -(e_ERROR_STATE == END);
 
-                Obj obj(0);
+                Obj obj(EncoderOptions().setMaxLineLength(0));
 
                 if (verbose) cout << '\t' << STATE_NAMES[START] << '.' << endl;
                 if (veryVerbose) cout <<
@@ -3780,7 +3809,7 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
         } // end block
 
       } break;
-      case 3: {
+      case 4: {
         // --------------------------------------------------------------------
         // SET-STATE, IS-STATE, AND BASIC ACCESSORS.
         //   Ensure that we can bring an object to any attainable state.
@@ -3841,30 +3870,39 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
         {
                 if (verbose) cout << "\te_INITIAL_STATE." << endl;
 
-                Obj obj(9);
+                Obj obj(EncoderOptions().setMaxLineLength(9));
 
                 ASSERT(9 == obj.maxLineLength());
+                ASSERT(9 == obj.options().maxLineLength());
                 ASSERT(1 == obj.isAcceptable());
                 ASSERT(0 == obj.isDone());
                 ASSERT(0 == obj.isError());
                 ASSERT(1 == obj.isInitialState());
                 ASSERT(0 == obj.outputLength());
+                ASSERT(false == obj.options().isAlphabetUrl());
+                ASSERT(true  == obj.options().isPadded());
         }
 
         if (verbose) cout << "\nVerify ::setState." << endl;
         {
 
             if (verbose) cout << "\te_INITIAL_STATE." << endl;
-            {
-                Obj obj(9);
+            for (int tp = 0; tp < 2; ++tp) {
+                const bool isPadded = tp;
+
+                Obj obj(EncoderOptions().setMaxLineLength(9).
+                                                        setIsPadded(isPadded));
                 setState(&obj, e_INITIAL_STATE);
 
                 ASSERT(9 == obj.maxLineLength());
+                ASSERT(9 == obj.options().maxLineLength());
                 ASSERT(1 == obj.isAcceptable());
                 ASSERT(0 == obj.isDone());
                 ASSERT(0 == obj.isError());
                 ASSERT(1 == obj.isInitialState());
                 ASSERT(0 == obj.outputLength());
+                ASSERT(false == obj.options().isAlphabetUrl());
+                ASSERT(isPadded == obj.options().isPadded());
 
                 char b[4] = { -1, -1, -1, -1 };
                 int  numOut = -1;
@@ -3872,6 +3910,9 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
 
                 // e_DONE_STATE
                 ASSERT(9 == obj.maxLineLength());
+                ASSERT(9 == obj.options().maxLineLength());
+                ASSERT(false == obj.options().isAlphabetUrl());
+                ASSERT(isPadded == obj.options().isPadded());
                 ASSERT(1 == obj.isAcceptable());
                 ASSERT(1 == obj.isDone());
                 ASSERT(0 == obj.isError());
@@ -3886,11 +3927,17 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
             }
 
             if (verbose) cout << "\tState 1." << endl;
-            {
-                Obj obj(9);
+            for (int tp = 0; tp < 2; ++tp) {
+                const bool isPadded = tp;
+
+                Obj obj(EncoderOptions().setMaxLineLength(9).
+                                                        setIsPadded(isPadded));
                 setState(&obj, e_STATE_ONE);
 
                 ASSERT(9 == obj.maxLineLength());
+                ASSERT(9        == obj.options().maxLineLength());
+                ASSERT(false    == obj.options().isAlphabetUrl());
+                ASSERT(isPadded == obj.options().isPadded());
                 ASSERT(1 == obj.isAcceptable());
                 ASSERT(0 == obj.isDone());
                 ASSERT(0 == obj.isError());
@@ -3903,26 +3950,34 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
 
                 // e_DONE_STATE
                 ASSERT(9 == obj.maxLineLength());
-                ASSERT(9 == obj.maxLineLength());
+                ASSERT(9        == obj.options().maxLineLength());
+                ASSERT(false    == obj.options().isAlphabetUrl());
+                ASSERT(isPadded == obj.options().isPadded());
                 ASSERT(1 == obj.isAcceptable());
-                ASSERT(1 == obj.isDone());
+                ASSERTV(isPadded, 1 == obj.isDone());
                 ASSERT(0 == obj.isError());
                 ASSERT(0 == obj.isInitialState());
-                ASSERT(4 == obj.outputLength());
-                ASSERT(0 == result);
-                ASSERT(3 == numOut);
+                ASSERT((isPadded ? 4 : 2) == obj.outputLength());
+                ASSERTV(isPadded, result, 0 == result);
+                ASSERT((isPadded ? 3 : 1) == numOut);
                 ASSERT((char)-1 == b[0]);
                 ASSERT('A' == b[1]);
-                ASSERT('=' == b[2]);
-                ASSERT('=' == b[3]);
+                ASSERT((isPadded ? '=' : (char)-1) == b[2]);
+                ASSERT((isPadded ? '=' : (char)-1) == b[3]);
             }
 
             if (verbose) cout << "\tState 2." << endl;
-            {
-                Obj obj(9);
+            for (int tp = 0; tp < 2; ++tp) {
+                const bool isPadded = tp;
+
+                Obj obj(EncoderOptions().setMaxLineLength(9).
+                                                        setIsPadded(isPadded));
                 setState(&obj, e_STATE_TWO);
 
                 ASSERT(9 == obj.maxLineLength());
+                ASSERT(9        == obj.options().maxLineLength());
+                ASSERT(false    == obj.options().isAlphabetUrl());
+                ASSERT(isPadded == obj.options().isPadded());
                 ASSERT(1 == obj.isAcceptable());
                 ASSERT(0 == obj.isDone());
                 ASSERT(0 == obj.isError());
@@ -3935,26 +3990,34 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
 
                 // e_DONE_STATE
                 ASSERT(9 == obj.maxLineLength());
-                ASSERT(9 == obj.maxLineLength());
+                ASSERT(9        == obj.options().maxLineLength());
+                ASSERT(false    == obj.options().isAlphabetUrl());
+                ASSERT(isPadded == obj.options().isPadded());
                 ASSERT(1 == obj.isAcceptable());
                 ASSERT(1 == obj.isDone());
                 ASSERT(0 == obj.isError());
                 ASSERT(0 == obj.isInitialState());
-                ASSERT(4 == obj.outputLength());
+                ASSERT((isPadded ? 4 : 3) == obj.outputLength());
                 ASSERT(0 == result);
-                ASSERT(2 == numOut);
+                ASSERT((isPadded ? 2 : 1) == numOut);
                 ASSERT((char)-1 == b[0]);
                 ASSERT((char)-1 == b[1]);
                 ASSERT('A' == b[2]);
-                ASSERT('=' == b[3]);
+                ASSERT((isPadded ? '=' : (char)-1) == b[3]);
             }
 
             if (verbose) cout << "\tState 3." << endl;
-            {
-                Obj obj(9);
+            for (int tp = 0; tp < 2; ++tp) {
+                const bool isPadded = tp;
+
+                Obj obj(EncoderOptions().setMaxLineLength(9).
+                                                        setIsPadded(isPadded));
                 setState(&obj, e_STATE_THREE);
 
                 ASSERT(9 == obj.maxLineLength());
+                ASSERT(9        == obj.options().maxLineLength());
+                ASSERT(false    == obj.options().isAlphabetUrl());
+                ASSERT(isPadded == obj.options().isPadded());
                 ASSERT(1 == obj.isAcceptable());
                 ASSERT(0 == obj.isDone());
                 ASSERT(0 == obj.isError());
@@ -3967,7 +4030,9 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
 
                 // e_DONE_STATE
                 ASSERT(9 == obj.maxLineLength());
-                ASSERT(9 == obj.maxLineLength());
+                ASSERT(9        == obj.options().maxLineLength());
+                ASSERT(false    == obj.options().isAlphabetUrl());
+                ASSERT(isPadded == obj.options().isPadded());
                 ASSERT(1 == obj.isAcceptable());
                 ASSERT(1 == obj.isDone());
                 ASSERT(0 == obj.isError());
@@ -3982,11 +4047,17 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
             }
 
             if (verbose) cout << "\te_DONE_STATE." << endl;
-            {
-                Obj obj(9);
+            for (int tp = 0; tp < 2; ++tp) {
+                const bool isPadded = tp;
+
+                Obj obj(EncoderOptions().setMaxLineLength(9).
+                                                        setIsPadded(isPadded));
                 setState(&obj, e_DONE_STATE);
 
                 ASSERT(9 == obj.maxLineLength());
+                ASSERT(9        == obj.options().maxLineLength());
+                ASSERT(false    == obj.options().isAlphabetUrl());
+                ASSERT(isPadded == obj.options().isPadded());
                 ASSERT(1 == obj.isAcceptable());
                 ASSERT(1 == obj.isDone());
                 ASSERT(0 == obj.isError());
@@ -3999,6 +4070,9 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
 
                 // e_ERROR_STATE
                 ASSERT(9 == obj.maxLineLength());
+                ASSERT(9        == obj.options().maxLineLength());
+                ASSERT(false    == obj.options().isAlphabetUrl());
+                ASSERT(isPadded == obj.options().isPadded());
                 ASSERT(0 == obj.isAcceptable());
                 ASSERT(0 == obj.isDone());
                 ASSERT(1 == obj.isError());
@@ -4013,11 +4087,17 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
             }
 
             if (verbose) cout << "\te_ERROR_STATE." << endl;
-            {
-                Obj obj(9);
+            for (int tp = 0; tp < 2; ++tp) {
+                const bool isPadded = tp;
+
+                Obj obj(EncoderOptions().setMaxLineLength(9).
+                                                        setIsPadded(isPadded));
                 setState(&obj, e_ERROR_STATE);
 
                 ASSERT(9 == obj.maxLineLength());
+                ASSERT(9        == obj.options().maxLineLength());
+                ASSERT(false    == obj.options().isAlphabetUrl());
+                ASSERT(isPadded == obj.options().isPadded());
                 ASSERT(0 == obj.isAcceptable());
                 ASSERT(0 == obj.isDone());
                 ASSERT(1 == obj.isError());
@@ -4030,7 +4110,9 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
 
                 // e_ERROR_STATE
                 ASSERT(9 == obj.maxLineLength());
-                ASSERT(9 == obj.maxLineLength());
+                ASSERT(9        == obj.options().maxLineLength());
+                ASSERT(false    == obj.options().isAlphabetUrl());
+                ASSERT(isPadded == obj.options().isPadded());
                 ASSERT(0 == obj.isAcceptable());
                 ASSERT(0 == obj.isDone());
                 ASSERT(1 == obj.isError());
@@ -4047,7 +4129,7 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
 
         if (verbose) cout << "\nVerify ::isState." << endl;
         {
-            Obj obj(0);
+//          Obj obj(0);
             for (int i = 0; i < NUM_STATES; ++i) {
                 if (verbose) cout <<
                                "\tsetState: " << STATE_NAMES[i] << '.' << endl;
@@ -4063,13 +4145,203 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
                                               // ASSERTs in order to facilitate
                                               // debugging.
 
-                    Obj obj(0);
+                    Obj obj(EncoderOptions().setMaxLineLength(0));
                     setState(&obj, i);
                     LOOP2_ASSERT(i, j, SAME == isState(&obj, j));
                 }
             }
         }
 
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // TESTING OPTIONS OBJECT
+        //
+        // Concerns:
+        //: 1 That all the settors and accessors of 'Options' work properly.
+        //:
+        //: 2 That when an encoder is passed an 'Options' object, the
+        //:   attributes of the encoder match those of the 'Options' object.
+        //:
+        //: 3 That when an encoder is passed an 'Options' object, the
+        //:   'options()' accessor returns an 'Options' object equivalent to
+        //:   the original.
+        //:
+        //: 4 That 'operator==' and 'operator!=' work properly comparing
+        //:   'Options' objects.
+        //
+        // Plan:
+        //: 1 There are 3 ways that an attribute value can be set:
+        //:   o Its default value when the 'Options' object is created
+        //:     '*_DEFAULT'.
+        //:
+        //:   o 'setIsAlphabetUrl' or 'setIsPadded' are called with no
+        //:     argument '*_CALL_DEFAULT'.
+        //:
+        //:   o a settor is called with an argument.
+        //:
+        //: 2 Iterate a loop through all possible combinations of URL: default,
+        //:   call-default, and settor with both possible 'bool' values.
+        //:
+        //: 3 Within that loop, iterate a loop through all possible
+        //:   combinations of PADDING: default, call-default, and settor with
+        //:   both possible 'bool' values.
+        //:
+        //: 4 Within that loop iterate a loop through several possible values
+        //:   of 'maxLineLength', one of which, -1, represents 'default'.
+        //:
+        //:   o Create an 'Options' object.
+        //:
+        //:   o Apply the appropriate settors, or lack thereof, to it.
+        //:
+        //:   o Use the accessors of 'Options' to verify that the state of the
+        //:     object is as expected.
+        //:
+        //:   o Create an encoder, passing it the 'Options' object.
+        //:
+        //:   o Query the accessors of the encoder to verify that attributes
+        //:     match those of the 'Options' object.
+        //:
+        //:   o Call the 'options' accessor and use '==' and '!=' to verify
+        //:     that it matches the state of the 'Options' passed.
+        //:
+        //: 5 Now that the settors are test, create another loop to configure
+        //:   the 'URL' and 'PADDING' attributes to all possible combinations
+        //:   of values.
+        //:
+        //: 6 Within that loop, create another loop to iterate through several
+        //:   values of 'maxLineLength'.
+        //:
+        //:   o Create an 'Options' object and configure it with the attribute
+        //:     values determined by the loops.
+        //:
+        //:   o Within that loop, create two more loops like them to iterate
+        //:     'URL', 'PADDING', and 'maxLineLength' through the same set
+        //:     of values.
+        //:
+        //:   o Create an 'Options' object configured with the attribute values
+        //:     of the inner loops.
+        //:
+        //:   o Calculate bool 'EXP_EQ' determined by whether the attributes
+        //:     deterimined by the inner and outer pairs of loops match.
+        //:
+        //:   o Apply 'operator==' and 'operator!=' and verify that the results
+        //:     compare appropriately to 'EXP_EQ'.
+        //:
+        // Testing:
+        //:  Options();
+        //:  Options& Options::setIsAlphabetUrl();
+        //:  Options& Options::setPadded();
+        //:  Options& Options::setMaxLineLength();
+        //:  bool Options::isAlphabertUtl() const;
+        //:  bool Options::isPadded() const;
+        //:  bool Options::maxLineLength() const;
+        //:  Options Obj::options();
+        //:  bool operator==(const Options&, const Options&);
+        //:  bool operator!=(const Options&, const Options&);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "Testing all types of settors.\n";
+        for (int ta = 0; ta < 4; ++ta) {
+            const bool URL              = ta & 1;
+            const bool URL_DEFAULT      = 0 == ta;
+            const bool URL_CALL_DEFAULT = 1 == ta;
+
+            for (int tp = 0; tp < 3; ++tp) {
+                const bool PADDED           = tp < 2 || (tp & 1);
+                const bool PAD_DEFAULT      = 0 == tp;
+                const bool PAD_CALL_DEFAULT = 1 == tp;
+
+                static int lengths[] = { -1, 0, 9, 20, 76, 99, 1024, INT_MAX };
+                enum { k_NUM_LENGTHS = sizeof lengths / sizeof *lengths };
+
+                for (int tl = 0; tl < k_NUM_LENGTHS; ++tl) {
+                    const bool LEN_DEFAULT = -1 == lengths[tl];
+                    const int  LEN         = LEN_DEFAULT ? 76 : lengths[tl];
+                    EncoderOptions options;
+                    const EncoderOptions& OPTIONS = options;
+
+                    if (veryVerbose) {
+                        P_(URL);    P_(URL_DEFAULT);    P(URL_CALL_DEFAULT);
+                        T_ P_(PADDED);  P_(PAD_DEFAULT);  P(PAD_CALL_DEFAULT);
+                        T_ P_(LEN);    P(LEN_DEFAULT);
+                    }
+
+                    EncoderOptions *p = &options;
+                    if (URL_CALL_DEFAULT) {
+                        p = &options.setIsAlphabetUrl();
+                    }
+                    else if (!URL_DEFAULT) {
+                        p = &options.setIsAlphabetUrl(URL);
+                    }
+                    ASSERT(&options == p);
+
+                    if (PAD_CALL_DEFAULT) {
+                        p = &options.setIsPadded();
+                    }
+                    else if (!PAD_DEFAULT) {
+                        p = &options.setIsPadded(PADDED);
+                    }
+                    ASSERT(&options == p);
+
+                    if (!LEN_DEFAULT) {
+                        p = &options.setMaxLineLength(LEN);
+                    }
+                    ASSERT(&options == p);
+
+                    ASSERT(URL    == OPTIONS.isAlphabetUrl());
+                    ASSERT(PADDED == OPTIONS.isPadded());
+                    ASSERT(LEN    == OPTIONS.maxLineLength());
+
+                    Obj mX(OPTIONS);    const Obj& X = mX;
+
+                    ASSERT(URL    == X.options().isAlphabetUrl());
+                    ASSERT((URL ? Obj::e_URL : Obj::e_BASIC) == X.alphabet());
+                    ASSERTV(PAD_DEFAULT, PAD_CALL_DEFAULT, PADDED,
+                                             PADDED == X.options().isPadded());
+                    ASSERT(LEN    == X.options().maxLineLength());
+                    ASSERT(LEN    == X.maxLineLength());
+
+                    ASSERT(X.options() == OPTIONS);
+                    ASSERT(!(X.options() != OPTIONS));
+                }
+            }
+        }
+
+        if (verbose) cout << "Testing '==', '!='\n";
+        for (int ti = 0; ti < 4; ++ti) {
+            const bool T_URL    = ti & 1;
+            const bool T_PADDED = ti & 2;
+
+            for (int tLen = 0; tLen < 20; tLen += 5) {
+                EncoderOptions tOptions;  const EncoderOptions& TOPTIONS =
+                                                                      tOptions;
+                tOptions.setIsAlphabetUrl(T_URL).setIsPadded(T_PADDED).
+                                                        setMaxLineLength(tLen);
+
+                for (int ui = 0; ui < 4; ++ui) {
+                    const bool U_URL    = ui & 1;
+                    const bool U_PADDED = ui & 2;
+
+                    for (int uLen = 0; uLen < 20; uLen += 5) {
+                        EncoderOptions uOptions;
+                        const EncoderOptions& UOPTIONS = uOptions;
+                        uOptions.setIsAlphabetUrl(U_URL).setIsPadded(U_PADDED).
+                                                        setMaxLineLength(uLen);
+
+                        if (veryVeryVerbose) {
+                            P_(T_URL); P_(T_PADDED); P(tLen);
+                            T_ P_(U_URL); P_(U_PADDED); P(uLen);
+                        }
+
+                        const bool EXP_EQ = ti == ui && tLen == uLen;
+
+                        ASSERT( EXP_EQ == (TOPTIONS == UOPTIONS));
+                        ASSERT(!EXP_EQ == (TOPTIONS != UOPTIONS));
+                    }
+                }
+            }
+        }
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -4103,51 +4375,80 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
 
         if (verbose) cout << "\tmaxLineLength = 0, default alphabet" << endl;
         {
-            Obj obj(0);
+            Obj obj(EncoderOptions().setMaxLineLength(0));
             ASSERT(1 == obj.isAcceptable());
             ASSERT(0 == obj.isDone());
             ASSERT(0 == obj.isError());
             ASSERT(1 == obj.isInitialState());
             ASSERT(0 == obj.maxLineLength());
+            ASSERT(0 == obj.options().maxLineLength());
             ASSERT(0 == obj.outputLength());
             ASSERT(Obj::e_BASIC == obj.alphabet());
+            ASSERT(false == obj.options().isAlphabetUrl());
+            ASSERT(true  == obj.options().isPadded());
         }
         if (verbose) cout << "\tmaxLineLength = 1, default alphabet" << endl;
         {
-            Obj obj(1);
+            Obj obj(EncoderOptions().setMaxLineLength(1));
             ASSERT(1 == obj.isAcceptable());
             ASSERT(0 == obj.isDone());
             ASSERT(0 == obj.isError());
             ASSERT(1 == obj.isInitialState());
             ASSERT(1 == obj.maxLineLength());
+            ASSERT(1 == obj.options().maxLineLength());
             ASSERT(0 == obj.outputLength());
             ASSERT(Obj::e_BASIC == obj.alphabet());
+            ASSERT(false == obj.options().isAlphabetUrl());
+            ASSERT(true  == obj.options().isPadded());
         }
         if (verbose) cout << "\tmaxLineLength = 2, \"base64\" alphabet"
                           << endl;
         {
-            Obj obj(2, Obj::e_BASIC);
+            Obj obj(
+                 EncoderOptions().setMaxLineLength(2).setIsAlphabetUrl(false));
             ASSERT(1 == obj.isAcceptable());
             ASSERT(0 == obj.isDone());
             ASSERT(0 == obj.isError());
             ASSERT(1 == obj.isInitialState());
             ASSERT(2 == obj.maxLineLength());
+            ASSERT(2 == obj.options().maxLineLength());
             ASSERT(0 == obj.outputLength());
             ASSERT(Obj::e_BASIC == obj.alphabet());
+            ASSERT(false == obj.options().isAlphabetUrl());
+            ASSERT(true  == obj.options().isPadded());
         }
         if (verbose) cout << "\tmaxLineLength = INT_MAX, \"base64url\" "
                           << "alphabet" << endl;
         {
-            Obj obj(INT_MAX, Obj::e_URL);
+            Obj obj(EncoderOptions().setMaxLineLength(INT_MAX).
+                                                           setIsAlphabetUrl());
             ASSERT(1 == obj.isAcceptable());
             ASSERT(0 == obj.isDone());
             ASSERT(0 == obj.isError());
             ASSERT(1 == obj.isInitialState());
             ASSERT(INT_MAX == obj.maxLineLength());
+            ASSERT(INT_MAX == obj.options().maxLineLength());
             ASSERT(0 == obj.outputLength());
             ASSERT(Obj::e_URL == obj.alphabet());
+            ASSERT(true == obj.options().isAlphabetUrl());
+            ASSERT(true == obj.options().isPadded());
         }
-
+        if (verbose) cout << "\tmaxLineLength = INT_MAX, \"base64url\" "
+                          << "alphabet, padded = false" << endl;
+        {
+            Obj obj(EncoderOptions().setMaxLineLength(INT_MAX).
+                                        setIsAlphabetUrl().setIsPadded(false));
+            ASSERT(1 == obj.isAcceptable());
+            ASSERT(0 == obj.isDone());
+            ASSERT(0 == obj.isError());
+            ASSERT(1 == obj.isInitialState());
+            ASSERT(INT_MAX == obj.maxLineLength());
+            ASSERT(INT_MAX == obj.options().maxLineLength());
+            ASSERT(0 == obj.outputLength());
+            ASSERT(Obj::e_URL == obj.alphabet());
+            ASSERT(true  == obj.options().isAlphabetUrl());
+            ASSERT(false == obj.options().isPadded());
+        }
       } break;
       case 1: {
         // --------------------------------------------------------------------
