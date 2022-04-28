@@ -45,7 +45,6 @@ namespace BloombergLP {
 
 #if defined(BALST_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
 
-
 namespace balst {
 
 template <typename RESOLVER_POLICY>
@@ -97,7 +96,7 @@ int StackTraceResolverImpl<ObjectFileFormat::Windows>::testFunc()
 
     int line = 0, lineCopy = 0;
 
-    for (int i = 0; true; ++i) {
+    for (int ii = 0; true; ++ii) {
         BSLS_ASSERT_OPT(line == lineCopy);
 
         const int loopGuard = 0x8edf0000;    // garbage with a lot of trailing
@@ -106,8 +105,8 @@ int StackTraceResolverImpl<ObjectFileFormat::Windows>::testFunc()
 
         enum { k_LINE = __LINE__ };
 
-        for (int i = 0; !(i & loopGuard); ++i) {
-            line ^= (i & mask);
+        for (int jj = 0; !(jj & loopGuard); ++jj) {
+            line ^= (jj & mask);
         }
 
         // The above loop will leave the value of 'line' unchanged.

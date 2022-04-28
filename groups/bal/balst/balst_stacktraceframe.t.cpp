@@ -2012,10 +2012,17 @@ int main(int argc, char *argv[])
                 bslma::DefaultAllocatorGuard dag(&da);
 
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
-                    if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
+                    if (veryVeryVerbose) { T_ T_ Q(EnterExceptionTestBody) }
 
                     Obj obj(Z, &sa);
                     LOOP3_ASSERT(LINE, Z, obj, Z == obj);
+
+#if defined(BSLS_PLATFORM_CMP_IBM) && defined(BDE_BUILD_TARGET_OPT)
+                    // Unconditionally doing some output here prevents xlC_r
+                    // compiler bug tracked in DRQS 166134166.
+
+                    T_ T_ Q(LeaveExceptionTestBody);
+#endif
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                 LOOP3_ASSERT(LINE, ZZ, Z, ZZ == Z);
@@ -3394,7 +3401,7 @@ int main(int argc, char *argv[])
                 bslma::DefaultAllocatorGuard dag(&da);
 
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
-                    if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
+                    if (veryVeryVerbose) { T_ T_ Q(EnterExceptionTestBody) }
 
                     Obj obj(ADDRESS,
                             LIB_FILE_NAME,
@@ -3425,6 +3432,13 @@ int main(int argc, char *argv[])
 
                     LOOP3_ASSERT(LINE, SYM_NAME, obj.symbolName(),
                                  SYM_NAME == obj.symbolName());
+
+#if defined(BSLS_PLATFORM_CMP_IBM) && defined(BDE_BUILD_TARGET_OPT)
+                    // Unconditionally doing some output here prevents xlC_r
+                    // compiler bug tracked in DRQS 166134166.
+
+                    T_ T_ Q(LeaveExceptionTestBody);
+#endif
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                 LOOP2_ASSERT(LINE, da.numBlocksInUse(),
