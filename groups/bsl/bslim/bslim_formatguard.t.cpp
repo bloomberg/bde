@@ -64,6 +64,14 @@ void aSsErT(bool condition, const char *message, int line)
 #define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
 #define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
+                                        //
+#define PW(X)                                                                 \
+    bsl::wcout << #X " = " << (X) << bsl::endl;
+    // Print identifier and its value.
+
+#define PW_(X)                                                                \
+    bsl::wcout << #X " = " << (X) << ", " << bsl::flush;
+    // 'P(X)' without '\n'
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -304,7 +312,6 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "WIDE STRINGSTREAM TEST\n"
                              "======================\n";
-
         using bsl::ios_base;
 
         const double oneSeventh = 1.0 / 7;
@@ -339,7 +346,10 @@ int main(int argc, char *argv[])
             owss << bsl::hex << bsl::setw(3) << bsl::left;
             owss << 64;
             const wchar_t EXP[] = { '4', '0', fillChar, 0 };;
-            ASSERTV(owss.str()[0], owss.str() == EXP);
+            if (veryVeryVerbose) {
+                PW_(owss.str()); PW(EXP);
+            }
+            ASSERT(owss.str() == EXP);
 
             owss.str(L"");
 
