@@ -71,23 +71,6 @@ Base64Encoder::~Base64Encoder()
     BSLS_ASSERT(0 <= d_outputLength);
 }
 
-// FREE OPERATORS
-bool operator==(const Base64Encoder::Options& lhs,
-                const Base64Encoder::Options& rhs)
-{
-    return lhs.d_isAlphabetUrl == rhs.d_isAlphabetUrl &&
-           lhs.d_isPadded      == rhs.d_isPadded      &&
-           lhs.d_maxLineLength == rhs.d_maxLineLength;
-}
-
-bool operator!=(const Base64Encoder::Options& lhs,
-                const Base64Encoder::Options& rhs)
-{
-    return lhs.d_isAlphabetUrl != rhs.d_isAlphabetUrl ||
-           lhs.d_isPadded      != rhs.d_isPadded      ||
-           lhs.d_maxLineLength != rhs.d_maxLineLength;
-}
-
 }  // close package namespace
 }  // close enterprise namespace
 

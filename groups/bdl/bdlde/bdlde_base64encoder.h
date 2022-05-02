@@ -431,12 +431,15 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlscm_version.h>
 
+#include <bdlde_base64alphabet.h>
+#include <bdlde_base64encoderoptions.h>
+
 #include <bsls_assert.h>
 #include <bsls_review.h>
 
 namespace BloombergLP {
-
 namespace bdlde {
+
                             // ===================
                             // class Base64Encoder
                             // ===================
@@ -445,64 +448,12 @@ class Base64Encoder {
     // This class implements a mechanism capable of converting data of
     // arbitrary length to its corresponding Base64 representation.
 
+    // TYPES
+    typedef Base64EncoderOptions EncoderOptions;
+
   public:
     // PUBLIC TYPES
-    enum Alphabet {
-        // Enumeration used to distinguish between different types of
-        // alphabets supported by this component.
-        //
-        // This 'enum' is DEPRECATED.  Use 'Options' instead.
-
-        e_BASIC = 0,  // "base64"
-        e_URL   = 1   // "base64url"
-    };
-
-    enum { k_DEFAULT_MAX_LINE_LENGTH = 76 };
-
-    class Options {
-        // DATA
-        int    d_maxLineLength;
-        bool   d_isAlphabetUrl;
-        bool   d_isPadded;
-
-        friend bool operator==(const Options&, const Options&);
-        friend bool operator!=(const Options&, const Options&);
-
-      public:
-        // CREATOR
-        Options();
-            // Create an 'Options' object configured to a 'maxLineLength' of
-            // 76, alphabet of basic, and padded.
-
-        // Options(const Options&) = default;
-
-        // MANIPULATORS
-        // Options& operator=(const Options&) = default;
-
-        Options& setIsAlphabetUrl(bool value = true);
-            // Set the 'isAlphabetUrl' property to the specified 'value'.  If
-            // 'value == true', set the alphabet property to 'URL'.  If
-            // 'value == false', set the alphabet property to 'basic'.
-
-        Options& setMaxLineLength(int value);
-            // Set the 'maxLineLength' property to the specified 'value'.  The
-            // behavior is undefined unless '0 <= value'.
-
-        Options& setIsPadded(bool value = true);
-            // Set the 'padded' property to the specified 'value'.
-
-        // ACCESSORS
-        bool isAlphabetUrl() const;
-            // Return 'true' if the alphabet is 'UTL' and false otherwise, in
-            // which case the alphabet is basic.
-
-        bool isPadded() const;
-            // Return 'true' if the 'padded' property is set and 'false'
-            // otherwise.
-
-        int maxLineLength() const;
-            // Return the value of the 'maxLineLength' property.
-    };
+    typedef Base64Alphabet::Enum Alphabet;
 
   private:
     // PRIVATE TYPES
@@ -521,8 +472,11 @@ class Base64Encoder {
     static const char *const s_base64UrlAlphabet_p;   // 6-bit map of
                                                       // "base64url" alphabet
 
+    static const Alphabet e_BASIC = Base64Alphabet::e_BASIC;
+    static const Alphabet e_URL   = Base64Alphabet::e_URL;
+
     // INSTANCE DATA
-    signed char d_state;          // state as per above enum
+    signed char       d_state;          // state as per above enum
     bool              d_isPadded;       // is output tail-padded with '='
     int               d_maxLineLength;  // maximum length of output line
     int               d_lineLength;     // current length of output line
@@ -600,7 +554,7 @@ class Base64Encoder {
 
     // CREATORS
     explicit
-    Base64Encoder(const Options& options = Options());
+    Base64Encoder(const EncoderOptions& options = EncoderOptions());
         // Create a Base64 encoder in the initial state, defaulting the state
         // of the maximum allowable line-length, the padding, and the alphabet
         // according to the values of the specified 'options'.
@@ -713,10 +667,14 @@ class Base64Encoder {
         // Return 'true' if this instance is in the initial state (i.e., as if
         // no input had been consumed), and 'false' otherwise.
 
+    bool isPadded() const;
+        // Return true if padding by '=' characters was specified at
+        // construction of this object.
+
     int maxLineLength() const;
         // Return the currently installed value for the maximum line length.
 
-    Options options() const;
+    EncoderOptions options() const;
         // Return an 'options' object reflecting the options this object was
         // configured with.
 
@@ -728,75 +686,6 @@ class Base64Encoder {
 // ============================================================================
 //                            INLINE DEFINITIONS
 // ============================================================================
-
-                        // ----------------------------
-                        // class Base64Encoder::Options
-                        // ----------------------------
-
-// CREATOR
-inline
-Base64Encoder::Options::Options()
-: d_maxLineLength(Base64Encoder::k_DEFAULT_MAX_LINE_LENGTH)
-, d_isAlphabetUrl(false)
-, d_isPadded(true)
-{}
-
-// MANIPULATORS
-inline
-Base64Encoder::Options& Base64Encoder::Options::setIsAlphabetUrl(bool value)
-{
-    d_isAlphabetUrl = value;
-
-    return *this;
-}
-
-inline
-Base64Encoder::Options& Base64Encoder::Options::setMaxLineLength(int value)
-{
-    BSLS_ASSERT(0 <= value);
-
-    d_maxLineLength = value;
-
-    return *this;
-}
-
-inline
-Base64Encoder::Options& Base64Encoder::Options::setIsPadded(bool value)
-{
-    d_isPadded = value;
-
-    return *this;
-}
-
-// ACCESSORS
-inline
-bool Base64Encoder::Options::isAlphabetUrl() const
-{
-    return d_isAlphabetUrl;
-}
-
-inline
-bool Base64Encoder::Options::isPadded() const
-{
-    return d_isPadded;
-}
-
-inline
-int Base64Encoder::Options::maxLineLength() const
-{
-    return d_maxLineLength;
-}
-
-// FREE OPERATORS
-bool operator==(const Base64Encoder::Options& lhs,
-                const Base64Encoder::Options& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' have the same attributes
-    // and 'false' otherwise.
-
-bool operator!=(const Base64Encoder::Options& lhs,
-                const Base64Encoder::Options& rhs);
-    // Return 'false' if the specified 'lhs' and 'rhs' have the same attributes
-    // and 'true' otherwise.
 
                             // -------------------
                             // class Base64Encoder
@@ -935,7 +824,7 @@ bool Base64Encoder::isResidualOutput(int numBytes, int maxLineLength)
 
 // CREATORS
 inline
-Base64Encoder::Base64Encoder(const Options& options)
+Base64Encoder::Base64Encoder(const EncoderOptions& options)
 : d_state(e_INITIAL_STATE)
 , d_isPadded(options.isPadded())
 , d_maxLineLength(options.maxLineLength())
@@ -943,15 +832,15 @@ Base64Encoder::Base64Encoder(const Options& options)
 , d_outputLength(0)
 , d_stack(0)
 , d_bitsInStack(0)
-, d_alphabet_p(options.isAlphabetUrl() ? s_base64UrlAlphabet_p
-                                       : s_base64Alphabet_p)
+, d_alphabet_p(e_URL == options.alphabet() ? s_base64UrlAlphabet_p
+                                           : s_base64Alphabet_p)
 {}
 
 inline
-Base64Encoder::Base64Encoder(Alphabet alphabet)
+Base64Encoder::Base64Encoder(Base64Alphabet::Enum alphabet)
 : d_state(e_INITIAL_STATE)
 , d_isPadded(true)
-, d_maxLineLength(k_DEFAULT_MAX_LINE_LENGTH)
+, d_maxLineLength(EncoderOptions::k_DEFAULT_MAX_LINE_LENGTH)
 , d_lineLength(0)
 , d_outputLength(0)
 , d_stack(0)
@@ -1124,7 +1013,7 @@ void Base64Encoder::resetState()
 
 // ACCESSORS
 inline
-Base64Encoder::Alphabet Base64Encoder::alphabet() const
+Base64Alphabet::Enum Base64Encoder::alphabet() const
 {
     return d_alphabet_p == s_base64Alphabet_p ? e_BASIC : e_URL;
 }
@@ -1156,17 +1045,23 @@ bool Base64Encoder::isInitialState() const
 }
 
 inline
+bool Base64Encoder::isPadded() const
+{
+    return d_isPadded;
+}
+
+inline
 int Base64Encoder::maxLineLength() const
 {
     return d_maxLineLength;
 }
 
 inline
-Base64Encoder::Options Base64Encoder::options() const
+Base64EncoderOptions Base64Encoder::options() const
 {
-    Options ret;
-    ret.setIsAlphabetUrl(d_alphabet_p != s_base64Alphabet_p);
+    EncoderOptions ret;
     ret.setMaxLineLength(d_maxLineLength);
+    ret.setAlphabet(d_alphabet_p == s_base64Alphabet_p ? e_BASIC : e_URL);
     ret.setIsPadded(d_isPadded);
 
     return ret;
