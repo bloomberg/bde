@@ -1,5 +1,7 @@
+bdlde_base64alphabet
 bdlde_base64decoder
 bdlde_base64encoder
+bdlde_base64encoderoptions
 bdlde_byteorder
 bdlde_charconvertstatus
 bdlde_charconvertucs2
