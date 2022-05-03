@@ -202,9 +202,8 @@ inline
 Base64EncoderOptions& Base64EncoderOptions::setAlphabet(
                                                     Base64Alphabet::Enum value)
 {
-    typedef Base64Alphabet Alphabet;
-
-    BSLS_ASSERT(Alphabet::e_BASIC == value || Alphabet::e_URL == value);
+    BSLS_ASSERT(Base64Alphabet::e_BASIC == value ||
+                                               Base64Alphabet::e_URL == value);
 
     d_alphabet = value;
 
