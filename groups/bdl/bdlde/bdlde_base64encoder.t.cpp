@@ -162,7 +162,8 @@ int testStatus = 0;
 void aSsErT(bool condition, const char *message, int line)
 {
     if (condition) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+        cout << "Error " __FILE__ "(" << line << "): " << message
+             << "    (failed)" << endl;
 
         if (0 <= testStatus && testStatus <= 100) {
             ++testStatus;

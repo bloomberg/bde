@@ -60,7 +60,8 @@ int testStatus = 0;
 void aSsErT(bool condition, const char *message, int line)
 {
     if (condition) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+        cout << "Error " __FILE__ "(" << line << "): " << message
+             << "    (failed)" << endl;
 
         if (0 <= testStatus && testStatus <= 100) {
             ++testStatus;
@@ -163,9 +164,10 @@ int main(int argc, char *argv[])
 //..
 // Next, we observe that the properies are as expected:
 //..
-    ASSERT(options.maxLineLength() == 76);
-    ASSERT(options.alphabet()      == Alphabet::e_URL);
-    ASSERT(options.isPadded()      == false);
+    ASSERTV(options.maxLineLength(), options.maxLineLength() == 76);
+    ASSERTV(options.alphabet(),      options.alphabet()      ==
+                                                              Alphabet::e_URL);
+    ASSERTV(options.isPadded(),      options.isPadded()      == false);
 //..
 // Now, we stream the object:
 //..
@@ -531,7 +533,7 @@ if (verbose) {
                                      setIsPadded(PADDED).setMaxLineLength(MLL);
                         const Obj& X = mX;
 
-                        ASSERT(  X == MASTER );
+                        ASSERTV(alphabet, PADDED, MLL, X, X == MASTER );
                         ASSERT(  MASTER == X );
                         ASSERT(!(X != MASTER));
                         ASSERT(!(MASTER != X));
@@ -540,7 +542,7 @@ if (verbose) {
                                    setMaxLineLength(MLL).setAlphabet(alphabet);
                         const Obj& Y = mY;
 
-                        ASSERT(  Y == MASTER );
+                        ASSERTV(alphabet, PADDED, MLL, Y, Y == MASTER );
                         ASSERT(  MASTER == Y );
                         ASSERT(!(Y != MASTER));
                         ASSERT(!(MASTER != Y));
@@ -552,7 +554,7 @@ if (verbose) {
                                                          setAlphabet(alphabet);
                         const Obj& X = mX;
 
-                        ASSERT(  X == MASTER );
+                        ASSERTV(alphabet, PADDED, X, X == MASTER );
                         ASSERT(  MASTER == X );
                         ASSERT(!(X != MASTER));
                         ASSERT(!(MASTER != X));
@@ -561,7 +563,7 @@ if (verbose) {
                                                            setIsPadded(PADDED);
                         const Obj& Y = mY;
 
-                        ASSERT(  Y == MASTER );
+                        ASSERTV(alphabet, PADDED, Y, Y == MASTER );
                         ASSERT(  MASTER == Y );
                         ASSERT(!(Y != MASTER));
                         ASSERT(!(MASTER != Y));
@@ -574,7 +576,7 @@ if (verbose) {
                                                          setMaxLineLength(MLL);
                         const Obj& X = mX;
 
-                        ASSERT(  X == MASTER );
+                        ASSERTV(PADDED, MLL, X, X == MASTER );
                         ASSERT(  MASTER == X );
                         ASSERT(!(X != MASTER));
                         ASSERT(!(MASTER != X));
@@ -583,7 +585,7 @@ if (verbose) {
                                                            setIsPadded(PADDED);
                         const Obj& Y = mY;
 
-                        ASSERT(  Y == MASTER );
+                        ASSERTV(PADDED, MLL, Y, Y == MASTER );
                         ASSERT(  MASTER == Y );
                         ASSERT(!(Y != MASTER));
                         ASSERT(!(MASTER != Y));
@@ -596,7 +598,7 @@ if (verbose) {
                                                          setMaxLineLength(MLL);
                         const Obj& X = mX;
 
-                        ASSERT(  X == MASTER );
+                        ASSERTV(alphabet, MLL, X, X == MASTER );
                         ASSERT(  MASTER == X );
                         ASSERT(!(X != MASTER));
                         ASSERT(!(MASTER != X));
@@ -605,7 +607,7 @@ if (verbose) {
                                                          setAlphabet(alphabet);
                         const Obj& Y = mY;
 
-                        ASSERT(  Y == MASTER );
+                        ASSERTV(alphabet, MLL, Y, Y == MASTER );
                         ASSERT(  MASTER == Y );
                         ASSERT(!(Y != MASTER));
                         ASSERT(!(MASTER != Y));
@@ -632,11 +634,13 @@ if (verbose) {
                                                     .setIsPadded(PADDED_B);
                                 const Obj& Y = mY;
 
-                                ASSERT(Y.maxLineLength() == MLLB);
-                                ASSERT(Y.alphabet()      == alphabetB);
-                                ASSERT(Y.isPadded()      == PADDED_B);
+                                ASSERTV(MLLB,      Y.maxLineLength() == MLLB);
+                                ASSERTV(alphabetB, Y.alphabet()      ==
+                                                                    alphabetB);
+                                ASSERTV(PADDED_B,  Y.isPadded()      ==
+                                                                     PADDED_B);
 
-                                ASSERT( EQ == (MASTER == Y));
+                                ASSERTV(MASTER, Y, EQ == (MASTER == Y));
                                 ASSERT( EQ == (Y == MASTER));
                                 ASSERT(!EQ == (MASTER != Y));
                                 ASSERT(!EQ == (Y != MASTER));
@@ -645,7 +649,7 @@ if (verbose) {
                                                          "Inner copy assign\n";
                                 p = &(mY = MASTER);
                                 ASSERT(&mY == p);
-                                ASSERT(  Y == MASTER );
+                                ASSERTV(  Y == MASTER );
                                 ASSERT(  MASTER == Y );
                                 ASSERT(!(Y != MASTER));
                                 ASSERT(!(MASTER != Y));
@@ -755,6 +759,16 @@ if (verbose) {
             ASSERT(INT_MAX      == OBJ.maxLineLength());
             ASSERT(Alpha::e_URL == OBJ.alphabet());
             ASSERT(false        == OBJ.isPadded());
+        }
+
+        if (verbose) cout << "\tmaxLineLength = <default>, \"base64url\" "
+                          << "alphabet, padded = false" << endl;
+        {
+            Obj& obj = Obj().setAlphabet(Alpha::e_URL).setIsPadded(false);
+//          const Obj& OBJ = obj;
+            ASSERT(76           == obj.maxLineLength());
+            ASSERT(Alpha::e_URL == obj.alphabet());
+            ASSERT(false        == obj.isPadded());
         }
       } break;
       case 2: {
