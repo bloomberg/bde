@@ -30,6 +30,7 @@
 #include <bsl_vector.h>
 #include <bsl_cstdlib.h>                         // 'atoi'
 #include <bsl_cstring.h>                         // 'memcpy', 'memset'
+#include <bsl_cstdint.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -195,13 +196,13 @@ static int recPool(char *address)
     return h->d_header.d_pool;
 }
 
-static int delta(char *address1, char *address2)
+static bsl::intptr_t delta(char *address1, char *address2)
     // Return the number of bytes between the specified 'address1' and the
     // specified 'address2'.
 {
     return address1 < address2
-         ? static_cast<int>(address2 - address1)
-         : static_cast<int>(address1 - address2);
+        ? static_cast<bsl::intptr_t>(address2 - address1)
+        : static_cast<bsl::intptr_t>(address1 - address2);
 }
 
 static void scribble(char *address, int size)

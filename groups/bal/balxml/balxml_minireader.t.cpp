@@ -1027,7 +1027,11 @@ int main(int argc, char *argv[])
                 ASSERT(0 == bdls::OsUtil::getOsInfo(&osName,
                                                     &osVersion,
                                                     &osPatch));
-                osName += '.' + osVersion + '.' + osPatch;
+
+                // Note that the patch information on some platofmrs (e.g.,
+                // MacOS) is a large string containing characters like '/'.
+
+                osName += '.' + osVersion;
                 hostName = osName.c_str();
             }
 

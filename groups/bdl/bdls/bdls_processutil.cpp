@@ -416,8 +416,10 @@ int ProcessUtil::getPathToExecutable(bsl::string *result)
     // different solution based on "/proc", which might or might not be
     // available.
 
-#if defined BSLS_PLATFORM_OS_LINUX || defined BSLS_PLATFORM_OS_AIX ||         \
-                                               defined BSLS_PLATFORM_OS_SOLARIS
+#if defined(BSLS_PLATFORM_OS_LINUX)   || \
+    defined(BSLS_PLATFORM_OS_AIX)     || \
+    defined(BSLS_PLATFORM_OS_SOLARIS)
+
     char linkName[100];
     bdlsb::FixedMemOutStreamBuf sb(linkName, sizeof(linkName));
     bsl::ostream os(&sb);

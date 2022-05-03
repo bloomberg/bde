@@ -1101,7 +1101,10 @@ int main(int argc, char *argv[])
                           << "'start' FAILURE BEHAVIOR" << endl
                           << "========================" << endl;
 
-#if defined(BSLS_PLATFORM_OS_WINDOWS) || defined(BSLS_PLATFORM_OS_SOLARIS)
+#if defined(BSLS_PLATFORM_OS_WINDOWS) || \
+    defined(BSLS_PLATFORM_OS_SOLARIS) || \
+    defined(BSLS_PLATFORM_OS_DARWIN)
+
         // Causing thread creation on Windows and Sun to fail can not be done
         // with the available parameters.  Do not run this test on those
         // platforms.

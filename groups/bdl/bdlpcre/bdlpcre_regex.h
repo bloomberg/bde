@@ -232,6 +232,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // JIT is supported on the following platforms:
 //..
 //  ARM 32-bit (v5, v7, and Thumb2)
+//  ARM 64-bit
 //  Intel x86 32-bit and 64-bit
 //  MIPS 32-bit and 64-bit
 //  Power PC 32-bit and 64-bit

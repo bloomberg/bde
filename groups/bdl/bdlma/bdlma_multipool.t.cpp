@@ -211,13 +211,13 @@ int recPool(char *address)
 }
 
 inline
-int delta(char *address1, char *address2)
+bsl::intptr_t delta(char *address1, char *address2)
     // Return the number of bytes between the specified 'address1' and the
     // specified 'address2'.
 {
     return address1 < address2
-         ? static_cast<int>(address2 - address1)
-         : static_cast<int>(address1 - address2);
+        ? static_cast<bsl::intptr_t>(address2 - address1)
+        : static_cast<bsl::intptr_t>(address1 - address2);
 }
 
 static inline
@@ -2341,13 +2341,14 @@ int main(int argc, char *argv[])
                             T_ P_((void *)q);
                             P_(qCalculatedPool); P(qRecordedPool);
                         }
-                        LOOP3_ASSERT(i, j, k, qCalculatedPool ==
-                                                                qRecordedPool);
+                        ASSERTV(NUM_POOLS, OBJ_SIZE, k,
+                                qCalculatedPool == qRecordedPool);
 
-                        LOOP3_ASSERT(i, j, k, pRecordedPool   ==
-                                                                qRecordedPool);
-                        LOOP3_ASSERT(i, j, k, OBJ_SIZE + (int)sizeof(Header) <=
-                                                                  delta(p, q));
+                        ASSERTV(NUM_POOLS, OBJ_SIZE, k,
+                                pRecordedPool == qRecordedPool);
+
+                        ASSERTV(NUM_POOLS, OBJ_SIZE, k,
+                                OBJ_SIZE + (int)sizeof(Header) <= delta(p, q));
 
                         mX.deallocate(p);
                         mX.deallocate(q);

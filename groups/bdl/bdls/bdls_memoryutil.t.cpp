@@ -161,6 +161,13 @@ int main(int argc, char *argv[])
                                   << modes[mode] << bsl::endl;
                 continue;                                           // CONTINUE
             }
+#elif defined(BSLS_PLATFORM_OS_DARWIN)
+            // MacOS does not support writing to executable memory.
+
+            if (mode & bdls::MemoryUtil::k_ACCESS_EXECUTE &&
+                mode & bdls::MemoryUtil::k_ACCESS_WRITE) {
+                continue;                                           // CONTINUE
+            }
 #endif
 
             // test read & write
@@ -292,6 +299,7 @@ int main(int argc, char *argv[])
         char* ptr = (char*) bdls::MemoryUtil::allocate(size);
         int rc = bdls::MemoryUtil::protect(ptr, size, atoi(argv[2]));
         ASSERT(0 == rc);
+
         for(int i=0; i<size; ++i) {
             ((volatile char*)ptr)[i] = 0x55;
         }

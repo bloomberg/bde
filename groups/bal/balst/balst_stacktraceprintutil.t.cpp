@@ -500,9 +500,17 @@ int phonyCompare(const void *, const void *)
         { L_, false, "phonyCompare" },
         { L_, false, "main" } };
 
+    // stdlib.h on MacOS arm qsort appears in the call stack as _isort.
+
+#if defined(BSLS_PLATFORM_OS_DARWIN)
+    const char *qsortName = "_isort";
+#else
+    const char *qsortName = "qsort";
+#endif
+
     Data debugStrings[] = {
         { L_, false, "phonyCompare" },
-        { L_, false, "qsort" },
+        { L_, false, qsortName },
         { L_, true,  " in " },
         { L_, true,  e_FORMAT_DLADDR ? "/libsystem_c" : "/libc." },
         { L_, false, "main" } };

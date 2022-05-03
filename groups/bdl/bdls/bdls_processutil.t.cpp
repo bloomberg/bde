@@ -52,7 +52,7 @@ using bsl::flush;
 // [ 1] int getProcessId();
 //-----------------------------------------------------------------------------
 // [ 6] USAGE EXAMPLE
-// [ 4] GETPATHTOEXECUTABLE DIFFICULT CASES
+// [ 4] CONCERN: RELATIVE PATH, SYMLINKS, SPACES
 // [ 1] BREATHING TEST
 //-----------------------------------------------------------------------------
 
@@ -341,12 +341,20 @@ int main(int argc, char *argv[])
       }  break;
       case 4: {
         // --------------------------------------------------------------------
-        // 'getPathToExecutable' RELATIVE ARGV[0] TEST
+        // CONCERN: RELATIVE PATH, SYMLINKS, SPACES
+        //
+        // This test case is concerned with difficult cases for
+        // 'getProcessName' and 'getExecutableName'.  In order to test
+        // situations where, for example, an executable name has a space, this
+        // test case uses 'system' to run a shell script that copies the test
+        // driver to a new file, and runs case -1, and captures the result.
+        // Case -1 contains the body of the test performed.
         //
         // Concerns:
         //: 1 That 'getPathToExecutable' will reliably deliver a path through
         //:   which the executable can be accessed, even under difficult
         //:   conditions.
+        //:   o The executable is invoked with a relative path
         //:   o When the working directory has been changed since task startup.
         //:   o When the executable name contains spaces.
         //
@@ -367,16 +375,15 @@ int main(int argc, char *argv[])
         //:   test driver.
         //
         // Testing:
-        //   GETPATHTOEXECUTABLE DIFFICULT CASES
+        //   CONCERN: RELATIVE PATH, SYMLINKS, SPACES
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "'getPathToExecutable' RELATIVE ARGV[0] TEST\n"
-                             "===========================================\n";
+        if (verbose) cout << "CONCERN: RELATIVE PATH, SYMLINKS, SPACES\n"
+                             "========================================\n";
 
         int rc;
-
-        char dirName[1024];
-        bsl::sprintf(dirName, "tmp.bdls_processutil.t.case%d.%s.%d.dir",
+        char directoryName[1024];
+        bsl::sprintf(directoryName, "tmp.bdls_processutil.t.case%d.%s.%d.dir",
                                           test, hostName, Obj::getProcessId());
 
         {
@@ -384,45 +391,44 @@ int main(int argc, char *argv[])
             // 'FUtil::createDirectories' uses the default allocator.
 
             bslma::DefaultAllocatorGuard guard(&ta);
-            (void) FUtil::remove(dirName, true);
-            ASSERT(!FUtil::exists(dirName));
-            rc = FUtil::createDirectories(dirName, true);
+            (void) FUtil::remove(directoryName, true);
+            ASSERT(!FUtil::exists(directoryName));
+            rc = FUtil::createDirectories(directoryName, true);
             ASSERT(0 == rc);
         }
 
 #if defined BSLS_PLATFORM_OS_CYGWIN
         // This platform can't handle spaces in the executable name.
 
-        const char * const execName = "case4.exec.t";
-        const char * const linkName = "case4.link.t";
+        const char * const executableName = "case4.exec.t";
+        const char * const linkName       = "case4.link.t";
 #elif defined BSLS_PLATFORM_OS_WINDOWS
-        const char * const execName = "case4.exec.a b  c.t.exe";
+        const char * const executableName = "case4.exec.a  b  c.t.exe";
 #else
-        const char * const execName = "case4.exec.a b  c.t";
-        const char * const linkName = "case4.link.a b  c.t";
+        const char * const executableName = "case4.exec.a  b  c.t";
+        const char * const linkName       = "case4.link.a  b  c.t";
 #endif
 
-        const int prevTest = test - 1;  // case # of previous test, the main
-                                        // 'getPathToExecutable' test case
-
-        bsl::string execCpDst(dirName, &ta);    // copy destination of exec
-        execCpDst += u::slash;
-        execCpDst += execName;
+        bsl::string copiedExecutablePath(directoryName, &ta);    // copy destination of exec
+        copiedExecutablePath += u::slash;
+        copiedExecutablePath += executableName;
 
 #if defined BSLS_PLATFORM_OS_UNIX
-
-        bsl::string scriptName(dirName, &ta);
+        bsl::string scriptName(directoryName, &ta);
         scriptName += "/case4.script.sh";
+
+        const char *path = copiedExecutablePath.c_str();
+
         FILE *fp = bsl::fopen(scriptName.c_str(), "w");
         ASSERT(fp);
         bsl::fprintf(fp, ":\n");
-        bsl::fprintf(fp, "cp '%s' '%s'\n", argv[0], execCpDst.c_str());
-        bsl::fprintf(fp, "chmod a+rwx '%s'\n", execCpDst.c_str());
-        bsl::fprintf(fp, "cd %s >/dev/null 2>&1\n", dirName);
-        bsl::fprintf(fp, "ln -s '%s' '%s'\n", execName, linkName);
+        bsl::fprintf(fp, "cp '%s' '%s'\n", argv[0], path);
+        bsl::fprintf(fp, "chmod a+rwx '%s'\n", path);
+        bsl::fprintf(fp, "cd %s >/dev/null 2>&1\n", directoryName);
+        bsl::fprintf(fp, "ln -s '%s' '%s'\n", executableName, linkName);
         bsl::fprintf(fp, "%s", veryVerbose ? "pwd; ls -l\n" : "");
-        bsl::fprintf(fp, "exec './%s' %d%s%s%s%s\n",
-                                    linkName, prevTest,
+        bsl::fprintf(fp, "exec './%s' -1 %s%s%s%s\n",
+                                              linkName,
                                               verbose ? " v" : "",
                                               veryVerbose ? " v" : "",
                                               veryVeryVerbose ? " v" : "",
@@ -435,16 +441,19 @@ int main(int argc, char *argv[])
 
 #else   // Windows
 
-        bsl::string scriptName(dirName, &ta);
+        bsl::string scriptName(directoryName, &ta);
         scriptName += "\\case4.script.bat";
         FILE *fp = bsl::fopen(scriptName.c_str(), "w");
+
+        const char *path = copiedExecutablePath.c_str();
+
         ASSERT(fp);
         bsl::fprintf(fp, "%s", !veryVerbose ?  "@echo off\n" : "");
-        bsl::fprintf(fp, "copy \"%s\" \"%s\"\n", argv[0], execCpDst.c_str());
-        bsl::fprintf(fp, "cd %s\n", dirName);
+        bsl::fprintf(fp, "copy \"%s\" \"%s\"\n", argv[0], path);
+        bsl::fprintf(fp, "cd %s\n", directoryName);
         bsl::fprintf(fp, "%s", veryVerbose ? "echo %cd%\ndir /o\n" : "");
-        bsl::fprintf(fp, "\".\\%s\" %d%s%s%s%s\n",
-                                    execName, prevTest,
+        bsl::fprintf(fp, "\".\\%s\" -1 %s%s%s%s\n",
+                                              executableName,
                                               verbose ? " v" : "",
                                               veryVerbose ? " v" : "",
                                               veryVeryVerbose ? " v" : "",
@@ -462,17 +471,18 @@ int main(int argc, char *argv[])
 
         if (!u::e_UNIX) {
             // Windows needs a few seconds after the script finishes to be
-            // allowed to delete the script and the executable at 'execCpDst'
-            // and the directory 'dirName' containing them.
+            // allowed to delete the script and the executable at
+            // 'copiedExecutablePath' and the directory 'directoryName'
+            // containing them.
 
             bslmt::ThreadUtil::microSleep(0, 5);    // 5 seconds
         }
 
-        ASSERT(FUtil::isDirectory(dirName));
-        rc = FUtil::remove(dirName, true);
+        ASSERT(FUtil::isDirectory(directoryName));
+        rc = FUtil::remove(directoryName, true);
         ASSERT(0 == rc);
-        ASSERT(!FUtil::exists(dirName));
-        ASSERT(!FUtil::exists(execCpDst));
+        ASSERT(!FUtil::exists(directoryName));
+        ASSERT(!FUtil::exists(copiedExecutablePath));
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -521,6 +531,7 @@ int main(int argc, char *argv[])
                              "===========================\n";
 
         ASSERTV(argv0, FUtil::exists(argv0));
+
         const bsls::Types::Int64 execSize = FUtil::getFileSize(argv0);
         ASSERTV(execSize, 8 * 1024 < execSize);
 
@@ -533,30 +544,32 @@ int main(int argc, char *argv[])
         ASSERT(0 == rc);
         ASSERT(3 < origCwd.length());    // not root
 
-        bsl::string procNameBeforeCd("meow", &ta);
-        int gpnbRc = Obj::getProcessName(&procNameBeforeCd);
-        ASSERTV(gpnbRc, procNameBeforeCd, 0 == gpnbRc);
-        ASSERT(!procNameBeforeCd.empty());
+        bsl::string processNameBeforeCd;;
+        int gpnbRc = Obj::getProcessName(&processNameBeforeCd);
+        ASSERTV(gpnbRc, processNameBeforeCd, 0 == gpnbRc);
+        ASSERT(!processNameBeforeCd.empty());
 
-        bsl::string execNameBeforeCd("meow", &ta);
-        rc = Obj::getPathToExecutable(&execNameBeforeCd);
+        bsl::string executableNameBeforeCd;
+        rc = Obj::getPathToExecutable(&executableNameBeforeCd);
         ASSERT(0 == rc);
 
-        ASSERTV(execNameBeforeCd, FUtil::exists(execNameBeforeCd));
-        ASSERTV(execNameBeforeCd, u::isExecutable(execNameBeforeCd));
-        ASSERTV(execSize, FUtil::getFileSize(execNameBeforeCd),
-                             execSize == FUtil::getFileSize(execNameBeforeCd));
+        ASSERTV(executableNameBeforeCd, FUtil::exists(executableNameBeforeCd));
+        ASSERTV(executableNameBeforeCd,
+                u::isExecutable(executableNameBeforeCd));
+        ASSERTV(execSize,
+                FUtil::getFileSize(executableNameBeforeCd),
+                execSize == FUtil::getFileSize(executableNameBeforeCd));
 
         rc = FUtil::setWorkingDirectory("..");
         ASSERT(0 == rc);
 
-        bsl::string cwd(&ta);
+        bsl::string cwd;
         rc = FUtil::getWorkingDirectory(&cwd);
         ASSERT(0 == rc);
         ASSERTV(origCwd, cwd, origCwd != cwd);
 
         ASSERTV(cwd, argv0, FUtil::exists(argv0), argv0IsRelative,
-                                   FUtil::exists(argv0) == !argv0IsRelative);
+                FUtil::exists(argv0) == !argv0IsRelative);
 
         const bool procExists = FUtil::isDirectory("/proc", true);
 
@@ -568,55 +581,71 @@ int main(int argc, char *argv[])
         const bool expFindExec = true;
 #endif
 
-        bsl::string execName("woof", &ta);
-        int gpteRc = Obj::getPathToExecutable(&execName);
-        ASSERTV(gpteRc, execName, 0 == gpteRc);
-        ASSERT(!execName.empty());
-        ASSERT(bsl::strlen(execName.c_str()) == execName.length());
-        const bool execNameIsRelative = u::isRelative(execName);
-        const bool execNameExists = FUtil::exists(execName);
-        const bool execNameIsExec = u::isExecutable(execName);
-        const bool sizeMatches = execSize == FUtil::getFileSize(execName);
+        bsl::string executableName;
+        int gpteRc = Obj::getPathToExecutable(&executableName);
+        ASSERTV(gpteRc, executableName, 0 == gpteRc);
+        ASSERT(!executableName.empty());
+        ASSERT(bsl::strlen(executableName.c_str()) == executableName.length());
+        const bool executableNameIsRelative = u::isRelative(executableName);
+        const bool executableNameExists = FUtil::exists(executableName);
+        const bool executableNameIsExec = u::isExecutable(executableName);
+        const bool sizeMatches =
+            execSize == FUtil::getFileSize(executableName);
 
-        bsl::string procNameAfterCd("meow", &ta);
-        int gpnRc = Obj::getProcessName(&procNameAfterCd);
-        ASSERTV(gpnRc, procNameAfterCd, 0 == gpnRc);
-        ASSERT(!procNameAfterCd.empty());
+        bsl::string processNameAfterCd("meow", &ta);
+        int gpnRc = Obj::getProcessName(&processNameAfterCd);
+        ASSERTV(gpnRc, processNameAfterCd, 0 == gpnRc);
+        ASSERT(!processNameAfterCd.empty());
 
-        const char * const target = u::npos == procNameAfterCd.find("case4")
-                                  ? baseArgv0.c_str()
-                                  : u::e_UNIX
-                                  ? "link"
-                                  : "exec";
-        ASSERTV(procNameAfterCd, target, u::npos !=
-                                                 procNameAfterCd.find(target));
-        if (!u::e_UNIX) {
-            ASSERTV(execName, procNameAfterCd, execName == procNameAfterCd);
-        }
+        ASSERTV(processNameAfterCd, baseArgv0, u::npos !=
+                processNameAfterCd.find(baseArgv0));
+
+#if defined(BSLS_PLATFORM_OS_WINDOWS) || defined(BSLS_PLATFORM_OS_DARWIN)
+        // On windows and MacOS getProcessName and getExecutableName return
+        // the same value.
+
+        ASSERTV(executableName, processNameAfterCd,
+                executableName == processNameAfterCd);
+#endif
 
         if (verbose) {
-            P_(origCwd);    P_(cwd);   P(procExists);
-            P_(procNameBeforeCd);      P(procNameAfterCd);
-            P_(execNameBeforeCd);      P(execName);
-            P_(execNameIsRelative);    P_(execNameExists);   P(execNameIsExec);
-            P_(sizeMatches);           P(procNameAfterCd);
+            P_(origCwd); P_(cwd); P(procExists);
+            P_(processNameBeforeCd);      P(processNameAfterCd);
+            P_(executableNameBeforeCd);   P(executableName);
+
+            P_(executableNameIsRelative);
+            P_(executableNameExists);
+            P(executableNameIsExec);
+
+            P_(sizeMatches); P(processNameAfterCd);
         }
 
         if (expFindExec) {
-            ASSERTV(execName, expFindExec, gpteRc, 0 == gpteRc);
-            ASSERTV(execName, !execNameIsRelative);
-            ASSERTV(execName, expFindExec, execNameExists, execNameExists);
-            ASSERTV(execName, expFindExec, execNameIsExec, execNameIsExec);
+            ASSERTV(executableName, expFindExec, gpteRc, 0 == gpteRc);
+            ASSERTV(executableName, !executableNameIsRelative);
+            ASSERTV(executableName, expFindExec, executableNameExists,
+                    executableNameExists);
+            ASSERTV(executableName, expFindExec, executableNameIsExec,
+                    executableNameIsExec);
             ASSERTV(execSize, sizeMatches);
         }
         else {
             // If we did better than expected, issue warning, but not error.
 
-            if (0 == gpteRc)         cout << "Unexpected success rc!\n";
-            if (!execNameIsRelative) cout << "Unexpectedly not relative!\n";
-            if (execNameExists)      cout << "Unexpectedly existed!\n";
-            if (execNameIsExec)      cout << "Unexpectedly executable!\n";
-            if (sizeMatches)         cout << "Unexpected matching size!\n";
+            if (0 == gpteRc)
+                cout << "Unexpected success rc!\n";
+
+            if (!executableNameIsRelative)
+                cout << "Unexpectedly not relative!\n";
+
+            if (executableNameExists)
+                cout << "Unexpectedly existed!\n";
+
+            if (executableNameIsExec)
+                cout << "Unexpectedly executable!\n";
+
+            if (sizeMatches)
+                cout << "Unexpected matching size!\n";
         }
       } break;
       case 2: {
@@ -709,6 +738,97 @@ int main(int argc, char *argv[])
         }
       } break;
       case -1: {
+        // --------------------------------------------------------------------
+        // CONCERN: RELATIVE PATH, SYMLINKS, SPACES (SUB TEST)
+        //
+        // This test case is executed via 'system' from test case 4 to verify
+        // that the renamed test-driver executable works correct.  See case
+        // 4 for concerns and plan.
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            cout << "CONCERN: RELATIVE PATH, SYMLINKS, SPACES (SUB TEST)\n"
+                 << "===================================================\n";
+
+        int rc;
+
+        ASSERTV(argv0, FUtil::exists(argv0));
+        const bsls::Types::Int64 execSize = FUtil::getFileSize(argv0);
+        const bool argv0IsRelative = u::isRelative(argv0);
+        const bool procExists = FUtil::isDirectory("/proc", true);
+        (void) argv0IsRelative;
+        (void) procExists;
+
+        rc = FUtil::setWorkingDirectory("..");
+        ASSERT(0 == rc);
+
+        bsl::string cwd;
+        rc = FUtil::getWorkingDirectory(&cwd);
+        ASSERT(0 == rc);
+
+
+        bsl::string executableName;
+        int gpteRc = Obj::getPathToExecutable(&executableName);
+        ASSERTV(gpteRc, executableName, 0 == gpteRc);
+        ASSERT(!executableName.empty());
+        ASSERT(bsl::strlen(executableName.c_str()) == executableName.length());
+
+        const bool executableNameIsRelative = u::isRelative(executableName);
+        const bool executableNameExists = FUtil::exists(executableName);
+        const bool executableNameIsExec = u::isExecutable(executableName);
+        const bool sizeMatches =
+            execSize == FUtil::getFileSize(executableName);
+
+#if defined BSLS_PLATFORM_OS_AIX || defined BSLS_PLATFORM_OS_LINUX
+        const bool expectSuccess = procExists || !argv0IsRelative;
+#elif defined BSLS_PLATFORM_OS_CYGWIN
+        const bool expectSuccess = !argv0IsRelative;
+#else
+        const bool expectSuccess = true;
+#endif
+        if (expectSuccess) {
+            ASSERTV(executableName, expectSuccess, gpteRc, 0 == gpteRc);
+            ASSERTV(executableName, !executableNameIsRelative);
+            ASSERTV(executableName, expectSuccess, executableNameExists,
+                    executableNameExists);
+            ASSERTV(executableName, expectSuccess, executableNameIsExec,
+                    executableNameIsExec);
+            ASSERTV(execSize, sizeMatches);
+        }
+
+
+        bsl::string processName;
+        int gpnRc = Obj::getProcessName(&processName);
+        ASSERTV(gpnRc, processName, 0 == gpnRc);
+        ASSERT(!processName.empty());
+
+        // Whether the process named returned is exected to be the name of a
+        // symlink.  This is 'true' on most UNIX platforms, except MacOS.
+        // This is false on Windows (no symlinks) and Darwin (where the
+        // proc_getpidpath function returns the path of the process the
+        // symlink referred to).
+
+
+
+        const char *expectedPathElement =
+#if defined(BSLS_PLATFORM_OS_UNIX) && !defined(BSLS_PLATFORM_OS_DARWIN)
+            "case4.link";   // name of the symlink
+#else
+            "case4.exec";   // name of the executable
+#endif
+
+        ASSERTV(processName, expectedPathElement,
+               u::npos != processName.find(expectedPathElement));
+
+#if defined(BSLS_PLATFORM_OS_WINDOWS) || defined(BSLS_PLATFORM_OS_DARWIN)
+        // On windows and MacOS getProcessName and getExecutableName return
+        // the same value.
+
+        ASSERTV(executableName, processName, executableName == processName);
+#endif
+
+      } break;
+      case -2: {
         // --------------------------------------------------------------------
         // MANUAL TEST: LONG PROCESS NAME (> 128 CHARACTERS)
         //
