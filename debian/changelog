@@ -1,5 +1,24 @@
-bsl-internal (3.99.3.0) unstable; urgency=low
+bsl-internal (3.99.5.0.1.test-promotion) unstable; urgency=low
 
+  * 0fcaad2c9 Bumped version to 3.99.6.0
+  * 1e0c98bc2 Apple m1 fixes 169105973 (#3666)
+  * e54595eaf drqs-169209538: 'bslim_formatguard.t.cpp': Fix for 'wchar_t' in '_cpp… (#3684)
+  * 12757badb Balst stacktraceresolverimpl windows typo i drqs 169038881 (#3665)
+  * 6abaf4ce4 Update bsl_mutex.h (#3673)
+  * 67371febe drqs-168979790: 'bdlcc_queue': GCC11: TC11/TC12 reorg per '-m32' segf… (#3669)
+  * 252f1b981 Add tests for the special math funs (#3670)
+  * 55e3c883c C++17 aliases from memory/mutex/new (#3657)
+  * 41b717cff Add c++17 special math functions to 'bsl_cmath.h' (#3659)
+  * 99b187df5 Apple M1: Fix bsl test failures (#3654)
+  * 2c54ae8f2 fixed typo in bsls_keyword.h (#3663)
+  * f1815b6cb drqs-168968405: 'bdlcc_deque': GCC11: TC10 reorg due to '-m32' segfau… (#3660)
+  * b3a7f52cb baljsn: Support arrays of arrays (#3630)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 4 May 2022 16:28:44 -0400
+
+bsl-internal (3.99.3.0) git; urgency=low
+
+  * 3bf6dd31b Changelog for version 3.99.3.0
   * 6a2d0ec96 Bumped version to 3.99.3.0
   * 17c27e617 Cxx17 additions for bsl_algorithm and bsl_chrono (#3652)
   * b22b71316 Fix bdlmt_threadpool.t.cpp build on solaris (#3655)
@@ -18,7 +37,7 @@ bsl-internal (3.99.3.0) unstable; urgency=low
   * 29dd6ba65 'bsls::TimeInterval' overload has been added to 'bdlmt::ThreadPool' (#3614)
   * 599e149c2 Merge pull request #3626 from bchapman/bsls_stackaddressutil-gcc-11-test-failure-drqs-168818131
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Thu, 14 Apr 2022 18:50:33 -0400
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Thu, 14 Apr 2022 19:19:12 -0400
 
 bsl-internal (3.99.2.0) git; urgency=low
 
