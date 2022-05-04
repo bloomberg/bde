@@ -1,5 +1,12 @@
-bsl-internal (3.99.5.0.1.test-promotion) unstable; urgency=low
+bsl-internal (3.99.5.0.1.testpromotion) unstable; urgency=low
 
+  * No commits found
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 4 May 2022 16:36:13 -0400
+
+bsl-internal (3.99.5.0.1.test-promotion) git; urgency=low
+
+  * 830198c70 Changelog for version 3.99.5.0.1.test-promotion
   * 0fcaad2c9 Bumped version to 3.99.6.0
   * 1e0c98bc2 Apple m1 fixes 169105973 (#3666)
   * e54595eaf drqs-169209538: 'bslim_formatguard.t.cpp': Fix for 'wchar_t' in '_cpp… (#3684)
@@ -14,7 +21,7 @@ bsl-internal (3.99.5.0.1.test-promotion) unstable; urgency=low
   * f1815b6cb drqs-168968405: 'bdlcc_deque': GCC11: TC10 reorg due to '-m32' segfau… (#3660)
   * b3a7f52cb baljsn: Support arrays of arrays (#3630)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 4 May 2022 16:28:44 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 4 May 2022 16:36:13 -0400
 
 bsl-internal (3.99.3.0) git; urgency=low
 
