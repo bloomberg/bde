@@ -18,6 +18,8 @@
 #include <bslmt_threadutil.h>
 #include <bslmt_throughputbenchmark.h>
 
+#include <bslmf_assert.h>
+
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_atomic.h>
@@ -25,6 +27,9 @@
 #include <bsls_timeinterval.h>
 #include <bsls_types.h>
 
+#include <bsl_algorithm.h>  // 'bsl::sort'
+#include <bsl_array.h>
+#include <bsl_cstddef.h>    // 'bsl::size_t'
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 #include <bsl_ostream.h>
@@ -352,7 +357,7 @@ class ThreadCountIntParFunctor {
         // Counter.
 
     bslmt::ThreadUtil::Key  d_tlsKey;
-        // TLS key
+        // Thread Local Storage (TLS) key
 
   public:
     // CREATORS
@@ -556,6 +561,9 @@ int main(int argc, char *argv[])
         //:
         //: 4 'estimateBusyWorkAmount' and 'busyWork' do not allocate any
         //:   memory.
+        //:
+        //: 5 The runtime measured time intervals can be distorted by sporadic
+        //:   system loads.
         //
         // Plan:
         //: 1 Run 'estimateBusyWorkAmount' with a significant interval (0.5sec)
@@ -570,6 +578,10 @@ int main(int argc, char *argv[])
         //:   50% and 200% of the original time interval entered in #1.
         //:
         //: 4 There is no memory allocated on the default or global allocators.
+        //:
+        //: 5 Generate several samples of each of the measured time values and
+        //:   determine test results (pass/fail) using the medians of those
+        //:   samples.
         //
         // Testing:
         //   void busyWork(Int64 busyWorkAmount);
@@ -592,34 +604,72 @@ int main(int argc, char *argv[])
         bsls::Types::Int64 loAmount = Obj::estimateBusyWorkAmount(loTime);
         bsls::Types::Int64 hiAmount = Obj::estimateBusyWorkAmount(hiTime);
 
-        BSLS_ASSERT(hiAmount > loAmount);
+        ASSERT(hiAmount > loAmount);
 
-        bsls::TimeInterval startTime = bsls::SystemTime::nowMonotonicClock();
-        Obj::busyWork(loAmount);
-        bsls::TimeInterval endTime   = bsls::SystemTime::nowMonotonicClock();
-        bsls::TimeInterval duration  = endTime - startTime;
-        double             loSeconds = duration.totalSecondsAsDouble();
-        (void)loSeconds;
+        // Spurious system loads can invalidate the comparison of the measured
+        // values for 'loSeconds' and 'hiSeconds' below.  Iterate several time
+        // and then test the mode of measured values.
 
-        startTime = endTime;
-        unsigned int beforeVal = Obj::antiOptimization();
-        (void)beforeVal;
-        Obj::busyWork(hiAmount);
-        unsigned int afterVal  = Obj::antiOptimization();
-        (void)afterVal;
-        endTime   = bsls::SystemTime::nowMonotonicClock();
-        duration  = endTime - startTime;
-        double hiSeconds = duration.totalSecondsAsDouble();
-        (void)hiSeconds;
+        const bsl::size_t NUM_TIMED_RUNS = 21;
 
-        BSLS_ASSERT(hiSeconds >  loSeconds);
-        BSLS_ASSERT(loSeconds >= 0.1 );
-        BSLS_ASSERT(loSeconds <= 1.0 );
-        BSLS_ASSERT(hiSeconds >= 0.3 );
-        BSLS_ASSERT(hiSeconds <= 3.0 );
-        BSLS_ASSERT(beforeVal != afterVal);
+        BSLMF_ASSERT(NUM_TIMED_RUNS % 2 == 1);   // Odd sample count
 
-        BSLS_ASSERT(defaultAllocator.numAllocations() == allocations);
+        const int MIDDLE = (NUM_TIMED_RUNS + 1)/2;
+
+        bsl::array<double, NUM_TIMED_RUNS> loSecondsRuns;
+        bsl::array<double, NUM_TIMED_RUNS> hiSecondsRuns;
+
+        for (bsl::size_t i = 0; i < NUM_TIMED_RUNS; ++i) {
+            bsls::TimeInterval startTime =
+                                         bsls::SystemTime::nowMonotonicClock();
+            Obj::busyWork(loAmount);
+            bsls::TimeInterval endTime   =
+                                         bsls::SystemTime::nowMonotonicClock();
+            bsls::TimeInterval duration  = endTime - startTime;
+            double             loSeconds = duration.totalSecondsAsDouble();
+
+            loSecondsRuns[i] = loSeconds;
+
+            if (veryVerbose) { P_(i) P(loSeconds) }
+        }
+
+        for (bsl::size_t i = 0; i < NUM_TIMED_RUNS; ++i) {
+            bsls::TimeInterval startTime =
+                                         bsls::SystemTime::nowMonotonicClock();
+
+            unsigned int beforeVal = Obj::antiOptimization();
+            (void)beforeVal;
+
+            Obj::busyWork(hiAmount);
+
+            unsigned int afterVal  = Obj::antiOptimization();
+            (void)afterVal;
+
+            bsls::TimeInterval endTime   =
+                                         bsls::SystemTime::nowMonotonicClock();
+            bsls::TimeInterval duration  = endTime - startTime;
+            double             hiSeconds = duration.totalSecondsAsDouble();
+
+            hiSecondsRuns[i] = hiSeconds;
+
+            ASSERT(beforeVal != afterVal);
+
+            if (veryVerbose) { P_(i) P(hiSeconds) }
+        }
+
+        bsl::sort(loSecondsRuns.begin(), loSecondsRuns.end());
+        bsl::sort(hiSecondsRuns.begin(), hiSecondsRuns.end());
+
+        double loSecondsMedian = loSecondsRuns[MIDDLE];
+        double hiSecondsMedian = hiSecondsRuns[MIDDLE];
+
+        ASSERT(hiSecondsMedian >  loSecondsMedian);
+        ASSERT(loSecondsMedian >= 0.1 );
+        ASSERT(loSecondsMedian <= 1.0 );
+        ASSERT(hiSecondsMedian >= 0.3 );
+        ASSERT(hiSecondsMedian <= 3.0 );
+
+        ASSERT(defaultAllocator.numAllocations() == allocations);
 
       } break;
       case 4: {
@@ -707,38 +757,38 @@ int main(int argc, char *argv[])
 
             int ret = mX.addThreadGroup(cnt1Functor, 10, 100);
             (void)ret;
-            BSLS_ASSERT(0 == ret);
+            ASSERT(0 == ret);
             bsls::Types::Int64 sAllocations = supplied.numAllocations();
             (void)sAllocations;
-            BSLS_ASSERT(1  == X.numThreadGroups());
-            BSLS_ASSERT(10 == X.numThreadsInGroup(ret));
-            BSLS_ASSERT(10 == X.numThreads());
+            ASSERT(1  == X.numThreadGroups());
+            ASSERT(10 == X.numThreadsInGroup(ret));
+            ASSERT(10 == X.numThreads());
 
-            BSLS_ASSERT(sAllocations == supplied.numAllocations());
+            ASSERT(sAllocations == supplied.numAllocations());
 
             ret = mX.addThreadGroup(cnt2Functor, 5, 200);
-            BSLS_ASSERT(1 == ret);
+            ASSERT(1 == ret);
             sAllocations = supplied.numAllocations();
-            BSLS_ASSERT(2  == X.numThreadGroups());
-            BSLS_ASSERT(5  == X.numThreadsInGroup(ret));
-            BSLS_ASSERT(15 == X.numThreads());
+            ASSERT(2  == X.numThreadGroups());
+            ASSERT(5  == X.numThreadsInGroup(ret));
+            ASSERT(15 == X.numThreads());
 
-            BSLS_ASSERT(sAllocations == supplied.numAllocations());
+            ASSERT(sAllocations == supplied.numAllocations());
 
             bslmt::ThroughputBenchmarkResult result(&supplied2);
 
             mX.execute(&result, 500, 10);
-            BSLS_ASSERT(10 == result.numSamples());
-            BSLS_ASSERT(2  == result.numThreadGroups());
-            BSLS_ASSERT(10 == result.numThreads(0));
-            BSLS_ASSERT(5  == result.numThreads(1));
-            BSLS_ASSERT(15 == result.totalNumThreads());
+            ASSERT(10 == result.numSamples());
+            ASSERT(2  == result.numThreadGroups());
+            ASSERT(10 == result.numThreads(0));
+            ASSERT(5  == result.numThreads(1));
+            ASSERT(15 == result.totalNumThreads());
 
-            BSLS_ASSERT(sAllocations == supplied.numAllocations());
+            ASSERT(sAllocations == supplied.numAllocations());
 
             // Verify counts
-            BSLS_ASSERT(10 * 10 == cnt1.load());
-            BSLS_ASSERT( 5 * 10 == cnt2.load());
+            ASSERT(10 * 10 == cnt1.load());
+            ASSERT( 5 * 10 == cnt2.load());
         }
 
         if (verbose) cout << "\nTesting 6-arg 'execute'." << endl;
@@ -772,27 +822,27 @@ int main(int argc, char *argv[])
                                         initThread1Functor,
                                         cleanThread1Functor);
             (void)ret;
-            BSLS_ASSERT(0 == ret);
+            ASSERT(0 == ret);
             bsls::Types::Int64 sAllocations = supplied.numAllocations();
             (void)sAllocations;
-            BSLS_ASSERT(1  == X.numThreadGroups());
-            BSLS_ASSERT(10 == X.numThreadsInGroup(ret));
-            BSLS_ASSERT(10 == X.numThreads());
+            ASSERT(1  == X.numThreadGroups());
+            ASSERT(10 == X.numThreadsInGroup(ret));
+            ASSERT(10 == X.numThreads());
 
-            BSLS_ASSERT(sAllocations == supplied.numAllocations());
+            ASSERT(sAllocations == supplied.numAllocations());
 
             ret = mX.addThreadGroup(cnt2Functor,
                                     5,
                                     200,
                                     initThread2Functor,
                                     cleanThread2Functor);
-            BSLS_ASSERT(1 == ret);
+            ASSERT(1 == ret);
             sAllocations = supplied.numAllocations();
-            BSLS_ASSERT(2  == X.numThreadGroups());
-            BSLS_ASSERT(5  == X.numThreadsInGroup(ret));
-            BSLS_ASSERT(15 == X.numThreads());
+            ASSERT(2  == X.numThreadGroups());
+            ASSERT(5  == X.numThreadsInGroup(ret));
+            ASSERT(15 == X.numThreads());
 
-            BSLS_ASSERT(sAllocations == supplied.numAllocations());
+            ASSERT(sAllocations == supplied.numAllocations());
 
             bslmt::ThroughputBenchmarkResult result(&supplied2);
 
@@ -802,30 +852,30 @@ int main(int argc, char *argv[])
                        initFunctor,
                        shutFunctor,
                        cleanFunctor);
-            BSLS_ASSERT(10 == result.numSamples());
-            BSLS_ASSERT(2  == result.numThreadGroups());
-            BSLS_ASSERT(10 == result.numThreads(0));
-            BSLS_ASSERT(5  == result.numThreads(1));
-            BSLS_ASSERT(15 == result.totalNumThreads());
+            ASSERT(10 == result.numSamples());
+            ASSERT(2  == result.numThreadGroups());
+            ASSERT(10 == result.numThreads(0));
+            ASSERT(5  == result.numThreads(1));
+            ASSERT(15 == result.totalNumThreads());
 
-            BSLS_ASSERT(sAllocations == supplied.numAllocations());
+            ASSERT(sAllocations == supplied.numAllocations());
 
             // Verify counts
             if (10 * 10 != cnt1) {
                 abort();
             }
-            BSLS_ASSERT(10 * 10 == cnt1);
-            BSLS_ASSERT( 5 * 10 == cnt2);
-            BSLS_ASSERT( 1      == cntTrueInit);
-            BSLS_ASSERT( 9      == cntFalseInit);
-            BSLS_ASSERT( 1      == cntTrueShut);
-            BSLS_ASSERT( 9      == cntFalseShut);
-            BSLS_ASSERT( 1      == cntTrueClean);
-            BSLS_ASSERT( 9      == cntFalseClean);
-            BSLS_ASSERT(10 * 10 == cntThread1Init);
-            BSLS_ASSERT(10 * 10 == cntThread1Clean);
-            BSLS_ASSERT( 5 * 10 == cntThread2Init);
-            BSLS_ASSERT( 5 * 10 == cntThread2Clean);
+            ASSERT(10 * 10 == cnt1);
+            ASSERT( 5 * 10 == cnt2);
+            ASSERT( 1      == cntTrueInit);
+            ASSERT( 9      == cntFalseInit);
+            ASSERT( 1      == cntTrueShut);
+            ASSERT( 9      == cntFalseShut);
+            ASSERT( 1      == cntTrueClean);
+            ASSERT( 9      == cntFalseClean);
+            ASSERT(10 * 10 == cntThread1Init);
+            ASSERT(10 * 10 == cntThread1Clean);
+            ASSERT( 5 * 10 == cntThread2Init);
+            ASSERT( 5 * 10 == cntThread2Clean);
         }
 
         if (verbose) cout << "Negative Testing" << endl;
@@ -926,18 +976,18 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting 'allocator'." << endl;
         {
             Obj mX;  const Obj& X = mX; (void)X;
-            BSLS_ASSERT(&defaultAllocator == X.allocator());
+            ASSERT(&defaultAllocator == X.allocator());
         }
         {
             Obj        mX(0);
             const Obj& X = mX; (void)X;
-            BSLS_ASSERT(&defaultAllocator == X.allocator());
+            ASSERT(&defaultAllocator == X.allocator());
         }
         {
             bslma::TestAllocator supplied("supplied", veryVeryVeryVerbose);
 
             Obj mX(&supplied);  const Obj& X = mX; (void)X;
-            BSLS_ASSERT(&supplied == X.allocator());
+            ASSERT(&supplied == X.allocator());
         }
 
         if (verbose) cout << "\nTesting 'numThread*'." << endl;
@@ -952,54 +1002,54 @@ int main(int argc, char *argv[])
 
             int ret = mX.addThreadGroup(Obj::RunFunction(), 10, 1000);
             (void)ret;
-            BSLS_ASSERT(0 == ret);
+            ASSERT(0 == ret);
             bsls::Types::Int64 sAllocations = supplied.numAllocations();
             (void)sAllocations;
-            BSLS_ASSERT(1  == X.numThreadGroups());
-            BSLS_ASSERT(10 == X.numThreadsInGroup(ret));
-            BSLS_ASSERT(10 == X.numThreads());
+            ASSERT(1  == X.numThreadGroups());
+            ASSERT(10 == X.numThreadsInGroup(ret));
+            ASSERT(10 == X.numThreads());
 
-            BSLS_ASSERT(test.threadGroups().size() == 1);
-            BSLS_ASSERT(test.threadGroups()[0].d_numThreads == 10);
-            BSLS_ASSERT(allocations  == defaultAllocator.numAllocations());
-            BSLS_ASSERT(sAllocations == supplied.numAllocations());
+            ASSERT(test.threadGroups().size() == 1);
+            ASSERT(test.threadGroups()[0].d_numThreads == 10);
+            ASSERT(allocations  == defaultAllocator.numAllocations());
+            ASSERT(sAllocations == supplied.numAllocations());
 
             SetValueFunctor setValueFunctor(1);
 
             ret = mX.addThreadGroup(setValueFunctor, 5, 200);
-            BSLS_ASSERT(1 == ret);
+            ASSERT(1 == ret);
             sAllocations = supplied.numAllocations();
-            BSLS_ASSERT(2  == X.numThreadGroups());
-            BSLS_ASSERT(5  == X.numThreadsInGroup(ret));
-            BSLS_ASSERT(15 == X.numThreads());
+            ASSERT(2  == X.numThreadGroups());
+            ASSERT(5  == X.numThreadsInGroup(ret));
+            ASSERT(15 == X.numThreads());
 
-            BSLS_ASSERT(test.threadGroups().size() == 2);
-            BSLS_ASSERT(test.threadGroups()[1].d_numThreads == 5);
+            ASSERT(test.threadGroups().size() == 2);
+            ASSERT(test.threadGroups()[1].d_numThreads == 5);
             // pre-c++11 platoforms has allocating 'bsl::function'
 #if __cplusplus >= 201103L
-            BSLS_ASSERT(allocations  == defaultAllocator.numAllocations());
+            ASSERT(allocations  == defaultAllocator.numAllocations());
 #endif
-            BSLS_ASSERT(sAllocations == supplied.numAllocations());
+            ASSERT(sAllocations == supplied.numAllocations());
 
             ret = mX.addThreadGroup(setValueFunctor, 1, 0);
-            BSLS_ASSERT(2 == ret);
+            ASSERT(2 == ret);
             sAllocations = supplied.numAllocations();
-            BSLS_ASSERT(3  == X.numThreadGroups());
-            BSLS_ASSERT(1  == X.numThreadsInGroup(ret));
-            BSLS_ASSERT(16 == X.numThreads());
+            ASSERT(3  == X.numThreadGroups());
+            ASSERT(1  == X.numThreadsInGroup(ret));
+            ASSERT(16 == X.numThreads());
 
-            BSLS_ASSERT(test.threadGroups().size() == 3);
-            BSLS_ASSERT(test.threadGroups()[2].d_numThreads == 1);
+            ASSERT(test.threadGroups().size() == 3);
+            ASSERT(test.threadGroups()[2].d_numThreads == 1);
             // pre-c++11 platoforms has allocating 'bsl::function'
 #if __cplusplus >= 201103L
-            BSLS_ASSERT(allocations == defaultAllocator.numAllocations());
+            ASSERT(allocations == defaultAllocator.numAllocations());
 #endif
-            BSLS_ASSERT(sAllocations == supplied.numAllocations());
+            ASSERT(sAllocations == supplied.numAllocations());
 
             // Verify that the number of threads in the previous thread groups
             // did not change
-            BSLS_ASSERT(10 == X.numThreadsInGroup(0));
-            BSLS_ASSERT(5  == X.numThreadsInGroup(1));
+            ASSERT(10 == X.numThreadsInGroup(0));
+            ASSERT(5  == X.numThreadsInGroup(1));
         }
 
         if (verbose) cout << "Negative Testing" << endl;
@@ -1114,38 +1164,38 @@ int main(int argc, char *argv[])
 
             int ret = mX.addThreadGroup(Obj::RunFunction(), 10, 1000);
             (void)ret;
-            BSLS_ASSERT(0  == ret);
-            BSLS_ASSERT(1  == X.numThreadGroups());
-            BSLS_ASSERT(10 == X.numThreadsInGroup(ret));
-            BSLS_ASSERT(10 == X.numThreads());
+            ASSERT(0  == ret);
+            ASSERT(1  == X.numThreadGroups());
+            ASSERT(10 == X.numThreadsInGroup(ret));
+            ASSERT(10 == X.numThreads());
 
-            BSLS_ASSERT(test.threadGroups().size() == 1);
+            ASSERT(test.threadGroups().size() == 1);
             Obj::ThreadGroup& tg0 = test.threadGroups()[0];  (void)tg0;
-            BSLS_ASSERT(tg0.d_numThreads == 10);
-            BSLS_ASSERT(tg0.d_amount == 1000);
-            BSLS_ASSERT(static_cast<bool>(tg0.d_initialize) == false);
-            BSLS_ASSERT(static_cast<bool>(tg0.d_cleanup)    == false);
-            BSLS_ASSERT(static_cast<bool>(tg0.d_func)       == false);
-            BSLS_ASSERT(allocations == defaultAllocator.numAllocations());
+            ASSERT(tg0.d_numThreads == 10);
+            ASSERT(tg0.d_amount == 1000);
+            ASSERT(static_cast<bool>(tg0.d_initialize) == false);
+            ASSERT(static_cast<bool>(tg0.d_cleanup)    == false);
+            ASSERT(static_cast<bool>(tg0.d_func)       == false);
+            ASSERT(allocations == defaultAllocator.numAllocations());
 
             SetValueFunctor setValueFunctor(1);
 
             ret = mX.addThreadGroup(setValueFunctor, 5, 200);
-            BSLS_ASSERT(1  == ret);
-            BSLS_ASSERT(2  == X.numThreadGroups());
-            BSLS_ASSERT(5  == X.numThreadsInGroup(ret));
-            BSLS_ASSERT(15 == X.numThreads());
+            ASSERT(1  == ret);
+            ASSERT(2  == X.numThreadGroups());
+            ASSERT(5  == X.numThreadsInGroup(ret));
+            ASSERT(15 == X.numThreads());
 
-            BSLS_ASSERT(test.threadGroups().size() == 2);
+            ASSERT(test.threadGroups().size() == 2);
             Obj::ThreadGroup& tg1 = test.threadGroups()[1];  (void)tg1;
-            BSLS_ASSERT(tg1.d_numThreads == 5);
-            BSLS_ASSERT(tg1.d_amount     == 200);
-            BSLS_ASSERT(static_cast<bool>(tg1.d_initialize) == false);
-            BSLS_ASSERT(static_cast<bool>(tg1.d_cleanup)    == false);
-            BSLS_ASSERT(static_cast<bool>(tg1.d_func)       != false);
+            ASSERT(tg1.d_numThreads == 5);
+            ASSERT(tg1.d_amount     == 200);
+            ASSERT(static_cast<bool>(tg1.d_initialize) == false);
+            ASSERT(static_cast<bool>(tg1.d_cleanup)    == false);
+            ASSERT(static_cast<bool>(tg1.d_func)       != false);
             // pre-c++11 platoforms has allocating 'bsl::function'
 #if __cplusplus >= 201103L
-            BSLS_ASSERT(allocations == defaultAllocator.numAllocations());
+            ASSERT(allocations == defaultAllocator.numAllocations());
 #endif
         }
 
@@ -1167,21 +1217,21 @@ int main(int argc, char *argv[])
                                         initFunctor,
                                         Obj::CleanupThreadFunction());
             (void)ret;
-            BSLS_ASSERT(0  == ret);
-            BSLS_ASSERT(1  == X.numThreadGroups());
-            BSLS_ASSERT(30 == X.numThreadsInGroup(ret));
-            BSLS_ASSERT(30 == X.numThreads());
+            ASSERT(0  == ret);
+            ASSERT(1  == X.numThreadGroups());
+            ASSERT(30 == X.numThreadsInGroup(ret));
+            ASSERT(30 == X.numThreads());
 
-            BSLS_ASSERT(test.threadGroups().size() == 1);
+            ASSERT(test.threadGroups().size() == 1);
             Obj::ThreadGroup& tg0 = test.threadGroups()[0];  (void)tg0;
-            BSLS_ASSERT(tg0.d_numThreads == 30);
-            BSLS_ASSERT(tg0.d_amount     == 0);
-            BSLS_ASSERT(static_cast<bool>(tg0.d_initialize) != false);
-            BSLS_ASSERT(static_cast<bool>(tg0.d_cleanup)    == false);
-            BSLS_ASSERT(static_cast<bool>(tg0.d_func)       == false);
+            ASSERT(tg0.d_numThreads == 30);
+            ASSERT(tg0.d_amount     == 0);
+            ASSERT(static_cast<bool>(tg0.d_initialize) != false);
+            ASSERT(static_cast<bool>(tg0.d_cleanup)    == false);
+            ASSERT(static_cast<bool>(tg0.d_func)       == false);
             // pre-c++11 platoforms has allocating 'bsl::function'
 #if __cplusplus >= 201103L
-            BSLS_ASSERT(allocations == defaultAllocator.numAllocations());
+            ASSERT(allocations == defaultAllocator.numAllocations());
 #endif
 
             SetValueFunctor setValueFunctor(3);
@@ -1191,21 +1241,21 @@ int main(int argc, char *argv[])
                                     2000,
                                     initFunctor,
                                     initFunctor);
-            BSLS_ASSERT(1  == ret);
-            BSLS_ASSERT(2  == X.numThreadGroups());
-            BSLS_ASSERT(50 == X.numThreadsInGroup(ret));
-            BSLS_ASSERT(80 == X.numThreads());
+            ASSERT(1  == ret);
+            ASSERT(2  == X.numThreadGroups());
+            ASSERT(50 == X.numThreadsInGroup(ret));
+            ASSERT(80 == X.numThreads());
 
-            BSLS_ASSERT(test.threadGroups().size() == 2);
+            ASSERT(test.threadGroups().size() == 2);
             Obj::ThreadGroup& tg1 = test.threadGroups()[1];  (void)tg1;
-            BSLS_ASSERT(tg1.d_numThreads == 50);
-            BSLS_ASSERT(tg1.d_amount == 2000);
-            BSLS_ASSERT(static_cast<bool>(tg1.d_initialize) != false);
-            BSLS_ASSERT(static_cast<bool>(tg1.d_cleanup)    != false);
-            BSLS_ASSERT(static_cast<bool>(tg1.d_func)       != false);
+            ASSERT(tg1.d_numThreads == 50);
+            ASSERT(tg1.d_amount == 2000);
+            ASSERT(static_cast<bool>(tg1.d_initialize) != false);
+            ASSERT(static_cast<bool>(tg1.d_cleanup)    != false);
+            ASSERT(static_cast<bool>(tg1.d_func)       != false);
             // pre-c++11 platoforms has allocating 'bsl::function'
 #if __cplusplus >= 201103L
-            BSLS_ASSERT(allocations == defaultAllocator.numAllocations());
+            ASSERT(allocations == defaultAllocator.numAllocations());
 #endif
         }
 
@@ -1221,20 +1271,20 @@ int main(int argc, char *argv[])
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(supplied) {
                 Obj mX(&supplied);  const Obj& X = mX; (void)X;
-                BSLS_ASSERT(0 == X.numThreadGroups());
+                ASSERT(0 == X.numThreadGroups());
 
                 for (int i = 1; i <= 10; ++i) {
                     int ret = mX.addThreadGroup(Obj::RunFunction(), 30, 0);
                     (void)ret;
-                    BSLS_ASSERT(i - 1 == ret);
-                    BSLS_ASSERT(i     == X.numThreadGroups());
+                    ASSERT(i - 1 == ret);
+                    ASSERT(i     == X.numThreadGroups());
                     if (veryVerbose) {
                         P_(i) P(ret)
                     }
                 }
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-            BSLS_ASSERT(allocations == defaultAllocator.numAllocations());
+            ASSERT(allocations == defaultAllocator.numAllocations());
 
             // Do the allocating conversion (Sun and AIX) outside the exception
             // loop.
@@ -1242,7 +1292,7 @@ int main(int argc, char *argv[])
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(supplied) {
                 Obj mX(&supplied);  const Obj& X = mX; (void)X;
-                BSLS_ASSERT(0 == X.numThreadGroups());
+                ASSERT(0 == X.numThreadGroups());
 
                 for (int i = 1; i <= 10; ++i) {
                     int ret = mX.addThreadGroup(Obj::RunFunction(),
@@ -1251,8 +1301,8 @@ int main(int argc, char *argv[])
                                                 initFunc,
                                                 Obj::CleanupThreadFunction());
                     (void)ret;
-                    BSLS_ASSERT(i - 1 == ret);
-                    BSLS_ASSERT(i     == X.numThreadGroups());
+                    ASSERT(i - 1 == ret);
+                    ASSERT(i     == X.numThreadGroups());
                     if (veryVerbose) {
                         P_(i) P(ret)
                     }
@@ -1261,7 +1311,7 @@ int main(int argc, char *argv[])
 
             // pre-c++11 platoforms has allocating 'bsl::function'
 #if __cplusplus >= 201103L
-            BSLS_ASSERT(allocations == defaultAllocator.numAllocations());
+            ASSERT(allocations == defaultAllocator.numAllocations());
 #endif
         }
 
@@ -1349,19 +1399,19 @@ int main(int argc, char *argv[])
             Obj      mX;  const Obj& X = mX; (void)X;
             TestUtil test(mX);
 
-            BSLS_ASSERT(&defaultAllocator == X.allocator());
-            BSLS_ASSERT(0 == X.numThreadGroups());
-            BSLS_ASSERT(0 == X.numThreads());
-            BSLS_ASSERT(0 == test.state());
-            BSLS_ASSERT(allocations == defaultAllocator.numAllocations());
+            ASSERT(&defaultAllocator == X.allocator());
+            ASSERT(0 == X.numThreadGroups());
+            ASSERT(0 == X.numThreads());
+            ASSERT(0 == test.state());
+            ASSERT(allocations == defaultAllocator.numAllocations());
 
             int ret = mX.addThreadGroup(Obj::RunFunction(), 2, 100);
             (void)ret;
-            BSLS_ASSERT(0 == ret);
-            BSLS_ASSERT(1 == X.numThreadGroups());
-            BSLS_ASSERT(2 == X.numThreads());
-            BSLS_ASSERT(0 == test.state());
-            BSLS_ASSERT(allocations + 1 == defaultAllocator.numAllocations());
+            ASSERT(0 == ret);
+            ASSERT(1 == X.numThreadGroups());
+            ASSERT(2 == X.numThreads());
+            ASSERT(0 == test.state());
+            ASSERT(allocations + 1 == defaultAllocator.numAllocations());
         }
         {
             bsls::Types::Int64 allocations = defaultAllocator.numAllocations();
@@ -1371,20 +1421,20 @@ int main(int argc, char *argv[])
             const Obj& X = mX; (void)X;
             TestUtil   test(mX);
 
-            BSLS_ASSERT(&defaultAllocator == X.allocator());
+            ASSERT(&defaultAllocator == X.allocator());
 
-            BSLS_ASSERT(0           == X.numThreadGroups());
-            BSLS_ASSERT(0           == X.numThreads());
-            BSLS_ASSERT(0           == test.state());
-            BSLS_ASSERT(allocations == defaultAllocator.numAllocations());
+            ASSERT(0           == X.numThreadGroups());
+            ASSERT(0           == X.numThreads());
+            ASSERT(0           == test.state());
+            ASSERT(allocations == defaultAllocator.numAllocations());
 
             int ret = mX.addThreadGroup(Obj::RunFunction(), 3, 0);
             (void)ret;
-            BSLS_ASSERT(0               == ret);
-            BSLS_ASSERT(1               == X.numThreadGroups());
-            BSLS_ASSERT(3               == X.numThreads());
-            BSLS_ASSERT(0               == test.state());
-            BSLS_ASSERT(allocations + 1 == defaultAllocator.numAllocations());
+            ASSERT(0               == ret);
+            ASSERT(1               == X.numThreadGroups());
+            ASSERT(3               == X.numThreads());
+            ASSERT(0               == test.state());
+            ASSERT(allocations + 1 == defaultAllocator.numAllocations());
         }
         {
             bsls::Types::Int64 allocations = defaultAllocator.numAllocations();
@@ -1395,22 +1445,22 @@ int main(int argc, char *argv[])
             Obj      mX(&supplied);  const Obj& X = mX; (void)X;
             TestUtil test(mX);
 
-            BSLS_ASSERT(&supplied   == X.allocator());
-            BSLS_ASSERT(0           == X.numThreadGroups());
-            BSLS_ASSERT(0           == X.numThreads());
-            BSLS_ASSERT(0           == test.state());
-            BSLS_ASSERT(allocations == defaultAllocator.numAllocations());
+            ASSERT(&supplied   == X.allocator());
+            ASSERT(0           == X.numThreadGroups());
+            ASSERT(0           == X.numThreads());
+            ASSERT(0           == test.state());
+            ASSERT(allocations == defaultAllocator.numAllocations());
             bsls::Types::Int64 sAllocations = supplied.numAllocations();
             (void)sAllocations;
 
             int ret = mX.addThreadGroup(Obj::RunFunction(), 10, 1000);
             (void)ret;
-            BSLS_ASSERT(0           == ret);
-            BSLS_ASSERT(1           == X.numThreadGroups());
-            BSLS_ASSERT(10          == X.numThreads());
-            BSLS_ASSERT(0           == test.state());
-            BSLS_ASSERT(allocations == defaultAllocator.numAllocations());
-            BSLS_ASSERT(sAllocations < supplied.numAllocations());
+            ASSERT(0           == ret);
+            ASSERT(1           == X.numThreadGroups());
+            ASSERT(10          == X.numThreads());
+            ASSERT(0           == test.state());
+            ASSERT(allocations == defaultAllocator.numAllocations());
+            ASSERT(sAllocations < supplied.numAllocations());
         }
 
       } break;

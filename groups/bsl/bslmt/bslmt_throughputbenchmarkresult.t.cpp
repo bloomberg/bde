@@ -172,15 +172,15 @@ struct DefaultDataRow {
 static
 const DefaultDataRow DEFAULT_DATA[] =
 {
-    //LINE NS NTG TG0 TG1 TG2 TG3
-    //---- -- --- --- --- --- ---
-    { L_,   1,  1,  5, -1, -1, -1},
-    { L_,   2,  2,  3,  2, -1, -1},
-    { L_,  10,  1,  5, -1, -1, -1},
-    { L_, 100,  1,  5, -1, -1, -1},
-    { L_,   5,  1,  6, -1, -1, -1},
-    { L_,   1,  3,  7,  4,  5, -1},
-    { L_,   4,  1, 10, -1, -1, -1},
+    //LINE NS NTG   TG0 TG1 TG2 TG3
+    //---- -- ---   --- --- --- ---
+    { L_,   1,  1, { 5, -1, -1, -1} },
+    { L_,   2,  2, { 3,  2, -1, -1} },
+    { L_,  10,  1, { 5, -1, -1, -1} },
+    { L_, 100,  1, { 5, -1, -1, -1} },
+    { L_,   5,  1, { 6, -1, -1, -1} },
+    { L_,   1,  3, { 7,  4,  5, -1} },
+    { L_,   4,  1, {10, -1, -1, -1} },
 };
 enum { k_DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA };
 
@@ -383,26 +383,26 @@ int main(int argc, char *argv[])
             // Check 'getMedian', 'getPercentile'
             double median, percentile;
             X.getMedian(&median, 1);
-            BSLS_ASSERT(1.4 == median);
+            ASSERT(1.4 == median);
             X.getPercentile(&percentile, 0.0 , 1);
-            BSLS_ASSERT(fabs(1.2 - percentile) < k_EPS);
+            ASSERT(fabs(1.2 - percentile) < k_EPS);
             X.getPercentile(&percentile, 0.25, 1);
-            BSLS_ASSERT(fabs(1.2 - percentile) < k_EPS);
+            ASSERT(fabs(1.2 - percentile) < k_EPS);
             X.getPercentile(&percentile, 0.5 , 1);
-            BSLS_ASSERT(fabs(1.4 - percentile) < k_EPS);
+            ASSERT(fabs(1.4 - percentile) < k_EPS);
             X.getPercentile(&percentile, 0.75, 1);
-            BSLS_ASSERT(fabs(1.6 - percentile) < k_EPS);
+            ASSERT(fabs(1.6 - percentile) < k_EPS);
             X.getPercentile(&percentile, 1.0 , 1);
-            BSLS_ASSERT(fabs(1.6 - percentile) < k_EPS);
+            ASSERT(fabs(1.6 - percentile) < k_EPS);
 
             // Check 'getPercentiles'
             bsl::vector<double> percentiles(5, &scratch);
             X.getPercentiles(&percentiles, 1);
-            BSLS_ASSERT(fabs(1.2 - percentiles[0]) < k_EPS);
-            BSLS_ASSERT(fabs(1.2 - percentiles[1]) < k_EPS);
-            BSLS_ASSERT(fabs(1.4 - percentiles[2]) < k_EPS);
-            BSLS_ASSERT(fabs(1.6 - percentiles[3]) < k_EPS);
-            BSLS_ASSERT(fabs(1.6 - percentiles[4]) < k_EPS);
+            ASSERT(fabs(1.2 - percentiles[0]) < k_EPS);
+            ASSERT(fabs(1.2 - percentiles[1]) < k_EPS);
+            ASSERT(fabs(1.4 - percentiles[2]) < k_EPS);
+            ASSERT(fabs(1.6 - percentiles[3]) < k_EPS);
+            ASSERT(fabs(1.6 - percentiles[4]) < k_EPS);
 
             // Check 'getThreadPercentiles'
             bsl::vector<bsl::vector<double> > tPercentiles(3, &scratch);
@@ -410,16 +410,16 @@ int main(int argc, char *argv[])
             tPercentiles[1].resize(2);
             tPercentiles[2].resize(2);
             X.getThreadPercentiles(&tPercentiles, 1);
-            BSLS_ASSERT(fabs(0.1 - tPercentiles[0][0]) < k_EPS);
-            BSLS_ASSERT(fabs(1.1 - tPercentiles[0][1]) < k_EPS);
-            BSLS_ASSERT(fabs(0.2 - tPercentiles[1][0]) < k_EPS);
-            BSLS_ASSERT(fabs(1.2 - tPercentiles[1][1]) < k_EPS);
-            BSLS_ASSERT(fabs(0.3 - tPercentiles[2][0]) < k_EPS);
-            BSLS_ASSERT(fabs(1.3 - tPercentiles[2][1]) < k_EPS);
+            ASSERT(fabs(0.1 - tPercentiles[0][0]) < k_EPS);
+            ASSERT(fabs(1.1 - tPercentiles[0][1]) < k_EPS);
+            ASSERT(fabs(0.2 - tPercentiles[1][0]) < k_EPS);
+            ASSERT(fabs(1.2 - tPercentiles[1][1]) < k_EPS);
+            ASSERT(fabs(0.3 - tPercentiles[2][0]) < k_EPS);
+            ASSERT(fabs(1.3 - tPercentiles[2][1]) < k_EPS);
 
-            BSLS_ASSERT(sam.isTotalSame());
-            BSLS_ASSERT(dam.isTotalUp());
-            BSLS_ASSERT(dam.isInUseSame());
+            ASSERT(sam.isTotalSame());
+            ASSERT(dam.isTotalUp());
+            ASSERT(dam.isInUseSame());
         }
 
         if (verbose) cout << "Random values" << endl;
@@ -454,14 +454,14 @@ int main(int argc, char *argv[])
                 double median, percentile;
                 X.getMedian(&median, tgId);
                 X.getPercentile(&percentile, 0.5 , tgId);
-                BSLS_ASSERT(fabs(median - percentile) < k_EPS);
+                ASSERT(fabs(median - percentile) < k_EPS);
 
                 // Check 'getPercentiles'
                 bsl::vector<double> percentiles(5, &scratch);
                 X.getPercentiles(&percentiles, tgId);
-                BSLS_ASSERT(median == percentiles[2]);
+                ASSERT(median == percentiles[2]);
                 for (int i = 0; i < 4; ++i) {
-                    BSLS_ASSERT(percentiles[i] <= percentiles[i+1]);
+                    ASSERT(percentiles[i] <= percentiles[i+1]);
                 }
 
                 // Check 'getThreadPercentiles'
@@ -472,7 +472,7 @@ int main(int argc, char *argv[])
                 X.getThreadPercentiles(&tPercentiles, tgId);
                 for (int i = 0; i < 2; ++i) {
                     for (int tId = 0; tId < X.numThreads(tgId); ++tId) {
-                        BSLS_ASSERT(tPercentiles[i  ][tId] <=
+                        ASSERT(tPercentiles[i  ][tId] <=
                                     tPercentiles[i+1][tId]);
                         if (veryVerbose) {
                             P_(i) P(tId)
@@ -480,9 +480,9 @@ int main(int argc, char *argv[])
                     }
                 }
 
-                BSLS_ASSERT(sam.isTotalSame());
-                BSLS_ASSERT(dam.isTotalUp());
-                BSLS_ASSERT(dam.isInUseSame());
+                ASSERT(sam.isTotalSame());
+                ASSERT(dam.isTotalUp());
+                ASSERT(dam.isInUseSame());
             }
 
         }
@@ -1516,9 +1516,9 @@ int main(int argc, char *argv[])
                     Obj                &mF = *fromPtr; const Obj& F = mF;
                     bsls::Types::Int64  s1Alloc = s1.numBytesInUse();
 
-                    Obj                  *objPtr;
+                    Obj                  *objPtr          = 0;
                     bsls::Types::Int64    objAlloc;
-                    bslma::TestAllocator *objAllocatorPtr;
+                    bslma::TestAllocator *objAllocatorPtr = 0;
 
                     switch (CONFIG) {
                       case 'a': {
@@ -1941,8 +1941,8 @@ int main(int argc, char *argv[])
 
                     bslma::DefaultAllocatorGuard dag(&da);
 
-                    Obj                  *objPtr;
-                    bslma::TestAllocator *objAllocatorPtr;
+                    Obj                  *objPtr          = 0;
+                    bslma::TestAllocator *objAllocatorPtr = 0;
 
                     switch (CONFIG) {
                       case 'a': {
@@ -2115,7 +2115,7 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // VALUE CTOR
+        // VALUE CONSTRUCTOR
         //   Ensure that we can put an object into any initial state relevant
         //   for thorough testing.
         //
@@ -2231,8 +2231,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "VALUE CTOR" << endl
-                          << "==========" << endl;
+                          << "VALUE CONSTRUCTOR" << endl
+                          << "=================" << endl;
 
         if (verbose) cout <<
            "\nUse a table of distinct object values and expected memory usage."
@@ -2275,8 +2275,8 @@ int main(int argc, char *argv[])
 
                     bslma::DefaultAllocatorGuard dag(&da);
 
-                    Obj                  *objPtr;
-                    bslma::TestAllocator *objAllocatorPtr;
+                    Obj                  *objPtr          = 0;
+                    bslma::TestAllocator *objAllocatorPtr = 0;
 
                     switch (CONFIG) {
                       case 'a': {
@@ -2519,18 +2519,18 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting 'allocator'." << endl;
         {
             Obj mX;  const Obj& X = mX; (void)X;
-            BSLS_ASSERT(&defaultAllocator == X.allocator());
+            ASSERT(&defaultAllocator == X.allocator());
         }
         {
             Obj        mX(reinterpret_cast<bslma::TestAllocator *>(0));
             const Obj& X = mX; (void)X;
-            BSLS_ASSERT(&defaultAllocator == X.allocator());
+            ASSERT(&defaultAllocator == X.allocator());
         }
         {
             bslma::TestAllocator supplied("supplied", veryVeryVeryVerbose);
 
             Obj mX(&supplied);  const Obj& X = mX; (void)X;
-            BSLS_ASSERT(&supplied == X.allocator());
+            ASSERT(&supplied == X.allocator());
         }
 
         if (verbose) cout << "\nTesting other basic accessors." << endl;
@@ -2541,9 +2541,9 @@ int main(int argc, char *argv[])
             Obj      mX(&supplied);  const Obj& X = mX; (void)X;
             TestUtil test(mX);
 
-            BSLS_ASSERT(0 == X.numSamples());
-            BSLS_ASSERT(0 == X.numThreadGroups());
-            BSLS_ASSERT(0 == X.totalNumThreads());
+            ASSERT(0 == X.numSamples());
+            ASSERT(0 == X.numThreadGroups());
+            ASSERT(0 == X.totalNumThreads());
 
             bsl::vector<int> threadGroupSizes(2, &scratch);
             threadGroupSizes[0] = 3;
@@ -2551,11 +2551,11 @@ int main(int argc, char *argv[])
             mX.initialize(10, threadGroupSizes);
 
             // Check with the accessors
-            BSLS_ASSERT(10 == X.numSamples());
-            BSLS_ASSERT( 2 == X.numThreadGroups());
-            BSLS_ASSERT( 5 == X.totalNumThreads());
-            BSLS_ASSERT( 3 == X.numThreads(0));
-            BSLS_ASSERT( 2 == X.numThreads(1));
+            ASSERT(10 == X.numSamples());
+            ASSERT( 2 == X.numThreadGroups());
+            ASSERT( 5 == X.totalNumThreads());
+            ASSERT( 3 == X.numThreads(0));
+            ASSERT( 2 == X.numThreads(1));
         }
 
         if (verbose) cout << "Negative Testing" << endl;
@@ -2666,21 +2666,21 @@ int main(int argc, char *argv[])
             threadGroupSizes[1] = 2;
             mX.initialize(10, threadGroupSizes);
             // Check with the accessors
-            BSLS_ASSERT(10 == X.numSamples());
-            BSLS_ASSERT( 2 == X.numThreadGroups());
-            BSLS_ASSERT( 5 == X.totalNumThreads());
-            BSLS_ASSERT( 3 == X.numThreads(0));
-            BSLS_ASSERT( 2 == X.numThreads(1));
+            ASSERT(10 == X.numSamples());
+            ASSERT( 2 == X.numThreadGroups());
+            ASSERT( 5 == X.totalNumThreads());
+            ASSERT( 3 == X.numThreads(0));
+            ASSERT( 2 == X.numThreads(1));
             // Check through testUtil
-            BSLS_ASSERT(10 == test.throughputs().size());
+            ASSERT(10 == test.throughputs().size());
             for (bsl::size_t i = 0; i < test.throughputs().size(); ++i) {
-                BSLS_ASSERT(X.numThreadGroups() ==
+                ASSERT(X.numThreadGroups() ==
                                static_cast<int>(test.throughputs()[i].size()));
-                BSLS_ASSERT(3 == test.throughputs()[i][0].size());
-                BSLS_ASSERT(2 == test.throughputs()[i][1].size());
+                ASSERT(3 == test.throughputs()[i][0].size());
+                ASSERT(2 == test.throughputs()[i][1].size());
                 for (int j = 0; j < X.numThreadGroups(); ++j) {
                     for (int k = 0; k < X.numThreads(j); ++k) {
-                        BSLS_ASSERT(0.0 == test.throughputs()[i][j][k]);
+                        ASSERT(0.0 == test.throughputs()[i][j][k]);
                         if (veryVerbose) {
                             P_(i) P_(j) P(k)
                         }
@@ -2689,8 +2689,8 @@ int main(int argc, char *argv[])
             }
 
             // Check memory allocation on default and supplied allocators.
-            BSLS_ASSERT(allocations == defaultAllocator.numAllocations());
-            BSLS_ASSERT(sAllocations + 31 == supplied.numAllocations());
+            ASSERT(allocations == defaultAllocator.numAllocations());
+            ASSERT(sAllocations + 31 == supplied.numAllocations());
 
             sAllocations = supplied.numAllocations();
 
@@ -2736,26 +2736,26 @@ int main(int argc, char *argv[])
                 // Set the value
                 mX.setThroughput(TGIDX, THREADIDX, SAMPLEIDX, THROUGHPUT);
 
-                BSLS_ASSERT(THROUGHPUT ==
+                ASSERT(THROUGHPUT ==
                               test.throughputs()[SAMPLEIDX][TGIDX][THREADIDX]);
-                BSLS_ASSERT(THROUGHPUT ==
+                ASSERT(THROUGHPUT ==
                                       X.getValue(TGIDX, THREADIDX, SAMPLEIDX));
 
                 for (int i = 0;
                         i < static_cast<int>(test.throughputs().size()); ++i) {
-                    BSLS_ASSERT(X.numThreadGroups() ==
+                    ASSERT(X.numThreadGroups() ==
                                static_cast<int>(test.throughputs()[i].size()));
-                    BSLS_ASSERT(3 == test.throughputs()[i][0].size());
-                    BSLS_ASSERT(2 == test.throughputs()[i][1].size());
+                    ASSERT(3 == test.throughputs()[i][0].size());
+                    ASSERT(2 == test.throughputs()[i][1].size());
                     for (int j = 0; j < X.numThreadGroups(); ++j) {
                         for (int k = 0; k < X.numThreads(j); ++k) {
                             if (i != SAMPLEIDX ||
                                 j != TGIDX ||
                                 k != THREADIDX) {
-                               BSLS_ASSERT(0.0 == test.throughputs()[i][j][k]);
-                               if (veryVerbose) {
-                                   P_(i) P_(j) P(k)
-                               }
+                                ASSERT(0.0 == test.throughputs()[i][j][k]);
+                                if (veryVerbose) {
+                                    P_(i) P_(j) P(k)
+                                }
                             }
                         }
                     }
@@ -2764,13 +2764,13 @@ int main(int argc, char *argv[])
                 // Unset the value
                 mX.setThroughput(TGIDX, THREADIDX, SAMPLEIDX, 0.0);
 
-                BSLS_ASSERT(0.0 ==
+                ASSERT(0.0 ==
                               test.throughputs()[SAMPLEIDX][TGIDX][THREADIDX]);
-                BSLS_ASSERT(0.0 == X.getValue(TGIDX, THREADIDX, SAMPLEIDX));
+                ASSERT(0.0 == X.getValue(TGIDX, THREADIDX, SAMPLEIDX));
 
                 // Confirm that memory did not change
-                BSLS_ASSERT(allocations == defaultAllocator.numAllocations());
-                BSLS_ASSERT(sAllocations == supplied.numAllocations());
+                ASSERT(allocations == defaultAllocator.numAllocations());
+                ASSERT(sAllocations == supplied.numAllocations());
             }
         }
 
@@ -2784,7 +2784,7 @@ int main(int argc, char *argv[])
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(supplied) {
                 Obj mX(&supplied);  const Obj& X = mX; (void)X;
-                BSLS_ASSERT(0 == X.numThreadGroups());
+                ASSERT(0 == X.numThreadGroups());
 
                 bsl::vector<int> threadGroupSizes(2, &scratch);
                 threadGroupSizes[0] = 3;
@@ -2792,7 +2792,7 @@ int main(int argc, char *argv[])
                 mX.initialize(10, threadGroupSizes);
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-            BSLS_ASSERT(allocations == defaultAllocator.numAllocations());
+            ASSERT(allocations == defaultAllocator.numAllocations());
         }
 
         if (verbose) cout << "Negative Testing" << endl;
@@ -2886,25 +2886,25 @@ int main(int argc, char *argv[])
             Obj      mX;  const Obj& X = mX; (void)X;
             TestUtil test(mX);
 
-            BSLS_ASSERT(&defaultAllocator == X.allocator());
-            BSLS_ASSERT(0 == X.numSamples());
-            BSLS_ASSERT(0 == X.numThreadGroups());
-            BSLS_ASSERT(0 == X.totalNumThreads());
-            BSLS_ASSERT(0 == test.throughputs().size());
-            BSLS_ASSERT(allocations == defaultAllocator.numAllocations());
+            ASSERT(&defaultAllocator == X.allocator());
+            ASSERT(0 == X.numSamples());
+            ASSERT(0 == X.numThreadGroups());
+            ASSERT(0 == X.totalNumThreads());
+            ASSERT(0 == test.throughputs().size());
+            ASSERT(allocations == defaultAllocator.numAllocations());
 
             bsl::vector<int> threadGroupSizes(2, &scratch);
             threadGroupSizes[0] = 3;
             threadGroupSizes[1] = 2;
             mX.initialize(10, threadGroupSizes);
-            BSLS_ASSERT(10 == X.numSamples());
-            BSLS_ASSERT( 2 == X.numThreadGroups());
-            BSLS_ASSERT( 5 == X.totalNumThreads());
-            BSLS_ASSERT( 3 == X.numThreads(0));
-            BSLS_ASSERT( 2 == X.numThreads(1));
-            BSLS_ASSERT(10 == test.throughputs().size());
+            ASSERT(10 == X.numSamples());
+            ASSERT( 2 == X.numThreadGroups());
+            ASSERT( 5 == X.totalNumThreads());
+            ASSERT( 3 == X.numThreads(0));
+            ASSERT( 2 == X.numThreads(1));
+            ASSERT(10 == test.throughputs().size());
 
-            BSLS_ASSERT(allocations + 31 == defaultAllocator.numAllocations());
+            ASSERT(allocations + 31 == defaultAllocator.numAllocations());
         }
         {
             bsls::Types::Int64 allocations = defaultAllocator.numAllocations();
@@ -2914,24 +2914,24 @@ int main(int argc, char *argv[])
             const Obj& X = mX; (void)X;
             TestUtil   test(mX);
 
-            BSLS_ASSERT(0           == X.numSamples());
-            BSLS_ASSERT(0           == X.numThreadGroups());
-            BSLS_ASSERT(0           == X.totalNumThreads());
-            BSLS_ASSERT(0           == test.throughputs().size());
-            BSLS_ASSERT(allocations == defaultAllocator.numAllocations());
+            ASSERT(0           == X.numSamples());
+            ASSERT(0           == X.numThreadGroups());
+            ASSERT(0           == X.totalNumThreads());
+            ASSERT(0           == test.throughputs().size());
+            ASSERT(allocations == defaultAllocator.numAllocations());
 
             bsl::vector<int> threadGroupSizes(2, &scratch);
             threadGroupSizes[0] = 3;
             threadGroupSizes[1] = 2;
             mX.initialize(10, threadGroupSizes);
-            BSLS_ASSERT(10 == X.numSamples());
-            BSLS_ASSERT( 2 == X.numThreadGroups());
-            BSLS_ASSERT( 5 == X.totalNumThreads());
-            BSLS_ASSERT( 3 == X.numThreads(0));
-            BSLS_ASSERT( 2 == X.numThreads(1));
-            BSLS_ASSERT(10 == test.throughputs().size());
+            ASSERT(10 == X.numSamples());
+            ASSERT( 2 == X.numThreadGroups());
+            ASSERT( 5 == X.totalNumThreads());
+            ASSERT( 3 == X.numThreads(0));
+            ASSERT( 2 == X.numThreads(1));
+            ASSERT(10 == test.throughputs().size());
 
-            BSLS_ASSERT(allocations + 31 == defaultAllocator.numAllocations());
+            ASSERT(allocations + 31 == defaultAllocator.numAllocations());
         }
         {
             bsls::Types::Int64 allocations = defaultAllocator.numAllocations();
@@ -2942,25 +2942,25 @@ int main(int argc, char *argv[])
             Obj      mX(&supplied);  const Obj& X = mX; (void)X;
             TestUtil test(mX);
 
-            BSLS_ASSERT(&supplied   == X.allocator());
-            BSLS_ASSERT(0           == X.numSamples());
-            BSLS_ASSERT(0           == X.numThreadGroups());
-            BSLS_ASSERT(0           == X.totalNumThreads());
-            BSLS_ASSERT(0           == test.throughputs().size());
-            BSLS_ASSERT(allocations == defaultAllocator.numAllocations());
+            ASSERT(&supplied   == X.allocator());
+            ASSERT(0           == X.numSamples());
+            ASSERT(0           == X.numThreadGroups());
+            ASSERT(0           == X.totalNumThreads());
+            ASSERT(0           == test.throughputs().size());
+            ASSERT(allocations == defaultAllocator.numAllocations());
 
             bsl::vector<int> threadGroupSizes(2, &scratch);
             threadGroupSizes[0] = 3;
             threadGroupSizes[1] = 2;
             mX.initialize(10, threadGroupSizes);
-            BSLS_ASSERT(10 == X.numSamples());
-            BSLS_ASSERT( 2 == X.numThreadGroups());
-            BSLS_ASSERT( 5 == X.totalNumThreads());
-            BSLS_ASSERT( 3 == X.numThreads(0));
-            BSLS_ASSERT( 2 == X.numThreads(1));
-            BSLS_ASSERT(10 == test.throughputs().size());
+            ASSERT(10 == X.numSamples());
+            ASSERT( 2 == X.numThreadGroups());
+            ASSERT( 5 == X.totalNumThreads());
+            ASSERT( 3 == X.numThreads(0));
+            ASSERT( 2 == X.numThreads(1));
+            ASSERT(10 == test.throughputs().size());
 
-            BSLS_ASSERT(allocations == defaultAllocator.numAllocations());
+            ASSERT(allocations == defaultAllocator.numAllocations());
         }
 
       } break;
@@ -2993,11 +2993,11 @@ int main(int argc, char *argv[])
         threadGroupSizes[0] = 3;
         threadGroupSizes[1] = 2;
         mX.initialize(10, threadGroupSizes);
-        BSLS_ASSERT(10 == X.numSamples());
-        BSLS_ASSERT( 2 == X.numThreadGroups());
-        BSLS_ASSERT( 5 == X.totalNumThreads());
-        BSLS_ASSERT( 3 == X.numThreads(0));
-        BSLS_ASSERT( 2 == X.numThreads(1));
+        ASSERT(10 == X.numSamples());
+        ASSERT( 2 == X.numThreadGroups());
+        ASSERT( 5 == X.totalNumThreads());
+        ASSERT( 3 == X.numThreads(0));
+        ASSERT( 2 == X.numThreads(1));
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
