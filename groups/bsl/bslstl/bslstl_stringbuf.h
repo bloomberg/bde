@@ -1516,7 +1516,7 @@ typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::StringType
 basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::str() &&
 {
     if (d_mode & ios_base::out) {
-        d_str.resize(streamSize());
+        d_str.resize(static_cast<typename StringType::size_type>(streamSize()));
         this->setp(d_str.data(), d_str.data());
     }
     else if (d_mode & ios_base::in) {
@@ -1524,7 +1524,8 @@ basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::str() &&
             if (this->eback() != d_str.data()) {
                 d_str.erase(0, this->eback() - d_str.data());
             }
-            d_str.resize(streamSize());
+            d_str.resize(static_cast<typename StringType::size_type>(
+                                                                streamSize()));
             this->setg(d_str.data(), d_str.data(), d_str.data());
         }
     }

@@ -1468,6 +1468,8 @@ class StringBufTest : public bsl::basic_stringbuf<TYPE>
                     const int   LENGTH_TO = DATA[tk].d_length;
                     StringT     STR_TO;
 
+                    (void)LENGTH_TO;
+
                     populateString(&STR_TO, SPEC_TO);
 
                     for (int tl = 0; tl != NUM_DATA; ++tl) {
@@ -1475,6 +1477,8 @@ class StringBufTest : public bsl::basic_stringbuf<TYPE>
                         const char *SPEC_FROM   = DATA[tl].d_str;
                         const int   LENGTH_FROM = DATA[tl].d_length;
                         StringT     STR_FROM;
+
+                        (void)LENGTH_FROM;
 
                         populateString(&STR_FROM, SPEC_FROM);
 
