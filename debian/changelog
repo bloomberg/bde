@@ -1,8 +1,15 @@
-bsl-internal (3.99.5.0.1.testpromotion) unstable; urgency=low
+bsl-internal (3.99.5.0.2.testpromotion) unstable; urgency=low
 
-  * No commits found
+  * 30f4d1d74 drqs-169243159: 'bslstl_stringbuf.h': 'static_cast' to quell warnings. (#3691)
+  * dcd6d7fb5 Throughputbenchmark drqs 169191413.1 (#3690)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 4 May 2022 16:36:13 -0400
+ -- Steven Breitstein <sbreitstein@bloomberg.net>  Fri, 6 May 2022 17:20:18 -0400
+
+bsl-internal (3.99.5.0.1.testpromotion) git; urgency=low
+
+  * d9222f118 Changelog for version 3.99.5.0.1.testpromotion
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 4 May 2022 16:44:07 -0400
 
 bsl-internal (3.99.5.0.1.test-promotion) git; urgency=low
 
