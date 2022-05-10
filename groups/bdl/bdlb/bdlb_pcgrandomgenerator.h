@@ -281,7 +281,7 @@ bsl::uint32_t PcgRandomGenerator::generate()
     bsl::uint32_t xorshifted =
         static_cast<bsl::uint32_t>(((oldstate >> 18u) ^ oldstate) >> 27u);
     bsl::uint32_t rot = static_cast<bsl::uint32_t>(oldstate >> 59u);
-    return (xorshifted >> rot) | (xorshifted << ((-rot) & 31));
+    return (xorshifted >> rot) | (xorshifted << ((0u - rot) & 31u));
 }
 
 inline
