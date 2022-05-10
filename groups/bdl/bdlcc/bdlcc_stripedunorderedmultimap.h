@@ -291,6 +291,8 @@ class StripedUnorderedMultiMap {
                    bsl::size_t       numInitialBuckets = k_DEFAULT_NUM_BUCKETS,
                    bsl::size_t       numStripes        = k_DEFAULT_NUM_STRIPES,
                    bslma::Allocator *basicAllocator = 0);
+    explicit StripedUnorderedMultiMap(
+                   bslma::Allocator *basicAllocator);
         // Create an empty 'StripedUnorderedMultiMap' object, a fully
         // thread-safe hash map where access is partitioned into "stripes" (a
         // group of buckets protected a reader-writer mutex).  Optionally
@@ -637,6 +639,14 @@ StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::StripedUnorderedMultiMap(
                                            bsl::size_t       numStripes,
                                            bslma::Allocator *basicAllocator)
 : d_imp(numInitialBuckets, numStripes, basicAllocator)
+{
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL>
+inline
+StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::StripedUnorderedMultiMap(
+                                           bslma::Allocator *basicAllocator)
+: d_imp(k_DEFAULT_NUM_BUCKETS, k_DEFAULT_NUM_STRIPES, basicAllocator)
 {
 }
 

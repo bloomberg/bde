@@ -151,7 +151,8 @@ using namespace bsl;
 // [ 4] bslma::Allocator *allocator() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [21] USAGE EXAMPLE
+// [22] USAGE EXAMPLE
+// [21] DRQS 169188100: ALLOCATOR AWARE DEFAULT CONSTRUCTION
 // [15] TYPE TRAITS
 // [19] MULTI-THREADED STRESS TEST
 // [20] DRQS 155023497: 'erase' MEMORY CORRUPTION
@@ -1700,7 +1701,7 @@ int HashPerformance::testReadWrite2(HashPerformance *hashPerf_p,
     int threadIdx = args[1];
 
     bool isWThread = threadIdx < numWThreads ? true : false;
-    char buf[85];
+    char buf[88];
     srand(threadIdx);
 
     for (int i = 0; i < size; ++i) {
@@ -2563,7 +2564,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase18()
         ASSERTV(dam.isTotalSame());
 
         // Confirm that values remain unchanged.
-        VALUE value;
+        VALUE value = VALUE();
         for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
             bsl::size_t rc1 = X.getValue(&value, VALUES[tj].first);
             ASSERTV(1 == rc1);
@@ -6758,7 +6759,7 @@ int main(int argc, char *argv[])
 
     // BDE_VERIFY pragma: -TP17 These are defined in the various test functions
     switch (test) { case 0:
-      case 21: {
+      case 22: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -6780,6 +6781,97 @@ int main(int argc, char *argv[])
         usage::example2();
         usage::example3();
 
+      } break;
+      case 21: {
+        // --------------------------------------------------------------------
+        // DRQS 169188100: ALLOCATOR AWARE DEFAULT CONSTRUCTION
+        //
+        // Concerns:
+        //: 1 It is not possible to create a non-empty allocator-aware
+        //:   container of 'StripedUnorderedMap' objects.
+        //
+        // Plan:
+        //: 1 Construct a non-empty vector of 'StripedUnorderedMap' objects.
+        //:
+        //: 2 Set and get different values in two of the underlying
+        //:   'StripedUnorderedMap' objects, and verify they are equal to the
+        //:   values set.
+        //:
+        //: 3 Repeat steps 1 and 2, passing in a test allocator into the vector
+        //:   constructor.
+        //:
+        //: 4 Verify that the underlying 'StripedUnorderedMap' objects
+        //:   reference the test allocator used in the construction of the
+        //:   vector.
+        //:
+        //: 5 Verify that the test allocator is used for both the construction
+        //:   and set operations.
+        //
+        // Testing:
+        //   DRQS 169188100: ALLOCATOR AWARE DEFAULT CONSTRUCTION
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            cout << "DRQS 169188100: ALLOCATOR AWARE DEFAULT CONSTRUCTION\n"
+                 << "====================================================\n";
+
+        bslma::TestAllocator supplied("supplied", veryVeryVeryVerbose);
+
+        bsls::Types::Int64 numBytesInUse;
+
+        numBytesInUse = supplied.numBytesInUse();
+        {
+            bsl::vector<bdlcc::StripedUnorderedMap<int, bsl::string> > mX(2);
+
+            mX[0].setValue(9, "test0");
+            mX[1].setValue(9, "test1");
+
+            bsl::string value0, value1;
+            mX[0].getValue(&value0, 9);
+            mX[1].getValue(&value1, 9);
+            ASSERTV(value0, value0 == "test0");
+            ASSERTV(value1, value1 == "test1");
+        }
+        ASSERTV(numBytesInUse,
+                supplied.numBytesInUse(),
+                numBytesInUse == supplied.numBytesInUse());
+
+        numBytesInUse = supplied.numBytesInUse();
+        {
+            bsl::vector<bdlcc::StripedUnorderedMap<int, bsl::string> > mX(
+                                                                    2,
+                                                                    &supplied);
+
+            bsls::Types::Int64 numBytesInUse2 = supplied.numBytesInUse();
+            ASSERTV(numBytesInUse,
+                    numBytesInUse2,
+                    numBytesInUse2 > numBytesInUse);
+
+            ASSERTV(mX[0].allocator() == &supplied);
+            ASSERTV(mX[1].allocator() == &supplied);
+
+            mX[0].setValue(9, "test0");
+            mX[1].setValue(9, "test1");
+
+            bsls::Types::Int64 numBytesInUse3 = supplied.numBytesInUse();
+            ASSERTV(numBytesInUse2,
+                    numBytesInUse3,
+                    numBytesInUse3 > numBytesInUse2);
+
+            bsl::string value0, value1;
+            mX[0].getValue(&value0, 9);
+            mX[1].getValue(&value1, 9);
+            ASSERTV(value0, value0 == "test0");
+            ASSERTV(value1, value1 == "test1");
+
+            bsls::Types::Int64 numBytesInUse4 = supplied.numBytesInUse();
+            ASSERTV(numBytesInUse3,
+                    numBytesInUse4,
+                    numBytesInUse4 == numBytesInUse3);
+        }
+        ASSERTV(numBytesInUse,
+                supplied.numBytesInUse(),
+                numBytesInUse == supplied.numBytesInUse());
       } break;
       case 20: {
         // --------------------------------------------------------------------

@@ -154,7 +154,8 @@ using namespace bsl;
 // [ 1] BREATHING TEST
 // [19] TYPE TRAITS
 // [23] MULTI-THREADED STRESS TEST
-// [24] USAGE EXAMPLE
+// [25] USAGE EXAMPLE
+// [24] DRQS 169188100: ALLOCATOR AWARE DEFAULT CONSTRUCTION
 // [-1] PERFORMANCE TEST INT->STRING
 // [-2] PERFORMANCE TEST STRING->INT64
 
@@ -7793,7 +7794,7 @@ int main(int argc, char *argv[])
 
     // BDE_VERIFY pragma: -TP17 These are defined in the various test functions
     switch (test) { case 0:
-      case 24: {
+      case 25: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -7812,6 +7813,99 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         usage::example1();
+      } break;
+      case 24: {
+        // --------------------------------------------------------------------
+        // DRQS 169188100: ALLOCATOR AWARE DEFAULT CONSTRUCTION
+        //
+        // Concerns:
+        //: 1 It is not possible to create a non-empty allocator-aware
+        //:   container of 'StripedUnorderedMultiMap' objects.
+        //
+        // Plan:
+        //: 1 Construct a non-empty vector of 'StripedUnorderedMultiMap'
+        //:   objects.
+        //:
+        //: 2 Set and get different values in two of the underlying
+        //:   'StripedUnorderedMultiMap' objects, and verify they are equal to
+        //:   the values set.
+        //:
+        //: 3 Repeat steps 1 and 2, passing in a test allocator into the vector
+        //:   constructor.
+        //:
+        //: 4 Verify that the underlying 'StripedUnorderedMultiMap' objects
+        //:   reference the test allocator used in the construction of the
+        //:   vector.
+        //:
+        //: 5 Verify that the test allocator is used for both the construction
+        //:   and set operations.
+        //
+        // Testing:
+        //   DRQS 169188100: ALLOCATOR AWARE DEFAULT CONSTRUCTION
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            cout << "DRQS 169188100: ALLOCATOR AWARE DEFAULT CONSTRUCTION\n"
+                 << "====================================================\n";
+
+        bslma::TestAllocator supplied("supplied", veryVeryVeryVerbose);
+
+        bsls::Types::Int64 numBytesInUse;
+
+        numBytesInUse = supplied.numBytesInUse();
+        {
+            bsl::vector<bdlcc::StripedUnorderedMultiMap<int, bsl::string> > mX(
+                                                                            2);
+
+            mX[0].setValueFirst(9, "test0");
+            mX[1].setValueFirst(9, "test1");
+
+            bsl::string value0, value1;
+            mX[0].getValueFirst(&value0, 9);
+            mX[1].getValueFirst(&value1, 9);
+            ASSERTV(value0, value0 == "test0");
+            ASSERTV(value1, value1 == "test1");
+        }
+        ASSERTV(numBytesInUse,
+                supplied.numBytesInUse(),
+                numBytesInUse == supplied.numBytesInUse());
+
+        numBytesInUse = supplied.numBytesInUse();
+        {
+            bsl::vector<bdlcc::StripedUnorderedMultiMap<int, bsl::string> > mX(
+                                                                    2,
+                                                                    &supplied);
+
+            bsls::Types::Int64 numBytesInUse2 = supplied.numBytesInUse();
+            ASSERTV(numBytesInUse,
+                    numBytesInUse2,
+                    numBytesInUse2 > numBytesInUse);
+
+            ASSERTV(mX[0].allocator() == &supplied);
+            ASSERTV(mX[1].allocator() == &supplied);
+
+            mX[0].setValueFirst(9, "test0");
+            mX[1].setValueFirst(9, "test1");
+
+            bsls::Types::Int64 numBytesInUse3 = supplied.numBytesInUse();
+            ASSERTV(numBytesInUse2,
+                    numBytesInUse3,
+                    numBytesInUse3 > numBytesInUse2);
+
+            bsl::string value0, value1;
+            mX[0].getValueFirst(&value0, 9);
+            mX[1].getValueFirst(&value1, 9);
+            ASSERTV(value0, value0 == "test0");
+            ASSERTV(value1, value1 == "test1");
+
+            bsls::Types::Int64 numBytesInUse4 = supplied.numBytesInUse();
+            ASSERTV(numBytesInUse3,
+                    numBytesInUse4,
+                    numBytesInUse4 == numBytesInUse3);
+        }
+        ASSERTV(numBytesInUse,
+                supplied.numBytesInUse(),
+                numBytesInUse == supplied.numBytesInUse());
       } break;
       // BDE_VERIFY pragma: -TP05 Defined in the various test functions
       case 23: {
