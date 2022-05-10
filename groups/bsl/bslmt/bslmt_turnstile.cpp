@@ -35,11 +35,13 @@ void bslmt::Turnstile::reset(double                    rate,
                              const bsls::TimeInterval& startTime,
                              const bsls::TimeInterval& minTimeToCallSleep)
 {
-    d_interval  = static_cast<Int64>(k_MICROSECS_PER_SECOND / rate);
+    d_interval  = static_cast<Int64>(
+                           static_cast<double>(k_MICROSECS_PER_SECOND)/rate);
     d_timestamp = bsls::SystemTime::nowMonotonicClock().totalMicroseconds();
     d_nextTurn  = d_timestamp + startTime.totalMicroseconds();
 
-    d_minTimeToCallSleep = static_cast<int>(minTimeToCallSleep.totalMicroseconds());
+    d_minTimeToCallSleep = static_cast<int>(
+                                       minTimeToCallSleep.totalMicroseconds());
 
     BSLS_ASSERT_SAFE(0 < d_minTimeToCallSleep);
     BSLS_ASSERT_SAFE(    d_minTimeToCallSleep <= d_interval);

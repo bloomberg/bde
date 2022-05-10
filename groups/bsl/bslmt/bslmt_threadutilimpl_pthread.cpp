@@ -506,6 +506,7 @@ int bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::sleepUntil(
     // implementation.
 
 #if defined(BSLS_PLATFORM_OS_DARWIN)
+    (void) retryOnSignalInterrupt;
     bsls::TimeInterval relativeTime =
         absoluteTime - bsls::SystemTime::now(clockType);
 

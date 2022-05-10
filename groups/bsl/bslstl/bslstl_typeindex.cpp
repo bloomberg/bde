@@ -29,7 +29,7 @@ size_t type_index::hash_code() const BSLS_KEYWORD_NOEXCEPT
 
     BloombergLP::bslh::SpookyHashAlgorithm hasher;
     hasher(contents, strlen(contents));
-    return hasher.computeHash();
+    return static_cast<size_t>(hasher.computeHash());
 #endif
 }
 
