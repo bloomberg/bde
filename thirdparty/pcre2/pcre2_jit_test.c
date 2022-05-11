@@ -351,6 +351,8 @@ static struct regression_test_case regression_test_cases[] = {
 	{ MU, A, 0, 0, ".[ab]*a", "xxa" },
 	{ MU, A, 0, 0, ".[ab]?.", "xx" },
 	{ MU, A, 0, 0, "_[ab]+_*a", "_aa" },
+	{ MU, A, 0, 0, "#(A+)#\\d+", "#A#A#0" },
+	{ MU, A, 0, 0, "(?P<size>\\d+)m|M", "4M" },
 
 	/* Bracket repeats with limit. */
 	{ MU, A, 0, 0, "(?:(ab){2}){5}M", "abababababababababababM" },

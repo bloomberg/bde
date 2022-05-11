@@ -744,7 +744,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 20: {
+      case 21: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -796,6 +796,59 @@ int main(int argc, char *argv[])
         ASSERT(" This is the subject text" == subject);
 //  }
 //..
+      } break;
+      case 20: {
+        // --------------------------------------------------------------------
+        // JIT REGRESSION
+        //   Testing no regression from pcre 3.37
+        //
+        // Concerns:
+        //: 1 Verify that JIT flag does not change results of the match.
+        //
+        // Plan:
+        //: 1 Perform target pattern match with and without jit flag and verify
+        //:   that the result is the same.
+        //
+        // Testing:
+        //   JIT REGRESSION
+        // --------------------------------------------------------------------
+        if (verbose) cout << endl
+                          << "JIT REGRESSION" << endl
+                          << "==============" << endl;
+
+        const char* PATTERN = "#(A+)#0+";
+        const char* SUBJECT = "#A#A#0";
+
+        bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+
+        Obj mX(&oa);
+
+        bsl::string  errorMsg;
+        size_t       errorOffset;
+        int          retCode = -1;
+
+        retCode = mX.prepare(&errorMsg,
+                             &errorOffset,
+                             PATTERN,
+                             Obj::k_FLAG_JIT,
+                             0);
+        ASSERTV(retCode, errorMsg, errorOffset, 0 == retCode);
+
+        retCode = mX.match(SUBJECT);
+        ASSERTV(retCode, errorMsg, errorOffset, 0 == retCode);
+
+        Obj mY(&oa);
+
+        retCode = mY.prepare(&errorMsg,
+                             &errorOffset,
+                             PATTERN,
+                             0,
+                             0);
+        ASSERTV(retCode, errorMsg, errorOffset, 0 == retCode);
+
+        retCode = mY.match(SUBJECT);
+        ASSERTV(retCode, errorMsg, errorOffset, 0 == retCode);
+
       } break;
       case 19: {
         // --------------------------------------------------------------------
@@ -1067,9 +1120,10 @@ int main(int argc, char *argv[])
         //   int replaceRaw(std::pmr::string *, int *, ...) const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING 'replace' and 'replaceRaw' METHOD" << endl
-                          << "=========================================" << endl;
+        if (verbose)
+            cout << endl
+                 << "TESTING 'replace' and 'replaceRaw' METHOD" << endl
+                 << "=========================================" << endl;
 
         enum {
             k_L   = Obj::k_REPLACE_LITERAL,
@@ -1709,7 +1763,7 @@ int main(int argc, char *argv[])
                                    Obj::k_FLAG_MULTILINE));
 
             const char   TEST_STRING[]   = "bbasm_SecurityCache\n"
-                                           "tweut_StringRef\n";
+                                           "bdlt_Date\n";
             const size_t TEST_STRING_LEN = sizeof(TEST_STRING) - 1;
 
             bsl::pair<size_t, size_t> match;
@@ -1726,7 +1780,7 @@ int main(int argc, char *argv[])
             X.match(&match, TEST_STRING, TEST_STRING_LEN, startPosition);
 
             {
-                const char  EXPECTED_MATCH[] = "tweut_StringRef";
+                const char  EXPECTED_MATCH[] = "bdlt_Date";
                 bsl::string realMatch(&TEST_STRING[match.first],
                         match.second, Z2);     // do not use default allocator!
                 ASSERTV(realMatch, EXPECTED_MATCH == realMatch);

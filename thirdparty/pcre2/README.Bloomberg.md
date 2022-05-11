@@ -1,7 +1,7 @@
 Changes to PCRE2 to adapt to the BDE Repo and Build Structure
 =============================================================
 
-This directory contains an almost-unmodified copy of pcre2 version 10.37.
+This directory contains an almost-unmodified copy of pcre2 version 10.39.
 
 However, a few minor build system changes were applied, and a patch was applied
 for 64-bit AIX builds.

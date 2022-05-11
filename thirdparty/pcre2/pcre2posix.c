@@ -148,6 +148,7 @@ static const int eint2[] = {
   37, REG_EESCAPE, /* PCRE2 does not support \L, \l, \N{name}, \U, or \u */
   56, REG_INVARG,  /* internal error: unknown newline setting */
   92, REG_INVARG,  /* invalid option bits with PCRE2_LITERAL */
+  99, REG_EESCAPE  /* \K in lookaround */
 };
 
 /* Table of texts corresponding to POSIX error codes */
