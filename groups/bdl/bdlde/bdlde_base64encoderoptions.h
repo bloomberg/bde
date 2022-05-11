@@ -18,11 +18,15 @@ BSLS_IDENT_PRAGMA_ONCE
 //@DESCRIPTION: This component provides a value-semantic attribute class for
 // specifying options for 'bdlde::Basee64Encoder'.
 //
-// This 'class' has only a default constructor, no value constructors.  We make
-// up for this by having all the settors return a reference to the object, so a
-// temporary can be default constructed and the settors called directly on that
-// temporary and the result either bound to a reference or passed directly to
-// the 'Base64Encoder' being constructed.
+// This 'class' has a value constructor, which, if called with no arguments
+// specified, configures the created object with the configuration that most
+// clients will want.  There is another frequently-desired configuration for
+// translating URL's, and that configuration can be most easily obtained by
+// calling the 'standardURL' class method, which returns an
+// appropriately-configured options object.
+//
+// Other configurations may be obtained by specifying arguments to the value
+// constructor, or by calling the settors after the object is created.
 //
 ///Usage
 ///-----
@@ -30,44 +34,119 @@ BSLS_IDENT_PRAGMA_ONCE
 //
 ///Example 1:
 /// - - - - -
-// The following snippets of code provide a simple illustration of
-// 'bdlde::Base64EncoderOptions' usage.
+// Suppose we want a 'Base64EncoderOptions' object configured for MIME
+// encoding, meaning 'maxLineLength == 76', 'alphabet == e_BASIC', and
+// 'isPadded == true'.
 //
-// This 'class' does not have a value constructor, only a default constructor.
-// The settors all return a reference to the object, so in order
-// to create an object with attributes other than the default ones, call
-// the default constructor and the settors in a single statement, and bind the
-// result to a reference (or pass the result directly to the 'Base64Encoder'
-// being constructed).
-//
-// First, we declare some typedefs for brevity:
+// First, it turns out that those are the default values of the attributes, so
+// all we have to do is default construct an object, and we're done.
 //..
-//  typedef bdlde::Base64Alphabet       Alphabet;
-//  typedef bdlde::Base64EncoderOptions EncoderOptions;
+//  const bdlde::Base64EncoderOptions& mimeOptions =
+//                                         bdlde::Base64EncoderOptions::mime();
 //..
-// Then, we default construct and object, immediately call the desired settors
-// on the temporary, and bind the result to a reference:
+// Then, we check the attributes:
 //..
-//  EncoderOptions& options = EncoderOptions().setAlphabet(Alphabet::e_URL).
-//                                                          setIsPadded(false);
-//..
-// Next, we observe that the properies are as expected:
-//..
-//  assert(options.maxLineLength() == 76);
-//  assert(options.alphabet()      == Alphabet::e_URL);
-//  assert(options.isPadded()      == false);
+//  assert(mimeOptions.maxLineLength() == 76);
+//  assert(mimeOptions.alphabet()      == bdlde::Base64Alphabet::e_BASIC);
+//  assert(mimeOptions.isPadded()      == true);
 //..
 // Now, we stream the object:
 //..
-//  options.print(cout);
+//  mimeOptions.print(cout);
 //..
 // Finally, we observe the output:
 //..
 //  [
 //      maxLineLength = 76
+//      alphabet = BASIC
+//      isPadded = true
+//  ]
+//..
+//
+///Example 2:
+/// - - - - -
+// Suppose we want a 'Base64EncoderOptions' object configured for translating
+// URL's.  That would mean a 'maxLineLength == 0', 'alphabet == e_URL', and
+// 'isPadded == true'.
+//
+// First, the class method 'urlSafe' returns an object configured exactly that
+// way, so we simply call it:
+//..
+//  const bdlde::Base64EncoderOptions& urlOptions =
+//                                      bdlde::Base64EncoderOptions::urlSafe();
+//..
+// Then, we check the attributes:
+//..
+//  assert(urlOptions.maxLineLength() == 0);
+//  assert(urlOptions.alphabet()      == bdlde::Base64Alphabet::e_URL);
+//  assert(urlOptions.isPadded()      == true);
+//..
+// Now, we stream the object:
+//..
+//  urlOptions.print(cout);
+//..
+// Finally, we observe the output:
+//..
+//  [
+//      maxLineLength = 0
 //      alphabet = URL
 //      isPadded = false
 //  ]
+//..
+//
+///Example 3:
+/// - - - - -
+// Suppose we want an options object configured for standard Base64:
+//
+// First, we can simply call the 'standard' class method:
+//..
+//  const bdlde::Base64EncoderOptions& standardOptions =
+//                                     bdlde::Base64EncoderOptions::standard();
+//..
+// Then, we check the attributes:
+//..
+//  assert(standardOptions.maxLineLength() == 0);
+//  assert(standardOptions.alphabet()      == bdlde::Base64Alphabet::e_BASIC);
+//  assert(standardOptions.isPadded()      == true);
+//..
+// Now, we stream the object:
+//..
+//  standardOptions.print(cout);
+//..
+// Finally, we observe the output:
+//..
+//  [
+//      maxLineLength = 0
+//      alphabet = BASIC
+//      isPadded = true
+//  ]
+//..
+//
+///Example 4:
+/// - - - - -
+// Suppose we want a really strangely configured options object with
+// 'maxLineLength == 200', 'alphabet == e_URL', and padding.
+//
+// First, we can simply call the 'custom' class method.  The 'padded' argument
+// is the last argument, and it defaults to 'true', so we don't have to pass
+// that.
+//..
+//  const bdlde::Base64EncoderOptions& customOptions =
+//      bdlde::Base64EncoderOptions::custom(200, bdlde::Base64Alphabet::e_URL);
+//..
+// Then, we check the attributes:
+//..
+//  assert(customOptions.maxLineLength() == 200);
+//  assert(customOptions.alphabet()      == bdlde::Base64Alphabet::e_URL);
+//  assert(customOptions.isPadded()      == true);
+//..
+// Now, we stream the object:
+//..
+//  cout << customOptions << endl;
+//..
+// Finally, we observe the output:
+//..
+//  [ maxLineLength = 200 alphabet = URL isPadded = true ]
 //..
 
 #include <bdlde_base64alphabet.h>
@@ -95,12 +174,53 @@ class Base64EncoderOptions {
     // PUBLIC TYPES
     enum { k_DEFAULT_MAX_LINE_LENGTH = 76 };
 
+  private:
+    // PRIVATE CREATORS
+    Base64EncoderOptions(int                  maxLineLength,
+                         Base64Alphabet::Enum alphabet,
+                         bool                 padded);
+        // Create a 'Base64EncoderOptions' object having the specified
+        // 'maxLineLength, alphabet, and 'isPadded' attribute values.  The
+        // behavior is unless '0 <= maxLineLength' and 'alphabet is a defined
+        // value of 'Base64Alphabet::Enum'.
+
+  public:
+    // CLASS METHODS
+    static
+    Base64EncoderOptions custom(
+                int                  maxLineLength = k_DEFAULT_MAX_LINE_LENGTH,
+                Base64Alphabet::Enum alphabet      = Base64Alphabet::e_BASIC,
+                bool                 padded        = true);
+        // Return a 'Base64EncoderOptions' object having the specified
+        // 'maxLineLength, alphabet, and 'isPadded' attribute values.  The
+        // behavior is unless '0 <= maxLineLength' and 'alphabet is a defined
+        // value of 'Base64Alphabet::Enum'.
+
+    static
+    Base64EncoderOptions mime();
+        // Return a 'Base64EncoderOptions' object having the attributes
+        // 'maxLineLength == 76', 'alphabet == Base64Alphabet::e_BASIC', and
+        // 'isPadded == true'.
+
+    static
+    Base64EncoderOptions standard(bool padded = true);
+        // Return a 'Base64EncoderOptions' object having the attributes
+        // 'maxLineLength == 0', 'alphabet == Base64Alphabet::e_BASIC', and
+        // 'isPadded == false'.  If 'padded' is not specified, it defaults to
+        // 'true'.
+
+    static
+    Base64EncoderOptions urlSafe(bool padded = true);
+        // Return a 'Base64EncoderOptions' object having the attributes
+        // 'maxLineLength == 0', 'alphabet == Base64Alphabet::e_URL', and
+        // 'isPadded == padded'.  If 'padded' is not specified, it defaults to
+        // 'true'.
+
     // CREATORS
     Base64EncoderOptions();
-        // Create an object of type 'EncoderOptions' having the default value.
-        // The value of 'maxLineLength' will be 76, the value of 'alphabet'
-        // will be 'Base64Alphabet::e_BASIC', and the value of 'isPadded' will
-        // be 'true'.
+        // Create a 'Base64EncoderOptions' object having the 'mime' options:
+        // 'maxLineLength = 76', 'alphabet == e_BASIC', and 'isPadded == true'
+        // attribute values.
 
     // Base64EncoderOptions(const Base64EncoderOptions&) = default;
 
@@ -109,14 +229,14 @@ class Base64EncoderOptions {
     // MANIPULATORS
     // Base64EncoderOptions& operator=(const Base64EncoderOptions&) = default;
 
-    Base64EncoderOptions& setAlphabet(Base64Alphabet::Enum value);
+    void setAlphabet(Base64Alphabet::Enum value);
         // Set the 'alphabet' attribute to the specified 'value'.  The behavior
         // is undefined unless 'value' is either 'e_BASIC' or 'e_UTL'.
 
-    Base64EncoderOptions& setIsPadded(bool value);
+    void setIsPadded(bool value);
         // Set the 'isPadded' attribute to the specified 'value'.
 
-    Base64EncoderOptions& setMaxLineLength(int value);
+    void setMaxLineLength(int value);
         // Set the 'maxLineLength' attribute to the specified 'value'.  The
         // behavior is undefined unless '0 <= value'.
 
@@ -189,6 +309,50 @@ namespace bdlde {
                         // class Base64EncoderOptions
                         // --------------------------
 
+// PRIVATE CREATORS
+inline
+Base64EncoderOptions::Base64EncoderOptions(int                  maxLineLength,
+                                           Base64Alphabet::Enum alphabet,
+                                           bool                 padded)
+: d_maxLineLength(maxLineLength)
+, d_alphabet(alphabet)
+, d_isPadded(padded)
+{
+    BSLS_ASSERT(0 <= maxLineLength);
+    BSLS_ASSERT(Base64Alphabet::e_BASIC == alphabet ||
+                                            Base64Alphabet::e_URL == alphabet);
+}
+
+// CLASS METHODS
+inline
+Base64EncoderOptions Base64EncoderOptions::custom(
+                                            int                  maxLineLength,
+                                            Base64Alphabet::Enum alphabet,
+                                            bool                 padded)
+{
+    return Base64EncoderOptions(maxLineLength, alphabet, padded);
+}
+
+inline
+Base64EncoderOptions Base64EncoderOptions::mime()
+{
+    return Base64EncoderOptions(k_DEFAULT_MAX_LINE_LENGTH,
+                                Base64Alphabet::e_BASIC,
+                                true);
+}
+
+inline
+Base64EncoderOptions Base64EncoderOptions::standard(bool padded)
+{
+    return Base64EncoderOptions(0, Base64Alphabet::e_BASIC, padded);
+}
+
+inline
+Base64EncoderOptions Base64EncoderOptions::urlSafe(bool padded)
+{
+    return Base64EncoderOptions(0, Base64Alphabet::e_URL, padded);
+}
+
 // CREATORS
 inline
 Base64EncoderOptions::Base64EncoderOptions()
@@ -199,33 +363,26 @@ Base64EncoderOptions::Base64EncoderOptions()
 
 // MANIPULATORS
 inline
-Base64EncoderOptions& Base64EncoderOptions::setAlphabet(
-                                                    Base64Alphabet::Enum value)
+void Base64EncoderOptions::setAlphabet(Base64Alphabet::Enum value)
 {
     BSLS_ASSERT(Base64Alphabet::e_BASIC == value ||
                                                Base64Alphabet::e_URL == value);
 
     d_alphabet = value;
-
-    return *this;
 }
 
 inline
-Base64EncoderOptions& Base64EncoderOptions::setIsPadded(bool value)
+void Base64EncoderOptions::setIsPadded(bool value)
 {
     d_isPadded = value;
-
-    return *this;
 }
 
 inline
-Base64EncoderOptions& Base64EncoderOptions::setMaxLineLength(int value)
+void Base64EncoderOptions::setMaxLineLength(int value)
 {
     BSLS_ASSERT(0 <= value);
 
     d_maxLineLength = value;
-
-    return *this;
 }
 
 // ACCESSORS
