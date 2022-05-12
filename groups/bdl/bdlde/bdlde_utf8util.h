@@ -349,6 +349,8 @@ BSLS_IDENT("$Id: $")
 #include <bsl_iosfwd.h>
 #include <bsl_string.h>
 
+#include <bsls_libraryfeatures.h>
+
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
 #include <memory_resource>
 #endif

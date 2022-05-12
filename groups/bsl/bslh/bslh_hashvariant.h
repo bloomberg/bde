@@ -68,6 +68,7 @@ BSLS_IDENT("$Id: $")
 #include <bslh_hash.h>
 
 #include <bsls_compilerfeatures.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_platform.h>
 
 #include <stddef.h>  // for 'size_t'

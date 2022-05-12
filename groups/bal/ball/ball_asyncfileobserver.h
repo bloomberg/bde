@@ -532,6 +532,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_threadutil.h>
 
 #include <bsls_atomic.h>
+#include <bsls_libraryfeatures.h>
 
 #include <bsl_functional.h>
 #include <bsl_memory.h>
@@ -541,7 +542,7 @@ BSLS_IDENT("$Id: $")
 #include <memory_resource>  // 'std::pmr::polymorphic_allocator'
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
 
-#include <string>           // 'std::string', 'std::pmr::string'
+#include <string>                  // 'std::string', 'std::pmr::string'
 
 namespace BloombergLP {
 namespace ball {

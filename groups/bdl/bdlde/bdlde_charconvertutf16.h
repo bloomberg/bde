@@ -295,9 +295,12 @@ BSLS_IDENT("$Id: $")
 #include <bsl_string_view.h>
 #include <bsl_vector.h>
 
+#include <bsls_libraryfeatures.h>
+
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
 #include <memory_resource>
 #endif
+
 #include <string>                   // 'std::string', 'std::pmr::string'
 #include <vector>                   // 'std::vector', 'std::pmr::vector'
 

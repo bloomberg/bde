@@ -559,9 +559,16 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_issame.h>
 
 #include <bsls_assert.h>
+#include <bsls_libraryfeatures.h>
 
 #include <bsl_ostream.h>
 #include <bsl_string.h>
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#include <memory_resource>  // 'std::pmr::polymorphic_allocator'
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+
+#include <string>           // 'std::string', 'std::pmr::string'
 
 namespace BloombergLP {
 namespace bsls {

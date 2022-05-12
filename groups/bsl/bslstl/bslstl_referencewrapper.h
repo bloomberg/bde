@@ -102,6 +102,7 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_isreferencewrapper.h>
 
 #include <bsls_keyword.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_util.h>  // for BloombergLP::bsls::Util::addressOf
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY

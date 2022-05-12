@@ -114,6 +114,14 @@ BSLS_IDENT("$Id: $")
 #include <bsl_streambuf.h>
 #include <bsl_string.h>
 
+#include <bsls_libraryfeatures.h>
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#include <memory_resource>  // 'std::pmr::polymorphic_allocator'
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+
+#include <string>                   // 'std::string', 'std::pmr::string'
+
 namespace BloombergLP  {
 namespace balxml {
 
