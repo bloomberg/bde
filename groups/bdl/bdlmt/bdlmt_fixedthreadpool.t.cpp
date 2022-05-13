@@ -25,6 +25,8 @@
 #include <bsls_atomic.h>
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
+#include <bsls_systemtime.h>
+#include <bsls_timeinterval.h>
 #include <bsls_types.h>
 
 #include <bsl_algorithm.h>
@@ -973,7 +975,14 @@ int main(int argc, char *argv[])
 
         mX.start();
 
-        for (int i = 0; i < 10000; ++i) {
+
+        // Run for 10000 iterations or 3 seconds.
+
+        int                completed = 0;
+        bsls::TimeInterval start     = bsls::SystemTime::nowMonotonicClock();
+        bsls::TimeInterval now       = start;
+
+        while (completed < 10000 && now - start < bsls::TimeInterval(3, 0)) {
             ASSERT(0 == mX.enqueueJob(noop, 0));
             ASSERT(0 == mX.enqueueJob(noop, 0));
             ASSERT(0 == mX.enqueueJob(noop, 0));
@@ -981,6 +990,10 @@ int main(int argc, char *argv[])
             mX.drain();
 
             ASSERT(0 == X.numPendingJobs());
+
+            ++completed;
+
+            now = bsls::SystemTime::nowMonotonicClock();
         }
 
         s_continue = 0;

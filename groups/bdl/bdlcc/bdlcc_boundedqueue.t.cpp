@@ -752,7 +752,7 @@ extern "C" void *pushPushWait(void *arg)
 {
     Obj& mX = *static_cast<Obj *>(arg);
 
-    Obj::value_type value;
+    Obj::value_type value = 0;
 
     for (int i = 0; i < k_PUSHPUSHWAIT_COUNT; ++i) {
         mX.pushBack(value);
@@ -771,7 +771,7 @@ extern "C" void *pushWaitDisable(void *arg)
 {
     Obj& mX = *static_cast<Obj *>(arg);
 
-    Obj::value_type value;
+    Obj::value_type value = 0;
 
     mX.pushBack(value);
 
@@ -1188,7 +1188,13 @@ int main(int argc, char *argv[])
                                   const_cast<char *>(
                               "'waitUntilEmpty' race with 'disablePopFront'"));
 
-        for (int i = 0; i < 10000; ++i) {
+        // Run for 10000 iterations or 3 seconds.
+
+        int                completed = 0;
+        bsls::TimeInterval start     = bsls::SystemTime::nowMonotonicClock();
+        bsls::TimeInterval now       = start;
+
+        while (completed < 10000 && now - start < bsls::TimeInterval(3, 0)) {
             mX.enablePopFront();
             barrier.wait();
 
@@ -1202,6 +1208,10 @@ int main(int argc, char *argv[])
             barrier.wait();
 
             ASSERT(mX.isEmpty());
+
+            ++completed;
+
+            now = bsls::SystemTime::nowMonotonicClock();
         }
 
         {
