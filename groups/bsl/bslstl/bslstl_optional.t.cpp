@@ -20,6 +20,7 @@
 #include <bsls_buildtarget.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_nameof.h>
+#include <bsls_types.h> // 'BloombergLP::bsls::Types::Int64'
 
 // A list of disabled tests :
 //
@@ -201,6 +202,7 @@ using namespace bsl;
 // [ 1] BREATHING TEST
 // [19] DRQS 165776192
 // [21] CLASS TEMPLATE DEDUCTION GUIDES
+// [23] DRQS 169300521
 
 // Further, there are a number of behaviors that explicitly should not compile
 // by accident that we will provide tests for.  These tests should fail to
@@ -12443,16 +12445,16 @@ int main(int argc, char **argv)
     switch (test) {  case 0:
       case 23: {
         //---------------------------------------------------------------------
-        // REPRODUCE DRQS 169300521 'hashAppend' w algorithms outside of 'bslh'
+        // DRQS 169300521 'hashAppend' w algorithms outside of 'bslh'
         //
         // Formerly, when employing a hash algorithm not residing in 'bslh' as
-        // the first argument to 'hashAppend', 'bslh' is not searched during
+        // the first argument to 'hashAppend', 'bslh' was not searched during
         // ADL.  The expected behavior before the fix is a linker error.  The
-        // expected behavior after the fix is a *no* linker error.
+        // expected behavior after the fix is *no* linker error.
         //
         // Concern:
         //: 1 Invoking 'hashAppend' with a custom hash algorithm as the first
-        //:   argument correctly find 'bslh_hash::hashAppend'.
+        //:   argument correctly finds 'bslh_hash::hashAppend'.
         //
         // Plan:
         //: 1 Create a mock hash algorithm 'class', 'MyHashAlgorithm'.
