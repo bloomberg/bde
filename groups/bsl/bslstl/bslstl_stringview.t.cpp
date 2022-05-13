@@ -1501,6 +1501,7 @@ void TestDriver<TYPE,TRAITS>::testCase20()
     //   bool operator>=(basic_string_view lhs, basic_string_view rhs);
     // ------------------------------------------------------------------------
 
+#ifndef BSLSTL_STRING_VIEW_IS_ALIASED
     if (verbose) printf("\tTesting signatures.\n");
     {
         typedef bool (*OP)(Obj, Obj);
@@ -1514,6 +1515,7 @@ void TestDriver<TYPE,TRAITS>::testCase20()
         op    = &bsl::operator>=;
         (void) op;
     }
+#endif        
 
     if (verbose) printf("for %s type.\n", NameOf<TYPE>().name());
 
@@ -6115,15 +6117,17 @@ void TestDriver<TYPE, TRAITS>::testCase4()
 
     if (verbose) printf("for %s type.\n", NameOf<TYPE>().name());
 
+#ifndef BSLSTL_STRING_VIEW_IS_ALIASED
     if (verbose) printf("\tTesting signatures.\n");
     {
         typedef bool (*OP)(Obj, Obj);
-
+        
         OP op = &bsl::operator==;
         (void) op;
         op    = &bsl::operator!=;
         (void) op;
     }
+#endif
 
     if (verbose) printf("\tTesting basic behavior.\n");
 

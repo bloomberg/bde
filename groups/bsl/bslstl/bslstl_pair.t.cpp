@@ -388,7 +388,10 @@ class Node {
     Node(const Node& original) :d_data(original.d_data) {}
 
     //! ~Node() = default;
-    //! Node& operator=(const Node&) = default;
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS)
+    Node& operator=(const Node&) = default;
+#endif
+
 
     // ACCESSORS
     int data() const { return d_data; }

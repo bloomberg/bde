@@ -189,6 +189,10 @@ Uniq       *const DFLT_E = &g_x;
 // Most recent hint given to any allocator's 'allocate' member function.
 const void* g_lastHint;
 
+                           // =======================
+                           // class NonBslmaAllocator
+                           // =======================
+
 template <class TYPE>
 class NonBslmaAllocator
 {
@@ -321,6 +325,10 @@ bool operator!=(const NonBslmaAllocator<TYPE_1>& lhs,
 {
     return lhs.mechanism() != rhs.mechanism();
 }
+
+                         // ====================
+                         // class BslmaAllocator
+                         // ====================
 
 template <class TYPE>
 class BslmaAllocator
@@ -465,6 +473,10 @@ bool operator!=(const BslmaAllocator<TYPE_1>& lhs,
     return lhs.mechanism() != rhs.mechanism();
 }
 
+                             // ==================
+                             // class FunkyPointer
+                             // ==================
+
 template <class TYPE>
 class FunkyPointer
 {
@@ -504,6 +516,10 @@ bool operator!=(FunkyPointer<TYPE> lhs, FunkyPointer<TYPE> rhs)
 {
     return lhs.operator->() != rhs.operator->();
 }
+
+                            // ====================
+                            // class FunkyAllocator
+                            // ====================
 
 template <class TYPE>
 class FunkyAllocator
@@ -1618,10 +1634,10 @@ void testRebind(const char* testName)
     typedef typename Traits1::template rebind_traits<TYPE_1> Traits1Rebound1;
 
     // rebind to float
-    typedef typename Traits2::template rebind_alloc<float>  Alloc2ReboundF;
-    typedef typename Traits2::template rebind_traits<float> Traits2ReboundF;
     typedef typename Traits1::template rebind_alloc<float>  Alloc1ReboundF;
     typedef typename Traits1::template rebind_traits<float> Traits1ReboundF;
+    typedef typename Traits2::template rebind_alloc<float>  Alloc2ReboundF;
+    typedef typename Traits2::template rebind_traits<float> Traits2ReboundF;
 
     // Rebind from 'TYPE_1' to 'U'
     LOOP_ASSERT(testName, (bsl::is_convertible<
@@ -2014,7 +2030,8 @@ int main(int argc, char *argv[])
 
 #define TEST_MAX_SIZE(ALLOC) {                                              \
             ALLOC a;                                                        \
-            ASSERT(allocator_traits<ALLOC >::max_size(a) == a.max_size());  \
+            ASSERTV(allocator_traits<ALLOC >::max_size(a),   a.max_size(),  \
+                    allocator_traits<ALLOC >::max_size(a) == a.max_size()); \
         }
 
         typedef AttribClass5Alloc<NonBslmaAllocator<int> > AC5AllocNonBslma;

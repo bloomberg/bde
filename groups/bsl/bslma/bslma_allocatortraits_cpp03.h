@@ -21,10 +21,12 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Oct 21 10:11:37 2021
+// Generated on Thu May 12 11:21:13 2022
 // Command line: sim_cpp11_features.pl bslma_allocatortraits.h
 
 #ifdef COMPILING_BSLMA_ALLOCATORTRAITS_H
+
+#include <limits>
 
 namespace BloombergLP {
 namespace bslma {
@@ -70,9 +72,9 @@ struct AllocatorTraits_HasSelectOnCopyMethod {
     typedef bsl::integral_constant<bool, value> type;
 };
 
-                     // ===================================
-                     // AllocatorTraits_HasPropOnCopyAssign
-                     // ===================================
+                    // ===================================
+                    // AllocatorTraits_HasPropOnCopyAssign
+                    // ===================================
 
 template <class ALLOCATOR_TYPE>
 struct AllocatorTraits_HasPropOnCopyAssign {
@@ -80,8 +82,8 @@ struct AllocatorTraits_HasPropOnCopyAssign {
     // given (template parameter) 'ALLOCATOR_TYPE' defines a nested alias named
     //'propagate_on_container_copy_assignment'.  The static boolean member
     // 'value' (nested alias named 'type') is 'true' ('bsl::true_type') if
-    // 'ALLOCATOR_TYPE' defines such an alias, and 'false'
-    // ('bsl::false_type') otherwise.
+    // 'ALLOCATOR_TYPE' defines such an alias, and 'false' ('bsl::false_type')
+    // otherwise.
 
   private:
     typedef struct { char a;    } yes_type;
@@ -102,9 +104,9 @@ struct AllocatorTraits_HasPropOnCopyAssign {
     typedef bsl::integral_constant<bool, value> type;
 };
 
-                       // ================================
-                       // AllocatorTraits_PropOnCopyAssign
-                       // ================================
+                      // ================================
+                      // AllocatorTraits_PropOnCopyAssign
+                      // ================================
 
 template <class ALLOCATOR_TYPE,
           bool = AllocatorTraits_HasPropOnCopyAssign<ALLOCATOR_TYPE>::value>
@@ -128,9 +130,9 @@ struct AllocatorTraits_PropOnCopyAssign<ALLOC, true>
     // 'true == AllocatorTraits_HasPropOnCopyAssign<ALLOCATOR_TYPE>::value').
 };
 
-                     // ===================================
-                     // AllocatorTraits_HasPropOnMoveAssign
-                     // ===================================
+                    // ===================================
+                    // AllocatorTraits_HasPropOnMoveAssign
+                    // ===================================
 
 template <class ALLOC>
 struct AllocatorTraits_HasPropOnMoveAssign {
@@ -138,8 +140,8 @@ struct AllocatorTraits_HasPropOnMoveAssign {
     // given (template parameter) 'ALLOCATOR_TYPE' defines a nested alias named
     //'propagate_on_container_move_assignment'.  The static boolean member
     // 'value' (nested alias named 'type') is 'true' ('bsl::true_type') if
-    // 'ALLOCATOR_TYPE' defines such an alias, and 'false'
-    // ('bsl::false_type') otherwise.
+    // 'ALLOCATOR_TYPE' defines such an alias, and 'false' ('bsl::false_type')
+    // otherwise.
 
   private:
     typedef struct { char a;    } yes_type;
@@ -159,9 +161,9 @@ struct AllocatorTraits_HasPropOnMoveAssign {
     typedef bsl::integral_constant<bool, value> type;
 };
 
-                       // ================================
-                       // AllocatorTraits_PropOnMoveAssign
-                       // ================================
+                      // ================================
+                      // AllocatorTraits_PropOnMoveAssign
+                      // ================================
 
 template <class ALLOC,
           bool = AllocatorTraits_HasPropOnMoveAssign<ALLOC>::value>
@@ -185,9 +187,9 @@ struct AllocatorTraits_PropOnMoveAssign<ALLOC, true>
     // 'true == AllocatorTraits_HasPropOnMoveAssign<ALLOCATOR_TYPE>::value').
 };
 
-                         // =============================
-                         // AllocatorTraits_HasPropOnSwap
-                         // =============================
+                       // =============================
+                       // AllocatorTraits_HasPropOnSwap
+                       // =============================
 
 template <class ALLOC>
 struct AllocatorTraits_HasPropOnSwap {
@@ -215,9 +217,9 @@ struct AllocatorTraits_HasPropOnSwap {
     typedef bsl::integral_constant<bool, value> type;
 };
 
-                          // ==========================
-                          // AllocatorTraits_PropOnSwap
-                          // ==========================
+                         // ==========================
+                         // AllocatorTraits_PropOnSwap
+                         // ==========================
 
 template <class ALLOC, bool = AllocatorTraits_HasPropOnSwap<ALLOC>::value>
 struct AllocatorTraits_PropOnSwap : bsl::false_type
@@ -239,12 +241,13 @@ struct AllocatorTraits_PropOnSwap<ALLOC, true>
     // 'false == AllocatorTraits_HasPropOnSwap<ALLOCATOR_TYPE>::value').
 };
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)                           \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE) &&                        \
+    defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) &&               \
+    defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
 
-                      // ==================================
-                      // AllocatorTraits_HasConstructMethod
-                      // ==================================
+                     // ==================================
+                     // AllocatorTraits_HasConstructMethod
+                     // ==================================
 
 template <class T, class Return, class... Args>
 struct AllocatorTraits_HasConstructMethod {
@@ -252,7 +255,7 @@ struct AllocatorTraits_HasConstructMethod {
     template <class U>
     static auto match(U *) ->
         typename bsl::is_same<decltype(bslmf::Util::declval<U>().construct(
-                                  bslmf::Util::declval<Args>()...)),
+                                             bslmf::Util::declval<Args>()...)),
                               Return>::type;
     template <class>
     static bsl::false_type match(...);
@@ -272,7 +275,7 @@ struct AllocatorTraits_HasDestroyMethod {
     template <class U>
     static auto match(U *) ->
         typename bsl::is_same<decltype(bslmf::Util::declval<U>().destroy(
-                                  bslmf::Util::declval<Args>()...)),
+                                             bslmf::Util::declval<Args>()...)),
                               Return>::type;
     template <class>
     static bsl::false_type match(...);
@@ -284,14 +287,195 @@ struct AllocatorTraits_HasDestroyMethod {
 
 #endif
 
+                        // ===========================
+                        // AllocatorTraits_PointerType
+                        // ===========================
+
+template <class T, class = void>
+struct AllocatorTraits_PointerType {
+    typedef typename T::value_type *type;
+};
+
+
+template <class T>
+struct AllocatorTraits_PointerType<T, BSLMF_VOIDTYPE(typename T::pointer)> {
+    typedef typename T::pointer type;
+};
+
+                      // ================================
+                      // AllocatorTraits_ConstPointerType
+                      // ================================
+
+template <class T, class = void>
+struct AllocatorTraits_ConstPointerType {
+    typedef const typename T::value_type *type;
+        // should be pointer_traits::rebind of template above
+};
+
+
+template <class T>
+struct AllocatorTraits_ConstPointerType<
+                                   T,
+                                   BSLMF_VOIDTYPE(typename T::const_pointer)> {
+    typedef typename T::const_pointer type;
+};
+
+
+                      // ===============================
+                      // AllocatorTraits_VoidPointerType
+                      // ===============================
+
+template <class T, class = void>
+struct AllocatorTraits_VoidPointerType {
+    typedef void *type;
+        // should be pointer_traits::rebind of template above
+};
+
+
+template <class T>
+struct AllocatorTraits_VoidPointerType<
+                                   T,
+                                   BSLMF_VOIDTYPE(typename T::void_pointer)> {
+    typedef typename T::void_pointer type;
+};
+
+                    // ====================================
+                    // AllocatorTraits_ConstVoidPointerType
+                    // ====================================
+
+template <class T, class = void>
+struct AllocatorTraits_ConstVoidPointerType {
+    typedef const void *type;
+        // should be pointer_traits::rebind of template above
+};
+
+
+template <class T>
+struct AllocatorTraits_ConstVoidPointerType<
+                             T,
+                             BSLMF_VOIDTYPE(typename T::const_void_pointer)> {
+    typedef typename T::const_void_pointer type;
+};
+
+                          // ========================
+                          // AllocatorTraits_SizeType
+                          // ========================
+
+template <class T, class = void>
+struct AllocatorTraits_SizeType {
+    typedef std::size_t type;
+};
+
+
+template <class T>
+struct AllocatorTraits_SizeType<T, BSLMF_VOIDTYPE(typename T::size_type)> {
+    typedef typename T::size_type type;
+};
+
+                       // ==============================
+                       // AllocatorTraits_DifferenceType
+                       // ==============================
+
+template <class T, class = void>
+struct AllocatorTraits_DifferenceType {
+    // should be pointer_traits::rebind of template above
+    typedef std::ptrdiff_t type;
+
+};
+
+
+template <class T>
+struct AllocatorTraits_DifferenceType<
+                             T,
+                             BSLMF_VOIDTYPE(typename T::difference_type)> {
+    typedef typename T::difference_type type;
+};
+
+                        // ===========================
+                        // AllocatorTraits_RebindFront
+                        // ===========================
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
+template <class T, class U>
+struct AllocatorTraits_RebindFront {
+    // There shall be no member named 'type' unless T is a class template with
+    // only type parameters.
+};
+
+template <template <class, class...> class ALLOC,
+	  class T,
+	  class ...ARGS,
+	  class U>
+struct AllocatorTraits_RebindFront<ALLOC<T, ARGS...>, U> {
+    using type = ALLOC<U, ARGS...>;
+};
+#else
+template <class T, class U>
+struct AllocatorTraits_RebindFront {
+    // There shall be no member named 'type' unless T is a class template with
+    // only type parameters.
+};
+
+template <template <class> class ALLOC,
+	  class T,
+	  class U>
+struct AllocatorTraits_RebindFront<ALLOC<T>, U> {
+    typedef ALLOC<U> type;
+};
+#endif
+
+                        // ===========================
+                        // AllocatorTraits_RebindAlloc
+                        // ===========================
+
+template <class T, class U, class = void>
+struct AllocatorTraits_RebindAlloc {
+    // should be pointer_traits::rebind of template above
+    typedef typename AllocatorTraits_RebindFront<T, U>::type type;
+
+};
+
+template <class T, class U>
+struct AllocatorTraits_RebindAlloc<
+                      T,
+                      U,
+                      BSLMF_VOIDTYPE(typename T::template rebind<U>::other)> {
+    typedef typename T::template rebind<U>::other type;
+};
+
+                        // ===========================
+                        // AllocatorTraits_CallMaxSize
+                        // ===========================
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
+template <class T, class = void>
+struct AllocatorTraits_CallMaxSize {
+    typedef typename AllocatorTraits_SizeType<T>::type SizeType;
+
+    static SizeType max_size(const T&);
+};
+
+// Due to the dependence on expression SFINAE to detect the presence of a
+// 'max_size' member of the allocator, this is only done on more modern
+// platforms.
+template <class T>
+struct AllocatorTraits_CallMaxSize<
+           T,
+           BSLMF_VOIDTYPE(decltype(bslmf::Util::declval<T>().max_size()))> {
+    typedef typename AllocatorTraits_SizeType<T>::type SizeType;
+
+    static SizeType max_size(const T& alloc);
+};
+#endif
+
 } // close namespace bslma
 } // close enterprise namespace
 
 namespace bsl {
 
-                        // ======================
-                        // class allocator_traits
-                        // ======================
+                           // ======================
+                           // class allocator_traits
+                           // ======================
 
 template <class ALLOCATOR_TYPE>
 struct allocator_traits {
@@ -332,8 +516,9 @@ struct allocator_traits {
         // enforces a default policy of propagating the allocator on copy
         // construction when using a standard allocator.
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)                           \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE) &&                        \
+    defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) &&               \
+    defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
     template <class ELEMENT_TYPE, class... Args>
     static typename bsl::enable_if<
         BloombergLP::bslma::AllocatorTraits_HasConstructMethod<ALLOCATOR_TYPE,
@@ -386,10 +571,9 @@ struct allocator_traits {
         // the specified 'elementAddr', either by 1) calling the 'destroy'
         // method on 'basicAllocator' with 'elemAddr' as the sole argument if
         // the (template parameter) type 'ALLOCATOR_TYPE' defines such a
-        // method, or 2) calling the destructor directly on 'elementAddr'
-        // (and ignoring 'basicAllocator') otherwise.  The behavior is
-        // undefined unless 'elementAddr' refers to a valid, constructed
-        // object.
+        // method, or 2) calling the destructor directly on 'elementAddr' (and
+        // ignoring 'basicAllocator') otherwise.  The behavior is undefined
+        // unless 'elementAddr' refers to a valid, constructed object.
 #endif
 
   public:
@@ -397,33 +581,68 @@ struct allocator_traits {
     typedef ALLOCATOR_TYPE                            allocator_type;
     typedef typename ALLOCATOR_TYPE::value_type       value_type;
 
-    typedef typename ALLOCATOR_TYPE::pointer          pointer;
-    typedef typename ALLOCATOR_TYPE::const_pointer    const_pointer;
-    typedef void                                     *void_pointer;
-    typedef void const                               *const_void_pointer;
-    typedef typename ALLOCATOR_TYPE::difference_type  difference_type;
-    typedef typename ALLOCATOR_TYPE::size_type        size_type;
+    typedef typename
+         BloombergLP::bslma::AllocatorTraits_PointerType<ALLOCATOR_TYPE>::type
+	                                              pointer;
+    typedef typename
+    BloombergLP::bslma::AllocatorTraits_ConstPointerType<ALLOCATOR_TYPE>::type
+	                                              const_pointer;
+    typedef typename
+     BloombergLP::bslma::AllocatorTraits_VoidPointerType<ALLOCATOR_TYPE>::type
+	                                              void_pointer;
+    typedef typename BloombergLP::bslma::
+                    AllocatorTraits_ConstVoidPointerType<ALLOCATOR_TYPE>::type
+	                                              const_void_pointer;
+
+    typedef typename
+      BloombergLP::bslma::AllocatorTraits_DifferenceType<ALLOCATOR_TYPE>::type
+	                                              difference_type;
+    typedef typename
+	    BloombergLP::bslma::AllocatorTraits_SizeType<ALLOCATOR_TYPE>::type
+	                                              size_type;
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
     template <class ELEMENT_TYPE>
-    using rebind_alloc =
-                 typename ALLOCATOR_TYPE::template rebind<ELEMENT_TYPE>::other;
+    using rebind_alloc = typename
+           BloombergLP::bslma::AllocatorTraits_RebindAlloc<ALLOCATOR_TYPE,
+                                                           ELEMENT_TYPE>::type;
 
     template <class ELEMENT_TYPE>
     using rebind_traits = allocator_traits<rebind_alloc<ELEMENT_TYPE>>;
-#else // !BDE_CXX11_TEMPLATE_ALIASES
+#else // !BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
     template <class ELEMENT_TYPE>
-    struct rebind_alloc :
-                    public ALLOCATOR_TYPE::template rebind<ELEMENT_TYPE>::other
+    struct rebind_alloc
+        : BloombergLP::bslma::AllocatorTraits_RebindAlloc<ALLOCATOR_TYPE,
+                                                          ELEMENT_TYPE>::type
     {
+        // Note that this class attempts to emulate an alias template, but is
+        // not complete.  In general, code that must support C++03 should use
+        // 'rebind_traits<ELEMENT_TYPE>::allocator_type' instead of
+        // 'rebind_alloc<ELEMENT_TYPE>' because that nested typedef is the
+        // preferred actual allocator type and not a subclass of the desired
+        // type.
+
+        typedef typename BloombergLP::bslma::
+                AllocatorTraits_RebindAlloc<ALLOCATOR_TYPE, ELEMENT_TYPE>::type
+	                                                        allocator_type;
+
+        template <typename ARG>
+        rebind_alloc(const ARG& allocatorArg)
+            // Convert from anything that can be used to cosntruct the base
+            // type.  This might be better if SFINAE-ed out using
+            // 'is_convertible', but stressing older compilers more seems
+            // unwise.
+        : allocator_type(allocatorArg)
+        {
+        }
     };
 
     template <class ELEMENT_TYPE>
-    struct rebind_traits : allocator_traits<typename ALLOCATOR_TYPE::template
-                                            rebind<ELEMENT_TYPE>::other>
+    struct rebind_traits : allocator_traits<typename allocator_traits::template
+                                    rebind_alloc<ELEMENT_TYPE>::allocator_type>
     {
     };
-#endif // !BDE_CXX11_TEMPLATE_ALIASES
+#endif // !BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 
     // Allocation functions
 
@@ -758,10 +977,9 @@ struct allocator_traits {
         // the specified 'elementAddr', either by 1) calling the 'destroy'
         // method on 'basicAllocator' with 'elemAddr' as the sole argument if
         // the (template parameter) type 'ALLOCATOR_TYPE' defines such a
-        // method, or 2) calling the destructor directly on 'elementAddr'
-        // (and ignoring 'basicAllocator') otherwise.  The behavior is
-        // undefined unless 'elementAddr' refers to a valid, constructed
-        // object.
+        // method, or 2) calling the destructor directly on 'elementAddr' (and
+        // ignoring 'basicAllocator') otherwise.  The behavior is undefined
+        // unless 'elementAddr' refers to a valid, constructed object.
 
     static size_type max_size(const ALLOCATOR_TYPE& basicAllocator)
                                                          BSLS_KEYWORD_NOEXCEPT;
@@ -813,25 +1031,67 @@ struct allocator_traits {
         // defined, and 'false_type' otherwise.
 };
 
-                   // ========================================
-                   // class allocator_traits<ALLOCATOR_TYPE *>
-                   // ========================================
+                  // ========================================
+                  // class allocator_traits<ALLOCATOR_TYPE *>
+                  // ========================================
 
 template <class ALLOCATOR_TYPE>
 struct allocator_traits<ALLOCATOR_TYPE *> {
-    // TBD: improve comment
-    // This is an empty class specialization of 'allocator_traits' for pointer
-    // types that (intentionally) does not define any of the traits typedefs.
-    // It's needed in order make unambiguous function overloads that take both
-    // a standard allocator by value and a 'bslma::Allocator *'.  By using
-    // the typedefs defined in 'allocator_traits' in the signature of functions
-    // taking standard allocators, we can ensure that those overloads are not
-    // considered when using 'bslma'-style allocators.
+    // TBD: improve comment This is an empty class specialization of
+    // 'allocator_traits' for pointer types that (intentionally) does not
+    // define any of the traits typedefs.  It's needed in order make
+    // unambiguous function overloads that take both a standard allocator by
+    // value and a 'bslma::Allocator *'.  By using the typedefs defined in
+    // 'allocator_traits' in the signature of functions taking standard
+    // allocators, we can ensure that those overloads are not considered when
+    // using 'bslma'-style allocators.
 };
+
+}  // close namespace bsl
 
 // ============================================================================
 //          INLINE AND TEMPLATE STATIC MEMBER FUNCTION DEFINITIONS
 // ============================================================================
+
+namespace BloombergLP {
+namespace bslma {
+
+                     // ---------------------------------
+                     // class AllocatorTraits_CallMaxSize
+                     // ---------------------------------
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
+template <class T, class U>
+inline
+typename AllocatorTraits_SizeType<T>::type
+AllocatorTraits_CallMaxSize<T,U>::max_size(const T&)
+{
+    return
+        std::numeric_limits<SizeType>::max() / sizeof(typename T::value_type);
+
+}
+
+template <class T>
+inline
+typename AllocatorTraits_SizeType<T>::type
+AllocatorTraits_CallMaxSize<
+    T,
+    BSLMF_VOIDTYPE(decltype(bslmf::Util::declval<T>().max_size()))>
+::max_size(const T&alloc) {
+    return alloc.max_size();
+}
+#endif
+
+
+} // close namespace bslma
+} // close enterprise namespace
+
+namespace bsl {
+
+                           // ----------------------
+                           // class allocator_traits
+                           // ----------------------
+
 
 template <class ALLOCATOR_TYPE>
 inline
@@ -851,8 +1111,9 @@ ALLOCATOR_TYPE allocator_traits<ALLOCATOR_TYPE>::selectOnCopyConstruct(
     return stdAllocator;
 }
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)                           \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE) &&                        \
+    defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) &&               \
+    defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
 template <class ALLOCATOR_TYPE>
 template <class ELEMENT_TYPE, class... Args>
 inline
@@ -1658,8 +1919,8 @@ allocator_traits<ALLOCATOR_TYPE>::destroy(ALLOCATOR_TYPE& stdAllocator,
 // 'destroy' member function is not available.
 
 //    allocator.destroy(elementAddr);
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)                           \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE) &&                        \
+    defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
     privateDestroy(stdAllocator, elementAddr);
 #else
     elementAddr->~ELEMENT_TYPE();
@@ -1673,7 +1934,15 @@ typename allocator_traits<ALLOCATOR_TYPE>::size_type
 allocator_traits<ALLOCATOR_TYPE>::max_size(
                     const ALLOCATOR_TYPE& basicAllocator) BSLS_KEYWORD_NOEXCEPT
 {
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
+    return BloombergLP::bslma::
+	 AllocatorTraits_CallMaxSize<ALLOCATOR_TYPE>::max_size(basicAllocator);
+#else
+    // Cannot sniff out whether 'basicAllocator.max_size()' is valid in C++03,
+    // but for now require that allocators have a 'max_size' method and just
+    // call it.
     return basicAllocator.max_size();
+#endif
 }
 
 template <class ALLOCATOR_TYPE>
@@ -1694,7 +1963,7 @@ allocator_traits<ALLOCATOR_TYPE>::select_on_container_copy_construction(
 #endif // ! defined(INCLUDED_BSLMA_ALLOCATORTRAITS_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2021 Bloomberg Finance L.P.
+// Copyright 2022 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -1278,7 +1278,7 @@ void TestDriver::testCase7()
                 objAllocatorPtr = &sa;
               } break;
               default: {
-                ASSERTV(CONFIG, !"Bad allocator config.");
+                BSLS_ASSERT_INVOKE_NORETURN("Bad allocator config.");
               } break;
             }
 
@@ -1300,7 +1300,7 @@ void TestDriver::testCase7()
                     objPtr = new (fa) Obj(Z, &sa);
                   } break;
                   default: {
-                    ASSERTV(CONFIG, !"Bad allocator config.");
+                    BSLS_ASSERT_INVOKE_NORETURN("Bad allocator config.");
                   } break;
                 }
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
@@ -1636,7 +1636,7 @@ void TestDriver::testCase4()
                         objAllocatorPtr = &sa;
                       } break;
                       default: {
-                        ASSERTV(CONFIG, !"Bad allocator config.");
+                        BSLS_ASSERT_INVOKE_NORETURN("Bad allocator config.");
                       } break;
                     }
 
@@ -1831,7 +1831,7 @@ void TestDriver::testCase4()
                         }
                       } break;
                       default: {
-                        ASSERTV(CONFIG, !"Bad allocator config.");
+                        BSLS_ASSERT_INVOKE_NORETURN("Bad allocator config.");
                       } break;
                     }
 
@@ -2039,7 +2039,7 @@ void TestDriver::testCase2a()
             objAllocator = &ta;
           } break;
           default: {
-            ASSERTV(!"Invalid allocator config!");
+            BSLS_ASSERT_INVOKE_NORETURN("Invalid allocator config!");
           } break;
         }
         bslma::TestAllocator& oa = *objAllocator;
@@ -2215,7 +2215,7 @@ void TestDriver::testCase2a()
                                  &oa);
               } break;
               default: {
-                ASSERTV(!"Invalid # of args!");
+                BSLS_ASSERT_INVOKE_NORETURN("Invalid # of args!");
               } break;
             }
 
@@ -2496,7 +2496,7 @@ void TestDriver::testCase2()
                                  testArg(A14, MOVE_14));
               } break;
               default: {
-                ASSERTV(!"Invalid # of args!");
+                BSLS_ASSERT_INVOKE_NORETURN("Invalid # of args!");
               } break;
             }
             objAllocator = da;
@@ -2653,13 +2653,13 @@ void TestDriver::testCase2()
                                  &ta);
               } break;
               default: {
-                ASSERTV(!"Invalid # of args!");
+                BSLS_ASSERT_INVOKE_NORETURN("Invalid # of args!");
               } break;
             }
             objAllocator = &ta;
           } break;
           default: {
-            ASSERTV(!"Invalid config spec!");
+            BSLS_ASSERT_INVOKE_NORETURN("Invalid config spec!");
           }
         }
         bslma::DestructorGuard<Obj> guard(&buffer.object());

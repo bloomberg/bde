@@ -163,7 +163,8 @@ FormatGuard::FormatGuard(bsl::basic_ostream<CHAR_TYPE, CHAR_TRAITS> *stream)
                    &FormatGuard::ostreamDestructorImpl<CHAR_TYPE, CHAR_TRAITS>)
 {
     BSLMF_ASSERT(bsl::is_integral<CHAR_TYPE>::value);
-    BSLMF_ASSERT(sizeof(CHAR_TYPE) <= sizeof(d_fillChar));
+    BSLMF_ASSERT(sizeof(CHAR_TYPE) <=
+                 sizeof(bsls::Types::Int64));  // 'd_fillChar'
 }
 
 inline

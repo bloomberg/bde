@@ -1996,7 +1996,7 @@ void TestDriver<VALUE, CONTAINER>::
         "BC",
         "CDE",
     };
-    const int NUM_SPECS = static_cast<const int>(sizeof SPECS / sizeof *SPECS);
+    const int NUM_SPECS = static_cast<int>(sizeof SPECS / sizeof *SPECS);
 
     bslma::TestAllocator da("default", veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard dag(&da);
@@ -3191,7 +3191,7 @@ void TestDriver<VALUE, CONTAINER>::
         "BC",
         "CDE",
     };
-    const int NUM_SPECS = static_cast<const int>(sizeof SPECS / sizeof *SPECS);
+    const int NUM_SPECS = static_cast<int>(sizeof SPECS / sizeof *SPECS);
 
     bslma::TestAllocator da("default", veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard dag(&da);
@@ -3597,7 +3597,7 @@ void TestDriver<VALUE, CONTAINER>::
         "BC",
         "CDE",
     };
-    const int NUM_SPECS = static_cast<const int>(sizeof SPECS / sizeof *SPECS);
+    const int NUM_SPECS = static_cast<int>(sizeof SPECS / sizeof *SPECS);
 
     bslma::TestAllocator da("default", veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard dag(&da);
@@ -4096,7 +4096,7 @@ void TestDriver<VALUE, CONTAINER>::
         "BC",
         "CDE",
     };
-    const int NUM_SPECS = static_cast<const int>(sizeof SPECS / sizeof *SPECS);
+    const int NUM_SPECS = static_cast<int>(sizeof SPECS / sizeof *SPECS);
 
     for (int ti = 0; ti < NUM_SPECS; ++ti) {
         const char *const SPEC   = SPECS[ti];
@@ -4231,8 +4231,7 @@ void TestDriver<VALUE, CONTAINER>::
             "BC",
             "CDE",
         };
-        const int NUM_SPECS =
-                          static_cast<const int>(sizeof SPECS / sizeof *SPECS);
+        const int NUM_SPECS = static_cast<int>(sizeof SPECS / sizeof *SPECS);
 
         for (int ti = 0; ti < NUM_SPECS; ++ti) {
             const char *const SPEC   = SPECS[ti];

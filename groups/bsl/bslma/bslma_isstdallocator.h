@@ -89,9 +89,9 @@ BSLS_IDENT("$Id: $")
 #include <stddef.h>    // size_t
 
 namespace bsl {
-                           // ===================
-                           // struct is_allocator
-                           // ===================
+                          // =====================
+                          // struct IsStdAllocator
+                          // =====================
 
 template<class ALLOC, class = void, class = void>
 struct IsStdAllocator : false_type {};

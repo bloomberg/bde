@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Tue Feb  1 19:01:13 2022
+// Generated on Fri Apr 29 19:34:41 2022
 // Command line: sim_cpp11_features.pl bslstl_deque.h
 
 #ifdef COMPILING_BSLSTL_DEQUE_H
@@ -328,8 +328,8 @@ class deque : public  Deque_Base<VALUE_TYPE>
 
   public:
     // PUBLIC TYPES
-    typedef typename ALLOCATOR::reference           reference;
-    typedef typename ALLOCATOR::const_reference     const_reference;
+    typedef VALUE_TYPE&                             reference;
+    typedef const VALUE_TYPE&                       const_reference;
     typedef Iterator                                iterator;
     typedef ConstIterator                           const_iterator;
     typedef std::size_t                             size_type;
@@ -337,8 +337,8 @@ class deque : public  Deque_Base<VALUE_TYPE>
     typedef VALUE_TYPE                              value_type;
 
     typedef ALLOCATOR                               allocator_type;
-    typedef typename ALLOCATOR::pointer             pointer;
-    typedef typename ALLOCATOR::const_pointer       const_pointer;
+    typedef typename AllocatorTraits::pointer       pointer;
+    typedef typename AllocatorTraits::const_pointer const_pointer;
 
     // As above, we must 'bsl::'-qualify 'reverse_iterator'.
 
@@ -6052,7 +6052,7 @@ inline
 typename deque<VALUE_TYPE, ALLOCATOR>::size_type
 deque<VALUE_TYPE, ALLOCATOR>::max_size() const BSLS_KEYWORD_NOEXCEPT
 {
-    return this->get_allocator().max_size();
+    return AllocatorTraits::max_size(this->get_allocator());
 }
 
 // FREE OPERATORS

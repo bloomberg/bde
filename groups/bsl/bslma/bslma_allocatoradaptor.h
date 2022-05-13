@@ -195,7 +195,12 @@ class AllocatorAdaptor_Imp : public Allocator {
         // Construct a polymorphic wrapper around a copy of the specified
         // 'stla' STL-style allocator.
 
-    //! AllocatorAdaptor_Imp(const AllocatorAdaptor_Imp&);
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS)
+    AllocatorAdaptor_Imp(const AllocatorAdaptor_Imp& original) = default;
+        // Create an 'AllocatorAdaptor_Imp' object that can allocate and
+        // deallocate memory as if it were the specified 'original' object.
+#endif
+
 
     virtual ~AllocatorAdaptor_Imp();
         // Destroy this object and the STL-style allocator that it wraps.

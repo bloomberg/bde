@@ -792,13 +792,13 @@ class vectorBase {
 
   public:
     // PUBLIC TYPES
+    typedef VALUE_TYPE                             value_type;
     typedef VALUE_TYPE&                            reference;
     typedef VALUE_TYPE const&                      const_reference;
     typedef VALUE_TYPE                            *iterator;
     typedef VALUE_TYPE const                      *const_iterator;
     typedef std::size_t                            size_type;
     typedef std::ptrdiff_t                         difference_type;
-    typedef VALUE_TYPE                             value_type;
     typedef bsl::reverse_iterator<iterator>        reverse_iterator;
     typedef bsl::reverse_iterator<const_iterator>  const_reverse_iterator;
 
@@ -981,8 +981,8 @@ class vector : public  vectorBase<VALUE_TYPE>
     // PUBLIC TYPES
     typedef VALUE_TYPE                                value_type;
     typedef ALLOCATOR                                 allocator_type;
-    typedef typename ALLOCATOR::reference             reference;
-    typedef typename ALLOCATOR::const_reference       const_reference;
+    typedef VALUE_TYPE&                               reference;
+    typedef const VALUE_TYPE&                         const_reference;
 
     typedef typename AllocatorTraits::size_type       size_type;
     typedef typename AllocatorTraits::difference_type difference_type;
@@ -1358,7 +1358,7 @@ class vector : public  vectorBase<VALUE_TYPE>
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
     template <class... Args>
-    reference emplace_back(Args&&... arguments);
+    VALUE_TYPE &emplace_back(Args&&... arguments);
         // Append to the end of this vector a newly created 'value_type'
         // object, constructed by forwarding 'get_allocator()' (if required)
         // and the specified (variable number of) 'arguments' to the
@@ -1745,13 +1745,13 @@ class vector<VALUE_TYPE *, ALLOCATOR>
 
   public:
     // PUBLIC TYPES
-    typedef typename ALLOCATOR::reference         reference;
-    typedef typename ALLOCATOR::const_reference   const_reference;
+    typedef VALUE_TYPE                           *value_type;
+    typedef value_type&                           reference;
+    typedef const value_type&                     const_reference;
     typedef VALUE_TYPE                          **iterator;
     typedef VALUE_TYPE *const                    *const_iterator;
     typedef std::size_t                           size_type;
     typedef std::ptrdiff_t                        difference_type;
-    typedef VALUE_TYPE                           *value_type;
     typedef ALLOCATOR                             allocator_type;
     typedef typename ALLOCATOR::pointer           pointer;
     typedef typename ALLOCATOR::const_pointer     const_pointer;
@@ -1840,13 +1840,13 @@ class vector<VALUE_TYPE *, ALLOCATOR>
 
                             // *** modifiers ***
 
-    reference emplace_back();
+    value_type &emplace_back();
 
 # if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
     template <class ARG>
-    reference emplace_back(ARG&& arg);
+    value_type &emplace_back(ARG&& arg);
 # else
-    reference emplace_back(VALUE_TYPE *ptr);
+    value_type &emplace_back(VALUE_TYPE *ptr);
 # endif
 
     void push_back(VALUE_TYPE *value);
@@ -3419,7 +3419,7 @@ void vector<VALUE_TYPE, ALLOCATOR>::shrink_to_fit()
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class... Args>
 inline
-typename vector<VALUE_TYPE, ALLOCATOR>::reference
+VALUE_TYPE &
 vector<VALUE_TYPE, ALLOCATOR>::emplace_back(Args&&...arguments)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this->d_capacity > this->size())) {
@@ -3799,7 +3799,7 @@ inline
 typename vector<VALUE_TYPE, ALLOCATOR>::size_type
 vector<VALUE_TYPE, ALLOCATOR>::max_size() const BSLS_KEYWORD_NOEXCEPT
 {
-    return ContainerBase::allocator().max_size();
+    return AllocatorTraits::max_size(ContainerBase::allocator());
 }
 
 // FREE OPERATORS

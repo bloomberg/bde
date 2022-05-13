@@ -79,33 +79,35 @@ BSLS_IDENT("$Id: $")
 // be as follows:
 //..
 //  // my_fixedsizearray.h
-//  // ...
 //
-//                             // =======================
-//                             // class my_FixedSizeArray
-//                             // =======================
+//                          // =======================
+//                          // class my_FixedSizeArray
+//                          // =======================
 //
-//  template <class T, class ALLOC>
+//  template <class TYPE, class ALLOC>
 //  class my_FixedSizeArray {
-//      // This class provides an array of the parameterized 'T' type passed of
-//      // fixed length at construction, using an object of the parameterized
-//      // 'ALLOC' type to supply memory.
+//      // This class provides an array of (the template parameter) 'TYPE'
+//      // passed of fixed length at construction, using an instance of the
+//      // parameterized 'ALLOC' type to supply memory.
 //
 //      // DATA
 //      ALLOC  d_allocator;
 //      int    d_length;
-//      T     *d_array;
+//      TYPE  *d_array;
+//
+//      // INVARIANTS
 //
 //    public:
 //      // TYPES
 //      typedef ALLOC  allocator_type;
-//      typedef T      value_type;
+//      typedef TYPE   value_type;
 //
 //      // CREATORS
-//      my_FixedSizeArray(int length, const ALLOC& allocator = ALLOC());
+//      explicit my_FixedSizeArray(int length,
+//                                 const ALLOC& allocator = ALLOC());
 //          // Create a fixed-size array of the specified 'length', using the
 //          // optionally specified 'allocator' to supply memory.  If
-//          // 'allocator' is not specified, a default-constructed object of
+//          // 'allocator' is not specified, a default-constructed instance of
 //          // the parameterized 'ALLOC' type is used.  Note that all the
 //          // elements in that array are default-constructed.
 //
@@ -113,67 +115,78 @@ BSLS_IDENT("$Id: $")
 //                        const ALLOC&             allocator = ALLOC());
 //          // Create a copy of the specified 'original' fixed-size array,
 //          // using the optionally specified 'allocator' to supply memory.  If
-//          // 'allocator' is not specified, a default-constructed object of
+//          // 'allocator' is not specified, a default-constructed instance of
 //          // the parameterized 'ALLOC' type is used.
 //
 //      ~my_FixedSizeArray();
 //          // Destroy this fixed size array.
 //
 //      // MANIPULATORS
-//      T& operator[](int index);
+//      TYPE& operator[](int index);
 //          // Return a reference to the modifiable element at the specified
 //          // 'index' position in this fixed size array.
 //
 //      // ACCESSORS
-//      const T& operator[](int index) const;
+//      const TYPE& operator[](int index) const;
 //          // Return a reference to the modifiable element at the specified
 //          // 'index' position in this fixed size array.
-//
-//      int length() const;
-//          // Return the length specified at construction of this fixed size
-//          // array.
 //
 //      const ALLOC& allocator() const;
 //          // Return a reference to the non-modifiable allocator used by this
 //          // fixed size array to supply memory.  This is here for
 //          // illustrative purposes.  We should not generally have an accessor
 //          // to return the allocator.
+//
+//      int length() const;
+//          // Return the length specified at construction of this fixed size
+//          // array.
 //  };
 //
 //  // FREE OPERATORS
-//  template<class T, class ALLOC>
-//  bool operator==(const my_FixedSizeArray<T,ALLOC>& lhs,
-//                  const my_FixedSizeArray<T,ALLOC>& rhs)
+//  template<class TYPE, class ALLOC>
+//  bool operator==(const my_FixedSizeArray<TYPE, ALLOC>& lhs,
+//                  const my_FixedSizeArray<TYPE, ALLOC>& rhs);
 //      // Return 'true' if the specified 'lhs' fixed-size array has the same
 //      // value as the specified 'rhs' fixed-size array, and 'false'
 //      // otherwise.  Two fixed-size arrays have the same value if they have
 //      // the same length and if the element at any index in 'lhs' has the
 //      // same value as the corresponding element at the same index in 'rhs'.
+//
+//  namespace BloombergLP {
+//  namespace bslma {
+//
+//  template <class TYPE, class ALLOC>
+//  struct UsesBslmaAllocator< my_FixedSizeArray<TYPE, ALLOC> >
+//  : bsl::is_convertible<Allocator*, ALLOC>::type
+//  {
+//  };
+//
+//  }  // close namespace bslma
+//  }  // close enterprise namespace
+//
 //..
 // The implementation is straightforward
 //..
-//  // my_fixedsizearray.cpp
-//  // ...
-//                         // -----------------------
-//                         // class my_FixedSizeArray
-//                         // -----------------------
+//                          // -----------------------
+//                          // class my_FixedSizeArray
+//                          // -----------------------
 //
 //  // CREATORS
-//  template<class T, class ALLOC>
-//  my_FixedSizeArray<T,ALLOC>::my_FixedSizeArray(int          length,
-//                                                const ALLOC& allocator)
+//  template<class TYPE, class ALLOC>
+//  my_FixedSizeArray<TYPE, ALLOC>::my_FixedSizeArray(int          length,
+//                                                    const ALLOC& allocator)
 //  : d_allocator(allocator), d_length(length)
 //  {
 //      d_array = d_allocator.allocate(d_length);  // sizeof(T)*d_length bytes
 //
 //      // Default construct each element of the array:
 //      for (int i = 0; i < d_length; ++i) {
-//          d_allocator.construct(&d_array[i], T());
+//          d_allocator.construct(&d_array[i], TYPE());
 //      }
 //  }
 //
-//  template<class T, class ALLOC>
-//  my_FixedSizeArray<T,ALLOC>::my_FixedSizeArray(
+//  template<class TYPE, class ALLOC>
+//  my_FixedSizeArray<TYPE, ALLOC>::my_FixedSizeArray(
 //                                          const my_FixedSizeArray& original,
 //                                          const ALLOC&             allocator)
 //  : d_allocator(allocator), d_length(original.d_length)
@@ -186,8 +199,8 @@ BSLS_IDENT("$Id: $")
 //      }
 //  }
 //
-//  template<class T, class ALLOC>
-//  my_FixedSizeArray<T,ALLOC>::~my_FixedSizeArray()
+//  template<class TYPE, class ALLOC>
+//  my_FixedSizeArray<TYPE, ALLOC>::~my_FixedSizeArray()
 //  {
 //      // Call destructor for each element
 //      for (int i = 0; i < d_length; ++i) {
@@ -199,60 +212,61 @@ BSLS_IDENT("$Id: $")
 //  }
 //
 //  // MANIPULATORS
-//  template<class T, class ALLOC>
-//  inline T& my_FixedSizeArray<T,ALLOC>::operator[](int i)
+//  template<class TYPE, class ALLOC>
+//  inline TYPE& my_FixedSizeArray<TYPE, ALLOC>::operator[](int index)
 //  {
-//      return d_array[i];
+//      return d_array[index];
 //  }
 //
 //  // ACCESSORS
-//  template<class T, class ALLOC>
+//  template<class TYPE, class ALLOC>
 //  inline
-//  const T& my_FixedSizeArray<T,ALLOC>::operator[](int i) const
+//  const TYPE& my_FixedSizeArray<TYPE, ALLOC>::operator[](int index) const
 //  {
-//      return d_array[i];
+//      return d_array[index];
 //  }
 //
-//  template<class T, class ALLOC>
-//  inline int my_FixedSizeArray<T,ALLOC>::length() const
-//  {
-//      return d_length;
-//  }
-//
-//  template<class T, class ALLOC>
+//  template<class TYPE, class ALLOC>
 //  inline
-//  const ALLOC& my_FixedSizeArray<T,ALLOC>::allocator() const
+//  const ALLOC& my_FixedSizeArray<TYPE, ALLOC>::allocator() const
 //  {
 //      return d_allocator;
 //  }
 //
 //  // FREE OPERATORS
-//  template<class T, class ALLOC>
-//  bool operator==(const my_FixedSizeArray<T,ALLOC>& lhs,
-//                  const my_FixedSizeArray<T,ALLOC>& rhs)
+//  template<class TYPE, class ALLOC>
+//  bool operator==(const my_FixedSizeArray<TYPE, ALLOC>& lhs,
+//                  const my_FixedSizeArray<TYPE, ALLOC>& rhs)
 //  {
 //      if (lhs.length() != rhs.length()) {
-//          return false;
+//          return false;                                             // RETURN
 //      }
 //      for (int i = 0; i < lhs.length(); ++i) {
 //          if (lhs[i] != rhs[i]) {
-//              return false;
+//              return false;                                         // RETURN
 //          }
 //      }
 //      return true;
 //  }
+//
+//  template<class TYPE, class ALLOC>
+//  inline int my_FixedSizeArray<TYPE, ALLOC>::length() const
+//  {
+//      return d_length;
+//  }
+//
 //..
 // Now we declare an allocator mechanism.  Our mechanism will be to simply call
-// global 'operator new' and 'operator delete' functions, and count the number
-// of blocks outstanding (allocated but not deallocated).  Note that a more
-// reusable implementation would take an underlying mechanism at construction.
-// We keep things simple only for the sake of this example.
+// the global 'operator new' and 'operator delete' functions, and count the
+// number of blocks outstanding (allocated but not deallocated).  Note that a
+// more reusable implementation would take an underlying mechanism at
+// construction.  We keep things simple only for the sake of this example.
 //..
 //  // my_countingallocator.h
 //
-//                           // ==========================
-//                           // class my_CountingAllocator
-//                           // ==========================
+//                         // ==========================
+//                         // class my_CountingAllocator
+//                         // ==========================
 //
 //  class my_CountingAllocator : public bslma::Allocator {
 //      // This concrete implementation of the 'bslma::Allocator' protocol
@@ -265,13 +279,13 @@ BSLS_IDENT("$Id: $")
 //    public:
 //      // CREATORS
 //      my_CountingAllocator();
-//      // Create a counting allocator that uses the operators 'new' and
-//      // 'delete' to supply and free memory.
+//          // Create a counting allocator that uses the operators 'new' and
+//          // 'delete' to supply and free memory.
 //
 //      // MANIPULATORS
 //      virtual void *allocate(size_type size);
 //          // Return a pointer to an uninitialized memory of the specified
-//          // 'size (in bytes).
+//          // size (in bytes).
 //
 //      virtual void deallocate(void *address);
 //          // Return the memory at the specified 'address' to this allocator.
@@ -286,9 +300,9 @@ BSLS_IDENT("$Id: $")
 //..
 //  // my_countingallocator.cpp
 //
-//                           // --------------------------
-//                           // class my_CountingAllocator
-//                           // --------------------------
+//                         // --------------------------
+//                         // class my_CountingAllocator
+//                         // --------------------------
 //
 //  // CREATORS
 //  my_CountingAllocator::my_CountingAllocator()
@@ -317,9 +331,9 @@ BSLS_IDENT("$Id: $")
 //..
 // Now we can create array objects with different allocator mechanisms.  First
 // we create an array, 'a1', using the default allocator and fill it with the
-// values '[1 .. 5]':
+// values '1 .. 5':
 //..
-//  int main() {
+//  void usageExample() {
 //
 //      my_FixedSizeArray<int, bsl::allocator<int> > a1(5);
 //      assert(5 == a1.length());
@@ -335,10 +349,10 @@ BSLS_IDENT("$Id: $")
 //..
 //      my_CountingAllocator countingAlloc;
 //      my_FixedSizeArray<int, bsl::allocator<int> > a2(a1,&countingAlloc);
-//      assert(a1 == a2);
-//      assert(a1.allocator() != a2.allocator());
-//      assert(&countingAlloc == a2.allocator());
-//      assert(1 == countingAlloc.blocksOutstanding())
+//                 assert(a1 == a2);
+//                 assert(a1.allocator() != a2.allocator());
+//                 assert(&countingAlloc == a2.allocator());
+//                 assert(1 == countingAlloc.blocksOutstanding());
 //  }
 //..
 
@@ -375,15 +389,13 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_platform.h>
 #include <bsls_util.h>     // 'forward<T>(V)'
 
-#include <new>
-
 #include <climits>
-
 #include <cstddef>
+#include <new>
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // Include version that can be compiled with C++03
-// Generated on Thu Oct 21 10:11:37 2021
+// Generated on Fri May 13 11:05:19 2022
 // Command line: sim_cpp11_features.pl bslma_stdallocator.h
 # define COMPILING_BSLMA_STDALLOCATOR_H
 # include <bslma_stdallocator_cpp03.h>
@@ -392,11 +404,12 @@ BSL_OVERRIDES_STD mode"
 
 namespace bsl {
 
-template <class ALLOCATOR_TYPE> struct allocator_traits;
+template <class ALLOCATOR_TYPE>
+struct allocator_traits;
 
-                             // ===============
-                             // class allocator
-                             // ===============
+                              // ===============
+                              // class allocator
+                              // ===============
 
 template <class TYPE>
 class allocator {
@@ -417,8 +430,9 @@ class allocator {
     BSLMF_NESTED_TRAIT_DECLARATION(allocator, bsl::is_trivially_copyable);
     BSLMF_NESTED_TRAIT_DECLARATION(allocator,
                                    BloombergLP::bslmf::IsBitwiseMoveable);
-    BSLMF_NESTED_TRAIT_DECLARATION(allocator,
-                              BloombergLP::bslmf::IsBitwiseEqualityComparable);
+    BSLMF_NESTED_TRAIT_DECLARATION(
+        allocator,
+        BloombergLP::bslmf::IsBitwiseEqualityComparable);
         // Declare nested type traits for this class.
 
     // PUBLIC TYPES
@@ -509,39 +523,40 @@ class allocator {
         // aligned for objects of 'ELEMENT_TYPE'.
 #endif
 
-    template <class ELEMENT_TYPE>
-    void destroy(ELEMENT_TYPE *address);
+template <class ELEMENT_TYPE>
+void destroy(ELEMENT_TYPE *address);
         // Call the 'TYPE' destructor for the object pointed to by the
         // specified 'p'.  Do not directly deallocate any memory.
 
     // ACCESSORS
-    pointer address(reference x) const;
+pointer address(reference x) const;
         // Return the address of the object referred to by the specified 'x',
         // even if the (template parameter) 'TYPE' overloads the unary
         // 'operator&'.
 
-    const_pointer address(const_reference x) const;
+const_pointer address(const_reference x) const;
         // Return the address of the object referred to by the specified 'x',
         // even if the (template parameter) 'TYPE' overloads the unary
         // 'operator&'.
 
-    size_type max_size() const;
+size_type max_size() const;
         // Return the maximum number of elements of (template parameter) 'TYPE'
         // that can be allocated using this allocator.  Note that there is no
         // guarantee that attempts at allocating fewer elements than the value
         // returned by 'max_size' will not throw.
 
-    BloombergLP::bslma::Allocator *mechanism() const;
+BloombergLP::bslma::Allocator *mechanism() const;
         // Return a pointer to the mechanism object to which this proxy
         // forwards allocation and deallocation calls.
 
-    allocator<TYPE> select_on_container_copy_construction() const;
+allocator<TYPE> select_on_container_copy_construction() const;
         // TBD: add comment
-};
+}
+;
 
-                          // =====================
-                          // class allocator<void>
-                          // =====================
+                           // =====================
+                           // class allocator<void>
+                           // =====================
 
 template <>
 class allocator<void> {
@@ -556,8 +571,9 @@ class allocator<void> {
     BSLMF_NESTED_TRAIT_DECLARATION(allocator, bsl::is_trivially_copyable);
     BSLMF_NESTED_TRAIT_DECLARATION(allocator,
                                    BloombergLP::bslmf::IsBitwiseMoveable);
-    BSLMF_NESTED_TRAIT_DECLARATION(allocator,
-                              BloombergLP::bslmf::IsBitwiseEqualityComparable);
+    BSLMF_NESTED_TRAIT_DECLARATION(
+        allocator,
+        BloombergLP::bslmf::IsBitwiseEqualityComparable);
         // Declare nested type traits for this class.
 
     // PUBLIC TYPES
@@ -626,34 +642,43 @@ struct allocator_traits<allocator<TYPE> > {
     // 'allocator_traits' class template for 'bsl::allocator'.
 
     // PUBLIC TYPES
-    typedef allocator<TYPE>                           allocator_type;
-    typedef typename allocator<TYPE>::value_type      value_type;
+    typedef allocator<TYPE> allocator_type;
+    typedef TYPE            value_type;
 
-    typedef typename allocator<TYPE>::pointer         pointer;
-    typedef typename allocator<TYPE>::const_pointer   const_pointer;
-    typedef void                                     *void_pointer;
-    typedef void const                               *const_void_pointer;
-    typedef typename allocator<TYPE>::difference_type difference_type;
-    typedef typename allocator<TYPE>::size_type       size_type;
+    typedef TYPE           *pointer;
+    typedef const TYPE     *const_pointer;
+    typedef void           *void_pointer;
+    typedef const void     *const_void_pointer;
+    typedef std::ptrdiff_t  difference_type;
+    typedef std::size_t     size_type;
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
     template <class ELEMENT_TYPE>
-    using rebind_alloc =
-        typename allocator<TYPE>::template rebind<ELEMENT_TYPE>::other;
+    using rebind_alloc = allocator<ELEMENT_TYPE>;
 
     template <class ELEMENT_TYPE>
-    using rebind_traits = allocator_traits<rebind_alloc<ELEMENT_TYPE>>;
+    using rebind_traits = allocator_traits<allocator<ELEMENT_TYPE> >;
 #else
     template <class ELEMENT_TYPE>
-    struct rebind_alloc
-        : allocator<TYPE>::template rebind<ELEMENT_TYPE>::other
-    { };
+    struct rebind_alloc : allocator<ELEMENT_TYPE> {
+        rebind_alloc()
+        : allocator<ELEMENT_TYPE>()
+        {
+        }
+
+        template <typename ARG>
+        rebind_alloc(const ARG& allocatorArg)
+            // Convert from anything that can be used to cosntruct the base
+            // type.  This might be better if SFINAE-ed out using
+            // 'is_convertible', but stressing older compilers more seems
+            // unwise.
+        : allocator<ELEMENT_TYPE>(allocatorArg)
+        {
+        }
+    };
 
     template <class ELEMENT_TYPE>
-    struct rebind_traits
-        : allocator_traits<
-              typename allocator<TYPE>::template rebind<ELEMENT_TYPE>::other>
-    {
+    struct rebind_traits : allocator_traits<allocator<ELEMENT_TYPE> > {
     };
 #endif
 
@@ -662,22 +687,23 @@ struct allocator_traits<allocator<TYPE> > {
         return m.allocate(n);
     }
 
-    static pointer
-    allocate(allocator<TYPE>& m, size_type n, const_void_pointer hint)
+    static pointer allocate(allocator<TYPE>&   m,
+                            size_type          n,
+                            const_void_pointer hint)
     {
         return m.allocate(n, hint);
     }
 
-    static void
-    deallocate(allocator<TYPE>& m, pointer p, size_type n)
+    static void deallocate(allocator<TYPE>& m, pointer p, size_type n)
     {
         m.deallocate(p, n);
     }
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=14
     template <class ELEMENT_TYPE, class... Args>
-    static void
-    construct(allocator<TYPE>& m, ELEMENT_TYPE *p, Args&&... arguments)
+    static void construct(allocator<TYPE>&  m,
+                          ELEMENT_TYPE     *p,
+                          Args&&...         arguments)
     {
         m.construct(p, BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...);
     }
@@ -695,8 +721,8 @@ struct allocator_traits<allocator<TYPE> > {
     }
 
     // Allocator propagation traits
-    static allocator<TYPE>
-    select_on_container_copy_construction(const allocator<TYPE>&)
+    static allocator<TYPE> select_on_container_copy_construction(
+                                                        const allocator<TYPE>&)
     {
         return allocator<TYPE>();
     }
@@ -711,8 +737,7 @@ struct allocator_traits<allocator<TYPE> > {
 // FREE OPERATORS
 template <class T1, class T2>
 inline
-bool operator==(const allocator<T1>& lhs,
-                const allocator<T2>& rhs);
+bool operator==(const allocator<T1>& lhs, const allocator<T2>& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' are proxies for the same
     // 'bslma::Allocator' object.  This is a practical implementation of the
     // STL requirement that two allocators compare equal if and only if memory
@@ -722,15 +747,13 @@ bool operator==(const allocator<T1>& lhs,
 
 template <class T1, class T2>
 inline
-bool operator!=(const allocator<T1>& lhs,
-                const allocator<T2>& rhs);
+bool operator!=(const allocator<T1>& lhs, const allocator<T2>& rhs);
     // Return 'true' unless the specified 'lhs' and 'rhs' are proxies for the
     // same 'bslma::Allocator' object, in which case return 'false'.  This is a
     // practical implementation of the STL requirement that two allocators
     // compare equal if and only if memory allocated from one can be
     // deallocated from the other.  Note that the two allocators need not be
     // instantiated on the same type in order to compare equal.
-
 
 template <class TYPE>
 inline
@@ -745,7 +768,6 @@ bool operator!=(const allocator<TYPE>&               lhs,
                 const BloombergLP::bslma::Allocator *rhs);
     // Return 'true' unless the specified 'lhs' is a proxy for the specified
     // 'rhs', in which case return 'false'.
-
 
 template <class TYPE>
 inline
@@ -765,9 +787,9 @@ bool operator!=(const BloombergLP::bslma::Allocator *lhs,
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                             // ---------------
-                             // class allocator
-                             // ---------------
+                              // ---------------
+                              // class allocator
+                              // ---------------
 
 // LOW-LEVEL ACCESSORS
 template <class TYPE>
@@ -810,9 +832,9 @@ allocator<TYPE>::allocator(const allocator<ANY_TYPE>& rhs)
 // MANIPULATORS
 template <class TYPE>
 inline
-typename allocator<TYPE>::pointer
-allocator<TYPE>::allocate(typename allocator::size_type  n,
-                          const void                    *hint)
+typename allocator<TYPE>::pointer allocator<TYPE>::allocate(
+                                           typename allocator::size_type  n,
+                                           const void                    *hint)
 {
     BSLS_ASSERT_SAFE(n <= this->max_size());
 
@@ -836,9 +858,9 @@ inline
 void allocator<TYPE>::construct(ELEMENT_TYPE *address, Args&&... arguments)
 {
     BloombergLP::bslma::ConstructionUtil::construct(
-        address,
-        d_mechanism,
-        BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...);
+                            address,
+                            d_mechanism,
+                            BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...);
 }
 #endif
 
@@ -853,8 +875,8 @@ void allocator<TYPE>::destroy(ELEMENT_TYPE *address)
 // ACCESSORS
 template <class TYPE>
 inline
-typename allocator<TYPE>::const_pointer
-allocator<TYPE>::address(const_reference x) const
+typename allocator<TYPE>::const_pointer allocator<TYPE>::address(
+                                                       const_reference x) const
 {
     return BSLS_UTIL_ADDRESSOF(x);
 }
@@ -878,7 +900,7 @@ typename allocator<TYPE>::size_type allocator<TYPE>::max_size() const
     // demonstrate that is true:
 
     BSLMF_ASSERT((bsl::is_same<BloombergLP::bslma::Allocator::size_type,
-                                                         std::size_t>::value));
+                               std::size_t>::value));
 
     static const std::size_t MAX_NUM_BYTES    = ~std::size_t(0);
     static const std::size_t MAX_NUM_ELEMENTS = MAX_NUM_BYTES / sizeof(TYPE);
@@ -893,9 +915,9 @@ allocator<TYPE> allocator<TYPE>::select_on_container_copy_construction() const
     return allocator<TYPE>();
 }
 
-                          // ---------------------
-                          // class allocator<void>
-                          // ---------------------
+                           // ---------------------
+                           // class allocator<void>
+                           // ---------------------
 
 // LOW-LEVEL ACCESSORS
 inline
@@ -918,7 +940,7 @@ allocator<void>::allocator(BloombergLP::bslma::Allocator *mechanism)
 }
 
 // 'template <>' is needed only for versions of xlC prior to 9
-#if defined(__xlC__) && __xlC__<0x900
+#if defined(__xlC__) && __xlC__ < 0x900
 template <>
 #endif
 inline
@@ -952,7 +974,7 @@ template <class T1, class T2>
 inline
 bool operator!=(const allocator<T1>& lhs, const allocator<T2>& rhs)
 {
-    return ! (lhs == rhs);
+    return !(lhs == rhs);
 }
 
 template <class TYPE>
@@ -968,7 +990,7 @@ inline
 bool operator!=(const allocator<TYPE>&               lhs,
                 const BloombergLP::bslma::Allocator *rhs)
 {
-    return ! (lhs == rhs);
+    return !(lhs == rhs);
 }
 
 template <class TYPE>
@@ -984,7 +1006,7 @@ inline
 bool operator!=(const BloombergLP::bslma::Allocator *lhs,
                 const allocator<TYPE>&               rhs)
 {
-    return ! (lhs == rhs);
+    return !(lhs == rhs);
 }
 
 }  // close namespace bsl
@@ -997,7 +1019,8 @@ namespace BloombergLP {
 namespace bslma {
 
 template <class TYPE>
-struct UsesBslmaAllocator< ::bsl::allocator<TYPE> > : bsl::false_type {};
+struct UsesBslmaAllocator< ::bsl::allocator<TYPE> > : bsl::false_type {
+};
 
 }  // close namespace bslma
 }  // close enterprise namespace

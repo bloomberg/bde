@@ -4,10 +4,11 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-#include <bslma_defaultallocatorguard.h>    // for testing only
-#include <bslma_testallocator.h>            // for testing only
-#include <bslma_testallocatormonitor.h>     // for testing only
-#include <bslma_usesbslmaallocator.h>       // for testing only
+#include <bslma_defaultallocatorguard.h>  // for testing only
+#include <bslma_destructorproctor.h>      // for testing only
+#include <bslma_testallocator.h>          // for testing only
+#include <bslma_testallocatormonitor.h>   // for testing only
+#include <bslma_usesbslmaallocator.h>     // for testing only
 
 // Design Notes
 // ------------

@@ -496,7 +496,7 @@ class TestTypeNoAlloc {
         ++numCharCtorCalls;
     }
 
-    TestTypeNoAlloc(const TestTypeNoAlloc&  original)
+    TestTypeNoAlloc(const TestTypeNoAlloc& original)
     {
         d_u.d_char = original.d_u.d_char;
         ++numCopyCtorCalls;
@@ -607,7 +607,7 @@ class BitwiseCopyableTestType : public TestTypeNoAlloc {
         ++numCharCtorCalls;
     }
 
-    BitwiseCopyableTestType(const BitwiseCopyableTestType&  original)
+    BitwiseCopyableTestType(const BitwiseCopyableTestType& original)
     : TestTypeNoAlloc(original.datum())
     {
     }

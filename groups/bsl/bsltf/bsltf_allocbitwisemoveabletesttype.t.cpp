@@ -658,7 +658,7 @@ int main(int argc, char *argv[])
                     objAllocatorPtr = &sa;
                   } break;
                   default: {
-                    ASSERTV(CONFIG, !"Bad allocator config.");
+                    BSLS_ASSERT_INVOKE_NORETURN("Bad allocator config.");
                   } break;
                 }
 
@@ -680,7 +680,7 @@ int main(int argc, char *argv[])
                         objPtr = new (fa) Obj(Z, &sa);
                       } break;
                       default: {
-                        ASSERTV(CONFIG, !"Bad allocator config.");
+                        BSLS_ASSERT_INVOKE_NORETURN("Bad allocator config.");
                       } break;
                     }
                     ASSERTV(CONFIG, tam.isInUseUp());
@@ -1059,7 +1059,7 @@ int main(int argc, char *argv[])
                     objAllocatorPtr = &sa;
                   } break;
                   default: {
-                    ASSERTV(CONFIG, !"Bad allocator config.");
+                    BSLS_ASSERT_INVOKE_NORETURN("Bad allocator config.");
                   } break;
                 }
 
@@ -1081,7 +1081,7 @@ int main(int argc, char *argv[])
                         objPtr = new (fa) Obj(DATA, &sa);
                       } break;
                       default: {
-                        ASSERTV(CONFIG, !"Bad allocator config.");
+                        BSLS_ASSERT_INVOKE_NORETURN("Bad allocator config.");
                       } return testStatus;                            // RETURN
                     }
                     ASSERTV(CONFIG, tam.isInUseUp());
@@ -1249,7 +1249,7 @@ int main(int argc, char *argv[])
                 objAllocatorPtr = &sa;
               } break;
               default: {
-                ASSERTV(CONFIG, !"Bad allocator config.");
+                BSLS_ASSERT_INVOKE_NORETURN("Bad allocator config.");
               } return testStatus;                                    // RETURN
             }
 
@@ -1271,7 +1271,7 @@ int main(int argc, char *argv[])
                     objPtr = new (fa) Obj(&sa);
                   } break;
                   default: {
-                    ASSERTV(CONFIG, !"Bad allocator config.");
+                    BSLS_ASSERT_INVOKE_NORETURN("Bad allocator config.");
                   } return testStatus;                                // RETURN
                 }
                 ASSERTV(CONFIG, tam.isInUseUp());

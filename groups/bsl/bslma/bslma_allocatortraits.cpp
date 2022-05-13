@@ -1,11 +1,12 @@
 // bslma_allocatortraits.cpp                                          -*-C++-*-
 #include <bslma_allocatortraits.h>
 
-#ifdef TESTING
-//#include <bslma_testallocator.h>                    // for testing only
-//#include <bslma_default.h>                          // for testing only
-//#include <bslalg_typetraithasstliterators.h>        // for testing only
-#endif
+#include <bslma_constructionutil.h>       // for testing only
+#include <bslma_default.h>                // for testing only
+#include <bslma_defaultallocatorguard.h>  // for testing only
+#include <bslma_stdallocator.h>           // for testing only
+#include <bslma_testallocator.h>          // for testing only
+#include <bslma_usesbslmaallocator.h>     // for testing only
 
 // ----------------------------------------------------------------------------
 // Copyright 2013 Bloomberg Finance L.P.

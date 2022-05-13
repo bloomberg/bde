@@ -1113,7 +1113,7 @@ class basic_string
 
   private:
     // PRIVATE TYPES
-    typedef String_Imp<CHAR_TYPE, typename ALLOCATOR::size_type> Imp;
+    typedef String_Imp<CHAR_TYPE, size_type>                     Imp;
 
     typedef BloombergLP::bslalg::ContainerBase<ALLOCATOR>        ContainerBase;
 
@@ -5704,7 +5704,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::max_size() const
     // Must take into account the null-terminating character.
 
     size_type stringMaxSize = ~size_type(0) / sizeof(CHAR_TYPE) - 1;
-    size_type allocMaxSize  = get_allocator().max_size() - 1;
+    size_type allocMaxSize  = AllocatorTraits::max_size(get_allocator()) - 1;
     return allocMaxSize < stringMaxSize ? allocMaxSize : stringMaxSize;
 }
 

@@ -821,7 +821,7 @@ void testCase4_RunTest()
                            testArg(B10, MOVE_10));
       } break;
       default: {
-        ASSERTV(!"Invalid # of args!");
+        BSLS_ASSERT_INVOKE_NORETURN("Invalid # of args!");
       } break;
     }
 
@@ -1707,7 +1707,7 @@ int main(int argc, char *argv[])
                 printf("\tTesting construction from another type adapter.\n");
               } break;
               default: {
-                  ASSERTV(CONFIG, !"Bad constructor config.");
+                BSLS_ASSERT_INVOKE_NORETURN("Bad constructor config.");
               } break;
             }
             // Test allocators.
@@ -1758,7 +1758,7 @@ int main(int argc, char *argv[])
                 expected = &ANOTHER;
               } break;
               default: {
-                  ASSERTV(CONFIG, !"Bad constructor config.");
+                  BSLS_ASSERT_INVOKE_NORETURN("Bad constructor config.");
               } break;
             }
 

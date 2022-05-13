@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Mar  2 08:25:04 2022
+// Generated on Fri Apr 29 17:30:51 2022
 // Command line: sim_cpp11_features.pl bslstl_list.h
 
 #ifdef COMPILING_BSLSTL_LIST_H
@@ -388,8 +388,8 @@ class list {
 
   public:
     // PUBLIC TYPES
-    typedef typename ALLOCATOR::reference                      reference;
-    typedef typename ALLOCATOR::const_reference                const_reference;
+    typedef VALUE&                                             reference;
+    typedef const VALUE&                                       const_reference;
     typedef List_Iterator<VALUE>                               iterator;
     typedef List_Iterator<const VALUE>                         const_iterator;
     typedef typename allocator_traits<ALLOCATOR>::pointer      pointer;

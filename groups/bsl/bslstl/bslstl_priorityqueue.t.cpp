@@ -367,6 +367,10 @@ class NonAllocContainer
     : d_vector(&bslma::MallocFreeAllocator::singleton())
     {}
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS)
+    NonAllocContainer(const NonAllocContainer& other) = default;
+#endif
+
     ~NonAllocContainer()
         // Destroy this object.
     {}
@@ -2114,7 +2118,7 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::
         "BC",
         "CDE",
     };
-    const int NUM_SPECS = static_cast<const int>(sizeof SPECS / sizeof *SPECS);
+    const int NUM_SPECS = static_cast<int>(sizeof SPECS / sizeof *SPECS);
 
     bslma::TestAllocator da("default", veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard dag(&da);
@@ -3288,7 +3292,7 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::
         "BC",
         "CDE",
     };
-    const int NUM_SPECS = static_cast<const int>(sizeof SPECS / sizeof *SPECS);
+    const int NUM_SPECS = static_cast<int>(sizeof SPECS / sizeof *SPECS);
 
     bslma::TestAllocator da("default", veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard dag(&da);
@@ -3689,7 +3693,7 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::
         "BC",
         "CDE",
     };
-    const int NUM_SPECS = static_cast<const int>(sizeof SPECS / sizeof *SPECS);
+    const int NUM_SPECS = static_cast<int>(sizeof SPECS / sizeof *SPECS);
 
     bslma::TestAllocator da("default", veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard dag(&da);
@@ -4177,7 +4181,7 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::
         "BC",
         "CDE",
     };
-    const int NUM_SPECS = static_cast<const int>(sizeof SPECS / sizeof *SPECS);
+    const int NUM_SPECS = static_cast<int>(sizeof SPECS / sizeof *SPECS);
 
     for (int ti = 0; ti < NUM_SPECS; ++ti) {
         const char *const SPEC   = SPECS[ti];
@@ -4312,8 +4316,7 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::
             "BC",
             "CDE",
         };
-        const int NUM_SPECS =
-                          static_cast<const int>(sizeof SPECS / sizeof *SPECS);
+        const int NUM_SPECS = static_cast<int>(sizeof SPECS / sizeof *SPECS);
 
         for (int ti = 0; ti < NUM_SPECS; ++ti) {
             const char *const SPEC   = SPECS[ti];

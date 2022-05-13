@@ -92,10 +92,10 @@ class AllocBitwiseMoveableTestType {
     // class attributes.
 
     // DATA
-    int             *d_data_p;       // pointer to the integer class value
+    int              *d_data_p;       // pointer to the integer class value
 
     bslma::Allocator *d_allocator_p;  // allocator used to supply memory (held,
-                                     // not owned)
+                                      // not owned)
 
   public:
     // CREATORS

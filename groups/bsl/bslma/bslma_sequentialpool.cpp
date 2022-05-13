@@ -6,13 +6,14 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+#include <bslma_allocator.h>        // for testing only
 #include <bslma_bufferallocator.h>
-#include <bslma_testallocator.h>       // for testing only
+#include <bslma_testallocator.h>    // for testing only
 
 #include <bsls_assert.h>
 #include <bsls_performancehint.h>
 
-#include <climits>                     // for 'INT_MAX'
+#include <climits>                  // for 'INT_MAX'
 
 namespace {
 

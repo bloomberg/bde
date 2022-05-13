@@ -990,8 +990,8 @@ class list {
 
   public:
     // PUBLIC TYPES
-    typedef typename ALLOCATOR::reference                      reference;
-    typedef typename ALLOCATOR::const_reference                const_reference;
+    typedef VALUE&                                             reference;
+    typedef const VALUE&                                       const_reference;
     typedef List_Iterator<VALUE>                               iterator;
     typedef List_Iterator<const VALUE>                         const_iterator;
     typedef typename allocator_traits<ALLOCATOR>::pointer      pointer;
