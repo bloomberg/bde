@@ -627,6 +627,9 @@ class Encoder_ValueDispatcher {
                    bdlat_TypeCategory::CustomizedType category);
     template <class TYPE>
     int operator()(const TYPE&                     value,
+                   bdlat_TypeCategory::DynamicType category);
+    template <class TYPE>
+    int operator()(const TYPE&                     value,
                    bdlat_TypeCategory::Enumeration category);
     template <class TYPE>
     int operator()(const TYPE&                       value,
@@ -677,7 +680,7 @@ class Encoder_ElementVisitor {
     // function-call operator of this class provides an overload set that
     // accepts an "element" object that satisfies one of the 'bdlat'
     // type-category concepts.
- 
+
     // DATA
     Formatter            *d_formatter_p;
         // wrapper around the output stream that determines the whitespace to
@@ -785,6 +788,9 @@ class Encoder_ElementDispatcher {
     template <class TYPE>
     int operator()(const TYPE&                        element,
                    bdlat_TypeCategory::CustomizedType category);
+    template <class TYPE>
+    int operator()(const TYPE&                     element,
+                   bdlat_TypeCategory::DynamicType category);
     template <class TYPE>
     int operator()(const TYPE&                     element,
                    bdlat_TypeCategory::Enumeration category);
@@ -971,6 +977,9 @@ class Encoder_SelectionDispatcher {
     template <class TYPE>
     int operator()(const TYPE&                        selection,
                    bdlat_TypeCategory::CustomizedType category);
+    template <class TYPE>
+    int operator()(const TYPE&                     selection,
+                   bdlat_TypeCategory::DynamicType category);
     template <class TYPE, class CATEGORY>
     int operator()(const TYPE& selection, CATEGORY category);
         // Encode the JSON representation of the specified 'selection', having
@@ -1156,6 +1165,9 @@ class Encoder_AttributeDispatcher {
     template <class TYPE>
     int operator()(const TYPE&                        attribute,
                    bdlat_TypeCategory::CustomizedType category);
+    template <class TYPE>
+    int operator()(const TYPE&                     attribute,
+                   bdlat_TypeCategory::DynamicType category);
     template <class TYPE>
     int operator()(const TYPE&                       attribute,
                    bdlat_TypeCategory::NullableValue category);
@@ -1416,7 +1428,9 @@ int Encoder_EncodeImplUtil::encode(bool                  *isValueEmpty,
                                     formattingMode,
                                     isFirstMember,
                                     options);
-    int rc = bdlat_TypeCategoryUtil::accessByCategory(value, visitor);
+
+    typedef typename bdlat_TypeCategory::Select<TYPE>::Type Category;
+    int rc = visitor(value, Category());
     if (0 != rc) {
         return rc;                                                    // RETURN
     }
@@ -1819,6 +1833,14 @@ int Encoder_ValueDispatcher::operator()(
 template <class TYPE>
 inline
 int Encoder_ValueDispatcher::operator()(const TYPE&                     value,
+                                        bdlat_TypeCategory::DynamicType)
+{
+    return bdlat_TypeCategoryUtil::accessByCategory(value, *this);
+}
+
+template <class TYPE>
+inline
+int Encoder_ValueDispatcher::operator()(const TYPE&                     value,
                                         bdlat_TypeCategory::Enumeration)
 {
     bsl::string valueString;
@@ -1941,7 +1963,9 @@ int Encoder_ElementVisitor::operator()(const TYPE& element)
                                          d_logStream_p,
                                          d_isNextElementFirst,
                                          *d_options_p);
-    int rc = bdlat_TypeCategoryUtil::accessByCategory(element, dispatcher);
+
+    typedef typename bdlat_TypeCategory::Select<TYPE>::Type Category;
+    int rc = dispatcher(element, Category());
     if (0 != rc) {
         return rc;                                                    // RETURN
     }
@@ -2065,6 +2089,14 @@ int Encoder_ElementDispatcher::operator()(
     return bdlat_TypeCategoryUtil::accessByCategory(
                      bdlat_CustomizedTypeFunctions::convertToBaseType(element),
                      *this);
+}
+
+template <class TYPE>
+int Encoder_ElementDispatcher::operator()(
+                                    const TYPE&                        element,
+                                    bdlat_TypeCategory::DynamicType)
+{
+    return bdlat_TypeCategoryUtil::accessByCategory(element, *this);
 }
 
 template <class TYPE>
@@ -2201,7 +2233,8 @@ int Encoder_SelectionVisitor::operator()(const TYPE&           selection,
                                            d_isNextObjectFirst,
                                            *d_options_p);
 
-    int rc = bdlat_TypeCategoryUtil::accessByCategory(selection, dispatcher);
+    typedef typename bdlat_TypeCategory::Select<TYPE>::Type Category;
+    int rc = dispatcher(selection, Category());
     if (0 != rc) {
         return rc;                                                    // RETURN
     }
@@ -2250,6 +2283,15 @@ int Encoder_SelectionDispatcher::operator()(
     return bdlat_TypeCategoryUtil::accessByCategory(
                    bdlat_CustomizedTypeFunctions::convertToBaseType(selection),
                    *this);
+}
+
+template <class TYPE>
+inline
+int Encoder_SelectionDispatcher::operator()(
+                                     const TYPE&                     selection,
+                                     bdlat_TypeCategory::DynamicType)
+{
+    return bdlat_TypeCategoryUtil::accessByCategory(selection, *this);
 }
 
 template <class TYPE, class CATEGORY>
@@ -2312,7 +2354,9 @@ int Encoder_AttributeVisitor::operator()(const TYPE&           attribute,
                                            attributeInfo.formattingMode(),
                                            d_isNextAttributeFirst,
                                            *d_options_p);
-    int rc = bdlat_TypeCategoryUtil::accessByCategory(attribute, dispatcher);
+
+    typedef typename bdlat_TypeCategory::Select<TYPE>::Type Category;
+    int rc = dispatcher(attribute, Category());
     if (0 != rc) {
         return -rc;                                                   // RETURN
     }
@@ -2399,6 +2443,15 @@ int Encoder_AttributeDispatcher::operator()(
     return bdlat_TypeCategoryUtil::accessByCategory(
                    bdlat_CustomizedTypeFunctions::convertToBaseType(attribute),
                    *this);
+}
+
+template <class TYPE>
+inline
+int Encoder_AttributeDispatcher::operator()(
+                                     const TYPE&                     attribute,
+                                     bdlat_TypeCategory::DynamicType)
+{
+    return bdlat_TypeCategoryUtil::accessByCategory(attribute, *this);
 }
 
 template <class TYPE>

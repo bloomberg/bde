@@ -147,6 +147,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_assert.h>
 
 #include <bsls_assert.h>
+#include <bsls_platform.h>
 
 #include <bsl_cstddef.h>
 
@@ -284,7 +285,9 @@ int ArrayUtil::accessElementByCategory(const TYPE& array,
                                        ACCESSOR&   accessor,
                                        int         index)
 {
+#if !defined(BSLS_PLATFORM_CMP_SUN)
     BSLMF_ASSERT((bdlat_ArrayFunctions::IsArray<TYPE>::VALUE));
+#endif
     BSLS_ASSERT(bdlat_TypeCategoryFunctions::select(array) ==
                 bdlat_TypeCategory::e_ARRAY_CATEGORY);
     BSLS_ASSERT(0 <= index);
@@ -301,7 +304,9 @@ int ArrayUtil::manipulateElementByCategory(TYPE         *array,
                                            MANIPULATOR&  manipulator,
                                            int           index)
 {
+#if !defined(BSLS_PLATFORM_CMP_SUN)
     BSLMF_ASSERT((bdlat_ArrayFunctions::IsArray<TYPE>::VALUE));
+#endif
     BSLS_ASSERT(array);
     BSLS_ASSERT(bdlat_TypeCategoryFunctions::select(*array) ==
                 bdlat_TypeCategory::e_ARRAY_CATEGORY);

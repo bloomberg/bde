@@ -139,6 +139,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_assert.h>
 
 #include <bsls_assert.h>
+#include <bsls_platform.h>
 
 namespace BloombergLP {
 namespace bdlat {
@@ -270,7 +271,9 @@ inline
 int NullableValueUtil::accessValueByCategory(const TYPE& object,
                                              ACCESSOR&   accessor)
 {
+#if !defined(BSLS_PLATFORM_CMP_SUN)
     BSLMF_ASSERT((bdlat_NullableValueFunctions::IsNullableValue<TYPE>::VALUE));
+#endif
     BSLS_ASSERT(bdlat_TypeCategoryFunctions::select(object) ==
                 bdlat_TypeCategory::e_NULLABLE_VALUE_CATEGORY);
     BSLS_ASSERT(!bdlat_NullableValueFunctions::isNull(object));
@@ -285,7 +288,9 @@ inline
 int NullableValueUtil::manipulateValueByCategory(TYPE         *object,
                                                  MANIPULATOR&  manipulator)
 {
+#if !defined(BSLS_PLATFORM_CMP_SUN)
     BSLMF_ASSERT((bdlat_NullableValueFunctions::IsNullableValue<TYPE>::VALUE));
+#endif
     BSLS_ASSERT(object);
     BSLS_ASSERT(bdlat_TypeCategoryFunctions::select(*object) ==
                 bdlat_TypeCategory::e_NULLABLE_VALUE_CATEGORY);

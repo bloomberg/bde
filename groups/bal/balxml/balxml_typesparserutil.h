@@ -856,39 +856,47 @@ int TypesParserUtil::parse(TYPE       *result,
                            int         inputLength,
                            int         formattingMode)
 {
-    enum { k_FAILURE = - 1 };
+    enum { k_FAILURE = -1 };
+
+    typedef typename bdlat_TypeCategory::Select<TYPE>::Type Tag;
 
     if (formattingMode & bdlat_FormattingMode::e_LIST) {
-        return TypesParserUtil::parseList(result,
-                                          input,
-                                          inputLength);               // RETURN
+        return TypesParserUtil_Imp::parseList(result,
+                                              input,
+                                              inputLength,
+                                              Tag());                 // RETURN
     }
 
     switch (formattingMode & bdlat_FormattingMode::e_TYPE_MASK) {
       case bdlat_FormattingMode::e_BASE64: {
-        return TypesParserUtil::parseBase64(result,
-                                            input,
-                                            inputLength);             // RETURN
+        return TypesParserUtil_Imp::parseBase64(result,
+                                                input,
+                                                inputLength,
+                                                Tag());               // RETURN
       } break;
       case bdlat_FormattingMode::e_DEC: {
-        return TypesParserUtil::parseDecimal(result,
-                                             input,
-                                             inputLength);            // RETURN
+        return TypesParserUtil_Imp::parseDecimal(result,
+                                                 input,
+                                                 inputLength,
+                                                 Tag());              // RETURN
       } break;
       case bdlat_FormattingMode::e_DEFAULT: {
-        return TypesParserUtil::parseDefault(result,
-                                             input,
-                                             inputLength);            // RETURN
+        return TypesParserUtil_Imp::parseDefault(result,
+                                                 input,
+                                                 inputLength,
+                                                 Tag());              // RETURN
       } break;
       case bdlat_FormattingMode::e_HEX: {
-        return TypesParserUtil::parseHex(result,
-                                         input,
-                                         inputLength);                // RETURN
+        return TypesParserUtil_Imp::parseHex(result,
+                                             input,
+                                             inputLength,
+                                             Tag());                  // RETURN
       } break;
       case bdlat_FormattingMode::e_TEXT: {
-        return TypesParserUtil::parseText(result,
-                                          input,
-                                          inputLength);               // RETURN
+        return TypesParserUtil_Imp::parseText(result,
+                                              input,
+                                              inputLength,
+                                              Tag());                 // RETURN
       } break;
       default: {
         BSLS_ASSERT_SAFE(!"Unsupported operation!");
@@ -904,8 +912,8 @@ int TypesParserUtil::parseBase64(TYPE       *result,
                                  const char *input,
                                  int         inputLength)
 {
-    const TypesParserUtilImp_ParseBase64 parseBase64(input, inputLength);
-    return bdlat_TypeCategoryUtil::manipulateByCategory(result, parseBase64);
+    typedef typename bdlat_TypeCategory::Select<TYPE>::Type Tag;
+    return TypesParserUtil_Imp::parseBase64(result, input, inputLength, Tag());
 }
 
 template <class TYPE>
@@ -914,8 +922,9 @@ int TypesParserUtil::parseDecimal(TYPE       *result,
                                   const char *input,
                                   int         inputLength)
 {
-    const TypesParserUtilImp_ParseDecimal parseDecimal(input, inputLength);
-    return bdlat_TypeCategoryUtil::manipulateByCategory(result, parseDecimal);
+    typedef typename bdlat_TypeCategory::Select<TYPE>::Type Tag;
+    return TypesParserUtil_Imp::parseDecimal(
+        result, input, inputLength, Tag());
 }
 
 template <class TYPE>
@@ -924,18 +933,17 @@ int TypesParserUtil::parseDefault(TYPE       *result,
                                   const char *input,
                                   int         inputLength)
 {
-    const TypesParserUtilImp_ParseDefault parseDefault(input, inputLength);
-    return bdlat_TypeCategoryUtil::manipulateByCategory(result, parseDefault);
+    typedef typename bdlat_TypeCategory::Select<TYPE>::Type Tag;
+    return TypesParserUtil_Imp::parseDefault(
+        result, input, inputLength, Tag());
 }
 
 template <class TYPE>
 inline
-int TypesParserUtil::parseHex(TYPE       *result,
-                              const char *input,
-                              int         inputLength)
+int TypesParserUtil::parseHex(TYPE *result, const char *input, int inputLength)
 {
-    const TypesParserUtilImp_ParseHex parseHex(input, inputLength);
-    return bdlat_TypeCategoryUtil::manipulateByCategory(result, parseHex);
+    typedef typename bdlat_TypeCategory::Select<TYPE>::Type Tag;
+    return TypesParserUtil_Imp::parseHex(result, input, inputLength, Tag());
 }
 
 template <class TYPE>
@@ -944,8 +952,8 @@ int TypesParserUtil::parseList(TYPE       *result,
                                const char *input,
                                int         inputLength)
 {
-    const TypesParserUtilImp_ParseList parseList(input, inputLength);
-    return bdlat_TypeCategoryUtil::manipulateByCategory(result, parseList);
+    typedef typename bdlat_TypeCategory::Select<TYPE>::Type Tag;
+    return TypesParserUtil_Imp::parseList(result, input, inputLength, Tag());
 }
 
 template <class TYPE>
@@ -954,8 +962,8 @@ int TypesParserUtil::parseText(TYPE       *result,
                                const char *input,
                                int         inputLength)
 {
-    const TypesParserUtilImp_ParseText parseText(input, inputLength);
-    return bdlat_TypeCategoryUtil::manipulateByCategory(result, parseText);
+    typedef typename bdlat_TypeCategory::Select<TYPE>::Type Tag;
+    return TypesParserUtil_Imp::parseText(result, input, inputLength, Tag());
 }
 
                          // --------------------------
@@ -963,6 +971,18 @@ int TypesParserUtil::parseText(TYPE       *result,
                          // --------------------------
 
 // BASE64 FUNCTIONS
+
+template <class TYPE>
+inline
+int TypesParserUtil_Imp::parseBase64(
+                                  TYPE                            *result,
+                                  const char                      *input,
+                                  int                              inputLength,
+                                  bdlat_TypeCategory::DynamicType)
+{
+    const TypesParserUtilImp_ParseBase64 parseBase64(input, inputLength);
+    return bdlat_TypeCategoryUtil::manipulateByCategory(result, parseBase64);
+}
 
 template <class TYPE, class ANY_CATEGORY>
 inline
@@ -1021,6 +1041,18 @@ int TypesParserUtil_Imp::parseDecimal(
     return bdlat_CustomizedTypeFunctions::convertFromBaseType(result, base);
 }
 
+template <class TYPE>
+inline
+int TypesParserUtil_Imp::parseDecimal(
+                                  TYPE                            *result,
+                                  const char                      *input,
+                                  int                              inputLength,
+                                  bdlat_TypeCategory::DynamicType)
+{
+    const TypesParserUtilImp_ParseDecimal parseDecimal(input, inputLength);
+    return bdlat_TypeCategoryUtil::manipulateByCategory(result, parseDecimal);
+}
+
 template <class TYPE, class ANY_CATEGORY>
 inline
 int TypesParserUtil_Imp::parseDecimal(TYPE *, const char *, int, ANY_CATEGORY)
@@ -1065,6 +1097,18 @@ int TypesParserUtil_Imp::parseDefault(
     }
 
     return bdlat_CustomizedTypeFunctions::convertFromBaseType(result, base);
+}
+
+template <class TYPE>
+inline
+int TypesParserUtil_Imp::parseDefault(
+                                  TYPE                            *result,
+                                  const char                      *input,
+                                  int                              inputLength,
+                                  bdlat_TypeCategory::DynamicType)
+{
+    const TypesParserUtilImp_ParseDefault parseDefault(input, inputLength);
+    return bdlat_TypeCategoryUtil::manipulateByCategory(result, parseDefault);
 }
 
 template <class TYPE, class ANY_CATEGORY>
@@ -1254,6 +1298,17 @@ int TypesParserUtil_Imp::parseDefault(bsl::vector<char>         *result,
 
 // HEX FUNCTIONS
 
+template <class TYPE>
+inline
+int TypesParserUtil_Imp::parseHex(TYPE                            *result,
+                                  const char                      *input,
+                                  int                              inputLength,
+                                  bdlat_TypeCategory::DynamicType)
+{
+    const TypesParserUtilImp_ParseHex parseHex(input, inputLength);
+    return bdlat_TypeCategoryUtil::manipulateByCategory(result, parseHex);
+}
+
 template <class TYPE, class ANY_CATEGORY>
 inline
 int TypesParserUtil_Imp::parseHex(TYPE *, const char *, int, ANY_CATEGORY)
@@ -1294,6 +1349,18 @@ int TypesParserUtil_Imp::parseList(TYPE                      *result,
     }
 
     return listParser.endParse();
+}
+
+template <class TYPE>
+inline
+int TypesParserUtil_Imp::parseList(
+                                  TYPE                            *result,
+                                  const char                      *input,
+                                  int                              inputLength,
+                                  bdlat_TypeCategory::DynamicType)
+{
+    const TypesParserUtilImp_ParseList parseList(input, inputLength);
+    return bdlat_TypeCategoryUtil::manipulateByCategory(result, parseList);
 }
 
 template <class TYPE, class ANY_CATEGORY>
@@ -1384,6 +1451,18 @@ int TypesParserUtil_Imp::parseText(
     }
 
     return bdlat_CustomizedTypeFunctions::convertFromBaseType(result, base);
+}
+
+template <class TYPE>
+inline
+int TypesParserUtil_Imp::parseText(
+                                  TYPE                            *result,
+                                  const char                      *input,
+                                  int                              inputLength,
+                                  bdlat_TypeCategory::DynamicType)
+{
+    const TypesParserUtilImp_ParseText parseText(input, inputLength);
+    return bdlat_TypeCategoryUtil::manipulateByCategory(result, parseText);
 }
 
 template <class TYPE, class ANY_CATEGORY>
