@@ -16,25 +16,24 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslma' package currently has 46 components having 9 levels of physical
+ The 'bslma' package currently has 45 components having 10 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
-
 ..
-   9. bslma_allocatortraits
+  10. bslma_allocatortraits
       bslma_isstdallocator
 
-   8. bslma_managedptr
+   9. bslma_managedptr
       bslma_stdallocator
       bslma_stdtestallocator
 
-   7. bslma_constructionutil
+   8. bslma_constructionutil
       bslma_managedptr_factorydeleter                                 !PRIVATE!
       bslma_managedptr_members                                        !PRIVATE!
       bslma_sequentialallocator                          !DEPRECATED!
 
-   6. bslma_autodeallocator
+   7. bslma_autodeallocator
       bslma_autorawdeleter
       bslma_destructorproctor
       bslma_sequentialpool                               !DEPRECATED!
@@ -42,7 +41,7 @@
       bslma_sharedptroutofplacerep
       bslma_testallocatormonitor
 
-   5. bslma_allocatoradaptor
+   6. bslma_allocatoradaptor
       bslma_autodestructor
       bslma_deallocatorguard
       bslma_deallocatorproctor
@@ -57,22 +56,22 @@
       bslma_rawdeleterproctor
       bslma_sharedptrrep
 
-   4. bslma_default
+   5. bslma_default
       bslma_testallocator
 
-   3. bslma_bufferallocator                              !DEPRECATED!
+   4. bslma_bufferallocator                              !DEPRECATED!
       bslma_mallocfreeallocator
       bslma_managedallocator                             !DEPRECATED!
       bslma_newdeleteallocator
       bslma_testallocatorexception
       bslma_usesbslmaallocator
 
-   2. bslma_allocator
+   3. bslma_allocator
 
-   1. bslma_allocatortraits_cpp03                                     !PRIVATE!
-      bslma_constructionutil_cpp03                                    !PRIVATE!
+   2. bslma_allocatortraits_cpp03                                     !PRIVATE!
       bslma_deleterhelper
-      bslma_limitstdallocatoradapter
+
+   1. bslma_constructionutil_cpp03                                    !PRIVATE!
       bslma_managedptr_cpp03                                          !PRIVATE!
       bslma_sharedptrinplacerep_cpp03                                 !PRIVATE!
       bslma_stdallocator_cpp03                                        !PRIVATE!
