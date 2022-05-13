@@ -5855,7 +5855,7 @@ struct MyHashAlgorithm {
     // This 'struct' is intended for use in reproducing the error described in
     // DRQS 169300521.
 
-    using result_type = bsls::Types::Int64;
+    typedef bsls::Types::Int64 result_type;
 
     void operator()(const void *, size_t)
     {
