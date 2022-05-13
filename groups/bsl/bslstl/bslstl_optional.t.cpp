@@ -5848,6 +5848,25 @@ struct EasyConvert {
     }
 };
 
+                              // ------------
+                              // Test Case 23
+                              // ------------
+struct MyHashAlgorithm {
+    // This 'struct' is intended for use in reproducing the error described in
+    // DRQS 169300521.
+
+    using result_type = bsls::Types::Int64;
+
+    void operator()(const void *, size_t)
+    {
+    }
+
+    result_type computeHash()
+    {
+        return 0;
+    }
+};
+
 // ============================================================================
 //                          TEST DRIVER TEMPLATE
 // ----------------------------------------------------------------------------
@@ -12422,6 +12441,37 @@ int main(int argc, char **argv)
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) {  case 0:
+      case 23: {
+        //---------------------------------------------------------------------
+        // REPRODUCE DRQS 169300521 'hashAppend' w algorithms outside of 'bslh'
+        //
+        // Formerly, when employing a hash algorithm not residing in 'bslh' as
+        // the first argument to 'hashAppend', 'bslh' is not searched during
+        // ADL.  The expected behavior before the fix is a linker error.  The
+        // expected behavior after the fix is a *no* linker error.
+        //
+        // Concern:
+        //: 1 Invoking 'hashAppend' with a custom hash algorithm as the first
+        //:   argument correctly find 'bslh_hash::hashAppend'.
+        //
+        // Plan:
+        //: 1 Create a mock hash algorithm 'class', 'MyHashAlgorithm'.
+        //:
+        //: 2 Pass an instance of this hash 'class' to 'hashAppend'.
+        //
+        // Testing:
+        //   hashAppend(HASHALG& hashAlg, const optional<TYPE>& input);
+        //---------------------------------------------------------------------
+
+        if (verbose)
+            printf("Testing hashAppend(HASHALG& hashAlg, const "
+                   "optional<TYPE>& input);\n"
+                   "=========================================================="
+                   "========\n");
+
+        MyHashAlgorithm myHash;
+        hashAppend(myHash, bsl::optional<int>());
+      } break;
       case 22: {
         //---------------------------------------------------------------------
         // REPRODUCE DRQS 168615744 bsl::optional<bdef_Function>
