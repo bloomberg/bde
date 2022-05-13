@@ -1,9 +1,23 @@
-bsl-internal (3.99.5.0.2.testpromotion) unstable; urgency=low
+bsl-internal (3.99.6.0) unstable; urgency=low
 
+  * 720edeb5a adjust run duration to avoid timeout (#3705)
+  * c89703b48 Reduce *ByCategory introspection in bal codecs (#3704)
+  * 9dd1e9549 Alisdair cpp20 fixes (#3683)
+  * 54738e417 Add missing memory_resource headers and include std headers for pmr components (#3703)
+  * bc1e12bef Update pcre2 to version 10.39 (#3577)
+  * 15ba57c29 fix MSVC warning about 'unary minus operator applied to unsigned type' - ENG2BASINF-3036 (#3697)
+  * 437bc777e add allocator-aware default constructors to striped unordered map and multimap (#3689)
+  * 54330a5b1 Gcc11 warnings drqs 169251019 (#3694)
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 13 May 2022 14:34:48 -0400
+
+bsl-internal (3.99.5.0.2.testpromotion) git; urgency=low
+
+  * 00e3d98e1 Changelog for version 3.99.5.0.2.testpromotion
   * 30f4d1d74 drqs-169243159: 'bslstl_stringbuf.h': 'static_cast' to quell warnings. (#3691)
   * dcd6d7fb5 Throughputbenchmark drqs 169191413.1 (#3690)
 
- -- Steven Breitstein <sbreitstein@bloomberg.net>  Fri, 6 May 2022 17:20:18 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 9 May 2022 07:03:35 -0400
 
 bsl-internal (3.99.5.0.1.testpromotion) git; urgency=low
 
