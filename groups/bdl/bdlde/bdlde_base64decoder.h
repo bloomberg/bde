@@ -433,6 +433,9 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlscm_version.h>
 
+#include <bdlde_base64alphabet.h>
+#include <bdlde_base64decoderoptions.h>
+
 #include <bsls_assert.h>
 #include <bsls_review.h>
 #include <bsl_iostream.h>
@@ -450,15 +453,16 @@ class Base64Decoder {
 
   public:
     // PUBLIC TYPES
-    enum Alphabet {
-        // Enumeration used to distinguish between different types of
-        // alphabets supported by this component.
-        e_BASIC = 0,  // "base64"
-        e_URL   = 1   // "base64url"
-    };
+    typedef Base64Alphabet::Enum Alphabet;
+
+    // PUBLIC CONSTANTS
+    static const Alphabet e_BASIC = Base64Alphabet::e_BASIC;
+    static const Alphabet e_URL   = Base64Alphabet::e_URL;
 
   private:
     // PRIVATE TYPES
+    typedef Base64DecoderOptions    DecoderOptions;
+
     enum {
         // Symbolic state values.
 
@@ -498,6 +502,8 @@ class Base64Decoder {
                                        //  3 = done state - no more input
                                        //      allowed
 
+    bool              d_isPadded;
+
     int               d_outputLength;  // total number of output characters
 
     const char *const d_alphabet_p;    // Selected alphabet based on specified
@@ -507,10 +513,10 @@ class Base64Decoder {
                                        // characters based on specified
                                        // error-reporting mode
 
-    // TBD doc
+    unsigned          d_stack;         // Word containing 6-bit chunks of
+                                       // data to be assembled into bytes.
 
-    unsigned d_stack;
-    int      d_bitsInStack;
+    int               d_bitsInStack;   // Number of bits in 'd_stack'.
 
   private:
     // NOT IMPLEMENTED
@@ -519,13 +525,32 @@ class Base64Decoder {
 
   public:
     // CLASS METHODS
+    static int maxDecodedLength(const DecoderOptions& options,
+                                int                   inputLength);
+        // Return the maximum number of decoded bytes that could result from an
+        // input byte sequence of the specified 'inputLength' provided to the
+        // 'convert' and 'endConvert' methods of this decoder, and the options
+        // indicated by the specified 'options'.  The behavior is undefined
+        // unless '0 <= inputLength'.
+
     static int maxDecodedLength(int inputLength);
         // Return the maximum number of decoded bytes that could result from an
         // input byte sequence of the specified 'inputLength' provided to the
-        // 'convert' method of this decoder.  The behavior is undefined unless
-        // '0 <= inputLength'.
+        // 'convert' and 'endConvert' methods of this decoder.  The behavior is
+        // undefined unless '0 <= inputLength'.
+        //
+        // DEPRECATED: use the overload with 'options' instead.
 
     // CREATORS
+    explicit
+    Base64Decoder(const Base64DecoderOptions& options);
+        // Create a Base64 decoder in the initial state.  Unrecognized
+        // characters (i.e., non-base64 characters other than whitespace) will
+        // be treated as errors if the specified 'unrecognizedIsErrorFlag' is
+        // 'true', and ignored otherwise.  Optionally specify an alphabet used
+        // to decode input characters.  If 'alphabet' is not specified, then
+        // the basic alphabet, "base64", is used.
+
     explicit
     Base64Decoder(bool unrecognizedIsErrorFlag, Alphabet alphabet = e_BASIC);
         // Create a Base64 decoder in the initial state.  Unrecognized
@@ -659,8 +684,24 @@ int Base64Decoder::maxDecodedLength(int inputLength)
 
 // CREATORS
 inline
+Base64Decoder::Base64Decoder(const Base64DecoderOptions& options)
+: d_state(e_INPUT_STATE)
+, d_isPadded(options.isPadded())
+, d_outputLength(0)
+, d_alphabet_p(e_BASIC == options.alphabet() ? s_basicAlphabet_p
+                                             : s_urlAlphabet_p)
+, d_ignorable_p(options.unrecognizedIsError()
+                    ? s_ignorableStrict_p
+                    : e_BASIC == options.alphabet() ? s_basicIgnorableRelaxed_p
+                                                    : s_urlIgnorableRelaxed_p)
+, d_stack(0)
+, d_bitsInStack(0)
+{}
+
+inline
 Base64Decoder::Base64Decoder(bool unrecognizedIsErrorFlag, Alphabet alphabet)
 : d_state(e_INPUT_STATE)
+, d_isPadded(true)
 , d_outputLength(0)
 , d_alphabet_p(e_BASIC == alphabet ? s_basicAlphabet_p : s_urlAlphabet_p)
 , d_ignorable_p(unrecognizedIsErrorFlag
@@ -669,8 +710,7 @@ Base64Decoder::Base64Decoder(bool unrecognizedIsErrorFlag, Alphabet alphabet)
                                             : s_urlIgnorableRelaxed_p)
 , d_stack(0)
 , d_bitsInStack(0)
-{
-}
+{}
 
 // MANIPULATORS
 template <class OUTPUT_ITERATOR, class INPUT_ITERATOR>
@@ -740,7 +780,7 @@ int Base64Decoder::convert(OUTPUT_ITERATOR  out,
                 }
             }
             else if (!d_ignorable_p[byte]) {
-                if ('=' == byte) {
+                if ('=' == byte && d_isPadded) {
                     const int residualBits =
                                        (((d_outputLength + numEmitted) % 3) * 8
                                                          + d_bitsInStack) % 24;
@@ -765,6 +805,7 @@ int Base64Decoder::convert(OUTPUT_ITERATOR  out,
             }
         }
     }
+
     if (e_NEED_EQUAL_STATE == d_state) {
         while (begin != end) {
             const unsigned char byte = static_cast<unsigned char>(*begin);
@@ -773,7 +814,7 @@ int Base64Decoder::convert(OUTPUT_ITERATOR  out,
             ++*numIn;
 
             if (!d_ignorable_p[byte]) {
-                if ('=' == byte) {
+                if ('=' == byte && d_isPadded) {
                     d_state = e_SOFT_DONE_STATE;
                 }
                 else {

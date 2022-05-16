@@ -14,6 +14,7 @@
 
 #include <bslim_testutil.h>
 
+#include <bslma_managedptr.h>
 #include <bslma_testallocator.h>
 #include <bsls_review.h>
 #include <bsls_types.h>
@@ -317,7 +318,10 @@ void loopMeter(unsigned index, unsigned length, unsigned size = 50)
 //                         GLOBAL TYPEDEFS/CONSTANTS
 // ----------------------------------------------------------------------------
 
-typedef bdlde::Base64Decoder Obj;
+typedef bdlde::Base64DecoderOptions Options;
+typedef bdlde::Base64EncoderOptions EncoderOptions;
+typedef bdlde::Base64Decoder        Obj;
+typedef bdlde::Base64Alphabet       Alpha;
 
 static const char ff = static_cast<char>(-1);
 
@@ -1379,6 +1383,8 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
                        "Create 'base64Input', valid base 64 input sequence,\n"
                                           " and permute it in various ways.\n";
 
+        bslma::TestAllocator fa("footprint");
+
         bsl::vector<char> base64Input;
         const char        GARBAGE = char(0xa5);
         int               base64Size =
@@ -1417,8 +1423,17 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 
         int numOut, numIn, endNumOut;
 
-        {
-            Obj mX(true);    const Obj& X = mX;
+        for (int ti = 0; ti < 4; ++ti) {
+            const EncoderOptions& EO = EncoderOptions::custom(0);
+
+            numOut = numIn = endNumOut = -1;
+
+            Obj *pmX = 0 == ti ? new (fa) Obj(Options::custom(EO, true))
+                     : 1 == ti ? new (fa) Obj(Options::custom(true))
+                     : 2 == ti ? new (fa) Obj(Options::custom(EO, false))
+                     :           new (fa) Obj(Options::custom(false));
+            Obj& mX = *pmX;    const Obj& X = mX;
+            bslma::ManagedPtr<Obj> guard(pmX, &fa);
             char *out = binaryOutput.data();
 
             int rc = mX.convert(out,
@@ -1477,8 +1492,17 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
         if (veryVerbose) cout << "Decode 'noisyInput' with error checking\n"
                               " enabled, observe output matches fuzz input.\n";
 
-        {
-            Obj mX(true);    const Obj& X = mX;
+        for (int ti = 0; ti < 4; ++ti) {
+            const EncoderOptions& EO = EncoderOptions::custom(0);
+
+            numOut = numIn = endNumOut = -1;
+
+            Obj *pmX = 0 == ti ? new (fa) Obj(Options::custom(EO, true))
+                     : 1 == ti ? new (fa) Obj(Options::custom(true))
+                     : 2 == ti ? new (fa) Obj(Options::custom(EO, false))
+                     :           new (fa) Obj(Options::custom(false));
+            Obj& mX = *pmX;    const Obj& X = mX;
+            bslma::ManagedPtr<Obj> guard(pmX, &fa);
             char *out = binaryOutput.data();
 
             int rc = mX.convert(out,
@@ -1546,11 +1570,23 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
         if (veryVerbose) cout << "Decode 'noisyInput'.  The result depends\n"
                                   " upon whether error checking is enabled.\n";
 
-        for (unsigned errorCheck = 0; errorCheck < 2; ++errorCheck) {
+        for (int ti = 0; ti < 4; ++ti) {
+            bool errorCheck = ti & 1;
+            bool ctorChoice = ti & 2;
+
+            const EncoderOptions& EO = EncoderOptions::custom(0);
+
             binaryOutput.clear();
             binaryOutput.resize(LENGTH + 1, GARBAGE);
 
-            Obj mX(0 != errorCheck);    const Obj& X = mX;
+            numOut = numIn = endNumOut = -1;
+
+            Obj *pmX = ctorChoice
+                     ? new (fa) Obj(Options::custom(EO, errorCheck))
+                     : new (fa) Obj(Options::custom(errorCheck));
+            Obj& mX = *pmX;    const Obj& X = mX;
+            bslma::ManagedPtr<Obj> guard(pmX, &fa);
+
             char *outBuf = binaryOutput.data();
             char *out    = outBuf;
 
@@ -1602,13 +1638,24 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
         noisyInput = base64Input;
         noisyInput.insert(noisyInput.begin(), 3, 'A');
         for (int ii = 0; ii <= static_cast<int>(noisyInput.size()) - 2; ++ii) {
-            for (int errorI = 0; errorI < 2; ++errorI) {
+            for (int ti = 0; ti < 4; ++ti) {
+                bool errorI     = ti & 1;
+                bool ctorChoice = ti & 2;
+
+                const EncoderOptions& EO = EncoderOptions::custom(0);
+
                 binaryOutput.clear();
                 binaryOutput.resize(LENGTH + 4, GARBAGE);
 
                 noisyInput.insert(noisyInput.begin() + ii, '=');
 
-                Obj mX(0 != errorI);    const Obj& X = mX;
+                numOut = numIn = endNumOut = -1;
+
+                Obj *pmX = ctorChoice
+                         ? new (fa) Obj(Options::custom(EO, errorI))
+                         : new (fa) Obj(Options::custom(errorI));
+                Obj& mX = *pmX;    const Obj& X = mX;
+                bslma::ManagedPtr<Obj> guard(pmX, &fa);
                 char *out = binaryOutput.data();
 
                 int rc = mX.convert(out,
