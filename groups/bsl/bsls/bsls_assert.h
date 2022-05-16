@@ -84,7 +84,7 @@ BSLS_IDENT("$Id: $")
 //:   it expands to check its predicate and call the assert failure handler
 //:   when it is false.
 //:
-//: 2 A 'bsls_assert' macro is "enabled in review mode", or simple "in review
+//: 2 A 'bsls_assert' macro is "enabled in review mode", or simply "in review
 //:   mode" if it expands to check its predicate and call the *review* failure
 //:   handler when it is false.  This is identical to a 'bsls_review' macro of
 //:   the same level when it is enabled.
@@ -1459,7 +1459,6 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_annotation.h>
 #include <bsls_assertimputil.h>
-#include <bsls_atomicoperations.h>
 #include <bsls_buildtarget.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
@@ -1925,14 +1924,6 @@ class Assert {
     // FRIENDS
     friend class AssertFailureHandlerGuard;
 
-    // CLASS DATA
-    static bsls::AtomicOperations::AtomicTypes::Pointer
-                  s_violationHandler; // assertion-failure handler function
-    static bsls::AtomicOperations::AtomicTypes::Pointer
-                  s_handler;          // legacy assertion-failure handler
-    static bsls::AtomicOperations::AtomicTypes::Int
-                  s_lockedFlag;       // lock to disable 'setFailureHandler'
-
     // PRIVATE CLASS METHODS
     static void setViolationHandlerRaw(Assert::ViolationHandler function);
         // Make the specified handler 'function' the current assertion-failure
@@ -2289,6 +2280,9 @@ int AssertViolation::lineNumber() const
 //  BSLS_ASSERT_LEVEL_ASSERT
 //  BSLS_ASSERT_LEVEL_ASSERT_OPT
 //  BSLS_ASSERT_LEVEL_NONE
+//  BSLS_ASSERT_LEVEL_ASSUME_SAFE
+//  BSLS_ASSERT_LEVEL_ASSUME_ASSERT
+//  BSLS_ASSERT_LEVEL_ASSUME_OPT
 //..
 // ----------------------------------------------------------------------------
 
@@ -2310,6 +2304,24 @@ int AssertViolation::lineNumber() const
 ..._LEVEL_ASSERT_SAFE and ..._LEVEL_NONE
 #endif
 
+#if defined(BSLS_ASSERT_LEVEL_ASSERT_SAFE) &&                                 \
+    defined(BSLS_ASSERT_LEVEL_ASSUME_OPT)
+#error incompatible BSLS_ASSERT levels:                                       \
+..._LEVEL_ASSERT_SAFE and ..._LEVEL_ASSUME_OPT
+#endif
+
+#if defined(BSLS_ASSERT_LEVEL_ASSERT_SAFE) &&                                 \
+    defined(BSLS_ASSERT_LEVEL_ASSUME_ASSERT)
+#error incompatible BSLS_ASSERT levels:                                       \
+..._LEVEL_ASSERT_SAFE and ..._LEVEL_ASSUME_ASSERT
+#endif
+
+#if defined(BSLS_ASSERT_LEVEL_ASSERT_SAFE) &&                                 \
+    defined(BSLS_ASSERT_LEVEL_ASSUME_SAFE)
+#error incompatible BSLS_ASSERT levels:                                       \
+..._LEVEL_ASSERT_SAFE and ..._LEVEL_ASSUME_SAFE
+#endif
+
 #if defined(BSLS_ASSERT_LEVEL_ASSERT) &&                                      \
     defined(BSLS_ASSERT_LEVEL_ASSERT_OPT)
 #error incompatible BSLS_ASSERT levels:                                       \
@@ -2322,10 +2334,82 @@ int AssertViolation::lineNumber() const
 ..._LEVEL_ASSERT and ..._LEVEL_NONE
 #endif
 
+#if defined(BSLS_ASSERT_LEVEL_ASSERT) &&                                      \
+    defined(BSLS_ASSERT_LEVEL_ASSUME_OPT)
+#error incompatible BSLS_ASSERT levels:                                       \
+..._LEVEL_ASSERT and ..._LEVEL_ASSUME_OPT
+#endif
+
+#if defined(BSLS_ASSERT_LEVEL_ASSERT) &&                                      \
+    defined(BSLS_ASSERT_LEVEL_ASSUME_ASSERT)
+#error incompatible BSLS_ASSERT levels:                                       \
+..._LEVEL_ASSERT and ..._LEVEL_ASSUME_ASSERT
+#endif
+
+#if defined(BSLS_ASSERT_LEVEL_ASSERT) &&                                      \
+    defined(BSLS_ASSERT_LEVEL_ASSUME_SAFE)
+#error incompatible BSLS_ASSERT levels:                                       \
+..._LEVEL_ASSERT and ..._LEVEL_ASSUME_SAFE
+#endif
+
 #if defined(BSLS_ASSERT_LEVEL_ASSERT_OPT) &&                                  \
     defined(BSLS_ASSERT_LEVEL_NONE)
 #error incompatible BSLS_ASSERT levels:                                       \
 ..._LEVEL_ASSERT_OPT and ..._LEVEL_NONE
+#endif
+
+#if defined(BSLS_ASSERT_LEVEL_ASSERT_OPT) &&                                  \
+    defined(BSLS_ASSERT_LEVEL_ASSUME_OPT)
+#error incompatible BSLS_ASSERT levels:                                       \
+..._LEVEL_ASSERT_OPT and ..._LEVEL_ASSUME_OPT
+#endif
+
+#if defined(BSLS_ASSERT_LEVEL_ASSERT_OPT) &&                                  \
+    defined(BSLS_ASSERT_LEVEL_ASSUME_ASSERT)
+#error incompatible BSLS_ASSERT levels:                                       \
+..._LEVEL_ASSERT_OPT and ..._LEVEL_ASSUME_ASSERT
+#endif
+
+#if defined(BSLS_ASSERT_LEVEL_ASSERT_OPT) &&                                  \
+    defined(BSLS_ASSERT_LEVEL_ASSUME_SAFE)
+#error incompatible BSLS_ASSERT levels:                                       \
+..._LEVEL_ASSERT_OPT and ..._LEVEL_ASSUME_SAFE
+#endif
+
+#if defined(BSLS_ASSERT_LEVEL_NONE) &&                                        \
+    defined(BSLS_ASSERT_LEVEL_ASSUME_OPT)
+#error incompatible BSLS_ASSERT levels:                                       \
+..._LEVEL_NONE and ..._LEVEL_ASSUME_OPT
+#endif
+
+#if defined(BSLS_ASSERT_LEVEL_NONE) &&                                        \
+    defined(BSLS_ASSERT_LEVEL_ASSUME_ASSERT)
+#error incompatible BSLS_ASSERT levels:                                       \
+..._LEVEL_NONE and ..._LEVEL_ASSUME_ASSERT
+#endif
+
+#if defined(BSLS_ASSERT_LEVEL_NONE) &&                                        \
+    defined(BSLS_ASSERT_LEVEL_ASSUME_SAFE)
+#error incompatible BSLS_ASSERT levels:                                       \
+..._LEVEL_NONE and ..._LEVEL_ASSUME_SAFE
+#endif
+
+#if defined(BSLS_ASSERT_LEVEL_ASSUME_OPT) &&                                  \
+    defined(BSLS_ASSERT_LEVEL_ASSUME_ASSERT)
+#error incompatible BSLS_ASSERT levels:                                       \
+..._LEVEL_ASSUME_OPT and ..._LEVEL_ASSUME_ASSERT
+#endif
+
+#if defined(BSLS_ASSERT_LEVEL_ASSUME_OPT) &&                                  \
+    defined(BSLS_ASSERT_LEVEL_ASSUME_SAFE)
+#error incompatible BSLS_ASSERT levels:                                       \
+..._LEVEL_ASSUME_OPT and ..._LEVEL_ASSUME_SAFE
+#endif
+
+#if defined(BSLS_ASSERT_LEVEL_ASSUME_ASSERT) &&                               \
+    defined(BSLS_ASSERT_LEVEL_ASSUME_SAFE)
+#error incompatible BSLS_ASSERT levels:                                       \
+..._LEVEL_ASSUME_ASSERT and ..._LEVEL_ASSUME_SAFE
 #endif
 
 #endif

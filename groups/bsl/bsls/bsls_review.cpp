@@ -23,11 +23,11 @@ BSLS_IDENT("$Id$ $CSID$")
 #endif
 
 namespace BloombergLP {
+namespace bsls {
 
 namespace {
 
 // STATIC HELPER FUNCTIONS
-static
 void printError(const bsls::ReviewViolation& violation)
     // Log a formatted message with the contents of the specified 'violation'
     // and a severity of 'e_ERROR'.
@@ -67,17 +67,19 @@ void printError(const bsls::ReviewViolation& violation)
                                    comment);
 }
 
+// STATIC DATA
+bsls::AtomicOperations::AtomicTypes::Pointer
+    g_violationHandler = {(void *) &Review::failByLog};
+    // review-failure handler function
+
+bsls::AtomicOperations::AtomicTypes::Int g_lockedFlag = {0};
+    // lock to disable 'setViolationHandler'
+
 }  // close unnamed namespace
 
-namespace bsls {
                                 // ------------
                                 // class Review
                                 // ------------
-
-// CLASS DATA
-bsls::AtomicOperations::AtomicTypes::Pointer
-    Review::s_violationHandler = {(void *) &Review::failByLog};
-bsls::AtomicOperations::AtomicTypes::Int Review::s_lockedFlag = {0};
 
 // PUBLIC CONSTANTS
 const char Review::k_LEVEL_SAFE[]   = "R-SAF";
@@ -89,7 +91,7 @@ const char Review::k_LEVEL_INVOKE[] = "R-INV";
 void Review::setViolationHandlerRaw(Review::ViolationHandler function)
 {
     bsls::AtomicOperations::setPtrRelease(
-        &s_violationHandler, PointerCastUtil::cast<void *>(function));
+        &g_violationHandler, PointerCastUtil::cast<void *>(function));
 }
 
 // CLASS METHODS
@@ -97,12 +99,12 @@ void Review::setViolationHandlerRaw(Review::ViolationHandler function)
 
 void Review::lockReviewAdministration()
 {
-    bsls::AtomicOperations::setIntRelaxed(&s_lockedFlag, 1);
+    bsls::AtomicOperations::setIntRelaxed(&g_lockedFlag, 1);
 }
 
 void Review::setViolationHandler(Review::ViolationHandler function)
 {
-    if (!bsls::AtomicOperations::getIntRelaxed(&s_lockedFlag)) {
+    if (!bsls::AtomicOperations::getIntRelaxed(&g_lockedFlag)) {
         setViolationHandlerRaw(function);
     }
 }
@@ -112,7 +114,7 @@ Review::ViolationHandler Review::violationHandler()
     // BDE_VERIFY pragma: push
     // BDE_VERIFY pragma: -CC01 // AIX only allows this cast as a C-style cast
     return (ViolationHandler) bsls::AtomicOperations::getPtrAcquire(
-                                                &s_violationHandler); // RETURN
+                                                &g_violationHandler); // RETURN
     // BDE_VERIFY pragma: pop
 }
 

@@ -53,13 +53,13 @@ void handle_contract_violation(const std::contract_violation &violation)
 #endif
 
 namespace BloombergLP {
+namespace bsls {
 
                               // ---------------
                               // Local Utilities
                               // ---------------
 namespace {
 
-static
 void printError(const char *comment, const char *file, int line)
     // Log a formatted message with the contents of the specified 'comment',
     // 'file', 'line' number, and a severity of 'e_FATAL'.
@@ -85,7 +85,6 @@ void printError(const char *comment, const char *file, int line)
                                    comment);
 }
 
-static
 void printError(const bsls::AssertViolation& violation)
     // Log a formatted message with the contents of the specified 'violation'
     // and a severity of 'e_FATAL'.
@@ -135,26 +134,27 @@ static char      g_KeyBuffer[k_KeyBufferSize] = "No";
 static bool g_permitReturningHandlerRuntimeFlag = false;
     // Flag for method 'permitOutOfPolicyReturningFailureHandler'.
 
-}  // close unnamed namespace
+bsls::AtomicOperations::AtomicTypes::Pointer
+    g_violationHandler = {(void *) &Assert::failByAbort};
+    // assertion-failure handler function
 
-namespace bsls {
+bsls::AtomicOperations::AtomicTypes::Pointer
+    g_handler = {(void *) NULL};
+    // legacy assertion-failure handler
+
+bsls::AtomicOperations::AtomicTypes::Int g_lockedFlag = {0};
+    // lock to disable 'setFailureHandler'
+
+}  // close unnamed namespace
 
                                 // ------------
                                 // class Assert
                                 // ------------
 
-// CLASS DATA
-bsls::AtomicOperations::AtomicTypes::Pointer
-    Assert::s_violationHandler = {(void *) &Assert::failByAbort};
-bsls::AtomicOperations::AtomicTypes::Pointer
-    Assert::s_handler = {(void *) NULL};
-
-bsls::AtomicOperations::AtomicTypes::Int Assert::s_lockedFlag = {0};
+// PUBLIC CLASS DATA
 
 // Install 'k_permitOutOfPolicyReturningAssertionBuildKey' in writable memory
 // for testing.
-
-// PUBLIC CLASS DATA
 const char *Assert::k_permitOutOfPolicyReturningAssertionBuildKey =
                                                                    g_KeyBuffer;
 
@@ -176,9 +176,9 @@ void Assert::failOnViolation(const bsls::AssertViolation& violation)
 void Assert::setFailureHandlerRaw(Assert::Handler function)
 {
     bsls::AtomicOperations::setPtrRelease(
-        &s_handler, PointerCastUtil::cast<void *>(function));
+        &g_handler, PointerCastUtil::cast<void *>(function));
     bsls::AtomicOperations::setPtrRelease(
-        &s_violationHandler, PointerCastUtil::cast<void*>(&failOnViolation));
+        &g_violationHandler, PointerCastUtil::cast<void*>(&failOnViolation));
 }
 
 void Assert::setViolationHandlerRaw(Assert::ViolationHandler function)
@@ -186,26 +186,26 @@ void Assert::setViolationHandlerRaw(Assert::ViolationHandler function)
     // explicitly leave whatever might be there in legacyHandler to avoid
     // worrying about atomicity of the multiple pointer changes.
     bsls::AtomicOperations::setPtrRelease(
-        &s_violationHandler, PointerCastUtil::cast<void *>(function));
+        &g_violationHandler, PointerCastUtil::cast<void *>(function));
 }
 
 void Assert::setFailureHandler(Assert::Handler function)
 {
-    if (!bsls::AtomicOperations::getIntRelaxed(&s_lockedFlag)) {
+    if (!bsls::AtomicOperations::getIntRelaxed(&g_lockedFlag)) {
         setFailureHandlerRaw(function);
     }
 }
 
 void Assert::setViolationHandler(Assert::ViolationHandler function)
 {
-    if (!bsls::AtomicOperations::getIntRelaxed(&s_lockedFlag)) {
+    if (!bsls::AtomicOperations::getIntRelaxed(&g_lockedFlag)) {
         setViolationHandlerRaw(function);
     }
 }
 
 void Assert::lockAssertAdministration()
 {
-    bsls::AtomicOperations::setIntRelaxed(&s_lockedFlag, 1);
+    bsls::AtomicOperations::setIntRelaxed(&g_lockedFlag, 1);
 }
 
 Assert::ViolationHandler Assert::violationHandler()
@@ -213,7 +213,7 @@ Assert::ViolationHandler Assert::violationHandler()
     // BDE_VERIFY pragma: push
     // BDE_VERIFY pragma: -CC01 // AIX only allows this cast as a C-Style cast
     return (ViolationHandler) bsls::AtomicOperations::getPtrAcquire(
-                                                &s_violationHandler); // RETURN
+                                                &g_violationHandler); // RETURN
     // BDE_VERIFY pragma: pop
 }
 
@@ -226,7 +226,7 @@ Assert::Handler Assert::failureHandler()
         // BDE_VERIFY pragma: push
         // BDE_VERIFY pragma: -CC01 // AIX only allows this as a C-Style cast
         return (Handler) bsls::AtomicOperations::getPtrAcquire(
-                                                         &s_handler); // RETURN
+                                                         &g_handler); // RETURN
         // BDE_VERIFY pragma: pop
     }
 }
