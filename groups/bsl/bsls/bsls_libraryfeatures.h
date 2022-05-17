@@ -41,6 +41,8 @@ BSLS_IDENT("$Id: $")
 //  BSLS_LIBRARYFEATURES_HAS_CPP17_FILESYSTEM: <filesystem>
 //  BSLS_LIBRARYFEATURES_HAS_CPP17_PARALLEL_ALGORITHMS: <execution>
 //  BSLS_LIBRARYFEATURES_HAS_CPP17_PMR: <memory_resource>
+//  BSLS_LIBRARYFEATURES_HAS_CPP17_TIMESPEC_GET: <ctime>
+//  BSLS_LIBRARYFEATURES_HAS_CPP17_ALIGNED_ALLOC: <cstdlib>
 //  BSLS_LIBRARYFEATURES_STDCPP_GNU: implementation is GNU libstdc++
 //  BSLS_LIBRARYFEATURES_STDCPP_IBM: implementation is IBM
 //  BSLS_LIBRARYFEATURES_STDCPP_INTELLISENSE: Intellisense is running
@@ -802,6 +804,25 @@ BSLS_IDENT("$Id: $")
 // native type is obviated so 'BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT' is
 // being removed.
 //
+///'BSLS_LIBRARYFEATURES_HAS_CPP17_ALIGNED_ALLOC'
+///-------------------------------------------------------------
+// The 'BSLS_LIBRARYFEATURES_HAS_CPP17_ALIGNED_ALLOC' macro is defined if the
+// native standard library provides 'std::aligned_alloc'.
+//
+// Both libstdc++ and libc++ will provide this call if the underlying C library
+// provides the global call '::aligned_alloc.  This call is available on RedHat
+// version 7, for example, but not on RedHat 6.  Microsoft does not provide
+// this call.  See https://github.com/microsoft/STL/issues/2176
+//
+///'BSLS_LIBRARYFEATURES_HAS_CPP17_TIMESPEC_GET'
+///-------------------------------------------------------------
+// The 'BSLS_LIBRARYFEATURES_HAS_CPP17_TIMESPEC_GET' macro is defined if the
+// native standard library provides 'std::timespec_get'.
+//
+// Both libstdc++ and libc++ will provide this call if the underlying C library
+// provides the global call '::timespec_get.  This call is available on RedHat
+// version 7, for example, but not on RedHat 6.
+//
 ///'BSLS_LIBRARYFEATURES_HAS_CPP17_SPECIAL_MATH_FUNCTIONS'
 ///--------------------------------------------
 // The 'BSLS_LIBRARYFEATURES_HAS_CPP17_SPECIAL_MATH_FUNCTIONS' is defined if
@@ -1136,6 +1157,12 @@ BSLS_IDENT("$Id: $")
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_FLOAT_FROM_CHARS_CHARCONV  1
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV                   1
         #endif
+        #ifdef _GLIBCXX_HAVE_TIMESPEC_GET
+            #define BSLS_LIBRARYFEATURES_HAS_CPP17_TIMESPEC_GET               1
+        #endif
+        #ifdef _GLIBCXX_HAVE_ALIGNED_ALLOC
+            #define BSLS_LIBRARYFEATURES_HAS_CPP17__ALIGNED_ALLOC             1
+        #endif
         #define BSLS_LIBRARYFEATURES_HAS_CPP17_SPECIAL_MATH_FUNCTIONS         1
     #endif
     #if defined(__cpp_lib_atomic_is_always_lock_free)
@@ -1329,6 +1356,12 @@ BSLS_IDENT("$Id: $")
                 #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS        1
             #elif defined(BSLS_LIBRARYFEATURES_STDCPP_LLVM)
                 #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD        1
+                #ifdef _LIBCPP_HAS_TIMESPEC_GET
+                    #define BSLS_LIBRARYFEATURES_HAS_CPP17_TIMESPEC_GET       1
+                #endif
+                #ifdef _LIBCPP_HAS_ALIGNED_ALLOC
+                    #define BSLS_LIBRARYFEATURES_HAS_CPP17_ALIGNED_ALLOC      1
+                #endif
             #else
                 #error Unsupported standard library for g++
             #endif
@@ -1418,7 +1451,7 @@ BSLS_IDENT("$Id: $")
 
             // PMR support (P0220R1) has appeared in VS 2017 15.6
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_PMR                       1
-
+            #define BSLS_LIBRARYFEATURES_HAS_CPP17_TIMESPEC_GET              1
         #endif
         #if BSLS_PLATFORM_CMP_VERSION >= 1920  // Visual Studio 2019
             // Full from_chars() and to_chars() support has appeared in
@@ -1427,6 +1460,7 @@ BSLS_IDENT("$Id: $")
 
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS           1
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY          1
+            #define BSLS_LIBRARYFEATURES_HAS_CPP17_TIMESPEC_GET              1
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_SPECIAL_MATH_FUNCTIONS    1
         #endif
     #endif

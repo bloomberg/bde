@@ -50,6 +50,15 @@
 # include <shared_mutex>
 #endif
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_ALIGNED_ALLOC)
+    // Verify assumption that <cstdlib> is includeable.  Note that we must
+    // actively #include each header to check for errors as simply testing
+    // '__has_include(<header>)' will give false positives in BSL_OVERRIDES_STD
+    // mode, finding our own intercept headers that simply forward to the
+    // original platform header, assuming it is available.
+# include <cstdlib>
+#endif
+
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
     // Verify assumption that the BASELINE C++17 library includes all of the
     // new library headers not covered by a more specific macro.  Note that we
@@ -103,6 +112,15 @@
     // mode, finding our own intercept headers that simply forward to the
     // original platform header, assuming it is available.
 # include <memory_resource>
+#endif
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_TIMESPEC_GET)
+    // Verify assumption that <ctime> is includeable.  Note that we must
+    // actively #include each header to check for errors as simply testing
+    // '__has_include(<header>)' will give false positives in BSL_OVERRIDES_STD
+    // mode, finding our own intercept headers that simply forward to the
+    // original platform header, assuming it is available.
+# include <ctime>
 #endif
 
 // ============================================================================
@@ -179,11 +197,13 @@
 // [ 9] BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
 // [11] BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE
 // [  ] BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS
+// [15] BSLS_LIBRARYFEATURES_HAS_CPP17_ALIGNED_ALLOC
 // [14] BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 // [  ] BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT
 // [ 8] BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS
 // [13] BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD
 // [13] BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS
+// [15] BSLS_LIBRARYFEATURES_HAS_CPP17_TIMESPEC_GET
 // [10] BSLS_LIBRARYFEATURES_STDCPP_GNU
 // [10] BSLS_LIBRARYFEATURES_STDCPP_IBM
 // [  ] BSLS_LIBRARYFEATURES_STDCPP_INTELLISENSE
@@ -194,7 +214,7 @@
 // [ 7] int native_std::isblank(int);
 // [ 7] bool native_std::isblank(char, const native_std::locale&);
 // ----------------------------------------------------------------------------
-// [14] USAGE EXAMPLE
+// [16] USAGE EXAMPLE
 // [-1] BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT: obsolescent: not defined
 // ----------------------------------------------------------------------------
 
@@ -292,6 +312,12 @@ static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE_defined =
                                                                          false;
 #endif
 
+static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP17_ALIGNED_ALLOC_defined =
+#if         defined(BSLS_LIBRARYFEATURES_HAS_CPP17_ALIGNED_ALLOC)
+                                                                          true;
+#else
+                                                                         false;
+#endif
 static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY_defined =
 #if         defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
                                                                           true;
@@ -308,6 +334,13 @@ static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD_defined =
 
 static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS_defined =
 #if         defined(BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS)
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP17_TIMESPEC_GET_defined =
+#if         defined(BSLS_LIBRARYFEATURES_HAS_CPP17_TIMESPEC_GET)
                                                                           true;
 #else
                                                                          false;
@@ -1401,7 +1434,7 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
-      case 15: {
+      case 16: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -1421,6 +1454,48 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
+      } break;
+      case 15: {
+        // --------------------------------------------------------------------
+        // TESTING BSLS_LIBRARYFEATURES_HAS_CPP17_MISCELLANY
+        //
+        // Concerns:
+        //: 1 'BSLS_LIBRARYFEATURES_HAS_CPP17_ALIGNED_ALLOC' and
+        //:   'BSLS_LIBRARYFEATURES_HAS_CPP17_TIMESPEC_GET' are defined only
+        //:   when the native standard library provides them.
+        //
+        // Plan:
+        //: 1 When 'BSLS_LIBRARYFEATURES_HAS_CPP17_ALIGNED_ALLOC' and/or
+        //:   'BSLS_LIBRARYFEATURES_HAS_CPP17_TIMESPEC_GET' are defined
+        //:   include the appropriate headers and use the expected calls.
+        //
+        // Testing:
+        //   BSLS_LIBRARYFEATURES_HAS_CPP17_ALIGNED_ALLOC
+        //   BSLS_LIBRARYFEATURES_HAS_CPP17_TIMESPEC_GET
+        // --------------------------------------------------------------------
+
+        if (verbose) printf(
+            "TESTING BSLS_LIBRARYFEATURES_HAS_CPP17_MISCELLANY\n"
+            "=================================================\n");
+
+        if (verbose) {
+            P(u_BSLS_LIBRARYFEATURES_HAS_CPP17_ALIGNED_ALLOC_defined)
+            P(u_BSLS_LIBRARYFEATURES_HAS_CPP17_TIMESPEC_GET_defined)
+        }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_ALIGNED_ALLOC
+        {
+            int* p = static_cast<int*>(std::aligned_alloc(1024, 1024));
+            std::free(p);
+        }
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_TIMESPEC_GET
+        {
+            std::timespec ts;
+            std::timespec_get(&ts, TIME_UTC);
+        }
+#endif
       } break;
       case 14: {
         // --------------------------------------------------------------------

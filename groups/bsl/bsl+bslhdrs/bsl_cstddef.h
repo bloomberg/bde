@@ -33,6 +33,10 @@ namespace bsl {
 #if defined (BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES)
     using native_std::max_align_t;
 #endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+    using native_std::byte;
+#endif
 }
 
 #endif

@@ -79,6 +79,11 @@ template <std::size_t I, class TYPE> using tuple_element_t =
 
 #endif
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+    using native_std::apply;
+    using native_std::make_from_tuple;
+#endif
+
 }  // close namespace bsl
 #endif
 

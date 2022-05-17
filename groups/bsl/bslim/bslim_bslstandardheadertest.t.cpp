@@ -113,6 +113,9 @@
 #include <bsl_strstream.h>
 #include <bsl_string_view.h>      // C++17 header ported to C++03
 #include <bsl_system_error.h>     // C++11 header ported to C++03
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+#include <bsl_tuple.h>
+#endif
 #include <bsl_typeindex.h>        // C++11 header ported to C++03
 #include <bsl_typeinfo.h>
 #include <bsl_unordered_map.h>    // C++11 header ported to C++03
@@ -181,6 +184,11 @@ using namespace bslim;
 // defined in 'bslstl'.
 //
 //-----------------------------------------------------------------------------
+// [18] bsl::byte;
+// [18] bsl::apply();
+// [18] bsl::make_from_tuple();
+// [18] bsl::aligned_alloc();
+// [18] bsl::timespec_get();
 // [17] bsl::assoc_laguerre();
 // [17] bsl::assoc_laguerref();
 // [17] bsl::assoc_laguerrel();
@@ -672,6 +680,18 @@ struct addOne {
         return static_cast<TYPE>(x + 1);
     }
 };
+
+
+struct TwoArgumentCtor {
+    TwoArgumentCtor(double d, int i) : d_val(d + i) {}
+    double d_val;
+};
+
+double TwoArgumentFunction(double d, int i)
+    // Return the sum of the specified 'd' and 'i'.
+{
+    return d + i;
+}
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
 namespace {
@@ -710,6 +730,62 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << "\n";
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 18: {
+        // --------------------------------------------------------------------
+        // TESTING C++17 <BSL_CSTDDEF/TUPLE/CTIME/CSTDDEF.H> ADDITIONS
+        //
+        // Concerns:
+        //: 1 The type 'bsl::byte' exists.
+        //: 2 The calls 'bsl::apply' and 'bls:make_from_tuple' exist and return
+        //:   expected values for simple cases.
+        //: 2 The calls 'bsl::aligned_alloc' and 'bls::timespec_get' are
+        //:   callable if the exist.
+        //
+        // Plan:
+        //: 1 Verify that 'bsl::byte' exists.
+        //: 2 Call each of 'bsl::apply' and 'bsl::make_from_tuple' with simple
+        //:   inputs and verify that the results are correct.
+        //: 3 If they exist, call each of 'bsl::aligned_alloc' and
+        //:   'bsl::timespec_get' with sample inputs.
+        //
+        // Testing:
+        //   bsl::byte;
+        //   bsl::apply();
+        //   bsl::make_from_tuple();
+        //   bsl::aligned_alloc();
+        //   bsl::timespec_get();
+        // --------------------------------------------------------------------
+
+        if (verbose) printf(
+            "\nTESTING C++17 <BSL_CSTDDEF/TUPLE/CTIME/CSTDDEF.H> ADDITIONS"
+            "\n===========================================================\n");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+        bsl::byte *bp = nullptr;
+        ASSERT(nullptr == bp);
+
+        bsl::tuple<double, int> t(3, 2);
+        TwoArgumentCtor         ta = bsl::make_from_tuple<TwoArgumentCtor>(t);
+        ASSERT(5.0 == ta.d_val);
+
+        ASSERT(5.0 == bsl::apply(TwoArgumentFunction, t));
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_ALIGNED_ALLOC
+        {
+            int* p = static_cast<int*>(bsl::aligned_alloc(1024, 1024));
+            bsl::free(p);
+        }
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_TIMESPEC_GET
+        {
+            bsl::timespec ts;
+            bsl::timespec_get(&ts, TIME_UTC);
+        }
+#endif
+
+#endif
+      } break;
       case 17: {
         // --------------------------------------------------------------------
         // TESTING C++17 <BSL_CMATH.H> ADDITIONS

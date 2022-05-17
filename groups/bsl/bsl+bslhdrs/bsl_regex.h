@@ -16,6 +16,7 @@ BSLS_IDENT("$Id: $")
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
 #include <bsls_nativestd.h>
+#include <bslstl_iterator.h> // std::begin/end/rbegin/rend, etc
 
 #include <regex>
 
@@ -45,8 +46,7 @@ namespace bsl {
     using native_std::wcsub_match;
     using native_std::ssub_match;
     using native_std::wssub_match;
-    using native_std::begin;
-    using native_std::end;
+
     namespace regex_constants {
         using native_std::regex_constants::icase;
         using native_std::regex_constants::nosubs;
@@ -58,6 +58,14 @@ namespace bsl {
         using native_std::regex_constants::awk;
         using native_std::regex_constants::grep;
         using native_std::regex_constants::egrep;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+// As of 4/2022:
+//  MSVC has not yet implemented multiline
+//  libstdc++ has implemented it, but not shipped it in any release.
+//  libc++ is shipping it.
+//
+//        using native_std::regex_constants::multiline;
+#endif
         using native_std::regex_constants::match_default;
         using native_std::regex_constants::match_not_bol;
         using native_std::regex_constants::match_not_eol;

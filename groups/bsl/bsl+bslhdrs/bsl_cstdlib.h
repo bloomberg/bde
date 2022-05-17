@@ -71,6 +71,10 @@ namespace bsl {
     using native_std::at_quick_exit;
     using native_std::quick_exit;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_ALIGNED_ALLOC
+    using native_std::aligned_alloc;
+#endif
 }
 #endif
 

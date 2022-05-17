@@ -35,6 +35,11 @@ namespace bsl {
     using native_std::time;
     using native_std::time_t;
     using native_std::tm;
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_TIMESPEC_GET
+    using native_std::timespec_get;
+    using native_std::timespec;
+#endif
 }  // close package namespace
 
 #endif
