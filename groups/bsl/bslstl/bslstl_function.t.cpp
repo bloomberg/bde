@@ -5908,7 +5908,6 @@ int main(int argc, char *argv[])
         TEST(IntHolder&, int&      );
         TEST(IntHolder&, const int&);
         TEST(IntHolder , int       );
-        TEST(IntHolder , const int&);
 
         if (veryVerbose) printf("Plan step 4\n");
         TEST(IntHolder *        , int       );
@@ -5922,7 +5921,6 @@ int main(int argc, char *argv[])
         TEST(const IntHolder&         , int       );
         TEST(const IntHolder&         , const int&);
         TEST(const IntHolder          , int       );
-        TEST(const IntHolder          , const int&);
         TEST(const IntHolder *        , int       );
         TEST(const IntHolder *        , const int&);
         TEST(SmartPtr<const IntHolder>, int       );
@@ -5932,7 +5930,6 @@ int main(int argc, char *argv[])
         TEST_CONST(ConstIntHolder&               , int       );
         TEST_CONST(ConstIntHolder&               , const int&);
         TEST_CONST(ConstIntHolder                , int       );
-        TEST_CONST(ConstIntHolder                , const int&);
         TEST_CONST(ConstIntHolder *              , int       );
         TEST_CONST(ConstIntHolder *              , const int&);
         TEST_CONST(SmartPtr<ConstIntHolder>      , int       );
@@ -5940,7 +5937,6 @@ int main(int argc, char *argv[])
         TEST_CONST(const ConstIntHolder&         , int       );
         TEST_CONST(const ConstIntHolder&         , const int&);
         TEST_CONST(const ConstIntHolder          , int       );
-        TEST_CONST(const ConstIntHolder          , const int&);
         TEST_CONST(const ConstIntHolder *        , int       );
         TEST_CONST(const ConstIntHolder *        , const int&);
         TEST_CONST(SmartPtr<const ConstIntHolder>, int       );
@@ -5951,7 +5947,6 @@ int main(int argc, char *argv[])
         TEST(IntHolderDerived&                        , int&      );
         TEST(IntHolderDerived&                        , const int&);
         TEST(IntHolderDerived                         , int       );
-        TEST(IntHolderDerived                         , const int&);
         TEST(IntHolderDerived *                       , int       );
         TEST(IntHolderDerived *                       , int&      );
         TEST(IntHolderDerived *                       , const int&);
@@ -5961,7 +5956,6 @@ int main(int argc, char *argv[])
         TEST(const IntHolderDerived&                  , int       );
         TEST(const IntHolderDerived&                  , const int&);
         TEST(const IntHolderDerived                   , int       );
-        TEST(const IntHolderDerived                   , const int&);
         TEST(const IntHolderDerived *                 , int       );
         TEST(const IntHolderDerived *                 , const int&);
         TEST(SmartPtr<const IntHolderDerived>         , int       );
@@ -5970,7 +5964,6 @@ int main(int argc, char *argv[])
         TEST(IntHolderVirtuallyDerived&               , int&      );
         TEST(IntHolderVirtuallyDerived&               , const int&);
         TEST(IntHolderVirtuallyDerived                , int       );
-        TEST(IntHolderVirtuallyDerived                , const int&);
         TEST(IntHolderVirtuallyDerived *              , int       );
         TEST(IntHolderVirtuallyDerived *              , int&      );
         TEST(IntHolderVirtuallyDerived *              , const int&);
@@ -5980,7 +5973,6 @@ int main(int argc, char *argv[])
         TEST(const IntHolderVirtuallyDerived&         , int       );
         TEST(const IntHolderVirtuallyDerived&         , const int&);
         TEST(const IntHolderVirtuallyDerived          , int       );
-        TEST(const IntHolderVirtuallyDerived          , const int&);
         TEST(const IntHolderVirtuallyDerived *        , int       );
         TEST(const IntHolderVirtuallyDerived *        , const int&);
         TEST(SmartPtr<const IntHolderVirtuallyDerived>, int       );
