@@ -65,6 +65,7 @@ BSLS_IDENT("$Id: $")
 //  @_CPU_MIPS
 //  @_CPU_POWERPC
 //  @_CPU_SPARC
+//  @_CPU_ARM
 //
 //  =============================================================
 //                              COMPILER
