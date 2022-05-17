@@ -68,6 +68,9 @@ class BadWeakPtr : public native_std::exception {
         // user-declared, to make it simple to declare 'const' objects of this
         // type.
 
+    ~BadWeakPtr() BSLS_EXCEPTION_VIRTUAL_NOTHROW BSLS_KEYWORD_OVERRIDE;
+        // Destroy this object.
+
     // ACCESSORS
     const char *what() const BSLS_EXCEPTION_VIRTUAL_NOTHROW
                                                          BSLS_KEYWORD_OVERRIDE;
@@ -88,16 +91,11 @@ class BadWeakPtr : public native_std::exception {
                        // class BadWeakPtr
                        // ----------------
 
+// CREATORS
 inline
 BadWeakPtr::BadWeakPtr() BSLS_KEYWORD_NOEXCEPT
 : native_std::exception()
 {
-}
-
-inline
-const char *BadWeakPtr::what() const BSLS_EXCEPTION_VIRTUAL_NOTHROW
-{
-    return "bad_weak_ptr";
 }
 
 }  // close package namespace

@@ -8,6 +8,27 @@ namespace BloombergLP {
 
 namespace bslstl {
 
+                       // ----------------
+                       // class BadWeakPtr
+                       // ----------------
+
+///Implementation note
+///-------------------
+// Keep this destructor non-inline to avoid costly instantiation in every TU,
+// particularly in debug builds.  Also keep the virtual function 'what()' here
+// because it's unlikely to be inlined anyway.
+
+// CREATORS
+BadWeakPtr::~BadWeakPtr() BSLS_EXCEPTION_VIRTUAL_NOTHROW
+{
+}
+
+// ACCESSORS
+const char *BadWeakPtr::what() const BSLS_EXCEPTION_VIRTUAL_NOTHROW
+{
+    return "bad_weak_ptr";
+}
+
 }  // close package namespace
 }  // close enterprise namespace
 
