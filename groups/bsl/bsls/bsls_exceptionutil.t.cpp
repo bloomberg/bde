@@ -56,7 +56,7 @@ using namespace BloombergLP;
 // [ 6] BSLS_RETHROW
 // [ 7] BSLS_NOTHROW_SPEC
 // [ 7] BSLS_EXCEPTION_SPEC
-// [ 7] BSLS_EXCEPTION_WHAT_NOTHROW
+// [ 7] BSLS_EXCEPTION_VIRTUAL_NOTHROW
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 8] USAGE EXAMPLE
@@ -257,10 +257,11 @@ void exceptionSpecFunction() BSLS_EXCEPTION_SPEC((TestExceptionClass))
 #endif // BSLS_DEPRECATE_IS_ACTIVE
 
 struct CustomException : native_std::exception {
-    const char *what() const BSLS_EXCEPTION_WHAT_NOTHROW BSLS_KEYWORD_OVERRIDE;
+    const char *what() const BSLS_EXCEPTION_VIRTUAL_NOTHROW
+                                                         BSLS_KEYWORD_OVERRIDE;
 };
 
-const char *CustomException::what() const BSLS_EXCEPTION_WHAT_NOTHROW
+const char *CustomException::what() const BSLS_EXCEPTION_VIRTUAL_NOTHROW
 {
     return "CustomException";
 }
@@ -527,7 +528,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   BSLS_EXCEPTION_SPEC
         //   BSLS_NOTHROW_SPEC
-        //   BSLS_EXCEPTION_WHAT_NOTHROW
+        //   BSLS_EXCEPTION_VIRTUAL_NOTHROW
         // --------------------------------------------------------------------
 
         if (verbose) printf(

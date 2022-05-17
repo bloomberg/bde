@@ -27,7 +27,7 @@ using namespace BloombergLP;
 // [1] bslma::Testallocatorexception(int numBytes);
 // [1] ~bslma::Testallocatorexception();
 // [1] int numBytes() const;
-// [2] const char *what() const BSLS_EXCEPTION_WHAT_NOTHROW;
+// [2] const char *what() const BSLS_EXCEPTION_VIRTUAL_NOTHROW;
 //-----------------------------------------------------------------------------
 // [2] CONCERN: 'bslma::TestAllocatorException' is-an 'std::bad_alloc'
 // [3] USAGE TEST - Make sure main usage example compiles and works.
@@ -393,7 +393,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   CONCERN: 'bslma::TestAllocatorException' is-an 'std::bad_alloc'
-        //   const char *what() const BSLS_EXCEPTION_WHAT_NOTHROW;
+        //   const char *what() const BSLS_EXCEPTION_VIRTUAL_NOTHROW;
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBAD_ALLOC TEST"

@@ -243,7 +243,8 @@ class TestAllocatorException : public std::bad_alloc {
         // Return the number of bytes (supplied at construction) that indicates
         // an allocation request size.
 
-    const char *what() const BSLS_EXCEPTION_WHAT_NOTHROW BSLS_KEYWORD_OVERRIDE;
+    const char *what() const BSLS_EXCEPTION_VIRTUAL_NOTHROW
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Return a pointer to the string literal
         // "bslma::TestAllocatorException" having a storage duration of the
         // lifetime of the program.  Note that the caller should *not* attempt
@@ -275,7 +276,7 @@ TestAllocatorException::numBytes() const
 
 inline
 const char *
-TestAllocatorException::what() const BSLS_EXCEPTION_WHAT_NOTHROW
+TestAllocatorException::what() const BSLS_EXCEPTION_VIRTUAL_NOTHROW
 {
     return "bslma::TestAllocatorException";
 }

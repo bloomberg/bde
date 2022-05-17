@@ -69,7 +69,8 @@ class BadWeakPtr : public native_std::exception {
         // type.
 
     // ACCESSORS
-    const char *what() const BSLS_EXCEPTION_WHAT_NOTHROW BSLS_KEYWORD_OVERRIDE;
+    const char *what() const BSLS_EXCEPTION_VIRTUAL_NOTHROW
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Return a pointer to the string literal "bad_weak_ptr", with a
         // storage duration of the lifetime of the program.  Note that the
         // caller should *not* attempt to free this memory.  Note that the
@@ -94,7 +95,7 @@ BadWeakPtr::BadWeakPtr() BSLS_KEYWORD_NOEXCEPT
 }
 
 inline
-const char *BadWeakPtr::what() const BSLS_EXCEPTION_WHAT_NOTHROW
+const char *BadWeakPtr::what() const BSLS_EXCEPTION_VIRTUAL_NOTHROW
 {
     return "bad_weak_ptr";
 }

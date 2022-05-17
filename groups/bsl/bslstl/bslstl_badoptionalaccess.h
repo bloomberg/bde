@@ -50,7 +50,8 @@ class bad_optional_access : public std::exception {
         // objects of this type.
 
     // ACCESSORS
-    const char *what() const BSLS_EXCEPTION_WHAT_NOTHROW BSLS_KEYWORD_OVERRIDE;
+    const char *what() const BSLS_EXCEPTION_VIRTUAL_NOTHROW
+                                                         BSLS_KEYWORD_OVERRIDE;
         // Return a pointer to the string literal "bad_optional_access", with a
         // storage duration of the lifetime of the program.  Note that the
         // caller should *not* attempt to free this memory.  Note that the
@@ -75,7 +76,7 @@ bad_optional_access::bad_optional_access() BSLS_KEYWORD_NOEXCEPT
 }
 
 inline
-const char *bad_optional_access::what() const BSLS_EXCEPTION_WHAT_NOTHROW
+const char *bad_optional_access::what() const BSLS_EXCEPTION_VIRTUAL_NOTHROW
 {
     return "bad_optional_access";
 }

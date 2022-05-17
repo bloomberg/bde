@@ -16,6 +16,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_RETHROW: re-'throw' the current exception
 //  BSLS_EXCEPTION_SPEC(SPEC): add 'SPEC' to function exception specification
 //  BSLS_NOTHROW_SPEC: declare that a function throws no exceptions
+//  BSLS_EXCEPTION_VIRTUAL_NOTHROW: virtual 'exception' method except. spec.
 //  BSLS_EXCEPTION_WHAT_NOTHROW: 'exception::what()' except. spec.
 //
 //@SEE_ALSO: bsls_compilerfeatures, bsls_cpp11
@@ -304,12 +305,17 @@ BSLS_IDENT("$Id: $")
         // Exceptions enabled: 'throw ()' or 'noexcept'
         // Exceptions disabled: empty
 
-#   define BSLS_EXCEPTION_WHAT_NOTHROW BSLS_NOTHROW_SPEC
-        // The exception specification that overrides of the
-        // 'exception::what()' virtual method should use.  It is a separate
-        // macro from 'BSLS_NOTHROW_SPEC' because the GNU library
+#   define BSLS_EXCEPTION_VIRTUAL_NOTHROW BSLS_NOTHROW_SPEC
+        // The exception specification that overrides of the virtual destructor
+        // and the 'exception::what()' virtual method should use.  It is a
+        // separate macro from 'BSLS_NOTHROW_SPEC' because the GNU library
         // unconditionally declares the function 'throw()', regardless if
         // exceptions are enabled or not - and overrides must do the same.
+
+#   define BSLS_EXCEPTION_WHAT_NOTHROW BSLS_EXCEPTION_VIRTUAL_NOTHROW
+        // More specialized name for the no-throw declaration of the
+        // 'exception::what()' method.  Use 'BSLS_EXCEPTION_VIRTUAL_NOTHROW'
+        // instead.
 
 #else // If exceptions are disabled
 
@@ -339,12 +345,12 @@ BSLS_IDENT("$Id: $")
        defined(BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD) || \
        defined(BSLS_LIBRARYFEATURES_STDCPP_IBM)
 #       if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-#           define BSLS_EXCEPTION_WHAT_NOTHROW noexcept
+#           define BSLS_EXCEPTION_VIRTUAL_NOTHROW noexcept
 #       else
-#           define BSLS_EXCEPTION_WHAT_NOTHROW throw ()
+#           define BSLS_EXCEPTION_VIRTUAL_NOTHROW throw ()
 #       endif
 #   else
-#       define BSLS_EXCEPTION_WHAT_NOTHROW
+#       define BSLS_EXCEPTION_VIRTUAL_NOTHROW
 #   endif
         // The exception specification that overrides of the
         // 'exception::what()' virtual method should use.  It is a separate
