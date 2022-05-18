@@ -87,7 +87,7 @@ static void aSsErT(bool b, const char *s, int i)
 #endif
 
 #if (BSLS_COMPILERFEATURES_CPLUSPLUS < 201103L) \
-  && defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR <= 90999
+  && defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR <= 199711
     // gcc cannot handle certain overload resolution regarding references in
     // C++03 mode, so we do not attempt certain known-to-be-broken tests.  The
     // condition is deliberately written so that it enables the tests again
@@ -223,6 +223,21 @@ int main(int argc, char *argv[])
 
     (void) veryVerbose;
 
+    P(BSLS_COMPILERFEATURES_CPLUSPLUS)
+    P(BSLS_PLATFORM_CMP_VER_MAJOR)
+
+#if defined(BSLS_PLATFORM_CMP_GNU)
+    Q(BSLS_PLATFORM_CMP_GNU: defined)
+#else
+    Q(BSLS_PLATFORM_CMP_GNU: undefed)
+#endif
+
+#if defined(BSLS_NULLPTR_ZEROREF_GCC_TESTS_BROKEN)
+    Q(BSLS_NULLPTR_ZEROREF_GCC_TESTS_BROKEN: defined)
+#else
+    Q(BSLS_NULLPTR_ZEROREF_GCC_TESTS_BROKEN: undefed)
+#endif 
+
     setbuf(stdout, 0);    // Use unbuffered output
 
     printf("TEST " __FILE__ " CASE %d\n", test);
@@ -357,8 +372,8 @@ int main(int argc, char *argv[])
         ASSERT(!Local::isNullPointer((void*)0));
         ASSERT(!Local::isNullPointer(zero));
 #if !defined(BSLS_NULLPTR_ZEROREF_GCC_TESTS_BROKEN)
-        ASSERT(!Local::isNullPointer(s_zeroRef));
-        ASSERT(!Local::isNullPointer(s_zeroRef*1));
+        ASSERT(!Local::isNullPointer(s_zeroRef));    // FAIL
+        ASSERT(!Local::isNullPointer(s_zeroRef*1));  // FAIL
 #endif
         ASSERT(!Local::isNullPointer(1));
         ASSERT(!Local::isNullPointer(MY_NULL));
@@ -448,8 +463,8 @@ int main(int argc, char *argv[])
         ASSERT(!Local::isNullPointer((void*)0));
         ASSERT(!Local::isNullPointer(zero));
 #if !defined(BSLS_NULLPTR_ZEROREF_GCC_TESTS_BROKEN)
-        ASSERT(!Local::isNullPointer(s_zeroRefGcc));
-        ASSERT(!Local::isNullPointer(s_zeroRefGcc*1));
+        ASSERT(!Local::isNullPointer(s_zeroRefGcc));    // FAIL
+        ASSERT(!Local::isNullPointer(s_zeroRefGcc*1));  // FAIL
 #endif
         ASSERT(!Local::isNullPointer(1));
         ASSERT(!Local::isNullPointer(MY_NULL));
