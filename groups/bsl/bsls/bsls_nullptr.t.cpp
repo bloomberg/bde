@@ -223,21 +223,6 @@ int main(int argc, char *argv[])
 
     (void) veryVerbose;
 
-    P(BSLS_COMPILERFEATURES_CPLUSPLUS)
-    P(BSLS_PLATFORM_CMP_VER_MAJOR)
-
-#if defined(BSLS_PLATFORM_CMP_GNU)
-    Q(BSLS_PLATFORM_CMP_GNU: defined)
-#else
-    Q(BSLS_PLATFORM_CMP_GNU: undefed)
-#endif
-
-#if defined(BSLS_NULLPTR_ZEROREF_GCC_TESTS_BROKEN)
-    Q(BSLS_NULLPTR_ZEROREF_GCC_TESTS_BROKEN: defined)
-#else
-    Q(BSLS_NULLPTR_ZEROREF_GCC_TESTS_BROKEN: undefed)
-#endif 
-
     setbuf(stdout, 0);    // Use unbuffered output
 
     printf("TEST " __FILE__ " CASE %d\n", test);
@@ -372,8 +357,8 @@ int main(int argc, char *argv[])
         ASSERT(!Local::isNullPointer((void*)0));
         ASSERT(!Local::isNullPointer(zero));
 #if !defined(BSLS_NULLPTR_ZEROREF_GCC_TESTS_BROKEN)
-        ASSERT(!Local::isNullPointer(s_zeroRef));    // FAIL
-        ASSERT(!Local::isNullPointer(s_zeroRef*1));  // FAIL
+        ASSERT(!Local::isNullPointer(s_zeroRef));
+        ASSERT(!Local::isNullPointer(s_zeroRef*1));
 #endif
         ASSERT(!Local::isNullPointer(1));
         ASSERT(!Local::isNullPointer(MY_NULL));
