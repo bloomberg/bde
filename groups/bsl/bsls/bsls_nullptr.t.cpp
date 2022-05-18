@@ -448,8 +448,8 @@ int main(int argc, char *argv[])
         ASSERT(!Local::isNullPointer((void*)0));
         ASSERT(!Local::isNullPointer(zero));
 #if !defined(BSLS_NULLPTR_ZEROREF_GCC_TESTS_BROKEN)
-        ASSERT(!Local::isNullPointer(s_zeroRefGcc));    // FAIL
-        ASSERT(!Local::isNullPointer(s_zeroRefGcc*1));  // FAIL
+        ASSERT(!Local::isNullPointer(s_zeroRefGcc));
+        ASSERT(!Local::isNullPointer(s_zeroRefGcc*1));
 #endif
         ASSERT(!Local::isNullPointer(1));
         ASSERT(!Local::isNullPointer(MY_NULL));
