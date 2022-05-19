@@ -355,8 +355,9 @@ BSLS_IDENT("$Id: $")
 #include <bsl_functional.h>
 #include <bsl_map.h>
 
+#include <bslmt_latch.h>
+
 namespace BloombergLP {
-namespace bslmt { class Latch; }
 namespace bdlmt {
 
 class MultiQueueThreadPool;

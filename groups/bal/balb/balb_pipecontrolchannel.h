@@ -192,6 +192,8 @@ BSLS_IDENT("$Id: $")
 #include <bsl_string.h>
 #include <bsl_vector.h>
 
+#include <bslma_allocator.h>
+
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bslalg_typetraits.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
@@ -204,7 +206,6 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-namespace bslma { class Allocator; }
 
 namespace balb {
                           // ========================

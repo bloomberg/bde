@@ -178,10 +178,11 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_memberfunctionpointertraits.h>
 #include <bslmf_typelist.h>
 
+#include <bslma_allocator.h>
+
 
 namespace BloombergLP {
 
-namespace bslma { class Allocator; }
 
 namespace bdlf {
                           // =======================

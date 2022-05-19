@@ -232,8 +232,9 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_types.h>
 
+#include <bslmt_mutex.h>
+
 namespace BloombergLP {
-namespace bslmt { class Mutex; }
 namespace bdlma {
 
                      // ================================

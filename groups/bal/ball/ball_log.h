@@ -939,6 +939,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bsl_ostream.h>
 
+#include <bslmt_mutex.h>
+
                        // =========================
                        // Logging Macro Definitions
                        // =========================
@@ -1369,7 +1371,6 @@ do {                                                                          \
 
 namespace BloombergLP {
 
-namespace bslmt { class Mutex; }
 
 namespace ball {
 

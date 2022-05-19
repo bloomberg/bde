@@ -157,11 +157,12 @@ BSLS_IDENT("$Id: $")
 #include <bsl_string.h>
 #include <bsl_vector.h>
 
+#include <bdlt_date.h>
+#include <bdlt_datetime.h>
+#include <bdlt_time.h>
+
 namespace BloombergLP {
 
-namespace bdlt { class Datetime; }
-namespace bdlt { class Date; }
-namespace bdlt { class Time; }
 
 namespace balcl {
                         // =================

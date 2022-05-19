@@ -166,8 +166,9 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlma_bufferedsequentialallocator.h>
 
+#include <bslma_allocator.h>
+
 namespace BloombergLP {
-namespace bslma { class Allocator; }
 namespace bdlma {
 
                       // ==============================

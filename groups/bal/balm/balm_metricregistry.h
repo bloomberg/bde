@@ -116,9 +116,10 @@ BSLS_IDENT("$Id: $")
 #include <bsl_cstddef.h>
 #include <bsl_cstring.h>
 
+#include <bslma_allocator.h>
+
 namespace BloombergLP {
 
-namespace bslma { class Allocator; }
 
 namespace balm {
 

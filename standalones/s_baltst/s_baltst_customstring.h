@@ -25,9 +25,10 @@ BSLS_IDENT_PRAGMA_ONCE
 #include <bsl_iosfwd.h>
 #include <bsl_limits.h>
 
+#include <bslma_allocator.h>
+
 namespace BloombergLP {
 
-namespace bslma { class Allocator; }
 
 namespace s_baltst { class CustomString; }
 namespace s_baltst {

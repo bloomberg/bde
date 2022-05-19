@@ -39,9 +39,10 @@ BSLS_IDENT_PRAGMA_ONCE
 #include <bsl_ostream.h>
 #include <bsl_string.h>
 
+#include <bslma_allocator.h>
+
 namespace BloombergLP {
 
-namespace bslma { class Allocator; }
 
 namespace baljsn { class EncoderTestAddress; }
 namespace baljsn { class EncoderTestChoiceWithAllCategoriesChoice; }

@@ -134,8 +134,9 @@ BSLS_IDENT("$Id: $")
 
 #include <bblscm_version.h>
 
+#include <bdlt_date.h>
+
 namespace BloombergLP {
-namespace bdlt { class Date; }
 namespace bbldc {
 
                          // =======================

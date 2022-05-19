@@ -210,10 +210,11 @@ BSLS_IDENT("$Id: $")
 #include <bsl_memory.h>
 #include <bsl_utility.h>      // 'bsl::pair'
 
+#include <bslma_allocator.h>
+
 namespace BloombergLP {
 
 // FORWARD DECLARATION
-namespace bslma { class Allocator; }
 
 namespace bdlmt {
 

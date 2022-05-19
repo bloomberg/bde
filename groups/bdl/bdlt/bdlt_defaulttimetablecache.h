@@ -111,8 +111,9 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_timeinterval.h>
 
+#include <bslma_allocator.h>
+
 namespace BloombergLP {
-namespace bslma { class Allocator; }
 namespace bdlt {
 
 class TimetableCache;

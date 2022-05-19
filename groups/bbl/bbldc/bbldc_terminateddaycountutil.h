@@ -62,8 +62,9 @@ BSLS_IDENT("$Id: $")
 
 #include <bbldc_daycountconvention.h>
 
+#include <bdlt_date.h>
+
 namespace BloombergLP {
-namespace bdlt { class Date; }
 namespace bbldc {
 
                       // =============================

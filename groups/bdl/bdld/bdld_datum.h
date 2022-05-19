@@ -626,6 +626,8 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsl_string.h>
 #include <bsl_utility.h>
 
+#include <bslma_allocator.h>
+
 #if !defined(BSLS_PLATFORM_CPU_32_BIT) && !defined(BSLS_PLATFORM_CPU_64_BIT)
 #error 'bdld::Datum' supports 32- or 64-bit platforms only.
 BSLS_PLATFORM_COMPILER_ERROR;
@@ -641,7 +643,6 @@ BSLS_PLATFORM_COMPILER_ERROR;
 
 namespace BloombergLP {
 
-namespace bslma { class Allocator; }
 
 namespace bdld {
 
