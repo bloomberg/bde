@@ -4,6 +4,14 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+// IMPLEMENTATION NOTE:
+//
+// The actual output format from 'BSL_MAKE_VERSION' is deliberately
+// underspecified in the header, as it is subject to change without notice.
+//
+// The current output from 'BSL_MAKE_VERSION(MA, MINR)' is the integer
+// 'MAMINR00', e.g., 'BSL_MAKE_VERSION(12, 9998) == 12999800'.
+
 // ----------------------------------------------------------------------------
 // Copyright 2013 Bloomberg Finance L.P.
 //
