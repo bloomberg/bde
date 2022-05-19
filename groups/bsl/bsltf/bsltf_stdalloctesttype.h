@@ -91,7 +91,12 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
+#include <bslma_allocator.h>
 #include <bslma_allocatortraits.h>
+#include <bslma_usesbslmaallocator.h>
+
+#include <bslmf_isconvertible.h>
+#include <bslmf_nestedtraitdeclaration.h>
 
 namespace BloombergLP {
 namespace bsltf {
@@ -122,6 +127,14 @@ class StdAllocTestType {
                                             // object is not bit-wise moved)
 
   public:
+#ifndef BSLMA_USESBSLMAALLOCATOR_AUTODETECT_ALLOCATOR_TYPE
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(
+                    StdAllocTestType,
+                    bslma::UsesBslmaAllocator,
+                    (bsl::is_convertible<bslma::Allocator *, ALLOC>::value));
+#endif
+
     // PUBLIC TYPES
     typedef ALLOC allocator_type;           // needed by 'uses_allocator' trait
 

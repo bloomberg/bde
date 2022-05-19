@@ -36,6 +36,7 @@ using namespace BloombergLP;
 #pragma bde_verify -AL01  // class needs allocator() method
 #pragma bde_verify -AP02  // class needs d_allocator_p member
 #pragma bde_verify -AT02  // class uses allocator but does not have trait
+#pragma bde_verify -FD01: // Function declaration requires contract
 #pragma bde_verify -FD03  // parameter not documented
 #pragma bde_verify -TP19
 #endif
@@ -205,6 +206,9 @@ struct HasSniffableTrait {
 
     HasSniffableTrait(bslma::Allocator *);                          // IMPLICIT
         // Create a 'HasSniffableTrait' object.
+
+    HasSniffableTrait(const HasSniffableTrait&, bslma::Allocator *);
+        // Extended copy constructor
 };
 
 struct HasExplicitlyTrueTrait {
@@ -257,9 +261,10 @@ class HasSniffableAndNestedTrait {
 };
 
 struct HasCompatibleAllocatorType {
-    // This class defines the 'UsesBslmaAllocator' trait to be 'true' by means
-    // of having a nested 'allocator_type' that is an alias for a type
-    // convertible from 'bslma::Allocator *'.
+    // This class defines a nested 'allocator_type' that is an alias for a type
+    // convertible from 'bslma::Allocator *'.  Unintuitively, the
+    // 'UsesBslmaAllocator' trait is 'false' for this type (and generates a
+    // warning on some compilers), but will be 'true' in the FUTURE.
 
     typedef BslmaCompatibleSTLAllocator allocator_type;
 };
@@ -518,7 +523,8 @@ int main(int argc, char *argv[])
         TEST(HasNestedTrait               , true );  // Step 3
         TEST(HasSniffableAndNestedTrait   , true );  // Step 3
 
-        TEST(HasCompatibleAllocatorType   , true );  // Step 4
+//      TEST(HasCompatibleAllocatorType   , true );  // Step 4 (FUTURE)
+        TEST(HasCompatibleAllocatorType   , false);  // Step 4
 
         TEST(int                          , false);  // Step 5
         TEST(EmptyClass                   , false);  // Step 5

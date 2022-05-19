@@ -193,6 +193,14 @@ class ConstructTestType {
     ALLOC               d_allocator;  // allocator
 
   public:
+#ifndef BSLMA_USESBSLMAALLOCATOR_AUTODETECT_ALLOCATOR_TYPE
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(
+                    ConstructTestType,
+                    bslma::UsesBslmaAllocator,
+                    (bsl::is_convertible<bslma::Allocator *, ALLOC>::value));
+#endif
+
     // PUBLIC TYPES
     typedef ALLOC allocator_type;
 

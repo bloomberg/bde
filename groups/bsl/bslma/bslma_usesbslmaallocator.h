@@ -10,6 +10,9 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslma::UsesBslmaAllocator: trait detection metafunction for 'bslma' use
 //
+//@MACROS:
+//  BSLMA_USESBSLMAALLOCATOR_AUTODETECT_ALLOCATOR_TYPE: (FUTURE)
+//
 //@SEE_ALSO: bslalg_typetraitusesblsmaallocator
 //
 //@DESCRIPTION: This component defines a metafunction,
@@ -26,14 +29,28 @@ BSLS_IDENT("$Id: $")
 //:   from 'bsl::true_type'.
 //: o 'TYPE' has a 'BSLMF_NESTED_TRAIT_DECLARATION(TYPE,
 //:   bslma::UsesBslmaAllocator);' declaration.
-//: o 'TYPE' has a nested 'allocator_type' and 'bslma::Allocator *' is
-//:   implicitly convertible to 'TYPE::allocator_type'.
 //: o 'bslma::Allocator *' is implicitly convertible to 'TYPE' but other,
-//:   arbitrary pointers are NOT implicitly convertible to 'TYPE'.
+//:   arbitrary, pointers are NOT implicitly convertible to 'TYPE'.  Note that
+//:   this use is DEPRECATED and that such an implicit conversion will be
+//:   discouraged (ideally via a compiler warning).
 //
 // Otherwise, 'bslma::UsesBslmaAllocator<TYPE>' derives from
 // 'bsl::false_type'.  Note that top-level cv qualifiers are ignored when
 // applying the above tests.
+//
+// If 'TYPE' has a nested 'allocator_type' and 'bslma::Allocator *' is
+// implicitly convertible to 'TYPE::allocator_type', then it would be
+// reasonable to assume that the programmer intends 'TYPE' to be
+// allocator-aware (AA).  However, 'bslma::UsesBslmaAllocator<TYPE>' does not
+// *currently* detect this case, though it will in the future.  If
+// 'TYPE::allocator_type' is convertible from 'bslma::Allocator *' but
+// 'bslma::UsesBslmaAllocator<TYPE>' is not otherwise true, a deprecation
+// warning is emitted with some compilers, alerting the programmer that their
+// type is not AA, even if they think it should be.  In the future, when the
+// 'bslma::UsesBslmaAllocator' trait is automatically associated with any type
+// having the correct 'allocator_type', the
+// 'BSLMA_USESBSLMAALLOCATOR_AUTODETECT_ALLOCATOR_TYPE' macro will be defined
+// to indicate the new behavior.
 //
 ///Properties of Types Declaring the 'UsesBslmaAllocator' Trait
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -226,7 +243,13 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isconvertible.h>
 #include <bslmf_usesallocator.h>
 
+#include <bsls_annotation.h>
 #include <bsls_compilerfeatures.h>
+
+// #define BSLMA_USESBSLMAALLOCATOR_AUTODETECT_ALLOCATOR_TYPE
+    // (FUTURE) If defined, this macro indicates that
+    // 'bslma::UsesBslmaAllocator<TYPE>::value' is automatically true when
+    // 'TYPE::allocator_type' exists and is convertible from 'bsl::allocator'.
 
 namespace BloombergLP {
 namespace bslma {
@@ -300,6 +323,53 @@ struct UsesBslmaAllocator<const volatile TYPE> : UsesBslmaAllocator<TYPE>::type
 //                TEMPLATE AND INLINE FUNCTION IMPLEMENTATIONS
 // ============================================================================
 
+                    // =====================================
+                    // class UsesBslmaAllocator_DeprecatedIf
+                    // =====================================
+
+template <bool>
+struct UsesBslmaAllocator_DeprecatedIf {
+    // For compilers that support a deprecation annotation, this empty 'struct'
+    // has a static 'check' function that yields a deprecation warning when
+    // called (including within an unevaluated context) if this class is
+    // instantiated with a 'true' argument, but not if instantiated with a
+    // 'false' argument.
+
+    // CLASS METHODS
+    static char check(const char *message);
+        // Ignore the specified 'message' and return a 'char'.  Declared but
+        // not defined; for metaprogramming only.
+};
+
+template <>
+struct UsesBslmaAllocator_DeprecatedIf<true> {
+    // Using this specialization of 'UsesBslmaAllocator_DeprecatedIf' yields a
+    // deprecation warning on compilers that support a deprecation annotation.
+
+    // CLASS METHODS
+    BSLS_ANNOTATION_DEPRECATED static char check(const char *message);
+        // Ignore the specified 'message' and return a 'char'.  Declared but
+        // not defined; for metaprogramming only.  Note that, on platforms that
+        // support a deprecation attribute, use of this function, even in an
+        // unevaluated context, will yield a deprecation warning.
+};
+
+#define BSLMA_USESBSLMAALLOCATOR_CAT(X, Y)  \
+    BSLMA_USESBSLMAALLOCATOR_CAT_IMP1(X, Y)
+#define BSLMA_USESBSLMAALLOCATOR_CAT_IMP1(X, Y) \
+    BSLMA_USESBSLMAALLOCATOR_CAT_IMP2(X, Y)
+#define BSLMA_USESBSLMAALLOCATOR_CAT_IMP2(X, Y) X##Y
+    // Component-local macros for concatenating tokens.
+
+#define BSLMA_USESBSLMAALLOCATOR_DEPRECATE_IF(COND, MSG) enum {           \
+    BSLMA_USESBSLMAALLOCATOR_CAT(e_bslma_UsesBslmaAllocator_DeprecateIf_, \
+                                 __LINE__)                                \
+    = sizeof(UsesBslmaAllocator_DeprecatedIf<!!(COND)>::check(MSG)) }
+    // On platforms that support a deprecation attribute, produce a deprecation
+    // warning if the specified 'COND' is true, otherwise do nothing.  The
+    // specified 'MSG' is ignored, but must be a string literal and should
+    // describe why the condition (if true) is undesirable.
+
                         // ==============================
                         // class UsesBslmaAllocator_Sniff
                         // ==============================
@@ -333,18 +403,22 @@ struct UsesBslmaAllocator_Sniff {
 
         // If a pointer to 'UniqueType' is convertible to 'T', it can only mean
         // that ANY POINTER is convertible to 'T'.
-        k_ANY_POINTER_CTOR = bsl::is_convertible<UniqueType *, TYPE>::value
-    };
+        k_ANY_POINTER_CTOR = bsl::is_convertible<UniqueType *, TYPE>::value,
 
-  public:
-    // TYPES
-    enum {
         // We can "sniff" out a class that uses 'bslma::Allocator *' if it is
         // convertible from 'bslma::Allocator *', but that conversion is
         // *specific* to 'Allocator' pointers, not to arbitrary pointers.
         // Note that "Sniffing" the trait is this way is deprecated.
-        value = k_BSLMA_POINTER_CTOR && !k_ANY_POINTER_CTOR
+        k_VALUE = k_BSLMA_POINTER_CTOR && !k_ANY_POINTER_CTOR
     };
+
+    BSLMA_USESBSLMAALLOCATOR_DEPRECATE_IF(k_VALUE,
+        "Declaring an allocator-aware type by supplying an implicit "
+        "conversion constructor from 'Allocator*' is deprecated.");
+
+  public:
+    // TYPES
+    enum { value = k_VALUE };
 };
 
 template <class TYPE>
@@ -380,15 +454,27 @@ struct UsesBslmaAllocator_Imp {
         k_NESTED_TRAIT = bslmf::DetectNestedTrait<TYPE,
                                                   UsesBslmaAllocator>::value,
 
-        // If 'T' has a nested type, 'allocator_type', and
-        // 'bslma::Allocator *' is convertible to 'T::allocator_type', then
-        // 'UsesBslmaAllocator<T>::value' should be 'true'.
+        // Check if 'T' has a nested type, 'allocator_type', and
+        // 'bslma::Allocator *' is convertible to 'T::allocator_type'.
         k_COMPATIBLE_ALLOC_TYPE = bsl::uses_allocator<TYPE,Allocator *>::value,
 
+#ifdef BSLMA_USESBSLMAALLOCATOR_AUTODETECT_ALLOCATOR_TYPE
         // If either of the previous two constants is 'true', the it is not
         // necessary to "sniff" further for this trait.
         k_BYPASS_SNIFFING = k_NESTED_TRAIT || k_COMPATIBLE_ALLOC_TYPE
+#else
+        // If nested trait is detected then it is not necessary to "sniff"
+        // further for this trait.
+        k_BYPASS_SNIFFING = k_NESTED_TRAIT
+#endif // BSLMA_USESBSLMAALLOCATOR_AUTODETECT_ALLOCATOR_TYPE
     };
+
+#ifndef BSLMA_USESBSLMAALLOCATOR_AUTODETECT_ALLOCATOR_TYPE
+    BSLMA_USESBSLMAALLOCATOR_DEPRECATE_IF(
+        k_COMPATIBLE_ALLOC_TYPE && ! k_NESTED_TRAIT,
+        "Class declaring 'allocator_type' but not declaring trait "
+        "'bslma::UsesBslmaAllocator' is not considered allocator-aware.");
+#endif
 
   public:
     // TYPES

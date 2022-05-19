@@ -116,6 +116,11 @@ struct LegacyAAClass {
 
 struct BslAAClass {
     // Class meeting minimal requirement for detection as *bsl-AA*.
+
+#ifndef BSLMA_USESBSLMAALLOCATOR_AUTODETECT_ALLOCATOR_TYPE
+    BSLMF_NESTED_TRAIT_DECLARATION(BslAAClass, bslma::UsesBslmaAllocator);
+#endif
+
     typedef bsl::allocator<int> allocator_type;
 };
 
@@ -281,6 +286,12 @@ namespace {
         bsl::allocator<char> d_allocator;
 
       public:
+#ifndef BSLMA_USESBSLMAALLOCATOR_AUTODETECT_ALLOCATOR_TYPE
+        // TRAITS
+        BSLMF_NESTED_TRAIT_DECLARATION(SampleAAType,
+                                       bslma::UsesBslmaAllocator);
+#endif
+
         // TYPES
         typedef bsl::allocator<char> allocator_type;
 

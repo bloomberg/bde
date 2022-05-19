@@ -301,6 +301,10 @@ class AttributesFormatter {
         // construction of this object to the specified 'result' string.
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(AttributesFormatter,
+                                   bslma::UsesBslmaAllocator);
+
     // TYPES
     typedef bsl::allocator<char> allocator_type;
 
