@@ -1,5 +1,20 @@
-bsl-internal (3.99.6.0) unstable; urgency=low
+bsl-internal (3.100.0.4) unstable; urgency=low
 
+  * 080244657 Bumped version to 3.100.0.4
+  * 0fb49c818 Switch back to 3.100.0 and the new format (#3702)
+  * d9ed4013c Replace forward declares with includes (#3710)
+  * ce793fae0 Add C++17 aliases to bsl_cstddef/cstdlib/ctime/regex/tuple (#3661)
+  * 9412edd63 Return bslstl_function.t test cases returning reference to temporary (#3709)
+  * e9b56732d BadWeakPtr, keep virtual functions in cpp (#3617)
+  * 562169073 Add more general no-throw spec macro for exceptions (#3671)
+  * 4d657782b Bslim gtestutil printto optional drqs 168811170 (#3677)
+  * 390334a38 removed review and assert dep on atomics in headers, added some checks on level (#3682)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 19 May 2022 15:54:15 -0400
+
+bsl-internal (3.99.6.0) git; urgency=low
+
+  * 65ff6ae9e Changelog for version 3.99.6.0
   * 720edeb5a adjust run duration to avoid timeout (#3705)
   * c89703b48 Reduce *ByCategory introspection in bal codecs (#3704)
   * 9dd1e9549 Alisdair cpp20 fixes (#3683)
@@ -9,7 +24,7 @@ bsl-internal (3.99.6.0) unstable; urgency=low
   * 437bc777e add allocator-aware default constructors to striped unordered map and multimap (#3689)
   * 54330a5b1 Gcc11 warnings drqs 169251019 (#3694)
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 13 May 2022 14:34:48 -0400
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 13 May 2022 14:39:17 -0400
 
 bsl-internal (3.99.5.0.2.testpromotion) git; urgency=low
 
