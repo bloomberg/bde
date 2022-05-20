@@ -20,7 +20,7 @@
 #include <bsls_buildtarget.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_nameof.h>
-#include <bsls_types.h> // 'BloombergLP::bsls::Types::Int64'
+#include <bsls_types.h> // 'bsls::Types::Int64'
 
 // A list of disabled tests :
 //
@@ -200,9 +200,9 @@ using namespace bsl;
 // [16] optional make_optional(initializer_list, ARGS&&...);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
+// [14] DRQS 169300521
 // [19] DRQS 165776192
 // [21] CLASS TEMPLATE DEDUCTION GUIDES
-// [23] DRQS 169300521
 
 // Further, there are a number of behaviors that explicitly should not compile
 // by accident that we will provide tests for.  These tests should fail to
@@ -5851,11 +5851,11 @@ struct EasyConvert {
 };
 
                               // ------------
-                              // Test Case 23
+                              // Test Case 14
                               // ------------
 struct MyHashAlgorithm {
-    // This 'struct' is intended for use in reproducing the error described in
-    // DRQS 169300521.
+    // A dummy hash algorithm class type used for verifying that custom
+    // (non-bslh) hash types compile.
 
     typedef bsls::Types::Int64 result_type;
 
@@ -7687,7 +7687,10 @@ void TestDriver<TYPE>::testCase14()
     //:   to the hash.
     //:
     //: 2 Hashing a value with a nullable value is equivalent to appending
-    //:   'true' to the hash followed by the value.
+    //:   'true' to the hash followed by the value.\
+    //:
+    //: 3 Invoking 'hashAppend' with a custom hash algorithm as the first
+    //:   argument correctly finds 'bslh_hash::hashAppend'.
     //
     // Plan:
     //: 1 Create a null nullable value and verify that hashing it yields the
@@ -7696,9 +7699,13 @@ void TestDriver<TYPE>::testCase14()
     //: 2 Create a non-null nullable value for a series of test values and
     //:   verify that hashing it produces the same result as hashing 'true' and
     //:   then the test values themselves. [C-2]
+    //:
+    //: 3 Create a mock hash algorithm 'class', 'MyHashAlgorithm' then pass an
+    //:   instance of this hash 'class' to 'hashAppend'.
     //
     // Testing:
     //   void hashAppend(HASHALG& hashAlg, const optional<TYPE>& input);
+    //   DRQS 169300521
     // ------------------------------------------------------------------------
 
     if (verbose)
@@ -7758,6 +7765,14 @@ void TestDriver<TYPE>::testCase14()
         }
         ASSERT(0 == oa.numBlocksInUse());
         ASSERT(0 == da.numBlocksInUse());
+    }
+    {
+        if (verbose)
+            printf("Testing custom hash type.\n"
+                   "=========================\n");
+
+        MyHashAlgorithm myHash;
+        hashAppend(myHash, bsl::optional<int>());
     }
 }
 template <class TYPE>
@@ -12443,37 +12458,6 @@ int main(int argc, char **argv)
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) {  case 0:
-      case 23: {
-        //---------------------------------------------------------------------
-        // DRQS 169300521 'hashAppend' w algorithms outside of 'bslh'
-        //
-        // Formerly, when employing a hash algorithm not residing in 'bslh' as
-        // the first argument to 'hashAppend', 'bslh' was not searched during
-        // ADL.  The expected behavior before the fix is a linker error.  The
-        // expected behavior after the fix is *no* linker error.
-        //
-        // Concern:
-        //: 1 Invoking 'hashAppend' with a custom hash algorithm as the first
-        //:   argument correctly finds 'bslh_hash::hashAppend'.
-        //
-        // Plan:
-        //: 1 Create a mock hash algorithm 'class', 'MyHashAlgorithm'.
-        //:
-        //: 2 Pass an instance of this hash 'class' to 'hashAppend'.
-        //
-        // Testing:
-        //   hashAppend(HASHALG& hashAlg, const optional<TYPE>& input);
-        //---------------------------------------------------------------------
-
-        if (verbose)
-            printf("Testing hashAppend(HASHALG& hashAlg, const "
-                   "optional<TYPE>& input);\n"
-                   "=========================================================="
-                   "========\n");
-
-        MyHashAlgorithm myHash;
-        hashAppend(myHash, bsl::optional<int>());
-      } break;
       case 22: {
         //---------------------------------------------------------------------
         // REPRODUCE DRQS 168615744 bsl::optional<bdef_Function>

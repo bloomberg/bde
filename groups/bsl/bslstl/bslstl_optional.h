@@ -85,7 +85,6 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 
 #include <bslstl_hash.h>
-
 #include <bslstl_inplace.h>
 
 #include <bslalg_swaputil.h>
@@ -5014,6 +5013,7 @@ template <class HASHALG, class TYPE>
 void hashAppend(HASHALG& hashAlg, const optional<TYPE>& input)
 {
     using ::BloombergLP::bslh::hashAppend;
+    
     if (input.has_value()) {
         hashAppend(hashAlg, true);
         hashAppend(hashAlg, *input);
