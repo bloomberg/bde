@@ -87,7 +87,7 @@ static void aSsErT(bool b, const char *s, int i)
 #endif
 
 #if (BSLS_COMPILERFEATURES_CPLUSPLUS < 201103L) \
-  && defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR <= 90999
+  && defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR <= 199711
     // gcc cannot handle certain overload resolution regarding references in
     // C++03 mode, so we do not attempt certain known-to-be-broken tests.  The
     // condition is deliberately written so that it enables the tests again
