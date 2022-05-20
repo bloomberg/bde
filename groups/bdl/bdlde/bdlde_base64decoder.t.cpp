@@ -224,6 +224,7 @@ using bsl::flush;
 // [ 9] That a specified maximum output length is observed.
 // [ 9] That surplus output beyond 'maxNumOut' is buffered properly.
 // [11] STRESS TEST: The decoder properly decodes all encoded output.
+// [13] TABLE PLUS RANDOM TESTING, UNPADDED MODE, INJECTED GARBAGE
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -322,6 +323,7 @@ typedef bdlde::Base64DecoderOptions Options;
 typedef bdlde::Base64EncoderOptions EncoderOptions;
 typedef bdlde::Base64Decoder        Obj;
 typedef bdlde::Base64Alphabet       Alpha;
+typedef bsls::Types::IntPtr         IntPtr;
 
 static const char ff = static_cast<char>(-1);
 
@@ -478,6 +480,193 @@ int veryVeryVerbose = 0;
 int veryVeryVeryVerbose = 0;
 
 const char *testFileName = 0;
+
+namespace {
+namespace u {
+
+class RandGen {
+    // Random number generator using the high-order 32 bits of Donald Knuth's
+    // MMIX algorithm.
+
+    bsls::Types::Uint64 d_seed;
+
+  public:
+    // CREATOR
+    explicit
+    RandGen(int startSeed = 0);
+        // Initialize the generator with the optionally specified 'startSeed'.
+
+    // MANIPULATORS
+    unsigned operator()();
+        // Return the next random number in the series;
+
+    char getChar();
+        // Return a random 'char'.
+
+    void injectGarbage(bsl::string *result, bool padIsGarbage, bool url);
+        // Inject a random number of characters of illegal garbage into the
+        // specified 'result' at random indices, if the specified
+        // 'padIsGarbage' is 'true', consider '=' among the garbage characters
+        // to be inserted.  If 'url' is true, '+' and '/' are among the
+        // garbage characters, otherwise '-' and '_' are among the garbage
+        // characters.
+
+    void injectWhite(bsl::string *result);
+        // Inject some bytes of white space into this string at random at
+        // random indices.
+
+    void randString(bsl::string *result, int len);
+        // Initialize the specified 'result' with random bytes (including
+        // '0x00'.
+};
+
+// CREATOR
+inline
+RandGen::RandGen(int startSeed)
+: d_seed(startSeed)
+{
+    (void) (*this)();
+    (void) (*this)();
+    (void) (*this)();
+}
+
+// MANIPULATOR
+inline
+unsigned RandGen::operator()()
+{
+    d_seed = d_seed * 6364136223846793005ULL + 1442695040888963407ULL;
+    return static_cast<unsigned>(d_seed >> 32);
+}
+
+inline
+char RandGen::getChar()
+{
+    return static_cast<char>((*this)() & 0xff);
+}
+
+void RandGen::injectGarbage(bsl::string *result, bool padIsGarbage, bool url)
+{
+    const char *garbage = padIsGarbage
+                        ? (url ? "~`!@#$%^&*(){}[]|\\\"':;<>,.?=+/"
+                               : "~`!@#$%^&*(){}[]|\\\"':;<>,.?=-_")
+                        : (url ? "~`!@#$%^&*(){}[]|\\\"':;<>,.?+/"
+                               : "~`!@#$%^&*(){}[]|\\\"':;<>,.?-_");
+    const bsl::size_t garbageLen = bsl::strlen(garbage);
+
+    const IntPtr numGarbage = 1 + (*this)() % (result->length() + 1);
+    for (int ii = 0; ii < numGarbage; ++ii) {
+        bsl::size_t index = (*this)() % (result->length() + 1);
+        char injectChar = getChar();
+        if (!(0x80 & injectChar)) {
+            injectChar = garbage[(*this)() % garbageLen];
+        }
+
+        result->insert(result->begin() + index, injectChar);
+    }
+}
+
+void RandGen::injectWhite(bsl::string *result)
+{
+    static const char *white = " \n\t\v\r\f";
+    static bsl::size_t whiteLen;
+    static bool firstTime = true;
+    if (firstTime) {
+        firstTime = false;
+        whiteLen = bsl::strlen(white);
+    }
+
+    const IntPtr numWhite = 1 + (*this)() % (result->length() + 1);
+    for (int ii = 0; ii < numWhite; ++ii) {
+        bsl::size_t index = (*this)() % (result->length() + 1);
+        result->insert(result->begin() + index, white[(*this)() % whiteLen]);
+    }
+}
+
+void RandGen::randString(bsl::string *result, int len)
+{
+    BSLS_ASSERT(0 <= len);
+
+    result->clear();
+    result->reserve(len);
+
+    for (int ii = 0; ii < len; ++ii) {
+        result->push_back(getChar());
+    }
+}
+
+bsl::string displayStr(const bsl::string& str)
+{
+    bsl::string ret;
+
+    static const char *hexNybble = "0123456789abcdef";
+    static bool firstTime = true;
+    if (firstTime) {
+        firstTime = false;
+        BSLS_ASSERT_OPT(16 == bsl::strlen(hexNybble));
+    }
+
+    for (unsigned uu = 0; uu < str.length(); ++uu) {
+        ret += "\\x";
+        const char c = str[uu];
+        for (int shift = 4; 0 <= shift; shift -= 4) {
+            const int nybble = (c >> shift) & 0xf;
+            ret += hexNybble[nybble];
+        }
+    }
+
+    return ret;
+}
+
+bsl::string unWhiteString(const bsl::string& str)
+{
+    static const char *hexNybble = "0123456789abcdef";
+
+    bsl::string ret;
+
+    for (const char *pc = str.c_str(); *pc; ++pc) {
+        if ((!bsl::isprint(*pc) && ' ' != *pc) || bsl::isspace(*pc)) {
+            ret += "\\x";
+            for (int shift = 4; 0 <= shift; shift -= 4) {
+                const int nybble = (*pc >> shift) & 0xf;
+                ret += hexNybble[nybble];
+            }
+        }
+        else {
+            ret += *pc;
+        }
+    }
+
+    return ret;
+}
+
+void convertToUrlInput(bsl::string *result)
+{
+    for (bsl::size_t idx = 0, npos = bsl::string::npos;
+                     npos != (idx = result->find_first_of("+/", idx)); ++idx) {
+        char& c = (*result)[idx];
+        if ('+' == c) {
+            c = '-';
+        }
+        else {
+            BSLS_ASSERT('/' == c);
+            c = '_';
+        }
+    }
+}
+
+void removeEquals(bsl::string *result)
+{
+    for (unsigned uu = 0; uu < result->length(); ++uu) {
+        if ('=' == (*result)[uu]) {
+            result->erase(uu, 1);
+            --uu;
+        }
+    }
+}
+
+}  // close namespace u
+}  // close unnamed namespace
+
 
                         // =========================
                         // operator<< for enum State
@@ -1383,8 +1572,6 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
                        "Create 'base64Input', valid base 64 input sequence,\n"
                                           " and permute it in various ways.\n";
 
-        bslma::TestAllocator fa("footprint");
-
         bsl::vector<char> base64Input;
         const char        GARBAGE = char(0xa5);
         int               base64Size =
@@ -1423,17 +1610,11 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 
         int numOut, numIn, endNumOut;
 
-        for (int ti = 0; ti < 4; ++ti) {
-            const EncoderOptions& EO = EncoderOptions::custom(0);
-
+        for (int ti = 0; ti < 2; ++ti) {
             numOut = numIn = endNumOut = -1;
 
-            Obj *pmX = 0 == ti ? new (fa) Obj(Options::custom(EO, true))
-                     : 1 == ti ? new (fa) Obj(Options::custom(true))
-                     : 2 == ti ? new (fa) Obj(Options::custom(EO, false))
-                     :           new (fa) Obj(Options::custom(false));
-            Obj& mX = *pmX;    const Obj& X = mX;
-            bslma::ManagedPtr<Obj> guard(pmX, &fa);
+            Obj mX(Options::custom(ti, Obj::e_BASIC, true));
+            const Obj& X = mX;
             char *out = binaryOutput.data();
 
             int rc = mX.convert(out,
@@ -1492,17 +1673,11 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
         if (veryVerbose) cout << "Decode 'noisyInput' with error checking\n"
                               " enabled, observe output matches fuzz input.\n";
 
-        for (int ti = 0; ti < 4; ++ti) {
-            const EncoderOptions& EO = EncoderOptions::custom(0);
-
+        for (int ti = 0; ti < 2; ++ti) {
             numOut = numIn = endNumOut = -1;
 
-            Obj *pmX = 0 == ti ? new (fa) Obj(Options::custom(EO, true))
-                     : 1 == ti ? new (fa) Obj(Options::custom(true))
-                     : 2 == ti ? new (fa) Obj(Options::custom(EO, false))
-                     :           new (fa) Obj(Options::custom(false));
-            Obj& mX = *pmX;    const Obj& X = mX;
-            bslma::ManagedPtr<Obj> guard(pmX, &fa);
+            Obj mX(Options::custom(ti, Alpha::e_BASIC, true));
+            const Obj& X = mX;
             char *out = binaryOutput.data();
 
             int rc = mX.convert(out,
@@ -1570,22 +1745,16 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
         if (veryVerbose) cout << "Decode 'noisyInput'.  The result depends\n"
                                   " upon whether error checking is enabled.\n";
 
-        for (int ti = 0; ti < 4; ++ti) {
+        for (int ti = 0; ti < 2; ++ti) {
             bool errorCheck = ti & 1;
-            bool ctorChoice = ti & 2;
-
-            const EncoderOptions& EO = EncoderOptions::custom(0);
 
             binaryOutput.clear();
             binaryOutput.resize(LENGTH + 1, GARBAGE);
 
             numOut = numIn = endNumOut = -1;
 
-            Obj *pmX = ctorChoice
-                     ? new (fa) Obj(Options::custom(EO, errorCheck))
-                     : new (fa) Obj(Options::custom(errorCheck));
-            Obj& mX = *pmX;    const Obj& X = mX;
-            bslma::ManagedPtr<Obj> guard(pmX, &fa);
+            Obj mX(Options::custom(errorCheck, Alpha::e_BASIC, true));
+            const Obj& X = mX;
 
             char *outBuf = binaryOutput.data();
             char *out    = outBuf;
@@ -1638,12 +1807,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
         noisyInput = base64Input;
         noisyInput.insert(noisyInput.begin(), 3, 'A');
         for (int ii = 0; ii <= static_cast<int>(noisyInput.size()) - 2; ++ii) {
-            for (int ti = 0; ti < 4; ++ti) {
-                bool errorI     = ti & 1;
-                bool ctorChoice = ti & 2;
-
-                const EncoderOptions& EO = EncoderOptions::custom(0);
-
+            for (int ti = 0; ti < 2; ++ti) {
                 binaryOutput.clear();
                 binaryOutput.resize(LENGTH + 4, GARBAGE);
 
@@ -1651,11 +1815,8 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 
                 numOut = numIn = endNumOut = -1;
 
-                Obj *pmX = ctorChoice
-                         ? new (fa) Obj(Options::custom(EO, errorI))
-                         : new (fa) Obj(Options::custom(errorI));
-                Obj& mX = *pmX;    const Obj& X = mX;
-                bslma::ManagedPtr<Obj> guard(pmX, &fa);
+                Obj mX(Options::custom(ti, Alpha::e_BASIC, true));
+                const Obj& X = mX;
                 char *out = binaryOutput.data();
 
                 int rc = mX.convert(out,
@@ -1987,6 +2148,887 @@ void testCase##NUMBER(bool verbose,                                           \
                       bool veryVerbose,                                       \
                       bool veryVeryVerbose,                                   \
                       bool veryVeryVeryVerbose)
+
+DEFINE_TEST_CASE(13)
+{
+    (void)veryVeryVeryVerbose;
+    (void)veryVeryVerbose;
+    (void)veryVerbose;
+    (void)verbose;
+
+    // ------------------------------------------------------------------------
+    // TABLE PLUS RANDOM TESTING, UNPADDED MODE, INJECTED GARBAGE
+    //
+    // Concerns:
+    //: 1 Decoder can parse unpadded input in unpadded mode.
+    //:
+    //: 2 In unpadded mode, an '=' sign in input is illegal, whether
+    //:   'unrecognizedIsError' is set or not.
+    //:
+    //: 3 White space in the input is always ignored.
+    //:
+    //: 4 If 'unrecognizedIsError' is 'false', invalid characters in input
+    //:   other than '=' are ignored.
+    //:
+    //: 5 If 'unrecognizedIsError' is 'true', invalid characters in input other
+    //:   than '=' result in an error.
+    //:
+    //: 6 If an input sequence will result in successful parsing, parsing it in
+    //:   pieces limited by the pointer pair passed yields the same result as
+    //:   parsing it all in one pass.
+    //:
+    //: 7 If an input sequence will result in successful parsing, parsing it in
+    //:   pieces pieces limited by 'maxNumOut >= 0' yeilds the same result as
+    //:   parsing it all in one pass.
+    //:
+    //: 8 Residual bits: Where 'len' is the length of output:
+    //:   o if 'len % 3 == 1', then if the 4 low-order residual bits are not 0,
+    //:     an error will be reported.
+    //:
+    //:   o if 'len % 3 == 2', then if the 2 low-order residual bits are not 0,
+    //:     an error will be reported.
+    //:
+    //: 9 If 'N' is the number of bytes of valid input (not including '='s),
+    //:   then if 'N % 4 == 1' there will be an error.
+    //
+    // Plan:
+    //: 1 Create a table of padded decoder input and expected output, generated
+    //:   by the 'u::RandGen' random number generator and the 'Base64Encoder'
+    //:   in Test Case -1.
+    //:
+    //: 2 Write a series of loops looping through the table.  Within each loop,
+    //:   nest another loop varying 3 boolean variables:
+    //:
+    //:   o PAD (padded)
+    //:
+    //:   o INJECT_WHITE
+    //:
+    //:   o U_IS_ERR (unrecognizedIsError)
+    //:
+    //:   o URL (encoding is URL)
+    //:
+    //: 3 Within the nested loop, make a copy of the input selected by the
+    //:   outer loop, then conditionally modify it depending on the flags:
+    //:
+    //:   o 'u::removeEquals': remove padding from string
+    //:
+    //:   o 'u::convertToUrlInput': convert input string from 'e_BASIC' type
+    //:     to 'e_URL' type.
+    //:
+    //:   o 'u::RandGen::injectWhite': insert white space characters at random
+    //:     locations in this string.  This should never affect the outcome.
+    //:
+    //:   o 'u::Randgen::injectGarbage': inject invalid non-whitespace
+    //:     characters into the input.  If the decoder is configured with
+    //:     'unrecognizedIsError' flag, this will result in an error, otherwise
+    //:     these characters will be ignored, unless the byte is '=' in which
+    //:     case it is always an error.
+    //:
+    //: 4 Create a decoder object, with the options configured to include
+    //:   'U_IS_ERR', 'URL', and 'PAD'.
+    //:
+    //: 5 Call 'convert' and 'endConvert' to do the translation, and when
+    //:   success is expected, compare the decoded result with the expected
+    //:   value from the table.
+    //:
+    //: 6 Do a series of these loops testing for different things:
+    //:
+    //:   o Input contains no garbage, decoder configured for
+    //:     'unrecognizedIsError'.  Should always succeed.
+    //:
+    //:   o Input contains garbage, results in error when decoder configured
+    //:     'unrecognizedIsError', results in no error otherwise.
+    //:
+    //:   o Input is parsed in random pieces, limit of parsing done by the
+    //:     range passed to input.  Always succeed.
+    //:
+    //:   o Input is parsed in random pieces, limit of parsing done by
+    //:     passing 'maxNumOut != -1'.  Always succeed.
+    //:
+    //:   o Set low order bits of partial final characters, should always be an
+    //:     error.
+    //:
+    //:   o When 'N' is the number of valid characters of input other than '=',
+    //:     have 'N % 4 == 1', which should always be an error.
+    //
+    // Testing:
+    //   TABLE PLUS RANDOM TESTING, UNPADDED MODE, INJECTED GARBAGE
+    // ------------------------------------------------------------------------
+
+    if (verbose) cout <<
+                "TABLE PLUS RANDOM TESTING, UNPADDED MODE, INJECTED GARBAGE\n"
+                "==========================================================\n";
+
+    static const struct Data {
+        int           d_line;
+        const char   *d_inPadded;
+        const char   *d_out;
+        const int     d_outLen;
+    } DATA[] = {
+        // Test table is randomly-generated by test case -1.
+
+        // Line               Output                                  Output
+        //    Input                                                   Length
+        //--  --------------  --------------------------------------  -
+
+        { L_, "",             "",                                     0 },
+        { L_, "DQ==",         "\x0d",                                 1 },
+        { L_, "JA==",         "\x24",                                 1 },
+        { L_, "Ng==",         "\x36",                                 1 },
+        { L_, "Nw==",         "\x37",                                 1 },
+        { L_, "PA==",         "\x3c",                                 1 },
+        { L_, "Rw==",         "\x47",                                 1 },
+        { L_, "XQ==",         "\x5d",                                 1 },
+        { L_, "aA==",         "\x68",                                 1 },
+        { L_, "ag==",         "\x6a",                                 1 },
+        { L_, "cA==",         "\x70",                                 1 },
+        { L_, "eg==",         "\x7a",                                 1 },
+        { L_, "jg==",         "\x8e",                                 1 },
+        { L_, "kw==",         "\x93",                                 1 },
+        { L_, "ng==",         "\x9e",                                 1 },
+        { L_, "nw==",         "\x9f",                                 1 },
+        { L_, "pA==",         "\xa4",                                 1 },
+        { L_, "wQ==",         "\xc1",                                 1 },
+        { L_, "1Q==",         "\xd5",                                 1 },
+        { L_, "2g==",         "\xda",                                 1 },
+        { L_, "6Q==",         "\xe9",                                 1 },
+        { L_, "Ef8=",         "\x11\xff",                             2 },
+        { L_, "GnY=",         "\x1a\x76",                             2 },
+        { L_, "ID0=",         "\x20\x3d",                             2 },
+        { L_, "JC4=",         "\x24\x2e",                             2 },
+        { L_, "J28=",         "\x27\x6f",                             2 },
+        { L_, "J/w=",         "\x27\xfc",                             2 },
+        { L_, "Qnc=",         "\x42\x77",                             2 },
+        { L_, "Ycw=",         "\x61\xcc",                             2 },
+        { L_, "a6w=",         "\x6b\xac",                             2 },
+        { L_, "btY=",         "\x6e\xd6",                             2 },
+        { L_, "chI=",         "\x72\x12",                             2 },
+        { L_, "epE=",         "\x7a\x91",                             2 },
+        { L_, "gDc=",         "\x80\x37",                             2 },
+        { L_, "hRY=",         "\x85\x16",                             2 },
+        { L_, "qQ0=",         "\xa9\x0d",                             2 },
+        { L_, "tBg=",         "\xb4\x18",                             2 },
+        { L_, "tMg=",         "\xb4\xc8",                             2 },
+        { L_, "0qA=",         "\xd2\xa0",                             2 },
+        { L_, "4i4=",         "\xe2\x2e",                             2 },
+        { L_, "4qM=",         "\xe2\xa3",                             2 },
+        { L_, "CP3T",         "\x08\xfd\xd3",                         3 },
+        { L_, "E5wd",         "\x13\x9c\x1d",                         3 },
+        { L_, "JqHq",         "\x26\xa1\xea",                         3 },
+        { L_, "M8Qa",         "\x33\xc4\x1a",                         3 },
+        { L_, "PPjJ",         "\x3c\xf8\xc9",                         3 },
+        { L_, "Qo1x",         "\x42\x8d\x71",                         3 },
+        { L_, "SM7w",         "\x48\xce\xf0",                         3 },
+        { L_, "UpwF",         "\x52\x9c\x05",                         3 },
+        { L_, "VSo6",         "\x55\x2a\x3a",                         3 },
+        { L_, "X732",         "\x5f\xbd\xf6",                         3 },
+        { L_, "fA7x",         "\x7c\x0e\xf1",                         3 },
+        { L_, "h6h8",         "\x87\xa8\x7c",                         3 },
+        { L_, "jl+n",         "\x8e\x5f\xa7",                         3 },
+        { L_, "rd+z",         "\xad\xdf\xb3",                         3 },
+        { L_, "x73Z",         "\xc7\xbd\xd9",                         3 },
+        { L_, "yzjk",         "\xcb\x38\xe4",                         3 },
+        { L_, "4tV6",         "\xe2\xd5\x7a",                         3 },
+        { L_, "5rnw",         "\xe6\xb9\xf0",                         3 },
+        { L_, "8nog",         "\xf2\x7a\x20",                         3 },
+        { L_, "+4uA",         "\xfb\x8b\x80",                         3 },
+        { L_, "Ax0twA==",     "\x03\x1d\x2d\xc0",                     4 },
+        { L_, "E7phCA==",     "\x13\xba\x61\x08",                     4 },
+        { L_, "KK/lpQ==",     "\x28\xaf\xe5\xa5",                     4 },
+        { L_, "M3bRZw==",     "\x33\x76\xd1\x67",                     4 },
+        { L_, "Oy4DhA==",     "\x3b\x2e\x03\x84",                     4 },
+        { L_, "QNsIVg==",     "\x40\xdb\x08\x56",                     4 },
+        { L_, "ScdkFw==",     "\x49\xc7\x64\x17",                     4 },
+        { L_, "VH2e3g==",     "\x54\x7d\x9e\xde",                     4 },
+        { L_, "cGwHoQ==",     "\x70\x6c\x07\xa1",                     4 },
+        { L_, "g5Jq8w==",     "\x83\x92\x6a\xf3",                     4 },
+        { L_, "iQgmiA==",     "\x89\x08\x26\x88",                     4 },
+        { L_, "lZKGtg==",     "\x95\x92\x86\xb6",                     4 },
+        { L_, "mzODHw==",     "\x9b\x33\x83\x1f",                     4 },
+        { L_, "phht2Q==",     "\xa6\x18\x6d\xd9",                     4 },
+        { L_, "yuN3Bw==",     "\xca\xe3\x77\x07",                     4 },
+        { L_, "0naWGQ==",     "\xd2\x76\x96\x19",                     4 },
+        { L_, "2pyQbg==",     "\xda\x9c\x90\x6e",                     4 },
+        { L_, "42mnAg==",     "\xe3\x69\xa7\x02",                     4 },
+        { L_, "8/VmcA==",     "\xf3\xf5\x66\x70",                     4 },
+        { L_, "+oIWnQ==",     "\xfa\x82\x16\x9d",                     4 },
+        { L_, "AuWBa5I=",     "\x02\xe5\x81\x6b\x92",                 5 },
+        { L_, "A/OaQp0=",     "\x03\xf3\x9a\x42\x9d",                 5 },
+        { L_, "HBtCVn0=",     "\x1c\x1b\x42\x56\x7d",                 5 },
+        { L_, "J6S3huQ=",     "\x27\xa4\xb7\x86\xe4",                 5 },
+        { L_, "Nuiudgc=",     "\x36\xe8\xae\x76\x07",                 5 },
+        { L_, "Pb96tho=",     "\x3d\xbf\x7a\xb6\x1a",                 5 },
+        { L_, "RXK6/n0=",     "\x45\x72\xba\xfe\x7d",                 5 },
+        { L_, "VE+0TMM=",     "\x54\x4f\xb4\x4c\xc3",                 5 },
+        { L_, "XXfu7Dg=",     "\x5d\x77\xee\xec\x38",                 5 },
+        { L_, "YRIflvM=",     "\x61\x12\x1f\x96\xf3",                 5 },
+        { L_, "cCFXhlE=",     "\x70\x21\x57\x86\x51",                 5 },
+        { L_, "cOLBALM=",     "\x70\xe2\xc1\x00\xb3",                 5 },
+        { L_, "hfnxWg8=",     "\x85\xf9\xf1\x5a\x0f",                 5 },
+        { L_, "iIZQvfE=",     "\x88\x86\x50\xbd\xf1",                 5 },
+        { L_, "kIV+W+8=",     "\x90\x85\x7e\x5b\xef",                 5 },
+        { L_, "nC1qLQ8=",     "\x9c\x2d\x6a\x2d\x0f",                 5 },
+        { L_, "nMUINws=",     "\x9c\xc5\x08\x37\x0b",                 5 },
+        { L_, "tdAKAH0=",     "\xb5\xd0\x0a\x00\x7d",                 5 },
+        { L_, "tdXxmws=",     "\xb5\xd5\xf1\x9b\x0b",                 5 },
+        { L_, "8tOCydU=",     "\xf2\xd3\x82\xc9\xd5",                 5 },
+        { L_, "AsZmSTdy",     "\x02\xc6\x66\x49\x37\x72",             6 },
+        { L_, "EWDDVQdb",     "\x11\x60\xc3\x55\x07\x5b",             6 },
+        { L_, "G0zddPDn",     "\x1b\x4c\xdd\x74\xf0\xe7",             6 },
+        { L_, "ID4XnbEy",     "\x20\x3e\x17\x9d\xb1\x32",             6 },
+        { L_, "IOD3YaT+",     "\x20\xe0\xf7\x61\xa4\xfe",             6 },
+        { L_, "QAkqqusD",     "\x40\x09\x2a\xaa\xeb\x03",             6 },
+        { L_, "RaUf0U9n",     "\x45\xa5\x1f\xd1\x4f\x67",             6 },
+        { L_, "aFUqDUXJ",     "\x68\x55\x2a\x0d\x45\xc9",             6 },
+        { L_, "gRTUh5ei",     "\x81\x14\xd4\x87\x97\xa2",             6 },
+        { L_, "ihMqlyCE",     "\x8a\x13\x2a\x97\x20\x84",             6 },
+        { L_, "pQ1Us8uO",     "\xa5\x0d\x54\xb3\xcb\x8e",             6 },
+        { L_, "sW6/6jIE",     "\xb1\x6e\xbf\xea\x32\x04",             6 },
+        { L_, "wCwP5w2O",     "\xc0\x2c\x0f\xe7\x0d\x8e",             6 },
+        { L_, "xR0lZsY0",     "\xc5\x1d\x25\x66\xc6\x34",             6 },
+        { L_, "0ZQhh1Sv",     "\xd1\x94\x21\x87\x54\xaf",             6 },
+        { L_, "1xYy6qfp",     "\xd7\x16\x32\xea\xa7\xe9",             6 },
+        { L_, "2cAfeDo9",     "\xd9\xc0\x1f\x78\x3a\x3d",             6 },
+        { L_, "9INO3sRg",     "\xf4\x83\x4e\xde\xc4\x60",             6 },
+        { L_, "+PZn9zP8",     "\xf8\xf6\x67\xf7\x33\xfc",             6 },
+        { L_, "+/iaOuQ1",     "\xfb\xf8\x9a\x3a\xe4\x35",             6 },
+        { L_, "BF7SfsXApg==", "\x04\x5e\xd2\x7e\xc5\xc0\xa6",         7 },
+        { L_, "Bxy6PKhI8g==", "\x07\x1c\xba\x3c\xa8\x48\xf2",         7 },
+        { L_, "CU6R5sVN0A==", "\x09\x4e\x91\xe6\xc5\x4d\xd0",         7 },
+        { L_, "DTEvwCFgYg==", "\x0d\x31\x2f\xc0\x21\x60\x62",         7 },
+        { L_, "MOMZsTBMyw==", "\x30\xe3\x19\xb1\x30\x4c\xcb",         7 },
+        { L_, "XuvlIh4cGw==", "\x5e\xeb\xe5\x22\x1e\x1c\x1b",         7 },
+        { L_, "YhR0gtR6OA==", "\x62\x14\x74\x82\xd4\x7a\x38",         7 },
+        { L_, "g7ZsBNYe6Q==", "\x83\xb6\x6c\x04\xd6\x1e\xe9",         7 },
+        { L_, "hcYfEHM0Zg==", "\x85\xc6\x1f\x10\x73\x34\x66",         7 },
+        { L_, "mRf5s9awnQ==", "\x99\x17\xf9\xb3\xd6\xb0\x9d",         7 },
+        { L_, "rMf+KbtwvQ==", "\xac\xc7\xfe\x29\xbb\x70\xbd",         7 },
+        { L_, "rypArmfjLw==", "\xaf\x2a\x40\xae\x67\xe3\x2f",         7 },
+        { L_, "uigkPeKBMQ==", "\xba\x28\x24\x3d\xe2\x81\x31",         7 },
+        { L_, "xCo+uhrTJQ==", "\xc4\x2a\x3e\xba\x1a\xd3\x25",         7 },
+        { L_, "y6cApPRbzw==", "\xcb\xa7\x00\xa4\xf4\x5b\xcf",         7 },
+        { L_, "09Snhhefkw==", "\xd3\xd4\xa7\x86\x17\x9f\x93",         7 },
+        { L_, "1AHVBzTTTw==", "\xd4\x01\xd5\x07\x34\xd3\x4f",         7 },
+        { L_, "6D5UyajIGg==", "\xe8\x3e\x54\xc9\xa8\xc8\x1a",         7 },
+        { L_, "7FTcy4Jykw==", "\xec\x54\xdc\xcb\x82\x72\x93",         7 },
+        { L_, "7XGuaJfjEA==", "\xed\x71\xae\x68\x97\xe3\x10",         7 },
+        { L_, "B0WdA1GQ7Dw=", "\x07\x45\x9d\x03\x51\x90\xec\x3c",     8 },
+        { L_, "B8tMlLy3gz0=", "\x07\xcb\x4c\x94\xbc\xb7\x83\x3d",     8 },
+        { L_, "M12UhwtFrRA=", "\x33\x5d\x94\x87\x0b\x45\xad\x10",     8 },
+        { L_, "OWmwZykGWh8=", "\x39\x69\xb0\x67\x29\x06\x5a\x1f",     8 },
+        { L_, "QW3VF+8CJl8=", "\x41\x6d\xd5\x17\xef\x02\x26\x5f",     8 },
+        { L_, "WWazTZ+/I5s=", "\x59\x66\xb3\x4d\x9f\xbf\x23\x9b",     8 },
+        { L_, "kRJNAJGR2J8=", "\x91\x12\x4d\x00\x91\x91\xd8\x9f",     8 },
+        { L_, "kqlQ0goZADk=", "\x92\xa9\x50\xd2\x0a\x19\x00\x39",     8 },
+        { L_, "nBj02zNeLtc=", "\x9c\x18\xf4\xdb\x33\x5e\x2e\xd7",     8 },
+        { L_, "qDtzxxwJ+YI=", "\xa8\x3b\x73\xc7\x1c\x09\xf9\x82",     8 },
+        { L_, "sGWoiiJXEPg=", "\xb0\x65\xa8\x8a\x22\x57\x10\xf8",     8 },
+        { L_, "wPQCV2RV5d4=", "\xc0\xf4\x02\x57\x64\x55\xe5\xde",     8 },
+        { L_, "wYAwF7cdwyM=", "\xc1\x80\x30\x17\xb7\x1d\xc3\x23",     8 },
+        { L_, "x36v0Q7zVNA=", "\xc7\x7e\xaf\xd1\x0e\xf3\x54\xd0",     8 },
+        { L_, "y/TVgLQFAiE=", "\xcb\xf4\xd5\x80\xb4\x05\x02\x21",     8 },
+        { L_, "zqpPqoLyX4I=", "\xce\xaa\x4f\xaa\x82\xf2\x5f\x82",     8 },
+        { L_, "0D82NRBEkJ8=", "\xd0\x3f\x36\x35\x10\x44\x90\x9f",     8 },
+        { L_, "0el6zNckxDw=", "\xd1\xe9\x7a\xcc\xd7\x24\xc4\x3c",     8 },
+        { L_, "3VX/OSTahig=", "\xdd\x55\xff\x39\x24\xda\x86\x28",     8 },
+        { L_, "5SsbdS5BHfk=", "\xe5\x2b\x1b\x75\x2e\x41\x1d\xf9",     8 },
+        { L_, "GAoYstMXn5nq", "\x18\x0a\x18\xb2\xd3\x17\x9f\x99\xea", 9 },
+        { L_, "HROsgjKYvK0c", "\x1d\x13\xac\x82\x32\x98\xbc\xad\x1c", 9 },
+        { L_, "JmPHBjynkk/A", "\x26\x63\xc7\x06\x3c\xa7\x92\x4f\xc0", 9 },
+        { L_, "OSApIiWy0zSo", "\x39\x20\x29\x22\x25\xb2\xd3\x34\xa8", 9 },
+        { L_, "PxbjIK2OF7RR", "\x3f\x16\xe3\x20\xad\x8e\x17\xb4\x51", 9 },
+        { L_, "U1Cj+4FTcWTV", "\x53\x50\xa3\xfb\x81\x53\x71\x64\xd5", 9 },
+        { L_, "U6gK2peYDgmP", "\x53\xa8\x0a\xda\x97\x98\x0e\x09\x8f", 9 },
+        { L_, "XmZV+TCH6RRb", "\x5e\x66\x55\xf9\x30\x87\xe9\x14\x5b", 9 },
+        { L_, "b43v4Wu4Eqig", "\x6f\x8d\xef\xe1\x6b\xb8\x12\xa8\xa0", 9 },
+        { L_, "iIRwFHw563CN", "\x88\x84\x70\x14\x7c\x39\xeb\x70\x8d", 9 },
+        { L_, "jfh6Zq0Z+eNR", "\x8d\xf8\x7a\x66\xad\x19\xf9\xe3\x51", 9 },
+        { L_, "j8I8yB3G7cHp", "\x8f\xc2\x3c\xc8\x1d\xc6\xed\xc1\xe9", 9 },
+        { L_, "mDuPWFUoliya", "\x98\x3b\x8f\x58\x55\x28\x96\x2c\x9a", 9 },
+        { L_, "m0VwumQTT6nm", "\x9b\x45\x70\xba\x64\x13\x4f\xa9\xe6", 9 },
+        { L_, "rrepCHB87/vh", "\xae\xb7\xa9\x08\x70\x7c\xef\xfb\xe1", 9 },
+        { L_, "wtKT7WA2+QTX", "\xc2\xd2\x93\xed\x60\x36\xf9\x04\xd7", 9 },
+        { L_, "zS3K/F+itUlE", "\xcd\x2d\xca\xfc\x5f\xa2\xb5\x49\x44", 9 },
+        { L_, "zwhl6I2kbDzn", "\xcf\x08\x65\xe8\x8d\xa4\x6c\x3c\xe7", 9 },
+        { L_, "3ZpaCUaruRGp", "\xdd\x9a\x5a\x09\x46\xab\xb9\x11\xa9", 9 },
+        { L_, "7iMd8LEllK+0", "\xee\x23\x1d\xf0\xb1\x25\x94\xaf\xb4", 9 },
+    };
+    enum { k_NUM_DATA = sizeof DATA / sizeof *DATA };
+
+    u::RandGen rand;
+
+    if (verbose) cout << "Tests with no garbage, unrecognized is error\n";
+
+    for (int ti = 0; ti < k_NUM_DATA; ++ti) {
+        const Data&       data     = DATA[ti];
+        const int         LINE     = data.d_line;
+        const bsl::string inPadded = data.d_inPadded;
+        const bsl::string expOut    (data.d_out, data.d_outLen);
+        const int         outLen   = data.d_outLen;
+
+        if (veryVerbose) P(inPadded);
+
+        enum { k_INNER_LOOP_COUNT = 8 * 8 };
+        for (int wi = 0; wi < k_INNER_LOOP_COUNT; ++wi) {
+            const bool INJECT_WHITE = wi & 1;
+            const bool PAD          = wi & 2;
+            const bool URL          = wi & 4;
+
+            if (veryVeryVerbose) { P_(LINE);    P_(INJECT_WHITE);    P(PAD); }
+
+            bsl::string input(inPadded);
+            if (!PAD) {
+                u::removeEquals(&input);
+            }
+
+            ASSERT(outLen <= Obj::maxDecodedLength(input.length()));
+            ASSERT(((outLen + 2) / 3) * 3 ==
+                                        Obj::maxDecodedLength(input.length()));
+
+            if (URL) {
+                u::convertToUrlInput(&input);
+            }
+            if (INJECT_WHITE) {
+                rand.injectWhite(&input);
+            }
+
+            const Options& options = Options::custom(true,
+                                                     URL ? Alpha::e_URL
+                                                         : Alpha::e_BASIC,
+                                                     PAD);
+            Obj mX(options);    const Obj& X = mX;
+
+            int numIn, numOut, endNumOut;
+            bsl::string outBuf;
+            outBuf.resize(outLen + 1, '?');
+            int rc = mX.convert(outBuf.data(),
+                                &numOut,
+                                &numIn,
+                                input.data(),
+                                input.data() + input.length());
+            ASSERTV(LINE, INJECT_WHITE, PAD, input, 0 == rc);
+
+            if (0 != rc) {
+                continue;
+            }
+
+            ASSERT(numOut <= outLen);
+            ASSERT('?' == outBuf[numOut]);
+            ASSERT(static_cast<int>(input.length()) == numIn);
+            ASSERT(!X.isError());
+
+            rc = mX.endConvert(outBuf.data() + numOut,
+                               &endNumOut);
+            ASSERTV(LINE, INJECT_WHITE, PAD, 0 == rc);
+            ASSERT(numOut + endNumOut == outLen);
+            ASSERT('?' == outBuf[outLen]);
+            ASSERT(X.isDone());
+            outBuf.resize(outLen);
+
+            ASSERT(expOut == outBuf);
+        }
+    }
+
+    if (verbose) cout << "Tests with garbage, w/ & w/o unrecognized is err\n";
+
+    for (int ti = 0; ti < k_NUM_DATA; ++ti) {
+        const Data&       data     = DATA[ti];
+        const int         LINE     = data.d_line;
+        const bsl::string inPadded = data.d_inPadded;
+        const bsl::string expOut    (data.d_out, data.d_outLen);
+        const int         outLen   = data.d_outLen;
+
+        if (veryVerbose) P(inPadded);
+
+        enum { k_INNER_LOOP_COUNT = 16 * 32 };
+        for (int wi = 0; wi < k_INNER_LOOP_COUNT; ++wi) {
+            const bool INJECT_WHITE = wi & 1;
+            const bool PAD          = wi & 2;
+            const bool U_IS_ERR     = wi & 4;
+            const bool URL          = wi & 8;
+
+            bsl::string input(inPadded);
+            if (!PAD) {
+                u::removeEquals(&input);
+            }
+            if (URL) {
+                u::convertToUrlInput(&input);
+            }
+            rand.injectGarbage(&input, !PAD && U_IS_ERR, URL);
+            if (INJECT_WHITE) {
+                rand.injectWhite(&input);
+            }
+            const bsl::string& UW = u::unWhiteString(input);
+
+            if (veryVeryVerbose) {
+                const int  LL = LINE;
+                const bool IW = INJECT_WHITE;
+                const bool UE = U_IS_ERR;
+
+                P_(LL);    P_(IW);    P_(PAD);    P_(UE);    P(UW);
+            }
+
+            const Options& options = Options::custom(U_IS_ERR,
+                                                     URL ? Alpha::e_URL
+                                                         : Alpha::e_BASIC,
+                                                     PAD);
+            Obj mX(options);    const Obj& X = mX;
+
+            int numIn, numOut, endNumOut;
+            bsl::string outBuf;
+            outBuf.resize(outLen + 1, '?');
+            int rc = mX.convert(outBuf.data(),
+                                &numOut,
+                                &numIn,
+                                input.data(),
+                                input.data() + input.length());
+            ASSERTV(LINE, INJECT_WHITE, PAD, UW, U_IS_ERR,
+                                                        U_IS_ERR == (0 != rc));
+            if (0 != rc) {
+                continue;
+            }
+
+            ASSERT(numOut <= outLen);
+            ASSERT(!X.isError());
+            ASSERT('?' == outBuf[numOut]);
+            ASSERT(static_cast<int>(input.length()) == numIn);
+
+            rc = mX.endConvert(outBuf.data() + numOut,
+                               &endNumOut);
+            ASSERTV(LINE, INJECT_WHITE, PAD, U_IS_ERR, UW, 0 == rc);
+            ASSERT(numOut + endNumOut == outLen);
+            ASSERT(X.isDone());
+            ASSERT('?' == outBuf[outLen]);
+            outBuf.resize(outLen);
+
+            ASSERT(expOut == outBuf);
+        }
+    }
+
+    if (verbose) cout << "Parsing in pieces limited by input\n";
+
+    for (int ti = 0; ti < k_NUM_DATA; ++ti) {
+        const Data&       data     = DATA[ti];
+        const int         LINE     = data.d_line;
+        const bsl::string inPadded = data.d_inPadded;
+        const bsl::string expOut    (data.d_out, data.d_outLen);
+        const int         outLen   = data.d_outLen;
+
+        if (veryVerbose) P(inPadded);
+
+        for (int wi = 0; wi < 16; ++wi) {
+            const bool INJECT_WHITE = wi & 1;
+            const bool U_IS_ERR     = wi & 2;
+            const bool PAD          = wi & 4;
+            const bool URL          = wi & 8;
+
+            const int reps = INJECT_WHITE || !U_IS_ERR ? 32 : 8;
+            for (int tj = 0; tj < reps; ++tj) {
+                bsl::string input(inPadded);
+                if (!PAD) {
+                    u::removeEquals(&input);
+                }
+                if (URL) {
+                    u::convertToUrlInput(&input);
+                }
+                if (!U_IS_ERR) {
+                    rand.injectGarbage(&input, false, URL);
+                }
+                if (INJECT_WHITE) {
+                    rand.injectWhite(&input);
+                }
+                const bsl::string& UW = u::unWhiteString(input);
+
+                if (veryVeryVerbose) {
+                    const int  LL = LINE;
+                    const bool IW = INJECT_WHITE;
+                    const bool UE = U_IS_ERR;
+
+                    P_(LL);    P_(IW);    P_(PAD);    P_(UE);    P(UW);
+                }
+
+                const Options& options = Options::custom(U_IS_ERR,
+                                                         URL ? Alpha::e_URL
+                                                             : Alpha::e_BASIC,
+                                                         PAD);
+                Obj mX(options);    const Obj& X = mX;
+
+                bsl::string outBuf(outLen + 1u, '?');
+                const int inputLen = static_cast<int>(input.length());
+                int numIn, numInSoFar = 0, numOut, numOutSoFar = 0, endNumOut;
+                int rc = 0;
+                while (numInSoFar < inputLen) {
+                    const int mod = 1 + inputLen - numInSoFar;
+
+                    // Take the greatest of three 'rand' calls to decrease the
+                    // frequency of '0 == numInThisTime'.
+
+                    int numInThisTime = 0;
+                    for (int ii = 0; ii < 3; ++ii) {
+                        numInThisTime = bsl::max<int>(numInThisTime,
+                                                      rand() % mod);
+                    }
+                    numOut = rand();
+                    numIn  = rand();
+                    rc |= mX.convert(
+                               outBuf.data() + numOutSoFar,
+                               &numOut,
+                               &numIn,
+                               input.data() + numInSoFar,
+                               input.data() + numInSoFar + numInThisTime);
+                    ASSERTV(LINE, INJECT_WHITE, PAD, U_IS_ERR, wi, UW,
+                                                                      0 == rc);
+                    if (0 != rc) {
+                        break;
+                    }
+                    ASSERT(numInThisTime == numIn);
+                    numInSoFar += numIn;
+                    numOutSoFar += numOut;
+                    ASSERT(numOutSoFar <= outLen);
+                    ASSERT(!X.isError());
+                    ASSERT('?' == outBuf[numOutSoFar]);
+                }
+                if (0 != rc) {
+                    continue;
+                }
+                ASSERT(inputLen == numInSoFar);
+
+                rc = mX.endConvert(outBuf.data() + numOutSoFar,
+                                   &endNumOut);
+                ASSERTV(LINE, INJECT_WHITE, PAD, U_IS_ERR, UW, 0 == rc);
+                numOutSoFar += endNumOut;
+                ASSERT(outLen == numOutSoFar);
+                ASSERT(X.isDone());
+                ASSERT('?' == outBuf[outLen]);
+                outBuf.resize(outLen);
+
+                ASSERT(expOut == outBuf);
+            }
+        }
+    }
+
+    if (verbose) cout << "Parsing in pieces limited by 'maxNumOut'\n";
+
+    for (int ti = 0; ti < k_NUM_DATA; ++ti) {
+        const Data&       data     = DATA[ti];
+        const int         LINE     = data.d_line;
+        const bsl::string inPadded = data.d_inPadded;
+        const bsl::string expOut    (data.d_out, data.d_outLen);
+        const int         outLen   = data.d_outLen;
+
+        if (veryVerbose) P(inPadded);
+
+        for (int wi = 0; wi < 16; ++wi) {
+            const bool INJECT_WHITE = wi & 1;
+            const bool U_IS_ERR     = wi & 2;
+            const bool PAD          = wi & 4;
+            const bool URL          = wi & 8;
+
+            const int reps = INJECT_WHITE || !U_IS_ERR ? 32 : 4;
+            for (int tj = 0; tj < reps; ++tj) {
+                bsl::string input(inPadded);
+                if (!PAD) {
+                    u::removeEquals(&input);
+                }
+                if (URL) {
+                    u::convertToUrlInput(&input);
+                }
+                if (!U_IS_ERR) {
+                    rand.injectGarbage(&input, false, URL);
+                }
+                if (INJECT_WHITE) {
+                    rand.injectWhite(&input);
+                }
+                const bsl::string& UW = u::unWhiteString(input);
+
+                if (veryVeryVerbose) {
+                    const int  LL = LINE;
+                    const bool IW = INJECT_WHITE;
+                    const bool UE = U_IS_ERR;
+
+                    P_(LL);    P_(IW);    P_(PAD);    P_(UE);    P(UW);
+                }
+
+                const Options& options = Options::custom(U_IS_ERR,
+                                                         URL ? Alpha::e_URL
+                                                             : Alpha::e_BASIC,
+                                                         PAD);
+                Obj mX(options);    const Obj& X = mX;
+
+                bsl::string outBuf(outLen + 1u, '?');
+                const int inputLen = static_cast<int>(input.length());
+                int numIn, numInSoFar = 0, numOut, numOutSoFar = 0, endNumOut;
+                int rc = 0;
+                while (numInSoFar < inputLen) {
+                    const int mod = 1 + static_cast<int>(outLen) - numOutSoFar;
+
+                    // Take the greatest of three 'rand' calls to decrease the
+                    // frequency of '0 == numOutThisTime'.
+
+                    int numOutThisTime = 0;
+                    for (int ii = 0; ii < 3; ++ii) {
+                        numOutThisTime = bsl::max<int>(numOutThisTime,
+                                                       rand() % mod);
+                    }
+                    numOut = rand();
+                    numIn  = rand();
+                    rc |= mX.convert(
+                               outBuf.data() + numOutSoFar,
+                               &numOut,
+                               &numIn,
+                               input.data() + numInSoFar,
+                               input.data() + inputLen,
+                               numOutThisTime);
+                    ASSERTV(LINE, INJECT_WHITE, PAD, U_IS_ERR, wi, UW,
+                                                                      0 <= rc);
+                    if (rc < 0) {
+                        break;
+                    }
+                    ASSERT(numOut <= numOutThisTime);
+                    numInSoFar += numIn;
+                    numOutSoFar += numOut;
+                    ASSERT(numOutSoFar <= outLen);
+                    ASSERT(!X.isError());
+                    ASSERT('?' == outBuf[numOutSoFar]);
+                }
+                if (rc < 0) {
+                    continue;
+                }
+                ASSERT(inputLen == numInSoFar);
+
+                rc = mX.endConvert(outBuf.data() + numOutSoFar,
+                                   &endNumOut);
+                ASSERTV(LINE, INJECT_WHITE, PAD, U_IS_ERR, UW, 0 == rc);
+                numOutSoFar += endNumOut;
+                ASSERT(outLen == numOutSoFar);
+                ASSERT(X.isDone());
+                ASSERT('?' == outBuf[outLen]);
+                outBuf.resize(outLen);
+
+                ASSERT(expOut == outBuf);
+            }
+        }
+    }
+
+    static const char base64[] = {
+    //   0    1    2    3    4    5    6    7
+        'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',  // 000
+        'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',  // 010
+        'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',  // 020
+        'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f',  // 030
+        'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',  // 040
+        'o', 'p', 'q', 'r', 's', 't', 'u', 'v',  // 050
+        'w', 'x', 'y', 'z', '0', '1', '2', '3',  // 060
+        '4', '5', '6', '7', '8', '9', '+', '/',  // 070
+        '\0'
+    };
+
+    static const char base64Url[] = {
+    //   0    1    2    3    4    5    6    7
+        'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',  // 000
+        'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',  // 010
+        'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',  // 020
+        'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f',  // 030
+        'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',  // 040
+        'o', 'p', 'q', 'r', 's', 't', 'u', 'v',  // 050
+        'w', 'x', 'y', 'z', '0', '1', '2', '3',  // 060
+        '4', '5', '6', '7', '8', '9', '-', '_',  // 070
+        '\0'
+    };
+
+    if (verbose) cout << "Set low-order bits of last partial char\n";
+
+    for (int ti = 0; ti < k_NUM_DATA; ++ti) {
+        const Data&       data     = DATA[ti];
+        const int         LINE     = data.d_line;
+        const bsl::string inPadded = data.d_inPadded;
+        const int         outLen   = data.d_outLen;
+
+        bsl::size_t numEquals = bsl::count(inPadded.begin(),
+                                           inPadded.end(),
+                                           '=');
+        if (0 == numEquals) {
+            continue;
+        }
+        ASSERT(numEquals <= 2);
+        const IntPtr toSet = 2 * numEquals;
+        const IntPtr numJ  = 1 << toSet;
+        ASSERT(4 <= inPadded.length());
+
+        const bsl::size_t equalIdx = inPadded.find('=');
+        ASSERT(2 <= equalIdx);
+        ASSERT(inPadded.length() - 2 <= equalIdx);
+
+        if (veryVerbose) P(inPadded);
+
+        for (int wi = 0; wi < 16; ++wi) {
+            const bool INJECT_WHITE = wi & 1;
+            const bool U_IS_ERR     = wi & 2;
+            const bool PAD          = wi & 4;
+            const bool URL          = wi & 8;
+
+            bsl::string partialProcessed(inPadded);
+            if (!PAD) {
+                u::removeEquals(&partialProcessed);
+            }
+            if (URL) {
+                u::convertToUrlInput(&partialProcessed);
+            }
+
+            const char lastChar = partialProcessed[equalIdx - 1];
+            const char *charSet = URL ? base64Url : base64;
+            const bsl::size_t charSetIdx = bsl::find(charSet + 0,
+                                                     charSet + 64,
+                                                     lastChar) - charSet;
+            ASSERT(charSetIdx < 64);
+            ASSERTV(partialProcessed, lastChar, charSetIdx,
+                                                   !(charSetIdx & (numJ - 1)));
+
+            for (int tj = 1; tj < numJ; ++tj) {
+                bsl::string input(partialProcessed);
+                ASSERT(2 <= input.length());
+
+                const bsl::size_t newIdx = charSetIdx | tj;
+                ASSERT(newIdx < 64);
+                const char newChar =  charSet[newIdx];
+                ASSERT(bsl::strchr(charSet, newChar));
+                input[equalIdx - 1] = newChar;
+
+                if (!U_IS_ERR) {
+                    rand.injectGarbage(&input, false, URL);
+                }
+                if (INJECT_WHITE) {
+                    rand.injectWhite(&input);
+                }
+                const bsl::string& UW = u::unWhiteString(input);
+
+                if (veryVeryVerbose) {
+                    const int  LL = LINE;
+                    const bool IW = INJECT_WHITE;
+                    const bool UE = U_IS_ERR;
+
+                    P_(LL);    P_(IW);    P_(PAD);    P_(UE);    P(UW);
+                }
+
+                const Options& options = Options::custom(U_IS_ERR,
+                                                         URL ? Alpha::e_URL
+                                                             : Alpha::e_BASIC,
+                                                         PAD);
+                Obj mX(options);    const Obj& X = mX;
+
+                int numIn, numOut, endNumOut;
+                bsl::string outBuf;
+                outBuf.resize(outLen + 1, '?');
+                int rc = mX.convert(outBuf.data(),
+                                    &numOut,
+                                    &numIn,
+                                    input.data(),
+                                    input.data() + input.length());
+                ASSERTV(LINE, INJECT_WHITE, PAD, UW, U_IS_ERR,
+                                                             PAD == (0 != rc));
+                ASSERT(PAD == X.isError());
+                if (0 != rc) {
+                    continue;
+                }
+
+                ASSERT(numOut <= outLen);
+                ASSERT('?' == outBuf[numOut]);
+                ASSERT(static_cast<int>(input.length()) == numIn);
+
+                rc = mX.endConvert(outBuf.data() + numOut,
+                                   &endNumOut);
+                ASSERTV(LINE, INJECT_WHITE, PAD, U_IS_ERR, UW, 0 != rc);
+                ASSERT(X.isError());
+                ASSERT('?' == outBuf[outLen]);
+            }
+        }
+    }
+
+    if (verbose) cout << "Illegal length input\n";
+
+    for (int ti = 0; ti < k_NUM_DATA; ++ti) {
+        const Data&     data     = DATA[ti];
+        const int       LINE     = data.d_line;
+        bsl::string     inPadded = data.d_inPadded;
+        const int       outLen   = data.d_outLen;
+
+        bsl::size_t numEquals = bsl::count(inPadded.begin(),
+                                           inPadded.end(),
+                                           '=');
+        if (2 != numEquals) {
+            continue;
+        }
+
+        const bsl::size_t equalIdx = inPadded.find('=');
+        ASSERT(2 <= equalIdx);
+        ASSERT(inPadded.length() - 2 <= equalIdx);
+        ASSERT(equalIdx % 4 == 2);
+        inPadded.erase(equalIdx - 1, 1);
+
+        if (veryVerbose) P(inPadded);
+
+        for (int wi = 0; wi < 16; ++wi) {
+            const bool INJECT_WHITE = wi & 1;
+            const bool U_IS_ERR     = wi & 2;
+            const bool PAD          = wi & 4;
+            const bool URL          = wi & 8;
+
+            bsl::string input(inPadded);
+            if (!PAD) {
+                u::removeEquals(&input);
+                ASSERT(1 == input.length() % 4);
+            }
+            if (URL) {
+                u::convertToUrlInput(&input);
+            }
+            if (!U_IS_ERR) {
+                rand.injectGarbage(&input, false, URL);
+            }
+            if (INJECT_WHITE) {
+                rand.injectWhite(&input);
+            }
+            const bsl::string& UW = u::unWhiteString(input);
+
+            if (veryVeryVerbose) {
+                const int  LL = LINE;
+                const bool IW = INJECT_WHITE;
+                const bool UE = U_IS_ERR;
+
+                P_(LL);    P_(IW);    P_(PAD);    P_(UE);    P(UW);
+            }
+
+            const Options& options = Options::custom(U_IS_ERR,
+                                                     URL ? Alpha::e_URL
+                                                         : Alpha::e_BASIC,
+                                                     PAD);
+            Obj mX(options);    const Obj& X = mX;
+
+            int numIn, numOut, endNumOut;
+            bsl::string outBuf;
+            outBuf.resize(outLen + 1, '?');
+            int rc = mX.convert(outBuf.data(),
+                                &numOut,
+                                &numIn,
+                                input.data(),
+                                input.data() + input.length());
+            ASSERTV(LINE, INJECT_WHITE, PAD, UW, U_IS_ERR, PAD == (0 != rc));
+            ASSERT(PAD == X.isError());
+            if (0 != rc) {
+                continue;
+            }
+
+            ASSERT(numOut <= outLen);
+            ASSERT('?' == outBuf[numOut]);
+            ASSERT(static_cast<int>(input.length()) == numIn);
+
+            rc = mX.endConvert(outBuf.data() + numOut,
+                               &endNumOut);
+            ASSERTV(LINE, INJECT_WHITE, PAD, U_IS_ERR, UW, 0 != rc);
+            ASSERT(X.isError());
+            ASSERT('?' == outBuf[outLen]);
+        }
+    }
+}
 
 DEFINE_TEST_CASE(12)
 {
@@ -2592,7 +3634,7 @@ DEFINE_TEST_CASE(9)
 
         // --------------------------------------------------------------------
         // PRIMARY MANIPULATORS.
-        //   Complete the testing of 'convert' and 'endConvert'.
+        //   Complete the padded testing of 'convert' and 'endConvert'.
         //
         // Concerns:
         //   - That the return status is correct.
@@ -3041,7 +4083,7 @@ DEFINE_TEST_CASE(9)
 { L_, "AAAg",     1, 2, 4, 1, 4, "AQ==",     6, 0, S, 3, 4,"\x00\x00\x20\x01"},
 { L_, "AAAg",     1, 2, 4, 1, 4, "AAAQA",    5, 0, 1, 5, 5,"\x00\x00\x20"
                                                            "\x00\x00\x10"    },
-    // Don't need 5.11 (similar to 5.10)
+//     Don't need 5.11 (similar to 5.10)
                                                                         // 5.11
 { L_, "AAAg",     1, 2, 4, 1, 4, "",        11, 0, 4, 2, 0,"\x00\x00\x20"    },
 { L_, "AAAg",     1, 2, 4, 1, 4, "A",       10, 0, 1, 2, 1,"\x00\x00\x20"    },
@@ -3197,7 +4239,7 @@ DEFINE_TEST_CASE(9)
 { L_, "AAAg",     2, 1, 4, 2, 4, "AQ==",     5, 0, S, 2, 4,"\x00\x00\x20\x01"},
 { L_, "AAAg",     2, 1, 4, 2, 4, "AAAQA",    4, 0, 1, 4, 5,"\x00\x00\x20"
                                                            "\x00\x00\x10"    },
-    // Don't need 6.10 and 6.11 (similar to 6.9)
+//     Don't need 6.10 and 6.11 (similar to 6.9)
                                                                         // 6.10
 { L_, "AAAg",     2, 1, 4, 2, 4, "",        10, 0, 4, 1, 0,"\x00\x00\x20"    },
 { L_, "AAAg",     2, 1, 4, 2, 4, "A",        9, 0, 1, 1, 1,"\x00\x00\x20"    },
@@ -3251,7 +4293,7 @@ DEFINE_TEST_CASE(9)
 { L_, "AAAg",     3, 0, 4, 3, 4, N,          0, 0, D, 0, _,"\x00\x00\x20"    },
 { L_, "AAE=",     3, 0, S, 2, 4, N,          0, 0, D, 0, _,"\x00\x01"        },
 { L_, "AQ==",     3, 0, S, 1, 4, N,          0, 0, D, 0, _,"\x01"            },
-    // Don't need 7.0-7.2 (similar to 7.-1)
+//     Don't need 7.0-7.2 (similar to 7.-1)
                                                                         // 7.0
 { L_, "AAAg",     3, 0, 4, 3, 4, N,          1, 0, D, 0, _,"\x00\x00\x20"    },
 { L_, "AAE=",     3, 0, S, 2, 4, N,          1, 0, D, 0, _,"\x00\x01"        },
@@ -3359,7 +4401,7 @@ DEFINE_TEST_CASE(9)
 { L_, "AAAg",     3, 0, 4, 3, 4, "AQ==",     4, 0, S, 1, 4,"\x00\x00\x20\x01"},
 { L_, "AAAg",     3, 0, 4, 3, 4, "AAAQA",    3, 0, 1, 3, 5,"\x00\x00\x20"
                                                            "\x00\x00\x10"    },
-    // Don't need cases 7.9-7.11 (all similar to 7.8)
+//     Don't need cases 7.9-7.11 (all similar to 7.8)
                                                                         // 7.9
 { L_, "AAAg",     3, 0, 4, 3, 4, "",         9, 0, 4, 0, 0,"\x00\x00\x20"    },
 { L_, "AAAg",     3, 0, 4, 3, 4, "A",        8, 0, 1, 0, 1,"\x00\x00\x20"    },
@@ -3854,14 +4896,14 @@ DEFINE_TEST_CASE(9)
             // -----v
 
                     // Confirm final state is the same as above.
-    // -------------^
+//     -------------^
     LOOP3_ASSERT(LINE, index, FINAL_STATE, isState(&localObj, FINAL_STATE));
-    // -------------v
+//     -------------v
 
                     // Verify total amount of input consumed is the same.
-    // -------------^
+//     -------------^
     LOOP4_ASSERT(LINE, index, totalIn, localTotalIn, totalIn == localTotalIn);
-    // -------------v
+//     -------------v
 
                     int cmpStatus = memcmp(outputBuffer, localBuf, totalOut);
                     if (cmpStatus || localTotalOut != totalOut ||
@@ -4704,14 +5746,14 @@ DEFINE_TEST_CASE(8)
             // -----v
 
                     // Confirm final state is the same as above.
-    // -------------^
+//     -------------^
     LOOP3_ASSERT(LINE, index, FINAL_STATE, isState(&localObj, FINAL_STATE));
-    // -------------v
+//     -------------v
 
                     // Verify total amount of input consumed is the same.
-    // -------------^
+//     -------------^
     LOOP4_ASSERT(LINE, index, totalIn, localTotalIn, totalIn == localTotalIn);
-    // -------------v
+//     -------------v
 
                     int cmpStatus = memcmp(outputBuffer, localBuf, totalOut);
                     if (cmpStatus || localTotalOut != totalOut ||
@@ -6254,6 +7296,7 @@ DEFINE_TEST_CASE(2)
             ASSERT(1 == obj.isUnrecognizedAnError());
             ASSERT(0 == obj.outputLength());
             ASSERT(Obj::e_BASIC == obj.alphabet());
+            ASSERT(1 == obj.isPadded());
         }
 
         if (verbose) cout << "\tunrecognizedIsErrorFlag = 'false'" << endl;
@@ -6267,6 +7310,7 @@ DEFINE_TEST_CASE(2)
             ASSERT(0 == obj.isUnrecognizedAnError());
             ASSERT(0 == obj.outputLength());
             ASSERT(Obj::e_BASIC == obj.alphabet());
+            ASSERT(1 == obj.isPadded());
         }
 
         if (verbose) cout << "\tUse the Basic BASE64 alphabet" << endl;
@@ -6280,6 +7324,7 @@ DEFINE_TEST_CASE(2)
             ASSERT(1 == obj.isUnrecognizedAnError());
             ASSERT(0 == obj.outputLength());
             ASSERT(Obj::e_BASIC == obj.alphabet());
+            ASSERT(1 == obj.isPadded());
         }
 
         if (verbose) cout << "\tUse the URL and Filename Safe alphabet"
@@ -6294,6 +7339,28 @@ DEFINE_TEST_CASE(2)
             ASSERT(1 == obj.isUnrecognizedAnError());
             ASSERT(0 == obj.outputLength());
             ASSERT(Obj::e_URL == obj.alphabet());
+            ASSERT(1 == obj.isPadded());
+        }
+
+        if (verbose) cout << "Use an 'Options' object\n";
+        for (int ti = 0; ti < 8; ++ti) {
+            typedef bdlde::Base64Alphabet::Enum Enum;
+
+            const bool U_IS_ERR = ti & 1;
+            const Enum URL      = ti & 2 ? Alpha::e_URL : Alpha::e_BASIC;
+            const bool PAD      = ti & 4;
+
+            const Options& options = Options::custom(U_IS_ERR, URL, PAD);
+            Obj obj(options);
+            ASSERT(1 == obj.isAcceptable());
+            ASSERT(0 == obj.isDone());
+            ASSERT(0 == obj.isError());
+            ASSERT(0 == obj.isMaximal());
+            ASSERT(1 == obj.isInitialState());
+            ASSERT(U_IS_ERR == obj.isUnrecognizedAnError());
+            ASSERT(0 == obj.outputLength());
+            ASSERT(URL == obj.alphabet());
+            ASSERT(PAD == obj.isPadded());
         }
 }
 
@@ -6581,7 +7648,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+//     CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
@@ -6590,6 +7657,7 @@ int main(int argc, char *argv[])
   case NUMBER: testCase##NUMBER(verbose, veryVerbose, veryVeryVerbose,        \
                                                     veryVeryVeryVerbose); break
 
+        CASE(13);
         CASE(12);
         CASE(11);
         CASE(10);
@@ -6603,6 +7671,75 @@ int main(int argc, char *argv[])
         CASE(2);
         CASE(1);
 #undef CASE
+    case -1: {
+        // --------------------------------------------------------------------
+        // Generate table for Test Case 13
+        // --------------------------------------------------------------------
+
+        u::RandGen rand;
+
+        for (int len = 0; len < 10; ++len) {
+            bsl::vector<bsl::string> stringsSoFar;
+
+            for (int jj = 0; jj < (0 == len ? 1 : 20); ++jj) {
+                bsl::string str;
+                rand.randString(&str, len);
+                if (bsl::find(stringsSoFar.begin(),
+                              stringsSoFar.end(),
+                              str)                 < stringsSoFar.end()) {
+                    --jj;
+                    continue;
+                }
+                stringsSoFar.push_back(str);
+            }
+
+            bsl::sort(stringsSoFar.begin(), stringsSoFar.end());
+
+            for (bsl::vector<bsl::string>::iterator it = stringsSoFar.begin();
+                                               it < stringsSoFar.end(); ++it) {
+                const bsl::string& str = *it;
+
+                const EncoderOptions& encOpt = EncoderOptions::custom(
+                                                                0,
+                                                                Alpha::e_BASIC,
+                                                                true);
+                bdlde::Base64Encoder encoder(encOpt);
+                int expNumOut = bdlde::Base64Encoder::encodedLength(encOpt,
+                                                                    len);
+
+                bsl::string outBuf;
+                outBuf.resize(expNumOut + 1, '?');
+                int numIn, numOut, endNumOut;
+                int rc = encoder.convert(outBuf.data(),
+                                         &numOut,
+                                         &numIn,
+                                         str.data(),
+                                         str.data() + str.length());
+                ASSERT(0 == rc)
+                ASSERT(len == numIn);
+                ASSERT(numOut <= expNumOut);
+                ASSERT('?' == outBuf[numOut]);
+                ASSERT('?' == outBuf[expNumOut]);
+
+                rc = encoder.endConvert(outBuf.data() + numOut,
+                                        &endNumOut);
+                ASSERT(0 == rc);
+                ASSERT(numOut + endNumOut == expNumOut);
+                ASSERT('?' == outBuf[expNumOut]);
+                outBuf.resize(numOut + endNumOut);
+
+                cout << "        { L_, \"" << outBuf << "\", ";
+                for (bsl::size_t uu = outBuf.length(); uu < 12; ++uu) {
+                    cout << ' ';
+                }
+                cout << '"' << u::displayStr(str) << "\", ";
+                for (bsl::size_t uu = str.length() * 4; uu < 9 * 4; ++uu) {
+                    cout << ' ';
+                }
+                cout << str.length() << " },\n";
+            }
+        }
+      } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;

@@ -10,6 +10,8 @@
 
 #include <bdlde_base64decoderoptions.h>
 
+#include <bdlde_base64encoderoptions.h>
+
 #include <bslim_testutil.h>
 
 #include <bsl_limits.h>
@@ -41,7 +43,7 @@ using bsl::flush;
 // [ 3] void setUnrecognizedIsError(bool);
 // [ 3] Obj custom(int, Alpha::Enum, bool, bool);
 // [ 3] Obj mime(bool);
-// [ 3] Obj urlSafe(bool, bool);
+// [ 3] Obj urlSafe(bool);
 // [ 3] Obj standard(bool, bool);
 // [ 2] Obj();
 // [ 2] Obj(int, Base64Alphabet::Enum, bool);
@@ -176,7 +178,7 @@ if (verbose)
 ///Example 2:
 /// - - - - -
 // Suppose we want a 'Base64DecoderOptions' object configured for translating
-// URL's.  That would mean 'alphabet == e_URL', 'isPadded == true', and
+// URL's.  That would mean 'alphabet == e_URL', 'isPadded == false', and
 // 'unrecognizedIsError == true'.
 //
 // First, the class method 'urlSafe' returns an object configured exactly that
@@ -189,7 +191,7 @@ if (verbose)
 //..
     ASSERT(urlOptions.unrecognizedIsError() == true);
     ASSERT(urlOptions.alphabet()            == bdlde::Base64Alphabet::e_URL);
-    ASSERT(urlOptions.isPadded()            == true);
+    ASSERT(urlOptions.isPadded()            == false);
 //..
 // Now, we stream the object:
 //..
@@ -568,7 +570,7 @@ if (verbose)
         //   void setUnrecognizedIsError(bool);
         //   Obj custom(int, Alpha::Enum, bool, bool);
         //   Obj mime(bool);
-        //   Obj urlSafe(bool, bool);
+        //   Obj urlSafe(bool);
         //   Obj standard(bool, bool);
         //   Obj(const Obj&);
         //   Obj& operator=(const Obj&);
@@ -580,28 +582,25 @@ if (verbose)
           "EXHAUSTIVE STATES, ALL C'TORS, '==', '!=', COPY CONSTRUCT/ASSIGN\n"
           "================================================================\n";
 
-        enum { k_MAX_TI = 3 * 3 * 3 };
+        enum { k_MAX_TI = 3 * 3 * 2 };
 
         bool uIsErrWasSet = false;
         for (int ti = 0; ti < k_MAX_TI; ++ti) {
             int               tii      = ti;
             const int         ai       = (tii % 3) - 1;    tii /= 3;
             const int         pi       = (tii % 3) - 1;    tii /= 3;
-            const int         ui       = (tii % 3) - 1;    tii /= 3;
+            const int         ui       =  tii % 2;         tii /= 2;
             ASSERT(0 == tii);
 
             const Alpha::Enum alphabet = ai < 0 ? Alpha::e_BASIC
                                                 : ai ? Alpha::e_URL
                                                      : Alpha::e_BASIC;
             const bool        PADDED   = pi < 0 || pi;
-            const bool        U_IS_ERR = ui < 0 || ui;
+            const bool        U_IS_ERR = ui;
 
             uIsErrWasSet |= U_IS_ERR;
 
-            Obj master;    const Obj& MASTER = master;
-            if (0 <= ui) {
-                master.setUnrecognizedIsError(U_IS_ERR);
-            }
+            Obj master = Obj::custom(U_IS_ERR);    const Obj& MASTER = master;
             if (0 <= ai) {
                 master.setAlphabet(alphabet);
             }
@@ -635,29 +634,7 @@ if (verbose)
                              ? Obj::custom(U_IS_ERR, alphabet, PADDED)
                              : 0 <= ai
                              ? Obj::custom(U_IS_ERR, alphabet)
-                             : 0 <= ui
-                             ? Obj::custom(U_IS_ERR)
-                             : Obj::custom();
-
-                ASSERT(X.unrecognizedIsError() == U_IS_ERR);
-                ASSERT(X.alphabet()            == alphabet);
-                ASSERT(X.isPadded()            == PADDED);
-
-                ASSERTV(alphabet, PADDED, X, X == MASTER );
-                ASSERT(  MASTER == X );
-                ASSERT(!(X != MASTER));
-                ASSERT(!(MASTER != X));
-            }
-
-            if (veryVerbose) cout << "Based off 'EncoderOptions\n";
-            {
-                const EncoderOptions& EO = EncoderOptions::custom(0,
-                                                                  alphabet,
-                                                                  PADDED);
-
-                const Obj& X = 0 <= ui
-                             ? Obj::custom(EO, U_IS_ERR)
-                             : Obj::custom(EO);
+                             : Obj::custom(U_IS_ERR);
 
                 ASSERT(X.unrecognizedIsError() == U_IS_ERR);
                 ASSERT(X.alphabet()            == alphabet);
@@ -710,17 +687,14 @@ if (verbose)
 
             if (veryVerbose) cout << "URL Safe\n";
             {
-                const Obj& X = 0 <= pi
-                             ? Obj::urlSafe(U_IS_ERR, PADDED)
-                             : 0 <= ui
-                             ? Obj::urlSafe(U_IS_ERR)
-                             : Obj::urlSafe();
+                const Obj& X = Obj::urlSafe(U_IS_ERR);
 
-                const bool EQ = Alpha::e_URL == alphabet;
+                const bool EQ = Alpha::e_URL == alphabet &&
+                                false        == PADDED;
 
                 ASSERT(X.unrecognizedIsError() == U_IS_ERR);
                 ASSERT(X.alphabet()            == Alpha::e_URL);
-                ASSERT(X.isPadded()            == PADDED);
+                ASSERT(X.isPadded()            == false);
 
                 ASSERT( EQ == (X == MASTER));
                 ASSERT( EQ == (MASTER == X));
@@ -762,7 +736,7 @@ if (verbose)
 
                 if (veryVeryVeryVerbose) cout <<
                               "Inner copy assign to default constructed\n";
-                Obj mZ;    const Obj& Z = mZ;
+                Obj mZ = Obj::mime();    const Obj& Z = mZ;
                 Obj *p = &(mZ = Y);
                 ASSERT(&mZ == p);
 
@@ -805,7 +779,7 @@ if (verbose)
 
             if (veryVeryVerbose) cout << "Outer copy assign\n";
             {
-                Obj mY;    const Obj& Y = mY;
+                Obj mY(Obj::mime(true));    const Obj& Y = mY;
                 Obj *p = &(mY = master);
                 ASSERT(&mY == p);
                 ASSERT(  Y == MASTER );
@@ -849,7 +823,7 @@ if (verbose)
 
         if (verbose) cout << "Default object\n";
         {
-            const Obj OBJ;
+            const Obj OBJ(Obj::mime(true));
             ASSERT(true           == OBJ.unrecognizedIsError());
             ASSERT(Alpha::e_BASIC == OBJ.alphabet());
             ASSERT(true           == OBJ.isPadded());

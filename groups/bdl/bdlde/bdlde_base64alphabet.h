@@ -23,8 +23,8 @@ BSLS_IDENT("$Id: $")
 //..
 //  Name              Description
 //  ---------------   ---------------------------------------------------
-//  e_BASIC           standard
-//  e_URL             for URL's
+//  e_BASIC           standard base64 alphabet
+//  e_URL             URL-safe base64 alphabet
 //..
 //
 ///Usage

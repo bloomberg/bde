@@ -151,8 +151,6 @@ BSLS_IDENT_PRAGMA_ONCE
 
 #include <bdlde_base64alphabet.h>
 
-#include <bdlde_base64encoderoptions.h>
-
 #include <bslmf_istriviallycopyable.h>
 
 #include <bsls_assert.h>
@@ -185,18 +183,9 @@ class Base64DecoderOptions {
     // CLASS METHODS
     static
     Base64DecoderOptions custom(
-                       bool                 unrecognizedIsError = true,
+                       bool                 unrecognizedIsError,
                        Base64Alphabet::Enum alphabet = Base64Alphabet::e_BASIC,
                        bool                 padded   = true);
-        // Return a 'Base64DecoderOptions' object having the specified
-        // 'alphabet, 'padded', and 'unrecognizedIsError' attribute values.
-        // The behavior is unless '0 <= maxLineLength' and 'alphabet is a
-        // defined value of 'Base64Alphabet::Enum'.
-
-    static
-    Base64DecoderOptions custom(
-                       const Base64EncoderOptions& encoderOptions,
-                       bool                        unrecognizedIsError = true);
         // Return a 'Base64DecoderOptions' object having the specified
         // 'alphabet, 'padded', and 'unrecognizedIsError' attribute values.
         // The behavior is unless '0 <= maxLineLength' and 'alphabet is a
@@ -218,20 +207,13 @@ class Base64DecoderOptions {
         // 'unrecognizedIsError' is not specified, it defaults to 'true'.
 
     static
-    Base64DecoderOptions urlSafe(bool unrecognizedIsError = true,
-                                 bool padded              = true);
+    Base64DecoderOptions urlSafe(bool unrecognizedIsError = true);
         // Return a 'Base64DecoderOptions' object having the attributes
-        // 'alphabet == Base64Alphabet::e_URL' and the specified 'padded' and
-        // 'unrecognizedIsError'.  If 'padded' is not specified, it defaults to
-        // 'true'.  If 'unrecognizedIsError' is not specified, it defaults to
-        // 'true'.
+        // 'alphabet == Base64Alphabet::e_URL', 'isPadded == false' and the
+        // specified 'unrecognizedIsError'.  If 'unrecognizedIsError' is not
+        // specified, it defaults to 'true'.
 
     // CREATORS
-    Base64DecoderOptions();
-        // Create a 'Base64DecoderOptions' object having the 'mime' options:
-        // 'alphabet == e_BASIC', 'isPadded == true', and
-        // 'unrecognizedIsError = true' attribute values.
-
     // Base64DecoderOptions(const Base64DecoderOptions&) = default;
 
     // ~Base64DecoderOptions() = default;
@@ -346,16 +328,6 @@ Base64DecoderOptions Base64DecoderOptions::custom(
 }
 
 inline
-Base64DecoderOptions Base64DecoderOptions::custom(
-                               const Base64EncoderOptions& encoderOptions,
-                               bool                        unrecognizedIsError)
-{
-    return Base64DecoderOptions(unrecognizedIsError,
-                                encoderOptions.alphabet(),
-                                encoderOptions.isPadded());
-}
-
-inline
 Base64DecoderOptions Base64DecoderOptions::mime(bool unrecognizedIsError)
 {
     return Base64DecoderOptions(unrecognizedIsError,
@@ -373,21 +345,12 @@ Base64DecoderOptions Base64DecoderOptions::standard(bool unrecognizedIsError,
 }
 
 inline
-Base64DecoderOptions Base64DecoderOptions::urlSafe(bool unrecognizedIsError,
-                                                   bool padded)
+Base64DecoderOptions Base64DecoderOptions::urlSafe(bool unrecognizedIsError)
 {
     return Base64DecoderOptions(unrecognizedIsError,
                                 Base64Alphabet::e_URL,
-                                padded);
+                                false);
 }
-
-// CREATORS
-inline
-Base64DecoderOptions::Base64DecoderOptions()
-: d_unrecognizedIsError(true)
-, d_isPadded(true)
-, d_alphabet(Base64Alphabet::e_BASIC)
-{}
 
 // MANIPULATORS
 inline

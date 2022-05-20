@@ -67,7 +67,7 @@ BSLS_IDENT_PRAGMA_ONCE
 /// - - - - -
 // Suppose we want a 'Base64EncoderOptions' object configured for translating
 // URL's.  That would mean a 'maxLineLength == 0', 'alphabet == e_URL', and
-// 'isPadded == true'.
+// 'isPadded == false'.
 //
 // First, the class method 'urlSafe' returns an object configured exactly that
 // way, so we simply call it:
@@ -79,7 +79,7 @@ BSLS_IDENT_PRAGMA_ONCE
 //..
 //  assert(urlOptions.maxLineLength() == 0);
 //  assert(urlOptions.alphabet()      == bdlde::Base64Alphabet::e_URL);
-//  assert(urlOptions.isPadded()      == true);
+//  assert(urlOptions.isPadded()      == false);
 //..
 // Now, we stream the object:
 //..
@@ -172,7 +172,7 @@ class Base64EncoderOptions {
 
   public:
     // PUBLIC TYPES
-    enum { k_DEFAULT_MAX_LINE_LENGTH = 76 };
+    enum { k_MIME_MAX_LINE_LENGTH = 76 };
 
   private:
     // PRIVATE CREATORS
@@ -187,10 +187,9 @@ class Base64EncoderOptions {
   public:
     // CLASS METHODS
     static
-    Base64EncoderOptions custom(
-                int                  maxLineLength = k_DEFAULT_MAX_LINE_LENGTH,
-                Base64Alphabet::Enum alphabet      = Base64Alphabet::e_BASIC,
-                bool                 padded        = true);
+    Base64EncoderOptions custom(int                  maxLineLength,
+                                Base64Alphabet::Enum alphabet,
+                                bool                 padded);
         // Return a 'Base64EncoderOptions' object having the specified
         // 'maxLineLength, alphabet, and 'isPadded' attribute values.  The
         // behavior is unless '0 <= maxLineLength' and 'alphabet is a defined
@@ -210,18 +209,12 @@ class Base64EncoderOptions {
         // 'true'.
 
     static
-    Base64EncoderOptions urlSafe(bool padded = true);
+    Base64EncoderOptions urlSafe();
         // Return a 'Base64EncoderOptions' object having the attributes
         // 'maxLineLength == 0', 'alphabet == Base64Alphabet::e_URL', and
-        // 'isPadded == padded'.  If 'padded' is not specified, it defaults to
-        // 'true'.
+        // 'isPadded == false'.
 
     // CREATORS
-    Base64EncoderOptions();
-        // Create a 'Base64EncoderOptions' object having the 'mime' options:
-        // 'maxLineLength = 76', 'alphabet == e_BASIC', and 'isPadded == true'
-        // attribute values.
-
     // Base64EncoderOptions(const Base64EncoderOptions&) = default;
 
     // ~Base64EncoderOptions() = default;
@@ -336,7 +329,7 @@ Base64EncoderOptions Base64EncoderOptions::custom(
 inline
 Base64EncoderOptions Base64EncoderOptions::mime()
 {
-    return Base64EncoderOptions(k_DEFAULT_MAX_LINE_LENGTH,
+    return Base64EncoderOptions(k_MIME_MAX_LINE_LENGTH,
                                 Base64Alphabet::e_BASIC,
                                 true);
 }
@@ -348,18 +341,10 @@ Base64EncoderOptions Base64EncoderOptions::standard(bool padded)
 }
 
 inline
-Base64EncoderOptions Base64EncoderOptions::urlSafe(bool padded)
+Base64EncoderOptions Base64EncoderOptions::urlSafe()
 {
-    return Base64EncoderOptions(0, Base64Alphabet::e_URL, padded);
+    return Base64EncoderOptions(0, Base64Alphabet::e_URL, false);
 }
-
-// CREATORS
-inline
-Base64EncoderOptions::Base64EncoderOptions()
-: d_maxLineLength(k_DEFAULT_MAX_LINE_LENGTH)
-, d_alphabet(Base64Alphabet::e_BASIC)
-, d_isPadded(true)
-{}
 
 // MANIPULATORS
 inline

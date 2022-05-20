@@ -1265,7 +1265,9 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 
         bsls::ObjectBuffer<Obj> ob;
         if (passArg) {
-            new (ob.address()) Obj(EncoderOptions::custom(LINE_LENGTH));
+            new (ob.address()) Obj(EncoderOptions::custom(LINE_LENGTH,
+                                                          Alphabet::e_BASIC,
+                                                          true));
         }
         else {
             new (ob.address()) Obj();
@@ -1401,7 +1403,9 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 
         bsls::ObjectBuffer<Obj> ob;
         if (passArg) {
-            new (ob.address()) Obj(EncoderOptions::custom(LINE_LENGTH));
+            new (ob.address()) Obj(EncoderOptions::custom(LINE_LENGTH,
+                                                          Alphabet::e_BASIC,
+                                                          true));
         }
         else {
             new (ob.address()) Obj();
@@ -2545,7 +2549,7 @@ int main(int argc, char *argv[])
             ASSERT( 1 == obj.isInitialState());
             ASSERT( 0 == obj.outputLength());
             ASSERT(Alphabet::e_URL == obj.alphabet());
-            ASSERT(true == obj.options().isPadded());
+            ASSERT(false == obj.options().isPadded());
 
             ASSERT(isState(&obj, e_INITIAL_STATE));
         }
@@ -2664,7 +2668,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\tWith 'maxLineLength' = 5." << endl;
         {
             for (int i = 0; i < NUM_STATES; ++i) {
-                Obj obj(EncoderOptions::custom(5));
+                Obj obj(EncoderOptions::custom(5,
+                                               Alphabet::e_BASIC,
+                                               true));
                 if (verbose) cout << "\t\t" << STATE_NAMES[i] << '.' << endl;
                 setState(&obj, i);
                 const bool SAME = e_INITIAL_STATE == i;
@@ -2722,7 +2728,9 @@ int main(int argc, char *argv[])
 
                 char *out = outBuf;
 
-                Obj mX(EncoderOptions::custom(LINE_LENGTH));
+                Obj mX(EncoderOptions::custom(LINE_LENGTH,
+                                              Alphabet::e_BASIC,
+                                              true));
                 const Obj& X = mX;
 
                 const char *beginIn     = &input[0];
@@ -3506,122 +3514,103 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\t\"base64url\": Verify Entries [0-25]."
                               << endl;
-            origStart = end;
-            for (int pi = 0; pi < 2; ++pi) {
-                const bool pad = pi;
-                int start = origStart;
-                end = start + 26;
-                for (int i = start; i < end; ++i) {
-                    if (veryVerbose) { T_ T_ P(i) }
-                    Obj obj(EncoderOptions::urlSafe(pad));
-                    bsl::memset(b, '?', sizeof(b));
-                    input = char(4 * i);
-                    LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
-                    LOOP_ASSERT(i, 1 == nOut);
-                    LOOP_ASSERT(i, 1 == nIn);
-                    LOOP_ASSERT(i, 0 == obj.endConvert(b + nOut, &nOut));
-                    ASSERTV(i, nOut, (pad ? 3 : 1) == nOut);
-                    ASSERTV(i, 'A' + i - start == b[0]);
-                    ASSERTV(i, 'A' == b[1]);
-                    ASSERTV(i, b[2], pad, (pad ? '=' : '?') == b[2]);
-                    ASSERTV(i, b[3], pad, (pad ? '=' : '?') == b[3]);
-                }
+            int start = end;
+            end = start + 26;
+            for (int i = start; i < end; ++i) {
+                if (veryVerbose) { T_ T_ P(i) }
+                Obj obj(EncoderOptions::urlSafe());
+                bsl::memset(b, '?', sizeof(b));
+                input = char(4 * i);
+                LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
+                LOOP_ASSERT(i, 1 == nOut);
+                LOOP_ASSERT(i, 1 == nIn);
+                LOOP_ASSERT(i, 0 == obj.endConvert(b + nOut, &nOut));
+                ASSERTV(i, nOut, 1 == nOut);
+                ASSERTV(i, 'A' + i - start == b[0]);
+                ASSERTV(i, 'A' == b[1]);
+                ASSERTV(i, b[2], '?' == b[2]);
+                ASSERTV(i, b[2], '?' == b[3]);
             }
 
             if (verbose) cout << "\t\"base64url\": Verify Entries [26-51]."
                               << endl;
             origStart = end;
-            for (int pi = 0; pi < 2; ++pi) {
-                const bool pad = pi;
-                int start = origStart;
-                end = start + 26;
-                for (int i = start; i < end; ++i) {
-                    if (veryVerbose) { T_ T_ P(i) }
-                    Obj obj(EncoderOptions::urlSafe(pad));
-                    bsl::memset(b, '?', sizeof(b));
-                    input = char(4 * i);
-                    LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
-                    LOOP_ASSERT(i, 1 == nOut);
-                    LOOP_ASSERT(i, 1 == nIn);
-                    LOOP_ASSERT(i, 0 == obj.endConvert(b + nOut, &nOut));
-                    ASSERTV(i, nOut, (pad ? 3 : 1) == nOut);
-                    ASSERTV(i, 'a' + i - start == b[0]);
-                    ASSERTV(i, 'A' == b[1]);
-                    ASSERTV(i, b[2], pad, (pad ? '=' : '?') == b[2]);
-                    ASSERTV(i, b[3], pad, (pad ? '=' : '?') == b[3]);
-                }
+            start = end;
+            end = start + 26;
+            for (int i = start; i < end; ++i) {
+                if (veryVerbose) { T_ T_ P(i) }
+                Obj obj(EncoderOptions::urlSafe());
+                bsl::memset(b, '?', sizeof(b));
+                input = char(4 * i);
+                LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
+                LOOP_ASSERT(i, 1 == nOut);
+                LOOP_ASSERT(i, 1 == nIn);
+                LOOP_ASSERT(i, 0 == obj.endConvert(b + nOut, &nOut));
+                ASSERTV(i, nOut, 1 == nOut);
+                ASSERTV(i, 'a' + i - start == b[0]);
+                ASSERTV(i, 'A' == b[1]);
+                ASSERTV(i, b[2], '?' == b[2]);
+                ASSERTV(i, b[2], '?' == b[3]);
             }
 
             if (verbose) cout << "\t\"base64url\": Verify Entries [52-61]."
                               << endl;
-            origStart = end;
-            for (int pi = 0; pi < 2; ++pi) {
-                const bool pad = pi;
-                int start = origStart;
-                end = start + 10;
-                for (int i = start; i < end; ++i) {
-                    if (veryVerbose) { T_ T_ P(i) }
-                    Obj obj(EncoderOptions::urlSafe(pad));
-                    bsl::memset(b, '?', sizeof(b));
-                    input = char(4 * i);
-                    LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
-                    LOOP_ASSERT(i, 1 == nOut);
-                    LOOP_ASSERT(i, 1 == nIn);
-                    LOOP_ASSERT(i, 0 == obj.endConvert(b + nOut, &nOut));
-                    ASSERTV(i, nOut, (pad ? 3 : 1) == nOut);
-                    ASSERTV(i, '0' + i - start == b[0]);
-                    ASSERTV(i, 'A' == b[1]);
-                    ASSERTV(i, b[2], pad, (pad ? '=' : '?') == b[2]);
-                    ASSERTV(i, b[3], pad, (pad ? '=' : '?') == b[3]);
-                }
+            start = end;
+            end = start + 10;
+            for (int i = start; i < end; ++i) {
+                if (veryVerbose) { T_ T_ P(i) }
+                Obj obj(EncoderOptions::urlSafe());
+                bsl::memset(b, '?', sizeof(b));
+                input = char(4 * i);
+                LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
+                LOOP_ASSERT(i, 1 == nOut);
+                LOOP_ASSERT(i, 1 == nIn);
+                LOOP_ASSERT(i, 0 == obj.endConvert(b + nOut, &nOut));
+                ASSERTV(i, nOut, 1 == nOut);
+                ASSERTV(i, '0' + i - start == b[0]);
+                ASSERTV(i, 'A' == b[1]);
+                ASSERTV(i, b[2], '?' == b[2]);
+                ASSERTV(i, b[3], '?' == b[3]);
             }
 
             if (verbose) cout << "\t\"base64url\": Verify Entry [62]."
                               << endl;
-            origStart = end;
-            for (int pi = 0; pi < 2; ++pi) {
-                const bool pad = pi;
-                int start = origStart;
-                end = start + 1;
-                for (int i = start; i < end; ++i) {
-                    if (veryVerbose) { T_ T_ P(i) }
-                    Obj obj(EncoderOptions::urlSafe(pad));
-                    bsl::memset(b, '?', sizeof(b));
-                    input = char(4 * i);
-                    LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
-                    LOOP_ASSERT(i, 1 == nOut);
-                    LOOP_ASSERT(i, 1 == nIn);
-                    LOOP_ASSERT(i, 0 == obj.endConvert(b + nOut, &nOut));
-                    ASSERTV(i, nOut, (pad ? 3 : 1) == nOut);
-                    ASSERTV(i, '-' + i - start == b[0]);
-                    ASSERTV(i, 'A' == b[1]);
-                    ASSERTV(i, b[2], pad, (pad ? '=' : '?') == b[2]);
-                    ASSERTV(i, b[3], pad, (pad ? '=' : '?') == b[3]);
-                }
+            start = end;
+            end = start + 1;
+            for (int i = start; i < end; ++i) {
+                if (veryVerbose) { T_ T_ P(i) }
+                Obj obj(EncoderOptions::urlSafe());
+                bsl::memset(b, '?', sizeof(b));
+                input = char(4 * i);
+                LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
+                LOOP_ASSERT(i, 1 == nOut);
+                LOOP_ASSERT(i, 1 == nIn);
+                LOOP_ASSERT(i, 0 == obj.endConvert(b + nOut, &nOut));
+                ASSERTV(i, nOut, 1 == nOut);
+                ASSERTV(i, '-' + i - start == b[0]);
+                ASSERTV(i, 'A' == b[1]);
+                ASSERTV(i, b[2], '?' == b[2]);
+                ASSERTV(i, b[3], '?' == b[3]);
             }
 
             if (verbose) cout << "\t\"base64url\": Verify Entry [63]."
                               << endl;
-            origStart = end;
-            for (int pi = 0; pi < 2; ++pi) {
-                const bool pad = pi;
-                int start = origStart;
-                end = start + 1;
-                for (int i = start; i < end; ++i) {
-                    if (veryVerbose) { T_ T_ P(i) }
-                    Obj obj(EncoderOptions::urlSafe(pad));
-                    bsl::memset(b, '?', sizeof(b));
-                    input = char(4 * i);
-                    LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
-                    LOOP_ASSERT(i, 1 == nOut);
-                    LOOP_ASSERT(i, 1 == nIn);
-                    LOOP_ASSERT(i, 0 == obj.endConvert(b + nOut, &nOut));
-                    ASSERTV(i, nOut, (pad ? 3 : 1) == nOut);
-                    ASSERTV(i, '_' + i - start == b[0]);
-                    ASSERTV(i, 'A' == b[1]);
-                    ASSERTV(i, b[2], pad, (pad ? '=' : '?') == b[2]);
-                    ASSERTV(i, b[3], pad, (pad ? '=' : '?') == b[3]);
-                }
+            start = end;
+            end = start + 1;
+            for (int i = start; i < end; ++i) {
+                if (veryVerbose) { T_ T_ P(i) }
+                Obj obj(EncoderOptions::urlSafe());
+                bsl::memset(b, '?', sizeof(b));
+                input = char(4 * i);
+                LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
+                LOOP_ASSERT(i, 1 == nOut);
+                LOOP_ASSERT(i, 1 == nIn);
+                LOOP_ASSERT(i, 0 == obj.endConvert(b + nOut, &nOut));
+                ASSERTV(i, nOut, 1 == nOut);
+                ASSERTV(i, '_' + i - start == b[0]);
+                ASSERTV(i, 'A' == b[1]);
+                ASSERTV(i, b[2], '?' == b[2]);
+                ASSERTV(i, b[3], '?' == b[3]);
             }
 
             ASSERT(64 == end);  // make sure all entires are accounted for.
@@ -3743,7 +3732,7 @@ int main(int argc, char *argv[])
                 const int RTN = -(e_ERROR_STATE == END);
                 const char *const E = B + COUNT;
 
-                Obj obj(EncoderOptions::custom(0));
+                Obj obj(EncoderOptions::custom(0, Alphabet::e_BASIC, true));
 
                 if (COUNT != lastNumInputs) {
                     if (verbose) cout << '\t' << COUNT << " input character"
@@ -3827,7 +3816,7 @@ int main(int argc, char *argv[])
                 const int END   = DATA[ti].d_endState;
                 const int RTN = -(e_ERROR_STATE == END);
 
-                Obj obj(EncoderOptions::custom(0));
+                Obj obj(EncoderOptions::custom(0, Alphabet::e_BASIC, true));
 
                 if (verbose) cout << '\t' << STATE_NAMES[START] << '.' << endl;
                 if (veryVerbose) cout <<
@@ -3905,7 +3894,7 @@ int main(int argc, char *argv[])
         {
                 if (verbose) cout << "\te_INITIAL_STATE." << endl;
 
-                Obj obj(EncoderOptions::custom(9));
+                Obj obj(EncoderOptions::custom(9, Alphabet::e_BASIC, true));
 
                 ASSERT(9 == obj.maxLineLength());
                 ASSERT(9 == obj.options().maxLineLength());
@@ -4206,7 +4195,9 @@ int main(int argc, char *argv[])
                                               // ASSERTs in order to facilitate
                                               // debugging.
 
-                    Obj obj(EncoderOptions::custom(0));
+                    Obj obj(EncoderOptions::custom(0,
+                                                   Alphabet::e_BASIC,
+                                                   true));
                     setState(&obj, i);
                     LOOP2_ASSERT(i, j, SAME == isState(&obj, j));
                 }
@@ -4317,7 +4308,7 @@ int main(int argc, char *argv[])
                 for (int tl = 0; tl < k_NUM_LENGTHS; ++tl) {
                     const bool LEN_DEFAULT = -1 == lengths[tl];
                     const int  LEN         = LEN_DEFAULT ? 76 : lengths[tl];
-                    EncoderOptions options;
+                    EncoderOptions options = EncoderOptions::mime();
                     const EncoderOptions& OPTIONS = options;
 
                     if (veryVerbose) {
@@ -4423,7 +4414,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\tmaxLineLength = 0, default alphabet" << endl;
         {
-            Obj obj(EncoderOptions::custom(0));
+            Obj obj(EncoderOptions::custom(0, Alphabet::e_BASIC, true));
             ASSERT(1 == obj.isAcceptable());
             ASSERT(0 == obj.isDone());
             ASSERT(0 == obj.isError());
@@ -4438,7 +4429,7 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << "\tmaxLineLength = 1, default alphabet" << endl;
         {
-            Obj obj(EncoderOptions::custom(1));
+            Obj obj(EncoderOptions::custom(1, Alphabet::e_BASIC, true));
             ASSERT(1 == obj.isAcceptable());
             ASSERT(0 == obj.isDone());
             ASSERT(0 == obj.isError());
@@ -4454,7 +4445,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\tmaxLineLength = 2, \"base64\" alphabet"
                           << endl;
         {
-            Obj obj(EncoderOptions::custom(2, Alphabet::e_BASIC));
+            Obj obj(EncoderOptions::custom(2, Alphabet::e_BASIC, true));
             ASSERT(1 == obj.isAcceptable());
             ASSERT(0 == obj.isDone());
             ASSERT(0 == obj.isError());
@@ -4470,7 +4461,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\tmaxLineLength = INT_MAX, \"base64url\" "
                           << "alphabet" << endl;
         {
-            Obj obj(EncoderOptions::custom(INT_MAX, Alphabet::e_URL));
+            Obj obj(EncoderOptions::custom(INT_MAX, Alphabet::e_URL, true));
             ASSERT(1 == obj.isAcceptable());
             ASSERT(0 == obj.isDone());
             ASSERT(0 == obj.isError());
@@ -4483,9 +4474,9 @@ int main(int argc, char *argv[])
             ASSERT(true  == obj.options().isPadded());
             ASSERT(true  == obj.isPadded());
         }
-        if (verbose) cout << "\turlSafe, not padded\n";
+        if (verbose) cout << "\turlSafe\n";
         {
-            Obj obj(EncoderOptions::urlSafe(false));
+            Obj obj(EncoderOptions::urlSafe());
             ASSERT(1 == obj.isAcceptable());
             ASSERT(0 == obj.isDone());
             ASSERT(0 == obj.isError());

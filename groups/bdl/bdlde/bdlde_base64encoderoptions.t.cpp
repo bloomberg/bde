@@ -176,7 +176,7 @@ if (verbose)
 /// - - - - -
 // Suppose we want a 'Base64EncoderOptions' object configured for translating
 // URL's.  That would mean a 'maxLineLength == 0', 'alphabet == e_URL', and
-// 'isPadded == true'.
+// 'isPadded == false'.
 //
 // First, the class method 'urlSafe' returns an object configured exactly that
 // way, so we simply call it:
@@ -188,7 +188,7 @@ if (verbose)
 //..
     ASSERT(urlOptions.maxLineLength() == 0);
     ASSERT(urlOptions.alphabet()      == bdlde::Base64Alphabet::e_URL);
-    ASSERT(urlOptions.isPadded()      == true);
+    ASSERT(urlOptions.isPadded()      == false);
 //..
 // Now, we stream the object:
 //..
@@ -243,7 +243,9 @@ if (verbose)
 // that.
 //..
     const bdlde::Base64EncoderOptions& customOptions =
-        bdlde::Base64EncoderOptions::custom(200, bdlde::Base64Alphabet::e_URL);
+              bdlde::Base64EncoderOptions::custom(200,
+                                                  bdlde::Base64Alphabet::e_URL,
+                                                  true);
 //..
 // Then, we check the attributes:
 //..
@@ -600,7 +602,7 @@ if (verbose)
                 for (int pi = -1; pi < 2; ++pi) {
                     const bool PADDED = pi < 0 || pi;
 
-                    Obj master;    const Obj& MASTER = master;
+                    Obj master = Obj::mime();    const Obj& MASTER = master;
                     if (0 <= MLL) {
                         master.setMaxLineLength(MLL);
                     }
@@ -618,26 +620,6 @@ if (verbose)
                     if (veryVerbose) cout << "Call 'custom' class method\n";
                     {
                         const Obj& X = Obj::custom(MLL, alphabet, PADDED);
-
-                        ASSERT(X.maxLineLength() == MLL);
-                        ASSERT(X.alphabet()      == alphabet);
-                        ASSERT(X.isPadded()      == PADDED);
-
-                        ASSERTV(alphabet, PADDED, MLL, X, X == MASTER );
-                        ASSERT(  MASTER == X );
-                        ASSERT(!(X != MASTER));
-                        ASSERT(!(MASTER != X));
-                    }
-
-                    if (veryVerbose) cout << "Let some attrs default\n";
-                    {
-                        const Obj& X = 0 <= pi
-                                     ? Obj::custom(MLL, alphabet, PADDED)
-                                     : 0 <= ai
-                                     ? Obj::custom(MLL, alphabet)
-                                     : 0 <= mi
-                                     ? Obj::custom(MLL)
-                                     : Obj::custom();
 
                         ASSERT(X.maxLineLength() == MLL);
                         ASSERT(X.alphabet()      == alphabet);
@@ -687,15 +669,15 @@ if (verbose)
 
                     if (veryVerbose) cout << "URL Safe\n";
                     {
-                        const Obj& X = pi < 0 ? Obj::urlSafe()
-                                              : Obj::urlSafe(PADDED);
+                        const Obj& X = Obj::urlSafe();
 
                         const bool EQ = 0            == MLL      &&
-                                        Alpha::e_URL == alphabet;
+                                        Alpha::e_URL == alphabet &&
+                                        false        == PADDED;
 
                         ASSERT(X.maxLineLength() == 0);
                         ASSERT(X.alphabet()      == Alpha::e_URL);
-                        ASSERT(X.isPadded()      == PADDED);
+                        ASSERT(X.isPadded()      == false);
 
                         ASSERT( EQ == (X == MASTER));
                         ASSERT( EQ == (MASTER == X));
@@ -736,7 +718,7 @@ if (verbose)
 
                                 if (veryVeryVeryVerbose) cout <<
                                   "Inner copy assign to default constructed\n";
-                                Obj mZ;    const Obj& Z = mZ;
+                                Obj mZ = Obj::mime();    const Obj& Z = mZ;
                                 Obj *p = &(mZ = Y);
                                 ASSERT(&mZ == p);
 
@@ -780,7 +762,7 @@ if (verbose)
 
                     if (veryVeryVerbose) cout << "Outer copy assign\n";
                     {
-                        Obj mY;    const Obj& Y = mY;
+                        Obj mY = Obj::mime();    const Obj& Y = mY;
                         Obj *p = &(mY = master);
                         ASSERT(&mY == p);
                         ASSERT(  Y == MASTER );
@@ -824,7 +806,7 @@ if (verbose)
 
         if (verbose) cout << "Default object\n";
         {
-            const Obj OBJ;
+            const Obj& OBJ = Obj::mime();
             ASSERT(76             == OBJ.maxLineLength());
             ASSERT(Alpha::e_BASIC == OBJ.alphabet());
             ASSERT(true           == OBJ.isPadded());
@@ -832,7 +814,7 @@ if (verbose)
 
         if (verbose) cout << "\tmaxLineLength = 0, default alphabet" << endl;
         {
-            const Obj& OBJ = Obj::custom(0);
+            const Obj& OBJ = Obj::custom(0, Alpha::e_BASIC, true);
             ASSERT(0              == OBJ.maxLineLength());
             ASSERT(Alpha::e_BASIC == OBJ.alphabet());
             ASSERT(true           == OBJ.isPadded());
@@ -840,7 +822,7 @@ if (verbose)
 
         if (verbose) cout << "\tmaxLineLength = 1, default alphabet" << endl;
         {
-            const Obj& OBJ = Obj::custom(1);
+            const Obj& OBJ = Obj::custom(1, Alpha::e_BASIC, true);
             ASSERT(1              == OBJ.maxLineLength());
             ASSERT(Alpha::e_BASIC == OBJ.alphabet());
             ASSERT(true           == OBJ.isPadded());
@@ -849,7 +831,7 @@ if (verbose)
         if (verbose) cout << "\tmaxLineLength = 2, \"base64\" alphabet"
                           << endl;
         {
-            const Obj& OBJ = Obj::custom(2, Alpha::e_BASIC);
+            const Obj& OBJ = Obj::custom(2, Alpha::e_BASIC, true);
             ASSERT(2              == OBJ.maxLineLength());
             ASSERT(Alpha::e_BASIC == OBJ.alphabet());
             ASSERT(true           == OBJ.isPadded());
@@ -858,7 +840,7 @@ if (verbose)
         if (verbose) cout << "\tmaxLineLength = INT_MAX, \"base64url\" "
                           << "alphabet" << endl;
         {
-            const Obj& OBJ = Obj::custom(INT_MAX, Alpha::e_URL);
+            const Obj& OBJ = Obj::custom(INT_MAX, Alpha::e_URL, true);
             ASSERT(INT_MAX      == OBJ.maxLineLength());
             ASSERT(Alpha::e_URL == OBJ.alphabet());
             ASSERT(true         == OBJ.isPadded());

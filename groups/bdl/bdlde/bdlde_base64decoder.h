@@ -438,6 +438,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_assert.h>
 #include <bsls_review.h>
+#include <bsls_types.h>
+
 #include <bsl_iostream.h>
 
 namespace BloombergLP {
@@ -454,6 +456,7 @@ class Base64Decoder {
   public:
     // PUBLIC TYPES
     typedef Base64Alphabet::Enum Alphabet;
+    typedef bsls::Types::IntPtr  IntPtr;
 
     // PUBLIC CONSTANTS
     static const Alphabet e_BASIC = Base64Alphabet::e_BASIC;
@@ -463,7 +466,7 @@ class Base64Decoder {
     // PRIVATE TYPES
     typedef Base64DecoderOptions    DecoderOptions;
 
-    enum {
+    enum State {
         // Symbolic state values.
 
         e_ERROR_STATE      = -1, // input is irreparably invalid
@@ -494,15 +497,7 @@ class Base64Decoder {
         // corresponding 6-bit number
 
     // INSTANCE DATA
-    signed char       d_state;         // -1 = error state
-                                       //  0 = general input state
-                                       //  1 = need another '='
-                                       //  2 = soft done state - allow only
-                                       //      ignorable input
-                                       //  3 = done state - no more input
-                                       //      allowed
-
-    bool              d_isPadded;
+    State             d_state;         // State of this object
 
     int               d_outputLength;  // total number of output characters
 
@@ -518,38 +513,33 @@ class Base64Decoder {
 
     int               d_bitsInStack;   // Number of bits in 'd_stack'.
 
+    bool              d_isPadded;      // 'true' means '=' padding is required,
+                                       // 'false' means '=' is an error.
+
   private:
     // NOT IMPLEMENTED
     Base64Decoder(const Base64Decoder&);
     Base64Decoder& operator=(const Base64Decoder&);
 
+    // PRIVATE ACCESSORS
+    int residualBits(int bytesOutputSoFar) const;
+        // Bits of potential or actual output that have occured since the last
+        // (if any) completed quad bytes of input.
+
   public:
     // CLASS METHODS
-    static int maxDecodedLength(const DecoderOptions& options,
-                                int                   inputLength);
-        // Return the maximum number of decoded bytes that could result from an
-        // input byte sequence of the specified 'inputLength' provided to the
-        // 'convert' and 'endConvert' methods of this decoder, and the options
-        // indicated by the specified 'options'.  The behavior is undefined
-        // unless '0 <= inputLength'.
-
-    static int maxDecodedLength(int inputLength);
+    static int maxDecodedLength(IntPtr inputLength);
         // Return the maximum number of decoded bytes that could result from an
         // input byte sequence of the specified 'inputLength' provided to the
         // 'convert' and 'endConvert' methods of this decoder.  The behavior is
-        // undefined unless '0 <= inputLength'.
-        //
-        // DEPRECATED: use the overload with 'options' instead.
+        // undefined unless '0 <= inputLength'.  Note that the result is
+        // independent of which options ara provided to the decoder.
 
     // CREATORS
     explicit
     Base64Decoder(const Base64DecoderOptions& options);
-        // Create a Base64 decoder in the initial state.  Unrecognized
-        // characters (i.e., non-base64 characters other than whitespace) will
-        // be treated as errors if the specified 'unrecognizedIsErrorFlag' is
-        // 'true', and ignored otherwise.  Optionally specify an alphabet used
-        // to decode input characters.  If 'alphabet' is not specified, then
-        // the basic alphabet, "base64", is used.
+        // Create a Base64 decoder with options determined by the specfied
+        // 'options'.
 
     explicit
     Base64Decoder(bool unrecognizedIsErrorFlag, Alphabet alphabet = e_BASIC);
@@ -558,7 +548,9 @@ class Base64Decoder {
         // be treated as errors if the specified 'unrecognizedIsErrorFlag' is
         // 'true', and ignored otherwise.  Optionally specify an alphabet used
         // to decode input characters.  If 'alphabet' is not specified, then
-        // the basic alphabet, "base64", is used.
+        // the basic alphabet, "base64", is used.  Padded input is assumed.
+        //
+        // DEPRECATED: Use the overload that takes 'options' instead.
 
     ~Base64Decoder();
         // Destroy this object.
@@ -651,9 +643,9 @@ class Base64Decoder {
         // input (other than 'endConvert') would be an error, and 'false'
         // otherwise.
 
-    bool isMinimal() const;
-        // Return 'true' if this instance is in the initial state (i.e., as
-        // if no input had been consumed), and 'false' otherwise.
+    bool isPadded() const;
+        // Return 'true' if this object is configured for padded input and
+        // 'false' otherwise.
 
     bool isUnrecognizedAnError() const;
         // Return 'true' if this mechanism is currently configured to report an
@@ -673,20 +665,52 @@ class Base64Decoder {
                             // class Base64Decoder
                             // -------------------
 
+// PRIVATE CLASS METHODs
+inline
+int Base64Decoder::residualBits(int  bytesOutputSoFar) const
+{
+    BSLS_ASSERT(0 <= bytesOutputSoFar);
+    BSLS_ASSERT(0 <= d_bitsInStack);
+
+    // If one byte has been read since that last completed quad of input, the
+    // result will be 6, and it will be an error if no more input is available.
+    //
+    // If two bytes have been read since the last complete quad of input, the
+    // result will be 12, and if input is done:
+    //: o If all output has been done, 'd_stack == 0'
+    //:
+    //: o If a byte of output remains to be done, the low-order 4 bytes of
+    //:   'd_stack' should be 0.
+    //
+    // If three bytes have been read since the last complete quad of input, the
+    // result will be 18, and if input is done,
+    //: o If the last 2 bytes of output have been done, the low-order 2 bytes
+    //:   of 'd_stack' should be 0.
+    //:
+    //: o If one of the last 2 bytes of output have been done, there will be 10
+    //:   bits in the stack, the low-order 2 bits of which should be 0.
+    //:
+    //: o If none of the last 2 bytes of output to be done, there will be 18
+    //:   bits in the stack, the low-order 2 bits of which will be 0.
+
+    int ret = ((bytesOutputSoFar % 3) * 8 + d_bitsInStack) % 24;
+    BSLS_ASSERT(e_INPUT_STATE != d_state || 0 == ret % 6);
+    return ret;
+}
+
 // CLASS METHODS
 inline
-int Base64Decoder::maxDecodedLength(int inputLength)
+int Base64Decoder::maxDecodedLength(IntPtr inputLength)
 {
     BSLS_ASSERT(0 <= inputLength);
 
-    return (inputLength + 3) / 4 * 3;
+    return static_cast<int>((inputLength + 3) / 4 * 3);
 }
 
 // CREATORS
 inline
 Base64Decoder::Base64Decoder(const Base64DecoderOptions& options)
 : d_state(e_INPUT_STATE)
-, d_isPadded(options.isPadded())
 , d_outputLength(0)
 , d_alphabet_p(e_BASIC == options.alphabet() ? s_basicAlphabet_p
                                              : s_urlAlphabet_p)
@@ -696,12 +720,12 @@ Base64Decoder::Base64Decoder(const Base64DecoderOptions& options)
                                                     : s_urlIgnorableRelaxed_p)
 , d_stack(0)
 , d_bitsInStack(0)
+, d_isPadded(options.isPadded())
 {}
 
 inline
 Base64Decoder::Base64Decoder(bool unrecognizedIsErrorFlag, Alphabet alphabet)
 : d_state(e_INPUT_STATE)
-, d_isPadded(true)
 , d_outputLength(0)
 , d_alphabet_p(e_BASIC == alphabet ? s_basicAlphabet_p : s_urlAlphabet_p)
 , d_ignorable_p(unrecognizedIsErrorFlag
@@ -710,6 +734,7 @@ Base64Decoder::Base64Decoder(bool unrecognizedIsErrorFlag, Alphabet alphabet)
                                             : s_urlIgnorableRelaxed_p)
 , d_stack(0)
 , d_bitsInStack(0)
+, d_isPadded(true)
 {}
 
 // MANIPULATORS
@@ -759,7 +784,7 @@ int Base64Decoder::convert(OUTPUT_ITERATOR  out,
     *numIn = 0;
 
     if (e_INPUT_STATE == d_state) {
-        while (18 >= d_bitsInStack && begin != end) {
+        while (18 >= d_bitsInStack && begin < end) {
             const unsigned char byte = static_cast<unsigned char>(*begin);
 
             ++begin;
@@ -781,22 +806,35 @@ int Base64Decoder::convert(OUTPUT_ITERATOR  out,
             }
             else if (!d_ignorable_p[byte]) {
                 if ('=' == byte && d_isPadded) {
-                    const int residualBits =
-                                       (((d_outputLength + numEmitted) % 3) * 8
-                                                         + d_bitsInStack) % 24;
-                    if (12 == residualBits && 0 == (d_stack & 0xf)) {
-                        d_stack = d_stack >> 4;
-                        d_bitsInStack -= 4;
-                        d_state = e_NEED_EQUAL_STATE;
-                    }
-                    else if (18 == residualBits && 0 == (d_stack & 0x3)) {
-                        d_stack = d_stack >> 2;
-                        d_bitsInStack -= 2;
-                        d_state = e_SOFT_DONE_STATE;
-                    }
-                    else {
-                        d_state = e_ERROR_STATE;
-                    }
+                    const int residual = residualBits(
+                                                  d_outputLength + numEmitted);
+                    // 'residual' is 0, 6, 12, or 18.
+                    //: o If it's 0, that's an error since no '=' should be
+                    //:   needed.
+                    //:
+                    //: o If it's 6, that's an error because an incomplete
+                    //:   byte has been input.
+                    //:
+                    //: o 12 means 2 bytes have been read, meaning we have to
+                    //:   do 1 byte of output (which we may have already done).
+                    //:   The low-order 4 bits of stack should either be
+                    //:   0 or the stack should be empty.
+                    //:
+                    //: o 18 means 3 bytes have been read, meaning we have to
+                    //:   do 2 bytes of output (some or all of which we may
+                    //:   have already done).  The low-order 2 bits of stack
+                    //:   should either be 0 or the stack should be empty.
+
+                    const int leftOver = residual % 8;
+                    d_state = 0 != (d_stack & ((1 << leftOver) - 1))
+                            ? e_ERROR_STATE
+                            : 12 == residual
+                            ? e_NEED_EQUAL_STATE
+                            : 18 == residual
+                            ? e_SOFT_DONE_STATE
+                            : e_ERROR_STATE;
+                    d_stack       >>= leftOver;
+                    d_bitsInStack -=  leftOver;
                 }
                 else {
                     d_state = e_ERROR_STATE;
@@ -807,6 +845,8 @@ int Base64Decoder::convert(OUTPUT_ITERATOR  out,
     }
 
     if (e_NEED_EQUAL_STATE == d_state) {
+        BSLS_ASSERT(d_isPadded);
+
         while (begin != end) {
             const unsigned char byte = static_cast<unsigned char>(*begin);
 
@@ -814,7 +854,7 @@ int Base64Decoder::convert(OUTPUT_ITERATOR  out,
             ++*numIn;
 
             if (!d_ignorable_p[byte]) {
-                if ('=' == byte && d_isPadded) {
+                if ('=' == byte) {
                     d_state = e_SOFT_DONE_STATE;
                 }
                 else {
@@ -859,29 +899,42 @@ int Base64Decoder::endConvert(OUTPUT_ITERATOR  out,
 {
     BSLS_ASSERT(numOut);
 
-    const int residualBits = ((d_outputLength % 3) * 8 + d_bitsInStack) % 24;
+    if (!d_isPadded && e_INPUT_STATE == d_state) {
+        const int residual = residualBits(d_outputLength);
+        const int leftOver = residual % 8;
+        if (6 == residual || 0 != (d_stack & ((1 << leftOver) - 1))) {
+            d_state = e_ERROR_STATE;
+        }
+        else {
+            d_stack       >>= leftOver;
+            d_bitsInStack -=  leftOver;
+        }
+    }
+
     if (e_ERROR_STATE == d_state || e_NEED_EQUAL_STATE == d_state ||
                         (e_DONE_STATE == d_state && 0 == d_bitsInStack) ||
-                                  (e_INPUT_STATE == d_state && residualBits)) {
-        *numOut = 0;
+                        (d_isPadded && e_INPUT_STATE == d_state &&
+                                               residualBits(d_outputLength))) {
         d_state = e_ERROR_STATE;
+        *numOut = 0;
         return -1;                                                    // RETURN
     }
 
+    BSLS_ASSERT(0 == d_bitsInStack % 8);
+
     d_state = e_DONE_STATE;
 
-    int numEmitted = 0;
-    while (8 <= d_bitsInStack && numEmitted != maxNumOut) {
+    int numEmitted;
+    for (numEmitted = 0; 8 <= d_bitsInStack && numEmitted != maxNumOut;
+                                                                ++numEmitted) {
         d_bitsInStack -= 8;
-        *out = static_cast<char>((d_stack >> d_bitsInStack) & 0xff);
-        ++out;
-        ++numEmitted;
+        *out++ = static_cast<char>((d_stack >> d_bitsInStack) & 0xff);
     }
 
     *numOut = numEmitted;
     d_outputLength += numEmitted;
 
-    return e_ERROR_STATE == d_state ? -1 : d_bitsInStack / 8;
+    return d_bitsInStack / 8;
 }
 
 inline
@@ -902,8 +955,8 @@ Base64Decoder::Alphabet Base64Decoder::alphabet() const
 inline
 bool Base64Decoder::isAcceptable() const
 {
-    const int residualBits = ((d_outputLength % 3) * 8 + d_bitsInStack) % 24;
-    return (0 == residualBits && e_INPUT_STATE == d_state) ||
+    const int residual = residualBits(d_outputLength);
+    return (0 == residual && e_INPUT_STATE == d_state) ||
                        e_SOFT_DONE_STATE == d_state || e_DONE_STATE == d_state;
 }
 
@@ -932,6 +985,12 @@ bool Base64Decoder::isMaximal() const
 {
     return e_SOFT_DONE_STATE == d_state
                                  || (d_bitsInStack && e_DONE_STATE == d_state);
+}
+
+inline
+bool Base64Decoder::isPadded() const
+{
+    return d_isPadded;
 }
 
 inline
