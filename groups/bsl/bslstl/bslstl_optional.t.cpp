@@ -5853,9 +5853,9 @@ struct EasyConvert {
                               // ------------
                               // Test Case 14
                               // ------------
-struct MyHashAlgorithm {
-    // A dummy hash algorithm class type used for verifying that custom
-    // (non-bslh) hash types compile.
+struct CustomHashAlgorithm {
+    // A custom hash algorithm class type used for verifying that custom
+    // (non-'bslh') hash types compile.
 
     typedef bsls::Types::Int64 result_type;
 
@@ -7687,10 +7687,11 @@ void TestDriver<TYPE>::testCase14()
     //:   to the hash.
     //:
     //: 2 Hashing a value with a nullable value is equivalent to appending
-    //:   'true' to the hash followed by the value.\
+    //:   'true' to the hash followed by the value.
     //:
     //: 3 Invoking 'hashAppend' with a custom hash algorithm as the first
-    //:   argument correctly finds 'bslh_hash::hashAppend'.
+    //:   argument correctly finds 'bslh_hash::hashAppend' from the 'bslh_hash'
+    //:   component.
     //
     // Plan:
     //: 1 Create a null nullable value and verify that hashing it yields the
@@ -7700,8 +7701,9 @@ void TestDriver<TYPE>::testCase14()
     //:   verify that hashing it produces the same result as hashing 'true' and
     //:   then the test values themselves. [C-2]
     //:
-    //: 3 Create a mock hash algorithm 'class', 'MyHashAlgorithm' then pass an
-    //:   instance of this hash 'class' to 'hashAppend'.
+    //: 3 Create a mock hash algorithm 'class' 'MyHashAlgorithm' (not in the
+    //:   bslh` namespace) then pass an instance of this hash 'class' to
+    //:   'hashAppend'.
     //
     // Testing:
     //   void hashAppend(HASHALG& hashAlg, const optional<TYPE>& input);
@@ -7767,12 +7769,11 @@ void TestDriver<TYPE>::testCase14()
         ASSERT(0 == da.numBlocksInUse());
     }
     {
-        if (verbose)
-            printf("Testing custom hash type.\n"
-                   "=========================\n");
+        if (veryVerbose)
+            printf("Testing custom hash type.\n");
 
-        MyHashAlgorithm myHash;
-        hashAppend(myHash, bsl::optional<int>());
+        CustomHashAlgorithm customHashAlgo ;
+        hashAppend(customHashAlgo , bsl::optional<int>());
     }
 }
 template <class TYPE>

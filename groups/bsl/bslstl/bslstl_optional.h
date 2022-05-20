@@ -5013,7 +5013,7 @@ template <class HASHALG, class TYPE>
 void hashAppend(HASHALG& hashAlg, const optional<TYPE>& input)
 {
     using ::BloombergLP::bslh::hashAppend;
-    
+
     if (input.has_value()) {
         hashAppend(hashAlg, true);
         hashAppend(hashAlg, *input);
