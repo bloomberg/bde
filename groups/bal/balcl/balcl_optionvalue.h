@@ -228,12 +228,14 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_datetime.h>
 #include <bdlt_time.h>
 
-#include <bdlb_nullablevalue.h>
-#include <bdlb_printmethods.h> // 'bdlb::HasPrintMethod'
+#include <bdlb_printmethods.h> // 'bdlb::HasPrintMethod', 'bdlb::PrintMethods'
 #include <bdlb_variant.h>
 
+#include <bslma_allocator.h>
 #include <bslma_usesbslmaallocator.h>
 
+#include <bslmf_isbitwisemoveable.h>
+#include <bslmf_isbitwiseequalitycomparable.h>
 #include <bslmf_nestedtraitdeclaration.h>
 #include <bslmf_nil.h>
 
@@ -244,20 +246,90 @@ BSLS_IDENT("$Id: $")
 #include <bsl_string.h>
 #include <bsl_vector.h>
 
-#include <bslma_allocator.h>
-
 namespace BloombergLP {
-
 
 namespace balcl {
 
-class OptionValue_IsNullVisitor;
-class OptionValue_SetNullVisitor;
+                        // ========================
+                        // class OptionValue_NullOf
+                        // ========================
+
+class OptionValue_NullOf {
+    // This single-attribute class represents a null value of a given nullable
+    // 'balcl::OptionType'.  'OptionValue' uses this type to represent its
+    // state where there is a known type, but no value for it.  Note that
+    // 'OptionType::e_VOID' is *not* nullable, therefore not supported here.
+    // Note that: There is no 'swap' member or namespace-level function
+    // declared (and defined) for this class on purpose, the general swap works
+    // fast for such a simple type.
+
+    // DATA
+    OptionType::Enum d_type;
+
+  public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(OptionValue_NullOf,
+                                   bslmf::IsBitwiseMoveable);
+    BSLMF_NESTED_TRAIT_DECLARATION(OptionValue_NullOf,
+                                   bslmf::IsBitwiseEqualityComparable);
+    BSLMF_NESTED_TRAIT_DECLARATION(OptionValue_NullOf,
+                                   bdlb::HasPrintMethod);
+
+    // CREATORS
+    explicit OptionValue_NullOf(OptionType::Enum optionType);
+        // Create an 'OptionValue_NullOf' object with the specified nullable
+        // 'optionType'.  The behavior is undefined if
+        // 'optionType == OptionType::e_VOID'.
+
+    // ACCESSORS
+    template <class TYPE>
+    bool isType(const TYPE&) const;
+        // Return 'true' if 'TYPE' corresponds to the 'type' attribute, and
+        // 'false' if it does not.
+
+    OptionType::Enum type() const;
+        // Return the option 'type' of this object.
+
+                                  // Aspects
+
+    bsl::ostream& print(bsl::ostream& stream,
+                        int           level          = 0,
+                        int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the (absolute
+        // value of) the optionally specified indentation 'level' and return a
+        // reference to 'stream'.  If 'level' is specified, optionally specify
+        // 'spacesPerLevel', the number of spaces per indentation level for
+        // this and all of its nested objects.  If 'level' is negative,
+        // suppress indentation of the first line.  If 'spacesPerLevel' is
+        // negative, format the entire output on one line, suppressing all but
+        // the initial indentation (as governed by 'level').  If 'stream' is
+        // not valid on entry, this operation has no effect.
+};
+
+// FREE OPERATORS
+bool operator==(const OptionValue_NullOf& lhs, const OptionValue_NullOf& rhs);
+    // Return 'true' if the 'type' of the specified 'lhs' and 'rhs' are equal,
+    // and return 'false' if they are not equal.  Two 'OptionValue_NullOf'
+    // objects are equal when their 'type' attributes are equal.
+
+bool operator!=(const OptionValue_NullOf& lhs, const OptionValue_NullOf& rhs);
+    // Return 'true' if the 'type' of the specified 'lhs' and 'rhs' are not
+    // equal, and return 'false' if they are not equal.  Two
+    // 'OptionValue_NullOf' objects are equal when their 'type' attributes are
+    // note equal.
+
+bsl::ostream& operator<<(bsl::ostream&             stream,
+                         const OptionValue_NullOf& object);
+    // Write the value of the specified 'object' to the specified output
+    // 'stream' in a single-line format, and return a reference to 'stream'.
+    // If 'stream' is not valid on entry, this operation has no effect.  Note
+    // that this human-readable format is not fully specified, can change
+    // without notice, and is logically equivalent to:
+    // 'object.print(stream, 0, -1);'
 
                         // =================
                         // class OptionValue
                         // =================
-
 class OptionValue {
     // This class implements a special-use value-semantic variant type used to
     // represent values parsed from process command lines.  Accordingly, this
@@ -269,25 +341,23 @@ class OptionValue {
 
   private:
     // PRIVATE TYPES
-    typedef OptionType Ot;
-
-    typedef bdlb::NullableValue<Ot::Bool>          Bool;
-    typedef bdlb::NullableValue<Ot::Char>          Char;
-    typedef bdlb::NullableValue<Ot::Int>           Int;
-    typedef bdlb::NullableValue<Ot::Int64>         Int64;
-    typedef bdlb::NullableValue<Ot::Double>        Double;
-    typedef bdlb::NullableValue<Ot::String>        String;
-    typedef bdlb::NullableValue<Ot::Datetime>      Datetime;
-    typedef bdlb::NullableValue<Ot::Date>          Date;
-    typedef bdlb::NullableValue<Ot::Time>          Time;
-    typedef bdlb::NullableValue<Ot::CharArray>     CharArray;
-    typedef bdlb::NullableValue<Ot::IntArray>      IntArray;
-    typedef bdlb::NullableValue<Ot::Int64Array>    Int64Array;
-    typedef bdlb::NullableValue<Ot::DoubleArray>   DoubleArray;
-    typedef bdlb::NullableValue<Ot::StringArray>   StringArray;
-    typedef bdlb::NullableValue<Ot::DatetimeArray> DatetimeArray;
-    typedef bdlb::NullableValue<Ot::DateArray>     DateArray;
-    typedef bdlb::NullableValue<Ot::TimeArray>     TimeArray;
+    typedef OptionType::Bool          Bool;
+    typedef OptionType::Char          Char;
+    typedef OptionType::Int           Int;
+    typedef OptionType::Int64         Int64;
+    typedef OptionType::Double        Double;
+    typedef OptionType::String        String;
+    typedef OptionType::Datetime      Datetime;
+    typedef OptionType::Date          Date;
+    typedef OptionType::Time          Time;
+    typedef OptionType::CharArray     CharArray;
+    typedef OptionType::IntArray      IntArray;
+    typedef OptionType::Int64Array    Int64Array;
+    typedef OptionType::DoubleArray   DoubleArray;
+    typedef OptionType::StringArray   StringArray;
+    typedef OptionType::DatetimeArray DatetimeArray;
+    typedef OptionType::DateArray     DateArray;
+    typedef OptionType::TimeArray     TimeArray;
 
     typedef bdlb::Variant<Bool,
                           Char,
@@ -297,7 +367,7 @@ class OptionValue {
                           String,
                           Datetime,
                           Date,
-                          Time,
+                          Time,      // DO NOT change the order of these types!
                           CharArray,
                           IntArray,
                           Int64Array,
@@ -305,7 +375,8 @@ class OptionValue {
                           StringArray,
                           DatetimeArray,
                           DateArray,
-                          TimeArray> ValueVariant;
+                          TimeArray,
+                          OptionValue_NullOf> ValueVariant;
 
     // DATA
     ValueVariant d_value;  // the object's value
@@ -313,9 +384,6 @@ class OptionValue {
     // FRIENDS
     friend bool operator==(const OptionValue&, const OptionValue&);
     friend void swap(OptionValue&, OptionValue&);
-
-    friend class OptionValue_IsNullVisitor;
-    friend class OptionValue_SetNullVisitor;
 
     // PRIVATE MANIPULATORS
     void init(OptionType::Enum type);
@@ -417,7 +485,7 @@ class OptionValue {
         // Destroy this object.
 
     // MANIPULATORS
-    OptionValue& operator=(const OptionValue& rhs);
+    //! OptionValue& operator=(const OptionValue& rhs) = default;
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.
 
@@ -540,44 +608,6 @@ void swap(OptionValue& a, OptionValue& b);
     // neither 'a.type()' nor 'b.type()' is a type that requires allocation;
     // otherwise, it provides the basic guarantee.
 
-                        // ===============================
-                        // class OptionValue_IsNullVisitor
-                        // ===============================
-
-class OptionValue_IsNullVisitor {
-    // This class defines a functor that is compatible with the 'applyRaw'
-    // method of the 'bdlb::Variant' class.
-
-  public:
-    // TYPES
-    typedef bool ResultType;
-
-    // ACCESSORS
-    template <class TYPE>
-    ResultType operator()(const TYPE& value) const;
-        // Return 'true' if the specified 'value' is in the null state (no
-        // specified value), and 'false' otherwise.
-};
-
-                        // ================================
-                        // class OptionValue_SetNullVisitor
-                        // ================================
-
-class OptionValue_SetNullVisitor {
-    // This class defines a functor that is compatible with the 'applyRaw'
-    // method of the 'bdlb::Variant' class.
-
-  public:
-    // ACCESSORS
-    template <class TYPE>
-    void operator()(TYPE& value) const;
-        // Set the specified 'value' to its null state.
-
-    void operator()(bslmf::Nil value) const;
-        // The behavior is undefined if the specified 'value' is of a
-        // non-existing type (represented by 'bslmf::Nil') )
-};
-
 // ============================================================================
 //                              INLINE DEFINITIONS
 // ============================================================================
@@ -610,43 +640,46 @@ OptionValue::OptionValue(OptionType::Enum  type,
 inline
 OptionValue::OptionValue(bool              value,
                          bslma::Allocator *basicAllocator)
-: d_value(bdlb::NullableValue<bool>(value), basicAllocator)
+: d_value(value, basicAllocator)
 {
 }
 
 inline
 OptionValue::OptionValue(char              value,
                          bslma::Allocator *basicAllocator)
-: d_value(bdlb::NullableValue<char>(value), basicAllocator)
+: d_value(value, basicAllocator)
 {
 }
 
 inline
 OptionValue::OptionValue(int               value,
                          bslma::Allocator *basicAllocator)
-: d_value(bdlb::NullableValue<int>(value), basicAllocator)
+: d_value(value, basicAllocator)
 {
 }
 
 inline
 OptionValue::OptionValue(bsls::Types::Int64  value,
                          bslma::Allocator   *basicAllocator)
-: d_value(bdlb::NullableValue<bsls::Types::Int64>(value), basicAllocator)
+: d_value(value, basicAllocator)
 {
 }
 
 inline
 OptionValue::OptionValue(double            value,
                          bslma::Allocator *basicAllocator)
-: d_value(bdlb::NullableValue<double>(value), basicAllocator)
+: d_value(value, basicAllocator)
 {
 }
 
 inline
 OptionValue::OptionValue(const bsl::string&  value,
                          bslma::Allocator   *basicAllocator)
-: d_value(bdlb::NullableValue<bsl::string>(value), basicAllocator)
+: d_value(value, basicAllocator)
 {
+    // TBD: This now could be changed to 'bsl::string_view' IFF it is a
+    // compatible change for users.
+    //
     // Implementation note: Changing 'bsl::string' to a string view would not
     // be a constructive change, because 'bdlb::NullableValue<bsl::string>' is
     // not constructible from a string view.  Note that 'value', as a
@@ -657,35 +690,35 @@ OptionValue::OptionValue(const bsl::string&  value,
 inline
 OptionValue::OptionValue(bdlt::Datetime    value,
                          bslma::Allocator *basicAllocator)
-: d_value(bdlb::NullableValue<bdlt::Datetime>(value), basicAllocator)
+: d_value(value, basicAllocator)
 {
 }
 
 inline
 OptionValue::OptionValue(bdlt::Date        value,
                          bslma::Allocator *basicAllocator)
-: d_value(bdlb::NullableValue<bdlt::Date>(value), basicAllocator)
+: d_value(value, basicAllocator)
 {
 }
 
 inline
 OptionValue::OptionValue(bdlt::Time        value,
                          bslma::Allocator *basicAllocator)
-: d_value(bdlb::NullableValue<bdlt::Time>(value), basicAllocator)
+: d_value(value, basicAllocator)
 {
 }
 
 inline
 OptionValue::OptionValue(const bsl::vector<char>&  value,
                          bslma::Allocator         *basicAllocator)
-: d_value(bdlb::NullableValue<bsl::vector<char> >(value), basicAllocator)
+: d_value(value, basicAllocator)
 {
 }
 
 inline
 OptionValue::OptionValue(const bsl::vector<int>&  value,
                          bslma::Allocator        *basicAllocator)
-: d_value(bdlb::NullableValue<bsl::vector<int> >(value), basicAllocator)
+: d_value(value, basicAllocator)
 {
 }
 
@@ -693,45 +726,42 @@ inline
 OptionValue::OptionValue(
                         const bsl::vector<bsls::Types::Int64>&  value,
                         bslma::Allocator                       *basicAllocator)
-: d_value(bdlb::NullableValue<bsl::vector<bsls::Types::Int64> >(value),
-          basicAllocator)
+: d_value(value, basicAllocator)
 {
 }
 
 inline
 OptionValue::OptionValue(const bsl::vector<double>&  value,
                          bslma::Allocator           *basicAllocator)
-: d_value(bdlb::NullableValue<bsl::vector<double> >(value), basicAllocator)
+: d_value(value, basicAllocator)
 {
 }
 
 inline
 OptionValue::OptionValue(const bsl::vector<bsl::string>&  value,
                          bslma::Allocator                *basicAllocator)
-: d_value(bdlb::NullableValue<bsl::vector<bsl::string> >(value),
-          basicAllocator)
+: d_value(value, basicAllocator)
 {
 }
 
 inline
 OptionValue::OptionValue(const bsl::vector<bdlt::Datetime>&  value,
                          bslma::Allocator                   *basicAllocator)
-: d_value(bdlb::NullableValue<bsl::vector<bdlt::Datetime> >(value),
-          basicAllocator)
+: d_value(value, basicAllocator)
 {
 }
 
 inline
 OptionValue::OptionValue(const bsl::vector<bdlt::Date>&  value,
                          bslma::Allocator               *basicAllocator)
-: d_value(bdlb::NullableValue<bsl::vector<bdlt::Date> >(value), basicAllocator)
+: d_value(value, basicAllocator)
 {
 }
 
 inline
 OptionValue::OptionValue(const bsl::vector<bdlt::Time>&  value,
                          bslma::Allocator               *basicAllocator)
-: d_value(bdlb::NullableValue<bsl::vector<bdlt::Time> >(value), basicAllocator)
+: d_value(value, basicAllocator)
 {
 }
 
@@ -744,13 +774,6 @@ OptionValue::OptionValue(const OptionValue&  original,
 
 // MANIPULATORS
 inline
-OptionValue& OptionValue::operator=(const OptionValue& rhs)
-{
-    d_value = rhs.d_value;
-    return *this;
-}
-
-inline
 void OptionValue::reset()
 {
     d_value.reset();
@@ -760,9 +783,11 @@ template <class TYPE>
 inline
 void OptionValue::set(const TYPE& value)
 {
-    BSLS_ASSERT(d_value.is<bdlb::NullableValue<TYPE> >());
+    BSLS_ASSERT(d_value.is<TYPE>() ||
+                (d_value.is<OptionValue_NullOf>() &&
+                 d_value.the<OptionValue_NullOf>().isType(value)));
 
-    d_value.the<bdlb::NullableValue<TYPE> >().makeValue(value);
+    d_value.assign(value);
 }
 
 inline
@@ -770,9 +795,11 @@ void OptionValue::setNull()
 {
     BSLS_ASSERT(!d_value.isUnset());
 
-    OptionValue_SetNullVisitor setNullVisitor;
+    if (d_value.is<OptionValue_NullOf>()) { // Already null.
+        return;                                                       // RETURN
+    }
 
-    return d_value.applyRaw(setNullVisitor);
+    d_value.createInPlace<OptionValue_NullOf>(this->type());
 
 }
 
@@ -787,10 +814,9 @@ template <class TYPE>
 inline
 TYPE& OptionValue::the()
 {
-    BSLS_ASSERT( d_value. is<bdlb::NullableValue<TYPE> >());
-    BSLS_ASSERT(!d_value.the<bdlb::NullableValue<TYPE> >().isNull());
+    BSLS_ASSERT(d_value.is<TYPE>());
 
-    return d_value.the<bdlb::NullableValue<TYPE> >().value();
+    return d_value.the<TYPE>();
 }
 
                                   // Aspects
@@ -815,23 +841,19 @@ bool OptionValue::isNull() const
 {
     BSLS_ASSERT(!d_value.isUnset());
 
-    OptionValue_IsNullVisitor isNullVisitor;
-
-    return d_value.applyRaw(isNullVisitor);
+    return d_value.is<OptionValue_NullOf>();
 }
 
 template <class TYPE>
 inline
 const TYPE& OptionValue::the() const
 {
-    BSLS_ASSERT( d_value. is<bdlb::NullableValue<TYPE> >());
-    BSLS_ASSERT(!d_value.the<bdlb::NullableValue<TYPE> >().isNull());
+    BSLS_ASSERT(d_value.is<TYPE>());
 
-    return d_value.the<bdlb::NullableValue<TYPE> >().value();
+    return d_value.the<TYPE>();
 }
 
                                   // Aspects
-
 inline
 bslma::Allocator *OptionValue::allocator() const
 {
@@ -871,38 +893,67 @@ void balcl::swap(OptionValue& a, OptionValue& b)
 
 namespace balcl {
 
-                        // -------------------------------
-                        // class OptionValue_IsNullVisitor
-                        // -------------------------------
+                        // ------------------------
+                        // class OptionValue_NullOf
+                        // ------------------------
+// CREATORS
+inline
+OptionValue_NullOf::OptionValue_NullOf(OptionType::Enum optionType)
+: d_type(optionType)
+{
+    BSLS_ASSERT(optionType != OptionType::e_VOID);
+}
 
 // ACCESSORS
 template <class TYPE>
 inline
-OptionValue_IsNullVisitor::ResultType
-OptionValue_IsNullVisitor::operator()(const TYPE& value) const
+bool OptionValue_NullOf::isType(const TYPE&) const
 {
-    return value.isNull();
-}
-
-                        // --------------------------------
-                        // class OptionValue_SetNullVisitor
-                        // --------------------------------
-
-// ACCESSORS
-template <class TYPE>
-inline
-void OptionValue_SetNullVisitor::operator()(TYPE& value) const
-{
-    value.reset();   // Set nullable type to null state.
+    return d_type == OptionType::TypeToEnum<TYPE>::value;
 }
 
 inline
-void OptionValue_SetNullVisitor::operator()(bslmf::Nil) const
+OptionType::Enum OptionValue_NullOf::type() const
 {
-    BSLS_ASSERT_OPT(!"Reached");
+    return d_type;
+}
+
+                                  // Aspects
+
+inline
+bsl::ostream& OptionValue_NullOf::print(bsl::ostream& stream,
+                                        int           level,
+                                        int           spacesPerLevel) const
+{
+    return bdlb::PrintMethods::print(stream, "NULL", level, spacesPerLevel);
 }
 
 }  // close package namespace
+
+// FREE OPERATORS
+inline
+bool balcl::operator==(const OptionValue_NullOf& lhs,
+                       const OptionValue_NullOf& rhs)
+{
+    return lhs.type() == rhs.type();
+}
+
+inline
+bool balcl::operator!=(const OptionValue_NullOf& lhs,
+                       const OptionValue_NullOf& rhs)
+{
+    return !(lhs == rhs);
+}
+
+                                  // Aspects
+
+inline
+bsl::ostream& balcl::operator<<(bsl::ostream&             stream,
+                                const OptionValue_NullOf& object)
+{
+    return object.print(stream, 0, -1);
+}
+
 }  // close enterprise namespace
 
 #endif

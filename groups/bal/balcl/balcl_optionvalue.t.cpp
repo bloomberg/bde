@@ -202,6 +202,10 @@ typedef balcl::OptionType  Ot;
 BSLMF_ASSERT(bslma::UsesBslmaAllocator<Obj>::value);
 BSLMF_ASSERT(bdlb::HasPrintMethod     <Obj>::value);
 
+BSLMF_ASSERT(bslmf::IsBitwiseMoveable<balcl::OptionValue_NullOf>::value);
+BSLMF_ASSERT(bslmf::IsBitwiseEqualityComparable<
+                                            balcl::OptionValue_NullOf>::value);
+
 // ============================================================================
 //                       GLOBAL OBJECTS SHARED BY TEST CASES
 // ----------------------------------------------------------------------------
@@ -1315,10 +1319,7 @@ int checkPrint(const Obj& obj)
     ASSERT(&ossStream == &(ossStream << obj));  // ACTION
 
     if (veryVeryVerbose) {
-        cout << "STREAM:"       << endl
-             << "|"
-             << ossStream.str()
-             << "|"             << endl;
+        cout << "STREAM:\n|" << ossStream.str() << '|' << endl;
     }
 
     // Check length
@@ -1409,10 +1410,7 @@ struct TestDriver {
 
     static void testCase3();
         // Test default constructors, primary manipulators, basic accessors,
-        // and the destructor;
-
-    static void testCase1();
-        // Breathing test.
+        // and the destructor.
 };
 
                         // -----------------
@@ -1425,9 +1423,8 @@ void TestDriver<TYPE>::testCase9()
     Ot::Enum type = Ot::TypeToEnum<TYPE>::value;
 
     if (verbose) {
-        cout << endl << "testCase9: ";
-        P_(type)
-        P(bsls::NameOf<TYPE>());
+        cout << "\ntestCase9: ";
+        P_(type) P(bsls::NameOf<TYPE>());
     }
 
     bool                 isAllocatingType =
@@ -1460,7 +1457,7 @@ void TestDriver<TYPE>::testCase9()
     ASSERT(true  == u::hasValueDAB(X, 'D'));
     ASSERT(true  == u::checkAllocator(X, isAllocatingType, &sa));
 
-    if (verbose) cout << endl << "Negative Testing." << endl;
+    if (verbose) cout << "\nNegative Testing." << endl;
     {
         bsls::AssertTestHandlerGuard hG;
 
@@ -1489,9 +1486,8 @@ void TestDriver<TYPE>::testCase4()
     Ot::Enum type = Ot::TypeToEnum<TYPE>::value;
 
     if (verbose) {
-        cout << endl << "testCase4: ";
-        P_(type)
-        P(bsls::NameOf<TYPE>());
+        cout << "\ntestCase4: ";
+        P_(type) P(bsls::NameOf<TYPE>());
     }
 
     bool           isAllocatingType = bslma::UsesBslmaAllocator<TYPE>::value;
@@ -1592,9 +1588,8 @@ void TestDriver<TYPE>::testCase3()
     Ot::Enum type = Ot::TypeToEnum<TYPE>::value;
 
     if (verbose) {
-        cout << endl << "testCase3: ";
-        P_(type)
-        P(bsls::NameOf<TYPE>());
+        cout << "\ntestCase3: ";
+        P_(type) P(bsls::NameOf<TYPE>());
     }
 
     bool isAllocatingType = bslma::UsesBslmaAllocator<TYPE>::value;
@@ -1786,12 +1781,11 @@ void TestDriver<TYPE>::testCase3()
         fa.deleteObject(objPtr);
     }
 
-    if (verbose) cout << endl << "Negative Testing." << endl;
+    if (verbose) cout << "\nNegative Testing." << endl;
     {
         bsls::AssertTestHandlerGuard hG;
 
-        if (veryVerbose) cout << endl << "The 'isNull'/'setNull' methods."
-                              << endl;
+        if (veryVerbose) cout << "\nThe 'isNull'/'setNull' methods." << endl;
         {
             Obj mX; const Obj& X = mX;
 
@@ -1803,7 +1797,7 @@ void TestDriver<TYPE>::testCase3()
             ASSERT_PASS( X. isNull());
             ASSERT_PASS(mX.setNull());
         }
-        if (veryVerbose) cout << endl << "The 'set' methods." << endl;
+        if (veryVerbose) cout << "\nThe 'set' methods." << endl;
         {
             Obj mX;
 
@@ -1816,7 +1810,7 @@ void TestDriver<TYPE>::testCase3()
             ASSERT_FAIL(u::setValueDAB(&mX, 'A',  1));
         }
 
-        if (veryVerbose) cout << endl << "The 'the' methods." << endl;
+        if (veryVerbose) cout << "\nThe 'the' methods." << endl;
         {
             Obj mX; const Obj& X = mX;
 
@@ -1834,195 +1828,6 @@ void TestDriver<TYPE>::testCase3()
             ASSERT_FAIL(u::hasValueDAB(X, 'B',  0));
         }
     }
-}
-
-template <class TYPE>
-void TestDriver<TYPE>::testCase1()
-{
-
-    Ot::Enum type = Ot::TypeToEnum<TYPE>::value;
-
-    if (verbose) {
-        cout << endl << "testCase1: ";
-        P_(type)
-        P(bsls::NameOf<TYPE>());
-    }
-
-    const TYPE D = TYPE();  // default value;
-    const TYPE A = ValueA<TYPE>::s_value;
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    if (verbose) cout << "\n 1. Create an object 'w' (enum ctor)."
-                         "\t\t{ w:D             }" << endl;
-
-    Obj mW(type);  const Obj& W = mW;
-
-    if (verbose) cout << "\ta. Check initial value of 'w'." << endl;
-    if (veryVeryVerbose) { T_ T_ P(W) }
-
-    ASSERT(true == W.hasNonVoidType());
-    ASSERT(type == W.type());
-    ASSERT(D    == W.the<TYPE>());
-
-    if (verbose) cout <<
-              "\tb. Try equality operators: 'w' <op> 'w'." << endl;
-
-    ASSERT(1 == (W == W));        ASSERT(0 == (W != W));
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    if (verbose) cout << "\n 2. Create an object 'x' (copy from 'w')."
-                         "\t\t{ w:D x:D         }" << endl;
-
-    Obj mX(W);  const Obj& X = mX;
-
-    if (verbose) cout << "\ta. Check initial value of 'x'." << endl;
-    if (veryVeryVerbose) { T_ T_ P(X) }
-
-    ASSERT(true == X.hasNonVoidType());
-    ASSERT(type == X.type());
-    ASSERT(D    == X.the<TYPE>());
-
-    if (verbose) cout <<
-               "\tb. Try equality operators: 'x' <op> 'w', 'x'." << endl;
-
-    ASSERT(1 == (X == W));        ASSERT(0 == (X != W));
-    ASSERT(1 == (X == X));        ASSERT(0 == (X != X));
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    if (verbose) cout << "\n 3. Set 'x' to 'A' (value distinct from 'D')."
-                         "\t\t{ w:D x:A         }" << endl;
-
-    mX.set(A);
-
-    if (verbose) cout << "\ta. Check new value of 'x'." << endl;
-    if (veryVeryVerbose) { T_ T_ P(X) }
-
-    ASSERT(A == X.the<TYPE>());
-
-    if (verbose) cout <<
-         "\tb. Try equality operators: 'x' <op> 'w', 'x'." << endl;
-
-    ASSERT(0 == (X == W));        ASSERT(1 == (X != W));
-    ASSERT(1 == (X == X));        ASSERT(0 == (X != X));
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    if (verbose) cout << "\n 4. Create an object 'y' (init. to 'A')."
-                         "\t\t{ w:D x:A y:A     }" << endl;
-
-    Obj mY(A);  const Obj& Y = mY;
-
-    if (verbose) cout << "\ta. Check initial value of 'y'." << endl;
-    if (veryVeryVerbose) { T_ T_ P(Y) }
-
-    ASSERT(A == Y.the<TYPE>());
-
-    if (verbose) cout <<
-         "\tb. Try equality operators: 'y' <op> 'w', 'x', 'y'" << endl;
-
-    ASSERT(0 == (Y == W));        ASSERT(1 == (Y != W));
-    ASSERT(1 == (Y == X));        ASSERT(0 == (Y != X));
-    ASSERT(1 == (Y == Y));        ASSERT(0 == (Y != Y));
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    if (verbose) cout << "\n 5. Create an object 'z' (copy from 'y')."
-                         "\t\t{ w:D x:A y:A z:A }" << endl;
-
-    Obj mZ(Y);  const Obj& Z = mZ;
-
-    if (verbose) cout << "\ta. Check initial value of 'z'." << endl;
-    if (veryVeryVerbose) { T_ T_ P(Z) }
-
-    ASSERT(A == Z.the<TYPE>());
-
-    if (verbose) cout <<
-        "\tb. Try equality operators: 'z' <op> 'w', 'x', 'y', 'z'." << endl;
-
-    ASSERT(0 == (Z == W));        ASSERT(1 == (Z != W));
-    ASSERT(1 == (Z == X));        ASSERT(0 == (Z != X));
-    ASSERT(1 == (Z == Y));        ASSERT(0 == (Z != Y));
-    ASSERT(1 == (Z == Z));        ASSERT(0 == (Z != Z));
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    if (verbose) cout << "\n 6. Set 'z' to 'D' (the default value)."
-                         "\t\t\t{ w:D x:A y:A z:D }" << endl;
-
-    mZ.set(D);
-
-    if (verbose) cout << "\ta. Check new value of 'z'." << endl;
-    if (veryVeryVerbose) { T_ T_ P(Z) }
-
-    ASSERT(D == Z.the<TYPE>());
-
-    if (verbose) cout <<
-        "\tb. Try equality operators: 'z' <op> 'w', 'x', 'y', 'z'." << endl;
-
-    ASSERT(1 == (Z == W));        ASSERT(0 == (Z != W));
-    ASSERT(0 == (Z == X));        ASSERT(1 == (Z != X));
-    ASSERT(0 == (Z == Y));        ASSERT(1 == (Z != Y));
-    ASSERT(1 == (Z == Z));        ASSERT(0 == (Z != Z));
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    if (verbose) cout << "\n 7. Assign 'w' from 'x'."
-                         "\t\t\t\t{ w:A x:A y:A z:D }" << endl;
-    mW = X;
-
-    if (verbose) cout << "\ta. Check new value of 'w'." << endl;
-    if (veryVeryVerbose) { T_ T_ P(W) }
-
-    ASSERT(A == W.the<TYPE>());
-
-    if (verbose) cout <<
-        "\tb. Try equality operators: 'w' <op> 'w', 'x', 'y', 'z'." << endl;
-
-    ASSERT(1 == (W == W));        ASSERT(0 == (W != W));
-    ASSERT(1 == (W == X));        ASSERT(0 == (W != X));
-    ASSERT(1 == (W == Y));        ASSERT(0 == (W != Y));
-    ASSERT(0 == (W == Z));        ASSERT(1 == (W != Z));
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    if (verbose) cout << "\n 8. Assign 'w' from 'z'."
-                         "\t\t\t\t{ w:D x:A y:A z:D }" << endl;
-    mW = Z;
-
-    if (verbose) cout << "\ta. Check new value of 'w'." << endl;
-    if (veryVeryVerbose) { T_ T_ P(W) }
-
-    ASSERT(D == W.the<TYPE>());
-
-    if (verbose) cout <<
-        "\tb. Try equality operators: 'x' <op> 'w', 'x', 'y', 'z'." << endl;
-
-    ASSERT(1 == (W == W));        ASSERT(0 == (W != W));
-    ASSERT(0 == (W == X));        ASSERT(1 == (W != X));
-    ASSERT(0 == (W == Y));        ASSERT(1 == (W != Y));
-    ASSERT(1 == (W == Z));        ASSERT(0 == (W != Z));
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    if (verbose) cout << "\n 9. Assign 'x' from 'x' (aliasing)."
-                         "\t\t\t{ w:D x:A y:A z:D }" << endl;
-    mX = X;
-
-    if (verbose) cout << "\ta. Check (same) value of 'x'." << endl;
-    if (veryVeryVerbose) { T_ T_ P(X) }
-
-    ASSERT(A == X.the<TYPE>());
-
-    if (verbose) cout <<
-        "\tb. Try equality operators: 'x' <op> 'w', 'x', 'y', 'z'." << endl;
-
-    ASSERT(0 == (X == W));        ASSERT(1 == (X != W));
-    ASSERT(1 == (X == X));        ASSERT(0 == (X != X));
-    ASSERT(1 == (X == Y));        ASSERT(0 == (X != Y));
-    ASSERT(0 == (X == Z));        ASSERT(1 == (X != Z));
 }
 
 // BDE_VERIFY pragma: +FABC01  // not in alphabetic order
@@ -2044,11 +1849,6 @@ void runTestCase9()
 void runTestCase4()
 {
     RUN_EACH_TYPE(TestDriver, testCase4, ALL_SUPPORTED_TYPES);
-}
-
-void runTestCase1()
-{
-    RUN_EACH_TYPE(TestDriver, testCase1, ALL_SUPPORTED_TYPES);
 }
 
 // ============================================================================
@@ -2356,8 +2156,8 @@ int main(int argc, const char *argv[])  {
         //   USAGE EXAMPLES
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "USAGE EXAMPLES" << endl
-                                  << "==============" << endl;
+        if (verbose) cout << "\nUSAGE EXAMPLES"
+                             "\n==============" << endl;
 
         int rc1 = example1::main();
         ASSERT(0 == rc1);
@@ -2391,12 +2191,9 @@ int main(int argc, const char *argv[])  {
         //   template <class TYPE> TYPE& the();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "MODIFIABLE ACCESS" << endl
-                          << "=================" << endl;
-
         runTestCase9();
-
+        if (verbose) cout << "\nMODIFIABLE ACCESS"
+                             "\n=================" << endl;
       } break;
       case 8: {
         // --------------------------------------------------------------------
@@ -2427,11 +2224,10 @@ int main(int argc, const char *argv[])  {
         //   operator=(const OptionValue& rhs);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "COPY ASSIGNMENT" << endl
-                          << "===============" << endl;
+        if (verbose) cout << "\nCOPY ASSIGNMENT"
+                             "\n===============" << endl;
 
-        if (veryVerbose) cout << endl << "Check signature" << endl;
+        if (veryVerbose) cout << "\nCheck signature" << endl;
         {
             typedef Obj& (Obj::*operatorPtr)(const Obj&);
 
@@ -2442,7 +2238,7 @@ int main(int argc, const char *argv[])  {
             (void)operatorAssignment;  // quash potential compiler warning
         }
 
-        if (veryVerbose) cout << endl << "Check operator" << endl;
+        if (veryVerbose) cout << "\nCheck operator" << endl;
 
         DEFINE_OBJECT_TEST_SET
 
@@ -2582,11 +2378,10 @@ int main(int argc, const char *argv[])  {
         //   void swap(OptionValue& a, b);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "SWAP MEMBER AND FREE FUNCTION" << endl
-                          << "=============================" << endl;
+        if (verbose) cout << "\nSWAP MEMBER AND FREE FUNCTION"
+                             "\n=============================" << endl;
 
-        if (veryVerbose) cout << endl << "Check signatures" << endl;
+        if (veryVerbose) cout << "\nCheck signatures" << endl;
         {
             typedef void (Obj::*funcPtr)(Obj&);
             typedef void (*freeFuncPtr)(Obj&, Obj&);
@@ -2600,7 +2395,7 @@ int main(int argc, const char *argv[])  {
             (void)freeSwap;
         }
 
-        if (veryVerbose) cout << endl << "Check operators" << endl;
+        if (veryVerbose) cout << "\nCheck operators" << endl;
 
         DEFINE_OBJECT_TEST_SET
 
@@ -2666,7 +2461,6 @@ int main(int argc, const char *argv[])  {
                 }
             }
         }
-
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -2690,9 +2484,8 @@ int main(int argc, const char *argv[])  {
         //   OptionValue(const OV& o, Allocator *bA = 0);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "COPY CONSTRUCTOR" << endl
-                          << "================" << endl;
+        if (verbose) cout << "\nCOPY CONSTRUCTOR"
+                             "\n================" << endl;
 
         DEFINE_OBJECT_TEST_SET
 
@@ -2755,11 +2548,10 @@ int main(int argc, const char *argv[])  {
         //   bool operator!=(const OptionValue& lhs, rhs);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "EQUALITY-COMPARISON OPERATORS" << endl
-                          << "=============================" << endl;
+        if (verbose) cout << "\nEQUALITY-COMPARISON OPERATORS"
+                             "\n=============================" << endl;
 
-        if (veryVerbose) cout << endl << "Check signatures" << endl;
+        if (veryVerbose) cout << "\nCheck signatures" << endl;
         {
             using namespace balcl;
             typedef bool (*operatorPtr)(const Obj&, const Obj&);
@@ -2773,7 +2565,7 @@ int main(int argc, const char *argv[])  {
             (void)operatorNe;
         }
 
-        if (veryVerbose) cout << endl << "Check operations" << endl;
+        if (veryVerbose) cout << "\nCheck operations" << endl;
 
 #define COMBO_EQ(LHS, RHS)   ASSERT(  (LHS) == (RHS));                        \
                              ASSERT(  (RHS) == (LHS));                        \
@@ -3059,10 +2851,8 @@ int main(int argc, const char *argv[])  {
         COMBO_NE(Val1DatetimeArray, Val2DatetimeArray);
         COMBO_NE(Val1DateArray    , Val2DateArray    );
         COMBO_NE(Val1TimeArray    , Val2TimeArray    );
-
 #undef COMBO_EQ
 #undef COMBO_NE
-
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -3106,12 +2896,9 @@ int main(int argc, const char *argv[])  {
         //   OptionValue(const vector<Time>&     v, *bA = 0);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "VALUE CONSTRUCTORS" << endl
-                          << "==================" << endl;
-
+        if (verbose) cout << "\nVALUE CONSTRUCTORS"
+                             "\n==================" << endl;
         runTestCase4();
-
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -3196,21 +2983,20 @@ int main(int argc, const char *argv[])  {
         //   operator<<(bsl::ostream& s, const OptionValue& d);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-    << "DEFAULT CTOR, PRIMARY MANIPULATORS, BASIC ACCESSORS, AND DTOR" << endl
-    << "=============================================================" << endl;
+        if (verbose) cout <<
+              "\nDEFAULT CTOR, PRIMARY MANIPULATORS, BASIC ACCESSORS, AND DTOR"
+              "\n============================================================="
+            << endl;
 
-        if (veryVerbose) cout << endl
-                              << "Check test values 'D', 'A', and 'B'"
-                              << endl;
+        if (veryVerbose)
+            cout << "\nCheck test values 'D', 'A', and 'B'" << endl;
 
         ASSERT(u::checkAllValuesDAB());
 
         RUN_EACH_TYPE(TestDriver, testCase3, ALL_SUPPORTED_TYPES);
 
-        if (veryVerbose) cout << endl
-                              << "Check signatures of 'print' and 'operator<<'"
-                              << endl;
+        if (veryVerbose)
+            cout << "\nCheck signatures of 'print' and 'operator<<'" << endl;
         {
             using namespace balcl;
             typedef ostream& (Obj::*funcPtr)(ostream&, int, int) const;
@@ -3225,8 +3011,7 @@ int main(int argc, const char *argv[])  {
             (void)operatorOp;
         }
 
-        if (veryVerbose) cout << endl << "Test return value of 'print'"
-                                      << endl;
+        if (veryVerbose) cout << "\nTest return value of 'print'" << endl;
         {
             bsl::ostringstream oss;
 
@@ -3236,8 +3021,7 @@ int main(int argc, const char *argv[])  {
 
         }
 
-        if (veryVerbose) cout << endl << "Test default values of 'print'"
-                                      << endl;
+        if (veryVerbose) cout << "Test default values of 'print'" << endl;
         {
             bsl::ostringstream oss;
 
@@ -3259,7 +3043,6 @@ int main(int argc, const char *argv[])  {
             ASSERT(          "NULL\n" == oss.str());
                               // no indentation
         }
-
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -3285,9 +3068,8 @@ int main(int argc, const char *argv[])  {
         //   CONCERN: HELPER 'u::shiftType'
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "HELPER: 'u::shiftType'" << endl
-                          << "======================" << endl;
+        if (verbose) cout << "\nHELPER: 'u::shiftType'"
+                             "\n======================" << endl;
 
         static const struct {
             int      d_line;
@@ -3336,7 +3118,6 @@ int main(int argc, const char *argv[])  {
 
             ASSERT(OUTPUT == u::shiftType(INPUT, PERT));
         }
-
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -3348,25 +3129,105 @@ int main(int argc, const char *argv[])  {
         //:   testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create an object 'w' (enum ctor).          { w:D             }
-        //: 2 Create an object 'x' (copy from 'w').      { w:D x:D         }
-        //: 3 Set 'x' to 'A' (value distinct from 'D').  { w:D x:A         }
-        //: 4 Create an object 'y' (init. to 'A').       { w:D x:A y:A     }
-        //: 5 Create an object 'z' (copy from 'y').      { w:D x:A y:A z:A }
-        //: 6 Set 'z' to 'D' (the default value).        { w:D x:A y:A z:D }
-        //: 7 Assign 'w' from 'x'.                       { w:A x:A y:A z:D }
-        //: 8 Assign 'w' from 'z'.                       { w:D x:A y:A z:D }
-        //: 9 Assign 'x' from 'x' (aliasing).            { w:D x:A y:A z:D }
+        //: 1 Create Scalar, String, Array values, Nulls of those, and Void.
+        //: 2 Show accessors work.
+        //: 3 Show copying works.
+        //: 4 Show assignment works.
+        //: 5 Show accessing the values works.
         //
         // Testing:
         //   BREATHING TEST
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "BREATHING TEST" << endl
-                          << "==============" << endl;
-        runTestCase1();
+        if (verbose) cout << "\nBREATHING TEST"
+                             "\n==============" << endl;
 
+        using balcl::OptionType;
+
+        Obj mUnset; const Obj& UNSET = mUnset;
+        ASSERT(             false == UNSET.hasNonVoidType());
+        ASSERT(OptionType::e_VOID == UNSET.type()          );
+
+        Obj mInt(OptionType::Int(12)); const Obj& INT = mInt;
+        ASSERT(  INT != UNSET               );
+        ASSERT( true == INT.hasNonVoidType());
+        ASSERT(false == INT.isNull()        );
+
+        ASSERT(OptionType::e_INT == INT.type()                );
+        ASSERT(               12 == INT.the<OptionType::Int>());
+
+        Obj mInt2(INT); const Obj& INT2 = mInt2;
+        ASSERT( INT2 == INT                  );
+        ASSERT( INT2 != UNSET                );
+        ASSERT( true == INT2.hasNonVoidType());
+        ASSERT(false == INT2.isNull()        );
+
+        ASSERT(OptionType::e_INT == INT2.type()                );
+        ASSERT(               12 == INT2.the<OptionType::Int>());
+
+        mInt2.set(OptionType::Int(-67));
+        ASSERT(INT2 != INT                        );
+        ASSERT( -67 == INT2.the<OptionType::Int>());
+
+        Obj mNullInt(INT2); const Obj& NULL_INT = mNullInt;
+        ASSERT(NULL_INT == INT2);
+
+        mNullInt = INT;
+        ASSERT(NULL_INT == INT);
+
+        mNullInt.setNull();
+        ASSERT(true == NULL_INT.hasNonVoidType());
+        ASSERT(true == NULL_INT.isNull()        );
+
+        ASSERT(OptionType::e_INT == NULL_INT.type());
+
+        bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+
+        Obj mStr(OptionType::String("string-val"), &oa); const Obj& STR = mStr;
+        ASSERT(  STR != UNSET               );
+        ASSERT(  STR != INT                 );
+        ASSERT(  STR != NULL_INT            );
+        ASSERT( true == STR.hasNonVoidType());
+        ASSERT(false == STR.isNull()        );
+
+        ASSERT(OptionType::e_STRING == STR.type()                   );
+        ASSERT(        "string-val" == STR.the<OptionType::String>());
+
+        Obj mIntArr(&oa);  const Obj& INT_ARR = mIntArr;
+        ASSERT(false == INT_ARR.hasNonVoidType());
+
+        ASSERT(OptionType::e_VOID == INT_ARR.type());
+
+        mIntArr.setType(OptionType::e_INT_ARRAY);
+        ASSERT( true == INT_ARR.hasNonVoidType());
+        ASSERT(false == INT_ARR.isNull()        );
+
+        const OptionType::Enum e_INT_ARRAY = OptionType::e_INT_ARRAY;
+        ASSERT(e_INT_ARRAY == INT_ARR.type()                            );
+        ASSERT(          0 == INT_ARR.the<OptionType::IntArray>().size());
+
+        mIntArr.the<OptionType::IntArray>().push_back(1);
+        mIntArr.the<OptionType::IntArray>().push_back(2);
+        mIntArr.the<OptionType::IntArray>().push_back(3);
+        mIntArr.the<OptionType::IntArray>().push_back(5);
+        mIntArr.the<OptionType::IntArray>().push_back(8);
+        ASSERT(5 == INT_ARR.the<OptionType::IntArray>().size());
+        ASSERT(1 == INT_ARR.the<OptionType::IntArray>()[0]    );
+        ASSERT(3 == INT_ARR.the<OptionType::IntArray>()[2]    );
+        ASSERT(8 == INT_ARR.the<OptionType::IntArray>()[4]    );
+
+        Obj mIntArr2(&oa);  const Obj& INT_ARR2 = mIntArr2;
+        mIntArr2 = INT_ARR;
+        ASSERT(INT_ARR2 == INT_ARR);
+
+        ASSERT(5 == INT_ARR2.the<OptionType::IntArray>().size());
+        ASSERT(8 == INT_ARR2.the<OptionType::IntArray>()[4]    );
+
+        mIntArr2.the<OptionType::IntArray>().resize(4);
+        ASSERT(INT_ARR2 != INT_ARR);
+
+        ASSERT(4 == INT_ARR2.the<OptionType::IntArray>().size());
+        ASSERT(5 == INT_ARR2.the<OptionType::IntArray>()[3]    );
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

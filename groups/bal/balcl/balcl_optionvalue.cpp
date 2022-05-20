@@ -5,6 +5,10 @@
 BSLS_IDENT_RCSID(balcl_optionvalue_cpp,"$Id$ $CSID$")
 
 #include <bslim_printer.h>
+
+#include <bslmf_assert.h>
+#include <bslmf_issame.h>
+
 #include <bsls_assert.h>
 
 #include <bsl_ostream.h>
@@ -21,145 +25,91 @@ void OptionValue::init(OptionType::Enum type)
 {
     BSLS_ASSERT(d_value.isUnset());
 
-    typedef OptionType Ot;
-
     switch (type) {
-        case Ot::e_VOID:           { // do nothing
-                                   } break;
-        case Ot::e_BOOL:           { d_value.createInPlace<Bool>();
-                                     d_value.the<Bool>().makeValue();
-                                   } break;
-        case Ot::e_CHAR:           { d_value.createInPlace<Char>();
-                                     d_value.the<Char>().makeValue();
-                                   } break;
-        case Ot::e_INT:            { d_value.createInPlace<Int>();
-                                     d_value.the<Int>().makeValue();
-                                   } break;
-        case Ot::e_INT64:          { d_value.createInPlace<Int64>();
-                                     d_value.the<Int64>().makeValue();
-                                   } break;
-        case Ot::e_DOUBLE:         { d_value.createInPlace<Double>();
-                                     d_value.the<Double>().makeValue();
-                                   } break;
-        case Ot::e_STRING:         { d_value.createInPlace<String>();
-                                     d_value.the<String>().makeValue();
-                                   } break;
-        case Ot::e_DATETIME:       { d_value.createInPlace<Datetime>();
-                                     d_value.the<Datetime>().makeValue();
-                                   } break;
-        case Ot::e_DATE:           { d_value.createInPlace<Date>();
-                                     d_value.the<Date>().makeValue();
-                                   } break;
-        case Ot::e_TIME:           { d_value.createInPlace<Time>();
-                                     d_value.the<Time>().makeValue();
-                                   } break;
-        case Ot::e_CHAR_ARRAY:     { d_value.createInPlace<CharArray>();
-                                     d_value.the<CharArray>().makeValue();
-                                   } break;
-        case Ot::e_INT_ARRAY:      { d_value.createInPlace<IntArray>();
-                                     d_value.the<IntArray>().makeValue();
-                                   } break;
-        case Ot::e_INT64_ARRAY:    { d_value.createInPlace<Int64Array>();
-                                     d_value.the<Int64Array>().makeValue();
-                                   } break;
-        case Ot::e_DOUBLE_ARRAY:   { d_value.createInPlace<DoubleArray>();
-                                     d_value.the<DoubleArray>().makeValue();
-                                   } break;
-        case Ot::e_STRING_ARRAY:   { d_value.createInPlace<StringArray>();
-                                     d_value.the<StringArray>().makeValue();
-                                   } break;
-        case Ot::e_DATETIME_ARRAY: { d_value.createInPlace<DatetimeArray>();
-                                     d_value.the<DatetimeArray>().makeValue();
-                                   } break;
-        case Ot::e_DATE_ARRAY:     { d_value.createInPlace<DateArray>();
-                                     d_value.the<DateArray>().makeValue();
-                                   } break;
-        case Ot::e_TIME_ARRAY:     { d_value.createInPlace<TimeArray>();
-                                     d_value.the<TimeArray>().makeValue();
-                                   } break;
+      case OptionType::e_VOID: {
+        // do nothing
+      } break;
+#define u_CASE_CREATE_IN_PLACE(theenum, thetype) \
+      case OptionType::theenum: d_value.createInPlace<thetype>()
+
+      u_CASE_CREATE_IN_PLACE( e_BOOL,           Bool          );  break;
+      u_CASE_CREATE_IN_PLACE( e_CHAR,           Char          );  break;
+      u_CASE_CREATE_IN_PLACE( e_INT,            Int           );  break;
+      u_CASE_CREATE_IN_PLACE( e_INT64,          Int64         );  break;
+      u_CASE_CREATE_IN_PLACE( e_DOUBLE,         Double        );  break;
+      u_CASE_CREATE_IN_PLACE( e_STRING,         String        );  break;
+      u_CASE_CREATE_IN_PLACE( e_DATETIME,       Datetime      );  break;
+      u_CASE_CREATE_IN_PLACE( e_DATE,           Date          );  break;
+      u_CASE_CREATE_IN_PLACE( e_TIME,           Time          );  break;
+
+      u_CASE_CREATE_IN_PLACE( e_CHAR_ARRAY,     CharArray     );  break;
+      u_CASE_CREATE_IN_PLACE( e_INT_ARRAY,      IntArray      );  break;
+      u_CASE_CREATE_IN_PLACE( e_INT64_ARRAY,    Int64Array    );  break;
+      u_CASE_CREATE_IN_PLACE( e_DOUBLE_ARRAY,   DoubleArray   );  break;
+      u_CASE_CREATE_IN_PLACE( e_STRING_ARRAY,   StringArray   );  break;
+      u_CASE_CREATE_IN_PLACE( e_DATETIME_ARRAY, DatetimeArray );  break;
+      u_CASE_CREATE_IN_PLACE( e_DATE_ARRAY,     DateArray     );  break;
+      u_CASE_CREATE_IN_PLACE( e_TIME_ARRAY,     TimeArray     );  break;
+#undef u_CASE_CREATE_IN_PLACE
+
+      default: BSLS_ASSERT_INVOKE_NORETURN(
+                            "balcl::OptionValue::init': Unknown option type.");
     }
 }
 
 // ACCESSORS
 OptionType::Enum OptionValue::type() const
 {
-    switch (d_value.typeIndex()) {
-      case  0: {
-        BSLS_ASSERT(d_value.isUnset());
-        return OptionType::e_VOID;                                    // RETURN
-      } break;
-      case  1: {
-        BSLS_ASSERT(d_value.is<Bool>());
-        return OptionType::e_BOOL;                                    // RETURN
-      } break;
-      case  2: {
-        BSLS_ASSERT(d_value.is<Char>());
-        return OptionType::e_CHAR;                                    // RETURN
-      } break;
-      case  3: {
-        BSLS_ASSERT(d_value.is<Int>());
-        return OptionType::e_INT;                                     // RETURN
-      } break;
-      case  4: {
-        BSLS_ASSERT(d_value.is<Int64>());
-        return OptionType::e_INT64;                                   // RETURN
-      } break;
-      case  5: {
-        BSLS_ASSERT(d_value.is<Double>());
-        return OptionType::e_DOUBLE;                                  // RETURN
-      } break;
-      case  6: {
-        BSLS_ASSERT(d_value.is<String>());
-        return OptionType::e_STRING;                                  // RETURN
-      } break;
-      case  7: {
-        BSLS_ASSERT(d_value.is<Datetime>());
-        return OptionType::e_DATETIME;                                // RETURN
-      } break;
-      case  8: {
-        BSLS_ASSERT(d_value.is<Date>());
-        return OptionType::e_DATE;                                    // RETURN
-      } break;
-      case  9: {
-        BSLS_ASSERT(d_value.is<Time>());
-        return OptionType::e_TIME;                                    // RETURN
-      } break;
-      case 10: {
-        BSLS_ASSERT(d_value.is<CharArray>());
-        return OptionType::e_CHAR_ARRAY;                              // RETURN
-      } break;
-      case 11: {
-        BSLS_ASSERT(d_value.is<IntArray>());
-        return OptionType::e_INT_ARRAY;                               // RETURN
-      } break;
-      case 12: {
-        BSLS_ASSERT(d_value.is<Int64Array>());
-        return OptionType::e_INT64_ARRAY;                             // RETURN
-      } break;
-      case 13: {
-        BSLS_ASSERT(d_value.is<DoubleArray>());
-        return OptionType::e_DOUBLE_ARRAY;                            // RETURN
-      } break;
-      case 14: {
-        BSLS_ASSERT(d_value.is<StringArray>());
-        return OptionType::e_STRING_ARRAY;                            // RETURN
-      } break;
-      case 15: {
-        BSLS_ASSERT(d_value.is<DatetimeArray>());
-        return OptionType::e_DATETIME_ARRAY;                          // RETURN
-      } break;
-      case 16: {
-        BSLS_ASSERT(d_value.is<DateArray>());
-        return OptionType::e_DATE_ARRAY;                              // RETURN
-      } break;
-      case 17: {
-        BSLS_ASSERT(d_value.is<TimeArray>());
-        return OptionType::e_TIME_ARRAY;                              // RETURN
-      } break;
+    if (d_value.is<OptionValue_NullOf>()) {
+        return d_value.the<OptionValue_NullOf>().type();              // RETURN
     }
 
-    BSLS_ASSERT_OPT(!"Reached");
-    return OptionType::e_VOID;  // silence warning
+    // The code that returns the type of the selection depends on the type
+    // index of the 'Variant' being the same as the 'OptionType' enumerator
+    // value assigned to that same type.  In order to ensure that code will not
+    // silently break by changing the order (or number) of the 'Variant' types
+    // in the header we employ compile time assertions at the end of this
+    // function.  We also verify that we have successfully verified all
+    // 'OptionType' enumerators/indexes by checking that the NULL value
+    // (handled above) immediately follows the last 'OptionType' index value.
+
+    return static_cast<OptionType::Enum>(d_value.typeIndex());
+
+#define BALCL_OPTIONVALUE_ASSERT_TYPEIDX_EQ(VALUE, TYPENAME, ENUMERATOR)      \
+    BSLMF_ASSERT((bsl::is_same<ValueVariant::Type##VALUE, TYPENAME>::value)   \
+              && VALUE == OptionType::ENUMERATOR)
+
+    // Getting a compilation error on any of the
+    // 'BALCL_OPTIONVALUE_ASSERT_TYPEIDX_EQ' compile time assertions means that
+    // the number of the order of the 'Types' have been changed in
+    // 'ValueVariant', but this verification code was not updated.  Note that
+    // the type-index and the 'OptionType' enumerator values *must* match.  A
+    // compilation error *only* on the 'OptionValue_NullOf' compile-time
+    // assertion means that a new type was added to 'ValueVariant', but the
+    // verification code above does not contain it.
+
+    BALCL_OPTIONVALUE_ASSERT_TYPEIDX_EQ( 1, Bool,     e_BOOL    );
+    BALCL_OPTIONVALUE_ASSERT_TYPEIDX_EQ( 2, Char,     e_CHAR    );
+    BALCL_OPTIONVALUE_ASSERT_TYPEIDX_EQ( 3, Int,      e_INT     );
+    BALCL_OPTIONVALUE_ASSERT_TYPEIDX_EQ( 4, Int64,    e_INT64   );
+    BALCL_OPTIONVALUE_ASSERT_TYPEIDX_EQ( 5, Double,   e_DOUBLE  );
+    BALCL_OPTIONVALUE_ASSERT_TYPEIDX_EQ( 6, String,   e_STRING  );
+    BALCL_OPTIONVALUE_ASSERT_TYPEIDX_EQ( 7, Datetime, e_DATETIME);
+    BALCL_OPTIONVALUE_ASSERT_TYPEIDX_EQ( 8, Date,     e_DATE    );
+    BALCL_OPTIONVALUE_ASSERT_TYPEIDX_EQ( 9, Time,     e_TIME    );
+
+    BALCL_OPTIONVALUE_ASSERT_TYPEIDX_EQ(10, CharArray,     e_CHAR_ARRAY    );
+    BALCL_OPTIONVALUE_ASSERT_TYPEIDX_EQ(11, IntArray,      e_INT_ARRAY     );
+    BALCL_OPTIONVALUE_ASSERT_TYPEIDX_EQ(12, Int64Array,    e_INT64_ARRAY   );
+    BALCL_OPTIONVALUE_ASSERT_TYPEIDX_EQ(13, DoubleArray,   e_DOUBLE_ARRAY  );
+    BALCL_OPTIONVALUE_ASSERT_TYPEIDX_EQ(14, StringArray,   e_STRING_ARRAY  );
+    BALCL_OPTIONVALUE_ASSERT_TYPEIDX_EQ(15, DatetimeArray, e_DATETIME_ARRAY);
+    BALCL_OPTIONVALUE_ASSERT_TYPEIDX_EQ(16, DateArray,     e_DATE_ARRAY    );
+    BALCL_OPTIONVALUE_ASSERT_TYPEIDX_EQ(17, TimeArray,     e_TIME_ARRAY    );
+#undef BALCL_OPTIONVALUE_ASSERT_TYPEIDX_EQ
+
+    BSLMF_ASSERT((bsl::is_same<ValueVariant::Type18,
+                 OptionValue_NullOf>::value));
 }
 
                                   // Aspects
