@@ -623,16 +623,17 @@ bsl::string unWhiteString(const bsl::string& str)
 
     bsl::string ret;
 
-    for (const char *pc = str.c_str(); *pc; ++pc) {
-        if ((!bsl::isprint(*pc) && ' ' != *pc) || bsl::isspace(*pc)) {
+    for (unsigned uu = 0; uu < str.length(); ++uu) {
+        const unsigned char c = str[uu];
+        if (!bsl::isprint(c) || bsl::isspace(c)) {
             ret += "\\x";
             for (int shift = 4; 0 <= shift; shift -= 4) {
-                const int nybble = (*pc >> shift) & 0xf;
+                const int nybble = (c >> shift) & 0xf;
                 ret += hexNybble[nybble];
             }
         }
         else {
-            ret += *pc;
+            ret += c;
         }
     }
 
@@ -5631,7 +5632,7 @@ DEFINE_TEST_CASE(8)
 
                 nOut = -1;
                 const int RES3 = obj.endConvert(b, &nOut);
-                LOOP2_ASSERT(LINE, ERROR, -ERROR == RES3);
+                LOOP2_ASSERT(LINE, ERROR, -(int)ERROR == RES3);
                 totalOut += nOut;
                 LOOP3_ASSERT(LINE, OUT_LEN, totalOut, OUT_LEN == totalOut);
 
@@ -5971,7 +5972,7 @@ DEFINE_TEST_CASE(7)
 
                     obj.convert(b, &nOut, &nIn, B, E);
                     bool stillInitial = isState(&obj, INITIAL_STATE);
-                    LOOP2_ASSERT(LINE, i, VALID == stillInitial);
+                    LOOP2_ASSERT(LINE, i, !!VALID == stillInitial);
                 }
             }
             ASSERT(256 == end); // make sure all entires are accounted for.
@@ -6056,7 +6057,7 @@ DEFINE_TEST_CASE(7)
 
                     obj.convert(b, &nOut, &nIn, B, E);
                     bool stillInitial = isState(&obj, INITIAL_STATE);
-                    LOOP2_ASSERT(LINE, i, VALID == stillInitial);
+                    LOOP2_ASSERT(LINE, i, !!VALID == stillInitial);
                 }
             }
             ASSERT(256 == end); // make sure all entires are accounted for.
