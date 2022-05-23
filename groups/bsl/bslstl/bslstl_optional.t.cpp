@@ -5860,10 +5860,12 @@ struct CustomHashAlgorithm {
     typedef bsls::Types::Int64 result_type;
 
     void operator()(const void *, size_t)
+        // Do nothing.
     {
     }
 
     result_type computeHash()
+        // Unconditionally return 0.
     {
         return 0;
     }
