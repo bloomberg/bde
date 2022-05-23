@@ -15,6 +15,8 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
+#include <bsla_deprecated.h>
+
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
@@ -282,22 +284,53 @@ template <class TYPE>
 BSLS_KEYWORD_INLINE_VARIABLE
 constexpr bool is_standard_layout_v =
                                    native_std::is_standard_layout<TYPE>::value;
+
+// ----------------------------------------------------------------------------
+
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 110000 &&  \
+    BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 template <class TYPE>
+#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
+BSLA_DEPRECATED  // Warn of using 'bsl::is_pod_v' even though we suppress
+                 // warnings of using 'std::is_pod' in this implementation.
+#endif // C++20
 BSLS_KEYWORD_INLINE_VARIABLE
 constexpr bool is_pod_v = native_std::is_pod<TYPE>::value;
+
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 110000 &&  \
+    BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
+#pragma GCC diagnostic pop
+#endif
+
+// ----------------------------------------------------------------------------
 
 #if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 110000 &&  \
     BSLS_COMPILERFEATURES_CPLUSPLUS >= 201703L
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
+
+#if BSLS_COMPILERFEATURES_CPLUSPLUS < 202002L
 template <class TYPE>
+BSLA_DEPRECATED  // Warn of using 'bsl::is_literal_type' even though we
+                 // suppress warnings of using 'std::is_pod' in this
+                 // implementation.
 BSLS_KEYWORD_INLINE_VARIABLE
 constexpr bool is_literal_type_v = native_std::is_literal_type<TYPE>::value;
+#else
+    // Removed in C++20
+#endif // Introduced in C++17 already deprecated; removed in C++20.
+
 #if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 110000 &&  \
     BSLS_COMPILERFEATURES_CPLUSPLUS >= 201703L
 #pragma GCC diagnostic pop
 #endif
+
+// ----------------------------------------------------------------------------
 
 template <class TYPE>
 BSLS_KEYWORD_INLINE_VARIABLE
