@@ -7690,7 +7690,7 @@ void TestDriver<TYPE>::testCase14()
     //:   'true' to the hash followed by the value.
     //:
     //: 3 Invoking 'hashAppend' with a custom hash algorithm as the first
-    //:   argument correctly finds 'bslh_hash::hashAppend' from the 'bslh_hash'
+    //:   argument correctly finds 'bslh::hashAppend' from the 'bslh_hash'
     //:   component.
     //
     // Plan:
@@ -7701,8 +7701,8 @@ void TestDriver<TYPE>::testCase14()
     //:   verify that hashing it produces the same result as hashing 'true' and
     //:   then the test values themselves. [C-2]
     //:
-    //: 3 Create a mock hash algorithm 'class' 'MyHashAlgorithm' (not in the
-    //:   bslh` namespace) then pass an instance of this hash 'class' to
+    //: 3 Create a mock hash algorithm 'class' 'CustomHashAlgorithm' (not in
+    //:   the bslh` namespace) then pass an instance of this hash 'class' to
     //:   'hashAppend'.
     //
     // Testing:
@@ -7773,7 +7773,7 @@ void TestDriver<TYPE>::testCase14()
             printf("Testing custom hash type.\n");
 
         CustomHashAlgorithm customHashAlgo ;
-        hashAppend(customHashAlgo , bsl::optional<int>());
+        hashAppend(customHashAlgo, bsl::optional<int>());
     }
 }
 template <class TYPE>
