@@ -20,6 +20,7 @@
 #include <bsls_buildtarget.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_nameof.h>
+#include <bsls_types.h> // 'bsls::Types::Int64'
 
 // A list of disabled tests :
 //
@@ -199,6 +200,7 @@ using namespace bsl;
 // [16] optional make_optional(initializer_list, ARGS&&...);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
+// [14] DRQS 169300521
 // [19] DRQS 165776192
 // [21] CLASS TEMPLATE DEDUCTION GUIDES
 
@@ -5848,6 +5850,27 @@ struct EasyConvert {
     }
 };
 
+                              // ------------
+                              // Test Case 14
+                              // ------------
+struct CustomHashAlgorithm {
+    // A custom hash algorithm class type used for verifying that custom
+    // (non-'bslh') hash types compile.
+
+    typedef bsls::Types::Int64 result_type;
+
+    void operator()(const void *, size_t)
+        // Do nothing.
+    {
+    }
+
+    result_type computeHash()
+        // Unconditionally return 0.
+    {
+        return 0;
+    }
+};
+
 // ============================================================================
 //                          TEST DRIVER TEMPLATE
 // ----------------------------------------------------------------------------
@@ -7667,6 +7690,10 @@ void TestDriver<TYPE>::testCase14()
     //:
     //: 2 Hashing a value with a nullable value is equivalent to appending
     //:   'true' to the hash followed by the value.
+    //:
+    //: 3 Invoking 'hashAppend' with a custom hash algorithm as the first
+    //:   argument correctly finds 'bslh::hashAppend' from the 'bslh_hash'
+    //:   component.
     //
     // Plan:
     //: 1 Create a null nullable value and verify that hashing it yields the
@@ -7675,9 +7702,14 @@ void TestDriver<TYPE>::testCase14()
     //: 2 Create a non-null nullable value for a series of test values and
     //:   verify that hashing it produces the same result as hashing 'true' and
     //:   then the test values themselves. [C-2]
+    //:
+    //: 3 Create a mock hash algorithm 'class' 'CustomHashAlgorithm' (not in
+    //:   the bslh` namespace) then pass an instance of this hash 'class' to
+    //:   'hashAppend'.
     //
     // Testing:
     //   void hashAppend(HASHALG& hashAlg, const optional<TYPE>& input);
+    //   DRQS 169300521
     // ------------------------------------------------------------------------
 
     if (verbose)
@@ -7737,6 +7769,13 @@ void TestDriver<TYPE>::testCase14()
         }
         ASSERT(0 == oa.numBlocksInUse());
         ASSERT(0 == da.numBlocksInUse());
+    }
+    {
+        if (veryVerbose)
+            printf("Testing custom hash type.\n");
+
+        CustomHashAlgorithm customHashAlgo ;
+        hashAppend(customHashAlgo, bsl::optional<int>());
     }
 }
 template <class TYPE>

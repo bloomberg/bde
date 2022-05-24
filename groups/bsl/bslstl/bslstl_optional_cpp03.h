@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Mar  3 15:36:31 2022
+// Generated on Fri May 20 16:59:09 2022
 // Command line: sim_cpp11_features.pl bslstl_optional.h
 
 #ifdef COMPILING_BSLSTL_OPTIONAL_H
@@ -11091,6 +11091,8 @@ const TYPE& optional<TYPE, false>::dereferenceRaw() const
 template <class HASHALG, class TYPE>
 void hashAppend(HASHALG& hashAlg, const optional<TYPE>& input)
 {
+    using ::BloombergLP::bslh::hashAppend;
+
     if (input.has_value()) {
         hashAppend(hashAlg, true);
         hashAppend(hashAlg, *input);
