@@ -13,6 +13,8 @@
 #include <bsl_iostream.h>
 #include <bsl_vector.h>
 
+#include <vector>
+
 using namespace BloombergLP;
 using namespace bsl;
 using namespace bslx;

@@ -210,9 +210,13 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_libraryfeatures.h>
 
+#include <bsl_vector.h>
+
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
 # include <memory_resource>
 #endif // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+
+#include <vector>
 
 namespace BloombergLP {
 namespace baltzo {

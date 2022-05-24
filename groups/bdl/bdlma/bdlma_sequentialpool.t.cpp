@@ -23,6 +23,8 @@
 #include <bsl_map.h>
 #include <bsl_vector.h>
 
+#include <vector>
+
 using namespace BloombergLP;
 using namespace bsl;
 

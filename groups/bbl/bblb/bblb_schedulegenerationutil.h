@@ -119,9 +119,9 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_date.h>
 #include <bdlt_dayofweek.h>
 
-#include <bsl_vector.h>
-
 #include <bsls_libraryfeatures.h>
+
+#include <bsl_vector.h>
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
 # include <memory_resource>

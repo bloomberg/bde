@@ -208,6 +208,8 @@ BSLS_IDENT("$Id: $")
 # include <memory_resource>
 #endif
 
+#include <vector>
+
 namespace BloombergLP {
 namespace bdlcc {
 

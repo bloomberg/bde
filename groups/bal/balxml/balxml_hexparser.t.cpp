@@ -30,6 +30,8 @@
 # include <memory_resource>
 #endif
 
+#include <vector>
+
 using namespace BloombergLP;
 using namespace bsl;
 

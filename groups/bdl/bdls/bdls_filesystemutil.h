@@ -304,6 +304,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #include <string>           // 'std::string', 'std::pmr::string'
+#include <vector>
 
 #include <sys/types.h>
 

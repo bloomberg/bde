@@ -403,13 +403,13 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmf_nestedtraitdeclaration.h>
 
+#include <bsls_libraryfeatures.h>
+
 #include <bsl_functional.h>
 #include <bsl_map.h>
 #include <bsl_memory.h>
 #include <bsl_set.h>
 #include <bsl_vector.h>
-
-#include <bsls_libraryfeatures.h>
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
 #include <memory_resource>  // 'std::pmr::polymorphic_allocator'
@@ -419,7 +419,6 @@ BSLS_IDENT("$Id: $")
 #include <vector>                // 'std::vector', 'std::pmr::vector'
 
 namespace BloombergLP {
-
 
 namespace balm {
 
