@@ -3,6 +3,7 @@ bdlde_base64decoder
 bdlde_base64decoderoptions
 bdlde_base64encoder
 bdlde_base64encoderoptions
+bdlde_base64ignoremode
 bdlde_byteorder
 bdlde_charconvertstatus
 bdlde_charconvertucs2
