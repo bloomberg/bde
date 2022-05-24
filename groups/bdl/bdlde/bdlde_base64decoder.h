@@ -435,6 +435,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlde_base64alphabet.h>
 #include <bdlde_base64decoderoptions.h>
+#include <bdlde_base64ignoremode.h>
 
 #include <bsls_assert.h>
 #include <bsls_review.h>
@@ -465,6 +466,7 @@ class Base64Decoder {
   private:
     // PRIVATE TYPES
     typedef Base64DecoderOptions    DecoderOptions;
+    typedef Base64IgnoreMode        IgnoreMode;
 
     enum State {
         // Symbolic state values.
@@ -477,8 +479,11 @@ class Base64Decoder {
     };
 
     // CLASS DATA
-    static const bool *const s_ignorableStrict_p;
-        // Table identifying ignorable characters in strict mode
+    static const bool *const s_ignorableNone_p;
+        // Table identifying no ignorable characters
+
+    static const bool *const s_ignorableWhitespace_p;
+        // Table identifying whitespace as ingorable
 
     static const bool *const s_basicIgnorableRelaxed_p;
         // Table identifying ignorable characters in Basic64 alphabet in
@@ -497,24 +502,24 @@ class Base64Decoder {
         // corresponding 6-bit number
 
     // INSTANCE DATA
-    State             d_state;         // State of this object
+    State             d_state;         // state of this object
 
     int               d_outputLength;  // total number of output characters
 
-    const char *const d_alphabet_p;    // Selected alphabet based on specified
+    const char *const d_alphabet_p;    // selected alphabet based on specified
                                        // alphabet type
 
-    const bool *const d_ignorable_p;   // Selected table of ignorable
+    const bool *const d_ignorable_p;   // selected table of ignorable
                                        // characters based on specified
                                        // error-reporting mode
 
-    unsigned          d_stack;         // Word containing 6-bit chunks of
-                                       // data to be assembled into bytes.
+    unsigned          d_stack;         // word containing 6-bit chunks of
+                                       // data to be assembled into bytes
 
-    int               d_bitsInStack;   // Number of bits in 'd_stack'.
+    int               d_bitsInStack;   // number of bits in 'd_stack'
 
     bool              d_isPadded;      // 'true' means '=' padding is required,
-                                       // 'false' means '=' is an error.
+                                       // 'false' means '=' is an error
 
   private:
     // NOT IMPLEMENTED
@@ -523,8 +528,12 @@ class Base64Decoder {
 
     // PRIVATE ACCESSORS
     int residualBits(int bytesOutputSoFar) const;
-        // Bits of potential or actual output that have occured since the last
-        // (if any) completed quad bytes of input.
+        // Return the number bits of output there are (either already done or
+        // to be done) since the end of the last 4-bytes of input.  Note that
+        // input to this decoder, other than ignored whitespace or garbage,
+        // comes in 4 byte quads, each of which results in 3 bytes of output,
+        // and this accessor is particularly useful in calculating output for
+        // the last partial quad of input.
 
   public:
     // CLASS METHODS
@@ -533,7 +542,7 @@ class Base64Decoder {
         // input byte sequence of the specified 'inputLength' provided to the
         // 'convert' and 'endConvert' methods of this decoder.  The behavior is
         // undefined unless '0 <= inputLength'.  Note that the result is
-        // independent of which options ara provided to the decoder.
+        // independent of which options are provided to the decoder.
 
     // CREATORS
     explicit
@@ -542,13 +551,15 @@ class Base64Decoder {
         // 'options'.
 
     explicit
-    Base64Decoder(bool unrecognizedIsErrorFlag, Alphabet alphabet = e_BASIC);
+    Base64Decoder(bool     unrecognizedNonWhitespaceIsErrorFlag,
+                  Alphabet alphabet = e_BASIC);
         // Create a Base64 decoder in the initial state.  Unrecognized
         // characters (i.e., non-base64 characters other than whitespace) will
-        // be treated as errors if the specified 'unrecognizedIsErrorFlag' is
-        // 'true', and ignored otherwise.  Optionally specify an alphabet used
-        // to decode input characters.  If 'alphabet' is not specified, then
-        // the basic alphabet, "base64", is used.  Padded input is assumed.
+        // be treated as errors if the specified
+        // 'unrecognizedNonWhitespaceIsErrorFlag' is 'true', and ignored
+        // otherwise.  Optionally specify an alphabet used to decode input
+        // characters.  If 'alphabet' is not specified, then the basic
+        // alphabet, "base64", is used.  Padded input is assumed.
         //
         // DEPRECATED: Use the overload that takes 'options' instead.
 
@@ -619,6 +630,9 @@ class Base64Decoder {
     Alphabet alphabet() const;
         // Return the alphabet supplied at construction of this object.
 
+    IgnoreMode::Enum ignoreMode() const;
+        // Return the 'ignoreMode' state of this decoder.
+
     bool isAcceptable() const;
         // Return 'true' if the input read so far is considered syntactically
         // complete, and 'false' otherwise.  Note that the number of relevant
@@ -652,6 +666,8 @@ class Base64Decoder {
         // error when an unrecognized character (i.e., a character other than
         // one of the 64 "numeric" base-64 characters, '=', or whitespace) is
         // encountered, and 'false' otherwise.
+        //
+        // DEPRECATED: use the 'ignoreMode' accessor instead.
 
     int outputLength() const;
         // Return the total length of the output emitted thus far.
@@ -714,28 +730,34 @@ Base64Decoder::Base64Decoder(const Base64DecoderOptions& options)
 , d_outputLength(0)
 , d_alphabet_p(e_BASIC == options.alphabet() ? s_basicAlphabet_p
                                              : s_urlAlphabet_p)
-, d_ignorable_p(options.unrecognizedIsError()
-                    ? s_ignorableStrict_p
-                    : e_BASIC == options.alphabet() ? s_basicIgnorableRelaxed_p
-                                                    : s_urlIgnorableRelaxed_p)
+, d_ignorable_p(options.ignoreMode() == IgnoreMode::e_IGNORE_NONE
+              ? s_ignorableNone_p
+              : options.ignoreMode() == IgnoreMode::e_IGNORE_WHITESPACE
+              ? s_ignorableWhitespace_p
+              : options.alphabet() == e_BASIC
+              ? s_basicIgnorableRelaxed_p
+              : s_urlIgnorableRelaxed_p)
 , d_stack(0)
 , d_bitsInStack(0)
 , d_isPadded(options.isPadded())
 {}
 
 inline
-Base64Decoder::Base64Decoder(bool unrecognizedIsErrorFlag, Alphabet alphabet)
+Base64Decoder::Base64Decoder(bool     unrecognizedNonWhitespaceIsErrorFlag,
+                             Alphabet alphabet)
 : d_state(e_INPUT_STATE)
 , d_outputLength(0)
 , d_alphabet_p(e_BASIC == alphabet ? s_basicAlphabet_p : s_urlAlphabet_p)
-, d_ignorable_p(unrecognizedIsErrorFlag
-                    ? s_ignorableStrict_p
+, d_ignorable_p(unrecognizedNonWhitespaceIsErrorFlag
+                    ? s_ignorableWhitespace_p
                     : (e_BASIC == alphabet) ? s_basicIgnorableRelaxed_p
                                             : s_urlIgnorableRelaxed_p)
 , d_stack(0)
 , d_bitsInStack(0)
 , d_isPadded(true)
-{}
+{
+    BSLS_ASSERT(static_cast<unsigned>(alphabet) < 2);
+}
 
 // MANIPULATORS
 template <class OUTPUT_ITERATOR, class INPUT_ITERATOR>
@@ -914,7 +936,7 @@ int Base64Decoder::endConvert(OUTPUT_ITERATOR  out,
     if (e_ERROR_STATE == d_state || e_NEED_EQUAL_STATE == d_state ||
                         (e_DONE_STATE == d_state && 0 == d_bitsInStack) ||
                         (d_isPadded && e_INPUT_STATE == d_state &&
-                                               residualBits(d_outputLength))) {
+                                          0 != residualBits(d_outputLength))) {
         d_state = e_ERROR_STATE;
         *numOut = 0;
         return -1;                                                    // RETURN
@@ -950,6 +972,16 @@ inline
 Base64Decoder::Alphabet Base64Decoder::alphabet() const
 {
     return d_alphabet_p == s_basicAlphabet_p ? e_BASIC : e_URL;
+}
+
+inline
+Base64IgnoreMode::Enum Base64Decoder::ignoreMode() const
+{
+    return s_ignorableNone_p         == d_ignorable_p
+           ? IgnoreMode::e_IGNORE_NONE
+           : s_ignorableWhitespace_p == d_ignorable_p
+           ? IgnoreMode::e_IGNORE_WHITESPACE
+           : IgnoreMode::e_IGNORE_UNRECOGNIZED;
 }
 
 inline
@@ -996,7 +1028,8 @@ bool Base64Decoder::isPadded() const
 inline
 bool Base64Decoder::isUnrecognizedAnError() const
 {
-    return d_ignorable_p == s_ignorableStrict_p;
+    return d_ignorable_p == s_ignorableNone_p
+        || d_ignorable_p == s_ignorableWhitespace_p;
 }
 
 inline

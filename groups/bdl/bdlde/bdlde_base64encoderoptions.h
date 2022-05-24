@@ -18,15 +18,14 @@ BSLS_IDENT_PRAGMA_ONCE
 //@DESCRIPTION: This component provides a value-semantic attribute class for
 // specifying options for 'bdlde::Basee64Encoder'.
 //
-// This 'class' has a value constructor, which, if called with no arguments
-// specified, configures the created object with the configuration that most
-// clients will want.  There is another frequently-desired configuration for
-// translating URL's, and that configuration can be most easily obtained by
-// calling the 'standardURL' class method, which returns an
-// appropriately-configured options object.
+// This 'class' supports default-generated copy constuction and copy
+// assignment, but the constructor is private.  To create an object one must
+// call one of the class methods, which will return a newly-constructed object
+// by value.  Custom class methods are provided to create objects configured
+// for the 'mime', 'urlSafe', and 'standard' configurations.
 //
-// Other configurations may be obtained by specifying arguments to the value
-// constructor, or by calling the settors after the object is created.
+// Other configurations may be obtained by specifying arguments to the 'custom'
+// class method, or by calling the settors after the object is created.
 //
 ///Usage
 ///-----

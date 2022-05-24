@@ -16,6 +16,7 @@
 
 #include <bslma_managedptr.h>
 #include <bslma_testallocator.h>
+#include <bslmf_assert.h>
 #include <bsls_review.h>
 #include <bsls_types.h>
 
@@ -323,6 +324,7 @@ typedef bdlde::Base64DecoderOptions Options;
 typedef bdlde::Base64EncoderOptions EncoderOptions;
 typedef bdlde::Base64Decoder        Obj;
 typedef bdlde::Base64Alphabet       Alpha;
+typedef bdlde::Base64IgnoreMode     Ignore;
 typedef bsls::Types::IntPtr         IntPtr;
 
 static const char ff = static_cast<char>(-1);
@@ -500,24 +502,28 @@ class RandGen {
     unsigned operator()();
         // Return the next random number in the series;
 
+    Ignore::Enum benignIgnore(bool injectGarbage, bool injectWhitespace);
+        // Return the value of the "ignore' argument to be passed to the
+        // decoder options that will result in no errors given the state of the
+        // specified 'injectGarbage' and 'injectWhitespace' arguments.
+
     char getChar();
         // Return a random 'char'.
 
     void injectGarbage(bsl::string *result, bool padIsGarbage, bool url);
-        // Inject a random number of characters of illegal garbage into the
-        // specified 'result' at random indices, if the specified
+        // Inject a random non-zero number of characters of illegal garbage
+        // into the specified 'result' at random indices, if the specified
         // 'padIsGarbage' is 'true', consider '=' among the garbage characters
-        // to be inserted.  If 'url' is true, '+' and '/' are among the
-        // garbage characters, otherwise '-' and '_' are among the garbage
-        // characters.
+        // to be inserted.  If 'url' is true, '+' and '/' are among the garbage
+        // characters, otherwise '-' and '_' are among the garbage characters.
 
-    void injectWhite(bsl::string *result);
-        // Inject some bytes of white space into this string at random at
-        // random indices.
+    void injectWhitespace(bsl::string *result);
+        // Inject a random non-zero number of bytes of white space into the
+        // specified 'result' at random indices.
 
     void randString(bsl::string *result, int len);
-        // Initialize the specified 'result' with random bytes (including
-        // '0x00'.
+        // Initialize the specified 'result' with the specified 'len' random
+        // bytes (including '0x00').
 };
 
 // CREATOR
@@ -536,6 +542,17 @@ unsigned RandGen::operator()()
 {
     d_seed = d_seed * 6364136223846793005ULL + 1442695040888963407ULL;
     return static_cast<unsigned>(d_seed >> 32);
+}
+
+Ignore::Enum RandGen::benignIgnore(bool injectGarbage, bool injectWhitespace)
+{
+    return injectGarbage
+         ? Ignore::e_IGNORE_UNRECOGNIZED
+         : injectWhitespace
+         ? ((*this)() & 1
+             ? Ignore::e_IGNORE_WHITESPACE
+             : Ignore::e_IGNORE_UNRECOGNIZED)
+         : static_cast<Ignore::Enum>((*this)() % Ignore::k_NUM_VALUES);
 }
 
 inline
@@ -565,20 +582,16 @@ void RandGen::injectGarbage(bsl::string *result, bool padIsGarbage, bool url)
     }
 }
 
-void RandGen::injectWhite(bsl::string *result)
+void RandGen::injectWhitespace(bsl::string *result)
 {
-    static const char *white = " \n\t\v\r\f";
-    static bsl::size_t whiteLen;
-    static bool firstTime = true;
-    if (firstTime) {
-        firstTime = false;
-        whiteLen = bsl::strlen(white);
-    }
+    static const char whitespace[] = { " \n\t\v\r\f" };
+    static bsl::size_t whiteLen = sizeof(whitespace) - 1;
 
     const IntPtr numWhite = 1 + (*this)() % (result->length() + 1);
     for (int ii = 0; ii < numWhite; ++ii) {
         bsl::size_t index = (*this)() % (result->length() + 1);
-        result->insert(result->begin() + index, white[(*this)() % whiteLen]);
+        result->insert(result->begin() + index,
+                       whitespace[(*this)() % whiteLen]);
     }
 }
 
@@ -590,7 +603,7 @@ void RandGen::randString(bsl::string *result, int len)
     result->reserve(len);
 
     for (int ii = 0; ii < len; ++ii) {
-        result->push_back(getChar());
+        (*result)[ii] = getChar();
     }
 }
 
@@ -598,12 +611,8 @@ bsl::string displayStr(const bsl::string& str)
 {
     bsl::string ret;
 
-    static const char *hexNybble = "0123456789abcdef";
-    static bool firstTime = true;
-    if (firstTime) {
-        firstTime = false;
-        BSLS_ASSERT_OPT(16 == bsl::strlen(hexNybble));
-    }
+    static const char hexNybble[] = { "0123456789abcdef" };
+    BSLMF_ASSERT(16 + 1 == sizeof(hexNybble));
 
     for (unsigned uu = 0; uu < str.length(); ++uu) {
         ret += "\\x";
@@ -642,14 +651,12 @@ bsl::string unWhiteString(const bsl::string& str)
 
 void convertToUrlInput(bsl::string *result)
 {
-    for (bsl::size_t idx = 0, npos = bsl::string::npos;
-                     npos != (idx = result->find_first_of("+/", idx)); ++idx) {
+    for (unsigned idx = 0; idx < result->length(); ++idx) {
         char& c = (*result)[idx];
-        if ('+' == c) {
+        if      ('+' == c) {
             c = '-';
         }
-        else {
-            BSLS_ASSERT('/' == c);
+        else if ('/' == c) {
             c = '_';
         }
     }
@@ -1612,9 +1619,12 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
         int numOut, numIn, endNumOut;
 
         for (int ti = 0; ti < 2; ++ti) {
+            const Ignore::Enum IGNORE = ti ? Ignore::e_IGNORE_WHITESPACE
+                                           : Ignore::e_IGNORE_UNRECOGNIZED;
+
             numOut = numIn = endNumOut = -1;
 
-            Obj mX(Options::custom(ti, Obj::e_BASIC, true));
+            Obj mX(Options::custom(IGNORE, Obj::e_BASIC, true));
             const Obj& X = mX;
             char *out = binaryOutput.data();
 
@@ -1675,9 +1685,12 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
                               " enabled, observe output matches fuzz input.\n";
 
         for (int ti = 0; ti < 2; ++ti) {
+            const Ignore::Enum IGNORE = ti ? Ignore::e_IGNORE_WHITESPACE
+                                           : Ignore::e_IGNORE_UNRECOGNIZED;
+
             numOut = numIn = endNumOut = -1;
 
-            Obj mX(Options::custom(ti, Alpha::e_BASIC, true));
+            Obj mX(Options::custom(IGNORE, Alpha::e_BASIC, true));
             const Obj& X = mX;
             char *out = binaryOutput.data();
 
@@ -1686,8 +1699,8 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
                                 &numIn,
                                 noisyInput.begin(),
                                 noisyInput.end());
-            ASSERT(0 == rc);
-            ASSERT(base64Size * 2 == numIn);
+            ASSERTV(IGNORE, 0 == rc);
+            ASSERTV(IGNORE, base64Size * 2 == numIn);
             ASSERT(numOut <= LENGTH);
 
             out += numOut;
@@ -1696,7 +1709,8 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
             ASSERT(0 == rc);
             ASSERT(X.isDone());
 
-            ASSERTV(numOut, endNumOut, LENGTH, numOut + endNumOut == LENGTH);
+            ASSERTV(IGNORE, numOut, endNumOut, LENGTH,
+                                                 numOut + endNumOut == LENGTH);
 
             ASSERT(GARBAGE == binaryOutput[LENGTH]);
 
@@ -1747,14 +1761,15 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
                                   " upon whether error checking is enabled.\n";
 
         for (int ti = 0; ti < 2; ++ti) {
-            bool errorCheck = ti & 1;
+            const Ignore::Enum IGNORE = ti ? Ignore::e_IGNORE_WHITESPACE
+                                           : Ignore::e_IGNORE_UNRECOGNIZED;
 
             binaryOutput.clear();
             binaryOutput.resize(LENGTH + 1, GARBAGE);
 
             numOut = numIn = endNumOut = -1;
 
-            Obj mX(Options::custom(errorCheck, Alpha::e_BASIC, true));
+            Obj mX(Options::custom(IGNORE, Alpha::e_BASIC, true));
             const Obj& X = mX;
 
             char *outBuf = binaryOutput.data();
@@ -1765,7 +1780,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
                                 &numIn,
                                 noisyInput.begin(),
                                 noisyInput.end());
-            if (errorCheck) {
+            if (Ignore::e_IGNORE_WHITESPACE == IGNORE) {
                 // Error checking is enabled.  We should get a failing error
                 // status.
 
@@ -1808,7 +1823,9 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
         noisyInput = base64Input;
         noisyInput.insert(noisyInput.begin(), 3, 'A');
         for (int ii = 0; ii <= static_cast<int>(noisyInput.size()) - 2; ++ii) {
-            for (int ti = 0; ti < 2; ++ti) {
+            for (int ti = 0; ti < Ignore::k_NUM_VALUES; ++ti) {
+                const Ignore::Enum IGNORE = static_cast<Ignore::Enum>(ti);
+
                 binaryOutput.clear();
                 binaryOutput.resize(LENGTH + 4, GARBAGE);
 
@@ -1816,7 +1833,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 
                 numOut = numIn = endNumOut = -1;
 
-                Obj mX(Options::custom(ti, Alpha::e_BASIC, true));
+                Obj mX(Options::custom(IGNORE, Alpha::e_BASIC, true));
                 const Obj& X = mX;
                 char *out = binaryOutput.data();
 
@@ -1901,9 +1918,10 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
                                                        &u::base64OrEquals);
         const int         left = (4 - numSignificantChars % 4) % 4;
 
-        for (int flags = 0; flags < 4; ++flags) {
-            const bool checkErr = flags & 1;
-            const bool topOff   = flags & 2;
+        for (int ti = 0; ti < 2 * Ignore::k_NUM_VALUES; ++ti) {
+            int tti = ti;
+            const bool         topOff = tti % 2;    tti /= 2;
+            const Ignore::Enum IGNORE = static_cast<Ignore::Enum>(tti);
 
             if (0 == left && topOff) {
                 continue;
@@ -1912,7 +1930,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
             bsl::vector<char> binaryOutput;
             binaryOutput.resize(4 * LENGTH + 1, GARBAGE);
 
-            Obj mX(checkErr);    const Obj& X = mX;
+            Obj mX(IGNORE);    const Obj& X = mX;
             char *out = binaryOutput.data();
 
             int rc, rc2 = 0, numOut, numIn, endNumOut = 0, outSoFar = 0;
@@ -2202,7 +2220,7 @@ DEFINE_TEST_CASE(13)
     //:
     //:   o PAD (padded)
     //:
-    //:   o INJECT_WHITE
+    //:   o INJECT_WHITESPACE
     //:
     //:   o U_IS_ERR (unrecognizedIsError)
     //:
@@ -2216,8 +2234,9 @@ DEFINE_TEST_CASE(13)
     //:   o 'u::convertToUrlInput': convert input string from 'e_BASIC' type
     //:     to 'e_URL' type.
     //:
-    //:   o 'u::RandGen::injectWhite': insert white space characters at random
-    //:     locations in this string.  This should never affect the outcome.
+    //:   o 'u::RandGen::injectWhitespace': insert white space characters at
+    //:     random locations in this string.  This should never affect the
+    //:     outcome.
     //:
     //:   o 'u::Randgen::injectGarbage': inject invalid non-whitespace
     //:     characters into the input.  If the decoder is configured with
@@ -2469,13 +2488,13 @@ DEFINE_TEST_CASE(13)
 
         if (veryVerbose) P(inPadded);
 
-        enum { k_INNER_LOOP_COUNT = 8 * 8 };
-        for (int wi = 0; wi < k_INNER_LOOP_COUNT; ++wi) {
-            const bool INJECT_WHITE = wi & 1;
-            const bool PAD          = wi & 2;
-            const bool URL          = wi & 4;
+        for (int wi = 0; wi < 4; ++wi) {
+            const bool PAD = wi & 1;
+            const bool URL = wi & 2;
 
-            if (veryVeryVerbose) { P_(LINE);    P_(INJECT_WHITE);    P(PAD); }
+            if (veryVeryVerbose) {
+                P_(LINE);    P(PAD);
+            }
 
             bsl::string input(inPadded);
             if (!PAD) {
@@ -2489,11 +2508,8 @@ DEFINE_TEST_CASE(13)
             if (URL) {
                 u::convertToUrlInput(&input);
             }
-            if (INJECT_WHITE) {
-                rand.injectWhite(&input);
-            }
 
-            const Options& options = Options::custom(true,
+            const Options& options = Options::custom(Ignore::e_IGNORE_NONE,
                                                      URL ? Alpha::e_URL
                                                          : Alpha::e_BASIC,
                                                      PAD);
@@ -2507,7 +2523,7 @@ DEFINE_TEST_CASE(13)
                                 &numIn,
                                 input.data(),
                                 input.data() + input.length());
-            ASSERTV(LINE, INJECT_WHITE, PAD, input, 0 == rc);
+            ASSERTV(LINE, PAD, input, 0 == rc);
 
             if (0 != rc) {
                 continue;
@@ -2520,7 +2536,7 @@ DEFINE_TEST_CASE(13)
 
             rc = mX.endConvert(outBuf.data() + numOut,
                                &endNumOut);
-            ASSERTV(LINE, INJECT_WHITE, PAD, 0 == rc);
+            ASSERTV(LINE, PAD, 0 == rc);
             ASSERT(numOut + endNumOut == outLen);
             ASSERT('?' == outBuf[outLen]);
             ASSERT(X.isDone());
@@ -2541,12 +2557,35 @@ DEFINE_TEST_CASE(13)
 
         if (veryVerbose) P(inPadded);
 
-        enum { k_INNER_LOOP_COUNT = 16 * 32 };
+        bool done = false;
+        enum { k_INNER_LOOP_COUNT = 16 * 3 * 32 };
         for (int wi = 0; wi < k_INNER_LOOP_COUNT; ++wi) {
-            const bool INJECT_WHITE = wi & 1;
-            const bool PAD          = wi & 2;
-            const bool U_IS_ERR     = wi & 4;
-            const bool URL          = wi & 8;
+            int wwi = wi % (16 * 3);
+            const bool         INJECT_WHITESPACE = wwi % 2; wwi /= 2;
+            const bool         INJECT_GARBAGE    = wwi % 2; wwi /= 2;
+            const bool         PAD               = wwi % 2; wwi /= 2;
+            const bool         URL               = wwi % 2; wwi /= 2;
+            const Ignore::Enum IGNORE            = (Ignore::Enum) wwi;
+            ASSERT(static_cast<unsigned>(wwi) < Ignore::k_NUM_VALUES);
+            done |= Ignore::k_NUM_VALUES - 1 == IGNORE;
+
+            bool expErr;
+            switch (IGNORE) {
+              case Ignore::e_IGNORE_NONE: {
+                expErr = INJECT_GARBAGE || INJECT_WHITESPACE;
+              } break;
+              case Ignore::e_IGNORE_WHITESPACE: {
+                expErr = INJECT_GARBAGE;
+              } break;
+              case Ignore::e_IGNORE_UNRECOGNIZED: {
+                expErr = false;
+              } break;
+              default: {
+                BSLS_ASSERT(0 && "illegal ignore value");
+                return;                                               // RETURN
+              }
+            }
+            const bool EXP_ERR = expErr;
 
             bsl::string input(inPadded);
             if (!PAD) {
@@ -2555,21 +2594,27 @@ DEFINE_TEST_CASE(13)
             if (URL) {
                 u::convertToUrlInput(&input);
             }
-            rand.injectGarbage(&input, !PAD && U_IS_ERR, URL);
-            if (INJECT_WHITE) {
-                rand.injectWhite(&input);
+            if (INJECT_GARBAGE) {
+                rand.injectGarbage(
+                               &input,
+                               !PAD && IGNORE != Ignore::e_IGNORE_UNRECOGNIZED,
+                               URL);
+            }
+            if (INJECT_WHITESPACE) {
+                rand.injectWhitespace(&input);
             }
             const bsl::string& UW = u::unWhiteString(input);
 
             if (veryVeryVerbose) {
-                const int  LL = LINE;
-                const bool IW = INJECT_WHITE;
-                const bool UE = U_IS_ERR;
+                const int          LL  = LINE;
+                const bool         IW  = INJECT_WHITESPACE;
+                const bool         IGA = INJECT_GARBAGE;
+                const Ignore::Enum IGN = IGNORE;
 
-                P_(LL);    P_(IW);    P_(PAD);    P_(UE);    P(UW);
+                P_(LL);  P_(IW);  P_(IGN);  P_(PAD);  P_(IGA);  P(URL);  P(UW);
             }
 
-            const Options& options = Options::custom(U_IS_ERR,
+            const Options& options = Options::custom(IGNORE,
                                                      URL ? Alpha::e_URL
                                                          : Alpha::e_BASIC,
                                                      PAD);
@@ -2583,8 +2628,8 @@ DEFINE_TEST_CASE(13)
                                 &numIn,
                                 input.data(),
                                 input.data() + input.length());
-            ASSERTV(LINE, INJECT_WHITE, PAD, UW, U_IS_ERR,
-                                                        U_IS_ERR == (0 != rc));
+            ASSERTV(LINE, INJECT_WHITESPACE, PAD, UW, EXP_ERR,
+                                                         EXP_ERR == (0 != rc));
             if (0 != rc) {
                 continue;
             }
@@ -2596,7 +2641,8 @@ DEFINE_TEST_CASE(13)
 
             rc = mX.endConvert(outBuf.data() + numOut,
                                &endNumOut);
-            ASSERTV(LINE, INJECT_WHITE, PAD, U_IS_ERR, UW, 0 == rc);
+            ASSERTV(LINE, INJECT_WHITESPACE, INJECT_GARBAGE, PAD, UW,
+                                                                      0 == rc);
             ASSERT(numOut + endNumOut == outLen);
             ASSERT(X.isDone());
             ASSERT('?' == outBuf[outLen]);
@@ -2604,6 +2650,7 @@ DEFINE_TEST_CASE(13)
 
             ASSERT(expOut == outBuf);
         }
+        ASSERT(done);
     }
 
     if (verbose) cout << "Parsing in pieces limited by input\n";
@@ -2617,13 +2664,17 @@ DEFINE_TEST_CASE(13)
 
         if (veryVerbose) P(inPadded);
 
+        bool done = false;
         for (int wi = 0; wi < 16; ++wi) {
-            const bool INJECT_WHITE = wi & 1;
-            const bool U_IS_ERR     = wi & 2;
-            const bool PAD          = wi & 4;
-            const bool URL          = wi & 8;
+            int wwi = wi;
+            const bool INJECT_WHITESPACE = wwi % 2; wwi /= 2;
+            const bool INJECT_GARBAGE    = wwi % 2; wwi /= 2;
+            const bool PAD               = wwi % 2; wwi /= 2;
+            const bool URL               = wwi % 2; wwi /= 2;
+            ASSERT(0 == wwi);
+            done |= URL;
 
-            const int reps = INJECT_WHITE || !U_IS_ERR ? 32 : 8;
+            const int reps = INJECT_WHITESPACE || INJECT_GARBAGE ? 32 : 4;
             for (int tj = 0; tj < reps; ++tj) {
                 bsl::string input(inPadded);
                 if (!PAD) {
@@ -2632,23 +2683,29 @@ DEFINE_TEST_CASE(13)
                 if (URL) {
                     u::convertToUrlInput(&input);
                 }
-                if (!U_IS_ERR) {
+                if (INJECT_GARBAGE) {
                     rand.injectGarbage(&input, false, URL);
                 }
-                if (INJECT_WHITE) {
-                    rand.injectWhite(&input);
+                if (INJECT_WHITESPACE) {
+                    rand.injectWhitespace(&input);
                 }
                 const bsl::string& UW = u::unWhiteString(input);
 
-                if (veryVeryVerbose) {
-                    const int  LL = LINE;
-                    const bool IW = INJECT_WHITE;
-                    const bool UE = U_IS_ERR;
+                const Ignore::Enum IGNORE =
+                                          rand.benignIgnore(INJECT_GARBAGE,
+                                                            INJECT_WHITESPACE);
 
-                    P_(LL);    P_(IW);    P_(PAD);    P_(UE);    P(UW);
+                if (veryVeryVerbose) {
+                    const int          LL  = LINE;
+                    const bool         IW  = INJECT_WHITESPACE;
+                    const bool         IGA = INJECT_GARBAGE;
+                    const Ignore::Enum IGN = IGNORE;
+
+                    P_(LL);    P_(IW);    P_(PAD);    P_(IGA);    P_(IGN);
+                                                                         P(UW);
                 }
 
-                const Options& options = Options::custom(U_IS_ERR,
+                const Options& options = Options::custom(IGNORE,
                                                          URL ? Alpha::e_URL
                                                              : Alpha::e_BASIC,
                                                          PAD);
@@ -2677,8 +2734,8 @@ DEFINE_TEST_CASE(13)
                                &numIn,
                                input.data() + numInSoFar,
                                input.data() + numInSoFar + numInThisTime);
-                    ASSERTV(LINE, INJECT_WHITE, PAD, U_IS_ERR, wi, UW,
-                                                                      0 == rc);
+                    ASSERTV(LINE, INJECT_WHITESPACE, INJECT_GARBAGE, PAD, wi,
+                                                                  UW, 0 == rc);
                     if (0 != rc) {
                         break;
                     }
@@ -2696,7 +2753,8 @@ DEFINE_TEST_CASE(13)
 
                 rc = mX.endConvert(outBuf.data() + numOutSoFar,
                                    &endNumOut);
-                ASSERTV(LINE, INJECT_WHITE, PAD, U_IS_ERR, UW, 0 == rc);
+                ASSERTV(LINE, INJECT_WHITESPACE, INJECT_GARBAGE, PAD, UW,
+                                                                      0 == rc);
                 numOutSoFar += endNumOut;
                 ASSERT(outLen == numOutSoFar);
                 ASSERT(X.isDone());
@@ -2706,6 +2764,7 @@ DEFINE_TEST_CASE(13)
                 ASSERT(expOut == outBuf);
             }
         }
+        ASSERT(done);
     }
 
     if (verbose) cout << "Parsing in pieces limited by 'maxNumOut'\n";
@@ -2719,13 +2778,18 @@ DEFINE_TEST_CASE(13)
 
         if (veryVerbose) P(inPadded);
 
+        bool done = false;
+        enum { k_INNER_LOOP_COUNT = 16 * 4 };
         for (int wi = 0; wi < 16; ++wi) {
-            const bool INJECT_WHITE = wi & 1;
-            const bool U_IS_ERR     = wi & 2;
-            const bool PAD          = wi & 4;
-            const bool URL          = wi & 8;
+            int wwi = wi;
+            const bool INJECT_WHITESPACE = wwi % 2; wwi /= 2;
+            const bool INJECT_GARBAGE    = wwi % 2; wwi /= 2;
+            const bool PAD               = wwi % 2; wwi /= 2;
+            const bool URL               = wwi % 2; wwi /= 2;
+            ASSERT(0 == wwi);
+            done |= URL;
 
-            const int reps = INJECT_WHITE || !U_IS_ERR ? 32 : 4;
+            const int reps = INJECT_WHITESPACE || INJECT_GARBAGE ? 32 : 4;
             for (int tj = 0; tj < reps; ++tj) {
                 bsl::string input(inPadded);
                 if (!PAD) {
@@ -2734,23 +2798,29 @@ DEFINE_TEST_CASE(13)
                 if (URL) {
                     u::convertToUrlInput(&input);
                 }
-                if (!U_IS_ERR) {
+                if (INJECT_GARBAGE) {
                     rand.injectGarbage(&input, false, URL);
                 }
-                if (INJECT_WHITE) {
-                    rand.injectWhite(&input);
+                if (INJECT_WHITESPACE) {
+                    rand.injectWhitespace(&input);
                 }
                 const bsl::string& UW = u::unWhiteString(input);
 
-                if (veryVeryVerbose) {
-                    const int  LL = LINE;
-                    const bool IW = INJECT_WHITE;
-                    const bool UE = U_IS_ERR;
+                const Ignore::Enum IGNORE =
+                                          rand.benignIgnore(INJECT_GARBAGE,
+                                                            INJECT_WHITESPACE);
 
-                    P_(LL);    P_(IW);    P_(PAD);    P_(UE);    P(UW);
+                if (veryVeryVerbose) {
+                    const int  LL          = LINE;
+                    const bool IW          = INJECT_WHITESPACE;
+                    const bool IGA         = INJECT_GARBAGE;
+                    const Ignore::Enum IGN = IGNORE;
+
+                    P_(LL);    P_(IW);    P_(PAD);    P_(IGA);    P_(IGN);
+                                                                         P(UW);
                 }
 
-                const Options& options = Options::custom(U_IS_ERR,
+                const Options& options = Options::custom(IGNORE,
                                                          URL ? Alpha::e_URL
                                                              : Alpha::e_BASIC,
                                                          PAD);
@@ -2780,8 +2850,8 @@ DEFINE_TEST_CASE(13)
                                input.data() + numInSoFar,
                                input.data() + inputLen,
                                numOutThisTime);
-                    ASSERTV(LINE, INJECT_WHITE, PAD, U_IS_ERR, wi, UW,
-                                                                      0 <= rc);
+                    ASSERTV(LINE, INJECT_WHITESPACE, INJECT_GARBAGE, PAD, wi,
+                                                                  UW, 0 <= rc);
                     if (rc < 0) {
                         break;
                     }
@@ -2799,7 +2869,8 @@ DEFINE_TEST_CASE(13)
 
                 rc = mX.endConvert(outBuf.data() + numOutSoFar,
                                    &endNumOut);
-                ASSERTV(LINE, INJECT_WHITE, PAD, U_IS_ERR, UW, 0 == rc);
+                ASSERTV(LINE, INJECT_WHITESPACE, INJECT_GARBAGE, PAD, UW,
+                                                                      0 == rc);
                 numOutSoFar += endNumOut;
                 ASSERT(outLen == numOutSoFar);
                 ASSERT(X.isDone());
@@ -2809,6 +2880,7 @@ DEFINE_TEST_CASE(13)
                 ASSERT(expOut == outBuf);
             }
         }
+        ASSERT(done);
     }
 
     static const char base64[] = {
@@ -2862,11 +2934,13 @@ DEFINE_TEST_CASE(13)
 
         if (veryVerbose) P(inPadded);
 
+        bool done = false;
         for (int wi = 0; wi < 16; ++wi) {
-            const bool INJECT_WHITE = wi & 1;
-            const bool U_IS_ERR     = wi & 2;
-            const bool PAD          = wi & 4;
-            const bool URL          = wi & 8;
+            const bool INJECT_WHITESPACE = wi & 1;
+            const bool INJECT_GARBAGE    = wi & 2;
+            const bool PAD               = wi & 4;
+            const bool URL               = wi & 8;
+            done |= URL;
 
             bsl::string partialProcessed(inPadded);
             if (!PAD) {
@@ -2895,23 +2969,29 @@ DEFINE_TEST_CASE(13)
                 ASSERT(bsl::strchr(charSet, newChar));
                 input[equalIdx - 1] = newChar;
 
-                if (!U_IS_ERR) {
+                if (INJECT_GARBAGE) {
                     rand.injectGarbage(&input, false, URL);
                 }
-                if (INJECT_WHITE) {
-                    rand.injectWhite(&input);
+                if (INJECT_WHITESPACE) {
+                    rand.injectWhitespace(&input);
                 }
                 const bsl::string& UW = u::unWhiteString(input);
 
-                if (veryVeryVerbose) {
-                    const int  LL = LINE;
-                    const bool IW = INJECT_WHITE;
-                    const bool UE = U_IS_ERR;
+                const Ignore::Enum IGNORE =
+                                          rand.benignIgnore(INJECT_GARBAGE,
+                                                            INJECT_WHITESPACE);
 
-                    P_(LL);    P_(IW);    P_(PAD);    P_(UE);    P(UW);
+                if (veryVeryVerbose) {
+                    const int          LL  = LINE;
+                    const bool         IW  = INJECT_WHITESPACE;
+                    const bool         IGA = INJECT_GARBAGE;
+                    const Ignore::Enum IGN = IGNORE;
+
+                    P_(LL);    P_(IW);    P_(PAD);    P_(IGA);    P_(IGN);
+                                                                         P(UW);
                 }
 
-                const Options& options = Options::custom(U_IS_ERR,
+                const Options& options = Options::custom(IGNORE,
                                                          URL ? Alpha::e_URL
                                                              : Alpha::e_BASIC,
                                                          PAD);
@@ -2925,7 +3005,7 @@ DEFINE_TEST_CASE(13)
                                     &numIn,
                                     input.data(),
                                     input.data() + input.length());
-                ASSERTV(LINE, INJECT_WHITE, PAD, UW, U_IS_ERR,
+                ASSERTV(LINE, INJECT_WHITESPACE, INJECT_GARBAGE, PAD, UW,
                                                              PAD == (0 != rc));
                 ASSERT(PAD == X.isError());
                 if (0 != rc) {
@@ -2938,11 +3018,13 @@ DEFINE_TEST_CASE(13)
 
                 rc = mX.endConvert(outBuf.data() + numOut,
                                    &endNumOut);
-                ASSERTV(LINE, INJECT_WHITE, PAD, U_IS_ERR, UW, 0 != rc);
+                ASSERTV(LINE, INJECT_WHITESPACE, INJECT_GARBAGE, PAD, UW,
+                                                                      0 != rc);
                 ASSERT(X.isError());
                 ASSERT('?' == outBuf[outLen]);
             }
         }
+        ASSERT(done);
     }
 
     if (verbose) cout << "Illegal length input\n";
@@ -2968,11 +3050,16 @@ DEFINE_TEST_CASE(13)
 
         if (veryVerbose) P(inPadded);
 
+        bool done = false;
         for (int wi = 0; wi < 16; ++wi) {
-            const bool INJECT_WHITE = wi & 1;
-            const bool U_IS_ERR     = wi & 2;
-            const bool PAD          = wi & 4;
-            const bool URL          = wi & 8;
+            const bool INJECT_WHITESPACE = wi & 1;
+            const bool INJECT_GARBAGE    = wi & 2;
+            const bool PAD               = wi & 4;
+            const bool URL               = wi & 8;
+            done |= URL;
+
+            const Ignore::Enum IGNORE = rand.benignIgnore(INJECT_GARBAGE,
+                                                          INJECT_WHITESPACE);
 
             bsl::string input(inPadded);
             if (!PAD) {
@@ -2982,23 +3069,24 @@ DEFINE_TEST_CASE(13)
             if (URL) {
                 u::convertToUrlInput(&input);
             }
-            if (!U_IS_ERR) {
+            if (INJECT_GARBAGE) {
                 rand.injectGarbage(&input, false, URL);
             }
-            if (INJECT_WHITE) {
-                rand.injectWhite(&input);
+            if (INJECT_WHITESPACE) {
+                rand.injectWhitespace(&input);
             }
             const bsl::string& UW = u::unWhiteString(input);
 
             if (veryVeryVerbose) {
-                const int  LL = LINE;
-                const bool IW = INJECT_WHITE;
-                const bool UE = U_IS_ERR;
+                const int          LL  = LINE;
+                const bool         IW  = INJECT_WHITESPACE;
+                const bool         IGA = INJECT_GARBAGE;
+                const Ignore::Enum IGN = IGNORE;
 
-                P_(LL);    P_(IW);    P_(PAD);    P_(UE);    P(UW);
+                P_(LL);    P_(IW);    P_(PAD);    P_(IGA);    P_(IGN);   P(UW);
             }
 
-            const Options& options = Options::custom(U_IS_ERR,
+            const Options& options = Options::custom(IGNORE,
                                                      URL ? Alpha::e_URL
                                                          : Alpha::e_BASIC,
                                                      PAD);
@@ -3012,7 +3100,8 @@ DEFINE_TEST_CASE(13)
                                 &numIn,
                                 input.data(),
                                 input.data() + input.length());
-            ASSERTV(LINE, INJECT_WHITE, PAD, UW, U_IS_ERR, PAD == (0 != rc));
+            ASSERTV(LINE, INJECT_WHITESPACE, INJECT_GARBAGE, PAD, IGNORE, UW,
+                                                             PAD == (0 != rc));
             ASSERT(PAD == X.isError());
             if (0 != rc) {
                 continue;
@@ -3024,10 +3113,12 @@ DEFINE_TEST_CASE(13)
 
             rc = mX.endConvert(outBuf.data() + numOut,
                                &endNumOut);
-            ASSERTV(LINE, INJECT_WHITE, PAD, U_IS_ERR, UW, 0 != rc);
+            ASSERTV(LINE, INJECT_WHITESPACE, INJECT_GARBAGE, PAD, IGNORE, UW,
+                                                                      0 != rc);
             ASSERT(X.isError());
             ASSERT('?' == outBuf[outLen]);
         }
+        ASSERT(done);
     }
 }
 
@@ -7344,25 +7435,35 @@ DEFINE_TEST_CASE(2)
         }
 
         if (verbose) cout << "Use an 'Options' object\n";
-        for (int ti = 0; ti < 8; ++ti) {
+        bool done = false;
+        for (int ti = 0; ti < Ignore::k_NUM_VALUES * 4; ++ti) {
             typedef bdlde::Base64Alphabet::Enum Enum;
 
-            const bool U_IS_ERR = ti & 1;
-            const Enum URL      = ti & 2 ? Alpha::e_URL : Alpha::e_BASIC;
-            const bool PAD      = ti & 4;
+            int tti = ti;
+            const Enum URL      = tti % 2 ? Alpha::e_URL : Alpha::e_BASIC;
+            tti /= 2;
+            const bool PAD      = tti % 2;
+            tti /= 2;
+            const Ignore::Enum IGNORE = static_cast<Ignore::Enum>(
+                                                   tti % Ignore::k_NUM_VALUES);
+            tti %= Ignore::k_NUM_VALUES;
+            done |= Ignore::k_NUM_VALUES - 1 == IGNORE;
 
-            const Options& options = Options::custom(U_IS_ERR, URL, PAD);
+            const Options& options = Options::custom(IGNORE, URL, PAD);
             Obj obj(options);
             ASSERT(1 == obj.isAcceptable());
             ASSERT(0 == obj.isDone());
             ASSERT(0 == obj.isError());
             ASSERT(0 == obj.isMaximal());
             ASSERT(1 == obj.isInitialState());
-            ASSERT(U_IS_ERR == obj.isUnrecognizedAnError());
+            ASSERT((Ignore::e_IGNORE_UNRECOGNIZED != IGNORE) ==
+                                                  obj.isUnrecognizedAnError());
+            ASSERT(IGNORE == obj.ignoreMode());
             ASSERT(0 == obj.outputLength());
             ASSERT(URL == obj.alphabet());
             ASSERT(PAD == obj.isPadded());
         }
+        ASSERT(done);
 }
 
 DEFINE_TEST_CASE(1)

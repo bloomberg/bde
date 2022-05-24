@@ -24,9 +24,9 @@ bsl::ostream& Base64DecoderOptions::print(bsl::ostream& stream,
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
 
-    printer.printAttribute("unrecognizedIsError", d_unrecognizedIsError);
-    printer.printAttribute("alphabet", d_alphabet);
-    printer.printAttribute("isPadded", d_isPadded);
+    printer.printAttribute("ignoreMode", d_ignoreMode);
+    printer.printAttribute("alphabet",   d_alphabet);
+    printer.printAttribute("isPadded",   d_isPadded);
 
     printer.end();
     return stream;
@@ -41,17 +41,17 @@ bsl::ostream& Base64DecoderOptions::print(bsl::ostream& stream,
 bool bdlde::operator==(const bdlde::Base64DecoderOptions& lhs,
                        const bdlde::Base64DecoderOptions& rhs)
 {
-    return lhs.unrecognizedIsError() == rhs.unrecognizedIsError()
-        && lhs.isPadded()            == rhs.isPadded()
-        && lhs.alphabet()            == rhs.alphabet();
+    return lhs.ignoreMode() == rhs.ignoreMode()
+        && lhs.alphabet()   == rhs.alphabet()
+        && lhs.isPadded()   == rhs.isPadded();
 }
 
 bool bdlde::operator!=(const bdlde::Base64DecoderOptions& lhs,
                        const bdlde::Base64DecoderOptions& rhs)
 {
-    return lhs.unrecognizedIsError() != rhs.unrecognizedIsError()
-        || lhs.isPadded()            != rhs.isPadded()
-        || lhs.alphabet()            != rhs.alphabet();
+    return lhs.ignoreMode() != rhs.ignoreMode()
+        || lhs.alphabet()   != rhs.alphabet()
+        || lhs.isPadded()   != rhs.isPadded();
 }
 
 bsl::ostream& bdlde::operator<<(bsl::ostream&                      stream,

@@ -461,7 +461,7 @@ class Base64Encoder {
 
   private:
     // PRIVATE TYPES
-    enum {
+    enum State {
         // Symbolic state values.
 
         e_ERROR_STATE     = -1, // Input is irreparably invalid.
@@ -477,14 +477,14 @@ class Base64Encoder {
                                                       // "base64url" alphabet
 
     // INSTANCE DATA
-    signed char       d_state;          // state as per above enum
-    bool              d_isPadded;       // is output tail-padded with '='
+    State             d_state;          // state as per above enum
     int               d_maxLineLength;  // maximum length of output line
     int               d_lineLength;     // current length of output line
     int               d_outputLength;   // total number of output characters
     unsigned          d_stack;          // storage of non-emitted input
     int               d_bitsInStack;    // number of bits in 'd_stack'
     const char *const d_alphabet_p;     // alphabet
+    bool              d_isPadded;       // is output tail-padded with '='
 
   private:
     // NOT IMPLEMENTED
@@ -495,8 +495,8 @@ class Base64Encoder {
     static
     int lengthWithoutCrlfs(const EncoderOptions& options,
                            int                   inputLength);
-        // Give the expected length of output, not including CRLF's, given the
-        // specified 'options' and 'inputLength'.
+        // Return the expected length of output, not including CRLF's, given
+        // the specified 'options' and 'inputLength'.
 
     // PRIVATE MANIPULATORS
     template <class OUTPUT_ITERATOR>
@@ -901,7 +901,6 @@ int Base64Encoder::encodedLines(int inputLength)
 inline
 Base64Encoder::Base64Encoder(const EncoderOptions& options)
 : d_state(e_INITIAL_STATE)
-, d_isPadded(options.isPadded())
 , d_maxLineLength(options.maxLineLength())
 , d_lineLength(0)
 , d_outputLength(0)
@@ -909,12 +908,12 @@ Base64Encoder::Base64Encoder(const EncoderOptions& options)
 , d_bitsInStack(0)
 , d_alphabet_p(e_URL == options.alphabet() ? s_base64UrlAlphabet_p
                                            : s_base64Alphabet_p)
+, d_isPadded(options.isPadded())
 {}
 
 inline
 Base64Encoder::Base64Encoder(Base64Alphabet::Enum alphabet)
 : d_state(e_INITIAL_STATE)
-, d_isPadded(true)
 , d_maxLineLength(EncoderOptions::k_MIME_MAX_LINE_LENGTH)
 , d_lineLength(0)
 , d_outputLength(0)
@@ -922,12 +921,12 @@ Base64Encoder::Base64Encoder(Base64Alphabet::Enum alphabet)
 , d_bitsInStack(0)
 , d_alphabet_p(e_BASIC == alphabet ? s_base64Alphabet_p
                                    : s_base64UrlAlphabet_p)
+, d_isPadded(true)
 {}
 
 inline
 Base64Encoder::Base64Encoder(int maxLineLength, Alphabet alphabet)
 : d_state(e_INITIAL_STATE)
-, d_isPadded(true)
 , d_maxLineLength(maxLineLength)
 , d_lineLength(0)
 , d_outputLength(0)
@@ -935,6 +934,7 @@ Base64Encoder::Base64Encoder(int maxLineLength, Alphabet alphabet)
 , d_bitsInStack(0)
 , d_alphabet_p(e_BASIC == alphabet ? s_base64Alphabet_p
                                    : s_base64UrlAlphabet_p)
+, d_isPadded(true)
 {
     BSLS_ASSERT(0 <= maxLineLength);
 }

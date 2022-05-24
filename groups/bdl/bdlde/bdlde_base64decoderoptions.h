@@ -35,8 +35,8 @@ BSLS_IDENT_PRAGMA_ONCE
 ///Example 1:
 /// - - - - -
 // Suppose we want a 'Base64DecoderOptions' object configured for MIME
-// encoding, meaning 'maxLineLength == 76', 'alphabet == e_BASIC', and
-// 'isPadded == true'.
+// encoding, meaning 'alphabet == e_BASIC', 'isPadded == true', and
+// 'ignoreMode = e_IGNORE_WHITESPACE'.
 //
 // First, it turns out that those are the default values of the attributes, so
 // all we have to do is default construct an object, and we're done.
@@ -46,9 +46,10 @@ BSLS_IDENT_PRAGMA_ONCE
 //..
 // Then, we check the attributes:
 //..
-//  assert(mimeOptions.maxLineLength() == 76);
-//  assert(mimeOptions.alphabet()      == bdlde::Base64Alphabet::e_BASIC);
-//  assert(mimeOptions.isPadded()      == true);
+//  assert(mimeOptions.ignoreMode() ==
+//                               bdlde::Base64IgnoreMode::e_IGNORE_WHITESPACE);
+//  assert(mimeOptions.alphabet()   == bdlde::Base64Alphabet::e_BASIC);
+//  assert(mimeOptions.isPadded()   == true);
 //..
 // Now, we stream the object:
 //..
@@ -57,7 +58,7 @@ BSLS_IDENT_PRAGMA_ONCE
 // Finally, we observe the output:
 //..
 //  [
-//      maxLineLength = 76
+//      ignoreMode = IGNORE_WHITESPACE
 //      alphabet = BASIC
 //      isPadded = true
 //  ]
@@ -66,8 +67,8 @@ BSLS_IDENT_PRAGMA_ONCE
 ///Example 2:
 /// - - - - -
 // Suppose we want a 'Base64DecoderOptions' object configured for translating
-// URL's.  That would mean a 'maxLineLength == 0', 'alphabet == e_URL', and
-// 'isPadded == true'.
+// URL's.  That would mean 'alphabet == e_URL', 'isPadded == false', and
+// 'unrecognizedIsError == true'.
 //
 // First, the class method 'urlSafe' returns an object configured exactly that
 // way, so we simply call it:
@@ -77,9 +78,9 @@ BSLS_IDENT_PRAGMA_ONCE
 //..
 // Then, we check the attributes:
 //..
-//  assert(urlOptions.maxLineLength() == 0);
-//  assert(urlOptions.alphabet()      == bdlde::Base64Alphabet::e_URL);
-//  assert(urlOptions.isPadded()      == true);
+//  assert(urlOptions.ignoreMode() == bdlde::Base64IgnoreMode::e_IGNORE_NONE);
+//  assert(urlOptions.alphabet()   == bdlde::Base64Alphabet::e_URL);
+//  assert(urlOptions.isPadded()   == false);
 //..
 // Now, we stream the object:
 //..
@@ -88,7 +89,7 @@ BSLS_IDENT_PRAGMA_ONCE
 // Finally, we observe the output:
 //..
 //  [
-//      maxLineLength = 0
+//      ignoreMode = IGNORE_NONE
 //      alphabet = URL
 //      isPadded = false
 //  ]
@@ -105,9 +106,11 @@ BSLS_IDENT_PRAGMA_ONCE
 //..
 // Then, we check the attributes:
 //..
-//  assert(standardOptions.maxLineLength() == 0);
-//  assert(standardOptions.alphabet()      == bdlde::Base64Alphabet::e_BASIC);
-//  assert(standardOptions.isPadded()      == true);
+//  assert(standardOptions.ignoreMode() ==
+//                                     bdlde::Base64IgnoreMode::e_IGNORE_NONE);
+//  assert(standardOptions.alphabet()            ==
+//                                             bdlde::Base64Alphabet::e_BASIC);
+//  assert(standardOptions.isPadded()            == true);
 //..
 // Now, we stream the object:
 //..
@@ -116,7 +119,7 @@ BSLS_IDENT_PRAGMA_ONCE
 // Finally, we observe the output:
 //..
 //  [
-//      maxLineLength = 0
+//      ignoreMode = IGNORE_NONE
 //      alphabet = BASIC
 //      isPadded = true
 //  ]
@@ -125,20 +128,24 @@ BSLS_IDENT_PRAGMA_ONCE
 ///Example 4:
 /// - - - - -
 // Suppose we want a really strangely configured options object with
-// 'maxLineLength == 200', 'alphabet == e_URL', and padding.
+// 'alphabet == e_URL', and padding, and 'unrecognizedIsError == false'.
 //
-// First, we can simply call the 'custom' class method.  The 'padded' argument
-// is the last argument, and it defaults to 'true', so we don't have to pass
-// that.
+// First, we can simply call the 'custom' class method.  The 'padded' and
+// 'unrecognizedIsError == true' arguments are last, and they default to
+// 'true', so we don't have to pass that.
 //..
 //  const bdlde::Base64DecoderOptions& customOptions =
-//      bdlde::Base64DecoderOptions::custom(200, bdlde::Base64Alphabet::e_URL);
+//                         bdlde::Base64DecoderOptions::custom(
+//                                      bdlde::Base64IgnoreMode::e_IGNORE_NONE,
+//                                      bdlde::Base64Alphabet::e_URL,
+//                                      true);
 //..
 // Then, we check the attributes:
 //..
-//  assert(customOptions.maxLineLength() == 200);
-//  assert(customOptions.alphabet()      == bdlde::Base64Alphabet::e_URL);
-//  assert(customOptions.isPadded()      == true);
+//  assert(customOptions.ignoreMode() ==
+//                                     bdlde::Base64IgnoreMode::e_IGNORE_NONE);
+//  assert(customOptions.alphabet()   == bdlde::Base64Alphabet::e_URL);
+//  assert(customOptions.isPadded()   == true);
 //..
 // Now, we stream the object:
 //..
@@ -146,10 +153,11 @@ BSLS_IDENT_PRAGMA_ONCE
 //..
 // Finally, we observe the output:
 //..
-//  [ maxLineLength = 200 alphabet = URL isPadded = true ]
+//  [ ignoreMode = IGNORE_NONE alphabet = URL isPadded = true ]
 //..
 
 #include <bdlde_base64alphabet.h>
+#include <bdlde_base64ignoremode.h>
 
 #include <bslmf_istriviallycopyable.h>
 
@@ -165,17 +173,20 @@ namespace bdlde {
                           // ==========================
 
 class Base64DecoderOptions {
-    // DATA
-    bool                 d_unrecognizedIsError;
-    bool                 d_isPadded;
-    Base64Alphabet::Enum d_alphabet;
+    typedef Base64IgnoreMode    IgnoreMode;
 
+    // DATA
+    IgnoreMode::Enum     d_ignoreMode;
+    Base64Alphabet::Enum d_alphabet;
+    bool                 d_isPadded;
+
+  private:
     // PRIVATE CREATORS
-    Base64DecoderOptions(bool                 unrecognizedIsError,
+    Base64DecoderOptions(IgnoreMode::Enum     ignoreMode,
                          Base64Alphabet::Enum alphabet,
                          bool                 padded);
         // Create a 'Base64DecoderOptions' object having the specified
-        // alphabet, 'padded', and 'unrecognizedIsError' attribute values.  The
+        // alphabet, 'padded', and 'ignoreMode' attribute values.  The
         // behavior is unless 'alphabet is a defined value of
         // 'Base64Alphabet::Enum'.
 
@@ -183,35 +194,40 @@ class Base64DecoderOptions {
     // CLASS METHODS
     static
     Base64DecoderOptions custom(
-                       bool                 unrecognizedIsError,
+                       IgnoreMode::Enum     ignoreMode,
                        Base64Alphabet::Enum alphabet = Base64Alphabet::e_BASIC,
                        bool                 padded   = true);
         // Return a 'Base64DecoderOptions' object having the specified
-        // 'alphabet, 'padded', and 'unrecognizedIsError' attribute values.
-        // The behavior is unless '0 <= maxLineLength' and 'alphabet is a
-        // defined value of 'Base64Alphabet::Enum'.
+        // 'alphabet, 'padded', and 'ignoreMode' attribute values.  The
+        // behavior is unless 'ignoreMode' is a defined value of 'IgnoreMode',
+        // '0 <= maxLineLength', and 'alphabet is a defined value of
+        // 'Base64Alphabet::Enum'.
 
     static
-    Base64DecoderOptions mime(bool unrecognizedIsError = true);
+    Base64DecoderOptions mime(IgnoreMode::Enum ignoreMode =
+                                              IgnoreMode::e_IGNORE_WHITESPACE);
         // Return a 'Base64DecoderOptions' object having the attributes
         // 'alphabet == Base64Alphabet::e_BASIC', 'isPadded == true', and the
-        // specified 'unrecognizedIsError'.  If 'unrecognizedIsError' is not
-        // specified, it defaults to 'true'.
+        // specified 'ignoreMode'.  If 'ignoreMode' is not specified, it
+        // defaults to 'e_IGNORE_WHITESPACE'.
 
     static
-    Base64DecoderOptions standard(bool unrecognizedIsError = true,
-                                  bool padded              = true);
-        // Return a 'Base64DecoderOptions' object having the attributes
-        // 'alphabet == Base64Alphabet::e_BASIC' and the specified 'isPadded'.
-        // If 'padded' is not specified, it defaults to 'true'.  If
-        // 'unrecognizedIsError' is not specified, it defaults to 'true'.
+    Base64DecoderOptions standard(IgnoreMode::Enum ignoreMode =
+                                                     IgnoreMode::e_IGNORE_NONE,
+                                  bool padded                 = true);
+        // Return a 'Base64DecoderOptions' object having the specified
+        // 'ignoreMode' and 'padded', and the attribute
+        // 'alphabet == Base64Alphabet::e_BASIC'.  If 'padded' is not
+        // specified, it defaults to 'true'.  If 'ignoreMode' is not specified,
+        // it defaults to 'e_IGNORE_NOTHING'.
 
     static
-    Base64DecoderOptions urlSafe(bool unrecognizedIsError = true);
+    Base64DecoderOptions urlSafe(IgnoreMode::Enum ignoreMode =
+                                                    IgnoreMode::e_IGNORE_NONE);
         // Return a 'Base64DecoderOptions' object having the attributes
         // 'alphabet == Base64Alphabet::e_URL', 'isPadded == false' and the
-        // specified 'unrecognizedIsError'.  If 'unrecognizedIsError' is not
-        // specified, it defaults to 'true'.
+        // specified 'ignoreMode'.  If 'ignoreMode' is not specified, it
+        // defaults to 'e_IGNORE_NOTHING'.
 
     // CREATORS
     // Base64DecoderOptions(const Base64DecoderOptions&) = default;
@@ -225,12 +241,13 @@ class Base64DecoderOptions {
         // Set the 'alphabet' attribute to the specified 'value'.  The behavior
         // is undefined unless 'value' is either 'e_BASIC' or 'e_UTL'.
 
+    void setIgnoreMode(IgnoreMode::Enum value);
+        // Set the 'ignoreMode' attribute to the specified 'value'.  The
+        // behavior is undefined unless 'value' is valid value of the
+        // 'IgnoreMode' enum.
+
     void setIsPadded(bool value);
         // Set the 'isPadded' attribute to the specified 'value'.
-
-    void setUnrecognizedIsError(int value);
-        // Set the 'maxLineLength' attribute to the specified 'value'.  The
-        // behavior is undefined unless '0 <= value'.
 
     // ACCESSORS
     bsl::ostream& print(bsl::ostream& stream,
@@ -251,11 +268,11 @@ class Base64DecoderOptions {
     Base64Alphabet::Enum alphabet() const;
         // Return the value of the 'alphabet' attribute.
 
+    IgnoreMode::Enum ignoreMode() const;
+        // Return the value of the 'ignoreMode' attribute.
+
     bool isPadded() const;
         // Return the value of the 'isPadded' attribute.
-
-    bool unrecognizedIsError() const;
-        // Return the value of the 'unrecognizedIsError' attribute.
 };
 
 // FREE OPERATORS
@@ -303,14 +320,14 @@ namespace bdlde {
 
 // PRIVATE CREATORS
 inline
-Base64DecoderOptions::Base64DecoderOptions(
-                                      bool                 unrecognizedIsError,
-                                      Base64Alphabet::Enum alphabet,
-                                      bool                 padded)
-: d_unrecognizedIsError(unrecognizedIsError)
-, d_isPadded(padded)
+Base64DecoderOptions::Base64DecoderOptions(IgnoreMode::Enum     ignoreMode,
+                                           Base64Alphabet::Enum alphabet,
+                                           bool                 padded)
+: d_ignoreMode(ignoreMode)
 , d_alphabet(alphabet)
+, d_isPadded(padded)
 {
+    BSLS_ASSERT(static_cast<unsigned>(ignoreMode) < IgnoreMode::k_NUM_VALUES);
     BSLS_ASSERT(Base64Alphabet::e_BASIC == alphabet ||
                                             Base64Alphabet::e_URL == alphabet);
 }
@@ -318,36 +335,37 @@ Base64DecoderOptions::Base64DecoderOptions(
 // CLASS METHODS
 inline
 Base64DecoderOptions Base64DecoderOptions::custom(
-                                      bool                 unrecognizedIsError,
-                                      Base64Alphabet::Enum alphabet,
-                                      bool                 padded)
+                                               IgnoreMode::Enum     ignoreMode,
+                                               Base64Alphabet::Enum alphabet,
+                                               bool                 padded)
 {
-    return Base64DecoderOptions(unrecognizedIsError,
+    return Base64DecoderOptions(ignoreMode,
                                 alphabet,
                                 padded);
 }
 
 inline
-Base64DecoderOptions Base64DecoderOptions::mime(bool unrecognizedIsError)
+Base64DecoderOptions Base64DecoderOptions::mime(IgnoreMode::Enum ignoreMode)
 {
-    return Base64DecoderOptions(unrecognizedIsError,
+    return Base64DecoderOptions(ignoreMode,
                                 Base64Alphabet::e_BASIC,
                                 true);
 }
 
 inline
-Base64DecoderOptions Base64DecoderOptions::standard(bool unrecognizedIsError,
-                                                    bool padded)
+Base64DecoderOptions Base64DecoderOptions::standard(
+                                                   IgnoreMode::Enum ignoreMode,
+                                                   bool             padded)
 {
-    return Base64DecoderOptions(unrecognizedIsError,
+    return Base64DecoderOptions(ignoreMode,
                                 Base64Alphabet::e_BASIC,
                                 padded);
 }
 
 inline
-Base64DecoderOptions Base64DecoderOptions::urlSafe(bool unrecognizedIsError)
+Base64DecoderOptions Base64DecoderOptions::urlSafe(IgnoreMode::Enum ignoreMode)
 {
-    return Base64DecoderOptions(unrecognizedIsError,
+    return Base64DecoderOptions(ignoreMode,
                                 Base64Alphabet::e_URL,
                                 false);
 }
@@ -369,11 +387,11 @@ void Base64DecoderOptions::setIsPadded(bool value)
 }
 
 inline
-void Base64DecoderOptions::setUnrecognizedIsError(int value)
+void Base64DecoderOptions::setIgnoreMode(IgnoreMode::Enum value)
 {
-    BSLS_ASSERT(0 <= value);
+    BSLS_ASSERT(static_cast<unsigned>(value) <= 2);
 
-    d_unrecognizedIsError = value;
+    d_ignoreMode = value;
 }
 
 // ACCESSORS
@@ -384,15 +402,15 @@ Base64Alphabet::Enum Base64DecoderOptions::alphabet() const
 }
 
 inline
-bool Base64DecoderOptions::isPadded() const
+Base64IgnoreMode::Enum Base64DecoderOptions::ignoreMode() const
 {
-    return d_isPadded;
+    return d_ignoreMode;
 }
 
 inline
-bool Base64DecoderOptions::unrecognizedIsError() const
+bool Base64DecoderOptions::isPadded() const
 {
-    return d_unrecognizedIsError;
+    return d_isPadded;
 }
 
 }  // close package namespace

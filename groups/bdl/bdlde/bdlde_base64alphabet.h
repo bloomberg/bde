@@ -121,11 +121,11 @@ struct Base64Alphabet {
         // name of its corresponding base enumeration with the "e_" prefix
         // elided.  For example:
         //..
-        //  bsl::cout << ByteOrder::toAscii(ByteOrder::e_NETWORK);
+        //  bsl::cout << ByteOrder::toAscii(ByteOrder::e_URL);
         //..
         // will print the following on standard output:
         //..
-        //  BIG_ENDIAN
+        //  URL
         //..
         // Note that specifying a 'value' that does not match any of the
         // enumerators will result in a string representation that is distinct
@@ -144,21 +144,13 @@ bsl::ostream& operator<<(bsl::ostream& stream, Base64Alphabet::Enum value);
     //  bdlde::Base64Alphabet::print(stream, value, 0, -1);
     //..
 
-// ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
-// ============================================================================
-
-                          // -----------------------
-                          // struct bdlde::ByteOrder
-                          // -----------------------
-
 }  // close package namespace
 }  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2022 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

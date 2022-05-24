@@ -40,7 +40,7 @@ using bsl::flush;
 // [ 3] bool operator!=(const Obj&, const Obj&);
 // [ 3] void setAlphabet(Base64Alphabet::Enum) const;
 // [ 3] void setIsPadded(bool) const;
-// [ 3] void setUnrecognizedIsError(bool);
+// [ 3] void setIgnoreMode(Ignore::Enum);
 // [ 3] Obj custom(int, Alpha::Enum, bool, bool);
 // [ 3] Obj mime(bool);
 // [ 3] Obj urlSafe(bool);
@@ -49,7 +49,7 @@ using bsl::flush;
 // [ 2] Obj(int, Base64Alphabet::Enum, bool);
 // [ 2] Base64Alphabet::Enum alphabet() const;
 // [ 2] bool isPadded() const;
-// [ 2] bool unrecognizedIsError() const;
+// [ 2] Base64IgnoreMode::Enum ignoreMode() const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST -- (developer's sandbox)
 // [ 5] USAGE EXAMPLE
@@ -106,6 +106,7 @@ void aSsErT(bool condition, const char *message, int line)
 typedef bdlde::Base64DecoderOptions Obj;
 typedef bdlde::Base64EncoderOptions EncoderOptions;
 typedef bdlde::Base64Alphabet       Alpha;
+typedef bdlde::Base64IgnoreMode     Ignore;
 
 enum { k_DEFAULT_MLL = 76 };
 
@@ -150,8 +151,8 @@ int main(int argc, char *argv[])
 ///Example 1:
 /// - - - - -
 // Suppose we want a 'Base64DecoderOptions' object configured for MIME
-// encoding, meaning 'alphabet == e_BASIC',
-// 'isPadded == true', and 'unrecognizedIsError = true'.
+// encoding, meaning 'alphabet == e_BASIC', 'isPadded == true', and
+// 'ignoreMode = e_IGNORE_WHITESPACE'.
 //
 // First, it turns out that those are the default values of the attributes, so
 // all we have to do is default construct an object, and we're done.
@@ -161,10 +162,10 @@ int main(int argc, char *argv[])
 //..
 // Then, we check the attributes:
 //..
-    ASSERT(mimeOptions.unrecognizedIsError() == true);
-    ASSERT(mimeOptions.alphabet()            ==
-                                               bdlde::Base64Alphabet::e_BASIC);
-    ASSERT(mimeOptions.isPadded()            == true);
+    ASSERT(mimeOptions.ignoreMode() ==
+                                 bdlde::Base64IgnoreMode::e_IGNORE_WHITESPACE);
+    ASSERT(mimeOptions.alphabet()   == bdlde::Base64Alphabet::e_BASIC);
+    ASSERT(mimeOptions.isPadded()   == true);
 //..
 // Now, we stream the object:
 //..
@@ -173,6 +174,11 @@ if (verbose)
 //..
 // Finally, we observe the output:
 //..
+//  [
+//      ignoreMode = IGNORE_WHITESPACE
+//      alphabet = BASIC
+//      isPadded = true
+//  ]
 //..
 //
 ///Example 2:
@@ -189,9 +195,9 @@ if (verbose)
 //..
 // Then, we check the attributes:
 //..
-    ASSERT(urlOptions.unrecognizedIsError() == true);
-    ASSERT(urlOptions.alphabet()            == bdlde::Base64Alphabet::e_URL);
-    ASSERT(urlOptions.isPadded()            == false);
+    ASSERT(urlOptions.ignoreMode() == bdlde::Base64IgnoreMode::e_IGNORE_NONE);
+    ASSERT(urlOptions.alphabet()   == bdlde::Base64Alphabet::e_URL);
+    ASSERT(urlOptions.isPadded()   == false);
 //..
 // Now, we stream the object:
 //..
@@ -200,6 +206,11 @@ if (verbose)
 //..
 // Finally, we observe the output:
 //..
+//  [
+//      ignoreMode = IGNORE_NONE
+//      alphabet = URL
+//      isPadded = false
+//  ]
 //..
 //
 ///Example 3:
@@ -213,7 +224,8 @@ if (verbose)
 //..
 // Then, we check the attributes:
 //..
-    ASSERT(standardOptions.unrecognizedIsError() == true);
+    ASSERT(standardOptions.ignoreMode() ==
+                                       bdlde::Base64IgnoreMode::e_IGNORE_NONE);
     ASSERT(standardOptions.alphabet()            ==
                                                bdlde::Base64Alphabet::e_BASIC);
     ASSERT(standardOptions.isPadded()            == true);
@@ -225,6 +237,11 @@ if (verbose)
 //..
 // Finally, we observe the output:
 //..
+//  [
+//      ignoreMode = IGNORE_NONE
+//      alphabet = BASIC
+//      isPadded = true
+//  ]
 //..
 //
 ///Example 4:
@@ -237,16 +254,17 @@ if (verbose)
 // 'true', so we don't have to pass that.
 //..
     const bdlde::Base64DecoderOptions& customOptions =
-              bdlde::Base64DecoderOptions::custom(false,
-                                                  bdlde::Base64Alphabet::e_URL,
-                                                  true);
+                           bdlde::Base64DecoderOptions::custom(
+                                        bdlde::Base64IgnoreMode::e_IGNORE_NONE,
+                                        bdlde::Base64Alphabet::e_URL,
+                                        true);
 //..
 // Then, we check the attributes:
 //..
-    ASSERT(customOptions.unrecognizedIsError() == false);
-    ASSERT(customOptions.alphabet()            ==
-                                                 bdlde::Base64Alphabet::e_URL);
-    ASSERT(customOptions.isPadded()            == true);
+    ASSERT(customOptions.ignoreMode() ==
+                                       bdlde::Base64IgnoreMode::e_IGNORE_NONE);
+    ASSERT(customOptions.alphabet()   == bdlde::Base64Alphabet::e_URL);
+    ASSERT(customOptions.isPadded()   == true);
 //..
 // Now, we stream the object:
 //..
@@ -255,6 +273,7 @@ if (verbose)
 //..
 // Finally, we observe the output:
 //..
+//  [ ignoreMode = IGNORE_NONE alphabet = URL isPadded = true ]
 //..
       } break;
       case 4: {
@@ -340,40 +359,44 @@ if (verbose)
         const bool T = true;
         const bool F = false;
 
+        const Ignore::Enum N  = Ignore::e_IGNORE_NONE;
+        const Ignore::Enum W  = Ignore::e_IGNORE_WHITESPACE;
+        const Ignore::Enum UN = Ignore::e_IGNORE_UNRECOGNIZED;
+
         static const struct Data {
-            int         d_line;           // source line number
-            int         d_level;
-            int         d_spl;
+            int           d_line;           // source line number
+            int           d_level;
+            int           d_spl;
 
-            Alpha::Enum d_alphabet;
-            bool        d_isPadded;
-            bool        d_unrecognizedIsError;
+            Alpha::Enum   d_alphabet;
+            bool          d_isPadded;
+            Ignore::Enum  d_ignoreMode;
 
-            const char *d_expected_p;
+            const char   *d_expected_p;
         } DATA[] = {
 
 #define NL "\n"
 #define SP " "
 
-//LINE L  SPL  A  P  U
-//---- -  ---  -  -  -
+//LINE L  SPL  A  P  IM
+//---- -  ---  -  -  --
 
-{ L_,  0,   0, B, T, T,      "["                                             NL
-                                 "unrecognizedIsError = true"                NL
+{ L_,  0,   0, B, T, W,      "["                                             NL
+                                 "ignoreMode = IGNORE_WHITESPACE"            NL
                                  "alphabet = BASIC"                          NL
                                  "isPadded = true"                           NL
                                         "]"                                  NL
                                                                              },
 
-{ L_,  0,  1,  U, F, T,      "["                                             NL
-                                 " unrecognizedIsError = true"               NL
+{ L_,  0,  1,  U, F, N,      "["                                             NL
+                                 " ignoreMode = IGNORE_NONE"                 NL
                                  " alphabet = URL"                           NL
                                  " isPadded = false"                         NL
                                        "]"                                   NL
                                                                              },
 
-{ L_,  0, -1, U, T, F,      "["                                              SP
-                                 "unrecognizedIsError = false"               SP
+{ L_,  0, -1,  U, T, UN,     "["                                             SP
+                                 "ignoreMode = IGNORE_UNRECOGNIZED"          SP
                                  "alphabet = URL"                            SP
                                  "isPadded = true"                           SP
                                        "]"
@@ -386,44 +409,44 @@ if (verbose)
 //LINE L  SPL  A  P
 //---- -  ---  -  -
 
-{ L_,  3,   0, B, T, T,      "["                                             NL
-                                 "unrecognizedIsError = true"                NL
+{ L_,  3,   0, B, T, N,      "["                                             NL
+                                 "ignoreMode = IGNORE_NONE"                  NL
                                  "alphabet = BASIC"                          NL
                                  "isPadded = true"                           NL
                                        "]"                                   NL
                                                                              },
 
-{ L_,  3,   2, U, F, T,
+{ L_,  3,   2, U, F, N,
                                "      ["                                     NL
-                         "        unrecognizedIsError = true"                NL
+                         "        ignoreMode = IGNORE_NONE"                  NL
                          "        alphabet = URL"                            NL
                          "        isPadded = false"                          NL
                                "      ]"                                     NL
                                                                              },
 
-{ L_,  3,  -2, B, T, T,      "      ["                                       SP
-                                 "unrecognizedIsError = true"                SP
+{ L_,  3,  -2, B, T, W,      "      ["                                       SP
+                                 "ignoreMode = IGNORE_WHITESPACE"            SP
                                  "alphabet = BASIC"                          SP
                                  "isPadded = true"                           SP
                                        "]"
                                                                              },
 
-{ L_, -3,  0,  U, T, T,      "["                                             NL
-                                 "unrecognizedIsError = true"                NL
+{ L_, -3,  0,  U, T, UN,     "["                                             NL
+                                 "ignoreMode = IGNORE_UNRECOGNIZED"          NL
                                  "alphabet = URL"                            NL
                                  "isPadded = true"                           NL
                                        "]"                                   NL
                                                                              },
 
-{ L_, -3,  2,  B, T, T,      "["                                             NL
-                         "        unrecognizedIsError = true"                NL
+{ L_, -3,  2,  B, T, W,      "["                                             NL
+                         "        ignoreMode = IGNORE_WHITESPACE"            NL
                          "        alphabet = BASIC"                          NL
                          "        isPadded = true"                           NL
                                "      ]"                                     NL
                                                                              },
 
-{ L_, -3, -2,  U, F, T,      "["                                             SP
-                                 "unrecognizedIsError = true"                SP
+{ L_, -3, -2,  U, F, N,      "["                                             SP
+                                 "ignoreMode = IGNORE_NONE"                  SP
                                  "alphabet = URL"                            SP
                                  "isPadded = false"                          SP
                                        "]"
@@ -432,8 +455,8 @@ if (verbose)
 //LINE L  SPL  A  P
 //---- -  ---  -  -
 
-{ L_,  2,   3, B, F, T,      "      ["                                       NL
-                             "         unrecognizedIsError = true"           NL
+{ L_,  2,   3, B, F, W,      "      ["                                       NL
+                             "         ignoreMode = IGNORE_WHITESPACE"       NL
                              "         alphabet = BASIC"                     NL
                              "         isPadded = false"                     NL
                              "      ]"                                       NL
@@ -442,14 +465,14 @@ if (verbose)
 //LINE L  SPL  A  P
 //---- -  ---  -  -
 
-{ L_, -9,  -9, B, F, T,          "["                                         SP
-                                 "unrecognizedIsError = true"                SP
+{ L_, -9,  -9, B, F, N,          "["                                         SP
+                                 "ignoreMode = IGNORE_NONE"                  SP
                                  "alphabet = BASIC"                          SP
                                  "isPadded = false"                          SP
                                  "]" },
 
-{ L_, -9,  -9, U, T, F,          "["                                         SP
-                                 "unrecognizedIsError = false"               SP
+{ L_, -9,  -9, U, T, UN,         "["                                         SP
+                                 "ignoreMode = IGNORE_UNRECOGNIZED"          SP
                                  "alphabet = URL"                            SP
                                  "isPadded = true"                           SP
                                  "]" },
@@ -464,22 +487,22 @@ if (verbose)
                           << endl;
         {
             for (int ti = 0; ti < k_NUM_DATA; ++ti) {
-                const Data&       data = DATA[ti];
+                const Data&        data = DATA[ti];
 
-                const int         LINE = data.d_line;
-                const int         L    = data.d_level;
-                const int         S    = data.d_spl;
+                const int          LINE = data.d_line;
+                const int          L    = data.d_level;
+                const int          S    = data.d_spl;
 
-                const Alpha::Enum A    = data.d_alphabet;
-                const bool        PAD  = data.d_isPadded;
-                const bool        URE  = data.d_unrecognizedIsError;
-                const bsl::string EXP  = data.d_expected_p;
+                const Alpha::Enum  A    = data.d_alphabet;
+                const bool         PAD  = data.d_isPadded;
+                const Ignore::Enum IGN  = data.d_ignoreMode;
+                const bsl::string  EXP  = data.d_expected_p;
 
-                if (veryVerbose) { T_ P_(L) P_(S) P_(A) P_(PAD) P(URE) }
+                if (veryVerbose) { T_ P_(L) P_(S) P_(A) P_(PAD) P(IGN) }
 
                 if (veryVeryVerbose) { T_ T_ Q(EXPECTED) cout << EXP; }
 
-                const Obj& X = Obj::custom(URE, A, PAD);
+                const Obj& X = Obj::custom(IGN, A, PAD);
 
                 bsl::ostringstream os;
 
@@ -564,10 +587,9 @@ if (verbose)
         // Testing:
         //   Obj(int, Base64Alphabet::Enum);
         //   Obj(int);
-        //   void setMaxLineLength(int);
         //   void setAlphabet(Alpha::Enum);
         //   void setIsPadded(bool);
-        //   void setUnrecognizedIsError(bool);
+        //   void setIgnoreMode(Ignore::Enum);
         //   Obj custom(int, Alpha::Enum, bool, bool);
         //   Obj mime(bool);
         //   Obj urlSafe(bool);
@@ -582,25 +604,25 @@ if (verbose)
           "EXHAUSTIVE STATES, ALL C'TORS, '==', '!=', COPY CONSTRUCT/ASSIGN\n"
           "================================================================\n";
 
-        enum { k_MAX_TI = 3 * 3 * 2 };
+        enum { k_MAX_TI = 3 * 3 * 3 };
 
         bool uIsErrWasSet = false;
         for (int ti = 0; ti < k_MAX_TI; ++ti) {
             int               tii      = ti;
             const int         ai       = (tii % 3) - 1;    tii /= 3;
             const int         pi       = (tii % 3) - 1;    tii /= 3;
-            const int         ui       =  tii % 2;         tii /= 2;
+            const int         ui       =  tii % 3;         tii /= 3;
             ASSERT(0 == tii);
 
-            const Alpha::Enum alphabet = ai < 0 ? Alpha::e_BASIC
+            const Alpha::Enum  alphabet = ai < 0 ? Alpha::e_BASIC
                                                 : ai ? Alpha::e_URL
                                                      : Alpha::e_BASIC;
-            const bool        PADDED   = pi < 0 || pi;
-            const bool        U_IS_ERR = ui;
+            const bool         PADDED   = pi < 0 || pi;
+            const Ignore::Enum IGNORE   = static_cast<Ignore::Enum>(ui);
 
-            uIsErrWasSet |= U_IS_ERR;
+            uIsErrWasSet |= 2 == ui;
 
-            Obj master = Obj::custom(U_IS_ERR);    const Obj& MASTER = master;
+            Obj master = Obj::custom(IGNORE);    const Obj& MASTER = master;
             if (0 <= ai) {
                 master.setAlphabet(alphabet);
             }
@@ -608,19 +630,19 @@ if (verbose)
                 master.setIsPadded(PADDED);
             }
 
-            ASSERT(MASTER.unrecognizedIsError() == U_IS_ERR);
-            ASSERT(MASTER.alphabet()            == alphabet);
-            ASSERT(MASTER.isPadded()            == PADDED);
+            ASSERT(MASTER.ignoreMode() == IGNORE);
+            ASSERT(MASTER.alphabet()   == alphabet);
+            ASSERT(MASTER.isPadded()   == PADDED);
 
             if (veryVerbose) cout << "Call 'custom' class method\n";
             {
-                const Obj& X = Obj::custom(U_IS_ERR,
+                const Obj& X = Obj::custom(IGNORE,
                                            alphabet,
                                            PADDED);
 
-                ASSERT(X.unrecognizedIsError() == U_IS_ERR);
-                ASSERT(X.alphabet()            == alphabet);
-                ASSERT(X.isPadded()            == PADDED);
+                ASSERT(X.ignoreMode() == IGNORE);
+                ASSERT(X.alphabet()   == alphabet);
+                ASSERT(X.isPadded()   == PADDED);
 
                 ASSERTV(alphabet, PADDED, X, X == MASTER );
                 ASSERT(  MASTER == X );
@@ -631,14 +653,14 @@ if (verbose)
             if (veryVerbose) cout << "Let some attrs default\n";
             {
                 const Obj& X = 0 <= pi
-                             ? Obj::custom(U_IS_ERR, alphabet, PADDED)
+                             ? Obj::custom(IGNORE, alphabet, PADDED)
                              : 0 <= ai
-                             ? Obj::custom(U_IS_ERR, alphabet)
-                             : Obj::custom(U_IS_ERR);
+                             ? Obj::custom(IGNORE, alphabet)
+                             : Obj::custom(IGNORE);
 
-                ASSERT(X.unrecognizedIsError() == U_IS_ERR);
-                ASSERT(X.alphabet()            == alphabet);
-                ASSERT(X.isPadded()            == PADDED);
+                ASSERT(X.ignoreMode() == IGNORE);
+                ASSERT(X.alphabet()   == alphabet);
+                ASSERT(X.isPadded()   == PADDED);
 
                 ASSERTV(alphabet, PADDED, X, X == MASTER );
                 ASSERT(  MASTER == X );
@@ -649,15 +671,15 @@ if (verbose)
             if (veryVerbose) cout << "MIME\n";
             {
                 const Obj& X = 0 <= ui
-                             ? Obj::mime(U_IS_ERR)
+                             ? Obj::mime(IGNORE)
                              : Obj::mime();
 
                 const bool EQ = Alpha::e_BASIC == alphabet &&
                                 PADDED;
 
-                ASSERT(X.unrecognizedIsError() == U_IS_ERR);
-                ASSERT(X.alphabet()            == Alpha::e_BASIC);
-                ASSERT(X.isPadded()            == true);
+                ASSERT(X.ignoreMode() == IGNORE);
+                ASSERT(X.alphabet()   == Alpha::e_BASIC);
+                ASSERT(X.isPadded()   == true);
 
                 ASSERT( EQ == (X == MASTER));
                 ASSERT( EQ == (MASTER == X));
@@ -668,16 +690,16 @@ if (verbose)
             if (veryVerbose) cout << "Standard\n";
             {
                 const Obj& X = 0 <= pi
-                             ? Obj::standard(U_IS_ERR, PADDED)
+                             ? Obj::standard(IGNORE, PADDED)
                              : 0 <= ui
-                             ? Obj::standard(U_IS_ERR)
+                             ? Obj::standard(IGNORE)
                              : Obj::standard();
 
                 const bool EQ = Alpha::e_BASIC == alphabet;
 
-                ASSERT(X.unrecognizedIsError() == U_IS_ERR);
-                ASSERT(X.alphabet()            == Alpha::e_BASIC);
-                ASSERT(X.isPadded()            == PADDED);
+                ASSERT(X.ignoreMode() == IGNORE);
+                ASSERT(X.alphabet()   == Alpha::e_BASIC);
+                ASSERT(X.isPadded()   == PADDED);
 
                 ASSERT( EQ == (X == MASTER));
                 ASSERT( EQ == (MASTER == X));
@@ -687,14 +709,14 @@ if (verbose)
 
             if (veryVerbose) cout << "URL Safe\n";
             {
-                const Obj& X = Obj::urlSafe(U_IS_ERR);
+                const Obj& X = Obj::urlSafe(IGNORE);
 
                 const bool EQ = Alpha::e_URL == alphabet &&
                                 false        == PADDED;
 
-                ASSERT(X.unrecognizedIsError() == U_IS_ERR);
-                ASSERT(X.alphabet()            == Alpha::e_URL);
-                ASSERT(X.isPadded()            == false);
+                ASSERT(X.ignoreMode() == IGNORE);
+                ASSERT(X.alphabet()   == Alpha::e_URL);
+                ASSERT(X.isPadded()   == false);
 
                 ASSERT( EQ == (X == MASTER));
                 ASSERT( EQ == (MASTER == X));
@@ -704,30 +726,30 @@ if (verbose)
 
             if (veryVeryVerbose) cout << "Compare to all other states\n";
 
-            bool uIsErrBWasSet = false;
-            enum { k_NUM_TJ = 2 * 2 * 2 };
+            bool tjjDone = false;
+            enum { k_NUM_TJ = 2 * 2 * 3 };
             for (int tj = 0; tj < k_NUM_TJ; ++tj) {
-                int               tjj       = tj;
-                const Alpha::Enum alphabetB = (tjj & 1) ? Alpha::e_URL
-                                                        : Alpha::e_BASIC;
+                int                tjj       = tj;
+                const Alpha::Enum  alphabetB = (tjj & 1) ? Alpha::e_URL
+                                                         : Alpha::e_BASIC;
                                                                       tjj /= 2;
-                const bool        PADDED_B  = tjj & 1;    tjj /= 2;
-                const bool        U_IS_ERRB = tjj & 1;    tjj /= 2;
+                const bool         PADDED_B  = tjj & 1;    tjj /= 2;
+                const Ignore::Enum IGNOREB   = static_cast<Ignore::Enum>(tjj);
+                tjjDone |= 2 == tjj;
+                tjj /= 3;
                 ASSERT(0 == tjj);
-
-                uIsErrBWasSet |= U_IS_ERRB;
 
                 const bool EQ = alphabet == alphabetB
                              && PADDED   == PADDED_B
-                             && U_IS_ERR == U_IS_ERRB;
+                             && IGNORE   == IGNOREB;
 
-                const Obj& Y = Obj::custom(U_IS_ERRB,
+                const Obj& Y = Obj::custom(IGNOREB,
                                            alphabetB,
                                            PADDED_B);
 
-                ASSERTV(U_IS_ERRB, Y.unrecognizedIsError() == U_IS_ERRB);
-                ASSERTV(alphabetB, Y.alphabet()            == alphabetB);
-                ASSERTV(PADDED_B,  Y.isPadded()            == PADDED_B);
+                ASSERTV(IGNOREB,   Y.ignoreMode() == IGNOREB);
+                ASSERTV(alphabetB, Y.alphabet()   == alphabetB);
+                ASSERTV(PADDED_B,  Y.isPadded()   == PADDED_B);
 
                 ASSERTV(MASTER, Y, EQ == (MASTER == Y));
                 ASSERT( EQ == (Y == MASTER));
@@ -766,7 +788,7 @@ if (verbose)
                 ASSERT(!EQ == (Y != Z));
                 ASSERT(!EQ == (Z != Y));
             }
-            ASSERT(uIsErrBWasSet);
+            ASSERT(tjjDone);
 
             if (veryVeryVerbose) cout << "Copy construct\n";
             {
@@ -779,7 +801,7 @@ if (verbose)
 
             if (veryVeryVerbose) cout << "Outer copy assign\n";
             {
-                Obj mY(Obj::mime(true));    const Obj& Y = mY;
+                Obj mY(Obj::mime(Ignore::e_IGNORE_NONE));    const Obj& Y = mY;
                 Obj *p = &(mY = master);
                 ASSERT(&mY == p);
                 ASSERT(  Y == MASTER );
@@ -823,61 +845,70 @@ if (verbose)
 
         if (verbose) cout << "Default object\n";
         {
-            const Obj OBJ(Obj::mime(true));
-            ASSERT(true           == OBJ.unrecognizedIsError());
-            ASSERT(Alpha::e_BASIC == OBJ.alphabet());
-            ASSERT(true           == OBJ.isPadded());
+            const Obj OBJ(Obj::mime(Ignore::e_IGNORE_WHITESPACE));
+            ASSERT(Ignore::e_IGNORE_WHITESPACE == OBJ.ignoreMode());
+            ASSERT(Alpha::e_BASIC              == OBJ.alphabet());
+            ASSERT(true                        == OBJ.isPadded());
         }
 
         if (verbose) cout << "\"base64\" alphabet"
                           << endl;
         {
-            const Obj& OBJ = Obj::custom(true, Alpha::e_BASIC);
-            ASSERT(true           == OBJ.unrecognizedIsError());
-            ASSERT(Alpha::e_BASIC == OBJ.alphabet());
-            ASSERT(true           == OBJ.isPadded());
+            const Obj& OBJ = Obj::custom(Ignore::e_IGNORE_NONE,
+                                         Alpha::e_BASIC);
+            ASSERT(Ignore::e_IGNORE_NONE == OBJ.ignoreMode());
+            ASSERT(Alpha::e_BASIC        == OBJ.alphabet());
+            ASSERT(true                  == OBJ.isPadded());
         }
 
         if (verbose) cout << "\"base64url\" alphabet" << endl;
         {
-            const Obj& OBJ = Obj::custom(true, Alpha::e_URL);
-            ASSERT(true         == OBJ.unrecognizedIsError());
-            ASSERT(Alpha::e_URL == OBJ.alphabet());
-            ASSERT(true         == OBJ.isPadded());
+            const Obj& OBJ = Obj::custom(Ignore::e_IGNORE_UNRECOGNIZED,
+                                         Alpha::e_URL);
+            ASSERT(Ignore::e_IGNORE_UNRECOGNIZED == OBJ.ignoreMode());
+            ASSERT(Alpha::e_URL                  == OBJ.alphabet());
+            ASSERT(true                          == OBJ.isPadded());
         }
 
         if (verbose) cout << "\"base64url\" alphabet, padded = false" << endl;
         {
-            const Obj& OBJ = Obj::custom(true, Alpha::e_URL, false);
-            ASSERT(true         == OBJ.unrecognizedIsError());
-            ASSERT(Alpha::e_URL == OBJ.alphabet());
-            ASSERT(false        == OBJ.isPadded());
+            const Obj& OBJ = Obj::custom(Ignore::e_IGNORE_NONE,
+                                         Alpha::e_URL, false);
+            ASSERT(Ignore::e_IGNORE_NONE == OBJ.ignoreMode());
+            ASSERT(Alpha::e_URL          == OBJ.alphabet());
+            ASSERT(false                 == OBJ.isPadded());
         }
 
         if (verbose) cout << "\"base64url\" alphabet, padded = false" << endl;
         {
-            const Obj& OBJ = Obj::custom(true, Alpha::e_URL, false);
-            ASSERT(true         == OBJ.unrecognizedIsError());
-            ASSERT(Alpha::e_URL == OBJ.alphabet());
-            ASSERT(false        == OBJ.isPadded());
+            const Obj& OBJ = Obj::custom(Ignore::e_IGNORE_WHITESPACE,
+                                         Alpha::e_URL,
+                                         false);
+            ASSERT(Ignore::e_IGNORE_WHITESPACE == OBJ.ignoreMode());
+            ASSERT(Alpha::e_URL                == OBJ.alphabet());
+            ASSERT(false                       == OBJ.isPadded());
         }
 
         if (verbose) cout << "\"base64url\" alphabet, padded = false,"
-                             " unrecognizedIsError = false" << endl;
+                             " ignoreMode = None" << endl;
         {
-            const Obj& OBJ = Obj::custom(false, Alpha::e_URL, false);
-            ASSERT(false        == OBJ.unrecognizedIsError());
-            ASSERT(Alpha::e_URL == OBJ.alphabet());
-            ASSERT(false        == OBJ.isPadded());
+            const Obj& OBJ = Obj::custom(Ignore::e_IGNORE_NONE,
+                                         Alpha::e_URL,
+                                         false);
+            ASSERT(Ignore::e_IGNORE_NONE == OBJ.ignoreMode());
+            ASSERT(Alpha::e_URL          == OBJ.alphabet());
+            ASSERT(false                 == OBJ.isPadded());
         }
 
         if (verbose) cout << "\"base64url\" alphabet, padded = false,"
-                             " unrecognizedIsError = false" << endl;
+                             " ignoreMode = Unrecognized" << endl;
         {
-            const Obj& OBJ = Obj::custom(false, Alpha::e_URL, false);
-            ASSERT(false        == OBJ.unrecognizedIsError());
-            ASSERT(Alpha::e_URL == OBJ.alphabet());
-            ASSERT(false        == OBJ.isPadded());
+            const Obj& OBJ = Obj::custom(Ignore::e_IGNORE_UNRECOGNIZED,
+                                         Alpha::e_URL,
+                                         false);
+            ASSERT(Ignore::e_IGNORE_UNRECOGNIZED == OBJ.ignoreMode());
+            ASSERT(Alpha::e_URL                  == OBJ.alphabet());
+            ASSERT(false                         == OBJ.isPadded());
         }
       } break;
       case 1: {

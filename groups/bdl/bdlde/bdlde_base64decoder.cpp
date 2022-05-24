@@ -16,16 +16,16 @@ BSLS_IDENT_RCSID(bdlde_base64decoder_cpp,"$Id$ $CSID$")
 
 #include <bsls_assert.h>
 
-namespace BloombergLP {
+namespace {
+namespace u {
 
                 // ======================
                 // FILE-SCOPE STATIC DATA
                 // ======================
 
-// The following table identifies characters that can be ignored when
-// d_isUnrecognizedAnErrorFlag 'true'.
+static const bool charsNone[256] = { 0 };
 
-static const bool charsThatCanBeIgnoredInStrictMode[256] = {
+static const bool charsWhitespace[256] = {
     // 0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
        0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0,  // 00  // whitespace
        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  // 10
@@ -45,10 +45,7 @@ static const bool charsThatCanBeIgnoredInStrictMode[256] = {
        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  // F0
 };
 
-// The following table identifies characters that can be ignored in Basic64
-// alphabet when d_isUnrecognizedAnErrorFlag 'false'.
-
-static const bool basicCharsThatCanBeIgnoredInRelaxedMode[256] = {
+static const bool charsInvalidBasicEncoding[256] = {
     // 0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // 00
        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // 10
@@ -68,10 +65,8 @@ static const bool basicCharsThatCanBeIgnoredInRelaxedMode[256] = {
        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // F0
 };
 
-// The following table identifies characters that can be ignored in Url and
-// Filename Safe alphabet when d_isUnrecognizedAnErrorFlag 'false'.
 
-static const bool urlCharsThatCanBeIgnoredInRelaxedMode[256] = {
+static const bool charsInvalidUrlEncoding[256] = {
     // 0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // 00
        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // 10
@@ -140,6 +135,10 @@ static const char urlAlphabet[256] = {
        ff, ff, ff, ff, ff, ff, ff, ff, ff, ff, ff, ff, ff, ff, ff, ff,  // F0
 };
 
+}  // close namespace u
+}  // close unnamed namespace
+
+namespace BloombergLP {
 namespace bdlde {
 
                          // -------------------
@@ -147,18 +146,18 @@ namespace bdlde {
                          // -------------------
 
 // CLASS DATA
-const bool *const Base64Decoder::s_ignorableStrict_p =
-                                             charsThatCanBeIgnoredInStrictMode;
+const bool *const Base64Decoder::s_ignorableNone_p = u::charsNone;
+const bool *const Base64Decoder::s_ignorableWhitespace_p = u::charsWhitespace;
 const bool *const Base64Decoder::s_basicIgnorableRelaxed_p =
-                                       basicCharsThatCanBeIgnoredInRelaxedMode;
+                                                  u::charsInvalidBasicEncoding;
 const bool *const Base64Decoder::s_urlIgnorableRelaxed_p =
-                                         urlCharsThatCanBeIgnoredInRelaxedMode;
-const char *const Base64Decoder::s_basicAlphabet_p = basicAlphabet;
-const char *const Base64Decoder::s_urlAlphabet_p   = urlAlphabet;
+                                                    u::charsInvalidUrlEncoding;
+
+const char *const Base64Decoder::s_basicAlphabet_p = u::basicAlphabet;
+const char *const Base64Decoder::s_urlAlphabet_p   = u::urlAlphabet;
 
 
 // CREATORS
-
 Base64Decoder::~Base64Decoder()
 {
     BSLS_ASSERT(e_ERROR_STATE <= d_state);

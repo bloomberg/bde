@@ -41,10 +41,10 @@ using bsl::flush;
 //
 // CLASS METHODS
 // [ 2] ostream& print(ostream& s, Enum val, int level = 0, int sPL = 4);
-// [ 1] const char *toAscii(bdlde::ByteOrder::Enum val);
+// [ 1] const char *toAscii(bdlde::Alphabet::Enum val);
 //
 // FREE OPERATORS
-// [ 3] operator<<(ostream& s, bdlde::ByteOrder::Enum val);
+// [ 3] operator<<(ostream& s, bdlde::Alphabet::Enum val);
 // ----------------------------------------------------------------------------
 // [ 5] USAGE EXAMPLE
 
@@ -567,7 +567,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2018 Bloomberg Finance L.P.
+// Copyright 2022 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
