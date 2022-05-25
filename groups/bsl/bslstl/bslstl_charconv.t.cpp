@@ -96,7 +96,8 @@ using std::numeric_limits;
 // generator.  The random tests of less than 8 bytes are done by masking the
 // result of 'mmixRand64' down to the appropriate number of bytes.
 // ----------------------------------------------------------------------------
-// [ 8] USAGE EXAMPLE
+// [ 9] USAGE EXAMPLE
+// [ 8] FROM_CHARS FOR C++17 TEST
 // [ 7] RANDOM 8-BYTE VALUES TEST
 // [ 6] RANDOM 4-BYTE VALUES TEST
 // [ 5] RANDOM 2-BYTE VALUES TEST
@@ -559,7 +560,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
-      case 8: {
+      case 9: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -596,6 +597,49 @@ int main(int argc, char *argv[])
 
         writeJsonScalar(sb, -1234567890);    // worst case int, max string len
         ASSERT("-1234567890" == oss.str());
+      } break;
+      case 8: {
+        // --------------------------------------------------------------------
+        // FROM_CHARS FOR C++17 TEST
+        //
+        // Concern:
+        //: 1 That the function 'from_chars' and the associated types are
+        //:   available in the namespace 'bsl'.
+        //
+        // Plan:
+        //: 1 Call the function 'bsl::from_chars' and check the results.
+        //:   Because we're importing from the native standard library, we
+        //:   don't need exhaustive tests, just making sure that the routines
+        //:   are present.
+        //
+        // Testing:
+        //   FROM_CHARS FOR C++17 TEST
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("FROM_CHARS FOR C++17 TEST\n"
+                            "=========================\n");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV
+        const char              *numStr = "123";
+        const char              *numStrEnd = numStr + strlen(numStr);
+        int                      val;
+        bsl::from_chars_result   res;
+        const bsl::chars_format  fmt = bsl::chars_format::general;
+
+        res = bsl::from_chars(numStr, numStrEnd, val, 10);
+        ASSERT(123 == val);
+        ASSERT(res.ptr == numStrEnd);
+
+        res = bsl::from_chars(numStr, numStrEnd, val, 16);
+        ASSERT(0x123 == val);
+        ASSERT(res.ptr == numStrEnd);
+
+        double dVal;
+        res = bsl::from_chars(numStr, numStrEnd, dVal, fmt);
+        ASSERT(123.0 == dVal);
+        ASSERT(res.ptr == numStrEnd);
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV
+
       } break;
       case 7: {
         // --------------------------------------------------------------------
