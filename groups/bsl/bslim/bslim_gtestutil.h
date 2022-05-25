@@ -29,53 +29,12 @@
 
 #include <bslscm_version.h>
 
-#include <bsl_optional.h>
 #include <bsl_ostream.h>
 #include <bsl_string.h>
 
-namespace testing {
-
-                      // ===================================
-                      // bslim_Gtestutil_TestingStreamHolder
-                      // ===================================
-
-class bslim_Gtestutil_TestingStreamHolder {
-    // This 'class' serves as a type in the 'testing' namespace to be passed to
-    // an unqualified call to 'PrintTo'.  By supplying
-    // 'bslim_Gtestutil_TestingStreamHolder(&stream)', which is implicitly
-    // convertible to 'bsl::ostream *', we supply an argument in the 'testing'
-    // namespace in the 'PrintTo' call within the
-    // 'bsl::PrintTo(const optional<TYPE>&, ...)' call below, which will affect
-    // ADL to draw in 'PrintTo' declarations from the 'testing' namespace into
-    // consideration.  For detailed discussion, see 'IMPLEMENTATION NOTE' in
-    // the implementation file.
-
-    // DATA
-    bsl::ostream *d_stream_p;
-
-  public:
-    // CREATORS
-    explicit
-    bslim_Gtestutil_TestingStreamHolder(bsl::ostream *stream);
-        // Create an object bound to the specified 'stream'.
-
-    // bslim_Gtestutil_TestingStreamHolder(
-    //                   const bslim_Gtestutil_TestingStreamHolder&) = default;
-
-    // MANIPULATORS
-    // bslim_Gtestutil_TestingStreamHolder& operator=(
-    //                   const bslim_Gtestutil_TestingStreamHolder&) = default;
-
-    // ACCESSORS
-    operator bsl::ostream *() const;
-        // Implicitly return a pointer to the stream this object is bound to.
-};
-
-}  // close namespace testing
-
 namespace bsl {
 
-// FREE FUNCTIONS
+// FREE OPERATORS
 void PrintTo(const string& value, ostream *stream);
     // Write the specified 'value' to the specified '*stream', surrounded by
     // double quotes.
@@ -88,50 +47,7 @@ void PrintTo(const BloombergLP::bslstl::StringRef& value, ostream *stream);
     // Write the specified 'value' to the specified '*stream', surrounded by
     // double quotes.
 
-template <class TYPE>
-void PrintTo(const optional<TYPE>& value, ostream *stream);
-    // Write the specified 'value' to the specified '*stream', surrounded by
-    // double quotes.
-
 }  // close namespace bsl
-
-// ============================================================================
-//                           INLINE DEFINITIONS
-// ============================================================================
-
-namespace testing {
-
-                    // -----------------------------------------
-                    // class bslim_Gtestutil_TestingStreamHolder
-                    // -----------------------------------------
-
-// CREATORS
-inline
-bslim_Gtestutil_TestingStreamHolder::bslim_Gtestutil_TestingStreamHolder(
-                                                          bsl::ostream *stream)
-: d_stream_p(stream)
-{}
-
-// ACCESSORS
-inline
-bslim_Gtestutil_TestingStreamHolder::operator bsl::ostream *() const
-{
-    return d_stream_p;
-}
-
-}  // close namespace testing
-
-// FREE FUNCTIONS
-template <class TYPE>
-void bsl::PrintTo(const bsl::optional<TYPE>& value, bsl::ostream *stream)
-{
-    if (value.has_value()) {
-        PrintTo(*value, testing::bslim_Gtestutil_TestingStreamHolder(stream));
-    }
-    else {
-        *stream << "(nullopt)";
-    }
-}
 
 #endif
 

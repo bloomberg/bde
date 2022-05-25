@@ -29,14 +29,12 @@ using bsl::endl;
 // The component under test consists of a series of static member functions
 // that provide facilities for debugging BDE with gtest.
 // ----------------------------------------------------------------------------
-// [ 6] void PrintTo(const bsl::optional<TYPE>& value, ostream *stream);
-// [ 5] void PrintTo(const bsl::optional<TYPE>& value, ostream *stream);
 // [ 4] void PrintTo(const bslstl::StringRef& value, ostream *stream);
 // [ 3] void PrintTo(const bsl::wstring& value, ostream *stream);
 // [ 2] void PrintTo(const bsl::string& value, ostream *stream);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 7] USAGE EXAMPLE
+// [ 5] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -91,7 +89,6 @@ const char        *EMPTY_STRING = "";
 const wchar_t     *EMPTY_WCHAR_STRING = L"";
 
 const bsl::string  EMPTY_EXPECTED("\"\"");
-const bsl::string  EMPTY_OPTIONAL_EXPECTED("(nullopt)");
 
 const char        *LONG_STRING  = "123456789012345678901234567890"
                                   "123456789012345678901234567890"
@@ -126,85 +123,6 @@ const char        *NON_EMPTY_WCHAR_EXPECTED = (4 == sizeof(wchar_t))
     //         --------   --------   --------   --------   --------   --------
     ? "12345\\x00000000\\x00000099\\x0000009a\\x0000009b\\x0000009c\\x0000009d"
     : "12345\\x0000"  "\\x0099"  "\\x009a"  "\\x009b"  "\\x009c"  "\\x009d";
-
-// ============================================================================
-//           SIMULATE LEGITIMATE 'PrintTo' DECLARATIONS IN 'testing'
-// ----------------------------------------------------------------------------
-
-namespace testing {
-
-class Hisser {
-    // DATA
-    unsigned d_hissLen;
-
-  public:
-    // CREATOR
-    explicit
-    Hisser(unsigned hissLen)
-    : d_hissLen(hissLen)
-    {}
-
-    // ACCESSOR
-    unsigned hissLen() const
-    {
-        return d_hissLen;
-    }
-};
-
-void PrintTo(const Hisser& hisser, ::std::ostream *stream)
-{
-    *stream << '"';
-
-    for (unsigned uu = 0; uu < hisser.hissLen(); ++uu) {
-        *stream << 's';
-    }
-
-    *stream << '"';
-}
-
-void PrintTo(int value, ::std::ostream* stream_p)
-{
-    *stream_p << '"' << value << '"';
-}
-
-}  // close namespace testing
-
-// ============================================================================
-//           SIMULATE LEGITIMATE 'PrintTo' DECLARATIONS IN 'testingB'
-// ----------------------------------------------------------------------------
-
-namespace testingB {
-
-class Hisser {
-    // DATA
-    unsigned d_hissLen;
-
-  public:
-    // CREATOR
-    explicit
-    Hisser(unsigned hissLen)
-    : d_hissLen(hissLen)
-    {}
-
-    // ACCESSOR
-    unsigned hissLen() const
-    {
-        return d_hissLen;
-    }
-};
-
-void PrintTo(const Hisser& hisser, ::std::ostream *stream)
-{
-    *stream << '"';
-
-    for (unsigned uu = 0; uu < hisser.hissLen(); ++uu) {
-        *stream << 's';
-    }
-
-    *stream << '"';
-}
-
-}  // close namespace testingB
 
 // ============================================================================
 //            SIMULATE COMPETING 'PrintTo' DECLARATIONS IN GTEST
@@ -332,7 +250,7 @@ int main(int argc, char *argv[])
     BloombergLP::bslma::TestAllocator ta("test", veryVeryVeryVerbose);
 
     switch (test) { case 0:
-      case 7: {
+      case 5: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -363,229 +281,6 @@ int main(int argc, char *argv[])
 //..
 //  "No matter where you go, There you are! -- Buckaroo Banzai"
 //..
-      } break;
-      case 6: {
-        // --------------------------------------------------------------------
-        // TESTING ADL WITHIN 'PrintTo(optional<TYPE>, ...)'
-        //
-        // Concern:
-        //: 1 That, if type and a 'PrintTo' for it are defined in 'testing' or
-        //:   another namespace, ADL will properly dispatch the call to
-        //:   'PrintTo' within 'PrintTo(optional<TYPE>, ...'.
-        //
-        // Plan:
-        //: 1 Define the 'class' 'Hisser' in namespace 'testing' declare an
-        //:   'optional' object containing one.
-        //:
-        //: 2 Stream the 'optional' to an 'ostringstream' and verify that the
-        //:   output is as expected.
-        //:
-        //: 3 Define the 'class' 'Hisser' in namespace 'testingB' declare an
-        //:   'optional' object containing one.
-        //:
-        //: 4 Stream the 'optional' to an 'ostringstream' and verify that the
-        //:   output is as expected.
-        //:
-        //: 5 Declare an 'optional' containing an 'int'.
-        //:
-        //: 6 Stream the 'optional' to an 'ostringstream' and verify that the
-        //:   output is as expected.
-        //
-        // Testing:
-        //   void PrintTo(const bsl::optional<TYPE>& value, ostream *stream);
-        // --------------------------------------------------------------------
-
-        if (verbose) cout <<
-                        "TESTING ADL WITHIN 'PrintTo(optional<TYPE>, ...)'\n"
-                        "=================================================\n";
-
-        if (verbose) cout << "TYPE in 'testing'\n";
-        {
-            const testing::Hisser hisser(4);
-            const bsl::optional<testing::Hisser> opt(hisser);
-
-            bsl::ostringstream oss;
-
-            PrintTo(opt, &oss);
-
-            ASSERTV(oss.str(), "\"ssss\"" == oss.str());
-        }
-
-        if (verbose) cout << "TYPE in namespace other than 'testing'\n";
-        {
-            const testingB::Hisser hisserB(7);
-            const bsl::optional<testingB::Hisser> optB(hisserB);
-
-            bsl::ostringstream oss;
-
-            PrintTo(optB, &oss);
-
-            ASSERTV(oss.str(), "\"sssssss\"" == oss.str());
-        }
-
-        if (verbose) cout << "Fundamental TYPE, PrintTo in 'testing'\n";
-        {
-            const bsl::optional<int> optI(207);
-
-            bsl::ostringstream oss;
-
-            PrintTo(optI, &oss);
-
-            ASSERTV(oss.str(), "\"207\"" == oss.str());
-        }
-      } break;
-      case 5: {
-        // --------------------------------------------------------------------
-        // TESTING 'PrintTo' FOR 'bsl::optional'
-        //
-        // Concerns:
-        //: 1 The 'PrintTo' correctly handles empty 'bsl::optional' objects.
-        //:
-        //: 2 The 'PrintTo' correctly writes any non-empty 'bsl::optional'
-        //:   object's value to the stream.
-        //
-        // Plan:
-        //: 1 Create several 'bsl::optional' objects, having different value
-        //:   types and values.  Print them to the stream using 'PrintTo'
-        //:   function and verify the result.  (C-1..2)
-        //
-        // Testing:
-        //   void PrintTo(const bsl::optional<TYPE>& value, ostream *stream);
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << "\nTESTING 'PrintTo' FOR 'bsl::optional'"
-                          << "\n=====================================\n";
-
-        if (veryVerbose) cout << "Testing default-constructed 'bsl::optional'."
-                              << endl;
-        {
-            bsl::optional<int>                     mXI;
-            const bsl::optional<int>&              XI = mXI;
-            bsl::optional<bsl::string>             mXS;
-            const bsl::optional<bsl::string>&      XS = mXS;
-            bsl::optional<bsl::string_view>        mXSV;
-            const bsl::optional<bsl::string_view>& XSV = mXSV;
-
-            bsl::ostringstream ossI;
-            bsl::ostringstream ossS;
-            bsl::ostringstream ossSV;
-
-            bsl::PrintTo(XI,  &ossI );
-            bsl::PrintTo(XS,  &ossS );
-            bsl::PrintTo(XSV, &ossSV);
-
-            ASSERTV(ossI.good());
-            ASSERTV(ossS.good());
-            ASSERTV(ossSV.good());
-
-            ASSERTV(ossI.str(),  EMPTY_OPTIONAL_EXPECTED == ossI.str() );
-            ASSERTV(ossS.str(),  EMPTY_OPTIONAL_EXPECTED == ossS.str() );
-            ASSERTV(ossSV.str(), EMPTY_OPTIONAL_EXPECTED == ossSV.str());
-        }
-
-        if (veryVerbose) cout << "Testing 'bsl::optional<int>'." << endl;
-        {
-            bsl::optional<int>        mXI1(-1);
-            bsl::optional<int>        mXI2( 0);
-            bsl::optional<int>        mXI3( 1);
-            const bsl::optional<int>& XI1 = mXI1;
-            const bsl::optional<int>& XI2 = mXI2;
-            const bsl::optional<int>& XI3 = mXI3;
-
-            const bsl::string EXPECTED1("\"-1\"");
-            const bsl::string EXPECTED2("\"0\"");
-            const bsl::string EXPECTED3("\"1\"");
-
-            bsl::ostringstream ossI1;
-            bsl::ostringstream ossI2;
-            bsl::ostringstream ossI3;
-
-            bsl::PrintTo(XI1, &ossI1);
-            bsl::PrintTo(XI2, &ossI2);
-            bsl::PrintTo(XI3, &ossI3);
-
-            ASSERTV(ossI1.good());
-            ASSERTV(ossI2.good());
-            ASSERTV(ossI3.good());
-
-            ASSERTV(ossI1.str(), EXPECTED1 == ossI1.str());
-            ASSERTV(ossI2.str(), EXPECTED2 == ossI2.str());
-            ASSERTV(ossI3.str(), EXPECTED3 == ossI3.str());
-        }
-
-        if (veryVerbose) cout << "Testing 'bsl::optional<bsl::string>'."
-                              << endl;
-        {
-            bsl::optional<bsl::string>        mXS1("");
-            bsl::optional<bsl::string>        mXS2("1");
-            bsl::optional<bsl::string>        mXS3(bsl::in_place,
-                                                   NON_EMPTY_STRING,
-                                                   NON_EMPTY_STRING_LENGTH);
-
-            const bsl::optional<bsl::string>& XS1 = mXS1;
-            const bsl::optional<bsl::string>& XS2 = mXS2;
-            const bsl::optional<bsl::string>& XS3 = mXS3;
-
-            const bsl::string EXPECTED1("\"\"");
-            const bsl::string EXPECTED2("\"1\"");
-            const bsl::string EXPECTED3 = bsl::string("\"")
-                                        + bsl::string(NON_EMPTY_STRING,
-                                                      NON_EMPTY_STRING_LENGTH)
-                                        + bsl::string("\"");
-
-            bsl::ostringstream ossS1;
-            bsl::ostringstream ossS2;
-            bsl::ostringstream ossS3;
-
-            bsl::PrintTo(XS1, &ossS1);
-            bsl::PrintTo(XS2, &ossS2);
-            bsl::PrintTo(XS3, &ossS3);
-
-            ASSERTV(ossS1.good());
-            ASSERTV(ossS2.good());
-            ASSERTV(ossS3.good());
-
-            ASSERTV(ossS1.str(), EXPECTED1 == ossS1.str());
-            ASSERTV(ossS2.str(), EXPECTED2 == ossS2.str());
-            ASSERTV(ossS3.str(), EXPECTED3 == ossS3.str());
-        }
-
-        if (veryVerbose) cout << "Testing 'bsl::optional<bsl::string_view>'."
-                              << endl;
-        {
-            bsl::optional<bsl::string_view> mXSV1("");
-            bsl::optional<bsl::string_view> mXSV2("1");
-            bsl::optional<bsl::string_view> mXSV3(bsl::in_place,
-                                                  NON_EMPTY_STRING,
-                                                  NON_EMPTY_STRING_LENGTH);
-
-            const bsl::optional<bsl::string_view>& XSV1 = mXSV1;
-            const bsl::optional<bsl::string_view>& XSV2 = mXSV2;
-            const bsl::optional<bsl::string_view>& XSV3 = mXSV3;
-
-            const bsl::string EXPECTED1("\"\"");
-            const bsl::string EXPECTED2("\"1\"");
-            const bsl::string EXPECTED3 = bsl::string("\"")
-                                        + bsl::string(NON_EMPTY_STRING,
-                                                      NON_EMPTY_STRING_LENGTH)
-                                        + bsl::string("\"");
-
-            bsl::ostringstream ossSV1;
-            bsl::ostringstream ossSV2;
-            bsl::ostringstream ossSV3;
-
-            bsl::PrintTo(XSV1, &ossSV1);
-            bsl::PrintTo(XSV2, &ossSV2);
-            bsl::PrintTo(XSV3, &ossSV3);
-
-            ASSERTV(ossSV1.good());
-            ASSERTV(ossSV2.good());
-            ASSERTV(ossSV3.good());
-
-            ASSERTV(ossSV1.str(), EXPECTED1 == ossSV1.str());
-            ASSERTV(ossSV2.str(), EXPECTED2 == ossSV2.str());
-            ASSERTV(ossSV3.str(), EXPECTED3, EXPECTED3 == ossSV3.str());
-        }
       } break;
       case 4: {
         // --------------------------------------------------------------------
