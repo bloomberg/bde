@@ -6,7 +6,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide an enumeration of the set of possible base 64 ignore modes.
+//@PURPOSE: Provide an enumeration of the set of possible base64 ignore modes.
 //
 //@CLASSES:
 //  bdlde::Base64IgnoreMode: namespace for an ignore mode 'enum'
@@ -83,8 +83,8 @@ namespace bdlde {
                             // =======================
 
 struct Base64IgnoreMode {
-    // This 'struct' provides a namespace for enumerating the set of alphabets.
-    // See 'Enum' in the TYPES sub-section for details.
+    // This 'struct' provides a namespace for enumerating the set of ignore
+    // modes.  See 'Enum' in the TYPES sub-section for details.
     //
     // This class:
     //: o supports a complete set of *enumeration* operations
@@ -98,8 +98,9 @@ struct Base64IgnoreMode {
                 e_IGNORE_WHITESPACE,     // any unrecognized character other
                                          // than whitespace is an error
 
-                e_IGNORE_UNRECOGNIZED }; // no unrecognized character is an
+                e_IGNORE_UNRECOGNIZED,   // no unrecognized character is an
                                          // error
+    };
 
     enum { k_NUM_VALUES = 3 };           // the number of values of 'Enum',
                                          // guaranteeing that

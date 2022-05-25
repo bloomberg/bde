@@ -21,8 +21,8 @@ BSLS_IDENT_PRAGMA_ONCE
 // This 'class' supports default-generated copy constuction and copy
 // assignment, but the constructor is private.  To create an object one must
 // call one of the class methods, which will return a newly-constructed object
-// by value.  Custom class methods are provided to create objects configured
-// for the 'mime', 'urlSafe', and 'standard' configurations.
+// by value.  Specialized class methods are provided to create objects
+// configured for the 'mime', 'urlSafe', and 'standard' configurations.
 //
 // Other configurations may be obtained by specifying arguments to the 'custom'
 // class method, or by calling the settors after the object is created.
@@ -164,10 +164,19 @@ namespace bdlde {
                           // ==========================
 
 class Base64EncoderOptions {
+    // This 'class' stores the configuration of a 'Base64Encoder'.
+
     // DATA
-    int                  d_maxLineLength;
-    Base64Alphabet::Enum d_alphabet;
-    bool                 d_isPadded;
+    int                  d_maxLineLength;    // the max line length of output
+                                             // between CRLF's.  A value of
+                                             // 0 means no CRLF's will be
+                                             // added
+
+    Base64Alphabet::Enum d_alphabet;         // the alphabet to be used --
+                                             // basic or url
+
+    bool                 d_isPadded;         // is the output to be padded with
+                                             // '='s
 
   public:
     // PUBLIC TYPES
@@ -179,8 +188,8 @@ class Base64EncoderOptions {
                          Base64Alphabet::Enum alphabet,
                          bool                 padded);
         // Create a 'Base64EncoderOptions' object having the specified
-        // 'maxLineLength, alphabet, and 'isPadded' attribute values.  The
-        // behavior is unless '0 <= maxLineLength' and 'alphabet is a defined
+        // 'maxLineLength, 'alphabet', and 'isPadded' attribute values.  The
+        // behavior is unless '0 <= maxLineLength' and 'alphabet' is a defined
         // value of 'Base64Alphabet::Enum'.
 
   public:
@@ -208,10 +217,11 @@ class Base64EncoderOptions {
         // 'true'.
 
     static
-    Base64EncoderOptions urlSafe();
+    Base64EncoderOptions urlSafe(bool padded = false);
         // Return a 'Base64EncoderOptions' object having the attributes
         // 'maxLineLength == 0', 'alphabet == Base64Alphabet::e_URL', and
-        // 'isPadded == false'.
+        // the specified 'padded'.  If 'padded' is not specified, it defaults
+        // to 'false'.
 
     // CREATORS
     // Base64EncoderOptions(const Base64EncoderOptions&) = default;
@@ -340,9 +350,9 @@ Base64EncoderOptions Base64EncoderOptions::standard(bool padded)
 }
 
 inline
-Base64EncoderOptions Base64EncoderOptions::urlSafe()
+Base64EncoderOptions Base64EncoderOptions::urlSafe(bool padded)
 {
-    return Base64EncoderOptions(0, Base64Alphabet::e_URL, false);
+    return Base64EncoderOptions(0, Base64Alphabet::e_URL, padded);
 }
 
 // MANIPULATORS

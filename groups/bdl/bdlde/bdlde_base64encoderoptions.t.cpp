@@ -39,6 +39,10 @@ using bsl::flush;
 // [ 3] void setMaxLineLength(int) const;
 // [ 3] void setAlphabet(Base64Alphabet::Enum) const;
 // [ 3] void setIsPadded(bool) const;
+// [ 3] Obj custom(int, Alpha::Enum, bool);
+// [ 3] Obj mime();
+// [ 3] Obj urlSafe(bool);
+// [ 3] Obj standard();
 // [ 2] Obj();
 // [ 2] Obj(int, Base64Alphabet::Enum, bool);
 // [ 2] int maxLineLength() const;
@@ -576,7 +580,7 @@ if (verbose)
         //   void setIsPadded(bool);
         //   Obj custom(int, Alpha::Enum, bool);
         //   Obj mime();
-        //   Obj urlSafe();
+        //   Obj urlSafe(bool);
         //   Obj standard();
         //   Obj(const Obj&);
         //   Obj& operator=(const Obj&);
@@ -669,15 +673,18 @@ if (verbose)
 
                     if (veryVerbose) cout << "URL Safe\n";
                     {
-                        const Obj& X = Obj::urlSafe();
+                        bool expPad = pi < 0 ? false : PADDED;
+
+                        const Obj& X = pi < 0 ? Obj::urlSafe()
+                                              : Obj::urlSafe(PADDED);
 
                         const bool EQ = 0            == MLL      &&
                                         Alpha::e_URL == alphabet &&
-                                        false        == PADDED;
+                                        expPad       == PADDED;
 
                         ASSERT(X.maxLineLength() == 0);
                         ASSERT(X.alphabet()      == Alpha::e_URL);
-                        ASSERT(X.isPadded()      == false);
+                        ASSERT(X.isPadded()      == expPad);
 
                         ASSERT( EQ == (X == MASTER));
                         ASSERT( EQ == (MASTER == X));

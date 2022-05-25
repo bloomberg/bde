@@ -537,7 +537,7 @@ class Base64Decoder {
 
   public:
     // CLASS METHODS
-    static int maxDecodedLength(IntPtr inputLength);
+    static int maxDecodedLength(int inputLength);
         // Return the maximum number of decoded bytes that could result from an
         // input byte sequence of the specified 'inputLength' provided to the
         // 'convert' and 'endConvert' methods of this decoder.  The behavior is
@@ -669,6 +669,10 @@ class Base64Decoder {
         //
         // DEPRECATED: use the 'ignoreMode' accessor instead.
 
+    DecoderOptions options() const;
+        // Return a 'Base64DecoderOptions' object representing the
+        // configuration of this decoder.
+
     int outputLength() const;
         // Return the total length of the output emitted thus far.
 };
@@ -716,11 +720,11 @@ int Base64Decoder::residualBits(int  bytesOutputSoFar) const
 
 // CLASS METHODS
 inline
-int Base64Decoder::maxDecodedLength(IntPtr inputLength)
+int Base64Decoder::maxDecodedLength(int inputLength)
 {
     BSLS_ASSERT(0 <= inputLength);
 
-    return static_cast<int>((inputLength + 3) / 4 * 3);
+    return (inputLength + 3) / 4 * 3;
 }
 
 // CREATORS
@@ -1030,6 +1034,12 @@ bool Base64Decoder::isUnrecognizedAnError() const
 {
     return d_ignorable_p == s_ignorableNone_p
         || d_ignorable_p == s_ignorableWhitespace_p;
+}
+
+inline
+Base64DecoderOptions Base64Decoder::options() const
+{
+    return DecoderOptions::custom(ignoreMode(), alphabet(), d_isPadded);
 }
 
 inline

@@ -22,6 +22,7 @@
 
 #include <bsl_algorithm.h>
 #include <bsl_cctype.h>
+#include <bsl_cstddef.h>
 #include <bsl_cstdint.h>
 #include <bsl_cstdlib.h>   // atoi()
 #include <bsl_cstring.h>   // memset()
@@ -325,7 +326,7 @@ typedef bdlde::Base64EncoderOptions EncoderOptions;
 typedef bdlde::Base64Decoder        Obj;
 typedef bdlde::Base64Alphabet       Alpha;
 typedef bdlde::Base64IgnoreMode     Ignore;
-typedef bsls::Types::IntPtr         IntPtr;
+typedef bsl::ptrdiff_t              ptrdiff_t;
 
 static const char ff = static_cast<char>(-1);
 
@@ -570,7 +571,7 @@ void RandGen::injectGarbage(bsl::string *result, bool padIsGarbage, bool url)
                                : "~`!@#$%^&*(){}[]|\\\"':;<>,.?-_");
     const bsl::size_t garbageLen = bsl::strlen(garbage);
 
-    const IntPtr numGarbage = 1 + (*this)() % (result->length() + 1);
+    const ptrdiff_t numGarbage = 1 + (*this)() % (result->length() + 1);
     for (int ii = 0; ii < numGarbage; ++ii) {
         bsl::size_t index = (*this)() % (result->length() + 1);
         char injectChar = getChar();
@@ -587,7 +588,7 @@ void RandGen::injectWhitespace(bsl::string *result)
     static const char        whitespace[] = { " \n\t\v\r\f" };
     static const bsl::size_t whiteLen     = sizeof(whitespace) - 1;
 
-    const IntPtr numWhite = 1 + (*this)() % (result->length() + 1);
+    const ptrdiff_t numWhite = 1 + (*this)() % (result->length() + 1);
     for (int ii = 0; ii < numWhite; ++ii) {
         bsl::size_t index = (*this)() % (result->length() + 1);
         result->insert(result->begin() + index,
@@ -599,7 +600,6 @@ void RandGen::randString(bsl::string *result, int len)
 {
     BSLS_ASSERT(0 <= len);
 
-    result->clear();
     result->resize(len);
 
     for (int ii = 0; ii < len; ++ii) {
@@ -2501,9 +2501,9 @@ DEFINE_TEST_CASE(13)
                 u::removeEquals(&input);
             }
 
-            ASSERT(outLen <= Obj::maxDecodedLength(input.length()));
-            ASSERT(((outLen + 2) / 3) * 3 ==
-                                        Obj::maxDecodedLength(input.length()));
+            const int inputLen = static_cast<int>(input.length());
+            ASSERT(outLen <= Obj::maxDecodedLength(inputLen));
+            ASSERT(((outLen + 2) / 3) * 3 == Obj::maxDecodedLength(inputLen));
 
             if (URL) {
                 u::convertToUrlInput(&input);
@@ -2924,8 +2924,8 @@ DEFINE_TEST_CASE(13)
             continue;
         }
         ASSERT(numEquals <= 2);
-        const IntPtr toSet = 2 * numEquals;
-        const IntPtr numJ  = 1 << toSet;
+        const ptrdiff_t toSet = 2 * numEquals;
+        const ptrdiff_t numJ  = 1 << toSet;
         ASSERT(4 <= inPadded.length());
 
         const bsl::size_t equalIdx = inPadded.find('=');
@@ -7459,9 +7459,12 @@ DEFINE_TEST_CASE(2)
             ASSERT((Ignore::e_IGNORE_UNRECOGNIZED != IGNORE) ==
                                                   obj.isUnrecognizedAnError());
             ASSERT(IGNORE == obj.ignoreMode());
+            ASSERT(IGNORE == obj.options().ignoreMode());
             ASSERT(0 == obj.outputLength());
             ASSERT(URL == obj.alphabet());
+            ASSERT(URL == obj.options().alphabet());
             ASSERT(PAD == obj.isPadded());
+            ASSERT(PAD == obj.options().isPadded());
         }
         ASSERT(done);
 }

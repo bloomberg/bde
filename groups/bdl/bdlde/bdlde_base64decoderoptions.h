@@ -18,15 +18,14 @@ BSLS_IDENT_PRAGMA_ONCE
 //@DESCRIPTION: This component provides a value-semantic attribute class for
 // specifying options for 'bdlde::Basee64Decoder'.
 //
-// This 'class' has a value constructor, which, if called with no arguments
-// specified, configures the created object with the configuration that most
-// clients will want.  There is another frequently-desired configuration for
-// translating URL's, and that configuration can be most easily obtained by
-// calling the 'standardURL' class method, which returns an
-// appropriately-configured options object.
+// This 'class' supports default-generated copy constuction and copy
+// assignment, but the constructor is private.  To create an object one must
+// call one of the class methods, which will return a newly-constructed object
+// by value.  Specialized class methods are provided to create objects
+// configured for the 'mime', 'urlSafe', and 'standard' configurations.
 //
-// Other configurations may be obtained by specifying arguments to the value
-// constructor, or by calling the settors after the object is created.
+// Other configurations may be obtained by specifying arguments to the 'custom'
+// class method, or by calling the settors after the object is created.
 //
 ///Usage
 ///-----
@@ -38,8 +37,7 @@ BSLS_IDENT_PRAGMA_ONCE
 // encoding, meaning 'alphabet == e_BASIC', 'isPadded == true', and
 // 'ignoreMode = e_IGNORE_WHITESPACE'.
 //
-// First, it turns out that those are the default values of the attributes, so
-// all we have to do is default construct an object, and we're done.
+// First, we call the 'mime' class method, and we're done.
 //..
 //  const bdlde::Base64DecoderOptions& mimeOptions =
 //                                         bdlde::Base64DecoderOptions::mime();
@@ -173,12 +171,15 @@ namespace bdlde {
                           // ==========================
 
 class Base64DecoderOptions {
+    // This 'class' stores the configuration of a 'Base64Decoder'.
+
     typedef Base64IgnoreMode    IgnoreMode;
 
     // DATA
-    IgnoreMode::Enum     d_ignoreMode;
-    Base64Alphabet::Enum d_alphabet;
-    bool                 d_isPadded;
+    IgnoreMode::Enum     d_ignoreMode;    // what types of chars, if any, are
+                                          // ignored
+    Base64Alphabet::Enum d_alphabet;      // alphabet -- basic or url
+    bool                 d_isPadded;      // is input padded with '='?
 
   private:
     // PRIVATE CREATORS
@@ -186,7 +187,7 @@ class Base64DecoderOptions {
                          Base64Alphabet::Enum alphabet,
                          bool                 padded);
         // Create a 'Base64DecoderOptions' object having the specified
-        // alphabet, 'padded', and 'ignoreMode' attribute values.  The
+        // 'alphabet', 'padded', and 'ignoreMode' attribute values.  The
         // behavior is unless 'alphabet is a defined value of
         // 'Base64Alphabet::Enum'.
 
@@ -195,13 +196,12 @@ class Base64DecoderOptions {
     static
     Base64DecoderOptions custom(
                        IgnoreMode::Enum     ignoreMode,
-                       Base64Alphabet::Enum alphabet = Base64Alphabet::e_BASIC,
-                       bool                 padded   = true);
+                       Base64Alphabet::Enum alphabet,
+                       bool                 padded);
         // Return a 'Base64DecoderOptions' object having the specified
         // 'alphabet, 'padded', and 'ignoreMode' attribute values.  The
         // behavior is unless 'ignoreMode' is a defined value of 'IgnoreMode',
-        // '0 <= maxLineLength', and 'alphabet is a defined value of
-        // 'Base64Alphabet::Enum'.
+        // and 'alphabet is a defined value of 'Base64Alphabet::Enum'.
 
     static
     Base64DecoderOptions mime(IgnoreMode::Enum ignoreMode =
@@ -223,7 +223,8 @@ class Base64DecoderOptions {
 
     static
     Base64DecoderOptions urlSafe(IgnoreMode::Enum ignoreMode =
-                                                    IgnoreMode::e_IGNORE_NONE);
+                                                    IgnoreMode::e_IGNORE_NONE,
+                                 bool             padded = false);
         // Return a 'Base64DecoderOptions' object having the attributes
         // 'alphabet == Base64Alphabet::e_URL', 'isPadded == false' and the
         // specified 'ignoreMode'.  If 'ignoreMode' is not specified, it
@@ -363,11 +364,12 @@ Base64DecoderOptions Base64DecoderOptions::standard(
 }
 
 inline
-Base64DecoderOptions Base64DecoderOptions::urlSafe(IgnoreMode::Enum ignoreMode)
+Base64DecoderOptions Base64DecoderOptions::urlSafe(IgnoreMode::Enum ignoreMode,
+                                                   bool             padded)
 {
     return Base64DecoderOptions(ignoreMode,
                                 Base64Alphabet::e_URL,
-                                false);
+                                padded);
 }
 
 // MANIPULATORS

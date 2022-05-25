@@ -43,7 +43,7 @@ using bsl::flush;
 // [ 3] void setIgnoreMode(Ignore::Enum);
 // [ 3] Obj custom(int, Alpha::Enum, bool, bool);
 // [ 3] Obj mime(bool);
-// [ 3] Obj urlSafe(bool);
+// [ 3] Obj urlSafe(IgnoreMode, bool);
 // [ 3] Obj standard(bool, bool);
 // [ 2] Obj();
 // [ 2] Obj(int, Base64Alphabet::Enum, bool);
@@ -154,8 +154,7 @@ int main(int argc, char *argv[])
 // encoding, meaning 'alphabet == e_BASIC', 'isPadded == true', and
 // 'ignoreMode = e_IGNORE_WHITESPACE'.
 //
-// First, it turns out that those are the default values of the attributes, so
-// all we have to do is default construct an object, and we're done.
+// First, we call the 'mime' class method, and we're done.
 //..
     const bdlde::Base64DecoderOptions& mimeOptions =
                                            bdlde::Base64DecoderOptions::mime();
@@ -592,7 +591,7 @@ if (verbose)
         //   void setIgnoreMode(Ignore::Enum);
         //   Obj custom(int, Alpha::Enum, bool, bool);
         //   Obj mime(bool);
-        //   Obj urlSafe(bool);
+        //   Obj urlSafe(IgnoreMode, bool);
         //   Obj standard(bool, bool);
         //   Obj(const Obj&);
         //   Obj& operator=(const Obj&);
@@ -622,7 +621,8 @@ if (verbose)
 
             uIsErrWasSet |= 2 == ui;
 
-            Obj master = Obj::custom(IGNORE);    const Obj& MASTER = master;
+            Obj master = Obj::custom(IGNORE, Alpha::e_BASIC, true);
+            const Obj& MASTER = master;
             if (0 <= ai) {
                 master.setAlphabet(alphabet);
             }
@@ -639,24 +639,6 @@ if (verbose)
                 const Obj& X = Obj::custom(IGNORE,
                                            alphabet,
                                            PADDED);
-
-                ASSERT(X.ignoreMode() == IGNORE);
-                ASSERT(X.alphabet()   == alphabet);
-                ASSERT(X.isPadded()   == PADDED);
-
-                ASSERTV(alphabet, PADDED, X, X == MASTER );
-                ASSERT(  MASTER == X );
-                ASSERT(!(X != MASTER));
-                ASSERT(!(MASTER != X));
-            }
-
-            if (veryVerbose) cout << "Let some attrs default\n";
-            {
-                const Obj& X = 0 <= pi
-                             ? Obj::custom(IGNORE, alphabet, PADDED)
-                             : 0 <= ai
-                             ? Obj::custom(IGNORE, alphabet)
-                             : Obj::custom(IGNORE);
 
                 ASSERT(X.ignoreMode() == IGNORE);
                 ASSERT(X.alphabet()   == alphabet);
@@ -717,6 +699,22 @@ if (verbose)
                 ASSERT(X.ignoreMode() == IGNORE);
                 ASSERT(X.alphabet()   == Alpha::e_URL);
                 ASSERT(X.isPadded()   == false);
+
+                ASSERT( EQ == (X == MASTER));
+                ASSERT( EQ == (MASTER == X));
+                ASSERT(!EQ == (X != MASTER));
+                ASSERT(!EQ == (MASTER != X));
+            }
+
+            if (veryVerbose) cout << "URL Safe, padded configured\n";
+            {
+                const Obj& X = Obj::urlSafe(IGNORE, PADDED);
+
+                const bool EQ = Alpha::e_URL == alphabet;
+
+                ASSERT(X.ignoreMode() == IGNORE);
+                ASSERT(X.alphabet()   == Alpha::e_URL);
+                ASSERT(X.isPadded()   == PADDED);
 
                 ASSERT( EQ == (X == MASTER));
                 ASSERT( EQ == (MASTER == X));
@@ -855,7 +853,8 @@ if (verbose)
                           << endl;
         {
             const Obj& OBJ = Obj::custom(Ignore::e_IGNORE_NONE,
-                                         Alpha::e_BASIC);
+                                         Alpha::e_BASIC,
+                                         true);
             ASSERT(Ignore::e_IGNORE_NONE == OBJ.ignoreMode());
             ASSERT(Alpha::e_BASIC        == OBJ.alphabet());
             ASSERT(true                  == OBJ.isPadded());
@@ -864,7 +863,8 @@ if (verbose)
         if (verbose) cout << "\"base64url\" alphabet" << endl;
         {
             const Obj& OBJ = Obj::custom(Ignore::e_IGNORE_UNRECOGNIZED,
-                                         Alpha::e_URL);
+                                         Alpha::e_URL,
+                                         true);
             ASSERT(Ignore::e_IGNORE_UNRECOGNIZED == OBJ.ignoreMode());
             ASSERT(Alpha::e_URL                  == OBJ.alphabet());
             ASSERT(true                          == OBJ.isPadded());
