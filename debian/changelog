@@ -1,5 +1,20 @@
-bsl-internal (3.100.0.4) unstable; urgency=low
+bsl-internal (3.101.0.0) unstable; urgency=low
 
+  * 327a918af Bumped version to 3.101.0.0
+  * 290c022b5 Add `bsl::from_chars` (#3718)
+  * 962f7aade removed bsl_overrides_std, native_std (#3715)
+  * 280e2c267 Remove transitive vector include (#3717)
+  * 9aa1be346 Bsls deprecatefeature (#3708)
+  * d1ede1f7d Merge pull request #3706 from hbott1/hashAppend-DRQS-169300521
+  * cb76a852e drqs-169274208: 'bsl_type_traits.h': Two CPP20 deprecations/removals. (#3716)
+  * b4adf1f5b Make bacl_optionvalue.t.cpp build on IAX. (#3662)
+  * bd85fa972 Merge pull request #3713 from sbreitst/bsls_nullptr-drqs-169356073
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 25 May 2022 14:51:52 -0400
+
+bsl-internal (3.100.0.4) git; urgency=low
+
+  * 95ef413ff Changelog for version 3.100.0.4
   * 080244657 Bumped version to 3.100.0.4
   * 0fb49c818 Switch back to 3.100.0 and the new format (#3702)
   * d9ed4013c Replace forward declares with includes (#3710)
@@ -10,7 +25,7 @@ bsl-internal (3.100.0.4) unstable; urgency=low
   * 4d657782b Bslim gtestutil printto optional drqs 168811170 (#3677)
   * 390334a38 removed review and assert dep on atomics in headers, added some checks on level (#3682)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 19 May 2022 15:54:15 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 19 May 2022 16:06:13 -0400
 
 bsl-internal (3.99.6.0) git; urgency=low
 
