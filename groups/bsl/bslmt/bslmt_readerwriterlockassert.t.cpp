@@ -36,7 +36,6 @@ using namespace BloombergLP;
 using bsl::cout;
 using bsl::cerr;
 using bsl::endl;
-namespace BSL = native_std;  // for Usage Examples
 
 //=============================================================================
 //                             TEST PLAN
@@ -207,7 +206,7 @@ int veryVeryVerbose;
         double mean() const;
             // Return the mean value of the elements of this queue.
 
-        BSL::size_t numElements() const;
+        std::size_t numElements() const;
             // Return the number of elements in this queue.
     };
 //..
@@ -297,10 +296,10 @@ int veryVeryVerbose;
         return result.second;
     }
 
-    BSL::size_t MyThreadSafeQueue::numElements() const
+    std::size_t MyThreadSafeQueue::numElements() const
     {
         d_rwLock.lockRead();
-        BSL::size_t numElements = d_deque.size();
+        std::size_t numElements = d_deque.size();
         d_rwLock.unlockRead();
         return numElements;
     }
@@ -327,14 +326,14 @@ int veryVeryVerbose;
         int numElements = static_cast<int>(d_deque.size());
 
         if (0 == numElements) {
-            return BSL::make_pair(numElements, DBL_MIN);              // RETURN
+            return std::make_pair(numElements, DBL_MIN);              // RETURN
         }
 
-        int    sum  = BSL::accumulate(d_deque.cbegin(), d_deque.cend(), 0);
+        int    sum  = std::accumulate(d_deque.cbegin(), d_deque.cend(), 0);
         double mean = static_cast<double>(sum)
                     / static_cast<double>(numElements);
 
-        return BSL::make_pair(numElements, mean);
+        return std::make_pair(numElements, mean);
     }
 //..
 // Next, we implement the 'purgeAll' method:
@@ -441,10 +440,10 @@ void myViolationHandler(const bsls::AssertViolation& violation)
 
     char expectedText[128];
 
-    BSL::strcpy(expectedText, base);
-    BSL::strcat(expectedText, oper);
-    BSL::strcat(expectedText, level);
-    BSL::strcat(expectedText, suffix);
+    std::strcpy(expectedText, base);
+    std::strcat(expectedText, oper);
+    std::strcat(expectedText, level);
+    std::strcat(expectedText, suffix);
 
     ASSERTV(expectedLine, violation.lineNumber(),
             expectedLine == violation.lineNumber());
@@ -536,7 +535,7 @@ void test()
                   }
                 }
             } catch (bsls::AssertTestException thrown) {
-                ASSERT(0 == BSL::strcmp(thrown.level(),
+                ASSERT(0 == std::strcmp(thrown.level(),
                                         bsls::Assert::k_LEVEL_SAFE));
             }
         }
@@ -581,7 +580,7 @@ void test()
                   }
                 }
             } catch (bsls::AssertTestException thrown) {
-                ASSERT(0 == BSL::strcmp(thrown.level(),
+                ASSERT(0 == std::strcmp(thrown.level(),
                                         bsls::Assert::k_LEVEL_ASSERT));
             }
         }
@@ -625,7 +624,7 @@ void test()
                 }
             } catch (bsls::AssertTestException thrown) {
                 ASSERTV(thrown.level(),
-                                0 == BSL::strcmp(thrown.level(),
+                                0 == std::strcmp(thrown.level(),
                                         bsls::Assert::k_LEVEL_OPT));
             }
         }

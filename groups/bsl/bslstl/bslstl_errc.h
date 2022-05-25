@@ -59,18 +59,21 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_integralconstant.h>
 
 #include <bsls_libraryfeatures.h>
-#include <bsls_nativestd.h>
 
 #include <errno.h>
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
 #include <system_error>
 
 namespace bsl {
-using native_std::errc;
+using std::errc;
 
-typedef native_std::errc ErrcEnum;  // Portable typedef for 'errc'
+typedef std::errc ErrcEnum;  // Portable typedef for 'errc'
 }  // close namespace bsl
 
 #else

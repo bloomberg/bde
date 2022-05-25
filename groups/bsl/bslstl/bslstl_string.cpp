@@ -189,8 +189,8 @@ int bsl::stoi(const string& str, std::size_t *pos, int base)
         BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stoi");
     }
     else if (sizeof(int) < sizeof(long) // proxy for 'long' has a wider range
-         && (value > native_std::numeric_limits<int>::max() ||
-             value < native_std::numeric_limits<int>::min() ) ) {
+         && (value > std::numeric_limits<int>::max() ||
+             value < std::numeric_limits<int>::min() ) ) {
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoi");
     }
 
@@ -231,8 +231,8 @@ int bsl::stoi(const wstring& str, std::size_t *pos, int base)
         BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stoi");
     }
     else if (sizeof(int) < sizeof(long) // proxy for 'long' has a wider range
-         && (value > native_std::numeric_limits<int>::max() ||
-             value < native_std::numeric_limits<int>::min() ) ) {
+         && (value > std::numeric_limits<int>::max() ||
+             value < std::numeric_limits<int>::min() ) ) {
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoi");
     }
 
@@ -710,8 +710,8 @@ long double bsl::stold(const wstring& str, std::size_t *pos)
 namespace {
 inline
 float convertDoubleToFloatOrThrow(double value) {
-    if ((value <=  native_std::numeric_limits<float>::max()) &&
-        (value >= -native_std::numeric_limits<float>::max())) {
+    if ((value <=  std::numeric_limits<float>::max()) &&
+        (value >= -std::numeric_limits<float>::max())) {
         return static_cast<float>(value);
     }
 

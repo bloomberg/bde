@@ -2485,7 +2485,7 @@ DEFINE_TEST_CASE(6) {
         {
             struct Func { static int f(int x) { return x; } };
 #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L
-            native_std::function<int(int)> f = &Func::f;
+            std::function<int(int)> f = &Func::f;
 #else
             bsl::function<int(int)> f = &Func::f;
 #endif

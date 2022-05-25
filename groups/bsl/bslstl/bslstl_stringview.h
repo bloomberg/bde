@@ -120,7 +120,7 @@ BSLS_IDENT("$Id: $")
 // compiler supports the C++17 standard then the 'std'-string_view's
 // 'operator ""sv' can be used to initialize a 'bsl'-string_view as follows:
 //..
-//  using namespace native_std::string_view_literals;
+//  using namespace std::string_view_literals;
 //  bsl::string_view sv = "test"sv;
 //..
 //
@@ -208,12 +208,15 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
-#include <bsls_nativestd.h>
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
 
-#include <string>      // for 'native_std::char_traits'
-#include <functional>  // for 'native_std::less', 'native_std::greater_equal'
+#include <string>      // for 'std::char_traits'
+#include <functional>  // for 'std::less', 'std::greater_equal'
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 // 'BDE_DISABLE_CPP17_ABI' is intended for CI builds only, to allow simulation
 // of Sun/AIX builds on Linux hosts.  It is an error to define this symbol in
@@ -225,18 +228,18 @@ BSLS_IDENT("$Id: $")
 
 namespace bsl {
 
-using native_std::basic_string_view;
-using native_std::string_view;
-using native_std::wstring_view;
+using std::basic_string_view;
+using std::string_view;
+using std::wstring_view;
 
-using native_std::swap;
+using std::swap;
 
-using native_std::operator==;
-using native_std::operator!=;
-using native_std::operator<;
-using native_std::operator<=;
-using native_std::operator>;
-using native_std::operator>=;
+using std::operator==;
+using std::operator!=;
+using std::operator<;
+using std::operator<=;
+using std::operator>;
+using std::operator>=;
 
 }
 #define BSLSTL_STRING_VIEW_IS_ALIASED
@@ -311,7 +314,7 @@ namespace bsl {
 // Import 'char_traits' into the 'bsl' namespace so that 'basic_string_view'
 // and 'char_traits' are always in the same namespace.
 
-using native_std::char_traits;
+using std::char_traits;
 
                         // =======================
                         // class basic_string_view
@@ -409,7 +412,7 @@ class basic_string_view {
     template <class ALLOCATOR>
     BSLS_KEYWORD_CONSTEXPR_CPP14
     basic_string_view(
-       const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& str);
+              const std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& str);
         // Create a view of the specified 'string'.
 
     //! ~basic_string_view() = default;
@@ -423,7 +426,7 @@ class basic_string_view {
     template <class ALLOCATOR>
     BSLS_KEYWORD_CONSTEXPR_CPP14
     basic_string_view& operator=(
-        const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& rhs)
+               const std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& rhs)
     BSLS_KEYWORD_NOEXCEPT;
         // Assign to this view the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this view.
@@ -899,7 +902,7 @@ class basic_string_view {
 
     template <class ALLOCATOR>
     BSLS_KEYWORD_EXPLICIT
-    operator native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>()
+    operator std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>()
     const
         // Convert this object to a string type native to the compiler's
         // library, instantiated with the same character type and traits type.
@@ -909,7 +912,7 @@ class basic_string_view {
         // during argument passing).
     {
         // See {DRQS 131792157} for why this is inline.
-        return native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>(
+        return std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>(
             d_start_p, d_length);
     }
 };
@@ -1214,9 +1217,8 @@ namespace bslh {
 
 template <class HASHALG, class CHAR_TYPE, class CHAR_TRAITS>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
-void hashAppend(
-          HASHALG&                                                     hashAlg,
-          const native_std::basic_string_view<CHAR_TYPE, CHAR_TRAITS>& input);
+void hashAppend(HASHALG&                                              hashAlg,
+                const std::basic_string_view<CHAR_TYPE, CHAR_TRAITS>& input);
     // Pass the specified 'input' string to the specified 'hashAlg' hashing
     // algorithm of the (template parameter) type 'HASHALG'.  Note that this
     // function violates the BDE coding standard, adding a function for a
@@ -1365,7 +1367,7 @@ template <class ALLOCATOR>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
 BSLS_KEYWORD_CONSTEXPR_CPP14
 basic_string_view<CHAR_TYPE, CHAR_TRAITS>::basic_string_view(
-        const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& str)
+               const std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& str)
 {
     d_start_p = str.data();
     d_length  = str.size();
@@ -1378,7 +1380,7 @@ BSLS_PLATFORM_AGGRESSIVE_INLINE
 BSLS_KEYWORD_CONSTEXPR_CPP14
 basic_string_view<CHAR_TYPE, CHAR_TRAITS>&
 basic_string_view<CHAR_TYPE, CHAR_TRAITS>::operator=(
-        const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& rhs)
+               const std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& rhs)
 BSLS_KEYWORD_NOEXCEPT
 {
     d_start_p = rhs.data();
@@ -1603,9 +1605,9 @@ basic_string_view<CHAR_TYPE, CHAR_TRAITS>::copy(CHAR_TYPE *characterString,
     }
 
     // Check that the destination buffer start is not within the source.
-    BSLS_ASSERT_SAFE(native_std::less<const CHAR_TYPE *>()(
+    BSLS_ASSERT_SAFE(std::less<const CHAR_TYPE *>()(
                          characterString, d_start_p + position) ||
-                     native_std::greater_equal<const CHAR_TYPE *>()(
+                     std::greater_equal<const CHAR_TYPE *>()(
                          characterString, d_start_p + position + numChars));
 
     CHAR_TRAITS::move(characterString, d_start_p + position, numChars);
@@ -2647,8 +2649,8 @@ namespace BloombergLP {
 template <class HASHALG, class CHAR_TYPE, class CHAR_TRAITS>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
 void bslh::hashAppend(
-          HASHALG&                                                     hashAlg,
-          const native_std::basic_string_view<CHAR_TYPE, CHAR_TRAITS>& input)
+                 HASHALG&                                              hashAlg,
+                 const std::basic_string_view<CHAR_TYPE, CHAR_TRAITS>& input)
 {
     hashAlg(input.data(), sizeof(CHAR_TYPE)*input.size());
     hashAppend(hashAlg, input.size());

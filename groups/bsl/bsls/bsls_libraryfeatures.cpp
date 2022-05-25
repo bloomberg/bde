@@ -9,7 +9,6 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_bsltestutil.h>   // for testing only
 #include <bsls_buildtarget.h>   // for testing only
 #include <bsls_keyword.h>       // for testing only
-#include <bsls_nativestd.h>     // for testing only
 
 ///Implementation Notes
 ///--------------------

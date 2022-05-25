@@ -17,25 +17,28 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_compilerfeatures.h>
 #include <bsls_libraryfeatures.h>
-#include <bsls_nativestd.h>
 
 #include <cstddef>
 
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
 namespace bsl {
     // Import selected symbols into bsl namespace
-    using native_std::ptrdiff_t;
-    using native_std::size_t;
+    using std::ptrdiff_t;
+    using std::size_t;
 
 #if defined (BSLS_COMPILERFEATURES_SUPPORT_NULLPTR)
-    using native_std::nullptr_t;
+    using std::nullptr_t;
 #endif
 
 #if defined (BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES)
-    using native_std::max_align_t;
+    using std::max_align_t;
 #endif
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-    using native_std::byte;
+    using std::byte;
 #endif
 }
 

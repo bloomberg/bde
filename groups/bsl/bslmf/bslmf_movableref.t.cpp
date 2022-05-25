@@ -102,7 +102,7 @@ void aSsErT(bool condition, const char *message, int line)
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER) &&                   \
     defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
 #define BSLMF_MOVABLEREF_USE_NATIVE_ORACLE 1
-// 'native_std::is_nothrow_move_constructible' is available as a trusted
+// 'std::is_nothrow_move_constructible' is available as a trusted
 // oracle of the correct value for the 'bsl::is_nothrow_move_constructible'
 // trait.  Note that MSVC 2013 provides the 'nothrow' traits, but does not
 // support the 'noexcept' operator so the traits erroneously return 'false'
@@ -951,10 +951,10 @@ struct IgnoreOracle<LyingNestedTraitMovableUnion> : bsl::true_type {};
 #if defined(BSLMF_MOVABLEREF_USE_NATIVE_ORACLE)
 #define ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CONSULT_ORACLE(TYPE)             \
     ASSERT( test::IgnoreOracle<TYPE>::value ||                                \
-           (native_std::is_nothrow_move_constructible<TYPE>::value ==         \
-            bsl       ::is_nothrow_move_constructible<TYPE>::value))
+           (std::is_nothrow_move_constructible<TYPE>::value ==                \
+            bsl::is_nothrow_move_constructible<TYPE>::value))
     // Confirm that the result of 'bsl::is_nothrow_move_constructible<TYPE>'
-    // agrees with the oracle 'native_std::is_nothrow_move_constructible'.
+    // agrees with the oracle 'std::is_nothrow_move_constructible'.
 #else
 # define ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CONSULT_ORACLE(TYPE)            \
     // The native trait is not available to act as an oracle, so there is no

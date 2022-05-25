@@ -871,185 +871,185 @@ int main(int argc, char *argv[])
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_SPECIAL_MATH_FUNCTIONS
 
-        ASSERT(native_std::sph_neumannl(3U, 10.0L) ==
-                      bsl::sph_neumannl(3U, 10.0L));
-        ASSERT(native_std::assoc_laguerre (1U, 10U, 0.5F) ==
-                      bsl::assoc_laguerre (1U, 10U, 0.5F));
-        ASSERT(native_std::assoc_laguerre (1U, 10U, 0.5) ==
-                      bsl::assoc_laguerre (1U, 10U, 0.5));
-        ASSERT(native_std::assoc_laguerre (1U, 10U, 0.5L) ==
-                      bsl::assoc_laguerre (1U, 10U, 0.5L));
-        ASSERT(native_std::assoc_laguerref(1U, 10U, 0.5F) ==
-                      bsl::assoc_laguerref(1U, 10U, 0.5F));
-        ASSERT(native_std::assoc_laguerrel(1U, 10U, 0.5L) ==
-                      bsl::assoc_laguerrel(1U, 10U, 0.5L));
+        ASSERT(std::sph_neumannl(3U, 10.0L) ==
+               bsl::sph_neumannl(3U, 10.0L));
+        ASSERT(std::assoc_laguerre (1U, 10U, 0.5F) ==
+               bsl::assoc_laguerre (1U, 10U, 0.5F));
+        ASSERT(std::assoc_laguerre (1U, 10U, 0.5) ==
+               bsl::assoc_laguerre (1U, 10U, 0.5));
+        ASSERT(std::assoc_laguerre (1U, 10U, 0.5L) ==
+               bsl::assoc_laguerre (1U, 10U, 0.5L));
+        ASSERT(std::assoc_laguerref(1U, 10U, 0.5F) ==
+               bsl::assoc_laguerref(1U, 10U, 0.5F));
+        ASSERT(std::assoc_laguerrel(1U, 10U, 0.5L) ==
+               bsl::assoc_laguerrel(1U, 10U, 0.5L));
 
-        ASSERT(native_std::beta (4,    6)    == bsl::beta (4,    6));
-        ASSERT(native_std::beta (4.0,  6.0)  == bsl::beta (4.0,  6.0));
-        ASSERT(native_std::betaf(4.0F, 6.0F) == bsl::betaf(4.0F, 6.0F));
-        ASSERT(native_std::betal(4.0L, 6.0L) == bsl::betal(4.0L, 6.0L));
+        ASSERT(std::beta (4,    6)    == bsl::beta (4,    6));
+        ASSERT(std::beta (4.0,  6.0)  == bsl::beta (4.0,  6.0));
+        ASSERT(std::betaf(4.0F, 6.0F) == bsl::betaf(4.0F, 6.0F));
+        ASSERT(std::betal(4.0L, 6.0L) == bsl::betal(4.0L, 6.0L));
 
-        ASSERT(native_std::comp_ellint_1 (0)    == bsl::comp_ellint_1 (0));
-        ASSERT(native_std::comp_ellint_1 (0.5F) == bsl::comp_ellint_1 (0.5F));
-        ASSERT(native_std::comp_ellint_1 (0.5)  == bsl::comp_ellint_1 (0.5));
-        ASSERT(native_std::comp_ellint_1 (0.5L) == bsl::comp_ellint_1 (0.5L));
-        ASSERT(native_std::comp_ellint_1f(0.5F) == bsl::comp_ellint_1f(0.5F));
-        ASSERT(native_std::comp_ellint_1l(0.5L) == bsl::comp_ellint_1l(0.5L));
+        ASSERT(std::comp_ellint_1 (0)    == bsl::comp_ellint_1 (0));
+        ASSERT(std::comp_ellint_1 (0.5F) == bsl::comp_ellint_1 (0.5F));
+        ASSERT(std::comp_ellint_1 (0.5)  == bsl::comp_ellint_1 (0.5));
+        ASSERT(std::comp_ellint_1 (0.5L) == bsl::comp_ellint_1 (0.5L));
+        ASSERT(std::comp_ellint_1f(0.5F) == bsl::comp_ellint_1f(0.5F));
+        ASSERT(std::comp_ellint_1l(0.5L) == bsl::comp_ellint_1l(0.5L));
 
-        ASSERT(native_std::comp_ellint_2 (1)    == bsl::comp_ellint_2 (1));
-        ASSERT(native_std::comp_ellint_2 (0.5F) == bsl::comp_ellint_2 (0.5F));
-        ASSERT(native_std::comp_ellint_2 (0.5)  == bsl::comp_ellint_2 (0.5));
-        ASSERT(native_std::comp_ellint_2 (0.5L) == bsl::comp_ellint_2 (0.5L));
-        ASSERT(native_std::comp_ellint_2f(0.5F) == bsl::comp_ellint_2f(0.5F));
-        ASSERT(native_std::comp_ellint_2l(0.5L) == bsl::comp_ellint_2l(0.5L));
+        ASSERT(std::comp_ellint_2 (1)    == bsl::comp_ellint_2 (1));
+        ASSERT(std::comp_ellint_2 (0.5F) == bsl::comp_ellint_2 (0.5F));
+        ASSERT(std::comp_ellint_2 (0.5)  == bsl::comp_ellint_2 (0.5));
+        ASSERT(std::comp_ellint_2 (0.5L) == bsl::comp_ellint_2 (0.5L));
+        ASSERT(std::comp_ellint_2f(0.5F) == bsl::comp_ellint_2f(0.5F));
+        ASSERT(std::comp_ellint_2l(0.5L) == bsl::comp_ellint_2l(0.5L));
 
-        ASSERT(native_std::comp_ellint_3 (0,    0) ==
-                      bsl::comp_ellint_3 (0,    0));
-        ASSERT(native_std::comp_ellint_3 (0.5F, 0.0F) ==
-                      bsl::comp_ellint_3 (0.5F, 0.0F));
-        ASSERT(native_std::comp_ellint_3 (0.5,  0.0) ==
-                      bsl::comp_ellint_3 (0.5,  0.0));
-        ASSERT(native_std::comp_ellint_3 (0.5L, 0.0F) ==
-                      bsl::comp_ellint_3 (0.5L, 0.0F));
-        ASSERT(native_std::comp_ellint_3f(0.5F, 0.0F) ==
-                      bsl::comp_ellint_3f(0.5F, 0.0F));
-        ASSERT(native_std::comp_ellint_3l(0.5L, 0.0L) ==
-                      bsl::comp_ellint_3l(0.5L, 0.0L));
+        ASSERT(std::comp_ellint_3 (0,    0) ==
+               bsl::comp_ellint_3 (0,    0));
+        ASSERT(std::comp_ellint_3 (0.5F, 0.0F) ==
+               bsl::comp_ellint_3 (0.5F, 0.0F));
+        ASSERT(std::comp_ellint_3 (0.5,  0.0) ==
+               bsl::comp_ellint_3 (0.5,  0.0));
+        ASSERT(std::comp_ellint_3 (0.5L, 0.0F) ==
+               bsl::comp_ellint_3 (0.5L, 0.0F));
+        ASSERT(std::comp_ellint_3f(0.5F, 0.0F) ==
+               bsl::comp_ellint_3f(0.5F, 0.0F));
+        ASSERT(std::comp_ellint_3l(0.5L, 0.0L) ==
+               bsl::comp_ellint_3l(0.5L, 0.0L));
 
-        ASSERT(native_std::cyl_bessel_i (0,    1) ==
-                      bsl::cyl_bessel_i (0,    1));
-        ASSERT(native_std::cyl_bessel_i (0.0,  1.0) ==
-                      bsl::cyl_bessel_i (0.0,  1.0));
-        ASSERT(native_std::cyl_bessel_if(0.0F, 1.0F) ==
-                      bsl::cyl_bessel_if(0.0F, 1.0F));
-        ASSERT(native_std::cyl_bessel_il(0.0L, 1.0L) ==
-                      bsl::cyl_bessel_il(0.0L, 1.0L));
+        ASSERT(std::cyl_bessel_i (0,    1) ==
+               bsl::cyl_bessel_i (0,    1));
+        ASSERT(std::cyl_bessel_i (0.0,  1.0) ==
+               bsl::cyl_bessel_i (0.0,  1.0));
+        ASSERT(std::cyl_bessel_if(0.0F, 1.0F) ==
+               bsl::cyl_bessel_if(0.0F, 1.0F));
+        ASSERT(std::cyl_bessel_il(0.0L, 1.0L) ==
+               bsl::cyl_bessel_il(0.0L, 1.0L));
 
-        ASSERT(native_std::cyl_bessel_j (0,    1) ==
-                      bsl::cyl_bessel_j (0,    1));
-        ASSERT(native_std::cyl_bessel_j (0.0,  1.0) ==
-                      bsl::cyl_bessel_j (0.0,  1.0));
-        ASSERT(native_std::cyl_bessel_jf(0.0F, 1.0F) ==
-                      bsl::cyl_bessel_jf(0.0F, 1.0F));
-        ASSERT(native_std::cyl_bessel_jl(0.0L, 1.0L) ==
-                      bsl::cyl_bessel_jl(0.0L, 1.0L));
+        ASSERT(std::cyl_bessel_j (0,    1) ==
+               bsl::cyl_bessel_j (0,    1));
+        ASSERT(std::cyl_bessel_j (0.0,  1.0) ==
+               bsl::cyl_bessel_j (0.0,  1.0));
+        ASSERT(std::cyl_bessel_jf(0.0F, 1.0F) ==
+               bsl::cyl_bessel_jf(0.0F, 1.0F));
+        ASSERT(std::cyl_bessel_jl(0.0L, 1.0L) ==
+               bsl::cyl_bessel_jl(0.0L, 1.0L));
 
-        ASSERT(native_std::cyl_bessel_k (0,    1) ==
-                      bsl::cyl_bessel_k (0,    1));
-        ASSERT(native_std::cyl_bessel_k (0.0 , 1.0) ==
-                      bsl::cyl_bessel_k (0.0 , 1.0));
-        ASSERT(native_std::cyl_bessel_kf(0.0F, 1.0F) ==
-                      bsl::cyl_bessel_kf(0.0F, 1.0F));
-        ASSERT(native_std::cyl_bessel_kl(0.0L, 1.0L) ==
-                      bsl::cyl_bessel_kl(0.0L, 1.0L));
+        ASSERT(std::cyl_bessel_k (0,    1) ==
+               bsl::cyl_bessel_k (0,    1));
+        ASSERT(std::cyl_bessel_k (0.0 , 1.0) ==
+               bsl::cyl_bessel_k (0.0 , 1.0));
+        ASSERT(std::cyl_bessel_kf(0.0F, 1.0F) ==
+               bsl::cyl_bessel_kf(0.0F, 1.0F));
+        ASSERT(std::cyl_bessel_kl(0.0L, 1.0L) ==
+               bsl::cyl_bessel_kl(0.0L, 1.0L));
 
-        ASSERT(native_std::cyl_neumann (0,    1) ==
-                      bsl::cyl_neumann (0,    1));
-        ASSERT(native_std::cyl_neumann (0.0 , 1.0) ==
-                      bsl::cyl_neumann (0.0 , 1.0));
-        ASSERT(native_std::cyl_neumannf(0.0F, 1.0F) ==
-                      bsl::cyl_neumannf(0.0F, 1.0F));
-        ASSERT(native_std::cyl_neumannl(0.0L, 1.0L) ==
-                      bsl::cyl_neumannl(0.0L, 1.0L));
+        ASSERT(std::cyl_neumann (0,    1) ==
+               bsl::cyl_neumann (0,    1));
+        ASSERT(std::cyl_neumann (0.0 , 1.0) ==
+               bsl::cyl_neumann (0.0 , 1.0));
+        ASSERT(std::cyl_neumannf(0.0F, 1.0F) ==
+               bsl::cyl_neumannf(0.0F, 1.0F));
+        ASSERT(std::cyl_neumannl(0.0L, 1.0L) ==
+               bsl::cyl_neumannl(0.0L, 1.0L));
 
-        ASSERT(native_std::ellint_1 (0,    1) ==
-                      bsl::ellint_1 (0,    1));
-        ASSERT(native_std::ellint_1 (0.0 , 1.0) ==
-                      bsl::ellint_1 (0.0 , 1.0));
-        ASSERT(native_std::ellint_1f(0.0F, 1.0F) ==
-                      bsl::ellint_1f(0.0F, 1.0F));
-        ASSERT(native_std::ellint_1l(0.0L, 1.0L) ==
-                      bsl::ellint_1l(0.0L, 1.0L));
+        ASSERT(std::ellint_1 (0,    1) ==
+               bsl::ellint_1 (0,    1));
+        ASSERT(std::ellint_1 (0.0 , 1.0) ==
+               bsl::ellint_1 (0.0 , 1.0));
+        ASSERT(std::ellint_1f(0.0F, 1.0F) ==
+               bsl::ellint_1f(0.0F, 1.0F));
+        ASSERT(std::ellint_1l(0.0L, 1.0L) ==
+               bsl::ellint_1l(0.0L, 1.0L));
 
-        ASSERT(native_std::ellint_2 (0,    1) ==
-                      bsl::ellint_2 (0,    1));
-        ASSERT(native_std::ellint_2 (0.0 , 1.0) ==
-                      bsl::ellint_2 (0.0 , 1.0));
-        ASSERT(native_std::ellint_2f(0.0F, 1.0F) ==
-                      bsl::ellint_2f(0.0F, 1.0F));
-        ASSERT(native_std::ellint_2l(0.0L, 1.0L) ==
-                      bsl::ellint_2l(0.0L, 1.0L));
+        ASSERT(std::ellint_2 (0,    1) ==
+               bsl::ellint_2 (0,    1));
+        ASSERT(std::ellint_2 (0.0 , 1.0) ==
+               bsl::ellint_2 (0.0 , 1.0));
+        ASSERT(std::ellint_2f(0.0F, 1.0F) ==
+               bsl::ellint_2f(0.0F, 1.0F));
+        ASSERT(std::ellint_2l(0.0L, 1.0L) ==
+               bsl::ellint_2l(0.0L, 1.0L));
 
-        ASSERT(native_std::ellint_3 (0,    1,    1) ==
-                      bsl::ellint_3 (0,    1,    1));
-        ASSERT(native_std::ellint_3 (0.0 , 1.0,  1.0) ==
-                      bsl::ellint_3 (0.0 , 1.0,  1.0));
-        ASSERT(native_std::ellint_3f(0.0F, 1.0F, 1.0F) ==
-                      bsl::ellint_3f(0.0F, 1.0F, 1.0F));
-        ASSERT(native_std::ellint_3l(0.0L, 1.0L, 1.0L) ==
-                      bsl::ellint_3l(0.0L, 1.0L, 1.0L));
+        ASSERT(std::ellint_3 (0,    1,    1) ==
+               bsl::ellint_3 (0,    1,    1));
+        ASSERT(std::ellint_3 (0.0 , 1.0,  1.0) ==
+               bsl::ellint_3 (0.0 , 1.0,  1.0));
+        ASSERT(std::ellint_3f(0.0F, 1.0F, 1.0F) ==
+               bsl::ellint_3f(0.0F, 1.0F, 1.0F));
+        ASSERT(std::ellint_3l(0.0L, 1.0L, 1.0L) ==
+               bsl::ellint_3l(0.0L, 1.0L, 1.0L));
 
-        ASSERT(native_std::expint (1)    == bsl::expint (1));
-        ASSERT(native_std::expint (1.0)  == bsl::expint (1.0));
-        ASSERT(native_std::expintf(1.0F) == bsl::expintf(1.0F));
-        ASSERT(native_std::expintl(1.0L) == bsl::expintl(1.0L));
+        ASSERT(std::expint (1)    == bsl::expint (1));
+        ASSERT(std::expint (1.0)  == bsl::expint (1.0));
+        ASSERT(std::expintf(1.0F) == bsl::expintf(1.0F));
+        ASSERT(std::expintl(1.0L) == bsl::expintl(1.0L));
 
-        ASSERT(native_std::hermite (3U, 10)    == bsl::hermite (3U, 10));
-        ASSERT(native_std::hermite (3U, 10.0F) == bsl::hermite (3U, 10.0F));
-        ASSERT(native_std::hermite (3U, 10.0)  == bsl::hermite (3U, 10.0));
-        ASSERT(native_std::hermite (3U, 10.0L) == bsl::hermite (3U, 10.0L));
-        ASSERT(native_std::hermitef(3U, 10.0F) == bsl::hermitef(3U, 10.0F));
-        ASSERT(native_std::hermitel(3U, 10.0L) == bsl::hermitel(3U, 10.0L));
+        ASSERT(std::hermite (3U, 10)    == bsl::hermite (3U, 10));
+        ASSERT(std::hermite (3U, 10.0F) == bsl::hermite (3U, 10.0F));
+        ASSERT(std::hermite (3U, 10.0)  == bsl::hermite (3U, 10.0));
+        ASSERT(std::hermite (3U, 10.0L) == bsl::hermite (3U, 10.0L));
+        ASSERT(std::hermitef(3U, 10.0F) == bsl::hermitef(3U, 10.0F));
+        ASSERT(std::hermitel(3U, 10.0L) == bsl::hermitel(3U, 10.0L));
 
-        ASSERT(native_std::legendre (3U, 10)    == bsl::legendre (3U, 10));
-        ASSERT(native_std::legendre (3U, 10.0F) == bsl::legendre (3U, 10.0F));
-        ASSERT(native_std::legendre (3U, 10.0)  == bsl::legendre (3U, 10.0));
-        ASSERT(native_std::legendre (3U, 10.0L) == bsl::legendre (3U, 10.0L));
-        ASSERT(native_std::legendref(3U, 10.0F) == bsl::legendref(3U, 10.0F));
-        ASSERT(native_std::legendrel(3U, 10.0L) == bsl::legendrel(3U, 10.0L));
+        ASSERT(std::legendre (3U, 10)    == bsl::legendre (3U, 10));
+        ASSERT(std::legendre (3U, 10.0F) == bsl::legendre (3U, 10.0F));
+        ASSERT(std::legendre (3U, 10.0)  == bsl::legendre (3U, 10.0));
+        ASSERT(std::legendre (3U, 10.0L) == bsl::legendre (3U, 10.0L));
+        ASSERT(std::legendref(3U, 10.0F) == bsl::legendref(3U, 10.0F));
+        ASSERT(std::legendrel(3U, 10.0L) == bsl::legendrel(3U, 10.0L));
 
-        ASSERT(native_std::laguerre (3U, 10)    == bsl::laguerre (3U, 10));
-        ASSERT(native_std::laguerre (3U, 10.0F) == bsl::laguerre (3U, 10.0F));
-        ASSERT(native_std::laguerre (3U, 10.0)  == bsl::laguerre (3U, 10.0));
-        ASSERT(native_std::laguerre (3U, 10.0L) == bsl::laguerre (3U, 10.0L));
-        ASSERT(native_std::laguerref(3U, 10.0F) == bsl::laguerref(3U, 10.0F));
-        ASSERT(native_std::laguerrel(3U, 10.0L) == bsl::laguerrel(3U, 10.0L));
+        ASSERT(std::laguerre (3U, 10)    == bsl::laguerre (3U, 10));
+        ASSERT(std::laguerre (3U, 10.0F) == bsl::laguerre (3U, 10.0F));
+        ASSERT(std::laguerre (3U, 10.0)  == bsl::laguerre (3U, 10.0));
+        ASSERT(std::laguerre (3U, 10.0L) == bsl::laguerre (3U, 10.0L));
+        ASSERT(std::laguerref(3U, 10.0F) == bsl::laguerref(3U, 10.0F));
+        ASSERT(std::laguerrel(3U, 10.0L) == bsl::laguerrel(3U, 10.0L));
 
-        ASSERT(native_std::riemann_zeta (0)    == bsl::riemann_zeta (0));
-        ASSERT(native_std::riemann_zeta (0.0F) == bsl::riemann_zeta (0.0F));
-        ASSERT(native_std::riemann_zeta (0.0)  == bsl::riemann_zeta (0.0));
-        ASSERT(native_std::riemann_zeta (0.0L) == bsl::riemann_zeta (0.0L));
-        ASSERT(native_std::riemann_zetaf(0.0F) == bsl::riemann_zetaf(0.0F));
-        ASSERT(native_std::riemann_zetal(0.0L) == bsl::riemann_zetal(0.0L));
+        ASSERT(std::riemann_zeta (0)    == bsl::riemann_zeta (0));
+        ASSERT(std::riemann_zeta (0.0F) == bsl::riemann_zeta (0.0F));
+        ASSERT(std::riemann_zeta (0.0)  == bsl::riemann_zeta (0.0));
+        ASSERT(std::riemann_zeta (0.0L) == bsl::riemann_zeta (0.0L));
+        ASSERT(std::riemann_zetaf(0.0F) == bsl::riemann_zetaf(0.0F));
+        ASSERT(std::riemann_zetal(0.0L) == bsl::riemann_zetal(0.0L));
 
-        ASSERT(native_std::sph_bessel (3U, 10) ==
-                      bsl::sph_bessel (3U, 10));
-        ASSERT(native_std::sph_bessel (3U, 10.0F) ==
-                      bsl::sph_bessel (3U, 10.0F));
-        ASSERT(native_std::sph_bessel (3U, 10.0) ==
-                      bsl::sph_bessel (3U, 10.0));
-        ASSERT(native_std::sph_bessel (3U, 10.0L) ==
-                      bsl::sph_bessel (3U, 10.0L));
-        ASSERT(native_std::sph_besself(3U, 10.0F) ==
-                      bsl::sph_besself(3U, 10.0F));
-        ASSERT(native_std::sph_bessell(3U, 10.0L) ==
-                      bsl::sph_bessell(3U, 10.0L));
+        ASSERT(std::sph_bessel (3U, 10) ==
+               bsl::sph_bessel (3U, 10));
+        ASSERT(std::sph_bessel (3U, 10.0F) ==
+               bsl::sph_bessel (3U, 10.0F));
+        ASSERT(std::sph_bessel (3U, 10.0) ==
+               bsl::sph_bessel (3U, 10.0));
+        ASSERT(std::sph_bessel (3U, 10.0L) ==
+               bsl::sph_bessel (3U, 10.0L));
+        ASSERT(std::sph_besself(3U, 10.0F) ==
+               bsl::sph_besself(3U, 10.0F));
+        ASSERT(std::sph_bessell(3U, 10.0L) ==
+               bsl::sph_bessell(3U, 10.0L));
 
-        ASSERT(native_std::sph_legendre (3U, 1U, 10) ==
-                      bsl::sph_legendre (3U, 1U, 10));
-        ASSERT(native_std::sph_legendre (3U, 1U, 10.0F) ==
-                      bsl::sph_legendre (3U, 1U, 10.0F));
-        ASSERT(native_std::sph_legendre (3U, 1U, 10.0) ==
-                      bsl::sph_legendre (3U, 1U, 10.0));
-        ASSERT(native_std::sph_legendre (3U, 1U, 10.0L) ==
-                      bsl::sph_legendre (3U, 1U, 10.0L));
-        ASSERT(native_std::sph_legendref(3U, 1U, 10.0F) ==
-                      bsl::sph_legendref(3U, 1U, 10.0F));
-        ASSERT(native_std::sph_legendrel(3U, 1U, 10.0L) ==
-                      bsl::sph_legendrel(3U, 1U, 10.0L));
+        ASSERT(std::sph_legendre (3U, 1U, 10) ==
+               bsl::sph_legendre (3U, 1U, 10));
+        ASSERT(std::sph_legendre (3U, 1U, 10.0F) ==
+               bsl::sph_legendre (3U, 1U, 10.0F));
+        ASSERT(std::sph_legendre (3U, 1U, 10.0) ==
+               bsl::sph_legendre (3U, 1U, 10.0));
+        ASSERT(std::sph_legendre (3U, 1U, 10.0L) ==
+               bsl::sph_legendre (3U, 1U, 10.0L));
+        ASSERT(std::sph_legendref(3U, 1U, 10.0F) ==
+               bsl::sph_legendref(3U, 1U, 10.0F));
+        ASSERT(std::sph_legendrel(3U, 1U, 10.0L) ==
+               bsl::sph_legendrel(3U, 1U, 10.0L));
 
-        ASSERT(native_std::sph_neumann (3U, 10) ==
-                      bsl::sph_neumann (3U, 10));
-        ASSERT(native_std::sph_neumann (3U, 10.0F) ==
-                      bsl::sph_neumann (3U, 10.0F));
-        ASSERT(native_std::sph_neumann (3U, 10.0) ==
-                      bsl::sph_neumann (3U, 10.0));
-        ASSERT(native_std::sph_neumann (3U, 10.0L) ==
-                      bsl::sph_neumann (3U, 10.0L));
-        ASSERT(native_std::sph_neumannf(3U, 10.0F) ==
-                      bsl::sph_neumannf(3U, 10.0F));
-        ASSERT(native_std::sph_neumannl(3U, 10.0L) ==
-                      bsl::sph_neumannl(3U, 10.0L));
+        ASSERT(std::sph_neumann (3U, 10) ==
+               bsl::sph_neumann (3U, 10));
+        ASSERT(std::sph_neumann (3U, 10.0F) ==
+               bsl::sph_neumann (3U, 10.0F));
+        ASSERT(std::sph_neumann (3U, 10.0) ==
+               bsl::sph_neumann (3U, 10.0));
+        ASSERT(std::sph_neumann (3U, 10.0L) ==
+               bsl::sph_neumann (3U, 10.0L));
+        ASSERT(std::sph_neumannf(3U, 10.0F) ==
+               bsl::sph_neumannf(3U, 10.0F));
+        ASSERT(std::sph_neumannl(3U, 10.0L) ==
+               bsl::sph_neumannl(3U, 10.0L));
 
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_SPECIAL_MATH_FUNCTIONS
 
@@ -1668,9 +1668,9 @@ int main(int argc, char *argv[])
         bsl::map<int, Id> index;
         index.emplace(13, Id(new int(42)));
 # else
-        static_assert(native_std::is_copy_constructible<Id>::value,
+        static_assert(std::is_copy_constructible<Id>::value,
             "Failed to detect the no-deleted-ctor bug, reconsider workaround");
-        static_assert(native_std::is_copy_constructible<Item>::value,
+        static_assert(std::is_copy_constructible<Item>::value,
             "Failed to detect the no-deleted-ctor bug, reconsider workaround");
         // These checks are mostly provided as documentation of the exact issue
         // that needs the workaround.  The 'static_assert' tests verify that

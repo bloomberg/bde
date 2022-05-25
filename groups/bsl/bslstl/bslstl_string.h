@@ -186,7 +186,7 @@ BSLS_IDENT("$Id: $")
 // then the 'std'-string's 'operator ""s' can be used to initialize a
 // 'bsl'-string as follows:
 //..
-// using namespace native_std::string_literals;
+// using namespace std::string_literals;
 // bsl::string str = "test"s;
 //..
 // however such initialization introduces significant performance overhead due
@@ -610,12 +610,6 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-// Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
-// mode.  Doing so is unsupported, and is likely to cause compilation errors.
-#if defined(BSL_OVERRIDES_STD) && !defined(BOS_STDHDRS_PROLOGUE_IN_EFFECT)
-#error "include <bsl_string.h> instead of <bslstl_string.h> in \
-BSL_OVERRIDES_STD mode"
-#endif
 #include <bslscm_version.h>
 
 #include <bslstl_hash.h>
@@ -656,7 +650,6 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
 #include <bsls_performancehint.h>
-#include <bsls_nativestd.h>
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
 
@@ -669,10 +662,12 @@ BSL_OVERRIDES_STD mode"
 #include <limits>     // for 'std::numeric_limits'
 #include <locale>     // for 'std::ctype', 'locale'
 #include <ostream>    // for 'std::basic_ostream', 'sentry'
-#include <string>     // for 'native_std::char_traits'
+#include <string>     // for 'std::char_traits'
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#include <bsls_nativestd.h>
 
 #include <exception>
 #include <stdexcept>
@@ -693,7 +688,7 @@ namespace bsl {
 
 // Import 'char_traits' into the 'bsl' namespace so that 'basic_string' and
 // 'char_traits' are always in the same namespace.
-using native_std::char_traits;
+using std::char_traits;
 
 template <class CHAR_TYPE,
           class CHAR_TRAITS = char_traits<CHAR_TYPE>,
@@ -714,7 +709,7 @@ class String_Traits {
 
     // PRIVATE TYPES
     typedef typename ORIGINAL_TRAITS::char_type char_type;
-    typedef native_std::size_t                  size_type;
+    typedef std::size_t                         size_type;
 
   public:
     // CLASS METHODS
@@ -728,12 +723,12 @@ class String_Traits {
 };
 
 template <>
-class String_Traits<native_std::char_traits<char> > {
+class String_Traits<std::char_traits<char> > {
     // Sun implemented 'find' for 'char' properly, so this specialization
     // simply forwards the call to Sun.
 
     // PRIVATE TYPES
-    typedef native_std::size_t size_type;
+    typedef std::size_t size_type;
 
   public:
     // CLASS METHODS
@@ -760,11 +755,11 @@ String_Traits<ORIGINAL_TRAITS>::find(const char_type  *s,
 
 inline
 const char *
-String_Traits<native_std::char_traits<char> >::find(const char  *s,
+String_Traits<std::char_traits<char> >::find(const char  *s,
                                                     size_type    n,
                                                     const char&  a)
 {
-    return native_std::char_traits<char>::find(s, n, a);
+    return std::char_traits<char>::find(s, n, a);
 }
 
 #define BSLSTL_CHAR_TRAITS String_Traits<CHAR_TRAITS>
@@ -1575,8 +1570,8 @@ class basic_string
 
     template <class ALLOC2>
     basic_string(
-        const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& original,
-        const ALLOCATOR& basicAllocator = ALLOCATOR());             // IMPLICIT
+               const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& original,
+               const ALLOCATOR& basicAllocator = ALLOCATOR());      // IMPLICIT
         // Create a string that has the same value as the specified 'original'
         // string, where the type 'original' is the string type native to the
         // compiler's library, instantiated with the same character type and
@@ -1653,7 +1648,7 @@ class basic_string
 
     template <class ALLOC2>
     basic_string& operator=(
-          const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC2>& rhs);
+                 const std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC2>& rhs);
         // Assign to this string the value of the specified 'rhs' string, and
         // return a reference providing modifiable access to this string.
 
@@ -1755,7 +1750,7 @@ class basic_string
 
     template <class ALLOC2>
     basic_string& operator+=(
-          const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC2>& rhs);
+                 const std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC2>& rhs);
         // Append the specified 'rhs' string to this string, and return a
         // reference providing modifiable access to this string.
 
@@ -1888,7 +1883,7 @@ class basic_string
 
     template <class ALLOC2>
     basic_string& assign(
-       const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC2>& string);
+              const std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC2>& string);
         // Assign to this string the value of the specified 'string', and
         // return a reference providing modifiable access to this string.
 
@@ -2580,7 +2575,7 @@ class basic_string
                 // *** BDE compatibility with platform libraries: ***
 
     template <class ALLOC2>
-    operator native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>() const
+    operator std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>() const
         // Convert this object to a string type native to the compiler's
         // library, instantiated with the same character type and traits type,
         // but not necessarily the same allocator type.  The return string will
@@ -2589,7 +2584,7 @@ class basic_string
         // can be invoked implicitly (e.g., during argument passing).
     {
         // See {DRQS 131792157} for why this is inline.
-        native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2> result;
+        std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2> result;
         result.assign(data(), length());
         return result;
     }
@@ -2764,13 +2759,13 @@ bool operator==(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
                                                          BSLS_KEYWORD_NOEXCEPT;
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 bool
-operator==(const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
-           const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>&        rhs)
+operator==(const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
+           const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
                                                          BSLS_KEYWORD_NOEXCEPT;
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 bool
-operator==(const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>&        lhs,
-           const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
+operator==(const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
+           const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
                                                          BSLS_KEYWORD_NOEXCEPT;
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 bool operator==(const CHAR_TYPE                                  *lhs,
@@ -2789,13 +2784,13 @@ bool operator!=(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
                                                          BSLS_KEYWORD_NOEXCEPT;
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 bool
-operator!=(const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
-           const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>&        rhs)
+operator!=(const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
+           const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
                                                          BSLS_KEYWORD_NOEXCEPT;
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 bool
-operator!=(const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>&        lhs,
-           const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
+operator!=(const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
+           const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
                                                          BSLS_KEYWORD_NOEXCEPT;
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
@@ -2815,13 +2810,13 @@ bool operator<(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
                                                          BSLS_KEYWORD_NOEXCEPT;
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 bool
-operator<(const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
-          const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>&        rhs)
+operator<(const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
+          const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
                                                          BSLS_KEYWORD_NOEXCEPT;
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 bool
-operator<(const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>&        lhs,
-          const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
+operator<(const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
+          const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
                                                          BSLS_KEYWORD_NOEXCEPT;
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 
@@ -2840,13 +2835,13 @@ bool operator>(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& lhs,
                                                          BSLS_KEYWORD_NOEXCEPT;
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 bool
-operator>(const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
-          const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>&        rhs)
+operator>(const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
+          const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
                                                          BSLS_KEYWORD_NOEXCEPT;
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 bool
-operator>(const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>&        lhs,
-          const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
+operator>(const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
+          const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
                                                          BSLS_KEYWORD_NOEXCEPT;
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
@@ -2865,13 +2860,13 @@ bool operator<=(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
                                                          BSLS_KEYWORD_NOEXCEPT;
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 bool
-operator<=(const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
-           const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>&        rhs)
+operator<=(const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
+           const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
                                                          BSLS_KEYWORD_NOEXCEPT;
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 bool
-operator<=(const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>&        lhs,
-           const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
+operator<=(const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
+           const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
                                                          BSLS_KEYWORD_NOEXCEPT;
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
@@ -2890,13 +2885,13 @@ bool operator>=(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
                                                          BSLS_KEYWORD_NOEXCEPT;
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 bool
-operator>=(const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
-           const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>&        rhs)
+operator>=(const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
+           const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
                                                          BSLS_KEYWORD_NOEXCEPT;
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 bool
-operator>=(const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>&        lhs,
-           const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
+operator>=(const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
+           const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
                                                          BSLS_KEYWORD_NOEXCEPT;
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
@@ -2915,12 +2910,12 @@ operator+(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&  lhs,
           const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&  rhs);
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>
-operator+(const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
-          const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>&        rhs);
+operator+(const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
+          const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs);
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>
-operator+(const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>&        lhs,
-          const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs);
+operator+(const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
+          const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs);
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>
 operator+(const CHAR_TYPE                                      *lhs,
@@ -3286,8 +3281,8 @@ namespace bslh {
 template <class HASHALG, class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
 void hashAppend(
-    HASHALG&                                                           hashAlg,
-    const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& input);
+           HASHALG&                                                    hashAlg,
+           const std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& input);
     // Pass the specified 'input' string to the specified 'hashAlg' hashing
     // algorithm of the (template parameter) type 'HASHALG'.  Note that this
     // function violates the BDE coding standard, adding a function for a
@@ -4445,8 +4440,8 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 template <class ALLOC2>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
-  const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& original,
-  const ALLOCATOR&                                              basicAllocator)
+         const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& original,
+         const ALLOCATOR&                                       basicAllocator)
 : Imp()
 , ContainerBase(basicAllocator)
 {
@@ -4588,12 +4583,12 @@ template <class ALLOC2>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator=(
-             const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
+                    const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
 {
     return privateAssignDispatch(
             rhs.data(),
             rhs.size(),
-            "string<...>::operator=(native_std::string&...): string too long");
+            "string<...>::operator=(std::string&...): string too long");
 }
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
@@ -4777,7 +4772,7 @@ template <class ALLOC2>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator+=(
-           const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC2>& rhs)
+                  const std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC2>& rhs)
 {
     return append(rhs.begin(),rhs.end());
 }
@@ -5004,7 +4999,7 @@ template <class ALLOC2>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>&
 basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::assign(
-        const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC2>& string)
+               const std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC2>& string)
 {
     return this->operator=(string);
 }
@@ -6416,9 +6411,8 @@ bool bsl::operator==(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& lhs,
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 inline
 bool
-bsl::operator==(
-             const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
-             const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>&        rhs)
+bsl::operator==(const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
+                const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
                                                           BSLS_KEYWORD_NOEXCEPT
 {
     return lhs.size() == rhs.size()
@@ -6428,9 +6422,8 @@ bsl::operator==(
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 inline
 bool
-bsl::operator==(
-             const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>&        lhs,
-             const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
+bsl::operator==(const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
+                const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
                                                           BSLS_KEYWORD_NOEXCEPT
 {
     return lhs.size() == rhs.size()
@@ -6473,9 +6466,8 @@ bool bsl::operator!=(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& lhs,
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 inline
 bool
-bsl::operator!=(
-             const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
-             const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>&        rhs)
+bsl::operator!=(const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
+                const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
                                                           BSLS_KEYWORD_NOEXCEPT
 {
     return !(lhs == rhs);
@@ -6484,9 +6476,8 @@ bsl::operator!=(
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 inline
 bool
-bsl::operator!=(
-             const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>&        lhs,
-             const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
+bsl::operator!=(const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
+                const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
                                                           BSLS_KEYWORD_NOEXCEPT
 {
     return !(lhs == rhs);
@@ -6529,9 +6520,8 @@ bool bsl::operator<(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& lhs,
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 bool
-bsl::operator<(
-             const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
-             const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>&        rhs)
+bsl::operator<(const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
+               const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
                                                           BSLS_KEYWORD_NOEXCEPT
 {
     const std::size_t minLen = lhs.length() < rhs.length()
@@ -6546,9 +6536,8 @@ bsl::operator<(
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 bool
-bsl::operator<(
-             const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>&        lhs,
-             const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
+bsl::operator<(const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
+               const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
                                                           BSLS_KEYWORD_NOEXCEPT
 {
     const std::size_t minLen = lhs.length() < rhs.length()
@@ -6605,9 +6594,8 @@ bool bsl::operator>(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& lhs,
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 inline
 bool
-bsl::operator>(
-             const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
-             const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>&        rhs)
+bsl::operator>(const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
+               const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
                                                           BSLS_KEYWORD_NOEXCEPT
 {
     return rhs < lhs;
@@ -6616,9 +6604,8 @@ bsl::operator>(
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 inline
 bool
-bsl::operator>(
-             const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>&        lhs,
-             const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
+bsl::operator>(const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
+               const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
                                                           BSLS_KEYWORD_NOEXCEPT
 {
     return rhs < lhs;
@@ -6656,9 +6643,8 @@ bool bsl::operator<=(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& lhs,
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 inline
 bool
-bsl::operator<=(
-             const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
-             const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>&        rhs)
+bsl::operator<=(const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
+                const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
                                                           BSLS_KEYWORD_NOEXCEPT
 {
     return !(rhs < lhs);
@@ -6667,9 +6653,8 @@ bsl::operator<=(
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 inline
 bool
-bsl::operator<=(
-             const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>&        lhs,
-             const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
+bsl::operator<=(const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
+                const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
                                                           BSLS_KEYWORD_NOEXCEPT
 {
     return !(rhs < lhs);
@@ -6707,9 +6692,8 @@ bool bsl::operator>=(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& lhs,
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 inline
 bool
-bsl::operator>=(
-             const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
-             const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>&        rhs)
+bsl::operator>=(const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
+                const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
                                                           BSLS_KEYWORD_NOEXCEPT
 {
     return !(lhs < rhs);
@@ -6718,9 +6702,8 @@ bsl::operator>=(
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 inline
 bool
-bsl::operator>=(
-             const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>&        lhs,
-             const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
+bsl::operator>=(const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
+                const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
                                                           BSLS_KEYWORD_NOEXCEPT
 {
     return !(lhs < rhs);
@@ -6760,9 +6743,8 @@ bsl::operator+(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>& lhs,
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>
-bsl::operator+(
-             const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
-             const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>&        rhs)
+bsl::operator+(const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
+               const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
 {
     bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2> result;
     result.reserve(lhs.length() + rhs.length());
@@ -6773,9 +6755,8 @@ bsl::operator+(
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>
-bsl::operator+(
-             const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>&        lhs,
-             const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
+bsl::operator+(const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
+               const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
 {
     bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1> result;
     result.reserve(lhs.length() + rhs.length());
@@ -7033,8 +7014,8 @@ namespace BloombergLP {
 template <class HASHALG, class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
 void bslh::hashAppend(
-    HASHALG&                                                           hashAlg,
-    const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& input)
+           HASHALG&                                                    hashAlg,
+           const std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& input)
 {
     hashAlg(input.data(), sizeof(CHAR_TYPE)*input.size());
     hashAppend(hashAlg, input.size());

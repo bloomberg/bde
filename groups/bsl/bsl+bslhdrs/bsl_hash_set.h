@@ -20,13 +20,12 @@ BSLS_IDENT("$Id: $")
 #ifdef BDE_OPENSOURCE_PUBLICATION // DEPRECATED
 #error "bsl_hash_set is deprecated"
 #endif
-#include <bsls_nativestd.h>
 
-#ifndef BSL_OVERRIDES_STD
 #include <bslstp_hashset.h>
-#else   // BSL_OVERRIDES_STD
-#include <hash_set>
-#endif  // BSL_OVERRIDES_STD
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #endif  // INCLUDED_BSL_HASH_SET
 

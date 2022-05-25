@@ -15,20 +15,22 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
-#include <bsls_nativestd.h>
-
 #include <thread>
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace bsl {
 
-    //using native_std::this_thread;
+    //using std::this_thread;
     namespace this_thread{
-        using native_std::this_thread::get_id;
-        using native_std::this_thread::yield;
-        using native_std::this_thread::sleep_until;
-        using native_std::this_thread::sleep_for;
+        using std::this_thread::get_id;
+        using std::this_thread::yield;
+        using std::this_thread::sleep_until;
+        using std::this_thread::sleep_for;
     }  // close namespace this_thread
-    using native_std::thread;
+    using std::thread;
 }  // close package namespace
 
 #endif

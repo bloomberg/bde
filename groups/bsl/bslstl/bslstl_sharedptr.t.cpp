@@ -7762,10 +7762,10 @@ struct TestSharedPtrDeductionGuides {
     //..
     // We also choose not to deduce from 'auto_ptr' and 'auto_ptr_ref'
     //..
-    // shared_ptr(native_std::auto_ptr<T> &)
-    // shared_ptr(native_std::auto_ptr<T> &, BloombergLP::bslma::Allocator *);
-    // shared_ptr(native_std::auto_ptr_ref<T>)
-    // shared_ptr(native_std::auto_ptr_ref<T>,BloombergLP::bslma::Allocator *);
+    // shared_ptr(std::auto_ptr<T> &)
+    // shared_ptr(std::auto_ptr<T> &, BloombergLP::bslma::Allocator *);
+    // shared_ptr(std::auto_ptr_ref<T>)
+    // shared_ptr(std::auto_ptr_ref<T>,BloombergLP::bslma::Allocator *);
     //..
 
 #define ASSERT_SAME_TYPE(...) \
@@ -7795,11 +7795,11 @@ struct TestSharedPtrDeductionGuides {
         bsl::shared_ptr sp2a(std::move(sp2));
         ASSERT_SAME_TYPE(decltype(sp2a), bsl::shared_ptr<float>);
 
-        native_std::unique_ptr<double> up3;
+        std::unique_ptr<double> up3;
         bsl::shared_ptr sp3a(std::move(up3));
         ASSERT_SAME_TYPE(decltype(sp3a), bsl::shared_ptr<double>);
 
-        native_std::unique_ptr<long double> up4;
+        std::unique_ptr<long double> up4;
         bsl::shared_ptr sp4a(std::move(up4), a);
         ASSERT_SAME_TYPE(decltype(sp4a), bsl::shared_ptr<long double>);
 
@@ -7821,9 +7821,9 @@ struct TestSharedPtrDeductionGuides {
 
 //#define BSLSTL_SHARED_PTR_UNIQUE_PTR_COMPILE_FAIL_NOT_AN_ALLOCATOR
 #if defined(BSLSTL_SHARED_PTR_UNIQUE_PTR_COMPILE_FAIL_NOT_AN_ALLOCATOR)
-        float                        *pf98 = nullptr;
-        native_std::unique_ptr<char>  up98;
-        bsl::shared_ptr               sp99a(up98, pf98);
+        float                 *pf98 = nullptr;
+        std::unique_ptr<char>  up98;
+        bsl::shared_ptr        sp99a(up98, pf98);
         // this should fail to compile ('float *' is not an allocator)
 #endif
 
@@ -11710,10 +11710,10 @@ int main(int argc, char *argv[])
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
             // Prefer 'unique_ptr' as future-proof solution after 'auto_ptr' is
             // removed by C++17.
-            native_std::unique_ptr<ShareThis> originalPtr(
+            std::unique_ptr<ShareThis> originalPtr(
                                               new ShareThis(&destructorCount));
 #else
-            native_std::auto_ptr<ShareThis> originalPtr(
+            std::auto_ptr<ShareThis> originalPtr(
                                               new ShareThis(&destructorCount));
 #endif
             SharedPtr unownedPtr(SharedPtr(), originalPtr.get());

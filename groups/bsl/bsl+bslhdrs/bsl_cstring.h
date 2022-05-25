@@ -15,36 +15,38 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
-#include <bsls_nativestd.h>
-
 #include <cstring>
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace bsl {
     // Import selected symbols into bsl namespace
 
-    using native_std::memchr;
-    using native_std::memcmp;
-    using native_std::memcpy;
-    using native_std::memmove;
-    using native_std::memset;
-    using native_std::size_t;
-    using native_std::strcat;
-    using native_std::strchr;
-    using native_std::strcmp;
-    using native_std::strcoll;
-    using native_std::strcpy;
-    using native_std::strcspn;
-    using native_std::strerror;
-    using native_std::strlen;
-    using native_std::strncat;
-    using native_std::strncmp;
-    using native_std::strncpy;
-    using native_std::strpbrk;
-    using native_std::strrchr;
-    using native_std::strspn;
-    using native_std::strstr;
-    using native_std::strtok;
-    using native_std::strxfrm;
+    using std::memchr;
+    using std::memcmp;
+    using std::memcpy;
+    using std::memmove;
+    using std::memset;
+    using std::size_t;
+    using std::strcat;
+    using std::strchr;
+    using std::strcmp;
+    using std::strcoll;
+    using std::strcpy;
+    using std::strcspn;
+    using std::strerror;
+    using std::strlen;
+    using std::strncat;
+    using std::strncmp;
+    using std::strncpy;
+    using std::strpbrk;
+    using std::strrchr;
+    using std::strspn;
+    using std::strstr;
+    using std::strtok;
+    using std::strxfrm;
 }  // close package namespace
 
 #endif

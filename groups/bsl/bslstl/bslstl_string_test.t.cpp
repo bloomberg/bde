@@ -139,7 +139,7 @@ using bsls::nameOfType;
 // [12] basic_string(const CHAR_TYPE *s, size_type n, a = A());
 // [12] basic_string(size_type n, CHAR_TYPE c = CHAR_TYPE(), a = A());
 // [12] template<class Iter> basic_string(Iter first, Iter last, a = A());
-// [26] basic_string(const native_std::basic_string<CHAR, TRAITS, A2>&);
+// [26] basic_string(const std::basic_string<CHAR, TRAITS, A2>&);
 // [  ] basic_string(const StringRefData& strRefData, a = A());
 // [33] basic_string(initializer_list<CHAR_TYPE> values, basicAllocator);
 // [ 2] ~basic_string();
@@ -215,7 +215,7 @@ using bsls::nameOfType;
 // [21] void swap(basic_string& other);
 //
 // ACCESSORS:
-// [26] operator native_std::basic_string<CHAR, TRAITS, A2>() const;
+// [26] operator std::basic_string<CHAR, TRAITS, A2>() const;
 // [ 4] const_reference operator[](size_type pos) const;
 // [ 4] const_reference at(size_type pos) const;
 // [15] const_reference front() const;
@@ -330,7 +330,7 @@ using bsls::nameOfType;
 // [  ] basic_ostream& operator<<(basic_ostream& stream, const string& str);
 // [  ] basic_istream& operator>>(basic_istream& stream, string& str);
 // [29] hashAppend(HASHALG& hashAlg, const basic_string& str);
-// [29] hashAppend(HASHALG& hashAlg, const native_std::basic_string& str);
+// [29] hashAppend(HASHALG& hashAlg, const std::basic_string& str);
 // [37] string operator+(const string&, const string&);
 // [37] string operator+(const nstd::string&, const string&);
 // [37] string operator+(const string&, const nstd::string&);
@@ -963,7 +963,7 @@ bool isNativeString(const bsl::basic_string<TYPE,TRAITS,ALLOC>&)
 
 template <class TYPE, class TRAITS, class ALLOC>
 inline
-bool isNativeString(const native_std::basic_string<TYPE,TRAITS,ALLOC>&)
+bool isNativeString(const std::basic_string<TYPE,TRAITS,ALLOC>&)
     { return true; }
 
 namespace BloombergLP {
@@ -1439,7 +1439,7 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase37()
     //:   o Initialize a 'const TYPE *' string 'IPC' pointing to the
     //:     null-terminated string in the buffer.
     //:
-    //:   o Initialize a 'native_std::string', a 'bsl::basic_string', and a
+    //:   o Initialize a 'std::string', a 'bsl::basic_string', and a
     //:     'bsl::basic_string_view', all of them with 'IPC'.
     //:
     //:   o Create a 'TYPE' variable 'ISC' which, if the length of the I string
@@ -1450,7 +1450,7 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase37()
     //:     1 Initialize a 'const TYPE *' string 'JPC' pointing to the
     //:       null-terminated string in the buffer.
     //:
-    //:     2 Initialize a 'native_std::string', a 'bsl::basic_string', and a
+    //:     2 Initialize a 'std::string', a 'bsl::basic_string', and a
     //:       'bsl::basic_string_view', all of them with 'JPC'.
     //:
     //:     3 Create a 'TYPE' variable 'JSC' which, if the length of the I
@@ -1484,7 +1484,7 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase37()
 
     const char *ty = bsls::NameOf<TYPE>();
 
-    typedef native_std::basic_string<TYPE, TRAITS> NObj;
+    typedef std::basic_string<TYPE, TRAITS> NObj;
     typedef bsl::basic_string_view<TYPE, TRAITS>   SV;
 
     static const struct {
@@ -3061,11 +3061,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase29()
     //
     // Testing:
     //   hashAppend(HASHALG& hashAlg, const basic_string& str);
-    //   hashAppend(HASHALG& hashAlg, const native_std::basic_string& str);
+    //   hashAppend(HASHALG& hashAlg, const std::basic_string& str);
     // --------------------------------------------------------------------
     typedef ::BloombergLP::bslh::Hash<> Hasher;
     typedef typename Hasher::result_type HashType;
-    typedef native_std::basic_string<TYPE,TRAITS,ALLOC> NativeObj;
+    typedef std::basic_string<TYPE,TRAITS,ALLOC> NativeObj;
 
     const int PRIME = 100003; // Arbitrary large prime to be used in hash-table
                               // like testing
@@ -3132,7 +3132,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase29()
         }
     }
 
-    if (verbose) printf("Use 'bslh::Hash' to hash a few values of 'native_std'"
+    if (verbose) printf("Use 'bslh::Hash' to hash a few values of 'std'"
                         " strings with each char type. (C-1,2)\n");
     {
         for (int i = 0; i != PRIME; ++i) {
@@ -3318,27 +3318,27 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase26()
     // Testing:
     //   CONCERNS:
     //    - A bsl::basic_string is implicitly convertible to a
-    //      native_std::basic_string with the same CHAR_TYPE and
+    //      std::basic_string with the same CHAR_TYPE and
     //      CHAR_TRAITS.
-    //    - A native_std::basic_string is explicitly convertible to a
+    //    - A std::basic_string is explicitly convertible to a
     //      bsl::basic_string with the same CHAR_TYPE and
     //      CHAR_TRAITS.
-    //    - A bsl::basic_string and a native_std::basic_string with the
+    //    - A bsl::basic_string and a std::basic_string with the
     //      same template parameters will have the same npos value.
     //
     // Plan:
     //   For a variety of strings of different sizes and different values, test
-    //   that the string is implicitly convertible to native_std::string and
+    //   that the string is implicitly convertible to std::string and
     //   that the conversion yields the same value.  Test that one can
-    //   construct a bsl::string from the native_std::string.  Test that
-    //   bslstl::string::npos compares equal to native_std::string::npos.
+    //   construct a bsl::string from the std::string.  Test that
+    //   bslstl::string::npos compares equal to std::string::npos.
     //
     // Testing:
     //   npos
-    //   operator native_std::basic_string<CHAR, CHAR_TRAITS, ALLOC2>() const;
-    //   basic_string(const native_std::basic_string<CHAR,
-    //                                               CHAR_TRAITS,
-    //                                               ALLOC2>&);
+    //   operator std::basic_string<CHAR, CHAR_TRAITS, ALLOC2>() const;
+    //   basic_string(const std::basic_string<CHAR,
+    //                                        CHAR_TRAITS,
+    //                                        ALLOC2>&);
     // ------------------------------------------------------------------------
 
     static const char *SPECS[] = {
@@ -3356,8 +3356,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase26()
     const int           NUM_VALUES = getValues(&values);
 
     typedef LimitAllocator<ALLOC> AltAlloc;
-    typedef native_std::basic_string<TYPE, TRAITS, ALLOC> NativeObj;
-    typedef native_std::basic_string<TYPE, TRAITS, AltAlloc> NativeObjAlt;
+    typedef std::basic_string<TYPE, TRAITS, ALLOC> NativeObj;
+    typedef std::basic_string<TYPE, TRAITS, AltAlloc> NativeObjAlt;
 
     if (verbose) printf("\tTesting npos\n");
 
@@ -18170,7 +18170,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   hashAppend(HASHALG& hashAlg, const basic_string& str);
-        //   hashAppend(HASHALG& hashAlg, const native_std::basic_string& str);
+        //   hashAppend(HASHALG& hashAlg, const std::basic_string& str);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING 'hashAppend'"
@@ -18255,12 +18255,12 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 A bsl::basic_string is implicitly convertible to a
-        //:     native_std::basic_string with the same CHAR_TYPE and
+        //:     std::basic_string with the same CHAR_TYPE and
         //: 2   CHAR_TRAITS.
-        //:     A native_std::basic_string is implicitly convertible to a
+        //:     A std::basic_string is implicitly convertible to a
         //:     bsl::basic_string with the same CHAR_TYPE and
         //: 3   CHAR_TRAITS.
-        //:     A bsl::basic_string and a native_std::basic_string with the
+        //:     A bsl::basic_string and a std::basic_string with the
         //:     same template parameters will have the same npos value.
         //
         // Plan:
@@ -18268,8 +18268,8 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   'npos' VALUE
-        //   operator native_std::basic_string<CHAR, TRAITS, A2>() const;
-        //   basic_string(const native_std::basic_string<CHAR, TRAITS, A2>&);
+        //   operator std::basic_string<CHAR, TRAITS, A2>() const;
+        //   basic_string(const std::basic_string<CHAR, TRAITS, A2>&);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING CONVERSIONS WITH NATIVE STRINGS"

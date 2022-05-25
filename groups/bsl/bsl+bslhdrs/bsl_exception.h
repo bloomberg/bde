@@ -16,53 +16,56 @@ BSLS_IDENT("$Id: $")
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
 #include <bsls_libraryfeatures.h>
-#include <bsls_nativestd.h>
 #include <bsls_platform.h>
 
 #include <exception>
 
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
 namespace bsl {
     // Import selected symbols into bsl namespace
 
-    using native_std::bad_exception;
-    using native_std::exception;
-    using native_std::set_terminate;
-    using native_std::terminate;
-    using native_std::terminate_handler;
-    using native_std::uncaught_exception;
+    using std::bad_exception;
+    using std::exception;
+    using std::set_terminate;
+    using std::terminate;
+    using std::terminate_handler;
+    using std::uncaught_exception;
 
 #if ! defined(BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED)
     // These names are removed by C++17
 
-    using native_std::set_unexpected;
-    using native_std::unexpected;
-    using native_std::unexpected_handler;
+    using std::set_unexpected;
+    using std::unexpected;
+    using std::unexpected_handler;
 #endif
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
     // Not defined until C++17
 
-    using native_std::uncaught_exceptions;
+    using std::uncaught_exceptions;
 #endif
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-    using native_std::current_exception;
-    using native_std::exception_ptr;
-    using native_std::rethrow_exception;
+    using std::current_exception;
+    using std::exception_ptr;
+    using std::rethrow_exception;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING
-    using native_std::make_exception_ptr;
-    using native_std::nested_exception;
-    using native_std::rethrow_if_nested;
-    using native_std::throw_with_nested;
+    using std::make_exception_ptr;
+    using std::nested_exception;
+    using std::rethrow_if_nested;
+    using std::throw_with_nested;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
 #if ! defined(BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED)
-    using native_std::get_unexpected;
+    using std::get_unexpected;
 # endif
-    using native_std::get_terminate;
+    using std::get_terminate;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
 }  // close package namespace
 

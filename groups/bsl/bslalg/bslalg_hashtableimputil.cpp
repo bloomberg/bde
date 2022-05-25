@@ -21,9 +21,9 @@ namespace bslalg
                         //-----------------------
 
 // CLASS METHODS
-void HashTableImpUtil::insertAtFrontOfBucket(HashTableAnchor    *anchor,
-                                             BidirectionalLink  *link,
-                                             native_std::size_t  hashCode)
+void HashTableImpUtil::insertAtFrontOfBucket(HashTableAnchor   *anchor,
+                                             BidirectionalLink *link,
+                                             std::size_t        hashCode)
 {
     BSLS_ASSERT(anchor);
     BSLS_ASSERT(link);
@@ -53,9 +53,9 @@ void HashTableImpUtil::insertAtFrontOfBucket(HashTableAnchor    *anchor,
     }
 }
 
-void HashTableImpUtil::insertAtBackOfBucket(HashTableAnchor    *anchor,
-                                            BidirectionalLink  *link,
-                                            native_std::size_t  hashCode)
+void HashTableImpUtil::insertAtBackOfBucket(HashTableAnchor   *anchor,
+                                            BidirectionalLink *link,
+                                            std::size_t        hashCode)
 {
     BSLS_ASSERT(anchor);
     BSLS_ASSERT(link);
@@ -82,10 +82,10 @@ void HashTableImpUtil::insertAtBackOfBucket(HashTableAnchor    *anchor,
     }
 }
 
-void HashTableImpUtil::insertAtPosition(HashTableAnchor    *anchor,
-                                        BidirectionalLink  *link,
-                                        native_std::size_t  hashCode,
-                                        BidirectionalLink  *position)
+void HashTableImpUtil::insertAtPosition(HashTableAnchor   *anchor,
+                                        BidirectionalLink *link,
+                                        std::size_t        hashCode,
+                                        BidirectionalLink *position)
 {
     BSLS_ASSERT(anchor);
     BSLS_ASSERT(link);
@@ -107,9 +107,9 @@ void HashTableImpUtil::insertAtPosition(HashTableAnchor    *anchor,
     }
 }
 
-void HashTableImpUtil::remove(HashTableAnchor    *anchor,
-                              BidirectionalLink  *link,
-                              native_std::size_t  hashCode)
+void HashTableImpUtil::remove(HashTableAnchor   *anchor,
+                              BidirectionalLink *link,
+                              std::size_t        hashCode)
 {
     BSLS_ASSERT(link);
     BSLS_ASSERT(anchor);

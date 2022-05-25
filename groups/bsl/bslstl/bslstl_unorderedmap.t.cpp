@@ -48,8 +48,8 @@
 #include <functional>
 #include <stdexcept>   // to confirm that the contractual exceptions are thrown
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
-# include <tuple>      // for 'native_std::forward_as_tuple'
-# include <utility>    // for 'native_std::piecewise_construct'
+# include <tuple>      // for 'std::forward_as_tuple'
+# include <utility>    // for 'std::piecewise_construct'
 #endif
 
 #include <stddef.h> // for 'NULL'

@@ -25,7 +25,7 @@ class generic_category_impl : public error_category {
     // This 'class' represents the generic category.
 
     // ACCESSORS
-    native_std::string message(int value) const BSLS_KEYWORD_OVERRIDE;
+    std::string message(int value) const BSLS_KEYWORD_OVERRIDE;
         // Return a string describing the specified 'value'.
 
     const char *name() const BSLS_KEYWORD_NOEXCEPT BSLS_KEYWORD_OVERRIDE;
@@ -37,7 +37,7 @@ class generic_category_impl : public error_category {
                         // ---------------------------
 
 // ACCESSORS
-native_std::string generic_category_impl::message(int value) const
+std::string generic_category_impl::message(int value) const
 {
     return error_category::message(value);
 }
@@ -66,7 +66,7 @@ class system_category_impl : public error_category {
     // This 'class' represents the system category.
 
     // ACCESSORS
-    native_std::string message(int value) const BSLS_KEYWORD_OVERRIDE;
+    std::string message(int value) const BSLS_KEYWORD_OVERRIDE;
         // Return a string describing the specified 'value'.
 
     const char *name() const BSLS_KEYWORD_NOEXCEPT BSLS_KEYWORD_OVERRIDE;
@@ -74,7 +74,7 @@ class system_category_impl : public error_category {
 };
 
 // ACCESSORS
-native_std::string system_category_impl::message(int value) const
+std::string system_category_impl::message(int value) const
 {
     return error_category::message(value);
 }

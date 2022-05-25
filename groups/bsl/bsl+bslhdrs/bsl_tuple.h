@@ -17,10 +17,13 @@ BSLS_IDENT("$Id: $")
 
 #include <bsl_cstddef.h>
 #include <bsls_keyword.h>
-#include <bsls_nativestd.h>
 #include <bsls_platform.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_libraryfeatures.h>
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #if __cplusplus < 201103L \
     && (defined(BSLS_PLATFORM_CMP_SUN) || defined(BSLS_PLATFORM_CMP_IBM))
@@ -49,39 +52,39 @@ BSLS_IDENT("$Id: $")
 #if defined(BSL_TUPLE_SUPPORTS_TUPLE)
 namespace bsl {
 
-    using native_std::tuple_size;
-    using native_std::tuple_element;
-    using native_std::tuple;
-    using native_std::make_tuple;
-    using native_std::forward_as_tuple;
-    using native_std::tie;
-    using native_std::tuple_cat;
-    using native_std::get;
-    using native_std::ignore;
+    using std::tuple_size;
+    using std::tuple_element;
+    using std::tuple;
+    using std::make_tuple;
+    using std::forward_as_tuple;
+    using std::tie;
+    using std::tuple_cat;
+    using std::get;
+    using std::ignore;
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 template <std::size_t I, class TYPE> using tuple_element_t =
-                             typename native_std::tuple_element<I, TYPE>::type;
+                             typename std::tuple_element<I, TYPE>::type;
         // 'tuple_element_t' is an alias to the return type of the
-        // 'native_std::tuple_element' meta-function.  Note, that the
+        // 'std::tuple_element' meta-function.  Note, that the
         // 'tuple_element_t' avoids the '::type' suffix and 'typename' prefix
         // when we want to use the result of the meta-function in templates.
 #endif
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-    using native_std::tuple_size_v;
+    using std::tuple_size_v;
 #elif defined BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
     template <class TYPE>
     BSLS_KEYWORD_INLINE_VARIABLE
-    constexpr bsl::size_t tuple_size_v = native_std::tuple_size<TYPE>::value;
+    constexpr bsl::size_t tuple_size_v = std::tuple_size<TYPE>::value;
         // This template variable represents the result value of the
-        // 'native_std::tuple_size' meta-function.
+        // 'std::tuple_size' meta-function.
 
 #endif
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-    using native_std::apply;
-    using native_std::make_from_tuple;
+    using std::apply;
+    using std::make_from_tuple;
 #endif
 
 }  // close namespace bsl

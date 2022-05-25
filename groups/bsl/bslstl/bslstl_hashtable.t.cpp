@@ -1902,7 +1902,7 @@ const float DEFAULT_MAX_LOAD_FACTOR[] = {
     // bucket, and the complexity behavior of a linked list.  This can impact
     // test times, so is reserved for infrequent validation builds when the
     // quadratic testing time can be supported.
-          , native_std::numeric_limits<float>::infinity()  // edge case
+          , std::numeric_limits<float>::infinity()  // edge case
 #endif
 };
 static const int DEFAULT_MAX_LOAD_FACTOR_SIZE =
@@ -2223,7 +2223,7 @@ class BoolArray {
         // Return the number of boolean flags held by this object.
 };
 
-struct TestException : native_std::exception{};
+struct TestException : std::exception{};
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -2397,7 +2397,7 @@ class ThrowingHashFunctor {
         // 'operator()' has already been called.
 
     // ACCESSORS
-    native_std::size_t operator() (const TYPE& obj) const;
+    std::size_t operator() (const TYPE& obj) const;
         // Increment a counter that records the number of times this method is
         // called.   Return a hash value for the specified 'obj'.  The behavior
         // is undefined unless 'obj' is a value supplied by the BSL template
@@ -2449,7 +2449,7 @@ class TestFacilityHasher : private HASHER { // exploit empty base
     TestFacilityHasher(const HASHER& hash = HASHER());              // IMPLICIT
 
     // ACCESSORS
-    native_std::size_t operator() (const KEY& k) const;
+    std::size_t operator() (const KEY& k) const;
         // Return a hash code for the specified 'k' using the wrapped functor
         // of (template parameter) type 'HASHER' supplied at construction.
 };
@@ -2470,8 +2470,7 @@ class TestConvertibleValueHasher : private TestFacilityHasher<KEY, HASHER> {
     TestConvertibleValueHasher(const HASHER& hash = HASHER());      // IMPLICIT
 
     // ACCESSORS
-    native_std::size_t operator()(const bsltf::ConvertibleValueWrapper<KEY>& k)
-                                                                         const;
+    std::size_t operator()(const bsltf::ConvertibleValueWrapper<KEY>& k) const;
         // Return a hash code for the specified 'k' using the wrapped functor
         // of (template parameter) type 'HASHER' supplied at construction.
 };
@@ -2522,7 +2521,7 @@ class GenericHasher {
   public:
     // ACCESSORS
     template <class KEY>
-    native_std::size_t operator() (KEY& k);
+    std::size_t operator() (KEY& k);
         // Return a hash code for the specified 'k'.
 };
 
@@ -2555,7 +2554,7 @@ class ModifiableHasher {
 
   public:
     // ACCESSORS
-    native_std::size_t operator() (KEY& k);
+    std::size_t operator() (KEY& k);
         // Return a hash code for the specified 'k'.
 };
 
@@ -3478,7 +3477,7 @@ void ThrowingHashFunctor<TYPE>::setThrowInterval(size_t value)
 // ACCESSORS
 template <class TYPE>
 inline
-native_std::size_t
+std::size_t
 ThrowingHashFunctor<TYPE>::operator() (const TYPE& obj) const
 {
     ++d_count;
@@ -3542,7 +3541,7 @@ TestFacilityHasher<KEY, HASHER>::TestFacilityHasher(const HASHER& hash)
     // ACCESSORS
 template <class KEY, class HASHER>
 inline
-native_std::size_t
+std::size_t
 TestFacilityHasher<KEY, HASHER>::operator() (const KEY& k) const
 {
     int temp =  bsltf::TemplateTestFacility::getIdentifier(k);
@@ -3564,7 +3563,7 @@ TestConvertibleValueHasher<KEY, HASHER>::TestConvertibleValueHasher(
 // ACCESSORS
 template <class KEY, class HASHER>
 inline
-native_std::size_t
+std::size_t
 TestConvertibleValueHasher<KEY, HASHER>::operator()
                            (const bsltf::ConvertibleValueWrapper<KEY>& k) const
 {
@@ -3607,7 +3606,7 @@ bsltf::EvilBooleanType GenericComparator::operator() (ARG1_TYPE& arg1,
 
 // ACCESSORS
 template <class KEY>
-native_std::size_t GenericHasher::operator() (KEY& k)
+std::size_t GenericHasher::operator() (KEY& k)
 {
     // do not inline initially due to static local data
 
@@ -3638,7 +3637,7 @@ bsltf::EvilBooleanType ModifiableComparator<KEY>::operator() (KEY& arg1,
 
 // ACCESSORS
 template <class KEY>
-native_std::size_t ModifiableHasher<KEY>::operator() (KEY& k)
+std::size_t ModifiableHasher<KEY>::operator() (KEY& k)
 {
     // do not inline initially due to static local data
 
@@ -4322,9 +4321,9 @@ SIZE_TYPE predictNumBuckets(SIZE_TYPE length, float maxLoadFactor)
         return 0;                                                     // RETURN
     }
 
-    if (1.0 / static_cast<double>(native_std::numeric_limits<SIZE_TYPE>::max())
+    if (1.0 / static_cast<double>(std::numeric_limits<SIZE_TYPE>::max())
                                                              > maxLoadFactor) {
-        return native_std::numeric_limits<SIZE_TYPE>::max();          // RETURN
+        return std::numeric_limits<SIZE_TYPE>::max();                 // RETURN
     }
 
     SIZE_TYPE result = static_cast<SIZE_TYPE>(ceil(static_cast<double>(length)
@@ -5732,7 +5731,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
         Obj mY(HASH,
                COMPARE,
                0,
-               native_std::numeric_limits<float>::infinity(),
+               std::numeric_limits<float>::infinity(),
                dummyAlloc);
         ASSERTV(mY.rehashThreshold(), 0 == mY.rehashThreshold());
 
@@ -6083,12 +6082,12 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
         try {
             Obj mX(HASH,
                    COMPARE,
-                   native_std::numeric_limits<SizeType>::max(),
+                   std::numeric_limits<SizeType>::max(),
                    1.0f,
                    objAlloc);
             ASSERT(false);
         }
-        catch(const native_std::length_error&) {
+        catch(const std::length_error&) {
             // This is the expected code path
         }
         catch(...) {
@@ -6103,12 +6102,12 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
 
             Obj mX(HASH,
                    COMPARE,
-                   native_std::numeric_limits<SizeType>::max(),
+                   std::numeric_limits<SizeType>::max(),
                    std::numeric_limits<float>::infinity(),
                    objAlloc);
             ASSERT(false);
         }
-        catch(const native_std::length_error&) {
+        catch(const std::length_error&) {
             // This is the expected code path
         }
         catch(...) {
@@ -6125,16 +6124,16 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
         try {
             const Obj X(HASH,
                         COMPARE,
-                        native_std::numeric_limits<int>::max(),
+                        std::numeric_limits<int>::max(),
                         1.0f,
                         objAlloc);
             // It is unlikely this will fit into a 64-bit allocation, but we
             // will allow for the possibility.
             ASSERT(
-                 static_cast<SizeType>(native_std::numeric_limits<int>::max())
+                 static_cast<SizeType>(std::numeric_limits<int>::max())
                                                              < X.numBuckets());
         }
-        catch(const native_std::bad_alloc&) {
+        catch(const std::bad_alloc&) {
             // This is the expected code path
         }
         catch(...) {
@@ -6146,12 +6145,12 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
         try {
             Obj mBad(HASH,
                      COMPARE,
-                     native_std::numeric_limits<SizeType>::max(),
+                     std::numeric_limits<SizeType>::max(),
                      1e-30f,
                      objAlloc);
             ASSERT(false);
         }
-        catch(const native_std::length_error&) {
+        catch(const std::length_error&) {
             // This is the expected code path
         }
         catch(...) {
@@ -6706,7 +6705,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
                         ASSERTV(bucketCount, 1 == bucketCount);
                     }
                     else if (X.maxLoadFactor() <
-                               native_std::numeric_limits<float>::infinity()) {
+                                      std::numeric_limits<float>::infinity()) {
                         ++threshold;
                         double exceedLoadFactor =
                                               static_cast<double>(threshold)
@@ -6718,7 +6717,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
                     else {
                         ASSERTV(threshold,
                                 threshold ==
-                                  native_std::numeric_limits<SizeType>::max());
+                                         std::numeric_limits<SizeType>::max());
                     }
 
                     // --------------------------------------------------------
@@ -8460,19 +8459,19 @@ void mainTestCase1()
 
             ASSERTV(NUM_INT_VALUES - i - 1 == X.size());
         }
-    } while (native_std::next_permutation(INT_VALUES,
-                                          INT_VALUES + NUM_INT_VALUES));
+    } while (std::next_permutation(INT_VALUES,
+                                   INT_VALUES + NUM_INT_VALUES));
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     if (veryVerbose) printf("Test 'remove(bslalg::BidirectionalLink *)'.\n");
     {
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-        native_std::shuffle(INT_VALUES,
-                            INT_VALUES + NUM_INT_VALUES,
-                            native_std::default_random_engine());
+        std::shuffle(INT_VALUES,
+                     INT_VALUES + NUM_INT_VALUES,
+                     std::default_random_engine());
 #else  // fall-back for C++03, potentially unsupported in C++17
-        native_std::random_shuffle(INT_VALUES,  INT_VALUES + NUM_INT_VALUES);
+        std::random_shuffle(INT_VALUES,  INT_VALUES + NUM_INT_VALUES);
 #endif
 
         Obj x(HASHER, COMPARATOR, 0, 1.0f, &objectAllocator);

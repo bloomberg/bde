@@ -353,7 +353,7 @@ namespace bsl {
 
 template <class VALUE,
           class CONTAINER  = vector<VALUE>,
-          class COMPARATOR = native_std::less<typename CONTAINER::value_type> >
+          class COMPARATOR = std::less<typename CONTAINER::value_type> >
 class priority_queue {
     // This class is a value-semantic class template, adapting a container of
     // the (template parameter) type 'CONTAINER', that holds elements of the
@@ -706,7 +706,7 @@ priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
 : c(container)
 , comp(comparator)
 {
-    native_std::make_heap(c.begin(), c.end(), comp);
+    std::make_heap(c.begin(), c.end(), comp);
 }
 
 template <class VALUE, class CONTAINER, class COMPARATOR>
@@ -717,7 +717,7 @@ priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
 : c(MoveUtil::move(container))
 , comp(comparator)
 {
-    native_std::make_heap(c.begin(), c.end(), comp);
+    std::make_heap(c.begin(), c.end(), comp);
 }
 
 template <class VALUE, class CONTAINER, class COMPARATOR>
@@ -728,7 +728,7 @@ priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
                                                        INPUT_ITERATOR    last)
 {
     c.insert(c.end(), first, last);
-    native_std::make_heap(c.begin(), c.end(), comp);
+    std::make_heap(c.begin(), c.end(), comp);
 }
 
 template <class VALUE, class CONTAINER, class COMPARATOR>
@@ -743,7 +743,7 @@ priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
 , comp(comparator)
 {
     c.insert(c.end(), first, last);
-    native_std::make_heap(c.begin(), c.end(), comp);
+    std::make_heap(c.begin(), c.end(), comp);
 }
 
 template <class VALUE, class CONTAINER, class COMPARATOR>
@@ -758,7 +758,7 @@ priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
 , comp(comparator)
 {
     c.insert(c.end(), first, last);
-    native_std::make_heap(c.begin(), c.end(), comp);
+    std::make_heap(c.begin(), c.end(), comp);
 }
 
 template <class VALUE, class CONTAINER, class COMPARATOR>
@@ -819,7 +819,7 @@ priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
 : c(container, basicAllocator)
 , comp(comparator)
 {
-    native_std::make_heap(c.begin(), c.end(), comp);
+    std::make_heap(c.begin(), c.end(), comp);
 }
 
 template <class VALUE, class CONTAINER, class COMPARATOR>
@@ -835,7 +835,7 @@ priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
 : c(MoveUtil::move(container), basicAllocator)
 , comp(comparator)
 {
-    native_std::make_heap(c.begin(), c.end(), comp);
+    std::make_heap(c.begin(), c.end(), comp);
 }
 
 template <class VALUE, class CONTAINER, class COMPARATOR>
@@ -896,7 +896,7 @@ void priority_queue<VALUE, CONTAINER, COMPARATOR>::push(
                                                        const value_type& value)
 {
     c.push_back(value);
-    native_std::push_heap(c.begin(), c.end(), comp);
+    std::push_heap(c.begin(), c.end(), comp);
 }
 
 template <class VALUE, class CONTAINER, class COMPARATOR>
@@ -905,7 +905,7 @@ void priority_queue<VALUE, CONTAINER, COMPARATOR>::push(
                               BloombergLP::bslmf::MovableRef<value_type> value)
 {
     c.push_back(MoveUtil::move(value));
-    native_std::push_heap(c.begin(), c.end(), comp);
+    std::push_heap(c.begin(), c.end(), comp);
 }
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
@@ -915,7 +915,7 @@ inline
 void priority_queue<VALUE, CONTAINER, COMPARATOR>::emplace(Args&&... args)
 {
     c.emplace_back(BSLS_COMPILERFEATURES_FORWARD(Args,args)...);
-    native_std::push_heap(c.begin(), c.end(), comp);
+    std::push_heap(c.begin(), c.end(), comp);
 }
 #endif
 
@@ -923,7 +923,7 @@ template <class VALUE, class CONTAINER, class COMPARATOR>
 inline
 void priority_queue<VALUE, CONTAINER, COMPARATOR>::pop()
 {
-    native_std::pop_heap(c.begin(), c.end(), comp);
+    std::pop_heap(c.begin(), c.end(), comp);
     c.pop_back();
 }
 

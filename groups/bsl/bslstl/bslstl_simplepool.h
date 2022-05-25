@@ -192,12 +192,6 @@ BSLS_IDENT("$Id: $")
 //  assert(0 == stack.size());
 //..
 
-// Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
-// mode.  Doing so is unsupported, and is likely to cause compilation errors.
-#if defined(BSL_OVERRIDES_STD) && !defined(BOS_STDHDRS_PROLOGUE_IN_EFFECT)
-#error "<bslstl_simplepool.h> header can't be included directly in \
-BSL_OVERRIDES_STD mode"
-#endif
 #include <bslscm_version.h>
 
 #include <bslma_allocatortraits.h>

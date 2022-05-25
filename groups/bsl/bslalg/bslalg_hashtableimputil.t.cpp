@@ -401,7 +401,7 @@ class HashSet : public bslalg::HashTableAnchor {
     typedef bslalg::HashTableBucket           Bucket;
     typedef bslalg::BidirectionalLinkListUtil ListUtil;
     typedef bslalg::HashTableImpUtil          ImpUtil;
-    typedef native_std::size_t                size_t;
+    typedef std::size_t                       size_t;
 
     struct Policy {
         typedef KEY KeyType;
@@ -464,10 +464,10 @@ class HashSet : public bslalg::HashTableAnchor {
         // action taken.
 
     // ACCESSORS
-    native_std::size_t count(const KEY& key) const;
+    std::size_t count(const KEY& key) const;
         // Return 1 if the specified 'key' is in this table and 0 otherwise.
 
-    native_std::size_t size() const;
+    std::size_t size() const;
         // Return the number of discrete keys that are stored in this table.
 };
 
@@ -512,8 +512,8 @@ bool HashSet<KEY, HASHER, EQUAL>::checkInvariants() const
 
 template <class KEY, class HASHER, class EQUAL>
 bslalg::BidirectionalNode<KEY> *HashSet<KEY, HASHER, EQUAL>::find(
-                                             const KEY&         key,
-                                             native_std::size_t hashCode) const
+                                                    const KEY&  key,
+                                                    std::size_t hashCode) const
 {
     return (Node *) ImpUtil::find<Policy, EQUAL>(*this,
                                                  key,
@@ -532,7 +532,7 @@ HashSet<KEY, HASHER, EQUAL>::HashSet(bslma::Allocator *allocator)
                                  // 'N'.
 
     d_allocator_p = bslma::Default::allocator(allocator);
-    native_std::size_t bucketArraySizeInBytes = NUM_BUCKETS * sizeof(Bucket);
+    std::size_t bucketArraySizeInBytes = NUM_BUCKETS * sizeof(Bucket);
     setBucketArrayAddressAndSize(
                     (Bucket *) d_allocator_p->allocate(bucketArraySizeInBytes),
                     NUM_BUCKETS);
@@ -631,13 +631,13 @@ bool HashSet<KEY, HASHER, EQUAL>::insert(const KEY& key)
 
 // ACCESSORS
 template <class KEY, class HASHER, class EQUAL>
-native_std::size_t HashSet<KEY, HASHER, EQUAL>::count(const KEY& key) const
+std::size_t HashSet<KEY, HASHER, EQUAL>::count(const KEY& key) const
 {
     return 0 != find(key, d_hasher(key));
 }
 
 template <class KEY, class HASHER, class EQUAL>
-native_std::size_t HashSet<KEY, HASHER, EQUAL>::size() const
+std::size_t HashSet<KEY, HASHER, EQUAL>::size() const
 {
     return d_numNodes;
 }
@@ -659,14 +659,14 @@ struct StringEqual {
 // a 'size_t':
 //..
 struct StringHash {
-    native_std::size_t operator()(const char *string) const;
+    std::size_t operator()(const char *string) const;
 };
 
-native_std::size_t StringHash::operator()(const char *string) const
+std::size_t StringHash::operator()(const char *string) const
 {
     enum { BITS_IN_SIZE_T = sizeof(size_t) * 8 };
 
-    native_std::size_t result = 0;
+    std::size_t result = 0;
     for (int shift = 0; *string;
                               ++string, shift = (shift + 7) % BITS_IN_SIZE_T) {
         unsigned char c = *string;

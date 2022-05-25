@@ -147,13 +147,11 @@ void aSsErT(bool condition, const char *message, int line)
 //                  MACROS FOR PLATFORM SPECIFIC TESTS
 // ----------------------------------------------------------------------------
 
-#ifndef BSL_OVERRIDES_STD
 #if BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 #define BSLS_TIMEINTERVAL_PROVIDES_CHRONO_CONVERSIONS
      // This macro definition parallels that defined in the 'bsls_timeinterval'
      // header file.
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-#endif  // BSL_OVERRIDES_STD
 
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING

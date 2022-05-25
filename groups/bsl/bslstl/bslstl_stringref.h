@@ -72,14 +72,6 @@ BSLS_IDENT("$Id: $")
 // To include 'bslstl::StringRef' use '#include <bsl_string.h>' (*not*
 // '#include <bslstl_stringref.h>').
 //
-// This is unfortunate and confusing, and would be redesigned if it could be
-// done without breaking existing clients.  The explanation is that we disallow
-// directly including all types in the 'bslstl' package because of the
-// 'BSL_OVERRIDES_STD' mechanism.  In retrospect, we should have located the
-// 'bslstl::StringRef' in a higher level package so it could be included
-// directly.  In the future, if we remove the 'BSL_OVERRIDES_STD' mechanism,
-// this unfortunate restriction will go away.
-//
 ///Efficiency and Usage Considerations
 ///-----------------------------------
 // Using 'bslstl::StringRef' to pass strings as function arguments can be
@@ -515,9 +507,9 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
         // currently bound to this object remains valid.  The behavior is
         // undefined unless '0 <= index < length()'.
 
-    operator native_std::basic_string<CHAR_TYPE>() const;
+    operator std::basic_string<CHAR_TYPE>() const;
         // Return an 'std::basic_string' (synonymous with
-        // 'native_std::basic_string') having the value of the string bound to
+        // 'std::basic_string') having the value of the string bound to
         // this string reference.
 
     const_iterator begin() const;
@@ -631,12 +623,12 @@ operator+(const StringRefImp<CHAR_TYPE>&      lhs,
           const bsl::basic_string<CHAR_TYPE>& rhs);
 template <class CHAR_TYPE>
 bsl::basic_string<CHAR_TYPE>
-operator+(const StringRefImp<CHAR_TYPE>&             lhs,
-          const native_std::basic_string<CHAR_TYPE>& rhs);
+operator+(const StringRefImp<CHAR_TYPE>&      lhs,
+          const std::basic_string<CHAR_TYPE>& rhs);
 template <class CHAR_TYPE>
 bsl::basic_string<CHAR_TYPE>
-operator+(const native_std::basic_string<CHAR_TYPE>& lhs,
-          const StringRefImp<CHAR_TYPE>&             rhs);
+operator+(const std::basic_string<CHAR_TYPE>& lhs,
+          const StringRefImp<CHAR_TYPE>&      rhs);
 template <class CHAR_TYPE>
 bsl::basic_string<CHAR_TYPE>
 operator+(const CHAR_TYPE                *lhs,
@@ -769,7 +761,7 @@ StringRefImp<CHAR_TYPE>::StringRefImp(
                                   size_type                      numCharacters)
 : Base(original.begin() + startIndex,
        original.begin() + startIndex +
-                native_std::min(numCharacters, original.length() - startIndex))
+                std::min(numCharacters, original.length() - startIndex))
 {
     BSLS_ASSERT_SAFE(startIndex <= original.length());
 }
@@ -823,7 +815,7 @@ void StringRefImp<CHAR_TYPE>::assign(const CHAR_TYPE *data)
 
     *this = StringRefImp(
                       data,
-                      data + native_std::char_traits<CHAR_TYPE>::length(data));
+                      data + std::char_traits<CHAR_TYPE>::length(data));
 }
 
 template <class CHAR_TYPE>
@@ -862,10 +854,9 @@ StringRefImp<CHAR_TYPE>::operator[](size_type index) const
 
 template <class CHAR_TYPE>
 inline
-bslstl::StringRefImp<CHAR_TYPE>::
-                           operator native_std::basic_string<CHAR_TYPE>() const
+bslstl::StringRefImp<CHAR_TYPE>::operator std::basic_string<CHAR_TYPE>() const
 {
-    return native_std::basic_string<CHAR_TYPE>(begin(), end());
+    return std::basic_string<CHAR_TYPE>(begin(), end());
 }
 
 namespace bslstl {
@@ -948,10 +939,10 @@ int StringRefImp<CHAR_TYPE>::compare(
     // char_traits<CHAR_TYPE>::compare' casts the chars to their equivalent
     // sized unsigned type before comparing them.
 
-    int result = native_std::char_traits<CHAR_TYPE>::compare(
+    int result = std::char_traits<CHAR_TYPE>::compare(
                     this->data(),
                     other.data(),
-                    native_std::min(this->length(), other.length()));
+                    std::min(this->length(), other.length()));
 
     if (result == 0 && this->length() != other.length()) {
         result = this->length() < other.length() ? -1 : 1;
@@ -983,23 +974,23 @@ int StringRefImp_CompareUtil::compare(const StringRefImp<CHAR_TYPE>&  a,
         }
 
         if (*pc != *b) {
-            // 'native_std::char_traits::compare' is a mess, usually
+            // 'std::char_traits::compare' is a mess, usually
             // implemented with specialized templates, with behavior that
             // varies tremendously depending upon the platform, the compiler,
             // and 'CHAR_TYPE'.  In theory, it should compare individual
-            // characters with 'native_std::char_traits::lt', but in practice
+            // characters with 'std::char_traits::lt', but in practice
             // that's very often not the case.  Attempting to exactly
             // anticipate its behavior under all circumstances quickly turned
             // into a hopeless, brittle horror show of '#ifdef's and template
             // programming.  So we delegate directly to
-            // 'native_std::char_traits::compare' to compare individual
+            // 'std::char_traits::compare' to compare individual
             // characters known to differ, guaranteeing that compares between
             // 'basic_string's, 'StringRefImp's, and null-terminated 'const
             // CHAR_TYPE *'s all yield matching results.
 
-            return native_std::char_traits<CHAR_TYPE>::compare(pc,
-                                                               b,
-                                                               1);    // RETURN
+            return std::char_traits<CHAR_TYPE>::compare(pc,
+                                                        b,
+                                                        1);           // RETURN
         }
     }
 
@@ -1013,7 +1004,7 @@ bool StringRefImp_CompareUtil::compareEqual(const StringRefImp<CHAR_TYPE>& a,
 {
     return a.length() == b.length() &&
            (0 == a.length() ||
-            0 == native_std::memcmp(
+            0 == std::memcmp(
                      a.data(), b.data(), a.length() * sizeof(CHAR_TYPE)));
 }
 
@@ -1073,8 +1064,8 @@ bslstl::operator+(const StringRefImp<CHAR_TYPE>&      lhs,
 template <class CHAR_TYPE>
 inline
 bsl::basic_string<CHAR_TYPE>
-bslstl::operator+(const native_std::basic_string<CHAR_TYPE>& lhs,
-                  const StringRefImp<CHAR_TYPE>&             rhs)
+bslstl::operator+(const std::basic_string<CHAR_TYPE>& lhs,
+                  const StringRefImp<CHAR_TYPE>&      rhs)
 {
     return StringRefImp<CHAR_TYPE>(lhs) + rhs;
 }
@@ -1082,8 +1073,8 @@ bslstl::operator+(const native_std::basic_string<CHAR_TYPE>& lhs,
 template <class CHAR_TYPE>
 inline
 bsl::basic_string<CHAR_TYPE>
-bslstl::operator+(const StringRefImp<CHAR_TYPE>&             lhs,
-                  const native_std::basic_string<CHAR_TYPE>& rhs)
+bslstl::operator+(const StringRefImp<CHAR_TYPE>&      lhs,
+                  const std::basic_string<CHAR_TYPE>& rhs)
 {
     return lhs + StringRefImp<CHAR_TYPE>(rhs);
 }

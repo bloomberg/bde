@@ -156,14 +156,6 @@ BSLS_IDENT("$Id: $")
 // are returned by copy and the 'size()' member function is used to access the
 // size of the arrays that could not be done with a raw array.
 
-
-// Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
-// mode.  Doing so is unsupported, and is likely to cause compilation errors.
-#if defined(BSL_OVERRIDES_STD) && !defined(BOS_STDHDRS_PROLOGUE_IN_EFFECT)
-#error "include <bsl_array.h> instead of <bslstl_array.h> in BSL_OVERRIDES_STD\
- mode"
-#endif
-
 #include <bslscm_version.h>
 
 #include <bslstl_iterator.h>
@@ -181,7 +173,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
-#include <bsls_nativestd.h>
 #include <bsls_platform.h>
 
 #include <stddef.h>
@@ -196,6 +187,9 @@ BSLS_IDENT("$Id: $")
 #include <algorithm>   // std::swap (C++03)
 #endif
 
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 // DEFECT DETECTION MACROS
 

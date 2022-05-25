@@ -15,13 +15,6 @@
  native compiler provided C++ standard library together with the Bloomberg
  provided C++ standard library in the same translation unit.
 
- If clients wish to use the Bloomberg provided standard library as the default
- standard library (as in the case with Bloomberg managed code), specifying
- '-DBSL_OVERRIDES_STD' on the compile line will render 'std' as merely an alias
- to 'bsl' (i.e., 'std::vector' will be the same as 'bsl::vector').  This is
- also known as the 'BDE-STL' mode.  For more information, please see the
- package level documentation in 'bos+stdhdrs' in the 'bos' package group.
-
  The 'bsl' package group is the foundation of the firm-wide BDE library and has
  no dependencies beyond the allowed OS and runtime environment dependencies.
 

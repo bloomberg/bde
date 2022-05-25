@@ -314,7 +314,7 @@ void testCase11()
         mX1.write(str1.data(), strLength1);
         mX2.write(str2.data(), strLength2);
 
-        // 'native_std::basic_ostream' part.
+        // 'std::basic_ostream' part.
 
         mX1.setstate(IosBase::failbit);
         mX2.setstate(IosBase::badbit);

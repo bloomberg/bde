@@ -35,7 +35,7 @@ BSLS_IDENT("$Id: $")
 //  {
 //      memset(buckets, 0, sizeof(buckets));
 //      for (int i = 0; i < (1 << 15); ++i) {
-//          native_std::size_t hash = bslalg::HashUtil::computeHash(i);
+//          std::size_t hash = bslalg::HashUtil::computeHash(i);
 //
 //          ++buckets[hash & 63];
 //      }
@@ -60,7 +60,7 @@ BSLS_IDENT("$Id: $")
 //  {
 //      memset(buckets, 0, sizeof(buckets));
 //      for (int i = 0; i < (1 << 15); ++i) {
-//          native_std::size_t hash = bslalg::HashUtil::computeHash(4 * i);
+//          std::size_t hash = bslalg::HashUtil::computeHash(4 * i);
 //
 //          ++buckets[hash & 63];
 //      }
@@ -83,7 +83,7 @@ BSLS_IDENT("$Id: $")
 //  {
 //      memset(buckets, 0, sizeof(buckets));
 //      for (int i = 0; i < (1 << 15); ++i) {
-//          native_std::size_t hash = bslalg::HashUtil::computeHash(i);
+//          std::size_t hash = bslalg::HashUtil::computeHash(i);
 //          hash = hash ^ (hash >> 6) ^ (hash >> 12) ^ (hash >> 18) ^
 //                        (hash >> 24);
 //
@@ -109,9 +109,9 @@ BSLS_IDENT("$Id: $")
 //..
 //  {
 //      memset(buckets, 0, sizeof(buckets));
-//      native_std::size_t prev = 0;
+//      std::size_t prev = 0;
 //      for (int i = 0; i < (1 << 15); ++i) {
-//          native_std::size_t hash = bslalg::HashUtil::computeHash(i);
+//          std::size_t hash = bslalg::HashUtil::computeHash(i);
 //
 //          ++buckets[(hash - prev) & 63];
 //          prev = hash;
@@ -134,9 +134,9 @@ BSLS_IDENT("$Id: $")
 //..
 //  {
 //      memset(buckets, 0, sizeof(buckets));
-//      native_std::size_t prev = 0;
+//      std::size_t prev = 0;
 //      for (int i = 0; i < (1 << 15); ++i) {
-//          native_std::size_t hash = bslalg::HashUtil::computeHash(i);
+//          std::size_t hash = bslalg::HashUtil::computeHash(i);
 //
 //          ++buckets[(hash ^ prev) & 63];
 //          prev = hash;
@@ -209,8 +209,11 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
-#include <bsls_nativestd.h>
 #include <bsls_types.h>
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 
@@ -223,27 +226,27 @@ struct HashUtil {
     // This 'struct' provides a namespace for hash functions.
 
     // CLASS METHODS
-    static native_std::size_t computeHash(char key);
-    static native_std::size_t computeHash(signed char key);
-    static native_std::size_t computeHash(unsigned char key);
-    static native_std::size_t computeHash(short key);
-    static native_std::size_t computeHash(unsigned short key);
-    static native_std::size_t computeHash(int key);
-    static native_std::size_t computeHash(unsigned int key);
-    static native_std::size_t computeHash(long key);
-    static native_std::size_t computeHash(unsigned long key);
-    static native_std::size_t computeHash(long long key);
-    static native_std::size_t computeHash(unsigned long long key);
-    static native_std::size_t computeHash(float key);
-    static native_std::size_t computeHash(double key);
-    static native_std::size_t computeHash(const void *key);
+    static std::size_t computeHash(char key);
+    static std::size_t computeHash(signed char key);
+    static std::size_t computeHash(unsigned char key);
+    static std::size_t computeHash(short key);
+    static std::size_t computeHash(unsigned short key);
+    static std::size_t computeHash(int key);
+    static std::size_t computeHash(unsigned int key);
+    static std::size_t computeHash(long key);
+    static std::size_t computeHash(unsigned long key);
+    static std::size_t computeHash(long long key);
+    static std::size_t computeHash(unsigned long long key);
+    static std::size_t computeHash(float key);
+    static std::size_t computeHash(double key);
+    static std::size_t computeHash(const void *key);
         // Return a 'size_t' hash value corresponding to the specified 'key'.
         // Note that the return value is seemingly random (i.e., the hash is
         // good) but identical on all platforms (irrespective of endianness).
         //
         // NOTE: We reserve the right to change these hash functions to return
         // different values.  The current implementation only returns a 32 bit
-        // value -- when 'native_std::size_t' is 64 bits, the high-order 32
+        // value -- when 'std::size_t' is 64 bits, the high-order 32
         // bits of the return value are all zero.  This is not a feature, it is
         // a bug that we will fix in a later release.
 };

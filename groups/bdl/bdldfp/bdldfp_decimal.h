@@ -5478,10 +5478,6 @@ faux_numeric_limits<Decimal128, DUMMY_TYPE>::round_style;
 }  // close package namespace
 }  // close enterprise namespace
 
-#if defined(BSL_OVERRIDES_STD) && defined(std)
-#   undef std
-#   define BDLDFP_DECIMAL_RESTORE_STD
-#endif
 namespace std {
 
   // ========================================================================
@@ -5649,11 +5645,6 @@ class numeric_limits<BloombergLP::bdldfp::Decimal128>
 };
 
 }  // close namespace std
-
-#if defined(BDLDFP_DECIMAL_RESTORE_STD)
-#   define std bsl
-#   undef BDLDFP_DECIMAL_RESTORE_STD
-#endif
 
 // ============================================================================
 //                            INLINE DEFINITIONS

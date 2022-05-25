@@ -16,10 +16,13 @@ BSLS_IDENT("$Id: $")
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
 #include <bsls_libraryfeatures.h>
-#include <bsls_nativestd.h>
 #include <bsls_platform.h>
 
 #include <cstdio>
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #if(!defined(BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF)     \
     ||  2 == BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF)
@@ -35,65 +38,65 @@ BSLS_IDENT("$Id: $")
 namespace bsl {
     // Import selected symbols into bsl namespace
 
-    using native_std::FILE;
-    using native_std::fpos_t;
-    using native_std::size_t;
+    using std::FILE;
+    using std::fpos_t;
+    using std::size_t;
 
-    using native_std::clearerr;
-    using native_std::fclose;
-    using native_std::feof;
-    using native_std::ferror;
-    using native_std::fflush;
-    using native_std::fgetc;
-    using native_std::fgetpos;
-    using native_std::fgets;
-    using native_std::fopen;
-    using native_std::fprintf;
-    using native_std::fputc;
-    using native_std::fputs;
-    using native_std::fread;
-    using native_std::freopen;
-    using native_std::fscanf;
-    using native_std::fseek;
-    using native_std::fsetpos;
-    using native_std::ftell;
-    using native_std::fwrite;
-    using native_std::getc;
-    using native_std::getchar;
-    using native_std::perror;
-    using native_std::printf;
-    using native_std::putc;
-    using native_std::putchar;
-    using native_std::puts;
-    using native_std::remove;
-    using native_std::rename;
-    using native_std::rewind;
-    using native_std::scanf;
-    using native_std::setbuf;
-    using native_std::setvbuf;
-    using native_std::sprintf;
-    using native_std::sscanf;
-    using native_std::tmpfile;
-    using native_std::tmpnam;
-    using native_std::ungetc;
-    using native_std::vfprintf;
-    using native_std::vprintf;
-    using native_std::vsprintf;
+    using std::clearerr;
+    using std::fclose;
+    using std::feof;
+    using std::ferror;
+    using std::fflush;
+    using std::fgetc;
+    using std::fgetpos;
+    using std::fgets;
+    using std::fopen;
+    using std::fprintf;
+    using std::fputc;
+    using std::fputs;
+    using std::fread;
+    using std::freopen;
+    using std::fscanf;
+    using std::fseek;
+    using std::fsetpos;
+    using std::ftell;
+    using std::fwrite;
+    using std::getc;
+    using std::getchar;
+    using std::perror;
+    using std::printf;
+    using std::putc;
+    using std::putchar;
+    using std::puts;
+    using std::remove;
+    using std::rename;
+    using std::rewind;
+    using std::scanf;
+    using std::setbuf;
+    using std::setvbuf;
+    using std::sprintf;
+    using std::sscanf;
+    using std::tmpfile;
+    using std::tmpnam;
+    using std::ungetc;
+    using std::vfprintf;
+    using std::vprintf;
+    using std::vsprintf;
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_C90_GETS
-    using native_std::gets;
+    using std::gets;
 #endif  // BSLS_LIBRARYFEATURES_HAS_C90_GETS
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
-    using native_std::vfscanf;
-    using native_std::vscanf;
-    using native_std::vsnprintf;
-    using native_std::vsscanf;
+    using std::vfscanf;
+    using std::vscanf;
+    using std::vsnprintf;
+    using std::vsscanf;
 #endif  // BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF) \
     && 2 != BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF
-    using native_std::snprintf;
+    using std::snprintf;
 #endif  // BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF
 }  // close package namespace
 

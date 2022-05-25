@@ -17,13 +17,12 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_compilerfeatures.h>
 #include <bsls_libraryfeatures.h>
-#include <bsls_nativestd.h>
 
-#ifdef BSL_OVERRIDES_STD
-// BDE configuration requires 'bos+stdhdrs' be in the search path, so this
-// #include is guaranteed to succeed.
-# include <array>
-#elif defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE)
 // The array is a feature of the C++11 library, rather than C++03, so might not
 // be present in all native libraries on the platforms we support.  Detect the
@@ -36,19 +35,14 @@ BSLS_IDENT("$Id: $")
 #endif
 #endif
 
-// Include Bloomberg's implementation, unless compilation is configured to
-// override native types in the 'std' namespace with Bloomberg's
-// implementation, in which case the implementation file will be included by
-// the Bloomberg supplied standard header file.
+// Include Bloomberg's implementation.
+# include <bslstl_array.h>
 
-#ifndef BSL_OVERRIDES_STD
 // According to C++11 Standard (24.6.5 range access)some functions (begin(),
 // cbegin() etc.) must be available not only via inclusion of the <iterator>
 // header, but also when <array> is included. To satisfy this requirement the
 // following inclusion is added.
-# include <bslstl_array.h>
 # include <bslstl_iterator.h>
-#endif
 
 #endif
 

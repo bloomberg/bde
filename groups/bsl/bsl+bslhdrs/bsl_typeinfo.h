@@ -15,10 +15,13 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
-#include <bsls_nativestd.h>
 #include <bsls_platform.h>
 
 #include <typeinfo>
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 // We have traditionally imported names from <exception> under the assumption
@@ -32,9 +35,9 @@ BSLS_IDENT("$Id: $")
 
 namespace bsl {
     // Import selected symbols into bsl namespace
-    using native_std::bad_cast;
-    using native_std::bad_typeid;
-    using native_std::type_info;
+    using std::bad_cast;
+    using std::bad_typeid;
+    using std::type_info;
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // Export additional names, leaked to support transitive dependencies in
@@ -42,15 +45,15 @@ namespace bsl {
 # if !defined(BSLS_PLATFORM_CMP_MSVC) && __cplusplus < 201703L
     // As some of these names are removed from C++17, take a sledgehammer to
     // crack this nut, and remove all non-standard exports.
-    using native_std::bad_exception;
-    using native_std::exception;
-    using native_std::set_terminate;
-    using native_std::set_unexpected;
-    using native_std::terminate;
-    using native_std::terminate_handler;
-    using native_std::uncaught_exception;
-    using native_std::unexpected;
-    using native_std::unexpected_handler;
+    using std::bad_exception;
+    using std::exception;
+    using std::set_terminate;
+    using std::set_unexpected;
+    using std::terminate;
+    using std::terminate_handler;
+    using std::uncaught_exception;
+    using std::unexpected;
+    using std::unexpected_handler;
 # endif // MSVC, or C++2017
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 }  // close package namespace

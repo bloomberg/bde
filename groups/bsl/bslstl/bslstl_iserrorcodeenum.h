@@ -48,20 +48,12 @@ BSLS_IDENT("$Id: $")
 //      };
 //  };
 //..
-// Then, we enable the trait marking this as an error code.  (Note that if this
-// code is intended to be used with 'BSL_OVERRIDES_STD' and C++11, it is
-// necessary to bracket it as shown, or it will not compile.)
+// Then, we enable the trait marking this as an error code.
 //..
-//  #ifdef BSL_OVERRIDES_STD
-//  #undef std
-//  #endif
 //  namespace BSL_IS_ERROR_CODE_ENUM_NAMESPACE {
 //  template <> struct is_error_code_enum<CarError::Enum>
 //  : bsl::public true_type { };
 //  }  // close namespace BSL_IS_ERROR_CODE_ENUM_NAMESPACE
-//  #ifdef BSL_OVERRIDES_STD
-//  #define std bsl
-//  #endif
 //..
 // Finally, we verify that the trait marks our type as eligible.
 //..
@@ -75,7 +67,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 // BDE_VERIFY pragma: -SLM01  // Do not complain about macro leaking
 
@@ -86,10 +81,10 @@ BSLS_IDENT("$Id: $")
 #define BSL_IS_ERROR_CODE_ENUM_NAMESPACE std
 
 namespace bsl {
-using native_std::is_error_code_enum;
+using std::is_error_code_enum;
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-using native_std::is_error_code_enum_v;
+using std::is_error_code_enum_v;
 #elif defined BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
 template <class TYPE>
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES

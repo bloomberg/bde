@@ -22,6 +22,7 @@
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
+
 ..
   16. bsls_byteorder
 
@@ -110,7 +111,7 @@
       bsls_bsldeprecationinformation
       bsls_macroincrement
       bsls_macrorepeat
-      bsls_nativestd
+      bsls_nativestd                                     !DEPRECATED!
       bsls_platform
 
    1. bsls_deprecate
@@ -287,7 +288,7 @@
 : 'bsls_nameof':
 :      Provide a 'NameOf' type for displaying template type at run-time.
 :
-: 'bsls_nativestd':
+: 'bsls_nativestd':                                      !DEPRECATED!
 :      Define the namespace 'native_std' as an alias for '::std'.
 :
 : 'bsls_nullptr':

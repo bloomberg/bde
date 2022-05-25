@@ -108,8 +108,7 @@ BSLS_IDENT("$Id: $")
 // 'std::less<int>' functor as the parameterized 'BINARY_PREDICATE' and invoke
 // the function call operator:
 //..
-//  Bind2ndInteger<native_std::less<int> > functorLessThan10(10,
-//                                                    native_std::less<int>());
+//  Bind2ndInteger<std::less<int> > functorLessThan10(10, std::less<int>());
 //
 //  assert(functorLessThan10(1));
 //  assert(!functorLessThan10(12));

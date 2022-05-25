@@ -111,7 +111,7 @@ void time_computeHash(const TYPE&   key,
                 const char   *TYPEID)
 {
     enum { ITERATIONS = 1000000 }; // 1M
-    native_std::size_t value = 0;
+    std::size_t value = 0;
     bsls::Stopwatch timer;
     timer.start();
     for (int i = 0; i < ITERATIONS; ++i) {
@@ -124,9 +124,9 @@ void time_computeHash(const TYPE&   key,
     (void) value;
 }
 
-native_std::size_t countBits(native_std::size_t value)
+std::size_t countBits(std::size_t value)
 {
-    native_std::size_t ret = 0;
+    std::size_t ret = 0;
     for (; value; value >>= 1) {
         ret += static_cast<int>(value & 1);
     }
@@ -185,7 +185,7 @@ int main(int argc, char *argv[])
         {
             memset(buckets, 0, sizeof(buckets));
             for (int i = 0; i < (1 << 15); ++i) {
-                native_std::size_t hash = bslalg::HashUtil::computeHash(i);
+                std::size_t hash = bslalg::HashUtil::computeHash(i);
 
                 ++buckets[hash & 63];
             }
@@ -210,7 +210,7 @@ int main(int argc, char *argv[])
         {
             memset(buckets, 0, sizeof(buckets));
             for (int i = 0; i < (1 << 15); ++i) {
-                native_std::size_t hash = bslalg::HashUtil::computeHash(4 * i);
+                std::size_t hash = bslalg::HashUtil::computeHash(4 * i);
 
                 ++buckets[hash & 63];
             }
@@ -233,7 +233,7 @@ int main(int argc, char *argv[])
         {
             memset(buckets, 0, sizeof(buckets));
             for (int i = 0; i < (1 << 15); ++i) {
-                native_std::size_t hash = bslalg::HashUtil::computeHash(i);
+                std::size_t hash = bslalg::HashUtil::computeHash(i);
                 hash = hash ^ (hash >> 6) ^ (hash >> 12) ^ (hash >> 18) ^
                               (hash >> 24);
 
@@ -259,9 +259,9 @@ int main(int argc, char *argv[])
 
         {
             memset(buckets, 0, sizeof(buckets));
-            native_std::size_t prev = 0;
+            std::size_t prev = 0;
             for (int i = 0; i < (1 << 15); ++i) {
-                native_std::size_t hash = bslalg::HashUtil::computeHash(i);
+                std::size_t hash = bslalg::HashUtil::computeHash(i);
 
                 ++buckets[(hash - prev) & 63];
                 prev = hash;
@@ -284,9 +284,9 @@ int main(int argc, char *argv[])
 
         {
             memset(buckets, 0, sizeof(buckets));
-            native_std::size_t prev = 0;
+            std::size_t prev = 0;
             for (int i = 0; i < (1 << 15); ++i) {
-                native_std::size_t hash = bslalg::HashUtil::computeHash(i);
+                std::size_t hash = bslalg::HashUtil::computeHash(i);
 
                 ++buckets[(hash ^ prev) & 63];
                 prev = hash;
@@ -386,10 +386,10 @@ int main(int argc, char *argv[])
 
         if (verbose) Q(Incrementing integers);
 
-        native_std::size_t lastHash = -1;
+        std::size_t lastHash = -1;
         for (int i = 0; i < 100; ++i) {
-            native_std::size_t hash = HashUtil::computeHash(i);
-            native_std::size_t changed = countBits(hash ^ lastHash);
+            std::size_t hash = HashUtil::computeHash(i);
+            std::size_t changed = countBits(hash ^ lastHash);
             ASSERTV(i, changed, hash, lastHash,
                                            changed > sizeof(unsigned) * 8 / 4);
             ASSERT(changed > sizeof(unsigned) * 8 / 4);
@@ -405,8 +405,8 @@ int main(int argc, char *argv[])
         long long valueToHash;
         for (int i = 0; i < 64; ++i) {
             valueToHash = (long long) 1 << i;
-            native_std::size_t hash = HashUtil::computeHash(valueToHash);
-            native_std::size_t changed = countBits(hash ^ lastHash);
+            std::size_t hash = HashUtil::computeHash(valueToHash);
+            std::size_t changed = countBits(hash ^ lastHash);
             ASSERT(changed > sizeof(unsigned) * 8 / 4);
             if (verbose) printf(
                     "%2d: %16llx, hash: %8x, lastHash: %8x, changed: " ZU "\n",
@@ -420,9 +420,9 @@ int main(int argc, char *argv[])
         valueToHash = 0;
         for (int i = 0; i < 64; ++i) {
             valueToHash |= (long long) 1 << i;
-            native_std::size_t hash = HashUtil::computeHash(
+            std::size_t hash = HashUtil::computeHash(
                                                            (long long) 1 << i);
-            native_std::size_t changed = countBits(hash ^ lastHash);
+            std::size_t changed = countBits(hash ^ lastHash);
             ASSERT(changed > sizeof(unsigned) * 8 / 4);
             if (verbose) printf(
                     "%2d: %16llx, hash: %8x, lastHash: %8x, changed: " ZU "\n",
@@ -435,9 +435,9 @@ int main(int argc, char *argv[])
         valueToHash = -1;
         for (int i = 0; i < 64; ++i) {
             valueToHash &= ~((long long) 1 << i);
-            native_std::size_t hash = HashUtil::computeHash(
+            std::size_t hash = HashUtil::computeHash(
                                                            (long long) 1 << i);
-            native_std::size_t changed = countBits(hash ^ lastHash);
+            std::size_t changed = countBits(hash ^ lastHash);
             ASSERT(changed > sizeof(unsigned) * 8 / 4);
             if (verbose) printf(
                     "%2d: %16llx, hash: %8x, lastHash: %8x, changed: " ZU "\n",

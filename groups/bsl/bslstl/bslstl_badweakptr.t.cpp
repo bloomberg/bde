@@ -162,7 +162,7 @@ int main(int argc, char *argv[])
                             "\n==============\n");
 
         bslstl::BadWeakPtr b;
-        const native_std::exception *ptr = &b;
+        const std::exception *ptr = &b;
 
         ASSERT(0 == strcmp("bad_weak_ptr", b.what()));
         ASSERT(0 == strcmp("bad_weak_ptr", ptr->what()));

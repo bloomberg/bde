@@ -10,10 +10,9 @@
 
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
-#include <bsls_nativestd.h>
 #include <bsls_platform.h>
 
-#include <utility>     // native_std::move for C++11
+#include <utility>     // 'std::move' for C++11
 
 #include <stdio.h>     // atoi()
 #include <stdlib.h>    // atoi()
@@ -862,8 +861,8 @@ int main(int argc, char *argv[])
             typedef bsl::add_volatile<T>::type VT;                            \
             typedef bsl::add_cv<T>::type CVT;                                 \
             CvRefMatch<T> target;                                             \
-            ASSERT(testEndToEnd<T&&>(native_std::move(v), target) ==          \
-                   target(native_std::move(v)));                              \
+            ASSERT(testEndToEnd<T&&>(std::move(v), target) ==                 \
+                   target(std::move(v)));                                     \
             ASSERT(testEndToEnd<CT&&>(static_cast<CT&&>(v), target) ==        \
                    target(static_cast<CT&&>(v)));                             \
             ASSERT(testEndToEnd<VT&&>(static_cast<VT&&>(v), target) ==        \
@@ -1099,10 +1098,10 @@ int main(int argc, char *argv[])
 
 # if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)   \
   &&!defined(BSLMF_FORWARDINGTYPE_NO_ARRAY_DECAY_TO_RVALUE_REF)
-        testForwardToTargetArray<A          &&>(native_std::move(a));
-        testForwardToTargetArray<A  const   &&>(native_std::move(a));
-        testForwardToTargetArray<AU         &&>(native_std::move(au));
-        testForwardToTargetArray<AU const   &&>(native_std::move(au));
+        testForwardToTargetArray<A          &&>(std::move(a));
+        testForwardToTargetArray<A  const   &&>(std::move(a));
+        testForwardToTargetArray<AU         &&>(std::move(au));
+        testForwardToTargetArray<AU const   &&>(std::move(au));
 # endif
 #endif
 
@@ -1162,35 +1161,35 @@ int main(int argc, char *argv[])
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-        testForwardToTargetRef<Struct  &&>(native_std::move(s));
-        testForwardToTargetRef<Union   &&>(native_std::move(u));
-        testForwardToTargetRef<Class   &&>(native_std::move(c));
+        testForwardToTargetRef<Struct  &&>(std::move(s));
+        testForwardToTargetRef<Union   &&>(std::move(u));
+        testForwardToTargetRef<Class   &&>(std::move(c));
 #if !defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VERSION > 1800
         // The following 6 tests fail for MS Visual C++ (tested up to VC 2013).
         // Suspect the optimizer is creating a temporary, rather than truly
         // passing by reference, when given a fundamental/primitive type.
-        testForwardToTargetRef<Enum    &&>(native_std::move(e));
-        testForwardToTargetRef<double  &&>(native_std::move(d));
-        testForwardToTargetRef<double *&&>(native_std::move(p));
-        testForwardToTargetRef<PF      &&>(native_std::move(f_p));
-        testForwardToTargetRef<Pm      &&>(native_std::move(m_p));
-        testForwardToTargetRef<Pmf     &&>(native_std::move(mf_p));
+        testForwardToTargetRef<Enum    &&>(std::move(e));
+        testForwardToTargetRef<double  &&>(std::move(d));
+        testForwardToTargetRef<double *&&>(std::move(p));
+        testForwardToTargetRef<PF      &&>(std::move(f_p));
+        testForwardToTargetRef<Pm      &&>(std::move(m_p));
+        testForwardToTargetRef<Pmf     &&>(std::move(mf_p));
 # if !defined(BSLMF_FOWARDINGTYPE_NO_SUPPORT_FOR_POINTER_TO_CV_MEMBER_FUNCTION)
-        testForwardToTargetRef<Pmq     &&>(native_std::move(mf_q));
+        testForwardToTargetRef<Pmq     &&>(std::move(mf_q));
 # endif
 #endif
 
-        testForwardToTargetRef<Enum     const&&>(native_std::move(e));
-        testForwardToTargetRef<Struct   const&&>(native_std::move(s));
-        testForwardToTargetRef<Union    const&&>(native_std::move(u));
-        testForwardToTargetRef<Class    const&&>(native_std::move(c));
-        testForwardToTargetRef<double   const&&>(native_std::move(d));
-        testForwardToTargetRef<double * const&&>(native_std::move(p));
-        testForwardToTargetRef<PF       const&&>(native_std::move(f_p));
-        testForwardToTargetRef<Pm       const&&>(native_std::move(m_p));
-        testForwardToTargetRef<Pmf      const&&>(native_std::move(mf_p));
+        testForwardToTargetRef<Enum     const&&>(std::move(e));
+        testForwardToTargetRef<Struct   const&&>(std::move(s));
+        testForwardToTargetRef<Union    const&&>(std::move(u));
+        testForwardToTargetRef<Class    const&&>(std::move(c));
+        testForwardToTargetRef<double   const&&>(std::move(d));
+        testForwardToTargetRef<double * const&&>(std::move(p));
+        testForwardToTargetRef<PF       const&&>(std::move(f_p));
+        testForwardToTargetRef<Pm       const&&>(std::move(m_p));
+        testForwardToTargetRef<Pmf      const&&>(std::move(mf_p));
 #if !defined(BSLMF_FOWARDINGTYPE_NO_SUPPORT_FOR_POINTER_TO_CV_MEMBER_FUNCTION)
-        testForwardToTargetRef<Pmq      const&&>(native_std::move(mf_q));
+        testForwardToTargetRef<Pmq      const&&>(std::move(mf_q));
 #endif
 
         // Do not test volatile rvalue references.  They have no real uses and
@@ -1544,10 +1543,10 @@ int main(int argc, char *argv[])
         ASSERT(k_VOLATILE_LVALUE         == crm( vi));
         ASSERT(k_CONST_VOLATILE_LVALUE   == crm(cvi));
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-        ASSERT(k_RVALUE                  == crm(native_std::move(  i)));
-        ASSERT(k_CONST_RVALUE            == crm(native_std::move( ci)));
-        ASSERT(k_VOLATILE_RVALUE         == crm(native_std::move( vi)));
-        ASSERT(k_CONST_VOLATILE_RVALUE   == crm(native_std::move(cvi)));
+        ASSERT(k_RVALUE                  == crm(std::move(  i)));
+        ASSERT(k_CONST_RVALUE            == crm(std::move( ci)));
+        ASSERT(k_VOLATILE_RVALUE         == crm(std::move( vi)));
+        ASSERT(k_CONST_VOLATILE_RVALUE   == crm(std::move(cvi)));
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)

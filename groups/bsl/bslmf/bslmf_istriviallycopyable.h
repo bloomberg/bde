@@ -133,13 +133,13 @@ BSLS_IDENT("$Id: $")
 
 #include <stddef.h>
 
-// This set of includes must come last, due to usage of 'bsls_nativestd'
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
-# include <bsls_nativestd.h>
-
-# define BSLMF_INCLUDE_ONLY_NATIVE_TRAITS
 # include <type_traits>
 #endif // BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
 #define BSLMF_ISTRIVIALLYCOPYABLE_NATIVE_IMPLEMENTATION
@@ -208,7 +208,7 @@ template <class TYPE>
 struct IsTriviallyCopyable_Intrinsic
     : IsTriviallyCopyable_DetectTrait<
                       TYPE,
-                      ::native_std::is_trivially_copyable<TYPE>::value>::type {
+                      ::std::is_trivially_copyable<TYPE>::value>::type {
     // This 'struct' template implements a meta-function to determine whether
     // the (non-cv-qualified) (template parameter) 'TYPE' is trivially
     // copyable.

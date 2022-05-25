@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Dec 15 16:32:15 2021
+// Generated on Wed May 18 23:01:34 2022
 // Command line: sim_cpp11_features.pl bslstl_hashtable.h
 
 #ifdef COMPILING_BSLSTL_HASHTABLE_H
@@ -120,7 +120,7 @@ class HashTable_HashWrapper {
 
     // ACCESSORS
     template <class ARG_TYPE>
-    native_std::size_t operator()(ARG_TYPE& arg) const;
+    std::size_t operator()(ARG_TYPE& arg) const;
         // Call the wrapped 'functor' with the specified 'arg' and return the
         // result.  Note that 'ARG_TYPE' will typically be deduced as a 'const'
         // type.
@@ -156,7 +156,7 @@ class HashTable_HashWrapper<const FUNCTOR> {
 
     // ACCESSORS
     template <class ARG_TYPE>
-    native_std::size_t operator()(ARG_TYPE& arg) const;
+    std::size_t operator()(ARG_TYPE& arg) const;
         // Call the wrapped 'functor' with the specified 'arg' and return the
         // result.  Note that 'ARG_TYPE' will typically be deduced as a 'const'
         // type.
@@ -188,7 +188,7 @@ class HashTable_HashWrapper<FUNCTOR &> {
 
     // ACCESSORS
     template <class ARG_TYPE>
-    native_std::size_t operator()(ARG_TYPE& arg) const;
+    std::size_t operator()(ARG_TYPE& arg) const;
         // Call the wrapped 'functor' with the specified 'arg' and return the
         // result.  Note that 'ARG_TYPE' will typically be deduced as a 'const'
         // type.
@@ -499,8 +499,8 @@ class HashTable {
 
     // PRIVATE ACCESSORS
     template <class DEDUCED_KEY>
-    bslalg::BidirectionalLink *find(DEDUCED_KEY&       key,
-                                    native_std::size_t hashValue) const;
+    bslalg::BidirectionalLink *find(DEDUCED_KEY& key,
+                                    std::size_t  hashValue) const;
         // Return the address of the first node in this hash table having a key
         // that compares equal (according to this hash-table's 'comparator') to
         // the specified 'key'.  The behavior is undefined unless the specified
@@ -515,7 +515,7 @@ class HashTable {
         // bucket array of this hash table.  The behavior is undefined unless
         // 'bucketIndex < this->numBuckets()'.
 
-    native_std::size_t hashCodeForNode(bslalg::BidirectionalLink *node) const;
+    std::size_t hashCodeForNode(bslalg::BidirectionalLink *node) const;
         // Return the hash code for the element stored in the specified 'node'
         // using a copy of the hash functor supplied at construction.  The
         // behavior is undefined unless 'node' points to a list-node of type
@@ -1735,14 +1735,14 @@ struct HashTable_Util {
 
     template<class ALLOCATOR>
     static void destroyBucketArray(bslalg::HashTableBucket *data,
-                                   native_std::size_t       bucketArraySize,
+                                   std::size_t              bucketArraySize,
                                    const ALLOCATOR&         allocator);
         // Destroy the specified 'data' array of the specified length
         // 'bucketArraySize', that was allocated by the specified 'allocator'.
 
     template<class ALLOCATOR>
     static void initAnchor(bslalg::HashTableAnchor *anchor,
-                           native_std::size_t       bucketArraySize,
+                           std::size_t              bucketArraySize,
                            const ALLOCATOR&         allocator);
         // Load into the specified 'anchor' a (contiguous) array of buckets of
         // the specified 'bucketArraySize' using memory supplied by the
@@ -1874,7 +1874,7 @@ class HashTable_ImplParameters
         // 'comparator' functor owned by this object.
 
     template <class DEDUCED_KEY>
-    native_std::size_t hashCodeForKey(DEDUCED_KEY& key) const;
+    std::size_t hashCodeForKey(DEDUCED_KEY& key) const;
         // Return the hash code for the specified 'key' using a copy of the
         // hash functor supplied at construction.  Note that this function is
         // provided as a common way to resolve 'const_cast' issues in the case
@@ -1923,7 +1923,7 @@ HashTable_HashWrapper<FUNCTOR>::HashTable_HashWrapper(const FUNCTOR& fn)
 template <class FUNCTOR>
 template <class ARG_TYPE>
 inline
-native_std::size_t
+std::size_t
 HashTable_HashWrapper<FUNCTOR>::operator()(ARG_TYPE& arg) const
 {
     return d_functor(arg);
@@ -1963,7 +1963,7 @@ HashTable_HashWrapper<const FUNCTOR>::HashTable_HashWrapper(const FUNCTOR& fn)
 template <class FUNCTOR>
 template <class ARG_TYPE>
 inline
-native_std::size_t
+std::size_t
 HashTable_HashWrapper<const FUNCTOR>::operator()(ARG_TYPE& arg) const
 {
     return d_functor(arg);
@@ -1988,7 +1988,7 @@ HashTable_HashWrapper<FUNCTOR &>::HashTable_HashWrapper(FUNCTOR& fn)
 template <class FUNCTOR>
 template <class ARG_TYPE>
 inline
-native_std::size_t
+std::size_t
 HashTable_HashWrapper<FUNCTOR &>::operator()(ARG_TYPE& arg) const
 {
     return d_functor(arg);
@@ -2214,7 +2214,7 @@ template <class ALLOCATOR>
 inline
 void HashTable_Util::destroyBucketArray(
                                      bslalg::HashTableBucket  *data,
-                                     native_std::size_t        bucketArraySize,
+                                     std::size_t               bucketArraySize,
                                      const ALLOCATOR&          allocator)
 {
     BSLS_ASSERT_SAFE(data);
@@ -2231,8 +2231,7 @@ void HashTable_Util::destroyBucketArray(
     typedef ::bsl::allocator_traits<ArrayAllocator>       ArrayAllocatorTraits;
     typedef typename ArrayAllocatorTraits::size_type         SizeType;
 
-    BSLS_ASSERT_SAFE(
-               bucketArraySize <= native_std::numeric_limits<SizeType>::max());
+    BSLS_ASSERT_SAFE(bucketArraySize <= std::numeric_limits<SizeType>::max());
 
     if (HashTable_ImpDetails::defaultBucketAddress() != data) {
         ArrayAllocator reboundAllocator(allocator);
@@ -2246,7 +2245,7 @@ void HashTable_Util::destroyBucketArray(
 template <class ALLOCATOR>
 inline
 void HashTable_Util::initAnchor(bslalg::HashTableAnchor *anchor,
-                                native_std::size_t       bucketArraySize,
+                                std::size_t              bucketArraySize,
                                 const ALLOCATOR&         allocator)
 {
     BSLS_ASSERT_SAFE(anchor);
@@ -2259,8 +2258,7 @@ void HashTable_Util::initAnchor(bslalg::HashTableAnchor *anchor,
     typedef ::bsl::allocator_traits<ArrayAllocator>       ArrayAllocatorTraits;
     typedef typename ArrayAllocatorTraits::size_type         SizeType;
 
-    BSLS_ASSERT_SAFE(
-               bucketArraySize <= native_std::numeric_limits<SizeType>::max());
+    BSLS_ASSERT_SAFE(bucketArraySize <= std::numeric_limits<SizeType>::max());
 
     ArrayAllocator reboundAllocator(allocator);
 
@@ -2285,7 +2283,7 @@ void HashTable_Util::initAnchor(bslalg::HashTableAnchor *anchor,
                                        reboundAllocator,
                                        newArraySize);
 
-    native_std::fill_n(data, bucketArraySize, bslalg::HashTableBucket());
+    std::fill_n(data, bucketArraySize, bslalg::HashTableBucket());
 
     anchor->setBucketArrayAddressAndSize(data, newArraySize);
 }
@@ -2401,10 +2399,10 @@ comparator() const
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class DEDUCED_KEY>
 inline
-native_std::size_t HashTable_ImplParameters<KEY_CONFIG,
-                                            HASHER,
-                                            COMPARATOR,
-                                            ALLOCATOR>::
+std::size_t HashTable_ImplParameters<KEY_CONFIG,
+                                     HASHER,
+                                     COMPARATOR,
+                                     ALLOCATOR>::
 hashCodeForKey(DEDUCED_KEY& key) const
 {
     return static_cast<const BaseHasher &>(*this)(key);
@@ -2907,8 +2905,8 @@ template <class DEDUCED_KEY>
 inline
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::find(
-                                            DEDUCED_KEY&       key,
-                                            native_std::size_t hashValue) const
+                                                  DEDUCED_KEY& key,
+                                                  std::size_t  hashValue) const
 {
     return bslalg::HashTableImpUtil::find<KEY_CONFIG>(
                                                      d_anchor,
@@ -2930,7 +2928,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::getBucketAddress(
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
-native_std::size_t
+std::size_t
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::hashCodeForNode(
                                          bslalg::BidirectionalLink *node) const
 {
@@ -5294,10 +5292,10 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::removeAll()
     this->removeAllImp();
     if (HashTable_ImpDetails::defaultBucketAddress() !=
         d_anchor.bucketArrayAddress()) {
-        native_std::memset(d_anchor.bucketArrayAddress(),
-                           0,
-                           sizeof(bslalg::HashTableBucket) *
-                               d_anchor.bucketArraySize());
+        std::memset(d_anchor.bucketArrayAddress(),
+                    0,
+                    sizeof(bslalg::HashTableBucket) *
+                    d_anchor.bucketArraySize());
     }
 
     d_anchor.setListRootAddress(0);
@@ -5342,7 +5340,7 @@ void HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::setMaxLoadFactor(
     SizeType numBuckets = static_cast<SizeType>(
              HashTable_ImpDetails::growBucketsForLoadFactor(
                                        &capacity,
-                                       native_std::max<SizeType>(d_size, 1u),
+                                       std::max<SizeType>(d_size, 1u),
                                        static_cast<size_t>(this->numBuckets()),
                                        newMaxLoadFactor));
 
@@ -5838,7 +5836,7 @@ struct IsBitwiseMoveable<bslstl::HashTable<KEY_CONFIG,
 #endif // ! defined(INCLUDED_BSLSTL_HASHTABLE_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2021 Bloomberg Finance L.P.
+// Copyright 2022 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

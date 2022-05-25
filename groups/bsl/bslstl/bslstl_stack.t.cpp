@@ -6108,7 +6108,7 @@ void TestDriver<CONTAINER>::testCase1_NoAlloc(int    *testValues,
         printf("Test primary manipulators/accessors on every permutation.\n");
     }
 
-    native_std::sort(testValues, testValues + numValues);
+    std::sort(testValues, testValues + numValues);
     do {
         // For each possible permutation of values, insert values, iterate over
         // the resulting container, find values, and then erase values.
@@ -6144,8 +6144,8 @@ void TestDriver<CONTAINER>::testCase1_NoAlloc(int    *testValues,
         }
 
         ASSERTV(X.size() == 0);
-    } while (native_std::next_permutation(testValues,
-                                          testValues + numValues));
+    } while (std::next_permutation(testValues,
+                                   testValues + numValues));
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -6331,7 +6331,7 @@ void TestDriver<CONTAINER>::testCase1(int    *testValues,
         printf("Test primary manipulators/accessors on every permutation.\n");
     }
 
-    native_std::sort(testValues, testValues + numValues);
+    std::sort(testValues, testValues + numValues);
     do {
         // For each possible permutation of values, insert values, iterate over
         // the resulting container, find values, and then erase values.
@@ -6372,8 +6372,8 @@ void TestDriver<CONTAINER>::testCase1(int    *testValues,
 
         ASSERTV(X.size() == 0);
         ASSERTV(! defaultMonitor.isTotalUp());
-    } while (native_std::next_permutation(testValues,
-                                          testValues + numValues));
+    } while (std::next_permutation(testValues,
+                                   testValues + numValues));
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 

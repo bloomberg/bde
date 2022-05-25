@@ -176,11 +176,12 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
-# include <bsls_nativestd.h>
-
-# define BSLMF_INCLUDE_ONLY_NATIVE_TRAITS
 # include <type_traits>
 #endif // BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
 # if !defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VERSION > 1900
@@ -258,7 +259,7 @@ namespace bsl {
 template <class FROM_TYPE, class TO_TYPE>
 struct is_convertible
     : ::bsl::integral_constant<bool,
-                               ::native_std::is_convertible<
+                               ::std::is_convertible<
      typename BloombergLP::bslmf::IsConvertible_CheckComplete<FROM_TYPE>::type,
      typename BloombergLP::bslmf::IsConvertible_CheckComplete<  TO_TYPE>::type
                                                            >::value> {

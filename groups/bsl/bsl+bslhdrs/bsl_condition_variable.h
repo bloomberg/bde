@@ -15,17 +15,19 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
-#include <bsls_nativestd.h>
-
 #include <condition_variable>
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace bsl {
 
-    using native_std::condition_variable;
-    using native_std::condition_variable_any;
-    using native_std::cv_status;
+    using std::condition_variable;
+    using std::condition_variable_any;
+    using std::cv_status;
 #ifdef BSL_CONDITION_VARIABLE_SUPPORTS_NOTIFY_ALL_AT_THREAD_EXIT
-    using native_std::notify_all_at_thread_exit;
+    using std::notify_all_at_thread_exit;
 #endif
 
 }  // close package namespace

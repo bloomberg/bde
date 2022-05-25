@@ -36,7 +36,7 @@ BSLS_IDENT("$Id: $")
 //
 // First, we declare our function:
 //..
-//  void writeJsonScalar(native_std::streambuf *result, int value)
+//  void writeJsonScalar(std::streambuf *result, int value)
 //      // Write the specified 'value', in decimal, to the specified 'result'.
 //  {
 //..

@@ -8,7 +8,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide an exception class to indicate a weak_ptr has expired.
 //
 //@CLASSES:
-//  bslstl::BadWeakPtr: exception class derived from 'native_std' classes
+//  bslstl::BadWeakPtr: exception class derived from 'std' classes
 //  bsl::bad_weak_ptr: alias to an exception type thrown by the 'bsl' library
 //
 //@CANONICAL_HEADER: bsl_memory.h
@@ -24,21 +24,18 @@ BSLS_IDENT("$Id: $")
 ///Example 1: TBD
 /// - - - - - - -
 
-// Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
-// mode.  Doing so is unsupported, and is likely to cause compilation errors.
-#if defined(BSL_OVERRIDES_STD) && !defined(BOS_STDHDRS_PROLOGUE_IN_EFFECT)
-#error "include <bsl_memory.h> instead of <bslstl_badweakptr.h> in \
-BSL_OVERRIDES_STD mode"
-#endif
 #include <bslscm_version.h>
 
 #include <bsls_exceptionutil.h>
 #include <bsls_keyword.h>
-#include <bsls_nativestd.h>
 
 #include <exception>
 
 #include <memory>                // 'std::bad_weak_ptr' if defined
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 namespace bslstl { class BadWeakPtr; }
@@ -46,7 +43,7 @@ namespace bslstl { class BadWeakPtr; }
 
 namespace bsl {
 #if 0
-typedef native_std::bad_weak_ptr bad_weak_ptr;
+typedef std::bad_weak_ptr bad_weak_ptr;
 #else
 typedef ::BloombergLP::bslstl::BadWeakPtr bad_weak_ptr;
 #endif
@@ -61,7 +58,7 @@ namespace bslstl {
                        // class BadWeakPtr
                        // ================
 
-class BadWeakPtr : public native_std::exception {
+class BadWeakPtr : public std::exception {
   public:
     BadWeakPtr() BSLS_KEYWORD_NOEXCEPT;
         // Create a 'BadWeakPtr' object.  Note that this function is explicitly
@@ -94,7 +91,7 @@ class BadWeakPtr : public native_std::exception {
 // CREATORS
 inline
 BadWeakPtr::BadWeakPtr() BSLS_KEYWORD_NOEXCEPT
-: native_std::exception()
+: std::exception()
 {
 }
 

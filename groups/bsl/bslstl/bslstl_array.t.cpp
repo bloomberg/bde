@@ -892,18 +892,18 @@ struct TupleApiTest<TYPE, 5>
 
         // Testing 'tuple_size'.
         {
-            typedef native_std::tuple_size< TA     > TS_TA    ;
-            typedef native_std::tuple_size< CTA    > TS_CTA   ;
-            typedef native_std::tuple_size< VTA    > TS_VTA   ;
-            typedef native_std::tuple_size< C_TA   > TS_C_TA  ;
-            typedef native_std::tuple_size< C_CTA  > TS_C_CTA ;
-            typedef native_std::tuple_size< C_VTA  > TS_C_VTA ;
-            typedef native_std::tuple_size< V_TA   > TS_V_TA  ;
-            typedef native_std::tuple_size< V_CTA  > TS_V_CTA ;
-            typedef native_std::tuple_size< V_VTA  > TS_V_VTA ;
-            typedef native_std::tuple_size< CV_TA  > TS_CV_TA ;
-            typedef native_std::tuple_size< CV_CTA > TS_CV_CTA;
-            typedef native_std::tuple_size< CV_VTA > TS_CV_VTA;
+            typedef std::tuple_size< TA     > TS_TA    ;
+            typedef std::tuple_size< CTA    > TS_CTA   ;
+            typedef std::tuple_size< VTA    > TS_VTA   ;
+            typedef std::tuple_size< C_TA   > TS_C_TA  ;
+            typedef std::tuple_size< C_CTA  > TS_C_CTA ;
+            typedef std::tuple_size< C_VTA  > TS_C_VTA ;
+            typedef std::tuple_size< V_TA   > TS_V_TA  ;
+            typedef std::tuple_size< V_CTA  > TS_V_CTA ;
+            typedef std::tuple_size< V_VTA  > TS_V_VTA ;
+            typedef std::tuple_size< CV_TA  > TS_CV_TA ;
+            typedef std::tuple_size< CV_CTA > TS_CV_CTA;
+            typedef std::tuple_size< CV_VTA > TS_CV_VTA;
 
             ASSERT((5u == TS_TA::value    ));
             ASSERT((5u == TS_CTA::value   ));
@@ -921,69 +921,69 @@ struct TupleApiTest<TYPE, 5>
 
         // Testing 'tuple_element'.
         {
-            typedef native_std::tuple_element< 0 ,     TA > TE0_TA    ;
-            typedef native_std::tuple_element< 0 ,    CTA > TE0_CTA   ;
-            typedef native_std::tuple_element< 0 ,    VTA > TE0_VTA   ;
-            typedef native_std::tuple_element< 1u,     TA > TE1_TA    ;
-            typedef native_std::tuple_element< 1u,    CTA > TE1_CTA   ;
-            typedef native_std::tuple_element< 1u,    VTA > TE1_VTA   ;
-            typedef native_std::tuple_element< 2u,     TA > TE2_TA    ;
-            typedef native_std::tuple_element< 2u,    CTA > TE2_CTA   ;
-            typedef native_std::tuple_element< 2u,    VTA > TE2_VTA   ;
-            typedef native_std::tuple_element< 3u,     TA > TE3_TA    ;
-            typedef native_std::tuple_element< 3u,    CTA > TE3_CTA   ;
-            typedef native_std::tuple_element< 3u,    VTA > TE3_VTA   ;
-            typedef native_std::tuple_element< 4u,     TA > TE4_TA    ;
-            typedef native_std::tuple_element< 4u,    CTA > TE4_CTA   ;
-            typedef native_std::tuple_element< 4u,    VTA > TE4_VTA   ;
+            typedef std::tuple_element< 0 ,     TA > TE0_TA    ;
+            typedef std::tuple_element< 0 ,    CTA > TE0_CTA   ;
+            typedef std::tuple_element< 0 ,    VTA > TE0_VTA   ;
+            typedef std::tuple_element< 1u,     TA > TE1_TA    ;
+            typedef std::tuple_element< 1u,    CTA > TE1_CTA   ;
+            typedef std::tuple_element< 1u,    VTA > TE1_VTA   ;
+            typedef std::tuple_element< 2u,     TA > TE2_TA    ;
+            typedef std::tuple_element< 2u,    CTA > TE2_CTA   ;
+            typedef std::tuple_element< 2u,    VTA > TE2_VTA   ;
+            typedef std::tuple_element< 3u,     TA > TE3_TA    ;
+            typedef std::tuple_element< 3u,    CTA > TE3_CTA   ;
+            typedef std::tuple_element< 3u,    VTA > TE3_VTA   ;
+            typedef std::tuple_element< 4u,     TA > TE4_TA    ;
+            typedef std::tuple_element< 4u,    CTA > TE4_CTA   ;
+            typedef std::tuple_element< 4u,    VTA > TE4_VTA   ;
 
-            typedef native_std::tuple_element< 0 ,  C_TA  > TE0_C_TA  ;
-            typedef native_std::tuple_element< 0 ,  C_CTA > TE0_C_CTA ;
-            typedef native_std::tuple_element< 0 ,  C_VTA > TE0_C_VTA ;
-            typedef native_std::tuple_element< 1u,  C_TA  > TE1_C_TA  ;
-            typedef native_std::tuple_element< 1u,  C_CTA > TE1_C_CTA ;
-            typedef native_std::tuple_element< 1u,  C_VTA > TE1_C_VTA ;
-            typedef native_std::tuple_element< 2u,  C_TA  > TE2_C_TA  ;
-            typedef native_std::tuple_element< 2u,  C_CTA > TE2_C_CTA ;
-            typedef native_std::tuple_element< 2u,  C_VTA > TE2_C_VTA ;
-            typedef native_std::tuple_element< 3u,  C_TA  > TE3_C_TA  ;
-            typedef native_std::tuple_element< 3u,  C_CTA > TE3_C_CTA ;
-            typedef native_std::tuple_element< 3u,  C_VTA > TE3_C_VTA ;
-            typedef native_std::tuple_element< 4u,  C_TA  > TE4_C_TA  ;
-            typedef native_std::tuple_element< 4u,  C_CTA > TE4_C_CTA ;
-            typedef native_std::tuple_element< 4u,  C_VTA > TE4_C_VTA ;
+            typedef std::tuple_element< 0 ,  C_TA  > TE0_C_TA  ;
+            typedef std::tuple_element< 0 ,  C_CTA > TE0_C_CTA ;
+            typedef std::tuple_element< 0 ,  C_VTA > TE0_C_VTA ;
+            typedef std::tuple_element< 1u,  C_TA  > TE1_C_TA  ;
+            typedef std::tuple_element< 1u,  C_CTA > TE1_C_CTA ;
+            typedef std::tuple_element< 1u,  C_VTA > TE1_C_VTA ;
+            typedef std::tuple_element< 2u,  C_TA  > TE2_C_TA  ;
+            typedef std::tuple_element< 2u,  C_CTA > TE2_C_CTA ;
+            typedef std::tuple_element< 2u,  C_VTA > TE2_C_VTA ;
+            typedef std::tuple_element< 3u,  C_TA  > TE3_C_TA  ;
+            typedef std::tuple_element< 3u,  C_CTA > TE3_C_CTA ;
+            typedef std::tuple_element< 3u,  C_VTA > TE3_C_VTA ;
+            typedef std::tuple_element< 4u,  C_TA  > TE4_C_TA  ;
+            typedef std::tuple_element< 4u,  C_CTA > TE4_C_CTA ;
+            typedef std::tuple_element< 4u,  C_VTA > TE4_C_VTA ;
 
-            typedef native_std::tuple_element< 0 ,  V_TA  > TE0_V_TA  ;
-            typedef native_std::tuple_element< 0 ,  V_CTA > TE0_V_CTA ;
-            typedef native_std::tuple_element< 0 ,  V_VTA > TE0_V_VTA ;
-            typedef native_std::tuple_element< 1u,  V_TA  > TE1_V_TA  ;
-            typedef native_std::tuple_element< 1u,  V_CTA > TE1_V_CTA ;
-            typedef native_std::tuple_element< 1u,  V_VTA > TE1_V_VTA ;
-            typedef native_std::tuple_element< 2u,  V_TA  > TE2_V_TA  ;
-            typedef native_std::tuple_element< 2u,  V_CTA > TE2_V_CTA ;
-            typedef native_std::tuple_element< 2u,  V_VTA > TE2_V_VTA ;
-            typedef native_std::tuple_element< 3u,  V_TA  > TE3_V_TA  ;
-            typedef native_std::tuple_element< 3u,  V_CTA > TE3_V_CTA ;
-            typedef native_std::tuple_element< 3u,  V_VTA > TE3_V_VTA ;
-            typedef native_std::tuple_element< 4u,  V_TA  > TE4_V_TA  ;
-            typedef native_std::tuple_element< 4u,  V_CTA > TE4_V_CTA ;
-            typedef native_std::tuple_element< 4u,  V_VTA > TE4_V_VTA ;
+            typedef std::tuple_element< 0 ,  V_TA  > TE0_V_TA  ;
+            typedef std::tuple_element< 0 ,  V_CTA > TE0_V_CTA ;
+            typedef std::tuple_element< 0 ,  V_VTA > TE0_V_VTA ;
+            typedef std::tuple_element< 1u,  V_TA  > TE1_V_TA  ;
+            typedef std::tuple_element< 1u,  V_CTA > TE1_V_CTA ;
+            typedef std::tuple_element< 1u,  V_VTA > TE1_V_VTA ;
+            typedef std::tuple_element< 2u,  V_TA  > TE2_V_TA  ;
+            typedef std::tuple_element< 2u,  V_CTA > TE2_V_CTA ;
+            typedef std::tuple_element< 2u,  V_VTA > TE2_V_VTA ;
+            typedef std::tuple_element< 3u,  V_TA  > TE3_V_TA  ;
+            typedef std::tuple_element< 3u,  V_CTA > TE3_V_CTA ;
+            typedef std::tuple_element< 3u,  V_VTA > TE3_V_VTA ;
+            typedef std::tuple_element< 4u,  V_TA  > TE4_V_TA  ;
+            typedef std::tuple_element< 4u,  V_CTA > TE4_V_CTA ;
+            typedef std::tuple_element< 4u,  V_VTA > TE4_V_VTA ;
 
-            typedef native_std::tuple_element< 0 , CV_TA  > TE0_CV_TA ;
-            typedef native_std::tuple_element< 0 , CV_CTA > TE0_CV_CTA;
-            typedef native_std::tuple_element< 0 , CV_VTA > TE0_CV_VTA;
-            typedef native_std::tuple_element< 1u, CV_TA  > TE1_CV_TA ;
-            typedef native_std::tuple_element< 1u, CV_CTA > TE1_CV_CTA;
-            typedef native_std::tuple_element< 1u, CV_VTA > TE1_CV_VTA;
-            typedef native_std::tuple_element< 2u, CV_TA  > TE2_CV_TA ;
-            typedef native_std::tuple_element< 2u, CV_CTA > TE2_CV_CTA;
-            typedef native_std::tuple_element< 2u, CV_VTA > TE2_CV_VTA;
-            typedef native_std::tuple_element< 3u, CV_TA  > TE3_CV_TA ;
-            typedef native_std::tuple_element< 3u, CV_CTA > TE3_CV_CTA;
-            typedef native_std::tuple_element< 3u, CV_VTA > TE3_CV_VTA;
-            typedef native_std::tuple_element< 4u, CV_TA  > TE4_CV_TA ;
-            typedef native_std::tuple_element< 4u, CV_CTA > TE4_CV_CTA;
-            typedef native_std::tuple_element< 4u, CV_VTA > TE4_CV_VTA;
+            typedef std::tuple_element< 0 , CV_TA  > TE0_CV_TA ;
+            typedef std::tuple_element< 0 , CV_CTA > TE0_CV_CTA;
+            typedef std::tuple_element< 0 , CV_VTA > TE0_CV_VTA;
+            typedef std::tuple_element< 1u, CV_TA  > TE1_CV_TA ;
+            typedef std::tuple_element< 1u, CV_CTA > TE1_CV_CTA;
+            typedef std::tuple_element< 1u, CV_VTA > TE1_CV_VTA;
+            typedef std::tuple_element< 2u, CV_TA  > TE2_CV_TA ;
+            typedef std::tuple_element< 2u, CV_CTA > TE2_CV_CTA;
+            typedef std::tuple_element< 2u, CV_VTA > TE2_CV_VTA;
+            typedef std::tuple_element< 3u, CV_TA  > TE3_CV_TA ;
+            typedef std::tuple_element< 3u, CV_CTA > TE3_CV_CTA;
+            typedef std::tuple_element< 3u, CV_VTA > TE3_CV_VTA;
+            typedef std::tuple_element< 4u, CV_TA  > TE4_CV_TA ;
+            typedef std::tuple_element< 4u, CV_CTA > TE4_CV_CTA;
+            typedef std::tuple_element< 4u, CV_VTA > TE4_CV_VTA;
 
             // Aliases for returned types.
 
@@ -1158,18 +1158,18 @@ struct TupleApiTest<TYPE, 4>
 
         // Testing 'tuple_size'.
         {
-            typedef native_std::tuple_size< TA     > TS_TA    ;
-            typedef native_std::tuple_size< CTA    > TS_CTA   ;
-            typedef native_std::tuple_size< VTA    > TS_VTA   ;
-            typedef native_std::tuple_size< C_TA   > TS_C_TA  ;
-            typedef native_std::tuple_size< C_CTA  > TS_C_CTA ;
-            typedef native_std::tuple_size< C_VTA  > TS_C_VTA ;
-            typedef native_std::tuple_size< V_TA   > TS_V_TA  ;
-            typedef native_std::tuple_size< V_CTA  > TS_V_CTA ;
-            typedef native_std::tuple_size< V_VTA  > TS_V_VTA ;
-            typedef native_std::tuple_size< CV_TA  > TS_CV_TA ;
-            typedef native_std::tuple_size< CV_CTA > TS_CV_CTA;
-            typedef native_std::tuple_size< CV_VTA > TS_CV_VTA;
+            typedef std::tuple_size< TA     > TS_TA    ;
+            typedef std::tuple_size< CTA    > TS_CTA   ;
+            typedef std::tuple_size< VTA    > TS_VTA   ;
+            typedef std::tuple_size< C_TA   > TS_C_TA  ;
+            typedef std::tuple_size< C_CTA  > TS_C_CTA ;
+            typedef std::tuple_size< C_VTA  > TS_C_VTA ;
+            typedef std::tuple_size< V_TA   > TS_V_TA  ;
+            typedef std::tuple_size< V_CTA  > TS_V_CTA ;
+            typedef std::tuple_size< V_VTA  > TS_V_VTA ;
+            typedef std::tuple_size< CV_TA  > TS_CV_TA ;
+            typedef std::tuple_size< CV_CTA > TS_CV_CTA;
+            typedef std::tuple_size< CV_VTA > TS_CV_VTA;
 
             ASSERT((4u == TS_TA::value    ));
             ASSERT((4u == TS_CTA::value   ));
@@ -1187,57 +1187,57 @@ struct TupleApiTest<TYPE, 4>
 
         // Testing 'tuple_element'.
         {
-            typedef native_std::tuple_element< 0 ,     TA > TE0_TA    ;
-            typedef native_std::tuple_element< 0 ,    CTA > TE0_CTA   ;
-            typedef native_std::tuple_element< 0 ,    VTA > TE0_VTA   ;
-            typedef native_std::tuple_element< 1u,     TA > TE1_TA    ;
-            typedef native_std::tuple_element< 1u,    CTA > TE1_CTA   ;
-            typedef native_std::tuple_element< 1u,    VTA > TE1_VTA   ;
-            typedef native_std::tuple_element< 2u,     TA > TE2_TA    ;
-            typedef native_std::tuple_element< 2u,    CTA > TE2_CTA   ;
-            typedef native_std::tuple_element< 2u,    VTA > TE2_VTA   ;
-            typedef native_std::tuple_element< 3u,     TA > TE3_TA    ;
-            typedef native_std::tuple_element< 3u,    CTA > TE3_CTA   ;
-            typedef native_std::tuple_element< 3u,    VTA > TE3_VTA   ;
+            typedef std::tuple_element< 0 ,     TA > TE0_TA    ;
+            typedef std::tuple_element< 0 ,    CTA > TE0_CTA   ;
+            typedef std::tuple_element< 0 ,    VTA > TE0_VTA   ;
+            typedef std::tuple_element< 1u,     TA > TE1_TA    ;
+            typedef std::tuple_element< 1u,    CTA > TE1_CTA   ;
+            typedef std::tuple_element< 1u,    VTA > TE1_VTA   ;
+            typedef std::tuple_element< 2u,     TA > TE2_TA    ;
+            typedef std::tuple_element< 2u,    CTA > TE2_CTA   ;
+            typedef std::tuple_element< 2u,    VTA > TE2_VTA   ;
+            typedef std::tuple_element< 3u,     TA > TE3_TA    ;
+            typedef std::tuple_element< 3u,    CTA > TE3_CTA   ;
+            typedef std::tuple_element< 3u,    VTA > TE3_VTA   ;
 
-            typedef native_std::tuple_element< 0 ,  C_TA  > TE0_C_TA  ;
-            typedef native_std::tuple_element< 0 ,  C_CTA > TE0_C_CTA ;
-            typedef native_std::tuple_element< 0 ,  C_VTA > TE0_C_VTA ;
-            typedef native_std::tuple_element< 1u,  C_TA  > TE1_C_TA  ;
-            typedef native_std::tuple_element< 1u,  C_CTA > TE1_C_CTA ;
-            typedef native_std::tuple_element< 1u,  C_VTA > TE1_C_VTA ;
-            typedef native_std::tuple_element< 2u,  C_TA  > TE2_C_TA  ;
-            typedef native_std::tuple_element< 2u,  C_CTA > TE2_C_CTA ;
-            typedef native_std::tuple_element< 2u,  C_VTA > TE2_C_VTA ;
-            typedef native_std::tuple_element< 3u,  C_TA  > TE3_C_TA  ;
-            typedef native_std::tuple_element< 3u,  C_CTA > TE3_C_CTA ;
-            typedef native_std::tuple_element< 3u,  C_VTA > TE3_C_VTA ;
+            typedef std::tuple_element< 0 ,  C_TA  > TE0_C_TA  ;
+            typedef std::tuple_element< 0 ,  C_CTA > TE0_C_CTA ;
+            typedef std::tuple_element< 0 ,  C_VTA > TE0_C_VTA ;
+            typedef std::tuple_element< 1u,  C_TA  > TE1_C_TA  ;
+            typedef std::tuple_element< 1u,  C_CTA > TE1_C_CTA ;
+            typedef std::tuple_element< 1u,  C_VTA > TE1_C_VTA ;
+            typedef std::tuple_element< 2u,  C_TA  > TE2_C_TA  ;
+            typedef std::tuple_element< 2u,  C_CTA > TE2_C_CTA ;
+            typedef std::tuple_element< 2u,  C_VTA > TE2_C_VTA ;
+            typedef std::tuple_element< 3u,  C_TA  > TE3_C_TA  ;
+            typedef std::tuple_element< 3u,  C_CTA > TE3_C_CTA ;
+            typedef std::tuple_element< 3u,  C_VTA > TE3_C_VTA ;
 
-            typedef native_std::tuple_element< 0 ,  V_TA  > TE0_V_TA  ;
-            typedef native_std::tuple_element< 0 ,  V_CTA > TE0_V_CTA ;
-            typedef native_std::tuple_element< 0 ,  V_VTA > TE0_V_VTA ;
-            typedef native_std::tuple_element< 1u,  V_TA  > TE1_V_TA  ;
-            typedef native_std::tuple_element< 1u,  V_CTA > TE1_V_CTA ;
-            typedef native_std::tuple_element< 1u,  V_VTA > TE1_V_VTA ;
-            typedef native_std::tuple_element< 2u,  V_TA  > TE2_V_TA  ;
-            typedef native_std::tuple_element< 2u,  V_CTA > TE2_V_CTA ;
-            typedef native_std::tuple_element< 2u,  V_VTA > TE2_V_VTA ;
-            typedef native_std::tuple_element< 3u,  V_TA  > TE3_V_TA  ;
-            typedef native_std::tuple_element< 3u,  V_CTA > TE3_V_CTA ;
-            typedef native_std::tuple_element< 3u,  V_VTA > TE3_V_VTA ;
+            typedef std::tuple_element< 0 ,  V_TA  > TE0_V_TA  ;
+            typedef std::tuple_element< 0 ,  V_CTA > TE0_V_CTA ;
+            typedef std::tuple_element< 0 ,  V_VTA > TE0_V_VTA ;
+            typedef std::tuple_element< 1u,  V_TA  > TE1_V_TA  ;
+            typedef std::tuple_element< 1u,  V_CTA > TE1_V_CTA ;
+            typedef std::tuple_element< 1u,  V_VTA > TE1_V_VTA ;
+            typedef std::tuple_element< 2u,  V_TA  > TE2_V_TA  ;
+            typedef std::tuple_element< 2u,  V_CTA > TE2_V_CTA ;
+            typedef std::tuple_element< 2u,  V_VTA > TE2_V_VTA ;
+            typedef std::tuple_element< 3u,  V_TA  > TE3_V_TA  ;
+            typedef std::tuple_element< 3u,  V_CTA > TE3_V_CTA ;
+            typedef std::tuple_element< 3u,  V_VTA > TE3_V_VTA ;
 
-            typedef native_std::tuple_element< 0 , CV_TA  > TE0_CV_TA ;
-            typedef native_std::tuple_element< 0 , CV_CTA > TE0_CV_CTA;
-            typedef native_std::tuple_element< 0 , CV_VTA > TE0_CV_VTA;
-            typedef native_std::tuple_element< 1u, CV_TA  > TE1_CV_TA ;
-            typedef native_std::tuple_element< 1u, CV_CTA > TE1_CV_CTA;
-            typedef native_std::tuple_element< 1u, CV_VTA > TE1_CV_VTA;
-            typedef native_std::tuple_element< 2u, CV_TA  > TE2_CV_TA ;
-            typedef native_std::tuple_element< 2u, CV_CTA > TE2_CV_CTA;
-            typedef native_std::tuple_element< 2u, CV_VTA > TE2_CV_VTA;
-            typedef native_std::tuple_element< 3u, CV_TA  > TE3_CV_TA ;
-            typedef native_std::tuple_element< 3u, CV_CTA > TE3_CV_CTA;
-            typedef native_std::tuple_element< 3u, CV_VTA > TE3_CV_VTA;
+            typedef std::tuple_element< 0 , CV_TA  > TE0_CV_TA ;
+            typedef std::tuple_element< 0 , CV_CTA > TE0_CV_CTA;
+            typedef std::tuple_element< 0 , CV_VTA > TE0_CV_VTA;
+            typedef std::tuple_element< 1u, CV_TA  > TE1_CV_TA ;
+            typedef std::tuple_element< 1u, CV_CTA > TE1_CV_CTA;
+            typedef std::tuple_element< 1u, CV_VTA > TE1_CV_VTA;
+            typedef std::tuple_element< 2u, CV_TA  > TE2_CV_TA ;
+            typedef std::tuple_element< 2u, CV_CTA > TE2_CV_CTA;
+            typedef std::tuple_element< 2u, CV_VTA > TE2_CV_VTA;
+            typedef std::tuple_element< 3u, CV_TA  > TE3_CV_TA ;
+            typedef std::tuple_element< 3u, CV_CTA > TE3_CV_CTA;
+            typedef std::tuple_element< 3u, CV_VTA > TE3_CV_VTA;
 
             // Aliases for returned types.
 
@@ -1391,18 +1391,18 @@ struct TupleApiTest<TYPE, 3>
 
         // Testing 'tuple_size'.
         {
-            typedef native_std::tuple_size< TA     > TS_TA    ;
-            typedef native_std::tuple_size< CTA    > TS_CTA   ;
-            typedef native_std::tuple_size< VTA    > TS_VTA   ;
-            typedef native_std::tuple_size< C_TA   > TS_C_TA  ;
-            typedef native_std::tuple_size< C_CTA  > TS_C_CTA ;
-            typedef native_std::tuple_size< C_VTA  > TS_C_VTA ;
-            typedef native_std::tuple_size< V_TA   > TS_V_TA  ;
-            typedef native_std::tuple_size< V_CTA  > TS_V_CTA ;
-            typedef native_std::tuple_size< V_VTA  > TS_V_VTA ;
-            typedef native_std::tuple_size< CV_TA  > TS_CV_TA ;
-            typedef native_std::tuple_size< CV_CTA > TS_CV_CTA;
-            typedef native_std::tuple_size< CV_VTA > TS_CV_VTA;
+            typedef std::tuple_size< TA     > TS_TA    ;
+            typedef std::tuple_size< CTA    > TS_CTA   ;
+            typedef std::tuple_size< VTA    > TS_VTA   ;
+            typedef std::tuple_size< C_TA   > TS_C_TA  ;
+            typedef std::tuple_size< C_CTA  > TS_C_CTA ;
+            typedef std::tuple_size< C_VTA  > TS_C_VTA ;
+            typedef std::tuple_size< V_TA   > TS_V_TA  ;
+            typedef std::tuple_size< V_CTA  > TS_V_CTA ;
+            typedef std::tuple_size< V_VTA  > TS_V_VTA ;
+            typedef std::tuple_size< CV_TA  > TS_CV_TA ;
+            typedef std::tuple_size< CV_CTA > TS_CV_CTA;
+            typedef std::tuple_size< CV_VTA > TS_CV_VTA;
 
             ASSERT((3u == TS_TA::value    ));
             ASSERT((3u == TS_CTA::value   ));
@@ -1419,45 +1419,45 @@ struct TupleApiTest<TYPE, 3>
         }
         // Testing 'tuple_element'.
         {
-            typedef native_std::tuple_element< 0 ,     TA > TE0_TA    ;
-            typedef native_std::tuple_element< 0 ,    CTA > TE0_CTA   ;
-            typedef native_std::tuple_element< 0 ,    VTA > TE0_VTA   ;
-            typedef native_std::tuple_element< 1u,     TA > TE1_TA    ;
-            typedef native_std::tuple_element< 1u,    CTA > TE1_CTA   ;
-            typedef native_std::tuple_element< 1u,    VTA > TE1_VTA   ;
-            typedef native_std::tuple_element< 2u,     TA > TE2_TA    ;
-            typedef native_std::tuple_element< 2u,    CTA > TE2_CTA   ;
-            typedef native_std::tuple_element< 2u,    VTA > TE2_VTA   ;
+            typedef std::tuple_element< 0 ,     TA > TE0_TA    ;
+            typedef std::tuple_element< 0 ,    CTA > TE0_CTA   ;
+            typedef std::tuple_element< 0 ,    VTA > TE0_VTA   ;
+            typedef std::tuple_element< 1u,     TA > TE1_TA    ;
+            typedef std::tuple_element< 1u,    CTA > TE1_CTA   ;
+            typedef std::tuple_element< 1u,    VTA > TE1_VTA   ;
+            typedef std::tuple_element< 2u,     TA > TE2_TA    ;
+            typedef std::tuple_element< 2u,    CTA > TE2_CTA   ;
+            typedef std::tuple_element< 2u,    VTA > TE2_VTA   ;
 
-            typedef native_std::tuple_element< 0 ,  C_TA  > TE0_C_TA  ;
-            typedef native_std::tuple_element< 0 ,  C_CTA > TE0_C_CTA ;
-            typedef native_std::tuple_element< 0 ,  C_VTA > TE0_C_VTA ;
-            typedef native_std::tuple_element< 1u,  C_TA  > TE1_C_TA  ;
-            typedef native_std::tuple_element< 1u,  C_CTA > TE1_C_CTA ;
-            typedef native_std::tuple_element< 1u,  C_VTA > TE1_C_VTA ;
-            typedef native_std::tuple_element< 2u,  C_TA  > TE2_C_TA  ;
-            typedef native_std::tuple_element< 2u,  C_CTA > TE2_C_CTA ;
-            typedef native_std::tuple_element< 2u,  C_VTA > TE2_C_VTA ;
+            typedef std::tuple_element< 0 ,  C_TA  > TE0_C_TA  ;
+            typedef std::tuple_element< 0 ,  C_CTA > TE0_C_CTA ;
+            typedef std::tuple_element< 0 ,  C_VTA > TE0_C_VTA ;
+            typedef std::tuple_element< 1u,  C_TA  > TE1_C_TA  ;
+            typedef std::tuple_element< 1u,  C_CTA > TE1_C_CTA ;
+            typedef std::tuple_element< 1u,  C_VTA > TE1_C_VTA ;
+            typedef std::tuple_element< 2u,  C_TA  > TE2_C_TA  ;
+            typedef std::tuple_element< 2u,  C_CTA > TE2_C_CTA ;
+            typedef std::tuple_element< 2u,  C_VTA > TE2_C_VTA ;
 
-            typedef native_std::tuple_element< 0 ,  V_TA  > TE0_V_TA  ;
-            typedef native_std::tuple_element< 0 ,  V_CTA > TE0_V_CTA ;
-            typedef native_std::tuple_element< 0 ,  V_VTA > TE0_V_VTA ;
-            typedef native_std::tuple_element< 1u,  V_TA  > TE1_V_TA  ;
-            typedef native_std::tuple_element< 1u,  V_CTA > TE1_V_CTA ;
-            typedef native_std::tuple_element< 1u,  V_VTA > TE1_V_VTA ;
-            typedef native_std::tuple_element< 2u,  V_TA  > TE2_V_TA  ;
-            typedef native_std::tuple_element< 2u,  V_CTA > TE2_V_CTA ;
-            typedef native_std::tuple_element< 2u,  V_VTA > TE2_V_VTA ;
+            typedef std::tuple_element< 0 ,  V_TA  > TE0_V_TA  ;
+            typedef std::tuple_element< 0 ,  V_CTA > TE0_V_CTA ;
+            typedef std::tuple_element< 0 ,  V_VTA > TE0_V_VTA ;
+            typedef std::tuple_element< 1u,  V_TA  > TE1_V_TA  ;
+            typedef std::tuple_element< 1u,  V_CTA > TE1_V_CTA ;
+            typedef std::tuple_element< 1u,  V_VTA > TE1_V_VTA ;
+            typedef std::tuple_element< 2u,  V_TA  > TE2_V_TA  ;
+            typedef std::tuple_element< 2u,  V_CTA > TE2_V_CTA ;
+            typedef std::tuple_element< 2u,  V_VTA > TE2_V_VTA ;
 
-            typedef native_std::tuple_element< 0 , CV_TA  > TE0_CV_TA ;
-            typedef native_std::tuple_element< 0 , CV_CTA > TE0_CV_CTA;
-            typedef native_std::tuple_element< 0 , CV_VTA > TE0_CV_VTA;
-            typedef native_std::tuple_element< 1u, CV_TA  > TE1_CV_TA ;
-            typedef native_std::tuple_element< 1u, CV_CTA > TE1_CV_CTA;
-            typedef native_std::tuple_element< 1u, CV_VTA > TE1_CV_VTA;
-            typedef native_std::tuple_element< 2u, CV_TA  > TE2_CV_TA ;
-            typedef native_std::tuple_element< 2u, CV_CTA > TE2_CV_CTA;
-            typedef native_std::tuple_element< 2u, CV_VTA > TE2_CV_VTA;
+            typedef std::tuple_element< 0 , CV_TA  > TE0_CV_TA ;
+            typedef std::tuple_element< 0 , CV_CTA > TE0_CV_CTA;
+            typedef std::tuple_element< 0 , CV_VTA > TE0_CV_VTA;
+            typedef std::tuple_element< 1u, CV_TA  > TE1_CV_TA ;
+            typedef std::tuple_element< 1u, CV_CTA > TE1_CV_CTA;
+            typedef std::tuple_element< 1u, CV_VTA > TE1_CV_VTA;
+            typedef std::tuple_element< 2u, CV_TA  > TE2_CV_TA ;
+            typedef std::tuple_element< 2u, CV_CTA > TE2_CV_CTA;
+            typedef std::tuple_element< 2u, CV_VTA > TE2_CV_VTA;
 
             // Aliases for returned types.
 
@@ -1590,18 +1590,18 @@ struct TupleApiTest<TYPE, 2>
 
         // Testing 'tuple_size'.
         {
-            typedef native_std::tuple_size< TA     > TS_TA    ;
-            typedef native_std::tuple_size< CTA    > TS_CTA   ;
-            typedef native_std::tuple_size< VTA    > TS_VTA   ;
-            typedef native_std::tuple_size< C_TA   > TS_C_TA  ;
-            typedef native_std::tuple_size< C_CTA  > TS_C_CTA ;
-            typedef native_std::tuple_size< C_VTA  > TS_C_VTA ;
-            typedef native_std::tuple_size< V_TA   > TS_V_TA  ;
-            typedef native_std::tuple_size< V_CTA  > TS_V_CTA ;
-            typedef native_std::tuple_size< V_VTA  > TS_V_VTA ;
-            typedef native_std::tuple_size< CV_TA  > TS_CV_TA ;
-            typedef native_std::tuple_size< CV_CTA > TS_CV_CTA;
-            typedef native_std::tuple_size< CV_VTA > TS_CV_VTA;
+            typedef std::tuple_size< TA     > TS_TA    ;
+            typedef std::tuple_size< CTA    > TS_CTA   ;
+            typedef std::tuple_size< VTA    > TS_VTA   ;
+            typedef std::tuple_size< C_TA   > TS_C_TA  ;
+            typedef std::tuple_size< C_CTA  > TS_C_CTA ;
+            typedef std::tuple_size< C_VTA  > TS_C_VTA ;
+            typedef std::tuple_size< V_TA   > TS_V_TA  ;
+            typedef std::tuple_size< V_CTA  > TS_V_CTA ;
+            typedef std::tuple_size< V_VTA  > TS_V_VTA ;
+            typedef std::tuple_size< CV_TA  > TS_CV_TA ;
+            typedef std::tuple_size< CV_CTA > TS_CV_CTA;
+            typedef std::tuple_size< CV_VTA > TS_CV_VTA;
 
             ASSERT((2u == TS_TA::value    ));
             ASSERT((2u == TS_CTA::value   ));
@@ -1619,33 +1619,33 @@ struct TupleApiTest<TYPE, 2>
 
         // Testing 'tuple_element'.
         {
-            typedef native_std::tuple_element< 0 ,     TA > TE0_TA    ;
-            typedef native_std::tuple_element< 0 ,    CTA > TE0_CTA   ;
-            typedef native_std::tuple_element< 0 ,    VTA > TE0_VTA   ;
-            typedef native_std::tuple_element< 1u,     TA > TE1_TA    ;
-            typedef native_std::tuple_element< 1u,    CTA > TE1_CTA   ;
-            typedef native_std::tuple_element< 1u,    VTA > TE1_VTA   ;
+            typedef std::tuple_element< 0 ,     TA > TE0_TA    ;
+            typedef std::tuple_element< 0 ,    CTA > TE0_CTA   ;
+            typedef std::tuple_element< 0 ,    VTA > TE0_VTA   ;
+            typedef std::tuple_element< 1u,     TA > TE1_TA    ;
+            typedef std::tuple_element< 1u,    CTA > TE1_CTA   ;
+            typedef std::tuple_element< 1u,    VTA > TE1_VTA   ;
 
-            typedef native_std::tuple_element< 0 ,  C_TA  > TE0_C_TA  ;
-            typedef native_std::tuple_element< 0 ,  C_CTA > TE0_C_CTA ;
-            typedef native_std::tuple_element< 0 ,  C_VTA > TE0_C_VTA ;
-            typedef native_std::tuple_element< 1u,  C_TA  > TE1_C_TA  ;
-            typedef native_std::tuple_element< 1u,  C_CTA > TE1_C_CTA ;
-            typedef native_std::tuple_element< 1u,  C_VTA > TE1_C_VTA ;
+            typedef std::tuple_element< 0 ,  C_TA  > TE0_C_TA  ;
+            typedef std::tuple_element< 0 ,  C_CTA > TE0_C_CTA ;
+            typedef std::tuple_element< 0 ,  C_VTA > TE0_C_VTA ;
+            typedef std::tuple_element< 1u,  C_TA  > TE1_C_TA  ;
+            typedef std::tuple_element< 1u,  C_CTA > TE1_C_CTA ;
+            typedef std::tuple_element< 1u,  C_VTA > TE1_C_VTA ;
 
-            typedef native_std::tuple_element< 0 ,  V_TA  > TE0_V_TA  ;
-            typedef native_std::tuple_element< 0 ,  V_CTA > TE0_V_CTA ;
-            typedef native_std::tuple_element< 0 ,  V_VTA > TE0_V_VTA ;
-            typedef native_std::tuple_element< 1u,  V_TA  > TE1_V_TA  ;
-            typedef native_std::tuple_element< 1u,  V_CTA > TE1_V_CTA ;
-            typedef native_std::tuple_element< 1u,  V_VTA > TE1_V_VTA ;
+            typedef std::tuple_element< 0 ,  V_TA  > TE0_V_TA  ;
+            typedef std::tuple_element< 0 ,  V_CTA > TE0_V_CTA ;
+            typedef std::tuple_element< 0 ,  V_VTA > TE0_V_VTA ;
+            typedef std::tuple_element< 1u,  V_TA  > TE1_V_TA  ;
+            typedef std::tuple_element< 1u,  V_CTA > TE1_V_CTA ;
+            typedef std::tuple_element< 1u,  V_VTA > TE1_V_VTA ;
 
-            typedef native_std::tuple_element< 0 , CV_TA  > TE0_CV_TA ;
-            typedef native_std::tuple_element< 0 , CV_CTA > TE0_CV_CTA;
-            typedef native_std::tuple_element< 0 , CV_VTA > TE0_CV_VTA;
-            typedef native_std::tuple_element< 1u, CV_TA  > TE1_CV_TA ;
-            typedef native_std::tuple_element< 1u, CV_CTA > TE1_CV_CTA;
-            typedef native_std::tuple_element< 1u, CV_VTA > TE1_CV_VTA;
+            typedef std::tuple_element< 0 , CV_TA  > TE0_CV_TA ;
+            typedef std::tuple_element< 0 , CV_CTA > TE0_CV_CTA;
+            typedef std::tuple_element< 0 , CV_VTA > TE0_CV_VTA;
+            typedef std::tuple_element< 1u, CV_TA  > TE1_CV_TA ;
+            typedef std::tuple_element< 1u, CV_CTA > TE1_CV_CTA;
+            typedef std::tuple_element< 1u, CV_VTA > TE1_CV_VTA;
 
             // Aliases for returned types.
 
@@ -1756,18 +1756,18 @@ struct TupleApiTest<TYPE, 1>
         typedef const volatile bsl::array<volatile TYPE, 1>  CV_VTA;
         // Testing 'tuple_size'.
         {
-            typedef native_std::tuple_size< TA     > TS_TA    ;
-            typedef native_std::tuple_size< CTA    > TS_CTA   ;
-            typedef native_std::tuple_size< VTA    > TS_VTA   ;
-            typedef native_std::tuple_size< C_TA   > TS_C_TA  ;
-            typedef native_std::tuple_size< C_CTA  > TS_C_CTA ;
-            typedef native_std::tuple_size< C_VTA  > TS_C_VTA ;
-            typedef native_std::tuple_size< V_TA   > TS_V_TA  ;
-            typedef native_std::tuple_size< V_CTA  > TS_V_CTA ;
-            typedef native_std::tuple_size< V_VTA  > TS_V_VTA ;
-            typedef native_std::tuple_size< CV_TA  > TS_CV_TA ;
-            typedef native_std::tuple_size< CV_CTA > TS_CV_CTA;
-            typedef native_std::tuple_size< CV_VTA > TS_CV_VTA;
+            typedef std::tuple_size< TA     > TS_TA    ;
+            typedef std::tuple_size< CTA    > TS_CTA   ;
+            typedef std::tuple_size< VTA    > TS_VTA   ;
+            typedef std::tuple_size< C_TA   > TS_C_TA  ;
+            typedef std::tuple_size< C_CTA  > TS_C_CTA ;
+            typedef std::tuple_size< C_VTA  > TS_C_VTA ;
+            typedef std::tuple_size< V_TA   > TS_V_TA  ;
+            typedef std::tuple_size< V_CTA  > TS_V_CTA ;
+            typedef std::tuple_size< V_VTA  > TS_V_VTA ;
+            typedef std::tuple_size< CV_TA  > TS_CV_TA ;
+            typedef std::tuple_size< CV_CTA > TS_CV_CTA;
+            typedef std::tuple_size< CV_VTA > TS_CV_VTA;
 
             ASSERT((1u == TS_TA::value    ));
             ASSERT((1u == TS_CTA::value   ));
@@ -1785,21 +1785,21 @@ struct TupleApiTest<TYPE, 1>
 
         // Testing 'tuple_element'.
         {
-            typedef native_std::tuple_element< 0 ,     TA > TE0_TA    ;
-            typedef native_std::tuple_element< 0 ,    CTA > TE0_CTA   ;
-            typedef native_std::tuple_element< 0 ,    VTA > TE0_VTA   ;
+            typedef std::tuple_element< 0 ,     TA > TE0_TA    ;
+            typedef std::tuple_element< 0 ,    CTA > TE0_CTA   ;
+            typedef std::tuple_element< 0 ,    VTA > TE0_VTA   ;
 
-            typedef native_std::tuple_element< 0 ,  C_TA  > TE0_C_TA  ;
-            typedef native_std::tuple_element< 0 ,  C_CTA > TE0_C_CTA ;
-            typedef native_std::tuple_element< 0 ,  C_VTA > TE0_C_VTA ;
+            typedef std::tuple_element< 0 ,  C_TA  > TE0_C_TA  ;
+            typedef std::tuple_element< 0 ,  C_CTA > TE0_C_CTA ;
+            typedef std::tuple_element< 0 ,  C_VTA > TE0_C_VTA ;
 
-            typedef native_std::tuple_element< 0 ,  V_TA  > TE0_V_TA  ;
-            typedef native_std::tuple_element< 0 ,  V_CTA > TE0_V_CTA ;
-            typedef native_std::tuple_element< 0 ,  V_VTA > TE0_V_VTA ;
+            typedef std::tuple_element< 0 ,  V_TA  > TE0_V_TA  ;
+            typedef std::tuple_element< 0 ,  V_CTA > TE0_V_CTA ;
+            typedef std::tuple_element< 0 ,  V_VTA > TE0_V_VTA ;
 
-            typedef native_std::tuple_element< 0 , CV_TA  > TE0_CV_TA ;
-            typedef native_std::tuple_element< 0 , CV_CTA > TE0_CV_CTA;
-            typedef native_std::tuple_element< 0 , CV_VTA > TE0_CV_VTA;
+            typedef std::tuple_element< 0 , CV_TA  > TE0_CV_TA ;
+            typedef std::tuple_element< 0 , CV_CTA > TE0_CV_CTA;
+            typedef std::tuple_element< 0 , CV_VTA > TE0_CV_VTA;
 
             // Aliases for returned types.
 
@@ -1888,18 +1888,18 @@ struct TupleApiTest<TYPE, 0>
         typedef const volatile bsl::array<volatile TYPE, 0>  CV_VTA;
         // Testing 'tuple_size'.
         {
-            typedef native_std::tuple_size< TA     > TS_TA    ;
-            typedef native_std::tuple_size< CTA    > TS_CTA   ;
-            typedef native_std::tuple_size< VTA    > TS_VTA   ;
-            typedef native_std::tuple_size< C_TA   > TS_C_TA  ;
-            typedef native_std::tuple_size< C_CTA  > TS_C_CTA ;
-            typedef native_std::tuple_size< C_VTA  > TS_C_VTA ;
-            typedef native_std::tuple_size< V_TA   > TS_V_TA  ;
-            typedef native_std::tuple_size< V_CTA  > TS_V_CTA ;
-            typedef native_std::tuple_size< V_VTA  > TS_V_VTA ;
-            typedef native_std::tuple_size< CV_TA  > TS_CV_TA ;
-            typedef native_std::tuple_size< CV_CTA > TS_CV_CTA;
-            typedef native_std::tuple_size< CV_VTA > TS_CV_VTA;
+            typedef std::tuple_size< TA     > TS_TA    ;
+            typedef std::tuple_size< CTA    > TS_CTA   ;
+            typedef std::tuple_size< VTA    > TS_VTA   ;
+            typedef std::tuple_size< C_TA   > TS_C_TA  ;
+            typedef std::tuple_size< C_CTA  > TS_C_CTA ;
+            typedef std::tuple_size< C_VTA  > TS_C_VTA ;
+            typedef std::tuple_size< V_TA   > TS_V_TA  ;
+            typedef std::tuple_size< V_CTA  > TS_V_CTA ;
+            typedef std::tuple_size< V_VTA  > TS_V_VTA ;
+            typedef std::tuple_size< CV_TA  > TS_CV_TA ;
+            typedef std::tuple_size< CV_CTA > TS_CV_CTA;
+            typedef std::tuple_size< CV_VTA > TS_CV_VTA;
 
             ASSERT((0 == TS_TA::value    ));
             ASSERT((0 == TS_CTA::value   ));

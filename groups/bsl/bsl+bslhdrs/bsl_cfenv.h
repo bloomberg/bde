@@ -15,25 +15,27 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
-#include <bsls_nativestd.h>
-
 #include <cfenv>
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace bsl {
 
-    using native_std::feclearexcept;
-    using native_std::feraiseexcept;
-    using native_std::fegetexceptflag;
-    using native_std::fesetexceptflag;
-    using native_std::fegetround;
-    using native_std::fesetround;
-    using native_std::fegetenv;
-    using native_std::fesetenv;
-    using native_std::feholdexcept;
-    using native_std::feupdateenv;
-    using native_std::fetestexcept;
-    using native_std::fenv_t;
-    using native_std::fexcept_t;
+    using std::feclearexcept;
+    using std::feraiseexcept;
+    using std::fegetexceptflag;
+    using std::fesetexceptflag;
+    using std::fegetround;
+    using std::fesetround;
+    using std::fegetenv;
+    using std::fesetenv;
+    using std::feholdexcept;
+    using std::feupdateenv;
+    using std::fetestexcept;
+    using std::fenv_t;
+    using std::fexcept_t;
 
 }  // close package namespace
 

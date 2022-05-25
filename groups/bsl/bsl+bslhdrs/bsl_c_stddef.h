@@ -20,9 +20,11 @@ BSLS_IDENT("$Id: $")
 #include <stddef.h>
 
 #ifdef __cplusplus
-#include <bsls_nativestd.h>
-
 #include <bsls_platform.h>
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #if defined(BSLS_PLATFORM_CMP_SUN)                                            \
  && (!defined(__SUNPRO_CC_COMPAT) || __SUNPRO_CC_COMPAT  != 'G')
@@ -46,7 +48,7 @@ extern "C++" {
 // On Sun, 'std::size_t' is defined in 'stddef.h'.
 namespace bsl {
     // Import selected symbols into bsl namespace
-    using native_std::size_t;
+    using std::size_t;
 }
 
 }

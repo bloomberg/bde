@@ -21,84 +21,87 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_libraryfeatures.h>
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
 #include <ratio>
 
 namespace bsl {
 
-    using native_std::ratio;
-    using native_std::ratio_add;
-    using native_std::ratio_subtract;
-    using native_std::ratio_multiply;
-    using native_std::ratio_divide;
-    using native_std::ratio_equal;
-    using native_std::ratio_not_equal;
-    using native_std::ratio_less;
-    using native_std::ratio_less_equal;
-    using native_std::ratio_greater;
-    using native_std::ratio_greater_equal;
-    using native_std::atto;
-    using native_std::femto;
-    using native_std::pico;
-    using native_std::nano;
-    using native_std::micro;
-    using native_std::milli;
-    using native_std::centi;
-    using native_std::deci;
-    using native_std::deca;
-    using native_std::hecto;
-    using native_std::kilo;
-    using native_std::mega;
-    using native_std::giga;
-    using native_std::tera;
-    using native_std::peta;
-    using native_std::exa;
+    using std::ratio;
+    using std::ratio_add;
+    using std::ratio_subtract;
+    using std::ratio_multiply;
+    using std::ratio_divide;
+    using std::ratio_equal;
+    using std::ratio_not_equal;
+    using std::ratio_less;
+    using std::ratio_less_equal;
+    using std::ratio_greater;
+    using std::ratio_greater_equal;
+    using std::atto;
+    using std::femto;
+    using std::pico;
+    using std::nano;
+    using std::micro;
+    using std::milli;
+    using std::centi;
+    using std::deci;
+    using std::deca;
+    using std::hecto;
+    using std::kilo;
+    using std::mega;
+    using std::giga;
+    using std::tera;
+    using std::peta;
+    using std::exa;
 #ifdef BSL_RATIO_SUPPORTS_EXTENDED_SI_TYPEDEFS
-    using native_std::yocto;
-    using native_std::zepto;
-    using native_std::zetta;
-    using native_std::yotta;
+    using std::yocto;
+    using std::zepto;
+    using std::zetta;
+    using std::yotta;
 #endif
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-    using native_std::ratio_equal_v;
-    using native_std::ratio_not_equal_v;
-    using native_std::ratio_less_v;
-    using native_std::ratio_less_equal_v;
-    using native_std::ratio_greater_v;
-    using native_std::ratio_greater_equal_v;
+    using std::ratio_equal_v;
+    using std::ratio_not_equal_v;
+    using std::ratio_less_v;
+    using std::ratio_less_equal_v;
+    using std::ratio_greater_v;
+    using std::ratio_greater_equal_v;
 #elif defined BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
     template <class R1, class R2> constexpr bool ratio_equal_v
                                                   = ratio_equal<R1, R2>::value;
         // This template variable represents the result value of the
-        // 'native_std::ratio_equal' meta-function.
+        // 'std::ratio_equal' meta-function.
 
     template <class R1, class R2> constexpr bool ratio_not_equal_v
                                               = ratio_not_equal<R1, R2>::value;
         // This template variable represents the result value of the
-        // 'native_std::ratio_not_equal' meta-function.
+        // 'std::ratio_not_equal' meta-function.
 
     template <class R1, class R2> constexpr bool ratio_less_v
                                                    = ratio_less<R1, R2>::value;
         // This template variable represents the result value of the
-        // 'native_std::ratio_less' meta-function.
+        // 'std::ratio_less' meta-function.
 
     template <class R1, class R2> constexpr bool ratio_less_equal_v
                                              = ratio_less_equal<R1, R2>::value;
         // This template variable represents the result value of the
-        // 'native_std::ratio_less_equal' meta-function.
+        // 'std::ratio_less_equal' meta-function.
 
     template <class R1, class R2> constexpr bool ratio_greater_v
                                                 = ratio_greater<R1, R2>::value;
         // This template variable represents the result value of the
-        // 'native_std::ratio_greater' meta-function.
+        // 'std::ratio_greater' meta-function.
 
     template <class R1, class R2> constexpr bool ratio_greater_equal_v
                                           = ratio_greater_equal<R1, R2>::value;
         // This template variable represents the result value of the
-        // 'native_std::ratio_greater_equal' meta-function.
+        // 'std::ratio_greater_equal' meta-function.
 
 #endif
 }  // close package namespace

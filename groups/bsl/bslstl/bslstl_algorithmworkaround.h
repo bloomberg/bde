@@ -23,12 +23,6 @@ BSLS_IDENT("$Id: $")
 // This component is for use by the 'bos+stdhdrs' package.  Use 'algorithm'
 // directly.
 
-// Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
-// mode.  Doing so is unsupported, and is likely to cause compilation errors.
-#if defined(BSL_OVERRIDES_STD) && !defined(BOS_STDHDRS_PROLOGUE_IN_EFFECT)
-#error "include <bsl_algorithm.h> instead of <bslstl_algorithmworkaround.h> in\
- BSL_OVERRIDES_STD mode"
-#endif
 #include <bslscm_version.h>
 
 #include <bslstl_iterator.h>  // iterator tags
@@ -37,10 +31,13 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
-#include <bsls_nativestd.h>
 #include <bsls_platform.h>
 
 #include <algorithm>          // 'copy'
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace bsl {
 
@@ -54,7 +51,7 @@ typename iterator_traits<InputIter>::difference_type
 count(InputIter first, InputIter last, const TYPE& value)
 {
     typename iterator_traits<InputIter>::difference_type ret = 0;
-    native_std::count(first, last, value, ret);
+    std::count(first, last, value, ret);
     return ret;
 }
 
@@ -66,7 +63,7 @@ typename iterator_traits<InputIter>::difference_type
 count_if(InputIter first, InputIter last, PREDICATE pred)
 {
     typename iterator_traits<InputIter>::difference_type ret = 0;
-    native_std::count_if(first, last, pred, ret);
+    std::count_if(first, last, pred, ret);
     return ret;
 }
 
@@ -74,8 +71,8 @@ count_if(InputIter first, InputIter last, PREDICATE pred)
 
 // On all other platforms, use the compiler vendor supplied version of 'count'
 // and 'count_if'.
-using native_std::count;
-using native_std::count_if;
+using std::count;
+using std::count_if;
 
 #endif  // BSLS_PLATFORM_CMP_SUN && !BDE_BUILD_TARGET_STLPORT
 
@@ -99,7 +96,7 @@ ForwardIt search( ForwardIt first, ForwardIt last,
 #if !defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
 #if defined(BSLS_LIBRARYFEATURES_STDCPP_MSVC)
     // Visual Studio (the versions we support) provides 'copy_if'.
-    using native_std::copy_if;
+    using std::copy_if;
 #else
 #define BSLSTL_ALGORITHMWORKAROUND_IMPLEMENTS_COPY_IF                         1
     // C++03 standard libraries do not provide 'std::copy_if' (as it was not

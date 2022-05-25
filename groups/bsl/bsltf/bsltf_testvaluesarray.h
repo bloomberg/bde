@@ -145,11 +145,14 @@ BSLS_IDENT("$Id: $")
 #include <bslma_stdallocator.h>
 
 #include <bsls_alignmentutil.h>
-#include <bsls_nativestd.h>
 
 #include <iterator>
 #include <stddef.h>
 #include <string.h>
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 
@@ -209,11 +212,11 @@ class TestValuesArrayIterator {
 
   public:
     // TYPES
-    typedef native_std::input_iterator_tag  iterator_category;
-    typedef VALUE                           value_type;
-    typedef ptrdiff_t                       difference_type;
-    typedef const VALUE                    *pointer;
-    typedef const VALUE&                    reference;
+    typedef std::input_iterator_tag  iterator_category;
+    typedef VALUE                    value_type;
+    typedef ptrdiff_t                difference_type;
+    typedef const VALUE             *pointer;
+    typedef const VALUE&             reference;
         // Standard iterator defined types [24.4.2].
 
   public:

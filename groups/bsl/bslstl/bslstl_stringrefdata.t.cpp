@@ -202,9 +202,9 @@ class String {
         return d_begin_p;
     }
 
-    native_std::size_t length() const
+    std::size_t length() const
     {
-        return static_cast<native_std::size_t>(d_end_p - d_begin_p);
+        return static_cast<std::size_t>(d_end_p - d_begin_p);
     }
 };
 //..
@@ -349,19 +349,19 @@ ASSERT(strObj.length() == strRf2.length());
           {
               typedef bslstl::StringRefData<char>    RefData;
 
-              const char         data[]     = "123456789012345678901234567890";
-              native_std::size_t numLetters =
+              const char  data[]     = "123456789012345678901234567890";
+              std::size_t numLetters =
                                             (sizeof(data) / sizeof(*data)) - 1;
               ASSERT(0 != data[numLetters - 1]);
               ASSERT(0 == data[numLetters    ]);
 
-              native_std::size_t sizes[] = { 0, 1, 2, 7, 30 };
+              std::size_t sizes[] = { 0, 1, 2, 7, 30 };
               enum { NUM_SIZES = sizeof(sizes) / sizeof(*sizes) };
 
               for (int i = 0; i < NUM_SIZES; ++i) {
                   if (veryVerbose) { T_ P_(i) P(sizes[i]) }
 
-                  native_std::size_t size = sizes[i];
+                  std::size_t  size = sizes[i];
                   const char *input = data + numLetters - size;
                   LOOP3_ASSERT(i, size,
                                RefData::cStringLength(input),
@@ -382,20 +382,18 @@ ASSERT(strObj.length() == strRf2.length());
           {
               typedef bslstl::StringRefData<wchar_t> WRefData;
 
-              const wchar_t      data[]     =
-                                             L"123456789012345678901234567890";
-              native_std::size_t numLetters =
-                                            (sizeof(data) / sizeof(*data)) - 1;
+              const wchar_t data[]     = L"123456789012345678901234567890";
+              std::size_t   numLetters = (sizeof(data) / sizeof(*data)) - 1;
               ASSERT(0 != data[numLetters - 1]);
               ASSERT(0 == data[numLetters    ]);
 
-              native_std::size_t sizes[] = { 0, 1, 2, 7, 30 };
+              std::size_t sizes[] = { 0, 1, 2, 7, 30 };
               enum { NUM_SIZES = sizeof(sizes) / sizeof(*sizes) };
 
               for (int i = 0; i < NUM_SIZES; ++i) {
                   if (veryVerbose) { T_ P_(i) P(sizes[i]) }
 
-                  native_std::size_t size = sizes[i];
+                  std::size_t size = sizes[i];
                   const wchar_t *input = data + numLetters - size;
                   LOOP3_ASSERT(i, size,
                                WRefData::cStringLength(input),
@@ -656,9 +654,9 @@ ASSERT(strObj.length() == strRf2.length());
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         for (int i = 0; i != NUM_DATA; ++i) {
-            const int                 LINE   = DATA[i].d_line;
-            const char               *STR    = DATA[i].d_str;
-            const native_std::size_t  LENGTH = strlen(STR);
+            const int          LINE   = DATA[i].d_line;
+            const char        *STR    = DATA[i].d_str;
+            const std::size_t  LENGTH = strlen(STR);
 
             bslstl::StringRefData<char> X(STR, STR + LENGTH);
             bslstl::StringRefData<char> Y;
@@ -849,9 +847,9 @@ ASSERT(strObj.length() == strRf2.length());
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         for (int i = 0; i != NUM_DATA; ++i) {
-            const int                 LINE   = DATA[i].d_line;
-            const char               *STR    = DATA[i].d_str;
-            const native_std::size_t  LENGTH = strlen(STR);
+            const int          LINE   = DATA[i].d_line;
+            const char        *STR    = DATA[i].d_str;
+            const std::size_t  LENGTH = strlen(STR);
 
             bslstl::StringRefData<char> X(STR, STR + LENGTH);
 
@@ -1098,9 +1096,9 @@ ASSERT(strObj.length() == strRf2.length());
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         for (int i = 0; i != NUM_DATA; ++i) {
-            const int                 LINE   = DATA[i].d_line;
-            const char               *STR    = DATA[i].d_str;
-            const native_std::size_t  LENGTH = strlen(STR);
+            const int          LINE   = DATA[i].d_line;
+            const char        *STR    = DATA[i].d_str;
+            const std::size_t  LENGTH = strlen(STR);
 
             bslstl::StringRefData<char> Y(STR, STR + LENGTH);
 
@@ -1256,9 +1254,9 @@ ASSERT(strObj.length() == strRf2.length());
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         for (int i = 0; i != NUM_DATA; ++i) {
-            const int                 LINE   = DATA[i].d_line;
-            const char               *STR    = DATA[i].d_str;
-            const native_std::size_t  LENGTH = strlen(STR);
+            const int          LINE   = DATA[i].d_line;
+            const char        *STR    = DATA[i].d_str;
+            const std::size_t  LENGTH = strlen(STR);
 
             bslstl::StringRefData<char> Y(STR, STR + LENGTH);
 

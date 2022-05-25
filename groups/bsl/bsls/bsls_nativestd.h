@@ -7,19 +7,19 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Define the namespace 'native_std' as an alias for '::std'.
 //
-//@CLASSES:
+//@DEPRECATED: Use 'std' explicitly.
 //
-//@SEE_ALSO: bsl_stdhdrs_prologue
+//@CLASSES:
 //
 //@DESCRIPTION: This component defines a namespace alias, 'native_std', that
 // serves as an alias for the 'std' namespace.  The 'bsl' package group
-// contains a Bloomberg implementation of the C++ standard library, which, when
-// compiled in bde-stl mode, will override the STL implementation in namespace
-// 'std'.  With the 'native_std' alias, users can refer to the STL types from
-// the compiler's native library, even if the 'std' is configured to refer to
-// Bloomberg provided STL types.  The 'native_std' namespace remains in effect
-// even if 'std' is redefined as a preprocessor macro.  Note that this
-// component is mainly provided for code being compiled in bde-stl mode.
+// contains a Bloomberg implementation of the C++ standard library.  In the
+// past, this implementation supported using the preprocessor to replace 'std'
+// with 'bsl' and intercepting all standard library headers with BDE-provided
+// implementations.  When building in this bde-stl mode by defining
+// 'BSL_OVERRIDES_STD', there was still occasionally a need to refer to the
+// "real" 'std' namespace, and that could be accomplished with the 'native_std'
+// namespace.  This is no longer needed or used within BDE itself.
 //
 // Note: It is safe to '#include' this header only if 'std' is not yet defined
 // as a macro or if 'BSL_DEFINED_NATIVE_STD' is already defined.  Any other
@@ -37,8 +37,8 @@ BSLS_IDENT("$Id: $")
 //  #include <bsls_nativestd.h>
 //  #include <string>
 //
-//  std::string        s1;  // might be 'bsl::string'
-//  native_std::string s2;  // guaranteed to be the compiler's native string
+//  std::string        s1;  // now always 'std::string'
+//  native_std::string s2;  // always was 'std::string'
 //..
 
 #ifndef BSL_DEFINED_NATIVE_STD

@@ -511,10 +511,6 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#if defined(BSL_OVERRIDES_STD) && !defined(BOS_STDHDRS_PROLOGUE_IN_EFFECT)
-#error "include <bsl_set.h> instead of <bslstl_set.h> in \
-BSL_OVERRIDES_STD mode"
-#endif
 #include <bslscm_version.h>
 
 #include <bslstl_iterator.h>
@@ -545,7 +541,6 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_assert.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
-#include <bsls_nativestd.h>
 #include <bsls_performancehint.h>
 #include <bsls_util.h>     // 'forward<T>(V)'
 
@@ -554,6 +549,10 @@ BSL_OVERRIDES_STD mode"
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 # include <initializer_list>
 #endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // Include version that can be compiled with C++03

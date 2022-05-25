@@ -11,9 +11,9 @@ namespace BloombergLP {
 
 namespace bslalg {
 
-native_std::size_t HashTableBucket::countElements() const
+std::size_t HashTableBucket::countElements() const
 {
-    native_std::size_t result = 0;
+    std::size_t result = 0;
     for (BidirectionalLink *cursor     = d_first_p,
                            * endBucket = end();
                             endBucket != cursor; cursor = cursor->nextLink()) {

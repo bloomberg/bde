@@ -210,7 +210,7 @@ int main(int argc, char *argv[])
 #endif
 
         {
-            system_error        mX(ec, native_std::string("@@@"));
+            system_error        mX(ec, std::string("@@@"));
             const system_error& X = mX;
             ASSERT(ec == X.code());
             ASSERT(strstr(X.what(), io_error));
@@ -235,7 +235,7 @@ int main(int argc, char *argv[])
         {
             system_error        mX(static_cast<int>(errc::io_error),
                                    generic_category(),
-                                   native_std::string("@@@"));
+                                   std::string("@@@"));
             const system_error& X = mX;
             ASSERT(ec == X.code());
             ASSERT(strstr(X.what(), io_error));

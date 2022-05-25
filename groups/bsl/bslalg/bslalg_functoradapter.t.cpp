@@ -4,7 +4,6 @@
 #include <bslmf_issame.h>
 
 #include <bsls_bsltestutil.h>
-#include <bsls_nativestd.h>
 
 #include <stdio.h>      // 'printf'
 #include <stdlib.h>     // 'atoi'
@@ -251,8 +250,8 @@ int main(int argc, char *argv[])
 // 'std::less<int>' functor as the parameterized 'BINARY_PREDICATE' and verify
 // that the function call operator is working:
 //..
-        Bind2ndInteger<native_std::less<int> > functorLessThan10(10,
-                                                      native_std::less<int>());
+        Bind2ndInteger<std::less<int> > functorLessThan10(10,
+                                                          std::less<int>());
 
         ASSERT(functorLessThan10(1));
         ASSERT(!functorLessThan10(12));

@@ -768,11 +768,11 @@ template <class TYPE, class TRAITS>
 void TestDriver<TYPE,TRAITS>::testCase23()
 {
     // --------------------------------------------------------------------
-    // TESTING CONVERSION W.R.T. 'native_std::basic_string'
+    // TESTING CONVERSION W.R.T. 'std::basic_string'
     //
     // Concerns:
     //: 1 That it is possible to construct a 'string_view' from a
-    //:   'native_std::string'.
+    //:   'std::string'.
     //:
     //: 2 That the source is not modified.
     //:
@@ -811,7 +811,7 @@ void TestDriver<TYPE,TRAITS>::testCase23()
 
         pB = buffer;
 
-        const native_std::basic_string<TYPE> str(pB);
+        const std::basic_string<TYPE> str(pB);
         ASSERT(pB == str);
         const bsl::basic_string_view<TYPE> sv(str);
         ASSERT(pB == str);    // unchanged
@@ -834,12 +834,12 @@ void TestDriver<TYPE,TRAITS>::testCase23()
 
         buffer[2] = 0;
 
-        const native_std::basic_string<TYPE> zStr(pB, LEN);
+        const std::basic_string<TYPE> zStr(pB, LEN);
         ASSERT(LEN == zStr.length());
         ASSERT(zStr != str);
         ASSERT(zStr[2] == 0);
 
-        const native_std::basic_string<TYPE> zStrB(pB, LEN);
+        const std::basic_string<TYPE> zStrB(pB, LEN);
         ASSERT(LEN == zStrB.length());
         ASSERT(zStrB != str);
         ASSERT(zStrB[2] == 0);
@@ -896,16 +896,16 @@ void TestDriver<TYPE,TRAITS>::testCase23()
 #endif
         }
 
-        if (veryVerbose) printf("\tnative_std::string vs. string_view\n");
+        if (veryVerbose) printf("\std::string vs. string_view\n");
         {
-            native_std::basic_string<TYPE> s(pB, pB + LEN);
+            std::basic_string<TYPE> s(pB, pB + LEN);
             bsl::basic_string_view<TYPE> v(s);
             ASSERT(v.data() == s.data());
             ASSERT(s == v);
             ASSERT(v == s);
             v = s;
             ASSERT(v.data() == s.data());
-            native_std::basic_string<TYPE> o(v);
+            std::basic_string<TYPE> o(v);
             ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
 #ifdef BSLSTL_STRING_VIEW_IS_ALIASED
             // Will not work with 'explicit string_view::operator std::string'
@@ -6652,12 +6652,12 @@ int main(int argc, char *argv[])
       } break;
       case 23: {
         // --------------------------------------------------------------------
-        // CONSTRUCTION FROM 'native_std::basic_string'
+        // CONSTRUCTION FROM 'std::basic_string'
         // --------------------------------------------------------------------
 
         if (verbose)
-            printf("\nTESTING CONVERSION W.R.T. 'native_std::basic_string'"
-                   "\n====================================================\n");
+            printf("\nTESTING CONVERSION W.R.T. 'std::basic_string'"
+                   "\n============================================\n");
 
         TestDriver<char>::testCase23();
         TestDriver<wchar_t>::testCase23();

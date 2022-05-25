@@ -145,7 +145,7 @@ using bsls::NameOf;
 // [11] pair(const pair<first_type, second_type>& pr, Alloc a);
 // [13] pair(piecewise_construct_t, tuple, tuple)
 // [13] pair(piecewise_construct_t, tuple, tuple, basicAllocator)
-// [14] pair(native_std::pair<*>, bool>)
+// [14] pair(std::pair<*>, bool>)
 // [ 2] pair(const pair& original);
 // [ 2] pair(const pair& original, AllocatorPtr basicAllocator);
 // [ 4] pair(const pair<U1, U2>& rhs);
@@ -154,14 +154,14 @@ using bsls::NameOf;
 // [ 9] template <class U1, class U2> pair(pair<U1, U2>&& other, AllocatorPtr)
 // [ 9] pair(pair&& original)
 // [ 9] pair(pair&& original, AllocatorPtr basicAllocator)
-// [  ] pair(const native_std::pair<U1, U2>& rhs);
-// [  ] pair(const native_std::pair<U1, U2>&, BloombergLP::bslma::Allocator *);
+// [  ] pair(const std::pair<U1, U2>& rhs);
+// [  ] pair(const std::pair<U1, U2>&, BloombergLP::bslma::Allocator *);
 // [ 2] ~pair();
 // [12] pair& operator=(const pair& rhs);
 // [12] pair& operator=(pair&& rhs);
 // [12] pair& operator=(const pair<U1, U2>& rhs)
 // [12] pair& operator=(pair<U1, U2>&& rhs)
-// [  ] pair& operator=(const native_std::pair<U1, U2>& rhs);
+// [  ] pair& operator=(const std::pair<U1, U2>& rhs);
 // [ 2] bool operator==(const pair& x, const pair& y);
 // [ 2] bool operator!=(const pair& x, const pair& y);
 // [ 2] bool operator<(const pair& x, const pair& y);
@@ -590,7 +590,7 @@ int valueOf(const bsl::pair<U, V>& pr)
 }
 
 template <class U, class V>
-int valueOf(const native_std::pair<U, V>& pr)
+int valueOf(const std::pair<U, V>& pr)
     // Return the value of the specified pair 'pr'.  A scalar value of a pair
     // only makes sense if both members have correspondingsame values.  If they
     // don't, return -1 (an illegal value -- legal values are in '[ 0, 128 )'.
@@ -1115,53 +1115,53 @@ struct TupleApiTestDriver
 
         // Testing 'tuple_element'.
 
-        typedef native_std::tuple_element<0 ,   TIP >  TE0_TIP;
-        typedef native_std::tuple_element<0 ,  CTIP >  TE0_CTIP;
-        typedef native_std::tuple_element<0 ,  VTIP >  TE0_VTIP;
-        typedef native_std::tuple_element<1u,   TIP >  TE1_TIP;
-        typedef native_std::tuple_element<1u,  CTIP >  TE1_CTIP;
-        typedef native_std::tuple_element<1u,  VTIP >  TE1_VTIP;
+        typedef std::tuple_element<0 ,   TIP >  TE0_TIP;
+        typedef std::tuple_element<0 ,  CTIP >  TE0_CTIP;
+        typedef std::tuple_element<0 ,  VTIP >  TE0_VTIP;
+        typedef std::tuple_element<1u,   TIP >  TE1_TIP;
+        typedef std::tuple_element<1u,  CTIP >  TE1_CTIP;
+        typedef std::tuple_element<1u,  VTIP >  TE1_VTIP;
 
-        typedef native_std::tuple_element<0 ,   ITP >  TE0_ITP;
-        typedef native_std::tuple_element<0 ,   ITP >  TE0_ICTP;
-        typedef native_std::tuple_element<0 ,   ITP >  TE0_IVTP;
-        typedef native_std::tuple_element<1u,   ITP >  TE1_ITP;
-        typedef native_std::tuple_element<1u,   ICTP>  TE1_ICTP;
-        typedef native_std::tuple_element<1u,   IVTP>  TE1_IVTP;
+        typedef std::tuple_element<0 ,   ITP >  TE0_ITP;
+        typedef std::tuple_element<0 ,   ITP >  TE0_ICTP;
+        typedef std::tuple_element<0 ,   ITP >  TE0_IVTP;
+        typedef std::tuple_element<1u,   ITP >  TE1_ITP;
+        typedef std::tuple_element<1u,   ICTP>  TE1_ICTP;
+        typedef std::tuple_element<1u,   IVTP>  TE1_IVTP;
 
-        typedef native_std::tuple_element<0 ,   TTP >  TE0_TTP;
-        typedef native_std::tuple_element<0 ,  CTTP >  TE0_CTTP;
-        typedef native_std::tuple_element<0 ,  VTTP >  TE0_VTTP;
+        typedef std::tuple_element<0 ,   TTP >  TE0_TTP;
+        typedef std::tuple_element<0 ,  CTTP >  TE0_CTTP;
+        typedef std::tuple_element<0 ,  VTTP >  TE0_VTTP;
 
-        typedef native_std::tuple_element<1u,   TTP >  TE1_TTP;
-        typedef native_std::tuple_element<1u,   TCTP>  TE1_TCTP;
-        typedef native_std::tuple_element<1u,   TVTP>  TE1_TVTP;
+        typedef std::tuple_element<1u,   TTP >  TE1_TTP;
+        typedef std::tuple_element<1u,   TCTP>  TE1_TCTP;
+        typedef std::tuple_element<1u,   TVTP>  TE1_TVTP;
 
         // Aliases for const and volatile objects.
 
-        typedef native_std::tuple_element<0 , C_TIP >  TE0_C_TIP;
-        typedef native_std::tuple_element<0 , C_ITP >  TE0_C_ITP;
-        typedef native_std::tuple_element<0 , C_TTP >  TE0_C_TTP;
+        typedef std::tuple_element<0 , C_TIP >  TE0_C_TIP;
+        typedef std::tuple_element<0 , C_ITP >  TE0_C_ITP;
+        typedef std::tuple_element<0 , C_TTP >  TE0_C_TTP;
 
-        typedef native_std::tuple_element<1u, C_TIP >  TE1_C_TIP;
-        typedef native_std::tuple_element<1u, C_ITP >  TE1_C_ITP;
-        typedef native_std::tuple_element<1u, C_TTP >  TE1_C_TTP;
+        typedef std::tuple_element<1u, C_TIP >  TE1_C_TIP;
+        typedef std::tuple_element<1u, C_ITP >  TE1_C_ITP;
+        typedef std::tuple_element<1u, C_TTP >  TE1_C_TTP;
 
-        typedef native_std::tuple_element<0 ,  V_TIP > TE0_V_TIP;
-        typedef native_std::tuple_element<0 ,  V_ITP > TE0_V_ITP;
-        typedef native_std::tuple_element<0 ,  V_TTP > TE0_V_TTP;
+        typedef std::tuple_element<0 ,  V_TIP > TE0_V_TIP;
+        typedef std::tuple_element<0 ,  V_ITP > TE0_V_ITP;
+        typedef std::tuple_element<0 ,  V_TTP > TE0_V_TTP;
 
-        typedef native_std::tuple_element<1u,  V_TIP > TE1_V_TIP;
-        typedef native_std::tuple_element<1u,  V_ITP > TE1_V_ITP;
-        typedef native_std::tuple_element<1u,  V_TTP > TE1_V_TTP;
+        typedef std::tuple_element<1u,  V_TIP > TE1_V_TIP;
+        typedef std::tuple_element<1u,  V_ITP > TE1_V_ITP;
+        typedef std::tuple_element<1u,  V_TTP > TE1_V_TTP;
 
-        typedef native_std::tuple_element<0 , CV_TIP > TE0_CV_TIP;
-        typedef native_std::tuple_element<0 , CV_ITP > TE0_CV_ITP;
-        typedef native_std::tuple_element<0 , CV_TTP > TE0_CV_TTP;
+        typedef std::tuple_element<0 , CV_TIP > TE0_CV_TIP;
+        typedef std::tuple_element<0 , CV_ITP > TE0_CV_ITP;
+        typedef std::tuple_element<0 , CV_TTP > TE0_CV_TTP;
 
-        typedef native_std::tuple_element<1u, CV_TIP > TE1_CV_TIP;
-        typedef native_std::tuple_element<1u, CV_ITP > TE1_CV_ITP;
-        typedef native_std::tuple_element<1u, CV_TTP > TE1_CV_TTP;
+        typedef std::tuple_element<1u, CV_TIP > TE1_CV_TIP;
+        typedef std::tuple_element<1u, CV_ITP > TE1_CV_ITP;
+        typedef std::tuple_element<1u, CV_TTP > TE1_CV_TTP;
 
         // Aliases for returned types.
 
@@ -1229,29 +1229,29 @@ struct TupleApiTestDriver
 
         // Testing 'tuple_size'.
 
-        typedef native_std::tuple_size< TIP> TS_TIP;
-        typedef native_std::tuple_size<CTIP> TS_CTIP;
-        typedef native_std::tuple_size<VTIP> TS_VTIP;
-        typedef native_std::tuple_size<ITP > TS_ITP;
-        typedef native_std::tuple_size<ICTP> TS_ICTP;
-        typedef native_std::tuple_size<IVTP> TS_IVTP;
-        typedef native_std::tuple_size< TTP> TS_TTP;
-        typedef native_std::tuple_size<CTTP> TS_CTTP;
-        typedef native_std::tuple_size<VTTP> TS_VTTP;
-        typedef native_std::tuple_size<TCTP> TS_TCTP;
-        typedef native_std::tuple_size<TVTP> TS_TVTP;
+        typedef std::tuple_size< TIP> TS_TIP;
+        typedef std::tuple_size<CTIP> TS_CTIP;
+        typedef std::tuple_size<VTIP> TS_VTIP;
+        typedef std::tuple_size<ITP > TS_ITP;
+        typedef std::tuple_size<ICTP> TS_ICTP;
+        typedef std::tuple_size<IVTP> TS_IVTP;
+        typedef std::tuple_size< TTP> TS_TTP;
+        typedef std::tuple_size<CTTP> TS_CTTP;
+        typedef std::tuple_size<VTTP> TS_VTTP;
+        typedef std::tuple_size<TCTP> TS_TCTP;
+        typedef std::tuple_size<TVTP> TS_TVTP;
 
         // Aliases for const and volatile objects.
 
-        typedef native_std::tuple_size<C_TIP > TS_C_TIP;
-        typedef native_std::tuple_size<C_ITP > TS_C_ITP;
-        typedef native_std::tuple_size<C_TTP > TS_C_TTP;
-        typedef native_std::tuple_size<V_TIP > TS_V_TIP;
-        typedef native_std::tuple_size<V_ITP > TS_V_ITP;
-        typedef native_std::tuple_size<V_TTP > TS_V_TTP;
-        typedef native_std::tuple_size<CV_TIP> TS_CV_TIP;
-        typedef native_std::tuple_size<CV_ITP> TS_CV_ITP;
-        typedef native_std::tuple_size<CV_TTP> TS_CV_TTP;
+        typedef std::tuple_size<C_TIP > TS_C_TIP;
+        typedef std::tuple_size<C_ITP > TS_C_ITP;
+        typedef std::tuple_size<C_TTP > TS_C_TTP;
+        typedef std::tuple_size<V_TIP > TS_V_TIP;
+        typedef std::tuple_size<V_ITP > TS_V_ITP;
+        typedef std::tuple_size<V_TTP > TS_V_TTP;
+        typedef std::tuple_size<CV_TIP> TS_CV_TIP;
+        typedef std::tuple_size<CV_ITP> TS_CV_ITP;
+        typedef std::tuple_size<CV_TTP> TS_CV_TTP;
 
         // Testing objects with various types of elements.
 
@@ -2782,7 +2782,7 @@ void testBslmaStringConversionCtor()
 
     if (veryVeryVerbose) printf("\tpair<STRING,int>, no explicit allocator\n");
     {
-        native_std::pair<const char*, short> p1("Hello", 5), &P1 = p1;
+        std::pair<const char*, short> p1("Hello", 5), &P1 = p1;
         bsl::pair<STRING, int> p2(P1), &P2 = p2;
         ASSERT("Hello" == P2.first);
         ASSERT(5 == P2.second);
@@ -2798,7 +2798,7 @@ void testBslmaStringConversionCtor()
 
     if (veryVeryVerbose) printf("\tpair<STRING,int>, explicit allocator\n");
     {
-        native_std::pair<const char*, short> p1("Hello", 5), &P1 = p1;
+        std::pair<const char*, short> p1("Hello", 5), &P1 = p1;
         bsl::pair<STRING, int> p2(P1, &ta1), &P2 = p2;
         ASSERT("Hello" == P2.first);
         ASSERT(5 == P2.second);
@@ -2846,7 +2846,7 @@ void testBslmaStringConversionCtor()
 
     if (veryVeryVerbose) printf("\tpair<STRING,STRING>, no explicit alloc\n");
     {
-        native_std::pair<const char*, const char*> p1("Hello", "World"),
+        std::pair<const char*, const char*> p1("Hello", "World"),
             &P1 = p1;
         bsl::pair<STRING, STRING> p2(P1), &P2 = p2;
         ASSERT("Hello" == P2.first);
@@ -2864,7 +2864,7 @@ void testBslmaStringConversionCtor()
 
     if (veryVeryVerbose) printf("\tpair<STRING,STRING>, explicit allocator\n");
     {
-        native_std::pair<const char*, const char*> p1("Hello", "World"),
+        std::pair<const char*, const char*> p1("Hello", "World"),
             &P1 = p1;
         bsl::pair<STRING, STRING> p2(P1, &ta1), &P2 = p2;
         ASSERT("Hello" == P2.first);
@@ -2963,7 +2963,7 @@ void testNonBslmaStringConversionCtor()
 
     if (veryVeryVerbose) printf("\tpair<STRING,int>, no explicit allocator\n");
     {
-        native_std::pair<const char*, short> p1("Hello", (short) 5), &P1 = p1;
+        std::pair<const char*, short> p1("Hello", (short) 5), &P1 = p1;
         bsl::pair<STRING, int> p2(P1), &P2 = p2;
         ASSERT("Hello" == P2.first);
         ASSERT(5 == P2.second);
@@ -2999,7 +2999,7 @@ void testNonBslmaStringConversionCtor()
 
     if (veryVeryVerbose) printf("\tpair<STRING,STRING>, no explicit alloc\n");
     {
-        native_std::pair<const char*, const char*> p1("Hello", "World"),
+        std::pair<const char*, const char*> p1("Hello", "World"),
             &P1 = p1;
         bsl::pair<STRING, STRING> p2(P1), &P2 = p2;
         ASSERT("Hello" == P2.first);
@@ -3512,31 +3512,31 @@ void TupleTestDriver::runTestAlloc()
           case 0: {
             switch (NUM_SECOND_ARGS) {
               case 0: {
-                new (p) Pair(native_std::piecewise_construct,
-                             native_std::forward_as_tuple(),
-                             native_std::forward_as_tuple(),
+                new (p) Pair(std::piecewise_construct,
+                             std::forward_as_tuple(),
+                             std::forward_as_tuple(),
                              &aa);
               } break;
               case 1: {
                 new (p) Pair(
-                          native_std::piecewise_construct,
-                          native_std::forward_as_tuple(),
-                          native_std::forward_as_tuple(testArg(AS1, MOVE_S1)),
+                          std::piecewise_construct,
+                          std::forward_as_tuple(),
+                          std::forward_as_tuple(testArg(AS1, MOVE_S1)),
                           &aa);
               } break;
               case 2: {
                 new (p) Pair(
-                          native_std::piecewise_construct,
-                          native_std::forward_as_tuple(),
-                          native_std::forward_as_tuple(testArg(AS1, MOVE_S1),
+                          std::piecewise_construct,
+                          std::forward_as_tuple(),
+                          std::forward_as_tuple(testArg(AS1, MOVE_S1),
                                                        testArg(AS2, MOVE_S2)),
                           &aa);
               } break;
               case 3: {
                 new (p) Pair(
-                          native_std::piecewise_construct,
-                          native_std::forward_as_tuple(),
-                          native_std::forward_as_tuple(testArg(AS1, MOVE_S1),
+                          std::piecewise_construct,
+                          std::forward_as_tuple(),
+                          std::forward_as_tuple(testArg(AS1, MOVE_S1),
                                                        testArg(AS2, MOVE_S2),
                                                        testArg(AS3, MOVE_S3)),
                           &aa);
@@ -3550,31 +3550,31 @@ void TupleTestDriver::runTestAlloc()
             switch (NUM_SECOND_ARGS) {
               case 0: {
                 new (p) Pair(
-                          native_std::piecewise_construct,
-                          native_std::forward_as_tuple(testArg(AF1, MOVE_F1)),
-                          native_std::forward_as_tuple(),
+                          std::piecewise_construct,
+                          std::forward_as_tuple(testArg(AF1, MOVE_F1)),
+                          std::forward_as_tuple(),
                           &aa);
               } break;
               case 1: {
                 new (p) Pair(
-                          native_std::piecewise_construct,
-                          native_std::forward_as_tuple(testArg(AF1, MOVE_F1)),
-                          native_std::forward_as_tuple(testArg(AS1, MOVE_S1)),
+                          std::piecewise_construct,
+                          std::forward_as_tuple(testArg(AF1, MOVE_F1)),
+                          std::forward_as_tuple(testArg(AS1, MOVE_S1)),
                           &aa);
               } break;
               case 2: {
                 new (p) Pair(
-                          native_std::piecewise_construct,
-                          native_std::forward_as_tuple(testArg(AF1, MOVE_F1)),
-                          native_std::forward_as_tuple(testArg(AS1, MOVE_S1),
+                          std::piecewise_construct,
+                          std::forward_as_tuple(testArg(AF1, MOVE_F1)),
+                          std::forward_as_tuple(testArg(AS1, MOVE_S1),
                                                        testArg(AS2, MOVE_S2)),
                           &aa);
               } break;
               case 3: {
                 new (p) Pair(
-                          native_std::piecewise_construct,
-                          native_std::forward_as_tuple(testArg(AF1, MOVE_F1)),
-                          native_std::forward_as_tuple(testArg(AS1, MOVE_S1),
+                          std::piecewise_construct,
+                          std::forward_as_tuple(testArg(AF1, MOVE_F1)),
+                          std::forward_as_tuple(testArg(AS1, MOVE_S1),
                                                        testArg(AS2, MOVE_S2),
                                                        testArg(AS3, MOVE_S3)),
                           &aa);
@@ -3588,37 +3588,37 @@ void TupleTestDriver::runTestAlloc()
             switch (NUM_SECOND_ARGS) {
               case 0: {
                 new (p) Pair(
-                          native_std::piecewise_construct,
-                          native_std::forward_as_tuple(testArg(AF1, MOVE_F1),
-                                                       testArg(AF2, MOVE_F2)),
-                          native_std::forward_as_tuple(),
+                          std::piecewise_construct,
+                          std::forward_as_tuple(testArg(AF1, MOVE_F1),
+                                                testArg(AF2, MOVE_F2)),
+                          std::forward_as_tuple(),
                           &aa);
               } break;
               case 1: {
                 new (p) Pair(
-                          native_std::piecewise_construct,
-                          native_std::forward_as_tuple(testArg(AF1, MOVE_F1),
-                                                       testArg(AF2, MOVE_F2)),
-                          native_std::forward_as_tuple(testArg(AS1, MOVE_S1)),
+                          std::piecewise_construct,
+                          std::forward_as_tuple(testArg(AF1, MOVE_F1),
+                                                testArg(AF2, MOVE_F2)),
+                          std::forward_as_tuple(testArg(AS1, MOVE_S1)),
                           &aa);
               } break;
               case 2: {
                 new (p) Pair(
-                          native_std::piecewise_construct,
-                          native_std::forward_as_tuple(testArg(AF1, MOVE_F1),
-                                                       testArg(AF2, MOVE_F2)),
-                          native_std::forward_as_tuple(testArg(AS1, MOVE_S1),
-                                                       testArg(AS2, MOVE_S2)),
+                          std::piecewise_construct,
+                          std::forward_as_tuple(testArg(AF1, MOVE_F1),
+                                                testArg(AF2, MOVE_F2)),
+                          std::forward_as_tuple(testArg(AS1, MOVE_S1),
+                                                testArg(AS2, MOVE_S2)),
                           &aa);
               } break;
               case 3: {
                 new (p) Pair(
-                          native_std::piecewise_construct,
-                          native_std::forward_as_tuple(testArg(AF1, MOVE_F1),
-                                                       testArg(AF2, MOVE_F2)),
-                          native_std::forward_as_tuple(testArg(AS1, MOVE_S1),
-                                                       testArg(AS2, MOVE_S2),
-                                                       testArg(AS3, MOVE_S3)),
+                          std::piecewise_construct,
+                          std::forward_as_tuple(testArg(AF1, MOVE_F1),
+                                                testArg(AF2, MOVE_F2)),
+                          std::forward_as_tuple(testArg(AS1, MOVE_S1),
+                                                testArg(AS2, MOVE_S2),
+                                                testArg(AS3, MOVE_S3)),
                           &aa);
               } break;
               default: {
@@ -3630,41 +3630,41 @@ void TupleTestDriver::runTestAlloc()
             switch (NUM_SECOND_ARGS) {
               case 0: {
                 new (p) Pair(
-                          native_std::piecewise_construct,
-                          native_std::forward_as_tuple(testArg(AF1, MOVE_F1),
-                                                       testArg(AF2, MOVE_F2),
-                                                       testArg(AF3, MOVE_F3)),
-                          native_std::forward_as_tuple(),
+                          std::piecewise_construct,
+                          std::forward_as_tuple(testArg(AF1, MOVE_F1),
+                                                testArg(AF2, MOVE_F2),
+                                                testArg(AF3, MOVE_F3)),
+                          std::forward_as_tuple(),
                           &aa);
               } break;
               case 1: {
                 new (p) Pair(
-                          native_std::piecewise_construct,
-                          native_std::forward_as_tuple(testArg(AF1, MOVE_F1),
-                                                       testArg(AF2, MOVE_F2),
-                                                       testArg(AF3, MOVE_F3)),
-                          native_std::forward_as_tuple(testArg(AS1, MOVE_S1)),
+                          std::piecewise_construct,
+                          std::forward_as_tuple(testArg(AF1, MOVE_F1),
+                                                testArg(AF2, MOVE_F2),
+                                                testArg(AF3, MOVE_F3)),
+                          std::forward_as_tuple(testArg(AS1, MOVE_S1)),
                           &aa);
               } break;
               case 2: {
                 new (p) Pair(
-                          native_std::piecewise_construct,
-                          native_std::forward_as_tuple(testArg(AF1, MOVE_F1),
-                                                       testArg(AF2, MOVE_F2),
-                                                       testArg(AF3, MOVE_F3)),
-                          native_std::forward_as_tuple(testArg(AS1, MOVE_S1),
-                                                       testArg(AS2, MOVE_S2)),
+                          std::piecewise_construct,
+                          std::forward_as_tuple(testArg(AF1, MOVE_F1),
+                                                testArg(AF2, MOVE_F2),
+                                                testArg(AF3, MOVE_F3)),
+                          std::forward_as_tuple(testArg(AS1, MOVE_S1),
+                                                testArg(AS2, MOVE_S2)),
                           &aa);
               } break;
               case 3: {
                 new (p) Pair(
-                          native_std::piecewise_construct,
-                          native_std::forward_as_tuple(testArg(AF1, MOVE_F1),
-                                                       testArg(AF2, MOVE_F2),
-                                                       testArg(AF3, MOVE_F3)),
-                          native_std::forward_as_tuple(testArg(AS1, MOVE_S1),
-                                                       testArg(AS2, MOVE_S2),
-                                                       testArg(AS3, MOVE_S3)),
+                          std::piecewise_construct,
+                          std::forward_as_tuple(testArg(AF1, MOVE_F1),
+                                                testArg(AF2, MOVE_F2),
+                                                testArg(AF3, MOVE_F3)),
+                          std::forward_as_tuple(testArg(AS1, MOVE_S1),
+                                                testArg(AS2, MOVE_S2),
+                                                testArg(AS3, MOVE_S3)),
                           &aa);
               } break;
               default: {
@@ -3773,25 +3773,25 @@ void TupleTestDriver::runTestNoAlloc()
       case 0: {
         switch (NUM_SECOND_ARGS) {
           case 0: {
-            new (p) Pair(native_std::piecewise_construct,
-                         native_std::forward_as_tuple(),
-                         native_std::forward_as_tuple());
+            new (p) Pair(std::piecewise_construct,
+                         std::forward_as_tuple(),
+                         std::forward_as_tuple());
           } break;
           case 1: {
-            new (p) Pair(native_std::piecewise_construct,
-                         native_std::forward_as_tuple(),
-                         native_std::forward_as_tuple(testArg(AS1, MOVE_S1)));
+            new (p) Pair(std::piecewise_construct,
+                         std::forward_as_tuple(),
+                         std::forward_as_tuple(testArg(AS1, MOVE_S1)));
           } break;
           case 2: {
-            new (p) Pair(native_std::piecewise_construct,
-                         native_std::forward_as_tuple(),
-                         native_std::forward_as_tuple(testArg(AS1, MOVE_S1),
+            new (p) Pair(std::piecewise_construct,
+                         std::forward_as_tuple(),
+                         std::forward_as_tuple(testArg(AS1, MOVE_S1),
                                                       testArg(AS2, MOVE_S2)));
           } break;
           case 3: {
-            new (p) Pair(native_std::piecewise_construct,
-                         native_std::forward_as_tuple(),
-                         native_std::forward_as_tuple(testArg(AS1, MOVE_S1),
+            new (p) Pair(std::piecewise_construct,
+                         std::forward_as_tuple(),
+                         std::forward_as_tuple(testArg(AS1, MOVE_S1),
                                                       testArg(AS2, MOVE_S2),
                                                       testArg(AS3, MOVE_S3)));
           } break;
@@ -3803,27 +3803,27 @@ void TupleTestDriver::runTestNoAlloc()
       case 1: {
         switch (NUM_SECOND_ARGS) {
           case 0: {
-            new (p) Pair(native_std::piecewise_construct,
-                         native_std::forward_as_tuple(testArg(AF1, MOVE_F1)),
-                         native_std::forward_as_tuple());
+            new (p) Pair(std::piecewise_construct,
+                         std::forward_as_tuple(testArg(AF1, MOVE_F1)),
+                         std::forward_as_tuple());
           } break;
           case 1: {
-            new (p) Pair(native_std::piecewise_construct,
-                         native_std::forward_as_tuple(testArg(AF1, MOVE_F1)),
-                         native_std::forward_as_tuple(testArg(AS1, MOVE_S1)));
+            new (p) Pair(std::piecewise_construct,
+                         std::forward_as_tuple(testArg(AF1, MOVE_F1)),
+                         std::forward_as_tuple(testArg(AS1, MOVE_S1)));
           } break;
           case 2: {
-            new (p) Pair(native_std::piecewise_construct,
-                         native_std::forward_as_tuple(testArg(AF1, MOVE_F1)),
-                         native_std::forward_as_tuple(testArg(AS1, MOVE_S1),
-                                                      testArg(AS2, MOVE_S2)));
+            new (p) Pair(std::piecewise_construct,
+                         std::forward_as_tuple(testArg(AF1, MOVE_F1)),
+                         std::forward_as_tuple(testArg(AS1, MOVE_S1),
+                                               testArg(AS2, MOVE_S2)));
           } break;
           case 3: {
-            new (p) Pair(native_std::piecewise_construct,
-                         native_std::forward_as_tuple(testArg(AF1, MOVE_F1)),
-                         native_std::forward_as_tuple(testArg(AS1, MOVE_S1),
-                                                      testArg(AS2, MOVE_S2),
-                                                      testArg(AS3, MOVE_S3)));
+            new (p) Pair(std::piecewise_construct,
+                         std::forward_as_tuple(testArg(AF1, MOVE_F1)),
+                         std::forward_as_tuple(testArg(AS1, MOVE_S1),
+                                               testArg(AS2, MOVE_S2),
+                                               testArg(AS3, MOVE_S3)));
           } break;
           default: {
             // Invalid number of arguments ('BSLMF_ASSERT'ed on entry).
@@ -3833,31 +3833,31 @@ void TupleTestDriver::runTestNoAlloc()
       case 2: {
         switch (NUM_SECOND_ARGS) {
           case 0: {
-            new (p) Pair(native_std::piecewise_construct,
-                         native_std::forward_as_tuple(testArg(AF1, MOVE_F1),
-                                                      testArg(AF2, MOVE_F2)),
-                         native_std::forward_as_tuple());
+            new (p) Pair(std::piecewise_construct,
+                         std::forward_as_tuple(testArg(AF1, MOVE_F1),
+                                               testArg(AF2, MOVE_F2)),
+                         std::forward_as_tuple());
           } break;
           case 1: {
-            new (p) Pair(native_std::piecewise_construct,
-                         native_std::forward_as_tuple(testArg(AF1, MOVE_F1),
-                                                      testArg(AF2, MOVE_F2)),
-                         native_std::forward_as_tuple(testArg(AS1, MOVE_S1)));
+            new (p) Pair(std::piecewise_construct,
+                         std::forward_as_tuple(testArg(AF1, MOVE_F1),
+                                               testArg(AF2, MOVE_F2)),
+                         std::forward_as_tuple(testArg(AS1, MOVE_S1)));
           } break;
           case 2: {
-            new (p) Pair(native_std::piecewise_construct,
-                         native_std::forward_as_tuple(testArg(AF1, MOVE_F1),
-                                                      testArg(AF2, MOVE_F2)),
-                         native_std::forward_as_tuple(testArg(AS1, MOVE_S1),
-                                                      testArg(AS2, MOVE_S2)));
+            new (p) Pair(std::piecewise_construct,
+                         std::forward_as_tuple(testArg(AF1, MOVE_F1),
+                                               testArg(AF2, MOVE_F2)),
+                         std::forward_as_tuple(testArg(AS1, MOVE_S1),
+                                               testArg(AS2, MOVE_S2)));
           } break;
           case 3: {
-            new (p) Pair(native_std::piecewise_construct,
-                         native_std::forward_as_tuple(testArg(AF1, MOVE_F1),
-                                                      testArg(AF2, MOVE_F2)),
-                         native_std::forward_as_tuple(testArg(AS1, MOVE_S1),
-                                                      testArg(AS2, MOVE_S2),
-                                                      testArg(AS3, MOVE_S3)));
+            new (p) Pair(std::piecewise_construct,
+                         std::forward_as_tuple(testArg(AF1, MOVE_F1),
+                                               testArg(AF2, MOVE_F2)),
+                         std::forward_as_tuple(testArg(AS1, MOVE_S1),
+                                               testArg(AS2, MOVE_S2),
+                                               testArg(AS3, MOVE_S3)));
           } break;
           default: {
             // Invalid number of arguments ('BSLMF_ASSERT'ed on entry).
@@ -3867,35 +3867,35 @@ void TupleTestDriver::runTestNoAlloc()
       case 3: {
         switch (NUM_SECOND_ARGS) {
           case 0: {
-            new (p) Pair(native_std::piecewise_construct,
-                         native_std::forward_as_tuple(testArg(AF1, MOVE_F1),
-                                                      testArg(AF2, MOVE_F2),
-                                                      testArg(AF3, MOVE_F3)),
-                         native_std::forward_as_tuple());
+            new (p) Pair(std::piecewise_construct,
+                         std::forward_as_tuple(testArg(AF1, MOVE_F1),
+                                               testArg(AF2, MOVE_F2),
+                                               testArg(AF3, MOVE_F3)),
+                         std::forward_as_tuple());
           } break;
           case 1: {
-            new (p) Pair(native_std::piecewise_construct,
-                         native_std::forward_as_tuple(testArg(AF1, MOVE_F1),
-                                                      testArg(AF2, MOVE_F2),
-                                                      testArg(AF3, MOVE_F3)),
-                         native_std::forward_as_tuple(testArg(AS1, MOVE_S1)));
+            new (p) Pair(std::piecewise_construct,
+                         std::forward_as_tuple(testArg(AF1, MOVE_F1),
+                                               testArg(AF2, MOVE_F2),
+                                               testArg(AF3, MOVE_F3)),
+                         std::forward_as_tuple(testArg(AS1, MOVE_S1)));
           } break;
           case 2: {
-            new (p) Pair(native_std::piecewise_construct,
-                         native_std::forward_as_tuple(testArg(AF1, MOVE_F1),
-                                                      testArg(AF2, MOVE_F2),
-                                                      testArg(AF3, MOVE_F3)),
-                         native_std::forward_as_tuple(testArg(AS1, MOVE_S1),
+            new (p) Pair(std::piecewise_construct,
+                         std::forward_as_tuple(testArg(AF1, MOVE_F1),
+                                               testArg(AF2, MOVE_F2),
+                                               testArg(AF3, MOVE_F3)),
+                         std::forward_as_tuple(testArg(AS1, MOVE_S1),
                                                       testArg(AS2, MOVE_S2)));
           } break;
           case 3: {
-            new (p) Pair(native_std::piecewise_construct,
-                         native_std::forward_as_tuple(testArg(AF1, MOVE_F1),
-                                                      testArg(AF2, MOVE_F2),
-                                                      testArg(AF3, MOVE_F3)),
-                         native_std::forward_as_tuple(testArg(AS1, MOVE_S1),
-                                                      testArg(AS2, MOVE_S2),
-                                                      testArg(AS3, MOVE_S3)));
+            new (p) Pair(std::piecewise_construct,
+                         std::forward_as_tuple(testArg(AF1, MOVE_F1),
+                                               testArg(AF2, MOVE_F2),
+                                               testArg(AF3, MOVE_F3)),
+                         std::forward_as_tuple(testArg(AS1, MOVE_S1),
+                                               testArg(AS2, MOVE_S2),
+                                               testArg(AS3, MOVE_S3)));
           } break;
           default: {
             // Invalid number of arguments ('BSLMF_ASSERT'ed on entry).
@@ -3966,9 +3966,9 @@ void TupleTestDriver::runTestInplaceMemberConstruction()
     bsls::ObjectBuffer<Pair>  oDst;
     Pair                     *p = oDst.address();
 
-    new (p) Pair(native_std::piecewise_construct,
-                 native_std::forward_as_tuple(testArg(AF, MOVE_F)),
-                 native_std::forward_as_tuple(testArg(AS, MOVE_S)));
+    new (p) Pair(std::piecewise_construct,
+                 std::forward_as_tuple(testArg(AF, MOVE_F)),
+                 std::forward_as_tuple(testArg(AS, MOVE_S)));
 
     ASSERTV(name, MOVE_F, AF.movedFrom(),
             MOVE_F == (MoveState::e_MOVED == AF.movedFrom()));
@@ -4006,9 +4006,9 @@ void TupleTestDriver::runTestAllocatorPropagation()
         // 'my_NoAllocString' object uses 'my_STLCharAlloc::defaultMechanism()'
         // if allocator wasn't specified by client on construction.
 
-        NoAllocPair    npa(native_std::piecewise_construct,
-                           native_std::forward_as_tuple("a"),
-                           native_std::forward_as_tuple("b"));
+        NoAllocPair    npa(std::piecewise_construct,
+                           std::forward_as_tuple("a"),
+                           std::forward_as_tuple("b"));
 
         ASSERTV(dma == npa.first.allocator());
         ASSERTV(dma == npa.second.allocator());
@@ -4018,9 +4018,9 @@ void TupleTestDriver::runTestAllocatorPropagation()
         // 'my_String' object uses 'bslma::Default::defaultAllocator()' if
         // allocator wasn't specified by client on construction.
 
-        BslmaAllocPair bpa(native_std::piecewise_construct,
-                           native_std::forward_as_tuple("c"),
-                           native_std::forward_as_tuple("d"));
+        BslmaAllocPair bpa(std::piecewise_construct,
+                           std::forward_as_tuple("c"),
+                           std::forward_as_tuple("d"));
 
         ASSERTV(&da == bpa.first.allocator());
         ASSERTV(&da == bpa.second.allocator());
@@ -4031,9 +4031,9 @@ void TupleTestDriver::runTestAllocatorPropagation()
         // 'bslma::Default::defaultAllocator()' if allocator wasn't specified
         // by client on construction.
 
-        ArgAllocPair   apa(native_std::piecewise_construct,
-                           native_std::forward_as_tuple("e"),
-                           native_std::forward_as_tuple("f"));
+        ArgAllocPair   apa(std::piecewise_construct,
+                           std::forward_as_tuple("e"),
+                           std::forward_as_tuple("f"));
 
         ASSERTV(&da == apa.first.allocator());
         ASSERTV(&da == apa.second.allocator());
@@ -4050,9 +4050,9 @@ void TupleTestDriver::runTestAllocatorPropagation()
     ASSERTV(dma->numBytesInUse(), 0 == dma->numBytesInUse());
 
     {
-        BslmaAllocPair bpa(native_std::piecewise_construct,
-                           native_std::forward_as_tuple("c"),
-                           native_std::forward_as_tuple("d"),
+        BslmaAllocPair bpa(std::piecewise_construct,
+                           std::forward_as_tuple("c"),
+                           std::forward_as_tuple("d"),
                            &oa);
 
         ASSERTV(&oa == bpa.first.allocator());
@@ -4070,9 +4070,9 @@ void TupleTestDriver::runTestAllocatorPropagation()
     ASSERTV(dma->numBytesInUse(), 0 == dma->numBytesInUse());
 
     {
-        ArgAllocPair   apa(native_std::piecewise_construct,
-                           native_std::forward_as_tuple("e"),
-                           native_std::forward_as_tuple("f"),
+        ArgAllocPair   apa(std::piecewise_construct,
+                           std::forward_as_tuple("e"),
+                           std::forward_as_tuple("f"),
                            &oa);
 
         ASSERTV(&oa == apa.first.allocator());
@@ -4146,7 +4146,7 @@ class TestDriver {
     static void testCase14(bsl::false_type pairAllocates);
     static void testCase14(bsl::true_type  pairAllocates);
     static void testCase14();
-        // Test constructor from 'native_std::pair' in contexts with nested
+        // Test constructor from 'std::pair' in contexts with nested
         // pairs (reproducing / testing the fix for a known bug).
 
     static void testCase12_copy();
@@ -4201,7 +4201,7 @@ void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase14(
             FromPair& fp = u::initPair(&ofp, 'F', &ta);
             u::PairGuard<FromPair> fpg(&fp);
 
-            bsl::pair<FromPair, bool> tp(native_std::make_pair(fp, b));
+            bsl::pair<FromPair, bool> tp(std::make_pair(fp, b));
             ASSERT(b == tp.second);
             ASSERT('F'                    == u::valueOf(tp.first.first));
             ASSERT('F' + u::k_VALUE_SHIFT == u::valueOf(tp.first.second));
@@ -4216,7 +4216,7 @@ void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase14(
             FromPair& fp = u::initPair(&ofp, 'F', &ta);
             u::PairGuard<FromPair> fpg(&fp);
 
-            bsl::pair<ToPair, bool> tp(native_std::make_pair(fp, b));
+            bsl::pair<ToPair, bool> tp(std::make_pair(fp, b));
             ASSERT(b == tp.second);
             ASSERT('F'                    == u::valueOf(tp.first.first));
             ASSERT('F' + u::k_VALUE_SHIFT == u::valueOf(tp.first.second));
@@ -4231,7 +4231,7 @@ void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase14(
             FromPair& fp = u::initPair(&ofp, 'F', &ta);
             u::PairGuard<FromPair> fpg(&fp);
 
-            native_std::pair<FromPair, bool> np(fp, b);
+            std::pair<FromPair, bool> np(fp, b);
 
             bsl::pair<FromPair, bool> tp(np);
             ASSERT(b == tp.second);
@@ -4248,7 +4248,7 @@ void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase14(
             FromPair& fp = u::initPair(&ofp, 'F', &ta);
             u::PairGuard<FromPair> fpg(&fp);
 
-            native_std::pair<FromPair, bool> np(fp, b);
+            std::pair<FromPair, bool> np(fp, b);
 
             bsl::pair<ToPair, bool> tp(np);
             ASSERT(b == tp.second);
@@ -4267,7 +4267,7 @@ void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase14(
             FromPair& fp = u::initPair(&ofp, 'F', &ta);
             u::PairGuard<FromPair> fpg(&fp);
 
-            bsl::pair<bool, FromPair> tp(native_std::make_pair(b, fp));
+            bsl::pair<bool, FromPair> tp(std::make_pair(b, fp));
             ASSERT(b == tp.first);
             ASSERT('F'                    == u::valueOf(tp.second.first));
             ASSERT('F' + u::k_VALUE_SHIFT == u::valueOf(tp.second.second));
@@ -4282,7 +4282,7 @@ void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase14(
             FromPair& fp = u::initPair(&ofp, 'F', &ta);
             u::PairGuard<FromPair> fpg(&fp);
 
-            bsl::pair<bool, ToPair> tp(native_std::make_pair(b, fp));
+            bsl::pair<bool, ToPair> tp(std::make_pair(b, fp));
             ASSERT(b == tp.first);
             ASSERT('F'                    == u::valueOf(tp.second.first));
             ASSERT('F' + u::k_VALUE_SHIFT == u::valueOf(tp.second.second));
@@ -4297,7 +4297,7 @@ void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase14(
             FromPair& fp = u::initPair(&ofp, 'F', &ta);
             u::PairGuard<FromPair> fpg(&fp);
 
-            native_std::pair<bool, FromPair> np(b, fp);
+            std::pair<bool, FromPair> np(b, fp);
 
             bsl::pair<bool, FromPair> tp(np);
             ASSERT(b == tp.first);
@@ -4314,7 +4314,7 @@ void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase14(
             FromPair& fp = u::initPair(&ofp, 'F', &ta);
             u::PairGuard<FromPair> fpg(&fp);
 
-            native_std::pair<bool, FromPair> np(b, fp);
+            std::pair<bool, FromPair> np(b, fp);
 
             bsl::pair<bool, ToPair> tp(np);
             ASSERT(b == tp.first);
@@ -4355,7 +4355,7 @@ void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase14(
             FromPair& fp = u::initPair(&ofp, 'F', &ta);
             u::PairGuard<FromPair> fpg(&fp);
 
-            bsl::pair<FromPair, bool> tp(native_std::make_pair(fp, b), &tb);
+            bsl::pair<FromPair, bool> tp(std::make_pair(fp, b), &tb);
             ASSERT(b == tp.second);
             ASSERT('F'                    == u::valueOf(tp.first.first));
             ASSERT('F' + u::k_VALUE_SHIFT == u::valueOf(tp.first.second));
@@ -4376,7 +4376,7 @@ void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase14(
             FromPair& fp = u::initPair(&ofp, 'F', &ta);
             u::PairGuard<FromPair> fpg(&fp);
 
-            bsl::pair<ToPair, bool> tp(native_std::make_pair(fp, b), &tb);
+            bsl::pair<ToPair, bool> tp(std::make_pair(fp, b), &tb);
             ASSERT(b == tp.second);
             ASSERT('F'                    == u::valueOf(tp.first.first));
             ASSERT('F' + u::k_VALUE_SHIFT == u::valueOf(tp.first.second));
@@ -4397,7 +4397,7 @@ void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase14(
             FromPair& fp = u::initPair(&ofp, 'F', &ta);
             u::PairGuard<FromPair> fpg(&fp);
 
-            native_std::pair<FromPair, bool> np(fp, b);
+            std::pair<FromPair, bool> np(fp, b);
 
             bsl::pair<FromPair, bool> tp(np, &tb);
             ASSERT(b == tp.second);
@@ -4420,7 +4420,7 @@ void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase14(
             FromPair& fp = u::initPair(&ofp, 'F', &ta);
             u::PairGuard<FromPair> fpg(&fp);
 
-            native_std::pair<FromPair, bool> np(fp, b);
+            std::pair<FromPair, bool> np(fp, b);
 
             bsl::pair<ToPair, bool> tp(np, &tb);
             ASSERT(b == tp.second);
@@ -4445,7 +4445,7 @@ void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase14(
             FromPair& fp = u::initPair(&ofp, 'F', &ta);
             u::PairGuard<FromPair> fpg(&fp);
 
-            bsl::pair<bool, FromPair> tp(native_std::make_pair(b, fp), &tb);
+            bsl::pair<bool, FromPair> tp(std::make_pair(b, fp), &tb);
             ASSERT(b == tp.first);
             ASSERT('F'                    == u::valueOf(tp.second.first));
             ASSERT('F' + u::k_VALUE_SHIFT == u::valueOf(tp.second.second));
@@ -4466,7 +4466,7 @@ void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase14(
             FromPair& fp = u::initPair(&ofp, 'F', &ta);
             u::PairGuard<FromPair> fpg(&fp);
 
-            bsl::pair<bool, ToPair> tp(native_std::make_pair(b, fp), &tb);
+            bsl::pair<bool, ToPair> tp(std::make_pair(b, fp), &tb);
             ASSERT(b == tp.first);
             ASSERT('F'                    == u::valueOf(tp.second.first));
             ASSERT('F' + u::k_VALUE_SHIFT == u::valueOf(tp.second.second));
@@ -4487,7 +4487,7 @@ void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase14(
             FromPair& fp = u::initPair(&ofp, 'F', &ta);
             u::PairGuard<FromPair> fpg(&fp);
 
-            native_std::pair<bool, FromPair> np(b, fp);
+            std::pair<bool, FromPair> np(b, fp);
 
             bsl::pair<bool, FromPair> tp(np, &tb);
             ASSERT(b == tp.first);
@@ -4510,7 +4510,7 @@ void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase14(
             FromPair& fp = u::initPair(&ofp, 'F', &ta);
             u::PairGuard<FromPair> fpg(&fp);
 
-            native_std::pair<bool, FromPair> np(b, fp);
+            std::pair<bool, FromPair> np(b, fp);
 
             bsl::pair<bool, ToPair> tp(np, &tb);
             ASSERT(b == tp.first);
@@ -5469,12 +5469,10 @@ struct TupleConversionDriver
         ASSERTV(i == mX1.second);
         ASSERTV(i == mX2.first);
 
-        native_std::tuple<  T&, int&>       mY1 =
-                                    mX1.operator native_std::tuple<T&, int&>();
-        const native_std::tuple<  T&, int&> Y1  = mY1;
-        native_std::tuple<int&,   T&>       mY2 =
-                                    mX2.operator native_std::tuple<int&, T&>();
-        const native_std::tuple<int&,   T&> Y2  = mY2;
+        std::tuple<  T&, int&>       mY1 = mX1.operator std::tuple<T&, int&>();
+        const std::tuple<  T&, int&> Y1  = mY1;
+        std::tuple<int&,   T&>       mY2 = mX2.operator std::tuple<int&, T&>();
+        const std::tuple<int&,   T&> Y2  = mY2;
 
         ASSERTV(t == std::get<0>(Y1));
         ASSERTV(t == std::get<1>(Y2));
@@ -5496,7 +5494,7 @@ struct TupleConversionDriver
         ASSERTV(i == std::get<1>(Y1));
         ASSERTV(i == std::get<0>(Y2));
 
-        // Changing 'native_std::tuple'.
+        // Changing 'std::tuple'.
 
         t.setData(++value);
         std::get<0>(Y1).setData(value);
@@ -5799,10 +5797,10 @@ int main(int argc, char *argv[])
         //: 2 Providing an allocator as the third argument does not suppress
         //:   deduction.
         //:
-        //: 3 Constructing a 'pair' from 'native_std::pair' deduces the
+        //: 3 Constructing a 'pair' from 'std::pair' deduces the
         //:   template arguments.
         //
-        //: 4 Constructing a 'pair' from 'pair' (native_std or bsl) and an
+        //: 4 Constructing a 'pair' from 'pair' (std or bsl) and an
         //:   allocator deduces a pair + allocator, rather than a
         //:   pair<pair, Allocator>.
         //
@@ -8037,11 +8035,11 @@ int main(int argc, char *argv[])
       } break;
       case 14: {
         // --------------------------------------------------------------------
-        // TESTING C'TOR TO/FROM NATIVE_STD::PAIR, PAIRS WITHIN PAIRS
+        // TESTING C'TOR TO/FROM STD::PAIR, PAIRS WITHIN PAIRS
         //
         // This test case was written to expose a known problem, and verify its
         // fix, to do with pairs within pairs, and conversions between
-        // 'bsl::pair' and 'native_std::pair'.
+        // 'bsl::pair' and 'std::pair'.
         //
         // Concerns:
         //: 1 In all cases, we will be dealing with cases where one member of
@@ -8050,15 +8048,15 @@ int main(int argc, char *argv[])
         //:   o 'pair<pair, bool>'
         //:   o 'pair<bool, pair>'
         //:
-        //: 2 There is only a conversion from a 'native_std::pair' to a
+        //: 2 There is only a conversion from a 'std::pair' to a
         //:   'bsl::pair', not the other way around, even in the case where
         //:   'first_type' and 'second_type' match, so conversions from
-        //:   'bsl::pair' to 'native_std::pair' are *NOT* tested.
+        //:   'bsl::pair' to 'std::pair' are *NOT* tested.
         //:
         //: 3 Test a conversion from a pair where the nested pair type of the
         //:   source and destination match.
         //:
-        //: 4 Test a conversation from a 'native_std::pair' to a 'bsl::pair'
+        //: 4 Test a conversation from a 'std::pair' to a 'bsl::pair'
         //:   containing a nested 'bsl::pair'.
         //:   o In the case where the destination and source 'bsl::pair' member
         //:     are of matching type.
@@ -8075,17 +8073,17 @@ int main(int argc, char *argv[])
         //:   passed to the pair constructor, it isn't used.
         //:
         //: 7 If any of the types under test allocate memory, observe that the
-        //:   creation of a 'native_std::pair' makes use of the default
+        //:   creation of a 'std::pair' makes use of the default
         //:   allocator, and that the creation of 'bsl::pair' that has an
         //:   allocator passed to the c'tor makes use of the passed allocator.
         //
         // TESTING:
-        //   pair(native_std::pair<*>, bool>)
+        //   pair(std::pair<*>, bool>)
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-             "\nTESTING C'TOR TO/FROM NATIVE_STD::PAIR, PAIRS WITHIN PAIRS"
-             "\n==========================================================\n");
+             "\nTESTING C'TOR TO/FROM STD::PAIR, PAIRS WITHIN PAIRS"
+             "\n===================================================\n");
 
         RUN_EACH_TYPE(MetaTestDriver,
                       testCase14,
@@ -9362,7 +9360,7 @@ int main(int argc, char *argv[])
         //   * Construct 'pair<STRING, STRING>' from 'pair<char*,const char*>',
         //     supplying a 'bslma::Allocator*' on construction.
         //   * Repeat the above except constructing 'bsl::pair from
-        //     'native_std::pair'.
+        //     'std::pair'.
         // - When an allocator is not supplied on construction, verify that
         //   the correct default is used by the STRING in the constructed pair.
         // - When 'STRING' does not use a 'bslma::Allocator' and an allocator
@@ -9617,10 +9615,10 @@ int main(int argc, char *argv[])
             printf("Testing components (first/second) constructibility\n");
 
 #define ASSERT_NOT_DEFAULT_CONSTRUCTIBLE(TYPE)                                \
-        ASSERT(false == native_std::is_default_constructible<TYPE>::value)
+        ASSERT(false == std::is_default_constructible<TYPE>::value)
 
 #define ASSERT_DEFAULT_CONSTRUCTIBLE(TYPE)                                    \
-        ASSERT(true == native_std::is_default_constructible<TYPE>::value)
+        ASSERT(true == std::is_default_constructible<TYPE>::value)
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
         ASSERT_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault);
@@ -9655,7 +9653,7 @@ int main(int argc, char *argv[])
             printf("All default constructible pair combinations.\n");
 
 #define ASSERT_PAIR_DEFAULT_CONSTRUCTIBLE(TYPE1, TYPE2)                       \
-        ASSERT((true == native_std::is_default_constructible<                 \
+        ASSERT((true == std::is_default_constructible<                        \
                                               bsl::pair<TYPE1, TYPE2>>::value))
 
         ASSERT_PAIR_DEFAULT_CONSTRUCTIBLE(Empty, Empty);
@@ -9684,7 +9682,7 @@ int main(int argc, char *argv[])
             printf("All not default constructible pair combinations.\n");
 
 #define ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(TYPE1, TYPE2)                   \
-        ASSERT((false == native_std::is_default_constructible<                \
+        ASSERT((false == std::is_default_constructible<                       \
                                               bsl::pair<TYPE1, TYPE2>>::value))
 
         if (veryVeryVerbose)

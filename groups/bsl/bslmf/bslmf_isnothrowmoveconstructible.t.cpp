@@ -123,7 +123,7 @@ void aSsErT(bool condition, const char *message, int line)
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
 # define BSLMF_ISNOTHROWMOVECONSTRUCTIBLE_USE_NATIVE_ORACLE     1
-    // 'native_std::is_nothrow_move_constructible' is available as a trusted
+    // 'std::is_nothrow_move_constructible' is available as a trusted
     // oracle of the correct value for this trait.
 #endif
 
@@ -168,12 +168,12 @@ void aSsErT(bool condition, const char *message, int line)
 //   native trait if it is available, and expands to nothing otherwise.
 #if defined(BSLMF_ISNOTHROWMOVECONSTRUCTIBLE_USE_NATIVE_ORACLE)
 # define ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CONSULT_ORACLE(TYPE)            \
-    ASSERTV( native_std::is_nothrow_move_constructible<TYPE>::value,          \
-             bsl       ::is_nothrow_move_constructible<TYPE>::value,          \
-             native_std::is_nothrow_move_constructible<TYPE>::value ==        \
-             bsl       ::is_nothrow_move_constructible<TYPE>::value)
+    ASSERTV( std::is_nothrow_move_constructible<TYPE>::value,                 \
+             bsl::is_nothrow_move_constructible<TYPE>::value,                 \
+             std::is_nothrow_move_constructible<TYPE>::value ==               \
+             bsl::is_nothrow_move_constructible<TYPE>::value)
     // Confirm that the result of 'bsl::is_nothrow_move_constructible<TYPE>'
-    // agrees with the oracle 'native_std::is_nothrow_move_constructible'.
+    // agrees with the oracle 'std::is_nothrow_move_constructible'.
 #else
 # define ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CONSULT_ORACLE(TYPE)
     // The native trait is not available to act as an oracle, so there is no

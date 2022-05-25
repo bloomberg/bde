@@ -99,12 +99,6 @@ BSLS_IDENT("$Id: $")
 //  assert(lexicalCast<short>(-5) == -5);
 //..
 
-// Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
-// mode.  Doing so is unsupported, and is likely to cause compilation errors.
-#if defined(BSL_OVERRIDES_STD) && !defined(BOS_STDHDRS_PROLOGUE_IN_EFFECT)
-#error "include <bsl_sstream.h> instead of <bslstl_stringstream.h> in \
-BSL_OVERRIDES_STD mode"
-#endif
 #include <bslscm_version.h>
 
 #include <bslma_isstdallocator.h>
@@ -140,7 +134,7 @@ namespace bsl {
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 class basic_stringstream
     : private StringBufContainer<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>
-    , public native_std::basic_iostream<CHAR_TYPE, CHAR_TRAITS> {
+    , public std::basic_iostream<CHAR_TYPE, CHAR_TRAITS> {
     // This class implements a standard stream providing operations using
     // 'bsl::basic_string' for modifying or accessing the sequence of
     // characters read from, or written to, the stream.
@@ -152,8 +146,8 @@ class basic_stringstream
                                                                  BaseType;
     typedef bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> StringType;
     typedef bsl::basic_string_view<CHAR_TYPE, CHAR_TRAITS>       ViewType;
-    typedef native_std::basic_iostream<CHAR_TYPE, CHAR_TRAITS>   BaseStream;
-    typedef native_std::ios_base                                 ios_base;
+    typedef std::basic_iostream<CHAR_TYPE, CHAR_TRAITS>          BaseStream;
+    typedef std::ios_base                                        ios_base;
 
     typedef BloombergLP::bslmf::MovableRefUtil                   MoveUtil;
 

@@ -16,67 +16,70 @@ BSLS_IDENT("$Id: $")
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
 #include <bsls_libraryfeatures.h>
-#include <bsls_nativestd.h>
 
 #include <memory>
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace bsl {
     // Import selected symbols into bsl namespace
 
     // These are declared in bslstl_iosfwd.h (so cannot be using declarations):
     //..
-    //  using native_std::allocator;
+    //  using std::allocator;
     //..
 
-    using native_std::get_temporary_buffer;
-    using native_std::raw_storage_iterator;
-    using native_std::return_temporary_buffer;
-    using native_std::uninitialized_copy;
-    using native_std::uninitialized_fill;
-    using native_std::uninitialized_fill_n;
+    using std::get_temporary_buffer;
+    using std::raw_storage_iterator;
+    using std::return_temporary_buffer;
+    using std::uninitialized_copy;
+    using std::uninitialized_fill;
+    using std::uninitialized_fill_n;
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR
-    using native_std::auto_ptr;
+    using std::auto_ptr;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-    using native_std::addressof;
-    using native_std::pointer_traits;
-    using native_std::uninitialized_copy_n;
+    using std::addressof;
+    using std::pointer_traits;
+    using std::uninitialized_copy_n;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_STANDARD_LIBRARY
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR
-    using native_std::unique_ptr;
-    using native_std::default_delete;
+    using std::unique_ptr;
+    using std::default_delete;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
-    using native_std::make_unique;
+    using std::make_unique;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-    using native_std::destroy;
-    using native_std::destroy_at;
-    using native_std::destroy_n;
-    using native_std::uninitialized_default_construct;
-    using native_std::uninitialized_default_construct_n;
-    using native_std::uninitialized_move;
-    using native_std::uninitialized_move_n;
-    using native_std::uninitialized_value_construct;
-    using native_std::uninitialized_value_construct_n;
+    using std::destroy;
+    using std::destroy_at;
+    using std::destroy_n;
+    using std::uninitialized_default_construct;
+    using std::uninitialized_default_construct_n;
+    using std::uninitialized_move;
+    using std::uninitialized_move_n;
+    using std::uninitialized_value_construct;
+    using std::uninitialized_value_construct_n;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
-    using native_std::align;
+    using std::align;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API
-    using native_std::declare_no_pointers;
-    using native_std::declare_reachable;
-    using native_std::get_pointer_safety;
-    using native_std::pointer_safety;
-    using native_std::undeclare_no_pointers;
-    using native_std::undeclare_reachable;
+    using std::declare_no_pointers;
+    using std::declare_reachable;
+    using std::get_pointer_safety;
+    using std::pointer_safety;
+    using std::undeclare_no_pointers;
+    using std::undeclare_reachable;
 #endif // BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
@@ -85,29 +88,24 @@ namespace bsl {
     // happens to not require any of these names for its native implementation
     // of the <memory> header.
 
-    using native_std::advance;
-    using native_std::bad_alloc;
-    using native_std::bidirectional_iterator_tag;
-    using native_std::forward_iterator_tag;
-    using native_std::input_iterator_tag;
-    using native_std::iterator;
-    using native_std::new_handler;
-    using native_std::nothrow;
-    using native_std::nothrow_t;
-    using native_std::output_iterator_tag;
-    using native_std::new_handler;
-    using native_std::random_access_iterator_tag;
-    using native_std::set_new_handler;
+    using std::advance;
+    using std::bad_alloc;
+    using std::bidirectional_iterator_tag;
+    using std::forward_iterator_tag;
+    using std::input_iterator_tag;
+    using std::iterator;
+    using std::new_handler;
+    using std::nothrow;
+    using std::nothrow_t;
+    using std::output_iterator_tag;
+    using std::new_handler;
+    using std::random_access_iterator_tag;
+    using std::set_new_handler;
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
 }  // close package namespace
 
-// Include Bloomberg's implementation, unless compilation is configured to
-// override native types in the 'std' namespace with Bloomberg's
-// implementation, in which case the implementation file will be included by
-// the Bloomberg supplied standard header file.
-
-#ifndef BSL_OVERRIDES_STD
+// Include Bloomberg's implementation.
 #include <bslma_allocatortraits.h>
 #include <bslma_stdallocator.h>
 
@@ -116,7 +114,6 @@ namespace bsl {
 #include <bslstl_badweakptr.h>
 #include <bslstl_ownerless.h>
 #include <bslstl_sharedptr.h>
-#endif
 
 #endif
 

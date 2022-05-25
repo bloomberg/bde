@@ -16,58 +16,61 @@ BSLS_IDENT("$Id: $")
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
 #include <bsls_libraryfeatures.h>
-#include <bsls_nativestd.h>
 #include <bsls_platform.h>
 
 #include <bsl_iosfwd.h>
 
 #include <ios>
 
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
 namespace bsl {
     // Import selected symbols into bsl namespace
 
-    using native_std::basic_ios;
-    using native_std::fpos;
-    using native_std::ios;
-    using native_std::ios_base;
-    using native_std::wios;
-    using native_std::streamoff;
-    using native_std::streamsize;
-    using native_std::streampos;
-    using native_std::wstreampos;
+    using std::basic_ios;
+    using std::fpos;
+    using std::ios;
+    using std::ios_base;
+    using std::wios;
+    using std::streamoff;
+    using std::streamsize;
+    using std::streampos;
+    using std::wstreampos;
 
-    using native_std::boolalpha;
-    using native_std::dec;
-    using native_std::exception;
-    using native_std::fixed;
-    using native_std::hex;
-    using native_std::internal;
-    using native_std::left;
-    using native_std::oct;
-    using native_std::right;
-    using native_std::scientific;
-    using native_std::showbase;
-    using native_std::showpoint;
-    using native_std::showpos;
-    using native_std::skipws;
-    using native_std::unitbuf;
-    using native_std::uppercase;
-    using native_std::noboolalpha;
-    using native_std::noshowbase;
-    using native_std::noshowpoint;
-    using native_std::noshowpos;
-    using native_std::noskipws;
-    using native_std::nounitbuf;
-    using native_std::nouppercase;
+    using std::boolalpha;
+    using std::dec;
+    using std::exception;
+    using std::fixed;
+    using std::hex;
+    using std::internal;
+    using std::left;
+    using std::oct;
+    using std::right;
+    using std::scientific;
+    using std::showbase;
+    using std::showpoint;
+    using std::showpos;
+    using std::skipws;
+    using std::unitbuf;
+    using std::uppercase;
+    using std::noboolalpha;
+    using std::noshowbase;
+    using std::noshowpoint;
+    using std::noshowpos;
+    using std::noskipws;
+    using std::nounitbuf;
+    using std::nouppercase;
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
     // C++11 extensions
-    using native_std::hexfloat;
-    using native_std::io_errc;
-    using native_std::is_error_code_enum;
-    using native_std::iostream_category;
-    using native_std::make_error_code;
-    using native_std::make_error_condition;
+    using std::hexfloat;
+    using std::io_errc;
+    using std::is_error_code_enum;
+    using std::iostream_category;
+    using std::make_error_code;
+    using std::make_error_condition;
 #endif // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
@@ -76,38 +79,38 @@ namespace bsl {
 # if !defined(BSLS_PLATFORM_CMP_MSVC) && __cplusplus < 201703L
     // As some of these names are removed from C++17, take a sledgehammer to
     // crack this nut, and remove all non-standard exports.
-    using native_std::bad_exception;
-    using native_std::basic_streambuf;
-    using native_std::bidirectional_iterator_tag;
-    using native_std::ctype;
-    using native_std::ctype_base;
-    using native_std::ctype_byname;
-    using native_std::forward_iterator_tag;
-    using native_std::input_iterator_tag;
-    using native_std::istreambuf_iterator;
-    using native_std::iterator;
-    using native_std::locale;
+    using std::bad_exception;
+    using std::basic_streambuf;
+    using std::bidirectional_iterator_tag;
+    using std::ctype;
+    using std::ctype_base;
+    using std::ctype_byname;
+    using std::forward_iterator_tag;
+    using std::input_iterator_tag;
+    using std::istreambuf_iterator;
+    using std::iterator;
+    using std::locale;
 
 # ifndef BSLS_PLATFORM_OS_DARWIN
 // This alias isn't available from <ios> in Maverick (OS X 10.9).  See DRQS
 // 54913937.
-    using native_std::num_get;
+    using std::num_get;
 # endif
 
-    using native_std::numpunct;
-    using native_std::numpunct_byname;
-    using native_std::ostreambuf_iterator;
-    using native_std::output_iterator_tag;
-    using native_std::random_access_iterator_tag;
-    using native_std::set_terminate;
-    using native_std::set_unexpected;
-    using native_std::swap;
-    using native_std::terminate;
-    using native_std::terminate_handler;
-    using native_std::uncaught_exception;
-    using native_std::unexpected;
-    using native_std::unexpected_handler;
-    using native_std::use_facet;
+    using std::numpunct;
+    using std::numpunct_byname;
+    using std::ostreambuf_iterator;
+    using std::output_iterator_tag;
+    using std::random_access_iterator_tag;
+    using std::set_terminate;
+    using std::set_unexpected;
+    using std::swap;
+    using std::terminate;
+    using std::terminate_handler;
+    using std::uncaught_exception;
+    using std::unexpected;
+    using std::unexpected_handler;
+    using std::use_facet;
 # endif // MSVC, or C++2017
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 }  // close package namespace

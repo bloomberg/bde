@@ -29,14 +29,17 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_addconst.h>
 #include <bsls_libraryfeatures.h>
 #include <bsls_keyword.h>
-#include <bsls_nativestd.h>
 
 #include <utility>
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace bsl {
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-    using native_std::as_const;
+    using std::as_const;
 #else
 template <class TYPE>
 inline BSLS_KEYWORD_CONSTEXPR

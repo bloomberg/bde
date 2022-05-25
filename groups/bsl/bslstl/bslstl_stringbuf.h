@@ -136,12 +136,6 @@ BSLS_IDENT("$Id: $")
 //  assert(orig == result);
 //..
 
-// Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
-// mode.  Doing so is unsupported, and is likely to cause compilation errors.
-#if defined(BSL_OVERRIDES_STD) && !defined(BOS_STDHDRS_PROLOGUE_IN_EFFECT)
-#error "include <bsl_sstream.h> instead of <bslstl_stringbuf.h> in \
-BSL_OVERRIDES_STD mode"
-#endif
 #include <bslscm_version.h>
 
 #include <bslstl_iosfwd.h>
@@ -193,7 +187,7 @@ extern const char s_bslstl_stringbuf_h[];
 
 namespace bsl {
 
-using native_std::ios_base;
+using std::ios_base;
 
                             // =====================
                             // class basic_stringbuf
@@ -201,14 +195,14 @@ using native_std::ios_base;
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 class basic_stringbuf
-    : public native_std::basic_streambuf<CHAR_TYPE, CHAR_TRAITS> {
+    : public std::basic_streambuf<CHAR_TYPE, CHAR_TRAITS> {
     // This class implements a standard stream buffer providing an unformatted
     // character input sequence and an unformatted character output sequence
     // that may be initialized or accessed using a string value.
 
   private:
     // PRIVATE TYPES
-    typedef native_std::basic_streambuf<CHAR_TYPE, CHAR_TRAITS>  BaseType;
+    typedef std::basic_streambuf<CHAR_TYPE, CHAR_TRAITS>         BaseType;
     typedef bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> StringType;
     typedef bsl::basic_string_view<CHAR_TYPE, CHAR_TRAITS>       ViewType;
 
@@ -360,9 +354,8 @@ class basic_stringbuf
         // Return the offset of the new position on success, and
         // 'pos_type(off_type(-1))' otherwise.
 
-    virtual native_std::streamsize xsgetn(
-                                        char_type              *result,
-                                        native_std::streamsize  numCharacters);
+    virtual std::streamsize xsgetn(char_type       *result,
+                                   std::streamsize  numCharacters);
         // Read up to the specified 'numCharacters' from this 'stringbuf'
         // object and store them in the specified 'result' array.  Return the
         // number of characters loaded into 'result'.  Note that if fewer than
@@ -404,9 +397,8 @@ class basic_stringbuf
         // input sequence is not 'character' and this buffer was not opened
         // for writing.
 
-    virtual native_std::streamsize xsputn(
-                                        const char_type        *inputString,
-                                        native_std::streamsize  numCharacters);
+    virtual std::streamsize xsputn(const char_type *inputString,
+                                   std::streamsize  numCharacters);
         // Append the specified 'numCharacters' from the specified
         // 'inputString' to the output sequence starting at the current output
         // position ('pptr').  Update the current output position of this
@@ -858,8 +850,8 @@ basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
     BSLS_ASSERT(&d_str[0] <= currentOutputPosition);
     BSLS_ASSERT(currentOutputPosition <= &d_str[0] + d_str.size());
 
-    char_type          *dataPtr  = &d_str[0];
-    native_std::size_t  dataSize =  d_str.size();
+    char_type   *dataPtr  = &d_str[0];
+    std::size_t  dataSize =  d_str.size();
 
     pos_type outputPos = currentOutputPosition - dataPtr;
     this->setp(dataPtr, dataPtr + dataSize);
@@ -887,7 +879,7 @@ void basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
     if (d_mode & ios_base::out) {
         // Update the output position.
 
-        native_std::size_t dataSize = d_str.size();
+        std::size_t dataSize = d_str.size();
         this->setp(dataPtr, dataPtr + dataSize);
         off_type bumpAmount = outputOffset;
         while (bumpAmount < INT_MIN) {
@@ -931,8 +923,8 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::pos_type
     basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::streamSize() const
 {
-    pos_type size = native_std::max<off_type>(d_endHint,
-                                              this->pptr() - this->pbase());
+    pos_type size = std::max<off_type>(d_endHint,
+                                       this->pptr() - this->pbase());
 
     BSLS_ASSERT(size <= off_type(d_str.size()));
 
@@ -1054,10 +1046,10 @@ typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::pos_type
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-native_std::streamsize
+std::streamsize
     basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::xsgetn(
-                                          char_type              *result,
-                                          native_std::streamsize numCharacters)
+                                                char_type       *result,
+                                                std::streamsize  numCharacters)
 {
     if ((d_mode & ios_base::in) == 0) {
         return 0;                                                     // RETURN
@@ -1071,11 +1063,11 @@ native_std::streamsize
     if (this->gptr() != this->egptr()) {
         // There are characters available in this buffer.
 
-        native_std::streamsize available = this->egptr() - this->gptr();
-        native_std::streamsize readChars = native_std::min(available,
-                                                           numCharacters);
+        std::streamsize available = this->egptr() - this->gptr();
+        std::streamsize readChars = std::min(available,
+                                             numCharacters);
 
-        traits_type::copy(result, this->gptr(), native_std::size_t(readChars));
+        traits_type::copy(result, this->gptr(), std::size_t(readChars));
         this->gbump(int(readChars));
 
         return readChars;                                             // RETURN
@@ -1170,10 +1162,10 @@ typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::int_type
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-native_std::streamsize
+std::streamsize
     basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::xsputn(
-                                         const char_type        *inputString,
-                                         native_std::streamsize  numCharacters)
+                                                const char_type *inputString,
+                                                std::streamsize  numCharacters)
 {
     if ((d_mode & ios_base::out) == 0) {
         return 0;                                                     // RETURN
@@ -1183,10 +1175,9 @@ native_std::streamsize
 
     // Compute the space required.
 
-    native_std::streamsize spaceLeft   =
-                                    d_str.data() + d_str.size() - this->pptr();
-    native_std::ptrdiff_t toOverwrite =
-              native_std::ptrdiff_t(native_std::min(spaceLeft, numCharacters));
+    std::streamsize spaceLeft  = d_str.data() + d_str.size() - this->pptr();
+    std::ptrdiff_t toOverwrite =
+                            std::ptrdiff_t(std::min(spaceLeft, numCharacters));
 
     // Append the portion of 'inputString' that can be written without
     // resizing 'd_ptr'.
@@ -1200,7 +1191,7 @@ native_std::streamsize
         // positions.
 
         off_type newHigh = numCharacters + this->pptr() - this->pbase();
-        d_endHint        = native_std::max(d_endHint, newHigh);
+        d_endHint        = std::max(d_endHint, newHigh);
 
         updateStreamPositions(inputOffset, newHigh);
     }
@@ -1550,13 +1541,13 @@ void basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::swap(
     // locale object.  But 'bsl::string' swapping can invalidate pointers, so
     // we need to control this process manually.
 
-    const off_type           inputOffset       = this->gptr() - this->eback();
-    const off_type           outputOffset      = this->pptr() - this->pbase();
-    const native_std::locale loc               = this->getloc();
+    const off_type    inputOffset       = this->gptr() - this->eback();
+    const off_type    outputOffset      = this->pptr() - this->pbase();
+    const std::locale loc               = this->getloc();
 
-    const off_type           otherInputOffset  = other.gptr() - other.eback();
-    const off_type           otherOutputOffset = other.pptr() - other.pbase();
-    const native_std::locale otherLoc          = other.getloc();
+    const off_type    otherInputOffset  = other.gptr() - other.eback();
+    const off_type    otherOutputOffset = other.pptr() - other.pbase();
+    const std::locale otherLoc          = other.getloc();
 
     // Parent method invocation.
 

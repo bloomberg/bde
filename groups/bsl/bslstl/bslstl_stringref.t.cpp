@@ -20,7 +20,6 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_nameof.h>
-#include <bsls_nativestd.h>
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
@@ -64,14 +63,14 @@ using namespace BloombergLP;
 // [ 2] bslstl::StringRefImp(const CHAR *begin, size_type f, size_type l);
 // [ 2] bslstl::StringRefImp(const CHAR *begin);
 // [ 2] bslstl::StringRefImp(const bsl::string& begin);
-// [ 2] bslstl::StringRefImp(const native_std::string& begin);
+// [ 2] bslstl::StringRefImp(const std::string& begin);
 // [ 2] bslstl::StringRefImp(const bslstl::StringRefImp& original);
 // [ 2] ~bslstl::StringRefImp();
 // [ 9] bslstl::StringRefImp(const StringRefImp& , size_type, size_type)
 // [14] bsl::string_view(const char *);
 // [14] bsl::string_view(const char *, size_t);
 // [14] bsl::string_view(const bsl::string&);
-// [14] bsl::string_view(const native_std::string&);
+// [14] bsl::string_view(const std::string&);
 // [14] bsl::string_view(const bsl::string_view&);
 //
 // MANIPULATORS
@@ -92,7 +91,7 @@ using namespace BloombergLP;
 // [ 3] int            isEmpty() const;
 // [ 3] int            compare(const StringRefImp&) const;
 // [ 3] int            compare(const CHAR *) const;
-// [ 3]                operator native_std::basic_string() const;
+// [ 3]                operator std::basic_string() const;
 // [ 3] const char&    operator[](size_type index) const;
 // [10] const_reverse_iterator rbegin() const;
 // [10] const_reverse_iterator rend() const;
@@ -101,8 +100,8 @@ using namespace BloombergLP;
 // [ 3] bool operator==(const StringRef& lhs, const StringRef& rhs);
 // [ 3] bool operator==(const bsl::string& lhs, const StringRef& rhs);
 // [ 3] bool operator==(const StringRef& lhs, const bsl::string& rhs);
-// [ 3] bool operator==(const native_std::string& l, const StringRef& r);
-// [ 3] bool operator==(const StringRef& l, const native_std::string& r);
+// [ 3] bool operator==(const std::string& l, const StringRef& r);
+// [ 3] bool operator==(const StringRef& l, const std::string& r);
 // [ 3] bool operator==(const char *lhs, const StringRef& rhs);
 // [ 3] bool operator==(const StringRef& lhs, const char *rhs);
 // [ 3] bool operator==(const StringRef& lhs, string_view rhs);
@@ -110,8 +109,8 @@ using namespace BloombergLP;
 // [ 3] bool operator!=(const StringRef& lhs, const StringRef& rhs);
 // [ 3] bool operator!=(const bsl::string& lhs, const StringRef& rhs);
 // [ 3] bool operator!=(const StringRef& lhs, const bsl::string& rhs);
-// [ 3] bool operator!=(const native_std::string& l, const StringRef& r);
-// [ 3] bool operator!=(const StringRef& l, const native_std::string& r);
+// [ 3] bool operator!=(const std::string& l, const StringRef& r);
+// [ 3] bool operator!=(const StringRef& l, const std::string& r);
 // [ 3] bool operator!=(const char *lhs, const StringRef& rhs);
 // [ 3] bool operator!=(const StringRef& lhs, const char *rhs);
 // [ 3] bool operator!=(const StringRef& lhs, string_view rhs);
@@ -119,8 +118,8 @@ using namespace BloombergLP;
 // [ 3] bool operator<(const StringRef& lhs, const StringRef& rhs);
 // [ 3] bool operator<(const bsl::string& lhs, const StringRef& rhs);
 // [ 3] bool operator<(const StringRef& lhs, const bsl::string& rhs);
-// [ 3] bool operator<(const native_std::string& l, const StringRef& r);
-// [ 3] bool operator<(const StringRef& l, const native_std::string& r);
+// [ 3] bool operator<(const std::string& l, const StringRef& r);
+// [ 3] bool operator<(const StringRef& l, const std::string& r);
 // [ 3] bool operator<(const char *lhs, const StringRef& rhs);
 // [ 3] bool operator<(const StringRef& lhs, const char *rhs);
 // [ 3] bool operator<(const StringRef& lhs, string_view rhs);
@@ -128,8 +127,8 @@ using namespace BloombergLP;
 // [ 3] bool operator>(const StringRef& lhs, const StringRef& rhs);
 // [ 3] bool operator>(const bsl::string& lhs, const StringRef& rhs);
 // [ 3] bool operator>(const StringRef& lhs, const bsl::string& rhs);
-// [ 3] bool operator>(const native_std::string& l, const StringRef& r);
-// [ 3] bool operator>(const StringRef& l, const native_std::string& r);
+// [ 3] bool operator>(const std::string& l, const StringRef& r);
+// [ 3] bool operator>(const StringRef& l, const std::string& r);
 // [ 3] bool operator>(const char *lhs, const StringRef& rhs);
 // [ 3] bool operator>(const StringRef& lhs, const char *rhs);
 // [ 3] bool operator>(const StringRef& lhs, string_view rhs);
@@ -137,8 +136,8 @@ using namespace BloombergLP;
 // [ 3] bool operator<=(const StringRef& lhs, const StringRef& rhs);
 // [ 3] bool operator<=(const bsl::string& lhs, const StringRef& rhs);
 // [ 3] bool operator<=(const StringRef& lhs, const bsl::string& rhs);
-// [ 3] bool operator<=(const native_std::string& l, const StringRef& r);
-// [ 3] bool operator<=(const StringRef& l, const native_std::string& r);
+// [ 3] bool operator<=(const std::string& l, const StringRef& r);
+// [ 3] bool operator<=(const StringRef& l, const std::string& r);
 // [ 3] bool operator<=(const char *lhs, const StringRef& rhs);
 // [ 3] bool operator<=(const StringRef& lhs, const char *rhs);
 // [ 3] bool operator<=(const StringRef& lhs, string_view rhs);
@@ -146,8 +145,8 @@ using namespace BloombergLP;
 // [ 3] bool operator>=(const StringRef& lhs, const StringRef& rhs);
 // [ 3] bool operator>=(const bsl::string& lhs, const StringRef& rhs);
 // [ 3] bool operator>=(const StringRef& lhs, const bsl::string& rhs);
-// [ 3] bool operator>=(const native_std::string& l, const StringRef& r);
-// [ 3] bool operator>=(const StringRef& l, const native_std::string& r);
+// [ 3] bool operator>=(const std::string& l, const StringRef& r);
+// [ 3] bool operator>=(const StringRef& l, const std::string& r);
 // [ 3] bool operator>=(const char *lhs, const StringRef& rhs);
 // [ 3] bool operator>=(const StringRef& lhs, const char *rhs);
 // [ 3] bool operator>=(const StringRef& lhs, string_view rhs);
@@ -156,8 +155,8 @@ using namespace BloombergLP;
 // [ 7] basic_string operator+(const StringRef& l, const StringRef& r);
 // [ 7] basic_string operator+(const bsl::string& l, const StringRef& r);
 // [ 7] basic_string operator+(const StringRef& l, const bsl::string& r);
-// [ 7] basic_string operator+(const native_std::string& l, StringRef r);
-// [ 7] basic_string operator+(const StringRef& l, native_std::string r);
+// [ 7] basic_string operator+(const std::string& l, StringRef r);
+// [ 7] basic_string operator+(const StringRef& l, std::string r);
 // [ 7] basic_string operator+(const char *l, const StringRef& r);
 // [ 7] basic_string operator+(const StringRef& l, const char *r);
 // [ 8] bsl::hash<BloombergLP::bslstl::StringRef>
@@ -312,14 +311,14 @@ struct TestData
     static
     const CHAR *maxStringFunc()
     {
-        static CHAR buf[2] = { native_std::numeric_limits<CHAR>::max(), 0 };
+        static CHAR buf[2] = { std::numeric_limits<CHAR>::max(), 0 };
         return &buf[0];
     }
 
     static
     const CHAR *minStringFunc()
     {
-        static CHAR buf[2] = { native_std::numeric_limits<CHAR>::min(), 0 };
+        static CHAR buf[2] = { std::numeric_limits<CHAR>::min(), 0 };
         return &buf[0];
     }
 };
@@ -2539,7 +2538,7 @@ void TestDriver<CHAR_TYPE>::testCase14()
     //:
     //:   o from 'bsl::basic_string<CHAR_TYPE>'
     //:
-    //:   o from 'native_std::basic_string<CHAR_TYPE>'
+    //:   o from 'std::basic_string<CHAR_TYPE>'
     //:
     //:   o from another 'const' object of the same type
     //
@@ -2564,7 +2563,7 @@ void TestDriver<CHAR_TYPE>::testCase14()
     //:
     //:   o from 'bsl::basic_string<CHAR_TYPE>'
     //:
-    //:   o from 'native_std::basic_string<CHAR_TYPE>'
+    //:   o from 'std::basic_string<CHAR_TYPE>'
     //:
     //:   o from another 'const' object of the same type
     //:
@@ -2579,7 +2578,7 @@ void TestDriver<CHAR_TYPE>::testCase14()
     //   bsl::string_view(const char *);
     //   bsl::string_view(const char *, size_t);
     //   bsl::string_view(const bsl::string&);
-    //   bsl::string_view(const native_std::string&);
+    //   bsl::string_view(const std::string&);
     //   bsl::string_view(const bsl::string_view&);
     // ------------------------------------------------------------------------
 
@@ -2617,8 +2616,8 @@ void TestDriver<CHAR_TYPE>::testCase14()
         const CHAR_TYPE *C_STR = buffer;
         const CHAR_TYPE ARF[] = { 'a', 'r', 'f', 0 };
 
-        const bsl::basic_string<CHAR_TYPE>        str(C_STR, &ta);
-        const native_std::basic_string<CHAR_TYPE> stdStr(C_STR);
+        const bsl::basic_string<CHAR_TYPE> str(C_STR, &ta);
+        const std::basic_string<CHAR_TYPE> stdStr(C_STR);
 
         ASSERT(str    == stdStr);
         ASSERT(str    == C_STR);
@@ -2841,10 +2840,10 @@ void TestDriver<CHAR_TYPE>::testCase9()
         CHAR_TYPE  input[sizeof(value)];
         copyStringValue(input, value);
 
-        const native_std::size_t LENGTH = sizeof(value);
+        const std::size_t LENGTH = sizeof(value);
 
         Obj original(input, LENGTH); const Obj& ORIGINAL = original;
-        for (native_std::size_t i = 0; i <= LENGTH; ++i) {
+        for (std::size_t i = 0; i <= LENGTH; ++i) {
             Obj x(ORIGINAL, i, INT_MAX); const Obj& X = x;
 
             ASSERT(ORIGINAL.begin() + i == X.begin());
@@ -2865,10 +2864,10 @@ void TestDriver<CHAR_TYPE>::testCase9()
         CHAR_TYPE  input[sizeof(value)];
         copyStringValue(input, value);
 
-        const native_std::size_t LENGTH = sizeof(value);
+        const std::size_t LENGTH = sizeof(value);
 
         Obj original(input, LENGTH); const Obj& ORIGINAL = original;
-        for (native_std::size_t i = 0; i < LENGTH; ++i) {
+        for (std::size_t i = 0; i < LENGTH; ++i) {
             Obj x(ORIGINAL, 0, i); const Obj& X = x;
 
             ASSERT(ORIGINAL.begin() == X.begin());
@@ -2878,7 +2877,7 @@ void TestDriver<CHAR_TYPE>::testCase9()
                 P_(i); P_(ORIGINAL.length()); P(X.length())
             }
         }
-        for (native_std::size_t i = LENGTH; i < LENGTH + 10; ++i) {
+        for (std::size_t i = LENGTH; i < LENGTH + 10; ++i) {
             Obj x(ORIGINAL, 0, i); const Obj& X = x;
 
             ASSERT(ORIGINAL.begin() == X.begin());
@@ -2909,11 +2908,11 @@ void TestDriver<CHAR_TYPE>::testCase9()
         CHAR_TYPE  input[sizeof(value)];
         copyStringValue(input, value);
 
-        const native_std::size_t LENGTH = sizeof(value);
+        const std::size_t LENGTH = sizeof(value);
         Obj original(input, LENGTH); const Obj& ORIGINAL = original;
 
-        for (native_std::size_t startIdx = 0; startIdx <= LENGTH; ++startIdx) {
-            for (native_std::size_t length = 0; length < LENGTH + 1; ++length){
+        for (std::size_t startIdx = 0; startIdx <= LENGTH; ++startIdx) {
+            for (std::size_t length = 0; length < LENGTH + 1; ++length){
 
                 Obj x(ORIGINAL, startIdx, length); const Obj& X = x;
 
@@ -2945,7 +2944,7 @@ void TestDriver<CHAR_TYPE>::testCase9()
         const char value[] = "abcdefg";
         CHAR_TYPE  input[sizeof(value)];
         copyStringValue(input, value);
-        const native_std::size_t LENGTH = sizeof(value);
+        const std::size_t LENGTH = sizeof(value);
 
         Obj original(input, LENGTH); const Obj& ORIGINAL = original;
 
@@ -2971,10 +2970,8 @@ template <class CHAR>
 void testAccessorsComparisons()
     // Test all the accessor methods, especially including both 'compare'
     // methods, and test all free comparison operators between 'bsl::string's,
-    // 'native_std::strings's, 'StringRefImp's, and 'const CHAR *'s.
+    // 'std::strings's, 'StringRefImp's, and 'const CHAR *'s.
 {
-    namespace nstd = native_std;
-
     const char *charTypeName = bsls::NameOf<CHAR>();
 
     if (verbose) std::cout << "TESTING ACCESSORS AND COMPARISONS: "
@@ -3030,14 +3027,14 @@ void testAccessorsComparisons()
 
 #define ISF bsl::basic_string<CHAR>(IPC)
 
-        const nstd::basic_string<CHAR>& INS =
+        const std::basic_string<CHAR>& INS =
                                        -2 == ILEN
-                                       ? nstd::basic_string<CHAR>()
+                                       ? std::basic_string<CHAR>()
                                        : -1 == ILEN
-                                       ? nstd::basic_string<CHAR>(IPC)
-                                       : nstd::basic_string<CHAR>(IPC, ILEN);
+                                       ? std::basic_string<CHAR>(IPC)
+                                       : std::basic_string<CHAR>(IPC, ILEN);
 
-#define INF nstd::basic_string<CHAR>(IPC)
+#define INF std::basic_string<CHAR>(IPC)
 
         const bslstl::StringRefImp<CHAR>& ISR =
                                        -2 == ILEN
@@ -3070,7 +3067,7 @@ void testAccessorsComparisons()
                               -2 == ILEN
                               ? 0
                               : -1 == ILEN
-                              ? native_std::char_traits<CHAR>::length(IPC)
+                              ? std::char_traits<CHAR>::length(IPC)
                               : ILEN;
 
             // Test all the named accessors:
@@ -3113,14 +3110,14 @@ void testAccessorsComparisons()
 
 #define JSF bsl::basic_string<CHAR>(JPC)
 
-            const nstd::basic_string<CHAR>& JNS =
+            const std::basic_string<CHAR>& JNS =
                                        -2 == JLEN
-                                       ? nstd::basic_string<CHAR>()
+                                       ? std::basic_string<CHAR>()
                                        : -1 == JLEN
-                                       ? nstd::basic_string<CHAR>(JPC)
-                                       : nstd::basic_string<CHAR>(JPC, JLEN);
+                                       ? std::basic_string<CHAR>(JPC)
+                                       : std::basic_string<CHAR>(JPC, JLEN);
 
-#define JNF nstd::basic_string<CHAR>(JPC)
+#define JNF std::basic_string<CHAR>(JPC)
 
             const bslstl::StringRefImp<CHAR>& JSR =
                                        -2 == JLEN
@@ -5236,8 +5233,8 @@ int main(int argc, char *argv[])
         //   basic_string operator+(const StringRef& l, const StringRef& r);
         //   basic_string operator+(const bsl::string& l, const StringRef& r);
         //   basic_string operator+(const StringRef& l, const bsl::string& r);
-        //   basic_string operator+(const native_std::string& l, StringRef r);
-        //   basic_string operator+(const StringRef& l, native_std::string r);
+        //   basic_string operator+(const std::string& l, StringRef r);
+        //   basic_string operator+(const StringRef& l, std::string r);
         //   basic_string operator+(const char *l, const StringRef& r);
         //   basic_string operator+(const StringRef& l, const char *r);
         //   basic_string operator+(const StringRef& l, const StringRef& r);
@@ -5319,18 +5316,18 @@ int main(int argc, char *argv[])
             // StringRef versus bsl::string
             LOOP_ASSERT(LINE, RESULT == (X1  + S2));
 
-            native_std::string s3(CA1_p);  const native_std::string& S3 = s3;
-            native_std::string s4(CA2_p);  const native_std::string& S4 = s4;
+            std::string s3(CA1_p);  const std::string& S3 = s3;
+            std::string s4(CA2_p);  const std::string& S4 = s4;
 
             if (veryVerbose) {
                 std::cout << "\tS3 = \"" << S3 << "\", "
                           << "S4 = \""   << S4 << "\", " << std::endl;
             }
 
-            // 'native_std::string' versus StringRef
+            // 'std::string' versus StringRef
             LOOP_ASSERT(LINE, RESULT == (S3  + X2));
 
-            // StringRef versus 'native_std::string'
+            // StringRef versus 'std::string'
             LOOP_ASSERT(LINE, RESULT == (X1  + S4));
 
             // 'bsl::string' versus 'bsl::string'.  This test is to ensure no
@@ -5338,7 +5335,7 @@ int main(int argc, char *argv[])
 
             LOOP_ASSERT(LINE, RESULT == (S1  + S2));
 
-            // 'native_std::string' versus 'bsl::string'.  This test is to
+            // 'std::string' versus 'bsl::string'.  This test is to
             // ensure no overloading ambiguity was introduced.
 
             LOOP_ASSERT(LINE, RESULT == (S3  + S4));
@@ -5820,15 +5817,15 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(LINE, EQ   == (X1 == S2));
             LOOP_ASSERT(LINE, EQ   != (X1 != S2));
 
-            native_std::string s3(CA1_p);  const native_std::string& S3 = s3;
-            native_std::string s4(CA2_p);  const native_std::string& S4 = s4;
+            std::string s3(CA1_p);  const std::string& S3 = s3;
+            std::string s4(CA2_p);  const std::string& S4 = s4;
 
             if (veryVerbose) {
                 std::cout << "\tS3 = \"" << S3 << "\", "
                           << "S4 = \""   << S4 << "\", " << std::endl;
             }
 
-            // 'native_std::string' versus StringRef
+            // 'std::string' versus StringRef
             LOOP_ASSERT(LINE, LT   == (S3 <  X2));
             LOOP_ASSERT(LINE, GT   == (S3 >  X2));
             LOOP_ASSERT(LINE, LTEQ == (S3 <= X2));
@@ -5836,7 +5833,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(LINE, EQ   == (S3 == X2));
             LOOP_ASSERT(LINE, EQ   != (S3 != X2));
 
-            // StringRef versus 'native_std::string'
+            // StringRef versus 'std::string'
             LOOP_ASSERT(LINE, LT   == (X1 <  S4));
             LOOP_ASSERT(LINE, GT   == (X1 >  S4));
             LOOP_ASSERT(LINE, LTEQ == (X1 <= S4));
@@ -5854,7 +5851,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(LINE, EQ   == (S1 == S2));
             LOOP_ASSERT(LINE, EQ   != (S1 != S2));
 
-            // 'native_std::string' versus 'native_std::string'.  This test is
+            // 'std::string' versus 'std::string'.  This test is
             // to ensure no overloading ambiguity was introduced.
 
             LOOP_ASSERT(LINE, LT   == (S3 <  S4));
@@ -6032,7 +6029,7 @@ int main(int argc, char *argv[])
         //:   string, or can be default-constructed.
         //:
         //: 3 Loop 'I' through the table creating I-values of
-        //:   'bsl::basic_string', a 'native_std::basic_string', a
+        //:   'bsl::basic_string', a 'std::basic_string', a
         //:   'StringRefImp', and 'const char *' all having the value indicated
         //:   by the table.
         //:
@@ -6066,13 +6063,13 @@ int main(int argc, char *argv[])
         //   int            isEmpty() const;
         //   int            compare(const StringRefImp&) const;
         //   int            compare(const CHAR *) const;
-        //                  operator native_std::basic_string() const;
+        //                  operator std::basic_string() const;
         //   const char&    operator[](size_type index) const;
         //   bool operator==(const StringRef& lhs, const StringRef& rhs);
         //   bool operator==(const bsl::string& lhs, const StringRef& rhs);
         //   bool operator==(const StringRef& lhs, const bsl::string& rhs);
-        //   bool operator==(const native_std::string& l, const StringRef& r);
-        //   bool operator==(const StringRef& l, const native_std::string& r);
+        //   bool operator==(const std::string& l, const StringRef& r);
+        //   bool operator==(const StringRef& l, const std::string& r);
         //   bool operator==(const char *lhs, const StringRef& rhs);
         //   bool operator==(const StringRef& lhs, const char *rhs);
         //   bool operator==(const StringRef& lhs, string_view rhs);
@@ -6080,8 +6077,8 @@ int main(int argc, char *argv[])
         //   bool operator!=(const StringRef& lhs, const StringRef& rhs);
         //   bool operator!=(const bsl::string& lhs, const StringRef& rhs);
         //   bool operator!=(const StringRef& lhs, const bsl::string& rhs);
-        //   bool operator!=(const native_std::string& l, const StringRef& r);
-        //   bool operator!=(const StringRef& l, const native_std::string& r);
+        //   bool operator!=(const std::string& l, const StringRef& r);
+        //   bool operator!=(const StringRef& l, const std::string& r);
         //   bool operator!=(const char *lhs, const StringRef& rhs);
         //   bool operator!=(const StringRef& lhs, const char *rhs);
         //   bool operator!=(const StringRef& lhs, string_view rhs);
@@ -6089,8 +6086,8 @@ int main(int argc, char *argv[])
         //   bool operator<(const StringRef& lhs, const StringRef& rhs);
         //   bool operator<(const bsl::string& lhs, const StringRef& rhs);
         //   bool operator<(const StringRef& lhs, const bsl::string& rhs);
-        //   bool operator<(const native_std::string& l, const StringRef& r);
-        //   bool operator<(const StringRef& l, const native_std::string& r);
+        //   bool operator<(const std::string& l, const StringRef& r);
+        //   bool operator<(const StringRef& l, const std::string& r);
         //   bool operator<(const char *lhs, const StringRef& rhs);
         //   bool operator<(const StringRef& lhs, const char *rhs);
         //   bool operator<(const StringRef& lhs, string_view rhs);
@@ -6098,8 +6095,8 @@ int main(int argc, char *argv[])
         //   bool operator>(const StringRef& lhs, const StringRef& rhs);
         //   bool operator>(const bsl::string& lhs, const StringRef& rhs);
         //   bool operator>(const StringRef& lhs, const bsl::string& rhs);
-        //   bool operator>(const native_std::string& l, const StringRef& r);
-        //   bool operator>(const StringRef& l, const native_std::string& r);
+        //   bool operator>(const std::string& l, const StringRef& r);
+        //   bool operator>(const StringRef& l, const std::string& r);
         //   bool operator>(const char *lhs, const StringRef& rhs);
         //   bool operator>(const StringRef& lhs, const char *rhs);
         //   bool operator>(const StringRef& lhs, string_view rhs);
@@ -6107,8 +6104,8 @@ int main(int argc, char *argv[])
         //   bool operator<=(const StringRef& lhs, const StringRef& rhs);
         //   bool operator<=(const bsl::string& lhs, const StringRef& rhs);
         //   bool operator<=(const StringRef& lhs, const bsl::string& rhs);
-        //   bool operator<=(const native_std::string& l, const StringRef& r);
-        //   bool operator<=(const StringRef& l, const native_std::string& r);
+        //   bool operator<=(const std::string& l, const StringRef& r);
+        //   bool operator<=(const StringRef& l, const std::string& r);
         //   bool operator<=(const char *lhs, const StringRef& rhs);
         //   bool operator<=(const StringRef& lhs, const char *rhs);
         //   bool operator<=(const StringRef& lhs, string_view rhs);
@@ -6116,8 +6113,8 @@ int main(int argc, char *argv[])
         //   bool operator>=(const StringRef& lhs, const StringRef& rhs);
         //   bool operator>=(const bsl::string& lhs, const StringRef& rhs);
         //   bool operator>=(const StringRef& lhs, const bsl::string& rhs);
-        //   bool operator>=(const native_std::string& l, const StringRef& r);
-        //   bool operator>=(const StringRef& l, const native_std::string& r);
+        //   bool operator>=(const std::string& l, const StringRef& r);
+        //   bool operator>=(const StringRef& l, const std::string& r);
         //   bool operator>=(const char *lhs, const StringRef& rhs);
         //   bool operator>=(const StringRef& lhs, const char *rhs);
         //   bool operator>=(const StringRef& lhs, string_view rhs);
@@ -6164,7 +6161,7 @@ int main(int argc, char *argv[])
         //   bslstl::StringRefImp(const CHAR *begin, size_type f, size_type l);
         //   bslstl::StringRefImp(const CHAR *begin);
         //   bslstl::StringRefImp(const bsl::string& begin);
-        //   bslstl::StringRefImp(const native_std::string& begin);
+        //   bslstl::StringRefImp(const std::string& begin);
         //   bslstl::StringRefImp(const bslstl::StringRefImp& original);
         //   ~bslstl::StringRefImp();
         //   bslstl::StringRefImp& operator=(const bslstl::StringRefImp&);
@@ -6822,11 +6819,10 @@ int main(int argc, char *argv[])
                k_NUM_UNIQUE_STRINGREFS = k_NUM_STRINGREFS / 32,
                k_NUM_TRIALS            = 250 * 1000 * 1000 };
 
-        native_std::vector<bsl::string> sv;
+        std::vector<bsl::string> sv;
         sv.reserve(k_NUM_STRINGREFS);
 
-        const int len   = static_cast<int>(native_std::strlen(
-                                                           charUtf8MultiLang));
+        const int len   = static_cast<int>(std::strlen(charUtf8MultiLang));
         const int chunk = len / 128;
 
         ASSERTV(len,   len  > 22 * 1000);
@@ -6847,15 +6843,15 @@ int main(int argc, char *argv[])
             sv.push_back(defaultStr);
             sv[ii] = sv[ii - k_NUM_UNIQUE_STRINGREFS];
         }
-        native_std::sort(sv.begin(), sv.end());
+        std::sort(sv.begin(), sv.end());
 
-        native_std::vector<bslstl::StringRef> srv;
+        std::vector<bslstl::StringRef> srv;
         srv.reserve(k_NUM_STRINGREFS);
         for (ii = 0; ii < k_NUM_STRINGREFS; ++ii) {
             srv.push_back(sv[ii]);
         }
 
-        native_std::vector<int> eqv;
+        std::vector<int> eqv;
         eqv.reserve(k_NUM_STRINGREFS);
         eqv.push_back(0);
         for (ii = 1; ii < k_NUM_STRINGREFS; ++ii) {

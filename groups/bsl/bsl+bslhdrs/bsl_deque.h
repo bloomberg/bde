@@ -15,24 +15,20 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
-#include <bsls_nativestd.h>
-
 #include <deque>
 
-// Include Bloomberg's implementation, unless compilation is configured to
-// override native types in the 'std' namespace with Bloomberg's
-// implementation, in which case the implementation file will be included by
-// the Bloomberg supplied standard header file.
+// Include Bloomberg's implementation.
+#include <bslstl_deque.h>
 
-#ifndef BSL_OVERRIDES_STD
 // According to C++11 Standard (24.6.5 range access)some functions (begin(),
 // cbegin() etc.) must be available not only via inclusion of the <iterator>
 // header, but also when <deque> is included. To satisfy this requirement the
 // following inclusion is added.
-
 #include <bslstl_iterator.h>
-#include <bslstl_deque.h>
-#endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #endif
 

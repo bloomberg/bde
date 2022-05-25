@@ -64,60 +64,63 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
-#include <bsls_nativestd.h>
 
 #include <complex>
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace bsl {
 
     // Import selected symbols into bsl namespace
 
-    using native_std::abs;
-    using native_std::acos;
-    using native_std::arg;
-    using native_std::asin;
-    using native_std::atan;
-    using native_std::complex;
-    using native_std::conj;
-    using native_std::cos;
-    using native_std::cosh;
-    using native_std::exp;
-    using native_std::imag;
-    using native_std::log;
-    using native_std::log10;
-    using native_std::norm;
-    using native_std::polar;
-    using native_std::pow;
-    using native_std::real;
-    using native_std::sin;
-    using native_std::sinh;
-    using native_std::sqrt;
-    using native_std::tan;
-    using native_std::tanh;
+    using std::abs;
+    using std::acos;
+    using std::arg;
+    using std::asin;
+    using std::atan;
+    using std::complex;
+    using std::conj;
+    using std::cos;
+    using std::cosh;
+    using std::exp;
+    using std::imag;
+    using std::log;
+    using std::log10;
+    using std::norm;
+    using std::polar;
+    using std::pow;
+    using std::real;
+    using std::sin;
+    using std::sinh;
+    using std::sqrt;
+    using std::tan;
+    using std::tanh;
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-    using native_std::acosh;
-    using native_std::asinh;
-    using native_std::atanh;
-    using native_std::proj;
+    using std::acosh;
+    using std::asinh;
+    using std::atanh;
+    using std::proj;
 #endif  // BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    using native_std::basic_ios;
-    using native_std::basic_iostream;
-    using native_std::basic_istream;
-    using native_std::basic_ostream;
-    using native_std::basic_streambuf;
-    using native_std::ios_base;
-    using native_std::istreambuf_iterator;
-    using native_std::locale;
-    using native_std::ostreambuf_iterator;
+    using std::basic_ios;
+    using std::basic_iostream;
+    using std::basic_istream;
+    using std::basic_ostream;
+    using std::basic_streambuf;
+    using std::ios_base;
+    using std::istreambuf_iterator;
+    using std::locale;
+    using std::ostreambuf_iterator;
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
     inline namespace literals {
         inline namespace complex_literals {
-               using namespace native_std::literals::complex_literals;
+               using namespace std::literals::complex_literals;
         }  // close complex_literals namespace
     }  // close literals namespace
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY

@@ -23,11 +23,14 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 
 #include <bsls_libraryfeatures.h>
-#include <bsls_nativestd.h>
 #include <bsls_platform.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_iterator.h>
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 namespace bdlb {
@@ -140,7 +143,7 @@ FORWARD_IT AlgorithmWorkaroundUtil::lowerBound(FORWARD_IT first,
     }
     return first;
 #else
-    return native_std::lower_bound(first, last, value);
+    return std::lower_bound(first, last, value);
 #endif
 }
 
@@ -175,7 +178,7 @@ FORWARD_IT AlgorithmWorkaroundUtil::lowerBound(FORWARD_IT  first,
     }
     return first;
 #else
-    return native_std::lower_bound(first, last, value, comp);
+    return std::lower_bound(first, last, value, comp);
 #endif
 }
 
@@ -209,7 +212,7 @@ FORWARD_IT AlgorithmWorkaroundUtil::upperBound(FORWARD_IT  first,
     }
     return first;
 #else
-    return native_std::upper_bound(first, last, value);
+    return std::upper_bound(first, last, value);
 #endif
 }
 
@@ -244,7 +247,7 @@ FORWARD_IT AlgorithmWorkaroundUtil::upperBound(FORWARD_IT  first,
     }
     return first;
 #else
-    return native_std::upper_bound(first, last, value, comp);
+    return std::upper_bound(first, last, value, comp);
 #endif
 }
 

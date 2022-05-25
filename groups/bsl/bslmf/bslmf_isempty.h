@@ -111,11 +111,12 @@ BSLS_IDENT("$Id: $")
 #include <bsls_keyword.h>
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
-# include <bsls_nativestd.h>
-
-# define BSLMF_INCLUDE_ONLY_NATIVE_TRAITS
 # include <type_traits>
 #endif // BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
 # define BSLMF_ISEMPTY_USE_NATIVE_TRAIT 1
@@ -160,7 +161,7 @@ namespace bsl {
 
 template <class TYPE>
 struct is_empty
-    : bsl::integral_constant<bool, ::native_std::is_empty<TYPE>::value> {
+    : bsl::integral_constant<bool, ::std::is_empty<TYPE>::value> {
     // This specification defers to the native trait on supported C++11
     // compilers.
 };

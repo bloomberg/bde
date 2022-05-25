@@ -22,13 +22,11 @@
 #include <stdlib.h>
 #include <string.h>  // memset, memcpy
 
-#ifndef BSL_OVERRIDES_STD
 #if BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 #include <array>
 #include <cstdint>    // std::intmax_t
 #include <ratio>
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-#endif  // BSL_OVERRIDES_STD
 
 using namespace BloombergLP;
 using namespace std;
@@ -229,12 +227,10 @@ void aSsErT(bool condition, const char *message, int line)
 //                  MACROS FOR PLATFORM SPECIFIC TESTS
 // ----------------------------------------------------------------------------
 
-#ifndef BSL_OVERRIDES_STD
 #if BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 #define BSLS_TIMEINTERVAL_PROVIDES_CHRONO_CONVERSIONS
      // This macro definition parallels that defined in the header file.
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-#endif  // BSL_OVERRIDES_STD
 
 // ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -838,8 +834,8 @@ CustomStream& operator<<(CustomStream& stream, const OBJECT_TYPE& /* object */)
 }
 
 template <class OBJECT_TYPE>
-native_std::ostream& operator<<(native_std::ostream& stream,
-                                const OBJECT_TYPE&   /* object */)
+std::ostream& operator<<(std::ostream&      stream,
+                         const OBJECT_TYPE& /* object */)
     // Return a reference providing modifiable access to the specified
     // 'stream'.
 {
@@ -849,8 +845,8 @@ native_std::ostream& operator<<(native_std::ostream& stream,
 struct UserType {
 };
 
-native_std::ostream& operator<<(native_std::ostream& stream,
-                                const UserType&      /* object */)
+std::ostream& operator<<(std::ostream&   stream,
+                         const UserType& /* object */)
     // Return a reference providing modifiable access to the specified
     // 'stream'.
 {
@@ -4540,11 +4536,11 @@ int main(int argc, char *argv[])
 
         using namespace testadl;
 
-        if (verbose) printf("\nStreaming to native_std::ostream\n");
+        if (verbose) printf("\nStreaming to std::ostream\n");
         {
-            native_std::ostringstream stream;
+            std::ostringstream stream;
 
-            native_std::string::size_type lastLength = 0;
+            std::string::size_type lastLength = 0;
             ASSERT(lastLength == stream.str().length());
 
             stream << interval;
@@ -9252,10 +9248,10 @@ int main(int argc, char *argv[])
                              "the output 'operator<<' to variables.\n");
         {
 
-            typedef native_std::ostream& (Obj::*funcPtr)(
-                                         native_std::ostream&, int, int) const;
-            typedef native_std::ostream& (*operatorPtr)(
-                                             native_std::ostream&, const Obj&);
+            typedef std::ostream& (Obj::*funcPtr)(
+                                                std::ostream&, int, int) const;
+            typedef std::ostream& (*operatorPtr)(std::ostream&, const Obj&);
+                
 
             // Verify that the signatures and return types are standard.
 
@@ -9349,8 +9345,8 @@ int main(int argc, char *argv[])
                 const int         NSECS = DATA[ti].d_nsecs;
                 const char *const EXP   = DATA[ti].d_expected;
 
-                typedef native_std::ostringstream       OSStream;
-                typedef native_std::ostream             OStream;
+                typedef std::ostringstream       OSStream;
+                typedef std::ostream             OStream;
 
                 Obj mX(SECS, NSECS); const Obj& X = mX;
 
@@ -9364,7 +9360,7 @@ int main(int argc, char *argv[])
                     OSStream out;
                     OStream *mR = &X.print(out, L, SPL);
 
-                    const native_std::string RESULT_STRING = out.str();
+                    const std::string RESULT_STRING = out.str();
                     const char *RESULT = RESULT_STRING.c_str();
 
                     ASSERTV(LINE,  mR,     &X, mR == &out);
@@ -9379,7 +9375,7 @@ int main(int argc, char *argv[])
                     OSStream out;
                     OStream *mR = &X.print(out, L);
 
-                    const native_std::string RESULT_STRING = out.str();
+                    const std::string RESULT_STRING = out.str();
                     const char *RESULT = RESULT_STRING.c_str();
 
                     ASSERTV(LINE,  mR,     &X, mR == &out);
@@ -9394,7 +9390,7 @@ int main(int argc, char *argv[])
                     OSStream out;
                     OStream *mR = &X.print(out);
 
-                    const native_std::string RESULT_STRING = out.str();
+                    const std::string RESULT_STRING = out.str();
                     const char *RESULT = RESULT_STRING.c_str();
 
                     ASSERTV(LINE,  mR,     &X, mR == &out);
@@ -9433,8 +9429,8 @@ int main(int argc, char *argv[])
                 const int                NSECS    = DATA[di].d_nsecs;
                 const char *const        EXPECTED = DATA[di].d_expected;
 
-                typedef native_std::ostringstream       OSStream;
-                typedef native_std::ostream             OStream;
+                typedef std::ostringstream       OSStream;
+                typedef std::ostream             OStream;
 
                 Obj mX;  const Obj& X = mX;
                 mX.setIntervalRaw(SECONDS, NSECS);
@@ -9443,7 +9439,7 @@ int main(int argc, char *argv[])
 
                 OStream *mR = &(out << X);
 
-                const native_std::string RESULT_STRING = out.str();
+                const std::string RESULT_STRING = out.str();
                 const char *RESULT = RESULT_STRING.c_str();
 
                 if (veryVerbose) { T_; P_(EXPECTED); P(RESULT); }
@@ -9455,7 +9451,7 @@ int main(int argc, char *argv[])
                 // Compare with 'print(stream, 0, -1)
                 {
                     OSStream printResult;
-                    const native_std::string PRINT_RESULT_STRING = out.str();
+                    const std::string PRINT_RESULT_STRING = out.str();
                     const char *PRINT_RESULT = PRINT_RESULT_STRING.c_str();
 
                     X.print(printResult, 0, -1);
@@ -9504,7 +9500,7 @@ int main(int argc, char *argv[])
                 const char               FILL     = DATA[di].d_fillChar;
                 const char *const        EXPECTED = DATA[di].d_expected;
 
-                typedef native_std::ostringstream OSStream;
+                typedef std::ostringstream OSStream;
 
                 Obj      mX;  const Obj& X = mX;
                 OSStream out;

@@ -61,18 +61,10 @@ BSLS_IDENT("$Id: $")
 #error "bslstp_exfunctional is not for publication"
 #endif
 
-// Prevent 'bslstp' headers from being included directly in 'BSL_OVERRIDES_STD'
-// mode.  Doing so is unsupported, and is likely to cause compilation errors.
-#if defined(BSL_OVERRIDES_STD) && !defined(BOS_STDHDRS_PROLOGUE_IN_EFFECT)
-#error "include <bsl_functional.h> instead of <bslstp_exfunctional.h> in \
-BSL_OVERRIDES_STD mode"
-#endif
 #include <bslscm_version.h>
 
 #include <bslmf_istriviallycopyable.h>
 #include <bslmf_nestedtraitdeclaration.h>
-
-#include <bsls_nativestd.h>
 
 #include <bslstl_equalto.h>
 
@@ -81,6 +73,7 @@ BSL_OVERRIDES_STD mode"
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 # include <bslalg_typetraits.h>
+# include <bsls_nativestd.h>
 # include <functional>
 #endif
 

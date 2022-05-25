@@ -16,104 +16,101 @@ BSLS_IDENT("$Id: $")
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
 #include <bsls_libraryfeatures.h>
-#include <bsls_nativestd.h>
 #include <bsls_platform.h>
 
 #include <functional>
 
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
 namespace bsl {
 
     // Import selected symbols into bsl namespace
-    using native_std::binary_negate;
-    using native_std::divides;
-    using native_std::greater;
-    using native_std::greater_equal;
-    using native_std::less;
-    using native_std::less_equal;
-    using native_std::logical_and;
-    using native_std::logical_not;
-    using native_std::logical_or;
-    using native_std::minus;
-    using native_std::modulus;
-    using native_std::multiplies;
-    using native_std::negate;
-    using native_std::not1;
-    using native_std::not2;
-    using native_std::not_equal_to;
-    using native_std::plus;
-    using native_std::unary_negate;
+    using std::binary_negate;
+    using std::divides;
+    using std::greater;
+    using std::greater_equal;
+    using std::less;
+    using std::less_equal;
+    using std::logical_and;
+    using std::logical_not;
+    using std::logical_or;
+    using std::minus;
+    using std::modulus;
+    using std::multiplies;
+    using std::negate;
+    using std::not1;
+    using std::not2;
+    using std::not_equal_to;
+    using std::plus;
+    using std::unary_negate;
 
 #if ! defined BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED
     // These names are removed by C++17
-    using native_std::binary_function;
-    using native_std::bind1st;
-    using native_std::bind2nd;
-    using native_std::binder1st;
-    using native_std::binder2nd;
-    using native_std::const_mem_fun1_ref_t;
-    using native_std::const_mem_fun1_t;
-    using native_std::const_mem_fun_ref_t;
-    using native_std::const_mem_fun_t;
-    using native_std::mem_fun1_ref_t;
-    using native_std::mem_fun1_t;
-    using native_std::mem_fun;
-    using native_std::mem_fun_ref;
-    using native_std::mem_fun_ref_t;
-    using native_std::mem_fun_t;
-    using native_std::pointer_to_binary_function;
-    using native_std::pointer_to_unary_function;
-    using native_std::ptr_fun;
-    using native_std::unary_function;
+    using std::binary_function;
+    using std::bind1st;
+    using std::bind2nd;
+    using std::binder1st;
+    using std::binder2nd;
+    using std::const_mem_fun1_ref_t;
+    using std::const_mem_fun1_t;
+    using std::const_mem_fun_ref_t;
+    using std::const_mem_fun_t;
+    using std::mem_fun1_ref_t;
+    using std::mem_fun1_t;
+    using std::mem_fun;
+    using std::mem_fun_ref;
+    using std::mem_fun_ref_t;
+    using std::mem_fun_t;
+    using std::pointer_to_binary_function;
+    using std::pointer_to_unary_function;
+    using std::ptr_fun;
+    using std::unary_function;
 #endif
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-    namespace placeholders = native_std::placeholders;
+    namespace placeholders = std::placeholders;
 
-    using native_std::bind;
-    using native_std::bit_and;
-    using native_std::bit_or;
-    using native_std::bit_xor;
-    using native_std::is_bind_expression;
-    using native_std::is_placeholder;
-    using native_std::mem_fn;
+    using std::bind;
+    using std::bit_and;
+    using std::bit_or;
+    using std::bit_xor;
+    using std::is_bind_expression;
+    using std::is_placeholder;
+    using std::mem_fn;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
-    using native_std::bit_not;
+    using std::bit_not;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-    using native_std::is_bind_expression_v;
-    using native_std::is_placeholder_v;
+    using std::is_bind_expression_v;
+    using std::is_placeholder_v;
 #elif defined BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
     template <class TYPE>
     constexpr bool is_bind_expression_v =
-                                   native_std::is_bind_expression<TYPE>::value;
+                                   std::is_bind_expression<TYPE>::value;
         // This template variable represents the result value of the
-        // 'native_std::is_bind_expression' meta-function.
+        // 'std::is_bind_expression' meta-function.
 
     template <class TYPE>
-    constexpr bool is_placeholder_v = native_std::is_placeholder<TYPE>::value;
+    constexpr bool is_placeholder_v = std::is_placeholder<TYPE>::value;
         // This template variable represents the result value of the
-        // 'native_std::is_placeholder' meta-function.
+        // 'std::is_placeholder' meta-function.
 
 #endif
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS
-    using native_std::default_searcher;
-    using native_std::boyer_moore_searcher;
-    using native_std::boyer_moore_horspool_searcher;
+    using std::default_searcher;
+    using std::boyer_moore_searcher;
+    using std::boyer_moore_horspool_searcher;
 #endif
 
 }  // close package namespace
 
-// Include Bloomberg's implementation, unless compilation is configured to
-// override native types in the 'std' namespace with Bloomberg's
-// implementation, in which case the implementation file will be included by
-// the Bloomberg supplied standard header file.
-
-#ifndef BSL_OVERRIDES_STD
-
+// Include Bloomberg's implementation.
 #ifndef BDE_OPENSOURCE_PUBLICATION // STP
 #include <bslstp_exfunctional.h>
 #endif  // BDE_OPENSOURCE_PUBLICATION -- STP
@@ -126,7 +123,6 @@ namespace bsl {
 #include <bslstl_hash.h>
 #include <bslstl_referencewrapper.h>
 
-#endif
 
 #endif // INCLUDED_BSL_FUNCTIONAL
 

@@ -454,7 +454,7 @@ const float DEFAULT_MAX_LOAD_FACTOR[] = {
             0.125f,  // Low value used throughout the test driver
             1.0f,    // Default and most common value
             8.0f,    // High value used throughout the test driver
-            native_std::numeric_limits<float>::infinity()  // edge case
+            std::numeric_limits<float>::infinity()  // edge case
 };
 static const int DEFAULT_MAX_LOAD_FACTOR_SIZE =
               sizeof DEFAULT_MAX_LOAD_FACTOR / sizeof *DEFAULT_MAX_LOAD_FACTOR;
@@ -754,7 +754,7 @@ class BoolArray {
         // Return the number of boolean flags held by this object.
 };
 
-struct TestException : native_std::exception{};
+struct TestException : std::exception{};
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -928,7 +928,7 @@ class ThrowingHashFunctor {
         // 'operator()' has already been called.
 
     // ACCESSORS
-    native_std::size_t operator() (const TYPE& obj) const;
+    std::size_t operator() (const TYPE& obj) const;
         // Increment a counter that records the number of times this method is
         // called.   Return a hash value for the specified 'obj'.  The behavior
         // is undefined unless 'obj' is a value supplied by the BSL template
@@ -980,7 +980,7 @@ class TestFacilityHasher : private HASHER { // exploit empty base
     TestFacilityHasher(const HASHER& hash = HASHER());              // IMPLICIT
 
     // ACCESSORS
-    native_std::size_t operator() (const KEY& k) const;
+    std::size_t operator() (const KEY& k) const;
         // Return a hash code for the specified 'k' using the wrapped functor
         // of (template parameter) type 'HASHER' supplied at construction.
 };
@@ -1001,8 +1001,7 @@ class TestConvertibleValueHasher : private TestFacilityHasher<KEY, HASHER> {
     TestConvertibleValueHasher(const HASHER& hash = HASHER());      // IMPLICIT
 
     // ACCESSORS
-    native_std::size_t operator()(const bsltf::ConvertibleValueWrapper<KEY>& k)
-                                                                         const;
+    std::size_t operator()(const bsltf::ConvertibleValueWrapper<KEY>& k) const;
         // Return a hash code for the specified 'k' using the wrapped functor
         // of (template parameter) type 'HASHER' supplied at construction.
 };
@@ -1053,7 +1052,7 @@ class GenericHasher {
   public:
     // ACCESSORS
     template <class KEY>
-    native_std::size_t operator() (KEY& k);
+    std::size_t operator() (KEY& k);
         // Return a hash code for the specified 'k'.
 };
 
@@ -1086,7 +1085,7 @@ class ModifiableHasher {
 
   public:
     // ACCESSORS
-    native_std::size_t operator() (KEY& k);
+    std::size_t operator() (KEY& k);
         // Return a hash code for the specified 'k'.
 };
 
@@ -1933,7 +1932,7 @@ void ThrowingHashFunctor<TYPE>::setThrowInterval(size_t value)
 // ACCESSORS
 template <class TYPE>
 inline
-native_std::size_t
+std::size_t
 ThrowingHashFunctor<TYPE>::operator() (const TYPE& obj) const
 {
     ++d_count;
@@ -1997,7 +1996,7 @@ TestFacilityHasher<KEY, HASHER>::TestFacilityHasher(const HASHER& hash)
     // ACCESSORS
 template <class KEY, class HASHER>
 inline
-native_std::size_t
+std::size_t
 TestFacilityHasher<KEY, HASHER>::operator() (const KEY& k) const
 {
     int temp =  bsltf::TemplateTestFacility::getIdentifier(k);
@@ -2019,7 +2018,7 @@ TestConvertibleValueHasher<KEY, HASHER>::TestConvertibleValueHasher(
 // ACCESSORS
 template <class KEY, class HASHER>
 inline
-native_std::size_t
+std::size_t
 TestConvertibleValueHasher<KEY, HASHER>::operator()
                            (const bsltf::ConvertibleValueWrapper<KEY>& k) const
 {
@@ -2062,7 +2061,7 @@ bsltf::EvilBooleanType GenericComparator::operator() (ARG1_TYPE& arg1,
 
 // ACCESSORS
 template <class KEY>
-native_std::size_t GenericHasher::operator() (KEY& k)
+std::size_t GenericHasher::operator() (KEY& k)
 {
     // do not inline initially due to static local data
 
@@ -2093,7 +2092,7 @@ bsltf::EvilBooleanType ModifiableComparator<KEY>::operator() (KEY& arg1,
 
 // ACCESSORS
 template <class KEY>
-native_std::size_t ModifiableHasher<KEY>::operator() (KEY& k)
+std::size_t ModifiableHasher<KEY>::operator() (KEY& k)
 {
     // do not inline initially due to static local data
 
@@ -2710,9 +2709,9 @@ SIZE_TYPE predictNumBuckets(SIZE_TYPE length, float maxLoadFactor)
         return 0;                                                     // RETURN
     }
 
-    if (1.0 / static_cast<double>(native_std::numeric_limits<SIZE_TYPE>::max())
+    if (1.0 / static_cast<double>(std::numeric_limits<SIZE_TYPE>::max())
                                                              > maxLoadFactor) {
-        return native_std::numeric_limits<SIZE_TYPE>::max();          // RETURN
+        return std::numeric_limits<SIZE_TYPE>::max();                 // RETURN
     }
 
     SIZE_TYPE result = static_cast<SIZE_TYPE>(ceil(static_cast<double>(length)
@@ -4463,7 +4462,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase13()
         Obj mR(HASH,
                COMPARE,
                0,
-               native_std::numeric_limits<float>::denorm_min());
+               std::numeric_limits<float>::denorm_min());
         try {
             mR.insert(VALUES[0]);
 
@@ -4472,7 +4471,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase13()
 
             ASSERT(false);
         }
-        catch(const native_std::length_error& e) {
+        catch(const std::length_error& e) {
             // This is the expected code path
         }
         catch(...) {

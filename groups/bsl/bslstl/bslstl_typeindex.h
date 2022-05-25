@@ -229,12 +229,15 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
-#include <bsls_nativestd.h>
 
 #include <functional>
 #include <typeinfo>
 
 #include <stddef.h>
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace bsl {
 
@@ -247,13 +250,11 @@ class type_index {
     // 'type_info' object.
 
     // DATA
-    const native_std::type_info *d_targetType_p;
-                                               // pointer to 'type_info' object
+    const std::type_info *d_targetType_p;  // pointer to 'type_info' object
 
   public:
     // CREATORS
-    type_index(const native_std::type_info& target) BSLS_KEYWORD_NOEXCEPT;
-                                                                    // IMPLICIT
+    type_index(const std::type_info& target) BSLS_KEYWORD_NOEXCEPT; // IMPLICIT
         // Create a 'type_index' object having a reference to the type
         // designated by the specified 'target'.
 
@@ -334,8 +335,7 @@ void hashAppend(HASHALG& hashAlg, const type_index& object);
 
 // CREATORS
 inline
-type_index::type_index(const native_std::type_info& target)
-                                                          BSLS_KEYWORD_NOEXCEPT
+type_index::type_index(const std::type_info& target) BSLS_KEYWORD_NOEXCEPT
 : d_targetType_p(&target)
 {
 }

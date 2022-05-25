@@ -63,11 +63,12 @@ BSLS_IDENT("$Id: $")
 #include <bsls_keyword.h>
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
-# include <bsls_nativestd.h>
-
-# define BSLMF_INCLUDE_ONLY_NATIVE_TRAITS
 # include <type_traits>
 #endif // BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
 # define BSLS_ISCOPYCONSTRUCTIBLE_USE_NATIVE_TRAIT 1
@@ -109,7 +110,7 @@ namespace bsl {
 template <class TYPE>
 struct is_copy_constructible
     : bsl::integral_constant<bool,
-                             ::native_std::is_copy_constructible<TYPE>::value>
+                             ::std::is_copy_constructible<TYPE>::value>
 {
     // This specialization defers entirely to the native trait on supported
     // C++11 compilers.

@@ -57,21 +57,18 @@ BSLS_IDENT("$Id: $")
 #error "bslstp_exalgorithm is not for publication"
 #endif
 
-// Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
-// mode.  Doing so is unsupported, and is likely to cause compilation errors.
-#if defined(BSL_OVERRIDES_STD) && !defined(BOS_STDHDRS_PROLOGUE_IN_EFFECT)
-#error "include <bsl_algorithm.h> instead of <bslstp_exalgorithm.h> in \
-BSL_OVERRIDES_STD mode"
-#endif
 #include <bslscm_version.h>
 
 #include <bslstl_iterator.h>  // iterator tags
 #include <bslstl_pair.h>
 
-#include <bsls_nativestd.h>
 #include <bsls_platform.h>
 
 #include <algorithm>          // 'copy'
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace bsl {
 
@@ -100,8 +97,7 @@ bslstp_ExAlgorithm_CopyNImp(RAIter     first,
                             const      random_access_iterator_tag&)
 {
     RAIter last = first + count;
-    return pair<RAIter, OutputIter>(last,
-                                    native_std::copy(first, last, result));
+    return pair<RAIter, OutputIter>(last, std::copy(first, last, result));
 }
 
 // FREE FUNCTIONS

@@ -1822,28 +1822,28 @@ TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase30a_RunTest(Obj *target)
           case 0: {
             switch (N_ARGS_VALUE) {
               case 0: {
-                  result = mX.emplace(native_std::piecewise_construct,
-                                      native_std::forward_as_tuple(),
-                                      native_std::forward_as_tuple());
+                  result = mX.emplace(std::piecewise_construct,
+                                      std::forward_as_tuple(),
+                                      std::forward_as_tuple());
               } break;
               case 1: {
                   result = mX.emplace(
-                          native_std::piecewise_construct,
-                          native_std::forward_as_tuple(),
-                          native_std::forward_as_tuple(testArg(AV1, MOVE_V1)));
+                                 std::piecewise_construct,
+                                 std::forward_as_tuple(),
+                                 std::forward_as_tuple(testArg(AV1, MOVE_V1)));
               } break;
               case 2: {
                   result = mX.emplace(
-                          native_std::piecewise_construct,
-                          native_std::forward_as_tuple(),
-                          native_std::forward_as_tuple(testArg(AV1, MOVE_V1),
+                                 std::piecewise_construct,
+                                 std::forward_as_tuple(),
+                                 std::forward_as_tuple(testArg(AV1, MOVE_V1),
                                                        testArg(AV2, MOVE_V2)));
               } break;
               case 3: {
                   result = mX.emplace(
-                          native_std::piecewise_construct,
-                          native_std::forward_as_tuple(),
-                          native_std::forward_as_tuple(testArg(AV1, MOVE_V1),
+                                 std::piecewise_construct,
+                                 std::forward_as_tuple(),
+                                 std::forward_as_tuple(testArg(AV1, MOVE_V1),
                                                        testArg(AV2, MOVE_V2),
                                                        testArg(AV3, MOVE_V3)));
               } break;
@@ -1856,28 +1856,28 @@ TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase30a_RunTest(Obj *target)
             switch (N_ARGS_VALUE) {
               case 0: {
                   result = mX.emplace(
-                          native_std::piecewise_construct,
-                          native_std::forward_as_tuple(testArg(AK1, MOVE_K1)),
-                          native_std::forward_as_tuple());
+                                 std::piecewise_construct,
+                                 std::forward_as_tuple(testArg(AK1, MOVE_K1)),
+                                 std::forward_as_tuple());
               } break;
               case 1: {
                   result = mX.emplace(
-                          native_std::piecewise_construct,
-                          native_std::forward_as_tuple(testArg(AK1, MOVE_K1)),
-                          native_std::forward_as_tuple(testArg(AV1, MOVE_V1)));
+                                 std::piecewise_construct,
+                                 std::forward_as_tuple(testArg(AK1, MOVE_K1)),
+                                 std::forward_as_tuple(testArg(AV1, MOVE_V1)));
               } break;
               case 2: {
                   result = mX.emplace(
-                          native_std::piecewise_construct,
-                          native_std::forward_as_tuple(testArg(AK1, MOVE_K1)),
-                          native_std::forward_as_tuple(testArg(AV1, MOVE_V1),
+                                 std::piecewise_construct,
+                                 std::forward_as_tuple(testArg(AK1, MOVE_K1)),
+                                 std::forward_as_tuple(testArg(AV1, MOVE_V1),
                                                        testArg(AV2, MOVE_V2)));
               } break;
               case 3: {
                   result = mX.emplace(
-                          native_std::piecewise_construct,
-                          native_std::forward_as_tuple(testArg(AK1, MOVE_K1)),
-                          native_std::forward_as_tuple(testArg(AV1, MOVE_V1),
+                                 std::piecewise_construct,
+                                 std::forward_as_tuple(testArg(AK1, MOVE_K1)),
+                                 std::forward_as_tuple(testArg(AV1, MOVE_V1),
                                                        testArg(AV2, MOVE_V2),
                                                        testArg(AV3, MOVE_V3)));
               } break;
@@ -1890,32 +1890,32 @@ TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase30a_RunTest(Obj *target)
             switch (N_ARGS_VALUE) {
               case 0: {
                   result = mX.emplace(
-                          native_std::piecewise_construct,
-                          native_std::forward_as_tuple(testArg(AK1, MOVE_K1),
+                                 std::piecewise_construct,
+                                 std::forward_as_tuple(testArg(AK1, MOVE_K1),
                                                        testArg(AK2, MOVE_K2)),
-                          native_std::forward_as_tuple());
+                                 std::forward_as_tuple());
               } break;
               case 1: {
                   result = mX.emplace(
-                          native_std::piecewise_construct,
-                          native_std::forward_as_tuple(testArg(AK1, MOVE_K1),
+                                 std::piecewise_construct,
+                                 std::forward_as_tuple(testArg(AK1, MOVE_K1),
                                                        testArg(AK2, MOVE_K2)),
-                          native_std::forward_as_tuple(testArg(AV1, MOVE_V1)));
+                                 std::forward_as_tuple(testArg(AV1, MOVE_V1)));
               } break;
               case 2: {
                   result = mX.emplace(
-                          native_std::piecewise_construct,
-                          native_std::forward_as_tuple(testArg(AK1, MOVE_K1),
+                                 std::piecewise_construct,
+                                 std::forward_as_tuple(testArg(AK1, MOVE_K1),
                                                        testArg(AK2, MOVE_K2)),
-                          native_std::forward_as_tuple(testArg(AV1, MOVE_V1),
+                                 std::forward_as_tuple(testArg(AV1, MOVE_V1),
                                                        testArg(AV2, MOVE_V2)));
               } break;
               case 3: {
                   result = mX.emplace(
-                          native_std::piecewise_construct,
-                          native_std::forward_as_tuple(testArg(AK1, MOVE_K1),
+                                 std::piecewise_construct,
+                                 std::forward_as_tuple(testArg(AK1, MOVE_K1),
                                                        testArg(AK2, MOVE_K2)),
-                          native_std::forward_as_tuple(testArg(AV1, MOVE_V1),
+                                 std::forward_as_tuple(testArg(AV1, MOVE_V1),
                                                        testArg(AV2, MOVE_V2),
                                                        testArg(AV3, MOVE_V3)));
               } break;
@@ -1928,36 +1928,36 @@ TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase30a_RunTest(Obj *target)
             switch (N_ARGS_VALUE) {
               case 0: {
                   result = mX.emplace(
-                          native_std::piecewise_construct,
-                          native_std::forward_as_tuple(testArg(AK1, MOVE_K1),
+                                 std::piecewise_construct,
+                                 std::forward_as_tuple(testArg(AK1, MOVE_K1),
                                                        testArg(AK2, MOVE_K2),
                                                        testArg(AK3, MOVE_K3)),
-                          native_std::forward_as_tuple());
+                                 std::forward_as_tuple());
               } break;
               case 1: {
                   result = mX.emplace(
-                          native_std::piecewise_construct,
-                          native_std::forward_as_tuple(testArg(AK1, MOVE_K1),
+                                 std::piecewise_construct,
+                                 std::forward_as_tuple(testArg(AK1, MOVE_K1),
                                                        testArg(AK2, MOVE_K2),
                                                        testArg(AK3, MOVE_K3)),
-                          native_std::forward_as_tuple(testArg(AV1, MOVE_V1)));
+                                 std::forward_as_tuple(testArg(AV1, MOVE_V1)));
               } break;
               case 2: {
                   result = mX.emplace(
-                          native_std::piecewise_construct,
-                          native_std::forward_as_tuple(testArg(AK1, MOVE_K1),
+                                 std::piecewise_construct,
+                                 std::forward_as_tuple(testArg(AK1, MOVE_K1),
                                                        testArg(AK2, MOVE_K2),
                                                        testArg(AK3, MOVE_K3)),
-                          native_std::forward_as_tuple(testArg(AV1, MOVE_V1),
+                                 std::forward_as_tuple(testArg(AV1, MOVE_V1),
                                                        testArg(AV2, MOVE_V2)));
               } break;
               case 3: {
                   result = mX.emplace(
-                          native_std::piecewise_construct,
-                          native_std::forward_as_tuple(testArg(AK1, MOVE_K1),
+                                 std::piecewise_construct,
+                                 std::forward_as_tuple(testArg(AK1, MOVE_K1),
                                                        testArg(AK2, MOVE_K2),
                                                        testArg(AK3, MOVE_K3)),
-                          native_std::forward_as_tuple(testArg(AV1, MOVE_V1),
+                                 std::forward_as_tuple(testArg(AV1, MOVE_V1),
                                                        testArg(AV2, MOVE_V2),
                                                        testArg(AV3, MOVE_V3)));
               } break;
@@ -2079,32 +2079,31 @@ TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase31a_RunTest(Obj   *target,
           case 0: {
             switch (N_ARGS_VALUE) {
               case 0: {
-                  result = mX.emplace_hint(hint,
-                                           native_std::piecewise_construct,
-                                           native_std::forward_as_tuple(),
-                                           native_std::forward_as_tuple());
+                  result = mX.emplace_hint(hint, std::piecewise_construct,
+                                                 std::forward_as_tuple(),
+                                                 std::forward_as_tuple());
               } break;
               case 1: {
                   result = mX.emplace_hint(
-                          hint,
-                          native_std::piecewise_construct,
-                          native_std::forward_as_tuple(),
-                          native_std::forward_as_tuple(testArg(AV1, MOVE_V1)));
+                                 hint,
+                                 std::piecewise_construct,
+                                 std::forward_as_tuple(),
+                                 std::forward_as_tuple(testArg(AV1, MOVE_V1)));
               } break;
               case 2: {
                   result = mX.emplace_hint(
-                          hint,
-                          native_std::piecewise_construct,
-                          native_std::forward_as_tuple(),
-                          native_std::forward_as_tuple(testArg(AV1, MOVE_V1),
+                                 hint,
+                                 std::piecewise_construct,
+                                 std::forward_as_tuple(),
+                                 std::forward_as_tuple(testArg(AV1, MOVE_V1),
                                                        testArg(AV2, MOVE_V2)));
               } break;
               case 3: {
                   result = mX.emplace_hint(
-                          hint,
-                          native_std::piecewise_construct,
-                          native_std::forward_as_tuple(),
-                          native_std::forward_as_tuple(testArg(AV1, MOVE_V1),
+                                 hint,
+                                 std::piecewise_construct,
+                                 std::forward_as_tuple(),
+                                 std::forward_as_tuple(testArg(AV1, MOVE_V1),
                                                        testArg(AV2, MOVE_V2),
                                                        testArg(AV3, MOVE_V3)));
               } break;
@@ -2117,32 +2116,32 @@ TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase31a_RunTest(Obj   *target,
             switch (N_ARGS_VALUE) {
               case 0: {
                   result = mX.emplace_hint(
-                          hint,
-                          native_std::piecewise_construct,
-                          native_std::forward_as_tuple(testArg(AK1, MOVE_K1)),
-                          native_std::forward_as_tuple());
+                                 hint,
+                                 std::piecewise_construct,
+                                 std::forward_as_tuple(testArg(AK1, MOVE_K1)),
+                                 std::forward_as_tuple());
               } break;
               case 1: {
                   result = mX.emplace_hint(
-                          hint,
-                          native_std::piecewise_construct,
-                          native_std::forward_as_tuple(testArg(AK1, MOVE_K1)),
-                          native_std::forward_as_tuple(testArg(AV1, MOVE_V1)));
+                                 hint,
+                                 std::piecewise_construct,
+                                 std::forward_as_tuple(testArg(AK1, MOVE_K1)),
+                                 std::forward_as_tuple(testArg(AV1, MOVE_V1)));
               } break;
               case 2: {
                   result = mX.emplace_hint(
-                          hint,
-                          native_std::piecewise_construct,
-                          native_std::forward_as_tuple(testArg(AK1, MOVE_K1)),
-                          native_std::forward_as_tuple(testArg(AV1, MOVE_V1),
+                                 hint,
+                                 std::piecewise_construct,
+                                 std::forward_as_tuple(testArg(AK1, MOVE_K1)),
+                                 std::forward_as_tuple(testArg(AV1, MOVE_V1),
                                                        testArg(AV2, MOVE_V2)));
               } break;
               case 3: {
                   result = mX.emplace_hint(
-                          hint,
-                          native_std::piecewise_construct,
-                          native_std::forward_as_tuple(testArg(AK1, MOVE_K1)),
-                          native_std::forward_as_tuple(testArg(AV1, MOVE_V1),
+                                 hint,
+                                 std::piecewise_construct,
+                                 std::forward_as_tuple(testArg(AK1, MOVE_K1)),
+                                 std::forward_as_tuple(testArg(AV1, MOVE_V1),
                                                        testArg(AV2, MOVE_V2),
                                                        testArg(AV3, MOVE_V3)));
               } break;
@@ -2155,36 +2154,36 @@ TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase31a_RunTest(Obj   *target,
             switch (N_ARGS_VALUE) {
               case 0: {
                   result = mX.emplace_hint(
-                          hint,
-                          native_std::piecewise_construct,
-                          native_std::forward_as_tuple(testArg(AK1, MOVE_K1),
+                                 hint,
+                                 std::piecewise_construct,
+                                 std::forward_as_tuple(testArg(AK1, MOVE_K1),
                                                        testArg(AK2, MOVE_K2)),
-                          native_std::forward_as_tuple());
+                                 std::forward_as_tuple());
               } break;
               case 1: {
                   result = mX.emplace_hint(
-                          hint,
-                          native_std::piecewise_construct,
-                          native_std::forward_as_tuple(testArg(AK1, MOVE_K1),
+                                 hint,
+                                 std::piecewise_construct,
+                                 std::forward_as_tuple(testArg(AK1, MOVE_K1),
                                                        testArg(AK2, MOVE_K2)),
-                          native_std::forward_as_tuple(testArg(AV1, MOVE_V1)));
+                                 std::forward_as_tuple(testArg(AV1, MOVE_V1)));
               } break;
               case 2: {
                   result = mX.emplace_hint(
-                          hint,
-                          native_std::piecewise_construct,
-                          native_std::forward_as_tuple(testArg(AK1, MOVE_K1),
+                                 hint,
+                                 std::piecewise_construct,
+                                 std::forward_as_tuple(testArg(AK1, MOVE_K1),
                                                        testArg(AK2, MOVE_K2)),
-                          native_std::forward_as_tuple(testArg(AV1, MOVE_V1),
+                                 std::forward_as_tuple(testArg(AV1, MOVE_V1),
                                                        testArg(AV2, MOVE_V2)));
               } break;
               case 3: {
                   result = mX.emplace_hint(
-                          hint,
-                          native_std::piecewise_construct,
-                          native_std::forward_as_tuple(testArg(AK1, MOVE_K1),
+                                 hint,
+                                 std::piecewise_construct,
+                                 std::forward_as_tuple(testArg(AK1, MOVE_K1),
                                                        testArg(AK2, MOVE_K2)),
-                          native_std::forward_as_tuple(testArg(AV1, MOVE_V1),
+                                 std::forward_as_tuple(testArg(AV1, MOVE_V1),
                                                        testArg(AV2, MOVE_V2),
                                                        testArg(AV3, MOVE_V3)));
               } break;
@@ -2197,40 +2196,40 @@ TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase31a_RunTest(Obj   *target,
             switch (N_ARGS_VALUE) {
               case 0: {
                   result = mX.emplace_hint(
-                          hint,
-                          native_std::piecewise_construct,
-                          native_std::forward_as_tuple(testArg(AK1, MOVE_K1),
+                                 hint,
+                                 std::piecewise_construct,
+                                 std::forward_as_tuple(testArg(AK1, MOVE_K1),
                                                        testArg(AK2, MOVE_K2),
                                                        testArg(AK3, MOVE_K3)),
-                          native_std::forward_as_tuple());
+                                 std::forward_as_tuple());
               } break;
               case 1: {
                   result = mX.emplace_hint(
-                          hint,
-                          native_std::piecewise_construct,
-                          native_std::forward_as_tuple(testArg(AK1, MOVE_K1),
+                                 hint,
+                                 std::piecewise_construct,
+                                 std::forward_as_tuple(testArg(AK1, MOVE_K1),
                                                        testArg(AK2, MOVE_K2),
                                                        testArg(AK3, MOVE_K3)),
-                          native_std::forward_as_tuple(testArg(AV1, MOVE_V1)));
+                                 std::forward_as_tuple(testArg(AV1, MOVE_V1)));
               } break;
               case 2: {
                   result = mX.emplace_hint(
-                          hint,
-                          native_std::piecewise_construct,
-                          native_std::forward_as_tuple(testArg(AK1, MOVE_K1),
+                                 hint,
+                                 std::piecewise_construct,
+                                 std::forward_as_tuple(testArg(AK1, MOVE_K1),
                                                        testArg(AK2, MOVE_K2),
                                                        testArg(AK3, MOVE_K3)),
-                          native_std::forward_as_tuple(testArg(AV1, MOVE_V1),
+                                 std::forward_as_tuple(testArg(AV1, MOVE_V1),
                                                        testArg(AV2, MOVE_V2)));
               } break;
               case 3: {
                   result = mX.emplace_hint(
-                          hint,
-                          native_std::piecewise_construct,
-                          native_std::forward_as_tuple(testArg(AK1, MOVE_K1),
+                                 hint,
+                                 std::piecewise_construct,
+                                 std::forward_as_tuple(testArg(AK1, MOVE_K1),
                                                        testArg(AK2, MOVE_K2),
                                                        testArg(AK3, MOVE_K3)),
-                          native_std::forward_as_tuple(testArg(AV1, MOVE_V1),
+                                 std::forward_as_tuple(testArg(AV1, MOVE_V1),
                                                        testArg(AV2, MOVE_V2),
                                                        testArg(AV3, MOVE_V3)));
               } break;

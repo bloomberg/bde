@@ -16,77 +16,80 @@ BSLS_IDENT("$Id: $")
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
 #include <bsls_libraryfeatures.h>
-#include <bsls_nativestd.h>
 
 #include <cwchar>
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace bsl {
     // Import selected symbols into bsl namespace
 
-    using native_std::btowc;
-    using native_std::fgetwc;
-    using native_std::fgetws;
-    using native_std::fputwc;
-    using native_std::fputws;
-    using native_std::fwide;
-    using native_std::fwprintf;
-    using native_std::fwscanf;
-    using native_std::getwc;
-    using native_std::getwchar;
-    using native_std::mbrlen;
-    using native_std::mbrtowc;
-    using native_std::mbsinit;
-    using native_std::mbsrtowcs;
-    using native_std::mbstate_t;
-    using native_std::putwc;
-    using native_std::putwchar;
-    using native_std::size_t;
-    using native_std::swprintf;
-    using native_std::swscanf;
-    using native_std::ungetwc;
-    using native_std::vfwprintf;
-    using native_std::vswprintf;
-    using native_std::vwprintf;
-    using native_std::wcrtomb;
-    using native_std::wcscat;
-    using native_std::wcschr;
-    using native_std::wcscmp;
-    using native_std::wcscoll;
-    using native_std::wcscpy;
-    using native_std::wcscspn;
-    using native_std::wcsftime;
-    using native_std::wcslen;
-    using native_std::wcsncat;
-    using native_std::wcsncmp;
-    using native_std::wcsncpy;
-    using native_std::wcspbrk;
-    using native_std::wcsrchr;
-    using native_std::wcsrtombs;
-    using native_std::wcsspn;
-    using native_std::wcsstr;
-    using native_std::wcstod;
-    using native_std::wcstok;
-    using native_std::wcstol;
-    using native_std::wcstoul;
-    using native_std::wcsxfrm;
-    using native_std::wctob;
-    using native_std::wint_t;
-    using native_std::wmemchr;
-    using native_std::wmemcmp;
-    using native_std::wmemcpy;
-    using native_std::wmemmove;
-    using native_std::wmemset;
-    using native_std::wprintf;
-    using native_std::wscanf;
+    using std::btowc;
+    using std::fgetwc;
+    using std::fgetws;
+    using std::fputwc;
+    using std::fputws;
+    using std::fwide;
+    using std::fwprintf;
+    using std::fwscanf;
+    using std::getwc;
+    using std::getwchar;
+    using std::mbrlen;
+    using std::mbrtowc;
+    using std::mbsinit;
+    using std::mbsrtowcs;
+    using std::mbstate_t;
+    using std::putwc;
+    using std::putwchar;
+    using std::size_t;
+    using std::swprintf;
+    using std::swscanf;
+    using std::ungetwc;
+    using std::vfwprintf;
+    using std::vswprintf;
+    using std::vwprintf;
+    using std::wcrtomb;
+    using std::wcscat;
+    using std::wcschr;
+    using std::wcscmp;
+    using std::wcscoll;
+    using std::wcscpy;
+    using std::wcscspn;
+    using std::wcsftime;
+    using std::wcslen;
+    using std::wcsncat;
+    using std::wcsncmp;
+    using std::wcsncpy;
+    using std::wcspbrk;
+    using std::wcsrchr;
+    using std::wcsrtombs;
+    using std::wcsspn;
+    using std::wcsstr;
+    using std::wcstod;
+    using std::wcstok;
+    using std::wcstol;
+    using std::wcstoul;
+    using std::wcsxfrm;
+    using std::wctob;
+    using std::wint_t;
+    using std::wmemchr;
+    using std::wmemcmp;
+    using std::wmemcpy;
+    using std::wmemmove;
+    using std::wmemset;
+    using std::wprintf;
+    using std::wscanf;
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
-    using native_std::vfwscanf;
-    using native_std::vswscanf;
-    using native_std::vwscanf;
-    using native_std::wcstof;
-    using native_std::wcstold;
-    using native_std::wcstoll;
-    using native_std::wcstoull;
+    using std::vfwscanf;
+    using std::vswscanf;
+    using std::vwscanf;
+    using std::wcstof;
+    using std::wcstold;
+    using std::wcstoll;
+    using std::wcstoull;
 #endif  // BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
 }  // close package namespace
 

@@ -345,7 +345,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_assert.h>
 
-#include <bsl_string.h>  // 'native_std::strcmp'
+#include <bsl_string.h>  // 'std::strcmp'
 
 // ----------------------------------------------------------------------------
 
@@ -614,10 +614,10 @@ bool ReaderWriterLockAssert_Imp::isValidLevel(const char *level)
 {
     BSLS_ASSERT(level);
 
-    return 0 == native_std::strcmp(level, bsls::Assert::k_LEVEL_SAFE)
-        || 0 == native_std::strcmp(level, bsls::Assert::k_LEVEL_OPT)
-        || 0 == native_std::strcmp(level, bsls::Assert::k_LEVEL_ASSERT)
-        || 0 == native_std::strcmp(level, bsls::Assert::k_LEVEL_INVOKE);
+    return 0 == std::strcmp(level, bsls::Assert::k_LEVEL_SAFE)
+        || 0 == std::strcmp(level, bsls::Assert::k_LEVEL_OPT)
+        || 0 == std::strcmp(level, bsls::Assert::k_LEVEL_ASSERT)
+        || 0 == std::strcmp(level, bsls::Assert::k_LEVEL_INVOKE);
 
 }
 

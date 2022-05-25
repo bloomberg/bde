@@ -125,27 +125,26 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
-#include <bsls_nativestd.h>
 #include <bsls_types.h>
 
-#ifndef BSL_OVERRIDES_STD
 #if BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 #include <chrono>
 #include <type_traits>
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-#endif  // BSL_OVERRIDES_STD
 
 #include <iosfwd>
 #include <limits.h>  // 'LLONG_MIN', 'LLONG_MAX'
 
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
 // BDE_VERIFY pragma: push
 // BDE_VERIFY pragma: -FABC01  // 'add*' operations are ordered by time unit
 
-#ifndef BSL_OVERRIDES_STD
 #if BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 #define BSLS_TIMEINTERVAL_PROVIDES_CHRONO_CONVERSIONS
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-#endif  // BSL_OVERRIDES_STD
 
 namespace BloombergLP {
 namespace bsls {

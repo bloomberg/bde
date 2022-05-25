@@ -196,7 +196,7 @@ BSLS_IDENT("$Id: $")
 #  define BSLS_NULLPTR_USING_NATIVE_NULLPTR_T  // feature detection macro
 namespace bsl {
     // We must define this 'typedef' appropriately for platforms that support
-    // 'nullptr' to avoid accidental clashes in 'BSL_OVERRIDES_STD' mode.
+    // 'nullptr'.
 
 #if defined(BSLS_PLATFORM_CMP_MSVC) && defined(__cplusplus_cli)
     // MSVC in /clr mode defines 'nullptr' as the .NET null pointer type, which

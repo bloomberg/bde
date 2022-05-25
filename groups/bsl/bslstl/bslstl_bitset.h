@@ -135,13 +135,6 @@ BSLS_IDENT("$Id: $")
 //  assert(0 == isPrime<UPPER_BOUND>(10000));
 //..
 
-
-// Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
-// mode.  Doing so is unsupported, and is likely to cause compilation errors.
-#if defined(BSL_OVERRIDES_STD) && !defined(BOS_STDHDRS_PROLOGUE_IN_EFFECT)
-#error "include <bsl_bitset.h> instead of <bslstl_bitset.h> in \
-BSL_OVERRIDES_STD mode"
-#endif
 #include <bslscm_version.h>
 
 #include <bslstl_stdexceptutil.h>
@@ -152,7 +145,6 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_assert.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
-#include <bsls_nativestd.h>
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
 
@@ -165,6 +157,10 @@ BSL_OVERRIDES_STD mode"
 #include <string>
 #include <limits.h>
 #include <string.h>
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #if defined(BSLS_PLATFORM_CMP_MSVC) ||                                        \
    (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION < 40400)
@@ -372,15 +368,15 @@ class bitset :
         // are any unused bits.
 
     template <class CHAR_TYPE, class TRAITS, class ALLOCATOR>
-    void copyString(const   native_std::basic_string<CHAR_TYPE,
-                                                     TRAITS,
-                                                     ALLOCATOR>&           str,
-                   typename native_std::basic_string<CHAR_TYPE,
-                                                     TRAITS,
-                                                     ALLOCATOR>::size_type pos,
-                   typename native_std::basic_string<CHAR_TYPE,
-                                                     TRAITS,
-                                                     ALLOCATOR>::size_type n,
+    void copyString(const    std::basic_string<CHAR_TYPE,
+                                               TRAITS,
+                                               ALLOCATOR>&           str,
+                    typename std::basic_string<CHAR_TYPE,
+                                               TRAITS,
+                                               ALLOCATOR>::size_type pos,
+                    typename std::basic_string<CHAR_TYPE,
+                                               TRAITS,
+                                               ALLOCATOR>::size_type n,
                     CHAR_TYPE zeroChar,
                     CHAR_TYPE oneChar);
     template <class CHAR_TYPE, class TRAITS, class ALLOCATOR>
@@ -418,18 +414,18 @@ class bitset :
 #if !defined(BSLSTL_BITSET_MSVC_CANNOT_PARSE_DEFAULTS_WITH_COLONS)
     template <class CHAR_TYPE, class TRAITS, class ALLOCATOR>
     explicit bitset(
-     const native_std::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>&     str,
+     const std::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>&     str,
      typename
-     native_std::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>::size_type pos = 0,
+     std::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>::size_type pos = 0,
      typename
-     native_std::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>::size_type n   =
-                  native_std::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>::npos,
+     std::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>::size_type n   =
+                  std::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>::npos,
      CHAR_TYPE zeroChar = CHAR_TYPE('0'),
      CHAR_TYPE oneChar  = CHAR_TYPE('1'));
 #else
     template <class CHAR_TYPE, class TRAITS, class ALLOCATOR>
     explicit
-    bitset(const native_std::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>& str,
+    bitset(const std::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>& str,
            bsl::string::size_type pos      = 0,
            bsl::string::size_type n        = bsl::string::npos,
            CHAR_TYPE              zeroChar = CHAR_TYPE('0'),
@@ -823,15 +819,15 @@ std::size_t bitset<N>::numOneSet(unsigned int src) const
 template <std::size_t N>
 template <class CHAR_TYPE, class TRAITS, class ALLOCATOR>
 void bitset<N>::copyString(
-const    native_std::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>&           str,
-typename native_std::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>::size_type pos,
-typename native_std::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>::size_type n,
+const    std::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>&           str,
+typename std::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>::size_type pos,
+typename std::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>::size_type n,
 CHAR_TYPE zeroChar,
 CHAR_TYPE oneChar)
 {
-    typedef typename native_std::basic_string<CHAR_TYPE,
-                                               TRAITS,
-                                               ALLOCATOR>::size_type size_type;
+    typedef typename std::basic_string<CHAR_TYPE,
+                                       TRAITS,
+                                       ALLOCATOR>::size_type size_type;
     n = std::min(N, std::min(n, str.size() - pos));
     for (size_type i = 0; i < n; ++i) {
         typename TRAITS::int_type bit = TRAITS::to_int_type(
@@ -896,19 +892,17 @@ template <std::size_t N>
 template <class CHAR_TYPE, class TRAITS, class ALLOCATOR>
 inline
 bitset<N>::
-bitset(const    native_std::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>&    str,
-       typename native_std::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>::
-                                                                 size_type pos,
-       typename native_std::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>::
-                                                                 size_type n,
-      CHAR_TYPE zeroChar,
-      CHAR_TYPE oneChar)
+bitset(const    std::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>&           str,
+       typename std::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>::size_type pos,
+       typename std::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>::size_type n,
+       CHAR_TYPE zeroChar,
+       CHAR_TYPE oneChar)
 #else
 template <std::size_t N>
 template <class CHAR_TYPE, class TRAITS, class ALLOCATOR>
 inline
 bitset<N>::
-bitset(const native_std::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>& str,
+bitset(const std::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>& str,
        bsl::string::size_type pos,
        bsl::string::size_type n,
        CHAR_TYPE              zeroChar,

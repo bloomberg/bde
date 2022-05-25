@@ -46,7 +46,6 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
-#include <bsls_nativestd.h>
 #include <bsls_platform.h>
 #include <bsls_unspecifiedbool.h>
 
@@ -59,19 +58,23 @@ BSLS_IDENT("$Id: $")
 #include <stdexcept>
 #include <string>
 
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
 #include <system_error>
 
 namespace bsl {
 
-using native_std::error_category;
-using native_std::error_code;
-using native_std::error_condition;
-using native_std::generic_category;
-using native_std::system_category;
-using native_std::make_error_code;
-using native_std::make_error_condition;
+using std::error_category;
+using std::error_code;
+using std::error_condition;
+using std::generic_category;
+using std::system_category;
+using std::make_error_code;
+using std::make_error_condition;
 
 }  // close namespace bsl
 
@@ -80,12 +83,12 @@ using native_std::make_error_condition;
 namespace bsl {
 
 template <>
-struct hash<error_code> : native_std::hash<error_code>
+struct hash<error_code> : std::hash<error_code>
 {
 };
 
 template <>
-struct hash<error_condition> : native_std::hash<error_condition>
+struct hash<error_condition> : std::hash<error_condition>
 {
 };
 
@@ -137,7 +140,7 @@ class error_category {
         // Return, for the error category defined by this object, whether the
         // specified 'code' and 'condition' are considered equivalent.
 
-    virtual native_std::string message(int value) const = 0;
+    virtual std::string message(int value) const = 0;
         // Return a string describing the error condition denoted by the
         // specified 'value'.
 
@@ -213,7 +216,7 @@ class error_code {
         // Return an 'error_condition' object initialized with the value and
         // category of this object.
 
-    native_std::string message() const;
+    std::string message() const;
         // Return a string describing this object.
 
     int value() const;
@@ -282,7 +285,7 @@ class error_condition {
     const error_category& category() const;
         // Return a 'const' reference to the category held by this object.
 
-    native_std::string message() const;
+    std::string message() const;
         // Return a string describing this object.
 
     int value() const;
@@ -342,9 +345,9 @@ bool operator<(const error_condition& lhs, const error_condition& rhs);
 
 template <class CHAR_TYPE, class CHAR_TRAITS>
 inline
-native_std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& operator<<(
-                     native_std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& stream,
-                     const error_code&                                  code);
+std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& operator<<(
+                     std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& stream,
+                     const error_code&                           code);
     // Write the specified 'code' to 'stream'.
 
 // ============================================================================
@@ -386,7 +389,7 @@ bool error_category::equivalent(
 }
 
 inline
-native_std::string error_category::message(int value) const
+std::string error_category::message(int value) const
 {
     return strerror(value);
 }
@@ -415,7 +418,7 @@ inline
 bool error_category::operator<(
                        const error_category& other) const BSLS_KEYWORD_NOEXCEPT
 {
-    return native_std::less<const error_category *>()(this, &other);
+    return std::less<const error_category *>()(this, &other);
 }
 
                               // ----------------
@@ -489,7 +492,7 @@ error_condition error_code::default_error_condition() const
 }
 
 inline
-native_std::string error_code::message() const
+std::string error_code::message() const
 {
     return category().message(value());
 }
@@ -524,9 +527,9 @@ error_code make_error_code(errc::Enum value)
 // FREE OPERATORS
 template <class CHAR_TYPE, class CHAR_TRAITS>
 inline
-native_std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& operator<<(
-                     native_std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& stream,
-                     const error_code&                                  code)
+std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& operator<<(
+                     std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& stream,
+                     const error_code&                           code)
 {
     return stream << code.category().name() << ':' << code.value();
 }
@@ -595,7 +598,7 @@ const error_category& error_condition::category() const
 }
 
 inline
-native_std::string error_condition::message() const
+std::string error_condition::message() const
 {
     return category().message(value());
 }

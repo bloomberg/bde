@@ -82,9 +82,6 @@ enum MarkedIneligible { e_marked_ineligible = 3 };
 
 // BDE_VERIFY pragma: -NT01  // namespace comment depends on macro
 
-#ifdef BSL_OVERRIDES_STD
-#undef std
-#endif
 namespace BSL_IS_ERROR_CODE_ENUM_NAMESPACE {
 template <>
 struct is_error_code_enum<ErrorValues::Eligible> : bsl::true_type
@@ -101,9 +98,6 @@ struct is_error_code_enum<ErrorValues::MarkedIneligible> : bsl::false_type
 {
 };
 }  // close namespace BSL_IS_ERROR_CODE_ENUM_NAMESPACE
-#ifdef BSL_OVERRIDES_STD
-#define std bsl
-#endif
 
 //=============================================================================
 //                                USAGE EXAMPLE
@@ -131,9 +125,7 @@ struct is_error_code_enum<ErrorValues::MarkedIneligible> : bsl::false_type
         };
     };
 //..
-// Then, we enable the trait marking this as an error code.  (Note that if this
-// code is intended to be used with 'BSL_OVERRIDES_STD' and C++11, it is
-// necessary to bracket it as shown, or it will not compile.)
+// Then, we enable the trait marking this as an error code.
 //..
     namespace BSL_IS_ERROR_CODE_ENUM_NAMESPACE {
     template <>
@@ -217,13 +209,7 @@ int main(int argc, char *argv[])
                             "\n==================================\n");
 
         using namespace ErrorValues;
-#ifdef BSL_OVERRIDES_STD
-#undef std
-#endif
         using namespace BSL_IS_ERROR_CODE_ENUM_NAMESPACE;
-#ifdef BSL_OVERRIDES_STD
-#define std bsl;
-#endif
 
         if (veryVerbose) {
             P(is_error_code_enum<Eligible>::value)

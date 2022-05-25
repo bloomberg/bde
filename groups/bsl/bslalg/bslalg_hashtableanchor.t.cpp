@@ -304,11 +304,11 @@ class PtrHashSet : public bslalg::HashTableAnchor {
         // action taken.
 
     // ACCESSORS
-    native_std::size_t count(void *ptr) const;
+    std::size_t count(void *ptr) const;
         // Return 1 if the specified value 'ptr' is in this table and 0
         // otherwise.
 
-    native_std::size_t size() const;
+    std::size_t size() const;
         // Return the number of discrete values that are stored in this table.
 };
 
@@ -318,8 +318,8 @@ void PtrHashSet::grow()
     // 'bucketArraySize' will always be '2^N - 1', so that when pointers
     // are aligned by some 2^N they're likely to be relatively prime.
 
-    native_std::size_t newBucketArraySize = bucketArraySize() * 2 + 1;
-    native_std::size_t newBucketArraySizeInBytes =
+    std::size_t newBucketArraySize = bucketArraySize() * 2 + 1;
+    std::size_t newBucketArraySizeInBytes =
                                            newBucketArraySize * sizeof(Bucket);
     memset(bucketArrayAddress(), 0x5a, size() * sizeof(Bucket));
     d_allocator_p->deallocate(bucketArrayAddress());
@@ -334,9 +334,8 @@ void PtrHashSet::grow()
         Node *rippedOut = node;
         node = (Node *) node->nextLink();
 
-        native_std::size_t index =
-                              (UintPtr) rippedOut->value() % bucketArraySize();
-        Bucket& bucket = bucketArrayAddress()[index];
+        std::size_t  index = (UintPtr) rippedOut->value() % bucketArraySize();
+        Bucket&     bucket = bucketArrayAddress()[index];
         if (bucket.first()) {
             if (0 == bucket.first()->previousLink()) {
                 newListRootAddress = rippedOut;
@@ -394,8 +393,7 @@ bool PtrHashSet::find(Node **node, Bucket **bucket, const void *ptr) const
     if (!bucket) bucket = &dummyBucketPtr;
 
     Node *& nodePtrRef = *node;
-    native_std::size_t index = reinterpret_cast<UintPtr>(ptr)
-                                                           % bucketArraySize();
+    std::size_t index = reinterpret_cast<UintPtr>(ptr) % bucketArraySize();
     Bucket& bucketRef = bucketArrayAddress()[index];
     *bucket = &bucketRef;
     if (bucketRef.first()) {
@@ -429,7 +427,7 @@ PtrHashSet::PtrHashSet(bslma::Allocator *allocator)
     enum { NUM_BUCKETS = 3 };
 
     d_allocator_p = bslma::Default::allocator(allocator);
-    native_std::size_t bucketArraySizeInBytes = NUM_BUCKETS * sizeof(Bucket);
+    std::size_t bucketArraySizeInBytes = NUM_BUCKETS * sizeof(Bucket);
     setBucketArrayAddressAndSize(
                     (Bucket *) d_allocator_p->allocate(bucketArraySizeInBytes),
                     NUM_BUCKETS);
@@ -532,12 +530,12 @@ bool PtrHashSet::insert(void *ptr)
 }
 
 // ACCESSORS
-native_std::size_t PtrHashSet::count(void *ptr) const
+std::size_t PtrHashSet::count(void *ptr) const
 {
     return find(0, 0, ptr);
 }
 
-native_std::size_t PtrHashSet::size() const
+std::size_t PtrHashSet::size() const
 {
     return d_numNodes;
 }

@@ -842,7 +842,7 @@ int main(int argc, char *argv[])
         //:   test scenario is implemented in the test driver of the
         //:   'bslim_bslstandardheadertest' component to avoid include loop.
         //:
-        //: 2 Explicitly introduce both namespaces ('bsl' and 'native_std') and
+        //: 2 Explicitly introduce both namespaces ('bsl' and 'std') and
         //:   call all 10 range functions for an array of integers.  (C-1)
         //
         // Testing
@@ -853,7 +853,7 @@ int main(int argc, char *argv[])
                             "\n===================\n");
 
         using namespace bsl;
-        using namespace native_std;
+        using namespace std;
 
         {
             bsl::set<int> mY;

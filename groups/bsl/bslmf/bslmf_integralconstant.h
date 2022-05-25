@@ -150,11 +150,12 @@ BSLS_IDENT("$Id: $")
 #include <bsls_libraryfeatures.h>
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
-# include <bsls_nativestd.h>
-
-# define BSLMF_INCLUDE_ONLY_NATIVE_TRAITS
 # include <type_traits>
 #endif // BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 namespace bslmf {
@@ -170,12 +171,12 @@ namespace bsl {
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
 template <class TYPE, TYPE VAL>
-struct integral_constant : ::native_std::integral_constant<TYPE, VAL> {
+struct integral_constant : ::std::integral_constant<TYPE, VAL> {
     typedef integral_constant type;
 };
 
 template <>
-struct integral_constant<bool, false> : ::native_std::false_type
+struct integral_constant<bool, false> : ::std::false_type
 {
     typedef integral_constant type;
 
@@ -185,7 +186,7 @@ struct integral_constant<bool, false> : ::native_std::false_type
 };
 
 template <>
-struct integral_constant<bool, true> : ::native_std::true_type
+struct integral_constant<bool, true> : ::std::true_type
 {
     typedef integral_constant type;
 

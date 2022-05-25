@@ -71,7 +71,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
@@ -80,42 +83,42 @@ BSLS_IDENT("$Id: $")
 namespace bsl {
 
     namespace chrono {
-        using native_std::chrono::duration;
-        using native_std::chrono::time_point;
-        using native_std::chrono::system_clock;
-        using native_std::chrono::steady_clock;
-        using native_std::chrono::high_resolution_clock;
-        using native_std::chrono::treat_as_floating_point;
-        using native_std::chrono::duration_values;
-        using native_std::chrono::duration_cast;
-        using native_std::chrono::time_point_cast;
-        using native_std::chrono::hours;
-        using native_std::chrono::minutes;
-        using native_std::chrono::seconds;
-        using native_std::chrono::milliseconds;
-        using native_std::chrono::microseconds;
-        using native_std::chrono::nanoseconds;
+        using std::chrono::duration;
+        using std::chrono::time_point;
+        using std::chrono::system_clock;
+        using std::chrono::steady_clock;
+        using std::chrono::high_resolution_clock;
+        using std::chrono::treat_as_floating_point;
+        using std::chrono::duration_values;
+        using std::chrono::duration_cast;
+        using std::chrono::time_point_cast;
+        using std::chrono::hours;
+        using std::chrono::minutes;
+        using std::chrono::seconds;
+        using std::chrono::milliseconds;
+        using std::chrono::microseconds;
+        using std::chrono::nanoseconds;
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY)
         template <class TYPE>
         constexpr bool treat_as_floating_point_v =
-                      native_std::chrono::treat_as_floating_point<TYPE>::value;
+                      std::chrono::treat_as_floating_point<TYPE>::value;
             // This template variable represents the result value of the
-            // 'native_std::chrono::treat_as_floating_point' meta-function.
+            // 'std::chrono::treat_as_floating_point' meta-function.
 #endif
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
-        using native_std::chrono::abs;
-        using native_std::chrono::ceil;
-        using native_std::chrono::floor;
-        using native_std::chrono::round;
+        using std::chrono::abs;
+        using std::chrono::ceil;
+        using std::chrono::floor;
+        using std::chrono::round;
 #endif
     }  // close namespace chrono
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
 inline namespace literals {
 inline namespace chrono_literals {
-    using namespace native_std::literals::chrono_literals;
+    using namespace std::literals::chrono_literals;
 }  // close chrono_literals namespace
 }  // close literals namespace
 #endif

@@ -313,8 +313,8 @@ BSLS_IDENT("$Id: $")
 #include <bsls_libraryfeatures.h>
 #include <bsls_performancehint.h>
 
-#include <cstring>  // for 'native_std::memcmp'
-#include <utility>  // for 'native_std::make_pair'
+#include <cstring>  // for 'std::memcmp'
+#include <utility>  // for 'std::make_pair'
 
 namespace BloombergLP {
 namespace bslstl {
@@ -518,7 +518,7 @@ struct DefaultSearcher_ImpUtil {
         // construction except, possibly, if the 'DefaultSearcher_CanOptimize'
         // metafunction indicates that the template parameters are eligible for
         // optimization.  The optimized overload is enabled when needle and
-        // haystack can be validly compared using 'native_std::memcmp', a
+        // haystack can be validly compared using 'std::memcmp', a
         // low-level function that is often highly optimized for its platform.
         // The behavior is undefined unless 'haystackFirst' can be advanced to
         // equal 'haystackLast'.  Note that if the "needle" sequence is empty,
@@ -723,13 +723,13 @@ bsl::enable_if<
                               ++itrNeedle, ++itrHaystackInner) {
 
             if (needleLast == itrNeedle) {         // Needle match in haystack!
-                return native_std::make_pair(itrHaystackOuter,
-                                             itrHaystackInner);       // RETURN
+                return std::make_pair(itrHaystackOuter,
+                                      itrHaystackInner);              // RETURN
             }
 
             if (haystackLast == itrHaystackInner) {     // Hit end of haystack.
-                return native_std::make_pair(haystackLast,
-                                             haystackLast);           // RETURN
+                return std::make_pair(haystackLast,
+                                      haystackLast);                  // RETURN
             }
 
             if (equal(*itrHaystackInner, *itrNeedle)) {
@@ -742,7 +742,7 @@ bsl::enable_if<
 
     // Ran out of haystack without match.
 
-    return native_std::make_pair(haystackLast, haystackLast);
+    return std::make_pair(haystackLast, haystackLast);
 }
 
 template <class FORWARD_ITR_NEEDLE, class EQUAL, class FORWARD_ITR_HAYSTACK>
@@ -765,7 +765,7 @@ bsl::enable_if<
     // This specialization is used only when the 'EQUAL' template parameter
     // was specified as 'bsl::equal_to<value_type>', the default value.  We
     // ignore that argument and perform its "moral equivalent" for the various
-    // ranges using 'native_std::memcmp'.
+    // ranges using 'std::memcmp'.
 
     typedef typename bsl::iterator_traits<FORWARD_ITR_HAYSTACK>::
                                                                difference_type
@@ -781,11 +781,11 @@ bsl::enable_if<
     BSLS_ASSERT(0 <= haystackLength);
 
     if (haystackLength < needleLength) {                       // Cannot match.
-        return native_std::make_pair(haystackLast, haystackLast);     // RETURN
+        return std::make_pair(haystackLast, haystackLast);            // RETURN
     }
 
     if (0 == needleLength || 0 == haystackLength) {
-        return native_std::make_pair(haystackFirst, haystackFirst);   // RETURN
+        return std::make_pair(haystackFirst, haystackFirst);          // RETURN
     }
 
     for (FORWARD_ITR_HAYSTACK itr = haystackFirst;
@@ -797,8 +797,7 @@ bsl::enable_if<
 
             if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(*itr == *needleFirst)) {
                 if (1 == needleLength) {
-                    return native_std::make_pair(itr, itr + needleLength);
-                                                                      // RETURN
+                    return std::make_pair(itr, itr + needleLength);   // RETURN
                 }
                            ++itrInner;
                      ++needleItrInner;
@@ -807,16 +806,15 @@ bsl::enable_if<
                 continue; // Avoided 'memcmp' call
             }
 
-            if (0 == native_std::memcmp(         itrInner,
-                                           needleItrInner,
-                                        needleLengthInner)) {
-                return native_std::make_pair(itr, itr + needleLength);
-                                                                      // RETURN
+            if (0 == std::memcmp(         itrInner,
+                                    needleItrInner,
+                                 needleLengthInner)) {
+                return std::make_pair(itr, itr + needleLength);       // RETURN
             }
     }
 
     // Ran out of haystack without match.
-    return native_std::make_pair(haystackLast, haystackLast);
+    return std::make_pair(haystackLast, haystackLast);
 }
 
 }  // close package namespace

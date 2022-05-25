@@ -16,18 +16,21 @@ BSLS_IDENT("$Id: $")
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
 #include <bsls_libraryfeatures.h>
-#include <bsls_nativestd.h>
 
 #include <cinttypes>
 
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
 namespace bsl {
-    using native_std::imaxabs;
-    using native_std::imaxdiv;
-    using native_std::strtoimax;
-    using native_std::strtoumax;
-    using native_std::wcstoimax;
-    using native_std::wcstoumax;
-    using native_std::imaxdiv_t;
+    using std::imaxabs;
+    using std::imaxdiv;
+    using std::strtoimax;
+    using std::strtoumax;
+    using std::wcstoimax;
+    using std::wcstoumax;
+    using std::imaxdiv_t;
 
     // ISO C++ Standard)says: *if* and *only* if the type 'intmax_t' designates
     // an extended integer type (6.7.1), the following function signatures are

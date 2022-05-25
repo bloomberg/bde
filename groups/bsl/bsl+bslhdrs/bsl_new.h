@@ -16,23 +16,26 @@ BSLS_IDENT("$Id: $")
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
 #include <bsls_libraryfeatures.h>
-#include <bsls_nativestd.h>
 #include <bsls_platform.h>
 
 #include <new>
 
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
 namespace bsl {
     // Import selected symbols into bsl namespace
 
-    using native_std::bad_alloc;
-    using native_std::new_handler;
-    using native_std::nothrow;
-    using native_std::nothrow_t;
-    using native_std::set_new_handler;
+    using std::bad_alloc;
+    using std::new_handler;
+    using std::nothrow;
+    using std::nothrow_t;
+    using std::set_new_handler;
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
-    using native_std::bad_array_new_length;
-    using native_std::get_new_handler;
+    using std::bad_array_new_length;
+    using std::get_new_handler;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
@@ -46,25 +49,25 @@ namespace bsl {
     // and Sun. Note that some newer compilers require an additional include of
     // <exception> for these, and also that some of these have been removed
     // from C++17.
-    using native_std::bad_exception;
-    using native_std::exception;
-    using native_std::set_terminate;
-    using native_std::set_unexpected;
-    using native_std::terminate;
-    using native_std::terminate_handler;
-    using native_std::uncaught_exception;
-    using native_std::unexpected;
-    using native_std::unexpected_handler;
+    using std::bad_exception;
+    using std::exception;
+    using std::set_terminate;
+    using std::set_unexpected;
+    using std::terminate;
+    using std::terminate_handler;
+    using std::uncaught_exception;
+    using std::unexpected;
+    using std::unexpected_handler;
 #  endif // MSVC, or C++2017
 # endif // BSLS_PLATFORM_CMP_IBM or BSLS_PLATFORM_CMP_SUN
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-    using native_std::align_val_t;
+    using std::align_val_t;
 //  As of Apr-2022, no one (libc++, libstdc++, MSVC) has implemented these.
-//     using native_std::hardware_constructive_interference_size;
-//     using native_std::hardware_destructive_interference_size;
-    using native_std::launder;
+//     using std::hardware_constructive_interference_size;
+//     using std::hardware_destructive_interference_size;
+    using std::launder;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
 }  // close package namespace

@@ -12,8 +12,6 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bslma_mallocfreeallocator.h>
 
-#include <bsls_nativestd.h>
-
 #include <algorithm>         // 'lower_bound'
 #include <limits>
 
@@ -52,7 +50,7 @@ size_t HashTable_ImpDetails::growBucketsForLoadFactor(size_t *capacity,
     BSLS_ASSERT_SAFE(  0  < requestedBuckets);
     BSLS_ASSERT_SAFE(0.0  < maxLoadFactor);
 
-    const size_t MAX_SIZE_T = native_std::numeric_limits<size_t>::max();
+    const size_t MAX_SIZE_T = std::numeric_limits<size_t>::max();
     const double MAX_AS_DBL = static_cast<double>(MAX_SIZE_T);
 
     // This check is why 'minElements' must be at least one - so that we do not
@@ -70,8 +68,7 @@ size_t HashTable_ImpDetails::growBucketsForLoadFactor(size_t *capacity,
         // highest unsigned value representable by 'size_t'.
         StdExceptUtil::throwLengthError("The number of buckets overflows.");
     }
-    for (size_t result =
-             native_std::max(requestedBuckets, static_cast<size_t>(d));
+    for (size_t result = std::max(requestedBuckets, static_cast<size_t>(d));
          ;
          result *= 2) {
         result = nextPrime(result);  // throws if too large
@@ -121,9 +118,9 @@ size_t HashTable_ImpDetails::nextPrime(size_t n)
     static const size_t *const s_beginPrimes = s_primes;
     static const size_t *const s_endPrimes   = s_primes + s_nPrimes;
 
-    const size_t *result = native_std::lower_bound(s_beginPrimes,
-                                                   s_endPrimes,
-                                                   n);
+    const size_t *result = std::lower_bound(s_beginPrimes,
+                                            s_endPrimes,
+                                            n);
     if (s_endPrimes == result) {
         StdExceptUtil::throwLengthError("HashTable ran out of prime numbers.");
     }

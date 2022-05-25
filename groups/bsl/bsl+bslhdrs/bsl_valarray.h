@@ -15,35 +15,37 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
-#include <bsls_nativestd.h>
-
 #include <valarray>
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace bsl {
     // Import selected symbols into bsl namespace
-    using native_std::abs;
-    using native_std::acos;
-    using native_std::asin;
-    using native_std::atan2;
-    using native_std::atan;
-    using native_std::cos;
-    using native_std::cosh;
-    using native_std::exp;
-    using native_std::gslice;
-    using native_std::gslice_array;
-    using native_std::indirect_array;
-    using native_std::log10;
-    using native_std::log;
-    using native_std::mask_array;
-    using native_std::pow;
-    using native_std::sin;
-    using native_std::sinh;
-    using native_std::slice;
-    using native_std::slice_array;
-    using native_std::sqrt;
-    using native_std::tan;
-    using native_std::tanh;
-    using native_std::valarray;
+    using std::abs;
+    using std::acos;
+    using std::asin;
+    using std::atan2;
+    using std::atan;
+    using std::cos;
+    using std::cosh;
+    using std::exp;
+    using std::gslice;
+    using std::gslice_array;
+    using std::indirect_array;
+    using std::log10;
+    using std::log;
+    using std::mask_array;
+    using std::pow;
+    using std::sin;
+    using std::sinh;
+    using std::slice;
+    using std::slice_array;
+    using std::sqrt;
+    using std::tan;
+    using std::tanh;
+    using std::valarray;
 }  // close package namespace
 
 #endif

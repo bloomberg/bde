@@ -13,7 +13,7 @@
 #include <cstdlib>
 #include <iostream>
 
-#include <cmath>  // native_std::sqrt
+#include <cmath>  // 'std::sqrt'
 
 #include <stdio.h>
 #include <stdlib.h>      // 'atoi'
@@ -71,7 +71,7 @@ using namespace std;    // still using iostream
 // CREATORS:
 // [ 2] constexpr bitset() noexcept;
 // [ 3] constexpr bitset(unsigned long) noexcept;
-// [ 4] bitset(native_std::basic_string, size_type, size_type, char, char);
+// [ 4] bitset(std::basic_string, size_type, size_type, char, char);
 // [ 4] bitset(bsl::basic_string, size_type, size_type, char, char);
 // [  ] bitset(const bitset&) noexcept;
 // [ 2] ~bitset();
@@ -1081,7 +1081,7 @@ int main(int argc, char *argv[])
         //   value.
         //
         // Testing:
-        //  bitset(native_std::basic_string, size_type, size_type, char, char);
+        //  bitset(std::basic_string, size_type, size_type, char, char);
         //  bitset(bsl::basic_string, size_type, size_type, char, char);
         //  bsl::string to_string(char, char) const;
         // --------------------------------------------------------------------
@@ -1129,7 +1129,7 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) { T_ P_(LINE) P_(VALUE) P(STRING) }
 
-            const native_std::string s(STRING);
+            const std::string s(STRING);
             Obj mX(s);
             const Obj& X = mX;
             if (veryVeryVerbose) { T_ T_ P(X) }
@@ -1137,8 +1137,8 @@ int main(int argc, char *argv[])
             ASSERTV(LINE, verifyBitset(mX, STRING));
             ASSERTV(LINE, VALUE, X.to_ulong(), VALUE == X.to_ulong());
 #if !defined(BSLSTL_BITSET_NO_REBIND_IN_NATIVE_ALLOCATOR)
-            ASSERTV(LINE, (X.to_string<char, native_std::char_traits<char>,
-                               native_std::allocator<char> >() == s));
+            ASSERTV(LINE, (X.to_string<char, std::char_traits<char>,
+                               std::allocator<char> >() == s));
 #endif
 
             for (int ui = 0; ui < NUM_TRANSLATION_DATA; ++ui) {
@@ -1146,9 +1146,9 @@ int main(int argc, char *argv[])
                 const char         ZERO_CHAR = TRANSLATION_DATA[ui].d_zeroChar;
                 const char         ONE_CHAR  = TRANSLATION_DATA[ui].d_oneChar;
 
-                native_std::string sY(STRING);
+                std::string sY(STRING);
                 changeBitString(&sY, ZERO_CHAR, ONE_CHAR);
-                Obj mY(sY, 0, native_std::string::npos, ZERO_CHAR, ONE_CHAR);
+                Obj mY(sY, 0, std::string::npos, ZERO_CHAR, ONE_CHAR);
                 const Obj& Y = mY;
                 if (veryVeryVerbose) { T_ T_ P(Y) }
 
@@ -1156,11 +1156,11 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE2, VALUE, Y.to_ulong(), VALUE == Y.to_ulong());
 #if !defined(BSLSTL_BITSET_NO_REBIND_IN_NATIVE_ALLOCATOR)
                 ASSERTV(LINE2, (Y.to_string<char,
-                        native_std::string::traits_type,
-                        native_std::string::allocator_type>() == s));
+                        std::string::traits_type,
+                        std::string::allocator_type>() == s));
                 ASSERTV(LINE2, (X.to_string<char,
-                        native_std::string::traits_type,
-                        native_std::string::allocator_type>(
+                        std::string::traits_type,
+                        std::string::allocator_type>(
                             ZERO_CHAR, ONE_CHAR) == sY));
 #endif
 

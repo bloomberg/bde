@@ -24,7 +24,7 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_keyword.h>
 
-#include <utility>   // native_std::move for C++11
+#include <utility>   // 'std::move' for C++11
 
 #include <stdio.h>   // 'printf'
 #include <stdlib.h>  // 'atoi'

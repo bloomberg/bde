@@ -16,18 +16,18 @@ BSLS_IDENT("$Id: $")
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
 #include <bsls_compilerfeatures.h>
-#include <bsls_nativestd.h>
 
 #include <forward_list>
 
-#ifndef BSL_OVERRIDES_STD
 // According to C++11 Standard (24.6.5 range access) some functions ('begin',
 // 'cbegin', etc.) must be available not only via inclusion of the <iterator>
 // header, but also when <forward_list> is included.  To satisfy this
 // requirement the following inclusion is added.
-
 # include <bslstl_iterator.h>
-#endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace bsl {
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
@@ -35,12 +35,12 @@ namespace bsl {
 // 'forward_list'.  Instead, it relies on the native implementation functioning
 // correctly when 'bsl::allocator' is installed by specializations in the 'bsl'
 // namespace.  This requires the native implementation to have a conforming
-// implementation of 'native_std::allocator_traits', and for the native
+// implementation of 'std::allocator_traits', and for the native
 // implementation of 'foward_list' to defer all allocation and element
 // construction to the traits.
 
     template <class TYPE>
-    using forward_list = native_std::forward_list<TYPE, bsl::allocator<TYPE>>;
+    using forward_list = std::forward_list<TYPE, bsl::allocator<TYPE>>;
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 }  // close package namespace
 

@@ -4,12 +4,11 @@
 
 #include <bsls_deprecate.h>
 #include <bsls_keyword.h>
-#include <bsls_nativestd.h>
 #include <bsls_platform.h>
 
 #include <bsls_bsltestutil.h>
 
-#include <exception> // For 'native_std::exception'
+#include <exception> // For 'std::exception'
 
 #include <setjmp.h>
 #include <signal.h>
@@ -256,7 +255,7 @@ void exceptionSpecFunction() BSLS_EXCEPTION_SPEC((TestExceptionClass))
 }
 #endif // BSLS_DEPRECATE_IS_ACTIVE
 
-struct CustomException : native_std::exception {
+struct CustomException : std::exception {
     const char *what() const BSLS_EXCEPTION_VIRTUAL_NOTHROW
                                                          BSLS_KEYWORD_OVERRIDE;
 };
@@ -539,7 +538,7 @@ int main(int argc, char *argv[])
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS
         exceptionSpecFunction();
 #endif
-        const native_std::exception& anException = CustomException();
+        const std::exception& anException = CustomException();
         ASSERT(strcmp(anException.what(), "CustomException") == 0);
       } break;
       case 6: {

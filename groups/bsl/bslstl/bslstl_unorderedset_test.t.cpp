@@ -1688,9 +1688,8 @@ class TestDriver {
     }
 
     static
-    bsltf::TestValuesArrayIterator<KEY> indexIterator(
-                                                TestValues         *testValues,
-                                                native_std::size_t  index);
+    bsltf::TestValuesArrayIterator<KEY> indexIterator(TestValues  *testValues,
+                                                      std::size_t  index);
         // Return, by value, an iterator to the specified 'index'th element of
         // the specified 'testValues'.
 
@@ -7578,7 +7577,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase13()
             ASSERT(it == X.find(k));
             ASSERT(1 == numPasses);
 
-            if (native_std::strchr(SPEC, c)) {
+            if (std::strchr(SPEC, c)) {
                 ASSERT(isConstValue(*it));
 
                 ASSERT(*it  ==  k);
@@ -7608,7 +7607,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase13()
 
             ASSERTV(it == pr.first);
 
-            if (native_std::strchr(SPEC, c)) {
+            if (std::strchr(SPEC, c)) {
                 Iter after = pr.first; ++after;
                 ASSERT(after == pr.second);
             }
@@ -7649,7 +7648,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase12()
             for (char c = 'A'; c <= 'Z'; ++c) {
                 KEY k = VALUES[c - 'A'];
 
-                const size_t EXP = native_std::strchr(SPEC, c) ? 1 : 0;
+                const size_t EXP = std::strchr(SPEC, c) ? 1 : 0;
 
                 ASSERTV(LINE, SPEC, c, EXP, EXP == X.count(k));
             }
@@ -7814,7 +7813,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase12()
                     int        idx = c - 'A';
                     const KEY& k = VALUES[idx];
 
-                    native_std::size_t EXP = !!native_std::strchr(SPEC, c);
+                    std::size_t EXP = !!std::strchr(SPEC, c);
 
                     ASSERTV(LINE, SPEC, c, EXP, EXP == X.count(k));
                 }

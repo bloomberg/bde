@@ -16,41 +16,44 @@ BSLS_IDENT("$Id: $")
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
 #include <bsls_libraryfeatures.h>
-#include <bsls_nativestd.h>
 
 #include <numeric>
 
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
 namespace bsl {
     // Import selected symbols into bsl namespace
-    using native_std::accumulate;
-    using native_std::adjacent_difference;
-    using native_std::inner_product;
-    using native_std::partial_sum;
+    using std::accumulate;
+    using std::adjacent_difference;
+    using std::inner_product;
+    using std::partial_sum;
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-    using native_std::iota;
+    using std::iota;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-    using native_std::exclusive_scan;
-    using native_std::inclusive_scan;
-    using native_std::lcm;
-    using native_std::gcd;
-    using native_std::transform_exclusive_scan;
-    using native_std::transform_inclusive_scan;
-    using native_std::reduce;
-    using native_std::transform_reduce;
+    using std::exclusive_scan;
+    using std::inclusive_scan;
+    using std::lcm;
+    using std::gcd;
+    using std::transform_exclusive_scan;
+    using std::transform_inclusive_scan;
+    using std::reduce;
+    using std::transform_reduce;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // Import additional names expected by existing code, but not mandated by
     // the standard header.
-    using native_std::bidirectional_iterator_tag;
-    using native_std::forward_iterator_tag;
-    using native_std::input_iterator_tag;
-    using native_std::iterator;
-    using native_std::output_iterator_tag;
-    using native_std::random_access_iterator_tag;
+    using std::bidirectional_iterator_tag;
+    using std::forward_iterator_tag;
+    using std::input_iterator_tag;
+    using std::iterator;
+    using std::output_iterator_tag;
+    using std::random_access_iterator_tag;
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 }  // close package namespace
 

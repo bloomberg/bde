@@ -127,11 +127,11 @@ BSLS_IDENT("$Id: $")
 //          // 'false' with no action taken.
 //
 //      // ACCESSORS
-//      native_std::size_t count(void *ptr) const;
+//      std::size_t count(void *ptr) const;
 //          // Return 1 if the specified value 'ptr' is in this table and 0
 //          // otherwise.
 //
-//      native_std::size_t size() const;
+//      std::size_t size() const;
 //          // Return the number of discrete values that are stored in this
 //          // table.
 //  };
@@ -142,8 +142,8 @@ BSLS_IDENT("$Id: $")
 //      // 'bucketArraySize' will always be '2^N - 1', so that when pointers
 //      // are aligned by some 2^N they're likely to be relatively prime.
 //
-//      native_std::size_t newBucketArraySize = bucketArraySize() * 2 + 1;
-//      native_std::size_t newBucketArraySizeInBytes =
+//      std::size_t newBucketArraySize = bucketArraySize() * 2 + 1;
+//      std::size_t newBucketArraySizeInBytes =
 //                                         newBucketArraySize * sizeof(Bucket);
 //      memset(bucketArrayAddress(), 0x5a, size() * sizeof(Bucket));
 //      d_allocator_p->deallocate(bucketArrayAddress());
@@ -158,7 +158,7 @@ BSLS_IDENT("$Id: $")
 //          Node *rippedOut = node;
 //          node = (Node *) node->nextLink();
 //
-//          native_std::size_t index =
+//          std::size_t index =
 //                            (UintPtr) rippedOut->value() % bucketArraySize();
 //          Bucket& bucket = bucketArrayAddress()[index];
 //          if (bucket.first()) {
@@ -265,8 +265,8 @@ BSLS_IDENT("$Id: $")
 //      enum { NUM_BUCKETS = 3 };
 //
 //      d_allocator_p = bslma::Default::allocator(allocator);
-//      native_std::size_t bucketArraySizeInBytes =
-//                                                NUM_BUCKETS * sizeof(Bucket);
+//      std::size_t bucketArraySizeInBytes = NUM_BUCKETS * sizeof(Bucket);
+//                                                
 //      setBucketArrayAddressAndSize(
 //                  (Bucket *) d_allocator_p->allocate(bucketArraySizeInBytes),
 //                  NUM_BUCKETS);
@@ -366,12 +366,12 @@ BSLS_IDENT("$Id: $")
 //  }
 //
 //  // ACCESSORS
-//  native_std::size_t PtrHashSet::count(void *ptr) const
+//  std::size_t PtrHashSet::count(void *ptr) const
 //  {
 //      return find(0, 0, ptr);
 //  }
 //
-//  native_std::size_t PtrHashSet::size() const
+//  std::size_t PtrHashSet::size() const
 //  {
 //      return d_numNodes;
 //  }
@@ -458,9 +458,12 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_assert.h>
-#include <bsls_nativestd.h>
 
 #include <cstddef>
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 
@@ -493,7 +496,7 @@ class HashTableAnchor {
     HashTableBucket     *d_bucketArrayAddress_p;  // address of the array of
                                                   // buckets (held, not owned)
 
-    native_std::size_t   d_bucketArraySize;       // size of 'd_bucketArray'
+    std::size_t          d_bucketArraySize;       // size of 'd_bucketArray'
 
     BidirectionalLink   *d_listRootAddress_p;     // head of the list of
                                                   // elements in the hash-table
@@ -505,9 +508,9 @@ class HashTableAnchor {
                                    bsl::is_trivially_copyable);
 
     // CREATORS
-    HashTableAnchor(HashTableBucket    *bucketArrayAddress,
-                    native_std::size_t  bucketArraySize,
-                    BidirectionalLink  *listRootAddress);
+    HashTableAnchor(HashTableBucket   *bucketArrayAddress,
+                    std::size_t        bucketArraySize,
+                    BidirectionalLink *listRootAddress);
         // Create a 'bslalg::HashTableAnchor' object having the specified
         // 'bucketArrayAddress', 'bucketArraySize', and 'listRootAddress'
         // attributes.  The behavior is undefined unless 'bucketArrayAddress'
@@ -527,8 +530,8 @@ class HashTableAnchor {
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.
 
-    void setBucketArrayAddressAndSize(HashTableBucket    *bucketArrayAddress,
-                                      native_std::size_t  bucketArraySize);
+    void setBucketArrayAddressAndSize(HashTableBucket *bucketArrayAddress,
+                                      std::size_t      bucketArraySize);
         // Set the bucket array address and bucket array size attributes of
         // this object to the specified 'bucketArrayAddress' and
         // 'bucketArraySize' values.  The behavior is undefined unless
@@ -552,7 +555,7 @@ class HashTableAnchor {
         // Return the value of the 'bucketArrayAddress' attribute of this
         // object.
 
-    native_std::size_t bucketArraySize() const;
+    std::size_t bucketArraySize() const;
         // Return the value of the 'bucketArraySize' attribute of this object.
 
     BidirectionalLink *listRootAddress() const;
@@ -592,7 +595,7 @@ void swap(HashTableAnchor& a, HashTableAnchor& b);
 // CREATORS
 inline
 HashTableAnchor::HashTableAnchor(bslalg::HashTableBucket   *bucketArrayAddress,
-                                 native_std::size_t         bucketArraySize,
+                                 std::size_t                bucketArraySize,
                                  bslalg::BidirectionalLink *listRootAddress)
 : d_bucketArrayAddress_p(bucketArrayAddress)
 , d_bucketArraySize(bucketArraySize)
@@ -623,8 +626,8 @@ HashTableAnchor& HashTableAnchor::operator=(const HashTableAnchor& rhs)
 
 inline
 void HashTableAnchor::setBucketArrayAddressAndSize(
-                                        HashTableBucket    *bucketArrayAddress,
-                                        native_std::size_t  bucketArraySize)
+                                           HashTableBucket *bucketArrayAddress,
+                                           std::size_t      bucketArraySize)
 {
     BSLS_ASSERT_SAFE(( bucketArrayAddress && 0 < bucketArraySize)
                   || (!bucketArrayAddress &&    !bucketArraySize));

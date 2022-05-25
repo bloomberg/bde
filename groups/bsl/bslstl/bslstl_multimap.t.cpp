@@ -3059,7 +3059,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase1(const COMP&  comparator,
         printf("Test primary manipulators/accessors on every permutation.\n");
     }
 
-    native_std::sort(testKeys, testKeys + numValues, comparator);
+    std::sort(testKeys, testKeys + numValues, comparator);
     do {
         // For each possible permutation of values, insert values, iterate over
         // the resulting container, find values, and then erase values.
@@ -3196,9 +3196,9 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase1(const COMP&  comparator,
                 ASSERTV(!comparator(resIt->first, testKeys[i]));
             }
         }
-    } while (native_std::next_permutation(testKeys,
-                                          testKeys + numValues,
-                                          comparator));
+    } while (std::next_permutation(testKeys,
+                                   testKeys + numValues,
+                                   comparator));
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -3212,7 +3212,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase1(const COMP&  comparator,
         // removed.  Note that this test requires the 'testKeys' array to be in
         // the same (sorted) order as the eventual container.
 
-        native_std::sort(testKeys, testKeys + numValues, comparator);
+        std::sort(testKeys, testKeys + numValues, comparator);
         for (size_t i = 0; i < numValues; ++i) {
             for (size_t j = i; j < numValues; ++j) {
                 Obj x(comparator, &objectAllocator); const Obj& X = x;
@@ -3224,7 +3224,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase1(const COMP&  comparator,
                 const_iterator b = X.find(testKeys[j]);
 
                 if (!comparator(testKeys[i], testKeys[j])) {
-                    native_std::swap(a, b);
+                    std::swap(a, b);
                 }
 
                 KEY min = a->first;
@@ -3240,9 +3240,9 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase1(const COMP&  comparator,
                 for (size_t k = 0; k < numValues; ++k) {
 
                     Value value(testKeys[k], static_cast<VALUE>(k));
-                    const_iterator it = native_std::find(X.begin(),
-                                                         X.end(),
-                                                         value);
+                    const_iterator it = std::find(X.begin(),
+                                                  X.end(),
+                                                  value);
                     bool found = it != X.end();
                     ASSERTV(found == (k < i || k >=j));
                 }
@@ -3253,11 +3253,11 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase1(const COMP&  comparator,
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-    native_std::shuffle(testKeys,
-                        testKeys + numValues,
-                        native_std::default_random_engine());
+    std::shuffle(testKeys,
+                 testKeys + numValues,
+                 std::default_random_engine());
 #else  // fall-back for C++03, potentially unsupported in C++17
-    native_std::random_shuffle(testKeys,  testKeys + numValues);
+    std::random_shuffle(testKeys,  testKeys + numValues);
 #endif
 
     if (veryVerbose) {
@@ -3413,7 +3413,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase1(const COMP&  comparator,
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    native_std::sort(testKeys, testKeys + numValues, comparator);
+    std::sort(testKeys, testKeys + numValues, comparator);
     if (veryVerbose) {
         printf("Test 'key_comp' and 'value_comp'.\n");
     }

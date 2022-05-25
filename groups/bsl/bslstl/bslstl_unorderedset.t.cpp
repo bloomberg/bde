@@ -1442,9 +1442,8 @@ class TestDriver {
     }
 
     static
-    bsltf::TestValuesArrayIterator<KEY> indexIterator(
-                                                TestValues         *testValues,
-                                                native_std::size_t  index);
+    bsltf::TestValuesArrayIterator<KEY> indexIterator(TestValues  *testValues,
+                                                      std::size_t  index);
         // Return, by value, an iterator to the specified 'index'th element of
         // the specified 'testValues'.
 

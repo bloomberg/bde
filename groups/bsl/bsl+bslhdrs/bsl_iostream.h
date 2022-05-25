@@ -20,22 +20,25 @@ BSLS_IDENT("$Id: $")
 #include <bsl_ostream.h>
 #include <bsl_streambuf.h>
 
-#include <bsls_nativestd.h>
 #include <bsls_platform.h>
 
 #include <iostream>
 
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
 namespace bsl {
     // Import selected symbols into bsl namespace
 
-    using native_std::cerr;
-    using native_std::cin;
-    using native_std::clog;
-    using native_std::cout;
-    using native_std::wcerr;
-    using native_std::wcin;
-    using native_std::wclog;
-    using native_std::wcout;
+    using std::cerr;
+    using std::cin;
+    using std::clog;
+    using std::cout;
+    using std::wcerr;
+    using std::wcin;
+    using std::wclog;
+    using std::wcout;
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // Export additional names, leaked to support transitive dependencies in
@@ -43,45 +46,45 @@ namespace bsl {
 # if !defined(BSLS_PLATFORM_CMP_MSVC) && __cplusplus < 201703L
     // As some of these names are removed from C++17, take a sledgehammer to
     // crack this nut, and remove all non-standard exports.
-    using native_std::bad_exception;
-    using native_std::basic_ios;
-    using native_std::basic_iostream;
-    using native_std::basic_istream;
-    using native_std::basic_ostream;
-    using native_std::basic_streambuf;
-    using native_std::bidirectional_iterator_tag;
-    using native_std::ctype;
-    using native_std::ctype_base;
-    using native_std::ctype_byname;
-    using native_std::endl;
-    using native_std::ends;
-    using native_std::exception;
-    using native_std::flush;
-    using native_std::forward_iterator_tag;
-    using native_std::input_iterator_tag;
-    using native_std::ios_base;
-    using native_std::iostream;
-    using native_std::istream;
-    using native_std::istreambuf_iterator;
-    using native_std::iterator;
-    using native_std::locale;
-    using native_std::num_get;
-    using native_std::numpunct;
-    using native_std::numpunct_byname;
-    using native_std::ostream;
-    using native_std::ostreambuf_iterator;
-    using native_std::output_iterator_tag;
-    using native_std::random_access_iterator_tag;
-    using native_std::set_terminate;
-    using native_std::set_unexpected;
-    using native_std::swap;
-    using native_std::terminate;
-    using native_std::terminate_handler;
-    using native_std::uncaught_exception;
-    using native_std::unexpected;
-    using native_std::unexpected_handler;
-    using native_std::use_facet;
-    using native_std::ws;
+    using std::bad_exception;
+    using std::basic_ios;
+    using std::basic_iostream;
+    using std::basic_istream;
+    using std::basic_ostream;
+    using std::basic_streambuf;
+    using std::bidirectional_iterator_tag;
+    using std::ctype;
+    using std::ctype_base;
+    using std::ctype_byname;
+    using std::endl;
+    using std::ends;
+    using std::exception;
+    using std::flush;
+    using std::forward_iterator_tag;
+    using std::input_iterator_tag;
+    using std::ios_base;
+    using std::iostream;
+    using std::istream;
+    using std::istreambuf_iterator;
+    using std::iterator;
+    using std::locale;
+    using std::num_get;
+    using std::numpunct;
+    using std::numpunct_byname;
+    using std::ostream;
+    using std::ostreambuf_iterator;
+    using std::output_iterator_tag;
+    using std::random_access_iterator_tag;
+    using std::set_terminate;
+    using std::set_unexpected;
+    using std::swap;
+    using std::terminate;
+    using std::terminate_handler;
+    using std::uncaught_exception;
+    using std::unexpected;
+    using std::unexpected_handler;
+    using std::use_facet;
+    using std::ws;
 # endif // MSVC, or C++2017
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 }  // close package namespace

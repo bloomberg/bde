@@ -54,7 +54,6 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 
 #include <bsls_libraryfeatures.h>
-#include <bsls_nativestd.h>
 
 #include <bslstl_errc.h>
 #include <bslstl_error.h>
@@ -66,12 +65,16 @@ BSLS_IDENT("$Id: $")
 #include <stdexcept>
 #include <string>
 
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
 #include <system_error>
 
 namespace bsl {
-using native_std::system_error;
+using std::system_error;
 }  // close namespace bsl
 
 #else
@@ -82,21 +85,21 @@ namespace bsl {
                              // class system_error
                              // ==================
 
-class system_error : public native_std::runtime_error {
+class system_error : public std::runtime_error {
     // This class represents exceptions that have an associated error code.
 
   public:
     // CREATORS
-    system_error(error_code code, const native_std::string& what);
+    system_error(error_code code, const std::string& what);
     system_error(error_code code, const char *what);
     system_error(error_code code);                                  // IMPLICIT
         // Create an object of this type holding the specified 'code'.
         // Optionally specify a string 'what' to be added to the description of
         // this object.
 
-    system_error(int                       value,
-                 const error_category&     category,
-                 const native_std::string& what);
+    system_error(int                   value,
+                 const error_category& category,
+                 const std::string&    what);
     system_error(int value, const error_category& category, const char *what);
     system_error(int value, const error_category& category);
         // Create an object of this type holding an error code holding the
@@ -122,32 +125,32 @@ class system_error : public native_std::runtime_error {
 
 // CREATORS
 inline
-system_error::system_error(error_code code, const native_std::string& what)
-: native_std::runtime_error(what + native_std::string(": ") + code.message())
+system_error::system_error(error_code code, const std::string& what)
+: std::runtime_error(what + std::string(": ") + code.message())
 , d_code(code)
 {
 }
 
 inline
 system_error::system_error(error_code code, const char *what)
-: native_std::runtime_error(what + native_std::string(": ") + code.message())
+: std::runtime_error(what + std::string(": ") + code.message())
 , d_code(code)
 {
 }
 
 inline
 system_error::system_error(error_code code)
-: native_std::runtime_error(code.message())
+: std::runtime_error(code.message())
 , d_code(code)
 {
 }
 
 inline
-system_error::system_error(int                       value,
-                           const error_category&     category,
-                           const native_std::string& what)
-: native_std::runtime_error(what + native_std::string(": ") +
-                            category.message(value))
+system_error::system_error(int                   value,
+                           const error_category& category,
+                           const std::string&    what)
+: std::runtime_error(what + std::string(": ") +
+                     category.message(value))
 , d_code(value, category)
 {
 }
@@ -156,7 +159,7 @@ inline
 system_error::system_error(int                    value,
                            const error_category&  category,
                            const char            *what)
-: native_std::runtime_error(what + native_std::string(": ") +
+: std::runtime_error(what + std::string(": ") +
                             category.message(value))
 , d_code(value, category)
 {
@@ -164,7 +167,7 @@ system_error::system_error(int                    value,
 
 inline
 system_error::system_error(int value, const error_category& category)
-: native_std::runtime_error(category.message(value))
+: std::runtime_error(category.message(value))
 , d_code(value, category)
 {
 }

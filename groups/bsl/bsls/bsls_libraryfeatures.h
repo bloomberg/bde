@@ -51,7 +51,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD: implementation is Sun's (RogueWave)
 //  BSLS_LIBRARYFEATURES_STDCPP_STLPORT: implementation is STLPort
 //
-//@SEE_ALSO: bsls_platform, bsls_compilerfeatures, bsls_nativestd
+//@SEE_ALSO: bsls_platform, bsls_compilerfeatures
 //
 //@DESCRIPTION: This component provides a suite of preprocessor macros that
 // indicate the availability of library-specific support of features that may
@@ -68,10 +68,7 @@ BSLS_IDENT("$Id: $")
 //
 // The standard library version described by these macros always corresponds to
 // that used to build this component and is the source of the symbols found in
-// the 'native_std' namespace.  Recall that symbols in the 'native_std'
-// namespace (alias) always refer to symbols in the native standard library,
-// whereas 'std' symbols may or may not be aliases for symbols in the 'bsl'
-// namespace, depending on build configuration.
+// the 'std' namespace.
 //
 ///Guarding Against Mixing C++ Versions
 ///------------------------------------
@@ -798,7 +795,7 @@ BSLS_IDENT("$Id: $")
 // indicate whether or not the 'bool_constant' alias template (defined in
 // '<type_traits>') is provided by the native standard library.  It has since
 // been discovered that, as 'bsl::integral_constant' is actually a distinct
-// class template derived from 'native_std::integral_constant', there must
+// class template derived from 'std::integral_constant', there must
 // always be a distinct 'bsl' alias template, which will be provided in a
 // future BDE release.  Given this new direction, the need for a macro for the
 // native type is obviated so 'BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT' is
@@ -886,7 +883,7 @@ BSLS_IDENT("$Id: $")
 // standard library provides that type, and yet remain compilable otherwise.
 //
 // First, we conditionally include the header file we will need if we define an
-// interface that returns a 'native_std::tuple'.
+// interface that returns a 'std::tuple'.
 //..
 //  #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
 //  # ifndef INCLUDED_TUPLE
@@ -913,7 +910,7 @@ BSLS_IDENT("$Id: $")
 // because the input need be traversed one time, not three.
 //..
 //  #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
-//      static native_std::tuple<int, double, double> getMedianMeanVariance(
+//      static std::tuple<int, double, double> getMedianMeanVariance(
 //                                                            const int *begin,
 //                                                            const int *end);
 //          // Return the median, mean, and variance (in that order) of the

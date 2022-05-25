@@ -16,7 +16,10 @@ BSLS_IDENT("$Id: $")
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
 #include <bsls_libraryfeatures.h>
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #if BSLS_LIBRARYFEATURES_HAS_CPP17_PARALLEL_ALGORITHMS
 
@@ -24,23 +27,23 @@ BSLS_IDENT("$Id: $")
 
 namespace bsl {
 
-    using native_std::is_execution_policy;
+    using std::is_execution_policy;
 
     namespace execution {
         // Import selected symbols into bsl namespace
-        using native_std::execution::par;
-        using native_std::execution::par_unseq;
-        using native_std::execution::parallel_policy;
-        using native_std::execution::parallel_unsequenced_policy;
-        using native_std::execution::seq;
-        using native_std::execution::sequenced_policy;
+        using std::execution::par;
+        using std::execution::par_unseq;
+        using std::execution::parallel_policy;
+        using std::execution::parallel_unsequenced_policy;
+        using std::execution::seq;
+        using std::execution::sequenced_policy;
     }  // close execution namespace
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
 template <class TYPE>
 BSLS_KEYWORD_INLINE_VARIABLE
 constexpr bool is_execution_policy_v =
-                       native_std::is_execution_policy<TYPE>::value;
+                       std::is_execution_policy<TYPE>::value;
 
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
 

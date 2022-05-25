@@ -87,9 +87,9 @@ BSLS_IDENT("$Id: $")
 //          return d_begin_p;
 //      }
 //
-//      native_std::size_t length() const
+//      std::size_t length() const
 //      {
-//          return static_cast<native_std::size_t>(d_end_p - d_begin_p);
+//          return static_cast<std::size_t>(d_end_p - d_begin_p);
 //      }
 //  };
 //..
@@ -146,9 +146,12 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_assert.h>
-#include <bsls_nativestd.h>
 
 #include <iosfwd>
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 
@@ -170,7 +173,7 @@ class StringRefData : public bsl::basic_string_view<CHAR_TYPE> {
 
   public:
     // CLASS METHODS
-    static native_std::size_t cStringLength(const CHAR_TYPE *data);
+    static std::size_t cStringLength(const CHAR_TYPE *data);
         // Return the number of 'CHAR_TYPE' characters in the specified
         // null-terminated 'data' string, up to but not including the terminal
         // null value.
@@ -213,12 +216,12 @@ class StringRefData : public bsl::basic_string_view<CHAR_TYPE> {
 // CLASS METHODS
 template <class CHAR_TYPE>
 inline
-native_std::size_t StringRefData<CHAR_TYPE>::cStringLength(
+std::size_t StringRefData<CHAR_TYPE>::cStringLength(
                                                          const CHAR_TYPE *data)
 {
     BSLS_ASSERT_SAFE(data);
 
-    return native_std::char_traits<CHAR_TYPE>::length(data);
+    return std::char_traits<CHAR_TYPE>::length(data);
 }
 
 // CREATORS

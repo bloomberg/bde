@@ -836,11 +836,6 @@ bdldfp::operator<< <wchar_t, bsl::char_traits<wchar_t> >(
 }  // close enterprise namespace
                   // std::numeric_limits<> specializations
 
-#if defined(BSL_OVERRIDES_STD) && defined(std)
-#   undef std
-#   define BDLDFP_DECIMAL_RESTORE_STD
-#endif
-
             // ---------------------------------------------------
             // std::numeric_limits<BloombergLP::bdldfp::Decimal32>
             // ---------------------------------------------------
@@ -1020,11 +1015,6 @@ BloombergLP::bdldfp::Decimal128
 {
     return BloombergLP::bdldfp::DecimalImpUtil::denormMin128();
 }
-
-#if defined(BDLDFP_DECIMAL_RESTORE_STD)
-#   define std bsl
-#   undef BDLDFP_DECIMAL_RESTORE_STD
-#endif
 
 // ----------------------------------------------------------------------------
 // Copyright 2014 Bloomberg Finance L.P.

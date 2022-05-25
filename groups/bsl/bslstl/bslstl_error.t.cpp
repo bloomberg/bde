@@ -60,7 +60,7 @@ using namespace bsl;
 // [ 5] error_condition default_error_condition(int)
 // [ 5] bool equivalent(int, const error_condition&) const
 // [ 5] bool equivalent(const error_code&, int) const
-// [ 5] native_std::string message(int) const
+// [ 5] std::string message(int) const
 // [ 5] const char *name() const
 // [ 5] bool operator==(const error_category&) const
 // [ 5] bool operator!=(const error_category&) const
@@ -75,7 +75,7 @@ using namespace bsl;
 // [ 6] void clear()
 // [ 6] const error_category& category() const
 // [ 6] error_condition default_error_condition() const
-// [ 6] native_std::string message() const
+// [ 6] std::string message() const
 // [ 6] int value() const
 // [ 6] operator int BloombergLP::bsls::UnspecifiedBool::*()
 //
@@ -87,7 +87,7 @@ using namespace bsl;
 // [ 7] error_condition& operator=(ERROR_CODE_ENUM)
 // [ 7] void clear()
 // [ 7] const error_category& category() const
-// [ 7] native_std::string message() const
+// [ 7] std::string message() const
 // [ 7] int value() const
 // [ 7] operator int BloombergLP::bsls::UnspecifiedBool::*()
 //
@@ -199,7 +199,7 @@ struct concrete_error_category : public bsl::error_category
     // This class represents a concrete error category.
 {
     // ACCESSORS
-    native_std::string message(int) const BSLS_KEYWORD_OVERRIDE;
+    std::string message(int) const BSLS_KEYWORD_OVERRIDE;
         // Unused implementation.
 
     const char *name() const BSLS_KEYWORD_NOEXCEPT BSLS_KEYWORD_OVERRIDE;
@@ -207,7 +207,7 @@ struct concrete_error_category : public bsl::error_category
 };
 
 // ACCESSORS
-native_std::string concrete_error_category::message(int) const
+std::string concrete_error_category::message(int) const
 {
     ASSERT(false);
     abort();
@@ -243,7 +243,7 @@ struct test_error_category : public concrete_error_category
                                    BSLS_KEYWORD_NOEXCEPT BSLS_KEYWORD_OVERRIDE;
         // Return whether the specified 'condition' is 2.
 
-    native_std::string message(int value) const BSLS_KEYWORD_OVERRIDE;
+    std::string message(int value) const BSLS_KEYWORD_OVERRIDE;
         // Return a string describing the specified 'value' using extra
         // annotation.
 
@@ -279,9 +279,9 @@ bool test_error_category::equivalent(const error_code&, int condition) const
     return 2 == condition;
 }
 
-native_std::string test_error_category::message(int value) const
+std::string test_error_category::message(int value) const
 {
-    return native_std::string("M: ") + strerror(value);
+    return std::string("M: ") + strerror(value);
 }
 
 const char *test_error_category::name() const BSLS_KEYWORD_NOEXCEPT
@@ -348,7 +348,7 @@ const char *test_error_category::name() const BSLS_KEYWORD_NOEXCEPT
 // Next, we define a category class that represents these errors.  This class
 // derives from 'bsl::error_category' and overrides the two pure virtual
 // methods required for a minimal implementation.  Note that the return type of
-// the virtual 'message' method is 'native_std::string' which allows the same
+// the virtual 'message' method is 'std::string' which allows the same
 // implementation to be used both in C++03 and C++11 modes.  We also define the
 // 'category' class method that maintains a singleton instance of the category
 // class uniquely identifying the error type.
@@ -359,7 +359,7 @@ const char *test_error_category::name() const BSLS_KEYWORD_NOEXCEPT
             // Create an object of this type.
 
         // ACCESSORS
-        native_std::string message(int value) const BSLS_KEYWORD_OVERRIDE;
+        std::string message(int value) const BSLS_KEYWORD_OVERRIDE;
             // Return a string describing the specified 'value'.
 
         const char *name() const BSLS_KEYWORD_NOEXCEPT BSLS_KEYWORD_OVERRIDE;
@@ -378,7 +378,7 @@ const char *test_error_category::name() const BSLS_KEYWORD_NOEXCEPT
 
     // ACCESSORS
     inline
-    native_std::string ErrorsCategory::message(int value) const
+    std::string ErrorsCategory::message(int value) const
     {
         // Note that an out-of-range cast to 'Errors::Enum' is formally
         // undefined behavior, so the range check is necessary.
@@ -438,13 +438,8 @@ const char *test_error_category::name() const BSLS_KEYWORD_NOEXCEPT
 // specializations must appear in the same namespace in which the class
 // templates are defined, and this component provides macros naming these
 // namespaces portably.  Again, for exposition, 'Errors::Enum' is marked as
-// both an error code and an error condition.  (Note that if this code is
-// intended to be used with 'BSL_OVERRIDES_STD' and C++11, it is necessary to
-// bracket it as shown, or it will not compile.)
+// both an error code and an error condition.
 //..
-    #ifdef BSL_OVERRIDES_STD
-    #undef std
-    #endif
     namespace BSL_IS_ERROR_CODE_ENUM_NAMESPACE {
     template <>
     struct is_error_code_enum<BloombergLP::carfx::Errors::Enum>
@@ -456,9 +451,6 @@ const char *test_error_category::name() const BSLS_KEYWORD_NOEXCEPT
     struct is_error_condition_enum<BloombergLP::carfx::Errors::Enum>
     : public bsl::true_type { };
     }  // close namespace BSL_IS_ERROR_CONDITION_ENUM_NAMESPACE
-    #ifdef BSL_OVERRIDES_STD
-    #define std bsl
-    #endif
 //..
 // Now, write a function that can potentially have errors.
 //..
@@ -558,7 +550,7 @@ int main(int argc, char *argv[])
         //   error_condition& operator=(ERROR_CODE_ENUM)
         //   void clear()
         //   const error_category& category() const
-        //   native_std::string message() const
+        //   std::string message() const
         //   int value() const
         //   operator int BloombergLP::bsls::UnspecifiedBool::*()
         // --------------------------------------------------------------------
@@ -643,7 +635,7 @@ int main(int argc, char *argv[])
         }
 
         if (veryVerbose) {
-            printf("native_std::string message() const\n");
+            printf("std::string message() const\n");
         }
         {
             error_condition        mX(static_cast<int>(errc::no_link),
@@ -715,7 +707,7 @@ int main(int argc, char *argv[])
         //   void clear()
         //   const error_category& category() const
         //   error_condition default_error_condition() const
-        //   native_std::string message() const
+        //   std::string message() const
         //   int value() const
         //   operator int BloombergLP::bsls::UnspecifiedBool::*()
         // --------------------------------------------------------------------
@@ -821,7 +813,7 @@ int main(int argc, char *argv[])
         }
 
         if (veryVerbose) {
-            printf("native_std::string message() const\n");
+            printf("std::string message() const\n");
         }
         {
             error_code        mX(static_cast<int>(errc::no_link),
@@ -933,7 +925,7 @@ int main(int argc, char *argv[])
         //   error_condition default_error_condition(int)
         //   bool equivalent(int, const error_condition&) const
         //   bool equivalent(const error_code&, int) const
-        //   native_std::string message(int) const
+        //   std::string message(int) const
         //   const char *name() const
         //   bool operator==(const error_category&) const
         //   bool operator!=(const error_category&) const

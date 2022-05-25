@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Tue Feb  1 19:27:34 2022
+// Generated on Wed May 18 23:01:34 2022
 // Command line: sim_cpp11_features.pl bslstl_priorityqueue.h
 
 #ifdef COMPILING_BSLSTL_PRIORITYQUEUE_H
@@ -34,7 +34,7 @@ namespace bsl {
 
 template <class VALUE,
           class CONTAINER  = vector<VALUE>,
-          class COMPARATOR = native_std::less<typename CONTAINER::value_type> >
+          class COMPARATOR = std::less<typename CONTAINER::value_type> >
 class priority_queue {
     // This class is a value-semantic class template, adapting a container of
     // the (template parameter) type 'CONTAINER', that holds elements of the
@@ -539,7 +539,7 @@ priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
 : c(container)
 , comp(comparator)
 {
-    native_std::make_heap(c.begin(), c.end(), comp);
+    std::make_heap(c.begin(), c.end(), comp);
 }
 
 template <class VALUE, class CONTAINER, class COMPARATOR>
@@ -550,7 +550,7 @@ priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
 : c(MoveUtil::move(container))
 , comp(comparator)
 {
-    native_std::make_heap(c.begin(), c.end(), comp);
+    std::make_heap(c.begin(), c.end(), comp);
 }
 
 template <class VALUE, class CONTAINER, class COMPARATOR>
@@ -561,7 +561,7 @@ priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
                                                        INPUT_ITERATOR    last)
 {
     c.insert(c.end(), first, last);
-    native_std::make_heap(c.begin(), c.end(), comp);
+    std::make_heap(c.begin(), c.end(), comp);
 }
 
 template <class VALUE, class CONTAINER, class COMPARATOR>
@@ -576,7 +576,7 @@ priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
 , comp(comparator)
 {
     c.insert(c.end(), first, last);
-    native_std::make_heap(c.begin(), c.end(), comp);
+    std::make_heap(c.begin(), c.end(), comp);
 }
 
 template <class VALUE, class CONTAINER, class COMPARATOR>
@@ -591,7 +591,7 @@ priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
 , comp(comparator)
 {
     c.insert(c.end(), first, last);
-    native_std::make_heap(c.begin(), c.end(), comp);
+    std::make_heap(c.begin(), c.end(), comp);
 }
 
 template <class VALUE, class CONTAINER, class COMPARATOR>
@@ -652,7 +652,7 @@ priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
 : c(container, basicAllocator)
 , comp(comparator)
 {
-    native_std::make_heap(c.begin(), c.end(), comp);
+    std::make_heap(c.begin(), c.end(), comp);
 }
 
 template <class VALUE, class CONTAINER, class COMPARATOR>
@@ -668,7 +668,7 @@ priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
 : c(MoveUtil::move(container), basicAllocator)
 , comp(comparator)
 {
-    native_std::make_heap(c.begin(), c.end(), comp);
+    std::make_heap(c.begin(), c.end(), comp);
 }
 
 template <class VALUE, class CONTAINER, class COMPARATOR>
@@ -729,7 +729,7 @@ void priority_queue<VALUE, CONTAINER, COMPARATOR>::push(
                                                        const value_type& value)
 {
     c.push_back(value);
-    native_std::push_heap(c.begin(), c.end(), comp);
+    std::push_heap(c.begin(), c.end(), comp);
 }
 
 template <class VALUE, class CONTAINER, class COMPARATOR>
@@ -738,7 +738,7 @@ void priority_queue<VALUE, CONTAINER, COMPARATOR>::push(
                               BloombergLP::bslmf::MovableRef<value_type> value)
 {
     c.push_back(MoveUtil::move(value));
-    native_std::push_heap(c.begin(), c.end(), comp);
+    std::push_heap(c.begin(), c.end(), comp);
 }
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
@@ -757,7 +757,7 @@ void priority_queue<VALUE, CONTAINER, COMPARATOR>::emplace(
                                )
 {
     c.emplace_back();
-    native_std::push_heap(c.begin(), c.end(), comp);
+    std::push_heap(c.begin(), c.end(), comp);
 }
 #endif  // BSLSTL_PRIORITYQUEUE_VARIADIC_LIMIT_B >= 0
 
@@ -769,7 +769,7 @@ void priority_queue<VALUE, CONTAINER, COMPARATOR>::emplace(
                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01)
 {
     c.emplace_back(BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01));
-    native_std::push_heap(c.begin(), c.end(), comp);
+    std::push_heap(c.begin(), c.end(), comp);
 }
 #endif  // BSLSTL_PRIORITYQUEUE_VARIADIC_LIMIT_B >= 1
 
@@ -784,7 +784,7 @@ void priority_queue<VALUE, CONTAINER, COMPARATOR>::emplace(
 {
     c.emplace_back(BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
                    BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02));
-    native_std::push_heap(c.begin(), c.end(), comp);
+    std::push_heap(c.begin(), c.end(), comp);
 }
 #endif  // BSLSTL_PRIORITYQUEUE_VARIADIC_LIMIT_B >= 2
 
@@ -802,7 +802,7 @@ void priority_queue<VALUE, CONTAINER, COMPARATOR>::emplace(
     c.emplace_back(BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
                    BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
                    BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03));
-    native_std::push_heap(c.begin(), c.end(), comp);
+    std::push_heap(c.begin(), c.end(), comp);
 }
 #endif  // BSLSTL_PRIORITYQUEUE_VARIADIC_LIMIT_B >= 3
 
@@ -823,7 +823,7 @@ void priority_queue<VALUE, CONTAINER, COMPARATOR>::emplace(
                    BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
                    BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
                    BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04));
-    native_std::push_heap(c.begin(), c.end(), comp);
+    std::push_heap(c.begin(), c.end(), comp);
 }
 #endif  // BSLSTL_PRIORITYQUEUE_VARIADIC_LIMIT_B >= 4
 
@@ -847,7 +847,7 @@ void priority_queue<VALUE, CONTAINER, COMPARATOR>::emplace(
                    BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
                    BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
                    BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05));
-    native_std::push_heap(c.begin(), c.end(), comp);
+    std::push_heap(c.begin(), c.end(), comp);
 }
 #endif  // BSLSTL_PRIORITYQUEUE_VARIADIC_LIMIT_B >= 5
 
@@ -874,7 +874,7 @@ void priority_queue<VALUE, CONTAINER, COMPARATOR>::emplace(
                    BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
                    BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
                    BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06));
-    native_std::push_heap(c.begin(), c.end(), comp);
+    std::push_heap(c.begin(), c.end(), comp);
 }
 #endif  // BSLSTL_PRIORITYQUEUE_VARIADIC_LIMIT_B >= 6
 
@@ -904,7 +904,7 @@ void priority_queue<VALUE, CONTAINER, COMPARATOR>::emplace(
                    BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
                    BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
                    BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07));
-    native_std::push_heap(c.begin(), c.end(), comp);
+    std::push_heap(c.begin(), c.end(), comp);
 }
 #endif  // BSLSTL_PRIORITYQUEUE_VARIADIC_LIMIT_B >= 7
 
@@ -937,7 +937,7 @@ void priority_queue<VALUE, CONTAINER, COMPARATOR>::emplace(
                    BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
                    BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07),
                    BSLS_COMPILERFEATURES_FORWARD(Args_08,args_08));
-    native_std::push_heap(c.begin(), c.end(), comp);
+    std::push_heap(c.begin(), c.end(), comp);
 }
 #endif  // BSLSTL_PRIORITYQUEUE_VARIADIC_LIMIT_B >= 8
 
@@ -973,7 +973,7 @@ void priority_queue<VALUE, CONTAINER, COMPARATOR>::emplace(
                    BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07),
                    BSLS_COMPILERFEATURES_FORWARD(Args_08,args_08),
                    BSLS_COMPILERFEATURES_FORWARD(Args_09,args_09));
-    native_std::push_heap(c.begin(), c.end(), comp);
+    std::push_heap(c.begin(), c.end(), comp);
 }
 #endif  // BSLSTL_PRIORITYQUEUE_VARIADIC_LIMIT_B >= 9
 
@@ -1012,7 +1012,7 @@ void priority_queue<VALUE, CONTAINER, COMPARATOR>::emplace(
                    BSLS_COMPILERFEATURES_FORWARD(Args_08,args_08),
                    BSLS_COMPILERFEATURES_FORWARD(Args_09,args_09),
                    BSLS_COMPILERFEATURES_FORWARD(Args_10,args_10));
-    native_std::push_heap(c.begin(), c.end(), comp);
+    std::push_heap(c.begin(), c.end(), comp);
 }
 #endif  // BSLSTL_PRIORITYQUEUE_VARIADIC_LIMIT_B >= 10
 
@@ -1026,7 +1026,7 @@ void priority_queue<VALUE, CONTAINER, COMPARATOR>::emplace(
                                BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args)
 {
     c.emplace_back(BSLS_COMPILERFEATURES_FORWARD(Args,args)...);
-    native_std::push_heap(c.begin(), c.end(), comp);
+    std::push_heap(c.begin(), c.end(), comp);
 }
 // }}} END GENERATED CODE
 #endif
@@ -1035,7 +1035,7 @@ template <class VALUE, class CONTAINER, class COMPARATOR>
 inline
 void priority_queue<VALUE, CONTAINER, COMPARATOR>::pop()
 {
-    native_std::pop_heap(c.begin(), c.end(), comp);
+    std::pop_heap(c.begin(), c.end(), comp);
     c.pop_back();
 }
 

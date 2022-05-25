@@ -140,7 +140,7 @@ BSLS_IDENT("$Id: $")
 //      typedef bslalg::HashTableBucket           Bucket;
 //      typedef bslalg::BidirectionalLinkListUtil ListUtil;
 //      typedef bslalg::HashTableImpUtil          ImpUtil;
-//      typedef native_std::size_t                size_t;
+//      typedef std::size_t                       size_t;
 //
 //      struct Policy {
 //          typedef KEY KeyType;
@@ -203,11 +203,11 @@ BSLS_IDENT("$Id: $")
 //          // 'false' with no action taken.
 //
 //      // ACCESSORS
-//      native_std::size_t count(const KEY& key) const;
+//      std::size_t count(const KEY& key) const;
 //          // Return 1 if the specified 'key' is in this table and 0
 //          // otherwise.
 //
-//      native_std::size_t size() const;
+//      std::size_t size() const;
 //          // Return the number of discrete keys that are stored in this
 //          // table.
 //  };
@@ -255,7 +255,7 @@ BSLS_IDENT("$Id: $")
 //  template <class KEY, class HASHER, class EQUAL>
 //  bslalg::BidirectionalNode<KEY> *HashSet<KEY, HASHER, EQUAL>::find(
 //                                           const KEY&         key,
-//                                           native_std::size_t hashCode) const
+//                                           std::size_t        hashCode) const
 //  {
 //      return (Node *) ImpUtil::find<Policy, EQUAL>(*this,
 //                                                   key,
@@ -274,8 +274,7 @@ BSLS_IDENT("$Id: $")
 //                                   // some 'N'.
 //
 //      d_allocator_p = bslma::Default::allocator(allocator);
-//      native_std::size_t bucketArraySizeInBytes =
-//                                                NUM_BUCKETS * sizeof(Bucket);
+//      std::size_t bucketArraySizeInBytes = NUM_BUCKETS * sizeof(Bucket);
 //      setBucketArrayAddressAndSize(
 //                  (Bucket *) d_allocator_p->allocate(bucketArraySizeInBytes),
 //                  NUM_BUCKETS);
@@ -373,13 +372,13 @@ BSLS_IDENT("$Id: $")
 //
 //  // ACCESSORS
 //  template <class KEY, class HASHER, class EQUAL>
-//  native_std::size_t HashSet<KEY, HASHER, EQUAL>::count(const KEY& key) const
+//  std::size_t HashSet<KEY, HASHER, EQUAL>::count(const KEY& key) const
 //  {
 //      return 0 != find(key, d_hasher(key));
 //  }
 //
 //  template <class KEY, class HASHER, class EQUAL>
-//  native_std::size_t HashSet<KEY, HASHER, EQUAL>::size() const
+//  std::size_t HashSet<KEY, HASHER, EQUAL>::size() const
 //  {
 //      return d_numNodes;
 //  }
@@ -401,14 +400,14 @@ BSLS_IDENT("$Id: $")
 // a 'size_t':
 //..
 //  struct StringHash {
-//      native_std::size_t operator()(const char *string) const;
+//      std::size_t operator()(const char *string) const;
 //  };
 //
-//  native_std::size_t StringHash::operator()(const char *string) const
+//  std::size_t StringHash::operator()(const char *string) const
 //  {
 //      enum { BITS_IN_SIZE_T = sizeof(size_t) * 8 };
 //
-//      native_std::size_t result = 0;
+//      std::size_t result = 0;
 //      for (int shift = 0; *string;
 //                            ++string, shift = (shift + 7) % BITS_IN_SIZE_T) {
 //          unsigned char c = *string;
@@ -508,10 +507,13 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_conditional.h>
 
 #include <bsls_assert.h>
-#include <bsls_nativestd.h>
 #include <bsls_platform.h>
 
 #include <cstddef>
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 namespace bslalg {
@@ -560,12 +562,12 @@ struct HashTableImpUtil {
 
   private:
     // PRIVATE TYPES
-    typedef native_std::size_t size_t;
+    typedef std::size_t size_t;
 
     // PRIVATE CLASS METHODS
     static HashTableBucket *findBucketForHashCode(
                                               const HashTableAnchor& anchor,
-                                              native_std::size_t     hashCode);
+                                              std::size_t            hashCode);
         // Return the address of the 'HashTableBucket' in the array of buckets
         // referred to by the specified hash-table 'anchor' whose index is the
         // adjusted value of the specified 'hashCode' (see
@@ -634,18 +636,17 @@ struct HashTableImpUtil {
         //:   hash value equal to a bucket's index, then the addresses of the
         //:   first and last links for that bucket are 0.
 
-    static native_std::size_t computeBucketIndex(
-                                                native_std::size_t hashCode,
-                                                native_std::size_t numBuckets);
+    static std::size_t computeBucketIndex(std::size_t hashCode,
+                                          std::size_t numBuckets);
         // Return the index of the bucket referring to the elements whose
         // adjusted hash codes are the same as the adjusted value of the
         // specified 'hashCode', where 'hashCode' (and the hash-codes of the
         // elements) are adjusted for the specified 'numBuckets'.  The behavior
         // is undefined if 'numBuckets' is 0.
 
-    static void insertAtFrontOfBucket(HashTableAnchor    *anchor,
-                                      BidirectionalLink  *link,
-                                      native_std::size_t  hashCode);
+    static void insertAtFrontOfBucket(HashTableAnchor   *anchor,
+                                      BidirectionalLink *link,
+                                      std::size_t        hashCode);
         // Insert the specified 'link', having the specified (non-adjusted)
         // 'hashCode',  into the specified 'anchor', at the front of the
         // bucket with index
@@ -656,9 +657,9 @@ struct HashTableImpUtil {
         // 'BidirectionalNode<KEY_CONFIG::ValueType>' and
         // 'HASHER(extractKey<KEY_CONFIG>(link))' returns 'hashCode'.
 
-    static void insertAtBackOfBucket(HashTableAnchor    *anchor,
-                                     BidirectionalLink  *link,
-                                     native_std::size_t  hashCode);
+    static void insertAtBackOfBucket(HashTableAnchor   *anchor,
+                                     BidirectionalLink *link,
+                                     std::size_t        hashCode);
         // Insert the specified 'link', having the specified (non-adjusted)
         // 'hashCode', into the specified 'anchor', into the bucket with index
         // 'computeBucketIndex(hashCode, anchor->bucketArraySize())', after the
@@ -668,10 +669,10 @@ struct HashTableImpUtil {
         // 'BidirectionalNode<KEY_CONFIG::ValueType>' and
         // 'HASHER(extractKey<KEY_CONFIG>(link))' returns 'hashCode'.
 
-    static void insertAtPosition(HashTableAnchor    *anchor,
-                                 BidirectionalLink  *link,
-                                 native_std::size_t  hashCode,
-                                 BidirectionalLink  *position);
+    static void insertAtPosition(HashTableAnchor   *anchor,
+                                 BidirectionalLink *link,
+                                 std::size_t        hashCode,
+                                 BidirectionalLink *position);
         // Insert the specified 'link', having the specified (non-adjusted)
         // 'hashCode', into the specified 'anchor' immediately before the
         // specified 'position' in the bi-directional linked list of 'anchor'.
@@ -682,9 +683,9 @@ struct HashTableImpUtil {
         // 'BidirectionalNode<KEY_CONFIG::ValueType>' and
         // 'HASHER(extractKey<KEY_CONFIG>(link))' returns 'hashCode'.
 
-    static void remove(HashTableAnchor    *anchor,
-                       BidirectionalLink  *link,
-                       native_std::size_t  hashCode);
+    static void remove(HashTableAnchor   *anchor,
+                       BidirectionalLink *link,
+                       std::size_t        hashCode);
         // Remove the specified 'link', having the specified (non-adjusted)
         // 'hashCode', from the specified 'anchor'.  The behavior is undefined
         // unless 'anchor' is well-formed (see 'isWellFormed') for some
@@ -697,7 +698,7 @@ struct HashTableImpUtil {
               const HashTableAnchor&                                    anchor,
               typename HashTableImpUtil_ExtractKeyResult<KEY_CONFIG>::Type key,
               const KEY_EQUAL&                                 equalityFunctor,
-              native_std::size_t                                     hashCode);
+              std::size_t                                            hashCode);
         // Return the address of the first link in the list element of
         // the specified 'anchor', having a value matching (according to the
         // specified 'equalityFunctor') the specified 'key' in the bucket that
@@ -724,7 +725,7 @@ struct HashTableImpUtil {
                                         const HashTableAnchor& anchor,
                                         const LOOKUP_KEY&      key,
                                         const KEY_EQUAL&       equalityFunctor,
-                                        native_std::size_t     hashCode);
+                                        std::size_t            hashCode);
         // Return the address of the first link in the list element of the
         // specified 'anchor' having a value matching (according to the
         // specified transparent 'equalityFunctor') the specified 'key' in the
@@ -778,21 +779,20 @@ struct HashTableImpUtil {
 inline
 HashTableBucket *HashTableImpUtil::findBucketForHashCode(
                                                const HashTableAnchor& anchor,
-                                               native_std::size_t     hashCode)
+                                               std::size_t            hashCode)
 {
     BSLS_ASSERT_SAFE(anchor.bucketArrayAddress());
     BSLS_ASSERT_SAFE(anchor.bucketArraySize());
 
-    native_std::size_t bucketId = HashTableImpUtil::computeBucketIndex(
+    std::size_t bucketId = HashTableImpUtil::computeBucketIndex(
                                                      hashCode,
                                                      anchor.bucketArraySize());
     return &(anchor.bucketArrayAddress()[bucketId]);
 }
 
 inline
-native_std::size_t HashTableImpUtil::computeBucketIndex(
-                                                 native_std::size_t hashCode,
-                                                 native_std::size_t numBuckets)
+std::size_t HashTableImpUtil::computeBucketIndex(std::size_t hashCode,
+                                                 std::size_t numBuckets)
 {
     BSLS_ASSERT_SAFE(0 != numBuckets);
 
@@ -851,7 +851,7 @@ BidirectionalLink *HashTableImpUtil::find(
   const HashTableAnchor&                                       anchor,
   typename HashTableImpUtil_ExtractKeyResult<KEY_CONFIG>::Type key,
   const KEY_EQUAL&                                             equalityFunctor,
-  native_std::size_t                                           hashCode)
+  std::size_t                                                  hashCode)
 {
     BSLS_ASSERT_SAFE(anchor.bucketArrayAddress());
     BSLS_ASSERT_SAFE(anchor.bucketArraySize());
@@ -876,7 +876,7 @@ BidirectionalLink *HashTableImpUtil::findTransparent(
                                         const HashTableAnchor& anchor,
                                         const LOOKUP_KEY&      key,
                                         const KEY_EQUAL&       equalityFunctor,
-                                        native_std::size_t     hashCode)
+                                        std::size_t            hashCode)
 {
     BSLS_ASSERT_SAFE(anchor.bucketArrayAddress());
     BSLS_ASSERT_SAFE(anchor.bucketArraySize());

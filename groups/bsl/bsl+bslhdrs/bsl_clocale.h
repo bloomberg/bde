@@ -15,15 +15,17 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
-#include <bsls_nativestd.h>
-
 #include <clocale>
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace bsl {
     // Import selected symbols into bsl namespace
-    using native_std::lconv;
-    using native_std::localeconv;
-    using native_std::setlocale;
+    using std::lconv;
+    using std::localeconv;
+    using std::setlocale;
 }  // close package namespace
 
 #endif

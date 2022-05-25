@@ -127,7 +127,7 @@ bslstl::StringRef RecordAttributes::messageRef() const
 #if defined(BSLS_PLATFORM_OS_SOLARIS) || defined(BSLS_PLATFORM_OS_SUNOS)
     if (0 == str) {
         // There are some places where observers call
-        // 'native_std::fstream::write(ref.data(), ref.length())' where 'ref'
+        // 'std::fstream::write(ref.data(), ref.length())' where 'ref'
         // is the value returned from this expression, and at the time of this
         // writing, Solaris has a bug where the fail bit of the stream will be
         // set if '0 == ref.data()'.  This is a workaround to prevent that

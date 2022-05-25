@@ -15,7 +15,7 @@
 #include <bsl_string.h>
 #include <bsl_vector.h>
 
-#include <string>       // for 'native_std::string'
+#include <string>       // for 'std::string'
 
 using namespace BloombergLP;
 using namespace bsl;

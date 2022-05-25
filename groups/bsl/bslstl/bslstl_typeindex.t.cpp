@@ -23,7 +23,6 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_libraryfeatures.h>
-#include <bsls_nativestd.h>
 #include <bsls_outputredirector.h>
 #include <bsls_platform.h>
 
@@ -82,7 +81,7 @@ using namespace BloombergLP;
 // real-world usage example.
 //
 // Primary Manipulators:
-//: o value constructor 'type_index(const native_std::type_index &target)'
+//: o value constructor 'type_index(const std::type_index &target)'
 //
 // Basic Accessors:
 //: o 'operator=='
@@ -98,7 +97,7 @@ using namespace BloombergLP;
 // testing concerns.
 // ----------------------------------------------------------------------------
 // CREATORS
-// [ 2] type_index(const native_std::type_info& target) noexcept;
+// [ 2] type_index(const std::type_info& target) noexcept;
 // [ 7] type_index(const type_index& original) noexcept;
 // [ 7] type_index(type_index&& original) noexcept;
 // [ 2] ~type_index();
@@ -129,7 +128,7 @@ using namespace BloombergLP;
 // [ 6] REDUNDANT: test case for equality comparison
 // [ 8] CONCERN: supports standard use of 'swap'
 // [13] CONCERN: type detects as trivial for all relevant traits
-// [14] CONCERN: works with 'native_std::hash'
+// [14] CONCERN: works with 'std::hash'
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -503,7 +502,7 @@ namespace {
 
 class Host; // incomplete type used to form pointer-to-member types for testing
 
-const native_std::type_info *const DEFAULT_DATA[] = {
+const std::type_info *const DEFAULT_DATA[] = {
       &typeid(void)
     , &typeid(void *)
     , &typeid(volatile void *)
@@ -763,7 +762,7 @@ int main(int argc, char *argv[])
       } break;
       case 14: {
         // --------------------------------------------------------------------
-        // TESTING 'native_std::hash'
+        // TESTING 'std::hash'
         //   Ensure that 'bsl::type_index' can be stored in native unordered
         //   containers on platforms that support hashing.
         //
@@ -772,7 +771,7 @@ int main(int argc, char *argv[])
         //:   as their key type.
         //
         // Plan:
-        //: 1 Create an object of type 'native_std::set<bsl::type_index>'.
+        //: 1 Create an object of type 'std::set<bsl::type_index>'.
         //:
         //: 2 For each value in the global table of test values:
         //:
@@ -782,16 +781,16 @@ int main(int argc, char *argv[])
         //:   2 Verify 'X' can be inserted into the 'unordered_set'. (C-1)
         //
         // Testing:
-        //   CONCERN: works with 'native_std::hash'
+        //   CONCERN: works with 'std::hash'
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'native_std::hash'"
-                            "\n==========================\n");
+        if (verbose) printf("\nTESTING 'std::hash'"
+                            "\n==================\n");
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-        if (verbose) printf("\nTesting 'native_std::hash'\n");
+        if (verbose) printf("\nTesting 'std::hash'\n");
         {
-            native_std::unordered_set<bsl::type_index> container;
+            std::unordered_set<bsl::type_index> container;
 
             for (size_t i = 0; i != DEFAULT_NUM_DATA; ++i) {
                 const Obj X = *DEFAULT_DATA[i];
@@ -801,8 +800,7 @@ int main(int argc, char *argv[])
             }
         }
 #else
-        if (verbose) printf(
-                     "'native_std::hash' is not supported on this platform\n");
+        if (verbose) printf("'std::hash' is not supported on this platform\n");
 #endif
 
       } break;
@@ -1838,7 +1836,7 @@ int main(int argc, char *argv[])
         //:   specification (C-4).
         //
         // Testing:
-        //   type_index(const native_std::type_info& target) noexcept;
+        //   type_index(const std::type_info& target) noexcept;
         //   ~type_index();
         // --------------------------------------------------------------------
 

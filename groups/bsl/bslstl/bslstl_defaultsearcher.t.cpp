@@ -15,15 +15,14 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_libraryfeatures.h>
-#include <bsls_nativestd.h>
 #include <bsls_timeutil.h>  // TC -1
 #include <bsls_types.h>     // for 'bsls::Types::Int64'
 
-#include <cctype>     // for 'native_std::tolower'
-#include <cstddef>    // for 'native_std::size_t'
-#include <cstdlib>    // for 'native_std::atoi'
-#include <cstring>    // for 'native_std::strlen'
-#include <functional> // for 'native_std::equal_to'
+#include <cctype>     // for 'std::tolower'
+#include <cstddef>    // for 'std::size_t'
+#include <cstdlib>    // for 'std::atoi'
+#include <cstring>    // for 'std::strlen'
+#include <functional> // for 'std::equal_to'
 #include <utility>    // for 'std::move'
 
 #include <assert.h>
@@ -32,11 +31,10 @@
 #include <stdio.h>    // for 'stdout' and 'printf'
 
 using namespace BloombergLP;
-namespace BSL = native_std;  // for Usage examples
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS
     #include <functional>
-    namespace XYZ = native_std;
+    namespace XYZ = std;
 #else
     namespace XYZ = bsl;
 #endif // BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS
@@ -302,7 +300,7 @@ inline
 bool CharEqualCaseInsensitive::operator()(const char& a, const char& b) const
 {
     ++d_useCount;
-    return BSL::tolower(a) == BSL::tolower(b);
+    return std::tolower(a) == std::tolower(b);
 }
 
 inline
@@ -495,7 +493,7 @@ static const char u_haystackText[] =
     " mutually pledge to each other our Lives, our Fortunes and our sacred\n"
     " Honor.\n";
 
-const BSL::size_t  HAYSTACK_TEXT_LENGTH = sizeof u_haystackText - 1;
+const std::size_t  HAYSTACK_TEXT_LENGTH = sizeof u_haystackText - 1;
 const char * const HAYSTACK_TEXT_FIRST  = u_haystackText;
 const char * const HAYSTACK_TEXT_LAST   = u_haystackText
                                         + HAYSTACK_TEXT_LENGTH;
@@ -1036,7 +1034,7 @@ static const char u_haystackOctal[] =
     "157165162040163141143162145144012110157156157162"
     "056012";
 
-const BSL::size_t  HAYSTACK_OCTAL_LENGTH = sizeof u_haystackOctal - 1;
+const std::size_t  HAYSTACK_OCTAL_LENGTH = sizeof u_haystackOctal - 1;
 const char * const HAYSTACK_OCTAL_FIRST  = u_haystackOctal;
 const char * const HAYSTACK_OCTAL_LAST   = u_haystackOctal
                                          + HAYSTACK_OCTAL_LENGTH;
@@ -2110,7 +2108,7 @@ static const char u_haystackBinary[] =
 #endif
     ;
 
-const BSL::size_t  HAYSTACK_BINARY_LENGTH = sizeof u_haystackBinary - 1;
+const std::size_t  HAYSTACK_BINARY_LENGTH = sizeof u_haystackBinary - 1;
 const char * const HAYSTACK_BINARY_FIRST  = u_haystackBinary;
 const char * const HAYSTACK_BINARY_LAST   = u_haystackBinary
                                           + HAYSTACK_BINARY_LENGTH;
@@ -2121,7 +2119,7 @@ const char * const HAYSTACK_BINARY_LAST   = u_haystackBinary
 static const char u_haystackShort[] =
     " When in the Course of human events,";
 
-const BSL::size_t  HAYSTACK_SHORT_LENGTH = sizeof u_haystackShort - 1;
+const std::size_t  HAYSTACK_SHORT_LENGTH = sizeof u_haystackShort - 1;
 const char * const HAYSTACK_SHORT_FIRST  = u_haystackShort;
 const char * const HAYSTACK_SHORT_LAST   = u_haystackShort
                                          + HAYSTACK_SHORT_LENGTH;
@@ -2198,7 +2196,7 @@ const static DATA_t U_DATA_TEXT[] = {
     }
 };
 
-const BSL::size_t NUM_U_DATA_TEXT = sizeof  U_DATA_TEXT
+const std::size_t NUM_U_DATA_TEXT = sizeof  U_DATA_TEXT
                                   / sizeof *U_DATA_TEXT;
 
 const static DATA_t U_DATA_TEXT_PLUS[] = {
@@ -2262,7 +2260,7 @@ const static DATA_t U_DATA_TEXT_PLUS[] = {
     }
 };
 
-const BSL::size_t NUM_U_DATA_TEXT_PLUS = sizeof  U_DATA_TEXT_PLUS
+const std::size_t NUM_U_DATA_TEXT_PLUS = sizeof  U_DATA_TEXT_PLUS
                                        / sizeof *U_DATA_TEXT_PLUS;
 
 const static DATA_t U_DATA_OCTAL[] = {
@@ -2355,7 +2353,7 @@ const static DATA_t U_DATA_OCTAL[] = {
     }
 };
 
-const BSL::size_t NUM_U_DATA_OCTAL = sizeof  U_DATA_OCTAL
+const std::size_t NUM_U_DATA_OCTAL = sizeof  U_DATA_OCTAL
                                    / sizeof *U_DATA_OCTAL;
 
 const static DATA_t U_DATA_OCTAL_PLUS[] = {
@@ -2417,7 +2415,7 @@ const static DATA_t U_DATA_OCTAL_PLUS[] = {
     }
 };
 
-const BSL::size_t NUM_U_DATA_OCTAL_PLUS = sizeof  U_DATA_OCTAL_PLUS
+const std::size_t NUM_U_DATA_OCTAL_PLUS = sizeof  U_DATA_OCTAL_PLUS
                                         / sizeof *U_DATA_OCTAL_PLUS;
 
 const static DATA_t U_DATA_BINARY[] = {
@@ -2541,7 +2539,7 @@ const static DATA_t U_DATA_BINARY[] = {
     }
 };
 
-const BSL::size_t   NUM_U_DATA_BINARY = sizeof  U_DATA_BINARY
+const std::size_t   NUM_U_DATA_BINARY = sizeof  U_DATA_BINARY
                                       / sizeof *U_DATA_BINARY;
 
 const static DATA_t U_DATA_BINARY_PLUS[] = {
@@ -2603,7 +2601,7 @@ const static DATA_t U_DATA_BINARY_PLUS[] = {
     }
 };
 
-const BSL::size_t   NUM_U_DATA_BINARY_PLUS = sizeof  U_DATA_BINARY_PLUS
+const std::size_t   NUM_U_DATA_BINARY_PLUS = sizeof  U_DATA_BINARY_PLUS
                                            / sizeof *U_DATA_BINARY_PLUS;
 
 //    " When in the Course of human events,"
@@ -2646,7 +2644,7 @@ const static DATA_t U_DATA_SHORT[] = {
   , { L_, false, "1776"   }
 };
 
-const BSL::size_t NUM_U_DATA_SHORT = sizeof  U_DATA_SHORT
+const std::size_t NUM_U_DATA_SHORT = sizeof  U_DATA_SHORT
                                    / sizeof *U_DATA_SHORT;
 
 const static DATA_t U_DATA_SHORT_PLUS[] = {
@@ -2687,7 +2685,7 @@ const static DATA_t U_DATA_SHORT_PLUS[] = {
   , { L_,  true, HAYSTACK_SHORT_FIRST }
 };
 
-const BSL::size_t NUM_U_DATA_SHORT_PLUS = sizeof  U_DATA_SHORT_PLUS
+const std::size_t NUM_U_DATA_SHORT_PLUS = sizeof  U_DATA_SHORT_PLUS
                                         / sizeof *U_DATA_SHORT_PLUS;
 
 // Correctness Tests
@@ -2777,7 +2775,7 @@ const struct {
   , { L_,  "xABABC"    , "ABC" , 3, 3,  3, 3  }
 };
 
-const BSL::size_t numDATA = sizeof DATA / sizeof *DATA;
+const std::size_t numDATA = sizeof DATA / sizeof *DATA;
 
 
 // ============================================================================
@@ -2792,7 +2790,7 @@ void doTestRun(bsl::list<float> *data)
 
     // Copied from Example 3;
     const float       markerSequence[]     = { FLT_MAX , FLT_MIN , FLT_MAX };
-    const BSL::size_t markerSequenceLength = sizeof  markerSequence
+    const std::size_t markerSequenceLength = sizeof  markerSequence
                                            / sizeof *markerSequence;
     // Start with some noise-like data.
     data->push_back(-1.0f);
@@ -2800,7 +2798,7 @@ void doTestRun(bsl::list<float> *data)
     data->push_back( 7.6f);
 
     // Add the marker sequence.
-    for (BSL::size_t i = 0; i < markerSequenceLength; ++i) {
+    for (std::size_t i = 0; i < markerSequenceLength; ++i) {
         data->push_back(markerSequence[i]);
     }
 
@@ -2814,7 +2812,7 @@ void doTestRun(bsl::list<float> *data)
     data->push_back(0.000003f);
 
     // Add the marker sequence.
-    for (BSL::size_t i = 0; i < markerSequenceLength; ++i) {
+    for (std::size_t i = 0; i < markerSequenceLength; ++i) {
         data->push_back(markerSequence[i]);
     }
 
@@ -2837,7 +2835,7 @@ void processTestRun(bsl::list<float>::const_iterator first,
 //..
     struct MyCaseInsensitiveCharComparator {
         bool operator()(const char& a, const char& b) const {
-            return BSL::tolower(a) == BSL::tolower(b);
+            return std::tolower(a) == std::tolower(b);
         }
     };
 //..
@@ -2881,7 +2879,7 @@ static void usage()
 //..
     XYZ::default_searcher<const char*> searchForUnited(
                                                      word,
-                                                     word + BSL::strlen(word));
+                                                     word + std::strlen(word));
 //..
 // Notice that no equality comparison functor was specified so
 // 'searchForUnited' will use 'bsl::equal_to<char>' by default.
@@ -2894,11 +2892,11 @@ static void usage()
                                                               document
                                                             + sizeof document);
 
-    BSL::size_t offset = result.first - document;
+    std::size_t offset = result.first - document;
 
     ASSERT(120 == offset);
-    ASSERT(static_cast<BSL::size_t>(result.second - result.first)
-               == BSL::strlen(word));
+    ASSERT(static_cast<std::size_t>(result.second - result.first)
+               == std::strlen(word));
 //..
 // Finally, we notice that search correctly ignored the appearance of the word
 // "united" (all lower case) in the second sentence.
@@ -2924,7 +2922,7 @@ static void usage()
                           struct MyCaseInsensitiveCharComparator>
                                                     searchForUnitedInsensitive(
                                                     word,
-                                                    word + BSL::strlen(word));
+                                                    word + std::strlen(word));
 //..
 // Note that the new searcher object will used a default constructed
 // 'MyCaseInsensitiveCharComparator' class.  If a equality comparison object
@@ -2940,12 +2938,12 @@ static void usage()
                                                               document
                                                             + sizeof document);
 
-    BSL::size_t offsetInsensitive = resultInsensitive.first - document;
+    std::size_t offsetInsensitive = resultInsensitive.first - document;
 
     ASSERT( 72 == offsetInsensitive);
-    ASSERT(static_cast<BSL::size_t>(resultInsensitive.second
+    ASSERT(static_cast<std::size_t>(resultInsensitive.second
                                   - resultInsensitive.first)
-               == BSL::strlen(word));
+               == std::strlen(word));
 //..
 // Finally, we find the next occurrence of 'word' by *reusing* the same
 // searcher object, this time instructing it to begin its search just after the
@@ -2957,9 +2955,9 @@ static void usage()
     offsetInsensitive = resultInsensitive.first - document;
 
     ASSERT(120 == offsetInsensitive);
-    ASSERT(static_cast<BSL::size_t>(resultInsensitive.second
+    ASSERT(static_cast<std::size_t>(resultInsensitive.second
                                   - resultInsensitive.first)
-               == BSL::strlen(word));
+               == std::strlen(word));
 //..
 //
 // {'bslstl_boyermoorehorspoolsearcher'|Example 2} shows how the same problem
@@ -2983,7 +2981,7 @@ static void usage()
 // a test run.
 //..
     const float       markerSequence[]     = { FLT_MAX , FLT_MIN , FLT_MAX };
-    const BSL::size_t markerSequenceLength = sizeof  markerSequence
+    const std::size_t markerSequenceLength = sizeof  markerSequence
                                            / sizeof *markerSequence;
 //..
 // Next, we obtain the data to be searched.  (In this example, we will use
@@ -3064,14 +3062,14 @@ static int getHaystack(const char **haystackFirstPtr,
     assert(haystackOption);
 
     *haystackFirstPtr =
-          0 == BSL::strcmp("text",    haystackOption) ? HAYSTACK_TEXT_FIRST  :
-          0 == BSL::strcmp("text+",   haystackOption) ? HAYSTACK_TEXT_FIRST  :
-          0 == BSL::strcmp("octal",   haystackOption) ? HAYSTACK_OCTAL_FIRST :
-          0 == BSL::strcmp("octal+",  haystackOption) ? HAYSTACK_OCTAL_FIRST :
-          0 == BSL::strcmp("binary",  haystackOption) ? HAYSTACK_BINARY_FIRST:
-          0 == BSL::strcmp("binary+", haystackOption) ? HAYSTACK_BINARY_FIRST:
-          0 == BSL::strcmp("short",   haystackOption) ? HAYSTACK_SHORT_FIRST :
-          0 == BSL::strcmp("short+",  haystackOption) ? HAYSTACK_SHORT_FIRST :
+          0 == std::strcmp("text",    haystackOption) ? HAYSTACK_TEXT_FIRST  :
+          0 == std::strcmp("text+",   haystackOption) ? HAYSTACK_TEXT_FIRST  :
+          0 == std::strcmp("octal",   haystackOption) ? HAYSTACK_OCTAL_FIRST :
+          0 == std::strcmp("octal+",  haystackOption) ? HAYSTACK_OCTAL_FIRST :
+          0 == std::strcmp("binary",  haystackOption) ? HAYSTACK_BINARY_FIRST:
+          0 == std::strcmp("binary+", haystackOption) ? HAYSTACK_BINARY_FIRST:
+          0 == std::strcmp("short",   haystackOption) ? HAYSTACK_SHORT_FIRST :
+          0 == std::strcmp("short+",  haystackOption) ? HAYSTACK_SHORT_FIRST :
           /* unknown */                                 0                    ;
 
     if (0 == *haystackFirstPtr) {
@@ -3079,14 +3077,14 @@ static int getHaystack(const char **haystackFirstPtr,
     }
 
     *haystackLastPtr =
-           0 == BSL::strcmp("text",    haystackOption) ? HAYSTACK_TEXT_LAST  :
-           0 == BSL::strcmp("text+",   haystackOption) ? HAYSTACK_TEXT_LAST  :
-           0 == BSL::strcmp("octal",   haystackOption) ? HAYSTACK_OCTAL_LAST :
-           0 == BSL::strcmp("octal+",  haystackOption) ? HAYSTACK_OCTAL_LAST :
-           0 == BSL::strcmp("binary",  haystackOption) ? HAYSTACK_BINARY_LAST:
-           0 == BSL::strcmp("binary+", haystackOption) ? HAYSTACK_BINARY_LAST:
-           0 == BSL::strcmp("short",   haystackOption) ? HAYSTACK_SHORT_LAST :
-           0 == BSL::strcmp("short+",  haystackOption) ? HAYSTACK_SHORT_LAST :
+           0 == std::strcmp("text",    haystackOption) ? HAYSTACK_TEXT_LAST  :
+           0 == std::strcmp("text+",   haystackOption) ? HAYSTACK_TEXT_LAST  :
+           0 == std::strcmp("octal",   haystackOption) ? HAYSTACK_OCTAL_LAST :
+           0 == std::strcmp("octal+",  haystackOption) ? HAYSTACK_OCTAL_LAST :
+           0 == std::strcmp("binary",  haystackOption) ? HAYSTACK_BINARY_LAST:
+           0 == std::strcmp("binary+", haystackOption) ? HAYSTACK_BINARY_LAST:
+           0 == std::strcmp("short",   haystackOption) ? HAYSTACK_SHORT_LAST :
+           0 == std::strcmp("short+",  haystackOption) ? HAYSTACK_SHORT_LAST :
            /* unknown */                                 0                   ;
 
     if (0 == *haystackLastPtr) {
@@ -3097,21 +3095,21 @@ static int getHaystack(const char **haystackFirstPtr,
 }
 
 int getDataForHaystack(const DATA_t **DATA,
-                       BSL::size_t   *NUM_DATA,
+                       std::size_t   *NUM_DATA,
                        const char    *haystackOption)
 {
     assert(DATA);
     assert(NUM_DATA);
     assert(haystackOption);
 
-    *DATA = 0 == BSL::strcmp("text",    haystackOption) ? U_DATA_TEXT         :
-            0 == BSL::strcmp("text+",   haystackOption) ? U_DATA_TEXT_PLUS    :
-            0 == BSL::strcmp("octal",   haystackOption) ? U_DATA_OCTAL        :
-            0 == BSL::strcmp("octal+",  haystackOption) ? U_DATA_OCTAL_PLUS   :
-            0 == BSL::strcmp("binary",  haystackOption) ? U_DATA_BINARY       :
-            0 == BSL::strcmp("binary+", haystackOption) ? U_DATA_BINARY_PLUS  :
-            0 == BSL::strcmp("short",   haystackOption) ? U_DATA_SHORT        :
-            0 == BSL::strcmp("short+",  haystackOption) ? U_DATA_SHORT_PLUS   :
+    *DATA = 0 == std::strcmp("text",    haystackOption) ? U_DATA_TEXT         :
+            0 == std::strcmp("text+",   haystackOption) ? U_DATA_TEXT_PLUS    :
+            0 == std::strcmp("octal",   haystackOption) ? U_DATA_OCTAL        :
+            0 == std::strcmp("octal+",  haystackOption) ? U_DATA_OCTAL_PLUS   :
+            0 == std::strcmp("binary",  haystackOption) ? U_DATA_BINARY       :
+            0 == std::strcmp("binary+", haystackOption) ? U_DATA_BINARY_PLUS  :
+            0 == std::strcmp("short",   haystackOption) ? U_DATA_SHORT        :
+            0 == std::strcmp("short+",  haystackOption) ? U_DATA_SHORT_PLUS   :
             /* unknown */                                 0                   ;
 
     if (0 == *DATA) {
@@ -3119,17 +3117,17 @@ int getDataForHaystack(const DATA_t **DATA,
     }
 
     *NUM_DATA =
-        0 == BSL::strcmp("text",    haystackOption)  ? NUM_U_DATA_TEXT        :
-        0 == BSL::strcmp("text+",   haystackOption)  ? NUM_U_DATA_TEXT_PLUS   :
-        0 == BSL::strcmp("octal",   haystackOption)  ? NUM_U_DATA_OCTAL       :
-        0 == BSL::strcmp("octal+",  haystackOption)  ? NUM_U_DATA_OCTAL_PLUS  :
-        0 == BSL::strcmp("binary",  haystackOption)  ? NUM_U_DATA_BINARY      :
-        0 == BSL::strcmp("binary+", haystackOption)  ? NUM_U_DATA_BINARY_PLUS :
-        0 == BSL::strcmp("short",   haystackOption)  ? NUM_U_DATA_SHORT       :
-        0 == BSL::strcmp("short+",  haystackOption)  ? NUM_U_DATA_SHORT_PLUS  :
-        /* unknown */                             static_cast<BSL::size_t>(-1);
+        0 == std::strcmp("text",    haystackOption)  ? NUM_U_DATA_TEXT        :
+        0 == std::strcmp("text+",   haystackOption)  ? NUM_U_DATA_TEXT_PLUS   :
+        0 == std::strcmp("octal",   haystackOption)  ? NUM_U_DATA_OCTAL       :
+        0 == std::strcmp("octal+",  haystackOption)  ? NUM_U_DATA_OCTAL_PLUS  :
+        0 == std::strcmp("binary",  haystackOption)  ? NUM_U_DATA_BINARY      :
+        0 == std::strcmp("binary+", haystackOption)  ? NUM_U_DATA_BINARY_PLUS :
+        0 == std::strcmp("short",   haystackOption)  ? NUM_U_DATA_SHORT       :
+        0 == std::strcmp("short+",  haystackOption)  ? NUM_U_DATA_SHORT_PLUS  :
+        /* unknown */                             static_cast<std::size_t>(-1);
 
-    if (static_cast<BSL::size_t>(-1) == *NUM_DATA) {
+    if (static_cast<std::size_t>(-1) == *NUM_DATA) {
         return -1;                                                    // RETURN
     }
 
@@ -3262,7 +3260,7 @@ struct TestDeductionGuides {
 
 int main(int argc, char *argv[])
 {
-    int                 test = argc > 1 ? BSL::atoi(argv[1]) : 0;
+    int                 test = argc > 1 ? std::atoi(argv[1]) : 0;
                      verbose = argc > 2; (void)             verbose;
                  veryVerbose = argc > 3; (void)         veryVerbose;
              veryVeryVerbose = argc > 4; (void)     veryVeryVerbose;
@@ -3285,7 +3283,7 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 Incorporate usage example from header into test driver, remove
         //:   leading comment characters, replace 'assert' with 'ASSERT', and
-        //:   replace 'bsl::' with 'BSL::'.
+        //:   replace 'bsl::' with 'std::'.
         //:   (C-1)
         //
         // Testing:
@@ -3406,15 +3404,15 @@ int main(int argc, char *argv[])
                 int          d_line;
 
                 const char  *d_needleSource_p;
-                BSL::size_t  d_idxNeedleFirst;
-                BSL::size_t  d_idxNeedleLast;
+                std::size_t  d_idxNeedleFirst;
+                std::size_t  d_idxNeedleLast;
 
                 const char  *d_hstckSource_p;
-                BSL::size_t  d_idxHstckFirst;
-                BSL::size_t  d_idxHstckLast;
+                std::size_t  d_idxHstckFirst;
+                std::size_t  d_idxHstckLast;
 
-                BSL::size_t  d_idxExpectFirst;
-                BSL::size_t  d_idxExpectLast;
+                std::size_t  d_idxExpectFirst;
+                std::size_t  d_idxExpectLast;
 
             } DATA[] = {
                   //LINE NS    NF  NL  HS   HF  HL  EF  EL
@@ -3425,18 +3423,18 @@ int main(int argc, char *argv[])
                 , { L_ , "A",   0,  1, "bA", 0,  1,  1,  1 }  // haystack last
             };
 
-            BSL::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+            std::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            for (BSL::size_t ti = 0; ti < NUM_DATA; ++ti) {
+            for (std::size_t ti = 0; ti < NUM_DATA; ++ti) {
                 const int         LINE             = DATA[ti].d_line;
                 const char *const NEEDLE_SOURCE    = DATA[ti].d_needleSource_p;
-                const BSL::size_t IDX_NEEDLE_FIRST = DATA[ti].d_idxNeedleFirst;
-                const BSL::size_t IDX_NEEDLE_LAST  = DATA[ti].d_idxNeedleLast;
+                const std::size_t IDX_NEEDLE_FIRST = DATA[ti].d_idxNeedleFirst;
+                const std::size_t IDX_NEEDLE_LAST  = DATA[ti].d_idxNeedleLast;
                 const char *const HSTCK_SOURCE     = DATA[ti].d_hstckSource_p;
-                const BSL::size_t IDX_HSTCK_FIRST  = DATA[ti].d_idxHstckFirst;
-                const BSL::size_t IDX_HSTCK_LAST   = DATA[ti].d_idxHstckLast;
-                const BSL::size_t IDX_EXPECT_FIRST = DATA[ti].d_idxExpectFirst;
-                const BSL::size_t IDX_EXPECT_LAST  = DATA[ti].d_idxExpectLast;
+                const std::size_t IDX_HSTCK_FIRST  = DATA[ti].d_idxHstckFirst;
+                const std::size_t IDX_HSTCK_LAST   = DATA[ti].d_idxHstckLast;
+                const std::size_t IDX_EXPECT_FIRST = DATA[ti].d_idxExpectFirst;
+                const std::size_t IDX_EXPECT_LAST  = DATA[ti].d_idxExpectLast;
 
                 if (veryVerbose) {
                     P(LINE)
@@ -3463,7 +3461,7 @@ int main(int argc, char *argv[])
                 RndAccConstItr haystackLast  = HSTCK_SOURCE
                                              + IDX_HSTCK_LAST;
 
-                const Result expected = BSL::make_pair(
+                const Result expected = std::make_pair(
                                                HSTCK_SOURCE + IDX_EXPECT_FIRST,
                                                HSTCK_SOURCE + IDX_EXPECT_LAST);
 
@@ -3500,27 +3498,27 @@ int main(int argc, char *argv[])
                                              haystack + 6 + 6);
 
             Sensitive caseSensitiveSearcher(needle,
-                                            needle + BSL::strlen(needle));
+                                            needle + std::strlen(needle));
 
             InSensitive caseInSensitiveSearcher(needle,
-                                                needle + BSL::strlen(needle));
+                                                needle + std::strlen(needle));
 
             const Result resultSensitive = caseSensitiveSearcher(
                                              haystack,
-                                             haystack + BSL::strlen(haystack));
+                                             haystack + std::strlen(haystack));
 
             const Result resultInSensitive = caseInSensitiveSearcher(
                                              haystack,
-                                             haystack + BSL::strlen(haystack));
+                                             haystack + std::strlen(haystack));
             if (veryVerbose) {
-                BSL::size_t offsetSensitive = resultSensitive.first
+                std::size_t offsetSensitive = resultSensitive.first
                                             - haystack;
-                BSL::size_t lengthSensitive = resultSensitive.second
+                std::size_t lengthSensitive = resultSensitive.second
                                             - resultSensitive.first;
 
-                BSL::size_t offsetInSensitive = resultInSensitive.first
+                std::size_t offsetInSensitive = resultInSensitive.first
                                               - haystack;
-                BSL::size_t lengthInSensitive = resultInSensitive.second
+                std::size_t lengthInSensitive = resultInSensitive.second
                                               - resultInSensitive.first;
 
                 P_(  offsetSensitive) P(  lengthSensitive)
@@ -3592,15 +3590,15 @@ int main(int argc, char *argv[])
                 int          d_line;
 
                 const char  *d_needleSource_p;
-                BSL::size_t  d_idxNeedleFirst;
-                BSL::size_t  d_idxNeedleLast;
+                std::size_t  d_idxNeedleFirst;
+                std::size_t  d_idxNeedleLast;
 
                 const char  *d_hstckSource_p;
-                BSL::size_t  d_idxHstckFirst;
-                BSL::size_t  d_idxHstckLast;
+                std::size_t  d_idxHstckFirst;
+                std::size_t  d_idxHstckLast;
 
-                BSL::size_t  d_idxExpectFirst;
-                BSL::size_t  d_idxExpectLast;
+                std::size_t  d_idxExpectFirst;
+                std::size_t  d_idxExpectLast;
 
             } DATA[] = {
                   //LINE NS    NF  NL  HS   HF  HL  EF  EL
@@ -3611,18 +3609,18 @@ int main(int argc, char *argv[])
                 , { L_ , "A",   0,  1, "bA", 0,  1,  1,  1 }  // haystack last
             };
 
-            BSL::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+            std::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            for (BSL::size_t ti = 0; ti < NUM_DATA; ++ti) {
+            for (std::size_t ti = 0; ti < NUM_DATA; ++ti) {
                 const int         LINE             = DATA[ti].d_line;
                 const char *const NEEDLE_SOURCE    = DATA[ti].d_needleSource_p;
-                const BSL::size_t IDX_NEEDLE_FIRST = DATA[ti].d_idxNeedleFirst;
-                const BSL::size_t IDX_NEEDLE_LAST  = DATA[ti].d_idxNeedleLast;
+                const std::size_t IDX_NEEDLE_FIRST = DATA[ti].d_idxNeedleFirst;
+                const std::size_t IDX_NEEDLE_LAST  = DATA[ti].d_idxNeedleLast;
                 const char *const HSTCK_SOURCE     = DATA[ti].d_hstckSource_p;
-                const BSL::size_t IDX_HSTCK_FIRST  = DATA[ti].d_idxHstckFirst;
-                const BSL::size_t IDX_HSTCK_LAST   = DATA[ti].d_idxHstckLast;
-                const BSL::size_t IDX_EXPECT_FIRST = DATA[ti].d_idxExpectFirst;
-                const BSL::size_t IDX_EXPECT_LAST  = DATA[ti].d_idxExpectLast;
+                const std::size_t IDX_HSTCK_FIRST  = DATA[ti].d_idxHstckFirst;
+                const std::size_t IDX_HSTCK_LAST   = DATA[ti].d_idxHstckLast;
+                const std::size_t IDX_EXPECT_FIRST = DATA[ti].d_idxExpectFirst;
+                const std::size_t IDX_EXPECT_LAST  = DATA[ti].d_idxExpectLast;
 
                 if (veryVerbose) {
                     P(LINE)
@@ -3649,7 +3647,7 @@ int main(int argc, char *argv[])
                 RndAccConstItr haystackLast  = HSTCK_SOURCE
                                              + IDX_HSTCK_LAST;
 
-                const Result expected = BSL::make_pair(
+                const Result expected = std::make_pair(
                                                HSTCK_SOURCE + IDX_EXPECT_FIRST,
                                                HSTCK_SOURCE + IDX_EXPECT_LAST);
 
@@ -3686,27 +3684,27 @@ int main(int argc, char *argv[])
                                              haystack + 6 + 6);
 
             Sensitive caseSensitiveSearcher(needle,
-                                            needle + BSL::strlen(needle));
+                                            needle + std::strlen(needle));
 
             InSensitive caseInSensitiveSearcher(needle,
-                                                needle + BSL::strlen(needle));
+                                                needle + std::strlen(needle));
 
             const Result resultSensitive = caseSensitiveSearcher(
                                              haystack,
-                                             haystack + BSL::strlen(haystack));
+                                             haystack + std::strlen(haystack));
 
             const Result resultInSensitive = caseInSensitiveSearcher(
                                              haystack,
-                                             haystack + BSL::strlen(haystack));
+                                             haystack + std::strlen(haystack));
             if (veryVerbose) {
-                BSL::size_t offsetSensitive = resultSensitive.first
+                std::size_t offsetSensitive = resultSensitive.first
                                             - haystack;
-                BSL::size_t lengthSensitive = resultSensitive.second
+                std::size_t lengthSensitive = resultSensitive.second
                                             - resultSensitive.first;
 
-                BSL::size_t offsetInSensitive = resultInSensitive.first
+                std::size_t offsetInSensitive = resultInSensitive.first
                                               - haystack;
-                BSL::size_t lengthInSensitive = resultInSensitive.second
+                std::size_t lengthInSensitive = resultInSensitive.second
                                               - resultInSensitive.first;
 
                 P_(  offsetSensitive) P(  lengthSensitive)
@@ -3822,7 +3820,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n" "TEST 'operator()'"
                             "\n" "=================\n");
 
-        for (BSL::size_t ti = 0; ti < numDATA; ++ti) {
+        for (std::size_t ti = 0; ti < numDATA; ++ti) {
             const int         LINE      = DATA[ti].d_line;
             const char *const HAYSTACK  = DATA[ti].d_haystack_p;
             const char *const NEEDLE    = DATA[ti].d_needle_p;
@@ -3849,7 +3847,7 @@ int main(int argc, char *argv[])
             typedef bsl::pair<FwdConstItr, FwdConstItr>   FwdResult;
             typedef bsl::pair<RndConstItr, RndConstItr>   RndResult;
             typedef FwdConstItr::difference_type          FwdDiff;
-            typedef BSL::ptrdiff_t                        RndDiff; // TBD
+            typedef std::ptrdiff_t                        RndDiff; // TBD
 
             typedef bslstl::DefaultSearcher<FwdConstItr>             FwdMechCs;
             typedef bslstl::DefaultSearcher<RndConstItr>             RndMechCs;
@@ -3869,10 +3867,10 @@ int main(int argc, char *argv[])
             const CharList< char> needleFwd(needleChars);
             const CharArray<char> needleRnd(needleChars);
 
-            ASSERT(static_cast<FwdDiff>(BSL::strlen(NEEDLE))
+            ASSERT(static_cast<FwdDiff>(std::strlen(NEEDLE))
                 == bsl::distance(needleFwd.begin(), needleFwd.end()));
 
-            ASSERT(static_cast<RndDiff>(BSL::strlen(NEEDLE))
+            ASSERT(static_cast<RndDiff>(std::strlen(NEEDLE))
                 == bsl::distance(needleRnd.begin(), needleRnd.end()));
 
             // Construct haystacks having Fwd and Rnd Iterators.
@@ -3884,10 +3882,10 @@ int main(int argc, char *argv[])
             const CharList< char> haystackFwd(haystackChars);
             const CharArray<char> haystackRnd(haystackChars);
 
-            ASSERT(static_cast<FwdDiff>(BSL::strlen(HAYSTACK))
+            ASSERT(static_cast<FwdDiff>(std::strlen(HAYSTACK))
                 == bsl::distance(haystackFwd.begin(), haystackFwd.end()));
 
-            ASSERT(static_cast<RndDiff>(BSL::strlen(HAYSTACK))
+            ASSERT(static_cast<RndDiff>(std::strlen(HAYSTACK))
                 == bsl::distance(haystackRnd.begin(), haystackRnd.end()));
 
             // Create the matrix of objects to be tested.
@@ -4171,7 +4169,7 @@ int main(int argc, char *argv[])
             bsl::pair<const char *, const char *> result =
                                              mySearcher(haystack,
                                                         haystack
-                                                      + BSL::strlen(haystack));
+                                                      + std::strlen(haystack));
 
             if (verbose) {
                 P(result.first);
@@ -4185,14 +4183,14 @@ int main(int argc, char *argv[])
         if (veryVerbose) printf("Vectors of 'int' values\n");
         {
             const int            intNeedle[] = { 2, 4, 6, 8 };
-            const BSL::size_t numIntNeedle   = sizeof  intNeedle
+            const std::size_t numIntNeedle   = sizeof  intNeedle
                                              / sizeof *intNeedle;
 
             bsl::list<int> intHaystack;
             intHaystack.push_back(0);  // 0
             intHaystack.push_back(0);  // 1
             intHaystack.push_back(0);  // 2
-            for (BSL::size_t i = 0; i < numIntNeedle; ++i) {
+            for (std::size_t i = 0; i < numIntNeedle; ++i) {
                 intHaystack.push_back(intNeedle[i]);
             }
             intHaystack.push_back(0);
@@ -4215,11 +4213,11 @@ int main(int argc, char *argv[])
 
             bsl::list<int>::const_iterator itr = intHaystack.cbegin();
 
-            for (BSL::size_t i = 0; i < 3; ++i, ++itr);
+            for (std::size_t i = 0; i < 3; ++i, ++itr);
 
             ASSERT(itr == resultIntSearcher.first);
 
-            for (BSL::size_t i = 0; i < numIntNeedle; ++i, ++itr);
+            for (std::size_t i = 0; i < numIntNeedle; ++i, ++itr);
 
             ASSERT(itr == resultIntSearcher.second);
         }
@@ -4241,10 +4239,10 @@ int main(int argc, char *argv[])
             return -1;                                                // RETURN
         }
 
-        int                numRepetitions = BSL::atoi(argv[2]);
+        int                numRepetitions = std::atoi(argv[2]);
         const char * const haystackOption =           argv[3];
 
-        bool isPlusHaystackOption = BSL::strchr(haystackOption, '+');
+        bool isPlusHaystackOption = std::strchr(haystackOption, '+');
 
         const char *haystackFirst;
         const char *haystackLast;
@@ -4257,7 +4255,7 @@ int main(int argc, char *argv[])
         }
 
         const DATA_t *DATA;
-        BSL::size_t   NUM_DATA;
+        std::size_t   NUM_DATA;
 
         rc = getDataForHaystack(&DATA, &NUM_DATA, haystackOption);
         if (0 != rc) {
@@ -4266,9 +4264,9 @@ int main(int argc, char *argv[])
             return -1;                                                // RETURN
         }
 
-        const BSL::string haystackAsString(haystackFirst, haystackLast);
+        const std::string haystackAsString(haystackFirst, haystackLast);
 
-        for (BSL::size_t ti = 0; ti < NUM_DATA; ++ti) {
+        for (std::size_t ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE     = DATA[ti].d_line;
             const bool        EXPECTED = DATA[ti].d_expected;
             const char *const NEEDLE   = DATA[ti].d_needle_p;
@@ -4284,7 +4282,7 @@ int main(int argc, char *argv[])
             const bslstl::DefaultSearcher<const char *> searcher(
                                                           NEEDLE,
                                                           NEEDLE
-                                                        + BSL::strlen(NEEDLE));
+                                                        + std::strlen(NEEDLE));
 
             const char * const HAYSTACK_FIRST = haystackFirst;
             const char * const HAYSTACK_LAST  = haystackLast;
@@ -4316,11 +4314,11 @@ int main(int argc, char *argv[])
 
                 ASSERTV(wasFound, wasFound == EXPECTED);
 
-                BSL::size_t offset = haystackAsString.find(NEEDLE);
-                if (BSL::string::npos == offset) {
+                std::size_t offset = haystackAsString.find(NEEDLE);
+                if (std::string::npos == offset) {
                     ASSERT(NOT_FOUND == result);
                 } else {
-                    ASSERT(static_cast<BSL::size_t>(result.first
+                    ASSERT(static_cast<std::size_t>(result.first
                                                   - HAYSTACK_FIRST) == offset);
                 }
             }
@@ -4329,8 +4327,8 @@ int main(int argc, char *argv[])
                 bsls::Types::Int64 userTime = stopUser - startUser;
                 bsls::Types::Int64 wallTime = stopWall - startWall;
 
-                BSL::size_t needleLength = BSL::strlen(NEEDLE);
-                BSL::size_t searchLength
+                std::size_t needleLength = std::strlen(NEEDLE);
+                std::size_t searchLength
                           = NOT_FOUND == result
                           ? HAYSTACK_LAST - HAYSTACK_FIRST
                           : result.first  - HAYSTACK_FIRST + needleLength;

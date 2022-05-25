@@ -20,24 +20,13 @@ BSLS_IDENT("$Id: $")
 #ifdef BDE_OPENSOURCE_PUBLICATION // DEPRECATED
 #error "bsl_slist is deprecated"
 #endif
-#include <bsls_nativestd.h>
 
-// Include the "standard" implementation of 'slist'.  There is no standard
-// 'slist' but in BSL_OVERRIDES_STD mode the standard headers are intercepted
-// by Bloomberg-specific wrappers that do the right thing.
-
-#ifdef BSL_OVERRIDES_STD
-#include <slist>
-#endif
-
-// Include Bloomberg's implementation, unless compilation is configured to
-// override native types in the 'std' namespace with Bloomberg's
-// implementation, in which case the implementation file will be included by
-// the Bloomberg supplied standard header file.
-
-#ifndef BSL_OVERRIDES_STD
+// Include Bloomberg's implementation.
 #include <bslstp_slist.h>
-#endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #endif
 

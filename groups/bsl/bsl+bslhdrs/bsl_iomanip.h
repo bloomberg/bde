@@ -16,29 +16,32 @@ BSLS_IDENT("$Id: $")
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
 #include <bsls_libraryfeatures.h>
-#include <bsls_nativestd.h>
 #include <bsls_platform.h>
 
 #include <iomanip>
 
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
 namespace bsl {
     // Import selected symbols into bsl namespace
 
-    using native_std::resetiosflags;
-    using native_std::setbase;
-    using native_std::setfill;
-    using native_std::setiosflags;
-    using native_std::setprecision;
-    using native_std::setw;
+    using std::resetiosflags;
+    using std::setbase;
+    using std::setfill;
+    using std::setiosflags;
+    using std::setprecision;
+    using std::setw;
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-    using native_std::get_money;
-    using native_std::put_money;
+    using std::get_money;
+    using std::put_money;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
-    using native_std::get_time;
-    using native_std::put_time;
+    using std::get_time;
+    using std::put_time;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
@@ -47,43 +50,43 @@ namespace bsl {
 # if !defined(BSLS_PLATFORM_CMP_MSVC) && __cplusplus < 201703L
     // As some of these names are removed from C++17, take a sledgehammer to
     // crack this nut, and remove all non-standard exports.
-    using native_std::bad_exception;
-    using native_std::basic_ios;
-    using native_std::basic_iostream;
-    using native_std::basic_istream;
-    using native_std::basic_ostream;
-    using native_std::basic_streambuf;
-    using native_std::bidirectional_iterator_tag;
-    using native_std::ctype;
-    using native_std::ctype_base;
-    using native_std::ctype_byname;
-    using native_std::exception;
-    using native_std::forward_iterator_tag;
-    using native_std::input_iterator_tag;
-    using native_std::ios_base;
-    using native_std::istreambuf_iterator;
-    using native_std::iterator;
-    using native_std::locale;
-    using native_std::num_get;
-    using native_std::numpunct;
-    using native_std::numpunct_byname;
-    using native_std::ostreambuf_iterator;
-    using native_std::output_iterator_tag;
-    using native_std::random_access_iterator_tag;
-    using native_std::set_terminate;
-    using native_std::set_unexpected;
-    using native_std::swap;
-    using native_std::terminate;
-    using native_std::terminate_handler;
-    using native_std::uncaught_exception;
-    using native_std::unexpected;
-    using native_std::unexpected_handler;
-    using native_std::use_facet;
+    using std::bad_exception;
+    using std::basic_ios;
+    using std::basic_iostream;
+    using std::basic_istream;
+    using std::basic_ostream;
+    using std::basic_streambuf;
+    using std::bidirectional_iterator_tag;
+    using std::ctype;
+    using std::ctype_base;
+    using std::ctype_byname;
+    using std::exception;
+    using std::forward_iterator_tag;
+    using std::input_iterator_tag;
+    using std::ios_base;
+    using std::istreambuf_iterator;
+    using std::iterator;
+    using std::locale;
+    using std::num_get;
+    using std::numpunct;
+    using std::numpunct_byname;
+    using std::ostreambuf_iterator;
+    using std::output_iterator_tag;
+    using std::random_access_iterator_tag;
+    using std::set_terminate;
+    using std::set_unexpected;
+    using std::swap;
+    using std::terminate;
+    using std::terminate_handler;
+    using std::uncaught_exception;
+    using std::unexpected;
+    using std::unexpected_handler;
+    using std::use_facet;
 # endif // MSVC, or C++2017
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
 #if defined BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
-   using native_std::quoted;
+   using std::quoted;
 #endif
 }  // close package namespace
 

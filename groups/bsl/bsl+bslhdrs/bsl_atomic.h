@@ -16,103 +16,106 @@ BSLS_IDENT("$Id: $")
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
 #include <bsls_libraryfeatures.h>
-#include <bsls_nativestd.h>
 
 #include <atomic>
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace bsl {
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
     // primary atomic templates, types, and functions
-    using native_std::atomic;
-    using native_std::atomic_bool;
-    using native_std::atomic_compare_exchange_weak;
-    using native_std::atomic_compare_exchange_weak_explicit;
-    using native_std::atomic_compare_exchange_strong;
-    using native_std::atomic_compare_exchange_strong_explicit;
-    using native_std::atomic_exchange;
-    using native_std::atomic_exchange_explicit;
-    using native_std::atomic_fetch_add;
-    using native_std::atomic_fetch_add_explicit;
-    using native_std::atomic_fetch_sub;
-    using native_std::atomic_fetch_sub_explicit;
-    using native_std::atomic_fetch_and;
-    using native_std::atomic_fetch_and_explicit;
-    using native_std::atomic_fetch_or;
-    using native_std::atomic_fetch_or_explicit;
-    using native_std::atomic_fetch_xor;
-    using native_std::atomic_fetch_xor_explicit;
-    using native_std::atomic_flag;
-    using native_std::atomic_flag_test_and_set;
-    using native_std::atomic_flag_test_and_set_explicit;
-    using native_std::atomic_flag_clear;
-    using native_std::atomic_flag_clear_explicit;
-    using native_std::atomic_load;
-    using native_std::atomic_load_explicit;
-    using native_std::atomic_init;
-    using native_std::atomic_is_lock_free;
-    using native_std::atomic_signal_fence;
-    using native_std::atomic_store;
-    using native_std::atomic_store_explicit;
-    using native_std::atomic_thread_fence;
-    using native_std::kill_dependency;
-    using native_std::memory_order;
-    using native_std::memory_order_relaxed;
-    using native_std::memory_order_consume;
-    using native_std::memory_order_acquire;
-    using native_std::memory_order_release;
-    using native_std::memory_order_acq_rel;
-    using native_std::memory_order_seq_cst;
+    using std::atomic;
+    using std::atomic_bool;
+    using std::atomic_compare_exchange_weak;
+    using std::atomic_compare_exchange_weak_explicit;
+    using std::atomic_compare_exchange_strong;
+    using std::atomic_compare_exchange_strong_explicit;
+    using std::atomic_exchange;
+    using std::atomic_exchange_explicit;
+    using std::atomic_fetch_add;
+    using std::atomic_fetch_add_explicit;
+    using std::atomic_fetch_sub;
+    using std::atomic_fetch_sub_explicit;
+    using std::atomic_fetch_and;
+    using std::atomic_fetch_and_explicit;
+    using std::atomic_fetch_or;
+    using std::atomic_fetch_or_explicit;
+    using std::atomic_fetch_xor;
+    using std::atomic_fetch_xor_explicit;
+    using std::atomic_flag;
+    using std::atomic_flag_test_and_set;
+    using std::atomic_flag_test_and_set_explicit;
+    using std::atomic_flag_clear;
+    using std::atomic_flag_clear_explicit;
+    using std::atomic_load;
+    using std::atomic_load_explicit;
+    using std::atomic_init;
+    using std::atomic_is_lock_free;
+    using std::atomic_signal_fence;
+    using std::atomic_store;
+    using std::atomic_store_explicit;
+    using std::atomic_thread_fence;
+    using std::kill_dependency;
+    using std::memory_order;
+    using std::memory_order_relaxed;
+    using std::memory_order_consume;
+    using std::memory_order_acquire;
+    using std::memory_order_release;
+    using std::memory_order_acq_rel;
+    using std::memory_order_seq_cst;
 
     // Full specializations and typedefs for integral types
-    using native_std::atomic_char;
-    using native_std::atomic_schar;
-    using native_std::atomic_uchar;
-    using native_std::atomic_short;
-    using native_std::atomic_ushort;
-    using native_std::atomic_int;
-    using native_std::atomic_uint;
-    using native_std::atomic_long;
-    using native_std::atomic_ulong;
-    using native_std::atomic_llong;
-    using native_std::atomic_ullong;
-    using native_std::atomic_char16_t;
-    using native_std::atomic_char32_t;
-    using native_std::atomic_wchar_t;
-    using native_std::atomic_int_least8_t;
-    using native_std::atomic_uint_least8_t;
-    using native_std::atomic_int_least16_t;
-    using native_std::atomic_uint_least16_t;
-    using native_std::atomic_int_least32_t;
-    using native_std::atomic_uint_least32_t;
-    using native_std::atomic_int_least64_t;
-    using native_std::atomic_uint_least64_t;
-    using native_std::atomic_int_fast8_t;
-    using native_std::atomic_uint_fast8_t;
-    using native_std::atomic_int_fast16_t;
-    using native_std::atomic_uint_fast16_t;
-    using native_std::atomic_int_fast32_t;
-    using native_std::atomic_uint_fast32_t;
-    using native_std::atomic_int_fast64_t;
-    using native_std::atomic_uint_fast64_t;
-    using native_std::atomic_size_t;
-    using native_std::atomic_ptrdiff_t;
-    using native_std::atomic_intmax_t;
-    using native_std::atomic_uintmax_t;
+    using std::atomic_char;
+    using std::atomic_schar;
+    using std::atomic_uchar;
+    using std::atomic_short;
+    using std::atomic_ushort;
+    using std::atomic_int;
+    using std::atomic_uint;
+    using std::atomic_long;
+    using std::atomic_ulong;
+    using std::atomic_llong;
+    using std::atomic_ullong;
+    using std::atomic_char16_t;
+    using std::atomic_char32_t;
+    using std::atomic_wchar_t;
+    using std::atomic_int_least8_t;
+    using std::atomic_uint_least8_t;
+    using std::atomic_int_least16_t;
+    using std::atomic_uint_least16_t;
+    using std::atomic_int_least32_t;
+    using std::atomic_uint_least32_t;
+    using std::atomic_int_least64_t;
+    using std::atomic_uint_least64_t;
+    using std::atomic_int_fast8_t;
+    using std::atomic_uint_fast8_t;
+    using std::atomic_int_fast16_t;
+    using std::atomic_uint_fast16_t;
+    using std::atomic_int_fast32_t;
+    using std::atomic_uint_fast32_t;
+    using std::atomic_int_fast64_t;
+    using std::atomic_uint_fast64_t;
+    using std::atomic_size_t;
+    using std::atomic_ptrdiff_t;
+    using std::atomic_intmax_t;
+    using std::atomic_uintmax_t;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS
     // optional support for exact-bit-width types
-    using native_std::atomic_int8_t;
-    using native_std::atomic_int16_t;
-    using native_std::atomic_int32_t;
-    using native_std::atomic_int64_t;
-    using native_std::atomic_uint8_t;
-    using native_std::atomic_uint16_t;
-    using native_std::atomic_uint32_t;
-    using native_std::atomic_uint64_t;
-    using native_std::atomic_intptr_t;
-    using native_std::atomic_uintptr_t;
+    using std::atomic_int8_t;
+    using std::atomic_int16_t;
+    using std::atomic_int32_t;
+    using std::atomic_int64_t;
+    using std::atomic_uint8_t;
+    using std::atomic_uint16_t;
+    using std::atomic_uint32_t;
+    using std::atomic_uint64_t;
+    using std::atomic_intptr_t;
+    using std::atomic_uintptr_t;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS
 }  // close package namespace
 

@@ -151,7 +151,7 @@ class Hisser {
     }
 };
 
-void PrintTo(const Hisser& hisser, ::native_std::ostream *stream)
+void PrintTo(const Hisser& hisser, ::std::ostream *stream)
 {
     *stream << '"';
 
@@ -162,7 +162,7 @@ void PrintTo(const Hisser& hisser, ::native_std::ostream *stream)
     *stream << '"';
 }
 
-void PrintTo(int value, ::native_std::ostream* stream_p)
+void PrintTo(int value, ::std::ostream* stream_p)
 {
     *stream_p << '"' << value << '"';
 }
@@ -193,7 +193,7 @@ class Hisser {
     }
 };
 
-void PrintTo(const Hisser& hisser, ::native_std::ostream *stream)
+void PrintTo(const Hisser& hisser, ::std::ostream *stream)
 {
     *stream << '"';
 
@@ -211,106 +211,106 @@ void PrintTo(const Hisser& hisser, ::native_std::ostream *stream)
 // ----------------------------------------------------------------------------
 
 template <typename T>
-void PrintTo(const T& , ::native_std::ostream* )
+void PrintTo(const T& , ::std::ostream* )
 {
     ASSERT(0);
 }
 
-void PrintTo(unsigned char, ::native_std::ostream* )
+void PrintTo(unsigned char, ::std::ostream* )
 {
     ASSERT(0);
 }
 
-void PrintTo(signed char , ::native_std::ostream* )
-{
-    ASSERT(0);
-}
-
-inline
-void PrintTo(char , ::native_std::ostream* )
+void PrintTo(signed char , ::std::ostream* )
 {
     ASSERT(0);
 }
 
 inline
-void PrintTo(bool , ::native_std::ostream* )
-{
-    ASSERT(0);
-}
-
-void PrintTo(wchar_t , ::native_std::ostream* )
-{
-    ASSERT(0);
-}
-
-void PrintTo(const char* , ::native_std::ostream* )
+void PrintTo(char , ::std::ostream* )
 {
     ASSERT(0);
 }
 
 inline
-void PrintTo(char* , ::native_std::ostream* )
+void PrintTo(bool , ::std::ostream* )
+{
+    ASSERT(0);
+}
+
+void PrintTo(wchar_t , ::std::ostream* )
+{
+    ASSERT(0);
+}
+
+void PrintTo(const char* , ::std::ostream* )
 {
     ASSERT(0);
 }
 
 inline
-void PrintTo(const signed char* , ::native_std::ostream* )
+void PrintTo(char* , ::std::ostream* )
 {
     ASSERT(0);
 }
 
 inline
-void PrintTo(signed char* , ::native_std::ostream* )
+void PrintTo(const signed char* , ::std::ostream* )
 {
     ASSERT(0);
 }
 
 inline
-void PrintTo(const unsigned char* , ::native_std::ostream* )
+void PrintTo(signed char* , ::std::ostream* )
 {
     ASSERT(0);
 }
 
 inline
-void PrintTo(unsigned char* , ::native_std::ostream* )
-{
-    ASSERT(0);
-}
-
-void PrintTo(const wchar_t* , ::native_std::ostream* )
+void PrintTo(const unsigned char* , ::std::ostream* )
 {
     ASSERT(0);
 }
 
 inline
-void PrintTo(wchar_t* , ::native_std::ostream* )
+void PrintTo(unsigned char* , ::std::ostream* )
+{
+    ASSERT(0);
+}
+
+void PrintTo(const wchar_t* , ::std::ostream* )
+{
+    ASSERT(0);
+}
+
+inline
+void PrintTo(wchar_t* , ::std::ostream* )
 {
     ASSERT(0);
 }
 
 class string;
 inline
-void PrintTo(const ::string& , ::native_std::ostream* )
+void PrintTo(const ::string& , ::std::ostream* )
 {
     ASSERT(0);
 }
 
 inline
-void PrintTo(const ::native_std::string& , ::native_std::ostream* )
+void PrintTo(const ::std::string& , ::std::ostream* )
 {
     ASSERT(0);
 }
 
 class wstring;
 inline
-void PrintTo(const ::wstring& , ::native_std::ostream* )
+void PrintTo(const ::wstring& , ::std::ostream* )
 {
     ASSERT(0);
 }
 
 inline
-void PrintTo(const ::native_std::wstring& , ::native_std::ostream* )
+void PrintTo(const ::std::wstring& , ::std::ostream* )
 {
     ASSERT(0);
 }

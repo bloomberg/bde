@@ -382,11 +382,11 @@ int main(int argc, char *argv[])
 #else
         TYPE_ASSERT_V(bsl::IsStdAllocator, MyAllocator,       false);
 #endif
-        TYPE_ASSERT_V(bsl::IsStdAllocator, native_std::allocator<int>, true);
-        TYPE_ASSERT_V(bsl::IsStdAllocator, native_std::allocator<float>, true);
-        TYPE_ASSERT_V(bsl::IsStdAllocator, native_std::allocator<int *>, true);
-        TYPE_ASSERT_V(bsl::IsStdAllocator,
-                                      native_std::allocator<Incomplete>, true);
+        TYPE_ASSERT_V(bsl::IsStdAllocator, std::allocator<int>,        true);
+        TYPE_ASSERT_V(bsl::IsStdAllocator, std::allocator<float>,      true);
+        TYPE_ASSERT_V(bsl::IsStdAllocator, std::allocator<int *>,      true);
+        TYPE_ASSERT_V(bsl::IsStdAllocator, std::allocator<Incomplete>, true);
+                                      
 
         TYPE_ASSERT_V(bsl::IsStdAllocator, bsl::allocator<int>,          true);
         TYPE_ASSERT_V(bsl::IsStdAllocator, bsl::allocator<float>,        true);

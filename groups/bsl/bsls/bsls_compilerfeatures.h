@@ -627,9 +627,7 @@ BSLS_IDENT("$Id: $")
 //
 ///'BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT'
 /// - - - - - - - - - - - - - - - - - - - - - -
-// This macro is defined if the compiler supports #include_next semantics
-// expected by the deprecated and internal include code wrapped by
-// BSL_OVERRIDES_STD macro.
+// This macro is defined if the compiler supports #include_next.
 //
 //: o Compiler support:
 //:   o GCC (any)

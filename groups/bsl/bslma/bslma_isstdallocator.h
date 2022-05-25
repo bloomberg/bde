@@ -83,10 +83,13 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
-#include <bsls_nativestd.h>
 
 #include <memory>      // allocator
 #include <stddef.h>    // size_t
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace bsl {
                           // =====================
@@ -101,13 +104,13 @@ struct IsStdAllocator : false_type {};
 template<class ALLOC>
 struct IsStdAllocator<ALLOC,
      void_t<typename ALLOC::value_type>,
-     void_t<decltype(native_std::declval<ALLOC&>().allocate(size_t(0)))> >
+     void_t<decltype(std::declval<ALLOC&>().allocate(size_t(0)))> >
      : public true_type {};
          // if it has a 'value_type` and method named 'allocate' that takes
          // something convertible from a size_t, then it's an allocator.
 #else
 template <class TYPE>
-struct IsStdAllocator<native_std::allocator<TYPE> > : public true_type {};
+struct IsStdAllocator<std::allocator<TYPE> > : public true_type {};
     // std::allocator<T> is an allocator
 
 template <class TYPE>

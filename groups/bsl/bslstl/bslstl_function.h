@@ -577,12 +577,6 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-// Prevent this header from being included directly in 'BSL_OVERRIDES_STD'
-// mode.  Doing so is unsupported, and is likely to cause compilation errors.
-#if defined(BSL_OVERRIDES_STD) && !defined(BOS_STDHDRS_PROLOGUE_IN_EFFECT)
-#error "include <bsl_functional.h> instead of <bslstl_function.h> in \
-BSL_OVERRIDES_STD mode"
-#endif
 #include <bslscm_version.h>
 
 #include <bslma_allocator.h>

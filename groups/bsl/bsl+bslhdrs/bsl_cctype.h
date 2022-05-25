@@ -16,29 +16,32 @@ BSLS_IDENT("$Id: $")
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
 #include <bsls_libraryfeatures.h>
-#include <bsls_nativestd.h>
 
 #include <cctype>
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace bsl {
 
     // Import selected symbols into bsl namespace
-    using native_std::isalnum;
-    using native_std::isalpha;
-    using native_std::iscntrl;
-    using native_std::isdigit;
-    using native_std::isgraph;
-    using native_std::islower;
-    using native_std::isprint;
-    using native_std::ispunct;
-    using native_std::isspace;
-    using native_std::isupper;
-    using native_std::isxdigit;
-    using native_std::tolower;
-    using native_std::toupper;
+    using std::isalnum;
+    using std::isalpha;
+    using std::iscntrl;
+    using std::isdigit;
+    using std::isgraph;
+    using std::islower;
+    using std::isprint;
+    using std::ispunct;
+    using std::isspace;
+    using std::isupper;
+    using std::isxdigit;
+    using std::tolower;
+    using std::toupper;
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-    using native_std::isblank;
+    using std::isblank;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 }  // close package namespace
 

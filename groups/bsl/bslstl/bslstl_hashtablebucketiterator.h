@@ -102,12 +102,6 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-// Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
-// mode.  Doing so is unsupported, and is likely to cause compilation errors.
-#if defined(BSL_OVERRIDES_STD) && !defined(BOS_STDHDRS_PROLOGUE_IN_EFFECT)
-#error "<bslstl_hashtablebucketiterator.h> header can't be included directly \
-in BSL_OVERRIDES_STD mode"
-#endif
 #include <bslscm_version.h>
 
 #include <bslstl_iterator.h>
@@ -120,11 +114,11 @@ in BSL_OVERRIDES_STD mode"
 
 #include <bsls_assert.h>
 #include <bsls_libraryfeatures.h>
-#include <bsls_nativestd.h>
 #include <bsls_util.h>
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bslmf_removecvq.h>
+#include <bsls_nativestd.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
@@ -140,7 +134,7 @@ namespace bslstl {
 
 template <class VALUE_TYPE, class DIFFERENCE_TYPE>
 class HashTableBucketIterator
-: public native_std::iterator<native_std::forward_iterator_tag, VALUE_TYPE> {
+: public std::iterator<std::forward_iterator_tag, VALUE_TYPE> {
 #else
 template <class VALUE_TYPE, class DIFFERENCE_TYPE>
 class HashTableBucketIterator {
@@ -163,11 +157,11 @@ class HashTableBucketIterator {
 
   public:
     // PUBLIC TYPES
-    typedef NonConstType                      value_type;
-    typedef DIFFERENCE_TYPE                   difference_type;
-    typedef VALUE_TYPE                       *pointer;
-    typedef VALUE_TYPE&                       reference;
-    typedef native_std::forward_iterator_tag  iterator_category;
+    typedef NonConstType               value_type;
+    typedef DIFFERENCE_TYPE            difference_type;
+    typedef VALUE_TYPE                *pointer;
+    typedef VALUE_TYPE&                reference;
+    typedef std::forward_iterator_tag  iterator_category;
         // Standard iterator defined types [24.4.2].
 
   private:

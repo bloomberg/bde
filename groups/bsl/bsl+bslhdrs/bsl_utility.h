@@ -17,54 +17,50 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmf_integersequence.h>
 #include <bslmf_makeintegersequence.h>
+
 #include <bsls_libraryfeatures.h>
-#include <bsls_nativestd.h>
 
 #include <bslstl_inplace.h>
 #include <bslstl_utility.h>
 
 #include <utility>
 
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
 namespace bsl {
     // Import selected symbols into bsl namespace.  Note that 'pair' is
-    // provided by 'bslstl_pair.h' (but 'make_pair' currently is not).  Aslo
-    // note that 'namespace rel_ops' is provided directly by the bsl prolog
-    // header, so we provide an alias only when NOT included in a
-    // 'BSL_OVERRIDES_STD' mode - the prolog header itself guards against the
-    // dangers of such a (transitive) include path, and as that is one of its
-    // key purposes, we do not provide additional (redundant) guards beyond
-    // checking the build mode itself.
+    // provided by 'bslstl_pair.h' (but 'make_pair' currently is not).
 
-    using native_std::make_pair;
+    using std::make_pair;
 
-#if !defined(BSL_OVERRIDES_STD)
-    namespace rel_ops = native_std::rel_ops;
-#endif  // BSL_OVERRIDES_STD
+    namespace rel_ops = std::rel_ops;
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-    using native_std::declval;
-    using native_std::forward;
-    using native_std::move;
-    using native_std::move_if_noexcept;
-    using native_std::swap;
+    using std::declval;
+    using std::forward;
+    using std::move;
+    using std::move_if_noexcept;
+    using std::swap;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR
-    using native_std::piecewise_construct;
-    using native_std::piecewise_construct_t;
+    using std::piecewise_construct;
+    using std::piecewise_construct_t;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
-    using native_std::exchange;
+    using std::exchange;
 #endif
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
-    using native_std::integer_sequence;
-    using native_std::index_sequence;
-    using native_std::make_integer_sequence;
-    using native_std::make_index_sequence;
-    using native_std::index_sequence_for;
+    using std::integer_sequence;
+    using std::index_sequence;
+    using std::make_integer_sequence;
+    using std::make_index_sequence;
+    using std::index_sequence_for;
 #else
     template <class T, T ...INTS>
     using integer_sequence = BloombergLP::bslmf::IntegerSequence<T, INTS...>;
@@ -86,14 +82,8 @@ namespace bsl {
 
 }  // close package namespace
 
-// Include Bloomberg's implementation, unless compilation is configured to
-// override native types in the 'std' namespace with Bloomberg's
-// implementation, in which case the implementation file will be included by
-// the Bloomberg supplied standard header file.
-
-#ifndef BSL_OVERRIDES_STD
+// Include Bloomberg's implementation.
 #include <bslstl_pair.h>
-#endif
 
 #endif
 

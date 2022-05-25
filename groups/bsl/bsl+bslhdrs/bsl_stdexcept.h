@@ -15,26 +15,29 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
-#include <bsls_nativestd.h>
 #include <bsls_platform.h>
 
 #include <stdexcept>
 
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
 namespace bsl {
     // Import selected symbols into bsl namespace
-    using native_std::domain_error;
-    using native_std::invalid_argument;
-    using native_std::length_error;
-    using native_std::logic_error;
-    using native_std::out_of_range;
-    using native_std::overflow_error;
-    using native_std::range_error;
-    using native_std::runtime_error;
-    using native_std::underflow_error;
+    using std::domain_error;
+    using std::invalid_argument;
+    using std::length_error;
+    using std::logic_error;
+    using std::out_of_range;
+    using std::overflow_error;
+    using std::range_error;
+    using std::runtime_error;
+    using std::underflow_error;
 
     // Make std::exception available even though it comes from <exception>
     // because, as a base class of the above, it may be assumed complete.
-    using native_std::exception;
+    using std::exception;
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // Export additional names, leaked to support transitive dependencies in
@@ -42,14 +45,14 @@ namespace bsl {
 # if !defined(BSLS_PLATFORM_CMP_MSVC) && __cplusplus < 201703L
     // As some of these names are removed from C++17, take a sledgehammer to
     // crack this nut, and remove all non-standard exports.
-    using native_std::bad_exception;
-    using native_std::set_terminate;
-    using native_std::set_unexpected;
-    using native_std::terminate;
-    using native_std::terminate_handler;
-    using native_std::uncaught_exception;
-    using native_std::unexpected;
-    using native_std::unexpected_handler;
+    using std::bad_exception;
+    using std::set_terminate;
+    using std::set_unexpected;
+    using std::terminate;
+    using std::terminate_handler;
+    using std::uncaught_exception;
+    using std::unexpected;
+    using std::unexpected_handler;
 # endif // MSVC, or C++2017
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 }  // close package namespace

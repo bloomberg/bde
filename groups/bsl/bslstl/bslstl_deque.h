@@ -391,12 +391,6 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-// Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
-// mode.  Doing so is unsupported, and is likely to cause compilation errors.
-#if defined(BSL_OVERRIDES_STD) && !defined(BOS_STDHDRS_PROLOGUE_IN_EFFECT)
-#error "include <bsl_deque.h> instead of <bslstl_deque.h> in \
-BSL_OVERRIDES_STD mode"
-#endif
 #include <bslscm_version.h>
 
 #include <bslstl_iterator.h>
@@ -430,7 +424,6 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_assert.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
-#include <bsls_nativestd.h>
 #include <bsls_performancehint.h>
 #include <bsls_util.h>     // 'forward<T>(V)'
 
@@ -439,6 +432,10 @@ BSL_OVERRIDES_STD mode"
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 #include <initializer_list>
 #endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
@@ -552,7 +549,7 @@ class Deque_Base {
 
     // For consistent behavior on all compilers, we must 'bsl::'-qualify
     // 'reverse_iterator'.  (For most compilers, 'reverse_iterator' is in
-    // namespace 'native_std', and NOT in namespace 'bsl'.  Hence, we need to
+    // namespace 'std', and NOT in namespace 'bsl'.  Hence, we need to
     // actively look into a different namespace to find the iterator.  However,
     // on Solaris we explicitly provide a 'reverse_iterator' implementation, IN
     // namespace 'bsl', to replace their broken one.  See 'bslstl_iterator.h'.)

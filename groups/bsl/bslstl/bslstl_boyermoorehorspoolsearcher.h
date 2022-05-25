@@ -703,7 +703,7 @@ class BoyerMooreHorspoolSearcher_CharImp {
         // otherwise.
 
     // DATA
-    native_std::size_t             d_needleLength;
+    std::size_t                    d_needleLength;
     BloombergLP::bslma::Allocator *d_allocator_p;
     void                          *d_table_p;
 
@@ -1234,7 +1234,7 @@ BoyerMooreHorspoolSearcher_CharImp<RNDACC_ITR_NEEDLE,
                                         privateUseShortNeedleOptimization())) {
         ShortNeedleSkipArray *arrayPtr = new (*d_allocator_p)
                                                           ShortNeedleSkipArray;
-        native_std::memcpy(
+        std::memcpy(
                  arrayPtr->data(),
                  static_cast<ShortNeedleSkipArray *>(object.d_table_p)->data(),
                  UCHAR_MAX + 1);
@@ -1244,7 +1244,7 @@ BoyerMooreHorspoolSearcher_CharImp<RNDACC_ITR_NEEDLE,
         LongNeedleSkipArray *arrayPtr = new (*d_allocator_p)
                                                            LongNeedleSkipArray;
 
-        native_std::copy(
+        std::copy(
                 static_cast<LongNeedleSkipArray *>(object.d_table_p)->cbegin(),
                 static_cast<LongNeedleSkipArray *>(object.d_table_p)->cend(),
                 arrayPtr->begin());
@@ -1271,7 +1271,7 @@ BoyerMooreHorspoolSearcher_CharImp<RNDACC_ITR_NEEDLE,
                                         privateUseShortNeedleOptimization())) {
         ShortNeedleSkipArray *arrayPtr = static_cast<ShortNeedleSkipArray *>(
                                                                     d_table_p);
-        native_std::memcpy(
+        std::memcpy(
                  arrayPtr->data(),
                  static_cast<ShortNeedleSkipArray *>(object.d_table_p)->data(),
                  UCHAR_MAX + 1);
@@ -1279,7 +1279,7 @@ BoyerMooreHorspoolSearcher_CharImp<RNDACC_ITR_NEEDLE,
     } else {
         LongNeedleSkipArray *arrayPtr = static_cast< LongNeedleSkipArray *>(
                                                                     d_table_p);
-        native_std::copy(
+        std::copy(
                 static_cast<LongNeedleSkipArray *>(object.d_table_p)->cbegin(),
                 static_cast<LongNeedleSkipArray *>(object.d_table_p)->cend(),
                 arrayPtr->begin());
@@ -1301,7 +1301,7 @@ BoyerMooreHorspoolSearcher_CharImp<RNDACC_ITR_NEEDLE,
                                  object.privateUseShortNeedleOptimization())) {
         ShortNeedleSkipArray *arrayPtr = new (*d_allocator_p)
                                                           ShortNeedleSkipArray;
-        native_std::memcpy(
+        std::memcpy(
                  arrayPtr->data(),
                  static_cast<ShortNeedleSkipArray *>(object.d_table_p)->data(),
                  UCHAR_MAX + 1);
@@ -1312,7 +1312,7 @@ BoyerMooreHorspoolSearcher_CharImp<RNDACC_ITR_NEEDLE,
     } else {
         LongNeedleSkipArray *arrayPtr = new (*d_allocator_p)
                                                            LongNeedleSkipArray;
-        native_std::copy(
+        std::copy(
                 static_cast<LongNeedleSkipArray *>(object.d_table_p)->cbegin(),
                 static_cast<LongNeedleSkipArray *>(object.d_table_p)->cend(),
                 arrayPtr->begin());
@@ -1418,15 +1418,15 @@ BoyerMooreHorspoolSearcher_CharImp(
                                         privateUseShortNeedleOptimization())) {
         ShortNeedleSkipArray *arrayPtr = new (*d_allocator_p)
                                                           ShortNeedleSkipArray;
-        native_std::memset(arrayPtr->data(),
-                           static_cast<ShortNeedleSkipType>(d_needleLength),
-                           UCHAR_MAX + 1);
+        std::memset(arrayPtr->data(),
+                    static_cast<ShortNeedleSkipType>(d_needleLength),
+                    UCHAR_MAX + 1);
         d_table_p = arrayPtr;
     } else {
         LongNeedleSkipArray *arrayPtr = new (*d_allocator_p)
                                                            LongNeedleSkipArray;
 
-        native_std::fill(arrayPtr->begin(), arrayPtr->end(), d_needleLength);
+        std::fill(arrayPtr->begin(), arrayPtr->end(), d_needleLength);
 
         d_table_p = arrayPtr;
     }
@@ -1436,7 +1436,7 @@ BoyerMooreHorspoolSearcher_CharImp(
                            last    != current; ++current) {
 
         const unsigned char index     = static_cast<unsigned char>(*current);
-        native_std::size_t  skipValue = d_needleLength
+        std::size_t         skipValue = d_needleLength
                                       - 1
                                       - (current - needleFirst);
 
@@ -1699,10 +1699,10 @@ BoyerMooreHorspoolSearcher_GeneralImp(
         for (RNDACC_ITR_NEEDLE current  = needleFirst,
                                last     = needleLast - 1;
                                last    != current; ++current) {
-            d_map.insert(native_std::make_pair(*current,
-                                               d_needleLength
-                                             - 1
-                                             - (current - needleFirst)));
+            d_map.insert(std::make_pair(*current,
+                                        d_needleLength
+                                        - 1
+                                        - (current - needleFirst)));
         }
     }
 }
@@ -2029,12 +2029,12 @@ BoyerMooreHorspoolSearcher<RNDACC_ITR_NEEDLE,
     BSLS_ASSERT(0 <= haystackLast - haystackFirst);
 
     if (0 == d_needleLength) {
-        return native_std::make_pair(haystackFirst, haystackFirst);   // RETURN
+        return std::make_pair(haystackFirst, haystackFirst);          // RETURN
     }
 
-    native_std::size_t haystackLength = haystackLast - haystackFirst;
+    std::size_t haystackLength = haystackLast - haystackFirst;
 
-    for (native_std::size_t possibleMatch  = 0;
+    for (std::size_t possibleMatch  = 0;
          d_needleLength + possibleMatch <= haystackLength;
          possibleMatch += d_imp.badCharacterSkip(haystackFirst[possibleMatch
                                                              + d_needleLength
@@ -2044,21 +2044,21 @@ BoyerMooreHorspoolSearcher<RNDACC_ITR_NEEDLE,
 
         const EQUAL comparator(equal());
 
-        for (native_std::size_t idx = d_needleLength - 1;
+        for (std::size_t idx = d_needleLength - 1;
              comparator(haystackFirst[possibleMatch + idx],
                         d_needleFirst[idx]);
              --idx) {
 
             if (0 == idx) { // No difference found
-                return native_std::make_pair(haystackFirst + possibleMatch,
-                                             haystackFirst + possibleMatch
-                                                           + d_needleLength);
+                return std::make_pair(haystackFirst + possibleMatch,
+                                      haystackFirst + possibleMatch
+                                      + d_needleLength);
                                                                       // RETURN
             }
          }
     }
 
-    return native_std::make_pair(haystackLast, haystackLast);
+    return std::make_pair(haystackLast, haystackLast);
 }
 
 template <class RNDACC_ITR_NEEDLE,

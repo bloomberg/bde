@@ -5,7 +5,6 @@
 #include <bsls_buildtarget.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
-#include <bsls_nativestd.h>
 
 #include <stddef.h>  // for 'size_t'
 #include <stdio.h>   // for 'printf'
@@ -14,10 +13,9 @@
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
     // Verify assumption that the BASELINE C++11 library includes all of the
     // new library headers not covered by a more specific macro.  Note that we
-    // must actively #include each header to check for errors as simply testing
-    // '__has_include(<header>)' will give false positives in BSL_OVERRIDES_STD
-    // mode, finding our own intercept headers that simply forward to the
-    // original platform header, assuming it is available.
+    // actively #include each header to check for errors, though this could
+    // switch to using '__has_include(<header>)' now that we no longer mess
+    // with standard include files with intercept headers.
 # include <array>
 # include <atomic>
 # include <chrono>
@@ -42,30 +40,18 @@
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY)
     // Verify assumption that the BASELINE C++14 library includes all of the
-    // new library headers not covered by a more specific macro.  Note that we
-    // must actively #include each header to check for errors as simply testing
-    // '__has_include(<header>)' will give false positives in BSL_OVERRIDES_STD
-    // mode, finding our own intercept headers that simply forward to the
-    // original platform header, assuming it is available.
+    // new library headers not covered by a more specific macro.
 # include <shared_mutex>
 #endif
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_ALIGNED_ALLOC)
-    // Verify assumption that <cstdlib> is includeable.  Note that we must
-    // actively #include each header to check for errors as simply testing
-    // '__has_include(<header>)' will give false positives in BSL_OVERRIDES_STD
-    // mode, finding our own intercept headers that simply forward to the
-    // original platform header, assuming it is available.
+    // Verify assumption that <cstdlib> is includeable.
 # include <cstdlib>
 #endif
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
     // Verify assumption that the BASELINE C++17 library includes all of the
-    // new library headers not covered by a more specific macro.  Note that we
-    // must actively #include each header to check for errors as simply testing
-    // '__has_include(<header>)' will give false positives in BSL_OVERRIDES_STD
-    // mode, finding our own intercept headers that simply forward to the
-    // original platform header, assuming it is available.
+    // new library headers not covered by a more specific macro.
 # include <any>
 //include <charconv>        // LIBRARYFEATURES_HAS_CPP17_CHARCONV
 //include <execution>       // LIBRARYFEATURES_HAS_CPP17_PARALLEL_ALGORITHMS
@@ -79,47 +65,27 @@
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV)                      \
  || defined(BSLS_LIBRARYFEATURES_HAS_CPP17_FLOAT_FROM_CHARS_CHARCONV)         \
  || defined(BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV)
-    // Verify assumption that <charconv> is includeable.  Note that we must
-    // actively #include each header to check for errors as simply testing
-    // '__has_include(<header>)' will give false positives in BSL_OVERRIDES_STD
-    // mode, finding our own intercept headers that simply forward to the
-    // original platform header, assuming it is available.
+    // Verify assumption that <charconv> is includeable.
 # include <charconv>
 #endif
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PARALLEL_ALGORITHMS)
-    // Verify assumption that <execution> is includeable.  Note that we must
-    // actively #include each header to check for errors as simply testing
-    // '__has_include(<header>)' will give false positives in BSL_OVERRIDES_STD
-    // mode, finding our own intercept headers that simply forward to the
-    // original platform header, assuming it is available.
+    // Verify assumption that <execution> is includeable.
 # include <execution>
 #endif
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_FILESYSTEM)
-    // Verify assumption that <filesystem> is includeable.  Note that we must
-    // actively #include each header to check for errors as simply testing
-    // '__has_include(<header>)' will give false positives in BSL_OVERRIDES_STD
-    // mode, finding our own intercept headers that simply forward to the
-    // original platform header, assuming it is available.
+    // Verify assumption that <filesystem> is includeable.
 # include <filesystem>
 #endif
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
-    // Verify assumption that <memory_resource> is includeable.  Note that we
-    // must actively #include each header to check for errors as simply testing
-    // '__has_include(<header>)' will give false positives in BSL_OVERRIDES_STD
-    // mode, finding our own intercept headers that simply forward to the
-    // original platform header, assuming it is available.
+    // Verify assumption that <memory_resource> is includeable.
 # include <memory_resource>
 #endif
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_TIMESPEC_GET)
-    // Verify assumption that <ctime> is includeable.  Note that we must
-    // actively #include each header to check for errors as simply testing
-    // '__has_include(<header>)' will give false positives in BSL_OVERRIDES_STD
-    // mode, finding our own intercept headers that simply forward to the
-    // original platform header, assuming it is available.
+    // Verify assumption that <ctime> is includeable.
 # include <ctime>
 #endif
 
@@ -211,8 +177,8 @@
 // [10] BSLS_LIBRARYFEATURES_STDCPP_MSVC
 // [10] BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD
 // [10] BSLS_LIBRARYFEATURES_STDCPP_STLPORT
-// [ 7] int native_std::isblank(int);
-// [ 7] bool native_std::isblank(char, const native_std::locale&);
+// [ 7] int std::isblank(int);
+// [ 7] bool std::isblank(char, const std::locale&);
 // ----------------------------------------------------------------------------
 // [16] USAGE EXAMPLE
 // [-1] BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT: obsolescent: not defined
@@ -354,18 +320,17 @@ namespace case13 {
 
 struct SearcherNull {
 
-    native_std::pair<const char *, const char*> operator()(const char* first,
-                                                           const char* last)
-                                                                         const;
-        // Return 'native_std::pair<last, last>' ("needle not found")
+    std::pair<const char *, const char*> operator()(const char* first,
+                                                    const char* last) const;
+        // Return 'std::pair<last, last>' ("needle not found")
         // irrespective of the contents of '[first, last)'.  Note that the
         // (default) constructor does not allow the specifiction of a "needle".
 };
 
-native_std::pair<const char *, const char*>
+std::pair<const char *, const char*>
 SearcherNull::operator()(const char *, const char *last) const
 {
-    return native_std::make_pair(last, last);
+    return std::make_pair(last, last);
 }
 
 template<class ForwardIterator, class Searcher>
@@ -416,11 +381,11 @@ typename CONTAINER::iterator end(CONTAINER & c)
     defined(BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY_FORCE)
 
     #include <memory>
-    using Obj1 = native_std::integer_sequence<int>;
-    using Obj2 = native_std::index_sequence<1>;
-    using Obj3 = native_std::make_integer_sequence<int, 1>;
-    using Obj4 = native_std::make_index_sequence<1>;
-    using Obj5 = native_std::index_sequence_for<int>;
+    using Obj1 = std::integer_sequence<int>;
+    using Obj2 = std::index_sequence<1>;
+    using Obj3 = std::make_integer_sequence<int, 1>;
+    using Obj4 = std::make_index_sequence<1>;
+    using Obj5 = std::index_sequence_for<int>;
 #endif
 
                     // case 10
@@ -445,32 +410,32 @@ typename CONTAINER::iterator end(CONTAINER & c)
         // compile-time test that these templates are available.
     {
         // Type defined in '<functional>'
-        ASSERT(0x0F == native_std::bit_not<unsigned char>().operator()(0xF0));
+        ASSERT(0x0F == std::bit_not<unsigned char>().operator()(0xF0));
 
         // Function defined in '<iterator>'
-        native_std::vector<int> v;
-        (void)native_std::make_reverse_iterator(v.end());
+        std::vector<int> v;
+        (void)std::make_reverse_iterator(v.end());
 
         // Function defined in '<iomanip>'
-        (void)native_std::quoted("\"quotes\"");
+        (void)std::quoted("\"quotes\"");
 
         // Function defined in '<utility>'
         int X(0);
-        int Y = native_std::exchange(X, 1);    (void) Y;
+        int Y = std::exchange(X, 1);    (void) Y;
 
         { // UDLs for <complex>
-            using namespace native_std::complex_literals;
-            native_std::complex<double>      zi = 2i;
+            using namespace std::complex_literals;
+            std::complex<double>      zi = 2i;
             (void) zi;
-            native_std::complex<long double> zl = 2il;
+            std::complex<long double> zl = 2il;
             (void) zl;
-            native_std::complex<float>       zf = 2if;
+            std::complex<float>       zf = 2if;
             (void) zf;
         }
 
         { // UDLs for <chrono>
-            using namespace native_std::chrono_literals;
-            native_std::chrono::duration<double> d(0);
+            using namespace std::chrono_literals;
+            std::chrono::duration<double> d(0);
             d = 1h;
             d = 2min;
             d = 3s;
@@ -480,15 +445,15 @@ typename CONTAINER::iterator end(CONTAINER & c)
         }
 
         { // Function defined in '<memory>'
-            native_std::unique_ptr<int> up = native_std::make_unique<int>(0);
+            std::unique_ptr<int> up = std::make_unique<int>(0);
         }
 
         { // Functions defined in '<type_traits>'
-            bool b = native_std::is_null_pointer<int *>::value;
+            bool b = std::is_null_pointer<int *>::value;
             (void) b;
 
             class Foo final {};
-            bool b2 = native_std::is_final<Foo>::value;
+            bool b2 = std::is_final<Foo>::value;
             (void) b2;
         }
     }
@@ -514,16 +479,16 @@ const bool u_BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY_defined =
         // 'BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS' flag as a
         // compile-time test that these 'typedef's are available.
     {
-        ASSERT(0 < sizeof(native_std::atomic_int8_t));
-        ASSERT(0 < sizeof(native_std::atomic_int16_t));
-        ASSERT(0 < sizeof(native_std::atomic_int32_t));
-        ASSERT(0 < sizeof(native_std::atomic_int64_t));
-        ASSERT(0 < sizeof(native_std::atomic_uint8_t));
-        ASSERT(0 < sizeof(native_std::atomic_uint16_t));
-        ASSERT(0 < sizeof(native_std::atomic_uint32_t));
-        ASSERT(0 < sizeof(native_std::atomic_uint64_t));
-        ASSERT(0 < sizeof(native_std::atomic_intptr_t));
-        ASSERT(0 < sizeof(native_std::atomic_uintptr_t));
+        ASSERT(0 < sizeof(std::atomic_int8_t));
+        ASSERT(0 < sizeof(std::atomic_int16_t));
+        ASSERT(0 < sizeof(std::atomic_int32_t));
+        ASSERT(0 < sizeof(std::atomic_int64_t));
+        ASSERT(0 < sizeof(std::atomic_uint8_t));
+        ASSERT(0 < sizeof(std::atomic_uint16_t));
+        ASSERT(0 < sizeof(std::atomic_uint32_t));
+        ASSERT(0 < sizeof(std::atomic_uint64_t));
+        ASSERT(0 < sizeof(std::atomic_intptr_t));
+        ASSERT(0 < sizeof(std::atomic_uintptr_t));
     }
 #endif
 
@@ -586,7 +551,7 @@ static const bool u_BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF_defined =
     defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR_FORCE)
 
     #include <memory>
-    native_std::unique_ptr<int> up;
+    std::unique_ptr<int> up;
 #endif
 
 static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR_defined =
@@ -601,7 +566,7 @@ static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR_defined =
     defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE_FORCE)
 
     #include <tuple>
-    native_std::tuple<char, short, int, float, double> t4;
+    std::tuple<char, short, int, float, double> t4;
 
     #ifndef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
     #error "'BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE' requires \
@@ -625,9 +590,9 @@ static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE_defined =
     #include <tuple>
     #include <utility> // for 'pair' and 'piecewise_construct'
 
-    native_std::pair<long, double> p(native_std::piecewise_construct,
-                                     native_std::tuple<int>(1),
-                                     native_std::tuple<int>(2));
+    std::pair<long, double> p(std::piecewise_construct,
+                              std::tuple<int>(1),
+                              std::tuple<int>(2));
 
     #ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
     #error "'BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR' \
@@ -661,7 +626,7 @@ static const bool
     class SimpleUniformRandomNumberGenerator {
         // This class defines a simple, easily tested uniform random number
         // generator that can be validly used as the third argument to the
-        // 'native_std::shuffle' function in the 'useCpp11Algorithms()' test
+        // 'std::shuffle' function in the 'useCpp11Algorithms()' test
         // function.
 
       public:
@@ -754,84 +719,82 @@ static const bool
         const int *inputFirst = &iarray[0];
         const int *inputLast  = &iarray[NUM_ELEMENTS];
 
-        (void)native_std::all_of(inputFirst, inputLast, unaryPredicate);
-        (void)native_std::any_of(inputFirst, inputLast, unaryPredicate);
+        (void)std::all_of(inputFirst, inputLast, unaryPredicate);
+        (void)std::any_of(inputFirst, inputLast, unaryPredicate);
 
         int  oarray[NUM_ELEMENTS];
         int *outputFirst = &oarray[0];
         int *outputLast  = &oarray[NUM_ELEMENTS];
 
-        native_std::copy_if(inputFirst,
-                            inputLast,
-                            outputFirst,
-                            unaryPredicate);
+        std::copy_if(inputFirst,
+                     inputLast,
+                     outputFirst,
+                     unaryPredicate);
 
-        native_std::copy_n (inputFirst, NUM_ELEMENTS, outputFirst);
+        std::copy_n (inputFirst, NUM_ELEMENTS, outputFirst);
 
-        (void)native_std::find_if_not(inputFirst, inputLast, unaryPredicate);
+        (void)std::find_if_not(inputFirst, inputLast, unaryPredicate);
 
-        native_std::iota(outputFirst, outputLast, 0);
+        std::iota(outputFirst, outputLast, 0);
 
-        (void)native_std::is_heap      (inputFirst, inputLast);
-        (void)native_std::is_heap_until(inputFirst, inputLast);
+        (void)std::is_heap      (inputFirst, inputLast);
+        (void)std::is_heap_until(inputFirst, inputLast);
 
-        (void)native_std::is_partitioned (inputFirst,
+        (void)std::is_partitioned (inputFirst,
                                           inputLast,
                                           unaryPredicate);
-        (void)native_std::is_permutation (inputFirst, inputLast, inputFirst);
-        (void)native_std::is_sorted      (inputFirst, inputLast);
-        (void)native_std::is_sorted_until(inputFirst, inputLast);
+        (void)std::is_permutation (inputFirst, inputLast, inputFirst);
+        (void)std::is_sorted      (inputFirst, inputLast);
+        (void)std::is_sorted_until(inputFirst, inputLast);
 
-        (void)native_std::minmax(0, 1);
-        (void)native_std::minmax_element(inputFirst, inputLast);
+        (void)std::minmax(0, 1);
+        (void)std::minmax_element(inputFirst, inputLast);
 
         int  oarray2[NUM_ELEMENTS];
         int *output2First = &oarray2[0];
         int *output2Last  = &oarray2[NUM_ELEMENTS];
 
-        native_std::move         (outputFirst, outputLast, output2First);
-        native_std::move_backward(outputFirst, outputLast, output2Last);
+        std::move         (outputFirst, outputLast, output2First);
+        std::move_backward(outputFirst, outputLast, output2Last);
 
-        (void)native_std::none_of(inputFirst, inputLast, unaryPredicate);
+        (void)std::none_of(inputFirst, inputLast, unaryPredicate);
 
-        native_std::partition_copy(inputFirst,
+        std::partition_copy(inputFirst,
+                            inputLast,
+                            outputFirst,
+                            output2First,
+                            unaryPredicate);
+
+        (void)std::partition_point(inputFirst,
                                    inputLast,
-                                   outputFirst,
-                                   output2First,
                                    unaryPredicate);
 
-        (void)native_std::partition_point(inputFirst,
-                                          inputLast,
-                                          unaryPredicate);
-
         SimpleUniformRandomNumberGenerator surng;
-        native_std::shuffle(outputFirst,
-                            outputLast,
-                            surng);
+        std::shuffle(outputFirst,
+                     outputLast,
+                     surng);
 
-        native_std::uninitialized_copy_n(inputFirst,
-                                         NUM_ELEMENTS,
-                                         outputFirst);
+        std::uninitialized_copy_n(inputFirst,
+                                  NUM_ELEMENTS,
+                                  outputFirst);
 
         // test <ios> C++11 functions
-        const native_std::error_category& errorCategory =
-                                               native_std::iostream_category();
+        const std::error_category& errorCategory = std::iostream_category();
         (void) errorCategory;
 
-        (void)native_std::make_error_code(native_std::io_errc::stream);
-        (void)native_std::make_error_condition(native_std::io_errc::stream);
+        (void)std::make_error_code(std::io_errc::stream);
+        (void)std::make_error_condition(std::io_errc::stream);
 
-        ASSERT(true ==
-                   native_std::is_error_code_enum<native_std::io_errc>::value);
+        ASSERT(true == std::is_error_code_enum<std::io_errc>::value);
 
         double f;
-        native_std::istringstream("0x1P-1022") >> native_std::hexfloat >> f;
-        native_std::istringstream("0.01") >> native_std::defaultfloat >> f;
+        std::istringstream("0x1P-1022") >> std::hexfloat >> f;
+        std::istringstream("0.01") >> std::defaultfloat >> f;
     }
 
     static void useTypeIndex() {
-        const native_std::type_info &info  = typeid(int);
-        const native_std::type_index index = info;
+        const std::type_info &info  = typeid(int);
+        const std::type_index index = info;
 
         ASSERT(info.hash_code() == index.hash_code());
     }
@@ -850,7 +813,7 @@ static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY_defined =
     defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR_FORCE)
 
     #include <memory>
-    native_std::auto_ptr<int> ap;
+    std::auto_ptr<int> ap;
 
 #endif
 
@@ -885,7 +848,7 @@ using namespace BloombergLP;
 // standard library provides that type, and yet remain compilable otherwise.
 //
 // First, we conditionally include the header file we will need if we define an
-// interface that returns a 'native_std::tuple'.
+// interface that returns a 'std::tuple'.
 //..
     #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
     # ifndef INCLUDED_TUPLE
@@ -912,7 +875,7 @@ using namespace BloombergLP;
 // because the input need be traversed one time, not three.
 //..
     #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
-        static native_std::tuple<int, double, double> getMedianMeanVariance(
+        static std::tuple<int, double, double> getMedianMeanVariance(
                                                               const int *begin,
                                                               const int *end);
             // Return the median, mean, and variance (in that order) of the
@@ -1580,14 +1543,14 @@ int main(int argc, char *argv[])
         //:
         //: 4 If 'BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD' is *not* set,
         //:   specify 'using' directives to search for definitions in both the
-        //:   'native_std' and the 'case13' namespaces.  Then define an
+        //:   'std' and the 'case13' namespaces.  Then define an
         //:   an expression using the namespace-unqualified name 'search'.  If
-        //:   there is a definition in the 'native_std' namespace in addition
+        //:   there is a definition in the 'std' namespace in addition
         //:   to the one we planted in namespace 'case13', the test driver will
         //:   fail to compile (ambiguity error).
         //:
         //: 5 If 'BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS' is *not* set
-        //:   set, we do not test for the possible presence of the 'native_std'
+        //:   set, we do not test for the possible presence of the 'std'
         //:   functors, because only one of them may be missing, which we
         //:   cannot test for, or they may be faulty and not indicated for that
         //:   reason.
@@ -1618,12 +1581,12 @@ int main(int argc, char *argv[])
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD)
 
-        const char *result = native_std::search(haystackFirst,
-                                                haystackLast,
-                                                searcher);
+        const char *result = std::search(haystackFirst,
+                                         haystackLast,
+                                         searcher);
         ASSERT(haystackLast == result);
 #else
-        using namespace native_std;
+        using namespace std;
         using namespace case13;
 
         const char *result = search(haystackFirst, haystackLast, searcher);
@@ -1631,12 +1594,12 @@ int main(int argc, char *argv[])
 #endif
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS)
-        native_std::default_searcher              dftSearcher(needleFirst,
-                                                              needleLast);
-        native_std::boyer_moore_searcher           bmSearcher(needleFirst,
-                                                              needleLast);
-        native_std::boyer_moore_horspool_searcher bmhSearcher(needleFirst,
-                                                              needleLast);
+        std::default_searcher              dftSearcher(needleFirst,
+                                                       needleLast);
+        std::boyer_moore_searcher           bmSearcher(needleFirst,
+                                                       needleLast);
+        std::boyer_moore_horspool_searcher bmhSearcher(needleFirst,
+                                                       needleLast);
 #else
         (void) needleFirst;
         (void) needleLast;
@@ -1926,8 +1889,8 @@ int main(int argc, char *argv[])
         //:   defined compile code that uses the two-argument 'isblank'.
         //
         // Testing:
-        //   int native_std::isblank(int);
-        //   bool native_std::isblank(char, const native_std::locale&);
+        //   int std::isblank(int);
+        //   bool std::isblank(char, const std::locale&);
         // --------------------------------------------------------------------
 
         if (verbose) printf("TESTING 'isblank'\n"
@@ -1942,7 +1905,7 @@ int main(int argc, char *argv[])
         if (verbose) {
             printf("Expecting 'isblank' from <cctype>\n");
         }
-        int (*isblankc)(int) = &native_std::isblank;
+        int (*isblankc)(int) = &std::isblank;
         (void)isblankc;
 #else
         if (verbose) {
@@ -1953,8 +1916,8 @@ int main(int argc, char *argv[])
         if (verbose) {
             printf("Expecting 'isblank' from <locale>\n");
         }
-        bool (*isblankl)(char, const native_std::locale&) =
-            &native_std::isblank;
+        bool (*isblankl)(char, const std::locale&) =
+            &std::isblank;
         (void)isblankl;
 #else
         if (verbose) {
@@ -2006,13 +1969,13 @@ int main(int argc, char *argv[])
         // cmath
         {
             typedef int (*FuncPtrType)(double);
-            FuncPtrType funcPtr = &native_std::fpclassify;
+            FuncPtrType funcPtr = &std::fpclassify;
             (void)funcPtr;  // suppress unused variable warning
         }
 
         // cstdlib
         {
-            typedef native_std::lldiv_t dummy;
+            typedef std::lldiv_t dummy;
             dummy x;  // suppress unused typedef warning
             (void)x;  // suppress unused variable warning
         }
@@ -2020,14 +1983,14 @@ int main(int argc, char *argv[])
         // cctype
         {
             typedef int (*FuncPtrType)(int);
-            FuncPtrType funcPtr = &native_std::isblank;
+            FuncPtrType funcPtr = &std::isblank;
             (void)funcPtr;  // suppress unused variable warning
 
         }
 #endif
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF
-        (void)&native_std::snprintf;
+        (void)&std::snprintf;
 #endif
 
         if (veryVeryVerbose) P(BSLS_PLATFORM_CMP_VERSION);
@@ -2126,7 +2089,7 @@ int main(int argc, char *argv[])
         //: 1 The 'BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR'
         //:   flag is defined when the native standard library defines for its
         //:   'pair' class template (defined in '<utility>') a constructor that
-        //:   accepts as arguments 'native_std::piecewise_construct' (also
+        //:   accepts as arguments 'std::piecewise_construct' (also
         //:   defined in '<utility>' followed by two 'tuple' arguments.
         //:
         //: 2 If 'BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR' is
@@ -2257,7 +2220,7 @@ int main(int argc, char *argv[])
         //:   run the 'testSimpleUniformRandomNumberGenerator' function to
         //:   confirm that the helper class
         //:   'SimpleUniformRandomNumberGenerator' -- used in the test of the
-        //:   'native_std::shuffle' function -- works as expected.
+        //:   'std::shuffle' function -- works as expected.
         //:
         //: 2 When 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY' is defined
         //:   conditionally compile code that includes '<algorithm>',
@@ -2306,7 +2269,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 The 'BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR' flag is defined
         //:   when the native standard library defines type
-        //:   'native_std::auto_ptr' template in '<memory>'.
+        //:   'std::auto_ptr' template in '<memory>'.
         //:
         //: 2 The 'BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR' macro is set on all
         //:   platforms (until C++17).
@@ -2314,7 +2277,7 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 When 'BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR' is defined
         //:   conditionally compile code that includes '<memory>' and
-        //:   constructs 'native_std::auto_ptr' object for 'int'.
+        //:   constructs 'std::auto_ptr' object for 'int'.
         //:
         //: 2 Confirm the value of the conditionally compiled global variable
         //:   'u_BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR_defined' is 'true'.

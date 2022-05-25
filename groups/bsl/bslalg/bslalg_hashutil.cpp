@@ -107,59 +107,59 @@ namespace bslalg {
   #define HASH2(KEY)  reverse_hash((const char *) &KEY, sizeof KEY)
 #endif
 
-native_std::size_t HashUtil::computeHash(char key)
+std::size_t HashUtil::computeHash(char key)
 {
     return HASH2(key);
 }
-native_std::size_t HashUtil::computeHash(signed char key)
+std::size_t HashUtil::computeHash(signed char key)
 {
     return HASH2(key);
 }
-native_std::size_t HashUtil::computeHash(unsigned char key)
+std::size_t HashUtil::computeHash(unsigned char key)
 {
     return HASH2(key);
 }
-native_std::size_t HashUtil::computeHash(short key)
+std::size_t HashUtil::computeHash(short key)
 {
     return HASH2(key);
 }
-native_std::size_t HashUtil::computeHash(unsigned short key)
+std::size_t HashUtil::computeHash(unsigned short key)
 {
     return HASH2(key);
 }
-native_std::size_t HashUtil::computeHash(int key)
+std::size_t HashUtil::computeHash(int key)
 {
     return HASH2(key);
 }
-native_std::size_t HashUtil::computeHash(unsigned int key)
+std::size_t HashUtil::computeHash(unsigned int key)
 {
     return HASH2(key);
 }
-native_std::size_t HashUtil::computeHash(long key)
+std::size_t HashUtil::computeHash(long key)
 {
     return HASH2(key);
 }
-native_std::size_t HashUtil::computeHash(unsigned long key)
+std::size_t HashUtil::computeHash(unsigned long key)
 {
     return HASH2(key);
 }
-native_std::size_t HashUtil::computeHash(long long key)
+std::size_t HashUtil::computeHash(long long key)
 {
     return HASH2(key);
 }
-native_std::size_t HashUtil::computeHash(unsigned long long key)
+std::size_t HashUtil::computeHash(unsigned long long key)
 {
     return HASH2(key);
 }
-native_std::size_t HashUtil::computeHash(float key)
+std::size_t HashUtil::computeHash(float key)
 {
     return HASH2(key);
 }
-native_std::size_t HashUtil::computeHash(double key)
+std::size_t HashUtil::computeHash(double key)
 {
     return HASH2(key);
 }
-native_std::size_t HashUtil::computeHash(const void *key)
+std::size_t HashUtil::computeHash(const void *key)
 {
     return HASH2(key);
 }

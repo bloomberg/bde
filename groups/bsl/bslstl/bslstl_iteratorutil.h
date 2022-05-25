@@ -51,8 +51,11 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_addconst.h>
 #include <bslmf_removeconst.h>
 
-#include <bsls_nativestd.h>
 #include <bsls_platform.h>
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 namespace bslstl {
@@ -133,7 +136,7 @@ IteratorUtil::insertDistance(InputIterator first, InputIterator last)
 
         static
         typename bsl::iterator_traits<InputIterator>::difference_type
-        calc(InputIterator, InputIterator, native_std::input_iterator_tag)
+        calc(InputIterator, InputIterator, std::input_iterator_tag)
         {
             return 0;
         }
@@ -142,7 +145,7 @@ IteratorUtil::insertDistance(InputIterator first, InputIterator last)
         typename bsl::iterator_traits<InputIterator>::difference_type
         calc(InputIterator first,
              InputIterator last,
-             native_std::forward_iterator_tag)
+             std::forward_iterator_tag)
         {
             return bsl::distance(first, last);
         }

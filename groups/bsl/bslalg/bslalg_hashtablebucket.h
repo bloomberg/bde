@@ -239,10 +239,13 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_istriviallycopyable.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
-#include <bsls_nativestd.h>
 #include <bsls_assert.h>
 
 #include <cstddef>
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 namespace bslalg {
@@ -305,7 +308,7 @@ struct HashTableBucket {
         // Return the address of the last element in this hash bucket, or a
         // null pointer value if the bucket is empty.
 
-    native_std::size_t countElements() const;
+    std::size_t countElements() const;
         // Return the number of nodes in this hash bucket.
 };
 

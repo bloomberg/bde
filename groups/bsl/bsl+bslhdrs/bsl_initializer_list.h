@@ -16,15 +16,18 @@ BSLS_IDENT("$Id: $")
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
 #include <bsls_compilerfeatures.h>
-#include <bsls_nativestd.h>
 #include <bsls_platform.h>
 
 #include <initializer_list>
 
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
 namespace bsl {
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
-using native_std::initializer_list;
+using std::initializer_list;
 #endif
 
 }  // close namespace bsl

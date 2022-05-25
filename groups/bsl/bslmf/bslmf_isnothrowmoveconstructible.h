@@ -52,11 +52,12 @@ BSLS_IDENT("$Id: $")
 #include <stddef.h>
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
-# include <bsls_nativestd.h>
-
-# define BSLMF_INCLUDE_ONLY_NATIVE_TRAITS
 # include <type_traits>
 #endif // BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace bsl {
 
@@ -76,8 +77,8 @@ namespace bslmf {
 template <class TYPE, class = void>
 struct IsNothrowMoveConstructible_Impl
     : bsl::integral_constant<
-                    bool,
-                    ::native_std::is_nothrow_move_constructible<TYPE>::value> {
+                           bool,
+                           ::std::is_nothrow_move_constructible<TYPE>::value> {
     // This 'struct' template implements a metafunction to determine whether
     // the (non-cv-qualified) (template parameter) 'TYPE' has a no-throw move
     // constructor.  Note that the partial specializations below will provide
@@ -88,7 +89,7 @@ template <class TYPE>
 struct IsNothrowMoveConstructible_Impl<TYPE, BSLMF_VOIDTYPE(int TYPE::*)>
     : bsl::integral_constant<
        bool,
-       ::native_std::is_nothrow_move_constructible<TYPE>::value
+       ::std::is_nothrow_move_constructible<TYPE>::value
        || bsl::is_trivially_copyable<TYPE>::value
        || DetectNestedTrait<TYPE, bsl::is_nothrow_move_constructible>::value> {
     // This 'struct' template implements a metafunction to determine whether
@@ -104,24 +105,24 @@ struct IsNothrowMoveConstructible_Impl<TYPE, BSLMF_VOIDTYPE(int TYPE::*)>
 template <class TYPE>
 struct IsNothrowMoveConstructible_Impl<const TYPE, BSLMF_VOIDTYPE(int TYPE::*)>
     : bsl::integral_constant<
-                 bool,
-                 ::native_std::is_nothrow_move_constructible<const TYPE>::value
-                 || bsl::is_trivially_copyable<TYPE>::value> {
+                        bool,
+                        ::std::is_nothrow_move_constructible<const TYPE>::value
+                        || bsl::is_trivially_copyable<TYPE>::value> {
     enum { k_CHECK_COMPLETE = sizeof(TYPE) };   // Diagnose incomplete types
 };
 template <class TYPE>
 struct IsNothrowMoveConstructible_Impl<volatile TYPE,
                                        BSLMF_VOIDTYPE(int TYPE::*)>
     : bsl::integral_constant<
-           bool,
-           ::native_std::is_nothrow_move_constructible<volatile TYPE>::value> {
+                  bool,
+                  ::std::is_nothrow_move_constructible<volatile TYPE>::value> {
     enum { k_CHECK_COMPLETE = sizeof(TYPE) };   // Diagnose incomplete types
 };
 template <class TYPE>
 struct IsNothrowMoveConstructible_Impl<const volatile TYPE,
                                        BSLMF_VOIDTYPE(int TYPE::*)>
     : bsl::integral_constant<bool,
-                             ::native_std::is_nothrow_move_constructible<
+                             ::std::is_nothrow_move_constructible<
                                                  const volatile TYPE>::value> {
     enum { k_CHECK_COMPLETE = sizeof(TYPE) };   // Diagnose incomplete types
 };

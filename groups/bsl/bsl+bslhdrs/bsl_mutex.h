@@ -16,7 +16,10 @@ BSLS_IDENT("$Id: $")
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
 #include <bsls_libraryfeatures.h>
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
@@ -24,25 +27,25 @@ BSLS_IDENT("$Id: $")
 
 namespace bsl {
 
-    using native_std::mutex;
-    using native_std::recursive_mutex;
-    using native_std::timed_mutex;
-    using native_std::recursive_timed_mutex;
-    using native_std::lock_guard;
-    using native_std::unique_lock;
-    using native_std::once_flag;
-    using native_std::adopt_lock_t;
-    using native_std::defer_lock_t;
-    using native_std::try_to_lock_t;
-    using native_std::adopt_lock;
-    using native_std::defer_lock;
-    using native_std::try_to_lock;
-    using native_std::try_lock;
-    using native_std::lock;
-    using native_std::call_once;
+    using std::mutex;
+    using std::recursive_mutex;
+    using std::timed_mutex;
+    using std::recursive_timed_mutex;
+    using std::lock_guard;
+    using std::unique_lock;
+    using std::once_flag;
+    using std::adopt_lock_t;
+    using std::defer_lock_t;
+    using std::try_to_lock_t;
+    using std::adopt_lock;
+    using std::defer_lock;
+    using std::try_to_lock;
+    using std::try_lock;
+    using std::lock;
+    using std::call_once;
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-    using native_std::scoped_lock;
+    using std::scoped_lock;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
 }  // close package namespace

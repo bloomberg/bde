@@ -173,21 +173,18 @@ BSLS_IDENT("$Id: $")
 //       Element: 1
 //..
 
-// Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
-// mode.  Doing so is unsupported, and is likely to cause compilation errors.
-#if defined(BSL_OVERRIDES_STD) && !defined(BOS_STDHDRS_PROLOGUE_IN_EFFECT)
-#error "include <bsl_iterator.h> instead of <bslstl_iterator.h> in \
-BSL_OVERRIDES_STD mode"
-#endif
 #include <bslscm_version.h>
 
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
-#include <bsls_nativestd.h>
 #include <bsls_platform.h>
 
 #include <cstddef>
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #if 201703L <= BSLS_COMPILERFEATURES_CPLUSPLUS ||                             \
          (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION >= 1900)
@@ -228,40 +225,40 @@ namespace bsl {
 // Import selected symbols into bsl namespace
 
 // 24.3 primitives
-using native_std::input_iterator_tag;
-using native_std::output_iterator_tag;
-using native_std::forward_iterator_tag;
-using native_std::bidirectional_iterator_tag;
-using native_std::random_access_iterator_tag;
-using native_std::iterator;
+using std::input_iterator_tag;
+using std::output_iterator_tag;
+using std::forward_iterator_tag;
+using std::bidirectional_iterator_tag;
+using std::random_access_iterator_tag;
+using std::iterator;
 
 // 24.3.4 iterator operations
-using native_std::advance;
+using std::advance;
 
 // 24.3.4 predefined iterators
-using native_std::back_insert_iterator;
-using native_std::back_inserter;
-using native_std::front_insert_iterator;
-using native_std::front_inserter;
-using native_std::insert_iterator;
-using native_std::inserter;
+using std::back_insert_iterator;
+using std::back_inserter;
+using std::front_insert_iterator;
+using std::front_inserter;
+using std::insert_iterator;
+using std::inserter;
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
 // 24.5 predefined iterators (C++14)
-using native_std::make_reverse_iterator;
+using std::make_reverse_iterator;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
 
 // 24.5 stream iterators
-using native_std::istream_iterator;
-using native_std::ostream_iterator;
-using native_std::istreambuf_iterator;
-using native_std::ostreambuf_iterator;
+using std::istream_iterator;
+using std::ostream_iterator;
+using std::istreambuf_iterator;
+using std::ostreambuf_iterator;
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-using native_std::move_iterator;
-using native_std::make_move_iterator;
-using native_std::next;
-using native_std::prev;
+using std::move_iterator;
+using std::make_move_iterator;
+using std::next;
+using std::prev;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
 #if defined(BSLSTL_ITERATOR_PROVIDE_SUN_CPP98_FIXES)
@@ -313,7 +310,7 @@ struct iterator_traits<TYPE *> {
 };
 #else
 // Just use the native version
-using native_std::iterator_traits;
+using std::iterator_traits;
 #endif
 
 #if defined(BSLSTL_ITERATOR_IMPLEMENT_CPP11_REVERSE_ITERATOR)
@@ -337,7 +334,7 @@ using native_std::iterator_traits;
 
 template <class ITER>
 class reverse_iterator :
-    public native_std::reverse_iterator<
+    public std::reverse_iterator<
                              ITER,
                              typename iterator_traits<ITER>::iterator_category,
                              typename iterator_traits<ITER>::value_type,
@@ -356,7 +353,7 @@ class reverse_iterator :
     // [24.5.1].
 
     // PRIVATE TYPES
-    typedef native_std::reverse_iterator<
+    typedef std::reverse_iterator<
                  ITER,
                  typename iterator_traits<ITER>::iterator_category,
                  typename iterator_traits<ITER>::value_type,
@@ -628,7 +625,7 @@ operator+(DIFF_TYPE n, const reverse_iterator<ITER>& rhs);
     // shall meet the requirements of random access iterator.
 #else
 // Just use the native version
-using native_std::reverse_iterator;
+using std::reverse_iterator;
 #endif
 
 #if defined(BSLSTL_ITERATOR_PROVIDE_SUN_CPP98_FIXES)
@@ -686,12 +683,12 @@ distance(ITER start, ITER finish);
     // type 'ITER' shall meet the requirements of input iterator.
 #else
 // Just use the native version
-using native_std::distance;
+using std::distance;
 #endif
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS
-using native_std::begin;
-using native_std::end;
+using std::begin;
+using std::end;
 #else
 template <class T>
 typename T::iterator begin(T& container);
@@ -736,12 +733,12 @@ const T *end(const T (&array)[N]);
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS
-using native_std::cbegin;
-using native_std::cend;
-using native_std::rbegin;
-using native_std::rend;
-using native_std::crbegin;
-using native_std::crend;
+using std::cbegin;
+using std::cend;
+using std::rbegin;
+using std::rend;
+using std::crbegin;
+using std::crend;
 #else
 template <class T>
 typename T::const_iterator cbegin(const T& container);
@@ -948,7 +945,7 @@ inline
 bool operator==(const reverse_iterator<ITER>& lhs,
                 const reverse_iterator<ITER>& rhs)
 {
-    typedef native_std::reverse_iterator<
+    typedef std::reverse_iterator<
                  ITER,
                  typename iterator_traits<ITER>::iterator_category,
                  typename iterator_traits<ITER>::value_type,
@@ -1059,7 +1056,7 @@ typename reverse_iterator<ITER>::difference_type
 operator-(const reverse_iterator<ITER>& lhs,
           const reverse_iterator<ITER>& rhs)
 {
-    typedef native_std::reverse_iterator<
+    typedef std::reverse_iterator<
                  ITER,
                  typename iterator_traits<ITER>::iterator_category,
                  typename iterator_traits<ITER>::value_type,
@@ -1085,7 +1082,7 @@ operator+(DIFF_TYPE n, const reverse_iterator<ITER>& rhs)
                                     // ====
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS
-using native_std::data;
+using std::data;
 #else
 
 template <class CONTAINER>
@@ -1123,7 +1120,7 @@ typename CONTAINER::value_type const *data(const CONTAINER& container)
                                   // =====
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS
-using native_std::empty;
+using std::empty;
 #else
 template <class CONTAINER>
 inline
@@ -1142,7 +1139,7 @@ BSLS_KEYWORD_CONSTEXPR bool empty(const CONTAINER& container)
 
 #if BSLSTL_ITERATOR_SIZE_NATIVE
 
-using native_std::size;
+using std::size;
 
 #else
 
@@ -1162,7 +1159,7 @@ BSLS_KEYWORD_CONSTEXPR auto size(const CONTAINER& container) ->
 
 template <class CONTAINER>
 inline
-BSLS_KEYWORD_CONSTEXPR native_std::size_t size(const CONTAINER& container)
+BSLS_KEYWORD_CONSTEXPR std::size_t size(const CONTAINER& container)
     // Return the size of the specified 'container'.  The 'CONTAINER' template
     // parameter type must provide a 'size' accessor.
 {
@@ -1171,9 +1168,9 @@ BSLS_KEYWORD_CONSTEXPR native_std::size_t size(const CONTAINER& container)
 
 # endif
 
-template <class TYPE, native_std::size_t DIMENSION>
+template <class TYPE, std::size_t DIMENSION>
 inline
-BSLS_KEYWORD_CONSTEXPR native_std::size_t size(const TYPE (&)[DIMENSION])
+BSLS_KEYWORD_CONSTEXPR std::size_t size(const TYPE (&)[DIMENSION])
     // Return the dimension of the specified array argument.
 {
     return DIMENSION;
@@ -1187,7 +1184,7 @@ BSLS_KEYWORD_CONSTEXPR native_std::size_t size(const TYPE (&)[DIMENSION])
 
 #if BSLSTL_ITERATOR_SSIZE_NATIVE
 
-using native_std::ssize;
+using std::ssize;
 
 #else
 
@@ -1196,9 +1193,9 @@ using native_std::ssize;
 template <class CONTAINER>
 inline
 BSLS_KEYWORD_CONSTEXPR auto ssize(const CONTAINER& container) ->
-                native_std::common_type_t<
-                         native_std::ptrdiff_t,
-                         native_std::make_signed_t<decltype(container.size())>>
+                       std::common_type_t<
+                                std::ptrdiff_t,
+                                std::make_signed_t<decltype(container.size())>>
     // Return the size of the specified 'container'.  The 'CONTAINER' template
     // parameter type must provide a 'size' accessor.
 {
@@ -1209,7 +1206,7 @@ BSLS_KEYWORD_CONSTEXPR auto ssize(const CONTAINER& container) ->
 
 template <class CONTAINER>
 inline
-BSLS_KEYWORD_CONSTEXPR native_std::ptrdiff_t ssize(const CONTAINER& container)
+BSLS_KEYWORD_CONSTEXPR std::ptrdiff_t ssize(const CONTAINER& container)
     // Return the size of the specified 'container'.  The 'CONTAINER' template
     // parameter type must provide a 'size' accessor.
 {
@@ -1218,9 +1215,9 @@ BSLS_KEYWORD_CONSTEXPR native_std::ptrdiff_t ssize(const CONTAINER& container)
 
 # endif
 
-template <class TYPE, native_std::ptrdiff_t DIMENSION>
+template <class TYPE, std::ptrdiff_t DIMENSION>
 inline
-BSLS_KEYWORD_CONSTEXPR native_std::ptrdiff_t ssize(const TYPE (&)[DIMENSION])
+BSLS_KEYWORD_CONSTEXPR std::ptrdiff_t ssize(const TYPE (&)[DIMENSION])
     // Return the dimension of the specified array argument.
 {
     return DIMENSION;

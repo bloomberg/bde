@@ -16,15 +16,18 @@ BSLS_IDENT("$Id: $")
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
 #include <bsls_libraryfeatures.h>
-#include <bsls_nativestd.h>
 
 #include <shared_mutex>
 
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
 namespace bsl {
-    using native_std::shared_timed_mutex;
-    using native_std::shared_lock;
+    using std::shared_timed_mutex;
+    using std::shared_lock;
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-    using native_std::shared_mutex;
+    using std::shared_mutex;
 #endif
 }  // close package namespace
 

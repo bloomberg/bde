@@ -16,37 +16,40 @@ BSLS_IDENT("$Id: $")
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
 #include <bsls_libraryfeatures.h>
-#include <bsls_nativestd.h>
 #include <bsls_platform.h>
 
 #include <cwctype>
 
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
 namespace bsl {
     // Import selected symbols into bsl namespace
 
-    using native_std::iswalnum;
-    using native_std::iswalpha;
-    using native_std::iswcntrl;
-    using native_std::iswctype;
-    using native_std::iswdigit;
-    using native_std::iswgraph;
-    using native_std::iswlower;
-    using native_std::iswprint;
-    using native_std::iswpunct;
-    using native_std::iswspace;
-    using native_std::iswupper;
-    using native_std::iswxdigit;
-    using native_std::towctrans;
-    using native_std::towlower;
-    using native_std::towupper;
-    using native_std::wctrans;
-    using native_std::wctrans_t;
-    using native_std::wctype;
-    using native_std::wctype_t;
-    using native_std::wint_t;
+    using std::iswalnum;
+    using std::iswalpha;
+    using std::iswcntrl;
+    using std::iswctype;
+    using std::iswdigit;
+    using std::iswgraph;
+    using std::iswlower;
+    using std::iswprint;
+    using std::iswpunct;
+    using std::iswspace;
+    using std::iswupper;
+    using std::iswxdigit;
+    using std::towctrans;
+    using std::towlower;
+    using std::towupper;
+    using std::wctrans;
+    using std::wctrans_t;
+    using std::wctype;
+    using std::wctype_t;
+    using std::wint_t;
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
-    using native_std::iswblank;
+    using std::iswblank;
 #endif  // BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
 
 }  // close package namespace

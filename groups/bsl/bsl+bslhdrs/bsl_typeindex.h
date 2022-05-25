@@ -17,14 +17,12 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_compilerfeatures.h>
 #include <bsls_libraryfeatures.h>
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
-#ifdef BSL_OVERRIDES_STD
-// BDE configuration requires 'bos+stdhdrs' be in the search path, so this
-// #include is guaranteed to succeed.
-
-# include <unordered_set>
-#elif defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
 # if defined(BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE)
 // The unordered containers are a feature of the C++11 library, rather than
 // C++03, so might not be present in all native libraries on the platforms we
@@ -37,14 +35,8 @@ BSLS_IDENT("$Id: $")
 # endif
 #endif
 
-// Include Bloomberg's implementation, unless compilation is configured to
-// override native types in the 'std' namespace with Bloomberg's
-// implementation, in which case the implementation file will be included by
-// the Bloomberg supplied standard header file.
-
-#ifndef BSL_OVERRIDES_STD
-# include <bslstl_typeindex.h>
-#endif  // BSL_OVERRIDES_STD
+// Include Bloomberg's implementation.
+#include <bslstl_typeindex.h>
 
 #endif  // INCLUDED_BSL_TYPEINDEX
 

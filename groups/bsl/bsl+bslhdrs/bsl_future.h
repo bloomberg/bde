@@ -15,22 +15,24 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
-#include <bsls_nativestd.h>
-
 #include <future>
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace bsl {
 
-    using native_std::promise;
-    using native_std::packaged_task;
-    using native_std::future;
-    using native_std::shared_future;
-    using native_std::future_error;
-    using native_std::future_errc;
-    using native_std::future_status;
-    using native_std::launch;
-    using native_std::async;
-    using native_std::future_category;
+    using std::promise;
+    using std::packaged_task;
+    using std::future;
+    using std::shared_future;
+    using std::future_error;
+    using std::future_errc;
+    using std::future_status;
+    using std::launch;
+    using std::async;
+    using std::future_category;
 
 }  // close package namespace
 

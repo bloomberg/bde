@@ -15,15 +15,17 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
-#include <bsls_nativestd.h>
-
 #include <csignal>
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace bsl {
     // Import selected symbols into bsl namespace
-    using native_std::signal;
-    using native_std::raise;
-    using native_std::sig_atomic_t;
+    using std::signal;
+    using std::raise;
+    using std::sig_atomic_t;
 }  // close package namespace
 
 #endif

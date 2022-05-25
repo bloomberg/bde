@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Fri Apr 29 19:34:41 2022
+// Generated on Wed May 18 23:01:34 2022
 // Command line: sim_cpp11_features.pl bslstl_deque.h
 
 #ifdef COMPILING_BSLSTL_DEQUE_H
@@ -124,7 +124,7 @@ class Deque_Base {
 
     // For consistent behavior on all compilers, we must 'bsl::'-qualify
     // 'reverse_iterator'.  (For most compilers, 'reverse_iterator' is in
-    // namespace 'native_std', and NOT in namespace 'bsl'.  Hence, we need to
+    // namespace 'std', and NOT in namespace 'bsl'.  Hence, we need to
     // actively look into a different namespace to find the iterator.  However,
     // on Solaris we explicitly provide a 'reverse_iterator' implementation, IN
     // namespace 'bsl', to replace their broken one.  See 'bslstl_iterator.h'.)

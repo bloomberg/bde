@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Tue Apr 12 13:36:17 2022
+// Generated on Wed May 18 23:01:34 2022
 // Command line: sim_cpp11_features.pl bslstl_sharedptr.h
 
 #ifdef COMPILING_BSLSTL_SHAREDPTR_H
@@ -583,9 +583,8 @@ class shared_ptr {
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
     template <class COMPATIBLE_TYPE
               BSLSTL_SHAREDPTR_DECLARE_IF_COMPATIBLE>
-    explicit shared_ptr(
-                   native_std::auto_ptr<COMPATIBLE_TYPE>&  autoPtr,
-                   BloombergLP::bslma::Allocator          *basicAllocator = 0);
+    explicit shared_ptr(std::auto_ptr<COMPATIBLE_TYPE>&  autoPtr,
+                        BloombergLP::bslma::Allocator   *basicAllocator = 0);
         // Create a shared pointer that takes over the management of the
         // modifiable object previously managed by the specified 'autoPtr' to
         // the (template parameter) type 'COMPATIBLE_TYPE', and that refers to
@@ -598,9 +597,8 @@ class shared_ptr {
         // 'ELEMENT_TYPE *', then a compiler diagnostic will be emitted
         // indicating the error.
 
-    explicit shared_ptr(
-                   native_std::auto_ptr_ref<ELEMENT_TYPE>  autoRef,
-                   BloombergLP::bslma::Allocator          *basicAllocator = 0);
+    explicit shared_ptr(std::auto_ptr_ref<ELEMENT_TYPE>  autoRef,
+                        BloombergLP::bslma::Allocator   *basicAllocator = 0);
         // Create a shared pointer that takes over the management of the
         // modifiable object of (template parameter) type 'COMPATIBLE_TYPE'
         // previously managed by the auto pointer object that the specified
@@ -619,12 +617,12 @@ class shared_ptr {
     template <class COMPATIBLE_TYPE,
               class UNIQUE_DELETER,
               typename enable_if<is_convertible<
-                      typename native_std::unique_ptr<COMPATIBLE_TYPE,
-                                                      UNIQUE_DELETER>::pointer,
+                      typename std::unique_ptr<COMPATIBLE_TYPE,
+                                               UNIQUE_DELETER>::pointer,
                       ELEMENT_TYPE *>::value>::type * = nullptr>
-     shared_ptr(native_std::unique_ptr<COMPATIBLE_TYPE,
-                                       UNIQUE_DELETER>&&  adoptee,
-                BloombergLP::bslma::Allocator            *basicAllocator = 0);
+     shared_ptr(std::unique_ptr<COMPATIBLE_TYPE,
+                                UNIQUE_DELETER>&&  adoptee,
+                BloombergLP::bslma::Allocator     *basicAllocator = 0);
                                                                     // IMPLICIT
         // Create a shared pointer that takes over the management of the
         // modifiable object previously managed by the specified 'adoptee' to
@@ -642,12 +640,12 @@ class shared_ptr {
         // C++ standard.
 # else
     template <class COMPATIBLE_TYPE, class UNIQUE_DELETER>
-    shared_ptr(native_std::unique_ptr<COMPATIBLE_TYPE,
-                                      UNIQUE_DELETER>&&  adoptee,
-               BloombergLP::bslma::Allocator            *basicAllocator = 0,
+    shared_ptr(std::unique_ptr<COMPATIBLE_TYPE,
+                                UNIQUE_DELETER>&&  adoptee,
+               BloombergLP::bslma::Allocator      *basicAllocator = 0,
                typename enable_if<is_convertible<
-                      typename native_std::unique_ptr<COMPATIBLE_TYPE,
-                                                      UNIQUE_DELETER>::pointer,
+                      typename std::unique_ptr<COMPATIBLE_TYPE,
+                                               UNIQUE_DELETER>::pointer,
                       ELEMENT_TYPE *>::value,
                       BloombergLP::bslstl::SharedPtr_ImpUtil>::type =
                                       BloombergLP::bslstl::SharedPtr_ImpUtil())
@@ -674,7 +672,7 @@ class shared_ptr {
         // definition as matching this signature when placed out-of-line.
 
         typedef BloombergLP::bslma::SharedPtrInplaceRep<
-                 native_std::unique_ptr<COMPATIBLE_TYPE, UNIQUE_DELETER> > Rep;
+                        std::unique_ptr<COMPATIBLE_TYPE, UNIQUE_DELETER> > Rep;
 
         if (d_ptr_p) {
             basicAllocator =
@@ -913,7 +911,7 @@ class shared_ptr {
     typename enable_if<
         is_convertible<COMPATIBLE_TYPE *, ELEMENT_TYPE *>::value,
         shared_ptr&>::type
-    operator=(native_std::auto_ptr<COMPATIBLE_TYPE> rhs);
+    operator=(std::auto_ptr<COMPATIBLE_TYPE> rhs);
         // Transfer, to this shared pointer, ownership of the modifiable object
         // managed by the specified 'rhs' auto pointer to the (template
         // parameter) type 'COMPATIBLE_TYPE', and make this shared pointer
@@ -931,11 +929,10 @@ class shared_ptr {
     template <class COMPATIBLE_TYPE, class UNIQUE_DELETER>
     typename enable_if<
         is_convertible<
-            typename
-              native_std::unique_ptr<COMPATIBLE_TYPE, UNIQUE_DELETER>::pointer,
-              ELEMENT_TYPE *>::value,
+            typename std::unique_ptr<COMPATIBLE_TYPE, UNIQUE_DELETER>::pointer,
+                                     ELEMENT_TYPE *>::value,
             shared_ptr&>::type
-    operator=(native_std::unique_ptr<COMPATIBLE_TYPE, UNIQUE_DELETER>&& rhs);
+    operator=(std::unique_ptr<COMPATIBLE_TYPE, UNIQUE_DELETER>&& rhs);
         // Transfer, to this shared pointer, ownership of the object managed by
         // the specified 'rhs' unique pointer to the (template parameter) type
         // 'COMPATIBLE_TYPE', and make this shared pointer refer to
@@ -1881,9 +1878,9 @@ bool operator>=(nullptr_t,
     // 'std::less<RHS_TYPE *>', and 'false' otherwise.
 
 template<class CHAR_TYPE, class CHAR_TRAITS, class ELEMENT_TYPE>
-native_std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>&
-operator<<(native_std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& stream,
-           const shared_ptr<ELEMENT_TYPE>&                    rhs);
+std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>&
+operator<<(std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& stream,
+           const shared_ptr<ELEMENT_TYPE>&             rhs);
     // Print to the specified 'stream' the address of the shared object
     // referred to by the specified 'rhs' shared pointer and return a reference
     // to the modifiable 'stream'.
@@ -4082,13 +4079,13 @@ template <class ELEMENT_TYPE>
 template <class COMPATIBLE_TYPE
           BSLSTL_SHAREDPTR_DEFINE_IF_COMPATIBLE>
 shared_ptr<ELEMENT_TYPE>::shared_ptr(
-                        native_std::auto_ptr<COMPATIBLE_TYPE>&  autoPtr,
-                        BloombergLP::bslma::Allocator          *basicAllocator)
+                               std::auto_ptr<COMPATIBLE_TYPE>&  autoPtr,
+                               BloombergLP::bslma::Allocator   *basicAllocator)
 : d_ptr_p(autoPtr.get())
 , d_rep_p(0)
 {
     typedef BloombergLP::bslma::SharedPtrInplaceRep<
-                                   native_std::auto_ptr<COMPATIBLE_TYPE> > Rep;
+                                          std::auto_ptr<COMPATIBLE_TYPE> > Rep;
 
     if (d_ptr_p) {
         basicAllocator =
@@ -4104,15 +4101,15 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(
 
 template <class ELEMENT_TYPE>
 shared_ptr<ELEMENT_TYPE>::shared_ptr(
-                        native_std::auto_ptr_ref<ELEMENT_TYPE>  autoRef,
-                        BloombergLP::bslma::Allocator          *basicAllocator)
+                               std::auto_ptr_ref<ELEMENT_TYPE>  autoRef,
+                               BloombergLP::bslma::Allocator   *basicAllocator)
 : d_ptr_p(0)
 , d_rep_p(0)
 {
     typedef BloombergLP::bslma::SharedPtrInplaceRep<
-                                      native_std::auto_ptr<ELEMENT_TYPE> > Rep;
+                                             std::auto_ptr<ELEMENT_TYPE> > Rep;
 
-    native_std::auto_ptr<ELEMENT_TYPE> autoPtr(autoRef);
+    std::auto_ptr<ELEMENT_TYPE> autoPtr(autoRef);
     if (autoPtr.get()) {
         basicAllocator =
                         BloombergLP::bslma::Default::allocator(basicAllocator);
@@ -4130,17 +4127,17 @@ template <class ELEMENT_TYPE>
 template <class COMPATIBLE_TYPE,
           class UNIQUE_DELETER,
           typename enable_if<is_convertible<
-                      typename native_std::unique_ptr<COMPATIBLE_TYPE,
-                                                      UNIQUE_DELETER>::pointer,
+                      typename std::unique_ptr<COMPATIBLE_TYPE,
+                                               UNIQUE_DELETER>::pointer,
                       ELEMENT_TYPE *>::value>::type *>
 shared_ptr<ELEMENT_TYPE>::shared_ptr(
-     native_std::unique_ptr<COMPATIBLE_TYPE, UNIQUE_DELETER>&&  adoptee,
-     BloombergLP::bslma::Allocator                             *basicAllocator)
+            std::unique_ptr<COMPATIBLE_TYPE, UNIQUE_DELETER>&&  adoptee,
+            BloombergLP::bslma::Allocator                      *basicAllocator)
 : d_ptr_p(adoptee.get())
 , d_rep_p(0)
 {
     typedef BloombergLP::bslma::SharedPtrInplaceRep<
-                 native_std::unique_ptr<COMPATIBLE_TYPE, UNIQUE_DELETER> > Rep;
+                        std::unique_ptr<COMPATIBLE_TYPE, UNIQUE_DELETER> > Rep;
 
     if (d_ptr_p) {
         basicAllocator =
@@ -4391,7 +4388,7 @@ inline
 typename enable_if<
     is_convertible<COMPATIBLE_TYPE *, ELEMENT_TYPE *>::value,
     shared_ptr<ELEMENT_TYPE>&>::type
-shared_ptr<ELEMENT_TYPE>::operator=(native_std::auto_ptr<COMPATIBLE_TYPE> rhs)
+shared_ptr<ELEMENT_TYPE>::operator=(std::auto_ptr<COMPATIBLE_TYPE> rhs)
 {
     SelfType(rhs).swap(*this);
     return *this;
@@ -4404,12 +4401,11 @@ template <class COMPATIBLE_TYPE, class UNIQUE_DELETER>
 inline
 typename enable_if<
     is_convertible<
-        typename
-            native_std::unique_ptr<COMPATIBLE_TYPE, UNIQUE_DELETER>::pointer,
+        typename std::unique_ptr<COMPATIBLE_TYPE, UNIQUE_DELETER>::pointer,
         ELEMENT_TYPE *>::value,
     shared_ptr<ELEMENT_TYPE>&>::type
 shared_ptr<ELEMENT_TYPE>::operator=(
-                 native_std::unique_ptr<COMPATIBLE_TYPE, UNIQUE_DELETER>&& rhs)
+                        std::unique_ptr<COMPATIBLE_TYPE, UNIQUE_DELETER>&& rhs)
 {
     SelfType(BloombergLP::bslmf::MovableRefUtil::move(rhs)).swap(*this);
     return *this;
@@ -5181,8 +5177,7 @@ inline
 bool shared_ptr<ELEMENT_TYPE>::owner_before(
                                        const shared_ptr<ANY_TYPE>& other) const
 {
-    return native_std::less<BloombergLP::bslma::SharedPtrRep *>()(rep(),
-                                                                  other.rep());
+    return std::less<BloombergLP::bslma::SharedPtrRep *>()(rep(), other.rep());
 }
 
 template <class ELEMENT_TYPE>
@@ -5191,8 +5186,7 @@ inline
 bool
 shared_ptr<ELEMENT_TYPE>::owner_before(const weak_ptr<ANY_TYPE>& other) const
 {
-    return native_std::less<BloombergLP::bslma::SharedPtrRep *>()(rep(),
-                                                                  other.rep());
+    return std::less<BloombergLP::bslma::SharedPtrRep *>()(rep(), other.rep());
 }
 
 template <class ELEMENT_TYPE>
@@ -5528,8 +5522,8 @@ inline
 bool
 weak_ptr<ELEMENT_TYPE>::owner_before(const shared_ptr<ANY_TYPE>& other) const
 {
-    return native_std::less<BloombergLP::bslma::SharedPtrRep *>()(d_rep_p,
-                                                                  other.rep());
+    return std::less<BloombergLP::bslma::SharedPtrRep *>()(d_rep_p,
+                                                           other.rep());
 }
 
 template <class ELEMENT_TYPE>
@@ -5538,9 +5532,8 @@ inline
 bool
 weak_ptr<ELEMENT_TYPE>::owner_before(const weak_ptr<ANY_TYPE>& other) const
 {
-    return native_std::less<BloombergLP::bslma::SharedPtrRep *>()(
-                                                                d_rep_p,
-                                                                other.d_rep_p);
+    return std::less<BloombergLP::bslma::SharedPtrRep *>()(d_rep_p,
+                                                           other.d_rep_p);
 }
 
 template <class ELEMENT_TYPE>
@@ -5773,7 +5766,7 @@ inline
 bool bsl::operator<(const shared_ptr<LHS_TYPE>& lhs,
                     const shared_ptr<RHS_TYPE>& rhs) BSLS_KEYWORD_NOEXCEPT
 {
-    return native_std::less<const void *>()(lhs.get(), rhs.get());
+    return std::less<const void *>()(lhs.get(), rhs.get());
 }
 
 template <class LHS_TYPE, class RHS_TYPE>
@@ -5837,7 +5830,7 @@ inline
 bool bsl::operator<(const shared_ptr<LHS_TYPE>& lhs, bsl::nullptr_t)
                                                           BSLS_KEYWORD_NOEXCEPT
 {
-    return native_std::less<LHS_TYPE *>()(lhs.get(), 0);
+    return std::less<LHS_TYPE *>()(lhs.get(), 0);
 }
 
 template <class RHS_TYPE>
@@ -5845,7 +5838,7 @@ inline
 bool bsl::operator<(bsl::nullptr_t, const shared_ptr<RHS_TYPE>& rhs)
                                                           BSLS_KEYWORD_NOEXCEPT
 {
-    return native_std::less<RHS_TYPE *>()(0, rhs.get());
+    return std::less<RHS_TYPE *>()(0, rhs.get());
 }
 
 template <class LHS_TYPE>
@@ -5853,7 +5846,7 @@ inline
 bool bsl::operator<=(const shared_ptr<LHS_TYPE>& lhs, bsl::nullptr_t)
                                                           BSLS_KEYWORD_NOEXCEPT
 {
-    return !native_std::less<LHS_TYPE *>()(0, lhs.get());
+    return !std::less<LHS_TYPE *>()(0, lhs.get());
 }
 
 template <class RHS_TYPE>
@@ -5861,7 +5854,7 @@ inline
 bool bsl::operator<=(bsl::nullptr_t, const shared_ptr<RHS_TYPE>& rhs)
                                                           BSLS_KEYWORD_NOEXCEPT
 {
-    return !native_std::less<RHS_TYPE *>()(rhs.get(), 0);
+    return !std::less<RHS_TYPE *>()(rhs.get(), 0);
 }
 
 template <class LHS_TYPE>
@@ -5869,7 +5862,7 @@ inline
 bool bsl::operator>(const shared_ptr<LHS_TYPE>& lhs, bsl::nullptr_t)
                                                           BSLS_KEYWORD_NOEXCEPT
 {
-    return native_std::less<LHS_TYPE *>()(0, lhs.get());
+    return std::less<LHS_TYPE *>()(0, lhs.get());
 }
 
 template <class RHS_TYPE>
@@ -5877,7 +5870,7 @@ inline
 bool bsl::operator>(bsl::nullptr_t, const shared_ptr<RHS_TYPE>& rhs)
                                                           BSLS_KEYWORD_NOEXCEPT
 {
-    return native_std::less<RHS_TYPE *>()(rhs.get(), 0);
+    return std::less<RHS_TYPE *>()(rhs.get(), 0);
 }
 
 template <class LHS_TYPE>
@@ -5885,7 +5878,7 @@ inline
 bool bsl::operator>=(const shared_ptr<LHS_TYPE>& lhs, bsl::nullptr_t)
                                                           BSLS_KEYWORD_NOEXCEPT
 {
-    return !native_std::less<LHS_TYPE *>()(lhs.get(), 0);
+    return !std::less<LHS_TYPE *>()(lhs.get(), 0);
 }
 
 template <class RHS_TYPE>
@@ -5893,14 +5886,14 @@ inline
 bool bsl::operator>=(bsl::nullptr_t, const shared_ptr<RHS_TYPE>& rhs)
                                                           BSLS_KEYWORD_NOEXCEPT
 {
-    return !native_std::less<RHS_TYPE *>()(0, rhs.get());
+    return !std::less<RHS_TYPE *>()(0, rhs.get());
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ELEMENT_TYPE>
 inline
-native_std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>&
-bsl::operator<<(native_std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& stream,
-                const shared_ptr<ELEMENT_TYPE>&                    rhs)
+std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>&
+bsl::operator<<(std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& stream,
+                const shared_ptr<ELEMENT_TYPE>&             rhs)
 {
     return stream << rhs.get();
 }

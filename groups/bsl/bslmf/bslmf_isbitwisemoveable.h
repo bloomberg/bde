@@ -573,11 +573,12 @@ BSLS_IDENT("$Id: $")
 #include <stddef.h>
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
-# include <bsls_nativestd.h>
-
-# define BSLMF_INCLUDE_ONLY_NATIVE_TRAITS
 # include <type_traits>
 #endif // BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #if !defined(BSLS_PLATFORM_CMP_IBM)
 // Last checked with the xlC 12.1 compiler.  The IBM xlC compiler has problems
@@ -645,7 +646,7 @@ struct IsBitwiseMoveable_Imp<TYPE, false> {
 
     static const bool k_ValueWithoutOnebyteHeuristic =
                   bsl::is_trivially_copyable<TYPE>::value
-               || native_std::is_empty<TYPE>::value   // required for gcc < 5.0
+               || std::is_empty<TYPE>::value   // required for gcc < 5.0
                || k_NestedBitwiseMoveableTrait;
 #endif
 };

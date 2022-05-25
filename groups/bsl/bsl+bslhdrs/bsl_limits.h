@@ -15,24 +15,26 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
-#include <bsls_nativestd.h>
-
 #include <limits>
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace bsl {
     // Import selected symbols into bsl namespace
 
-    using native_std::denorm_absent;
-    using native_std::denorm_indeterminate;
-    using native_std::denorm_present;
-    using native_std::float_denorm_style;
-    using native_std::float_round_style;
-    using native_std::numeric_limits;
-    using native_std::round_indeterminate;
-    using native_std::round_to_nearest;
-    using native_std::round_toward_infinity;
-    using native_std::round_toward_neg_infinity;
-    using native_std::round_toward_zero;
+    using std::denorm_absent;
+    using std::denorm_indeterminate;
+    using std::denorm_present;
+    using std::float_denorm_style;
+    using std::float_round_style;
+    using std::numeric_limits;
+    using std::round_indeterminate;
+    using std::round_to_nearest;
+    using std::round_toward_infinity;
+    using std::round_toward_neg_infinity;
+    using std::round_toward_zero;
 }  // close package namespace
 
 #endif

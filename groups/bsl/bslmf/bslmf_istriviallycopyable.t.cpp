@@ -110,7 +110,7 @@ void aSsErT(bool condition, const char *message, int line)
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
 # define BSLMF_ISTRIVIALLYCOPYABLE_USE_NATIVE_ORACLE        1
-    // 'native_std::is_trivially_copyable' is available as a trusted oracle of
+    // 'std::is_trivially_copyable' is available as a trusted oracle of
     // the correct value for this trait.
 #endif
 
@@ -177,20 +177,20 @@ void aSsErT(bool condition, const char *message, int line)
   {                                                                           \
     typedef bsl::remove_volatile<TYPE>::type TestType;                        \
     ASSERTV( bsls::NameOf<TYPE>().name(),                                     \
-             native_std::is_trivially_copyable<TestType>::value,              \
-             bsl       ::is_trivially_copyable<TestType>::value,              \
-             native_std::is_trivially_copyable<TestType>::value ==            \
-             bsl       ::is_trivially_copyable<TestType>::value);             \
+             std::is_trivially_copyable<TestType>::value,                     \
+             bsl::is_trivially_copyable<TestType>::value,                     \
+             std::is_trivially_copyable<TestType>::value ==                   \
+             bsl::is_trivially_copyable<TestType>::value);                    \
   }
 # else
 #   define ASSERT_IS_TRIVIALLY_COPYABLE_CONSULT_ORACLE(TYPE)                  \
     ASSERTV( bsls::NameOf<TYPE>().name(),                                     \
-             native_std::is_trivially_copyable<TYPE>::value,                  \
-             bsl       ::is_trivially_copyable<TYPE>::value,                  \
-             native_std::is_trivially_copyable<TYPE>::value ==                \
-             bsl       ::is_trivially_copyable<TYPE>::value)
+             std::is_trivially_copyable<TYPE>::value,                         \
+             bsl::is_trivially_copyable<TYPE>::value,                         \
+             std::is_trivially_copyable<TYPE>::value ==                       \
+             bsl::is_trivially_copyable<TYPE>::value)
     // Confirm that the result of 'bsl::is_trivially_copyable<TYPE>' agrees
-    // with the oracle 'native_std::is_trivially_copyable<TYPE>'.
+    // with the oracle 'std::is_trivially_copyable<TYPE>'.
 # endif
 #else
 # define ASSERT_IS_TRIVIALLY_COPYABLE_CONSULT_ORACLE(TYPE)

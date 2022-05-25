@@ -16,64 +16,67 @@ BSLS_IDENT("$Id: $")
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
 #include <bsls_libraryfeatures.h>
-#include <bsls_nativestd.h>
 
 #include <cstdlib>
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace bsl {
     // Import selected symbols into bsl namespace
 
-    using native_std::abort;
-    using native_std::abs;
-    using native_std::atexit;
-    using native_std::atof;
-    using native_std::atoi;
-    using native_std::atol;
-    using native_std::bsearch;
-    using native_std::calloc;
-    using native_std::div;
-    using native_std::div_t;
-    using native_std::exit;
-    using native_std::free;
-    using native_std::getenv;
-    using native_std::labs;
-    using native_std::ldiv;
-    using native_std::ldiv_t;
-    using native_std::malloc;
-    using native_std::mblen;
-    using native_std::mbstowcs;
-    using native_std::mbtowc;
-    using native_std::qsort;
-    using native_std::rand;
-    using native_std::realloc;
-    using native_std::size_t;
-    using native_std::srand;
-    using native_std::strtod;
-    using native_std::strtol;
-    using native_std::strtoul;
-    using native_std::system;
-    using native_std::wcstombs;
-    using native_std::wctomb;
+    using std::abort;
+    using std::abs;
+    using std::atexit;
+    using std::atof;
+    using std::atoi;
+    using std::atol;
+    using std::bsearch;
+    using std::calloc;
+    using std::div;
+    using std::div_t;
+    using std::exit;
+    using std::free;
+    using std::getenv;
+    using std::labs;
+    using std::ldiv;
+    using std::ldiv_t;
+    using std::malloc;
+    using std::mblen;
+    using std::mbstowcs;
+    using std::mbtowc;
+    using std::qsort;
+    using std::rand;
+    using std::realloc;
+    using std::size_t;
+    using std::srand;
+    using std::strtod;
+    using std::strtol;
+    using std::strtoul;
+    using std::system;
+    using std::wcstombs;
+    using std::wctomb;
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
-    using native_std::atoll;
-    using native_std::llabs;
-    using native_std::lldiv;
-    using native_std::lldiv_t;
-    using native_std::strtof;
-    using native_std::strtold;
-    using native_std::strtoll;
-    using native_std::strtoull;
+    using std::atoll;
+    using std::llabs;
+    using std::lldiv;
+    using std::lldiv_t;
+    using std::strtof;
+    using std::strtold;
+    using std::strtoll;
+    using std::strtoull;
 #endif  // BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION
-    using native_std::_Exit;
-    using native_std::at_quick_exit;
-    using native_std::quick_exit;
+    using std::_Exit;
+    using std::at_quick_exit;
+    using std::quick_exit;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_ALIGNED_ALLOC
-    using native_std::aligned_alloc;
+    using std::aligned_alloc;
 #endif
 }
 #endif

@@ -137,7 +137,7 @@ using bsls::nameOfType;
 // [12] basic_string(const CHAR_TYPE *s, size_type n, a = A());
 // [12] basic_string(size_type n, CHAR_TYPE c = CHAR_TYPE(), a = A());
 // [12] template<class Iter> basic_string(Iter first, Iter last, a = A());
-// [26] basic_string(const native_std::basic_string<CHAR, TRAITS, A2>&);
+// [26] basic_string(const std::basic_string<CHAR, TRAITS, A2>&);
 // [  ] basic_string(const StringRefData& strRefData, a = A());
 // [33] basic_string(initializer_list<CHAR_TYPE> values, basicAllocator);
 // [ 2] ~basic_string();
@@ -209,7 +209,7 @@ using bsls::nameOfType;
 // [21] void swap(basic_string& other);
 //
 // ACCESSORS:
-// [26] operator native_std::basic_string<CHAR, TRAITS, A2>() const;
+// [26] operator std::basic_string<CHAR, TRAITS, A2>() const;
 // [ 4] const_reference operator[](size_type pos) const;
 // [ 4] const_reference at(size_type pos) const;
 // [15] const_reference front() const;
@@ -324,7 +324,7 @@ using bsls::nameOfType;
 // [  ] basic_ostream& operator<<(basic_ostream& stream, const string& str);
 // [  ] basic_istream& operator>>(basic_istream& stream, string& str);
 // [29] hashAppend(HASHALG& hashAlg, const basic_string& str);
-// [29] hashAppend(HASHALG& hashAlg, const native_std::basic_string& str);
+// [29] hashAppend(HASHALG& hashAlg, const std::basic_string& str);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [39] USAGE EXAMPLE
@@ -975,7 +975,7 @@ bool isNativeString(const bsl::basic_string<TYPE,TRAITS,ALLOC>&)
 
 template <class TYPE, class TRAITS, class ALLOC>
 inline
-bool isNativeString(const native_std::basic_string<TYPE,TRAITS,ALLOC>&)
+bool isNativeString(const std::basic_string<TYPE,TRAITS,ALLOC>&)
     { return true; }
 
 namespace BloombergLP {
@@ -6076,28 +6076,28 @@ int main(int argc, char *argv[])
         ASSERT(EXP_NOTHROW ==
                       bsl::is_nothrow_move_constructible<bsl::wstring>::value);
 
-        if (veryVerbose) printf("\tTesting 'native_std::string'.\n");
+        if (veryVerbose) printf("\tTesting 'std::string'.\n");
 
-        ASSERT(!bslma::UsesBslmaAllocator<native_std::string>::value);
-        ASSERT(!bslmf::IsBitwiseMoveable<native_std::string>::value);
+        ASSERT(!bslma::UsesBslmaAllocator<std::string>::value);
+        ASSERT(!bslmf::IsBitwiseMoveable<std::string>::value);
 
         // MSVC has unconditional 'noexcept' specifications for move
         // constructor in C++11 mode.  Fixed in MSVC 2015.
 #if !defined(BSLS_PLATFORM_CMP_MSVC) || \
     (defined(BSLS_PLATFORM_CMP_MSVC) && (BSLS_PLATFORM_CMP_VERSION >= 1900))
         ASSERT(EXP_NOTHROW ==
-                bsl::is_nothrow_move_constructible<native_std::string>::value);
+                bsl::is_nothrow_move_constructible<std::string>::value);
 #endif
 
-        if (veryVerbose) printf("\tTesting 'native_std::wstring'.\n");
+        if (veryVerbose) printf("\tTesting 'std::wstring'.\n");
 
-        ASSERT(!bslma::UsesBslmaAllocator<native_std::wstring>::value);
-        ASSERT(!bslmf::IsBitwiseMoveable<native_std::wstring>::value);
+        ASSERT(!bslma::UsesBslmaAllocator<std::wstring>::value);
+        ASSERT(!bslmf::IsBitwiseMoveable<std::wstring>::value);
 
 #if !defined(BSLS_PLATFORM_CMP_MSVC) || \
     (defined(BSLS_PLATFORM_CMP_MSVC) && (BSLS_PLATFORM_CMP_VERSION >= 1900))
         ASSERT(EXP_NOTHROW ==
-               bsl::is_nothrow_move_constructible<native_std::wstring>::value);
+               bsl::is_nothrow_move_constructible<std::wstring>::value);
 #endif
 
         if (veryVerbose)

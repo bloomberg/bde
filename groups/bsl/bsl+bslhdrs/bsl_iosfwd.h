@@ -15,9 +15,11 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
-#include <bsls_nativestd.h>
-
 #include <iosfwd>
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace bsl {
     // Import selected symbols into bsl namespace
@@ -25,66 +27,60 @@ namespace bsl {
 
     // These are declared in bslstl_iosfwd.h (so cannot be using declarations):
     //..
-    //  using native_std::allocator;
-    //  using native_std::basic_istringstream;
-    //  using native_std::basic_ostringstream;
-    //  using native_std::basic_stringbuf
-    //  using native_std::basic_stringstream
-    //  using native_std::istringstream;
-    //  using native_std::ostringstream;
-    //  using native_std::stringbuf;
-    //  using native_std::stringstream;
-    //  using native_std::wistringstream;
-    //  using native_std::wostringstream;
-    //  using native_std::wstringbuf;
-    //  using native_std::wstringstream;
+    //  using std::allocator;
+    //  using std::basic_istringstream;
+    //  using std::basic_ostringstream;
+    //  using std::basic_stringbuf
+    //  using std::basic_stringstream
+    //  using std::istringstream;
+    //  using std::ostringstream;
+    //  using std::stringbuf;
+    //  using std::stringstream;
+    //  using std::wistringstream;
+    //  using std::wostringstream;
+    //  using std::wstringbuf;
+    //  using std::wstringstream;
     //..
 
-    using native_std::basic_filebuf;
-    using native_std::basic_fstream;
-    using native_std::basic_ifstream;
-    using native_std::basic_ios;
-    using native_std::basic_iostream;
-    using native_std::basic_istream;
-    using native_std::basic_ofstream;
-    using native_std::basic_ostream;
-    using native_std::basic_streambuf;
-    using native_std::char_traits;
-    using native_std::filebuf;
-    using native_std::fpos;
-    using native_std::fstream;
-    using native_std::ifstream;
-    using native_std::ios;
-    using native_std::iostream;
-    using native_std::istream;
-    using native_std::istreambuf_iterator;
-    using native_std::ofstream;
-    using native_std::ostream;
-    using native_std::ostreambuf_iterator;
-    using native_std::streambuf;
-    using native_std::streamoff;
-    using native_std::streampos;
-    using native_std::wfilebuf;
-    using native_std::wfstream;
-    using native_std::wifstream;
-    using native_std::wios;
-    using native_std::wiostream;
-    using native_std::wistream;
-    using native_std::wofstream;
-    using native_std::wostream;
-    using native_std::wstreambuf;
-    using native_std::wstreampos;
+    using std::basic_filebuf;
+    using std::basic_fstream;
+    using std::basic_ifstream;
+    using std::basic_ios;
+    using std::basic_iostream;
+    using std::basic_istream;
+    using std::basic_ofstream;
+    using std::basic_ostream;
+    using std::basic_streambuf;
+    using std::char_traits;
+    using std::filebuf;
+    using std::fpos;
+    using std::fstream;
+    using std::ifstream;
+    using std::ios;
+    using std::iostream;
+    using std::istream;
+    using std::istreambuf_iterator;
+    using std::ofstream;
+    using std::ostream;
+    using std::ostreambuf_iterator;
+    using std::streambuf;
+    using std::streamoff;
+    using std::streampos;
+    using std::wfilebuf;
+    using std::wfstream;
+    using std::wifstream;
+    using std::wios;
+    using std::wiostream;
+    using std::wistream;
+    using std::wofstream;
+    using std::wostream;
+    using std::wstreambuf;
+    using std::wstreampos;
 
 }  // close package namespace
 
-// Include Bloomberg's implementation, unless compilation is configured to
-// override native types in the 'std' namespace with Bloomberg's
-// implementation, in which case the implementation file will be included by
-// the Bloomberg supplied standard header file.
-
-#ifndef BSL_OVERRIDES_STD
+// Include Bloomberg's implementation.
 #include <bslstl_iosfwd.h>
-#endif
 
 #endif
 

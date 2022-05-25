@@ -569,12 +569,6 @@ BSLS_IDENT("$Id: $")
 // an inverse concordance, and how to use the inverse concordance to find the
 // context (surrounding words) of a word of interest.
 
-#if defined(BSL_OVERRIDES_STD) && !defined(BOS_STDHDRS_PROLOGUE_IN_EFFECT)
-// Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
-// mode.  Doing so is unsupported, and is likely to cause compilation errors.
-#error "<bslstl_unorderedmultimap.h> header can't be included directly in \
-BSL_OVERRIDES_STD mode"
-#endif
 #include <bslscm_version.h>
 
 #include <bslstl_equalto.h>

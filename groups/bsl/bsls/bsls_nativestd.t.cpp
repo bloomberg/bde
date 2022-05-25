@@ -104,15 +104,18 @@ static int veryVeryVerbose = 0;
 //                  CLASSES FOR TESTING USAGE EXAMPLES
 //-----------------------------------------------------------------------------
 
-// Usage example (compilation test only):
-// To access the native implementation of 'std::string', even when the 'bsl'
-// implementation is in scope, use the 'native_std' prefix as follows:
+///Usage
+///-----
+// In the following example we use the 'native_std' prefix to access the native
+// implementation of 'std::string', even when the compilation is configured to
+// override the use of native STL types with Bloomberg provided STL types
+// (i.e., bde-stl mode, used by Bloomberg managed code):
 //..
-    #include <bsls_nativestd.h>
-    #include <string>
+#include <bsls_nativestd.h>
+#include <string>
 
-    std::string        s1; // might be bslstl::string type
-    native_std::string s2; // guaranteed to be the native string type
+std::string        s1;  // now always 'std::string'
+native_std::string s2;  // always was 'std::string'
 //..
 
 //=============================================================================
