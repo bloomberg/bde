@@ -18,11 +18,10 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bsls' package currently has 77 components having 16 levels of physical
+ The 'bsls' package currently has 78 components having 16 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
-
 ..
   16. bsls_byteorder
 
@@ -115,6 +114,7 @@
       bsls_platform
 
    1. bsls_deprecate
+      bsls_deprecatefeature
       bsls_ident
 ..
 
@@ -254,6 +254,9 @@
 :
 : 'bsls_deprecate':
 :      Provide machinery to deprecate interfaces on a per-version basis.
+:
+: 'bsls_deprecatefeature':
+:      Provide machinery to deprecate entities in C++ code.
 :
 : 'bsls_exceptionutil':
 :      Provide simplified exception constructs for non-exception builds.
