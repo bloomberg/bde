@@ -584,8 +584,8 @@ void RandGen::injectGarbage(bsl::string *result, bool padIsGarbage, bool url)
 
 void RandGen::injectWhitespace(bsl::string *result)
 {
-    static const char whitespace[] = { " \n\t\v\r\f" };
-    static bsl::size_t whiteLen = sizeof(whitespace) - 1;
+    static const char        whitespace[] = { " \n\t\v\r\f" };
+    static const bsl::size_t whiteLen     = sizeof(whitespace) - 1;
 
     const IntPtr numWhite = 1 + (*this)() % (result->length() + 1);
     for (int ii = 0; ii < numWhite; ++ii) {
@@ -600,7 +600,7 @@ void RandGen::randString(bsl::string *result, int len)
     BSLS_ASSERT(0 <= len);
 
     result->clear();
-    result->reserve(len);
+    result->resize(len);
 
     for (int ii = 0; ii < len; ++ii) {
         (*result)[ii] = getChar();
