@@ -675,7 +675,6 @@ void runErasure(bsl::unordered_map<EraseAmbiguityTestType, int>& container,
     }
 }
 
-
 }  // close unnamed namespace
 
 //=============================================================================
@@ -1105,7 +1104,6 @@ class DummyAllocator {
         // Deallocate.
     {
     }
-
 
     template <class ELEMENT_TYPE>
     void construct(ELEMENT_TYPE *) {}
@@ -1831,7 +1829,6 @@ TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::g(const char *spec)
     Obj object((bslma::Allocator *)0);
     return gg(&object, spec);
 }
-
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::matchFirstValues(
@@ -2635,7 +2632,6 @@ void TestDriver<KEY, MAPPED, HASH, EQUAL, ALLOC>::testCase37()
     }
 }
 
-
 template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, MAPPED, HASH, EQUAL, ALLOC>::testCase35()
 {
@@ -2990,7 +2986,6 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase34()
                 ASSERTV(NameOf<KEY>(),
                  !k_IS_KEY_MOVE_AWARE || MoveState::e_NOT_MOVED == mFromState);
 
-
                 ASSERTV(ZM == X.find(K)->second);
 
                 u::copyAssignTo(
@@ -3246,7 +3241,9 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase33_outOfLine()
 
             bslma::TestAllocator da("da", veryVeryVeryVerbose);    // default
             bslma::DefaultAllocatorGuard dag(&da);
+#if defined(BDE_BUILD_TARGET_EXC)
             bslma::TestAllocator& usedAlloc = ctor < 'e' ? da : oa;
+#endif
 
             Obj *p = 0;
             bool ibPassed = false;
@@ -3540,7 +3537,9 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase33_inline()
 #define u_INIT_LIST                                                           \
               { testValues[1], testValues[0], testValues[2], testValues[0] }
 
+#if defined(BDE_BUILD_TARGET_EXC)
         bslma::TestAllocator& usedAlloc = ctor < 'e' ? da : oa;
+#endif
         int numThrows = -1;
         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(usedAlloc) {
             ++numThrows;
@@ -3610,7 +3609,9 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase33_inline()
         } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         const Obj& X = *p;
 
+#if defined(BDE_BUILD_TARGET_EXC)
         ASSERTV(NameOf<KEY>(), numThrows, ctor, !oaPassed || 0 < numThrows);
+#endif
         totalThrows += numThrows;
 
         // Make sure parameters either got passed or were default constructed
@@ -4928,7 +4929,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase29()
                                           ? MoveState::e_NOT_MOVED
                                           : MoveState::e_MOVED;
 
-                    MoveState::Enum mState = 
+                    MoveState::Enum mState =
                                    bsltf::getMovedFrom(buffer.object().second);
                     ASSERTV(NameOf<VALUE>(), exp, mState,
                                                       exp == mState && "from");
@@ -5039,7 +5040,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase29()
                                           ? MoveState::e_NOT_MOVED
                                           : MoveState::e_MOVED;
 
-                    MoveState::Enum mState = 
+                    MoveState::Enum mState =
                                    bsltf::getMovedFrom(buffer.object().second);
                     ASSERTV(NameOf<VALUE>(), exp, mState,
                                                       exp == mState && "from");
@@ -5151,7 +5152,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase29()
                                           ? MoveState::e_NOT_MOVED
                                           : MoveState::e_MOVED;
 
-                        MoveState::Enum mState = 
+                        MoveState::Enum mState =
                                    bsltf::getMovedFrom(buffer.object().second);
                         ASSERTV(NameOf<VALUE>(), exp, mState,
                                                       exp == mState && "from");
@@ -7804,7 +7805,6 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase14()
         // Now, when traversing iterators from front to back, 'ISEQ[x]' is the
         // index in 'VALUES' of the 'x'th node encountered.
 
-
         ASSERTV(mX. begin() ==  X. begin());
         ASSERTV(mX. begin() ==  X.cbegin());
         ASSERTV(mX. begin() == mX.cbegin());
@@ -8517,7 +8517,6 @@ struct TestDeductionGuides {
                decltype(us2p),
                bsl::unordered_map<T2, T2, HashFnT2 *, bsl::equal_to<T2>, SA2>);
 
-
         typedef int                                     T3;
         typedef bsl::allocator<bsl::pair<const T3, T3>> BA3;
         typedef std::allocator<bsl::pair<const T3, T3>> SA3;
@@ -8547,7 +8546,6 @@ struct TestDeductionGuides {
         ASSERT_SAME_TYPE(
             decltype(us3h),
             bsl::unordered_map<T3, T3, bsl::hash<T3>, bsl::equal_to<T3>, SA3>);
-
 
         typedef char                                    T4;
         typedef bsl::allocator<bsl::pair<const T4, T4>> BA4;
@@ -8607,7 +8605,6 @@ struct TestDeductionGuides {
         typedef decltype(StupidEqualFn<T1>) EqualFnT1;
         IL1 il1 = {{1L, 2L}, {3L, 4L}};
 
-
         bsl::unordered_map us1a(il1);
         bsl::unordered_map us1b(il1, 3);
         bsl::unordered_map us1c(il1, 3, HashT1{});
@@ -8645,7 +8642,6 @@ struct TestDeductionGuides {
         ASSERT_SAME_TYPE(decltype(us1l),
                          bsl::unordered_map<T1, T1, HashT1, EqualT1, SA1>);
 
-
         typedef double                                         T2;
         typedef bsl::allocator<bsl::pair<const T2, T2>>        BA2;
         typedef std::allocator<bsl::pair<const T2, T2>>        SA2;
@@ -8679,7 +8675,6 @@ struct TestDeductionGuides {
                decltype(us2h),
                bsl::unordered_map<T2, T2, HashFnT2 *, bsl::equal_to<T2>, SA2>);
 
-
         typedef int                                            T3;
         typedef bsl::allocator<bsl::pair<const T3, T3>>        BA3;
         typedef std::allocator<bsl::pair<const T3, T3>>        SA3;
@@ -8697,7 +8692,6 @@ struct TestDeductionGuides {
         ASSERT_SAME_TYPE(
             decltype(us3d),
             bsl::unordered_map<T3, T3, bsl::hash<T3>, bsl::equal_to<T3>, SA3>);
-
 
         typedef char                                           T4;
         typedef bsl::allocator<bsl::pair<const T4, T4>>        BA4;

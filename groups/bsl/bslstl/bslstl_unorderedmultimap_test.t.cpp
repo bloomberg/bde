@@ -25,6 +25,7 @@
 
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_buildtarget.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_libraryfeatures.h>
 #include <bsls_nameof.h>
@@ -826,7 +827,6 @@ class TestEqualityComparator {
         return d_count;
     }
 };
-
 
 template <class TYPE>
 class TestNonConstEqualityComparator {
@@ -2320,7 +2320,6 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase37()
     ASSERTV(X.size(), 0 == X.size());
 }
 
-
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase36()
 {
@@ -2740,7 +2739,6 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase32_outOfLine()
                 bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
                 bslma::DefaultAllocatorGuard dag(&da);
 
-
                 bslma::TestAllocator&  oa = strchr("bdfh", cfg) ? sa : da;
                 bslma::TestAllocator& noa = &da == &oa          ? sa : da;
 
@@ -3043,7 +3041,9 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase32_inline()
 
         Obj *p = 0;
 
+#ifdef BDE_BUILD_TARGET_EXC
         bslma::TestAllocator& usedAlloc = ctor < 'e' ? da : oa;
+#endif
         int numThrows = -1;
         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(usedAlloc) {
             ++numThrows;
@@ -3112,8 +3112,9 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase32_inline()
             ASSERT(!p->empty() && 4 == p->size());
         } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         const Obj& X = *p;
-
+#ifdef BDE_BUILD_TARGET_EXC
         ASSERTV(NameOf<KEY>(), numThrows, ctor, !oaPassed || 0 < numThrows);
+#endif
         totalThrows += numThrows;
 
         // Make sure parameters either got passed or were default constructed
@@ -3254,7 +3255,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase31a()
     if (verbose) printf(
                  "TESTING FORWARDING OF ARGUMENTS WITH EMPLACE WITH HINT\n"
                  "------------------------------------------------------\n");
-    if (veryVerbose) P(NameOf<KEY>().name()) P(NameOf<VALUE>().name());
+    if (veryVerbose) { P(NameOf<KEY>().name()) P(NameOf<VALUE>().name()) }
 
     Iter hint;
 
@@ -3706,7 +3707,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase30a()
     if (verbose) printf("TESTING FORWARDING OF ARGUMENTS WITH EMPLACE\n"
                         "--------------------------------------------\n");
 
-    if (veryVerbose) P(NameOf<KEY>().name()) P(NameOf<VALUE>().name());
+    if (veryVerbose) { P(NameOf<KEY>().name()) P(NameOf<VALUE>().name()) }
 
 #ifndef BSL_DO_NOT_TEST_MOVE_FORWARDING
     if (verbose) printf("\nTesting emplace 1..3 args, move=1"
@@ -3910,7 +3911,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase30()
     //   iterator emplace(Args&&... arguments);
     // -----------------------------------------------------------------------
 
-    if (veryVerbose) P(NameOf<KEY>().name()) P(NameOf<VALUE>().name());
+    if (veryVerbose) { P(NameOf<KEY>().name()) P(NameOf<VALUE>().name()) }
 
     static const struct {
         int         d_line;    // source line number
@@ -4402,7 +4403,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase28()
 
     const int MAX_LENGTH = 16;
 
-    if (veryVerbose) P(NameOf<KEY>().name()) P(NameOf<VALUE>().name());
+    if (veryVerbose) { P(NameOf<KEY>().name()) P(NameOf<VALUE>().name()) }
+
     if (verbose) printf("\nTesting 'insert' without exceptions.\n");
     {
         for (size_t ti = 0; ti < NUM_DATA; ++ti) {
@@ -5306,7 +5308,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase26()
     if (verbose) printf("TESTING MOVE CONSTRUCTOR\n"
                         "========================\n");
 
-    if (veryVerbose) P(NameOf<KEY>().name()) P(NameOf<VALUE>().name());
+    if (veryVerbose) { P(NameOf<KEY>().name()) P(NameOf<VALUE>().name()) }
 
     const TestValues VALUES;
 
@@ -5621,7 +5623,6 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase23()
     BSLMF_ASSERT((0 == bsl::is_trivially_default_constructible<UMMKV>::value));
 }
 
-
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase22()
 {
@@ -5921,7 +5922,6 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase21()
                                         TestNonConstHashFunctor<KEY>,
                                         TestNonConstEqualityComparator<KEY>,
                                         ALLOC> ObjNCH;
-
 
         {
             ObjNCH mW(BEGIN, END); const ObjNCH& W = mW;
@@ -6767,7 +6767,6 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase15()
     }
 }
 
-
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase14()
 {
@@ -7404,7 +7403,6 @@ struct TestDeductionGuides {
           decltype(us2p),
           bsl::unordered_multimap<T2, T2, HashFnT2 *, bsl::equal_to<T2>, SA2>);
 
-
         typedef int                T3;
         typedef bsl::allocator<bsl::pair<const T3, T3>> BA3;
         typedef std::allocator<bsl::pair<const T3, T3>> SA3;
@@ -7440,7 +7438,6 @@ struct TestDeductionGuides {
                                                  bsl::hash<T3>,
                                                  bsl::equal_to<T3>,
                                                  SA3>);
-
 
         typedef char               T4;
         typedef bsl::allocator<bsl::pair<const T4, T4>> BA4;
@@ -7552,7 +7549,6 @@ struct TestDeductionGuides {
                         decltype(us1l),
                         bsl::unordered_multimap<T1, T1, HashT1, EqualT1, SA1>);
 
-
         typedef double                                         T2;
         typedef bsl::allocator<bsl::pair<const T2, T2>>        BA2;
         typedef std::allocator<bsl::pair<const T2, T2>>        SA2;
@@ -7592,7 +7588,6 @@ struct TestDeductionGuides {
                                                  bsl::equal_to<T2>,
                                                  SA2>);
 
-
         typedef int                                            T3;
         typedef bsl::allocator<bsl::pair<const T3, T3>>        BA3;
         typedef std::allocator<bsl::pair<const T3, T3>>        SA3;
@@ -7613,7 +7608,6 @@ struct TestDeductionGuides {
                                                  bsl::hash<T3>,
                                                  bsl::equal_to<T3>,
                                                  SA3>);
-
 
         typedef char                                           T4;
         typedef bsl::allocator<bsl::pair<const T4, T4>>        BA4;

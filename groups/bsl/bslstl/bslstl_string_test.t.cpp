@@ -14,9 +14,11 @@
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
 #include <bslma_testallocatormonitor.h>
+
 #include <bslmf_assert.h>
 #include <bslmf_isnothrowmoveconstructible.h>
 #include <bslmf_issame.h>
+
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
@@ -915,7 +917,7 @@ class LimitAllocator : public ALLOC {
 
   public:
     // TYPES
-    
+
     typedef typename TraitsBase::value_type        value_type;
     typedef typename TraitsBase::pointer           pointer;
     typedef typename TraitsBase::const_pointer     const_pointer;
@@ -1698,7 +1700,6 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase36()
 
         Obj        mX;
         const Obj& X = gg(&mX, SPEC);
-
 
         TYPE         *dataPtr = mX.data();
         const size_t  LENGTH  = X.length();
@@ -2516,9 +2517,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase33()
             int        exceptionLoopCount         = 0;
             const bool allocationExpected         = k_SHORT_BUFFER_CAPACITY
                                                     < length;
+#ifdef BDE_BUILD_TARGET_EXC
             const int  expectedExceptionLoopCount = allocationExpected
                                                     ? 2
                                                     : 1;
+#endif 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(*objectAllocator_p) {
                 ++exceptionLoopCount;
 
@@ -2541,8 +2544,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase33()
 
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
+#ifdef BDE_BUILD_TARGET_EXC
             ASSERTV(length,
                     expectedExceptionLoopCount == exceptionLoopCount);
+#endif
         }
         ASSERT(oam.isTotalSame());
     }
@@ -2657,12 +2662,14 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase33()
                                               < srcLength;
 
                 int                   allocationCount = 0;
+                int                exceptionLoopCount = 0;
+#ifdef BDE_BUILD_TARGET_EXC
                 const int     expectedAllocationCount = allocationExpected
                                                         ? 2  // two methods
                                                         : 0;
-                int                exceptionLoopCount = 0;
                 const int  expectedExceptionLoopCount = expectedAllocationCount
                                                       + 1;
+#endif
 
                 Obj        mX(LIST, objectAllocator_p);
                 const Obj&  X = mX;
@@ -2698,10 +2705,12 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase33()
                     }
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
+#ifdef BDE_BUILD_TARGET_EXC
                 ASSERTV(srcLength,
                          expectedExceptionLoopCount ==  exceptionLoopCount);
                 ASSERTV(srcLength,
                             expectedAllocationCount ==     allocationCount);
+#endif
             }
         }
         ASSERT(oam.isTotalSame());
@@ -2858,9 +2867,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase33()
             Obj mX(objectAllocator_p); const Obj& X = gg(&mX, expectedSPEC);
 
             int                exceptionLoopCount = 0;
-            const int  expectedExceptionLoopCount = 2;
             int                   allocationCount = 0;
+#ifdef BDE_BUILD_TARGET_EXC
+            const int  expectedExceptionLoopCount = 2;
             const int     expectedAllocationCount = 1;
+#endif
 
             Tam oem(objectAllocator_p);
 
@@ -2878,10 +2889,12 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase33()
 
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
+#ifdef BDE_BUILD_TARGET_EXC
             ASSERTV(srcLength,
                      expectedExceptionLoopCount ==  exceptionLoopCount);
             ASSERTV(srcLength,
                         expectedAllocationCount ==     allocationCount);
+#endif
         }
         ASSERT(oam.isInUseSame());
     }
@@ -3000,9 +3013,12 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase33()
             Obj mX(objectAllocator_p); const Obj& X = gg(&mX, expectedSPEC);
 
             int                exceptionLoopCount = 0;
-            const int  expectedExceptionLoopCount = 2;
             int                   allocationCount = 0;
+
+#ifdef BDE_BUILD_TARGET_EXC
+            const int  expectedExceptionLoopCount = 2;
             const int     expectedAllocationCount = 1;
+#endif
 
             Tam oem(objectAllocator_p);
 
@@ -3020,16 +3036,18 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase33()
 
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
+#ifdef BDE_BUILD_TARGET_EXC
             ASSERTV(srcLength,
                      expectedExceptionLoopCount ==  exceptionLoopCount);
             ASSERTV(srcLength,
                         expectedAllocationCount ==     allocationCount);
+#endif
         }
         ASSERT(oam.isInUseSame());
     }
 #else
     // Empty test.
-#endif
+#endif // 'BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS'
 }
 
 template <class TYPE, class TRAITS, class ALLOC>
@@ -3527,9 +3545,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
     typedef bsl::basic_string<TYPE,TRAITS,LimitAllocator<ALLOC> > LimitObj;
 
     LimitObj mY(LENGTH, DEFAULT_VALUE);  // does not throw
-    const LimitObj& Y = mY;
 
 #ifdef BDE_BUILD_TARGET_EXC
+    const LimitObj& Y = mY;
+
     if (verbose) printf("\nConstructor 'string(str, pos, n, a = A())'.\n");
 
     for (size_t limit = LENGTH - 2; limit <= LENGTH + 2; ++limit) {
@@ -5984,7 +6003,6 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase21()
 
         ASSERT(bslma::Default::defaultAllocator() == str1.get_allocator());
         ASSERT(&testAlloc2 == str2.get_allocator());
-
 
         if (verbose) printf("Swap strings with equal allocators.\n");
 
@@ -9086,7 +9104,6 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
     }
     ASSERT(0 == testAllocator.numMismatches());
     ASSERT(0 == testAllocator.numBlocksInUse());
-
 
     for (int insertMode  = INSERT_SUBSTRING_AT_INDEX;
          insertMode <= INSERT_SUBSTRINGVIEW_AT_INDEX_NPOS;
@@ -14461,7 +14478,6 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCaseM1(const int /* NITER */,
     //   This "test" measures performance of basic operations, for performance
     //   regression.
     //
-    //
     // RESULTS: Native SunProSTL on sundev13 as of Tue Jun 24 16:48:36 EDT 2008
     // ------------------------------------------------------------------------
     //
@@ -15589,7 +15605,6 @@ struct TestDeductionGuides {
         ASSERT_SAME_TYPE(decltype(str4d), bsl::basic_string<CT>);
         ASSERT_SAME_TYPE(decltype(str4e), bsl::basic_string<CT, Traits, SA>);
 
-
         bsl::basic_string<CT>              s5a;
         bsl::basic_string<CT, OtherTraits> s5b;
         bsl::basic_string                  str5a(s5a, 3, 4);
@@ -15764,7 +15779,6 @@ struct TestDeductionGuides {
         ASSERT_SAME_TYPE(decltype(str4c), bsl::basic_string<CT>);
         ASSERT_SAME_TYPE(decltype(str4d), bsl::basic_string<CT>);
         ASSERT_SAME_TYPE(decltype(str4e), bsl::basic_string<CT, Traits, SA>);
-
 
         bsl::basic_string<CT>              s5a;
         bsl::basic_string<CT, OtherTraits> s5b;
@@ -16912,7 +16926,9 @@ int main(int argc, char *argv[])
                 else {
 #if defined(BDE_BUILD_TARGET_EXC)
                     if (veryVeryVerbose) {
-                        printf("\t\tNO POS: " ZU ", INPUT: \"%s\"\n", POS, INPUT);
+                        printf("\t\tNO POS: " ZU ", INPUT: \"%s\"\n",
+                                POS,
+                                INPUT);
                     }
 
                     try {
@@ -16967,7 +16983,9 @@ int main(int argc, char *argv[])
                 else {
 #if defined(BDE_BUILD_TARGET_EXC)
                     if (veryVeryVerbose) {
-                        printf("\t\tNO POS (2): " ZU ", INPUT: \"%s\"\n", POS, INPUT);
+                        printf("\t\tNO POS (2): " ZU ", INPUT: \"%s\"\n",
+                               POS,
+                               INPUT);
                     }
 
                     try {

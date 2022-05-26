@@ -754,7 +754,6 @@ void testBuckets(CONTAINER& mX)
     ASSERTV(itemCount, x.size(), itemCount == x.size());
 }
 
-
 template <class CONTAINER>
 void testErase(CONTAINER& mX)
 {
@@ -1063,7 +1062,6 @@ struct ExceptionProctor {
         d_object_p = 0;
     }
 };
-
 
 bool g_enableEqualityFunctorFlag = true;
 
@@ -2989,7 +2987,9 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase34_inline()
 
         Obj *p = 0;
 
+#if defined(BDE_BUILD_TARGET_EXC)
         bslma::TestAllocator& usedAlloc = ctor < 'e' ? da : oa;
+#endif
         int numThrows = -1;
         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(usedAlloc) {
             ++numThrows;
@@ -3059,7 +3059,9 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase34_inline()
         } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         const Obj& X = *p;
 
+#if defined(BDE_BUILD_TARGET_EXC)
         ASSERTV(NameOf<KEY>(), numThrows, ctor, !oaPassed || 0 < numThrows);
+#endif
         totalThrows += numThrows;
 
         // Make sure parameters either got passed or were default constructed
@@ -4423,7 +4425,6 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase30()
                                                            L_,
                                                            MoveUtil::move(mZ));
 
-
                         RESULT = mX.insert(MoveUtil::move(*valptr));
 
                         proctor.release();
@@ -5451,7 +5452,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase28()
             }
         }
     }
-#endif
+#endif // BDE_BUILD_TARGET_EXC
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOC>
@@ -5859,7 +5860,6 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase25()
     bslma::TestAllocator         scratch("scratch", veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard dag(&da);
 
-
     for (int ti = 0; ti < NUM_DATA; ++ti) {
         const int    LINE   = DATA[ti].d_line;
         const char  *SPEC   = DATA[ti].d_spec;
@@ -6085,8 +6085,6 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase22()
         const char *const EXP    = DATA[ti].d_results;
         const size_t      LENGTH = strlen(SPEC);
 
-        ASSERT(0 <= LENGTH);
-
         TestValues VALUES(SPEC, scratch);
 
         typename TestValues::iterator BEGIN = VALUES.begin();
@@ -6101,13 +6099,15 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase22()
             const ptrdiff_t v = verifySpec(X, EXP);
             ASSERTV(LINE, v, EXP, X.size(), -1 == v);
             ASSERTV(LINE, da.numBlocksInUse(),
-                    0 <= da.numBlocksInUse() - TYPE_ALLOC * LENGTH);
+                    0 <= da.numBlocksInUse()
+                       - TYPE_ALLOC * static_cast<int>(LENGTH));
 
             ObjStlAlloc mY(X);  const ObjStlAlloc& Y = mY;
 
             ASSERTV(LINE, -1 == verifySpec(Y, EXP));
             ASSERTV(LINE, da.numBlocksInUse(),
-                    0 == da.numBlocksInUse() - 2 * TYPE_ALLOC * LENGTH);
+                    0 == da.numBlocksInUse()
+                       - 2 * TYPE_ALLOC * static_cast<int>(LENGTH));
 
             ObjStlAlloc mZ; const ObjStlAlloc& Z = mZ;
 
@@ -6115,7 +6115,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase22()
 
             ASSERTV(LINE, -1 == verifySpec(Z, EXP));
             ASSERTV(LINE, da.numBlocksInUse(),
-                    0 <= da.numBlocksInUse() - 2 * TYPE_ALLOC * LENGTH);
+                    0 <= da.numBlocksInUse()
+                       - 2 * TYPE_ALLOC * static_cast<int>(LENGTH));
         }
 
         VALUES.resetIterators();
@@ -6142,7 +6143,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase22()
             }
             ASSERTV(LINE, -1 == verifySpec(X, EXP));
             ASSERTV(LINE, da.numBlocksInUse(),
-                    0 <= da.numBlocksInUse() - TYPE_ALLOC * LENGTH);
+                    0 <= da.numBlocksInUse()
+                       - TYPE_ALLOC * static_cast<int>(LENGTH));
         }
         ASSERTV(LINE, da.numBlocksInUse(), 0 == da.numBlocksInUse());
     }
@@ -7825,7 +7827,6 @@ struct TestDeductionGuides {
         ASSERT_SAME_TYPE(decltype(ums1t),
                          bsl::unordered_multiset<T1, HashT1, EqualT1, SA1>);
 
-
         typedef double                      T2;
         typedef StupidHash<T2>              HashT2;
         typedef decltype(StupidHashFn<T2>)  HashFnT2;
@@ -7884,7 +7885,6 @@ struct TestDeductionGuides {
               decltype(ums2p),
               bsl::unordered_multiset<T2, HashFnT2 *, bsl::equal_to<T2>, SA2>);
 
-
         typedef int                T3;
         typedef bsl::allocator<T3> BA3;
         typedef std::allocator<T3> SA3;
@@ -7914,7 +7914,6 @@ struct TestDeductionGuides {
         ASSERT_SAME_TYPE(
            decltype(ums3h),
            bsl::unordered_multiset<T3, bsl::hash<T3>, bsl::equal_to<T3>, SA3>);
-
 
         typedef char               T4;
         typedef bsl::allocator<T4> BA4;
@@ -8012,7 +8011,6 @@ struct TestDeductionGuides {
         ASSERT_SAME_TYPE(decltype(ums1l),
                          bsl::unordered_multiset<T1, HashT1, EqualT1, SA1>);
 
-
         typedef double                      T2;
         typedef bsl::allocator<T2>          BA2;
         typedef std::allocator<T2>          SA2;
@@ -8045,7 +8043,6 @@ struct TestDeductionGuides {
               decltype(ums2h),
               bsl::unordered_multiset<T2, HashFnT2 *, bsl::equal_to<T2>, SA2>);
 
-
         typedef int                T3;
         typedef bsl::allocator<T3> BA3;
         typedef std::allocator<T3> SA3;
@@ -8062,7 +8059,6 @@ struct TestDeductionGuides {
         ASSERT_SAME_TYPE(
            decltype(ums3d),
            bsl::unordered_multiset<T3, bsl::hash<T3>, bsl::equal_to<T3>, SA3>);
-
 
         typedef char               T4;
         typedef bsl::allocator<T4> BA4;
@@ -8137,7 +8133,7 @@ int main(int argc, char *argv[])
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
         // This is a compile-time only test case.
-        TestDeductionGuides test;
+        TestDeductionGuides test; (void) test;
 #endif
       } break;
       case 36: {

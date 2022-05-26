@@ -622,7 +622,6 @@ void testBuckets(CONTAINER& mX)
     typedef typename CONTAINER::local_iterator       local_iterator;
     typedef typename CONTAINER::const_local_iterator const_local_iterator;
 
-
     const CONTAINER &x = mX;
 
     SizeType bucketCount = x.bucket_count();
@@ -673,7 +672,6 @@ void testBuckets(CONTAINER& mX)
     }
     LOOP2_ASSERT(itemCount, x.size(), itemCount == x.size());
 }
-
 
 template <class CONTAINER>
 void testErase(CONTAINER& mX)
@@ -826,7 +824,6 @@ void testErase(CONTAINER& mX)
     for (iterator it = mX.begin(); it != x.end(); it = mX.erase(it)) {}
     testEmptyContainer(mX);
 }
-
 
 //------ Test machinery borrowed from associative container test drivers ------
 
@@ -991,7 +988,6 @@ class StatefulStlAllocator : public bsltf::StdTestAllocator<VALUE>
     }
 };
 
-
                             // ======================
                             // class ExceptionProctor
                             // ======================
@@ -1139,7 +1135,6 @@ class TestEqualityComparator {
         return d_count;
     }
 };
-
 
 template <class TYPE>
 class TestNonConstEqualityComparator {
@@ -3010,7 +3005,9 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase32_inline()
 
 #define u_INIT_LIST { testValues[1], testValues[0], testValues[2] }
 
+#if defined(BDE_BUILD_TARGET_EXC)
         bslma::TestAllocator& usedAlloc = ctor < 'e' ? da : oa;
+#endif
         int numThrows = -1;
         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(usedAlloc) {
             ++numThrows;
@@ -3080,7 +3077,9 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase32_inline()
         } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         const Obj& X = *p;
 
+#if defined(BDE_BUILD_TARGET_EXC)
         ASSERTV(NameOf<KEY>(), numThrows, ctor, !oaPassed || 0 < numThrows);
+#endif
         totalThrows += numThrows;
 
         // Make sure parameters either got passed or were default constructed
@@ -5270,7 +5269,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase28()
             }
         }
     }
-#endif
+#endif // BDE_BUILD_TARGET_EXC
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOC>
@@ -6621,7 +6620,6 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase21()
                                    TestNonConstEqualityComparator<KEY>,
                                    ALLOC> ObjNCH;
 
-
         {
             ObjNCH mW(BEGIN, END);  const ObjNCH& W = mW;
 
@@ -7669,7 +7667,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase12()
             const char   *RESULTS = DEFAULT_DATA[i].d_results;
             const size_t  LENGTH  = strlen(SPEC);
 
-            if (veryVerbose) T_ T_ P(SPEC);
+            if (veryVerbose) { T_ T_ P(SPEC) }
 
             for (char cfg = 'a'; cfg <= 'n' ; ++cfg) {
                 const char CONFIG = cfg;
@@ -8004,7 +8002,6 @@ struct TestDeductionGuides {
         ASSERT_SAME_TYPE(decltype(us1t),
                          bsl::unordered_set<T1, HashT1, EqualT1, SA1>);
 
-
         typedef double                      T2;
         typedef StupidHash<T2>              HashT2;
         typedef decltype(StupidHashFn<T2>)  HashFnT2;
@@ -8057,7 +8054,6 @@ struct TestDeductionGuides {
                    decltype(us2p),
                    bsl::unordered_set<T2, HashFnT2 *, bsl::equal_to<T2>, SA2>);
 
-
         typedef int                T3;
         typedef bsl::allocator<T3> BA3;
         typedef std::allocator<T3> SA3;
@@ -8087,7 +8083,6 @@ struct TestDeductionGuides {
         ASSERT_SAME_TYPE(
                 decltype(us3h),
                 bsl::unordered_set<T3, bsl::hash<T3>, bsl::equal_to<T3>, SA3>);
-
 
         typedef char               T4;
         typedef bsl::allocator<T4> BA4;
@@ -8145,7 +8140,6 @@ struct TestDeductionGuides {
         typedef decltype(StupidEqualFn<T1>) EqualFnT1;
         std::initializer_list<T1> il1 = {1L, 2L, 3L, 4L};
 
-
         bsl::unordered_set us1a(il1);
         bsl::unordered_set us1b(il1, 3);
         bsl::unordered_set us1c(il1, 3, HashT1{});
@@ -8182,7 +8176,6 @@ struct TestDeductionGuides {
         ASSERT_SAME_TYPE(decltype(us1l),
                          bsl::unordered_set<T1, HashT1, EqualT1, SA1>);
 
-
         typedef double                      T2;
         typedef bsl::allocator<T2>          BA2;
         typedef std::allocator<T2>          SA2;
@@ -8212,7 +8205,6 @@ struct TestDeductionGuides {
                    decltype(us2h),
                    bsl::unordered_set<T2, HashFnT2 *, bsl::equal_to<T2>, SA2>);
 
-
         typedef int                T3;
         typedef bsl::allocator<T3> BA3;
         typedef std::allocator<T3> SA3;
@@ -8229,7 +8221,6 @@ struct TestDeductionGuides {
         ASSERT_SAME_TYPE(
                 decltype(us3d),
                 bsl::unordered_set<T3, bsl::hash<T3>, bsl::equal_to<T3>, SA3>);
-
 
         typedef char               T4;
         typedef bsl::allocator<T4> BA4;
@@ -8304,7 +8295,7 @@ int main(int argc, char *argv[])
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
         // This is a compile-time only test case.
-        TestDeductionGuides test;
+        TestDeductionGuides test; (void) test;
 #endif
       } break;
       case 34: {

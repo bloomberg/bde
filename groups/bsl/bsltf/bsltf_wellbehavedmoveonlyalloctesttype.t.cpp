@@ -13,6 +13,7 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_buildtarget.h>
 #include <bsls_objectbuffer.h>
 
 #include <algorithm>  // 'swap' in C++03 and earlier
@@ -370,8 +371,6 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING ASSERTION ON BITWISE MOVE"
                             "\n=================================\n");
         {
-
-
             bslma::TestAllocator         da("default", veryVeryVeryVerbose);
             bslma::DefaultAllocatorGuard dag(&da);
 
@@ -675,7 +674,9 @@ int main(int argc, char *argv[])
                                 MoveState::e_NOT_MOVED == Z.movedInto());
                     } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
 
+#ifdef BDE_BUILD_TARGET_EXC
                     ASSERT(0 < numThrows);
+#endif
 
                     ASSERTV(LINE1, LINE2, ZZ.data(), X.data(), ZZ == X);
 
@@ -1597,7 +1598,6 @@ int main(int argc, char *argv[])
                 ASSERTV(CONFIG, X.movedInto(),
                                 X.movedInto() == MoveState::e_NOT_MOVED);
 
-
                 // Verify any attribute allocators are installed properly.
 
                 ASSERTV(CONFIG, &oa, X.allocator(), &oa == X.allocator());
@@ -1798,7 +1798,6 @@ int main(int argc, char *argv[])
                             X.movedFrom() == MoveState::e_NOT_MOVED);
             ASSERTV(CONFIG, X.movedInto(),
                             X.movedInto() == MoveState::e_NOT_MOVED);
-
 
             // 'data'
             {

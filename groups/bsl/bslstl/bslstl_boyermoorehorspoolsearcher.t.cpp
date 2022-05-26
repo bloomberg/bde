@@ -19,6 +19,7 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_buildtarget.h>
 #include <bsls_libraryfeatures.h>
 #include <bsls_nameof.h>
 #include <bsls_platform.h>
@@ -2824,7 +2825,6 @@ const std::size_t numDATA = sizeof DATA / sizeof *DATA;
 //                               USAGE EXAMPLES
 // ----------------------------------------------------------------------------
 
-
 // Support for Example 3
 void doTestRun(bsl::vector<float> *data)
 {
@@ -3041,7 +3041,6 @@ typedef bslma::TestAllocator MyAllocator; // support for Example 4
 // map (at an address that is stable for the life of the map) we create a
 // searcher object that refers to that key string for its search sequence, and
 // overwrite the "dummy" part of previously inserted element.
-
 
 static void usage()
     // Test the Usage examples.
@@ -3677,7 +3676,6 @@ static void testMoveConstructors()
 
             ASSERT(resultZ == resultX);
 
-
             // Is 'mZ' in a valid state?
 
             ASSERT(NEEDLE == Z.needleFirst());
@@ -3771,7 +3769,6 @@ struct TestDeductionGuides {
         ASSERT_SAME_TYPE(decltype(ds1a),
                          bslstl::BoyerMooreHorspoolSearcher<T1 *>);
 
-
         typedef long T2;
 
         T2                                       *p2b = nullptr;
@@ -3780,7 +3777,6 @@ struct TestDeductionGuides {
         bslstl::BoyerMooreHorspoolSearcher        ds2a(std::move(ds2));
         ASSERT_SAME_TYPE(decltype(ds2a),
                          bslstl::BoyerMooreHorspoolSearcher<T2 *>);
-
 
         typedef float                       T3;
         typedef StupidHash<T3>              HashT3;
@@ -3859,7 +3855,6 @@ struct TestDeductionGuides {
         ASSERT_SAME_TYPE(decltype(ds1a),
                          bsl::boyer_moore_horspool_searcher<T1 *>);
 
-
         typedef long T2;
 
         T2                                       *p2b = nullptr;
@@ -3868,7 +3863,6 @@ struct TestDeductionGuides {
         bsl::boyer_moore_horspool_searcher        ds2a(std::move(ds2));
         ASSERT_SAME_TYPE(decltype(ds2a),
                          bsl::boyer_moore_horspool_searcher<T2 *>);
-
 
         typedef float                       T3;
         typedef StupidHash<T3>              HashT3;
@@ -4680,7 +4674,6 @@ int main(int argc, char *argv[])
             CharArray<char> containerHavingRandomIterators(
                                                     bsl::vector<char>('b', 5));
 
-
             typedef CharArray<char>::const_iterator    RandConstItr;
             typedef bslstl::BoyerMooreHorspoolSearcher<RandConstItr> Mech;
 
@@ -4905,7 +4898,9 @@ int main(int argc, char *argv[])
 
                 Mech&  mD  = *dstMechPtr;
 
+#ifdef BDE_BUILD_TARGET_EXC
                 bslma::TestAllocator& dstMechAllocator = *dstMechAllocatorPtr;
+#endif
 
                 bool expectAllocation = expectAllocationCase7(
                                                           dstNumBytes,
@@ -4951,7 +4946,6 @@ int main(int argc, char *argv[])
 
             HASH   hash(42);
             EQUAL equal(42);
-
 
             CharArray<char> containerHavingRandomIterators(
                                                     bsl::vector<char>('b', 5));
@@ -5034,7 +5028,6 @@ int main(int argc, char *argv[])
         {
             CharArray<char> containerHavingRandomIterators(
                                                     bsl::vector<char>('b', 5));
-
 
             typedef CharArray<char>::const_iterator    RandConstItr;
             typedef bslstl::BoyerMooreHorspoolSearcher<RandConstItr> Mech;
@@ -5544,7 +5537,6 @@ int main(int argc, char *argv[])
         {
             CharArray<char> containerHavingRandomIterators(
                                                     bsl::vector<char>('b', 5));
-
 
             typedef CharArray<char>::const_iterator    RandConstItr;
             typedef bslstl::BoyerMooreHorspoolSearcher<RandConstItr> Mech;
@@ -6395,7 +6387,6 @@ int main(int argc, char *argv[])
             // Create arbitrary "needle".
             const CharArray< char> needle  (bsl::vector<char>('a', 3));
 
-
             typedef bslstl::BoyerMooreHorspoolSearcher<RndConstItr> Mech;
 
             Mech mX(needle.begin(), needle.end()); const Mech& X = mX;
@@ -6519,7 +6510,6 @@ int main(int argc, char *argv[])
 
             CharArray<char> containerHavingRandomIterators(
                                                     bsl::vector<char>('b', 5));
-
 
             bslma::TestAllocator         sa("supplied", veryVeryVeryVerbose);
             bslma::TestAllocator         da("default" , veryVeryVeryVerbose);
@@ -6687,7 +6677,9 @@ int main(int argc, char *argv[])
                                              mechShort.needleLast()));
                 ASSERT(   1 == sa.numBlocksInUse());
                 ASSERT(SHRT == sa.numBytesInUse());
+#ifdef BDE_BUILD_TARGET_EXC
                 ASSERT(   2 <= loopCount);
+#endif
 
                 Mech mechLong(HAYSTACK_TEXT_FIRST,
                               HAYSTACK_TEXT_LAST,
@@ -6698,7 +6690,9 @@ int main(int argc, char *argv[])
                                              mechLong.needleLast()));
                 ASSERT(   1 +    1 == sa.numBlocksInUse());
                 ASSERT(TALL + SHRT == sa.numBytesInUse());
+#ifdef BDE_BUILD_TARGET_EXC
                 ASSERT(          3 == loopCount);
+#endif
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
             ASSERT(0 == sa.numBlocksInUse());
@@ -6751,7 +6745,6 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\n" "BREATHING TEST"
                             "\n" "==============\n");
-
 
         if (veryVerbose) printf("Hello, world!\n");
         {
