@@ -2711,7 +2711,6 @@ inline
 bsl::size_t StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::bucketSize(
                                                        bsl::size_t index) const
 {
-    BSLS_ASSERT(0 <= index);
     BSLS_ASSERT(index < bucketCount());
 
     return d_buckets[index].size();

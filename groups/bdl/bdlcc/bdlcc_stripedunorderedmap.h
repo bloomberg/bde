@@ -904,7 +904,6 @@ inline
 bsl::size_t StripedUnorderedMap<KEY, VALUE, HASH, EQUAL>::bucketSize(
                                                        bsl::size_t index) const
 {
-    BSLS_ASSERT(0 <= index);
     BSLS_ASSERT(bucketCount() > index);
 
     return d_imp.bucketSize(index);

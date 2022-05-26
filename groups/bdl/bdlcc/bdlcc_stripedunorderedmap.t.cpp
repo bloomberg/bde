@@ -43,6 +43,7 @@
 #include <bslmf_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_atomic.h>
+#include <bsls_buildtarget.h>
 #include <bsls_nameof.h>
 #include <bsls_performancehint.h>
 #include <bsls_timeutil.h>  // 'HashPerformance'
@@ -5751,9 +5752,11 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase3()
                     ASSERT(numBlocksTotalAfter
                          - numBlocksTotalAfore == EXPECTED_NUM_ALLOCATIONS);
 
+#ifdef BDE_BUILD_TARGET_EXC
                     ASSERTV(2                         // CTOR   allocations
                           + EXPECTED_NUM_ALLOCATIONS  // insert allocations
                           + 1 == loopCount);
+#endif
 
                     const bsl::size_t numElements = X.size();
                     const bsl::size_t bucketIndex = X.bucketIndex(cKEY);
@@ -5882,7 +5885,9 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase3()
 
                     ASSERTV(LINE, areEqual(value, cVALUE));
 
+#ifdef BDE_BUILD_TARGET_EXC
                     ASSERT(1 < loopCount);
+#endif
 
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
                 ASSERTV(sam.isTotalUp());    // Memory was allocated.
@@ -6116,7 +6121,9 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase3()
                         ASSERTV(EXP_VALUES[0] == foundValueAsInt);
                     }
 
+#ifdef BDE_BUILD_TARGET_EXC
                     ASSERT(1 < loopCount);
+#endif
 
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
 
@@ -6382,9 +6389,15 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase2()
 
         } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-        ASSERTV(loopCount,           3 == loopCount);
         ASSERTV(sa.numBlocksInUse(), 0 == sa.numBlocksInUse());
-        ASSERTV(sa.numBlocksInUse(), 3 == sa.numBlocksTotal()); // 0 + 1 + 2
+#ifdef BDE_BUILD_TARGET_EXC
+        ASSERTV(loopCount,           3 == loopCount);
+        ASSERTV(sa.numBlocksTotal(), 3 == sa.numBlocksTotal()); // 0 + 1 + 2
+#else
+        ASSERTV(loopCount,           1 == loopCount);
+        ASSERTV(sa.numBlocksTotal(), 2 == sa.numBlocksTotal());
+                             // One pass through test block without exceptions. 
+#endif
     }
 
     // CONCERN: In no case does memory come from the default allocator.
