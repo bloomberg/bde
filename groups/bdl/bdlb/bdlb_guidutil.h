@@ -164,12 +164,17 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 
 #include <bdlb_guid.h>
+#include <bdlb_pcgrandomgenerator.h>
+
+#include <bslmf_assert.h>
 
 #include <bsls_assert.h>
 #include <bsls_libraryfeatures.h>
 #include <bsls_types.h>
 
+#include <bsl_array.h>
 #include <bsl_cstddef.h>
+#include <bsl_cstdint.h>
 #include <bsl_string.h>
 
 #include <string>
@@ -180,6 +185,36 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace bdlb {
+
+                              // ===================
+                              // class GuidState_Imp
+                              // ===================
+
+class GuidState_Imp {
+    // This component-private 'class' describes holds the PCG generators and
+    // generation functions for use by 'GuidUtil'.
+
+  public:
+    // PUBLIC CLASS CONSTANTS
+    enum {
+        k_GENERATOR_COUNT = 4
+    };
+
+  private:
+    // DATA
+    bsl::array<bdlb::PcgRandomGenerator, k_GENERATOR_COUNT> d_generators;
+
+  public:
+
+    // MANIPULATORS
+    void generateRandomBits(
+                       bsl::uint32_t (*out)[GuidState_Imp::k_GENERATOR_COUNT]);
+        // Populate the specified 'out' with the results of calling 'generate'
+        // on the internal random generators.
+
+    void seed(const bsl::array<bsl::uint64_t, k_GENERATOR_COUNT>& state);
+        // Seed the internal generators based on the specified 'state' values.
+};
 
                               // ===============
                               // struct GuidUtil
@@ -201,17 +236,6 @@ struct GuidUtil {
         // The behavior is undefined unless 'result' refers to a contiguous
         // sequence of at least 'numGuids' 'Guid' objects.
 
-    static void generate(unsigned char *result, bsl::size_t numGuids = 1);
-        // Generate a sequence of GUIDs meeting the RFC 4122 version 4
-        // specification, and load the bytes of the resulting GUIDs into the
-        // array referred to by the specified 'result'.  Optionally specify
-        // 'numGuids', indicating the number of GUIDs to load into the 'result'
-        // array.  If 'numGuids' is not supplied, a default of 1 is used.  An
-        // RFC 4122 version 4 GUID consists of 122 randomly generated bits, two
-        // "variant" bits set to '10', and four "version" bits set to '0100'.
-        // The behavior is undefined unless 'result' refers to a contiguous
-        // sequence of at least '16 * numGuids' bytes.
-
     static Guid generate();
         // Generate and return a single GUID meeting the RFC 4122 version 4
         // specification, consisting of 122 randomly generated bits, two
@@ -229,20 +253,6 @@ struct GuidUtil {
         // sequence of at least 'numGuids' 'Guid' objects.  Note that this
         // function generates high quality, albeit not cryptographically
         // secure, random numbers for GUIDs.
-
-    static void generateNonSecure(unsigned char *result,
-                                  bsl::size_t    numGuids = 1);
-        // Generate a sequence of GUIDs meeting the RFC 4122 version 4
-        // specification, and load the resulting GUIDs into the array referred
-        // to by the specified 'result'.  Optionally specify 'numGuids',
-        // indicating the number of GUIDs to load into the 'result' array.  If
-        // 'numGuids' is not supplied, a default of 1 is used.  An RFC 4122
-        // version 4 GUID consists of 122 randomly generated bits, two
-        // "variant" bits set to '10', and four "version" bits set to '0100'.
-        // The behavior is undefined unless 'result' refers to a contiguous
-        // sequence of at least 'numGuids * sizeof(Guid)' characters.  Note
-        // that this function generates high quality, albeit not
-        // cryptographically secure, random numbers for GUIDs.
 
     static Guid generateNonSecure();
         // Generate and return a single GUID meeting the RFC 4122 version 4
@@ -284,11 +294,40 @@ struct GuidUtil {
 
     static bsls::Types::Uint64 getLeastSignificantBits(const Guid& guid);
         // Return the least significant 8 bytes of the specified 'guid'.
+
+    // DEPRECATED CLASS METHODS
+    static void generate(unsigned char *result, bsl::size_t numGuids = 1);
+        // !DEPRECATED!: Use 'generate(Guid *, size_t)' instead.
+        //
+        // Generate a sequence of GUIDs meeting the RFC 4122 version 4
+        // specification, and load the bytes of the resulting GUIDs into the
+        // array referred to by the specified 'result'.  Optionally specify
+        // 'numGuids', indicating the number of GUIDs to load into the 'result'
+        // array.  If 'numGuids' is not supplied, a default of 1 is used.  An
+        // RFC 4122 version 4 GUID consists of 122 randomly generated bits, two
+        // "variant" bits set to '10', and four "version" bits set to '0100'.
+        // The behavior is undefined unless 'result' refers to a contiguous
+        // sequence of at least '16 * numGuids' bytes.
 };
 
 // ============================================================================
 //                      INLINE DEFINITIONS
 // ============================================================================
+
+                              // -------------------
+                              // class GuidState_Imp
+                              // -------------------
+
+
+// MANIPULATORS
+inline
+void GuidState_Imp::generateRandomBits(
+              bsl::uint32_t (*out)[GuidState_Imp::k_GENERATOR_COUNT])
+{
+    for (int i = 0;  i < GuidState_Imp::k_GENERATOR_COUNT; i++) {
+        (*out)[i] = d_generators[i].generate();
+    }
+}
 
                               // ---------------
                               // struct GuidUtil
@@ -298,12 +337,6 @@ inline
 void GuidUtil::generate(Guid *result, bsl::size_t numGuids)
 {
     generate(reinterpret_cast<unsigned char *>(result), numGuids);
-}
-
-inline
-void GuidUtil::generateNonSecure(Guid *result, bsl::size_t numGuids)
-{
-    generateNonSecure(reinterpret_cast<unsigned char *>(result), numGuids);
 }
 
 inline

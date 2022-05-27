@@ -180,6 +180,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlscm_version.h>
 
+#include <bsls_keyword.h>
+
 #include <bsl_cstdint.h>
 
 namespace BloombergLP {
@@ -276,8 +278,15 @@ PcgRandomGenerator::PcgRandomGenerator(bsl::uint64_t initState,
 inline
 bsl::uint32_t PcgRandomGenerator::generate()
 {
+    static BSLS_KEYWORD_CONSTEXPR_MEMBER bsl::uint64_t k_MULTIPLIER =
+                                                6364136223846793005ULL;
+
     bsl::uint64_t oldstate = d_state;
-    d_state = oldstate * 6364136223846793005ULL + d_streamSelector;
+
+    // Advance the internal state
+    d_state = oldstate * k_MULTIPLIER + d_streamSelector;
+
+    // Perform the output function
     bsl::uint32_t xorshifted =
         static_cast<bsl::uint32_t>(((oldstate >> 18u) ^ oldstate) >> 27u);
     bsl::uint32_t rot = static_cast<bsl::uint32_t>(oldstate >> 59u);
@@ -288,8 +297,9 @@ inline
 void PcgRandomGenerator::seed(bsl::uint64_t initState,
                               bsl::uint64_t streamSelector)
 {
-    d_state          = 0U;
     d_streamSelector = (streamSelector << 1u) | 1u;
+
+    d_state = 0U;
     generate();
     d_state += initState;
     generate();

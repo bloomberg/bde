@@ -8,18 +8,31 @@ BSLS_IDENT_RCSID(RCSid_bdlb_guidutil_cpp,"$Id$ $CSID$")
 #include <bdlb_pcgrandomgenerator.h>
 #include <bdlb_randomdevice.h>
 
+#include <bslmf_assert.h>
+
 #include <bslmt_lockguard.h>
 #include <bslmt_mutex.h>
 #include <bslmt_once.h>
 
 #include <bsls_assert.h>
+#include <bsls_atomic.h>
 #include <bsls_byteorder.h>
+#include <bsls_performancehint.h>
 #include <bsls_platform.h>
 
 #include <bsl_cstdio.h>
 #include <bsl_cstring.h>
 #include <bsl_ctime.h>
 #include <bsl_sstream.h>
+#include <bsl_vector.h>
+
+// The following is added so that this component does not need a dependency on
+// bdls_processutil, since 'getProcessId' is only used to for random number
+// seeding.
+#ifndef BSLS_PLATFORM_OS_WINDOWS
+#include <unistd.h>
+#include <pthread.h>
+#endif
 
 namespace BloombergLP {
 namespace bdlb {
@@ -29,6 +42,8 @@ namespace {
                         // ---------------
                         // struct GuidUtil
                         // ---------------
+
+
 
 // LOCAL METHODS
 int charToHex(unsigned char* hex, unsigned char c)
@@ -115,6 +130,7 @@ int vaildateGuidString(const bsl::string_view& guidString)
     return 0;
 }
 
+inline
 void makeRfc4122Compliant(unsigned char *bytes, const unsigned char *end)
     // Make the buffer starting at the specified 'bytes' and ending at the
     // address just before the specified 'end' comply with RFC 4122 version 4.
@@ -147,7 +163,90 @@ void guidToStringImpl(STRING *result, const Guid& guid)
     *result = oss.str();
 }
 
+inline int getPid()
+    // Return the process id.  Having this be separate from 'Obj::getProcessId'
+    // allows us to call it inline within the component.
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    return 0;
+#else
+    return static_cast<int>(::getpid());
+#endif
+}
+
+static bsls::AtomicInt s_pid(-1);
+
+extern "C" void guidUtilForkChildCallback()
+    // Callback for the child process as set by pthread_atfork.  If the process
+    // forks we need to reset the state and s_pid to force a reseed.  At this
+    // point during the forking process we are guaranteed to only have a single
+    // running thread.
+{
+    s_pid = -1;
+}
+
+void registerForkCallback()
+    // Register 'guidUtilForkChildCallback' as a callback function for the
+    // child of a call to 'fork'.
+{
+#ifndef BSLS_PLATFORM_OS_WINDOWS
+    pthread_atfork(NULL, NULL, (guidUtilForkChildCallback));
+#endif
+}
+
+inline
+void reseed(GuidState_Imp *guidStatePtr)
+    // Reseed the array of random number generators of length 4 in the
+    // specified 'guidStatePtr' with seeds from 'RandomDevice'.
+{
+    BSLS_ASSERT(guidStatePtr);
+
+    typedef bsl::array<bsl::uint64_t, GuidState_Imp::k_GENERATOR_COUNT>
+        state_t;
+
+    state_t state;
+    if (0 != RandomDevice::getRandomBytes(
+                               reinterpret_cast<unsigned char *>(state.data()),
+                               sizeof(state_t::value_type) * state.size())) {
+        if (0 != RandomDevice::getRandomBytesNonBlocking(
+                               reinterpret_cast<unsigned char *>(state.data()),
+                               sizeof(state_t::value_type) * state.size())) {
+            // fallback state: Combine the time and (for unix only) the process
+            // id with the addresses of a library function, a static variable,
+            // a stack variable and a local function to approximate
+            // process-specific semi-random seed values.
+            bsl::uint64_t seed = static_cast<bsl::uint64_t>(bsl::time(0)) ^
+                                 reinterpret_cast<uintptr_t>(&bsl::printf);
+            state[0] = seed;
+            state[1] = seed ^ (static_cast<bsl::uint64_t>(s_pid) << 32) ^
+                       reinterpret_cast<uintptr_t>(&state);
+            state[2] = (seed << 32) ^
+                       reinterpret_cast<uintptr_t>(&registerForkCallback);
+            state[3] = seed ^ reinterpret_cast<uintptr_t>(&s_pid);
+        }
+    }
+
+    guidStatePtr->seed(state);
+}
+
 }  // close unnamed namespace
+
+                              // ===================
+                              // class GuidState_Imp
+                              // ===================
+
+// MANIPULATORS
+void GuidState_Imp::seed(
+      const bsl::array<bsl::uint64_t, GuidState_Imp::k_GENERATOR_COUNT>& state)
+{
+    for (int i = 0; i != GuidState_Imp::k_GENERATOR_COUNT; ++i) {
+        d_generators[i].seed(state[i], i);
+    }
+}
+
+                              // ===================
+                              // class GuidUtil
+                              // ===================
 
 // CLASS METHODS
 void GuidUtil::generate(unsigned char *result, bsl::size_t numGuids)
@@ -156,11 +255,21 @@ void GuidUtil::generate(unsigned char *result, bsl::size_t numGuids)
 
     unsigned char *bytes = result;
     unsigned char *end   = bytes + numGuids * Guid::k_GUID_NUM_BYTES;
-    if (0 == RandomDevice::getRandomBytesNonBlocking(bytes, end - bytes)) {
+
+    // Note that, on a correcly installed system, the RandomDevice call whould
+    // be expected to never fail.
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
+                  0 == RandomDevice::getRandomBytesNonBlocking(bytes,
+                                                               end - bytes))) {
         makeRfc4122Compliant(bytes, end);
     }
     else {
-        generateNonSecure(result, numGuids);
+        for (bsl::size_t i = 0; i < numGuids; i++) {
+            Guid temp = generateNonSecure();
+            memcpy(result + i * Guid::k_GUID_NUM_BYTES,
+                   temp.data(),
+                   Guid::k_GUID_NUM_BYTES);
+        }
     }
 }
 
@@ -171,37 +280,45 @@ Guid GuidUtil::generate()
     return result;
 }
 
-void GuidUtil::generateNonSecure(unsigned char *result, bsl::size_t numGuids)
+void GuidUtil::generateNonSecure(Guid *result, bsl::size_t numGuids)
 {
     BSLS_ASSERT(result);
 
-    static bdlb::PcgRandomGenerator *pcgSingletonPtr;
-    static bslmt::Mutex             *pcgMutexPtr;
-    BSLMT_ONCE_DO {
-        bsl::uint64_t state;
-        if (0 !=
-            RandomDevice::getRandomBytes(
-                reinterpret_cast<unsigned char *>(&state), sizeof(state))) {
-            //  fallback state; address of 'printf' to get an arbitrary value
-            state = bsl::time(0) ^ reinterpret_cast<intptr_t>(&bsl::printf);
+    static GuidState_Imp *guidStatePtr;
+    static bslmt::Mutex  *pcgMutexPtr;
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(-1 == s_pid.loadRelaxed())) {
+        BSLMT_ONCE_DO
+        {
+            registerForkCallback();
+
+            static GuidState_Imp guidState;
+            guidStatePtr = &guidState;
+
+            static bslmt::Mutex pcgMutex;
+            pcgMutexPtr = &pcgMutex;
         }
-        static bdlb::PcgRandomGenerator pcgSingleton(state, 0);
-        pcgSingletonPtr = &pcgSingleton;
-        static bslmt::Mutex pcgMutex;
-        pcgMutexPtr = &pcgMutex;
+
+        bslmt::LockGuard<bslmt::Mutex> guard(pcgMutexPtr);
+
+        if (-1 == s_pid.load()) {
+            s_pid = getPid();
+            reseed(guidStatePtr);
+        }
     }
 
-    unsigned char *bytes = result;
-    unsigned char *end   = bytes + numGuids * Guid::k_GUID_NUM_BYTES;
     {
         bslmt::LockGuard<bslmt::Mutex> guard(pcgMutexPtr);
 
-        for (unsigned char *current = result; current < end;
-             current += sizeof(bsl::uint32_t)) {
-            const bsl::uint32_t randomInt = pcgSingletonPtr->generate();
-            bsl::memcpy(current, &randomInt, sizeof(bsl::uint32_t));
+        for (bsl::size_t i = 0; i < numGuids; i++) {
+            bsl::uint32_t temp[Guid::k_GUID_NUM_32BITS];
+            guidStatePtr->generateRandomBits(&temp);
+            result[i] = temp;
         }
     }
+
+    unsigned char *bytes = reinterpret_cast<unsigned char *>(result);
+    unsigned char *end   = bytes + numGuids * Guid::k_GUID_NUM_BYTES;
 
     makeRfc4122Compliant(bytes, end);
 }

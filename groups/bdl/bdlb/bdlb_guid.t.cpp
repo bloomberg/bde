@@ -53,6 +53,7 @@ using namespace bsl;
 //
 // MANIPULATORS
 // [ 3] Guid& operator=(unsigned char buffer[k_GUID_NUM_BYTES]);
+// [ 3] Guid& operator=(uint32_t buffer[k_GUID_NUM_32BITS]);
 // [ 9] bdlb::Guid& operator=(const bdlb::Guid& rhs);
 //
 // FREE OPERATORS
@@ -714,7 +715,7 @@ int main(int argc, char *argv[])
                 ostringstream out2(bsl::string(CTRL_BUF2, SIZE));
                 X.print(out2, IND, SPL) << ends;
                 if (veryVerbose) { P(out1.str()) }
-                const int SZ = strlen(FMT) + 1;
+                const int SZ = static_cast<int>(strlen(FMT) + 1);
                 const int REST = SIZE - SZ;
                 LOOP_ASSERT(LINE, SZ < SIZE);  // Check buffer is large enough.
                 LOOP_ASSERT(LINE,
@@ -861,7 +862,7 @@ int main(int argc, char *argv[])
 
                     const Obj VV = g(V_SPEC);           // control
 
-                    const int Z = ui == vi;  // flag indicating same values
+                    const bool Z = (ui == vi);  // flag indicating same values
 
                     Obj        mU;
                     const Obj& U = mU;
@@ -1106,20 +1107,20 @@ int main(int argc, char *argv[])
 
                     if (veryVerbose) { T_ P_(JLINE) P_(JSPEC) P(Y) }
 
-                    int r = 1;
+                    bool r = true;
 
                     for (int k = 0; k < 16; ++k) {
                         if (X[k] != Y[k]) {
-                            r = 0;
+                            r = false;
                             break;
                         }
                     }
-                    LOOP2_ASSERT(i, j,  r == (X == Y));
-                    LOOP2_ASSERT(i, j,  1 == (X == X));
-                    LOOP2_ASSERT(i, j,  1 == (Y == Y));
-                    LOOP2_ASSERT(i, j, !r == (X != Y));
-                    LOOP2_ASSERT(i, j,  0 == (X != X));
-                    LOOP2_ASSERT(i, j,  0 == (Y != Y));
+                    LOOP2_ASSERT(i, j,     r  == (X == Y));
+                    LOOP2_ASSERT(i, j,  true  == (X == X));
+                    LOOP2_ASSERT(i, j,  true  == (Y == Y));
+                    LOOP2_ASSERT(i, j,    !r  == (X != Y));
+                    LOOP2_ASSERT(i, j,  false == (X != X));
+                    LOOP2_ASSERT(i, j,  false == (Y != Y));
                 }
             }
         }
@@ -1200,7 +1201,7 @@ int main(int argc, char *argv[])
                 ostringstream out2(bsl::string(CTRL_BUF2, SIZE));
                 out2 << X << ends;
                 if (veryVerbose) { P(out1.str()) }
-                const int SZ   = strlen(FMT) + 1;
+                const int SZ   = static_cast<int>(strlen(FMT) + 1);
                 const int REST = SIZE - SZ;
                 LOOP2_ASSERT(LINE, ti, SZ < SIZE);  // Check buffer is large
                                                     // enough.
@@ -1334,6 +1335,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //     Guid& operator=(unsigned char buffer[k_GUID_NUM_BYTES]);
+        //     Guid& operator=(uint32_t buffer[k_GUID_NUM_32BITS]);
         // --------------------------------------------------------------------
         if (verbose) cout << endl
                           << "TESTING ARRAY ASSIGNMENT OPERATOR" << endl
@@ -1365,6 +1367,23 @@ int main(int argc, char *argv[])
 
             Obj mX;
             mX = *ARRAY_P;
+            if (veryVerbose) { P_(ARRAY_P) P(mX) }
+            for (int i = 0; i < Obj::k_GUID_NUM_BYTES; ++i) {
+                if (veryVeryVerbose) { P_(i) P_(ARRAY_P[i]) P(mX[i]) }
+                LOOP_ASSERT(LINE, (*ARRAY_P)[i] == mX[i]);
+            }
+        }
+        for (int i = 0; i < NUM_DATA; ++i) {
+            int            LINE    = DATA[i].d_line;
+            const Element *ARRAY_P = DATA[i].d_array;
+
+            typedef const bsl::uint32_t Element32[4];
+
+            const Element32 *ARRAY32_P =
+                                  reinterpret_cast<const Element32 *>(ARRAY_P);
+
+            Obj mX;
+            mX = *ARRAY32_P;
             if (veryVerbose) { P_(ARRAY_P) P(mX) }
             for (int i = 0; i < Obj::k_GUID_NUM_BYTES; ++i) {
                 if (veryVeryVerbose) { P_(i) P_(ARRAY_P[i]) P(mX[i]) }

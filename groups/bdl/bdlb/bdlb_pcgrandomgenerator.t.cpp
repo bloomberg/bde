@@ -323,7 +323,8 @@ int main(int argc, char *argv[])
             }
         }
         if (verbose)
-            cout << "Testing that 'Obj() == Obj(0, 0)'." << endl;
+            cout << "Testing that 'Obj() == Obj(0, 0)'."
+                 << endl;
         {
             ASSERT(Obj() == Obj(0, 0));
         }

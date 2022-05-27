@@ -124,16 +124,21 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
+#include <bslmf_assert.h>
 #include <bslmf_isbitwiseequalitycomparable.h>
 #include <bslmf_istriviallycopyable.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
+#include <bsls_alignedbuffer.h>
+#include <bsls_alignmentfromtype.h>
 #include <bsls_assert.h>
 #include <bsls_review.h>
 #include <bsls_types.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_cstddef.h>
+#include <bsl_cstdint.h>
+#include <bsl_cstring.h>
 #include <bsl_iosfwd.h>
 
 namespace BloombergLP {
@@ -155,7 +160,8 @@ class Guid {
 
   public:
     // CLASS DATA
-    enum { k_GUID_NUM_BYTES = 16 };            // number of bytes in a guid
+    enum { k_GUID_NUM_BYTES  = 16 };           // number of bytes in a guid
+    enum { k_GUID_NUM_32BITS =  4 };           // number of 32-bits in a guid
 
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(Guid, bslmf::IsBitwiseEqualityComparable)
@@ -163,11 +169,19 @@ class Guid {
 
   private:
     // DATA
-    unsigned char d_buffer[k_GUID_NUM_BYTES];  // byte array to hold the guid
+    bsls::AlignedBuffer<k_GUID_NUM_BYTES,
+                        bsls::AlignmentFromType<bsl::uint32_t>::VALUE>
+        d_alignedBuffer;
+        // byte array to hold the guid
 
     // FRIENDS
     friend bool operator==(const Guid& lhs, const Guid& rhs);
     friend bool operator!=(const Guid& lhs, const Guid& rhs);
+
+    // PRIVATE MANIPULATORS
+    unsigned char *modifiableData();
+        // Return a pointer offering modifiable access to the most significant
+        // byte of this guid object.
 
   public:
     // CREATORS
@@ -208,6 +222,11 @@ class Guid {
     Guid& operator=(const unsigned char (&buffer)[k_GUID_NUM_BYTES]);
         // Assign to the buffer of this guid the byte sequence in the specified
         // 'buffer'.
+
+    Guid& operator=(const bsl::uint32_t (&buffer)[k_GUID_NUM_32BITS]);
+        // Assign to the buffer of this guid the byte sequence in the specified
+        // 'buffer'. Note that 'buffer' is treated as purely a sequence of
+        // bytes, and no account is taken of endianness.
 
     // ACCESSORS
     const unsigned char& operator[](bsl::size_t offset) const;
@@ -349,13 +368,17 @@ void hashAppend(HASH_ALGORITHM& hashAlgorithm, const Guid& guid);
 inline
 Guid::Guid()
 {
-    bsl::fill(d_buffer, d_buffer + k_GUID_NUM_BYTES, 0);
+    BSLMF_ASSERT(sizeof(d_alignedBuffer) >= k_GUID_NUM_BYTES);
+
+    bsl::fill(modifiableData(), modifiableData() + k_GUID_NUM_BYTES, 0);
 }
 
 inline
 Guid::Guid(const unsigned char (&buffer)[k_GUID_NUM_BYTES])
 {
-    bsl::copy(buffer, buffer + k_GUID_NUM_BYTES, d_buffer);
+    BSLMF_ASSERT(sizeof(d_alignedBuffer) >= k_GUID_NUM_BYTES);
+
+    bsl::copy(buffer, buffer + k_GUID_NUM_BYTES, modifiableData());
 }
 
 inline Guid::Guid(unsigned long       timeLow,
@@ -367,34 +390,53 @@ inline Guid::Guid(unsigned long       timeLow,
 {
     typedef unsigned char uc;
 
-    d_buffer[ 0] = uc(timeLow >> 24);
-    d_buffer[ 1] = uc(timeLow >> 16);
-    d_buffer[ 2] = uc(timeLow >>  8);
-    d_buffer[ 3] = uc(timeLow);
+    modifiableData()[ 0] = uc(timeLow >> 24);
+    modifiableData()[ 1] = uc(timeLow >> 16);
+    modifiableData()[ 2] = uc(timeLow >>  8);
+    modifiableData()[ 3] = uc(timeLow);
 
-    d_buffer[ 4] = uc(timeMid >> 8);
-    d_buffer[ 5] = uc(timeMid);
+    modifiableData()[ 4] = uc(timeMid >> 8);
+    modifiableData()[ 5] = uc(timeMid);
 
-    d_buffer[ 6] = uc(timeHiAndVersion >> 8);
-    d_buffer[ 7] = uc(timeHiAndVersion);
+    modifiableData()[ 6] = uc(timeHiAndVersion >> 8);
+    modifiableData()[ 7] = uc(timeHiAndVersion);
 
-    d_buffer[ 8] = uc(clockSeqHiRes);
+    modifiableData()[ 8] = uc(clockSeqHiRes);
 
-    d_buffer[ 9] = uc(clockSeqLow);
+    modifiableData()[ 9] = uc(clockSeqLow);
 
-    d_buffer[10] = uc(node >> 40);
-    d_buffer[11] = uc(node >> 32);
-    d_buffer[12] = uc(node >> 24);
-    d_buffer[13] = uc(node >> 16);
-    d_buffer[14] = uc(node >>  8);
-    d_buffer[15] = uc(node);
+    modifiableData()[10] = uc(node >> 40);
+    modifiableData()[11] = uc(node >> 32);
+    modifiableData()[12] = uc(node >> 24);
+    modifiableData()[13] = uc(node >> 16);
+    modifiableData()[14] = uc(node >>  8);
+    modifiableData()[15] = uc(node);
+}
+
+// PRIVATE MANIPULATORS
+inline
+unsigned char *Guid::modifiableData()
+{
+    return reinterpret_cast<unsigned char *>(d_alignedBuffer.buffer());
 }
 
 // MANIPULATORS
 inline
 Guid& Guid::operator=(const unsigned char (&buffer)[k_GUID_NUM_BYTES])
 {
-    bsl::copy(buffer, buffer + k_GUID_NUM_BYTES, d_buffer);
+    BSLMF_ASSERT(sizeof(d_alignedBuffer) >= k_GUID_NUM_BYTES);
+
+    memcpy(modifiableData(), buffer, k_GUID_NUM_BYTES);
+    return *this;
+}
+
+inline
+Guid& Guid::operator=(const bsl::uint32_t (&buffer)[k_GUID_NUM_32BITS])
+{
+    BSLMF_ASSERT(sizeof(d_alignedBuffer) >= sizeof(uint32_t) *
+                                                k_GUID_NUM_32BITS);
+
+    memcpy(modifiableData(), buffer, k_GUID_NUM_BYTES);
     return *this;
 }
 
@@ -403,25 +445,25 @@ inline
 const unsigned char& Guid::operator[](bsl::size_t offset) const
 {
     BSLS_ASSERT(offset < k_GUID_NUM_BYTES);
-    return d_buffer[offset];
+    return data()[offset];
 }
 
 inline
 const unsigned char *Guid::begin() const
 {
-    return d_buffer;
+    return data();
 }
 
 inline
 const unsigned char *Guid::data() const
 {
-    return d_buffer;
+    return reinterpret_cast<const unsigned char *>(d_alignedBuffer.buffer());
 }
 
 inline
 const unsigned char *Guid::end() const
 {
-    return d_buffer + k_GUID_NUM_BYTES;
+    return data() + k_GUID_NUM_BYTES;
 }
 
                         // RFC 4122 FIELD ACCESSORS
@@ -435,24 +477,24 @@ unsigned char Guid::clockSeqHi() const
 inline
 unsigned char Guid::clockSeqHiRes() const
 {
-    return d_buffer[8];
+    return data()[8];
 }
 
 inline
 unsigned char Guid::clockSeqLow() const
 {
-    return d_buffer[9];
+    return data()[9];
 }
 
 inline
 bsls::Types::Uint64 Guid::node() const
 {
-    return bsls::Types::Uint64(d_buffer[10]) << 40 |
-           bsls::Types::Uint64(d_buffer[11]) << 32 |
-           bsls::Types::Uint64(d_buffer[12]) << 24 |
-           bsls::Types::Uint64(d_buffer[13]) << 16 |
-           bsls::Types::Uint64(d_buffer[14]) <<  8 |
-                               d_buffer[15];
+    return bsls::Types::Uint64(data()[10]) << 40 |
+           bsls::Types::Uint64(data()[11]) << 32 |
+           bsls::Types::Uint64(data()[12]) << 24 |
+           bsls::Types::Uint64(data()[13]) << 16 |
+           bsls::Types::Uint64(data()[14]) <<  8 |
+                               data()[15];
 }
 
 inline
@@ -465,24 +507,24 @@ inline
 unsigned short Guid::timeHiAndVersion() const
 {
     typedef unsigned short us;
-    return us(d_buffer[6] << 8 |
-              d_buffer[7]);
+    return us(data()[6] << 8 |
+              data()[7]);
 }
 
 inline
 unsigned long Guid::timeLow() const {
     typedef unsigned long ul;
-    return ul(d_buffer[0]) << 24 |
-              d_buffer[1]  << 16 |
-              d_buffer[2]  <<  8 |
-              d_buffer[3];
+    return ul(data()[0]) << 24 |
+              data()[1]  << 16 |
+              data()[2]  <<  8 |
+              data()[3];
 }
 
 inline
 unsigned short Guid::timeMid() const {
     typedef unsigned short us;
-    return us(d_buffer[4] << 8 |
-              d_buffer[5]);
+    return us(data()[4] << 8 |
+              data()[5]);
 }
 
 inline
@@ -510,14 +552,14 @@ inline
 bool bdlb::operator==(const bdlb::Guid& lhs, const bdlb::Guid& rhs)
 {
     return bsl::equal(
-        lhs.d_buffer, lhs.d_buffer + lhs.k_GUID_NUM_BYTES, rhs.d_buffer);
+        lhs.data(), lhs.data() + lhs.k_GUID_NUM_BYTES, rhs.data());
 }
 
 inline
 bool bdlb::operator!=(const bdlb::Guid& lhs, const bdlb::Guid& rhs)
 {
     return !bsl::equal(
-        lhs.d_buffer, lhs.d_buffer + lhs.k_GUID_NUM_BYTES, rhs.d_buffer);
+        lhs.data(), lhs.data() + lhs.k_GUID_NUM_BYTES, rhs.data());
 }
 
 template <class HASH_ALGORITHM>

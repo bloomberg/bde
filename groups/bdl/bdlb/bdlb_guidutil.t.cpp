@@ -10,17 +10,39 @@
 #include <bslma_testallocator.h>
 
 #include <bslmf_assert.h>
+
+#include <bslmt_latch.h>
 #include <bslmt_threadutil.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_byteorder.h>
 #include <bsls_review.h>
+#include <bsls_stopwatch.h>
 
+#include <bsl_cmath.h>
+#include <bsl_cstdint.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
+#include <bsl_fstream.h>
 #include <bsl_iostream.h>
 #include <bsl_string.h>
+
+#include <bsl_unordered_map.h>
+#include <bsl_unordered_set.h>
+#include <bsl_utility.h>
+#include <bsl_vector.h>
+
+#include <bslstl_pair.h>
+
+#ifdef BSLS_PLATFORM_OS_UNIX
+#include <unistd.h>             // 'fork', 'pipe', 'close' and 'dup'.
+#include <sys/wait.h>           // 'wait'
+#else
+#include <windows.h>
+#include <fileapi.h>
+#include <processthreadsapi.h>
+#endif
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -51,9 +73,10 @@ using namespace bsl;
 // [7] void generateNonSecure(Guid *result, size_t numGuids)
 // [7] void generateNonSecure(unsigned char *result, size_t numGuids)
 // [7] Guid generateNonSecure()
-// [8] MULTI-THREADING TEST CASE
 // ----------------------------------------------------------------------------
-// [9] USAGE EXAMPLE
+// [ 8] MULTI-THREADING TEST CASE
+// [ 9] TESTING 'generateNonSecure' FROM FORK PER DRQS 168925481
+// [10] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -208,14 +231,178 @@ extern "C" void *threadFunction(void *data)
         ASSERT(guids1[i] != guids2[i]);
     }
 
-    unsigned char buffer1[NUM_GUIDS * Obj::k_GUID_NUM_BYTES] = {};
-    unsigned char buffer2[NUM_GUIDS * Obj::k_GUID_NUM_BYTES] = {};
-    Util::generateNonSecure(buffer1, NUM_GUIDS);
-    Util::generateNonSecure(buffer2, NUM_GUIDS);
-    ASSERT(0 != bsl::memcmp(buffer1, buffer2, NUM_GUIDS * NUM_GUIDS));
-
     return (void *) 0;
 }
+
+struct PerfThreadData {
+    // A struct containg the parameters for individual guid generation threads,
+    // used in benchmark testing (case -1).
+
+    // DATA
+    bsl::size_t   d_batchSize;     // size of each batch of generated guids
+
+    bsl::size_t   d_iterations;    // number of iterations to perform
+
+    bslmt::Latch *d_startLatch_p;  // latch waited upon before GUID generation
+
+    bslmt::Latch *d_endLatch_p;    // latch arrived at after GUID generation
+};
+
+extern "C" void *threadMultiPerfFunction(void *data)
+    // The function executed by an individual thread for benchmark testing
+    // (case -1).  The specified 'data' is a pointer to a 'PerfThreadData'
+    // object.  Performs 'd_iterations' loops, each generating and discarding
+    // 'd_batchSize' guids.  The 'd_startLatch_p' and 'd_endLatch_p' are used
+    // to coordinate between threads and ensure the loops are executed
+    // cotemporaneously.
+{
+    PerfThreadData& threadData = *(PerfThreadData *)data;
+
+    ASSERT(Util::generateNonSecure() != Util::generateNonSecure());
+
+    ASSERT(threadData.d_batchSize < 65536);
+
+    const bsl::size_t NUM_GUIDS = threadData.d_batchSize;
+    const uint64_t    LOOPS     = threadData.d_iterations / (NUM_GUIDS * 2);
+
+    bsl::vector<Obj> guids1(65536);
+    bsl::vector<Obj> guids2(65536);
+
+    threadData.d_startLatch_p->arriveAndWait();
+
+    for (uint64_t j = 0; j < LOOPS; j++) {
+        Util::generateNonSecure(guids1.data(), NUM_GUIDS);
+        Util::generateNonSecure(guids2.data(), NUM_GUIDS);
+    }
+
+    threadData.d_endLatch_p->arriveAndWait();
+
+    return (void *)0;
+}
+
+void simulateRfc4122(
+                  bsl::uint32_t (*val)[bdlb::GuidState_Imp::k_GENERATOR_COUNT])
+    // Update the specified 'val' to fix the values of specific bits in such a
+    // way that the randomness cannot exceed that of an RFC4122-compliant guid.
+{
+    ASSERT(val);
+    ASSERT(*val);
+
+    unsigned char *bytes = reinterpret_cast<unsigned char *>(*val);
+    bytes[6] = static_cast<unsigned char>(0x40 | (bytes[6] & 0x0F));
+    bytes[8] = static_cast<unsigned char>(0x80 | (bytes[8] & 0x3F));
+}
+
+#ifndef BSLS_PLATFORM_OS_WINDOWS
+
+bsl::string tempFileName(bool verboseFlag)
+    // Return the potential name for a temporary file.  The returned C-string
+    // refers to a static memory buffer (so this method is not thread safe).
+    // Additional output is generated based on the specified 'verboseFlag'.
+{
+    enum { k_MAX_LENGTH = 4096 };
+    static char result[k_MAX_LENGTH];
+
+    char *temp = tempnam(0, "bdlb_guidutil");
+    strncpy(result, temp, k_MAX_LENGTH);
+    result[k_MAX_LENGTH - 1] = '\0';
+    free(temp);
+
+    if (verboseFlag) printf("\tUse %s as a base filename.\n", result);
+
+    return result;
+}
+
+static inline
+int removeFile(const char *path)
+    // Delete the file with the specified 'path'.  Return 0 on success and
+    // non-zero otherwise.
+{
+    BSLS_ASSERT(path);
+
+    return unlink(path);
+}
+
+#endif // BSLS_PLATFORM_OS_WINDOWS
+
+template <bsl::size_t BITS>
+struct BasicBloomFilter
+    // A simple bloom filter, limited to taking inputs of k_GENERATOR_COUNT-int
+    // arrays, which treats the values in that array as flatly distributed
+    // random variables, thus does not perform any additional hashing.  The
+    // number of bits set per insert is hard coded to k_GENERATOR_COUNT.
+{
+    BSLMF_ASSERT(0 == (BITS % 64ull));
+
+    static BSLS_KEYWORD_CONSTEXPR_MEMBER bsl::uint64_t k_BUCKETS =
+        BITS / 64ull;
+    static BSLS_KEYWORD_CONSTEXPR_MEMBER bsl::uint64_t k_BUCKET_BITMASK =
+        k_BUCKETS - 1ull;
+
+    bsl::vector<uint64_t> d_filter;   // The filter of BITS bits.
+
+    BasicBloomFilter() : d_filter(k_BUCKETS)
+        // Construct a BasicBloomFilter object.
+    {
+    }
+
+    inline
+    bool check(
+     const bsl::uint32_t (&randomInts)[bdlb::GuidState_Imp::k_GENERATOR_COUNT])
+        // Check if the specified 'randomInts' array could have been added
+        // previously.  Return false if 'randomInts' is not in the filter, and
+        // true if it may have been in the filter.  If 'randomInts' has been
+        // added previously then true is returned, otherwise false will
+        // probably be returned, but true may be returned.
+    {
+        uint64_t rnd = randomInts[bdlb::GuidState_Imp::k_GENERATOR_COUNT - 1];
+
+        for (int i = 0; i < bdlb::GuidState_Imp::k_GENERATOR_COUNT; i++)
+        {
+            rnd = ((rnd << 32) | randomInts[i]);
+
+            uint64_t&      val = d_filter[(rnd / 64) & k_BUCKET_BITMASK];
+            const uint64_t checkmask = 1ull << (rnd & 63);
+
+            if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(!(val & checkmask))) {
+                return false;                                         // RETURN
+            }
+        }
+        return true;
+    }
+
+    inline
+    bool
+    checkAndAdd(
+     const bsl::uint32_t (&randomInts)[bdlb::GuidState_Imp::k_GENERATOR_COUNT])
+        // Check if the specified 'randomInts' array could have been added
+        // previously.  Add 'randomInts' to the filter.  Return false if
+        // 'randomInts' is not in the filter, and true if it may have been in
+        // the filter.  If 'randomInts' has been added previously then true is
+        // returned, otherwise false will probably be returned, but true may be
+        // returned.
+    {
+        ASSERT(randomInts);
+
+        bool     exists = true;
+        uint64_t rnd = randomInts[bdlb::GuidState_Imp::k_GENERATOR_COUNT - 1];
+
+        for (int i = 0; i < bdlb::GuidState_Imp::k_GENERATOR_COUNT; i++)
+        {
+            rnd = ((rnd << 32) | randomInts[i]);
+
+            uint64_t&      val = d_filter[(rnd / 64) & k_BUCKET_BITMASK];
+            const uint64_t checkmask = 1ull << (rnd & 63);
+
+            if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(!(val & checkmask))) {
+                val |= checkmask;
+                exists = false;
+            }
+        }
+        return exists;
+    }
+};
+
 }  // close unnamed namespace
 
 //=============================================================================
@@ -319,7 +506,7 @@ bool operator<(const MyEmployee& lhs, const MyEmployee& rhs)
 
 int main(int argc, char *argv[])
 {
-    int  test            = argc > 1 ? bsl::atoi(argv[1]) : 0;
+    int  test            = argc > 1 ? bsl::atoi(argv[1]) : -1;
     bool verbose         = argc > 2;
     bool veryVerbose     = argc > 3;
     bool veryVeryVerbose = argc > 4;
@@ -335,7 +522,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
     switch (test)  { case 0:
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -368,6 +555,169 @@ int main(int argc, char *argv[])
         ASSERT(e1 < e2 || e2 < e1);
         ASSERT(e2 < e3 || e3 < e2);
         ASSERT(e1 < e3 || e3 < e1);
+      } break;
+      case 9: {
+        // --------------------------------------------------------------------
+        // TESTING 'generateNonSecure' FROM FORK PER DRQS 168925481
+        //
+        // Concerns:
+        //: 1 That, when a fork happens, the random number generator in the
+        //:   child will be reseeded, thus shall not generate overlapping
+        //:   guids.
+        //:
+        //: 2 Note: On Windows, this is neither an issue nor is testable, as
+        //:   Windows does not use the 'fork' mechanism for process creation.
+        //
+        // Plan:
+        //: 1 Generate a set of guids.
+        //: 2 Call 'fork'.
+        //: 3 In the parent process generate a post-fork set of guids
+        //: 4 In the child process generate a post-fork set of guids.
+        //: 5 In the child process write the generated guids to a temp file.
+        //: 6 In the child process call 'exit'.
+        //: 7 In the parent process wait for the child process to terminate.
+        //: 8 In the parent process read the child's guids from the temp file.
+        //: 9 In the parent process verify that all of the guids generated in
+        //:   steps 1, 3 and 4 are distinct.
+        //
+        // Testing:
+        //   TESTING 'generateNonSecure' FROM FORK PER DRQS 168925481
+        // --------------------------------------------------------------------
+        if (verbose) cout
+               << endl
+               << "TESTING 'generateNonSecure' FROM FORK PER DRQS 168925481"
+               << endl
+               << "========================================================"
+               << endl;
+
+#ifndef BSLS_PLATFORM_OS_WINDOWS
+        enum {
+            k_GUID_STR_SIZE = 36,
+            k_GUID_COUNT    = 16
+        };
+
+        bsl::string fileName = tempFileName(veryVerbose);
+
+        if (veryVeryVerbose) {
+            P(fileName);
+        }
+
+        bsl::vector<Obj> preForkGuids(k_GUID_COUNT);
+        bsl::vector<Obj> postForkParentGuids(k_GUID_COUNT);
+
+        // Create a set of pre-fork guids
+        bdlb::GuidUtil::generateNonSecure(preForkGuids.data(),
+                                          preForkGuids.size());
+
+        if (pid_t childPid = fork()) {
+            // Parent process.
+            ASSERT(childPid > 0);
+            // Parent creates post-fork guids
+            bdlb::GuidUtil::generateNonSecure(postForkParentGuids.data(),
+                                              postForkParentGuids.size());
+        }
+        else {
+            // Child process.
+            bsl::ofstream output(fileName.c_str());
+            int errorNum = errno;
+            ASSERTV(fileName, errorNum, strerror(errorNum), output);
+            if (veryVerbose) {
+                bsl::cout << "will write guids to file: " << fileName
+                          << bsl::endl;
+            }
+
+            // Child creates post-fork guids and writes to file
+            bsl::vector<Obj> tempChildBuffer(k_GUID_COUNT);
+            bdlb::GuidUtil::generateNonSecure(tempChildBuffer.data(),
+                                              tempChildBuffer.size());
+            for (bsl::vector<Obj>::const_iterator it =
+                                                      tempChildBuffer.cbegin();
+                 it != tempChildBuffer.cend();
+                 ++it)
+            {
+                bsl::string guidStr;
+                bdlb::GuidUtil::guidToString(&guidStr, *it);
+                if (veryVerbose) {
+                    bsl::cout << "generated child guid: " << guidStr
+                              << bsl::endl;
+                }
+                if (output) {
+                    output << guidStr << bsl::endl;
+                }
+            }
+
+            ASSERTV(fileName, !output.bad());
+
+            // Return from 'main' and thus exit the child process.
+            return 0;                                                 // RETURN
+        }
+
+        while(wait(NULL) > 0);
+
+        bsl::vector<Obj> finalList;
+
+        {
+            ifstream input(fileName.c_str());
+            int      errorNum = errno;
+            ASSERTV(fileName, errorNum, strerror(errorNum), input);
+            ASSERTV(fileName, input.is_open());
+
+            for (bsl::string guidStr; bsl::getline(input, guidStr);) {
+                if (veryVerbose) {
+                    bsl::cout << "guid in file: " << guidStr << bsl::endl;
+                }
+                Obj guid = bdlb::GuidUtil::guidFromString(guidStr);
+                finalList.push_back(guid);
+                if (veryVerbose) {
+                    bsl::cout << "child guid parsed:  " << guid << bsl::endl;
+                }
+            }
+
+            ASSERTV(fileName, !input.bad());
+        }
+
+        ASSERTV(fileName, 0 == removeFile(fileName.c_str()));
+
+        ASSERTV(finalList.size(), k_GUID_COUNT == finalList.size());
+
+        ASSERTV(preForkGuids.size(), k_GUID_COUNT == preForkGuids.size());
+
+        for (bsl::vector<Obj>::const_iterator it = preForkGuids.cbegin();
+             it != preForkGuids.cend();
+             ++it) {
+            finalList.push_back(*it);
+            if (veryVerbose) {
+                bsl::cout << "checking pre fork guid: " << *it << bsl::endl;
+            }
+        }
+
+        ASSERTV(finalList.size(), k_GUID_COUNT * 2 == finalList.size());
+
+        ASSERTV(postForkParentGuids.size(),
+                k_GUID_COUNT == postForkParentGuids.size());
+
+        for (bsl::vector<Obj>::const_iterator it =
+                                                  postForkParentGuids.cbegin();
+             it != postForkParentGuids.cend();
+             ++it) {
+
+            finalList.push_back(*it);
+            if (veryVerbose) {
+                bsl::cout << "checking post fork parent guid: " << *it
+                          << bsl::endl;
+            }
+        }
+
+        ASSERTV(finalList.size(), k_GUID_COUNT * 3 == finalList.size());
+
+        bsl::unordered_set<Obj> check(finalList.begin(), finalList.end());
+
+        ASSERTV(check.size(), k_GUID_COUNT * 3 == check.size());
+#else
+        if (verbose)
+            cout << "Skipping fork test as not applicable to Windows" << endl;
+#endif // BSLS_PLATFORM_OS_WINDOWS
+
       } break;
       case 8: {
         // --------------------------------------------------------------------
@@ -454,14 +804,10 @@ int main(int argc, char *argv[])
                  << "---------------------------------------" << endl;
         }
         for (bsl::size_t i = 1; i < NUM_ITERS + 1; ++i) {
-            if (0 == i % 3) {
+            if (0 == i % 2) {
                 Util::generateNonSecure(&guids[i], 1);
             }
-            else if (1 == i % 3) {
-                Util::generateNonSecure(
-                    reinterpret_cast<unsigned char *>(&guids[i]), 1);
-            }
-            else if (2 == i % 3) {
+            else {
                 guids[i] = Util::generateNonSecure();
             }
             prevGuids[i] = guids[i];
@@ -486,13 +832,7 @@ int main(int argc, char *argv[])
         }
         for (int i = 1; i < NUM_ITERS + 1; ++i) {
             bsl::memset(guids, 0, sizeof(guids));
-            if (i & 1) {
-                Util::generateNonSecure(guids + 1, i - 1);
-            }
-            else {
-                Util::generateNonSecure(
-                    reinterpret_cast<unsigned char *>(guids + 1), i - 1);
-            }
+            Util::generateNonSecure(guids + 1, i - 1);
             if (veryVerbose)  {
                 int idx = i ? i - 1 : 0;
                 P_(idx) P(guids[idx]);
@@ -916,7 +1256,7 @@ int main(int argc, char *argv[])
                 Util::generate(reinterpret_cast<unsigned char *>(guids), i);
             }
             if (veryVerbose)  {
-                int idx = i ? i - 1 : 0;
+                bsl::size_t idx = i ? i - 1 : 0;
                 P_(idx) P(guids[idx]);
             }
             bsl::size_t j;
@@ -929,6 +1269,260 @@ int main(int argc, char *argv[])
                 ASSERTV(i, j, guids[j] == Obj());
             }
         }
+      } break;
+      case -1: {
+        // --------------------------------------------------------------------
+        // PERFORMANCE TESTING 'generateNonSecure' FROM MULTIPLE THREADS
+        //
+        // Concerns:
+        //: 1 Performance benchmark of 'generateNonSecure'.
+        //
+        // Plan:
+        //: 1 For various batch sizes and thread counts:
+        //:
+        //:   1 Create multiple threads.
+        //:
+        //:   2 Exercise all 'generateNonSecure' methods in batches.
+        //:
+        //:   3 Output stopwatch results.
+        //
+        // Testing:
+        //   PERFORMANCE TESTING 'generateNonSecure' FROM MULTIPLE THREADS
+        // --------------------------------------------------------------------
+        if (verbose)
+            cout << endl
+                 << "PERFORMANCE TESTING 'generateNonSecure' FROM MULTIPLE "
+                    "THREADS"
+                 << endl
+                 << "========================================================="
+                    "===="
+                 << endl;
+
+        PerfThreadData threadData;
+
+        cout << "\n\n";
+        cout << "batchSize"
+             << ", threadCount"
+             << ", executable"
+             << ", userTime"
+             << ", systemTime"
+             << ", wallTime"
+             << ", cpuTime" << endl;
+
+        const int MAX_THREADS_POWER_OF_2 = 3;
+        const int MAX_THREADS            = 1 << MAX_THREADS_POWER_OF_2;
+
+        const int MAX_BATCH_POWER_OF_2 = 7;
+
+        for (int thp = 0; thp <= MAX_THREADS_POWER_OF_2; thp++) {
+            for (int bsp = 0; bsp <= MAX_BATCH_POWER_OF_2; bsp++) {
+
+                const int numThreads = 1 << thp;
+
+                ASSERTV(numThreads, MAX_THREADS, numThreads <= MAX_THREADS);
+
+                bslmt::ThreadUtil::Handle handles[MAX_THREADS];
+
+                bslmt::Latch startLatch(numThreads + 1);
+                bslmt::Latch endLatch(numThreads + 1);
+
+                threadData.d_batchSize    = 1 << bsp;
+                threadData.d_iterations   = 32 * 65536;
+                threadData.d_startLatch_p = &startLatch;
+                threadData.d_endLatch_p   = &endLatch;
+
+                for (int i = 0; i < numThreads; ++i) {
+                    ASSERT(0 ==
+                           bslmt::ThreadUtil::create(&handles[i],
+                                                     &threadMultiPerfFunction,
+                                                     &threadData));
+                }
+
+                bsls::Stopwatch sw;
+
+                startLatch.arriveAndWait();
+                sw.start(true);
+
+                endLatch.arriveAndWait();
+                sw.stop();
+
+                const double userTime =
+                           round(1e9 * (sw.accumulatedUserTime()) /
+                                 static_cast<double>(threadData.d_iterations));
+                const double systemTime =
+                           round(1e9 * (sw.accumulatedSystemTime()) /
+                                 static_cast<double>(threadData.d_iterations));
+                const double wallTime =
+                           round(1e9 * (sw.accumulatedWallTime()) /
+                                 static_cast<double>(threadData.d_iterations));
+
+                const double cpuTime = userTime + systemTime;
+
+                cout << threadData.d_batchSize
+                     << ", " << numThreads << ", " << argv[0]
+                     << ", " << userTime << ", " << systemTime
+                     << ", " << wallTime << ", " << cpuTime << endl;
+
+                for (int i = 0; i < numThreads; ++i) {
+                    ASSERT(0 == bslmt::ThreadUtil::join(handles[i]));
+                }
+            }
+        }
+        cout << "\n" << endl;
+
+      } break;
+      case -2: {
+        // --------------------------------------------------------------------
+        // COLLISION TESTING 'GuidState_Imp'
+        //
+        // Concerns:
+        //: 1 'GuidState_Imp' will, when 'generate' is called a large number of
+        //:   times, result in the expected number of collisions.
+        //
+        // Plan:
+        //: 1 Seed a 'GuidState_Imp' with known seed values (such as zero).
+        //:
+        //: 2 Perform a large number of calls to 'generate' on
+        //:   'GuidState_Imp' counts
+        //:
+        //: 3 For each of the results produced in step 2, check that result to
+        //:   a bloom filter.
+        //:
+        //: 4 If the bloom filter check in step 3 indicates the guid may have
+        //:   previously been generated, add that guid into a set.
+        //:
+        //: 5 Reset 'GuidState_Imp' with the same seeds as used in step 1
+        //:
+        //: 6 Repeat step 2.
+        //:
+        //: 7 For each of the guids generated in step 6, if that guid appears
+        //:   in the set populated in step 4, keep count of the number of
+        //:   appearances, printing a message where that count is greater than
+        //:   one.
+        //
+        // Testing:
+        //   COLLISION TESTING 'GuidState_Imp'
+        // --------------------------------------------------------------------
+        if (verbose)
+            cout << endl
+                 << "COLLISION TESTING 'GuidState_Imp'"
+                 << endl
+                 << "================================="
+                 << endl;
+
+        // Find duplicates; with only 2^64 unique GUIDs, there should be a 99%
+        // chance of hitting a duplicate after only 13,034,599,789 iterations
+        // given truly random inputs.
+        static BSLS_KEYWORD_CONSTEXPR_MEMBER uint64_t ITERATIONS =
+                                                                13034599789ull;
+
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+        // This is undersized but the best we can do on a 32-bit platform.
+        static BSLS_KEYWORD_CONSTEXPR_MEMBER uint64_t INITIAL_SIEVE_BITS =
+                                                           (1ull << 31);
+        // This is undersized but the best we can do on a 32-bit platform.
+        static BSLS_KEYWORD_CONSTEXPR_MEMBER uint64_t CHECK_SIEVE_BITS =
+                                                           (1ull << 31);
+#else
+        // As we have 4 random numbers the optimum size is just under 8 bits
+        // per item, but has to be a power of 2.
+        static BSLS_KEYWORD_CONSTEXPR_MEMBER uint64_t INITIAL_SIEVE_BITS =
+                                                           (1ull << 35) * 8ull;
+        // We don't know what the hash size will be, so checkSieve is
+        // deliberately oversized to speed up phase 2.
+        static BSLS_KEYWORD_CONSTEXPR_MEMBER uint64_t CHECK_SIEVE_BITS =
+                                                           (1ull << 32) * 8ull;
+#endif
+
+        bdlb::GuidState_Imp guidState;
+
+        bsl::array<uint64_t, bdlb::GuidState_Imp::k_GENERATOR_COUNT> seeds =
+                                                                  {0, 0, 0, 0};
+        guidState.seed(seeds);
+
+        bsl::unordered_map<bdlb::Guid, uint32_t> check;
+        BasicBloomFilter<CHECK_SIEVE_BITS> checkSieve;
+
+        {
+            BasicBloomFilter<INITIAL_SIEVE_BITS> initialSieve;
+
+            for (uint64_t i = 0; i <= ITERATIONS; ++i) {
+                if (ITERATIONS == i) {
+                    // Force an artificial collision to ensure the test
+                    // apparatus is functioning.
+                    guidState.seed(seeds);
+                }
+                bsl::uint32_t
+                    randomInts[bdlb::GuidState_Imp::k_GENERATOR_COUNT];
+                guidState.generateRandomBits(&randomInts);
+                simulateRfc4122(&randomInts);
+
+                bool exists = initialSieve.checkAndAdd(randomInts);
+                if (exists) {
+                    // Create test guid:
+                    bdlb::Guid guid;
+                    bsl::memcpy(reinterpret_cast<unsigned char *>(&guid),
+                                randomInts,
+                                bdlb::Guid::k_GUID_NUM_BYTES);
+                    check.insert(bsl::make_pair(guid, 0));
+                    checkSieve.checkAndAdd(randomInts);
+                }
+
+                if ((i & ((1ull << 23) - 1)) == 0) {
+                    printf("Phase 1: Potential collision sieve... %0.1f%% "
+                           "complete... hash contains %lu\r",
+                           (static_cast<double>(i) * 100.0 / ITERATIONS),
+                           static_cast<unsigned long>(check.size()));
+                    fflush(stdout);
+                }
+            }
+            printf("\n");
+        }
+
+        // Rewind
+        guidState.seed(seeds);
+
+        for (uint64_t i = 0; i <= ITERATIONS; ++i) {
+            if (ITERATIONS == i) {
+                // Force an artificial collision to ensure the test apparatus
+                // is functioning.
+                guidState.seed(seeds);
+            }
+            // Create test guid:
+            bsl::uint32_t randomInts[bdlb::GuidState_Imp::k_GENERATOR_COUNT];
+            guidState.generateRandomBits(&randomInts);
+            simulateRfc4122(&randomInts);
+
+            if (checkSieve.check(randomInts))
+            {
+                bdlb::Guid guid;
+                bsl::memcpy(reinterpret_cast<unsigned char *>(&guid),
+                            randomInts,
+                            bdlb::Guid::k_GUID_NUM_BYTES);
+
+                bsl::unordered_map<bdlb::Guid, uint32_t>::iterator it =
+                    check.find(guid);
+                if (it != check.end()) {
+                    if (++it->second > 1) {
+                        bsl::string guidStr;
+                        bdlb::GuidUtil::guidToString(&guidStr, guid);
+                        printf("Collision encountered at iteration #%llu with "
+                               "GUID %s\n",
+                               static_cast<long long unsigned int>(i),
+                               guidStr.c_str());
+                    }
+                }
+            }
+
+            if ((i & ((1ull << 23) - 1)) == 0) {
+                printf("Phase 2: Searching for GUID collisions... %0.1f%% "
+                       "complete\r",
+                       (static_cast<double>(i) * 100.0 / ITERATIONS));
+                fflush(stdout);
+            }
+        }
+        printf("\n");
+
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
