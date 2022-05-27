@@ -40,7 +40,8 @@ struct IsCCharVector {
 // Potential locations of TZ Database time-zone information.
 static const char *BALTZO_DATA_LOCATIONS[] = {
 #ifndef BSLS_PLATFORM_OS_WINDOWS
-    "/opt/bb/share/zoneinfo/",     // Bloomberg standard data location
+    "/opt/bbinfra/share/zoneinfo/",// Bloomberg standard data location
+    "/opt/bb/share/zoneinfo/",     // deprecated Bloomberg stnd data location
     "/bb/data/datetime/zoneinfo/", // deprecated Bloomberg stnd data location
     "/usr/share/zoneinfo/",        // Unix standard location (Linux, OSX)
     "/usr/share/lib/zoneinfo/",    // Solaris standard location

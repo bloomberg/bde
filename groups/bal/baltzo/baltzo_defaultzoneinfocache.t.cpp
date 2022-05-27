@@ -611,7 +611,8 @@ struct TestData {
     // LINE  EXP_PATH
     // ----  --------
 #ifndef BSLS_PLATFORM_OS_WINDOWS
-    {L_,  "/opt/bb/share/zoneinfo/"},         // Bloomberg stnd loc.
+    {L_,  "/opt/bbinfra/share/zoneinfo/"},    // Bloomberg stnd loc.
+    {L_,  "/opt/bb/share/zoneinfo/"},         // deprctd. BB stnd loc.
     {L_,  "/bb/data/datetime/zoneinfo/"},     // deprctd. BB stnd loc.
     {L_,  "/usr/share/zoneinfo/"},            // Unix standard loc.
     {L_,  "/usr/share/lib/zoneinfo/"},        // Solaris standard loc.
@@ -1154,7 +1155,8 @@ int main(int argc, char *argv[])
 
             // /bb/data/datetime/zoneinfo is Bloomberg-specific
             LOOP2_ASSERT( L_, RESULT,
-                        0 == strcmp(RESULT, "/opt/bb/share/zoneinfo/")
+                        0 == strcmp(RESULT, "/opt/bbinfra/share/zoneinfo/")
+                     || 0 == strcmp(RESULT, "/opt/bb/share/zoneinfo/")
                      || 0 == strcmp(RESULT, "/bb/data/datetime/zoneinfo/")
                      || 0 == strcmp(RESULT, "/usr/share/zoneinfo/")
                      || 0 == strcmp(RESULT, "/usr/share/lib/zoneinfo/")
