@@ -1311,31 +1311,28 @@ typename CharArray<TYPE>::const_iterator CharArray<TYPE>::end() const
 
 template <class ALLOC>
 class LimitAllocator : public ALLOC {
+  private:
+    // PRIVATE TYPES
+    typedef ALLOC                        AllocBase;
+    typedef bsl::allocator_traits<ALLOC> TraitsBase;
 
   public:
     // TYPES
-    typedef typename ALLOC::value_type        value_type;
-    typedef typename ALLOC::pointer           pointer;
-    typedef typename ALLOC::const_pointer     const_pointer;
-    typedef typename ALLOC::reference         reference;
-    typedef typename ALLOC::const_reference   const_reference;
-    typedef typename ALLOC::size_type         size_type;
-    typedef typename ALLOC::difference_type   difference_type;
+    typedef typename TraitsBase::size_type         size_type;
 
-    template <class OTHER_TYPE>
-    struct rebind {
-        // It is better not to inherit the rebind template, or else
+    template <class OTHER_TYPE> struct rebind {
+        // It is better not to inherit the 'rebind' template, or else
         // 'rebind<X>::other' would be 'ALLOC::rebind<OTHER_TYPE>::other'
-        // instead of 'LimitAlloc<X>'.
+        // instead of 'LimitAlloc<ALLOC::rebind<OTHER_TYPE>::otherX>'.
 
-        typedef LimitAllocator<typename ALLOC::template
-                                             rebind<OTHER_TYPE>::other > other;
+        typedef typename TraitsBase::template rebind_traits<OTHER_TYPE>
+                                                              RebindTraitsBase;
+
+        typedef LimitAllocator<typename RebindTraitsBase::allocator_type>
+                                                              other;
     };
 
   private:
-    // PRIVATE TYPES
-    typedef ALLOC AllocBase;
-
     // DATA
     size_type d_limit;
 

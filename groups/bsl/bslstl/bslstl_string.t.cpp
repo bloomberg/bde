@@ -927,21 +927,18 @@ class LimitAllocator : public ALLOC {
 
   public:
     // TYPES
-    
-    typedef typename TraitsBase::value_type        value_type;
-    typedef typename TraitsBase::pointer           pointer;
-    typedef typename TraitsBase::const_pointer     const_pointer;
     typedef typename TraitsBase::size_type         size_type;
-    typedef typename TraitsBase::difference_type   difference_type;
 
-    template <class OTHER_TYPE>
-    struct rebind {
-        // It is better not to inherit the rebind template, or else
+    template <class OTHER_TYPE> struct rebind {
+        // It is better not to inherit the 'rebind' template, or else
         // 'rebind<X>::other' would be 'ALLOC::rebind<OTHER_TYPE>::other'
-        // instead of 'LimitAlloc<X>'.
+        // instead of 'LimitAlloc<ALLOC::rebind<OTHER_TYPE>::otherX>'.
 
-        typedef LimitAllocator<typename TraitsBase::template
-                                              rebind_alloc<OTHER_TYPE> > other;
+        typedef typename TraitsBase::template rebind_traits<OTHER_TYPE>
+                                                              RebindTraitsBase;
+
+        typedef LimitAllocator<typename RebindTraitsBase::allocator_type>
+                                                              other;
     };
 
   private:
