@@ -1406,6 +1406,11 @@ int main(int argc, char *argv[])
         //   ENCODING NULL CHOICE
         // --------------------------------------------------------------------
 
+        // Important: Note that this test case has been (temporarily) modified
+        // to verify that encoding a null nullable choice succeeds (returns 0)
+        // and yields malformed json (e.g., "{null}").  It was found that a
+        // client depended upon this behavior.
+
         if (verbose) cout << "\nTESTING ENCODING UNSET CHOICE"
                           << "\n=============================" << endl;
 
@@ -1448,7 +1453,8 @@ int main(int argc, char *argv[])
                 ASSERTV(out.str(), "{\n\n}\n" == out.str());
             }
             else {
-                ASSERTV(rc, 0 != rc);
+                ASSERTV(rc, 0 == rc);
+                ASSERTV(out.str(), "{\nnull\n}\n" == out.str());
             }
             if (veryVerbose) {
                 P(rc);

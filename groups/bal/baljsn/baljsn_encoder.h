@@ -2465,13 +2465,6 @@ int Encoder_AttributeDispatcher::operator()(
         return 0;                                                     // RETURN
     }
 
-    if (bdlat_NullableValueFunctions::isNull(attribute) &&
-        (bdlat_FormattingMode::e_UNTAGGED & d_formattingMode)) {
-        (*d_logStream_p) << "Cannot encode a null choice or sequence and "
-                         << "generate valid json.\n";
-        return -1;                                                    // RETURN
-    }
-
     return Encoder_EncodeImplUtil::encodeMember(&d_isNextAttributeFirst,
                                                 d_formatter_p,
                                                 d_logStream_p,
