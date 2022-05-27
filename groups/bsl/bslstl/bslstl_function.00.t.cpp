@@ -1,53 +1,201 @@
-// bslstl_function.t.cpp                                              -*-C++-*-
+// bslstl_function.00.t.cpp                                           -*-C++-*-
 #include <bslstl_function.h>
 
-#include <bslalg_constructorproxy.h>
+// This test driver is split into several executables to enable compilation on
+// platforms/compilers where the complete test code (with its many template
+// instantiations) ends up needing too much resources during compilation,
+// making it impossible to compile the code, or extremely slow.
+//
+// Please consult the test plan to see which test driver executable (part) runs
+// which test cases.  Note that this test driver is special in that it has a
+// "part 10", which is self contained (not included here) with a test case that
+// must be compiled separately to work (due to compiler issues).
+//
+// This test driver file contains all the 'bslstl_function' test code and it is
+// split into parts using conditional compilation.  It is '#include'd in the
+// individual test parts (1-9) after defining the
+// 'BSLSTL_FUNCTION_TEST_PART_NUMBER' macro to the part number of the including
+// file.  When 'BSLSTL_FUNCTION_TEST_PART_NUMBER' is defined and its value is
+// between 1-9 only the test code necessary for that part will be compiled,
+// including conditional compilation of some common code (to avoid "unused"
+// warnings) and of course the test cases in the 'main' function.
+// This method of splitting up a test driver to multiple test executables keeps
+// all the test code in one place (file), but still allows us to build (or to
+// build in reasonable time) the test driver.
+//
+// Note that to make sure that an IDE or smart editor does not gray out all the
+// code when editing if 'BSLSTL_FUNCTION_TEST_PART_NUMBER' equals to zero *all*
+// code is enabled (like a non-split test driver).  The code itself sets that
+// value if the '__INTELLISENSE__' (Microsoft IDE specific predefined) or
+// either one of the 'BSLSTL_FUNCTION_TEST_ENABLE_ALL', or 'BDE_TARGET_EDITOR'
+// are defined.  The 'BDE_TARGET_EDITOR' macro is meant to affect all
+// split test drivers, while 'BSLSTL_FUNCTION_TEST_ENABLE_ALL' will only make
+// all effective test code active in this component test driver files.
+//
+// Set your smart editor or IDE to define 'BSLSTL_FUNCTION_TEST_ENABLE_ALL'
+// when editing this file for the syntax highlighting to show all "interesting"
+// code active (not grayed out, or otherwise show inactive).  If you prefer all
+// split test drivers to be shown that way (all test code active) just define
+// 'BDE_TARGET_EDITOR' for your syntax-highlighting tool.
+//
+// When no control macro is defined this file (conditionally) compiles into an
+// empty test driver that return success for test case 1, and -1 (no such test
+// case) for test case number 2.  Test case number 1 returns success (and
+// prints when run 'verbose') so that pedantic test runners won't warn that "no
+// tests were run".
+
+#ifndef BSLSTL_FUNCTION_TEST_PART_NUMBER
+
+// Test part number not defined means: editing or compiling part 00
+# if defined(__INTELLISENSE__) || defined(BDE_TARGET_EDITOR)
+  // Allow the IDE to see all code.
+#   define BSLSTL_FUNCTION_TEST_ENABLE_ALL
+# else // not editing and no part number defined: we need a mock main
+#   define BSLSTL_FUNCTION_TEST_COMPILING_NO_CASES
+# endif
+
+#elif BSLSTL_FUNCTION_TEST_PART_NUMBER >= 1  \
+   && BSLSTL_FUNCTION_TEST_PART_NUMBER <= 9
+// Number is defined and in range
+#define BSLSTL_FUNCTION_TEST_NEED_ASSERT
+#define BSLSTL_FUNCTION_TEST_COMPILING_A_PART
+
+#else  // If a bad test number is defined
+#error 'BSLSTL_FUNCTION_TEST_PART_NUMBER' must be 1-9, or not defined.
+Sun_Studio_only_gives_a_warning_for_pound_error;
+#endif // out-of-range BSLSTL_FUNCTION_TEST_PART_NUMBER
+
+// These large list of macros are defined to make the '#ifdef' lines of
+// conditional code more readable (by making them shorter and easier for humans
+// to grasp at a glance), and to make them consistent as well.  Being able to
+// keep those preprocessor conditional directives looking the same (consistent)
+// makes scanning the code (by humans) less error-prone, and faster.  The
+// '_OR_'  macros are defined for the case when a heavy test case has to be
+// split between two executable files (to keep the '#ifdef' on one line for
+// consistency).
+#if   BSLSTL_FUNCTION_TEST_PART_NUMBER == 1
+#define BSLSTL_FUNCTION_TEST_PART_01
+
+#elif BSLSTL_FUNCTION_TEST_PART_NUMBER == 2
+#define BSLSTL_FUNCTION_TEST_PART_02
+#define BSLSTL_FUNCTION_TEST_PART_02_OR_03
+
+#elif BSLSTL_FUNCTION_TEST_PART_NUMBER == 3
+#define BSLSTL_FUNCTION_TEST_PART_03
+#define BSLSTL_FUNCTION_TEST_PART_02_OR_03
+
+#elif BSLSTL_FUNCTION_TEST_PART_NUMBER == 4
+#define BSLSTL_FUNCTION_TEST_PART_04
+
+#elif BSLSTL_FUNCTION_TEST_PART_NUMBER == 5
+#define BSLSTL_FUNCTION_TEST_PART_05
+
+#elif BSLSTL_FUNCTION_TEST_PART_NUMBER == 6
+#define BSLSTL_FUNCTION_TEST_PART_06
+#define BSLSTL_FUNCTION_TEST_PART_06_OR_07
+
+#elif BSLSTL_FUNCTION_TEST_PART_NUMBER == 7
+#define BSLSTL_FUNCTION_TEST_PART_07
+#define BSLSTL_FUNCTION_TEST_PART_06_OR_07
+
+#elif BSLSTL_FUNCTION_TEST_PART_NUMBER == 8
+#define BSLSTL_FUNCTION_TEST_PART_08
+
+#elif BSLSTL_FUNCTION_TEST_PART_NUMBER == 9
+#define BSLSTL_FUNCTION_TEST_PART_09
+
+#elif defined(BSLSTL_FUNCTION_TEST_ENABLE_ALL)
+// Make sure no "interesting" (test) code is grayed out while editing in an IDE
+// or smart editor, or enable the '00' executable to run all tests.
+#define BSLSTL_FUNCTION_TEST_NEED_ASSERT
+
+#define BSLSTL_FUNCTION_TEST_PART_01
+#define BSLSTL_FUNCTION_TEST_PART_02
+#define BSLSTL_FUNCTION_TEST_PART_03
+#define BSLSTL_FUNCTION_TEST_PART_02_OR_03
+#define BSLSTL_FUNCTION_TEST_PART_04
+#define BSLSTL_FUNCTION_TEST_PART_05
+#define BSLSTL_FUNCTION_TEST_PART_06
+#define BSLSTL_FUNCTION_TEST_PART_07
+#define BSLSTL_FUNCTION_TEST_PART_06_OR_07
+#define BSLSTL_FUNCTION_TEST_PART_08
+#define BSLSTL_FUNCTION_TEST_PART_09
+#define BSLSTL_FUNCTION_TEST_COMPILING_A_PART
+#endif
+
+#ifndef BSLSTL_FUNCTION_TEST_ENABLE_ALL
+#define BSLSTL_FUNCTION_TEST_CASE_IS_NOT_IN_THIS_EXECUTABLE(testCaseNumber)   \
+    printf("Test case %d is skipped in this executable.\n", testCaseNumber)
+    // So we can define the message just once.
+#endif
+
+
+#ifdef BSLSTL_FUNCTION_TEST_COMPILING_A_PART
+// When a test part is compiled we need to include the necessary headers.  This
+// section includes headers used by all parts.
 
 #include <bsla_maybeunused.h>
+
+#include <bslalg_constructorproxy.h>
 
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 
-#include <bslmf_isreferencewrapper.h>
-#include <bslmf_issame.h>
-#include <bslmf_ispointer.h>
 #include <bslmf_ismemberpointer.h>
+#include <bslmf_ispointer.h>
+#include <bslmf_isreferencewrapper.h>
 #include <bslmf_movableref.h>
 #include <bslmf_nestedtraitdeclaration.h>
-#include <bslmf_removepointer.h>
-#include <bslmf_usesallocator.h>
 
 #include <bsls_bsltestutil.h>
+#include <bsls_compilerfeatures.h>
 #include <bsls_exceptionutil.h>
 #include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
 #include <bsls_macrorepeat.h>
+#include <bsls_nullptr.h>
 #include <bsls_objectbuffer.h>
+#include <bsls_platform.h>
 #include <bsls_types.h>
 
 #include <algorithm>   // for 'std::swap'
 #include <functional>  // For 'std::plus'
 #include <utility>     // For 'std::move'
 
-#include <climits>
-#include <cstdio>
-#include <cstdlib>
-#include <cstddef>
-#include <cstring>
+#include <climits>  // for 'INT_MAX'
+#include <cstddef>  // for 'std::size_t'
+#include <cstring>  // for 'std::str{cpy|cat}', 'std::mem{cpy|set|move}'
+#endif  // BSLSTL_FUNCTION_TEST_COMPILING_A_PART
+
+#ifdef BSLSTL_FUNCTION_TEST_PART_01
+#include <bslmf_removepointer.h>
+#endif
+// **NOT** using '#else' on purpose, because in an IDE *both* macros are
+// defined, so none of the code is grayed out.
+#ifdef BSLSTL_FUNCTION_TEST_PART_09
+#include <bslmf_issame.h>
+#include <bslmf_usesallocator.h>
+#endif
+// **NOT** using '#else' on purpose, because in an IDE *both* macros are
+// defined, so none of the code is grayed out.
+
 
 #ifdef BDE_VERIFY
 // Suppress some pedantic bde_verify checks in this test driver
-#pragma bde_verify -AL01   // Class needs allocator() method
-#pragma bde_verify -AP02   // Class needs d_allocator_p member
+#pragma bde_verify -AL01   // class needs allocator() method
+#pragma bde_verify -AP02   // class needs d_allocator_p member
 #pragma bde_verify -AQK01  // Need #include <c-include> for 'symbol'
 #pragma bde_verify -FD01   // Function declaration requires contract
 #pragma bde_verify -FE01   // Exception type not derived from std::exception
 #pragma bde_verify -IND02  // Function parameters should be on a single line
-#pragma bde_verify -MN01   // Class data members must be private
+#pragma bde_verify -MN01   // class data members must be private
 
 #pragma bde_verify append dictionary src tbd unspecialized  // Doesn't work ??
 #endif
+
+#include <cstdio>   // for 'std::puts', 'std::printf'
+#include <cstdlib>  // for 'std::atoi'
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -61,9 +209,46 @@ using std::printf;
 //#define BSLSTL_FUNCTION_TEST_BAD_COMPARISON 6
 //#define BSLSTL_FUNCTION_TEST_BAD_SWAPS      4
 
+
 // ============================================================================
 //                             TEST PLAN
 // ----------------------------------------------------------------------------
+// NOTICE: To reduce the compilation time and enable compiling by certain
+// compilers (that easily run out of resources), the test driver has been
+// split into parts.  Note that because this is one of the most complicated
+// templated constructs in our library certain test cases also had to be split
+// up to achieve reasonable compilation times:
+//
+// 'bslstl_function.00.t.cpp': (this file, does not execute code)
+// 'bslstl_function.01.t.cpp': -1: FAIL-TO-COMPILE TESTS
+//                              1: BREATHING TEST
+//                              2: PRIMITIVE CONSTRUCTORS AND BASIC ACCESSORS
+//                              3: 'TrackableValue' TEST INFRASTRUCTURE
+//                              4: DEFAULT AND 'nullptr' CONSTRUCTORS
+// 'bslstl_function.02.t.cpp':  5: CONSTRUCT FROM CALLABLE OBJECT: PART 1
+// 'bslstl_function.03.t.cpp':  5: CONSTRUCT FROM CALLABLE OBJECT: PART 2
+//                              6: COPY CONSTRUCTORS
+// 'bslstl_function.04.t.cpp':  7: MOVE CONSTRUCTORS
+// 'bslstl_function.05.t.cpp':  8: SWAP
+//                              9: COPY AND MOVE ASSIGNMENT
+//                             10: ASSIGNMENT FROM 'nullptr'
+// 'bslstl_function.06.t.cpp': 11: ASSIGNMENT FROM FUNCTOR: PART 1
+// 'bslstl_function.07.t.cpp': 11: ASSIGNMENT FROM FUNCTOR: PART 2
+// 'bslstl_function.08.t.cpp': 12: COMPARISON TO NULLPTR
+//                             13: EMPTY FUNCTION INVOCATION
+//                             14: POINTER TO FUNCTION INVOCATION
+//                             15: POINTER TO MEMBER FUNCTION INVOCATION
+// 'bslstl_function.09.t.cpp': 16: POINTER TO MEMBER DATA INVOCATION
+//                             17: FUNCTION OBJECT INVOCATION
+//                             18: TYPES AND TRAITS
+//                             19: SUNCC BUG FIX
+//                             20: DRQS94831150 BUG FIX
+//                             21: CONSTRUCTOR SFINAE
+//                             22: CONVERSION TO 'bdef_Function'
+//                             23: CLASS TEMPLATE DEDUCTION GUIDES
+//                             24: USAGE EXAMPLES
+// 'bslstl_function.10.t.cpp': Tests that must be in a separate file
+//
 // The 'bsl::function' class template is an in-core value-semantic class that
 // generalizes the notion of a callable object.  A 'function' object wraps a
 // pointer to function, pointer to member function, pointer to member data,
@@ -188,6 +373,7 @@ namespace {
 
 int testStatus = 0;
 
+#ifdef BSLSTL_FUNCTION_TEST_NEED_ASSERT
 void aSsErT(bool condition, const char *message, int line)
 {
     if (condition) {
@@ -198,12 +384,15 @@ void aSsErT(bool condition, const char *message, int line)
         }
     }
 }
+#endif  // BSLSTL_FUNCTION_TEST_COMPILING_A_PART
 
 }  // close unnamed namespace
 
 // ============================================================================
 //               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
+
+#ifdef BSLSTL_FUNCTION_TEST_COMPILING_A_PART
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
 #define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
@@ -223,12 +412,15 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT) && \
+    defined(BDE_BUILD_TARGET_EXC)
 # define ASSERT_NOEXCEPT(RESULT, EXPRESSION) \
          ASSERT(RESULT == noexcept(EXPRESSION))
 #else
 # define ASSERT_NOEXCEPT(RESULT, EXPRESSION)
-#endif
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+
+#endif  // BSLSTL_FUNCTION_TEST_COMPILING_A_PART
 
 // ============================================================================
 //                      GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -239,8 +431,10 @@ bool     veryVerbose = false;
 bool veryVeryVerbose = false;
 
 // ============================================================================
-//                              EXCEPTION TEST MACROS
+//                          EXCEPTION TEST MACROS
 // ----------------------------------------------------------------------------
+
+#ifdef BSLSTL_FUNCTION_TEST_COMPILING_A_PART
 
 class ExceptionLimit
 {
@@ -428,12 +622,6 @@ void dumpExTest(const char *s,
 #define MSVC 0
 #endif
 
-#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION == 1800
-#define MSVC_2013 1
-#else
-#define MSVC_2013 0
-#endif
-
 #if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION == 1900
 #define MSVC_2015 1
 #else
@@ -519,11 +707,13 @@ class SmartPtr
 #define ARGN(n) arg ## n
 
 #define SUMMING_FUNC(n)                                       \
+    BSLA_MAYBE_UNUSED                                         \
     int sum ## n (BSLS_MACROREPEAT_COMMA(n, INT_ARGN)) {      \
         return BSLS_MACROREPEAT_SEP(n, ARGN, +) + 0x4000;     \
     }
 
 // Increment '*val' by one.  Used to test a void return type.
+BSLA_MAYBE_UNUSED
 void increment(int *val)
 {
     ++*val;
@@ -533,6 +723,7 @@ void increment(int *val)
 // constructibility from such a function.  See test case 5 ("CONSTRUCT FROM
 // CALLABLE OBJECT") for more information about the compiler defects for which
 // this function is used to test 'bsl::function's workaround.
+BSLA_MAYBE_UNUSED
 void functionWithDefaultArgument(int = 0)
 {
 }
@@ -671,6 +862,16 @@ struct ConstIntHolder {
     {
     }
 
+    ConstIntHolder(const ConstIntHolder& other)
+        // Create a new 'ConstIntHolder' object with the value of the specified
+        // 'other'.  Note that We need to provide this copy constructor because
+        // compilers warn that its automatic generation is deprecated as we
+        // have defined a copy assignment operator.  (And the code has to
+        // compile under C++03, which does not have '= default'.)
+    : d_value(other.d_value)
+    {
+    }
+
     // MANIPULATORS
     ConstIntHolder& operator=(const ConstIntHolder& rhs)
         // Assign the value of the specified 'rhs' to this object and return a
@@ -740,8 +941,10 @@ struct IntHolderVirtuallyDerived : IntHolderVirtuallyDerived_Base1,
     }
 };
 
-int *getAddress(int& r) { return &r; }
+#ifdef BSLSTL_FUNCTION_TEST_PART_08
+int       *getAddress(           int& r) { return &r; }
 const int *getConstAddress(const int& r) { return &r; }
+#endif  // BSLSTL_FUNCTION_TEST_PART_08
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 template <class DEST, class SRC>
@@ -839,6 +1042,7 @@ bool eqTarget(const bsl::reference_wrapper<FUNC>& lhs, const FUNC& rhs)
     return eqTarget(lhs.get(), rhs);
 }
 
+#ifdef BSLSTL_FUNCTION_TEST_PART_08
 class CountCopies
 {
     // Counts the number of times an object has been copy-constructed or
@@ -863,7 +1067,9 @@ class CountCopies
 // Return the number of times the specified 'cc' object has been copied.  Note
 // that, since 'cc' is passed by value, there is a copy or move on every call.
 // Therefore, the return value should never be less than 1.
+inline
 int numCopies(CountCopies cc) { return cc.numCopies(); }
+#endif  // BSLSTL_FUNCTION_TEST_PART_08
 
 // Whitebox: Small object optimization buffer size
 static const std::size_t k_SMALL_OBJECT_BUFFER_SIZE =
@@ -875,18 +1081,21 @@ int simpleFunc(const IntWrapper& iw, int v)
     return iw.value() + v;
 }
 
+BSLA_MAYBE_UNUSED
 int simpleFunc2(const IntWrapper& iw, int v)
 {
     return iw.value() - v;
 }
 
+#ifdef BSLSTL_FUNCTION_TEST_PART_01
 #if BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 void voidFunc() {}
 #endif
+#endif  // BSLSTL_FUNCTION_TEST_PART_01
 
 class CountingBase
 {
-    // Base class to keep count of the number of objects in existance
+    // Base class to keep count of the number of objects in existence
     static int s_count;
 
   public:
@@ -905,12 +1114,12 @@ class FunctorMonitor
     // An instance of this class can be used to check for a change in the
     // number of functor objects that have been created or destroyed during a
     // specific operation and ensure that every object created is destroyed in
-    // the specific scope.  If the number of functor object in existance at
+    // the specific scope.  If the number of functor object in existence at
     // destruction is different than the number at construction, then a
     // diagnostic is printed and the test will fail.
 
     int d_line;     // source line number where 'FunctorMonitor' was created
-    int d_snapshot; // Number of 'CountingBase' objects in existance at the
+    int d_snapshot; // Number of 'CountingBase' objects in existence at the
                     // time when this 'FunctorMonitor' was created.
 
   public:
@@ -1096,22 +1305,26 @@ TrackableValue::operator=(bslmf::MovableRef<TrackableValue> rhs)
     return *this;
 }
 
+inline
 void TrackableValue::setIsCopiedRaw(bool copiedFlag) {
     d_valueAndFlags &= (e_VALUE_MASK | e_MOVED_FLAG);
     if (copiedFlag) d_valueAndFlags |= e_COPIED_FLAG;
 }
 
+inline
 void TrackableValue::setIsMovedRaw(bool movedFlag) {
     d_valueAndFlags &= (e_VALUE_MASK | e_COPIED_FLAG);
     if (movedFlag) d_valueAndFlags |= e_MOVED_FLAG;
 }
 
+inline
 void TrackableValue::setValueRaw(int v) {
     ASSERT(e_MIN <= v && v <= e_MAX);
     d_valueAndFlags &= e_FLAGS_MASK;
     d_valueAndFlags |= v * e_VALUE_MULTIPLIER;
 }
 
+inline
 void TrackableValue::swap(TrackableValue& other) {
     // Don't use std::swap<int> because don't want to #include <algorithm>
     int tmp = d_valueAndFlags;
@@ -1993,6 +2206,7 @@ struct Function_IsReferenceCompatible<BloombergLP::bdef_Function<PROTOTYPE *>,
 //                              USAGE EXAMPLES
 // ----------------------------------------------------------------------------
 
+#ifdef BSLSTL_FUNCTION_TEST_PART_09
 namespace {
 
 ///Usage
@@ -2441,6 +2655,7 @@ namespace {
 //..
 
 }  // close unnamed namespace
+#endif  // BSLSTL_FUNCTION_TEST_PART_09
 
 // ============================================================================
 //                              TEST FUNCTIONS
@@ -2787,10 +3002,13 @@ bool allocPropagationCheck(const Obj& f)
                                           bslma::UsesBslmaAllocator<FUNC>());
 }
 
+#ifdef BSLSTL_FUNCTION_TEST_PART_01
 struct UnusedFunctor {
     int operator()(const IntWrapper&, int);  // Declared but not defined
 };
+#endif  // BSLSTL_FUNCTION_TEST_PART_01
 
+#ifdef BSLSTL_FUNCTION_TEST_PART_01
 template <class FUNC>
 void testBasicAccessors(FUNC func)
     // Test basic constructors and accessors.  Note that pass-by-value 'func'
@@ -2826,6 +3044,7 @@ void testBasicAccessors(FUNC func)
     ASSERT(fw.target<FUNC>() && func == *fw.target<FUNC>());
     ASSERT_NOEXCEPT(false, Obj(NTWRAP(func)));
 }
+#endif  // BSLSTL_FUNCTION_TEST_PART_01
 
 char *strSurround(char *inout, const char *prefix, const char *suffix)
     // Replace the null-terminated string at the specified 'inout' address
@@ -2839,6 +3058,42 @@ char *strSurround(char *inout, const char *prefix, const char *suffix)
     memcpy(inout, prefix, prefixLen);
     return inout;
 }
+
+//'bslstl::Function_TestRefUtil' Concept
+///-------------------------------------
+// The 'bslstl::Function_TestRefUtil' concept defines a contract that a utility
+// 'struct' type must follow to meet the requirements of the test functions
+// later introduced in this file.  A class type (the utility itself is not a
+// template, it has members that are templates) that conforms to the
+// 'bslstl::Function_TestRefUtil' concept must provide the following members:
+//..
+// 'IS_RVALUE': compile time constant 'static bool' or convertible to 'bool'
+//              'true' if the 'RefUtil' is for r-value reference, 'false' for
+//              l-value reference utilities.
+//
+// 'IS_CONST':  compile time constant 'static bool' or convertible to 'bool'
+//              'true' if the 'RefUtil' reference is to 'const', 'false' if
+//              the reference is to a mutable object.
+//..
+// There can be four concrete implementations of this utility concept:
+// non-const l-value, const l-value, non-const r-value, and const r-value.  All
+// four of those types are defined right below this concept definition.
+//..
+// 'OutType<ARG>::type': a metafunction that provides an inner type that is the
+//                       kind of reference the utility represents.
+//
+// 'RET notDefined<ARG>()': a class method template without definition that
+//                          returns the kind of reference type (created from
+//                          the template 'ARG') that the utility represents
+//
+//  'RET xform(ARG&)': a class method template that "transforms" a non-const
+//                     l-value reference argument to the kind of reference the
+//                     utility represents
+//
+//  'xformName(argName)': Transform the name string in-place to a variation
+//                        that best describes the reference type.  Note that
+//                        the argument string must have enough space.
+//..
 
 struct LvalueRefUtil {
     enum { IS_RVALUE = false, IS_CONST = false };
@@ -3290,7 +3545,7 @@ void testIsConstructible(int          line,
                            TEST_IS_CONSTRUCTIBLE##Util,                       \
                            LRVAL##RefUtil>(line, funcName, isConstructible)
 
-#if !MSVC_2015 && !MSVC_2013
+#if !MSVC_2015
     // MSVC 2015 and earlier have a brittle implementation of expression sfinae
     // and does not implement 2-phase name lookup correctly.  These 2 issues
     // combine to make the check for Lvalue-Callability in the single-argument
@@ -3727,6 +3982,7 @@ bool AreEqualFunctions(const Obj& inA, const Obj& inB)
     return eqTarget(*targetA, *targetB);
 }
 
+#ifdef BSLSTL_FUNCTION_TEST_PART_05
 void testSwap(const Obj& inA,
               const Obj& inB,
               bool (*    areEqualA_p)(const Obj&, const Obj&),
@@ -4022,7 +4278,7 @@ void testAssignNullptr(const Obj& func, int line)
     LOOP_ASSERT(line, expTotalBlocks == testAlloc.numBlocksTotal());
     LOOP_ASSERT(line, 0              == testAlloc.numBlocksInUse());
 }
-
+#endif  // BSLSTL_FUNCTION_TEST_PART_05
 
 template <class FUNC, bool REFERENCE_WRAPPING>
 inline
@@ -5174,6 +5430,8 @@ struct TestDeductionGuides {
 };
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_CTAD
 
+#endif  // BSLSTL_FUNCTION_TEST_COMPILING_A_PART
+
 // ============================================================================
 //                              MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -5182,6 +5440,8 @@ int main(int argc, char *argv[])
 {
     int                 test = argc > 1 ? atoi(argv[1]) : 0;
                      verbose = argc > 2;
+
+#ifdef BSLSTL_FUNCTION_TEST_COMPILING_A_PART
                  veryVerbose = argc > 3;
              veryVeryVerbose = argc > 4;
     bool veryVeryVeryVerbose = argc > 5;
@@ -5205,12 +5465,13 @@ int main(int argc, char *argv[])
     // Top-level monitor to make sure that every functor constructor is
     // matched with a destructor.
     FunctorMonitor topFuncMonitor(L_);
+#endif  // BSLSTL_FUNCTION_TEST_COMPILING_A_PART
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-
-      case 24: {
+#ifdef BSLSTL_FUNCTION_TEST_COMPILING_A_PART
+    case 24: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLES
         //
@@ -5228,13 +5489,14 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nTESTING USAGE EXAMPLES"
                             "\n======================\n");
-
+#ifdef BSLSTL_FUNCTION_TEST_PART_09
         usageExample1();
         usageExample2();
         usageExample3();
-
+#else
+        BSLSTL_FUNCTION_TEST_CASE_IS_NOT_IN_THIS_EXECUTABLE(test);
+#endif  // BSLSTL_FUNCTION_TEST_PART_09
       } break;
-
       case 23: {
         //---------------------------------------------------------------------
         // TESTING CLASS TEMPLATE DEDUCTION GUIDES (AT COMPILE TIME)
@@ -5263,13 +5525,20 @@ int main(int argc, char *argv[])
               "\nTESTING CLASS TEMPLATE DEDUCTION GUIDES (AT COMPILE TIME)"
               "\n=========================================================\n");
 
+#ifdef BSLSTL_FUNCTION_TEST_PART_09
+
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
         // This is a compile-time only test case.
         TestDeductionGuides test;
         (void) test; // This variable only exists for ease of IDE navigation.
-#endif
-      } break;
+#else
+        puts("CTAD is not supported by this compiler or its configuration.");
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_CTAD
 
+#else
+        BSLSTL_FUNCTION_TEST_CASE_IS_NOT_IN_THIS_EXECUTABLE(test);
+#endif  // BSLSTL_FUNCTION_TEST_PART_09
+      } break;
       case 22: {
         // --------------------------------------------------------------------
         // TESTING CONVERSION TO 'bdef_Function'
@@ -5303,6 +5572,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING CONVERSION TO 'bdef_Function'"
                             "\n=====================================\n");
 
+#ifdef BSLSTL_FUNCTION_TEST_PART_09
         using BloombergLP::bdef_Function;
 
         bsl::function<int(const char *)>           original;
@@ -5312,7 +5582,9 @@ int main(int argc, char *argv[])
 
         ASSERT(&converted == &ORIGINAL);
         ASSERT(&CONVERTED == &ORIGINAL);
-
+#else
+        BSLSTL_FUNCTION_TEST_CASE_IS_NOT_IN_THIS_EXECUTABLE(test);
+#endif  // BSLSTL_FUNCTION_TEST_PART_09
       } break;
       case 21: {
         // --------------------------------------------------------------------
@@ -5362,6 +5634,8 @@ int main(int argc, char *argv[])
                 "\nTESTING CONSTRUCTOR SFINAE DURING OVERLOAD RESOLUTION"
                 "\n=====================================================\n");
 
+#ifdef BSLSTL_FUNCTION_TEST_PART_09
+
 #ifdef BSLMF_INVOKERESULT_SUPPORT_CPP17_SEMANTICS
 
         const MyPredicate           myPredicate;
@@ -5377,9 +5651,13 @@ int main(int argc, char *argv[])
         ASSERT( MyDetectionUtil::isPredicateFunction(myPredicate));
         ASSERT(!MyDetectionUtil::isPredicateFunction(myFunction));
         ASSERT( MyDetectionUtil::isPredicateFunction(myPredicateFunction));
-
+#else  // BSLMF_INVOKERESULT_SUPPORT_CPP17_SEMANTICS
+        puts("Not supported by the compiler or its configuration.");
 #endif
 
+#else
+        BSLSTL_FUNCTION_TEST_CASE_IS_NOT_IN_THIS_EXECUTABLE(test);
+#endif  // BSLSTL_FUNCTION_TEST_PART_09
       } break;
       case 20: {
         // --------------------------------------------------------------------
@@ -5426,6 +5704,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING DRQS94831150 BUG FIX"
                             "\n============================\n");
 
+#ifdef BSLSTL_FUNCTION_TEST_PART_09
         OuterClass testObj;
 
         bsl::function<OuterClass::NestedClass(OuterClass&, int)> mem_fun(
@@ -5466,8 +5745,10 @@ int main(int argc, char *argv[])
         if (f5) {
             ASSERTV(&OuterClass::memberFunc == *f5);
         }
+#else
+        BSLSTL_FUNCTION_TEST_CASE_IS_NOT_IN_THIS_EXECUTABLE(test);
+#endif  // BSLSTL_FUNCTION_TEST_PART_09
       } break;
-
       case 19: {
         // --------------------------------------------------------------------
         // TESTING SUNCC BUG FIX
@@ -5495,10 +5776,12 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING SUNCC BUG FIX"
                             "\n=====================\n");
 
+#ifdef BSLSTL_FUNCTION_TEST_PART_09
         sun2(&sun1<int>);
-
+#else
+        BSLSTL_FUNCTION_TEST_CASE_IS_NOT_IN_THIS_EXECUTABLE(test);
+#endif  // BSLSTL_FUNCTION_TEST_PART_09
       } break;
-
       case 18: {
         // --------------------------------------------------------------------
         // TESTING TYPES AND TRAITS
@@ -5565,6 +5848,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING TYPES AND TRAITS"
                             "\n========================\n");
 
+#ifdef BSLSTL_FUNCTION_TEST_PART_09
         typedef bsl::allocator<char>                bslAllocator;
 
         typedef bsl::function<void()>               Obj1;
@@ -5603,9 +5887,10 @@ int main(int argc, char *argv[])
 
         ASSERT((bsl::is_same<double, Obj3::first_argument_type>::value));
         ASSERT((bsl::is_same<char&,  Obj3::second_argument_type>::value));
-
+#else
+        BSLSTL_FUNCTION_TEST_CASE_IS_NOT_IN_THIS_EXECUTABLE(test);
+#endif  // BSLSTL_FUNCTION_TEST_PART_09
       } break;
-
       case 17: {
         // --------------------------------------------------------------------
         // FUNCTION OBJECT INVOCATION
@@ -5721,6 +6006,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nFUNCTION OBJECT INVOCATION"
                             "\n==========================\n");
 
+#ifdef BSLSTL_FUNCTION_TEST_PART_09
         if (veryVerbose) printf("Plan step 2\n");
         testWithFunctor<SmallFunctor, int, int>("SmallFunctor int(int...)");
 
@@ -5764,6 +6050,9 @@ int main(int argc, char *argv[])
         ASSERT(6 == f2(2));
 #endif // C++11
 
+#else
+        BSLSTL_FUNCTION_TEST_CASE_IS_NOT_IN_THIS_EXECUTABLE(test);
+#endif  // BSLSTL_FUNCTION_TEST_PART_09
       } break;
       case 16: {
         // --------------------------------------------------------------------
@@ -5899,6 +6188,8 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nPOINTER TO MEMBER DATA INVOCATION"
                             "\n=================================\n");
+
+#ifdef BSLSTL_FUNCTION_TEST_PART_09
 
 #define TEST(c, d)       testPtrToMemData<c, d>(#d "(" #c ")")
 #define TEST_CONST(c, d) testPtrToConstMemData<c, d>(#d "(" #c ")")
@@ -6047,7 +6338,7 @@ int main(int argc, char *argv[])
             ASSERT(0x2001 == function(static_cast<IntHolder&&>(intHolder)));
         }
 
-#endif
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
 #undef TEST_CONST
 #undef TEST
@@ -6115,7 +6406,9 @@ int main(int argc, char *argv[])
             &IntHolder::d_value);
         IntHolder ihccsp(0x2001);
         ASSERT(&ftccsp(&ihccsp) == &ihccsp.d_value);
-
+#else
+        BSLSTL_FUNCTION_TEST_CASE_IS_NOT_IN_THIS_EXECUTABLE(test);
+#endif  // BSLSTL_FUNCTION_TEST_PART_09
       } break;
       case 15: {
         // --------------------------------------------------------------------
@@ -6169,7 +6462,7 @@ int main(int argc, char *argv[])
         //:   even if 'FRET' is non-void.
         //:
         //: 10 When the 'fp' is wrapped using 'bslalg::NothrowMovableWrapper',
-        //:   invocation procedes as though the wrapper were not present.
+        //:   invocation proceeds as though the wrapper were not present.
         //
         // Plan:
         //: 1 Create a class 'IntWrapper' that holds an 'int' value and has
@@ -6226,7 +6519,7 @@ int main(int argc, char *argv[])
         //:   'void(IntWrapper, int)' and use it to invoke
         //:   'IntWrapper::increment1', thus discarding the return value.
         //:   Repeat this test but wrapping 'IntWrapper::voidIncrement1',
-        //:   showing that a 'voide' function can be invoked.
+        //:   showing that a 'void' function can be invoked.
         //:
         //: 10 For concern 10, add tests to 'testPtrToMemFunc' and
         //:   'testPtrToConstMemFunc' as well as to the variants in step 9
@@ -6242,6 +6535,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nPOINTER TO MEMBER FUNCTION INVOCATION"
                             "\n=====================================\n");
 
+#ifdef BSLSTL_FUNCTION_TEST_PART_08
         if (veryVerbose) printf("Plan step 3\n");
         testPtrToMemFunc<IntWrapper&, int, int>("int(IntWrapper&, int...)");
 
@@ -6324,7 +6618,6 @@ int main(int argc, char *argv[])
         ntftp(&iw, 0x10);                   // No return type to test
         ASSERT(0x301f == iw.value());
 
-
         bsl::function<void(IntWrapper, int)> vt(&IntWrapper::voidIncrement1);
         vt(iw, 0x10);                  // No return type to test
         ASSERT(0x301f == iw.value());  // Passed by value. Original unchanged.
@@ -6351,9 +6644,10 @@ int main(int argc, char *argv[])
         const bsl::function<long long()> mutator(incrementing);
         ASSERT(1 == mutator());
         ASSERT(2 == mutator());
-
+#else
+        BSLSTL_FUNCTION_TEST_CASE_IS_NOT_IN_THIS_EXECUTABLE(test);
+#endif  // BSLSTL_FUNCTION_TEST_PART_08
       } break;
-
       case 14: {
         // --------------------------------------------------------------------
         // POINTER TO FUNCTION INVOCATION
@@ -6443,6 +6737,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nPOINTER TO FUNCTION INVOCATION"
                             "\n==============================\n");
 
+#ifdef BSLSTL_FUNCTION_TEST_PART_08
         if (veryVerbose) printf("Plan step 2 with function references\n");
         {
             const bsl::function<int()> f0(sum0);
@@ -6755,9 +7050,10 @@ int main(int argc, char *argv[])
 #endif
             ASSERT(0 == cc.numCopies());
         }
-
+#else
+        BSLSTL_FUNCTION_TEST_CASE_IS_NOT_IN_THIS_EXECUTABLE(test);
+#endif  // BSLSTL_FUNCTION_TEST_PART_08
       } break;
-
       case 13: {
         // --------------------------------------------------------------------
         // EMPTY FUNCTION INVOCATION
@@ -6768,7 +7064,7 @@ int main(int argc, char *argv[])
         //:
         //: 2 The above is true for functions with zero to ten arguments.
         //:
-        //: 3 It is irrelevent whether the empty 'function' was constructed
+        //: 3 It is irrelevant whether the empty 'function' was constructed
         //:   using the default constructor, the 'nullptr_t' constructor, or
         //:   constructor taking a pointer type.
         //
@@ -6790,6 +7086,8 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nEMPTY FUNCTION INVOCATION"
                             "\n=========================\n");
+
+#ifdef BSLSTL_FUNCTION_TEST_PART_08
 
 #ifdef BDE_BUILD_TARGET_EXC
 
@@ -6946,8 +7244,10 @@ int main(int argc, char *argv[])
         } // end for
 #endif //  BDE_BUILD_TARGET_EXC
 
+#else
+        BSLSTL_FUNCTION_TEST_CASE_IS_NOT_IN_THIS_EXECUTABLE(test);
+#endif  // BSLSTL_FUNCTION_TEST_PART_08
       } break;
-
       case 12: {
         // --------------------------------------------------------------------
         // TESTING COMPARISON TO NULLPTR
@@ -6983,6 +7283,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING COMPARISON TO NULLPTR"
                             "\n=============================\n");
 
+#ifdef BSLSTL_FUNCTION_TEST_PART_08
         Obj e;
         Obj f(&simpleFunc);
 
@@ -7020,8 +7321,10 @@ int main(int argc, char *argv[])
             ASSERT_NOEXCEPT(true, a != 0);
             ASSERT_NOEXCEPT(true, 0 != a);
         }
+#else
+        BSLSTL_FUNCTION_TEST_CASE_IS_NOT_IN_THIS_EXECUTABLE(test);
+#endif  // BSLSTL_FUNCTION_TEST_PART_08
       } break;
-
       case 11: {
         // --------------------------------------------------------------------
         // ASSIGNMENT FROM FUNCTOR
@@ -7064,9 +7367,9 @@ int main(int argc, char *argv[])
         //:   matches the functor.
         //:
         //: 2 For concern 2, use an original functor type that tracks number
-        //:   instances in existance.  Verify that the assignment from a
+        //:   instances in existence.  Verify that the assignment from a
         //:   different functor type reducers the number of such functors in
-        //:   existance.
+        //:   existence.
         //:
         //: 3 For concern 3, verify, that the 'target_type' and 'target<FUNC>'
         //:   of the 'lhs' return the expected values. For each 'FUNC' type
@@ -7114,8 +7417,36 @@ int main(int argc, char *argv[])
         //  function& operator=(bsl::reference_wrapper<FUNC> rhs);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nASSIGNMENT FROM FUNCTOR"
-                            "\n=======================\n");
+        static const char* title[] = {
+#if defined(BSLSTL_FUNCTION_TEST_ENABLE_ALL) || \
+    !defined(BSLSTL_FUNCTION_TEST_PART_06_OR_07)
+            "",
+            ""
+#elif defined(BSLSTL_FUNCTION_TEST_PART_06)
+            ": PART 1",
+            "========"
+#elif defined(BSLSTL_FUNCTION_TEST_PART_07)
+            ": PART 2",
+            "========"
+#endif
+        };
+
+        if (verbose)printf("\nASSIGNMENT FROM FUNCTOR%s"
+                           "\n=======================%s\n",
+                           title[0], title[1]);
+
+#ifdef BSLSTL_FUNCTION_TEST_PART_06_OR_07
+
+#ifdef BSLSTL_FUNCTION_TEST_ENABLE_ALL
+#define BSLSTL_FUNCTION_TEST_CASE11_PART_1
+#define BSLSTL_FUNCTION_TEST_CASE11_PART_2
+
+#elif defined(BSLSTL_FUNCTION_TEST_PART_06)
+#define BSLSTL_FUNCTION_TEST_CASE11_PART_1
+
+#elif defined(BSLSTL_FUNCTION_TEST_PART_07)
+#define BSLSTL_FUNCTION_TEST_CASE11_PART_2
+#endif
 
         typedef int (*SimpleFuncPtr_t)(const IntWrapper&, int);
         typedef int (IntWrapper::*SimpleMemFuncPtr_t)(int) const;
@@ -7133,16 +7464,33 @@ int main(int argc, char *argv[])
             bool        d_ntWrapped;      // Obj is NTWRAP()'d
         };
 
-#define TEST_ITEM(F, V)                                            \
-        { L_, Obj(F(V)), #F "(" #V ")", false },                   \
+#define TEST_ITEM_PART1(F, V)                                                 \
         { L_, Obj(NTWRAP(F(V))), "NTWRAP(" #F "(" #V "))", true }
+// In the first executable we (only) test the 'NOTWRAP'ped (no throw) left hand
+// side arguments.
 
-        TestData data[] = {
+#define TEST_ITEM_PART2(F, V) { L_, Obj(F(V)), #F "(" #V ")", false }
+// In the second executable we test the plain left hand side arguments (and the
+// rest of the test code after this section).
+
+#ifdef BSLSTL_FUNCTION_TEST_ENABLE_ALL
+#define TEST_ITEM(F, V)                                                       \
+    TEST_ITEM_PART1(F, V),                                                    \
+    TEST_ITEM_PART2(F, V)
+
+#elif defined(BSLSTL_FUNCTION_TEST_CASE11_PART_1)
+#define TEST_ITEM(F, V)                                                       \
+    TEST_ITEM_PART1(F, V)
+
+#elif defined(BSLSTL_FUNCTION_TEST_CASE11_PART_2)
+#define TEST_ITEM(F, V)                                                       \
+    TEST_ITEM_PART2(F, V)
+#endif
+
+        const TestData DATA[] = {
             TEST_ITEM(SimpleFuncPtr_t                , nullFuncPtr       ),
             TEST_ITEM(SimpleFuncPtr_t                , simpleFunc        ),
-#if !MSVC_2013
             TEST_ITEM(SimpleMemFuncPtr_t             , nullMemFuncPtr    ),
-#endif
             TEST_ITEM(SimpleMemFuncPtr_t             , &IntWrapper::add1 ),
             TEST_ITEM(EmptyFunctor                   , 0                 ),
             TEST_ITEM(SmallFunctor                   , 0x2000            ),
@@ -7158,35 +7506,32 @@ int main(int argc, char *argv[])
             TEST_ITEM(InnerFunction                  , &simpleFunc       )
         };
 
-        const int dataSize = sizeof(data) / sizeof(data[0]);
-
+        const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
 #undef TEST_ITEM
+#undef TEST_ITEM_PART2
+#undef TEST_ITEM_PART1
 
-        for (int i = 0; i < dataSize; ++i) {
-            // const int line         = data[i].d_line;
-            const Obj&   lhs          = data[i].d_function;
-            const char  *funcName     = data[i].d_funcName;
-            bool         lhsNtWrapped = data[i].d_ntWrapped;
+        for (int i = 0; i < NUM_DATA; ++i) {
+            // const int line         = DATA[i].d_line;
+            const Obj&   lhs          = DATA[i].d_function;
+            const char  *funcName     = DATA[i].d_funcName;
+            bool         lhsNtWrapped = DATA[i].d_ntWrapped;
 
-#define TEST(f) do {                                                         \
-            if (veryVerbose) printf("Assign %s = %s%s\n", funcName, #f,      \
-                                    lhsNtWrapped ? " (nothrow)" : "");       \
-            testAssignFromFunctor(lhs, f, funcName, #f, lhsNtWrapped);       \
-            if (veryVerbose) printf("Assign %s = NTWRAP(%s) (nothrow)\n",    \
-                                    funcName, #f);                           \
-            testAssignFromFunctor(lhs, NTWRAP(f), funcName,                  \
-                                  "NTWRAP(" #f ")", true);                   \
-            if (veryVerbose) printf("Assign %s = ref(%s) (nothrow)\n",       \
-                                    funcName, #f);                           \
-            testAssignFromFunctorRefWrap(lhs, f, funcName, "ref(" #f ")");   \
+#define TEST(f) do {                                                          \
+            if (veryVerbose) printf("Assign %s = %s%s\n", funcName, #f,       \
+                                    lhsNtWrapped ? " (nothrow)" : "");        \
+            testAssignFromFunctor(lhs, f, funcName, #f, lhsNtWrapped);        \
+            if (veryVerbose) printf("Assign %s = NTWRAP(%s) (nothrow)\n",     \
+                                    funcName, #f);                            \
+            testAssignFromFunctor(lhs, NTWRAP(f), funcName,                   \
+                                  "NTWRAP(" #f ")", true);                    \
+            if (veryVerbose) printf("Assign %s = ref(%s) (nothrow)\n",        \
+                                    funcName, #f);                            \
+            testAssignFromFunctorRefWrap(lhs, f, funcName, "ref(" #f ")");    \
         } while (false)
 
-
-
             TEST(nullFuncPtr                                  );
-#if !MSVC_2013
             TEST(nullMemFuncPtr                               );
-#endif
             TEST(&simpleFunc                                  );
             TEST(&IntWrapper::add1                            );
             TEST(EmptyFunctor()                               );
@@ -7203,10 +7548,12 @@ int main(int argc, char *argv[])
             TEST(InnerFunction(&simpleFunc2)                  );
 
         } // end for (each array item)
-
 #undef TEST
 
+#ifdef BSLSTL_FUNCTION_TEST_CASE11_PART_2
+
 #ifdef BSLMF_INVOKERESULT_SUPPORT_CPP17_SEMANTICS
+
 #define TEST(p, f, c) testIsAssignable<p, f>(__LINE__, #f, c)
 
         typedef IntWrapper                        IW;
@@ -7266,7 +7613,7 @@ int main(int argc, char *argv[])
         TEST(PROTO, void (IW::*)(int) &&                              , false);
         TEST(PROTO, int  (IW::*)(int) const&&                         , false);
         TEST(PROTO, void (IW::*)(int) const&&                         , false);
-#endif
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
         // 'bsl::function' objects having 'PROTO' prototype constructed with
         // pointers to member objects.
@@ -7289,7 +7636,7 @@ int main(int argc, char *argv[])
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
         TEST(PROTO,       HypotheticalFunctor<int (IW, int)>&&        , true );
         TEST(PROTO, const HypotheticalFunctor<int (IW, int)>&&        , true );
-#endif
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
         //                                           Constructible?
         //  Prototype                    Functor Type              \.
@@ -7355,7 +7702,7 @@ int main(int argc, char *argv[])
         TEST(const int&& (const   IW   ), int IW::*             , true );
         TEST(const int&& (const   IW&  ), int IW::*             , true );
         TEST(const int&& (const   IW&& ), int IW::*             , true );
-#endif
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
         // 'bsl::function' objects having prototypes with smart pointer to, and
         // reference-wrapped class types, constructed with pointers to member
@@ -7391,7 +7738,7 @@ int main(int argc, char *argv[])
         TEST(       int  (const  SIW&& ), int  IW::*            , true );
         TEST(       int  (      ScIW&& ), int  IW::*            , true );
         TEST(       int  (const ScIW&& ), int  IW::*            , true );
-#endif
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
         // 'bsl::function' objects having prototypes with smart pointer to, and
         // reference-wrapped class types, constructed with pointers to member
@@ -7427,7 +7774,7 @@ int main(int argc, char *argv[])
         TEST(       int  (const  SIWD&&), int  IW::*            , true );
         TEST(       int  (      ScIWD&&), int  IW::*            , true );
         TEST(       int  (const ScIWD&&), int  IW::*            , true );
-#endif
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
         // 'bsl::function' objects with prototypes having smart pointer to, and
         // reference-wrapped, class types, constructed with pointers to member
@@ -7463,7 +7810,7 @@ int main(int argc, char *argv[])
         TEST(       int  (      RcIW   ), int (IW::*)() const&& , false);
         TEST(       int  (       SIW   ), int (IW::*)() const&& , false);
         TEST(       int  (      ScIW   ), int (IW::*)() const&& , false);
-#endif
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
         // 'bsl::function' objects with prototypes having smart pointer to, and
         // reference-wrapped, class types, constructed with pointers to member
@@ -7499,7 +7846,7 @@ int main(int argc, char *argv[])
         TEST(       int  (      RcIWD  ), int (IW::*)() const&& , false    );
         TEST(       int  (       SIWD  ), int (IW::*)() const&& , false    );
         TEST(       int  (      ScIWD  ), int (IW::*)() const&& , false    );
-#endif
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
         // 'bsl::function' objects having prototypes with const- and/or
         // reference-qualified 'IntWrapper' return values, constructed with
@@ -7572,7 +7919,7 @@ int main(int argc, char *argv[])
         TEST(const IW&&  (             ),       IWD&  ()        , true );
         TEST(const IW&&  (             ), const IWD   ()        , true );
         TEST(const IW&&  (             ), const IWD&  ()        , true );
-#endif
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
         // Verify that 'bsl::function<PROTO>' is assignable from types that
         // are implicitly convertible to 'bsl::function<PROTO>'.  Note this
@@ -7583,11 +7930,21 @@ int main(int argc, char *argv[])
         TEST(PROTO, ConvertibleToObj, true);
 
 #undef TEST
-#endif // defined(BSLMF_INVOKERESULT_SUPPORT_CPP17_SEMANTICS)
+#endif  // BSLMF_INVOKERESULT_SUPPORT_CPP17_SEMANTICS
 
+#endif  // BSLSTL_FUNCTION_TEST_CASE11_PART_2
 
+// Clean up local macros
+#ifdef BSLSTL_FUNCTION_TEST_CASE11_PART_1
+#undef BSLSTL_FUNCTION_TEST_CASE11_PART_1
+#else
+#undef BSLSTL_FUNCTION_TEST_CASE11_PART_2
+#endif
+
+#else
+        BSLSTL_FUNCTION_TEST_CASE_IS_NOT_IN_THIS_EXECUTABLE(test);
+#endif  // BSLSTL_FUNCTION_TEST_PART_06_OR_07
       } break;
-
       case 10: {
         // --------------------------------------------------------------------
         // ASSIGNMENT FROM 'nullptr'
@@ -7640,6 +7997,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nASSIGNMENT FROM 'nullptr'"
                             "\n=========================\n");
 
+#ifdef BSLSTL_FUNCTION_TEST_PART_05
         typedef int (*SimpleFuncPtr_t)(const IntWrapper&, int);
         typedef int (IntWrapper::*SimpleMemFuncPtr_t)(int) const;
 
@@ -7655,13 +8013,13 @@ int main(int argc, char *argv[])
             const char *d_funcName;       // function object name
         };
 
-#define TEST_ITEM(F, V)                          \
+#define TEST_ITEM(F, V)                 \
         { L_, Obj(F(V)), #F "(" #V ")" }
 
-#define NTTST_ITM(F, V)                          \
+#define NTTST_ITM(F, V)                                    \
         { L_, Obj(NTWRAP(F(V))), "NTWRAP(" #F "(" #V "))" }
 
-        TestData data[] = {
+        const TestData DATA[] = {
             TEST_ITEM(SimpleFuncPtr_t        , nullFuncPtr       ),
             TEST_ITEM(SimpleFuncPtr_t        , simpleFunc        ),
             TEST_ITEM(SimpleMemFuncPtr_t     , nullMemFuncPtr    ),
@@ -7691,26 +8049,28 @@ int main(int argc, char *argv[])
 #undef TEST_ITEM
 #undef NTTST_ITM
 
-        int dataSize = sizeof(data) / sizeof(TestData);
+        const int NUM_DATA = sizeof(DATA) / sizeof(TestData);
 
-        for (int i = 0; i < dataSize; ++i) {
-            const int   line     = data[i].d_line;
-            const Obj&  func     = data[i].d_function;
-            const char *funcName = data[i].d_funcName;
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int   line     = DATA[i].d_line;
+            const Obj&  func     = DATA[i].d_function;
+            const char *funcName = DATA[i].d_funcName;
 
             if (veryVerbose) printf("Assign %s = nullptr\n", funcName);
 
             testAssignNullptr(func, line);
 
-        } // end for (each function in data array)
+        } // end for (each function in DATA array)
 
         if (verbose) printf("confirm assigning null pointers is 'noexcept'\n");
         {
             Obj a;
             ASSERT_NOEXCEPT(true, a = 0);
         }
+#else
+        BSLSTL_FUNCTION_TEST_CASE_IS_NOT_IN_THIS_EXECUTABLE(test);
+#endif  // BSLSTL_FUNCTION_TEST_PART_05
       } break;
-
       case 9: {
         // --------------------------------------------------------------------
         // COPY AND MOVE ASSIGNMENT
@@ -7837,9 +8197,10 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nCOPY AND MOVE ASSIGNMENT"
                             "\n========================\n");
 
+#ifdef BSLSTL_FUNCTION_TEST_PART_05
         typedef int (*SimpleFuncPtr_t)(const IntWrapper&, int);
         typedef int (IntWrapper::*SimpleMemFuncPtr_t)(int) const;
-        typedef bool (*AreEqualFuncPtr_t)(const Obj&, const Obj&);
+        typedef bool (* const AreEqualFuncPtr_t)(const Obj&, const Obj&);
 
         // Null function pointers
         static const SimpleFuncPtr_t    nullFuncPtr    = 0;
@@ -7855,17 +8216,15 @@ int main(int argc, char *argv[])
             bool               d_skipExcTest;    // Skip exception test on move
         };
 
-#define TEST_ITEM(F, V)                                                      \
-        { L_, Obj(F(V)), #F "(" #V ")", &AreEqualFunctions<F>, false },      \
-        { L_, Obj(NTWRAP(F(V))), "NTWRAP(" #F "(" #V "))",             \
+#define TEST_ITEM(F, V)                                                       \
+        { L_, Obj(F(V)), #F "(" #V ")", &AreEqualFunctions<F>, false },       \
+        { L_, Obj(NTWRAP(F(V))), "NTWRAP(" #F "(" #V "))",                    \
                 &AreEqualFunctions<F>, true }
 
-        TestData dataA[] = {
+        const TestData DATA_A[] = {
             TEST_ITEM(SimpleFuncPtr_t        , nullFuncPtr       ),
             TEST_ITEM(SimpleFuncPtr_t        , simpleFunc        ),
-#if !MSVC_2013
             TEST_ITEM(SimpleMemFuncPtr_t     , nullMemFuncPtr    ),
-#endif
             TEST_ITEM(SimpleMemFuncPtr_t     , &IntWrapper::add1 ),
             TEST_ITEM(EmptyFunctor           , 0                 ),
             TEST_ITEM(SmallFunctor           , 0x200             ),
@@ -7881,14 +8240,12 @@ int main(int argc, char *argv[])
             TEST_ITEM(InnerFunction          , &simpleFunc       )
         };
 
-        int dataASize = sizeof(dataA) / sizeof(TestData);
+        const int NUM_DATA_A = sizeof(DATA_A) / sizeof(TestData);
 
-        TestData dataB[] = {
+        const TestData DATA_B[] = {
             TEST_ITEM(SimpleFuncPtr_t        , nullFuncPtr       ),
             TEST_ITEM(SimpleFuncPtr_t        , simpleFunc2       ),
-#if !MSVC_2013
             TEST_ITEM(SimpleMemFuncPtr_t     , nullMemFuncPtr    ),
-#endif
             TEST_ITEM(SimpleMemFuncPtr_t     , &IntWrapper::sub1 ),
             TEST_ITEM(EmptyFunctor           , 0                 ),
             TEST_ITEM(SmallFunctor           , 0x30              ),
@@ -7903,24 +8260,23 @@ int main(int argc, char *argv[])
             TEST_ITEM(LargeFunctorWithAlloc  , 0x20              ),
             TEST_ITEM(InnerFunction          , &simpleFunc2      )
         };
-
 #undef TEST_ITEM
 
-        int dataBSize = sizeof(dataB) / sizeof(TestData);
+        const int NUM_DATA_B = sizeof(DATA_B) / sizeof(TestData);
 
-        for (int i = 0; i < dataASize; ++i) {
-            const int          lineA     = dataA[i].d_line;
-            const Obj&         funcA     = dataA[i].d_function;
-            const char        *funcAName = dataA[i].d_funcName;
-            AreEqualFuncPtr_t  areEqualA = dataA[i].d_areEqualFunc_p;
+        for (int i = 0; i < NUM_DATA_A; ++i) {
+            const int          lineA     = DATA_A[i].d_line;
+            const Obj&         funcA     = DATA_A[i].d_function;
+            const char        *funcAName = DATA_A[i].d_funcName;
+            AreEqualFuncPtr_t  areEqualA = DATA_A[i].d_areEqualFunc_p;
 
-            for (int j = 0; j < dataBSize; ++j) {
-                const int          lineB       = dataB[j].d_line;
-                const Obj&         funcB       = dataB[j].d_function;
-                const char        *funcBName   = dataB[j].d_funcName;
-                AreEqualFuncPtr_t  areEqualB   = dataB[j].d_areEqualFunc_p;
-                bool               skipExcTest = (dataA[i].d_skipExcTest ||
-                                                  dataB[j].d_skipExcTest);
+            for (int j = 0; j < NUM_DATA_B; ++j) {
+                const int          lineB       = DATA_B[j].d_line;
+                const Obj&         funcB       = DATA_B[j].d_function;
+                const char        *funcBName   = DATA_B[j].d_funcName;
+                AreEqualFuncPtr_t  areEqualB   = DATA_B[j].d_areEqualFunc_p;
+                const bool         skipExcTest = (DATA_A[i].d_skipExcTest ||
+                                                  DATA_B[j].d_skipExcTest);
 
                 if (veryVerbose) printf("Assign %s = %s\n",
                                         funcAName, funcBName);
@@ -7932,10 +8288,10 @@ int main(int argc, char *argv[])
                                lineA, lineB,
                                skipExcTest);
 
-            } // End for (each item in dataB)
-        } // End for (each item in dataA)
+            } // End for (each item in 'DATA_B')
+        } // End for (each item in 'DATA_A')
 
-        SmallFunctor functor(0x30);
+        SmallFunctor                       functor(0x30);
         BloombergLP::bdef_Function<PROTO*> original(functor);
         bsl::function<PROTO>               copyObj;
 
@@ -7949,9 +8305,10 @@ int main(int argc, char *argv[])
         copyObj = bslmf::MovableRefUtil::move(original);
         target = copyObj.target<SmallFunctor>();
         ASSERT(target && *target == functor);
-
+#else
+        BSLSTL_FUNCTION_TEST_CASE_IS_NOT_IN_THIS_EXECUTABLE(test);
+#endif  // BSLSTL_FUNCTION_TEST_PART_05
       } break;
-
       case 8: {
         // --------------------------------------------------------------------
         // SWAP
@@ -8039,12 +8396,13 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nSWAP"
                             "\n====\n");
 
+#ifdef BSLSTL_FUNCTION_TEST_PART_05
         typedef int (*SimpleFuncPtr_t)(const IntWrapper&, int);
         typedef int (IntWrapper::*SimpleMemFuncPtr_t)(int) const;
-        typedef bool (*AreEqualFuncPtr_t)(const Obj&, const Obj&);
+        typedef bool (* const AreEqualFuncPtr_t)(const Obj&, const Obj&);
 
         // Null functors
-        int             ( *nullFuncPtr)   (const IntWrapper&, int) = 0;
+        int             ( *nullFuncPtr)   (const IntWrapper&, int)  = 0;
         int ( IntWrapper::*nullMemFuncPtr)(int              ) const = 0;
 
         struct TestData {
@@ -8062,12 +8420,10 @@ int main(int argc, char *argv[])
         { L_, Obj(NTWRAP(F(V))), "NTWRAP(" #F "(" #V "))",              \
                 &AreEqualFunctions<F>, true }
 
-        TestData dataA[] = {
+        const TestData DATA_A[] = {
             TEST_ITEM(SimpleFuncPtr_t        , nullFuncPtr       ),
             TEST_ITEM(SimpleFuncPtr_t        , simpleFunc        ),
-#if !MSVC_2013
             TEST_ITEM(SimpleMemFuncPtr_t     , nullMemFuncPtr    ),
-#endif
             TEST_ITEM(SimpleMemFuncPtr_t     , &IntWrapper::add1 ),
             TEST_ITEM(EmptyFunctor           , 0                 ),
             TEST_ITEM(SmallFunctor           , 0x2000            ),
@@ -8083,14 +8439,12 @@ int main(int argc, char *argv[])
             TEST_ITEM(InnerFunction          , &simpleFunc       )
         };
 
-        int dataASize = sizeof(dataA) / sizeof(TestData);
+        const int NUM_DATA_A = sizeof(DATA_A) / sizeof(TestData);
 
-        TestData dataB[] = {
+        const TestData DATA_B[] = {
             TEST_ITEM(SimpleFuncPtr_t        , nullFuncPtr       ),
             TEST_ITEM(SimpleFuncPtr_t        , simpleFunc2       ),
-#if !MSVC_2013
             TEST_ITEM(SimpleMemFuncPtr_t     , nullMemFuncPtr    ),
-#endif
             TEST_ITEM(SimpleMemFuncPtr_t     , &IntWrapper::sub1 ),
             TEST_ITEM(EmptyFunctor           , 0                 ),
             TEST_ITEM(SmallFunctor           , 0x3000            ),
@@ -8105,32 +8459,31 @@ int main(int argc, char *argv[])
             TEST_ITEM(LargeFunctorWithAlloc  , 0x1000            ),
             TEST_ITEM(InnerFunction          , &simpleFunc2      )
         };
-
 #undef TEST_ITEM
 
-        int dataBSize = sizeof(dataB) / sizeof(TestData);
+        const int NUM_DATA_B = sizeof(DATA_B) / sizeof(TestData);
 
-        for (int i = 0; i < dataASize; ++i) {
-            const int          lineA     = dataA[i].d_line;
-            const Obj&         funcA     = dataA[i].d_function;
-            const char        *funcAName = dataA[i].d_funcName;
-            AreEqualFuncPtr_t  areEqualA = dataA[i].d_areEqualFunc_p;
+        for (int i = 0; i < NUM_DATA_A; ++i) {
+            const int          lineA     = DATA_A[i].d_line;
+            const Obj&         funcA     = DATA_A[i].d_function;
+            const char        *funcAName = DATA_A[i].d_funcName;
+            AreEqualFuncPtr_t  areEqualA = DATA_A[i].d_areEqualFunc_p;
 
-            for (int j = 0; j < dataBSize; ++j) {
-                const int          lineB       = dataB[j].d_line;
-                const Obj&         funcB       = dataB[j].d_function;
-                const char        *funcBName   = dataB[j].d_funcName;
-                AreEqualFuncPtr_t  areEqualB   = dataB[j].d_areEqualFunc_p;
-                bool               skipExcTest = (dataA[i].d_ntWrapped ||
-                                                  dataB[j].d_ntWrapped);
+            for (int j = 0; j < NUM_DATA_B; ++j) {
+                const int          lineB       = DATA_B[j].d_line;
+                const Obj&         funcB       = DATA_B[j].d_function;
+                const char        *funcBName   = DATA_B[j].d_funcName;
+                AreEqualFuncPtr_t  areEqualB   = DATA_B[j].d_areEqualFunc_p;
+                const bool         skipExcTest = (DATA_A[i].d_ntWrapped ||
+                                                  DATA_B[j].d_ntWrapped);
 
                 if (veryVerbose) printf("swap(%s, %s)\n",funcAName,funcBName);
 
                 testSwap(funcA, funcB, areEqualA, areEqualB, lineA, lineB,
                          skipExcTest);
 
-            } // end for (each item in dataB)
-        } // end for (each item in dataA)
+            } // end for (each item in 'DATA_B')
+        } // end for (each item in 'DATA_A')
 
         if (verbose) printf("confirming swap operations are 'noexcept'\n");
         {
@@ -8138,9 +8491,10 @@ int main(int argc, char *argv[])
             ASSERT_NOEXCEPT(true, a.swap(b));
             ASSERT_NOEXCEPT(true, bsl::swap(a, b));
         }
-
+#else
+        BSLSTL_FUNCTION_TEST_CASE_IS_NOT_IN_THIS_EXECUTABLE(test);
+#endif  // BSLSTL_FUNCTION_TEST_PART_05
       } break;
-
       case 7: {
         // --------------------------------------------------------------------
         // MOVE CONSTRUCTORS
@@ -8267,6 +8621,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nMOVE CONSTRUCTORS"
                             "\n=================\n");
 
+#ifdef BSLSTL_FUNCTION_TEST_PART_04
         static const std::size_t k_MAX_ALIGNMENT =
             bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 
@@ -8322,9 +8677,7 @@ int main(int argc, char *argv[])
         //   =====================================  =================
         TEST(nullFuncPtr                          , false);
         TEST(&simpleFunc                          , false);
-#if !MSVC_2013
         TEST(nullMemFuncPtr                       , false);
-#endif
         TEST(&IntWrapper::add1                    , false);
         TEST(EmptyFunctor()                       , false);
         TEST(SmallFunctor(0x2000)                 , false);
@@ -8350,11 +8703,12 @@ int main(int argc, char *argv[])
         TEST(NTWRAP(SmallFunctorWithAlloc(0, &xa)), true );
         TEST(NTWRAP(LargeFunctorWithAlloc(0, &xa)), true );
         TEST(NTWRAP(simpleInnerFunction)          , true );
-
 #undef TEST
 
+#else
+        BSLSTL_FUNCTION_TEST_CASE_IS_NOT_IN_THIS_EXECUTABLE(test);
+#endif  // BSLSTL_FUNCTION_TEST_PART_04
       } break;
-
       case 6: {
         // --------------------------------------------------------------------
         // COPY CONSTRUCTORS
@@ -8482,6 +8836,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nCOPY CONSTRUCTORS"
                             "\n=================\n");
 
+#ifdef BSLSTL_FUNCTION_TEST_PART_03
         bslma::TestAllocator xa;
 
         // Null functors
@@ -8498,9 +8853,7 @@ int main(int argc, char *argv[])
         } while (false)
 
         TEST(nullFuncPtr                          );
-#if !MSVC_2013
         TEST(nullMemFuncPtr                       );
-#endif
         TEST(emptyInnerFunction                   );
         TEST(simpleFunc                           );
         TEST(&IntWrapper::add1                    );
@@ -8529,7 +8882,6 @@ int main(int argc, char *argv[])
         TEST(NTWRAP(SmallFunctorWithAlloc(0, &xa)));
         TEST(NTWRAP(LargeFunctorWithAlloc(0, &xa)));
         TEST(NTWRAP(simpleInnerFunction)          );
-
 #undef TEST
 
         typedef BloombergLP::bdef_Function<PROTO*>  bdefObj;
@@ -8562,9 +8914,10 @@ int main(int argc, char *argv[])
             target = copyObj.target<SmallFunctor>();
             ASSERT(target && *target == functor);
         }
-
+#else
+        BSLSTL_FUNCTION_TEST_CASE_IS_NOT_IN_THIS_EXECUTABLE(test);
+#endif  // BSLSTL_FUNCTION_TEST_PART_03
       } break;
-
       case 5: {
         // --------------------------------------------------------------------
         // CONSTRUCT FROM CALLABLE OBJECT
@@ -8620,7 +8973,7 @@ int main(int argc, char *argv[])
         //:    function, pointer to member function, or functor types of
         //:    various sizes and cv-qualified rvalue and lvalue references to
         //:    functor types of various sizes, with or without throwing move
-        //:    constructors. TBD pointer-to-data-member
+        //:    constructors. TBD pointer-to-DATA-member
         //:
         //: 12 If memory allocation or functor construction fails with an
         //:    exception, then no resources are leaked.
@@ -8723,7 +9076,7 @@ int main(int argc, char *argv[])
         //:    require conversion from 'FUNC' to 'bsl::function'.  Invoke
         //:    'testConstructFromCallableObj' on a class that lacks dedicated
         //:    move operations.  Repeat for such a class that also is
-        //:    constructuble from 'function'.  Verify that a transformation
+        //:    constructible from 'function'.  Verify that a transformation
         //:    from 'MovableRef<FUNC>' to 'FUNC' is a better match for
         //:    overloading than a conversion from 'MovableRef<FUNC>' to
         //:    'bsl::function' (regression test from prior ambiguity).
@@ -8748,14 +9101,44 @@ int main(int argc, char *argv[])
         //  bool isInplace() const noexcept;
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nCONSTRUCT FROM CALLABLE OBJECT"
-                            "\n==============================\n");
 
+        static const char* title[] = {
+#if defined(BSLSTL_FUNCTION_TEST_ENABLE_ALL) || \
+    !defined(BSLSTL_FUNCTION_TEST_PART_02_OR_03)
+            "",
+            ""
+#elif defined(BSLSTL_FUNCTION_TEST_PART_02)
+            ": PART 1",
+            "========"
+#elif defined(BSLSTL_FUNCTION_TEST_PART_03)
+            ": PART 2",
+            "========"
+#endif
+        };
+
+        if (verbose) printf("\nCONSTRUCT FROM CALLABLE OBJECT%s"
+                            "\n==============================%s\n",
+                             title[0], title[1]);
+
+#ifdef BSLSTL_FUNCTION_TEST_PART_02_OR_03
+
+#ifdef BSLSTL_FUNCTION_TEST_ENABLE_ALL
+#define BSLSTL_FUNCTION_TEST_CASE05_PART_1
+#define BSLSTL_FUNCTION_TEST_CASE05_PART_2
+
+#elif defined(BSLSTL_FUNCTION_TEST_PART_02)
+#define BSLSTL_FUNCTION_TEST_CASE05_PART_1
+
+#elif defined(BSLSTL_FUNCTION_TEST_PART_03)
+#define BSLSTL_FUNCTION_TEST_CASE05_PART_2
+#endif
         bslma::TestAllocator xa;
 
         // Null pointers
-        int (*nullFuncPtr)(IntWrapper, int) = 0;
+#ifdef BSLSTL_FUNCTION_TEST_CASE05_PART_1
+        int (*nullFuncPtr)(IntWrapper, int)           = 0;
         int ( IntWrapper::*nullMemFuncPtr)(int) const = 0;
+#endif  // BSLSTL_FUNCTION_TEST_CASE05_PART_1
 
         // For testing 'bsl::function' wrapped in 'bsl::function'.
         InnerFunction emptyInnerFunction;
@@ -8765,57 +9148,58 @@ int main(int argc, char *argv[])
 
         //   Functor                                  isWrapped  expInplace
         //   ======================================   =========  ==========
+#ifdef BSLSTL_FUNCTION_TEST_CASE05_PART_1
         TEST(bsl::nullptr_t()                       , false    , true );
-        TEST(nullFuncPtr                            , false    , true );
-#if !MSVC_2013
-        TEST(nullMemFuncPtr                         , false    , true );
-#endif
-        TEST(emptyInnerFunction                     , false    , true );
-        TEST(&simpleFunc                            , false    , true );
-        TEST(&IntWrapper::add1                      , false    , true );
-        TEST(EmptyFunctor()                         , false    , true );
-        TEST(SmallFunctor(0)                        , false    , true );
-        TEST(MediumFunctor(0)                       , false    , true );
-        TEST(LargeFunctor(0)                        , false    , false);
-        TEST(NTSmallFunctor(0)                      , false    , true );
-        TEST(ThrowingSmallFunctor(0)                , false    , false);
-        TEST(ThrowingEmptyFunctor(0)                , false    , false);
-
-        TEST(SmallFunctorWithAlloc(  0, &xa)        , false    , false);
-        TEST(BMSmallFunctorWithAlloc(0, &xa)        , false    , true );
-        TEST(NTSmallFunctorWithAlloc(0, &xa)        , false    , true );
-        TEST(LargeFunctorWithAlloc(  0, &xa)        , false    , false);
-        TEST(simpleInnerFunction                    , false    , false);
-
+        TEST(       nullFuncPtr                     , false    , true );
         TEST(NTWRAP(nullFuncPtr)                    , true     , true );
-#if !MSVC_2013
+        TEST(       nullMemFuncPtr                  , false    , true );
         TEST(NTWRAP(nullMemFuncPtr)                 , true     , true );
-#endif
+        TEST(       emptyInnerFunction              , false    , true );
         TEST(NTWRAP(emptyInnerFunction)             , true     , true );
-        TEST(NTWRAP(simpleFunc)                     , true     , true );
+        TEST(       &simpleFunc                     , false    , true );
+        TEST(NTWRAP(&simpleFunc)                    , true     , true );
+        TEST(       &IntWrapper::add1               , false    , true );
         TEST(NTWRAP(&IntWrapper::add1)              , true     , true );
+        TEST(       EmptyFunctor()                  , false    , true );
         TEST(NTWRAP(EmptyFunctor())                 , true     , true );
+        TEST(       SmallFunctor(0)                 , false    , true );
         TEST(NTWRAP(SmallFunctor(0))                , true     , true );
+        TEST(       MediumFunctor(0)                , false    , true );
         TEST(NTWRAP(MediumFunctor(0))               , true     , true );
+        TEST(       LargeFunctor(0)                 , false    , false);
         TEST(NTWRAP(LargeFunctor(0))                , true     , false);
+        TEST(       NTSmallFunctor(0)               , false    , true );
         TEST(NTWRAP(NTSmallFunctor(0))              , true     , true );
+        TEST(       BMSmallFunctorWithAlloc(0, &xa) , false    , true );
+        TEST(NTWRAP(BMSmallFunctorWithAlloc(0, &xa)), true     , true );
+        TEST(       NTSmallFunctorWithAlloc(0, &xa) , false    , true );
+        TEST(NTWRAP(NTSmallFunctorWithAlloc(0, &xa)), true     , true );
+#endif  // BSLSTL_FUNCTION_TEST_CASE05_PART_1
+
+// **NOT** using '#else' on purpose, *both* PART macros may be defined.
+#ifdef BSLSTL_FUNCTION_TEST_CASE05_PART_2
+        TEST(       ThrowingSmallFunctor(0)         , false    , false);
         TEST(NTWRAP(ThrowingSmallFunctor(0))        , true     , true );
+        TEST(       ThrowingEmptyFunctor(0)         , false    , false);
         TEST(NTWRAP(ThrowingEmptyFunctor(0))        , true     , true );
 
+        TEST(       SmallFunctorWithAlloc(  0, &xa) , false    , false);
         TEST(NTWRAP(SmallFunctorWithAlloc(  0, &xa)), true     , true );
-        TEST(NTWRAP(BMSmallFunctorWithAlloc(0, &xa)), true     , true );
-        TEST(NTWRAP(NTSmallFunctorWithAlloc(0, &xa)), true     , true );
+        TEST(       LargeFunctorWithAlloc(  0, &xa) , false    , false);
         TEST(NTWRAP(LargeFunctorWithAlloc(  0, &xa)), true     , false);
+        TEST(       simpleInnerFunction             , false    , false);
         TEST(NTWRAP(simpleInnerFunction)            , true     , false);
 
-        TEST(FunctorWithoutDedicatedMove(0)         , false    , false);
+        TEST(       FunctorWithoutDedicatedMove(0)  , false    , false);
         TEST(NTWRAP(FunctorWithoutDedicatedMove(0)) , true     , true );
 
         Obj x(&simpleFunc);
-        TEST(FunctorWithFunctionCtor(x)             , false    , false);
+        TEST(       FunctorWithFunctionCtor(x)      , false    , false);
         TEST(NTWRAP(FunctorWithFunctionCtor(x))     , true     , false);
-
+#endif  // BSLSTL_FUNCTION_TEST_CASE05_PART_2
 #undef TEST
+
+#ifdef BSLSTL_FUNCTION_TEST_CASE05_PART_2
 
 #ifdef BSLMF_INVOKERESULT_SUPPORT_CPP17_SEMANTICS
 #define TEST(p, f, c) testIsConstructible<p, f>(__LINE__, #f, c)
@@ -8878,7 +9262,7 @@ int main(int argc, char *argv[])
         TEST(PROTO, void (IW::*)(int) &&                              , false);
         TEST(PROTO, int  (IW::*)(int) const&&                         , false);
         TEST(PROTO, void (IW::*)(int) const&&                         , false);
-#endif
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
         // 'bsl::function' objects having 'PROTO' prototype constructed with
         // pointers to member objects.
@@ -8901,7 +9285,7 @@ int main(int argc, char *argv[])
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
         TEST(PROTO,       HypotheticalFunctor<int (IW, int)>&&        , true );
         TEST(PROTO, const HypotheticalFunctor<int (IW, int)>&&        , true );
-#endif
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
         //                                           Constructible?
         //  Prototype                    Functor Type              \.
@@ -8967,7 +9351,7 @@ int main(int argc, char *argv[])
         TEST(const int&& (const   IW   ), int IW::*             , true );
         TEST(const int&& (const   IW&  ), int IW::*             , true );
         TEST(const int&& (const   IW&& ), int IW::*             , true );
-#endif
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
         // 'bsl::function' objects having prototypes with smart pointer to, and
         // reference-wrapped class types, constructed with pointers to member
@@ -9003,7 +9387,7 @@ int main(int argc, char *argv[])
         TEST(       int  (const  SIW&& ), int  IW::*            , true );
         TEST(       int  (      ScIW&& ), int  IW::*            , true );
         TEST(       int  (const ScIW&& ), int  IW::*            , true );
-#endif
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
         // 'bsl::function' objects having prototypes with smart pointer to, and
         // reference-wrapped class types, constructed with pointers to member
@@ -9039,7 +9423,7 @@ int main(int argc, char *argv[])
         TEST(       int  (const  SIWD&&), int  IW::*            , true );
         TEST(       int  (      ScIWD&&), int  IW::*            , true );
         TEST(       int  (const ScIWD&&), int  IW::*            , true );
-#endif
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
         // 'bsl::function' objects with prototypes having smart pointer to, and
         // reference-wrapped, class types, constructed with pointers to member
@@ -9075,7 +9459,7 @@ int main(int argc, char *argv[])
         TEST(       int  (      RcIW   ), int (IW::*)() const&& , false);
         TEST(       int  (       SIW   ), int (IW::*)() const&& , false);
         TEST(       int  (      ScIW   ), int (IW::*)() const&& , false);
-#endif
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
         // 'bsl::function' objects with prototypes having smart pointer to, and
         // reference-wrapped, class types, constructed with pointers to member
@@ -9111,7 +9495,7 @@ int main(int argc, char *argv[])
         TEST(       int  (      RcIWD  ), int (IW::*)() const&& , false);
         TEST(       int  (       SIWD  ), int (IW::*)() const&& , false);
         TEST(       int  (      ScIWD  ), int (IW::*)() const&& , false);
-#endif
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
         // 'bsl::function' objects having prototypes with const- and/or
         // reference-qualified 'IntWrapper' return values, constructed with
@@ -9184,7 +9568,7 @@ int main(int argc, char *argv[])
         TEST(const IW&&  (             ),       IWD&  ()        , true );
         TEST(const IW&&  (             ), const IWD   ()        , true );
         TEST(const IW&&  (             ), const IWD&  ()        , true );
-#endif
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
         // Verify that 'bsl::function<PROTO>' is constructible from types that
         // are implicitly convertible to 'bsl::function<PROTO>'.  Note this
@@ -9193,9 +9577,9 @@ int main(int argc, char *argv[])
         // note that this "test vector" verifies that {DRQS 138769521} has been
         // addressed.
         TEST(PROTO, ConvertibleToObj, true);
-
 #undef TEST
-#endif // defined(BSLMF_INVOKERESULT_SUPPORT_CPP17_SEMANTICS)
+
+#endif  // BSLMF_INVOKERESULT_SUPPORT_CPP17_SEMANTICS
 
         // Concern 15: Construction from an empty 'bsl::function' argument of a
         // different (but compatible) 'bsl::function' instantiation, yields an
@@ -9213,7 +9597,17 @@ int main(int argc, char *argv[])
             bsl::function<void(int)> f(functionWithDefaultArgument);
             bsl::function<void(int)> g(&functionWithDefaultArgument);
         }
+#endif  // BSLSTL_FUNCTION_TEST_CASE05_PART_2
 
+#ifdef BSLSTL_FUNCTION_TEST_CASE05_PART_1
+#undef BSLSTL_FUNCTION_TEST_CASE05_PART_1
+#else
+#undef BSLSTL_FUNCTION_TEST_CASE05_PART_2
+#endif
+
+#else
+        BSLSTL_FUNCTION_TEST_CASE_IS_NOT_IN_THIS_EXECUTABLE(test);
+#endif  // BSLSTL_FUNCTION_TEST_PART_02_OR_03
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -9268,6 +9662,7 @@ int main(int argc, char *argv[])
             printf("\nTESTING DEFAULT AND 'nullptr' CONSTRUCTORS"
                    "\n==========================================\n");
 
+#ifdef BSLSTL_FUNCTION_TEST_PART_01
         bslma::TestAllocatorMonitor defaultAllocMonitor(&defaultTestAllocator);
 
         if (veryVerbose) printf("with no allocator specified\n");
@@ -9364,10 +9759,12 @@ int main(int argc, char *argv[])
             ASSERT(&defaultTestAllocator == f.allocator());
         }
         ASSERT(defaultAllocMonitor.isInUseSame());
-#endif
+#endif  // DRQS_164241820_FIXED
 
+#else
+        BSLSTL_FUNCTION_TEST_CASE_IS_NOT_IN_THIS_EXECUTABLE(test);
+#endif  // BSLSTL_FUNCTION_TEST_PART_01
       } break;
-
       case 3: {
         // --------------------------------------------------------------------
         // TESTING 'TrackableValue' TEST INFRASTRUCTURE
@@ -9483,7 +9880,7 @@ int main(int argc, char *argv[])
         //: 11 For concern 11, create 'TrackableValue' objects with each
         //:    combination of 'isMoved', 'isCopied', and 'isMovedFrom' flags.
         //:    Verify that the global functions have the same meaning as the
-        //:    menber functions regardless of the second argument.
+        //:    member functions regardless of the second argument.
         //:
         //: 12 For concern 12, create non-'TrackableValue' objects of various
         //:    types likely to be used in tests.  Verify that the global
@@ -9496,12 +9893,13 @@ int main(int argc, char *argv[])
         //:    if the second argument is false.
         //
         // TESTING
-        //   'TrackableValue' TEST INFRASTRUCTURE"
+        //   'TrackableValue' TEST INFRASTRUCTURE
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING 'TrackableValue TEST INFRASTRUCTURE"
                             "\n===========================================\n");
 
+#ifdef BSLSTL_FUNCTION_TEST_PART_01
         // Construction from int
         {
             TrackableValue nine(9);
@@ -9792,9 +10190,10 @@ int main(int argc, char *argv[])
         resetMoveCopiedFlags(&b);
         ASSERT(! isMoved(b, false));
         ASSERT(! isCopied(b, false));
-
+#else
+        BSLSTL_FUNCTION_TEST_CASE_IS_NOT_IN_THIS_EXECUTABLE(test);
+#endif  // BSLSTL_FUNCTION_TEST_PART_01
       } break;
-
       case 2: {
         // --------------------------------------------------------------------
         // TESTING PRIMITIVE CONSTRUCTORS (BOOTSTRAP) AND BASIC ACCESSORS
@@ -9820,8 +10219,8 @@ int main(int argc, char *argv[])
         //:
         //: 5 Construction with a non-null pointer to function, non-null
         //:   pointer to member function, non-null pointer to member data, or
-        //:   functor object creates a non-empty 'function' object. 'operator
-        //:   bool' will return true.
+        //:   functor object creates a non-empty 'function' object.
+        //:   'operator bool' will return true.
         //:
         //: 6 For a non-empty 'function', the 'target_type' accessor returns
         //:   the 'type_info' of the callable type specified at construction.
@@ -9904,6 +10303,7 @@ int main(int argc, char *argv[])
                             "\n==========================================="
                             "===================\n");
 
+#ifdef BSLSTL_FUNCTION_TEST_PART_01
         // Steps 1-4 of the test plan:
 
         if (veryVerbose) printf("Construct with no arguments\n");
@@ -9944,11 +10344,12 @@ int main(int argc, char *argv[])
         TEST(SmallFunctor(1)  );  // Functor
         TEST(MediumFunctor(2) );  // Functor
         TEST(LargeFunctor(3)  );  // Functor
-
 #undef TEST
 
+#else
+        BSLSTL_FUNCTION_TEST_CASE_IS_NOT_IN_THIS_EXECUTABLE(test);
+#endif  // BSLSTL_FUNCTION_TEST_PART_01
       } break;
-
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
@@ -9980,6 +10381,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
+#ifdef BSLSTL_FUNCTION_TEST_PART_01
         if (veryVerbose) printf("Wrap pointer-to-function 'int(*)()'\n");
         {
             typedef bsl::function<int()> Obj;
@@ -10093,9 +10495,10 @@ int main(int argc, char *argv[])
                        "as this is not supported in C++03\n");
 #endif
         }
-
+#else
+        BSLSTL_FUNCTION_TEST_CASE_IS_NOT_IN_THIS_EXECUTABLE(test);
+#endif  // BSLSTL_FUNCTION_TEST_PART_01
       } break;
-
       case -1: {
         // --------------------------------------------------------------------
         // TESTING FAIL-TO-COMPILE CONCERNS
@@ -10138,6 +10541,8 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING FAIL-TO-COMPILE CONCERNS"
                             "\n================================\n");
 
+#ifdef BSLSTL_FUNCTION_TEST_PART_01
+
 #if !defined(BSLSTL_FUNCTION_TEST_BAD_COMPARISON)
         if (verbose) printf("\nTesting 'operator==' is not configured\n");
 #else
@@ -10165,14 +10570,28 @@ int main(int argc, char *argv[])
         bsl::swap(a, b);  // this should not compile
         bsl::swap(b, a);  // this should not compile
 #endif
-      } break;
 
+#else
+        BSLSTL_FUNCTION_TEST_CASE_IS_NOT_IN_THIS_EXECUTABLE(test);
+#endif  // BSLSTL_FUNCTION_TEST_PART_01
+      } break;
+#endif  // BSLSTL_FUNCTION_TEST_COMPILING_A_PART
+
+#ifdef BSLSTL_FUNCTION_TEST_COMPILING_NO_CASES
+    // This '#ifdef' is necessary so compiling "ALL" works.
+      case 1: {
+          if (verbose)
+              puts("\nPART 00 TEST EXECUTABLE CONTAINS NO TEST CASES"
+                   "\n==============================================");
+      } break;
+#endif
       default: {
-        fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
+        fprintf(stderr, "WARNING: CASE '%d' NOT FOUND.\n", test);
         testStatus = -1;
       }
     }
 
+#ifdef BSLSTL_FUNCTION_TEST_COMPILING_A_PART
     // CONCERN: In no case does memory come from the global allocator.
 
     LOOP_ASSERT(globalAllocator.numBlocksTotal(),
@@ -10180,6 +10599,7 @@ int main(int argc, char *argv[])
 
     // Verify that every test case destroys any functors that it creates.
     ASSERT(topFuncMonitor.isSameCount());
+#endif  // BSLSTL_FUNCTION_TEST_COMPILING_A_PART
 
     if (testStatus > 0) {
         fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
