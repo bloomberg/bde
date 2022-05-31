@@ -921,6 +921,7 @@ struct Platform {
     struct CpuArmv6 : CpuArm {};
     struct CpuArmv7 : CpuArm {};
     struct CpuArmv8 : CpuArm {};
+    struct CpuArmv9 : CpuArm {};
 
                               // PLATFORM TRAITS
 
@@ -997,6 +998,10 @@ struct Platform {
     #if defined(BSLS_PLATFORM_CPU_ARM_V8)
         typedef CpuArmv8 Cpu;
     #endif
+    #if defined(BSLS_PLATFORM_CPU_ARM_V9)
+        typedef CpuArmv9 Cpu;
+    #endif
+
 };
 
 }  // close package namespace

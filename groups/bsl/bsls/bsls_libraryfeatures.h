@@ -43,6 +43,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_LIBRARYFEATURES_HAS_CPP17_PMR: <memory_resource>
 //  BSLS_LIBRARYFEATURES_HAS_CPP17_TIMESPEC_GET: <ctime>
 //  BSLS_LIBRARYFEATURES_HAS_CPP17_ALIGNED_ALLOC: <cstdlib>
+//  BSLS_LIBRARYFEATURES_HAS_CPP20_DEPRECATED_REMOVED: more legacy removed
 //  BSLS_LIBRARYFEATURES_STDCPP_GNU: implementation is GNU libstdc++
 //  BSLS_LIBRARYFEATURES_STDCPP_IBM: implementation is IBM
 //  BSLS_LIBRARYFEATURES_STDCPP_INTELLISENSE: Intellisense is running
@@ -376,7 +377,7 @@ BSLS_IDENT("$Id: $")
 // deprecated in C++14 and will be removed in C++17.
 //
 ///'BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY'
-///----------------------------------------------------
+///-------------------------------------------------
 // The 'BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY' macro is used to
 // identify whether the current platform's standard library supports a baseline
 // set of C++14 library features (which are defined below).  This is especially
@@ -445,7 +446,7 @@ BSLS_IDENT("$Id: $")
 //:   o MSVC 2015
 //
 ///'BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY'
-///----------------------------------------------------
+///-------------------------------------------------
 // This macro is used to identify whether the current platform's standard
 // library supports a baseline set of C++17 library features (which are defined
 // below).  This is especially important in BSL when importing standard library
@@ -658,6 +659,17 @@ BSLS_IDENT("$Id: $")
 // of deprecated C++17 types is conceptually equivalent to
 // '__cplusplus >= 201703L', standard library implementations often provide
 // configuration flags to expose the deprecated library features.
+//
+///'BSLS_LIBRARYFEATURES_HAS_CPP20_DEPRECATED_REMOVED'
+///---------------------------------------------------
+// The 'BSLS_LIBRARYFEATURES_HAS_CPP20_DEPRECATED_REMOVED' macro is defined for
+// libraries that do not export names removed in C++20, such as
+// 'std::get_temporary_buffer' and `std::result_of`.
+// 'BSLS_LIBRARYFEATURES_HAS_CPP20_DEPRECATED_REMOVED' is generally the
+// negation of 'BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR'.  Although the removal
+// of deprecated C++20 types is conceptually equivalent to '__cplusplus >=
+// 201703L', standard library implementations often provide configuration flags
+// to expose the deprecated library features.
 //
 ///'BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION'
 ///----------------------------------------------------
@@ -1080,6 +1092,12 @@ BSLS_IDENT("$Id: $")
 #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201703L
 #define BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED             1
     // Set when C++17 is detected.  Adjusted below for implementations that
+    // keep deprecated functions available.
+#endif
+
+#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
+#define BSLS_LIBRARYFEATURES_HAS_CPP20_DEPRECATED_REMOVED             1
+    // Set when C++20 is detected.  Adjusted below for implementations that
     // keep deprecated functions available.
 #endif
 
