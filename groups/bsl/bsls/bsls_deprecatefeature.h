@@ -170,13 +170,54 @@
 //      static double getPounds();
 //  };
 //..
-// Finally there may be entities across multiple components that require
-// deprecation.  For example, we may want to deprecate all the date and time
-// types in the 'bde' library.  In those instances one may define a macro in
-// the lowest level component (e.g., 'BDET_DATE_DEPRECATE_DATE_AND_TIME' in
-// 'bdet_date'), or create a component specifically for the deprecation (e.g.,
-// 'BDET_DEPRECATE_DATE_AND_TIME' in a newly created 'bdet_deprecate'
-// component).
+//
+///Deprecating a Feature Across Multiple Headers
+///- - - - - - - - - - - - - - - - - - - - - - -
+// Frequently a feature being deprecated may span multiple components.  For
+// example, we may want to deprecate all the date and time types in the 'bde'
+// library.  In those instances one may define a macro in the lowest level
+// component (e.g., define 'BDET_DATE_DEPRECATE_DATE_AND_TIME' in 'bdet_date').
+// Alternatively, one might create a component specifically for the deprecation
+// (e.g., define 'BDET_DEPRECATE_DATE_AND_TIME' in a newly created
+// 'bdet_deprecate' component).  The following code shows the latter, creating
+// a new component, 'bdet_deprecate' in which to provide macros to deprecate
+// code across 'bdet'.
+//
+// First, we create a new component, 'bdet_deprecate` and define the following
+// macro:
+//..
+//  // bdet_deprecate.h
+//
+//  #define BDET_DEPRECATE_DATE_AND_TIME(MESSAGE)                           \.
+//      BSLS_DEPRECATE_FEATURE("bde", "date-and-time", MESSAGE)
+//..
+// We can use that macro to mark various components deprecated.  Next, we mark
+// an old type name as deprecated:
+//..
+//  // bdet_date.h
+//
+//  BDET_DEPRECATE_DATE_AND_TIME("Use bdlt::Date") typedef bdlt::Date Date;
+//..
+// Then we mark a class declaration as deprecated:
+//..
+//  // bdet_calendar.h
+//
+//  class BDET_DEPRECATE_DATE_AND_TIME("Use bdlt::PackedCalendar") Calendar {
+//     // ...
+//  };
+//..
+// Finally we mark a function as deprecated:
+//..
+//  // bdet_dateimputil.h
+//
+//  struct DateUtil {
+//
+//      BDET_DEPRECATE_DATE_AND_TIME("Use bdlt::DateUtil instead")
+//      static bool isValidYYYYMMDD(int yyyymmddValue);
+//
+//      // ...
+//  };
+//..
 
                        // ==============================
                        // Component Configuration Macros
