@@ -20,6 +20,12 @@ BSLS_IDENT("$Id: $")
 // allow tests to supply mock Windows interfaces.
 
 #include <bdlt_datetime.h>
+#include <bdlt_epochutil.h>
+
+#include <bsls_assert.h>
+#include <bsls_types.h>
+
+#include <bslmt_once.h>
 
 namespace BloombergLP {
 namespace bdls {
@@ -60,7 +66,16 @@ struct FilesystemUtil_WindowsImpUtil {
     //: o 'WINDOWS_INTERFACE::SYSTEMTIME' is a type alias to the
     //:   'LPFILETIME' type provided by the 'windows.h' header.
     //:
+    //: o 'WINDOWS_INTERFACE::ULARGE_INTEGER' is a type alias to the
+    //:   'ULARGE_INTEGER' type provided by the 'windows.h' header.
+    //:
     //: o 'WINDOWS_INTERFACE::ULONG64' is a type alias to the 'ULONG64'
+    //:   type provided by the 'windows.h' header.
+    //:
+    //: o 'WINDOWS_INTERFACE::ULONGLONG' is a type alias to the 'ULONGLONG'
+    //:   type provided by the 'windows.h' header.
+    //:
+    //: o 'WINDOWS_INTERFACE::WORD' is a type alias to the 'WORD'
     //:   type provided by the 'windows.h' header.
     //:
     //: o 'WINDOWS_INTERFACE::FileTimeToSystemTime' is a public, static
@@ -91,6 +106,14 @@ struct FilesystemUtil_WindowsImpUtil {
     //:    is to return the result of '::GetLastError()', where
     //:    '::GetLastError' is the corresponding function declared in the
     //:    'windows.h' header.
+    //:
+    //: o 'WINDOWS_INTERFACE::SystemTimeToFileTime' is a public, static
+    //:   member function that has
+    //:   'BOOL (const SYSTEMTIME *lpSystemTime, LPFILEMTIME lpFileTime)' type
+    //:   and whose contract is to return the result of
+    //:   '::SystemTimeToFileTime(lpSystemTime, lpFileTime)', where
+    //:   '::SystemTimeToFileTime' is the corresponding function declared in
+    //:   the 'windows.h' header.
 
     // TYPES
     typedef typename WINDOWS_INTERFACE::HANDLE FileDescriptor;
@@ -139,9 +162,21 @@ struct FilesystemUtil_WindowsImpUtil {
         // 'SYSTEMTIME' is an alias to the 'SYSTEMTIME' struct provided by the
         // 'windows.h' header.
 
+    typedef typename WINDOWS_INTERFACE::ULARGE_INTEGER ULARGE_INTEGER;
+        // 'ULARGE_INTEGER' is an alias to the unsigned integral
+        // 'ULARGE_INTEGER' type provided by the 'windows.h' header.
+
     typedef typename WINDOWS_INTERFACE::ULONG64 ULONG64;
         // 'ULONG64' is an alias to the unsigned integral 'ULONG64' type
         // provided by the 'windows.h' header.
+
+    typedef typename WINDOWS_INTERFACE::ULONGLONG ULONGLONG;
+        // 'ULONGLONG' is an alias to the unsigned integral 'ULONGLONG' type
+        // provided by the 'windows.h' header.
+
+    typedef typename WINDOWS_INTERFACE::WORD WORD;
+        // 'WORD' is an alias to the unsigned integral 'WORD' type provided by
+        // the 'windows.h' header.
 
     // PRIVATE CLASS METHODS
     static BOOL FileTimeToSystemTime(const FILETIME *lpFileTime,
@@ -172,8 +207,29 @@ struct FilesystemUtil_WindowsImpUtil {
         // Invoke and return the result of '::GetLastError()', where
         // '::GetLastError' is the function provided by the 'windows.h' header.
 
+    static BOOL SystemTimeToFileTime(const SYSTEMTIME *lpSystemTime,
+                                     LPFILETIME        lpFileTime);
+        // Invoke and return the result of
+        // '::SystemTimeToFileTime(lpSystemTime, lpFileTime)' with the
+        // specified 'lpFileTime' and 'lpSystemTime', where
+        // '::SystemTimeToFileTime' is the function provided by the 'windows.h'
+        // header.
+
   public:
+    // PUBLIC CLASS DATA
+    static const bsls::Types::Int64 k_NANOSECONDS_PER_WINDOWS_TICK = 100;
+
+    static const bsls::Types::Int64 k_WINDOWS_TICKS_PER_MICROSECOND =
+                           bdlt::TimeUnitRatio::k_NANOSECONDS_PER_MICROSECOND /
+                           k_NANOSECONDS_PER_WINDOWS_TICK;
+
     // CLASS METHODS
+    static int convertFileTimeToDatetime(bdlt::Datetime   *time,
+                                         const LPFILETIME  lpFileTime);
+        // Load into the specified 'time' the time in the specified
+        // 'lpFileTime'.  Return 0 on success, and a non-zero value otherwise.
+        // Note that the time is reported in UTC.
+
     static Offset getFileSize(FileDescriptor descriptor);
         // Return the size, in bytes, of the file with the specified
         // 'descriptor', or a negative value if an error occurs.
@@ -232,7 +288,96 @@ FilesystemUtil_WindowsImpUtil<WINDOWS_INTERFACE>::GetLastError()
     return WINDOWS_INTERFACE::GetLastError();
 }
 
+template <class WINDOWS_INTERFACE>
+typename WINDOWS_INTERFACE::BOOL
+FilesystemUtil_WindowsImpUtil<WINDOWS_INTERFACE>::SystemTimeToFileTime(
+                                                const SYSTEMTIME *lpSystemTime,
+                                                LPFILETIME        lpFileTime)
+{
+    return WINDOWS_INTERFACE::SystemTimeToFileTime(lpSystemTime, lpFileTime);
+}
+
 // CLASS METHODS
+template <class WINDOWS_INTERFACE>
+int
+FilesystemUtil_WindowsImpUtil<WINDOWS_INTERFACE>::convertFileTimeToDatetime(
+                                                  bdlt::Datetime   *time,
+                                                  const LPFILETIME  lpFileTime)
+{
+    BSLS_ASSERT(time);
+    BSLS_ASSERT(lpFileTime);
+
+    // We avoid unneccesary system calls by storing the offset between the
+    // Windows 'FILETIME' epoch and the unix epoch, in microseconds, as
+    // calculated using Windows system calls.  Note that this differs from the
+    // actual number of microseconds between 1601-01-01 and
+    // 1970-01-01 as the Windows system calls do not correctly consider
+    // the conversion, in 1752, from the Julian to the Gregorian calendar,
+    // hence the prefix 'adjusted'.
+    static ULONGLONG adjustedFiletimeEpochToUnixEpochInMicros;
+
+    BSLMT_ONCE_DO
+    {
+        const SYSTEMTIME unixEpochSystemTimeUtc =
+        {
+            1970, // year
+            1,    // month
+            4,    // day of week (4=Thursday)
+            1,    // day of month
+            0,    // hour
+            0,    // minute
+            0,    // second
+            0     // microsecond
+        };
+
+        FILETIME unixEpochFileTimeUtc;
+        const BOOL systemTimeToFileTimeStatus = SystemTimeToFileTime(
+                                                       &unixEpochSystemTimeUtc,
+                                                       &unixEpochFileTimeUtc);
+        if (!systemTimeToFileTimeStatus) {
+            return -1;                                                // RETURN
+        }
+
+        // Copy the individual parts per the Microsoft recommendation at
+        // https://docs.microsoft.com/en-us/windows/win32/api/minwinbase/ns-minwinbase-filetime
+        ULARGE_INTEGER unixEpochFileTimeInTicks;
+        unixEpochFileTimeInTicks.u.HighPart =
+                                           unixEpochFileTimeUtc.dwHighDateTime;
+        unixEpochFileTimeInTicks.u.LowPart =
+                                            unixEpochFileTimeUtc.dwLowDateTime;
+
+        adjustedFiletimeEpochToUnixEpochInMicros =
+                                            unixEpochFileTimeInTicks.QuadPart /
+                                            k_WINDOWS_TICKS_PER_MICROSECOND;
+    }
+
+    // Copy the individual parts per the Microsoft recommendation.
+    ULARGE_INTEGER lastWriteTimeInTicks;
+    lastWriteTimeInTicks.u.HighPart = lpFileTime->dwHighDateTime;
+    lastWriteTimeInTicks.u.LowPart  = lpFileTime->dwLowDateTime;
+
+    ULONGLONG lastWriteTimeInMicroseconds = lastWriteTimeInTicks.QuadPart /
+                                            k_WINDOWS_TICKS_PER_MICROSECOND;
+
+    if (lastWriteTimeInMicroseconds <
+        adjustedFiletimeEpochToUnixEpochInMicros) {
+        // Timestamps prior to the unix epoch are not currently supported.
+        return -1;                                                    // RETURN
+    }
+
+    bdlt::Datetime result = bdlt::EpochUtil::epoch();
+
+    int rc = result.addMicrosecondsIfValid(lastWriteTimeInMicroseconds -
+                                     adjustedFiletimeEpochToUnixEpochInMicros);
+
+    if (0 != rc) {
+        return -1;                                                    // RETURN
+    }
+
+    *time = result;
+    return 0;
+}
+
 template <class WINDOWS_INTERFACE>
 typename FilesystemUtil_WindowsImpUtil<WINDOWS_INTERFACE>::Offset
 FilesystemUtil_WindowsImpUtil<WINDOWS_INTERFACE>::getFileSize(
@@ -300,30 +445,7 @@ int FilesystemUtil_WindowsImpUtil<WINDOWS_INTERFACE>::getLastModificationTime(
         return -1;                                                    // RETURN
     }
 
-    SYSTEMTIME lastWriteSystemTime;
-    const BOOL getSystemTimeSuccessFlag = FileTimeToSystemTime(
-        const_cast<const FILETIME *>(&lastWriteTime), &lastWriteSystemTime);
-
-    if (!getSystemTimeSuccessFlag) {
-        return -1;                                                    // RETURN
-    }
-
-    bdlt::Datetime result;
-
-    const int rc =
-        result.setDatetimeIfValid(lastWriteSystemTime.wYear,
-                                  lastWriteSystemTime.wMonth,
-                                  lastWriteSystemTime.wDay,
-                                  lastWriteSystemTime.wHour,
-                                  lastWriteSystemTime.wMinute,
-                                  lastWriteSystemTime.wSecond,
-                                  lastWriteSystemTime.wMilliseconds);
-    if (0 != rc) {
-        return -1;                                                    // RETURN
-    }
-
-    *time = result;
-    return 0;
+    return convertFileTimeToDatetime(time, &lastWriteTime);
 }
 
 }  // close package namespace

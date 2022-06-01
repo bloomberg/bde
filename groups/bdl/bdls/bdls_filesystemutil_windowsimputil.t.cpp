@@ -124,6 +124,7 @@ namespace u {
 // FORWARD DECLARATIONS
 struct FiletimeImp;
 struct SystemtimeImp;
+union  UlargeIntegerImp;
 
 }  // close namespace u
 }  // close unnamed namespace
@@ -131,24 +132,26 @@ struct SystemtimeImp;
 
 #define INVALID_HANDLE_VALUE ((HANDLE)(LONG_PTR)-1)
 
-typedef int                                     BOOL;
-typedef bsl::uint32_t                           DWORD;
-typedef struct ::BloombergLP::u::FiletimeImp    FILETIME;
-typedef void                                   *HANDLE;
-typedef ::BloombergLP::bsls::Types::Int64       INT64;
+typedef int                                      BOOL;
+typedef bsl::uint32_t                            DWORD;
+typedef ::BloombergLP::bsls::Types::Uint64       ULONGLONG;
+typedef struct ::BloombergLP::u::FiletimeImp     FILETIME;
+typedef void                                    *HANDLE;
+typedef ::BloombergLP::bsls::Types::Int64        INT64;
 #if defined(BSLS_PLATFORM_CPU_64_BIT)
-typedef bsls::Types::Int64                      LONG_PTR;
+typedef bsls::Types::Int64                       LONG_PTR;
 #elif defined(BSLS_PLATFORM_CPU_32_BIT)
-typedef bsl::int32_t                            LONG_PTR;
+typedef bsl::int32_t                             LONG_PTR;
 #else
-typedef bsls::Types::Int64                      LONG_PTR;
+typedef bsls::Types::Int64                       LONG_PTR;
 #endif
-typedef bsl::uint32_t                          *LPDWORD;
-typedef struct ::BloombergLP::u::FiletimeImp   *LPFILETIME;
-typedef struct ::BloombergLP::u::SystemtimeImp *LPSYSTEMTIME;
-typedef struct ::BloombergLP::u::SystemtimeImp  SYSTEMTIME;
-typedef ::BloombergLP::bsls::Types::Uint64      ULONG64;
-typedef unsigned short                          WORD;
+typedef bsl::uint32_t                           *LPDWORD;
+typedef struct ::BloombergLP::u::FiletimeImp    *LPFILETIME;
+typedef struct ::BloombergLP::u::SystemtimeImp  *LPSYSTEMTIME;
+typedef struct ::BloombergLP::u::SystemtimeImp   SYSTEMTIME;
+typedef union ::BloombergLP::u::UlargeIntegerImp ULARGE_INTEGER;
+typedef ::BloombergLP::bsls::Types::Uint64       ULONG64;
+typedef unsigned short                           WORD;
 
 namespace BloombergLP {
 namespace {
@@ -178,6 +181,30 @@ struct SystemtimeImp {
     WORD wMilliseconds; /* Why is this one plural in the Win32 API spec? */
 };
 
+                            // ======================
+                            // union UlargeIntegerImp
+                            // ======================
+
+#ifndef DUMMYSTRUCTNAME
+#if defined(NONAMELESSUNION) || !defined(_MSC_EXTENSIONS)
+#define DUMMYSTRUCTNAME  s
+#else
+#define DUMMYSTRUCTNAME
+#endif
+#endif // DUMMYSTRUCTNAME
+
+union UlargeIntegerImp {
+    struct {
+        DWORD LowPart;
+        DWORD HighPart;
+    } DUMMYSTRUCTNAME;
+    struct {
+        DWORD LowPart;
+        DWORD HighPart;
+    } u;
+    ULONGLONG QuadPart;
+};
+
 }  // close namespace u
 }  // close unnamed namespace
 }  // close enterprise namespace
@@ -199,6 +226,7 @@ struct TestWindowsFunctionId {
     // TYPES
     enum Enum {
         e_FILE_TIME_TO_SYSTEM_TIME,
+        e_SYSTEM_TIME_TO_FILE_TIME,
         e_GET_FILE_SIZE,
         e_GET_FILE_TIME,
         e_GET_LAST_ERROR
@@ -241,6 +269,12 @@ struct TestWindowsInterfaceCall {
     struct GetLastErrorCall {
     };
 
+    struct SystemTimeToFileTimeCall {
+        // PUBLIC DATA
+        const SYSTEMTIME *d_lpSystemTime;
+        LPFILETIME        d_lpFileTime;
+    };
+
     // PUBLIC DATA
     FunctionId::Enum d_functionId;
     union {
@@ -248,6 +282,7 @@ struct TestWindowsInterfaceCall {
         GetFileSizeCall          d_getFileSize;
         GetFileTimeCall          d_getFileTime;
         GetLastErrorCall         d_getLastError;
+        SystemTimeToFileTimeCall d_systemTimeToFileTime;
     };
 
     // CREATORS
@@ -307,6 +342,12 @@ struct TestWindowsInterfaceResponse {
         DWORD d_result;
     };
 
+    struct SystemTimeToFileTimeResponse {
+        // PUBLIC DATA
+        FILETIME d_lpFileTime;
+        BOOL     d_result;
+    };
+
     // PUBLIC DATA
     FunctionId::Enum d_functionId;
     union {
@@ -314,6 +355,7 @@ struct TestWindowsInterfaceResponse {
         GetFileSizeResponse          d_getFileSize;
         GetFileTimeResponse          d_getFileTime;
         GetLastErrorResponse         d_getLastError;
+        SystemTimeToFileTimeResponse d_systemTimeToFileTime;
     };
 
     // CREATORS
@@ -395,6 +437,11 @@ class TestWindowsInterface {
     // MANIPULATORS
     BOOL FileTimeToSystemTime(const FILETIME *lpFileTime,
                               LPSYSTEMTIME    lpSystemTime);
+        // Push a 'Call' to the call queue that has a
+        // 'FunctionId::e_FILE_TIME_TO_SYSTEM_TIME' 'd_functionId'.  Return the
+        // 'd_result' of the next queued response.  The behavior is undefined
+        // if the response queue is empty or the 'd_functionId' of the next
+        // queued response is not 'FunctionId::e_GET_LAST_ERROR'.
 
     DWORD GetFileSize(HANDLE hFile, LPDWORD lpFileSizeHigh);
         // Push a 'Call' to the call queue that has a
@@ -417,6 +464,17 @@ class TestWindowsInterface {
         // 'd_result' of the next queued response.  The behavior is undefined
         // if the response queue is empty or the 'd_functionId' of the next
         // queued response is not 'FunctionId::e_GET_LAST_ERROR'.
+
+    BOOL SystemTimeToFileTime(const SYSTEMTIME *lpSystemTime,
+                              LPFILETIME        lpFileTime);
+        // Push a 'Call' to the call queue that has a
+        // 'FunctionId::e_SYSTEM_TIME_TO_FILE_TIME' 'd_functionId', a
+        // 'd_lpSystemTime' equal to the specified 'lpSystemTime', and a
+        // 'd_lpFileTime' equal to the specified 'lpFileTime'.  Load the
+        // 'd_lpFileTime' into the 'lpFileTime' and return the 'd_result' of
+        // the next queued response.  The behavior is undefined if the response
+        // queue is empty or the 'd_functionId' of the next queued response is
+        // not 'FunctionId::e_GET_LAST_ERROR'.
 
     void popFrontCall(Call *call);
         // Load the next queued call into the specified 'call' and remove it
@@ -482,10 +540,21 @@ struct TestWindowsInterfaceUtil {
         // 'SYSTEMTIME' is an alias to the 'SYSTEMTIME' struct provided by the
         // 'windows.h' header.
 
+    typedef ::ULARGE_INTEGER ULARGE_INTEGER;
+        // 'ULARGE_INTEGER' is an alias to the unsigned integral
+        // 'ULARGE_INTEGER' type provided by the 'windows.h' header.
+
     typedef ::ULONG64 ULONG64;
         // 'ULONG64' is an alias to the unsigned integral 'ULONG64' type
         // provided by the 'windows.h' header.
 
+    typedef ::ULONGLONG ULONGLONG;
+        // 'ULONGLONG' is an alias to the unsigned integral 'ULONGLONG' type
+        // provided by the 'windows.h' header.
+
+    typedef ::WORD WORD;
+        // 'WORD' is an alias to the unsigned integral 'WORD' type provided by
+        // the 'windows.h' header.
   private:
     // CLASS DATA
     static TestWindowsInterface *s_interface_p;
@@ -536,6 +605,17 @@ struct TestWindowsInterfaceUtil {
         // 'd_result' of the interface's next queued response.  The behavior is
         // undefined if the response queue is empty or the 'd_functionId' of
         // the next queued response is not 'FunctionId::e_GET_LAST_ERROR'.
+
+    static BOOL SystemTimeToFileTime(const SYSTEMTIME *lpSystemTime,
+                                     LPFILETIME        lpFileTime);
+        // Push a 'Call' to the interface's call queue that has a
+        // 'FunctionId::e_SYSTEM_TIME_TO_FILE_TIME' 'd_functionId', a
+        // 'd_lpFileTime' equal to the specified 'lpFileTime', and a
+        // 'd_lpSystemTime' equal to the specified 'lpSystemTime'.  Load the
+        // 'd_lpFileTime' into the 'lpFileTime' and return the 'd_result' of
+        // the interface's next queued response.  The behavior is undefined if
+        // the response queue is empty or the next queued response is not
+        // 'FunctionId::e_SYSTEM_TIME_TO_FILE_TIME'.
 
     static void setInterface(TestWindowsInterface *interface);
         // Set the interface to the specified 'interface'.
@@ -604,6 +684,9 @@ TestWindowsInterfaceCall::TestWindowsInterfaceCall(
       case FunctionId::e_FILE_TIME_TO_SYSTEM_TIME: {
         d_fileTimeToSystemTime = other.d_fileTimeToSystemTime;
       } break;
+      case FunctionId::e_SYSTEM_TIME_TO_FILE_TIME: {
+        d_systemTimeToFileTime = other.d_systemTimeToFileTime;
+      } break;
       case FunctionId::e_GET_FILE_SIZE: {
         d_getFileSize = other.d_getFileSize;
       } break;
@@ -625,6 +708,9 @@ TestWindowsInterfaceCall& TestWindowsInterfaceCall::operator=(
     switch (other.d_functionId) {
       case FunctionId::e_FILE_TIME_TO_SYSTEM_TIME: {
         d_fileTimeToSystemTime = other.d_fileTimeToSystemTime;
+      } break;
+      case FunctionId::e_SYSTEM_TIME_TO_FILE_TIME: {
+        d_systemTimeToFileTime = other.d_systemTimeToFileTime;
       } break;
       case FunctionId::e_GET_FILE_SIZE: {
         d_getFileSize = other.d_getFileSize;
@@ -657,6 +743,9 @@ TestWindowsInterfaceResponse::TestWindowsInterfaceResponse(
       case FunctionId::e_FILE_TIME_TO_SYSTEM_TIME: {
         d_fileTimeToSystemTime = other.d_fileTimeToSystemTime;
       } break;
+      case FunctionId::e_SYSTEM_TIME_TO_FILE_TIME: {
+        d_systemTimeToFileTime = other.d_systemTimeToFileTime;
+      } break;
       case FunctionId::e_GET_FILE_SIZE: {
         d_getFileSize = other.d_getFileSize;
       } break;
@@ -678,6 +767,9 @@ TestWindowsInterfaceResponse& TestWindowsInterfaceResponse::operator=(
     switch (other.d_functionId) {
       case FunctionId::e_FILE_TIME_TO_SYSTEM_TIME: {
           d_fileTimeToSystemTime = other.d_fileTimeToSystemTime;
+      } break;
+      case FunctionId::e_SYSTEM_TIME_TO_FILE_TIME: {
+          d_systemTimeToFileTime = other.d_systemTimeToFileTime;
       } break;
       case FunctionId::e_GET_FILE_SIZE: {
           d_getFileSize = other.d_getFileSize;
@@ -792,6 +884,25 @@ DWORD TestWindowsInterface::GetLastError()
     return result;
 }
 
+BOOL TestWindowsInterface::SystemTimeToFileTime(const SYSTEMTIME *lpSystemTime,
+                                                LPFILETIME        lpFileTime)
+{
+    Call call;
+    call.d_functionId = FunctionId::e_SYSTEM_TIME_TO_FILE_TIME;
+    call.d_systemTimeToFileTime.d_lpFileTime   = lpFileTime;
+    call.d_systemTimeToFileTime.d_lpSystemTime = lpSystemTime;
+    d_calls.push_back(call);
+
+    BSLS_ASSERT(0 < d_responses.size());
+    const Response& response = d_responses.front();
+    BSLS_ASSERT(FunctionId::e_SYSTEM_TIME_TO_FILE_TIME ==
+                response.d_functionId);
+    const BOOL result = response.d_systemTimeToFileTime.d_result;
+    *lpFileTime       = response.d_systemTimeToFileTime.d_lpFileTime;
+    d_responses.pop_front();
+    return result;
+}
+
 void TestWindowsInterface::popFrontCall(Call *call)
 {
     BSLS_ASSERT(0 < d_calls.size());
@@ -823,6 +934,7 @@ int TestWindowsInterface::numResponses() const
 TestWindowsInterface *TestWindowsInterfaceUtil::s_interface_p = 0;
 
 // CLASS METHODS
+BSLA_MAYBE_UNUSED
 BOOL TestWindowsInterfaceUtil::FileTimeToSystemTime(
                                                   const FILETIME *lpFileTime,
                                                   LPSYSTEMTIME    lpSystemTime)
@@ -847,6 +959,13 @@ BOOL TestWindowsInterfaceUtil::GetFileTime(HANDLE     hFile,
 DWORD TestWindowsInterfaceUtil::GetLastError()
 {
     return s_interface_p->GetLastError();
+}
+
+BOOL TestWindowsInterfaceUtil::SystemTimeToFileTime(
+                                                const SYSTEMTIME *lpSystemTime,
+                                                LPFILETIME        lpFileTime)
+{
+    return s_interface_p->SystemTimeToFileTime(lpSystemTime, lpFileTime);
 }
 
 void TestWindowsInterfaceUtil::setInterface(TestWindowsInterface *interface)
@@ -879,6 +998,116 @@ typename bsl::enable_if<
 IntegralConverter<INTEGRAL_TYPE>::operator()(SOURCE_INTEGRAL_TYPE value) const
 {
     return static_cast<INTEGRAL_TYPE>(value);
+}
+
+                        // ---------------------------
+                        // utility converter functions
+                        // ---------------------------
+
+static FILETIME unixEpochFileTimeUtc;
+
+int initEpochFileTime()
+    // Utility function to inititalize 'unixEpochFileTimeUtc' used for later
+    // tests.  Return 0 on success or non-zero on failure.
+{
+#if U_PLATFORM_IS_NATIVE
+    bdlt::Datetime unixEpochUtc = bdlt::EpochUtil::epoch();
+
+    const SYSTEMTIME unixEpochSystemTimeUtc = {
+        static_cast<WORD>(unixEpochUtc.year()),
+        static_cast<WORD>(unixEpochUtc.month()),
+        static_cast<WORD>(unixEpochUtc.dayOfWeek() - 1),
+        static_cast<WORD>(unixEpochUtc.day()),
+        static_cast<WORD>(unixEpochUtc.hour() == 24 ? 0
+                                                    : unixEpochUtc.hour()),
+        static_cast<WORD>(unixEpochUtc.minute()),
+        static_cast<WORD>(unixEpochUtc.second()),
+        static_cast<WORD>(unixEpochUtc.millisecond())};
+
+    const BOOL systemTimeToFileTimeStatus =
+        ::SystemTimeToFileTime(&unixEpochSystemTimeUtc, &unixEpochFileTimeUtc);
+
+    if (!systemTimeToFileTimeStatus) {
+        return -1;                                                // RETURN
+    }
+#else
+    // For non-Windows test runs we are forced to hard-code this.
+    unixEpochFileTimeUtc.dwLowDateTime = 3577643008UL;
+    unixEpochFileTimeUtc.dwHighDateTime = 27111902UL;
+#endif
+    if ((3577643008UL != unixEpochFileTimeUtc.dwLowDateTime) ||
+        (27111902UL != unixEpochFileTimeUtc.dwHighDateTime)) {
+        return -1;                                                    // RETURN
+    }
+    return 0;
+}
+
+FILETIME toFT(const bdlt::Datetime& dt, bool doublecheck = true)
+    // Utility function to convert the specified 'dt' into a windows 'FILETIME'
+    // structure.  The optionally specified 'doublecheck' indicates that
+    // additional tests are performed against the native functions when run on
+    // Windows.  Return the value generated.
+{
+    bsls::Types::Int64 microseconds =
+                           (dt - bdlt::EpochUtil::epoch()).totalMicroseconds();
+
+    ULARGE_INTEGER unixEpochFileTimeInTicks;
+    unixEpochFileTimeInTicks.u.HighPart = unixEpochFileTimeUtc.dwHighDateTime;
+    unixEpochFileTimeInTicks.u.LowPart  = unixEpochFileTimeUtc.dwLowDateTime;
+
+    ULARGE_INTEGER requiredFileTime;
+
+    requiredFileTime.QuadPart =
+           unixEpochFileTimeInTicks.QuadPart +
+           microseconds * bdls::FilesystemUtil_WindowsImpUtil<
+                    TestWindowsInterfaceUtil>::k_WINDOWS_TICKS_PER_MICROSECOND;
+
+    FILETIME ret;
+    ret.dwHighDateTime = requiredFileTime.u.HighPart;
+    ret.dwLowDateTime  = requiredFileTime.u.LowPart;
+
+#if U_PLATFORM_IS_NATIVE
+    if (doublecheck) {
+        SYSTEMTIME test;
+        int        rc = ::FileTimeToSystemTime(&ret, &test);
+        ASSERTV(dt, rc);
+        ASSERTV(dt.year() == test.wYear);
+        ASSERTV(dt.month() == test.wMonth);
+        ASSERTV(dt.day() == test.wDay);
+        ASSERTV(dt.hour() == test.wHour);
+        ASSERTV(dt.minute() == test.wMinute);
+        ASSERTV(dt.second() == test.wSecond);
+        ASSERTV(dt.millisecond() == test.wMilliseconds);
+    }
+#else
+    (void) doublecheck;
+#endif
+
+    return ret;
+}
+
+FILETIME toFT(int year,
+              int month,
+              int day,
+              int hour        = 0,
+              int minute      = 0,
+              int second      = 0,
+              int millisecond = 0,
+              int microsecond = 0)
+    // Utility function to call 'toFT(Datetime)' with a 'Datetime' constructed
+    // from the specified 'year', 'month', and 'day', and the optionally
+    // specified 'hour', 'minute', 'second', 'millisecond', and 'microsecond'.
+    // Return the result fo the call to 'toFT(Datetime)'.
+{
+    return toFT(bdlt::Datetime(year,
+                               month,
+                               day,
+                               hour,
+                               minute,
+                               second,
+                               millisecond,
+                               microsecond),
+                true);
 }
 
 }  // close namespace u
@@ -928,6 +1157,9 @@ int main(int argc, char *argv[])
             // a value that this text block uses to indicate that the
             // field is not applicable
     };
+
+    // Use system calls if available to initialize global FILETIME epoch.
+    ASSERT(0 == u::initEpochFileTime());
 
     static const bool F = false;
     static const bool T = true;
@@ -986,14 +1218,39 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         typedef FILETIME       FTime;
-        typedef SYSTEMTIME     STime;
         typedef bdlt::Datetime DTime;
+
+        {
+            // Initiate the static variables used by
+            // 'convertFileTimeToSystemTime'.
+
+            Interface interface;
+
+            FTime unixEpoch = u::unixEpochFileTimeUtc;
+
+            Response systemTimeToFileTimeResponse;
+            systemTimeToFileTimeResponse.d_functionId =
+                                        FunctionId::e_SYSTEM_TIME_TO_FILE_TIME;
+            systemTimeToFileTimeResponse.d_systemTimeToFileTime.d_lpFileTime =
+                                                                     unixEpoch;
+            systemTimeToFileTimeResponse.d_systemTimeToFileTime.d_result = T;
+
+            interface.pushBackResponse(systemTimeToFileTimeResponse);
+
+            InterfaceUtil::setInterface(&interface);
+            bdlt::Datetime time;
+            const int result = Obj::convertFileTimeToDatetime(&time,
+                                                              &unixEpoch);
+            BSLS_ASSERT(0 == result);
+            InterfaceUtil::setInterface(0);
+
+            ASSERT(time == bdlt::EpochUtil::epoch());
+        }
 
         enum { JAN = 1, FEB, MAR, APR, MAY, JUN, JUL, AUG, SEP, OCT, NOV, DEC };
         enum { MON = 0, TUE, WED, THU, FRI, SAT, SUN };
 
         const FTime FT_NA = {};
-        const STime ST_NA = {};
         const DTime DT_NA;
 
         const struct {
@@ -1009,12 +1266,6 @@ int main(int argc, char *argv[])
             BOOL           d_getFileTimeResult;
                 // return value from the mock 'GetFileTime' call
 
-            SYSTEMTIME     d_lastWriteSystemTime;
-                // result from the mock 'FileTimeToSystemTime' call
-
-            BOOL           d_fileTimeToSystemTimeResult;
-                // return value from the mock 'FileTimeToSystemTime' call
-
             bdlt::Datetime d_time;
                 // the expected value of 'time' after the call to
                 // 'getLastModificationTime'
@@ -1023,49 +1274,54 @@ int main(int argc, char *argv[])
                 // the expected 'getLastModificationTime' value
           } DATA[] = {
               {
-                  L_, INVALID_FD, FT_NA, F,
-                  ST_NA,                                             F,
-                  DT_NA,                                            -1
+                  L_, INVALID_FD,
+                  FT_NA, F,
+                  DT_NA,                                             -1
               },
               {
-                  L_, INVALID_FD, FT_NA, T,
-                  ST_NA,                                             F,
-                  DT_NA,                                            -1
+                  L_, INVALID_FD,
+                  FT_NA, T,
+                  DT_NA,                                             -1
               },
               {
-                  L_, INVALID_FD, FT_NA, T,
-                       {    1, JAN, MON,  1,  0,  0,  0,   0     },  F,
-                  DT_NA,                                            -1
+                  L_, INVALID_FD,
+                  u::toFT( 1980, JAN,       1,  0,  0,  0,   0    ),  F,
+                  DT_NA,                                             -1
               },
               {
-                  L_, INVALID_FD, FT_NA, T,
-                       {    1, JAN, MON,  1,  0,  0,  0,   0     },  T,
-                  DTime(    1, JAN,       1,  0,  0,  0,   0,   0),  0
+                  L_, INVALID_FD,
+                  u::toFT( 1980, JAN,       1,  0,  0,  0,   0   ),   T,
+                  DTime( 1980, JAN,       1,  0,  0,  0,   0,   0),   0
               },
               {
-                  L_, INVALID_FD, FT_NA, T,
-                       {    1, JAN, MON,  1, 23, 59, 59, 999     },  T,
-                  DTime(    1, JAN,       1, 23, 59, 59, 999,   0),  0
+                  L_, INVALID_FD,
+                  u::toFT( 1980, JAN,       1, 23, 59, 59, 999   ),   T,
+                  DTime( 1980, JAN,       1, 23, 59, 59, 999,   0),   0
               },
               {
-                  L_, INVALID_FD, FT_NA, T,
-                       {    1, JAN, MON, 24,  0,  0,  0,   0     },  T,
-                  DTime(    1, JAN,      24,  0,  0,  0,   0,   0),  0
+                  L_, INVALID_FD,
+                  u::toFT( 1980, JAN,       1, 23, 59, 59, 999, 999), T,
+                  DTime( 1980, JAN,       1, 23, 59, 59, 999, 999),   0
               },
               {
-                  L_, INVALID_FD, FT_NA, T,
-                       { 1601, JAN, MON,  1,  0,  0,  0,   0     },  T,
-                  DTime( 1601, JAN,       1,  0,  0,  0,   0,   0),  0
+                  L_, INVALID_FD,
+                  u::toFT( 1980, JAN,      24,  0,  0,  0,   0   ),   T,
+                  DTime( 1980, JAN,      24,  0,  0,  0,   0,   0),   0
               },
               {
-                  L_, INVALID_FD, FT_NA, T,
-                       { 9999, DEC, MON, 31, 23, 59, 59, 999     },  T,
-                  DTime( 9999, DEC,      31, 23, 59, 59, 999,   0),  0
+                  L_, INVALID_FD,
+                  u::toFT(DTime( 1601, JAN, 1, 0, 0, 0), false),      T,
+                  DT_NA,                                             -1
               },
               {
-                  L_, INVALID_FD, FT_NA, T,
-                       {10000, JAN, MON,  1,  0,  0,  0,   0     },  T,
-                  DT_NA,                                            -1
+                  L_, INVALID_FD,
+                  u::toFT( 9999, DEC,      31, 23, 59, 59, 999,   0), T,
+                  DTime( 9999, DEC,      31, 23, 59, 59, 999,   0),   0
+              },
+              {
+                  L_, INVALID_FD,
+                  FT_NA, T,
+                  DT_NA,                                             -1
               }
           };
 
@@ -1074,12 +1330,9 @@ int main(int argc, char *argv[])
           for (int i = 0; i != NUM_DATA; ++i) {
               const int            LINE            = DATA[i].d_line;
               const FileDescriptor FILE_DESCRIPTOR = DATA[i].d_fileDescriptor;
-              const FILETIME       LAST_WRITE_TIME = DATA[i].d_lastWriteTime;
+                    FILETIME       LAST_WRITE_TIME = DATA[i].d_lastWriteTime;
               const BOOL GET_FILE_TIME_RESULT = DATA[i].d_getFileTimeResult;
-              const SYSTEMTIME LAST_WRITE_SYSTEM_TIME =
-                  DATA[i].d_lastWriteSystemTime;
-              const BOOL FILE_TIME_TO_SYSTEM_TIME_RESULT =
-                  DATA[i].d_fileTimeToSystemTimeResult;
+
               const bdlt::Datetime TIME   = DATA[i].d_time;
               const int            RESULT = DATA[i].d_result;
 
@@ -1093,18 +1346,6 @@ int main(int argc, char *argv[])
               Interface interface;
               interface.pushBackResponse(getFileTimeResponse);
 
-              if (GET_FILE_TIME_RESULT) {
-                  Response fileTimeToSystemTimeResponse;
-                  fileTimeToSystemTimeResponse.d_functionId =
-                      FunctionId::e_FILE_TIME_TO_SYSTEM_TIME;
-                  fileTimeToSystemTimeResponse.d_fileTimeToSystemTime
-                      .d_lpSystemTime = LAST_WRITE_SYSTEM_TIME;
-                  fileTimeToSystemTimeResponse.d_fileTimeToSystemTime
-                      .d_result = FILE_TIME_TO_SYSTEM_TIME_RESULT;
-
-                  interface.pushBackResponse(fileTimeToSystemTimeResponse);
-              }
-
               InterfaceUtil::setInterface(&interface);
               bdlt::Datetime time;
               const int      result =
@@ -1113,28 +1354,9 @@ int main(int argc, char *argv[])
 
               LOOP1_ASSERT_EQ(LINE, RESULT, result);
 
-              if (GET_FILE_TIME_RESULT && FILE_TIME_TO_SYSTEM_TIME_RESULT) {
-                  LOOP1_ASSERT_EQ(LINE, 2, interface.numCalls());
-                  if (2 != interface.numCalls()) {
-                      continue;
-                  }
-              }
-              else if (GET_FILE_TIME_RESULT) {
-                  LOOP1_ASSERT_EQ(
-                      LINE, false, FILE_TIME_TO_SYSTEM_TIME_RESULT);
-                  LOOP1_ASSERT_EQ(LINE, 2, interface.numCalls());
-                  if (2 != interface.numCalls()) {
-                      continue;
-                  }
-              }
-              else {
-                  LOOP1_ASSERT_EQ(LINE, false, GET_FILE_TIME_RESULT);
-                  LOOP1_ASSERT_EQ(
-                      LINE, false, FILE_TIME_TO_SYSTEM_TIME_RESULT);
-                  LOOP1_ASSERT_EQ(LINE, 1, interface.numCalls());
-                  if (1 != interface.numCalls()) {
-                      continue;
-                  }
+              LOOP1_ASSERT_EQ(LINE, 1, interface.numCalls());
+              if (1 != interface.numCalls()) {
+                  continue;
               }
 
               Call getFileTimeCall;
@@ -1152,20 +1374,6 @@ int main(int argc, char *argv[])
                               getFileTimeCall.d_getFileTime.d_hFile);
 
               if (!GET_FILE_TIME_RESULT) {
-                  continue;
-              }
-
-              Call fileTimeToSystemTimeCall;
-              interface.popFrontCall(&fileTimeToSystemTimeCall);
-              LOOP1_ASSERT_EQ(LINE,
-                              FunctionId::e_FILE_TIME_TO_SYSTEM_TIME,
-                              fileTimeToSystemTimeCall.d_functionId);
-              if (FunctionId::e_FILE_TIME_TO_SYSTEM_TIME !=
-                  fileTimeToSystemTimeCall.d_functionId) {
-                  continue;
-              }
-
-              if (!FILE_TIME_TO_SYSTEM_TIME_RESULT) {
                   continue;
               }
 

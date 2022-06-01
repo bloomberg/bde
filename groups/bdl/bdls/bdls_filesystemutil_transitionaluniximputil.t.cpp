@@ -1,7 +1,10 @@
 // bdls_filesystemutil_transitionaluniximputil.t.cpp                  -*-C++-*-
 #include <bdls_filesystemutil_transitionaluniximputil.h>
 
+#include <bdls_filesystemutil_unixplatform.h>
+
 #include <bsla_unused.h>
+#include <bsla_maybeunused.h>
 
 #include <bslim_testutil.h>
 
@@ -123,23 +126,33 @@ namespace u {
 typedef ::off64_t       off64_t;
 typedef struct ::stat64 stat64;
 typedef ::time_t        time_t;
-#elif defined(BSLS_PLATFORM_OS_WINDOWS)
-typedef INT64             off64_t;
-typedef struct ::__stat64 stat64;
-typedef ::time_t          time_t;
 #else
 typedef bsls::Types::Int64 off64_t;
 typedef struct Stat64Imp   stat64;
 typedef bsls::Types::Int64 time_t;
+
+                              // ====================
+                              // struct Timespec64Imp
+                              // ====================
+
+struct Timespec64Imp {
+    time_t tv_sec;
+    long   tv_nsec;
+};
 
                               // ================
                               // struct Stat64Imp
                               // ================
 
 struct Stat64Imp {
-    time_t  st_mtime;
-    off64_t st_size;
+    off64_t              st_size;
+    struct Timespec64Imp st_mtim;
 };
+#define st_mtime st_mtim.tv_sec
+
+// Need a "fake" definition so this test driver will run on Windows.
+#define BDLS_FILESYSTEMUTIL_UNIXPLATFORM_STAT_NS_MEMBER st_mtim.tv_nsec
+
 #endif
 
                    // =====================================
@@ -366,10 +379,14 @@ struct TestTransitionalUnixInterfaceUtil {
   public:
     // CLASS METHODS
     static off64_t get_st_size(const stat64& stat);
-        // Return the value of the 'st_mtime' member of the specified 'stat'.
+        // Return the value of the 'st_size' member of the specified 'stat'.
+
+    static long get_st_mtim_nsec(const stat64& stat);
+        // Return the value of the 'st_mtim.tv_nsec' member of the specified
+        // 'stat' if present.
 
     static time_t get_st_mtime(const stat64& stat);
-        // Return the value of the 'st_size' member of the specified 'stat'.
+        // Return the value of the 'st_mtime' member of the specified 'stat'.
 
     static int fstat64(int fildes, stat64 *buf);
         // Push a 'Call' to the interface's call queue that has a
@@ -531,11 +548,19 @@ TestTransitionalUnixInterface
     *TestTransitionalUnixInterfaceUtil::s_interface_p = 0;
 
 // CLASS METHODS
+long
+TestTransitionalUnixInterfaceUtil::get_st_mtim_nsec(const stat64& stat)
+{
+    (void) stat;
+     return stat.BDLS_FILESYSTEMUTIL_UNIXPLATFORM_STAT_NS_MEMBER;
+}
+
 TestTransitionalUnixInterfaceUtil::time_t
 TestTransitionalUnixInterfaceUtil::get_st_mtime(const stat64& stat)
 {
     return stat.st_mtime;
 }
+
 
 TestTransitionalUnixInterfaceUtil::off64_t
 TestTransitionalUnixInterfaceUtil::get_st_size(const stat64& stat)
@@ -769,7 +794,7 @@ int main(int argc, char *argv[])
               const int            FILDES          = DATA[i].d_fildes;
               const int            FSTAT64_RESULT  = DATA[i].d_fstat64Result;
               const bsls::Types::Int64 ST_MTIME64  = DATA[i].d_st_mtime64;
-              const bdlt::Datetime     TIME        = DATA[i].d_time;
+                    bdlt::Datetime     TIME        = DATA[i].d_time;
               const int                RESULT      = DATA[i].d_result;
 
               if (ST_MTIME64 < MIN_TIME || ST_MTIME64 > MAX_TIME) {
@@ -783,6 +808,12 @@ int main(int argc, char *argv[])
               response.d_fstat64.d_result       = FSTAT64_RESULT;
               response.d_fstat64.d_buf.st_mtime = ST_MTIME;
 
+              if (0 == RESULT) {
+                  TIME.addMicrosecondsIfValid(99);
+              }
+              response.d_fstat64.d_buf
+                  .BDLS_FILESYSTEMUTIL_UNIXPLATFORM_STAT_NS_MEMBER = 99 * 1000;
+
               Interface interface;
               interface.pushBackResponse(response);
 
@@ -792,7 +823,7 @@ int main(int argc, char *argv[])
                   Obj::getLastModificationTime(&time, FILE_DESCRIPTOR);
               InterfaceUtil::setInterface(0);
 
-              Call call;
+              Call call = Call();
               interface.popFrontCall(&call);
               LOOP_ASSERT_EQ(LINE, FunctionId::e_FSTAT64, call.d_functionId);
               if (FunctionId::e_FSTAT64 != call.d_functionId) {
@@ -950,7 +981,7 @@ int main(int argc, char *argv[])
                 const Offset result = Obj::getFileSize(FILE_DESCRIPTOR);
                 InterfaceUtil::setInterface(0);
 
-                Call call;
+                Call call = Call();
                 interface.popFrontCall(&call);
                 LOOP_ASSERT_EQ(LINE, FunctionId::e_FSTAT64, call.d_functionId);
                 if (FunctionId::e_FSTAT64 != call.d_functionId) {

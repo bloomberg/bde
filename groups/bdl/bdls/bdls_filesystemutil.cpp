@@ -19,6 +19,8 @@ BSLS_IDENT_RCSID(bdls_filesystemutil_cpp, "$Id$ $CSID$")
 #include <bdls_memoryutil.h>
 #include <bdls_pathutil.h>
 
+#include <bdlt_timeunitratio.h>
+
 #include <bdlf_bind.h>
 #include <bdlt_epochutil.h>
 #include <bdlf_placeholder.h>
@@ -29,6 +31,8 @@ BSLS_IDENT_RCSID(bdls_filesystemutil_cpp, "$Id$ $CSID$")
 #include <bslma_managedptr.h>
 #include <bslmf_movableref.h>
 #include <bslmt_threadutil.h>
+
+#include <bsla_maybeunused.h>
 #include <bsls_alignedbuffer.h>
 #include <bsls_assert.h>
 #include <bsls_bslexceptionutil.h>
@@ -123,7 +127,8 @@ struct UnixInterfaceUtil {
     // This component-private utility 'struct' provides an implementation of
     // the requirements for the 'UNIX_INTERFACE' template parameter of the
     // functions provided by 'FilesystemUtil_UnixImplUtil' in terms of actual
-    // Unix interface calls.
+    // Unix interface calls.  See also the notes regarding the 'stat' structure
+    // in the documentation for 'struct FilesystemUtil_UnixImpUtil'.
 
     // TYPES
     typedef ::off_t off_t;
@@ -142,15 +147,13 @@ struct UnixInterfaceUtil {
         // seconds since January 1st 1970 in Coordinated Universal Time.
 
     // CLASS METHODS
+    static long get_st_mtim_nsec(const stat& stat);
+        // Return the value of the 'st_mtim.nsec' field of the specified 'stat'
+        // struct.
+
     static time_t get_st_mtime(const stat& stat);
         // Return the value of the 'st_mtime' data member of the specified
-        // 'stat' struct.  Note that, on some Unix platforms and some build
-        // configurations, the 'stat' struct does not have an 'st_mtime' field,
-        // and 'st_mtime' is a macro that emulates the access of the field.
-        // For more information, please see the specification of the
-        // 'sys/stat.h' header from IEEE Std 1003.1-2017, which provides
-        // information about the evolution of the 'stat' struct in the POSIX
-        // specification.
+        // 'stat' struct.
 
     static off_t get_st_size(const stat& stat);
         // Return the value of the 'st_size' data member of the specified
@@ -178,6 +181,13 @@ typedef bdls::FilesystemUtil_UnixImpUtil<UnixInterfaceUtil> UnixImpUtil;
     // utility class template parameterizes its Unix interface in order to
     // permit tests to instantiate the template with mock Unix interfaces.
 
+                     // =================================
+                     // typedef InterfaceUtil and ImpUtil
+                     // =================================
+
+typedef UnixInterfaceUtil InterfaceUtil;
+typedef UnixImpUtil       ImpUtil;
+
 #elif defined(BSLS_PLATFORM_OS_UNIX) \
    && defined(U_USE_TRANSITIONAL_UNIX_FILE_SYSTEM_INTERFACE)
 
@@ -189,7 +199,9 @@ struct TransitionalUnixInterfaceUtil {
     // This component-private utility 'struct' provides an implementation of
     // the requirements for the 'UNIX_INTERFACE' template parameter of the
     // functions provided by 'FilesystemUtil_TransitionalUnixImpUtil' in terms
-    // of actual transitional Unix interface calls.
+    // of actual transitional Unix interface calls.  See also the notes
+    // regarding the 'stat' structure in the documentation for
+    // 'struct FilesystemUtil_TransitionalUnixImpUtil'.
 
     // TYPES
     typedef ::off64_t off64_t;
@@ -207,15 +219,13 @@ struct TransitionalUnixInterfaceUtil {
         // seconds since January 1st 1970 in Coordinated Universal Time.
 
     // CLASS METHODS
+    static long get_st_mtim_nsec(const stat64& stat);
+        // Return the value of the 'st_mtim.nsec' field of the specified 'stat'
+        // struct.
+
     static time_t get_st_mtime(const stat64& stat);
         // Return the value of the 'st_mtime' data member of the specified
-        // 'stat' struct.  Note that, on some Unix platforms and some build
-        // configurations, the 'stat' struct does not have an 'st_mtime' field,
-        // and 'st_mtime' is a macro that emulates the access of the field.
-        // For more information, please see the specification of the
-        // 'sys/stat.h' header from IEEE Std 1003.1-2017, which provides
-        // information about the evolution of the 'stat' struct in the POSIX
-        // specification.
+        // 'stat' struct.
 
     static off64_t get_st_size(const stat64& stat);
         // Return the value of the 'st_size' data member of the specified
@@ -245,6 +255,13 @@ typedef bdls::FilesystemUtil_TransitionalUnixImpUtil<
     // Unix interface calls.  The utility class template parameterizes its Unix
     // interface in order to permit tests to instantiate the template with mock
     // Unix interfaces.
+
+                     // =================================
+                     // typedef InterfaceUtil and ImpUtil
+                     // =================================
+
+typedef TransitionalUnixInterfaceUtil InterfaceUtil;
+typedef TransitionalUnixImpUtil       ImpUtil;
 
 #elif defined(BSLS_PLATFORM_OS_WINDOWS)
 
@@ -295,9 +312,21 @@ struct WindowsInterfaceUtil {
         // 'SYSTEMTIME' is an alias to the 'SYSTEMTIME' struct provided by the
         // 'windows.h' header.
 
+    typedef ::ULARGE_INTEGER ULARGE_INTEGER;
+        // 'ULARGE_INTEGER' is an alias to the unsigned integral
+        // 'ULARGE_INTEGER' type provided by the 'windows.h' header.
+
     typedef ::ULONG64 ULONG64;
         // 'ULONG64' is an alias to the unsigned integral 'ULONG64' type
         // provided by the 'windows.h' header.
+
+    typedef ::ULONGLONG ULONGLONG;
+        // 'ULONGLONG' is an alias to the unsigned integral 'ULONGLONG' type
+        // provided by the 'windows.h' header.
+
+    typedef ::WORD WORD;
+        // 'WORD' is an alias to the unsigned integral 'WORD' type provided
+        // by the 'windows.h' header.
 
     // CLASS METHODS
     static BOOL FileTimeToSystemTime(const FILETIME *lpFileTime,
@@ -327,6 +356,14 @@ struct WindowsInterfaceUtil {
     static DWORD GetLastError();
         // Invoke and return the result of '::GetLastError()', where
         // '::GetLastError' is the function provided by the 'windows.h' header.
+
+    static BOOL SystemTimeToFileTime(const SYSTEMTIME *lpSystemTime,
+                                     LPFILETIME        lpFileTime);
+        // Invoke and return the result of
+        // '::SystemTimeToFileTime(lpSystemTime, lpFileTime)' with the
+        // specified 'lpFileTime' and 'lpSystemTime', where
+        // '::SystemTimeToFileTime' is the function provided by the 'windows.h'
+        // header.
 };
 
                            // =====================
@@ -344,6 +381,14 @@ typedef bdls::FilesystemUtil_WindowsImpUtil<WindowsInterfaceUtil>
     // The utility class template parameterizes its Windows interface in order
     // to permit tests to instantiate the template with mock Windows
     // interfaces.
+
+
+                     // =================================
+                     // typedef InterfaceUtil and ImpUtil
+                     // =================================
+
+typedef WindowsInterfaceUtil InterfaceUtil;
+typedef WindowsImpUtil       ImpUtil;
 
 #else
 # error "'bdls_filesystemutil' does not support this platform."
@@ -1191,23 +1236,11 @@ int FilesystemUtil::getLastModificationTime(bdlt::Datetime *time,
 
     bslma::ManagedPtr<HANDLE> handleGuard(&handle, 0, &invokeFindClose);
 
-    SYSTEMTIME stUTC;
+    typedef FilesystemUtil_WindowsImpUtil<u::WindowsInterfaceUtil>
+        WindowsImpUtil;
 
-    if (0 == FileTimeToSystemTime(&modified, &stUTC)) {
-        return -2;                                                    // RETURN
-    }
+    return WindowsImpUtil::convertFileTimeToDatetime(time, &modified);
 
-    if (0 != time->setDatetimeIfValid(stUTC.wYear,
-                                      stUTC.wMonth,
-                                      stUTC.wDay,
-                                      stUTC.wHour,
-                                      stUTC.wMinute,
-                                      stUTC.wSecond,
-                                      stUTC.wMilliseconds)) {
-        return -3;                                                    // RETURN
-    }
-
-    return 0;
 }
 
 int FilesystemUtil::getLastModificationTime(bdlt::Datetime *time,
@@ -1998,10 +2031,17 @@ int FilesystemUtil::truncateFileSize(FileDescriptor descriptor, Offset size)
 {
     BSLS_ASSERT(size <= getFileSize(descriptor));
 
+#if defined(U_USE_TRANSITIONAL_UNIX_FILE_SYSTEM_INTERFACE)
+    int rc = ::ftruncate64(descriptor, size);
+    if (0 != rc) {
+        return -1;                                                    // RETURN
+    }
+#else
     int rc = ::ftruncate(descriptor, size);
     if (0 != rc) {
         return -1;                                                    // RETURN
     }
+#endif
 
     const Offset pos = seek(descriptor, 0, e_SEEK_FROM_END);
     if (pos != size) {
@@ -2085,27 +2125,38 @@ int FilesystemUtil::getLastModificationTime(bdlt::Datetime *time,
 
     StatResult fileStats;
 
-    if (0 != ::performStat(path, &fileStats)) {
+    int rc = ::performStat(path, &fileStats);
+
+    if (0 != rc) {
         return -1;                                                    // RETURN
     }
 
     *time = bdlt::EpochUtil::epoch();
-    time->addSeconds(fileStats.st_mtime);
-    return 0;
+
+    u::InterfaceUtil::time_t seconds =
+                                     u::InterfaceUtil::get_st_mtime(fileStats);
+
+    long nanoseconds = u::InterfaceUtil::get_st_mtim_nsec(fileStats);
+
+    rc = time->addSecondsIfValid(seconds);
+    if (0 != rc) {
+        return -1;                                                    // RETURN
+    }
+    BSLS_ASSERT_SAFE((0 <= nanoseconds) &&
+                     (nanoseconds <
+                      bdlt::TimeUnitRatio::k_NANOSECONDS_PER_SECOND));
+    rc = time->addMicrosecondsIfValid(
+          nanoseconds / bdlt::TimeUnitRatio::k_NANOSECONDS_PER_MICROSECOND_32);
+
+    return rc;
 }
 
 int FilesystemUtil::getLastModificationTime(bdlt::Datetime *time,
                                             FileDescriptor  descriptor)
 {
     BSLS_ASSERT(time);
-# if defined(U_USE_UNIX_FILE_SYSTEM_INTERFACE)
-    return u::UnixImpUtil::getLastModificationTime(time, descriptor);
-# elif defined(U_USE_TRANSITIONAL_UNIX_FILE_SYSTEM_INTERFACE)
-    return u::TransitionalUnixImpUtil::getLastModificationTime(time,
-                                                               descriptor);
-# else
-#  error "'bdls_filesystemutil' does not support this platform."
-# endif
+
+    return u::ImpUtil::getLastModificationTime(time, descriptor);
 }
 
 namespace {
@@ -2419,13 +2470,7 @@ FilesystemUtil::Offset FilesystemUtil::getFileSize(const char *path)
 
 FilesystemUtil::Offset FilesystemUtil::getFileSize(FileDescriptor descriptor)
 {
-# if defined(U_USE_UNIX_FILE_SYSTEM_INTERFACE)
-    return u::UnixImpUtil::getFileSize(descriptor);
-# elif defined(U_USE_TRANSITIONAL_UNIX_FILE_SYSTEM_INTERFACE)
-    return u::TransitionalUnixImpUtil::getFileSize(descriptor);
-# else
-#  error "'bdls_filesystemutil' does not support this platform."
-# endif
+    return u::ImpUtil::getFileSize(descriptor);
 }
 
 FilesystemUtil::Offset FilesystemUtil::getFileSizeLimit()
@@ -2627,6 +2672,7 @@ int FilesystemUtil::findMatchingPaths(
 
 #if defined(BSLS_PLATFORM_OS_SOLARIS)
 namespace {
+BSLA_MAYBE_UNUSED
 int posix_fallocate(...)
     // Always return -1.  Overload resolution makes this function inferior to
     // the real 'posix_fallocate' provded it exists.  (It doesn't on Solaris 10
@@ -2918,13 +2964,16 @@ namespace u {
                           // ------------------------
 
 // CLASS METHODS
+long UnixInterfaceUtil::get_st_mtim_nsec(const stat& stat)
+{
+    (void) stat;
+     return stat.BDLS_FILESYSTEMUTIL_UNIXPLATFORM_STAT_NS_MEMBER;
+}
+
 UnixInterfaceUtil::time_t UnixInterfaceUtil::get_st_mtime(const stat& stat)
 {
     // Note that 'st_mtime' is actually the name of a macro in some build
-    // configurations in some Unix systems.  For more information, please see
-    // the specification of the 'sys/stat.h' header from the IEEE Std
-    // 1003.1-2017, which provides information about the evolution of the
-    // 'stat' struct in the POSIX specification.
+    // configurations in some Unix systems (see notes above).
 
     return stat.st_mtime;
 }
@@ -2949,14 +2998,17 @@ int UnixInterfaceUtil::fstat(int fildes, stat *buf)
                     // struct TransitionalUnixInterfaceUtil
                     // ------------------------------------
 
+long TransitionalUnixInterfaceUtil::get_st_mtim_nsec(const stat64& stat)
+{
+    (void) stat;
+     return stat.BDLS_FILESYSTEMUTIL_UNIXPLATFORM_STAT_NS_MEMBER;
+}
+
 TransitionalUnixInterfaceUtil::time_t
 TransitionalUnixInterfaceUtil::get_st_mtime(const stat64& stat)
 {
     // Note that 'st_mtime' is actually the name of a macro in some build
-    // configurations in some Unix systems.  For more information, please see
-    // the specification of the 'sys/stat.h' header from the IEEE Std
-    // 1003.1-2017, which provides information about the evolution of the
-    // 'stat' struct in the POSIX specification.
+    // configurations in some Unix systems (see notes above).
 
     return stat.st_mtime;
 }
@@ -3008,6 +3060,13 @@ WindowsInterfaceUtil::GetFileTime(HANDLE     hFile,
 WindowsInterfaceUtil::DWORD WindowsInterfaceUtil::GetLastError()
 {
     return ::GetLastError();
+}
+
+WindowsInterfaceUtil::BOOL WindowsInterfaceUtil::SystemTimeToFileTime(
+                                                const SYSTEMTIME *lpSystemTime,
+                                                LPFILETIME        lpFileTime)
+{
+    return ::SystemTimeToFileTime(lpSystemTime, lpFileTime);
 }
 
 #else

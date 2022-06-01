@@ -40,6 +40,8 @@
 
 #include <bslmf_isconvertible.h>
 
+#include <bslmt_threadutil.h>
+
 #include <bsl_algorithm.h>
 #include <bsl_c_errno.h>
 #include <bsl_c_stdio.h>
@@ -582,6 +584,10 @@ struct TestUtil {
         // 'false' otherwise.  If this function returns 'true' for a given
         // 'utcTime', that 'utcTime' is said to be a "valid modification time".
 
+    static int modifyTemporaryFile(FileDescriptor fd);
+        // Write and flush sample data to the specified 'fd'.  Return 0 on
+        // success, and a non-zero value otherwise.
+
     static int setFileSize(FileDescriptor descriptor, Offset numBytes);
         // Set the size of the file the specified 'descriptor' identifies to
         // the specified 'numBytes' number of bytes.  Return 0 on success, and
@@ -654,6 +660,14 @@ struct TestUtil_UnixImpUtil {
         // (sub-second) 'nanoseconds' since the Unix epoch in Coordinated
         // Universal Time, as a 'bdlt::Datetime'.
 
+    static bool epochOffsetIsConvertibleToDatetime(
+                                     time_t seconds,
+                                     long   nanoseconds) BSLS_KEYWORD_NOEXCEPT;
+        // Return 'true' if the time point defined by the specified 'seconds'
+        // and (sub-second) 'nanoseconds' since the Unix epoch in Coordinated
+        // Universal Time is within the representable date-and-time range of
+        // 'bdlt::Datetime', and return 'false' otherwise.
+
     static bdlt::Datetime getMaxFileTime();
         // Return the maximum date and time, in UTC, that the platform can
         // *represent*.  Note that the range and precision of date and time
@@ -680,13 +694,9 @@ struct TestUtil_UnixImpUtil {
         // exist by the time this or any other process attempts to create a
         // file at the 'path'.
 
-    static bool epochOffsetIsConvertibleToDatetime(
-                                     time_t seconds,
-                                     long   nanoseconds) BSLS_KEYWORD_NOEXCEPT;
-        // Return 'true' if the time point defined by the specified 'seconds'
-        // and (sub-second) 'nanoseconds' since the Unix epoch in Coordinated
-        // Universal Time is within the representable date-and-time range of
-        // 'bdlt::Datetime', and return 'false' otherwise.
+    static int modifyTemporaryFile(FileDescriptor fd);
+        // Write and flush sample data to the specified 'fd'.  Return 0 on
+        // success, and a non-zero value otherwise.
 
     static int setLastModificationTime(int                   fileDescriptor,
                                        const bdlt::Datetime& utcTime);
@@ -768,6 +778,13 @@ struct TestUtil_WindowsImpUtil {
         // reboots.
 
   public:
+    // PUBLIC CLASS DATA
+    static const bsls::Types::Int64 k_NANOSECONDS_PER_WINDOWS_TICK = 100;
+
+    static const bsls::Types::Int64 k_WINDOWS_TICKS_PER_MICROSECOND =
+                           bdlt::TimeUnitRatio::k_NANOSECONDS_PER_MICROSECOND /
+                           k_NANOSECONDS_PER_WINDOWS_TICK;
+
     // CLASS METHODS
     static FileDescriptor createEphemeralFile();
         // Create an ephemeral file in a temporary directory.  Return a file
@@ -793,6 +810,10 @@ struct TestUtil_WindowsImpUtil {
         // unique, nor is it guaranteed that a file at the 'path' will not
         // exist by the time this or any other process attempts to create a
         // file at the 'path'.
+
+    static int modifyTemporaryFile(FileDescriptor fd);
+        // Write and flush sample data to the specified 'fd'.  Return 0 on
+        // success, and a non-zero value otherwise.
 };
 
 #endif
@@ -966,6 +987,11 @@ int TestUtil::getTemporaryFilePath(bsl::string *path)
     return TestUtil_UnixImpUtil::getTemporaryFilePath(path);
 }
 
+int TestUtil::modifyTemporaryFile(TestUtil::FileDescriptor fd)
+{
+    return TestUtil_UnixImpUtil::modifyTemporaryFile(fd);
+}
+
 int TestUtil::setFileSize(FileDescriptor descriptor, Offset numBytes)
 {
     BSLS_ASSERT(0 <= numBytes);
@@ -1039,6 +1065,11 @@ bdlt::Datetime TestUtil::getMinFileTime()
 int TestUtil::getTemporaryFilePath(bsl::string *path)
 {
     return TestUtil_UnixImpUtil::getTemporaryFilePath(path);
+}
+
+int TestUtil::modifyTemporaryFile(TestUtil::FileDescriptor fd)
+{
+    return TestUtil_UnixImpUtil::modifyTemporaryFile(fd);
 }
 
 int TestUtil::setFileSize(FileDescriptor descriptor, Offset numBytes)
@@ -1171,6 +1202,11 @@ int TestUtil::getTemporaryFilePath(bsl::string *path)
     return TestUtil_WindowsImpUtil::getTemporaryFilePath(path);
 }
 
+int TestUtil::modifyTemporaryFile(TestUtil::FileDescriptor fd)
+{
+    return TestUtil_WindowsImpUtil::modifyTemporaryFile(fd);
+}
+
 int TestUtil::setFileSize(FileDescriptor descriptor, Offset numBytes)
 {
     BSLS_ASSERT(0 <= numBytes);
@@ -1214,7 +1250,7 @@ int TestUtil::setLastModificationTime(FileDescriptor        descriptor,
     const SYSTEMTIME utcSystemTime = {
         static_cast<WORD>(utcTime.year()),
         static_cast<WORD>(utcTime.month()),
-        static_cast<WORD>(utcTime.dayOfWeek()) - 1,
+        static_cast<WORD>(utcTime.dayOfWeek() - 1),
         static_cast<WORD>(utcTime.day()),
         static_cast<WORD>(utcTime.hour() == 24 ? 0 : utcTime.hour()),
         static_cast<WORD>(utcTime.minute()),
@@ -1228,6 +1264,19 @@ int TestUtil::setLastModificationTime(FileDescriptor        descriptor,
     if (!systemTimeToFileTimeStatus) {
         return -1;                                                    // RETURN
     }
+
+    // Copy the individual parts per the Microsoft recommendation at
+    // https://docs.microsoft.com/en-us/windows/win32/api/minwinbase/ns-minwinbase-filetime
+    ULARGE_INTEGER utcFileTimeInTicks;
+    utcFileTimeInTicks.HighPart = utcFileTime.dwHighDateTime;
+    utcFileTimeInTicks.LowPart  = utcFileTime.dwLowDateTime;
+
+    utcFileTimeInTicks.QuadPart +=
+        utcTime.microsecond() *
+        TestUtil_WindowsImpUtil::k_WINDOWS_TICKS_PER_MICROSECOND;
+
+    utcFileTime.dwHighDateTime = utcFileTimeInTicks.HighPart;
+    utcFileTime.dwLowDateTime  = utcFileTimeInTicks.LowPart;
 
     static const FILETIME *const s_DO_NOT_UPDATE_CREATION_TIME = 0;
     static const FILETIME *const s_DO_NOT_UPDATE_ACCESS_TIME = 0;
@@ -1317,6 +1366,31 @@ TestUtil_UnixImpUtil::createTemporaryFile(bsl::string *path)
     return fileDescriptor;
 }
 
+bool TestUtil_UnixImpUtil::epochOffsetIsConvertibleToDatetime(
+                                      time_t seconds,
+                                      long   nanoseconds) BSLS_KEYWORD_NOEXCEPT
+{
+    const bdlt::Datetime     maxDatetime(9999, 12, 31, 23, 59, 59, 999, 999);
+    const bsls::TimeInterval maxDatetimeAsInterval =
+        bdlt::EpochUtil::convertToTimeInterval(maxDatetime);
+
+    const bdlt::Datetime     minDatetime(1, 1, 1);
+    const bsls::TimeInterval minDatetimeAsInterval =
+        bdlt::EpochUtil::convertToTimeInterval(minDatetime);
+
+    typedef bsls::Types::Int64 Int64;
+    const Int64 maxSeconds = maxDatetimeAsInterval.seconds();
+    const Int64 minSeconds = minDatetimeAsInterval.seconds();
+
+    const bool signsAreEqual = (seconds >= 0 && nanoseconds >= 0) ||
+                               (seconds <= 0 && nanoseconds <= 0);
+
+    return nanoseconds >= -999999999
+        && nanoseconds <=  999999999
+        && seconds     >= minSeconds
+        && seconds     <= maxSeconds
+        && signsAreEqual;
+}
 
 bdlt::Datetime TestUtil_UnixImpUtil::getMaxFileTime()
 {
@@ -1363,31 +1437,17 @@ int TestUtil_UnixImpUtil::getTemporaryFilePath(bsl::string *path)
     return 0;
 }
 
-bool TestUtil_UnixImpUtil::epochOffsetIsConvertibleToDatetime(
-                                      time_t seconds,
-                                      long   nanoseconds) BSLS_KEYWORD_NOEXCEPT
+int TestUtil_UnixImpUtil::modifyTemporaryFile(
+                                       TestUtil_UnixImpUtil::FileDescriptor fd)
 {
-    const bdlt::Datetime     maxDatetime(9999, 12, 31, 23, 59, 59, 999, 999);
-    const bsls::TimeInterval maxDatetimeAsInterval =
-        bdlt::EpochUtil::convertToTimeInterval(maxDatetime);
-
-    const bdlt::Datetime     minDatetime(1, 1, 1);
-    const bsls::TimeInterval minDatetimeAsInterval =
-        bdlt::EpochUtil::convertToTimeInterval(minDatetime);
-
-    typedef bsls::Types::Int64 Int64;
-    const Int64 maxSeconds = maxDatetimeAsInterval.seconds();
-    const Int64 minSeconds = minDatetimeAsInterval.seconds();
-
-    const bool signsAreEqual = (seconds >= 0 && nanoseconds >= 0) ||
-                               (seconds <= 0 && nanoseconds <= 0);
-
-    return nanoseconds >= -999999999
-        && nanoseconds <=  999999999
-        && seconds     >= minSeconds
-        && seconds     <= maxSeconds
-        && signsAreEqual;
+    int rc = Obj::write(fd, "hello world\n", strlen("hello world\n"));
+    if (strlen("hello world\n") != rc) {
+        return -1;                                                    // RETURN
+    }
+    rc = fsync(fd);
+    return rc;
 }
+
 
 int TestUtil_UnixImpUtil::setLastModificationTime(
                                           int                   fileDescriptor,
@@ -1518,6 +1578,17 @@ int TestUtil_WindowsImpUtil::getTemporaryFilePath(bsl::string *path)
 
     *path = result;
     return 0;
+}
+
+int TestUtil_WindowsImpUtil::modifyTemporaryFile(
+                                    TestUtil_WindowsImpUtil::FileDescriptor fd)
+{
+    int rc = Obj::write(fd, "hello world\n", sizeof("hello world\n"));
+    if (sizeof("hello world\n") != rc) {
+        return -1;                                                    // RETURN
+    }
+    rc = ::FlushFileBuffers(fd);
+    return (rc != 0) ? 0 : -1;
 }
 
 #endif
@@ -2872,11 +2943,11 @@ int main(int argc, char *argv[])
 
         // make sure there isn't an unfortunately named file in the way
 
-        Obj::remove("bdls_filesystemutil.temp.2", true);
+        Obj::remove("bdls_filesystemutil.t.temp.28", true);
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-        bsl::string logPath =  "bdls_filesystemutil.temp.temp.2\\logs2\\";
+        bsl::string logPath =  "bdls_filesystemutil.t.temp.28\\logs28\\";
 #else
-        bsl::string logPath =  "bdls_filesystemutil.temp.temp.2/logs2/";
+        bsl::string logPath =  "bdls_filesystemutil.t.temp.28/logs28/";
 #endif
 
         ASSERT(0 == Obj::createDirectories(logPath.c_str(), true));
@@ -2902,11 +2973,7 @@ int main(int argc, char *argv[])
             Obj::write(fd, buffer, bytes);
             Obj::close(fd);
 
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-            Sleep(1000);  // 'Sleep' is in milliseconds on Windows.
-#else
-            sleep(1);
-#endif
+            bslmt::ThreadUtil::microSleep(10000);
 
             Obj::getLastModificationTime(&modTime[i], s.str());
             if (veryVerbose) {
@@ -3168,17 +3235,139 @@ int main(int argc, char *argv[])
             ASSERT_GE(oneMinuteMicroSec, modificationTimeSkewMicroSec);
         }
 
+        {
+            // This block tests sub-second modification time retrieval by
+            // creating two temporary files with a slight delay, then
+            // retrieving the modification times of both files, and verifying
+            // that the retrieved modification times are different and in the
+            // correct order.  Note that while most file systems are accurate
+            // to within 1 second, and many are accurate to the microsecond
+            // (and claim nanosecond precision), others (*cough* NFS *cough*)
+            // are not so well-behaved.
+
+#if defined(BSLS_PLATFORM_OS_AIX) || defined(BSLS_PLATFORM_OS_SOLARIS)
+            static const int clockFileDelay =
+                            bdlt::TimeUnitRatio::k_MICROSECONDS_PER_SECOND;
+                // How long to wait between reading the realtime clock and
+                // creating the first file.
+            static const int fileFileDelay =
+                            bdlt::TimeUnitRatio::k_MICROSECONDS_PER_SECOND / 2;
+                // How long to wait between creating files.
+            static const int clockFileCheck =
+                        2 * bdlt::TimeUnitRatio::k_MICROSECONDS_PER_SECOND - 1;
+                // The maximum permitted difference between the queried
+                // realtime clock and the timestamp of the first created file.
+            static const int fileFileCheck =
+                            bdlt::TimeUnitRatio::k_MICROSECONDS_PER_SECOND - 1;
+                // The maximum permitted difference between the timestamps of
+                // created files.
+#else
+            static const int clockFileDelay =
+                            bdlt::TimeUnitRatio::k_MICROSECONDS_PER_SECOND / 2;
+                // How long to wait between reading the realtime clock and
+                // creating the first file.
+            static const int fileFileDelay = 10001;
+                // How long to wait between creating files.
+            static const int clockFileCheck =
+                            bdlt::TimeUnitRatio::k_MICROSECONDS_PER_SECOND - 1;
+                // The maximum permitted difference between the queried
+                // realtime clock and the timestamp of the first created file.
+            static const int fileFileCheck =
+                        bdlt::TimeUnitRatio::k_MICROSECONDS_PER_SECOND / 2 - 1;
+                // The maximum permitted difference between the timestamps of
+                // created files.
+#endif
+
+            // The first time we write to a file on a filesystem there can be
+            // initial delays, notably over NFS which doesn't mount a filsystem
+            // until first usage. Those delays can be large and overwhelm small
+            // relative differences between file timestamps, so we deliberately
+            // create a tempoorary file in the same location before we start
+            // the test.
+            {
+                const Obj::FileDescriptor fd0 =
+                                            u::TestUtil::createEphemeralFile();
+                ASSERT(Obj::k_INVALID_FD != fd0);
+                const u::FileDescriptorCloseGuard closeGuard1(fd0);
+            }
+
+            bslmt::ThreadUtil::microSleep(
+                               bdlt::TimeUnitRatio::k_MICROSECONDS_PER_SECOND);
+
+            const bdlt::Datetime startDatetime =
+                bdlt::EpochUtil::convertFromTimeInterval(
+                    bsls::SystemTime::nowRealtimeClock());
+
+            // A brief sleep to ensure the file timestamp exceeds the clock
+            // time.  Note that the delay has to be relatively high as some
+            // file systems have relatively poor timestamp precision.
+            bslmt::ThreadUtil::microSleep(clockFileDelay);
+
+            // Create the first file.
+            const Obj::FileDescriptor fd1 = u::TestUtil::createEphemeralFile();
+            ASSERT(Obj::k_INVALID_FD != fd1);
+            const u::FileDescriptorCloseGuard closeGuard1(fd1);
+
+            // Force a write to ensure the modification time is up to date.
+            int rc = u::TestUtil::modifyTemporaryFile(fd1);
+            ASSERT_EQ(0, rc);
+
+            // A brief sleep to ensure the file timestamps are different.  Note
+            // that the delay has to be relatively high as some file systems
+            // have relatively poor timestamp precision.
+            bslmt::ThreadUtil::microSleep(fileFileDelay);
+
+            // Create the second file.
+            const Obj::FileDescriptor fd2 = u::TestUtil::createEphemeralFile();
+            ASSERT(Obj::k_INVALID_FD != fd2);
+            const u::FileDescriptorCloseGuard closeGuard2(fd2);
+
+            // Force a write to ensure the modification time is up to date.
+            rc = u::TestUtil::modifyTemporaryFile(fd2);
+            ASSERT_EQ(0, rc);
+
+            // A brief sleep to ensure the clock time exceeds the file
+            // timestamp.  Note that the delay has to be relatively high as
+            // some file systems have relatively poor timestamp precision.
+            bslmt::ThreadUtil::microSleep(clockFileDelay);
+
+            const bdlt::Datetime endDatetime =
+                bdlt::EpochUtil::convertFromTimeInterval(
+                    bsls::SystemTime::nowRealtimeClock());
+
+            bdlt::Datetime lastModificationTime1;
+            rc = Obj::getLastModificationTime(&lastModificationTime1, fd1);
+            ASSERT_EQ(0, rc);
+
+            bdlt::Datetime lastModificationTime2;
+            rc = Obj::getLastModificationTime(&lastModificationTime2, fd2);
+            ASSERT_EQ(0, rc);
+
+            const bdlt::DatetimeInterval skew1 =
+                                 lastModificationTime1 - startDatetime;
+            const bdlt::DatetimeInterval skew2 =
+                                 lastModificationTime2 - lastModificationTime1;
+            const bdlt::DatetimeInterval skew3 =
+                                 endDatetime - lastModificationTime2;
+            ASSERT_LT(0, skew1.fractionalDayInMicroseconds());
+            ASSERT_LT(0, skew2.fractionalDayInMicroseconds());
+            ASSERT_LT(0, skew3.fractionalDayInMicroseconds());
+            ASSERT_GT(clockFileCheck,
+                      skew1.fractionalDayInMicroseconds());
+            ASSERT_GT(fileFileCheck,
+                      skew2.fractionalDayInMicroseconds());
+            ASSERT_GT(clockFileCheck,
+                      skew3.fractionalDayInMicroseconds());
+        }
+
         enum {
             NA = 0
         };
 
         // All contemporary file systems that support modification timestamps
-        // provide at least second precision for those timestamps.  Many
-        // provide nanosecond precision, but 'bdls::FilesystemUtil' is not
-        // (yet?) designed to be able to use the underlying file-system
-        // operations that provide access to that precision.
+        // provide at least microsecond precision for those timestamps.
         const bdlt::DatetimeInterval MOD_TIME_PRECISION(
-            0, 0, 0, 1, 0, 0);
+            0, 0, 0, 0, 0, 1);
 
         typedef bdlt::Datetime DT;
 
@@ -3318,7 +3507,7 @@ int main(int argc, char *argv[])
                 (modTime < MOD_TIME) ? MOD_TIME - modTime : modTime - MOD_TIME;
 
             LOOP_ASSERT_LE(LINE, bdlt::DatetimeInterval(), modTimeSkew);
-            LOOP_ASSERT_GE(LINE, MOD_TIME_PRECISION, modTimeSkew);
+            LOOP_ASSERT_GT(LINE, MOD_TIME_PRECISION, modTimeSkew);
         }
       } break;
       case 25: {
@@ -3863,7 +4052,7 @@ int main(int argc, char *argv[])
         bsl::string logPath = dir;
 
         Obj::remove(dir, true);
-        bdls::PathUtil::appendRaw(&logPath, "logs2");
+        bdls::PathUtil::appendRaw(&logPath, "logs20");
 
         ASSERT(0 == Obj::createDirectories(logPath.c_str(), true));
 
@@ -3957,7 +4146,7 @@ int main(int argc, char *argv[])
             WIN32_FIND_DATAW   findDataW;
             const bsl::wstring name = bsl::wstring(filenames[i]) + L".log";
             const bsl::wstring path =
-                            L"bdls_filesystemutil.temp.18\\logs2\\" + name;
+                            L"bdls_filesystemutil.temp.18\\logs20\\" + name;
 
             if (veryVerbose) {
                 int mode = _setmode(_fileno(stdout), _O_U16TEXT);
@@ -3981,7 +4170,7 @@ int main(int argc, char *argv[])
             WIN32_FIND_DATAA findDataA;
             const bsl::string name = bsl::string(NAMES[i]) + ".log";
             const bsl::string path =
-                           "bdls_filesystemutil.temp.18" PS "logs2" PS + name;
+                           "bdls_filesystemutil.temp.18" PS "logs20" PS + name;
 
             if (veryVerbose) { T_; P_(i); P(name); }
 
@@ -7723,8 +7912,9 @@ int main(int argc, char *argv[])
             bdlt::Datetime nowTime = bdlt::CurrentTime::utc();
             for (vector<bsl::string>::iterator it = logFiles.begin();
                     it != logFiles.end(); ++it) {
-                ASSERT(0 == Obj::getLastModificationTime(&modTime,
-                            it->c_str()));
+                ASSERTV(it->c_str(),
+                        0 == Obj::getLastModificationTime(&modTime,
+                                                          it->c_str()));
                 bdls::PathUtil::getLeaf(&fileName, *it);
                 bsl::string* whichDirectory =
                      2 < (nowTime - modTime).totalDays() ? &oldPath : &newPath;
@@ -7816,8 +8006,9 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) cout << "\n3. Large File" << endl;
 
-        system("dd if=/dev/zero of=/tmp/fiveGBFile "
+        int rc = system("dd if=/dev/zero of=/tmp/fiveGBFile "
                "bs=1024000 count=5000");
+        ASSERT(0 == rc);
 
         string fileName("/tmp/fiveGBFile");
 

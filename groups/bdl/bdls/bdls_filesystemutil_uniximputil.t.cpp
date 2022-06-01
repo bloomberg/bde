@@ -119,23 +119,23 @@ namespace u {
 typedef ::off_t       off_t;
 typedef struct ::stat stat;
 typedef ::time_t      time_t;
-#elif defined(BSLS_PLATFORM_OS_WINDOWS)
-typedef ::_off_t       off_t;
-typedef struct ::_stat stat;
-typedef ::time_t      time_t;
 #else
 typedef bsls::Types::Int64 off_t;
-typedef struct StatImp     stat;
+typedef struct Stat64Imp   stat;
 typedef bsls::Types::Int64 time_t;
 
                                // ==============
                                // struct StatImp
                                // ==============
 
-struct StatImp {
-    time_t st_mtime;
-    off_t  st_size;
+struct Stat64Imp {
+    off_t           st_size;
+    struct timespec st_mtim;
 };
+#define st_mtime st_mtim.tv_sec
+
+// Need a "fake" definition so this test driver will run on Windows.
+#define BDLS_FILESYSTEMUTIL_UNIXPLATFORM_STAT_NS_MEMBER st_mtim.tv_nsec
 #endif
 
                          // =========================
@@ -359,6 +359,10 @@ struct TestUnixInterfaceUtil {
 
   public:
     // CLASS METHODS
+    static long get_st_mtim_nsec(const stat& stat);
+        // Return the value of the 'st_mtim.tv_nsec' member of the specified
+        // 'stat' if present.
+
     static time_t get_st_mtime(const stat& stat);
         // Return the value of the 'st_mtime' member of the specified 'stat'.
 
@@ -521,6 +525,13 @@ int TestUnixInterface::numResponses() const
 TestUnixInterface *TestUnixInterfaceUtil::s_interface_p = 0;
 
 // CLASS METHODS
+long
+TestUnixInterfaceUtil::get_st_mtim_nsec(const stat& stat)
+{
+    (void)stat;
+     return stat.BDLS_FILESYSTEMUTIL_UNIXPLATFORM_STAT_NS_MEMBER;
+}
+
 TestUnixInterfaceUtil::time_t TestUnixInterfaceUtil::get_st_mtime(
                                                               const stat& stat)
 {
@@ -761,7 +772,7 @@ int main(int argc, char *argv[])
               const int            FILDES          = DATA[i].d_fildes;
               const int            FSTAT_RESULT    = DATA[i].d_fstatResult;
               const bsls::Types::Int64 ST_MTIME64  = DATA[i].d_st_mtime64;
-              const bdlt::Datetime     TIME        = DATA[i].d_time;
+                    bdlt::Datetime     TIME        = DATA[i].d_time;
               const int                RESULT      = DATA[i].d_result;
 
               if (ST_MTIME64 < MIN_TIME || ST_MTIME64 > MAX_TIME) {
@@ -775,6 +786,12 @@ int main(int argc, char *argv[])
               response.d_fstat.d_result       = FSTAT_RESULT;
               response.d_fstat.d_buf.st_mtime = ST_MTIME;
 
+              if (0 == RESULT) {
+                  TIME.addMicrosecondsIfValid(99);
+              }
+              response.d_fstat.d_buf
+                  .BDLS_FILESYSTEMUTIL_UNIXPLATFORM_STAT_NS_MEMBER = 99 * 1000;
+
               Interface interface;
               interface.pushBackResponse(response);
 
@@ -784,7 +801,7 @@ int main(int argc, char *argv[])
                   Obj::getLastModificationTime(&time, FILE_DESCRIPTOR);
               InterfaceUtil::setInterface(0);
 
-              Call call;
+              Call call = Call();
               interface.popFrontCall(&call);
               LOOP_ASSERT_EQ(LINE, FunctionId::e_FSTAT, call.d_functionId);
               if (FunctionId::e_FSTAT != call.d_functionId) {
@@ -949,7 +966,7 @@ int main(int argc, char *argv[])
                 const Offset result = Obj::getFileSize(FILE_DESCRIPTOR);
                 InterfaceUtil::setInterface(0);
 
-                Call call;
+                Call call = Call();
                 interface.popFrontCall(&call);
                 LOOP_ASSERT_EQ(LINE, FunctionId::e_FSTAT, call.d_functionId);
                 if (FunctionId::e_FSTAT != call.d_functionId) {

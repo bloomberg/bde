@@ -5,23 +5,41 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide maximum Unix file-offset type width detection macros.
+//@PURPOSE: Provide Unix timstamp and offset type width detection macros.
 //
 //@MACROS:
 // BDLS_FILESYSTEMUTIL_UNIXPLATFORM_64_BIT_OFF:   1 if 'off_t' is 64 bits, else
 // BDLS_FILESYSTEMUTIL_UNIXPLATFORM_64_BIT_OFF64: 1 if 'off64_t' exists, else
 // BDLS_FILESYSTEMUTIL_UNIXPLATFORM_32_BIT_OFF:   1 ('off_t' is 32 bits)
 //
+// BDLS_FILESYSTEMUTIL_UNIXPLATFORM_STAT_NS_MEMBER:   The 'stat' nanosecond
+//                                                    member name
+//
 //@SEE_ALSO: bdls_filesystemutil, bdls_filesystemutil_unixplatform,
 // bdls_filesystemutil_transitionalunixplatform
 //
-//@DESCRIPTION: This subordinate component to 'bdls_filesystemutil' provides a
-// set of macros for detecting the most appropriate type to use for byte
-// quantities, and most appropriate set of functions to use for file
-// operations, on Unix platforms.
+//@DESCRIPTION: This subordinate component to 'bdls_filesystemutil' provides:
 //
-///Macros
-///------
+// a) a set of macros for detecting the most appropriate type to use for byte
+// quantities, and most appropriate set of functions to use for file
+// operations, on Unix platforms, and
+// 
+// b) a macro which specifies the name of the member variable, within a 'stat'
+// structure, that holds the nanosecond part of the file timestamp.
+//
+///Nanosecond Support Macros
+///-------------------------
+// This component defines the following Macros if the 'stat' structure defined
+// in 'sys/stat.h' contains the 'st_mtim.tv_nsec' member.  This is determined
+// by the feature tests specified in POSIX.1-2008 - see
+// https://linux.die.net/man/2/fstat.
+//
+//: 'BDLS_FILESYSTEMUTIL_UNIXPLATFORM_STAT_NS_MEMBER': This macro is defined to
+//:  be the name of the member of the 'stat' structure that contains the
+//:  nanosecond part of the timestamp value.
+//
+///Byte Quantity Macros
+///--------------------
 // This component defines exactly 1 of 3 macros depending on the current
 // platform configuration, which are used to determine which offset type and
 // associated set of file-system functions a program should use on Unix.  These
@@ -50,8 +68,8 @@ BSLS_IDENT("$Id: $")
 //: operations.  If this macro is defined, a program may be unable to operate
 //: on files larger than approximately 2 Gigabytes.
 //
-///Macro Selection
-///---------------
+///Byte Quantity Macro Selection
+///-----------------------------
 // Which of the 3 macros this component defines depends upon the capabilities
 // of the platform's configuration.  There are 4 criteria used to determine
 // which macro is defined, and they are
@@ -162,6 +180,8 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
+
+#include <unistd.h>
 
                        // 32-Bit AIX with '_LARGE_FILE'
 
@@ -299,6 +319,18 @@ BSLS_IDENT("$Id: $")
     #else
     #error "'bdls_filesystemutil_unixplatform.h' does not support this Unix."
     #endif
+
+#if defined(BSLS_PLATFORM_OS_SOLARIS) ||                          \
+    defined(BSLS_PLATFORM_OS_AIX) ||                              \
+    defined(BSLS_PLATFORM_OS_LINUX)
+
+   #define BDLS_FILESYSTEMUTIL_UNIXPLATFORM_STAT_NS_MEMBER st_mtim.tv_nsec
+
+#elif defined(BSLS_PLATFORM_OS_DARWIN)
+
+   #define BDLS_FILESYSTEMUTIL_UNIXPLATFORM_STAT_NS_MEMBER st_mtimespec.tv_nsec
+
+#endif
 
 #endif
 #endif

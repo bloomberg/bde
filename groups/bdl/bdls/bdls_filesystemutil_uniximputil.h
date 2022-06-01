@@ -21,6 +21,9 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlt_datetime.h>
 #include <bdlt_epochutil.h>
+#include <bdlt_timeunitratio.h>
+
+#include <bsls_assert.h>
 
 namespace BloombergLP {
 namespace bdls {
@@ -37,6 +40,19 @@ struct FilesystemUtil_UnixImpUtil {
     // provides access to the entities that large-file environment Unix
     // systems declare, and that the function implementations need.
     //
+    // Note that, on some Unix platforms and some build configurations, the
+    // 'stat' struct does not have an 'st_mtime' field, and 'st_mtime' is a
+    // macro that emulates the access of the field.  Similarly, on some Unix
+    // platforms and some build configurations, the 'stat' structure does not
+    // have an 'st_mtim' field or the 'st_mtim' struct does not have a
+    // 'tv_nsec' (or, for some versions of Solaris, '__tv_nsec') field, in
+    // which case the 'get_st_mtim_nsec' function returns zero.  For more
+    // information, please see the specification of the 'sys/stat.h' header
+    // from IEEE Std
+    // 1003.1-2017, which provides information about the evolution of the
+    // 'stat' struct in the POSIX specification
+    // (https://pubs.opengroup.org/onlinepubs/9699919799.2018edition/).
+    //
     // The program is ill-formed unless the specified 'UNIX_INTERFACE' is a
     // class type that meets the following requirements:
     //
@@ -49,15 +65,15 @@ struct FilesystemUtil_UnixImpUtil {
     //: o 'UNIX_INTERFACE::time_t' is a type alias to the 'time_t' type provided
     //:    by the 'sys/types.h' header.
     //:
+    //: o 'UNIX_INTERFACE::get_st_mtim_nsec' is a public, static member
+    //:   function that has 'long (const stat& stat)' type and whose contract
+    //:   is to return the value of the 'st_mtim.tv_nsec' field of the
+    //:   specified 'stat' struct.
+    //:
     //: o 'UNIX_INTERFACE::get_st_mtime' is a public, static member function
     //:   that has 'time_t (const stat& stat)' type and whose contract is to
     //:   return the value of the 'st_mtime' field of the specified 'stat'
-    //:   struct. Note that, on some Unix platforms and some build
-    //:   configurations, the 'stat' struct does not have an 'st_mtime' field,
-    //:   and 'st_mtime' is a macro that emulates the access of the field.  For
-    //:   more information, please see the specification of the 'sys/stat.h'
-    //:   header from IEEE Std 1003.1-2017, which provides information about
-    //:   the evolution of the 'stat' struct in the POSIX specification.
+    //:   struct.
     //:
     //: o 'UNIX_INTERFACE::get_st_size' is a public, static member function
     //:   that has 'off_t (const stat& stat)' type and whose contract is to
@@ -98,15 +114,13 @@ struct FilesystemUtil_UnixImpUtil {
         // seconds since January 1st 1970 in Coordinated Universal Time.
 
     // PRIVATE CLASS METHODS
+    static long get_st_mtim_nsec(const stat& stat);
+        // Return the value of the 'st_mtim.nsec' field of the specified 'stat'
+        // struct.
+
     static time_t get_st_mtime(const stat& stat);
         // Return the value of the 'st_mtime' data member of the specified
-        // 'stat'.  Note that, on some Unix platforms and some build
-        // configurations, the 'stat' struct does not have an 'st_mtime' field,
-        // and 'st_mtime' is a macro that emulates the access of the field.
-        // For more information, please see the specification of the
-        // 'sys/stat.h' header from IEEE Std 1003.1-2017, which provides
-        // information about the evolution of the 'stat' struct in the POSIX
-        // specification.
+        // 'stat'.
 
     static off_t get_st_size(const stat& stat);
         // Return the value of the 'st_size' data member of the specified
@@ -142,6 +156,13 @@ struct FilesystemUtil_UnixImpUtil {
                      // ---------------------------------
 
 // PRIVATE CLASS METHODS
+template <class UNIX_INTERFACE>
+long
+FilesystemUtil_UnixImpUtil<UNIX_INTERFACE>::get_st_mtim_nsec(const stat& stat)
+{
+    return UNIX_INTERFACE::get_st_mtim_nsec(stat);
+}
+
 template <class UNIX_INTERFACE>
 typename UNIX_INTERFACE::time_t
 FilesystemUtil_UnixImpUtil<UNIX_INTERFACE>::get_st_mtime(const stat& stat)
@@ -190,6 +211,16 @@ int FilesystemUtil_UnixImpUtil<UNIX_INTERFACE>::getLastModificationTime(
 
     bdlt::Datetime result = bdlt::EpochUtil::epoch();
     rc = result.addSecondsIfValid(get_st_mtime(statResult));
+    if (0 != rc) {
+        return -1;                                                    // RETURN
+    }
+
+    long nanoseconds = get_st_mtim_nsec(statResult);
+    BSLS_ASSERT_SAFE((0 <= nanoseconds) &&
+                     (nanoseconds <
+                      bdlt::TimeUnitRatio::k_NANOSECONDS_PER_SECOND));
+    rc = result.addMicrosecondsIfValid(
+          nanoseconds / bdlt::TimeUnitRatio::k_NANOSECONDS_PER_MICROSECOND_32);
     if (0 != rc) {
         return -1;                                                    // RETURN
     }
