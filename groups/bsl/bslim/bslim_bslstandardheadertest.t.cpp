@@ -991,12 +991,12 @@ int main(int argc, char *argv[])
         ASSERT(std::hermitef(3U, 10.0F) == bsl::hermitef(3U, 10.0F));
         ASSERT(std::hermitel(3U, 10.0L) == bsl::hermitel(3U, 10.0L));
 
-        ASSERT(std::legendre (3U, 10)    == bsl::legendre (3U, 10));
-        ASSERT(std::legendre (3U, 10.0F) == bsl::legendre (3U, 10.0F));
-        ASSERT(std::legendre (3U, 10.0)  == bsl::legendre (3U, 10.0));
-        ASSERT(std::legendre (3U, 10.0L) == bsl::legendre (3U, 10.0L));
-        ASSERT(std::legendref(3U, 10.0F) == bsl::legendref(3U, 10.0F));
-        ASSERT(std::legendrel(3U, 10.0L) == bsl::legendrel(3U, 10.0L));
+        ASSERT(std::legendre (3U, 1)    == bsl::legendre (3U, 1));
+        ASSERT(std::legendre (3U, 1.0F) == bsl::legendre (3U, 1.0F));
+        ASSERT(std::legendre (3U, 1.0)  == bsl::legendre (3U, 1.0));
+        ASSERT(std::legendre (3U, 1.0L) == bsl::legendre (3U, 1.0L));
+        ASSERT(std::legendref(3U, 1.0F) == bsl::legendref(3U, 1.0F));
+        ASSERT(std::legendrel(3U, 1.0L) == bsl::legendrel(3U, 1.0L));
 
         ASSERT(std::laguerre (3U, 10)    == bsl::laguerre (3U, 10));
         ASSERT(std::laguerre (3U, 10.0F) == bsl::laguerre (3U, 10.0F));
