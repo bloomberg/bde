@@ -1153,7 +1153,8 @@ int main(int argc, char *argv[])
             // TBD: find a better way to determine which path will be returned
             // on a build machine.
 
-            // /bb/data/datetime/zoneinfo is Bloomberg-specific
+            // The initial three paths in the following list are
+            // Bloomberg-specific.
             LOOP2_ASSERT( L_, RESULT,
                         0 == strcmp(RESULT, "/opt/bbinfra/share/zoneinfo/")
                      || 0 == strcmp(RESULT, "/opt/bb/share/zoneinfo/")
