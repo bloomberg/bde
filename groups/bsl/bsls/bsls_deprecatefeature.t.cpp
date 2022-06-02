@@ -553,11 +553,11 @@ int main(int argc, char *argv[])
         CollectedData EXPECTED_DATA[k_NUM_CONFIGURATIONS] = {
                                                         // DJ DE BJ BE
             { 1,  0, ""},                               //  0  0  0  0
-            { 1,  1, "[[deprecated((\"text\"))]]"},     //  0  0  0  1
+            { 1,  1, "[[deprecated(\"text\")]]"},       //  0  0  0  1
             { 1,  0, "" },                              //  0  0  1  0
             { 1,  1, JSON },                            //  0  0  1  1
-            { 1,  1, "[[deprecated((\"text\"))]]"},     //  0  1  0  0
-            { 1,  1, "[[deprecated((\"text\"))]]"},     //  0  1  0  1
+            { 1,  1, "[[deprecated(\"text\")]]"},       //  0  1  0  0
+            { 1,  1, "[[deprecated(\"text\")]]"},       //  0  1  0  1
             { 1,  1, JSON },                            //  0  1  1  0
             { 1,  1, JSON },                            //  0  1  1  1
             { 1,  0, ""},                               //  1  0  0  0

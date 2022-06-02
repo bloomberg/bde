@@ -223,7 +223,12 @@
                        // Component Configuration Macros
                        // ==============================
 
-#if defined(__cplusplus) && (__cplusplus >= 201703L)
+// This could be replaced with BSLS_COMPILERFEATURES_CPLUSPLUS, but for the
+// moment, this header has 0 dependencies, which may be a useful feature to
+// maintain.
+
+#if (defined(__cplusplus) && (__cplusplus >= 201703L)) || \
+    (defined(_MSVC_LANG)  && (_MSVC_LANG  >= 201703L))
 #define BSLS_DEPRECATE_FEATURE_IS_SUPPORTED
 #endif
 
@@ -249,7 +254,7 @@
     "\", \"message\": \"" MESSAGE "\"}")]]
 #else
 #define BSLS_DEPRECATE_FEATURE_IMP(UOR, FEATURE, MESSAGE)                     \
-    [[deprecated((MESSAGE))]]
+    [[deprecated(MESSAGE)]]
 #endif  // BB_DEPRECATE_ENABLE_JSON_MESSAGE
 #endif
 
