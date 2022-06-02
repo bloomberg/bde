@@ -31,6 +31,7 @@
 // [ 1] bool all_of (InputIter first, InputIter last, PREDICATE pred);
 // [ 1] bool any_of (InputIter first, InputIter last, PREDICATE pred);
 // [ 1] bool none_of(InputIter first, InputIter last, PREDICATE pred);
+// [ 2] BREATHING TEST
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -339,6 +340,54 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
+      case 2: {
+        // --------------------------------------------------------------------
+        // BREATHING TEST
+        //   This case exercises (but does not fully test) basic functionality.
+        //
+        // Concerns:
+        //: 1 The class is sufficiently functional to enable comprehensive
+        //:   testing in subsequent test cases.
+        //
+        // Plan:
+        //: 1 Run each method with arbitrary inputs and verify the behavior is
+        //:   as expected.
+        //
+        // Testing:
+        //   BREATHING TEST
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nBREATHING TEST"
+                            "\n==============\n");
+
+#ifdef BSLSTL_ALGORITHMWORKAROUND_IMPLEMENTS_COPY_IF
+        const int INPUT_ARRAY[] = { 0, 1, 2, 3, 4, 5, 6, 7};
+        const int * const INPUT_BEGIN = INPUT_ARRAY;
+        const size_t INPUT_SIZE = sizeof(INPUT_ARRAY) / sizeof(*INPUT_ARRAY);
+        const int * const INPUT_END = INPUT_BEGIN + INPUT_SIZE;
+        int OUTPUT_ARRAY[INPUT_SIZE] = {};
+
+        const int * const OUTPUT_END =
+        bsl::copy_if(INPUT_BEGIN, INPUT_END, OUTPUT_ARRAY, IsOdd());
+
+        const size_t OUTPUT_EFFECTIVE_SIZE = OUTPUT_END - OUTPUT_ARRAY;
+
+        ASSERTV(OUTPUT_EFFECTIVE_SIZE, 4 == OUTPUT_EFFECTIVE_SIZE);
+
+        if (OUTPUT_EFFECTIVE_SIZE > 0) {
+            ASSERTV(OUTPUT_ARRAY[0], 1 == OUTPUT_ARRAY[0]);
+        }
+        if (OUTPUT_EFFECTIVE_SIZE > 1) {
+            ASSERTV(OUTPUT_ARRAY[1], 3 == OUTPUT_ARRAY[1]);
+        }
+        if (OUTPUT_EFFECTIVE_SIZE > 2) {
+            ASSERTV(OUTPUT_ARRAY[2], 5 == OUTPUT_ARRAY[2]);
+        }
+        if (OUTPUT_EFFECTIVE_SIZE > 3) {
+            ASSERTV(OUTPUT_ARRAY[3], 7 == OUTPUT_ARRAY[3]);
+        }
+#endif
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // FUNCTIONALITY TEST

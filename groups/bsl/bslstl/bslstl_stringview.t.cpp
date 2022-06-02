@@ -2,7 +2,7 @@
 #include <bslstl_stringview.h>
 #include <bslstl_stringref.h>
 
-#include <bslstl_algorithmworkaround.h>  // bsl::count()
+#include <bslstl_algorithm.h>  // bsl::count()
 #include <bslstl_map.h>
 #include <bslstl_string.h>
 #include <bslstl_vector.h>
@@ -896,7 +896,7 @@ void TestDriver<TYPE,TRAITS>::testCase23()
 #endif
         }
 
-        if (veryVerbose) printf("\std::string vs. string_view\n");
+        if (veryVerbose) printf("\tstd::string vs. string_view\n");
         {
             std::basic_string<TYPE> s(pB, pB + LEN);
             bsl::basic_string_view<TYPE> v(s);
