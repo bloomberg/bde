@@ -1,5 +1,23 @@
-bsl-internal (3.101.0.0) unstable; urgency=low
+bsl-internal (3.102.0.0) unstable; urgency=low
 
+  * 6b11d2ceb Bumped version to 3.102.0.0
+  * 02b1b964d Remove superfluous parenthesis (#3740)
+  * deb087503 Merge pull request #3738 from mclow3/cxx17MathTestsFix
+  * 40c12770a Fix zoneinfo comment (#3737)
+  * 96716594d Support microsecond resolution in file modification time reading (#3695)
+  * 4e31bdf38 Add second bsls_deprecatefeature example (#3727)
+  * 10719e104 Revert Rejection of Null Anonymous Inner Choices in baljsn (#3729)
+  * ec7270465 Add /opt/bbinfra/share/zoneinfo/ to the timezone locations (#3728)
+  * 3cde2208f Improvements to PCG and GUID ranges (#3664)
+  * 67490c652 streamlining LimitAllocator definitions in test drivers (#3726)
+  * 7d01bb3c6 drqs-169357261: Several 'bsl' test drivers fail in non-exception build (#3714)
+  * f2bdb8d84 Revert "Bslim gtestutil printto optional drqs 168811170 (#3677)" (#3723)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 2 Jun 2022 14:52:44 -0400
+
+bsl-internal (3.101.0.0) git; urgency=low
+
+  * 44aae649d Changelog for version 3.101.0.0
   * 327a918af Bumped version to 3.101.0.0
   * 290c022b5 Add `bsl::from_chars` (#3718)
   * 962f7aade removed bsl_overrides_std, native_std (#3715)
@@ -10,7 +28,7 @@ bsl-internal (3.101.0.0) unstable; urgency=low
   * b4adf1f5b Make bacl_optionvalue.t.cpp build on IAX. (#3662)
   * bd85fa972 Merge pull request #3713 from sbreitst/bsls_nullptr-drqs-169356073
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 25 May 2022 14:51:52 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 25 May 2022 14:54:17 -0400
 
 bsl-internal (3.100.0.4) git; urgency=low
 
