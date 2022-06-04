@@ -34,22 +34,24 @@ typedef bdlt::TimeUnitRatio TimeUnitRatio;
 BSLMF_ASSERT(-3 / 2 == -1);
 BSLMF_ASSERT(-5 % 4 == -1);
 
-enum { k_MAX_INT64 = static_cast<bsls::Types::Int64>(
-                                    ~static_cast<Uint64>(0) >> 1),
-       k_MIN_INT64                 = ~k_MAX_INT64,
+const Int64 k_MAX_INT64       = static_cast<bsls::Types::Int64>(
+                                                 ~static_cast<Uint64>(0) >> 1);
+const Int64 k_MIN_INT64       = ~k_MAX_INT64;
 
-       k_MAX_INT                   = static_cast<Int64>(
-                                               ~static_cast<unsigned>(0) >> 1),
-       k_MIN_INT                   = ~k_MAX_INT,
+const Int64 k_MAX_INT         = static_cast<Int64>(
+                                               ~static_cast<unsigned>(0) >> 1);
+const Int64 k_MIN_INT         = ~k_MAX_INT;
 
-       k_HOURS_CEILING         = (k_MAX_INT+1) * TimeUnitRatio::k_H_PER_D - 1,
-       k_HOURS_FLOOR           = (k_MIN_INT-1) * TimeUnitRatio::k_H_PER_D + 1,
-       k_MINUTES_CEILING       = (k_MAX_INT+1) * TimeUnitRatio::k_M_PER_D - 1,
-       k_MINUTES_FLOOR         = (k_MIN_INT-1) * TimeUnitRatio::k_M_PER_D + 1,
-       k_SECONDS_CEILING       = (k_MAX_INT+1) * TimeUnitRatio::k_S_PER_D - 1,
-       k_SECONDS_FLOOR         = (k_MIN_INT-1) * TimeUnitRatio::k_S_PER_D + 1,
-       k_MILLISECONDS_CEILING  = (k_MAX_INT+1) * TimeUnitRatio::k_MS_PER_D -1,
-       k_MILLISECONDS_FLOOR    = (k_MIN_INT-1) * TimeUnitRatio::k_MS_PER_D +1};
+const Int64 k_HOURS_CEILING   = (k_MAX_INT + 1) * TimeUnitRatio::k_H_PER_D - 1;
+const Int64 k_HOURS_FLOOR     = (k_MIN_INT - 1) * TimeUnitRatio::k_H_PER_D + 1;
+const Int64 k_MINUTES_CEILING = (k_MAX_INT + 1) * TimeUnitRatio::k_M_PER_D - 1;
+const Int64 k_MINUTES_FLOOR   = (k_MIN_INT - 1) * TimeUnitRatio::k_M_PER_D + 1;
+const Int64 k_SECONDS_CEILING = (k_MAX_INT + 1) * TimeUnitRatio::k_S_PER_D - 1;
+const Int64 k_SECONDS_FLOOR   = (k_MIN_INT - 1) * TimeUnitRatio::k_S_PER_D + 1;
+const Int64 k_MILLISECONDS_CEILING
+                              = (k_MAX_INT + 1) * TimeUnitRatio::k_MS_PER_D -1;
+const Int64 k_MILLISECONDS_FLOOR
+                              = (k_MIN_INT - 1) * TimeUnitRatio::k_MS_PER_D +1;
 
 const double maxInt64                    = static_cast<double>(k_MAX_INT64);
 const double minInt64                    = static_cast<double>(k_MIN_INT64);

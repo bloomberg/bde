@@ -1710,26 +1710,25 @@ if (veryVerbose)
             }
         }
 
-        enum {
-            k_US_PER_D = TimeUnitRatio::k_US_PER_D,
-            k_MS_PER_D = TimeUnitRatio::k_MS_PER_D,
-            k_S_PER_D  = TimeUnitRatio::k_S_PER_D,
-            k_M_PER_D  = TimeUnitRatio::k_M_PER_D,
-            k_H_PER_D  = TimeUnitRatio::k_H_PER_D,
+        static const Int64 k_US_PER_D = TimeUnitRatio::k_US_PER_D;
+        static const Int64 k_MS_PER_D = TimeUnitRatio::k_MS_PER_D;
+        static const Int64 k_S_PER_D  = TimeUnitRatio::k_S_PER_D;
+        static const Int64 k_M_PER_D  = TimeUnitRatio::k_M_PER_D;
+        static const Int64 k_H_PER_D  = TimeUnitRatio::k_H_PER_D;
 
-            k_US_PER_MS = TimeUnitRatio::k_US_PER_MS,
+        static const Int64 k_US_PER_MS = TimeUnitRatio::k_US_PER_MS;
 
-            k_US_PER_S = TimeUnitRatio::k_US_PER_S,
-            k_MS_PER_S = TimeUnitRatio::k_MS_PER_S,
+        static const Int64 k_US_PER_S = TimeUnitRatio::k_US_PER_S;
+        static const Int64 k_MS_PER_S = TimeUnitRatio::k_MS_PER_S;
 
-            k_US_PER_M = TimeUnitRatio::k_US_PER_M,
-            k_MS_PER_M = TimeUnitRatio::k_MS_PER_M,
-            k_S_PER_M  = TimeUnitRatio::k_S_PER_M,
+        static const Int64 k_US_PER_M = TimeUnitRatio::k_US_PER_M;
+        static const Int64 k_MS_PER_M = TimeUnitRatio::k_MS_PER_M;
+        static const Int64 k_S_PER_M  = TimeUnitRatio::k_S_PER_M;
 
-            k_US_PER_H = TimeUnitRatio::k_US_PER_H,
-            k_MS_PER_H = TimeUnitRatio::k_MS_PER_H,
-            k_S_PER_H  = TimeUnitRatio::k_S_PER_H,
-            k_M_PER_H  = TimeUnitRatio::k_M_PER_H };
+        static const Int64 k_US_PER_H = TimeUnitRatio::k_US_PER_H;
+        static const Int64 k_MS_PER_H = TimeUnitRatio::k_MS_PER_H;
+        static const Int64 k_S_PER_H  = TimeUnitRatio::k_S_PER_H;
+        static const Int64 k_M_PER_H  = TimeUnitRatio::k_M_PER_H;
 
         if (verbose)
             cout << "\nNegative Testing." << endl;
@@ -5239,26 +5238,25 @@ if (veryVerbose)
             }
         }
 
-        enum {
-            k_US_PER_D = TimeUnitRatio::k_US_PER_D,
-            k_MS_PER_D = TimeUnitRatio::k_MS_PER_D,
-            k_S_PER_D  = TimeUnitRatio::k_S_PER_D,
-            k_M_PER_D  = TimeUnitRatio::k_M_PER_D,
-            k_H_PER_D  = TimeUnitRatio::k_H_PER_D,
+        static const Int64 k_US_PER_D = TimeUnitRatio::k_US_PER_D;
+        static const Int64 k_MS_PER_D = TimeUnitRatio::k_MS_PER_D;
+        static const Int64 k_S_PER_D  = TimeUnitRatio::k_S_PER_D;
+        static const Int64 k_M_PER_D  = TimeUnitRatio::k_M_PER_D;
+        static const Int64 k_H_PER_D  = TimeUnitRatio::k_H_PER_D;
 
-            k_US_PER_MS = TimeUnitRatio::k_US_PER_MS,
+        static const Int64 k_US_PER_MS = TimeUnitRatio::k_US_PER_MS;
 
-            k_US_PER_S = TimeUnitRatio::k_US_PER_S,
-            k_MS_PER_S = TimeUnitRatio::k_MS_PER_S,
+        static const Int64 k_US_PER_S = TimeUnitRatio::k_US_PER_S;
+        static const Int64 k_MS_PER_S = TimeUnitRatio::k_MS_PER_S;
 
-            k_US_PER_M = TimeUnitRatio::k_US_PER_M,
-            k_MS_PER_M = TimeUnitRatio::k_MS_PER_M,
-            k_S_PER_M  = TimeUnitRatio::k_S_PER_M,
+        static const Int64 k_US_PER_M = TimeUnitRatio::k_US_PER_M;
+        static const Int64 k_MS_PER_M = TimeUnitRatio::k_MS_PER_M;
+        static const Int64 k_S_PER_M  = TimeUnitRatio::k_S_PER_M;
 
-            k_US_PER_H = TimeUnitRatio::k_US_PER_H,
-            k_MS_PER_H = TimeUnitRatio::k_MS_PER_H,
-            k_S_PER_H  = TimeUnitRatio::k_S_PER_H,
-            k_M_PER_H  = TimeUnitRatio::k_M_PER_H };
+        static const Int64 k_US_PER_H = TimeUnitRatio::k_US_PER_H;
+        static const Int64 k_MS_PER_H = TimeUnitRatio::k_MS_PER_H;
+        static const Int64 k_S_PER_H  = TimeUnitRatio::k_S_PER_H;
+        static const Int64 k_M_PER_H  = TimeUnitRatio::k_M_PER_H;
 
         if (verbose)
             cout << "\nNegative Testing." << endl;
