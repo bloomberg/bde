@@ -19,17 +19,42 @@ BSLS_IDENT_RCSID(bdlt_datetimeinterval_cpp,"$Id$ $CSID$")
 #include <bsl_cmath.h>
 #include <math.h>
 
-namespace BloombergLP {
+namespace {
+namespace u {
+
+using namespace BloombergLP;
+
+typedef bsls::Types::Int64  Int64;
+typedef bsls::Types::Uint64 Uint64;
+
+typedef bdlt::TimeUnitRatio TimeUnitRatio;
 
 // Assert fundamental assumptions made in the implementation.
 
 BSLMF_ASSERT(-3 / 2 == -1);
 BSLMF_ASSERT(-5 % 4 == -1);
 
-namespace bdlt {
+enum { k_MAX_INT64 = static_cast<bsls::Types::Int64>(
+                                    ~static_cast<Uint64>(0) >> 1),
+       k_MIN_INT64                 = ~k_MAX_INT64,
 
-// STATIC HELPER FUNCTIONS
-static
+       k_MAX_INT                   = static_cast<Int64>(
+                                               ~static_cast<unsigned>(0) >> 1),
+       k_MIN_INT                   = ~k_MAX_INT,
+
+       k_HOURS_CEILING         = (k_MAX_INT+1) * TimeUnitRatio::k_H_PER_D - 1,
+       k_HOURS_FLOOR           = (k_MIN_INT-1) * TimeUnitRatio::k_H_PER_D + 1,
+       k_MINUTES_CEILING       = (k_MAX_INT+1) * TimeUnitRatio::k_M_PER_D - 1,
+       k_MINUTES_FLOOR         = (k_MIN_INT-1) * TimeUnitRatio::k_M_PER_D + 1,
+       k_SECONDS_CEILING       = (k_MAX_INT+1) * TimeUnitRatio::k_S_PER_D - 1,
+       k_SECONDS_FLOOR         = (k_MIN_INT-1) * TimeUnitRatio::k_S_PER_D + 1,
+       k_MILLISECONDS_CEILING  = (k_MAX_INT+1) * TimeUnitRatio::k_MS_PER_D -1,
+       k_MILLISECONDS_FLOOR    = (k_MIN_INT-1) * TimeUnitRatio::k_MS_PER_D +1};
+
+const double maxInt64                    = static_cast<double>(k_MAX_INT64);
+const double minInt64                    = static_cast<double>(k_MIN_INT64);
+
+// HELPER FUNCTIONS
 int printToBufferFormatted(char       *result,
                            int         numBytes,
                            const char *spec,
@@ -140,6 +165,12 @@ int printToBufferFormatted(char       *result,
 #endif
 }
 
+}  // close namespace u
+}  // close unnamed namespace
+
+namespace BloombergLP {
+namespace bdlt {
+
                           // ----------------------
                           // class DatetimeInterval
                           // ----------------------
@@ -167,7 +198,149 @@ void DatetimeInterval::assign(bsls::Types::Int64 days,
     d_microseconds = microseconds;
 }
 
+int DatetimeInterval::assignIfValid(bsls::Types::Int64 days,
+                                    bsls::Types::Int64 microseconds)
+{
+    days         += microseconds / TimeUnitRatio::k_US_PER_D;
+    microseconds %= TimeUnitRatio::k_US_PER_D;
+
+    if (days > 0 && microseconds < 0) {
+        --days;
+        microseconds += TimeUnitRatio::k_US_PER_D;
+    }
+    else if (days < 0 && microseconds > 0) {
+        ++days;
+        microseconds -= TimeUnitRatio::k_US_PER_D;
+    }
+
+    if   (days < bsl::numeric_limits<int32_t>::min()
+       || days > bsl::numeric_limits<int32_t>::max()) {
+        return -1;                                                    // RETURN
+    }
+
+    d_days         = static_cast<int>(days);
+    d_microseconds = microseconds;
+
+    return 0;
+}
+
+// CLASS METHODS
+bool DatetimeInterval::isValid(int                days,
+                               bsls::Types::Int64 hours,
+                               bsls::Types::Int64 minutes,
+                               bsls::Types::Int64 seconds,
+                               bsls::Types::Int64 milliseconds,
+                               bsls::Types::Int64 microseconds)
+{
+    if   (u::k_HOURS_CEILING        < hours
+       || u::k_MINUTES_CEILING      < minutes
+       || u::k_SECONDS_CEILING      < seconds
+       || u::k_MILLISECONDS_CEILING < milliseconds
+       || u::k_HOURS_FLOOR          > hours
+       || u::k_MINUTES_FLOOR        > minutes
+       || u::k_SECONDS_FLOOR        > seconds
+       || u::k_MILLISECONDS_FLOOR   > milliseconds) {
+        return false;                                                 // RETURN
+    }
+
+    bsls::Types::Int64 d = static_cast<bsls::Types::Int64>(days)
+                         + hours        / TimeUnitRatio::k_H_PER_D
+                         + minutes      / TimeUnitRatio::k_M_PER_D
+                         + seconds      / TimeUnitRatio::k_S_PER_D
+                         + milliseconds / TimeUnitRatio::k_MS_PER_D
+                         + microseconds / TimeUnitRatio::k_US_PER_D;
+
+    hours        %= TimeUnitRatio::k_H_PER_D;
+    minutes      %= TimeUnitRatio::k_M_PER_D;
+    seconds      %= TimeUnitRatio::k_S_PER_D;
+    milliseconds %= TimeUnitRatio::k_MS_PER_D;
+    microseconds %= TimeUnitRatio::k_US_PER_D;
+
+    bsls::Types::Int64 us = hours        * TimeUnitRatio::k_US_PER_H
+                          + minutes      * TimeUnitRatio::k_US_PER_M
+                          + seconds      * TimeUnitRatio::k_US_PER_S
+                          + milliseconds * TimeUnitRatio::k_US_PER_MS
+                          + microseconds;
+
+    d += us / TimeUnitRatio::k_US_PER_D;
+
+    if   (d < u::k_MIN_INT || u::k_MAX_INT < d) {
+        return false;                                                 // RETURN
+    }
+
+    return true;
+}
+
 // MANIPULATORS
+void DatetimeInterval::setInterval(int                days,
+                                   bsls::Types::Int64 hours,
+                                   bsls::Types::Int64 minutes,
+                                   bsls::Types::Int64 seconds,
+                                   bsls::Types::Int64 milliseconds,
+                                   bsls::Types::Int64 microseconds)
+{
+    bsls::Types::Int64 d = static_cast<bsls::Types::Int64>(days)
+                         + hours        / TimeUnitRatio::k_H_PER_D
+                         + minutes      / TimeUnitRatio::k_M_PER_D
+                         + seconds      / TimeUnitRatio::k_S_PER_D
+                         + milliseconds / TimeUnitRatio::k_MS_PER_D
+                         + microseconds / TimeUnitRatio::k_US_PER_D;
+
+    hours        %= TimeUnitRatio::k_H_PER_D;
+    minutes      %= TimeUnitRatio::k_M_PER_D;
+    seconds      %= TimeUnitRatio::k_S_PER_D;
+    milliseconds %= TimeUnitRatio::k_MS_PER_D;
+    microseconds %= TimeUnitRatio::k_US_PER_D;
+
+    bsls::Types::Int64 us = hours        * TimeUnitRatio::k_US_PER_H
+                          + minutes      * TimeUnitRatio::k_US_PER_M
+                          + seconds      * TimeUnitRatio::k_US_PER_S
+                          + milliseconds * TimeUnitRatio::k_US_PER_MS
+                          + microseconds;
+
+    assign(d, us);
+}
+
+int DatetimeInterval::setIntervalIfValid(int                days,
+                                         bsls::Types::Int64 hours,
+                                         bsls::Types::Int64 minutes,
+                                         bsls::Types::Int64 seconds,
+                                         bsls::Types::Int64 milliseconds,
+                                         bsls::Types::Int64 microseconds)
+{
+    if   (u::k_HOURS_CEILING        < hours
+       || u::k_MINUTES_CEILING      < minutes
+       || u::k_SECONDS_CEILING      < seconds
+       || u::k_MILLISECONDS_CEILING < milliseconds
+       || u::k_HOURS_FLOOR          > hours
+       || u::k_MINUTES_FLOOR        > minutes
+       || u::k_SECONDS_FLOOR        > seconds
+       || u::k_MILLISECONDS_FLOOR   > milliseconds) {
+        return -1;                                                    // RETURN
+    }
+
+    bsls::Types::Int64 d = static_cast<bsls::Types::Int64>(days)
+                         + hours        / TimeUnitRatio::k_H_PER_D
+                         + minutes      / TimeUnitRatio::k_M_PER_D
+                         + seconds      / TimeUnitRatio::k_S_PER_D
+                         + milliseconds / TimeUnitRatio::k_MS_PER_D
+                         + microseconds / TimeUnitRatio::k_US_PER_D;
+
+    hours        %= TimeUnitRatio::k_H_PER_D;
+    minutes      %= TimeUnitRatio::k_M_PER_D;
+    seconds      %= TimeUnitRatio::k_S_PER_D;
+    milliseconds %= TimeUnitRatio::k_MS_PER_D;
+    microseconds %= TimeUnitRatio::k_US_PER_D;
+
+    bsls::Types::Int64 us = hours        * TimeUnitRatio::k_US_PER_H
+                          + minutes      * TimeUnitRatio::k_US_PER_M
+                          + seconds      * TimeUnitRatio::k_US_PER_S
+                          + milliseconds * TimeUnitRatio::k_US_PER_MS
+                          + microseconds;
+
+    return assignIfValid(d, us);
+}
+
 void DatetimeInterval::setTotalSecondsFromDouble(double seconds)
 {
     double wholeDays;
@@ -175,9 +348,7 @@ void DatetimeInterval::setTotalSecondsFromDouble(double seconds)
         // Ignoring fractional part to maintain as much accuracy from
         // 'seconds' as possible.
 
-    BSLS_ASSERT(static_cast<double>(
-                             bsl::numeric_limits<bsls::Types::Int64>::max()) >=
-                bsl::fabs(wholeDays));
+    BSLS_ASSERT(bsl::fabs(wholeDays) <= u::maxInt64);
         // Failing for bsl::numeric_limits<bsls::Types::Int64>::min() is OK
         // here, because wholeDays has to fit into 32 bits.  Here we're just
         // checking that we are not about to run into UB when casting to
@@ -192,6 +363,31 @@ void DatetimeInterval::setTotalSecondsFromDouble(double seconds)
 
     assign(static_cast<bsls::Types::Int64>(wholeDays),
            static_cast<bsls::Types::Int64>(microseconds));
+}
+
+int DatetimeInterval::setTotalSecondsFromDoubleIfValid(double seconds)
+{
+    double wholeDays;
+    bsl::modf(seconds / TimeUnitRatio::k_S_PER_D, &wholeDays);
+        // Ignoring fractional part to maintain as much accuracy from
+        // 'seconds' as possible.
+
+    if (u::maxInt64 < wholeDays || wholeDays < u::minInt64) {
+        return -1;                                                    // RETURN
+    }
+
+    const double secondsRemainder =  seconds -
+                                          wholeDays * TimeUnitRatio::k_S_PER_D;
+
+    // On GCC x86 platforms we have to force copying a floating-point value to
+    // memory using 'volatile' type qualifier to round-down the value stored in
+    // x87 unit register.
+
+    volatile double microseconds =
+         secondsRemainder * TimeUnitRatio::k_US_PER_S + copysign(0.5, seconds);
+
+    return assignIfValid(static_cast<bsls::Types::Int64>(wholeDays),
+                         static_cast<bsls::Types::Int64>(microseconds));
 }
 
 DatetimeInterval& DatetimeInterval::addInterval(
@@ -227,13 +423,24 @@ DatetimeInterval& DatetimeInterval::addInterval(
     return *this;
 }
 
-void DatetimeInterval::setInterval(int                days,
-                                   bsls::Types::Int64 hours,
-                                   bsls::Types::Int64 minutes,
-                                   bsls::Types::Int64 seconds,
-                                   bsls::Types::Int64 milliseconds,
-                                   bsls::Types::Int64 microseconds)
+int DatetimeInterval::addIntervalIfValid(int                days,
+                                         bsls::Types::Int64 hours,
+                                         bsls::Types::Int64 minutes,
+                                         bsls::Types::Int64 seconds,
+                                         bsls::Types::Int64 milliseconds,
+                                         bsls::Types::Int64 microseconds)
 {
+    if   (u::k_HOURS_CEILING        < hours
+       || u::k_MINUTES_CEILING      < minutes
+       || u::k_SECONDS_CEILING      < seconds
+       || u::k_MILLISECONDS_CEILING < milliseconds
+       || u::k_HOURS_FLOOR          > hours
+       || u::k_MINUTES_FLOOR        > minutes
+       || u::k_SECONDS_FLOOR        > seconds
+       || u::k_MILLISECONDS_FLOOR   > milliseconds) {
+        return -1;                                                    // RETURN
+    }
+
     bsls::Types::Int64 d = static_cast<bsls::Types::Int64>(days)
                          + hours        / TimeUnitRatio::k_H_PER_D
                          + minutes      / TimeUnitRatio::k_M_PER_D
@@ -253,7 +460,19 @@ void DatetimeInterval::setInterval(int                days,
                           + milliseconds * TimeUnitRatio::k_US_PER_MS
                           + microseconds;
 
-    assign(d, us);
+    // Note that 'k_MAX_INT' and 'k_MIN_INT' are, unlike 'INT_MAX' or
+    // 'INT_MIN', 64-bit entities.
+
+    if   ((d_days > 0 && d > 0 && u::k_MAX_INT - d_days < d)
+       || (d_days < 0 && d < 0 && d < u::k_MIN_INT - d_days)
+       || (d_microseconds > 0 && us > 0 && u::k_MAX_INT64-d_microseconds < us)
+       || (d_microseconds < 0 && us < 0 &&
+                                       us < u::k_MIN_INT64 - d_microseconds)) {
+        return -1;                                                    // RETURN
+    }
+
+    return assignIfValid(static_cast<bsls::Types::Int64>(d_days) + d,
+                         d_microseconds + us);
 }
 
 // ACCESSORS
@@ -312,15 +531,15 @@ int DatetimeInterval::printToBuffer(char *result,
 
         // Add one for the sign.
 
-        return printToBufferFormatted(result,
-                                      numBytes,
-                                      spec,
-                                      d,
-                                      h,
-                                      m,
-                                      s,
-                                      0,
-                                      0) + printedLength;             // RETURN
+        return u::printToBufferFormatted(result,
+                                         numBytes,
+                                         spec,
+                                         d,
+                                         h,
+                                         m,
+                                         s,
+                                         0,
+                                         0) + printedLength;          // RETURN
       } break;
       case 1: {
         value = ms / 100;
@@ -350,15 +569,15 @@ int DatetimeInterval::printToBuffer(char *result,
 
     // Add one for the sign.
 
-    return printToBufferFormatted(result,
-                                  numBytes,
-                                  spec,
-                                  d,
-                                  h,
-                                  m,
-                                  s,
-                                  value,
-                                  fractionalSecondPrecision) + printedLength;
+    return u::printToBufferFormatted(result,
+                                    numBytes,
+                                    spec,
+                                    d,
+                                    h,
+                                    m,
+                                    s,
+                                    value,
+                                    fractionalSecondPrecision) + printedLength;
 }
 
 bsl::ostream& DatetimeInterval::print(bsl::ostream& stream,
