@@ -177,7 +177,7 @@ namespace bsl {
     // Sun-specific fixes
     template <class InputIter, class TYPE>
     typename iterator_traits<InputIter>::difference_type
-    count(InputIter first, InputIter last, const TYPE& value)
+    count(InputIter first, InputIter last, const TYPE& value);
         // Provide an override for 'count' since Sun only provides a 4 argument
         // version while the C++ standard requires a 3 argument version.
 
@@ -260,9 +260,9 @@ namespace bsl {
 // ============================================================================
 
 #ifdef BSLSTL_ITERATOR_PROVIDE_SUN_CPP98_FIXES
-template <class INPUTITER, class TYPE>
+template <class INPUT_ITERATOR, class TYPE>
 inline
-typename iterator_traits<INPUT_ITERATOR>::difference_type
+typename bsl::iterator_traits<INPUT_ITERATOR>::difference_type
 bsl::count(INPUT_ITERATOR first, INPUT_ITERATOR last, const TYPE& value)
 {
     typename iterator_traits<INPUT_ITERATOR>::difference_type ret = 0;
@@ -272,10 +272,10 @@ bsl::count(INPUT_ITERATOR first, INPUT_ITERATOR last, const TYPE& value)
 
 template <class INPUT_ITERATOR, class PREDICATE>
 inline
-typename iterator_traits<INPUT_ITERATOR>::difference_type
+typename bsl::iterator_traits<INPUT_ITERATOR>::difference_type
 bsl::count_if(INPUT_ITERATOR first, INPUT_ITERATOR last, PREDICATE pred)
 {
-    typename iterator_traits<INPUT_ITER>::difference_type ret = 0;
+    typename iterator_traits<INPUT_ITERATOR>::difference_type ret = 0;
     std::count_if(first, last, pred, ret);
     return ret;
 }
