@@ -1113,7 +1113,7 @@ typename CONTAINER::value_type const *data(const CONTAINER& container)
 {
     return container.data();
 }
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS
 
                                   // =====
                                   // empty
@@ -1122,16 +1122,48 @@ typename CONTAINER::value_type const *data(const CONTAINER& container)
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS
 using std::empty;
 #else
+# ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+template <class CONTAINER>
+inline
+BSLS_KEYWORD_CONSTEXPR auto empty(const CONTAINER& container)->
+                                                    decltype(container.empty())
+    // Return whether or not the specified 'container' contains zero elements.
+    // The 'CONTAINER' template parameter type must provide a 'empty' accessor.
+{
+    return container.empty();
+}
+# else
 template <class CONTAINER>
 inline
 BSLS_KEYWORD_CONSTEXPR bool empty(const CONTAINER& container)
     // Return whether or not the specified 'container' contains zero elements.
-    // The 'CONTAINER' template parameter type must provide a 'size' accessor.
+    // The 'CONTAINER' template parameter type must provide a 'empty' accessor.
 {
-    return container.size() == 0;
+    return container.empty();
+}
+# endif // BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+
+template <class TYPE, size_t DIMENSION>
+inline
+BSLS_KEYWORD_CONSTEXPR bool empty(const TYPE (&)[DIMENSION])
+    // Return false (Zero-length arrays are not allowed).
+{
+    return false;
 }
 
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+template <class TYPE>
+inline
+BSLS_KEYWORD_CONSTEXPR bool empty(std::initializer_list<TYPE> initializerList)
+    // Return whether of not the specified 'initializerList' contains zero
+    // elements.  This is a separate specialization because
+    // 'std::initializer_list<TYPE>' does not have an 'empty' member function.
+{
+    return 0 == initializerList.size();
+}
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS
 
                                   // ====
                                   // size
@@ -1159,7 +1191,7 @@ BSLS_KEYWORD_CONSTEXPR auto size(const CONTAINER& container) ->
 
 template <class CONTAINER>
 inline
-BSLS_KEYWORD_CONSTEXPR std::size_t size(const CONTAINER& container)
+BSLS_KEYWORD_CONSTEXPR size_t size(const CONTAINER& container)
     // Return the size of the specified 'container'.  The 'CONTAINER' template
     // parameter type must provide a 'size' accessor.
 {
@@ -1168,9 +1200,9 @@ BSLS_KEYWORD_CONSTEXPR std::size_t size(const CONTAINER& container)
 
 # endif
 
-template <class TYPE, std::size_t DIMENSION>
+template <class TYPE, size_t DIMENSION>
 inline
-BSLS_KEYWORD_CONSTEXPR std::size_t size(const TYPE (&)[DIMENSION])
+BSLS_KEYWORD_CONSTEXPR size_t size(const TYPE (&)[DIMENSION])
     // Return the dimension of the specified array argument.
 {
     return DIMENSION;

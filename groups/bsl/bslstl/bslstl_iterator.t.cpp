@@ -178,6 +178,11 @@ class SizeContainer {
     {
         return d_size;
     }
+
+    bool empty() const
+    {
+        return 0 == d_size;
+    }
 };
 
 namespace testcontainer {
@@ -785,12 +790,20 @@ int main(int argc, char *argv[])
         SizeContainer c0(0U);     const SizeContainer& C0  = c0;
         SizeContainer c1(1U);     const SizeContainer& C1  = c1;
         SizeContainer c10(10U);   const SizeContainer& C10 = c10;
+        int           arr[5];     const int (&carr)[5] = arr;
+
         ASSERT( bsl::empty(c0));
         ASSERT( bsl::empty(C0));
         ASSERT(!bsl::empty(c1));
         ASSERT(!bsl::empty(C1));
         ASSERT(!bsl::empty(c10));
         ASSERT(!bsl::empty(C10));
+        ASSERT(!bsl::empty(arr));
+        ASSERT(!bsl::empty(carr));
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+        ASSERT( bsl::empty(std::initializer_list<int>{}));
+        ASSERT(!bsl::empty({1,2}));
+#endif
       } break;
 
       case 16: {

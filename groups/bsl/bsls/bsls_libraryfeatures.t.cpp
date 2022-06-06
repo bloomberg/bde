@@ -166,6 +166,7 @@
 // [15] BSLS_LIBRARYFEATURES_HAS_CPP17_ALIGNED_ALLOC
 // [14] BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 // [  ] BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT
+// [16] BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS
 // [ 8] BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS
 // [13] BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD
 // [13] BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS
@@ -180,7 +181,7 @@
 // [ 7] int std::isblank(int);
 // [ 7] bool std::isblank(char, const std::locale&);
 // ----------------------------------------------------------------------------
-// [16] USAGE EXAMPLE
+// [17] USAGE EXAMPLE
 // [-1] BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT: obsolescent: not defined
 // ----------------------------------------------------------------------------
 
@@ -300,6 +301,13 @@ static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD_defined =
 
 static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS_defined =
 #if         defined(BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS)
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS_defined =
+#if         defined(BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS)
                                                                           true;
 #else
                                                                          false;
@@ -1061,6 +1069,14 @@ static void printFlags()
     printf("UNDEFINED\n");
 #endif
 
+    printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS: ");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS
+    printf("%s\n",
+                   STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
     printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR: ");
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR
     printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR) );
@@ -1397,7 +1413,7 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
-      case 16: {
+      case 17: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -1417,6 +1433,41 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
+      } break;
+      case 16: {
+        // --------------------------------------------------------------------
+        // TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS'
+        //
+        // Concerns:
+        //: 1 'BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS' is defined only
+        //:   when the native standard library provides a baseline of C++17
+        //:   library features (empty, data, size).
+        //
+        // Plan:
+        //: 1 When 'BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS' is
+        //:   defined include the appropriate headers and use the expected
+        //:   typenames.
+        //
+        // Testing:
+        //   BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS
+        // --------------------------------------------------------------------
+
+        if (verbose)
+          printf("TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS'\n"
+                 "========================================================\n");
+
+        if (verbose) {
+            P(u_BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS_defined)
+        }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS
+        std::string s;
+        (void) std::empty(s);
+        (void) std::data(s);
+        (void) std::size(s);
+#endif
+
+        if (veryVeryVerbose) P(BSLS_PLATFORM_CMP_VERSION);
       } break;
       case 15: {
         // --------------------------------------------------------------------

@@ -801,6 +801,17 @@ BSLS_IDENT("$Id: $")
 // native type is obviated so 'BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT' is
 // being removed.
 //
+///'BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS'
+///------------------------------------------------
+// The 'BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS' macro is defined if the
+// following functions are provided by the native standard library in the
+// '<iterator>' header:
+//
+//..
+//  template <class C> auto empty(const C& c) -> decltype(c.empty());
+//  template <class C> auto data(const C& c) -> decltype(c.data());
+//  template <class C> auto size(const C& c) -> decltype(c.size());
+//..
 ///'BSLS_LIBRARYFEATURES_HAS_CPP17_ALIGNED_ALLOC'
 ///-------------------------------------------------------------
 // The 'BSLS_LIBRARYFEATURES_HAS_CPP17_ALIGNED_ALLOC' macro is defined if the
@@ -1133,6 +1144,7 @@ BSLS_IDENT("$Id: $")
     #if __cplusplus >= 201703L
         #if BSLS_PLATFORM_CMP_VERSION >= 70000
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY           1
+            #define BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS            1
         #endif
         #if BSLS_PLATFORM_CMP_VERSION >= 80000
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV               1
@@ -1295,6 +1307,7 @@ BSLS_IDENT("$Id: $")
         #endif
         #if __cplusplus >= 201703L
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY           1
+            #define BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS            1
 
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD            1
             //  #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS        1
@@ -1348,6 +1361,7 @@ BSLS_IDENT("$Id: $")
         #endif
         #if __cplusplus >= 201703L
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY           1
+            #define BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS            1
             #if defined(BSLS_LIBRARYFEATURES_STDCPP_GNU)
                 #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD        1
                 #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS        1
@@ -1448,6 +1462,7 @@ BSLS_IDENT("$Id: $")
 
             // PMR support (P0220R1) has appeared in VS 2017 15.6
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_PMR                       1
+            #define BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS           1
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_TIMESPEC_GET              1
         #endif
         #if BSLS_PLATFORM_CMP_VERSION >= 1920  // Visual Studio 2019
