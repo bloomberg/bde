@@ -29,8 +29,8 @@ BSLS_IDENT_RCSID(bdlcc_fixedqueueindexmanager_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-///Implementation Note
-///===================
+///Implementation Notes
+///--------------------
 // Each 'bdlcc::FixedQueueIndexManager' object maintains a circular buffer of
 // atomic integers, 'd_states', that encode the states of the corresponding
 // elements in an external circular buffer (e.g.,'bdlcc::FixedQueue').  The
@@ -42,7 +42,7 @@ namespace BloombergLP {
 // short queue, which may be helpful in understanding its operation.
 //
 ///Generation Count
-///----------------
+/// - - - - - - - -
 // In order to alleviate the possibility of the ABA problem a generation count
 // is encoded into:
 //
@@ -51,7 +51,7 @@ namespace BloombergLP {
 //: o 'd_popIndex'
 //
 ///Encoding of 'd_states' elements
-///-------------------------------
+///- - - - - - - - - - - - - - - -
 // The elements of the 'd_states' array indicate the state of the corresponding
 // element in the externally managed circular buffer.  Each 'd_states' element
 // encodes:
@@ -70,7 +70,7 @@ namespace BloombergLP {
 //..
 //
 ///Terminology: Combined Index
-///---------------------------
+///- - - - - - - - - - - - - -
 // We define the term *Combined Index* to be the combination of an index
 // position (into the circular buffer 'd_states') and the generation count
 // using the following formula:
@@ -89,7 +89,7 @@ namespace BloombergLP {
 //..
 //
 ///Description of 'd_pushIndex' and 'd_PopIndex'
-///---------------------------------------------
+///- - - - - - - - - - - - - - - - - - - - - - -
 // 'd_PushIndex' and 'd_popIndex' both can be used to determine the index of
 // the element at which the next push or pop should occur (respectively) as
 // well as the generation count.  Additionally, 'd_pushIndex' encodes the
@@ -106,7 +106,7 @@ namespace BloombergLP {
 // 'd_popIndex' is the same, but does not maintain a disabled bit.
 //
 ///Maximum Capacity
-///----------------
+/// - - - - - - - -
 // As noted earlier, the index manager uses a generation count to avoid ABA
 // problems.  In order for generation count to be effective we must ensure that
 // 'd_pushIndex', 'd_popIndex', and 'd_states' elements each can represent at
@@ -121,7 +121,7 @@ namespace BloombergLP {
 // '1 << ((sizeof(int) * 8) - 2)
 //
 ///Maximum Generation Count and Maximum Combined Index
-///---------------------------------------------------
+///- - - - - - - - - - - - - - - - - - - - - - - - - -
 // The maximum generation count and maximum combined index are per-object
 // constants, derived from a circular buffer's capacity, that are stored within
 // the 'd_maxGeneration' and 'd_maxCombinedIndex' data members respectively.
@@ -140,7 +140,7 @@ namespace BloombergLP {
 // combined index in that generation would fall in the middle of the buffer.
 //
 ///Definition of Full and Empty Queues
-///----------==-----------------------
+///- - - - - - - - - - - - - - - - - -
 // 'reservePushBack' and 'reservePopIndex' both return an error status
 // indicating the queue is either full or empty respectively.  Although the
 // meaning of full or empty is intuitive, in a lock-free context where multiple
@@ -152,8 +152,8 @@ namespace BloombergLP {
 // either 'e_READING' or 'e_WRITING' is such that we can guarantee the queue
 // was either full or empty at the point of that 'testAndSwap'.
 //
-///Use of BSLS_ASSERT
-///------------------
+///Use of 'BSLS_ASSERT'
+/// - - - - - - - - - -
 // 'BSLS_ASSERT' is used frequently in this component to test expected internal
 // invariants.  Generally that is the purview of the test-driver, but it is
 // difficult to externally test the expected invariants in a multi-threaded
@@ -329,14 +329,13 @@ FixedQueueIndexManager::FixedQueueIndexManager(
 , d_popIndex(0)
 , d_popIndexPad()
 , d_capacity(capacity)
-, d_maxGeneration(numRepresentableGenerations(capacity) - 1)
+, d_maxGeneration   (numRepresentableGenerations(capacity) - 1)
 , d_maxCombinedIndex(numRepresentableGenerations(capacity)
-                   * static_cast<unsigned int>(capacity)
-                   - 1)
+                     * static_cast<unsigned int>(capacity) - 1)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
-    BSLS_ASSERT_OPT(0        <  capacity);
-    BSLS_ASSERT_OPT(capacity <= k_MAX_CAPACITY);
+    BSLS_ASSERT(0        <  capacity);
+    BSLS_ASSERT(capacity <= k_MAX_CAPACITY);
 
     d_states = static_cast<bsls::AtomicInt*>(
                 d_allocator_p->allocate(sizeof(bsls::AtomicInt) * capacity));

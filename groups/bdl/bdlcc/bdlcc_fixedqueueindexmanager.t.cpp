@@ -7,7 +7,6 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-
 #include <bdlcc_fixedqueueindexmanager.h>
 
 #include <bslim_testutil.h>
@@ -27,6 +26,8 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_atomic.h>
+#include <bsls_buildtarget.h>
+#include <bsls_platform.h>
 #include <bsls_stopwatch.h>
 #include <bsls_timeinterval.h>
 #include <bsls_types.h>
@@ -1790,7 +1791,6 @@ int main(int argc, char *argv[])
         //    capacity is the maximum number of combined indices that can be
         //    represented in a 32bit integer with 1 byte removed.
         //
-        //
         // Plan:
         //  1 For set of interesting capacity values, call
         //    'numRepresentableGenerations' and verify the expected
@@ -3061,21 +3061,21 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // DEFAULT CTOR
+        // CONSTRUCTOR
         //
         // Concerns:
         //
         // 1 The 'capacity' accessor returns the capacity supplied at
         //   construction
         //
-        // 2 The ARB uses the supplied allocator to allocate memory
+        // 2 The object uses the supplied allocator to allocate memory
         //
         // 3 If no allocator is explicitly supplied at construction, the
         //   default allocator is used
         //
         // 4 All allocated memory is released on destruction.
         //
-        // 5 k_MAX_CAPACITY is the maximum capacity the allows for at least 2
+        // 5 'k_MAX_CAPACITY' is the maximum capacity the allows for at least 2
         //   generations and a disabled status to be represented in a 32bit
         //   integer.
         //
@@ -3095,7 +3095,7 @@ int main(int argc, char *argv[])
         //   allocator. Verify allocated memory is released on destruction.
         //   (C-3,4)
         //
-        // 4 Verify that representing 'k_MAX_CAPACITY' in an unsigned int
+        // 4 Verify that representing 'k_MAX_CAPACITY' in an 'unsigned int'
         //   leaves 2 bits to represent the disabled state and 2 complete
         //   generations. (C-5).
         //
@@ -3108,8 +3108,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "DEFAULT CTOR" << endl
-                          << "============" << endl;
+                          << "CONSTRUCTOR" << endl
+                          << "===========" << endl;
 
         if (verbose) cout << "\nVerify the capacity." << endl;
         {
@@ -3123,7 +3123,9 @@ int main(int argc, char *argv[])
                 10000,
 
                 // Note that the following test cases are not enabled as they
-                // exhaust memory on many platforms.  Obj::k_MAX_CAPACITY - 1,
+                // exhaust memory on many platforms.
+
+                // Obj::k_MAX_CAPACITY - 1,
                 // Obj::k_MAX_CAPACITY
             };
             const int NUM_VALUES = sizeof(VALUES) / sizeof(*VALUES);
@@ -3172,12 +3174,18 @@ int main(int argc, char *argv[])
 
             bsls::AssertTestHandlerGuard hG;
 
-            ASSERT_OPT_PASS(Obj obj(1, &oa));
-            ASSERT_OPT_FAIL_RAW(Obj obj(Obj::k_MAX_CAPACITY + 1, &oa));
-
-            // The following test is disabled because it causes a divide by 0
-            // failure prior to reaching the assertion.
-            ASSERT_FAIL(Obj obj(0, &oa));
+#if defined(BSLS_ASSERT_IS_ACTIVE)                                            \
+ && defined(BDE_BUILD_TARGET_OPT)                                             \
+ && defined(BSLS_PLATFORM_CMP_GNU)                                            \
+ && BSLS_PLATFORM_CMP_VERSION >= 100000                                       \
+ && BSLS_PLATFORM_CMP_VERSION <  110000
+            if (veryVerbose)  cout << "SKIP: problematic UFID" << endl;
+#else
+            ASSERT_FAIL(Obj obj(0,                       &oa));
+#endif
+            ASSERT_PASS(Obj obj(1,                       &oa));
+        //  ASSERT_PASS(Obj obj(Obj::k_MAX_CAPACITY,     &oa)); can exhaust mem
+            ASSERT_FAIL(Obj obj(Obj::k_MAX_CAPACITY + 1, &oa));
         }
       } break;
       case 1: {
