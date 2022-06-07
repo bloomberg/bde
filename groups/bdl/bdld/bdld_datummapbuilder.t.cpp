@@ -1119,6 +1119,8 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_FAIL(fakeSortedMap = fakeSorted.commit());
                 ASSERT_SAFE_PASS(unsortedMap   = unsorted.commit());
 
+                fakeSortedMap = Datum::createInteger(0);  // for safe 'destroy'
+
                 Datum::destroy(realSortedMap, &ta);
                 Datum::destroy(fakeSortedMap, &ta);
                 Datum::destroy(unsortedMap  , &ta);
