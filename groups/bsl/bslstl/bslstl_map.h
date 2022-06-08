@@ -514,6 +514,13 @@ BSLS_IDENT("$Id: $")
 #include <bsls_nativestd.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
+#include <type_traits>
+    #ifndef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    #error Rvalue references curiously absent despite native 'type_traits'.
+    #endif
+#endif
+
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // Include version that can be compiled with C++03
 // Generated on Thu Oct 21 10:11:37 2021
@@ -1019,9 +1026,14 @@ class map {
 #if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
     template <class ALT_VALUE_TYPE>
     pair<iterator, bool>
-#else
+#elif !defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)                     
     template <class ALT_VALUE_TYPE>
     typename enable_if<is_convertible<ALT_VALUE_TYPE, value_type>::value,
+                       pair<iterator, bool> >::type
+#else
+    template <class ALT_VALUE_TYPE>
+    typename enable_if<std::is_constructible<value_type,
+                                             ALT_VALUE_TYPE&&>::value,
                        pair<iterator, bool> >::type
 #endif
     insert(BSLS_COMPILERFEATURES_FORWARD_REF(ALT_VALUE_TYPE) value)
@@ -1036,8 +1048,8 @@ class map {
         // value was inserted and 'false' if the key was already present.  This
         // method requires that the (template parameter) types 'KEY' and
         // 'VALUE' both be 'move-insertable' into this map (see {Requirements
-        // on 'KEY' and 'VALUE'}), and the (template parameter) type
-        // 'ALT_VALUE_TYPE' be implicitly convertible to 'value_type'.
+        // on 'KEY' and 'VALUE'}), and the 'value_type' be constructible from
+        // the (template parameter) 'ALT_VALUE_TYPE'.
     {
         // This function has to be implemented inline, in violation of BDE
         // convention, as the MSVC compiler cannot match the out-of-class
@@ -1082,9 +1094,14 @@ class map {
 #if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
     template <class ALT_VALUE_TYPE>
     iterator
-#else
+#elif !defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)                     
     template <class ALT_VALUE_TYPE>
     typename enable_if<is_convertible<ALT_VALUE_TYPE, value_type>::value,
+                       iterator>::type
+#else
+    template <class ALT_VALUE_TYPE>
+    typename enable_if<std::is_constructible<value_type,
+                                             ALT_VALUE_TYPE&&>::value,
                        iterator>::type
 #endif
     insert(const_iterator                                    hint,
@@ -1102,9 +1119,9 @@ class map {
         // operation has 'O[log(N)]' complexity, where 'N' is the size of this
         // map.  This method requires that the (template parameter) types 'KEY'
         // and 'VALUE' both be 'move-insertable' into this map (see
-        // {Requirements on 'KEY' and 'VALUE'}), and the (template parameter)
-        // type 'ALT_VALUE_TYPE' be implicitly convertible to 'value_type'.
-        // The behavior is undefined unless 'hint' is an iterator in the range
+        // {Requirements on 'KEY' and 'VALUE'}), and the 'value_type' be
+        // constructible from the (template parameter) 'ALT_VALUE_TYPE'.  The
+        // behavior is undefined unless 'hint' is an iterator in the range
         // '[begin() .. end()]' (both endpoints included).
     {
         // This function has to be implemented inline, in violation of BDE

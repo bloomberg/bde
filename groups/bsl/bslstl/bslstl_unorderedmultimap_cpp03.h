@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Tue Mar  1 11:16:02 2022
+// Generated on Wed Jun  8 13:16:02 2022
 // Command line: sim_cpp11_features.pl bslstl_unorderedmultimap.h
 
 #ifdef COMPILING_BSLSTL_UNORDEREDMULTIMAP_H
@@ -513,20 +513,24 @@ class unordered_multimap {
 #if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
     template <class ALT_VALUE_TYPE>
     iterator
-    insert(BSLS_COMPILERFEATURES_FORWARD_REF(ALT_VALUE_TYPE) value)
-#else
+#elif !defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
     template <class ALT_VALUE_TYPE>
     typename enable_if<is_convertible<ALT_VALUE_TYPE, value_type>::value,
-                       iterator >::type
-    insert(BSLS_COMPILERFEATURES_FORWARD_REF(ALT_VALUE_TYPE) value)
+                       iterator>::type
+#else
+    template <class ALT_VALUE_TYPE>
+    typename enable_if<std::is_constructible<value_type,
+                                             ALT_VALUE_TYPE&&>::value,
+                       iterator>::type
 #endif
+    insert(BSLS_COMPILERFEATURES_FORWARD_REF(ALT_VALUE_TYPE) value)
         // Insert into this unordered multimap a 'value_type' object created
         // from the specified 'value', and return an iterator referring to the
         // newly inserted 'value_type' object.  This method requires that the
         // (template parameter) types 'KEY' and 'VALUE' both be
         // 'move-insertable' into this unordered multimap (see {Requirements on
-        // 'KEY' and 'VALUE'}), and the (template parameter) type
-        // 'ALT_VALUE_TYPE' be implicitly convertible to 'value_type'.
+        // 'KEY' and 'VALUE'}), and the 'value_type' be constructible from the
+        // (template parameter) 'ALT_VALUE_TYPE'.
     {
         // Note that some compilers fail when this method is defined
         // out-of-line.
@@ -552,15 +556,18 @@ class unordered_multimap {
 #if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
     template <class ALT_VALUE_TYPE>
     iterator
-    insert(const_iterator                                    hint,
-           BSLS_COMPILERFEATURES_FORWARD_REF(ALT_VALUE_TYPE) value)
-#else
+#elif !defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
     template <class ALT_VALUE_TYPE>
     typename enable_if<is_convertible<ALT_VALUE_TYPE, value_type>::value,
                        iterator>::type
+#else
+    template <class ALT_VALUE_TYPE>
+    typename enable_if<std::is_constructible<value_type,
+                                             ALT_VALUE_TYPE&&>::value,
+                       iterator>::type
+#endif
     insert(const_iterator                                    hint,
            BSLS_COMPILERFEATURES_FORWARD_REF(ALT_VALUE_TYPE) value)
-#endif
         // Insert into this unordered multimap a 'value_type' object created
         // from the specified 'value' (in constant time if the specified 'hint'
         // refers to an element in this container with a key equivalent to the
@@ -572,8 +579,8 @@ class unordered_multimap {
         // multimap.  This method requires that the (template parameter) types
         // 'KEY' and 'VALUE' both be 'move-insertable' into this unordered
         // multimap (see {Requirements on 'KEY' and 'VALUE'}), and the
-        // (template parameter) type 'ALT_VALUE_TYPE' be implicitly convertible
-        // to 'value_type'.  The behavior is undefined unless 'hint' is an
+        // 'value_type' be constructible from the (template parameter)
+        // 'ALT_VALUE_TYPE'.  The behavior is undefined unless 'hint' is an
         // iterator in the range '[begin() .. end()]' (both endpoints
         // included).
     {

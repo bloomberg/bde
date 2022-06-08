@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Tue Mar  1 11:16:02 2022
+// Generated on Wed Jun  8 13:16:02 2022
 // Command line: sim_cpp11_features.pl bslstl_unorderedmap.h
 
 #ifdef COMPILING_BSLSTL_UNORDEREDMAP_H
@@ -837,13 +837,17 @@ class unordered_map {
 #if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
     template <class ALT_VALUE_TYPE>
     pair<iterator, bool>
-    insert(BSLS_COMPILERFEATURES_FORWARD_REF(ALT_VALUE_TYPE) value)
-#else
+#elif !defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
     template <class ALT_VALUE_TYPE>
     typename enable_if<is_convertible<ALT_VALUE_TYPE, value_type>::value,
                        pair<iterator, bool> >::type
-    insert(BSLS_COMPILERFEATURES_FORWARD_REF(ALT_VALUE_TYPE) value)
+#else
+    template <class ALT_VALUE_TYPE>
+    typename enable_if<std::is_constructible<value_type,
+                                             ALT_VALUE_TYPE&&>::value,
+                       pair<iterator, bool> >::type
 #endif
+    insert(BSLS_COMPILERFEATURES_FORWARD_REF(ALT_VALUE_TYPE) value)
         // Insert the specified 'value' into this unordered map if the key (the
         // 'first' element) of the object referred to by 'value' does not
         // already exist in this unordered map; otherwise, this method has no
@@ -855,9 +859,10 @@ class unordered_map {
         // member is 'true' if a new value was inserted, and 'false' if a value
         // having an equivalent key was already present.  Note that this method
         // requires that the (template parameter) types 'KEY' and 'VALUE' both
-        // be 'move-constructible' (see {Requirements on 'value_type'}).  Also
-        // note that this one template stands in for three 'insert' functions
-        // in the C++11 standard.
+        // be 'move-constructible' (see {Requirements on 'value_type'}), and
+        // that the 'value_type' be constructible from the (template parameter)
+        // 'ALT_VALUE_TYPE'.  Also note that this one template stands in for
+        // three 'insert' functions in the C++11 standard.
     {
         // Note that some compilers require functions declared with 'enable_if'
         // to be defined inline.
@@ -893,15 +898,18 @@ class unordered_map {
 #if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
     template <class ALT_VALUE_TYPE>
     iterator
-    insert(const_iterator                                    hint,
-           BSLS_COMPILERFEATURES_FORWARD_REF(ALT_VALUE_TYPE) value)
-#else
+#elif !defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
     template <class ALT_VALUE_TYPE>
     typename enable_if<is_convertible<ALT_VALUE_TYPE, value_type>::value,
                        iterator>::type
+#else
+    template <class ALT_VALUE_TYPE>
+    typename enable_if<std::is_constructible<value_type,
+                                             ALT_VALUE_TYPE&&>::value,
+                       iterator>::type
+#endif
     insert(const_iterator                                    hint,
            BSLS_COMPILERFEATURES_FORWARD_REF(ALT_VALUE_TYPE) value)
-#endif
         // Insert the specified 'value' into this unordered map if the key (the
         // 'first' element) of the object referred to by 'value' does not
         // already exist in this unordered map; otherwise, this method has no
@@ -912,12 +920,13 @@ class unordered_map {
         // average and worst case complexity of this operation is not affected
         // by the specified 'hint'.  This method requires that the (template
         // parameter) types 'KEY' and 'VALUE' both be 'move-constructible' (see
-        // {Requirements on 'value_type'}).  The behavior is undefined unless
-        // 'hint' is an iterator in the range '[begin() .. end()]' (both
-        // endpoints included).  Note that 'hint' is ignored (other than
-        // possibly asserting its validity in some build modes).  Also note
-        // that this one template stands in for three 'insert' functions in the
-        // C++11 standard.
+        // {Requirements on 'value_type'}) and that the 'value_type' be
+        // constructible from the (template parameter) 'ALT_VALUE_TYPE'.  The
+        // behavior is undefined unless 'hint' is an iterator in the range
+        // '[begin() .. end()]' (both endpoints included).  Note that 'hint' is
+        // ignored (other than possibly asserting its validity in some build
+        // modes).  Also note that this one template stands in for three
+        // 'insert' functions in the C++11 standard.
     {
         // Note that some compilers require functions declared with 'enable_if'
         // to be defined inline.

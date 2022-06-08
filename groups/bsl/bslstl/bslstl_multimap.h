@@ -570,6 +570,13 @@ BSLS_IDENT("$Id: $")
 #include <bsls_nativestd.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
+#include <type_traits>  // 'std::is_constructible'
+    #ifndef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    #error Rvalue references curiously absent despite native 'type_traits'.
+    #endif
+#endif
+
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // Include version that can be compiled with C++03
 // Generated on Thu Oct 21 10:11:37 2021
@@ -996,7 +1003,6 @@ class multimap {
         // 'VALUE'}).
 #endif
 
-
     iterator begin() BSLS_KEYWORD_NOEXCEPT;
         // Return an iterator providing modifiable access to the first
         // 'value_type' object in the ordered sequence of 'value_type' objects
@@ -1030,10 +1036,15 @@ class multimap {
 #if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
     template <class ALT_VALUE_TYPE>
     iterator
-#else
+#elif !defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
     template <class ALT_VALUE_TYPE>
     typename enable_if<is_convertible<ALT_VALUE_TYPE, value_type>::value,
-                       iterator >::type
+                       iterator>::type
+#else
+    template <class ALT_VALUE_TYPE>
+    typename enable_if<std::is_constructible<value_type,
+                                             ALT_VALUE_TYPE&&>::value,
+                       iterator>::type
 #endif
     insert(BSLS_COMPILERFEATURES_FORWARD_REF(ALT_VALUE_TYPE) value)
         // Insert into this multimap a 'value_type' object created from the
@@ -1043,8 +1054,8 @@ class multimap {
         // inserted 'value_type' object.  This method requires that the
         // (template parameter) types 'KEY' and 'VALUE' both be
         // 'move-insertable' into this multimap (see {Requirements on 'KEY' and
-        // 'VALUE'}), and the (template parameter) type 'ALT_VALUE_TYPE' be
-        // implicitly convertible to 'value_type'.
+        // 'VALUE'}), and the 'value_type' be constructible from the (template
+        // parameter) 'ALT_VALUE_TYPE'.
     {
         // Note that some compilers fail when this method is defined
         // out-of-line.
@@ -1068,9 +1079,14 @@ class multimap {
 #if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
     template <class ALT_VALUE_TYPE>
     iterator
-#else
+#elif !defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
     template <class ALT_VALUE_TYPE>
     typename enable_if<is_convertible<ALT_VALUE_TYPE, value_type>::value,
+                       iterator>::type
+#else
+    template <class ALT_VALUE_TYPE>
+    typename enable_if<std::is_constructible<value_type,
+                                             ALT_VALUE_TYPE&&>::value,
                        iterator>::type
 #endif
     insert(const_iterator                                    hint,
@@ -1084,9 +1100,9 @@ class multimap {
         // operation has 'O[log(N)]' complexity, where 'N' is the size of this
         // multimap.  This method requires that the (template parameter) types
         // 'KEY' and 'VALUE' both be 'move-insertable' into this multimap (see
-        // {Requirements on 'KEY' and 'VALUE'}), and the (template parameter)
-        // type 'ALT_VALUE_TYPE' be implicitly convertible to 'value_type'.
-        // The behavior is undefined unless 'hint' is an iterator in the range
+        // {Requirements on 'KEY' and 'VALUE'}), and the 'value_type' be
+        // constructible from the (template parameter) 'ALT_VALUE_TYPE'.  The
+        // behavior is undefined unless 'hint' is an iterator in the range
         // '[begin() .. end()]' (both endpoints included).
     {
         // Note that some compilers fail when this method is defined
@@ -1162,7 +1178,6 @@ class multimap {
         // 'emplace-constructible' from 'args' (see {Requirements on 'KEY' and
         // 'VALUE'}).  The behavior is undefined unless 'hint' is an iterator
         // in the range '[begin() .. end()]' (both endpoints included).
-
 #endif
 
     iterator erase(const_iterator position);
