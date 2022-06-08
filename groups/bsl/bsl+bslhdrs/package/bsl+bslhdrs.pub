@@ -113,4 +113,5 @@ bsl_shared_mutex.h
 
 # C++17 headers
 bsl_execution.h
+bsl_filesystem.h
 bsl_string_view.h

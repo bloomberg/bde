@@ -113,9 +113,6 @@
 #include <bsl_strstream.h>
 #include <bsl_string_view.h>      // C++17 header ported to C++03
 #include <bsl_system_error.h>     // C++11 header ported to C++03
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-#include <bsl_tuple.h>
-#endif
 #include <bsl_typeindex.h>        // C++11 header ported to C++03
 #include <bsl_typeinfo.h>
 #include <bsl_unordered_map.h>    // C++11 header ported to C++03
@@ -161,6 +158,10 @@
 #include <bsl_shared_mutex.h>
 #endif
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#include <bsl_filesystem.h>
+#endif
+
 #include <utility>     // 'std::pair'
 
 #include <stdio.h>     // 'sprintf', 'snprintf' [NOT '<cstdio>', which does not
@@ -184,6 +185,7 @@ using namespace bslim;
 // defined in 'bslstl'.
 //
 //-----------------------------------------------------------------------------
+// [19] C++17 <BSL_FILESYSTEM.H>
 // [18] bsl::byte;
 // [18] bsl::apply();
 // [18] bsl::make_from_tuple();
@@ -730,6 +732,57 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << "\n";
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 19: {
+        // --------------------------------------------------------------------
+        // TESTING C++17 <BSL_FILESYSTEM.H>
+        //
+        // Concerns:
+        //: 1 The types defined in the filesystem library exist in the 'bsl'
+        //:   namespace.
+        //
+        // Plan:
+        //: 1 Attempt to declare a pointer to each of the types from the
+        //:   filesystem library.
+        //
+        // Testing:
+        //   C++17 <BSL_FILESYSTEM.H>
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING C++17 <BSL_FILESYSTEM.H>"
+                            "\n================================\n");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+        // Make sure that the types exist
+        bsl::filesystem::path                         *ppath = nullptr;
+        bsl::filesystem::filesystem_error             *pfe = nullptr;
+        bsl::filesystem::directory_entry              *pde = nullptr;
+        bsl::filesystem::directory_iterator           *pdi = nullptr;
+        bsl::filesystem::recursive_directory_iterator *prdi = nullptr;
+        bsl::filesystem::file_status                  *pfs = nullptr;
+        bsl::filesystem::space_info                   *psi = nullptr;
+        bsl::filesystem::file_type                    *pft = nullptr;
+        bsl::filesystem::perms                        *pperms = nullptr;
+        bsl::filesystem::perm_options                 *ppo = nullptr;
+        bsl::filesystem::copy_options                 *pco = nullptr;
+        bsl::filesystem::directory_options            *pdo = nullptr;
+        bsl::filesystem::file_time_type               *pftt = nullptr;
+
+        (void) ppath;
+        (void) pfe;
+        (void) pde;
+        (void) pdi;
+        (void) prdi;
+        (void) pfs;
+        (void) psi;
+        (void) pft;
+        (void) pperms;
+        (void) ppo;
+        (void) pco;
+        (void) pdo;
+        (void) pftt;
+#endif
+
+      } break;
       case 18: {
         // --------------------------------------------------------------------
         // TESTING C++17 <BSL_CSTDDEF/TUPLE/CTIME/CSTDDEF.H> ADDITIONS
@@ -738,8 +791,8 @@ int main(int argc, char *argv[])
         //: 1 The type 'bsl::byte' exists.
         //: 2 The calls 'bsl::apply' and 'bls:make_from_tuple' exist and return
         //:   expected values for simple cases.
-        //: 2 The calls 'bsl::aligned_alloc' and 'bls::timespec_get' are
-        //:   callable if the exist.
+        //: 3 The calls 'bsl::aligned_alloc' and 'bls::timespec_get' are
+        //:   callable if they exist.
         //
         // Plan:
         //: 1 Verify that 'bsl::byte' exists.
