@@ -357,19 +357,6 @@ struct AlignmentToType {
 };
 
 }  // close package namespace
-
-#ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ============================================================================
-//                           BACKWARD COMPATIBILITY
-// ============================================================================
-
-#ifdef bsls_AlignmentToType
-#undef bsls_AlignmentToType
-#endif
-#define bsls_AlignmentToType bsls::AlignmentToType
-    // This alias is defined for backward compatibility.
-#endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
-
 }  // close enterprise namespace
 
 #endif

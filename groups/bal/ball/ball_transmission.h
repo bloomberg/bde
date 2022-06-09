@@ -160,16 +160,7 @@ BSLS_IDENT("$Id: $")
 
 #include <balscm_version.h>
 
-#include <bsls_platform.h>
-
 #include <bsl_iosfwd.h>
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-#if defined(BSLS_PLATFORM_CMP_MSVC) && defined(PASSTHROUGH)
-    // Note: on Windows -> WinGDI.h:#define PASSTHROUGH 19
-#undef PASSTHROUGH
-#endif
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 namespace BloombergLP {
 namespace ball {
@@ -191,26 +182,10 @@ struct Transmission {
         e_MANUAL_PUBLISH     = 3,  // manually publish a single record
         e_MANUAL_PUBLISH_ALL = 4,  // manually publish all records
         e_END                = 5   // not supported, do not use
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , BAEL_PASSTHROUGH        = e_PASSTHROUGH
-      , BAEL_TRIGGER            = e_TRIGGER
-      , BAEL_TRIGGER_ALL        = e_TRIGGER_ALL
-      , BAEL_MANUAL_PUBLISH     = e_MANUAL_PUBLISH
-      , BAEL_MANUAL_PUBLISH_ALL = e_MANUAL_PUBLISH_ALL
-      , BAEL_END                = e_END
-      , PASSTHROUGH             = e_PASSTHROUGH
-      , TRIGGER                 = e_TRIGGER
-      , TRIGGER_ALL             = e_TRIGGER_ALL
-      , MANUAL_PUBLISH          = e_MANUAL_PUBLISH
-      , MANUAL_PUBLISH_ALL      = e_MANUAL_PUBLISH_ALL
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum {
         e_LENGTH = e_MANUAL_PUBLISH_ALL + 1
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , BAEL_LENGTH = e_LENGTH
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
         // Define 'LENGTH' to be the number of consecutively-valued enumerators
         // in the range '[ e_PASSTHROUGH .. e_MANUAL_PUBLISH_ALL ]'.
