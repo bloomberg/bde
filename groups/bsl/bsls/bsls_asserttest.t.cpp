@@ -2880,7 +2880,9 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
 //
 //              static void callInvoke(bool pass) {
 //                  if (!pass) {
-//                      BSLS_ASSERT_INVOKE("pass");
+//  #if defined(BDE_BUILD_TARGET_EXC)
+//                      BSLS_ASSERT_INVOKE("!pass");
+//  #endif
 //                  }
 //              }
 //          };
@@ -2929,7 +2931,9 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
 //                  (void) pass; // suppress compiler warning
 //  #if defined(BDE_BUILD_TARGET_SAFE_2)
 //                  if (!pass) {
-//                      BSLS_ASSERT_INVOKE("pass");
+//  #if defined(BDE_BUILD_TARGET_EXC)
+//                      BSLS_ASSERT_INVOKE("!pass");
+//  #endif
 //                  }
 //  #endif
 //              }
@@ -3183,7 +3187,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
             static void callInvoke(bool pass) {
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
             }
         };
@@ -3232,7 +3238,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
                 (void) pass; // suppress compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
 #endif
             }
@@ -3341,7 +3349,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
             static void callInvoke(bool pass) {
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
             }
         };
@@ -3390,7 +3400,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
                 (void) pass; // suppress compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
 #endif
             }
@@ -3531,7 +3543,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
             static void callInvoke(bool pass) {
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
             }
         };
@@ -3580,7 +3594,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
                 (void) pass; // suppress compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
 #endif
             }
@@ -3722,7 +3738,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
             static void callInvoke(bool pass) {
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
             }
         };
@@ -3771,7 +3789,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
                 (void) pass; // suppress compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
 #endif
             }
@@ -3947,7 +3967,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
             static void callInvoke(bool pass) {
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
             }
         };
@@ -3996,7 +4018,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
                 (void) pass; // suppress compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
 #endif
             }
@@ -4171,7 +4195,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
             static void callInvoke(bool pass) {
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
             }
         };
@@ -4220,7 +4246,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
                 (void) pass; // suppress compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
 #endif
             }
@@ -4431,7 +4459,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
             static void callInvoke(bool pass) {
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
             }
         };
@@ -4480,7 +4510,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
                 (void) pass; // suppress compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
 #endif
             }
@@ -4654,7 +4686,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
             static void callInvoke(bool pass) {
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
             }
         };
@@ -4703,7 +4737,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
                 (void) pass; // suppress compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
 #endif
             }
@@ -4913,7 +4949,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
             static void callInvoke(bool pass) {
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
             }
         };
@@ -4962,7 +5000,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
                 (void) pass; // suppress compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
 #endif
             }
@@ -5071,7 +5111,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
             static void callInvoke(bool pass) {
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
             }
         };
@@ -5120,7 +5162,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
                 (void) pass; // suppress compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
 #endif
             }
@@ -5260,7 +5304,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
             static void callInvoke(bool pass) {
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
             }
         };
@@ -5309,7 +5355,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
                 (void) pass; // suppress compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
 #endif
             }
@@ -5451,7 +5499,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
             static void callInvoke(bool pass) {
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
             }
         };
@@ -5500,7 +5550,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
                 (void) pass; // suppress compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
 #endif
             }
@@ -5675,7 +5727,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
             static void callInvoke(bool pass) {
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
             }
         };
@@ -5724,7 +5778,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
                 (void) pass; // suppress compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
 #endif
             }
@@ -5899,7 +5955,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
             static void callInvoke(bool pass) {
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
             }
         };
@@ -5948,7 +6006,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
                 (void) pass; // suppress compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
 #endif
             }
@@ -6158,7 +6218,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
             static void callInvoke(bool pass) {
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
             }
         };
@@ -6207,7 +6269,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
                 (void) pass; // suppress compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
 #endif
             }
@@ -6381,7 +6445,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
             static void callInvoke(bool pass) {
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
             }
         };
@@ -6430,7 +6496,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
                 (void) pass; // suppress compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
 #endif
             }
@@ -6678,7 +6746,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
             static void callInvoke(bool pass) {
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
             }
         };
@@ -6727,7 +6797,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
                 (void) pass; // suppress compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
 #endif
             }
@@ -6836,7 +6908,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
             static void callInvoke(bool pass) {
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
             }
         };
@@ -6885,7 +6959,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
                 (void) pass; // suppress compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
 #endif
             }
@@ -7024,7 +7100,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
             static void callInvoke(bool pass) {
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
             }
         };
@@ -7073,7 +7151,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
                 (void) pass; // suppress compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
 #endif
             }
@@ -7215,7 +7295,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
             static void callInvoke(bool pass) {
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
             }
         };
@@ -7264,7 +7346,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
                 (void) pass; // suppress compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
 #endif
             }
@@ -7437,7 +7521,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
             static void callInvoke(bool pass) {
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
             }
         };
@@ -7486,7 +7572,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
                 (void) pass; // suppress compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
 #endif
             }
@@ -7661,7 +7749,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
             static void callInvoke(bool pass) {
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
             }
         };
@@ -7710,7 +7800,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
                 (void) pass; // suppress compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
 #endif
             }
@@ -7917,7 +8009,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
             static void callInvoke(bool pass) {
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
             }
         };
@@ -7966,7 +8060,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
                 (void) pass; // suppress compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
 #endif
             }
@@ -8140,7 +8236,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
             static void callInvoke(bool pass) {
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
             }
         };
@@ -8189,7 +8287,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
                 (void) pass; // suppress compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
 #endif
             }
@@ -8395,7 +8495,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
             static void callInvoke(bool pass) {
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
             }
         };
@@ -8444,7 +8546,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
                 (void) pass; // suppress compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
 #endif
             }
@@ -8553,7 +8657,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
             static void callInvoke(bool pass) {
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
             }
         };
@@ -8602,7 +8708,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
                 (void) pass; // suppress compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
 #endif
             }
@@ -8740,7 +8848,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
             static void callInvoke(bool pass) {
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
             }
         };
@@ -8789,7 +8899,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
                 (void) pass; // suppress compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
 #endif
             }
@@ -8931,7 +9043,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
             static void callInvoke(bool pass) {
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
             }
         };
@@ -8980,7 +9094,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
                 (void) pass; // suppress compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
 #endif
             }
@@ -9152,7 +9268,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
             static void callInvoke(bool pass) {
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
             }
         };
@@ -9201,7 +9319,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
                 (void) pass; // suppress compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
 #endif
             }
@@ -9376,7 +9496,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
             static void callInvoke(bool pass) {
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
             }
         };
@@ -9425,7 +9547,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
                 (void) pass; // suppress compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
 #endif
             }
@@ -9631,7 +9755,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
             static void callInvoke(bool pass) {
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
             }
         };
@@ -9680,7 +9806,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
                 (void) pass; // suppress compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
 #endif
             }
@@ -9854,7 +9982,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
             static void callInvoke(bool pass) {
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
             }
         };
@@ -9903,7 +10033,9 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
                 (void) pass; // suppress compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
 #endif
             }
@@ -10145,7 +10277,9 @@ void TestMacroBSLS_ASSERTTEST_CHECK_LEVEL()
 
             static void callInvoke(bool pass) {
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
             }
         };
@@ -10194,7 +10328,9 @@ void TestMacroBSLS_ASSERTTEST_CHECK_LEVEL()
                 (void) pass; // suppress compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
 #endif
             }
@@ -10303,7 +10439,9 @@ void TestMacroBSLS_ASSERTTEST_CHECK_LEVEL()
 
             static void callInvoke(bool pass) {
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
             }
         };
@@ -10352,7 +10490,9 @@ void TestMacroBSLS_ASSERTTEST_CHECK_LEVEL()
                 (void) pass; // suppress compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
 #endif
             }
@@ -10494,7 +10634,9 @@ void TestMacroBSLS_ASSERTTEST_CHECK_LEVEL()
 
             static void callInvoke(bool pass) {
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
             }
         };
@@ -10543,7 +10685,9 @@ void TestMacroBSLS_ASSERTTEST_CHECK_LEVEL()
                 (void) pass; // suppress compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
 #endif
             }
@@ -10687,7 +10831,9 @@ void TestMacroBSLS_ASSERTTEST_CHECK_LEVEL()
 
             static void callInvoke(bool pass) {
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
             }
         };
@@ -10736,7 +10882,9 @@ void TestMacroBSLS_ASSERTTEST_CHECK_LEVEL()
                 (void) pass; // suppress compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
 #endif
             }
@@ -10915,7 +11063,9 @@ void TestMacroBSLS_ASSERTTEST_CHECK_LEVEL()
 
             static void callInvoke(bool pass) {
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
             }
         };
@@ -10964,7 +11114,9 @@ void TestMacroBSLS_ASSERTTEST_CHECK_LEVEL()
                 (void) pass; // suppress compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
 #endif
             }
@@ -11142,7 +11294,9 @@ void TestMacroBSLS_ASSERTTEST_CHECK_LEVEL()
 
             static void callInvoke(bool pass) {
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
             }
         };
@@ -11191,7 +11345,9 @@ void TestMacroBSLS_ASSERTTEST_CHECK_LEVEL()
                 (void) pass; // suppress compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
 #endif
             }
@@ -11406,7 +11562,9 @@ void TestMacroBSLS_ASSERTTEST_CHECK_LEVEL()
 
             static void callInvoke(bool pass) {
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
             }
         };
@@ -11455,7 +11613,9 @@ void TestMacroBSLS_ASSERTTEST_CHECK_LEVEL()
                 (void) pass; // suppress compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
 #endif
             }
@@ -11632,7 +11792,9 @@ void TestMacroBSLS_ASSERTTEST_CHECK_LEVEL()
 
             static void callInvoke(bool pass) {
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
             }
         };
@@ -11681,7 +11843,9 @@ void TestMacroBSLS_ASSERTTEST_CHECK_LEVEL()
                 (void) pass; // suppress compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
 #endif
             }
@@ -11895,7 +12059,9 @@ void TestMacroBSLS_ASSERTTEST_CHECK_LEVEL()
 
             static void callInvoke(bool pass) {
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
             }
         };
@@ -11944,7 +12110,9 @@ void TestMacroBSLS_ASSERTTEST_CHECK_LEVEL()
                 (void) pass; // suppress compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
 #endif
             }
@@ -12053,7 +12221,9 @@ void TestMacroBSLS_ASSERTTEST_CHECK_LEVEL()
 
             static void callInvoke(bool pass) {
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
             }
         };
@@ -12102,7 +12272,9 @@ void TestMacroBSLS_ASSERTTEST_CHECK_LEVEL()
                 (void) pass; // suppress compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
 #endif
             }
@@ -12243,7 +12415,9 @@ void TestMacroBSLS_ASSERTTEST_CHECK_LEVEL()
 
             static void callInvoke(bool pass) {
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
             }
         };
@@ -12292,7 +12466,9 @@ void TestMacroBSLS_ASSERTTEST_CHECK_LEVEL()
                 (void) pass; // suppress compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
 #endif
             }
@@ -12436,7 +12612,9 @@ void TestMacroBSLS_ASSERTTEST_CHECK_LEVEL()
 
             static void callInvoke(bool pass) {
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
             }
         };
@@ -12485,7 +12663,9 @@ void TestMacroBSLS_ASSERTTEST_CHECK_LEVEL()
                 (void) pass; // suppress compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
 #endif
             }
@@ -12663,7 +12843,9 @@ void TestMacroBSLS_ASSERTTEST_CHECK_LEVEL()
 
             static void callInvoke(bool pass) {
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
             }
         };
@@ -12712,7 +12894,9 @@ void TestMacroBSLS_ASSERTTEST_CHECK_LEVEL()
                 (void) pass; // suppress compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
 #endif
             }
@@ -12890,7 +13074,9 @@ void TestMacroBSLS_ASSERTTEST_CHECK_LEVEL()
 
             static void callInvoke(bool pass) {
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
             }
         };
@@ -12939,7 +13125,9 @@ void TestMacroBSLS_ASSERTTEST_CHECK_LEVEL()
                 (void) pass; // suppress compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
 #endif
             }
@@ -13153,7 +13341,9 @@ void TestMacroBSLS_ASSERTTEST_CHECK_LEVEL()
 
             static void callInvoke(bool pass) {
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
             }
         };
@@ -13202,7 +13392,9 @@ void TestMacroBSLS_ASSERTTEST_CHECK_LEVEL()
                 (void) pass; // suppress compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
 #endif
             }
@@ -13379,7 +13571,9 @@ void TestMacroBSLS_ASSERTTEST_CHECK_LEVEL()
 
             static void callInvoke(bool pass) {
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
             }
         };
@@ -13428,7 +13622,9 @@ void TestMacroBSLS_ASSERTTEST_CHECK_LEVEL()
                 (void) pass; // suppress compiler warning
 #if defined(BDE_BUILD_TARGET_SAFE_2)
                 if (!pass) {
-                    BSLS_ASSERT_INVOKE("pass");
+#if defined(BDE_BUILD_TARGET_EXC)
+                    BSLS_ASSERT_INVOKE("!pass");
+#endif
                 }
 #endif
             }
