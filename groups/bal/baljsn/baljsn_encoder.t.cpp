@@ -335,7 +335,8 @@ void testNumber()
         { L_,  USHRT_MAX,                "65535" },
         { L_,    INT_MAX,           "2147483647" },
         { L_,   UINT_MAX,           "4294967295" },
-#if   defined(BSLS_PLATFORM_CPU_32_BIT)
+#if   defined(BSLS_PLATFORM_CPU_32_BIT)                                       \
+  || (defined(BSLS_PLATFORM_CPU_64_BIT) && defined(BSLS_PLATFORM_OS_WINDOWS))
         { L_,   LONG_MAX,           "2147483647" },
         { L_,  ULONG_MAX,           "4294967295" },
 #elif defined(BSLS_PLATFORM_CPU_64_BIT)
@@ -382,7 +383,8 @@ void testNumber()
         { L_,  SCHAR_MIN,                 "-128" },
         { L_,   SHRT_MIN,               "-32768" },
         { L_,    INT_MIN,          "-2147483648" },
-#if   defined(BSLS_PLATFORM_CPU_32_BIT)
+#if   defined(BSLS_PLATFORM_CPU_32_BIT)                                       \
+  || (defined(BSLS_PLATFORM_CPU_64_BIT) && defined(BSLS_PLATFORM_OS_WINDOWS))
         { L_,   LONG_MIN,          "-2147483648" },
 #elif defined(BSLS_PLATFORM_CPU_64_BIT)
         { L_,   LONG_MIN, "-9223372036854775808" },
