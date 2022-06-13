@@ -1,6 +1,13 @@
-// bslstl_function_test.t.cpp                                         -*-C++-*-
+// bslstl_function.10.t.cpp                                           -*-C++-*-
 
-#include <bslstl_function_test.h>
+// This test driver part provides a "clean" translation unit for
+// 'bslstl::function' to isolate certain test cases that may be triggering an
+// error in 'gcc' or else may be exhibiting undefined behavior.  Some of these
+// tests fail to fail merely in the presence of other code, such as common code
+// that would normally be #included from the 'bslstl_function.00.t.cpp' test
+// driver part.
+
+#include <bslstl_function.h>
 
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
@@ -110,6 +117,9 @@ static bool veryVeryVeryVerbose;
 //                     GLOBAL TYPEDEFS FOR TESTING
 // ----------------------------------------------------------------------------
 
+#ifdef BSLS_PLATFORM_CMP_SUN
+#pragma error_messages (off, refmemnoconstr)
+#endif
 struct SimulatedLambdaWithReference
     // This class holds a bool value and a bool reference and has a function
     // call operator that assigns the value to the reference.
@@ -122,10 +132,15 @@ struct SimulatedLambdaWithReference
     void operator()() const;
         // Perform 'd_b = d_s'.
 };
+#ifdef BSLS_PLATFORM_CMP_SUN
+#pragma error_messages (default, refmemnoconstr)
+#endif
 
 void SimulatedLambdaWithReference::operator()() const
 {
-    if (veryVerbose) { Q(Reference) }
+    if (veryVerbose) {
+        Q(Reference)
+    }
     d_b = d_s;
 }
 
@@ -143,7 +158,9 @@ struct SimulatedLambdaWithPointer
 
 void SimulatedLambdaWithPointer::operator()() const
 {
-    if (veryVerbose) { Q(Pointer) }
+    if (veryVerbose) {
+        Q(Pointer)
+    }
     *d_b_p = d_s;
 }
 
@@ -180,13 +197,13 @@ int main(int argc, char *argv[])
         //  STRANGE BEHAVIOR
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nSTRANGE BEHAVIOR"
-                            "\n================\n");
+        if (verbose) puts("\nSTRANGE BEHAVIOR"
+                          "\n================");
 
         typedef bsl::function<void()> Obj;
 
 #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L
-        if (veryVerbose) printf("\t...with lambdas\n");
+        if (veryVerbose) puts("\t...with lambdas");
         {
 
             bool s = true, b = false;
@@ -199,7 +216,7 @@ int main(int argc, char *argv[])
         }
 #endif
 
-        if (veryVerbose) printf("\t...with lambda simulated by reference\n");
+        if (veryVerbose) puts("\t...with lambda simulated by reference");
         {
             bool s = true, b = false;
 
@@ -212,7 +229,7 @@ int main(int argc, char *argv[])
             ASSERT(b);
         }
 
-        if (veryVerbose) printf("\t...with lambda simulated by pointer\n");
+        if (veryVerbose) puts("\t...with lambda simulated by pointer");
         {
             bool s = true, b = false;
 
@@ -225,7 +242,6 @@ int main(int argc, char *argv[])
             ASSERT(b);
         }
       } break;
-
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;

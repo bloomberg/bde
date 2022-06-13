@@ -1,11 +1,9 @@
-// bslstl_function_test.cpp                                           -*-C++-*-
-#include <bslstl_function_test.h>
-
-#include <bsls_ident.h>
-BSLS_IDENT_RCSID(bslstl_function_test_cpp,"$Id$ $CSID$")
+// bslstl_function.06.t.cpp                                           -*-C++-*-
+#define BSLSTL_FUNCTION_TEST_PART_NUMBER 6
+#include <bslstl_function.00.t.cpp>
 
 // ----------------------------------------------------------------------------
-// Copyright 2020 Bloomberg Finance L.P.
+// Copyright 2022 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
