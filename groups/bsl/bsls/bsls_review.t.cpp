@@ -1004,7 +1004,7 @@ double fact(int n)
 //..
 extern "C" int wrapperFunc(bool verboseFlag)
 {
-    enum { GOOD = 0, BAD } result = GOOD;
+    enum { GOOD = 0, BAD } result = GOOD;  (void) verboseFlag;
 //..
 // The purpose of this function is to allow assertion failures in subroutine
 // calls below this function to be handled by throwing an exception, which is
@@ -1773,6 +1773,12 @@ void test_case_15() {
         if (verbose) printf( "\nASSERT USAGE EXAMPLE #5"
                              "\n=======================\n" );
 
+#ifndef BDE_BUILD_TARGET_EXC
+        if (verbose) {
+            printf( "\tTest disabled as exceptions are NOT enabled.\n"
+                    "\tCalling the test function would abort.\n" );
+        }
+#else
         if (verbose) printf( "\n5. Using the "
                              "bsls::ReviewFailureHandlerGuard\n" );
 
@@ -1791,6 +1797,7 @@ void test_case_15() {
         ASSERT(0 != usage_example_assert_5::wrapperFunc(verbose));
 
     #endif
+#endif
 #endif
         ASSERT(&bsls::Review::failByLog == bsls::Review::violationHandler());
 }
