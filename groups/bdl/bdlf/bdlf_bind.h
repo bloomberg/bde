@@ -4650,6 +4650,24 @@ struct Bind_OneResultTypeOrAnother {
         // the non-'const' specialization (above).
     };
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES)
+
+    template <class CLASS_T, class RETURN_T, class... ARGS_T>
+    struct Return<RETURN_T (CLASS_T::*)(ARGS_T...) noexcept> :
+        public Return<RETURN_T (CLASS_T::*)(ARGS_T...)> {
+        // The non-'const' noexcept specialized form of the 'Return' class
+        // inherits from the non-'const' non-'noexcept' specialization (above).
+    };
+
+    template <class CLASS_T, class RETURN_T, class... ARGS_T>
+    struct Return<RETURN_T (CLASS_T::*)(ARGS_T...) const noexcept> :
+        public Return<RETURN_T (CLASS_T::*)(ARGS_T...)> {
+        // The 'const' noexcept specialized form of the 'Return' class inherits
+        // from the non-'const' non-'noexcept' specialization (above).
+    };
+
+#endif // BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES
+
     template <class T>
     struct Result<T, bsl::void_t<decltype(&T::operator())>> {
         // This is a specialization of 'Result' above.  If the 'T' parameter

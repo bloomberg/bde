@@ -380,6 +380,32 @@ struct MyFunctionObjectWithConstVoidFunction {
     }
 };
 
+struct MyFunctionObjectWithConstNoexceptVoidFunction {
+    // This 'struct' declares 'result_type' and a 'const' noexcept
+    // function-call operator taking no arguments.
+    //
+    // This tests for a failure case highlighted in DRQS 169178201.
+
+    // PUBLIC INSTANCE DATA
+    mutable int d_state;
+
+    // TYPES
+    typedef void result_type;
+
+    // CREATORS
+    MyFunctionObjectWithConstNoexceptVoidFunction()
+        // Initialize counters.
+    : d_state(0) {}
+
+    // ACCESSORS
+    void operator()() const BSLS_KEYWORD_NOEXCEPT
+        // Function called by test run.  Increments value to facilitate assert
+        // test.
+    {
+        ++d_state;
+    }
+};
+
 struct MyFunctionObjectWithNonConstVoidFunction {
     // This 'struct' declares 'result_type' and a non-'const' function-call
     // operator taking no arguments.
@@ -399,6 +425,32 @@ struct MyFunctionObjectWithNonConstVoidFunction {
 
     // MANIPULATORS
     void operator()()
+        // Function called by test run.  Increments value to facilitate assert
+        // test.
+    {
+        ++d_state;
+    }
+};
+
+struct MyFunctionObjectWithNonConstNoexceptVoidFunction {
+    // This 'struct' declares 'result_type' and a non-'const' noexcept
+    // function-call operator taking no arguments.
+    //
+    // This tests for a failure case highlighted in DRQS 169178201.
+
+    // PUBLIC INSTANCE DATA
+    int d_state;
+
+    // TYPES
+    typedef void result_type;
+
+    // CREATORS
+    MyFunctionObjectWithNonConstNoexceptVoidFunction()
+        // Initialize counters.
+    : d_state(0) {}
+
+    // MANIPULATORS
+    void operator()() BSLS_KEYWORD_NOEXCEPT
         // Function called by test run.  Increments value to facilitate assert
         // test.
     {
@@ -2424,10 +2476,32 @@ DEFINE_TEST_CASE(6) {
         }
 
         if (verbose)
+            printf("\tPass 'const' noexcept functor object non-'const' "
+                   "pointer\n");
+        {
+            MyFunctionObjectWithConstNoexceptVoidFunction  mX;
+            MyFunctionObjectWithConstNoexceptVoidFunction *pX = &mX;
+
+            bdlf::BindUtil::bind(pX)();
+            ASSERT(1 == mX.d_state);
+        }
+
+        if (verbose)
             printf("\tPass non-'const' functor object non-'const' pointer\n");
         {
             MyFunctionObjectWithNonConstVoidFunction  mX;
             MyFunctionObjectWithNonConstVoidFunction *pX = &mX;
+
+            bdlf::BindUtil::bind(pX)();
+            ASSERT(1 == mX.d_state);
+        }
+
+        if (verbose)
+            printf("\tPass non-'const' noexcept functor object non-'const' "
+                   "pointer\n");
+        {
+            MyFunctionObjectWithNonConstNoexceptVoidFunction mX;
+            MyFunctionObjectWithNonConstNoexceptVoidFunction *pX = &mX;
 
             bdlf::BindUtil::bind(pX)();
             ASSERT(1 == mX.d_state);
@@ -2453,6 +2527,17 @@ DEFINE_TEST_CASE(6) {
         {
             MyFunctionObjectWithConstVoidFunction        mX;
             const MyFunctionObjectWithConstVoidFunction *pX = &mX;
+
+            bdlf::BindUtil::bind(pX)();
+            ASSERT(1 == mX.d_state);
+        }
+
+        if (verbose)
+            printf(
+                  "\tPass 'const' noexcept functor object 'const' pointer.\n");
+        {
+            MyFunctionObjectWithConstNoexceptVoidFunction        mX;
+            const MyFunctionObjectWithConstNoexceptVoidFunction *pX = &mX;
 
             bdlf::BindUtil::bind(pX)();
             ASSERT(1 == mX.d_state);
@@ -2496,9 +2581,28 @@ DEFINE_TEST_CASE(6) {
         if (verbose)
              printf("\tUsing a lambda\n");
         {
-            ASSERT(5 == bdlf::BindUtil::bind([](int x) { return x; }, _1)(5));
+            ASSERT(5 == bdlf::BindUtil::bind(
+                            [](int x) {
+                                return x;
+                            },
+                            _1)(5));
         }
-#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+
+        if (verbose)
+             printf("\tUsing a noexcept lambda\n");
+        {
+            ASSERT(5 == bdlf::BindUtil::bind(
+                            [](int x) noexcept {
+                                return x;
+                            },
+                            _1)(5));
+        }
+
+#endif // BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+
+#endif // BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L
 
         if (verbose)
             printf("\tRespecting const-correctness of the invocable\n");
