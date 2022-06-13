@@ -542,11 +542,12 @@ struct ThreadUtil {
     static int join(Handle& threadHandle, void **status = 0);
         // Suspend execution of the current thread until the thread referred to
         // by the specified 'threadHandle' terminates, and reclaim any system
-        // resources associated with 'threadHandle'.  If the optionally
-        // specified 'status' is not 0, load into '*status' the value returned
-        // by the function supplied at the creation of the thread identified by
-        // 'threadHandle'.  The behavior is undefined unless 'threadHandle' was
-        // obtained by a call to 'create'.
+        // resources associated with 'threadHandle'.  Return 0 on success, and
+        // a non-zero value otherwise.  If the optionally specified 'status' is
+        // not 0, load into '*status' the value returned by the function
+        // supplied at the creation of the thread identified by 'threadHandle'.
+        // The behavior is undefined unless 'threadHandle' was obtained by a
+        // call to 'create'.
 
     static void microSleep(int microseconds, int seconds = 0);
         // Suspend execution of the current thread for a period of at least the

@@ -212,9 +212,10 @@ struct ThreadUtilImpl<Platform::Win32Threads> {
     static int join(Handle& thread, void **status = 0);
         // Suspend execution of the current thread until the thread specified
         // by 'threadHandle' terminates, and reclaim any system resources
-        // associated with the specified 'threadHandle'.  If the specified
-        // 'status' is not 0, load into the specified 'status', the value
-        // returned by the specified 'thread'.
+        // associated with the specified 'threadHandle'.  Return 0 on success,
+        // and a non-zero value otherwise.  If the specified 'status' is not 0,
+        // load into the specified 'status', the value returned by the
+        // specified 'thread'.
 
     static void yield();
         // Put the current thread to the end of the scheduler's queue and

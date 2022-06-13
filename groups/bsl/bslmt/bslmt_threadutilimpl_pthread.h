@@ -183,9 +183,10 @@ struct ThreadUtilImpl<Platform::PosixThreads> {
     static int join(Handle& threadHandle, void **status = (void**)0);
         // Suspend execution of the current thread until the thread specified
         // by 'threadHandle' terminates, and reclaim any system resources
-        // associated with the 'threadHandle'.  If the optionally specified
-        // 'status' is not 0, load into the 'status' the value returned by the
-        // specified 'thread'.
+        // associated with the 'threadHandle'.  Return 0 on success, and a
+        // non-zero value otherwise.  If the optionally specified 'status' is
+        // not 0, load into the 'status' the value returned by the specified
+        // 'thread'.
 
     static int microSleep(int                 microseconds,
                           int                 seconds = 0,
