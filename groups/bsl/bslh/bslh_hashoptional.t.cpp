@@ -1,8 +1,5 @@
 // bslh_hashoptional.t.cpp                                            -*-C++-*-
 #include <bslh_hashoptional.h>
-#include <bslh_defaultseededhashalgorithm.h>
-#include <bslh_siphashalgorithm.h>
-#include <bslh_spookyhashalgorithm.h>
 
 #include <bsls_alignmentfromtype.h>
 #include <bsls_assert.h>

@@ -3,6 +3,7 @@
 #include <bslh_defaultseededhashalgorithm.h>
 #include <bslh_siphashalgorithm.h>
 #include <bslh_spookyhashalgorithm.h>
+#include <bslh_wyhashalgorithm.h>
 
 #include <bsls_alignmentfromtype.h>
 #include <bsls_assert.h>
@@ -19,7 +20,6 @@
 
 using namespace BloombergLP;
 using namespace bslh;
-
 
 //=============================================================================
 //                                  TEST PLAN
@@ -139,7 +139,8 @@ void aSsErT(bool condition, const char *message, int line)
 //                  PRINTF FORMAT MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
+#define ZU  BSLS_BSLTESTUTIL_FORMAT_ZU
+#define U64 BSLS_BSLTESTUTIL_FORMAT_U64
 
 // ============================================================================
 //                  PLATFORM SPECIFIC TEST SUPPORT MACROS
@@ -1052,6 +1053,8 @@ int main(int argc, char *argv[])
             ASSERT((bslmf::IsSame<size_t,
                                   Hash<SpookyHashAlgorithm>::result_type>
                                                                      ::VALUE));
+            ASSERT((bslmf::IsSame<size_t,
+                                  Hash<WyHashAlgorithm>::result_type>::VALUE));
         }
 
         if (verbose) printf("Invoke 'operator()' and verify the return type is"
@@ -1066,6 +1069,9 @@ int main(int argc, char *argv[])
 
             ASSERT(TypeChecker<Hash<SpookyHashAlgorithm>::result_type>::
                                 isCorrectType(Hash<SpookyHashAlgorithm>()(1)));
+
+            ASSERT(TypeChecker<Hash<WyHashAlgorithm>::result_type>::
+                                isCorrectType(Hash<WyHashAlgorithm>()(1)));
         }
 
       } break;
@@ -1098,22 +1104,22 @@ int main(int argc, char *argv[])
             const int            d_value;
             bsls::Types::Uint64  d_expectedHash;
         } DATA[] = {
-        // LINE    DATA              HASH
-         {  L_,        1,  9778072230994240314ULL,},
-         {  L_,        3, 16874605512690156844ULL,},
-         {  L_,        9,  6609278684846086166ULL,},
-         {  L_,       27, 14610053422485613907ULL,},
-         {  L_,       81,  4473763709117720193ULL,},
-         {  L_,      243,  6469189993869193617ULL,},
-         {  L_,      729, 18245170745653607298ULL,},
-         {  L_,     2187,  4418771231001558887ULL,},
-         {  L_,     6561,  8361494415593539480ULL,},
-         {  L_,    19683,  8034516711244389554ULL,},
-         {  L_,    59049, 15257840606198213647ULL,},
-         {  L_,   177147,  9838846006369268307ULL,},
-         {  L_,   531441,  2891007685366740764ULL,},
-         {  L_,  1594323,  3005240762459740192ULL,},
-         {  L_,  4782969,  3383268391725748969ULL,},
+          // LINE    DATA              HASH
+            { L_,        1, 17109556646805833470ULL },
+            { L_,        3, 16351598246447922364ULL },
+            { L_,        9,  1205159795595966972ULL },
+            { L_,       27,  3420643538495769532ULL },
+            { L_,       81,   790250811351007387ULL },
+            { L_,      243,  2954551595261043472ULL },
+            { L_,      729, 17463708499348334281ULL },
+            { L_,     2187,  5952218939444775939ULL },
+            { L_,     6561,  9878197542162807158ULL },
+            { L_,    19683,  4956774094819036482ULL },
+            { L_,    59049,  6740345967090328934ULL },
+            { L_,   177147, 18068471651379901034ULL },
+            { L_,   531441,  4940997958587689384ULL },
+            { L_,  1594323, 14969997265140987090ULL },
+            { L_,  4782969, 16880761100252594755ULL },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -1124,18 +1130,35 @@ int main(int argc, char *argv[])
             for (int i = 0; i != NUM_DATA; ++i) {
                 const int    LINE  = DATA[i].d_line;
                 const int    VALUE = DATA[i].d_value;
-                const size_t HASH  =
-                                   static_cast<size_t>(DATA[i].d_expectedHash);
+                const int    LE_VALUE = BSLS_BYTEORDER_HOST_U32_TO_LE(VALUE);
+                const size_t HASH  = static_cast<size_t>(
+                                                       DATA[i].d_expectedHash);
 
-                if (veryVerbose) printf("Hashing: %i, Expecting: " ZU "\n",
-                                        VALUE,
-                                        HASH);
+                if (veryVerbose && !veryVeryVerbose) {
+                    printf("Hashing: %i, Expecting: " ZU "\n", VALUE, HASH);
+                }
 
                 Obj hash = Obj();
-                LOOP_ASSERT(LINE, hash(VALUE) == HASH);
+                const size_t result = hash(LE_VALUE);
+
+                if (veryVeryVerbose) {
+                    static bool firstTime = true;
+                    if (firstTime &&
+                               sizeof(size_t) != sizeof(bsls::Types::Uint64)) {
+                        firstTime = false;
+
+                        printf("To print the table properly,"
+                                               " run this on a 64-bit build.");
+                    }
+
+                    printf("            { L_, %8d, %20lluULL },\n",
+                              VALUE, static_cast<bsls::Types::Uint64>(result));
+                }
+
+                LOOP_ASSERT(LINE, result == HASH);
 
                 const Obj constHash = Obj();
-                LOOP_ASSERT(LINE, constHash(VALUE) == HASH);
+                LOOP_ASSERT(LINE, constHash(LE_VALUE) == HASH);
             }
         }
 
