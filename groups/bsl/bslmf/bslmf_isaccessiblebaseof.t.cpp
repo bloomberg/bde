@@ -79,6 +79,26 @@ void aSsErT(bool condition, const char *message, int line)
 // ============================================================================
 //                    GLOBAL CLASS DEFINITIONS FOR TESTING
 // ----------------------------------------------------------------------------
+
+#if BSLS_COMPILERFEATURES_CPLUSPLUS < 201103L
+    // Prior to C++11, access checks through ambiguous, protected, or private
+    // inherritance are hard errors.
+# if defined (BSLS_PLATFORM_CMP_SUN) && (BSLS_PLATFORM_CMP_VERSION == 0x5C4)
+        // The SUN compiler version 5.12.4 is permissive, and allows SFINAE
+        // participation even in C++03 build mode.
+#  define BSLMF_ISACCESSIBLEBASEOF_PRIVATE_AND_AMBIGUOUS_BASE_SFINAE_SUPPORTED
+# endif
+#else
+    // In C++11 and later, access checks through ambiguous, protected, or
+    // private inheritance are allowed to participate in SFINAE.
+# if defined (BSLS_PLATFORM_CMP_MSVC) && (BSLS_PLATFORM_CMP_VERSION == 1900)
+        // The MSVC2015 compiler incorrectly produces a compilation error even
+        // in C++11 or later build modes.
+# else
+#  define BSLMF_ISACCESSIBLEBASEOF_PRIVATE_AND_AMBIGUOUS_BASE_SFINAE_SUPPORTED
+# endif
+#endif
+
 using namespace BloombergLP;
 
 class Base {
@@ -87,8 +107,7 @@ class Base {
 class Derived : public Base {
 };
 
-#if (BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L) \
-        || defined (BSLS_PLATFORM_CMP_SUN)
+#ifdef BSLMF_ISACCESSIBLEBASEOF_PRIVATE_AND_AMBIGUOUS_BASE_SFINAE_SUPPORTED
         // Prior to C++11 these are ill-formed and not expected to compile, but
         // the SUN compiler is permissive
 class PrivatelyDerived : private Base {
@@ -146,7 +165,7 @@ class DerivedOfProtectedlyDerived : private ProtectedlyDerived {
     }
 };
 
-#endif  // C++11 or SUN
+#endif  // BSLMF_ISACCESSIBLEBASEOF_PRIVATE_AND_AMBIGUOUS_BASE_SFINAE_SUPPORTED
 
 class TransitivelyDerived : public Derived {
 };
@@ -307,10 +326,8 @@ int main(int argc, char *argv[])
                 bslmf::IsAccessibleBaseOf<Base, AmbiguousLeft>::value));
         ASSERT((true ==
                 bslmf::IsAccessibleBaseOf<Base, AmbiguousRight>::value));
-#if (BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L) \
-        || defined (BSLS_PLATFORM_CMP_SUN)
-        // Prior to C++11 these are ill-formed and not expected to compile, but
-        // the SUN compiler is permissive
+
+#ifdef BSLMF_ISACCESSIBLEBASEOF_PRIVATE_AND_AMBIGUOUS_BASE_SFINAE_SUPPORTED
         ASSERT((false ==
                 bslmf::IsAccessibleBaseOf<Base, PrivatelyDerived>::value));
         ASSERT((false ==
@@ -321,7 +338,8 @@ int main(int argc, char *argv[])
                                          DerivedOfProtectedlyDerived>::value));
         ASSERT((false ==
                 bslmf::IsAccessibleBaseOf<Base, AmbiguousTop>::value));
-#endif  // C++11 or SUN
+#endif  // BSLMF_ISACCESSIBLEBASEOF_PRIVATE_AND_AMBIGUOUS_BASE_SFINAE_SUPPORTED
+
         ASSERT((false == bslmf::IsAccessibleBaseOf<Base, OtherBase>::value));
 
         ASSERT((false == bslmf::IsAccessibleBaseOf<Derived, Base>::value));
@@ -344,10 +362,7 @@ int main(int argc, char *argv[])
         ASSERT((false == bslmf::IsAccessibleBaseOf<void, void>::value));
         ASSERT((false == bslmf::IsAccessibleBaseOf<Incomplete, void>::value));
 
-#if (BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L) \
-        || defined (BSLS_PLATFORM_CMP_SUN)
-        // Prior to C++11 these are ill-formed and not expected to compile, but
-        // the SUN compiler is permissive
+#ifdef BSLMF_ISACCESSIBLEBASEOF_PRIVATE_AND_AMBIGUOUS_BASE_SFINAE_SUPPORTED
         ASSERT(false == PrivatelyDerived().IsBaseTest());
         ASSERT(false == ProtectedlyDerived().IsBaseTest());
         ASSERT(false == DerivedOfProtectedlyDerived().IsBaseTest());
@@ -355,7 +370,7 @@ int main(int argc, char *argv[])
         ASSERT(false == PrivatelyDerived::IsBaseStaticTest());
         ASSERT(false == ProtectedlyDerived::IsBaseStaticTest());
         ASSERT(false == DerivedOfProtectedlyDerived::IsBaseStaticTest());
-#endif  // C++11 or SUN
+#endif  // BSLMF_ISACCESSIBLEBASEOF_PRIVATE_AND_AMBIGUOUS_BASE_SFINAE_SUPPORTED
       } break;
       case 1: {
         // --------------------------------------------------------------------
