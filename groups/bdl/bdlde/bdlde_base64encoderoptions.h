@@ -207,21 +207,21 @@ class Base64EncoderOptions {
     Base64EncoderOptions mime();
         // Return a 'Base64EncoderOptions' object having the attributes
         // 'maxLineLength == 76', 'alphabet == Base64Alphabet::e_BASIC', and
-        // 'isPadded == true'.
+        // 'isPadded == true'.  This conforms to RFC 2045.
 
     static
     Base64EncoderOptions standard(bool padded = true);
         // Return a 'Base64EncoderOptions' object having the attributes
         // 'maxLineLength == 0', 'alphabet == Base64Alphabet::e_BASIC', and
         // 'isPadded == false'.  If 'padded' is not specified, it defaults to
-        // 'true'.
+        // 'true'.  This conforms to RFC 4648 section 4.
 
     static
     Base64EncoderOptions urlSafe(bool padded = false);
         // Return a 'Base64EncoderOptions' object having the attributes
         // 'maxLineLength == 0', 'alphabet == Base64Alphabet::e_URL', and
         // the specified 'padded'.  If 'padded' is not specified, it defaults
-        // to 'false'.
+        // to 'false'.  This conforms to RFC 4648 section 5.
 
     // CREATORS
     // Base64EncoderOptions(const Base64EncoderOptions&) = default;

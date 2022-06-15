@@ -45,7 +45,7 @@ static const bool charsWhitespace[256] = {
        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  // F0
 };
 
-static const bool charsInvalidBasicEncoding[256] = {
+static const bool charsInvalidBasicEncodingPadded[256] = {
     // 0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // 00
        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // 10
@@ -65,13 +65,52 @@ static const bool charsInvalidBasicEncoding[256] = {
        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // F0
 };
 
+static const bool charsInvalidBasicEncodingUnpadded[256] = {
+    // 0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
+       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // 00
+       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // 10
+       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0,  // 20  // '+', '/'
+       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1,  // 30  // '0'..'9'
+       1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  // 40  // uppercase
+       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,  // 50  //      alphabet
+       1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  // 60  // lowercase
+       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,  // 70  //      alphabet
+       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // 80
+       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // 90
+       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // A0
+       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // B0
+       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // C0
+       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // D0
+       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // E0
+       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // F0
+};
 
-static const bool charsInvalidUrlEncoding[256] = {
+static const bool charsInvalidUrlEncodingPadded[256] = {
     // 0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // 00
        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // 10
        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1,  // 20  // '-'
        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1,  // 30  // '0'..'9', '='
+       1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  // 40  // uppercase
+       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0,  // 50  // alphabet, '_'
+       1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  // 60  // lowercase
+       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,  // 70  //      alphabet
+       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // 80
+       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // 90
+       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // A0
+       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // B0
+       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // C0
+       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // D0
+       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // E0
+       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // F0
+};
+
+static const bool charsInvalidUrlEncodingUnpadded[256] = {
+    // 0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
+       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // 00
+       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // 10
+       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1,  // 20  // '-'
+       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1,  // 30  // '0'..'9'
        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  // 40  // uppercase
        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0,  // 50  // alphabet, '_'
        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  // 60  // lowercase
@@ -145,19 +184,51 @@ namespace bdlde {
                          // class Base64Decoder
                          // -------------------
 
-// CLASS DATA
-const bool *const Base64Decoder::s_ignorableNone_p = u::charsNone;
-const bool *const Base64Decoder::s_ignorableWhitespace_p = u::charsWhitespace;
-const bool *const Base64Decoder::s_basicIgnorableRelaxed_p =
-                                                  u::charsInvalidBasicEncoding;
-const bool *const Base64Decoder::s_urlIgnorableRelaxed_p =
-                                                    u::charsInvalidUrlEncoding;
-
-const char *const Base64Decoder::s_basicAlphabet_p = u::basicAlphabet;
-const char *const Base64Decoder::s_urlAlphabet_p   = u::urlAlphabet;
-
-
 // CREATORS
+Base64Decoder::Base64Decoder(const Base64DecoderOptions& options)
+: d_outputLength(0)
+, d_alphabet_p(e_BASIC == options.alphabet() ? u::basicAlphabet
+                                             : u::urlAlphabet)
+, d_ignorable_p(options.ignoreMode() == IgnoreMode::e_IGNORE_NONE
+              ? u::charsNone
+              : options.ignoreMode() == IgnoreMode::e_IGNORE_WHITESPACE
+              ? u::charsWhitespace
+              : options.alphabet() == e_BASIC
+              ? (options.isPadded() ? u::charsInvalidBasicEncodingPadded
+                                    : u::charsInvalidBasicEncodingUnpadded)
+              : (options.isPadded() ? u::charsInvalidUrlEncodingPadded
+                                    : u::charsInvalidUrlEncodingUnpadded))
+, d_stack(0)
+, d_bitsInStack(0)
+, d_state(static_cast<signed char>(e_INPUT_STATE))
+, d_isPadded(options.isPadded())
+, d_alphabet(static_cast<unsigned char>(options.alphabet()))
+, d_ignoreMode(static_cast<unsigned char>(options.ignoreMode()))
+{}
+
+Base64Decoder::Base64Decoder(bool     unrecognizedNonWhitespaceIsErrorFlag,
+                             Alphabet alphabet)
+: d_outputLength(0)
+, d_alphabet_p(e_BASIC == alphabet ? u::basicAlphabet
+                                   : u::urlAlphabet)
+, d_ignorable_p(false == unrecognizedNonWhitespaceIsErrorFlag
+                ? u::charsWhitespace
+                : e_BASIC == alphabet
+                ? u::charsInvalidBasicEncodingPadded
+                : u::charsInvalidUrlEncodingPadded)
+, d_stack(0)
+, d_bitsInStack(0)
+, d_state(static_cast<signed char>(e_INPUT_STATE))
+, d_isPadded(true)
+, d_alphabet(static_cast<unsigned char>(alphabet))
+, d_ignoreMode(static_cast<unsigned char>(unrecognizedNonWhitespaceIsErrorFlag
+                                          ? IgnoreMode::e_IGNORE_UNRECOGNIZED
+                                          : IgnoreMode::e_IGNORE_WHITESPACE))
+{
+    BSLS_ASSERT(static_cast<unsigned>(alphabet) <
+                                                 Base64Alphabet::k_NUM_VALUES);
+}
+
 Base64Decoder::~Base64Decoder()
 {
     BSLS_ASSERT(e_ERROR_STATE <= d_state);

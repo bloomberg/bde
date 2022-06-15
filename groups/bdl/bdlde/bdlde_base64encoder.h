@@ -434,6 +434,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlde_base64alphabet.h>
 #include <bdlde_base64encoderoptions.h>
 
+#include <bsla_deprecated.h>
+
 #include <bsls_assert.h>
 #include <bsls_review.h>
 
@@ -469,22 +471,16 @@ class Base64Encoder {
         e_DONE_STATE      =  1  // Any additional input is an error.
     };
 
-    // CLASS DATA
-    static const char *const s_base64Alphabet_p;      // 6-bit map of "base64"
-                                                      // alphabet
-
-    static const char *const s_base64UrlAlphabet_p;   // 6-bit map of
-                                                      // "base64url" alphabet
-
     // INSTANCE DATA
-    State             d_state;          // state as per above enum
-    int               d_maxLineLength;  // maximum length of output line
-    int               d_lineLength;     // current length of output line
-    int               d_outputLength;   // total number of output characters
-    unsigned          d_stack;          // storage of non-emitted input
-    int               d_bitsInStack;    // number of bits in 'd_stack'
-    const char *const d_alphabet_p;     // alphabet
-    bool              d_isPadded;       // is output tail-padded with '='
+    const int           d_maxLineLength;  // maximum length of output line
+    int                 d_lineLength;     // current length of output line
+    int                 d_outputLength;   // total number of output characters
+    unsigned            d_stack;          // storage of non-emitted input
+    int                 d_bitsInStack;    // number of bits in 'd_stack'
+    const char * const  d_alphabet_p;     // alphabet
+    signed char         d_state;          // state as per above enum 'State'
+    const bool          d_isPadded;       // is output tail-padded with '='
+    const unsigned char d_alphabetEnum;   // alphabet
 
   private:
     // NOT IMPLEMENTED
@@ -516,12 +512,18 @@ class Base64Encoder {
         // does not equal 'maxLength' at entry to this method and the internal
         // buffer contains at least one character of output.
 
+    void setState(State newState);
+        // Set the state to the specified 'newState'.
+
     // PRIVATE ACCESSORS
     bool isResidualOutput(int numBytes) const;
         // Return 'true' if an output sequence of the specified 'numBytes' from
         // this encoder would be an acceptable input to a 'Base64Decoder'
         // expecting padded input, and 'false' otherwise.  The behavior is
         // undefined unless padding is enabled.
+
+    State state() const;
+        // Return the state of this encoder.
 
   public:
     // CLASS METHODS
@@ -531,7 +533,9 @@ class Base64Encoder {
         // 'convert' method of an encoder configured with the specified
         // 'options'.
 
-    static int encodedLength(int inputLength);
+    BSLA_DEPRECATED
+    static
+    int encodedLength(int inputLength);
         // Return the exact number of encoded bytes that would result from an
         // input byte sequence of the specified 'inputLength' provided to the
         // 'convert' method of an encoder with the maximum allowable
@@ -541,7 +545,9 @@ class Base64Encoder {
         //
         // DEPRECATED: use the overload with 'options' instead.
 
-    static int encodedLength(int inputLength, int maxLineLength);
+    BSLA_DEPRECATED
+    static
+    int encodedLength(int inputLength, int maxLineLength);
         // Return the exact number of encoded bytes that would result from an
         // input byte sequence of the specified 'inputLength' provided to the
         // 'convert' method of an encoder configured with the specified
@@ -560,7 +566,9 @@ class Base64Encoder {
         // 'options'.  Note that the number of encoded bytes need not be the
         // number of *output* bytes.
 
-    static int encodedLines(int inputLength);
+    BSLA_DEPRECATED
+    static
+    int encodedLines(int inputLength);
         // Return the exact number of encoded lines that would result from an
         // input byte sequence of the specified 'inputLength' provided to the
         // 'convert' method of an encoder with the maximum allowable
@@ -571,7 +579,9 @@ class Base64Encoder {
         //
         // DEPRECATED: use the overload with 'options' instead.
 
-    static int encodedLines(int inputLength, int maxLineLength);
+    BSLA_DEPRECATED
+    static
+    int encodedLines(int inputLength, int maxLineLength);
         // Return the exact number of encoded lines that would result from an
         // input byte sequence of the specified 'inputLength' provided to the
         // 'convert' method of an encoder configured with the specified
@@ -590,6 +600,7 @@ class Base64Encoder {
         // of the maximum allowable line-length, the padding, and the alphabet
         // according to the values of the specified 'options'.
 
+    BSLA_DEPRECATED
     explicit
     Base64Encoder(Alphabet alphabet);
         // Create a Base64 encoder in the initial state, defaulting the maximum
@@ -602,6 +613,7 @@ class Base64Encoder {
         //
         // DEPRECATED: Create and pass an 'options' object instead.
 
+    BSLA_DEPRECATED
     explicit
     Base64Encoder(int maxLineLength, Alphabet alphabet = e_BASIC);
         // Create a Base64 encoder in the initial state, setting the maximum
@@ -806,6 +818,12 @@ void Base64Encoder::encode(OUTPUT_ITERATOR *out, int maxLength)
     ++d_lineLength;
 }
 
+inline
+void Base64Encoder::setState(State newState)
+{
+    d_state = static_cast<signed char>(newState);
+}
+
 // PRIVATE ACCESSORS
 inline
 bool Base64Encoder::isResidualOutput(int numBytes) const
@@ -826,6 +844,12 @@ bool Base64Encoder::isResidualOutput(int numBytes) const
     else {
         return 0 != numBytes % 4;                                     // RETURN
     }
+}
+
+inline
+Base64Encoder::State Base64Encoder::state() const
+{
+    return static_cast<State>(d_state);
 }
 
 // CLASS METHODS
@@ -897,48 +921,6 @@ int Base64Encoder::encodedLines(int inputLength)
     return encodedLines(EncoderOptions::mime(), inputLength);
 }
 
-// CREATORS
-inline
-Base64Encoder::Base64Encoder(const EncoderOptions& options)
-: d_state(e_INITIAL_STATE)
-, d_maxLineLength(options.maxLineLength())
-, d_lineLength(0)
-, d_outputLength(0)
-, d_stack(0)
-, d_bitsInStack(0)
-, d_alphabet_p(e_URL == options.alphabet() ? s_base64UrlAlphabet_p
-                                           : s_base64Alphabet_p)
-, d_isPadded(options.isPadded())
-{}
-
-inline
-Base64Encoder::Base64Encoder(Base64Alphabet::Enum alphabet)
-: d_state(e_INITIAL_STATE)
-, d_maxLineLength(EncoderOptions::k_MIME_MAX_LINE_LENGTH)
-, d_lineLength(0)
-, d_outputLength(0)
-, d_stack(0)
-, d_bitsInStack(0)
-, d_alphabet_p(e_BASIC == alphabet ? s_base64Alphabet_p
-                                   : s_base64UrlAlphabet_p)
-, d_isPadded(true)
-{}
-
-inline
-Base64Encoder::Base64Encoder(int maxLineLength, Alphabet alphabet)
-: d_state(e_INITIAL_STATE)
-, d_maxLineLength(maxLineLength)
-, d_lineLength(0)
-, d_outputLength(0)
-, d_stack(0)
-, d_bitsInStack(0)
-, d_alphabet_p(e_BASIC == alphabet ? s_base64Alphabet_p
-                                   : s_base64UrlAlphabet_p)
-, d_isPadded(true)
-{
-    BSLS_ASSERT(0 <= maxLineLength);
-}
-
 // MANIPULATORS
 template <class OUTPUT_ITERATOR, class INPUT_ITERATOR>
 int Base64Encoder::convert(OUTPUT_ITERATOR out,
@@ -968,8 +950,8 @@ int Base64Encoder::convert(OUTPUT_ITERATOR  out,
         numIn  = &dummyNumIn;
     }
 
-    if (e_ERROR_STATE == d_state || e_DONE_STATE == d_state) {
-        d_state = e_ERROR_STATE;
+    if (e_ERROR_STATE == state() || e_DONE_STATE == state()) {
+        setState(e_ERROR_STATE);
         *numOut = 0;
         *numIn  = 0;
         return -1;                                                    // RETURN
@@ -1026,8 +1008,8 @@ int Base64Encoder::endConvert(OUTPUT_ITERATOR  out,
 {
     BSLS_ASSERT(numOut);
 
-    if (e_ERROR_STATE == d_state || isDone()) {
-        d_state = e_ERROR_STATE;
+    if (e_ERROR_STATE == state() || isDone()) {
+        setState(e_ERROR_STATE);
         *numOut = 0;
         return -1;                                                    // RETURN
     }
@@ -1057,7 +1039,7 @@ int Base64Encoder::endConvert(OUTPUT_ITERATOR  out,
     if (0 == d_bitsInStack) {
         while (true) {
             if (!d_isPadded || !isResidualOutput(d_outputLength)) {
-                d_state = e_DONE_STATE;
+                setState(e_DONE_STATE);
 
                 break;
             }
@@ -1078,7 +1060,7 @@ int Base64Encoder::endConvert(OUTPUT_ITERATOR  out,
 inline
 void Base64Encoder::resetState()
 {
-    d_state        = e_INITIAL_STATE;
+    setState(e_INITIAL_STATE);
     d_outputLength = 0;
     d_lineLength   = 0;
     d_stack        = 0;
@@ -1089,19 +1071,19 @@ void Base64Encoder::resetState()
 inline
 Base64Alphabet::Enum Base64Encoder::alphabet() const
 {
-    return d_alphabet_p == s_base64Alphabet_p ? e_BASIC : e_URL;
+    return static_cast<Base64Alphabet::Enum>(d_alphabetEnum);
 }
 
 inline
 bool Base64Encoder::isAcceptable() const
 {
-    return e_ERROR_STATE != d_state;
+    return e_ERROR_STATE != state();
 }
 
 inline
 bool Base64Encoder::isDone() const
 {
-    return e_DONE_STATE == d_state
+    return e_DONE_STATE == state()
         && !d_bitsInStack
         && (!d_isPadded || !isResidualOutput(d_outputLength));
 }
@@ -1109,13 +1091,13 @@ bool Base64Encoder::isDone() const
 inline
 bool Base64Encoder::isError() const
 {
-    return e_ERROR_STATE == d_state;
+    return e_ERROR_STATE == state();
 }
 
 inline
 bool Base64Encoder::isInitialState() const
 {
-    return 0 == d_outputLength && e_INITIAL_STATE == d_state;
+    return 0 == d_outputLength && e_INITIAL_STATE == state();
 }
 
 inline
@@ -1135,7 +1117,7 @@ Base64EncoderOptions Base64Encoder::options() const
 {
     return EncoderOptions::custom(
                           d_maxLineLength,
-                          d_alphabet_p == s_base64Alphabet_p ? e_BASIC : e_URL,
+                          alphabet(),
                           d_isPadded);
 }
 

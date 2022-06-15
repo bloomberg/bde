@@ -22,7 +22,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  Name                    Description
 //  ---------------         ---------------------------------------------------
-//  e_IGNORE_NOTHING        Any unrecognized character is an error
+//  e_IGNORE_NONE           Any unrecognized character is an error
 //  e_IGNORE_WHITESPACE     Any unrecognized character other than whitespace is
 //                          an error
 //  e_IGNORE_UNRECOGNIZED   No unrecognized character is an error

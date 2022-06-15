@@ -95,6 +95,11 @@ struct Base64Alphabet {
         e_URL
     };
 
+    enum { k_NUM_VALUES = e_URL + 1 };    // This allows us to assert that
+                                          // that if
+                                          // '(unsigned) value < k_NUM_VALUES'
+                                          // the value is valid
+
   public:
     // CLASS METHODS
     static bsl::ostream& print(bsl::ostream& stream,

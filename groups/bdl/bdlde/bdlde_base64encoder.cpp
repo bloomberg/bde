@@ -14,7 +14,8 @@ BSLS_IDENT_RCSID(bdlde_base64encoder_cpp,"$Id$ $CSID$")
 
 #include <bsls_assert.h>
 
-namespace BloombergLP {
+namespace {
+namespace u {
 
                 // ======================
                 // FILE-SCOPE STATIC DATA
@@ -23,7 +24,7 @@ namespace BloombergLP {
 // The following table is a map of a 6-bit index value to the corresponding
 // Base64 encoding of that index.
 
-static const char base64[] = {
+const char base64[] = {
 //   0    1    2    3    4    5    6    7
     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',  // 000
     'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',  // 010
@@ -38,7 +39,7 @@ static const char base64[] = {
 // The following table is a map of a 6-bit index value to the corresponding
 // Base64 URL and Filename Safe encoding of that index.
 
-static const char base64url[] = {
+const char base64url[] = {
 //   0    1    2    3    4    5    6    7
     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',  // 000
     'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',  // 010
@@ -50,17 +51,60 @@ static const char base64url[] = {
     '4', '5', '6', '7', '8', '9', '-', '_',  // 070
 };
 
+}  // close namespace u
+}  // close unnamed namespace
+
+namespace BloombergLP {
 namespace bdlde {
 
                          // -------------------
                          // class Base64Encoder
                          // -------------------
 
-// CLASS DATA
-const char *const Base64Encoder::s_base64Alphabet_p     = base64;
-const char *const Base64Encoder::s_base64UrlAlphabet_p  = base64url;
-
 // CREATORS
+Base64Encoder::Base64Encoder(const EncoderOptions& options)
+: d_maxLineLength(options.maxLineLength())
+, d_lineLength(0)
+, d_outputLength(0)
+, d_stack(0)
+, d_bitsInStack(0)
+, d_alphabet_p(e_BASIC == options.alphabet() ? u::base64 : u::base64url)
+, d_state(static_cast<signed char>(e_INITIAL_STATE))
+, d_isPadded(options.isPadded())
+, d_alphabetEnum(static_cast<unsigned char>(options.alphabet()))
+{}
+
+Base64Encoder::Base64Encoder(Alphabet alphabet)
+: d_maxLineLength(EncoderOptions::k_MIME_MAX_LINE_LENGTH)
+, d_lineLength(0)
+, d_outputLength(0)
+, d_stack(0)
+, d_bitsInStack(0)
+, d_alphabet_p(e_BASIC == alphabet ? u::base64 : u::base64url)
+, d_state(static_cast<signed char>(e_INITIAL_STATE))
+, d_isPadded(true)
+, d_alphabetEnum(static_cast<unsigned char>(alphabet))
+{
+    BSLS_ASSERT(static_cast<unsigned>(alphabet) <
+                                                 Base64Alphabet::k_NUM_VALUES);
+}
+
+Base64Encoder::Base64Encoder(int maxLineLength, Alphabet alphabet)
+: d_maxLineLength(maxLineLength)
+, d_lineLength(0)
+, d_outputLength(0)
+, d_stack(0)
+, d_bitsInStack(0)
+, d_alphabet_p(e_BASIC == alphabet ? u::base64 : u::base64url)
+, d_state(static_cast<signed char>(e_INITIAL_STATE))
+, d_isPadded(true)
+, d_alphabetEnum(static_cast<unsigned char>(alphabet))
+{
+    BSLS_ASSERT(0 <= maxLineLength);
+    BSLS_ASSERT(static_cast<unsigned>(alphabet) <
+                                                 Base64Alphabet::k_NUM_VALUES);
+}
+
 Base64Encoder::~Base64Encoder()
 {
     // Assert invariants:

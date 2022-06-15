@@ -257,12 +257,12 @@ int main(int argc, char *argv[])
         } DATA[] = {
             //line       enumerator value           expected result
             //----     -----------------------      ---------------
-            {  L_,     Obj::e_BASIC,                "BASIC"      },
-            {  L_,     Obj::e_URL,                  "URL"   },
-            {  L_,     NUM_VALUES,                  UNKNOWN_FORMAT    },
-            {  L_,     -1,                          UNKNOWN_FORMAT    },
-            {  L_,     -5,                          UNKNOWN_FORMAT    },
-            {  L_,     99,                          UNKNOWN_FORMAT    }
+            {  L_,     Obj::e_BASIC,                "BASIC"        },
+            {  L_,     Obj::e_URL,                  "URL"          },
+            {  L_,     NUM_VALUES,                  UNKNOWN_FORMAT },
+            {  L_,     -1,                          UNKNOWN_FORMAT },
+            {  L_,     -5,                          UNKNOWN_FORMAT },
+            {  L_,     99,                          UNKNOWN_FORMAT }
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -374,21 +374,21 @@ int main(int argc, char *argv[])
 #define NL "\n"
             //line  level  spl    enumerator value        expected result
             //----  -----  ---  ----------------------    -----------------
-            { L_,    0,    4,  Obj::e_BASIC,             "BASIC" NL    },
-            { L_,    0,    4,  Obj::e_URL,               "URL" NL },
-            { L_,    0,    4,  -1,                       UNKNOWN_FORMAT NL  },
-            { L_,    0,    4,  -5,                       UNKNOWN_FORMAT NL  },
-            { L_,    0,    4,  99,                       UNKNOWN_FORMAT NL  },
+            { L_,    0,    4,  Obj::e_BASIC,             "BASIC"        NL },
+            { L_,    0,    4,  Obj::e_URL,               "URL"          NL },
+            { L_,    0,    4,  -1,                       UNKNOWN_FORMAT NL },
+            { L_,    0,    4,  -5,                       UNKNOWN_FORMAT NL },
+            { L_,    0,    4,  99,                       UNKNOWN_FORMAT NL },
 
-            { L_,    0,   -1,  Obj::e_BASIC,             "BASIC"       },
-            { L_,    0,    0,  Obj::e_BASIC,             "BASIC" NL    },
-            { L_,    0,    2,  Obj::e_BASIC,             "BASIC" NL    },
-            { L_,    1,    1,  Obj::e_BASIC,             " BASIC" NL   },
-            { L_,    1,    2,  Obj::e_BASIC,             "  BASIC" NL  },
-            { L_,   -1,    2,  Obj::e_BASIC,             "BASIC" NL    },
-            { L_,   -2,    1,  Obj::e_BASIC,             "BASIC" NL    },
-            { L_,    2,    1,  Obj::e_BASIC,             "  BASIC" NL  },
-            { L_,    1,    3,  Obj::e_BASIC,             "   BASIC" NL },
+            { L_,    0,   -1,  Obj::e_BASIC,             "BASIC"           },
+            { L_,    0,    0,  Obj::e_BASIC,             "BASIC"        NL },
+            { L_,    0,    2,  Obj::e_BASIC,             "BASIC"        NL },
+            { L_,    1,    1,  Obj::e_BASIC,             " BASIC"       NL },
+            { L_,    1,    2,  Obj::e_BASIC,             "  BASIC"      NL },
+            { L_,   -1,    2,  Obj::e_BASIC,             "BASIC"        NL },
+            { L_,   -2,    1,  Obj::e_BASIC,             "BASIC"        NL },
+            { L_,    2,    1,  Obj::e_BASIC,             "  BASIC"      NL },
+            { L_,    1,    3,  Obj::e_BASIC,             "   BASIC"     NL },
 #undef NL
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -506,12 +506,12 @@ int main(int argc, char *argv[])
         } DATA[] = {
             // line         enumerator value        expected result
             // ----    -----------------------      -----------------
-            {  L_,     Obj::e_BASIC,                "BASIC"      },
-            {  L_,     Obj::e_URL,                  "URL"   },
-            {  L_,     NUM_VALUES,                  UNKNOWN_FORMAT    },
-            {  L_,     -1,                          UNKNOWN_FORMAT    },
-            {  L_,     -5,                          UNKNOWN_FORMAT    },
-            {  L_,     99,                          UNKNOWN_FORMAT    }
+            {  L_,     Obj::e_BASIC,                "BASIC"        },
+            {  L_,     Obj::e_URL,                  "URL"          },
+            {  L_,     NUM_VALUES,                  UNKNOWN_FORMAT },
+            {  L_,     -1,                          UNKNOWN_FORMAT },
+            {  L_,     -5,                          UNKNOWN_FORMAT },
+            {  L_,     99,                          UNKNOWN_FORMAT }
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 

@@ -209,7 +209,7 @@ class Base64DecoderOptions {
         // Return a 'Base64DecoderOptions' object having the attributes
         // 'alphabet == Base64Alphabet::e_BASIC', 'isPadded == true', and the
         // specified 'ignoreMode'.  If 'ignoreMode' is not specified, it
-        // defaults to 'e_IGNORE_WHITESPACE'.
+        // defaults to 'e_IGNORE_WHITESPACE'.  This conforms to RFC 2045.
 
     static
     Base64DecoderOptions standard(IgnoreMode::Enum ignoreMode =
@@ -219,7 +219,8 @@ class Base64DecoderOptions {
         // 'ignoreMode' and 'padded', and the attribute
         // 'alphabet == Base64Alphabet::e_BASIC'.  If 'padded' is not
         // specified, it defaults to 'true'.  If 'ignoreMode' is not specified,
-        // it defaults to 'e_IGNORE_NOTHING'.
+        // it defaults to 'e_IGNORE_NOTHING'.  This conforms to RFC 4648
+        // section 4.
 
     static
     Base64DecoderOptions urlSafe(IgnoreMode::Enum ignoreMode =
@@ -228,7 +229,8 @@ class Base64DecoderOptions {
         // Return a 'Base64DecoderOptions' object having the attributes
         // 'alphabet == Base64Alphabet::e_URL', 'isPadded == false' and the
         // specified 'ignoreMode'.  If 'ignoreMode' is not specified, it
-        // defaults to 'e_IGNORE_NOTHING'.
+        // defaults to 'e_IGNORE_NOTHING'.  This conforms to RFC 4648 section
+        // 5.
 
     // CREATORS
     // Base64DecoderOptions(const Base64DecoderOptions&) = default;
