@@ -265,6 +265,7 @@ void aSsErT(bool condition, const char *message, int line)
 //   types, and arrays of those cv-qualified types.  Note that this macro does
 //   not recursively test arrays of pointers to 'TYPE'.
 #define ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(TYPE, RESULT);       \
+    ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CV_TYPE(TYPE, RESULT);               \
     ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CV_TYPE(TYPE[128], false);           \
     ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CV_TYPE(TYPE[12][8], false);         \
     ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CV_TYPE(TYPE[], false);              \
