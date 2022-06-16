@@ -52,6 +52,8 @@
 
 #include <bslmf_assert.h>
 
+#include <bsls_nameof.h>
+
 #include <bsl_climits.h>
 #include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
@@ -94,6 +96,15 @@ using namespace BloombergLP;
 using bsl::cout;
 using bsl::cerr;
 using bsl::endl;
+
+// 'long' is always 32 bits on Windows
+
+#undef   U_LONG_IS_32_BIT
+#if defined(BSLS_PLATFORM_CPU_64_BIT) && !defined(BSLS_PLATFORM_OS_WINDOWS)
+# define U_LONG_IS_32_BIT 0
+#else
+# define U_LONG_IS_32_BIT 1
+#endif
 
 // ============================================================================
 //                             TEST PLAN
@@ -339,11 +350,9 @@ void testNumber()
   || (defined(BSLS_PLATFORM_CPU_64_BIT) && defined(BSLS_PLATFORM_OS_WINDOWS))
         { L_,   LONG_MAX,           "2147483647" },
         { L_,  ULONG_MAX,           "4294967295" },
-#elif defined(BSLS_PLATFORM_CPU_64_BIT)
+#else
         { L_,   LONG_MAX,  "9223372036854775807" },
         { L_,  ULONG_MAX, "18446744073709551615" },
-#else
-# error "baljsn_encoder.t.cpp does not support the platform's bitness."
 #endif
         { L_,  LLONG_MAX,  "9223372036854775807" },
         { L_, ULLONG_MAX, "18446744073709551615" }
@@ -362,12 +371,14 @@ void testNumber()
 
         const TYPE VALUE_AS_TYPE = static_cast<TYPE>(VALUE);
 
+        BSLS_ASSERT(static_cast<Uint64>(VALUE_AS_TYPE) == VALUE);
+
         Obj                encoder;
         bsl::ostringstream oss;
         ASSERTV(LINE, 0 == ImplUtil::encode(&oss, VALUE_AS_TYPE));
 
         bsl::string result = oss.str();
-        ASSERTV(LINE, result, EXP, result == EXP);
+        ASSERTV(LINE, result, EXP, bsls::NameOf<TYPE>().name(), result == EXP);
     }
 
     // Test negative numbers.
@@ -386,10 +397,8 @@ void testNumber()
 #if   defined(BSLS_PLATFORM_CPU_32_BIT)                                       \
   || (defined(BSLS_PLATFORM_CPU_64_BIT) && defined(BSLS_PLATFORM_OS_WINDOWS))
         { L_,   LONG_MIN,          "-2147483648" },
-#elif defined(BSLS_PLATFORM_CPU_64_BIT)
-        { L_,   LONG_MIN, "-9223372036854775808" },
 #else
-# error "baljsn_encoder.t.cpp does not support the platform's bitness."
+        { L_,   LONG_MIN, "-9223372036854775808" },
 #endif
         { L_,  LLONG_MIN, "-9223372036854775808" }
     };
@@ -406,6 +415,8 @@ void testNumber()
         }
 
         const TYPE VALUE_AS_TYPE = static_cast<TYPE>(VALUE);
+
+        BSLS_ASSERT(static_cast<Int64>(VALUE_AS_TYPE) == VALUE);
 
         Obj                encoder;
         bsl::ostringstream oss;
