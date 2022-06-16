@@ -783,7 +783,7 @@ int Base64Decoder::convert(OUTPUT_ITERATOR  out,
     *numIn = 0;
 
     if (e_INPUT_STATE == state()) {
-        while (18 >= d_bitsInStack && begin < end) {
+        while (18 >= d_bitsInStack && begin != end) {
             const unsigned char byte = static_cast<unsigned char>(*begin);
 
             ++begin;
