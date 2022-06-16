@@ -389,12 +389,16 @@ int main(int argc, char *argv[])
 
                 new (&a) Obj(5);
 
+#if (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 80000)
 #               pragma GCC diagnostic push
 #               pragma GCC diagnostic ignored "-Wclass-memaccess"
+#endif
 
                 ::memcpy(&b, &a, sizeof(a));
 
+#if (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 80000)
 #               pragma GCC diagnostic pop
+#endif
 
                 ASSERT(5 == b.data());
 

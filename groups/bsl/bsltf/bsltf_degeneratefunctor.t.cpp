@@ -3,6 +3,8 @@
 
 #include <bsls_bsltestutil.h>
 
+#include <bsla_maybeunused.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -153,7 +155,9 @@ int main(int argc, char *argv[])
                             "\n==============\n");
 
         typedef bsltf::DegenerateFunctor<Compare<int> > ComparatorType;
-        typedef bsltf::DegenerateFunctor<Compare<int>, true > SwappableType;
+
+        BSLA_MAYBE_UNUSED
+        typedef bsltf::DegenerateFunctor<Compare<int>, true> SwappableType;
 
         Compare<int> mC = {};  const Compare<int> C = mC;
 

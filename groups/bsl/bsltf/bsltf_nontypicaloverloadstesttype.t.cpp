@@ -315,6 +315,10 @@ int main(int argc, char *argv[])
           BSLS_ASSERTTEST_ASSERT_OPT_PASS(::new((void *)obj.buffer()) Obj());
 
           ASSERT(!BSLS_KEYWORD_NOEXCEPT_OPERATOR(delete obj.address()));
+          // Note that, although the following test works for current
+          // compilers, it is not guaranteed to as throwing an exception in a
+          // deallocation function is undefined behavior (C++ standard
+          // [basic.stc.dynamic.deallocation]).
           BSLS_ASSERTTEST_ASSERT_OPT_FAIL(delete obj.address());
           BSLS_ASSERTTEST_ASSERT_OPT_PASS(
                                   obj.object().~NonTypicalOverloadsTestType());

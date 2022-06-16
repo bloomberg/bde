@@ -302,6 +302,10 @@ bool OutputRedirector::load()
     }
 
     // Conversion to 'unsigned long' is safe because 'incremented' > 0
+#if defined(BSLS_PLATFORM_CMP_CLANG)
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wtautological-type-limit-compare"
+#endif
     if (static_cast<unsigned long>(incremented) >
                                           std::numeric_limits<size_t>::max()) {
         // Our 'incremented' will not fit in a size_t, so it is too big for our
@@ -314,6 +318,9 @@ bool OutputRedirector::load()
         }
         return false;                                                 // RETURN
     }
+#if defined(BSLS_PLATFORM_CMP_CLANG)
+#   pragma GCC diagnostic pop
+#endif
 
     // Conversion to 'size_t' is safe because 'tempOutputSize' is nonnegative
     // and 'tempOutputSize'+1 is no larger than 'SIZE_MAX'.

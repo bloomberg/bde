@@ -94,6 +94,7 @@ class NonTypicalOverloadsTestType {
 
     static void* operator new(std::size_t size, void *ptr);
         // Overload in place 'new' and assert this method is not called.
+
 #if !defined(BSLTF_NONTYPICALOVERLOADSTESTTYPE_TEST_DRIVER)
     static void operator delete(void *ptr);
 #else
@@ -101,6 +102,15 @@ class NonTypicalOverloadsTestType {
                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
 #endif
         // Overload 'operator delete' and assert this method is not called.
+
+#if !defined(BSLTF_NONTYPICALOVERLOADSTESTTYPE_TEST_DRIVER)
+    static void operator delete(void *ptr, void *);
+#else
+    static void operator delete(void *ptr, void *)
+                                    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
+#endif
+        // Overload in place 'operator delete' and assert this method is not
+        // called.  Not used but required to avoid compiler warnings (MSVC).
 
     // CREATORS
     NonTypicalOverloadsTestType();
@@ -118,7 +128,15 @@ class NonTypicalOverloadsTestType {
         // Create a 'NonTypicalOverloadsTestType' object having the same value
         // as the specified 'original' object.
 
+#if !defined(BSLTF_NONTYPICALOVERLOADSTESTTYPE_TEST_DRIVER) ||                \
+    !defined(BSLS_PLATFORM_CMP_MSVC)
     ~NonTypicalOverloadsTestType();
+#else
+    // MSVC will terminate due to an exception in a `noexcept false` `operator
+    // delete` if the corresponding destructor is not also marked
+    // `noexcept(false)`
+    ~NonTypicalOverloadsTestType() BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
+#endif
         // Destroy this object.
 
     // MANIPULATORS
@@ -185,6 +203,17 @@ void NonTypicalOverloadsTestType::operator delete(void *)
     BSLS_ASSERT_OPT(0);
 }
 
+inline
+#if !defined(BSLTF_NONTYPICALOVERLOADSTESTTYPE_TEST_DRIVER)
+void NonTypicalOverloadsTestType::operator delete(void *, void *)
+#else
+void NonTypicalOverloadsTestType::operator delete(void *, void *)
+                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+#endif
+{
+    BSLS_ASSERT_OPT(0);
+}
+
 // CREATORS
 inline
 NonTypicalOverloadsTestType::NonTypicalOverloadsTestType()
@@ -206,7 +235,13 @@ NonTypicalOverloadsTestType::NonTypicalOverloadsTestType(
 }
 
 inline
+#if !defined(BSLTF_NONTYPICALOVERLOADSTESTTYPE_TEST_DRIVER) ||                \
+    !defined(BSLS_PLATFORM_CMP_MSVC)
 NonTypicalOverloadsTestType::~NonTypicalOverloadsTestType()
+#else
+NonTypicalOverloadsTestType::~NonTypicalOverloadsTestType()
+                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+#endif
 {
     d_data = ~d_data & 0xf0f0f0f0;
 }

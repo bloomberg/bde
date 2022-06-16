@@ -301,11 +301,31 @@ int main(int argc, char *argv[])
          ASSERT((bsl::is_convertible<Obj&, Obj>::value));
          ASSERT((bsl::is_convertible<const Obj, Obj>::value));
          ASSERT((bsl::is_convertible<const Obj&, Obj>::value));
-         ASSERT((bsl::is_convertible<bslmf::MovableRef<Obj>, Obj>::value));
-         ASSERT((bsl::is_convertible<const bslmf::MovableRef<Obj>,
-                                     Obj>::value));
-         ASSERT((bsl::is_convertible<const bslmf::MovableRef<Obj>&,
-                                     Obj>::value));
+
+         {
+             // When `bslmf::MovableRef` uses rvalue references, then
+             // `bslmf::MovableRef` degenerates to `Obj&&`, thus tests 3 and 4
+             // in the following set are equivalent to tests 1 and 2. clang
+             // issues appropriate compiler warnings, hence the suppression
+             // pragmas.
+
+             ASSERT(
+                 (bsl::is_convertible<bslmf::MovableRef<Obj>,  Obj>::value));
+             ASSERT(
+                 (bsl::is_convertible<bslmf::MovableRef<Obj>&, Obj>::value));
+
+#if BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#            pragma GCC diagnostic push
+#            pragma GCC diagnostic ignored "-Wignored-qualifiers"
+#endif
+             ASSERT((bsl::is_convertible<const bslmf::MovableRef<Obj>,
+                                         Obj>::value));
+             ASSERT((bsl::is_convertible<const bslmf::MovableRef<Obj>&,
+                                         Obj>::value));
+#if BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#            pragma GCC diagnostic pop
+#endif
+         }
 
         // In addition to the CC 12.4 concerns:
 

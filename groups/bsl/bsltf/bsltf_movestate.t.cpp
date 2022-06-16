@@ -195,6 +195,11 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING 'enum' AND 'toAscii'"
                             "\n============================\n");
 
+#if BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#       pragma GCC diagnostic push
+#       pragma GCC diagnostic ignored "-Wconversion"
+#endif
+
         static const struct {
             int         d_lineNum;  // source line number
             Enum        d_value;    // enumerator value
@@ -206,9 +211,15 @@ int main(int argc, char *argv[])
             {  L_,     Obj::e_MOVED,                 "MOVED"          },
             {  L_,     Obj::e_UNKNOWN,               "UNKNOWN"        },
 
+
             {  L_,     (Enum)NUM_ENUMERATORS,       UNKNOWN_FORMAT    },
             {  L_,     (Enum)99,                    UNKNOWN_FORMAT    }
         };
+
+#if BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#       pragma GCC diagnostic pop
+#endif
+
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         if (verbose) printf("\nVerify enumerator values are sequential.\n");
