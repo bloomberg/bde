@@ -103,6 +103,12 @@ int veryVeryVeryVerbose = 0; // For test allocators
 //                  GLOBAL DEFINITIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
+#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
+#define CPP_20 1
+#else
+#define CPP_20 0
+#endif
+
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 #define MSVC 1
 #else
@@ -232,7 +238,33 @@ class Base {
 };
 
 class Derived : public Base {
-    // a complete class type that derives from 'Base'
+    // This is a complete class type that derives from 'Base', and which has a
+    // single, private data member to ensure that it is not an aggregate.  A
+    // constructor that initializes the data member and an accessor for it are
+    // provided to silence warnings that it may be unused.
+    //
+    // Note that it is important that this class is not an aggregate because it
+    // is primarily used to test whether derived-to-base conversions are
+    // allowed by machinery in this component, e.g., in checking whether the
+    // return type of an invokable type is convertible to a desired return type
+    // in the 'bslstl::Function_InvokerUtil::IsFuncInvocable' type trait.
+
+    // DATA
+    int d_data;
+
+  public:
+    // CREATORS
+    BSLA_MAYBE_UNUSED Derived()
+    : Base()
+    , d_data()
+    {
+    }
+
+    // ACCESSORS
+    BSLA_MAYBE_UNUSED int data() const
+    {
+        return d_data;
+    }
 };
 
 class Explicit {
@@ -242,6 +274,15 @@ class Explicit {
     // CREATORS
     explicit Explicit(Base);
         // declared but not defined
+};
+
+class BaseAggregate {
+    // a complete class type that is an aggregate
+};
+
+class DerivedAggregate : public BaseAggregate {
+    // a complete class type that is an aggregate and derives from
+    // 'BaseAggregate'
 };
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=13
@@ -1212,28 +1253,51 @@ int main(int argc, char *argv[])
           typedef int(&&rrAI)[10];
           typedef const int(&&rrAcI)[10];
 
-          typedef Base                       B;
-          typedef const B                    cB;
-          typedef volatile B                 vB;
-          typedef const volatile B           cvB;
-          typedef B&                         rB;
-          typedef const B&                   rcB;
-          typedef volatile B&                rvB;
-          typedef const volatile B&          rcvB;
-          typedef bslmf::MovableRef<B>       rrB;
-          typedef bslmf::MovableRef<const B> rrcB;
+          typedef Base                        B;
+          typedef const B                     cB;
+          typedef volatile B                  vB;
+          typedef const volatile B            cvB;
+          typedef B&                          rB;
+          typedef const B&                    rcB;
+          typedef volatile B&                 rvB;
+          typedef const volatile B&           rcvB;
+          typedef bslmf::MovableRef<B>        rrB;
+          typedef bslmf::MovableRef<const B>  rrcB;
 
-          typedef Derived                    D;
-          typedef D&                         rD;
-          typedef const D&                   rcD;
-          typedef bslmf::MovableRef<D>       rrD;
-          typedef bslmf::MovableRef<const D> rrcD;
+          typedef Derived                     D;
+          typedef D&                          rD;
+          typedef const D&                    rcD;
+          typedef bslmf::MovableRef<D>        rrD;
+          typedef bslmf::MovableRef<const D>  rrcD;
 
-          typedef Explicit                   E;
-          typedef E&                         rE;
-          typedef const E&                   rcE;
-          typedef bslmf::MovableRef<E>       rrE;
-          typedef bslmf::MovableRef<const E> rrcE;
+          typedef Explicit                    E;
+          typedef E&                          rE;
+          typedef const E&                    rcE;
+          typedef bslmf::MovableRef<E>        rrE;
+          typedef bslmf::MovableRef<const E>  rrcE;
+
+          typedef BaseAggregate               BA;
+          typedef BA&                         rBA;
+          typedef const BA&                   rcBA;
+          typedef bslmf::MovableRef<BA>       rrBA;
+          typedef bslmf::MovableRef<const BA> rrcBA;
+
+          typedef DerivedAggregate            DA;
+          typedef DA&                         rDA;
+          typedef const DA&                   rcDA;
+          typedef bslmf::MovableRef<DA>       rrDA;
+          typedef bslmf::MovableRef<const DA> rrcDA;
+
+
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 100000
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvolatile"
+#endif
+
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-volatile"
+#endif
 
           //                                       LINE        IS INVOCABLE
           //                                       ----.      .------------
@@ -1539,18 +1603,31 @@ int main(int argc, char *argv[])
 
           // invocations that perform derived-to-base and base-to-derived
           // conversions of argument types
-          TEST.run<int  (B    ),   int       (B    )  >(L_, YES);
-          TEST.run<int  (B    ),   int  B::*          >(L_, YES);
-          TEST.run<int  (B    ),   int (B::*)(     )  >(L_, YES);
-          TEST.run<int  (B    ),   int       (D    )  >(L_,  NO);
-          TEST.run<int  (B    ),   int  D::*          >(L_,  NO);
-          TEST.run<int  (B    ),   int (D::*)(     )  >(L_,  NO);
-          TEST.run<int  (D    ),   int       (B    )  >(L_, YES);
-          TEST.run<int  (D    ),   int  B::*          >(L_, YES);
-          TEST.run<int  (D    ),   int (B::*)(     )  >(L_, YES);
-          TEST.run<int  (D    ),   int       (D    )  >(L_, YES);
-          TEST.run<int  (D    ),   int  D::*          >(L_, YES);
-          TEST.run<int  (D    ),   int (D::*)(     )  >(L_, YES);
+          TEST.run<int  (B    ),   int        (B    )  >(L_, YES);
+          TEST.run<int  (B    ),   int  B ::*          >(L_, YES);
+          TEST.run<int  (B    ),   int (B ::*)(     )  >(L_, YES);
+          TEST.run<int  (B    ),   int        (D    )  >(L_,  NO);
+          TEST.run<int  (B    ),   int  D ::*          >(L_,  NO);
+          TEST.run<int  (B    ),   int (D ::*)(     )  >(L_,  NO);
+          TEST.run<int  (D    ),   int        (B    )  >(L_, YES);
+          TEST.run<int  (D    ),   int  B ::*          >(L_, YES);
+          TEST.run<int  (D    ),   int (B ::*)(     )  >(L_, YES);
+          TEST.run<int  (D    ),   int        (D    )  >(L_, YES);
+          TEST.run<int  (D    ),   int  D ::*          >(L_, YES);
+          TEST.run<int  (D    ),   int (D ::*)(     )  >(L_, YES);
+
+          TEST.run<int  (BA   ),   int        (BA   )  >(L_, YES);
+          TEST.run<int  (BA   ),   int  BA::*          >(L_, YES);
+          TEST.run<int  (BA   ),   int (BA::*)(     )  >(L_, YES);
+          TEST.run<int  (BA   ),   int        (DA   )  >(L_,  NO);
+          TEST.run<int  (BA   ),   int  DA::*          >(L_,  NO);
+          TEST.run<int  (BA   ),   int (DA::*)(     )  >(L_,  NO);
+          TEST.run<int  (DA   ),   int        (BA   )  >(L_, YES);
+          TEST.run<int  (DA   ),   int  BA::*          >(L_, YES);
+          TEST.run<int  (DA   ),   int (BA::*)(     )  >(L_, YES);
+          TEST.run<int  (DA   ),   int        (DA   )  >(L_, YES);
+          TEST.run<int  (DA   ),   int  DA::*          >(L_, YES);
+          TEST.run<int  (DA   ),   int (DA::*)(     )  >(L_, YES);
 
 #ifdef BSLS_PLATFORM_CMP_GNU
 #pragma GCC diagnostic push
@@ -1567,6 +1644,7 @@ int main(int argc, char *argv[])
           TEST.run<void (     ),   rcvI      (     )  >(L_, YES);
           TEST.run<void (     ),    rrI      (     )  >(L_, YES);
           TEST.run<void (     ),   rrcI      (     )  >(L_, YES);
+
 #ifdef BSLS_PLATFORM_CMP_GNU
 #pragma GCC diagnostic pop
 #endif
@@ -1654,10 +1732,10 @@ int main(int argc, char *argv[])
           TEST.run<rrcB (     ),    rcD      (     )  >(L_, YES);
           TEST.run<rrcB (     ),    rrD      (     )  >(L_, YES);
           TEST.run<rrcB (     ),   rrcD      (     )  >(L_, YES);
-          TEST.run<   D (     ),      B      (     )  >(L_, NO );
 
           // invocations that perform base-to-derived conversions of
           // cvr-qualified class return types
+          TEST.run<   D (     ),      B      (     )  >(L_, NO );
           TEST.run<   D (     ),     rB      (     )  >(L_, NO );
           TEST.run<   D (     ),    rcB      (     )  >(L_, NO );
           TEST.run<   D (     ),    rrB      (     )  >(L_, NO );
@@ -1682,6 +1760,41 @@ int main(int argc, char *argv[])
           TEST.run<rrcD (     ),    rcB      (     )  >(L_, YES);
           TEST.run<rrcD (     ),    rrB      (     )  >(L_, YES);
           TEST.run<rrcD (     ),   rrcB      (     )  >(L_, YES);
+
+          TEST.run<   DA(     ),      BA     (     )  >(L_, CPP_20);
+          TEST.run<   DA(     ),     rBA     (     )  >(L_, CPP_20);
+          TEST.run<   DA(     ),    rcBA     (     )  >(L_, CPP_20);
+          TEST.run<   DA(     ),    rrBA     (     )  >(L_, CPP_20);
+          TEST.run<   DA(     ),   rrcBA     (     )  >(L_, CPP_20);
+          TEST.run<  rDA(     ),      BA     (     )  >(L_, MSVC);
+          TEST.run<  rDA(     ),     rBA     (     )  >(L_, YES);
+          TEST.run<  rDA(     ),    rcBA     (     )  >(L_, NO );
+          TEST.run<  rDA(     ),    rrBA     (     )  >(L_, MSVC);
+          TEST.run<  rDA(     ),   rrcBA     (     )  >(L_, NO );
+          TEST.run< rcDA(     ),      BA     (     )  >(L_, MSVC);
+          TEST.run< rcDA(     ),     rBA     (     )  >(L_, YES);
+          TEST.run< rcDA(     ),    rcBA     (     )  >(L_, YES);
+          TEST.run< rcDA(     ),    rrBA     (     )  >(L_, MSVC);
+          TEST.run< rcDA(     ),   rrcBA     (     )  >(L_, MSVC);
+          TEST.run< rrDA(     ),      BA     (     )  >(L_, YES);
+          TEST.run< rrDA(     ),     rBA     (     )  >(L_, YES);
+          TEST.run< rrDA(     ),    rcBA     (     )  >(L_, NO );
+          TEST.run< rrDA(     ),    rrBA     (     )  >(L_, YES);
+          TEST.run< rrDA(     ),   rrcBA     (     )  >(L_, NO );
+          TEST.run<rrcDA(     ),      BA     (     )  >(L_, YES);
+          TEST.run<rrcDA(     ),     rBA     (     )  >(L_, YES);
+          TEST.run<rrcDA(     ),    rcBA     (     )  >(L_, YES);
+          TEST.run<rrcDA(     ),    rrBA     (     )  >(L_, YES);
+          TEST.run<rrcDA(     ),   rrcBA     (     )  >(L_, YES);
+
+
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma clang diagnostic pop
+#endif
+
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 100000
+#pragma GCC diagnostic pop
+#endif
 
 #endif // defined(BSLSTL_FUNCTION_INVOKERUTIL_SUPPORT_IS_FUNC_INVOCABLE)
 

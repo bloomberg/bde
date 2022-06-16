@@ -77,7 +77,6 @@ BSLS_IDENT("$Id: $")
 #else
 
 namespace BloombergLP {
-
 namespace bslmf {
 
 struct FunctionPointerCPlusPlusLinkage {
@@ -131,6 +130,11 @@ struct IsFunctionPointer
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=14
 
+#if defined(BSLS_PLATFORM_CMP_CLANG)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-volatile"
+#endif
+
 template <class BSLMF_RETURN, class...ARGS>
 struct FunctionPointerTraits<BSLMF_RETURN (*)(ARGS...)> {
     // Specialization for function pointers that return 'BSLMF_RETURN' and
@@ -162,6 +166,10 @@ struct FunctionPointerTraits<BSLMF_RETURN (*)(ARGS...,...)> {
     typedef BSLMF_RETURN                     FuncType(ARGS...,...);
     typedef FunctionPointerCPlusPlusLinkage  Linkage;
 };
+
+#if defined(BSLS_PLATFORM_CMP_CLANG)
+#pragma clang diagnostic pop
+#endif
 
 #endif
 
@@ -230,6 +238,11 @@ struct FunctionPointerTraits<PROTOTYPE * const volatile>
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES
 
+#if defined(BSLS_PLATFORM_CMP_CLANG)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-volatile"
+#endif
+
 template <class BSLMF_RETURN, class...ARGS>
 struct FunctionPointerTraits<BSLMF_RETURN (*)(ARGS...) noexcept> {
     // Specialization for 'noexcept' function pointers that return
@@ -261,6 +274,10 @@ struct FunctionPointerTraits<BSLMF_RETURN (*)(ARGS...,...) noexcept> {
     typedef BSLMF_RETURN                     FuncType(ARGS...,...) noexcept;
     typedef FunctionPointerCPlusPlusLinkage  Linkage;
 };
+
+#if defined(BSLS_PLATFORM_CMP_CLANG)
+#pragma clang diagnostic pop
+#endif
 
 #endif // BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES
 

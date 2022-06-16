@@ -21,13 +21,12 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Oct 21 10:11:37 2021
+// Generated on Wed Jun  8 12:36:13 2022
 // Command line: sim_cpp11_features.pl bslmf_functionpointertraits.h
 
 #ifdef COMPILING_BSLMF_FUNCTIONPOINTERTRAITS_H
 
 namespace BloombergLP {
-
 namespace bslmf {
 
 struct FunctionPointerCPlusPlusLinkage {
@@ -87,6 +86,11 @@ struct IsFunctionPointer
 #endif
 #ifndef BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A
 #define BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT
+#endif
+
+#if defined(BSLS_PLATFORM_CMP_CLANG)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-volatile"
 #endif
 
 #if BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 0
@@ -1298,9 +1302,18 @@ struct FunctionPointerTraits<BSLMF_RETURN (*)(ARGS_01,
 };
 #endif  // BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 14
 
+
+#if defined(BSLS_PLATFORM_CMP_CLANG)
+#pragma clang diagnostic pop
+#endif
 #else
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
+
+#if defined(BSLS_PLATFORM_CMP_CLANG)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-volatile"
+#endif
 
 template <class BSLMF_RETURN, class...ARGS>
 struct FunctionPointerTraits<BSLMF_RETURN (*)(ARGS...)> {
@@ -1329,6 +1342,10 @@ struct FunctionPointerTraits<BSLMF_RETURN (*)(ARGS...,...)> {
     typedef BSLMF_RETURN                     FuncType(ARGS...,...);
     typedef FunctionPointerCPlusPlusLinkage  Linkage;
 };
+
+#if defined(BSLS_PLATFORM_CMP_CLANG)
+#pragma clang diagnostic pop
+#endif
 
 // }}} END GENERATED CODE
 #endif
@@ -1398,6 +1415,11 @@ struct FunctionPointerTraits<PROTOTYPE * const volatile>
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES
 
+#if defined(BSLS_PLATFORM_CMP_CLANG)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-volatile"
+#endif
+
 template <class BSLMF_RETURN, class...ARGS>
 struct FunctionPointerTraits<BSLMF_RETURN (*)(ARGS...) noexcept> {
     // Specialization for 'noexcept' function pointers that return
@@ -1429,6 +1451,10 @@ struct FunctionPointerTraits<BSLMF_RETURN (*)(ARGS...,...) noexcept> {
     typedef BSLMF_RETURN                     FuncType(ARGS...,...) noexcept;
     typedef FunctionPointerCPlusPlusLinkage  Linkage;
 };
+
+#if defined(BSLS_PLATFORM_CMP_CLANG)
+#pragma clang diagnostic pop
+#endif
 
 #endif // BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES
 
@@ -1468,7 +1494,7 @@ typedef bslmf::FunctionPointerCLinkage bslmf_FunctionPointerCLinkage;
 #endif // ! defined(INCLUDED_BSLMF_FUNCTIONPOINTERTRAITS_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2021 Bloomberg Finance L.P.
+// Copyright 2022 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
