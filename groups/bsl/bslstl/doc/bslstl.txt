@@ -17,7 +17,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslstl' package currently has 113 components having 10 levels of physical
+ The 'bslstl' package currently has 112 components having 10 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -55,7 +55,6 @@
    6. bslstl_bitset
       bslstl_defaultsearcher
       bslstl_deque
-      bslstl_function_test                                            !PRIVATE!
       bslstl_hashtable_test1                                          !PRIVATE!
       bslstl_hashtable_test2                                          !PRIVATE!
       bslstl_priorityqueue
@@ -76,7 +75,7 @@
       bslstl_systemerror
       bslstl_vector
 
-   4. bslstl_algorithmworkaround
+   4. bslstl_algorithm
       bslstl_bidirectionaliterator
       bslstl_charconv
       bslstl_error
@@ -97,7 +96,7 @@
       bslstl_stringview
       bslstl_treeiterator
 
-   2. bslstl_algorithm
+   2. bslstl_algorithmworkaround                         !DEPRECATED!
       bslstl_allocator                                   !DEPRECATED!
       bslstl_allocatortraits                             !DEPRECATED!
       bslstl_badfunctioncall
@@ -151,7 +150,7 @@
 : 'bslstl_algorithm':
 :      Provide implementations for algorithms not in the system library.
 :
-: 'bslstl_algorithmworkaround':
+: 'bslstl_algorithmworkaround':                          !DEPRECATED!
 :      Provide a namespace for work arounds for the standard algorithms
 :
 : 'bslstl_allocator':                                    !DEPRECATED!
@@ -237,9 +236,6 @@
 :
 : 'bslstl_function_smallobjectoptimization':                          !PRIVATE!
 :      Provide small-object optimization buffer for 'bsl::function'.
-:
-: 'bslstl_function_test':                                             !PRIVATE!
-:      Provide support for the 'bslstl_function_test.t.cpp' test driver.
 :
 : 'bslstl_hash':
 :      Provide a namespace for hash functions.
