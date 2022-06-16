@@ -211,7 +211,7 @@ Base64Decoder::Base64Decoder(bool     unrecognizedNonWhitespaceIsErrorFlag,
 : d_outputLength(0)
 , d_alphabet_p(e_BASIC == alphabet ? u::basicAlphabet
                                    : u::urlAlphabet)
-, d_ignorable_p(false == unrecognizedNonWhitespaceIsErrorFlag
+, d_ignorable_p(unrecognizedNonWhitespaceIsErrorFlag
                 ? u::charsWhitespace
                 : e_BASIC == alphabet
                 ? u::charsInvalidBasicEncodingPadded
@@ -222,8 +222,8 @@ Base64Decoder::Base64Decoder(bool     unrecognizedNonWhitespaceIsErrorFlag,
 , d_isPadded(true)
 , d_alphabet(static_cast<unsigned char>(alphabet))
 , d_ignoreMode(static_cast<unsigned char>(unrecognizedNonWhitespaceIsErrorFlag
-                                          ? IgnoreMode::e_IGNORE_UNRECOGNIZED
-                                          : IgnoreMode::e_IGNORE_WHITESPACE))
+                                          ? IgnoreMode::e_IGNORE_WHITESPACE
+                                          : IgnoreMode::e_IGNORE_UNRECOGNIZED))
 {
     BSLS_ASSERT(static_cast<unsigned>(alphabet) <
                                                  Base64Alphabet::k_NUM_VALUES);

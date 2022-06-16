@@ -40,9 +40,15 @@ using bsl::flush;
 //
 // 1: use deprecated functions, and get an avalanche of compiler warnings.
 // 0: use 'Options' interfaces instead.
+//
+// This option is to be set to 0 *TEMPORARILY* to shut up the multitude of
+// compiler warnings that occur from the use of deprecated interfaces.  If it
+// is set to 0, test case 14 will fail to ensure that whenever this code is
+// shipped, 'U_USE_DEPRECATED' is set to 1 and the matrix builds and nightly
+// builds are testing the entire interface.
 
 #undef  U_USE_DEPRECATED
-#define U_USE_DEPRECATED 0
+#define U_USE_DEPRECATED 1
 
 //=============================================================================
 //                             TEST PLAN
@@ -131,7 +137,8 @@ using bsl::flush;
 // [ 3] int outputLength() const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST -- (developer's sandbox)
-// [14] USAGE EXAMPLE
+// [15] USAGE EXAMPLE
+// [14] U_USE_DEPRECATED
 // [ ?] That the input iterator can have *minimal* functionality.
 // [ ?] That the output iterator can have *minimal* functionality.
 // [ 1] ::myMin(const T& a, const T& b);
@@ -1901,7 +1908,7 @@ int main(int argc, char *argv[])
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Demonstrate that the example compiles, links, and runs.
@@ -1954,6 +1961,13 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == strcmp(BLOOMBERG_NEWS, backInStream.str().c_str()));
 
+      } break;
+      case 14: {
+        // --------------------------------------------------------------------
+        // ENSURE U_USE_DEPRECATED IS ENABLED
+        // --------------------------------------------------------------------
+
+        ASSERT(U_USE_DEPRECATED);
       } break;
       case 13: {
         // --------------------------------------------------------------------

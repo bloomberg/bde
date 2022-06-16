@@ -54,9 +54,15 @@ using bsl::flush;
 //
 // 1: use deprecated functions, and get an avalanche of compiler warnings.
 // 0: use 'Options' interfaces instead.
+//
+// This option is to be set to 0 *TEMPORARILY* to shut up the multitude of
+// compiler warnings that occur from the use of deprecated interfaces.  If it
+// is set to 0, test case 14 will fail to ensure that whenever this code is
+// shipped, 'U_USE_DEPRECATED' is set to 1 and the matrix builds and nightly
+// builds are testing the entire interface.
 
 #undef  U_USE_DEPRECATED
-#define U_USE_DEPRECATED 0
+#define U_USE_DEPRECATED 1
 
 //=============================================================================
 //                             TEST PLAN
@@ -239,6 +245,7 @@ using bsl::flush;
 // [ 9] That surplus output beyond 'maxNumOut' is buffered properly.
 // [11] STRESS TEST: The decoder properly decodes all encoded output.
 // [13] TABLE PLUS RANDOM TESTING, UNPADDED MODE, INJECTED GARBAGE
+// [14] U_USE_DEPRECATED
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -2358,6 +2365,16 @@ void testCase##NUMBER(bool verbose,                                           \
                       bool veryVeryVerbose,                                   \
                       bool veryVeryVeryVerbose)
 
+DEFINE_TEST_CASE(14)
+{
+    (void)veryVeryVeryVerbose;
+    (void)veryVeryVerbose;
+    (void)veryVerbose;
+    (void)verbose;
+
+    ASSERT(U_USE_DEPRECATED);
+}
+
 DEFINE_TEST_CASE(13)
 {
     (void)veryVeryVeryVerbose;
@@ -2487,181 +2504,136 @@ DEFINE_TEST_CASE(13)
         { L_, "Ng==",         "\x36",                                 1 },
         { L_, "Nw==",         "\x37",                                 1 },
         { L_, "PA==",         "\x3c",                                 1 },
-        { L_, "Rw==",         "\x47",                                 1 },
-        { L_, "XQ==",         "\x5d",                                 1 },
         { L_, "aA==",         "\x68",                                 1 },
-        { L_, "ag==",         "\x6a",                                 1 },
         { L_, "cA==",         "\x70",                                 1 },
         { L_, "eg==",         "\x7a",                                 1 },
         { L_, "jg==",         "\x8e",                                 1 },
         { L_, "kw==",         "\x93",                                 1 },
         { L_, "ng==",         "\x9e",                                 1 },
-        { L_, "nw==",         "\x9f",                                 1 },
         { L_, "pA==",         "\xa4",                                 1 },
         { L_, "wQ==",         "\xc1",                                 1 },
-        { L_, "1Q==",         "\xd5",                                 1 },
         { L_, "2g==",         "\xda",                                 1 },
         { L_, "6Q==",         "\xe9",                                 1 },
-        { L_, "Ef8=",         "\x11\xff",                             2 },
         { L_, "GnY=",         "\x1a\x76",                             2 },
-        { L_, "ID0=",         "\x20\x3d",                             2 },
         { L_, "JC4=",         "\x24\x2e",                             2 },
-        { L_, "J28=",         "\x27\x6f",                             2 },
         { L_, "J/w=",         "\x27\xfc",                             2 },
+        { L_, "N0c=",         "\x37\x47",                             2 },
         { L_, "Qnc=",         "\x42\x77",                             2 },
+        { L_, "XWo=",         "\x5d\x6a",                             2 },
         { L_, "Ycw=",         "\x61\xcc",                             2 },
-        { L_, "a6w=",         "\x6b\xac",                             2 },
         { L_, "btY=",         "\x6e\xd6",                             2 },
-        { L_, "chI=",         "\x72\x12",                             2 },
         { L_, "epE=",         "\x7a\x91",                             2 },
         { L_, "gDc=",         "\x80\x37",                             2 },
-        { L_, "hRY=",         "\x85\x16",                             2 },
-        { L_, "qQ0=",         "\xa9\x0d",                             2 },
-        { L_, "tBg=",         "\xb4\x18",                             2 },
+        { L_, "n9U=",         "\x9f\xd5",                             2 },
         { L_, "tMg=",         "\xb4\xc8",                             2 },
         { L_, "0qA=",         "\xd2\xa0",                             2 },
         { L_, "4i4=",         "\xe2\x2e",                             2 },
         { L_, "4qM=",         "\xe2\xa3",                             2 },
-        { L_, "CP3T",         "\x08\xfd\xd3",                         3 },
-        { L_, "E5wd",         "\x13\x9c\x1d",                         3 },
-        { L_, "JqHq",         "\x26\xa1\xea",                         3 },
-        { L_, "M8Qa",         "\x33\xc4\x1a",                         3 },
-        { L_, "PPjJ",         "\x3c\xf8\xc9",                         3 },
-        { L_, "Qo1x",         "\x42\x8d\x71",                         3 },
-        { L_, "SM7w",         "\x48\xce\xf0",                         3 },
-        { L_, "UpwF",         "\x52\x9c\x05",                         3 },
-        { L_, "VSo6",         "\x55\x2a\x3a",                         3 },
-        { L_, "X732",         "\x5f\xbd\xf6",                         3 },
-        { L_, "fA7x",         "\x7c\x0e\xf1",                         3 },
-        { L_, "h6h8",         "\x87\xa8\x7c",                         3 },
-        { L_, "jl+n",         "\x8e\x5f\xa7",                         3 },
-        { L_, "rd+z",         "\xad\xdf\xb3",                         3 },
-        { L_, "x73Z",         "\xc7\xbd\xd9",                         3 },
-        { L_, "yzjk",         "\xcb\x38\xe4",                         3 },
-        { L_, "4tV6",         "\xe2\xd5\x7a",                         3 },
-        { L_, "5rnw",         "\xe6\xb9\xf0",                         3 },
-        { L_, "8nog",         "\xf2\x7a\x20",                         3 },
-        { L_, "+4uA",         "\xfb\x8b\x80",                         3 },
-        { L_, "Ax0twA==",     "\x03\x1d\x2d\xc0",                     4 },
-        { L_, "E7phCA==",     "\x13\xba\x61\x08",                     4 },
-        { L_, "KK/lpQ==",     "\x28\xaf\xe5\xa5",                     4 },
-        { L_, "M3bRZw==",     "\x33\x76\xd1\x67",                     4 },
-        { L_, "Oy4DhA==",     "\x3b\x2e\x03\x84",                     4 },
-        { L_, "QNsIVg==",     "\x40\xdb\x08\x56",                     4 },
-        { L_, "ScdkFw==",     "\x49\xc7\x64\x17",                     4 },
-        { L_, "VH2e3g==",     "\x54\x7d\x9e\xde",                     4 },
-        { L_, "cGwHoQ==",     "\x70\x6c\x07\xa1",                     4 },
-        { L_, "g5Jq8w==",     "\x83\x92\x6a\xf3",                     4 },
-        { L_, "iQgmiA==",     "\x89\x08\x26\x88",                     4 },
-        { L_, "lZKGtg==",     "\x95\x92\x86\xb6",                     4 },
-        { L_, "mzODHw==",     "\x9b\x33\x83\x1f",                     4 },
-        { L_, "phht2Q==",     "\xa6\x18\x6d\xd9",                     4 },
-        { L_, "yuN3Bw==",     "\xca\xe3\x77\x07",                     4 },
-        { L_, "0naWGQ==",     "\xd2\x76\x96\x19",                     4 },
-        { L_, "2pyQbg==",     "\xda\x9c\x90\x6e",                     4 },
-        { L_, "42mnAg==",     "\xe3\x69\xa7\x02",                     4 },
-        { L_, "8/VmcA==",     "\xf3\xf5\x66\x70",                     4 },
-        { L_, "+oIWnQ==",     "\xfa\x82\x16\x9d",                     4 },
-        { L_, "AuWBa5I=",     "\x02\xe5\x81\x6b\x92",                 5 },
-        { L_, "A/OaQp0=",     "\x03\xf3\x9a\x42\x9d",                 5 },
-        { L_, "HBtCVn0=",     "\x1c\x1b\x42\x56\x7d",                 5 },
-        { L_, "J6S3huQ=",     "\x27\xa4\xb7\x86\xe4",                 5 },
-        { L_, "Nuiudgc=",     "\x36\xe8\xae\x76\x07",                 5 },
-        { L_, "Pb96tho=",     "\x3d\xbf\x7a\xb6\x1a",                 5 },
-        { L_, "RXK6/n0=",     "\x45\x72\xba\xfe\x7d",                 5 },
-        { L_, "VE+0TMM=",     "\x54\x4f\xb4\x4c\xc3",                 5 },
-        { L_, "XXfu7Dg=",     "\x5d\x77\xee\xec\x38",                 5 },
-        { L_, "YRIflvM=",     "\x61\x12\x1f\x96\xf3",                 5 },
-        { L_, "cCFXhlE=",     "\x70\x21\x57\x86\x51",                 5 },
-        { L_, "cOLBALM=",     "\x70\xe2\xc1\x00\xb3",                 5 },
-        { L_, "hfnxWg8=",     "\x85\xf9\xf1\x5a\x0f",                 5 },
-        { L_, "iIZQvfE=",     "\x88\x86\x50\xbd\xf1",                 5 },
-        { L_, "kIV+W+8=",     "\x90\x85\x7e\x5b\xef",                 5 },
-        { L_, "nC1qLQ8=",     "\x9c\x2d\x6a\x2d\x0f",                 5 },
-        { L_, "nMUINws=",     "\x9c\xc5\x08\x37\x0b",                 5 },
-        { L_, "tdAKAH0=",     "\xb5\xd0\x0a\x00\x7d",                 5 },
-        { L_, "tdXxmws=",     "\xb5\xd5\xf1\x9b\x0b",                 5 },
-        { L_, "8tOCydU=",     "\xf2\xd3\x82\xc9\xd5",                 5 },
-        { L_, "AsZmSTdy",     "\x02\xc6\x66\x49\x37\x72",             6 },
-        { L_, "EWDDVQdb",     "\x11\x60\xc3\x55\x07\x5b",             6 },
-        { L_, "G0zddPDn",     "\x1b\x4c\xdd\x74\xf0\xe7",             6 },
-        { L_, "ID4XnbEy",     "\x20\x3e\x17\x9d\xb1\x32",             6 },
-        { L_, "IOD3YaT+",     "\x20\xe0\xf7\x61\xa4\xfe",             6 },
-        { L_, "QAkqqusD",     "\x40\x09\x2a\xaa\xeb\x03",             6 },
-        { L_, "RaUf0U9n",     "\x45\xa5\x1f\xd1\x4f\x67",             6 },
-        { L_, "aFUqDUXJ",     "\x68\x55\x2a\x0d\x45\xc9",             6 },
-        { L_, "gRTUh5ei",     "\x81\x14\xd4\x87\x97\xa2",             6 },
-        { L_, "ihMqlyCE",     "\x8a\x13\x2a\x97\x20\x84",             6 },
-        { L_, "pQ1Us8uO",     "\xa5\x0d\x54\xb3\xcb\x8e",             6 },
-        { L_, "sW6/6jIE",     "\xb1\x6e\xbf\xea\x32\x04",             6 },
-        { L_, "wCwP5w2O",     "\xc0\x2c\x0f\xe7\x0d\x8e",             6 },
-        { L_, "xR0lZsY0",     "\xc5\x1d\x25\x66\xc6\x34",             6 },
-        { L_, "0ZQhh1Sv",     "\xd1\x94\x21\x87\x54\xaf",             6 },
-        { L_, "1xYy6qfp",     "\xd7\x16\x32\xea\xa7\xe9",             6 },
-        { L_, "2cAfeDo9",     "\xd9\xc0\x1f\x78\x3a\x3d",             6 },
-        { L_, "9INO3sRg",     "\xf4\x83\x4e\xde\xc4\x60",             6 },
-        { L_, "+PZn9zP8",     "\xf8\xf6\x67\xf7\x33\xfc",             6 },
-        { L_, "+/iaOuQ1",     "\xfb\xf8\x9a\x3a\xe4\x35",             6 },
-        { L_, "BF7SfsXApg==", "\x04\x5e\xd2\x7e\xc5\xc0\xa6",         7 },
-        { L_, "Bxy6PKhI8g==", "\x07\x1c\xba\x3c\xa8\x48\xf2",         7 },
-        { L_, "CU6R5sVN0A==", "\x09\x4e\x91\xe6\xc5\x4d\xd0",         7 },
-        { L_, "DTEvwCFgYg==", "\x0d\x31\x2f\xc0\x21\x60\x62",         7 },
-        { L_, "MOMZsTBMyw==", "\x30\xe3\x19\xb1\x30\x4c\xcb",         7 },
-        { L_, "XuvlIh4cGw==", "\x5e\xeb\xe5\x22\x1e\x1c\x1b",         7 },
-        { L_, "YhR0gtR6OA==", "\x62\x14\x74\x82\xd4\x7a\x38",         7 },
-        { L_, "g7ZsBNYe6Q==", "\x83\xb6\x6c\x04\xd6\x1e\xe9",         7 },
-        { L_, "hcYfEHM0Zg==", "\x85\xc6\x1f\x10\x73\x34\x66",         7 },
-        { L_, "mRf5s9awnQ==", "\x99\x17\xf9\xb3\xd6\xb0\x9d",         7 },
-        { L_, "rMf+KbtwvQ==", "\xac\xc7\xfe\x29\xbb\x70\xbd",         7 },
-        { L_, "rypArmfjLw==", "\xaf\x2a\x40\xae\x67\xe3\x2f",         7 },
-        { L_, "uigkPeKBMQ==", "\xba\x28\x24\x3d\xe2\x81\x31",         7 },
-        { L_, "xCo+uhrTJQ==", "\xc4\x2a\x3e\xba\x1a\xd3\x25",         7 },
-        { L_, "y6cApPRbzw==", "\xcb\xa7\x00\xa4\xf4\x5b\xcf",         7 },
-        { L_, "09Snhhefkw==", "\xd3\xd4\xa7\x86\x17\x9f\x93",         7 },
-        { L_, "1AHVBzTTTw==", "\xd4\x01\xd5\x07\x34\xd3\x4f",         7 },
-        { L_, "6D5UyajIGg==", "\xe8\x3e\x54\xc9\xa8\xc8\x1a",         7 },
-        { L_, "7FTcy4Jykw==", "\xec\x54\xdc\xcb\x82\x72\x93",         7 },
-        { L_, "7XGuaJfjEA==", "\xed\x71\xae\x68\x97\xe3\x10",         7 },
-        { L_, "B0WdA1GQ7Dw=", "\x07\x45\x9d\x03\x51\x90\xec\x3c",     8 },
-        { L_, "B8tMlLy3gz0=", "\x07\xcb\x4c\x94\xbc\xb7\x83\x3d",     8 },
-        { L_, "M12UhwtFrRA=", "\x33\x5d\x94\x87\x0b\x45\xad\x10",     8 },
-        { L_, "OWmwZykGWh8=", "\x39\x69\xb0\x67\x29\x06\x5a\x1f",     8 },
-        { L_, "QW3VF+8CJl8=", "\x41\x6d\xd5\x17\xef\x02\x26\x5f",     8 },
-        { L_, "WWazTZ+/I5s=", "\x59\x66\xb3\x4d\x9f\xbf\x23\x9b",     8 },
-        { L_, "kRJNAJGR2J8=", "\x91\x12\x4d\x00\x91\x91\xd8\x9f",     8 },
-        { L_, "kqlQ0goZADk=", "\x92\xa9\x50\xd2\x0a\x19\x00\x39",     8 },
-        { L_, "nBj02zNeLtc=", "\x9c\x18\xf4\xdb\x33\x5e\x2e\xd7",     8 },
-        { L_, "qDtzxxwJ+YI=", "\xa8\x3b\x73\xc7\x1c\x09\xf9\x82",     8 },
-        { L_, "sGWoiiJXEPg=", "\xb0\x65\xa8\x8a\x22\x57\x10\xf8",     8 },
-        { L_, "wPQCV2RV5d4=", "\xc0\xf4\x02\x57\x64\x55\xe5\xde",     8 },
-        { L_, "wYAwF7cdwyM=", "\xc1\x80\x30\x17\xb7\x1d\xc3\x23",     8 },
-        { L_, "x36v0Q7zVNA=", "\xc7\x7e\xaf\xd1\x0e\xf3\x54\xd0",     8 },
-        { L_, "y/TVgLQFAiE=", "\xcb\xf4\xd5\x80\xb4\x05\x02\x21",     8 },
-        { L_, "zqpPqoLyX4I=", "\xce\xaa\x4f\xaa\x82\xf2\x5f\x82",     8 },
-        { L_, "0D82NRBEkJ8=", "\xd0\x3f\x36\x35\x10\x44\x90\x9f",     8 },
-        { L_, "0el6zNckxDw=", "\xd1\xe9\x7a\xcc\xd7\x24\xc4\x3c",     8 },
-        { L_, "3VX/OSTahig=", "\xdd\x55\xff\x39\x24\xda\x86\x28",     8 },
-        { L_, "5SsbdS5BHfk=", "\xe5\x2b\x1b\x75\x2e\x41\x1d\xf9",     8 },
-        { L_, "GAoYstMXn5nq", "\x18\x0a\x18\xb2\xd3\x17\x9f\x99\xea", 9 },
-        { L_, "HROsgjKYvK0c", "\x1d\x13\xac\x82\x32\x98\xbc\xad\x1c", 9 },
-        { L_, "JmPHBjynkk/A", "\x26\x63\xc7\x06\x3c\xa7\x92\x4f\xc0", 9 },
-        { L_, "OSApIiWy0zSo", "\x39\x20\x29\x22\x25\xb2\xd3\x34\xa8", 9 },
-        { L_, "PxbjIK2OF7RR", "\x3f\x16\xe3\x20\xad\x8e\x17\xb4\x51", 9 },
-        { L_, "U1Cj+4FTcWTV", "\x53\x50\xa3\xfb\x81\x53\x71\x64\xd5", 9 },
-        { L_, "U6gK2peYDgmP", "\x53\xa8\x0a\xda\x97\x98\x0e\x09\x8f", 9 },
-        { L_, "XmZV+TCH6RRb", "\x5e\x66\x55\xf9\x30\x87\xe9\x14\x5b", 9 },
-        { L_, "b43v4Wu4Eqig", "\x6f\x8d\xef\xe1\x6b\xb8\x12\xa8\xa0", 9 },
-        { L_, "iIRwFHw563CN", "\x88\x84\x70\x14\x7c\x39\xeb\x70\x8d", 9 },
-        { L_, "jfh6Zq0Z+eNR", "\x8d\xf8\x7a\x66\xad\x19\xf9\xe3\x51", 9 },
-        { L_, "j8I8yB3G7cHp", "\x8f\xc2\x3c\xc8\x1d\xc6\xed\xc1\xe9", 9 },
-        { L_, "mDuPWFUoliya", "\x98\x3b\x8f\x58\x55\x28\x96\x2c\x9a", 9 },
-        { L_, "m0VwumQTT6nm", "\x9b\x45\x70\xba\x64\x13\x4f\xa9\xe6", 9 },
-        { L_, "rrepCHB87/vh", "\xae\xb7\xa9\x08\x70\x7c\xef\xfb\xe1", 9 },
-        { L_, "wtKT7WA2+QTX", "\xc2\xd2\x93\xed\x60\x36\xf9\x04\xd7", 9 },
-        { L_, "zS3K/F+itUlE", "\xcd\x2d\xca\xfc\x5f\xa2\xb5\x49\x44", 9 },
-        { L_, "zwhl6I2kbDzn", "\xcf\x08\x65\xe8\x8d\xa4\x6c\x3c\xe7", 9 },
-        { L_, "3ZpaCUaruRGp", "\xdd\x9a\x5a\x09\x46\xab\xb9\x11\xa9", 9 },
-        { L_, "7iMd8LEllK+0", "\xee\x23\x1d\xf0\xb1\x25\x94\xaf\xb4", 9 },
+        { L_, "BYeo",         "\x05\x87\xa8",                         3 },
+        { L_, "GIUW",         "\x18\x85\x16",                         3 },
+        { L_, "ID1r",         "\x20\x3d\x6b",                         3 },
+        { L_, "IK3f",         "\x20\xad\xdf",                         3 },
+        { L_, "J2+0",         "\x27\x6f\xb4",                         3 },
+        { L_, "cea5",         "\x71\xe6\xb9",                         3 },
+        { L_, "ekjO",         "\x7a\x48\xce",                         3 },
+        { L_, "fEKN",         "\x7c\x42\x8d",                         3 },
+        { L_, "qQ0R",         "\xa9\x0d\x11",                         3 },
+        { L_, "rFKc",         "\xac\x52\x9c",                         3 },
+        { L_, "0yah",         "\xd3\x26\xa1",                         3 },
+        { L_, "6uLV",         "\xea\xe2\xd5",                         3 },
+        { L_, "8Aj9",         "\xf0\x08\xfd",                         3 },
+        { L_, "8PJ6",         "\xf0\xf2\x7a",                         3 },
+        { L_, "/3IS",         "\xff\x72\x12",                         3 },
+        { L_, "HS3Ayg==",     "\x1d\x2d\xc0\xca",                     4 },
+        { L_, "OOSOXw==",     "\x38\xe4\x8e\x5f",                     4 },
+        { L_, "OhOcHQ==",     "\x3a\x13\x9c\x1d",                     4 },
+        { L_, "PPjJKA==",     "\x3c\xf8\xc9\x28",                     4 },
+        { L_, "X732xw==",     "\x5f\xbd\xf6\xc7",                     4 },
+        { L_, "dtFncA==",     "\x76\xd1\x67\x70",                     4 },
+        { L_, "ghadAw==",     "\x82\x16\x9d\x03",                     4 },
+        { L_, "pzPEGg==",     "\xa7\x33\xc4\x1a",                     4 },
+        { L_, "r+Wl8w==",     "\xaf\xe5\xa5\xf3",                     4 },
+        { L_, "s3wO8Q==",     "\xb3\x7c\x0e\xf1",                     4 },
+        { L_, "umEIMw==",     "\xba\x61\x08\x33",                     4 },
+        { L_, "vdlVKg==",     "\xbd\xd9\x55\x2a",                     4 },
+        { L_, "43cHEw==",     "\xe3\x77\x07\x13",                     4 },
+        { L_, "9WZw+g==",     "\xf5\x66\x70\xfa",                     4 },
+        { L_, "+4uAyw==",     "\xfb\x8b\x80\xcb",                     4 },
+        { L_, "AtqckG4=",     "\x02\xda\x9c\x90\x6e",                 5 },
+        { L_, "A4SVkoY=",     "\x03\x84\x95\x92\x86",                 5 },
+        { L_, "JoiDkmo=",     "\x26\x88\x83\x92\x6a",                 5 },
+        { L_, "M4MfOy4=",     "\x33\x83\x1f\x3b\x2e",                 5 },
+        { L_, "QNsIVps=",     "\x40\xdb\x08\x56\x9b",                 5 },
+        { L_, "ScdkF1Q=",     "\x49\xc7\x64\x17\x54",                 5 },
+        { L_, "UfLTgsk=",     "\x51\xf2\xd3\x82\xc9",                 5 },
+        { L_, "bAehiQg=",     "\x6c\x07\xa1\x89\x08",                 5 },
+        { L_, "bdnjaac=",     "\x6d\xd9\xe3\x69\xa7",                 5 },
+        { L_, "fQLlgWs=",     "\x7d\x02\xe5\x81\x6b",                 5 },
+        { L_, "fZ7ephg=",     "\x7d\x9e\xde\xa6\x18",                 5 },
+        { L_, "sxwbQlY=",     "\xb3\x1c\x1b\x42\x56",                 5 },
+        { L_, "tnAhV4Y=",     "\xb6\x70\x21\x57\x86",                 5 },
+        { L_, "1XDiwQA=",     "\xd5\x70\xe2\xc1\x00",                 5 },
+        { L_, "89J2lhk=",     "\xf3\xd2\x76\x96\x19",                 5 },
+        { L_, "Eh+W81RP",     "\x12\x1f\x96\xf3\x54\x4f",             6 },
+        { L_, "IYdUr9cW",     "\x21\x87\x54\xaf\xd7\x16",             6 },
+        { L_, "J6S3huQD",     "\x27\xa4\xb7\x86\xe4\x03",             6 },
+        { L_, "Muqn6YoT",     "\x32\xea\xa7\xe9\x8a\x13",             6 },
+        { L_, "RXK6/n1h",     "\x45\x72\xba\xfe\x7d\x61",             6 },
+        { L_, "Wg+IhlC9",     "\x5a\x0f\x88\x86\x50\xbd",             6 },
+        { L_, "erYaXXfu",     "\x7a\xb6\x1a\x5d\x77\xee",             6 },
+        { L_, "krXQCgB9",     "\x92\xb5\xd0\x0a\x00\x7d",             6 },
+        { L_, "nC1qLQ+1",     "\x9c\x2d\x6a\x2d\x0f\xb5",             6 },
+        { L_, "tEzDhfnx",     "\xb4\x4c\xc3\x85\xf9\xf1",             6 },
+        { L_, "1fGbCz2/",     "\xd5\xf1\x9b\x0b\x3d\xbf",             6 },
+        { L_, "7DiQhX5b",     "\xec\x38\x90\x85\x7e\x5b",             6 },
+        { L_, "7zbornYH",     "\xef\x36\xe8\xae\x76\x07",             6 },
+        { L_, "8ZzFCDcL",     "\xf1\x9c\xc5\x08\x37\x0b",             6 },
+        { L_, "85pCndGU",     "\xf3\x9a\x42\x9d\xd1\x94",             6 },
+        { L_, "FNSHl6Ig4A==", "\x14\xd4\x87\x97\xa2\x20\xe0",         7 },
+        { L_, "KpcghNnAHw==", "\x2a\x97\x20\x84\xd9\xc0\x1f",         7 },
+        { L_, "MgTALA/nDQ==", "\x32\x04\xc0\x2c\x0f\xe7\x0d",         7 },
+        { L_, "OuQ1ID4XnQ==", "\x3a\xe4\x35\x20\x3e\x17\x9d",         7 },
+        { L_, "QAkqqusDgQ==", "\x40\x09\x2a\xaa\xeb\x03\x81",         7 },
+        { L_, "VLPLjvv4mg==", "\x54\xb3\xcb\x8e\xfb\xf8\x9a",         7 },
+        { L_, "VQdbsW6/6g==", "\x55\x07\x5b\xb1\x6e\xbf\xea",         7 },
+        { L_, "YMUdJWbGNA==", "\x60\xc5\x1d\x25\x66\xc6\x34",         7 },
+        { L_, "ZwLGZkk3cg==", "\x67\x02\xc6\x66\x49\x37\x72",         7 },
+        { L_, "aFUqDUXJ+A==", "\x68\x55\x2a\x0d\x45\xc9\xf8",         7 },
+        { L_, "eDo9G0zddA==", "\x78\x3a\x3d\x1b\x4c\xdd\x74",         7 },
+        { L_, "sTJFpR/RTw==", "\xb1\x32\x45\xa5\x1f\xd1\x4f",         7 },
+        { L_, "8Of0g07exA==", "\xf0\xe7\xf4\x83\x4e\xde\xc4",         7 },
+        { L_, "9mf3M/ylDQ==", "\xf6\x67\xf7\x33\xfc\xa5\x0d",         7 },
+        { L_, "92Gk/hFgww==", "\xf7\x61\xa4\xfe\x11\x60\xc3",         7 },
+        { L_, "HxBzNGYHHLo=", "\x1f\x10\x73\x34\x66\x07\x1c\xba",     8 },
+        { L_, "IWBiBF7SfsU=", "\x21\x60\x62\x04\x5e\xd2\x7e\xc5",     8 },
+        { L_, "PKhI8uxU3Ms=", "\x3c\xa8\x48\xf2\xec\x54\xdc\xcb",     8 },
+        { L_, "TwlOkebFTdA=", "\x4f\x09\x4e\x91\xe6\xc5\x4d\xd0",     8 },
+        { L_, "bATWHunLpwA=", "\x6c\x04\xd6\x1e\xe9\xcb\xa7\x00",     8 },
+        { L_, "ca5ol+MQhcY=", "\x71\xae\x68\x97\xe3\x10\x85\xc6",     8 },
+        { L_, "ejjUAdUHNNM=", "\x7a\x38\xd4\x01\xd5\x07\x34\xd3",     8 },
+        { L_, "gnKTYhR0gtQ=", "\x82\x72\x93\x62\x14\x74\x82\xd4",     8 },
+        { L_, "jq8qQK5n4y8=", "\x8e\xaf\x2a\x40\xae\x67\xe3\x2f",     8 },
+        { L_, "nV7r5SIeHBs=", "\x9d\x5e\xeb\xe5\x22\x1e\x1c\x1b",     8 },
+        { L_, "pPRbzw0xL8A=", "\xa4\xf4\x5b\xcf\x0d\x31\x2f\xc0",     8 },
+        { L_, "rMf+KbtwvTA=", "\xac\xc7\xfe\x29\xbb\x70\xbd\x30",     8 },
+        { L_, "wKaZF/mz1rA=", "\xc0\xa6\x99\x17\xf9\xb3\xd6\xb0",     8 },
+        { L_, "09Snhhefk+0=", "\xd3\xd4\xa7\x86\x17\x9f\x93\xed",     8 },
+        { L_, "4xmxMEzLg7Y=", "\xe3\x19\xb1\x30\x4c\xcb\x83\xb6",     8 },
+        { L_, "AldkVeXeqDtz", "\x02\x57\x64\x55\xe5\xde\xa8\x3b\x73", 9 },
+        { L_, "EJwY9NszXi7X", "\x10\x9c\x18\xf4\xdb\x33\x5e\x2e\xd7", 9 },
+        { L_, "HcMj5SsbdS5B", "\x1d\xc3\x23\xe5\x2b\x1b\x75\x2e\x41", 9 },
+        { L_, "HfnR6XrM1yTE", "\x1d\xf9\xd1\xe9\x7a\xcc\xd7\x24\xc4", 9 },
+        { L_, "PLBlqIoiVxD4", "\x3c\xb0\x65\xa8\x8a\x22\x57\x10\xf8", 9 },
+        { L_, "Proa0yXoPlTJ", "\x3e\xba\x1a\xd3\x25\xe8\x3e\x54\xc9", 9 },
+        { L_, "QW3VF+8CJl85", "\x41\x6d\xd5\x17\xef\x02\x26\x5f\x39", 9 },
+        { L_, "RZ0DUZDsPJES", "\x45\x9d\x03\x51\x90\xec\x3c\x91\x12", 9 },
+        { L_, "VNAzXZSHC0Wt", "\x54\xd0\x33\x5d\x94\x87\x0b\x45\xad", 9 },
+        { L_, "abBnKQZaH8D0", "\x69\xb0\x67\x29\x06\x5a\x1f\xc0\xf4", 9 },
+        { L_, "gvJfgsGAMBe3", "\x82\xf2\x5f\x82\xc1\x80\x30\x17\xb7", 9 },
+        { L_, "qMgax36v0Q7z", "\xa8\xc8\x1a\xc7\x7e\xaf\xd1\x0e\xf3", 9 },
+        { L_, "uigkPeKBMcQq", "\xba\x28\x24\x3d\xe2\x81\x31\xc4\x2a", 9 },
+        { L_, "xxwJ+YLOqk+q", "\xc7\x1c\x09\xf9\x82\xce\xaa\x4f\xaa", 9 },
+        { L_, "3VX/OSTahigH", "\xdd\x55\xff\x39\x24\xda\x86\x28\x07", 9 }
     };
     enum { k_NUM_DATA = sizeof DATA / sizeof *DATA };
 
@@ -6962,7 +6934,7 @@ DEFINE_TEST_CASE(6)
 
         u::RandGen rand;
 
-        for (int ii = 0; ii < 512; ++ii) {
+        for (int ii = 0; ii < 256; ++ii) {
             for (unsigned uu = 0; uu < k_BUF_LEN; uu += 4) {
                 unsigned r = rand();
                 bsl::memcpy(&buf[uu],      &r, sizeof(r));
@@ -8496,6 +8468,7 @@ int main(int argc, char *argv[])
   case NUMBER: testCase##NUMBER(verbose, veryVerbose, veryVeryVerbose,        \
                                                     veryVeryVeryVerbose); break
 
+        CASE(14);
         CASE(13);
         CASE(12);
         CASE(11);
@@ -8520,7 +8493,7 @@ int main(int argc, char *argv[])
         for (int len = 0; len < 10; ++len) {
             bsl::set<bsl::string> stringsSoFar;
 
-            for (int jj = 0; jj < (0 == len ? 1 : 20); ++jj) {
+            for (int jj = 0; jj < (0 == len ? 1 : 15); ++jj) {
                 bsl::string str;
                 rand.randString(&str, len);
                 if (stringsSoFar.count(str)) {

@@ -98,7 +98,7 @@ struct Base64IgnoreMode {
                 e_IGNORE_WHITESPACE,     // any unrecognized character other
                                          // than whitespace is an error
 
-                e_IGNORE_UNRECOGNIZED,   // no unrecognized character is an
+                e_IGNORE_UNRECOGNIZED    // no unrecognized character is an
                                          // error
     };
 
