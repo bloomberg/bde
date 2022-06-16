@@ -1,5 +1,31 @@
-bsl-internal (3.102.0.0) unstable; urgency=low
+bsl-internal (3.103.0.0) unstable; urgency=low
 
+  * 1307555e9 Bumped version to 3.103.0.0
+  * f2037fcb6 Address test failure due to MSVC compiler issue (#3758)
+  * 9f65f026b Build issue with bslmf_movableref on sun 5.12.6 DRQS 169582599 (#3759)
+  * 13e226976 bslmf_isaccessiblebaseof compile out bothersome tests on MSVC2015 (#3722)
+  * 70f943b9b Merge pull request #3760 from afeher/function-split-cpp03-fix
+  * 9b494cb20 Bslh wyhash make default 3 drqs 166864744 (#3668)
+  * c87fd6c0b add bind support and test for noexcept functors (#3751)
+  * 8011c4d1e Merge pull request #3734 from afeher/drqs-165419544-bslstl_function-one-file-split
+  * 75f71b4f7 drqs-169296592: 'bslmt_threadutil*': Fix nit in 'join' function doc. (#3757)
+  * 7c756808d drqs-169552660: 'bsls_review.t.cpp': Skip TC 15 if no exception build. (#3755)
+  * 44eb3b0af baljsn_encoder: Fix Test Failure on 64-Bit Windows (#3756)
+  * 99e0bf119 drqs-169541406: 'bsls/bsls_asserttest.t.cpp': Guard 'BSLS_ASSERT_INVO… (#3753)
+  * a9024c265 Remove deprecated, unused enum values (#3735)
+  * 54c3eccdd Add support for `bsl::filesystem` (#3720)
+  * e939c3f06 drqs-169171835: 'bslstl_*map': update 'enable_if' tests for 'insert'. (#3736)
+  * 8496fcf18 drqs-169510182; 'bdld_datummap*builder.t.cpp': UB in TC2 neg. test 'c… (#3749)
+  * 598caaee1 drqs-169441882: 'bdlcc_fixedqueueindexmanager.t.cpp': TC2: avoid SIGFPE (#3731)
+  * 7f1318d5e fix implementation of bsl::empty (#3698)
+  * b7c32a845 Fix Sun build (#3745)
+  * e34b96ed5 Merge all the XXX_algorithm files together (#3725)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 16 Jun 2022 11:55:26 -0400
+
+bsl-internal (3.102.0.0) git; urgency=low
+
+  * 50471073c Changelog for version 3.102.0.0
   * 6b11d2ceb Bumped version to 3.102.0.0
   * 02b1b964d Remove superfluous parenthesis (#3740)
   * deb087503 Merge pull request #3738 from mclow3/cxx17MathTestsFix
@@ -13,7 +39,7 @@ bsl-internal (3.102.0.0) unstable; urgency=low
   * 7d01bb3c6 drqs-169357261: Several 'bsl' test drivers fail in non-exception build (#3714)
   * f2bdb8d84 Revert "Bslim gtestutil printto optional drqs 168811170 (#3677)" (#3723)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 2 Jun 2022 14:52:44 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 2 Jun 2022 15:06:29 -0400
 
 bsl-internal (3.101.0.0) git; urgency=low
 
