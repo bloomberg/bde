@@ -1213,7 +1213,7 @@ Crc32cCalculator::Crc32cFn Crc32cCalculator::s_crc32cFn = 0;
 
 Crc32cCalculator::Crc32cCalculator()
 {
-#ifdef BDLDE_CRC32C_SEE4_2_ENABLED
+#ifdef BDLDE_CRC32C_SSE4_2_ENABLED
     // SSE4.2 intrinsics are available on the target platform and the current
     // compiler's intrinsics are supported.  Note that this is the case when
     // compiling for x86 platforms with Clang or GCC and the "-msse4.2" flag is
@@ -1223,7 +1223,7 @@ Crc32cCalculator::Crc32cCalculator()
     __cpuid(1, eax, ebx, ecx, edx);
 
     // Check SSE 4.2 Support for CRC32-C.
-    if (ecx & BDLDE_CRC32_CPUID_SSE4_2_BIT_MASK) {
+    if (ecx & BDLDE_CRC32C_CPUID_SSE4_2_BIT_MASK) {
 # ifdef BSLS_PLATFORM_CPU_64_BIT
         BSLS_LOG_INFO("Using hardware version for CRC32-C computation "
                       "(SSE4.2 instructions available, 64-bit mode)");
