@@ -285,6 +285,13 @@ BSLS_IDENT("$Id: $")
 #include <bsl_ostream.h>
 #include <bsl_utility.h>
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
+#include <bsl_type_traits.h>
+    #ifndef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    #error Rvalue references curiously absent despite native 'type_traits'.
+    #endif
+#endif
+
 namespace BloombergLP {
 namespace bdlc {
 
@@ -607,14 +614,18 @@ class FlatHashMap {
 
 #if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
     template <class VALUE_TYPE>
-    bsl::pair<iterator, bool> insert(
-                           BSLS_COMPILERFEATURES_FORWARD_REF(VALUE_TYPE) value)
-#else
+    bsl::pair<iterator, bool>
+#elif !defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
     template <class VALUE_TYPE>
     typename bsl::enable_if<bsl::is_convertible<VALUE_TYPE, value_type>::value,
                             bsl::pair<iterator, bool> >::type
-                    insert(BSLS_COMPILERFEATURES_FORWARD_REF(VALUE_TYPE) value)
+#else
+    template <class VALUE_TYPE>
+    typename bsl::enable_if<bsl::is_constructible<value_type,
+                                                  VALUE_TYPE&&>::value,
+                            bsl::pair<iterator, bool> >::type
 #endif
+    insert(BSLS_COMPILERFEATURES_FORWARD_REF(VALUE_TYPE) value)
         // Insert the specified 'value' into this map if the key of 'value'
         // does not already exist in this map; otherwise, this method has no
         // effect.  Return a 'pair' whose 'first' member is an iterator
@@ -632,15 +643,19 @@ class FlatHashMap {
 
 #if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
     template <class VALUE_TYPE>
-    iterator insert(const_iterator                                ,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(VALUE_TYPE) value)
-#else
+    iterator
+#elif !defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
     template <class VALUE_TYPE>
     typename bsl::enable_if<bsl::is_convertible<VALUE_TYPE, value_type>::value,
                             iterator>::type
-                    insert(const_iterator                                ,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(VALUE_TYPE) value)
+#else
+    template <class VALUE_TYPE>
+    typename bsl::enable_if<bsl::is_constructible<value_type,
+                                                  VALUE_TYPE&&>::value,
+                            iterator>::type
 #endif
+    insert(const_iterator                                ,
+           BSLS_COMPILERFEATURES_FORWARD_REF(VALUE_TYPE) value)
         // Insert the specified 'value' into this map if the key of 'value'
         // does not already exist in this map; otherwise, this method has no
         // effect.  Return an iterator referring to the (possibly newly
