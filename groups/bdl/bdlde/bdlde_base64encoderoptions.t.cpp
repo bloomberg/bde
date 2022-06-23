@@ -117,10 +117,10 @@ enum { k_DEFAULT_MLL = 76 };
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;             (verbose);
-    int veryVerbose = argc > 3;         (veryVerbose);
-    int veryVeryVerbose = argc > 4;     (veryVeryVerbose);
-    int veryVeryVeryVerbose = argc > 5; (veryVeryVeryVerbose);
+    int verbose = argc > 2;             (void) verbose;
+    int veryVerbose = argc > 3;         (void) veryVerbose;
+    int veryVeryVerbose = argc > 4;     (void) veryVeryVerbose;
+    int veryVeryVeryVerbose = argc > 5; (void) veryVeryVeryVerbose;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
