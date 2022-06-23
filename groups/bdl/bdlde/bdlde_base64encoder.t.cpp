@@ -7,6 +7,21 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
+// ----------------------------------------------------------------------------
+//                            U_ENABLE_DEPRECATIONS
+//
+// Set 'U_ENABLE_DEPRECATIONS' to 1 get warnings about uses of deprecated
+// methods.  These warnings are quite voluminous.  Test case 14 will fail
+// unless '0 == U_ENABLE_DEPRECATIONS' to make sure we don't ship with these
+// warnings enabled.
+// ----------------------------------------------------------------------------
+
+#undef  U_ENABLE_DEPRECATIONS
+#define U_ENABLE_DEPRECATIONS 0
+#if U_ENABLE_DEPRECATIONS
+# define BSLS_DEPRECATE_FEATURE_ENABLE_ALL_DEPRECATIONS_FOR_TESTING 1
+# include <bsls_deprecatefeature.h>
+#endif
 
 #include <bdlde_base64encoder.h>
 
@@ -34,21 +49,6 @@ using bsl::cerr;
 using bsl::endl;
 using bsl::ends;
 using bsl::flush;
-
-//-----------------------------------------------------------------------------
-//                               U_USE_DEPRECATED
-//
-// 1: use deprecated functions, and get an avalanche of compiler warnings.
-// 0: use 'Options' interfaces instead.
-//
-// This option is to be set to 0 *TEMPORARILY* to shut up the multitude of
-// compiler warnings that occur from the use of deprecated interfaces.  If it
-// is set to 0, test case 14 will fail to ensure that whenever this code is
-// shipped, 'U_USE_DEPRECATED' is set to 1 and the matrix builds and nightly
-// builds are testing the entire interface.
-
-#undef  U_USE_DEPRECATED
-#define U_USE_DEPRECATED 1
 
 //=============================================================================
 //                             TEST PLAN
@@ -138,7 +138,7 @@ using bsl::flush;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST -- (developer's sandbox)
 // [15] USAGE EXAMPLE
-// [14] U_USE_DEPRECATED
+// [14] 0 == U_ENABLE_DEPRECATIONS
 // [ ?] That the input iterator can have *minimal* functionality.
 // [ ?] That the output iterator can have *minimal* functionality.
 // [ 1] ::myMin(const T& a, const T& b);
@@ -1964,10 +1964,17 @@ int main(int argc, char *argv[])
       } break;
       case 14: {
         // --------------------------------------------------------------------
-        // ENSURE U_USE_DEPRECATED IS ENABLED
+        // ENSURE U_ENABLE_DEPRECATIONS IS DISABLED
+        //
+        // Concerns:
+        //: 1 When we ship, 'U_ENABLE_DEPRECATIONS' is disabled, so that we
+        //:   will not get deprecation warnings.
+        //
+        // Testing:
+        //   0 == U_ENABLE_DEPRECATIONS
         // --------------------------------------------------------------------
 
-        ASSERT(U_USE_DEPRECATED);
+        ASSERT(0 == U_ENABLE_DEPRECATIONS);
       } break;
       case 13: {
         // --------------------------------------------------------------------
@@ -2208,24 +2215,11 @@ int main(int argc, char *argv[])
 
             int maxLineLength = 0;
 
-            const EncoderOptions& options = EncoderOptions::custom(
-                                                             maxLineLength,
-                                                             Alphabet::e_BASIC,
-                                                             true);
-#if U_USE_DEPRECATED
-            (void) options;
             bdlde::Base64Encoder encoder(maxLineLength);
-#else
-            bdlde::Base64Encoder encoder(options);
-#endif
             u_Base64Decoder_Test decoder(true);
 
             int   origSize = static_cast<int>(strlen(sample));
-#if U_USE_DEPRECATED
             int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
-#else
-            int   encodedLen = encoder.encodedLength(options, origSize);
-#endif
             char *encoded = new char[encodedLen];
             int   maxDecodedLen = decoder.maxDecodedLength(encodedLen);
             char *decoded = new char[maxDecodedLen] ;
@@ -2275,24 +2269,11 @@ int main(int argc, char *argv[])
 
             int maxLineLength = 0;
 
-            const EncoderOptions& options = EncoderOptions::custom(
-                                                             maxLineLength,
-                                                             Alphabet::e_BASIC,
-                                                             true);
-#if U_USE_DEPRECATED
-            (void) options;
             bdlde::Base64Encoder encoder(maxLineLength);
-#else
-            bdlde::Base64Encoder encoder(options);
-#endif
             u_Base64Decoder_Test decoder(true);
 
             int   origSize = static_cast<int>(strlen(sample));
-#if U_USE_DEPRECATED
             int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
-#else
-            int   encodedLen = encoder.encodedLength(options, origSize);
-#endif
             char *encoded = new char[encodedLen];
             int   maxDecodedLen = decoder.maxDecodedLength(encodedLen);
             char *decoded = new char[maxDecodedLen] ;
@@ -2343,24 +2324,11 @@ int main(int argc, char *argv[])
 
             int maxLineLength = 0;
 
-            const EncoderOptions& options = EncoderOptions::custom(
-                                                             maxLineLength,
-                                                             Alphabet::e_BASIC,
-                                                             true);
-#if U_USE_DEPRECATED
-            (void) options;
             bdlde::Base64Encoder encoder(maxLineLength);
-#else
-            bdlde::Base64Encoder encoder(options);
-#endif
             u_Base64Decoder_Test decoder(true);
 
             int   origSize = static_cast<int>(strlen(sample));
-#if U_USE_DEPRECATED
             int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
-#else
-            int   encodedLen = encoder.encodedLength(options, origSize);
-#endif
             char *encoded = new char[encodedLen];
             int   maxDecodedLen = decoder.maxDecodedLength(encodedLen);
             char *decoded = new char[maxDecodedLen] ;
@@ -2411,24 +2379,11 @@ int main(int argc, char *argv[])
 
             int maxLineLength = 0;
 
-            const EncoderOptions& options = EncoderOptions::custom(
-                                                             maxLineLength,
-                                                             Alphabet::e_BASIC,
-                                                             true);
-#if U_USE_DEPRECATED
-            (void) options;
             bdlde::Base64Encoder encoder(maxLineLength);
-#else
-            bdlde::Base64Encoder encoder(options);
-#endif
             u_Base64Decoder_Test decoder(true);
 
             int   origSize = static_cast<int>(strlen(sample));
-#if U_USE_DEPRECATED
             int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
-#else
-            int   encodedLen = encoder.encodedLength(options, origSize);
-#endif
             char *encoded = new char[encodedLen];
             int   maxDecodedLen = decoder.maxDecodedLength(encodedLen);
             char *decoded = new char[maxDecodedLen] ;
@@ -2479,24 +2434,11 @@ int main(int argc, char *argv[])
 
             int maxLineLength = 0;
 
-            const EncoderOptions& options = EncoderOptions::custom(
-                                                             maxLineLength,
-                                                             Alphabet::e_BASIC,
-                                                             true);
-#if U_USE_DEPRECATED
-            (void) options;
             bdlde::Base64Encoder encoder(maxLineLength);
-#else
-            bdlde::Base64Encoder encoder(options);
-#endif
             u_Base64Decoder_Test decoder(true);
 
             int   origSize = static_cast<int>(strlen(sample));
-#if U_USE_DEPRECATED
             int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
-#else
-            int   encodedLen = encoder.encodedLength(options, origSize);
-#endif
             char *encoded = new char[encodedLen];
             int   maxDecodedLen = decoder.maxDecodedLength(encodedLen);
             char *decoded = new char[maxDecodedLen] ;
@@ -2546,24 +2488,11 @@ int main(int argc, char *argv[])
 
             int maxLineLength = 0;
 
-            const EncoderOptions& options = EncoderOptions::custom(
-                                                             maxLineLength,
-                                                             Alphabet::e_BASIC,
-                                                             true);
-#if U_USE_DEPRECATED
-            (void) options;
             bdlde::Base64Encoder encoder(maxLineLength);
-#else
-            bdlde::Base64Encoder encoder(options);
-#endif
             u_Base64Decoder_Test decoder(true);
 
             int   origSize = static_cast<int>(strlen(sample));
-#if U_USE_DEPRECATED
             int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
-#else
-            int   encodedLen = encoder.encodedLength(options, origSize);
-#endif
             char *encoded = new char[encodedLen];
             int   maxDecodedLen = decoder.maxDecodedLength(encodedLen);
             char *decoded = new char[maxDecodedLen] ;
@@ -2613,24 +2542,11 @@ int main(int argc, char *argv[])
 
             int maxLineLength = 0;
 
-            const EncoderOptions& options = EncoderOptions::custom(
-                                                             maxLineLength,
-                                                             Alphabet::e_BASIC,
-                                                             true);
-#if U_USE_DEPRECATED
-            (void) options;
             bdlde::Base64Encoder encoder(maxLineLength);
-#else
-            bdlde::Base64Encoder encoder(options);
-#endif
             u_Base64Decoder_Test decoder(true);
 
             int   origSize = static_cast<int>(strlen(sample));
-#if U_USE_DEPRECATED
             int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
-#else
-            int   encodedLen = encoder.encodedLength(options, origSize);
-#endif
             char *encoded = new char[encodedLen];
             int   maxDecodedLen = decoder.maxDecodedLength(encodedLen);
             char *decoded = new char[maxDecodedLen] ;
@@ -2683,24 +2599,11 @@ int main(int argc, char *argv[])
 
             int maxLineLength = 0;
 
-            const EncoderOptions& options = EncoderOptions::custom(
-                                                             maxLineLength,
-                                                             Alphabet::e_BASIC,
-                                                             true);
-#if U_USE_DEPRECATED
-            (void) options;
             bdlde::Base64Encoder encoder(maxLineLength);
-#else
-            bdlde::Base64Encoder encoder(options);
-#endif
             u_Base64Decoder_Test decoder(true);
 
             int   origSize = static_cast<int>(strlen(sample));
-#if U_USE_DEPRECATED
             int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
-#else
-            int   encodedLen = encoder.encodedLength(options, origSize);
-#endif
             char *encoded = new char[encodedLen];
             int   maxDecodedLen = decoder.maxDecodedLength(encodedLen);
             char *decoded = new char[maxDecodedLen] ;
@@ -2749,18 +2652,11 @@ int main(int argc, char *argv[])
 
             int maxLineLength = 76;
 
-            const EncoderOptions& options = EncoderOptions::mime();  // default
-
             bdlde::Base64Encoder encoder;
             u_Base64Decoder_Test decoder(true);
 
             int   origSize = static_cast<int>(strlen(sample));
-#if U_USE_DEPRECATED
             int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
-#else
-            (void) maxLineLength;
-            int   encodedLen = encoder.encodedLength(options, origSize);
-#endif
             char *encoded = new char[encodedLen];
             int   maxDecodedLen = decoder.maxDecodedLength(encodedLen);
             char *decoded = new char[maxDecodedLen] ;
@@ -3061,12 +2957,8 @@ int main(int argc, char *argv[])
                                           EncoderOptions::custom(LINE_LENGTH,
                                                                  alpha,
                                                                  true);
-#if U_USE_DEPRECATED
                     const int   outLength   = Obj::encodedLength(len,
                                                                  LINE_LENGTH);
-#else
-                    const int   outLength   = Obj::encodedLength(options, len);
-#endif
                     bsl::vector<char> outVec;
                     outVec.resize(outLength + 1, GARBAGE);
 

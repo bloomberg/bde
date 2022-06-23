@@ -434,9 +434,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlde_base64alphabet.h>
 #include <bdlde_base64encoderoptions.h>
 
-#include <bsla_deprecated.h>
-
 #include <bsls_assert.h>
+#include <bsls_deprecatefeature.h>
 #include <bsls_review.h>
 
 namespace BloombergLP {
@@ -533,7 +532,9 @@ class Base64Encoder {
         // 'convert' method of an encoder configured with the specified
         // 'options'.
 
-    BSLA_DEPRECATED
+    BSLS_DEPRECATE_FEATURE("bdl",
+                           "encodedLength",
+                           "use overload with 'options'")
     static
     int encodedLength(int inputLength);
         // Return the exact number of encoded bytes that would result from an
@@ -545,7 +546,9 @@ class Base64Encoder {
         //
         // DEPRECATED: use the overload with 'options' instead.
 
-    BSLA_DEPRECATED
+    BSLS_DEPRECATE_FEATURE("bdl",
+                           "encodedLength",
+                           "use overload with 'options'")
     static
     int encodedLength(int inputLength, int maxLineLength);
         // Return the exact number of encoded bytes that would result from an
@@ -566,7 +569,9 @@ class Base64Encoder {
         // 'options'.  Note that the number of encoded bytes need not be the
         // number of *output* bytes.
 
-    BSLA_DEPRECATED
+    BSLS_DEPRECATE_FEATURE("bdl",
+                           "encodedLines",
+                           "use overload with 'options'")
     static
     int encodedLines(int inputLength);
         // Return the exact number of encoded lines that would result from an
@@ -579,7 +584,9 @@ class Base64Encoder {
         //
         // DEPRECATED: use the overload with 'options' instead.
 
-    BSLA_DEPRECATED
+    BSLS_DEPRECATE_FEATURE("bdl",
+                           "encodedLines",
+                           "use overload with 'options'")
     static
     int encodedLines(int inputLength, int maxLineLength);
         // Return the exact number of encoded lines that would result from an
@@ -600,7 +607,9 @@ class Base64Encoder {
         // of the maximum allowable line-length, the padding, and the alphabet
         // according to the values of the specified 'options'.
 
-    BSLA_DEPRECATED
+    BSLS_DEPRECATE_FEATURE("bdl",
+                           "Base64Encoder",
+                           "use overload with 'options'")
     explicit
     Base64Encoder(Alphabet alphabet);
         // Create a Base64 encoder in the initial state, defaulting the maximum
@@ -613,7 +622,9 @@ class Base64Encoder {
         //
         // DEPRECATED: Create and pass an 'options' object instead.
 
-    BSLA_DEPRECATED
+    BSLS_DEPRECATE_FEATURE("bdl",
+                           "Base64Encoder",
+                           "use overload with 'options'")
     explicit
     Base64Encoder(int maxLineLength, Alphabet alphabet = e_BASIC);
         // Create a Base64 encoder in the initial state, setting the maximum

@@ -7,11 +7,27 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
+// ----------------------------------------------------------------------------
+//                            U_ENABLE_DEPRECATIONS
+//
+// Set 'U_ENABLE_DEPRECATIONS' to 1 get warnings about uses of deprecated
+// methods.  These warnings are quite voluminous.  Test case 14 will fail
+// unless '0 == U_ENABLE_DEPRECATIONS' to make sure we don't ship with these
+// warnings enabled.
+// ----------------------------------------------------------------------------
+
+#undef  U_ENABLE_DEPRECATIONS
+#define U_ENABLE_DEPRECATIONS 0
+#if U_ENABLE_DEPRECATIONS
+# define BSLS_DEPRECATE_FEATURE_ENABLE_ALL_DEPRECATIONS_FOR_TESTING 1
+# include <bsls_deprecatefeature.h>
+#endif
 
 #include <bdlde_base64decoder.h>
 
 #include <bdlde_base64encoder.h>        // for testing only
 
+#include <bslim_fuzzutil.h>
 #include <bslim_testutil.h>
 
 #include <bslma_managedptr.h>
@@ -47,22 +63,6 @@ using bsl::cerr;
 using bsl::endl;
 using bsl::ends;
 using bsl::flush;
-
-
-//-----------------------------------------------------------------------------
-//                               U_USE_DEPRECATED
-//
-// 1: use deprecated functions, and get an avalanche of compiler warnings.
-// 0: use 'Options' interfaces instead.
-//
-// This option is to be set to 0 *TEMPORARILY* to shut up the multitude of
-// compiler warnings that occur from the use of deprecated interfaces.  If it
-// is set to 0, test case 14 will fail to ensure that whenever this code is
-// shipped, 'U_USE_DEPRECATED' is set to 1 and the matrix builds and nightly
-// builds are testing the entire interface.
-
-#undef  U_USE_DEPRECATED
-#define U_USE_DEPRECATED 1
 
 //=============================================================================
 //                             TEST PLAN
@@ -245,7 +245,7 @@ using bsl::flush;
 // [ 9] That surplus output beyond 'maxNumOut' is buffered properly.
 // [11] STRESS TEST: The decoder properly decodes all encoded output.
 // [13] TABLE PLUS RANDOM TESTING, UNPADDED MODE, INJECTED GARBAGE
-// [14] U_USE_DEPRECATED
+// [14] 0 == U_ENABLE_DEPRECATIONS
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -345,6 +345,8 @@ typedef bdlde::Base64EncoderOptions EncoderOptions;
 typedef bdlde::Base64Decoder        Obj;
 typedef bdlde::Base64Alphabet       Alpha;
 typedef bdlde::Base64IgnoreMode     Ignore;
+using bslim::FuzzDataView;
+using bslim::FuzzUtil;
 typedef bsl::ptrdiff_t              ptrdiff_t;
 
 static const char ff = static_cast<char>(-1);
@@ -629,7 +631,7 @@ void RandGen::randString(bsl::string *result, int len)
 bsl::string displayStr(const bsl::string& str, bool allInHex = true)
     // Return the specified 'str', with some or all characters translated into
     // hexadecimal '\x' sequences.  If the specified 'allInHex' is 'true',
-    // translated all characters to hex sequences, otherwise translate only
+    // translate all characters to hex sequences, otherwise translate only
     // non-printable or whitespace characters.
 {
     bsl::string ret;
@@ -655,6 +657,8 @@ bsl::string displayStr(const bsl::string& str, bool allInHex = true)
 }
 
 void convertToUrlInput(bsl::string *result)
+    // Translate the specified '*result' from and 'e_BASIC' encoding to an
+    // 'e_URL'.
 {
     for (unsigned idx = 0; idx < result->length(); ++idx) {
         char& c = (*result)[idx];
@@ -1277,11 +1281,7 @@ int streamEncoder(bsl::ostream& os, bsl::istream& is)
     const EncoderOptions& eOptions = EncoderOptions::mime();
     (void) eOptions;
 
-#if U_USE_DEPRECATED
     bdlde::Base64Encoder converter(0);
-#else
-    bdlde::Base64Encoder converter(eOptions);
-#endif
 
     const int INBUFFER_SIZE  = 1 << 10;
     const int OUTBUFFER_SIZE = 1 << 10;
@@ -1369,14 +1369,7 @@ int streamDecoder(bsl::ostream& os, bsl::istream& is)
         IO_ERROR     = -2
     };
 
-#if U_USE_DEPRECATED
     Obj converter(false);   // Do not report errors.
-#else
-    const Options& options = Options::custom(Ignore::e_IGNORE_UNRECOGNIZED,
-                                             Alpha::e_BASIC,
-                                             true);
-    Obj converter(options);
-#endif
 
     const int INBUFFER_SIZE  = 1 << 10;
     const int OUTBUFFER_SIZE = 1 << 10;
@@ -1467,158 +1460,150 @@ namespace u {
 
 typedef bool (*Filter)(char);
 
-bool equalsOrNotBase64BasicAndNotWhite(char c)
+bool equalsOrNotBase64BasicAndNotWhitespace(char c)
     // Return 'true' if the specified 'c' is either '=', or not valid character
-    // in a base 64 sequence, and not white space.
+    // in a base 64 'e_BASIC' sequence, and not white space.
 {
-    static bool matchRaw[128 + 256], *match = matchRaw + 128;
+    static bool match[256];
     static bool firstTime = true;
     if (firstTime) {
         firstTime = false;
-        for (int ii = -128; ii < 256; ++ii) {
-           const unsigned char uc = static_cast<unsigned char>(ii);
-           match[ii] = !bsl::isalnum(uc) && !bsl::isspace(uc);
+        for (unsigned uu = 0; uu < 256; ++uu) {
+           match[uu] = !bsl::isalnum(uu) && !bsl::isspace(uu);
         }
         match['+'] = false;
         match['/'] = false;
     }
 
-    return match[c];
+    return match[static_cast<unsigned char>(c)];
 }
 
 bool equalsOrNotBase64Basic(char c)
     // Return 'true' if the specified 'c' is either '=', or not valid character
-    // in a base 64 sequence, and not white space.
+    // in a base 64 'e_BASIC' sequence.
 {
-    static bool matchRaw[128 + 256], *match = matchRaw + 128;
+    static bool match[256];
     static bool firstTime = true;
     if (firstTime) {
         firstTime = false;
-        for (int ii = -128; ii < 256; ++ii) {
-           const unsigned char uc = static_cast<unsigned char>(ii);
-           match[ii] = !bsl::isalnum(uc);
+        for (unsigned uu = 0; uu < 256; ++uu) {
+           match[uu] = !bsl::isalnum(uu);
         }
         match['+'] = false;
         match['/'] = false;
     }
 
-    return match[c];
+    return match[static_cast<unsigned char>(c)];
 }
 
-bool equalsOrNotBase64UrlAndNotWhite(char c)
+bool equalsOrNotBase64UrlAndNotWhitespace(char c)
     // Return 'true' if the specified 'c' is either '=', or not valid character
-    // in a base 64 sequence, and not white space.
+    // in a base 64 'e_URL' sequence, and not white space.
 {
-    static bool matchRaw[128 + 256], *match = matchRaw + 128;
+    static bool match[256];
     static bool firstTime = true;
     if (firstTime) {
         firstTime = false;
-        for (int ii = -128; ii < 256; ++ii) {
-           const unsigned char uc = static_cast<unsigned char>(ii);
-           match[ii] = !bsl::isalnum(uc) && !bsl::isspace(uc);
+        for (unsigned uu = 0; uu < 256; ++uu) {
+           match[uu] = !bsl::isalnum(uu) && !bsl::isspace(uu);
         }
         match['-'] = false;
         match['_'] = false;
     }
 
-    return match[c];
+    return match[static_cast<unsigned char>(c)];
 }
 
 bool equalsOrNotBase64Url(char c)
     // Return 'true' if the specified 'c' is either '=', or not valid character
-    // in a base 64 sequence, and not white space.
+    // in a base 64 'e_URL' sequence.
 {
-    static bool matchRaw[128 + 256], *match = matchRaw + 128;
+    static bool match[256];
     static bool firstTime = true;
     if (firstTime) {
         firstTime = false;
-        for (int ii = -128; ii < 256; ++ii) {
-           const unsigned char uc = static_cast<unsigned char>(ii);
-           match[ii] = !bsl::isalnum(uc);
+        for (unsigned uu = 0; uu < 256; ++uu) {
+           match[uu] = !bsl::isalnum(uu);
         }
         match['-'] = false;
         match['_'] = false;
     }
 
-    return match[c];
+    return match[static_cast<unsigned char>(c)];
 }
 
 bool base64OrEqualsBasic(char c)
     // Return 'true' if the specified 'c' is a valid character in a base 64
-    // sequence and not white space.
+    // 'e_BASIC' sequence or '='.
 {
-    static bool matchRaw[128 + 256], *match = matchRaw + 128;
+    static bool match[256];
     static bool firstTime = true;
     if (firstTime) {
         firstTime = false;
-        for (int ii = -128; ii < 256; ++ii) {
-           const unsigned char uc = static_cast<unsigned char>(ii);
-           match[ii] = bsl::isalnum(uc);
+        for (unsigned uu = 0; uu < 256; ++uu) {
+           match[uu] = bsl::isalnum(uu);
         }
         match['+'] = true;
         match['/'] = true;
         match['='] = true;
     }
 
-    return match[c];
+    return match[static_cast<unsigned char>(c)];
 }
 
 bool base64Basic(char c)
     // Return 'true' if the specified 'c' is a valid character in a base 64
-    // sequence and not white space.
+    // 'e_BASIC' sequence.
 {
-    static bool matchRaw[128 + 256], *match = matchRaw + 128;
+    static bool match[256];
     static bool firstTime = true;
     if (firstTime) {
         firstTime = false;
-        for (int ii = -128; ii < 256; ++ii) {
-           const unsigned char uc = static_cast<unsigned char>(ii);
-           match[ii] = bsl::isalnum(uc);
+        for (unsigned uu = 0; uu < 256; ++uu) {
+           match[uu] = bsl::isalnum(uu);
         }
         match['+'] = true;
         match['/'] = true;
     }
 
-    return match[c];
+    return match[static_cast<unsigned char>(c)];
 }
 
 bool base64OrEqualsUrl(char c)
     // Return 'true' if the specified 'c' is a valid character in a base 64
-    // sequence and not white space.
+    // 'e_URL' sequence.
 {
-    static bool matchRaw[128 + 256], *match = matchRaw + 128;
+    static bool match[256];
     static bool firstTime = true;
     if (firstTime) {
         firstTime = false;
-        for (int ii = -128; ii < 256; ++ii) {
-           const unsigned char uc = static_cast<unsigned char>(ii);
-           match[ii] = bsl::isalnum(uc);
+        for (unsigned uu = 0; uu < 256; ++uu) {
+           match[uu] = bsl::isalnum(uu);
         }
         match['-'] = true;
         match['_'] = true;
         match['='] = true;
     }
 
-    return match[c];
+    return match[static_cast<unsigned char>(c)];
 }
 
 bool base64Url(char c)
     // Return 'true' if the specified 'c' is a valid character in a base 64
-    // sequence and not white space.
+    // 'e_URL' sequence.
 {
-    static bool matchRaw[128 + 256], *match = matchRaw + 128;
+    static bool match[256];
     static bool firstTime = true;
     if (firstTime) {
         firstTime = false;
-        for (int ii = -128; ii < 256; ++ii) {
-           const unsigned char uc = static_cast<unsigned char>(ii);
-           match[ii] = bsl::isalnum(uc);
+        for (unsigned uu = 0; uu < 256; ++uu) {
+           match[uu] = bsl::isalnum(uu);
         }
         match['-'] = true;
         match['_'] = true;
     }
 
-    return match[c];
+    return match[static_cast<unsigned char>(c)];
 }
 
 }  // close namespace u
@@ -1649,18 +1634,36 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 
     typedef bsl::size_t    size_t;
 
-    const char *FUZZ    = reinterpret_cast<const char *>(data);
-    int         LENGTH  = static_cast<int>(size);
-    int         test;
+    FuzzDataView fdv(data, size);    const FuzzDataView& FDV = fdv;
+    int          test = FuzzUtil::consumeNumberInRange(&fdv, 1, 3);
+    const int    LENGTH = static_cast<int>(FDV.length());
 
-    if (FUZZ && LENGTH) {
-        test = 1 + static_cast<unsigned char>(*FUZZ) % 3;
-        ++FUZZ;
-        --LENGTH;
+    bsl::vector<uint8_t> noiseFuzzInput;
+    {
+        const unsigned worstCaseLength =
+                            4 * bdlde::Base64Encoder::encodedLength(LENGTH, 1);
+        if (worstCaseLength) {
+            noiseFuzzInput.reserve(worstCaseLength);
+            BSLS_ASSERT(0 < FDV.length() || 0 == worstCaseLength);
+            while (noiseFuzzInput.size() < worstCaseLength) {
+                const size_t len = bsl::min<bsl::size_t>(
+                                       worstCaseLength - noiseFuzzInput.size(),
+                                       FDV.length());
+                noiseFuzzInput.insert(noiseFuzzInput.end(),
+                                      FDV.begin(),
+                                      FDV.begin() + len);
+            }
+        }
+        else {
+            noiseFuzzInput.resize(26);
+            bsl::memcpy(noiseFuzzInput.data(),
+                        "abcdefghijklmnopqrstuvwxyz",
+                        26);
+        }
     }
-    else {
-        test = 0;
-    }
+    ASSERT(16 <= noiseFuzzInput.size());
+    const FuzzDataView NOISE_FDV_MASTER(noiseFuzzInput.begin(),
+                                        noiseFuzzInput.size());
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 3: {
@@ -1718,9 +1721,19 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
         if (veryVerbose) cout << "FUZZ TESTING PERMUTATIONS OF VALID INPUT\n"
                                  "========================================\n";
 
-        const char * const      begin = FUZZ;
-        const char * const      end   = FUZZ + LENGTH;
-        const bsl::vector<char> binaryInput(begin, end);
+        enum { k_NUM_TI_ITERATIONS = 2 * 3 * 2 };
+
+        FuzzDataView maxLenFdv(  NOISE_FDV_MASTER);
+        FuzzDataView equalIdxFdv(NOISE_FDV_MASTER);
+        if (k_NUM_TI_ITERATIONS < maxLenFdv.length()) {
+            maxLenFdv.  removePrefix(maxLenFdv.length() - k_NUM_TI_ITERATIONS);
+        }
+        if (k_NUM_TI_ITERATIONS * 2 < equalIdxFdv.length()) {
+            equalIdxFdv.removePrefix(
+                               equalIdxFdv.length() - k_NUM_TI_ITERATIONS * 2);
+        }
+
+        const bsl::vector<char> binaryInput(FDV.begin(), FDV.end());
 
         if (veryVerbose) P(run);
 
@@ -1728,11 +1741,11 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
                        "Create 'base64Input', valid base 64 input sequence,\n"
                                           " and permute it in various ways.\n";
 
-        static bsl::vector<char> whiteNoise;
-        static bsl::vector<char> nastyBasicPaddedNoise;
-        static bsl::vector<char> nastyBasicUnpaddedNoise;
-        static bsl::vector<char> nastyUrlPaddedNoise;
-        static bsl::vector<char> nastyUrlUnpaddedNoise;
+        static bsl::vector<char> whitespaceNoise;
+        static bsl::vector<char> basicPaddedNoise;
+        static bsl::vector<char> basicUnpaddedNoise;
+        static bsl::vector<char> urlPaddedNoise;
+        static bsl::vector<char> urlUnpaddedNoise;
 
         static bool firstTime = true;
         if (firstTime) {
@@ -1740,20 +1753,20 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 
             for (int ii = 0; ii < 256; ++ii) {
                 if (bsl::isspace(ii)) {
-                    whiteNoise.push_back(char(ii));
+                    whitespaceNoise.push_back(char(ii));
                 }
                 if (!bsl::isalnum(ii)) {
                     if ('+' != ii && '/' != ii) {
                         if ('=' != ii) {
-                            nastyBasicPaddedNoise.push_back(char(ii));
+                            basicPaddedNoise.push_back(char(ii));
                         }
-                        nastyBasicUnpaddedNoise.  push_back(char(ii));
+                        basicUnpaddedNoise.  push_back(char(ii));
                     }
                     if ('-' != ii && '_' != ii) {
                         if ('=' != ii) {
-                            nastyUrlPaddedNoise.  push_back(char(ii));
+                            urlPaddedNoise.  push_back(char(ii));
                         }
-                        nastyUrlUnpaddedNoise.    push_back(char(ii));
+                        urlUnpaddedNoise.    push_back(char(ii));
                     }
                 }
             }
@@ -1776,10 +1789,14 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 
             {
                 typedef bdlde::Base64EncoderOptions EOptions;
+                ASSERT(0 < maxLenFdv.length());
                 EOptions options = EOptions::custom(
-                                      Ignore::e_IGNORE_NONE == IGNORE ? 0 : 12,
-                                      ALPHA,
-                                      PAD);
+                                  Ignore::e_IGNORE_NONE == IGNORE
+                                  ? 0
+                                  : FuzzUtil::consumeNumberInRange(
+                                                            &maxLenFdv, 0, 80),
+                                  ALPHA,
+                                  PAD);
                 bdlde::Base64Encoder encoder(options);
 
                 base64Size = bdlde::Base64Encoder::encodedLength(options,
@@ -1788,7 +1805,11 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 
                 char *out = base64Input.data();
                 int numOut = -1, numIn = -1, endNumOut = -1;
-                int rc = encoder.convert(out, &numOut, &numIn, begin, end);
+                int rc = encoder.convert(out,
+                                         &numOut,
+                                         &numIn,
+                                         binaryInput.begin(),
+                                         binaryInput.end());
                 ASSERT(0 == rc);
                 ASSERT(LENGTH == numIn);
                 ASSERT(numOut <= base64Size);
@@ -1854,28 +1875,23 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
                 else {
                     const bsl::vector<char>& noise =
                                           Ignore::e_IGNORE_WHITESPACE == IGNORE
-                                          ? whiteNoise
+                                          ? whitespaceNoise
                                           : Alpha::e_BASIC == ALPHA
-                                          ? (PAD ? nastyBasicPaddedNoise
-                                                 : nastyBasicUnpaddedNoise)
-                                          : (PAD ? nastyUrlPaddedNoise
-                                                 : nastyUrlUnpaddedNoise);
+                                          ? (PAD ? basicPaddedNoise
+                                                 : basicUnpaddedNoise)
+                                          : (PAD ? urlPaddedNoise
+                                                 : urlUnpaddedNoise);
 
+                    FuzzDataView noiseFdv(NOISE_FDV_MASTER);
                     for (unsigned b64Idx = 0, fuzzIdx = 0;
                               b64Idx < base64Input.size();
                                   ++b64Idx, fuzzIdx = (fuzzIdx + 1) % LENGTH) {
-                        unsigned fuzz     = FUZZ[fuzzIdx] & 0xff;
-                        bool     order    = fuzz & 1;
-                        fuzz              >>= 1;
+                        ASSERT(0 < noiseFdv.length());
 
-                        // originally, 'fuzz' was a 7-bit number, while
-                        // sometimes 'noise.size() > 127' -- we don't want to
-                        // missing out on any possible garbage values.
-
-                        fuzzIdx           = (fuzzIdx + 1) % LENGTH;
-                        fuzz              = (fuzz << 8) |
-                                                        (FUZZ[fuzzIdx] & 0xff);
-                        size_t   noiseIdx = fuzz % noise.size();
+                        bool   order    = FuzzUtil::consumeBool(&noiseFdv);
+                        size_t noiseIdx =
+                                        FuzzUtil::consumeNumberInRange<size_t>(
+                                               &noiseFdv, 0, noise.size() - 1);
 
                         if (order) {
                             noisyInput.push_back(base64Input[b64Idx]);
@@ -1935,10 +1951,9 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 
             {
                 if (2 <= LENGTH) {
-                    const size_t uu = static_cast<short unsigned>(
-                                      (*FUZZ << 8) | (FUZZ[1] & 0xff)) %
-                                                       (noisyInput.size() + 1);
-
+                    ASSERT(0 < equalIdxFdv.length());
+                    const size_t uu = FuzzUtil::consumeNumberInRange<size_t>(
+                                           &equalIdxFdv, 0, noisyInput.size());
                     bsl::vector<char> extraPad(noisyInput);
                     extraPad.insert(extraPad.begin() + uu, '=');
 
@@ -2043,14 +2058,14 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
             const Options& options = Options::custom(IGNORE, ALPHA, PAD);
 
             u::Filter invalidFilter = Alpha::e_BASIC == ALPHA
-                                    ? (Ignore::e_IGNORE_NONE == IGNORE
-                                       ? &u::equalsOrNotBase64Basic
-                                       : &u::equalsOrNotBase64BasicAndNotWhite)
-                                    : (Ignore::e_IGNORE_NONE == IGNORE
-                                       ? &u::equalsOrNotBase64Url
-                                       : &u::equalsOrNotBase64UrlAndNotWhite);
-            bool valid = 0 == bsl::count_if(FUZZ,
-                                            FUZZ + LENGTH,
+                               ? (Ignore::e_IGNORE_NONE == IGNORE
+                                  ? &u::equalsOrNotBase64Basic
+                                  : &u::equalsOrNotBase64BasicAndNotWhitespace)
+                               : (Ignore::e_IGNORE_NONE == IGNORE
+                                  ? &u::equalsOrNotBase64Url
+                                  : &u::equalsOrNotBase64UrlAndNotWhitespace);
+            bool valid = 0 == bsl::count_if(FDV.begin(),
+                                            FDV.end(),
                                             invalidFilter);
 
             u::Filter validFilter = Alpha::e_BASIC == ALPHA
@@ -2059,8 +2074,8 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
                                   : (PAD ? &u::base64OrEqualsUrl
                                          : &u::base64Url);
             const bsl::size_t numSignificantChars = bsl::count_if(
-                                                                 FUZZ,
-                                                                 FUZZ + LENGTH,
+                                                                 FDV.begin(),
+                                                                 FDV.end(),
                                                                  validFilter);
             const int         left = (4 - numSignificantChars % 4) % 4;
 
@@ -2080,10 +2095,14 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
             rc = mX.convert(out,
                             &numOut,
                             &numIn,
-                            FUZZ,
-                            FUZZ + LENGTH);
-            ASSERTV(run, showCharN(FUZZ, LENGTH), rc, valid,
+                            FDV.begin(),
+                            FDV.end());
+            {
+                const char *begin =
+                                   reinterpret_cast<const char *>(FDV.begin());
+                ASSERTV(run, showCharN(begin, LENGTH), rc, valid,
                                                             0 == rc || !valid);
+            }
             ASSERT(numOut <= LENGTH);
             ASSERT(numOut <= maxOutLen);
             ASSERT(numIn  <= LENGTH);
@@ -2122,7 +2141,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 
             if (0 == rc && 0 == rc2 && 0 == rc3) {
                 bsl::vector<char> significantInput;
-                for (const char *pc = FUZZ; pc < FUZZ + LENGTH; ++pc) {
+                for (const uint8_t *pc = FDV.begin(); pc < FDV.end(); ++pc) {
                     if ((*validFilter)(*pc)) {
                         significantInput.push_back(*pc);
                     }
@@ -2222,6 +2241,8 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
             ASSERT(1 == bsl::count(urlStr + 0, urlStr + 64, *pc));
         }
 
+        FuzzDataView noiseFdv(NOISE_FDV_MASTER);
+
         bool done = false;
         for (int ti = 0; ti < 2 * 2; ++ti) {
             int tti = ti;
@@ -2248,8 +2269,11 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 
             bsl::vector<char> inputVec;
             inputVec.reserve(LENGTH + 3);
-            for (const char *pc = FUZZ; pc < FUZZ + LENGTH; ++pc) {
-                const int idx = (*pc & 0x3f) ^ ((*pc >> 6) & 3);
+            FuzzDataView inputVecFdv(FDV);
+            while (0 < inputVecFdv.length()) {
+                const int idx = FuzzUtil::consumeNumberInRange(&inputVecFdv,
+                                                               0,
+                                                               63);
                 inputVec.push_back(alphaStr[idx]);
             }
 
@@ -2260,8 +2284,8 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
                 toFill = PAD ? toFill : 1;
 
                 const char * const patterns[] = { "A==", "Q==", "g==", "w==" };
-                const unsigned char f = *FUZZ;
-                const unsigned idx = (f ^ (f >> 2) ^ (f >> 4) ^ (f >> 6)) & 3;
+                const unsigned idx = FuzzUtil::consumeNumberInRange(
+                                                              &noiseFdv, 0, 3);
                 const char * const pattern = patterns[idx];
 
                 inputVec.insert(inputVec.end(), pattern, pattern + toFill);
@@ -2367,12 +2391,22 @@ void testCase##NUMBER(bool verbose,                                           \
 
 DEFINE_TEST_CASE(14)
 {
+    // ------------------------------------------------------------------------
+    // U_ENABLE_DEPRECATIONS IS DISABLED
+    //
+    // Concern:
+    //: 1 That we don't ship with 'U_ENABLE_DEPRECATIONS' set.
+    //
+    // Testing:
+    //   0 == U_ENABLE_DEPRECATIONS
+    // ------------------------------------------------------------------------
+
     (void)veryVeryVeryVerbose;
     (void)veryVeryVerbose;
     (void)veryVerbose;
     (void)verbose;
 
-    ASSERT(U_USE_DEPRECATED);
+    ASSERT(0 == U_ENABLE_DEPRECATIONS);
 }
 
 DEFINE_TEST_CASE(13)
@@ -2388,16 +2422,18 @@ DEFINE_TEST_CASE(13)
     // Concerns:
     //: 1 Decoder can parse unpadded input in unpadded mode.
     //:
-    //: 2 In unpadded mode, an '=' sign in input is illegal, whether
-    //:   'unrecognizedIsError' is set or not.
+    //: 2 In unpadded mode, an '=' sign in input is illegal, unless ignore mode
+    //:   is 'e_IGNORE_UNRECOGNIZED'.
     //:
-    //: 3 White space in the input is always ignored.
+    //: 3 White space in the input is always ignored unless ignore mode is
+    //:   'e_IGNORE_NONE'.
     //:
-    //: 4 If 'unrecognizedIsError' is 'false', invalid characters in input
-    //:   other than '=' are ignored.
+    //: 4 If ignore mode is 'e_IGNORE_UNRECOGNIZED', invalid characters in
+    //:   input are ignored, and if padding is not specified, '=' is ignored as
+    //:   an unrecognized character.
     //:
-    //: 5 If 'unrecognizedIsError' is 'true', invalid characters in input other
-    //:   than '=' result in an error.
+    //: 5 If ignore mode is 'e_IGNORE_WHITE', whitespace (and nothing else) is
+    //:   ignored.
     //:
     //: 6 If an input sequence will result in successful parsing, parsing it in
     //:   pieces limited by the pointer pair passed yields the same result as
@@ -2429,7 +2465,7 @@ DEFINE_TEST_CASE(13)
     //:
     //:   o INJECT_WHITESPACE
     //:
-    //:   o U_IS_ERR (unrecognizedIsError)
+    //:   o IGNORE (bdlde::Base64IgnoreMode::Enum)
     //:
     //:   o URL (encoding is URL)
     //:
@@ -2446,13 +2482,12 @@ DEFINE_TEST_CASE(13)
     //:     outcome.
     //:
     //:   o 'u::Randgen::injectGarbage': inject invalid non-whitespace
-    //:     characters into the input.  If the decoder is configured with
-    //:     'unrecognizedIsError' flag, this will result in an error, otherwise
-    //:     these characters will be ignored, unless the byte is '=' in which
-    //:     case it is always an error.
+    //:     characters into the input.  If the decoder is not configured with
+    //:     the 'e_IGNORE_UNRECOGNIZED' flag, this will result in an error,
+    //:     otherwise these characters will be ignored.
     //:
     //: 4 Create a decoder object, with the options configured to include
-    //:   'U_IS_ERR', 'URL', and 'PAD'.
+    //:   'IGNORE', 'URL', and 'PAD'.
     //:
     //: 5 Call 'convert' and 'endConvert' to do the translation, and when
     //:   success is expected, compare the decoded result with the expected
@@ -2460,11 +2495,10 @@ DEFINE_TEST_CASE(13)
     //:
     //: 6 Do a series of these loops testing for different things:
     //:
-    //:   o Input contains no garbage, decoder configured for
-    //:     'unrecognizedIsError'.  Should always succeed.
+    //:   o Input contains no garbage,  Should always succeed.
     //:
-    //:   o Input contains garbage, results in error when decoder configured
-    //:     'unrecognizedIsError', results in no error otherwise.
+    //:   o Input contains garbage, results in error when decoder not
+    //:     configured 'e_IGNORE_UNRECOGNIZED', results in no error otherwise.
     //:
     //:   o Input is parsed in random pieces, limit of parsing done by the
     //:     range passed to input.  Always succeed.
@@ -2718,8 +2752,8 @@ DEFINE_TEST_CASE(13)
 
         if (veryVerbose) P(inPadded);
 
-        enum { k_REPITITIONS = 32 };
-        for (int tj = 0; tj < k_REPITITIONS; ++tj) {
+        enum { k_REPETITIONS = 32 };
+        for (int tj = 0; tj < k_REPETITIONS; ++tj) {
             bool done = false;
             enum { k_INNER_LOOP_COUNT = 2 * 2 * 2 * 2 * 3 };
             for (int wi = 0; wi < k_INNER_LOOP_COUNT; ++wi) {
@@ -2942,11 +2976,11 @@ DEFINE_TEST_CASE(13)
 
         if (veryVerbose) P(inPadded);
 
-        enum { k_REPITITIONS = 4 };
-        for (int tj = 0; tj < k_REPITITIONS; ++tj) {
+        enum { k_REPETITIONS = 4 };
+        for (int tj = 0; tj < k_REPETITIONS; ++tj) {
             bool done = false;
-            enum { k_INNER_LOOP_COUNT = 16 * 4 };
-            for (int wi = 0; wi < 16; ++wi) {
+            enum { k_INNER_LOOP_COUNT = 2 * 2 * 2 *2 };
+            for (int wi = 0; wi < k_INNER_LOOP_COUNT; ++wi) {
                 int wwi = wi;
                 const bool INJECT_WHITESPACE = wwi % 2; wwi /= 2;
                 const bool INJECT_GARBAGE    = wwi % 2; wwi /= 2;
@@ -3339,28 +3373,12 @@ DEFINE_TEST_CASE(12)
                                                                 Alpha::e_BASIC,
                                                                 true);
             (void) eOptions;
-#if U_USE_DEPRECATED
             bdlde::Base64Encoder encoder(maxLineLength);
-#else
-            bdlde::Base64Encoder encoder(eOptions);
-#endif
 
-#if U_USE_DEPRECATED
             Obj decoder(true);
-#else
-            const Options& options = Options::custom(
-                                                   Ignore::e_IGNORE_WHITESPACE,
-                                                   Alpha::e_BASIC,
-                                                   true);
-            Obj decoder(options);
-#endif
 
             int   origSize = static_cast<int>(strlen(sample));
-#if U_USE_DEPRECATED
             int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
-#else
-            int   encodedLen = encoder.encodedLength(eOptions, origSize);
-#endif
             char *encoded = new char[encodedLen];
             int   maxDecodedLen = decoder.maxDecodedLength(encodedLen);
             char *decoded = new char[maxDecodedLen] ;
@@ -3415,28 +3433,12 @@ DEFINE_TEST_CASE(12)
                                                                 Alpha::e_BASIC,
                                                                 true);
             (void) eOptions;
-#if U_USE_DEPRECATED
             bdlde::Base64Encoder encoder(maxLineLength);
-#else
-            bdlde::Base64Encoder encoder(eOptions);
-#endif
 
-#if U_USE_DEPRECATED
             Obj decoder(true);
-#else
-            const Options& options = Options::custom(
-                                                   Ignore::e_IGNORE_WHITESPACE,
-                                                   Alpha::e_BASIC,
-                                                   true);
-            Obj decoder(options);
-#endif
 
             int   origSize = static_cast<int>(strlen(sample));
-#if U_USE_DEPRECATED
             int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
-#else
-            int   encodedLen = encoder.encodedLength(eOptions, origSize);
-#endif
             char *encoded = new char[encodedLen];
             int   maxDecodedLen = decoder.maxDecodedLength(encodedLen);
             char *decoded = new char[maxDecodedLen] ;
@@ -3492,28 +3494,12 @@ DEFINE_TEST_CASE(12)
                                                                 Alpha::e_BASIC,
                                                                 true);
             (void) eOptions;
-#if U_USE_DEPRECATED
             bdlde::Base64Encoder encoder(maxLineLength);
-#else
-            bdlde::Base64Encoder encoder(eOptions);
-#endif
 
-#if U_USE_DEPRECATED
             Obj decoder(true);
-#else
-            const Options& options = Options::custom(
-                                                   Ignore::e_IGNORE_WHITESPACE,
-                                                   Alpha::e_BASIC,
-                                                   true);
-            Obj decoder(options);
-#endif
 
             int   origSize = static_cast<int>(strlen(sample));
-#if U_USE_DEPRECATED
             int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
-#else
-            int   encodedLen = encoder.encodedLength(eOptions, origSize);
-#endif
             char *encoded = new char[encodedLen];
             int   maxDecodedLen = decoder.maxDecodedLength(encodedLen);
             char *decoded = new char[maxDecodedLen] ;
@@ -3569,21 +3555,9 @@ DEFINE_TEST_CASE(12)
                                                                 Alpha::e_BASIC,
                                                                 true);
             (void) eOptions;
-#if U_USE_DEPRECATED
             bdlde::Base64Encoder encoder(maxLineLength);
-#else
-            bdlde::Base64Encoder encoder(eOptions);
-#endif
 
-#if U_USE_DEPRECATED
             Obj decoder(true);
-#else
-            const Options& options = Options::custom(
-                                                   Ignore::e_IGNORE_WHITESPACE,
-                                                   Alpha::e_BASIC,
-                                                   true);
-            Obj decoder(options);
-#endif
 
             int   origSize = static_cast<int>(strlen(sample));
             int   encodedLen = encoder.encodedLength(eOptions, origSize);
@@ -3641,28 +3615,12 @@ DEFINE_TEST_CASE(12)
                                                                 Alpha::e_BASIC,
                                                                 true);
             (void) eOptions;
-#if U_USE_DEPRECATED
             bdlde::Base64Encoder encoder(maxLineLength);
-#else
-            bdlde::Base64Encoder encoder(eOptions);
-#endif
 
             int   origSize = static_cast<int>(strlen(sample));
-#if U_USE_DEPRECATED
             int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
-#else
-            int   encodedLen = encoder.encodedLength(eOptions, origSize);
-#endif
 
-#if U_USE_DEPRECATED
             Obj decoder(false);
-#else
-            const Options& options = Options::custom(
-                                                 Ignore::e_IGNORE_UNRECOGNIZED,
-                                                 Alpha::e_BASIC,
-                                                 true);
-            Obj decoder(options);
-#endif
 
             char *encoded = new char[encodedLen];
             int   maxDecodedLen = Obj::maxDecodedLength(encodedLen);
@@ -3718,21 +3676,9 @@ DEFINE_TEST_CASE(12)
                                                                 Alpha::e_BASIC,
                                                                 true);
             (void) eOptions;
-#if U_USE_DEPRECATED
             bdlde::Base64Encoder encoder(maxLineLength);
-#else
-            bdlde::Base64Encoder encoder(eOptions);
-#endif
 
-#if U_USE_DEPRECATED
             Obj decoder(true);
-#else
-            const Options& options = Options::custom(
-                                                   Ignore::e_IGNORE_WHITESPACE,
-                                                   Alpha::e_BASIC,
-                                                   true);
-            Obj decoder(options);
-#endif
 
             int   origSize = static_cast<int>(strlen(sample));
             int   encodedLen = encoder.encodedLength(eOptions, origSize);
@@ -3793,20 +3739,8 @@ DEFINE_TEST_CASE(12)
                                                                 Alpha::e_BASIC,
                                                                 true);
             (void) eOptions;
-#if U_USE_DEPRECATED
             bdlde::Base64Encoder encoder(maxLineLength);
-#else
-            bdlde::Base64Encoder encoder(eOptions);
-#endif
-            const Options& options = Options::custom(
-                                                   Ignore::e_IGNORE_WHITESPACE,
-                                                   Alpha::e_BASIC,
-                                                   true);
-#if U_USE_DEPRECATED
             Obj decoder(true);
-#else
-            Obj decoder(options);
-#endif
 
             int   origSize = static_cast<int>(strlen(sample));
             int   encodedLen = encoder.encodedLength(eOptions, origSize);
@@ -3863,22 +3797,9 @@ DEFINE_TEST_CASE(12)
                                                                 Alpha::e_BASIC,
                                                                 true);
             (void) eOptions;
-#if U_USE_DEPRECATED
             bdlde::Base64Encoder encoder(maxLineLength);
-#else
-            bdlde::Base64Encoder encoder(eOptions);
-#endif
 
-            const Options& options = Options::custom(
-                                                   Ignore::e_IGNORE_WHITESPACE,
-                                                   Alpha::e_BASIC,
-                                                   true);
-#if U_USE_DEPRECATED
             Obj decoder(true);
-#else
-            Obj decoder(options);
-#endif
-
 
             int   origSize = static_cast<int>(strlen(sample));
             int   encodedLen = encoder.encodedLength(eOptions, origSize);
@@ -4023,15 +3944,7 @@ DEFINE_TEST_CASE(10)
         if (verbose) cout << "\tWith 'isUnregnizeAndError' = false." << endl;
         {
             for (int i = 0; i < NUM_STATES; ++i) {
-#if U_USE_DEPRECATED
                 Obj obj(false);
-#else
-                const Options& options = Options::custom(
-                                                 Ignore::e_IGNORE_UNRECOGNIZED,
-                                                 Alpha::e_BASIC,
-                                                 true);
-                Obj obj(options);
-#endif
                 if (verbose) cout << "\t\t" << STATE_NAMES[i] << '.' << endl;
                 setState(&obj, i);
                 const bool SAME = INITIAL_STATE == i;
@@ -4040,9 +3953,7 @@ DEFINE_TEST_CASE(10)
                 obj.resetState();
                 LOOP_ASSERT(i, 1 == isState(&obj, INITIAL_STATE));
 
-#if U_USE_DEPRECATED
                 ASSERT(0 == obj.isUnrecognizedAnError());
-#endif
                 ASSERT(Ignore::e_IGNORE_UNRECOGNIZED ==
                                                    obj.options().ignoreMode());
             }
@@ -4051,15 +3962,7 @@ DEFINE_TEST_CASE(10)
         if (verbose) cout << "\tWith 'isUnregnizeAndError' = true." << endl;
         {
             for (int i = 0; i < NUM_STATES; ++i) {
-#if U_USE_DEPRECATED
                 Obj obj(true);
-#else
-                const Options& options = Options::custom(
-                                                   Ignore::e_IGNORE_WHITESPACE,
-                                                   Alpha::e_BASIC,
-                                                   true);
-                Obj obj(options);
-#endif
                 if (verbose) cout << "\t\t" << STATE_NAMES[i] << '.' << endl;
                 setState(&obj, i);
                 const bool SAME = INITIAL_STATE == i;
@@ -4068,9 +3971,7 @@ DEFINE_TEST_CASE(10)
                 obj.resetState();
                 LOOP_ASSERT(i, 1 == isState(&obj, INITIAL_STATE));
 
-#if U_USE_DEPRECATED
                 ASSERT(1 == obj.isUnrecognizedAnError());
-#endif
                 ASSERT(Ignore::e_IGNORE_WHITESPACE ==
                                                    obj.options().ignoreMode());
             }
@@ -5070,19 +4971,9 @@ DEFINE_TEST_CASE(9)
 
                 const bool MODE = false; (void) MODE;    // Relaxed Mode
 
-#if U_USE_DEPRECATED
                 Obj obj(MODE);  // object under test.
                 Obj obj1(MODE); // control for validating S1
                 Obj obj2(MODE); // control for validating S2
-#else
-                const Options& options = Options::custom(
-                                                 Ignore::e_IGNORE_UNRECOGNIZED,
-                                                 Alpha::e_BASIC,
-                                                 true);
-                Obj obj(options);  // object under test.
-                Obj obj1(options); // control for validating S1
-                Obj obj2(options); // control for validating S2
-#endif
 
                 const int newDepth = LEN1 + LIMIT1;
 
@@ -6014,21 +5905,9 @@ DEFINE_TEST_CASE(8)
                 const int OUTPUT_BUFFER_SIZE = 100; // overrun will be detected
                 const int TRAILING_OUTPUT_WINDOW = 30; // detect extra output
 
-#if U_USE_DEPRECATED
                 Obj obj(MODE);  // MODE ? STRICT : RELAXED.
                 Obj obj1(MODE); // control for validating S1
                 Obj obj2(MODE); // control for validating S2
-#else
-                const Options& options = Options::custom(
-                                               MODE
-                                               ? Ignore::e_IGNORE_WHITESPACE
-                                               : Ignore::e_IGNORE_UNRECOGNIZED,
-                                               Alpha::e_BASIC,
-                                               true);
-                Obj obj(options);  // MODE ? STRICT : RELAXED.
-                Obj obj1(options); // control for validating S1
-                Obj obj2(options); // control for validating S2
-#endif
 
                 const int newDepth = LENGTH;
 
@@ -6159,11 +6038,7 @@ DEFINE_TEST_CASE(8)
 
                     // Prepare for first call to 'convert'.
 
-#if U_USE_DEPRECATED
                     Obj               localObj(MODE);
-#else
-                    Obj               localObj(options);
-#endif
                     const char *const M = B + index;
                     char              localBuf[sizeof outputBuffer];
                     memset(localBuf, '$', sizeof localBuf);
@@ -6377,15 +6252,7 @@ DEFINE_TEST_CASE(7)
                     if (veryVeryVerbose) { T_ T_ P(i) }
                     input[INPUT_INDEX] = char(i);
 
-#if U_USE_DEPRECATED
                     Obj obj(false, ALPHABET); // Relaxed Mode.
-#else
-                    const Options& options = Options::custom(
-                                                 Ignore::e_IGNORE_UNRECOGNIZED,
-                                                 ALPHABET,
-                                                 true);
-                    Obj obj(options);
-#endif
 
                     obj.convert(b, &nOut, &nIn, B, E);
                     LOOP2_ASSERT(LINE, i, VALID == (3 == nOut));
@@ -6450,15 +6317,7 @@ DEFINE_TEST_CASE(7)
                     if (veryVeryVerbose) { T_ T_ P(i) }
                     input[INPUT_INDEX] = char(i);
 
-#if U_USE_DEPRECATED
                     Obj obj(true); // Strict Mode.
-#else
-                    const Options& options = Options::custom(
-                                                   Ignore::e_IGNORE_WHITESPACE,
-                                                   Alpha::e_BASIC,
-                                                   true);
-                    Obj obj(options);
-#endif
 
                     obj.convert(b, &nOut, &nIn, B, E);
                     bool stillInitial = isState(&obj, INITIAL_STATE);
@@ -6543,15 +6402,7 @@ DEFINE_TEST_CASE(7)
                     if (veryVeryVerbose) { T_ T_ P(i) }
                     input[INPUT_INDEX] = char(i);
 
-#if U_USE_DEPRECATED
                     Obj obj(false, ALPHABET); // Relaxed Mode.
-#else
-                    const Options& options = Options::custom(
-                                                 Ignore::e_IGNORE_UNRECOGNIZED,
-                                                 ALPHABET,
-                                                 true);
-                    Obj obj(options);
-#endif
 
                     obj.convert(b, &nOut, &nIn, B, E);
                     bool stillInitial = isState(&obj, INITIAL_STATE);
@@ -6619,15 +6470,7 @@ DEFINE_TEST_CASE(7)
 
                     int  nOut = -1;
                     char b[1] = { ff };
-#if U_USE_DEPRECATED
                     Obj obj(false); // Do this test in Relaxed mode.
-#else
-                    const Options& options = Options::custom(
-                                                 Ignore::e_IGNORE_UNRECOGNIZED,
-                                                 Alpha::e_BASIC,
-                                                 true);
-                    Obj obj(options);
-#endif
                     const int res = obj.convert(b, &nOut, &nIn, B, E);
                     if (VALID) {
                         LOOP3_ASSERT(LINE, i, res,  0 == res);
@@ -6651,15 +6494,7 @@ DEFINE_TEST_CASE(7)
 
                     int  nOut = -1;
                     char b[1] = { ff };
-#if U_USE_DEPRECATED
                     Obj  obj(false, URL); // Do this test in Relaxed mode.
-#else
-                    const Options& options = Options::custom(
-                                                 Ignore::e_IGNORE_UNRECOGNIZED,
-                                                 URL,
-                                                 true);
-                    Obj obj(options);
-#endif
 
                     const int res = obj.convert(b, &nOut, &nIn, B, E);
                     if (VALID) {
@@ -6765,15 +6600,7 @@ DEFINE_TEST_CASE(7)
 
                     int  nOut = -1;
                     char b[2] = { ff, ff };
-#if U_USE_DEPRECATED
                     Obj  obj(true); // Do this test in Strict Mode.
-#else
-                    const Options& options = Options::custom(
-                                                   Ignore::e_IGNORE_WHITESPACE,
-                                                   Alpha::e_BASIC,
-                                                   true);
-                    Obj obj(options);
-#endif
 
                     const int res = obj.convert(b, &nOut, &nIn, B, E);
                     LOOP3_ASSERT(LINE, i, nOut,
@@ -6788,15 +6615,7 @@ DEFINE_TEST_CASE(7)
 
                     int  nOut = -1;
                     char b[2] = { ff, ff };
-#if U_USE_DEPRECATED
                     Obj  obj(true, URL); // Do this test in Strict Mode.
-#else
-                    const Options& options = Options::custom(
-                                                   Ignore::e_IGNORE_WHITESPACE,
-                                                   URL,
-                                                   true);
-                    Obj obj(options);
-#endif
 
                     const int res = obj.convert(b, &nOut, &nIn, B, E);
                     LOOP3_ASSERT(LINE, i, nOut,
@@ -6875,15 +6694,7 @@ DEFINE_TEST_CASE(7)
                     int  nOut = -1;
                     int  nIn = -1;
                     input[INPUT_INDEX] = c;
-#if U_USE_DEPRECATED
                     Obj obj(false, ALPHABET ); // Do test in Relaxed Mode.
-#else
-                    const Options& options = Options::custom(
-                                                 Ignore::e_IGNORE_UNRECOGNIZED,
-                                                 ALPHABET,
-                                                 true);
-                    Obj obj(options);
-#endif
 
                     const int res = obj.convert(b, &nOut, &nIn, B, E);
 
@@ -7204,15 +7015,7 @@ DEFINE_TEST_CASE(5)
                 const char *const B          = INPUT;
                 const char *const E          = B + LENGTH;
 
-#if U_USE_DEPRECATED
                 Obj obj(false);
-#else
-                const Options& options = Options::custom(
-                                                 Ignore::e_IGNORE_UNRECOGNIZED,
-                                                 Alpha::e_BASIC,
-                                                 true);
-                Obj obj(options);
-#endif
 
                 if (LENGTH != lastInputLength) {
                     if (verbose) cout << '\t' << LENGTH << " input character"
@@ -7297,15 +7100,7 @@ DEFINE_TEST_CASE(4)
                 const int END   = DATA[ti].d_endState;
                 const int RTN = -(ERROR_STATE == END);
 
-#if U_USE_DEPRECATED
                 Obj obj(false);
-#else
-                const Options& options = Options::custom(
-                                                 Ignore::e_IGNORE_UNRECOGNIZED,
-                                                 Alpha::e_BASIC,
-                                                 true);
-                Obj obj(options);
-#endif
 
                 if (verbose) cout << '\t' << STATE_NAMES[START] << '.' << endl;
                 if (veryVerbose) cout <<
@@ -7387,19 +7182,9 @@ DEFINE_TEST_CASE(3)
         {
                 if (verbose) cout << "\tINITIAL_STATE." << endl;
 
-#if U_USE_DEPRECATED
                 Obj obj(true);
-#else
-                const Options& options = Options::custom(
-                                                   Ignore::e_IGNORE_WHITESPACE,
-                                                   Alpha::e_BASIC,
-                                                   true);
-                Obj obj(options);
-#endif
 
-#if U_USE_DEPRECATED
                 ASSERT(1 == obj.isUnrecognizedAnError());
-#endif
                 ASSERT(Ignore::e_IGNORE_WHITESPACE ==
                                                    obj.options().ignoreMode());
                 ASSERT(1 == obj.isAcceptable());
@@ -7416,20 +7201,10 @@ DEFINE_TEST_CASE(3)
 
             if (verbose) cout << "\tINITIAL_STATE." << endl;
             {
-#if U_USE_DEPRECATED
                 Obj obj(true);
-#else
-                const Options& options = Options::custom(
-                                                   Ignore::e_IGNORE_WHITESPACE,
-                                                   Alpha::e_BASIC,
-                                                   true);
-                Obj obj(options);
-#endif
                 setState(&obj, INITIAL_STATE);
 
-#if U_USE_DEPRECATED
                 ASSERT(1 == obj.isUnrecognizedAnError());
-#endif
                 ASSERT(Ignore::e_IGNORE_WHITESPACE ==
                                                    obj.options().ignoreMode());
                 ASSERT(1 == obj.isAcceptable());
@@ -7443,9 +7218,7 @@ DEFINE_TEST_CASE(3)
                 int  numOut = -1;
                 int  result = obj.endConvert(b, &numOut);
 
-#if U_USE_DEPRECATED
                 ASSERT(1 == obj.isUnrecognizedAnError());
-#endif
                 ASSERT(Ignore::e_IGNORE_WHITESPACE ==
                                                    obj.options().ignoreMode());
                 ASSERT(1 == obj.isAcceptable());
@@ -7463,20 +7236,10 @@ DEFINE_TEST_CASE(3)
 
             if (verbose) cout << "\tState 1." << endl;
             {
-#if U_USE_DEPRECATED
                 Obj obj(true);
-#else
-                const Options& options = Options::custom(
-                                                   Ignore::e_IGNORE_WHITESPACE,
-                                                   Alpha::e_BASIC,
-                                                   true);
-                Obj obj(options);
-#endif
                 setState(&obj, STATE_ONE);
 
-#if U_USE_DEPRECATED
                 ASSERT(1 == obj.isUnrecognizedAnError());
-#endif
                 ASSERT(Ignore::e_IGNORE_WHITESPACE ==
                                                    obj.options().ignoreMode());
                 ASSERT(0 == obj.isAcceptable());
@@ -7496,9 +7259,7 @@ DEFINE_TEST_CASE(3)
                 int result = obj.convert(b, &numOut, &numIn, B, E);
 
                 // State 2.
-#if U_USE_DEPRECATED
                 ASSERT(1 == obj.isUnrecognizedAnError());
-#endif
                 ASSERT(Ignore::e_IGNORE_WHITESPACE ==
                                                    obj.options().ignoreMode());
                 ASSERT(0 == obj.isAcceptable());
@@ -7516,9 +7277,7 @@ DEFINE_TEST_CASE(3)
                 result = obj.convert(b + 1, &numOut, &numIn, B, E);
 
                 // State 3.
-#if U_USE_DEPRECATED
                 ASSERT(1 == obj.isUnrecognizedAnError());
-#endif
                 ASSERT(Ignore::e_IGNORE_WHITESPACE ==
                                                    obj.options().ignoreMode());
                 ASSERT(0 == obj.isAcceptable());
@@ -7536,9 +7295,7 @@ DEFINE_TEST_CASE(3)
                 result = obj.convert(b + 2, &numOut, &numIn, B, E);
 
                 // State 4.
-#if U_USE_DEPRECATED
                 ASSERT(1 == obj.isUnrecognizedAnError());
-#endif
                 ASSERT(Ignore::e_IGNORE_WHITESPACE ==
                                                    obj.options().ignoreMode());
                 ASSERT(1 == obj.isAcceptable());
@@ -7556,20 +7313,10 @@ DEFINE_TEST_CASE(3)
 
             if (verbose) cout << "\tState 2." << endl;
             {
-#if U_USE_DEPRECATED
                 Obj obj(true);
-#else
-                const Options& options = Options::custom(
-                                                   Ignore::e_IGNORE_WHITESPACE,
-                                                   Alpha::e_BASIC,
-                                                   true);
-                Obj obj(options);
-#endif
                 setState(&obj, STATE_TWO);
 
-#if U_USE_DEPRECATED
                 ASSERT(1 == obj.isUnrecognizedAnError());
-#endif
                 ASSERT(Ignore::e_IGNORE_WHITESPACE ==
                                                    obj.options().ignoreMode());
                 ASSERT(0 == obj.isAcceptable());
@@ -7589,9 +7336,7 @@ DEFINE_TEST_CASE(3)
                 int result = obj.convert(b + 1, &numOut, &numIn, B, E);
 
                 // State 3.
-#if U_USE_DEPRECATED
                 ASSERT(1 == obj.isUnrecognizedAnError());
-#endif
                 ASSERT(Ignore::e_IGNORE_WHITESPACE ==
                                                    obj.options().ignoreMode());
                 ASSERT(0 == obj.isAcceptable());
@@ -7609,9 +7354,7 @@ DEFINE_TEST_CASE(3)
                 result = obj.convert(b + 2, &numOut, &numIn, B, E);
 
                 // State 4.
-#if U_USE_DEPRECATED
                 ASSERT(1 == obj.isUnrecognizedAnError());
-#endif
                 ASSERT(Ignore::e_IGNORE_WHITESPACE ==
                                                    obj.options().ignoreMode());
                 ASSERT(1 == obj.isAcceptable());
@@ -7629,20 +7372,10 @@ DEFINE_TEST_CASE(3)
 
             if (verbose) cout << "\tState 3." << endl;
             {
-#if U_USE_DEPRECATED
                 Obj obj(true);
-#else
-                const Options& options = Options::custom(
-                                                   Ignore::e_IGNORE_WHITESPACE,
-                                                   Alpha::e_BASIC,
-                                                   true);
-                Obj obj(options);
-#endif
                 setState(&obj, STATE_THREE);
 
-#if U_USE_DEPRECATED
                 ASSERT(1 == obj.isUnrecognizedAnError());
-#endif
                 ASSERT(Ignore::e_IGNORE_WHITESPACE ==
                                                    obj.options().ignoreMode());
                 ASSERT(0 == obj.isAcceptable());
@@ -7662,9 +7395,7 @@ DEFINE_TEST_CASE(3)
                 int result = obj.convert(b + 2, &numOut, &numIn, B, E);
 
                 // State 4.
-#if U_USE_DEPRECATED
                 ASSERT(1 == obj.isUnrecognizedAnError());
-#endif
                 ASSERT(Ignore::e_IGNORE_WHITESPACE ==
                                                    obj.options().ignoreMode());
                 ASSERT(1 == obj.isAcceptable());
@@ -7682,20 +7413,10 @@ DEFINE_TEST_CASE(3)
 
             if (verbose) cout << "\tState 4." << endl;
             {
-#if U_USE_DEPRECATED
                 Obj obj(true);
-#else
-                const Options& options = Options::custom(
-                                                   Ignore::e_IGNORE_WHITESPACE,
-                                                   Alpha::e_BASIC,
-                                                   true);
-                Obj obj(options);
-#endif
                 setState(&obj, STATE_FOUR);
 
-#if U_USE_DEPRECATED
                 ASSERT(1 == obj.isUnrecognizedAnError());
-#endif
                 ASSERT(Ignore::e_IGNORE_WHITESPACE ==
                                                    obj.options().ignoreMode());
                 ASSERT(1 == obj.isAcceptable());
@@ -7715,9 +7436,7 @@ DEFINE_TEST_CASE(3)
                 int result = obj.convert(b, &numOut, &numIn, B, E);
 
                 // State 1.
-#if U_USE_DEPRECATED
                 ASSERT(1 == obj.isUnrecognizedAnError());
-#endif
                 ASSERT(Ignore::e_IGNORE_WHITESPACE ==
                                                    obj.options().ignoreMode());
                 ASSERT(0 == obj.isAcceptable());
@@ -7735,20 +7454,10 @@ DEFINE_TEST_CASE(3)
 
             if (verbose) cout << "\tDONE_STATE." << endl;
             {
-#if U_USE_DEPRECATED
                 Obj obj(true);
-#else
-                const Options& options = Options::custom(
-                                                   Ignore::e_IGNORE_WHITESPACE,
-                                                   Alpha::e_BASIC,
-                                                   true);
-                Obj obj(options);
-#endif
                 setState(&obj, DONE_STATE);
 
-#if U_USE_DEPRECATED
                 ASSERT(1 == obj.isUnrecognizedAnError());
-#endif
                 ASSERT(Ignore::e_IGNORE_WHITESPACE ==
                                                    obj.options().ignoreMode());
                 ASSERT(1 == obj.isAcceptable());
@@ -7768,9 +7477,7 @@ DEFINE_TEST_CASE(3)
                 int result = obj.convert(b, &numOut, &numIn, B, E);
 
                 // ERROR_STATE
-#if U_USE_DEPRECATED
                 ASSERT(1 == obj.isUnrecognizedAnError());
-#endif
                 ASSERT(Ignore::e_IGNORE_WHITESPACE ==
                                                    obj.options().ignoreMode());
                 ASSERT(0 == obj.isAcceptable());
@@ -7788,20 +7495,10 @@ DEFINE_TEST_CASE(3)
 
             if (verbose) cout << "\tSOFT_DONE_STATE." << endl;
             {
-#if U_USE_DEPRECATED
                 Obj obj(true);
-#else
-                const Options& options = Options::custom(
-                                                   Ignore::e_IGNORE_WHITESPACE,
-                                                   Alpha::e_BASIC,
-                                                   true);
-                Obj obj(options);
-#endif
                 setState(&obj, SOFT_DONE_STATE);
 
-#if U_USE_DEPRECATED
                 ASSERT(1 == obj.isUnrecognizedAnError());
-#endif
                 ASSERT(Ignore::e_IGNORE_WHITESPACE ==
                                                    obj.options().ignoreMode());
                 ASSERT(1 == obj.isAcceptable());
@@ -7816,9 +7513,7 @@ DEFINE_TEST_CASE(3)
                 int  result = obj.endConvert(b, &numOut);
 
                 // DONE_STATE
-#if U_USE_DEPRECATED
                 ASSERT(1 == obj.isUnrecognizedAnError());
-#endif
                 ASSERT(Ignore::e_IGNORE_WHITESPACE ==
                                                    obj.options().ignoreMode());
                 ASSERT(1 == obj.isAcceptable());
@@ -7838,20 +7533,10 @@ DEFINE_TEST_CASE(3)
 
             if (verbose) cout << "\tSAW_ONE_EQUAL." << endl;
             {
-#if U_USE_DEPRECATED
                 Obj obj(true);
-#else
-                const Options& options = Options::custom(
-                                                   Ignore::e_IGNORE_WHITESPACE,
-                                                   Alpha::e_BASIC,
-                                                   true);
-                Obj obj(options);
-#endif
                 setState(&obj, SAW_ONE_EQUAL);
 
-#if U_USE_DEPRECATED
                 ASSERT(1 == obj.isUnrecognizedAnError());
-#endif
                 ASSERT(Ignore::e_IGNORE_WHITESPACE ==
                                                    obj.options().ignoreMode());
                 ASSERT(0 == obj.isAcceptable());
@@ -7872,9 +7557,7 @@ DEFINE_TEST_CASE(3)
                 int result = obj.convert(b, &numOut, &numIn, B, E);
 
                 // SOFT_DONE_STATE
-#if U_USE_DEPRECATED
                 ASSERT(1 == obj.isUnrecognizedAnError());
-#endif
                 ASSERT(Ignore::e_IGNORE_WHITESPACE ==
                                                    obj.options().ignoreMode());
                 ASSERT(1 == obj.isAcceptable());
@@ -7892,20 +7575,10 @@ DEFINE_TEST_CASE(3)
 
             if (verbose) cout << "\tERROR_STATE." << endl;
             {
-#if U_USE_DEPRECATED
                 Obj obj(true);
-#else
-                const Options& options = Options::custom(
-                                                   Ignore::e_IGNORE_WHITESPACE,
-                                                   Alpha::e_BASIC,
-                                                   true);
-                Obj obj(options);
-#endif
                 setState(&obj, ERROR_STATE);
 
-#if U_USE_DEPRECATED
                 ASSERT(1 == obj.isUnrecognizedAnError());
-#endif
                 ASSERT(Ignore::e_IGNORE_WHITESPACE ==
                                                    obj.options().ignoreMode());
                 ASSERT(0 == obj.isAcceptable());
@@ -7926,9 +7599,7 @@ DEFINE_TEST_CASE(3)
                 int result = obj.convert(b, &numOut, &numIn, B, E);
 
                 // ERROR_STATE
-#if U_USE_DEPRECATED
                 ASSERT(1 == obj.isUnrecognizedAnError());
-#endif
                 ASSERT(Ignore::e_IGNORE_WHITESPACE ==
                                                    obj.options().ignoreMode());
                 ASSERT(0 == obj.isAcceptable());
@@ -7948,15 +7619,7 @@ DEFINE_TEST_CASE(3)
 
         if (verbose) cout << "\nVerify ::isState." << endl;
         {
-#if U_USE_DEPRECATED
             Obj obj(0);
-#else
-            const Options& options = Options::custom(
-                                                 Ignore::e_IGNORE_UNRECOGNIZED,
-                                                 Alpha::e_BASIC,
-                                                 true);
-            Obj obj(options);
-#endif
             for (int i = 0; i < NUM_STATES; ++i) {
                 if (verbose) cout <<
                                "\tsetState: " << STATE_NAMES[i] << '.' << endl;
@@ -7972,15 +7635,7 @@ DEFINE_TEST_CASE(3)
                                               // ASSERTs in order to facilitate
                                               // debugging.
 
-#if U_USE_DEPRECATED
                     Obj obj(0);
-#else
-                    const Options& options = Options::custom(
-                                                 Ignore::e_IGNORE_UNRECOGNIZED,
-                                                 Alpha::e_BASIC,
-                                                 true);
-                    Obj obj(options);
-#endif
                     setState(&obj, i);
                     LOOP2_ASSERT(i, j, SAME == isState(&obj, j));
                 }
@@ -8024,23 +7679,13 @@ DEFINE_TEST_CASE(2)
 
         if (verbose) cout << "\tunrecognizedIsErrorFlag = 'true'" << endl;
         {
-#if U_USE_DEPRECATED
             Obj obj(true);
-#else
-            const Options& options = Options::custom(
-                                                   Ignore::e_IGNORE_WHITESPACE,
-                                                   Alpha::e_BASIC,
-                                                   true);
-            Obj obj(options);
-#endif
             ASSERT(1 == obj.isAcceptable());
             ASSERT(0 == obj.isDone());
             ASSERT(0 == obj.isError());
             ASSERT(0 == obj.isMaximal());
             ASSERT(1 == obj.isInitialState());
-#if U_USE_DEPRECATED
             ASSERT(1 == obj.isUnrecognizedAnError());
-#endif
             ASSERT(Ignore::e_IGNORE_WHITESPACE == obj.options().ignoreMode());
             ASSERT(0 == obj.outputLength());
             ASSERT(Obj::e_BASIC == obj.alphabet());
@@ -8049,23 +7694,13 @@ DEFINE_TEST_CASE(2)
 
         if (verbose) cout << "\tunrecognizedIsErrorFlag = 'false'" << endl;
         {
-#if U_USE_DEPRECATED
             Obj obj(false);
-#else
-            const Options& options = Options::custom(
-                                                 Ignore::e_IGNORE_UNRECOGNIZED,
-                                                 Alpha::e_BASIC,
-                                                 true);
-            Obj obj(options);
-#endif
             ASSERT(1 == obj.isAcceptable());
             ASSERT(0 == obj.isDone());
             ASSERT(0 == obj.isError());
             ASSERT(1 == obj.isInitialState());
             ASSERT(0 == obj.isMaximal());
-#if U_USE_DEPRECATED
             ASSERT(0 == obj.isUnrecognizedAnError());
-#endif
             ASSERT(Ignore::e_IGNORE_UNRECOGNIZED ==obj.options().ignoreMode());
             ASSERT(0 == obj.outputLength());
             ASSERT(Obj::e_BASIC == obj.alphabet());
@@ -8074,23 +7709,13 @@ DEFINE_TEST_CASE(2)
 
         if (verbose) cout << "\tUse the Basic BASE64 alphabet" << endl;
         {
-#if U_USE_DEPRECATED
             Obj obj(true, Obj::e_URL);
-#else
-            const Options& options = Options::custom(
-                                                   Ignore::e_IGNORE_WHITESPACE,
-                                                   Alpha::e_URL,
-                                                   true);
-            Obj obj(options);
-#endif
             ASSERT(1 == obj.isAcceptable());
             ASSERT(0 == obj.isDone());
             ASSERT(0 == obj.isError());
             ASSERT(0 == obj.isMaximal());
             ASSERT(1 == obj.isInitialState());
-#if U_USE_DEPRECATED
             ASSERT(1 == obj.isUnrecognizedAnError());
-#endif
             ASSERT(Ignore::e_IGNORE_WHITESPACE == obj.options().ignoreMode());
             ASSERT(0 == obj.outputLength());
             ASSERT(Obj::e_URL == obj.alphabet());
@@ -8100,24 +7725,14 @@ DEFINE_TEST_CASE(2)
         if (verbose) cout << "\tUse the URL and Filename Safe alphabet"
                           << endl;
         {
-#if U_USE_DEPRECATED
             Obj obj(true, Obj::e_URL);
-#else
-            const Options& options = Options::custom(
-                                                   Ignore::e_IGNORE_WHITESPACE,
-                                                   Alpha::e_URL,
-                                                   true);
-            Obj obj(options);
-#endif
             ASSERT(1 == obj.isAcceptable());
             ASSERT(0 == obj.isDone());
             ASSERT(0 == obj.isError());
             ASSERT(0 == obj.isMaximal());
             ASSERT(1 == obj.isInitialState());
             ASSERT(1 == obj.isInitialState());
-#if U_USE_DEPRECATED
             ASSERT(1 == obj.isUnrecognizedAnError());
-#endif
             ASSERT(Ignore::e_IGNORE_WHITESPACE == obj.options().ignoreMode());
             ASSERT(0 == obj.outputLength());
             ASSERT(Obj::e_URL == obj.alphabet());
@@ -8148,10 +7763,8 @@ DEFINE_TEST_CASE(2)
             ASSERT(0 == obj.isError());
             ASSERT(0 == obj.isMaximal());
             ASSERT(1 == obj.isInitialState());
-#if U_USE_DEPRECATED
             ASSERT((Ignore::e_IGNORE_UNRECOGNIZED != IGNORE) ==
                                                   obj.isUnrecognizedAnError());
-#endif
             ASSERT(IGNORE == obj.ignoreMode());
             ASSERT(IGNORE == obj.options().ignoreMode());
             ASSERT(0 == obj.outputLength());
@@ -8230,15 +7843,7 @@ DEFINE_TEST_CASE(1)
 
         if (verbose) cout << "\nTry instantiating a decoder." << endl;
         {
-#if U_USE_DEPRECATEED
             Obj decoder(true);  // strict mode
-#else
-            const Options& options = Options::custom(
-                                                   Ignore::e_IGNORE_WHITESPACE,
-                                                   Alpha::e_BASIC,
-                                                   true);
-            Obj decoder(options);
-#endif
 
             if (verbose) cout << "\nDecode the something." << endl;
 
@@ -8496,11 +8101,10 @@ int main(int argc, char *argv[])
             for (int jj = 0; jj < (0 == len ? 1 : 15); ++jj) {
                 bsl::string str;
                 rand.randString(&str, len);
-                if (stringsSoFar.count(str)) {
+                if (!stringsSoFar.insert(str).second) {
                     --jj;
                     continue;
                 }
-                stringsSoFar.insert(str);
             }
 
 

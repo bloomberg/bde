@@ -439,13 +439,16 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmf_assert.h>
 
-#include <bsla_deprecated.h>
-
 #include <bsls_assert.h>
+#include <bsls_deprecatefeature.h>
 #include <bsls_review.h>
 #include <bsls_types.h>
 
 #include <bsl_iostream.h>
+
+#undef  U_DEPRECATE
+#define U_DEPRECATE(feature, message)                                         \
+                                BSLS_DEPRECATE_FEATURE("bdl", feature, message)
 
 namespace BloombergLP {
 namespace bdlde {
@@ -545,7 +548,7 @@ class Base64Decoder {
         // Create a Base64 decoder with options determined by the specfied
         // 'options'.
 
-    BSLA_DEPRECATED
+    U_DEPRECATE("Base64Decoder", "use options c'tor")
     explicit
     Base64Decoder(bool     unrecognizedNonWhitespaceIsErrorFlag,
                   Alphabet alphabet = e_BASIC);
@@ -657,7 +660,7 @@ class Base64Decoder {
         // Return 'true' if this object is configured for padded input and
         // 'false' otherwise.
 
-    BSLA_DEPRECATED
+    U_DEPRECATE("isUnrecognizedAnError", "use ignoreMode")
     bool isUnrecognizedAnError() const;
         // Return 'true' if this mechanism is currently configured to report an
         // error when an unrecognized character (i.e., a character other than
@@ -1018,6 +1021,8 @@ int Base64Decoder::outputLength() const
 
 }  // close package namespace
 }  // close enterprise namespace
+
+#undef  U_DEPRECATE
 
 #endif
 
