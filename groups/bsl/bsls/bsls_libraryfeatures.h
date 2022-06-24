@@ -1463,7 +1463,6 @@ BSLS_IDENT("$Id: $")
             // PMR support (P0220R1) has appeared in VS 2017 15.6
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_PMR                       1
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS           1
-            #define BSLS_LIBRARYFEATURES_HAS_CPP17_TIMESPEC_GET              1
         #endif
         #if BSLS_PLATFORM_CMP_VERSION >= 1920  // Visual Studio 2019
             // Full from_chars() and to_chars() support has appeared in
