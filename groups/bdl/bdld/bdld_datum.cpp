@@ -1355,11 +1355,11 @@ bdldfp::Decimal64 Datum::theDecimal64() const
             case e_DECIMAL64_SPECIAL_NEGATIVE_INFINITY:
                 return -bsl::numeric_limits<Decimal64>::infinity();   // RETURN
           }
-      }
+      } break;
       case e_EXTENDED_INTERNAL_DECIMAL64_ALLOC: {
           BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
           return *static_cast<const Decimal64 *>(d_as.d_cvp);         // RETURN
-      }
+      } break;
       default: {
       } break;
     }
