@@ -53,8 +53,8 @@ BSLS_IDENT("$Id: $")
 //..
 // Then, we need a block of raw bytes.  This would normally come from a fuzz
 // harness (e.g., the 'LLVMFuzzerTestOneInput' entry point function from
-// 'libFuzzer').  Since 'libFuzzer' is not availble here, we initialize a
-// 'myFuzzData' array that we will use intead.
+// 'libFuzzer').  Since 'libFuzzer' is not available here, we initialize a
+// 'myFuzzData' array that we will use instead.
 //..
 //  const bsl::uint8_t  myFuzzData[] = {0x43, 0x19, 0x0D, 0x44, 0x37, 0x0D,
 //                                      0x38, 0x5E, 0x9B, 0xAA, 0xF3, 0xDA};
@@ -66,16 +66,17 @@ BSLS_IDENT("$Id: $")
 // Now, we pass this 'FuzzDataView' to 'FuzzUtil' to generate values within the
 // permissible range of the function under test:
 //..
-//  int month = bslim::FuzzUtil::consumeIntegralInRange<int>(&fdv,    1,   12);
-//  int year  = bslim::FuzzUtil::consumeIntegralInRange<int>(&fdv, 1951, 2029);
+//  int month = bslim::FuzzUtil::consumeNumberInRange<int>(&fdv,    1,   12);
+//  int year  = bslim::FuzzUtil::consumeNumberInRange<int>(&fdv, 1951, 2029);
 //  assert(   1 <= month && month <=   12);
 //  assert(1951 <= year  && year  <= 2029);
 //..
 // Finally, we can use these 'int' values to pass to a function that returns
 // the number of earnings announcements scheduled in a given month.
 //..
-//  int numEarnings = TradingInterfaceUnderTest::numEarningsAnnouncements(year,
-//                                                                      month);
+//  int numEarnings =
+//      TradingInterfaceUnderTest::numEarningsAnnouncements(year, month);
+//  (void) numEarnings;
 //..
 
 #include <bslscm_version.h>

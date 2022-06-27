@@ -400,8 +400,8 @@ int main(int argc, char *argv[])
             // that the values here are arbitrary, and in the real-world this
             // data would be obtained from a database or an API.
         {
-            BSLS_ASSERT(1950 < year && year < 2030);
-            BSLS_ASSERT(1 <= month && month <= 12);
+            BSLS_ASSERT(1950 <  year  && year  < 2030);
+            BSLS_ASSERT(   1 <= month && month <=  12);
 
             if (2020 < year && 6 < month) {
                 return 11;                                            // RETURN
@@ -410,33 +410,32 @@ int main(int argc, char *argv[])
         }
     };
 //..
-// Then, we need a block of raw bytes.  This would normally come from a
-// fuzz harness (e.g., the 'LLVMFuzzerTestOneInput' entry point
-// function from 'libFuzzer').  Since 'libFuzzer' is not availble here,
-// we initialize a 'myFuzzData' array that we will use intead.
+// Then, we need a block of raw bytes.  This would normally come from a fuzz
+// harness (e.g., the 'LLVMFuzzerTestOneInput' entry point function from
+// 'libFuzzer').  Since 'libFuzzer' is not available here, we initialize a
+// 'myFuzzData' array that we will use instead.
 //..
-   const bsl::uint8_t  myFuzzData[] = {0x43, 0x19, 0x0D, 0x44, 0x37, 0x0D,
-                                       0x38, 0x5E, 0x9B, 0xAA, 0xF3, 0xDA};
+    const bsl::uint8_t  myFuzzData[] = {0x43, 0x19, 0x0D, 0x44, 0x37, 0x0D,
+                                        0x38, 0x5E, 0x9B, 0xAA, 0xF3, 0xDA};
 //..
 // Next, we create a 'FuzzDataView' to wrap the raw bytes.
 //..
-   bslim::FuzzDataView fdv(myFuzzData, sizeof myFuzzData);
+    bslim::FuzzDataView fdv(myFuzzData, sizeof myFuzzData);
 //..
-// Now, we pass this 'FuzzDataView' to 'FuzzUtil' to generate values
-// within the permissible range of the function under test:
+// Now, we pass this 'FuzzDataView' to 'FuzzUtil' to generate values within the
+// permissible range of the function under test:
 //..
-   int month = bslim::FuzzUtil::consumeNumberInRange<int>(&fdv, 1, 12);
-   int year  = bslim::FuzzUtil::consumeNumberInRange<int>(&fdv, 1951, 2029);
-   ASSERT(1 <= month && month <= 12);
-   ASSERT(1951 <= year && year <= 2029);
+    int month = bslim::FuzzUtil::consumeNumberInRange<int>(&fdv,    1,   12);
+    int year  = bslim::FuzzUtil::consumeNumberInRange<int>(&fdv, 1951, 2029);
+    ASSERT(   1 <= month && month <=   12);
+    ASSERT(1951 <= year  && year  <= 2029);
 //..
-// Finally, we can use these 'int' values to pass to a function that
-// returns the number of earnings announcements scheduled in a given
-// month.
+// Finally, we can use these 'int' values to pass to a function that returns
+// the number of earnings announcements scheduled in a given month.
 //..
-   int numEarnings =
-   TradingInterfaceUnderTest::numEarningsAnnouncements(year, month);
-   (void) numEarnings;
+    int numEarnings =
+        TradingInterfaceUnderTest::numEarningsAnnouncements(year, month);
+    (void) numEarnings;
 //..
       } break;
       case 8: {
@@ -1227,7 +1226,7 @@ int main(int argc, char *argv[])
                 {L_,      12, MIN_CHAR, static_cast<char>(MIN_CHAR + 100), 1},
                 {L_,      12, static_cast<char>(MAX_CHAR - 100), MAX_CHAR, 1},
                 {L_,      12,        0,  MAX_CHAR,    1},
-             // {L_,      12,  MIN_CHAR,   0,         1}, // fails on IBM/AIX 
+             // {L_,      12,  MIN_CHAR,   0,         1}, // fails on IBM/AIX
                 {L_,      12,  MIN_CHAR, MAX_CHAR,    1}};
             enum { NUM_DATA = sizeof DATA_CHAR / sizeof *DATA_CHAR };
             ConsumeIntegralTest<char>::testConsumeIntegralInRange(DATA_CHAR,
