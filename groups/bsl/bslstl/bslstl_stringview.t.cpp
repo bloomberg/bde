@@ -6936,6 +6936,16 @@ int main(int argc, char *argv[])
         ASSERTV(X1.compare(3, 3, "klm", 3), 0 >  X1.compare(3, 3, "klm", 3));
         ASSERTV(X1.compare(3, 3, "klm")   , 0 >  X1.compare(3, 3, "klm")   );
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+        // Testing u16string_view and u32string_view
+
+        bsl::u16string_view sv16;
+        bsl::u32string_view sv32;
+        ASSERT(0 == sv16.size());
+        ASSERT(0 == sv32.size());
+        ASSERT((bsl::is_same_v<char16_t, bsl::u16string_view::value_type>));
+        ASSERT((bsl::is_same_v<char32_t, bsl::u32string_view::value_type>));
+#endif
 
         // Testing literals.
 

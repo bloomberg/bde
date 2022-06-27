@@ -185,6 +185,8 @@ using namespace bslim;
 // defined in 'bslstl'.
 //
 //-----------------------------------------------------------------------------
+// [20] CONCERN: 'bsl::invoke' is usable when available.
+// [20] CONCERN: 'bsl::not_fn' is usable when available.
 // [19] C++17 <BSL_FILESYSTEM.H>
 // [18] bsl::byte;
 // [18] bsl::apply();
@@ -694,6 +696,14 @@ double TwoArgumentFunction(double d, int i)
 {
     return d + i;
 }
+
+struct IsEven {
+    bool operator()(int x) const noexcept
+        // return 'true' if the specified 'x' is even, and 'false' otherwise.
+    {
+        return 0 == (x & 1);
+    }
+};
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
 namespace {
@@ -732,6 +742,39 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << "\n";
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 20: {
+        // --------------------------------------------------------------------
+        // TESTING C++17 <BSL_FUNCTIONAL.H> ADDITIONS
+        //
+        // Concerns:
+        //: 1 'invoke' and 'not_fn' are available in 'bsl' to users who include
+        //:   'bsl_functional.h'.
+        //
+        // Plan:
+        //: 1 Create a simple example that uses both classes.  Compilation of
+        //:   the example demonstrates that the classes can be found in 'bsl'.
+        //
+        // Testing
+        //   CONCERN: 'bsl::invoke' is usable when available.
+        //   CONCERN: 'bsl::not_fn' is usable when available.
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING C++17 <BSL_FUNCTIONAL.H> ADDITIONS"
+                            "\n==========================================\n");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+        IsEven even;
+        ASSERT(!bsl::invoke(even, 23));
+        ASSERT( bsl::invoke(even, 24));
+
+        ASSERT( bsl::not_fn(even)(23));
+        ASSERT(!bsl::not_fn(even)(24));
+        ASSERT( bsl::invoke(bsl::not_fn(even), 23));
+        ASSERT(!bsl::invoke(bsl::not_fn(even), 24));
+
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+
+      } break;
       case 19: {
         // --------------------------------------------------------------------
         // TESTING C++17 <BSL_FILESYSTEM.H>

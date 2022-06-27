@@ -86,8 +86,10 @@ namespace bsl {
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+    using std::invoke;
     using std::is_bind_expression_v;
     using std::is_placeholder_v;
+    using std::not_fn;
 #elif defined BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
     template <class TYPE>
     constexpr bool is_bind_expression_v =
