@@ -353,12 +353,96 @@ BSLS_IDENT("$Id: $")
 //                 assert(a1.allocator() != a2.allocator());
 //                 assert(&countingAlloc == a2.allocator());
 //                 assert(1 == countingAlloc.blocksOutstanding());
-//  }
+//..
+// Then we create a copy of 'a2' using the default allocator.  The values of
+// 'a1', 'a2' and 'a3' are equal, even though they have different allocation
+// mechanisms.
+//..
+//     my_FixedSizeArray<int, bsl::allocator<int> > a3(a2);
+//                 assert(a1 == a3);
+//                 assert(a1 == a2);
+//                 assert(a2 == a3);
+//                 assert(a1.allocator() == a3.allocator());
+//                 assert(a1.allocator() != a2.allocator());
+//                 assert(a2.allocator() != a3.allocator());
+//                 assert(bsl::allocator<int>() == a3.allocator());
+// }
+//..
+// To exercise the propagation of the allocator of 'MyContainer' to its
+// elements, we first create a representative element class, 'MyType', that
+// allocates memory using the bslma allocator protocol:
+//..
+// #include <bslma_default.h>
+//
+// class MyType {
+//
+//     bslma::Allocator *d_allocator_p;
+//     // etc.
+//   public:
+//     // TRAITS
+//     BSLMF_NESTED_TRAIT_DECLARATION(MyType, bslma::UsesBslmaAllocator);
+//
+//     // CREATORS
+//     explicit MyType(bslma::Allocator* basicAlloc = 0)
+//         : d_allocator_p(bslma::Default::allocator(basicAlloc)) { /* ... */ }
+//     MyType(const MyType&)
+//         : d_allocator_p(bslma::Default::allocator(0)) { /* ... */ }
+//     MyType(const MyType&, bslma::Allocator* basicAlloc)
+//         : d_allocator_p(bslma::Default::allocator(basicAlloc)) { /* ... */ }
+//     // etc.
+//
+//     // ACCESSORS
+//     bslma::Allocator *allocator() const { return d_allocator_p; }
+//
+//     // etc.
+//};
+//..
+// Finally, we instantiate 'my_FixedSizeArray' using 'MyType' and verify that,
+// when we provide the address of an allocator to the constructor of the
+// container, the same address is passed to the constructor of the container's
+// element.  We also verify that, when the container is copy-constructed, the
+// copy uses the default allocator, not the allocator from the original;
+// moreover, we verify that the element stored in the copy also uses the
+// default allocator.
+//..
+// #include <bslmf_issame.h>
+//
+// void usageExample2()
+// {
+//    bslma::TestAllocator                               testAlloc;
+//    my_FixedSizeArray<MyType, bsl::allocator<MyType> > C1a(7, &testAlloc);
+//    ASSERT((bsl::is_same<
+//        my_FixedSizeArray<MyType, bsl::allocator<MyType> >::allocator_type,
+//        bsl::allocator<MyType> >::value));
+//    ASSERT(C1a.allocator() == bsl::allocator<MyType>(&testAlloc));
+//    ASSERT(C1a[0].allocator() == &testAlloc);
+//
+//    my_FixedSizeArray<MyType, bsl::allocator<MyType> > C2a(C1a);
+//    ASSERT(C2a.allocator() != C1a.allocator());
+//    ASSERT(C2a.allocator() == bsl::allocator<MyType>());
+//    ASSERT(C2a[0].allocator() != &testAlloc);
+//    ASSERT(C2a[0].allocator() == bslma::Default::defaultAllocator());
+//
+//    MyType                                             dummy;
+//    my_FixedSizeArray<MyType, bsl::allocator<MyType> > C1b(7, &testAlloc);
+//    ASSERT((bsl::is_same<
+//        my_FixedSizeArray<MyType, bsl::allocator<MyType> >::allocator_type,
+//        bsl::allocator<MyType> >::value));
+//    ASSERT(C1b.allocator() == bsl::allocator<MyType>(&testAlloc));
+//    ASSERT(C1b[0].allocator() == &testAlloc);
+//
+//    my_FixedSizeArray<MyType, bsl::allocator<MyType> > C2b(C1b);
+//    ASSERT(C2b.allocator() != C1b.allocator());
+//    ASSERT(C2b.allocator() == bsl::allocator<MyType>());
+//    ASSERT(C2b[0].allocator() != &testAlloc);
+//    ASSERT(C2b[0].allocator() == bslma::Default::defaultAllocator());
+//}
 //..
 
 #include <bslscm_version.h>
 
 #include <bslma_allocator.h>
+#include <bslma_allocatortraits.h>
 #include <bslma_constructionutil.h>
 #include <bslma_default.h>
 #include <bslma_destructionutil.h>
@@ -391,9 +475,6 @@ BSLS_IDENT("$Id: $")
 #else
 
 namespace bsl {
-
-template <class ALLOCATOR_TYPE>
-struct allocator_traits;
 
                               // ===============
                               // class allocator

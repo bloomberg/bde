@@ -4,7 +4,6 @@
 #include <bslma_constructionutil.h>       // for testing only
 #include <bslma_default.h>                // for testing only
 #include <bslma_defaultallocatorguard.h>  // for testing only
-#include <bslma_stdallocator.h>           // for testing only
 #include <bslma_testallocator.h>          // for testing only
 #include <bslma_usesbslmaallocator.h>     // for testing only
 

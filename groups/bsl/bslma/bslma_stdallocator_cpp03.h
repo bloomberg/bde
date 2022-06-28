@@ -21,15 +21,12 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu May 12 13:35:14 2022
+// Generated on Fri Jun  3 08:52:03 2022
 // Command line: sim_cpp11_features.pl bslma_stdallocator.h
 
 #ifdef COMPILING_BSLMA_STDALLOCATOR_H
 
 namespace bsl {
-
-template <class ALLOCATOR_TYPE>
-struct allocator_traits;
 
                               // ===============
                               // class allocator

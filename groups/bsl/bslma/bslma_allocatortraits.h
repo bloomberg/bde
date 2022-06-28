@@ -255,11 +255,13 @@ BSLS_IDENT("$Id: $")
 //      return 0;
 //  }
 //..
-///Example 2: bslma Allocator Propagation
-///- - - - - - - - - - - - - - - - - - -
-// To exercise the propagation of the allocator of 'MyContainer' to its
-// elements, we first create a representative element class, 'MyType', that
-// allocates memory using the bslma allocator protocol:
+///Example 2: C++03 Allocators
+///- - - - - - - - - - - - - -
+// This example shows that when 'MyContainer' is instantiated with a C++03
+// allocator, that the allocator is a) copied on copy construction and b) is
+// not propagated from the container to its elements.  Firstly we create a
+// representative element class, 'MyType', that allocates memory using the
+// bslma allocator protocol:
 //..
 //  #include <bslma_default.h>
 //
@@ -286,40 +288,7 @@ BSLS_IDENT("$Id: $")
 //      // etc.
 //  };
 //..
-// Finally, we instantiate 'MyContainer' using 'MyType' and verify that, when
-// we provide a the address of an allocator to the constructor of the
-// container, the same address is passed to the constructor of the container's
-// element.  We also verify that, when the container is copy-constructed, the
-// copy uses the default allocator, not the allocator from the original;
-// moreover, we verify that the element stored in the copy also uses the
-// default allocator.
-//..
-//  #include <bslmf_issame.h>
-//
-//  int usageExample2()
-//  {
-//      bslma::TestAllocator testAlloc;
-//      MyContainer<MyType> C1(&testAlloc);
-//      assert((bsl::is_same<MyContainer<MyType>::allocator_type,
-//                           bsl::allocator<MyType> >::value));
-//      assert(C1.get_allocator() == bsl::allocator<MyType>(&testAlloc));
-//      assert(C1.front().allocator() == &testAlloc);
-//
-//      MyContainer<MyType> C2(C1);
-//      assert(C2.get_allocator() != C1.get_allocator());
-//      assert(C2.get_allocator() == bsl::allocator<MyType>());
-//      assert(C2.front().allocator() != &testAlloc);
-//      assert(C2.front().allocator() == bslma::Default::defaultAllocator());
-//
-//      return 0;
-//  }
-//..
-///Example 3: C++03 Allocators
-///- - - - - - - - - - - - - -
-// This example shows that when 'MyContainer' is instantiated with a C++03
-// allocator, that the allocator is a) copied on copy construction and b) is
-// not propagated from the container to its elements.  First, we create a
-// C++03-style allocator class template:
+// Then we create a C++03-style allocator class template:
 //..
 //  template <class TYPE>
 //  class MyCpp03Allocator {
@@ -446,19 +415,32 @@ BSLS_IDENT("$Id: $")
 // allocator is not propagated from the container).  We also verify that the
 // allocator is copied on copy-construction:
 //..
-//  int usageExample3()
+//  int usageExample2()
 //  {
 //      typedef MyCpp03Allocator<MyType> MyTypeAlloc;
-//      MyContainer<MyType, MyTypeAlloc> C1(MyTypeAlloc(1));
-//      assert((bsl::is_same<MyContainer<MyType, MyTypeAlloc>::allocator_type,
-//                            MyTypeAlloc>::value));
-//      assert(C1.get_allocator() == MyTypeAlloc(1));
-//      assert(C1.front().allocator() == bslma::Default::defaultAllocator());
 //
-//      MyContainer<MyType, MyTypeAlloc> C2(C1);
-//      assert(C2.get_allocator() == C1.get_allocator());
-//      assert(C2.get_allocator() != MyTypeAlloc());
-//      assert(C2.front().allocator() == bslma::Default::defaultAllocator());
+//      MyContainer<MyType, MyTypeAlloc> C1a(MyTypeAlloc(1));
+//      assert((bsl::is_same<MyContainer<MyType, MyTypeAlloc>::allocator_type,
+//                              MyTypeAlloc>::value));
+//      assert(C1a.get_allocator() == MyTypeAlloc(1));
+//      assert(C1a.front().allocator() == bslma::Default::defaultAllocator());
+//
+//      MyContainer<MyType, MyTypeAlloc> C2a(C1a);
+//      assert(C2a.get_allocator() == C1a.get_allocator());
+//      assert(C2a.get_allocator() != MyTypeAlloc());
+//      assert(C2a.front().allocator() == bslma::Default::defaultAllocator());
+//
+//      MyType                           dummy;
+//      MyContainer<MyType, MyTypeAlloc> C1b(dummy, MyTypeAlloc(1));
+//      assert((bsl::is_same<MyContainer<MyType, MyTypeAlloc>::allocator_type,
+//                              MyTypeAlloc>::value));
+//      assert(C1b.get_allocator() == MyTypeAlloc(1));
+//      assert(C1b.front().allocator() == bslma::Default::defaultAllocator());
+//
+//      MyContainer<MyType, MyTypeAlloc> C2b(C1b);
+//      assert(C2b.get_allocator() == C1b.get_allocator());
+//      assert(C2b.get_allocator() != MyTypeAlloc());
+//      assert(C2b.front().allocator() == bslma::Default::defaultAllocator());
 //
 //      return 0;
 //  }

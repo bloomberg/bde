@@ -9,6 +9,7 @@
 #include <bsls_platform.h>
 
 #include <stdio.h>      // 'printf'
+#include <stdint.h>     // 'uintptr_t'
 #include <stdlib.h>     // 'atoi'
 #include <string.h>
 
@@ -464,7 +465,8 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) printf("\nTesting 'allocator'.\n");
         {
-            bslma::Allocator *p = (bslma::Allocator *) 0xDeadBeef;
+            bslma::Allocator *p = reinterpret_cast<bslma::Allocator *>(
+                                           static_cast<uintptr_t>(0xDeadBeef));
             bslma::Allocator *q = &bslma::NewDeleteAllocator::singleton();
 
             bslma::Allocator *r =  bslma::NewDeleteAllocator::allocator(p);
