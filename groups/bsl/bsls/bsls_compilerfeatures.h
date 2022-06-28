@@ -1153,6 +1153,13 @@ BSLS_IDENT("$Id: $")
 #  endif
 # endif
 
+// MSVC2017 crashes when building bsl_deque.h when CTAD is enabled.
+# if BSLS_PLATFORM_CMP_VERSION >= 1910 && BSLS_PLATFORM_CMP_VERSION < 1920
+#   ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+#     undef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+#   endif
+# endif
+
 // IBM Visual Age does not yet follow WG14 N2322 Recommended practice
 // #define BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST
 #endif
