@@ -12,6 +12,9 @@
 // and 'cassert'.  This test driver does *not* invoke 'assert(expression)'.
 #include <cassert>
 
+#ifndef BDE_BUILD_TARGET_EXC
+#include <csetjmp>   // 'setjmp' 'longjmp'
+#endif
 #include <cstdio>    // 'fprintf'
 #include <cstdlib>   // 'atoi'
 #include <cstring>   // 'strcmp', 'strcpy'
@@ -20,6 +23,18 @@
 
 #ifdef BSLS_PLATFORM_OS_UNIX
 #include <signal.h>
+#endif
+
+#ifndef BDE_BUILD_TARGET_EXC
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)                      \
+ && defined(BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT)
+
+#include <type_traits>
+
+static_assert(std::is_trivially_destructible<
+                          BloombergLP::bsls::AssertViolation>::value,
+                                            "Can use with 'setjmp'/'longjmp'");
+#endif
 #endif
 
 using namespace BloombergLP;
@@ -200,16 +215,7 @@ static bool checkLevels = true;
                             // driver we want to avoid std::exception
 
 #ifndef BDE_BUILD_TARGET_EXC
-static bool globalReturnOnTestAssert = false;
-    // This flag is very dangerous, as it will cause the test-driver assertion
-    // handler to simple 'return' by default, exposing any additional function
-    // under test to the subsequent undefined behavior.  In general, exception-
-    // free builds should avoid executing such tests, rather than set this
-    // flag.  However, there is some subset of this test driver that would
-    // benefit from being able to invoke this handler in a test mode to be sure
-    // that correct behavior occurs in the presence of the various preprocessor
-    // checks for exceptions being disabled.  This flag allows for testing such
-    // behavior that does not rely on aborting out of the assert handler.
+static std::jmp_buf jmpContext;  // for the 'ASSERTION_TEST_BEGIN' macro
 #endif
 
 //=============================================================================
@@ -237,8 +243,12 @@ static bool globalReturnOnTestAssert = false;
             if (veryVerbose) printf( "\nException caught." );                 \
         }
 #else
-#define ASSERTION_TEST_BEGIN
-#define ASSERTION_TEST_END
+#define ASSERTION_TEST_BEGIN                                                  \
+        if (0 == setjmp(jmpContext)) {                                        \
+            if (veryVerbose) printf( "\nJump context saved." );
+#define ASSERTION_TEST_END                                                    \
+            if (veryVerbose) printf( "\nJump context restored." );            \
+        }
 #endif
 
 //=============================================================================
@@ -447,10 +457,7 @@ static void testDriverHandler(const bsls::AssertViolation& violation)
 #ifdef BDE_BUILD_TARGET_EXC
     throw std::exception();
 #else
-    if (globalReturnOnTestAssert) {
-        return;                                                       // RETURN
-    }
-    std::abort();
+    std::longjmp(jmpContext, 1);
 #endif
 }
 
@@ -483,10 +490,7 @@ static void testDriverReviewHandler(const bsls::ReviewViolation& violation)
 #ifdef BDE_BUILD_TARGET_EXC
     throw std::exception();
 #else
-    if (globalReturnOnTestAssert) {
-        return;                                                       // RETURN
-    }
-    std::abort();
+    std::longjmp(jmpContext, 1);
 #endif
 }
 
@@ -517,10 +521,7 @@ static void legacyTestDriverHandler(const char *text,
 #ifdef BDE_BUILD_TARGET_EXC
     throw std::exception();
 #else
-    if (globalReturnOnTestAssert) {
-        return;                                                       // RETURN
-    }
-    std::abort();
+    std::longjmp(jmpContext, 1);
 #endif
 }
 
@@ -584,10 +585,7 @@ static void testDriverPrint(const bsls::AssertViolation& violation)
 #ifdef BDE_BUILD_TARGET_EXC
     throw std::exception();
 #else
-    if (globalReturnOnTestAssert) {
-        return;                                                       // RETURN
-    }
-    std::abort();
+    std::longjmp(jmpContext, 1);
 #endif
 }
 
@@ -1019,7 +1017,7 @@ double fact(int n)
 //..
 extern "C" int wrapperFunc(bool verboseFlag)
 {
-    enum { GOOD = 0, BAD } result = GOOD;
+    enum { GOOD = 0, BAD } result = GOOD; (void) verboseFlag;
 //..
 // The purpose of this function is to allow assertion failures in subroutine
 // calls below this function to be handled by throwing an exception, which is
@@ -1757,6 +1755,13 @@ void test_case_17() {
         if (verbose) printf( "\nUSAGE EXAMPLE #5"
                              "\n================\n" );
 
+#ifndef BDE_BUILD_TARGET_EXC
+        if (verbose) {
+            printf(
+               "\tTest disabled as exceptions are NOT enabled.\n"
+               "\tCalling the test function would abort.\n" );
+        }
+#else
         if (verbose) printf(
                       "\n5. Using the bsls::AssertFailureHandlerGuard\n" );
 
@@ -1775,6 +1780,7 @@ void test_case_17() {
         ASSERT(0 != usage_example_assert_5::wrapperFunc(verbose));
 
     #endif
+#endif
 #endif
         ASSERT(&bsls::Assert::failByAbort == bsls::Assert::violationHandler());
 
@@ -1803,7 +1809,7 @@ void test_case_16() {
         if (verbose) {
             printf(
                "\tTest disabled as exceptions are NOT enabled.\n"
-              "\tCalling the test function would abort.\n" );
+               "\tCalling the test function would abort.\n" );
         }
 
 #else
@@ -1875,18 +1881,9 @@ void test_case_14() {
 
         bsls::Assert::setViolationHandler(::testDriverPrint);
 
-#ifndef BDE_BUILD_TARGET_EXC
-        globalReturnOnTestAssert = true;
-#endif
-
         ASSERTION_TEST_BEGIN
         usage_example_assert_2::someFunc(1, 1, 0);
         ASSERTION_TEST_END
-
-#ifndef BDE_BUILD_TARGET_EXC
-        globalReturnOnTestAssert = false;
-#endif
-
 }
 
 void test_case_13() {
@@ -1999,10 +1996,6 @@ void test_case_11() {
 
         const char *file = __FILE__;
         const char *altf = "injected_file.t.cpp";
-
-#ifndef BDE_BUILD_TARGET_EXC
-        globalReturnOnTestAssert = true;
-#endif
 
         if (verbose) printf(
             "\tVerify that the correct file is logged by default.\n");
@@ -2197,10 +2190,6 @@ void test_case_10() {
             ASSERT(false == globalAssertFiredFlag);
             ASSERT(false == globalLegacyAssertFiredFlag);
 
-#ifndef BDE_BUILD_TARGET_EXC
-            globalReturnOnTestAssert = true;
-#endif
-
             bsls::AssertViolation violation("ExPrEsSiOn",
                                             "FiLe",
                                             12345678,
@@ -2215,10 +2204,6 @@ void test_case_10() {
             ASSERT(       0 == std::strcmp("FiLe",       globalFile));
             ASSERT(       0 == std::strcmp("",           globalLevel));
             ASSERT(12345678 == globalLine);
-
-#ifndef BDE_BUILD_TARGET_EXC
-            globalReturnOnTestAssert = false;
-#endif
         }
 
         if (verbose) printf(
@@ -2230,10 +2215,6 @@ void test_case_10() {
             ASSERT(false == globalAssertFiredFlag);
             ASSERT(false == globalLegacyAssertFiredFlag);
 
-#ifndef BDE_BUILD_TARGET_EXC
-            globalReturnOnTestAssert = true;
-#endif
-
             ASSERTION_TEST_BEGIN
                 bsls::Assert::invokeHandler("ExPrEsSiOn", "FiLe", 12345678);
             ASSERTION_TEST_END
@@ -2244,10 +2225,6 @@ void test_case_10() {
             ASSERT(       0 == std::strcmp("FiLe",       globalFile));
             ASSERT(       0 == std::strcmp("",           globalLevel));
             ASSERT(12345678 == globalLine);
-
-#ifndef BDE_BUILD_TARGET_EXC
-            globalReturnOnTestAssert = false;
-#endif
         }
 
         if (verbose) printf("\nRestoring the handler to the default.\n");
@@ -2348,6 +2325,11 @@ void test_case_9() {
             ASSERT(iterations == Test::s_handlerInvocationCount);
             ASSERT(1 << (triggerCount - 1) == iterations);
         }
+#else
+        if (veryVerbose) printf(
+             "\nSKIP: "
+             "'BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER' is defined.\n");
+
 #endif
 }
 
@@ -2462,6 +2444,10 @@ void test_case_8() {
             ASSERT(0 != strstr(    Test::s_secondProfile.d_text,
                                    "Bad 'bsls_assert' configuration:"));
         }
+#else
+        if (veryVerbose) printf(
+             "\nSKIP: "
+             "'BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER' is defined.\n");
 #endif
 }
 
@@ -2683,6 +2669,10 @@ void test_case_5() {
 
             ASSERT(    true == globalAssertFiredFlag);
         }
+#else
+        if (veryVerbose) printf(
+             "\nSKIP: "
+             "'BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER' is defined.\n");
 #endif
 }
 
@@ -2945,6 +2935,11 @@ void test_case_2() {
 #if defined(BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER)
         // With exceptions not enabled and a '[[noreturn]]' 'invokeHandler'
         // there is no way to test triggered assertions.
+
+        if (veryVerbose) printf(
+             "\nSKIP: "
+             "'BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER' is defined.\n");
+
         return;
 #else
         // Change the handler return policy not to abort
@@ -2976,11 +2971,6 @@ void test_case_2() {
         const char *file  = __FILE__;
         const char *level = bsls::Assert::k_LEVEL_SAFE;
         int         line  = -1;
-
-
-#ifndef BDE_BUILD_TARGET_EXC
-        globalReturnOnTestAssert = true;
-#endif
 
         if (verbose) {
             printf( "\nCurrent build-mode settings:\n" );
@@ -3666,10 +3656,6 @@ void test_case_1() {
             ASSERT(false        == globalAssertFiredFlag);
             ASSERT(false        == globalLegacyAssertFiredFlag);
 
-#ifndef BDE_BUILD_TARGET_EXC
-            globalReturnOnTestAssert = true;
-#endif
-
             bsls::AssertViolation violation("ExPrEsSiOn",
                                             "FiLe",
                                             12345678,
@@ -3684,10 +3670,6 @@ void test_case_1() {
             ASSERT(       0 == std::strcmp("FiLe",       globalFile));
             ASSERT(       0 == std::strcmp("LeVeL",      globalLevel));
             ASSERT(12345678 == globalLine);
-
-#ifndef BDE_BUILD_TARGET_EXC
-            globalReturnOnTestAssert = false;
-#endif
         }
 
         if (verbose) printf(
@@ -3699,10 +3681,6 @@ void test_case_1() {
             ASSERT(false        == globalAssertFiredFlag);
             ASSERT(false        == globalLegacyAssertFiredFlag);
 
-#ifndef BDE_BUILD_TARGET_EXC
-            globalReturnOnTestAssert = true;
-#endif
-
             ASSERTION_TEST_BEGIN
                 bsls::Assert::invokeHandler("ExPrEsSiOn", "FiLe", 12345678);
             ASSERTION_TEST_END
@@ -3713,10 +3691,6 @@ void test_case_1() {
             ASSERT(       0 == std::strcmp("FiLe",       globalFile));
             ASSERT(       0 == std::strcmp("INV",        globalLevel));
             ASSERT(12345678 == globalLine);
-
-#ifndef BDE_BUILD_TARGET_EXC
-            globalReturnOnTestAssert = false;
-#endif
         }
 
         if (verbose) printf(
@@ -3761,10 +3735,6 @@ void test_case_1() {
                 "\nVerify that 'BSLS_ASSERT_OPT' does fire for '0' "
                 "expressions.\n" );
 
-#ifndef BDE_BUILD_TARGET_EXC
-            globalReturnOnTestAssert = true;
-#endif
-
         if (veryVerbose) printf( "\tInteger-valued expression\n" );
         {
             globalReset();
@@ -3804,11 +3774,6 @@ void test_case_1() {
             LOOP2_ASSERT(file, globalFile, 0 == std::strcmp(file, globalFile));
             LOOP2_ASSERT(line, globalLine, line == globalLine);
         }
-
-#ifndef BDE_BUILD_TARGET_EXC
-            globalReturnOnTestAssert = false;
-#endif
-
 }
 
 void test_case_m1() {
@@ -4173,6 +4138,10 @@ void test_case_m7() {
                          lastCount + 2 == Test::s_loggerInvocationCount);
             LOOP2_ASSERT(iterations, (1 << 29), iterations == (1 << 29));
         }
+#else
+        if (veryVerbose) printf(
+             "\nSKIP: "
+             "'BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER' is defined.\n");
 #endif
 }
 

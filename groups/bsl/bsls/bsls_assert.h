@@ -900,7 +900,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  extern "C" int wrapperFunc(bool verboseFlag)
 //  {
-//      enum { GOOD = 0, BAD } result = GOOD;
+//      enum { GOOD = 0, BAD } result = GOOD; (void) verboseFlag;
 //..
 // The purpose of this function is to allow assertion failures in subroutine
 // calls below this function to be handled by throwing an exception, which is
