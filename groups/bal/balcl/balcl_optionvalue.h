@@ -485,7 +485,7 @@ class OptionValue {
         // Destroy this object.
 
     // MANIPULATORS
-    //! OptionValue& operator=(const OptionValue& rhs) = default;
+    OptionValue& operator=(const OptionValue& rhs);
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.
 
@@ -773,6 +773,13 @@ OptionValue::OptionValue(const OptionValue&  original,
 }
 
 // MANIPULATORS
+inline
+OptionValue& OptionValue::operator=(const OptionValue& rhs)
+{
+    d_value = rhs.d_value;
+    return *this;
+}
+
 inline
 void OptionValue::reset()
 {
