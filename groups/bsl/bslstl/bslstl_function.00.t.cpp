@@ -616,6 +616,12 @@ void dumpExTest(const char *s,
 //                      GLOBAL DEFINITIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
+#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
+#define CPP_20 1
+#else
+#define CPP_20 0
+#endif
+
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 #define MSVC 1
 #else
@@ -7794,7 +7800,8 @@ int main(int argc, char *argv[])
         TEST(       int  (      RcIW   ), int (IW::*)() const   , true );
         TEST(       int  (       SIW   ), int (IW::*)() const   , true );
         TEST(       int  (      ScIW   ), int (IW::*)() const   , true );
-        TEST(       int  (        IW   ), int (IW::*)() const&  , MSVC );
+        TEST(       int  (        IW   ), int (IW::*)() const&  , MSVC ||
+                                                                  CPP_20);
         TEST(       int  (       RIW   ), int (IW::*)() const&  , true );
         TEST(       int  (      RcIW   ), int (IW::*)() const&  , true );
         TEST(       int  (       SIW   ), int (IW::*)() const&  , true );
@@ -7830,7 +7837,8 @@ int main(int argc, char *argv[])
         TEST(       int  (      RcIWD  ), int (IW::*)() const   , true     );
         TEST(       int  (       SIWD  ), int (IW::*)() const   , true     );
         TEST(       int  (      ScIWD  ), int (IW::*)() const   , true     );
-        TEST(       int  (        IWD  ), int (IW::*)() const&  , MSVC     );
+        TEST(       int  (        IWD  ), int (IW::*)() const&  , MSVC ||
+                                                                  CPP_20   );
         TEST(       int  (       RIWD  ), int (IW::*)() const&  , true     );
         TEST(       int  (      RcIWD  ), int (IW::*)() const&  , true     );
         TEST(       int  (       SIWD  ), int (IW::*)() const&  , true     );
@@ -9443,7 +9451,8 @@ int main(int argc, char *argv[])
         TEST(       int  (      RcIW   ), int (IW::*)() const   , true );
         TEST(       int  (       SIW   ), int (IW::*)() const   , true );
         TEST(       int  (      ScIW   ), int (IW::*)() const   , true );
-        TEST(       int  (        IW   ), int (IW::*)() const&  , MSVC );
+        TEST(       int  (        IW   ), int (IW::*)() const&  , MSVC ||
+                                                                  CPP_20);
         TEST(       int  (       RIW   ), int (IW::*)() const&  , true );
         TEST(       int  (      RcIW   ), int (IW::*)() const&  , true );
         TEST(       int  (       SIW   ), int (IW::*)() const&  , true );
@@ -9479,7 +9488,8 @@ int main(int argc, char *argv[])
         TEST(       int  (      RcIWD  ), int (IW::*)() const   , true );
         TEST(       int  (       SIWD  ), int (IW::*)() const   , true );
         TEST(       int  (      ScIWD  ), int (IW::*)() const   , true );
-        TEST(       int  (        IWD  ), int (IW::*)() const&  , MSVC );
+        TEST(       int  (        IWD  ), int (IW::*)() const&  , MSVC ||
+                                                                  CPP_20);
         TEST(       int  (       RIWD  ), int (IW::*)() const&  , true );
         TEST(       int  (      RcIWD  ), int (IW::*)() const&  , true );
         TEST(       int  (       SIWD  ), int (IW::*)() const&  , true );
