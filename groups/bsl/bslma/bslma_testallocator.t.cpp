@@ -9,6 +9,7 @@
 #include <bsls_exceptionutil.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
+#include <bsls_types.h>
 
 #include <string>
 
@@ -339,6 +340,26 @@ void operator delete(void *address)
     free(address);
 }
 
+
+#ifdef BDE_BUILD_TARGET_EXC
+# if !defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+void operator delete(void *address, size_t) throw()
+# else
+void operator delete(void *address, size_t) noexcept
+# endif
+#else
+void operator delete(void *address, size_t)
+#endif
+    // Trace use of global operator delete.
+{
+    if (globalDeleteCalledCountIsEnabled) {
+        ++globalDeleteCalledCount;
+        printf("global sized delete freeing: %p\n", address);
+    }
+
+    free(address);
+}
+
 namespace testCase14 {
 
                    // ===============================
@@ -476,6 +497,9 @@ NaturallyAlignAllocator::size_type NaturallyAlignAllocator::nextBuffer() const
     }
 
     bsls::BslExceptionUtil::throwBadAlloc();
+
+    // Eliminate compiler warnings regarding non-return:
+    return 0;
 }
 
 // CREATORS

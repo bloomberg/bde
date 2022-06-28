@@ -3712,8 +3712,11 @@ vector<VALUE_TYPE, ALLOCATOR>::erase(const_iterator position)
     return erase(position, position + 1);
 }
 
+// This should not be inlined by default due to an XLC 16 compiler bug whereby
+// optimized code can spuriously core dump.  This has been reported to IBM, see
+// DRQS 169655225 for details.
 template <class VALUE_TYPE, class ALLOCATOR>
-inline
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 typename vector<VALUE_TYPE, ALLOCATOR>::iterator
 vector<VALUE_TYPE, ALLOCATOR>::erase(const_iterator first, const_iterator last)
 {

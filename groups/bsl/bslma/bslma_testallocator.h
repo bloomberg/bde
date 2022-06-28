@@ -740,6 +740,11 @@ TestAllocator_getProxy(BSLMA_ALLOC_TYPE *allocator)
 }  // close package namespace
 
 #ifndef BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN
+// Note that the `while` loop in the following code uses a flag
+// `bslmaKeepLoopingInTestAllocatorExceptionTest`.  This is a workaround for an
+// XLC16 bug: a `continue` statement in a `catch` block can result in
+// segementation faults on optimized XLC16 builds.  Bug raised with IBM - see
+// DRQS 169604597
 #define BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(BSLMA_TESTALLOCATOR) {     \
     {                                                                       \
         static int firstTime = 1;                                           \
@@ -756,7 +761,9 @@ TestAllocator_getProxy(BSLMA_ALLOC_TYPE *allocator)
         bslmaExceptionTestAllocator =                                       \
           BloombergLP::bslma::TestAllocator_getProxy(&BSLMA_TESTALLOCATOR); \
     bslmaExceptionTestAllocator.setAllocationLimit(bslmaExceptionCounter);  \
-    do {                                                                    \
+    bool bslmaKeepLoopingInTestAllocatorExceptionTest = true;               \
+    while(bslmaKeepLoopingInTestAllocatorExceptionTest) {                   \
+        bslmaKeepLoopingInTestAllocatorExceptionTest = false;               \
         try {
 #endif  // BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN
 
@@ -792,11 +799,10 @@ TestAllocator_getProxy(BSLMA_ALLOC_TYPE *allocator)
             }                                                               \
             bslmaExceptionTestAllocator.setAllocationLimit(                 \
                                                  ++bslmaExceptionCounter);  \
-            continue;                                                       \
+            bslmaKeepLoopingInTestAllocatorExceptionTest = true;            \
         }                                                                   \
-        bslmaExceptionTestAllocator.setAllocationLimit(-1);                 \
-        break;                                                              \
-    } while (1);                                                            \
+    };                                                                      \
+    bslmaExceptionTestAllocator.setAllocationLimit(-1);                     \
     if (veryVeryVerbose) {                                                  \
         std::puts("\t\tEnd bslma exception test.");                         \
     }                                                                       \
