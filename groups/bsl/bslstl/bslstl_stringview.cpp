@@ -28,9 +28,9 @@ BSLS_IDENT("$Id$ $CSID$")
 // identity metafunction for one of their arguments.  Specifically, the MSVC
 // compiler can't handle partial ordering of function templates w.r.t.
 // non-deduced context which the use of identity metafunction introduces,
-// whereas the older Sun compilers mangle the overloads in the same way,
-// and compilation fails because multiple functions are defined with the same
-// symbol.
+// whereas some Sun compilers (pre-5.12.4 and 5.12.6, see DRQS 169697089)
+// mangle the overloads in the same way, and compilation fails because multiple
+// functions are defined with the same symbol.
 //
 // As a workaround, we provide two implementations of 'StringView_Identity'
 // metafunction.  For compilers that do not have the deficiencies mentioned

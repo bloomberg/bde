@@ -251,8 +251,9 @@ using std::operator>=;
 #ifndef BSLSTL_STRING_VIEW_IS_ALIASED
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS) ||                                      \
-         (defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130)
-  // Windows or Sun CC before version 5.12.4
+   (defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION <  0x5130) || \
+   (defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION == 0x5150)
+  // Windows or Sun CC before version 5.12.4 or Sun CC version 5.12.6
 
 # define BSLSTL_STRINGVIEW_IDENTITY_USE_WRAPPER    1
 #else
