@@ -102,11 +102,6 @@ struct Base64IgnoreMode {
                                          // error
     };
 
-    enum { k_NUM_VALUES = 3 };           // the number of values of 'Enum',
-                                         // guaranteeing that
-                                         // 'static_cast<unsigned>(value) <
-                                         // k_NUM_VALUES'
-
   public:
     // CLASS METHODS
     static bsl::ostream& print(bsl::ostream& stream,

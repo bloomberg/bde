@@ -6,7 +6,7 @@
 BSLS_IDENT_RCSID(bdlde_base64encoderoptions_h,"$Id$ $CSID$")
 BSLS_IDENT_PRAGMA_ONCE
 
-//@PURPOSE: Provide value-semantic attribute classes for encoder options.
+//@PURPOSE: Provide a value-semantic attribute class for encoder options.
 //
 //@CLASSES:
 //  bdlde::Base64EncoderOptions: options for encoder
@@ -16,16 +16,16 @@ BSLS_IDENT_PRAGMA_ONCE
 //           bdlde_base64alphabet
 //
 //@DESCRIPTION: This component provides a value-semantic attribute class for
-// specifying options for 'bdlde::Basee64Encoder'.
+// specifying options for 'bdlde::Base64Encoder'.
 //
-// This 'class' supports default-generated copy constuction and copy
+// This 'class' supports default-generated copy construction and copy
 // assignment, but the constructor is private.  To create an object one must
 // call one of the class methods, which will return a newly-constructed object
 // by value.  Specialized class methods are provided to create objects
 // configured for the 'mime', 'urlSafe', and 'standard' configurations.
 //
 // Other configurations may be obtained by specifying arguments to the 'custom'
-// class method, or by calling the settors after the object is created.
+// class method, or by calling the setters after the object is created.
 //
 ///Usage
 ///-----
@@ -131,7 +131,9 @@ BSLS_IDENT_PRAGMA_ONCE
 // that.
 //..
 //  const bdlde::Base64EncoderOptions& customOptions =
-//      bdlde::Base64EncoderOptions::custom(200, bdlde::Base64Alphabet::e_URL);
+//            bdlde::Base64EncoderOptions::custom(200,
+//                                                bdlde::Base64Alphabet::e_URL,
+//                                                true);
 //..
 // Then, we check the attributes:
 //..

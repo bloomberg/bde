@@ -200,10 +200,10 @@ Base64Decoder::Base64Decoder(const Base64DecoderOptions& options)
                                     : u::charsInvalidUrlEncodingUnpadded))
 , d_stack(0)
 , d_bitsInStack(0)
-, d_state(static_cast<signed char>(e_INPUT_STATE))
+, d_state(e_INPUT_STATE)
+, d_alphabet(options.alphabet())
+, d_ignoreMode(options.ignoreMode())
 , d_isPadded(options.isPadded())
-, d_alphabet(static_cast<unsigned char>(options.alphabet()))
-, d_ignoreMode(static_cast<unsigned char>(options.ignoreMode()))
 {}
 
 Base64Decoder::Base64Decoder(bool     unrecognizedNonWhitespaceIsErrorFlag,
@@ -218,15 +218,14 @@ Base64Decoder::Base64Decoder(bool     unrecognizedNonWhitespaceIsErrorFlag,
                 : u::charsInvalidUrlEncodingPadded)
 , d_stack(0)
 , d_bitsInStack(0)
-, d_state(static_cast<signed char>(e_INPUT_STATE))
+, d_state(e_INPUT_STATE)
+, d_alphabet(alphabet)
+, d_ignoreMode(unrecognizedNonWhitespaceIsErrorFlag
+                                           ? IgnoreMode::e_IGNORE_WHITESPACE
+                                           : IgnoreMode::e_IGNORE_UNRECOGNIZED)
 , d_isPadded(true)
-, d_alphabet(static_cast<unsigned char>(alphabet))
-, d_ignoreMode(static_cast<unsigned char>(unrecognizedNonWhitespaceIsErrorFlag
-                                          ? IgnoreMode::e_IGNORE_WHITESPACE
-                                          : IgnoreMode::e_IGNORE_UNRECOGNIZED))
 {
-    BSLS_ASSERT(static_cast<unsigned>(alphabet) <
-                                                 Base64Alphabet::k_NUM_VALUES);
+    BSLS_ASSERT(e_BASIC == alphabet || e_URL == alphabet);
 }
 
 Base64Decoder::~Base64Decoder()

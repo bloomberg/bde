@@ -515,7 +515,7 @@ class RandGen {
     bsls::Types::Uint64 d_seed;
 
   public:
-    // CREATOR
+    // CREATORS
     explicit
     RandGen(int startSeed = 0);
         // Initialize the generator with the optionally specified 'startSeed'.
@@ -548,7 +548,7 @@ class RandGen {
         // bytes (including '0x00').
 };
 
-// CREATOR
+// CREATORS
 inline
 RandGen::RandGen(int startSeed)
 : d_seed(startSeed)
@@ -558,7 +558,7 @@ RandGen::RandGen(int startSeed)
     (void) (*this)();
 }
 
-// MANIPULATOR
+// MANIPULATORS
 inline
 unsigned RandGen::operator()()
 {
@@ -574,7 +574,7 @@ Ignore::Enum RandGen::benignIgnore(bool injectGarbage, bool injectWhitespace)
          ? ((*this)() & 1
              ? Ignore::e_IGNORE_WHITESPACE
              : Ignore::e_IGNORE_UNRECOGNIZED)
-         : static_cast<Ignore::Enum>((*this)() % Ignore::k_NUM_VALUES);
+         : static_cast<Ignore::Enum>((*this)() % 3);
 }
 
 inline
@@ -657,8 +657,8 @@ bsl::string displayStr(const bsl::string& str, bool allInHex = true)
 }
 
 void convertToUrlInput(bsl::string *result)
-    // Translate the specified '*result' from and 'e_BASIC' encoding to an
-    // 'e_URL'.
+    // Translate the specified '*result' from an 'e_BASIC' encoding to an
+    // 'e_URL' encoding.
 {
     for (unsigned idx = 0; idx < result->length(); ++idx) {
         char& c = (*result)[idx];
@@ -1278,9 +1278,6 @@ int streamEncoder(bsl::ostream& os, bsl::istream& is)
     };
 
 
-    const EncoderOptions& eOptions = EncoderOptions::mime();
-    (void) eOptions;
-
     bdlde::Base64Encoder converter(0);
 
     const int INBUFFER_SIZE  = 1 << 10;
@@ -1781,7 +1778,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
             tti /= 3;
             const bool         PAD    = tti;
             ASSERT(tti < 2);
-            done |= ALPHA && IGNORE == Ignore::k_NUM_VALUES - 1 && PAD;
+            done |= ALPHA && IGNORE == 2 && PAD;
 
             bsl::vector<char> base64Input;
             const char        GARBAGE = char(0xa5);
@@ -2052,8 +2049,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
             const bool         PAD    = tti % 2;    tti /= 2;
             const bool         topOff = tti % 2;    tti /= 2;
             ASSERT(0 == tti);
-            done |= ALPHA && IGNORE == Ignore::k_NUM_VALUES -1 && PAD &&
-                                                                        topOff;
+            done |= ALPHA && IGNORE == 2 && PAD && topOff;
 
             const Options& options = Options::custom(IGNORE, ALPHA, PAD);
 
@@ -2763,9 +2759,9 @@ DEFINE_TEST_CASE(13)
                 const bool         PAD               = wwi % 2; wwi /= 2;
                 const bool         URL               = wwi % 2; wwi /= 2;
                 const Ignore::Enum IGNORE            = (Ignore::Enum) wwi;
-                ASSERT(static_cast<unsigned>(wwi) < Ignore::k_NUM_VALUES);
+                ASSERT(static_cast<unsigned>(wwi) < 3);
                 done |= INJECT_WHITESPACE && INJECT_GARBAGE && PAD && URL &&
-                                            Ignore::k_NUM_VALUES - 1 == IGNORE;
+                                                                   2 == IGNORE;
 
                 bool expErr;
                 switch (IGNORE) {
@@ -3368,11 +3364,6 @@ DEFINE_TEST_CASE(12)
 
             int maxLineLength = 0;
 
-            const EncoderOptions& eOptions =
-                                         EncoderOptions::custom(maxLineLength,
-                                                                Alpha::e_BASIC,
-                                                                true);
-            (void) eOptions;
             bdlde::Base64Encoder encoder(maxLineLength);
 
             Obj decoder(true);
@@ -3428,11 +3419,6 @@ DEFINE_TEST_CASE(12)
 
             int maxLineLength = 0;
 
-            const EncoderOptions& eOptions =
-                                         EncoderOptions::custom(maxLineLength,
-                                                                Alpha::e_BASIC,
-                                                                true);
-            (void) eOptions;
             bdlde::Base64Encoder encoder(maxLineLength);
 
             Obj decoder(true);
@@ -3489,11 +3475,6 @@ DEFINE_TEST_CASE(12)
 
             int maxLineLength = 0;
 
-            const EncoderOptions& eOptions =
-                                         EncoderOptions::custom(maxLineLength,
-                                                                Alpha::e_BASIC,
-                                                                true);
-            (void) eOptions;
             bdlde::Base64Encoder encoder(maxLineLength);
 
             Obj decoder(true);
@@ -3550,17 +3531,12 @@ DEFINE_TEST_CASE(12)
 
             int maxLineLength = 0;
 
-            const EncoderOptions& eOptions =
-                                         EncoderOptions::custom(maxLineLength,
-                                                                Alpha::e_BASIC,
-                                                                true);
-            (void) eOptions;
             bdlde::Base64Encoder encoder(maxLineLength);
 
             Obj decoder(true);
 
             int   origSize = static_cast<int>(strlen(sample));
-            int   encodedLen = encoder.encodedLength(eOptions, origSize);
+            int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
             char *encoded = new char[encodedLen];
             int   maxDecodedLen = decoder.maxDecodedLength(encodedLen);
             char *decoded = new char[maxDecodedLen] ;
@@ -3610,11 +3586,6 @@ DEFINE_TEST_CASE(12)
 
             int maxLineLength = 0;
 
-            const EncoderOptions& eOptions =
-                                         EncoderOptions::custom(maxLineLength,
-                                                                Alpha::e_BASIC,
-                                                                true);
-            (void) eOptions;
             bdlde::Base64Encoder encoder(maxLineLength);
 
             int   origSize = static_cast<int>(strlen(sample));
@@ -3671,17 +3642,12 @@ DEFINE_TEST_CASE(12)
 
             int maxLineLength = 0;
 
-            const EncoderOptions& eOptions =
-                                         EncoderOptions::custom(maxLineLength,
-                                                                Alpha::e_BASIC,
-                                                                true);
-            (void) eOptions;
             bdlde::Base64Encoder encoder(maxLineLength);
 
             Obj decoder(true);
 
             int   origSize = static_cast<int>(strlen(sample));
-            int   encodedLen = encoder.encodedLength(eOptions, origSize);
+            int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
             char *encoded = new char[encodedLen];
             int   maxDecodedLen = decoder.maxDecodedLength(encodedLen);
             char *decoded = new char[maxDecodedLen] ;
@@ -3734,16 +3700,11 @@ DEFINE_TEST_CASE(12)
 
             int maxLineLength = 0;
 
-            const EncoderOptions& eOptions =
-                                         EncoderOptions::custom(maxLineLength,
-                                                                Alpha::e_BASIC,
-                                                                true);
-            (void) eOptions;
             bdlde::Base64Encoder encoder(maxLineLength);
             Obj decoder(true);
 
             int   origSize = static_cast<int>(strlen(sample));
-            int   encodedLen = encoder.encodedLength(eOptions, origSize);
+            int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
             char *encoded = new char[encodedLen];
             int   maxDecodedLen = decoder.maxDecodedLength(encodedLen);
             char *decoded = new char[maxDecodedLen] ;
@@ -3792,17 +3753,12 @@ DEFINE_TEST_CASE(12)
 
             int maxLineLength = 76;
 
-            const EncoderOptions& eOptions =
-                                         EncoderOptions::custom(maxLineLength,
-                                                                Alpha::e_BASIC,
-                                                                true);
-            (void) eOptions;
             bdlde::Base64Encoder encoder(maxLineLength);
 
             Obj decoder(true);
 
             int   origSize = static_cast<int>(strlen(sample));
-            int   encodedLen = encoder.encodedLength(eOptions, origSize);
+            int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
             char *encoded = new char[encodedLen];
             int   maxDecodedLen = decoder.maxDecodedLength(encodedLen);
 
@@ -7741,7 +7697,7 @@ DEFINE_TEST_CASE(2)
 
         if (verbose) cout << "Use an 'Options' object\n";
         bool done = false;
-        enum { k_TI_ITERATIONS = Ignore::k_NUM_VALUES * 2 * 2 };
+        enum { k_TI_ITERATIONS = 3 * 2 * 2 };
         for (int ti = 0; ti < k_TI_ITERATIONS; ++ti) {
             typedef bdlde::Base64Alphabet::Enum Enum;
 
@@ -7750,11 +7706,10 @@ DEFINE_TEST_CASE(2)
             tti /= 2;
             const bool PAD      = tti % 2;
             tti /= 2;
-            const Ignore::Enum IGNORE = static_cast<Ignore::Enum>(
-                                                   tti % Ignore::k_NUM_VALUES);
-            tti %= Ignore::k_NUM_VALUES;    tti /= Ignore::k_NUM_VALUES;
+            const Ignore::Enum IGNORE = static_cast<Ignore::Enum>(tti % 3);
+            tti /= 3;
             ASSERT(0 == tti);
-            done |= URL && PAD && Ignore::k_NUM_VALUES - 1 == IGNORE;
+            done |= URL && PAD && 2 == IGNORE;
 
             const Options& options = Options::custom(IGNORE, URL, PAD);
             Obj obj(options);

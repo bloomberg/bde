@@ -438,6 +438,8 @@ BSLS_IDENT("$Id: $")
 #include <bsls_deprecatefeature.h>
 #include <bsls_review.h>
 
+#include <bsl_cstddef.h>
+
 namespace BloombergLP {
 namespace bdlde {
 
@@ -477,9 +479,9 @@ class Base64Encoder {
     unsigned            d_stack;          // storage of non-emitted input
     int                 d_bitsInStack;    // number of bits in 'd_stack'
     const char * const  d_alphabet_p;     // alphabet
-    signed char         d_state;          // state as per above enum 'State'
+    State               d_state;          // state as per above enum 'State'
+    const Alphabet      d_alphabetEnum;   // alphabet
     const bool          d_isPadded;       // is output tail-padded with '='
-    const unsigned char d_alphabetEnum;   // alphabet
 
   private:
     // NOT IMPLEMENTED
@@ -488,8 +490,8 @@ class Base64Encoder {
 
     // PRIVATE CLASS METHODS
     static
-    int lengthWithoutCrlfs(const EncoderOptions& options,
-                           int                   inputLength);
+    bsl::size_t lengthWithoutCrlfs(const EncoderOptions& options,
+                                   bsl::size_t           inputLength);
         // Return the expected length of output, not including CRLF's, given
         // the specified 'options' and 'inputLength'.
 
@@ -526,7 +528,8 @@ class Base64Encoder {
 
   public:
     // CLASS METHODS
-    static int encodedLength(const EncoderOptions& options, int inputLength);
+    static int encodedLength(const EncoderOptions& options,
+                             bsl::size_t           inputLength);
         // Return the exact number of encoded bytes that would result from an
         // input byte sequence of the specified 'inputLength' provided to the
         // 'convert' method of an encoder configured with the specified
@@ -747,17 +750,15 @@ class Base64Encoder {
 
 // PRIVATE CLASS METHODS
 inline
-int Base64Encoder::lengthWithoutCrlfs(const EncoderOptions& options,
-                                      int                   inputLength)
+bsl::size_t Base64Encoder::lengthWithoutCrlfs(const EncoderOptions& options,
+                                      bsl::size_t           inputLength)
 {
-    BSLS_ASSERT(0 <= inputLength);
-
     if (0 == inputLength) {
         return 0;                                                     // RETURN
     }
 
-    const int numTripletsRoundedDown = (inputLength + 2) / 3 - 1;
-    const int numResidual = inputLength - numTripletsRoundedDown * 3;
+    const bsl::size_t numTripletsRoundedDown = (inputLength + 2) / 3 - 1;
+    const bsl::size_t numResidual = inputLength - numTripletsRoundedDown * 3;
 
     // 'numResidual' is in the range '[ 1 .. 3 ]'.  If 'numResidual' is '1'
     // byte, it takes 2 bytes to encode, 2 bytes takes 3 bytes to encode, 3
@@ -832,7 +833,7 @@ void Base64Encoder::encode(OUTPUT_ITERATOR *out, int maxLength)
 inline
 void Base64Encoder::setState(State newState)
 {
-    d_state = static_cast<signed char>(newState);
+    d_state = newState;
 }
 
 // PRIVATE ACCESSORS
@@ -860,26 +861,24 @@ bool Base64Encoder::isResidualOutput(int numBytes) const
 inline
 Base64Encoder::State Base64Encoder::state() const
 {
-    return static_cast<State>(d_state);
+    return d_state;
 }
 
 // CLASS METHODS
 inline
 int Base64Encoder::encodedLength(const EncoderOptions& options,
-                                 int                   inputLength)
+                                 bsl::size_t           inputLength)
 {
-    BSLS_ASSERT(0 <= inputLength);
-
     if (0 == inputLength) {
         return 0;                                                     // RETURN
     }
 
-    const int length   = lengthWithoutCrlfs(options, inputLength);
-    const int numCrlfs = 0 == options.maxLineLength()
-                       ? 0
-                       : (length - 1) / options.maxLineLength();
+    const bsl::size_t length   = lengthWithoutCrlfs(options, inputLength);
+    const bsl::size_t numCrlfs = 0 == options.maxLineLength()
+                               ? 0
+                               : (length - 1) / options.maxLineLength();
 
-    return length + 2 * numCrlfs;
+    return static_cast<int>(length + 2 * numCrlfs);
 }
 
 inline
@@ -908,8 +907,8 @@ int Base64Encoder::encodedLines(const EncoderOptions& options,
 {
     BSLS_ASSERT(0 <= inputLength);
 
-    return 1 +
-            lengthWithoutCrlfs(options, inputLength) / options.maxLineLength();
+    return static_cast<int>(1 +
+           lengthWithoutCrlfs(options, inputLength) / options.maxLineLength());
 }
 
 inline
@@ -1082,7 +1081,7 @@ void Base64Encoder::resetState()
 inline
 Base64Alphabet::Enum Base64Encoder::alphabet() const
 {
-    return static_cast<Base64Alphabet::Enum>(d_alphabetEnum);
+    return d_alphabetEnum;
 }
 
 inline

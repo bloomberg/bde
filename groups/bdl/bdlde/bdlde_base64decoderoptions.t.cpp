@@ -184,7 +184,7 @@ if (verbose)
 /// - - - - -
 // Suppose we want a 'Base64DecoderOptions' object configured for translating
 // URL's.  That would mean 'alphabet == e_URL', 'isPadded == false', and
-// 'unrecognizedIsError == true'.
+// ignoring neither unrecognized characters nor whitespace.
 //
 // First, the class method 'urlSafe' returns an object configured exactly that
 // way, so we simply call it:
@@ -246,7 +246,8 @@ if (verbose)
 ///Example 4:
 /// - - - - -
 // Suppose we want a really strangely configured options object with
-// 'alphabet == e_URL', and padding, and 'unrecognizedIsError == false'.
+// 'alphabet == e_URL', and padding, and ignoreing neither unrecognized
+// characters nor whitespace.
 //
 // First, we can simply call the 'custom' class method.  The 'padded' and
 // 'unrecognizedIsError == true' arguments are last, and they default to

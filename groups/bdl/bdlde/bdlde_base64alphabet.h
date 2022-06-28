@@ -9,7 +9,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide an enumeration of the set of possible base 64 alphabets.
 //
 //@CLASSES:
-//  bdlde::Base64Alphabet: namespace for a alphabet 'enum'
+//  bdlde::Base64Alphabet: namespace for an alphabet 'enum'
 //
 //@SEE_ALSO: bdlde_base64encorderoptions, bdlde_base64decorderoptions,
 //           bdlde_base64encoder,         bdlde_base64decoder
@@ -94,11 +94,6 @@ struct Base64Alphabet {
         e_BASIC,
         e_URL
     };
-
-    enum { k_NUM_VALUES = e_URL + 1 };    // This allows us to assert that
-                                          // that if
-                                          // '(unsigned) value < k_NUM_VALUES'
-                                          // the value is valid
 
   public:
     // CLASS METHODS

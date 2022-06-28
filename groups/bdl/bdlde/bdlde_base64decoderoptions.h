@@ -6,7 +6,7 @@
 BSLS_IDENT_RCSID(bdlde_base64decoderoptions_h,"$Id$ $CSID$")
 BSLS_IDENT_PRAGMA_ONCE
 
-//@PURPOSE: Provide value-semantic attribute classes for decoder options.
+//@PURPOSE: Provide value-semantic attribute class for decoder options.
 //
 //@CLASSES:
 //  bdlde::Base64DecoderOptions: options for decoder
@@ -16,16 +16,16 @@ BSLS_IDENT_PRAGMA_ONCE
 //           bdlde_base64alphabet
 //
 //@DESCRIPTION: This component provides a value-semantic attribute class for
-// specifying options for 'bdlde::Basee64Decoder'.
+// specifying options for 'bdlde::Base64Decoder'.
 //
-// This 'class' supports default-generated copy constuction and copy
+// This 'class' supports default-generated copy construction and copy
 // assignment, but the constructor is private.  To create an object one must
 // call one of the class methods, which will return a newly-constructed object
 // by value.  Specialized class methods are provided to create objects
 // configured for the 'mime', 'urlSafe', and 'standard' configurations.
 //
 // Other configurations may be obtained by specifying arguments to the 'custom'
-// class method, or by calling the settors after the object is created.
+// class method, or by calling the setters after the object is created.
 //
 ///Usage
 ///-----
@@ -66,7 +66,7 @@ BSLS_IDENT_PRAGMA_ONCE
 /// - - - - -
 // Suppose we want a 'Base64DecoderOptions' object configured for translating
 // URL's.  That would mean 'alphabet == e_URL', 'isPadded == false', and
-// 'unrecognizedIsError == true'.
+// ignoring neither unrecognized characters nor whitespace.
 //
 // First, the class method 'urlSafe' returns an object configured exactly that
 // way, so we simply call it:
@@ -126,7 +126,8 @@ BSLS_IDENT_PRAGMA_ONCE
 ///Example 4:
 /// - - - - -
 // Suppose we want a really strangely configured options object with
-// 'alphabet == e_URL', and padding, and 'unrecognizedIsError == false'.
+// 'alphabet == e_URL', and padding, and ignoreing neither unrecognized
+// characters nor whitespace.
 //
 // First, we can simply call the 'custom' class method.  The 'padded' and
 // 'unrecognizedIsError == true' arguments are last, and they default to
@@ -188,8 +189,9 @@ class Base64DecoderOptions {
                          bool                 padded);
         // Create a 'Base64DecoderOptions' object having the specified
         // 'alphabet', 'padded', and 'ignoreMode' attribute values.  The
-        // behavior is unless 'alphabet is a defined value of
-        // 'Base64Alphabet::Enum'.
+        // behavior is undefined unless 'alphabet' is a defined value of
+        // 'Base64Alphabet::Enum' and 'ignoreMode' is a defined value of
+        // 'Base64IgnoreMode::Enum'.
 
   public:
     // CLASS METHODS
@@ -199,9 +201,9 @@ class Base64DecoderOptions {
                        Base64Alphabet::Enum alphabet,
                        bool                 padded);
         // Return a 'Base64DecoderOptions' object having the specified
-        // 'alphabet, 'padded', and 'ignoreMode' attribute values.  The
+        // 'alphabet', 'padded', and 'ignoreMode' attribute values.  The
         // behavior is unless 'ignoreMode' is a defined value of 'IgnoreMode',
-        // and 'alphabet is a defined value of 'Base64Alphabet::Enum'.
+        // and 'alphabet' is a defined value of 'Base64Alphabet::Enum'.
 
     static
     Base64DecoderOptions mime(IgnoreMode::Enum ignoreMode =
@@ -330,7 +332,9 @@ Base64DecoderOptions::Base64DecoderOptions(IgnoreMode::Enum     ignoreMode,
 , d_alphabet(alphabet)
 , d_isPadded(padded)
 {
-    BSLS_ASSERT(static_cast<unsigned>(ignoreMode) < IgnoreMode::k_NUM_VALUES);
+    BSLS_ASSERT(Base64IgnoreMode::e_IGNORE_NONE         == ignoreMode ||
+                Base64IgnoreMode::e_IGNORE_WHITESPACE   == ignoreMode ||
+                Base64IgnoreMode::e_IGNORE_UNRECOGNIZED == ignoreMode);
     BSLS_ASSERT(Base64Alphabet::e_BASIC == alphabet ||
                                             Base64Alphabet::e_URL == alphabet);
 }

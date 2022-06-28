@@ -25,6 +25,7 @@
 
 #include <bdlde_base64encoder.h>
 
+#include <bslim_fuzzutil.h>
 #include <bslim_testutil.h>
 
 #include <bsls_assert.h>
@@ -214,6 +215,8 @@ void aSsErT(bool condition, const char *message, int line)
 typedef bdlde::Base64Encoder        Obj;
 typedef bdlde::Base64Alphabet       Alphabet;
 typedef bdlde::Base64EncoderOptions EncoderOptions;
+using bslim::FuzzDataView;
+using bslim::FuzzUtil;
 
 enum { k_DEFAULT_MAX_LINE_LENGTH = 76 };
 
@@ -362,8 +365,8 @@ namespace u {
 
 typedef bool (*CheckChar)(char);
 
-bool isBasicRaw[128 + 256], *isBasicArray = isBasicRaw + 128;
-bool isUrlRaw  [128 + 256], *isUrlArray   = isUrlRaw   + 128;
+bool isBasicRaw[256], *isBasicArray = isBasicRaw;
+bool isUrlRaw  [256], *isUrlArray   = isUrlRaw;
 
 struct InitRaw {
     InitRaw();
@@ -372,7 +375,7 @@ struct InitRaw {
 
 InitRaw::InitRaw()
 {
-    for (int ii = -128; ii < 256; ++ii) {
+    for (int ii = 0; ii < 256; ++ii) {
         const unsigned char uc = static_cast<unsigned char>(ii);
 
         isBasicArray[ii] = bsl::isalnum(uc);
@@ -388,42 +391,45 @@ InitRaw::InitRaw()
 
 bool isBasic(char c)
 {
-    return isBasicArray[c];
+    return isBasicArray[static_cast<unsigned char>(c)];
 }
 
 bool isBasicOrEquals(char c)
 {
-    return isBasicArray[c] || '=' == c;
+    return isBasicArray[static_cast<unsigned char>(c)] || '=' == c;
 }
 
 bool isBasicOrCrlf(char c)
 {
-    return isBasicArray[c] || '\n' == c || '\r' == c;
+    return isBasicArray[static_cast<unsigned char>(c)] || '\n' == c ||
+                                                                     '\r' == c;
 }
 
 bool isBasicOrEqualsOrCrlf(char c)
 {
-    return isBasicArray[c] || '=' == c || '\n' == c || '\r' == c;
+    return isBasicArray[static_cast<unsigned char>(c)] || '=' == c ||
+                                                        '\n' == c || '\r' == c;
 }
 
 bool isUrl(char c)
 {
-    return isUrlArray[c];
+    return isUrlArray[static_cast<unsigned char>(c)];
 }
 
 bool isUrlOrEquals(char c)
 {
-    return isUrlArray[c] || '=' == c;
+    return isUrlArray[static_cast<unsigned char>(c)] || '=' == c;
 }
 
 bool isUrlOrCrlf(char c)
 {
-    return isUrlArray[c] || '\n' == c || '\r' == c;
+    return isUrlArray[static_cast<unsigned char>(c)] || '\n' == c || '\r' == c;
 }
 
 bool isUrlOrEqualsOrCrlf(char c)
 {
-    return isUrlArray[c] || '=' == c || '\n' == c || '\r' == c;
+    return isUrlArray[static_cast<unsigned char>(c)] || '=' == c ||
+                                                        '\n' == c || '\r' == c;
 }
 
 bool checkRange(const EncoderOptions&  options,
@@ -530,7 +536,7 @@ class RandGen {
     bsls::Types::Uint64 d_seed;
 
   public:
-    // CREATOR
+    // CREATORS
     explicit
     RandGen(int startSeed = 0);
         // Initialize the generator with the optionally specified 'startSeed'.
@@ -543,7 +549,7 @@ class RandGen {
         // Return a random 'char'.
 };
 
-// CREATOR
+// CREATORS
 inline
 RandGen::RandGen(int startSeed)
 : d_seed(startSeed)
@@ -553,7 +559,7 @@ RandGen::RandGen(int startSeed)
     (void) (*this)();
 }
 
-// MANIPULATOR
+// MANIPULATORS
 inline
 unsigned RandGen::operator()()
 {
@@ -1392,18 +1398,8 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     // Use the specified 'data' array of 'size' bytes as input to methods of
     // this component and return zero.
 {
-    const char *FUZZ   = reinterpret_cast<const char *>(data);
-    int         LENGTH = static_cast<int>(size);
-    int         test;
-
-    if (FUZZ && LENGTH) {
-        test = 1 + static_cast<unsigned char>(*FUZZ) % 2;
-        ++FUZZ;
-        --LENGTH;
-    }
-    else {
-        test = 0;
-    }
+    FuzzDataView fdv(data, size);    const FuzzDataView& FDV = fdv;
+    int          test = FuzzUtil::consumeNumberInRange(&fdv, 1, 2);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 2: {
@@ -1447,13 +1443,14 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
         //   int endConvert(OUT, int *);
         // --------------------------------------------------------------------
 
-        const unsigned fuzzChar    = 0 == LENGTH
-                                   ? 0
-                                   : (--LENGTH, ++FUZZ, FUZZ[-1]);
-        const int      LINE_LENGTH = 0x0a == (fuzzChar & 0x0a)
-                                   ? 0
-                                   : (fuzzChar & 0x7f);
-        const char     GARBAGE     = static_cast<char>(fuzzChar ^ 0xa5);
+        // We want 'LINE_LENGTH' to have a random value, max 127, with a
+        // relatively high probabilty of 0.
+
+        const int           LINE_LENGTH   = FuzzUtil::consumeBool(&fdv)
+                                          ? 0
+                                          : FuzzUtil::consumeNumberInRange(
+                                                                 &fdv, 1, 127);
+        const char          GARBAGE       = static_cast<char>(0xa5);
 
         for (int ti = 0; ti < 2 * 2; ++ti) {
             int tti = ti;
@@ -1466,11 +1463,14 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
                                                                  LINE_LENGTH,
                                                                  ALPHA,
                                                                  PAD);
-            const char * const begin = FUZZ;
-            const char * const end   = FUZZ + LENGTH;
+            const char * const begin =
+                                   reinterpret_cast<const char *>(FDV.begin());
+            const char * const end   =
+                                   reinterpret_cast<const char *>(FDV.end());
 
-            const bool leftOver      = LENGTH % 3;
-            const int  outLength     = Obj::encodedLength(options, LENGTH);
+            const bool leftOver      = 0 != fdv.length() % 3;
+            const int  outLength     = Obj::encodedLength(options,
+                                                          fdv.length());
             ASSERT(0 != LINE_LENGTH || !PAD || 0 == outLength % 4);
 
             bsl::string outBuf(outLength + 1, GARBAGE);
@@ -1479,8 +1479,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
             char *out = outBuf.data();
 
             bsls::ObjectBuffer<Obj> ob;
-            if (LINE_LENGTH == 76 && PAD && !URL) {
-                ASSERT(EncoderOptions::mime() == options);
+            if (EncoderOptions::mime() == options) {
                 new (ob.address()) Obj();
             }
             else {
@@ -1501,7 +1500,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
             ASSERT(outBegin <= out);
             ASSERT(out <= outBegin + outLength);
             ASSERT(0 <= numIn);
-            ASSERT(numIn <= LENGTH);
+            ASSERT(numIn <= static_cast<int>(FDV.length()));
 
             ASSERT(!leftOver || numOut < outLength);
 
@@ -1569,13 +1568,14 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
         //   int endConvert(OUT, int *, int);
         // --------------------------------------------------------------------
 
-        const unsigned fuzzChar    = 0 == LENGTH
-                                   ? 0
-                                   : (--LENGTH, ++FUZZ, FUZZ[-1]);
-        const int      LINE_LENGTH = 0x0a == (fuzzChar & 0x0a)    // want a lot
-                                   ? 0                            // of 0's
-                                   : (fuzzChar & 0x7f);
-        const char     GARBAGE     = static_cast<char>(fuzzChar ^ 0xa5);
+        // We want 'LINE_LENGTH' to have a random value, max 127, with a
+        // relatively high probabilty of 0.
+
+        const int           LINE_LENGTH   = FuzzUtil::consumeBool(&fdv)
+                                          ? 0
+                                          : FuzzUtil::consumeNumberInRange(
+                                                                 &fdv, 1, 127);
+        const char          GARBAGE       = static_cast<char>(0xa5);
 
         bool doneTi = false;
         for (int ti = 0; ti < 2 * 2; ++ti) {
@@ -1593,11 +1593,14 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
             EncoderOptions padLessOptions(options);
             padLessOptions.setIsPadded(false);
 
-            const char * const begin   = FUZZ;
-            const char * const end     = FUZZ + LENGTH;
+            const char * const begin =
+                                   reinterpret_cast<const char *>(FDV.begin());
+            const char * const end   =
+                                   reinterpret_cast<const char *>(FDV.end());
 
-            const bool leftOver        = LENGTH % 3;
-            const int  outLength       = Obj::encodedLength(options, LENGTH);
+            const bool leftOver        = 0 != fdv.length() % 3;
+            const int  outLength       = Obj::encodedLength(options,
+                                                            fdv.length());
             ASSERT(0 != LINE_LENGTH || !PAD || 0 == outLength % 4);
 
             for (int maxNumOutTi = -1; maxNumOutTi <= outLength + 1;
@@ -1612,8 +1615,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
                 char *out = outBuf.data();
 
                 bsls::ObjectBuffer<Obj> ob;
-                if (LINE_LENGTH == 76 && PAD && !URL) {
-                    ASSERT(EncoderOptions::mime() == options);
+                if (EncoderOptions::mime() == options) {
                     new (ob.address()) Obj();
                 }
                 else {
@@ -1640,7 +1642,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 
                     beginIn     += numIn;
                     numInSoFar  += numIn;
-                    ASSERT(numInSoFar <= LENGTH);
+                    ASSERT(numInSoFar <= static_cast<int>(fdv.length()));
 
                     out         += numOut;
                     numOutSoFar += numOut;

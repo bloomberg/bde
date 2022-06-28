@@ -481,32 +481,33 @@ class Base64Decoder {
     };
 
     // INSTANCE DATA
-    int                 d_outputLength;  // total number of output characters
+    int                    d_outputLength;  // total number of output
+                                            // characters
 
-    const char *const   d_alphabet_p;    // selected alphabet based on
-                                         // specified alphabet type
+    const char *const      d_alphabet_p;    // selected alphabet based on
+                                            // specified alphabet type
 
-    const bool *const   d_ignorable_p;   // selected table of ignorable
-                                         // characters based on specified
-                                         // error-reporting mode
+    const bool *const      d_ignorable_p;   // selected table of ignorable
+                                            // characters based on specified
+                                            // error-reporting mode
 
-    unsigned            d_stack;         // word containing 6-bit chunks of
-                                         // data to be assembled into bytes
+    unsigned               d_stack;         // word containing 6-bit chunks of
+                                            // data to be assembled into bytes
 
-    int                 d_bitsInStack;   // number of bits in 'd_stack'
+    int                    d_bitsInStack;   // number of bits in 'd_stack'
 
-    signed char         d_state;         // state of this object as defined by
-                                         // the 'State' enum.
+    State                  d_state;         // state of this object as defined
+                                            // by the 'State' enum.
 
-    const bool          d_isPadded;      // 'true' means '=' padding is
-                                         // required, 'false' means '=' is an
-                                         // error
+    const Alphabet         d_alphabet;      // 'e_BASIC' or 'e_URL'.
 
-    const unsigned char d_alphabet;      // 'e_BASIC' or 'e_URL'.
+    const IgnoreMode::Enum d_ignoreMode;    // 'e_IGNORE_NONE',
+                                            // 'e_IGNORE_WHITESPACE', or
+                                            // 'e_IGNORE_UNRECOGNIZED'
 
-    const unsigned char d_ignoreMode;    // 'e_IGNORE_NONE',
-                                         // 'e_IGNORE_WHITESPACE', or
-                                         // 'e_IGNORE_UNRECOGNIZED'
+    const bool             d_isPadded;      // 'true' means '=' padding is
+                                            // required, 'false' means '=' is
+                                            // an error
 
   private:
     // NOT IMPLEMENTED
@@ -685,7 +686,7 @@ class Base64Decoder {
 inline
 void Base64Decoder::setState(State newState)
 {
-    d_state = static_cast<signed char>(newState);
+    d_state = newState;
 }
 
 inline
@@ -723,7 +724,7 @@ int Base64Decoder::residualBits(int  bytesOutputSoFar) const
 inline
 Base64Decoder::State Base64Decoder::state() const
 {
-    return static_cast<State>(d_state);
+    return d_state;
 }
 
 // CLASS METHODS
@@ -947,13 +948,13 @@ void Base64Decoder::resetState()
 inline
 Base64Decoder::Alphabet Base64Decoder::alphabet() const
 {
-    return static_cast<Alphabet>(d_alphabet);
+    return d_alphabet;
 }
 
 inline
 Base64IgnoreMode::Enum Base64Decoder::ignoreMode() const
 {
-    return static_cast<IgnoreMode::Enum>(d_ignoreMode);
+    return d_ignoreMode;
 }
 
 inline
