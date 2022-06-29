@@ -130,7 +130,8 @@ struct IsFunctionPointer
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=14
 
-#if defined(BSLS_PLATFORM_CMP_CLANG)
+// This pragma is not supported by older versions of Apple Clang {DRQS 169716845<GO>}
+#if defined(BSLS_PLATFORM_CMP_CLANG) && (!defined(BSLS_PLATFORM_OS_DARWIN) || BSLS_PLATFORM_CMP_VER_MAJOR > 130000)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-volatile"
 #endif

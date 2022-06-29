@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Jun  8 12:36:13 2022
+// Generated on Wed Jun 29 08:32:24 2022
 // Command line: sim_cpp11_features.pl bslmf_functionpointertraits.h
 
 #ifdef COMPILING_BSLMF_FUNCTIONPOINTERTRAITS_H
@@ -88,7 +88,7 @@ struct IsFunctionPointer
 #define BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT
 #endif
 
-#if defined(BSLS_PLATFORM_CMP_CLANG)
+#if defined(BSLS_PLATFORM_CMP_CLANG) && (!defined(BSLS_PLATFORM_OS_DARWIN) || BSLS_PLATFORM_CMP_VER_MAJOR > 130000)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-volatile"
 #endif
@@ -1310,7 +1310,7 @@ struct FunctionPointerTraits<BSLMF_RETURN (*)(ARGS_01,
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
 
-#if defined(BSLS_PLATFORM_CMP_CLANG)
+#if defined(BSLS_PLATFORM_CMP_CLANG) && (!defined(BSLS_PLATFORM_OS_DARWIN) || BSLS_PLATFORM_CMP_VER_MAJOR > 130000)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-volatile"
 #endif
