@@ -126,7 +126,7 @@ BSLS_IDENT_PRAGMA_ONCE
 ///Example 4:
 /// - - - - -
 // Suppose we want a really strangely configured options object with
-// 'alphabet == e_URL', and padding, and ignoreing neither unrecognized
+// 'alphabet == e_URL', and padding, and ignoring neither unrecognized
 // characters nor whitespace.
 //
 // First, we can simply call the 'custom' class method.  The 'padded' and

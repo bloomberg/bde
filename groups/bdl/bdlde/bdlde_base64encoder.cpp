@@ -70,7 +70,7 @@ Base64Encoder::Base64Encoder(const EncoderOptions& options)
 , d_bitsInStack(0)
 , d_alphabet_p(e_BASIC == options.alphabet() ? u::base64 : u::base64url)
 , d_state(e_INITIAL_STATE)
-, d_alphabetEnum(options.alphabet())
+, d_alphabet(options.alphabet())
 , d_isPadded(options.isPadded())
 {}
 
@@ -82,7 +82,7 @@ Base64Encoder::Base64Encoder(Alphabet alphabet)
 , d_bitsInStack(0)
 , d_alphabet_p(e_BASIC == alphabet ? u::base64 : u::base64url)
 , d_state(e_INITIAL_STATE)
-, d_alphabetEnum(alphabet)
+, d_alphabet(alphabet)
 , d_isPadded(true)
 {
     BSLS_ASSERT(e_BASIC == alphabet || e_URL == alphabet);
@@ -96,7 +96,7 @@ Base64Encoder::Base64Encoder(int maxLineLength, Alphabet alphabet)
 , d_bitsInStack(0)
 , d_alphabet_p(e_BASIC == alphabet ? u::base64 : u::base64url)
 , d_state(e_INITIAL_STATE)
-, d_alphabetEnum(alphabet)
+, d_alphabet(alphabet)
 , d_isPadded(true)
 {
     BSLS_ASSERT(0 <= maxLineLength);

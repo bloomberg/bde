@@ -63,6 +63,8 @@ using bsl::cerr;
 using bsl::endl;
 using bsl::ends;
 using bsl::flush;
+using bsl::size_t;
+using bsl::ptrdiff_t;
 
 //=============================================================================
 //                             TEST PLAN
@@ -347,9 +349,11 @@ typedef bdlde::Base64Alphabet       Alpha;
 typedef bdlde::Base64IgnoreMode     Ignore;
 using bslim::FuzzDataView;
 using bslim::FuzzUtil;
-typedef bsl::ptrdiff_t              ptrdiff_t;
 
 static const char ff = static_cast<char>(-1);
+
+enum { k_NUM_ALPHA  = 2,
+       k_NUM_IGNORE = 3 };
 
                         // ==================
                         // Named STATE Values
@@ -574,7 +578,7 @@ Ignore::Enum RandGen::benignIgnore(bool injectGarbage, bool injectWhitespace)
          ? ((*this)() & 1
              ? Ignore::e_IGNORE_WHITESPACE
              : Ignore::e_IGNORE_UNRECOGNIZED)
-         : static_cast<Ignore::Enum>((*this)() % 3);
+         : static_cast<Ignore::Enum>((*this)() % k_NUM_IGNORE);
 }
 
 inline
@@ -1770,19 +1774,21 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
         }
 
         bool done = false;
-        for (int ti = 0; ti < 2 * 3 * 2; ++ti) {
+        for (int ti = 0; ti < k_NUM_ALPHA * k_NUM_IGNORE * 2; ++ti) {
             int tti = ti;
-            const Alpha::Enum  ALPHA  = static_cast<Alpha::Enum>(tti % 2);
-            tti /= 2;
-            const Ignore::Enum IGNORE = static_cast<Ignore::Enum>(tti % 3);
-            tti /= 3;
-            const bool         PAD    = tti;
-            ASSERT(tti < 2);
-            done |= ALPHA && IGNORE == 2 && PAD;
+            const Alpha::Enum  ALPHA  =
+                                   static_cast<Alpha::Enum>(tti % k_NUM_ALPHA);
+            tti /= k_NUM_ALPHA;
+            const Ignore::Enum IGNORE =
+                                 static_cast<Ignore::Enum>(tti % k_NUM_IGNORE);
+            tti /= k_NUM_IGNORE;
+            const bool         PAD    = tti;    tti /= 2;
+            ASSERT(0 == tti);
+            done |= ALPHA && IGNORE == k_NUM_IGNORE -1 && PAD;
 
             bsl::vector<char> base64Input;
             const char        GARBAGE = char(0xa5);
-            int               base64Size;
+            ptrdiff_t         base64Size;
 
             {
                 typedef bdlde::Base64EncoderOptions EOptions;
@@ -1910,9 +1916,9 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
                 binaryOutput.resize(LENGTH + 1, GARBAGE);
 
                 int numOut = -1, numIn = -1, endNumOut = -1;
-                const int expNumIn = Ignore::e_IGNORE_NONE == IGNORE
-                                   ? base64Size
-                                   : 2 * base64Size;
+                const ptrdiff_t expNumIn = Ignore::e_IGNORE_NONE == IGNORE
+                                         ? base64Size
+                                         : 2 * base64Size;
 
                 Obj mX(Options::custom(IGNORE, ALPHA, PAD));
                 const Obj& X = mX;
@@ -2040,16 +2046,18 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
         const char GARBAGE = char(0xa5);
 
         bool done = false;
-        for (int ti = 0; ti < 2 * 3 * 2 * 2; ++ti) {
+        for (int ti = 0; ti < k_NUM_ALPHA * k_NUM_IGNORE * 2 * 2; ++ti) {
             int tti = ti;
-            const Alpha::Enum  ALPHA  = static_cast<Alpha::Enum>(tti % 2);
-            tti /= 2;
-            const Ignore::Enum IGNORE = static_cast<Ignore::Enum>(tti % 3);
-            tti /= 3;
+            const Alpha::Enum  ALPHA  =
+                                   static_cast<Alpha::Enum>(tti % k_NUM_ALPHA);
+            tti /= k_NUM_ALPHA;
+            const Ignore::Enum IGNORE =
+                                 static_cast<Ignore::Enum>(tti % k_NUM_IGNORE);
+            tti /= k_NUM_IGNORE;
             const bool         PAD    = tti % 2;    tti /= 2;
             const bool         topOff = tti % 2;    tti /= 2;
             ASSERT(0 == tti);
-            done |= ALPHA && IGNORE == 2 && PAD && topOff;
+            done |= ALPHA && IGNORE == k_NUM_IGNORE - 1 && PAD && topOff;
 
             const Options& options = Options::custom(IGNORE, ALPHA, PAD);
 
@@ -2331,9 +2339,9 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 
             const EncoderOptions& eOptions = EncoderOptions::custom(
                                                                 0, ALPHA, PAD);
-            ASSERT(numIn ==
-                      bdlde::Base64Encoder::encodedLength(eOptions,
-                                                          numOut + endNumOut));
+            ASSERT(numIn == static_cast<int>(
+                     bdlde::Base64Encoder::encodedLength(eOptions,
+                                                         numOut + endNumOut)));
 
             bdlde::Base64Encoder encoder(eOptions);
             const bdlde::Base64Encoder& ENCODER = encoder;
@@ -2751,17 +2759,20 @@ DEFINE_TEST_CASE(13)
         enum { k_REPETITIONS = 32 };
         for (int tj = 0; tj < k_REPETITIONS; ++tj) {
             bool done = false;
-            enum { k_INNER_LOOP_COUNT = 2 * 2 * 2 * 2 * 3 };
+            enum { k_INNER_LOOP_COUNT = 2 * 2 * 2 *
+                                                  k_NUM_ALPHA * k_NUM_IGNORE };
             for (int wi = 0; wi < k_INNER_LOOP_COUNT; ++wi) {
                 int wwi = wi;
                 const bool         INJECT_WHITESPACE = wwi % 2; wwi /= 2;
                 const bool         INJECT_GARBAGE    = wwi % 2; wwi /= 2;
                 const bool         PAD               = wwi % 2; wwi /= 2;
-                const bool         URL               = wwi % 2; wwi /= 2;
+                const bool         URL               = wwi % k_NUM_ALPHA;
+                wwi /= k_NUM_ALPHA;
                 const Ignore::Enum IGNORE            = (Ignore::Enum) wwi;
-                ASSERT(static_cast<unsigned>(wwi) < 3);
+                wwi /= k_NUM_IGNORE;
+                ASSERT(0 == wwi);
                 done |= INJECT_WHITESPACE && INJECT_GARBAGE && PAD && URL &&
-                                                                   2 == IGNORE;
+                                                    k_NUM_IGNORE - 1 == IGNORE;
 
                 bool expErr;
                 switch (IGNORE) {
@@ -2859,12 +2870,13 @@ DEFINE_TEST_CASE(13)
         if (veryVerbose) P(inPadded);
 
         bool done = false;
-        for (int wi = 0; wi < 16; ++wi) {
+        for (int wi = 0; wi < 2 * 2 * 2 * k_NUM_ALPHA; ++wi) {
             int wwi = wi;
             const bool INJECT_WHITESPACE = wwi % 2; wwi /= 2;
             const bool INJECT_GARBAGE    = wwi % 2; wwi /= 2;
             const bool PAD               = wwi % 2; wwi /= 2;
-            const bool URL               = wwi % 2; wwi /= 2;
+            const bool URL               = wwi % k_NUM_ALPHA;
+            wwi /= k_NUM_ALPHA;
             ASSERT(0 == wwi);
             done |= INJECT_WHITESPACE && INJECT_GARBAGE && PAD && URL;
 
@@ -2975,13 +2987,14 @@ DEFINE_TEST_CASE(13)
         enum { k_REPETITIONS = 4 };
         for (int tj = 0; tj < k_REPETITIONS; ++tj) {
             bool done = false;
-            enum { k_INNER_LOOP_COUNT = 2 * 2 * 2 *2 };
+            enum { k_INNER_LOOP_COUNT = 2 * 2 * 2 * k_NUM_ALPHA };
             for (int wi = 0; wi < k_INNER_LOOP_COUNT; ++wi) {
                 int wwi = wi;
                 const bool INJECT_WHITESPACE = wwi % 2; wwi /= 2;
                 const bool INJECT_GARBAGE    = wwi % 2; wwi /= 2;
                 const bool PAD               = wwi % 2; wwi /= 2;
-                const bool URL               = wwi % 2; wwi /= 2;
+                const bool URL               = wwi % k_NUM_ALPHA;
+                wwi /= k_NUM_ALPHA;
                 ASSERT(0 == wwi);
                 done |= INJECT_WHITESPACE && INJECT_GARBAGE && PAD & URL;
 
@@ -3134,7 +3147,7 @@ DEFINE_TEST_CASE(13)
         if (veryVerbose) P(inPadded);
 
         bool done = false;
-        enum { k_INNER_LOOP_COUNT = 2 * 2 * 2 * 2 };
+        enum { k_INNER_LOOP_COUNT = 2 * 2 * 2 * k_NUM_ALPHA };
         for (int wi = 0; wi < k_INNER_LOOP_COUNT; ++wi) {
             const bool INJECT_WHITESPACE = wi & 1;
             const bool INJECT_GARBAGE    = wi & 2;
@@ -7697,19 +7710,21 @@ DEFINE_TEST_CASE(2)
 
         if (verbose) cout << "Use an 'Options' object\n";
         bool done = false;
-        enum { k_TI_ITERATIONS = 3 * 2 * 2 };
+        enum { k_TI_ITERATIONS = k_NUM_ALPHA * 2 * k_NUM_IGNORE };
         for (int ti = 0; ti < k_TI_ITERATIONS; ++ti) {
             typedef bdlde::Base64Alphabet::Enum Enum;
 
             int tti = ti;
-            const Enum URL      = tti % 2 ? Alpha::e_URL : Alpha::e_BASIC;
-            tti /= 2;
+            const Enum URL      = static_cast<Enum>(tti % k_NUM_ALPHA);
+            tti /= k_NUM_ALPHA;
             const bool PAD      = tti % 2;
             tti /= 2;
-            const Ignore::Enum IGNORE = static_cast<Ignore::Enum>(tti % 3);
-            tti /= 3;
+            const Ignore::Enum IGNORE =
+                                 static_cast<Ignore::Enum>(tti % k_NUM_IGNORE);
+            tti /= k_NUM_IGNORE;
             ASSERT(0 == tti);
-            done |= URL && PAD && 2 == IGNORE;
+            done |= k_NUM_ALPHA - 1 == URL && PAD &&
+                                                    k_NUM_IGNORE - 1 == IGNORE;
 
             const Options& options = Options::custom(IGNORE, URL, PAD);
             Obj obj(options);
@@ -8072,8 +8087,8 @@ int main(int argc, char *argv[])
                                                                 Alpha::e_BASIC,
                                                                 true);
                 bdlde::Base64Encoder encoder(encOpt);
-                int expNumOut = bdlde::Base64Encoder::encodedLength(encOpt,
-                                                                    len);
+                ptrdiff_t expNumOut = bdlde::Base64Encoder::encodedLength(
+                                                                  encOpt, len);
 
                 bsl::string outBuf(expNumOut + 1, '?');
                 int numIn, numOut, endNumOut;
@@ -8112,7 +8127,6 @@ int main(int argc, char *argv[])
         testStatus = -1;
       }
     }
-
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;
     }

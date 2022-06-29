@@ -514,10 +514,6 @@ class Base64Decoder {
     Base64Decoder(const Base64Decoder&);
     Base64Decoder& operator=(const Base64Decoder&);
 
-    // PRIVATE MANIPULATORS
-    void setState(State newState);
-        // Set the state of this object to the specified 'newState'.
-
     // PRIVATE ACCESSORS
     int residualBits(int bytesOutputSoFar) const;
         // Return the number bits of output there are (either already done or
@@ -526,9 +522,6 @@ class Base64Decoder {
         // comes in 4 byte quads, each of which results in 3 bytes of output,
         // and this accessor is particularly useful in calculating output for
         // the last partial quad of input.
-
-    State state() const;
-        // The current state of this object.
 
   public:
     // CLASS METHODS
@@ -684,12 +677,6 @@ class Base64Decoder {
 
 // PRIVATE CLASS METHODs
 inline
-void Base64Decoder::setState(State newState)
-{
-    d_state = newState;
-}
-
-inline
 int Base64Decoder::residualBits(int  bytesOutputSoFar) const
 {
     BSLS_ASSERT(0 <= bytesOutputSoFar);
@@ -719,12 +706,6 @@ int Base64Decoder::residualBits(int  bytesOutputSoFar) const
     int ret = ((bytesOutputSoFar % 3) * 8 + d_bitsInStack) % 24;
     BSLS_ASSERT(e_INPUT_STATE != d_state || 0 == ret % 6);
     return ret;
-}
-
-inline
-Base64Decoder::State Base64Decoder::state() const
-{
-    return d_state;
 }
 
 // CLASS METHODS
@@ -759,9 +740,9 @@ int Base64Decoder::convert(OUTPUT_ITERATOR  out,
     BSLS_ASSERT(numOut);
     BSLS_ASSERT(numIn);
 
-    if (e_ERROR_STATE == state() || e_DONE_STATE == state()) {
-        int rv = e_DONE_STATE == state() ? -2 : -1;
-        setState(e_ERROR_STATE);
+    if (e_ERROR_STATE == d_state || e_DONE_STATE == d_state) {
+        int rv = e_DONE_STATE == d_state ? -2 : -1;
+        d_state = e_ERROR_STATE;
         *numOut = 0;
         *numIn = 0;
         return rv;                                                    // RETURN
@@ -782,7 +763,7 @@ int Base64Decoder::convert(OUTPUT_ITERATOR  out,
 
     *numIn = 0;
 
-    if (e_INPUT_STATE == state()) {
+    if (e_INPUT_STATE == d_state) {
         while (18 >= d_bitsInStack && begin != end) {
             const unsigned char byte = static_cast<unsigned char>(*begin);
 
@@ -825,25 +806,25 @@ int Base64Decoder::convert(OUTPUT_ITERATOR  out,
                     //:   should either be 0 or the stack should be empty.
 
                     const int leftOver = residual % 8;
-                    setState(0 != (d_stack & ((1 << leftOver) - 1))
-                             ? e_ERROR_STATE
-                             : 12 == residual
-                             ? e_NEED_EQUAL_STATE
-                             : 18 == residual
-                             ? e_SOFT_DONE_STATE
-                             : e_ERROR_STATE);
+                    d_state = 0 != (d_stack & ((1 << leftOver) - 1))
+                              ? e_ERROR_STATE
+                              : 12 == residual
+                              ? e_NEED_EQUAL_STATE
+                              : 18 == residual
+                              ? e_SOFT_DONE_STATE
+                              : e_ERROR_STATE;
                     d_stack       >>= leftOver;
                     d_bitsInStack -=  leftOver;
                 }
                 else {
-                    setState(e_ERROR_STATE);
+                    d_state = e_ERROR_STATE;
                 }
                 break;
             }
         }
     }
 
-    if (e_NEED_EQUAL_STATE == state()) {
+    if (e_NEED_EQUAL_STATE == d_state) {
         BSLS_ASSERT(d_isPadded);
 
         while (begin != end) {
@@ -854,16 +835,16 @@ int Base64Decoder::convert(OUTPUT_ITERATOR  out,
 
             if (!d_ignorable_p[byte]) {
                 if ('=' == byte) {
-                    setState(e_SOFT_DONE_STATE);
+                    d_state = e_SOFT_DONE_STATE;
                 }
                 else {
-                    setState(e_ERROR_STATE);
+                    d_state = e_ERROR_STATE;
                 }
                 break;
             }
         }
     }
-    if (e_SOFT_DONE_STATE == state()) {
+    if (e_SOFT_DONE_STATE == d_state) {
         while (begin != end) {
             const unsigned char byte = static_cast<unsigned char>(*begin);
 
@@ -871,7 +852,7 @@ int Base64Decoder::convert(OUTPUT_ITERATOR  out,
             ++*numIn;
 
             if (!d_ignorable_p[byte]) {
-                setState(e_ERROR_STATE);
+                d_state = e_ERROR_STATE;
                 break;
             }
         }
@@ -880,7 +861,7 @@ int Base64Decoder::convert(OUTPUT_ITERATOR  out,
     *numOut = numEmitted;
     d_outputLength += numEmitted;
 
-    return e_ERROR_STATE == state() ? -1 : d_bitsInStack / 8;
+    return e_ERROR_STATE == d_state ? -1 : d_bitsInStack / 8;
 }
 
 template <class OUTPUT_ITERATOR>
@@ -898,11 +879,11 @@ int Base64Decoder::endConvert(OUTPUT_ITERATOR  out,
 {
     BSLS_ASSERT(numOut);
 
-    if (!d_isPadded && e_INPUT_STATE == state()) {
+    if (!d_isPadded && e_INPUT_STATE == d_state) {
         const int residual = residualBits(d_outputLength);
         const int leftOver = residual % 8;
         if (6 == residual || 0 != (d_stack & ((1 << leftOver) - 1))) {
-            setState(e_ERROR_STATE);
+            d_state = e_ERROR_STATE;
         }
         else {
             d_stack       >>= leftOver;
@@ -910,18 +891,18 @@ int Base64Decoder::endConvert(OUTPUT_ITERATOR  out,
         }
     }
 
-    if (e_ERROR_STATE == state() || e_NEED_EQUAL_STATE == state() ||
-                        (e_DONE_STATE == state() && 0 == d_bitsInStack) ||
-                        (d_isPadded && e_INPUT_STATE == state() &&
+    if (e_ERROR_STATE == d_state || e_NEED_EQUAL_STATE == d_state ||
+                        (e_DONE_STATE == d_state && 0 == d_bitsInStack) ||
+                        (d_isPadded && e_INPUT_STATE == d_state &&
                                           0 != residualBits(d_outputLength))) {
-        setState(e_ERROR_STATE);
+        d_state = e_ERROR_STATE;
         *numOut = 0;
         return -1;                                                    // RETURN
     }
 
     BSLS_ASSERT(0 == d_bitsInStack % 8);
 
-    setState(e_DONE_STATE);
+    d_state = e_DONE_STATE;
 
     int numEmitted;
     for (numEmitted = 0; 8 <= d_bitsInStack && numEmitted != maxNumOut;
@@ -939,7 +920,7 @@ int Base64Decoder::endConvert(OUTPUT_ITERATOR  out,
 inline
 void Base64Decoder::resetState()
 {
-    setState(e_INPUT_STATE);
+    d_state = e_INPUT_STATE;
     d_outputLength = 0;
     d_bitsInStack  = 0;
 }
@@ -961,26 +942,26 @@ inline
 bool Base64Decoder::isAcceptable() const
 {
     const int residual = residualBits(d_outputLength);
-    return (0 == residual && e_INPUT_STATE == state()) ||
-                       e_SOFT_DONE_STATE == state() || e_DONE_STATE == state();
+    return (0 == residual && e_INPUT_STATE == d_state) ||
+                       e_SOFT_DONE_STATE == d_state || e_DONE_STATE == d_state;
 }
 
 inline
 bool Base64Decoder::isDone() const
 {
-    return !d_bitsInStack && e_DONE_STATE == state();
+    return !d_bitsInStack && e_DONE_STATE == d_state;
 }
 
 inline
 bool Base64Decoder::isError() const
 {
-    return e_ERROR_STATE == state();
+    return e_ERROR_STATE == d_state;
 }
 
 inline
 bool Base64Decoder::isInitialState() const
 {
-    return e_INPUT_STATE == state()
+    return e_INPUT_STATE == d_state
         && 0 == d_bitsInStack
         && 0 == d_outputLength;
 }
@@ -988,8 +969,8 @@ bool Base64Decoder::isInitialState() const
 inline
 bool Base64Decoder::isMaximal() const
 {
-    return e_SOFT_DONE_STATE == state()
-                                 || (d_bitsInStack && e_DONE_STATE == state());
+    return e_SOFT_DONE_STATE == d_state
+                                 || (d_bitsInStack && e_DONE_STATE == d_state);
 }
 
 inline

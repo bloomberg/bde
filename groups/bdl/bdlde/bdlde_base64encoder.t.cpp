@@ -50,6 +50,8 @@ using bsl::cerr;
 using bsl::endl;
 using bsl::ends;
 using bsl::flush;
+using bsl::size_t;
+using bsl::ptrdiff_t;
 
 //=============================================================================
 //                             TEST PLAN
@@ -592,8 +594,8 @@ T myMin(const T& a, const T& b)
                         // ===================
 
 bsl::ostream& printCharN(bsl::ostream& output,
-                         const char* sequence,
-                         int length)
+                         const char*   sequence,
+                         size_t        length)
     // Print the specified character 'sequence' of specified 'length' to the
     // specified 'stream' and return a reference to the modifiable 'stream'
     // (if a character is not graphical, its hexadecimal code is printed
@@ -602,7 +604,7 @@ bsl::ostream& printCharN(bsl::ostream& output,
 {
     static char HEX[] = "0123456789ABCDEF";
 
-    for (int i = 0; i < length; ++i) {
+    for (unsigned i = 0; i < length; ++i) {
         unsigned char c = static_cast<unsigned char>(sequence[i]);
 
         if (isgraph(c)) {
@@ -1468,9 +1470,9 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
             const char * const end   =
                                    reinterpret_cast<const char *>(FDV.end());
 
-            const bool leftOver      = 0 != fdv.length() % 3;
-            const int  outLength     = Obj::encodedLength(options,
-                                                          fdv.length());
+            const bool      leftOver      = 0 != fdv.length() % 3;
+            const ptrdiff_t outLength     = Obj::encodedLength(options,
+                                                               fdv.length());
             ASSERT(0 != LINE_LENGTH || !PAD || 0 == outLength % 4);
 
             bsl::string outBuf(outLength + 1, GARBAGE);
@@ -1598,9 +1600,9 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
             const char * const end   =
                                    reinterpret_cast<const char *>(FDV.end());
 
-            const bool leftOver        = 0 != fdv.length() % 3;
-            const int  outLength       = Obj::encodedLength(options,
-                                                            fdv.length());
+            const bool      leftOver        = 0 != fdv.length() % 3;
+            const ptrdiff_t outLength       = Obj::encodedLength(options,
+                                                                 fdv.length());
             ASSERT(0 != LINE_LENGTH || !PAD || 0 == outLength % 4);
 
             for (int maxNumOutTi = -1; maxNumOutTi <= outLength + 1;
@@ -3119,7 +3121,7 @@ int main(int argc, char *argv[])
             int         d_maxLineLength;   // maximum length of output line
             int         d_inputLength;     // number of input characters
             const char *d_input_p;         // input characters
-            int         d_outputLength;    // total length of output
+            unsigned    d_outputLength;    // total length of output
             const char *d_output_p;        // expected output data
         } DATA[] = {
 //--------------^
@@ -3333,7 +3335,7 @@ int main(int argc, char *argv[])
             const int              MAX_LEN = data.d_maxLineLength;
             const int              IN_LEN  = data.d_inputLength;
             const char *const      INPUT   = data.d_input_p;
-            int                    OUT_LEN = data.d_outputLength;
+            bsl::size_t            OUT_LEN = data.d_outputLength;
             const char            *OUTPUT  = data.d_output_p;
             const bool             PADDED  = tti % 2;    tti /= 2;
             const Alphabet::Enum   ALPHA   = static_cast<Alphabet::Enum>(
@@ -3357,7 +3359,7 @@ int main(int argc, char *argv[])
                     unpadded.resize(unpadded.length() - 1);
                 }
                 OUTPUT  = unpadded.c_str();
-                OUT_LEN = static_cast<int>(unpadded.length());
+                OUT_LEN = unpadded.length();
             }
 
             const char *const B = INPUT;
@@ -3385,7 +3387,7 @@ int main(int argc, char *argv[])
             }
 
             // The first thing to do is to check expected output length.
-            const int CALC_LEN = Obj::encodedLength(OPTIONS, IN_LEN);
+            const bsl::size_t CALC_LEN = Obj::encodedLength(OPTIONS, IN_LEN);
             ASSERTV(LINE, PADDED, OUTPUT, OUT_LEN, CALC_LEN,
                                                           OUT_LEN == CALC_LEN);
 
@@ -3400,14 +3402,14 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(LINE, IN_LEN == nIn);
 
             // Prepare to call 'endConvert'.
-            int totalOut = nOut;
+            unsigned totalOut = nOut;
             b += nOut;
             LOOP_ASSERT(LINE, 0 == obj.endConvert(b, &nOut));
             totalOut += nOut;
             LOOP3_ASSERT(LINE, OUT_LEN, totalOut, OUT_LEN == totalOut);
 
             // Capture and verify internal output length.
-            const int internalLen = obj.outputLength();
+            const unsigned internalLen = obj.outputLength();
             LOOP2_ASSERT(LINE, internalLen, OUT_LEN == internalLen);
 
             // Confirm final state is e_DONE_STATE.
@@ -3471,8 +3473,8 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(LINE, index, 0 == res1);
 
                 // Prepare for second call to 'convert'.
-                int localTotalIn = localNumIn;
-                int localTotalOut = localNumOut;
+                int      localTotalIn = localNumIn;
+                unsigned localTotalOut = localNumOut;
                 lb += localNumOut;
 
                 if (veryVeryVeryVerbose) {
@@ -3494,7 +3496,7 @@ int main(int argc, char *argv[])
                 localTotalOut += localNumOut;
 
                 // Compare internal output lengths.
-                const int localLen = localObj.outputLength();
+                const unsigned localLen = localObj.outputLength();
                 ASSERTV(LINE, internalLen, localLen, internalLen == localLen);
 
                 // Confirm final state is e_DONE_STATE.
