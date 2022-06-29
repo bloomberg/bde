@@ -8,8 +8,8 @@ BSLS_IDENT("$: $")
 //@PURPOSE: Provide a spin lock.
 //
 //@CLASSES:
-//  SpinLock: A mutex using "busy waiting" atomic operations
-//  SpinLockGuard: Automatic locking-unlocking of SpinLock
+//  bsls::SpinLock: A mutex using "busy waiting" atomic operations
+//  bsls::SpinLockGuard: Automatic locking-unlocking of SpinLock
 //
 //@DESCRIPTION: This component provides a "busy wait" mutual exclusion lock
 // primitive ("mutex").  A 'SpinLock' is small and statically-initializable,
