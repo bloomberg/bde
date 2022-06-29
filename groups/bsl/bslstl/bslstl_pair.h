@@ -38,14 +38,14 @@ BSLS_IDENT("$Id: $")
 // respectively, and a conversion constructor template for converting from a
 // 'bsl::pair' of different types, 'PARAM_1' and 'PARAM_2', provided 'PARAM_1'
 // is convertible to 'T1' and 'PARAM_2' is convertible to 'T2'.  Each
-// constructor also has an optional 'bslma::Allocator' pointer argument. If
+// constructor also has an optional 'bslma::Allocator' pointer argument.  If
 // neither 'T1' nor 'T2' use 'bslma::Allocator', this argument is ignored.
 // Otherwise, either, or both, depending on whether each type uses
 // 'bslma::Allocator', will be passed the 'bslma::Allocator*' argument during
-// construction. Whether or not a type uses 'bslma::Allocator' is determined by
-// querying the 'bslma::UsesBslmaAllocator' trait for that type.  This component
-// also defines a full set of equality and relational operators that can be
-// instantiated if 'T1' and 'T2' both provide those operators.
+// construction.  Whether or not a type uses 'bslma::Allocator' is determined
+// by querying the 'bslma::UsesBslmaAllocator' trait for that type.  This
+// component also defines a full set of equality and relational operators that
+// can be instantiated if 'T1' and 'T2' both provide those operators.
 //
 // A 'bsl::pair' declares a set of associated type traits that are computed
 // from the type traits of 'T1' and 'T2'.  For each supported type trait, a

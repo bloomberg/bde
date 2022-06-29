@@ -689,8 +689,8 @@ template <class ARG>
 struct ArgHolder : ARG {
     // This 'struct' holds an argument type of the specified (template
     // parameter) type 'ARG', which must be 'bsltf::EmplacableTestType' or
-    // 'bsltf::AllocEmplacableTestType', and provides constructors taking
-    // a 'bslma::Allocator*', which can be conditionally ignored.
+    // 'bsltf::AllocEmplacableTestType', and provides constructors taking a
+    // 'bslma::Allocator*', which can be conditionally ignored.
 
   private:
     // NOT IMPLEMENTED
@@ -699,15 +699,16 @@ struct ArgHolder : ARG {
 
   public:
     // CREATORS
-    template <class T>
-    ArgHolder(T value, bsl::false_type, bslma::Allocator*)
+    ArgHolder(int value, bsl::false_type, bslma::Allocator*)
     : ARG(value)
+        // Construct the 'ARG' base class using the specified 'value'.
     {
     }
 
-    template <class T>
-    ArgHolder(T value, bsl::true_type, bslma::Allocator *basicAllocator)
+    ArgHolder(int value, bsl::true_type, bslma::Allocator *basicAllocator)
     : ARG(value, basicAllocator)
+        // Construct the 'ARG' base class using the specified 'value' and the
+        // specified 'basicAllocator'.
     {
     }
 };
