@@ -46,9 +46,12 @@ void backoff(int *contentionCount, int backoffLevel)
     }
     else {
         int maxSpin = backoffLevel << count;
-        for (volatile int spin = 0; spin < maxSpin; ++spin) {
-            // spin
+
+        volatile int mustWriteHere;
+        for (int spin = 0; spin < maxSpin; ++spin) {
+            mustWriteHere = spin; // spin
         }
+        (void) mustWriteHere;
     }
 }
 
@@ -151,8 +154,8 @@ void ConcurrentFixedPool::deallocate(void *address)
     int contentionCount = 0;
 
     Node *node = (Node *)(void *)((char *)address - d_dataOffset);
-    int index = node->d_next;  // 'd_next' contains the link index of this link
-                               // node advanced by one generation.
+    int  index = node->d_next;  // 'd_next' contains the link index of this
+                                // link node advanced by one generation.
     while (1) {
         int old = d_freeList.loadRelaxed();
         node->d_next = old;
@@ -209,7 +212,7 @@ int ConcurrentFixedPool::reserveCapacity(int numObjects)
     // Reserve additional items from 'd_nodePool'.
     while (numObjects) {
         Node *node;
-        int numNodes;
+        int   numNodes;
 
         {
             bslmt::LockGuard<bslmt::Mutex> guard(&d_nodePoolMutex);
