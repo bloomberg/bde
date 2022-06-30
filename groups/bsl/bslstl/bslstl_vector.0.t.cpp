@@ -227,6 +227,8 @@
 //
 // FREE OPERATORS:
 // [34] void hashAppend(HASHALG& hashAlg, const vector<T,A>&);
+// [40] size_t erase(vector<T,A>&, const U&);
+// [40] size_t erase_if(vector<T,A>&, PREDICATE);
 //-----------------------------------------------------------------------------
 // [30] DRQS 31711031
 // [31] DRQS 34693876

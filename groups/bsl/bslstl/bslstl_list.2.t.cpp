@@ -203,6 +203,9 @@ struct TestDriver2 : TestSupport<TYPE, ALLOC> {
 
     static void testCase34_noexcept();
         // Test 'noexcept' specifications
+
+    static void testCase36_erase();
+        // Test free functions 'erase' and 'erase_if'
 };
 
                   // ==================================
@@ -214,9 +217,80 @@ class StdBslmaTestDriver2 : public StdBslmaTestDriverHelper<TestDriver2, TYPE>
 {
 };
 
+                             // ============
+                             // class EqPred
+                             // ============
+
+template <class TYPE>
+struct EqPred
+    // A predicate for testing 'erase_if'; it takes a value at construction
+    // and uses it for comparisons later.
+{
+    TYPE d_ch;
+    EqPred(TYPE ch) : d_ch(ch) {}
+
+    bool operator() (TYPE ch) const
+        // return 'true' if the specified 'ch' is equal to the stored value,
+        // and 'false' otherwise.
+    {
+        return d_ch == ch;
+    }
+};
+
                                  // ----------
                                  // TEST CASES
                                  // ----------
+
+template <class TYPE, class ALLOC>
+void TestDriver2<TYPE, ALLOC>::testCase36_erase()
+    // test 'bsl::erase' and 'bsl::erase_if' with 'bsl::list'.
+{
+    static const struct {
+        int         d_line;       // source line number
+        const char *d_initial_p;  // initial values
+        char        d_element;    // value to remove
+        const char *d_results_p;  // expected result value
+    } DATA[] = {
+        //line  initial              element  results
+        //----  -------------------  -------  -------------------
+        { L_,   "",                  'A',     ""                  },
+        { L_,   "A",                 'A',     ""                  },
+        { L_,   "A",                 'B',     "A"                 },
+        { L_,   "B",                 'A',     "B"                 },
+        { L_,   "AB",                'A',     "B"                 },
+        { L_,   "BA",                'A',     "B"                 },
+        { L_,   "BC",                'D',     "BC"                },
+        { L_,   "ABC",               'C',     "AB"                },
+        { L_,   "CBADEABCDAB",       'B',     "CADEACDA"          },
+        { L_,   "CBADEABCDABCDEA",   'E',     "CBADABCDABCDA"     },
+        { L_,   "ZZZZZZZZZZZZZZZZ",  'Z',     ""                  }
+    };
+    enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+    for (size_t i = 0; i < NUM_DATA; ++i)
+    {
+        int         LINE = DATA[i].d_line;
+        const char *initial = DATA[i].d_initial_p;
+        size_t      initialLen = strlen(initial);
+        const char *results = DATA[i].d_results_p;
+        size_t      resultsLen = strlen(results);
+
+        Obj    v1(initial, initial + initialLen);
+        Obj    v2(initial, initial + initialLen);
+        Obj    vres(results, results + resultsLen);
+        size_t ret1 = bsl::erase   (v1, DATA[i].d_element);
+        size_t ret2 = bsl::erase_if(v2, EqPred<TYPE>(DATA[i].d_element));
+
+        // Are the modified containers correct?
+        ASSERTV(LINE, v1 == vres);
+        ASSERTV(LINE, v2 == vres);
+
+        // Are the return values correct?
+        ASSERTV(LINE, ret1 == initialLen - resultsLen);
+        ASSERTV(LINE, ret2 == initialLen - resultsLen);
+    }
+}
+
 
 template <class TYPE, class ALLOC>
 void TestDriver2<TYPE, ALLOC>::testCase34_noexcept()
@@ -7854,6 +7928,34 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 36: {
+        // --------------------------------------------------------------------
+        // TESTING FREE FUNCTIONS 'BSL::ERASE' AND 'BSL::ERASE_IF'
+        //
+        // Concerns:
+        //: 1 The free functions exist, and are callable with a list.
+        //
+        // Plan:
+        //: 1 Fill a list with known values, then attempt to erase some of
+        //:   the values using 'bsl::erase' and 'bsl::erase_if'.  Verify that
+        //:   the resultant list is the right size, contains the correct
+        //:   values, and that the value returned from the functions is
+        //:   correct.
+        //
+        // Testing:
+        //   size_t erase(list<T,A>&, const U&);
+        //   size_t erase_if(list<T,A>&, PREDICATE);
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            printf(
+                "\nTESTING FREE FUNCTIONS 'BSL::ERASE' AND 'BSL::ERASE_IF'"
+                "\n=======================================================\n");
+
+        TestDriver2<char>::testCase36_erase();
+        TestDriver2<int>::testCase36_erase();
+        TestDriver2<long>::testCase36_erase();
+      } break;
       case 35: {
         //---------------------------------------------------------------------
         // TESTING CLASS TEMPLATE DEDUCTION GUIDES (AT COMPILE TIME)

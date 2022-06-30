@@ -166,10 +166,11 @@
 //
 //// specialized algorithms:
 // [ 8] void swap(multiset& a, multiset& b);
+// [36] erase_if(set<K, C, A>&s, PREDICATE);
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [36] USAGE EXAMPLE
+// [37] USAGE EXAMPLE
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int ggg(multiset *object, const char *spec, int verbose = 1);
@@ -3829,7 +3830,7 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
-      case 36: {
+      case 37: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -3875,6 +3876,7 @@ int main(int argc, char *argv[])
             ASSERT(0 < objectAllocator.numBytesInUse());
         }
       } break;
+      case 36: // falls through
       case 35: // falls through
       case 34: // falls through
       case 33: // falls through

@@ -553,6 +553,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
+#include <bslstl_algorithm.h>
 #include <bslstl_hash.h>
 #include <bslstl_iterator.h>
 #include <bslstl_iteratorutil.h>
@@ -1688,6 +1689,18 @@ bool operator>=(const vector<VALUE_TYPE, ALLOCATOR>& lhs,
     // 'value_type'.  Note that this operator returns '!(lhs < rhs)'.
 
 // FREE FUNCTIONS
+template <class VALUE_TYPE, class ALLOCATOR, class OTHER_TYPE>
+typename vector<VALUE_TYPE, ALLOCATOR>::size_type
+erase(vector<VALUE_TYPE, ALLOCATOR>& vec, const OTHER_TYPE& value);
+    // Erase all the elements in the specified vector 'vec' that compare equal
+    // to the specified 'value'.  Return the number of elements erased.
+
+template <class VALUE_TYPE, class ALLOCATOR, class PREDICATE>
+typename vector<VALUE_TYPE, ALLOCATOR>::size_type
+erase_if(vector<VALUE_TYPE, ALLOCATOR>& vec, PREDICATE predicate);
+    // Erase all the elements in the specified vector 'vec' that satisfy the
+    // specified predicate 'predicate'.  Return the number of elements erased.
+
 template <class VALUE_TYPE, class ALLOCATOR>
 void swap(vector<VALUE_TYPE, ALLOCATOR>& a,
           vector<VALUE_TYPE, ALLOCATOR>& b)
@@ -3865,6 +3878,24 @@ bool operator>=(const vector<VALUE_TYPE, ALLOCATOR>& lhs,
 // FREE FUNCTIONS
 
                        // *** specialized algorithms ***
+
+template <class VALUE_TYPE, class ALLOCATOR, class OTHER_TYPE>
+inline typename vector<VALUE_TYPE, ALLOCATOR>::size_type
+erase(vector<VALUE_TYPE, ALLOCATOR>& vec, const OTHER_TYPE& value)
+{
+    typename vector<VALUE_TYPE, ALLOCATOR>::size_type oldSize = vec.size();
+    vec.erase(bsl::remove(vec.begin(), vec.end(), value), vec.end());
+    return oldSize - vec.size();
+}
+
+template <class VALUE_TYPE, class ALLOCATOR, class PREDICATE>
+inline typename vector<VALUE_TYPE, ALLOCATOR>::size_type
+erase_if(vector<VALUE_TYPE, ALLOCATOR>& vec, PREDICATE predicate)
+{
+    typename vector<VALUE_TYPE, ALLOCATOR>::size_type oldSize = vec.size();
+    vec.erase(bsl::remove_if(vec.begin(), vec.end(), predicate), vec.end());
+    return oldSize - vec.size();
+}
 
 template <class VALUE_TYPE, class ALLOCATOR>
 inline

@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Feb  2 11:43:17 2022
+// Generated on Tue Jun 28 15:42:43 2022
 // Command line: sim_cpp11_features.pl bslstl_multiset.h
 
 #ifdef COMPILING_BSLSTL_MULTISET_H
@@ -1460,6 +1460,12 @@ bool operator>=(const multiset<KEY, COMPARATOR, ALLOCATOR>& lhs,
     // 'value_type'.  Note that this operator returns '!(lhs < rhs)'.
 
 // FREE FUNCTIONS
+template <class KEY, class COMPARATOR, class ALLOCATOR, class PREDICATE>
+typename multiset<KEY, COMPARATOR, ALLOCATOR>::size_type
+erase_if(multiset<KEY, COMPARATOR, ALLOCATOR>& ms, PREDICATE predicate);
+    // Erase all the elements in the specified multiset 'ms' that satisfy the
+    // specified predicate 'predicate'.  Return the number of elements erased.
+
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 void swap(multiset<KEY, COMPARATOR, ALLOCATOR>& a,
           multiset<KEY, COMPARATOR, ALLOCATOR>& b)
@@ -3309,6 +3315,14 @@ bool bsl::operator>=(const bsl::multiset<KEY, COMPARATOR, ALLOCATOR>& lhs,
 }
 
 // FREE FUNCTIONS
+template <class KEY,  class COMPARATOR,  class ALLOCATOR, class PREDICATE>
+inline
+typename bsl::multiset<KEY, COMPARATOR, ALLOCATOR>::size_type
+bsl::erase_if(multiset<KEY, COMPARATOR, ALLOCATOR>& ms, PREDICATE predicate)
+{
+    return BloombergLP::bslstl::AlgorithmUtil::containerEraseIf(ms, predicate);
+}
+
 template <class KEY,  class COMPARATOR,  class ALLOCATOR>
 inline
 void bsl::swap(bsl::multiset<KEY, COMPARATOR, ALLOCATOR>& a,

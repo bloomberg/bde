@@ -232,10 +232,11 @@
 //
 //// specialized algorithms:
 // [ 8] void swap(map& a, map& b);
+// [42] size_t erase_if(map&, PREDICATE);
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [41] USAGE EXAMPLE
+// [43] USAGE EXAMPLE
 //
 // TEST APPARATUS
 // [ 3] int ggg(map *object, const char *spec, bool verbose = true);
@@ -3872,7 +3873,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
-      case 41: {
+      case 43: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -3918,6 +3919,8 @@ int main(int argc, char *argv[])
             ASSERT(0 <  objectAllocator.numBytesInUse());
         }
       } break;
+      case 42: // falls through
+      case 41: // falls through
       case 40: // falls through
       case 39: // falls through
       case 38: // falls through

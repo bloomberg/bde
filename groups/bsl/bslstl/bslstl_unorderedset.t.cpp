@@ -194,11 +194,12 @@ using bsls::NameOf;
 //*[ 6] bool operator==(unordered_set<K, H, E, A>, unordered_set<K, H, E, A>);
 //*[ 6] bool operator!=(unordered_set<K, H, E, A>, unordered_set<K, H, E, A>);
 //*[ 8] void swap(unordered_set<K, H, E, A>& a, unordered_set<K, H, E, A>& b);
+//*[36] erase_if(unordered_set<K, H, E, A>& a, PREDICATE);
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] default construction (only)
-// [36] USAGE EXAMPLE
+// [37] USAGE EXAMPLE
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 //*[ 3] int ggg(unordered_set<K,H,E,A> *object, const char *spec, int verbose);
@@ -4681,7 +4682,7 @@ int main(int argc, char *argv[])
     ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
 
     switch (test) { case 0:
-      case 36: {
+      case 37: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -4836,6 +4837,7 @@ if (verbose) {
 // See the material in {'bslstl_unorderedmap'|Example 2}.
 
       } break;
+      case 36: // falls through
       case 35: // falls through
       case 34: // falls through
       case 33: // falls through

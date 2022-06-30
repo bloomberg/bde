@@ -632,6 +632,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
+#include <bslstl_algorithm.h>
 #include <bslstl_equalto.h>
 #include <bslstl_hash.h>
 #include <bslstl_hashtable.h>
@@ -1818,6 +1819,14 @@ bool operator!=(const unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& lhs,
     // and be 'equality-comparable' (see {Requirements on 'KEY'}).
 
 // FREE FUNCTIONS
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR, class PREDICATE>
+typename unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::size_type
+erase_if(unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& ms,
+         PREDICATE                                        predicate);
+    // Erase all the elements in the specified unordered_multiset 'ms' that
+    // satisfy the specified predicate 'predicate'.  Return the number of
+    // elements erased.
+
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 void swap(unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& a,
           unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& b)
@@ -2612,6 +2621,15 @@ bool bsl::operator!=(
 }
 
 // FREE FUNCTIONS
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR, class PREDICATE>
+inline
+typename bsl::unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::size_type
+bsl::erase_if(unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& ms,
+              PREDICATE                                        predicate)
+{
+    return BloombergLP::bslstl::AlgorithmUtil::containerEraseIf(ms, predicate);
+}
+
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 void

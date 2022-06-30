@@ -513,6 +513,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
+#include <bslstl_algorithm.h>
 #include <bslstl_iterator.h>
 #include <bslstl_iteratorutil.h>
 #include <bslstl_pair.h>
@@ -1750,6 +1751,12 @@ bool operator>=(const set<KEY, COMPARATOR, ALLOCATOR>& lhs,
     // 'value_type'.  Note that this operator returns '!(lhs < rhs)'.
 
 // FREE FUNCTIONS
+template <class KEY, class COMPARATOR, class ALLOCATOR, class PREDICATE>
+typename set<KEY, COMPARATOR, ALLOCATOR>::size_type
+erase_if(set<KEY, COMPARATOR, ALLOCATOR>& s, PREDICATE predicate);
+    // Erase all the elements in the specified set 's' that satisfy the
+    // specified predicate 'predicate'.  Return the number of elements erased.
+
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 void swap(set<KEY, COMPARATOR, ALLOCATOR>& a,
           set<KEY, COMPARATOR, ALLOCATOR>& b)
@@ -2686,6 +2693,14 @@ bool bsl::operator>=(const bsl::set<KEY, COMPARATOR, ALLOCATOR>& lhs,
 }
 
 // FREE FUNCTIONS
+template <class KEY,  class COMPARATOR,  class ALLOCATOR, class PREDICATE>
+inline
+typename bsl::set<KEY, COMPARATOR, ALLOCATOR>::size_type
+bsl::erase_if(set<KEY, COMPARATOR, ALLOCATOR>& s, PREDICATE predicate)
+{
+    return BloombergLP::bslstl::AlgorithmUtil::containerEraseIf(s, predicate);
+}
+
 template <class KEY,  class COMPARATOR,  class ALLOCATOR>
 inline
 void bsl::swap(bsl::set<KEY, COMPARATOR, ALLOCATOR>& a,

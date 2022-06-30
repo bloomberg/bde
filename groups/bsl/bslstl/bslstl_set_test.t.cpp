@@ -1203,6 +1203,26 @@ bool lessThanFunction(const TYPE& lhs, const TYPE& rhs)
 
 }  // close unnamed namespace
 
+                             // ============
+                             // class EqPred
+                             // ============
+
+template <class TYPE>
+struct EqPred
+    // A predicate for testing 'erase_if'; it takes a value at construction
+    // and uses it for comparisons later.
+{
+    TYPE d_ch;
+    EqPred(TYPE ch) : d_ch(ch) {}
+
+    bool operator() (TYPE ch) const
+        // return 'true' if the specified 'ch' is equal to the stored value,
+        // and 'false' otherwise.
+    {
+        return d_ch == ch;
+    }
+};
+
 // ============================================================================
 //                     GLOBAL TYPEDEFS FOR TESTING
 // ----------------------------------------------------------------------------
@@ -1473,6 +1493,9 @@ class TestDriver {
   public:
     // TEST CASES
 
+    static void testCase37();
+        // Test free function 'bsl::erase_if'
+
     static void testCase33();
         // Test 'noexcept' specifications
 
@@ -1598,6 +1621,77 @@ bsl::set<KEY, COMP, ALLOC>& TestDriver<KEY, COMP, ALLOC>::gg(
 {
     ASSERTV(ggg(object, spec) < 0);
     return *object;
+}
+
+template <class KEY, class COMP, class ALLOC>
+void TestDriver<KEY, COMP, ALLOC>::testCase37()
+{
+    // --------------------------------------------------------------------
+    // TESTING FREE FUNCTION 'BSL::ERASE_IF'
+    //
+    // Concerns:
+    //: 1 The free function exists, and is callable with an set.
+    //
+    // Plan:
+    //: 1 Fill a set with known values, then attempt to erase some of
+    //:   the values using 'bsl::erase_if'.  Verify that the resultant set
+    //:   is the right size, contains the correct values, and that the
+    //:   value returned from the functions is correct.
+    //
+    // Testing:
+    //   size_t erase_if(set&, PREDICATE);
+    // --------------------------------------------------------------------
+
+    static const struct {
+        int         d_line;       // source line number
+        const char *d_initial_p;  // initial values
+        char        d_element;    // value to remove
+        const char *d_results_p;  // expected result value
+    } DATA[] = {
+        //line  initial              element  results
+        //----  -------------------  -------  -------------------
+        { L_,   "",                  'A',     ""                  },
+        { L_,   "A",                 'A',     ""                  },
+        { L_,   "A",                 'B',     "A"                 },
+        { L_,   "B",                 'A',     "B"                 },
+        { L_,   "AB",                'A',     "B"                 },
+        { L_,   "BA",                'A',     "B"                 },
+        { L_,   "BC",                'D',     "BC"                },
+        { L_,   "ABC",               'C',     "AB"                },
+        { L_,   "CBADEGHIJKL",       'B',     "CADEGHIJKL"        }
+    };
+    enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+    for (size_t i = 0; i < NUM_DATA; ++i)
+    {
+        int             LINE = DATA[i].d_line;
+        const char     *initial = DATA[i].d_initial_p;
+        size_t          initialLen = strlen(initial);
+        const char     *results = DATA[i].d_results_p;
+        size_t          resultsLen = strlen(results);
+
+        Obj mX;
+        Obj mRes;
+
+        for (size_t j = 0; j < initialLen; ++j)
+        {
+            mX.insert(initial[j]);
+        }
+
+        for (size_t j = 0; j < resultsLen; ++j)
+        {
+            mRes.insert(results[j]);
+        }
+
+        EqPred<KEY> pred(DATA[i].d_element);
+        size_t      ret   = bsl::erase_if(mX, pred);
+
+        // Is the modified container correct?
+        ASSERTV(LINE, mX == mRes);
+
+        // Is the return value correct?
+        ASSERTV(LINE, ret == initialLen - resultsLen);
+        }
 }
 
 template <class KEY, class COMP, class ALLOC>
@@ -7895,6 +7989,18 @@ int main(int argc, char *argv[])
     ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
 
     switch (test) { case 0:
+      case 37: {
+        // --------------------------------------------------------------------
+        // TESTING ERASE_IF
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING FREE FUNCTION 'BSL::ERASE_IF'"
+                            "\n=====================================\n");
+
+        TestDriver<char>::testCase37();
+        TestDriver<int>::testCase37();
+        TestDriver<long>::testCase37();
+      } break;
       case 36: {
         //---------------------------------------------------------------------
         // TESTING CLASS TEMPLATE DEDUCTION GUIDES (AT COMPILE TIME)

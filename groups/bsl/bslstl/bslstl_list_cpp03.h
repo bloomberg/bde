@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Fri Apr 29 17:30:51 2022
+// Generated on Thu Jun 30 10:02:18 2022
 // Command line: sim_cpp11_features.pl bslstl_list.h
 
 #ifdef COMPILING_BSLSTL_LIST_H
@@ -1828,6 +1828,18 @@ bool operator>=(const list<VALUE, ALLOCATOR>& lhs,
     // 'value_type'.  Note that this operator returns '!(lhs < rhs)'.
 
 // FREE FUNCTIONS
+template <class VALUE, class ALLOCATOR, class OTHER_TYPE>
+typename list<VALUE, ALLOCATOR>::size_type
+erase(list<VALUE, ALLOCATOR>& l, const OTHER_TYPE& value);
+    // Erase all the elements in the specified list 'l' that compare equal to
+    // the specified 'value'.  Return the number of elements erased.
+
+template <class VALUE, class ALLOCATOR, class PREDICATE>
+typename list<VALUE, ALLOCATOR>::size_type
+erase_if(list<VALUE, ALLOCATOR>& l, PREDICATE predicate);
+    // Erase all the elements in the specified list 'l' that satisfy the
+    // specified predicate 'predicate'.  Return the number of elements erased.
+
 template <class VALUE, class ALLOCATOR>
 void swap(list<VALUE, ALLOCATOR>& a, list<VALUE, ALLOCATOR>& b)
                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
@@ -4299,6 +4311,34 @@ bool bsl::operator>=(const list<VALUE, ALLOCATOR>& lhs,
 }
 
 // FREE FUNCTIONS
+template <class VALUE, class ALLOCATOR, class OTHER_TYPE>
+inline typename bsl::list<VALUE, ALLOCATOR>::size_type
+bsl::erase(list<VALUE, ALLOCATOR>& l, const OTHER_TYPE& value)
+{
+    // We could use the erase/remove idiom here like we do in the other
+    // sequence containers, but this is more efficient, since we just unlink
+    // and delete nodes from the list.
+    typename list<VALUE, ALLOCATOR>::size_type oldSize = l.size();
+    for (typename list<VALUE, ALLOCATOR>::iterator it = l.begin();
+                                                                it != l.end();)
+    {
+        if (value == *it) {
+            it = l.erase(it);
+        }
+        else {
+            ++it;
+        }
+    }
+    return oldSize - l.size();
+}
+
+template <class VALUE, class ALLOCATOR, class PREDICATE>
+inline typename bsl::list<VALUE, ALLOCATOR>::size_type
+bsl::erase_if(list<VALUE, ALLOCATOR>& l, PREDICATE predicate)
+{
+    return BloombergLP::bslstl::AlgorithmUtil::containerEraseIf(l, predicate);
+}
+
 template <class VALUE, class ALLOCATOR>
 inline
 void bsl::swap(list<VALUE, ALLOCATOR>& a, list<VALUE, ALLOCATOR>& b)

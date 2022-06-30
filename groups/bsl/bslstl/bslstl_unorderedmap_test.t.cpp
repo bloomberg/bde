@@ -677,6 +677,26 @@ void runErasure(bsl::unordered_map<EraseAmbiguityTestType, int>& container,
 
 }  // close unnamed namespace
 
+                       // ================
+                       // struct EqKeyPred
+                       // ================
+
+template <class KEY, class VALUE>
+struct EqKeyPred {
+    // A predicate for testing 'erase_if'; it takes a value at construction
+    // and uses it for comparisons later.
+
+    KEY d_key;
+    EqKeyPred(KEY val) : d_key(val) {}
+
+    bool operator() (const bsl::pair<const KEY, VALUE> &p) const
+        // return 'true' if the second member of the specified pair 'p' is
+        // equal to the stored value, and 'false' otherwise.
+    {
+        return d_key == p.first;
+    }
+};
+
 //=============================================================================
 //                      GLOBAL FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -1682,6 +1702,9 @@ class TestDriver {
 
   public:
     // TEST CASES
+    static void testCase42();
+        // Test free function 'bsl::erase_if'.
+
     static void testCase38();
         // Test absence of 'erase' method ambiguity.
 
@@ -1855,6 +1878,78 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::matchFirstValues(
         ASSERTV(v.first, it->second, v.second,
                                  !found || keysOnly || it->second == v.second);
     }
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
+void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase42()
+{
+    // --------------------------------------------------------------------
+    // TESTING FREE FUNCTION 'BSL::ERASE_IF'
+    //
+    // Concerns:
+    //: 1 The free function exists, and is callable with a map.
+    //
+    // Plan:
+    //: 1 Fill a map with known values, then attempt to erase some of
+    //:   the values using 'bsl::erase_if'.  Verify that the resultant map
+    //:   is the right size, contains the correct values, and that the
+    //:   value returned from the functions is correct.
+    //
+    // Testing:
+    //   size_t erase_if(map&, PREDICATE);
+    // --------------------------------------------------------------------
+
+    static const struct {
+        int         d_line;       // source line number
+        const char *d_initial_p;  // initial values
+        char        d_element;    // value to remove
+        const char *d_results_p;  // expected result value
+    } DATA[] = {
+        //line  initial              element  results
+        //----  -------------------  -------  -------------------
+        { L_,   "",                  'A',     ""                  },
+        { L_,   "A",                 'A',     ""                  },
+        { L_,   "A",                 'B',     "A"                 },
+        { L_,   "B",                 'A',     "B"                 },
+        { L_,   "AB",                'A',     "B"                 },
+        { L_,   "BA",                'A',     "B"                 },
+        { L_,   "BC",                'D',     "BC"                },
+        { L_,   "ABC",               'C',     "AB"                },
+        { L_,   "CBADEGHIJKL",       'B',     "CADEGHIJKL"        }
+    };
+    enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+    for (size_t i = 0; i < NUM_DATA; ++i)
+    {
+        typedef bsl::pair<const KEY, VALUE> PAIR;
+        int             LINE = DATA[i].d_line;
+        const char     *initial = DATA[i].d_initial_p;
+        size_t          initialLen = strlen(initial);
+        const char     *results = DATA[i].d_results_p;
+        size_t          resultsLen = strlen(results);
+
+        Obj mX;
+        Obj mRes;
+
+        for (size_t j = 0; j < initialLen; ++j)
+        {
+            mX.insert(PAIR(initial[j], 0));
+        }
+
+        for (size_t j = 0; j < resultsLen; ++j)
+        {
+            mRes.insert(PAIR(results[j], 0));
+        }
+
+        EqKeyPred<KEY, VALUE> pred(DATA[i].d_element);
+        size_t                ret   = bsl::erase_if(mX, pred);
+
+        // Is the modified container correct?
+        ASSERTV(LINE, mX == mRes);
+
+        // Is the return value correct?
+        ASSERTV(LINE, ret == initialLen - resultsLen);
+        }
 }
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
@@ -8738,6 +8833,18 @@ int main(int argc, char *argv[])
     ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
 
     switch (test) { case 0:
+      case 42: {
+        // --------------------------------------------------------------------
+        // TESTING ERASE_IF
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING FREE FUNCTION 'BSL::ERASE_IF'"
+                            "\n=====================================\n");
+
+        TestDriver<char, size_t>::testCase42();
+        TestDriver<int,  size_t>::testCase42();
+        TestDriver<long, size_t>::testCase42();
+      } break;
       case 41: {
         //---------------------------------------------------------------------
         // TESTING CLASS TEMPLATE DEDUCTION GUIDES (AT COMPILE TIME)

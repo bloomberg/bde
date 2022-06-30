@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Jun  8 13:16:02 2022
+// Generated on Tue Jun 28 15:42:43 2022
 // Command line: sim_cpp11_features.pl bslstl_unorderedmap.h
 
 #ifdef COMPILING_BSLSTL_UNORDEREDMAP_H
@@ -1605,6 +1605,20 @@ bool operator!=(const unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& lhs,
     // 'value_type'}).
 
 // FREE FUNCTIONS
+
+template <class KEY,
+          class VALUE,
+          class HASH,
+          class EQUAL,
+          class ALLOCATOR,
+          class PREDICATE>
+typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::size_type
+erase_if(unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>&         m, 
+                                                          PREDICATE predicate);
+    // Erase all the elements in the specified unordered_map 'm' that satisfy
+    // the specified predicate 'predicate'.  Return the number of elements
+    // erased.
+
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 void swap(unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& a,
           unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& b)
@@ -3198,6 +3212,20 @@ bool bsl::operator!=(
 }
 
 // FREE FUNCTIONS
+template <class KEY,
+          class VALUE,
+          class HASH,
+          class EQUAL,
+          class ALLOCATOR,
+          class PREDICATE>
+inline
+typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::size_type
+bsl::erase_if(unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>&     m,
+                                                           PREDICATE predicate)
+{
+    return BloombergLP::bslstl::AlgorithmUtil::containerEraseIf(m, predicate);
+}
+
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
 void

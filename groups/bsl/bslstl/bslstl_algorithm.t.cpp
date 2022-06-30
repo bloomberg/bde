@@ -32,6 +32,7 @@
 // [ 1] bool any_of (InputIter first, InputIter last, PREDICATE pred);
 // [ 1] bool none_of(InputIter first, InputIter last, PREDICATE pred);
 // [ 2] BREATHING TEST
+// [ 3] bsl::clamp();
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -340,6 +341,32 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
+      case 3: {
+        // --------------------------------------------------------------------
+        // TESTING C++17 <BSL_ALGORITHM.H> ADDITIONS
+        //
+        // Concerns:
+        //: 1 The call 'bsl::clamp' exists and return expected values for
+        //:   simple cases.
+        //
+        // Plan:
+        //: 1 Call each version of the algorithm with simple inputs and verify
+        //:   that the result is correct.
+        //
+        // Testing:
+        //   bsl::clamp();
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING C++17 <BSL_ALGORITHM.H> ADDITIONS"
+                            "\n=========================================\n");
+
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+        ASSERT(3 == bsl::clamp(3, 1, 10));
+        ASSERT(3 == bsl::clamp(1, 3, 10));
+        ASSERT(3 == bsl::clamp(3, 10, 1, std::greater<int>()));
+        ASSERT(3 == bsl::clamp(1, 10, 3, std::greater<int>()));
+#endif
+      } break;
       case 2: {
         // --------------------------------------------------------------------
         // BREATHING TEST

@@ -216,6 +216,8 @@
 //
 // FREE FUNCTIONS
 // [20] void swap(deque& a, deque& b);
+// [33] size_t erase(deque<T,A>&, const U&);
+// [33] size_t erase_if(deque<T,A>&, PREDICATE);
 // ----------------------------------------------------------------------------
 // [22] CONCERN: 'std::length_error' is used properly.
 //

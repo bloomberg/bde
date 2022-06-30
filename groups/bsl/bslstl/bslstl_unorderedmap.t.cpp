@@ -206,6 +206,7 @@ using bsl::pair;
 /// misc:
 // [ 8] void swap(Obj&, Obj&);
 // [ 4] allocator_type get_allocator() const;
+// [42] size_t erase_if(Obj&, PREDICATE);
 //
 // capacity:
 // [ 4] size_type size() const;
@@ -226,7 +227,7 @@ using bsl::pair;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [41] CLASS TEMPLATE ARGUMENT DEDUCTION
-// [42] USAGE EXAMPLE
+// [43] USAGE EXAMPLE
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int  ggg(Obj *, const char *, bool verbose = true);
@@ -10425,7 +10426,7 @@ int main(int argc, char *argv[])
     ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
 
     switch (test) { case 0:
-      case 42: {
+      case 43: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -10445,6 +10446,7 @@ int main(int argc, char *argv[])
                             "\n=============\n");
         usage();
       } break;
+      case 42: // falls through
       case 41: // falls through
       case 40: // falls through
       case 39: // falls through

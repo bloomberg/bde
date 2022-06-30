@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed May 18 23:01:34 2022
+// Generated on Thu Jun 30 10:02:18 2022
 // Command line: sim_cpp11_features.pl bslstl_deque.h
 
 #ifdef COMPILING_BSLSTL_DEQUE_H
@@ -1562,6 +1562,18 @@ bool operator>=(const deque<VALUE_TYPE, ALLOCATOR>& lhs,
     // 'value_type'.  Note that this operator returns '!(lhs < rhs)'.
 
 // FREE FUNCTIONS
+template <class VALUE_TYPE, class ALLOCATOR, class OTHER_TYPE>
+typename deque<VALUE_TYPE, ALLOCATOR>::size_type
+erase(deque<VALUE_TYPE, ALLOCATOR>& deq, const OTHER_TYPE& value);
+    // Erase all the elements in the specified deque 'deq' that compare equal
+    // to the specified 'value'.  Return the number of elements erased.
+
+template <class VALUE_TYPE, class ALLOCATOR, class PREDICATE>
+typename deque<VALUE_TYPE, ALLOCATOR>::size_type
+erase_if(deque<VALUE_TYPE, ALLOCATOR>& deq, PREDICATE predicate);
+    // Erase all the elements in the specified deque 'deq' that satisfy the
+    // specified predicate 'predicate'.  Return the number of elements erased.
+
 template <class VALUE_TYPE, class ALLOCATOR>
 void swap(deque<VALUE_TYPE, ALLOCATOR>& a, deque<VALUE_TYPE, ALLOCATOR>& b)
                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
@@ -6129,6 +6141,24 @@ bool operator>=(const deque<VALUE_TYPE, ALLOCATOR>& lhs,
 }
 
 // FREE FUNCTIONS
+template <class VALUE_TYPE, class ALLOCATOR, class OTHER_TYPE>
+inline typename deque<VALUE_TYPE, ALLOCATOR>::size_type
+erase(deque<VALUE_TYPE, ALLOCATOR>& deq, const OTHER_TYPE& value)
+{
+    typename deque<VALUE_TYPE, ALLOCATOR>::size_type oldSize = deq.size();
+    deq.erase(bsl::remove(deq.begin(), deq.end(), value), deq.end());
+    return oldSize - deq.size();
+}
+
+template <class VALUE_TYPE, class ALLOCATOR, class PREDICATE>
+inline typename deque<VALUE_TYPE, ALLOCATOR>::size_type
+erase_if(deque<VALUE_TYPE, ALLOCATOR>& deq, PREDICATE predicate)
+{
+    typename deque<VALUE_TYPE, ALLOCATOR>::size_type oldSize = deq.size();
+    deq.erase(bsl::remove_if(deq.begin(), deq.end(), predicate), deq.end());
+    return oldSize - deq.size();
+}
+
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
 void swap(deque<VALUE_TYPE, ALLOCATOR>& a, deque<VALUE_TYPE, ALLOCATOR>& b)

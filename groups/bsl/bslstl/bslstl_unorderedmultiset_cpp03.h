@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Feb  3 07:42:25 2022
+// Generated on Tue Jun 28 15:42:43 2022
 // Command line: sim_cpp11_features.pl bslstl_unorderedmultiset.h
 
 #ifdef COMPILING_BSLSTL_UNORDEREDMULTISET_H
@@ -1453,6 +1453,14 @@ bool operator!=(const unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& lhs,
     // and be 'equality-comparable' (see {Requirements on 'KEY'}).
 
 // FREE FUNCTIONS
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR, class PREDICATE>
+typename unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::size_type
+erase_if(unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& ms,
+         PREDICATE                                        predicate);
+    // Erase all the elements in the specified unordered_multiset 'ms' that
+    // satisfy the specified predicate 'predicate'.  Return the number of
+    // elements erased.
+
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 void swap(unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& a,
           unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& b)
@@ -2835,6 +2843,15 @@ bool bsl::operator!=(
 }
 
 // FREE FUNCTIONS
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR, class PREDICATE>
+inline
+typename bsl::unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::size_type
+bsl::erase_if(unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& ms,
+              PREDICATE                                        predicate)
+{
+    return BloombergLP::bslstl::AlgorithmUtil::containerEraseIf(ms, predicate);
+}
+
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 void

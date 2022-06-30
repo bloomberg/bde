@@ -295,6 +295,26 @@ class TestAllocatorUtil
     }
 };
 
+                             // ============
+                             // class EqPred
+                             // ============
+
+template <class TYPE>
+struct EqPred
+    // A predicate for testing 'erase_if'; it takes a value at construction
+    // and uses it for comparisons later.
+{
+    TYPE d_ch;
+    EqPred(TYPE ch) : d_ch(ch) {}
+
+    bool operator() (TYPE ch) const
+        // return 'true' if the specified 'ch' is equal to the stored value,
+        // and 'false' otherwise.
+    {
+        return d_ch == ch;
+    }
+};
+
                      // TEST DRIVER PART 3 TINY HELPERS
 
 template <int N>
@@ -474,6 +494,10 @@ struct TestDriver3 : TestSupport<TYPE, ALLOC> {
 
                                // TEST CASES
     // CLASS METHODS
+
+    static void testCase40();
+        // Test free functions 'erase' and 'erase_if'
+
     static void testCase38();
         // Test ability to move movable types when growing vector.
 
@@ -611,6 +635,57 @@ struct MetaTestDriver3 {
                                  // ----------
                                  // TEST CASES
                                  // ----------
+
+template <class TYPE, class ALLOC>
+void TestDriver3<TYPE, ALLOC>::testCase40()
+    // test 'bsl::erase' and 'bsl::erase_if' with 'bsl::vector'.
+{
+    static const struct {
+        int         d_line;       // source line number
+        const char *d_initial_p;  // initial values
+        char        d_element;    // value to remove
+        const char *d_results_p;  // expected result value
+    } DATA[] = {
+        //line  initial              element  results
+        //----  -------------------  -------  -------------------
+        { L_,   "",                  'A',     ""                  },
+        { L_,   "A",                 'A',     ""                  },
+        { L_,   "A",                 'B',     "A"                 },
+        { L_,   "B",                 'A',     "B"                 },
+        { L_,   "AB",                'A',     "B"                 },
+        { L_,   "BA",                'A',     "B"                 },
+        { L_,   "BC",                'D',     "BC"                },
+        { L_,   "ABC",               'C',     "AB"                },
+        { L_,   "CBADEABCDAB",       'B',     "CADEACDA"          },
+        { L_,   "CBADEABCDABCDEA",   'E',     "CBADABCDABCDA"     },
+        { L_,   "ZZZZZZZZZZZZZZZZ",  'Z',     ""                  }
+    };
+    enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+    for (size_t i = 0; i < NUM_DATA; ++i)
+    {
+        int         LINE = DATA[i].d_line;
+        const char *initial = DATA[i].d_initial_p;
+        size_t      initialLen = strlen(initial);
+        const char *results = DATA[i].d_results_p;
+        size_t      resultsLen = strlen(results);
+
+        Obj    v1(initial, initial + initialLen);
+        Obj    v2(initial, initial + initialLen);
+        Obj    vres(results, results + resultsLen);
+        size_t ret1 = bsl::erase   (v1, DATA[i].d_element);
+        size_t ret2 = bsl::erase_if(v2, EqPred<TYPE>(DATA[i].d_element));
+
+        // Are the modified containers correct?
+        ASSERTV(LINE, v1 == vres);
+        ASSERTV(LINE, v2 == vres);
+
+        // Are the return values correct?
+        ASSERTV(LINE, ret1 == initialLen - resultsLen);
+        ASSERTV(LINE, ret2 == initialLen - resultsLen);
+    }
+}
+
 
 template <class TYPE, class ALLOC>
 void TestDriver3<TYPE, ALLOC>::testCase38()
@@ -4518,10 +4593,38 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 40: {
+      case 41: {
         if (verbose) printf(
                     "\nUSAGE EXAMPLE TEST CASE IS IN 'bslstl_vector.t.cpp'"
                     "\n===================================================\n");
+      } break;
+      case 40: {
+        // --------------------------------------------------------------------
+        // TESTING FREE FUNCTIONS 'BSL::ERASE' AND 'BSL::ERASE_IF'
+        //
+        // Concerns:
+        //: 1 The free functions exist, and are callable with a vector.
+        //
+        // Plan:
+        //: 1 Fill a vector with known values, then attempt to erase some of
+        //:   the values using 'bsl::erase' and 'bsl::erase_if'.  Verify that
+        //:   the resultant vector is the right size, contains the correct
+        //:   values, and that the value returned from the functions is
+        //:   correct.
+        //
+        // Testing:
+        //   size_t erase(vector<T,A>&, const T&);
+        //   size_t erase_if(vector<T,A>&, PREDICATE);
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            printf(
+                "\nTESTING FREE FUNCTIONS 'BSL::ERASE' AND 'BSL::ERASE_IF'"
+                "\n=======================================================\n");
+
+        TestDriver3<char>::testCase40();
+        TestDriver3<int>::testCase40();
+        TestDriver3<long>::testCase40();
       } break;
       case 39: {
         //---------------------------------------------------------------------

@@ -171,10 +171,11 @@
 //
 //// specialized algorithms:
 // [ 8] void swap(set<K, C, A>& a, set<K, C, A>& b);
+// [37] erase_if(set<K, C, A>&s, PREDICATE)
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [37] USAGE EXAMPLE
+// [38] USAGE EXAMPLE
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int ggg(set<T,A> *object, const char *spec, int verbose = 1);

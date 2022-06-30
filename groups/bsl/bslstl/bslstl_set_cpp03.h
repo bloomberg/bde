@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Feb  2 11:43:17 2022
+// Generated on Tue Jun 28 15:42:43 2022
 // Command line: sim_cpp11_features.pl bslstl_set.h
 
 #ifdef COMPILING_BSLSTL_SET_H
@@ -1506,6 +1506,12 @@ bool operator>=(const set<KEY, COMPARATOR, ALLOCATOR>& lhs,
     // 'value_type'.  Note that this operator returns '!(lhs < rhs)'.
 
 // FREE FUNCTIONS
+template <class KEY, class COMPARATOR, class ALLOCATOR, class PREDICATE>
+typename set<KEY, COMPARATOR, ALLOCATOR>::size_type
+erase_if(set<KEY, COMPARATOR, ALLOCATOR>& s, PREDICATE predicate);
+    // Erase all the elements in the specified set 's' that satisfy the
+    // specified predicate 'predicate'.  Return the number of elements erased.
+
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 void swap(set<KEY, COMPARATOR, ALLOCATOR>& a,
           set<KEY, COMPARATOR, ALLOCATOR>& b)
@@ -3404,6 +3410,14 @@ bool bsl::operator>=(const bsl::set<KEY, COMPARATOR, ALLOCATOR>& lhs,
 }
 
 // FREE FUNCTIONS
+template <class KEY,  class COMPARATOR,  class ALLOCATOR, class PREDICATE>
+inline
+typename bsl::set<KEY, COMPARATOR, ALLOCATOR>::size_type
+bsl::erase_if(set<KEY, COMPARATOR, ALLOCATOR>& s, PREDICATE predicate)
+{
+    return BloombergLP::bslstl::AlgorithmUtil::containerEraseIf(s, predicate);
+}
+
 template <class KEY,  class COMPARATOR,  class ALLOCATOR>
 inline
 void bsl::swap(bsl::set<KEY, COMPARATOR, ALLOCATOR>& a,

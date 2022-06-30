@@ -25,6 +25,7 @@ BSLS_IDENT("$Id: $")
 // 'bsl_algorithm.h' directly.
 
 #include <bslscm_version.h>
+#include <bsls_assert.h>
 #include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
 
@@ -32,10 +33,31 @@ BSLS_IDENT("$Id: $")
 #include <bslstl_pair.h>
 
 #include <algorithm>
+#include <functional> // less
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bsls_nativestd.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+namespace BloombergLP {
+namespace bslstl {
+
+struct AlgorithmUtil {
+    // Provide a namespace for implementing helper routines for algorithm
+    // implementations.
+
+    // CLASS FUNCTIONS
+    template <class CONTAINER, class PREDICATE>
+    static
+    typename CONTAINER::size_type
+    containerEraseIf(CONTAINER& container, PREDICATE predicate);
+        // Erase all the elements in the specified container 'container' that
+        // satisfy the specified predicate 'predicate'.  Return the number of
+        // elements erased.
+};
+
+}  // close package namespace
+}  // close enterprise namespace
 
 namespace bsl {
 
@@ -243,6 +265,22 @@ namespace bsl {
 # endif  // !BSLS_LIBRARYFEATURES_STDCPP_MSVC
 #endif  // !BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+    template<class TYPE, class COMPARE>
+    BSLS_KEYWORD_CONSTEXPR_CPP14
+    const TYPE&
+    clamp(const TYPE& value, const TYPE& low, const TYPE& high, COMPARE comp);
+        // Return the specified 'value' adjusted so that it is in the range
+        // ['low', 'high'), using the specified comparison predicate 'comp'.
+
+    template<class TYPE>
+    BSLS_KEYWORD_CONSTEXPR_CPP14
+    const TYPE&
+    clamp(const TYPE& value, const TYPE& low, const TYPE& high);
+        // Return the specified 'value' adjusted so that it is in the range
+        // ['low', 'high').
+#endif
+
 #ifndef BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD
     template<class FORWARD_ITERATOR, class SEARCHER>
     BSLS_KEYWORD_CONSTEXPR_CPP14
@@ -253,11 +291,35 @@ namespace bsl {
         // first occurrence of the pattern sought by the specified 'searcher'
         // if found, and 'last' otherwise.  See [alg.search].
 #endif  //  BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD
+
 }  // close namespace bsl
 
 // ============================================================================
 //                            INLINE DEFINITIONS
 // ============================================================================
+
+                        // --------------------
+                        // struct AlgorithmUtil
+                        // --------------------
+
+template <class CONTAINER, class PREDICATE>
+inline
+typename CONTAINER::size_type
+BloombergLP::bslstl::AlgorithmUtil::containerEraseIf(CONTAINER& container,
+                                                     PREDICATE  predicate)
+{
+    typename CONTAINER::size_type oldSize = container.size();
+    for (typename CONTAINER::iterator it  = container.begin();
+                                      it != container.end();) {
+        if (predicate(*it)) {
+            it = container.erase(it);
+        }
+        else {
+            ++it;
+        }
+    }
+    return oldSize - container.size();
+}
 
 #ifdef BSLSTL_ITERATOR_PROVIDE_SUN_CPP98_FIXES
 template <class INPUT_ITERATOR, class TYPE>
@@ -265,7 +327,7 @@ inline
 typename bsl::iterator_traits<INPUT_ITERATOR>::difference_type
 bsl::count(INPUT_ITERATOR first, INPUT_ITERATOR last, const TYPE& value)
 {
-    typename iterator_traits<INPUT_ITERATOR>::difference_type ret = 0;
+    typename bsl::iterator_traits<INPUT_ITERATOR>::difference_type ret = 0;
     std::count(first, last, value, ret);
     return ret;
 }
@@ -275,7 +337,7 @@ inline
 typename bsl::iterator_traits<INPUT_ITERATOR>::difference_type
 bsl::count_if(INPUT_ITERATOR first, INPUT_ITERATOR last, PREDICATE pred)
 {
-    typename iterator_traits<INPUT_ITERATOR>::difference_type ret = 0;
+    typename bsl::iterator_traits<INPUT_ITERATOR>::difference_type ret = 0;
     std::count_if(first, last, pred, ret);
     return ret;
 }
@@ -338,6 +400,26 @@ bsl::copy_if(INPUT_ITERATOR  first,
 #endif // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
 
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+template<class TYPE, class COMPARE>
+BSLS_KEYWORD_CONSTEXPR_CPP14
+inline const TYPE&
+bsl::clamp(const TYPE& value, const TYPE& low, const TYPE& high, COMPARE comp)
+{
+    BSLS_ASSERT(!comp(high, low));
+    return comp(value, low) ? low : comp(high, value) ? high : value;
+}
+
+template<class TYPE>
+BSLS_KEYWORD_CONSTEXPR_CPP14
+inline const TYPE&
+bsl::clamp(const TYPE& value, const TYPE& low, const TYPE& high)
+{
+    return bsl::clamp(value, low, high, std::less<TYPE>());
+}
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+
+
 #ifndef BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD
 template<class FORWARD_ITERATOR, class SEARCHER>
 inline
@@ -350,6 +432,7 @@ bsl::search(FORWARD_ITERATOR first,
     return res.first;
 }
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD
+
 
 #endif  // INCLUDED_BSLSTL_ALGORITHM
 
