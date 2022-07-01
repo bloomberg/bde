@@ -120,42 +120,42 @@ using bsls::NameOf;
 // [ 2] T1 first;
 // [ 2] T1 second;
 // [ 2] pair();
-// [ 2] pair(AllocatorPtr basicAllocator);
+// [ 2] pair(bslma::Allocator *basicAllocator);
 // [ 2] pair(const T1& a, const T2& b);
-// [ 2] pair(const T1& a, const T2& b, AllocatorPtr basicAllocator);
+// [ 2] pair(const T1& a, const T2& b, bslma::Allocator *basicAllocator);
 // [10] template <class U1, class U2> pair(U1&& a, U2&& b);
-// [10] template <class U1, class U2> pair(U1&& a, U2&& b, Alloc a);
+// [10] template <class U1, class U2> pair(U1&& a, U2&& b, Alloc *a);
 // [10] pair(first_type&& a, second_type&& b);
-// [10] pair(first_type&& a, second_type&& b, AllocatorPtr a);
+// [10] pair(first_type&& a, second_type&& b, bslma::Allocator *a);
 // [11] template <class U1, class U2> pair(U1&& a, const U2& b);
 // [11] template <class U1, class U2> pair(const U1& a, U2&& b);
 // [11] template <class U1, class U2> pair(const U1& a, const U2& b);
-// [11] template <class U1, class U2> pair(const U1& a, U2&& b, Alloc a);
-// [11] template <class U1, class U2> pair(U1&& a, const U2& b, Alloc a);
-// [11] template <class U1, class U2> pair(const U1& a, const U2& b, A a);
+// [11] template <class U1, class U2> pair(const U1& a, U2&& b, Alloc *a);
+// [11] template <class U1, class U2> pair(U1&& a, const U2& b, Alloc *a);
+// [11] template <class U1, class U2> pair(const U1& a, const U2& b, A *a);
 // [11] template <class U1, class U2> pair(const pair<U1, U2>& pr);
-// [11] template <class U1, class U2> pair(const pair<U1, U2>& pr, Alloc a);
+// [11] template <class U1, class U2> pair(const pair<U1, U2>& pr, Alloc *a);
 // [11] pair(first_type&& a, const second_type& b);
 // [11] pair(const first_type& a, second_type&& b);
 // [11] pair(const first_type& a, const second_type& b);
-// [11] pair(const first_type& a, second_type&& b, Alloc a);
-// [11] pair(first_type&& a, const second_type& b, Alloc a);
-// [11] pair(const first_type& a, const second_type& b, A a);
+// [11] pair(const first_type& a, second_type&& b, Alloc *a);
+// [11] pair(first_type&& a, const second_type& b, Alloc *a);
+// [11] pair(const first_type& a, const second_type& b, A *a);
 // [11] pair(const pair<first_type, second_type>& pr);
-// [11] pair(const pair<first_type, second_type>& pr, Alloc a);
+// [11] pair(const pair<first_type, second_type>& pr, Alloc *a);
 // [13] pair(piecewise_construct_t, tuple, tuple)
 // [13] pair(piecewise_construct_t, tuple, tuple, basicAllocator)
 // [14] pair(std::pair<*>, bool>)
 // [ 2] pair(const pair& original);
-// [ 2] pair(const pair& original, AllocatorPtr basicAllocator);
+// [ 2] pair(const pair& original, bslma::Allocator *basicAllocator);
 // [ 4] pair(const pair<U1, U2>& rhs);
-// [ 4] pair(const pair<U1, U2>& rhs, AllocatorPtr basicAllocator);
+// [ 4] pair(const pair<U1, U2>& rhs, bslma::Allocator *basicAllocator);
 // [ 9] template <class U1, class U2> pair(pair<U1, U2>&& other)
-// [ 9] template <class U1, class U2> pair(pair<U1, U2>&& other, AllocatorPtr)
+// [ 9] template <class U1, class U2> pair(pair<U1, U2>&& other, Allocator*)
 // [ 9] pair(pair&& original)
-// [ 9] pair(pair&& original, AllocatorPtr basicAllocator)
+// [ 9] pair(pair&& original, bslma::Allocator *basicAllocator)
 // [  ] pair(const std::pair<U1, U2>& rhs);
-// [  ] pair(const std::pair<U1, U2>&, BloombergLP::bslma::Allocator *);
+// [  ] pair(const std::pair<U1, U2>&, bslma::Allocator *basicAllocator);
 // [ 2] ~pair();
 // [12] pair& operator=(const pair& rhs);
 // [12] pair& operator=(pair&& rhs);
@@ -686,13 +686,16 @@ struct DisplayType {
 };
 
 template <class ARG>
-struct ArgHolder : ARG {
+struct ArgHolder  {
     // This 'struct' holds an argument type of the specified (template
     // parameter) type 'ARG', which must be 'bsltf::EmplacableTestType' or
     // 'bsltf::AllocEmplacableTestType', and provides constructors taking a
     // 'bslma::Allocator*', which can be conditionally ignored.
 
   private:
+    // DATA
+    ARG d_arg;
+
     // NOT IMPLEMENTED
     ArgHolder(const ArgHolder&);
     ArgHolder& operator=(const ArgHolder&);
@@ -700,17 +703,23 @@ struct ArgHolder : ARG {
   public:
     // CREATORS
     ArgHolder(int value, bsl::false_type, bslma::Allocator*)
-    : ARG(value)
-        // Construct the 'ARG' base class using the specified 'value'.
+    : d_arg(value)
+        // Construct 'd_arg' using the specified 'value'.
     {
     }
 
     ArgHolder(int value, bsl::true_type, bslma::Allocator *basicAllocator)
-    : ARG(value, basicAllocator)
-        // Construct the 'ARG' base class using the specified 'value' and the
-        // specified 'basicAllocator'.
+    : d_arg(value, basicAllocator)
+        // Construct 'd_arg' using the specified 'value' and the specified
+        // 'basicAllocator'.
     {
     }
+
+    // ACCESSORS
+    ARG& arg()
+    {
+        return d_arg;
+    } 
 };
 
                          // =======================
@@ -3336,7 +3345,7 @@ class TupleTestDriver {
         // If the second argument is a 'true_type', return the held argument,
         // moved.
     {
-        return MoveUtil::move(t);
+        return MoveUtil::move(t.arg());
     }
 
     template <class T>
@@ -3344,7 +3353,7 @@ class TupleTestDriver {
         // If the second argument is a 'false_type', return a reference
         // providing non-modifiable access to the held argument.
     {
-        return t;
+        return t.arg();
     }
 
     static void checkArgs(const char *displayName,
@@ -3363,23 +3372,25 @@ class TupleTestDriver {
         // non-inline, non-template routine called by all the different
         // template instantiations.
 
-    template <class E_TYPE,
+    template <class FIRST_TYPE,
               int NUM_FIRST_ARGS,
               int NF1,
               int NF2,
               int NF3,
+              class SECOND_TYPE,
               int NUM_SECOND_ARGS,
               int NS1,
               int NS2,
               int NS3>
-    static void runTestAlloc();
-        // Construct a pair of (template parameter) 'E_TYPE' with two tuples
-        // and a bslma-style allocator argument, where the first tuple contains
+    static void runTestAllocImpl();
+        // Construct a 'bsl::pair<FIRST_TYPE, SECOND_TYPE>' with two tuples and
+        // a 'bslma'-style allocator argument, where the first tuple contains
         // 'NUM_FIRST_ARGS' elements, and the second 'NUM_SECOND_ARGS'
         // elements.  See the documentation of the public runTestAlloc below
         // for the meaning of 'NF1', 'NF2', 'NF3', 'NS1', 'NS2', and 'NS3'.
-        // The behavior is undefined unless 'E_TYPE' is either
-        // 'bsltf::EmplacableTestType' or 'bsltf::AllocEmplacableTestType'.
+        // The behavior is undefined unless each of 'FIRST_TYPE' and
+        // 'SECOND_TYPE' is either 'bsltf::EmplacableTestType' or
+        // 'bsltf::AllocEmplacableTestType'.
 
   public:
     // CLASS METHODS
@@ -3392,13 +3403,14 @@ class TupleTestDriver {
               int NS2,
               int NS3>
     static void runTestAlloc();
-        // Call the private runTestAlloc once with 'bsltf::EmplacableTestType'
-        // and once with 'bsltf::AllocEmplacableTestType', in each case
-        // constructing a pair of that type from two tuples (each with 0-3
-        // elements) and a bslma-style allocator.  The number of args for the
-        // first tuple is the specified 'NUM_FIRST_ARGS', and the number for
-        // the second is the specified 'NUM_SECOND_ARGS'.  Interpret the values
-        // of 'NFi' and 'NSi' as follows:
+        // Call runTestAllocImpl once with every possible pair with element
+        // types drawn from the set of 'bsltf::EmplacableTestType' and 
+        // bsltf::AllocEmplacableTestType' (4 combinations total), in each case
+        // constructing the pair type from two tuples (each with 0-3 elements)
+        // and a 'bslma'-style allocator.  The number of args for the first
+        // tuple is the specified 'NUM_FIRST_ARGS', and the number for the
+        // second is the specified 'NUM_SECOND_ARGS'.  Interpret the values of
+        // 'NFi' and 'NSi' as follows:
         //..
         //  NFi == 0 => forward the i'th 'first' argument using copy semantics
         //  NSi == 0 => forward the i'th 'second' argument using copy semantics
@@ -3495,43 +3507,30 @@ void TupleTestDriver::checkArgs(const char *displayName,
     ASSERTV(displayName, (numSecondArgs < 1) == (2 == ns1));
 }
 
-template <int NUM_FIRST_ARGS,
-          int NF1,
-          int NF2,
-          int NF3,
-          int NUM_SECOND_ARGS,
-          int NS1,
-          int NS2,
-          int NS3>
-void TupleTestDriver::runTestAlloc()
-{
-    runTestAlloc<bsltf::EmplacableTestType,
-                 NUM_FIRST_ARGS, NF1, NF2, NF3,
-                 NUM_SECOND_ARGS, NS1, NS2, NS3>();
-    runTestAlloc<bsltf::AllocEmplacableTestType,
-                 NUM_FIRST_ARGS, NF1, NF2, NF3,
-                 NUM_SECOND_ARGS, NS1, NS2, NS3>();
-}
-
-template <class E_TYPE,
+template <class FIRST_TYPE,
           int NUM_FIRST_ARGS,
           int NF1,
           int NF2,
           int NF3,
+          class SECOND_TYPE,
           int NUM_SECOND_ARGS,
           int NS1,
           int NS2,
           int NS3>
-void TupleTestDriver::runTestAlloc()
+void TupleTestDriver::runTestAllocImpl()
 {
-    typedef bsl::pair<E_TYPE, E_TYPE>                              Pair;
-    typedef u::DisplayType<E_TYPE, NUM_FIRST_ARGS,  NF1, NF2, NF3,
-                                   NUM_SECOND_ARGS, NS1, NS2, NS3> DT;
-    typedef typename E_TYPE::ArgType01                             Arg1;
-    typedef typename E_TYPE::ArgType02                             Arg2;
-    typedef typename E_TYPE::ArgType03                             Arg3;
+    typedef bsl::pair<FIRST_TYPE, SECOND_TYPE>                     Pair;
+    typedef u::DisplayType<Pair, NUM_FIRST_ARGS,  NF1, NF2, NF3,
+                                 NUM_SECOND_ARGS, NS1, NS2, NS3> DT;
+    typedef typename FIRST_TYPE::ArgType01                         FArg1;
+    typedef typename FIRST_TYPE::ArgType02                         FArg2;
+    typedef typename FIRST_TYPE::ArgType03                         FArg3;
+    typedef typename SECOND_TYPE::ArgType01                        SArg1;
+    typedef typename SECOND_TYPE::ArgType02                        SArg2;
+    typedef typename SECOND_TYPE::ArgType03                        SArg3;
 
-    typedef bslma::UsesBslmaAllocator<E_TYPE> UsesAllocator;
+    typedef bslma::UsesBslmaAllocator<FIRST_TYPE> FirstUsesAllocator;
+    typedef bslma::UsesBslmaAllocator<SECOND_TYPE> SecondUsesAllocator;
 
     if (veryVerbose) printf("runTestAlloc(%s, %d, %d,%d,%d, %d, %d,%d,%d);\n",
                             static_cast<const char*>(NameOf<Pair>()),
@@ -3560,13 +3559,13 @@ void TupleTestDriver::runTestAlloc()
 #   define veryVerbose silenceVeryVerbose
     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(aa) {
 #   undef  veryVerbose
-        u::ArgHolder<Arg1> AF1(1,  UsesAllocator(), &aa);
-        u::ArgHolder<Arg2> AF2(20, UsesAllocator(), &aa);
-        u::ArgHolder<Arg3> AF3(23, UsesAllocator(), &aa);
+        u::ArgHolder<FArg1> AF1(1,  FirstUsesAllocator(), &aa);
+        u::ArgHolder<FArg2> AF2(20, FirstUsesAllocator(), &aa);
+        u::ArgHolder<FArg3> AF3(23, FirstUsesAllocator(), &aa);
 
-        u::ArgHolder<Arg1> AS1(2,  UsesAllocator(), &aa);
-        u::ArgHolder<Arg2> AS2(18, UsesAllocator(), &aa);
-        u::ArgHolder<Arg3> AS3(31, UsesAllocator(), &aa);
+        u::ArgHolder<SArg1> AS1(2,  SecondUsesAllocator(), &aa);
+        u::ArgHolder<SArg2> AS2(18, SecondUsesAllocator(), &aa);
+        u::ArgHolder<SArg3> AS3(31, SecondUsesAllocator(), &aa);
 
         bsls::ObjectBuffer<Pair> oDst;
         Pair *p = oDst.address();
@@ -3741,27 +3740,33 @@ void TupleTestDriver::runTestAlloc()
         }
         u::PairGuard<Pair> pg(p);
 
-        ASSERTV(name, MOVE_F1, AF1.movedFrom(),
-               MOVE_F1 == (MoveState::e_MOVED == AF1.movedFrom()) || 2 == NF1);
-        ASSERTV(name, MOVE_F2, AF2.movedFrom(),
-               MOVE_F2 == (MoveState::e_MOVED == AF2.movedFrom()) || 2 == NF2);
-        ASSERTV(name, MOVE_F3, AF3.movedFrom(),
-               MOVE_F3 == (MoveState::e_MOVED == AF3.movedFrom()) || 2 == NF3);
+        ASSERTV(name, MOVE_F1, AF1.arg().movedFrom(),
+                MOVE_F1 == (MoveState::e_MOVED == AF1.arg().movedFrom()) ||
+                    2 == NF1);
+        ASSERTV(name, MOVE_F2, AF2.arg().movedFrom(),
+                MOVE_F2 == (MoveState::e_MOVED == AF2.arg().movedFrom()) ||
+                    2 == NF2);
+        ASSERTV(name, MOVE_F3, AF3.arg().movedFrom(),
+                MOVE_F3 == (MoveState::e_MOVED == AF3.arg().movedFrom()) ||
+                    2 == NF3);
 
-        ASSERTV(name, MOVE_S1, AS1.movedFrom(),
-               MOVE_S1 == (MoveState::e_MOVED == AS1.movedFrom()) || 2 == NS1);
-        ASSERTV(name, MOVE_S2, AS2.movedFrom(),
-               MOVE_S2 == (MoveState::e_MOVED == AS2.movedFrom()) || 2 == NS2);
-        ASSERTV(name, MOVE_S3, AS3.movedFrom(),
-               MOVE_S3 == (MoveState::e_MOVED == AS3.movedFrom()) || 2 == NS3);
+        ASSERTV(name, MOVE_S1, AS1.arg().movedFrom(),
+                MOVE_S1 == (MoveState::e_MOVED == AS1.arg().movedFrom()) ||
+                    2 == NS1);
+        ASSERTV(name, MOVE_S2, AS2.arg().movedFrom(),
+                MOVE_S2 == (MoveState::e_MOVED == AS2.arg().movedFrom()) ||
+                    2 == NS2);
+        ASSERTV(name, MOVE_S3, AS3.arg().movedFrom(),
+                MOVE_S3 == (MoveState::e_MOVED == AS3.arg().movedFrom()) ||
+                    2 == NS3);
 
-        const E_TYPE& F = p->first;
+        const FIRST_TYPE& F = p->first;
 
         ASSERTV(name, 1  == F.arg01() || 2 == NF1);
         ASSERTV(name, 20 == F.arg02() || 2 == NF2);
         ASSERTV(name, 23 == F.arg03() || 2 == NF3);
 
-        const E_TYPE& S = p->second;
+        const SECOND_TYPE& S = p->second;
 
         ASSERTV(name, 2  == S.arg01() || 2 == NS1);
         ASSERTV(name, 18 == S.arg02() || 2 == NS2);
@@ -3776,13 +3781,46 @@ void TupleTestDriver::runTestAlloc()
         ASSERTV(name, u::allocatorMatches(S.arg03(), &aa));
     } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-    const bool copyHappened = !NF1 || !NF2 || !NF3 || !NS1 || !NS2 || !NS3;
+    const bool firstCopyHappened  = !NF1 || !NF2 || !NF3;
+    const bool secondCopyHappened = !NS1 || !NS2 || !NS3;
+    const bool fua = FirstUsesAllocator::value;
+    const bool sua = SecondUsesAllocator::value;
 
-    const bool usesAllocator = UsesAllocator::value;
-    ASSERTV(name, usesAllocator, copyHappened, da.numAllocations(),
-                 (usesAllocator && copyHappened) == (0 < da.numAllocations()));
-    ASSERTV(name, usesAllocator, aa.numAllocations(),
-                                   usesAllocator == (0 < aa.numAllocations()));
+    ASSERTV(name, da.numAllocations(),
+            fua, firstCopyHappened,
+            sua, secondCopyHappened,
+            (fua && firstCopyHappened) ||
+                (sua && secondCopyHappened) == (0 < da.numAllocations()));
+    ASSERTV(name, aa.numAllocations(), fua, sua,
+            (fua || sua) == (0 < aa.numAllocations()));
+}
+
+template <int NUM_FIRST_ARGS,
+          int NF1,
+          int NF2,
+          int NF3,
+          int NUM_SECOND_ARGS,
+          int NS1,
+          int NS2,
+          int NS3>
+void TupleTestDriver::runTestAlloc()
+{
+    runTestAllocImpl<bsltf::EmplacableTestType,
+                     NUM_FIRST_ARGS, NF1, NF2, NF3,
+                     bsltf::EmplacableTestType,
+                     NUM_SECOND_ARGS, NS1, NS2, NS3>();
+    runTestAllocImpl<bsltf::AllocEmplacableTestType,
+                     NUM_FIRST_ARGS, NF1, NF2, NF3,
+                     bsltf::EmplacableTestType,
+                     NUM_SECOND_ARGS, NS1, NS2, NS3>();
+    runTestAllocImpl<bsltf::EmplacableTestType,
+                     NUM_FIRST_ARGS, NF1, NF2, NF3,
+                     bsltf::AllocEmplacableTestType,
+                     NUM_SECOND_ARGS, NS1, NS2, NS3>();
+    runTestAllocImpl<bsltf::AllocEmplacableTestType,
+                     NUM_FIRST_ARGS, NF1, NF2, NF3,
+                     bsltf::AllocEmplacableTestType,
+                     NUM_SECOND_ARGS, NS1, NS2, NS3>();
 }
 
 template <int NUM_FIRST_ARGS,

@@ -40,12 +40,13 @@ BSLS_IDENT("$Id: $")
 // is convertible to 'T1' and 'PARAM_2' is convertible to 'T2'.  Each
 // constructor also has an optional 'bslma::Allocator' pointer argument.  If
 // neither 'T1' nor 'T2' use 'bslma::Allocator', this argument is ignored.
-// Otherwise, either, or both, depending on whether each type uses
-// 'bslma::Allocator', will be passed the 'bslma::Allocator*' argument during
-// construction.  Whether or not a type uses 'bslma::Allocator' is determined
-// by querying the 'bslma::UsesBslmaAllocator' trait for that type.  This
-// component also defines a full set of equality and relational operators that
-// can be instantiated if 'T1' and 'T2' both provide those operators.
+// Otherwise, either 'first' or 'second', or both, depending on whether each
+// type uses 'bslma::Allocator', will be passed the 'bslma::Allocator*'
+// argument during construction.  Whether or not a type uses 'bslma::Allocator'
+// is determined by querying the 'bslma::UsesBslmaAllocator' trait for that
+// type.  This component also defines a full set of equality and relational
+// operators that can be instantiated if 'T1' and 'T2' both provide those
+// operators.
 //
 // A 'bsl::pair' declares a set of associated type traits that are computed
 // from the type traits of 'T1' and 'T2'.  For each supported type trait, a
@@ -1140,17 +1141,17 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
 #endif
     explicit pair(BloombergLP::bslma::Allocator *basicAllocator);
         // Construct a 'pair' with the 'first' and 'second' members initialized
-        // to default values.  Optionally specify a 'basicAllocator' that will
-        // be passed to the constructor of each of the (template parameter)
-        // types 'T1' and 'T2' only if the respective type uses 'bslma'-style
+        // to default values.  Optionally specify a 'basicAllocator', used to
+        // supply memory for each of 'first' and 'second' when its type
+        // (template parameter 'T1' or 'T2', respectively) uses 'bslma'-style
         // allocators.  This method requires that 'T1' and 'T2' be
         // default-constructible.
 
     pair(const pair& original, BloombergLP::bslma::Allocator *basicAllocator);
         // Construct a 'pair' having the same value as that of the specified
-        // 'original' pair.  Optionally specify a 'basicAllocator' that will be
-        // passed to the constructor of each of the (template parameter) types
-        // 'T1' and 'T2' only if the respective type uses 'bslma'-style
+        // 'original' pair.  Optionally specify a 'basicAllocator', used to
+        // supply memory for each of 'first' and 'second' when its type
+        // (template parameter 'T1' or 'T2', respectively) uses 'bslma'-style
         // allocators.  Note that the copy constructor is implicitly declared
         // (if 'T1' and 'T2' are both copy-constructible) by compilers that do
         // not support defaulted declarations.
@@ -1165,9 +1166,9 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
          BloombergLP::bslma::Allocator        *basicAllocator);
         // Construct a pair having the same value as that of the specified
         // 'original' before the call to the move constructor.  Optionally
-        // specify a 'basicAllocator' that will be passed to the constructor of
-        // each of the (template parameter) types 'T1' and 'T2' only if the
-        // respective type uses 'bslma'-style allocators.  Note that 'original'
+        // specify a 'basicAllocator', used to supply memory for each of
+        // 'first' and 'second' when its type (template parameter 'T1' or 'T2',
+        // respectively) uses 'bslma'-style allocators.  Note that 'original'
         // is left in a valid but unspecified state.  Also note that this
         // method requires that 'T1' and 'T2' be move-constructible.  Note that
         // the move constructor is implicitly declared (if 'T1' and 'T2' are
@@ -1183,11 +1184,11 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
          BloombergLP::bslma::Allocator                      *basicAllocator);
         // Construct a 'pair' with the 'first' member initialized to the
         // specified 'a' value and the 'second' member initialized to the
-        // specified 'b' value.  Optionally specify a 'basicAllocator' that
-        // will be passed to the constructor of each of the (template
-        // parameter) types 'T1' or 'T2' only if the respective type uses
-        // 'bslma'-style allocators.  This method requires that 'T1' and 'T2'
-        // be copy-constructible.
+        // specified 'b' value.  Optionally specify a 'basicAllocator', used to
+        // supply memory for each of 'first' and 'second' when its type
+        // (template parameter 'T1' or 'T2', respectively) uses 'bslma'-style
+        // allocators.  This method requires that 'T1' and 'T2' be
+        // copy-constructible.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
     template <class PARAM_1, class PARAM_2>
@@ -1308,9 +1309,9 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
     // Construct a pair with the 'first' member initialized to the specified
     // 'a' value of (template parameter) type 'PARAM_1' and the 'second' member
     // initialized to the specified 'b' value of (template parameter) type
-    // 'PARAM_2'.  Optionally specify a 'basicAllocator' that will be passed to
-    // the constructor of each of the (template parameter) types 'T1' and 'T2'
-    // only if the respective type uses 'bslma'-style allocators.  This method
+    // 'PARAM_2'.  Optionally specify a 'basicAllocator', used to supply memory
+    // for each of 'first' and 'second' when its type (template parameter 'T1'
+    // or 'T2', respectively) uses 'bslma'-style allocators.  This method
     // requires that 'T1' and 'T2' be convertible from 'PARAM_1' and 'PARAM_2',
     // respectively.
 
@@ -1343,11 +1344,11 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
          BloombergLP::bslma::Allocator      *basicAllocator);
         // Construct a 'pair' from the specified 'other' pair, holding 'first'
         // and 'second' values of (template parameter) type 'PARAM_1' and
-        // 'PARAM_2' respectively.  Optionally specify a 'basicAllocator' that
-        // will be passed to the constructor of each of the (template
-        // parameter) types 'T1' and 'T2'  only if the respective type uses
-        // 'bslma'-style allocators.  This method requires that 'T1' and 'T2'
-        // be convertible from 'PARAM_1' and 'PARAM_2', respectively.
+        // 'PARAM_2' respectively.  Optionally specify a 'basicAllocator', used
+        // to supply memory for each of 'first' and 'second' when its type
+        // (template parameter 'T1' or 'T2', respectively) uses 'bslma'-style
+        // allocators.  This method requires that 'T1' and 'T2' be convertible
+        // from 'PARAM_1' and 'PARAM_2', respectively.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
     template <class PARAM_1, class PARAM_2>
@@ -1370,11 +1371,11 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
          BloombergLP::bslma::Allocator *basicAllocator);
         // Construct a 'pair' from the specified 'other' pair, holding 'first'
         // and 'second' values of (template parameter) type 'PARAM_1' and
-        // 'PARAM_2' respectively.  Optionally specify a 'basicAllocator' that
-        // will be passed to the constructor of each of the (template
-        // parameter) types 'T1' and 'T2' only if the respective type uses
-        // 'bslma'-style allocators.  This method requires that 'T1' and 'T2'
-        // be convertible from 'PARAM_1' and 'PARAM_2', respectively.
+        // 'PARAM_2' respectively.  Optionally specify a 'basicAllocator', used
+        // to supply memory for each of 'first' and 'second' when its type
+        // (template parameter 'T1' or 'T2', respectively) uses 'bslma'-style
+        // allocators.  This method requires that 'T1' and 'T2' be convertible
+        // from 'PARAM_1' and 'PARAM_2', respectively.
 #else
     template <class PARAM_1, class PARAM_2>
     BSLS_KEYWORD_CONSTEXPR
@@ -1416,11 +1417,11 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
          BloombergLP::bslma::Allocator *basicAllocator);
         // Construct a 'pair' from the specified 'other' pair, holding 'first'
         // and 'second' values of (template parameter) type 'PARAM_1' and
-        // 'PARAM_2' respectively.  Optionally specify a 'basicAllocator' that
-        // will be passed to the constructor of each of the (template
-        // parameter) types 'T1' and 'T2' only if the respective type uses
-        // 'bslma'-style allocators.  This method requires that 'T1' and 'T2'
-        // be convertible from 'PARAM_1' and 'PARAM_2', respectively.
+        // 'PARAM_2' respectively.  Optionally specify a 'basicAllocator', used
+        // to supply memory for each of 'first' and 'second' when its type
+        // (template parameter 'T1' or 'T2', respectively) uses 'bslma'-style
+        // allocators.  This method requires that 'T1' and 'T2' be convertible
+        // from 'PARAM_1' and 'PARAM_2', respectively.
 #endif
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
@@ -1437,15 +1438,15 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
         // values by forwarding in order the elements in the specified
         // 'first_args' and 'second_args' tuples to the corresponding
         // constructor of (template parameter) types 'T1' and 'T2',
-        // respectively.  Optionally specify a 'basicAllocator' that will be
-        // passed to the constructor of each of the (template parameter) types
-        // 'T1' and 'T2' only if the respective type uses 'bslma'-style
-        // allocators.  Allocators can also be passed as tuple members straight
-        // to 'T1' or 'T2' (or both) constructors using the first version (but
-        // use of the second version for this approach will result in a
-        // compile-time error).  This method requires that 'T1' and 'T2' be
-        // constructible from (the variable number of template parameters)
-        // 'ARGS_1' and 'ARGS_2' respectively.
+        // respectively.  Optionally specify a 'basicAllocator', used to supply
+        // memory for each of 'first' and 'second' when its type (template
+        // parameter 'T1' or 'T2', respectively) uses 'bslma'-style allocators.
+        // Allocators can also be passed as tuple members straight to 'T1' or
+        // 'T2' (or both) constructors using the first version (but use of the
+        // second version for this approach will result in a compile-time
+        // error).  This method requires that 'T1' and 'T2' be constructible
+        // from (the variable number of template parameters) 'ARGS_1' and
+        // 'ARGS_2' respectively.
 #endif
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
