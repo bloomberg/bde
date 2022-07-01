@@ -7,7 +7,7 @@
 
 #include <bsl_cctype.h>    // 'isprint'
 
-// FREE OPERATORS
+// FREE FUNCTIONS
 void bsl::PrintTo(const bsl::string& value, bsl::ostream *stream)
 {
     *stream << '"' << value << '"';
@@ -61,12 +61,6 @@ void bsl::PrintTo(const BloombergLP::bslstl::StringRef&  value,
 {
     *stream << '"' << value << '"';
 }
-
-namespace BloombergLP {
-namespace bslim {
-
-}  // close package namespace
-}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
 // Copyright 2018 Bloomberg Finance L.P.
