@@ -15,7 +15,8 @@
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  5. bdlb_bitstringutil
+  5. bdlb_printadapter
+     bdlb_bitstringutil
      bdlb_indexspanstringutil
      bdlb_indexspanutil
 
@@ -153,6 +154,9 @@
 :
 : 'bdlb_print':
 :      Provide platform-independent stream utilities.
+:
+: 'bdlb_printadapter':
+:      Provide 'class' for calling 'print' stream methods through 'operator<<'.
 :
 : 'bdlb_printmethods':
 :      Provide methods for uniform printing of value-semantic types.
