@@ -59,7 +59,7 @@ BSLS_IDENT("$Id: $")
 //:                               decoding the generated JSON can handle
 //:                               doubles as strings.
 //:
-///: o 'encodeQuotedDecimal64': option specifying a way to encode 'Decimal64'
+//: o 'encodeQuotedDecimal64': option specifying a way to encode 'Decimal64'
 //:                             values.  If the 'encodeQuotedDecimal64'
 //:                             attribute value is 'true' (the default), the
 //:                             'Decimal64' values will be encoded quoted,
