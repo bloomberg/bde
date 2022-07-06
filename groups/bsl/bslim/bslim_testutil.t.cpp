@@ -89,6 +89,8 @@ using namespace BloombergLP;
 // [ 6] BSLIM_TESTUTIL_LOOP4_ASSERT(I,J,K,L,X)
 // [ 6] BSLIM_TESTUTIL_LOOP5_ASSERT(I,J,K,L,M,X)
 // [ 6] BSLIM_TESTUTIL_LOOP6_ASSERT(I,J,K,L,M,N,X)
+// [ 6] BSLIM_TESTUTIL_LOOP7_ASSERT(I,J,K,L,M,N,O,X)
+// [ 6] BSLIM_TESTUTIL_LOOP8_ASSERT(I,J,K,L,M,N,O,V,X)
 // [ 6] BSLIM_TESTUTIL_ASSERTV(...)
 // [ 5] BSLIM_TESTUTIL_Q(X)
 // [ 4] BSLIM_TESTUTIL_P(X)
@@ -232,6 +234,8 @@ namespace {
     #define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
     #define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
     #define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+    #define LOOP7_ASSERT BSLIM_TESTUTIL_LOOP7_ASSERT
+    #define LOOP8_ASSERT BSLIM_TESTUTIL_LOOP8_ASSERT
     #define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
     #define Q   BSLIM_TESTUTIL_Q   // Quote identifier literally.
@@ -274,6 +278,8 @@ namespace {
 #undef LOOP4_ASSERT
 #undef LOOP5_ASSERT
 #undef LOOP6_ASSERT
+#undef LOOP7_ASSERT
+#undef LOOP8_ASSERT
 #undef ASSERTV
 
 #undef Q
@@ -1297,6 +1303,8 @@ int main(int argc, char *argv[])
         //   BSLIM_TESTUTIL_LOOP4_ASSERT(I,J,K,L,X)
         //   BSLIM_TESTUTIL_LOOP5_ASSERT(I,J,K,L,M,X)
         //   BSLIM_TESTUTIL_LOOP6_ASSERT(I,J,K,L,M,N,X)
+        //   BSLIM_TESTUTIL_LOOP7_ASSERT(I,J,K,L,M,N,O,X)
+        //   BSLIM_TESTUTIL_LOOP8_ASSERT(I,J,K,L,M,N,O,V,X)
         //   BSLIM_TESTUTIL_ASSERTV(...)
         // --------------------------------------------------------------------
 
@@ -1803,6 +1811,227 @@ int main(int argc, char *argv[])
                          "Error %s(%d):"
                          " idx > NUM_ITERATIONS    (failed)\n",
                          I, J, K, L, M, N,
+                         __FILE__,
+                         LINE);
+                REALLOOP2_ASSERT(s_expectedOutput,
+                                 output.buffer(),
+                                 0 == output.compare(s_expectedOutput));
+            }
+            ASSERT(NUM_ITERATIONS == testStatus);
+            testStatus = 0;
+        }
+
+        // 'BSLIM_TESTUTIL_LOOP7_ASSERT(I,J,K,L,M,N,O,X)'
+        {
+            ASSERT(0 == testStatus);
+            for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
+                const int I = idx;
+                const int J = idx + 1;
+                const int K = idx + 2;
+                const int L = idx + 3;
+                const int M = idx + 4;
+                const int N = idx + 5;
+                const int O = idx + 6;
+
+                if (veryVerbose) { REALP(idx); }
+
+                output.reset();
+                BSLIM_TESTUTIL_LOOP7_ASSERT(I, J, K, L, M, N, O,
+                                            idx < NUM_ITERATIONS);
+                BSLIM_TESTUTIL_ASSERTV(I, J, K, L, M, N, O,
+                                       idx < NUM_ITERATIONS);
+                REALLOOP_ASSERT(testStatus, 0 == testStatus);
+                ASSERT(output.load());
+                REALLOOP_ASSERT(output.buffer(), 0 == output.compare(""));
+            }
+            ASSERT(0 == testStatus);
+
+            for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
+                const int I = idx;
+                const int J = idx + 1;
+                const int K = idx + 2;
+                const int L = idx + 3;
+                const int M = idx + 4;
+                const int N = idx + 5;
+                const int O = idx + 6;
+
+                if (veryVerbose) { REALP(idx); }
+
+                output.reset();
+#define LOOP7_ASSERT BSLIM_TESTUTIL_LOOP7_ASSERT
+                // The gcc 9 compiler preprocessor extends the '__LINE__' macro
+                // inserted in the 'BSLIM_TESTUTIL_LOOP7_ASSERT' macro to the
+                // first line of the call statement, even if the statement is
+                // split over multiple lines.  To make all versions of gcc
+                // preprocessors expand '__LINE__' to the same value, we define
+                // a new macro with shorter name ('LOOP7_ASSERT') to fit a
+                // single line.
+
+                const int LINE = __LINE__ + 1;
+                LOOP7_ASSERT(I, J, K, L, M, N, O, idx > NUM_ITERATIONS);
+#undef LOOP7_ASSERT
+                REALLOOP2_ASSERT(testStatus, idx, testStatus == idx + 1);
+                ASSERT(output.load());
+                snprintf(s_expectedOutput,
+                         BUFFER_SIZE,
+                         "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\tN: %d\tO: %d\n"
+                         "Error %s(%d): idx > NUM_ITERATIONS    (failed)\n",
+                         I, J, K, L, M, N, O,
+                         __FILE__,
+                         LINE);
+                REALLOOP2_ASSERT(s_expectedOutput,
+                                 output.buffer(),
+                                 0 == output.compare(s_expectedOutput));
+            }
+            ASSERT(NUM_ITERATIONS == testStatus);
+            testStatus = 0;
+
+            // Repeat for 'ASSERTV'.
+
+            for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
+                const int I = idx;
+                const int J = idx + 1;
+                const int K = idx + 2;
+                const int L = idx + 3;
+                const int M = idx + 4;
+                const int N = idx + 5;
+                const int O = idx + 6;
+
+                if (veryVerbose) { REALP(idx); }
+
+                output.reset();
+#define ASSERTV BSLIM_TESTUTIL_ASSERTV
+                // The gcc 9 compiler preprocessor extends the '__LINE__' macro
+                // inserted in the 'BSLIM_TESTUTIL_ASSERTV' macro to the first
+                // line of the call statement, even if the statement is split
+                // over multiple lines.  To make all versions of gcc
+                // preprocessors expand '__LINE__' to the same value, we define
+                // a new macro with shorter name ('ASSERTV') to fit a single
+                // line.
+
+                const int LINE = __LINE__ + 1;
+                ASSERTV(I, J, K, L, M, N, O, idx > NUM_ITERATIONS);
+#undef ASSERTV
+                REALLOOP2_ASSERT(testStatus, idx, testStatus == idx + 1);
+                ASSERT(output.load());
+                snprintf(s_expectedOutput,
+                         BUFFER_SIZE,
+                         "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\tN: %d\tO: %d\n"
+                         "Error %s(%d): idx > NUM_ITERATIONS    (failed)\n",
+                         I, J, K, L, M, N, O,
+                         __FILE__,
+                         LINE);
+                REALLOOP2_ASSERT(s_expectedOutput,
+                                 output.buffer(),
+                                 0 == output.compare(s_expectedOutput));
+            }
+            ASSERT(NUM_ITERATIONS == testStatus);
+            testStatus = 0;
+        }
+
+        // 'BSLIM_TESTUTIL_LOOP8_ASSERT(I,J,K,L,M,N,O,V,X)'
+        {
+            ASSERT(0 == testStatus);
+            for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
+                const int I = idx;
+                const int J = idx + 1;
+                const int K = idx + 2;
+                const int L = idx + 3;
+                const int M = idx + 4;
+                const int N = idx + 5;
+                const int O = idx + 6;
+                const int V = idx + 7;
+
+                if (veryVerbose) { REALP(idx); }
+
+                output.reset();
+                BSLIM_TESTUTIL_LOOP8_ASSERT(I, J, K, L, M, N, O, V,
+                                            idx < NUM_ITERATIONS);
+                BSLIM_TESTUTIL_ASSERTV(I, J, K, L, M, N, O, V,
+                                       idx < NUM_ITERATIONS);
+                REALLOOP_ASSERT(testStatus, 0 == testStatus);
+                ASSERT(output.load());
+                REALLOOP_ASSERT(output.buffer(), 0 == output.compare(""));
+            }
+            ASSERT(0 == testStatus);
+
+            for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
+                const int I = idx;
+                const int J = idx + 1;
+                const int K = idx + 2;
+                const int L = idx + 3;
+                const int M = idx + 4;
+                const int N = idx + 5;
+                const int O = idx + 6;
+                const int V = idx + 7;
+
+                if (veryVerbose) { REALP(idx); }
+
+                output.reset();
+#define LOOP8_ASSERT BSLIM_TESTUTIL_LOOP8_ASSERT
+                // The gcc 9 compiler preprocessor extends the '__LINE__' macro
+                // inserted in the 'BSLIM_TESTUTIL_LOOP8_ASSERT' macro to the
+                // first line of the call statement, even if the statement is
+                // split over multiple lines.  To make all versions of gcc
+                // preprocessors expand '__LINE__' to the same value, we define
+                // a new macro with shorter name ('LOOP8_ASSERT') to fit a
+                // single line.
+
+                const int LINE = __LINE__ + 1;
+                LOOP8_ASSERT(I, J, K, L, M, N, O, V, idx > NUM_ITERATIONS);
+#undef LOOP8_ASSERT
+                REALLOOP2_ASSERT(testStatus, idx, testStatus == idx + 1);
+                ASSERT(output.load());
+                snprintf(s_expectedOutput,
+                         BUFFER_SIZE,
+                         "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\tN: %d\tO: %d"
+                         "\tV: %d\n"
+                         "Error %s(%d): idx > NUM_ITERATIONS    (failed)\n",
+                         I, J, K, L, M, N, O, V,
+                         __FILE__,
+                         LINE);
+                REALLOOP2_ASSERT(s_expectedOutput,
+                                 output.buffer(),
+                                 0 == output.compare(s_expectedOutput));
+            }
+            ASSERT(NUM_ITERATIONS == testStatus);
+            testStatus = 0;
+
+            // Repeat for 'ASSERTV'.
+
+            for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
+                const int I = idx;
+                const int J = idx + 1;
+                const int K = idx + 2;
+                const int L = idx + 3;
+                const int M = idx + 4;
+                const int N = idx + 5;
+                const int O = idx + 6;
+                const int V = idx + 7;
+
+                if (veryVerbose) { REALP(idx); }
+
+                output.reset();
+#define ASSERTV BSLIM_TESTUTIL_ASSERTV
+                // The gcc 9 compiler preprocessor extends the '__LINE__' macro
+                // inserted in the 'BSLIM_TESTUTIL_ASSERTV' macro to the first
+                // line of the call statement, even if the statement is split
+                // over multiple lines.  To make all versions of gcc
+                // preprocessors expand '__LINE__' to the same value, we define
+                // a new macro with shorter name ('ASSERTV') to fit a single
+                // line.
+
+                const int LINE = __LINE__ + 1;
+                ASSERTV(I, J, K, L, M, N, O, V, idx > NUM_ITERATIONS);
+#undef ASSERTV
+                REALLOOP2_ASSERT(testStatus, idx, testStatus == idx + 1);
+                ASSERT(output.load());
+                snprintf(s_expectedOutput,
+                         BUFFER_SIZE,
+                         "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\tN: %d\tO: %d"
+                         "\tV: %d\n"
+                         "Error %s(%d): idx > NUM_ITERATIONS    (failed)\n",
+                         I, J, K, L, M, N, O, V,
                          __FILE__,
                          LINE);
                 REALLOOP2_ASSERT(s_expectedOutput,

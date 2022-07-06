@@ -18,6 +18,8 @@ BSLS_IDENT("$Id: $")
 //  BSLS_BSLTESTUTIL_LOOP4_ASSERT(I, J, K, L, X): print args if '!X'
 //  BSLS_BSLTESTUTIL_LOOP5_ASSERT(I, J, K, L, M, X): print args if '!X'
 //  BSLS_BSLTESTUTIL_LOOP6_ASSERT(I, J, K, L, M, N, X): print args if '!X'
+//  BSLS_BSLTESTUTIL_LOOP7_ASSERT(I, J, K, L, M, N, O, X): print args if '!X'
+//  BSLS_BSLTESTUTIL_LOOP8_ASSERT(I, J, K, L, M, N, O,V, X): print args if '!X'
 //
 //  BSLS_BSLTESTUTIL_Q(X) : quote identifier literally
 //  BSLS_BSLTESTUTIL_P(X) : print identifier and value
@@ -131,6 +133,8 @@ BSLS_IDENT("$Id: $")
 //  #define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
 //  #define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
 //  #define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
+//  #define LOOP7_ASSERT BSLS_BSLTESTUTIL_LOOP7_ASSERT
+//  #define LOOP8_ASSERT BSLS_BSLTESTUTIL_LOOP8_ASSERT
 //
 //  #define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
 //  #define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
@@ -478,18 +482,55 @@ BSLS_IDENT("$Id: $")
                       BslTestUtil::callDebugprint(N, #N ": ", "\n");          \
                 aSsErT(true, #X, __LINE__); } } while (false)
 
+#define BSLS_BSLTESTUTIL_LOOP7_ASSERT(I,J,K,L,M,N,O,X) do {                   \
+    if (!(X)) { BloombergLP::bsls::                                           \
+                      BslTestUtil::callDebugprint(I, #I ": ", "\t");          \
+                BloombergLP::bsls::                                           \
+                      BslTestUtil::callDebugprint(J, #J ": ", "\t");          \
+                BloombergLP::bsls::                                           \
+                      BslTestUtil::callDebugprint(K, #K ": ", "\t");          \
+                BloombergLP::bsls::                                           \
+                      BslTestUtil::callDebugprint(L, #L ": ", "\t");          \
+                BloombergLP::bsls::                                           \
+                      BslTestUtil::callDebugprint(M, #M ": ", "\t");          \
+                BloombergLP::bsls::                                           \
+                      BslTestUtil::callDebugprint(N, #N ": ", "\t");          \
+                BloombergLP::bsls::                                           \
+                      BslTestUtil::callDebugprint(O, #O ": ", "\n");          \
+                aSsErT(true, #X, __LINE__); } } while (false)
+
+#define BSLS_BSLTESTUTIL_LOOP8_ASSERT(I,J,K,L,M,N,O,V,X) do {                 \
+    if (!(X)) { BloombergLP::bsls::                                           \
+                      BslTestUtil::callDebugprint(I, #I ": ", "\t");          \
+                BloombergLP::bsls::                                           \
+                      BslTestUtil::callDebugprint(J, #J ": ", "\t");          \
+                BloombergLP::bsls::                                           \
+                      BslTestUtil::callDebugprint(K, #K ": ", "\t");          \
+                BloombergLP::bsls::                                           \
+                      BslTestUtil::callDebugprint(L, #L ": ", "\t");          \
+                BloombergLP::bsls::                                           \
+                      BslTestUtil::callDebugprint(M, #M ": ", "\t");          \
+                BloombergLP::bsls::                                           \
+                      BslTestUtil::callDebugprint(N, #N ": ", "\t");          \
+                BloombergLP::bsls::                                           \
+                      BslTestUtil::callDebugprint(O, #O ": ", "\t");          \
+                BloombergLP::bsls::                                           \
+                      BslTestUtil::callDebugprint(V, #V ": ", "\n");          \
+                aSsErT(true, #X, __LINE__); } } while (false)
+
 // The 'BSLS_BSLTESTUTIL_EXPAND' macro is required to workaround a
 // pre-processor issue on windows that prevents __VA_ARGS__ to be expanded in
 // the definition of 'BSLS_BSLTESTUTIL_NUM_ARGS'
 #define BSLS_BSLTESTUTIL_EXPAND(X)                                            \
     X
 
-#define BSLS_BSLTESTUTIL_NUM_ARGS_IMPL(X6, X5, X4, X3, X2, X1, X0, N, ...)    \
+#define BSLS_BSLTESTUTIL_NUM_ARGS_IMPL(X8, X7, X6, X5, X4, X3, X2, X1, X0,    \
+                                       N, ...)                                \
     N
 
 #define BSLS_BSLTESTUTIL_NUM_ARGS(...)                                        \
     BSLS_BSLTESTUTIL_EXPAND(BSLS_BSLTESTUTIL_NUM_ARGS_IMPL(                   \
-                                         __VA_ARGS__, 6, 5, 4, 3, 2, 1, 0, ""))
+                                   __VA_ARGS__, 8, 7, 6, 5, 4, 3, 2, 1, 0, ""))
 
 #define BSLS_BSLTESTUTIL_LOOPN_ASSERT_IMPL(N, ...)                            \
     BSLS_BSLTESTUTIL_EXPAND(BSLS_BSLTESTUTIL_LOOP ## N ## _ASSERT(__VA_ARGS__))
@@ -603,9 +644,9 @@ struct BslTestUtil {
         // underlying stream to ensure the text is written.
 
     template <class TYPE>
-    static void callDebugprint(const TYPE& object,
-                               const char *leadingString = 0,
-                               const char *trailingString = 0);
+    static void callDebugprint(const TYPE&  object,
+                               const char  *leadingString  = 0,
+                               const char  *trailingString = 0);
         // Print the value of the specified 'object' of the parameterized
         // 'TYPE' to the console.  Optionally specify a 'leadingString', which
         // will be printed before 'object', and a 'trailingString', which will
@@ -641,36 +682,36 @@ void debugprint(char v);
     // Print to the console the specified character, 'v', enclosed by
     // single-quote characters (').
 
-void debugprint(signed char v);
-void debugprint(unsigned char v);
-void debugprint(short v);
-void debugprint(unsigned short v);
-void debugprint(int v);
-void debugprint(unsigned int v);
-void debugprint(long v);
-void debugprint(unsigned long v);
-void debugprint(long long v);
+void debugprint(signed char        v);
+void debugprint(unsigned char      v);
+void debugprint(short              v);
+void debugprint(unsigned short     v);
+void debugprint(int                v);
+void debugprint(unsigned int       v);
+void debugprint(long               v);
+void debugprint(unsigned long      v);
+void debugprint(long long          v);
 void debugprint(unsigned long long v);
     // Print to the console the specified integer value, 'v', formatted as a
     // string.
 
-void debugprint(float v);
-void debugprint(double v);
+void debugprint(float       v);
+void debugprint(double      v);
 void debugprint(long double v);
     // Print to the console the specified value, 'v', formatted as a string
     // enclosed by single-quote characters (').
 
-void debugprint(const char *v);
-void debugprint(char *v);
+void debugprint(const char *         v);
+void debugprint(char *               v);
 void debugprint(const volatile char *v);
 void debugprint(volatile char *v);
     // Print to the console the specified string, 'v', enclosed by quote
     // characters ("), unless 'v' is null, in which case print '(null)'
     // (without quotes of any kind).
 
-void debugprint(void *v);
-void debugprint(volatile void *v);
-void debugprint(const void *v);
+void debugprint(void *               v);
+void debugprint(volatile void *      v);
+void debugprint(const void *         v);
 void debugprint(const volatile void *v);
     // Print to the console the specified memory address, 'v', formatted as a
     // hexadecimal integer.
@@ -697,9 +738,9 @@ void debugprint(RESULT (*v)());
 
 // CLASS METHODS
 template <class TYPE>
-void BslTestUtil::callDebugprint(const TYPE& obj,
-                                 const char *leadingString,
-                                 const char *trailingString)
+void BslTestUtil::callDebugprint(const TYPE&  obj,
+                                 const char  *leadingString,
+                                 const char  *trailingString)
 {
     if (leadingString) {
         BloombergLP::bsls::BslTestUtil::printStringNoFlush(leadingString);

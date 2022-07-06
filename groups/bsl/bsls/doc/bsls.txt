@@ -102,6 +102,7 @@
       bsls_unspecifiedbool
 
    3. bsls_alignmentimp
+      bsls_bslsourcenameparserutil
       bsls_bsltestutil
       bsls_linkcoercion
       bsls_types
@@ -230,6 +231,9 @@
 :
 : 'bsls_bslonce':
 :      Provide BSL a thread-safe way to execute code once per process.
+:
+: 'bsls_bslsourcenameparserutil':
+:      Provide low-level functions for parsing source file names.
 :
 : 'bsls_bsltestutil':
 :      Provide test utilities for 'bsl' that do not use <iostream>.
