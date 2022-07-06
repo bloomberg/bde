@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Jun 30 10:02:18 2022
+// Generated on Tue Jul  5 14:15:44 2022
 // Command line: sim_cpp11_features.pl bslstl_list.h
 
 #ifdef COMPILING_BSLSTL_LIST_H
@@ -1828,9 +1828,9 @@ bool operator>=(const list<VALUE, ALLOCATOR>& lhs,
     // 'value_type'.  Note that this operator returns '!(lhs < rhs)'.
 
 // FREE FUNCTIONS
-template <class VALUE, class ALLOCATOR, class OTHER_TYPE>
+template <class VALUE, class ALLOCATOR, class BDE_OTHER_TYPE>
 typename list<VALUE, ALLOCATOR>::size_type
-erase(list<VALUE, ALLOCATOR>& l, const OTHER_TYPE& value);
+erase(list<VALUE, ALLOCATOR>& l, const BDE_OTHER_TYPE& value);
     // Erase all the elements in the specified list 'l' that compare equal to
     // the specified 'value'.  Return the number of elements erased.
 
@@ -4311,9 +4311,9 @@ bool bsl::operator>=(const list<VALUE, ALLOCATOR>& lhs,
 }
 
 // FREE FUNCTIONS
-template <class VALUE, class ALLOCATOR, class OTHER_TYPE>
+template <class VALUE, class ALLOCATOR, class BDE_OTHER_TYPE>
 inline typename bsl::list<VALUE, ALLOCATOR>::size_type
-bsl::erase(list<VALUE, ALLOCATOR>& l, const OTHER_TYPE& value)
+bsl::erase(list<VALUE, ALLOCATOR>& l, const BDE_OTHER_TYPE& value)
 {
     // We could use the erase/remove idiom here like we do in the other
     // sequence containers, but this is more efficient, since we just unlink

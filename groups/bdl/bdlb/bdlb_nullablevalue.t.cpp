@@ -88,10 +88,10 @@ using bsls::NameOf;
 // [ 9] NullableValue(const TYPE& value, allocator);
 // [22] NullableValue(TYPE&& value);
 // [22] NullableValue(TYPE&& value, allocator);
-// [11] NullableValue(const OTHER_TYPE& value);
-// [11] NullableValue(const OTHER_TYPE& value, allocator);
-// [11] NullableValue(const NullableValue<OTHER_TYPE>&o);
-// [11] NullableValue(const NullableValue<OTHER_TYPE>&o, allocator);
+// [11] NullableValue(const BDE_OTHER_TYPE& value);
+// [11] NullableValue(const BDE_OTHER_TYPE& value, allocator);
+// [11] NullableValue(const NullableValue<BDE_OTHER_TYPE>&o);
+// [11] NullableValue(const NullableValue<BDE_OTHER_TYPE>&o, allocator);
 // [26] NullableValue(const NullOptType&);
 // [26] NullableValue(const NullOptType&, allocator);
 // [30] CONVERSION FROM BASE CLASS
@@ -102,14 +102,14 @@ using bsls::NameOf;
 // MANIPULATORS
 // [ 7] NullableValue& operator=(const NullableValue& rhs);
 // [21] NullableValue& operator=(NullableValue&& rhs);
-// [12] NullableValue& operator=(const NullableValue<OTHER_TYPE>& rhs);
+// [12] NullableValue& operator=(const NullableValue<BDE_OTHER_TYPE>& rhs);
 // [10] NullableValue& operator=(const TYPE& rhs);
 // [23] NullableValue& operator=(TYPE&& rhs);
-// [12] NullableValue& operator=(const OTHER_TYPE& rhs);
+// [12] NullableValue& operator=(const BDE_OTHER_TYPE& rhs);
 // [26] NullableValue& operator=(const NullOptType& rhs);
 // [13] void swap(NullableValue<TYPE>& other);
 // [ 3] TYPE& makeValue(const TYPE& value);
-// [12] TYPE& makeValue(const OTHER_TYPE& value);
+// [12] TYPE& makeValue(const BDE_OTHER_TYPE& value);
 // [ 3] TYPE& makeValue();
 // [19] TYPE& makeValueInplace(ARGS&&... args);
 // [ 8] STREAM& bdexStreamIn(STREAM& stream, int version);
@@ -2452,7 +2452,7 @@ enum MessageType {
 class Recipient {
     // This 'class' is used for testing 'makeValue' in case 12.  The 'class'
     // has an explicit conversion constructor such that if the implementation
-    // of 'makeValue' relies on implicit conversion from 'OTHER_TYPE' to
+    // of 'makeValue' relies on implicit conversion from 'BDE_OTHER_TYPE' to
     // 'TYPE', the code will not compile.
 
     // DATA
@@ -7547,16 +7547,16 @@ int main(int argc, char *argv[])
         //:
         //: 3 Test C-1 and C-2 for the
         //:   'NullableValue<optional<optional<TYPE> > >' and
-        //:   'optional<optional<OTHER_TYPE> >' where 'TYPE' and 'OTHER_TYPE'
-        //:   are both move-aware, where 'OTHER_TYPE' is convertible to 'TYPE'
-        //:   and where 'TYPE':
+        //:   'optional<optional<BDE_OTHER_TYPE> >' where 'TYPE' and
+        //:   'BDE_OTHER_TYPE' are both move-aware, where 'BDE_OTHER_TYPE' is
+        //:   convertible to 'TYPE' and where 'TYPE':
         //:   o does not allocate memory
         //:
         //:   o allocates memory
         //:
         //: 4 Test C-1 and C-2 for the
         //:   'NullableValue<optional<optional<TYPE> > >' and
-        //:   'NullableValue<optional<optional<OTHER_TYPE> > >' where 'TYPE'
+        //:   'NullableValue<optional<optional<BDE_OTHER_TYPE> > >' where 'TYPE'
         //:   and 'OTHER_TYPE' are both move-aware, where 'OTHER_TYPE' is
         //:   convertible to 'TYPE', and where 'TYPE':
         //:   o does not allocate memory
@@ -10236,9 +10236,9 @@ int main(int argc, char *argv[])
         //   observe that it fails to compile.
         //
         // Testing:
-        //   NullableValue& operator=(const NullableValue<OTHER_TYPE>& rhs);
-        //   NullableValue& operator=(const OTHER_TYPE& rhs);
-        //   TYPE& makeValue(const OTHER_TYPE& value);
+        //   NullableValue& operator=(const NullableValue<BDE_OTHER_TYPE>& rhs);
+        //   NullableValue& operator=(const BDE_OTHER_TYPE& rhs);
+        //   TYPE& makeValue(const BDE_OTHER_TYPE& value);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTESTING CONVERSION ASSIGNMENT OPERATIONS"
@@ -10983,10 +10983,10 @@ int main(int argc, char *argv[])
         //   fails to compile.
         //
         // Testing:
-        //   NullableValue(const OTHER_TYPE& value);
-        //   NullableValue(const OTHER_TYPE& value, allocator);
-        //   NullableValue(const NullableValue<OTHER_TYPE>&o);
-        //   NullableValue(const NullableValue<OTHER_TYPE>&o, allocator);
+        //   NullableValue(const BDE_OTHER_TYPE& value);
+        //   NullableValue(const BDE_OTHER_TYPE& value, allocator);
+        //   NullableValue(const NullableValue<BDE_OTHER_TYPE>&o);
+        //   NullableValue(const NullableValue<BDE_OTHER_TYPE>&o, allocator);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTESTING CONVERSION CONSTRUCTORS"
@@ -11129,8 +11129,10 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nConversion from 'NullableValue<OTHER_TYPE>'."
-                          << endl;
+        if (verbose) {
+            cout << "\nConversion from 'NullableValue<BDE_OTHER_TYPE>'."
+                 << endl;
+        }
         {
             bslma::TestAllocator da("default", veryVeryVeryVerbose);
 

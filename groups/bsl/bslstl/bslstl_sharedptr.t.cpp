@@ -229,8 +229,8 @@ using namespace BloombergLP;
 // [ 4] long use_count() const
 // [ 4] bool unique() const
 // [16] operator BoolType() const
-// [29] bool shared_ptr::owner_before(const shared_ptr<OTHER_TYPE>& rhs)
-// [29] bool shared_ptr::owner_before(const weak_ptr<OTHER_TYPE>& rhs)
+// [29] bool shared_ptr::owner_before(const shared_ptr<BDE_OTHER_TYPE>& rhs)
+// [29] bool shared_ptr::owner_before(const weak_ptr<BDE_OTHER_TYPE>& rhs)
 //
 // BDE SPECIFIC ACCESSORS
 // [ 4] add_lvalue_reference<ELEM_TYPE>::type operator[](ptrdiff_t) const
@@ -387,8 +387,8 @@ using namespace BloombergLP;
 // [24] bool expired() const
 // [24] long use_count() const
 // [27] shared_ptr<TYPE> lock() const
-// [29] bool weak_ptr::owner_before(const shared_ptr<OTHER_TYPE>& rhs)
-// [29] bool weak_ptr::owner_before(const weak_ptr<OTHER_TYPE>& rhs)
+// [29] bool weak_ptr::owner_before(const shared_ptr<BDE_OTHER_TYPE>& rhs)
+// [29] bool weak_ptr::owner_before(const weak_ptr<BDE_OTHER_TYPE>& rhs)
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST (weak_ptr)
 // [39] USAGE EXAMPLE 1: weak_ptr
@@ -15069,10 +15069,10 @@ int main(int argc, char *argv[])
         // Plan:
         //
         // Testing:
-        //   bool shared_ptr::owner_before(const shared_ptr<OTHER_TYPE>& rhs)
-        //   bool shared_ptr::owner_before(const weak_ptr<OTHER_TYPE>& rhs)
-        //   bool weak_ptr::owner_before(const shared_ptr<OTHER_TYPE>& rhs)
-        //   bool weak_ptr::owner_before(const weak_ptr<OTHER_TYPE>& rhs)
+        //   bool shared_ptr::owner_before(const shared_ptr<BDE_OTHER_TYPE>& r)
+        //   bool shared_ptr::owner_before(const weak_ptr<BDE_OTHER_TYPE>& rhs)
+        //   bool weak_ptr::owner_before(const shared_ptr<BDE_OTHER_TYPE>& rhs)
+        //   bool weak_ptr::owner_before(const weak_ptr<BDE_OTHER_TYPE>& rhs)
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING 'owner_before' METHODS"

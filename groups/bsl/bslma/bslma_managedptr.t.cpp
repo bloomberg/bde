@@ -127,7 +127,7 @@ using namespace BloombergLP;
 // [  ] ManagedPtr(OTHER *, void *, void (*)(OTHER_BASE *, void *));
 // [ 8] ManagedPtr(OTHER *, COOKIE *, void (*)(OTHER_BASE *, COOKIE_BASE *));
 // [ 5] ~ManagedPtr();
-// [ 9] operator ManagedPtr_Ref<OTHER_TYPE>();
+// [ 9] operator ManagedPtr_Ref<BDE_OTHER_TYPE>();
 // [ 5] void load(TYPE *ptr);
 // [ 5] void load(TYPE *ptr, FACTORY *factory);
 // [ 5] void load(TYPE *ptr, void *cookie, DeleterFunc deleter);
@@ -11499,7 +11499,7 @@ int main(int argc, char *argv[])
         //   ManagedPtr(ManagedPtr&& original);
         //   ManagedPtr(MovableRef<ManagedPtr<OTHER>> original);
         //   ManagedPtr(ManagedPtr_Ref<TYPE> ref);
-        //   operator ManagedPtr_Ref<OTHER_TYPE>();
+        //   operator ManagedPtr_Ref<BDE_OTHER_TYPE>();
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING MOVE-CONSTRUCTION"

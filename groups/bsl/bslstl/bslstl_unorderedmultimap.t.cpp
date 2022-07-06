@@ -565,16 +565,16 @@ class StatefulStlAllocator : public bsltf::StdTestAllocator<VALUE>
         // Alias for the base class.
 
   public:
-    template <class OTHER_TYPE>
+    template <class BDE_OTHER_TYPE>
     struct rebind {
-        // This nested 'struct' template, parameterized by some 'OTHER_TYPE',
-        // provides a namespace for an 'other' type alias, which is an
-        // allocator type following the same template as this one but that
-        // allocates elements of 'OTHER_TYPE'.  Note that this allocator type
-        // is convertible to and from 'other' for any 'OTHER_TYPE' including
-        // 'void'.
+        // This nested 'struct' template, parameterized by some
+        // 'BDE_OTHER_TYPE', provides a namespace for an 'other' type alias,
+        // which is an allocator type following the same template as this one
+        // but that allocates elements of 'BDE_OTHER_TYPE'.  Note that this
+        // allocator type is convertible to and from 'other' for any
+        // 'BDE_OTHER_TYPE' including 'void'.
 
-        typedef StatefulStlAllocator<OTHER_TYPE> other;
+        typedef StatefulStlAllocator<BDE_OTHER_TYPE> other;
     };
 
     // CREATORS
@@ -588,8 +588,8 @@ class StatefulStlAllocator : public bsltf::StdTestAllocator<VALUE>
         // Create a 'StatefulStlAllocator' object having the same id as the
         // specified 'original'.
 
-    template <class OTHER_TYPE>
-    StatefulStlAllocator(const StatefulStlAllocator<OTHER_TYPE>& original)
+    template <class BDE_OTHER_TYPE>
+    StatefulStlAllocator(const StatefulStlAllocator<BDE_OTHER_TYPE>& original)
         // Create a 'StatefulStlAllocator' object having the same id as the
         // specified 'original' with a different template type.
     : StlAlloc(original)

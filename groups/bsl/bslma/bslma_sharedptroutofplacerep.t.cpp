@@ -172,8 +172,8 @@ class MyBslTestAllocator {
 
     MyBslTestAllocator(const MyBslTestAllocator& original);
 
-    template <class OTHER_TYPE>
-    MyBslTestAllocator(const MyBslTestAllocator<OTHER_TYPE>& original);
+    template <class BDE_OTHER_TYPE>
+    MyBslTestAllocator(const MyBslTestAllocator<BDE_OTHER_TYPE>& original);
 
     // MANIPULATORS
     TYPE *allocate(std::size_t n);
@@ -209,9 +209,9 @@ MyBslTestAllocator<TYPE>::MyBslTestAllocator(
 }
 
 template <class TYPE>
-template <class OTHER_TYPE>
+template <class BDE_OTHER_TYPE>
 MyBslTestAllocator<TYPE>::MyBslTestAllocator(
-                                const MyBslTestAllocator<OTHER_TYPE>& original)
+                            const MyBslTestAllocator<BDE_OTHER_TYPE>& original)
 : d_allocator_p(original.d_allocator_p)
 {
 }

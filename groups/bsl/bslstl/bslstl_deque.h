@@ -1531,9 +1531,9 @@ bool operator>=(const deque<VALUE_TYPE, ALLOCATOR>& lhs,
     // 'value_type'.  Note that this operator returns '!(lhs < rhs)'.
 
 // FREE FUNCTIONS
-template <class VALUE_TYPE, class ALLOCATOR, class OTHER_TYPE>
+template <class VALUE_TYPE, class ALLOCATOR, class BDE_OTHER_TYPE>
 typename deque<VALUE_TYPE, ALLOCATOR>::size_type
-erase(deque<VALUE_TYPE, ALLOCATOR>& deq, const OTHER_TYPE& value);
+erase(deque<VALUE_TYPE, ALLOCATOR>& deq, const BDE_OTHER_TYPE& value);
     // Erase all the elements in the specified deque 'deq' that compare equal
     // to the specified 'value'.  Return the number of elements erased.
 
@@ -3905,9 +3905,9 @@ bool operator>=(const deque<VALUE_TYPE, ALLOCATOR>& lhs,
 }
 
 // FREE FUNCTIONS
-template <class VALUE_TYPE, class ALLOCATOR, class OTHER_TYPE>
+template <class VALUE_TYPE, class ALLOCATOR, class BDE_OTHER_TYPE>
 inline typename deque<VALUE_TYPE, ALLOCATOR>::size_type
-erase(deque<VALUE_TYPE, ALLOCATOR>& deq, const OTHER_TYPE& value)
+erase(deque<VALUE_TYPE, ALLOCATOR>& deq, const BDE_OTHER_TYPE& value)
 {
     typename deque<VALUE_TYPE, ALLOCATOR>::size_type oldSize = deq.size();
     deq.erase(bsl::remove(deq.begin(), deq.end(), value), deq.end());

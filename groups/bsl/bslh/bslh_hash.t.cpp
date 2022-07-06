@@ -773,8 +773,8 @@ class TypeChecker {
     // type as the (template parameter) 'EXPECTED_TYPE'
   public:
       static bool isCorrectType(EXPECTED_TYPE type);
-      template<class OTHER_TYPE>
-      static bool isCorrectType(OTHER_TYPE type);
+      template<class BDE_OTHER_TYPE>
+      static bool isCorrectType(BDE_OTHER_TYPE type);
           // Return true if the specified 'type' is of the same type as the
           // (template parameter) 'EXPECTED_TYPE'.
 };
@@ -785,8 +785,8 @@ bool TypeChecker<EXPECTED_TYPE>::isCorrectType(EXPECTED_TYPE /*type*/) {
 }
 
 template<class EXPECTED_TYPE>
-template<class OTHER_TYPE>
-bool TypeChecker<EXPECTED_TYPE>::isCorrectType(OTHER_TYPE /*type*/) {
+template<class BDE_OTHER_TYPE>
+bool TypeChecker<EXPECTED_TYPE>::isCorrectType(BDE_OTHER_TYPE /*type*/) {
     return false;
 }
 

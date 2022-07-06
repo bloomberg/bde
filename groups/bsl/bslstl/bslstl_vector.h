@@ -1689,9 +1689,9 @@ bool operator>=(const vector<VALUE_TYPE, ALLOCATOR>& lhs,
     // 'value_type'.  Note that this operator returns '!(lhs < rhs)'.
 
 // FREE FUNCTIONS
-template <class VALUE_TYPE, class ALLOCATOR, class OTHER_TYPE>
+template <class VALUE_TYPE, class ALLOCATOR, class BDE_OTHER_TYPE>
 typename vector<VALUE_TYPE, ALLOCATOR>::size_type
-erase(vector<VALUE_TYPE, ALLOCATOR>& vec, const OTHER_TYPE& value);
+erase(vector<VALUE_TYPE, ALLOCATOR>& vec, const BDE_OTHER_TYPE& value);
     // Erase all the elements in the specified vector 'vec' that compare equal
     // to the specified 'value'.  Return the number of elements erased.
 
@@ -3879,9 +3879,9 @@ bool operator>=(const vector<VALUE_TYPE, ALLOCATOR>& lhs,
 
                        // *** specialized algorithms ***
 
-template <class VALUE_TYPE, class ALLOCATOR, class OTHER_TYPE>
+template <class VALUE_TYPE, class ALLOCATOR, class BDE_OTHER_TYPE>
 inline typename vector<VALUE_TYPE, ALLOCATOR>::size_type
-erase(vector<VALUE_TYPE, ALLOCATOR>& vec, const OTHER_TYPE& value)
+erase(vector<VALUE_TYPE, ALLOCATOR>& vec, const BDE_OTHER_TYPE& value)
 {
     typename vector<VALUE_TYPE, ALLOCATOR>::size_type oldSize = vec.size();
     vec.erase(bsl::remove(vec.begin(), vec.end(), value), vec.end());

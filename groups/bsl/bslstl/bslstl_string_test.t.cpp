@@ -916,12 +916,12 @@ class LimitAllocator : public ALLOC {
     // TYPES
     typedef typename TraitsBase::size_type         size_type;
 
-    template <class OTHER_TYPE> struct rebind {
+    template <class BDE_OTHER_TYPE> struct rebind {
         // It is better not to inherit the 'rebind' template, or else
-        // 'rebind<X>::other' would be 'ALLOC::rebind<OTHER_TYPE>::other'
-        // instead of 'LimitAlloc<ALLOC::rebind<OTHER_TYPE>::otherX>'.
+        // 'rebind<X>::other' would be 'ALLOC::rebind<BDE_OTHER_TYPE>::other'
+        // instead of 'LimitAlloc<ALLOC::rebind<BDE_OTHER_TYPE>::otherX>'.
 
-        typedef typename TraitsBase::template rebind_traits<OTHER_TYPE>
+        typedef typename TraitsBase::template rebind_traits<BDE_OTHER_TYPE>
                                                               RebindTraitsBase;
 
         typedef LimitAllocator<typename RebindTraitsBase::allocator_type>
@@ -2515,7 +2515,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase33()
             const int  expectedExceptionLoopCount = allocationExpected
                                                     ? 2
                                                     : 1;
-#endif 
+#endif
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(*objectAllocator_p) {
                 ++exceptionLoopCount;
 

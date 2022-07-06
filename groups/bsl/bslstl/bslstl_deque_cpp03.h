@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Jun 30 10:02:18 2022
+// Generated on Tue Jul  5 14:15:44 2022
 // Command line: sim_cpp11_features.pl bslstl_deque.h
 
 #ifdef COMPILING_BSLSTL_DEQUE_H
@@ -1562,9 +1562,9 @@ bool operator>=(const deque<VALUE_TYPE, ALLOCATOR>& lhs,
     // 'value_type'.  Note that this operator returns '!(lhs < rhs)'.
 
 // FREE FUNCTIONS
-template <class VALUE_TYPE, class ALLOCATOR, class OTHER_TYPE>
+template <class VALUE_TYPE, class ALLOCATOR, class BDE_OTHER_TYPE>
 typename deque<VALUE_TYPE, ALLOCATOR>::size_type
-erase(deque<VALUE_TYPE, ALLOCATOR>& deq, const OTHER_TYPE& value);
+erase(deque<VALUE_TYPE, ALLOCATOR>& deq, const BDE_OTHER_TYPE& value);
     // Erase all the elements in the specified deque 'deq' that compare equal
     // to the specified 'value'.  Return the number of elements erased.
 
@@ -6141,9 +6141,9 @@ bool operator>=(const deque<VALUE_TYPE, ALLOCATOR>& lhs,
 }
 
 // FREE FUNCTIONS
-template <class VALUE_TYPE, class ALLOCATOR, class OTHER_TYPE>
+template <class VALUE_TYPE, class ALLOCATOR, class BDE_OTHER_TYPE>
 inline typename deque<VALUE_TYPE, ALLOCATOR>::size_type
-erase(deque<VALUE_TYPE, ALLOCATOR>& deq, const OTHER_TYPE& value)
+erase(deque<VALUE_TYPE, ALLOCATOR>& deq, const BDE_OTHER_TYPE& value)
 {
     typename deque<VALUE_TYPE, ALLOCATOR>::size_type oldSize = deq.size();
     deq.erase(bsl::remove(deq.begin(), deq.end(), value), deq.end());

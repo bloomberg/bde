@@ -1031,8 +1031,8 @@ int main(int argc, char *argv[])
         //: 1 The 'typedef' aliases defined in this component are the same as
         //:   in associated allocator.
         //:
-        //: 2 'rebind<OTHER_TYPE>::other' defines a template instance for
-        //:   'StdAllocatorAdaptor' parameterized on the 'OTHER_TYPE' type.
+        //: 2 'rebind<BDE_OTHER_TYPE>::other' defines a template instance for
+        //:   'StdAllocatorAdaptor' parameterized on the 'BDE_OTHER_TYPE' type.
         //
         // Plan:
         //: 1 Define two aliases for 'StdAllocatorAdaptor' parameterized on

@@ -937,8 +937,8 @@ void TestDriver<VALUE>::testCase13()
     //:
     //: 2 'size_type' is unsigned while 'difference_type' is signed.
     //:
-    //: 3 'rebind<OTHER_TYPE>::other' defines a template instance for
-    //:   'StdStatefulAllocator' parameterized on the 'OTHER_TYPE' type.
+    //: 3 'rebind<BDE_OTHER_TYPE>::other' defines a template instance for
+    //:   'StdStatefulAllocator' parameterized on the 'BDE_OTHER_TYPE' type.
     //
     // Plan:
     //: 1 Use the 'sizeof' operator to verify that 'size_type' and

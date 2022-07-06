@@ -495,8 +495,8 @@ int main(int argc, char *argv[])
         //:
         //: 2 'size_type' is 'unsigned int' while 'difference_type' is 'int'.
         //:
-        //: 3 'rebind<OTHER_TYPE>::other' defines a template instance for
-        //:   'StdTestAllocator' parameterized on the 'OTHER_TYPE' type.
+        //: 3 'rebind<BDE_OTHER_TYPE>::other' defines a template instance for
+        //:   'StdTestAllocator' parameterized on the 'BDE_OTHER_TYPE' type.
         //
         // Plan:
         //: 1 Define three aliases for 'StdTestAllocator' parameterized on

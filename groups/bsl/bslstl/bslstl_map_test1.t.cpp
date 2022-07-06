@@ -799,10 +799,10 @@ class DummyAllocator {
     typedef const TYPE&     const_reference;
     typedef TYPE            value_type;
 
-    template <class OTHER_TYPE>
+    template <class BDE_OTHER_TYPE>
     struct rebind
     {
-        typedef DummyAllocator<OTHER_TYPE> other;
+        typedef DummyAllocator<BDE_OTHER_TYPE> other;
     };
 
     // CREATORS
@@ -812,8 +812,8 @@ class DummyAllocator {
 
     // DummyAllocator(const DummyAllocator& original) = default;
 
-    template <class OTHER_TYPE>
-    DummyAllocator(const DummyAllocator<OTHER_TYPE>& original)
+    template <class BDE_OTHER_TYPE>
+    DummyAllocator(const DummyAllocator<BDE_OTHER_TYPE>& original)
     {
         (void) original;
     }
