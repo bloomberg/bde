@@ -169,6 +169,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_readlockguard.h>
 #include <bslmt_readerwriterlock.h>
 
+#include <bsls_atomic.h>
 #include <bsls_types.h>
 
 #include <bsl_map.h>
@@ -195,7 +196,7 @@ class CategoryManager {
                                                       // indices in
                                                       // 'd_categories'
 
-    volatile bsls::Types::Int64      d_ruleSetSequenceNumber;
+    bsls::AtomicInt64                d_ruleSetSequenceNumber;
                                                       // sequence number that
                                                       // is incremented each
                                                       // time the rule set is

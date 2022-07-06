@@ -8,6 +8,9 @@ BSLS_IDENT_RCSID(ball_category_cpp,"$Id$ $CSID$")
 
 #include <bslim_printer.h>
 
+#include <bslmf_assert.h>
+#include <bslmf_issame.h>
+
 #include <bsls_assert.h>
 
 #include <bsl_algorithm.h>
@@ -19,6 +22,10 @@ namespace ball {
                             // --------------
                             // class Category
                             // --------------
+
+// d_relevantRuleMask is semantically of type 'RuleSet::MaskType', but needs
+// to be atomic.  Assert that the type of 'RuleSet::MaskType' hasn't changed.
+BSLMF_ASSERT((bsl::is_same<RuleSet::MaskType, unsigned int>::value));
 
 // PRIVATE CREATORS
 Category::Category(const char       *categoryName,
@@ -38,10 +45,11 @@ Category::Category(const char       *categoryName,
                                            triggerAllLevel))
 , d_categoryName(categoryName, basicAllocator)
 , d_categoryHolder(0)
-, d_relevantRuleMask(0)
+, d_relevantRuleMask()
 , d_ruleThreshold(0)
 {
     BSLS_ASSERT(categoryName);
+    bsls::AtomicOperations::initUint(&d_relevantRuleMask, 0);
 }
 
 // PRIVATE MANIPULATORS

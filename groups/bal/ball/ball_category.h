@@ -144,7 +144,7 @@ class Category {
 
     CategoryHolder     *d_categoryHolder;   // linked list of holders of this
                                             // category
-    mutable RuleSet::MaskType
+    mutable bsls::AtomicOperations::AtomicTypes::Uint
                         d_relevantRuleMask; // the mask indicating which rules
                                             // are relevant (i.e., have been
                                             // attached to this category)
@@ -489,7 +489,7 @@ int Category::ruleThreshold() const
 inline
 RuleSet::MaskType Category::relevantRuleMask() const
 {
-    return d_relevantRuleMask;
+    return bsls::AtomicOperations::getUintAcquire(&d_relevantRuleMask);
 }
 
                         // --------------------
@@ -577,22 +577,43 @@ void CategoryManagerImpUtil::setRuleThreshold(Category *category,
 inline
 void CategoryManagerImpUtil::enableRule(Category *category, int ruleIndex)
 {
-    category->d_relevantRuleMask =
-        bdlb::BitUtil::withBitSet(category->d_relevantRuleMask, ruleIndex);
+    unsigned int currentMask =
+         bsls::AtomicOperations::getUintRelaxed(&category->d_relevantRuleMask);
+    unsigned int expectedMask;
+    do {
+        const unsigned int updatedMask = bdlb::BitUtil::withBitSet(currentMask,
+                                                                   ruleIndex);
+        expectedMask                   = currentMask;
+        currentMask = bsls::AtomicOperations::testAndSwapUintAcqRel(
+                                                 &category->d_relevantRuleMask,
+                                                 currentMask,
+                                                 updatedMask);
+    } while (expectedMask != currentMask);
 }
 
 inline
 void CategoryManagerImpUtil::disableRule(Category *category, int ruleIndex)
 {
-    category->d_relevantRuleMask =
-        bdlb::BitUtil::withBitCleared(category->d_relevantRuleMask, ruleIndex);
+    unsigned int currentMask =
+         bsls::AtomicOperations::getUintRelaxed(&category->d_relevantRuleMask);
+    unsigned int expectedMask;
+    do {
+        const unsigned int updatedMask =
+                         bdlb::BitUtil::withBitCleared(currentMask, ruleIndex);
+        expectedMask = currentMask;
+        currentMask = bsls::AtomicOperations::testAndSwapUintAcqRel(
+                                                 &category->d_relevantRuleMask,
+                                                 currentMask,
+                                                 updatedMask);
+    } while (expectedMask != currentMask);
 }
 
 inline
 void CategoryManagerImpUtil::setRelevantRuleMask(Category          *category,
                                                  RuleSet::MaskType  mask)
 {
-    category->d_relevantRuleMask = mask;
+    bsls::AtomicOperations::setUintRelease(&category->d_relevantRuleMask,
+                                           mask);
 }
 
 }  // close package namespace
