@@ -486,22 +486,19 @@ const char VK = 'K';
 const char VL = 'L';
     // All test types have character value type.
 
-const int  LARGE_SIZE_VALUE = 2 * bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
-    // Declare a large value for insertions into the string.  Note this value
-    // will cause multiple resizes during insertion into the string.
-
 const size_t SHORT_STRING_BUFFER_BYTES
                            = (20 + sizeof(size_t) - 1) & ~(sizeof(size_t) - 1);
     // The size of the short string buffer, according to our implementation (20
     // bytes rounded to the word boundary - 1).  Appending one more than this
     // number of characters to a default object causes a reallocation.
 
-const size_t INITIAL_CAPACITY_FOR_NON_EMPTY_OBJECT = 1;
+
+BSLA_MAYBE_UNUSED const size_t INITIAL_CAPACITY_FOR_NON_EMPTY_OBJECT = 1;
                                 // bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1;
     // The capacity of a default constructed object after the first
     // 'push_back', according to our implementation.
 
-const int NUM_ALLOCS[] = {
+BSLA_MAYBE_UNUSED const int NUM_ALLOCS[] = {
     // Number of allocations (blocks) to create a string of the following size
     // by using 'push_back' repeatedly (without initial reserve):
 #if BSLS_PLATFORM_CPU_64_BIT
@@ -16472,6 +16469,14 @@ int main(int argc, char *argv[])
             // Set up the oracle results for signed integers, using 'long long'
             // versions of the corresponding C library 'sprintf' functions.
 
+            // On some platforms, where 'long' and 'long long' are the same
+            // size (like x86_64 Linux), these comparisons generate compiler
+            // warnings, which we disable here.
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wtautological-type-limit-compare"
+#endif
+
             sprintf(tempBuf, "%lld", VALUE);
 
             if (VALUE <= std::numeric_limits<int>::max() &&
@@ -16487,6 +16492,10 @@ int main(int argc, char *argv[])
                 bsl::string str = bsl::to_string(TEST_VALUE);
                 ASSERTV(LINE, tempBuf, str, tempBuf == str);
             }
+
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma GCC diagnostic pop
+#endif
 
             {
                 bsl::string str = bsl::to_string(VALUE);
@@ -16507,6 +16516,11 @@ int main(int argc, char *argv[])
 
             sprintf(tempBuf, "%llu", U_VALUE);
 
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wtautological-type-limit-compare"
+#endif
+
             if (U_VALUE <= std::numeric_limits<unsigned int>::max()) {
                 const unsigned int TEST_VALUE =
                                             static_cast<unsigned int>(U_VALUE);
@@ -16521,7 +16535,11 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, tempBuf, str, tempBuf == str );
             }
 
-            {
+ #ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma GCC diagnostic pop
+#endif
+
+           {
                 bsl::string str = bsl::to_string(U_VALUE);
                 ASSERTV(LINE, tempBuf, str, tempBuf == str );
             }
@@ -16562,6 +16580,11 @@ int main(int argc, char *argv[])
             // versions of the corresponding C library 'sprintf' functions.
 
             swprintf(wTempBuf, BUF_LEN, L"%lld", VALUE);
+
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wtautological-type-limit-compare"
+#endif
 
             if (VALUE <= std::numeric_limits<int>::max() &&
                 VALUE >= std::numeric_limits<int>::min()) {
@@ -16607,6 +16630,10 @@ int main(int argc, char *argv[])
                 bsl::wstring wstr = bsl::to_wstring(U_VALUE);
                 ASSERTV(LINE, wTempBuf, wstr, wTempBuf == wstr );
             }
+
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma GCC diagnostic pop
+#endif
 
             const Int64 AA = defaultAllocator.numBlocksTotal();
             const Int64  A = defaultAllocator.numBlocksInUse();
@@ -17383,6 +17410,10 @@ int main(int argc, char *argv[])
             }
             position = k_DEFAULT_POSITION;
 
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wtautological-type-limit-compare"
+#endif
             if (SPEC <= std::numeric_limits<long>::max()
              && SPEC >= std::numeric_limits<long>::min()
              && POS
@@ -17453,6 +17484,9 @@ int main(int argc, char *argv[])
             }
             position = k_DEFAULT_POSITION;
 
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma GCC diagnostic pop
+#endif
             if (POS && (POS < 20 || SPEC < 0)) {
                 long long value = bsl::stoll(STRING_VALUE, NULL, BASE);
                 ASSERTV(LINE, STRING_VALUE, value, SPEC, value == SPEC);
@@ -17629,6 +17663,10 @@ int main(int argc, char *argv[])
             }
             position = k_DEFAULT_POSITION;
 
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wtautological-type-limit-compare"
+#endif
             if (SPEC <= std::numeric_limits<long>::max()
              && SPEC >= std::numeric_limits<long>::min()
              && POS
@@ -17696,6 +17734,10 @@ int main(int argc, char *argv[])
 #endif
             }
             position = k_DEFAULT_POSITION;
+
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma GCC diagnostic pop
+#endif
 
             if (POS && (POS < 20 || SPEC < 0)) {
                 long long value = bsl::stoll(STRING_VALUE, NULL, BASE);

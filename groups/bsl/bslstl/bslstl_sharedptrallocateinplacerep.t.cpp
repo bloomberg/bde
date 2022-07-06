@@ -819,7 +819,6 @@ void TestHarness<ALLOCATOR>::testCase2(bool verbose,
 
 //        TCObj* xPtr = new(ta) TCObj(&ta);
         TCObj&       x = *xPtr;
-        const TCObj& X = *xPtr;
 
         ASSERT(++numAllocations == ta.numAllocations());
 //        ASSERT(EXP == *(x.ptr()));
@@ -976,7 +975,6 @@ void TestHarness<ALLOCATOR>::testCase4(bool verbose,
 
         Obj        *xPtr = Obj::makeRep(alloc_base);
         Obj&        x    = *xPtr;
-        const Obj&  X    = *xPtr;
 
         ASSERT(++numAllocations == ta.numAllocations());
         ASSERT(0 == numDeletes);
@@ -1182,6 +1180,8 @@ int main(int argc, char *argv[])
     bsls::Types::Int64   numDeallocations;
     bsls::Types::Int64   numAllocations;
 
+    (void) numDeallocations;
+    (void) numAllocations;
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.

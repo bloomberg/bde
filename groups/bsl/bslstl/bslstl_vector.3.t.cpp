@@ -4490,8 +4490,8 @@ struct TestDeductionGuides {
         typedef char T7;
         T7                        *p7b = nullptr;
         T7                        *p7e = nullptr;
-        bsl::vector<T7>::iterator  i7b;
-        bsl::vector<T7>::iterator  i7e;
+        bsl::vector<T7>::iterator  i7b = nullptr;
+        bsl::vector<T7>::iterator  i7e = nullptr;
         bsl::vector                v7a(p7b, p7e);
         bsl::vector                v7b(i7b, i7e);
         ASSERT_SAME_TYPE(decltype(v7a), bsl::vector<T7>);
@@ -4500,8 +4500,8 @@ struct TestDeductionGuides {
         typedef unsigned short T8;
         T8                        *p8b = nullptr;
         T8                        *p8e = nullptr;
-        bsl::vector<T8>::iterator  i8b;
-        bsl::vector<T8>::iterator  i8e;
+        bsl::vector<T8>::iterator  i8b = nullptr;
+        bsl::vector<T8>::iterator  i8e = nullptr;
 
         bsl::vector v8a(p8b, p8e, bsl::allocator<T8>());
         bsl::vector v8b(p8b, p8e, a1);

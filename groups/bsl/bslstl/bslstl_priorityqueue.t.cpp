@@ -6132,8 +6132,8 @@ struct TestDeductionGuides {
         typedef char T9;
         T9                        *p9b = nullptr;
         T9                        *p9e = nullptr;
-        bsl::vector<T9>::iterator  i9b;
-        bsl::vector<T9>::iterator  i9e;
+        bsl::vector<T9>::iterator  i9b = nullptr;
+        bsl::vector<T9>::iterator  i9e = nullptr;
         bsl::priority_queue        pq9a(p9b, p9e);
         bsl::priority_queue        pq9b(i9b, i9e);
         ASSERT_SAME_TYPE(decltype(pq9a), bsl::priority_queue<T9>);
@@ -6146,8 +6146,8 @@ struct TestDeductionGuides {
 
         T10                        *p10b = nullptr;
         T10                        *p10e = nullptr;
-        bsl::vector<T10>::iterator  i10b;
-        bsl::vector<T10>::iterator  i10e;
+        bsl::vector<T10>::iterator  i10b = nullptr;
+        bsl::vector<T10>::iterator  i10e = nullptr;
         bsl::vector<T10>            v10;
 
         bsl::priority_queue pq10a(p10b, p10e, CompT10{}, v10);
@@ -6171,8 +6171,8 @@ struct TestDeductionGuides {
         typedef decltype(StupidLessFn<T11>) CompFnT11;
         T11                        *p11b = nullptr;
         T11                        *p11e = nullptr;
-        bsl::vector<T11>::iterator  i11b;
-        bsl::vector<T11>::iterator  i11e;
+        bsl::vector<T11>::iterator  i11b = nullptr;
+        bsl::vector<T11>::iterator  i11e = nullptr;
         bsl::vector<T11>            v11;
 
         bsl::priority_queue pq11a(p11b, p11e, CompT11{}, std::move(v11));

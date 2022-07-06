@@ -60,11 +60,13 @@ using namespace BloombergLP;
 #undef  U_UNLIKELY_HINT
 #define U_UNLIKELY_HINT    BSLS_PERFORMANCEHINT_UNLIKELY_HINT
 
+#if U_WYMUM_PSEUDO_MULTIPLY
 static inline
 uint64_t _wyrot(uint64_t x)
 {
     return (x >> 32) | (x << 32);
 }
+#endif
 
 static inline
 void _wymum(uint64_t *A, uint64_t *B)

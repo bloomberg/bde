@@ -740,7 +740,7 @@ int main(int argc, char *argv[])
         {
             bsl::bitset<32> b;
             bsl::bitset<32> rhs;
-            size_t          pos;
+            size_t          pos = 0U;
 
             ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
                 == BSLS_KEYWORD_NOEXCEPT_OPERATOR(b.operator&=(rhs)));
@@ -780,7 +780,7 @@ int main(int argc, char *argv[])
         {
             bsl::bitset<32> b;
             bsl::bitset<32> rhs;
-            size_t          pos;
+            size_t          pos = 0U;
 
             ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
                 == BSLS_KEYWORD_NOEXCEPT_OPERATOR(b.count()));

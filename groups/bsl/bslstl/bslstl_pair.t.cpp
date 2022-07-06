@@ -1852,7 +1852,7 @@ void debugprint(const bsl::pair<FIRST, SECOND>& p)
 
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 
-inline
+BSLA_MAYBE_UNUSED inline
 void debugprint(const u::Node& node)
 {
     bsls::BslTestUtil::callDebugprint(static_cast<char>(node.data()));
@@ -1860,7 +1860,7 @@ void debugprint(const u::Node& node)
 
 #endif
 
-inline
+BSLA_MAYBE_UNUSED inline
 void debugprint(const u::Base& base)
 {
     bsls::BslTestUtil::callDebugprint(static_cast<char>(
@@ -7878,9 +7878,7 @@ int main(int argc, char *argv[])
             bsl::pair<int, long> mX;
             bsl::pair<int, long> mP;
 
-            const          bsl::pair<int, long>&   X = mX;
-                  volatile bsl::pair<int, long>& vmX = mX;
-            const volatile bsl::pair<int, long>&  vX = mX;
+            const bsl::pair<int, long>&   X = mX;
 
             ASSERT(noexcept(mX = MoveUtil::move(mP)));
 # if defined(BSLSTL_PAIR_SUPPORTS_NOEXCEPT_ON_SWAP)
@@ -8859,7 +8857,8 @@ int main(int argc, char *argv[])
         // test assign from 'value'
 
         {
-            bsl::pair<int&, double > target(i3, d3);
+            bsl::pair<int&, double >  target(i3, d3);
+            bsl::pair<int&, double > *pTarget = &target;
 
             int    *pi = &target.first;
             double *pd = &target.second;
@@ -8882,7 +8881,9 @@ int main(int argc, char *argv[])
             ASSERTV(ORIGINAL_I1, i3, ORIGINAL_I1 == i3);
             ASSERTV(ORIGINAL_D3, d3, ORIGINAL_D3 == d3);
 
-            target = target;
+            // this is a test for self-assignment, but the compiler warns on
+            // explicit self-assignment, so we use a pointer.
+            target = *pTarget;
 
             ASSERTV(&target.first,  pi, &target.first  == pi);
             ASSERTV(&target.second, pd, &target.second == pd);
@@ -8902,7 +8903,8 @@ int main(int argc, char *argv[])
         d3 = ORIGINAL_D3;
 
         {
-            bsl::pair<int,  double&> target(i3, d3);
+            bsl::pair<int,  double&>  target(i3, d3);
+            bsl::pair<int,  double&> *pTarget = &target;
 
             int    *pi = &target.first;
             double *pd = &target.second;
@@ -8925,7 +8927,9 @@ int main(int argc, char *argv[])
             ASSERTV(ORIGINAL_I3, i3, ORIGINAL_I3 == i3);
             ASSERTV(ORIGINAL_D1, d3, ORIGINAL_D1 == d3);
 
-            target = target;
+            // this is a test for self-assignment, but the compiler warns on
+            // explicit self-assignment, so we use a pointer.
+            target = *pTarget;
 
             ASSERTV(&target.first,  pi, &target.first  == pi);
             ASSERTV(&target.second, pd, &target.second == pd);
@@ -8945,7 +8949,8 @@ int main(int argc, char *argv[])
         d3 = ORIGINAL_D3;
 
         {
-            bsl::pair<int&, double&> target(i3, d3);
+            bsl::pair<int&, double&>  target(i3, d3);
+            bsl::pair<int&, double&> *pTarget = &target;
 
             int    *pi = &target.first;
             double *pd = &target.second;
@@ -8969,7 +8974,9 @@ int main(int argc, char *argv[])
             ASSERTV(ORIGINAL_I1, i3, ORIGINAL_I1 == i3);
             ASSERTV(ORIGINAL_D1, d3, ORIGINAL_D1 == d3);
 
-            target = target;
+            // this is a test for self-assignment, but the compiler warns on
+            // explicit self-assignment, so we use a pointer.
+            target = *pTarget;
 
             ASSERTV(&target.first,  pi, &target.first  == pi);
             ASSERTV(&target.second, pd, &target.second == pd);
@@ -10077,14 +10084,16 @@ int main(int argc, char *argv[])
         static_assert(pair<int, int>(f, s).second == 2,
                       "Constructor is not 'constexpr'.");
 
+        // Both clang and gcc warn about integral truncation here, even though
+        // this is all done at constexpr time and no truncation occurs.
         static_assert(pair<short, short>(1, 2).second == 2,
-                      "Constructor is not 'constexpr'.");
+                      "Converting constructor is not 'constexpr'.");
         static_assert(pair<short, short>(f, 2).second == 2,
-                      "Constructor is not 'constexpr'.");
+                      "Converting constructor is not 'constexpr'.");
         static_assert(pair<short, short>(1, s).second == 2,
-                      "Constructor is not 'constexpr'.");
+                      "Converting constructor is not 'constexpr'.");
         static_assert(pair<short, short>(f, s).second == 2,
-                      "Constructor is not 'constexpr'.");
+                      "Converting constructor is not 'constexpr'.");
 
         static_assert(pair<short, short>(pair<int, int>(1, 2)).second == 2,
                       "Templated constructor is not 'constexpr'.");

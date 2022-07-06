@@ -1664,7 +1664,7 @@ int main(int argc, char *argv[])
             }
 
             bslmt::ThreadUtil::Handle handle;
-            int rc;
+            int rc = 0;
 
             AllCreateTestFunctor functor(&mutex, &numToInc, &threadName);
 

@@ -502,7 +502,7 @@ int main(int argc, char *argv[])
                     aX = mX.allocate(szM);
                     aY = mY.allocate(szM);
                 }
-                BSLS_CATCH (std::bad_alloc) {
+                BSLS_CATCH (const std::bad_alloc &) {
                     // Allocation was supposed to fail
                     LOOP2_ASSERT(i, j, 0 != sz && 0 == aM);
                 }
@@ -510,7 +510,7 @@ int main(int argc, char *argv[])
                 BSLS_TRY {
                     aZ = mZ.allocate(szN);
                 }
-                BSLS_CATCH (std::bad_alloc) {
+                BSLS_CATCH (const std::bad_alloc &) {
                     // Allocation was supposed to fail
                     LOOP2_ASSERT(i, j, 0 != sz && 0 == aN);
                 }
@@ -1176,7 +1176,7 @@ int main(int argc, char *argv[])
                     freePtr = ret + SIZE[i];
                     a.deallocate(ret);
                 }
-                BSLS_CATCH (std::bad_alloc) {
+                BSLS_CATCH (const std::bad_alloc &) {
                     LOOP_ASSERT(i, willFail);
                 }
             }

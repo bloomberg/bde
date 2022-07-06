@@ -5049,8 +5049,7 @@ void TestDriver<CONTAINER>::testCase7_select_on_container_copy_construction()
             "BC",
             "CDE",
         };
-        const int NUM_SPECS =
-                          static_cast<const int>(sizeof SPECS / sizeof *SPECS);
+        const int NUM_SPECS = static_cast<int>(sizeof SPECS / sizeof *SPECS);
 
         for (int ti = 0; ti < NUM_SPECS; ++ti) {
             const char *const SPEC   = SPECS[ti];

@@ -5848,7 +5848,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase28()
 
                     ASSERTV(XX == X);
 
-                    bslma::TestAllocator *srcAllocatorPtr;
+                    bslma::TestAllocator *srcAllocatorPtr = NULL;
                     switch (CONFIG) {
                       case 'a': {
                         srcAllocatorPtr = &za;

@@ -804,7 +804,7 @@ int makeDirectory(const char *path, bool isPrivate)
     BSLS_ASSERT(path);
 
     // Permissions of created dir will be ANDed with process '~umask()'.
-    static const int PERMS[2] = {
+    static const mode_t PERMS[2] = {
         (S_IRUSR | S_IWUSR | S_IXUSR |  // user   rwx
          S_IRGRP | S_IWGRP | S_IXGRP |  // group  rwx
          S_IROTH | S_IWOTH | S_IXOTH),  // others rwx
