@@ -1,0 +1,361 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>BDE 3.99.6 Release &mdash; BDE Documentation  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/bde.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+    <link rel="canonical" href="https://bloomberg.github.io/release_notes/BDE_3.99.6.html" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="BDE 3.99.3 Release" href="BDE_3.99.3.html" />
+    <link rel="prev" title="BDE 3.100.0 Release" href="BDE_3.100.0.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> BDE Documentation
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/build.html">Build Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="release_notes.html">Release Notes</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.103.0.html">BDE 3.103.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.102.0.html">BDE 3.102.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.101.0.html">BDE 3.101.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.100.0.html">BDE 3.100.0 Release</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">BDE 3.99.6 Release</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#schedule">Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bde-3-99-6-highlights">BDE 3.99.6 Highlights</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pcre2-update"><code class="docutils literal notranslate"><span class="pre">PCRE2</span></code> update</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#remove-bycategory-introspection-indirection-in-bal-codecs">Remove <code class="docutils literal notranslate"><span class="pre">*ByCategory</span></code> Introspection Indirection in <code class="docutils literal notranslate"><span class="pre">bal</span></code> Codecs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#continued-addition-of-c-17-type-aliases">Continued Addition of C++17 Type Aliases</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#continued-work-to-support-gcc-11-and-c-20">Continued Work to Support GCC-11 and C++20</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#fixed-requests-3-99-6">Fixed requests: 3.99.6</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.99.3.html">BDE 3.99.3 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.99.2.html">BDE 3.99.2 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.99.1.html">BDE 3.99.1 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.99.0.html">BDE 3.99.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BDE_3.98.0.html">BDE 3.98.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archive/release_notes.html">Archived Release Notes</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/feature_index.html">Feature Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/index.html">Articles</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/faq.html">BDE FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/contributing.html">Contributing to BDE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">CMake Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BDE Documentation</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="release_notes.html">Release Notes</a> &raquo;</li>
+        
+      <li>BDE 3.99.6 Release</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
+      
+        <a href="BDE_3.99.3.html" class="btn btn-neutral float-right" title="BDE 3.99.3 Release" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+      
+      
+        <a href="BDE_3.100.0.html" class="btn btn-neutral float-left" title="BDE 3.100.0 Release" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+      
+  </div>
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="bde-3-99-6-release">
+<span id="bde3-99-6-top"></span><h1>BDE 3.99.6 Release<a class="headerlink" href="#bde-3-99-6-release" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="schedule">
+<span id="bde3-99-6-schedule"></span><h2>Schedule<a class="headerlink" href="#schedule" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><p>The BDE team announces that the BDE 3.99.6 production release was completed
+on <strong>Thursday, May 19, 2022</strong>.</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="bde-3-99-6-highlights">
+<span id="bde3-99-6-highlights"></span><h2>BDE 3.99.6 Highlights<a class="headerlink" href="#bde-3-99-6-highlights" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="pcre2-update">
+<h3><code class="docutils literal notranslate"><span class="pre">PCRE2</span></code> update<a class="headerlink" href="#pcre2-update" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">PCRE2</span></code> library (used by <code class="docutils literal notranslate"><span class="pre">bdlpcre::Regex</span></code>) was upgraded to version
+10.39.</p>
+</div>
+<div class="section" id="remove-bycategory-introspection-indirection-in-bal-codecs">
+<h3>Remove <code class="docutils literal notranslate"><span class="pre">*ByCategory</span></code> Introspection Indirection in <code class="docutils literal notranslate"><span class="pre">bal</span></code> Codecs<a class="headerlink" href="#remove-bycategory-introspection-indirection-in-bal-codecs" title="Permalink to this headline">¶</a></h3>
+<p>A recent change to the BDE JSON and XML codecs simplified their respective
+object visitors by removing code that manually checked and dispatched on the
+type category of sub-objects, and instead used the
+<code class="docutils literal notranslate"><span class="pre">bdlat_TypeCategoryUtil::accessByCategory</span></code> and <code class="docutils literal notranslate"><span class="pre">manipulateByCategory</span></code>
+function templates.  Unfortunately, delegating to these utility operations
+increased the number of function template instantiations enough per
+introspected object that several client programs coding extremely large message
+types could no longer be compiled with Sun CC and/or XLC due to the compilers
+running out of memory.</p>
+<p>This release logically reverses this refactoring, by manually inlining the operations
+and removing levels of indirection.</p>
+</div>
+<div class="section" id="continued-addition-of-c-17-type-aliases">
+<h3>Continued Addition of C++17 Type Aliases<a class="headerlink" href="#continued-addition-of-c-17-type-aliases" title="Permalink to this headline">¶</a></h3>
+<p>This release adds <code class="docutils literal notranslate"><span class="pre">bsl::</span></code> aliases for the C++17 features in <code class="docutils literal notranslate"><span class="pre">bsl_cmath.h</span></code>,
+<code class="docutils literal notranslate"><span class="pre">bsl_memory.h</span></code>, <code class="docutils literal notranslate"><span class="pre">bsl_mutex.h</span></code>, and <code class="docutils literal notranslate"><span class="pre">bsl_new.h</span></code>.  This is part of the
+general effort to simplify the use of <code class="docutils literal notranslate"><span class="pre">bsl::</span></code> names, and in general better
+support C++17.</p>
+</div>
+<div class="section" id="continued-work-to-support-gcc-11-and-c-20">
+<h3>Continued Work to Support GCC-11 and C++20<a class="headerlink" href="#continued-work-to-support-gcc-11-and-c-20" title="Permalink to this headline">¶</a></h3>
+<p>This release continues to address build and test failures for supporting BDE
+for both C++20 and gcc-11 (for various language flavors).</p>
+</div>
+</div>
+<div class="section" id="fixed-requests-3-99-6">
+<h2>Fixed requests: 3.99.6<a class="headerlink" href="#fixed-requests-3-99-6" title="Permalink to this headline">¶</a></h2>
+<table class="colwidths-given docutils align-left">
+<colgroup>
+<col style="width: 100%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Summary</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>baljsn_Encoder leaves extra trailing comma for vector of vector sometimes.</p></td>
+</tr>
+<tr class="row-odd"><td><p>bdlpcre::RegEx has a JIT bug. Please upgrade PCRE2 to 10.39</p></td>
+</tr>
+<tr class="row-even"><td><p>GCC11: BDL: ‘bdlcc_deque.t.cpp’ fails for TC 10</p></td>
+</tr>
+<tr class="row-odd"><td><p>GCC11: BDL: ‘bdlcc_queue.t.cpp’ fails for TC 11 &amp; TC 12</p></td>
+</tr>
+<tr class="row-even"><td><p>Apple M1: Clean up bsl tests</p></td>
+</tr>
+<tr class="row-odd"><td><p>balst_stacktraceresoverimpl_windows.h: fix typo</p></td>
+</tr>
+<tr class="row-even"><td><p>Add C++17 aliases bsl_memory/mutex/new</p></td>
+</tr>
+<tr class="row-odd"><td><p>Add C++17 aliases to bsl_cmath.h</p></td>
+</tr>
+<tr class="row-even"><td><p>fix typo in bsls_keyword.h</p></td>
+</tr>
+<tr class="row-odd"><td><p>Apple M1: Fix bde/bde</p></td>
+</tr>
+<tr class="row-even"><td><p>please add asserts for the new test case 17 in bslim_bslstandardheadertest.t.cpp</p></td>
+</tr>
+<tr class="row-odd"><td><p>Missing header in bsl_mutex.h</p></td>
+</tr>
+<tr class="row-even"><td><p>bdlcc::StripedUnorderedMap should have a default ctor that takes an allocator</p></td>
+</tr>
+<tr class="row-odd"><td><p>‘bslmt_throughputbenchmark’: abort failure in nightly build</p></td>
+</tr>
+<tr class="row-even"><td><p>GCC11: cpp20: ‘bslim_formatguard.t.cpp’ compiler error on ‘wchar_t’ change</p></td>
+</tr>
+<tr class="row-odd"><td><p>GCC11: CPP20: build failures per ‘std::allocator’ changes</p></td>
+</tr>
+<tr class="row-even"><td><p>GCC11: ‘bslstl_stringbuf’: implicit conversion causes warnings in multiple components</p></td>
+</tr>
+<tr class="row-odd"><td><p>GCC11: Fix assorted component compile warnings</p></td>
+</tr>
+<tr class="row-even"><td><p>Please remove *ByCategory introspection indirection in bal codecs</p></td>
+</tr>
+<tr class="row-odd"><td><p>Review windows warning removal in bdlb_pcgrandomgenerator</p></td>
+</tr>
+<tr class="row-even"><td><p>Apple M1: bdlcc_boundedqueue test driver fails periodically</p></td>
+</tr>
+<tr class="row-odd"><td><p>Add missing memory_resource and standard headers for pmr-using components</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2022, Bloomberg LP.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

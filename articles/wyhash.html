@@ -1,0 +1,431 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Selecting wyhash as the Default Hash Algorithm &mdash; BDE Documentation  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/bde.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+    <link rel="canonical" href="https://bloomberg.github.io/articles/wyhash.html" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="bsl::chrono Integration with bsl and bdl" href="bde_4.0_chrono.html" />
+    <link rel="prev" title="Articles" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> BDE Documentation
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/build.html">Build Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes/release_notes.html">Release Notes</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/feature_index.html">Feature Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Articles</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Selecting wyhash as the Default Hash Algorithm (June 30, 2022)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#background">Background</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#benchmark-comparisons">Benchmark Comparisons</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#initial-algorithm-performance-comparison">Initial Algorithm Performance Comparison</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#avalanche-testing">Avalanche Testing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#final-verification-for-wyhash">Final Verification for wyhash</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.0_chrono.html">bsl::chrono Integration with bsl and bdl (Nov 30, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="concurrent_queue_evaluation/paper.html">Concurrent Queue Evaluation (Mar 31, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="binary_decimal_conversion.html">Binary to Decimal and Back Again. (Mar 30, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bsl_optional.html">bsl::optional: An Allocator-Aware Optional Type. (Feb 1, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ball_scoped_attributes.html">Adding Context to your Application Log. (Jan 6, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ber_format.html">BER Date and Time Format Specification. (Jan 9, 2020)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpcheck.html">Avoiding Common Problems with Smart Pointers. (Dec 17, 2019)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/faq.html">BDE FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/contributing.html">Contributing to BDE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">CMake Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BDE Documentation</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="index.html">Articles</a> &raquo;</li>
+        
+      <li>Selecting <code class="docutils literal notranslate"><span class="pre">wyhash</span></code> as the Default Hash Algorithm</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
+      
+        <a href="bde_4.0_chrono.html" class="btn btn-neutral float-right" title="bsl::chrono Integration with bsl and bdl" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral float-left" title="Articles" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+      
+  </div>
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <p><em>June 30, 2021</em></p>
+<div class="section" id="selecting-wyhash-as-the-default-hash-algorithm">
+<h1>Selecting <code class="docutils literal notranslate"><span class="pre">wyhash</span></code> as the Default Hash Algorithm<a class="headerlink" href="#selecting-wyhash-as-the-default-hash-algorithm" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>BDE 3.103.0 updated the <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslh__defaulthashalgorithm.html">default hash algorithm</a>
+used by BDE (e.g., by <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslstl__hash.html">bsl::hash</a>) to be
+<a class="reference external" href="https://github.com/wangyi-fudan/wyhash">wyhash</a> (implemented in the BDE component <a class="reference external" href="https://github.com/bloomberg/bde/blob/master/groups/bsl/bslh/bslh_wyhashalgorithm.h">bslh_wyhashalgorithm</a>).</p>
+<p><code class="docutils literal notranslate"><span class="pre">wyhash</span></code> demonstrated the best performance of the hash algorithms tested.</p>
+</div>
+<div class="section" id="background">
+<h2>Background<a class="headerlink" href="#background" title="Permalink to this headline">¶</a></h2>
+<p>BDE’s previously used an implementation of <a class="reference external" href="https://burtleburtle.net/bob/hash/spooky.html">SpookyHash</a>
+(<a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslh__spookyhashalgorithm.html">bslh_spookyhashalgorithm</a>) as its default hash algorithm.
+This default hash function is intended to be suitable for a general purpose hash table, but is <em>not</em> cryptographically secure.
+This algorithm was selected in 2014 and no longer compared well against alternative hash functions, particular on x86 hardware.</p>
+<p>In order to select a new default hash algorithm we started by evaluating online hash algorithm benchmarks.  There are many online benchmarks available
+whose quality and recency are sometimes hard to judge.  The must useful for our purposes though was:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://rurban.github.io/smhasher/doc/table.html">SMhasher Intel Sortable Benchmark Table</a></p></li>
+</ul>
+<p>From SMhasher, and other online resources, we collected a set of candidate default hash algorithms.</p>
+</div>
+<div class="section" id="benchmark-comparisons">
+<h2>Benchmark Comparisons<a class="headerlink" href="#benchmark-comparisons" title="Permalink to this headline">¶</a></h2>
+<p>The BDE team performed a few rounds of its own testing to confirm and expand on information available online.  The primary
+goal was to find a hash algorithm that performed best on x86 platforms (Linux and Windows), but at the same time did not
+degrade performance noticeably on legacy platforms like Sun and AIX.</p>
+<div class="section" id="initial-algorithm-performance-comparison">
+<h3>Initial Algorithm Performance Comparison<a class="headerlink" href="#initial-algorithm-performance-comparison" title="Permalink to this headline">¶</a></h3>
+<p>The initial comparison tested a number of candidate algorithms on Linux.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Median Time in Nanoseconds to hash N bytes (N = 4, 8, 19, 69, 300), sorted by results for 19 Bytes.</p></li>
+</ul>
+</div></blockquote>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 47%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 13%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Algorithm</p></th>
+<th class="head"><p>4 Bytes</p></th>
+<th class="head"><p>8 Bytes</p></th>
+<th class="head"><p>19 Bytes</p></th>
+<th class="head"><p>69 Bytes</p></th>
+<th class="head"><p>300 Bytes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Basic 32-bit Murmur hash</p></td>
+<td><p>1.69</p></td>
+<td><p>1.95</p></td>
+<td><p>5.01</p></td>
+<td><p>12.4</p></td>
+<td><p>34.0</p></td>
+</tr>
+<tr class="row-odd"><td><p>std::hash&lt;std::string&gt;</p></td>
+<td><p>4.95</p></td>
+<td><p>3.41</p></td>
+<td><p>6.01</p></td>
+<td><p>13.3</p></td>
+<td><p>49.2</p></td>
+</tr>
+<tr class="row-even"><td><p>wyhash</p></td>
+<td><p>7.64</p></td>
+<td><p>7.65</p></td>
+<td><p>7.67</p></td>
+<td><p>10.1</p></td>
+<td><p>20.3</p></td>
+</tr>
+<tr class="row-odd"><td><p>Fnv64 hash</p></td>
+<td><p>11.3</p></td>
+<td><p>13.9</p></td>
+<td><p>14.8</p></td>
+<td><p>38.0</p></td>
+<td><p>61.1</p></td>
+</tr>
+<tr class="row-even"><td><p>Knuth MMIX (based on random number generator)</p></td>
+<td><p>10.8</p></td>
+<td><p>13.5</p></td>
+<td><p>14.9</p></td>
+<td><p>35.0</p></td>
+<td><p>63.8</p></td>
+</tr>
+<tr class="row-odd"><td><p>Extracted _Hash_bytes (gcc std::hash algorithm)</p></td>
+<td><p>18.0</p></td>
+<td><p>24.6</p></td>
+<td><p>22.4</p></td>
+<td><p>50.3</p></td>
+<td><p>118</p></td>
+</tr>
+<tr class="row-even"><td><p>Downloaded MurmurHash64A</p></td>
+<td><p>18.1</p></td>
+<td><p>24.2</p></td>
+<td><p>23.1</p></td>
+<td><p>53.6</p></td>
+<td><p>116</p></td>
+</tr>
+<tr class="row-odd"><td><p>Downloaded MurmurHash64B</p></td>
+<td><p>32.4</p></td>
+<td><p>33.0</p></td>
+<td><p>28.5</p></td>
+<td><p>60.0</p></td>
+<td><p>147</p></td>
+</tr>
+<tr class="row-even"><td><p>Default BDE SpookyHash V2</p></td>
+<td><p>23.3</p></td>
+<td><p>25.5</p></td>
+<td><p>30.2</p></td>
+<td><p>38.3</p></td>
+<td><p>83.5</p></td>
+</tr>
+<tr class="row-odd"><td><p>Original SpookyHash V2 (from internet)</p></td>
+<td><p>24.3</p></td>
+<td><p>27.2</p></td>
+<td><p>30.6</p></td>
+<td><p>37.4</p></td>
+<td><p>81.2</p></td>
+</tr>
+<tr class="row-even"><td><p>Boost crc32 hash</p></td>
+<td><p>23.8</p></td>
+<td><p>27.5</p></td>
+<td><p>32.1</p></td>
+<td><p>88.5</p></td>
+<td><p>302</p></td>
+</tr>
+<tr class="row-odd"><td><p>BDE SipHash</p></td>
+<td><p>39.0</p></td>
+<td><p>26.9</p></td>
+<td><p>43.5</p></td>
+<td><p>67.6</p></td>
+<td><p>197</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="simple">
+<dt>Notes:</dt><dd><ul class="simple">
+<li><p>Tests were performed on linux, x86, gcc, optimized</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">std::hash&lt;std::string&gt;</span></code> was included as a point of reference (several variants of _Hash_bytes, the hashing function used in gcc, were tested).</p></li>
+<li><p>32-bit murmur hash provides a 32-bit resulting hash value, which is not suitable for a default hash algorithm.</p></li>
+</ul>
+</dd>
+</dl>
+<p><code class="docutils literal notranslate"><span class="pre">wyhash</span></code> was the fastest general-purpose hash function over a range of input lengths that we measured.</p>
+</div>
+<div class="section" id="avalanche-testing">
+<h3>Avalanche Testing<a class="headerlink" href="#avalanche-testing" title="Permalink to this headline">¶</a></h3>
+<p>A test for <a class="reference external" href="https://simple.wikipedia.org/wiki/Avalanche_effect">“avalanche effects”</a> was then performed. For this test
+a single bit of input was modified, and the number of bits changed in the resulting hash code was counted.
+The expectation is there should is a 50% chance each output bit will changed if a single input bit is changed.</p>
+<p>The avalanche tests excluded boost crc32 and Fnv64.  As can be observed in the raw results, <code class="docutils literal notranslate"><span class="pre">wyhash</span></code> exhibits a
+clean bell curve similar to our existing default <code class="docutils literal notranslate"><span class="pre">SpookyHash</span></code> implementation with almost the exact same standard deviation.</p>
+</div>
+<div class="section" id="final-verification-for-wyhash">
+<h3>Final Verification for wyhash<a class="headerlink" href="#final-verification-for-wyhash" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">wyhash</span></code> was selected as the primary candidate for the default hash function.  This algorithm was
+implemented in a BDE component (<a class="reference external" href="https://github.com/bloomberg/bde/blob/master/groups/bsl/bslh/bslh_wyhashalgorithm.h">bslh_wyhashalgorithm</a>)
+and compared against BDE’s previous default hash function <code class="docutils literal notranslate"><span class="pre">SpookyHash</span></code>.</p>
+<p>The results of comparing BDE’s <code class="docutils literal notranslate"><span class="pre">wyhash</span></code> implementation against BDE’s <code class="docutils literal notranslate"><span class="pre">SpookyHash</span></code> implementation are below:</p>
+<img alt="Linux" src="../_images/wyhash_Linux.svg" /><img alt="Sun" src="../_images/wyhash_Sun.svg" /><img alt="AIX" src="../_images/wyhash_AIX.svg" /><img alt="Windows" src="../_images/wyhash_Windows.svg" /><dl class="simple">
+<dt>Notes:</dt><dd><ul class="simple">
+<li><p>On x86 platforms, <code class="docutils literal notranslate"><span class="pre">wyhash</span></code> performed significantly better than <code class="docutils literal notranslate"><span class="pre">SpookyHash</span></code> (as expected).</p></li>
+<li><p>On AIX, <code class="docutils literal notranslate"><span class="pre">wyhash</span></code> was faster than <code class="docutils literal notranslate"><span class="pre">SpookyHash</span></code> for smaller inputs (&lt; ~100 bytes) and slower for larger inputs.
+We considered this to be a neutral result.</p></li>
+</ul>
+</dd>
+</dl>
+<p>The decline in performance for larger input on AIX was considered acceptable given the benefits in
+other contexts (especially x86 platforms, where there were substantial improvements).</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2022, Bloomberg LP.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
