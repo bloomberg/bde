@@ -16,16 +16,17 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslma' package currently has 45 components having 10 levels of physical
+ The 'bslma' package currently has 45 components having 11 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  10. bslma_allocatortraits
-      bslma_isstdallocator
+  11. bslma_isstdallocator
 
-   9. bslma_managedptr
-      bslma_stdallocator
+  10. bslma_stdallocator
+
+   9. bslma_allocatortraits
+      bslma_managedptr
       bslma_stdtestallocator
 
    8. bslma_constructionutil

@@ -10,13 +10,12 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlb' package currently has 44 components having 5 levels of physical
+ The 'bdlb' package currently has 45 components having 5 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  5. bdlb_printadapter
-     bdlb_bitstringutil
+  5. bdlb_bitstringutil
      bdlb_indexspanstringutil
      bdlb_indexspanutil
 
@@ -27,6 +26,7 @@
      bdlb_nullablevalue
      bdlb_numericparseutil
      bdlb_optionalprinter
+     bdlb_printadapter
      bdlb_variant
 
   3. bdlb_bitmaskutil
@@ -156,7 +156,7 @@
 :      Provide platform-independent stream utilities.
 :
 : 'bdlb_printadapter':
-:      Provide 'class' for calling 'print' stream methods through 'operator<<'.
+:      Provide object for streaming objects using 'bdlb::PrintMethods'.
 :
 : 'bdlb_printmethods':
 :      Provide methods for uniform printing of value-semantic types.
