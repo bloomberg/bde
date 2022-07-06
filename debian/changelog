@@ -1,5 +1,36 @@
-bsl-internal (3.103.0.0) unstable; urgency=low
+bsl-internal (3.104.0.0) unstable; urgency=low
 
+  * a60103b11 Rename OTHER_TYPE to BDE_OTHER_TYPE (#3794)
+  * 9d10d8704 Bumped version to 3.104.0.0
+  * 2c2fd737b Resolve compilation warnings (second try) (#3765)
+  * acdf76924 Bdlb printadapter create component 4 drqs 167427734 (#3792)
+  * b06ce0556 Bslim gtestutil printto universal print 2 drqs 168811170 (#3783)
+  * d200f0fe8 Add clamp/erase/erase_if algorithms to bsl (#3743)
+  * 1592340fd Add copy assignment operator to balcl::OptionValue (#3770)
+  * 022a43973 drqs-169701407: 'bdlma_concurrentfixedpool.cpp': Fix 'volatile' warning. (#3786)
+  * 8a12f9982 Suppress pragma usage on older OSX clang (#3788)
+  * 88ab9359c Allocatortraits dependency fix drqs 169334209 (#3742)
+  * 8e8eefd6a clean up bde dep files to remove unneeded packages, sort, and add all used package dependencies (#3771)
+  * c6c576292 add copy-assignment (#3784)
+  * 2d0de4b21 drqs-169543603: 'bsls_assert.t.cpp': Avoid 'return' in no-except builds. (#3754)
+  * c91f11d7d Disable CTAD when building with MSVC2017 (#3782)
+  * 0c465bfcc workaround for XLC16 try...catch...continue compiler bug DRQS 169635871 (#3773)
+  * 1992e32f3 Fix bslstl stringview on Sun 5.12.6 DRQS 169697436 (#3781)
+  * 6ee9974ac drqs-169675970: 'bslstl_function.00.t.cpp': Amend TC5 & TC11 for CPP20. (#3778)
+  * 77066727c fix usage example (#3772)
+  * f4c206738 Add C++17 features to bslstl_stringview.h and bsl_functional.h (#3763)
+  * 34efadaa6 drqs-169679335: 'bdld_datum.cpp': Fix "fall through" warning. (#3779)
+  * 3e5f5cb11 Normalize and force LF (#3776)
+  * d493e86c9 Remove BSLS_LIBRARYFEATURES_HAS_CPP17_TIMESPEC_GET from VS 2017 config (#3774)
+  * d717c1cb7 Bdlc flathashmap drqs 169621161 (#3764)
+  * b4050c366 bdlde_crc32c: Fix typo disabling SSE4.2 optimization (#3766)
+  * 8682ca784 bslstl_function_invokerutil.t.cpp: Fix C++20 Test Failures (#3752)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 6 Jul 2022 13:06:21 -0400
+
+bsl-internal (3.103.0.0) git; urgency=low
+
+  * e87e8e33c Changelog for version 3.103.0.0
   * 1307555e9 Bumped version to 3.103.0.0
   * f2037fcb6 Address test failure due to MSVC compiler issue (#3758)
   * 9f65f026b Build issue with bslmf_movableref on sun 5.12.6 DRQS 169582599 (#3759)
@@ -21,7 +52,7 @@ bsl-internal (3.103.0.0) unstable; urgency=low
   * b7c32a845 Fix Sun build (#3745)
   * e34b96ed5 Merge all the XXX_algorithm files together (#3725)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 16 Jun 2022 11:55:26 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 16 Jun 2022 11:58:02 -0400
 
 bsl-internal (3.102.0.0) git; urgency=low
 
