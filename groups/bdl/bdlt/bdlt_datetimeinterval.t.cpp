@@ -683,6 +683,7 @@ if (veryVerbose)
             const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
 
             for (int i = 0; i < NUM_DATA; ++i) {
+                const int   ILINE      = DATA[i].d_line;
                 const int   IDAYS      = DATA[i].d_days;
                 const Int64 IHOURS     = DATA[i].d_hours;
                 const Int64 IMINUTES   = DATA[i].d_minutes;
@@ -691,6 +692,7 @@ if (veryVerbose)
                 const Int64 IUSECS     = DATA[i].d_usecs;
 
                 for (int j = 0; j < NUM_DATA; ++j) {
+                    const int   JLINE      = DATA[j].d_line;
                     const int   JDAYS      = DATA[j].d_days;
                     const Int64 JHOURS     = DATA[j].d_hours;
                     const Int64 JMINUTES   = DATA[j].d_minutes;
@@ -741,7 +743,7 @@ if (veryVerbose)
 
                             mZ = X + Y;
 
-                            ASSERTV(X, Z, EXP, EXP == Z);
+                            ASSERTV(ILINE, JLINE, X, Y, Z, EXP, EXP == Z);
                         }
                     }
 
@@ -788,7 +790,7 @@ if (veryVerbose)
 
                             mZ = X - Y;
 
-                            ASSERTV(X, Z, EXP, EXP == Z);
+                            ASSERTV(ILINE, JLINE, X, Z, EXP, EXP == Z);
                         }
                     }
                 }
@@ -869,6 +871,7 @@ if (veryVerbose)
             const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
 
             for (int i = 0; i < NUM_DATA; ++i) {
+                const int   ILINE      = DATA[i].d_line;
                 const int   IDAYS      = DATA[i].d_days;
                 const Int64 IHOURS     = DATA[i].d_hours;
                 const Int64 IMINUTES   = DATA[i].d_minutes;
@@ -927,7 +930,7 @@ if (veryVerbose)
 
                         mX -= X;
 
-                        ASSERTV(X, EXP, EXP == X);
+                        ASSERTV(ILINE, X, EXP, EXP == X);
                     }
                 }
 
@@ -1331,14 +1334,22 @@ if (veryVerbose)
             bsls::AssertTestHandlerGuard hG;
 
             Obj mX, mY;    const Obj& Y = mY;
+            const Obj YMin(INT_MIN, -23, -59, -59, -999, -999);
+            const Obj YMax(INT_MAX,  23,  59,  59,  999,  999);
 
 #undef  ASSERTY_PASS
-#define ASSERTY_PASS(exp)    mX = Y;    ASSERT_PASS(exp)
+#define ASSERTY_PASS(exp)        mX = Y;    ASSERT_PASS(exp)
 
 #undef  ASSERTY_FAIL
-#define ASSERTY_FAIL(exp)    mX = Y;    ASSERT_FAIL(exp)
+#define ASSERTY_FAIL(exp)        mX = Y;    ASSERT_FAIL(exp)
 
             mY.setInterval(INT_MIN);
+
+            ASSERTY_FAIL(mX.addDays(-1));
+            ASSERTY_PASS(mX.addDays( 0));
+            ASSERTY_PASS(mX.addDays( 1));
+
+            mY = YMin;
 
             ASSERTY_FAIL(mX.addDays(-1));
             ASSERTY_PASS(mX.addDays( 0));
@@ -1350,7 +1361,19 @@ if (veryVerbose)
             ASSERTY_PASS(mX.addDays( 0));
             ASSERTY_FAIL(mX.addDays( 1));
 
+            mY = YMax;
+
+            ASSERTY_PASS(mX.addDays(-1));
+            ASSERTY_PASS(mX.addDays( 0));
+            ASSERTY_FAIL(mX.addDays( 1));
+
             mY.setInterval(INT_MIN, -23);
+
+            ASSERTY_FAIL(mX.addHours(-1));
+            ASSERTY_PASS(mX.addHours( 0));
+            ASSERTY_PASS(mX.addHours( 1));
+
+            mY = YMin;
 
             ASSERTY_FAIL(mX.addHours(-1));
             ASSERTY_PASS(mX.addHours( 0));
@@ -1362,7 +1385,19 @@ if (veryVerbose)
             ASSERTY_PASS(mX.addHours( 0));
             ASSERTY_FAIL(mX.addHours( 1));
 
+            mY = YMax;
+
+            ASSERTY_PASS(mX.addHours(-1));
+            ASSERTY_PASS(mX.addHours( 0));
+            ASSERTY_FAIL(mX.addHours( 1));
+
             mY.setInterval(INT_MIN, -23, -59);
+
+            ASSERTY_FAIL(mX.addMinutes(-1));
+            ASSERTY_PASS(mX.addMinutes( 0));
+            ASSERTY_PASS(mX.addMinutes( 1));
+
+            mY = YMin;
 
             ASSERTY_FAIL(mX.addMinutes(-1));
             ASSERTY_PASS(mX.addMinutes( 0));
@@ -1374,7 +1409,19 @@ if (veryVerbose)
             ASSERTY_PASS(mX.addMinutes( 0));
             ASSERTY_FAIL(mX.addMinutes( 1));
 
+            mY = YMax;
+
+            ASSERTY_PASS(mX.addMinutes(-1));
+            ASSERTY_PASS(mX.addMinutes( 0));
+            ASSERTY_FAIL(mX.addMinutes( 1));
+
             mY.setInterval(INT_MIN, -23, -59, -59);
+
+            ASSERTY_FAIL(mX.addSeconds(-1));
+            ASSERTY_PASS(mX.addSeconds( 0));
+            ASSERTY_PASS(mX.addSeconds( 1));
+
+            mY = YMin;
 
             ASSERTY_FAIL(mX.addSeconds(-1));
             ASSERTY_PASS(mX.addSeconds( 0));
@@ -1386,7 +1433,19 @@ if (veryVerbose)
             ASSERTY_PASS(mX.addSeconds( 0));
             ASSERTY_FAIL(mX.addSeconds( 1));
 
+            mY = YMax;
+
+            ASSERTY_PASS(mX.addSeconds(-1));
+            ASSERTY_PASS(mX.addSeconds( 0));
+            ASSERTY_FAIL(mX.addSeconds( 1));
+
             mY.setInterval(INT_MIN, -23, -59, -59, -999);
+
+            ASSERTY_FAIL(mX.addMilliseconds(-1));
+            ASSERTY_PASS(mX.addMilliseconds( 0));
+            ASSERTY_PASS(mX.addMilliseconds( 1));
+
+            mY = YMin;
 
             ASSERTY_FAIL(mX.addMilliseconds(-1));
             ASSERTY_PASS(mX.addMilliseconds( 0));
@@ -1398,13 +1457,19 @@ if (veryVerbose)
             ASSERTY_PASS(mX.addMilliseconds( 0));
             ASSERTY_FAIL(mX.addMilliseconds( 1));
 
-            mY.setInterval(INT_MIN, -23, -59, -59, -999, -999);
+            mY = YMax;
+
+            ASSERTY_PASS(mX.addMilliseconds(-1));
+            ASSERTY_PASS(mX.addMilliseconds( 0));
+            ASSERTY_FAIL(mX.addMilliseconds( 1));
+
+            mY = YMin;
 
             ASSERTY_FAIL(mX.addMicroseconds(-1));
             ASSERTY_PASS(mX.addMicroseconds( 0));
             ASSERTY_PASS(mX.addMicroseconds( 1));
 
-            mY.setInterval(INT_MAX,  23,  59,  59,  999,  999);
+            mY = YMax;
 
             ASSERTY_PASS(mX.addMicroseconds(-1));
             ASSERTY_PASS(mX.addMicroseconds( 0));
@@ -1419,11 +1484,19 @@ if (veryVerbose)
         {
 
             Obj mX, mY;    const Obj& Y = mY;
+            const Obj YMin(INT_MIN, -23, -59, -59, -999, -999);
+            const Obj YMax(INT_MAX,  23,  59,  59,  999,  999);
 
 #undef  ASSERTY
 #define ASSERTY(exp)    mX = Y;    ASSERT(exp)
 
             mY.setInterval(INT_MIN);
+
+            ASSERTY(0 != mX.addDaysIfValid(-1));
+            ASSERTY(0 == mX.addDaysIfValid( 0));
+            ASSERTY(0 == mX.addDaysIfValid( 1));
+
+            mY = YMin;
 
             ASSERTY(0 != mX.addDaysIfValid(-1));
             ASSERTY(0 == mX.addDaysIfValid( 0));
@@ -1435,7 +1508,19 @@ if (veryVerbose)
             ASSERTY(0 == mX.addDaysIfValid( 0));
             ASSERTY(0 != mX.addDaysIfValid( 1));
 
+            mY = YMax;
+
+            ASSERTY(0 == mX.addDaysIfValid(-1));
+            ASSERTY(0 == mX.addDaysIfValid( 0));
+            ASSERTY(0 != mX.addDaysIfValid( 1));
+
             mY.setInterval(INT_MIN, -23);
+
+            ASSERTY(0 != mX.addHoursIfValid(-1));
+            ASSERTY(0 == mX.addHoursIfValid( 0));
+            ASSERTY(0 == mX.addHoursIfValid( 1));
+
+            mY = YMin;
 
             ASSERTY(0 != mX.addHoursIfValid(-1));
             ASSERTY(0 == mX.addHoursIfValid( 0));
@@ -1447,7 +1532,19 @@ if (veryVerbose)
             ASSERTY(0 == mX.addHoursIfValid( 0));
             ASSERTY(0 != mX.addHoursIfValid( 1));
 
+            mY = YMax;
+
+            ASSERTY(0 == mX.addHoursIfValid(-1));
+            ASSERTY(0 == mX.addHoursIfValid( 0));
+            ASSERTY(0 != mX.addHoursIfValid( 1));
+
             mY.setInterval(INT_MIN, -23, -59);
+
+            ASSERTY(0 != mX.addMinutesIfValid(-1));
+            ASSERTY(0 == mX.addMinutesIfValid( 0));
+            ASSERTY(0 == mX.addMinutesIfValid( 1));
+
+            mY = YMin;
 
             ASSERTY(0 != mX.addMinutesIfValid(-1));
             ASSERTY(0 == mX.addMinutesIfValid( 0));
@@ -1459,7 +1556,19 @@ if (veryVerbose)
             ASSERTY(0 == mX.addMinutesIfValid( 0));
             ASSERTY(0 != mX.addMinutesIfValid( 1));
 
+            mY = YMax;
+
+            ASSERTY(0 == mX.addMinutesIfValid(-1));
+            ASSERTY(0 == mX.addMinutesIfValid( 0));
+            ASSERTY(0 != mX.addMinutesIfValid( 1));
+
             mY.setInterval(INT_MIN, -23, -59, -59);
+
+            ASSERTY(0 != mX.addSecondsIfValid(-1));
+            ASSERTY(0 == mX.addSecondsIfValid( 0));
+            ASSERTY(0 == mX.addSecondsIfValid( 1));
+
+            mY = YMin;
 
             ASSERTY(0 != mX.addSecondsIfValid(-1));
             ASSERTY(0 == mX.addSecondsIfValid( 0));
@@ -1471,7 +1580,19 @@ if (veryVerbose)
             ASSERTY(0 == mX.addSecondsIfValid( 0));
             ASSERTY(0 != mX.addSecondsIfValid( 1));
 
+            mY = YMax;
+
+            ASSERTY(0 == mX.addSecondsIfValid(-1));
+            ASSERTY(0 == mX.addSecondsIfValid( 0));
+            ASSERTY(0 != mX.addSecondsIfValid( 1));
+
             mY.setInterval(INT_MIN, -23, -59, -59, -999);
+
+            ASSERTY(0 != mX.addMillisecondsIfValid(-1));
+            ASSERTY(0 == mX.addMillisecondsIfValid( 0));
+            ASSERTY(0 == mX.addMillisecondsIfValid( 1));
+
+            mY = YMin;
 
             ASSERTY(0 != mX.addMillisecondsIfValid(-1));
             ASSERTY(0 == mX.addMillisecondsIfValid( 0));
@@ -1483,13 +1604,19 @@ if (veryVerbose)
             ASSERTY(0 == mX.addMillisecondsIfValid( 0));
             ASSERTY(0 != mX.addMillisecondsIfValid( 1));
 
-            mY.setInterval(INT_MIN, -23, -59, -59, -999, -999);
+            mY = YMax;
+
+            ASSERTY(0 == mX.addMillisecondsIfValid(-1));
+            ASSERTY(0 == mX.addMillisecondsIfValid( 0));
+            ASSERTY(0 != mX.addMillisecondsIfValid( 1));
+
+            mY = YMin;
 
             ASSERTY(0 != mX.addMicrosecondsIfValid(-1));
             ASSERTY(0 == mX.addMicrosecondsIfValid( 0));
             ASSERTY(0 == mX.addMicrosecondsIfValid( 1));
 
-            mY.setInterval(INT_MAX,  23,  59,  59,  999,  999);
+            mY = YMax;
 
             ASSERTY(0 == mX.addMicrosecondsIfValid(-1));
             ASSERTY(0 == mX.addMicrosecondsIfValid( 0));
@@ -1632,64 +1759,64 @@ if (veryVerbose)
                 Obj mX;  const Obj& X = mX;
                 Obj mY;  const Obj& Y = mY;
 
-                mX.addInterval(1, 1, 1, 1, 1);
+                mX.addInterval(1, 2, 3, 4, 5);
 
                 ASSERT(1 == X.days());
-                ASSERT(1 == X.hours());
-                ASSERT(1 == X.minutes());
-                ASSERT(1 == X.seconds());
-                ASSERT(1 == X.milliseconds());
+                ASSERT(2 == X.hours());
+                ASSERT(3 == X.minutes());
+                ASSERT(4 == X.seconds());
+                ASSERT(5 == X.milliseconds());
                 ASSERT(0 == X.microseconds());
 
-                ASSERT(0 == mY.addIntervalIfValid(1, 1, 1, 1, 1));
+                ASSERT(0 == mY.addIntervalIfValid(1, 2, 3, 4, 5));
                 ASSERT(X == Y);
             }
             {
                 Obj mX;  const Obj& X = mX;
                 Obj mY;  const Obj& Y = mY;
 
-                mX.addInterval(1, 1, 1, 1);
+                mX.addInterval(1, 2, 3, 4);
 
                 ASSERT(1 == X.days());
-                ASSERT(1 == X.hours());
-                ASSERT(1 == X.minutes());
-                ASSERT(1 == X.seconds());
+                ASSERT(2 == X.hours());
+                ASSERT(3 == X.minutes());
+                ASSERT(4 == X.seconds());
                 ASSERT(0 == X.milliseconds());
                 ASSERT(0 == X.microseconds());
 
-                ASSERT(0 == mY.addIntervalIfValid(1, 1, 1, 1));
+                ASSERT(0 == mY.addIntervalIfValid(1, 2, 3, 4));
                 ASSERT(X == Y);
             }
             {
                 Obj mX;  const Obj& X = mX;
                 Obj mY;  const Obj& Y = mY;
 
-                mX.addInterval(1, 1, 1);
+                mX.addInterval(1, 2, 3);
 
                 ASSERT(1 == X.days());
-                ASSERT(1 == X.hours());
-                ASSERT(1 == X.minutes());
+                ASSERT(2 == X.hours());
+                ASSERT(3 == X.minutes());
                 ASSERT(0 == X.seconds());
                 ASSERT(0 == X.milliseconds());
                 ASSERT(0 == X.microseconds());
 
-                ASSERT(0 == mY.addIntervalIfValid(1, 1, 1));
+                ASSERT(0 == mY.addIntervalIfValid(1, 2, 3));
                 ASSERT(X == Y);
             }
             {
                 Obj mX;  const Obj& X = mX;
                 Obj mY;  const Obj& Y = mY;
 
-                mX.addInterval(1, 1);
+                mX.addInterval(1, 2);
 
                 ASSERT(1 == X.days());
-                ASSERT(1 == X.hours());
+                ASSERT(2 == X.hours());
                 ASSERT(0 == X.minutes());
                 ASSERT(0 == X.seconds());
                 ASSERT(0 == X.milliseconds());
                 ASSERT(0 == X.microseconds());
 
-                ASSERT(0 == mY.addIntervalIfValid(1, 1));
+                ASSERT(0 == mY.addIntervalIfValid(1, 2));
                 ASSERT(X == Y);
             }
             {
@@ -1757,20 +1884,20 @@ if (veryVerbose)
             ASSERTZ_PASS(mX.addInterval(k_DAYS_MAX, 0, 0, 0, 0, k_USECS_MIN));
             ASSERTZ_FAIL(mX.addInterval(k_DAYS_MAX, 0, 0, 0, 0, k_USECS_MAX));
 
-            ASSERTZ_FAIL(mX.addInterval(k_DAYS_MAX, k_H_PER_D));
-            ASSERTZ_PASS(mX.addInterval(k_DAYS_MAX, k_H_PER_D-1));
             ASSERTZ_PASS(mX.addInterval(k_DAYS_MAX, -k_H_PER_D));
+            ASSERTZ_FAIL(mX.addInterval(k_DAYS_MAX,  k_H_PER_D));
+            ASSERTZ_PASS(mX.addInterval(k_DAYS_MAX,  k_H_PER_D-1));
             ASSERTZ_PASS(mX.addInterval(k_DAYS_MAX, 0, -k_M_PER_D));
-            ASSERTZ_FAIL(mX.addInterval(k_DAYS_MAX, 0, k_M_PER_D));
-            ASSERTZ_PASS(mX.addInterval(k_DAYS_MAX, 0, k_M_PER_D-1));
+            ASSERTZ_FAIL(mX.addInterval(k_DAYS_MAX, 0,  k_M_PER_D));
+            ASSERTZ_PASS(mX.addInterval(k_DAYS_MAX, 0,  k_M_PER_D-1));
             ASSERTZ_PASS(mX.addInterval(k_DAYS_MAX, 0, 0, -k_S_PER_D));
-            ASSERTZ_FAIL(mX.addInterval(k_DAYS_MAX, 0, 0, k_S_PER_D));
-            ASSERTZ_PASS(mX.addInterval(k_DAYS_MAX, 0, 0, k_S_PER_D-1));
+            ASSERTZ_FAIL(mX.addInterval(k_DAYS_MAX, 0, 0,  k_S_PER_D));
+            ASSERTZ_PASS(mX.addInterval(k_DAYS_MAX, 0, 0,  k_S_PER_D-1));
             ASSERTZ_PASS(mX.addInterval(k_DAYS_MAX, 0, 0, 0, -k_MS_PER_D));
-            ASSERTZ_FAIL(mX.addInterval(k_DAYS_MAX, 0, 0, 0, k_MS_PER_D));
-            ASSERTZ_PASS(mX.addInterval(k_DAYS_MAX, 0, 0, 0, k_MS_PER_D-1));
+            ASSERTZ_FAIL(mX.addInterval(k_DAYS_MAX, 0, 0, 0,  k_MS_PER_D));
+            ASSERTZ_PASS(mX.addInterval(k_DAYS_MAX, 0, 0, 0,  k_MS_PER_D-1));
             ASSERTZ_PASS(mX.addInterval(k_DAYS_MAX, 0, 0, 0, 0, -k_US_PER_D));
-            ASSERTZ_FAIL(mX.addInterval(k_DAYS_MAX, 0, 0, 0, 0, k_US_PER_D));
+            ASSERTZ_FAIL(mX.addInterval(k_DAYS_MAX, 0, 0, 0, 0,  k_US_PER_D));
             ASSERTZ_PASS(mX.addInterval(k_DAYS_MAX, 0, 0, 0, 0, k_US_PER_D-1));
 
             ASSERTZ_PASS(mX.addInterval(0, k_HOURS_MAX, k_MINS_MIN));
@@ -1783,16 +1910,16 @@ if (veryVerbose)
             ASSERTZ_FAIL(mX.addInterval(0, k_HOURS_MAX, 0, 0, 0, k_USECS_MAX));
 
             ASSERTZ_PASS(mX.addInterval(0, k_HOURS_MAX, -k_M_PER_H));
-            ASSERTZ_FAIL(mX.addInterval(0, k_HOURS_MAX, k_M_PER_H));
-            ASSERTZ_PASS(mX.addInterval(0, k_HOURS_MAX, k_M_PER_H-1));
+            ASSERTZ_FAIL(mX.addInterval(0, k_HOURS_MAX,  k_M_PER_H));
+            ASSERTZ_PASS(mX.addInterval(0, k_HOURS_MAX,  k_M_PER_H-1));
             ASSERTZ_PASS(mX.addInterval(0, k_HOURS_MAX, 0, -k_S_PER_H));
-            ASSERTZ_FAIL(mX.addInterval(0, k_HOURS_MAX, 0, k_S_PER_H));
-            ASSERTZ_PASS(mX.addInterval(0, k_HOURS_MAX, 0, k_S_PER_H-1));
+            ASSERTZ_FAIL(mX.addInterval(0, k_HOURS_MAX, 0,  k_S_PER_H));
+            ASSERTZ_PASS(mX.addInterval(0, k_HOURS_MAX, 0,  k_S_PER_H-1));
             ASSERTZ_PASS(mX.addInterval(0, k_HOURS_MAX, 0, 0, -k_MS_PER_H));
-            ASSERTZ_FAIL(mX.addInterval(0, k_HOURS_MAX, 0, 0, k_MS_PER_H));
-            ASSERTZ_PASS(mX.addInterval(0, k_HOURS_MAX, 0, 0, k_MS_PER_H-1));
+            ASSERTZ_FAIL(mX.addInterval(0, k_HOURS_MAX, 0, 0,  k_MS_PER_H));
+            ASSERTZ_PASS(mX.addInterval(0, k_HOURS_MAX, 0, 0,  k_MS_PER_H-1));
             ASSERTZ_PASS(mX.addInterval(0, k_HOURS_MAX, 0, 0, 0, -k_US_PER_H));
-            ASSERTZ_FAIL(mX.addInterval(0, k_HOURS_MAX, 0, 0, 0, k_US_PER_H));
+            ASSERTZ_FAIL(mX.addInterval(0, k_HOURS_MAX, 0, 0, 0,  k_US_PER_H));
             ASSERTZ_PASS(mX.addInterval(0, k_HOURS_MAX, 0, 0,0, k_US_PER_H-1));
 
             ASSERTZ_PASS(mX.addInterval(0, 0, k_MINS_MAX, k_SECS_MIN));
@@ -1803,13 +1930,13 @@ if (veryVerbose)
             ASSERTZ_FAIL(mX.addInterval(0, 0, k_MINS_MAX, 0, 0, k_USECS_MAX));
 
             ASSERTZ_PASS(mX.addInterval(0, 0, k_MINS_MAX, -k_S_PER_M));
-            ASSERTZ_FAIL(mX.addInterval(0, 0, k_MINS_MAX, k_S_PER_M));
-            ASSERTZ_PASS(mX.addInterval(0, 0, k_MINS_MAX, k_S_PER_M-1));
+            ASSERTZ_FAIL(mX.addInterval(0, 0, k_MINS_MAX,  k_S_PER_M));
+            ASSERTZ_PASS(mX.addInterval(0, 0, k_MINS_MAX,  k_S_PER_M-1));
             ASSERTZ_PASS(mX.addInterval(0, 0, k_MINS_MAX, 0, -k_MS_PER_M));
-            ASSERTZ_FAIL(mX.addInterval(0, 0, k_MINS_MAX, 0, k_MS_PER_M));
-            ASSERTZ_PASS(mX.addInterval(0, 0, k_MINS_MAX, 0, k_MS_PER_M-1));
+            ASSERTZ_FAIL(mX.addInterval(0, 0, k_MINS_MAX, 0,  k_MS_PER_M));
+            ASSERTZ_PASS(mX.addInterval(0, 0, k_MINS_MAX, 0,  k_MS_PER_M-1));
             ASSERTZ_PASS(mX.addInterval(0, 0, k_MINS_MAX, 0, 0, -k_US_PER_M));
-            ASSERTZ_FAIL(mX.addInterval(0, 0, k_MINS_MAX, 0, 0, k_US_PER_M));
+            ASSERTZ_FAIL(mX.addInterval(0, 0, k_MINS_MAX, 0, 0,  k_US_PER_M));
             ASSERTZ_PASS(mX.addInterval(0, 0, k_MINS_MAX, 0, 0, k_US_PER_M-1));
 
             ASSERTZ_PASS(mX.addInterval(0, 0, 0, k_SECS_MAX, k_MSECS_MIN));
@@ -1818,10 +1945,10 @@ if (veryVerbose)
             ASSERTZ_FAIL(mX.addInterval(0, 0, 0, k_SECS_MAX, 0, k_USECS_MAX));
 
             ASSERTZ_PASS(mX.addInterval(0, 0, 0, k_SECS_MAX, -k_MS_PER_S));
-            ASSERTZ_FAIL(mX.addInterval(0, 0, 0, k_SECS_MAX, k_MS_PER_S));
-            ASSERTZ_PASS(mX.addInterval(0, 0, 0, k_SECS_MAX, k_MS_PER_S-1));
+            ASSERTZ_FAIL(mX.addInterval(0, 0, 0, k_SECS_MAX,  k_MS_PER_S));
+            ASSERTZ_PASS(mX.addInterval(0, 0, 0, k_SECS_MAX,  k_MS_PER_S-1));
             ASSERTZ_PASS(mX.addInterval(0, 0, 0, k_SECS_MAX, 0, -k_US_PER_S));
-            ASSERTZ_FAIL(mX.addInterval(0, 0, 0, k_SECS_MAX, 0, k_US_PER_S));
+            ASSERTZ_FAIL(mX.addInterval(0, 0, 0, k_SECS_MAX, 0,  k_US_PER_S));
             ASSERTZ_PASS(mX.addInterval(0, 0, 0, k_SECS_MAX, 0, k_US_PER_S-1));
 
             ASSERTZ_PASS(mX.addInterval(0, 0, 0, 0, k_MSECS_MAX, k_USECS_MIN));
@@ -1845,19 +1972,19 @@ if (veryVerbose)
 
             ASSERTZ_FAIL(mX.addInterval(k_DAYS_MIN, -k_H_PER_D));
             ASSERTZ_PASS(mX.addInterval(k_DAYS_MIN, -k_H_PER_D+1));
-            ASSERTZ_PASS(mX.addInterval(k_DAYS_MIN, k_H_PER_D));
-            ASSERTZ_PASS(mX.addInterval(k_DAYS_MIN, 0, k_M_PER_D));
+            ASSERTZ_PASS(mX.addInterval(k_DAYS_MIN,  k_H_PER_D));
             ASSERTZ_FAIL(mX.addInterval(k_DAYS_MIN, 0, -k_M_PER_D));
             ASSERTZ_PASS(mX.addInterval(k_DAYS_MIN, 0, -k_M_PER_D+1));
-            ASSERTZ_PASS(mX.addInterval(k_DAYS_MIN, 0, 0, k_S_PER_D));
+            ASSERTZ_PASS(mX.addInterval(k_DAYS_MIN, 0,  k_M_PER_D));
             ASSERTZ_FAIL(mX.addInterval(k_DAYS_MIN, 0, 0, -k_S_PER_D));
             ASSERTZ_PASS(mX.addInterval(k_DAYS_MIN, 0, 0, -k_S_PER_D+1));
-            ASSERTZ_PASS(mX.addInterval(k_DAYS_MIN, 0, 0, 0, k_MS_PER_D));
+            ASSERTZ_PASS(mX.addInterval(k_DAYS_MIN, 0, 0,  k_S_PER_D));
             ASSERTZ_FAIL(mX.addInterval(k_DAYS_MIN, 0, 0, 0, -k_MS_PER_D));
             ASSERTZ_PASS(mX.addInterval(k_DAYS_MIN, 0, 0, 0, -k_MS_PER_D+1));
-            ASSERTZ_PASS(mX.addInterval(k_DAYS_MIN, 0, 0, 0, 0, k_US_PER_D));
+            ASSERTZ_PASS(mX.addInterval(k_DAYS_MIN, 0, 0, 0,  k_MS_PER_D));
             ASSERTZ_FAIL(mX.addInterval(k_DAYS_MIN, 0, 0, 0, 0, -k_US_PER_D));
             ASSERTZ_PASS(mX.addInterval(k_DAYS_MIN, 0, 0, 0,0, -k_US_PER_D+1));
+            ASSERTZ_PASS(mX.addInterval(k_DAYS_MIN, 0, 0, 0, 0,  k_US_PER_D));
 
             ASSERTZ_PASS(mX.addInterval(0, k_HOURS_MIN, k_MINS_MAX));
             ASSERTZ_FAIL(mX.addInterval(0, k_HOURS_MIN, k_MINS_MIN));
@@ -1868,18 +1995,18 @@ if (veryVerbose)
             ASSERTZ_PASS(mX.addInterval(0, k_HOURS_MIN, 0, 0, 0,k_USECS_MAX));
             ASSERTZ_FAIL(mX.addInterval(0, k_HOURS_MIN, 0, 0, 0,k_USECS_MIN));
 
-            ASSERTZ_PASS(mX.addInterval(0, k_HOURS_MIN, k_M_PER_H));
             ASSERTZ_FAIL(mX.addInterval(0, k_HOURS_MIN, -k_M_PER_H));
             ASSERTZ_PASS(mX.addInterval(0, k_HOURS_MIN, -k_M_PER_H+1));
-            ASSERTZ_PASS(mX.addInterval(0, k_HOURS_MIN, 0, k_S_PER_H));
+            ASSERTZ_PASS(mX.addInterval(0, k_HOURS_MIN,  k_M_PER_H));
             ASSERTZ_FAIL(mX.addInterval(0, k_HOURS_MIN, 0, -k_S_PER_H));
             ASSERTZ_PASS(mX.addInterval(0, k_HOURS_MIN, 0, -k_S_PER_H+1));
-            ASSERTZ_PASS(mX.addInterval(0, k_HOURS_MIN, 0, 0, k_MS_PER_H));
+            ASSERTZ_PASS(mX.addInterval(0, k_HOURS_MIN, 0,  k_S_PER_H));
             ASSERTZ_FAIL(mX.addInterval(0, k_HOURS_MIN, 0, 0, -k_MS_PER_H));
             ASSERTZ_PASS(mX.addInterval(0, k_HOURS_MIN, 0, 0, -k_MS_PER_H+1));
-            ASSERTZ_PASS(mX.addInterval(0, k_HOURS_MIN, 0, 0, 0, k_US_PER_H));
+            ASSERTZ_PASS(mX.addInterval(0, k_HOURS_MIN, 0, 0,  k_MS_PER_H));
             ASSERTZ_FAIL(mX.addInterval(0, k_HOURS_MIN, 0, 0, 0, -k_US_PER_H));
             ASSERTZ_PASS(mX.addInterval(0, k_HOURS_MIN, 0,0,0, -k_US_PER_H+1));
+            ASSERTZ_PASS(mX.addInterval(0, k_HOURS_MIN, 0, 0, 0,  k_US_PER_H));
 
             ASSERTZ_PASS(mX.addInterval(0, 0, k_MINS_MIN, k_SECS_MAX));
             ASSERTZ_FAIL(mX.addInterval(0, 0, k_MINS_MIN, k_SECS_MIN));
@@ -1888,34 +2015,34 @@ if (veryVerbose)
             ASSERTZ_PASS(mX.addInterval(0, 0, k_MINS_MIN, 0, 0, k_USECS_MAX));
             ASSERTZ_FAIL(mX.addInterval(0, 0, k_MINS_MIN, 0, 0, k_USECS_MIN));
 
-            ASSERTZ_PASS(mX.addInterval(0, 0, k_MINS_MIN, k_S_PER_M));
             ASSERTZ_FAIL(mX.addInterval(0, 0, k_MINS_MIN, -k_S_PER_M));
             ASSERTZ_PASS(mX.addInterval(0, 0, k_MINS_MIN, -k_S_PER_M+1));
-            ASSERTZ_PASS(mX.addInterval(0, 0, k_MINS_MIN, 0, k_MS_PER_M));
+            ASSERTZ_PASS(mX.addInterval(0, 0, k_MINS_MIN,  k_S_PER_M));
             ASSERTZ_FAIL(mX.addInterval(0, 0, k_MINS_MIN, 0, -k_MS_PER_M));
             ASSERTZ_PASS(mX.addInterval(0, 0, k_MINS_MIN, 0, -k_MS_PER_M+1));
-            ASSERTZ_PASS(mX.addInterval(0, 0, k_MINS_MIN, 0, 0, k_US_PER_M));
+            ASSERTZ_PASS(mX.addInterval(0, 0, k_MINS_MIN, 0,  k_MS_PER_M));
             ASSERTZ_FAIL(mX.addInterval(0, 0, k_MINS_MIN, 0, 0, -k_US_PER_M));
             ASSERTZ_PASS(mX.addInterval(0, 0, k_MINS_MIN, 0,0, -k_US_PER_M+1));
+            ASSERTZ_PASS(mX.addInterval(0, 0, k_MINS_MIN, 0, 0,  k_US_PER_M));
 
             ASSERTZ_PASS(mX.addInterval(0, 0, 0, k_SECS_MIN, k_MSECS_MAX));
             ASSERTZ_FAIL(mX.addInterval(0, 0, 0, k_SECS_MIN, k_MSECS_MIN));
             ASSERTZ_PASS(mX.addInterval(0, 0, 0, k_SECS_MIN, 0, k_USECS_MAX));
             ASSERTZ_FAIL(mX.addInterval(0, 0, 0, k_SECS_MIN, 0, k_USECS_MIN));
 
-            ASSERTZ_PASS(mX.addInterval(0, 0, 0, k_SECS_MIN, k_MS_PER_S));
             ASSERTZ_FAIL(mX.addInterval(0, 0, 0, k_SECS_MIN, -k_MS_PER_S));
             ASSERTZ_PASS(mX.addInterval(0, 0, 0, k_SECS_MIN, -k_MS_PER_S+1));
-            ASSERTZ_PASS(mX.addInterval(0, 0, 0, k_SECS_MIN, 0, k_US_PER_S));
+            ASSERTZ_PASS(mX.addInterval(0, 0, 0, k_SECS_MIN,  k_MS_PER_S));
             ASSERTZ_FAIL(mX.addInterval(0, 0, 0, k_SECS_MIN, 0, -k_US_PER_S));
             ASSERTZ_PASS(mX.addInterval(0, 0, 0, k_SECS_MIN,0, -k_US_PER_S+1));
+            ASSERTZ_PASS(mX.addInterval(0, 0, 0, k_SECS_MIN, 0,  k_US_PER_S));
 
             ASSERTZ_PASS(mX.addInterval(0, 0, 0, 0, k_MSECS_MIN,k_USECS_MAX));
             ASSERTZ_FAIL(mX.addInterval(0, 0, 0, 0, k_MSECS_MIN,k_USECS_MIN));
 
-            ASSERTZ_PASS(mX.addInterval(0, 0, 0, 0, k_MSECS_MIN,k_US_PER_MS));
             ASSERTZ_FAIL(mX.addInterval(0, 0, 0, 0,k_MSECS_MIN, -k_US_PER_MS));
             ASSERTZ_PASS(mX.addInterval(0, 0,0,0,k_MSECS_MIN, -k_US_PER_MS+1));
+            ASSERTZ_PASS(mX.addInterval(0, 0, 0, 0, k_MSECS_MIN,k_US_PER_MS));
 
             Obj mY;    const Obj& Y = mY;
 
@@ -1942,21 +2069,21 @@ if (veryVerbose)
             ASSERTY_PASS(mX.addInterval(0, 0, 0, 0, 0, k_USECS_MIN));
             ASSERTY_FAIL(mX.addInterval(0, 0, 0, 0, 0, k_USECS_MAX));
 
-            ASSERTY_FAIL(mX.addInterval(0, k_H_PER_D));
-            ASSERTY_PASS(mX.addInterval(0, k_H_PER_D-1));
             ASSERTY_PASS(mX.addInterval(0, -k_H_PER_D));
+            ASSERTY_FAIL(mX.addInterval(0,  k_H_PER_D));
+            ASSERTY_PASS(mX.addInterval(0,  k_H_PER_D-1));
             ASSERTY_PASS(mX.addInterval(0, 0, -k_M_PER_D));
-            ASSERTY_FAIL(mX.addInterval(0, 0, k_M_PER_D));
-            ASSERTY_PASS(mX.addInterval(0, 0, k_M_PER_D-1));
+            ASSERTY_FAIL(mX.addInterval(0, 0,  k_M_PER_D));
+            ASSERTY_PASS(mX.addInterval(0, 0,  k_M_PER_D-1));
             ASSERTY_PASS(mX.addInterval(0, 0, 0, -k_S_PER_D));
-            ASSERTY_FAIL(mX.addInterval(0, 0, 0, k_S_PER_D));
-            ASSERTY_PASS(mX.addInterval(0, 0, 0, k_S_PER_D-1));
+            ASSERTY_FAIL(mX.addInterval(0, 0, 0,  k_S_PER_D));
+            ASSERTY_PASS(mX.addInterval(0, 0, 0,  k_S_PER_D-1));
             ASSERTY_PASS(mX.addInterval(0, 0, 0, 0, -k_MS_PER_D));
-            ASSERTY_FAIL(mX.addInterval(0, 0, 0, 0, k_MS_PER_D));
-            ASSERTY_PASS(mX.addInterval(0, 0, 0, 0, k_MS_PER_D-1));
+            ASSERTY_FAIL(mX.addInterval(0, 0, 0, 0,  k_MS_PER_D));
+            ASSERTY_PASS(mX.addInterval(0, 0, 0, 0,  k_MS_PER_D-1));
             ASSERTY_PASS(mX.addInterval(0, 0, 0, 0, 0, -k_US_PER_D));
-            ASSERTY_FAIL(mX.addInterval(0, 0, 0, 0, 0, k_US_PER_D));
-            ASSERTY_PASS(mX.addInterval(0, 0, 0, 0, 0, k_US_PER_D-1));
+            ASSERTY_FAIL(mX.addInterval(0, 0, 0, 0, 0,  k_US_PER_D));
+            ASSERTY_PASS(mX.addInterval(0, 0, 0, 0, 0,  k_US_PER_D-1));
 
             mY.setInterval(0, k_HOURS_MAX);
 
@@ -1970,17 +2097,17 @@ if (veryVerbose)
             ASSERTY_FAIL(mX.addInterval(0, 0, 0, 0, 0, k_USECS_MAX));
 
             ASSERTY_PASS(mX.addInterval(0, 0, -k_M_PER_H));
-            ASSERTY_FAIL(mX.addInterval(0, 0, k_M_PER_H));
-            ASSERTY_PASS(mX.addInterval(0, 0, k_M_PER_H-1));
+            ASSERTY_FAIL(mX.addInterval(0, 0,  k_M_PER_H));
+            ASSERTY_PASS(mX.addInterval(0, 0,  k_M_PER_H-1));
             ASSERTY_PASS(mX.addInterval(0, 0, 0, -k_S_PER_H));
-            ASSERTY_FAIL(mX.addInterval(0, 0, 0, k_S_PER_H));
-            ASSERTY_PASS(mX.addInterval(0, 0, 0, k_S_PER_H-1));
+            ASSERTY_FAIL(mX.addInterval(0, 0, 0,  k_S_PER_H));
+            ASSERTY_PASS(mX.addInterval(0, 0, 0,  k_S_PER_H-1));
             ASSERTY_PASS(mX.addInterval(0, 0, 0, 0, -k_MS_PER_H));
-            ASSERTY_FAIL(mX.addInterval(0, 0, 0, 0, k_MS_PER_H));
-            ASSERTY_PASS(mX.addInterval(0, 0, 0, 0, k_MS_PER_H-1));
+            ASSERTY_FAIL(mX.addInterval(0, 0, 0, 0,  k_MS_PER_H));
+            ASSERTY_PASS(mX.addInterval(0, 0, 0, 0,  k_MS_PER_H-1));
             ASSERTY_PASS(mX.addInterval(0, 0, 0, 0, 0, -k_US_PER_H));
-            ASSERTY_FAIL(mX.addInterval(0, 0, 0, 0, 0, k_US_PER_H));
-            ASSERTY_PASS(mX.addInterval(0, 0, 0, 0,0, k_US_PER_H-1));
+            ASSERTY_FAIL(mX.addInterval(0, 0, 0, 0, 0,  k_US_PER_H));
+            ASSERTY_PASS(mX.addInterval(0, 0, 0, 0, 0,  k_US_PER_H-1));
 
             mY.setInterval(0, 0, k_MINS_MAX);
 
@@ -1992,14 +2119,14 @@ if (veryVerbose)
             ASSERTY_FAIL(mX.addInterval(0, 0, 0, 0, 0, k_USECS_MAX));
 
             ASSERTY_PASS(mX.addInterval(0, 0, 0, -k_S_PER_M));
-            ASSERTY_FAIL(mX.addInterval(0, 0, 0, k_S_PER_M));
-            ASSERTY_PASS(mX.addInterval(0, 0, 0, k_S_PER_M-1));
+            ASSERTY_FAIL(mX.addInterval(0, 0, 0,  k_S_PER_M));
+            ASSERTY_PASS(mX.addInterval(0, 0, 0,  k_S_PER_M-1));
             ASSERTY_PASS(mX.addInterval(0, 0, 0, 0, -k_MS_PER_M));
-            ASSERTY_FAIL(mX.addInterval(0, 0, 0, 0, k_MS_PER_M));
-            ASSERTY_PASS(mX.addInterval(0, 0, 0, 0, k_MS_PER_M-1));
+            ASSERTY_FAIL(mX.addInterval(0, 0, 0, 0,  k_MS_PER_M));
+            ASSERTY_PASS(mX.addInterval(0, 0, 0, 0,  k_MS_PER_M-1));
             ASSERTY_PASS(mX.addInterval(0, 0, 0, 0, 0, -k_US_PER_M));
-            ASSERTY_FAIL(mX.addInterval(0, 0, 0, 0, 0, k_US_PER_M));
-            ASSERTY_PASS(mX.addInterval(0, 0, 0, 0, 0, k_US_PER_M-1));
+            ASSERTY_FAIL(mX.addInterval(0, 0, 0, 0, 0,  k_US_PER_M));
+            ASSERTY_PASS(mX.addInterval(0, 0, 0, 0, 0,  k_US_PER_M-1));
 
             mY.setInterval(0, 0, 0, k_SECS_MAX);
 
@@ -2009,11 +2136,11 @@ if (veryVerbose)
             ASSERTY_FAIL(mX.addInterval(0, 0, 0, 0, 0, k_USECS_MAX));
 
             ASSERTY_PASS(mX.addInterval(0, 0, 0, 0, -k_MS_PER_S));
-            ASSERTY_FAIL(mX.addInterval(0, 0, 0, 0, k_MS_PER_S));
-            ASSERTY_PASS(mX.addInterval(0, 0, 0, 0, k_MS_PER_S-1));
+            ASSERTY_FAIL(mX.addInterval(0, 0, 0, 0,  k_MS_PER_S));
+            ASSERTY_PASS(mX.addInterval(0, 0, 0, 0,  k_MS_PER_S-1));
             ASSERTY_PASS(mX.addInterval(0, 0, 0, 0, 0, -k_US_PER_S));
-            ASSERTY_FAIL(mX.addInterval(0, 0, 0, 0, 0, k_US_PER_S));
-            ASSERTY_PASS(mX.addInterval(0, 0, 0, 0, 0, k_US_PER_S-1));
+            ASSERTY_FAIL(mX.addInterval(0, 0, 0, 0, 0,  k_US_PER_S));
+            ASSERTY_PASS(mX.addInterval(0, 0, 0, 0, 0,  k_US_PER_S-1));
 
             mY.setInterval(0, 0, 0, 0, k_MSECS_MAX);
 
@@ -2021,8 +2148,8 @@ if (veryVerbose)
             ASSERTY_FAIL(mX.addInterval(0, 0, 0, 0, 0, k_USECS_MAX));
 
             ASSERTY_PASS(mX.addInterval(0, 0, 0, 0, 0, -k_US_PER_MS));
-            ASSERTY_FAIL(mX.addInterval(0, 0, 0, 0, 0, k_US_PER_MS));
-            ASSERTY_PASS(mX.addInterval(0, 0, 0, 0, 0, k_US_PER_MS-1));
+            ASSERTY_FAIL(mX.addInterval(0, 0, 0, 0, 0,  k_US_PER_MS));
+            ASSERTY_PASS(mX.addInterval(0, 0, 0, 0, 0,  k_US_PER_MS-1));
 
             mY.setInterval(k_DAYS_MIN);
 
@@ -2040,19 +2167,19 @@ if (veryVerbose)
 
             ASSERTY_FAIL(mX.addInterval(0, -k_H_PER_D));
             ASSERTY_PASS(mX.addInterval(0, -k_H_PER_D+1));
-            ASSERTY_PASS(mX.addInterval(0, k_H_PER_D));
-            ASSERTY_PASS(mX.addInterval(0, 0, k_M_PER_D));
+            ASSERTY_PASS(mX.addInterval(0,  k_H_PER_D));
             ASSERTY_FAIL(mX.addInterval(0, 0, -k_M_PER_D));
             ASSERTY_PASS(mX.addInterval(0, 0, -k_M_PER_D+1));
-            ASSERTY_PASS(mX.addInterval(0, 0, 0, k_S_PER_D));
+            ASSERTY_PASS(mX.addInterval(0, 0,  k_M_PER_D));
             ASSERTY_FAIL(mX.addInterval(0, 0, 0, -k_S_PER_D));
             ASSERTY_PASS(mX.addInterval(0, 0, 0, -k_S_PER_D+1));
-            ASSERTY_PASS(mX.addInterval(0, 0, 0, 0, k_MS_PER_D));
+            ASSERTY_PASS(mX.addInterval(0, 0, 0,  k_S_PER_D));
             ASSERTY_FAIL(mX.addInterval(0, 0, 0, 0, -k_MS_PER_D));
             ASSERTY_PASS(mX.addInterval(0, 0, 0, 0, -k_MS_PER_D+1));
-            ASSERTY_PASS(mX.addInterval(0, 0, 0, 0, 0, k_US_PER_D));
+            ASSERTY_PASS(mX.addInterval(0, 0, 0, 0,  k_MS_PER_D));
             ASSERTY_FAIL(mX.addInterval(0, 0, 0, 0, 0, -k_US_PER_D));
             ASSERTY_PASS(mX.addInterval(0, 0, 0, 0, 0, -k_US_PER_D+1));
+            ASSERTY_PASS(mX.addInterval(0, 0, 0, 0, 0,  k_US_PER_D));
 
             mY.setInterval(0, k_HOURS_MIN);
 
@@ -2065,18 +2192,18 @@ if (veryVerbose)
             ASSERTY_PASS(mX.addInterval(0, 0, 0, 0, 0,k_USECS_MAX));
             ASSERTY_FAIL(mX.addInterval(0, 0, 0, 0, 0,k_USECS_MIN));
 
-            ASSERTY_PASS(mX.addInterval(0, 0, k_M_PER_H));
             ASSERTY_FAIL(mX.addInterval(0, 0, -k_M_PER_H));
             ASSERTY_PASS(mX.addInterval(0, 0, -k_M_PER_H+1));
-            ASSERTY_PASS(mX.addInterval(0, 0, 0, k_S_PER_H));
+            ASSERTY_PASS(mX.addInterval(0, 0,  k_M_PER_H));
             ASSERTY_FAIL(mX.addInterval(0, 0, 0, -k_S_PER_H));
             ASSERTY_PASS(mX.addInterval(0, 0, 0, -k_S_PER_H+1));
-            ASSERTY_PASS(mX.addInterval(0, 0, 0, 0, k_MS_PER_H));
+            ASSERTY_PASS(mX.addInterval(0, 0, 0,  k_S_PER_H));
             ASSERTY_FAIL(mX.addInterval(0, 0, 0, 0, -k_MS_PER_H));
             ASSERTY_PASS(mX.addInterval(0, 0, 0, 0, -k_MS_PER_H+1));
-            ASSERTY_PASS(mX.addInterval(0, 0, 0, 0, 0, k_US_PER_H));
+            ASSERTY_PASS(mX.addInterval(0, 0, 0, 0,  k_MS_PER_H));
             ASSERTY_FAIL(mX.addInterval(0, 0, 0, 0, 0, -k_US_PER_H));
             ASSERTY_PASS(mX.addInterval(0, 0, 0, 0, 0, -k_US_PER_H+1));
+            ASSERTY_PASS(mX.addInterval(0, 0, 0, 0, 0,  k_US_PER_H));
 
             mY.setInterval(0, 0, k_MINS_MIN);
 
@@ -2087,15 +2214,15 @@ if (veryVerbose)
             ASSERTY_PASS(mX.addInterval(0, 0, 0, 0, 0, k_USECS_MAX));
             ASSERTY_FAIL(mX.addInterval(0, 0, 0, 0, 0, k_USECS_MIN));
 
-            ASSERTY_PASS(mX.addInterval(0, 0, 0, k_S_PER_M));
             ASSERTY_FAIL(mX.addInterval(0, 0, 0, -k_S_PER_M));
             ASSERTY_PASS(mX.addInterval(0, 0, 0, -k_S_PER_M+1));
-            ASSERTY_PASS(mX.addInterval(0, 0, 0, 0, k_MS_PER_M));
+            ASSERTY_PASS(mX.addInterval(0, 0, 0,  k_S_PER_M));
             ASSERTY_FAIL(mX.addInterval(0, 0, 0, 0, -k_MS_PER_M));
             ASSERTY_PASS(mX.addInterval(0, 0, 0, 0, -k_MS_PER_M+1));
-            ASSERTY_PASS(mX.addInterval(0, 0, 0, 0, 0, k_US_PER_M));
+            ASSERTY_PASS(mX.addInterval(0, 0, 0, 0,  k_MS_PER_M));
             ASSERTY_FAIL(mX.addInterval(0, 0, 0, 0, 0, -k_US_PER_M));
-            ASSERTY_PASS(mX.addInterval(0, 0, 0, 0,0, -k_US_PER_M+1));
+            ASSERTY_PASS(mX.addInterval(0, 0, 0, 0, 0, -k_US_PER_M+1));
+            ASSERTY_PASS(mX.addInterval(0, 0, 0, 0, 0,  k_US_PER_M));
 
             mY.setInterval(0, 0, 0, k_SECS_MIN);
 
@@ -2104,21 +2231,21 @@ if (veryVerbose)
             ASSERTY_PASS(mX.addInterval(0, 0, 0, 0, 0, k_USECS_MAX));
             ASSERTY_FAIL(mX.addInterval(0, 0, 0, 0, 0, k_USECS_MIN));
 
-            ASSERTY_PASS(mX.addInterval(0, 0, 0, 0, k_MS_PER_S));
             ASSERTY_FAIL(mX.addInterval(0, 0, 0, 0, -k_MS_PER_S));
             ASSERTY_PASS(mX.addInterval(0, 0, 0, 0, -k_MS_PER_S+1));
-            ASSERTY_PASS(mX.addInterval(0, 0, 0, 0, 0, k_US_PER_S));
+            ASSERTY_PASS(mX.addInterval(0, 0, 0, 0,  k_MS_PER_S));
             ASSERTY_FAIL(mX.addInterval(0, 0, 0, 0, 0, -k_US_PER_S));
             ASSERTY_PASS(mX.addInterval(0, 0, 0, 0, 0, -k_US_PER_S+1));
+            ASSERTY_PASS(mX.addInterval(0, 0, 0, 0, 0,  k_US_PER_S));
 
             mY.setInterval(0, 0, 0, 0, k_MSECS_MIN);
 
             ASSERTY_PASS(mX.addInterval(0, 0, 0, 0, 0, k_USECS_MAX));
             ASSERTY_FAIL(mX.addInterval(0, 0, 0, 0, 0, k_USECS_MIN));
 
-            ASSERTY_PASS(mX.addInterval(0, 0, 0, 0, 0, k_US_PER_MS));
             ASSERTY_FAIL(mX.addInterval(0, 0, 0, 0, 0, -k_US_PER_MS));
             ASSERTY_PASS(mX.addInterval(0, 0, 0, 0, 0, -k_US_PER_MS+1));
+            ASSERTY_PASS(mX.addInterval(0, 0, 0, 0, 0,  k_US_PER_MS));
 
 #undef  ASSERTY_PASS
 #undef  ASSERTY_FAIL
@@ -2149,21 +2276,21 @@ if (veryVerbose)
             ASSERTZ(0 == mX.AIIV(k_DAYS_MAX, 0, 0, 0, 0, k_USECS_MIN));
             ASSERTZ(0 != mX.AIIV(k_DAYS_MAX, 0, 0, 0, 0, k_USECS_MAX));
 
-            ASSERTZ(0 != mX.AIIV(k_DAYS_MAX, k_H_PER_D));
-            ASSERTZ(0 == mX.AIIV(k_DAYS_MAX, k_H_PER_D-1));
             ASSERTZ(0 == mX.AIIV(k_DAYS_MAX, -k_H_PER_D));
+            ASSERTZ(0 != mX.AIIV(k_DAYS_MAX,  k_H_PER_D));
+            ASSERTZ(0 == mX.AIIV(k_DAYS_MAX,  k_H_PER_D-1));
             ASSERTZ(0 == mX.AIIV(k_DAYS_MAX, 0, -k_M_PER_D));
-            ASSERTZ(0 != mX.AIIV(k_DAYS_MAX, 0, k_M_PER_D));
-            ASSERTZ(0 == mX.AIIV(k_DAYS_MAX, 0, k_M_PER_D-1));
+            ASSERTZ(0 != mX.AIIV(k_DAYS_MAX, 0,  k_M_PER_D));
+            ASSERTZ(0 == mX.AIIV(k_DAYS_MAX, 0,  k_M_PER_D-1));
             ASSERTZ(0 == mX.AIIV(k_DAYS_MAX, 0, 0, -k_S_PER_D));
-            ASSERTZ(0 != mX.AIIV(k_DAYS_MAX, 0, 0, k_S_PER_D));
-            ASSERTZ(0 == mX.AIIV(k_DAYS_MAX, 0, 0, k_S_PER_D-1));
+            ASSERTZ(0 != mX.AIIV(k_DAYS_MAX, 0, 0,  k_S_PER_D));
+            ASSERTZ(0 == mX.AIIV(k_DAYS_MAX, 0, 0,  k_S_PER_D-1));
             ASSERTZ(0 == mX.AIIV(k_DAYS_MAX, 0, 0, 0, -k_MS_PER_D));
-            ASSERTZ(0 != mX.AIIV(k_DAYS_MAX, 0, 0, 0, k_MS_PER_D));
-            ASSERTZ(0 == mX.AIIV(k_DAYS_MAX, 0, 0, 0, k_MS_PER_D-1));
+            ASSERTZ(0 != mX.AIIV(k_DAYS_MAX, 0, 0, 0,  k_MS_PER_D));
+            ASSERTZ(0 == mX.AIIV(k_DAYS_MAX, 0, 0, 0,  k_MS_PER_D-1));
             ASSERTZ(0 == mX.AIIV(k_DAYS_MAX, 0, 0, 0, 0, -k_US_PER_D));
-            ASSERTZ(0 != mX.AIIV(k_DAYS_MAX, 0, 0, 0, 0, k_US_PER_D));
-            ASSERTZ(0 == mX.AIIV(k_DAYS_MAX, 0, 0, 0, 0, k_US_PER_D-1));
+            ASSERTZ(0 != mX.AIIV(k_DAYS_MAX, 0, 0, 0, 0,  k_US_PER_D));
+            ASSERTZ(0 == mX.AIIV(k_DAYS_MAX, 0, 0, 0, 0,  k_US_PER_D-1));
 
             ASSERTZ(0 == mX.AIIV(0, k_HOURS_MAX, k_MINS_MIN));
             ASSERTZ(0 != mX.AIIV(0, k_HOURS_MAX, k_MINS_MAX));
@@ -2175,17 +2302,17 @@ if (veryVerbose)
             ASSERTZ(0 != mX.AIIV(0, k_HOURS_MAX, 0, 0, 0, k_USECS_MAX));
 
             ASSERTZ(0 == mX.AIIV(0, k_HOURS_MAX, -k_M_PER_H));
-            ASSERTZ(0 != mX.AIIV(0, k_HOURS_MAX, k_M_PER_H));
-            ASSERTZ(0 == mX.AIIV(0, k_HOURS_MAX, k_M_PER_H-1));
+            ASSERTZ(0 != mX.AIIV(0, k_HOURS_MAX,  k_M_PER_H));
+            ASSERTZ(0 == mX.AIIV(0, k_HOURS_MAX,  k_M_PER_H-1));
             ASSERTZ(0 == mX.AIIV(0, k_HOURS_MAX, 0, -k_S_PER_H));
-            ASSERTZ(0 != mX.AIIV(0, k_HOURS_MAX, 0, k_S_PER_H));
-            ASSERTZ(0 == mX.AIIV(0, k_HOURS_MAX, 0, k_S_PER_H-1));
+            ASSERTZ(0 != mX.AIIV(0, k_HOURS_MAX, 0,  k_S_PER_H));
+            ASSERTZ(0 == mX.AIIV(0, k_HOURS_MAX, 0,  k_S_PER_H-1));
             ASSERTZ(0 == mX.AIIV(0, k_HOURS_MAX, 0, 0, -k_MS_PER_H));
-            ASSERTZ(0 != mX.AIIV(0, k_HOURS_MAX, 0, 0, k_MS_PER_H));
-            ASSERTZ(0 == mX.AIIV(0, k_HOURS_MAX, 0, 0, k_MS_PER_H-1));
+            ASSERTZ(0 != mX.AIIV(0, k_HOURS_MAX, 0, 0,  k_MS_PER_H));
+            ASSERTZ(0 == mX.AIIV(0, k_HOURS_MAX, 0, 0,  k_MS_PER_H-1));
             ASSERTZ(0 == mX.AIIV(0, k_HOURS_MAX, 0, 0, 0, -k_US_PER_H));
-            ASSERTZ(0 != mX.AIIV(0, k_HOURS_MAX, 0, 0, 0, k_US_PER_H));
-            ASSERTZ(0 == mX.AIIV(0, k_HOURS_MAX, 0, 0, 0, k_US_PER_H-1));
+            ASSERTZ(0 != mX.AIIV(0, k_HOURS_MAX, 0, 0, 0,  k_US_PER_H));
+            ASSERTZ(0 == mX.AIIV(0, k_HOURS_MAX, 0, 0, 0,  k_US_PER_H-1));
 
             ASSERTZ(0 == mX.AIIV(0, 0, k_MINS_MAX, k_SECS_MIN));
             ASSERTZ(0 != mX.AIIV(0, 0, k_MINS_MAX, k_SECS_MAX));
@@ -2195,14 +2322,14 @@ if (veryVerbose)
             ASSERTZ(0 != mX.AIIV(0, 0, k_MINS_MAX, 0, 0, k_USECS_MAX));
 
             ASSERTZ(0 == mX.AIIV(0, 0, k_MINS_MAX, -k_S_PER_M));
-            ASSERTZ(0 != mX.AIIV(0, 0, k_MINS_MAX, k_S_PER_M));
-            ASSERTZ(0 == mX.AIIV(0, 0, k_MINS_MAX, k_S_PER_M-1));
+            ASSERTZ(0 != mX.AIIV(0, 0, k_MINS_MAX,  k_S_PER_M));
+            ASSERTZ(0 == mX.AIIV(0, 0, k_MINS_MAX,  k_S_PER_M-1));
             ASSERTZ(0 == mX.AIIV(0, 0, k_MINS_MAX, 0, -k_MS_PER_M));
-            ASSERTZ(0 != mX.AIIV(0, 0, k_MINS_MAX, 0, k_MS_PER_M));
-            ASSERTZ(0 == mX.AIIV(0, 0, k_MINS_MAX, 0, k_MS_PER_M-1));
+            ASSERTZ(0 != mX.AIIV(0, 0, k_MINS_MAX, 0,  k_MS_PER_M));
+            ASSERTZ(0 == mX.AIIV(0, 0, k_MINS_MAX, 0,  k_MS_PER_M-1));
             ASSERTZ(0 == mX.AIIV(0, 0, k_MINS_MAX, 0, 0, -k_US_PER_M));
-            ASSERTZ(0 != mX.AIIV(0, 0, k_MINS_MAX, 0, 0, k_US_PER_M));
-            ASSERTZ(0 == mX.AIIV(0, 0, k_MINS_MAX, 0, 0, k_US_PER_M-1));
+            ASSERTZ(0 != mX.AIIV(0, 0, k_MINS_MAX, 0, 0,  k_US_PER_M));
+            ASSERTZ(0 == mX.AIIV(0, 0, k_MINS_MAX, 0, 0,  k_US_PER_M-1));
 
             ASSERTZ(0 == mX.AIIV(0, 0, 0, k_SECS_MAX, k_MSECS_MIN));
             ASSERTZ(0 != mX.AIIV(0, 0, 0, k_SECS_MAX, k_MSECS_MAX));
@@ -2210,18 +2337,18 @@ if (veryVerbose)
             ASSERTZ(0 != mX.AIIV(0, 0, 0, k_SECS_MAX, 0, k_USECS_MAX));
 
             ASSERTZ(0 == mX.AIIV(0, 0, 0, k_SECS_MAX, -k_MS_PER_S));
-            ASSERTZ(0 != mX.AIIV(0, 0, 0, k_SECS_MAX, k_MS_PER_S));
-            ASSERTZ(0 == mX.AIIV(0, 0, 0, k_SECS_MAX, k_MS_PER_S-1));
+            ASSERTZ(0 != mX.AIIV(0, 0, 0, k_SECS_MAX,  k_MS_PER_S));
+            ASSERTZ(0 == mX.AIIV(0, 0, 0, k_SECS_MAX,  k_MS_PER_S-1));
             ASSERTZ(0 == mX.AIIV(0, 0, 0, k_SECS_MAX, 0, -k_US_PER_S));
-            ASSERTZ(0 != mX.AIIV(0, 0, 0, k_SECS_MAX, 0, k_US_PER_S));
-            ASSERTZ(0 == mX.AIIV(0, 0, 0, k_SECS_MAX, 0, k_US_PER_S-1));
+            ASSERTZ(0 != mX.AIIV(0, 0, 0, k_SECS_MAX, 0,  k_US_PER_S));
+            ASSERTZ(0 == mX.AIIV(0, 0, 0, k_SECS_MAX, 0,  k_US_PER_S-1));
 
             ASSERTZ(0 == mX.AIIV(0, 0, 0, 0, k_MSECS_MAX, k_USECS_MIN));
             ASSERTZ(0 != mX.AIIV(0, 0, 0, 0, k_MSECS_MAX, k_USECS_MAX));
 
             ASSERTZ(0 == mX.AIIV(0, 0, 0, 0, k_MSECS_MAX, -k_US_PER_MS));
-            ASSERTZ(0 != mX.AIIV(0, 0, 0, 0, k_MSECS_MAX, k_US_PER_MS));
-            ASSERTZ(0 == mX.AIIV(0, 0, 0, 0, k_MSECS_MAX, k_US_PER_MS-1));
+            ASSERTZ(0 != mX.AIIV(0, 0, 0, 0, k_MSECS_MAX,  k_US_PER_MS));
+            ASSERTZ(0 == mX.AIIV(0, 0, 0, 0, k_MSECS_MAX,  k_US_PER_MS-1));
 
             ASSERTZ(0 == mX.AIIV(k_DAYS_MIN));
             ASSERTZ(0 == mX.AIIV(k_DAYS_MIN, k_HOURS_MAX));
@@ -2237,19 +2364,19 @@ if (veryVerbose)
 
             ASSERTZ(0 != mX.AIIV(k_DAYS_MIN, -k_H_PER_D));
             ASSERTZ(0 == mX.AIIV(k_DAYS_MIN, -k_H_PER_D+1));
-            ASSERTZ(0 == mX.AIIV(k_DAYS_MIN, k_H_PER_D));
-            ASSERTZ(0 == mX.AIIV(k_DAYS_MIN, 0, k_M_PER_D));
+            ASSERTZ(0 == mX.AIIV(k_DAYS_MIN,  k_H_PER_D));
             ASSERTZ(0 != mX.AIIV(k_DAYS_MIN, 0, -k_M_PER_D));
             ASSERTZ(0 == mX.AIIV(k_DAYS_MIN, 0, -k_M_PER_D+1));
-            ASSERTZ(0 == mX.AIIV(k_DAYS_MIN, 0, 0, k_S_PER_D));
+            ASSERTZ(0 == mX.AIIV(k_DAYS_MIN, 0,  k_M_PER_D));
             ASSERTZ(0 != mX.AIIV(k_DAYS_MIN, 0, 0, -k_S_PER_D));
             ASSERTZ(0 == mX.AIIV(k_DAYS_MIN, 0, 0, -k_S_PER_D+1));
-            ASSERTZ(0 == mX.AIIV(k_DAYS_MIN, 0, 0, 0, k_MS_PER_D));
+            ASSERTZ(0 == mX.AIIV(k_DAYS_MIN, 0, 0,  k_S_PER_D));
             ASSERTZ(0 != mX.AIIV(k_DAYS_MIN, 0, 0, 0, -k_MS_PER_D));
             ASSERTZ(0 == mX.AIIV(k_DAYS_MIN, 0, 0, 0, -k_MS_PER_D+1));
-            ASSERTZ(0 == mX.AIIV(k_DAYS_MIN, 0, 0, 0, 0, k_US_PER_D));
+            ASSERTZ(0 == mX.AIIV(k_DAYS_MIN, 0, 0, 0,  k_MS_PER_D));
             ASSERTZ(0 != mX.AIIV(k_DAYS_MIN, 0, 0, 0, 0, -k_US_PER_D));
             ASSERTZ(0 == mX.AIIV(k_DAYS_MIN, 0, 0, 0, 0, -k_US_PER_D+1));
+            ASSERTZ(0 == mX.AIIV(k_DAYS_MIN, 0, 0, 0, 0,  k_US_PER_D));
 
             ASSERTZ(0 == mX.AIIV(0, k_HOURS_MIN, k_MINS_MAX));
             ASSERTZ(0 != mX.AIIV(0, k_HOURS_MIN, k_MINS_MIN));
@@ -2260,18 +2387,18 @@ if (veryVerbose)
             ASSERTZ(0 == mX.AIIV(0, k_HOURS_MIN, 0, 0, 0, k_USECS_MAX));
             ASSERTZ(0 != mX.AIIV(0, k_HOURS_MIN, 0, 0, 0, k_USECS_MIN));
 
-            ASSERTZ(0 == mX.AIIV(0, k_HOURS_MIN, k_M_PER_H));
             ASSERTZ(0 != mX.AIIV(0, k_HOURS_MIN, -k_M_PER_H));
             ASSERTZ(0 == mX.AIIV(0, k_HOURS_MIN, -k_M_PER_H+1));
-            ASSERTZ(0 == mX.AIIV(0, k_HOURS_MIN, 0, k_S_PER_H));
+            ASSERTZ(0 == mX.AIIV(0, k_HOURS_MIN,  k_M_PER_H));
             ASSERTZ(0 != mX.AIIV(0, k_HOURS_MIN, 0, -k_S_PER_H));
             ASSERTZ(0 == mX.AIIV(0, k_HOURS_MIN, 0, -k_S_PER_H+1));
-            ASSERTZ(0 == mX.AIIV(0, k_HOURS_MIN, 0, 0, k_MS_PER_H));
+            ASSERTZ(0 == mX.AIIV(0, k_HOURS_MIN, 0,  k_S_PER_H));
             ASSERTZ(0 != mX.AIIV(0, k_HOURS_MIN, 0, 0, -k_MS_PER_H));
             ASSERTZ(0 == mX.AIIV(0, k_HOURS_MIN, 0, 0, -k_MS_PER_H+1));
-            ASSERTZ(0 == mX.AIIV(0, k_HOURS_MIN, 0, 0, 0, k_US_PER_H));
+            ASSERTZ(0 == mX.AIIV(0, k_HOURS_MIN, 0, 0,  k_MS_PER_H));
             ASSERTZ(0 != mX.AIIV(0, k_HOURS_MIN, 0, 0, 0, -k_US_PER_H));
             ASSERTZ(0 == mX.AIIV(0, k_HOURS_MIN, 0, 0, 0, -k_US_PER_H+1));
+            ASSERTZ(0 == mX.AIIV(0, k_HOURS_MIN, 0, 0, 0,  k_US_PER_H));
 
             ASSERTZ(0 == mX.AIIV(0, 0, k_MINS_MIN, k_SECS_MAX));
             ASSERTZ(0 != mX.AIIV(0, 0, k_MINS_MIN, k_SECS_MIN));
@@ -2280,34 +2407,34 @@ if (veryVerbose)
             ASSERTZ(0 == mX.AIIV(0, 0, k_MINS_MIN, 0, 0, k_USECS_MAX));
             ASSERTZ(0 != mX.AIIV(0, 0, k_MINS_MIN, 0, 0, k_USECS_MIN));
 
-            ASSERTZ(0 == mX.AIIV(0, 0, k_MINS_MIN, k_S_PER_M));
             ASSERTZ(0 != mX.AIIV(0, 0, k_MINS_MIN, -k_S_PER_M));
             ASSERTZ(0 == mX.AIIV(0, 0, k_MINS_MIN, -k_S_PER_M+1));
-            ASSERTZ(0 == mX.AIIV(0, 0, k_MINS_MIN, 0, k_MS_PER_M));
+            ASSERTZ(0 == mX.AIIV(0, 0, k_MINS_MIN,  k_S_PER_M));
             ASSERTZ(0 != mX.AIIV(0, 0, k_MINS_MIN, 0, -k_MS_PER_M));
             ASSERTZ(0 == mX.AIIV(0, 0, k_MINS_MIN, 0, -k_MS_PER_M+1));
-            ASSERTZ(0 == mX.AIIV(0, 0, k_MINS_MIN, 0, 0, k_US_PER_M));
+            ASSERTZ(0 == mX.AIIV(0, 0, k_MINS_MIN, 0,  k_MS_PER_M));
             ASSERTZ(0 != mX.AIIV(0, 0, k_MINS_MIN, 0, 0, -k_US_PER_M));
             ASSERTZ(0 == mX.AIIV(0, 0, k_MINS_MIN, 0, 0, -k_US_PER_M+1));
+            ASSERTZ(0 == mX.AIIV(0, 0, k_MINS_MIN, 0, 0,  k_US_PER_M));
 
             ASSERTZ(0 == mX.AIIV(0, 0, 0, k_SECS_MIN, k_MSECS_MAX));
             ASSERTZ(0 != mX.AIIV(0, 0, 0, k_SECS_MIN, k_MSECS_MIN));
             ASSERTZ(0 == mX.AIIV(0, 0, 0, k_SECS_MIN, 0, k_USECS_MAX));
             ASSERTZ(0 != mX.AIIV(0, 0, 0, k_SECS_MIN, 0, k_USECS_MIN));
 
-            ASSERTZ(0 == mX.AIIV(0, 0, 0, k_SECS_MIN, k_MS_PER_S));
             ASSERTZ(0 != mX.AIIV(0, 0, 0, k_SECS_MIN, -k_MS_PER_S));
             ASSERTZ(0 == mX.AIIV(0, 0, 0, k_SECS_MIN, -k_MS_PER_S+1));
-            ASSERTZ(0 == mX.AIIV(0, 0, 0, k_SECS_MIN, 0, k_US_PER_S));
+            ASSERTZ(0 == mX.AIIV(0, 0, 0, k_SECS_MIN,  k_MS_PER_S));
             ASSERTZ(0 != mX.AIIV(0, 0, 0, k_SECS_MIN, 0, -k_US_PER_S));
             ASSERTZ(0 == mX.AIIV(0, 0, 0, k_SECS_MIN, 0, -k_US_PER_S+1));
+            ASSERTZ(0 == mX.AIIV(0, 0, 0, k_SECS_MIN, 0,  k_US_PER_S));
 
             ASSERTZ(0 == mX.AIIV(0, 0, 0, 0, k_MSECS_MIN, k_USECS_MAX));
             ASSERTZ(0 != mX.AIIV(0, 0, 0, 0, k_MSECS_MIN, k_USECS_MIN));
 
-            ASSERTZ(0 == mX.AIIV(0, 0, 0, 0, k_MSECS_MIN, k_US_PER_MS));
             ASSERTZ(0 != mX.AIIV(0, 0, 0, 0, k_MSECS_MIN, -k_US_PER_MS));
             ASSERTZ(0 == mX.AIIV(0, 0, 0, 0, k_MSECS_MIN, -k_US_PER_MS+1));
+            ASSERTZ(0 == mX.AIIV(0, 0, 0, 0, k_MSECS_MIN,  k_US_PER_MS));
 
 #undef  ASSERTZ
 
@@ -2330,21 +2457,21 @@ if (veryVerbose)
             ASSERTY(0 == mX.AIIV(0, 0, 0, 0, 0, k_USECS_MIN));
             ASSERTY(0 != mX.AIIV(0, 0, 0, 0, 0, k_USECS_MAX));
 
-            ASSERTY(0 != mX.AIIV(0, k_H_PER_D));
-            ASSERTY(0 == mX.AIIV(0, k_H_PER_D-1));
             ASSERTY(0 == mX.AIIV(0, -k_H_PER_D));
+            ASSERTY(0 != mX.AIIV(0,  k_H_PER_D));
+            ASSERTY(0 == mX.AIIV(0,  k_H_PER_D-1));
             ASSERTY(0 == mX.AIIV(0, 0, -k_M_PER_D));
-            ASSERTY(0 != mX.AIIV(0, 0, k_M_PER_D));
-            ASSERTY(0 == mX.AIIV(0, 0, k_M_PER_D-1));
+            ASSERTY(0 != mX.AIIV(0, 0,  k_M_PER_D));
+            ASSERTY(0 == mX.AIIV(0, 0,  k_M_PER_D-1));
             ASSERTY(0 == mX.AIIV(0, 0, 0, -k_S_PER_D));
-            ASSERTY(0 != mX.AIIV(0, 0, 0, k_S_PER_D));
-            ASSERTY(0 == mX.AIIV(0, 0, 0, k_S_PER_D-1));
+            ASSERTY(0 != mX.AIIV(0, 0, 0,  k_S_PER_D));
+            ASSERTY(0 == mX.AIIV(0, 0, 0,  k_S_PER_D-1));
             ASSERTY(0 == mX.AIIV(0, 0, 0, 0, -k_MS_PER_D));
-            ASSERTY(0 != mX.AIIV(0, 0, 0, 0, k_MS_PER_D));
-            ASSERTY(0 == mX.AIIV(0, 0, 0, 0, k_MS_PER_D-1));
+            ASSERTY(0 != mX.AIIV(0, 0, 0, 0,  k_MS_PER_D));
+            ASSERTY(0 == mX.AIIV(0, 0, 0, 0,  k_MS_PER_D-1));
             ASSERTY(0 == mX.AIIV(0, 0, 0, 0, 0, -k_US_PER_D));
-            ASSERTY(0 != mX.AIIV(0, 0, 0, 0, 0, k_US_PER_D));
-            ASSERTY(0 == mX.AIIV(0, 0, 0, 0, 0, k_US_PER_D-1));
+            ASSERTY(0 != mX.AIIV(0, 0, 0, 0, 0,  k_US_PER_D));
+            ASSERTY(0 == mX.AIIV(0, 0, 0, 0, 0,  k_US_PER_D-1));
 
             mY.setInterval(0, k_HOURS_MAX);
 
@@ -2358,17 +2485,17 @@ if (veryVerbose)
             ASSERTY(0 != mX.AIIV(0, 0, 0, 0, 0, k_USECS_MAX));
 
             ASSERTY(0 == mX.AIIV(0, 0, -k_M_PER_H));
-            ASSERTY(0 != mX.AIIV(0, 0, k_M_PER_H));
-            ASSERTY(0 == mX.AIIV(0, 0, k_M_PER_H-1));
+            ASSERTY(0 != mX.AIIV(0, 0,  k_M_PER_H));
+            ASSERTY(0 == mX.AIIV(0, 0,  k_M_PER_H-1));
             ASSERTY(0 == mX.AIIV(0, 0, 0, -k_S_PER_H));
-            ASSERTY(0 != mX.AIIV(0, 0, 0, k_S_PER_H));
-            ASSERTY(0 == mX.AIIV(0, 0, 0, k_S_PER_H-1));
+            ASSERTY(0 != mX.AIIV(0, 0, 0,  k_S_PER_H));
+            ASSERTY(0 == mX.AIIV(0, 0, 0,  k_S_PER_H-1));
             ASSERTY(0 == mX.AIIV(0, 0, 0, 0, -k_MS_PER_H));
-            ASSERTY(0 != mX.AIIV(0, 0, 0, 0, k_MS_PER_H));
-            ASSERTY(0 == mX.AIIV(0, 0, 0, 0, k_MS_PER_H-1));
+            ASSERTY(0 != mX.AIIV(0, 0, 0, 0,  k_MS_PER_H));
+            ASSERTY(0 == mX.AIIV(0, 0, 0, 0,  k_MS_PER_H-1));
             ASSERTY(0 == mX.AIIV(0, 0, 0, 0, 0, -k_US_PER_H));
-            ASSERTY(0 != mX.AIIV(0, 0, 0, 0, 0, k_US_PER_H));
-            ASSERTY(0 == mX.AIIV(0, 0, 0, 0, 0, k_US_PER_H-1));
+            ASSERTY(0 != mX.AIIV(0, 0, 0, 0, 0,  k_US_PER_H));
+            ASSERTY(0 == mX.AIIV(0, 0, 0, 0, 0,  k_US_PER_H-1));
 
             mY.setInterval(0, 0, k_MINS_MAX);
 
@@ -2380,14 +2507,14 @@ if (veryVerbose)
             ASSERTY(0 != mX.AIIV(0, 0, 0, 0, 0, k_USECS_MAX));
 
             ASSERTY(0 == mX.AIIV(0, 0, 0, -k_S_PER_M));
-            ASSERTY(0 != mX.AIIV(0, 0, 0, k_S_PER_M));
-            ASSERTY(0 == mX.AIIV(0, 0, 0, k_S_PER_M-1));
+            ASSERTY(0 != mX.AIIV(0, 0, 0,  k_S_PER_M));
+            ASSERTY(0 == mX.AIIV(0, 0, 0,  k_S_PER_M-1));
             ASSERTY(0 == mX.AIIV(0, 0, 0, 0, -k_MS_PER_M));
-            ASSERTY(0 != mX.AIIV(0, 0, 0, 0, k_MS_PER_M));
-            ASSERTY(0 == mX.AIIV(0, 0, 0, 0, k_MS_PER_M-1));
+            ASSERTY(0 != mX.AIIV(0, 0, 0, 0,  k_MS_PER_M));
+            ASSERTY(0 == mX.AIIV(0, 0, 0, 0,  k_MS_PER_M-1));
             ASSERTY(0 == mX.AIIV(0, 0, 0, 0, 0, -k_US_PER_M));
-            ASSERTY(0 != mX.AIIV(0, 0, 0, 0, 0, k_US_PER_M));
-            ASSERTY(0 == mX.AIIV(0, 0, 0, 0, 0, k_US_PER_M-1));
+            ASSERTY(0 != mX.AIIV(0, 0, 0, 0, 0,  k_US_PER_M));
+            ASSERTY(0 == mX.AIIV(0, 0, 0, 0, 0,  k_US_PER_M-1));
 
             mY.setInterval(0, 0, 0, k_SECS_MAX);
 
@@ -2397,11 +2524,11 @@ if (veryVerbose)
             ASSERTY(0 != mX.AIIV(0, 0, 0, 0, 0, k_USECS_MAX));
 
             ASSERTY(0 == mX.AIIV(0, 0, 0, 0, -k_MS_PER_S));
-            ASSERTY(0 != mX.AIIV(0, 0, 0, 0, k_MS_PER_S));
-            ASSERTY(0 == mX.AIIV(0, 0, 0, 0, k_MS_PER_S-1));
+            ASSERTY(0 != mX.AIIV(0, 0, 0, 0,  k_MS_PER_S));
+            ASSERTY(0 == mX.AIIV(0, 0, 0, 0,  k_MS_PER_S-1));
             ASSERTY(0 == mX.AIIV(0, 0, 0, 0, 0, -k_US_PER_S));
-            ASSERTY(0 != mX.AIIV(0, 0, 0, 0, 0, k_US_PER_S));
-            ASSERTY(0 == mX.AIIV(0, 0, 0, 0, 0, k_US_PER_S-1));
+            ASSERTY(0 != mX.AIIV(0, 0, 0, 0, 0,  k_US_PER_S));
+            ASSERTY(0 == mX.AIIV(0, 0, 0, 0, 0,  k_US_PER_S-1));
 
             mY.setInterval(0, 0, 0, 0, k_MSECS_MAX);
 
@@ -2409,10 +2536,10 @@ if (veryVerbose)
             ASSERTY(0 != mX.AIIV(0, 0, 0, 0, 0, k_USECS_MAX));
 
             ASSERTY(0 == mX.AIIV(0, 0, 0, 0, 0, -k_US_PER_MS));
-            ASSERTY(0 != mX.AIIV(0, 0, 0, 0, 0, k_US_PER_MS));
-            ASSERTY(0 == mX.AIIV(0, 0, 0, 0, 0, k_US_PER_MS-1));
+            ASSERTY(0 != mX.AIIV(0, 0, 0, 0, 0,  k_US_PER_MS));
+            ASSERTY(0 == mX.AIIV(0, 0, 0, 0, 0,  k_US_PER_MS-1));
 
-            mY.setInterval(k_DAYS_MIN);        
+            mY.setInterval(k_DAYS_MIN);
 
             ASSERTY(0 == mX.AIIV(0));
             ASSERTY(0 == mX.AIIV(0, k_HOURS_MAX));
@@ -2428,19 +2555,19 @@ if (veryVerbose)
 
             ASSERTY(0 != mX.AIIV(0, -k_H_PER_D));
             ASSERTY(0 == mX.AIIV(0, -k_H_PER_D+1));
-            ASSERTY(0 == mX.AIIV(0, k_H_PER_D));
-            ASSERTY(0 == mX.AIIV(0, 0, k_M_PER_D));
+            ASSERTY(0 == mX.AIIV(0,  k_H_PER_D));
             ASSERTY(0 != mX.AIIV(0, 0, -k_M_PER_D));
             ASSERTY(0 == mX.AIIV(0, 0, -k_M_PER_D+1));
-            ASSERTY(0 == mX.AIIV(0, 0, 0, k_S_PER_D));
+            ASSERTY(0 == mX.AIIV(0, 0,  k_M_PER_D));
             ASSERTY(0 != mX.AIIV(0, 0, 0, -k_S_PER_D));
             ASSERTY(0 == mX.AIIV(0, 0, 0, -k_S_PER_D+1));
-            ASSERTY(0 == mX.AIIV(0, 0, 0, 0, k_MS_PER_D));
+            ASSERTY(0 == mX.AIIV(0, 0, 0,  k_S_PER_D));
             ASSERTY(0 != mX.AIIV(0, 0, 0, 0, -k_MS_PER_D));
             ASSERTY(0 == mX.AIIV(0, 0, 0, 0, -k_MS_PER_D+1));
-            ASSERTY(0 == mX.AIIV(0, 0, 0, 0, 0, k_US_PER_D));
+            ASSERTY(0 == mX.AIIV(0, 0, 0, 0,  k_MS_PER_D));
             ASSERTY(0 != mX.AIIV(0, 0, 0, 0, 0, -k_US_PER_D));
             ASSERTY(0 == mX.AIIV(0, 0, 0, 0, 0, -k_US_PER_D+1));
+            ASSERTY(0 == mX.AIIV(0, 0, 0, 0, 0,  k_US_PER_D));
 
             mY.setInterval(0, k_HOURS_MIN);
 
@@ -2453,18 +2580,18 @@ if (veryVerbose)
             ASSERTY(0 == mX.AIIV(0, 0, 0, 0, 0, k_USECS_MAX));
             ASSERTY(0 != mX.AIIV(0, 0, 0, 0, 0, k_USECS_MIN));
 
-            ASSERTY(0 == mX.AIIV(0, 0, k_M_PER_H));
             ASSERTY(0 != mX.AIIV(0, 0, -k_M_PER_H));
             ASSERTY(0 == mX.AIIV(0, 0, -k_M_PER_H+1));
-            ASSERTY(0 == mX.AIIV(0, 0, 0, k_S_PER_H));
+            ASSERTY(0 == mX.AIIV(0, 0,  k_M_PER_H));
             ASSERTY(0 != mX.AIIV(0, 0, 0, -k_S_PER_H));
             ASSERTY(0 == mX.AIIV(0, 0, 0, -k_S_PER_H+1));
-            ASSERTY(0 == mX.AIIV(0, 0, 0, 0, k_MS_PER_H));
+            ASSERTY(0 == mX.AIIV(0, 0, 0,  k_S_PER_H));
             ASSERTY(0 != mX.AIIV(0, 0, 0, 0, -k_MS_PER_H));
             ASSERTY(0 == mX.AIIV(0, 0, 0, 0, -k_MS_PER_H+1));
-            ASSERTY(0 == mX.AIIV(0, 0, 0, 0, 0, k_US_PER_H));
+            ASSERTY(0 == mX.AIIV(0, 0, 0, 0,  k_MS_PER_H));
             ASSERTY(0 != mX.AIIV(0, 0, 0, 0, 0, -k_US_PER_H));
             ASSERTY(0 == mX.AIIV(0, 0, 0, 0, 0, -k_US_PER_H+1));
+            ASSERTY(0 == mX.AIIV(0, 0, 0, 0, 0,  k_US_PER_H));
 
             mY.setInterval(0, 0, k_MINS_MIN);
 
@@ -2475,15 +2602,15 @@ if (veryVerbose)
             ASSERTY(0 == mX.AIIV(0, 0, 0, 0, 0, k_USECS_MAX));
             ASSERTY(0 != mX.AIIV(0, 0, 0, 0, 0, k_USECS_MIN));
 
-            ASSERTY(0 == mX.AIIV(0, 0, 0, k_S_PER_M));
             ASSERTY(0 != mX.AIIV(0, 0, 0, -k_S_PER_M));
             ASSERTY(0 == mX.AIIV(0, 0, 0, -k_S_PER_M+1));
-            ASSERTY(0 == mX.AIIV(0, 0, 0, 0, k_MS_PER_M));
+            ASSERTY(0 == mX.AIIV(0, 0, 0,  k_S_PER_M));
             ASSERTY(0 != mX.AIIV(0, 0, 0, 0, -k_MS_PER_M));
             ASSERTY(0 == mX.AIIV(0, 0, 0, 0, -k_MS_PER_M+1));
-            ASSERTY(0 == mX.AIIV(0, 0, 0, 0, 0, k_US_PER_M));
+            ASSERTY(0 == mX.AIIV(0, 0, 0, 0,  k_MS_PER_M));
             ASSERTY(0 != mX.AIIV(0, 0, 0, 0, 0, -k_US_PER_M));
             ASSERTY(0 == mX.AIIV(0, 0, 0, 0, 0, -k_US_PER_M+1));
+            ASSERTY(0 == mX.AIIV(0, 0, 0, 0, 0,  k_US_PER_M));
 
             mY.setInterval(0, 0, 0, k_SECS_MIN);
 
@@ -2492,21 +2619,21 @@ if (veryVerbose)
             ASSERTY(0 == mX.AIIV(0, 0, 0, 0, 0, k_USECS_MAX));
             ASSERTY(0 != mX.AIIV(0, 0, 0, 0, 0, k_USECS_MIN));
 
-            ASSERTY(0 == mX.AIIV(0, 0, 0, 0, k_MS_PER_S));
             ASSERTY(0 != mX.AIIV(0, 0, 0, 0, -k_MS_PER_S));
             ASSERTY(0 == mX.AIIV(0, 0, 0, 0, -k_MS_PER_S+1));
-            ASSERTY(0 == mX.AIIV(0, 0, 0, 0, 0, k_US_PER_S));
+            ASSERTY(0 == mX.AIIV(0, 0, 0, 0,  k_MS_PER_S));
             ASSERTY(0 != mX.AIIV(0, 0, 0, 0, 0, -k_US_PER_S));
             ASSERTY(0 == mX.AIIV(0, 0, 0, 0, 0, -k_US_PER_S+1));
+            ASSERTY(0 == mX.AIIV(0, 0, 0, 0, 0,  k_US_PER_S));
 
             mY.setInterval(0, 0, 0, 0, k_MSECS_MIN);
 
             ASSERTY(0 == mX.AIIV(0, 0, 0, 0, 0, k_USECS_MAX));
             ASSERTY(0 != mX.AIIV(0, 0, 0, 0, 0, k_USECS_MIN));
 
-            ASSERTY(0 == mX.AIIV(0, 0, 0, 0, 0, k_US_PER_MS));
             ASSERTY(0 != mX.AIIV(0, 0, 0, 0, 0, -k_US_PER_MS));
             ASSERTY(0 == mX.AIIV(0, 0, 0, 0, 0, -k_US_PER_MS+1));
+            ASSERTY(0 == mX.AIIV(0, 0, 0, 0, 0,  k_US_PER_MS));
 #undef  AIIV
 #undef  ASSERTY
         }
@@ -5351,7 +5478,7 @@ if (veryVerbose)
 
             ASSERT_PASS(mX.setInterval(0, 0, 0, 0, k_MSECS_MAX, -k_US_PER_MS));
             ASSERT_FAIL(mX.setInterval(0, 0, 0, 0, k_MSECS_MAX, k_US_PER_MS));
-            ASSERT_PASS(mX.setInterval(0, 0, 0, 0, k_MSECS_MAX, k_US_PER_MS-1));
+            ASSERT_PASS(mX.setInterval(0, 0, 0, 0, k_MSECS_MAX,k_US_PER_MS-1));
 
             ASSERT_PASS(mX.setInterval(k_DAYS_MIN));
             ASSERT_PASS(mX.setInterval(k_DAYS_MIN, k_HOURS_MAX));
@@ -5451,10 +5578,9 @@ if (veryVerbose)
             ASSERT(0 == mX.SIIV(0));
 
             ASSERT(0 == mX.SIIV(k_DAYS_MAX));
-            ASSERT(0 == mX.SIIV(k_DAYS_MAX, k_HOURS_MIN));
             ASSERT(0 != mX.SIIV(k_DAYS_MAX, k_HOURS_MAX));
+            ASSERT(0 == mX.SIIV(k_DAYS_MAX, k_HOURS_MIN));
             ASSERT(0 == mX.SIIV(k_DAYS_MAX, 0, k_MINS_MIN));
-            ASSERT(0 != mX.SIIV(k_DAYS_MAX, 0, k_MINS_MAX));
             ASSERT(0 == mX.SIIV(k_DAYS_MAX, 0, 0, k_SECS_MIN));
             ASSERT(0 != mX.SIIV(k_DAYS_MAX, 0, 0, k_SECS_MAX));
             ASSERT(0 == mX.SIIV(k_DAYS_MAX, 0, 0, 0, k_MSECS_MIN));

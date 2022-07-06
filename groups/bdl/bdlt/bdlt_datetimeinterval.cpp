@@ -53,8 +53,8 @@ const Int64 k_MILLISECONDS_CEILING
 const Int64 k_MILLISECONDS_FLOOR
                               = (k_MIN_INT - 1) * TimeUnitRatio::k_MS_PER_D +1;
 
-const double maxInt64                    = static_cast<double>(k_MAX_INT64);
-const double minInt64                    = static_cast<double>(k_MIN_INT64);
+const double maxInt64AsDouble = static_cast<double>(k_MAX_INT64);
+const double minInt64AsDouble = static_cast<double>(k_MIN_INT64);
 
 // HELPER FUNCTIONS
 int printToBufferFormatted(char       *result,
@@ -68,7 +68,7 @@ int printToBufferFormatted(char       *result,
                            int         fractionalSecondPrecision)
 {
 #if defined(BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF)
-        return 0 == fractionalSecondPrecision
+    return 0 == fractionalSecondPrecision
            ? bsl::snprintf(result,
                            numBytes,
                            spec,
@@ -167,6 +167,14 @@ int printToBufferFormatted(char       *result,
 #endif
 }
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_C99_FP_CLASSIFY
+# define U_IS_INF(x)    bsl::isinf(x)
+# define U_IS_NAN(x)    bsl::isnan(x)
+#else
+# define U_IS_INF(x)    false
+# define U_IS_NAN(x)    false
+#endif
+
 }  // close namespace u
 }  // close unnamed namespace
 
@@ -181,6 +189,11 @@ namespace bdlt {
 void DatetimeInterval::assign(bsls::Types::Int64 days,
                               bsls::Types::Int64 microseconds)
 {
+    const Int64 micDays = microseconds / TimeUnitRatio::k_US_PER_D;
+
+    BSLS_ASSERT(!(days > 0 && micDays > 0) || micDays <= u::k_MAX_INT - days);
+    BSLS_ASSERT(!(days < 0 && micDays < 0) || u::k_MIN_INT - days <= micDays);
+
     days         += microseconds / TimeUnitRatio::k_US_PER_D;
     microseconds %= TimeUnitRatio::k_US_PER_D;
 
@@ -193,8 +206,8 @@ void DatetimeInterval::assign(bsls::Types::Int64 days,
         microseconds -= TimeUnitRatio::k_US_PER_D;
     }
 
-    BSLS_ASSERT(days <= bsl::numeric_limits<int32_t>::max());
-    BSLS_ASSERT(days >= bsl::numeric_limits<int32_t>::min());
+    BSLS_ASSERT(days <= u::k_MAX_INT);
+    BSLS_ASSERT(days >= u::k_MIN_INT);
 
     d_days         = static_cast<int>(days);
     d_microseconds = microseconds;
@@ -203,7 +216,14 @@ void DatetimeInterval::assign(bsls::Types::Int64 days,
 int DatetimeInterval::assignIfValid(bsls::Types::Int64 days,
                                     bsls::Types::Int64 microseconds)
 {
-    days         += microseconds / TimeUnitRatio::k_US_PER_D;
+    const Int64 micDays = microseconds / TimeUnitRatio::k_US_PER_D;
+
+    if   ((days > 0 && micDays > 0 && u::k_MAX_INT - days < micDays)
+       || (days < 0 && micDays < 0 && micDays < u::k_MIN_INT - days)) {
+        return -1;                                                    // RETURN
+    }
+
+    days         += micDays;
     microseconds %= TimeUnitRatio::k_US_PER_D;
 
     if (days > 0 && microseconds < 0) {
@@ -215,8 +235,7 @@ int DatetimeInterval::assignIfValid(bsls::Types::Int64 days,
         microseconds -= TimeUnitRatio::k_US_PER_D;
     }
 
-    if   (days < bsl::numeric_limits<int32_t>::min()
-       || days > bsl::numeric_limits<int32_t>::max()) {
+    if   (days < u::k_MIN_INT || u::k_MAX_INT < days) {
         return -1;                                                    // RETURN
     }
 
@@ -345,12 +364,15 @@ int DatetimeInterval::setIntervalIfValid(int                days,
 
 void DatetimeInterval::setTotalSecondsFromDouble(double seconds)
 {
+    BSLS_ASSERT(!U_IS_INF(seconds));
+    BSLS_ASSERT(!U_IS_NAN(seconds));
+
     double wholeDays;
     bsl::modf(seconds / TimeUnitRatio::k_S_PER_D, &wholeDays);
         // Ignoring fractional part to maintain as much accuracy from
         // 'seconds' as possible.
 
-    BSLS_ASSERT(bsl::fabs(wholeDays) <= u::maxInt64);
+    BSLS_ASSERT(bsl::fabs(wholeDays) <= u::maxInt64AsDouble);
         // Failing for bsl::numeric_limits<bsls::Types::Int64>::min() is OK
         // here, because wholeDays has to fit into 32 bits.  Here we're just
         // checking that we are not about to run into UB when casting to
@@ -363,18 +385,23 @@ void DatetimeInterval::setTotalSecondsFromDouble(double seconds)
         // to memory using 'volatile' type qualifier to round-down the value
         // stored in x87 unit register.
 
-    assign(static_cast<bsls::Types::Int64>(wholeDays),
-           static_cast<bsls::Types::Int64>(microseconds));
+    int rc = assignIfValid(static_cast<bsls::Types::Int64>(wholeDays),
+                           static_cast<bsls::Types::Int64>(microseconds));
+    BSLS_ASSERT(0 == rc);
 }
 
 int DatetimeInterval::setTotalSecondsFromDoubleIfValid(double seconds)
 {
+    if (U_IS_INF(seconds) || U_IS_NAN(seconds)) {
+        return -1;                                                    // RETURN
+    }
+
     double wholeDays;
     bsl::modf(seconds / TimeUnitRatio::k_S_PER_D, &wholeDays);
         // Ignoring fractional part to maintain as much accuracy from
         // 'seconds' as possible.
 
-    if (u::maxInt64 < wholeDays || wholeDays < u::minInt64) {
+    if (u::maxInt64AsDouble < wholeDays || wholeDays < u::minInt64AsDouble) {
         return -1;                                                    // RETURN
     }
 
@@ -432,17 +459,6 @@ int DatetimeInterval::addIntervalIfValid(int                days,
                                          bsls::Types::Int64 milliseconds,
                                          bsls::Types::Int64 microseconds)
 {
-    if   (u::k_HOURS_CEILING        < hours
-       || u::k_MINUTES_CEILING      < minutes
-       || u::k_SECONDS_CEILING      < seconds
-       || u::k_MILLISECONDS_CEILING < milliseconds
-       || u::k_HOURS_FLOOR          > hours
-       || u::k_MINUTES_FLOOR        > minutes
-       || u::k_SECONDS_FLOOR        > seconds
-       || u::k_MILLISECONDS_FLOOR   > milliseconds) {
-        return -1;                                                    // RETURN
-    }
-
     bsls::Types::Int64 d = static_cast<bsls::Types::Int64>(days)
                          + hours        / TimeUnitRatio::k_H_PER_D
                          + minutes      / TimeUnitRatio::k_M_PER_D
@@ -571,7 +587,8 @@ int DatetimeInterval::printToBuffer(char *result,
 
     // Add one for the sign.
 
-    return u::printToBufferFormatted(result,
+    return u::printToBufferFormatted(
+                                    result,
                                     numBytes,
                                     spec,
                                     d,
