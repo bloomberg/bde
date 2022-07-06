@@ -324,6 +324,13 @@ BSLS_IDENT("$Id: $")
 //   { "BAS.UUID": 3593 }
 //..
 //
+///The Record Separator
+///--------------------
+// The record separator is a string that is printed after each formatted
+// record.  The default value of the record separator is a single newline, but
+// it can be set to any string of the user's choice using the
+// 'RecordJsonFormatter::setRecordSeparator' function.
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -354,14 +361,25 @@ BSLS_IDENT("$Id: $")
 //  record.fixedFields().setThreadID(6);
 //  record.fixedFields().setMessage("Hello, World!");
 //..
-// Finally, invocation of the 'formatter' function object to format 'record' to
+// Next, invocation of the 'formatter' function object to format 'record' to
 // 'bsl::cout':
 //..
 //  formatter(bsl::cout, record);
 //..
-// yields this output:
+// yields this output, which is terminated by a single newline:
 //..
 //  {"tid":6,"message":"Hello, World!"}
+//..
+// Finally, we change the record separator and format the same record again:
+//..
+//  formatter.setFormat("\n\n");
+//  formatter(bsl::cout, record);
+//..
+// The record is printed in the same format, but now terminated by two
+// newlines:
+//..
+//  {"tid":6,"message":"Hello, World!"}
+//
 //..
 
 #include <balscm_version.h>
@@ -423,6 +441,8 @@ class RecordJsonFormatter {
     // DATA
     bsl::string     d_formatSpec;       // format specification (in JSON)
 
+    bsl::string     d_recordSeparator;  // string to print after each record
+
     FieldFormatters d_fieldFormatters;  // field formatters configured
                                         // according to the format
                                         // specification
@@ -441,14 +461,15 @@ class RecordJsonFormatter {
     // CREATORS
     explicit RecordJsonFormatter(
                            const allocator_type& allocator = allocator_type());
-        // Create a record JSON formatter having a default format
-        // specification.  Optionally specify an 'allocator' (e.g., the address
-        // of a 'bslma::Allocator' object) to supply memory; otherwise, the
-        // allocator is used.  The default format specification is:
+        // Create a record JSON formatter having a default format specification
+        // and record separator.  Optionally specify an 'allocator' (e.g., the
+        // address of a 'bslma::Allocator' object) to supply memory; otherwise,
+        // the allocator is used.  The default format specification is:
         //..
         //  ["timestamp", "processId", "threadId", "severity", "file", "line",
         //   "category",  "message", "attributes"]
         //..
+        // The default record separator is "\n".
 
     RecordJsonFormatter(
                       const RecordJsonFormatter& original,
@@ -461,19 +482,19 @@ class RecordJsonFormatter {
     RecordJsonFormatter(bslmf::MovableRef<RecordJsonFormatter> original)
                                                          BSLS_KEYWORD_NOEXCEPT;
         // Create a record JSON formatter having the same format specification
-        // as in the specifing 'original' formatter, and adopting all
-        // outstanding memory allocations and the allocator associated with the
-        // 'original' formatter.  'original' is left in a valid but unspecified
-        // state.
+        // and record separator as in the specified 'original' formatter, and
+        // adopting all outstanding memory allocations and the allocator
+        // associated with the 'original' formatter.  'original' is left in a
+        // valid but unspecified state.
 
     RecordJsonFormatter(bslmf::MovableRef<RecordJsonFormatter> original,
                         const allocator_type&                  allocator);
         // Create a record JSON formatter, having the same format specification
-        // as in the specifing 'original' formatter.  The format specification
-        // of 'original' is moved to the new object, and all outstanding memory
-        // allocations and the specified 'allocator' are adopted if
-        //'allocator == original.allocator()'.  'original' is left in a valid
-        // but unspecified state.
+        // and record separator as in the specified 'original' formatter.  The
+        // format specification of 'original' is moved to the new object, and
+        // all outstanding memory allocations and the specified 'allocator' are
+        // adopted if 'allocator == original.allocator()'.  'original' is left
+        // in a valid but unspecified state.
 
     ~RecordJsonFormatter();
         // Destroy this object.
@@ -484,13 +505,13 @@ class RecordJsonFormatter {
         // return a reference providing modifiable access to this object.
 
     RecordJsonFormatter& operator=(bslmf::MovableRef<RecordJsonFormatter> rhs);
-        // Assign to this object the format specification of the specified
-        // 'rhs' object, and return a reference providing modifiable access to
-        // this object.  The format specification of 'rhs' are moved to this
-        // object, and all outstanding memory allocations and the allocator
-        // associated with 'rhs' are adopted if
-        // 'allocator() == rhs.allocator()'.  'rhs' is left in a valid but
-        // unspecified state.
+        // Assign to this object the format specification and record separator
+        // of the specified 'rhs' object, and return a reference providing
+        // modifiable access to this object.  The format specification and
+        // record separator of 'rhs' are moved to this object, and all
+        // outstanding memory allocations and the allocator associated with
+        // 'rhs' are adopted if 'allocator() == rhs.allocator()'.  'rhs' is
+        // left in a valid but unspecified state.
 
     int setFormat(const bsl::string_view& format);
         // Set the message format specification (see
@@ -499,14 +520,23 @@ class RecordJsonFormatter {
         // otherwise (if 'format' is not valid JSON *or* not a JSON conforming
         // to the expected schema).
 
+    void setRecordSeparator(const bsl::string_view& recordSeparator);
+        // Set the record separator for this record JSON formatter to the
+        // specified 'recordSeparator'.  The 'recordSeparator' will be printed
+        // by each invocation of 'operator()' after the formatted record.  The
+        // default is a single newline character, "\n".
+
     // ACCESSORS
     void operator()(bsl::ostream& stream, const Record& record) const;
-        // Format the specified 'record' according to the current 'format' to
-        // the specified 'stream'.
+        // Format the specified 'record' according to the current 'format' and
+        // 'recordSeparator' to the specified 'stream'.
 
     const bsl::string& format() const;
         // Return the message format specification of this record JSON
         // formatter.  See {'Record Format Specification'}.
+
+    const bsl::string& recordSeparator() const;
+        // Return the record separator of this record JSON formatter.
 
                                   // Aspects
 
@@ -520,13 +550,15 @@ bool operator==(const RecordJsonFormatter& lhs,
                 const RecordJsonFormatter& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' record formatters have
     // the same value, and 'false' otherwise.  Two record formatters have the
-    // same value if they have the same format specification.
+    // same value if they have the same format specification and record
+    // separator.
 
 bool operator!=(const RecordJsonFormatter& lhs,
                 const RecordJsonFormatter& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' record formatters do not
     // have the same value, and 'false' otherwise.  Two record formatters
-    // differ in value if their format specifications differ.
+    // differ in value if their format specifications or record separators
+    // differ.
 
 // ============================================================================
 //                              INLINE DEFINITIONS
@@ -541,6 +573,7 @@ inline
 RecordJsonFormatter::RecordJsonFormatter(const RecordJsonFormatter& original,
                                          const allocator_type&      allocator)
 : d_formatSpec(original.d_formatSpec, allocator)
+, d_recordSeparator(original.d_recordSeparator, allocator)
 , d_fieldFormatters(allocator)
 {
     int rc = setFormat(d_formatSpec);
@@ -550,20 +583,24 @@ RecordJsonFormatter::RecordJsonFormatter(const RecordJsonFormatter& original,
 
 inline
 RecordJsonFormatter::RecordJsonFormatter(
-                               bslmf::MovableRef<RecordJsonFormatter> original)
-                                                          BSLS_KEYWORD_NOEXCEPT
-: d_formatSpec(MoveUtil::move(MoveUtil::access(original).d_formatSpec))
-, d_fieldFormatters(MoveUtil::move(
-                    MoveUtil::access(original).d_fieldFormatters))
+    bslmf::MovableRef<RecordJsonFormatter> original) BSLS_KEYWORD_NOEXCEPT
+: d_formatSpec(MoveUtil::move(MoveUtil::access(original).d_formatSpec)),
+  d_recordSeparator(
+      MoveUtil::move(MoveUtil::access(original).d_recordSeparator)),
+  d_fieldFormatters(
+      MoveUtil::move(MoveUtil::access(original).d_fieldFormatters))
 {
 }
 
 inline
 RecordJsonFormatter::RecordJsonFormatter(
-                              bslmf::MovableRef<RecordJsonFormatter> original,
-                              const allocator_type&                  allocator)
+    bslmf::MovableRef<RecordJsonFormatter> original,
+    const allocator_type&                  allocator)
 : d_formatSpec(MoveUtil::move(MoveUtil::access(original).d_formatSpec),
                allocator)
+, d_recordSeparator(
+      MoveUtil::move(MoveUtil::access(original).d_recordSeparator),
+      allocator)
 , d_fieldFormatters(allocator)
 {
     if (MoveUtil::access(original).allocator() == allocator) {
@@ -583,6 +620,8 @@ RecordJsonFormatter& RecordJsonFormatter::operator=(
                                     bslmf::MovableRef<RecordJsonFormatter> rhs)
 {
     if (this != &MoveUtil::access(rhs)) {
+        d_recordSeparator = MoveUtil::move(
+                                  MoveUtil::access(rhs).d_recordSeparator);
         if (MoveUtil::access(rhs).allocator() == allocator()) {
             releaseFieldFormatters(&d_fieldFormatters);
             d_formatSpec      = MoveUtil::move(
@@ -600,11 +639,24 @@ RecordJsonFormatter& RecordJsonFormatter::operator=(
     return *this;
 }
 
+inline
+void RecordJsonFormatter::setRecordSeparator(
+                                       const bsl::string_view& recordSeparator)
+{
+    d_recordSeparator = recordSeparator;
+}
+
 // ACCESSORS
 inline
 const bsl::string& RecordJsonFormatter::format() const
 {
     return d_formatSpec;
+}
+
+inline
+const bsl::string& RecordJsonFormatter::recordSeparator() const
+{
+    return d_recordSeparator;
 }
 
                                   // Aspects
@@ -624,7 +676,8 @@ inline
 bool ball::operator==(const RecordJsonFormatter& lhs,
                       const RecordJsonFormatter& rhs)
 {
-    return lhs.format() == rhs.format();
+    return lhs.format() == rhs.format() &&
+           lhs.recordSeparator() == rhs.recordSeparator();
 }
 
 inline

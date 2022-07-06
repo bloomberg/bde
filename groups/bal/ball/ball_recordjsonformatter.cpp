@@ -1499,6 +1499,7 @@ void RecordJsonFormatter::releaseFieldFormatters(
 // CREATORS
 RecordJsonFormatter::RecordJsonFormatter(const allocator_type& allocator)
 : d_formatSpec(allocator)
+, d_recordSeparator("\n")
 , d_fieldFormatters(allocator)
 {
     static const bsl::string_view k_DEFAULT_FORMAT_SPEC = getDefaultFormat();
@@ -1546,6 +1547,7 @@ RecordJsonFormatter& RecordJsonFormatter::operator=(
         int rc = setFormat(rhs.d_formatSpec);
         (void) rc;
         BSLS_ASSERT(0 == rc);
+        d_recordSeparator = rhs.d_recordSeparator;
     }
 
     return *this;
@@ -1571,6 +1573,7 @@ void RecordJsonFormatter::operator()(bsl::ostream& stream,
     }
 
     formatter.closeObject();
+    stream << d_recordSeparator;
     stream.flush();
 
     return;

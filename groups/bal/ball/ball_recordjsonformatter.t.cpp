@@ -47,9 +47,9 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                                   Overview
 //                                   --------
-// The component under test is implemented using one 'bsl::string' object and
+// The component under test is implemented using two 'bsl::string' objects and
 // one 'bdlt::DatetimeInterval' object.  The value-semantic correctness of this
-// component therefore largely depends on that of those two contained class.
+// component therefore largely depends on that of those two contained classes.
 // We simply follow the standard 10-case test suite.  In addition, since the
 // implemented class is a function object, the 'operator()' method that
 // provides string-based formatting support is extensively tested.
@@ -64,11 +64,13 @@ using namespace bsl;
 // MANIPULATORS
 // [ 6] RecordJsonFormatter& operator=(const RecordJsonFormatter& rhs);
 // [ 8] RecordJsonFormatter& operator=(MovableRef<RecordJsonFormatter> rhs);
-// [ 2] setFormat(const bsl::string_view& format)
+// [ 2] int setFormat(const bsl::string_view& format);
+// [ 2] void setRecordSeparator(const bsl::string_view& recordSeparator);
 //
 // ACCESSORS
 // [ 4] int operator(bsl::ostream& stream, const Record& record) const;
 // [ 3] const bsl::string& format() const;
+// [ 3] const bsl::string& recordSeparator() const;
 // [ 3] const allocator_type& allocator() const;
 //
 // FREE OPERATORS
@@ -158,40 +160,48 @@ const char *k_DEFAULT_FORMAT = "[\"timestamp\","
                                 "\"category\","
                                 "\"message\","
                                 "\"attributes\"]";
+const char *k_DEFAULT_RECORD_SEPARATOR = "\n";
+
+const bsl::string_view k_NULL_SV("\0", 1);
 
 struct DefaultDataRow{
-    int         d_line;
-    const char *d_spec_p;
+    int              d_line;
+    const char      *d_spec_p;
+    bsl::string_view d_recordSeparator;
 };
 
+
 static const  DefaultDataRow DEFAULT_DATA[] = {
-    //------------------------------------------------------------------
-    // LINE                       SPEC
-    //------------------------------------------------------------------
-    {  L_,   "",                                                       },
-    {  L_,   "[\"timestamp\"]"                                         },
-    {  L_,   "[{\"timestamp\":{\"name\":\"My Time\"}}]"                },
-    {  L_,   "[{\"timestamp\":{\"format\":\"iso8601\"}}]"              },
-    {  L_,   "[{\"timestamp\":{\"fractionalSecPrecision\":\"none\"}}]" },
-    {  L_,   "[{\"timestamp\":{\"timeZone\":\"utc\"}}]"                },
-    {  L_,   "[\"pid\"]"                                               },
-    {  L_,   "[{\"pid\":{\"name\":\"My pid\"}}]"                       },
-    {  L_,   "[\"tid\"]"                                               },
-    {  L_,   "[{\"tid\":{\"name\":\"My tid\"}}]"                       },
-    {  L_,   "[{\"tid\":{\"format\":\"decimal\"}}]"                    },
-    {  L_,   "[\"file\"]"                                              },
-    {  L_,   "[{\"file\":{\"name\":\"My file\"}}]"                     },
-    {  L_,   "[{\"file\":{\"path\":\"full\"}}]"                        },
-    {  L_,   "[\"line\"]"                                              },
-    {  L_,   "[{\"line\":{\"name\":\"My line\"}}]"                     },
-    {  L_,   "[\"category\"]"                                          },
-    {  L_,   "[{\"category\":{\"name\":\"My Category\"}}]"             },
-    {  L_,   "[\"severity\"]"                                          },
-    {  L_,   "[{\"severity\":{\"name\":\"My Severity\"}}]"             },
-    {  L_,   "[\"message\"]"                                           },
-    {  L_,   "[{\"message\":{\"name\":\"My msg\"}}]"                   },
-    {  L_,   "[\"attributes\"]"                                        },
-    {  L_,   "[\"a3\",\"a2\",\"a1\"]"                                  },
+    //-------------------------------------------------------------------------
+    // LINE                          SPEC                          RSEP
+    //-------------------------------------------------------------------------
+    {  L_,   "",                                                   "\n"      },
+    {  L_,   "",                                                   ""        },
+    {  L_,   "[\"timestamp\"]",                                    "\n"      },
+    {  L_,   "[\"timestamp\"]",                                    " "       },
+    {  L_,   "[{\"timestamp\":{\"name\":\"My Time\"}}]",           "\r\n"    },
+    {  L_,   "[{\"timestamp\":{\"format\":\"iso8601\"}}]",         k_NULL_SV },
+    {  L_,   "[{\"timestamp\":{\"fractionalSecPrecision\":\"none\"}}]",
+                                                                   "\n"      },
+    {  L_,   "[{\"timestamp\":{\"timeZone\":\"utc\"}}]",           ""        },
+    {  L_,   "[\"pid\"]",                                          " "       },
+    {  L_,   "[{\"pid\":{\"name\":\"My pid\"}}]",                  "\r\n"    },
+    {  L_,   "[\"tid\"]",                                          k_NULL_SV },
+    {  L_,   "[{\"tid\":{\"name\":\"My tid\"}}]",                  "\n"      },
+    {  L_,   "[{\"tid\":{\"format\":\"decimal\"}}]",               ""        },
+    {  L_,   "[\"file\"]",                                         " "       },
+    {  L_,   "[{\"file\":{\"name\":\"My file\"}}]",                "\r\n"    },
+    {  L_,   "[{\"file\":{\"path\":\"full\"}}]",                   k_NULL_SV },
+    {  L_,   "[\"line\"]",                                         "\n"      },
+    {  L_,   "[{\"line\":{\"name\":\"My line\"}}]",                ""        },
+    {  L_,   "[\"category\"]",                                     " "       },
+    {  L_,   "[{\"category\":{\"name\":\"My Category\"}}]",        "\r\n"    },
+    {  L_,   "[\"severity\"]",                                     k_NULL_SV },
+    {  L_,   "[{\"severity\":{\"name\":\"My Severity\"}}]",        "\n"      },
+    {  L_,   "[\"message\"]",                                      ""        },
+    {  L_,   "[{\"message\":{\"name\":\"My msg\"}}]",              " "       },
+    {  L_,   "[\"attributes\"]",                                   "\r\n"    },
+    {  L_,   "[\"a3\",\"a2\",\"a1\"]",                             k_NULL_SV },
 };
 enum { DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA };
 
@@ -508,16 +518,19 @@ int main(int argc, char *argv[])
             const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int         LINE1 = DATA[ti].d_line;
-                const char *const SPEC1 = DATA[ti].d_spec_p;
+                const int              LINE1 = DATA[ti].d_line;
+                const char *const      SPEC1 = DATA[ti].d_spec_p;
+                const bsl::string_view RSEP1 = DATA[ti].d_recordSeparator;
 
                 // Create control object 'W'.
                 Obj mW;  const Obj& W = mW;
                 mW.setFormat(SPEC1);
+                mW.setRecordSeparator(RSEP1);
 
                 for (int tj = 0; tj < NUM_DATA; ++tj) {
-                    const int         LINE2 = DATA[tj].d_line;
-                    const char *const SPEC2 = DATA[tj].d_spec_p;
+                    const int              LINE2 = DATA[tj].d_line;
+                    const char *const      SPEC2 = DATA[tj].d_spec_p;
+                    const bsl::string_view RSEP2 = DATA[tj].d_recordSeparator;
 
                     for (char cfg = 'a'; cfg <= 'b'; ++cfg) {
 
@@ -551,12 +564,14 @@ int main(int argc, char *argv[])
 
                             Obj mY(&sa);  const Obj& Y = mY;
                             mY.setFormat(SPEC1);
+                            mY.setRecordSeparator(RSEP1);
 
                             ASSERTV(LINE1, LINE2, CONFIG, Y == W);
 
                             // Create target object 'X'.
                             Obj mX(&oa);  const Obj& X = mX;
                             mX.setFormat(SPEC2);
+                            mX.setRecordSeparator(RSEP2);
 
                             ASSERTV(LINE1, LINE2, CONFIG,
                                     (X == Y) == (ti == tj));
@@ -899,8 +914,9 @@ int main(int argc, char *argv[])
         const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int         LINE1 = DATA[ti].d_line;
-            const char *const SPEC1 = DATA[ti].d_spec_p;
+            const int              LINE1 = DATA[ti].d_line;
+            const char *const      SPEC1 = DATA[ti].d_spec_p;
+            const bsl::string_view RSEP1 = DATA[ti].d_recordSeparator;
 
             bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
@@ -908,7 +924,9 @@ int main(int argc, char *argv[])
             Obj mZZ(&scratch);  const Obj& ZZ = mZZ;
 
             mZ.setFormat(SPEC1);
+            mZ.setRecordSeparator(RSEP1);
             mZZ.setFormat(SPEC1);
+            mZZ.setRecordSeparator(RSEP1);
 
             if (veryVerbose) { T_ P_(LINE1) P_(Z.format()) P(ZZ.format()) }
 
@@ -922,8 +940,9 @@ int main(int argc, char *argv[])
             }
 
             for (int tj = 0; tj < NUM_DATA; ++tj) {
-                const int         LINE2 = DATA[tj].d_line;
-                const char *const SPEC2 = DATA[tj].d_spec_p;
+                const int              LINE2 = DATA[tj].d_line;
+                const char *const      SPEC2 = DATA[tj].d_spec_p;
+                const bsl::string_view RSEP2 = DATA[tj].d_recordSeparator;
 
                 bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
@@ -931,6 +950,7 @@ int main(int argc, char *argv[])
                     Obj mX(&oa);  const Obj& X = mX;
 
                     mX.setFormat(SPEC2);
+                    mX.setRecordSeparator(RSEP2);
 
                     if (veryVerbose) { T_ P_(LINE2) P(X.format()) }
 
@@ -975,7 +995,9 @@ int main(int argc, char *argv[])
                 Obj mZZ(&scratch);  const Obj& ZZ = mZZ;
 
                 mX.setFormat(SPEC1);
+                mX.setRecordSeparator(RSEP1);
                 mZZ.setFormat(SPEC1);
+                mZZ.setRecordSeparator(RSEP1);
 
                 const Obj& Z = mX;
 
@@ -1124,15 +1146,18 @@ int main(int argc, char *argv[])
             bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int         LINE = DATA[ti].d_line;
-                const char *const SPEC = DATA[ti].d_spec_p;
+                const int              LINE = DATA[ti].d_line;
+                const char *const      SPEC = DATA[ti].d_spec_p;
+                const bsl::string_view RSEP = DATA[ti].d_recordSeparator;
 
                 bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
                 Obj  mZ(&scratch);  const Obj& Z  = mZ;
                 Obj mZZ(&scratch);  const Obj& ZZ = mZZ;
 
                 mZ.setFormat(SPEC);
+                mZ.setRecordSeparator(RSEP);
                 mZZ.setFormat(SPEC);
+                mZZ.setRecordSeparator(RSEP);
 
                 if (veryVerbose) {
                     bsl::ostringstream oss(&scratch);
@@ -1232,8 +1257,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting with injected exceptions." << endl;
         {
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int         LINE = DATA[ti].d_line;
-                const char *const SPEC = DATA[ti].d_spec_p;
+                const int              LINE = DATA[ti].d_line;
+                const char *const      SPEC = DATA[ti].d_spec_p;
+                const bsl::string_view RSEP = DATA[ti].d_recordSeparator;
 
                 if (veryVerbose) { T_ P(SPEC) }
 
@@ -1242,7 +1268,9 @@ int main(int argc, char *argv[])
                 Obj mZZ(&scratch);  const Obj& ZZ = mZZ;
 
                 mZ.setFormat(SPEC);
+                mZ.setRecordSeparator(RSEP);
                 mZZ.setFormat(SPEC);
+                mZZ.setRecordSeparator(RSEP);
 
                 bslma::TestAllocator da("default",  veryVeryVeryVerbose);
                 bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
@@ -1271,7 +1299,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1  'operator ()' should print out the given 'record' in the format
-        //:    defined by 'd_format'.
+        //:    defined by 'd_format', followed by 'd_recordSeparator'.
         //:
         //: 2 No memory is allocated from the default or global allocators.
         //
@@ -1383,6 +1411,7 @@ int main(int argc, char *argv[])
 
                 int rc = mX.setFormat(SPEC);
                 ASSERTV(rc, 0 == rc);
+                mX.setRecordSeparator("");
 
                 bsl::ostringstream oss(&scratch);
                 RA                 fields(&scratch);
@@ -1440,6 +1469,7 @@ int main(int argc, char *argv[])
 
                 int rc = mX.setFormat(SPEC);
                 ASSERTV(rc, 0 == rc);
+                mX.setRecordSeparator("");
 
                 bsl::ostringstream oss(&scratch);
                 RA                 fields(&scratch);
@@ -1499,6 +1529,7 @@ int main(int argc, char *argv[])
 
                 int rc = mX.setFormat(SPEC);
                 ASSERTV(rc, 0 == rc);
+                mX.setRecordSeparator("");
 
                 bsl::ostringstream oss(&scratch);
                 RA                 fields(&scratch);
@@ -1569,6 +1600,7 @@ int main(int argc, char *argv[])
 
                 int rc = mX.setFormat(SPEC);
                 ASSERTV(rc, 0 == rc);
+                mX.setRecordSeparator("");
 
                 bsl::ostringstream oss(&scratch);
                 RA                 fields(&scratch);
@@ -1626,6 +1658,7 @@ int main(int argc, char *argv[])
 
                 int rc = mX.setFormat(SPEC);
                 ASSERTV(rc, 0 == rc);
+                mX.setRecordSeparator("");
 
                 bsl::ostringstream oss(&scratch);
                 RA                 fields(&scratch);
@@ -1684,6 +1717,7 @@ int main(int argc, char *argv[])
 
                 int rc = mX.setFormat(SPEC);
                 ASSERTV(rc, 0 == rc);
+                mX.setRecordSeparator("");
 
                 bsl::ostringstream oss(&scratch);
                 RA                 fields(&scratch);
@@ -1752,6 +1786,7 @@ int main(int argc, char *argv[])
 
                 int rc = mX.setFormat(SPEC);
                 ASSERTV(rc, 0 == rc);
+                mX.setRecordSeparator("");
 
                 bsl::ostringstream oss(&scratch);
                 RA                 fields(&scratch);
@@ -1815,6 +1850,7 @@ int main(int argc, char *argv[])
 
                 int rc = mX.setFormat(SPEC);
                 ASSERTV(rc, 0 == rc);
+                mX.setRecordSeparator("");
 
                 bsl::ostringstream oss(&scratch);
                 RA                 fields(&scratch);
@@ -1890,6 +1926,7 @@ int main(int argc, char *argv[])
 
                 int rc = mX.setFormat(SPEC);
                 ASSERTV(rc, 0 == rc);
+                mX.setRecordSeparator("");
 
                 bsl::ostringstream oss(&scratch);
                 RA                 ra(&scratch);
@@ -1945,6 +1982,7 @@ int main(int argc, char *argv[])
 
                 int rc = mX.setFormat(SPEC);
                 ASSERTV(rc, 0 == rc);
+                mX.setRecordSeparator("");
 
                 bsl::ostringstream  oss(&scratch);
                 RA                  ra(&scratch);
@@ -1977,6 +2015,64 @@ int main(int argc, char *argv[])
             ASSERTV(0 == sa.numBlocksInUse());
             ASSERTV(0 == scratch.numBlocksInUse());
         }
+
+        if (verbose) bsl::cout << "\nRECORD SEPARATOR TEST"
+                               << "\n=====================" << bsl::endl;
+
+        {
+            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+            bslma::TestAllocator sa("supplied",     veryVeryVeryVerbose);
+
+            const char *const SPEC = "[\"message\"]";
+            const bsl::string k_NULL_S(1, '\0');
+            const struct {
+                int         d_line;
+                bsl::string d_recordSeparator;
+                bsl::string d_expected;
+            } DATA[] = {
+                //-------------------------------------------------------------
+                // LINE  SEP     EXPECTED
+                //-------------------------------------------------------------
+                {  L_,   "\n",   "{\"message\":\"Hello, world\"}\n"          },
+                {  L_,   "",     "{\"message\":\"Hello, world\"}"            },
+                {  L_,   " ",    "{\"message\":\"Hello, world\"} "           },
+                {  L_,   "\r\n", "{\"message\":\"Hello, world\"}\r\n"        },
+                {  L_,   k_NULL_S,
+                                 "{\"message\":\"Hello, world\"}" + k_NULL_S },
+            };
+            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int         LINE     = DATA[i].d_line;
+                const bsl::string RSEP     = DATA[i].d_recordSeparator;
+                const bsl::string EXPECTED = DATA[i].d_expected;
+
+                bslma::TestAllocatorMonitor dam(&defaultAllocator);
+
+                Obj mX(&sa); const Obj& X = mX;
+
+                int rc = mX.setFormat(SPEC);
+                ASSERTV(rc, 0 == rc);
+                mX.setRecordSeparator(RSEP);
+
+                bsl::ostringstream oss(&scratch);
+                RA                 fields(&scratch);
+
+                fields.setMessage("Hello, world");
+
+                X(oss, Rec(fields, UF(&scratch)));
+
+                if (veryVeryVerbose) P(oss.str().c_str());
+
+                ASSERTV(LINE, oss.str(), EXPECTED, oss.str() == EXPECTED);
+
+                ASSERTV(dam.isInUseSame());
+            }
+
+            // Verify all memory is released.
+            ASSERTV(0 == sa.numBlocksInUse());
+            ASSERTV(0 == scratch.numBlocksInUse());
+        }
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -2001,16 +2097,17 @@ int main(int argc, char *argv[])
         //:     allocator.  Then configure the object to have the value from
         //:     'R'.
         //:
-        //:   2 Verify that the 'format' and 'allocator' accessors, invoked on
-        //:     a 'const' reference to the object created in P-2, return the
-        //:     expected values.
+        //:   2 Verify that the 'format', 'recordSeparator', and 'allocator'
+        //:     accessors, invoked on a 'const' reference to the object created
+        //:     in P-2, return the expected values.
         //:
         //:   3 Monitor the memory allocated from both the default and object
         //:     allocators before and after calling the accessors; verify that
         //:     there is no change in total memory allocation.  (C-3)
         //
         // Testing:
-        //   int format() const;
+        //   const bsl::string& format() const;
+        //   const bsl::string& recordSeparator() const;
         //   const allocator_type& allocator() const;
         // --------------------------------------------------------------------
 
@@ -2029,19 +2126,24 @@ int main(int argc, char *argv[])
         const int NUM_DATA                     = DEFAULT_NUM_DATA;
         const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
 
-        for (int ti = 1; ti < NUM_DATA; ++ti) {
-            const int         LINE = DATA[ti].d_line;
-            const char *const SPEC = DATA[ti].d_spec_p;
+        for (int ti = 2; ti < NUM_DATA; ++ti) {
+            const int              LINE = DATA[ti].d_line;
+            const char *const      SPEC = DATA[ti].d_spec_p;
+            const bsl::string_view RSEP = DATA[ti].d_recordSeparator;
+
+            if (veryVerbose) { P_(LINE) P_(SPEC) P(RSEP) }
 
             bslma::TestAllocator      oa("object",  veryVeryVeryVerbose);
             bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
             Obj mX(&oa);  const Obj& X = mX;
             mX.setFormat(SPEC);
+            mX.setRecordSeparator(RSEP);
 
             bslma::TestAllocatorMonitor oam(&oa), dam(&da);
 
             ASSERTV(LINE, SPEC, SPEC == X.format());
+            ASSERTV(LINE, RSEP, RSEP == X.recordSeparator());
             ASSERTV(LINE, SPEC, &oa == X.allocator().mechanism());
 
             ASSERTV(LINE, SPEC, oam.isTotalSame());
@@ -2080,9 +2182,12 @@ int main(int argc, char *argv[])
         //: 7 Every object releases any allocated memory at destruction.
         //:
         //: 8 Any memory allocation is exception neutral.
+        //:
+        //: 9 Each attribute is modifiable independently.
         //
         // Plan:
-        //: 1 Create a set of distinct specification values (for use in P-5).
+        //: 1 Create a set of distinct specification values for the format
+        //    string and record separator (for use in P-5).
         //:
         //: 2 Using a loop-based approach, default-construct three distinct
         //:   objects, in turn, but configured differently: (a) without passing
@@ -2101,14 +2206,22 @@ int main(int argc, char *argv[])
         //:   3 Use the (as yet unproven) 'allocator' accessor of 'X' to verify
         //:     that its object allocator is properly installed.  (C-2..4)
         //:
-        //:   4 Use the (as yet unproven) basic accessor to verify the
+        //:   4 Use the (as yet unproven) basic accessors to verify the
         //:     default-constructed value.  (C-1)
         //:
-        //:   5 In turn, for each value, 'V', in the table described in P-1,
-        //:     supply 'V' to the primary manipulator, 'setFormat' (using the
-        //:     'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros).  After each
-        //:     invocation, verify that 'X' has the expected value and that any
-        //:     memory allocation is as expected.  (C-5..6)
+        //:   5 In turn, for each value, 'V', in the table of format strings
+        //:     described in P-1, supply 'V' to the primary manipulator,
+        //:     'setFormat' (using the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*'
+        //:     macros).  After each invocation, verify that 'X' has the
+        //:     expected value and that any memory allocation is as expected.
+        //:     Then, repeat this process with the table of record separators
+        //:     and the 'setRecordSeparator' primary manipulator.  (C-5..6)
+        //:
+        //:   6 Corroborate that attributes are modifiable independently by
+        //:     first setting all attributes to one set of values. Then
+        //:     incrementally set each attribute to a different value and
+        //:     verify after each manipulation that only that attribute's value
+        //:     changed.  (C-9)
         //:
         //:   7 Verify that all object memory is released when the object is
         //:     destroyed.  (C-7)
@@ -2118,6 +2231,7 @@ int main(int argc, char *argv[])
         //   RecordJsonFormatter(const allocator_type& a);
         //   ~RecordJsonFormatter();
         //   int setFormat(const bsl::string_view& format);
+        //   void setRecordSeparator(const bsl::string_view& recordSeparator);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2127,7 +2241,7 @@ int main(int argc, char *argv[])
         static const struct {
             int         d_line;     // source line number
             const char *d_spec_p;
-        } DATA[] = {
+        } FORMAT_DATA[] = {
     //LINE                            SPEC
     //----  -------------------------------------------------------------------
     { L_,   ""                                                               },
@@ -2147,7 +2261,21 @@ int main(int argc, char *argv[])
     { L_,   "[\"timestamp\",\"pid\",\"tid\",\"severity\",\"file\",\"line\","
              "\"category\",\"message\",\"attributes\",\"a1\"]"               },
         };
-        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+        enum { NUM_FORMAT_DATA = sizeof FORMAT_DATA / sizeof *FORMAT_DATA };
+
+        static const struct {
+            int         d_line;  // source line number
+            bsl::string d_recordSeparator;
+        } RSEP_DATA[] = {
+            //LINE     RECORD SEPARATOR
+            //----  ----------------------
+            {L_,    "\n"                },
+            {L_,    ""                  },
+            {L_,    " "                 },
+            {L_,    "\r\n"              },
+            {L_,    bsl::string(1, '\0')},
+        };
+        enum { NUM_RSEP_DATA = sizeof RSEP_DATA / sizeof *RSEP_DATA };
 
         if (verbose) cout << "\nTesting with various allocator configurations."
                           << endl;
@@ -2209,23 +2337,18 @@ int main(int argc, char *argv[])
             // --------------------------------------------
 
             ASSERTV(CONFIG, X.format(), k_DEFAULT_FORMAT == X.format());
+            ASSERTV(CONFIG, X.recordSeparator(),
+                    k_DEFAULT_RECORD_SEPARATOR == X.recordSeparator());
 
-            // ---------------------------
-            // Verify primary manipulator.
-            // ---------------------------
-
-#ifndef BSLS_PLATFORM_CPU_32_BIT
-            // The 32-bit implementation of the 'bdld::Datum::copyString'
-            // method invoked from 'ball::RecordJsonFormatter::setFormat' is
-            // NOT exception-neutral.  We disable this part of the test on
-            // 32-bit platforms until 'bdld::Datum::copyString' is fixed.  See
-            // {DRQS 165776192<GO>} for details.
+            // ----------------------------
+            // Verify primary manipulators.
+            // ----------------------------
 
             bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int         LINE  = DATA[ti].d_line;
-                const char *const SPEC  = DATA[ti].d_spec_p;
+            for (int ti = 0; ti < NUM_FORMAT_DATA; ++ti) {
+                const int         LINE  = FORMAT_DATA[ti].d_line;
+                const char *const SPEC  = FORMAT_DATA[ti].d_spec_p;
 
                 bslma::TestAllocatorMonitor oam(&oa);
 
@@ -2240,10 +2363,59 @@ int main(int argc, char *argv[])
 
                 ASSERTV(CONFIG, LINE, SPEC, SPEC[0] == 0 ||
                                             SPEC == X.format());
+                ASSERTV(CONFIG, LINE, SPEC,
+                        k_DEFAULT_RECORD_SEPARATOR == X.recordSeparator());
                 ASSERTV(CONFIG, LINE, CONFIG == 'c' ||
                                       0 == noa.numBlocksTotal());
             }
-#endif
+
+            const bsl::string lastFormat(X.format(), &scratch);
+
+            for (int ti = 0; ti < NUM_RSEP_DATA; ++ti) {
+                const int   LINE  = RSEP_DATA[ti].d_line;
+                bsl::string RSEP  = RSEP_DATA[ti].d_recordSeparator;
+
+                bslma::TestAllocatorMonitor oam(&oa);
+
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                    if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
+
+                    mX.setRecordSeparator(RSEP);
+
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+                // Verify object value and expected memory use.
+
+                ASSERTV(CONFIG, LINE, RSEP, RSEP == X.recordSeparator());
+                ASSERTV(CONFIG, LINE, lastFormat, lastFormat == X.format());
+                ASSERTV(CONFIG, LINE, CONFIG == 'c' ||
+                                      0 == noa.numBlocksTotal());
+            }
+
+            // Corroborate attribute independence.
+            {
+                const char *const F1  = "[]";
+                const char *const F2  = "[\"timestamp\"]";
+                const char *const RS1 = "\n";
+                const char *const RS2 = "\r\n";
+
+                mX.setFormat(F1);
+                mX.setRecordSeparator(RS1);
+
+                ASSERTV(F1,  F1 == X.format());
+                ASSERTV(RS1, RS1 == X.recordSeparator());
+
+                mX.setRecordSeparator(RS2);
+
+                ASSERTV(F1,  F1 == X.format());
+                ASSERTV(RS2, RS2 == X.recordSeparator());
+
+                mX.setFormat(F2);
+
+                ASSERTV(F2,  F2 == X.format());
+                ASSERTV(RS2, RS2 == X.recordSeparator());
+            }
+
             // Reclaim dynamically allocated object under test.
 
             fa.deleteObject(objPtr);
