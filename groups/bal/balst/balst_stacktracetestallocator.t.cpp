@@ -737,7 +737,7 @@ class TouchyAllocator : public bslma::Allocator {
     // This is a thread-unsafe allocator that will detect any attempt to do
     // thread-unsafe allocation or deallocation.
 
-    volatile bool             d_inUse;
+    bsls::AtomicBool          d_inUse;
     mutable bslma::Allocator *d_allocator;
 
   private:

@@ -471,6 +471,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bslma_allocator.h>
 
+#include <bsls_atomic.h>
+
 #include <bsl_cstddef.h>
 #include <bsl_functional.h>
 #include <bsl_iosfwd.h>
@@ -522,7 +524,7 @@ class StackTraceTestAllocator : public bdlma::ManagedAllocator {
     AllocatorMagic            d_magic;             // magic # to identify type
                                                    // of memory allocator
 
-    volatile int              d_numBlocksInUse;    // number of allocated
+    bsls::AtomicInt           d_numBlocksInUse;    // number of allocated
                                                    // blocks currently unfreed
 
     BlockHeader              *d_blocks;            // list of allocated,
