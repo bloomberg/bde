@@ -91,8 +91,9 @@ void TimerEventSchedulerDispatcher::dispatchEvents(
                                                 TimerEventScheduler* scheduler)
 {
     BSLS_ASSERT(0 != scheduler);
-    typedef TimerEventScheduler::ClockDataPtr ClockDataPtr;
-    typedef bdlcc::TimeQueueItem<ClockDataPtr>       PendingClockItem;
+
+    typedef TimerEventScheduler::ClockDataPtr  ClockDataPtr;
+    typedef bdlcc::TimeQueueItem<ClockDataPtr> PendingClockItem;
 
     bsl::vector<PendingClockItem> pendingClockItems;
 
@@ -245,6 +246,7 @@ class TimerEventSchedulerTestTimeSource_Data {
     mutable bslmt::Mutex d_currentTimeMutex;  // mutex used to synchronize
                                               // 'd_currentTime' access
 
+  private:
     // NOT IMPLEMENTED
     TimerEventSchedulerTestTimeSource_Data(
                                 const TimerEventSchedulerTestTimeSource_Data&);
@@ -301,7 +303,8 @@ bsls::TimeInterval TimerEventSchedulerTestTimeSource_Data::currentTime() const
 }  // close package namespace
 
 static
-void defaultDispatcherFunction(const bsl::function<void()>& callback) {
+void defaultDispatcherFunction(const bsl::function<void()>& callback)
+{
     callback();
 }
 
@@ -315,7 +318,7 @@ void TimerEventScheduler::yieldToDispatcher()
 {
     if (d_running.loadRelaxed()) {
         bsls::Types::Uint64 dispatcherId = static_cast<bsls::Types::Uint64>(
-                                                  d_dispatcherId.loadRelaxed());
+                                                 d_dispatcherId.loadRelaxed());
 
         if (bslmt::ThreadUtil::selfIdAsUint64() != dispatcherId) {
             const int it = d_iterations.loadRelaxed();
@@ -571,6 +574,7 @@ int TimerEventScheduler::start(const bslmt::ThreadAttributes& threadAttributes)
 {
     // Implementation note: 'd_dispatcherMutex' is in a lock hierarchy with
     // 'd_mutex' and must always be locked first.
+
     bslmt::LockGuard<bslmt::Mutex> dispatcherLock(&d_dispatcherMutex);
 
     BSLS_ASSERT(! bslmt::ThreadUtil::isEqual(bslmt::ThreadUtil::self(),
@@ -602,6 +606,7 @@ void TimerEventScheduler::stop()
 {
     // Implementation note: 'd_dispatcherMutex' is in a lock hierarchy with
     // 'd_mutex' and must always be locked first.
+
     bslmt::LockGuard<bslmt::Mutex> dispatcherLock(&d_dispatcherMutex);
 
     BSLS_ASSERT(! bslmt::ThreadUtil::isEqual(bslmt::ThreadUtil::self(),
@@ -661,6 +666,7 @@ int TimerEventScheduler::rescheduleEvent(TimerEventScheduler::Handle handle,
     }
 
     // wait for a cycle if required
+
     if (status && wait) {
         yieldToDispatcher();
     }
@@ -804,6 +810,7 @@ void TimerEventScheduler::cancelAllClocks(bool wait)
     const int length = static_cast<int>(buffer.size());
 
     // mark them all canceled ASAP
+
     for (int i = 0; i < length; ++i) {
         buffer[i]->d_isCancelled = true;
     }
@@ -881,6 +888,7 @@ bsls::TimeInterval TimerEventSchedulerTestTimeSource::advanceTime(
         // Now that the time has changed, signal the scheduler's condition
         // variable so that the event dispatcher thread can be alerted to the
         // change.
+
         d_scheduler_p->d_condition.signal();
     }
 
@@ -888,7 +896,7 @@ bsls::TimeInterval TimerEventSchedulerTestTimeSource::advanceTime(
 }
 
 // ACCESSORS
-bsls::TimeInterval TimerEventSchedulerTestTimeSource::now()
+bsls::TimeInterval TimerEventSchedulerTestTimeSource::now() const
 {
     return d_data_p->currentTime();
 }

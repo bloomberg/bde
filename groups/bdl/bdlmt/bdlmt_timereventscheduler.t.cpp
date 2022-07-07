@@ -29,6 +29,7 @@
 #include <bslmt_barrier.h>
 #include <bslmt_testutil.h>
 #include <bslmt_threadutil.h>
+#include <bsls_atomic.h>
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
 #include <bsls_systemtime.h>
@@ -43,12 +44,14 @@
 #include <bsl_list.h>
 #include <bsl_ostream.h>
 
-
 using namespace BloombergLP;
 using bsl::cout;
 using bsl::cerr;
 using bsl::endl;
 using bsl::flush;
+using bsl::size_t;
+using bsl::ptrdiff_t;
+
 // ============================================================================
 //                                   TEST PLAN
 // ----------------------------------------------------------------------------
@@ -372,8 +375,7 @@ class TestClass {
     bsls::AtomicInt     d_failures;                // timing failures
 
     // FRIENDS
-    friend bsl::ostream& operator<<(bsl::ostream&    os,
-                                    const TestClass& testObject);
+    friend bsl::ostream& operator<<(bsl::ostream& , const TestClass&);
 
   public:
     // CREATORS
@@ -416,17 +418,17 @@ class TestClass {
     {
     }
 
-    TestClass(const TestClass& rhs):
-      d_isClock(rhs.d_isClock),
-      d_periodicInterval(rhs.d_periodicInterval),
-      d_expectedTimeAtExecution(rhs.d_expectedTimeAtExecution),
-      d_numExecuted(rhs.d_numExecuted.load()),
-      d_executionTime(rhs.d_executionTime.load()),
-      d_line(rhs.d_line),
-      d_delayed(rhs.d_delayed.load()),
-      d_referenceTime(rhs.d_referenceTime),
-      d_globalLastExecutionTime(rhs.d_globalLastExecutionTime),
-      d_assertOnFailure(rhs.d_assertOnFailure),
+    TestClass(const TestClass& original):
+      d_isClock(original.d_isClock),
+      d_periodicInterval(original.d_periodicInterval),
+      d_expectedTimeAtExecution(original.d_expectedTimeAtExecution),
+      d_numExecuted(original.d_numExecuted.load()),
+      d_executionTime(original.d_executionTime.load()),
+      d_line(original.d_line),
+      d_delayed(original.d_delayed.load()),
+      d_referenceTime(original.d_referenceTime),
+      d_globalLastExecutionTime(original.d_globalLastExecutionTime),
+      d_assertOnFailure(original.d_assertOnFailure),
       d_failures(0)
     {
     }
@@ -537,6 +539,7 @@ struct TestClass1 {
     {
     }
 
+    explicit
     TestClass1(int executionTime) :
     d_numStarted(0),
     d_numExecuted(0),
@@ -677,7 +680,7 @@ int my_Session::processData(void *, int)
                               // class my_Server
                               // ===============
 
-class my_Server {
+class My_Server {
 
     // TYPES
     struct Connection {
@@ -697,18 +700,21 @@ class my_Server {
 
     void dataAvailable(Connection *connection, void *data, int length);
 
-    my_Server(const my_Server&);             // unimplemented
-    my_Server& operator=(const my_Server&);  // unimplemented
+  private:
+    // NOT IMPLEMENTED
+    My_Server(const My_Server&);
+    My_Server& operator=(const My_Server&);
 
   public:
     // CREATORS
-    my_Server(const bsls::TimeInterval&  ioTimeout,
+    explicit
+    My_Server(const bsls::TimeInterval&  ioTimeout,
               bslma::Allocator          *allocator = 0);
-    ~my_Server();
+    ~My_Server();
 };
 
 // CREATORS
-my_Server::my_Server(const bsls::TimeInterval&  ioTimeout,
+My_Server::My_Server(const bsls::TimeInterval&  ioTimeout,
                      bslma::Allocator          *allocator)
 : d_connections(allocator)
 , d_scheduler(allocator)
@@ -717,24 +723,24 @@ my_Server::my_Server(const bsls::TimeInterval&  ioTimeout,
      d_scheduler.start();
 }
 
-my_Server::~my_Server()
+My_Server::~My_Server()
 {
     d_scheduler.stop();
 }
 
 // PRIVATE MANIPULATORS
-void my_Server::newConnection(my_Server::Connection *connection)
+void My_Server::newConnection(My_Server::Connection *connection)
 {
     connection->d_timerId = d_scheduler.scheduleEvent(
           d_scheduler.now() + d_ioTimeout,
-          bdlf::BindUtil::bind(&my_Server::closeConnection, this, connection));
+          bdlf::BindUtil::bind(&My_Server::closeConnection, this, connection));
 }
 
-void my_Server::closeConnection(my_Server::Connection *)
+void My_Server::closeConnection(My_Server::Connection *)
 {
 }
 
-void my_Server::dataAvailable(my_Server::Connection *connection,
+void My_Server::dataAvailable(My_Server::Connection *connection,
                               void                  *data,
                               int                    length)
 {
@@ -746,7 +752,7 @@ void my_Server::dataAvailable(my_Server::Connection *connection,
 
     connection->d_timerId = d_scheduler.scheduleEvent(
           d_scheduler.now() + d_ioTimeout,
-          bdlf::BindUtil::bind(&my_Server::closeConnection, this, connection));
+          bdlf::BindUtil::bind(&My_Server::closeConnection, this, connection));
 }
 
 }  // close namespace TIMER_EVENT_SCHEDULER_TEST_CASE_USAGE
@@ -830,6 +836,7 @@ struct Func {
     static int                      s_kamikaze;
         // index of the event that is to kill itself
 
+    explicit
     Func(int index) : d_eventIndex(index) {}
 
     void operator()();
@@ -877,63 +884,102 @@ int Func::s_numEvents;
 // ============================================================================
 //                         CASE 16 RELATED ENTITIES
 // ----------------------------------------------------------------------------
-namespace TIMER_EVENT_SCHEDULER_TEST_CASE_16
+
+namespace TIMER_EVENT_SCHEDULER_TEST_CASE_16 {
+
+// As of 10/16/08, the default stack size was about 1MB on Solaris, 0.25MB on
+// AIX, and 10MB on Linux.
+
+enum { k_BUF_SIZE = 40 * 1000,
+       k_STACK_SIZE_IN_BYTES    = 80 * 1000 * 1000,
+       k_RECURSE_DEPTH_IN_BYTES = k_STACK_SIZE_IN_BYTES - 1000 * 1000,
+       k_MAX_ITERATIONS = 3 * k_STACK_SIZE_IN_BYTES / k_BUF_SIZE };
+
+ptrdiff_t abs(ptrdiff_t x)
 {
-
-enum { BUFSIZE = 40 * 1000 };
-
-template <class OBJECT>
-OBJECT abs(const OBJECT& x) {
     return 0 < x ? x : -x;
 }
 
 struct Recurser {
-    IntPtr d_recurseDepth;
-    char *d_topPtr;
-    static bool s_finished;
+    static char              *s_topPtr;
+    static bsls::AtomicBool   s_finished;
+    static int                s_iterations;
 
-    IntPtr deepRecurser(char *prevMidBuf) {
-        union {
-            char  d_buffer[BUFSIZE];
-            char *d_midBuf;
-        } u;
+    // CLASS METHOD
+    static
+    ptrdiff_t deepRecurser(char *prevBuf)
+    {
+        char buffer[k_BUF_SIZE];
+        char * const buf_p = &buffer[0];    // Avoid compiler nitpicking
+                                            // warnings because 'buffer' is
+                                            // 'char (*)[...]' and not
+                                            // 'char *'.
 
-        u.d_midBuf = u.d_buffer + BUFSIZE / 2;
-        BSLS_ASSERT_OPT(prevMidBuf != u.d_midBuf);  // if this fails, we're
-                                                    // inlined and infinite
-                                                    // looping
+        if (k_MAX_ITERATIONS < ++s_iterations) {
+            // if the above fails, the optimizer has turned the recursion into
+            // an infinite loop.
 
-        IntPtr curDepth = abs(u.d_midBuf - d_topPtr);
+            BSLS_ASSERT_INVOKE("max iterations exceeded");
+        }
+
+        if (prevBuf == buf_p) {
+            // if the above fails, the optimizer has turned the recursion into
+            // an infinite loop.
+
+            BSLS_ASSERT_INVOKE("Recursion optimized away");
+        }
+
+        ptrdiff_t curDepth = abs(buf_p - s_topPtr);
 
         if (veryVerbose) {
             cout << "Depth: " << curDepth << endl;
         }
 
-        IntPtr diff = 0;
-        if (curDepth < d_recurseDepth) {
+        if (curDepth < k_RECURSE_DEPTH_IN_BYTES) {
             // There was a problem in optimized builds on Linux gcc-11
             // implemented this recursion as a loop, which resulted in an
-            // infinite loop.  Corrected by making this function more complex.
+            // infinite loop.  Corrected by using 'makeFunctionCallNonInline'
+            // an increasing checks that will abort if there's an infinite
+            // loop, even in a build with asserts other than
+            // 'BSLS_ASSERT_INVOKE' disabled.
 
             // recurse
-            diff = this->deepRecurser(u.d_midBuf);
-            BSLS_ASSERT_OPT(0 < diff);
+
+            ptrdiff_t diff = (*bslmt::TestUtil::makeFunctionCallNonInline(
+                                                        &deepRecurser))(buf_p);
+            ASSERT(0 <= diff);
         }
 
         return curDepth;
     }
 
-    void operator()() {
+    // MANIPULATOR
+    void operator()()
+    {
         char topRef;
 
-        d_topPtr = &topRef;
-        const IntPtr diff = this->deepRecurser(&topRef);
-        BSLS_ASSERT_OPT(0 < diff);
+        s_topPtr     = &topRef;
+        s_finished   = false;
+        s_iterations = 0;
+
+        bsls::Stopwatch timer;
+        timer.start();
+
+        const IntPtr diff = deepRecurser(&topRef);
+        ASSERT(0 <= diff);
+
+        const double elapsed = timer.elapsedTime();
+        if (verbose) P(elapsed);
+        if (0.15 < elapsed) {
+            cout << "Running slow" << endl;
+        }
 
         s_finished = true;
     }
 };
-bool Recurser::s_finished = false;
+char             *Recurser::s_topPtr = 0;
+bsls::AtomicBool  Recurser::s_finished(false);
+int               Recurser::s_iterations = 0;
 
 }  // close namespace TIMER_EVENT_SCHEDULER_TEST_CASE_16
 
@@ -957,18 +1003,22 @@ namespace TIMER_EVENT_SCHEDULER_TEST_CASE_14
         };
         static const double SLEEP_SECONDS;
         dateTimeList d_timeList;
-        dateTimeList& timeList() {
+        dateTimeList& timeList()
+        {
             return d_timeList;
         }
-        static double timeofday() {
+        static double timeofday()
+        {
             return dnow();
         }
-        void callback() {
+        void callback()
+        {
             d_timeList.push_back(timeofday());
             sleepUntilMs(SLEEP_MICROSECONDS / 1000);
             d_timeList.push_back(timeofday());
         }
-        double tolerance(int i) {
+        double tolerance(int i)
+        {
             return Slowfunctor::SLEEP_SECONDS * (0.2 * i + 2);
         }
     };
@@ -979,13 +1029,16 @@ namespace TIMER_EVENT_SCHEDULER_TEST_CASE_14
         static const double TOLERANCE;
 
         dateTimeList d_timeList;
-        dateTimeList& timeList() {
+        dateTimeList& timeList()
+        {
             return d_timeList;
         }
-        static double timeofday() {
+        static double timeofday()
+        {
             return dnow();
         }
-        void callback() {
+        void callback()
+        {
             d_timeList.push_back(timeofday());
         }
     };
@@ -993,7 +1046,8 @@ namespace TIMER_EVENT_SCHEDULER_TEST_CASE_14
 
     template<class _Tp>
     const _Tp
-    abs(const _Tp& __a) {
+    abs(const _Tp& __a)
+    {
         return 0 <= __a ? __a : - __a;
     }
 }  // close namespace TIMER_EVENT_SCHEDULER_TEST_CASE_14
@@ -2035,7 +2089,7 @@ void test3_g()
 namespace TIMER_EVENT_SCHEDULER_TEST_CASE_2
 {
 
-struct testCase2Data {
+struct TestCase2Data {
     int               d_line;
     float             d_startTime;         // in 1/10th of a sec.
     bool              d_isClock;
@@ -2046,7 +2100,7 @@ struct testCase2Data {
 
 bool testCallbacks(int                  *failures,
                    const float           totalTime,
-                   const testCase2Data  *DATA,
+                   const TestCase2Data  *DATA,
                    const int             NUM_DATA,
                    TestClass           **testObjects)
 {
@@ -2764,7 +2818,7 @@ int main(int argc, char *argv[])
 
         using namespace TIMER_EVENT_SCHEDULER_TEST_CASE_USAGE;
         bslma::TestAllocator ta(veryVeryVerbose);
-        my_Server server(bsls::TimeInterval(10), &ta);
+        My_Server server(bsls::TimeInterval(10), &ta);
 
       } break;
       case 28: {
@@ -3487,12 +3541,12 @@ int main(int argc, char *argv[])
             cout << "Attributes test\n";
         }
 
-        using namespace TIMER_EVENT_SCHEDULER_TEST_CASE_16;
+        namespace TC = TIMER_EVENT_SCHEDULER_TEST_CASE_16;
 
         bslmt::ThreadAttributes attr;
 
         if (!veryVeryVerbose) {
-            attr.setStackSize(80 * 1000 * 1000);
+            attr.setStackSize(TC::k_STACK_SIZE_IN_BYTES);
         }
         attr.setDetachedState(bslmt::ThreadAttributes::e_CREATE_DETACHED);
 
@@ -3500,30 +3554,24 @@ int main(int argc, char *argv[])
             cout << "StackSize: " << attr.stackSize() << endl;
         }
 
-        // As of 10/16/08, the default stack size was about 1MB on Solaris,
-        // 0.25MB on AIX, and 10MB on Linux.
-        Recurser r;
-        r.d_recurseDepth = 79 * 1000 * 1000;
-        r.s_finished = false;
+        TC::Recurser::s_finished = false;
 
         bdlmt::TimerEventScheduler scheduler;
         int sts = scheduler.start(attr);
         ASSERT(!sts);
 
         scheduler.scheduleEvent(bsls::SystemTime::nowRealtimeClock() +
-                                                     bsls::TimeInterval(0.1),
-                                r);
-
+                                                      bsls::TimeInterval(0.05),
+                                TC::Recurser());
         sleepUntilMs(250 * 1000 / 1000);
+
+        if (!TC::Recurser::s_finished) {
+            BSLS_ASSERT_INVOKE("test not finished in time");
+        }
 
         scheduler.stop();
 
-        if (verbose) {
-            cout << (r.s_finished ? "Finished OK"
-                                  : "Error -- did not finish") << endl;
-        }
-
-        ASSERT(r.s_finished);
+        ASSERT(TC::Recurser::s_finished);
       } break;
       case 15: {
         // -----------------------------------------------------------------
@@ -5113,7 +5161,7 @@ int main(int argc, char *argv[])
             // schedule multiple clocks and multiple events and verify that
             // their callbacks execute at appropriate times.
 
-            static const testCase2Data DATA[] = {
+            static const TestCase2Data DATA[] = {
                 //line no.  start  isClock  interval executionTime  delayed
                 //-------   -----  -------  -------- -------------  -------
                 { L_,          1,    true,       10,            0,   false },
@@ -5201,7 +5249,7 @@ int main(int argc, char *argv[])
             // schedule a long running callback and several other callbacks.
             // Verify that other callbacks are shifted as expected.
 
-            static const testCase2Data DATA[] = {
+            static const TestCase2Data DATA[] = {
                 //line no. start  isClock  interval executionTime  delayed
                 //-------  -----  -------  -------- ------------- --------
 

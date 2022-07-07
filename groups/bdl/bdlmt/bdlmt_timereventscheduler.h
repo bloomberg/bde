@@ -241,7 +241,7 @@ BSLS_IDENT("$Id: $")
 // {
 //     // If connection has already timed out and closed, simply return.
 //     if (d_scheduler.cancelEvent(connection->d_timerId)) {
-//         return;                                                // RETURN
+//         return;                                                    // RETURN
 //     }
 //
 //     // process the data
@@ -456,7 +456,11 @@ class TimerEventScheduler {
                       d_clocks;             // catalog of clocks
 
     bslmt::Mutex      d_dispatcherMutex;    // serialize starting/stopping
-                                            // dispatcher thread
+                                            // dispatcher thread.  Note that
+                                            // if 'd_dispatcherMutex' and
+                                            // 'd_mutex' are to both be locked,
+                                            // the lock on 'd_dispatcherMutex'
+                                            // must be acquired first.
 
     bslmt::Mutex      d_mutex;              // mutex used to control access to
                                             // this timer event scheduler
@@ -497,9 +501,10 @@ class TimerEventScheduler {
     bsls::SystemClockType::Enum
                       d_clockType;          // clock type used
 
+  private:
     // NOT IMPLEMENTED
-    TimerEventScheduler(const TimerEventScheduler& original);
-    TimerEventScheduler& operator=(const TimerEventScheduler& rhs);
+    TimerEventScheduler(const TimerEventScheduler&);
+    TimerEventScheduler& operator=(const TimerEventScheduler&);
 
     // FRIENDS
     friend struct TimerEventSchedulerDispatcher;
@@ -801,6 +806,7 @@ class TimerEventSchedulerTestTimeSource {
 
   public:
     // CREATORS
+    explicit
     TimerEventSchedulerTestTimeSource(TimerEventScheduler *scheduler);
         // Construct a test time-source object that will control the
         // "system-time" observed by the specified 'scheduler'.  Initialize
@@ -817,7 +823,7 @@ class TimerEventSchedulerTestTimeSource {
         // 'bsls::TimeInterval'.
 
     // ACCESSORS
-    bsls::TimeInterval now();
+    bsls::TimeInterval now() const;
         // Return this object's current-time value.  Upon construction, this
         // method will return an arbitrary value.  Subsequent calls to
         // 'advanceTime' will adjust the arbitrary value forward.
