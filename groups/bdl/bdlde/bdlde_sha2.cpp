@@ -25,7 +25,7 @@ INTEGER bitwiseConditional(INTEGER condition, INTEGER x, INTEGER y)
     // corresponding bit from the specified 'y'. This function is named 'Ch' in
     // FIPS 180-4.
 {
-    return (x & (y ^ condition)) ^ condition;
+    return (condition & (x ^ y)) ^ y;
 }
 
 template<class INTEGER>
@@ -226,7 +226,7 @@ void transform(INTEGER             *state,
         for (int index = 0; index != ARRAY_SIZE; ++index) {
             const INTEGER t1 = wv[7]
                              + f2(wv[4])
-                             + bitwiseConditional(wv[6], wv[4], wv[5])
+                             + bitwiseConditional(wv[4], wv[5], wv[6])
                              + constants[index]
                              + w[index];
             const INTEGER t2 = f1(wv[0])
