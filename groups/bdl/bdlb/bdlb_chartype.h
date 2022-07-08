@@ -13,7 +13,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Supply local-independent version of '<ctype.h>' functionality.
+//@PURPOSE: Supply locale-independent version of '<ctype.h>' functionality.
 //
 //@CLASSES:
 //   bdlb::CharType: namespace for pure (read-only) procedures on characters
@@ -21,7 +21,7 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bdlb_string
 //
 //@DESCRIPTION: This component defines a utility class 'bdlb::CharType' that
-// provides an efficient, local-independent alternative for the standard
+// provides an efficient, locale-independent alternative for the standard
 // functionality found in '<ctype.h>'.  The following character categories are
 // supported (note that 'ODIGIT', 'IDENT', 'ALUND', 'ALL', and 'NONE' are new):
 //..
