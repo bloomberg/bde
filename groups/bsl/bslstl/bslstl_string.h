@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsl::basic_string: C++ standard compliant 'basic_string' implementation
 //  bsl::string: 'typedef' for 'bsl::basic_string<char>'
-//  bsl::wstring: 'typedef' for 'bsl::basic_string<wchar_t>'
+//  bsl::wstring: 'typedef' for 'bsl::basic_string<wchar_t>'/
 //
 //@CANONICAL_HEADER: bsl_string.h
 //
@@ -7022,16 +7022,17 @@ void bslh::hashAppend(
 }
 
 }  // close enterprise namespace
+
 // ============================================================================
 //                                TYPE TRAITS
 // ============================================================================
 
 // Type traits for STL *sequence* containers:
-//: o A sequence container defines STL iterators.
-//: o A sequence container is bitwise movable if the allocator is bitwise
-//:   movable.
-//: o A sequence container uses 'bslma' allocators if the (template parameter)
-//:   type 'ALLOCATOR' is convertible from 'bslma::Allocator *'.
+// o A sequence container defines STL iterators.
+// o A sequence container is bitwise movable if the allocator is bitwise
+//   movable.
+// o A sequence container uses 'bslma' allocators if the (template parameter)
+//   type 'ALLOCATOR' is convertible from 'bslma::Allocator *'.
 
 namespace BloombergLP {
 
