@@ -75,6 +75,7 @@ BSLS_IDENT("$Id: $")
 //  const bdlb::IndexSpan a(3, 7), b(241, 22), c(23, 17);
 //..
 // First, we make a typedef to the namespace 'struct':
+//..  
 //  typedef bdlb::PrintAdapterUtil Util;
 //..
 // Then, we create a line of dashes:
