@@ -8,10 +8,12 @@
 #include <bslmf_addrvaluereference.h>
 #include <bslmf_addvolatile.h>
 #include <bslmf_isarray.h>      // MSVC workaround, pre-VC 2017
+#include <bslmf_issame.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_nameof.h>
 #include <bsls_nullptr.h>
 #include <bsls_platform.h>
 
@@ -161,17 +163,56 @@ void aSsErT(bool condition, const char *message, int line)
 //                                                     pointer/reference types
 //  ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE : an object type, plus all
 //                                                     reasonable variations
-//
+
+// For the tests below that compare the value of
+// 'bsl::is_no_throw_move_constructible' with the "oracle" (i.e.,
+// 'std::is_no_throw_move_constructible') adjust the expected value for the
+// special cases where the 'bsl' trait intentionally contradicts that provided
+// by the 'std' trait.
+
+#if defined(BSLMF_ISNOTHROWMOVECONSTRUCTIBLE_USE_NATIVE_ORACLE)
+#if defined(BSLS_PLATFORM_CMP_GNU)                                            \
+ && BSLS_PLATFORM_CMP_VERSION >= 110000                                       \
+ && BSLS_PLATFORM_CMP_VERSION <  120000                                       \
+ && BSLS_COMPILERFEATURES_CPLUSPLUS == 202002L                                \
+
+template <class TYPE>
+struct IS_SPECIAL_CASE {
+    enum { value =
+        (  bsl::is_same<TYPE,                bool                 [128]>::value
+        || bsl::is_same<TYPE, const          bool                 [128]>::value
+        || bsl::is_same<TYPE,       volatile bool                 [128]>::value
+        || bsl::is_same<TYPE, const volatile bool                 [128]>::value
+
+        || bsl::is_same<TYPE,                void*                [128]>::value
+        || bsl::is_same<TYPE, const          void*                [128]>::value
+        || bsl::is_same<TYPE, const          void* const          [128]>::value
+        || bsl::is_same<TYPE,       volatile void*                [128]>::value
+        || bsl::is_same<TYPE,       volatile void*       volatile [128]>::value
+        || bsl::is_same<TYPE, const volatile void*                [128]>::value
+        || bsl::is_same<TYPE, const volatile void* const          [128]>::value
+        || bsl::is_same<TYPE, const volatile void*       volatile [128]>::value
+        || bsl::is_same<TYPE, const volatile void* const volatile [128]>::value
+        ) };
+};
+
+#define ORACLE_VALUE(TYPE) (std::is_nothrow_move_constructible<TYPE>::value   \
+                            && !IS_SPECIAL_CASE<TYPE>::value)
+#else
+#define ORACLE_VALUE(TYPE) std::is_nothrow_move_constructible<TYPE>::value
+#endif
+#else
+    // Cannot use oracle if is not available.
+#endif
 
 // Macro: ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CONSULT_ORACLE
 //   This macro validates that the 'bsl' trait has the same result as the
 //   native trait if it is available, and expands to nothing otherwise.
 #if defined(BSLMF_ISNOTHROWMOVECONSTRUCTIBLE_USE_NATIVE_ORACLE)
 # define ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CONSULT_ORACLE(TYPE)            \
-    ASSERTV( std::is_nothrow_move_constructible<TYPE>::value,                 \
-             bsl::is_nothrow_move_constructible<TYPE>::value,                 \
-             std::is_nothrow_move_constructible<TYPE>::value ==               \
-             bsl::is_nothrow_move_constructible<TYPE>::value)
+    ASSERTV(                                                                  \
+       ORACLE_VALUE(TYPE),   bsl::is_nothrow_move_constructible<TYPE>::value, \
+       ORACLE_VALUE(TYPE) == bsl::is_nothrow_move_constructible<TYPE>::value);\
     // Confirm that the result of 'bsl::is_nothrow_move_constructible<TYPE>'
     // agrees with the oracle 'std::is_nothrow_move_constructible'.
 #else
@@ -179,7 +220,6 @@ void aSsErT(bool condition, const char *message, int line)
     // The native trait is not available to act as an oracle, so there is no
     // test to perform.
 #endif
-
 
 // Macro: ASSERT_VARIABLE_TEMPLATE_IS_CONSISTENT
 //   This macro validates that the 'bsl' variable template has the same value
@@ -195,7 +235,6 @@ void aSsErT(bool condition, const char *message, int line)
 # define ASSERT_VARIABLE_TEMPLATE_IS_CONSISTENT(TYPE)
 #endif
 
-
 // Macro: ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE
 //   This macro tests that the 'is_move_constructible' trait has the expected
 //   'RESULT' for the given 'TYPE', and that all manifestations of that trait
@@ -209,7 +248,6 @@ void aSsErT(bool condition, const char *message, int line)
     // result agrees with the native oracle, where available.  Finally. confirm
     // that the associated variable template, when available, has a value that
     // agrees with this trait instantiation.
-
 
 // Macro: ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_RVAL_REF
 //   This macro tests that the 'is_move_constructible' trait has the expected
@@ -231,18 +269,16 @@ void aSsErT(bool condition, const char *message, int line)
 # define ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_RVAL_REF(TYPE, RESULT)
 #endif
 
-
-// Macro: ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TYPE
-//   This macro tests that the 'is_move_constructible' trait has the expected
-//   'RESULT' for the given 'TYPE', and pointers/references to that type.
-//   Pointers and references are always no-throw move constructible.
+    // Macro: ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TYPE
+    //   This macro tests that the 'is_move_constructible' trait has the expected
+    //   'RESULT' for the given 'TYPE', and pointers/references to that type.
+    //   Pointers and references are always no-throw move constructible.
 # define ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TYPE(TYPE, RESULT)              \
     ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE(TYPE, RESULT);                       \
     ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE(bsl::add_pointer<TYPE>::type, true); \
     ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE(                                     \
                                 bsl::add_lvalue_reference<TYPE>::type, true); \
     ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_RVAL_REF(TYPE, RESULT)
-
 
 // Macro: ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CV_TYPE
 //   This macro tests that the 'is_move_constructible' trait has the expected
@@ -256,7 +292,6 @@ void aSsErT(bool condition, const char *message, int line)
                                       bsl::add_volatile<TYPE>::type, RESULT); \
     ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TYPE(                                \
                                       bsl::add_cv<TYPE>::type, RESULT)
-
 
 // Macro: ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE
 //   This macro tests that the 'is_move_constructible' trait has the expected
@@ -305,7 +340,6 @@ typedef int (UserDefinedTestType::*MethodPtrTestType)();
 
 }  // close unnamed namespace
 
-
 struct Incomplete;  // Incomplete class type for testing
 union  Uncomplete;  // Incomplete union type for testing
 
@@ -326,7 +360,6 @@ union NonTrivialUnion {
     NonTrivialUnion() {}
     NonTrivialUnion(const NonTrivialUnion&) {}
 };
-
 
 struct ClassUsingNestedCopyable {
     // This 'struct', which is marked to have a 'nothrow' move constructor
@@ -360,7 +393,6 @@ union UnionUsingNestedMovable {
                                    bsl::is_nothrow_move_constructible);
 };
 
-
 struct NothrowMovableClass {
     // This empty 'struct' indicates it can be moved without risk of throwing
     // to C++03 toolchains by explicitly specializing the
@@ -372,7 +404,6 @@ union NothrowMovableUnion {
     // C++03 toolchains by explicitly specializing the
     // 'bsl::is_nothrow_move_constructible' trait.
 };
-
 
 struct TrivialClass {
     // This empty 'struct' indicates its triviality to C++03 toolchains by
@@ -395,7 +426,6 @@ struct is_nothrow_move_constructible<NothrowMovableClass> : bsl::true_type {};
 template <>
 struct is_nothrow_move_constructible<NothrowMovableUnion> : bsl::true_type {};
 }  // close namespace bsl
-
 
 int main(int argc, char *argv[])
 {
@@ -531,7 +561,6 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nTESTING BASIC SUPPORT FOR CLASS TYPES"
                             "\n=====================================\n");
-
 
         // C-1
         ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(NonTrivial, false);

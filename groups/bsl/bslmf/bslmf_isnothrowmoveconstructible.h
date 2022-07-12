@@ -42,6 +42,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_assert.h>
 #include <bslmf_detectnestedtrait.h>
 #include <bslmf_integralconstant.h>
+#include <bslmf_isarray.h>
 #include <bslmf_isconst.h>
 #include <bslmf_istriviallycopyable.h>
 #include <bslmf_isvolatile.h>
@@ -68,6 +69,32 @@ struct is_nothrow_move_constructible;
 
 }  // close namespace bsl
 
+///Implementation Notes
+///--------------------
+// In C++20 certain array types which decay to their element type, such as
+// 'const void*' and 'bool', report as copy constructible through
+// 'std::is_nothrow_move_constructible'.  In fact, initialization that attempts
+// such move constructions does not result in a copy of the orginal array but
+// instead initializes only the first element of the new array -- and that is
+// set to the address of the original array, not the original's first element.
+//
+// This behavior has been observed in 'gcc-11' targeting C++20 and should occur
+// with any compiler correctly supporting C++20 aggregate initialization with
+// parenthesis (identified by the feature test macro
+// '__cpp_aggregate_paren_init').
+//
+// An LWG issue (https://wg21.link/lwg####) has been filed to correct this
+// behavior and continue to return 'false' for all array types.
+//
+// The implementation below preemptively implements the expected resolution of
+// that issue on all platforms.
+
+#define STD_IS_NOTHROW_MOVE_CONSTRUCTIBLE_VALUE(TYPE)                         \
+                        ( bsl::is_array<TYPE>::value                          \
+                          ? false                                             \
+                          : ::std::is_nothrow_move_constructible<TYPE>::value \
+                        )
+
 namespace BloombergLP {
 namespace bslmf {
 
@@ -89,13 +116,11 @@ namespace bslmf {
         BSLMF_VOIDTYPE(int TYPE::*)
 #endif
 
-
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
 template <class TYPE, class = void>
 struct IsNothrowMoveConstructible_Impl
-    : bsl::integral_constant<
-                           bool,
-                           ::std::is_nothrow_move_constructible<TYPE>::value> {
+    : bsl::integral_constant<bool,
+                             STD_IS_NOTHROW_MOVE_CONSTRUCTIBLE_VALUE(TYPE)> {
     // This 'struct' template implements a metafunction to determine whether
     // the (non-cv-qualified) (template parameter) 'TYPE' has a no-throw move
     // constructor.  Note that the partial specializations below will provide
@@ -106,11 +131,10 @@ template <class TYPE>
 struct IsNothrowMoveConstructible_Impl<
     TYPE,
     BSLMF_ISNOTHROWMOVECONSTRUCTIBLE_VOIDTYPE(TYPE)>
-: bsl::integral_constant<
-      bool,
-      ::std::is_nothrow_move_constructible<TYPE>::value ||
-          bsl::is_trivially_copyable<TYPE>::value ||
-          DetectNestedTrait<TYPE, bsl::is_nothrow_move_constructible>::value> {
+: bsl::integral_constant<bool,
+          STD_IS_NOTHROW_MOVE_CONSTRUCTIBLE_VALUE(TYPE)
+       || bsl::is_trivially_copyable<TYPE>::value
+       || DetectNestedTrait<TYPE, bsl::is_nothrow_move_constructible>::value> {
     // This 'struct' template implements a metafunction to determine whether
     // the (non-cv-qualified) (template parameter) 'TYPE' has a no-throw move
     // constructor.  To maintain consistency between the C++03 and C++11
@@ -125,10 +149,9 @@ template <class TYPE>
 struct IsNothrowMoveConstructible_Impl<
     const TYPE,
     BSLMF_ISNOTHROWMOVECONSTRUCTIBLE_VOIDTYPE(TYPE)>
-: bsl::integral_constant<
-      bool,
-      ::std::is_nothrow_move_constructible<const TYPE>::value ||
-          bsl::is_trivially_copyable<TYPE>::value> {
+: bsl::integral_constant<bool,
+                         STD_IS_NOTHROW_MOVE_CONSTRUCTIBLE_VALUE(const TYPE)
+                      || bsl::is_trivially_copyable<TYPE>::value> {
     enum { k_CHECK_COMPLETE = sizeof(TYPE) };   // Diagnose incomplete types
 };
 
@@ -137,8 +160,8 @@ struct IsNothrowMoveConstructible_Impl<
     volatile TYPE,
     BSLMF_ISNOTHROWMOVECONSTRUCTIBLE_VOIDTYPE(TYPE)>
 : bsl::integral_constant<
-      bool,
-      ::std::is_nothrow_move_constructible<volatile TYPE>::value> {
+                      bool,
+                      STD_IS_NOTHROW_MOVE_CONSTRUCTIBLE_VALUE(volatile TYPE)> {
     enum { k_CHECK_COMPLETE = sizeof(TYPE) };   // Diagnose incomplete types
 };
 
@@ -147,8 +170,8 @@ struct IsNothrowMoveConstructible_Impl<
     const volatile TYPE,
     BSLMF_ISNOTHROWMOVECONSTRUCTIBLE_VOIDTYPE(TYPE)>
 : bsl::integral_constant<
-      bool,
-      ::std::is_nothrow_move_constructible<const volatile TYPE>::value> {
+                bool,
+                STD_IS_NOTHROW_MOVE_CONSTRUCTIBLE_VALUE(const volatile TYPE)> {
     enum { k_CHECK_COMPLETE = sizeof(TYPE) };   // Diagnose incomplete types
 };
     // Partial specializations to avoid detecting cv-qualified class types with
@@ -160,6 +183,7 @@ struct IsNothrowMoveConstructible_Impl<
     // move constructible to maintain consistency between the C++03 and C++11
     // implementations of this trait.
 
+#undef STD_IS_NOTHROW_MOVE_CONSTRUCTIBLE_VALUE
 #else
 template <class TYPE, class = void>
 struct IsNothrowMoveConstructible_Impl
@@ -219,7 +243,6 @@ struct IsNothrowMoveConstructible_Impl<
     // constructible through the primary template.  As a practical matter, we
     // assume that types flagged as trivially copyable have a no-throw copy
     // constructor, and so are no-throw move constructible too.
-
 
 # if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 template <class TYPE>

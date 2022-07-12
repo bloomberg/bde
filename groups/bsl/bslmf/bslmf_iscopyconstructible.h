@@ -54,6 +54,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmf_detectnestedtrait.h>
 #include <bslmf_integralconstant.h>
+#include <bslmf_isarray.h>
 #include <bslmf_isfunction.h>
 #include <bslmf_isreference.h>
 #include <bslmf_isvolatile.h>
@@ -107,13 +108,35 @@ namespace bsl {
                         // struct is_copy_constructible (C++11)
                         // ====================================
 
+///Implementation Notes
+///--------------------
+// In C++20 certain array types which decay to their element type, such as
+// 'const void*' and 'bool', report as copy constructible through
+// 'std::is_copy_constructible'.  In fact, initialization that attempts such
+// copy constructions does not result in a copy of the original array but
+// instead initializes only the first element of the new array -- and that is
+// set to the address of the original array, not the original's first element.
+//
+// This behavior has been observed in 'gcc-11' targeting C++20 and should occur
+// with any compiler correctly supporting C++20 aggregate initialization with
+// parenthesis (identified by the feature test macro
+// '__cpp_aggregate_paren_init').
+//
+// An LWG issue (https://wg21.link/lwg####) has been filed to correct this
+// behavior and continue to return 'false' for all array types.
+//
+// The implementation below preemptively implements the expected resolution of
+// that issue on all platforms.
+
 template <class TYPE>
 struct is_copy_constructible
-    : bsl::integral_constant<bool,
-                             ::std::is_copy_constructible<TYPE>::value>
+     : bsl::integral_constant<bool, (bsl::is_array<TYPE>::value
+                                     ? false
+                                     : std::is_copy_constructible<TYPE>::value)
+                              >
 {
-    // This specialization defers entirely to the native trait on supported
-    // C++11 compilers.
+    // This specialization largely defers to the native trait on supported
+    // C++11 compilers.  See {Implementation Notes} above.
 };
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
