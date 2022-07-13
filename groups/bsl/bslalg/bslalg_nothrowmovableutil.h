@@ -202,7 +202,7 @@ BSLS_IDENT("$Id: $")
 // stored within 'CountedType2'.  However, rather than defining 'ValueType' as
 // simply 'TYPE', we want to know if it is an instantiation of
 // 'NothrowMovableWrapper<TP>'.  If it is, we want a type that represents the
-// unwrapped 'TP' rather than the full 'TYPE'.  For this type transformation, 
+// unwrapped 'TP' rather than the full 'TYPE'.  For this type transformation,
 // we turn to the type traits defined in 'bslalg::NothrowMovableUtil':
 //..
 //  public:
@@ -321,7 +321,7 @@ struct NothrowMovableUtil {
     struct WrappedType {
         // Metafunction: If 'TYPE' is a specialization of
         // 'NothrowMovableWrapper', then 'WrappedType<TYPE>::type' is 'TYPE';
-        // otherwise 'WrappedType<TYPE>::type' is 
+        // otherwise 'WrappedType<TYPE>::type' is
         // 'NothrowMovableWrapper<TYPE>'.
 
         typedef typename NothrowMovableUtil_Traits<TYPE>::WrappedType type;

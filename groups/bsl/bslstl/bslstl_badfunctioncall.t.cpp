@@ -213,7 +213,7 @@ int main(int argc, char *argv[])
         // string returned by 'what()' method is implementation specific so we
         // can only check our own implementation
         ASSERT(0 == strcmp("bad_function_call", b.what()));
-#else 
+#else
         ASSERT(0 != b.what() && 0 != strlen(b.what()));
 #endif  // #ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 

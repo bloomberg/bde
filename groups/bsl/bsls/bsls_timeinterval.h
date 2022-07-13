@@ -293,7 +293,7 @@ class TimeInterval {
         // time interval can be constructed from 'seconds' and 'nanoseconds' if
         // their sum results in a time interval whose total number of seconds
         // can be represented with a 64-bit signed integer.
- 
+
 #ifdef BSLS_TIMEINTERVAL_PROVIDES_CHRONO_CONVERSIONS
     template <class REP, class PERIOD>
     static bool isValid(const std::chrono::duration<REP, PERIOD>& duration);

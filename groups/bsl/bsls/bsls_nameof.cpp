@@ -272,7 +272,7 @@ const char *NameOf_Base::initBuffer(char       *buffer,
 
     char stringName[] = { "std::basic_string<char>" };
 
-#   if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201703L 
+#   if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201703L
 
     char longName[] = { "std::basic_string<char,"
                             " std::char_traits<char>, std::allocator<char>>" };

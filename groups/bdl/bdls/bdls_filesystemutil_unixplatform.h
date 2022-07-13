@@ -23,7 +23,7 @@ BSLS_IDENT("$Id: $")
 // a) a set of macros for detecting the most appropriate type to use for byte
 // quantities, and most appropriate set of functions to use for file
 // operations, on Unix platforms, and
-// 
+//
 // b) a macro which specifies the name of the member variable, within a 'stat'
 // structure, that holds the nanosecond part of the file timestamp.
 //

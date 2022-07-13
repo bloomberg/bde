@@ -2285,7 +2285,7 @@ template <class KEY,
           class ALLOCATOR,
           class PREDICATE>
 typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::size_type
-erase_if(unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>&         m, 
+erase_if(unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>&         m,
                                                           PREDICATE predicate);
     // Erase all the elements in the specified unordered_map 'm' that satisfy
     // the specified predicate 'predicate'.  Return the number of elements

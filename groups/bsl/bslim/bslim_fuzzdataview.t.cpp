@@ -312,10 +312,10 @@ int main(int argc, char *argv[])
                 bsl::uint8_t      SAVE_BUF[BUFLEN];
                 const int         LINE          = DATA[ti].d_line;
                 const bsl::size_t NUM_BYTES     = DATA[ti].d_numBytesToRemove;
-                
+
                 generateBytes(FUZZ_BUF, BUFLEN, inBytes);
                 bsl::copy(FUZZ_BUF, FUZZ_BUF + inBytes, SAVE_BUF);
-                    
+
                 Obj mX(FUZZ_BUF, inBytes); const Obj& X = mX;
 
                 const bsl::size_t EXP_SUFFIX_LENGTH =
@@ -465,7 +465,7 @@ int main(int argc, char *argv[])
                 generateBytes(FUZZ_BUF, BUFLEN, inBytes);
                 bsl::copy(FUZZ_BUF, FUZZ_BUF + inBytes, SAVE_BUF);
 
-                    
+
 
                 Obj mX(FUZZ_BUF, inBytes); const Obj& X = mX;
 

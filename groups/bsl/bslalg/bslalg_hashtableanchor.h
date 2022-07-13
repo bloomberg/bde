@@ -266,7 +266,7 @@ BSLS_IDENT("$Id: $")
 //
 //      d_allocator_p = bslma::Default::allocator(allocator);
 //      std::size_t bucketArraySizeInBytes = NUM_BUCKETS * sizeof(Bucket);
-//                                                
+//
 //      setBucketArrayAddressAndSize(
 //                  (Bucket *) d_allocator_p->allocate(bucketArraySizeInBytes),
 //                  NUM_BUCKETS);

@@ -358,7 +358,7 @@ int main(int argc, char *argv[])
                         false);
             }
 #endif // BSLS_ASSERT_OPT_IS_ACTIVE
-            
+
             scratch.deallocate(reinterpret_cast<void*>(arr));
         }
       } break;

@@ -273,7 +273,7 @@ class ContainerBase : public
     {
         // We use 'rebind_traits<T>::allocator_type' instead of the ideally
         // equivalent 'rebind_alloc<T>' because in C++03 it avoids the use of a
-        // subclass of the allocator type that is needed to work around the 
+        // subclass of the allocator type that is needed to work around the
         // lack of alias templates.
         typedef typename AllocatorTraits::
             template rebind_traits<T>::allocator_type Rebound;

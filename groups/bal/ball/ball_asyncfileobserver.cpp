@@ -128,7 +128,7 @@ void setPublicationThreadAttributes(bslmt::ThreadAttributes *attributes)
 }
 
         // stop-record functions
-        
+
 AsyncFileObserver_Record createStopRecord()
     // Return a 'AsyncFileObserver_Record' object for which 'isStopRecord' will
     // return 'true', and that cannot be a user created record from

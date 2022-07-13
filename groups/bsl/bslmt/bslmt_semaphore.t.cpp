@@ -454,13 +454,13 @@ int main(int argc, char *argv[])
 
         printf("        //     SysTimes:"
                   "- - - - - - - - - - - - - - - - - - - - - - - - - - - -\n");
-        u::dumpTimes(sysTimes);        
+        u::dumpTimes(sysTimes);
         printf("        //     UserTimes:"
                    " - - - - - - - - - - - - - - - - - - - - - - - - - - -\n");
-        u::dumpTimes(userTimes);        
+        u::dumpTimes(userTimes);
         printf("        //     WallTimes:"
                    " - - - - - - - - - - - - - - - - - - - - - - - - - - -\n");
-        u::dumpTimes(wallTimes);        
+        u::dumpTimes(wallTimes);
       } break;
 
 

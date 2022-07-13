@@ -95,7 +95,7 @@ namespace bsls {
 
 struct Stopwatch {
 };
-        
+
 }
 }
 

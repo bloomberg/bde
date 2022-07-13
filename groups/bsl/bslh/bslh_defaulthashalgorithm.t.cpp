@@ -554,7 +554,7 @@ int main(int argc, char *argv[])
 
                 cannonicalHashAlgorithm(VALUE, strlen(VALUE));
                 contiguousHash(VALUE, strlen(VALUE));
-                ASSERTV(LINE, cannonicalHashAlgorithm.computeHash() == 
+                ASSERTV(LINE, cannonicalHashAlgorithm.computeHash() ==
                                                  contiguousHash.computeHash());
             }
         }

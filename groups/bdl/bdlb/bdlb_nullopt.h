@@ -5,10 +5,10 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a tag type and constant indicating an empty nullable value. 
+//@PURPOSE: Provide a tag type and constant indicating an empty nullable value.
 //
-//@CLASSES:                                                                     
-//  NullOptType: tag type representing an empty nullable value                  
+//@CLASSES:
+//  NullOptType: tag type representing an empty nullable value
 //  nullOpt:     literal value of type 'NullOptType'
 //
 //@SEE_ALSO: bdlb_nullablevalue

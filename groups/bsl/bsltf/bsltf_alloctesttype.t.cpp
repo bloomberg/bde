@@ -355,7 +355,7 @@ int main(int argc, char *argv[])
                 ASSERTV("The preceding destructor should 'exit' the process",
                         false);
             }
-#endif // BSLS_ASSERT_OPT_IS_ACTIVE            
+#endif // BSLS_ASSERT_OPT_IS_ACTIVE
 
             scratch.deallocate(reinterpret_cast<void*>(arr));
         }

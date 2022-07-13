@@ -9251,7 +9251,7 @@ int main(int argc, char *argv[])
             typedef std::ostream& (Obj::*funcPtr)(
                                                 std::ostream&, int, int) const;
             typedef std::ostream& (*operatorPtr)(std::ostream&, const Obj&);
-                
+
 
             // Verify that the signatures and return types are standard.
 

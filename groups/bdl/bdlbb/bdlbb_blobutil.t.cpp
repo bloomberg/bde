@@ -241,7 +241,7 @@ void copyStringToBlob(bdlbb::Blob *dest, const bsl::string& str)
     int         bufferIndex       = 0;
     while (numBytesRemaining) {
         bdlbb::BlobBuffer buffer         = dest->buffer(bufferIndex);
-        int               numBytesToCopy = 
+        int               numBytesToCopy =
                                     bsl::min(numBytesRemaining, buffer.size());
         bsl::memcpy(buffer.data(), data, numBytesToCopy);
         data += numBytesToCopy;

@@ -1515,7 +1515,7 @@ void TestDriver<TYPE,TRAITS>::testCase20()
         op    = &bsl::operator>=;
         (void) op;
     }
-#endif        
+#endif
 
     if (verbose) printf("for %s type.\n", NameOf<TYPE>().name());
 
@@ -6121,7 +6121,7 @@ void TestDriver<TYPE, TRAITS>::testCase4()
     if (verbose) printf("\tTesting signatures.\n");
     {
         typedef bool (*OP)(Obj, Obj);
-        
+
         OP op = &bsl::operator==;
         (void) op;
         op    = &bsl::operator!=;

@@ -326,20 +326,20 @@ const bdlat_AttributeInfo *Point::lookupAttributeInfo(int id)
 //..
 
     namespace BloombergLP {
-    
+
     namespace mine {
-    
+
     struct MySequence {
         // This struct represents a sequence containing a 'string' member, an
         // 'int' member, and a 'float' member.
-    
+
         // CONSTANTS
         enum {
             NAME_ATTRIBUTE_ID   = 1,
             AGE_ATTRIBUTE_ID    = 2,
             SALARY_ATTRIBUTE_ID = 3
         };
-    
+
         // DATA MEMBERS
         bsl::string d_name;
         int         d_age;
@@ -354,7 +354,7 @@ const bdlat_AttributeInfo *Point::lookupAttributeInfo(int id)
 // functions that we will implement inside the 'mine' namespace:
 //..
     namespace mine {
-    
+
     template <class MANIPULATOR>
     int bdlat_sequenceManipulateAttribute(MySequence   *object,
                                           MANIPULATOR&  manipulator,
@@ -384,7 +384,7 @@ const bdlat_AttributeInfo *Point::lookupAttributeInfo(int id)
                                     int                attributeNameLength);
     bool bdlat_sequenceHasAttribute(const MySequence& object,
                                     int               attributeId);
-    
+
     }  // close namespace mine
 //..
 // Now, we will implement these functions.  Note that for this implementation,
@@ -401,7 +401,7 @@ const bdlat_AttributeInfo *Point::lookupAttributeInfo(int id)
                                           int           attributeNameLength)
     {
         enum { NOT_FOUND = -1 };
-    
+
         if (bdlb::String::areEqualCaseless("name",
                                            attributeName,
                                            attributeNameLength)) {
@@ -411,7 +411,7 @@ const bdlat_AttributeInfo *Point::lookupAttributeInfo(int id)
                                                 MySequence::NAME_ATTRIBUTE_ID);
                                                                       // RETURN
         }
-    
+
         if (bdlb::String::areEqualCaseless("age",
                                            attributeName,
                                            attributeNameLength)) {
@@ -421,7 +421,7 @@ const bdlat_AttributeInfo *Point::lookupAttributeInfo(int id)
                                                  MySequence::AGE_ATTRIBUTE_ID);
                                                                       // RETURN
         }
-    
+
         if (bdlb::String::areEqualCaseless("salary",
                                            attributeName,
                                            attributeNameLength)) {
@@ -431,49 +431,49 @@ const bdlat_AttributeInfo *Point::lookupAttributeInfo(int id)
                                               MySequence::SALARY_ATTRIBUTE_ID);
                                                                       // RETURN
         }
-    
+
         return NOT_FOUND;
     }
-    
+
     template <class MANIPULATOR>
     int mine::bdlat_sequenceManipulateAttribute(MySequence   *object,
                                                 MANIPULATOR&  manipulator,
                                                 int           attributeId)
     {
         enum { NOT_FOUND = -1 };
-    
+
         switch (attributeId) {
           case MySequence::NAME_ATTRIBUTE_ID: {
             bdlat_AttributeInfo info;
-    
+
             info.annotation()     = "Name of employee";
             info.formattingMode() = bdlat_FormattingMode::e_DEFAULT;
             info.id()             = MySequence::NAME_ATTRIBUTE_ID;
             info.name()           = "name";
             info.nameLength()     = 4;
-    
+
             return manipulator(&object->d_name, info);                // RETURN
           }
           case MySequence::AGE_ATTRIBUTE_ID: {
             bdlat_AttributeInfo info;
-    
+
             info.annotation()     = "Age of employee";
             info.formattingMode() = bdlat_FormattingMode::e_DEFAULT;
             info.id()             = MySequence::AGE_ATTRIBUTE_ID;
             info.name()           = "age";
             info.nameLength()     = 3;
-    
+
             return manipulator(&object->d_age, info);                 // RETURN
           }
           case MySequence::SALARY_ATTRIBUTE_ID: {
             bdlat_AttributeInfo info;
-    
+
             info.annotation()     = "Salary of employee";
             info.formattingMode() = bdlat_FormattingMode::e_DEFAULT;
             info.id()             = MySequence::SALARY_ATTRIBUTE_ID;
             info.name()           = "salary";
             info.nameLength()     = 6;
-    
+
             return manipulator(&object->d_salary, info);              // RETURN
           }
           default: {
@@ -481,41 +481,41 @@ const bdlat_AttributeInfo *Point::lookupAttributeInfo(int id)
           }
         }
     }
-    
+
     template <class MANIPULATOR>
     int mine::bdlat_sequenceManipulateAttributes(MySequence   *object,
                                                  MANIPULATOR&  manipulator)
     {
         int retVal;
-    
+
         retVal = bdlat_sequenceManipulateAttribute(
                                                 object,
                                                 manipulator,
                                                 MySequence::NAME_ATTRIBUTE_ID);
-    
+
         if (0 != retVal) {
             return retVal;                                            // RETURN
         }
-    
+
         retVal = bdlat_sequenceManipulateAttribute(
                                                  object,
                                                  manipulator,
                                                  MySequence::AGE_ATTRIBUTE_ID);
-    
+
         if (0 != retVal) {
             return retVal;                                            // RETURN
         }
-    
+
         retVal = bdlat_sequenceManipulateAttribute(
                                               object,
                                               manipulator,
                                               MySequence::SALARY_ATTRIBUTE_ID);
-    
+
         return retVal;
     }
-    
+
     // ACCESSORS
-    
+
     template <class ACCESSOR>
     int mine::bdlat_sequenceAccessAttribute(
                                         const MySequence&  object,
@@ -524,7 +524,7 @@ const bdlat_AttributeInfo *Point::lookupAttributeInfo(int id)
                                         int                attributeNameLength)
     {
         enum { NOT_FOUND = -1 };
-    
+
         if (bdlb::String::areEqualCaseless("name",
                                            attributeName,
                                            attributeNameLength)) {
@@ -534,7 +534,7 @@ const bdlat_AttributeInfo *Point::lookupAttributeInfo(int id)
                                                 MySequence::NAME_ATTRIBUTE_ID);
                                                                       // RETURN
         }
-    
+
         if (bdlb::String::areEqualCaseless("age",
                                            attributeName,
                                            attributeNameLength)) {
@@ -543,7 +543,7 @@ const bdlat_AttributeInfo *Point::lookupAttributeInfo(int id)
                                                  MySequence::AGE_ATTRIBUTE_ID);
                                                                       // RETURN
         }
-    
+
         if (bdlb::String::areEqualCaseless("salary",
                                            attributeName,
                                            attributeNameLength)) {
@@ -553,49 +553,49 @@ const bdlat_AttributeInfo *Point::lookupAttributeInfo(int id)
                                               MySequence::SALARY_ATTRIBUTE_ID);
                                                                       // RETURN
         }
-    
+
         return NOT_FOUND;
     }
-    
+
     template <class ACCESSOR>
     int mine::bdlat_sequenceAccessAttribute(const MySequence& object,
                                             ACCESSOR&         accessor,
                                             int               attributeId)
     {
         enum { NOT_FOUND = -1 };
-    
+
         switch (attributeId) {
           case MySequence::NAME_ATTRIBUTE_ID: {
             bdlat_AttributeInfo info;
-    
+
             info.annotation()     = "Name of employee";
             info.formattingMode() = bdlat_FormattingMode::e_DEFAULT;
             info.id()             = MySequence::NAME_ATTRIBUTE_ID;
             info.name()           = "name";
             info.nameLength()     = 4;
-    
+
             return accessor(object.d_name, info);                     // RETURN
           }
           case MySequence::AGE_ATTRIBUTE_ID: {
             bdlat_AttributeInfo info;
-    
+
             info.annotation()     = "Age of employee";
             info.formattingMode() = bdlat_FormattingMode::e_DEFAULT;
             info.id()             = MySequence::AGE_ATTRIBUTE_ID;
             info.name()           = "age";
             info.nameLength()     = 3;
-    
+
             return accessor(object.d_age, info);                      // RETURN
           }
           case MySequence::SALARY_ATTRIBUTE_ID: {
             bdlat_AttributeInfo info;
-    
+
             info.annotation()     = "Salary of employee";
             info.formattingMode() = bdlat_FormattingMode::e_DEFAULT;
             info.id()             = MySequence::SALARY_ATTRIBUTE_ID;
             info.name()           = "salary";
             info.nameLength()     = 6;
-    
+
             return accessor(object.d_salary, info);                   // RETURN
           }
           default: {
@@ -603,37 +603,37 @@ const bdlat_AttributeInfo *Point::lookupAttributeInfo(int id)
           }
         }
     }
-    
+
     template <class ACCESSOR>
     int mine::bdlat_sequenceAccessAttributes(const MySequence& object,
                                              ACCESSOR&         accessor)
     {
         int retVal;
-    
+
         retVal = bdlat_sequenceAccessAttribute(object,
                                                accessor,
                                                MySequence::NAME_ATTRIBUTE_ID);
-    
+
         if (0 != retVal) {
         return retVal;                                                // RETURN
         }
-    
+
         retVal = bdlat_sequenceAccessAttribute(object,
                                                accessor,
                                                MySequence::AGE_ATTRIBUTE_ID);
-    
+
         if (0 != retVal) {
             return retVal;                                            // RETURN
         }
-    
+
         retVal = bdlat_sequenceAccessAttribute(
                                               object,
                                               accessor,
                                               MySequence::SALARY_ATTRIBUTE_ID);
-    
+
         return retVal;
     }
-    
+
     bool mine::bdlat_sequenceHasAttribute(
                                         const MySequence&  ,
                                         const char        *attributeName,
@@ -649,7 +649,7 @@ const bdlat_AttributeInfo *Point::lookupAttributeInfo(int id)
                                               attributeName,
                                               attributeNameLength);
     }
-    
+
     bool mine::bdlat_sequenceHasAttribute(const MySequence& , int attributeId)
     {
         return MySequence::NAME_ATTRIBUTE_ID   == attributeId
@@ -715,10 +715,10 @@ const bdlat_AttributeInfo *Point::lookupAttributeInfo(int id)
 //..
     struct PrintAttribute {
         // Print each visited object to the bound 'd_stream_p' object.
-    
+
         // DATA MEMBERS
         bsl::ostream *d_stream_p;
-    
+
         template <class TYPE, class INFO>
         int operator()(const TYPE& object, const INFO& info)
         {
@@ -726,13 +726,13 @@ const bdlat_AttributeInfo *Point::lookupAttributeInfo(int id)
             return 0;
         }
     };
-    
+
     template <class TYPE>
     void printSequenceAttributes(bsl::ostream& stream, const TYPE& object)
     {
         PrintAttribute accessor;
         accessor.d_stream_p = &stream;
-    
+
         bdlat_SequenceFunctions::accessAttributes(object, accessor);
     }
 //..
@@ -743,13 +743,13 @@ const bdlat_AttributeInfo *Point::lookupAttributeInfo(int id)
     void printMySequence(bsl::ostream& stream)
     {
         mine::MySequence object;
-    
+
         object.d_name   = "John Doe";
         object.d_age    = 25;
         object.d_salary = 12345.00;
-    
+
         stream << bsl::fixed << bsl::setprecision(2);
-    
+
         printSequenceAttributes(stream, object);
     }
 //..

@@ -738,7 +738,7 @@ struct bsls_Platform_Assert;
 // later instruction set extensions are available when compiling with Visual
 // Studio.  Doing so may lead to dependent components using instructions that
 // are not available on some x86 platforms.
-//  
+//
 // Clang and GCC (as well as compilers with EDG front-ends) provide macros to
 // detect whether most x86 instruction set extensions are enabled.
 

@@ -767,7 +767,7 @@ FUNCTION_PTR BslTestUtil::makeFunctionCallNonInline(FUNCTION_PTR function)
     // The cast to 'int' is necessary because dividing by 'bool' gives a
     // compiler warning on Windows.
 
-    enum { k_STATIC_ASSERT = 1 / 
+    enum { k_STATIC_ASSERT = 1 /
                     static_cast<int>(sizeof(FUNCTION_PTR) == sizeof(void *)) };
 
     return reinterpret_cast<FUNCTION_PTR>(identityPtr(reinterpret_cast<void *>(

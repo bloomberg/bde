@@ -1027,7 +1027,7 @@ class map {
 #if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
     template <class ALT_VALUE_TYPE>
     pair<iterator, bool>
-#elif !defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)                     
+#elif !defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
     template <class ALT_VALUE_TYPE>
     typename enable_if<is_convertible<ALT_VALUE_TYPE, value_type>::value,
                        pair<iterator, bool> >::type
@@ -1095,7 +1095,7 @@ class map {
 #if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
     template <class ALT_VALUE_TYPE>
     iterator
-#elif !defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)                     
+#elif !defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
     template <class ALT_VALUE_TYPE>
     typename enable_if<is_convertible<ALT_VALUE_TYPE, value_type>::value,
                        iterator>::type

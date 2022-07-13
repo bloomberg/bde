@@ -6396,7 +6396,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase2()
 #else
         ASSERTV(loopCount,           1 == loopCount);
         ASSERTV(sa.numBlocksTotal(), 2 == sa.numBlocksTotal());
-                             // One pass through test block without exceptions. 
+                             // One pass through test block without exceptions.
 #endif
     }
 
