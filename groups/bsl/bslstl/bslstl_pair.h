@@ -2980,8 +2980,8 @@ pair<T1, T2>::pair(
 template <class T1, class T2>
 template <class PARAM_1, class PARAM_2>
 pair<T1, T2>::pair(
-    BloombergLP::bslmf::MovableRef<std::pair<PARAM_1, PARAM_2> > other,
-    BloombergLP::bslma::Allocator *basicAllocator)
+   BloombergLP::bslmf::MovableRef<std::pair<PARAM_1, PARAM_2> > other,
+   BloombergLP::bslma::Allocator                               *basicAllocator)
 : FirstBase(MovUtil::move(MovUtil::access(other).first),
             basicAllocator,
             FirstBslmaIdiom())
