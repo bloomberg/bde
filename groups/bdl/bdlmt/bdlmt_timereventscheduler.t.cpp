@@ -826,7 +826,7 @@ namespace TIMER_EVENT_SCHEDULER_TEST_CASE_19
 namespace TIMER_EVENT_SCHEDULER_TEST_CASE_18
 {
 struct Func {
-    int                             d_eventIndex;
+    const int                       d_eventIndex;
         // each event is marked by a unique index
     static Obj*                     s_scheduler;
     static bsl::vector<Obj::Handle> s_handles;
@@ -835,6 +835,12 @@ struct Func {
         // each event, when run, pushes its index to this vector
     static int                      s_kamikaze;
         // index of the event that is to kill itself
+    static int                      s_final;
+        // index of the event that takes place last and sets 's_finished' to
+        // 'true'
+    static bsls::AtomicBool         s_finished;
+        // indicates all events have run
+
 
     explicit
     Func(int index) : d_eventIndex(index) {}
@@ -846,6 +852,8 @@ Obj*                     Func::s_scheduler;
 bsl::vector<Obj::Handle> Func::s_handles;
 bsl::vector<int>         Func::s_indexes;
 int                      Func::s_kamikaze;
+int                      Func::s_final;
+bsls::AtomicBool         Func::s_finished;
 
 void Func::operator()()
 {
@@ -853,6 +861,9 @@ void Func::operator()()
 
     if (s_kamikaze == d_eventIndex) {
         ASSERT(0 != s_scheduler->cancelEvent(s_handles[d_eventIndex]));
+    }
+    if (s_final == d_eventIndex) {
+        s_finished.storeRelease(true);
     }
 }
 
@@ -3448,9 +3459,11 @@ int main(int argc, char *argv[])
 
         Obj mX;
         Func::s_scheduler = &mX;
+        Func::s_finished.storeRelease(false);
 
         bsls::TimeInterval now = bsls::SystemTime::nowRealtimeClock();
 
+        // Schedule 10 events to run in order and immediately
         for (int i = 0; i < 10; ++i) {
             Obj::Handle handle =
                      mX.scheduleEvent(now - bsls::TimeInterval((10 - i) * 0.1),
@@ -3459,19 +3472,20 @@ int main(int argc, char *argv[])
         }
 
         Func::s_kamikaze = 4;
+        Func::s_final    = 9;
 
         mX.start();
 
-        // make sure the events all get pending
-        bslmt::ThreadUtil::yield();
-        sleepUntilMs(10 * 1000 / 1000);
-        bslmt::ThreadUtil::yield();
-        sleepUntilMs(10 * 1000 / 1000);
+        // make sure the events all run
+        while(!Func::s_finished.loadAcquire()) {
+            bslmt::ThreadUtil::yield();
+            sleepUntilMs(10);
+        }
 
         mX.stop();
 
         ASSERTV(Func::s_indexes.size(), Func::s_indexes.size() == 10);
-        for (int i = 0; i < 10; ++i) {
+        for (int i = 0; i < static_cast<int>(Func::s_indexes.size()); ++i) {
             ASSERTV(i, Func::s_indexes[i], i == Func::s_indexes[i]);
         }
       } break;
