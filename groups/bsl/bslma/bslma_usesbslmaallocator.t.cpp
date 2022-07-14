@@ -92,10 +92,28 @@ void aSsErT(bool condition, const char *message, int line)
 //                              USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-// Suppress some bde_verify warnings for the usage example
+#ifndef INCLUDED_BSLMA_STDALLOCATOR
+// We don't want to create a dependency on 'bslma_stdallocator', so, for
+// testing purposes, we copy the saliant parts of its interface here.
 
-class DoesNotUseAnAllocatorType {
+namespace bsl {
+
+template <class TYPE>
+class allocator {
+
+  public:
+    typedef TYPE value_type;
+
+    allocator();
+    allocator(bslma::Allocator *);                                  // IMPLICIT
+
+    TYPE *allocate(std::size_t);
+    void deallocate(TYPE *, std::size_t);
 };
+
+}  // close namespace bsl
+
+#endif // ! INCLUDED_BSLMA_STDALLOCATOR
 
 ///Usage
 ///-----
@@ -131,14 +149,15 @@ class DoesNotUseAnAllocatorType {
             // ...
     };
 //..
-// Notice that the macro declaration is performed within the scope of the class
-// declaration, and must be done with 'public' access.
+// Note that the macro declaration must appear within the scope of the class
+// declaration and must have 'public' access.
 //
-// Then, we define a type 'UsesAllocatorType2' and define a specialization of
+// Next, we define a type 'UsesAllocatorType2' and define a specialization of
 // the 'UsesBslmaAllocator' trait for 'UsesAllocatorType2' that associates the
-// 'UsesBslmaAllocator' trait with the type (note that this is sometimes
-// referred to as a "C++11-style" trait declaration, since it is more in
-// keeping with the style of trait declarations found in the C++11 Standard):
+// 'UsesBslmaAllocator' trait with the type (sometimes referred to as a
+// "C++11-style" trait declaration, because it is more in keeping with the
+// style of trait declarations found in the C++11 Standard).  Note that the
+// specialization must be performed in the 'BloombergLP::bslma' namespace:
 //..
     class UsesAllocatorType2 {
         // ...
@@ -159,15 +178,89 @@ class DoesNotUseAnAllocatorType {
     namespace BloombergLP {
     namespace bslma {
 
-    template <> struct UsesBslmaAllocator<xyz::UsesAllocatorType2> :
-                                                                 bsl::true_type
+    template <>
+    struct UsesBslmaAllocator<xyz::UsesAllocatorType2> : bsl::true_type
     {};
 
     }  // close package namespace
     }  // close enterprise namespace
 //..
-// Notice that the specialization must be performed in the 'BloombergLP::bslma'
-// namespace.
+// Next, we define a type 'BslAAClass', which provides a bsl-AA interface
+// based on 'bsl::allocator':
+//..
+    namespace xyz {
+
+    class BslAAClass {
+        // ...
+
+      public:
+        // TYPES
+        typedef bsl::allocator<char> allocator_type;
+
+        // CREATORS
+        explicit BslAAClass(const allocator_type& alloc = allocator_type());
+
+        BslAAClass(const BslAAClass&     other,
+                   const allocator_type& alloc = allocator_type());
+    };
+//..
+// Finally, we define a type 'NonAAClass', which is derived from 'BslAAClass'
+// but is not AA itself.  Because it inherits 'allocator_type', this class
+// explicitly says it is *not* AA by overiding 'allocator_type' with 'void':
+//..
+    class NonAAClass : public BslAAClass {
+        // ...
+
+      public:
+        // TYPES
+        typedef void allocator_type;  // Not an AA class
+
+        // CREATORS
+        NonAAClass();
+
+        NonAAClass(const NonAAClass& other);
+    };
+    }  // close namespace xyz
+//..
+//
+///Example 2: Testing Whether a Type Uses a 'bslma' Allocator
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we want to test whether each of a set of different types uses a
+// 'bslma' allocator.
+//
+// First, we define a class that is not AA, for control purposes:
+//..
+    namespace xyz {
+
+    class DoesNotUseAnAllocatorType { };
+
+    }  // close namespace xyz
+//..
+// Now, we use the 'UsesBslmaAllocator' template to test whether this type, and
+// any of the other types in Example 1 use bslma allocators:
+//..
+    void usageExample2()
+    {
+        using namespace xyz;
+
+        ASSERT(! bslma::UsesBslmaAllocator<DoesNotUseAnAllocatorType>::value);
+        ASSERT(bslma::UsesBslmaAllocator<UsesAllocatorType1>::value);
+        ASSERT(bslma::UsesBslmaAllocator<UsesAllocatorType2>::value);
+        ASSERT(bslma::UsesBslmaAllocator<BslAAClass>::value);
+        ASSERT(!bslma::UsesBslmaAllocator<NonAAClass>::value);
+    }
+//..
+// Finally, we demonstrate that the trait can be tested at compilation time by
+// testing the trait within the context of a compile-time 'BSLMF_ASSERT':
+//..
+    BSLMF_ASSERT(
+            !bslma::UsesBslmaAllocator<xyz::DoesNotUseAnAllocatorType>::value);
+    BSLMF_ASSERT(bslma::UsesBslmaAllocator<xyz::UsesAllocatorType1>::value);
+    BSLMF_ASSERT(bslma::UsesBslmaAllocator<xyz::UsesAllocatorType2>::value);
+    BSLMF_ASSERT(bslma::UsesBslmaAllocator<xyz::BslAAClass>::value);
+    BSLMF_ASSERT(!bslma::UsesBslmaAllocator<xyz::NonAAClass>::value);
+//..
+
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -262,9 +355,9 @@ class HasSniffableAndNestedTrait {
 
 struct HasCompatibleAllocatorType {
     // This class defines a nested 'allocator_type' that is an alias for a type
-    // convertible from 'bslma::Allocator *'.  Unintuitively, the
-    // 'UsesBslmaAllocator' trait is 'false' for this type (and generates a
-    // warning on some compilers), but will be 'true' in the FUTURE.
+    // convertible from 'bslma::Allocator *'.  'UsesAbslmaAllocator' should be
+    // 'true' for such cases, but was unintuitively 'false' prior to
+    // 'BSLMA_USESBSLMAALLOCATOR_AUTODETECT_ALLOCATOR_TYPE' being turned on.
 
     typedef BslmaCompatibleSTLAllocator allocator_type;
 };
@@ -403,41 +496,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
 
-        if (verbose) printf("\nMain example usage test.\n");
-
-///Example 2: Testing Whether a Type Uses a 'bslma' Allocator
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we want to test whether each of a set of different types uses a
-// 'bslma' allocator.
-//
-// Here, we use the 'UsesBslmaAllocator' template to test whether the types
-// 'DoesNotUseAnAllocatorType', 'UsesAllocatorType1', and 'UsesAllocatorType2'
-// (see above for the latter two types) use allocators:
-//..
-//  class DoesNotUseAnAllocatorType {
-//  };
-
-    ASSERT(false ==
-           bslma::UsesBslmaAllocator<DoesNotUseAnAllocatorType>::value);
-
-    ASSERT(true  ==
-           bslma::UsesBslmaAllocator<xyz::UsesAllocatorType1>::value);
-
-    ASSERT(true  ==
-           bslma::UsesBslmaAllocator<xyz::UsesAllocatorType2>::value);
-//..
-// Finally, we demonstrate that the trait can be tested at compilation time by
-// testing the trait within the context of a compile-time 'BSLMF_ASSERT':
-//..
-    BSLMF_ASSERT(false ==
-                 bslma::UsesBslmaAllocator<DoesNotUseAnAllocatorType>::value);
-
-    BSLMF_ASSERT(true  ==
-                 bslma::UsesBslmaAllocator<xyz::UsesAllocatorType1>::value);
-
-    BSLMF_ASSERT(true ==
-                 bslma::UsesBslmaAllocator<xyz::UsesAllocatorType2>::value);
-//..
+        usageExample2();
 
       } break;
       case 2: {
@@ -523,8 +582,11 @@ int main(int argc, char *argv[])
         TEST(HasNestedTrait               , true );  // Step 3
         TEST(HasSniffableAndNestedTrait   , true );  // Step 3
 
-//      TEST(HasCompatibleAllocatorType   , true );  // Step 4 (FUTURE)
+#ifdef BSLMA_USESBSLMAALLOCATOR_AUTODETECT_ALLOCATOR_TYPE
+        TEST(HasCompatibleAllocatorType   , true );  // Step 4
+#else
         TEST(HasCompatibleAllocatorType   , false);  // Step 4
+#endif
 
         TEST(int                          , false);  // Step 5
         TEST(EmptyClass                   , false);  // Step 5
