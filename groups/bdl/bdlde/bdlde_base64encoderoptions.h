@@ -126,9 +126,7 @@ BSLS_IDENT_PRAGMA_ONCE
 // Suppose we want a really strangely configured options object with
 // 'maxLineLength == 200', 'alphabet == e_URL', and padding.
 //
-// First, we can simply call the 'custom' class method.  The 'padded' argument
-// is the last argument, and it defaults to 'true', so we don't have to pass
-// that.
+// First, we can simply call the 'custom' class method:
 //..
 //  const bdlde::Base64EncoderOptions& customOptions =
 //            bdlde::Base64EncoderOptions::custom(200,

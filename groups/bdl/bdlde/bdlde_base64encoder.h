@@ -530,12 +530,11 @@ class Base64Encoder {
   public:
     // CLASS METHODS
     static bsl::size_t encodedLength(const EncoderOptions& options,
-                                     bsl::size_t           inputLength);
+                                     bsl::ptrdiff_t        inputLength);
         // Return the exact number of encoded bytes that would result from an
         // input byte sequence of the specified 'inputLength' provided to the
         // 'convert' method of an encoder configured with the specified
-        // 'options'.  The behavior is undefined if 'inputLength' is greater
-        // than the max value of 'long'.
+        // 'options'.  The behavior is undefined unless '0 <= inputLength'.
 
     BSLS_DEPRECATE_FEATURE("bdl",
                            "encodedLength",
@@ -568,13 +567,13 @@ class Base64Encoder {
         // DEPRECATED: use the overload with 'options' instead.
 
     static bsl::size_t encodedLines(const EncoderOptions& options,
-                                    bsl::size_t           inputLength);
+                                    bsl::ptrdiff_t        inputLength);
         // Return the exact number of encoded lines that would result from an
         // input byte sequence of the specified 'inputLength' provided to the
         // 'convert' method of an encoder configured with the specified
-        // 'options'.  The behavior is underfined if 'inputLength' is greater
-        // than the max value of 'long'.  Note that the number of encoded bytes
-        // need not be the number of *output* bytes.
+        // 'options'.  The behavior is underfined unless '0 <= inputLength'.
+        // Note that the number of encoded bytes need not be the number of
+        // *output* bytes.
 
     BSLS_DEPRECATE_FEATURE("bdl",
                            "encodedLines",
@@ -872,10 +871,9 @@ Base64Encoder::State Base64Encoder::state() const
 // CLASS METHODS
 inline
 bsl::size_t Base64Encoder::encodedLength(const EncoderOptions& options,
-                                         bsl::size_t           inputLength)
+                                         bsl::ptrdiff_t        inputLength)
 {
-    BSLS_ASSERT(inputLength <= static_cast<unsigned long>(
-                                            bsl::numeric_limits<long>::max()));
+    BSLS_ASSERT(0 <= inputLength);
 
     if (0 == inputLength) {
         return 0;                                                     // RETURN
@@ -912,10 +910,9 @@ int Base64Encoder::encodedLength(int inputLength)
 
 inline
 bsl::size_t Base64Encoder::encodedLines(const EncoderOptions& options,
-                                        bsl::size_t           inputLength)
+                                        bsl::ptrdiff_t        inputLength)
 {
-    BSLS_ASSERT(inputLength <= static_cast<unsigned long>(
-                                            bsl::numeric_limits<long>::max()));
+    BSLS_ASSERT(0 <= inputLength);
 
     return static_cast<int>(1 +
            lengthWithoutCrlfs(options, inputLength) / options.maxLineLength());
