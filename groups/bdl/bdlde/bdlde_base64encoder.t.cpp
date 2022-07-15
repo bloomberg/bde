@@ -29,6 +29,7 @@
 #include <bslim_testutil.h>
 
 #include <bsls_assert.h>
+#include <bsls_asserttest.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_review.h>
 
@@ -209,6 +210,17 @@ void aSsErT(bool condition, const char *message, int line)
 #define VV(X) { if (veryVerbose) { cout << "\t\t" << X << endl; } }
 #define VVV(X) { if (veryVeryVerbose) { cout << "\t\t\t" << X << endl; } }
 #define VVVV(X) { if (veryVeryVeryVerbose) {cout << "\t\t\t\t" << X << endl;} }
+
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 // ============================================================================
 //                         GLOBAL TYPEDEFS/CONSTANTS
@@ -3544,6 +3556,43 @@ int main(int argc, char *argv[])
 
         } // end for ti
         ASSERT(done);
+
+        if (verbose) cout << "Negative Testing\n";
+        {
+            bsls::AssertTestHandlerGuard  guard;
+
+            const size_t maxSize_t = bsl::numeric_limits<size_t>::max();
+
+            // 'encodedLength'
+
+            ASSERT_FAIL(Obj::encodedLength(EncoderOptions::urlSafe(), -1));
+
+            size_t limit = (maxSize_t / 4) * 3 + 1;
+
+            ASSERT_PASS(Obj::encodedLength(EncoderOptions::urlSafe(), limit));
+            ASSERT_FAIL(Obj::encodedLength(EncoderOptions::urlSafe(),
+                                           limit + 1));
+
+            ASSERT_FAIL(Obj::encodedLength(EncoderOptions::mime(), -1));
+
+            limit = ((maxSize_t / 78)) * 76 / 4 * 3 + 9;
+
+            ASSERT_PASS(Obj::encodedLength(EncoderOptions::mime(), limit));
+            ASSERT_FAIL(Obj::encodedLength(EncoderOptions::mime(), limit + 1));
+
+            // 'encodedLines'
+
+            ASSERT_FAIL(Obj::encodedLines(EncoderOptions::mime(), -1));
+
+            limit = ((maxSize_t - 4) / 4 + 1) * 3 - 2 + 2;
+
+            ASSERT_PASS(Obj::encodedLines(EncoderOptions::mime(), limit));
+            ASSERT_FAIL(Obj::encodedLines(EncoderOptions::mime(), limit + 1));
+
+            // Fails if line length is 0
+
+            ASSERT_FAIL(Obj::encodedLines(EncoderOptions::urlSafe(), 0));
+        }
       } break;
       case 7: {
         // --------------------------------------------------------------------
