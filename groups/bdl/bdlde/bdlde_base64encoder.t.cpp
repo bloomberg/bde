@@ -3567,7 +3567,7 @@ int main(int argc, char *argv[])
 
             ASSERT_FAIL(Obj::encodedLength(EncoderOptions::urlSafe(), -1));
 
-            size_t limit = (maxSize_t / 4) * 3 + 1;
+            size_t limit = (maxSize_t / 4) * 3 + 2;
 
             ASSERT_PASS(Obj::encodedLength(EncoderOptions::urlSafe(), limit));
             ASSERT_FAIL(Obj::encodedLength(EncoderOptions::urlSafe(),
@@ -3589,9 +3589,10 @@ int main(int argc, char *argv[])
             ASSERT_PASS(Obj::encodedLines(EncoderOptions::mime(), limit));
             ASSERT_FAIL(Obj::encodedLines(EncoderOptions::mime(), limit + 1));
 
-            // Fails if line length is 0
+            // Result is 1 if line length is 0
 
-            ASSERT_FAIL(Obj::encodedLines(EncoderOptions::urlSafe(), 0));
+            ASSERT_PASS(Obj::encodedLines(EncoderOptions::urlSafe(), 0));
+            ASSERT(1 == Obj::encodedLines(EncoderOptions::urlSafe(), 0));
         }
       } break;
       case 7: {

@@ -462,7 +462,6 @@ class Base64Encoder {
     // PUBLIC CLASS DATA
     static const Alphabet    e_BASIC = Base64Alphabet::e_BASIC;
     static const Alphabet    e_URL   = Base64Alphabet::e_URL;
-    static const bsl::size_t s_maxSize_t;
 
   private:
     // PRIVATE TYPES
@@ -537,7 +536,7 @@ class Base64Encoder {
         // input byte sequence of the specified 'inputLength' provided to the
         // 'convert' method of an encoder configured with the specified
         // 'options'.  The behavior is undefined if 'inputLength' is large
-        // enough for the result to potentially overflow a 'size_t'.
+        // enough for the result to overflow a 'size_t'.
 
     BSLS_DEPRECATE_FEATURE("bdl",
                            "encodedLength",
@@ -574,9 +573,8 @@ class Base64Encoder {
         // Return the exact number of encoded lines that would result from an
         // input byte sequence of the specified 'inputLength' provided to the
         // 'convert' method of an encoder configured with the specified
-        // 'options'.  The behavior is underfined if
-        // 'options.maxLineLength() == 0' or if 'inputLength' is large enough
-        // to overflow the result.
+        // 'options'.  The behavior is undefined if 'inputLength' is large
+        // enough to overflow the result.
 
     BSLS_DEPRECATE_FEATURE("bdl",
                            "encodedLines",
@@ -769,13 +767,14 @@ bsl::size_t Base64Encoder::lengthWithoutCrlfs(
 
     const bsl::size_t numTripletsRoundedDown = (inputLength + 2) / 3 - 1;
     const bsl::size_t numResidual = inputLength - numTripletsRoundedDown * 3;
+
+    // 'numResidual' is in the range '[ 1 .. 3 ]'.  If 'numResidual' is '1'
+    // byte, that takes 2 bytes to encode, 2 bytes takes 3 bytes to encode, 3
+    // bytes takes 4 bytes to encode.
+
     const bsl::size_t pad = options.isPadded() ? 4 : numResidual + 1;
 
     BSLS_ASSERT(numTripletsRoundedDown <= (maxSize_t - pad) / 4);
-
-    // 'numResidual' is in the range '[ 1 .. 3 ]'.  If 'numResidual' is '1'
-    // byte, it takes 2 bytes to encode, 2 bytes takes 3 bytes to encode, 3
-    // bytes takes 4 bytes to encode.
 
     return numTripletsRoundedDown * 4 + pad;
 }
@@ -895,7 +894,7 @@ bsl::size_t Base64Encoder::encodedLength(const EncoderOptions& options,
 
 
     BSLS_ASSERT(numCrlfs <= maxSize_t / 2);
-    BSLS_ASSERT(length < maxSize_t - numCrlfs * 2);
+    BSLS_ASSERT(length <= maxSize_t - numCrlfs * 2);
 
     return length + 2 * numCrlfs;
 }
@@ -925,10 +924,10 @@ inline
 bsl::size_t Base64Encoder::encodedLines(const EncoderOptions& options,
                                         bsl::size_t           inputLength)
 {
-    BSLS_ASSERT(0 < options.maxLineLength());
-
     return 1 +
-            lengthWithoutCrlfs(options, inputLength) / options.maxLineLength();
+        (0 == options.maxLineLength()
+         ? 0
+         : lengthWithoutCrlfs(options, inputLength) / options.maxLineLength());
 }
 
 inline
