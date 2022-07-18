@@ -7,12 +7,29 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
+// ----------------------------------------------------------------------------
+//                            U_ENABLE_DEPRECATIONS
+//
+// Set 'U_ENABLE_DEPRECATIONS' to 1 get warnings about uses of deprecated
+// methods.  These warnings are quite voluminous.  Test case 14 will fail
+// unless '0 == U_ENABLE_DEPRECATIONS' to make sure we don't ship with these
+// warnings enabled.
+// ----------------------------------------------------------------------------
+
+#undef  U_ENABLE_DEPRECATIONS
+#define U_ENABLE_DEPRECATIONS 0
+#if U_ENABLE_DEPRECATIONS
+# define BSLS_DEPRECATE_FEATURE_ENABLE_ALL_DEPRECATIONS_FOR_TESTING 1
+# include <bsls_deprecatefeature.h>
+#endif
 
 #include <bdlde_base64encoder.h>
 
+#include <bslim_fuzzutil.h>
 #include <bslim_testutil.h>
 
 #include <bsls_assert.h>
+#include <bsls_asserttest.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_review.h>
 
@@ -34,6 +51,8 @@ using bsl::cerr;
 using bsl::endl;
 using bsl::ends;
 using bsl::flush;
+using bsl::size_t;
+using bsl::ptrdiff_t;
 
 //=============================================================================
 //                             TEST PLAN
@@ -122,7 +141,8 @@ using bsl::flush;
 // [ 3] int outputLength() const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST -- (developer's sandbox)
-// [12] USAGE EXAMPLE
+// [15] USAGE EXAMPLE
+// [14] 0 == U_ENABLE_DEPRECATIONS
 // [ ?] That the input iterator can have *minimal* functionality.
 // [ ?] That the output iterator can have *minimal* functionality.
 // [ 1] ::myMin(const T& a, const T& b);
@@ -152,7 +172,8 @@ int testStatus = 0;
 void aSsErT(bool condition, const char *message, int line)
 {
     if (condition) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+        cout << "Error " __FILE__ "(" << line << "): " << message
+             << "    (failed)" << endl;
 
         if (0 <= testStatus && testStatus <= 100) {
             ++testStatus;
@@ -191,10 +212,27 @@ void aSsErT(bool condition, const char *message, int line)
 #define VVVV(X) { if (veryVeryVeryVerbose) {cout << "\t\t\t\t" << X << endl;} }
 
 // ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
+
+// ============================================================================
 //                         GLOBAL TYPEDEFS/CONSTANTS
 // ----------------------------------------------------------------------------
 
-typedef bdlde::Base64Encoder Obj;
+typedef bdlde::Base64Encoder        Obj;
+typedef bdlde::Base64Alphabet       Alphabet;
+typedef bdlde::Base64EncoderOptions EncoderOptions;
+using bslim::FuzzDataView;
+using bslim::FuzzUtil;
+
+enum { k_DEFAULT_MAX_LINE_LENGTH = 76 };
 
                         // ==================
                         // Named STATE Values
@@ -339,8 +377,104 @@ To contact the writer of this column: Chet Currier in New York\n\
 namespace {
 namespace u {
 
+typedef bool (*CheckChar)(char);
+
+bool isBasicRaw[256], *isBasicArray = isBasicRaw;
+bool isUrlRaw  [256], *isUrlArray   = isUrlRaw;
+
+struct InitRaw {
+    InitRaw();
+        // Initialize 'isBasicRaw' and 'isUrlRaw'.
+} initRaw;
+
+InitRaw::InitRaw()
+{
+    for (int ii = 0; ii < 256; ++ii) {
+        const unsigned char uc = static_cast<unsigned char>(ii);
+
+        isBasicArray[ii] = bsl::isalnum(uc);
+        isUrlArray  [ii] = bsl::isalnum(uc);
+    }
+
+    isBasicArray['+'] = true;
+    isBasicArray['/'] = true;
+
+    isUrlArray['-']   = true;
+    isUrlArray['_']   = true;
+}
+
+bool isBasic(char c)
+{
+    return isBasicArray[static_cast<unsigned char>(c)];
+}
+
+bool isBasicOrEquals(char c)
+{
+    return isBasicArray[static_cast<unsigned char>(c)] || '=' == c;
+}
+
+bool isBasicOrCrlf(char c)
+{
+    return isBasicArray[static_cast<unsigned char>(c)] || '\n' == c ||
+                                                                     '\r' == c;
+}
+
+bool isBasicOrEqualsOrCrlf(char c)
+{
+    return isBasicArray[static_cast<unsigned char>(c)] || '=' == c ||
+                                                        '\n' == c || '\r' == c;
+}
+
+bool isUrl(char c)
+{
+    return isUrlArray[static_cast<unsigned char>(c)];
+}
+
+bool isUrlOrEquals(char c)
+{
+    return isUrlArray[static_cast<unsigned char>(c)] || '=' == c;
+}
+
+bool isUrlOrCrlf(char c)
+{
+    return isUrlArray[static_cast<unsigned char>(c)] || '\n' == c || '\r' == c;
+}
+
+bool isUrlOrEqualsOrCrlf(char c)
+{
+    return isUrlArray[static_cast<unsigned char>(c)] || '=' == c ||
+                                                        '\n' == c || '\r' == c;
+}
+
+bool checkRange(const EncoderOptions&  options,
+                const char            *begin,
+                const char            *end)
+{
+    BSLS_ASSERT(begin <= end);
+
+    const bool noCrlf = 0 == options.maxLineLength();
+
+    const CheckChar checkChar = Alphabet::e_BASIC == options.alphabet()
+                              ? (options.isPadded()
+                                 ? (noCrlf
+                                    ? isBasicOrEquals
+                                    : isBasicOrEqualsOrCrlf)
+                                 : (noCrlf
+                                    ? isBasic
+                                    : isBasicOrCrlf))
+                              : (options.isPadded()
+                                 ? (noCrlf
+                                    ? isUrlOrEquals
+                                    : isUrlOrEqualsOrCrlf)
+                                 : (noCrlf
+                                    ? isUrl
+                                    : isUrlOrCrlf));
+
+    return end - begin == bsl::count_if(begin, end, checkChar);
+}
+
 inline
-bool notCrlfAndNotBase64(char c)
+bool notBasicAndNotEqualsAndNotCrlf(char c)
     // Return 'true' if the specified 'c' is valid base 64 character or part of
     // a CRLF.
 {
@@ -349,7 +483,7 @@ bool notCrlfAndNotBase64(char c)
 }
 
 inline
-bool crlfOrNotBase64(char c)
+bool notBasicAndNotEquals(char c)
     // Return 'true' if the specified 'c' is not a valid base 64 character.
 {
     unsigned char uc = c;
@@ -357,7 +491,7 @@ bool crlfOrNotBase64(char c)
 }
 
 inline
-bool equalsOrNotBase64AndNotCrlf(char c)
+bool equalsOrNotBasicAndNotCrlf(char c)
     // Return 'true' if the specified 'c' is '=' or not a valid base 64
     // character and not a CRLF character.
 {
@@ -366,12 +500,91 @@ bool equalsOrNotBase64AndNotCrlf(char c)
 }
 
 inline
-bool equalsOrCrlfOrNotBase64(char c)
+bool equalsOrCrlfOrNotBasic(char c)
     // Return 'true' if the specified 'c' is '=' or not a valid base 64
     // character.
 {
     unsigned char uc = c;
     return !(bsl::isalnum(uc) || bsl::strchr("+/", uc));
+}
+
+inline
+bool notUrlAndNotEqualsAndNotCrlf(char c)
+    // Return 'true' if the specified 'c' is valid base 64 character or part of
+    // a CRLF.
+{
+    unsigned char uc = c;
+    return !(bsl::isalnum(uc) || bsl::strchr("-_=\n\r", uc));
+}
+
+inline
+bool notUrlAndNotEquals(char c)
+    // Return 'true' if the specified 'c' is not a valid base 64 character.
+{
+    unsigned char uc = c;
+    return !(bsl::isalnum(uc) || bsl::strchr("-_=", uc));
+}
+
+inline
+bool equalsOrNotUrlAndNotCrlf(char c)
+    // Return 'true' if the specified 'c' is '=' or not a valid base 64
+    // character and not a CRLF character.
+{
+    unsigned char uc = c;
+    return !(bsl::isalnum(uc) || bsl::strchr("-_\n\r", uc));
+}
+
+inline
+bool equalsOrCrlfOrNotUrl(char c)
+    // Return 'true' if the specified 'c' is '=' or not a valid base 64
+    // character.
+{
+    unsigned char uc = c;
+    return !(bsl::isalnum(uc) || bsl::strchr("-_", uc));
+}
+
+class RandGen {
+    // Random number generator using the high-order 32 bits of Donald Knuth's
+    // MMIX algorithm.
+
+    bsls::Types::Uint64 d_seed;
+
+  public:
+    // CREATORS
+    explicit
+    RandGen(int startSeed = 0);
+        // Initialize the generator with the optionally specified 'startSeed'.
+
+    // MANIPULATORS
+    unsigned operator()();
+        // Return the next random number in the series;
+
+    char getChar();
+        // Return a random 'char'.
+};
+
+// CREATORS
+inline
+RandGen::RandGen(int startSeed)
+: d_seed(startSeed)
+{
+    (void) (*this)();
+    (void) (*this)();
+    (void) (*this)();
+}
+
+// MANIPULATORS
+inline
+unsigned RandGen::operator()()
+{
+    d_seed = d_seed * 6364136223846793005ULL + 1442695040888963407ULL;
+    return static_cast<unsigned>(d_seed >> 32);
+}
+
+inline
+char RandGen::getChar()
+{
+    return static_cast<char>((*this)() & 0xff);
 }
 
 }  // close namespace u
@@ -393,8 +606,8 @@ T myMin(const T& a, const T& b)
                         // ===================
 
 bsl::ostream& printCharN(bsl::ostream& output,
-                         const char* sequence,
-                         int length)
+                         const char*   sequence,
+                         size_t        length)
     // Print the specified character 'sequence' of specified 'length' to the
     // specified 'stream' and return a reference to the modifiable 'stream'
     // (if a character is not graphical, its hexadecimal code is printed
@@ -403,7 +616,7 @@ bsl::ostream& printCharN(bsl::ostream& output,
 {
     static char HEX[] = "0123456789ABCDEF";
 
-    for (int i = 0; i < length; ++i) {
+    for (unsigned i = 0; i < length; ++i) {
         unsigned char c = static_cast<unsigned char>(sequence[i]);
 
         if (isgraph(c)) {
@@ -1089,7 +1302,9 @@ int run = 0;
 
 namespace u {
 
-void checkBase64(const char *begin, const char *end, bsl::size_t lineLength)
+typedef void (*Checker)(const char *, const char *, bsl::size_t);
+
+void checkBasic(const char *begin, const char *end, bsl::size_t lineLength)
     // Check that the specfied sequence '[ begin, end )' is 100% valid base 64
     // characters, with CRLF's exactly where they're expected given the
     // specified 'lineLength'.
@@ -1098,10 +1313,10 @@ void checkBase64(const char *begin, const char *end, bsl::size_t lineLength)
         const char *preEqualsEnd = bsl::max(begin, end - 2);
         ASSERT(0 == bsl::count_if(begin,
                                   preEqualsEnd,
-                                  &u::equalsOrCrlfOrNotBase64));
+                                  &u::equalsOrCrlfOrNotBasic));
         ASSERT(0 == bsl::count_if(preEqualsEnd,
                                   end,
-                                  &u::crlfOrNotBase64));
+                                  &u::notBasicAndNotEquals));
     }
     else {
         const char *preEqualsEnd = bsl::max(begin, end - 4), *pc = begin;
@@ -1109,7 +1324,7 @@ void checkBase64(const char *begin, const char *end, bsl::size_t lineLength)
             const char *lineEnd = bsl::min(preEqualsEnd, pc + lineLength);
             ASSERT(0 == bsl::count_if(pc,
                                       lineEnd,
-                                      &u::equalsOrCrlfOrNotBase64));
+                                      &u::equalsOrCrlfOrNotBasic));
             pc = lineEnd;
 
             if (pc < preEqualsEnd) {
@@ -1123,7 +1338,49 @@ void checkBase64(const char *begin, const char *end, bsl::size_t lineLength)
         }
         ASSERT(0 == bsl::count_if(pc,
                                   end,
-                                  &u::notCrlfAndNotBase64));
+                                  &u::notBasicAndNotEqualsAndNotCrlf));
+        if (begin < end) {
+            ASSERTV(run, showCharN(begin, end - begin),
+                                           '\r' != end[-1] && '\n' != end[-1]);
+        }
+    }
+}
+
+void checkUrl(const char *begin, const char *end, bsl::size_t lineLength)
+    // Check that the specfied sequence '[ begin, end )' is 100% valid base 64
+    // characters, with CRLF's exactly where they're expected given the
+    // specified 'lineLength'.
+{
+    if (0 == lineLength) {
+        const char *preEqualsEnd = bsl::max(begin, end - 2);
+        ASSERT(0 == bsl::count_if(begin,
+                                  preEqualsEnd,
+                                  &u::equalsOrCrlfOrNotUrl));
+        ASSERT(0 == bsl::count_if(preEqualsEnd,
+                                  end,
+                                  &u::notUrlAndNotEquals));
+    }
+    else {
+        const char *preEqualsEnd = bsl::max(begin, end - 4), *pc = begin;
+        while (pc < preEqualsEnd) {
+            const char *lineEnd = bsl::min(preEqualsEnd, pc + lineLength);
+            ASSERT(0 == bsl::count_if(pc,
+                                      lineEnd,
+                                      &u::equalsOrCrlfOrNotUrl));
+            pc = lineEnd;
+
+            if (pc < preEqualsEnd) {
+                ASSERTV(*pc, '\r' == *pc);
+                ++pc;
+            }
+            if (pc < preEqualsEnd) {
+                ASSERTV(*pc, '\n' == *pc);
+                ++pc;
+            }
+        }
+        ASSERT(0 == bsl::count_if(pc,
+                                  end,
+                                  &u::notUrlAndNotEqualsAndNotCrlf));
         if (begin < end) {
             ASSERTV(run, showCharN(begin, end - begin),
                                            '\r' != end[-1] && '\n' != end[-1]);
@@ -1155,20 +1412,8 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     // Use the specified 'data' array of 'size' bytes as input to methods of
     // this component and return zero.
 {
-    const char *FUZZ   = reinterpret_cast<const char *>(data);
-    int         LENGTH = static_cast<int>(size);
-    int         test;
-
-    if (FUZZ && LENGTH) {
-        test = 1 + static_cast<unsigned char>(*FUZZ) % 99;
-        ++FUZZ;
-        --LENGTH;
-    }
-    else {
-        test = 0;
-    }
-
-    const char  GARBAGE = char(0xaf);
+    FuzzDataView fdv(data, size);    const FuzzDataView& FDV = fdv;
+    int          test = FuzzUtil::consumeNumberInRange(&fdv, 1, 2);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 2: {
@@ -1197,7 +1442,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
         //:   o Test 0, which means no CRLF's are inserted.
         //:   o Test a variety of positive values, including very low values.
         //:
-        //: 2 Call 'checkBase64' at the end to verify that that the output
+        //: 2 Call 'checkBasic' at the end to verify that that the output
         //:   is a valid base64 encoding, with CRLF's exactly where they're
         //:   expected.
         //:
@@ -1212,89 +1457,85 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
         //   int endConvert(OUT, int *);
         // --------------------------------------------------------------------
 
-        bool passArg;
-        int LINE_LENGTH;
-        {
-            if (!LENGTH) {
-                LINE_LENGTH = 76;
-                passArg = false;
+        // We want 'LINE_LENGTH' to have a random value, max 127, with a
+        // relatively high probabilty of 0.
+
+        const int           LINE_LENGTH   = FuzzUtil::consumeBool(&fdv)
+                                          ? 0
+                                          : FuzzUtil::consumeNumberInRange(
+                                                                 &fdv, 1, 127);
+        const char          GARBAGE       = static_cast<char>(0xa5);
+
+        for (int ti = 0; ti < 2 * 2; ++ti) {
+            int tti = ti;
+            const bool           URL   = tti % 2;    tti /= 2;
+            const Alphabet::Enum ALPHA = static_cast<Alphabet::Enum>(URL);
+            const bool           PAD   = tti % 2;    tti /= 2;
+            ASSERT(0 == tti);
+
+            const EncoderOptions& options = EncoderOptions::custom(
+                                                                 LINE_LENGTH,
+                                                                 ALPHA,
+                                                                 PAD);
+            const char * const begin =
+                                   reinterpret_cast<const char *>(FDV.begin());
+            const char * const end   =
+                                   reinterpret_cast<const char *>(FDV.end());
+
+            const bool      leftOver      = 0 != fdv.length() % 3;
+            const ptrdiff_t outLength     = Obj::encodedLength(options,
+                                                               fdv.length());
+            ASSERT(0 != LINE_LENGTH || !PAD || 0 == outLength % 4);
+
+            bsl::string outBuf(outLength + 1, GARBAGE);
+            const char *outBegin = outBuf.data();
+
+            char *out = outBuf.data();
+
+            bsls::ObjectBuffer<Obj> ob;
+            if (EncoderOptions::mime() == options) {
+                new (ob.address()) Obj();
             }
             else {
-                const unsigned llRoot = *FUZZ++ & 0xff;
-                --LENGTH;
-                passArg = true;
-
-                LINE_LENGTH = (llRoot < 100)
-                            ? llRoot
-                            : (llRoot << 4);
+                new (ob.address()) Obj(options);
             }
+            Obj& mX = ob.object();    const Obj& X = mX;
+            ASSERT(X.options() == options);
+
+            int numOut, numIn;
+
+            int rc = mX.convert(out, &numOut, &numIn, begin, end);
+            ASSERT(0 <= rc);
+            ASSERT(0 <= numOut);
+            ASSERT(numOut <= outLength);
+
+            out += numOut;
+
+            ASSERT(outBegin <= out);
+            ASSERT(out <= outBegin + outLength);
+            ASSERT(0 <= numIn);
+            ASSERT(numIn <= static_cast<int>(FDV.length()));
+
+            ASSERT(!leftOver || numOut < outLength);
+
+            EncoderOptions padLessOptions(options);
+            padLessOptions.setIsPadded(false);
+
+            ASSERT(u::checkRange(padLessOptions, outBegin, outBegin + numOut));
+
+            int endNumOut;
+            rc = mX.endConvert(out, &endNumOut);
+            ASSERT(0 == rc && X.isDone());
+            ASSERT(0 <= endNumOut);
+            ASSERT(outLength == numOut + endNumOut);
+
+            ASSERT(u::checkRange(options, outBegin, outBegin + numOut));
+            ASSERT((!PAD || !leftOver) ==
+                u::checkRange(padLessOptions, outBegin, outBegin + outLength));
+            ASSERT(GARBAGE == outBegin[outLength]);
+
+            mX.~Obj();
         }
-
-        const char * const begin = FUZZ;
-        const char * const end   = FUZZ + LENGTH;
-
-        const bool leftOver    = LENGTH % 3;
-        const int  outLength   = passArg
-                               ? Obj::encodedLength(LENGTH, LINE_LENGTH)
-                               : Obj::encodedLength(LENGTH);
-        ASSERT(0 != LINE_LENGTH || 0 == outLength % 4);
-        char       *outBuf = static_cast<char *>(bsl::malloc(outLength+1));
-        const char *outBegin = outBuf;
-        const char *outEnd = outBuf + outLength;
-
-        bsl::fill(outBuf, outBuf + outLength + 1, GARBAGE);
-
-        char *out = outBuf;
-
-        bsls::ObjectBuffer<Obj> ob;
-        if (passArg) {
-            new (ob.address()) Obj(LINE_LENGTH);
-        }
-        else {
-            new (ob.address()) Obj();
-        }
-        Obj& mX = ob.object();    const Obj& X = mX;
-
-        int numOut, numIn;
-
-        int rc = mX.convert(out, &numOut, &numIn, begin, end);
-        ASSERT(0 <= rc);
-        ASSERT(0 <= numOut);
-        ASSERT(numOut <= outLength);
-
-        out += numOut;
-
-        ASSERT(outBuf <= out);
-        ASSERT(out <= outBuf + outLength);
-        ASSERT(0 <= numIn);
-        ASSERT(numIn <= LENGTH);
-
-        ASSERT(!leftOver || numOut < outLength);
-
-        ASSERT(0 == bsl::count_if(outBuf,
-                                  outBuf + numOut,
-                                  &u::equalsOrNotBase64AndNotCrlf));
-        u::checkBase64(outBuf, outBuf + numOut, LINE_LENGTH);
-
-        int endNumOut;
-        rc = mX.endConvert(out, &endNumOut);
-        ASSERT(0 == rc && X.isDone());
-        ASSERT(0 <= endNumOut);
-        ASSERT(outLength == numOut + endNumOut);
-        ASSERT(0 == bsl::count_if(outBegin, outEnd, &u::notCrlfAndNotBase64));
-        ASSERT(!leftOver == (0 == bsl::count_if(
-                                            outBegin,
-                                            outEnd,
-                                            &u::equalsOrNotBase64AndNotCrlf)));
-        ASSERT(0 != LINE_LENGTH || 0 == bsl::count_if(outBegin,
-                                                      outEnd,
-                                                      &u::crlfOrNotBase64));
-        u::checkBase64(outBuf, outBuf + outLength, LINE_LENGTH);
-        ASSERT(GARBAGE == outBuf[outLength]);
-        ASSERT(leftOver == (0 < bsl::count(outBuf, outBuf + outLength, '=')));
-
-        free(outBuf);
-        mX.~Obj();
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -1326,7 +1567,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
         //:     parameter (don't pass 0 to 'endNumOut', that would not be in
         //:     contract.
         //:
-        //: 2 Call 'checkBase64' at the end to verify that that the output
+        //: 2 Call 'checkBasic' at the end to verify that that the output
         //:   is a valid base64 encoding, with CRLF's exactly where they're
         //:   expected.
         //:
@@ -1341,128 +1582,138 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
         //   int endConvert(OUT, int *, int);
         // --------------------------------------------------------------------
 
-        bool passArg;
-        int LINE_LENGTH;
-        int maxNumOut;
-        {
-            if (!LENGTH) {
-                LINE_LENGTH = 76;
-                passArg = false;
-                maxNumOut = 1;
-            }
-            else {
-                const unsigned llRoot = *FUZZ++ & 0xff;
-                --LENGTH;
-                passArg = true;
+        // We want 'LINE_LENGTH' to have a random value, max 127, with a
+        // relatively high probabilty of 0.
 
-                LINE_LENGTH = (llRoot < 100)
-                            ? llRoot
-                            : (llRoot << 4);
+        const int           LINE_LENGTH   = FuzzUtil::consumeBool(&fdv)
+                                          ? 0
+                                          : FuzzUtil::consumeNumberInRange(
+                                                                 &fdv, 1, 127);
+        const char          GARBAGE       = static_cast<char>(0xa5);
 
-                if (LENGTH) {
-                    maxNumOut = *FUZZ++ & 0xff;
-                    --LENGTH;
+        bool doneTi = false;
+        for (int ti = 0; ti < 2 * 2; ++ti) {
+            int tti = ti;
+            const bool           URL   = tti % 2;    tti /= 2;
+            const Alphabet::Enum ALPHA = static_cast<Alphabet::Enum>(URL);
+            const bool           PAD   = tti % 2;    tti /= 2;
+            ASSERT(0 == tti);
+            doneTi |= URL && PAD;
+
+            const EncoderOptions& options = EncoderOptions::custom(
+                                                                 LINE_LENGTH,
+                                                                 ALPHA,
+                                                                 PAD);
+            EncoderOptions padLessOptions(options);
+            padLessOptions.setIsPadded(false);
+
+            const char * const begin =
+                                   reinterpret_cast<const char *>(FDV.begin());
+            const char * const end   =
+                                   reinterpret_cast<const char *>(FDV.end());
+
+            const bool      leftOver        = 0 != fdv.length() % 3;
+            const ptrdiff_t outLength       = Obj::encodedLength(options,
+                                                                 fdv.length());
+            ASSERT(0 != LINE_LENGTH || !PAD || 0 == outLength % 4);
+
+            for (int maxNumOutTi = -1; maxNumOutTi <= outLength + 1;
+                                                               ++maxNumOutTi) {
+                int maxNumOut = maxNumOutTi;
+
+                const char *beginIn = begin;
+
+                bsl::string outBuf(outLength + 1, GARBAGE);
+                const char *outBegin = outBuf.data();
+
+                char *out = outBuf.data();
+
+                bsls::ObjectBuffer<Obj> ob;
+                if (EncoderOptions::mime() == options) {
+                    new (ob.address()) Obj();
                 }
                 else {
-                    maxNumOut = 1;
+                    new (ob.address()) Obj(options);
                 }
-            }
-        }
+                Obj& mX = ob.object();    const Obj& X = mX;
+                ASSERT(X.options() == options);
 
-        const char * const begin = FUZZ;
-        const char * const end   = FUZZ + LENGTH;
+                int numOut, numIn, numOutSoFar = 0, numInSoFar = 0;
 
-        const bool leftOver     = LENGTH % 3;
-        const int  outLength    = passArg
-                                ? Obj::encodedLength(LENGTH, LINE_LENGTH)
-                                : Obj::encodedLength(LENGTH);
-        ASSERT(0 != LINE_LENGTH || 0 == outLength % 4);
-        char       *outBuf = static_cast<char *>(bsl::malloc(outLength+1));
-        const char *outBegin = outBuf;
+                do {
+                    int rc = mX.convert(out,
+                                        &numOut,
+                                        &numIn,
+                                        beginIn,
+                                        end,
+                                        maxNumOut);
+                    ASSERT(0 <= rc);
+                    ASSERT(0 <= numOut);
+                    ASSERT(numOut <= maxNumOut || maxNumOut < 0);
 
-        bsl::fill(outBuf, outBuf + outLength + 1, GARBAGE);
+                    ASSERT(0 <= numIn);
+                    ASSERT(numIn <= end - beginIn);
 
-        bsls::ObjectBuffer<Obj> ob;
-        if (passArg) {
-            new (ob.address()) Obj(LINE_LENGTH);
-        }
-        else {
-            new (ob.address()) Obj();
-        }
-        Obj& mX = ob.object();    const Obj& X = mX;
+                    beginIn     += numIn;
+                    numInSoFar  += numIn;
+                    ASSERT(numInSoFar <= static_cast<int>(fdv.length()));
 
-        int numOut, numIn, endNumOut;
+                    out         += numOut;
+                    numOutSoFar += numOut;
+                    ASSERT(numOutSoFar <= outLength);
 
-        const char *beginIn = begin;
-        int  rc;
-        int  outSoFar = 0;
-        char *out     = outBuf;
-        do {
-            rc = mX.convert(out, &numOut, &numIn, beginIn, end, maxNumOut);
-            ASSERT(0 <= rc);
-            ASSERT(0 == rc || 0 <= maxNumOut);
-            ASSERT(0 <= numOut);
-            ASSERT(numOut <= maxNumOut || maxNumOut < 0);
+                    ASSERT(!leftOver || numOutSoFar < outLength);
 
-            out += numOut;
+                    ASSERT(u::checkRange(padLessOptions,
+                                         outBegin,
+                                         outBegin + numOutSoFar));
 
-            ASSERT(outBuf <= out);
-            ASSERT(out <= outBuf + outLength);
-            ASSERT(0 <= numIn);
+                    if (0 == numIn && 0 == maxNumOut && beginIn < end) {
+                        maxNumOut = 1;
+                    }
+                } while (beginIn < end);
 
-            outSoFar += numOut;
-            beginIn  += numIn;
+                ASSERTV(padLessOptions, bsl::string(outBegin,
+                                                    outBegin + numOutSoFar),
+                                        u::checkRange(padLessOptions,
+                                                      outBegin,
+                                                      outBegin + numOutSoFar));
 
-            ASSERTV(numIn, maxNumOut, numIn <= maxNumOut + 4 || maxNumOut < 0);
+                maxNumOut = maxNumOutTi;
 
-            ASSERT(outSoFar <= outLength);
-            ASSERT(beginIn <= end);
+                bool done = false;
+                while (!done) {
+                    int rc = mX.endConvert(out, &numOut, maxNumOut);
+                    ASSERT(0 <= numOut);
+                    done = 0 == rc;
+                    ASSERT(X.isDone() == done);
+                    ASSERT(done || maxNumOut < (outLength - numOutSoFar));
 
-            ASSERT(!leftOver || outSoFar < outLength);
-            ASSERT(!leftOver || out < outBuf + outLength);
+                    out         += numOut;
+                    numOutSoFar += numOut;
 
-            if (0 == numOut && 0 == numIn && beginIn < end) {
-                ASSERT(0 == maxNumOut);
-                maxNumOut = 1;
-            }
-        } while (beginIn < end);
-        ASSERT(end == beginIn);
-        ASSERT(0 == bsl::count_if(outBuf,
-                                  outBuf + outSoFar,
-                                  &u::equalsOrNotBase64AndNotCrlf));
+                    ASSERTV(options, numOutSoFar, outLength, done, numInSoFar,
+                                                                   end - begin,
+                                           (numOutSoFar == outLength) == done);
+                    ASSERTV(run, beginIn - begin, maxNumOut,
+                                           (numOutSoFar == outLength) == done);
 
-        int numEndConvertCalls = 0;
-        do {
-            ++numEndConvertCalls;
+                    if (0 == maxNumOut) {
+                        maxNumOut = 1;
+                    }
+                }
 
-            rc = mX.endConvert(out, &endNumOut, maxNumOut);
-            if (0 != rc) {
-                ASSERT(0 < endNumOut || 0 == maxNumOut);
-                ASSERT(endNumOut == maxNumOut);
-            }
+                ASSERTV(options, bsl::string(outBegin, outBegin + outLength),
+                       u::checkRange(options, outBegin, outBegin + outLength));
+                ASSERT(leftOver || u::checkRange(padLessOptions,
+                                                 outBegin,
+                                                 outBegin + outLength));
+                ASSERT(GARBAGE == outBegin[outLength]);
 
-            outSoFar += endNumOut;
-            out      += endNumOut;
-
-            ASSERT(0 == bsl::count_if(outBegin,
-                                      outBegin + outSoFar,
-                                      &u::notCrlfAndNotBase64));
-
-            if (rc && 0 == maxNumOut) {
-                maxNumOut = 1;
-            }
-        } while (rc);
-        ASSERTV(maxNumOut, outSoFar, numEndConvertCalls, X.isDone());
-
-        ASSERTV(run, LINE_LENGTH, maxNumOut, numEndConvertCalls,
-                                                           outLength, outSoFar,
-                                                    outLength == outSoFar);
-        u::checkBase64(outBuf, outBuf + outSoFar, LINE_LENGTH);
-        ASSERT(GARBAGE == outBuf[outLength]);
-        ASSERT(leftOver == (0 < bsl::count(outBuf, outBuf + outSoFar, '=')));
-
-        free(outBuf);
-        mX.~Obj();
+                mX.~Obj();
+            } // for maxNumOutTi
+        } // for ti
+        ASSERT(doneTi);
       } break;
       default: {
       } break;
@@ -1673,7 +1924,75 @@ int main(int argc, char *argv[])
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 15: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //   Demonstrate that the example compiles, links, and runs.
+        //
+        // Concerns:
+        //   That the example compiles, links, and runs.
+        //
+        // Plan:
+        //   Create the example in a form that can be cut and pasted easily
+        //   into the header file.  Then use the stream encoder and decoder on
+        //   some string, and compare the output with the original data.
+        //
+        // Tactics:
+        //   - Ad-HocData Selection Method
+        //   - Brute-Force Implementation Technique
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "USAGE EXAMPLE" << endl
+                          << "=============" << endl;
+///Usage Example
+///-------------
+// The following example shows how to use a 'bdlde::Base64Encoder' object to
+// implement a function, 'streamEncode', that reads text from a 'bsl::istream',
+// encodes that text from base 64 representation, and writes the encoded text
+// to a 'bsl::ostream'.  'streamEncoder' returns 0 on success and a negative
+// value if the input data could not be successfully encoded or if there is an
+// I/O error.
+//..
+// streamencoder.h                      -*-C++-*-
+//
+// int streamEncoder(bsl::ostream& os, bsl::istream& is);
+//     // Read the entire contents of the specified input stream 'is', convert
+//     // the input base-64 encoding into plain text, and write the decoded
+//     // text to the specified output stream 'os'.  Return 0 on success, and a
+//     // negative value otherwise.
+//..
+        bsl::istringstream inStream(bsl::string(BLOOMBERG_NEWS,
+                                                sizeof(BLOOMBERG_NEWS)));
+        bsl::stringstream  outStream;
+        bsl::stringstream  backInStream;
+
+        ASSERT(0 == streamEncoder(outStream, inStream));
+        ASSERT(0 == streamDecoder(backInStream, outStream));
+
+        cout << backInStream.str();
+
+        ASSERT(0 == strcmp(BLOOMBERG_NEWS, backInStream.str().c_str()));
+
+      } break;
       case 14: {
+        // --------------------------------------------------------------------
+        // ENSURE U_ENABLE_DEPRECATIONS IS DISABLED
+        //
+        // Concerns:
+        //: 1 When we ship, 'U_ENABLE_DEPRECATIONS' is disabled, so that we
+        //:   will not get deprecation warnings.
+        //
+        // Testing:
+        //   0 == U_ENABLE_DEPRECATIONS
+        // --------------------------------------------------------------------
+
+        ASSERT(0 == U_ENABLE_DEPRECATIONS);
+      } break;
+      case 13: {
         // --------------------------------------------------------------------
         // TESTING OPTIONAL NUMIN, NUMOUT
         //   This case is available to be used as a developers' sandbox.
@@ -1876,7 +2195,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 13: {
+      case 12: {
         // --------------------------------------------------------------------
         // STRESS TEST
         //   Demonstrate that the encoder/decoder can encode/decode a large
@@ -2396,60 +2715,6 @@ int main(int argc, char *argv[])
             delete[] decoded;
         }
       } break;
-      case 12: {
-        // --------------------------------------------------------------------
-        // USAGE EXAMPLE
-        //   Demonstrate that the example compiles, links, and runs.
-        //
-        // Concerns:
-        //   That the example compiles, links, and runs.
-        //
-        // Plan:
-        //   Create the example in a form that can be cut and pasted easily
-        //   into the header file.  Then use the stream encoder and decoder on
-        //   some string, and compare the output with the original data.
-        //
-        // Tactics:
-        //   - Ad-HocData Selection Method
-        //   - Brute-Force Implementation Technique
-        //
-        // Testing:
-        //   USAGE EXAMPLE
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "USAGE EXAMPLE" << endl
-                          << "=============" << endl;
-///Usage Example
-///-------------
-// The following example shows how to use a 'bdlde::Base64Encoder' object to
-// implement a function, 'streamEncode', that reads text from a 'bsl::istream',
-// encodes that text from base 64 representation, and writes the encoded text
-// to a 'bsl::ostream'.  'streamEncoder' returns 0 on success and a negative
-// value if the input data could not be successfully encoded or if there is an
-// I/O error.
-//..
-// streamencoder.h                      -*-C++-*-
-//
-// int streamEncoder(bsl::ostream& os, bsl::istream& is);
-//     // Read the entire contents of the specified input stream 'is', convert
-//     // the input base-64 encoding into plain text, and write the decoded
-//     // text to the specified output stream 'os'.  Return 0 on success, and a
-//     // negative value otherwise.
-//..
-        bsl::istringstream inStream(bsl::string(BLOOMBERG_NEWS,
-                                                sizeof(BLOOMBERG_NEWS)));
-        bsl::stringstream  outStream;
-        bsl::stringstream  backInStream;
-
-        ASSERT(0 == streamEncoder(outStream, inStream));
-        ASSERT(0 == streamDecoder(backInStream, outStream));
-
-        cout << backInStream.str();
-
-        ASSERT(0 == strcmp(BLOOMBERG_NEWS, backInStream.str().c_str()));
-
-      } break;
       case 11: {
         // --------------------------------------------------------------------
         // DEFAULT CONSTRUCTOR:
@@ -2485,12 +2750,14 @@ int main(int argc, char *argv[])
         {
             Obj obj;
             ASSERT(76 == obj.maxLineLength());
+            ASSERT(76 == obj.options().maxLineLength());
             ASSERT( 1 == obj.isAcceptable());
             ASSERT( 0 == obj.isDone());
             ASSERT( 0 == obj.isError());
             ASSERT( 1 == obj.isInitialState());
             ASSERT( 0 == obj.outputLength());
-            ASSERT(Obj::e_BASIC == obj.alphabet());
+            ASSERT(Alphabet::e_BASIC == obj.alphabet());
+            ASSERT(true == obj.options().isPadded());
 
             ASSERT(isState(&obj, e_INITIAL_STATE));
         }
@@ -2499,14 +2766,16 @@ int main(int argc, char *argv[])
             "\nVerify default configuration and initial state, e_BASIC "
             "alphabet." << endl;
         {
-            Obj obj(Obj::e_BASIC);
+            Obj obj(EncoderOptions::mime());
             ASSERT(76 == obj.maxLineLength());
+            ASSERT(76 == obj.options().maxLineLength());
             ASSERT( 1 == obj.isAcceptable());
             ASSERT( 0 == obj.isDone());
             ASSERT( 0 == obj.isError());
             ASSERT( 1 == obj.isInitialState());
             ASSERT( 0 == obj.outputLength());
-            ASSERT(Obj::e_BASIC == obj.alphabet());
+            ASSERT(Alphabet::e_BASIC == obj.alphabet());
+            ASSERT(true == obj.options().isPadded());
 
             ASSERT(isState(&obj, e_INITIAL_STATE));
         }
@@ -2515,14 +2784,16 @@ int main(int argc, char *argv[])
             "\nVerify default configuration and initial state, e_URL alphabet."
             << endl;
         {
-            Obj obj(Obj::e_URL);
-            ASSERT(76 == obj.maxLineLength());
+            Obj obj(EncoderOptions::urlSafe());
+            ASSERT( 0 == obj.maxLineLength());
+            ASSERT( 0 == obj.options().maxLineLength());
             ASSERT( 1 == obj.isAcceptable());
             ASSERT( 0 == obj.isDone());
             ASSERT( 0 == obj.isError());
             ASSERT( 1 == obj.isInitialState());
             ASSERT( 0 == obj.outputLength());
-            ASSERT(Obj::e_URL == obj.alphabet());
+            ASSERT(Alphabet::e_URL == obj.alphabet());
+            ASSERT(false == obj.options().isPadded());
 
             ASSERT(isState(&obj, e_INITIAL_STATE));
         }
@@ -2625,7 +2896,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\tWith 'maxLineLength' = 0." << endl;
         {
             for (int i = 0; i < NUM_STATES; ++i) {
-                Obj obj(0);
+                Obj obj(EncoderOptions::standard());
                 if (verbose) cout << "\t\t" << STATE_NAMES[i] << '.' << endl;
                 setState(&obj, i);
                 const bool SAME = e_INITIAL_STATE == i;
@@ -2641,7 +2912,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\tWith 'maxLineLength' = 5." << endl;
         {
             for (int i = 0; i < NUM_STATES; ++i) {
-                Obj obj(5);
+                Obj obj(EncoderOptions::custom(5,
+                                               Alphabet::e_BASIC,
+                                               true));
                 if (verbose) cout << "\t\t" << STATE_NAMES[i] << '.' << endl;
                 setState(&obj, i);
                 const bool SAME = e_INITIAL_STATE == i;
@@ -2682,101 +2955,120 @@ int main(int argc, char *argv[])
             input[ii] = static_cast<char>(jj);
         }
 
-        for (int len = 0; len < 256; ++len) {
-            const bool leftOver = len % 3;
+        for (int ui = 0; ui < 2; ++ui) {
+            const Alphabet::Enum alpha   = ui ? Alphabet::e_URL
+                                              : Alphabet::e_BASIC;
+            const u::Checker     checker = ui ? &u::checkUrl
+                                              : &u::checkBasic;
 
-            for (int li = 0; li < 2 * k_NUM_LINE_LENGTHS; ++li) {
-                const bool  threeArgs   = k_NUM_LINE_LENGTHS <= li;
-                const int   llIdx       = li % k_NUM_LINE_LENGTHS;
-                const int   LINE_LENGTH = lineLengths[llIdx];
-                const int   outLength   = Obj::encodedLength(len,
-                                                             LINE_LENGTH);
-                bsl::vector<char> outVec;
-                outVec.resize(outLength + 1, GARBAGE);
+            for (int len = 0; len < 256; ++len) {
+                const bool leftOver = len % 3;
 
-                char       *outBuf      = &outVec[0];
-                const char *outBegin    = outBuf;
+                for (int li = 0; li < 2 * k_NUM_LINE_LENGTHS; ++li) {
+                    const bool  threeArgs   = k_NUM_LINE_LENGTHS <= li;
+                    const int   llIdx       = li % k_NUM_LINE_LENGTHS;
+                    const int   LINE_LENGTH = lineLengths[llIdx];
 
-                char *out = outBuf;
+                    const EncoderOptions& options =
+                                          EncoderOptions::custom(LINE_LENGTH,
+                                                                 alpha,
+                                                                 true);
+                    const int   outLength   = Obj::encodedLength(len,
+                                                                 LINE_LENGTH);
+                    bsl::vector<char> outVec;
+                    outVec.resize(outLength + 1, GARBAGE);
 
-                Obj mX(LINE_LENGTH);    const Obj& X = mX;
+                    char       *outBuf      = &outVec[0];
+                    const char *outBegin    = outBuf;
 
-                const char *beginIn     = &input[0];
-                const char *end         = beginIn + len;
-                const int   maxNumOuts[] = { 0, 1, 2, 3, 4, 7, 17, 29,
-                                             32, 35 };
-                enum { k_NUM_MAX_NUM_OUTS = sizeof maxNumOuts /
+                    char *out = outBuf;
+
+                    Obj mX(options);
+                    const Obj& X = mX;
+
+                    const char *beginIn     = &input[0];
+                    const char *end         = beginIn + len;
+                    const int   maxNumOuts[] = { 0, 1, 2, 3, 4, 7, 17, 29,
+                                                 32, 35 };
+                    enum { k_NUM_MAX_NUM_OUTS = sizeof maxNumOuts /
                                                           sizeof *maxNumOuts };
-                int         maxNumOut   = maxNumOuts[maxNumOutIdx];
-                maxNumOutIdx = (maxNumOutIdx + 1) % k_NUM_MAX_NUM_OUTS;
+                    int         maxNumOut   = maxNumOuts[maxNumOutIdx];
+                    maxNumOutIdx = (maxNumOutIdx + 1) % k_NUM_MAX_NUM_OUTS;
 
-                int outSoFar = 0;
-                int numOut, numIn;
-                int rc = mX.convert(out,
-                                    &numOut,
-                                    &numIn,
-                                    beginIn,
-                                    end);
+                    int outSoFar = 0;
+                    int numOut, numIn;
+                    int rc = mX.convert(out,
+                                        &numOut,
+                                        &numIn,
+                                        beginIn,
+                                        end);
 
-                ASSERT(0 == rc);
-                ASSERT(0 <= numOut);
-
-                out += numOut;
-
-                ASSERT(outBuf <= out);
-                ASSERT(out <= outBuf + outLength);
-                ASSERT(0 <= numIn);
-
-                outSoFar += numOut;
-                beginIn  += numIn;
-
-                ASSERT(outSoFar <= outLength);
-                ASSERT(beginIn <= end);
-
-                ASSERT(!leftOver || outSoFar < outLength);
-                ASSERT(!leftOver || out < outBuf + outLength);
-
-                ASSERT(end == beginIn);
-                ASSERT(0 == bsl::count_if(outBuf,
-                                          outBuf + outSoFar,
-                                          &u::equalsOrNotBase64AndNotCrlf));
-
-                if (0 == maxNumOut) {
-                    maxNumOut = 1;
-                }
-
-                int endNumOut;
-                int numEndConvertCalls = 0;
-                if (threeArgs) {
-                    int rc;
-                    do {
-                        ++numEndConvertCalls;
-
-                        rc = mX.endConvert(out, &endNumOut, maxNumOut);
-                        if (0 != rc) {
-                            ASSERT(0 < endNumOut);
-                            ASSERT(endNumOut == maxNumOut);
-                        }
-
-                        outSoFar += endNumOut;
-                        out      += endNumOut;
-
-                        ASSERT(0 == bsl::count_if(outBegin,
-                                                  outBegin + outSoFar,
-                                                  &u::notCrlfAndNotBase64));
-                    } while (rc);
-
-                    ASSERTV(LINE_LENGTH, maxNumOut, numEndConvertCalls,
-                                                        outLength == outSoFar);
-                }
-                else {
-                    int rc = mX.endConvert(out);
                     ASSERT(0 == rc);
-                }
+                    ASSERT(0 <= numOut);
 
-                ASSERT(X.isDone());
-                ASSERT(GARBAGE == outBuf[outLength]);
-                u::checkBase64(outBuf, outBuf + outLength, LINE_LENGTH);
+                    out += numOut;
+
+                    ASSERT(outBuf <= out);
+                    ASSERT(out <= outBuf + outLength);
+                    ASSERT(0 <= numIn);
+
+                    outSoFar += numOut;
+                    beginIn  += numIn;
+
+                    ASSERT(outSoFar <= outLength);
+                    ASSERT(beginIn <= end);
+
+                    ASSERT(!leftOver || outSoFar < outLength);
+                    ASSERT(!leftOver || out < outBuf + outLength);
+
+                    ASSERT(end == beginIn);
+                    ASSERT(0 == bsl::count_if(
+                                            outBuf,
+                                            outBuf + outSoFar,
+                                            Alphabet::e_BASIC == alpha
+                                            ? &u::equalsOrNotBasicAndNotCrlf
+                                            : &u::equalsOrNotUrlAndNotCrlf));
+
+                    if (0 == maxNumOut) {
+                        maxNumOut = 1;
+                    }
+
+                    int endNumOut;
+                    int numEndConvertCalls = 0;
+                    if (threeArgs) {
+                        int rc;
+                        do {
+                            ++numEndConvertCalls;
+
+                            rc = mX.endConvert(out, &endNumOut, maxNumOut);
+                            if (0 != rc) {
+                                ASSERT(0 < endNumOut);
+                                ASSERT(endNumOut == maxNumOut);
+                            }
+
+                            outSoFar += endNumOut;
+                            out      += endNumOut;
+
+                            ASSERT(0 == bsl::count_if(
+                                          outBegin,
+                                          outBegin + outSoFar,
+                                          Alphabet::e_BASIC == alpha
+                                          ? &u::notBasicAndNotEqualsAndNotCrlf
+                                          : &u::notUrlAndNotEqualsAndNotCrlf));
+                        } while (rc);
+
+                        ASSERTV(LINE_LENGTH, maxNumOut, numEndConvertCalls,
+                                                        outLength == outSoFar);
+                    }
+                    else {
+                        int rc = mX.endConvert(out);
+                        ASSERT(0 == rc);
+                    }
+
+                    ASSERT(X.isDone());
+                    ASSERT(GARBAGE == outBuf[outLength]);
+                    (*checker)(outBuf, outBuf + outLength, LINE_LENGTH);
+                }
             }
         }
       } break;
@@ -2817,6 +3109,8 @@ int main(int argc, char *argv[])
         //      Selection Methods
         //   - Table-Based Implementation Technique with Orthogonal
         //      Perturbation
+        //   - All of the encoded sequences in the table are valid in both
+        //     'e_BASIC' and 'e_URL' type encodings, so test it in both modes.
         //
         // Testing:
         //   static int encodedLength(int numInputBytes, int maxLineLength);
@@ -2834,16 +3128,14 @@ int main(int argc, char *argv[])
                           << "PRIMARY MANIPULATORS" << endl
                           << "====================" << endl;
 
-        if (verbose) cout << endl << "\nVerifying Conversion Logic." << endl;
-        {
-            static const struct {
-                int         d_lineNum;         // source line number
-                int         d_maxLineLength;   // maximum length of output line
-                int         d_inputLength;     // number of input characters
-                const char *d_input_p;         // input characters
-                int         d_outputLength;    // total length of output
-                const char *d_output_p;        // expected output data
-            } DATA[] = {
+        static const struct Data {
+            int         d_lineNum;         // source line number
+            int         d_maxLineLength;   // maximum length of output line
+            int         d_inputLength;     // number of input characters
+            const char *d_input_p;         // input characters
+            unsigned    d_outputLength;    // total length of output
+            const char *d_output_p;        // expected output data
+        } DATA[] = {
 //--------------^
 
   // *** DEPTH-ORDERED ENUMERATION: Depth = inputLength; (0 == maxLineLen) ***
@@ -3039,212 +3331,269 @@ int main(int argc, char *argv[])
 { L_,  1, 9,"\0\0\0\0\0\0\0\0\0",   34,"A\r\nA\r\nA\r\nA\r\nA\r\nA\r\nA\r\nA"
                                        "\r\nA\r\nA\r\nA\r\nA"                },
 { L_,  0,10,"\0\0\0\0\0\0\0\0\0\0", 16,"AAAAAAAAAAAAAA=="                    },
+//----------v
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
+        int depth = -1;
 
-//--------------v
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        // MAIN TEST-TABLE LOOP
+        bool done = false;
+        for (int ti = 0; ti < 2 * 2 * NUM_DATA; ++ti) {
+            int                    tti     = ti;
+            const int              dIdx    = tti % NUM_DATA;   tti /= NUM_DATA;
+            const Data&            data    = DATA[dIdx];
+            const int              LINE    = data.d_lineNum;
+            const int              MAX_LEN = data.d_maxLineLength;
+            const int              IN_LEN  = data.d_inputLength;
+            const char *const      INPUT   = data.d_input_p;
+            bsl::size_t            OUT_LEN = data.d_outputLength;
+            const char            *OUTPUT  = data.d_output_p;
+            const bool             PADDED  = tti % 2;    tti /= 2;
+            const Alphabet::Enum   ALPHA   = static_cast<Alphabet::Enum>(
+                                                         tti % 2);    tti /= 2;
+            ASSERT(0 == tti);
+            done |= NUM_DATA - 1 == dIdx && PADDED && ALPHA;
 
-            int depth = -1;
+            const EncoderOptions&  OPTIONS = EncoderOptions::custom(
+                                                             MAX_LEN,
+                                                             ALPHA,
+                                                             PADDED);
 
-            // MAIN TEST-TABLE LOOP
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int         LINE    = DATA[ti].d_lineNum;
-                const int         MAX_LEN = DATA[ti].d_maxLineLength;
-                const int         IN_LEN  = DATA[ti].d_inputLength;
-                const char *const INPUT   = DATA[ti].d_input_p;
-                const int         OUT_LEN = DATA[ti].d_outputLength;
-                const char *const OUTPUT  = DATA[ti].d_output_p;
+            if (!PADDED) {
+                // Create string 'unpadded' with the padding stripped off
+                // the end, and substitute that to 'OUTPUT and OUT_LEN;
 
-                const char *const B = INPUT;
-                const char *const E = INPUT + IN_LEN;
+                static bsl::string unpadded;
+                unpadded = OUTPUT;
+                while (!unpadded.empty() &&
+                                       bsl::strchr("\r\n=", unpadded.back())) {
+                    unpadded.resize(unpadded.length() - 1);
+                }
+                OUTPUT  = unpadded.c_str();
+                OUT_LEN = unpadded.length();
+            }
 
-                const int OUTPUT_BUFFER_SIZE = 100; // overrun will be detected
-                const int TRAILING_OUTPUT_WINDOW = 30; // detect extra output
+            const char *const B = INPUT;
+            const char *const E = INPUT + IN_LEN;
 
-                Obj obj(MAX_LEN);
+            const int OUTPUT_BUFFER_SIZE = 100; // overrun will be detected
+            const int TRAILING_OUTPUT_WINDOW = 30; // detect extra output
 
-                const int newDepth = IN_LEN + MAX_LEN;
+            Obj obj(OPTIONS);
 
-                // The following partitions the table in verbose mode.
-                if (newDepth < depth) {             // table entires "Part Two"
-                    if (verbose) cout <<
+            const int newDepth = IN_LEN + MAX_LEN;
+
+            // The following partitions the table in verbose mode.
+            if (newDepth < depth) {                 // table entires "Part Two"
+                if (verbose) cout <<
                                     "\nVerifying Maximum Line Length." << endl;
+            }
+            if (newDepth != depth) {
+                if (verbose) cout << "\tDepth = " << newDepth << endl;
+                depth = newDepth;
+            }
+            if (veryVerbose) {
+                T_ T_ P_(ti)
+                P_(LINE) printCharN(cout, INPUT, IN_LEN) << endl;
+            }
+
+            // The first thing to do is to check expected output length.
+            const bsl::size_t CALC_LEN = Obj::encodedLength(OPTIONS, IN_LEN);
+            ASSERTV(LINE, PADDED, OUTPUT, OUT_LEN, CALC_LEN,
+                                                          OUT_LEN == CALC_LEN);
+
+            // Define the output buffer and initialize it.
+            char outputBuffer[OUTPUT_BUFFER_SIZE];
+            memset(outputBuffer, '?', sizeof outputBuffer);
+
+            char *b = outputBuffer;
+            int   nOut = -1;
+            int   nIn = -1;
+            LOOP_ASSERT(LINE, 0 == obj.convert(b, &nOut, &nIn, B, E));
+            LOOP_ASSERT(LINE, IN_LEN == nIn);
+
+            // Prepare to call 'endConvert'.
+            unsigned totalOut = nOut;
+            b += nOut;
+            LOOP_ASSERT(LINE, 0 == obj.endConvert(b, &nOut));
+            totalOut += nOut;
+            LOOP3_ASSERT(LINE, OUT_LEN, totalOut, OUT_LEN == totalOut);
+
+            // Capture and verify internal output length.
+            const unsigned internalLen = obj.outputLength();
+            LOOP2_ASSERT(LINE, internalLen, OUT_LEN == internalLen);
+
+            // Confirm final state is e_DONE_STATE.
+            LOOP_ASSERT(LINE, isState(&obj, e_DONE_STATE));
+
+            if (veryVeryVerbose) {
+                cout << "\t\t\tExpected output: ";
+                    printCharN(cout, OUTPUT, OUT_LEN) << endl;
+                cout << "\t\t\t  Actual output: ";
+                    printCharN(cout, outputBuffer, totalOut) << endl;
+            }
+            LOOP_ASSERT(LINE, 0 == memcmp(OUTPUT, outputBuffer, OUT_LEN));
+
+            // Verify nothing written past end of actual output.
+            {
+                int start = totalOut;
+                int extra = TRAILING_OUTPUT_WINDOW;
+                int end = myMin(start + extra, int(sizeof outputBuffer));
+                int last = start;
+                for (int i = last; i < end; ++i) {
+                    if ('?' != outputBuffer[i]) {
+                        last = i;
+                    }
                 }
-                if (newDepth != depth) {
-                    if (verbose) cout << "\tDepth = " << newDepth << endl;
-                    depth = newDepth;
+                if (last != start) {
+                    cout << "\t\t\t  Extended View: ";
+                    printCharN(cout, outputBuffer, last + 1) << endl;
                 }
-                if (veryVerbose) {
-                    T_ T_ P_(ti)
-                    P_(LINE) printCharN(cout, INPUT, IN_LEN) << endl;
+                LOOP3_ASSERT(LINE, start, last, start == last)
+            }
+
+            // Detect output buffer overflow.
+            LOOP_ASSERT(LINE, '?' == outputBuffer[sizeof outputBuffer - 2])
+            LOOP_ASSERT(LINE, '?' == outputBuffer[sizeof outputBuffer - 1])
+
+            // ORTHOGONAL PERTURBATION:
+
+            // For each index in [0, IN_LEN], partition the input into two
+            // sequences, apply these sequences, in turn, to a newly
+            // created instance, and verify that the result is identical to
+            // that of the original (unpartitioned) sequence.
+
+            for (int index = 0; index <= IN_LEN; ++index) {
+                if (veryVeryVerbose) { T_ T_ T_ T_ P(index) }
+
+                Obj               localObj(OPTIONS);
+                const char *const M = B + index;
+                char              localBuf[sizeof outputBuffer];
+                memset(localBuf, '$', sizeof localBuf);
+                char             *lb = localBuf;
+                int               localNumIn;
+                int               localNumOut;
+
+                if (veryVeryVeryVerbose) {
+                    cout << "\t\t\t\t\t" << "Input 1: ";
+                    printCharN(cout, B, static_cast<int>(M - B)) << endl;
                 }
 
-                // The first thing to do is to check expected output length.
-                const int CALC_LEN = Obj::encodedLength(IN_LEN, MAX_LEN);
-                LOOP3_ASSERT(LINE, OUT_LEN, CALC_LEN, OUT_LEN == CALC_LEN);
+                int res1 = localObj.convert(lb, &localNumOut, &localNumIn,
+                                                                         B, M);
+                LOOP2_ASSERT(LINE, index, 0 == res1);
 
-                // Define the output buffer and initialize it.
-                char outputBuffer[OUTPUT_BUFFER_SIZE];
-                memset(outputBuffer, '?', sizeof outputBuffer);
+                // Prepare for second call to 'convert'.
+                int      localTotalIn = localNumIn;
+                unsigned localTotalOut = localNumOut;
+                lb += localNumOut;
 
-                char *b = outputBuffer;
-                int   nOut = -1;
-                int   nIn = -1;
-                LOOP_ASSERT(LINE, 0 == obj.convert(b, &nOut, &nIn, B, E));
-                LOOP_ASSERT(LINE, IN_LEN == nIn);
+                if (veryVeryVeryVerbose) {
+                    cout << "\t\t\t\t\t" << "Input 2: ";
+                    printCharN(cout, M, static_cast<int>(E - M)) << endl;
+                }
+
+                int res2 = localObj.convert(lb, &localNumOut, &localNumIn,
+                                                                         M, E);
+                LOOP2_ASSERT(LINE, index, 0 == res2);
 
                 // Prepare to call 'endConvert'.
-                int totalOut = nOut;
-                b += nOut;
-                LOOP_ASSERT(LINE, 0 == obj.endConvert(b, &nOut));
-                totalOut += nOut;
-                LOOP3_ASSERT(LINE, OUT_LEN, totalOut, OUT_LEN == totalOut);
+                localTotalIn  += localNumIn;
+                localTotalOut += localNumOut;
+                lb += localNumOut;
 
-                // Capture and verify internal output length.
-                const int internalLen = obj.outputLength();
-                LOOP2_ASSERT(LINE, internalLen, OUT_LEN == internalLen);
+                int res3 = localObj.endConvert(lb, &localNumOut);
+                LOOP2_ASSERT(LINE, index, 0 == res3);
+                localTotalOut += localNumOut;
+
+                // Compare internal output lengths.
+                const unsigned localLen = localObj.outputLength();
+                ASSERTV(LINE, internalLen, localLen, internalLen == localLen);
 
                 // Confirm final state is e_DONE_STATE.
-                LOOP_ASSERT(LINE, isState(&obj, e_DONE_STATE));
+                LOOP2_ASSERT(LINE, index, isState(&localObj, e_DONE_STATE));
 
-                if (veryVeryVerbose) {
-                    cout << "\t\t\tExpected output: ";
-                        printCharN(cout, OUTPUT, OUT_LEN) << endl;
-                    cout << "\t\t\t  Actual output: ";
-                        printCharN(cout, outputBuffer, totalOut) << endl;
+                // Verify total amount of input consumed is the same.
+                ASSERTV(LINE, index, nIn, localTotalIn, nIn == localTotalIn);
+
+                int cmpStatus = memcmp(outputBuffer, localBuf, totalOut);
+                if (cmpStatus || localTotalOut != totalOut ||
+                                                         veryVeryVeryVerbose) {
+                    cout << "\t\t\t\t\tExpected output: ";
+                    printCharN(cout, outputBuffer, totalOut) << endl;
+                    cout << "\t\t\t\t\t  Actual output: ";
+                    printCharN(cout, localBuf, localTotalOut) << endl;
                 }
-                LOOP_ASSERT(LINE, 0 == memcmp(OUTPUT, outputBuffer, OUT_LEN));
+
+                ASSERTV(LINE, index, totalOut, localTotalOut,
+                                                    totalOut == localTotalOut);
+                LOOP2_ASSERT(LINE, index, 0 == cmpStatus);
 
                 // Verify nothing written past end of actual output.
                 {
-                    int start = totalOut;
+                    int start = localTotalOut;
                     int extra = TRAILING_OUTPUT_WINDOW;
-                    int end = myMin(start + extra, int(sizeof outputBuffer));
+                    int end = myMin(start + extra, int(sizeof localBuf));
                     int last = start;
                     for (int i = last; i < end; ++i) {
-                        if ('?' != outputBuffer[i]) {
+                        if ('$' != localBuf[i]) {
                             last = i;
                         }
                     }
                     if (last != start) {
-                        cout << "\t\t\t  Extended View: ";
-                        printCharN(cout, outputBuffer, last + 1) << endl;
+                        cout << "\t\t\t\t\t  Extended view: ";
+                        printCharN(cout, localBuf, last + 1) << endl;
                     }
                     LOOP3_ASSERT(LINE, start, last, start == last)
                 }
 
-                // Detect output buffer overflow.
-                LOOP_ASSERT(LINE, '?' == outputBuffer[sizeof outputBuffer - 2])
-                LOOP_ASSERT(LINE, '?' == outputBuffer[sizeof outputBuffer - 1])
+                // Detect local buffer overflow.
+                const int SIZE = sizeof outputBuffer;
+                LOOP2_ASSERT(LINE, index, '$' == localBuf[SIZE - 2]);
+                LOOP2_ASSERT(LINE, index, '$' == localBuf[SIZE - 1]);
+            }
 
-                // ORTHOGONAL PERTURBATION:
+        } // end for ti
+        ASSERT(done);
 
-                // For each index in [0, IN_LEN], partition the input into two
-                // sequences, apply these sequences, in turn, to a newly
-                // created instance, and verify that the result is identical to
-                // that of the original (unpartitioned) sequence.
+        if (verbose) cout << "Negative Testing\n";
+        {
+            bsls::AssertTestHandlerGuard  guard;
 
-                for (int index = 0; index <= IN_LEN; ++index) {
-                    if (veryVeryVerbose) { T_ T_ T_ T_ P(index) }
+            const size_t maxSize_t = bsl::numeric_limits<size_t>::max();
 
-                    Obj               localObj(MAX_LEN);
-                    const char *const M = B + index;
-                    char              localBuf[sizeof outputBuffer];
-                    memset(localBuf, '$', sizeof localBuf);
-                    char             *lb = localBuf;
-                    int               localNumIn;
-                    int               localNumOut;
+            // 'encodedLength'
 
-                    if (veryVeryVeryVerbose) {
-                        cout << "\t\t\t\t\t" << "Input 1: ";
-                        printCharN(cout, B, static_cast<int>(M - B)) << endl;
-                    }
+            ASSERT_FAIL(Obj::encodedLength(EncoderOptions::urlSafe(), -1));
 
-                    int res1 = localObj.convert(lb, &localNumOut, &localNumIn,
-                                                                         B, M);
-                    LOOP2_ASSERT(LINE, index, 0 == res1);
+            size_t limit = (maxSize_t / 4) * 3 + 2;
 
-                    // Prepare for second call to 'convert'.
-                    int localTotalIn = localNumIn;
-                    int localTotalOut = localNumOut;
-                    lb += localNumOut;
+            ASSERT_PASS(Obj::encodedLength(EncoderOptions::urlSafe(), limit));
+            ASSERT_FAIL(Obj::encodedLength(EncoderOptions::urlSafe(),
+                                           limit + 1));
 
-                    if (veryVeryVeryVerbose) {
-                        cout << "\t\t\t\t\t" << "Input 2: ";
-                        printCharN(cout, M, static_cast<int>(E - M)) << endl;
-                    }
+            ASSERT_FAIL(Obj::encodedLength(EncoderOptions::mime(), -1));
 
-                    int res2 = localObj.convert(lb, &localNumOut, &localNumIn,
-                                                                         M, E);
-                    LOOP2_ASSERT(LINE, index, 0 == res2);
+            limit = ((maxSize_t / 78)) * 76 / 4 * 3 +
+                                      (sizeof(int) == sizeof(size_t) ? 15 : 9);
+            ASSERT_PASS(Obj::encodedLength(EncoderOptions::mime(), limit));
+            ASSERT_FAIL(Obj::encodedLength(EncoderOptions::mime(), limit + 1));
 
-                    // Prepare to call 'endConvert'.
-                    localTotalIn  += localNumIn;
-                    localTotalOut += localNumOut;
-                    lb += localNumOut;
+            // 'encodedLines'
 
-                    int res3 = localObj.endConvert(lb, &localNumOut);
-                    LOOP2_ASSERT(LINE, index, 0 == res3);
-                    localTotalOut += localNumOut;
+            ASSERT_FAIL(Obj::encodedLines(EncoderOptions::mime(), -1));
 
-                    // Compare internal output lengths.
-                    const int localLen = localObj.outputLength();
-            // -----^
-            LOOP3_ASSERT(LINE, internalLen, localLen, internalLen == localLen);
-            // -----v
+            limit = ((maxSize_t - 4) / 4 + 1) * 3 - 2 + 2;
 
-                    // Confirm final state is e_DONE_STATE.
-                    LOOP2_ASSERT(LINE, index, isState(&localObj,
-                                                      e_DONE_STATE));
+            ASSERT_PASS(Obj::encodedLines(EncoderOptions::mime(), limit));
+            ASSERT_FAIL(Obj::encodedLines(EncoderOptions::mime(), limit + 1));
 
-                    // Verify total amount of input consumed is the same.
-            // -----^
-            LOOP4_ASSERT(LINE, index, nIn, localTotalIn, nIn == localTotalIn);
-            // -----v
+            // Result is 1 if line length is 0
 
-                    int cmpStatus = memcmp(outputBuffer, localBuf, totalOut);
-                    if (cmpStatus || localTotalOut != totalOut ||
-                                                         veryVeryVeryVerbose) {
-                        cout << "\t\t\t\t\tExpected output: ";
-                        printCharN(cout, outputBuffer, totalOut) << endl;
-                        cout << "\t\t\t\t\t  Actual output: ";
-                        printCharN(cout, localBuf, localTotalOut) << endl;
-                    }
-
-// -----------------^
-LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
-// -----------------v
-                    LOOP2_ASSERT(LINE, index, 0 == cmpStatus);
-
-                    // Verify nothing written past end of actual output.
-                    {
-                        int start = localTotalOut;
-                        int extra = TRAILING_OUTPUT_WINDOW;
-                        int end = myMin(start + extra, int(sizeof localBuf));
-                        int last = start;
-                        for (int i = last; i < end; ++i) {
-                            if ('$' != localBuf[i]) {
-                                last = i;
-                            }
-                        }
-                        if (last != start) {
-                            cout << "\t\t\t\t\t  Extended view: ";
-                            printCharN(cout, localBuf, last + 1) << endl;
-                        }
-                        LOOP3_ASSERT(LINE, start, last, start == last)
-                    }
-
-                    // Detect local buffer overflow.
-                    const int SIZE = sizeof outputBuffer;
-                    LOOP2_ASSERT(LINE, index, '$' == localBuf[SIZE - 2]);
-                    LOOP2_ASSERT(LINE, index, '$' == localBuf[SIZE - 1]);
-                }
-
-            } // end for ti
-
-        } // end block
-
+            ASSERT_PASS(Obj::encodedLines(EncoderOptions::urlSafe(), 0));
+            ASSERT(1 == Obj::encodedLines(EncoderOptions::urlSafe(), 0));
+        }
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -3269,17 +3618,28 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
         if (verbose) cout << "TEST MACHINERY\n"
                              "==============\n";
 
-        uint8_t buf[117];
+        enum { k_BUF_LEN = 128 };
+        bsl::vector<uint8_t> buf, asciiBuf;
+        buf.resize(     k_BUF_LEN);
+        asciiBuf.resize(k_BUF_LEN);
 
-        for (int ii = 0; ii < 1024; ++ii) {
-            for (unsigned uu = 0; uu < sizeof(buf); ++uu) {
-                buf[uu] = uint8_t((bsl::rand() >> 3) & 0xff);
+        u::RandGen rand;
+
+        for (int ii = 0; ii < 64; ++ii) {
+            for (unsigned uu = 0; uu < k_BUF_LEN; uu += 4) {
+                unsigned r = rand();
+                bsl::memcpy(&buf[uu],      &r, sizeof(r));
+                r &= 0x7f7f7f7f;
+                bsl::memcpy(&asciiBuf[uu], &r, sizeof(r));
             }
 
-            for (bsl::size_t len = !!ii; len <= sizeof(buf);
-                                                len += 1 + (bsl::rand() & 7)) {
-                int rc = LLVMFuzzerTestOneInput(buf, len);
-                ASSERT(0 == rc);
+            for (unsigned len = 0 != ii; len <= k_BUF_LEN;
+                                                     len += 1 + (rand() % 6)) {
+                const int gap = k_BUF_LEN - len;
+                int rc = LLVMFuzzerTestOneInput(buf.data() + gap, len);
+                ASSERT(0 == rc && "buf");
+                rc = LLVMFuzzerTestOneInput(asciiBuf.data() + gap, len);
+                ASSERT(0 == rc && "asciiBuf");
             }
         }
 
@@ -3348,105 +3708,121 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
 
             if (verbose) cout << "\t\"base64\": Verify Entries [0-25]."
                               << endl;
-            {
-                int start = end;
+            int origStart = end;
+            for (int pi = 0; pi < 2; ++pi) {
+                const bool pad = pi;
+                int start = origStart;
                 end = start + 26;
                 for (int i = start; i < end; ++i) {
                     if (veryVerbose) { T_ T_ P(i) }
-                    Obj obj(0);
+                    Obj obj(EncoderOptions::custom(0, Alphabet::e_BASIC, pad));
+                    bsl::memset(b, '?', sizeof(b));
                     input = char(4 * i);
                     LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                     LOOP_ASSERT(i, 1 == nOut);
                     LOOP_ASSERT(i, 1 == nIn);
                     LOOP_ASSERT(i, 0 == obj.endConvert(b + nOut, &nOut));
-                    LOOP_ASSERT(i, 3 == nOut);
+                    LOOP_ASSERT(i, (pad ? 3 : 1) == nOut);
                     LOOP_ASSERT(i, 'A' + i - start == b[0]);
                     LOOP_ASSERT(i, 'A' == b[1]);
-                    LOOP_ASSERT(i, '=' == b[2]);
-                    LOOP_ASSERT(i, '=' == b[3]);
+                    LOOP_ASSERT(i, (pad ? '=' : '?') == b[2]);
+                    LOOP_ASSERT(i, (pad ? '=' : '?') == b[3]);
                 }
             }
 
             if (verbose) cout << "\t\"base64\": Verify Entries [26-51]."
                               << endl;
-            {
-                int start = end;
+            origStart = end;
+            for (int pi = 0; pi < 2; ++pi) {
+                const bool pad = pi;
+                int start = origStart;
                 end = start + 26;
                 for (int i = start; i < end; ++i) {
                     if (veryVerbose) { T_ T_ P(i) }
-                    Obj obj(0);
+                    Obj obj(EncoderOptions::custom(0, Alphabet::e_BASIC, pad));
+                    bsl::memset(b, '?', sizeof(b));
                     input = char(4 * i);
                     LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                     LOOP_ASSERT(i, 1 == nOut);
                     LOOP_ASSERT(i, 1 == nIn);
                     LOOP_ASSERT(i, 0 == obj.endConvert(b + nOut, &nOut));
-                    LOOP_ASSERT(i, 3 == nOut);
-                    LOOP_ASSERT(i, 'a' + i - start == b[0]);
-                    LOOP_ASSERT(i, 'A' == b[1]);
-                    LOOP_ASSERT(i, '=' == b[2]);
-                    LOOP_ASSERT(i, '=' == b[3]);
+                    ASSERTV(i, nOut, (pad ? 3 : 1) == nOut);
+                    ASSERTV(i, 'a' + i - start == b[0]);
+                    ASSERTV(i, 'A' == b[1]);
+                    ASSERTV(i, b[2], pad, (pad ? '=' : '?') == b[2]);
+                    ASSERTV(i, b[3], pad, (pad ? '=' : '?') == b[3]);
                 }
             }
 
             if (verbose) cout << "\t\"base64\": Verify Entries [52-61]."
                               << endl;
-            {
-                int start = end;
+            origStart = end;
+            for (int pi = 0; pi < 2; ++pi) {
+                const bool pad = pi;
+                int start = origStart;
                 end = start + 10;
                 for (int i = start; i < end; ++i) {
                     if (veryVerbose) { T_ T_ P(i) }
-                    Obj obj(0);
+                    Obj obj(EncoderOptions::custom(0, Alphabet::e_BASIC, pad));
+                    bsl::memset(b, '?', sizeof(b));
                     input = char(4 * i);
                     LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                     LOOP_ASSERT(i, 1 == nOut);
                     LOOP_ASSERT(i, 1 == nIn);
                     LOOP_ASSERT(i, 0 == obj.endConvert(b + nOut, &nOut));
-                    LOOP_ASSERT(i, 3 == nOut);
-                    LOOP_ASSERT(i, '0' + i - start == b[0]);
-                    LOOP_ASSERT(i, 'A' == b[1]);
-                    LOOP_ASSERT(i, '=' == b[2]);
-                    LOOP_ASSERT(i, '=' == b[3]);
+                    ASSERTV(i, nOut, (pad ? 3 : 1) == nOut);
+                    ASSERTV(i, '0' + i - start == b[0]);
+                    ASSERTV(i, 'A' == b[1]);
+                    ASSERTV(i, b[2], pad, (pad ? '=' : '?') == b[2]);
+                    ASSERTV(i, b[3], pad, (pad ? '=' : '?') == b[3]);
                 }
             }
 
             if (verbose) cout << "\t\"base64\": Verify Entry [62]."
                               << endl;
-            {
-                int start = end;
+            origStart = end;
+            for (int pi = 0; pi < 2; ++pi) {
+                const bool pad = pi;
+                int start = origStart;
                 end = start + 1;
                 for (int i = start; i < end; ++i) {
                     if (veryVerbose) { T_ T_ P(i) }
-                    Obj obj(0);
+                    Obj obj(EncoderOptions::custom(0, Alphabet::e_BASIC, pad));
+                    bsl::memset(b, '?', sizeof(b));
                     input = char(4 * i);
                     LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                     LOOP_ASSERT(i, 1 == nOut);
                     LOOP_ASSERT(i, 1 == nIn);
                     LOOP_ASSERT(i, 0 == obj.endConvert(b + nOut, &nOut));
-                    LOOP_ASSERT(i, 3 == nOut);
-                    LOOP_ASSERT(i, '+' + i - start == b[0]);
-                    LOOP_ASSERT(i, 'A' == b[1]);
-                    LOOP_ASSERT(i, '=' == b[2]);
-                    LOOP_ASSERT(i, '=' == b[3]);
+                    ASSERTV(i, nOut, (pad ? 3 : 1) == nOut);
+                    ASSERTV(i, '+' + i - start == b[0]);
+                    ASSERTV(i, 'A' == b[1]);
+                    ASSERTV(i, b[2], pad, (pad ? '=' : '?') == b[2]);
+                    ASSERTV(i, b[3], pad, (pad ? '=' : '?') == b[3]);
                 }
             }
 
             if (verbose) cout << "\t\"base64\": Verify Entry [63]."
                               << endl;
-            {
-                int start = end;
+            origStart = end;
+            for (int pi = 0; pi < 2; ++pi) {
+                const bool pad = pi;
+                int start = origStart;
                 end = start + 1;
                 for (int i = start; i < end; ++i) {
-                    Obj obj(0);
+                    if (veryVerbose) { T_ T_ P(i) }
+                    Obj obj(EncoderOptions::custom(0, Alphabet::e_BASIC, pad));
+                    bsl::memset(b, '?', sizeof(b));
                     input = char(4 * i);
                     LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                     LOOP_ASSERT(i, 1 == nOut);
                     LOOP_ASSERT(i, 1 == nIn);
                     LOOP_ASSERT(i, 0 == obj.endConvert(b + nOut, &nOut));
-                    LOOP_ASSERT(i, 3 == nOut);
-                    LOOP_ASSERT(i, '/' + i - start == b[0]);
-                    LOOP_ASSERT(i, 'A' == b[1]);
-                    LOOP_ASSERT(i, '=' == b[2]);
-                    LOOP_ASSERT(i, '=' == b[3]);
+                    ASSERTV(i, nOut, (pad ? 3 : 1) == nOut);
+                    ASSERTV(i, '/' + i - start == b[0]);
+                    ASSERTV(i, 'A' == b[1]);
+                    ASSERTV(i, b[2], pad, (pad ? '=' : '?') == b[2]);
+                    ASSERTV(i, b[3], pad, (pad ? '=' : '?') == b[3]);
                 }
             }
 
@@ -3458,106 +3834,103 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
 
             if (verbose) cout << "\t\"base64url\": Verify Entries [0-25]."
                               << endl;
-            {
-                int start = end;
-                end = start + 26;
-                for (int i = start; i < end; ++i) {
-                    if (veryVerbose) { T_ T_ P(i) }
-                    Obj obj(0, Obj::e_URL);
-                    input = char(4 * i);
-                    LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
-                    LOOP_ASSERT(i, 1 == nOut);
-                    LOOP_ASSERT(i, 1 == nIn);
-                    LOOP_ASSERT(i, 0 == obj.endConvert(b + nOut, &nOut));
-                    LOOP_ASSERT(i, 3 == nOut);
-                    LOOP_ASSERT(i, 'A' + i - start == b[0]);
-                    LOOP_ASSERT(i, 'A' == b[1]);
-                    LOOP_ASSERT(i, '=' == b[2]);
-                    LOOP_ASSERT(i, '=' == b[3]);
-                }
+            int start = end;
+            end = start + 26;
+            for (int i = start; i < end; ++i) {
+                if (veryVerbose) { T_ T_ P(i) }
+                Obj obj(EncoderOptions::urlSafe());
+                bsl::memset(b, '?', sizeof(b));
+                input = char(4 * i);
+                LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
+                LOOP_ASSERT(i, 1 == nOut);
+                LOOP_ASSERT(i, 1 == nIn);
+                LOOP_ASSERT(i, 0 == obj.endConvert(b + nOut, &nOut));
+                ASSERTV(i, nOut, 1 == nOut);
+                ASSERTV(i, 'A' + i - start == b[0]);
+                ASSERTV(i, 'A' == b[1]);
+                ASSERTV(i, b[2], '?' == b[2]);
+                ASSERTV(i, b[2], '?' == b[3]);
             }
 
             if (verbose) cout << "\t\"base64url\": Verify Entries [26-51]."
                               << endl;
-            {
-                int start = end;
-                end = start + 26;
-                for (int i = start; i < end; ++i) {
-                    if (veryVerbose) { T_ T_ P(i) }
-                    Obj obj(0, Obj::e_URL);
-                    input = char(4 * i);
-                    LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
-                    LOOP_ASSERT(i, 1 == nOut);
-                    LOOP_ASSERT(i, 1 == nIn);
-                    LOOP_ASSERT(i, 0 == obj.endConvert(b + nOut, &nOut));
-                    LOOP_ASSERT(i, 3 == nOut);
-                    LOOP_ASSERT(i, 'a' + i - start == b[0]);
-                    LOOP_ASSERT(i, 'A' == b[1]);
-                    LOOP_ASSERT(i, '=' == b[2]);
-                    LOOP_ASSERT(i, '=' == b[3]);
-                }
+            origStart = end;
+            start = end;
+            end = start + 26;
+            for (int i = start; i < end; ++i) {
+                if (veryVerbose) { T_ T_ P(i) }
+                Obj obj(EncoderOptions::urlSafe());
+                bsl::memset(b, '?', sizeof(b));
+                input = char(4 * i);
+                LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
+                LOOP_ASSERT(i, 1 == nOut);
+                LOOP_ASSERT(i, 1 == nIn);
+                LOOP_ASSERT(i, 0 == obj.endConvert(b + nOut, &nOut));
+                ASSERTV(i, nOut, 1 == nOut);
+                ASSERTV(i, 'a' + i - start == b[0]);
+                ASSERTV(i, 'A' == b[1]);
+                ASSERTV(i, b[2], '?' == b[2]);
+                ASSERTV(i, b[2], '?' == b[3]);
             }
 
             if (verbose) cout << "\t\"base64url\": Verify Entries [52-61]."
                               << endl;
-            {
-                int start = end;
-                end = start + 10;
-                for (int i = start; i < end; ++i) {
-                    if (veryVerbose) { T_ T_ P(i) }
-                    Obj obj(0, Obj::e_URL);
-                    input = char(4 * i);
-                    LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
-                    LOOP_ASSERT(i, 1 == nOut);
-                    LOOP_ASSERT(i, 1 == nIn);
-                    LOOP_ASSERT(i, 0 == obj.endConvert(b + nOut, &nOut));
-                    LOOP_ASSERT(i, 3 == nOut);
-                    LOOP_ASSERT(i, '0' + i - start == b[0]);
-                    LOOP_ASSERT(i, 'A' == b[1]);
-                    LOOP_ASSERT(i, '=' == b[2]);
-                    LOOP_ASSERT(i, '=' == b[3]);
-                }
+            start = end;
+            end = start + 10;
+            for (int i = start; i < end; ++i) {
+                if (veryVerbose) { T_ T_ P(i) }
+                Obj obj(EncoderOptions::urlSafe());
+                bsl::memset(b, '?', sizeof(b));
+                input = char(4 * i);
+                LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
+                LOOP_ASSERT(i, 1 == nOut);
+                LOOP_ASSERT(i, 1 == nIn);
+                LOOP_ASSERT(i, 0 == obj.endConvert(b + nOut, &nOut));
+                ASSERTV(i, nOut, 1 == nOut);
+                ASSERTV(i, '0' + i - start == b[0]);
+                ASSERTV(i, 'A' == b[1]);
+                ASSERTV(i, b[2], '?' == b[2]);
+                ASSERTV(i, b[3], '?' == b[3]);
             }
 
             if (verbose) cout << "\t\"base64url\": Verify Entry [62]."
                               << endl;
-            {
-                int start = end;
-                end = start + 1;
-                for (int i = start; i < end; ++i) {
-                    if (veryVerbose) { T_ T_ P(i) }
-                    Obj obj(0, Obj::e_URL);
-                    input = char(4 * i);
-                    LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
-                    LOOP_ASSERT(i, 1 == nOut);
-                    LOOP_ASSERT(i, 1 == nIn);
-                    LOOP_ASSERT(i, 0 == obj.endConvert(b + nOut, &nOut));
-                    LOOP_ASSERT(i, 3 == nOut);
-                    LOOP_ASSERT(i, '-' + i - start == b[0]);
-                    LOOP_ASSERT(i, 'A' == b[1]);
-                    LOOP_ASSERT(i, '=' == b[2]);
-                    LOOP_ASSERT(i, '=' == b[3]);
-                }
+            start = end;
+            end = start + 1;
+            for (int i = start; i < end; ++i) {
+                if (veryVerbose) { T_ T_ P(i) }
+                Obj obj(EncoderOptions::urlSafe());
+                bsl::memset(b, '?', sizeof(b));
+                input = char(4 * i);
+                LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
+                LOOP_ASSERT(i, 1 == nOut);
+                LOOP_ASSERT(i, 1 == nIn);
+                LOOP_ASSERT(i, 0 == obj.endConvert(b + nOut, &nOut));
+                ASSERTV(i, nOut, 1 == nOut);
+                ASSERTV(i, '-' + i - start == b[0]);
+                ASSERTV(i, 'A' == b[1]);
+                ASSERTV(i, b[2], '?' == b[2]);
+                ASSERTV(i, b[3], '?' == b[3]);
             }
 
             if (verbose) cout << "\t\"base64url\": Verify Entry [63]."
                               << endl;
-            {
-                int start = end;
-                end = start + 1;
-                for (int i = start; i < end; ++i) {
-                    Obj obj(0, Obj::e_URL);
-                    input = char(4 * i);
-                    LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
-                    LOOP_ASSERT(i, 1 == nOut);
-                    LOOP_ASSERT(i, 1 == nIn);
-                    LOOP_ASSERT(i, 0 == obj.endConvert(b + nOut, &nOut));
-                    LOOP_ASSERT(i, 3 == nOut);
-                    LOOP_ASSERT(i, '_' + i - start == b[0]);
-                    LOOP_ASSERT(i, 'A' == b[1]);
-                    LOOP_ASSERT(i, '=' == b[2]);
-                    LOOP_ASSERT(i, '=' == b[3]);
-                }
+            start = end;
+            end = start + 1;
+            for (int i = start; i < end; ++i) {
+                if (veryVerbose) { T_ T_ P(i) }
+                Obj obj(EncoderOptions::urlSafe());
+                bsl::memset(b, '?', sizeof(b));
+                input = char(4 * i);
+                LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
+                LOOP_ASSERT(i, 1 == nOut);
+                LOOP_ASSERT(i, 1 == nIn);
+                LOOP_ASSERT(i, 0 == obj.endConvert(b + nOut, &nOut));
+                ASSERTV(i, nOut, 1 == nOut);
+                ASSERTV(i, '_' + i - start == b[0]);
+                ASSERTV(i, 'A' == b[1]);
+                ASSERTV(i, b[2], '?' == b[2]);
+                ASSERTV(i, b[3], '?' == b[3]);
             }
 
             ASSERT(64 == end);  // make sure all entires are accounted for.
@@ -3679,7 +4052,7 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
                 const int RTN = -(e_ERROR_STATE == END);
                 const char *const E = B + COUNT;
 
-                Obj obj(0);
+                Obj obj(EncoderOptions::custom(0, Alphabet::e_BASIC, true));
 
                 if (COUNT != lastNumInputs) {
                     if (verbose) cout << '\t' << COUNT << " input character"
@@ -3763,7 +4136,7 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
                 const int END   = DATA[ti].d_endState;
                 const int RTN = -(e_ERROR_STATE == END);
 
-                Obj obj(0);
+                Obj obj(EncoderOptions::custom(0, Alphabet::e_BASIC, true));
 
                 if (verbose) cout << '\t' << STATE_NAMES[START] << '.' << endl;
                 if (veryVerbose) cout <<
@@ -3841,30 +4214,43 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
         {
                 if (verbose) cout << "\te_INITIAL_STATE." << endl;
 
-                Obj obj(9);
+                Obj obj(EncoderOptions::custom(9, Alphabet::e_BASIC, true));
 
                 ASSERT(9 == obj.maxLineLength());
+                ASSERT(9 == obj.options().maxLineLength());
                 ASSERT(1 == obj.isAcceptable());
                 ASSERT(0 == obj.isDone());
                 ASSERT(0 == obj.isError());
                 ASSERT(1 == obj.isInitialState());
                 ASSERT(0 == obj.outputLength());
+                ASSERT(Alphabet::e_BASIC == obj.options().alphabet());
+                ASSERT(Alphabet::e_BASIC == obj.alphabet());
+                ASSERT(true  == obj.options().isPadded());
+                ASSERT(true  == obj.isPadded());
         }
 
         if (verbose) cout << "\nVerify ::setState." << endl;
         {
 
             if (verbose) cout << "\te_INITIAL_STATE." << endl;
-            {
-                Obj obj(9);
+            for (int tp = 0; tp < 2; ++tp) {
+                const bool isPadded = tp;
+
+                Obj obj(EncoderOptions::custom(
+                                              9, Alphabet::e_BASIC, isPadded));
                 setState(&obj, e_INITIAL_STATE);
 
                 ASSERT(9 == obj.maxLineLength());
+                ASSERT(9 == obj.options().maxLineLength());
                 ASSERT(1 == obj.isAcceptable());
                 ASSERT(0 == obj.isDone());
                 ASSERT(0 == obj.isError());
                 ASSERT(1 == obj.isInitialState());
                 ASSERT(0 == obj.outputLength());
+                ASSERT(Alphabet::e_BASIC == obj.options().alphabet());
+                ASSERT(Alphabet::e_BASIC == obj.alphabet());
+                ASSERT(isPadded == obj.options().isPadded());
+                ASSERT(isPadded == obj.isPadded());
 
                 char b[4] = { -1, -1, -1, -1 };
                 int  numOut = -1;
@@ -3872,6 +4258,11 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
 
                 // e_DONE_STATE
                 ASSERT(9 == obj.maxLineLength());
+                ASSERT(9 == obj.options().maxLineLength());
+                ASSERT(Alphabet::e_BASIC == obj.options().alphabet());
+                ASSERT(Alphabet::e_BASIC == obj.alphabet());
+                ASSERT(isPadded == obj.options().isPadded());
+                ASSERT(isPadded == obj.isPadded());
                 ASSERT(1 == obj.isAcceptable());
                 ASSERT(1 == obj.isDone());
                 ASSERT(0 == obj.isError());
@@ -3886,11 +4277,19 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
             }
 
             if (verbose) cout << "\tState 1." << endl;
-            {
-                Obj obj(9);
+            for (int tp = 0; tp < 2; ++tp) {
+                const bool isPadded = tp;
+
+                Obj obj(EncoderOptions::custom(
+                                              9, Alphabet::e_BASIC, isPadded));
                 setState(&obj, e_STATE_ONE);
 
                 ASSERT(9 == obj.maxLineLength());
+                ASSERT(9 == obj.options().maxLineLength());
+                ASSERT(Alphabet::e_BASIC == obj.options().alphabet());
+                ASSERT(Alphabet::e_BASIC == obj.alphabet());
+                ASSERT(isPadded == obj.options().isPadded());
+                ASSERT(isPadded == obj.isPadded());
                 ASSERT(1 == obj.isAcceptable());
                 ASSERT(0 == obj.isDone());
                 ASSERT(0 == obj.isError());
@@ -3903,26 +4302,38 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
 
                 // e_DONE_STATE
                 ASSERT(9 == obj.maxLineLength());
-                ASSERT(9 == obj.maxLineLength());
+                ASSERT(9        == obj.options().maxLineLength());
+                ASSERT(Alphabet::e_BASIC == obj.options().alphabet());
+                ASSERT(Alphabet::e_BASIC == obj.alphabet());
+                ASSERT(isPadded == obj.options().isPadded());
+                ASSERT(isPadded == obj.isPadded());
                 ASSERT(1 == obj.isAcceptable());
-                ASSERT(1 == obj.isDone());
+                ASSERTV(isPadded, 1 == obj.isDone());
                 ASSERT(0 == obj.isError());
                 ASSERT(0 == obj.isInitialState());
-                ASSERT(4 == obj.outputLength());
-                ASSERT(0 == result);
-                ASSERT(3 == numOut);
+                ASSERT((isPadded ? 4 : 2) == obj.outputLength());
+                ASSERTV(isPadded, result, 0 == result);
+                ASSERT((isPadded ? 3 : 1) == numOut);
                 ASSERT((char)-1 == b[0]);
                 ASSERT('A' == b[1]);
-                ASSERT('=' == b[2]);
-                ASSERT('=' == b[3]);
+                ASSERT((isPadded ? '=' : (char)-1) == b[2]);
+                ASSERT((isPadded ? '=' : (char)-1) == b[3]);
             }
 
             if (verbose) cout << "\tState 2." << endl;
-            {
-                Obj obj(9);
+            for (int tp = 0; tp < 2; ++tp) {
+                const bool isPadded = tp;
+
+                Obj obj(EncoderOptions::custom(
+                                              9, Alphabet::e_BASIC, isPadded));
                 setState(&obj, e_STATE_TWO);
 
                 ASSERT(9 == obj.maxLineLength());
+                ASSERT(9        == obj.options().maxLineLength());
+                ASSERT(Alphabet::e_BASIC == obj.options().alphabet());
+                ASSERT(Alphabet::e_BASIC == obj.alphabet());
+                ASSERT(isPadded == obj.options().isPadded());
+                ASSERT(isPadded == obj.isPadded());
                 ASSERT(1 == obj.isAcceptable());
                 ASSERT(0 == obj.isDone());
                 ASSERT(0 == obj.isError());
@@ -3935,26 +4346,38 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
 
                 // e_DONE_STATE
                 ASSERT(9 == obj.maxLineLength());
-                ASSERT(9 == obj.maxLineLength());
+                ASSERT(9        == obj.options().maxLineLength());
+                ASSERT(Alphabet::e_BASIC == obj.options().alphabet());
+                ASSERT(Alphabet::e_BASIC == obj.alphabet());
+                ASSERT(isPadded == obj.options().isPadded());
+                ASSERT(isPadded == obj.isPadded());
                 ASSERT(1 == obj.isAcceptable());
                 ASSERT(1 == obj.isDone());
                 ASSERT(0 == obj.isError());
                 ASSERT(0 == obj.isInitialState());
-                ASSERT(4 == obj.outputLength());
+                ASSERT((isPadded ? 4 : 3) == obj.outputLength());
                 ASSERT(0 == result);
-                ASSERT(2 == numOut);
+                ASSERT((isPadded ? 2 : 1) == numOut);
                 ASSERT((char)-1 == b[0]);
                 ASSERT((char)-1 == b[1]);
                 ASSERT('A' == b[2]);
-                ASSERT('=' == b[3]);
+                ASSERT((isPadded ? '=' : (char)-1) == b[3]);
             }
 
             if (verbose) cout << "\tState 3." << endl;
-            {
-                Obj obj(9);
+            for (int tp = 0; tp < 2; ++tp) {
+                const bool isPadded = tp;
+
+                Obj obj(EncoderOptions::custom(
+                                              9, Alphabet::e_BASIC, isPadded));
                 setState(&obj, e_STATE_THREE);
 
                 ASSERT(9 == obj.maxLineLength());
+                ASSERT(9        == obj.options().maxLineLength());
+                ASSERT(Alphabet::e_BASIC == obj.options().alphabet());
+                ASSERT(Alphabet::e_BASIC == obj.alphabet());
+                ASSERT(isPadded == obj.options().isPadded());
+                ASSERT(isPadded == obj.isPadded());
                 ASSERT(1 == obj.isAcceptable());
                 ASSERT(0 == obj.isDone());
                 ASSERT(0 == obj.isError());
@@ -3967,7 +4390,11 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
 
                 // e_DONE_STATE
                 ASSERT(9 == obj.maxLineLength());
-                ASSERT(9 == obj.maxLineLength());
+                ASSERT(9        == obj.options().maxLineLength());
+                ASSERT(Alphabet::e_BASIC == obj.options().alphabet());
+                ASSERT(Alphabet::e_BASIC == obj.alphabet());
+                ASSERT(isPadded == obj.options().isPadded());
+                ASSERT(isPadded == obj.isPadded());
                 ASSERT(1 == obj.isAcceptable());
                 ASSERT(1 == obj.isDone());
                 ASSERT(0 == obj.isError());
@@ -3982,11 +4409,19 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
             }
 
             if (verbose) cout << "\te_DONE_STATE." << endl;
-            {
-                Obj obj(9);
+            for (int tp = 0; tp < 2; ++tp) {
+                const bool isPadded = tp;
+
+                Obj obj(EncoderOptions::custom(
+                                              9, Alphabet::e_BASIC, isPadded));
                 setState(&obj, e_DONE_STATE);
 
                 ASSERT(9 == obj.maxLineLength());
+                ASSERT(9        == obj.options().maxLineLength());
+                ASSERT(Alphabet::e_BASIC == obj.options().alphabet());
+                ASSERT(Alphabet::e_BASIC == obj.alphabet());
+                ASSERT(isPadded == obj.options().isPadded());
+                ASSERT(isPadded == obj.isPadded());
                 ASSERT(1 == obj.isAcceptable());
                 ASSERT(1 == obj.isDone());
                 ASSERT(0 == obj.isError());
@@ -3999,6 +4434,11 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
 
                 // e_ERROR_STATE
                 ASSERT(9 == obj.maxLineLength());
+                ASSERT(9        == obj.options().maxLineLength());
+                ASSERT(Alphabet::e_BASIC == obj.options().alphabet());
+                ASSERT(Alphabet::e_BASIC == obj.alphabet());
+                ASSERT(isPadded == obj.options().isPadded());
+                ASSERT(isPadded == obj.isPadded());
                 ASSERT(0 == obj.isAcceptable());
                 ASSERT(0 == obj.isDone());
                 ASSERT(1 == obj.isError());
@@ -4013,11 +4453,19 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
             }
 
             if (verbose) cout << "\te_ERROR_STATE." << endl;
-            {
-                Obj obj(9);
+            for (int tp = 0; tp < 2; ++tp) {
+                const bool isPadded = tp;
+
+                Obj obj(EncoderOptions::custom(
+                                              9, Alphabet::e_BASIC, isPadded));
                 setState(&obj, e_ERROR_STATE);
 
                 ASSERT(9 == obj.maxLineLength());
+                ASSERT(9        == obj.options().maxLineLength());
+                ASSERT(Alphabet::e_BASIC == obj.options().alphabet());
+                ASSERT(Alphabet::e_BASIC == obj.alphabet());
+                ASSERT(isPadded == obj.options().isPadded());
+                ASSERT(isPadded == obj.isPadded());
                 ASSERT(0 == obj.isAcceptable());
                 ASSERT(0 == obj.isDone());
                 ASSERT(1 == obj.isError());
@@ -4030,7 +4478,11 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
 
                 // e_ERROR_STATE
                 ASSERT(9 == obj.maxLineLength());
-                ASSERT(9 == obj.maxLineLength());
+                ASSERT(9        == obj.options().maxLineLength());
+                ASSERT(Alphabet::e_BASIC == obj.options().alphabet());
+                ASSERT(Alphabet::e_BASIC == obj.alphabet());
+                ASSERT(isPadded == obj.options().isPadded());
+                ASSERT(isPadded == obj.isPadded());
                 ASSERT(0 == obj.isAcceptable());
                 ASSERT(0 == obj.isDone());
                 ASSERT(1 == obj.isError());
@@ -4047,7 +4499,6 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
 
         if (verbose) cout << "\nVerify ::isState." << endl;
         {
-            Obj obj(0);
             for (int i = 0; i < NUM_STATES; ++i) {
                 if (verbose) cout <<
                                "\tsetState: " << STATE_NAMES[i] << '.' << endl;
@@ -4063,7 +4514,9 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
                                               // ASSERTs in order to facilitate
                                               // debugging.
 
-                    Obj obj(0);
+                    Obj obj(EncoderOptions::custom(0,
+                                                   Alphabet::e_BASIC,
+                                                   true));
                     setState(&obj, i);
                     LOOP2_ASSERT(i, j, SAME == isState(&obj, j));
                 }
@@ -4103,51 +4556,81 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
 
         if (verbose) cout << "\tmaxLineLength = 0, default alphabet" << endl;
         {
-            Obj obj(0);
+            Obj obj(EncoderOptions::custom(0, Alphabet::e_BASIC, true));
             ASSERT(1 == obj.isAcceptable());
             ASSERT(0 == obj.isDone());
             ASSERT(0 == obj.isError());
             ASSERT(1 == obj.isInitialState());
             ASSERT(0 == obj.maxLineLength());
+            ASSERT(0 == obj.options().maxLineLength());
             ASSERT(0 == obj.outputLength());
-            ASSERT(Obj::e_BASIC == obj.alphabet());
+            ASSERT(Alphabet::e_BASIC == obj.alphabet());
+            ASSERT(Alphabet::e_BASIC == obj.options().alphabet());
+            ASSERT(true  == obj.options().isPadded());
+            ASSERT(true  == obj.isPadded());
         }
         if (verbose) cout << "\tmaxLineLength = 1, default alphabet" << endl;
         {
-            Obj obj(1);
+            Obj obj(EncoderOptions::custom(1, Alphabet::e_BASIC, true));
             ASSERT(1 == obj.isAcceptable());
             ASSERT(0 == obj.isDone());
             ASSERT(0 == obj.isError());
             ASSERT(1 == obj.isInitialState());
             ASSERT(1 == obj.maxLineLength());
+            ASSERT(1 == obj.options().maxLineLength());
             ASSERT(0 == obj.outputLength());
-            ASSERT(Obj::e_BASIC == obj.alphabet());
+            ASSERT(Alphabet::e_BASIC == obj.alphabet());
+            ASSERT(Alphabet::e_BASIC == obj.options().alphabet());
+            ASSERT(true  == obj.options().isPadded());
+            ASSERT(true  == obj.isPadded());
         }
         if (verbose) cout << "\tmaxLineLength = 2, \"base64\" alphabet"
                           << endl;
         {
-            Obj obj(2, Obj::e_BASIC);
+            Obj obj(EncoderOptions::custom(2, Alphabet::e_BASIC, true));
             ASSERT(1 == obj.isAcceptable());
             ASSERT(0 == obj.isDone());
             ASSERT(0 == obj.isError());
             ASSERT(1 == obj.isInitialState());
             ASSERT(2 == obj.maxLineLength());
+            ASSERT(2 == obj.options().maxLineLength());
             ASSERT(0 == obj.outputLength());
-            ASSERT(Obj::e_BASIC == obj.alphabet());
+            ASSERT(Alphabet::e_BASIC == obj.alphabet());
+            ASSERT(Alphabet::e_BASIC == obj.options().alphabet());
+            ASSERT(true  == obj.options().isPadded());
+            ASSERT(true  == obj.isPadded());
         }
         if (verbose) cout << "\tmaxLineLength = INT_MAX, \"base64url\" "
                           << "alphabet" << endl;
         {
-            Obj obj(INT_MAX, Obj::e_URL);
+            Obj obj(EncoderOptions::custom(INT_MAX, Alphabet::e_URL, true));
             ASSERT(1 == obj.isAcceptable());
             ASSERT(0 == obj.isDone());
             ASSERT(0 == obj.isError());
             ASSERT(1 == obj.isInitialState());
             ASSERT(INT_MAX == obj.maxLineLength());
+            ASSERT(INT_MAX == obj.options().maxLineLength());
             ASSERT(0 == obj.outputLength());
-            ASSERT(Obj::e_URL == obj.alphabet());
+            ASSERT(Alphabet::e_URL == obj.alphabet());
+            ASSERT(Alphabet::e_URL == obj.options().alphabet());
+            ASSERT(true  == obj.options().isPadded());
+            ASSERT(true  == obj.isPadded());
         }
-
+        if (verbose) cout << "\turlSafe\n";
+        {
+            Obj obj(EncoderOptions::urlSafe());
+            ASSERT(1 == obj.isAcceptable());
+            ASSERT(0 == obj.isDone());
+            ASSERT(0 == obj.isError());
+            ASSERT(1 == obj.isInitialState());
+            ASSERT(0 == obj.maxLineLength());
+            ASSERT(0 == obj.options().maxLineLength());
+            ASSERT(0 == obj.outputLength());
+            ASSERT(Alphabet::e_URL == obj.alphabet());
+            ASSERT(Alphabet::e_URL == obj.options().alphabet());
+            ASSERT(false == obj.options().isPadded());
+            ASSERT(false == obj.isPadded());
+        }
       } break;
       case 1: {
         // --------------------------------------------------------------------

@@ -16,16 +16,16 @@ BSLS_IDENT_RCSID(bdlde_base64decoder_cpp,"$Id$ $CSID$")
 
 #include <bsls_assert.h>
 
-namespace BloombergLP {
+namespace {
+namespace u {
 
                 // ======================
                 // FILE-SCOPE STATIC DATA
                 // ======================
 
-// The following table identifies characters that can be ignored when
-// d_isUnrecognizedAnErrorFlag 'true'.
+static const bool charsNone[256] = { 0 };
 
-static const bool charsThatCanBeIgnoredInStrictMode[256] = {
+static const bool charsWhitespace[256] = {
     // 0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
        0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0,  // 00  // whitespace
        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  // 10
@@ -45,10 +45,7 @@ static const bool charsThatCanBeIgnoredInStrictMode[256] = {
        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  // F0
 };
 
-// The following table identifies characters that can be ignored in Basic64
-// alphabet when d_isUnrecognizedAnErrorFlag 'false'.
-
-static const bool basicCharsThatCanBeIgnoredInRelaxedMode[256] = {
+static const bool charsInvalidBasicEncodingPadded[256] = {
     // 0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // 00
        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // 10
@@ -68,15 +65,52 @@ static const bool basicCharsThatCanBeIgnoredInRelaxedMode[256] = {
        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // F0
 };
 
-// The following table identifies characters that can be ignored in Url and
-// Filename Safe alphabet when d_isUnrecognizedAnErrorFlag 'false'.
+static const bool charsInvalidBasicEncodingUnpadded[256] = {
+    // 0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
+       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // 00
+       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // 10
+       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0,  // 20  // '+', '/'
+       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1,  // 30  // '0'..'9'
+       1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  // 40  // uppercase
+       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,  // 50  //      alphabet
+       1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  // 60  // lowercase
+       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,  // 70  //      alphabet
+       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // 80
+       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // 90
+       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // A0
+       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // B0
+       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // C0
+       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // D0
+       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // E0
+       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // F0
+};
 
-static const bool urlCharsThatCanBeIgnoredInRelaxedMode[256] = {
+static const bool charsInvalidUrlEncodingPadded[256] = {
     // 0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // 00
        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // 10
        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1,  // 20  // '-'
        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1,  // 30  // '0'..'9', '='
+       1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  // 40  // uppercase
+       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0,  // 50  // alphabet, '_'
+       1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  // 60  // lowercase
+       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,  // 70  //      alphabet
+       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // 80
+       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // 90
+       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // A0
+       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // B0
+       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // C0
+       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // D0
+       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // E0
+       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // F0
+};
+
+static const bool charsInvalidUrlEncodingUnpadded[256] = {
+    // 0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
+       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // 00
+       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // 10
+       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1,  // 20  // '-'
+       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1,  // 30  // '0'..'9'
        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  // 40  // uppercase
        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0,  // 50  // alphabet, '_'
        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  // 60  // lowercase
@@ -140,24 +174,59 @@ static const char urlAlphabet[256] = {
        ff, ff, ff, ff, ff, ff, ff, ff, ff, ff, ff, ff, ff, ff, ff, ff,  // F0
 };
 
+}  // close namespace u
+}  // close unnamed namespace
+
+namespace BloombergLP {
 namespace bdlde {
 
                          // -------------------
                          // class Base64Decoder
                          // -------------------
 
-// CLASS DATA
-const bool *const Base64Decoder::s_ignorableStrict_p =
-                                             charsThatCanBeIgnoredInStrictMode;
-const bool *const Base64Decoder::s_basicIgnorableRelaxed_p =
-                                       basicCharsThatCanBeIgnoredInRelaxedMode;
-const bool *const Base64Decoder::s_urlIgnorableRelaxed_p =
-                                         urlCharsThatCanBeIgnoredInRelaxedMode;
-const char *const Base64Decoder::s_basicAlphabet_p = basicAlphabet;
-const char *const Base64Decoder::s_urlAlphabet_p   = urlAlphabet;
-
-
 // CREATORS
+Base64Decoder::Base64Decoder(const Base64DecoderOptions& options)
+: d_outputLength(0)
+, d_alphabet_p(e_BASIC == options.alphabet() ? u::basicAlphabet
+                                             : u::urlAlphabet)
+, d_ignorable_p(options.ignoreMode() == IgnoreMode::e_IGNORE_NONE
+              ? u::charsNone
+              : options.ignoreMode() == IgnoreMode::e_IGNORE_WHITESPACE
+              ? u::charsWhitespace
+              : options.alphabet() == e_BASIC
+              ? (options.isPadded() ? u::charsInvalidBasicEncodingPadded
+                                    : u::charsInvalidBasicEncodingUnpadded)
+              : (options.isPadded() ? u::charsInvalidUrlEncodingPadded
+                                    : u::charsInvalidUrlEncodingUnpadded))
+, d_stack(0)
+, d_bitsInStack(0)
+, d_state(e_INPUT_STATE)
+, d_alphabet(options.alphabet())
+, d_ignoreMode(options.ignoreMode())
+, d_isPadded(options.isPadded())
+{}
+
+Base64Decoder::Base64Decoder(bool     unrecognizedNonWhitespaceIsErrorFlag,
+                             Alphabet alphabet)
+: d_outputLength(0)
+, d_alphabet_p(e_BASIC == alphabet ? u::basicAlphabet
+                                   : u::urlAlphabet)
+, d_ignorable_p(unrecognizedNonWhitespaceIsErrorFlag
+                ? u::charsWhitespace
+                : e_BASIC == alphabet
+                ? u::charsInvalidBasicEncodingPadded
+                : u::charsInvalidUrlEncodingPadded)
+, d_stack(0)
+, d_bitsInStack(0)
+, d_state(e_INPUT_STATE)
+, d_alphabet(alphabet)
+, d_ignoreMode(unrecognizedNonWhitespaceIsErrorFlag
+                                           ? IgnoreMode::e_IGNORE_WHITESPACE
+                                           : IgnoreMode::e_IGNORE_UNRECOGNIZED)
+, d_isPadded(true)
+{
+    BSLS_ASSERT(e_BASIC == alphabet || e_URL == alphabet);
+}
 
 Base64Decoder::~Base64Decoder()
 {

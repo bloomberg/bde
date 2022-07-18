@@ -431,12 +431,19 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlscm_version.h>
 
+#include <bdlde_base64alphabet.h>
+#include <bdlde_base64encoderoptions.h>
+
 #include <bsls_assert.h>
+#include <bsls_deprecatefeature.h>
 #include <bsls_review.h>
 
-namespace BloombergLP {
+#include <bsl_cstddef.h>
+#include <bsl_limits.h>
 
+namespace BloombergLP {
 namespace bdlde {
+
                             // ===================
                             // class Base64Encoder
                             // ===================
@@ -445,18 +452,20 @@ class Base64Encoder {
     // This class implements a mechanism capable of converting data of
     // arbitrary length to its corresponding Base64 representation.
 
+    // TYPES
+    typedef Base64EncoderOptions EncoderOptions;
+
   public:
     // PUBLIC TYPES
-    enum Alphabet {
-        // Enumeration used to distinguish between different types of
-        // alphabets supported by this component.
-        e_BASIC = 0,  // "base64"
-        e_URL   = 1   // "base64url"
-    };
+    typedef Base64Alphabet::Enum Alphabet;
+
+    // PUBLIC CLASS DATA
+    static const Alphabet    e_BASIC = Base64Alphabet::e_BASIC;
+    static const Alphabet    e_URL   = Base64Alphabet::e_URL;
 
   private:
     // PRIVATE TYPES
-    enum {
+    enum State {
         // Symbolic state values.
 
         e_ERROR_STATE     = -1, // Input is irreparably invalid.
@@ -464,30 +473,29 @@ class Base64Encoder {
         e_DONE_STATE      =  1  // Any additional input is an error.
     };
 
-    // CLASS DATA
-    static const char *const s_base64Alphabet_p;      // 6-bit map of "base64"
-                                                      // alphabet
-
-    static const char *const s_base64UrlAlphabet_p;   // 6-bit map of
-                                                      // "base64url" alphabet
-
-    static const int         s_defaultMaxLineLength;  // Default maximum line
-                                                      // length
-
     // INSTANCE DATA
-    signed char d_state;          // state as per above enum
-
-    int               d_maxLineLength;  // maximum length of output line
-    int               d_lineLength;     // current length of output line
-    int               d_outputLength;   // total number of output characters
-    unsigned          d_stack;          // storage of non-emitted input
-    int               d_bitsInStack;    // number of bits in 'd_stack'
-    const char *const d_alphabet_p;     // alphabet
+    const int           d_maxLineLength;  // maximum length of output line
+    int                 d_lineLength;     // current length of output line
+    int                 d_outputLength;   // total number of output characters
+    unsigned            d_stack;          // storage of non-emitted input
+    int                 d_bitsInStack;    // number of bits in 'd_stack'
+    const char * const  d_alphabet_p;     // alphabet
+    State               d_state;          // state as per above enum 'State'
+    const Alphabet      d_alphabet;       // alphabet
+    const bool          d_isPadded;       // is output tail-padded with '='
 
   private:
     // NOT IMPLEMENTED
     Base64Encoder(const Base64Encoder&);
     Base64Encoder& operator=(const Base64Encoder&);
+
+    // PRIVATE CLASS METHODS
+    static
+    bsl::size_t lengthWithoutCrlfs(const EncoderOptions& options,
+                                   bsl::size_t           inputLength);
+        // Return the expected length of output, not including CRLF's, given
+        // the specified 'options' and 'inputLength'.  The behavior is
+        // undefined if 'inputLength' is large enough to overflow the result.
 
     // PRIVATE MANIPULATORS
     template <class OUTPUT_ITERATOR>
@@ -507,17 +515,48 @@ class Base64Encoder {
         // does not equal 'maxLength' at entry to this method and the internal
         // buffer contains at least one character of output.
 
+    void setState(State newState);
+        // Set the state to the specified 'newState'.
+
+    // PRIVATE ACCESSORS
+    bool isResidualOutput(int numBytes) const;
+        // Return 'true' if an output sequence of the specified 'numBytes' from
+        // this encoder would be an acceptable input to a 'Base64Decoder'
+        // expecting padded input, and 'false' otherwise.  The behavior is
+        // undefined unless padding is enabled.
+
+    State state() const;
+        // Return the state of this encoder.
+
   public:
     // CLASS METHODS
-    static int encodedLength(int inputLength);
+    static bsl::size_t encodedLength(const EncoderOptions& options,
+                                     bsl::size_t           inputLength);
+        // Return the exact number of encoded bytes that would result from an
+        // input byte sequence of the specified 'inputLength' provided to the
+        // 'convert' method of an encoder configured with the specified
+        // 'options'.  The behavior is undefined if 'inputLength' is large
+        // enough for the result to overflow a 'size_t'.
+
+    BSLS_DEPRECATE_FEATURE("bdl",
+                           "encodedLength",
+                           "use overload with 'options'")
+    static
+    int encodedLength(int inputLength);
         // Return the exact number of encoded bytes that would result from an
         // input byte sequence of the specified 'inputLength' provided to the
         // 'convert' method of an encoder with the maximum allowable
         // line-length of the output being 76 characters (as recommended by the
         // MIME standard).  The behavior is undefined unless
         // '0 <= inputLength'.
+        //
+        // DEPRECATED: use the overload with 'options' instead.
 
-    static int encodedLength(int inputLength, int maxLineLength);
+    BSLS_DEPRECATE_FEATURE("bdl",
+                           "encodedLength",
+                           "use overload with 'options'")
+    static
+    int encodedLength(int inputLength, int maxLineLength);
         // Return the exact number of encoded bytes that would result from an
         // input byte sequence of the specified 'inputLength' provided to the
         // 'convert' method of an encoder configured with the specified
@@ -526,8 +565,22 @@ class Base64Encoder {
         // 'maxLineLength' is 0, no CRLF characters will appear in the output.
         // Note also that the number of encoded bytes need not be the number of
         // *output* bytes.
+        //
+        // DEPRECATED: use the overload with 'options' instead.
 
-    static int encodedLines(int inputLength);
+    static bsl::size_t encodedLines(const EncoderOptions& options,
+                                    bsl::size_t           inputLength);
+        // Return the exact number of encoded lines that would result from an
+        // input byte sequence of the specified 'inputLength' provided to the
+        // 'convert' method of an encoder configured with the specified
+        // 'options'.  The behavior is undefined if 'inputLength' is large
+        // enough to overflow the result.
+
+    BSLS_DEPRECATE_FEATURE("bdl",
+                           "encodedLines",
+                           "use overload with 'options'")
+    static
+    int encodedLines(int inputLength);
         // Return the exact number of encoded lines that would result from an
         // input byte sequence of the specified 'inputLength' provided to the
         // 'convert' method of an encoder with the maximum allowable
@@ -535,8 +588,14 @@ class Base64Encoder {
         // MIME standard).  The behavior is undefined unless
         // '0 <= inputLength'.  Note also that the number of encoded bytes need
         // not be the number of *output* bytes.
+        //
+        // DEPRECATED: use the overload with 'options' instead.
 
-    static int encodedLines(int inputLength, int maxLineLength);
+    BSLS_DEPRECATE_FEATURE("bdl",
+                           "encodedLines",
+                           "use overload with 'options'")
+    static
+    int encodedLines(int inputLength, int maxLineLength);
         // Return the exact number of encoded lines that would result from an
         // input byte sequence of the specified 'inputLength' provided to the
         // 'convert' method of an encoder configured with the specified
@@ -545,15 +604,21 @@ class Base64Encoder {
         // 'maxLineLength' is 0, no CRLF characters will appear in the output.
         // Note also that the number of encoded bytes need not be the number of
         // *output* bytes.
-
-    static bool isResidualOutput(int numBytes, int maxLineLength);
-        // Return 'true' if an output sequence of the specified 'numBytes'
-        // from an encoder having the specified 'maxLineLength' would be an
-        // acceptable input to a 'Base64Decoder', and 'false' otherwise.
+        //
+        // DEPRECATED: use the overload with 'options' instead.
 
     // CREATORS
     explicit
-    Base64Encoder(Alphabet alphabet = e_BASIC);
+    Base64Encoder(const EncoderOptions& options = EncoderOptions::mime());
+        // Create a Base64 encoder in the initial state, defaulting the state
+        // of the maximum allowable line-length, the padding, and the alphabet
+        // according to the values of the specified 'options'.
+
+    BSLS_DEPRECATE_FEATURE("bdl",
+                           "Base64Encoder",
+                           "use overload with 'options'")
+    explicit
+    Base64Encoder(Alphabet alphabet);
         // Create a Base64 encoder in the initial state, defaulting the maximum
         // allowable line-length of the output to 76 (as recommended by the
         // MIME standard).  Optionally specify an alphabet used to encode
@@ -561,7 +626,12 @@ class Base64Encoder {
         // alphabet, "base64", is used.  Note that the 'convert' and
         // 'endConvert' methods of this encoder will insert a CRLF to prevent
         // each line of the output from exceeding 76 characters.
+        //
+        // DEPRECATED: Create and pass an 'options' object instead.
 
+    BSLS_DEPRECATE_FEATURE("bdl",
+                           "Base64Encoder",
+                           "use overload with 'options'")
     explicit
     Base64Encoder(int maxLineLength, Alphabet alphabet = e_BASIC);
         // Create a Base64 encoder in the initial state, setting the maximum
@@ -574,6 +644,8 @@ class Base64Encoder {
         // 'maxLineLength' is positive, the 'convert' and 'endConvert' methods
         // of this encoder will insert a CRLF to prevent each line of the
         // output from exceeding 'maxLineLength'.
+        //
+        // DEPRECATED: Create and pass an 'options' object instead.
 
     ~Base64Encoder();
         // Destroy this object.
@@ -656,13 +728,16 @@ class Base64Encoder {
         // Return 'true' if this instance is in the initial state (i.e., as if
         // no input had been consumed), and 'false' otherwise.
 
-    bool isMaximal() const;
-        // Return 'true' if the current input is acceptable and any additional
-        // input (other than 'endConvert') would be an error, and 'false'
-        // otherwise.
+    bool isPadded() const;
+        // Return true if padding by '=' characters was specified at
+        // construction of this object.
 
     int maxLineLength() const;
         // Return the currently installed value for the maximum line length.
+
+    EncoderOptions options() const;
+        // Return an 'options' object reflecting the options this object was
+        // configured with.
 
     int outputLength() const;
         // Return the total length of the output emitted thus far (including
@@ -676,6 +751,33 @@ class Base64Encoder {
                             // -------------------
                             // class Base64Encoder
                             // -------------------
+
+// PRIVATE CLASS METHODS
+inline
+bsl::size_t Base64Encoder::lengthWithoutCrlfs(
+                                             const EncoderOptions& options,
+                                             bsl::size_t           inputLength)
+{
+    static const bsl::size_t maxSize_t = bsl::numeric_limits<
+                                                           bsl::size_t>::max();
+
+    if (0 == inputLength) {
+        return 0;                                                     // RETURN
+    }
+
+    const bsl::size_t numTripletsRoundedDown = (inputLength + 2) / 3 - 1;
+    const bsl::size_t numResidual = inputLength - numTripletsRoundedDown * 3;
+
+    // 'numResidual' is in the range '[ 1 .. 3 ]'.  If 'numResidual' is '1'
+    // byte, that takes 2 bytes to encode, 2 bytes takes 3 bytes to encode, 3
+    // bytes takes 4 bytes to encode.
+
+    const bsl::size_t pad = options.isPadded() ? 4 : numResidual + 1;
+
+    BSLS_ASSERT(numTripletsRoundedDown <= (maxSize_t - pad) / 4);
+
+    return numTripletsRoundedDown * 4 + pad;
+}
 
 // PRIVATE MANIPULATORS
 template <class OUTPUT_ITERATOR>
@@ -739,66 +841,25 @@ void Base64Encoder::encode(OUTPUT_ITERATOR *out, int maxLength)
     ++d_lineLength;
 }
 
-// CLASS METHODS
 inline
-int Base64Encoder::encodedLength(int inputLength, int maxLineLength)
+void Base64Encoder::setState(State newState)
 {
-    BSLS_ASSERT(0 <= inputLength);
-    BSLS_ASSERT(0 <= maxLineLength);
-
-    int lineLength = (inputLength + 2) / 3 * 4;
-
-    // Note that when lineLength > maxLineLength, the added cost is given by
-    // n = (lineLength - maxLineLength)
-    //..
-    // addedCost = 2 * ((n + maxLineLength - 1) / maxLineLength)
-    //           = 2 * (    lineLength - 1    ) / maxLineLength)
-    //..
-
-    return 0 == maxLineLength || lineLength <= maxLineLength
-           ? lineLength
-           : lineLength + 2 * ((lineLength - 1) / maxLineLength);
+    d_state = newState;
 }
 
+// PRIVATE ACCESSORS
 inline
-int Base64Encoder::encodedLength(int inputLength)
-{
-    BSLS_ASSERT(0 <= inputLength);
-
-    return encodedLength(inputLength, 76);
-}
-
-inline
-int Base64Encoder::encodedLines(int inputLength, int maxLineLength)
-{
-    BSLS_ASSERT(0 <= inputLength);
-    BSLS_ASSERT(0 <= maxLineLength);
-
-    const int length = (inputLength + 2) / 3 * 4;
-
-    return 0 == maxLineLength ? 1 : 1 + length / maxLineLength;
-}
-
-inline
-int Base64Encoder::encodedLines(int inputLength)
-{
-    BSLS_ASSERT(0 <= inputLength);
-
-    return encodedLines(inputLength, 76);
-}
-
-inline
-bool Base64Encoder::isResidualOutput(int numBytes, int maxLineLength)
+bool Base64Encoder::isResidualOutput(int numBytes) const
 {
     BSLS_ASSERT(0 <= numBytes);
-    BSLS_ASSERT(0 <= maxLineLength);
+    BSLS_ASSERT(d_isPadded);
 
-    if (maxLineLength) {
-        const int lineSize           = maxLineLength + 2;
+    if (d_maxLineLength) {
+        const int lineSize           = d_maxLineLength + 2;
         const int linesSoFar         = numBytes / lineSize;
         const int bytesSinceLastCrlf = numBytes - linesSoFar * lineSize;
-        const int partialCrlf        = maxLineLength < bytesSinceLastCrlf;
-        const int nonCrlfBytes       = linesSoFar * maxLineLength +
+        const int partialCrlf        = d_maxLineLength < bytesSinceLastCrlf;
+        const int nonCrlfBytes       = linesSoFar * d_maxLineLength +
                                               bytesSinceLastCrlf - partialCrlf;
 
         return 0 != nonCrlfBytes % 4;                                 // RETURN
@@ -808,30 +869,85 @@ bool Base64Encoder::isResidualOutput(int numBytes, int maxLineLength)
     }
 }
 
-// CREATORS
 inline
-Base64Encoder::Base64Encoder(Alphabet alphabet)
-: d_state(e_INITIAL_STATE)
-, d_maxLineLength(s_defaultMaxLineLength)
-, d_lineLength(0)
-, d_outputLength(0)
-, d_stack(0)
-, d_bitsInStack(0)
-, d_alphabet_p(e_BASIC == alphabet ? s_base64Alphabet_p : s_base64UrlAlphabet_p)
+Base64Encoder::State Base64Encoder::state() const
 {
+    return d_state;
+}
+
+// CLASS METHODS
+inline
+bsl::size_t Base64Encoder::encodedLength(const EncoderOptions& options,
+                                         bsl::size_t           inputLength)
+{
+    static const bsl::size_t maxSize_t = bsl::numeric_limits<
+                                                           bsl::size_t>::max();
+
+    if (0 == inputLength) {
+        return 0;                                                     // RETURN
+    }
+
+    const bsl::size_t length   = lengthWithoutCrlfs(options, inputLength);
+    const bsl::size_t numCrlfs = 0 == options.maxLineLength()
+                               ? 0
+                               : (length - 1) / options.maxLineLength();
+
+
+    BSLS_ASSERT(numCrlfs <= maxSize_t / 2);
+    BSLS_ASSERT(length <= maxSize_t - numCrlfs * 2);
+
+    return length + 2 * numCrlfs;
 }
 
 inline
-Base64Encoder::Base64Encoder(int maxLineLength, Alphabet alphabet)
-: d_state(e_INITIAL_STATE)
-, d_maxLineLength(maxLineLength)
-, d_lineLength(0)
-, d_outputLength(0)
-, d_stack(0)
-, d_bitsInStack(0)
-, d_alphabet_p(e_BASIC == alphabet ? s_base64Alphabet_p : s_base64UrlAlphabet_p)
+int Base64Encoder::encodedLength(int inputLength, int maxLineLength)
 {
+    BSLS_ASSERT(0 <= inputLength);
     BSLS_ASSERT(0 <= maxLineLength);
+
+    return static_cast<int>(encodedLength(EncoderOptions::custom(maxLineLength,
+                                                                 e_BASIC,
+                                                                 true),
+                                          inputLength));
+}
+
+inline
+int Base64Encoder::encodedLength(int inputLength)
+{
+    BSLS_ASSERT(0 <= inputLength);
+
+    return static_cast<int>(encodedLength(EncoderOptions::mime(),
+                                          inputLength));
+}
+
+inline
+bsl::size_t Base64Encoder::encodedLines(const EncoderOptions& options,
+                                        bsl::size_t           inputLength)
+{
+    return 1 +
+        (0 == options.maxLineLength()
+         ? 0
+         : lengthWithoutCrlfs(options, inputLength) / options.maxLineLength());
+}
+
+inline
+int Base64Encoder::encodedLines(int inputLength, int maxLineLength)
+{
+    BSLS_ASSERT(0 <= inputLength);
+    BSLS_ASSERT(0 <= maxLineLength);
+
+    return static_cast<int>(encodedLines(EncoderOptions::custom(maxLineLength,
+                                                                e_BASIC,
+                                                                true),
+                                         inputLength));
+}
+
+inline
+int Base64Encoder::encodedLines(int inputLength)
+{
+    BSLS_ASSERT(0 <= inputLength);
+
+    return static_cast<int>(encodedLines(EncoderOptions::mime(), inputLength));
 }
 
 // MANIPULATORS
@@ -863,8 +979,8 @@ int Base64Encoder::convert(OUTPUT_ITERATOR  out,
         numIn  = &dummyNumIn;
     }
 
-    if (e_ERROR_STATE == d_state || e_DONE_STATE == d_state) {
-        d_state = e_ERROR_STATE;
+    if (e_ERROR_STATE == state() || e_DONE_STATE == state()) {
+        setState(e_ERROR_STATE);
         *numOut = 0;
         *numIn  = 0;
         return -1;                                                    // RETURN
@@ -921,8 +1037,8 @@ int Base64Encoder::endConvert(OUTPUT_ITERATOR  out,
 {
     BSLS_ASSERT(numOut);
 
-    if (e_ERROR_STATE == d_state || isDone()) {
-        d_state = e_ERROR_STATE;
+    if (e_ERROR_STATE == state() || isDone()) {
+        setState(e_ERROR_STATE);
         *numOut = 0;
         return -1;                                                    // RETURN
     }
@@ -951,8 +1067,8 @@ int Base64Encoder::endConvert(OUTPUT_ITERATOR  out,
 
     if (0 == d_bitsInStack) {
         while (true) {
-            if (!isResidualOutput(d_outputLength, d_maxLineLength)) {
-                d_state = e_DONE_STATE;
+            if (!d_isPadded || !isResidualOutput(d_outputLength)) {
+                setState(e_DONE_STATE);
 
                 break;
             }
@@ -973,7 +1089,7 @@ int Base64Encoder::endConvert(OUTPUT_ITERATOR  out,
 inline
 void Base64Encoder::resetState()
 {
-    d_state        = e_INITIAL_STATE;
+    setState(e_INITIAL_STATE);
     d_outputLength = 0;
     d_lineLength   = 0;
     d_stack        = 0;
@@ -982,48 +1098,56 @@ void Base64Encoder::resetState()
 
 // ACCESSORS
 inline
-Base64Encoder::Alphabet Base64Encoder::alphabet() const
+Base64Alphabet::Enum Base64Encoder::alphabet() const
 {
-    return d_alphabet_p == s_base64Alphabet_p ? e_BASIC : e_URL;
+    return d_alphabet;
 }
 
 inline
 bool Base64Encoder::isAcceptable() const
 {
-    return e_ERROR_STATE != d_state;
+    return e_ERROR_STATE != state();
 }
 
 inline
 bool Base64Encoder::isDone() const
 {
-    return e_DONE_STATE == d_state
+    return e_DONE_STATE == state()
         && !d_bitsInStack
-        && !isResidualOutput(d_outputLength, d_maxLineLength);
+        && (!d_isPadded || !isResidualOutput(d_outputLength));
 }
 
 inline
 bool Base64Encoder::isError() const
 {
-    return e_ERROR_STATE == d_state;
+    return e_ERROR_STATE == state();
 }
 
 inline
 bool Base64Encoder::isInitialState() const
 {
-    return 0 == d_outputLength && e_INITIAL_STATE == d_state;
+    return 0 == d_outputLength && e_INITIAL_STATE == state();
 }
 
 inline
-bool Base64Encoder::isMaximal() const
+bool Base64Encoder::isPadded() const
 {
-    return e_DONE_STATE == d_state &&
-          (d_bitsInStack || isResidualOutput(d_outputLength, d_maxLineLength));
+    return d_isPadded;
 }
 
 inline
 int Base64Encoder::maxLineLength() const
 {
     return d_maxLineLength;
+}
+
+inline
+Base64EncoderOptions Base64Encoder::options() const
+{
+    return EncoderOptions::custom(
+                          d_maxLineLength,
+                          alphabet(),
+                          d_isPadded);
 }
 
 inline

@@ -7,19 +7,38 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
+// ----------------------------------------------------------------------------
+//                            U_ENABLE_DEPRECATIONS
+//
+// Set 'U_ENABLE_DEPRECATIONS' to 1 get warnings about uses of deprecated
+// methods.  These warnings are quite voluminous.  Test case 14 will fail
+// unless '0 == U_ENABLE_DEPRECATIONS' to make sure we don't ship with these
+// warnings enabled.
+// ----------------------------------------------------------------------------
+
+#undef  U_ENABLE_DEPRECATIONS
+#define U_ENABLE_DEPRECATIONS 0
+#if U_ENABLE_DEPRECATIONS
+# define BSLS_DEPRECATE_FEATURE_ENABLE_ALL_DEPRECATIONS_FOR_TESTING 1
+# include <bsls_deprecatefeature.h>
+#endif
 
 #include <bdlde_base64decoder.h>
 
 #include <bdlde_base64encoder.h>        // for testing only
 
+#include <bslim_fuzzutil.h>
 #include <bslim_testutil.h>
 
+#include <bslma_managedptr.h>
 #include <bslma_testallocator.h>
+#include <bslmf_assert.h>
 #include <bsls_review.h>
 #include <bsls_types.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_cctype.h>
+#include <bsl_cstddef.h>
 #include <bsl_cstdint.h>
 #include <bsl_cstdlib.h>   // atoi()
 #include <bsl_cstring.h>   // memset()
@@ -27,10 +46,12 @@
 #include <bsl_climits.h>   // INT_MIN
 #include <bsl_fstream.h>
 #include <bsl_iostream.h>
+#include <bsl_set.h>
 #include <bsl_sstream.h>
 #include <bsl_vector.h>
 
 #include <stdio.h>
+#include <sys/stat.h>
 
 #undef SS  // Solaris 5.10/x86 sys/regset.h via stdlib.h
 #undef ES
@@ -42,6 +63,8 @@ using bsl::cerr;
 using bsl::endl;
 using bsl::ends;
 using bsl::flush;
+using bsl::size_t;
+using bsl::ptrdiff_t;
 
 //=============================================================================
 //                             TEST PLAN
@@ -223,6 +246,8 @@ using bsl::flush;
 // [ 9] That a specified maximum output length is observed.
 // [ 9] That surplus output beyond 'maxNumOut' is buffered properly.
 // [11] STRESS TEST: The decoder properly decodes all encoded output.
+// [13] TABLE PLUS RANDOM TESTING, UNPADDED MODE, INJECTED GARBAGE
+// [14] 0 == U_ENABLE_DEPRECATIONS
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -317,9 +342,18 @@ void loopMeter(unsigned index, unsigned length, unsigned size = 50)
 //                         GLOBAL TYPEDEFS/CONSTANTS
 // ----------------------------------------------------------------------------
 
-typedef bdlde::Base64Decoder Obj;
+typedef bdlde::Base64DecoderOptions Options;
+typedef bdlde::Base64EncoderOptions EncoderOptions;
+typedef bdlde::Base64Decoder        Obj;
+typedef bdlde::Base64Alphabet       Alpha;
+typedef bdlde::Base64IgnoreMode     Ignore;
+using bslim::FuzzDataView;
+using bslim::FuzzUtil;
 
 static const char ff = static_cast<char>(-1);
+
+enum { k_NUM_ALPHA  = 2,
+       k_NUM_IGNORE = 3 };
 
                         // ==================
                         // Named STATE Values
@@ -474,6 +508,187 @@ int veryVeryVerbose = 0;
 int veryVeryVeryVerbose = 0;
 
 const char *testFileName = 0;
+
+namespace {
+namespace u {
+
+class RandGen {
+    // Random number generator using the high-order 32 bits of Donald Knuth's
+    // MMIX algorithm.
+
+    bsls::Types::Uint64 d_seed;
+
+  public:
+    // CREATORS
+    explicit
+    RandGen(int startSeed = 0);
+        // Initialize the generator with the optionally specified 'startSeed'.
+
+    // MANIPULATORS
+    unsigned operator()();
+        // Return the next random number in the series;
+
+    Ignore::Enum benignIgnore(bool injectGarbage, bool injectWhitespace);
+        // Return the value of the "ignore' argument to be passed to the
+        // decoder options that will result in no errors given the state of the
+        // specified 'injectGarbage' and 'injectWhitespace' arguments.
+
+    char getChar();
+        // Return a random 'char'.
+
+    void injectGarbage(bsl::string *result, bool padIsGarbage, bool url);
+        // Inject a random non-zero number of characters of illegal garbage
+        // into the specified 'result' at random indices, if the specified
+        // 'padIsGarbage' is 'true', consider '=' among the garbage characters
+        // to be inserted.  If 'url' is true, '+' and '/' are among the garbage
+        // characters, otherwise '-' and '_' are among the garbage characters.
+
+    void injectWhitespace(bsl::string *result);
+        // Inject a random non-zero number of bytes of white space into the
+        // specified 'result' at random indices.
+
+    void randString(bsl::string *result, int len);
+        // Initialize the specified 'result' with the specified 'len' random
+        // bytes (including '0x00').
+};
+
+// CREATORS
+inline
+RandGen::RandGen(int startSeed)
+: d_seed(startSeed)
+{
+    (void) (*this)();
+    (void) (*this)();
+    (void) (*this)();
+}
+
+// MANIPULATORS
+inline
+unsigned RandGen::operator()()
+{
+    d_seed = d_seed * 6364136223846793005ULL + 1442695040888963407ULL;
+    return static_cast<unsigned>(d_seed >> 32);
+}
+
+Ignore::Enum RandGen::benignIgnore(bool injectGarbage, bool injectWhitespace)
+{
+    return injectGarbage
+         ? Ignore::e_IGNORE_UNRECOGNIZED
+         : injectWhitespace
+         ? ((*this)() & 1
+             ? Ignore::e_IGNORE_WHITESPACE
+             : Ignore::e_IGNORE_UNRECOGNIZED)
+         : static_cast<Ignore::Enum>((*this)() % k_NUM_IGNORE);
+}
+
+inline
+char RandGen::getChar()
+{
+    return static_cast<char>((*this)() & 0xff);
+}
+
+void RandGen::injectGarbage(bsl::string *result, bool padIsGarbage, bool url)
+{
+    const char *garbage = padIsGarbage
+                        ? (url ? "~`!@#$%^&*(){}[]|\\\"':;<>,.?=+/"
+                               : "~`!@#$%^&*(){}[]|\\\"':;<>,.?=-_")
+                        : (url ? "~`!@#$%^&*(){}[]|\\\"':;<>,.?+/"
+                               : "~`!@#$%^&*(){}[]|\\\"':;<>,.?-_");
+    const bsl::size_t garbageLen = bsl::strlen(garbage);
+
+    const ptrdiff_t numGarbage = 1 + (*this)() % (result->length() + 1);
+    for (int ii = 0; ii < numGarbage; ++ii) {
+        bsl::size_t index = (*this)() % (result->length() + 1);
+        char injectChar = getChar();
+        if (!(0x80 & injectChar)) {
+            injectChar = garbage[(*this)() % garbageLen];
+        }
+
+        result->insert(result->begin() + index, injectChar);
+    }
+}
+
+void RandGen::injectWhitespace(bsl::string *result)
+{
+    static const char        whitespace[] = { " \n\t\v\r\f" };
+    static const bsl::size_t whiteLen     = sizeof(whitespace) - 1;
+
+    const ptrdiff_t numWhite = 1 + (*this)() % (result->length() + 1);
+    for (int ii = 0; ii < numWhite; ++ii) {
+        bsl::size_t index = (*this)() % (result->length() + 1);
+        result->insert(result->begin() + index,
+                       whitespace[(*this)() % whiteLen]);
+    }
+}
+
+void RandGen::randString(bsl::string *result, int len)
+{
+    BSLS_ASSERT(0 <= len);
+
+    result->resize(len);
+
+    for (int ii = 0; ii < len; ++ii) {
+        (*result)[ii] = getChar();
+    }
+}
+
+bsl::string displayStr(const bsl::string& str, bool allInHex = true)
+    // Return the specified 'str', with some or all characters translated into
+    // hexadecimal '\x' sequences.  If the specified 'allInHex' is 'true',
+    // translate all characters to hex sequences, otherwise translate only
+    // non-printable or whitespace characters.
+{
+    bsl::string ret;
+
+    static const char hexNybble[] = { "0123456789abcdef" };
+    BSLMF_ASSERT(16 + 1 == sizeof(hexNybble));
+
+    for (unsigned uu = 0; uu < str.length(); ++uu) {
+        const unsigned char c = str[uu];
+        if (allInHex || !bsl::isprint(c) || bsl::isspace(c)) {
+            ret += "\\x";
+            for (int shift = 4; 0 <= shift; shift -= 4) {
+                const int nybble = (c >> shift) & 0xf;
+                ret += hexNybble[nybble];
+            }
+        }
+        else {
+            ret += c;
+        }
+    }
+
+    return ret;
+}
+
+void convertToUrlInput(bsl::string *result)
+    // Translate the specified '*result' from an 'e_BASIC' encoding to an
+    // 'e_URL' encoding.
+{
+    for (unsigned idx = 0; idx < result->length(); ++idx) {
+        char& c = (*result)[idx];
+        if      ('+' == c) {
+            c = '-';
+        }
+        else if ('/' == c) {
+            c = '_';
+        }
+    }
+}
+
+void removePadding(bsl::string *result)
+    // Remove all occurrences of '=' from the specified '*result'.
+{
+    for (unsigned uu = 0; uu < result->length(); ++uu) {
+        if ('=' == (*result)[uu]) {
+            result->erase(uu, 1);
+            --uu;
+        }
+    }
+}
+
+}  // close namespace u
+}  // close unnamed namespace
+
 
                         // =========================
                         // operator<< for enum State
@@ -1066,7 +1281,8 @@ int streamEncoder(bsl::ostream& os, bsl::istream& is)
         IO_ERROR     = -2
     };
 
-    bdlde::Base64Encoder converter(false);   // Do not report errors.
+
+    bdlde::Base64Encoder converter(0);
 
     const int INBUFFER_SIZE  = 1 << 10;
     const int OUTBUFFER_SIZE = 1 << 10;
@@ -1154,7 +1370,7 @@ int streamDecoder(bsl::ostream& os, bsl::istream& is)
         IO_ERROR     = -2
     };
 
-    bdlde::Base64Decoder converter(false);   // Do not report errors.
+    Obj converter(false);   // Do not report errors.
 
     const int INBUFFER_SIZE  = 1 << 10;
     const int OUTBUFFER_SIZE = 1 << 10;
@@ -1243,34 +1459,152 @@ int streamDecoder(bsl::ostream& os, bsl::istream& is)
 namespace {
 namespace u {
 
-inline
-bool notBase64(char c)
-    // Return 'true' if the specified 'c' is not valid character in a base 64
-    // sequence, and not white space.
-{
-    unsigned char uc = c;
-    bool ret = !uc || !(bsl::isalnum(uc) || bsl::strchr("+/= \t\r\n\v\f", uc));
-    return ret;
-}
+typedef bool (*Filter)(char);
 
-inline
-bool equalsOrNotBase64(char c)
+bool equalsOrNotBase64BasicAndNotWhitespace(char c)
     // Return 'true' if the specified 'c' is either '=', or not valid character
-    // in a base 64 sequence, and not white space.
+    // in a base 64 'e_BASIC' sequence, and not white space.
 {
-    unsigned char uc = c;
-    bool ret = !uc || !(bsl::isalnum(uc) || bsl::strchr("+/ \t\r\n\v\f", uc));
-    return ret;
+    static bool match[256];
+    static bool firstTime = true;
+    if (firstTime) {
+        firstTime = false;
+        for (unsigned uu = 0; uu < 256; ++uu) {
+           match[uu] = !bsl::isalnum(uu) && !bsl::isspace(uu);
+        }
+        match['+'] = false;
+        match['/'] = false;
+    }
+
+    return match[static_cast<unsigned char>(c)];
 }
 
-inline
-bool base64OrEquals(char c)
-    // Return 'true' if the specified 'c' is a valid character in a base 64
-    // sequence and not white space.
+bool equalsOrNotBase64Basic(char c)
+    // Return 'true' if the specified 'c' is either '=', or not valid character
+    // in a base 64 'e_BASIC' sequence.
 {
-    unsigned char uc = c;
-    bool ret = uc && (bsl::isalnum(uc) || bsl::strchr("+/=", uc));
-    return ret;
+    static bool match[256];
+    static bool firstTime = true;
+    if (firstTime) {
+        firstTime = false;
+        for (unsigned uu = 0; uu < 256; ++uu) {
+           match[uu] = !bsl::isalnum(uu);
+        }
+        match['+'] = false;
+        match['/'] = false;
+    }
+
+    return match[static_cast<unsigned char>(c)];
+}
+
+bool equalsOrNotBase64UrlAndNotWhitespace(char c)
+    // Return 'true' if the specified 'c' is either '=', or not valid character
+    // in a base 64 'e_URL' sequence, and not white space.
+{
+    static bool match[256];
+    static bool firstTime = true;
+    if (firstTime) {
+        firstTime = false;
+        for (unsigned uu = 0; uu < 256; ++uu) {
+           match[uu] = !bsl::isalnum(uu) && !bsl::isspace(uu);
+        }
+        match['-'] = false;
+        match['_'] = false;
+    }
+
+    return match[static_cast<unsigned char>(c)];
+}
+
+bool equalsOrNotBase64Url(char c)
+    // Return 'true' if the specified 'c' is either '=', or not valid character
+    // in a base 64 'e_URL' sequence.
+{
+    static bool match[256];
+    static bool firstTime = true;
+    if (firstTime) {
+        firstTime = false;
+        for (unsigned uu = 0; uu < 256; ++uu) {
+           match[uu] = !bsl::isalnum(uu);
+        }
+        match['-'] = false;
+        match['_'] = false;
+    }
+
+    return match[static_cast<unsigned char>(c)];
+}
+
+bool base64OrEqualsBasic(char c)
+    // Return 'true' if the specified 'c' is a valid character in a base 64
+    // 'e_BASIC' sequence or '='.
+{
+    static bool match[256];
+    static bool firstTime = true;
+    if (firstTime) {
+        firstTime = false;
+        for (unsigned uu = 0; uu < 256; ++uu) {
+           match[uu] = bsl::isalnum(uu);
+        }
+        match['+'] = true;
+        match['/'] = true;
+        match['='] = true;
+    }
+
+    return match[static_cast<unsigned char>(c)];
+}
+
+bool base64Basic(char c)
+    // Return 'true' if the specified 'c' is a valid character in a base 64
+    // 'e_BASIC' sequence.
+{
+    static bool match[256];
+    static bool firstTime = true;
+    if (firstTime) {
+        firstTime = false;
+        for (unsigned uu = 0; uu < 256; ++uu) {
+           match[uu] = bsl::isalnum(uu);
+        }
+        match['+'] = true;
+        match['/'] = true;
+    }
+
+    return match[static_cast<unsigned char>(c)];
+}
+
+bool base64OrEqualsUrl(char c)
+    // Return 'true' if the specified 'c' is a valid character in a base 64
+    // 'e_URL' sequence.
+{
+    static bool match[256];
+    static bool firstTime = true;
+    if (firstTime) {
+        firstTime = false;
+        for (unsigned uu = 0; uu < 256; ++uu) {
+           match[uu] = bsl::isalnum(uu);
+        }
+        match['-'] = true;
+        match['_'] = true;
+        match['='] = true;
+    }
+
+    return match[static_cast<unsigned char>(c)];
+}
+
+bool base64Url(char c)
+    // Return 'true' if the specified 'c' is a valid character in a base 64
+    // 'e_URL' sequence.
+{
+    static bool match[256];
+    static bool firstTime = true;
+    if (firstTime) {
+        firstTime = false;
+        for (unsigned uu = 0; uu < 256; ++uu) {
+           match[uu] = bsl::isalnum(uu);
+        }
+        match['-'] = true;
+        match['_'] = true;
+    }
+
+    return match[static_cast<unsigned char>(c)];
 }
 
 }  // close namespace u
@@ -1301,18 +1635,36 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 
     typedef bsl::size_t    size_t;
 
-    const char *FUZZ    = reinterpret_cast<const char *>(data);
-    int         LENGTH  = static_cast<int>(size);
-    int         test;
+    FuzzDataView fdv(data, size);    const FuzzDataView& FDV = fdv;
+    int          test = FuzzUtil::consumeNumberInRange(&fdv, 1, 3);
+    const int    LENGTH = static_cast<int>(FDV.length());
 
-    if (FUZZ && LENGTH) {
-        test = 1 + static_cast<unsigned char>(*FUZZ) % 99;
-        ++FUZZ;
-        --LENGTH;
+    bsl::vector<uint8_t> noiseFuzzInput;
+    {
+        const unsigned worstCaseLength =
+                            4 * bdlde::Base64Encoder::encodedLength(LENGTH, 1);
+        if (worstCaseLength) {
+            noiseFuzzInput.reserve(worstCaseLength);
+            BSLS_ASSERT(0 < FDV.length() || 0 == worstCaseLength);
+            while (noiseFuzzInput.size() < worstCaseLength) {
+                const size_t len = bsl::min<bsl::size_t>(
+                                       worstCaseLength - noiseFuzzInput.size(),
+                                       FDV.length());
+                noiseFuzzInput.insert(noiseFuzzInput.end(),
+                                      FDV.begin(),
+                                      FDV.begin() + len);
+            }
+        }
+        else {
+            noiseFuzzInput.resize(26);
+            bsl::memcpy(noiseFuzzInput.data(),
+                        "abcdefghijklmnopqrstuvwxyz",
+                        26);
+        }
     }
-    else {
-        test = 0;
-    }
+    ASSERT(16 <= noiseFuzzInput.size());
+    const FuzzDataView NOISE_FDV_MASTER(noiseFuzzInput.begin(),
+                                        noiseFuzzInput.size());
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 3: {
@@ -1370,8 +1722,19 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
         if (veryVerbose) cout << "FUZZ TESTING PERMUTATIONS OF VALID INPUT\n"
                                  "========================================\n";
 
-        const char * const begin = FUZZ;
-        const char * const end   = FUZZ + LENGTH;
+        enum { k_NUM_TI_ITERATIONS = 2 * 3 * 2 };
+
+        FuzzDataView maxLenFdv(  NOISE_FDV_MASTER);
+        FuzzDataView equalIdxFdv(NOISE_FDV_MASTER);
+        if (k_NUM_TI_ITERATIONS < maxLenFdv.length()) {
+            maxLenFdv.  removePrefix(maxLenFdv.length() - k_NUM_TI_ITERATIONS);
+        }
+        if (k_NUM_TI_ITERATIONS * 2 < equalIdxFdv.length()) {
+            equalIdxFdv.removePrefix(
+                               equalIdxFdv.length() - k_NUM_TI_ITERATIONS * 2);
+        }
+
+        const bsl::vector<char> binaryInput(FDV.begin(), FDV.end());
 
         if (veryVerbose) P(run);
 
@@ -1379,236 +1742,186 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
                        "Create 'base64Input', valid base 64 input sequence,\n"
                                           " and permute it in various ways.\n";
 
-        bsl::vector<char> base64Input;
-        const char        GARBAGE = char(0xa5);
-        int               base64Size =
-                                   bdlde::Base64Encoder::encodedLength(LENGTH);
+        static bsl::vector<char> whitespaceNoise;
+        static bsl::vector<char> basicPaddedNoise;
+        static bsl::vector<char> basicUnpaddedNoise;
+        static bsl::vector<char> urlPaddedNoise;
+        static bsl::vector<char> urlUnpaddedNoise;
 
-        {
-            bdlde::Base64Encoder encoder;
+        static bool firstTime = true;
+        if (firstTime) {
+            firstTime = false;
 
-            base64Size = bdlde::Base64Encoder::encodedLength(LENGTH);
-            base64Input.resize(base64Size + 1, GARBAGE);
-
-            char *out = base64Input.data();
-            int numOut, numIn;
-            int rc = encoder.convert(out, &numOut, &numIn, begin, end);
-            ASSERT(0 == rc);
-            ASSERT(LENGTH == numIn);
-            ASSERT(numOut <= base64Size);
-
-            int endNumOut;
-
-            rc = encoder.endConvert(out + numOut, &endNumOut);
-            ASSERT(0 == rc && encoder.isDone());
-            ASSERTV(numOut, endNumOut, base64Size,
-                                             numOut + endNumOut == base64Size);
-            ASSERT(0 == base64Size || GARBAGE != base64Input[base64Size - 1]);
-            ASSERT(GARBAGE == base64Input[base64Size]);
-
-            base64Input.resize(base64Size);
-        }
-
-        if (veryVerbose) cout <<
-           "Decode 'base64Input' back into binary, compare with fuzz input.\n";
-
-        bsl::vector<char> binaryOutput;
-        binaryOutput.resize(LENGTH + 1, GARBAGE);
-
-        int numOut, numIn, endNumOut;
-
-        {
-            Obj mX(true);    const Obj& X = mX;
-            char *out = binaryOutput.data();
-
-            int rc = mX.convert(out,
-                                &numOut,
-                                &numIn,
-                                base64Input.begin(),
-                                base64Input.end());
-            ASSERT(0 == rc);
-            ASSERT(base64Size == numIn);
-            ASSERT(numOut <= LENGTH);
-
-            rc = mX.endConvert(out + numOut);
-            ASSERT(0 == rc);
-            ASSERT(X.isDone());
-
-            ASSERT(GARBAGE == binaryOutput[LENGTH]);
-
-            ASSERT(0 == bsl::memcmp(begin, binaryOutput.data(), LENGTH));
-        }
-
-        if (veryVerbose) cout << "Create 'noisyInput', which is\n"
-                             " 'base64Input' with random white space added\n.";
-
-        bsl::vector<char> noisyInput;
-        noisyInput.reserve(base64Size * 2);
-
-        {
-            bsl::vector<char> whiteNoise;
             for (int ii = 0; ii < 256; ++ii) {
                 if (bsl::isspace(ii)) {
-                    whiteNoise.push_back(char(ii));
+                    whitespaceNoise.push_back(char(ii));
+                }
+                if (!bsl::isalnum(ii)) {
+                    if ('+' != ii && '/' != ii) {
+                        if ('=' != ii) {
+                            basicPaddedNoise.push_back(char(ii));
+                        }
+                        basicUnpaddedNoise.  push_back(char(ii));
+                    }
+                    if ('-' != ii && '_' != ii) {
+                        if ('=' != ii) {
+                            urlPaddedNoise.  push_back(char(ii));
+                        }
+                        urlUnpaddedNoise.    push_back(char(ii));
+                    }
                 }
             }
+        }
 
-            for (unsigned b64Idx = 0, fuzzIdx = 0; b64Idx < base64Input.size();
-                                  ++b64Idx, fuzzIdx = (fuzzIdx + 1) % LENGTH) {
-                unsigned fuzz     = FUZZ[fuzzIdx] & 0xff;
-                bool     order    = fuzz & 1;
-                size_t   noiseIdx = (fuzz >> 1) % whiteNoise.size();
+        bool done = false;
+        for (int ti = 0; ti < k_NUM_ALPHA * k_NUM_IGNORE * 2; ++ti) {
+            int tti = ti;
+            const Alpha::Enum  ALPHA  =
+                                   static_cast<Alpha::Enum>(tti % k_NUM_ALPHA);
+            tti /= k_NUM_ALPHA;
+            const Ignore::Enum IGNORE =
+                                 static_cast<Ignore::Enum>(tti % k_NUM_IGNORE);
+            tti /= k_NUM_IGNORE;
+            const bool         PAD    = tti;    tti /= 2;
+            ASSERT(0 == tti);
+            done |= ALPHA && IGNORE == k_NUM_IGNORE -1 && PAD;
 
-                if (order) {
-                    noisyInput.push_back(base64Input[b64Idx]);
-                    noisyInput.push_back(whiteNoise[noiseIdx]);
+            bsl::vector<char> base64Input;
+            const char        GARBAGE = char(0xa5);
+            ptrdiff_t         base64Size;
+
+            {
+                typedef bdlde::Base64EncoderOptions EOptions;
+                ASSERT(0 < maxLenFdv.length());
+                EOptions options = EOptions::custom(
+                                  Ignore::e_IGNORE_NONE == IGNORE
+                                  ? 0
+                                  : FuzzUtil::consumeNumberInRange(
+                                                            &maxLenFdv, 0, 80),
+                                  ALPHA,
+                                  PAD);
+                bdlde::Base64Encoder encoder(options);
+
+                base64Size = bdlde::Base64Encoder::encodedLength(options,
+                                                                 LENGTH);
+                base64Input.resize(base64Size + 1, GARBAGE);
+
+                char *out = base64Input.data();
+                int numOut = -1, numIn = -1, endNumOut = -1;
+                int rc = encoder.convert(out,
+                                         &numOut,
+                                         &numIn,
+                                         binaryInput.begin(),
+                                         binaryInput.end());
+                ASSERT(0 == rc);
+                ASSERT(LENGTH == numIn);
+                ASSERT(numOut <= base64Size);
+
+                rc = encoder.endConvert(out + numOut, &endNumOut);
+                ASSERT(0 == rc && encoder.isDone());
+                ASSERTV(numOut, endNumOut, base64Size,
+                                             numOut + endNumOut == base64Size);
+                ASSERT(0 == base64Size ||
+                                       GARBAGE != base64Input[base64Size - 1]);
+                ASSERT(GARBAGE == base64Input[base64Size]);
+
+                base64Input.resize(base64Size);
+                ASSERT(bsl::find(base64Input.begin(),
+                                 base64Input.end(),
+                                 GARBAGE) == base64Input.end());      // RETURN
+            }
+
+            if (veryVerbose) cout << "Decode 'base64Input' back into binary,\n"
+                                              "    compare with fuzz input.\n";
+
+            {
+                bsl::vector<char> binaryOutput;
+                binaryOutput.resize(LENGTH + 1, GARBAGE);
+
+                int numOut = -1, numIn = -1, endNumOut = -1;
+
+                Obj mX(Options::custom(IGNORE, ALPHA, PAD));
+                const Obj& X = mX;
+                char *out = binaryOutput.data();
+
+                int rc = mX.convert(out,
+                                    &numOut,
+                                    &numIn,
+                                    base64Input.begin(),
+                                    base64Input.end());
+                ASSERT(0 == rc);
+                ASSERT(base64Size == numIn);
+                ASSERT(numOut <= LENGTH);
+
+                rc = mX.endConvert(out + numOut, &endNumOut);
+                ASSERT(0 == rc);
+                ASSERT(numOut + endNumOut == LENGTH);
+                ASSERT(X.isDone());
+
+                ASSERT(GARBAGE == binaryOutput[LENGTH]);
+                binaryOutput.resize(LENGTH);
+
+                ASSERT(binaryInput == binaryOutput);
+            }
+
+            if (veryVerbose) cout << "Create 'noisyInput', which is\n"
+                                " 'base64Input' with whatever types of noise\n"
+                                                      " is tolerated added.\n";
+
+            bsl::vector<char> noisyInput;
+            noisyInput.reserve(base64Size * 2);
+
+            {
+                if (Ignore::e_IGNORE_NONE == IGNORE) {
+                    noisyInput = base64Input;
                 }
                 else {
-                    noisyInput.push_back(whiteNoise[noiseIdx]);
-                    noisyInput.push_back(base64Input[b64Idx]);
-                }
-            }
-        }
-        ASSERT(base64Input.size() * 2 == noisyInput.size());
+                    const bsl::vector<char>& noise =
+                                          Ignore::e_IGNORE_WHITESPACE == IGNORE
+                                          ? whitespaceNoise
+                                          : Alpha::e_BASIC == ALPHA
+                                          ? (PAD ? basicPaddedNoise
+                                                 : basicUnpaddedNoise)
+                                          : (PAD ? urlPaddedNoise
+                                                 : urlUnpaddedNoise);
 
-        binaryOutput.clear();
-        binaryOutput.resize(LENGTH + 1, GARBAGE);
-
-        if (veryVerbose) cout << "Decode 'noisyInput' with error checking\n"
-                              " enabled, observe output matches fuzz input.\n";
-
-        {
-            Obj mX(true);    const Obj& X = mX;
-            char *out = binaryOutput.data();
-
-            int rc = mX.convert(out,
-                                &numOut,
-                                &numIn,
-                                noisyInput.begin(),
-                                noisyInput.end());
-            ASSERT(0 == rc);
-            ASSERT(base64Size * 2 == numIn);
-            ASSERT(numOut <= LENGTH);
-
-            out += numOut;
-
-            rc = mX.endConvert(out, &endNumOut);
-            ASSERT(0 == rc);
-            ASSERT(X.isDone());
-
-            ASSERTV(numOut, endNumOut, LENGTH, numOut + endNumOut == LENGTH);
-
-            ASSERT(GARBAGE == binaryOutput[LENGTH]);
-
-            bool match = 0 == bsl::memcmp(begin, binaryOutput.data(), LENGTH);
-            ASSERTV(numOut, endNumOut, LENGTH, match);
-            if (!match) {
-                cout <<         "begin:               ";
-                printCharN(cout, begin, LENGTH);
-                cout <<         "binaryOutput.data(): ";
-                printCharN(cout, binaryOutput.data(), LENGTH);
-            }
-        }
-
-        if (veryVerbose) cout << "Re-create 'noisyInput' containing\n"
-                    " 'nastyNoise', random noise characters that are neither\n"
-                                     " valid base 64 input nor white space.\n";
-
-        {
-            bsl::vector<char> nastyNoise;
-            for (int ii = 0; ii < 256; ++ii) {
-                if (!bsl::isalnum(ii) && !bsl::isspace(ii) && '+' != ii &&
-                                                      '/' != ii && '=' != ii) {
-                    nastyNoise.push_back(char(ii));
-                }
-            }
-
-            noisyInput.clear();
-            for (unsigned b64Idx = 0, fuzzIdx = 0; b64Idx < base64Input.size();
+                    FuzzDataView noiseFdv(NOISE_FDV_MASTER);
+                    for (unsigned b64Idx = 0, fuzzIdx = 0;
+                              b64Idx < base64Input.size();
                                   ++b64Idx, fuzzIdx = (fuzzIdx + 1) % LENGTH) {
-                unsigned fuzz     = data[fuzzIdx];
-                bool     order    = fuzz & 1;
-                fuzz              >>= 1;
-                size_t   noiseIdx = ((fuzz << 14) | (fuzz << 7) | fuzz)
-                                                           % nastyNoise.size();
+                        ASSERT(0 < noiseFdv.length());
 
-                if (order) {
-                    noisyInput.push_back(base64Input[b64Idx]);
-                    noisyInput.push_back(nastyNoise[noiseIdx]);
-                }
-                else {
-                    noisyInput.push_back(nastyNoise[noiseIdx]);
-                    noisyInput.push_back(base64Input[b64Idx]);
+                        bool   order    = FuzzUtil::consumeBool(&noiseFdv);
+                        size_t noiseIdx =
+                                        FuzzUtil::consumeNumberInRange<size_t>(
+                                               &noiseFdv, 0, noise.size() - 1);
+
+                        if (order) {
+                            noisyInput.push_back(base64Input[b64Idx]);
+                            noisyInput.push_back(noise[noiseIdx]);
+                        }
+                        else {
+                            noisyInput.push_back(noise[noiseIdx]);
+                            noisyInput.push_back(base64Input[b64Idx]);
+                        }
+                    }
+                    ASSERT(base64Input.size() * 2 == noisyInput.size());
                 }
             }
-        }
 
-        if (veryVerbose) cout << "Decode 'noisyInput'.  The result depends\n"
-                                  " upon whether error checking is enabled.\n";
+            if (veryVerbose) cout << "Decode 'noisyInput', observe output\n"
+                                                      " matches fuzz input.\n";
+            {
+                bsl::vector<char> binaryOutput;
+                binaryOutput.resize(LENGTH + 1, GARBAGE);
 
-        for (unsigned errorCheck = 0; errorCheck < 2; ++errorCheck) {
-            binaryOutput.clear();
-            binaryOutput.resize(LENGTH + 1, GARBAGE);
+                int numOut = -1, numIn = -1, endNumOut = -1;
+                const ptrdiff_t expNumIn = Ignore::e_IGNORE_NONE == IGNORE
+                                         ? base64Size
+                                         : 2 * base64Size;
 
-            Obj mX(0 != errorCheck);    const Obj& X = mX;
-            char *outBuf = binaryOutput.data();
-            char *out    = outBuf;
-
-            int rc = mX.convert(out,
-                                &numOut,
-                                &numIn,
-                                noisyInput.begin(),
-                                noisyInput.end());
-            if (errorCheck) {
-                // Error checking is enabled.  We should get a failing error
-                // status.
-
-                ASSERT(0 != rc || noisyInput.empty());
-
-                (void) mX.endConvert(out);    // Just observe that it doesn't
-                                              // fail any asserts.
-
-                continue;
-            }
-
-            // Error checking is disabled.  The nasty noise should be ignored
-            // and we get a correct result.
-
-            ASSERT(0 == rc);
-            ASSERT(base64Size * 2 == numIn);
-            ASSERT(numOut <= LENGTH);
-
-            out += numOut;
-
-            rc = mX.endConvert(out, &endNumOut);
-            ASSERT(0 == rc);
-            ASSERT(X.isDone());
-
-            ASSERTV(numOut, endNumOut, LENGTH, numOut + endNumOut == LENGTH);
-
-            ASSERT(GARBAGE == binaryOutput[LENGTH]);
-
-            ASSERTV(showCharN(begin, LENGTH), showCharN(outBuf, LENGTH),
-                         0 == bsl::memcmp(begin, binaryOutput.data(), LENGTH));
-        }
-
-        binaryOutput.clear();
-        binaryOutput.resize(LENGTH + 1, GARBAGE);
-
-        if (veryVerbose) cout << "Add an inappropriate '=' to 'base64Input',\n"
-                 " decode the result with error checking enabled and observe\n"
-                                              " that the error is detected.\n";
-
-        noisyInput = base64Input;
-        noisyInput.insert(noisyInput.begin(), 3, 'A');
-        for (int ii = 0; ii <= static_cast<int>(noisyInput.size()) - 2; ++ii) {
-            for (int errorI = 0; errorI < 2; ++errorI) {
-                binaryOutput.clear();
-                binaryOutput.resize(LENGTH + 4, GARBAGE);
-
-                noisyInput.insert(noisyInput.begin() + ii, '=');
-
-                Obj mX(0 != errorI);    const Obj& X = mX;
+                Obj mX(Options::custom(IGNORE, ALPHA, PAD));
+                const Obj& X = mX;
                 char *out = binaryOutput.data();
 
                 int rc = mX.convert(out,
@@ -1616,21 +1929,71 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
                                     &numIn,
                                     noisyInput.begin(),
                                     noisyInput.end());
+                ASSERTV(IGNORE, 0 == rc);
+                ASSERTV(IGNORE, expNumIn == numIn);
+                ASSERT(numOut <= LENGTH);
+
                 out += numOut;
 
-                int rc2 = 0;
-                if (0 == rc) {
-                    rc2 = mX.endConvert(out, &numOut);
-                    out += numOut;
-                }
-                ASSERTV(rc, rc2, 0 != rc || 0 != rc2);
-                ASSERT(!X.isDone());
-                ASSERT(GARBAGE == *out);
-                ASSERT(out - binaryOutput.data() <= LENGTH + 3);
+                rc = mX.endConvert(out, &endNumOut);
+                ASSERT(0 == rc);
+                ASSERT(X.isDone());
 
-                noisyInput.erase(noisyInput.begin() + ii);
+                ASSERTV(IGNORE, numOut, endNumOut, LENGTH,
+                                                 numOut + endNumOut == LENGTH);
+
+                ASSERT(GARBAGE == binaryOutput[LENGTH]);
+                binaryOutput.resize(LENGTH);
+
+                ASSERT(binaryInput == binaryOutput);
+            }
+
+            if (veryVerbose) cout << "Add an inappropriate '=' to the\n"
+                                       "input, decode the result and observe\n"
+                                              " that the error is detected.\n";
+
+            {
+                if (2 <= LENGTH) {
+                    ASSERT(0 < equalIdxFdv.length());
+                    const size_t uu = FuzzUtil::consumeNumberInRange<size_t>(
+                                           &equalIdxFdv, 0, noisyInput.size());
+                    bsl::vector<char> extraPad(noisyInput);
+                    extraPad.insert(extraPad.begin() + uu, '=');
+
+                    bsl::vector<char> binaryOutput;
+                    binaryOutput.resize(LENGTH + 1, GARBAGE);
+
+                    int numOut = -1, numIn = -1, endNumOut = -1;
+
+                    Obj mX(Options::custom(IGNORE, ALPHA, PAD));
+                    const Obj& X = mX;
+                    char *out = binaryOutput.data();
+
+                    int rc = mX.convert(out,
+                                        &numOut,
+                                        &numIn,
+                                        extraPad.begin(),
+                                        extraPad.end());
+                    ASSERT(numOut <= LENGTH + 4);
+                    out += numOut;
+
+                    rc |= mX.endConvert(out, &endNumOut);
+                    out += endNumOut;
+
+                    if (!PAD && IGNORE == Ignore::e_IGNORE_UNRECOGNIZED) {
+                        ASSERTV(rc, 0 == rc);
+                        ASSERT(X.isDone());
+                    }
+                    else {
+                        ASSERTV(rc, 0 != rc);
+                        ASSERT(!X.isDone());
+                    }
+                    ASSERT(GARBAGE == *out);
+                    ASSERT(out - binaryOutput.data() <= LENGTH + 3);
+                }
             }
         }
+        ASSERT(done);
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -1682,45 +2045,74 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 
         const char GARBAGE = char(0xa5);
 
-        bool valid = 0 == bsl::count_if(FUZZ,
-                                        FUZZ + LENGTH,
-                                        &u::equalsOrNotBase64);
+        bool done = false;
+        for (int ti = 0; ti < k_NUM_ALPHA * k_NUM_IGNORE * 2 * 2; ++ti) {
+            int tti = ti;
+            const Alpha::Enum  ALPHA  =
+                                   static_cast<Alpha::Enum>(tti % k_NUM_ALPHA);
+            tti /= k_NUM_ALPHA;
+            const Ignore::Enum IGNORE =
+                                 static_cast<Ignore::Enum>(tti % k_NUM_IGNORE);
+            tti /= k_NUM_IGNORE;
+            const bool         PAD    = tti % 2;    tti /= 2;
+            const bool         topOff = tti % 2;    tti /= 2;
+            ASSERT(0 == tti);
+            done |= ALPHA && IGNORE == k_NUM_IGNORE - 1 && PAD && topOff;
 
-        const bsl::size_t numSignificantChars = bsl::count_if(
-                                                       FUZZ,
-                                                       FUZZ + LENGTH,
-                                                       &u::base64OrEquals);
-        const int         left = (4 - numSignificantChars % 4) % 4;
+            const Options& options = Options::custom(IGNORE, ALPHA, PAD);
 
-        for (int flags = 0; flags < 4; ++flags) {
-            const bool checkErr = flags & 1;
-            const bool topOff   = flags & 2;
+            u::Filter invalidFilter = Alpha::e_BASIC == ALPHA
+                               ? (Ignore::e_IGNORE_NONE == IGNORE
+                                  ? &u::equalsOrNotBase64Basic
+                                  : &u::equalsOrNotBase64BasicAndNotWhitespace)
+                               : (Ignore::e_IGNORE_NONE == IGNORE
+                                  ? &u::equalsOrNotBase64Url
+                                  : &u::equalsOrNotBase64UrlAndNotWhitespace);
+            bool valid = 0 == bsl::count_if(FDV.begin(),
+                                            FDV.end(),
+                                            invalidFilter);
+
+            u::Filter validFilter = Alpha::e_BASIC == ALPHA
+                                  ? (PAD ? &u::base64OrEqualsBasic
+                                         : &u::base64Basic)
+                                  : (PAD ? &u::base64OrEqualsUrl
+                                         : &u::base64Url);
+            const bsl::size_t numSignificantChars = bsl::count_if(
+                                                                 FDV.begin(),
+                                                                 FDV.end(),
+                                                                 validFilter);
+            const int         left = (4 - numSignificantChars % 4) % 4;
 
             if (0 == left && topOff) {
                 continue;
             }
 
             bsl::vector<char> binaryOutput;
-            binaryOutput.resize(4 * LENGTH + 1, GARBAGE);
+            const int maxOutLen = Obj::maxDecodedLength(LENGTH) + 1 +
+                                                              (topOff ? 3 : 0);
+            binaryOutput.resize(maxOutLen, GARBAGE);
 
-            Obj mX(checkErr);    const Obj& X = mX;
+            Obj mX(options);    const Obj& X = mX;
             char *out = binaryOutput.data();
 
             int rc, rc2 = 0, numOut, numIn, endNumOut = 0, outSoFar = 0;
             rc = mX.convert(out,
                             &numOut,
                             &numIn,
-                            FUZZ,
-                            FUZZ + LENGTH);
-            ASSERTV(run, showCharN(FUZZ, LENGTH), rc, valid,
+                            FDV.begin(),
+                            FDV.end());
+            {
+                const char *begin =
+                                   reinterpret_cast<const char *>(FDV.begin());
+                ASSERTV(run, showCharN(begin, LENGTH), rc, valid,
                                                             0 == rc || !valid);
+            }
             ASSERT(numOut <= LENGTH);
+            ASSERT(numOut <= maxOutLen);
             ASSERT(numIn  <= LENGTH);
             ASSERT(numIn  == LENGTH || 0 != rc);
             outSoFar += numOut;
             out += numOut;
-
-            ASSERT(numIn == LENGTH || 0 != rc);
 
             // A base 64 sequence is not correct unless the number of
             // significant characters is divisible by 4.  So if 'topOff', add
@@ -1747,14 +2139,14 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
             outSoFar += endNumOut;
             out      += endNumOut;
 
-            ASSERT(outSoFar <= 4 * LENGTH);
+            ASSERT(outSoFar < maxOutLen);
             ASSERT(GARBAGE == binaryOutput[outSoFar]);
             ASSERT(GARBAGE == *out);
 
             if (0 == rc && 0 == rc2 && 0 == rc3) {
                 bsl::vector<char> significantInput;
-                for (const char *pc = FUZZ; pc < FUZZ + LENGTH; ++pc) {
-                    if (u::base64OrEquals(*pc)) {
+                for (const uint8_t *pc = FDV.begin(); pc < FDV.end(); ++pc) {
+                    if ((*validFilter)(*pc)) {
                         significantInput.push_back(*pc);
                     }
                 }
@@ -1762,11 +2154,13 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
                     significantInput.insert(significantInput.end(), left, 'A');
                 }
 
-                bsl::vector<char> encoded;
-                encoded.resize(significantInput.size() + 1, GARBAGE);
+                bsl::vector<char> encoded(
+                      significantInput.size() + 1 + (topOff ? 0 : 3), GARBAGE);
                 out = encoded.data();
 
-                bdlde::Base64Encoder encoder(0);
+                const EncoderOptions& eOptions = EncoderOptions::custom(
+                                                                0, ALPHA, PAD);
+                bdlde::Base64Encoder encoder(eOptions);
                 int rc4 = encoder.convert(out,
                                           &numOut,
                                           &numIn,
@@ -1779,19 +2173,27 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
                 ASSERT(0 == rc4);
                 out += numOut;
                 bsl::size_t outLen = out - encoded.data();
+                ASSERT(outLen < encoded.size());
+                ASSERTV(left, GARBAGE == *out);
+                encoded.resize(outLen);
 
-                ASSERTV(showCharN(encoded.data(), outLen),
-                        showCharN(significantInput.data(),
+                if (0 == left || topOff) {
+                    ASSERTV(showCharN(encoded.data(), outLen),
+                            showCharN(significantInput.data(),
                                   significantInput.size()),
                                  significantInput.size(), out - encoded.data(),
                                             significantInput.size() == outLen);
-                ASSERTV(left, GARBAGE == *out);
 
-                ASSERT(0 == bsl::memcmp(significantInput.data(),
-                                        encoded.data(),
-                                        significantInput.size()));
+                    ASSERT(significantInput == encoded);
+                }
+                else {
+                    ASSERT(0 == bsl::memcmp(encoded.data(),
+                                            significantInput.data(),
+                                            encoded.size()));
+                }
             }
         }
+        ASSERT(done);
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -1826,42 +2228,87 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 
         const char GARBAGE = char(0xa5);
 
-        bsl::vector<char> binaryOutput;
-        binaryOutput.resize(4 * LENGTH + 1, GARBAGE);
-
-        bsl::vector<char> inputVec;
-        inputVec.reserve(LENGTH + 3);
-        for (const char *pc = FUZZ; pc < FUZZ + LENGTH; ++pc) {
-            int c = (*pc & 0x3f) ^ ((*pc >> 6) & 3);
-            if (c < 26) {
-                inputVec.push_back(char('A' + c));
-            }
-            else if (c < 52) {
-                inputVec.push_back(char('a' + c - 26));
-            }
-            else if (c < 62) {
-                inputVec.push_back(char('0' + c - 52));
-            }
-            else if (c < 63) {
-                inputVec.push_back('/');
-            }
-            else {
-                inputVec.push_back('+');
-            }
+        const char basicStr[] = { "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                                  "abcdefghijklmnopqrstuvwxyz"
+                                  "0123456789"
+                                  "+/" };
+        BSLMF_ASSERT(sizeof(basicStr) == 65);
+        for (const char *pc = basicStr; *pc; ++pc) {
+            ASSERTV(*pc, 1 == bsl::count(basicStr + 0, basicStr + 64, *pc));
+        }
+        const char urlStr[]   = { "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                                  "abcdefghijklmnopqrstuvwxyz"
+                                  "0123456789"
+                                  "-_" };
+        BSLMF_ASSERT(sizeof(urlStr) == 65);
+        for (const char *pc = urlStr; *pc; ++pc) {
+            ASSERT(1 == bsl::count(urlStr + 0, urlStr + 64, *pc));
         }
 
-        {
-            const char *pattern = "A==";
-            size_t      toFill  = (4 - inputVec.size() % 4) % 4;
+        FuzzDataView noiseFdv(NOISE_FDV_MASTER);
 
-            inputVec.insert(inputVec.end(), pattern, pattern + toFill);
-        }
+        bool done = false;
+        for (int ti = 0; ti < 2 * 2; ++ti) {
+            int tti = ti;
+            const Alpha::Enum  ALPHA  = static_cast<Alpha::Enum>(tti % 2);
+            tti /= 2;
+            const bool         PAD    = tti % 2;    tti /= 2;
+            ASSERT(0 == tti);
+            done |= ALPHA && PAD;
 
-        binaryOutput.clear();
-        binaryOutput.resize(LENGTH + 4, GARBAGE);
+            const char *alphaStr  = Alpha::e_BASIC == ALPHA ? basicStr
+                                                            : urlStr;
 
-        {
-            Obj mX(true);    const Obj& X = mX;
+            u::Filter validFilter = Alpha::e_BASIC == ALPHA
+                                  ? (PAD ? &u::base64OrEqualsBasic
+                                         : &u::base64Basic)
+                                  : (PAD ? &u::base64OrEqualsUrl
+                                         : &u::base64Url);
+
+            ASSERT(64 == bsl::count_if(alphaStr + 0,
+                                       alphaStr + 64,
+                                       validFilter));
+
+            bsl::vector<char> binaryOutput(4 * LENGTH + 1, GARBAGE);
+
+            bsl::vector<char> inputVec;
+            inputVec.reserve(LENGTH + 3);
+            FuzzDataView inputVecFdv(FDV);
+            while (0 < inputVecFdv.length()) {
+                const int idx = FuzzUtil::consumeNumberInRange(&inputVecFdv,
+                                                               0,
+                                                               63);
+                inputVec.push_back(alphaStr[idx]);
+            }
+
+            size_t toFill = (4 - inputVec.size() % 4) % 4;
+            if (toFill) {
+                BSLS_ASSERT(0 < LENGTH);
+
+                toFill = PAD ? toFill : 1;
+
+                const char * const patterns[] = { "A==", "Q==", "g==", "w==" };
+                const unsigned idx = FuzzUtil::consumeNumberInRange(
+                                                              &noiseFdv, 0, 3);
+                const char * const pattern = patterns[idx];
+
+                inputVec.insert(inputVec.end(), pattern, pattern + toFill);
+            }
+
+            ASSERT(static_cast<int>(inputVec.size()) ==
+                                                bsl::count_if(inputVec.begin(),
+                                                              inputVec.end(),
+                                                              validFilter));
+
+            const int maxLen = Obj::maxDecodedLength(static_cast<int>(
+                                                             inputVec.size()));
+            binaryOutput.clear();
+            binaryOutput.resize(maxLen + 1, GARBAGE);
+
+            const Options& options = Options::custom(Ignore::e_IGNORE_NONE,
+                                                     ALPHA,
+                                                     PAD);
+            Obj mX(options);    const Obj& X = mX;
             char *out = binaryOutput.data();
 
             int numOut, numIn, endNumOut = 0;
@@ -1876,26 +2323,30 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
                 inputVec.push_back(0);
                 cout << inputVec.data();
                 inputVec.resize(inputVec.size() - 1);
+                continue;
             }
-            ASSERT(numOut <= LENGTH + 4);
+            ASSERT(numIn == static_cast<int>(inputVec.size()));
+            ASSERT(numOut <= maxLen);
+            ASSERT(binaryOutput[numOut] == GARBAGE);
 
             rc = mX.endConvert(out + numOut, &endNumOut);
             ASSERT(0 == rc);
             ASSERT(X.isDone());
 
-            ASSERT(numOut + endNumOut < LENGTH + 4);
+            ASSERT(numOut + endNumOut <= maxLen);
             ASSERT(GARBAGE == binaryOutput[numOut + endNumOut]);
             binaryOutput.resize(numOut + endNumOut);
 
-            ASSERT(static_cast<int>(inputVec.size()) ==
-                           bdlde::Base64Encoder::encodedLength(
-                                    static_cast<int>(binaryOutput.size()), 0));
+            const EncoderOptions& eOptions = EncoderOptions::custom(
+                                                                0, ALPHA, PAD);
+            ASSERT(numIn == static_cast<int>(
+                     bdlde::Base64Encoder::encodedLength(eOptions,
+                                                         numOut + endNumOut)));
 
-            bdlde::Base64Encoder encoder(0);
+            bdlde::Base64Encoder encoder(eOptions);
             const bdlde::Base64Encoder& ENCODER = encoder;
 
-            bsl::vector<char> secondInput;
-            secondInput.resize(inputVec.size() + 1, GARBAGE);
+            bsl::vector<char> secondInput(inputVec.size() + 1, GARBAGE);
 
             out = secondInput.data();
             rc = encoder.convert(out,
@@ -1913,11 +2364,12 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
             ASSERT(GARBAGE == secondInput[numOut + endNumOut]);
             secondInput.resize(numOut + endNumOut);
 
-            ASSERT(0 == bsl::count_if(secondInput.begin(),
-                                      secondInput.end(),
-                                      &u::notBase64));
+            ASSERT(numOut + endNumOut == bsl::count_if(secondInput.begin(),
+                                                       secondInput.end(),
+                                                       validFilter));
             ASSERT(inputVec == secondInput);
         }
+        ASSERT(done);
       } break;
       default: {
       } break;
@@ -1940,6 +2392,949 @@ void testCase##NUMBER(bool verbose,                                           \
                       bool veryVerbose,                                       \
                       bool veryVeryVerbose,                                   \
                       bool veryVeryVeryVerbose)
+
+DEFINE_TEST_CASE(14)
+{
+    // ------------------------------------------------------------------------
+    // U_ENABLE_DEPRECATIONS IS DISABLED
+    //
+    // Concern:
+    //: 1 That we don't ship with 'U_ENABLE_DEPRECATIONS' set.
+    //
+    // Testing:
+    //   0 == U_ENABLE_DEPRECATIONS
+    // ------------------------------------------------------------------------
+
+    (void)veryVeryVeryVerbose;
+    (void)veryVeryVerbose;
+    (void)veryVerbose;
+    (void)verbose;
+
+    ASSERT(0 == U_ENABLE_DEPRECATIONS);
+}
+
+DEFINE_TEST_CASE(13)
+{
+    (void)veryVeryVeryVerbose;
+    (void)veryVeryVerbose;
+    (void)veryVerbose;
+    (void)verbose;
+
+    // ------------------------------------------------------------------------
+    // TABLE PLUS RANDOM TESTING, UNPADDED MODE, INJECTED GARBAGE
+    //
+    // Concerns:
+    //: 1 Decoder can parse unpadded input in unpadded mode.
+    //:
+    //: 2 In unpadded mode, an '=' sign in input is illegal, unless ignore mode
+    //:   is 'e_IGNORE_UNRECOGNIZED'.
+    //:
+    //: 3 White space in the input is always ignored unless ignore mode is
+    //:   'e_IGNORE_NONE'.
+    //:
+    //: 4 If ignore mode is 'e_IGNORE_UNRECOGNIZED', invalid characters in
+    //:   input are ignored, and if padding is not specified, '=' is ignored as
+    //:   an unrecognized character.
+    //:
+    //: 5 If ignore mode is 'e_IGNORE_WHITE', whitespace (and nothing else) is
+    //:   ignored.
+    //:
+    //: 6 If an input sequence will result in successful parsing, parsing it in
+    //:   pieces limited by the pointer pair passed yields the same result as
+    //:   parsing it all in one pass.
+    //:
+    //: 7 If an input sequence will result in successful parsing, parsing it in
+    //:   pieces pieces limited by 'maxNumOut >= 0' yeilds the same result as
+    //:   parsing it all in one pass.
+    //:
+    //: 8 Residual bits: Where 'len' is the length of output:
+    //:   o if 'len % 3 == 1', then if the 4 low-order residual bits are not 0,
+    //:     an error will be reported.
+    //:
+    //:   o if 'len % 3 == 2', then if the 2 low-order residual bits are not 0,
+    //:     an error will be reported.
+    //:
+    //: 9 If 'N' is the number of bytes of valid input (not including '='s),
+    //:   then if 'N % 4 == 1' there will be an error.
+    //
+    // Plan:
+    //: 1 Create a table of padded decoder input and expected output, generated
+    //:   by the 'u::RandGen' random number generator and the 'Base64Encoder'
+    //:   in Test Case -1.
+    //:
+    //: 2 Write a series of loops looping through the table.  Within each loop,
+    //:   nest another loop varying 3 boolean variables:
+    //:
+    //:   o PAD (padded)
+    //:
+    //:   o INJECT_WHITESPACE
+    //:
+    //:   o IGNORE (bdlde::Base64IgnoreMode::Enum)
+    //:
+    //:   o URL (encoding is URL)
+    //:
+    //: 3 Within the nested loop, make a copy of the input selected by the
+    //:   outer loop, then conditionally modify it depending on the flags:
+    //:
+    //:   o 'u::removePadding': remove padding from string
+    //:
+    //:   o 'u::convertToUrlInput': convert input string from 'e_BASIC' type
+    //:     to 'e_URL' type.
+    //:
+    //:   o 'u::RandGen::injectWhitespace': insert white space characters at
+    //:     random locations in this string.  This should never affect the
+    //:     outcome.
+    //:
+    //:   o 'u::Randgen::injectGarbage': inject invalid non-whitespace
+    //:     characters into the input.  If the decoder is not configured with
+    //:     the 'e_IGNORE_UNRECOGNIZED' flag, this will result in an error,
+    //:     otherwise these characters will be ignored.
+    //:
+    //: 4 Create a decoder object, with the options configured to include
+    //:   'IGNORE', 'URL', and 'PAD'.
+    //:
+    //: 5 Call 'convert' and 'endConvert' to do the translation, and when
+    //:   success is expected, compare the decoded result with the expected
+    //:   value from the table.
+    //:
+    //: 6 Do a series of these loops testing for different things:
+    //:
+    //:   o Input contains no garbage,  Should always succeed.
+    //:
+    //:   o Input contains garbage, results in error when decoder not
+    //:     configured 'e_IGNORE_UNRECOGNIZED', results in no error otherwise.
+    //:
+    //:   o Input is parsed in random pieces, limit of parsing done by the
+    //:     range passed to input.  Always succeed.
+    //:
+    //:   o Input is parsed in random pieces, limit of parsing done by
+    //:     passing 'maxNumOut != -1'.  Always succeed.
+    //:
+    //:   o Set low order bits of partial final characters, should always be an
+    //:     error.
+    //:
+    //:   o When 'N' is the number of valid characters of input other than '=',
+    //:     have 'N % 4 == 1', which should always be an error.
+    //
+    // Testing:
+    //   TABLE PLUS RANDOM TESTING, UNPADDED MODE, INJECTED GARBAGE
+    // ------------------------------------------------------------------------
+
+    if (verbose) cout <<
+                "TABLE PLUS RANDOM TESTING, UNPADDED MODE, INJECTED GARBAGE\n"
+                "==========================================================\n";
+
+    static const struct Data {
+        int           d_line;
+        const char   *d_inPadded;
+        const char   *d_out;
+        const int     d_outLen;
+    } DATA[] = {
+        // Test table is randomly-generated by test case -1.
+
+        // Line               Output                                  Output
+        //    Input                                                   Length
+        //--  --------------  --------------------------------------  -
+
+        { L_, "",             "",                                     0 },
+        { L_, "DQ==",         "\x0d",                                 1 },
+        { L_, "JA==",         "\x24",                                 1 },
+        { L_, "Ng==",         "\x36",                                 1 },
+        { L_, "Nw==",         "\x37",                                 1 },
+        { L_, "PA==",         "\x3c",                                 1 },
+        { L_, "aA==",         "\x68",                                 1 },
+        { L_, "cA==",         "\x70",                                 1 },
+        { L_, "eg==",         "\x7a",                                 1 },
+        { L_, "jg==",         "\x8e",                                 1 },
+        { L_, "kw==",         "\x93",                                 1 },
+        { L_, "ng==",         "\x9e",                                 1 },
+        { L_, "pA==",         "\xa4",                                 1 },
+        { L_, "wQ==",         "\xc1",                                 1 },
+        { L_, "2g==",         "\xda",                                 1 },
+        { L_, "6Q==",         "\xe9",                                 1 },
+        { L_, "GnY=",         "\x1a\x76",                             2 },
+        { L_, "JC4=",         "\x24\x2e",                             2 },
+        { L_, "J/w=",         "\x27\xfc",                             2 },
+        { L_, "N0c=",         "\x37\x47",                             2 },
+        { L_, "Qnc=",         "\x42\x77",                             2 },
+        { L_, "XWo=",         "\x5d\x6a",                             2 },
+        { L_, "Ycw=",         "\x61\xcc",                             2 },
+        { L_, "btY=",         "\x6e\xd6",                             2 },
+        { L_, "epE=",         "\x7a\x91",                             2 },
+        { L_, "gDc=",         "\x80\x37",                             2 },
+        { L_, "n9U=",         "\x9f\xd5",                             2 },
+        { L_, "tMg=",         "\xb4\xc8",                             2 },
+        { L_, "0qA=",         "\xd2\xa0",                             2 },
+        { L_, "4i4=",         "\xe2\x2e",                             2 },
+        { L_, "4qM=",         "\xe2\xa3",                             2 },
+        { L_, "BYeo",         "\x05\x87\xa8",                         3 },
+        { L_, "GIUW",         "\x18\x85\x16",                         3 },
+        { L_, "ID1r",         "\x20\x3d\x6b",                         3 },
+        { L_, "IK3f",         "\x20\xad\xdf",                         3 },
+        { L_, "J2+0",         "\x27\x6f\xb4",                         3 },
+        { L_, "cea5",         "\x71\xe6\xb9",                         3 },
+        { L_, "ekjO",         "\x7a\x48\xce",                         3 },
+        { L_, "fEKN",         "\x7c\x42\x8d",                         3 },
+        { L_, "qQ0R",         "\xa9\x0d\x11",                         3 },
+        { L_, "rFKc",         "\xac\x52\x9c",                         3 },
+        { L_, "0yah",         "\xd3\x26\xa1",                         3 },
+        { L_, "6uLV",         "\xea\xe2\xd5",                         3 },
+        { L_, "8Aj9",         "\xf0\x08\xfd",                         3 },
+        { L_, "8PJ6",         "\xf0\xf2\x7a",                         3 },
+        { L_, "/3IS",         "\xff\x72\x12",                         3 },
+        { L_, "HS3Ayg==",     "\x1d\x2d\xc0\xca",                     4 },
+        { L_, "OOSOXw==",     "\x38\xe4\x8e\x5f",                     4 },
+        { L_, "OhOcHQ==",     "\x3a\x13\x9c\x1d",                     4 },
+        { L_, "PPjJKA==",     "\x3c\xf8\xc9\x28",                     4 },
+        { L_, "X732xw==",     "\x5f\xbd\xf6\xc7",                     4 },
+        { L_, "dtFncA==",     "\x76\xd1\x67\x70",                     4 },
+        { L_, "ghadAw==",     "\x82\x16\x9d\x03",                     4 },
+        { L_, "pzPEGg==",     "\xa7\x33\xc4\x1a",                     4 },
+        { L_, "r+Wl8w==",     "\xaf\xe5\xa5\xf3",                     4 },
+        { L_, "s3wO8Q==",     "\xb3\x7c\x0e\xf1",                     4 },
+        { L_, "umEIMw==",     "\xba\x61\x08\x33",                     4 },
+        { L_, "vdlVKg==",     "\xbd\xd9\x55\x2a",                     4 },
+        { L_, "43cHEw==",     "\xe3\x77\x07\x13",                     4 },
+        { L_, "9WZw+g==",     "\xf5\x66\x70\xfa",                     4 },
+        { L_, "+4uAyw==",     "\xfb\x8b\x80\xcb",                     4 },
+        { L_, "AtqckG4=",     "\x02\xda\x9c\x90\x6e",                 5 },
+        { L_, "A4SVkoY=",     "\x03\x84\x95\x92\x86",                 5 },
+        { L_, "JoiDkmo=",     "\x26\x88\x83\x92\x6a",                 5 },
+        { L_, "M4MfOy4=",     "\x33\x83\x1f\x3b\x2e",                 5 },
+        { L_, "QNsIVps=",     "\x40\xdb\x08\x56\x9b",                 5 },
+        { L_, "ScdkF1Q=",     "\x49\xc7\x64\x17\x54",                 5 },
+        { L_, "UfLTgsk=",     "\x51\xf2\xd3\x82\xc9",                 5 },
+        { L_, "bAehiQg=",     "\x6c\x07\xa1\x89\x08",                 5 },
+        { L_, "bdnjaac=",     "\x6d\xd9\xe3\x69\xa7",                 5 },
+        { L_, "fQLlgWs=",     "\x7d\x02\xe5\x81\x6b",                 5 },
+        { L_, "fZ7ephg=",     "\x7d\x9e\xde\xa6\x18",                 5 },
+        { L_, "sxwbQlY=",     "\xb3\x1c\x1b\x42\x56",                 5 },
+        { L_, "tnAhV4Y=",     "\xb6\x70\x21\x57\x86",                 5 },
+        { L_, "1XDiwQA=",     "\xd5\x70\xe2\xc1\x00",                 5 },
+        { L_, "89J2lhk=",     "\xf3\xd2\x76\x96\x19",                 5 },
+        { L_, "Eh+W81RP",     "\x12\x1f\x96\xf3\x54\x4f",             6 },
+        { L_, "IYdUr9cW",     "\x21\x87\x54\xaf\xd7\x16",             6 },
+        { L_, "J6S3huQD",     "\x27\xa4\xb7\x86\xe4\x03",             6 },
+        { L_, "Muqn6YoT",     "\x32\xea\xa7\xe9\x8a\x13",             6 },
+        { L_, "RXK6/n1h",     "\x45\x72\xba\xfe\x7d\x61",             6 },
+        { L_, "Wg+IhlC9",     "\x5a\x0f\x88\x86\x50\xbd",             6 },
+        { L_, "erYaXXfu",     "\x7a\xb6\x1a\x5d\x77\xee",             6 },
+        { L_, "krXQCgB9",     "\x92\xb5\xd0\x0a\x00\x7d",             6 },
+        { L_, "nC1qLQ+1",     "\x9c\x2d\x6a\x2d\x0f\xb5",             6 },
+        { L_, "tEzDhfnx",     "\xb4\x4c\xc3\x85\xf9\xf1",             6 },
+        { L_, "1fGbCz2/",     "\xd5\xf1\x9b\x0b\x3d\xbf",             6 },
+        { L_, "7DiQhX5b",     "\xec\x38\x90\x85\x7e\x5b",             6 },
+        { L_, "7zbornYH",     "\xef\x36\xe8\xae\x76\x07",             6 },
+        { L_, "8ZzFCDcL",     "\xf1\x9c\xc5\x08\x37\x0b",             6 },
+        { L_, "85pCndGU",     "\xf3\x9a\x42\x9d\xd1\x94",             6 },
+        { L_, "FNSHl6Ig4A==", "\x14\xd4\x87\x97\xa2\x20\xe0",         7 },
+        { L_, "KpcghNnAHw==", "\x2a\x97\x20\x84\xd9\xc0\x1f",         7 },
+        { L_, "MgTALA/nDQ==", "\x32\x04\xc0\x2c\x0f\xe7\x0d",         7 },
+        { L_, "OuQ1ID4XnQ==", "\x3a\xe4\x35\x20\x3e\x17\x9d",         7 },
+        { L_, "QAkqqusDgQ==", "\x40\x09\x2a\xaa\xeb\x03\x81",         7 },
+        { L_, "VLPLjvv4mg==", "\x54\xb3\xcb\x8e\xfb\xf8\x9a",         7 },
+        { L_, "VQdbsW6/6g==", "\x55\x07\x5b\xb1\x6e\xbf\xea",         7 },
+        { L_, "YMUdJWbGNA==", "\x60\xc5\x1d\x25\x66\xc6\x34",         7 },
+        { L_, "ZwLGZkk3cg==", "\x67\x02\xc6\x66\x49\x37\x72",         7 },
+        { L_, "aFUqDUXJ+A==", "\x68\x55\x2a\x0d\x45\xc9\xf8",         7 },
+        { L_, "eDo9G0zddA==", "\x78\x3a\x3d\x1b\x4c\xdd\x74",         7 },
+        { L_, "sTJFpR/RTw==", "\xb1\x32\x45\xa5\x1f\xd1\x4f",         7 },
+        { L_, "8Of0g07exA==", "\xf0\xe7\xf4\x83\x4e\xde\xc4",         7 },
+        { L_, "9mf3M/ylDQ==", "\xf6\x67\xf7\x33\xfc\xa5\x0d",         7 },
+        { L_, "92Gk/hFgww==", "\xf7\x61\xa4\xfe\x11\x60\xc3",         7 },
+        { L_, "HxBzNGYHHLo=", "\x1f\x10\x73\x34\x66\x07\x1c\xba",     8 },
+        { L_, "IWBiBF7SfsU=", "\x21\x60\x62\x04\x5e\xd2\x7e\xc5",     8 },
+        { L_, "PKhI8uxU3Ms=", "\x3c\xa8\x48\xf2\xec\x54\xdc\xcb",     8 },
+        { L_, "TwlOkebFTdA=", "\x4f\x09\x4e\x91\xe6\xc5\x4d\xd0",     8 },
+        { L_, "bATWHunLpwA=", "\x6c\x04\xd6\x1e\xe9\xcb\xa7\x00",     8 },
+        { L_, "ca5ol+MQhcY=", "\x71\xae\x68\x97\xe3\x10\x85\xc6",     8 },
+        { L_, "ejjUAdUHNNM=", "\x7a\x38\xd4\x01\xd5\x07\x34\xd3",     8 },
+        { L_, "gnKTYhR0gtQ=", "\x82\x72\x93\x62\x14\x74\x82\xd4",     8 },
+        { L_, "jq8qQK5n4y8=", "\x8e\xaf\x2a\x40\xae\x67\xe3\x2f",     8 },
+        { L_, "nV7r5SIeHBs=", "\x9d\x5e\xeb\xe5\x22\x1e\x1c\x1b",     8 },
+        { L_, "pPRbzw0xL8A=", "\xa4\xf4\x5b\xcf\x0d\x31\x2f\xc0",     8 },
+        { L_, "rMf+KbtwvTA=", "\xac\xc7\xfe\x29\xbb\x70\xbd\x30",     8 },
+        { L_, "wKaZF/mz1rA=", "\xc0\xa6\x99\x17\xf9\xb3\xd6\xb0",     8 },
+        { L_, "09Snhhefk+0=", "\xd3\xd4\xa7\x86\x17\x9f\x93\xed",     8 },
+        { L_, "4xmxMEzLg7Y=", "\xe3\x19\xb1\x30\x4c\xcb\x83\xb6",     8 },
+        { L_, "AldkVeXeqDtz", "\x02\x57\x64\x55\xe5\xde\xa8\x3b\x73", 9 },
+        { L_, "EJwY9NszXi7X", "\x10\x9c\x18\xf4\xdb\x33\x5e\x2e\xd7", 9 },
+        { L_, "HcMj5SsbdS5B", "\x1d\xc3\x23\xe5\x2b\x1b\x75\x2e\x41", 9 },
+        { L_, "HfnR6XrM1yTE", "\x1d\xf9\xd1\xe9\x7a\xcc\xd7\x24\xc4", 9 },
+        { L_, "PLBlqIoiVxD4", "\x3c\xb0\x65\xa8\x8a\x22\x57\x10\xf8", 9 },
+        { L_, "Proa0yXoPlTJ", "\x3e\xba\x1a\xd3\x25\xe8\x3e\x54\xc9", 9 },
+        { L_, "QW3VF+8CJl85", "\x41\x6d\xd5\x17\xef\x02\x26\x5f\x39", 9 },
+        { L_, "RZ0DUZDsPJES", "\x45\x9d\x03\x51\x90\xec\x3c\x91\x12", 9 },
+        { L_, "VNAzXZSHC0Wt", "\x54\xd0\x33\x5d\x94\x87\x0b\x45\xad", 9 },
+        { L_, "abBnKQZaH8D0", "\x69\xb0\x67\x29\x06\x5a\x1f\xc0\xf4", 9 },
+        { L_, "gvJfgsGAMBe3", "\x82\xf2\x5f\x82\xc1\x80\x30\x17\xb7", 9 },
+        { L_, "qMgax36v0Q7z", "\xa8\xc8\x1a\xc7\x7e\xaf\xd1\x0e\xf3", 9 },
+        { L_, "uigkPeKBMcQq", "\xba\x28\x24\x3d\xe2\x81\x31\xc4\x2a", 9 },
+        { L_, "xxwJ+YLOqk+q", "\xc7\x1c\x09\xf9\x82\xce\xaa\x4f\xaa", 9 },
+        { L_, "3VX/OSTahigH", "\xdd\x55\xff\x39\x24\xda\x86\x28\x07", 9 }
+    };
+    enum { k_NUM_DATA = sizeof DATA / sizeof *DATA };
+
+    u::RandGen rand;
+
+    if (verbose) cout << "Tests with no garbage, unrecognized is error\n";
+
+    for (int ti = 0; ti < k_NUM_DATA; ++ti) {
+        const Data&       data     = DATA[ti];
+        const int         LINE     = data.d_line;
+        const bsl::string inPadded = data.d_inPadded;
+        const bsl::string expOut    (data.d_out, data.d_outLen);
+        const int         outLen   = data.d_outLen;
+
+        if (veryVerbose) P(inPadded);
+
+        for (int wi = 0; wi < 4; ++wi) {
+            const bool PAD = wi & 1;
+            const bool URL = wi & 2;
+
+            if (veryVeryVerbose) {
+                P_(LINE);    P(PAD);
+            }
+
+            bsl::string input(inPadded);
+            if (!PAD) {
+                u::removePadding(&input);
+            }
+
+            const int inputLen = static_cast<int>(input.length());
+            ASSERT(outLen <= Obj::maxDecodedLength(inputLen));
+            ASSERT(((outLen + 2) / 3) * 3 == Obj::maxDecodedLength(inputLen));
+
+            if (URL) {
+                u::convertToUrlInput(&input);
+            }
+
+            const Options& options = Options::custom(Ignore::e_IGNORE_NONE,
+                                                     URL ? Alpha::e_URL
+                                                         : Alpha::e_BASIC,
+                                                     PAD);
+            Obj mX(options);    const Obj& X = mX;
+
+            int numIn, numOut, endNumOut;
+            bsl::string outBuf(outLen + 1, '?');
+            int rc = mX.convert(outBuf.data(),
+                                &numOut,
+                                &numIn,
+                                input.data(),
+                                input.data() + input.length());
+            ASSERTV(LINE, PAD, input, 0 == rc);
+
+            if (0 != rc) {
+                continue;
+            }
+
+            ASSERT(numOut <= outLen);
+            ASSERT('?' == outBuf[numOut]);
+            ASSERT(static_cast<int>(input.length()) == numIn);
+            ASSERT(!X.isError());
+
+            rc = mX.endConvert(outBuf.data() + numOut,
+                               &endNumOut);
+            ASSERTV(LINE, PAD, 0 == rc);
+            ASSERT(numOut + endNumOut == outLen);
+            ASSERT('?' == outBuf[outLen]);
+            ASSERT(X.isDone());
+            outBuf.resize(outLen);
+
+            ASSERT(expOut == outBuf);
+        }
+    }
+
+    if (verbose) cout << "Tests with garbage, w/ & w/o unrecognized is err\n";
+
+    for (int ti = 0; ti < k_NUM_DATA; ++ti) {
+        const Data&       data     = DATA[ti];
+        const int         LINE     = data.d_line;
+        const bsl::string inPadded = data.d_inPadded;
+        const bsl::string expOut    (data.d_out, data.d_outLen);
+        const int         outLen   = data.d_outLen;
+
+        if (veryVerbose) P(inPadded);
+
+        enum { k_REPETITIONS = 32 };
+        for (int tj = 0; tj < k_REPETITIONS; ++tj) {
+            bool done = false;
+            enum { k_INNER_LOOP_COUNT = 2 * 2 * 2 *
+                                                  k_NUM_ALPHA * k_NUM_IGNORE };
+            for (int wi = 0; wi < k_INNER_LOOP_COUNT; ++wi) {
+                int wwi = wi;
+                const bool         INJECT_WHITESPACE = wwi % 2; wwi /= 2;
+                const bool         INJECT_GARBAGE    = wwi % 2; wwi /= 2;
+                const bool         PAD               = wwi % 2; wwi /= 2;
+                const bool         URL               = wwi % k_NUM_ALPHA;
+                wwi /= k_NUM_ALPHA;
+                const Ignore::Enum IGNORE            = (Ignore::Enum) wwi;
+                wwi /= k_NUM_IGNORE;
+                ASSERT(0 == wwi);
+                done |= INJECT_WHITESPACE && INJECT_GARBAGE && PAD && URL &&
+                                                    k_NUM_IGNORE - 1 == IGNORE;
+
+                bool expErr;
+                switch (IGNORE) {
+                  case Ignore::e_IGNORE_NONE: {
+                    expErr = INJECT_GARBAGE || INJECT_WHITESPACE;
+                  } break;
+                  case Ignore::e_IGNORE_WHITESPACE: {
+                    expErr = INJECT_GARBAGE;
+                  } break;
+                  case Ignore::e_IGNORE_UNRECOGNIZED: {
+                    expErr = false;
+                  } break;
+                  default: {
+                    BSLS_ASSERT(0 && "illegal ignore value");
+                    return;                                           // RETURN
+                  }
+                }
+                const bool EXP_ERR = expErr;
+
+                bsl::string input(inPadded);
+                if (!PAD) {
+                    u::removePadding(&input);
+                }
+                if (URL) {
+                    u::convertToUrlInput(&input);
+                }
+                if (INJECT_GARBAGE) {
+                    rand.injectGarbage(&input,
+                                      !PAD,
+                                      URL);
+                }
+                if (INJECT_WHITESPACE) {
+                    rand.injectWhitespace(&input);
+                }
+                const bsl::string& UW = u::displayStr(input, false);
+
+                if (veryVeryVerbose) {
+                    const int          LL  = LINE;
+                    const bool         IW  = INJECT_WHITESPACE;
+                    const bool         IGA = INJECT_GARBAGE;
+                    const Ignore::Enum IGN = IGNORE;
+
+                    P_(LL);  P_(IW);  P_(IGN);  P_(PAD);  P_(IGA);  P(URL);
+                    P(UW);
+                }
+
+                const Options& options = Options::custom(IGNORE,
+                                                         URL ? Alpha::e_URL
+                                                             : Alpha::e_BASIC,
+                                                         PAD);
+                Obj mX(options);    const Obj& X = mX;
+
+                int numIn, numOut, endNumOut;
+                bsl::string outBuf(outLen + 1, '?');
+                int rc = mX.convert(outBuf.data(),
+                                    &numOut,
+                                    &numIn,
+                                    input.data(),
+                                    input.data() + input.length());
+                ASSERTV(LINE, INJECT_WHITESPACE, PAD, UW, EXP_ERR,
+                                                         EXP_ERR == (0 != rc));
+                if (0 != rc) {
+                    continue;
+                }
+
+                ASSERT(numOut <= outLen);
+                ASSERT(!X.isError());
+                ASSERT('?' == outBuf[numOut]);
+                ASSERT(static_cast<int>(input.length()) == numIn);
+
+                rc = mX.endConvert(outBuf.data() + numOut,
+                                   &endNumOut);
+                ASSERTV(LINE, INJECT_WHITESPACE, INJECT_GARBAGE, PAD, UW,
+                                                                      0 == rc);
+                ASSERT(numOut + endNumOut == outLen);
+                ASSERT(X.isDone());
+                ASSERT('?' == outBuf[outLen]);
+                outBuf.resize(outLen);
+
+                ASSERT(expOut == outBuf);
+            }
+            ASSERT(done);
+        }
+    }
+
+    if (verbose) cout << "Parsing in pieces limited by input\n";
+
+    for (int ti = 0; ti < k_NUM_DATA; ++ti) {
+        const Data&       data     = DATA[ti];
+        const int         LINE     = data.d_line;
+        const bsl::string inPadded = data.d_inPadded;
+        const bsl::string expOut    (data.d_out, data.d_outLen);
+        const int         outLen   = data.d_outLen;
+
+        if (veryVerbose) P(inPadded);
+
+        bool done = false;
+        for (int wi = 0; wi < 2 * 2 * 2 * k_NUM_ALPHA; ++wi) {
+            int wwi = wi;
+            const bool INJECT_WHITESPACE = wwi % 2; wwi /= 2;
+            const bool INJECT_GARBAGE    = wwi % 2; wwi /= 2;
+            const bool PAD               = wwi % 2; wwi /= 2;
+            const bool URL               = wwi % k_NUM_ALPHA;
+            wwi /= k_NUM_ALPHA;
+            ASSERT(0 == wwi);
+            done |= INJECT_WHITESPACE && INJECT_GARBAGE && PAD && URL;
+
+            const int reps = INJECT_WHITESPACE || INJECT_GARBAGE ? 32 : 4;
+            for (int tj = 0; tj < reps; ++tj) {
+                bsl::string input(inPadded);
+                if (!PAD) {
+                    u::removePadding(&input);
+                }
+                if (URL) {
+                    u::convertToUrlInput(&input);
+                }
+                if (INJECT_GARBAGE) {
+                    rand.injectGarbage(&input, false, URL);
+                }
+                if (INJECT_WHITESPACE) {
+                    rand.injectWhitespace(&input);
+                }
+                const bsl::string& UW = u::displayStr(input, false);
+
+                const Ignore::Enum IGNORE =
+                                          rand.benignIgnore(INJECT_GARBAGE,
+                                                            INJECT_WHITESPACE);
+
+                if (veryVeryVerbose) {
+                    const int          LL  = LINE;
+                    const bool         IW  = INJECT_WHITESPACE;
+                    const bool         IGA = INJECT_GARBAGE;
+                    const Ignore::Enum IGN = IGNORE;
+
+                    P_(LL);    P_(IW);    P_(PAD);    P_(IGA);    P_(IGN);
+                                                                         P(UW);
+                }
+
+                const Options& options = Options::custom(IGNORE,
+                                                         URL ? Alpha::e_URL
+                                                             : Alpha::e_BASIC,
+                                                         PAD);
+                Obj mX(options);    const Obj& X = mX;
+
+                bsl::string outBuf(outLen + 1u, '?');
+                const int inputLen = static_cast<int>(input.length());
+                int numIn, numInSoFar = 0, numOut, numOutSoFar = 0, endNumOut;
+                int rc = 0;
+                while (numInSoFar < inputLen) {
+                    const int mod = 1 + inputLen - numInSoFar;
+
+                    // Take the greatest of three 'rand' calls to decrease the
+                    // frequency of '0 == numInThisTime'.
+
+                    int numInThisTime = 0;
+                    for (int ii = 0; ii < 3; ++ii) {
+                        numInThisTime = bsl::max<int>(numInThisTime,
+                                                      rand() % mod);
+                    }
+                    numOut = rand();
+                    numIn  = rand();
+                    rc |= mX.convert(
+                               outBuf.data() + numOutSoFar,
+                               &numOut,
+                               &numIn,
+                               input.data() + numInSoFar,
+                               input.data() + numInSoFar + numInThisTime);
+                    ASSERTV(LINE, INJECT_WHITESPACE, INJECT_GARBAGE, PAD, wi,
+                                                                  UW, 0 == rc);
+                    if (0 != rc) {
+                        break;
+                    }
+                    ASSERT(numInThisTime == numIn);
+                    numInSoFar += numIn;
+                    numOutSoFar += numOut;
+                    ASSERT(numOutSoFar <= outLen);
+                    ASSERT(!X.isError());
+                    ASSERT('?' == outBuf[numOutSoFar]);
+                }
+                if (0 != rc) {
+                    continue;
+                }
+                ASSERT(inputLen == numInSoFar);
+
+                rc = mX.endConvert(outBuf.data() + numOutSoFar,
+                                   &endNumOut);
+                ASSERTV(LINE, INJECT_WHITESPACE, INJECT_GARBAGE, PAD, UW,
+                                                                      0 == rc);
+                numOutSoFar += endNumOut;
+                ASSERT(outLen == numOutSoFar);
+                ASSERT(X.isDone());
+                ASSERT('?' == outBuf[outLen]);
+                outBuf.resize(outLen);
+
+                ASSERT(expOut == outBuf);
+            }
+        }
+        ASSERT(done);
+    }
+
+    if (verbose) cout << "Parsing in pieces limited by 'maxNumOut'\n";
+
+    for (int ti = 0; ti < k_NUM_DATA; ++ti) {
+        const Data&       data     = DATA[ti];
+        const int         LINE     = data.d_line;
+        const bsl::string inPadded = data.d_inPadded;
+        const bsl::string expOut    (data.d_out, data.d_outLen);
+        const int         outLen   = data.d_outLen;
+
+        if (veryVerbose) P(inPadded);
+
+        enum { k_REPETITIONS = 4 };
+        for (int tj = 0; tj < k_REPETITIONS; ++tj) {
+            bool done = false;
+            enum { k_INNER_LOOP_COUNT = 2 * 2 * 2 * k_NUM_ALPHA };
+            for (int wi = 0; wi < k_INNER_LOOP_COUNT; ++wi) {
+                int wwi = wi;
+                const bool INJECT_WHITESPACE = wwi % 2; wwi /= 2;
+                const bool INJECT_GARBAGE    = wwi % 2; wwi /= 2;
+                const bool PAD               = wwi % 2; wwi /= 2;
+                const bool URL               = wwi % k_NUM_ALPHA;
+                wwi /= k_NUM_ALPHA;
+                ASSERT(0 == wwi);
+                done |= INJECT_WHITESPACE && INJECT_GARBAGE && PAD & URL;
+
+                const int reps = INJECT_WHITESPACE || INJECT_GARBAGE ? 32 : 4;
+                for (int tj = 0; tj < reps; ++tj) {
+                    bsl::string input(inPadded);
+                    if (!PAD) {
+                        u::removePadding(&input);
+                    }
+                    if (URL) {
+                        u::convertToUrlInput(&input);
+                    }
+                    if (INJECT_GARBAGE) {
+                        rand.injectGarbage(&input, false, URL);
+                    }
+                    if (INJECT_WHITESPACE) {
+                        rand.injectWhitespace(&input);
+                    }
+                    const bsl::string& UW = u::displayStr(input, false);
+
+                    const Ignore::Enum IGNORE =
+                                          rand.benignIgnore(INJECT_GARBAGE,
+                                                            INJECT_WHITESPACE);
+
+                    if (veryVeryVerbose) {
+                        const int  LL          = LINE;
+                        const bool IW          = INJECT_WHITESPACE;
+                        const bool IGA         = INJECT_GARBAGE;
+                        const Ignore::Enum IGN = IGNORE;
+
+                        P_(LL);    P_(IW);    P_(PAD);    P_(IGA);    P_(IGN);
+                                                                         P(UW);
+                    }
+
+                    const Options& options = Options::custom(IGNORE,
+                                                         URL ? Alpha::e_URL
+                                                             : Alpha::e_BASIC,
+                                                         PAD);
+                    Obj mX(options);    const Obj& X = mX;
+
+                    bsl::string outBuf(outLen + 1u, '?');
+                    const int inputLen = static_cast<int>(input.length());
+                    int numIn, numInSoFar = 0, numOut, numOutSoFar = 0;
+                    int endNumOut;
+                    int rc = 0;
+                    while (numInSoFar < inputLen) {
+                        const int mod =
+                                    1 + static_cast<int>(outLen) - numOutSoFar;
+
+                        // Take the greatest of three 'rand' calls to decrease
+                        // the frequency of '0 == numOutThisTime'.
+
+                        int numOutThisTime = 0;
+                        for (int ii = 0; ii < 3; ++ii) {
+                            numOutThisTime = bsl::max<int>(numOutThisTime,
+                                                           rand() % mod);
+                        }
+                        numOut = rand();
+                        numIn  = rand();
+                        rc |= mX.convert(
+                                   outBuf.data() + numOutSoFar,
+                                   &numOut,
+                                   &numIn,
+                                   input.data() + numInSoFar,
+                                   input.data() + inputLen,
+                                   numOutThisTime);
+                        ASSERTV(LINE, INJECT_WHITESPACE, INJECT_GARBAGE, PAD,
+                                                              wi, UW, 0 <= rc);
+                        if (rc < 0) {
+                            break;
+                        }
+                        ASSERT(numOut <= numOutThisTime);
+                        numInSoFar += numIn;
+                        numOutSoFar += numOut;
+                        ASSERT(numOutSoFar <= outLen);
+                        ASSERT(!X.isError());
+                        ASSERT('?' == outBuf[numOutSoFar]);
+                    }
+                    if (rc < 0) {
+                        continue;
+                    }
+                    ASSERT(inputLen == numInSoFar);
+
+                    rc = mX.endConvert(outBuf.data() + numOutSoFar,
+                                       &endNumOut);
+                    ASSERTV(LINE, INJECT_WHITESPACE, INJECT_GARBAGE, PAD, UW,
+                                                                      0 == rc);
+                    numOutSoFar += endNumOut;
+                    ASSERT(outLen == numOutSoFar);
+                    ASSERT(X.isDone());
+                    ASSERT('?' == outBuf[outLen]);
+                    outBuf.resize(outLen);
+
+                    ASSERT(expOut == outBuf);
+                }
+            }
+            ASSERT(done);
+        }
+    }
+
+    static const char base64[] = {
+    //   0    1    2    3    4    5    6    7
+        'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',  // 000
+        'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',  // 010
+        'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',  // 020
+        'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f',  // 030
+        'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',  // 040
+        'o', 'p', 'q', 'r', 's', 't', 'u', 'v',  // 050
+        'w', 'x', 'y', 'z', '0', '1', '2', '3',  // 060
+        '4', '5', '6', '7', '8', '9', '+', '/',  // 070
+        '\0'
+    };
+
+    static const char base64Url[] = {
+    //   0    1    2    3    4    5    6    7
+        'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',  // 000
+        'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',  // 010
+        'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',  // 020
+        'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f',  // 030
+        'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',  // 040
+        'o', 'p', 'q', 'r', 's', 't', 'u', 'v',  // 050
+        'w', 'x', 'y', 'z', '0', '1', '2', '3',  // 060
+        '4', '5', '6', '7', '8', '9', '-', '_',  // 070
+        '\0'
+    };
+
+    if (verbose) cout << "Set low-order bits of last partial char\n";
+
+    for (int ti = 0; ti < k_NUM_DATA; ++ti) {
+        const Data&       data     = DATA[ti];
+        const int         LINE     = data.d_line;
+        const bsl::string inPadded = data.d_inPadded;
+        const int         outLen   = data.d_outLen;
+
+        bsl::size_t numEquals = bsl::count(inPadded.begin(),
+                                           inPadded.end(),
+                                           '=');
+        if (0 == numEquals) {
+            continue;
+        }
+        ASSERT(numEquals <= 2);
+        const ptrdiff_t toSet = 2 * numEquals;
+        const ptrdiff_t numJ  = 1 << toSet;
+        ASSERT(4 <= inPadded.length());
+
+        const bsl::size_t equalIdx = inPadded.find('=');
+        ASSERT(2 <= equalIdx);
+        ASSERT(inPadded.length() - 2 <= equalIdx);
+
+        if (veryVerbose) P(inPadded);
+
+        bool done = false;
+        enum { k_INNER_LOOP_COUNT = 2 * 2 * 2 * k_NUM_ALPHA };
+        for (int wi = 0; wi < k_INNER_LOOP_COUNT; ++wi) {
+            const bool INJECT_WHITESPACE = wi & 1;
+            const bool INJECT_GARBAGE    = wi & 2;
+            const bool PAD               = wi & 4;
+            const bool URL               = wi & 8;
+            done |= INJECT_WHITESPACE && INJECT_GARBAGE && PAD && URL;
+            ASSERT(0 == (wi & 16));
+
+            bsl::string partialProcessed(inPadded);
+            if (!PAD) {
+                u::removePadding(&partialProcessed);
+            }
+            if (URL) {
+                u::convertToUrlInput(&partialProcessed);
+            }
+
+            const char lastChar = partialProcessed[equalIdx - 1];
+            const char *charSet = URL ? base64Url : base64;
+            const bsl::size_t charSetIdx = bsl::find(charSet + 0,
+                                                     charSet + 64,
+                                                     lastChar) - charSet;
+            ASSERT(charSetIdx < 64);
+            ASSERTV(partialProcessed, lastChar, charSetIdx,
+                                                   !(charSetIdx & (numJ - 1)));
+
+            for (int tj = 1; tj < numJ; ++tj) {
+                bsl::string input(partialProcessed);
+                ASSERT(2 <= input.length());
+
+                const bsl::size_t newIdx = charSetIdx | tj;
+                ASSERT(newIdx < 64);
+                const char newChar =  charSet[newIdx];
+                ASSERT(bsl::strchr(charSet, newChar));
+                input[equalIdx - 1] = newChar;
+
+                if (INJECT_GARBAGE) {
+                    rand.injectGarbage(&input, false, URL);
+                }
+                if (INJECT_WHITESPACE) {
+                    rand.injectWhitespace(&input);
+                }
+                const bsl::string& UW = u::displayStr(input, false);
+
+                const Ignore::Enum IGNORE =
+                                          rand.benignIgnore(INJECT_GARBAGE,
+                                                            INJECT_WHITESPACE);
+
+                if (veryVeryVerbose) {
+                    const int          LL  = LINE;
+                    const bool         IW  = INJECT_WHITESPACE;
+                    const bool         IGA = INJECT_GARBAGE;
+                    const Ignore::Enum IGN = IGNORE;
+
+                    P_(LL);    P_(IW);    P_(PAD);    P_(IGA);    P_(IGN);
+                                                                         P(UW);
+                }
+
+                const Options& options = Options::custom(IGNORE,
+                                                         URL ? Alpha::e_URL
+                                                             : Alpha::e_BASIC,
+                                                         PAD);
+                Obj mX(options);    const Obj& X = mX;
+
+                int numIn, numOut, endNumOut;
+                bsl::string outBuf(outLen + 1, '?');
+                int rc = mX.convert(outBuf.data(),
+                                    &numOut,
+                                    &numIn,
+                                    input.data(),
+                                    input.data() + input.length());
+                ASSERTV(LINE, INJECT_WHITESPACE, INJECT_GARBAGE, PAD, UW,
+                                                             PAD == (0 != rc));
+                ASSERT(PAD == X.isError());
+                if (0 != rc) {
+                    continue;
+                }
+
+                ASSERT(numOut <= outLen);
+                ASSERT('?' == outBuf[numOut]);
+                ASSERT(static_cast<int>(input.length()) == numIn);
+
+                rc = mX.endConvert(outBuf.data() + numOut,
+                                   &endNumOut);
+                ASSERTV(LINE, INJECT_WHITESPACE, INJECT_GARBAGE, PAD, UW,
+                                                                      0 != rc);
+                ASSERT(X.isError());
+                ASSERT('?' == outBuf[outLen]);
+            }
+        }
+        ASSERT(done);
+    }
+
+    if (verbose) cout << "Illegal length input\n";
+
+    for (int ti = 0; ti < k_NUM_DATA; ++ti) {
+        const Data&     data     = DATA[ti];
+        const int       LINE     = data.d_line;
+        bsl::string     inPadded = data.d_inPadded;
+        const int       outLen   = data.d_outLen;
+
+        bsl::size_t numEquals = bsl::count(inPadded.begin(),
+                                           inPadded.end(),
+                                           '=');
+        if (2 != numEquals) {
+            continue;
+        }
+
+        const bsl::size_t equalIdx = inPadded.find('=');
+        ASSERT(2 <= equalIdx);
+        ASSERT(inPadded.length() - 2 <= equalIdx);
+        ASSERT(equalIdx % 4 == 2);
+        inPadded.erase(equalIdx - 1, 1);
+
+        if (veryVerbose) P(inPadded);
+
+        bool done = false;
+        enum { k_INNER_LOOP_COUNT = 2 * 2 * 2 * 2 };
+        for (int wi = 0; wi < k_INNER_LOOP_COUNT; ++wi) {
+            const bool INJECT_WHITESPACE = wi & 1;
+            const bool INJECT_GARBAGE    = wi & 2;
+            const bool PAD               = wi & 4;
+            const bool URL               = wi & 8;
+            done |= INJECT_WHITESPACE && INJECT_GARBAGE && PAD && URL;
+            ASSERT(0 == (wi & 16));
+
+            const Ignore::Enum IGNORE = rand.benignIgnore(INJECT_GARBAGE,
+                                                          INJECT_WHITESPACE);
+
+            bsl::string input(inPadded);
+            if (!PAD) {
+                u::removePadding(&input);
+                ASSERT(1 == input.length() % 4);
+            }
+            if (URL) {
+                u::convertToUrlInput(&input);
+            }
+            if (INJECT_GARBAGE) {
+                rand.injectGarbage(&input, false, URL);
+            }
+            if (INJECT_WHITESPACE) {
+                rand.injectWhitespace(&input);
+            }
+            const bsl::string& UW = u::displayStr(input, false);
+
+            if (veryVeryVerbose) {
+                const int          LL  = LINE;
+                const bool         IW  = INJECT_WHITESPACE;
+                const bool         IGA = INJECT_GARBAGE;
+                const Ignore::Enum IGN = IGNORE;
+
+                P_(LL);    P_(IW);    P_(PAD);    P_(IGA);    P_(IGN);   P(UW);
+            }
+
+            const Options& options = Options::custom(IGNORE,
+                                                     URL ? Alpha::e_URL
+                                                         : Alpha::e_BASIC,
+                                                     PAD);
+            Obj mX(options);    const Obj& X = mX;
+
+            int numIn, numOut, endNumOut;
+            bsl::string outBuf(outLen + 1, '?');
+            int rc = mX.convert(outBuf.data(),
+                                &numOut,
+                                &numIn,
+                                input.data(),
+                                input.data() + input.length());
+            ASSERTV(LINE, INJECT_WHITESPACE, INJECT_GARBAGE, PAD, IGNORE, UW,
+                                                             PAD == (0 != rc));
+            ASSERT(PAD == X.isError());
+            if (0 != rc) {
+                continue;
+            }
+
+            ASSERT(numOut <= outLen);
+            ASSERT('?' == outBuf[numOut]);
+            ASSERT(static_cast<int>(input.length()) == numIn);
+
+            rc = mX.endConvert(outBuf.data() + numOut,
+                               &endNumOut);
+            ASSERTV(LINE, INJECT_WHITESPACE, INJECT_GARBAGE, PAD, IGNORE, UW,
+                                                                      0 != rc);
+            ASSERT(X.isError());
+            ASSERT('?' == outBuf[outLen]);
+        }
+        ASSERT(done);
+    }
+}
 
 DEFINE_TEST_CASE(12)
 {
@@ -1983,7 +3378,8 @@ DEFINE_TEST_CASE(12)
             int maxLineLength = 0;
 
             bdlde::Base64Encoder encoder(maxLineLength);
-            bdlde::Base64Decoder decoder(true);
+
+            Obj decoder(true);
 
             int   origSize = static_cast<int>(strlen(sample));
             int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
@@ -2037,7 +3433,8 @@ DEFINE_TEST_CASE(12)
             int maxLineLength = 0;
 
             bdlde::Base64Encoder encoder(maxLineLength);
-            bdlde::Base64Decoder decoder(true);
+
+            Obj decoder(true);
 
             int   origSize = static_cast<int>(strlen(sample));
             int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
@@ -2092,7 +3489,8 @@ DEFINE_TEST_CASE(12)
             int maxLineLength = 0;
 
             bdlde::Base64Encoder encoder(maxLineLength);
-            bdlde::Base64Decoder decoder(true);
+
+            Obj decoder(true);
 
             int   origSize = static_cast<int>(strlen(sample));
             int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
@@ -2147,7 +3545,8 @@ DEFINE_TEST_CASE(12)
             int maxLineLength = 0;
 
             bdlde::Base64Encoder encoder(maxLineLength);
-            bdlde::Base64Decoder decoder(true);
+
+            Obj decoder(true);
 
             int   origSize = static_cast<int>(strlen(sample));
             int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
@@ -2201,12 +3600,14 @@ DEFINE_TEST_CASE(12)
             int maxLineLength = 0;
 
             bdlde::Base64Encoder encoder(maxLineLength);
-            bdlde::Base64Decoder decoder(true);
 
             int   origSize = static_cast<int>(strlen(sample));
             int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
+
+            Obj decoder(false);
+
             char *encoded = new char[encodedLen];
-            int   maxDecodedLen = decoder.maxDecodedLength(encodedLen);
+            int   maxDecodedLen = Obj::maxDecodedLength(encodedLen);
             char *decoded = new char[maxDecodedLen] ;
 
             VV("Original input size = " << origSize);
@@ -2255,7 +3656,8 @@ DEFINE_TEST_CASE(12)
             int maxLineLength = 0;
 
             bdlde::Base64Encoder encoder(maxLineLength);
-            bdlde::Base64Decoder decoder(true);
+
+            Obj decoder(true);
 
             int   origSize = static_cast<int>(strlen(sample));
             int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
@@ -2312,7 +3714,7 @@ DEFINE_TEST_CASE(12)
             int maxLineLength = 0;
 
             bdlde::Base64Encoder encoder(maxLineLength);
-            bdlde::Base64Decoder decoder(true);
+            Obj decoder(true);
 
             int   origSize = static_cast<int>(strlen(sample));
             int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
@@ -2364,13 +3766,15 @@ DEFINE_TEST_CASE(12)
 
             int maxLineLength = 76;
 
-            bdlde::Base64Encoder encoder;
-            bdlde::Base64Decoder decoder(true);
+            bdlde::Base64Encoder encoder(maxLineLength);
+
+            Obj decoder(true);
 
             int   origSize = static_cast<int>(strlen(sample));
             int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
             char *encoded = new char[encodedLen];
             int   maxDecodedLen = decoder.maxDecodedLength(encodedLen);
+
             char *decoded = new char[maxDecodedLen] ;
 
             VV("Original input size = " << origSize);
@@ -2518,7 +3922,9 @@ DEFINE_TEST_CASE(10)
                 obj.resetState();
                 LOOP_ASSERT(i, 1 == isState(&obj, INITIAL_STATE));
 
-                LOOP_ASSERT(i, 0 == obj.isUnrecognizedAnError());
+                ASSERT(0 == obj.isUnrecognizedAnError());
+                ASSERT(Ignore::e_IGNORE_UNRECOGNIZED ==
+                                                   obj.options().ignoreMode());
             }
         }
 
@@ -2534,7 +3940,9 @@ DEFINE_TEST_CASE(10)
                 obj.resetState();
                 LOOP_ASSERT(i, 1 == isState(&obj, INITIAL_STATE));
 
-                LOOP_ASSERT(i, 1 == obj.isUnrecognizedAnError());
+                ASSERT(1 == obj.isUnrecognizedAnError());
+                ASSERT(Ignore::e_IGNORE_WHITESPACE ==
+                                                   obj.options().ignoreMode());
             }
         }
 }
@@ -2545,7 +3953,7 @@ DEFINE_TEST_CASE(9)
 
         // --------------------------------------------------------------------
         // PRIMARY MANIPULATORS.
-        //   Complete the testing of 'convert' and 'endConvert'.
+        //   Complete the padded testing of 'convert' and 'endConvert'.
         //
         // Concerns:
         //   - That the return status is correct.
@@ -2994,7 +4402,7 @@ DEFINE_TEST_CASE(9)
 { L_, "AAAg",     1, 2, 4, 1, 4, "AQ==",     6, 0, S, 3, 4,"\x00\x00\x20\x01"},
 { L_, "AAAg",     1, 2, 4, 1, 4, "AAAQA",    5, 0, 1, 5, 5,"\x00\x00\x20"
                                                            "\x00\x00\x10"    },
-    // Don't need 5.11 (similar to 5.10)
+//     Don't need 5.11 (similar to 5.10)
                                                                         // 5.11
 { L_, "AAAg",     1, 2, 4, 1, 4, "",        11, 0, 4, 2, 0,"\x00\x00\x20"    },
 { L_, "AAAg",     1, 2, 4, 1, 4, "A",       10, 0, 1, 2, 1,"\x00\x00\x20"    },
@@ -3150,7 +4558,7 @@ DEFINE_TEST_CASE(9)
 { L_, "AAAg",     2, 1, 4, 2, 4, "AQ==",     5, 0, S, 2, 4,"\x00\x00\x20\x01"},
 { L_, "AAAg",     2, 1, 4, 2, 4, "AAAQA",    4, 0, 1, 4, 5,"\x00\x00\x20"
                                                            "\x00\x00\x10"    },
-    // Don't need 6.10 and 6.11 (similar to 6.9)
+//     Don't need 6.10 and 6.11 (similar to 6.9)
                                                                         // 6.10
 { L_, "AAAg",     2, 1, 4, 2, 4, "",        10, 0, 4, 1, 0,"\x00\x00\x20"    },
 { L_, "AAAg",     2, 1, 4, 2, 4, "A",        9, 0, 1, 1, 1,"\x00\x00\x20"    },
@@ -3204,7 +4612,7 @@ DEFINE_TEST_CASE(9)
 { L_, "AAAg",     3, 0, 4, 3, 4, N,          0, 0, D, 0, _,"\x00\x00\x20"    },
 { L_, "AAE=",     3, 0, S, 2, 4, N,          0, 0, D, 0, _,"\x00\x01"        },
 { L_, "AQ==",     3, 0, S, 1, 4, N,          0, 0, D, 0, _,"\x01"            },
-    // Don't need 7.0-7.2 (similar to 7.-1)
+//     Don't need 7.0-7.2 (similar to 7.-1)
                                                                         // 7.0
 { L_, "AAAg",     3, 0, 4, 3, 4, N,          1, 0, D, 0, _,"\x00\x00\x20"    },
 { L_, "AAE=",     3, 0, S, 2, 4, N,          1, 0, D, 0, _,"\x00\x01"        },
@@ -3312,7 +4720,7 @@ DEFINE_TEST_CASE(9)
 { L_, "AAAg",     3, 0, 4, 3, 4, "AQ==",     4, 0, S, 1, 4,"\x00\x00\x20\x01"},
 { L_, "AAAg",     3, 0, 4, 3, 4, "AAAQA",    3, 0, 1, 3, 5,"\x00\x00\x20"
                                                            "\x00\x00\x10"    },
-    // Don't need cases 7.9-7.11 (all similar to 7.8)
+//     Don't need cases 7.9-7.11 (all similar to 7.8)
                                                                         // 7.9
 { L_, "AAAg",     3, 0, 4, 3, 4, "",         9, 0, 4, 0, 0,"\x00\x00\x20"    },
 { L_, "AAAg",     3, 0, 4, 3, 4, "A",        8, 0, 1, 0, 1,"\x00\x00\x20"    },
@@ -3530,7 +4938,7 @@ DEFINE_TEST_CASE(9)
                 const int OUTPUT_BUFFER_SIZE = 100; // overrun will be detected
                 const int TRAILING_OUTPUT_WINDOW = 30; // detect extra output
 
-                const bool MODE = false; // Relaxed Mode
+                const bool MODE = false; (void) MODE;    // Relaxed Mode
 
                 Obj obj(MODE);  // object under test.
                 Obj obj1(MODE); // control for validating S1
@@ -3807,14 +5215,14 @@ DEFINE_TEST_CASE(9)
             // -----v
 
                     // Confirm final state is the same as above.
-    // -------------^
+//     -------------^
     LOOP3_ASSERT(LINE, index, FINAL_STATE, isState(&localObj, FINAL_STATE));
-    // -------------v
+//     -------------v
 
                     // Verify total amount of input consumed is the same.
-    // -------------^
+//     -------------^
     LOOP4_ASSERT(LINE, index, totalIn, localTotalIn, totalIn == localTotalIn);
-    // -------------v
+//     -------------v
 
                     int cmpStatus = memcmp(outputBuffer, localBuf, totalOut);
                     if (cmpStatus || localTotalOut != totalOut ||
@@ -4542,7 +5950,7 @@ DEFINE_TEST_CASE(8)
 
                 nOut = -1;
                 const int RES3 = obj.endConvert(b, &nOut);
-                LOOP2_ASSERT(LINE, ERROR, -ERROR == RES3);
+                LOOP2_ASSERT(LINE, ERROR, -(int)ERROR == RES3);
                 totalOut += nOut;
                 LOOP3_ASSERT(LINE, OUT_LEN, totalOut, OUT_LEN == totalOut);
 
@@ -4657,14 +6065,14 @@ DEFINE_TEST_CASE(8)
             // -----v
 
                     // Confirm final state is the same as above.
-    // -------------^
+//     -------------^
     LOOP3_ASSERT(LINE, index, FINAL_STATE, isState(&localObj, FINAL_STATE));
-    // -------------v
+//     -------------v
 
                     // Verify total amount of input consumed is the same.
-    // -------------^
+//     -------------^
     LOOP4_ASSERT(LINE, index, totalIn, localTotalIn, totalIn == localTotalIn);
-    // -------------v
+//     -------------v
 
                     int cmpStatus = memcmp(outputBuffer, localBuf, totalOut);
                     if (cmpStatus || localTotalOut != totalOut ||
@@ -4813,7 +6221,7 @@ DEFINE_TEST_CASE(7)
                     if (veryVeryVerbose) { T_ T_ P(i) }
                     input[INPUT_INDEX] = char(i);
 
-                    Obj obj(false, ALPHABET); // The mode is not relevant.
+                    Obj obj(false, ALPHABET); // Relaxed Mode.
 
                     obj.convert(b, &nOut, &nIn, B, E);
                     LOOP2_ASSERT(LINE, i, VALID == (3 == nOut));
@@ -4882,7 +6290,7 @@ DEFINE_TEST_CASE(7)
 
                     obj.convert(b, &nOut, &nIn, B, E);
                     bool stillInitial = isState(&obj, INITIAL_STATE);
-                    LOOP2_ASSERT(LINE, i, VALID == stillInitial);
+                    LOOP2_ASSERT(LINE, i, !!VALID == stillInitial);
                 }
             }
             ASSERT(256 == end); // make sure all entires are accounted for.
@@ -4967,7 +6375,7 @@ DEFINE_TEST_CASE(7)
 
                     obj.convert(b, &nOut, &nIn, B, E);
                     bool stillInitial = isState(&obj, INITIAL_STATE);
-                    LOOP2_ASSERT(LINE, i, VALID == stillInitial);
+                    LOOP2_ASSERT(LINE, i, !!VALID == stillInitial);
                 }
             }
             ASSERT(256 == end); // make sure all entires are accounted for.
@@ -5031,8 +6439,7 @@ DEFINE_TEST_CASE(7)
 
                     int  nOut = -1;
                     char b[1] = { ff };
-                    Obj  obj(false); // Do this test in Relaxed mode.
-
+                    Obj obj(false); // Do this test in Relaxed mode.
                     const int res = obj.convert(b, &nOut, &nIn, B, E);
                     if (VALID) {
                         LOOP3_ASSERT(LINE, i, res,  0 == res);
@@ -5256,7 +6663,7 @@ DEFINE_TEST_CASE(7)
                     int  nOut = -1;
                     int  nIn = -1;
                     input[INPUT_INDEX] = c;
-                    Obj  obj(false, ALPHABET ); // Do test in Relaxed Mode.
+                    Obj obj(false, ALPHABET ); // Do test in Relaxed Mode.
 
                     const int res = obj.convert(b, &nOut, &nIn, B, E);
 
@@ -5300,33 +6707,32 @@ DEFINE_TEST_CASE(6)
         if (verbose) cout << "TEST MACHINERY\n"
                              "==============\n";
 
-        uint8_t buf[128];
+        enum { k_BUF_LEN = 128 };
+        bsl::vector<uint8_t> buf, asciiBuf;
+        buf.resize(     k_BUF_LEN);
+        asciiBuf.resize(k_BUF_LEN);
 
-        int start = 0;
-        for (int ii = 0; ii < 12 * 1024; ++ii) {
-            for (unsigned uu = 0; uu < sizeof(buf); ++uu) {
-                buf[uu] = char(bsl::rand() & 0xff);
+        u::RandGen rand;
+
+        for (int ii = 0; ii < 256; ++ii) {
+            for (unsigned uu = 0; uu < k_BUF_LEN; uu += 4) {
+                unsigned r = rand();
+                bsl::memcpy(&buf[uu],      &r, sizeof(r));
+                r &= 0x7f7f7f7f;
+                bsl::memcpy(&asciiBuf[uu], &r, sizeof(r));
             }
 
-            for (unsigned len = start; len <= sizeof(buf);
-                                                len += 1 + (bsl::rand() % 6)) {
-                int rc = LLVMFuzzerTestOneInput(buf, len);
-                ASSERT(0 == rc);
+            for (unsigned len = 0 != ii; len <= k_BUF_LEN;
+                                                     len += 1 + (rand() % 6)) {
+                const int gap = k_BUF_LEN - len;
+                int rc = LLVMFuzzerTestOneInput(buf.data() + gap, len);
+                ASSERT(0 == rc && "buf");
+                rc = LLVMFuzzerTestOneInput(asciiBuf.data() + gap, len);
+                ASSERT(0 == rc && "asciiBuf");
             }
-
-            for (unsigned uu = 0; uu < sizeof(buf); ++uu) {
-                buf[uu] &= 0x7f;
-            }
-
-            for (unsigned len = start; len <= sizeof(buf);
-                                                len += 1 + (bsl::rand() % 6)) {
-                int rc = LLVMFuzzerTestOneInput(buf, len);
-                ASSERT(0 == rc);
-            }
-            start = 1;
         }
 
-        if (verbose) {
+        if (testFileName) {
             bsl::fstream ifs(testFileName,
                              bsl::ios_base::binary | bsl::ios_base::in);
             P(ifs.good());
@@ -5748,6 +7154,8 @@ DEFINE_TEST_CASE(3)
                 Obj obj(true);
 
                 ASSERT(1 == obj.isUnrecognizedAnError());
+                ASSERT(Ignore::e_IGNORE_WHITESPACE ==
+                                                   obj.options().ignoreMode());
                 ASSERT(1 == obj.isAcceptable());
                 ASSERT(0 == obj.isDone());
                 ASSERT(0 == obj.isError());
@@ -5766,6 +7174,8 @@ DEFINE_TEST_CASE(3)
                 setState(&obj, INITIAL_STATE);
 
                 ASSERT(1 == obj.isUnrecognizedAnError());
+                ASSERT(Ignore::e_IGNORE_WHITESPACE ==
+                                                   obj.options().ignoreMode());
                 ASSERT(1 == obj.isAcceptable());
                 ASSERT(0 == obj.isDone());
                 ASSERT(0 == obj.isError());
@@ -5778,6 +7188,8 @@ DEFINE_TEST_CASE(3)
                 int  result = obj.endConvert(b, &numOut);
 
                 ASSERT(1 == obj.isUnrecognizedAnError());
+                ASSERT(Ignore::e_IGNORE_WHITESPACE ==
+                                                   obj.options().ignoreMode());
                 ASSERT(1 == obj.isAcceptable());
                 ASSERT(1 == obj.isDone());
                 ASSERT(0 == obj.isError());
@@ -5797,6 +7209,8 @@ DEFINE_TEST_CASE(3)
                 setState(&obj, STATE_ONE);
 
                 ASSERT(1 == obj.isUnrecognizedAnError());
+                ASSERT(Ignore::e_IGNORE_WHITESPACE ==
+                                                   obj.options().ignoreMode());
                 ASSERT(0 == obj.isAcceptable());
                 ASSERT(0 == obj.isDone());
                 ASSERT(0 == obj.isError());
@@ -5815,6 +7229,8 @@ DEFINE_TEST_CASE(3)
 
                 // State 2.
                 ASSERT(1 == obj.isUnrecognizedAnError());
+                ASSERT(Ignore::e_IGNORE_WHITESPACE ==
+                                                   obj.options().ignoreMode());
                 ASSERT(0 == obj.isAcceptable());
                 ASSERT(0 == obj.isDone());
                 ASSERT(0 == obj.isError());
@@ -5831,6 +7247,8 @@ DEFINE_TEST_CASE(3)
 
                 // State 3.
                 ASSERT(1 == obj.isUnrecognizedAnError());
+                ASSERT(Ignore::e_IGNORE_WHITESPACE ==
+                                                   obj.options().ignoreMode());
                 ASSERT(0 == obj.isAcceptable());
                 ASSERT(0 == obj.isDone());
                 ASSERT(0 == obj.isError());
@@ -5847,6 +7265,8 @@ DEFINE_TEST_CASE(3)
 
                 // State 4.
                 ASSERT(1 == obj.isUnrecognizedAnError());
+                ASSERT(Ignore::e_IGNORE_WHITESPACE ==
+                                                   obj.options().ignoreMode());
                 ASSERT(1 == obj.isAcceptable());
                 ASSERT(0 == obj.isDone());
                 ASSERT(0 == obj.isError());
@@ -5866,6 +7286,8 @@ DEFINE_TEST_CASE(3)
                 setState(&obj, STATE_TWO);
 
                 ASSERT(1 == obj.isUnrecognizedAnError());
+                ASSERT(Ignore::e_IGNORE_WHITESPACE ==
+                                                   obj.options().ignoreMode());
                 ASSERT(0 == obj.isAcceptable());
                 ASSERT(0 == obj.isDone());
                 ASSERT(0 == obj.isError());
@@ -5884,6 +7306,8 @@ DEFINE_TEST_CASE(3)
 
                 // State 3.
                 ASSERT(1 == obj.isUnrecognizedAnError());
+                ASSERT(Ignore::e_IGNORE_WHITESPACE ==
+                                                   obj.options().ignoreMode());
                 ASSERT(0 == obj.isAcceptable());
                 ASSERT(0 == obj.isDone());
                 ASSERT(0 == obj.isError());
@@ -5900,6 +7324,8 @@ DEFINE_TEST_CASE(3)
 
                 // State 4.
                 ASSERT(1 == obj.isUnrecognizedAnError());
+                ASSERT(Ignore::e_IGNORE_WHITESPACE ==
+                                                   obj.options().ignoreMode());
                 ASSERT(1 == obj.isAcceptable());
                 ASSERT(0 == obj.isDone());
                 ASSERT(0 == obj.isError());
@@ -5919,6 +7345,8 @@ DEFINE_TEST_CASE(3)
                 setState(&obj, STATE_THREE);
 
                 ASSERT(1 == obj.isUnrecognizedAnError());
+                ASSERT(Ignore::e_IGNORE_WHITESPACE ==
+                                                   obj.options().ignoreMode());
                 ASSERT(0 == obj.isAcceptable());
                 ASSERT(0 == obj.isDone());
                 ASSERT(0 == obj.isError());
@@ -5937,6 +7365,8 @@ DEFINE_TEST_CASE(3)
 
                 // State 4.
                 ASSERT(1 == obj.isUnrecognizedAnError());
+                ASSERT(Ignore::e_IGNORE_WHITESPACE ==
+                                                   obj.options().ignoreMode());
                 ASSERT(1 == obj.isAcceptable());
                 ASSERT(0 == obj.isDone());
                 ASSERT(0 == obj.isError());
@@ -5956,6 +7386,8 @@ DEFINE_TEST_CASE(3)
                 setState(&obj, STATE_FOUR);
 
                 ASSERT(1 == obj.isUnrecognizedAnError());
+                ASSERT(Ignore::e_IGNORE_WHITESPACE ==
+                                                   obj.options().ignoreMode());
                 ASSERT(1 == obj.isAcceptable());
                 ASSERT(0 == obj.isDone());
                 ASSERT(0 == obj.isError());
@@ -5974,6 +7406,8 @@ DEFINE_TEST_CASE(3)
 
                 // State 1.
                 ASSERT(1 == obj.isUnrecognizedAnError());
+                ASSERT(Ignore::e_IGNORE_WHITESPACE ==
+                                                   obj.options().ignoreMode());
                 ASSERT(0 == obj.isAcceptable());
                 ASSERT(0 == obj.isDone());
                 ASSERT(0 == obj.isError());
@@ -5993,6 +7427,8 @@ DEFINE_TEST_CASE(3)
                 setState(&obj, DONE_STATE);
 
                 ASSERT(1 == obj.isUnrecognizedAnError());
+                ASSERT(Ignore::e_IGNORE_WHITESPACE ==
+                                                   obj.options().ignoreMode());
                 ASSERT(1 == obj.isAcceptable());
                 ASSERT(1 == obj.isDone());
                 ASSERT(0 == obj.isError());
@@ -6011,6 +7447,8 @@ DEFINE_TEST_CASE(3)
 
                 // ERROR_STATE
                 ASSERT(1 == obj.isUnrecognizedAnError());
+                ASSERT(Ignore::e_IGNORE_WHITESPACE ==
+                                                   obj.options().ignoreMode());
                 ASSERT(0 == obj.isAcceptable());
                 ASSERT(0 == obj.isDone());
                 ASSERT(1 == obj.isError());
@@ -6030,6 +7468,8 @@ DEFINE_TEST_CASE(3)
                 setState(&obj, SOFT_DONE_STATE);
 
                 ASSERT(1 == obj.isUnrecognizedAnError());
+                ASSERT(Ignore::e_IGNORE_WHITESPACE ==
+                                                   obj.options().ignoreMode());
                 ASSERT(1 == obj.isAcceptable());
                 ASSERT(0 == obj.isDone());
                 ASSERT(0 == obj.isError());
@@ -6043,6 +7483,8 @@ DEFINE_TEST_CASE(3)
 
                 // DONE_STATE
                 ASSERT(1 == obj.isUnrecognizedAnError());
+                ASSERT(Ignore::e_IGNORE_WHITESPACE ==
+                                                   obj.options().ignoreMode());
                 ASSERT(1 == obj.isAcceptable());
                 ASSERT(1 == obj.isDone());
                 ASSERT(0 == obj.isError());
@@ -6064,6 +7506,8 @@ DEFINE_TEST_CASE(3)
                 setState(&obj, SAW_ONE_EQUAL);
 
                 ASSERT(1 == obj.isUnrecognizedAnError());
+                ASSERT(Ignore::e_IGNORE_WHITESPACE ==
+                                                   obj.options().ignoreMode());
                 ASSERT(0 == obj.isAcceptable());
                 ASSERT(0 == obj.isDone());
                 ASSERT(0 == obj.isError());
@@ -6083,6 +7527,8 @@ DEFINE_TEST_CASE(3)
 
                 // SOFT_DONE_STATE
                 ASSERT(1 == obj.isUnrecognizedAnError());
+                ASSERT(Ignore::e_IGNORE_WHITESPACE ==
+                                                   obj.options().ignoreMode());
                 ASSERT(1 == obj.isAcceptable());
                 ASSERT(0 == obj.isDone());
                 ASSERT(0 == obj.isError());
@@ -6102,6 +7548,8 @@ DEFINE_TEST_CASE(3)
                 setState(&obj, ERROR_STATE);
 
                 ASSERT(1 == obj.isUnrecognizedAnError());
+                ASSERT(Ignore::e_IGNORE_WHITESPACE ==
+                                                   obj.options().ignoreMode());
                 ASSERT(0 == obj.isAcceptable());
                 ASSERT(0 == obj.isDone());
                 ASSERT(1 == obj.isError());
@@ -6121,6 +7569,8 @@ DEFINE_TEST_CASE(3)
 
                 // ERROR_STATE
                 ASSERT(1 == obj.isUnrecognizedAnError());
+                ASSERT(Ignore::e_IGNORE_WHITESPACE ==
+                                                   obj.options().ignoreMode());
                 ASSERT(0 == obj.isAcceptable());
                 ASSERT(0 == obj.isDone());
                 ASSERT(1 == obj.isError());
@@ -6198,15 +7648,17 @@ DEFINE_TEST_CASE(2)
 
         if (verbose) cout << "\tunrecognizedIsErrorFlag = 'true'" << endl;
         {
-            bdlde::Base64Decoder obj(true);
+            Obj obj(true);
             ASSERT(1 == obj.isAcceptable());
             ASSERT(0 == obj.isDone());
             ASSERT(0 == obj.isError());
             ASSERT(0 == obj.isMaximal());
             ASSERT(1 == obj.isInitialState());
             ASSERT(1 == obj.isUnrecognizedAnError());
+            ASSERT(Ignore::e_IGNORE_WHITESPACE == obj.options().ignoreMode());
             ASSERT(0 == obj.outputLength());
             ASSERT(Obj::e_BASIC == obj.alphabet());
+            ASSERT(1 == obj.isPadded());
         }
 
         if (verbose) cout << "\tunrecognizedIsErrorFlag = 'false'" << endl;
@@ -6218,21 +7670,25 @@ DEFINE_TEST_CASE(2)
             ASSERT(1 == obj.isInitialState());
             ASSERT(0 == obj.isMaximal());
             ASSERT(0 == obj.isUnrecognizedAnError());
+            ASSERT(Ignore::e_IGNORE_UNRECOGNIZED ==obj.options().ignoreMode());
             ASSERT(0 == obj.outputLength());
             ASSERT(Obj::e_BASIC == obj.alphabet());
+            ASSERT(1 == obj.isPadded());
         }
 
         if (verbose) cout << "\tUse the Basic BASE64 alphabet" << endl;
         {
-            Obj obj(true, Obj::e_BASIC);
+            Obj obj(true, Obj::e_URL);
             ASSERT(1 == obj.isAcceptable());
             ASSERT(0 == obj.isDone());
             ASSERT(0 == obj.isError());
             ASSERT(0 == obj.isMaximal());
             ASSERT(1 == obj.isInitialState());
             ASSERT(1 == obj.isUnrecognizedAnError());
+            ASSERT(Ignore::e_IGNORE_WHITESPACE == obj.options().ignoreMode());
             ASSERT(0 == obj.outputLength());
-            ASSERT(Obj::e_BASIC == obj.alphabet());
+            ASSERT(Obj::e_URL == obj.alphabet());
+            ASSERT(1 == obj.isPadded());
         }
 
         if (verbose) cout << "\tUse the URL and Filename Safe alphabet"
@@ -6244,10 +7700,50 @@ DEFINE_TEST_CASE(2)
             ASSERT(0 == obj.isError());
             ASSERT(0 == obj.isMaximal());
             ASSERT(1 == obj.isInitialState());
+            ASSERT(1 == obj.isInitialState());
             ASSERT(1 == obj.isUnrecognizedAnError());
+            ASSERT(Ignore::e_IGNORE_WHITESPACE == obj.options().ignoreMode());
             ASSERT(0 == obj.outputLength());
             ASSERT(Obj::e_URL == obj.alphabet());
+            ASSERT(1 == obj.isPadded());
         }
+
+        if (verbose) cout << "Use an 'Options' object\n";
+        bool done = false;
+        enum { k_TI_ITERATIONS = k_NUM_ALPHA * 2 * k_NUM_IGNORE };
+        for (int ti = 0; ti < k_TI_ITERATIONS; ++ti) {
+            typedef bdlde::Base64Alphabet::Enum Enum;
+
+            int tti = ti;
+            const Enum URL      = static_cast<Enum>(tti % k_NUM_ALPHA);
+            tti /= k_NUM_ALPHA;
+            const bool PAD      = tti % 2;
+            tti /= 2;
+            const Ignore::Enum IGNORE =
+                                 static_cast<Ignore::Enum>(tti % k_NUM_IGNORE);
+            tti /= k_NUM_IGNORE;
+            ASSERT(0 == tti);
+            done |= k_NUM_ALPHA - 1 == URL && PAD &&
+                                                    k_NUM_IGNORE - 1 == IGNORE;
+
+            const Options& options = Options::custom(IGNORE, URL, PAD);
+            Obj obj(options);
+            ASSERT(1 == obj.isAcceptable());
+            ASSERT(0 == obj.isDone());
+            ASSERT(0 == obj.isError());
+            ASSERT(0 == obj.isMaximal());
+            ASSERT(1 == obj.isInitialState());
+            ASSERT((Ignore::e_IGNORE_UNRECOGNIZED != IGNORE) ==
+                                                  obj.isUnrecognizedAnError());
+            ASSERT(IGNORE == obj.ignoreMode());
+            ASSERT(IGNORE == obj.options().ignoreMode());
+            ASSERT(0 == obj.outputLength());
+            ASSERT(URL == obj.alphabet());
+            ASSERT(URL == obj.options().alphabet());
+            ASSERT(PAD == obj.isPadded());
+            ASSERT(PAD == obj.options().isPadded());
+        }
+        ASSERT(done);
 }
 
 DEFINE_TEST_CASE(1)
@@ -6317,7 +7813,7 @@ DEFINE_TEST_CASE(1)
 
         if (verbose) cout << "\nTry instantiating a decoder." << endl;
         {
-            bdlde::Base64Decoder decoder(true);  // strict mode
+            Obj decoder(true);  // strict mode
 
             if (verbose) cout << "\nDecode the something." << endl;
 
@@ -6529,7 +8025,11 @@ int main(int argc, char *argv[])
     veryVeryVeryVerbose = argc > 5;
 
     if (verbose) {
-        testFileName = argv[2];
+        struct ::stat s;
+        int rc = ::stat(argv[2], &s);
+        if (0 == rc) {
+            testFileName = argv[2];
+        }
     }
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
@@ -6543,6 +8043,8 @@ int main(int argc, char *argv[])
   case NUMBER: testCase##NUMBER(verbose, veryVerbose, veryVeryVerbose,        \
                                                     veryVeryVeryVerbose); break
 
+        CASE(14);
+        CASE(13);
         CASE(12);
         CASE(11);
         CASE(10);
@@ -6556,12 +8058,75 @@ int main(int argc, char *argv[])
         CASE(2);
         CASE(1);
 #undef CASE
+    case -1: {
+        // --------------------------------------------------------------------
+        // Generate table for Test Case 13
+        // --------------------------------------------------------------------
+
+        u::RandGen rand;
+
+        for (int len = 0; len < 10; ++len) {
+            bsl::set<bsl::string> stringsSoFar;
+
+            for (int jj = 0; jj < (0 == len ? 1 : 15); ++jj) {
+                bsl::string str;
+                rand.randString(&str, len);
+                if (!stringsSoFar.insert(str).second) {
+                    --jj;
+                    continue;
+                }
+            }
+
+
+            for (bsl::set<bsl::string>::iterator it = stringsSoFar.begin();
+                                              it != stringsSoFar.end(); ++it) {
+                const bsl::string& str = *it;
+
+                const EncoderOptions& encOpt = EncoderOptions::custom(
+                                                                0,
+                                                                Alpha::e_BASIC,
+                                                                true);
+                bdlde::Base64Encoder encoder(encOpt);
+                ptrdiff_t expNumOut = bdlde::Base64Encoder::encodedLength(
+                                                                  encOpt, len);
+
+                bsl::string outBuf(expNumOut + 1, '?');
+                int numIn, numOut, endNumOut;
+                int rc = encoder.convert(outBuf.data(),
+                                         &numOut,
+                                         &numIn,
+                                         str.data(),
+                                         str.data() + str.length());
+                ASSERT(0 == rc)
+                ASSERT(len == numIn);
+                ASSERT(numOut <= expNumOut);
+                ASSERT('?' == outBuf[numOut]);
+                ASSERT('?' == outBuf[expNumOut]);
+
+                rc = encoder.endConvert(outBuf.data() + numOut,
+                                        &endNumOut);
+                ASSERT(0 == rc);
+                ASSERT(numOut + endNumOut == expNumOut);
+                ASSERT('?' == outBuf[expNumOut]);
+                outBuf.resize(numOut + endNumOut);
+
+                cout << "        { L_, \"" << outBuf << "\", ";
+                for (bsl::size_t uu = outBuf.length(); uu < 12; ++uu) {
+                    cout << ' ';
+                }
+                cout << '"' << u::displayStr(str) << "\", ";
+                for (bsl::size_t uu = str.length() * 4; uu < 9 * 4; ++uu) {
+                    cout << ' ';
+                }
+                cout << str.length() << " },\n";
+            }
+        }
+      } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;
       }
     }
-
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;
     }
