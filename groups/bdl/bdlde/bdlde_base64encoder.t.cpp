@@ -3575,8 +3575,8 @@ int main(int argc, char *argv[])
 
             ASSERT_FAIL(Obj::encodedLength(EncoderOptions::mime(), -1));
 
-            limit = ((maxSize_t / 78)) * 76 / 4 * 3 + 9;
-
+            limit = ((maxSize_t / 78)) * 76 / 4 * 3 +
+                                      (sizeof(int) == sizeof(size_t) ? 15 : 9);
             ASSERT_PASS(Obj::encodedLength(EncoderOptions::mime(), limit));
             ASSERT_FAIL(Obj::encodedLength(EncoderOptions::mime(), limit + 1));
 
