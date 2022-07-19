@@ -58,6 +58,7 @@ using bsl::cout;
 using bsl::cerr;
 using bsl::endl;
 using bsl::flush;
+using bsl::size_t;
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -2285,8 +2286,8 @@ void brokenGlassTest(const u::Data&     data,
         }
     }
 
-    const IntPtr UTF8_ERR_OFFSET = validStr.length() + ERR_OFFSET;
-    const PT     UTF8_ERR_PT(UTF8_ERR_OFFSET);
+    const OT UTF8_ERR_OFFSET = validStr.length() + ERR_OFFSET;
+    const PT UTF8_ERR_PT(UTF8_ERR_OFFSET);
     char buf[1024];
     ASSERT(UTF8.length() < sizeof(buf));
 
@@ -3066,7 +3067,8 @@ if (verbose) {
                     *const_cast<char *>(invalid) = c;
                 }
 
-                ASSERT(!bsl::strncmp(buffer, utf8Str.c_str(), got));
+                ASSERT(!bsl::strncmp(buffer, utf8Str.c_str(),
+                                                    static_cast<size_t>(got)));
 
                 const bool whole = utf8Str.length() == kk;
                 if (whole) {
@@ -3690,7 +3692,7 @@ if (verbose) {
         for ( ; uu < asciiStr.length() - primeLen; uu += primeLen) {
             if (veryVeryVerbose) P("trace to placate bde verify");
 
-            const bsl::streamsize len = sb.sgetn(buf, primeLen);
+            const size_t len = sb.sgetn(buf, primeLen);
             ASSERTV(len, primeLen, uu, len == primeLen);
             ASSERT(asciiStr.substr(uu, primeLen) == buf);
             ASSERTV(Obj::toAscii(sb.errorStatus()), 0 == sb.errorStatus());
@@ -3832,7 +3834,7 @@ if (verbose) {
 
         pos = sb.sgetn(buf, sizeof(buf));
         ASSERTV(pos, k_ASCII_STR_LEN == pos);
-        buf[pos] = 0;
+        buf[static_cast<size_t>(pos)] = 0;
         ASSERT(0 == SB.errorStatus());
         ASSERT(SB.isValid());
         ASSERT(ASCII_STR == buf);
@@ -3868,7 +3870,8 @@ if (verbose) {
         for ( ; uu < asciiStr.length() - primeLen; uu += primeLen) {
             if (veryVeryVerbose) P("trace to placate bde verify");
 
-            ASSERT(primeLen == sb.sgetn(buf, primeLen));
+            const size_t gotten = static_cast<size_t>(sb.sgetn(buf, primeLen));
+            ASSERT(primeLen == gotten);
             ASSERT(asciiStr.substr(uu, primeLen) == buf);
             pos = sb.pubseekoff(0, bsl::ios_base::cur);
             ASSERT(pos < PT(k_ASCII_STR_LEN));
@@ -3901,7 +3904,8 @@ if (verbose) {
             ASSERT(k_ASCII_STR_LEN == sb.sgetn(buf, sizeof(buf)));
             ASSERT(sb.pubseekpos(pos) == pos);
 
-            for (const char *pc = asciiStart + pos; pc < asciiEnd; ) {
+            for (const char *pc = asciiStart + static_cast<size_t>(pos);
+                                                             pc < asciiEnd; ) {
                 if (veryVeryVerbose) P("trace to placate bde verify");
 
                 Obj::int_type c = sb.sbumpc();

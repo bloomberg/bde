@@ -246,7 +246,7 @@ void *hc(unsigned char c)
 {
     // convert a char value into a 'void *' so '<<' will print it in hex
 
-    return (void *) (unsigned long) c;
+    return (void *) (size_t) c;
 }
 
 // ----------------------------------------------------------------------------

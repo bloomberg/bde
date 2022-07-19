@@ -846,14 +846,18 @@ void test2_calculateOnBuffer()
         bsl::size_t VALID   = 0;
         bsl::size_t INVALID = 100;
 
-        ASSERT_PASS(0 == Crc32c::calculate(0, VALID));
-        ASSERT_FAIL(0 == Crc32c::calculate(0, INVALID));
+        ASSERT_PASS(Crc32c::calculate(0, VALID));
+        ASSERT_FAIL(Crc32c::calculate(0, INVALID));
 
-        ASSERT_PASS(0 == Crc32c_Impl::calculateSoftware(0, VALID));
-        ASSERT_FAIL(0 == Crc32c_Impl::calculateSoftware(0, INVALID));
+        ASSERT_PASS(Crc32c_Impl::calculateSoftware(0, VALID));
+        ASSERT_FAIL(Crc32c_Impl::calculateSoftware(0, INVALID));
 
-        ASSERT_PASS(0 == Crc32c_Impl::calculateHardwareSerial(0, VALID));
-        ASSERT_FAIL(0 == Crc32c_Impl::calculateHardwareSerial(0, INVALID));
+        ASSERT_PASS(Crc32c_Impl::calculateHardwareSerial(0, VALID));
+        ASSERT_FAIL(Crc32c_Impl::calculateHardwareSerial(0, INVALID));
+
+        ASSERT(0 == Crc32c::calculate(0, VALID));
+        ASSERT(0 == Crc32c_Impl::calculateSoftware(0, VALID));
+        ASSERT(0 == Crc32c_Impl::calculateHardwareSerial(0, VALID));
     }
 }
 

@@ -168,8 +168,9 @@ int main(int argc, char *argv[])
 //..
 // Now, we stream the object:
 //..
-if (verbose)
+if (verbose) {
     mimeOptions.print(cout);
+}
 //..
 // Finally, we observe the output:
 //..
@@ -200,8 +201,9 @@ if (verbose)
 //..
 // Now, we stream the object:
 //..
-if (verbose)
+if (verbose) {
     urlOptions.print(cout);
+}
 //..
 // Finally, we observe the output:
 //..
@@ -231,8 +233,9 @@ if (verbose)
 //..
 // Now, we stream the object:
 //..
-if (verbose)
+if (verbose) {
     standardOptions.print(cout);
+}
 //..
 // Finally, we observe the output:
 //..
@@ -268,8 +271,9 @@ if (verbose)
 //..
 // Now, we stream the object:
 //..
-if (verbose)
+if (verbose) {
     cout << customOptions << endl;
+}
 //..
 // Finally, we observe the output:
 //..
