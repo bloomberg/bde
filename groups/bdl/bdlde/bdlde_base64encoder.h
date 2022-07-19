@@ -760,6 +760,7 @@ bsl::size_t Base64Encoder::lengthWithoutCrlfs(
 {
     static const bsl::size_t maxSize_t = bsl::numeric_limits<
                                                            bsl::size_t>::max();
+    (void) maxSize_t;
 
     if (0 == inputLength) {
         return 0;                                                     // RETURN
@@ -882,6 +883,7 @@ bsl::size_t Base64Encoder::encodedLength(const EncoderOptions& options,
 {
     static const bsl::size_t maxSize_t = bsl::numeric_limits<
                                                            bsl::size_t>::max();
+    (void) maxSize_t;
 
     if (0 == inputLength) {
         return 0;                                                     // RETURN

@@ -1193,7 +1193,7 @@ void test5_multithreadedCrc32cDefault()
                                                          payloads,
                                                          &barrier,
                                                          false));
-        BSLS_ASSERT_OPT(rc == 0);
+        BSLS_ASSERT_OPT(rc == 0);    (void) rc;
     }
 
     barrier.wait();
@@ -1288,7 +1288,7 @@ void test6_multithreadedCrc32cSoftware()
                                                          payloads,
                                                          &barrier,
                                                          true));
-        BSLS_ASSERT_OPT(rc == 0);
+        BSLS_ASSERT_OPT(rc == 0);    (void) rc;
     }
 
     barrier.wait();
