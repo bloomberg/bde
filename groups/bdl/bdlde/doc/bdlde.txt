@@ -33,6 +33,7 @@
      bdlde_md5
      bdlde_quotedprintabledecoder
      bdlde_quotedprintableencoder
+     bdlde_sha1
      bdlde_sha2
      bdlde_utf8util
 ..
@@ -77,6 +78,9 @@
 :
 : 'bdlde_quotedprintableencoder':
 :      Provide automata converting to and from Quoted-Printable encodings.
+:
+: 'bdlde_sha1':
+:      Provide a value-semantic type encoding a message in a SHA-1 digest.
 :
 : 'bdlde_sha2':
 :      Provide a value-semantic type encoding a message in a SHA-2 digest.
