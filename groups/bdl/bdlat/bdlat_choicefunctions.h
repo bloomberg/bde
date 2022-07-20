@@ -460,16 +460,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #include <bsls_platform.h>
 
-#if defined(BSLS_PLATFORM_CMP_IBM)       // Need a workaround for ADL bug.
-    // IBM xlC will not perform argument-dependent lookup if the function being
-    // called has already been declared and found by ordinary name lookup in
-    // some scope at the point of the template function *definition* (not
-    // instantiation).  We work around this bug by not declaring these
-    // functions until *after* the template definitions that call them.
-# define BDLAT_CHOICEFUNCTIONS_HAS_INHIBITED_ADL 1
-    // Last verified with xlC 12.1
-#endif
-
 namespace BloombergLP {
 
                       // ===============================
@@ -487,36 +477,20 @@ namespace bdlat_ChoiceFunctions {
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , UNDEFINED_SELECTION_ID       = k_UNDEFINED_SELECTION_ID
-
       , BDEAT_UNDEFINED_SELECTION_ID = k_UNDEFINED_SELECTION_ID
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     // META-FUNCTIONS
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-
-    template <class TYPE>
-    bslmf::MetaInt<0> isChoiceMetaFunction(const TYPE&);
-        // This function can be overloaded to support partial specialization
-        // (Sun5.2 compiler is unable to partially specialize the 'struct'
-        // below).  Note that this function is has no definition and should not
-        // be called at runtime.
-        //
-        // *DEPRECATED*: Specialize the 'IsChoice' meta-function instead.
-
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
     template <class TYPE>
     struct IsChoice {
         // This 'struct' should be specialized for third-party types that need
         // to expose "choice" behavior.  See the component-level documentation
         // for further information.
 
+        // TYPES
         enum {
             VALUE = bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicChoice>::VALUE
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-                 || BSLMF_METAINT_TO_BOOL(isChoiceMetaFunction(
-                                                  bslmf::TypeRep<TYPE>::rep()))
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
         };
     };
 
@@ -574,21 +548,28 @@ namespace bdlat_ChoiceFunctions {
         // Return the id of the current selection if the selection is defined,
         // and k_UNDEFINED_SELECTION_ID otherwise.
 
-#if ! defined(BDLAT_CHOICEFUNCTIONS_HAS_INHIBITED_ADL)
-    // OVERLOADABLE FUNCTIONS
+}  // close namespace bdlat_ChoiceFunctions
 
-    // The following functions should be overloaded for other types (in their
-    // respective namespaces).  The following functions are the default
-    // implementations (for 'bas_codegen.pl'-generated types).  Do *not* call
-    // these functions directly.  Use the functions above instead.
+                            // ====================
+                            // default declarations
+                            // ====================
+
+namespace bdlat_ChoiceFunctions {
+    // This namespace declaration adds the default implementations of the
+    // "choice" customization-point functions to 'bdlat_ChoiceFunctions'. These
+    // default implementations assume the type of the acted-upon object is a
+    // basic-choice type.  For more information about basic-choice types, see
+    // {'bdlat_typetraits'}.
 
     // MANIPULATORS
     template <class TYPE>
     int bdlat_choiceMakeSelection(TYPE *object, int selectionId);
+
     template <class TYPE>
     int bdlat_choiceMakeSelection(TYPE       *object,
                                   const char *selectionName,
                                   int         selectionNameLength);
+
     template <class TYPE, class MANIPULATOR>
     int bdlat_choiceManipulateSelection(TYPE         *object,
                                         MANIPULATOR&  manipulator);
@@ -596,16 +577,18 @@ namespace bdlat_ChoiceFunctions {
     // ACCESSORS
     template <class TYPE, class ACCESSOR>
     int bdlat_choiceAccessSelection(const TYPE& object, ACCESSOR& accessor);
+
     template <class TYPE>
     bool bdlat_choiceHasSelection(const TYPE&  object,
                                   const char  *selectionName,
                                   int          selectionNameLength);
+
     template <class TYPE>
     bool bdlat_choiceHasSelection(const TYPE& object,
                                   int         selectionId);
+
     template <class TYPE>
     int bdlat_choiceSelectionId(const TYPE& object);
-#endif
 
 }  // close namespace bdlat_ChoiceFunctions
 
@@ -618,7 +601,6 @@ namespace bdlat_ChoiceFunctions {
                       // -------------------------------
 
 // MANIPULATORS
-
 template <class TYPE>
 inline
 int bdlat_ChoiceFunctions::makeSelection(TYPE *object, int selectionId)
@@ -649,7 +631,6 @@ int bdlat_ChoiceFunctions::manipulateSelection(TYPE         *object,
 }
 
 // ACCESSORS
-
 template <class TYPE, class ACCESSOR>
 inline
 int bdlat_ChoiceFunctions::accessSelection(const TYPE& object,
@@ -687,46 +668,11 @@ int bdlat_ChoiceFunctions::selectionId(const TYPE& object)
     return bdlat_choiceSelectionId(object);
 }
 
-          // --------------------------------------------------------
-          // namespace bdlat_ChoiceFunctions (OVERLOADABLE FUNCTIONS)
-          // --------------------------------------------------------
-
-#if defined(BDLAT_CHOICEFUNCTIONS_HAS_INHIBITED_ADL)
-namespace bdlat_ChoiceFunctions {
-    // IBM xlC will not perform argument-dependent lookup if the function being
-    // called has already been declared and found by ordinary name lookup in
-    // some scope at the point of the template function *definition* (not
-    // instantiation).  We work around this bug by not declaring these
-    // functions until *after* the template definitions that call them.
-
-    // MANIPULATORS
-    template <typename TYPE>
-    int bdlat_choiceMakeSelection(TYPE *object, int selectionId);
-    template <typename TYPE>
-    int bdlat_choiceMakeSelection(TYPE       *object,
-                                  const char *selectionName,
-                                  int         selectionNameLength);
-    template <typename TYPE, typename MANIPULATOR>
-    int bdlat_choiceManipulateSelection(TYPE         *object,
-                                        MANIPULATOR&  manipulator);
-
-    // ACCESSORS
-    template <typename TYPE, typename ACCESSOR>
-    int bdlat_choiceAccessSelection(const TYPE& object, ACCESSOR& accessor);
-    template <typename TYPE>
-    bool bdlat_choiceHasSelection(const TYPE&  object,
-                                  const char  *selectionName,
-                                  int          selectionNameLength);
-    template <typename TYPE>
-    bool bdlat_choiceHasSelection(const TYPE& object,
-                                  int         selectionId);
-    template <typename TYPE>
-    int bdlat_choiceSelectionId(const TYPE& object);
-}  // close namespace bdlat_ChoiceFunctions
-#endif
+                            // -------------------
+                            // default definitions
+                            // -------------------
 
 // MANIPULATORS
-
 template <class TYPE>
 inline
 int bdlat_ChoiceFunctions::bdlat_choiceMakeSelection(TYPE *object,
@@ -761,7 +707,6 @@ int bdlat_ChoiceFunctions::bdlat_choiceManipulateSelection(
 }
 
 // ACCESSORS
-
 template <class TYPE, class ACCESSOR>
 inline
 int bdlat_ChoiceFunctions::bdlat_choiceAccessSelection(const TYPE& object,
@@ -771,12 +716,6 @@ int bdlat_ChoiceFunctions::bdlat_choiceAccessSelection(const TYPE& object,
 
     return object.accessSelection(accessor);
 }
-
-// VC2008 does not detect that address is used.
-#ifdef BSLS_PLATFORM_CMP_MSVC
-#pragma warning( push )
-#pragma warning( disable : 4100 )
-#endif
 
 template <class TYPE>
 inline
@@ -799,10 +738,6 @@ bool bdlat_ChoiceFunctions::bdlat_choiceHasSelection(const TYPE& object,
 
     return 0 != object.lookupSelectionInfo(selectionId);
 }
-
-#ifdef BSLS_PLATFORM_CMP_MSVC
-#pragma warning( pop )
-#endif
 
 template <class TYPE>
 inline

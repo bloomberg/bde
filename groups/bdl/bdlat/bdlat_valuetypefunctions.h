@@ -472,16 +472,6 @@ BSLS_IDENT("$Id: $")
 #include <bsl_string.h>
 #include <bsl_vector.h>
 
-#if defined(BSLS_PLATFORM_CMP_IBM)       // Need a workaround for ADL bug.
-    // IBM xlC will not perform argument-dependent lookup if the function being
-    // called has already been declared and found by ordinary name lookup in
-    // some scope at the point of the template function *definition* (not
-    // instantiation).  We work around this bug by not declaring these
-    // functions until *after* the template definitions that call them.
-# define BDLAT_VALUETYPEFUNCTIONS_HAS_INHIBITED_ADL 1
-    // Last verified with xlC 12.1
-#endif
-
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bslmf_if.h>
 #endif  // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
@@ -497,6 +487,7 @@ namespace bdlat_ValueTypeFunctions {
     // types.  See the component-level documentation for what is meant by
     // "value type".
 
+    // MANIPULATORS
     template <class LHS_TYPE, class RHS_TYPE>
     int assign(LHS_TYPE *lhs, const RHS_TYPE& rhs);
         // Assign the value of the specified 'rhs' to the object specified its
@@ -507,24 +498,26 @@ namespace bdlat_ValueTypeFunctions {
     void reset(TYPE *object);
         // Reset the value of the specified 'object' to its default value.
 
-    // OVERLOADABLE FUNCTIONS
+}  // close namespace bdlat_ValueTypeFunctions
 
-    // The following functions should be overloaded for other types (in their
-    // respective namespaces).  The following functions are the default
-    // implementations (for 'bas_codegen.pl'-generated types).  Do *not* call
-    // these functions directly.  Use the functions above instead.
+                            // ====================
+                            // default declarations
+                            // ====================
 
-#if ! defined(BDLAT_VALUETYPEFUNCTIONS_HAS_INHIBITED_ADL)
+namespace bdlat_ValueTypeFunctions {
+    // This namespace declaration adds the default implementations of the
+    // "value type" customization-point functions to
+    // 'bdlat_ValueTypeFunctions'.  These default implementations are provided
+    // for a variety of types.
+
+    // MANIPULATORS
     template <class LHS_TYPE, class RHS_TYPE>
     int bdlat_valueTypeAssign(LHS_TYPE *lhs, const RHS_TYPE& rhs);
 
     template <class TYPE>
     void bdlat_valueTypeReset(TYPE *object);
-#endif
 
 }  // close namespace bdlat_ValueTypeFunctions
-
-// ---  Anything below this line is implementation specific.  Do not use.  ----
 
                     // ===================================
                     // struct bdlat_ValueTypeFunctions_Imp
@@ -534,13 +527,13 @@ struct bdlat_ValueTypeFunctions_Imp {
     // This 'struct' contains functions used by the implementation of this
     // component.
 
-    // TAGS
+    // TYPES
     struct IsConvertible    { };
     struct IsNotConvertible { };
     struct UseResetMethod   { };
     struct UseDefaultCtor   { };
 
-    // FUNCTIONS
+    // CLASS METHODS
     template <class LHS_TYPE>
     static int assign(LHS_TYPE                        *lhs,
                       bdlat_TypeCategory::Enumeration  ,
@@ -642,6 +635,7 @@ struct bdlat_ValueTypeFunctions_Imp {
                       // namespace bdlat_ValueTypeFunctions
                       // ----------------------------------
 
+// MANIPULATORS
 template <class LHS_TYPE, class RHS_TYPE>
 inline
 int bdlat_ValueTypeFunctions::assign(LHS_TYPE *lhs, const RHS_TYPE& rhs)
@@ -656,27 +650,11 @@ void bdlat_ValueTypeFunctions::reset(TYPE *object)
     return bdlat_valueTypeReset(object);
 }
 
-        // -----------------------------------------------------------
-        // namespace bdlat_ValueTypeFunctions (OVERLOADABLE FUNCTIONS)
-        // -----------------------------------------------------------
+                            // -------------------
+                            // default definitions
+                            // -------------------
 
-#if defined(BDLAT_VALUETYPEFUNCTIONS_HAS_INHIBITED_ADL)
-namespace bdlat_ValueTypeFunctions {
-    // IBM xlC will not perform argument-dependent lookup if the function being
-    // called has already been declared and found by ordinary name lookup in
-    // some scope at the point of the template function *definition* (not
-    // instantiation).  We work around this bug by not declaring these
-    // functions until *after* the template definitions that call them.
-
-    template <typename LHS_TYPE, typename RHS_TYPE>
-    int bdlat_valueTypeAssign(LHS_TYPE *lhs, const RHS_TYPE& rhs);
-
-    template <typename TYPE>
-    void bdlat_valueTypeReset(TYPE *object);
-
-}  // close namespace bdlat_ValueTypeFunctions
-#endif
-
+// MANIPULATORS
 template <class LHS_TYPE, class RHS_TYPE>
 inline
 int bdlat_ValueTypeFunctions::bdlat_valueTypeAssign(LHS_TYPE        *lhs,
@@ -702,6 +680,7 @@ void bdlat_ValueTypeFunctions::bdlat_valueTypeReset(TYPE *object)
                     // struct bdlat_ValueTypeFunctions_Imp
                     // -----------------------------------
 
+// CLASS METHODS
 template <class LHS_TYPE>
 int bdlat_ValueTypeFunctions_Imp::assign(LHS_TYPE                        *lhs,
                                          bdlat_TypeCategory::Enumeration  ,

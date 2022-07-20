@@ -278,16 +278,6 @@ BSLS_IDENT("$Id: $")
 
 #include <bsl_string.h>
 
-#if defined(BSLS_PLATFORM_CMP_IBM)       // Need a workaround for ADL bug.
-    // IBM xlC will not perform argument-dependent lookup if the function being
-    // called has already been declared and found by ordinary name lookup in
-    // some scope at the point of the template function *definition* (not
-    // instantiation).  We work around this bug by not declaring these
-    // functions until *after* the template definitions that call them.
-# define BDLAT_ENUMFUNCTIONS_HAS_INHIBITED_ADL 1
-    // Last verified with xlC 12.1
-#endif
-
 namespace BloombergLP {
 
                       // =============================
@@ -300,19 +290,6 @@ namespace bdlat_EnumFunctions {
     // information.
 
     // META-FUNCTIONS
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-
-    template <class TYPE>
-    bslmf::MetaInt<0> isEnumerationMetaFunction(const TYPE&);
-        // This function can be overloaded to support partial specialization
-        // (Sun5.2 compiler is unable to partially specialize the 'struct'
-        // below).  Note that this function is has no definition and should not
-        // be called at runtime.
-        //
-        // This function is *DEPRECATED*.  User's should specialize the
-        // 'IsEnumeration' meta-function.
-
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
     template <class TYPE>
     struct IsEnumeration {
         // This 'struct' should be specialized for third-party types that need
@@ -320,13 +297,8 @@ namespace bdlat_EnumFunctions {
         // documentation for further information.
 
         enum {
-//ARB:VALUE
             VALUE = bslalg::HasTrait<TYPE,
-                                    bdlat_TypeTraitBasicEnumeration>::VALUE
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-                 || BSLMF_METAINT_TO_BOOL(isEnumerationMetaFunction(
-                                                  bslmf::TypeRep<TYPE>::rep()))
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+                                     bdlat_TypeTraitBasicEnumeration>::VALUE
         };
     };
 
@@ -355,17 +327,24 @@ namespace bdlat_EnumFunctions {
         // Return the string representation exactly matching the enumerator
         // name corresponding to the specified enumeration 'value'.
 
-#if ! defined(BDLAT_ENUMFUNCTIONS_HAS_INHIBITED_ADL)
-    // OVERLOADABLE FUNCTIONS
 
-    // The following functions should be overloaded for other types (in their
-    // respective namespaces).  The following functions are the default
-    // implementations (for 'bas_codegen.pl'-generated types).  Do *not* call
-    // these functions directly.  Use the functions above instead.
+}  // close namespace bdlat_EnumFunctions
+
+                            // ====================
+                            // default declarations
+                            // ====================
+
+namespace bdlat_EnumFunctions {
+    // This namespace declaration adds the default implementations of the
+    // "enumeration" customization-point functions to 'bdlat_EnumFunctions'.
+    // These default implementations assume the type of the acted-upon object
+    // is a basic-enumeration type.  For more information about
+    // basic-enumeration types, see {'bdlat_typetraits'}.
 
     // MANIPULATORS
     template <class TYPE>
     int bdlat_enumFromInt(TYPE *result, int number);
+
     template <class TYPE>
     int bdlat_enumFromString(TYPE       *result,
                              const char *string,
@@ -374,9 +353,9 @@ namespace bdlat_EnumFunctions {
     // ACCESSORS
     template <class TYPE>
     void bdlat_enumToInt(int *result, const TYPE& value);
+
     template <class TYPE>
     void bdlat_enumToString(bsl::string *result, const TYPE& value);
-#endif
 
 }  // close namespace bdlat_EnumFunctions
 
@@ -389,7 +368,6 @@ namespace bdlat_EnumFunctions {
                       // -----------------------------
 
 // MANIPULATORS
-
 template <class TYPE>
 inline
 int bdlat_EnumFunctions::fromInt(TYPE *result, int number)
@@ -407,13 +385,13 @@ int bdlat_EnumFunctions::fromString(TYPE       *result,
 }
 
 // ACCESSORS
-
 template <class TYPE>
 inline
 void bdlat_EnumFunctions::toInt(int *result, const TYPE& value)
 {
     bdlat_enumToInt(result, value);
 }
+
 
 template <class TYPE>
 inline
@@ -422,43 +400,11 @@ void bdlat_EnumFunctions::toString(bsl::string *result, const TYPE& value)
     bdlat_enumToString(result, value);
 }
 
-           // ------------------------------------------------------
-           // namespace bdlat_EnumFunctions (OVERLOADABLE FUNCTIONS)
-           // ------------------------------------------------------
-
-#if defined(BDLAT_ENUMFUNCTIONS_HAS_INHIBITED_ADL)
-namespace bdlat_EnumFunctions {
-    // IBM xlC will not perform argument-dependent lookup if the function being
-    // called has already been declared and found by ordinary name lookup in
-    // some scope at the point of the template function *definition* (not
-    // instantiation).  We work around this bug by not declaring these
-    // functions until *after* the template definitions that call them.
-
-    // OVERLOADABLE FUNCTIONS
-    // The following functions should be overloaded for other types (in their
-    // respective namespaces).  The following functions are the default
-    // implementations (for 'bas_codegen.pl'-generated types).  Do *not* call
-    // these functions directly.  Use the functions above instead.
-
-    // MANIPULATORS
-    template <typename TYPE>
-    int bdlat_enumFromInt(TYPE *result, int number);
-    template <typename TYPE>
-    int bdlat_enumFromString(TYPE       *result,
-                             const char *string,
-                             int         stringLength);
-
-    // ACCESSORS
-    template <typename TYPE>
-    void bdlat_enumToInt(int *result, const TYPE& value);
-    template <typename TYPE>
-    void bdlat_enumToString(bsl::string *result, const TYPE& value);
-
-} // Close namespace bdlat_EnumFunctions
-#endif
+                            // -------------------
+                            // default definitions
+                            // -------------------
 
 // MANIPULATORS
-
 template <class TYPE>
 inline
 int bdlat_EnumFunctions::bdlat_enumFromInt(TYPE *result, int number)
@@ -483,7 +429,6 @@ int bdlat_EnumFunctions::bdlat_enumFromString(TYPE       *result,
 }
 
 // ACCESSORS
-
 template <class TYPE>
 inline
 void bdlat_EnumFunctions::bdlat_enumToInt(int *result, const TYPE& value)

@@ -592,19 +592,6 @@ namespace bdlat_NullableValueFunctions {
     // information.
 
     // META-FUNCTIONS
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-
-    template <class TYPE>
-    bslmf::MetaInt<0> isNullableValueMetaFunction(const TYPE&);
-        // This function can be overloaded to support partial specialization
-        // (Sun5.2 compiler is unable to partially specialize the 'struct'
-        // below).  Note that this function is has no definition and should not
-        // be called at runtime.
-        //
-        // This function is *DEPRECATED*.  User's should specialize the
-        // 'IsNullableValue' meta-function.
-
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
     template <class TYPE>
     struct IsNullableValue {
         // This 'struct' should be specialized for third-party types that need
@@ -612,12 +599,7 @@ namespace bdlat_NullableValueFunctions {
         // documentation for further information.
 
         enum {
-//ARB:VALUE
             VALUE = 0
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-                 || BSLMF_METAINT_TO_BOOL(isNullableValueMetaFunction(
-                                                  bslmf::TypeRep<TYPE>::rep()))
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
         };
     };
 
@@ -657,17 +639,20 @@ namespace bdlat_NullableValueFunctions {
 
 }  // close namespace bdlat_NullableValueFunctions
 
-                  // =======================================
-                  // Specializations for bdlb::NullableValue
-                  // =======================================
+                      // ================================
+                      // bdlb::NullableValue declarations
+                      // ================================
 
 namespace bdlat_NullableValueFunctions {
+    // This namespace declaration adds the implementation of the "nullable
+    // value" traits for 'bdlb::NullableValue' to
+    // 'bdlat_NullableValueFunctions'.  Note that 'bdlb::NullableValue' is the
+    // first of two canonical "nullable value" types.
 
     // META-FUNCTIONS
     template <class TYPE>
     struct IsNullableValue<bdlb::NullableValue<TYPE> > {
         enum {
-//ARB:VALUE
             VALUE = 1
         };
     };
@@ -697,17 +682,21 @@ namespace bdlat_NullableValueFunctions {
 
 }  // close namespace bdlat_NullableValueFunctions
 
-              // ================================================
-              // Specializations for bdlb::NullableAllocatedValue
-              // ================================================
+                  // =========================================
+                  // bdlb::NullableAllocatedValue declarations
+                  // =========================================
 
 namespace bdlat_NullableValueFunctions {
+    // This namespace declaration adds the implementation of the "nullable
+    // value" traits for 'bdlb::NullableAllocatedValue' to
+    // 'bdlat_NullableValueFunctions'.  Note that
+    // 'bdlb::NullableAllocatedValue' is the second of two canonical "nullable
+    // value" types.
 
     // META-FUNCTIONS
     template <class TYPE>
     struct IsNullableValue<bdlb::NullableAllocatedValue<TYPE> > {
         enum {
-//ARB:VALUE
             VALUE = 1
         };
     };
@@ -721,6 +710,7 @@ namespace bdlat_NullableValueFunctions {
     template <class TYPE>
     void bdlat_nullableValueMakeValue(
                                    bdlb::NullableAllocatedValue<TYPE> *object);
+
     template <class TYPE, class MANIPULATOR>
     int bdlat_nullableValueManipulateValue(
                               bdlb::NullableAllocatedValue<TYPE> *object,
@@ -731,6 +721,7 @@ namespace bdlat_NullableValueFunctions {
     int bdlat_nullableValueAccessValue(
                            const bdlb::NullableAllocatedValue<TYPE>& object,
                            ACCESSOR&                                 accessor);
+
     template <class TYPE>
     bool bdlat_nullableValueIsNull(
                              const bdlb::NullableAllocatedValue<TYPE>& object);
@@ -746,7 +737,6 @@ namespace bdlat_NullableValueFunctions {
                    // --------------------------------------
 
 // MANIPULATORS
-
 template <class TYPE>
 inline
 void bdlat_NullableValueFunctions::makeValue(TYPE *object)
@@ -763,7 +753,6 @@ int bdlat_NullableValueFunctions::manipulateValue(TYPE         *object,
 }
 
 // ACCESSORS
-
 template <class TYPE, class ACCESSOR>
 inline
 int bdlat_NullableValueFunctions::accessValue(const TYPE& object,
@@ -779,12 +768,11 @@ bool bdlat_NullableValueFunctions::isNull(const TYPE& object)
     return bdlat_nullableValueIsNull(object);
 }
 
-                  // ---------------------------------------
-                  // Specializations for bdlb::NullableValue
-                  // ---------------------------------------
+                      // -------------------------------
+                      // bdlb::NullableValue definitions
+                      // -------------------------------
 
 // MANIPULATORS
-
 template <class TYPE>
 inline
 void bdlat_NullableValueFunctions::bdlat_nullableValueMakeValue(
@@ -805,7 +793,6 @@ int bdlat_NullableValueFunctions::bdlat_nullableValueManipulateValue(
 }
 
 // ACCESSORS
-
 template <class TYPE, class ACCESSOR>
 inline
 int bdlat_NullableValueFunctions::bdlat_nullableValueAccessValue(
@@ -825,12 +812,11 @@ bool bdlat_NullableValueFunctions::bdlat_nullableValueIsNull(
     return object.isNull();
 }
 
-              // ------------------------------------------------
-              // Specializations for bdlb::NullableAllocatedValue
-              // ------------------------------------------------
+                  // ----------------------------------------
+                  // bdlb::NullableAllocatedValue definitions
+                  // ----------------------------------------
 
 // MANIPULATORS
-
 template <class TYPE>
 inline
 void bdlat_NullableValueFunctions::bdlat_nullableValueMakeValue(
@@ -851,7 +837,6 @@ int bdlat_NullableValueFunctions::bdlat_nullableValueManipulateValue(
 }
 
 // ACCESSORS
-
 template <class TYPE, class ACCESSOR>
 inline
 int bdlat_NullableValueFunctions::bdlat_nullableValueAccessValue(

@@ -464,19 +464,6 @@ BSLS_IDENT("$Id: $")
 
 #include <bsl_string.h>
 
-
-#if defined(BSLS_PLATFORM_CMP_IBM)       // Need a workaround for ADL bug.
-    // IBM xlC will not perform argument-dependent lookup if the function being
-    // called has already been declared and found by ordinary name lookup in
-    // some scope at the point of the template function *definition* (not
-    // instantiation).  We work around this bug by not declaring these
-    // functions until *after* the template definitions that call them.
-# define BDLAT_CUSTOMIZEDTYPEFUNCTIONS_HAS_INHIBITED_ADL 1
-    // Last verified with xlC 12.1
-#endif
-
-
-
 namespace BloombergLP {
 
                   // =======================================
@@ -489,19 +476,6 @@ namespace bdlat_CustomizedTypeFunctions {
     // documentation for more information.
 
     // META-FUNCTIONS
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-
-    template <class TYPE>
-    bslmf::MetaInt<0> isCustomizedTypeMetaFunction(const TYPE&);
-        // This function can be overloaded to support partial specialization
-        // (Sun5.2 compiler is unable to partially specialize the 'struct'
-        // below).  Note that this function is has no definition and should not
-        // be called at runtime.
-        //
-        // This function is *DEPRECATED*.  User's should specialize the
-        // 'IsCustomizedType' meta-function.
-
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
     template <class TYPE>
     struct IsCustomizedType {
         // This 'struct' should be specialized for third-party types that need
@@ -509,13 +483,8 @@ namespace bdlat_CustomizedTypeFunctions {
         // documentation for further information.
 
         enum {
-//ARB:VALUE
             VALUE = bslalg::HasTrait<TYPE,
-                                    bdlat_TypeTraitBasicCustomizedType>::VALUE
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-                 || BSLMF_METAINT_TO_BOOL(isCustomizedTypeMetaFunction(
-                                                  bslmf::TypeRep<TYPE>::rep()))
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+                                     bdlat_TypeTraitBasicCustomizedType>::VALUE
         };
     };
 
@@ -542,32 +511,30 @@ namespace bdlat_CustomizedTypeFunctions {
         // Load into the specified 'result' the value of the specified
         // 'object'.
 
-#if ! defined(BDLAT_CUSTOMIZEDTYPEFUNCTIONS_HAS_INHIBITED_ADL)
-    // OVERLOADABLE FUNCTIONS
+}  // close namespace bdlat_CustomizedTypeFunctions
 
-    // The following functions should be overloaded for other types (in their
-    // respective namespaces).  The following functions are the default
-    // implementations (for 'bas_codegen.pl'-generated types).  Do *not* call
-    // these functions directly.  Use the functions above instead.
+                            // ====================
+                            // default declarations
+                            // ====================
+
+namespace bdlat_CustomizedTypeFunctions {
+    // This namespace declaration adds the default implementations of the
+    // "customized type" customization-point functions to
+    // 'bdlat_CustomizedTypeFunctions'.  These default implementations assume
+    // the type of the acted-upon object has member functions to convert to and
+    // from "simple" types.
 
     // MANIPULATORS
     template <class TYPE, class BASE_TYPE>
     int bdlat_customizedTypeConvertFromBaseType(TYPE             *object,
                                                 const BASE_TYPE&  value);
-        // Convert from the specified 'value' to the specified customized
-        // 'object'.  Return 0 if successful and non-zero otherwise.
 
     // ACCESSORS
     template <class TYPE>
     const typename BaseType<TYPE>::Type&
     bdlat_customizedTypeConvertToBaseType(const TYPE& object);
-        // Load into the specified 'result' the value of the specified
-        // 'object'.
-#endif
 
 }  // close namespace bdlat_CustomizedTypeFunctions
-
-// ---- Anything below this line is implementation specific.  Do not use.  ----
 
                   // ========================================
                   // struct bdlat_CustomizedTypeFunctions_Imp
@@ -716,7 +683,6 @@ struct bdlat_CustomizedTypeFunctions_Imp {
                    // ---------------------------------------
 
 // MANIPULATORS
-
 template <class TYPE, class BASE_TYPE>
 inline
 int bdlat_CustomizedTypeFunctions::convertFromBaseType(
@@ -727,7 +693,6 @@ int bdlat_CustomizedTypeFunctions::convertFromBaseType(
 }
 
 // ACCESSORS
-
 template <class TYPE>
 inline
 const typename bdlat_CustomizedTypeFunctions::BaseType<TYPE>::Type&
@@ -736,42 +701,11 @@ bdlat_CustomizedTypeFunctions::convertToBaseType(const TYPE&  object)
     return bdlat_customizedTypeConvertToBaseType(object);
 }
 
-      // ----------------------------------------------------------------
-      // namespace bdlat_CustomizedTypeFunctions (OVERLOADABLE FUNCTIONS)
-      // ----------------------------------------------------------------
-
-#if defined(BDLAT_CUSTOMIZEDTYPEFUNCTIONS_HAS_INHIBITED_ADL)
-namespace bdlat_CustomizedTypeFunctions {
-    // xlC 6 will not do Koenig (argument-dependent) lookup if the function
-    // being called has already been declared in some scope at the point of
-    // the template function *definition* (not instantiation).  We work around
-    // this bug by not declaring these functions until *after* the template
-    // definitions that call them.
-
-    // OVERLOADABLE FUNCTIONS
-    // The following functions should be overloaded for other types (in their
-    // respective namespaces).  The following functions are the default
-    // implementations (for 'bas_codegen.pl'-generated types).  Do *not* call
-    // these functions directly.  Use the functions above instead.
-
-    // MANIPULATORS
-    template <typename TYPE, typename BASE_TYPE>
-    int bdlat_customizedTypeConvertFromBaseType(TYPE             *object,
-                                                const BASE_TYPE&  value);
-        // Convert from the specified 'value' to the specified customized
-        // 'object'.  Return 0 if successful and non-zero otherwise.
-
-    // ACCESSORS
-    template <typename TYPE>
-    const typename BaseType<TYPE>::Type&
-    bdlat_customizedTypeConvertToBaseType(const TYPE& object);
-        // Load into the specified 'result' the value of the specified
-        // 'object'.
-} // Close namespace bdlat_CustomizedTypeFunctions
-#endif
+                            // -------------------
+                            // default definitions
+                            // -------------------
 
 // MANIPULATORS
-
 template <class TYPE, class BASE_TYPE>
 inline
 int bdlat_CustomizedTypeFunctions::bdlat_customizedTypeConvertFromBaseType(
@@ -783,7 +717,6 @@ int bdlat_CustomizedTypeFunctions::bdlat_customizedTypeConvertFromBaseType(
 }
 
 // ACCESSORS
-
 template <class TYPE>
 inline
 const typename bdlat_CustomizedTypeFunctions::BaseType<TYPE>::Type&

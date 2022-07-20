@@ -593,16 +593,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #include <bsls_platform.h>
 
-#if defined(BSLS_PLATFORM_CMP_IBM)       // Need a workaround for ADL bug.
-    // IBM xlC will not perform argument-dependent lookup if the function being
-    // called has already been declared and found by ordinary name lookup in
-    // some scope at the point of the template function *definition* (not
-    // instantiation).  We work around this bug by not declaring these
-    // functions until *after* the template definitions that call them.
-# define BDLAT_SEQUENCEFUNCTIONS_HAS_INHIBITED_ADL 1
-    // Last verified with xlC 12.1
-#endif
-
 namespace BloombergLP {
 
                       // =================================
@@ -615,19 +605,6 @@ namespace bdlat_SequenceFunctions {
     // information.
 
     // META-FUNCTIONS
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-
-    template <class TYPE>
-    bslmf::MetaInt<0> isSequenceMetaFunction(const TYPE&);
-        // This function can be overloaded to support partial specialization
-        // (Sun5.2 compiler is unable to partially specialize the 'struct'
-        // below).  Note that this function is has no definition and should not
-        // be called at runtime.
-        //
-        // This function is *DEPRECATED*.  User's should specialize the
-        // 'IsSequence' meta-function.
-
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
     template <class TYPE>
     struct IsSequence {
         // This 'struct' should be specialized for third-party types that need
@@ -635,12 +612,7 @@ namespace bdlat_SequenceFunctions {
         // documentation for further information.
 
         enum {
-//ARB:VALUE
             VALUE = bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicSequence>::VALUE
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-                 || BSLMF_METAINT_TO_BOOL(isSequenceMetaFunction(
-                                                  bslmf::TypeRep<TYPE>::rep()))
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
         };
     };
 
@@ -722,13 +694,18 @@ namespace bdlat_SequenceFunctions {
         // Return true if the specified 'object' has an attribute with the
         // specified 'attributeId', and false otherwise.
 
-#if ! defined(BDLAT_SEQUENCEFUNCTIONS_HAS_INHIBITED_ADL)
-    // OVERLOADABLE FUNCTIONS
+}  // close namespace bdlat_SequenceFunctions
 
-    // The following functions should be overloaded for other types (in their
-    // respective namespaces).  The following functions are the default
-    // implementations (for 'bas_codegen.pl'-generated types).  Do *not* call
-    // these functions directly.  Use the functions above instead.
+                            // ====================
+                            // default declarations
+                            // ====================
+
+namespace bdlat_SequenceFunctions {
+    // This namespace declaration adds the default implementations of the
+    // "sequence" customization-point functions to 'bdlat_SequenceFunctions'.
+    // These default implementations assume the type of the acted-upon object
+    // is a basic-sequence type.  For more information about basic-sequence
+    // types, see {'bdlat_typetraits'}.
 
     // MANIPULATORS
     template <class TYPE, class MANIPULATOR>
@@ -736,10 +713,12 @@ namespace bdlat_SequenceFunctions {
                                           MANIPULATOR&  manipulator,
                                           const char   *attributeName,
                                           int           attributeNameLength);
+
     template <class TYPE, class MANIPULATOR>
     int bdlat_sequenceManipulateAttribute(TYPE         *object,
                                           MANIPULATOR&  manipulator,
                                           int           attributeId);
+
     template <class TYPE, class MANIPULATOR>
     int bdlat_sequenceManipulateAttributes(TYPE         *object,
                                            MANIPULATOR&  manipulator);
@@ -750,20 +729,23 @@ namespace bdlat_SequenceFunctions {
                                       ACCESSOR&    accessor,
                                       const char  *attributeName,
                                       int          attributeNameLength);
+
     template <class TYPE, class ACCESSOR>
     int bdlat_sequenceAccessAttribute(const TYPE& object,
                                       ACCESSOR&   accessor,
                                       int         attributeId);
+
     template <class TYPE, class ACCESSOR>
     int bdlat_sequenceAccessAttributes(const TYPE& object, ACCESSOR& accessor);
+
     template <class TYPE>
     bool bdlat_sequenceHasAttribute(const TYPE&  object,
                                     const char  *attributeName,
                                     int          attributeNameLength);
+
     template <class TYPE>
     bool bdlat_sequenceHasAttribute(const TYPE& object,
                                     int         attributeId);
-#endif
 
 }  // close namespace bdlat_SequenceFunctions
 
@@ -776,7 +758,6 @@ namespace bdlat_SequenceFunctions {
                      // ---------------------------------
 
 // MANIPULATORS
-
 template <class TYPE, class MANIPULATOR>
 inline
 int bdlat_SequenceFunctions::manipulateAttribute(
@@ -809,7 +790,6 @@ int bdlat_SequenceFunctions::manipulateAttributes(TYPE         *object,
 }
 
 // ACCESSORS
-
 template <class TYPE, class ACCESSOR>
 inline
 int bdlat_SequenceFunctions::accessAttribute(const TYPE&  object,
@@ -859,63 +839,12 @@ bool bdlat_SequenceFunctions::hasAttribute(const TYPE& object,
     return bdlat_sequenceHasAttribute(object, attributeId);
 }
 
-         // ----------------------------------------------------------
-         // namespace bdlat_SequenceFunctions (OVERLOADABLE FUNCTIONS)
-         // ----------------------------------------------------------
 
-#if defined(BDLAT_SEQUENCEFUNCTIONS_HAS_INHIBITED_ADL)
-namespace bdlat_SequenceFunctions {
-    // xlC 6 will not do Koenig (argument-dependent) lookup if the function
-    // being called has already been declared in some scope at the point of
-    // the template function *definition* (not instantiation).  We work around
-    // this bug by not declaring these functions until *after* the template
-    // definitions that call them.
-
-    // OVERLOADABLE FUNCTIONS
-    // The following functions should be overloaded for other types (in their
-    // respective namespaces).  The following functions are the default
-    // implementations (for 'bas_codegen.pl'-generated types).  Do *not* call
-    // these functions directly.  Use the functions above instead.
-
-    // MANIPULATORS
-    template <typename TYPE, typename MANIPULATOR>
-    int bdlat_sequenceManipulateAttribute(TYPE         *object,
-                                          MANIPULATOR&  manipulator,
-                                          const char   *attributeName,
-                                          int           attributeNameLength);
-    template <typename TYPE, typename MANIPULATOR>
-    int bdlat_sequenceManipulateAttribute(TYPE         *object,
-                                          MANIPULATOR&  manipulator,
-                                          int           attributeId);
-    template <typename TYPE, typename MANIPULATOR>
-    int bdlat_sequenceManipulateAttributes(TYPE         *object,
-                                           MANIPULATOR&  manipulator);
-
-    // ACCESSORS
-    template <typename TYPE, typename ACCESSOR>
-    int bdlat_sequenceAccessAttribute(const TYPE&  object,
-                                      ACCESSOR&    accessor,
-                                      const char  *attributeName,
-                                      int          attributeNameLength);
-    template <typename TYPE, typename ACCESSOR>
-    int bdlat_sequenceAccessAttribute(const TYPE& object,
-                                      ACCESSOR&   accessor,
-                                      int         attributeId);
-    template <typename TYPE, typename ACCESSOR>
-    int bdlat_sequenceAccessAttributes(const TYPE& object, ACCESSOR& accessor);
-    template <typename TYPE>
-    bool bdlat_sequenceHasAttribute(const TYPE&  object,
-                                    const char  *attributeName,
-                                    int          attributeNameLength);
-    template <typename TYPE>
-    bool bdlat_sequenceHasAttribute(const TYPE& object,
-                                    int         attributeId);
-
-}  // close namespace bdlat_SequenceFunctions
-#endif
+                            // -------------------
+                            // default definitions
+                            // -------------------
 
 // MANIPULATORS
-
 template <class TYPE, class MANIPULATOR>
 inline
 int bdlat_SequenceFunctions::bdlat_sequenceManipulateAttribute(
@@ -958,7 +887,6 @@ int bdlat_SequenceFunctions::bdlat_sequenceManipulateAttributes(
 }
 
 // ACCESSORS
-
 template <class TYPE, class ACCESSOR>
 inline
 int bdlat_SequenceFunctions::bdlat_sequenceAccessAttribute(
@@ -1000,10 +928,6 @@ int bdlat_SequenceFunctions::bdlat_sequenceAccessAttributes(
     return object.accessAttributes(accessor);
 }
 
-#ifdef BSLS_PLATFORM_CMP_MSVC
-#pragma warning( push )
-#pragma warning( disable : 4100 )
-#endif
 template <class TYPE>
 inline
 bool bdlat_SequenceFunctions::bdlat_sequenceHasAttribute(
@@ -1028,9 +952,6 @@ bool bdlat_SequenceFunctions::bdlat_sequenceHasAttribute(
 
     return 0 != object.lookupAttributeInfo(attributeId);
 }
-#ifdef BSLS_PLATFORM_CMP_MSVC
-#pragma warning( pop )
-#endif
 
 }  // close enterprise namespace
 

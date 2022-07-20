@@ -674,36 +674,16 @@ namespace bdlat_ArrayFunctions {
         // This meta-function should contain a typedef 'Type' that specifies
         // the type of element stored in an array of the parameterized 'TYPE'.
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-
-    template <class TYPE>
-    bslmf::MetaInt<0> isArrayMetaFunction(const TYPE&);
-        // This function can be overloaded to support partial specialization
-        // (Sun5.2 compiler is unable to partially specialize the 'struct'
-        // below).  Note that this function is has no definition and should not
-        // be called at runtime.
-        //
-        // This function is *DEPRECATED*.  User's should specialize the
-        // 'IsArray' meta-function.
-
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
-
     template <class TYPE>
     struct IsArray {
         // This 'struct' should be specialized for third-party types that are
         // need to expose "array" behavior.  See the component-level
         // documentation for further information.
 
+        // TYPES
         enum {
-//ARB:VALUE
             VALUE = 0
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-                 || BSLMF_METAINT_TO_BOOL(isArrayMetaFunction(
-                                                  bslmf::TypeRep<TYPE>::rep()))
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
         };
-
-        typedef bslmf::MetaInt<VALUE> Type;
     };
 
     // MANIPULATORS
@@ -741,11 +721,14 @@ namespace bdlat_ArrayFunctions {
 
 }  // close namespace bdlat_ArrayFunctions
 
-                        // ===========================
-                        // bsl::vector specializations
-                        // ===========================
+                          // ========================
+                          // bsl::vector declarations
+                          // ========================
 
 namespace bdlat_ArrayFunctions {
+    // This namespace declaration adds the implementation of the "array" traits
+    // for 'bsl::vector' to 'bdlat_ArrayFunctions'.  Note that 'bsl::vector' is
+    // the canonical "array" type.
 
     // META-FUNCTIONS
     template <class TYPE, class ALLOC>
@@ -786,7 +769,6 @@ namespace bdlat_ArrayFunctions {
                        // -------------------------
 
 // MANIPULATORS
-
 template <class TYPE, class MANIPULATOR>
 inline
 int bdlat_ArrayFunctions::manipulateElement(TYPE         *array,
@@ -804,7 +786,6 @@ void bdlat_ArrayFunctions::resize(TYPE *array, int newSize)
 }
 
 // ACCESSORS
-
 template <class TYPE, class ACCESSOR>
 inline
 int bdlat_ArrayFunctions::accessElement(const TYPE& array,
@@ -821,12 +802,11 @@ bsl::size_t bdlat_ArrayFunctions::size(const TYPE& array)
     return bdlat_arraySize(array);
 }
 
-                        // ---------------------------
-                        // bsl::vector specializations
-                        // ---------------------------
+                          // -----------------------
+                          // bsl::vector definitions
+                          // -----------------------
 
 // MANIPULATORS
-
 template <class TYPE, class ALLOC, class MANIPULATOR>
 inline
 int bdlat_ArrayFunctions::bdlat_arrayManipulateElement(
@@ -847,7 +827,6 @@ void bdlat_ArrayFunctions::bdlat_arrayResize(bsl::vector<TYPE, ALLOC> *array,
 }
 
 // ACCESSORS
-
 template <class TYPE, class ALLOC, class ACCESSOR>
 inline
 int bdlat_ArrayFunctions::bdlat_arrayAccessElement(
