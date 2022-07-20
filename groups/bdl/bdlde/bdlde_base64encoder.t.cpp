@@ -1965,8 +1965,9 @@ int main(int argc, char *argv[])
 //     // text to the specified output stream 'os'.  Return 0 on success, and a
 //     // negative value otherwise.
 //..
-        bsl::istringstream inStream(bsl::string(BLOOMBERG_NEWS,
-                                                sizeof(BLOOMBERG_NEWS)));
+        const bsl::string  inStr(BLOOMBERG_NEWS, sizeof(BLOOMBERG_NEWS));
+        bsl::istringstream inStream(inStr);
+
         bsl::stringstream  outStream;
         bsl::stringstream  backInStream;
 
@@ -1975,8 +1976,7 @@ int main(int argc, char *argv[])
 
         cout << backInStream.str();
 
-        ASSERT(0 == strcmp(BLOOMBERG_NEWS, backInStream.str().c_str()));
-
+        ASSERT(inStr == backInStream.str());
       } break;
       case 14: {
         // --------------------------------------------------------------------

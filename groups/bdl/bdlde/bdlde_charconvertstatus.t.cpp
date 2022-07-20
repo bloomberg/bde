@@ -360,7 +360,9 @@ int main(int argc, char *argv[])
             out.setstate(bsl::ios::badbit);
             Obj::print(out, VALUE, LEVEL, SPL);
 
-            LOOP2_ASSERT(LINE, ti, 0 == memcmp(out.str().c_str(), CTRL, SIZE));
+            const bsl::string ctrlStr(CTRL, SIZE);
+
+            LOOP2_ASSERT(LINE, ti, out.str() == ctrlStr);
         }
 
         if (verbose) cout << "\nVerify 'print' signature." << endl;
@@ -469,7 +471,9 @@ int main(int argc, char *argv[])
             out.setstate(bsl::ios::badbit);
             out << VALUE;
 
-            LOOP2_ASSERT(LINE, ti, 0 == memcmp(out.str().c_str(), CTRL, SIZE));
+            const bsl::string ctrlStr(CTRL, SIZE);
+
+            LOOP2_ASSERT(LINE, ti, out.str() == ctrlStr);
         }
 
         if (verbose) cout << "\nVerify '<<' operator signature." << endl;

@@ -3864,15 +3864,15 @@ DEFINE_TEST_CASE(11)
 //     // text to the specified output stream 'os'.  Return 0 on success, and a
 //     // negative value otherwise.
 //..
-        bsl::istringstream inStream(bsl::string(BLOOMBERG_NEWS,
-                                                sizeof(BLOOMBERG_NEWS)));
+        const bsl::string  inStr(BLOOMBERG_NEWS, sizeof(BLOOMBERG_NEWS));
+        bsl::istringstream inStream(inStr);
         bsl::stringstream  outStream;
         bsl::stringstream  backInStream;
 
         ASSERT(0 == streamEncoder(outStream, inStream));
         ASSERT(0 == streamDecoder(backInStream, outStream));
 
-        ASSERT(0 == strcmp(BLOOMBERG_NEWS, backInStream.str().c_str()));
+        ASSERT(inStr == backInStream.str());
 }
 
 DEFINE_TEST_CASE(10)

@@ -314,16 +314,6 @@ const EquivalenceClass unrecognizedCharStrict(
                                       unrecognizedStrictRanges,
                                       numUnrecognizedStrictRanges);
 
-const EquivalenceClass *const EquivalenceClassStrict_p[] = {
-    &regularCharStrict,
-    &hexadecimalStrict,
-    &equalSignStrict,
-    &whitespaceStrict,
-    &newlineStrict,
-    &carriageReturnStrict,
-    &unrecognizedCharStrict
-};
-
 // Relaxed-mode equivalence classes
 Range regularCharRelaxedRanges[]    = { {0, 8},   {11, 12},   {14, 31},
                                         {33, 47}, {58, 60},   {62, 64},
@@ -362,18 +352,6 @@ const EquivalenceClass newlineRelaxed("Newline (Relaxed Mode)",
 const EquivalenceClass carriageReturnRelaxed("Carriage Return (Relaxed Mode)",
                                              carriageReturnRelaxedRanges,
                                              numCarriageReturnRelaxedRanges);
-
-const EquivalenceClass *const EquivalenceClassRelaxed_p[] = {
-    &regularCharRelaxed,
-    &hexadecimalRelaxed,
-    &equalSignRelaxed,
-    &whitespaceRelaxed,
-    &newlineRelaxed,
-    &carriageReturnRelaxed,
-    // No &unrecognizedRelaxed equivalence class in relaxed mode.  The
-    // characters that are in this class in the strict mode are all placed in
-    // the regularChar equivalence class.
-};
 
 // enum EquivalenceClassId = {
 //     PRINTABLE = 0,

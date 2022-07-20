@@ -697,14 +697,6 @@ const EquivalenceClass controlChar("Control Chararacter",
                                    controlCharRanges,
                                    numControlCharRanges);
 
-const EquivalenceClass *const EquivalenceClass_p[] = {
-    &printable,
-    &whitespace,
-    &newline,
-    &carriageReturn,
-    &controlChar
-};
-
 // enum EquivalenceClassId = {
 //     PRINTABLE = 0,
 //     WHITESPACE,
