@@ -3110,8 +3110,13 @@ if (veryVerbose)
                  (static_cast<Int64>(bsl::numeric_limits<int>::max()) + 1) - 1;
                 const double minSecs = TimeUnitRatio::k_S_PER_D *
                  (static_cast<Int64>(bsl::numeric_limits<int>::min()) - 1) + 1;
+
                 ASSERT(0 != mYY.setTotalSecondsFromDoubleIfValid(maxSecs+1));
                 ASSERT(0 != mYY.setTotalSecondsFromDoubleIfValid(minSecs-1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_C99_FP_CLASSIFY
+                ASSERT(0 != mYY.setTotalSecondsFromDoubleIfValid(NAN));
+                ASSERT(0 != mYY.setTotalSecondsFromDoubleIfValid(INFINITY));
+#endif
                 ASSERT(0 == mYY.setTotalSecondsFromDoubleIfValid(maxSecs));
                 ASSERT(0 == mYY.setTotalSecondsFromDoubleIfValid(minSecs));
                 ASSERT(0 == mYY.setTotalSecondsFromDoubleIfValid(maxSecs+.5));
@@ -3124,7 +3129,23 @@ if (veryVerbose)
 
                 ASSERT(0 == mYY.setTotalSecondsFromDoubleIfValid(maxSecs+.98));
                 ASSERT(0 == mYY.setTotalSecondsFromDoubleIfValid(minSecs-.98));
-            }
+
+                if (verbose) cout << "Negative Testing\n";
+
+                bsls::AssertTestHandlerGuard hG;
+
+                ASSERT_FAIL(mYY.setTotalSecondsFromDouble(maxSecs+1));
+                ASSERT_FAIL(mYY.setTotalSecondsFromDouble(minSecs-1));
+#ifdef BSLS_LIBRARYFEATURES_HAS_C99_FP_CLASSIFY
+                ASSERT_FAIL(mYY.setTotalSecondsFromDouble(NAN));
+                ASSERT_FAIL(mYY.setTotalSecondsFromDouble(INFINITY));
+#endif
+                ASSERT_PASS(mYY.setTotalSecondsFromDouble(maxSecs));
+                ASSERT_PASS(mYY.setTotalSecondsFromDouble(minSecs));
+                ASSERT_PASS(mYY.setTotalSecondsFromDouble(maxSecs+.5));
+                ASSERT_PASS(mYY.setTotalSecondsFromDouble(minSecs-.5));
+            }                
+
 
             {
                 const char *testing = "'setTotalMilliseconds'";
