@@ -7,24 +7,27 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-
 #include <bdlma_concurrentpoolallocator.h>
 
 #include <bdlma_guardingallocator.h>
 
 #include <bslim_testutil.h>
 
+#include <bslmt_barrier.h>
 #include <bslmt_condition.h>
 #include <bslmt_threadutil.h>
 
-#include <bslma_testallocator.h>
+#include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
+
 #include <bsls_alignmentutil.h>
 #include <bsls_types.h>
 
-#include <bsl_cstring.h>  // 'strcmp'
-#include <bsl_cstdlib.h>  // 'atoi'
+#include <bsl_cassert.h>
 #include <bsl_cstdio.h>   // 'sprintf'
+#include <bsl_cstdlib.h>  // 'atoi'
+#include <bsl_cstring.h>  // 'strcmp'
 #include <bsl_iostream.h>
 #include <bsl_list.h>
 #include <bsl_map.h>
@@ -114,9 +117,11 @@ coutMutex.unlock()
 //=============================================================================
 //              GLOBAL TYPES, CONSTANTS, AND VARIABLES FOR TESTING
 //-----------------------------------------------------------------------------
-static int verbose = 0;
-static int veryVerbose = 0;
-static int veryVeryVerbose = 0;
+
+static int             verbose = 0;
+static int         veryVerbose = 0;
+static int     veryVeryVerbose = 0;
+static int veryVeryVeryVerbose = 0;
 
 static bslmt::Mutex coutMutex;
 
@@ -221,14 +226,37 @@ int calculateMaxAlignedSize(int totalSize)
 //=============================================================================
 //              HELPERS FOR TESTING FIRST ALLOCATION (case 3)
 //-----------------------------------------------------------------------------
+
 static const int NUM_ALLOCATORS = 200;
+
+struct Test3Context {
+    enum Action { e_EXIT, e_PROCEED };
+
+    Obj            **d_allocators_p;
+    bslmt::Barrier  *d_barrier_p;
+    enum Action      d_action;
+};
 
 extern "C" void *my3_up(void *arg)
 {
-    Obj *arr = (Obj *)arg;
+    Test3Context *context = static_cast<Test3Context *>(arg);
+
+    static int exitStatus = -1;
+
+    assert(context);
+    assert(context->d_allocators_p);
+    assert(context->d_barrier_p);
+
+    context->d_barrier_p->wait();
+
+    if (Test3Context::e_EXIT == context->d_action) {
+        return &exitStatus;
+    }
+
+    Obj **arr = context->d_allocators_p;
 
     for (int i = 0; i < NUM_ALLOCATORS; ++i) {
-        arr[i].allocate(13);
+        arr[i]->allocate(13);
     }
 
     return 0;
@@ -236,10 +264,24 @@ extern "C" void *my3_up(void *arg)
 
 extern "C" void *my3_down(void *arg)
 {
-    Obj *arr = (Obj *)arg;
+    static int exitStatus = -1;
+
+    Test3Context *context = static_cast<Test3Context *>(arg);
+
+    assert(context);
+    assert(context->d_allocators_p);
+    assert(context->d_barrier_p);
+
+    context->d_barrier_p->wait();
+
+    if (Test3Context::e_EXIT == context->d_action) {
+        return &exitStatus;
+    }
+
+    Obj **arr = context->d_allocators_p;
 
     for (int i = NUM_ALLOCATORS-1; i >= 0; --i) {
-        arr[i].allocate(13);
+        arr[i]->allocate(13);
     }
 
     return 0;
@@ -741,12 +783,16 @@ void stretchRemoveAll(Obj *object, int numElements)
 //-----------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    verbose = argc > 2;
-    veryVerbose = argc > 3;
-    veryVeryVerbose = argc > 4;
+    int            test = argc > 1 ? atoi(argv[1]) : 0;
+                verbose = argc > 2;
+            veryVerbose = argc > 3;
+        veryVeryVerbose = argc > 4;
+    veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
+    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 7: {
@@ -1528,31 +1574,114 @@ int main(int argc, char *argv[])
         //   allocate(bsls::Types::size_type size);
         // --------------------------------------------------------------------
 
-        for (int i=0; i<1000; i++) {
-            bslma::TestAllocator ta;
-            bslma::DefaultAllocatorGuard g(&ta);
-            Obj a[NUM_ALLOCATORS];
-
-            bslmt::ThreadAttributes attributes;
-
-            bslmt::ThreadUtil::Handle upHandle;
-            int status = bslmt::ThreadUtil::create(&upHandle,
-                                                  attributes,
-                                                  &my3_up,
-                                                  static_cast<void *>(a));
-            ASSERT(0 == status);
-
-            bslmt::ThreadUtil::Handle downHandle;
-            status = bslmt::ThreadUtil::create(&downHandle,
-                                              attributes,
-                                              &my3_down,
-                                              static_cast<void *>(a));
-            ASSERT(0 == status);
-            status = bslmt::ThreadUtil::join(upHandle);
-            ASSERT(0 == status);
-            status = bslmt::ThreadUtil::join(downHandle);
-            ASSERT(0 == status);
+        if (verbose) { cout << "THREAD-SAFETY OF THE FIRST ALLOCATION" << "\n"
+                            << "=====================================" << endl;
         }
+
+        const int NUM_RUNS    = 1000;
+        const int RETRY_LIMIT =    3;
+
+        bslma::TestAllocator fa("footprint");
+
+        for (int runNumber = 0; runNumber < NUM_RUNS; ++runNumber) {
+
+            if (veryVerbose) { P(runNumber) }
+
+            int retryCount = 0;
+            for (; retryCount < RETRY_LIMIT; ++retryCount) {
+    
+                if (veryVerbose) { T_ P(retryCount) }
+    
+                bslmt::ThreadAttributes       attributes;
+                bslmt::Barrier                barrier(2);
+
+                bslma::TestAllocator  tas                 [NUM_ALLOCATORS];
+                Obj                  *arrayOfAllocatorPtrs[NUM_ALLOCATORS];
+
+                for (int i = 0; i < NUM_ALLOCATORS; ++i) {
+                    arrayOfAllocatorPtrs[i] = new (fa) Obj(&tas[i]);
+                }
+
+                Test3Context  context = { arrayOfAllocatorPtrs
+                                        , &barrier
+                                        , Test3Context::e_PROCEED
+                                        };
+                void         *arg = &context;
+    
+                bslmt::ThreadUtil::Handle   upHandle;
+                bslmt::ThreadUtil::Handle downHandle;
+    
+                int statusUp = bslmt::ThreadUtil::create(&upHandle,
+                                                         attributes,
+                                                         &my3_up,
+                                                         arg);
+                if (0 != statusUp) {
+                    if (veryVeryVerbose) { T_ T_ Q("Up" thread create failed) }
+                    bslmt::ThreadUtil::microSleep(0, 1);  // 1 second
+                    continue;
+                }
+    
+                int statusDown = bslmt::ThreadUtil::create(&downHandle,
+                                                           attributes,
+                                                           &my3_down,
+                                                           arg);
+                if (0 != statusDown) {
+
+                    if (veryVeryVerbose) {
+                        T_ T_ Q("Down" thread create failed)
+                    }
+
+                    context.d_action = Test3Context::e_EXIT;
+                    barrier.arrive(); // Release the "up" thread so it exits.
+                    void *exitUp = 0;
+                    int statusJoinUp   = bslmt::ThreadUtil::join(upHandle,
+                                                                 &exitUp);
+                    ASSERT( 0 == statusJoinUp);
+                    ASSERT(-1 == *static_cast<int *>(exitUp));
+                    
+                    bslmt::ThreadUtil::microSleep(0, 1);  // 1 second
+                    continue;
+                }
+    
+                int statusJoinUp   = bslmt::ThreadUtil::join(  upHandle);
+                ASSERT(0 == statusJoinUp);
+    
+                int statusJoinDown = bslmt::ThreadUtil::join(downHandle);
+                ASSERT(0 == statusJoinDown);
+
+                for (int i = 0; i < NUM_ALLOCATORS; ++i) {
+                    const bslma::TestAllocator& TA = tas[i];
+
+                    ASSERTV(i, TA.numAllocations(), 2 == TA.numAllocations());
+                    ASSERTV(i, TA.numBlocksInUse(), 2 == TA.numBlocksInUse());
+                    ASSERTV(i,   TA.numDeallocations(),
+                            0 == TA.numDeallocations());
+                }
+
+                for (int i = 0; i < NUM_ALLOCATORS; ++i) {
+                    fa.deleteObject(arrayOfAllocatorPtrs[i]);
+                }
+
+                break;
+            }
+    
+            if (RETRY_LIMIT == retryCount) {
+                if (veryVerbose) {
+                    Q(Could not create both threads);
+                    P(runNumber) P(retryCount)
+                }
+                ASSERTV(runNumber, retryCount,
+                        !"Able to create both threads.");
+                break;
+            }
+        }
+
+        ASSERTV(NUM_RUNS,  NUM_ALLOCATORS,   fa.numBlocksTotal(),
+                NUM_RUNS * NUM_ALLOCATORS == fa.numBlocksTotal());
+
+        ASSERTV(     fa.numBytesInUse(),
+                0 == fa.numBytesInUse());
+
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -1646,9 +1775,13 @@ int main(int argc, char *argv[])
       }
     }
 
+    ASSERTV(     globalAllocator.numBlocksTotal(),
+            0 == globalAllocator.numBlocksTotal());
+
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;
     }
+
     return testStatus;
 }
 
