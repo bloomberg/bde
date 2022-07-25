@@ -775,8 +775,12 @@ DatetimeInterval& DatetimeInterval::operator=(const DatetimeInterval& rhs)
 inline
 DatetimeInterval& DatetimeInterval::operator+=(const DatetimeInterval& rhs)
 {
+#ifdef BSLS_ASSERT_IS_USED
     int rc = addIntervalIfValid(rhs.d_days, 0, 0, 0, 0, rhs.d_microseconds);
     BSLS_ASSERT(0 == rc && "operator+= over/under flow");  (void) rc;
+#else
+    addInterval(rhs.d_days, 0, 0, 0, 0, rhs.d_microseconds);
+#endif
 
     return *this;
 }
@@ -794,9 +798,13 @@ DatetimeInterval& DatetimeInterval::operator-=(const DatetimeInterval& rhs)
     rhsMicroseconds = -rhsMicroseconds;
     BSLS_ASSERT_SAFE(rhsDays <= INT_MAX && INT_MIN < rhsDays);   // always true
 
+#ifdef BSLS_ASSERT_IS_USED
     int rc = addIntervalIfValid(
                        static_cast<int>(rhsDays), 0, 0, 0, 0, rhsMicroseconds);
     BSLS_ASSERT(0 == rc && "operator-= over/under flow"); (void) rc;
+#else
+    addInterval(static_cast<int>(rhsDays), 0, 0, 0, 0, rhsMicroseconds);
+#endif
 
     return *this;
 }
@@ -1198,13 +1206,17 @@ inline
 bdlt::DatetimeInterval bdlt::operator+(const DatetimeInterval& lhs,
                                        const DatetimeInterval& rhs)
 {
-    DatetimeInterval interval(lhs);
+    DatetimeInterval ret(lhs);
 
-    int rc = interval.addIntervalIfValid(0, 0, 0, 0,
+#ifdef BSLS_ASSERT_IS_USED
+    int rc = ret.addIntervalIfValid(0, 0, 0, 0,
                                   rhs.totalMilliseconds(), rhs.microseconds());
     BSLS_ASSERT(0 == rc && "operator+ over/under flow");    (void) rc;
+#else
+    ret.addInterval(0, 0, 0, 0, rhs.totalMilliseconds(), rhs.microseconds());
+#endif
 
-    return interval;
+    return ret;
 }
 
 inline
@@ -1213,9 +1225,13 @@ bdlt::DatetimeInterval bdlt::operator-(const DatetimeInterval& lhs,
 {
     DatetimeInterval ret(lhs);
 
+#ifdef BSLS_ASSERT_IS_USED
     int rc = ret.addIntervalIfValid(0, 0, 0, 0,
                                 -rhs.totalMilliseconds(), -rhs.microseconds());
     BSLS_ASSERT(0 == rc && "operator- over/under flow");    (void) rc;
+#else
+    ret.addInterval(0, 0, 0, 0, -rhs.totalMilliseconds(), -rhs.microseconds());
+#endif
 
     return ret;
 }
