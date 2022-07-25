@@ -776,7 +776,7 @@ inline
 DatetimeInterval& DatetimeInterval::operator+=(const DatetimeInterval& rhs)
 {
     int rc = addIntervalIfValid(rhs.d_days, 0, 0, 0, 0, rhs.d_microseconds);
-    BSLS_ASSERT(0 == rc && "operator+= over/under flow");
+    BSLS_ASSERT(0 == rc && "operator+= over/under flow");  (void) rc;
 
     return *this;
 }
@@ -796,7 +796,7 @@ DatetimeInterval& DatetimeInterval::operator-=(const DatetimeInterval& rhs)
 
     int rc = addIntervalIfValid(
                        static_cast<int>(rhsDays), 0, 0, 0, 0, rhsMicroseconds);
-    BSLS_ASSERT(0 == rc && "operator-+ over/under flow");
+    BSLS_ASSERT(0 == rc && "operator-= over/under flow"); (void) rc;
 
     return *this;
 }
@@ -1202,7 +1202,7 @@ bdlt::DatetimeInterval bdlt::operator+(const DatetimeInterval& lhs,
 
     int rc = interval.addIntervalIfValid(0, 0, 0, 0,
                                   rhs.totalMilliseconds(), rhs.microseconds());
-    BSLS_ASSERT(0 == rc && "operator+ over/under flow");
+    BSLS_ASSERT(0 == rc && "operator+ over/under flow");    (void) rc;
 
     return interval;
 }
@@ -1215,7 +1215,7 @@ bdlt::DatetimeInterval bdlt::operator-(const DatetimeInterval& lhs,
 
     int rc = ret.addIntervalIfValid(0, 0, 0, 0,
                                 -rhs.totalMilliseconds(), -rhs.microseconds());
-    BSLS_ASSERT(0 == rc && "operator- over/under flow");
+    BSLS_ASSERT(0 == rc && "operator- over/under flow");    (void) rc;
 
     return ret;
 }
