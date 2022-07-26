@@ -436,6 +436,7 @@ class MultiQueueThreadPool_Queue {
                                    bslma::UsesBslmaAllocator);
 
     // CREATORS
+    explicit
     MultiQueueThreadPool_Queue(MultiQueueThreadPool *multiQueueThreadPool,
                                bslma::Allocator     *basicAllocator = 0);
         // Create a 'MultiQueueThreadPool_Queue' with an initial capacity of 0
@@ -636,13 +637,13 @@ class MultiQueueThreadPool {
         // the appropriate time.
 
     int findIfUsable(int id, MultiQueueThreadPool_Queue **queue);
-       // Load into the specified '*queue' a pointer to the queue referenced by
-       // the specified 'id' if this 'MultiQueueThreadPool' is in a state where
-       // the 'queue' can be used.  Return 0 on success, and a non-zero value
-       // if the 'id' is not contained in 'd_queueRegistry', this
-       // 'MultiQueueThreadPool' is not in the running state, or
-       // '0 == d_threadPool_p->enabled()'.  The behavior is undefined unless
-       // the invoking thread has a lock, read or write, on 'd_lock'.
+        // Load into the specified '*queue' a pointer to the queue referenced
+        // by the specified 'id' if this 'MultiQueueThreadPool' is in a state
+        // where the 'queue' can be used.  Return 0 on success, and a non-zero
+        // value if the 'id' is not contained in 'd_queueRegistry', this
+        // 'MultiQueueThreadPool' is not in the running state, or
+        // '0 == d_threadPool_p->enabled()'.  The behavior is undefined unless
+        // the invoking thread has a lock, read or write, on 'd_lock'.
 
   public:
     // TRAITS
@@ -658,13 +659,14 @@ class MultiQueueThreadPool {
         // Construct a 'MultiQueueThreadPool' with the specified
         // 'threadAttributes', the specified 'minThreads' minimum number of
         // threads, the specified 'maxThreads' maximum number of threads, and
-        // the specified 'maxIdleTime' maximum idle time (in milliseconds).
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  The behavior is undefined unless '0 <= minThreads',
-        // 'minThreads <= maxThreads', and '0 <= maxIdleTime'.  Note that the
-        // 'MultiQueueThreadPool' is created without any queues.  Although
-        // queues may be created, 'start' must be called before enqueuing jobs.
+        // the specified 'maxIdleTime' idle time (in milliseconds) after which
+        // a thread may be considered for destruction.  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.  The behavior is
+        // undefined unless '0 <= minThreads', 'minThreads <= maxThreads', and
+        // '0 <= maxIdleTime'.  Note that the 'MultiQueueThreadPool' is created
+        // without any queues.  Although queues may be created, 'start' must be
+        // called before enqueuing jobs.
 
     explicit
     MultiQueueThreadPool(ThreadPool       *threadPool,
@@ -932,7 +934,7 @@ int MultiQueueThreadPool::findIfUsable(int                          id,
     QueueRegistry::iterator iter = d_queueRegistry.find(id);
 
     if (d_queueRegistry.end() == iter) {
-        return 1;
+        return 1;                                                     // RETURN
     }
 
     *queue = iter->second;

@@ -439,10 +439,10 @@ class ThreadPool {
     bsls::AtomicInt      d_createFailures; // number of thread create failures
 
 
-    bsls::TimeInterval   d_maxIdleTime;    // maximum time that threads (in
-                                           // excess of the minimum number of
-                                           // threads) can remain idle before
-                                           // being shut down
+    bsls::TimeInterval   d_maxIdleTime;    // time that threads (in excess of
+                                           // the minimum number of threads)
+                                           // remain idle before being shut
+                                           // down
 
     int                  d_numActiveThreads;
                                            // current number of threads that
@@ -519,11 +519,12 @@ class ThreadPool {
         // Construct a thread pool with the specified 'threadAttributes', the
         // specified 'minThreads' minimum number of threads, the specified
         // 'maxThreads' maximum number of threads, and the specified
-        // 'maxIdleTime' maximum idle time (in milliseconds).  Optionally
-        // specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  The behavior is undefined unless '0 <= minThreads',
-        // 'minThreads <= maxThreads', and '0 <= maxIdleTime'.
+        // 'maxIdleTime' idle time (in milliseconds) after which a thread may
+        // be considered for destruction.  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.  The behavior is
+        // undefined unless '0 <= minThreads', 'minThreads <= maxThreads', and
+        // '0 <= maxIdleTime'.
 
     ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
                int                             minThreads,
@@ -533,12 +534,13 @@ class ThreadPool {
         // Construct a thread pool with the specified 'threadAttributes', the
         // specified 'minThreads' minimum number of threads, the specified
         // 'maxThreads' maximum number of threads, and the specified
-        // 'maxIdleTime' maximum idle time.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.  The behavior is
-        // undefined unless '0 <= minThreads', 'minThreads <= maxThreads',
-        // '0 <= maxIdleTime', and the 'maxIdleTime' has a value less than
-        // or equal to 'INT_MAX' milliseconds.
+        // 'maxIdleTime' idle time after which a thread may be considered for
+        // destruction.  Optionally specify a 'basicAllocator' used to supply
+        // memory.  If 'basicAllocator' is 0, the currently installed default
+        // allocator is used.  The behavior is undefined unless
+        // '0 <= minThreads', 'minThreads <= maxThreads', '0 <= maxIdleTime',
+        // and the 'maxIdleTime' has a value less than or equal to 'INT_MAX'
+        // milliseconds.
 
     ~ThreadPool();
         // Call 'shutdown()' and destroy this thread pool.
@@ -601,13 +603,12 @@ class ThreadPool {
         // at given time.
 
     int maxIdleTime() const;
-        // Return the maximum amount of time (in milliseconds) a thread may
-        // remain idle before being shut down when there are more than min
-        // threads started.
+        // Return the amount of time (in milliseconds) a thread remains idle
+        // before being shut down when there are more than min threads started.
 
     bsls::TimeInterval maxIdleTimeInterval() const;
-        // Return the maximum amount of time a thread may remain idle before
-        // being shut down when there are more than min threads started.
+        // Return the amount of time a thread remains idle before being shut
+        // down when there are more than min threads started.
 
     int minThreads() const;
         // Return the minimum number of threads that must be started at any
