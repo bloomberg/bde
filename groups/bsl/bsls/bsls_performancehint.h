@@ -157,7 +157,7 @@ BSLS_IDENT("$Id: $")
 // assembly instructions.  Note the use of 'BSLS_PERFORMANCEHINT_UNLIKELY_HINT'
 // inside the 'if' branch for maximum portability.
 //..
-//  int global;
+//  volatile int global;
 //
 //  void foo()
 //  {
@@ -273,15 +273,15 @@ BSLS_IDENT("$Id: $")
 //  void add(int *arrayA, int *arrayB)
 //  {
 //      for (int i = 0; i < SIZE / 8; ++i){
-//          *(arrayA++) = *arrayA + *(arrayB++);
-//          *(arrayA++) = *arrayA + *(arrayB++);
-//          *(arrayA++) = *arrayA + *(arrayB++);
-//          *(arrayA++) = *arrayA + *(arrayB++);
+//          *arrayA += *arrayB; ++arrayA; ++arrayB;
+//          *arrayA += *arrayB; ++arrayA; ++arrayB;
+//          *arrayA += *arrayB; ++arrayA; ++arrayB;
+//          *arrayA += *arrayB; ++arrayA; ++arrayB;
 //
-//          *(arrayA++) = *arrayA + *(arrayB++);
-//          *(arrayA++) = *arrayA + *(arrayB++);
-//          *(arrayA++) = *arrayA + *(arrayB++);
-//          *(arrayA++) = *arrayA + *(arrayB++);
+//          *arrayA += *arrayB; ++arrayA; ++arrayB;
+//          *arrayA += *arrayB; ++arrayA; ++arrayB;
+//          *arrayA += *arrayB; ++arrayA; ++arrayB;
+//          *arrayA += *arrayB; ++arrayA; ++arrayB;
 //      }
 //  }
 //
@@ -295,7 +295,7 @@ BSLS_IDENT("$Id: $")
 //      for (int i = 0; i < 10; ++i) {
 //          add(array1, array2);
 //      }
-//      std::printf("time: %f\n", timer.elapsedTime());
+//      printf("time: %f\n", timer.elapsedTime());
 //      return 0;
 //  }
 //..
@@ -310,21 +310,22 @@ BSLS_IDENT("$Id: $")
 // writing and 'arrayB' is used for reading.  Making use of prefetch, we add
 // calls to 'prefetchForReading' and 'prefetchForWriting':
 //..
-//  void add(int *arrayA, int *arrayB)
+//  void add2(int *arrayA, int *arrayB)
 //  {
 //      for (int i = 0; i < SIZE / 8; ++i){
+//          using namespace BloombergLP; // Generally avoid 'using' in this TD.
 //          bsls::PerformanceHint::prefetchForWriting((int *) arrayA + 16);
 //          bsls::PerformanceHint::prefetchForReading((int *) arrayB + 16);
 //
-//          *(arrayA++) = *arrayA + *(arrayB++);
-//          *(arrayA++) = *arrayA + *(arrayB++);
-//          *(arrayA++) = *arrayA + *(arrayB++);
-//          *(arrayA++) = *arrayA + *(arrayB++);
+//          *arrayA += *arrayB; ++arrayA; ++arrayB;
+//          *arrayA += *arrayB; ++arrayA; ++arrayB;
+//          *arrayA += *arrayB; ++arrayA; ++arrayB;
+//          *arrayA += *arrayB; ++arrayA; ++arrayB;
 //
-//          *(arrayA++) = *arrayA + *(arrayB++);
-//          *(arrayA++) = *arrayA + *(arrayB++);
-//          *(arrayA++) = *arrayA + *(arrayB++);
-//          *(arrayA++) = *arrayA + *(arrayB++);
+//          *arrayA += *arrayB; ++arrayA; ++arrayB;
+//          *arrayA += *arrayB; ++arrayA; ++arrayB;
+//          *arrayA += *arrayB; ++arrayA; ++arrayB;
+//          *arrayA += *arrayB; ++arrayA; ++arrayB;
 //      }
 //  }
 //..
@@ -414,7 +415,6 @@ namespace BloombergLP {
     #define BSLS_PERFORMANCEHINT_HAS_ATTRIBUTE_COLD 1
 #endif
 
-
 // Define the 'BSLS_PERFORMANCEHINT_UNLIKELY_HINT' macro.
 
 #if defined(BDE_BUILD_TARGET_OPT) && defined(BSLS_PLATFORM_CMP_SUN)
@@ -431,7 +431,6 @@ namespace BloombergLP {
                         // =======================================
                         // BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE
                         // =======================================
-
 
 #if defined(BSLS_PLATFORM_CMP_IBM)
 

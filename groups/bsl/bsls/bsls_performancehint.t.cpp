@@ -2,25 +2,30 @@
 #include <bsls_performancehint.h>
 
 #include <bsls_bsltestutil.h>
+#include <bsls_platform.h>
+#include <bsls_types.h> // 'BloombergLP::bsls::Types::Int64'
+
+#include <algorithm>   // 'std::sort'
+#include <cassert>
+#include <cstdlib>     // 'std::rand', 'std::srand'
+#include <vector>
 
 #include <stdint.h>
-#include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
-#include <windows.h>   // GetSystemTimeAsFileTime, Sleep
+#include <windows.h>      // 'GetSystemTimeAsFileTime', 'Sleep'
+#include <winbase.h>      // 'GetProcessTimes'
 #else
-#include <unistd.h>    // sleep
-#include <sys/time.h>  // gettimeofday
+#include <unistd.h>       // 'sleep'
+#include <sys/time.h>     // 'gettimeofday'
+#include <sys/resource.h> // 'struct rusage'
 #endif
 
-using namespace BloombergLP;
-using namespace bsls;
-
-//=============================================================================
+// ============================================================================
 //                                 TEST  PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
 // This component provides MACROs to facilitate more intelligent code
@@ -31,20 +36,61 @@ using namespace bsls;
 // Therefore, only the small usage example will be verified.
 //
 // In addition, macro safety is tested in all test cases.  The common
-// 'using namespace BloombergLP' statement is intentionally commented out to
-// test that these macros function outside namespace 'BloombergLP'.
+// 'using namespace BloombergLP' statement is intentionally ommitted to confirm
+// that these macros are validly used outside of namespace 'BloombergLP'.
+//
+// The test cases of this test driver fall into three categories:
+//: o Verification of usage examples (compile correctness).
+//: o Tests of the helper classes.
+//: o Manually run (negatively case numbered) measures of performance.
+//
+// A definitive test of this component's macros requires an examination of
+// generated assembly language to confirm that the expected specialized
+// instructions appear where expected.  Doing that is impractical from the test
+// driver framework.  Attempts measure the time needed to complete a given work
+// load with and without the preformance hint presents challenges since, in
+// many cases, the performance improvement is only a percent or two, a value
+// that difficult to reliably confirm in test runs that complete in reasonable
+// time -- especially when running on heavily build machines where overall
+// system load can (as has been observed) quickly change between measurements.
+// Accordingly, timed measurements appear as manually run tests where human
+// judgement can be applied.  The sole exception to this categorization is the
+// test for 'BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE'.  That is placed
+// "above the line" because the performance differs by an order of magnitude.
+//
+// The validity of the measurments of the manually-run test cases is further
+// improved by:
+//
+//: o Running each test scenario multiple types and then reporting the
+//:   minimum, median, and maximum of for the series of runs.
+//:
+//: o Where appropriate, judge performance by comparing accrued "user" time,
+//:   not "wall" elapsed time.  User time for a fixed task shows less variance
+//:   than "wall" time and makes sense when the expected change affects code
+//:   execution within user space only.
+//
+// Note that the relatively low position of this component in the hierarchy
+// forces us to avoid many of our conventional testing facilities.  Notably,
+// this component uses a local definition of a 'Stopwatch' class to avoid a
+// cycle that would be introduced if 'bsls_performancehint' depended on
+// 'bsls_stopwatch'.  Similarly, 'BSLS_ASSERT*' macros (and their attendant
+// negative testing) are eschewed in the implementation helper class
+// 'Stopwatch' and helper functions lest a cycle be introduced -- the classic
+// 'assert' macro is used instead.
 // ----------------------------------------------------------------------------
-// [ 1] Usage Example: Using 'BSLS_PERFORMANCEHINT_PREDICT_LIKELY' and
-//                     'BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY'
-// [ 2] Usage Example: Using 'BSLS_PERFORMANCEHINT_PREDICT_EXPECT'
-// [ 3] Usage Example: Using 'prefetchForReading' and 'prefetchForWriting'
-//-----------------------------------------------------------------------------
-// [-1] Performance Test: Verifies the performance of test 1, 2, 3
-//-----------------------------------------------------------------------------
+// [ 5] USAGE EXAMPLE 3
+// [ 4] USAGE EXAMPLE 2
+// [ 3] USAGE EXAMPLE 1
+// [ 2] BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE
+// [ 1] TEST-MACHINERY: 'Stopwatch'
+// ----------------------------------------------------------------------------
+// [-1] CONCERN: STOPWATCH ACCURACY
+// [-2] PERFORMANCE: _PREDICT_LIKELY, _PREDICT_UNLIKELY, _UNLIKELY_HINT
+// [-3] PERFORMANCE: prefetchForReading, prefecthForWriting
 
-//=============================================================================
+// ============================================================================
 //                    STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 namespace {
 
@@ -80,44 +126,9 @@ void aSsErT(bool b, const char *s, int i) {
 #define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
 #define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
-
-namespace UsageExample3Case {
-
-const int SIZE = 10 * 1024 * 1024;  // big enough so not all data sits in cache
-
-#if defined(BSLS_PLATFORM_CMP_SUN)
-    // For some reason the sun machine is A LOT slower than the other
-    // platforms, even in optimized mode.
-const int TESTSIZE = 10;
-#else
-const int TESTSIZE = 100;
-#endif
-
-#if defined(BSLS_PLATFORM_CMP_GNU) &&                                         \
-                               defined(BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wlarger-than=" // clang doesn't recognize this
-#endif
-
-volatile int array1[SIZE]; // for 'addWithPrefetch'
-volatile int array2[SIZE]; // for 'addWithPrefetch'
-
-volatile int array3[SIZE]; // for 'addWithoutPrefetch
-volatile int array4[SIZE]; // for 'addWithoutPrefetch
-
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
-#pragma GCC diagnostic pop
-#endif
-
-}  // close namespace UsageExample3Case
-
-//=============================================================================
+// ============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
-
+// ----------------------------------------------------------------------------
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
 void sleep(unsigned int seconds)
@@ -135,7 +146,6 @@ int64_t getTimer()
    // 'bsls_timeutil'.
 {
     int64_t result;
-
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
     const unsigned int k_NANOSECONDS_PER_TICK = 100;
@@ -155,6 +165,52 @@ int64_t getTimer()
     return result;
 }
 
+int64_t getTimerUser()
+{
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
+    static const BloombergLP::bsls::Types::Int64 s_nsecsPerUnit = 100;
+
+    FILETIME crtnTm, exitTm, krnlTm, userTm;
+    ULARGE_INTEGER userTimer;
+
+    if (!::GetProcessTimes(::GetCurrentProcess(),
+                           &crtnTm,
+                           &exitTm,
+                           &krnlTm,
+                           &userTm)) {
+        userTimer.QuadPart = 0;
+    }
+
+    userTimer.LowPart  = userTm.dwLowDateTime;
+    userTimer.HighPart = userTm.dwHighDateTime;
+
+    return userTimer.QuadPart * s_nsecsPerUnit;
+#else
+
+    static BloombergLP::bsls::Types::Int64 s_nsecsPerSecond      = 1000
+                                                                 * 1000
+                                                                 * 1000;
+    static BloombergLP::bsls::Types::Int64 s_nsecsPerMicrosecond = 1000;
+
+    struct rusage usage;
+
+    int rc = getrusage(RUSAGE_SELF, &usage); (void) rc;
+
+    assert(-1 != rc);  // Sanity check for validity of 'RUSAGE_SELF' and
+                       // '&usage'.  Possible errors all require invalid input
+                       // to 'getrusage'.
+
+    BloombergLP::bsls::Types::Int64 timeSec  = 0;
+    BloombergLP::bsls::Types::Int64 timeUsec = 0;
+
+    timeSec  = static_cast<BloombergLP::bsls::Types::Int64>(
+                                                        usage.ru_utime.tv_sec);
+    timeUsec = static_cast<BloombergLP::bsls::Types::Int64>(
+                                                       usage.ru_utime.tv_usec);
+    return timeSec * s_nsecsPerSecond + timeUsec * s_nsecsPerMicrosecond;
+#endif
+}
+
 class Stopwatch {
     // The 'class' provides an accumulator for the system time of the current
     // process.  A stopwatch can be in either the STOPPED (initial) state or
@@ -164,10 +220,19 @@ class Stopwatch {
     // DATA
     int64_t d_startTime;
     int64_t d_accumulatedTime;
+
     bool    d_isRunning;
 
+    int64_t d_startTimeUser;
+    int64_t d_accumulatedTimeUser;
+
   public:
-    Stopwatch() : d_startTime(0), d_accumulatedTime(0), d_isRunning(false) {}
+    Stopwatch()
+    : d_startTime(0)
+    , d_accumulatedTime(0)
+    , d_isRunning(false)
+    , d_startTimeUser(0)
+    , d_accumulatedTimeUser(0) {}
         // Create a stopwatch in the STOPPED state having total accumulated
         // system, user, and wall times all equal to 0.0.
 
@@ -181,17 +246,20 @@ class Stopwatch {
         // the accumulation of elapsed times, and set the quiescent elapsed
         // times to 0.0.
     {
-        d_isRunning       = false;
-        d_accumulatedTime = 0;
-        d_startTime       = 0;
+        d_isRunning           = false;
+        d_accumulatedTime     = 0;
+        d_startTime           = 0;
+        d_accumulatedTimeUser = 0;
+        d_startTimeUser       = 0;
     }
 
     void start()
         // Place this stopwatch in the RUNNING state and begin accumulating
         // elapsed times if this object was in the STOPPED state.
     {
-        d_isRunning = true;
-        d_startTime = getTimer();
+        d_isRunning     = true;
+        d_startTime     = getTimer();
+        d_startTimeUser = getTimerUser();
     }
 
     void stop()
@@ -199,10 +267,10 @@ class Stopwatch {
         // the accumulation of elapsed times.  Note that the quiescent
         // accumulated elapsed times are available while in the STOPPED state.
     {
-        d_isRunning = false;
-        d_accumulatedTime = getTimer() - d_startTime;
+        d_isRunning           = false;
+        d_accumulatedTime     = getTimer()     - d_startTime;
+        d_accumulatedTimeUser = getTimerUser() - d_startTimeUser;
     }
-
 
     // ACCESSORS
     double elapsedTime() const
@@ -219,24 +287,230 @@ class Stopwatch {
         return (double)elapsedTime / k_NanosecondsPerSecond;
     }
 
+    double userTime() const
+        // Return the total (instantanous and quiescent) elapsed user time (in
+        // seconds) accumulated by this stopwatch.  Note that this method is
+        // equivalent to 'accumulatedUserTime'.
+    {
+
+        const double k_NanosecondsPerSecond = 1.0E9;
+
+        int64_t userTime = (d_isRunning)
+                         ? getTimerUser() - d_startTimeUser
+                         : d_accumulatedTimeUser;
+        return (double)userTime / k_NanosecondsPerSecond;
+    }
+
     bool isRunning() const { return d_isRunning; }
         // Return 'true' if this stopwatch is accumulating time, and 'false'
         // otherwise.
-
 };
 
-
-//=============================================================================
+// ============================================================================
 //                              GLOBAL TEST CASES
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
-namespace UsageExample1Case {
+namespace UsageExample1 {
 
+///Usage
+///-----
+// The following series of examples illustrates use of the macros and functions
+// provided by this component.
+//
+///Example 1: Using the Branch Prediction Macros
+///- - - - - - - - - - - - - - - - - - - - - - -
+// The following demonstrates the use of 'BSLS_PERFORMANCEHINT_PREDICT_LIKELY'
+// and 'BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY' to generate more efficient
+// assembly instructions.  Note the use of 'BSLS_PERFORMANCEHINT_UNLIKELY_HINT'
+// inside the 'if' branch for maximum portability.
+//..
+    volatile int global;
 
-const int TESTSIZE = 10000000;  // test size used for timing
-int global;                     // uninitialized on purpose to prevent compiler
-                                // optimization
+    void foo()
+    {
+        global = 1;
+    }
 
+    void bar()
+    {
+        global = 2;
+    }
+
+    int main(int argc, char **argv)
+    {
+        argc = std::atoi(argv[1]);
+
+        for (int x = 0; x < argc; ++x) {
+            int y = std::rand() % 10;
+
+            // Correct usage of 'BSLS_PERFORMANCEHINT_PREDICT_LIKELY' since
+            // there are nine of ten chance that this branch is taken.
+
+            if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(8 != y)) {
+                foo();
+            }
+            else {
+                BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+                bar();
+            }
+        }
+        return 0;
+    }
+//..
+// An excerpt of the assembly code generated using 'xlC' Version 10 on AIX from
+// this small program is:
+//..
+//  b8:   2c 00 00 08     cmpwi   r0,8
+//  bc:   41 82 00 38     beq-    f4 <.main+0xb4>
+//                         ^
+//                         Note that if register r0 (y) equals 8, branch to
+//                         instruction f4 (a jump).  The '-' after 'beq'
+//                         indicates that the branch is unlikely to be taken.
+//                         The predicted code path continues the 'if'
+//                         statement, which calls 'foo' below.
+//
+//  c0:   4b ff ff 41     bl      0 <.foo__Fv>
+//  ...
+//  f4:   4b ff ff 2d     bl      20 <.bar__Fv>
+//..
+// Now, if 'BSLS_PERFORMANCEHINT_PREDICT_LIKELY' is changed to
+// 'BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY', and the
+// 'BSLS_PERFORMANCEHINT_UNLIKELY_HINT' is moved to the first branch, the
+// following assembly code will be generated:
+//..
+//  b8:   2c 00 00 08     cmpwi   r0,8
+//  bc:   40 c2 00 38     bne-    f4 <.main+0xb4>
+//                         ^
+//                         Note that the test became a "branch not equal"
+//                         test.  The predicted code path now continues to the
+//                         'else' statement, which calls 'bar' below.
+//
+//  c0:   4b ff ff 61     bl      20 <.bar__Fv>
+//  ...
+//  f4:   4b ff ff 0d     bl      0 <.foo__Fv>
+//..
+// A timing analysis shows that effective use of branch prediction can have a
+// material effect on code efficiency:
+//..
+//  $time ./unlikely.out 100000000
+//
+//  real    0m2.022s
+//  user    0m2.010s
+//  sys     0m0.013s
+//
+//  $time ./likely.out 100000000
+//
+//  real    0m2.159s
+//  user    0m2.149s
+//  sys     0m0.005s
+//..
+}  // close namespace UsageExample1
+
+namespace UsageExample3 {
+
+// Note that the local 'Stopwatch' class is used below in lieu of
+// 'BloombergLP::bsls::Stopwatch' to avoid a cyclic depenency between
+// components.
+
+///Example 3: Cache Line Prefetching
+///- - - - - - - - - - - - - - - - -
+// The following demonstrates use of 'prefetchForReading' and
+// 'prefetchForWriting' to prefetch data cache lines:
+//..
+    const int SIZE = 10 * 1024 * 1024;
+
+    void add(int *arrayA, int *arrayB)
+    {
+        for (int i = 0; i < SIZE / 8; ++i){
+            *arrayA += *arrayB; ++arrayA; ++arrayB;
+            *arrayA += *arrayB; ++arrayA; ++arrayB;
+            *arrayA += *arrayB; ++arrayA; ++arrayB;
+            *arrayA += *arrayB; ++arrayA; ++arrayB;
+
+            *arrayA += *arrayB; ++arrayA; ++arrayB;
+            *arrayA += *arrayB; ++arrayA; ++arrayB;
+            *arrayA += *arrayB; ++arrayA; ++arrayB;
+            *arrayA += *arrayB; ++arrayA; ++arrayB;
+        }
+    }
+
+#if defined(BSLS_PLATFORM_CMP_GNU)                                            \
+ && defined(BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wlarger-than=" // clang doesn't recognize this
+#endif
+    int array1[SIZE];
+    int array2[SIZE];
+#if defined(BSLS_PLATFORM_CMP_GNU)                                            \
+ && defined(BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC)
+#pragma GCC diagnostic pop
+#endif
+
+    int main()
+    {
+     // BloombergLP::bsls::Stopwatch timer;
+        Stopwatch timer;
+        timer.start();
+        for (int i = 0; i < 10; ++i) {
+            add(array1, array2);
+        }
+        printf("time: %f\n", timer.elapsedTime());
+        return 0;
+    }
+//..
+// The above code simply adds two arrays together multiple times.  Using
+// 'bsls::Stopwatch', we recorded the running time and printed it to 'stdout':
+//..
+//  $./prefetch.sundev1.tsk
+//  time: 8.446806
+//..
+// Now, we can observe that in the 'add' function, 'arrayA' and 'arrayB' are
+// accessed sequentially for the majority of the program.  'arrayA' is used for
+// writing and 'arrayB' is used for reading.  Making use of prefetch, we add
+// calls to 'prefetchForReading' and 'prefetchForWriting':
+//..
+    void add2(int *arrayA, int *arrayB)
+    {
+        for (int i = 0; i < SIZE / 8; ++i){
+            using namespace BloombergLP; // Generally avoid 'using' in this TD.
+            bsls::PerformanceHint::prefetchForWriting((int *) arrayA + 16);
+            bsls::PerformanceHint::prefetchForReading((int *) arrayB + 16);
+
+            *arrayA += *arrayB; ++arrayA; ++arrayB;
+            *arrayA += *arrayB; ++arrayA; ++arrayB;
+            *arrayA += *arrayB; ++arrayA; ++arrayB;
+            *arrayA += *arrayB; ++arrayA; ++arrayB;
+
+            *arrayA += *arrayB; ++arrayA; ++arrayB;
+            *arrayA += *arrayB; ++arrayA; ++arrayB;
+            *arrayA += *arrayB; ++arrayA; ++arrayB;
+            *arrayA += *arrayB; ++arrayA; ++arrayB;
+        }
+    }
+//..
+// Adding the prefetch improves the program's efficiency:
+//..
+//  $./prefetch.sundev1.tsk
+//  time: 6.442100
+//..
+// Note that we prefetch the address '16 * sizeof(int)' bytes away from
+// 'arrayA'.  This is such that the prefetch instruction has sufficient time to
+// finish before the data is actually accessed.  To see the difference, if we
+// changed '+ 16' to '+ 4':
+//..
+//  $./prefetch.sundev1.tsk
+//  time: 6.835928
+//..
+// And we get less of an improvement in speed.  Similarly, if we prefetch too
+// far away from the data use, the data might be removed from the cache before
+// it is looked at and the prefetch is wasted.
+
+}  // close namespace UsageExample3
+
+namespace PerformanceLikelyUnlikely {
+
+const int    TESTSIZE = 10 * 1000 * 1000;  // test size used for timing
+volatile int global;
 
 volatile int count1 = 0;
 volatile int count2 = 0;
@@ -245,60 +519,57 @@ void foo()
     // Dummy function that sets the global variable.  Used to prevent the
     // compiler from optimizing the code too much.
 {
-    global = 1;
-    count1++;
-    count1++;
-    count1++;
-    count1++;
+    global = std::rand();
+    count1 = std::rand();
+    count1 = std::rand();
+    count1 = std::rand();
+    count1 = std::rand();
 
-    count1++;
-    count1++;
-    count1++;
-    count1++;
+    count1 = std::rand();
+    count1 = std::rand();
+    count1 = std::rand();
+    count1 = std::rand();
 }
 
 void bar()
     // Dummy function that sets the global variable.  Used to prevent the
     // compiler from optimizing the code too much.
 {
-    global = 2;
-    count2++;
-    count2++;
-    count2++;
-    count2++;
+    global = std::rand();
+    count2 = std::rand();
+    count2 = std::rand();
+    count2 = std::rand();
+    count2 = std::rand();
 
-    count2++;
-    count2++;
-    count2++;
-    count2++;
+    count2 = std::rand();
+    count2 = std::rand();
+    count2 = std::rand();
+    count2 = std::rand();
 }
 
-void testUsageExample1(int argc, bool assert)
+void measureLikelyUnlikely(int     argc,
+                           double *outLikelyTime,
+                           double *outUnlikelyTime)
 {
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
+    assert(  outLikelyTime);
+    assert(outUnlikelyTime);
+
+    int         verbose = argc > 2; (void) verbose;
+    int     veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
-
-    double tolerance = 0.05;
-
-    (void) assert;
-    (void) verbose;
-    (void) veryVerbose;
-    (void) veryVeryVerbose;
-    (void) tolerance;
 
     Stopwatch timer;
 
     timer.reset();
 
     if (veryVerbose) {
-        printf("BSLS_PERFORMANCEHINT_PREDICT_LIKELY\n");
+        printf("Misuse 'BSLS_PERFORMANCEHINT_PREDICT_LIKELY'\n");
     }
 
     timer.start();
 
     for (int x = 0; x < TESTSIZE; ++x) {
-        int y = rand() % 100;
+        int y = std::rand() % 100;
 
         // Incorrect usage of 'BSLS_PERFORMANCEHINT_PREDICT_LIKELY' since there
         // is only a one in 100 chance that this branch is taken.
@@ -310,25 +581,25 @@ void testUsageExample1(int argc, bool assert)
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
             bar();
         }
+        if (veryVeryVerbose) { P(global) } // Deter optimization.
+                                           // Do not set 'veryVeryVerbose' on
+                                           // timed runs.
     }
 
     timer.stop();
-    double likelyTime = timer.elapsedTime();
+    double likelyTime = timer.userTime();
+
+    if (veryVerbose) { P(likelyTime) }
 
     if (veryVerbose) {
-        P(likelyTime);
-    }
-
-
-    if (veryVerbose) {
-        printf("BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY\n");
+        printf("Use 'BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY' appropriately\n");
     }
 
     timer.reset();
     timer.start();
 
     for (int x = 0; x < TESTSIZE; ++x) {
-        int y = rand() % 100;
+        int y = std::rand() % 100;
 
         // Correct usage of 'BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY' since there
         // is only a one in 100 chance that this branch is taken.
@@ -340,41 +611,49 @@ void testUsageExample1(int argc, bool assert)
         else {
             bar();
         }
+        if (veryVeryVerbose) { P(global) }
     }
     timer.stop();
-    double unlikelyTime = timer.elapsedTime();
+    double unlikelyTime = timer.userTime();
 
-    if (veryVerbose) {
-        P(unlikelyTime);
-    }
+    if (veryVerbose) { P(unlikelyTime) }
 
-#if defined(BDE_BUILD_TARGET_OPT)
-    // Only check under optimized build.
-
-#if defined(BSLS_PLATFORM_CMP_CLANG)                                          \
- || defined(BSLS_PLATFORM_CMP_GNU)                                            \
- || defined(BSLS_PLATFORM_CMP_SUN)                                            \
- || defined(BSLS_PLATFORM_CMP_IBM)
-    // Only check when 'BSLS_PERFORMANCEHINT_PREDICT_LIKELY' and
-    // 'BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY' expands into something
-    // meaningful.
-
-    if (assert) {
-        LOOP2_ASSERT(likelyTime, unlikelyTime,
-                     likelyTime + tolerance > unlikelyTime);
-    }
-
-#endif
-
-#endif
-
+      *outLikelyTime =   likelyTime;
+    *outUnlikelyTime = unlikelyTime;
 }
 
-}  // close namespace UsageExample1Case
+}  // close namespace PerformanceLikelyUnlikely
 
-namespace UsageExample3Case {
+namespace PerformancePrefetch {
 
-void init(volatile int *arrayA, volatile int *arrayB)
+const int SIZE = 10 * 1024 * 1024;  // big enough so not all data sits in cache
+
+#if defined(BSLS_PLATFORM_CMP_SUN)
+    // For some reason the sun machine is A LOT slower than the other
+    // platforms, even in optimized mode.
+const int TESTSIZE =  10;
+#else
+const int TESTSIZE = 100;
+#endif
+
+#if defined(BSLS_PLATFORM_CMP_GNU)                                            \
+ && defined(BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wlarger-than=" // clang doesn't recognize this
+#endif
+
+int arraySansW[SIZE]; // for 'addWithoutPrefetch (write)
+int arraySansR[SIZE]; // for 'addWithoutPrefetch (read)
+
+int arrayAvecW[SIZE]; // for 'addWithPrefetch'  (write)
+int arrayAvecR[SIZE]; // for 'addWithPrefetch'  (read)
+
+#if defined(BSLS_PLATFORM_CMP_GNU)                                            \
+ && defined(BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC)
+#pragma GCC diagnostic pop
+#endif
+
+void init(int argc, int *arrayA, int *arrayB)
 {
 #if defined(BSLS_PLATFORM_CMP_IBM)
     // Available since xlc 10.
@@ -384,39 +663,48 @@ void init(volatile int *arrayA, volatile int *arrayB)
         __dcbf((const void *)(arrayB++));
     }
 #else
-    // suppress 'unused parameter' compiler warnings:
-    (void) arrayA;
-    (void) arrayB;
+    std::srand(argc);
+    for (int i = 0; i < SIZE; ++i) {
+        *arrayA++ = std::rand();
+        *arrayB++ = std::rand();
+    }
 #endif
 }
 
-void addWithoutPrefetch(volatile int *arrayA, volatile int *arrayB)
-    // Performs some form of addition on the specified 'arrayA' and 'arrayB'
+void addWithoutPrefetch(int *arrayW, int *arrayR)
+    // Performs some form of addition on the specified 'arrayW' and 'arrayR'
     // without using prefetch.
 {
     for (int i = 0; i < SIZE/8; ++i){
-        *arrayA += *(arrayB++);
-        ++arrayA;
-        *arrayA += *(arrayB++);
-        ++arrayA;
-        *arrayA += *(arrayB++);
-        ++arrayA;
-        *arrayA += *(arrayB++);
-        ++arrayA;
 
-        *arrayA += *(arrayB++);
-        ++arrayA;
-        *arrayA += *(arrayB++);
-        ++arrayA;
-        *arrayA += *(arrayB++);
-        ++arrayA;
-        *arrayA += *(arrayB++);
-        ++arrayA;
+        // Omit prefetch
+
+    //  BloombergLP::bsls::PerformanceHint::prefetchForWriting(
+    //                                         const_cast<int *>(arrayW + 16));
+    //  BloombergLP::bsls::PerformanceHint::prefetchForReading(
+    //                                         const_cast<int *>(arrayR + 16));
+        *arrayW += *(arrayR++);
+        ++arrayW;
+        *arrayW += *(arrayR++);
+        ++arrayW;
+        *arrayW += *(arrayR++);
+        ++arrayW;
+        *arrayW += *(arrayR++);
+        ++arrayW;
+
+        *arrayW += *(arrayR++);
+        ++arrayW;
+        *arrayW += *(arrayR++);
+        ++arrayW;
+        *arrayW += *(arrayR++);
+        ++arrayW;
+        *arrayW += *(arrayR++);
+        ++arrayW;
     }
 }
 
-void addWithPrefetch(volatile int *arrayA, volatile int *arrayB)
-    // Performs some form of addition on the specified 'arrayA' and 'arrayB'
+void addWithPrefetch(int *arrayW, int *arrayR)
+    // Performs some form of addition on the specified 'arrayW' and 'arrayR'
     // using prefetch.
 {
     for (int i = 0; i < SIZE/8; ++i){
@@ -424,58 +712,60 @@ void addWithPrefetch(volatile int *arrayA, volatile int *arrayB)
         // cast away the volatile qualifiers when calling 'prefetch*':
 
         BloombergLP::bsls::PerformanceHint::prefetchForWriting(
-                                               const_cast<int *>(arrayA + 16));
+                                               const_cast<int *>(arrayW + 16));
         BloombergLP::bsls::PerformanceHint::prefetchForReading(
-                                               const_cast<int *>(arrayB + 16));
+                                               const_cast<int *>(arrayR + 16));
 
-        *arrayA += *(arrayB++);
-        ++arrayA;
-        *arrayA += *(arrayB++);
-        ++arrayA;
-        *arrayA += *(arrayB++);
-        ++arrayA;
-        *arrayA += *(arrayB++);
-        ++arrayA;
+        *arrayW += *(arrayR++);
+        ++arrayW;
+        *arrayW += *(arrayR++);
+        ++arrayW;
+        *arrayW += *(arrayR++);
+        ++arrayW;
+        *arrayW += *(arrayR++);
+        ++arrayW;
 
-        *arrayA += *(arrayB++);
-        ++arrayA;
-        *arrayA += *(arrayB++);
-        ++arrayA;
-        *arrayA += *(arrayB++);
-        ++arrayA;
-        *arrayA += *(arrayB++);
-        ++arrayA;
+        *arrayW += *(arrayR++);
+        ++arrayW;
+        *arrayW += *(arrayR++);
+        ++arrayW;
+        *arrayW += *(arrayR++);
+        ++arrayW;
+        *arrayW += *(arrayR++);
+        ++arrayW;
     }
 }
 
-void testUsageExample3(int argc, bool assert)
+void measureWithWithoutPrefetch(int     argc,
+                                double *outWithoutPrefetch,
+                                double *outWithPrefetch)
 {
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
+    assert(outWithoutPrefetch);
+    assert(   outWithPrefetch);
 
-    // suppress 'unused parameter' compiler warnings:
-    (void) assert;
-    (void) verbose;
-    (void) veryVeryVerbose;
+    int         verbose = argc > 2; (void)         verbose;
+    int     veryVerbose = argc > 3;
+    int veryVeryVerbose = argc > 4; (void) veryVeryVerbose;
 
     if (veryVerbose) {
         printf("Adding without prefetch\n");
     }
 
-    UsageExample3Case::init(UsageExample3Case::array1,
-                            UsageExample3Case::array2);
+    if (veryVerbose) {
+        printf("initialize arrays\n");
+    }
+
+    init(argc, arraySansW, arraySansR);
 
     Stopwatch timer;
     timer.start();
 
     for(int i = 0; i < TESTSIZE; ++i) {
-        UsageExample3Case::addWithoutPrefetch(UsageExample3Case::array1,
-                                              UsageExample3Case::array2);
+        addWithoutPrefetch(arraySansW, arraySansR);
     }
 
     timer.stop();
-    double withoutPrefetch = timer.elapsedTime();
+    double withoutPrefetch = timer.userTime();
 
     if (veryVerbose) {
         P(withoutPrefetch);
@@ -485,77 +775,57 @@ void testUsageExample3(int argc, bool assert)
         printf("Adding with prefetch\n");
     }
 
-    UsageExample3Case::init(UsageExample3Case::array3,
-                            UsageExample3Case::array4);
+    if (veryVerbose) {
+        printf("initialize arrays\n");
+    }
+
+    init(argc, arrayAvecW, arrayAvecR);
 
     timer.reset();
     timer.start();
 
-    for(int i = 0; i < UsageExample3Case::TESTSIZE; ++i) {
-        addWithPrefetch(array3, array4);
+    for(int i = 0; i < TESTSIZE; ++i) {
+        addWithPrefetch(arrayAvecW, arrayAvecR);
     }
 
     timer.stop();
-    double withPrefetch = timer.elapsedTime();
+    double withPrefetch = timer.userTime();
 
     if (veryVerbose) {
         P(withPrefetch);
     }
 
-#if defined(BDE_BUILD_TARGET_OPT)
-    // Only check under optimized build.
-
-#if defined(BSLS_PLATFORM_CMP_CLANG)                                          \
- || defined(BSLS_PLATFORM_CMP_GNU)                                            \
- || defined(BSLS_PLATFORM_CMP_SUN)                                            \
- || defined(BSLS_PLATFORM_CMP_IBM)                                            \
- || defined(BSLS_PLATFORM_OS_WINDOWS)
-    // Only check when 'prefetchForReading' or 'prefetchForWriting' expands
-    // expands into something meaningful.
-
-    double tolerance = 0.02;
-
-    // Note that when compiling using 'bde_build.pl -t opt_exc_mt', the
-    // optimization flag is set to '-O'.  Whereas, the optimization flag used
-    // by 'IS_OPTIMIZED=1 pcomp' is set to '-xO2'.  Therefore, the improvement
-    // in efficiency is much less than what's described in the usage example
-    // when compiled using bde_build.
-
-    if (assert) {
-        // Only assert in performance test case.
-        LOOP2_ASSERT(withoutPrefetch, withPrefetch,
-                     withoutPrefetch + tolerance > withPrefetch);
-    }
-
-#endif
-
-#endif
-
+    *outWithoutPrefetch = withoutPrefetch;
+       *outWithPrefetch =    withPrefetch;
 }
 
-}  // close namespace UsageExample3Case
+}  // close namespace PerformancePrefetch
 
-namespace ReorderingFenceTestCase {
+namespace ReorderingFence {
 
-void testReorderingFence(int argc)
+void measureWithWithoutFence(int    argc,
+                             double *outRateWithFence,
+                             double *outRateWithoutFence)
 {
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
+    assert(outRateWithFence);
+    assert(outRateWithoutFence);
 
-    // suppress 'unused parameter' compiler warnings:
-    (void) verbose;
-    (void) veryVeryVerbose;
+    int         verbose = argc > 2;         (void) verbose;
+    int     veryVerbose = argc > 3;
+    int veryVeryVerbose = argc > 4; (void) veryVeryVerbose;
 
     enum {
         CHUNK_SIZE = 1000
     };
-    double    rateWithFence;
-    double    rateWithoutFence;
+
+    double       rateWithFence;
+    double       rateWithoutFence;
+    const double timeLimit = 0.2;  // elapse ("wall") time
 
     if (veryVerbose) {
         printf("With BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE\n");
     }
+
     {
         Stopwatch timer;
         timer.start();
@@ -563,7 +833,8 @@ void testReorderingFence(int argc)
         double elapsedTime = 0;
         int    iterations  = 0;
         int    numChunks   = 0;
-        while (elapsedTime <= .4) {
+
+        while (elapsedTime <= timeLimit) {
             for (int i = 0; i < CHUNK_SIZE; ++i) {
                 iterations++;
                 BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE;
@@ -572,13 +843,13 @@ void testReorderingFence(int argc)
             elapsedTime = timer.elapsedTime();
         }
 
-        rateWithFence = numChunks/elapsedTime;
+        double userTime = timer.userTime();
+        rateWithFence = numChunks/userTime;
     }
 
     if (veryVerbose) {
         printf("\trate = %f\n", rateWithFence);
     }
-
 
     if (veryVerbose) {
         printf("Without BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE\n");
@@ -590,40 +861,38 @@ void testReorderingFence(int argc)
         double elapsedTime = 0;
         int    iterations  = 0;
         int    numChunks   = 0;
-        while (elapsedTime <= .4) {
+
+        while (elapsedTime <= timeLimit) {
             for (int i = 0; i < CHUNK_SIZE; ++i) {
                 iterations++;
+            //  BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE;  // Omit the hint.
             }
             ++numChunks;
             elapsedTime = timer.elapsedTime();
         }
 
-        rateWithoutFence = numChunks/elapsedTime;
+        double userTime = timer.userTime();
+        rateWithoutFence = numChunks/userTime;
     }
     if (veryVerbose) {
         printf("\trate = %f\n", rateWithoutFence);
     }
 
-#if defined(BDE_BUILD_TARGET_OPT)
-    // Perform this test only for optimized builds.
-
-    LOOP2_ASSERT(rateWithFence, rateWithoutFence,
-                 rateWithFence < rateWithoutFence);
-#endif
+    *outRateWithFence    = rateWithFence;
+    *outRateWithoutFence = rateWithoutFence;
 }
 
-}  // close namespace ReorderingFenceTestCase
+}  // close namespace ReorderingFence
 
-
-//=============================================================================
+// ============================================================================
 //                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
+    int            test = argc > 1 ? std::atoi(argv[1]) : 0;
+    int         verbose = argc > 2;
+    int     veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
 
     (void) veryVeryVerbose;
@@ -631,99 +900,114 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-
-
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE 3
+        // USAGE EXAMPLE 3
         //   This will test the usage example 3 provided in the component
         //   header file for 'prefetchForReading' and 'prefetchForWriting'.
         //
         // Concerns:
-        //   The usage example provided in the component header file must
-        //   compile, link, and run on all platforms as shown.
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
         //
         // Plan:
-        //   Run the usage example using 'prefetchForReading' and
-        //   'prefetchForWriting'.
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
         //
         // Testing:
-        //   prefetchForReading
-        //   prefetchForWriting
+        //   USAGE EXAMPLE 3
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING USAGE EXAMPLE 3"
-                            "\n=======================\n");
+        if (verbose) {
+            printf("\n" "USAGE EXAMPLE 3\n"
+                        "===============\n");
+        }
 
-        UsageExample3Case::testUsageExample3(argc, false);
+        int rc = UsageExample3::main();
+        ASSERT(0 == rc);
 
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE 2
+        // USAGE EXAMPLE 2
         //   This will test the usage example 2 provided in the component
         //   header file for 'BSLS_PERFORMANCEHINT_PREDICT_EXPECT'.
         //
         // Concerns:
-        //   The usage example provided in the component header file must
-        //   compile, link, and run on all platforms as shown.
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
         //
         // Plan:
-        //   Ensure the usage example compiles.
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
         //
         // Testing:
-        //   BSLS_PERFORMANCEHINT_PREDICT_EXPECT
+        //   USAGE EXAMPLE 2
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING USAGE EXAMPLE 2"
-                            "\n=======================\n");
+        if (verbose) printf("\nUSAGE EXAMPLE 2"
+                            "\n===============\n");
 
-        int x = rand() % 4;
-
-        // Incorrect usage of 'BSLS_PERFORMANCEHINT_PREDICT_EXPECT', since the
-        // probability of getting a 3 is equivalent to other numbers (0, 1, 2).
-        // However, this is sufficient to illustrate the intent of this macro.
-
-        switch(BSLS_PERFORMANCEHINT_PREDICT_EXPECT(x, 3)) {
-          case 1: //..
-                  break;
-          case 2: //..
-                  break;
-          case 3: //..
-                  break;
-          default: break;
-        }
+///Example 2: Using 'BSLS_PERFORMANCEHINT_PREDICT_EXPECT'
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// This macro is essentially the same as the '__builtin_expect(expr, value)'
+// macro that is provided by some compilers.  This macro allows the user to
+// define more complex hints to the compiler, such as the optimization of
+// 'switch' statements.  For example, given:
+//..
+    int x = std::rand() % 4;
+//..
+// the following is incorrect usage of 'BSLS_PERFORMANCEHINT_PREDICT_EXPECT',
+// since the probability of getting a 3 is equivalent to the other
+// possibilities ( 0, 1, 2 ):
+//..
+    switch (BSLS_PERFORMANCEHINT_PREDICT_EXPECT(x, 3)) {
+      case 1: //..
+              break;
+      case 2: //..
+              break;
+      case 3: //..
+              break;
+      default: break;
+    }
+//..
+// However, this is sufficient to illustrate the intent of this macro.
 
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE 1
-        //   This will test the usage example 1 provided in the component
-        //   header file for 'BSLS_PERFORMANCEHINT_PREDICT_LIKELY' and
-        //   'BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY'.
+        // USAGE EXAMPLE 1
+        // Extracted from component header file.  This usage example uses:
+        //:  o 'BSLS_PERFORMANCEHINT_PREDICT_LIKELY' and
+        //:  o 'BSLS_PERFORMANCEHINT_UNLIKELY_HINT'
         //
         // Concerns:
-        //   The usage example provided in the component header file must
-        //   compile, link, and run on all platforms as shown.
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
         //
         // Plan:
-        //   Run the usage example using 'BSLS_PERFORMANCEHINT_PREDICT_LIKELY'
-        //   and 'BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY'.
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
         //
         // Testing:
-        //   BSLS_PERFORMANCEHINT_PREDICT_LIKELY,
-        //   BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY
+        //   USAGE EXAMPLE 1
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING USAGE EXAMPLE 1"
-                            "\n=======================\n");
+        if (verbose) printf("\nUSAGE EXAMPLE 1"
+                            "\n===============\n");
 
+        char  programName[] = "programName";
+        char  numRuns[]     = "100000000";
+        char *argv[]        = { programName, numRuns, 0 };
+        int   argc          = sizeof argc / sizeof *argv;
 
-        ASSERT(true);
-        UsageExample1Case::testUsageExample1(argc, true);
+        int rc = UsageExample1::main(argc, argv);
+        ASSERT(0 == rc); (void) rc;
 
       } break;
-
       case 2: {
         // --------------------------------------------------------------------
         // TESTING: BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE
@@ -753,12 +1037,73 @@ int main(int argc, char *argv[])
             "\nTESTING: BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE"
             "\n================================================\n");
 
-        ReorderingFenceTestCase::testReorderingFence(argc);
+        double rateWithFence;
+        double rateWithoutFence;
+
+#if defined(BDE_BUILD_TARGET_OPT)
+    // Perform this test only for optimized builds.
+
+        const size_t NUM_SAMPLES = 21;
+
+        std::vector<double>    statsRateWithFence;
+        std::vector<double> statsRateWithoutFence;
+
+        for (size_t run = 0; run < NUM_SAMPLES; ++run) {
+
+            if (veryVerbose) {
+                P(run);
+            }
+
+            ReorderingFence::measureWithWithoutFence(argc,
+                                                     &rateWithFence,
+                                                     &rateWithoutFence);
+
+               statsRateWithFence.push_back(   rateWithFence);
+            statsRateWithoutFence.push_back(rateWithoutFence);
+        }
+
+        std::sort(   statsRateWithFence.begin(),    statsRateWithFence.end());
+        std::sort(statsRateWithoutFence.begin(), statsRateWithoutFence.end());
+
+        assert(0                            <  statsRateWithFence.size());
+        assert(1                            == statsRateWithFence.size() % 2);
+        assert(statsRateWithoutFence.size() == statsRateWithFence.size());
+
+        const size_t medianIndex = statsRateWithFence.size() / 2;
+
+        double    rateWithFenceMedian =    statsRateWithFence[medianIndex];
+        double rateWithoutFenceMedian = statsRateWithoutFence[medianIndex];
+
+        if (veryVerbose) {
+            double    rateWithFenceMin =    statsRateWithFence.front();
+            double    rateWithFenceMax =    statsRateWithFence.back();
+            double rateWithoutFenceMin = statsRateWithoutFence.front();
+            double rateWithoutFenceMax = statsRateWithoutFence.back();
+
+            P_(rateWithFenceMin)
+            P_(rateWithFenceMedian)
+            P_(rateWithFenceMax)
+            P(NUM_SAMPLES)
+
+            P_(rateWithoutFenceMin)
+            P_(rateWithoutFenceMedian)
+            P_(rateWithoutFenceMax)
+            P(NUM_SAMPLES)
+        }
+
+        ASSERTV(rateWithFenceMedian,  rateWithoutFenceMedian, NUM_SAMPLES,
+                rateWithFenceMedian < rateWithoutFenceMedian);
+#else
+        // Run once.
+        ReorderingFence::measureWithWithoutFence(argc,
+                                                 &rateWithFence,
+                                                 &rateWithoutFence);
+#endif
 
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING TEST-MACHINERY: 'Stopwatch'
+        // TEST-MACHINERY: 'Stopwatch'
         //
         // Concerns:
         //: 1 That 'Stopwatch' is created in a STOPPED state with an elapsed
@@ -788,15 +1133,17 @@ int main(int argc, char *argv[])
         //:   time has not changed since the stopwatch was stopped.
         //
         // Testing:
-        //   TESTING TEST-MACHINERY: 'Stopwatch'
+        //   TEST-MACHINERY: 'Stopwatch'
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING TEST-MACHINERY: 'Stopwatch'"
-                            "\n===================================\n");
+        if (verbose) {
+            printf("\n" "TEST-MACHINERY: 'Stopwatch'\n"
+                        "===========================\n");
+        }
 
-        const double TOLERANCE = .5;
+        const double TOLERANCE = 0.5;
 
-        if (veryVerbose) printf("\tCompare constructed 'Stopwatch'\n");
+        if (veryVerbose) printf("Compare constructed 'Stopwatch'\n");
         {
             Stopwatch mX; const Stopwatch& X = mX;
 
@@ -850,69 +1197,39 @@ int main(int argc, char *argv[])
             ASSERT(false == X.isRunning());
             ASSERT(0     == X.elapsedTime());
         }
+
       } break;
       case -1: {
-        // --------------------------------------------------------------------
-        // PERFORMANCE TEST
-        //   Test the improvement of performance in using various performance
-        //   hints.
-        //
-        // Concerns:
-        //   The performance of using the performance hints in the various
-        //   usage examples must be faster than not using them.
-        //
-        // Plan:
-        //   Using 'Stopwatch', compare the time it takes to run the test
-        //   using the performance hints and not using the hints.  Then compare
-        //   and assert the time difference.  The test driver must observe an
-        //   improvement in performance.  To minimize the effect of caching
-        //   biasing the result, run the version that uses the proper hint
-        //   first.
-        //
-        // Testing:
-        //   PERFORMANCE TEST
-        // --------------------------------------------------------------------
-
-        if (verbose) printf("\nPERFORMANCE TEST"
-                            "\n================\n");
-
-        if (veryVerbose) {
-            printf("Usage Example 1:\n");
-        }
-
-        UsageExample1Case::testUsageExample1(argc, true);
-
-        if (veryVerbose) {
-            printf("Usage Example 3:\n");
-        }
-
-        UsageExample3Case::testUsageExample3(argc, true);
-
-      } break;
-      case -2: {
         // --------------------------------------------------------------------
         // CONCERN: STOPWATCH ACCURACY
         //   This test is concerned with the accuracy of 'Stopwatch'. It is a
         //   negative test case because it takes ~1 minute to run.
-
+        //
         // Concerns:
         //: 1 That the 'elapsedTime' reported by 'Stopwatch' is accurate.
+        //:
+        //: 2 That the 'userTime' reported by 'Stopwatch' is (roughly)
+        //:   proportional to the work done in user mode.
         //
         // Plan:
         //: 1 Perform a loop-based tested, sleeping over a series of different
         //:   delay periods and comparing the results of
-        //:   'Stopwatch::elapsedTime' to 'time'
+        //:   'Stopwatch::elapsedTime' to 'time'.  (C-1)
+        //:
+        //: 2 Perform a series of progressively larger tasks that require
+        //:   intensive, user-mode activity.  Confirm that the measured
+        //:   user-time for those those tasks have the same ordering.  (C-2)
         //
         // Testing:
         //   CONCERN: STOPWATCH ACCURACY
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nCONCERN: STOPWATCH ACCURACY"
-                            "\n===========================\n");
+        if (verbose) printf("\n" "CONCERN: STOPWATCH ACCURACY\n"
+                                 "===========================\n");
 
         if (veryVerbose) printf("\tCompare results w/ 'time'\n");
 
-        for (int i = 1; i < 7; ++i){
+        for (int i = 1; i < 7; ++i) {
             const int DELAY = i;
 
             time_t    startTime = time(0);
@@ -922,14 +1239,330 @@ int main(int argc, char *argv[])
             sleep(DELAY);
 
             mX.stop();
-            time_t expectedElaspedTime = time(0) - startTime;
+            time_t expectedElapsedTime = time(0) - startTime;
 
             if (veryVerbose) {
-                P_(DELAY); P_(mX.elapsedTime()); P(expectedElaspedTime);
+                P_(DELAY); P_(mX.elapsedTime()); P(expectedElapsedTime);
             }
-            ASSERT(mX.elapsedTime() < expectedElaspedTime + 1 &&
-                   mX.elapsedTime() > expectedElaspedTime - 1);
+
+            double expectedHigh = static_cast<double>(expectedElapsedTime + 1);
+            double expectedLow  = static_cast<double>(expectedElapsedTime - 1);
+
+            ASSERTV(mX.elapsedTime(),  expectedHigh,
+                    mX.elapsedTime() < expectedHigh);
+
+            ASSERTV(mX.elapsedTime(),  expectedLow,
+                    mX.elapsedTime() > expectedLow);
         }
+
+#ifdef BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE
+        if (veryVerbose) printf("\tTest userTime\n");
+        {
+            static volatile int s_value = 0;
+
+            struct Task {
+                enum  { CHUNK_SIZE = 1000 * 1000 };
+
+                static void doit(volatile int *valuePtr) {
+                    assert(valuePtr);
+
+                    for (int i = 0; i < CHUNK_SIZE; ++i) {
+                        BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE;
+                        *valuePtr = i;
+                    }
+                }
+            };
+
+            Stopwatch mX; const Stopwatch& X = mX;
+            mX.start();
+            Task::doit(&s_value);    // 1
+            mX.stop();
+            double timeX = X.userTime();
+
+            Stopwatch mY; const Stopwatch& Y = mY;
+            mY.start();
+            Task::doit(&s_value);    // 1
+            Task::doit(&s_value);    // 2
+            Task::doit(&s_value);    // 3
+            Task::doit(&s_value);    // 4
+            mY.stop();
+            double timeY = Y.userTime();
+
+            Stopwatch mZ; const Stopwatch& Z = mZ;
+            mZ.start();
+            Task::doit(&s_value);    // 01
+            Task::doit(&s_value);    // 02
+            Task::doit(&s_value);    // 03
+            Task::doit(&s_value);    // 04
+            Task::doit(&s_value);    // 05
+            Task::doit(&s_value);    // 06
+            Task::doit(&s_value);    // 07
+            Task::doit(&s_value);    // 08
+            Task::doit(&s_value);    // 09
+            Task::doit(&s_value);    // 10
+            Task::doit(&s_value);    // 11
+            Task::doit(&s_value);    // 12
+            Task::doit(&s_value);    // 13
+            Task::doit(&s_value);    // 14
+            Task::doit(&s_value);    // 15
+            Task::doit(&s_value);    // 16
+            mZ.stop();
+            double timeZ = Z.userTime();
+
+            if (veryVeryVerbose) {
+                P_(timeX) P_(timeY) P(timeZ)
+            }
+
+            ASSERTV(timeX,   timeY,            timeZ,
+                    timeX <= timeY && timeY <= timeZ);
+
+        }
+#else
+        if (veryVerbose)    printf("\t" "Test 'userTime': SKIPPED \n");
+        if (verVeryVerbose) printf(
+             "\t" "'BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE' not supported\n"):
+#endif
+      } break;
+      case -2: {
+        // --------------------------------------------------------------------
+        // PERFORMANCE: _PREDICT_LIKELY, _PREDICT_UNLIKELY, _UNLIKELY_HINT
+        //   Test the improvement of performance in using several, related
+        //
+        // Concerns:
+        //   The performance of using the performance hints in Example 1 should
+        //   be faster than not using them.  These test support evaluation of
+        //   that performance gain on platforms where these macros are set.
+        //
+        // Plan:
+        //: 1 Define 'measureLikelyUnlikely', a test function that iteratively
+        //:   tests an expression that is *unlikely* to be 'true' wrapped by
+        //:   the macros:
+        //:   o 'BSLS_PERFORMANCEHINT_LIKELY' (i.e., misuse that macro). and
+        //:     again wrapped by
+        //:   o 'BSLS_PERFORMANCEHINT_UNLIKELY' (i.e., correctly using that
+        //:     macro).
+        //:   o Note that the structure of 'measureLikelyUnlikely' is inspired
+        //:     by (but not identical to) Usage Example 1 (see TC 4).
+        //:
+        //: 2 The time measured for the misused macro is expected to be greater
+        //:   than that for the correctly used macro.
+        //:
+        //: 3 Repeat the above test multiple times to account for timing
+        //:   variations on the (time-shared) test machine.
+        //:
+        //: 4 Evaluate by "user" time, which shows less variance than "wall"
+        //:   time.
+        //
+        // Testing:
+        //   PERFORMANCE: _PREDICT_LIKELY, _PREDICT_UNLIKELY, _UNLIKELY_HINT
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            printf("\n"
+          "PERFORMANCE: _PREDICT_LIKELY, _PREDICT_UNLIKELY, _UNLIKELY_HINT\n"
+          "===============================================================\n");
+        }
+
+#if defined(BDE_BUILD_TARGET_OPT) // Check only under optimized build.
+
+#if defined(BSLS_PLATFORM_CMP_CLANG)                                          \
+ || defined(BSLS_PLATFORM_CMP_GNU)                                            \
+ || defined(BSLS_PLATFORM_CMP_SUN)                                            \
+ || defined(BSLS_PLATFORM_CMP_IBM)
+    // Check only when 'BSLS_PERFORMANCEHINT_PREDICT_LIKELY' and
+    // 'BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY' expands into something
+    // meaningful.
+
+        const size_t NUM_RUNS = 21;
+
+        std::vector<double>   statsLikelyTime;
+        std::vector<double> statsUnlikelyTime;
+
+        for (size_t run = 0; run < NUM_RUNS; ++run) {
+            if (veryVerbose) {
+                P(run);
+            }
+            double   likelyTime;
+            double unlikelyTime;
+
+            PerformanceLikelyUnlikely::measureLikelyUnlikely(argc,
+                                                             &likelyTime,
+                                                             &unlikelyTime);
+
+              statsLikelyTime.push_back(  likelyTime);
+            statsUnlikelyTime.push_back(unlikelyTime);
+        }
+
+        std::sort(   statsLikelyTime.begin(),    statsLikelyTime.end());
+        std::sort(statsUnlikelyTime.begin(), statsUnlikelyTime.end());
+
+        assert(0                        <  statsLikelyTime.size());
+        assert(1                        == statsLikelyTime.size() % 2);
+        assert(statsUnlikelyTime.size() == statsLikelyTime.size());
+
+        const size_t medianIndex = statsLikelyTime.size() / 2;
+
+        double   likelyTimeMedian =   statsLikelyTime[medianIndex];
+        double unlikelyTimeMedian = statsUnlikelyTime[medianIndex];
+
+        if (veryVerbose) {
+            double   likelyTimeMin =   statsLikelyTime.front();
+            double   likelyTimeMax =   statsLikelyTime.back();
+            double unlikelyTimeMin = statsUnlikelyTime.front();
+            double unlikelyTimeMax = statsUnlikelyTime.back();
+
+            P_(likelyTimeMin)
+            P_(likelyTimeMedian)
+            P_(likelyTimeMax)
+            P(NUM_RUNS)
+
+            P_(unlikelyTimeMin)
+            P_(unlikelyTimeMedian)
+            P_(unlikelyTimeMax)
+            P(NUM_RUNS)
+        }
+
+        ASSERTV(likelyTimeMedian,  unlikelyTimeMedian, NUM_RUNS,
+                likelyTimeMedian > unlikelyTimeMedian);
+
+#else // PLATFORM
+        if (veryVerbose) {
+            printf("SKIP: optimized build but non-supported platform\n");
+        }
+#endif // PLATFORM
+#else // BDE_BUILD_TARGET_OPT
+        if (veryVerbose) {
+            printf("SKIP: non-optimized build\n");
+        }
+#endif // BDE_BUILD_TARGET_OPT
+      } break;
+      case -3: {
+        // --------------------------------------------------------------------
+        // PERFORMANCE: prefetchForReading, prefecthForWriting
+        //   Test the improvement of performance in using performance hints for
+        //   prefetching memory values.
+        //
+        // Concerns:
+        //   The performance of using the performance hints in Example 3 should
+        //   be faster than not using them.  These test support evaluation of
+        //   that performance gain on platforms where these macros are set.
+        //
+        // Plan:
+        //: 1 Define 'measureWithWithoutPrefetch', a test function that
+        //:   iteratively copies values from one array to another:
+        //:   o First without calling the 'prefetch*' functions.
+        //:   o Then with calling the 'prefetch*' functions.
+        //:   o Note that the structure of 'measureWithWithoutPrefetch' is
+        //:     inspired by (but not identical to) Example 3 (see TC 5).
+        //:
+        //: 2 The time measured for the task without prefetch is expected to
+        //:   exceed that when the prefetch functions are used.
+        //:
+        //: 3 Repeat the above test multiple times to account for timing
+        //:   variations on the (time-shared) test machine.
+        //:
+        // Testing:
+        //   PERFORMANCE: prefetchForReading, prefecthForWriting
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            printf(
+                 "\n" "PERFORMANCE: prefetchForReading, prefecthForWriting\n"
+                      "===================================================\n");
+        }
+
+        double withoutPrefetch = 0.0;
+        double    withPrefetch = 0.0;
+
+#if defined(BDE_BUILD_TARGET_OPT)
+    // Check only under optimized build.
+
+#if defined(BSLS_PLATFORM_CMP_CLANG)                                          \
+ || defined(BSLS_PLATFORM_CMP_GNU)                                            \
+ || defined(BSLS_PLATFORM_CMP_SUN)                                            \
+ || defined(BSLS_PLATFORM_CMP_IBM)                                            \
+ || defined(BSLS_PLATFORM_OS_WINDOWS)
+    // Check only when 'prefetchForReading' or 'prefetchForWriting' expands
+    // expands into something meaningful.
+
+    // Note that when compiling using 'bde_build.pl -t opt_exc_mt', the
+    // optimization flag is set to '-O'.  Whereas, the optimization flag used
+    // by 'IS_OPTIMIZED=1 pcomp' is set to '-xO2'.  Therefore, the improvement
+    // in efficiency is much less than that described in the usage example when
+    // compiled using 'bde_build'.
+
+        const size_t MAX_NUM_SAMPLES = 1001;
+        const size_t NUM_RUNS        =   11;
+
+        if (veryVerbose) {
+            P_(MAX_NUM_SAMPLES) P(NUM_RUNS)
+        }
+
+        std::vector<double> statsWithoutPrefetch;
+        std::vector<double>    statsWithPrefetch;
+
+        for (size_t run = 0; run < NUM_RUNS; ++run) {
+
+            if (veryVerbose) {
+                P(run);
+            }
+
+            PerformancePrefetch::measureWithWithoutPrefetch(argc,
+                                                            &withoutPrefetch,
+                                                            &withPrefetch);
+
+            statsWithoutPrefetch.push_back(withoutPrefetch);
+               statsWithPrefetch.push_back(   withPrefetch);
+        }
+
+        std::sort(   statsWithoutPrefetch.begin(),    statsWithoutPrefetch.end());
+        std::sort(statsWithPrefetch.begin(), statsWithPrefetch.end());
+
+        assert(0                        <  statsWithoutPrefetch.size());
+        assert(1                        == statsWithoutPrefetch.size() % 2);
+        assert(statsWithPrefetch.size() == statsWithoutPrefetch.size());
+
+        const size_t medianIndex = statsWithoutPrefetch.size() / 2;
+
+        double withoutPrefetchMedian = statsWithoutPrefetch[medianIndex];
+        double    withPrefetchMedian =    statsWithPrefetch[medianIndex];
+
+        if (veryVerbose) {
+            double withoutPrefetchMin = statsWithoutPrefetch.front();
+            double withoutPrefetchMax = statsWithoutPrefetch.back();
+            double    withPrefetchMin =    statsWithPrefetch.front();
+            double    withPrefetchMax =    statsWithPrefetch.back();
+
+            P_(withoutPrefetchMin)
+            P_(withoutPrefetchMedian)
+            P_(withoutPrefetchMax)
+            P(NUM_RUNS)
+
+            P_(withPrefetchMin)
+            P_(withPrefetchMedian)
+            P_(withPrefetchMax)
+            P(NUM_RUNS)
+        }
+
+        ASSERTV(withoutPrefetchMedian,  withPrefetchMedian, NUM_RUNS,
+                withoutPrefetchMedian > withPrefetchMedian);
+#else // PLATFORM
+        (void) withoutPrefetch;
+        (void)    withPrefetch;
+
+        if (veryVerbose) {
+            printf("SKIP: optimized build but non-supported platform\n");
+        }
+
+#endif // PLATFORM
+#else // BDE_BUILD_TARGET_OPT
+        (void) withoutPrefetch;
+        (void)    withPrefetch;
+
+        if (veryVerbose) {
+            printf("SKIP: non-optimized build\n");
+        }
+#endif // BDE_BUILD_TARGET_OPT
       } break;
        default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
