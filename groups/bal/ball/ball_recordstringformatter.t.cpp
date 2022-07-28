@@ -69,11 +69,11 @@ using bsl::uppercase;
 // [10] ball::RecordStringFormatter(alloc);
 // [10] ball::RecordStringFormatter(*ba);
 // [10] ball::RecordStringFormatter(const char *, alloc);
-// [10] ball::RecordStringFormatter(bdet::DtI, alloc);
+// [10] ball::RecordStringFormatter(bdlt::DtI, alloc);
 // [10] ball::RecordStringFormatter(bool, alloc);
 // [10] ball::RecordStringFormatter(bool, *ba);
+// [10] ball::RecordStringFormatter(const char *, bdlt::DtI, alloc);
 // [13] ball::RecordStringFormatter(bool, alloc);
-// [10] ball::RecordStringFormatter(const char *, bdet::DtI, alloc);
 // [13] ball::RecordStringFormatter(const char *, bool, alloc);
 // [ 7] ball::RecordStringFormatter(const ball::RSF&, alloc);
 // [ 2] ~ball::RecordStringFormatter();
@@ -1703,9 +1703,9 @@ int main(int argc, char *argv[])
         //   The three constructors must initialize the value correctly.
         //
         // Testing
-        //   ball::RecordStringFormatter(const char *, alloc)
-        //   ball::RecordStringFormatter(bdet::DtI, alloc)
-        //   ball::RecordStringFormatter(const char *, bdet::DtI, alloc)
+        //   ball::RecordStringFormatter(const char *, alloc);
+        //   ball::RecordStringFormatter(bdlt::DtI, alloc);
+        //   ball::RecordStringFormatter(const char *, bdlt::DtI, alloc);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Initialization Constructors"

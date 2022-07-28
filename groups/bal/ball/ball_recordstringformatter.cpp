@@ -23,6 +23,8 @@ BSLS_IDENT_RCSID(ball_recordstringformatter_cpp,"$Id$ $CSID$")
 
 #include <bdlma_bufferedsequentialallocator.h>
 
+#include <bdls_pathutil.h>
+
 #include <bdlsb_fixedmemoutstreambuf.h>
 
 #include <bdlt_datetime.h>
@@ -446,18 +448,14 @@ void PrintUtil::appendFilename(bsl::string   *result,
         *result += filename;
     }
     else {
-        const bsl::string::size_type rightmostSlashIndex =
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-            filename.rfind('\\');
-#else
-            filename.rfind('/');
-#endif
+        bsl::string basename;
+        int rc = bdls::PathUtil::getBasename(&basename, filename);
 
-        if (bsl::string::npos == rightmostSlashIndex) {
-            *result += filename;
+        if (0 == rc) {
+            *result += basename;
         }
         else {
-            *result += filename.substr(rightmostSlashIndex + 1);
+            *result += filename;
         }
     }
 }
