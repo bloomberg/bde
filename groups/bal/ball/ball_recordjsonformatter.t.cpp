@@ -1447,12 +1447,12 @@ int main(int argc, char *argv[])
                 const int   d_pid;
                 const char *d_expected;
             } DATA[] = {
-                //--------------------------------------------------
-                // LINE            SPEC            PID      EXPECED
-                {  L_,  "[\"pid\"]",               42,  "{\"pid\":42}"    },
-                {  L_,  "[{\"pid\":{}}]",          42,  "{\"pid\":42}"    },
+                //-------------------------------------------------------------
+                // LINE SPEC                       PID  EXPECTED
+                {  L_,  "[\"pid\"]",               18,  "{\"pid\":18}"    },
+                {  L_,  "[{\"pid\":{}}]",          64,  "{\"pid\":64}"    },
                 {  L_,  "[{\"pid\":"
-                        "{\"name\":\"My pid\"}}]", 42,  "{\"My pid\":42}" }
+                        "{\"name\":\"My pid\"}}]", 1,   "{\"My pid\":1}"  }
             };
             enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
@@ -1503,12 +1503,12 @@ int main(int argc, char *argv[])
                 const int   d_tid;
                 const char *d_expected;
             } DATA[] = {
-              //--------------------------------------------------------------
-              // LINE            SPEC               PID      EXPECED
+              //---------------------------------------------------------------
+              // LINE SPEC                          PID  EXPECTED
               {  L_,  "[\"tid\"]",                  42,  "{\"tid\":42}"     },
-              {  L_,  "[{\"tid\":{}}]",             42,  "{\"tid\":42}"     },
+              {  L_,  "[{\"tid\":{}}]",             34,  "{\"tid\":34}"     },
               {  L_,  "[{\"tid\":"
-                      "{\"name\":\"My tid\"}}]",    42,  "{\"My tid\":42}"  },
+                      "{\"name\":\"My tid\"}}]",    88,  "{\"My tid\":88}"  },
               {  L_,  "[{\"tid\":"
                       "{\"format\":\"decimal\"}}]", 42,  "{\"tid\":42}"     },
               {  L_,  "[{\"tid\":"
@@ -1570,8 +1570,8 @@ int main(int argc, char *argv[])
                 const char *d_file;
                 const char *d_expected;
             } DATA[] = {
-    //------------------------------------------------------------------------
-    // LINE            SPEC               FILE           EXPECED
+    //-------------------------------------------------------------------------
+    // LINE  SPEC                        FILE       EXPECTED
     {  L_,  "[\"file\"]",                FILE_NAME, "{\"file\":\"\\"
                                                     PS "bar\\" PS "foo.c\"}" },
     {  L_,  "[{\"file\":{}}]",           FILE_NAME, "{\"file\":\"\\"
@@ -1636,12 +1636,12 @@ int main(int argc, char *argv[])
                 const int   d_lineNumber;
                 const char *d_expected;
             } DATA[] = {
-              //--------------------------------------------------------------
-              // LINE            SPEC              LINE      EXPECED
-              {  L_,  "[\"line\"]",                 42,  "{\"line\":42}"     },
-              {  L_,  "[{\"line\":{}}]",            42,  "{\"line\":42}"     },
+              //---------------------------------------------------------------
+              // LINE SPEC                        LINE  EXPECTED
+              {  L_,  "[\"line\"]",               42,   "{\"line\":42}"      },
+              {  L_,  "[{\"line\":{}}]",          33,   "{\"line\":33}"      },
               {  L_,  "[{\"line\":"
-                      "{\"name\":\"My line\"}}]",   42,  "{\"My line\":42}"  },
+                      "{\"name\":\"My line\"}}]", 1234, "{\"My line\":1234}" },
             };
             enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
@@ -1693,8 +1693,8 @@ int main(int argc, char *argv[])
                 const char *d_category;
                 const char *d_expected;
             } DATA[] = {
-  //--------------------------------------------------------------
-  // LINE        SPEC              CATEGORY      EXPECED
+  //---------------------------------------------------------------------------
+  // LINE SPEC                    CATEGORY     EXPECTED
   {  L_,  "[\"category\"]",       "Category",  "{\"category\":\"Category\"}" },
   {  L_,  "[{\"category\":{}}]",  "Category",  "{\"category\":\"Category\"}" },
   {  L_,  "[{\"category\":"
@@ -1754,8 +1754,8 @@ int main(int argc, char *argv[])
                 int         d_severity;
                 const char *d_expected;
             } DATA[] = {
-  //--------------------------------------------------------------------------
-  // LINE       SPEC                SEVERITY          EXPECED
+  //---------------------------------------------------------------------------
+  // LINE SPEC                      SEVERITY    EXPECTED
   {  L_,  "[\"severity\"]",         S::e_OFF,   "{\"severity\":\"OFF\"}"     },
   {  L_,  "[\"severity\"]",         S::e_FATAL, "{\"severity\":\"FATAL\"}"   },
   {  L_,  "[\"severity\"]",         S::e_ERROR, "{\"severity\":\"ERROR\"}"   },
@@ -1822,17 +1822,17 @@ int main(int argc, char *argv[])
                 const char *d_expected;
             } DATA[] = {
     //-------------------------------------------------------------------------
-    // LINE        SPEC                  MESSAGE         EXPECED
+    // LINE SPEC                        MESSAGE         EXPECTED
     //-------------------------------------------------------------------------
-    {  L_,  "[\"message\"]",             "",            "{\"message\":"
-                                                         "\"\"}" },
+    {  L_,  "[\"message\"]",            "",             "{\"message\":"
+                                                        "\"\"}" },
     {  L_,  "[\"message\"]",            "Hello, world", "{\"message\":"
-                                                         "\"Hello, world\"}" },
+                                                        "\"Hello, world\"}" },
     {  L_,  "[{\"message\":{}}]",       "Hello, world", "{\"message\":"
-                                                         "\"Hello, world\"}" },
+                                                        "\"Hello, world\"}" },
     {  L_,  "[{\"message\":"
              "{\"name\":\"My msg\"}}]", "Hello, world", "{\"My msg\":"
-                                                         "\"Hello, world\"}" },
+                                                        "\"Hello, world\"}" },
             };
 
             enum { NUM_DATA = sizeof DATA / sizeof *DATA };
@@ -1885,32 +1885,32 @@ int main(int argc, char *argv[])
                 const char *d_expected;
             } DATA[] = {
                 //-------------------------------------------------------------
-                // LINE            SPEC              EXPECED
-                {  L_,  "[\"attributes\"]",             "{\"a1\":\"v1\","
-                                                         "\"a2\":\"v2\","
-                                                         "\"a3\":\"v3\"}" },
+                // LINE SPEC                       EXPECTED
+                {  L_,  "[\"attributes\"]",        "{\"a1\":\"v1\","
+                                                    "\"a2\":\"v2\","
+                                                    "\"a3\":\"v3\"}" },
                 {  L_,  "[\"attributes\","
-                         "\"attributes\"]",             "{\"a1\":\"v1\","
-                                                         "\"a2\":\"v2\","
-                                                         "\"a3\":\"v3\","
-                                                         "\"a1\":\"v1\","
-                                                         "\"a2\":\"v2\","
-                                                         "\"a3\":\"v3\"}" },
-                {  L_,  "[\"a1\"]",                     "{\"a1\":\"v1\"}" },
-                {  L_,  "[\"a1\",\"a1\"]",              "{\"a1\":\"v1\","
-                                                         "\"a1\":\"v1\"}" },
-                {  L_,  "[\"a1\",\"a2\"]",              "{\"a1\":\"v1\","
-                                                         "\"a2\":\"v2\"}" },
-                {  L_,  "[\"a3\",\"a2\",\"a1\"]",       "{\"a3\":\"v3\","
-                                                         "\"a2\":\"v2\","
-                                                         "\"a1\":\"v1\"}" },
-                {  L_,  "[\"a4\"]",                     "{\"a4\":\"N\\/A\"}" },
-                {  L_,  "[\"attributes\",\"a1\"]",      "{\"a2\":\"v2\","
-                                                         "\"a3\":\"v3\","
-                                                         "\"a1\":\"v1\"}" },
-                {  L_,  "[\"a1\",\"attributes\"]",      "{\"a1\":\"v1\","
-                                                         "\"a2\":\"v2\","
-                                                         "\"a3\":\"v3\"}" },
+                         "\"attributes\"]",        "{\"a1\":\"v1\","
+                                                    "\"a2\":\"v2\","
+                                                    "\"a3\":\"v3\","
+                                                    "\"a1\":\"v1\","
+                                                    "\"a2\":\"v2\","
+                                                    "\"a3\":\"v3\"}" },
+                {  L_,  "[\"a1\"]",                "{\"a1\":\"v1\"}" },
+                {  L_,  "[\"a1\",\"a1\"]",         "{\"a1\":\"v1\","
+                                                    "\"a1\":\"v1\"}" },
+                {  L_,  "[\"a1\",\"a2\"]",         "{\"a1\":\"v1\","
+                                                    "\"a2\":\"v2\"}" },
+                {  L_,  "[\"a3\",\"a2\",\"a1\"]",  "{\"a3\":\"v3\","
+                                                    "\"a2\":\"v2\","
+                                                    "\"a1\":\"v1\"}" },
+                {  L_,  "[\"a4\"]",                "{\"a4\":\"N\\/A\"}" },
+                {  L_,  "[\"attributes\",\"a1\"]", "{\"a2\":\"v2\","
+                                                    "\"a3\":\"v3\","
+                                                    "\"a1\":\"v1\"}" },
+                {  L_,  "[\"a1\",\"attributes\"]", "{\"a1\":\"v1\","
+                                                    "\"a2\":\"v2\","
+                                                    "\"a3\":\"v3\"}" },
             };
             enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
@@ -1960,8 +1960,8 @@ int main(int argc, char *argv[])
                 const char *d_spec;
                 const char *d_expected;
             } DATA[] = {
-                //--------------------------------------------------------
-                // LINE      SPEC                        EXPECED
+                //-------------------------------------------------------------
+                // LINE SPEC                   EXPECTED
                 {  L_,  "[\"string\"]",        "{\"string\":\"string\"}" },
                 {  L_,  "[\"int\"]",           "{\"int\":-42}"           },
                 {  L_,  "[\"llong\"]",         "{\"llong\":-4242}"       },

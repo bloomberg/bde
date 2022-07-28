@@ -217,6 +217,8 @@ BSLS_IDENT_RCSID(ball_recordjsonformatter_cpp,"$Id$ $CSID$")
 #include <bdlf_bind.h>
 #include <bdlf_placeholder.h>
 
+#include <bdls_pathutil.h>
+
 #include <bdlsb_fixedmemoutstreambuf.h>
 
 #include <bdlt_datetime.h>
@@ -1163,25 +1165,17 @@ int FileFormatter::format(baljsn::SimpleFormatter *formatter,
 {
     switch (d_path) {
       case e_FULL: {
-        if (0 != formatter->addValue(d_name,
-                                     record.fixedFields().fileName()))
+        if (0 != formatter->addValue(d_name, record.fixedFields().fileName()))
         {
             return -1;                                                // RETURN
         }
       } break;
       case e_FILE: {
-        const bsl::string& filename = record.fixedFields().fileName();
-        bsl::string::size_type rightmostSlashIndex =
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-            filename.rfind('\\');
-#else
-            filename.rfind('/');
-#endif
-        if (formatter->addValue(
-                               d_name,
-                               bsl::string::npos == rightmostSlashIndex
-                               ? filename
-                               : filename.substr(rightmostSlashIndex + 1)))
+        const bsl::string_view filename(record.fixedFields().fileName());
+        bsl::string basename;
+        int rc = bdls::PathUtil::getBasename(&basename, filename);
+
+        if (formatter->addValue(d_name, 0 == rc ? basename : filename))
         {
             return -1;                                                // RETURN
         }
