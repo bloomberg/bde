@@ -507,6 +507,7 @@ BSLS_IDENT("$Id: $")
 
 #include <functional>
 
+
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 # include <initializer_list>
 #endif
@@ -1176,7 +1177,57 @@ class map {
 #endif
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+    template <class OTHER>
+    pair<iterator, bool> insert_or_assign(const KEY& key, OTHER&& obj);
+        // If a key equivalent to the specified 'key' already exists in this
+        // map, assign the specified 'obj' to the value associated with that
+        // key, and return a pair containing an iterator referring to the
+        // existing item and 'false'.  Otherwise, insert into this map a
+        // newly-created 'value_type' object, constructed from
+        // '(key, std::forward<OTHER>(obj)...))', and return a pair containing
+        // an iterator referring to the newly-created entry and 'true'.
 
+    template <class OTHER>
+    pair<iterator, bool> insert_or_assign(
+                                 BloombergLP::bslmf::MovableRef<KEY> key,
+                                 OTHER&&                             obj);
+        // If a key equivalent to the specified 'key' already exists in this
+        // map, assign the specified 'obj' to the value associated with that
+        // key, and return a pair containing an iterator referring to the
+        // existing item and 'false'.  Otherwise, insert into this map a
+        // newly-created 'value_type' object, constructed from
+        // '(std::forward<KEY>(key), std::forward<OTHER>(obj)...))', and return
+        // a pair containing an iterator referring to the newly-created entry
+        // and 'true'.
+
+    template <class OTHER>
+    iterator
+    insert_or_assign(const_iterator hint, const KEY& key, OTHER&& obj);
+        // If a key equivalent to the specified 'key' already exists in this
+        // map, assign the specified 'obj' to the value associated with that
+        // key, and return an iterator referring to the existing item.
+        // Otherwise, insert into this map a newly-created 'value_type' object,
+        // constructed from '(key, std::forward<OTHER>(obj)...))', and return
+        // an iterator referring to the newly-created entry.  Use the specified
+        // 'hint' as a starting point for checking to see if the key is
+        // already in the map.
+
+    template <class OTHER>
+    iterator insert_or_assign(const_iterator                      hint,
+                              BloombergLP::bslmf::MovableRef<KEY> key,
+                              OTHER&&                             obj);
+        // If a key equivalent to the specified 'key' already exists in this
+        // _map, assign the specified 'obj' to the value associated with that
+        // key, and return an iterator referring to the existing item.
+        // Otherwise, insert into this map a newly-created 'value_type' object
+        // constructed from
+        // '(std::forward<KEY>(key), std::forward<OTHER>(obj)...))', and return
+        // an iterator referring to the newly-created entry.  Use the specified
+        // 'hint' as a starting point for checking to see if the key already
+        // in the map.
+#endif
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
     template <class... Args>
     pair<iterator, bool> emplace(Args&&... args);
         // Insert into this map a newly-created 'value_type' object,
@@ -1214,7 +1265,6 @@ class map {
         // {Requirements on 'KEY' and 'VALUE'}).  The behavior is undefined
         // unless 'hint' is an iterator in the range '[begin() .. end()]' (both
         // endpoints included).
-
 #endif
 
     iterator erase(const_iterator position);
@@ -1264,6 +1314,34 @@ class map {
         // for swapping objects created with different allocators when
         // 'ALLOCATOR' does not have the 'propagate_on_container_swap' trait is
         // a departure from the C++ Standard.
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+    template <class... Args>
+    pair<iterator, bool> try_emplace(const KEY& key, Args&&... args);
+    template <class... Args>
+    pair<iterator, bool> try_emplace(BloombergLP::bslmf::MovableRef<KEY> key,
+                                     Args&&...                           args);
+        // If a key equivalent to the specified 'key' already exists in this
+        // map, return a pair containing an iterator referring to the existing
+        // item and 'false'.  Otherwise, insert into this map a newly-created
+        // entry constructed from 'key' and the specified 'args', and return a
+        // pair containing an iterator referring to the newly-created entry and
+        // 'true'.
+
+    template<class... Args>
+    iterator try_emplace(const_iterator hint, const KEY& key, Args&&... args);
+    template <class... Args>
+    iterator try_emplace(const_iterator                      hint,
+                         BloombergLP::bslmf::MovableRef<KEY> key,
+                         Args&&...                           args);
+        // If a key equivalent to the specified 'key' already exists in this
+        // map, return an iterator referring to the existing item.  Otherwise,
+        // insert into this map a newly-created 'value_type' object,
+        // constructed from from 'key' and the specified 'args', and return an
+        // iterator referring to the newly-created entry.  Use the specified
+        // 'hint' as a starting point for checking to see if the key already in
+        // the map.
+#endif
 
     void clear() BSLS_KEYWORD_NOEXCEPT;
         // Remove all entries from this map.  Note that the map is empty after
@@ -2672,6 +2750,153 @@ void map<KEY, VALUE, COMPARATOR, ALLOCATOR>::insert(
 #endif
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class OTHER>
+inline
+pair<typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator, bool>
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::insert_or_assign(const key_type& key,
+                                                         OTHER&&         obj)
+{
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               key);
+
+    if (!comparisonResult) { // ASSIGN
+        iterator(insertLocation)->second =
+                                     BSLS_COMPILERFEATURES_FORWARD(OTHER, obj);
+        return pair<iterator, bool>(iterator(insertLocation), false); // RETURN
+    }
+
+    // INSERT
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+             key,
+             BSLS_COMPILERFEATURES_FORWARD(OTHER, obj));
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+
+    return pair<iterator, bool>(iterator(node), true);
+}
+
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class OTHER>
+inline
+typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::insert_or_assign(const_iterator  hint,
+                                                         const key_type& key,
+                                                         OTHER&&         obj)
+{
+    BloombergLP::bslalg::RbTreeNode *hintNode =
+                    const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               key,
+                               hintNode);
+
+    if (!comparisonResult) { // ASSIGN
+        iterator(insertLocation)->second =
+                                     BSLS_COMPILERFEATURES_FORWARD(OTHER, obj);
+        return iterator(insertLocation);                              // RETURN
+    }
+
+    // INSERT
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+             key,
+             BSLS_COMPILERFEATURES_FORWARD(OTHER, obj));
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+
+    return iterator(node);
+}
+
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class OTHER>
+inline
+pair<typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator, bool>
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::insert_or_assign(
+                                  BloombergLP::bslmf::MovableRef<key_type> key,
+                                                                OTHER&&    obj)
+{
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               key);
+
+    if (!comparisonResult) { // ASSIGN
+        iterator(insertLocation)->second =
+                                     BSLS_COMPILERFEATURES_FORWARD(OTHER, obj);
+        return pair<iterator, bool>(iterator(insertLocation), false); // RETURN
+    }
+
+    // INSERT
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+             BSLS_COMPILERFEATURES_FORWARD(key_type, key),
+             BSLS_COMPILERFEATURES_FORWARD(OTHER, obj));
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+
+    return pair<iterator, bool>(iterator(node), true);
+}
+
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class OTHER>
+inline
+typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::insert_or_assign(const_iterator hint,
+                           BloombergLP::bslmf::MovableRef<key_type>     key,
+                           OTHER&&                                      obj)
+{
+    BloombergLP::bslalg::RbTreeNode *hintNode =
+                    const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               key,
+                               hintNode);
+
+    if (!comparisonResult) { // ASSIGN
+        iterator(insertLocation)->second =
+                                     BSLS_COMPILERFEATURES_FORWARD(OTHER, obj);
+        return iterator(insertLocation);                              // RETURN
+    }
+
+    // INSERT
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+             BSLS_COMPILERFEATURES_FORWARD(key_type, key),
+             BSLS_COMPILERFEATURES_FORWARD(OTHER, obj));
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+
+    return iterator(node);
+}
+#endif
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 template <class... Args>
@@ -2810,6 +3035,139 @@ void map<KEY, VALUE, COMPARATOR, ALLOCATOR>::swap(map& other)
         }
     }
 }
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class... Args>
+inline
+pair<typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator, bool>
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(const key_type& key,
+                                                    Args&&...       args)
+{
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               key);
+    if (!comparisonResult) {
+        return pair<iterator, bool>(iterator(insertLocation), false); // RETURN
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+          key,
+          BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+    return pair<iterator, bool>(iterator(node), true);
+}
+
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class... Args>
+inline
+typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(const_iterator  hint,
+                                                    const key_type& key,
+                                                    Args&&...       args)
+{
+    BloombergLP::bslalg::RbTreeNode *hintNode =
+                    const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               key,
+                               hintNode);
+    if (!comparisonResult) {
+        return iterator(insertLocation);                              // RETURN
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+          key,
+          BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+    return iterator(node);
+}
+
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class... Args>
+inline
+pair<typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator, bool>
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(
+                                 BloombergLP::bslmf::MovableRef<key_type> key,
+                                 Args&&...                                args)
+{
+    key_type& lvalue = key;
+
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               lvalue);
+    if (!comparisonResult) {
+        return pair<iterator, bool>(iterator(insertLocation), false); // RETURN
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+          BSLS_COMPILERFEATURES_FORWARD(key_type, key),
+          BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+
+    return pair<iterator, bool>(iterator(node), true);
+}
+
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class... Args>
+inline
+typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(
+                                 const_iterator                           hint,
+                                 BloombergLP::bslmf::MovableRef<key_type> key,
+                                 Args&&...                                args)
+{
+    key_type& lvalue = key;
+
+    BloombergLP::bslalg::RbTreeNode *hintNode =
+                    const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               lvalue,
+                               hintNode);
+    if (!comparisonResult) {
+        return iterator(insertLocation);                              // RETURN
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+             BSLS_COMPILERFEATURES_FORWARD(key_type, key),
+             BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+    return iterator(node);
+}
+#endif
 
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline

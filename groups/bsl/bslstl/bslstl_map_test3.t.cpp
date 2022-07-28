@@ -182,6 +182,14 @@ using bsls::NameOf;
 // [30] iterator insert(const_iterator position, ALT_VALUE_TYPE&& value);
 // [17] void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
 // [33] void insert(initializer_list<value_type>);
+// [43] pair<iterator, bool> try_emplace(const key&, Args&&...);
+// [43] iterator try_emplace(const_iterator, const key&, Args&&...);
+// [43] pair<iterator, bool> try_emplace(key&&, Args&&...);
+// [43] iterator try_emplace(const_iterator, key&&, Args&&...);
+// [43] pair<iterator, bool> insert_or_assign(const key&, OTHER&&);
+// [43] iterator insert_or_assign(const_iterator, const key&, OTHER&&);
+// [43] pair<iterator, bool> insert_or_assign(key&&, OTHER&&);
+// [43] iterator insert_or_assign(const_iterator, key&&, OTHER&&);
 //
 // [31] iterator emplace(Args&&... args);
 // [32] iterator emplace_hint(const_iterator position, Args&&... args);
@@ -221,7 +229,7 @@ using bsls::NameOf;
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [40] USAGE EXAMPLE
+// [44] USAGE EXAMPLE
 //
 // TEST APPARATUS
 // [ 3] int ggg(map *object, const char *spec, bool verbose = true);
@@ -1229,6 +1237,117 @@ struct EqKeyPred {
     }
  };
 
+                         // ================
+                         // class MoveHolder
+                         // ================
+
+template <class TYPE>
+struct MoveHolder {
+    // A simple class that holds a value, but records if the value has ever
+    // been moved from.
+
+    typedef BloombergLP::bslmf::MovableRefUtil MoveUtil;
+        // This typedef is a convenient alias for the utility associated with
+        // movable references.
+
+    MoveHolder()
+    : d_value()
+    , d_moved(false)
+        // Default initialize the held value.
+    {}
+
+    explicit MoveHolder(const TYPE &value)
+    : d_value(value)
+    , d_moved(false)
+        // Construct from the specified 'value'
+    {}
+
+    MoveHolder(const MoveHolder& rhs)
+    : d_value(rhs.d_value)
+    , d_moved(false)
+        // Copy-construct from the specified 'rhs'
+    {}
+
+    MoveHolder(BloombergLP::bslmf::MovableRef<MoveHolder> rhs)
+    : d_value(MoveUtil::move(MoveUtil::access(rhs).d_value))
+    , d_moved(false)
+        // Move-construct from the specified 'rhs'. Set the 'rhs' moved-from
+        // flag to 'true'.
+    {
+        MoveHolder& lvalue = rhs;
+        lvalue.d_moved = true;
+    }
+
+    MoveHolder& operator=(const MoveHolder& rhs)
+        // Copy-assign from the specified 'rhs'.
+    {
+        d_value = rhs.d_value;
+        d_moved = rhs.d_moved;
+        return *this;
+    }
+
+    MoveHolder& operator=(BloombergLP::bslmf::MovableRef<MoveHolder> rhs)
+        // Move-assign from the specified 'rhs'. Set the 'rhs' moved-from flag
+        // to 'true'.
+    {
+        MoveHolder& lvalue = rhs;
+
+        d_value = MoveUtil::move(MoveUtil::access(rhs).d_value);
+        d_moved = lvalue.d_moved;
+        lvalue.d_moved = true;
+        return *this;
+    }
+
+    bool hasBeenMoved() const
+        // Return 'true' if this object has been moved from, and 'false'
+        // otherwise.
+    {
+        return d_moved;
+    }
+
+    TYPE d_value;
+    bool d_moved;
+};
+
+template <class TYPE>
+bool operator==(const MoveHolder<TYPE>& lhs, const MoveHolder<TYPE>& rhs)
+    // Return 'true' if both the held value and the moved-from flag of the
+    // specified 'lhs' are equal to the corresponding fields in the specified
+    // 'rhs', and 'false' otherwise.
+{
+    return lhs.hasBeenMoved() == rhs.hasBeenMoved()
+                                                 && lhs.d_value == rhs.d_value;
+}
+
+template <class TYPE>
+bool operator<(const MoveHolder<TYPE>& lhs, const MoveHolder<TYPE>& rhs)
+    // If the specified 'lhs' has been moved from and the specified 'rhs' has
+    // not, return 'true'.  If 'rhs' has been moved from and 'lhs' has not,
+    // return 'false'.  Otherwise, return 'lhs.d_value < rhs.d_value'.
+{
+    return lhs.hasBeenMoved() == rhs.hasBeenMoved()
+        ? lhs.d_value < rhs.d_value
+        : lhs.hasBeenMoved();
+}
+
+
+template <class TYPE>
+bool operator==(const MoveHolder<TYPE>& lhs, const TYPE& rhs)
+    // Return 'true' if the held value in the specified 'lhs' is equal to the
+    // specified 'rhs', and 'false' otherwise.  If 'lhs' has been moved from,
+    // then return 'false'.
+{
+    return lhs.hasBeenMoved() ? false : lhs.d_value == rhs;
+}
+
+template <class TYPE>
+bool operator==(const TYPE& lhs, const MoveHolder<TYPE>& rhs)
+    // Return 'true' if the held value in the specified 'rhs' is equal to the
+    // specified 'lhs', and 'false' otherwise.  If 'rhs' has been moved from,
+    // then return 'false'.
+{
+    return rhs.hasBeenMoved() ? false : lhs == rhs.d_value;
+}
 
 // ============================================================================
 //                          TEST DRIVER TEMPLATE
@@ -1440,6 +1559,9 @@ class TestDriver {
 
   public:
     // TEST CASES
+
+    static void testCase43();
+        // Test 'try_emplace' and 'insert_or_assign'
 
     static void testCase42();
         // Test free function 'bsl::erase_if'.
@@ -2112,6 +2234,253 @@ TestDriver<KEY, VALUE, COMP, ALLOC>::testCase32a_RunTest(Obj   *target,
     return result;
 }
 #endif
+
+template <class KEY, class VALUE, class COMP, class ALLOC>
+void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase43()
+{
+    typedef BloombergLP::bslmf::MovableRefUtil MoveUtil;
+
+    static const struct {
+        int         d_line;      // source line number
+        const char *d_key_p;     // list of keys string
+        const char *d_value_p;   // list of values string
+        const char *d_results_p; // expected element values
+    } DATA[] = {
+        //line  key            value          results
+        //----  ---            -----          -------
+
+        { L_,   "A",           "0",           "Y"           },
+        { L_,   "AAA",         "012",         "YNN"         },
+        { L_,   "ABCDEFGH",    "01234567",    "YYYYYYYY"    },
+        { L_,   "ABCDEABCDEF", "0123456789A", "YYYYYNNNNNY" },
+        { L_,   "EEDDCCBBAA",  "0123456789",  "YNYNYNYNYN"  }
+    };
+    const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+    typedef bsl::map<MoveHolder<KEY>, VALUE> MH_map;
+
+    // Sanity checks
+    for (size_t i = 0; i < NUM_DATA; ++i) {
+        ASSERT(strlen(DATA[i].d_key_p) == strlen(DATA[i].d_value_p));
+        ASSERT(strlen(DATA[i].d_key_p) == strlen(DATA[i].d_results_p));
+    }
+
+    // try_emplace (const KEY &)
+    for (size_t i = 0; i < NUM_DATA; ++i)
+    {
+        typedef bsl::pair<typename Obj::iterator, bool> PAIR;
+        int             LINE = DATA[i].d_line;
+        const char     *keys = DATA[i].d_key_p;
+        const size_t    keysLen = strlen(keys);
+        const char     *values = DATA[i].d_value_p;
+        const char     *results = DATA[i].d_results_p;
+
+        Obj    mX;
+        size_t map_size = 0;
+
+        for (size_t j = 0; j < keysLen; ++j)
+        {
+            ASSERTV(LINE, j, map_size == mX.size());
+            PAIR res = mX.try_emplace(keys[j], values[j]);
+            ASSERTV(LINE, j, ('Y' == results[j]) == res.second);
+            ASSERTV(LINE, j, KEY(keys[j]) == res.first->first);
+            if (res.second) {
+                ASSERTV(LINE, j, VALUE(values[j]) == res.first->second);
+                ASSERTV(LINE, j, ++map_size == mX.size());
+            }
+        }
+    }
+
+    // try_emplace (KEY&&)
+    for (size_t i = 0; i < NUM_DATA; ++i)
+    {
+        typedef bsl::pair<typename MH_map::iterator, bool> PAIR;
+        int             LINE = DATA[i].d_line;
+        const char     *keys = DATA[i].d_key_p;
+        const size_t    keysLen = strlen(keys);
+        const char     *values = DATA[i].d_value_p;
+        const char     *results = DATA[i].d_results_p;
+
+        MH_map mX;
+        size_t map_size = 0;
+
+        for (size_t j = 0; j < keysLen; ++j)
+        {
+            MoveHolder<KEY> k(static_cast<KEY>(keys[j]));
+
+            ASSERTV(LINE, j, map_size == mX.size());
+            PAIR res = mX.try_emplace(MoveUtil::move(k), values[j]);
+            ASSERTV(LINE, j, ('Y' == results[j]) == res.second);
+            ASSERTV(LINE, j, ('Y' == results[j]) == k.hasBeenMoved());
+            ASSERTV(LINE, j, KEY(keys[j]) == res.first->first);
+            if (res.second) {
+                ASSERTV(LINE, j, VALUE(values[j]) == res.first->second);
+                ASSERTV(LINE, j, ++map_size == mX.size());
+            }
+        }
+    }
+
+    // try_emplace (hint, const KEY &)
+    for (size_t i = 0; i < NUM_DATA; ++i)
+    {
+        int             LINE = DATA[i].d_line;
+        const char     *keys = DATA[i].d_key_p;
+        const size_t    keysLen = strlen(keys);
+        const char     *values = DATA[i].d_value_p;
+        const char     *results = DATA[i].d_results_p;
+
+        Obj    mX;
+        size_t map_size = 0;
+
+        for (size_t j = 0; j < keysLen; ++j)
+        {
+            ASSERTV(LINE, j, map_size == mX.size());
+            typename Obj::iterator it =
+                                  mX.try_emplace(mX.end(), keys[j], values[j]);
+            ASSERTV(LINE, j, KEY(keys[j]) == it->first);
+            if ('Y' == results[j]) {
+                ASSERTV(LINE, j, VALUE(values[j]) == it->second);
+                ASSERTV(LINE, j, ++map_size == mX.size());
+            }
+        }
+    }
+
+    // try_emplace (hint, KEY&&)
+    for (size_t i = 0; i < NUM_DATA; ++i)
+    {
+        int             LINE = DATA[i].d_line;
+        const char     *keys = DATA[i].d_key_p;
+        const size_t    keysLen = strlen(keys);
+        const char     *values = DATA[i].d_value_p;
+        const char     *results = DATA[i].d_results_p;
+
+        MH_map mX;
+        size_t map_size = 0;
+
+        for (size_t j = 0; j < keysLen; ++j)
+        {
+            MoveHolder<KEY> k(static_cast<KEY>(keys[j]));
+
+            ASSERTV(LINE, j, map_size == mX.size());
+            typename MH_map::iterator it =
+                        mX.try_emplace(mX.end(), MoveUtil::move(k), values[j]);
+            ASSERTV(LINE, j, KEY(keys[j]) == it->first);
+            ASSERTV(LINE, j, ('Y' == results[j]) == k.hasBeenMoved());
+            if ('Y' == results[j]) {
+                ASSERTV(LINE, j, VALUE(values[j]) == it->second);
+                ASSERTV(LINE, j, ++map_size == mX.size());
+            }
+        }
+    }
+
+    // insert_or_assign (const KEY &)
+    for (size_t i = 0; i < NUM_DATA; ++i)
+    {
+        typedef bsl::pair<typename Obj::iterator, bool> PAIR;
+        int             LINE = DATA[i].d_line;
+        const char     *keys = DATA[i].d_key_p;
+        const size_t    keysLen = strlen(keys);
+        const char     *values = DATA[i].d_value_p;
+        const char     *results = DATA[i].d_results_p;
+
+        Obj    mX;
+        size_t map_size = 0;
+
+        for (size_t j = 0; j < keysLen; ++j)
+        {
+            ASSERTV(LINE, j, map_size == mX.size());
+            PAIR res = mX.insert_or_assign(keys[j], values[j]);
+            ASSERTV(LINE, j, ('Y' == results[j]) == res.second);
+            ASSERTV(LINE, j, KEY(keys[j])     == res.first->first);
+            ASSERTV(LINE, j, VALUE(values[j]) == res.first->second);
+            if (res.second) {
+                ASSERTV(LINE, j, ++map_size == mX.size());
+            }
+        }
+    }
+
+    // insert_or_assign (KEY&&)
+    for (size_t i = 0; i < NUM_DATA; ++i)
+    {
+        typedef bsl::pair<typename MH_map::iterator, bool> PAIR;
+        int             LINE = DATA[i].d_line;
+        const char     *keys = DATA[i].d_key_p;
+        const size_t    keysLen = strlen(keys);
+        const char     *values = DATA[i].d_value_p;
+        const char     *results = DATA[i].d_results_p;
+
+        MH_map mX;
+        size_t map_size = 0;
+
+        for (size_t j = 0; j < keysLen; ++j)
+        {
+            MoveHolder<KEY> k(static_cast<KEY>(keys[j]));
+
+            ASSERTV(LINE, j, map_size == mX.size());
+            PAIR res = mX.insert_or_assign(MoveUtil::move(k), values[j]);
+            ASSERTV(LINE, j, ('Y' == results[j]) == res.second);
+            ASSERTV(LINE, j, ('Y' == results[j]) == k.hasBeenMoved());
+            ASSERTV(LINE, j, KEY(keys[j])     == res.first->first);
+            ASSERTV(LINE, j, VALUE(values[j]) == res.first->second);
+            if (res.second) {
+                ASSERTV(LINE, j, ++map_size == mX.size());
+            }
+        }
+    }
+
+    // insert_or_assign (hint, const KEY &)
+    for (size_t i = 0; i < NUM_DATA; ++i)
+    {
+        int             LINE = DATA[i].d_line;
+        const char     *keys = DATA[i].d_key_p;
+        const size_t    keysLen = strlen(keys);
+        const char     *values = DATA[i].d_value_p;
+        const char     *results = DATA[i].d_results_p;
+
+        Obj    mX;
+        size_t map_size = 0;
+
+        for (size_t j = 0; j < keysLen; ++j)
+        {
+            ASSERTV(LINE, j, map_size == mX.size());
+            typename Obj::iterator it =
+                            mX.insert_or_assign(mX.end(), keys[j], values[j]);
+            ASSERTV(LINE, j, KEY(keys[j])     == it->first);
+            ASSERTV(LINE, j, VALUE(values[j]) == it->second);
+            if ('Y' == results[j]) {
+                ASSERTV(LINE, j, ++map_size == mX.size());
+            }
+        }
+    }
+
+    // insert_or_assign (hint, KEY&&)
+    for (size_t i = 0; i < NUM_DATA; ++i)
+    {
+        int             LINE = DATA[i].d_line;
+        const char     *keys = DATA[i].d_key_p;
+        const size_t    keysLen = strlen(keys);
+        const char     *values = DATA[i].d_value_p;
+        const char     *results = DATA[i].d_results_p;
+
+        MH_map mX;
+        size_t map_size = 0;
+
+        for (size_t j = 0; j < keysLen; ++j)
+        {
+            MoveHolder<KEY> k(static_cast<KEY>(keys[j]));
+
+            ASSERTV(LINE, j, map_size == mX.size());
+            typename MH_map::iterator it =
+                   mX.insert_or_assign(mX.end(), MoveUtil::move(k), values[j]);
+            ASSERTV(LINE, j, KEY(keys[j])     == it->first);
+            ASSERTV(LINE, j, VALUE(values[j]) == it->second);
+            ASSERTV(LINE, j, ('Y' == results[j]) == k.hasBeenMoved());
+            if ('Y' == results[j]) {
+                ASSERTV(LINE, j, ++map_size == mX.size());
+            }
+        }
+    }
+}
 
 template <class KEY, class VALUE, class COMP, class ALLOC>
 void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase42()
@@ -5289,10 +5658,49 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
-      case 43: {
+      case 44: {
         if (verbose) printf(
                   "\nUSAGE EXAMPLE TEST IS HANDLED BY PRIMARY TEST DRIVER'"
                   "\n=====================================================\n");
+      } break;
+      case 43: {
+        // --------------------------------------------------------------------
+        // TESTING 'TRY_EMPLACE' AND 'INSERT_OR_ASSIGN'
+        //
+        // Concerns:
+        //: 1 'try_emplace' only adds an entry to the map if the key does not
+        //:   already exist, otherwise it does nothing.  Specifically, it does
+        //:   not consume the arguments if the key already exists.
+        //:
+        //: 1 'insert_or_assign' only adds an entry to the map if the key does
+        //:   not already exist, and otherwise updates an existing entry.
+        //
+        // Plan:
+        //: 1 Construct a map and call 'try_emplace' with keys that both do
+        //:   and do not exist.  Examine the map and the parameters to confirm
+        //:   correct behavior. (C-1)
+        //:
+        //: 1 Construct a map and call 'insert_or_assign' with keys that both
+        //:   do and do not exist.  Examine the map to confirm correct
+        //:   behavior. (C-2)
+        //
+        // Testing:
+        //   pair<iterator, bool> try_emplace(const key&, Args&&...);
+        //   iterator try_emplace(const_iterator, const key&, Args&&...);
+        //   pair<iterator, bool> try_emplace(key&&, Args&&...);
+        //   iterator try_emplace(const_iterator, key&&, Args&&...);
+        //   pair<iterator, bool> insert_or_assign(const key&, OTHER&&);
+        //   iterator insert_or_assign(const_iterator, const key&, OTHER&&);
+        //   pair<iterator, bool> insert_or_assign(key&&, OTHER&&);
+        //   iterator insert_or_assign(const_iterator, key&&, OTHER&&);
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            printf("\nTESTING 'TRY_EMPLACE' AND 'INSERT_OR_ASSIGN'\n"
+                     "============================================\n");
+        TestDriver<char, size_t>::testCase43();
+        TestDriver<int,  size_t>::testCase43();
+        TestDriver<long, size_t>::testCase43();
       } break;
       case 42: {
         // --------------------------------------------------------------------

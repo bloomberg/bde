@@ -2240,7 +2240,6 @@ class HashTable {
         // the 'ValueType' defined in the (template parameter) type
         // 'KEY_CONFIG' be 'emplace-constructible' into this hash-table from
         // 'arguments' (see {Requirements on 'KEY_CONFIG'});
-
 #endif
 
     bslalg::BidirectionalLink *insertIfMissing(const KeyType& key);
@@ -2368,6 +2367,23 @@ class HashTable {
         // only to ensure backward compatibility with existing clients; use the
         // 'emplaceWithHint' method instead.
 
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+    template <class KEY_ARG, class OTHER>
+    bslalg::BidirectionalLink *insertOrAssign(
+                    bool                                       *isInsertedFlag,
+                    bslalg::BidirectionalLink                  *hint,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(KEY_ARG)  key,
+                    OTHER&&                                     obj);
+        // If a key equivalent to the specified 'key' already exists in this
+        // hash-table, assign the specified 'obj' to the value associated with
+        // that key, load 'false' into the specified 'isInsertedFlag' and
+        // return a pointer to the existing entry.  Otherwise, insert into this
+        // hash-table a newly-created 'value_type' object, constructed from
+        // 'key' and 'obj', load 'true' into 'isInsertedFlag', and return a
+        // pointer to the newly-created entry.  Use the optionally specified
+        // 'hint' as a starting place for the search for the existing key.
+#endif
+
     void rehashForNumBuckets(SizeType newNumBuckets);
         // Re-organize this hash-table to have at least the specified
         // 'newNumBuckets', preserving the invariant
@@ -2436,6 +2452,23 @@ class HashTable {
         // equal to the allocator of 'other', or the trait
         // 'bslstl::AllocatorTraits<ALLOCATOR>::propagate_on_container_swap' is
         // 'true'.
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+    template <class KEY_ARG, class... Args>
+    bslalg::BidirectionalLink *tryEmplace(
+                    bool                                       *isInsertedFlag,
+                    bslalg::BidirectionalLink                  *hint,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(KEY_ARG)  key,
+                    Args&&...                                   args);
+        // If a key equivalent to the specified 'key' already exists in this
+        // hash-table, load 'false' into the specified 'isInsertedFlag' and
+        // return a pointer to the existing entry.  Otherwise, insert into this
+        // hash-table a newly-created 'value_type' object, constructed from
+        // 'key' and the specified 'args', load 'true' into 'isInsertedFlag'
+        // and return a pointer to the newly created entry.  Use the optionally
+        // specified 'hint' as a starting place for the search for the existing
+        // key.
+#endif
 
     // ACCESSORS
     ALLOCATOR allocator() const;
@@ -4369,6 +4402,56 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insert(
                            BSLS_COMPILERFEATURES_FORWARD(SOURCE_TYPE, value));
 }
 
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class KEY_ARG, class OTHER>
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertOrAssign(
+                    bool                                       *isInsertedFlag,
+                    bslalg::BidirectionalLink                  *hint,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(KEY_ARG)  key,
+                    OTHER&&                                     obj)
+{
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+    const KEY_ARG& lvalue = key;
+    size_t         hashCode = this->d_parameters.hashCodeForKey(lvalue);
+    // Use the hint, if we can
+    if (!hint
+        || !d_parameters.comparator()(lvalue,
+                                      ImpUtil::extractKey<KEY_CONFIG>(hint))) {
+        hint = this->find(lvalue, hashCode);
+    }
+
+    if (hint) { // assign
+        static_cast<NodeType *>(hint)->value().second =
+                                     BSLS_COMPILERFEATURES_FORWARD(OTHER, obj);
+        *isInsertedFlag = false;
+        return hint;                                                  // RETURN
+    }
+
+    // insert
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() * 2);
+    }
+
+    // Make a new node
+    hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+                                   BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
+                                   BSLS_COMPILERFEATURES_FORWARD(OTHER, obj));
+
+    // Add it to the hash table
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                            nodeProctor(&d_parameters.nodeFactory(), hint);
+    ImpUtil::insertAtFrontOfBucket(&d_anchor, hint, hashCode);
+    nodeProctor.release();
+    ++d_size;
+
+    *isInsertedFlag = true;
+    return hint;
+}
+#endif
+
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 void
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::rehashForNumBuckets(
@@ -4497,6 +4580,55 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::swap(HashTable& other)
         quickSwapRetainAllocators(&other);
     }
 }
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class KEY_ARG, class... Args>
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
+                    bool                                       *isInsertedFlag,
+                    bslalg::BidirectionalLink                  *hint,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(KEY_ARG)  key,
+                    Args&&...                                   args)
+{
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+    const KEY_ARG& lvalue = key;
+    const size_t   hashCode = this->d_parameters.hashCodeForKey(lvalue);
+
+    // Use the hint, if we can
+    if (!hint
+        || !d_parameters.comparator()(lvalue,
+                                      ImpUtil::extractKey<KEY_CONFIG>(hint))) {
+        hint = this->find(lvalue, hashCode);
+    }
+
+    // If the key exists, we're done
+    if (hint) {
+        *isInsertedFlag = false;
+        return hint;                                                  // RETURN
+    }
+
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() * 2);
+    }
+
+    // Make a new node
+    hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+                                 BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
+                                 BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
+
+    // Add it to the hash table
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                            nodeProctor(&d_parameters.nodeFactory(), hint);
+    ImpUtil::insertAtFrontOfBucket(&d_anchor, hint, hashCode);
+    nodeProctor.release();
+    ++d_size;
+
+    *isInsertedFlag = true;
+    return hint;
+}
+#endif
 
 // ACCESSORS
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>

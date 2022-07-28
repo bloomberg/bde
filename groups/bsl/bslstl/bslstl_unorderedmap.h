@@ -972,6 +972,8 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #include <bsls_util.h>     // 'forward<T>(V)'
 
+#include <cstddef> // NULL
+
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 # include <initializer_list>
 #endif
@@ -1431,7 +1433,6 @@ class unordered_map {
         // 'hint' is an iterator in the range '[begin() .. end()]' (both
         // endpoints included).  Note that 'hint' is ignored (other than
         // possibly asserting its validity in some build modes).
-
 #endif
 
     iterator erase(const_iterator position);
@@ -1646,6 +1647,59 @@ class unordered_map {
         // 'copy-constructible' (see {Requirements on 'value_type'}).
 #endif
 
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+    template <class OTHER>
+    pair<iterator, bool> insert_or_assign(const KEY& key, OTHER&& obj);
+        // If a key equivalent to the specified 'key' already exists in this
+        // unordered_map, assign the specified 'obj' to the value associated
+        // with that key, and return a pair containing an iterator referring to
+        // the existing item and 'false'.  Otherwise, insert into this map a
+        // newly-created 'value_type' object, constructed from
+        // '(key, std::forward<OTHER>(obj)...))', and return a pair containing
+        // an iterator referring to the newly-created entry and 'true'.
+
+    template <class OTHER>
+    pair<iterator, bool> insert_or_assign(
+                                      BloombergLP::bslmf::MovableRef<KEY> key,
+                                      OTHER&&                             obj);
+        // If a key equivalent to the specified 'key' already exists in this
+        // unordered_map, assign the specified 'obj' to the value associated
+        // with that key, and return a pair containing an iterator referring to
+        // the existing item and 'false'.  Otherwise, insert into this map a
+        // newly-created 'value_type' object, constructed from
+        // '(std::forward<KEY>(key), std::forward<OTHER>(obj)...))', and return
+        // a pair containing an iterator referring to the newly-created entry
+        // and 'true'.
+
+    template <class OTHER>
+    iterator
+    insert_or_assign(const_iterator hint, const KEY& key, OTHER&& obj);
+        // If a key equivalent to the specified 'key' already exists in this
+        // unordered_map, assign the specified 'obj' to the value associated
+        // with that key, and return an iterator referring to the existing
+        // item.  Otherwise, insert into this map a newly-created 'value_type'
+        // object, constructed from
+        // '(std::forward<KEY>(key), std::forward<OTHER>(obj)...))', and return
+        // a pair containing an iterator referring to the newly-created entry
+        // and 'true'.  Use the specified 'hint' as a starting point for
+        // checking to see if the key already in the unordered_map.
+
+    template <class OTHER>
+    iterator insert_or_assign(const_iterator                      hint,
+                              BloombergLP::bslmf::MovableRef<KEY> key,
+                              OTHER&&                             obj);
+        // If a key equivalent to the specified 'key' already exists in this
+        // unordered_map, assign the specified 'obj' to the value associated
+        // with that key, and return an iterator referring to the existing
+        // item.  Otherwise, insert into this map a newly-created 'value_type'
+        // object, constructed from
+        // '(std::forward<KEY>(key), std::forward<OTHER>(obj)...))', and return
+        // an iterator referring to the newly-created entry.  Use the specified
+        // 'hint' as a starting point for checking to see if the key already
+        // in the unordered_map.
+
+#endif
+
     template <class LOOKUP_KEY>
     typename enable_if<
            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -1723,6 +1777,52 @@ class unordered_map {
         // complexity.  The behavior is undefined unless either this object was
         // created with the same allocator as 'other' or 'ALLOCATOR' has the
         // 'propagate_on_container_swap' trait.
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+    template <class... Args>
+    pair<iterator, bool> try_emplace(const KEY& key, Args&&... args);
+        // If a key equivalent to the specified 'key' already exists in this
+        // unordered_map, return a pair containing an iterator referring to the
+        // existing item, and 'false'.  Otherwise, insert into this map a
+        // newly-created 'value_type' object, constructed from 'key' and the
+        // specified 'args', and return a pair containing an iterator referring
+        // to the newly-created entry and 'true'.
+
+    template <class... Args>
+    pair<iterator, bool> try_emplace(
+                              BloombergLP::bslmf::MovableRef<KEY> key,
+                              Args&&...                           args);
+        // If a key equivalent to the specified 'key' already exists in this
+        // unordered_map, return a pair containing an iterator referring to the
+        // existing item and 'false'.  Otherwise, insert into this map a
+        // newly-created 'value_type' object, constructed from
+        // 'std::forward<KEY>(key)' and the specified 'args', and return a pair
+        // containing an iterator referring to the newly-created entry, and
+        // 'true'.
+
+    template<class... Args>
+    iterator
+    try_emplace(const_iterator hint, const KEY& key, Args&&... args);
+        // If a key equivalent to the specified 'key' already exists in this
+        // unordered_map, return an iterator referring to the existing item.
+        // Otherwise, insert into this map a newly-created 'value_type' object,
+        // constructed from 'key' and the specified 'args', and return an
+        // iterator referring to the newly-created entry.  Use the specified
+        // 'hint' as a starting point for checking to see if the key already
+        // in the unordered_map.
+
+    template <class... Args>
+    iterator try_emplace(const_iterator                      hint,
+                         BloombergLP::bslmf::MovableRef<KEY> key,
+                         Args&&...                           args);
+        // If a key equivalent to the specified 'key' already exists in this
+        // unordered_map, return an iterator referring to the existing item.
+        // Otherwise, insert into this map a newly-created 'value_type' object,
+        // constructed from 'std::forward<KEY>(key)' and the specified 'args',
+        // and return an iterator referring to the newly-created entry.  Use
+        // the specified 'hint' as a starting point for checking to see if the
+        // key already in the unordered_map.
+#endif
 
     // ACCESSORS
     typename add_lvalue_reference<const VALUE>::type at(const key_type& key)
@@ -2855,6 +2955,78 @@ void unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::insert(
 }
 #endif
 
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class OTHER>
+bsl::pair<
+         typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator,
+         bool>
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::insert_or_assign(
+                                                                const KEY& key,
+                                                                OTHER&&    obj)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.insertOrAssign(
+                                &isInsertedFlag,
+                                NULL,
+                                key,
+                                BSLS_COMPILERFEATURES_FORWARD(OTHER, obj));
+    return ResultType(iterator(result), isInsertedFlag);
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class OTHER>
+bsl::pair<
+         typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator,
+         bool>
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::insert_or_assign(
+                                       BloombergLP::bslmf::MovableRef<KEY> key,
+                                       OTHER&&                             obj)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.insertOrAssign(
+                                &isInsertedFlag,
+                                NULL,
+                                BSLS_COMPILERFEATURES_FORWARD(KEY, key),
+                                BSLS_COMPILERFEATURES_FORWARD(OTHER, obj));
+    return ResultType(iterator(result), isInsertedFlag);
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class OTHER>
+typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::insert_or_assign(
+                  const_iterator hint, const KEY& key, OTHER&& obj)
+{
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.insertOrAssign(
+                                &isInsertedFlag,
+                                hint.node(),
+                                key,
+                                BSLS_COMPILERFEATURES_FORWARD(OTHER, obj));
+    return iterator(result);
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class OTHER>
+typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::insert_or_assign(
+                                 const_iterator                           hint,
+                                 BloombergLP::bslmf::MovableRef<KEY>      key,
+                                 OTHER&&                                  obj)
+{
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.insertOrAssign(
+                                &isInsertedFlag,
+                                hint.node(),
+                                BSLS_COMPILERFEATURES_FORWARD(KEY, key),
+                                BSLS_COMPILERFEATURES_FORWARD(OTHER, obj));
+    return iterator(result);
+}
+#endif
+
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 bsl::pair<
          typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator,
@@ -2904,6 +3076,88 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::swap(unordered_map& other)
 {
     d_impl.swap(other.d_impl);
 }
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class... Args>
+inline
+bsl::pair<
+     typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator,
+     bool>
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
+                                                               const KEY& key,
+                                                               Args&&...  args)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                NULL,
+                                key,
+                                BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class... Args>
+inline
+bsl::pair<
+     typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator,
+     bool>
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
+                                      BloombergLP::bslmf::MovableRef<KEY> key,
+                                      Args&&...                           args)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                NULL,
+                                BSLS_COMPILERFEATURES_FORWARD(KEY, key),
+                                BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class... Args>
+inline
+typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
+                                                           const_iterator hint,
+                                                           const KEY&     key,
+                                                           Args&&...      args)
+{
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                hint.node(),
+                                key,
+                                BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
+
+    return iterator(result);
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class... Args>
+inline
+typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
+                                 const_iterator                           hint,
+                                 BloombergLP::bslmf::MovableRef<KEY>      key,
+                                 Args&&...                                args)
+{
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                hint.node(),
+                                BSLS_COMPILERFEATURES_FORWARD(KEY, key),
+                                BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
+
+    return iterator(result);
+}
+#endif
 
 // ACCESSORS
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>

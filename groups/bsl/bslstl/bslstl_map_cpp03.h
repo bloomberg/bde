@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Tue Jun 28 15:42:43 2022
+// Generated on Wed Jul 20 11:38:00 2022
 // Command line: sim_cpp11_features.pl bslstl_map.h
 
 #ifdef COMPILING_BSLSTL_MAP_H
@@ -670,36 +670,58 @@ class map {
         // 'VALUE'}).
 #endif
 
+// {{{ BEGIN GENERATED CODE
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+    template <class OTHER>
+    pair<iterator, bool> insert_or_assign(const KEY& key,
+                                 BSLS_COMPILERFEATURES_FORWARD_REF(OTHER) obj);
+
+    template <class OTHER>
+    pair<iterator, bool> insert_or_assign(
+                                 BloombergLP::bslmf::MovableRef<KEY> key,
+                                 BSLS_COMPILERFEATURES_FORWARD_REF(OTHER) obj);
+
+    template <class OTHER>
+    iterator
+    insert_or_assign(const_iterator hint, const KEY& key,
+                                 BSLS_COMPILERFEATURES_FORWARD_REF(OTHER) obj);
+
+    template <class OTHER>
+    iterator insert_or_assign(const_iterator                      hint,
+                              BloombergLP::bslmf::MovableRef<KEY> key,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(OTHER) obj);
+// }}} END GENERATED CODE
+
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // Command line: sim_cpp11_features.pl bslstl_map.h
 #ifndef BSLSTL_MAP_VARIADIC_LIMIT
 #define BSLSTL_MAP_VARIADIC_LIMIT 10
 #endif
-#ifndef BSLSTL_MAP_VARIADIC_LIMIT_A
-#define BSLSTL_MAP_VARIADIC_LIMIT_A BSLSTL_MAP_VARIADIC_LIMIT
+#ifndef BSLSTL_MAP_VARIADIC_LIMIT_B
+#define BSLSTL_MAP_VARIADIC_LIMIT_B BSLSTL_MAP_VARIADIC_LIMIT
 #endif
-
-#if BSLSTL_MAP_VARIADIC_LIMIT_A >= 0
+#if BSLSTL_MAP_VARIADIC_LIMIT_B >= 0
     pair<iterator, bool> emplace(
                               );
-#endif  // BSLSTL_MAP_VARIADIC_LIMIT_A >= 0
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_B >= 0
 
-#if BSLSTL_MAP_VARIADIC_LIMIT_A >= 1
+#if BSLSTL_MAP_VARIADIC_LIMIT_B >= 1
     template <class Args_01>
     pair<iterator, bool> emplace(
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01);
-#endif  // BSLSTL_MAP_VARIADIC_LIMIT_A >= 1
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_B >= 1
 
-#if BSLSTL_MAP_VARIADIC_LIMIT_A >= 2
+#if BSLSTL_MAP_VARIADIC_LIMIT_B >= 2
     template <class Args_01,
               class Args_02>
     pair<iterator, bool> emplace(
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02);
-#endif  // BSLSTL_MAP_VARIADIC_LIMIT_A >= 2
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_B >= 2
 
-#if BSLSTL_MAP_VARIADIC_LIMIT_A >= 3
+#if BSLSTL_MAP_VARIADIC_LIMIT_B >= 3
     template <class Args_01,
               class Args_02,
               class Args_03>
@@ -707,9 +729,9 @@ class map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03);
-#endif  // BSLSTL_MAP_VARIADIC_LIMIT_A >= 3
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_B >= 3
 
-#if BSLSTL_MAP_VARIADIC_LIMIT_A >= 4
+#if BSLSTL_MAP_VARIADIC_LIMIT_B >= 4
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -719,9 +741,9 @@ class map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04);
-#endif  // BSLSTL_MAP_VARIADIC_LIMIT_A >= 4
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_B >= 4
 
-#if BSLSTL_MAP_VARIADIC_LIMIT_A >= 5
+#if BSLSTL_MAP_VARIADIC_LIMIT_B >= 5
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -733,9 +755,9 @@ class map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05);
-#endif  // BSLSTL_MAP_VARIADIC_LIMIT_A >= 5
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_B >= 5
 
-#if BSLSTL_MAP_VARIADIC_LIMIT_A >= 6
+#if BSLSTL_MAP_VARIADIC_LIMIT_B >= 6
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -749,9 +771,9 @@ class map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06);
-#endif  // BSLSTL_MAP_VARIADIC_LIMIT_A >= 6
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_B >= 6
 
-#if BSLSTL_MAP_VARIADIC_LIMIT_A >= 7
+#if BSLSTL_MAP_VARIADIC_LIMIT_B >= 7
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -767,9 +789,9 @@ class map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07);
-#endif  // BSLSTL_MAP_VARIADIC_LIMIT_A >= 7
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_B >= 7
 
-#if BSLSTL_MAP_VARIADIC_LIMIT_A >= 8
+#if BSLSTL_MAP_VARIADIC_LIMIT_B >= 8
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -787,9 +809,9 @@ class map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08);
-#endif  // BSLSTL_MAP_VARIADIC_LIMIT_A >= 8
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_B >= 8
 
-#if BSLSTL_MAP_VARIADIC_LIMIT_A >= 9
+#if BSLSTL_MAP_VARIADIC_LIMIT_B >= 9
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -809,9 +831,9 @@ class map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09);
-#endif  // BSLSTL_MAP_VARIADIC_LIMIT_A >= 9
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_B >= 9
 
-#if BSLSTL_MAP_VARIADIC_LIMIT_A >= 10
+#if BSLSTL_MAP_VARIADIC_LIMIT_B >= 10
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -833,28 +855,28 @@ class map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10);
-#endif  // BSLSTL_MAP_VARIADIC_LIMIT_A >= 10
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_B >= 10
 
 
-#if BSLSTL_MAP_VARIADIC_LIMIT_A >= 0
+#if BSLSTL_MAP_VARIADIC_LIMIT_B >= 0
     iterator emplace_hint(const_iterator hint);
-#endif  // BSLSTL_MAP_VARIADIC_LIMIT_A >= 0
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_B >= 0
 
-#if BSLSTL_MAP_VARIADIC_LIMIT_A >= 1
+#if BSLSTL_MAP_VARIADIC_LIMIT_B >= 1
     template <class Args_01>
     iterator emplace_hint(const_iterator hint,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01);
-#endif  // BSLSTL_MAP_VARIADIC_LIMIT_A >= 1
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_B >= 1
 
-#if BSLSTL_MAP_VARIADIC_LIMIT_A >= 2
+#if BSLSTL_MAP_VARIADIC_LIMIT_B >= 2
     template <class Args_01,
               class Args_02>
     iterator emplace_hint(const_iterator hint,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02);
-#endif  // BSLSTL_MAP_VARIADIC_LIMIT_A >= 2
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_B >= 2
 
-#if BSLSTL_MAP_VARIADIC_LIMIT_A >= 3
+#if BSLSTL_MAP_VARIADIC_LIMIT_B >= 3
     template <class Args_01,
               class Args_02,
               class Args_03>
@@ -862,9 +884,9 @@ class map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03);
-#endif  // BSLSTL_MAP_VARIADIC_LIMIT_A >= 3
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_B >= 3
 
-#if BSLSTL_MAP_VARIADIC_LIMIT_A >= 4
+#if BSLSTL_MAP_VARIADIC_LIMIT_B >= 4
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -874,9 +896,9 @@ class map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04);
-#endif  // BSLSTL_MAP_VARIADIC_LIMIT_A >= 4
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_B >= 4
 
-#if BSLSTL_MAP_VARIADIC_LIMIT_A >= 5
+#if BSLSTL_MAP_VARIADIC_LIMIT_B >= 5
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -888,9 +910,9 @@ class map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05);
-#endif  // BSLSTL_MAP_VARIADIC_LIMIT_A >= 5
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_B >= 5
 
-#if BSLSTL_MAP_VARIADIC_LIMIT_A >= 6
+#if BSLSTL_MAP_VARIADIC_LIMIT_B >= 6
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -904,9 +926,9 @@ class map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06);
-#endif  // BSLSTL_MAP_VARIADIC_LIMIT_A >= 6
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_B >= 6
 
-#if BSLSTL_MAP_VARIADIC_LIMIT_A >= 7
+#if BSLSTL_MAP_VARIADIC_LIMIT_B >= 7
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -922,9 +944,9 @@ class map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07);
-#endif  // BSLSTL_MAP_VARIADIC_LIMIT_A >= 7
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_B >= 7
 
-#if BSLSTL_MAP_VARIADIC_LIMIT_A >= 8
+#if BSLSTL_MAP_VARIADIC_LIMIT_B >= 8
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -942,9 +964,9 @@ class map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08);
-#endif  // BSLSTL_MAP_VARIADIC_LIMIT_A >= 8
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_B >= 8
 
-#if BSLSTL_MAP_VARIADIC_LIMIT_A >= 9
+#if BSLSTL_MAP_VARIADIC_LIMIT_B >= 9
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -964,9 +986,9 @@ class map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09);
-#endif  // BSLSTL_MAP_VARIADIC_LIMIT_A >= 9
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_B >= 9
 
-#if BSLSTL_MAP_VARIADIC_LIMIT_A >= 10
+#if BSLSTL_MAP_VARIADIC_LIMIT_B >= 10
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -988,12 +1010,11 @@ class map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10);
-#endif  // BSLSTL_MAP_VARIADIC_LIMIT_A >= 10
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_B >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
-
     template <class... Args>
     pair<iterator, bool> emplace(
                               BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args);
@@ -1001,7 +1022,6 @@ class map {
     template <class... Args>
     iterator emplace_hint(const_iterator hint,
                               BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args);
-
 // }}} END GENERATED CODE
 #endif
 
@@ -1052,6 +1072,663 @@ class map {
         // for swapping objects created with different allocators when
         // 'ALLOCATOR' does not have the 'propagate_on_container_swap' trait is
         // a departure from the C++ Standard.
+
+#if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// Command line: sim_cpp11_features.pl bslstl_map.h
+#ifndef BSLSTL_MAP_VARIADIC_LIMIT
+#define BSLSTL_MAP_VARIADIC_LIMIT 10
+#endif
+#ifndef BSLSTL_MAP_VARIADIC_LIMIT_C
+#define BSLSTL_MAP_VARIADIC_LIMIT_C BSLSTL_MAP_VARIADIC_LIMIT
+#endif
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 0
+    pair<iterator, bool> try_emplace(const KEY& key);
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 0
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 1
+    template <class Args_01>
+    pair<iterator, bool> try_emplace(const KEY& key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01);
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 1
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 2
+    template <class Args_01,
+              class Args_02>
+    pair<iterator, bool> try_emplace(const KEY& key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02);
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 2
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 3
+    template <class Args_01,
+              class Args_02,
+              class Args_03>
+    pair<iterator, bool> try_emplace(const KEY& key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03);
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 3
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 4
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04>
+    pair<iterator, bool> try_emplace(const KEY& key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04);
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 4
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 5
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05>
+    pair<iterator, bool> try_emplace(const KEY& key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05);
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 5
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 6
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06>
+    pair<iterator, bool> try_emplace(const KEY& key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06);
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 6
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 7
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07>
+    pair<iterator, bool> try_emplace(const KEY& key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07);
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 7
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 8
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08>
+    pair<iterator, bool> try_emplace(const KEY& key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08);
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 8
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 9
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08,
+              class Args_09>
+    pair<iterator, bool> try_emplace(const KEY& key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09);
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 9
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 10
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08,
+              class Args_09,
+              class Args_10>
+    pair<iterator, bool> try_emplace(const KEY& key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10);
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 10
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 0
+    pair<iterator, bool> try_emplace(BloombergLP::bslmf::MovableRef<KEY> key);
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 0
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 1
+    template <class Args_01>
+    pair<iterator, bool> try_emplace(BloombergLP::bslmf::MovableRef<KEY> key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01);
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 1
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 2
+    template <class Args_01,
+              class Args_02>
+    pair<iterator, bool> try_emplace(BloombergLP::bslmf::MovableRef<KEY> key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02);
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 2
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 3
+    template <class Args_01,
+              class Args_02,
+              class Args_03>
+    pair<iterator, bool> try_emplace(BloombergLP::bslmf::MovableRef<KEY> key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03);
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 3
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 4
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04>
+    pair<iterator, bool> try_emplace(BloombergLP::bslmf::MovableRef<KEY> key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04);
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 4
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 5
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05>
+    pair<iterator, bool> try_emplace(BloombergLP::bslmf::MovableRef<KEY> key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05);
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 5
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 6
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06>
+    pair<iterator, bool> try_emplace(BloombergLP::bslmf::MovableRef<KEY> key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06);
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 6
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 7
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07>
+    pair<iterator, bool> try_emplace(BloombergLP::bslmf::MovableRef<KEY> key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07);
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 7
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 8
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08>
+    pair<iterator, bool> try_emplace(BloombergLP::bslmf::MovableRef<KEY> key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08);
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 8
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 9
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08,
+              class Args_09>
+    pair<iterator, bool> try_emplace(BloombergLP::bslmf::MovableRef<KEY> key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09);
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 9
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 10
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08,
+              class Args_09,
+              class Args_10>
+    pair<iterator, bool> try_emplace(BloombergLP::bslmf::MovableRef<KEY> key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10);
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 10
+
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 0
+    iterator try_emplace(const_iterator hint, const KEY& key);
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 0
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 1
+    template<class Args_01>
+    iterator try_emplace(const_iterator hint, const KEY& key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01);
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 1
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 2
+    template<class Args_01,
+             class Args_02>
+    iterator try_emplace(const_iterator hint, const KEY& key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02);
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 2
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 3
+    template<class Args_01,
+             class Args_02,
+             class Args_03>
+    iterator try_emplace(const_iterator hint, const KEY& key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03);
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 3
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 4
+    template<class Args_01,
+             class Args_02,
+             class Args_03,
+             class Args_04>
+    iterator try_emplace(const_iterator hint, const KEY& key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04);
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 4
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 5
+    template<class Args_01,
+             class Args_02,
+             class Args_03,
+             class Args_04,
+             class Args_05>
+    iterator try_emplace(const_iterator hint, const KEY& key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05);
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 5
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 6
+    template<class Args_01,
+             class Args_02,
+             class Args_03,
+             class Args_04,
+             class Args_05,
+             class Args_06>
+    iterator try_emplace(const_iterator hint, const KEY& key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06);
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 6
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 7
+    template<class Args_01,
+             class Args_02,
+             class Args_03,
+             class Args_04,
+             class Args_05,
+             class Args_06,
+             class Args_07>
+    iterator try_emplace(const_iterator hint, const KEY& key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07);
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 7
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 8
+    template<class Args_01,
+             class Args_02,
+             class Args_03,
+             class Args_04,
+             class Args_05,
+             class Args_06,
+             class Args_07,
+             class Args_08>
+    iterator try_emplace(const_iterator hint, const KEY& key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08);
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 8
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 9
+    template<class Args_01,
+             class Args_02,
+             class Args_03,
+             class Args_04,
+             class Args_05,
+             class Args_06,
+             class Args_07,
+             class Args_08,
+             class Args_09>
+    iterator try_emplace(const_iterator hint, const KEY& key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09);
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 9
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 10
+    template<class Args_01,
+             class Args_02,
+             class Args_03,
+             class Args_04,
+             class Args_05,
+             class Args_06,
+             class Args_07,
+             class Args_08,
+             class Args_09,
+             class Args_10>
+    iterator try_emplace(const_iterator hint, const KEY& key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10);
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 10
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 0
+    iterator try_emplace(const_iterator                      hint,
+                         BloombergLP::bslmf::MovableRef<KEY> key);
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 0
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 1
+    template <class Args_01>
+    iterator try_emplace(const_iterator                      hint,
+                         BloombergLP::bslmf::MovableRef<KEY> key,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01);
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 1
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 2
+    template <class Args_01,
+              class Args_02>
+    iterator try_emplace(const_iterator                      hint,
+                         BloombergLP::bslmf::MovableRef<KEY> key,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02);
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 2
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 3
+    template <class Args_01,
+              class Args_02,
+              class Args_03>
+    iterator try_emplace(const_iterator                      hint,
+                         BloombergLP::bslmf::MovableRef<KEY> key,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03);
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 3
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 4
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04>
+    iterator try_emplace(const_iterator                      hint,
+                         BloombergLP::bslmf::MovableRef<KEY> key,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04);
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 4
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 5
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05>
+    iterator try_emplace(const_iterator                      hint,
+                         BloombergLP::bslmf::MovableRef<KEY> key,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05);
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 5
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 6
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06>
+    iterator try_emplace(const_iterator                      hint,
+                         BloombergLP::bslmf::MovableRef<KEY> key,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06);
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 6
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 7
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07>
+    iterator try_emplace(const_iterator                      hint,
+                         BloombergLP::bslmf::MovableRef<KEY> key,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07);
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 7
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 8
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08>
+    iterator try_emplace(const_iterator                      hint,
+                         BloombergLP::bslmf::MovableRef<KEY> key,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08);
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 8
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 9
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08,
+              class Args_09>
+    iterator try_emplace(const_iterator                      hint,
+                         BloombergLP::bslmf::MovableRef<KEY> key,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09);
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 9
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_C >= 10
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08,
+              class Args_09,
+              class Args_10>
+    iterator try_emplace(const_iterator                      hint,
+                         BloombergLP::bslmf::MovableRef<KEY> key,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10);
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_C >= 10
+
+#else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+    template <class... Args>
+    pair<iterator, bool> try_emplace(const KEY& key,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args);
+    template <class... Args>
+    pair<iterator, bool> try_emplace(BloombergLP::bslmf::MovableRef<KEY> key,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args);
+
+    template<class... Args>
+    iterator try_emplace(const_iterator hint, const KEY& key,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args);
+    template <class... Args>
+    iterator try_emplace(const_iterator                      hint,
+                         BloombergLP::bslmf::MovableRef<KEY> key,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args);
+// }}} END GENERATED CODE
+#endif
 
     void clear() BSLS_KEYWORD_NOEXCEPT;
         // Remove all entries from this map.  Note that the map is empty after
@@ -2459,17 +3136,162 @@ void map<KEY, VALUE, COMPARATOR, ALLOCATOR>::insert(
 }
 #endif
 
+// {{{ BEGIN GENERATED CODE
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class OTHER>
+inline
+pair<typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator, bool>
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::insert_or_assign(const key_type& key,
+                                  BSLS_COMPILERFEATURES_FORWARD_REF(OTHER) obj)
+{
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               key);
+
+    if (!comparisonResult) {
+        iterator(insertLocation)->second =
+                                     BSLS_COMPILERFEATURES_FORWARD(OTHER, obj);
+        return pair<iterator, bool>(iterator(insertLocation), false);
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+             key,
+             BSLS_COMPILERFEATURES_FORWARD(OTHER, obj));
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+
+    return pair<iterator, bool>(iterator(node), true);
+}
+
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class OTHER>
+inline
+typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::insert_or_assign(const_iterator  hint,
+                                                         const key_type& key,
+                                  BSLS_COMPILERFEATURES_FORWARD_REF(OTHER) obj)
+{
+    BloombergLP::bslalg::RbTreeNode *hintNode =
+                    const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               key,
+                               hintNode);
+
+    if (!comparisonResult) {
+        iterator(insertLocation)->second =
+                                     BSLS_COMPILERFEATURES_FORWARD(OTHER, obj);
+        return iterator(insertLocation);
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+             key,
+             BSLS_COMPILERFEATURES_FORWARD(OTHER, obj));
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+
+    return iterator(node);
+}
+
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class OTHER>
+inline
+pair<typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator, bool>
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::insert_or_assign(
+                                  BloombergLP::bslmf::MovableRef<key_type> key,
+                                  BSLS_COMPILERFEATURES_FORWARD_REF(OTHER) obj)
+{
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               key);
+
+    if (!comparisonResult) {
+        iterator(insertLocation)->second =
+                                     BSLS_COMPILERFEATURES_FORWARD(OTHER, obj);
+        return pair<iterator, bool>(iterator(insertLocation), false);
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+             BSLS_COMPILERFEATURES_FORWARD(key_type, key),
+             BSLS_COMPILERFEATURES_FORWARD(OTHER, obj));
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+
+    return pair<iterator, bool>(iterator(node), true);
+}
+
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class OTHER>
+inline
+typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::insert_or_assign(const_iterator hint,
+                           BloombergLP::bslmf::MovableRef<key_type>     key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(OTHER) obj)
+{
+    BloombergLP::bslalg::RbTreeNode *hintNode =
+                    const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               key,
+                               hintNode);
+
+    if (!comparisonResult) {
+        iterator(insertLocation)->second =
+                                     BSLS_COMPILERFEATURES_FORWARD(OTHER, obj);
+        return iterator(insertLocation);
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+             BSLS_COMPILERFEATURES_FORWARD(key_type, key),
+             BSLS_COMPILERFEATURES_FORWARD(OTHER, obj));
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+
+    return iterator(node);
+}
+// }}} END GENERATED CODE
+
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // Command line: sim_cpp11_features.pl bslstl_map.h
 #ifndef BSLSTL_MAP_VARIADIC_LIMIT
 #define BSLSTL_MAP_VARIADIC_LIMIT 10
 #endif
-#ifndef BSLSTL_MAP_VARIADIC_LIMIT_B
-#define BSLSTL_MAP_VARIADIC_LIMIT_B BSLSTL_MAP_VARIADIC_LIMIT
+#ifndef BSLSTL_MAP_VARIADIC_LIMIT_E
+#define BSLSTL_MAP_VARIADIC_LIMIT_E BSLSTL_MAP_VARIADIC_LIMIT
 #endif
 
-#if BSLSTL_MAP_VARIADIC_LIMIT_B >= 0
+#if BSLSTL_MAP_VARIADIC_LIMIT_E >= 0
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 pair<typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator, bool>
@@ -2496,9 +3318,9 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::emplace(
                                               node);
     return pair<iterator, bool>(iterator(node), true);
 }
-#endif  // BSLSTL_MAP_VARIADIC_LIMIT_B >= 0
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_E >= 0
 
-#if BSLSTL_MAP_VARIADIC_LIMIT_B >= 1
+#if BSLSTL_MAP_VARIADIC_LIMIT_E >= 1
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 template <class Args_01>
 inline
@@ -2526,9 +3348,9 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::emplace(
                                               node);
     return pair<iterator, bool>(iterator(node), true);
 }
-#endif  // BSLSTL_MAP_VARIADIC_LIMIT_B >= 1
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_E >= 1
 
-#if BSLSTL_MAP_VARIADIC_LIMIT_B >= 2
+#if BSLSTL_MAP_VARIADIC_LIMIT_E >= 2
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 template <class Args_01,
           class Args_02>
@@ -2559,9 +3381,9 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::emplace(
                                               node);
     return pair<iterator, bool>(iterator(node), true);
 }
-#endif  // BSLSTL_MAP_VARIADIC_LIMIT_B >= 2
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_E >= 2
 
-#if BSLSTL_MAP_VARIADIC_LIMIT_B >= 3
+#if BSLSTL_MAP_VARIADIC_LIMIT_E >= 3
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -2595,9 +3417,9 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::emplace(
                                               node);
     return pair<iterator, bool>(iterator(node), true);
 }
-#endif  // BSLSTL_MAP_VARIADIC_LIMIT_B >= 3
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_E >= 3
 
-#if BSLSTL_MAP_VARIADIC_LIMIT_B >= 4
+#if BSLSTL_MAP_VARIADIC_LIMIT_E >= 4
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -2634,9 +3456,9 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::emplace(
                                               node);
     return pair<iterator, bool>(iterator(node), true);
 }
-#endif  // BSLSTL_MAP_VARIADIC_LIMIT_B >= 4
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_E >= 4
 
-#if BSLSTL_MAP_VARIADIC_LIMIT_B >= 5
+#if BSLSTL_MAP_VARIADIC_LIMIT_E >= 5
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -2676,9 +3498,9 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::emplace(
                                               node);
     return pair<iterator, bool>(iterator(node), true);
 }
-#endif  // BSLSTL_MAP_VARIADIC_LIMIT_B >= 5
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_E >= 5
 
-#if BSLSTL_MAP_VARIADIC_LIMIT_B >= 6
+#if BSLSTL_MAP_VARIADIC_LIMIT_E >= 6
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -2721,9 +3543,9 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::emplace(
                                               node);
     return pair<iterator, bool>(iterator(node), true);
 }
-#endif  // BSLSTL_MAP_VARIADIC_LIMIT_B >= 6
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_E >= 6
 
-#if BSLSTL_MAP_VARIADIC_LIMIT_B >= 7
+#if BSLSTL_MAP_VARIADIC_LIMIT_E >= 7
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -2769,9 +3591,9 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::emplace(
                                               node);
     return pair<iterator, bool>(iterator(node), true);
 }
-#endif  // BSLSTL_MAP_VARIADIC_LIMIT_B >= 7
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_E >= 7
 
-#if BSLSTL_MAP_VARIADIC_LIMIT_B >= 8
+#if BSLSTL_MAP_VARIADIC_LIMIT_E >= 8
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -2820,9 +3642,9 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::emplace(
                                               node);
     return pair<iterator, bool>(iterator(node), true);
 }
-#endif  // BSLSTL_MAP_VARIADIC_LIMIT_B >= 8
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_E >= 8
 
-#if BSLSTL_MAP_VARIADIC_LIMIT_B >= 9
+#if BSLSTL_MAP_VARIADIC_LIMIT_E >= 9
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -2874,9 +3696,9 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::emplace(
                                               node);
     return pair<iterator, bool>(iterator(node), true);
 }
-#endif  // BSLSTL_MAP_VARIADIC_LIMIT_B >= 9
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_E >= 9
 
-#if BSLSTL_MAP_VARIADIC_LIMIT_B >= 10
+#if BSLSTL_MAP_VARIADIC_LIMIT_E >= 10
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -2931,10 +3753,10 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::emplace(
                                               node);
     return pair<iterator, bool>(iterator(node), true);
 }
-#endif  // BSLSTL_MAP_VARIADIC_LIMIT_B >= 10
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_E >= 10
 
 
-#if BSLSTL_MAP_VARIADIC_LIMIT_B >= 0
+#if BSLSTL_MAP_VARIADIC_LIMIT_E >= 0
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator
@@ -2963,9 +3785,9 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::emplace_hint(const_iterator hint)
                                               node);
     return iterator(node);
 }
-#endif  // BSLSTL_MAP_VARIADIC_LIMIT_B >= 0
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_E >= 0
 
-#if BSLSTL_MAP_VARIADIC_LIMIT_B >= 1
+#if BSLSTL_MAP_VARIADIC_LIMIT_E >= 1
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 template <class Args_01>
 inline
@@ -2996,9 +3818,9 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::emplace_hint(const_iterator hint,
                                               node);
     return iterator(node);
 }
-#endif  // BSLSTL_MAP_VARIADIC_LIMIT_B >= 1
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_E >= 1
 
-#if BSLSTL_MAP_VARIADIC_LIMIT_B >= 2
+#if BSLSTL_MAP_VARIADIC_LIMIT_E >= 2
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 template <class Args_01,
           class Args_02>
@@ -3032,9 +3854,9 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::emplace_hint(const_iterator hint,
                                               node);
     return iterator(node);
 }
-#endif  // BSLSTL_MAP_VARIADIC_LIMIT_B >= 2
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_E >= 2
 
-#if BSLSTL_MAP_VARIADIC_LIMIT_B >= 3
+#if BSLSTL_MAP_VARIADIC_LIMIT_E >= 3
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -3071,9 +3893,9 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::emplace_hint(const_iterator hint,
                                               node);
     return iterator(node);
 }
-#endif  // BSLSTL_MAP_VARIADIC_LIMIT_B >= 3
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_E >= 3
 
-#if BSLSTL_MAP_VARIADIC_LIMIT_B >= 4
+#if BSLSTL_MAP_VARIADIC_LIMIT_E >= 4
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -3113,9 +3935,9 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::emplace_hint(const_iterator hint,
                                               node);
     return iterator(node);
 }
-#endif  // BSLSTL_MAP_VARIADIC_LIMIT_B >= 4
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_E >= 4
 
-#if BSLSTL_MAP_VARIADIC_LIMIT_B >= 5
+#if BSLSTL_MAP_VARIADIC_LIMIT_E >= 5
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -3158,9 +3980,9 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::emplace_hint(const_iterator hint,
                                               node);
     return iterator(node);
 }
-#endif  // BSLSTL_MAP_VARIADIC_LIMIT_B >= 5
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_E >= 5
 
-#if BSLSTL_MAP_VARIADIC_LIMIT_B >= 6
+#if BSLSTL_MAP_VARIADIC_LIMIT_E >= 6
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -3206,9 +4028,9 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::emplace_hint(const_iterator hint,
                                               node);
     return iterator(node);
 }
-#endif  // BSLSTL_MAP_VARIADIC_LIMIT_B >= 6
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_E >= 6
 
-#if BSLSTL_MAP_VARIADIC_LIMIT_B >= 7
+#if BSLSTL_MAP_VARIADIC_LIMIT_E >= 7
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -3257,9 +4079,9 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::emplace_hint(const_iterator hint,
                                               node);
     return iterator(node);
 }
-#endif  // BSLSTL_MAP_VARIADIC_LIMIT_B >= 7
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_E >= 7
 
-#if BSLSTL_MAP_VARIADIC_LIMIT_B >= 8
+#if BSLSTL_MAP_VARIADIC_LIMIT_E >= 8
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -3311,9 +4133,9 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::emplace_hint(const_iterator hint,
                                               node);
     return iterator(node);
 }
-#endif  // BSLSTL_MAP_VARIADIC_LIMIT_B >= 8
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_E >= 8
 
-#if BSLSTL_MAP_VARIADIC_LIMIT_B >= 9
+#if BSLSTL_MAP_VARIADIC_LIMIT_E >= 9
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -3368,9 +4190,9 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::emplace_hint(const_iterator hint,
                                               node);
     return iterator(node);
 }
-#endif  // BSLSTL_MAP_VARIADIC_LIMIT_B >= 9
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_E >= 9
 
-#if BSLSTL_MAP_VARIADIC_LIMIT_B >= 10
+#if BSLSTL_MAP_VARIADIC_LIMIT_E >= 10
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -3428,7 +4250,7 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::emplace_hint(const_iterator hint,
                                               node);
     return iterator(node);
 }
-#endif  // BSLSTL_MAP_VARIADIC_LIMIT_B >= 10
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_E >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect
@@ -3573,6 +4395,2211 @@ void map<KEY, VALUE, COMPARATOR, ALLOCATOR>::swap(map& other)
         }
     }
 }
+
+#if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// Command line: sim_cpp11_features.pl bslstl_map.h
+#ifndef BSLSTL_MAP_VARIADIC_LIMIT
+#define BSLSTL_MAP_VARIADIC_LIMIT 10
+#endif
+#ifndef BSLSTL_MAP_VARIADIC_LIMIT_F
+#define BSLSTL_MAP_VARIADIC_LIMIT_F BSLSTL_MAP_VARIADIC_LIMIT
+#endif
+#if BSLSTL_MAP_VARIADIC_LIMIT_F >= 0
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+inline
+pair<typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator, bool>
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(const key_type& key)
+{
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               key);
+    if (!comparisonResult) {
+        return pair<iterator, bool>(iterator(insertLocation), false);
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+          key);
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+    return pair<iterator, bool>(iterator(node), true);
+}
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_F >= 0
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_F >= 1
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class Args_01>
+inline
+pair<typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator, bool>
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(const key_type& key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01)
+{
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               key);
+    if (!comparisonResult) {
+        return pair<iterator, bool>(iterator(insertLocation), false);
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+          key,
+          BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01));
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+    return pair<iterator, bool>(iterator(node), true);
+}
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_F >= 1
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_F >= 2
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02>
+inline
+pair<typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator, bool>
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(const key_type& key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02)
+{
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               key);
+    if (!comparisonResult) {
+        return pair<iterator, bool>(iterator(insertLocation), false);
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+          key,
+          BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+          BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02));
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+    return pair<iterator, bool>(iterator(node), true);
+}
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_F >= 2
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_F >= 3
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03>
+inline
+pair<typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator, bool>
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(const key_type& key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03)
+{
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               key);
+    if (!comparisonResult) {
+        return pair<iterator, bool>(iterator(insertLocation), false);
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+          key,
+          BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+          BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+          BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03));
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+    return pair<iterator, bool>(iterator(node), true);
+}
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_F >= 3
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_F >= 4
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04>
+inline
+pair<typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator, bool>
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(const key_type& key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04)
+{
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               key);
+    if (!comparisonResult) {
+        return pair<iterator, bool>(iterator(insertLocation), false);
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+          key,
+          BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+          BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+          BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+          BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04));
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+    return pair<iterator, bool>(iterator(node), true);
+}
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_F >= 4
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_F >= 5
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05>
+inline
+pair<typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator, bool>
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(const key_type& key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05)
+{
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               key);
+    if (!comparisonResult) {
+        return pair<iterator, bool>(iterator(insertLocation), false);
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+          key,
+          BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+          BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+          BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+          BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+          BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05));
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+    return pair<iterator, bool>(iterator(node), true);
+}
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_F >= 5
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_F >= 6
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06>
+inline
+pair<typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator, bool>
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(const key_type& key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06)
+{
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               key);
+    if (!comparisonResult) {
+        return pair<iterator, bool>(iterator(insertLocation), false);
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+          key,
+          BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+          BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+          BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+          BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+          BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+          BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06));
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+    return pair<iterator, bool>(iterator(node), true);
+}
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_F >= 6
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_F >= 7
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07>
+inline
+pair<typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator, bool>
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(const key_type& key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07)
+{
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               key);
+    if (!comparisonResult) {
+        return pair<iterator, bool>(iterator(insertLocation), false);
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+          key,
+          BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+          BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+          BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+          BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+          BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+          BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+          BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07));
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+    return pair<iterator, bool>(iterator(node), true);
+}
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_F >= 7
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_F >= 8
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08>
+inline
+pair<typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator, bool>
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(const key_type& key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08)
+{
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               key);
+    if (!comparisonResult) {
+        return pair<iterator, bool>(iterator(insertLocation), false);
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+          key,
+          BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+          BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+          BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+          BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+          BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+          BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+          BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+          BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08));
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+    return pair<iterator, bool>(iterator(node), true);
+}
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_F >= 8
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_F >= 9
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08,
+          class Args_09>
+inline
+pair<typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator, bool>
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(const key_type& key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09)
+{
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               key);
+    if (!comparisonResult) {
+        return pair<iterator, bool>(iterator(insertLocation), false);
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+          key,
+          BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+          BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+          BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+          BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+          BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+          BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+          BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+          BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08),
+          BSLS_COMPILERFEATURES_FORWARD(Args_09, args_09));
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+    return pair<iterator, bool>(iterator(node), true);
+}
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_F >= 9
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_F >= 10
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08,
+          class Args_09,
+          class Args_10>
+inline
+pair<typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator, bool>
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(const key_type& key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10)
+{
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               key);
+    if (!comparisonResult) {
+        return pair<iterator, bool>(iterator(insertLocation), false);
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+          key,
+          BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+          BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+          BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+          BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+          BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+          BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+          BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+          BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08),
+          BSLS_COMPILERFEATURES_FORWARD(Args_09, args_09),
+          BSLS_COMPILERFEATURES_FORWARD(Args_10, args_10));
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+    return pair<iterator, bool>(iterator(node), true);
+}
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_F >= 10
+
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_F >= 0
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+inline
+typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(const_iterator  hint,
+                                                    const key_type& key)
+{
+    BloombergLP::bslalg::RbTreeNode *hintNode =
+                    const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               key,
+                               hintNode);
+    if (!comparisonResult) {
+        return iterator(insertLocation);
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+          key);
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+    return iterator(node);
+}
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_F >= 0
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_F >= 1
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class Args_01>
+inline
+typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(const_iterator  hint,
+                                                    const key_type& key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01)
+{
+    BloombergLP::bslalg::RbTreeNode *hintNode =
+                    const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               key,
+                               hintNode);
+    if (!comparisonResult) {
+        return iterator(insertLocation);
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+          key,
+          BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01));
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+    return iterator(node);
+}
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_F >= 1
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_F >= 2
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02>
+inline
+typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(const_iterator  hint,
+                                                    const key_type& key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02)
+{
+    BloombergLP::bslalg::RbTreeNode *hintNode =
+                    const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               key,
+                               hintNode);
+    if (!comparisonResult) {
+        return iterator(insertLocation);
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+          key,
+          BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+          BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02));
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+    return iterator(node);
+}
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_F >= 2
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_F >= 3
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03>
+inline
+typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(const_iterator  hint,
+                                                    const key_type& key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03)
+{
+    BloombergLP::bslalg::RbTreeNode *hintNode =
+                    const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               key,
+                               hintNode);
+    if (!comparisonResult) {
+        return iterator(insertLocation);
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+          key,
+          BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+          BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+          BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03));
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+    return iterator(node);
+}
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_F >= 3
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_F >= 4
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04>
+inline
+typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(const_iterator  hint,
+                                                    const key_type& key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04)
+{
+    BloombergLP::bslalg::RbTreeNode *hintNode =
+                    const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               key,
+                               hintNode);
+    if (!comparisonResult) {
+        return iterator(insertLocation);
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+          key,
+          BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+          BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+          BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+          BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04));
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+    return iterator(node);
+}
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_F >= 4
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_F >= 5
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05>
+inline
+typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(const_iterator  hint,
+                                                    const key_type& key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05)
+{
+    BloombergLP::bslalg::RbTreeNode *hintNode =
+                    const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               key,
+                               hintNode);
+    if (!comparisonResult) {
+        return iterator(insertLocation);
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+          key,
+          BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+          BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+          BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+          BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+          BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05));
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+    return iterator(node);
+}
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_F >= 5
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_F >= 6
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06>
+inline
+typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(const_iterator  hint,
+                                                    const key_type& key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06)
+{
+    BloombergLP::bslalg::RbTreeNode *hintNode =
+                    const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               key,
+                               hintNode);
+    if (!comparisonResult) {
+        return iterator(insertLocation);
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+          key,
+          BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+          BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+          BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+          BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+          BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+          BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06));
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+    return iterator(node);
+}
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_F >= 6
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_F >= 7
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07>
+inline
+typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(const_iterator  hint,
+                                                    const key_type& key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07)
+{
+    BloombergLP::bslalg::RbTreeNode *hintNode =
+                    const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               key,
+                               hintNode);
+    if (!comparisonResult) {
+        return iterator(insertLocation);
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+          key,
+          BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+          BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+          BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+          BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+          BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+          BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+          BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07));
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+    return iterator(node);
+}
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_F >= 7
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_F >= 8
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08>
+inline
+typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(const_iterator  hint,
+                                                    const key_type& key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08)
+{
+    BloombergLP::bslalg::RbTreeNode *hintNode =
+                    const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               key,
+                               hintNode);
+    if (!comparisonResult) {
+        return iterator(insertLocation);
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+          key,
+          BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+          BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+          BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+          BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+          BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+          BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+          BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+          BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08));
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+    return iterator(node);
+}
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_F >= 8
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_F >= 9
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08,
+          class Args_09>
+inline
+typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(const_iterator  hint,
+                                                    const key_type& key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09)
+{
+    BloombergLP::bslalg::RbTreeNode *hintNode =
+                    const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               key,
+                               hintNode);
+    if (!comparisonResult) {
+        return iterator(insertLocation);
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+          key,
+          BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+          BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+          BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+          BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+          BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+          BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+          BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+          BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08),
+          BSLS_COMPILERFEATURES_FORWARD(Args_09, args_09));
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+    return iterator(node);
+}
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_F >= 9
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_F >= 10
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08,
+          class Args_09,
+          class Args_10>
+inline
+typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(const_iterator  hint,
+                                                    const key_type& key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10)
+{
+    BloombergLP::bslalg::RbTreeNode *hintNode =
+                    const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               key,
+                               hintNode);
+    if (!comparisonResult) {
+        return iterator(insertLocation);
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+          key,
+          BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+          BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+          BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+          BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+          BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+          BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+          BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+          BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08),
+          BSLS_COMPILERFEATURES_FORWARD(Args_09, args_09),
+          BSLS_COMPILERFEATURES_FORWARD(Args_10, args_10));
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+    return iterator(node);
+}
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_F >= 10
+
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_F >= 0
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+inline
+pair<typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator, bool>
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(
+                                 BloombergLP::bslmf::MovableRef<key_type> key)
+{
+    key_type& lvalue = key;
+
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               lvalue);
+    if (!comparisonResult) {
+        return pair<iterator, bool>(iterator(insertLocation), false);
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+          BSLS_COMPILERFEATURES_FORWARD(key_type, key));
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+
+    return pair<iterator, bool>(iterator(node), true);
+}
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_F >= 0
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_F >= 1
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class Args_01>
+inline
+pair<typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator, bool>
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(
+                                 BloombergLP::bslmf::MovableRef<key_type> key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01)
+{
+    key_type& lvalue = key;
+
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               lvalue);
+    if (!comparisonResult) {
+        return pair<iterator, bool>(iterator(insertLocation), false);
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+          BSLS_COMPILERFEATURES_FORWARD(key_type, key),
+          BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01));
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+
+    return pair<iterator, bool>(iterator(node), true);
+}
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_F >= 1
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_F >= 2
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02>
+inline
+pair<typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator, bool>
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(
+                                 BloombergLP::bslmf::MovableRef<key_type> key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02)
+{
+    key_type& lvalue = key;
+
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               lvalue);
+    if (!comparisonResult) {
+        return pair<iterator, bool>(iterator(insertLocation), false);
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+          BSLS_COMPILERFEATURES_FORWARD(key_type, key),
+          BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+          BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02));
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+
+    return pair<iterator, bool>(iterator(node), true);
+}
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_F >= 2
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_F >= 3
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03>
+inline
+pair<typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator, bool>
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(
+                                 BloombergLP::bslmf::MovableRef<key_type> key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03)
+{
+    key_type& lvalue = key;
+
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               lvalue);
+    if (!comparisonResult) {
+        return pair<iterator, bool>(iterator(insertLocation), false);
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+          BSLS_COMPILERFEATURES_FORWARD(key_type, key),
+          BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+          BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+          BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03));
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+
+    return pair<iterator, bool>(iterator(node), true);
+}
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_F >= 3
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_F >= 4
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04>
+inline
+pair<typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator, bool>
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(
+                                 BloombergLP::bslmf::MovableRef<key_type> key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04)
+{
+    key_type& lvalue = key;
+
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               lvalue);
+    if (!comparisonResult) {
+        return pair<iterator, bool>(iterator(insertLocation), false);
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+          BSLS_COMPILERFEATURES_FORWARD(key_type, key),
+          BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+          BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+          BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+          BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04));
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+
+    return pair<iterator, bool>(iterator(node), true);
+}
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_F >= 4
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_F >= 5
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05>
+inline
+pair<typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator, bool>
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(
+                                 BloombergLP::bslmf::MovableRef<key_type> key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05)
+{
+    key_type& lvalue = key;
+
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               lvalue);
+    if (!comparisonResult) {
+        return pair<iterator, bool>(iterator(insertLocation), false);
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+          BSLS_COMPILERFEATURES_FORWARD(key_type, key),
+          BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+          BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+          BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+          BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+          BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05));
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+
+    return pair<iterator, bool>(iterator(node), true);
+}
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_F >= 5
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_F >= 6
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06>
+inline
+pair<typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator, bool>
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(
+                                 BloombergLP::bslmf::MovableRef<key_type> key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06)
+{
+    key_type& lvalue = key;
+
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               lvalue);
+    if (!comparisonResult) {
+        return pair<iterator, bool>(iterator(insertLocation), false);
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+          BSLS_COMPILERFEATURES_FORWARD(key_type, key),
+          BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+          BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+          BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+          BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+          BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+          BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06));
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+
+    return pair<iterator, bool>(iterator(node), true);
+}
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_F >= 6
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_F >= 7
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07>
+inline
+pair<typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator, bool>
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(
+                                 BloombergLP::bslmf::MovableRef<key_type> key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07)
+{
+    key_type& lvalue = key;
+
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               lvalue);
+    if (!comparisonResult) {
+        return pair<iterator, bool>(iterator(insertLocation), false);
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+          BSLS_COMPILERFEATURES_FORWARD(key_type, key),
+          BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+          BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+          BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+          BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+          BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+          BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+          BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07));
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+
+    return pair<iterator, bool>(iterator(node), true);
+}
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_F >= 7
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_F >= 8
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08>
+inline
+pair<typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator, bool>
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(
+                                 BloombergLP::bslmf::MovableRef<key_type> key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08)
+{
+    key_type& lvalue = key;
+
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               lvalue);
+    if (!comparisonResult) {
+        return pair<iterator, bool>(iterator(insertLocation), false);
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+          BSLS_COMPILERFEATURES_FORWARD(key_type, key),
+          BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+          BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+          BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+          BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+          BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+          BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+          BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+          BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08));
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+
+    return pair<iterator, bool>(iterator(node), true);
+}
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_F >= 8
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_F >= 9
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08,
+          class Args_09>
+inline
+pair<typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator, bool>
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(
+                                 BloombergLP::bslmf::MovableRef<key_type> key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09)
+{
+    key_type& lvalue = key;
+
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               lvalue);
+    if (!comparisonResult) {
+        return pair<iterator, bool>(iterator(insertLocation), false);
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+          BSLS_COMPILERFEATURES_FORWARD(key_type, key),
+          BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+          BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+          BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+          BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+          BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+          BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+          BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+          BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08),
+          BSLS_COMPILERFEATURES_FORWARD(Args_09, args_09));
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+
+    return pair<iterator, bool>(iterator(node), true);
+}
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_F >= 9
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_F >= 10
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08,
+          class Args_09,
+          class Args_10>
+inline
+pair<typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator, bool>
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(
+                                 BloombergLP::bslmf::MovableRef<key_type> key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10)
+{
+    key_type& lvalue = key;
+
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               lvalue);
+    if (!comparisonResult) {
+        return pair<iterator, bool>(iterator(insertLocation), false);
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+          BSLS_COMPILERFEATURES_FORWARD(key_type, key),
+          BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+          BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+          BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+          BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+          BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+          BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+          BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+          BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08),
+          BSLS_COMPILERFEATURES_FORWARD(Args_09, args_09),
+          BSLS_COMPILERFEATURES_FORWARD(Args_10, args_10));
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+
+    return pair<iterator, bool>(iterator(node), true);
+}
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_F >= 10
+
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_F >= 0
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+inline
+typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(
+                                 const_iterator                           hint,
+                                 BloombergLP::bslmf::MovableRef<key_type> key)
+{
+    key_type& lvalue = key;
+
+    BloombergLP::bslalg::RbTreeNode *hintNode =
+                    const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               lvalue,
+                               hintNode);
+    if (!comparisonResult) {
+        return iterator(insertLocation);
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+             BSLS_COMPILERFEATURES_FORWARD(key_type, key));
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+    return iterator(node);
+}
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_F >= 0
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_F >= 1
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class Args_01>
+inline
+typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(
+                                 const_iterator                           hint,
+                                 BloombergLP::bslmf::MovableRef<key_type> key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01)
+{
+    key_type& lvalue = key;
+
+    BloombergLP::bslalg::RbTreeNode *hintNode =
+                    const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               lvalue,
+                               hintNode);
+    if (!comparisonResult) {
+        return iterator(insertLocation);
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+             BSLS_COMPILERFEATURES_FORWARD(key_type, key),
+             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01));
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+    return iterator(node);
+}
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_F >= 1
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_F >= 2
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02>
+inline
+typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(
+                                 const_iterator                           hint,
+                                 BloombergLP::bslmf::MovableRef<key_type> key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02)
+{
+    key_type& lvalue = key;
+
+    BloombergLP::bslalg::RbTreeNode *hintNode =
+                    const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               lvalue,
+                               hintNode);
+    if (!comparisonResult) {
+        return iterator(insertLocation);
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+             BSLS_COMPILERFEATURES_FORWARD(key_type, key),
+             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02));
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+    return iterator(node);
+}
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_F >= 2
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_F >= 3
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03>
+inline
+typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(
+                                 const_iterator                           hint,
+                                 BloombergLP::bslmf::MovableRef<key_type> key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03)
+{
+    key_type& lvalue = key;
+
+    BloombergLP::bslalg::RbTreeNode *hintNode =
+                    const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               lvalue,
+                               hintNode);
+    if (!comparisonResult) {
+        return iterator(insertLocation);
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+             BSLS_COMPILERFEATURES_FORWARD(key_type, key),
+             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03));
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+    return iterator(node);
+}
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_F >= 3
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_F >= 4
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04>
+inline
+typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(
+                                 const_iterator                           hint,
+                                 BloombergLP::bslmf::MovableRef<key_type> key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04)
+{
+    key_type& lvalue = key;
+
+    BloombergLP::bslalg::RbTreeNode *hintNode =
+                    const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               lvalue,
+                               hintNode);
+    if (!comparisonResult) {
+        return iterator(insertLocation);
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+             BSLS_COMPILERFEATURES_FORWARD(key_type, key),
+             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04));
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+    return iterator(node);
+}
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_F >= 4
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_F >= 5
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05>
+inline
+typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(
+                                 const_iterator                           hint,
+                                 BloombergLP::bslmf::MovableRef<key_type> key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05)
+{
+    key_type& lvalue = key;
+
+    BloombergLP::bslalg::RbTreeNode *hintNode =
+                    const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               lvalue,
+                               hintNode);
+    if (!comparisonResult) {
+        return iterator(insertLocation);
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+             BSLS_COMPILERFEATURES_FORWARD(key_type, key),
+             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+             BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05));
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+    return iterator(node);
+}
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_F >= 5
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_F >= 6
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06>
+inline
+typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(
+                                 const_iterator                           hint,
+                                 BloombergLP::bslmf::MovableRef<key_type> key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06)
+{
+    key_type& lvalue = key;
+
+    BloombergLP::bslalg::RbTreeNode *hintNode =
+                    const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               lvalue,
+                               hintNode);
+    if (!comparisonResult) {
+        return iterator(insertLocation);
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+             BSLS_COMPILERFEATURES_FORWARD(key_type, key),
+             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+             BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+             BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06));
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+    return iterator(node);
+}
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_F >= 6
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_F >= 7
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07>
+inline
+typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(
+                                 const_iterator                           hint,
+                                 BloombergLP::bslmf::MovableRef<key_type> key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07)
+{
+    key_type& lvalue = key;
+
+    BloombergLP::bslalg::RbTreeNode *hintNode =
+                    const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               lvalue,
+                               hintNode);
+    if (!comparisonResult) {
+        return iterator(insertLocation);
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+             BSLS_COMPILERFEATURES_FORWARD(key_type, key),
+             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+             BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+             BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+             BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07));
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+    return iterator(node);
+}
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_F >= 7
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_F >= 8
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08>
+inline
+typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(
+                                 const_iterator                           hint,
+                                 BloombergLP::bslmf::MovableRef<key_type> key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08)
+{
+    key_type& lvalue = key;
+
+    BloombergLP::bslalg::RbTreeNode *hintNode =
+                    const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               lvalue,
+                               hintNode);
+    if (!comparisonResult) {
+        return iterator(insertLocation);
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+             BSLS_COMPILERFEATURES_FORWARD(key_type, key),
+             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+             BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+             BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+             BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+             BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08));
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+    return iterator(node);
+}
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_F >= 8
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_F >= 9
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08,
+          class Args_09>
+inline
+typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(
+                                 const_iterator                           hint,
+                                 BloombergLP::bslmf::MovableRef<key_type> key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09)
+{
+    key_type& lvalue = key;
+
+    BloombergLP::bslalg::RbTreeNode *hintNode =
+                    const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               lvalue,
+                               hintNode);
+    if (!comparisonResult) {
+        return iterator(insertLocation);
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+             BSLS_COMPILERFEATURES_FORWARD(key_type, key),
+             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+             BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+             BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+             BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+             BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08),
+             BSLS_COMPILERFEATURES_FORWARD(Args_09, args_09));
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+    return iterator(node);
+}
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_F >= 9
+
+#if BSLSTL_MAP_VARIADIC_LIMIT_F >= 10
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08,
+          class Args_09,
+          class Args_10>
+inline
+typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(
+                                 const_iterator                           hint,
+                                 BloombergLP::bslmf::MovableRef<key_type> key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10)
+{
+    key_type& lvalue = key;
+
+    BloombergLP::bslalg::RbTreeNode *hintNode =
+                    const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               lvalue,
+                               hintNode);
+    if (!comparisonResult) {
+        return iterator(insertLocation);
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+             BSLS_COMPILERFEATURES_FORWARD(key_type, key),
+             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+             BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+             BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+             BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+             BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08),
+             BSLS_COMPILERFEATURES_FORWARD(Args_09, args_09),
+             BSLS_COMPILERFEATURES_FORWARD(Args_10, args_10));
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+    return iterator(node);
+}
+#endif  // BSLSTL_MAP_VARIADIC_LIMIT_F >= 10
+
+#else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class... Args>
+inline
+pair<typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator, bool>
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(const key_type& key,
+                               BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args)
+{
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               key);
+    if (!comparisonResult) {
+        return pair<iterator, bool>(iterator(insertLocation), false);
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+          key,
+          BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+    return pair<iterator, bool>(iterator(node), true);
+}
+
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class... Args>
+inline
+typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(const_iterator  hint,
+                                                    const key_type& key,
+                               BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args)
+{
+    BloombergLP::bslalg::RbTreeNode *hintNode =
+                    const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               key,
+                               hintNode);
+    if (!comparisonResult) {
+        return iterator(insertLocation);
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+          key,
+          BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+    return iterator(node);
+}
+
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class... Args>
+inline
+pair<typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator, bool>
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(
+                                 BloombergLP::bslmf::MovableRef<key_type> key,
+                               BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args)
+{
+    key_type& lvalue = key;
+
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               lvalue);
+    if (!comparisonResult) {
+        return pair<iterator, bool>(iterator(insertLocation), false);
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+          BSLS_COMPILERFEATURES_FORWARD(key_type, key),
+          BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+
+    return pair<iterator, bool>(iterator(node), true);
+}
+
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class... Args>
+inline
+typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(
+                                 const_iterator                           hint,
+                                 BloombergLP::bslmf::MovableRef<key_type> key,
+                               BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args)
+{
+    key_type& lvalue = key;
+
+    BloombergLP::bslalg::RbTreeNode *hintNode =
+                    const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+    int comparisonResult;
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                               &comparisonResult,
+                               &d_tree,
+                               this->comparator(),
+                               lvalue,
+                               hintNode);
+    if (!comparisonResult) {
+        return iterator(insertLocation);
+    }
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+             BSLS_COMPILERFEATURES_FORWARD(key_type, key),
+             BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              comparisonResult < 0,
+                                              node);
+    return iterator(node);
+}
+// }}} END GENERATED CODE
+#endif
 
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline

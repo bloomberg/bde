@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Tue Jun 28 15:42:43 2022
+// Generated on Mon Jul 25 06:06:09 2022
 // Command line: sim_cpp11_features.pl bslstl_unorderedmap.h
 
 #ifdef COMPILING_BSLSTL_UNORDEREDMAP_H
@@ -758,7 +758,6 @@ class unordered_map {
     template <class... Args>
     iterator emplace_hint(const_iterator hint,
                               BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args);
-
 // }}} END GENERATED CODE
 #endif
 
@@ -974,6 +973,58 @@ class unordered_map {
         // 'copy-constructible' (see {Requirements on 'value_type'}).
 #endif
 
+#if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// Command line: sim_cpp11_features.pl bslstl_unorderedmap.h
+#ifndef BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT
+#define BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT 10
+#endif
+#ifndef BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B
+#define BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT
+#endif
+    template <class OTHER>
+    pair<iterator, bool> insert_or_assign(const KEY& key,
+                                 BSLS_COMPILERFEATURES_FORWARD_REF(OTHER) obj);
+
+    template <class OTHER>
+    pair<iterator, bool> insert_or_assign(
+                                      BloombergLP::bslmf::MovableRef<KEY> key,
+                                 BSLS_COMPILERFEATURES_FORWARD_REF(OTHER) obj);
+
+    template <class OTHER>
+    iterator
+    insert_or_assign(const_iterator hint, const KEY& key,
+                                 BSLS_COMPILERFEATURES_FORWARD_REF(OTHER) obj);
+
+    template <class OTHER>
+    iterator insert_or_assign(const_iterator                      hint,
+                              BloombergLP::bslmf::MovableRef<KEY> key,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(OTHER) obj);
+#else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+    template <class OTHER>
+    pair<iterator, bool> insert_or_assign(const KEY& key,
+                                 BSLS_COMPILERFEATURES_FORWARD_REF(OTHER) obj);
+
+    template <class OTHER>
+    pair<iterator, bool> insert_or_assign(
+                                      BloombergLP::bslmf::MovableRef<KEY> key,
+                                 BSLS_COMPILERFEATURES_FORWARD_REF(OTHER) obj);
+
+    template <class OTHER>
+    iterator
+    insert_or_assign(const_iterator hint, const KEY& key,
+                                 BSLS_COMPILERFEATURES_FORWARD_REF(OTHER) obj);
+
+    template <class OTHER>
+    iterator insert_or_assign(const_iterator                      hint,
+                              BloombergLP::bslmf::MovableRef<KEY> key,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(OTHER) obj);
+
+// }}} END GENERATED CODE
+#endif
+
     template <class LOOKUP_KEY>
     typename enable_if<
            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -1051,6 +1102,691 @@ class unordered_map {
         // complexity.  The behavior is undefined unless either this object was
         // created with the same allocator as 'other' or 'ALLOCATOR' has the
         // 'propagate_on_container_swap' trait.
+
+#if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// Command line: sim_cpp11_features.pl bslstl_unorderedmap.h
+#ifndef BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT
+#define BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT 10
+#endif
+#ifndef BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C
+#define BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT
+#endif
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 0
+    pair<iterator, bool> try_emplace(const KEY& key);
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 0
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 1
+    template <class Args_01>
+    pair<iterator, bool> try_emplace(const KEY& key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01);
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 1
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 2
+    template <class Args_01,
+              class Args_02>
+    pair<iterator, bool> try_emplace(const KEY& key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02);
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 2
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 3
+    template <class Args_01,
+              class Args_02,
+              class Args_03>
+    pair<iterator, bool> try_emplace(const KEY& key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03);
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 3
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 4
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04>
+    pair<iterator, bool> try_emplace(const KEY& key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04);
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 4
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 5
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05>
+    pair<iterator, bool> try_emplace(const KEY& key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05);
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 5
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 6
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06>
+    pair<iterator, bool> try_emplace(const KEY& key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06);
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 6
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 7
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07>
+    pair<iterator, bool> try_emplace(const KEY& key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07);
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 7
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 8
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08>
+    pair<iterator, bool> try_emplace(const KEY& key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08);
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 8
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 9
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08,
+              class Args_09>
+    pair<iterator, bool> try_emplace(const KEY& key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09);
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 9
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 10
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08,
+              class Args_09,
+              class Args_10>
+    pair<iterator, bool> try_emplace(const KEY& key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10);
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 10
+
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 0
+    pair<iterator, bool> try_emplace(
+                              BloombergLP::bslmf::MovableRef<KEY> key);
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 0
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 1
+    template <class Args_01>
+    pair<iterator, bool> try_emplace(
+                              BloombergLP::bslmf::MovableRef<KEY> key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01);
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 1
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 2
+    template <class Args_01,
+              class Args_02>
+    pair<iterator, bool> try_emplace(
+                              BloombergLP::bslmf::MovableRef<KEY> key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02);
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 2
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 3
+    template <class Args_01,
+              class Args_02,
+              class Args_03>
+    pair<iterator, bool> try_emplace(
+                              BloombergLP::bslmf::MovableRef<KEY> key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03);
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 3
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 4
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04>
+    pair<iterator, bool> try_emplace(
+                              BloombergLP::bslmf::MovableRef<KEY> key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04);
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 4
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 5
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05>
+    pair<iterator, bool> try_emplace(
+                              BloombergLP::bslmf::MovableRef<KEY> key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05);
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 5
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 6
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06>
+    pair<iterator, bool> try_emplace(
+                              BloombergLP::bslmf::MovableRef<KEY> key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06);
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 6
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 7
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07>
+    pair<iterator, bool> try_emplace(
+                              BloombergLP::bslmf::MovableRef<KEY> key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07);
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 7
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 8
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08>
+    pair<iterator, bool> try_emplace(
+                              BloombergLP::bslmf::MovableRef<KEY> key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08);
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 8
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 9
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08,
+              class Args_09>
+    pair<iterator, bool> try_emplace(
+                              BloombergLP::bslmf::MovableRef<KEY> key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09);
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 9
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 10
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08,
+              class Args_09,
+              class Args_10>
+    pair<iterator, bool> try_emplace(
+                              BloombergLP::bslmf::MovableRef<KEY> key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10);
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 10
+
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 0
+    iterator
+    try_emplace(const_iterator hint, const KEY& key);
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 0
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 1
+    template<class Args_01>
+    iterator
+    try_emplace(const_iterator hint, const KEY& key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01);
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 1
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 2
+    template<class Args_01,
+             class Args_02>
+    iterator
+    try_emplace(const_iterator hint, const KEY& key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02);
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 2
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 3
+    template<class Args_01,
+             class Args_02,
+             class Args_03>
+    iterator
+    try_emplace(const_iterator hint, const KEY& key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03);
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 3
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 4
+    template<class Args_01,
+             class Args_02,
+             class Args_03,
+             class Args_04>
+    iterator
+    try_emplace(const_iterator hint, const KEY& key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04);
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 4
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 5
+    template<class Args_01,
+             class Args_02,
+             class Args_03,
+             class Args_04,
+             class Args_05>
+    iterator
+    try_emplace(const_iterator hint, const KEY& key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05);
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 5
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 6
+    template<class Args_01,
+             class Args_02,
+             class Args_03,
+             class Args_04,
+             class Args_05,
+             class Args_06>
+    iterator
+    try_emplace(const_iterator hint, const KEY& key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06);
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 6
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 7
+    template<class Args_01,
+             class Args_02,
+             class Args_03,
+             class Args_04,
+             class Args_05,
+             class Args_06,
+             class Args_07>
+    iterator
+    try_emplace(const_iterator hint, const KEY& key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07);
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 7
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 8
+    template<class Args_01,
+             class Args_02,
+             class Args_03,
+             class Args_04,
+             class Args_05,
+             class Args_06,
+             class Args_07,
+             class Args_08>
+    iterator
+    try_emplace(const_iterator hint, const KEY& key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08);
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 8
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 9
+    template<class Args_01,
+             class Args_02,
+             class Args_03,
+             class Args_04,
+             class Args_05,
+             class Args_06,
+             class Args_07,
+             class Args_08,
+             class Args_09>
+    iterator
+    try_emplace(const_iterator hint, const KEY& key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09);
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 9
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 10
+    template<class Args_01,
+             class Args_02,
+             class Args_03,
+             class Args_04,
+             class Args_05,
+             class Args_06,
+             class Args_07,
+             class Args_08,
+             class Args_09,
+             class Args_10>
+    iterator
+    try_emplace(const_iterator hint, const KEY& key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10);
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 10
+
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 0
+    iterator try_emplace(const_iterator                      hint,
+                         BloombergLP::bslmf::MovableRef<KEY> key);
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 0
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 1
+    template <class Args_01>
+    iterator try_emplace(const_iterator                      hint,
+                         BloombergLP::bslmf::MovableRef<KEY> key,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01);
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 1
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 2
+    template <class Args_01,
+              class Args_02>
+    iterator try_emplace(const_iterator                      hint,
+                         BloombergLP::bslmf::MovableRef<KEY> key,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02);
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 2
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 3
+    template <class Args_01,
+              class Args_02,
+              class Args_03>
+    iterator try_emplace(const_iterator                      hint,
+                         BloombergLP::bslmf::MovableRef<KEY> key,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03);
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 3
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 4
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04>
+    iterator try_emplace(const_iterator                      hint,
+                         BloombergLP::bslmf::MovableRef<KEY> key,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04);
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 4
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 5
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05>
+    iterator try_emplace(const_iterator                      hint,
+                         BloombergLP::bslmf::MovableRef<KEY> key,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05);
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 5
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 6
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06>
+    iterator try_emplace(const_iterator                      hint,
+                         BloombergLP::bslmf::MovableRef<KEY> key,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06);
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 6
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 7
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07>
+    iterator try_emplace(const_iterator                      hint,
+                         BloombergLP::bslmf::MovableRef<KEY> key,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07);
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 7
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 8
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08>
+    iterator try_emplace(const_iterator                      hint,
+                         BloombergLP::bslmf::MovableRef<KEY> key,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08);
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 8
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 9
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08,
+              class Args_09>
+    iterator try_emplace(const_iterator                      hint,
+                         BloombergLP::bslmf::MovableRef<KEY> key,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09);
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 9
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 10
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08,
+              class Args_09,
+              class Args_10>
+    iterator try_emplace(const_iterator                      hint,
+                         BloombergLP::bslmf::MovableRef<KEY> key,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10);
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 10
+
+#else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+    template <class... Args>
+    pair<iterator, bool> try_emplace(const KEY& key,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args);
+
+    template <class... Args>
+    pair<iterator, bool> try_emplace(
+                              BloombergLP::bslmf::MovableRef<KEY> key,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args);
+
+    template<class... Args>
+    iterator
+    try_emplace(const_iterator hint, const KEY& key,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args);
+
+    template <class... Args>
+    iterator try_emplace(const_iterator                      hint,
+                         BloombergLP::bslmf::MovableRef<KEY> key,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args);
+// }}} END GENERATED CODE
+#endif
 
     // ACCESSORS
     typename add_lvalue_reference<const VALUE>::type at(const key_type& key)
@@ -2017,10 +2753,10 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::clear()
 #ifndef BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT
 #define BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT 10
 #endif
-#ifndef BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B
-#define BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT
+#ifndef BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D
+#define BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT
 #endif
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 0
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 0
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 bsl::pair<
          typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator,
@@ -2037,9 +2773,9 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 0
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 0
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 1
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 1
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01>
 bsl::pair<
@@ -2058,9 +2794,9 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 1
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 1
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 2
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 2
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02>
@@ -2082,9 +2818,9 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 2
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 2
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 3
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 3
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -2109,9 +2845,9 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 3
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 3
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 4
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 4
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -2139,9 +2875,9 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 4
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 4
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 5
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 5
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -2172,9 +2908,9 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 5
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 5
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 6
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 6
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -2208,9 +2944,9 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 6
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 6
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 7
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 7
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -2247,9 +2983,9 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 7
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 7
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 8
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 8
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -2289,9 +3025,9 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 8
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 8
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 9
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 9
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -2334,9 +3070,9 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 9
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 9
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 10
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 10
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -2382,10 +3118,10 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 10
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 10
 
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 0
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 0
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace_hint(
@@ -2399,9 +3135,9 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace_hint(
 
     return iterator(result);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 0
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 0
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 1
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 1
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01>
 typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
@@ -2418,9 +3154,9 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace_hint(
 
     return iterator(result);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 1
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 1
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 2
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 2
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02>
@@ -2440,9 +3176,9 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace_hint(
 
     return iterator(result);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 2
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 2
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 3
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 3
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -2465,9 +3201,9 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace_hint(
 
     return iterator(result);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 3
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 3
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 4
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 4
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -2493,9 +3229,9 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace_hint(
 
     return iterator(result);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 4
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 4
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 5
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 5
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -2524,9 +3260,9 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace_hint(
 
     return iterator(result);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 5
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 5
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 6
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 6
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -2558,9 +3294,9 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace_hint(
 
     return iterator(result);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 6
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 6
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 7
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 7
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -2595,9 +3331,9 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace_hint(
 
     return iterator(result);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 7
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 7
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 8
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 8
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -2635,9 +3371,9 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace_hint(
 
     return iterator(result);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 8
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 8
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 9
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 9
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -2678,9 +3414,9 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace_hint(
 
     return iterator(result);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 9
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 9
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 10
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 10
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -2724,7 +3460,7 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace_hint(
 
     return iterator(result);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 10
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect
@@ -2896,6 +3632,81 @@ void unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::insert(
 }
 #endif
 
+// {{{ BEGIN GENERATED CODE
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class OTHER>
+bsl::pair<
+         typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator,
+         bool>
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::insert_or_assign(
+                                                                const KEY& key,
+                                  BSLS_COMPILERFEATURES_FORWARD_REF(OTHER) obj)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.insertOrAssign(
+                                &isInsertedFlag,
+                                NULL,
+                                key,
+                                BSLS_COMPILERFEATURES_FORWARD(OTHER, obj));
+    return ResultType(iterator(result), isInsertedFlag);
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class OTHER>
+bsl::pair<
+         typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator,
+         bool>
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::insert_or_assign(
+                                       BloombergLP::bslmf::MovableRef<KEY> key,
+                                  BSLS_COMPILERFEATURES_FORWARD_REF(OTHER) obj)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.insertOrAssign(
+                                &isInsertedFlag,
+                                NULL,
+                                BSLS_COMPILERFEATURES_FORWARD(KEY, key),
+                                BSLS_COMPILERFEATURES_FORWARD(OTHER, obj));
+    return ResultType(iterator(result), isInsertedFlag);
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class OTHER>
+typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::insert_or_assign(
+                  const_iterator hint, const KEY& key,
+                                  BSLS_COMPILERFEATURES_FORWARD_REF(OTHER) obj)
+{
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.insertOrAssign(
+                                &isInsertedFlag,
+                                hint.node(),
+                                key,
+                                BSLS_COMPILERFEATURES_FORWARD(OTHER, obj));
+    return iterator(result);
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class OTHER>
+typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::insert_or_assign(
+                                 const_iterator                           hint,
+                                 BloombergLP::bslmf::MovableRef<KEY>      key,
+                                 BSLS_COMPILERFEATURES_FORWARD_REF(OTHER) obj)
+{
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.insertOrAssign(
+                                &isInsertedFlag,
+                                hint.node(),
+                                BSLS_COMPILERFEATURES_FORWARD(KEY, key),
+                                BSLS_COMPILERFEATURES_FORWARD(OTHER, obj));
+    return iterator(result);
+}
+// }}} END GENERATED CODE
+
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 bsl::pair<
          typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator,
@@ -2945,6 +3756,1599 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::swap(unordered_map& other)
 {
     d_impl.swap(other.d_impl);
 }
+
+#if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// Command line: sim_cpp11_features.pl bslstl_unorderedmap.h
+#ifndef BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT
+#define BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT 10
+#endif
+#ifndef BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F
+#define BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT
+#endif
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 0
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+inline
+bsl::pair<
+     typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator,
+     bool>
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
+                                                               const KEY& key)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                NULL,
+                                key);
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 0
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 1
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01>
+inline
+bsl::pair<
+     typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator,
+     bool>
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
+                                                               const KEY& key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                NULL,
+                                key,
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01));
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 1
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 2
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02>
+inline
+bsl::pair<
+     typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator,
+     bool>
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
+                                                               const KEY& key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                NULL,
+                                key,
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02));
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 2
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 3
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03>
+inline
+bsl::pair<
+     typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator,
+     bool>
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
+                                                               const KEY& key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                NULL,
+                                key,
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03));
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 3
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 4
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04>
+inline
+bsl::pair<
+     typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator,
+     bool>
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
+                                                               const KEY& key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                NULL,
+                                key,
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04));
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 4
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 5
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05>
+inline
+bsl::pair<
+     typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator,
+     bool>
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
+                                                               const KEY& key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                NULL,
+                                key,
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05));
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 5
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 6
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06>
+inline
+bsl::pair<
+     typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator,
+     bool>
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
+                                                               const KEY& key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                NULL,
+                                key,
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06));
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 6
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 7
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07>
+inline
+bsl::pair<
+     typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator,
+     bool>
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
+                                                               const KEY& key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                NULL,
+                                key,
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07));
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 7
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 8
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08>
+inline
+bsl::pair<
+     typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator,
+     bool>
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
+                                                               const KEY& key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                NULL,
+                                key,
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08));
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 8
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 9
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08,
+          class Args_09>
+inline
+bsl::pair<
+     typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator,
+     bool>
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
+                                                               const KEY& key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                NULL,
+                                key,
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_09, args_09));
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 9
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 10
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08,
+          class Args_09,
+          class Args_10>
+inline
+bsl::pair<
+     typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator,
+     bool>
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
+                                                               const KEY& key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                NULL,
+                                key,
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_09, args_09),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_10, args_10));
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 10
+
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 0
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+inline
+bsl::pair<
+     typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator,
+     bool>
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
+                                      BloombergLP::bslmf::MovableRef<KEY> key)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                NULL,
+                                BSLS_COMPILERFEATURES_FORWARD(KEY, key));
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 0
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 1
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01>
+inline
+bsl::pair<
+     typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator,
+     bool>
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
+                                      BloombergLP::bslmf::MovableRef<KEY> key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                NULL,
+                                BSLS_COMPILERFEATURES_FORWARD(KEY, key),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01));
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 1
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 2
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02>
+inline
+bsl::pair<
+     typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator,
+     bool>
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
+                                      BloombergLP::bslmf::MovableRef<KEY> key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                NULL,
+                                BSLS_COMPILERFEATURES_FORWARD(KEY, key),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02));
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 2
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 3
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03>
+inline
+bsl::pair<
+     typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator,
+     bool>
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
+                                      BloombergLP::bslmf::MovableRef<KEY> key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                NULL,
+                                BSLS_COMPILERFEATURES_FORWARD(KEY, key),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03));
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 3
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 4
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04>
+inline
+bsl::pair<
+     typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator,
+     bool>
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
+                                      BloombergLP::bslmf::MovableRef<KEY> key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                NULL,
+                                BSLS_COMPILERFEATURES_FORWARD(KEY, key),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04));
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 4
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 5
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05>
+inline
+bsl::pair<
+     typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator,
+     bool>
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
+                                      BloombergLP::bslmf::MovableRef<KEY> key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                NULL,
+                                BSLS_COMPILERFEATURES_FORWARD(KEY, key),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05));
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 5
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 6
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06>
+inline
+bsl::pair<
+     typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator,
+     bool>
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
+                                      BloombergLP::bslmf::MovableRef<KEY> key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                NULL,
+                                BSLS_COMPILERFEATURES_FORWARD(KEY, key),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06));
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 6
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 7
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07>
+inline
+bsl::pair<
+     typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator,
+     bool>
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
+                                      BloombergLP::bslmf::MovableRef<KEY> key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                NULL,
+                                BSLS_COMPILERFEATURES_FORWARD(KEY, key),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07));
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 7
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 8
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08>
+inline
+bsl::pair<
+     typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator,
+     bool>
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
+                                      BloombergLP::bslmf::MovableRef<KEY> key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                NULL,
+                                BSLS_COMPILERFEATURES_FORWARD(KEY, key),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08));
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 8
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 9
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08,
+          class Args_09>
+inline
+bsl::pair<
+     typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator,
+     bool>
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
+                                      BloombergLP::bslmf::MovableRef<KEY> key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                NULL,
+                                BSLS_COMPILERFEATURES_FORWARD(KEY, key),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_09, args_09));
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 9
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 10
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08,
+          class Args_09,
+          class Args_10>
+inline
+bsl::pair<
+     typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator,
+     bool>
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
+                                      BloombergLP::bslmf::MovableRef<KEY> key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                NULL,
+                                BSLS_COMPILERFEATURES_FORWARD(KEY, key),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_09, args_09),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_10, args_10));
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 10
+
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 0
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+inline
+typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
+                                                           const_iterator hint,
+                                                           const KEY&     key)
+{
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                hint.node(),
+                                key);
+
+    return iterator(result);
+}
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 0
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 1
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01>
+inline
+typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
+                                                           const_iterator hint,
+                                                           const KEY&     key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01)
+{
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                hint.node(),
+                                key,
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01));
+
+    return iterator(result);
+}
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 1
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 2
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02>
+inline
+typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
+                                                           const_iterator hint,
+                                                           const KEY&     key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02)
+{
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                hint.node(),
+                                key,
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02));
+
+    return iterator(result);
+}
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 2
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 3
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03>
+inline
+typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
+                                                           const_iterator hint,
+                                                           const KEY&     key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03)
+{
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                hint.node(),
+                                key,
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03));
+
+    return iterator(result);
+}
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 3
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 4
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04>
+inline
+typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
+                                                           const_iterator hint,
+                                                           const KEY&     key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04)
+{
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                hint.node(),
+                                key,
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04));
+
+    return iterator(result);
+}
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 4
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 5
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05>
+inline
+typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
+                                                           const_iterator hint,
+                                                           const KEY&     key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05)
+{
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                hint.node(),
+                                key,
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05));
+
+    return iterator(result);
+}
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 5
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 6
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06>
+inline
+typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
+                                                           const_iterator hint,
+                                                           const KEY&     key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06)
+{
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                hint.node(),
+                                key,
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06));
+
+    return iterator(result);
+}
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 6
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 7
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07>
+inline
+typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
+                                                           const_iterator hint,
+                                                           const KEY&     key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07)
+{
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                hint.node(),
+                                key,
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07));
+
+    return iterator(result);
+}
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 7
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 8
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08>
+inline
+typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
+                                                           const_iterator hint,
+                                                           const KEY&     key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08)
+{
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                hint.node(),
+                                key,
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08));
+
+    return iterator(result);
+}
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 8
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 9
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08,
+          class Args_09>
+inline
+typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
+                                                           const_iterator hint,
+                                                           const KEY&     key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09)
+{
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                hint.node(),
+                                key,
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_09, args_09));
+
+    return iterator(result);
+}
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 9
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 10
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08,
+          class Args_09,
+          class Args_10>
+inline
+typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
+                                                           const_iterator hint,
+                                                           const KEY&     key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10)
+{
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                hint.node(),
+                                key,
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_09, args_09),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_10, args_10));
+
+    return iterator(result);
+}
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 10
+
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 0
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+inline
+typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
+                                 const_iterator                           hint,
+                                 BloombergLP::bslmf::MovableRef<KEY>      key)
+{
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                hint.node(),
+                                BSLS_COMPILERFEATURES_FORWARD(KEY, key));
+
+    return iterator(result);
+}
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 0
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 1
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01>
+inline
+typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
+                                 const_iterator                           hint,
+                                 BloombergLP::bslmf::MovableRef<KEY>      key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01)
+{
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                hint.node(),
+                                BSLS_COMPILERFEATURES_FORWARD(KEY, key),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01));
+
+    return iterator(result);
+}
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 1
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 2
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02>
+inline
+typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
+                                 const_iterator                           hint,
+                                 BloombergLP::bslmf::MovableRef<KEY>      key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02)
+{
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                hint.node(),
+                                BSLS_COMPILERFEATURES_FORWARD(KEY, key),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02));
+
+    return iterator(result);
+}
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 2
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 3
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03>
+inline
+typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
+                                 const_iterator                           hint,
+                                 BloombergLP::bslmf::MovableRef<KEY>      key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03)
+{
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                hint.node(),
+                                BSLS_COMPILERFEATURES_FORWARD(KEY, key),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03));
+
+    return iterator(result);
+}
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 3
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 4
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04>
+inline
+typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
+                                 const_iterator                           hint,
+                                 BloombergLP::bslmf::MovableRef<KEY>      key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04)
+{
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                hint.node(),
+                                BSLS_COMPILERFEATURES_FORWARD(KEY, key),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04));
+
+    return iterator(result);
+}
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 4
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 5
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05>
+inline
+typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
+                                 const_iterator                           hint,
+                                 BloombergLP::bslmf::MovableRef<KEY>      key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05)
+{
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                hint.node(),
+                                BSLS_COMPILERFEATURES_FORWARD(KEY, key),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05));
+
+    return iterator(result);
+}
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 5
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 6
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06>
+inline
+typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
+                                 const_iterator                           hint,
+                                 BloombergLP::bslmf::MovableRef<KEY>      key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06)
+{
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                hint.node(),
+                                BSLS_COMPILERFEATURES_FORWARD(KEY, key),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06));
+
+    return iterator(result);
+}
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 6
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 7
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07>
+inline
+typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
+                                 const_iterator                           hint,
+                                 BloombergLP::bslmf::MovableRef<KEY>      key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07)
+{
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                hint.node(),
+                                BSLS_COMPILERFEATURES_FORWARD(KEY, key),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07));
+
+    return iterator(result);
+}
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 7
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 8
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08>
+inline
+typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
+                                 const_iterator                           hint,
+                                 BloombergLP::bslmf::MovableRef<KEY>      key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08)
+{
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                hint.node(),
+                                BSLS_COMPILERFEATURES_FORWARD(KEY, key),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08));
+
+    return iterator(result);
+}
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 8
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 9
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08,
+          class Args_09>
+inline
+typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
+                                 const_iterator                           hint,
+                                 BloombergLP::bslmf::MovableRef<KEY>      key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09)
+{
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                hint.node(),
+                                BSLS_COMPILERFEATURES_FORWARD(KEY, key),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_09, args_09));
+
+    return iterator(result);
+}
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 9
+
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 10
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08,
+          class Args_09,
+          class Args_10>
+inline
+typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
+                                 const_iterator                           hint,
+                                 BloombergLP::bslmf::MovableRef<KEY>      key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10)
+{
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                hint.node(),
+                                BSLS_COMPILERFEATURES_FORWARD(KEY, key),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_09, args_09),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_10, args_10));
+
+    return iterator(result);
+}
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 10
+
+#else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class... Args>
+inline
+bsl::pair<
+     typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator,
+     bool>
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
+                                                               const KEY& key,
+                               BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                NULL,
+                                key,
+                                BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class... Args>
+inline
+bsl::pair<
+     typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator,
+     bool>
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
+                                      BloombergLP::bslmf::MovableRef<KEY> key,
+                               BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                NULL,
+                                BSLS_COMPILERFEATURES_FORWARD(KEY, key),
+                                BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class... Args>
+inline
+typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
+                                                           const_iterator hint,
+                                                           const KEY&     key,
+                               BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args)
+{
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                hint.node(),
+                                key,
+                                BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
+
+    return iterator(result);
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class... Args>
+inline
+typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
+bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
+                                 const_iterator                           hint,
+                                 BloombergLP::bslmf::MovableRef<KEY>      key,
+                               BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args)
+{
+    bool isInsertedFlag = false;
+    HashTableLink *result = d_impl.tryEmplace(
+                                &isInsertedFlag,
+                                hint.node(),
+                                BSLS_COMPILERFEATURES_FORWARD(KEY, key),
+                                BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
+
+    return iterator(result);
+}
+// }}} END GENERATED CODE
+#endif
 
 // ACCESSORS
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
