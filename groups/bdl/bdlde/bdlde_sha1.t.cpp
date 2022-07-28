@@ -250,8 +250,9 @@ const char *const sha1Results[6] =
 // that would create unnecessary overhead here.  Also note that because SHA-1
 // digests are inexpensive to compute, they are vulnerable to brute force
 // attacks and should not be used for password hashing in real-world
-// applications.
-//..
+// applications.  A function like 'validatePassword' must only be used to
+// validate passwords against previously computed SHA-1 hashes, and only during
+// a transition period to a more secure password hashing function.
 bool validatePassword(const bsl::string_view&  password,
                       const bsl::string_view&  salt,
                       const unsigned char     *expected)

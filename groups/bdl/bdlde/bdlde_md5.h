@@ -21,14 +21,34 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO:
 //
 //@DESCRIPTION: This component implements a mechanism for computing, updating,
-// and streaming an MD5 digest (a cryptographic hash comprised of 128 bits).
-// This digest is a strong technique for determining whether or not a message
-// was received without errors.  This implementation is based on the RFC 1321
-// specification which can be found at:
+// and streaming an MD5 digest (a hash comprising 128 bits).  One possible
+// application is determining whether or not a message was received without
+// errors, although due to security vulnerabilities, it should no longer be
+// used for this purpose (see the Security section below).  This implementation
+// is based on the RFC 1321 specification which can be found at:
 //..
 //  http://www.ietf.org/rfc/rfc1321.txt
 //..
 // Note that an MD5 digest does not aid in error correction.
+//
+///Security
+///--------
+// Practical collision and chosen-prefix collision attacks are known against
+// MD5.  Do not use MD5 to generate digital signatures under any circumstances,
+// and do not use MD5 at all except when it is required for interoperation with
+// legacy systems that use MD5.  SHA-2 (available in the 'bdlde_sha2'
+// component) and SHA-3 are more secure alternatives to MD5.
+//
+// You might think that your application doesn't require collision resistance.
+// However, (1) you might be mistaken, (2) once you start using MD5, you
+// prevent future versions of your application from being able to rely on
+// collision resistance unless they break backward compatibility, (3) a
+// maintainer of your application might accidentally make a change that
+// implicitly assumes collision resistance, and (4) if you expose MD5 hashes to
+// your users, they might assume that they are secure digital signatures, which
+// will make their applications insecure.  In light of the foregoing
+// considerations, and the availability of SHA-2 and SHA-3 as alternatives,
+// there is no justification for using MD5 unless you absolutely have to.
 //
 ///Performance
 ///-----------
@@ -94,6 +114,10 @@ BSLS_IDENT("$Id: $")
 //      assert(digestLocal == digest);
 //  }
 //..
+// Due to security vulnerabilities in the MD5 algorithm (see the Security
+// section above), the use of MD5 contemplated above is insecure unless the
+// transmission channel is *completely trusted*, which is often impossible to
+// guarantee in practice.  Therefore, MD5 should no longer be used in this way.
 //
 ///Additional Copyright Notice
 ///---------------------------

@@ -22,6 +22,25 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 // Note that a SHA-1 digest does not aid in error correction.
 //
+///Security
+///--------
+// Practical collision and chosen-prefix collision attacks are known against
+// SHA-1.  Do not use SHA-1 to generate digital signatures under any
+// circumstances, and do not use SHA-1 at all except when it is required for
+// interoperation with legacy systems that use SHA-1.  SHA-2 (available in the
+// 'bdlde_sha2' component) and SHA-3 are more secure alternatives to SHA-1.
+//
+// You might think that your application doesn't require collision resistance.
+// However, (1) you might be mistaken, (2) once you start using SHA-1, you
+// prevent future versions of your application from being able to rely on
+// collision resistance unless they break backward compatibility, (3) a
+// maintainer of your application might accidentally make a change that
+// implicitly assumes collision resistance, and (4) if you expose SHA-1 hashes
+// to your users, they might assume that they are secure digital signatures,
+// which will make their applications insecure.  In light of the foregoing
+// considerations, and the availability of SHA-2 and SHA-3 as alternatives,
+// there is no justification for using SHA-1 unless you absolutely have to.
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.  The
@@ -33,7 +52,9 @@ BSLS_IDENT("$Id$ $CSID$")
 // that would create unnecessary overhead here.  Also note that because SHA-1
 // digests are inexpensive to compute, they are vulnerable to brute force
 // attacks and should not be used for password hashing in real-world
-// applications.
+// applications.  A function like 'validatePassword' must only be used to
+// validate passwords against previously computed SHA-1 hashes, and only during
+// a transition period to a more secure password hashing function.
 //..
 //  bool validatePassword(const bsl::string_view&  password,
 //                        const bsl::string_view&  salt,
