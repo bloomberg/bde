@@ -640,7 +640,7 @@ class EventScheduler {
     bslmt::Mutex          d_dispatcherMutex;    // serialize starting/stopping
                                                 // dispatcher thread
 
-    bslmt::Mutex          d_mutex;              // synchronizes access to
+    mutable bslmt::Mutex  d_mutex;              // synchronizes access to
                                                 // condition variables
 
     bslmt::Condition      d_queueCondition;     // condition variable used to
@@ -1234,6 +1234,10 @@ class EventScheduler {
     bsls::SystemClockType::Enum clockType() const;
         // Return the value of the clock type that this object was created
         // with.
+
+    bool isStarted() const;
+        // Return 'true' if a call to 'start' has finished successfully more
+        // recently than any call to 'stop', and 'false' otherwise.
 
     bsls::TimeInterval now() const;
         // Return the current epoch time, an absolute time represented as an

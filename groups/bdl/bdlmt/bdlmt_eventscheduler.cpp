@@ -881,6 +881,14 @@ void EventScheduler::stop()
     d_dispatcherThread = bslmt::ThreadUtil::invalidHandle();
 }
 
+// ACCESSORS
+
+bool EventScheduler::isStarted() const
+{
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+    return d_running;
+}
+
                     // ----------------------------------
                     // class EventSchedulerTestTimeSource
                     // ----------------------------------

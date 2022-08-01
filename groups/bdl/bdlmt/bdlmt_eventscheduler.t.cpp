@@ -17,6 +17,8 @@
 #include <bdlt_epochutil.h>
 #include <bdlt_timeunitratio.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bslim_testutil.h>
 
 #include <bslma_default.h>
@@ -68,21 +70,21 @@ using namespace bsl;  // automatically added by script
 // isolation, the second is more integrated in that it tests a particular
 // situation in context, with a combination of functions.
 //
-// [2] Verify that callbacks are invoked as expected when multiple
+// [ 2] Verify that callbacks are invoked as expected when multiple
 // clocks and multiple events are scheduled.
 //
-// [3] Verify that 'cancelEvent' works correctly in various white box
+// [ 3] Verify that 'cancelEvent' works correctly in various white box
 // states.
 //
-// [4] Verify that 'cancelAllEvents' works correctly in various white
+// [ 4] Verify that 'cancelAllEvents' works correctly in various white
 // box states.
 //
-// [7] Test 'scheduleEvent', 'cancelEvent', and 'cancelAllEvents' when they
+// [ 7] Test 'scheduleEvent', 'cancelEvent', and 'cancelAllEvents' when they
 // are invoked from dispatcher thread.
 //
-// [8] Test the scheduler with a user-defined dispatcher.
+// [ 8] Test the scheduler with a user-defined dispatcher.
 //
-// [9] Verify that 'start' and 'stop' work correctly in various white
+// [ 9] Verify that 'start' and 'stop' work correctly in various white
 // box states.
 //
 // [10] Verify the concurrent scheduling and cancelling of clocks and
@@ -93,39 +95,40 @@ using namespace bsl;  // automatically added by script
 //
 //-----------------------------------------------------------------------------
 // CREATORS
-// [01] bdlmt::EventScheduler(allocator = 0);
+// [ 1] bdlmt::EventScheduler(allocator = 0);
 // [19] bdlmt::EventScheduler(clockType, allocator = 0);
 //
-// [08] bdlmt::EventScheduler(dispatcher, allocator = 0);
+// [ 8] bdlmt::EventScheduler(dispatcher, allocator = 0);
 // [20] bdlmt::EventScheduler(disp, clockType, alloc = 0);
 //
-// [01] ~bdlmt::EventScheduler();
+// [ 1] ~bdlmt::EventScheduler();
 //
 // MANIPULATORS
-// [04] void cancelAllEvents(bool wait=false);
+// [ 4] void cancelAllEvents(bool wait=false);
 //
-// [03] int cancelEvent(Handle handle, bool wait=false);
+// [ 3] int cancelEvent(Handle handle, bool wait=false);
 //
 // [12] int rescheduleEvent(handle, newTime);
 //
-// [02] Handle scheduleEvent(time, callback);
+// [ 2] Handle scheduleEvent(time, callback);
 //
-// [09] int start();
+// [ 9] int start();
 //
 // [16] int start(const bslmt::ThreadAttributes& threadAttributes);
 //
-// [09] void stop();
+// [ 9] void stop();
 //
 // ACCESSORS
 // [21] bsls::SystemClockType::Enum clockType() const;
+// [ 9] bool isStarted() const;
 // [23] bsls::TimeInterval now() const;
 // [24] bslma::Allocator *allocator() const;
 // [27] bool isInDispatcherThread() const;
 //-----------------------------------------------------------------------------
-// [01] BREATHING TEST
+// [ 1] BREATHING TEST
 // [25] DRQS 150355963: 'advanceTime' WITH UNDER A MICROSECOND
 // [26] DRQS 150475152: AFTER TEST TIME SOURCE DESTRUCTION
-// [07] TESTING METHODS INVOCATIONS FROM THE DISPATCHER THREAD
+// [ 7] TESTING METHODS INVOCATIONS FROM THE DISPATCHER THREAD
 // [10] TESTING CONCURRENT SCHEDULING AND CANCELLING
 // [11] TESTING CONCURRENT SCHEDULING AND CANCELLING-ALL
 // [22] CLOCK REPLACEMENT BREATHING TEST
@@ -277,9 +280,12 @@ static const int   DECI_SEC_IN_MICRO_SEC = 100000;
                                // number of microseconds in a tenth of a second
 
 // Tolerance for testing correct timing
-static const bsls::TimeInterval UNACCEPTABLE_DIFFERENCE(0, 500000000); // 500ms
-static const bsls::TimeInterval ALLOWABLE_DIFFERENCE   (0,  75000000); //  75ms
-static const bsls::TimeInterval APPRECIABLE_DIFFERENCE (0,  20000000); //  20ms
+BSLA_MAYBE_UNUSED static const bsls::TimeInterval k_UNACCEPTABLE_DIFFERENCE(0,
+                                                           500000000); // 500ms
+BSLA_MAYBE_UNUSED static const bsls::TimeInterval k_ALLOWABLE_DIFFERENCE   (0,
+                                                            75000000); //  75ms
+BSLA_MAYBE_UNUSED static const bsls::TimeInterval k_APPRECIABLE_DIFFERENCE (0,
+                                                            20000000); //  20ms
 
 static inline bool isUnacceptable(const bsls::TimeInterval& t1,
                                   const bsls::TimeInterval& t2)
@@ -288,7 +294,7 @@ static inline bool isUnacceptable(const bsls::TimeInterval& t1,
     // return false.
 {
     bsls::TimeInterval absDifference = (t1 > t2) ? (t1 - t2) : (t2 - t1);
-    return (ALLOWABLE_DIFFERENCE > absDifference)? true : false;
+    return (k_ALLOWABLE_DIFFERENCE > absDifference)? true : false;
 }
 
 static inline bool isApproxEqual(const bsls::TimeInterval& t1,
@@ -298,7 +304,7 @@ static inline bool isApproxEqual(const bsls::TimeInterval& t1,
     // return false.
 {
     bsls::TimeInterval absDifference = (t1 > t2) ? (t1 - t2) : (t2 - t1);
-    return (ALLOWABLE_DIFFERENCE > absDifference)? true : false;
+    return (k_ALLOWABLE_DIFFERENCE > absDifference)? true : false;
 }
 
 static inline bool isApproxGreaterThan(const bsls::TimeInterval& t1,
@@ -307,7 +313,7 @@ static inline bool isApproxGreaterThan(const bsls::TimeInterval& t1,
     // *approximate* is implementation-defined) greater than the specified
     // 't2', otherwise return false.
 {
-    return ((t1 - t2) > APPRECIABLE_DIFFERENCE)? true : false;
+    return ((t1 - t2) > k_APPRECIABLE_DIFFERENCE)? true : false;
 }
 
 void microSleep(int microSeconds, int seconds)
@@ -1231,7 +1237,7 @@ namespace EVENTSCHEDULER_TEST_CASE_19 {
 
 namespace EVENTSCHEDULER_TEST_CASE_17 {
 
-enum { BUFSIZE = 40 * 1000 };
+enum { k_BUFSIZE = 40 * 1000 };
 
 struct Recurser {
     int d_recurseDepth;
@@ -1249,7 +1255,7 @@ struct Recurser {
 
     void deepRecurser()
     {
-        volatile char buffer[BUFSIZE];
+        volatile char buffer[k_BUFSIZE];
 
         int curDepth = abs((int)(buffer - d_topPtr));
 
@@ -1296,9 +1302,7 @@ struct SlowFunctor {
     typedef bsl::pair<double, bsls::Types::Int64> TimeElement;
     typedef bsl::list<TimeElement >               DateTimeList;
 
-    enum {
-        SLEEP_MICROSECONDS = 100 * 1000
-    };
+    enum { k_SLEEP_MICROSECONDS = 100 * 1000 };
 
     // CLASS DATA
     static const double SLEEP_SECONDS;
@@ -1326,7 +1330,7 @@ struct SlowFunctor {
     void callback(bsls::Types::Int64 warnAfter)
     {
         d_timeList.push_back(timeOfDay(warnAfter));
-        bslmt::ThreadUtil::microSleep(SLEEP_MICROSECONDS);
+        bslmt::ThreadUtil::microSleep(k_SLEEP_MICROSECONDS);
         d_timeList.push_back(timeOfDay(0));
     }
 
@@ -1336,7 +1340,8 @@ struct SlowFunctor {
     }
 };
 
-const double SlowFunctor::SLEEP_SECONDS = SLEEP_MICROSECONDS * 1e-6;
+const double SlowFunctor::SLEEP_SECONDS =
+                              static_cast<double>(k_SLEEP_MICROSECONDS) * 1e-6;
 
 struct FastFunctor {
 
@@ -1454,18 +1459,18 @@ namespace EVENTSCHEDULER_TEST_CASE_12 {
 namespace EVENTSCHEDULER_TEST_CASE_11 {
 
 enum {
-    NUM_THREADS    = 8,    // number of threads
-    NUM_ITERATIONS = 1000  // number of iterations
+    k_NUM_THREADS    = 8,    // number of threads
+    k_NUM_ITERATIONS = 1000  // number of iterations
 };
 
 const bsls::TimeInterval T6(6 * DECI_SEC); // decrease chance of timing failure
 bool  testTimingFailure = false;
 
-bslmt::Barrier barrier(NUM_THREADS);
+bslmt::Barrier barrier(k_NUM_THREADS);
 bslma::TestAllocator ta(veryVeryVerbose);
 Obj x(&ta);
 
-TestClass1 testObj[NUM_THREADS]; // one test object for each thread
+TestClass1 testObj[k_NUM_THREADS]; // one test object for each thread
 
 extern "C" {
 void *workerThread11(void *arg)
@@ -1477,7 +1482,7 @@ void *workerThread11(void *arg)
 
       // even numbered threads run 'case 0:'
       case 0: {
-          for (int i = 0; i< NUM_ITERATIONS; ++i) {
+          for (int i = 0; i< k_NUM_ITERATIONS; ++i) {
               bsls::TimeInterval now = u::now();
               x.scheduleEvent(now + T6,
                               bdlf::MemFnUtil::memFn(&TestClass1::callback,
@@ -1498,7 +1503,7 @@ void *workerThread11(void *arg)
 
       // odd numbered threads run 'case 1:'
       case 1: {
-          for (int i = 0; i< NUM_ITERATIONS; ++i) {
+          for (int i = 0; i< k_NUM_ITERATIONS; ++i) {
               bsls::TimeInterval now = u::now();
               x.scheduleRecurringEvent(
                   T6,
@@ -1532,18 +1537,18 @@ void *workerThread11(void *arg)
 namespace EVENTSCHEDULER_TEST_CASE_10 {
 
 enum {
-    NUM_THREADS    = 8,    // number of threads
-    NUM_ITERATIONS = 1000  // number of iterations
+    k_NUM_THREADS    = 8,    // number of threads
+    k_NUM_ITERATIONS = 1000  // number of iterations
 };
 
 const bsls::TimeInterval T6(6 * DECI_SEC); // decrease chance of timing failure
 bool  testTimingFailure = false;
 
-bslmt::Barrier barrier(NUM_THREADS);
+bslmt::Barrier barrier(k_NUM_THREADS);
 bslma::TestAllocator ta(veryVeryVerbose);
 Obj x(&ta);
 
-TestClass1 testObj[NUM_THREADS]; // one test object for each thread
+TestClass1 testObj[k_NUM_THREADS]; // one test object for each thread
 
 extern "C" {
 void *workerThread10(void *arg)
@@ -1560,7 +1565,7 @@ void *workerThread10(void *arg)
               cout << "\tStart event iterations" << endl;
               printMutex.unlock();
           }
-          for (int i = 0; i< NUM_ITERATIONS; ++i) {
+          for (int i = 0; i< k_NUM_ITERATIONS; ++i) {
               bsls::TimeInterval now = u::now();
               EventHandle h;
               x.scheduleEvent(&h,
@@ -1592,7 +1597,7 @@ void *workerThread10(void *arg)
               cout << "\tStart clock iterations" << endl;
               printMutex.unlock();
           }
-          for (int i = 0; i< NUM_ITERATIONS; ++i) {
+          for (int i = 0; i< k_NUM_ITERATIONS; ++i) {
               bsls::TimeInterval now = u::now();
               RecurringEventHandle h;
               x.scheduleRecurringEvent(
@@ -1660,7 +1665,9 @@ void waitAndStart(Obj *mX, bslmt::Barrier *barrier)
     if (veryVerbose) {
         ET("Invoking start");
     }
+    ASSERT(false == mX->isStarted())
     mX->start();
+    ASSERT(true == mX->isStarted())
     if (veryVerbose) {
         ET("Started");
     }
@@ -1683,7 +1690,9 @@ void startStopConcurrencyTest()
     bslma::TestAllocator ta(veryVeryVerbose);
     Obj x(bsls::SystemClockType::e_MONOTONIC, &ta);
 
+    ASSERT(false == x.isStarted());
     ASSERT(0 == x.start());
+    ASSERT(true == x.isStarted());
 
     bslmt::Semaphore sema;
     x.scheduleEvent(bsls::SystemTime::nowMonotonicClock(),
@@ -1737,7 +1746,9 @@ void startStopConcurrencyTest()
     ASSERT(0 == rc);
 
     // all done; cleanup
+    ASSERT(true == x.isStarted());
     x.stop();
+    ASSERT(false == x.isStarted());
     bslmt::ThreadUtil::join(stopThread);
 }
 
@@ -2507,11 +2518,11 @@ struct TestPrintClass {
 namespace TEST_CASE_MINUS_100 {
 
 enum {
-    NUM_THREADS    = 4,
-    NUM_ITERATIONS = 100,
-    SEND_COUNT = 1000,
-    RCV_COUNT = 900,
-    DELAY = 2
+    k_NUM_THREADS    = 4,
+    k_NUM_ITERATIONS = 100,
+    k_SEND_COUNT = 1000,
+    k_RCV_COUNT = 900,
+    k_DELAY = 2
 };
 
 TestClass1 testObj;
@@ -2573,19 +2584,19 @@ void run()
 
     scheduler.start();
 
-    bslmt::ThreadUtil::Handle threads[NUM_THREADS];
+    bslmt::ThreadUtil::Handle threads[k_NUM_THREADS];
 
-    for (int i = 0; i < NUM_THREADS; ++i) {
+    for (int i = 0; i < k_NUM_THREADS; ++i) {
         bslmt::ThreadUtil::create(&threads[i],
                                   bdlf::BindUtil::bind(&threadFunc,
                                                        &scheduler,
-                                                       (int)NUM_ITERATIONS,
-                                                       (int)SEND_COUNT,
-                                                       (int)RCV_COUNT,
-                                                       (int)DELAY));
+                                                       (int)k_NUM_ITERATIONS,
+                                                       (int)k_SEND_COUNT,
+                                                       (int)k_RCV_COUNT,
+                                                       (int)k_DELAY));
     }
 
-    for (int i = 0; i < NUM_THREADS; ++i) {
+    for (int i = 0; i < k_NUM_THREADS; ++i) {
         bslmt::ThreadUtil::join(threads[i]);
     }
 
@@ -3880,8 +3891,8 @@ int main(int argc, char *argv[])
         using namespace EVENTSCHEDULER_TEST_CASE_15;
 
         int ii;
-        enum { MAX_LOOP = 4 };
-        for (ii = 0; ii <= MAX_LOOP; ++ii) {
+        enum { k_MAX_LOOP = 4 };
+        for (ii = 0; ii <= k_MAX_LOOP; ++ii) {
             bdlmt::EventScheduler scheduler(&ta);
             scheduler.start();
             SlowFunctor sf;
@@ -3910,12 +3921,12 @@ int main(int argc, char *argv[])
                afterStarted + bsls::TimeInterval(3.0),
                bdlf::BindUtil::bind(&FastFunctor::callback, &ff, veryVerbose));
 
-            bslmt::ThreadUtil::microSleep(40 * sf.SLEEP_MICROSECONDS);
+            bslmt::ThreadUtil::microSleep(40 * sf.k_SLEEP_MICROSECONDS);
                             // wait 40 time execution time of sf.callback().
 
             scheduler.stop();
 
-            bslmt::ThreadUtil::microSleep(20 * sf.SLEEP_MICROSECONDS);
+            bslmt::ThreadUtil::microSleep(20 * sf.k_SLEEP_MICROSECONDS);
                     // wait until events can run, verify that clock queue
                     // stayed small
 
@@ -3937,19 +3948,21 @@ int main(int argc, char *argv[])
 
             if (verbose) { P_(slowFunctorSize); P(ff.timeList().size()); }
 
-            enum { MIN_SF_SIZE = 33*2, MAX_SF_SIZE = 44*2 };
+            enum { k_MIN_SF_SIZE = 33*2, k_MAX_SF_SIZE = 44*2 };
 
-            ASSERT(ii < MAX_LOOP || slowFunctorSize >= MIN_SF_SIZE);
-            ASSERT(ii < MAX_LOOP || slowFunctorSize <= MAX_SF_SIZE);
-            if (slowFunctorSize < MIN_SF_SIZE || slowFunctorSize>MAX_SF_SIZE) {
-                if (verbose || MAX_LOOP == ii) {
-                    P_(L_) P_(MIN_SF_SIZE) P_(MAX_SF_SIZE) P(slowFunctorSize);
+            ASSERT(ii < k_MAX_LOOP || slowFunctorSize >= k_MIN_SF_SIZE);
+            ASSERT(ii < k_MAX_LOOP || slowFunctorSize <= k_MAX_SF_SIZE);
+            if (slowFunctorSize < k_MIN_SF_SIZE
+                    || slowFunctorSize > k_MAX_SF_SIZE) {
+                if (verbose || k_MAX_LOOP == ii) {
+                    P_(L_) P_(k_MIN_SF_SIZE) P_(k_MAX_SF_SIZE)
+                                                            P(slowFunctorSize);
                 }
                 continue;
             }
-            ASSERT(ii < MAX_LOOP || 2 == ff.timeList().size());
+            ASSERT(ii < k_MAX_LOOP || 2 == ff.timeList().size());
             if (2 != ff.timeList().size()) {
-                if (verbose || MAX_LOOP == ii) {
+                if (verbose || k_MAX_LOOP == ii) {
                     P_(L_) P(ff.timeList().size());
                 }
                 continue;
@@ -3974,9 +3987,9 @@ int main(int argc, char *argv[])
                     P_(i); P_(offBy); P_(interval);
                     P(sf.tolerance(static_cast<int>(i / 2)));
                 }
-                ASSERT(ii < MAX_LOOP || sf.tolerance(1) > abs(offBy));
+                ASSERT(ii < k_MAX_LOOP || sf.tolerance(1) > abs(offBy));
                 if (sf.tolerance(1) <= abs(offBy)) {
-                    if (verbose || MAX_LOOP == ii) {
+                    if (verbose || k_MAX_LOOP == ii) {
                         P_(L_) P_(i) P_(sf.tolerance(1)) P_(diff) P(offBy);
                     }
                     startOver = true;
@@ -4001,9 +4014,9 @@ int main(int argc, char *argv[])
                     P_(i); P_(offBy); P_(interval);
                     P(sf.tolerance(static_cast<int>(i / 2)));
                 }
-                ASSERT(ii < MAX_LOOP || sf.tolerance(1) > abs(offBy));
+                ASSERT(ii < k_MAX_LOOP || sf.tolerance(1) > abs(offBy));
                 if (sf.tolerance(1) <= abs(offBy)) {
-                    if (verbose || MAX_LOOP == ii) {
+                    if (verbose || k_MAX_LOOP == ii) {
                         P_(L_) P_(i) P_(sf.tolerance(1)) P_(diff) P(offBy);
                     }
                     startOver = true;
@@ -4019,11 +4032,11 @@ int main(int argc, char *argv[])
                 P_(ffdiff); P_(ffoffBy);
                 P_(ff.TOLERANCE_AHEAD); P(ff.TOLERANCE_BEHIND);
             }
-            ASSERT(ii < MAX_LOOP || -ff.TOLERANCE_AHEAD < ffoffBy);
-            ASSERT(ii < MAX_LOOP || ff.TOLERANCE_BEHIND > ffoffBy);
+            ASSERT(ii < k_MAX_LOOP || -ff.TOLERANCE_AHEAD < ffoffBy);
+            ASSERT(ii < k_MAX_LOOP || ff.TOLERANCE_BEHIND > ffoffBy);
             if (ffoffBy <= -ff.TOLERANCE_AHEAD ||
                 ffoffBy >  ff.TOLERANCE_BEHIND) {
-                if (verbose || MAX_LOOP == ii) {
+                if (verbose || k_MAX_LOOP == ii) {
                     P_(L_) P_(ff.TOLERANCE_AHEAD) P_(ff.TOLERANCE_BEHIND)
                     P_(ffdiff) P(ffoffBy);
                 }
@@ -4034,10 +4047,10 @@ int main(int argc, char *argv[])
             ffdiff = *ffit - afterStarted.totalSecondsAsDouble();
             ffoffBy = ffdiff - 3;
             if (veryVerbose) { P_(ffdiff); P(ffoffBy); }
-            ASSERT(ii < MAX_LOOP || -ff.TOLERANCE_AHEAD < ffoffBy);
-            ASSERT(ii < MAX_LOOP || ff.TOLERANCE_BEHIND > ffoffBy);
+            ASSERT(ii < k_MAX_LOOP || -ff.TOLERANCE_AHEAD < ffoffBy);
+            ASSERT(ii < k_MAX_LOOP || ff.TOLERANCE_BEHIND > ffoffBy);
             if (ffoffBy<=-ff.TOLERANCE_AHEAD || ffoffBy>=ff.TOLERANCE_BEHIND) {
-                if (verbose || MAX_LOOP == ii) {
+                if (verbose || k_MAX_LOOP == ii) {
                     P_(L_) P_(ff.TOLERANCE_AHEAD) P_(ff.TOLERANCE_BEHIND)
                     P_(ffdiff) P(ffoffBy);
                 }
@@ -4046,7 +4059,7 @@ int main(int argc, char *argv[])
 
             break;
         }
-        ASSERT(ii <= MAX_LOOP);
+        ASSERT(ii <= k_MAX_LOOP);
         if (verbose) { P_(L_) P(ii); }
       } break;
       case 15: {
@@ -4074,8 +4087,8 @@ int main(int argc, char *argv[])
         using namespace EVENTSCHEDULER_TEST_CASE_15;
 
         int ii;
-        enum { MAX_LOOP = 4 };
-        for (ii = 0; ii <= MAX_LOOP; ++ii) {
+        enum { k_MAX_LOOP = 4 };
+        for (ii = 0; ii <= k_MAX_LOOP; ++ii) {
             bdlmt::EventScheduler scheduler(&ta);
             scheduler.start();
             SlowFunctor sf;
@@ -4091,12 +4104,12 @@ int main(int argc, char *argv[])
                           schedulerStartTI);
             double schedulerStart = schedulerStartTI.totalSecondsAsDouble();
 
-            bslmt::ThreadUtil::microSleep(60 * sf.SLEEP_MICROSECONDS);
+            bslmt::ThreadUtil::microSleep(60 * sf.k_SLEEP_MICROSECONDS);
                                                     // wait 20 clock cycles
 
             scheduler.stop();
 
-            bslmt::ThreadUtil::microSleep(4 * sf.SLEEP_MICROSECONDS);
+            bslmt::ThreadUtil::microSleep(4 * sf.k_SLEEP_MICROSECONDS);
                     // let running tasks finish, test that clock queue did not
                     // get large
 
@@ -4106,10 +4119,10 @@ int main(int argc, char *argv[])
 
             slowFunctorSize &= ~1;          // ignore odd element if there
 
-            ASSERT(ii < MAX_LOOP || slowFunctorSize >=  8 * 2);
-            ASSERT(ii < MAX_LOOP || slowFunctorSize <= 11 * 2);
+            ASSERT(ii < k_MAX_LOOP || slowFunctorSize >=  8 * 2);
+            ASSERT(ii < k_MAX_LOOP || slowFunctorSize <= 11 * 2);
             if (slowFunctorSize < 8*2 || slowFunctorSize > 11*2) {
-                if (verbose || MAX_LOOP == ii) {
+                if (verbose || k_MAX_LOOP == ii) {
                     P_(L_) P(slowFunctorSize);
                 }
                 continue;
@@ -4121,10 +4134,10 @@ int main(int argc, char *argv[])
                 double firstOffBy = it->first - schedulerStart;
 
                 if (verbose) P(firstOffBy);
-                ASSERT(ii < MAX_LOOP || firstOffBy > -TOLERANCE_AHEAD);
-                ASSERT(ii < MAX_LOOP || firstOffBy < CLOCKTIME1);
+                ASSERT(ii < k_MAX_LOOP || firstOffBy > -TOLERANCE_AHEAD);
+                ASSERT(ii < k_MAX_LOOP || firstOffBy < CLOCKTIME1);
                 if (firstOffBy <= -TOLERANCE_AHEAD || firstOffBy > CLOCKTIME1){
-                    if (verbose || MAX_LOOP == ii) {
+                    if (verbose || k_MAX_LOOP == ii) {
                         P_(L_) P_(TOLERANCE_AHEAD) P_(CLOCKTIME1)
                         P(firstOffBy);
                     }
@@ -4142,10 +4155,10 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { P_(i); P_(offBy); }
 
-                ASSERT(ii < MAX_LOOP || offBy + TOLERANCE_AHEAD >= 0);
-                ASSERT(ii < MAX_LOOP || TOLERANCE_BEHIND > abs(offBy));
+                ASSERT(ii < k_MAX_LOOP || offBy + TOLERANCE_AHEAD >= 0);
+                ASSERT(ii < k_MAX_LOOP || TOLERANCE_BEHIND > abs(offBy));
                 if (offBy < -TOLERANCE_AHEAD || abs(offBy) > TOLERANCE_BEHIND){
-                    if (verbose || MAX_LOOP == ii) {
+                    if (verbose || k_MAX_LOOP == ii) {
                         P_(L_) P_(i) P_(TOLERANCE_AHEAD) P_(TOLERANCE_BEHIND)
                         P_(diff) P(offBy);
                     }
@@ -4156,7 +4169,7 @@ int main(int argc, char *argv[])
 
             break;
         }
-        ASSERT(ii <= MAX_LOOP);
+        ASSERT(ii <= k_MAX_LOOP);
         if (verbose) { P_(L_) P(ii); }
 
 #if 0
@@ -4218,7 +4231,7 @@ int main(int argc, char *argv[])
         };
 
         const int NUM_TESTS = sizeof TEST_DATA / sizeof *TEST_DATA;
-        const int NUM_THREADS = 4;
+        const int k_NUM_THREADS = 4;
 
         for (int testIter = 0; testIter < NUM_TESTS; ++testIter) {
             const int NUM_OBJECTS  = TEST_DATA[testIter];
@@ -4229,7 +4242,7 @@ int main(int argc, char *argv[])
             Obj mX(&ta);
 
             bsls::AtomicInt    numAdded(0);
-            bslmt::Barrier     barrier(NUM_THREADS + 1);
+            bslmt::Barrier     barrier(k_NUM_THREADS + 1);
             bslmt::ThreadGroup threadGroup;
 
             threadGroup.addThreads(bdlf::BindUtil::bind(&scheduleEvent,
@@ -4238,7 +4251,7 @@ int main(int argc, char *argv[])
                                                         &numAdded,
                                                         (bsls::AtomicInt *)0,
                                                         &barrier),
-                                   NUM_THREADS);
+                                   k_NUM_THREADS);
             if (veryVerbose) {
                 cout << "Waiting for event schedulers to start..." << endl;
             }
@@ -4290,7 +4303,7 @@ int main(int argc, char *argv[])
         };
 
         const int NUM_TESTS = sizeof TEST_DATA / sizeof *TEST_DATA;
-        const int NUM_THREADS = 4;
+        const int k_NUM_THREADS = 4;
 
         for (int testIter = 0; testIter < NUM_TESTS; ++testIter) {
             const int NUM_OBJECTS  = TEST_DATA[testIter];
@@ -4301,7 +4314,7 @@ int main(int argc, char *argv[])
             Obj mX(&ta);
 
             bsls::AtomicInt    numAdded(0);
-            bslmt::Barrier     barrier(NUM_THREADS + 1);
+            bslmt::Barrier     barrier(k_NUM_THREADS + 1);
             bslmt::ThreadGroup threadGroup;
 
             threadGroup.addThreads(
@@ -4311,7 +4324,7 @@ int main(int argc, char *argv[])
                                                        &numAdded,
                                                        (bsls::AtomicInt *)0,
                                                        &barrier),
-                                  NUM_THREADS);
+                                  k_NUM_THREADS);
             if (veryVerbose) {
                 cout << "Waiting for clock schedulers to start..." << endl;
             }
@@ -4704,11 +4717,11 @@ int main(int argc, char *argv[])
         const int T10 = 10 * DECI_SEC_IN_MICRO_SEC;
         ASSERT( 0 == x.start() );
 
-        executeInParallel(NUM_THREADS, workerThread11);
+        executeInParallel(k_NUM_THREADS, workerThread11);
         microSleep(T10, 0);
 
         if (!testTimingFailure) {
-            for (int i = 0; i< NUM_THREADS; ++i) {
+            for (int i = 0; i< k_NUM_THREADS; ++i) {
                 ASSERT( 0 == testObj[i].numExecuted() );
             }
         } else {
@@ -4769,11 +4782,11 @@ int main(int argc, char *argv[])
         const int T10 = 10 * DECI_SEC_IN_MICRO_SEC;
         ASSERT( 0 == x.start() );
 
-        executeInParallel(NUM_THREADS, workerThread10);
+        executeInParallel(k_NUM_THREADS, workerThread10);
         microSleep(T10, 0);
 
         if (!testTimingFailure) {
-            for (int i = 0; i < NUM_THREADS; ++i) {
+            for (int i = 0; i < k_NUM_THREADS; ++i) {
                 LOOP2_ASSERT(i, testObj[i].numExecuted(),
                              0 == testObj[i].numExecuted() );
             }
@@ -4859,6 +4872,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   int start();
         //   void stop();
+        //   bool isStarted() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -4878,8 +4892,11 @@ int main(int argc, char *argv[])
 
           Obj x(&ta);
 
+          ASSERT( false == x.isStarted() );
           ASSERT( 0 == x.start() );
+          ASSERT( true == x.isStarted() );
           ASSERT( 0 == x.start() );
+          ASSERT( true == x.isStarted() );
 
           TestClass1 testObj;
           x.scheduleEvent(
@@ -4889,6 +4906,7 @@ int main(int argc, char *argv[])
           makeSureTestObjectIsExecuted(testObj, mT, 100);
           ASSERT( 1 == testObj.numExecuted() );
           x.stop();
+          ASSERT( false == x.isStarted() );
         }
 
         {
@@ -4903,12 +4921,19 @@ int main(int argc, char *argv[])
 
           Obj x(&ta);
 
+          ASSERT( false == x.isStarted() );
           x.stop();
+          ASSERT( false == x.isStarted() );
           x.stop();
+          ASSERT( false == x.isStarted() );
           ASSERT( 0 == x.start() );
+          ASSERT( true == x.isStarted() );
           x.stop();
+          ASSERT( false == x.isStarted() );
           x.stop();
+          ASSERT( false == x.isStarted() );
           ASSERT( 0 == x.start() );
+          ASSERT( true == x.isStarted() );
 
           TestClass1 testObj;
           x.scheduleEvent(
@@ -4918,14 +4943,15 @@ int main(int argc, char *argv[])
           makeSureTestObjectIsExecuted(testObj, mT, 100);
           ASSERT( 1 == testObj.numExecuted() );
           x.stop();
+          ASSERT( false == x.isStarted() );
         }
 
         if (veryVerbose) {
             cout << "Start/stop concurrency test\n";
         }
-        enum { NUM_START_STOP_TESTS = 2 };
+        enum { k_NUM_START_STOP_TESTS = 2 };
 
-        for (int i = 0; i < NUM_START_STOP_TESTS; ++i) {
+        for (int i = 0; i < k_NUM_START_STOP_TESTS; ++i) {
             startStopConcurrencyTest();
         }
 
@@ -4940,10 +4966,12 @@ int main(int argc, char *argv[])
           const int T2 = 2 * DECI_SEC_IN_MICRO_SEC;
 
           Obj x(&ta);
+          ASSERT( false == x.isStarted() );
 
           TestClass1 testObj;
 
           ASSERT( 0 == x.start() );
+          ASSERT( true == x.isStarted() );
           x.scheduleEvent(
                       u::now() + T,
                       bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
@@ -4951,9 +4979,11 @@ int main(int argc, char *argv[])
           makeSureTestObjectIsExecuted(testObj, mT, 100);
           ASSERT( 1 == testObj.numExecuted() );
           x.stop();
+          ASSERT( false == x.isStarted() );
 
           nExec = testObj.numExecuted();
           ASSERT( 0 == x.start() );
+          ASSERT( true == x.isStarted() );
           x.scheduleEvent(
                       u::now() + T,
                       bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
@@ -4961,9 +4991,11 @@ int main(int argc, char *argv[])
           makeSureTestObjectIsExecuted(testObj, mT, 100, nExec);
           ASSERT( 2 == testObj.numExecuted() );
           x.stop();
+          ASSERT( false == x.isStarted() );
 
           nExec = testObj.numExecuted();
           ASSERT( 0 == x.start() );
+          ASSERT( true == x.isStarted() );
           x.scheduleEvent(
                       u::now() + T,
                       bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
@@ -4971,6 +5003,7 @@ int main(int argc, char *argv[])
           makeSureTestObjectIsExecuted(testObj, mT, 100, nExec);
           ASSERT( 3 == testObj.numExecuted() );
           x.stop();
+          ASSERT( false == x.isStarted() );
         }
 
         {
@@ -4982,10 +5015,13 @@ int main(int argc, char *argv[])
           const int T3 = 3 * DECI_SEC_IN_MICRO_SEC;
 
           Obj x(&ta);
+          ASSERT( false == x.isStarted() );
 
           ASSERT( 0 == x.start() );
+          ASSERT( true == x.isStarted() );
           microSleep(T3, 0);
           x.stop();
+          ASSERT( false == x.isStarted() );
 
           // Make sure that scheduler is stopped.
           TestClass1 testObj;
