@@ -3106,10 +3106,12 @@ if (veryVerbose)
                                                               k_SECS_MIN - 1));
                 ASSERT(0 != mYY.setTotalSecondsFromDoubleIfValid(
                                                               k_SECS_MAX + 1));
-                const double maxSecs = TimeUnitRatio::k_S_PER_D *
-                 (static_cast<Int64>(bsl::numeric_limits<int>::max()) + 1) - 1;
-                const double minSecs = TimeUnitRatio::k_S_PER_D *
-                 (static_cast<Int64>(bsl::numeric_limits<int>::min()) - 1) + 1;
+                const double maxSecs = static_cast<double>(
+                                TimeUnitRatio::k_S_PER_D * (static_cast<Int64>(
+                                    bsl::numeric_limits<int>::max()) + 1) - 1);
+                const double minSecs = static_cast<double>(
+                                TimeUnitRatio::k_S_PER_D * (static_cast<Int64>(
+                                    bsl::numeric_limits<int>::min()) - 1) + 1);
 
                 ASSERT(0 != mYY.setTotalSecondsFromDoubleIfValid(maxSecs+1));
                 ASSERT(0 != mYY.setTotalSecondsFromDoubleIfValid(minSecs-1));

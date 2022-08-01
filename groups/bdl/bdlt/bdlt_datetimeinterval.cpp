@@ -193,7 +193,7 @@ void DatetimeInterval::assign(bsls::Types::Int64 days,
     BSLS_ASSERT(!(days > 0 && micDays > 0) || micDays <= u::k_MAX_INT - days);
     BSLS_ASSERT(!(days < 0 && micDays < 0) || u::k_MIN_INT - days <= micDays);
 
-    days         += microseconds / TimeUnitRatio::k_US_PER_D;
+    days         += micDays;
     microseconds %= TimeUnitRatio::k_US_PER_D;
 
     if (days > 0 && microseconds < 0) {
@@ -386,7 +386,8 @@ void DatetimeInterval::setTotalSecondsFromDouble(double seconds)
 
     int rc = assignIfValid(static_cast<bsls::Types::Int64>(wholeDays),
                            static_cast<bsls::Types::Int64>(microseconds));
-    BSLS_ASSERT(0 == rc);
+
+    BSLS_ASSERT(0 == rc);  (void)rc;
 }
 
 int DatetimeInterval::setTotalSecondsFromDoubleIfValid(double seconds)
