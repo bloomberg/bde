@@ -86,8 +86,8 @@ void *AligningAllocator::allocate(bsls::Types::size_type size)
             ret = reinterpret_cast<void *>(
                 reinterpret_cast<unsigned char *>(underlying) + offset);
             AllocationHeader *header = reinterpret_cast<AllocationHeader *>(
-                reinterpret_cast<unsigned char *>(ret) -
-                sizeof(AllocationHeader));
+                reinterpret_cast<void *>(reinterpret_cast<unsigned char *>(ret)
+                                                  - sizeof(AllocationHeader)));
             header->d_allocation_p = underlying;
         }
         else {
@@ -111,9 +111,10 @@ void AligningAllocator::deallocate(void *address)
 {
     if (d_mask > bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT) {
         if (address) {
-            AllocationHeader *header = reinterpret_cast<AllocationHeader *>(
-                reinterpret_cast<unsigned char *>(address) -
-                sizeof(AllocationHeader));
+            AllocationHeader *header =
+                 reinterpret_cast<AllocationHeader *>(reinterpret_cast<void *>(
+                                     reinterpret_cast<unsigned char *>(address)
+                                                  - sizeof(AllocationHeader)));
             d_allocator_p->deallocate(header->d_allocation_p);
         }
     }
