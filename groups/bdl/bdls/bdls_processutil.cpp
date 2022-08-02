@@ -137,7 +137,10 @@ bool isExecutable(const bsl::string& path)
     return isExecutable(path.c_str());
 }
 
-#if defined(BSLS_PLATFORM_OS_UNIX)
+
+#if defined(BSLS_PLATFORM_OS_LINUX)   || \
+    defined(BSLS_PLATFORM_OS_AIX)     || \
+    defined(BSLS_PLATFORM_OS_SOLARIS)
 static
 void resolveSymLinksIfAny(bsl::string *fileName)
     // If the specified 'fileName' is a symlink, resolve it and overwrite
@@ -170,12 +173,6 @@ void resolveSymLinksIfAny(bsl::string *fileName)
             }
         }
     }
-}
-#else
-static inline
-void resolveSymLinksIfAny(bsl::string *)
-    // No symlinks on Windows.  No-op.
-{
 }
 #endif
 
