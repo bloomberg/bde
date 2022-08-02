@@ -1195,8 +1195,8 @@ int PackedCalendar::numNonBusinessDays() const
 {
     bsl::size_t sum = numHolidays() + numWeekendDaysInRange();
 
-    for (OffsetsConstIterator it = d_holidayOffsets.begin();
-                                          it != d_holidayOffsets.end(); ++it) {
+    OffsetsConstIterator end = d_holidayOffsets.end();
+    for (OffsetsConstIterator it = d_holidayOffsets.begin(); it != end; ++it) {
         sum -= isWeekendDay(d_firstDate + *it);
     }
 
