@@ -16,6 +16,7 @@ BSLS_IDENT_RCSID(bslmt_bslmt_throughputbenchmark_cpp,"$Id$ $CSID$")
 #include <bsls_types.h>
 
 #include <bsl_algorithm.h>
+#include <bsl_array.h>
 #include <bsl_vector.h>
 
 #include <bslstl_sharedptr.h>
@@ -47,34 +48,79 @@ unsigned int ThroughputBenchmark::s_antiOptimization = 0;
 bsls::Types::Int64 ThroughputBenchmark::estimateBusyWorkAmount(
                                                    bsls::TimeInterval duration)
 {
-    // Take a start time stamp, run busyWork with a reasonable busy work
-    // amount, take an end time stamp, and calculate number of nanoseconds.
+    // The basic approach is to do a linear extrapolation from an observation
+    // to compute the 'busyWorkAmount'.  Specifically: take a start time stamp,
+    // run 'busyWork' with a reasonable busy work amount, take an end time
+    // stamp, subtract the timestamps to obtain the duration, and extrapolate.
+    //
+    // On heavily loaded machines, the validity of using the linear
+    // extrapolation degrades when the observed duration is significantly
+    // different from the supplied 'duration'.  Furthermore, there are a
+    // significant number of outliers in the observations.  A robust estimation
+    // technique is used to mitigate the effect of outliers.  This algorithm
+    // requires executing 'busyWork' multiple times.  While 'duration' is
+    // expected to be short, a long 'duration' would make executing this method
+    // temporally expensive.  As such, a maximum value is imposed during the
+    // robust estimation steps, and then a final linear extrapolation is
+    // performed, at the risk of this estimate being somewhat inaccurate for
+    // long 'duration'.
 
-    bsls::TimeInterval startTime = bsls::SystemTime::nowMonotonicClock();
-    static const int   k_ESTIMATED_WORK_AMOUNT = 5000000;
-    int                busyWorkAmount          = k_ESTIMATED_WORK_AMOUNT;
-    busyWork(k_ESTIMATED_WORK_AMOUNT);
-    bsls::TimeInterval endTime     = bsls::SystemTime::nowMonotonicClock();
-    bsls::Types::Int64 actualNanos = (endTime - startTime).totalNanoseconds();
+    // compute target duration that ensures a tolerable execution time
+    const bsls::Types::Int64 k_MAX_TARGET_DURATION_NANOS = 40 * 1000 * 1000;
 
-    // If significantly lower than the desired 100 milliseconds, increase the
-    // amount accordingly and rerun.
-
-    static const bsls::Types::Int64 k_100_MILLIS = 100000000;
-    if (actualNanos * 5 < k_100_MILLIS) {
-        busyWorkAmount = static_cast<int>(k_100_MILLIS *
-                                        k_ESTIMATED_WORK_AMOUNT / actualNanos);
-        startTime = bsls::SystemTime::nowMonotonicClock();
-        busyWork(busyWorkAmount);
-        endTime     = bsls::SystemTime::nowMonotonicClock();
-        actualNanos = (endTime - startTime).totalNanoseconds();
+    bsls::Types::Int64 targetDurationNanos = duration.totalNanoseconds();
+    if (targetDurationNanos > k_MAX_TARGET_DURATION_NANOS) {
+        targetDurationNanos = k_MAX_TARGET_DURATION_NANOS;
     }
 
-    // Calculate the estimated busyWorkAmount.
+    const int k_ITERATIONS = 10;  // number of estimation iterations, each
+                                  // iteration adds two observations
 
-    bsls::Types::Int64 requestedNanos = duration.totalNanoseconds();
-    bsls::Types::Int64 ret = requestedNanos * busyWorkAmount / actualNanos;
-    return ret;
+    bsl::array<bsls::Types::Int64, 2 * k_ITERATIONS + 1> estimates;
+
+    // initial estimate
+    {
+        bsls::Types::Int64 busyWorkAmount = 200000;  // initial value
+
+        bsls::TimeInterval startTime = bsls::SystemTime::nowMonotonicClock();
+        busyWork(busyWorkAmount);
+        bsls::Types::Int64 nanos = (  bsls::SystemTime::nowMonotonicClock()
+                                    - startTime).totalNanoseconds();
+
+        estimates[0] = targetDurationNanos * busyWorkAmount / nanos;
+    }
+
+    for (int i = 0; i < k_ITERATIONS; ++i) {
+        // add two estimates from the observed median of 'estimates'
+        {
+            bsls::Types::Int64 busyWorkAmount = estimates[i] * 9 / 10;
+
+            bsls::TimeInterval startTime =
+                                         bsls::SystemTime::nowMonotonicClock();
+            busyWork(busyWorkAmount);
+            bsls::Types::Int64 nanos = (  bsls::SystemTime::nowMonotonicClock()
+                                        - startTime).totalNanoseconds();
+
+            estimates[i*2 + 1] = targetDurationNanos * busyWorkAmount / nanos;
+        }
+        {
+            bsls::Types::Int64 busyWorkAmount = estimates[i] * 11 / 10;
+
+            bsls::TimeInterval startTime =
+                                         bsls::SystemTime::nowMonotonicClock();
+            busyWork(busyWorkAmount);
+            bsls::Types::Int64 nanos = (  bsls::SystemTime::nowMonotonicClock()
+                                        - startTime).totalNanoseconds();
+
+            estimates[i*2 + 2] = targetDurationNanos * busyWorkAmount / nanos;
+        }
+
+        // sort to obtain the median
+        bsl::sort(estimates.begin(), estimates.begin() + i * 2 + 3);
+    }
+
+    return duration.totalNanoseconds() * estimates[k_ITERATIONS]
+                                                         / targetDurationNanos;
 }
 
 // CREATORS

@@ -546,42 +546,41 @@ int main(int argc, char *argv[])
       case 5: {
         // --------------------------------------------------------------------
         // TEST BUSY WORK
-        //   This is problematic to calculate, as it is all based on timing,
-        //   which differs between hosts and between different time slots.
+        //   Verify 'estimateBusyWorkAmount' produces the correct value to use
+        //   with 'busyWork' to obtain a specified duration, and
+        //   'antiOptimzation' prevents overly aggresive optimization by the
+        //   compiler.
         //
         // Concerns:
-        //: 1 A larger time interval provided to 'estimateBusyWorkAmount' will
-        //:   result in a larger 'busyWorkAmount' value.
+        //: 1 The 'busyWorkAmount' value, when used with 'busyWork', will
+        //:   produce a time interval in line with the one provided to
+        //:   'estimateBusyWorkAmount'.
         //:
-        //: 2 A larger 'busyWorkAmount' value provided to 'busyWork' will
-        //:   result in a larger elapsed time.
-        //:
-        //: 3 The 'busyWorkAmount' value will produce a time interval in line
-        //:   with the one provided to 'estimateBusyWorkAmount'.
-        //:
-        //: 4 'estimateBusyWorkAmount' and 'busyWork' do not allocate any
-        //:   memory.
-        //:
-        //: 5 The runtime measured time intervals can be distorted by sporadic
+        //: 2 The runtime measured time intervals can be distorted by sporadic
         //:   system loads.
+        //:
+        //: 3 'antiOptimization' prevents 'busyWork' from becoming a no-op.
+        //:
+        //: 4 'estimateBusyWorkAmount', 'busyWork', and 'antiOptimization' do
+        //:    not allocate anymemory.
         //
         // Plan:
-        //: 1 Run 'estimateBusyWorkAmount' with a significant interval (0.5sec)
-        //:   and again with double that (1sec).  Verify that the resulting
-        //:   'busyWorkAmount' is larger.
+        //: 1 For a provided set of durations, use 'estimateBusyWorkAmount'
+        //:   to obtain a value to use with 'busyWork' and observe the
+        //:   resultant execution duration.  Use 'antiOptimization' in a
+        //:   fashion that can not be removed by the optimizer to ensure the
+        //:   busy loop is also not removed.  To address the potential for
+        //:   outliers on loaded machines, execute the
+        //:   estimation/observation/verification cycle many times and verify
+        //:   the observed durations are within a tight range of the expected
+        //:   duration with some frequency.  Furthermore, ensure observations
+        //:   are within a looser range with a greater frequency.  Since
+        //:   non-zero durations are used, verification of the duration
+        //:   indicates the busy loop was not optimized away (i.e.,
+        //:   'antiOptimization' performed as expected).  (C-1..3)
         //:
-        //: 2 Run 'busyWork' with the outputs of #1, and verify that the
-        //:   elapsed time on the longer run is bigger than the elapsed time on
-        //:   the shorter run.
-        //:
-        //: 3 Verify that the time intervals resulting from #2 are between
-        //:   50% and 200% of the original time interval entered in #1.
-        //:
-        //: 4 There is no memory allocated on the default or global allocators.
-        //:
-        //: 5 Generate several samples of each of the measured time values and
-        //:   determine test results (pass/fail) using the medians of those
-        //:   samples.
+        //: 2 There is no memory allocated on the default or global (tested in
+        //:   main) allocators.  (C-4)
         //
         // Testing:
         //   void busyWork(Int64 busyWorkAmount);
@@ -596,81 +595,56 @@ int main(int argc, char *argv[])
         typedef bslmt::ThroughputBenchmark Obj;
 
         bsls::Types::Int64 allocations = defaultAllocator.numAllocations();
-        (void)allocations;
 
-        bsls::TimeInterval loTime(0.5);
-        bsls::TimeInterval hiTime(1.0);
+        const double DATA[]       = {  0.0005, 0.001  };
+        const int    k_NUM_DATA   = sizeof DATA / sizeof *DATA;
+        const int    k_NUM_TRIALS = 100;
 
-        bsls::Types::Int64 loAmount = Obj::estimateBusyWorkAmount(loTime);
-        bsls::Types::Int64 hiAmount = Obj::estimateBusyWorkAmount(hiTime);
+        for (int i = 0; i < k_NUM_DATA; ++i) {
+            int countTightBoundPassed = 0;
+            int countLooseBoundPassed = 0;
 
-        ASSERT(hiAmount > loAmount);
+            for (int trial = 0; trial < k_NUM_TRIALS; ++trial) {
+                double targetDuration(DATA[i]);
 
-        // Spurious system loads can invalidate the comparison of the measured
-        // values for 'loSeconds' and 'hiSeconds' below.  Iterate several time
-        // and then test the mode of measured values.
+                bsls::Types::Int64 amount = Obj::estimateBusyWorkAmount(
+                                           bsls::TimeInterval(targetDuration));
 
-        const bsl::size_t NUM_TIMED_RUNS = 21;
+                unsigned int beforeAntiOptimization = Obj::antiOptimization();
 
-        BSLMF_ASSERT(NUM_TIMED_RUNS % 2 == 1);   // Odd sample count
-
-        const int MIDDLE = (NUM_TIMED_RUNS + 1)/2;
-
-        bsl::array<double, NUM_TIMED_RUNS> loSecondsRuns;
-        bsl::array<double, NUM_TIMED_RUNS> hiSecondsRuns;
-
-        for (bsl::size_t i = 0; i < NUM_TIMED_RUNS; ++i) {
-            bsls::TimeInterval startTime =
+                bsls::TimeInterval startTime =
                                          bsls::SystemTime::nowMonotonicClock();
-            Obj::busyWork(loAmount);
-            bsls::TimeInterval endTime   =
-                                         bsls::SystemTime::nowMonotonicClock();
-            bsls::TimeInterval duration  = endTime - startTime;
-            double             loSeconds = duration.totalSecondsAsDouble();
 
-            loSecondsRuns[i] = loSeconds;
+                Obj::busyWork(amount);
 
-            if (veryVerbose) { P_(i) P(loSeconds) }
+                double duration = (  bsls::SystemTime::nowMonotonicClock()
+                                   - startTime).totalSecondsAsDouble();
+
+                if (   1.2 * targetDuration >= duration
+                    && 0.8 * targetDuration <= duration) {
+                    ++countTightBoundPassed;
+                }
+
+                if (   1.9 * targetDuration >= duration
+                    && 0.1 * targetDuration <= duration) {
+                    ++countLooseBoundPassed;
+                }
+
+                ASSERT(beforeAntiOptimization != Obj::antiOptimization());
+            }
+
+            if (veryVerbose) {
+                P_(countTightBoundPassed) P(countLooseBoundPassed);
+            }
+
+            ASSERTV(countTightBoundPassed,
+                    100 * countTightBoundPassed >= 50 * k_NUM_TRIALS);
+
+            ASSERTV(countLooseBoundPassed,
+                    100 * countLooseBoundPassed >= 60 * k_NUM_TRIALS);
+
+            ASSERT(defaultAllocator.numAllocations() == allocations);
         }
-
-        for (bsl::size_t i = 0; i < NUM_TIMED_RUNS; ++i) {
-            bsls::TimeInterval startTime =
-                                         bsls::SystemTime::nowMonotonicClock();
-
-            unsigned int beforeVal = Obj::antiOptimization();
-            (void)beforeVal;
-
-            Obj::busyWork(hiAmount);
-
-            unsigned int afterVal  = Obj::antiOptimization();
-            (void)afterVal;
-
-            bsls::TimeInterval endTime   =
-                                         bsls::SystemTime::nowMonotonicClock();
-            bsls::TimeInterval duration  = endTime - startTime;
-            double             hiSeconds = duration.totalSecondsAsDouble();
-
-            hiSecondsRuns[i] = hiSeconds;
-
-            ASSERT(beforeVal != afterVal);
-
-            if (veryVerbose) { P_(i) P(hiSeconds) }
-        }
-
-        bsl::sort(loSecondsRuns.begin(), loSecondsRuns.end());
-        bsl::sort(hiSecondsRuns.begin(), hiSecondsRuns.end());
-
-        double loSecondsMedian = loSecondsRuns[MIDDLE];
-        double hiSecondsMedian = hiSecondsRuns[MIDDLE];
-
-        ASSERT(hiSecondsMedian >  loSecondsMedian);
-        ASSERT(loSecondsMedian >= 0.1 );
-        ASSERT(loSecondsMedian <= 1.0 );
-        ASSERT(hiSecondsMedian >= 0.3 );
-        ASSERT(hiSecondsMedian <= 3.0 );
-
-        ASSERT(defaultAllocator.numAllocations() == allocations);
-
       } break;
       case 4: {
         // --------------------------------------------------------------------

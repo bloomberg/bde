@@ -256,13 +256,16 @@ class ThroughputBenchmark {
 
     static void busyWork(bsls::Types::Int64 busyWorkAmount);
         // Perform arithmetic operations to consume an amount of time in linear
-        // relation to the specified 'busyWorkAmount'.
+        // relation to the specified 'busyWorkAmount'.  Note that the duration
+        // of 'busyWork' invoked with a particular 'busyWorkAmount' will vary
+        // with system load.
 
     static bsls::Types::Int64 estimateBusyWorkAmount(
                                                   bsls::TimeInterval duration);
         // Return an estimate of the work amount so that 'busyWork' invoked
         // with the returned work amount executes, approximately, for the
-        // specified 'duration'.
+        // specified 'duration'.  Note that this estimate varies with system
+        // load.
 
     // CREATORS
     explicit ThroughputBenchmark(bslma::Allocator *basicAllocator = 0);
