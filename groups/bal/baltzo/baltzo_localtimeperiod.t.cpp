@@ -687,7 +687,11 @@ int main(int argc, char *argv[])
 
                         if ('Y' == MEMSRC1) {
                             if ('N' == MEMSRC2) {
-                                ASSERTV(LINE1, LINE2, 1 < numPasses);
+#if defined(BDE_BUILD_TARGET_EXC)
+                                ASSERTV(LINE1, LINE2, 1 <  numPasses);
+#else
+                                ASSERTV(LINE1, LINE2, 1 == numPasses);
+#endif
                                 ASSERTV(LINE1, LINE2, oam.isInUseUp());
                             }
                             else {
