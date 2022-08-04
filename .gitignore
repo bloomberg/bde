@@ -56,3 +56,5 @@ TAGS
 
 # MacOS files
 .DS_Store
+.vscode/
+

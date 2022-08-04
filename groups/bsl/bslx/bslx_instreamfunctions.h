@@ -77,9 +77,9 @@ BSLS_IDENT("$Id: $")
 //..
 //  stream.getInt32(d_value);
 //..
-// However, if the data member is of (template parameter) 'TYPE':
+// However, if the data member is of (template parameter) 'VALUE_TYPE':
 //..
-//  TYPE d_value;
+//  VALUE_TYPE d_value;
 //..
 // then the implementation of the 'bdexStreamIn' method must rely on the
 // 'bslx::InStreamFunctions' implementation to input the value:
@@ -88,10 +88,11 @@ BSLS_IDENT("$Id: $")
 //  bdexStreamIn(stream, d_value, 1);
 //..
 // This call will resolve to the correct sequence of 'get' calls no matter
-// whether 'TYPE' is a fundamental type, a BDEX-compliant 'enum', or a proper
-// BDEX-compliant class.  In the latter two cases, the explicit specification
-// of the version format (in this case, 1) guarantees the stable operation of
-// this method whether or not 'TYPE' is provided additional version formats.
+// whether 'VALUE_TYPE' is a fundamental type, a BDEX-compliant 'enum', or a
+// proper BDEX-compliant class.  In the latter two cases, the explicit
+// specification of the version format (in this case, 1) guarantees the stable
+// operation of this method whether or not 'VALUE_TYPE' is provided additional
+// version formats.
 //
 ///Usage
 ///-----
@@ -472,9 +473,11 @@ BSLS_IDENT("$Id: $")
 
 #include <bslx_versionfunctions.h>
 
+#include <bslmf_assert.h>
 #include <bslmf_conditional.h>
 #include <bslmf_isenum.h>
 
+#include <bsls_performancehint.h>
 #include <bsls_types.h>
 
 #include <bsl_string.h>
@@ -486,29 +489,73 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace bslx {
-
-                         // ===========================
-                         // namespace InStreamFunctions
-                         // ===========================
+                        // ===========================
+                        // namespace InStreamFunctions
+                        // ===========================
 
 namespace InStreamFunctions {
     // This namespace facilitates unexternalization of all BDEX-compliant types
     // in a type-independent manner.  The unexternalization functions are
     // overloaded for fundamental types, enumeration types, 'bsl::string', and
     // 'bsl::vector'.  A compilation error will occur if the (template
-    // parameter) 'TYPE' of a non-overloaded method of
+    // parameter) 'VALUE_TYPE' of a non-overloaded method of
     // 'bslx::InStreamFunctions' does not support 'bdexStreamIn' (with the
     // appropriate signature).
 
-                         // =================
-                         // struct IsEnumType
-                         // =================
+                   // ======================================
+                   // class InStreamFunctions_AccessorHelper
+                   // ======================================
 
-    struct IsEnumType {
-        // This 'struct', together with 'IsNotEnumType' (below), is used to
-        // distinguish enumeration types from other types in function overload
-        // resolution.  This 'struct' contains no interface or implementation
-        // by design, and is meant for internal use only.
+template <class STREAM>
+struct InStreamFunctions_AccessorHelper {
+    // This 'struct' provides a namespace for implementation helper functions
+    // for this component.  They are not intended for use outside this
+    // component.
+
+    static STREAM& getArray(STREAM& stream, bool *result, int length);
+    static STREAM& getArray(STREAM& stream, char *result, int length);
+    static STREAM& getArray(STREAM& stream, signed char *result, int length);
+    static STREAM& getArray(STREAM& stream, unsigned char *result, int length);
+    static STREAM& getArray(STREAM& stream, short *result, int length);
+    static STREAM& getArray(STREAM&         stream,
+                            unsigned short *result,
+                            int             length);
+    static STREAM& getArray(STREAM& stream, int *result, int length);
+    static STREAM& getArray(STREAM& stream, unsigned int *result, int length);
+    static STREAM& getArray(STREAM&             stream,
+                            bsls::Types::Int64 *result,
+                            int                 length);
+    static STREAM& getArray(STREAM&              stream,
+                            bsls::Types::Uint64 *result,
+                            int                  length);
+    static STREAM& getArray(STREAM& stream, float *result, int length);
+    static STREAM& getArray(STREAM& stream, double *result, int length);
+        // Load into the specified 'result' the specified 'length' values read
+        // from the specified 'stream', and return a reference to 'stream'.  If
+        // 'stream' is initially invalid, '*result' is unchanged.  If 'stream'
+        // becomes invalid during this operation, the contents of 'result' have
+        // an undefined, but valid, state.
+
+    template <class VALUE_TYPE, class ALLOC>
+    static STREAM& getArray(STREAM&                         stream,
+                            bsl::vector<VALUE_TYPE, ALLOC>& variable);
+        // Assign to the specified 'variable' the
+        // 'bsl::vector<VALUE_TYPE, ALLOC>' value read from the specified input
+        // 'stream', and return a reference to 'stream'.  If 'stream' is
+        // initially invalid, this operation has no effect.  If 'stream'
+        // becomes invalid during this operation, 'variable' has an undefined,
+        // but valid, state.
+};
+
+                             // =================
+                             // struct IsEnumType
+                             // =================
+
+struct IsEnumType {
+    // This 'struct', together with 'IsNotEnumType' (below), is used to
+    // distinguish enumeration types from other types in function overload
+    // resolution.  This 'struct' contains no interface or implementation by
+    // design, and is meant for internal use only.
     };
 
                          // ====================
@@ -523,68 +570,70 @@ namespace InStreamFunctions {
     };
 
     // PRIVATE CLASS METHODS
-    template <class STREAM, class TYPE>
+    template <class STREAM, class VALUE_TYPE>
     STREAM& bdexStreamInImp(STREAM&           stream,
-                            TYPE&             variable,
+                            VALUE_TYPE&       variable,
                             int               version,
                             const IsEnumType&);
-        // Assign to the specified 'variable' the 'TYPE' value read from the
-        // specified input 'stream', and return a reference to 'stream'.  The
-        // specified 'version' is ignored.  If 'stream' is initially invalid,
-        // this operation has no effect.  If 'version' is not supported by
-        // 'TYPE', 'variable' is unaltered and 'stream' is invalidated, but
-        // otherwise unmodified.  If 'version' is supported but 'stream'
-        // becomes invalid during this operation, 'variable' has an undefined,
-        // but valid, state.  Note that this function is called only for
-        // enumeration types and that this function is for internal use only.
-        // See the 'bslx' package-level documentation for more information on
-        // BDEX streaming of value-semantic types and containers.
+        // Assign to the specified 'variable' the 'VALUE_TYPE' value read from
+        // the specified input 'stream', and return a reference to 'stream'.
+        // The specified 'version' is ignored.  If 'stream' is initially
+        // invalid, this operation has no effect.  If 'version' is not
+        // supported by 'VALUE_TYPE', 'variable' is unaltered and 'stream' is
+        // invalidated, but otherwise unmodified.  If 'version' is supported
+        // but 'stream' becomes invalid during this operation, 'variable' has
+        // an undefined, but valid, state.  Note that this function is called
+        // only for enumeration types and that this function is for internal
+        // use only.  See the 'bslx' package-level documentation for more
+        // information on BDEX streaming of value-semantic types and
+        // containers.
 
-    template <class STREAM, class TYPE>
+    template <class STREAM, class VALUE_TYPE>
     STREAM& bdexStreamInImp(STREAM&              stream,
-                            TYPE&                variable,
+                            VALUE_TYPE&          variable,
                             int                  version,
                             const IsNotEnumType&);
-        // Assign to the specified 'variable' the 'TYPE' value read from the
-        // specified input 'stream' using the specified 'version' format, and
-        // return a reference to 'stream'.  If 'stream' is initially invalid,
-        // this operation has no effect.  If 'version' is not supported by
-        // 'TYPE', 'variable' is unaltered and 'stream' is invalidated, but
-        // otherwise unmodified.  If 'version' is supported but 'stream'
-        // becomes invalid during this operation, 'variable' has an undefined,
-        // but valid, state.  Note that this function is for internal use only.
-        // See the 'bslx' package-level documentation for more information on
-        // BDEX streaming of value-semantic types and containers.
-
-    // CLASS METHODS
-    template <class STREAM, class TYPE>
-    STREAM& bdexStreamIn(STREAM& stream, TYPE& variable);
-        // Assign to the specified 'variable' the 'TYPE' value read from the
-        // specified input 'stream', and return a reference to 'stream'.  If
-        // 'stream' is initially invalid, this operation has no effect.  If
-        // needed, first read the version information from the 'stream' and if
-        // this version is not supported by 'TYPE', 'stream' is invalidated,
-        // but otherwise unmodified.  If 'stream' becomes invalid during this
-        // operation, 'variable' has an undefined, but valid, state.  Note that
-        // the version is only needed when the (template parameter) 'TYPE' is a
-        // 'bsl::vector' or a user-defined type.  See the 'bslx' package-level
-        // documentation for more information on BDEX streaming of
-        // value-semantic types and containers.
-
-    template <class STREAM, class TYPE>
-    STREAM& bdexStreamIn(STREAM& stream, TYPE& variable, int version);
-        // Assign to the specified 'variable' the 'TYPE' value read from the
-        // specified input 'stream' using the specified 'version' format, and
-        // return a reference to 'stream'.  If 'stream' is initially invalid,
-        // this operation has no effect.  If 'version' is not supported by
-        // 'TYPE', 'variable' is unaltered and 'stream' is invalidated, but
-        // otherwise unmodified.  If 'version' is supported but 'stream'
-        // becomes invalid during this operation, 'variable' has an undefined,
-        // but valid, state.  See the 'bslx' package-level documentation for
+        // Assign to the specified 'variable' the 'VALUE_TYPE' value read from
+        // the specified input 'stream' using the specified 'version' format,
+        // and return a reference to 'stream'.  If 'stream' is initially
+        // invalid, this operation has no effect.  If 'version' is not
+        // supported by 'VALUE_TYPE', 'variable' is unaltered and 'stream' is
+        // invalidated, but otherwise unmodified.  If 'version' is supported
+        // but 'stream' becomes invalid during this operation, 'variable' has
+        // an undefined, but valid, state.  Note that this function is for
+        // internal use only.  See the 'bslx' package-level documentation for
         // more information on BDEX streaming of value-semantic types and
         // containers.
 
-                       /* overloads */
+    // CLASS METHODS
+    template <class STREAM, class VALUE_TYPE>
+    STREAM& bdexStreamIn(STREAM& stream, VALUE_TYPE& variable);
+        // Assign to the specified 'variable' the 'VALUE_TYPE' value read from
+        // the specified input 'stream', and return a reference to 'stream'.
+        // If 'stream' is initially invalid, this operation has no effect.  If
+        // needed, first read the version information from the 'stream' and if
+        // this version is not supported by 'VALUE_TYPE', 'stream' is
+        // invalidated, but otherwise unmodified.  If 'stream' becomes invalid
+        // during this operation, 'variable' has an undefined, but valid,
+        // state.  Note that the version is only needed when the (template
+        // parameter) 'VALUE_TYPE' is a 'bsl::vector' or a user-defined type.
+        // See the 'bslx' package-level documentation for more information on
+        // BDEX streaming of value-semantic types and containers.
+
+    template <class STREAM, class VALUE_TYPE>
+    STREAM& bdexStreamIn(STREAM& stream, VALUE_TYPE& variable, int version);
+        // Assign to the specified 'variable' the 'VALUE_TYPE' value read from
+        // the specified input 'stream' using the specified 'version' format,
+        // and return a reference to 'stream'.  If 'stream' is initially
+        // invalid, this operation has no effect.  If 'version' is not
+        // supported by 'VALUE_TYPE', 'variable' is unaltered and 'stream' is
+        // invalidated, but otherwise unmodified.  If 'version' is supported
+        // but 'stream' becomes invalid during this operation, 'variable' has
+        // an undefined, but valid, state.  See the 'bslx' package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
+
+                        /* overloads */
 
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, bool& variable, int version = 0);
@@ -910,34 +959,35 @@ namespace InStreamFunctions {
         // more information on BDEX streaming of value-semantic types and
         // containers.
 
-    template <class STREAM, class TYPE, class ALLOC>
-    STREAM& bdexStreamIn(STREAM&                   stream,
-                         bsl::vector<TYPE, ALLOC>& variable);
-        // Assign to the specified 'variable' the 'bsl::vector<TYPE, ALLOC>'
-        // value read from the specified input 'stream', and return a reference
-        // to 'stream'.  If 'stream' is initially invalid, this operation has
-        // no effect.  First read the version information from the 'stream' and
-        // if this version is not supported by 'TYPE' and the vector is not
-        // empty, 'stream' is invalidated, but otherwise unmodified.  If
-        // 'stream' becomes invalid during this operation, 'variable' has an
-        // undefined, but valid, state.  See the 'bslx' package-level
-        // documentation for more information on BDEX streaming of
-        // value-semantic types and containers.
-
-    template <class STREAM, class TYPE, class ALLOC>
-    STREAM& bdexStreamIn(STREAM&                   stream,
-                         bsl::vector<TYPE, ALLOC>& variable,
-                         int                       version);
-        // Assign to the specified 'variable' the 'bsl::vector<TYPE, ALLOC>'
-        // value read from the specified input 'stream' using the specified
-        // 'version' format, and return a reference to 'stream'.  If 'stream'
-        // is initially invalid, this operation has no effect.  If 'version' is
-        // not supported by 'TYPE' and the vector is not empty, 'stream' is
+    template <class STREAM, class VALUE_TYPE, class ALLOC>
+    STREAM& bdexStreamIn(STREAM&                         stream,
+                         bsl::vector<VALUE_TYPE, ALLOC>& variable);
+        // Assign to the specified 'variable' the
+        // 'bsl::vector<VALUE_TYPE, ALLOC>' value read from the specified input
+        // 'stream', and return a reference to 'stream'.  If 'stream' is
+        // initially invalid, this operation has no effect.  First read the
+        // version information from the 'stream' and if this version is not
+        // supported by 'VALUE_TYPE' and the vector is not empty, 'stream' is
         // invalidated, but otherwise unmodified.  If 'stream' becomes invalid
         // during this operation, 'variable' has an undefined, but valid,
         // state.  See the 'bslx' package-level documentation for more
         // information on BDEX streaming of value-semantic types and
         // containers.
+
+    template <class STREAM, class VALUE_TYPE, class ALLOC>
+    STREAM& bdexStreamIn(STREAM&                         stream,
+                         bsl::vector<VALUE_TYPE, ALLOC>& variable,
+                         int                             version);
+        // Assign to the specified 'variable' the
+        // 'bsl::vector<VALUE_TYPE, ALLOC>' value read from the specified input
+        // 'stream' using the specified 'version' format, and return a
+        // reference to 'stream'.  If 'stream' is initially invalid, this
+        // operation has no effect.  If 'version' is not supported by
+        // 'VALUE_TYPE' and the vector is not empty, 'stream' is invalidated,
+        // but otherwise unmodified.  If 'stream' becomes invalid during this
+        // operation, 'variable' has an undefined, but valid, state.  See the
+        // 'bslx' package-level documentation for more information on BDEX
+        // streaming of value-semantic types and containers.
 
 }  // close namespace InStreamFunctions
 
@@ -945,47 +995,215 @@ namespace InStreamFunctions {
 //                             INLINE DEFINITIONS
 // ============================================================================
 
+                   // --------------------------------------
+                   // class InStreamFunctions_AccessorHelper
+                   // --------------------------------------
+
+template <class STREAM>
+inline
+STREAM& InStreamFunctions::InStreamFunctions_AccessorHelper<STREAM>::getArray(
+                                                               STREAM&  stream,
+                                                               bool    *result,
+                                                               int      length)
+{
+    return stream.getArrayInt8(reinterpret_cast<char*>(result), length);
+}
+
+template <class STREAM>
+inline
+STREAM& InStreamFunctions::InStreamFunctions_AccessorHelper<STREAM>::getArray(
+                                                               STREAM&  stream,
+                                                               char    *result,
+                                                               int      length)
+{
+    return stream.getArrayInt8(result, length);
+}
+
+template <class STREAM>
+inline
+STREAM& InStreamFunctions::InStreamFunctions_AccessorHelper<STREAM>::getArray(
+                                                           STREAM&      stream,
+                                                           signed char *result,
+                                                           int          length)
+{
+    return stream.getArrayInt8(result, length);
+}
+
+template <class STREAM>
+inline
+STREAM& InStreamFunctions::InStreamFunctions_AccessorHelper<STREAM>::getArray(
+                                                         STREAM&        stream,
+                                                         unsigned char *result,
+                                                         int            length)
+{
+    return stream.getArrayUInt8(result, length);
+}
+
+template <class STREAM>
+inline
+STREAM& InStreamFunctions::InStreamFunctions_AccessorHelper<STREAM>::getArray(
+                                                               STREAM&  stream,
+                                                               short   *result,
+                                                               int      length)
+{
+    return stream.getArrayInt16(result, length);
+}
+
+template <class STREAM>
+inline
+STREAM& InStreamFunctions::InStreamFunctions_AccessorHelper<STREAM>::getArray(
+                                                        STREAM&         stream,
+                                                        unsigned short *result,
+                                                        int             length)
+{
+    return stream.getArrayUInt16(result, length);
+}
+
+template <class STREAM>
+inline
+STREAM& InStreamFunctions::InStreamFunctions_AccessorHelper<STREAM>::getArray(
+                                                               STREAM&  stream,
+                                                               int     *result,
+                                                               int      length)
+{
+    return stream.getArrayInt32(result, length);
+}
+
+template <class STREAM>
+inline
+STREAM& InStreamFunctions::InStreamFunctions_AccessorHelper<STREAM>::getArray(
+                                                          STREAM&       stream,
+                                                          unsigned int *result,
+                                                          int           length)
+{
+    return stream.getArrayUInt32(result, length);
+}
+
+template <class STREAM>
+inline
+STREAM& InStreamFunctions::InStreamFunctions_AccessorHelper<STREAM>::getArray(
+                                                    STREAM&             stream,
+                                                    bsls::Types::Int64 *result,
+                                                    int                 length)
+{
+    return stream.getArrayInt64(result, length);
+}
+
+template <class STREAM>
+inline
+STREAM& InStreamFunctions::InStreamFunctions_AccessorHelper<STREAM>::getArray(
+                                                   STREAM&              stream,
+                                                   bsls::Types::Uint64 *result,
+                                                   int                  length)
+{
+    return stream.getArrayUint64(result, length);
+}
+
+template <class STREAM>
+inline
+STREAM& InStreamFunctions::InStreamFunctions_AccessorHelper<STREAM>::getArray(
+                                                               STREAM&  stream,
+                                                               float   *result,
+                                                               int      length)
+{
+    return stream.getArrayFloat32(result, length);
+}
+
+template <class STREAM>
+inline
+STREAM& InStreamFunctions::InStreamFunctions_AccessorHelper<STREAM>::getArray(
+                                                               STREAM&  stream,
+                                                               double  *result,
+                                                               int      length)
+{
+    return stream.getArrayFloat64(result, length);
+}
+
+template <class STREAM>
+template <class VALUE_TYPE, class ALLOC>
+STREAM& InStreamFunctions::InStreamFunctions_AccessorHelper<STREAM>::getArray(
+                                      STREAM&                         stream,
+                                      bsl::vector<VALUE_TYPE, ALLOC>& variable)
+{
+    int length = 0;
+    stream.getLength(length);
+
+    if (!stream) {
+        return stream;                                                // RETURN
+    }
+
+    // 'length' could be corrupt or invalid, so we limit the initial
+    // 'resize' to something that can accommodate the preponderance of
+    // vectors that will arise in practice.  The remaining portion of a
+    // vector longer than 16M is read in via a second pass.
+    enum {
+        k_INITIAL_ALLOCATION_COUNT = 16 * 1024 * 1024 / sizeof(VALUE_TYPE)
+    };
+
+    const int initialLength = length < k_INITIAL_ALLOCATION_COUNT
+                                  ? length
+                                  : k_INITIAL_ALLOCATION_COUNT;
+
+    variable.resize(initialLength);
+
+    if (0 == length) {
+        return stream;                                                // RETURN
+    }
+
+    STREAM& result = getArray(stream, &variable[0], initialLength);
+
+    if (!!stream && length > initialLength) {
+        variable.resize(length);
+        return getArray(stream,
+                        &variable[initialLength],
+                        length - initialLength);                      // RETURN
+    }
+
+    return result;
+}
+
+
                          // ---------------------------
                          // namespace InStreamFunctions
                          // ---------------------------
 
-template <class STREAM, class TYPE>
+template <class STREAM, class VALUE_TYPE>
 inline
 STREAM& InStreamFunctions::bdexStreamInImp(STREAM&           stream,
-                                           TYPE&             variable,
-                                           int            /* version */,
+                                           VALUE_TYPE&       variable,
+                                           int /* version */,
                                            const IsEnumType&)
 {
     int enumVariable = 0;
     stream.getInt32(enumVariable);
 
     if (stream) {
-        variable = static_cast<TYPE>(enumVariable);
+        variable = static_cast<VALUE_TYPE>(enumVariable);
     }
     return stream;
 }
 
-template <class STREAM, class TYPE>
+template <class STREAM, class VALUE_TYPE>
 inline
 STREAM& InStreamFunctions::bdexStreamInImp(STREAM&              stream,
-                                           TYPE&                variable,
+                                           VALUE_TYPE&          variable,
                                            int                  version,
                                            const IsNotEnumType&)
 {
     // A compilation error indicating the next line of code implies the class
-    // of 'TYPE' does not support the 'bdexStreamIn' method.
+    // of 'VALUE_TYPE' does not support the 'bdexStreamIn' method.
 
     return variable.bdexStreamIn(stream, version);
 }
 
-template <class STREAM, class TYPE>
+template <class STREAM, class VALUE_TYPE>
 inline
-STREAM& InStreamFunctions::bdexStreamIn(STREAM& stream, TYPE& variable)
+STREAM& InStreamFunctions::bdexStreamIn(STREAM& stream, VALUE_TYPE& variable)
 {
     using VersionFunctions::maxSupportedBdexVersion;
 
-    // Determine if the 'TYPE' requires a version to be externalized using an
-    // arbitrary value for 'versionSelector'.
+    // Determine if the 'VALUE_TYPE' requires a version to be externalized
+    // using an arbitrary value for 'versionSelector'.
 
     int version = maxSupportedBdexVersion(&variable, 0);
     if (VersionFunctions::k_NO_VERSION != version) {
@@ -999,13 +1217,13 @@ STREAM& InStreamFunctions::bdexStreamIn(STREAM& stream, TYPE& variable)
     return bdexStreamIn(stream, variable, version);
 }
 
-template <class STREAM, class TYPE>
+template <class STREAM, class VALUE_TYPE>
 inline
-STREAM& InStreamFunctions::bdexStreamIn(STREAM& stream,
-                                        TYPE&   variable,
-                                        int     version)
+STREAM& InStreamFunctions::bdexStreamIn(STREAM&     stream,
+                                        VALUE_TYPE& variable,
+                                        int         version)
 {
-    typedef typename bsl::conditional<bslmf::IsEnum<TYPE>::value,
+    typedef typename bsl::conditional<bslmf::IsEnum<VALUE_TYPE>::value,
                                       IsEnumType,
                                       IsNotEnumType>::type dummyType;
     return bdexStreamInImp(stream, variable, version, dummyType());
@@ -1164,16 +1382,8 @@ STREAM& InStreamFunctions::bdexStreamIn(STREAM&                   stream,
                                         bsl::vector<char, ALLOC>& variable,
                                         int                    /* version */)
 {
-    int length = 0;
-    stream.getLength(length);
-
-    if (!stream) {
-        return stream;                                                // RETURN
-    }
-
-    variable.resize(length);
-
-    return 0 < length ? stream.getArrayInt8(&variable[0], length) : stream;
+    return InStreamFunctions_AccessorHelper<STREAM>::getArray(stream,
+                                                              variable);
 }
 
 template <class STREAM, class ALLOC>
@@ -1183,16 +1393,8 @@ STREAM& InStreamFunctions::bdexStreamIn(
                                    bsl::vector<signed char, ALLOC>& variable,
                                    int                           /* version */)
 {
-    int length = 0;
-    stream.getLength(length);
-
-    if (!stream) {
-        return stream;                                                // RETURN
-    }
-
-    variable.resize(length);
-
-    return 0 < length ? stream.getArrayInt8(&variable[0], length) : stream;
+    return InStreamFunctions_AccessorHelper<STREAM>::getArray(stream,
+                                                              variable);
 }
 
 template <class STREAM, class ALLOC>
@@ -1202,16 +1404,8 @@ STREAM& InStreamFunctions::bdexStreamIn(
                                  bsl::vector<unsigned char, ALLOC>& variable,
                                  int                             /* version */)
 {
-    int length = 0;
-    stream.getLength(length);
-
-    if (!stream) {
-        return stream;                                                // RETURN
-    }
-
-    variable.resize(length);
-
-    return 0 < length ? stream.getArrayUint8(&variable[0], length) : stream;
+    return InStreamFunctions_AccessorHelper<STREAM>::getArray(stream,
+                                                              variable);
 }
 
 template <class STREAM, class ALLOC>
@@ -1220,16 +1414,8 @@ STREAM& InStreamFunctions::bdexStreamIn(STREAM&                    stream,
                                         bsl::vector<short, ALLOC>& variable,
                                         int                     /* version */)
 {
-    int length = 0;
-    stream.getLength(length);
-
-    if (!stream) {
-        return stream;                                                // RETURN
-    }
-
-    variable.resize(length);
-
-    return 0 < length ? stream.getArrayInt16(&variable[0], length) : stream;
+    return InStreamFunctions_AccessorHelper<STREAM>::getArray(stream,
+                                                              variable);
 }
 
 template <class STREAM, class ALLOC>
@@ -1239,16 +1425,8 @@ STREAM& InStreamFunctions::bdexStreamIn(
                                 bsl::vector<unsigned short, ALLOC>& variable,
                                 int                              /* version */)
 {
-    int length = 0;
-    stream.getLength(length);
-
-    if (!stream) {
-        return stream;                                                // RETURN
-    }
-
-    variable.resize(length);
-
-    return 0 < length ? stream.getArrayUint16(&variable[0], length) : stream;
+    return InStreamFunctions_AccessorHelper<STREAM>::getArray(stream,
+                                                              variable);
 }
 
 template <class STREAM, class ALLOC>
@@ -1257,16 +1435,8 @@ STREAM& InStreamFunctions::bdexStreamIn(STREAM&                  stream,
                                         bsl::vector<int, ALLOC>& variable,
                                         int                   /* version */)
 {
-    int length = 0;
-    stream.getLength(length);
-
-    if (!stream) {
-        return stream;                                                // RETURN
-    }
-
-    variable.resize(length);
-
-    return 0 < length ? stream.getArrayInt32(&variable[0], length) : stream;
+    return InStreamFunctions_AccessorHelper<STREAM>::getArray(stream,
+                                                              variable);
 }
 
 template <class STREAM, class ALLOC>
@@ -1276,16 +1446,8 @@ STREAM& InStreamFunctions::bdexStreamIn(
                                   bsl::vector<unsigned int, ALLOC>& variable,
                                   int                            /* version */)
 {
-    int length = 0;
-    stream.getLength(length);
-
-    if (!stream) {
-        return stream;                                                // RETURN
-    }
-
-    variable.resize(length);
-
-    return 0 < length ? stream.getArrayUint32(&variable[0], length) : stream;
+    return InStreamFunctions_AccessorHelper<STREAM>::getArray(stream,
+                                                              variable);
 }
 
 template <class STREAM, class ALLOC>
@@ -1295,16 +1457,8 @@ STREAM& InStreamFunctions::bdexStreamIn(
                             bsl::vector<bsls::Types::Int64, ALLOC>& variable,
                             int                                  /* version */)
 {
-    int length = 0;
-    stream.getLength(length);
-
-    if (!stream) {
-        return stream;                                                // RETURN
-    }
-
-    variable.resize(length);
-
-    return 0 < length ? stream.getArrayInt64(&variable[0], length) : stream;
+    return InStreamFunctions_AccessorHelper<STREAM>::getArray(stream,
+                                                              variable);
 }
 
 template <class STREAM, class ALLOC>
@@ -1314,16 +1468,8 @@ STREAM& InStreamFunctions::bdexStreamIn(
                            bsl::vector<bsls::Types::Uint64, ALLOC>& variable,
                            int                                   /* version */)
 {
-    int length = 0;
-    stream.getLength(length);
-
-    if (!stream) {
-        return stream;                                                // RETURN
-    }
-
-    variable.resize(length);
-
-    return 0 < length ? stream.getArrayUint64(&variable[0], length) : stream;
+    return InStreamFunctions_AccessorHelper<STREAM>::getArray(stream,
+                                                              variable);
 }
 
 template <class STREAM, class ALLOC>
@@ -1332,16 +1478,8 @@ STREAM& InStreamFunctions::bdexStreamIn(STREAM&                    stream,
                                         bsl::vector<float, ALLOC>& variable,
                                         int                     /* version */)
 {
-    int length = 0;
-    stream.getLength(length);
-
-    if (!stream) {
-        return stream;                                                // RETURN
-    }
-
-    variable.resize(length);
-
-    return 0 < length ? stream.getArrayFloat32(&variable[0], length) : stream;
+    return InStreamFunctions_AccessorHelper<STREAM>::getArray(stream,
+                                                              variable);
 }
 
 template <class STREAM, class ALLOC>
@@ -1350,22 +1488,15 @@ STREAM& InStreamFunctions::bdexStreamIn(STREAM&                     stream,
                                         bsl::vector<double, ALLOC>& variable,
                                         int                      /* version */)
 {
-    int length = 0;
-    stream.getLength(length);
-
-    if (!stream) {
-        return stream;                                                // RETURN
-    }
-
-    variable.resize(length);
-
-    return 0 < length ? stream.getArrayFloat64(&variable[0], length) : stream;
+    return InStreamFunctions_AccessorHelper<STREAM>::getArray(stream,
+                                                              variable);
 }
 
-template <class STREAM, class TYPE, class ALLOC>
+template <class STREAM, class VALUE_TYPE, class ALLOC>
 inline
-STREAM& InStreamFunctions::bdexStreamIn(STREAM&                   stream,
-                                        bsl::vector<TYPE, ALLOC>& variable)
+STREAM& InStreamFunctions::bdexStreamIn(
+                                      STREAM&                         stream,
+                                      bsl::vector<VALUE_TYPE, ALLOC>& variable)
 {
     int version = 0;
     stream.getVersion(version);
@@ -1377,12 +1508,13 @@ STREAM& InStreamFunctions::bdexStreamIn(STREAM&                   stream,
     return bdexStreamIn(stream, variable, version);
 }
 
-template <class STREAM, class TYPE, class ALLOC>
-STREAM& InStreamFunctions::bdexStreamIn(STREAM&                   stream,
-                                        bsl::vector<TYPE, ALLOC>& variable,
-                                        int                       version)
+template <class STREAM, class VALUE_TYPE, class ALLOC>
+STREAM& InStreamFunctions::bdexStreamIn(
+                                      STREAM&                         stream,
+                                      bsl::vector<VALUE_TYPE, ALLOC>& variable,
+                                      int                             version)
 {
-    typedef typename bsl::vector<TYPE, ALLOC>::iterator Iterator;
+    typedef typename bsl::vector<VALUE_TYPE, ALLOC>::iterator Iterator;
 
     int length = 0;
     stream.getLength(length);
@@ -1391,14 +1523,48 @@ STREAM& InStreamFunctions::bdexStreamIn(STREAM&                   stream,
         return stream;                                                // RETURN
     }
 
-    variable.resize(length);
+    // 'length' could be corrupt or invalid, so we limit the initial 'resize'
+    // to something that can accommodate the preponderance of vectors that will
+    // arise in practice.  The remaining portion of a vector longer than 16M
+    // bytes is read in via a second pass.
+
+    enum {
+        k_INITIAL_ALLOCATION_COUNT =
+            16 * 1024 * 1024 / sizeof(VALUE_TYPE)
+    };
+
+    const int initialLength = length < k_INITIAL_ALLOCATION_COUNT
+                                  ? length
+                                  : k_INITIAL_ALLOCATION_COUNT;
+
+    variable.resize(initialLength);
+
+    if (0 == length) {
+        return stream;                                                // RETURN
+    }
 
     for (Iterator it = variable.begin(); it != variable.end(); ++it) {
-
         bdexStreamIn(stream, *it, version);
 
-        if (!stream) {
+
+        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!stream)) {
+            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
             return stream;                                            // RETURN
+        }
+    }
+
+    if (length > initialLength) {
+        variable.resize(length);
+
+        for (Iterator it = variable.begin() + initialLength;
+             it != variable.end();
+             ++it) {
+            bdexStreamIn(stream, *it, version);
+
+            if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!stream)) {
+                BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+                return stream;                                        // RETURN
+            }
         }
     }
 

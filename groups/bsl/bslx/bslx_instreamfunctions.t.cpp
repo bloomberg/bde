@@ -2,6 +2,8 @@
 
 #include <bslx_instreamfunctions.h>
 
+#include <bslma_sequentialallocator.h>
+
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
@@ -423,6 +425,33 @@ class MyTestInStream {
     int             d_lastLength;
     bool            d_error;
 
+    MyTestInStream& getArrayHelper(int num, int type) {
+        if (!d_fun.size() || d_lastLength < num) {
+            d_error = true;
+            return *this;                                             // RETURN
+        }
+
+        if (d_fun.front() == k_ARRAY + type) {
+            d_fun.pop_front();
+            return *this;                                             // RETURN
+        }
+
+        if (static_cast<int>(d_fun.size()) < num) {
+            d_error = true;
+            return *this;                                             // RETURN
+        }
+
+        for (int i = 0; i < num; ++i) {
+            if (d_fun.front() != type) {
+                d_error = true;
+                return *this;                                         // RETURN
+            }
+            d_fun.pop_front();
+        }
+
+        return *this;
+    }
+
   public:
     enum {
       k_CHAR     =     10,
@@ -433,7 +462,7 @@ class MyTestInStream {
       k_SIGNED   =    200,
       k_ARRAY    =   1000,
       k_VERSION  =  10000,
-      k_LENGTH   = 100000,
+      k_LENGTH   = 100000
     };
 
     // CREATORS
@@ -447,11 +476,20 @@ class MyTestInStream {
     ~MyTestInStream() { }
 
     void putType(int value) {  d_fun.push_back(value);  }
+    template <typename T>
+    void putType(const typename bsl::vector<T>& v)
+    {
+        for (typename bsl::vector<T>::const_iterator i = v.begin();
+             i != v.end();
+             ++i) {
+            d_fun.push_back(*i);
+        }
+    }
     void putVersion(int version) {  d_fun.push_back(k_VERSION + version);  }
     void putLength(int length) {  d_fun.push_back(k_LENGTH + length);  }
 
     MyTestInStream& getLength(int& length) {
-        if (d_fun.front() < k_LENGTH) d_error = true;
+        if (!d_fun.size() || d_fun.front() < k_LENGTH) d_error = true;
         else {
             length = d_fun.front() - k_LENGTH;
             d_fun.pop_front();
@@ -461,7 +499,8 @@ class MyTestInStream {
     }
 
     MyTestInStream& getVersion(int& version) {
-        if (d_fun.front() < k_VERSION || d_fun.front() >= k_LENGTH) {
+        if (!d_fun.size() || d_fun.front() < k_VERSION ||
+            d_fun.front() >= k_LENGTH) {
             d_error = true;
         }
         else {
@@ -474,152 +513,124 @@ class MyTestInStream {
     typedef bsls::Types::Uint64 Uint64;
 
     MyTestInStream& getInt64(Int64& /* value */) {
-        if (d_fun.front() != k_INT + 8) d_error = true;
+        if (!d_fun.size() || d_fun.front() != k_INT + 8) d_error = true;
         else d_fun.pop_front();
         return *this;
     }
 
     MyTestInStream& getUint64(Uint64& /* value */) {
-        if (d_fun.front() != k_UNSIGNED + k_INT + 8) d_error = true;
+        if (!d_fun.size() || d_fun.front() != k_UNSIGNED + k_INT + 8)
+            d_error = true;
         else d_fun.pop_front();
         return *this;
     }
 
     MyTestInStream& getInt32(int& /* value */) {
-        if (d_fun.front() != k_INT + 4) d_error = true;
+        if (!d_fun.size() || d_fun.front() != k_INT + 4) d_error = true;
         else d_fun.pop_front();
         return *this;
     }
 
     MyTestInStream& getUint32(unsigned int& /* value */) {
-        if (d_fun.front() != k_UNSIGNED + k_INT + 4) d_error = true;
+        if (!d_fun.size() || d_fun.front() != k_UNSIGNED + k_INT + 4)
+            d_error = true;
         else d_fun.pop_front();
         return *this;
     }
 
     MyTestInStream& getInt16(short& /* value */) {
-        if (d_fun.front() != k_INT + 2) d_error = true;
+        if (!d_fun.size() || d_fun.front() != k_INT + 2) d_error = true;
         else d_fun.pop_front();
         return *this;
     }
 
     MyTestInStream& getUint16(unsigned short& /* value */) {
-        if (d_fun.front() != k_UNSIGNED + k_INT + 2) d_error = true;
+        if (!d_fun.size() || d_fun.front() != k_UNSIGNED + k_INT + 2)
+            d_error = true;
         else d_fun.pop_front();
         return *this;
     }
 
     MyTestInStream& getInt8(char& /* value */) {
-        if (d_fun.front() != k_INT + 1) d_error = true;
+        if (!d_fun.size() || d_fun.front() != k_INT + 1) d_error = true;
         else d_fun.pop_front();
         return *this;
     }
 
     MyTestInStream& getInt8(signed char& /* value */) {
-        if (d_fun.front() != k_SIGNED + k_INT + 1) d_error = true;
+        if (!d_fun.size() || d_fun.front() != k_SIGNED + k_INT + 1)
+            d_error = true;
         else d_fun.pop_front();
         return *this;
     }
 
     MyTestInStream& getUint8(unsigned char& /* value */) {
-        if (d_fun.front() != k_UNSIGNED + k_INT + 1) d_error = true;
+        if (!d_fun.size() || d_fun.front() != k_UNSIGNED + k_INT + 1)
+            d_error = true;
         else d_fun.pop_front();
         return *this;
     }
 
     MyTestInStream& getFloat64(double& /* value */) {
-        if (d_fun.front() != k_FLOAT + 8) d_error = true;
+        if (!d_fun.size() || d_fun.front() != k_FLOAT + 8) d_error = true;
         else d_fun.pop_front();
         return *this;
     }
 
     MyTestInStream& getFloat32(float& /* value */) {
-        if (d_fun.front() != k_FLOAT + 4) d_error = true;
+        if (!d_fun.size() || d_fun.front() != k_FLOAT + 4) d_error = true;
         else d_fun.pop_front();
         return *this;
     }
 
     MyTestInStream& getString(bsl::string& /* value */) {
-        if (d_fun.front() != k_STRING) d_error = true;
+        if (!d_fun.size() || d_fun.front() != k_STRING) d_error = true;
         else d_fun.pop_front();
         return *this;
     }
 
     MyTestInStream& getArrayInt64(Int64 * /* value */, int num) {
-        if (d_fun.front() != k_ARRAY + k_INT + 8
-            || d_lastLength != num) d_error = true;
-        else d_fun.pop_front();
-        return *this;
+        return getArrayHelper(num, k_INT + 8);
     }
 
     MyTestInStream& getArrayUint64(Uint64 * /* value */, int num) {
-        if (d_fun.front() != k_ARRAY + k_UNSIGNED + k_INT + 8
-            || d_lastLength != num) d_error = true;
-        else d_fun.pop_front();
-        return *this;
+        return getArrayHelper(num, k_UNSIGNED + k_INT + 8);
     }
 
     MyTestInStream& getArrayInt32(int * /* value */, int num) {
-        if (d_fun.front() != k_ARRAY + k_INT + 4
-            || d_lastLength != num) d_error = true;
-        else d_fun.pop_front();
-        return *this;
+        return getArrayHelper(num, k_INT + 4);
     }
 
-    MyTestInStream& getArrayUint32(unsigned int * /* value */, int num) {
-        if (d_fun.front() != k_ARRAY + k_UNSIGNED + k_INT + 4
-            || d_lastLength != num) d_error = true;
-        else d_fun.pop_front();
-        return *this;
+    MyTestInStream& getArrayUInt32(unsigned int * /* value */, int num) {
+        return getArrayHelper(num, k_UNSIGNED + k_INT + 4);
     }
 
     MyTestInStream& getArrayInt16(short * /* value */, int num) {
-        if (d_fun.front() != k_ARRAY + k_INT + 2
-            || d_lastLength != num) d_error = true;
-        else d_fun.pop_front();
-        return *this;
+        return getArrayHelper(num, k_INT + 2);
     }
 
-    MyTestInStream& getArrayUint16(unsigned short * /* value */, int num) {
-        if (d_fun.front() != k_ARRAY + k_UNSIGNED + k_INT + 2
-            || d_lastLength != num) d_error = true;
-        else d_fun.pop_front();
-        return *this;
+    MyTestInStream& getArrayUInt16(unsigned short * /* value */, int num) {
+        return getArrayHelper(num, k_UNSIGNED + k_INT + 2);
     }
 
     MyTestInStream& getArrayInt8(char * /* value */, int num) {
-        if (d_fun.front() != k_ARRAY + k_INT + 1
-            || d_lastLength != num) d_error = true;
-        else d_fun.pop_front();
-        return *this;
+        return getArrayHelper(num, k_INT + 1);
     }
 
     MyTestInStream& getArrayInt8(signed char * /* value */, int num) {
-        if (d_fun.front() != k_ARRAY + k_SIGNED + k_INT + 1
-            || d_lastLength != num) d_error = true;
-        else d_fun.pop_front();
-        return *this;
+        return getArrayHelper(num, k_SIGNED + k_INT + 1);
     }
 
-    MyTestInStream& getArrayUint8(unsigned char * /* value */, int num) {
-        if (d_fun.front() != k_ARRAY + k_UNSIGNED + k_INT + 1
-            || d_lastLength != num) d_error = true;
-        else d_fun.pop_front();
-        return *this;
+    MyTestInStream& getArrayUInt8(unsigned char * /* value */, int num) {
+        return getArrayHelper(num, k_UNSIGNED + k_INT + 1);
     }
 
     MyTestInStream& getArrayFloat64(double * /* value */, int num) {
-        if (d_fun.front() != k_ARRAY + k_FLOAT + 8
-            || d_lastLength != num) d_error = true;
-        else d_fun.pop_front();
-        return *this;
+        return getArrayHelper(num, k_FLOAT + 8);
     }
 
     MyTestInStream& getArrayFloat32(float * /* value */, int num) {
-        if (d_fun.front() != k_ARRAY + k_FLOAT + 4
-            || d_lastLength != num) d_error = true;
-        else d_fun.pop_front();
-        return *this;
+        return getArrayHelper(num, k_FLOAT + 4);
     }
 
     // MANIPULATORS
@@ -656,7 +667,7 @@ STREAM& bdexStreamIn(STREAM&                stream,
 {
     using bslx::InStreamFunctions::bdexStreamIn;
 
-    float x;
+    float x = 0;
     bdexStreamIn(stream, x, 1);
     variable = static_cast<MySpecializedTestEnum>(static_cast<int>(x));
     return stream;
@@ -677,7 +688,7 @@ STREAM& bdexStreamIn(STREAM&               stream,
 {
     using bslx::InStreamFunctions::bdexStreamIn;
 
-    char x;
+    char x = 0;
     bdexStreamIn(stream, x, 1);
     variable = static_cast<MyThirdPartyTestEnum>(x);
     return stream;
@@ -710,14 +721,14 @@ template <class STREAM>
 STREAM& MyTestClass::bdexStreamIn(STREAM& stream, int version)
 {
     if (2 == version) {
-      int x;
-      double y;
+      int x = 0;
+      double y = 0;
       InStreamFunctions::bdexStreamIn(stream, x, 1);
       InStreamFunctions::bdexStreamIn(stream, y, 1);
     }
     else {
-      int x;
-      float y;
+      int x = 0;
+      float y = 0;
       InStreamFunctions::bdexStreamIn(stream, x, 1);
       InStreamFunctions::bdexStreamIn(stream, y, 1);
     }
@@ -732,6 +743,7 @@ int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;
     int verbose = argc > 2;
+    int veryVerbose = argc > 3;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -818,6 +830,8 @@ int main(int argc, char *argv[])
         //: 5 The version is unexternalized only where appropriate.
         //:
         //: 6 Vectors correctly unexternalize the version.
+        //:
+        //: 7 Vectors over 16M elements are allocated in 2 passes.
         //
         // Plan:
         //: 1 Create a test stream object that will track invoked methods.
@@ -837,6 +851,10 @@ int main(int argc, char *argv[])
         //:
         //: 6 Verify the version is correctly unexternalized in all tests.
         //:   (C-5)
+        //:
+        //: 7 Verify that very long (>16M bytes) vectors are allocated in 2
+        //:   passes, handling missing data before or after the cutoff
+        //:   correctly. (C-7)
         //
         // Testing:
         //   bdexStreamIn(STREAM& stream, TYPE& value)
@@ -854,6 +872,7 @@ int main(int argc, char *argv[])
             MyTestInStream *pRV;
 
             // bool
+            if (veryVerbose) cout << "\t... bool" << endl;
 
             bool                                       XA;
             bsl::vector<bool>                          XVA;
@@ -871,6 +890,7 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XVA);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(0 == XVA.size());
 
             stream.clear();
             stream.putVersion(1);
@@ -881,6 +901,7 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XVA);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(3 == XVA.size());
 
             stream.clear();
             stream.putVersion(1);
@@ -889,13 +910,38 @@ int main(int argc, char *argv[])
             stream.putType(MyTestInStream::k_INT + 1);
             stream.putType(MyTestInStream::k_INT + 1);
             stream.putType(MyTestInStream::k_INT + 1);
-            stream.putLength(1);
+            stream.putLength(5);
+            // short array, expect failure
+            stream.putType(MyTestInStream::k_INT + 1);
+            pRV = &bdexStreamIn(stream, XVVA);
+            ASSERT(pRV == &stream);
+            ASSERT(true == stream.error());
+            ASSERT(2 == XVVA.size());
+            ASSERT(3 == XVVA[0].size());
+            ASSERT(5 == XVVA[1].size());
+
+            stream.clear();
+            stream.putVersion(1);
+            stream.putLength(2);
+            stream.putLength(3);
+            stream.putType(MyTestInStream::k_INT + 1);
+            stream.putType(MyTestInStream::k_INT + 1);
+            stream.putType(MyTestInStream::k_INT + 1);
+            stream.putLength(5);
+            stream.putType(MyTestInStream::k_INT + 1);
+            stream.putType(MyTestInStream::k_INT + 1);
+            stream.putType(MyTestInStream::k_INT + 1);
+            stream.putType(MyTestInStream::k_INT + 1);
             stream.putType(MyTestInStream::k_INT + 1);
             pRV = &bdexStreamIn(stream, XVVA);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(2 == XVVA.size());
+            ASSERT(3 == XVVA[0].size());
+            ASSERT(5 == XVVA[1].size());
 
             // char
+            if (veryVerbose) cout << "\t... char" << endl;
 
             char                                       XB;
             bsl::vector<char>                          XVB;
@@ -913,6 +959,7 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XVB);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(0 == XVB.size());
 
             stream.clear();
             stream.putVersion(1);
@@ -922,8 +969,8 @@ int main(int argc, char *argv[])
                            + 1);
             pRV = &bdexStreamIn(stream, XVB);
             ASSERT(pRV == &stream);
-            ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(3 == XVB.size());
 
             stream.clear();
             stream.putVersion(1);
@@ -939,8 +986,12 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XVVB);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(2 == XVVB.size());
+            ASSERT(3 == XVVB[0].size());
+            ASSERT(5 == XVVB[1].size());
 
             // signed char
+            if (veryVerbose) cout << "\t... signed char" << endl;
 
             signed char                                XC;
             bsl::vector<signed char>                   XVC;
@@ -960,6 +1011,7 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XVC);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(0 == XVC.size());
 
             stream.clear();
             stream.putVersion(1);
@@ -971,6 +1023,7 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XVC);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(3 == XVC.size());
 
             stream.clear();
             stream.putVersion(1);
@@ -988,8 +1041,12 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XVVC);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(2 == XVVC.size());
+            ASSERT(3 == XVVC[0].size());
+            ASSERT(5 == XVVC[1].size());
 
             // unsigned char
+            if (veryVerbose) cout << "\t... unsigned char" << endl;
 
             unsigned char                              XD;
             bsl::vector<unsigned char>                 XVD;
@@ -1009,6 +1066,7 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XVD);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(0 == XVD.size());
 
             stream.clear();
             stream.putVersion(1);
@@ -1020,6 +1078,7 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XVD);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(3 == XVD.size());
 
             stream.clear();
             stream.putVersion(1);
@@ -1037,8 +1096,12 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XVVD);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(2 == XVVD.size());
+            ASSERT(3 == XVVD[0].size());
+            ASSERT(5 == XVVD[1].size());
 
             // short
+            if (veryVerbose) cout << "\t... short" << endl;
 
             short                                      XE;
             bsl::vector<short>                         XVE;
@@ -1056,6 +1119,7 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XVE);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(0 == XVE.size());
 
             stream.clear();
             stream.putVersion(1);
@@ -1066,6 +1130,7 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XVE);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(3 == XVE.size());
 
             stream.clear();
             stream.putVersion(1);
@@ -1081,8 +1146,12 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XVVE);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(2 == XVVE.size());
+            ASSERT(3 == XVVE[0].size());
+            ASSERT(5 == XVVE[1].size());
 
             // unsigned short
+            if (veryVerbose) cout << "\t... unsigned short" << endl;
 
             unsigned short                             XF;
             bsl::vector<unsigned short>                XVF;
@@ -1095,6 +1164,7 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XF);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(0 == XVF.size());
 
             stream.clear();
             stream.putVersion(1);
@@ -1102,6 +1172,7 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XVF);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(0 == XVF.size());
 
             stream.clear();
             stream.putVersion(1);
@@ -1113,6 +1184,7 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XVF);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(3 == XVF.size());
 
             stream.clear();
             stream.putVersion(1);
@@ -1130,8 +1202,12 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XVVF);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(2 == XVVF.size());
+            ASSERT(3 == XVVF[0].size());
+            ASSERT(5 == XVVF[1].size());
 
             // int
+            if (veryVerbose) cout << "\t... int" << endl;
 
             int                                        XG;
             bsl::vector<int>                           XVG;
@@ -1149,6 +1225,7 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XVG);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(0 == XVG.size());
 
             stream.clear();
             stream.putVersion(1);
@@ -1159,6 +1236,7 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XVG);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(3 == XVG.size());
 
             stream.clear();
             stream.putVersion(1);
@@ -1174,8 +1252,12 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XVVG);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(2 == XVVG.size());
+            ASSERT(3 == XVVG[0].size());
+            ASSERT(5 == XVVG[1].size());
 
             // unsigned int
+            if (veryVerbose) cout << "\t... unsigned int" << endl;
 
             unsigned int                               XH;
             bsl::vector<unsigned int>                  XVH;
@@ -1195,6 +1277,7 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XVH);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(0 == XVH.size());
 
             stream.clear();
             stream.putVersion(1);
@@ -1206,6 +1289,7 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XVH);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(3 == XVH.size());
 
             stream.clear();
             stream.putVersion(1);
@@ -1223,8 +1307,12 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XVVH);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(2 == XVVH.size());
+            ASSERT(3 == XVVH[0].size());
+            ASSERT(5 == XVVH[1].size());
 
             // long
+            if (veryVerbose) cout << "\t... long" << endl;
 
             long                                       XI;
             bsl::vector<long>                          XVI;
@@ -1242,6 +1330,7 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XVI);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(0 == XVI.size());
 
             stream.clear();
             stream.putVersion(1);
@@ -1252,6 +1341,7 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XVI);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(3 == XVI.size());
 
             stream.clear();
             stream.putVersion(1);
@@ -1260,13 +1350,38 @@ int main(int argc, char *argv[])
             stream.putType(MyTestInStream::k_INT + 4);
             stream.putType(MyTestInStream::k_INT + 4);
             stream.putType(MyTestInStream::k_INT + 4);
-            stream.putLength(1);
+            stream.putLength(5);
+            // short stream, expect failure
+            stream.putType(MyTestInStream::k_INT + 4);
+            pRV = &bdexStreamIn(stream, XVVI);
+            ASSERT(pRV == &stream);
+            ASSERT(true == stream.error());
+            ASSERT(2 == XVVI.size());
+            ASSERT(3 == XVVI[0].size());
+            ASSERT(5 == XVVI[1].size());
+
+            stream.clear();
+            stream.putVersion(1);
+            stream.putLength(2);
+            stream.putLength(3);
+            stream.putType(MyTestInStream::k_INT + 4);
+            stream.putType(MyTestInStream::k_INT + 4);
+            stream.putType(MyTestInStream::k_INT + 4);
+            stream.putLength(5);
+            stream.putType(MyTestInStream::k_INT + 4);
+            stream.putType(MyTestInStream::k_INT + 4);
+            stream.putType(MyTestInStream::k_INT + 4);
+            stream.putType(MyTestInStream::k_INT + 4);
             stream.putType(MyTestInStream::k_INT + 4);
             pRV = &bdexStreamIn(stream, XVVI);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(2 == XVVI.size());
+            ASSERT(3 == XVVI[0].size());
+            ASSERT(5 == XVVI[1].size());
 
             // unsigned long
+            if (veryVerbose) cout << "\t... unsigned long" << endl;
 
             unsigned long                              XJ;
             bsl::vector<unsigned long>                 XVJ;
@@ -1286,6 +1401,7 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XVJ);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(0 == XVJ.size());
 
             stream.clear();
             stream.putVersion(1);
@@ -1302,6 +1418,7 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XVJ);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(3 == XVJ.size());
 
             stream.clear();
             stream.putVersion(1);
@@ -1316,15 +1433,56 @@ int main(int argc, char *argv[])
             stream.putType(MyTestInStream::k_UNSIGNED
                            + MyTestInStream::k_INT
                            + 4);
-            stream.putLength(1);
+            stream.putLength(5);
+            // short stream, expect failure
+            stream.putType(MyTestInStream::k_UNSIGNED
+                           + MyTestInStream::k_INT
+                           + 4);
+            pRV = &bdexStreamIn(stream, XVVJ);
+            ASSERT(pRV == &stream);
+            ASSERT(true == stream.error());
+            ASSERT(2 == XVVJ.size());
+            ASSERT(3 == XVVJ[0].size());
+            ASSERT(5 == XVVJ[1].size());
+
+            stream.clear();
+            stream.putVersion(1);
+            stream.putLength(2);
+            stream.putLength(3);
+            stream.putType(MyTestInStream::k_UNSIGNED
+                           + MyTestInStream::k_INT
+                           + 4);
+            stream.putType(MyTestInStream::k_UNSIGNED
+                           + MyTestInStream::k_INT
+                           + 4);
+            stream.putType(MyTestInStream::k_UNSIGNED
+                           + MyTestInStream::k_INT
+                           + 4);
+            stream.putLength(5);
+            stream.putType(MyTestInStream::k_UNSIGNED
+                           + MyTestInStream::k_INT
+                           + 4);
+            stream.putType(MyTestInStream::k_UNSIGNED
+                           + MyTestInStream::k_INT
+                           + 4);
+            stream.putType(MyTestInStream::k_UNSIGNED
+                           + MyTestInStream::k_INT
+                           + 4);
+            stream.putType(MyTestInStream::k_UNSIGNED
+                           + MyTestInStream::k_INT
+                           + 4);
             stream.putType(MyTestInStream::k_UNSIGNED
                            + MyTestInStream::k_INT
                            + 4);
             pRV = &bdexStreamIn(stream, XVVJ);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(2 == XVVJ.size());
+            ASSERT(3 == XVVJ[0].size());
+            ASSERT(5 == XVVJ[1].size());
 
             // Int64
+            if (veryVerbose) cout << "\t... Int64" << endl;
 
             Int64                                      XK;
             bsl::vector<Int64>                         XVK;
@@ -1342,6 +1500,7 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XVK);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(0 == XVK.size());
 
             stream.clear();
             stream.putVersion(1);
@@ -1352,6 +1511,7 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XVK);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(3 == XVK.size());
 
             stream.clear();
             stream.putVersion(1);
@@ -1367,8 +1527,12 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XVVK);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(2 == XVVK.size());
+            ASSERT(3 == XVVK[0].size());
+            ASSERT(5 == XVVK[1].size());
 
             // Uint64
+            if (veryVerbose) cout << "\t... Uint64" << endl;
 
             Uint64                                     XL;
             bsl::vector<Uint64>                        XVL;
@@ -1388,6 +1552,7 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XVL);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(0 == XVL.size());
 
             stream.clear();
             stream.putVersion(1);
@@ -1399,6 +1564,7 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XVL);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(3 == XVL.size());
 
             stream.clear();
             stream.putVersion(1);
@@ -1416,8 +1582,12 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XVVL);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(2 == XVVL.size());
+            ASSERT(3 == XVVL[0].size());
+            ASSERT(5 == XVVL[1].size());
 
             // float
+            if (veryVerbose) cout << "\t... float" << endl;
 
             float                                      XM;
             bsl::vector<float>                         XVM;
@@ -1435,6 +1605,7 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XVM);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(0 == XVM.size());
 
             stream.clear();
             stream.putVersion(1);
@@ -1445,6 +1616,7 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XVM);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(3 == XVM.size());
 
             stream.clear();
             stream.putVersion(1);
@@ -1460,8 +1632,12 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XVVM);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(2 == XVVM.size());
+            ASSERT(3 == XVVM[0].size());
+            ASSERT(5 == XVVM[1].size());
 
             // double
+            if (veryVerbose) cout << "\t... double" << endl;
 
             double                                     XN;
             bsl::vector<double>                        XVN;
@@ -1479,6 +1655,7 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XVN);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(0 == XVN.size());
 
             stream.clear();
             stream.putVersion(1);
@@ -1489,6 +1666,7 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XVN);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(3 == XVN.size());
 
             stream.clear();
             stream.putVersion(1);
@@ -1504,8 +1682,12 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XVVN);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(2 == XVVN.size());
+            ASSERT(3 == XVVN[0].size());
+            ASSERT(5 == XVVN[1].size());
 
             // string
+            if (veryVerbose) cout << "\t... string" << endl;
 
             bsl::string                                XO;
             bsl::vector<bsl::string>                   XVO;
@@ -1523,6 +1705,7 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XVO);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(0 == XVO.size());
 
             stream.clear();
             stream.putVersion(1);
@@ -1533,6 +1716,7 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XVO);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(3 == XVO.size());
 
             stream.clear();
             stream.putVersion(1);
@@ -1546,8 +1730,12 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XVVO);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(2 == XVVO.size());
+            ASSERT(3 == XVVO[0].size());
+            ASSERT(1 == XVVO[1].size());
 
             // MyTestEnum
+            if (veryVerbose) cout << "\t... MyTestEnum" << endl;
 
             MyTestEnum                                 XP;
             bsl::vector<MyTestEnum>                    XVP;
@@ -1565,6 +1753,7 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XVP);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(0 == XVP.size());
 
             stream.clear();
             stream.putVersion(1);
@@ -1575,6 +1764,7 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XVP);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(3 == XVP.size());
 
             stream.clear();
             stream.putVersion(1);
@@ -1583,13 +1773,38 @@ int main(int argc, char *argv[])
             stream.putType(MyTestInStream::k_INT + 4);
             stream.putType(MyTestInStream::k_INT + 4);
             stream.putType(MyTestInStream::k_INT + 4);
-            stream.putLength(1);
+            stream.putLength(5);
+            // short stream, expect failure
+            stream.putType(MyTestInStream::k_INT + 4);
+            pRV = &bdexStreamIn(stream, XVVP);
+            ASSERT(pRV == &stream);
+            ASSERT(true == stream.error());
+            ASSERT(2 == XVVP.size());
+            ASSERT(3 == XVVP[0].size());
+            ASSERT(5 == XVVP[1].size());
+
+            stream.clear();
+            stream.putVersion(1);
+            stream.putLength(2);
+            stream.putLength(3);
+            stream.putType(MyTestInStream::k_INT + 4);
+            stream.putType(MyTestInStream::k_INT + 4);
+            stream.putType(MyTestInStream::k_INT + 4);
+            stream.putLength(5);
+            stream.putType(MyTestInStream::k_INT + 4);
+            stream.putType(MyTestInStream::k_INT + 4);
+            stream.putType(MyTestInStream::k_INT + 4);
+            stream.putType(MyTestInStream::k_INT + 4);
             stream.putType(MyTestInStream::k_INT + 4);
             pRV = &bdexStreamIn(stream, XVVP);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(2 == XVVP.size());
+            ASSERT(3 == XVVP[0].size());
+            ASSERT(5 == XVVP[1].size());
 
             // MySpecializedTestEnum
+            if (veryVerbose) cout << "\t... MySpecializedTestEnum" << endl;
 
             MySpecializedTestEnum                            XPS;
             bsl::vector<MySpecializedTestEnum>               XVPS;
@@ -1607,6 +1822,7 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XVPS);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(0 == XVPS.size());
 
             stream.clear();
             stream.putVersion(1);
@@ -1617,6 +1833,7 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XVPS);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(3 == XVPS.size());
 
             stream.clear();
             stream.putVersion(1);
@@ -1625,13 +1842,21 @@ int main(int argc, char *argv[])
             stream.putType(MyTestInStream::k_FLOAT + 4);
             stream.putType(MyTestInStream::k_FLOAT + 4);
             stream.putType(MyTestInStream::k_FLOAT + 4);
-            stream.putLength(1);
+            stream.putLength(5);
+            stream.putType(MyTestInStream::k_FLOAT + 4);
+            stream.putType(MyTestInStream::k_FLOAT + 4);
+            stream.putType(MyTestInStream::k_FLOAT + 4);
+            stream.putType(MyTestInStream::k_FLOAT + 4);
             stream.putType(MyTestInStream::k_FLOAT + 4);
             pRV = &bdexStreamIn(stream, XVVPS);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(2 == XVVPS.size());
+            ASSERT(3 == XVVPS[0].size());
+            ASSERT(5 == XVVPS[1].size());
 
             // MyThirdPartyTestEnum
+            if (veryVerbose) cout << "\t... MyThirdPartyTestEnum" << endl;
 
             ThirdParty::MyThirdPartyTestEnum                            XPTP;
             bsl::vector<ThirdParty::MyThirdPartyTestEnum>               XVPTP;
@@ -1649,6 +1874,7 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XVPTP);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(0 == XVPTP.size());
 
             stream.clear();
             stream.putVersion(1);
@@ -1659,6 +1885,7 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XVPTP);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(3 == XVPTP.size());
 
             stream.clear();
             stream.putVersion(1);
@@ -1667,13 +1894,21 @@ int main(int argc, char *argv[])
             stream.putType(MyTestInStream::k_INT + 1);
             stream.putType(MyTestInStream::k_INT + 1);
             stream.putType(MyTestInStream::k_INT + 1);
-            stream.putLength(1);
+            stream.putLength(5);
+            stream.putType(MyTestInStream::k_INT + 1);
+            stream.putType(MyTestInStream::k_INT + 1);
+            stream.putType(MyTestInStream::k_INT + 1);
+            stream.putType(MyTestInStream::k_INT + 1);
             stream.putType(MyTestInStream::k_INT + 1);
             pRV = &bdexStreamIn(stream, XVVPTP);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(2 == XVVPTP.size());
+            ASSERT(3 == XVVPTP[0].size());
+            ASSERT(5 == XVVPTP[1].size());
 
             // MyTestClass version 1
+            if (veryVerbose) cout << "\t... MyTestClass version 1" << endl;
 
             MyTestClass                                XQ;
             bsl::vector<MyTestClass>                   XVQ;
@@ -1693,6 +1928,7 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XVQ);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(0 == XVQ.size());
 
             stream.clear();
             stream.putVersion(1);
@@ -1706,6 +1942,7 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XVQ);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(3 == XVQ.size());
 
             stream.clear();
             stream.putVersion(1);
@@ -1723,8 +1960,12 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XVVQ);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(2 == XVVQ.size());
+            ASSERT(3 == XVVQ[0].size());
+            ASSERT(1 == XVVQ[1].size());
 
             // MyTestClass version 2
+            if (veryVerbose) cout << "\t... MyTestClass version 2" << endl;
 
             stream.clear();
             stream.putVersion(2);
@@ -1740,6 +1981,7 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XVQ);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(0 == XVQ.size());
 
             stream.clear();
             stream.putVersion(2);
@@ -1753,6 +1995,7 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XVQ);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(3 == XVQ.size());
 
             stream.clear();
             stream.putVersion(2);
@@ -1770,6 +2013,409 @@ int main(int argc, char *argv[])
             pRV = &bdexStreamIn(stream, XVVQ);
             ASSERT(pRV == &stream);
             ASSERT(false == stream.error());
+            ASSERT(2 == XVVQ.size());
+            ASSERT(3 == XVVQ[0].size());
+            ASSERT(1 == XVVQ[1].size());
+
+            // Overlong (near/over 16M bytes) vector handling (C-7)
+            if (veryVerbose) {
+                cout << "\t... Overlong (near/over 16M bytes) vector "
+                        "handling (C-7)"
+                     << endl;
+            }
+            {
+                const int k_VALUE_ALLOCATION_THRESHOLD =
+                    16 * 1024 * 1024 / sizeof(short);
+                const int k_VECTOR_ALLOCATION_THRESHOLD =
+                    16 * 1024 * 1024 / sizeof(bsl::vector<short>);
+
+
+#pragma GCC diagnostic ignored "-Wlarger-than="
+                static char
+                    buffer[k_VECTOR_ALLOCATION_THRESHOLD *
+                               sizeof(bsl::vector<bsl::vector<short> >) +
+                           2 * k_VALUE_ALLOCATION_THRESHOLD *
+                               sizeof(bsl::vector<short>)];
+
+                // vector: empty
+                if (veryVerbose)
+                    cout << "\t\t ... vector: empty" << endl;
+                {
+                    bslma::SequentialAllocator alloc(buffer, sizeof(buffer));
+                    bsl::vector<short>         XVA(&alloc);
+
+                    XVA.resize(10);
+                    ASSERTV(XVA.size(), 10 == XVA.size());
+                    stream.clear();
+                    stream.putVersion(0);
+                    stream.putLength(0);
+                    // expect success after resize to 0
+                    pRV = &bdexStreamIn(stream, XVA);
+                    ASSERT(pRV == &stream);
+                    ASSERT(false == stream.error());
+                    ASSERTV(XVA.size(), 0 == XVA.size());
+                }
+
+                // vector<vector>: empty
+                if (veryVerbose) {
+                    cout << "\t\t ... vector<vector>: empty" << endl;
+                }
+                {
+                    bslma::SequentialAllocator alloc(buffer, sizeof(buffer));
+                    bsl::vector<bsl::vector<short> > XVVA(&alloc);
+
+                    XVVA.resize(10);
+                    ASSERTV(XVVA.size(), 10 == XVVA.size());
+                    stream.clear();
+                    stream.putVersion(0);
+                    stream.putLength(0);
+                    // expect success after resize to 0
+                    pRV = &bdexStreamIn(stream, XVVA);
+                    ASSERT(pRV == &stream);
+                    ASSERT(false == stream.error());
+                    ASSERTV(XVVA.size(), 0 == XVVA.size());
+                }
+
+                // vector: size below threshold followed by missing data
+                if (veryVerbose) {
+                    cout << "\t\t ... vector: size below threshold followed "
+                            "by missing data"
+                         << endl;
+                }
+                {
+                    bslma::SequentialAllocator alloc(buffer, sizeof(buffer));
+                    bsl::vector<short>         XVA(&alloc);
+
+                    XVA.resize(10);
+                    ASSERT(10 == XVA.size());
+                    stream.clear();
+                    stream.putVersion(0);
+                    stream.putLength(2);
+                    // expect failure after resize - missing data
+                    pRV = &bdexStreamIn(stream, XVA);
+                    ASSERT(pRV == &stream);
+                    ASSERT(true == stream.error());
+                    ASSERTV(XVA.size(), 2, 2 == XVA.size());
+                }
+
+                // vector<vector>: size below threshold followed by missing
+                // data
+                if (veryVerbose) {
+                    cout << "\t\t ... vector<vector>: size below threshold "
+                            "followed by missing data"
+                         << endl;
+                }
+                {
+                    bslma::SequentialAllocator alloc(buffer, sizeof(buffer));
+                    bsl::vector<bsl::vector<short> > XVVA(&alloc);
+
+                    XVVA.resize(10);
+                    ASSERT(10 == XVVA.size());
+                    stream.clear();
+                    stream.putVersion(0);
+                    stream.putLength(2);
+                    // expect failure after resize - missing data
+                    pRV = &bdexStreamIn(stream, XVVA);
+                    ASSERT(pRV == &stream);
+                    ASSERT(true == stream.error());
+                    ASSERTV(XVVA.size(), 2, 2 == XVVA.size());
+                }
+
+                // vector: size below threshold followed by correct data
+                if (veryVerbose) {
+                    cout << "\t\t ... vector: size below threshold followed "
+                            "by correct data"
+                         << endl;
+                }
+
+                {
+                    bslma::SequentialAllocator alloc(buffer, sizeof(buffer));
+                    bsl::vector<bool>          XVA(&alloc);
+
+                    XVA.resize(10);
+                    ASSERT(10 == XVA.size());
+                    stream.clear();
+                    stream.putVersion(0);
+                    stream.putLength(2);
+                    for (int i = 0; i < 2; ++i) {
+                        stream.putType(MyTestInStream::k_INT + 1);
+                    }
+                    pRV = &bdexStreamIn(stream, XVA);
+                    ASSERT(pRV == &stream);
+                    ASSERT(false == stream.error());
+                    ASSERTV(XVA.size(), 2 == XVA.size());
+                }
+
+                {
+                    bslma::SequentialAllocator alloc(buffer, sizeof(buffer));
+                    bsl::vector<short>         XVA(&alloc);
+
+                    XVA.resize(10);
+                    ASSERT(10 == XVA.size());
+                    stream.clear();
+                    stream.putVersion(0);
+                    stream.putLength(2);
+                    for (int i = 0; i < 2; ++i) {
+                        stream.putType(MyTestInStream::k_INT + 2);
+                    }
+                    pRV = &bdexStreamIn(stream, XVA);
+                    ASSERT(pRV == &stream);
+                    ASSERT(false == stream.error());
+                    ASSERTV(XVA.size(), 2 == XVA.size());
+                }
+
+                // vector<vector>: size below threshold followed by correct
+                // data
+                if (veryVerbose) {
+                    cout << "\t\t ... vector<vector>: size below threshold "
+                            "followed by correct data"
+                         << endl;
+                }
+                {
+                    bslma::SequentialAllocator alloc(buffer, sizeof(buffer));
+                    bsl::vector<bsl::vector<short> > XVVA(&alloc);
+
+                    XVVA.resize(10);
+                    ASSERT(10 == XVVA.size());
+                    stream.clear();
+                    stream.putVersion(0);
+                    stream.putLength(2);
+                    for (int i = 0; i < 2; ++i) {
+                        stream.putLength(1);
+                        stream.putType(MyTestInStream::k_INT + 2);
+                    }
+                    pRV = &bdexStreamIn(stream, XVVA);
+                    ASSERT(pRV == &stream);
+                    ASSERT(false == stream.error());
+                    ASSERTV(XVVA.size(), 2 == XVVA.size());
+                    ASSERTV(XVVA[0].size(), 1 == XVVA[0].size());
+                    ASSERTV(XVVA[1].size(), 1 == XVVA[1].size());
+                }
+
+                // vector: size AT threshold, followed by missing data
+                if (veryVerbose) {
+                    cout << "\t\t ... vector: size AT threshold, followed by "
+                            "missing data"
+                         << endl;
+                }
+                {
+                    bslma::SequentialAllocator alloc(buffer, sizeof(buffer));
+                    bsl::vector<short>         XVA(&alloc);
+
+                    XVA.resize(10);
+                    ASSERT(10 == XVA.size());
+                    stream.clear();
+                    stream.putVersion(0);
+                    stream.putLength(k_VALUE_ALLOCATION_THRESHOLD);
+                    // expect failure after resize - missing data
+                    for (int i = 0; i < 2; ++i) {
+                        stream.putType(MyTestInStream::k_INT + 2);
+                    }
+                    pRV = &bdexStreamIn(stream, XVA);
+                    ASSERT(pRV == &stream);
+                    ASSERT(true == stream.error());
+                    ASSERTV(XVA.size(),
+                            k_VALUE_ALLOCATION_THRESHOLD,
+                            k_VALUE_ALLOCATION_THRESHOLD == XVA.size());
+                }
+
+                // vector<vector>: size AT threshold, followed by missing data
+                if (veryVerbose) {
+                    cout << "\t\t ... vector<vector>: size AT threshold, "
+                            "followed by missing data"
+                         << endl;
+                }
+                {
+                    bslma::SequentialAllocator alloc(buffer, sizeof(buffer));
+                    bsl::vector<bsl::vector<short> > XVVA(&alloc);
+
+                    XVVA.resize(10);
+                    ASSERT(10 == XVVA.size());
+                    stream.clear();
+                    stream.putVersion(0);
+                    stream.putLength(k_VECTOR_ALLOCATION_THRESHOLD);
+                    // expect failure after resize - missing data
+                    for (int i = 0; i < 2; ++i) {
+                        stream.putLength(0);
+                    }
+                    pRV = &bdexStreamIn(stream, XVVA);
+                    ASSERT(pRV == &stream);
+                    ASSERT(true == stream.error());
+                    ASSERTV(XVVA.size(),
+                            k_VECTOR_ALLOCATION_THRESHOLD,
+                            k_VECTOR_ALLOCATION_THRESHOLD == XVVA.size());
+                }
+
+                // vector: size AT threshold, followed by correct data
+                if (veryVerbose) {
+                    cout << "\t\t ... vector: size AT threshold, followed by "
+                            "correct data"
+                         << endl;
+                }
+                {
+                    bslma::SequentialAllocator alloc(buffer, sizeof(buffer));
+                    bsl::vector<short>         XVA(&alloc);
+
+                    XVA.resize(10);
+                    ASSERT(10 == XVA.size());
+                    stream.clear();
+                    stream.putVersion(0);
+                    stream.putLength(k_VALUE_ALLOCATION_THRESHOLD);
+                    for (int i = 0; i < k_VALUE_ALLOCATION_THRESHOLD; ++i) {
+                        stream.putType(MyTestInStream::k_INT + 2);
+                    }
+                    pRV = &bdexStreamIn(stream, XVA);
+                    ASSERT(pRV == &stream);
+                    ASSERT(false == stream.error());
+                    ASSERTV(XVA.size(),
+                            k_VALUE_ALLOCATION_THRESHOLD,
+                            k_VALUE_ALLOCATION_THRESHOLD == XVA.size());
+                }
+
+                // vector<vector>: size AT threshold, followed by correct data
+                if (veryVerbose) {
+                    cout << "\t\t ... vector<vector>: size AT threshold, "
+                            "followed by correct data"
+                         << endl;
+                }
+                {
+                    bslma::SequentialAllocator alloc(buffer, sizeof(buffer));
+                    bsl::vector<bsl::vector<short> > XVVA(&alloc);
+
+                    XVVA.resize(10);
+                    ASSERT(10 == XVVA.size());
+                    stream.clear();
+                    stream.putVersion(0);
+                    stream.putLength(k_VECTOR_ALLOCATION_THRESHOLD);
+                    for (int i = 0; i < k_VECTOR_ALLOCATION_THRESHOLD; ++i) {
+                        stream.putLength(1);
+                        stream.putType(MyTestInStream::k_INT + 2);
+                    }
+                    pRV = &bdexStreamIn(stream, XVVA);
+                    ASSERT(pRV == &stream);
+                    ASSERT(false == stream.error());
+                    ASSERTV(XVVA.size(),
+                            k_VECTOR_ALLOCATION_THRESHOLD,
+                            k_VECTOR_ALLOCATION_THRESHOLD == XVVA.size());
+                    for (int i = 0; i < k_VECTOR_ALLOCATION_THRESHOLD; ++i) {
+                        ASSERTV(i, XVVA[i].size(), 1 == XVVA[i].size());
+                    }
+                }
+
+                // vector: size above threshold, followed by missing data AFTER
+                // threshold
+                if (veryVerbose) {
+                    cout << "\t\t ... vector: size above threshold, followed "
+                            "by missing data AFTER threshold"
+                         << endl;
+                }
+                {
+                    bslma::SequentialAllocator alloc(buffer, sizeof(buffer));
+                    bsl::vector<short>         XVA(&alloc);
+
+                    XVA.resize(10);
+                    ASSERT(10 == XVA.size());
+                    stream.clear();
+                    stream.putVersion(0);
+                    stream.putLength(k_VALUE_ALLOCATION_THRESHOLD + 1);
+                    // expect failure after 2nd resize - missing data
+                    for (int i = 0; i < k_VALUE_ALLOCATION_THRESHOLD; ++i) {
+                        stream.putType(MyTestInStream::k_INT + 2);
+                    }
+                    pRV = &bdexStreamIn(stream, XVA);
+                    ASSERT(pRV == &stream);
+                    ASSERT(true == stream.error());
+                    ASSERTV(XVA.size(),
+                            k_VALUE_ALLOCATION_THRESHOLD + 1,
+                            k_VALUE_ALLOCATION_THRESHOLD + 1 == XVA.size());
+                }
+
+                // vector<vector>: size above threshold, followed by missing
+                // data AFTER threshold
+                if (veryVerbose) {
+                    cout << "\t\t ... vector<vector>: size above threshold, "
+                            "followed by missing data AFTER threshold"
+                         << endl;
+                }
+                {
+                    bslma::SequentialAllocator alloc(buffer, sizeof(buffer));
+                    bsl::vector<bsl::vector<short> > XVVA(&alloc);
+
+                    XVVA.resize(10);
+                    ASSERT(10 == XVVA.size());
+                    stream.clear();
+                    stream.putVersion(0);
+                    stream.putLength(k_VECTOR_ALLOCATION_THRESHOLD + 1);
+                    // expect failure after 2nd resize - missing data
+                    for (int i = 0; i < k_VECTOR_ALLOCATION_THRESHOLD; ++i) {
+                        stream.putLength(0);
+                    }
+                    pRV = &bdexStreamIn(stream, XVVA);
+                    ASSERT(pRV == &stream);
+                    ASSERT(true == stream.error());
+                    ASSERTV(XVVA.size(),
+                            k_VECTOR_ALLOCATION_THRESHOLD + 1,
+                            k_VECTOR_ALLOCATION_THRESHOLD + 1 == XVVA.size());
+                }
+
+                // vector: size above threshold, followed by correct data
+                if (veryVerbose) {
+                    cout << "\t\t ... vector: size above threshold, followed "
+                            "by correct data"
+                         << endl;
+                }
+                {
+                    bslma::SequentialAllocator alloc(buffer, sizeof(buffer));
+                    bsl::vector<short>         XVA(&alloc);
+
+                    XVA.resize(10);
+                    ASSERT(10 == XVA.size());
+                    stream.clear();
+                    stream.putVersion(0);
+                    stream.putLength(k_VALUE_ALLOCATION_THRESHOLD + 1);
+                    for (int i = 0; i < k_VALUE_ALLOCATION_THRESHOLD + 1;
+                         ++i) {
+                        stream.putType(MyTestInStream::k_INT + 2);
+                    }
+                    pRV = &bdexStreamIn(stream, XVA);
+                    ASSERT(pRV == &stream);
+                    ASSERT(false == stream.error());
+                    ASSERTV(XVA.size(),
+                            k_VALUE_ALLOCATION_THRESHOLD + 1,
+                            k_VALUE_ALLOCATION_THRESHOLD + 1 == XVA.size());
+                }
+
+                // vector<vector>: size above threshold, followed by correct
+                // data
+                if (veryVerbose) {
+                    cout << "\t\t ... vector<vector>: size above threshold, "
+                            "followed by correct data"
+                         << endl;
+                }
+                {
+                    bslma::SequentialAllocator alloc(buffer, sizeof(buffer));
+                    bsl::vector<bsl::vector<short> > XVVA(&alloc);
+
+                    XVVA.resize(10);
+                    ASSERT(10 == XVVA.size());
+                    stream.clear();
+                    stream.putVersion(0);
+                    stream.putLength(k_VECTOR_ALLOCATION_THRESHOLD + 1);
+                    for (int i = 0; i < k_VECTOR_ALLOCATION_THRESHOLD + 1;
+                         ++i) {
+                        stream.putLength(0);
+                    }
+                    pRV = &bdexStreamIn(stream, XVVA);
+                    ASSERT(pRV == &stream);
+                    ASSERT(false == stream.error());
+                    ASSERTV(XVVA.size(),
+                            k_VECTOR_ALLOCATION_THRESHOLD + 1,
+                            k_VECTOR_ALLOCATION_THRESHOLD + 1 == XVVA.size());
+                    ASSERTV(XVVA[0].size(), 0 == XVVA[0].size());
+                    ASSERTV(XVVA[k_VECTOR_ALLOCATION_THRESHOLD].size(),
+                            0 == XVVA[k_VECTOR_ALLOCATION_THRESHOLD].size());
+                }
+            }
         }
       } break;
       case 1: {

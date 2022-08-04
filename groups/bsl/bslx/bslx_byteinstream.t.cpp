@@ -2,6 +2,8 @@
 #include <bslx_byteinstream.h>
 #include <bslx_byteoutstream.h>                 // for testing only
 
+#include <bslim_printer.h>
+
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
@@ -166,6 +168,7 @@ void debugprint(const ByteInStream& object)
 
 }  // close package namespace
 }  // close enterprise namespace
+
 
 // ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -732,7 +735,12 @@ if (veryVerbose) {
 
                 Obj mX(o.data(), o.length());
                 mX >> value;
-                LOOP_ASSERT(i, value == initial);
+                if (value != initial) {
+                    LOOP_ASSERT(i, value == initial);
+                    bslim::Printer p(&cout, 0, 0);
+                    p.printAttribute("value", value);
+                    p.printAttribute("initial", initial);
+                }
                 initial.push_back(i);
             }
         }
@@ -749,9 +757,9 @@ if (veryVerbose) {
 
             Obj mX(o.data(), o.length());
             mX >> value1 >> value2 >> value3;
-            ASSERT(value1 == initial1);
+            ASSERTV(value1, initial1, value1 == initial1);
             ASSERT(value2 == initial2);
-            ASSERT(value3 == initial3);
+            ASSERTV(value3, initial3, value3 == initial3);
         }
 
         {
