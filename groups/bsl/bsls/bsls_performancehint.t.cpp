@@ -2,8 +2,10 @@
 #include <bsls_performancehint.h>
 
 #include <bsls_bsltestutil.h>
+#include <bsls_compilerfeatures.h>
 #include <bsls_platform.h>
 #include <bsls_types.h> // 'BloombergLP::bsls::Types::Int64'
+#include <bsls_unspecifiedbool.h>
 
 #include <algorithm>   // 'std::sort'
 #include <cassert>
@@ -87,6 +89,7 @@
 // [-1] CONCERN: STOPWATCH ACCURACY
 // [-2] PERFORMANCE: _PREDICT_LIKELY, _PREDICT_UNLIKELY, _UNLIKELY_HINT
 // [-3] PERFORMANCE: prefetchForReading, prefecthForWriting
+// [ 6] CONCERN: 'bool' Coercion
 
 // ============================================================================
 //                    STANDARD BDE ASSERT TEST MACRO
@@ -884,6 +887,45 @@ void measureWithWithoutFence(int    argc,
 
 }  // close namespace ReorderingFence
 
+namespace BoolCoercion {
+
+class TestSmartPtr {
+    // This class performs the same 'bool' conversion logic as
+    // 'bsl::shared_ptr<T>' and 'bslma::ManagedPtr<T>'.
+
+    typedef BloombergLP::bsls::UnspecifiedBool<TestSmartPtr>::
+                                                             BoolType BoolType;
+
+  public:
+    operator BoolType() const {
+        return BloombergLP::bsls::UnspecifiedBool<TestSmartPtr>::trueValue();
+    }
+};
+
+class TestFunction {
+    // This class performs the same 'bool' conversion logic as
+    // 'bsl::function<PROTOTYPE>'.
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
+  public:
+    explicit operator bool() const {
+        return true;
+    }
+#else
+  private:
+    typedef BloombergLP::bsls::UnspecifiedBool<TestFunction>
+                                          UnspecifiedBoolUtil;
+    typedef UnspecifiedBoolUtil::BoolType UnspecifiedBool;
+
+  public:
+    operator UnspecifiedBool() const {
+        return UnspecifiedBoolUtil::makeValue(true);
+    }
+#endif
+};
+
+}  // close namespace BoolCoercion
+
 // ============================================================================
 //                              MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -900,6 +942,67 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 6: {
+        // --------------------------------------------------------------------
+        // TESTING 'bool' Coercion
+        //
+        // Concerns:
+        //   'BSLS_PERFORMANCEHINT_PREDICT_LIKELY' and
+        //   'BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY' both take a boolean
+        //   expression.  Any expresion that's convertible to 'bool', even
+        //   explicitly, should be acceptable.
+        //
+        // Plan:
+        // Try calling the two macros with various different expressions which
+        // should all be convertible to 'bool'.  Successful compilation
+        // indicates the conversions are supported.  Run-time tests confirm
+        // that the expected value is produced and, in a boolean context, leads
+        // to the execution of the expected branch.
+        //
+        // Testing:
+        //   CONCERN: 'bool' Coercion
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            printf("\n" "TESTING 'bool' COERCION\n"
+                        "=======================\n");
+        }
+
+        void                       *ptr = 0;
+        BoolCoercion::TestFunction  fn;
+        BoolCoercion::TestSmartPtr  sptr;
+
+#define EXPECT(boolValue)                                                     \
+        { aSsErT(!(boolValue), "unexpected branch", __LINE__); } else         \
+        { aSsErT( (boolValue), "unexpected branch", __LINE__); }
+
+        if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(false))   EXPECT(false)
+        if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(0))       EXPECT(false)
+        if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(1))       EXPECT(true)
+        if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(ptr))     EXPECT(false)
+        if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(fn))      EXPECT(true)
+        if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(sptr))    EXPECT(true)
+
+        if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(static_cast<bool>(1.0)))
+                                                          EXPECT(true)
+        if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(static_cast<bool>(0.0)))
+                                                          EXPECT(false)
+
+        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(true))  EXPECT(true)
+        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(false)) EXPECT(false)
+        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0))     EXPECT(false)
+        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(1))     EXPECT(true)
+        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(ptr))   EXPECT(false)
+        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(fn))    EXPECT(true)
+        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(sptr))  EXPECT(true)
+
+        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(static_cast<bool>(1.0)))
+                                                          EXPECT(true)
+        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(static_cast<bool>(0.0)))
+                                                          EXPECT(false)
+
+#undef EXPECT
+      } break;
       case 5: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 3

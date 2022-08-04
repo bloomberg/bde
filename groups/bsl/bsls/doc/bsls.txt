@@ -76,6 +76,7 @@
       bsls_atomicoperations_powerpc64_aix_xlc                         !PRIVATE!
       bsls_keyword
       bsls_nullptr
+      bsls_performancehint
 
    5. bsls_atomicoperations_all_all_clangintrinsics                   !PRIVATE!
       bsls_atomicoperations_all_all_gccintrinsics                     !PRIVATE!
@@ -95,7 +96,6 @@
       bsls_buildtarget
       bsls_int64                                         !DEPRECATED!
       bsls_logseverity
-      bsls_performancehint
       bsls_review_macroreset                                          !PRIVATE!
       bsls_stackaddressutil
       bsls_systemclocktype

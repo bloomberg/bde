@@ -387,7 +387,7 @@ namespace BloombergLP {
     #define BSLS_PERFORMANCEHINT_PREDICT_LIKELY(expr)                         \
                                               __builtin_expect(!!(expr), 1)
     #define BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(expr)                       \
-                                              __builtin_expect((expr), 0)
+                                              __builtin_expect(!!(expr), 0)
     #define BSLS_PERFORMANCEHINT_PREDICT_EXPECT(expr, value)                  \
                                               __builtin_expect((expr), (value))
 #else

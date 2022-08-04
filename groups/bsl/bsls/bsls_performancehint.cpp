@@ -5,8 +5,10 @@
 BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_bsltestutil.h>       // for testing only
+#include <bsls_compilerfeatures.h>  // for testing only
 #include <bsls_platform.h>          // for testing only
 #include <bsls_types.h>             // for testing only
+#include <bsls_unspecifiedbool.h>   // for testing only
 
 namespace BloombergLP {
 
