@@ -160,7 +160,8 @@ BSLS_IDENT("$Id: $")
 #include <ball_ruleset.h>
 #include <ball_thresholdaggregate.h>
 
-#include <bdlb_cstringless.h>
+#include <bdlb_cstringequalto.h>
+#include <bdlb_cstringhash.h>
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
@@ -172,9 +173,9 @@ BSLS_IDENT("$Id: $")
 #include <bsls_atomic.h>
 #include <bsls_types.h>
 
-#include <bsl_map.h>
 #include <bsl_new.h>
 #include <bsl_string.h>
+#include <bsl_unordered_map.h>
 #include <bsl_vector.h>
 
 namespace BloombergLP {
@@ -190,9 +191,15 @@ class CategoryManager {
     // threshold levels of existing categories may be accessed and modified
     // directly.
 
+    // TYPES
+    typedef bsl::unordered_map<const char *,
+                               int,
+                               bdlb::CStringHash,
+                               bdlb::CStringEqualTo>
+        CategoryMap;
+
     // DATA
-    bsl::map<const char *, int, bdlb::CStringLess>
-                                     d_registry;      // mapping names to
+    CategoryMap                      d_registry;      // mapping names to
                                                       // indices in
                                                       // 'd_categories'
 

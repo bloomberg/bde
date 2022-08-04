@@ -127,11 +127,6 @@ void CategoryProctor::release()
 
 }  // close unnamed namespace
 
-// For convenience, 'CategoryMap' defines the type of a 'CategoryManager' data
-// member.
-
-typedef bsl::map<const char *, int> CategoryMap;
-
                     // ---------------------
                     // class CategoryManager
                     // ---------------------
@@ -165,9 +160,9 @@ Category *CategoryManager::addNewCategory(const char *categoryName,
 
 // CREATORS
 CategoryManager::CategoryManager(bslma::Allocator *basicAllocator)
-: d_registry(bdlb::CStringLess(), basicAllocator)
+: d_registry(1, bdlb::CStringHash(), bdlb::CStringEqualTo(), basicAllocator)
 , d_ruleSetSequenceNumber(
-             AtomicOps::incrementInt64Nv(&categoryManagerSequenceNumber) << 48)
+      AtomicOps::incrementInt64Nv(&categoryManagerSequenceNumber) << 48)
 , d_ruleSet(bslma::Default::allocator(basicAllocator))
 , d_categories(basicAllocator)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
