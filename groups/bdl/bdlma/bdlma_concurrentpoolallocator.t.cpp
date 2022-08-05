@@ -1618,7 +1618,11 @@ int main(int argc, char *argv[])
                 if (0 != statusUp) {
                     if (veryVeryVerbose) { T_ T_ Q("Up" thread create failed) }
                     bslmt::ThreadUtil::microSleep(0, 1);  // 1 second
-                    continue;
+                                                          //
+                    for (int i = 0; i < NUM_ALLOCATORS; ++i) {
+                        fa.deleteObject(arrayOfAllocatorPtrs[i]);
+                    }
+                    continue; // start over
                 }
     
                 int statusDown = bslmt::ThreadUtil::create(&downHandle,
@@ -1640,7 +1644,11 @@ int main(int argc, char *argv[])
                     ASSERT(-1 == *static_cast<int *>(exitUp));
                     
                     bslmt::ThreadUtil::microSleep(0, 1);  // 1 second
-                    continue;
+
+                    for (int i = 0; i < NUM_ALLOCATORS; ++i) {
+                        fa.deleteObject(arrayOfAllocatorPtrs[i]);
+                    }
+                    continue;  // start over
                 }
     
                 int statusJoinUp   = bslmt::ThreadUtil::join(  upHandle);
