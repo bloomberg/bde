@@ -230,7 +230,7 @@ int main(int argc, char *argv[])
         //   FormatGuard(bsl::basic_ostream<unsigned> *);
         // --------------------------------------------------------------------
 
-#ifndef BSLS_PLATFORM_OS_SOLARIS
+#if !defined(BSLS_PLATFORM_OS_SOLARIS) || !defined(BSLS_PLATFORM_CMP_SUN)
         if (verbose) cout << "TESTING VERY WIDE TYPE - DISABLED\n"
                              "=================================\n";
 #else
@@ -240,7 +240,8 @@ int main(int argc, char *argv[])
 
         // It turns out that you can't do much to a 'basic_ostringstream<TYPE>'
         // unless the locales are set up just right for 'TYPE', which is not
-        // the case for 'basic_ostringstream<unsigned>' except on Solaris.
+        // the case for 'basic_ostringstream<unsigned>' except on Solaris with
+        // the 'cc' compiler.
 
         bsl::basic_ostringstream<unsigned> oss;
 
@@ -249,7 +250,7 @@ int main(int argc, char *argv[])
         const unsigned fillChar = 1 << 20;
         oss.fill(fillChar);
 
-        P(oss.fill());
+        if (veryVeryVeryVerbose) P(oss.fill());
 
         oss.width(5);
 
