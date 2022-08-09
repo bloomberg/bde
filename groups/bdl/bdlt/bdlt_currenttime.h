@@ -192,7 +192,10 @@ struct CurrentTime {
         // callback function.
 
     static DatetimeTz asDatetimeTz();
-        // Return the 'DatetimeTz' value representing the current time.
+        // Return the 'DatetimeTz' value representing the current date/time in
+        // the local time zone, and the local time zone's offset from UTC, as
+        // provided by the installed callback function and the facilities of
+        // 'LocalTimeOffset'.
 
                         // ** callback functions **
 
