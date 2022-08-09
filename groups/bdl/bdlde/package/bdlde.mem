@@ -12,6 +12,8 @@ bdlde_charconvertutf32
 bdlde_crc32
 bdlde_crc32c
 bdlde_crc64
+bdlde_hexdecoder
+bdlde_hexencoder
 bdlde_md5
 bdlde_quotedprintabledecoder
 bdlde_quotedprintableencoder
