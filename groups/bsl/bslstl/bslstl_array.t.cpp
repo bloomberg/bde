@@ -1,6 +1,8 @@
 // bslstl_array.t.cpp                                                 -*-C++-*-
 #include <bslstl_array.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bslh_hash.h>
 
 #include <bslma_default.h>
@@ -2045,7 +2047,7 @@ class CopyOnlyTestType {
 
 };
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14)
 constexpr int testConstexprForNonConstBracketOperator()
     // Use the bracket operator of 'bsl::array' that returns a non-'const'
     // reference to each element and (incidentally) return 0.  The compilation
@@ -2065,6 +2067,122 @@ constexpr int testConstexprForNonConstBracketOperator()
 
     return 0;
 }
+
+constexpr int testConstexprForNonConstAt()
+    // Use the 'at' manipulator of 'bsl::array' that returns a non-'const'
+    // reference to each element and (incidentally) return 0.  The compilation
+    // of this 'constexpr' function demonstrates that the manipulator is itself
+    // 'constexpr'-qualified as intended.
+{
+    typedef bsl::array<int, 7> Obj;
+    Obj mX = { 3, 1, 4, 1, 5, 9, 3 };
+
+    mX.at(0) = 0;
+    mX.at(1) = 0;
+    mX.at(2) = 0;
+    mX.at(3) = 0;
+    mX.at(4) = 0;
+    mX.at(5) = 0;
+    mX.at(6) = 0;
+
+    return 0;
+}
+
+constexpr int testConstexprForNonConstFront()
+    // Use the 'front' manipulator of 'bsl::array' that returns a non-'const'
+    // reference to the first element and (incidentally) return 0.  The
+    // compilation of this 'constexpr' function demonstrates that the
+    // manipulator is itself 'constexpr'-qualified as intended.
+{
+    typedef bsl::array<int, 7> Obj;
+    Obj mX = { 3, 1, 4, 1, 5, 9, 3 };
+
+    mX.front() = 0;
+
+    return 0;
+}
+
+constexpr int testConstexprForNonConstBack()
+    // Use the 'back' manipulator of 'bsl::array' that returns a non-'const'
+    // reference to the last element and (incidentally) return 0.  The
+    // compilation of this 'constexpr' function demonstrates that the
+    // manipulator is itself 'constexpr'-qualified as intended.
+{
+    typedef bsl::array<int, 7> Obj;
+    Obj mX = { 3, 1, 4, 1, 5, 9, 3 };
+
+    mX.back() = 0;
+
+    return 0;
+}
+
+constexpr int testConstexprForNonConstData()
+    // Use the 'data' manipulator of 'bsl::array' that returns a non-'const'
+    // pointer to the first element and (incidentally) return 0.  The
+    // compilation of this 'constexpr' function demonstrates that the
+    // manipulator is itself 'constexpr'-qualified as intended.
+{
+    typedef bsl::array<int, 7> Obj;
+    Obj mX = { 3, 1, 4, 1, 5, 9, 3 };
+
+    mX.data()[0] = 0;
+    mX.data()[1] = 0;
+    mX.data()[2] = 0;
+    mX.data()[3] = 0;
+    mX.data()[4] = 0;
+    mX.data()[5] = 0;
+    mX.data()[6] = 0;
+
+    return 0;
+}
+
+constexpr int testConstexprForNonConstBeginAndEnd()
+    // Use the 'begin' and 'end' manipulators of 'bsl::array' that return a
+    // non-'const' iteator to the first element and one past the last element,
+    // respectively, and (incidentally) return 0.  The compilation of this
+    // 'constexpr' function demonstrates that the manipulators are themselves
+    // 'constexpr'-qualified as intended.
+{
+    typedef bsl::array<int, 7> Obj;
+    Obj mX = { 3, 1, 4, 1, 5, 9, 3 };
+
+    for (Obj::iterator iter = mX.begin(); iter != mX.end(); ++iter) {
+        *iter = 0;
+    }
+
+    return 0;
+}
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17)
+constexpr int testConstexprForNonConstRbegin()
+    // Use the 'rbegin' manipulator of 'bsl::array' that returns a non-'const'
+    // reverse-iterator to the last element and (incidentally) return 0.  The
+    // compilation of this 'constexpr' function demonstrates that the
+    // manipulator is itself 'constexpr'-qualified as intended.
+{
+    typedef bsl::array<int, 7> Obj;
+    Obj mX = { 3, 1, 4, 1, 5, 9, 3 };
+
+    *(mX.rbegin()) = 0;
+
+    return 0;
+}
+
+constexpr int testConstexprForNonConstRend()
+{
+    // Use the 'rend' manipulator of 'bsl::array' that returns a non-'const'
+    // reverse-iterator to one before the first element and (incidentally)
+    // return 0.  The compilation of this 'constexpr' function demonstrates
+    // that the manipulator is itself 'constexpr'-qualified as intended.
+    typedef bsl::array<int, 7> Obj;
+    Obj mX = { 3, 1, 4, 1, 5, 9, 3 };
+
+    *(mX.rend() - 1) = 0;
+
+    return 0;
+}
+
 #endif
 
 // ============================================================================
@@ -4124,6 +4242,7 @@ void TestDriver<TYPE, SIZE>::testCase3()
                         ASSERTV(tj, EXP[tj] == X.d_data[tj]);
                     }
                     for (int tj = INDEX; tj < static_cast<int>(SIZE); ++tj) {
+                        ASSERTV(tj, 0 <= tj);  // quiet 32-bit C++03 warning
                         ASSERTV(tj, ORIG_EXP[tj] == X.d_data[tj]);
                     }
                 }
@@ -4627,7 +4746,8 @@ int main(int argc, char *argv[])
 
         typedef bsl::array<int, 7> Obj;
 
-        static BSLS_KEYWORD_CONSTEXPR Obj X = { 1, 1, 2, 3, 5, 8, 13 };
+        BSLA_MAYBE_UNUSED static BSLS_KEYWORD_CONSTEXPR Obj X =
+                                                      { 1, 1, 2, 3, 5, 8, 13 };
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
         static_assert(7 == X.size(),     "Bad value for 'size'");
@@ -4653,6 +4773,19 @@ int main(int argc, char *argv[])
         static_assert( 8 == X[5], "Bad value at index 5");
         static_assert(13 == X[6], "Bad value at index 6");
 
+        static_assert( 1 == *(X.begin()),  "Bad value at '*(begin())'");
+        static_assert(13 == *(X.end()-1),  "Bad value at '*(end()-1)'");
+        static_assert( 1 == *(X.cbegin()), "Bad value at '*(cbegin())'");
+        static_assert(13 == *(X.cend()-1), "Bad value at '*(cend()-1)'");
+
+        static_assert( 1 == X.data()[0], "Bad value via 'data' at index 0");
+        static_assert( 1 == X.data()[1], "Bad value via 'data' at index 1");
+        static_assert( 2 == X.data()[2], "Bad value via 'data' at index 2");
+        static_assert( 3 == X.data()[3], "Bad value via 'data' at index 3");
+        static_assert( 5 == X.data()[4], "Bad value via 'data' at index 4");
+        static_assert( 8 == X.data()[5], "Bad value via 'data' at index 5");
+        static_assert(13 == X.data()[6], "Bad value via 'data' at index 6");
+
 # if !defined(BSLS_PLATFORM_CMP_GNU) || BSLS_PLATFORM_CMP_VERSION >= 60000
         static_assert( 1 == X.at(0), "Bad value 'at' index 0");
         static_assert( 1 == X.at(1), "Bad value 'at' index 1");
@@ -4667,10 +4800,32 @@ int main(int argc, char *argv[])
         static_assert(13 == X.back(),  "Bad value at 'back' of array");
 #endif
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14)
         static_assert( 0 == testConstexprForNonConstBracketOperator(),
                        "Non-const operator[] test failed");
-# endif
+        static_assert( 0 == testConstexprForNonConstAt(),
+                       "Non-const at() test failed");
+        static_assert( 0 == testConstexprForNonConstFront(),
+                       "Non-const front() test failed");
+        static_assert( 0 == testConstexprForNonConstBack(),
+                       "Non-const back() test failed");
+        static_assert( 0 == testConstexprForNonConstData(),
+                       "Non-const data() test failed");
+        static_assert( 0 == testConstexprForNonConstBeginAndEnd(),
+                       "Non-const begin() test failed");
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17)
+        static_assert( 0 == testConstexprForNonConstRbegin(),
+                       "Non-const rbegin() test failed");
+        static_assert( 0 == testConstexprForNonConstRend(),
+                       "Non-const rend() test failed");
+
+        static_assert(13 == *(X.rbegin()), "Bad value at *(rbegin())");
+        static_assert( 1 == *(X.rend()-1), "Bad value at *(rend()-1)");
+        static_assert(13 == *(X.crbegin()), "Bad value at *(crbegin())");
+        static_assert( 1 == *(X.crend()-1), "Bad value at *(crend()-1)");
+#endif
       } break;
       case 22: {
         // --------------------------------------------------------------------

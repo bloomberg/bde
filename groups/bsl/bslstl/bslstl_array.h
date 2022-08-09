@@ -272,43 +272,51 @@ struct array {
         // by overload resolution including at least the namespaces 'std' and
         // the associated namespaces of 'VALUE_TYPE'.
 
+    BSLS_KEYWORD_CONSTEXPR_CPP14
     iterator begin() BSLS_KEYWORD_NOEXCEPT;
         // Return an iterator providing modifiable access to the first element
         // in this array; return a past-the-end iterator if this array has size
         // 0.
 
+    BSLS_KEYWORD_CONSTEXPR_CPP14
     iterator end() BSLS_KEYWORD_NOEXCEPT;
         // Return a past-the-end iterator providing modifiable access to this
         // array.
 
+    BSLS_KEYWORD_CONSTEXPR_CPP17
     reverse_iterator rbegin() BSLS_KEYWORD_NOEXCEPT;
         // Return a reverse iterator providing modifiable access to the last
         // element in this array; return a past-the-end iterator if this array
         // has size 0.
 
+    BSLS_KEYWORD_CONSTEXPR_CPP17
     reverse_iterator rend() BSLS_KEYWORD_NOEXCEPT;
         // Return the past-the-end reverse iterator providing modifiable access
         // to this array.
 
-    BSLS_KEYWORD_CONSTEXPR_CPP17
+    BSLS_KEYWORD_CONSTEXPR_CPP14
     reference operator[](size_type position);
         // Return a reference providing modifiable access to the element at the
         // specified 'position' in this array.  The behavior is undefined
         // unless 'position < size()'.
 
+    BSLS_KEYWORD_CONSTEXPR_CPP14
     reference at(size_type position);
         // Return a reference to the element at the specified 'position' in
         // this array.  Throw an 'out_of_range' exception if
         // 'position >= size()'.
 
+    BSLS_KEYWORD_CONSTEXPR_CPP14
     reference front();
         // Return a reference to the first element in this array.  The behavior
         // is undefined unless 'SIZE > 0'.
 
+    BSLS_KEYWORD_CONSTEXPR_CPP14
     reference back();
         // Return a reference to the last element in this array.  The behavior
         // is undefined unless 'SIZE > 0'.
 
+    BSLS_KEYWORD_CONSTEXPR_CPP14
     pointer data() BSLS_KEYWORD_NOEXCEPT;
         // Return the address of the first element of the underlying raw array.
         // Return a valid 'T*' which cannot be dereferenced if the 'SIZE' is 0.
@@ -324,24 +332,32 @@ struct array {
 
     // BDE_VERIFY pragma: -FABC01  // Function not in alphanumeric order
     // ACCESSORS
+    BSLS_KEYWORD_CONSTEXPR_CPP14
     const_iterator begin() const BSLS_KEYWORD_NOEXCEPT;
+    BSLS_KEYWORD_CONSTEXPR_CPP14
     const_iterator cbegin() const BSLS_KEYWORD_NOEXCEPT;
         // Return an iterator providing non-modifiable access to the first
         // element in this array; return a past-the-end iterator if this array
         // has size 0.
 
+    BSLS_KEYWORD_CONSTEXPR_CPP14
     const_iterator end() const BSLS_KEYWORD_NOEXCEPT;
+    BSLS_KEYWORD_CONSTEXPR_CPP14
     const_iterator cend() const BSLS_KEYWORD_NOEXCEPT;
         // Return a past-the-end iterator providing non-modifiable access to
         // this array.
 
+    BSLS_KEYWORD_CONSTEXPR_CPP17
     const_reverse_iterator rbegin() const BSLS_KEYWORD_NOEXCEPT;
+    BSLS_KEYWORD_CONSTEXPR_CPP17
     const_reverse_iterator crbegin() const BSLS_KEYWORD_NOEXCEPT;
         // Return a reverse iterator providing non-modifiable access to the
         // last element in this array, and the past-the-end reverse iterator if
         // this array has size 0.
 
+    BSLS_KEYWORD_CONSTEXPR_CPP17
     const_reverse_iterator rend() const BSLS_KEYWORD_NOEXCEPT;
+    BSLS_KEYWORD_CONSTEXPR_CPP17
     const_reverse_iterator crend() const BSLS_KEYWORD_NOEXCEPT;
         // Return the past-the-end reverse iterator providing non-modifiable
         // access to this 'array'.
@@ -373,6 +389,7 @@ struct array {
         // Return a reference providing non-modifiable access to the last
         // element in this array.  Behavior is undefined unless 'SIZE > 0'.
 
+    BSLS_KEYWORD_CONSTEXPR_CPP14
     const_pointer data() const BSLS_KEYWORD_NOEXCEPT;
         // Return the address of the first element of the underlying raw array.
         // Return a valid 'T*' which cannot be dereferenced if the 'SIZE' is 0.
@@ -560,6 +577,7 @@ void array<VALUE_TYPE, SIZE>::swap(array<VALUE_TYPE, SIZE>& rhs)
 
 // ACCESSORS
 template <class VALUE_TYPE, size_t SIZE>
+BSLS_KEYWORD_CONSTEXPR_CPP14
 typename array<VALUE_TYPE, SIZE>::iterator
 array<VALUE_TYPE, SIZE>::begin() BSLS_KEYWORD_NOEXCEPT
 {
@@ -567,6 +585,7 @@ array<VALUE_TYPE, SIZE>::begin() BSLS_KEYWORD_NOEXCEPT
 }
 
 template <class VALUE_TYPE, size_t SIZE>
+BSLS_KEYWORD_CONSTEXPR_CPP14
 typename array<VALUE_TYPE, SIZE>::const_iterator
 array<VALUE_TYPE, SIZE>::begin() const BSLS_KEYWORD_NOEXCEPT
 {
@@ -574,6 +593,7 @@ array<VALUE_TYPE, SIZE>::begin() const BSLS_KEYWORD_NOEXCEPT
 }
 
 template <class VALUE_TYPE, size_t SIZE>
+BSLS_KEYWORD_CONSTEXPR_CPP14
 typename array<VALUE_TYPE, SIZE>::iterator
 array<VALUE_TYPE, SIZE>::end() BSLS_KEYWORD_NOEXCEPT
 {
@@ -581,6 +601,7 @@ array<VALUE_TYPE, SIZE>::end() BSLS_KEYWORD_NOEXCEPT
 }
 
 template <class VALUE_TYPE, size_t SIZE>
+BSLS_KEYWORD_CONSTEXPR_CPP14
 typename array<VALUE_TYPE, SIZE>::const_iterator
 array<VALUE_TYPE, SIZE>::end() const BSLS_KEYWORD_NOEXCEPT
 {
@@ -588,6 +609,7 @@ array<VALUE_TYPE, SIZE>::end() const BSLS_KEYWORD_NOEXCEPT
 }
 
 template <class VALUE_TYPE, size_t SIZE>
+BSLS_KEYWORD_CONSTEXPR_CPP17
 typename array<VALUE_TYPE, SIZE>::reverse_iterator
 array<VALUE_TYPE, SIZE>::rbegin() BSLS_KEYWORD_NOEXCEPT
 {
@@ -595,6 +617,7 @@ array<VALUE_TYPE, SIZE>::rbegin() BSLS_KEYWORD_NOEXCEPT
 }
 
 template <class VALUE_TYPE, size_t SIZE>
+BSLS_KEYWORD_CONSTEXPR_CPP17
 typename array<VALUE_TYPE, SIZE>::const_reverse_iterator
 array<VALUE_TYPE, SIZE>::rbegin() const BSLS_KEYWORD_NOEXCEPT
 {
@@ -602,6 +625,7 @@ array<VALUE_TYPE, SIZE>::rbegin() const BSLS_KEYWORD_NOEXCEPT
 }
 
 template <class VALUE_TYPE, size_t SIZE>
+BSLS_KEYWORD_CONSTEXPR_CPP17
 typename array<VALUE_TYPE, SIZE>::reverse_iterator
 array<VALUE_TYPE, SIZE>::rend() BSLS_KEYWORD_NOEXCEPT
 {
@@ -609,6 +633,7 @@ array<VALUE_TYPE, SIZE>::rend() BSLS_KEYWORD_NOEXCEPT
 }
 
 template <class VALUE_TYPE, size_t SIZE>
+BSLS_KEYWORD_CONSTEXPR_CPP17
 typename array<VALUE_TYPE, SIZE>::const_reverse_iterator
 array<VALUE_TYPE, SIZE>::rend() const BSLS_KEYWORD_NOEXCEPT
 {
@@ -616,6 +641,7 @@ array<VALUE_TYPE, SIZE>::rend() const BSLS_KEYWORD_NOEXCEPT
 }
 
 template <class VALUE_TYPE, size_t SIZE>
+BSLS_KEYWORD_CONSTEXPR_CPP14
 typename array<VALUE_TYPE, SIZE>::const_iterator
 array<VALUE_TYPE, SIZE>::cbegin() const BSLS_KEYWORD_NOEXCEPT
 {
@@ -623,6 +649,7 @@ array<VALUE_TYPE, SIZE>::cbegin() const BSLS_KEYWORD_NOEXCEPT
 }
 
 template <class VALUE_TYPE, size_t SIZE>
+BSLS_KEYWORD_CONSTEXPR_CPP14
 typename array<VALUE_TYPE, SIZE>::const_iterator
 array<VALUE_TYPE, SIZE>::cend() const BSLS_KEYWORD_NOEXCEPT
 {
@@ -630,6 +657,7 @@ array<VALUE_TYPE, SIZE>::cend() const BSLS_KEYWORD_NOEXCEPT
 }
 
 template <class VALUE_TYPE, size_t SIZE>
+BSLS_KEYWORD_CONSTEXPR_CPP17
 typename array<VALUE_TYPE, SIZE>::const_reverse_iterator
 array<VALUE_TYPE, SIZE>::crbegin() const BSLS_KEYWORD_NOEXCEPT
 {
@@ -637,6 +665,7 @@ array<VALUE_TYPE, SIZE>::crbegin() const BSLS_KEYWORD_NOEXCEPT
 }
 
 template <class VALUE_TYPE, size_t SIZE>
+BSLS_KEYWORD_CONSTEXPR_CPP17
 typename array<VALUE_TYPE, SIZE>::const_reverse_iterator
 array<VALUE_TYPE, SIZE>::crend() const BSLS_KEYWORD_NOEXCEPT
 {
@@ -665,7 +694,7 @@ size_t array<VALUE_TYPE, SIZE>::max_size() const BSLS_KEYWORD_NOEXCEPT
 }
 
 template <class VALUE_TYPE, size_t SIZE>
-BSLS_KEYWORD_CONSTEXPR_CPP17
+BSLS_KEYWORD_CONSTEXPR_CPP14
 typename array<VALUE_TYPE, SIZE>::reference
 array<VALUE_TYPE, SIZE>::operator[](size_type position)
 {
@@ -686,6 +715,7 @@ array<VALUE_TYPE, SIZE>::operator[](size_type position) const
 }
 
 template <class VALUE_TYPE, size_t SIZE>
+BSLS_KEYWORD_CONSTEXPR_CPP14
 typename array<VALUE_TYPE, SIZE>::reference array<VALUE_TYPE, SIZE>::at(
                                                             size_type position)
 {
@@ -710,6 +740,7 @@ array<VALUE_TYPE, SIZE>::at(size_type position) const
 
 template <class VALUE_TYPE, size_t SIZE>
 typename array<VALUE_TYPE, SIZE>::reference
+BSLS_KEYWORD_CONSTEXPR_CPP14
 array<VALUE_TYPE, SIZE>::front()
 {
     BSLS_ASSERT(SIZE > 0);
@@ -730,6 +761,7 @@ array<VALUE_TYPE, SIZE>::front() const
 
 template <class VALUE_TYPE, size_t SIZE>
 typename array<VALUE_TYPE, SIZE>::reference
+BSLS_KEYWORD_CONSTEXPR_CPP14
 array<VALUE_TYPE, SIZE>::back()
 {
     BSLS_ASSERT(SIZE > 0);
@@ -749,6 +781,7 @@ array<VALUE_TYPE, SIZE>::back() const
 }
 
 template <class VALUE_TYPE, size_t SIZE>
+BSLS_KEYWORD_CONSTEXPR_CPP14
 typename array<VALUE_TYPE, SIZE>::iterator
 array<VALUE_TYPE, SIZE>::data() BSLS_KEYWORD_NOEXCEPT
 {
@@ -756,6 +789,7 @@ array<VALUE_TYPE, SIZE>::data() BSLS_KEYWORD_NOEXCEPT
 }
 
 template <class VALUE_TYPE, size_t SIZE>
+BSLS_KEYWORD_CONSTEXPR_CPP14
 typename array<VALUE_TYPE, SIZE>::const_iterator
 array<VALUE_TYPE, SIZE>::data() const BSLS_KEYWORD_NOEXCEPT
 {
