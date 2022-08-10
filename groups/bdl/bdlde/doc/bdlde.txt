@@ -91,10 +91,10 @@
 :      Provide a mechanism for computing the CRC-64 checksum of a dataset.
 :
 : 'bdlde_hexdecoder':
-:      Provide automata converting from Hex encodings.
+:      Provide automata converting from hex encodings.
 :
 : 'bdlde_hexencoder':
-:      Provide automata converting to Hex encodings.
+:      Provide automata converting to hex encodings.
 :
 : 'bdlde_md5':
 :      Provide a value-semantic type encoding a message in an MD5 digest.
