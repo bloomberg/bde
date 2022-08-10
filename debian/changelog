@@ -1,5 +1,37 @@
-bsl-internal (3.105.0.0) unstable; urgency=low
+bsl-internal (3.106.0.0) unstable; urgency=low
 
+  * e48fb8171 Bumped version to 3.106.0.0
+  * d2f2c28f5 Drqs 170067392/bdlma concurrentpoolallocator nb 20220809 (#3851)
+  * c95e827e0 correct compile warning (#3850)
+  * a3aa3573a reduce eecuting platforms (#3849)
+  * 6abcf2fcc  'bdlde::HexDecoder'/'bdlde::HexEncoder'. DRQS 168108118.  (#3822)
+  * fae664023 bslstl_array constexpr fixes (#3834)
+  * 914c3cdcf bdlt_currenttime: Make `asDatetimeTz` documentation more precise. (#3847)
+  * d91d460e0 drqs-169999623: 'bdlma_concurrentpoolallocator': TC3: 'fa' leak on retry. (#3842)
+  * aab2b8dc0 Update ball_categorymanager to use unordered_map (#3838)
+  * b15b5aa4c correct for no-exc builds (#3839)
+  * 13fff1b9c  drqs-150089255: 'bsls_performancehint': 'bool' support for '*_UNLIKELY'. (#3836)
+  * 09f57591e Initial header implementation of vector decoding allocation fix (#3747)
+  * 9879a899e correct compilet warning on SunOS gcc-7 (#3832)
+  * 82e991037 correct IBM infinite loop warning (#3830)
+  * ddc328410 Fix unused function warning on Darwin (#3831)
+  * 9a6ff99e6 switch to a robust estimator and improve testing (#3826)
+  * e52b89e34 bdlmt_eventscheduler isStarted() (#3824)
+  * cfcbae2ec clean compile warnings (#3827)
+  * 52897cc55 Use pathutil API in ball record json formatter (#3825)
+  * 1c57f3a52 bsls_performancehint.t.cpp reorganized drqs 169295823 (#3821)
+  * 38e44f86a Add security section to bdlde_sha1.h and bdlde_md5.h (DRQS 169937793) (#3820)
+  * 1d2a2557b Use pathutil API in ball record formatter (#3823)
+  * 3bc667ab8 implement try_emplace and insert_or_assign for maps (#3802)
+  * e7c303b19 Fix bslmf_addpointer.t for solaris 12.6 (#3817)
+  * 5b2042479 Merge pull request #3811 from bchapman/bdlt_datetimeinterval-ifvalid-3-drqs-135416925
+  * fb15c8963 bdlmt_threadpool improved docs and a few bde_verify fixes (#3819)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 10 Aug 2022 14:32:50 -0400
+
+bsl-internal (3.105.0.0) git; urgency=low
+
+  * e3b573067 Changelog for version 3.105.0.0
   * db3096bfa Bumped version to 3.105.0.0
   * a66d7e190 Merge pull request #3814 from bchapman/bdlde-silence-unused_variable_warnings-drqs-169886846
   * 3431219e4 bdlat: Remove deprecated and unused legacy traits interface (#3813)
@@ -18,7 +50,7 @@ bsl-internal (3.105.0.0) unstable; urgency=low
   * 97be552bb Add record separator to ball::RecordJsonFormatter (default "\n") (DRQS 169718102) (#3795)
   * a3b45e6a0 Ball categorymanager data race (#3797)
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 22 Jul 2022 11:17:59 -0400
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 22 Jul 2022 11:26:38 -0400
 
 bsl-internal (3.104.0.0) git; urgency=low
 
