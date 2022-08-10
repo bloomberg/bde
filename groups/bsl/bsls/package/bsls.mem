@@ -42,6 +42,7 @@ bsls_byteorder
 bsls_byteorderutil
 bsls_byteorderutil_impl
 bsls_compilerfeatures
+bsls_consteval
 bsls_cpp11
 bsls_deprecate
 bsls_deprecatefeature

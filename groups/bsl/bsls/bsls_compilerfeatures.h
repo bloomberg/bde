@@ -1344,6 +1344,18 @@ BSLS_IDENT("$Id: $")
 #endif
 
 // ============================================================================
+//                    STANDARD FEATURE-DETECTION MACROS
+// ============================================================================
+
+#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
+#include <version>
+#endif
+
+#if defined(__cpp_lib_is_constant_evaluated)
+# define BSLS_COMPILERFEATURES_SUPPORT_IS_CONSTANT_EVALUATED
+#endif
+
+// ============================================================================
 //              DISABLE FEATURES REMOVED BY LATER STANDARDS
 // ============================================================================
 
