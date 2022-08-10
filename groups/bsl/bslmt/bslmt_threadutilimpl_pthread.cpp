@@ -91,6 +91,7 @@ int localPthreadsPolicy(int policy)
     }
 
     BSLS_ASSERT_OPT(0);
+    return SCHED_OTHER;
 }
 
 static int initPthreadAttribute(pthread_attr_t                 *destination,

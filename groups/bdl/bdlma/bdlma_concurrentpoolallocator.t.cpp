@@ -1586,101 +1586,90 @@ int main(int argc, char *argv[])
         for (int runNumber = 0; runNumber < NUM_RUNS; ++runNumber) {
 
             if (veryVerbose) { P(runNumber) }
-
-            int retryCount = 0;
-            for (; retryCount < RETRY_LIMIT; ++retryCount) {
     
-                if (veryVerbose) { T_ P(retryCount) }
-    
-                bslmt::ThreadAttributes       attributes;
-                bslmt::Barrier                barrier(2);
+            bslmt::ThreadAttributes       attributes;
+            bslmt::Barrier                barrier(2);
 
-                bslma::TestAllocator  tas                 [NUM_ALLOCATORS];
-                Obj                  *arrayOfAllocatorPtrs[NUM_ALLOCATORS];
+            bslma::TestAllocator  tas                 [NUM_ALLOCATORS];
+            Obj                  *arrayOfAllocatorPtrs[NUM_ALLOCATORS];
 
-                for (int i = 0; i < NUM_ALLOCATORS; ++i) {
-                    arrayOfAllocatorPtrs[i] = new (fa) Obj(&tas[i]);
-                }
+            for (int i = 0; i < NUM_ALLOCATORS; ++i) {
+                arrayOfAllocatorPtrs[i] = new (fa) Obj(&tas[i]);
+            }
 
-                Test3Context  context = { arrayOfAllocatorPtrs
-                                        , &barrier
-                                        , Test3Context::e_PROCEED
-                                        };
-                void         *arg = &context;
-    
-                bslmt::ThreadUtil::Handle   upHandle;
-                bslmt::ThreadUtil::Handle downHandle;
-    
-                int statusUp = bslmt::ThreadUtil::create(&upHandle,
+            Test3Context  context = { arrayOfAllocatorPtrs
+                                    , &barrier
+                                    , Test3Context::e_PROCEED
+                                    };
+            void         *arg     = &context;
+
+            bslmt::ThreadUtil::Handle upHandle;
+            int                       statusUp;
+            {
+                statusUp = bslmt::ThreadUtil::create(&upHandle,
+                                                     attributes,
+                                                     &my3_up,
+                                                     arg);
+                for (int retryCount = 0;
+                     0 != statusUp && retryCount < RETRY_LIMIT;
+                     ++retryCount) {
+                    bslmt::ThreadUtil::microSleep(0, 1);  // 1 second
+                    statusUp = bslmt::ThreadUtil::create(&upHandle,
                                                          attributes,
                                                          &my3_up,
                                                          arg);
-                if (0 != statusUp) {
-                    if (veryVeryVerbose) { T_ T_ Q("Up" thread create failed) }
-                    bslmt::ThreadUtil::microSleep(0, 1);  // 1 second
-                                                          //
-                    for (int i = 0; i < NUM_ALLOCATORS; ++i) {
-                        fa.deleteObject(arrayOfAllocatorPtrs[i]);
-                    }
-                    continue; // start over
                 }
-    
-                int statusDown = bslmt::ThreadUtil::create(&downHandle,
+                ASSERT(0 == statusUp);
+            }
+
+            if (0 == statusUp) {
+                bslmt::ThreadUtil::Handle downHandle;
+                int                       statusDown;
+                {
+                    statusDown = bslmt::ThreadUtil::create(&downHandle,
                                                            attributes,
                                                            &my3_down,
                                                            arg);
-                if (0 != statusDown) {
-
-                    if (veryVeryVerbose) {
-                        T_ T_ Q("Down" thread create failed)
+                    for (int retryCount = 0;
+                         0 != statusUp && retryCount < RETRY_LIMIT;
+                         ++retryCount) {
+                        bslmt::ThreadUtil::microSleep(0, 1);  // 1 second
+                        statusDown = bslmt::ThreadUtil::create(&downHandle,
+                                                               attributes,
+                                                               &my3_down,
+                                                               arg);
                     }
+                    ASSERT(0 == statusDown);
+                }
 
-                    context.d_action = Test3Context::e_EXIT;
-                    barrier.arrive(); // Release the "up" thread so it exits.
-                    void *exitUp = 0;
-                    int statusJoinUp   = bslmt::ThreadUtil::join(upHandle,
-                                                                 &exitUp);
-                    ASSERT( 0 == statusJoinUp);
-                    ASSERT(-1 == *static_cast<int *>(exitUp));
-                    
-                    bslmt::ThreadUtil::microSleep(0, 1);  // 1 second
+                if (0 == statusDown) {
+                    ASSERT(0 == bslmt::ThreadUtil::join(upHandle));
+                    ASSERT(0 == bslmt::ThreadUtil::join(downHandle));
 
                     for (int i = 0; i < NUM_ALLOCATORS; ++i) {
-                        fa.deleteObject(arrayOfAllocatorPtrs[i]);
+                        const bslma::TestAllocator& TA = tas[i];
+
+                        ASSERTV(i, TA.numAllocations(),
+                                2 == TA.numAllocations());
+
+                        ASSERTV(i, TA.numBlocksInUse(),
+                                2 == TA.numBlocksInUse());
+
+                        ASSERTV(i, TA.numDeallocations(),
+                                0 == TA.numDeallocations());
                     }
-                    continue;  // start over
                 }
-    
-                int statusJoinUp   = bslmt::ThreadUtil::join(  upHandle);
-                ASSERT(0 == statusJoinUp);
-    
-                int statusJoinDown = bslmt::ThreadUtil::join(downHandle);
-                ASSERT(0 == statusJoinDown);
+                else {
+                    // release and join the 'upHandle' thread
 
-                for (int i = 0; i < NUM_ALLOCATORS; ++i) {
-                    const bslma::TestAllocator& TA = tas[i];
-
-                    ASSERTV(i, TA.numAllocations(), 2 == TA.numAllocations());
-                    ASSERTV(i, TA.numBlocksInUse(), 2 == TA.numBlocksInUse());
-                    ASSERTV(i,   TA.numDeallocations(),
-                            0 == TA.numDeallocations());
+                    context.d_action = Test3Context::e_EXIT;
+                    barrier.arrive();
+                    ASSERT(0 == bslmt::ThreadUtil::join(upHandle));
                 }
-
-                for (int i = 0; i < NUM_ALLOCATORS; ++i) {
-                    fa.deleteObject(arrayOfAllocatorPtrs[i]);
-                }
-
-                break;
             }
-    
-            if (RETRY_LIMIT == retryCount) {
-                if (veryVerbose) {
-                    Q(Could not create both threads);
-                    P(runNumber) P(retryCount)
-                }
-                ASSERTV(runNumber, retryCount,
-                        !"Able to create both threads.");
-                break;
+
+            for (int i = 0; i < NUM_ALLOCATORS; ++i) {
+                fa.deleteObject(arrayOfAllocatorPtrs[i]);
             }
         }
 
