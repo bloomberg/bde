@@ -8,6 +8,7 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_assert.h>
 #include <bsls_platform.h>
+#include <bsls_types.h>
 
 #include <ctype.h>
 #include <errno.h>
@@ -189,8 +190,10 @@ int bsl::stoi(const string& str, std::size_t *pos, int base)
         BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stoi");
     }
     else if (sizeof(int) < sizeof(long) // proxy for 'long' has a wider range
-         && (value > std::numeric_limits<int>::max() ||
-             value < std::numeric_limits<int>::min() ) ) {
+         && (static_cast<BloombergLP::bsls::Types::Int64>(value) >
+                                             std::numeric_limits<int>::max() ||
+             static_cast<BloombergLP::bsls::Types::Int64>(value) <
+                                          std::numeric_limits<int>::min() ) ) {
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoi");
     }
 
@@ -231,8 +234,10 @@ int bsl::stoi(const wstring& str, std::size_t *pos, int base)
         BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stoi");
     }
     else if (sizeof(int) < sizeof(long) // proxy for 'long' has a wider range
-         && (value > std::numeric_limits<int>::max() ||
-             value < std::numeric_limits<int>::min() ) ) {
+         && (static_cast<BloombergLP::bsls::Types::Int64>(value) >
+                                             std::numeric_limits<int>::max() ||
+             static_cast<BloombergLP::bsls::Types::Int64>(value) <
+                                          std::numeric_limits<int>::min() ) ) {
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoi");
     }
 
