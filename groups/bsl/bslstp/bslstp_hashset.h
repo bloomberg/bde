@@ -92,7 +92,8 @@ template <class _Value,
 class hash_set
 {
 private:
-  typedef hashtable<_Value, _Value, _HashFcn, identity<_Value>,
+  typedef hashtable<_Value, _Value, _HashFcn,
+                    ::BloombergLP::bslstp::Identity<_Value>,
                     _EqualKey, _Alloc> _Ht;
   typedef hash_set<_Value, _HashFcn, _EqualKey, _Alloc> _Self;
   typedef typename _Ht::iterator _ht_iterator;
@@ -249,7 +250,8 @@ template <class _Value,
 class hash_multiset
 {
 private:
-  typedef hashtable<_Value, _Value, _HashFcn, identity<_Value>,
+  typedef hashtable<_Value, _Value, _HashFcn,
+                    ::BloombergLP::bslstp::Identity<_Value>,
                     _EqualKey, _Alloc> _Ht;
   typedef hash_multiset<_Value, _HashFcn, _EqualKey, _Alloc> _Self;
 

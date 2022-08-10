@@ -1865,7 +1865,7 @@ DEFINE_TEST_CASE(10) {
         //:   const-reference) to the identity function.
         //
         // Plan:
-        //: 1 Call 'bind' with 'bsl::identity<int>' and make sure it returns
+        //: 1 Call 'bind' with 'bslstp::Identity<int>' and make sure it returns
         //:   the correct bound value.
         //
         // Testing:
@@ -1878,7 +1878,7 @@ DEFINE_TEST_CASE(10) {
         (void)veryVerbose;
         (void)veryVeryVerbose;
         using namespace bdlf;
-        ASSERT(3 == BindUtil::bind(bsl::identity<int>(), 3)());
+        ASSERT(3 == BindUtil::bind(bslstp::Identity<int>(), 3)());
       }
 
 DEFINE_TEST_CASE(9) {

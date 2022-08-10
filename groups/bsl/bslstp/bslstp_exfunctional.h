@@ -68,6 +68,9 @@ BSLS_IDENT("$Id: $")
 
 #include <bslstl_equalto.h>
 
+#include <bsls_compilerfeatures.h>
+#include <bsls_deprecatefeature.h>
+
 #include <cstring>     // for 'std::strcmp'
 #include <functional>  // for 'std::unary_function'
 
@@ -159,12 +162,21 @@ class binary_compose
     }
 };
 
-                    // ===================
-                    // class bsl::identity
-                    // ===================
+
+#if BSLS_COMPILERFEATURES_CPLUSPLUS < 202002L
+
+// This definition of 'identity' conflicts with that in the C++20 standard
+// library.
+
+                            // ===================
+                            // class bsl::identity
+                            // ===================
+
+#define BSLSTP_DEPRECATE_IDENTITY \
+BSLS_DEPRECATE_FEATURE("bsl", "stlport_identity", "Use bslstp::Identity.")
 
 template <class TYPE>
-struct identity
+struct BSLSTP_DEPRECATE_IDENTITY identity
 {
     // public type names
     typedef TYPE argument_type;
@@ -179,6 +191,8 @@ struct identity
         return x;
     }
 };
+
+#endif
 
                     // ====================
                     // class bsl::select1st
@@ -295,6 +309,43 @@ struct ComparatorSelector<const char *>
 };
 
 }  // close namespace bsl
+
+namespace BloombergLP {
+namespace bslstp {
+
+                    // ======================
+                    // class bslstp::Identity
+                    // ======================
+
+template <class TYPE>
+struct Identity {
+    // An identity function.
+
+    // TYPES
+    typedef TYPE argument_type;
+    typedef TYPE result_type;
+
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(Identity, bsl::is_trivially_copyable);
+
+    // ACCESSORS
+    const TYPE& operator()(const TYPE& x) const;
+        // Return a const reference to the specified 'x'.
+};
+
+//=============================================================================
+//                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
+//=============================================================================
+
+template <class TYPE>
+inline
+const TYPE& Identity<TYPE>::operator()(const TYPE& x) const
+{
+    return x;
+}
+
+} // close package namespace
+} // close enterprise namespace
 
 #endif
 
