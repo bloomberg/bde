@@ -1036,7 +1036,7 @@ STREAM& InStreamFunctions::InStreamFunctions_AccessorHelper<STREAM>::getArray(
                                                          unsigned char *result,
                                                          int            length)
 {
-    return stream.getArrayUInt8(result, length);
+    return stream.getArrayUint8(result, length);
 }
 
 template <class STREAM>
@@ -1056,7 +1056,7 @@ STREAM& InStreamFunctions::InStreamFunctions_AccessorHelper<STREAM>::getArray(
                                                         unsigned short *result,
                                                         int             length)
 {
-    return stream.getArrayUInt16(result, length);
+    return stream.getArrayUint16(result, length);
 }
 
 template <class STREAM>
@@ -1076,7 +1076,7 @@ STREAM& InStreamFunctions::InStreamFunctions_AccessorHelper<STREAM>::getArray(
                                                           unsigned int *result,
                                                           int           length)
 {
-    return stream.getArrayUInt32(result, length);
+    return stream.getArrayUint32(result, length);
 }
 
 template <class STREAM>

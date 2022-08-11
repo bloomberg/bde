@@ -601,7 +601,7 @@ class MyTestInStream {
         return getArrayHelper(num, k_INT + 4);
     }
 
-    MyTestInStream& getArrayUInt32(unsigned int * /* value */, int num) {
+    MyTestInStream& getArrayUint32(unsigned int * /* value */, int num) {
         return getArrayHelper(num, k_UNSIGNED + k_INT + 4);
     }
 
@@ -609,7 +609,7 @@ class MyTestInStream {
         return getArrayHelper(num, k_INT + 2);
     }
 
-    MyTestInStream& getArrayUInt16(unsigned short * /* value */, int num) {
+    MyTestInStream& getArrayUint16(unsigned short * /* value */, int num) {
         return getArrayHelper(num, k_UNSIGNED + k_INT + 2);
     }
 
@@ -621,7 +621,7 @@ class MyTestInStream {
         return getArrayHelper(num, k_SIGNED + k_INT + 1);
     }
 
-    MyTestInStream& getArrayUInt8(unsigned char * /* value */, int num) {
+    MyTestInStream& getArrayUint8(unsigned char * /* value */, int num) {
         return getArrayHelper(num, k_UNSIGNED + k_INT + 1);
     }
 
