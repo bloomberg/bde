@@ -384,6 +384,8 @@ class FlatHashMap {
     typedef HASH                               hasher;
     typedef value_type&                        reference;
     typedef const value_type&                  const_reference;
+    typedef value_type*                        pointer;
+    typedef const value_type*                  const_pointer;
     typedef typename ImplType::iterator        iterator;
     typedef typename ImplType::const_iterator  const_iterator;
 

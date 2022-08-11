@@ -175,6 +175,7 @@ using namespace bsl;
 // [27] USAGE EXAMPLE
 // [24] CONCERN: 'FlatHashMap' has the necessary type traits
 // [25] DRQS 165258625: 'insert' could create reference to temporary
+// [27] DRQS 169531176: 'bsl::inserter' usage on Sun
 // [ 1] BREATHING TEST
 // [-1] PERFORMANCE TEST
 // ----------------------------------------------------------------------------
@@ -1216,7 +1217,7 @@ int main(int argc, char *argv[])
     bslma::Default::setDefaultAllocatorRaw(&defaultAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 27: {
+      case 28: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -1263,6 +1264,39 @@ int main(int argc, char *argv[])
 //..
 //  100 84
 //..
+      } break;
+      case 27: {
+        // --------------------------------------------------------------------
+        // INSERTER
+        //   Interoperation with 'bsl::inserter' works as expected.
+        //
+        // Concerns:
+        //: 1 A 'bsl::inserter' object can be constructed from the class.
+        //:
+        //: 2 Use of the 'bsl::inserter' object with a STL algorithm adds items
+        //:   to the collection as expected.
+        //
+        // Plan:
+        //: 1 Construct a 'bsl::inserter' from the class. (C-1)
+        //:
+        //: 2 Invoke 'bsl::fill_n' on the inserter. (C-2)
+        //
+        // Testing:
+        //   DRQS 169531176: 'bsl::inserter' usage on Sun
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "INSERTER" << endl
+                          << "========" << endl;
+
+        bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+
+        typedef bdlc::FlatHashSet<int> Obj;
+        Obj mX(&oa); const Obj& X = mX;
+
+        bsl::fill_n(bsl::inserter(mX, mX.begin()), 5, 2);
+        ASSERTV(X.size(), 1 == X.size());
+
       } break;
       case 26: {
         // --------------------------------------------------------------------

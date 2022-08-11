@@ -185,9 +185,10 @@ using namespace bsl;
 // FREE FUNCTIONS
 // [ 8] void swap(FlatHashMap&, FlatHashMap&);
 // ----------------------------------------------------------------------------
-// [30] USAGE EXAMPLE
+// [31] USAGE EXAMPLE
 // [26] CONCERN: 'FlatHashMap' has the necessary type traits
 // [27] DRQS 165583038: 'insert' with conversion can crash
+// [30] DRQS 169531176: bsl::inserter compatibility on Sun
 // [ 1] BREATHING TEST
 // [-1] PERFORMANCE TEST
 // ----------------------------------------------------------------------------
@@ -995,7 +996,7 @@ int main(int argc, char *argv[])
     bslma::Default::setDefaultAllocatorRaw(&defaultAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 30: {
+      case 31: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -1142,6 +1143,38 @@ int main(int argc, char *argv[])
 //  them          3
 //  among         3
 //..
+      } break;
+      case 30: {
+        // --------------------------------------------------------------------
+        // INSERTER
+        //   Interoperation with 'bsl::inserter' works as expected.
+        //
+        // Concerns:
+        //: 1 A 'bsl::inserter' object can be constructed from the class.
+        //:
+        //: 2 Use of the 'bsl::inserter' object with a STL algorithm adds items
+        //:   to the collection as expected.
+        //
+        // Plan:
+        //: 1 Construct a 'bsl::inserter' from the class. (C-1)
+        //:
+        //: 2 Invoke 'bsl::fill_n' on the inserter. (C-2)
+        //
+        // Testing:
+        //   DRQS 169531176: bsl::inserter compatibility on Sun
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "INSERTER" << endl
+                          << "========" << endl;
+
+        typedef bdlc::FlatHashMap<int, int> Obj;
+
+        bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+        Obj mX(&oa); const Obj& X = mX;
+
+        bsl::fill_n(bsl::inserter(mX, mX.begin()), 5, Obj::value_type(1,2));
+        ASSERTV(X.size(), 1 == X.size());
       } break;
       case 29: {
         // --------------------------------------------------------------------
