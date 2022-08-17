@@ -557,12 +557,12 @@ class ObjectCatalogIter {
                                                           BSLS_KEYWORD_DELETED;
     bool operator==(const ObjectCatalogIter&) const BSLS_KEYWORD_DELETED;
     bool operator!=(const ObjectCatalogIter&) const BSLS_KEYWORD_DELETED;
-    template<class OTHER>
-    bool operator==(const ObjectCatalogIter<OTHER>&) const
-                                                          BSLS_KEYWORD_DELETED;
-    template<class OTHER>
-    bool operator!=(const ObjectCatalogIter<OTHER>&) const
-                                                          BSLS_KEYWORD_DELETED;
+    template <class BDE_OTHER_TYPE>
+    bool operator==(
+          const ObjectCatalogIter<BDE_OTHER_TYPE>&) const BSLS_KEYWORD_DELETED;
+    template <class BDE_OTHER_TYPE>
+    bool operator!=(
+          const ObjectCatalogIter<BDE_OTHER_TYPE>&) const BSLS_KEYWORD_DELETED;
 
   public:
     // CREATORS

@@ -1177,54 +1177,57 @@ class map {
 #endif
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-    template <class OTHER>
-    pair<iterator, bool> insert_or_assign(const KEY& key, OTHER&& obj);
+    template <class BDE_OTHER_TYPE>
+    pair<iterator, bool> insert_or_assign(const KEY&       key,
+                                          BDE_OTHER_TYPE&& obj);
         // If a key equivalent to the specified 'key' already exists in this
         // map, assign the specified 'obj' to the value associated with that
         // key, and return a pair containing an iterator referring to the
         // existing item and 'false'.  Otherwise, insert into this map a
         // newly-created 'value_type' object, constructed from
-        // '(key, std::forward<OTHER>(obj)...))', and return a pair containing
-        // an iterator referring to the newly-created entry and 'true'.
+        // '(key, std::forward<BDE_OTHER_TYPE>(obj)...))', and return a pair
+        // containing an iterator referring to the newly-created entry and
+        // 'true'.
 
-    template <class OTHER>
+    template <class BDE_OTHER_TYPE>
     pair<iterator, bool> insert_or_assign(
-                                 BloombergLP::bslmf::MovableRef<KEY> key,
-                                 OTHER&&                             obj);
+                                      BloombergLP::bslmf::MovableRef<KEY> key,
+                                      BDE_OTHER_TYPE&&                    obj);
         // If a key equivalent to the specified 'key' already exists in this
         // map, assign the specified 'obj' to the value associated with that
         // key, and return a pair containing an iterator referring to the
         // existing item and 'false'.  Otherwise, insert into this map a
         // newly-created 'value_type' object, constructed from
-        // '(std::forward<KEY>(key), std::forward<OTHER>(obj)...))', and return
-        // a pair containing an iterator referring to the newly-created entry
-        // and 'true'.
+        // '(std::forward<KEY>(key), std::forward<BDE_OTHER_TYPE>(obj)...))',
+        // and return a pair containing an iterator referring to the
+        // newly-created entry and 'true'.
 
-    template <class OTHER>
-    iterator
-    insert_or_assign(const_iterator hint, const KEY& key, OTHER&& obj);
+    template <class BDE_OTHER_TYPE>
+    iterator insert_or_assign(const_iterator   hint,
+                              const KEY&       key,
+                              BDE_OTHER_TYPE&& obj);
         // If a key equivalent to the specified 'key' already exists in this
         // map, assign the specified 'obj' to the value associated with that
         // key, and return an iterator referring to the existing item.
         // Otherwise, insert into this map a newly-created 'value_type' object,
-        // constructed from '(key, std::forward<OTHER>(obj)...))', and return
-        // an iterator referring to the newly-created entry.  Use the specified
-        // 'hint' as a starting point for checking to see if the key is
-        // already in the map.
+        // constructed from '(key, std::forward<BDE_OTHER_TYPE>(obj)...))', and
+        // return an iterator referring to the newly-created entry.  Use the
+        // specified 'hint' as a starting point for checking to see if the key
+        // is already in the map.
 
-    template <class OTHER>
+    template <class BDE_OTHER_TYPE>
     iterator insert_or_assign(const_iterator                      hint,
                               BloombergLP::bslmf::MovableRef<KEY> key,
-                              OTHER&&                             obj);
+                              BDE_OTHER_TYPE&&                    obj);
         // If a key equivalent to the specified 'key' already exists in this
         // _map, assign the specified 'obj' to the value associated with that
         // key, and return an iterator referring to the existing item.
         // Otherwise, insert into this map a newly-created 'value_type' object
         // constructed from
-        // '(std::forward<KEY>(key), std::forward<OTHER>(obj)...))', and return
-        // an iterator referring to the newly-created entry.  Use the specified
-        // 'hint' as a starting point for checking to see if the key already
-        // in the map.
+        // '(std::forward<KEY>(key), std::forward<BDE_OTHER_TYPE>(obj)...))',
+        // and return an iterator referring to the newly-created entry.  Use
+        // the specified 'hint' as a starting point for checking to see if the
+        // key already in the map.
 #endif
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
@@ -2751,11 +2754,11 @@ void map<KEY, VALUE, COMPARATOR, ALLOCATOR>::insert(
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
-template <class OTHER>
+template <class BDE_OTHER_TYPE>
 inline
 pair<typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator, bool>
-map<KEY, VALUE, COMPARATOR, ALLOCATOR>::insert_or_assign(const key_type& key,
-                                                         OTHER&&         obj)
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::insert_or_assign(const key_type&  key,
+                                                         BDE_OTHER_TYPE&& obj)
 {
     int comparisonResult;
     BloombergLP::bslalg::RbTreeNode *insertLocation =
@@ -2767,14 +2770,13 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::insert_or_assign(const key_type& key,
 
     if (!comparisonResult) { // ASSIGN
         iterator(insertLocation)->second =
-                                     BSLS_COMPILERFEATURES_FORWARD(OTHER, obj);
+            BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, obj);
         return pair<iterator, bool>(iterator(insertLocation), false); // RETURN
     }
 
     // INSERT
     BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
-             key,
-             BSLS_COMPILERFEATURES_FORWARD(OTHER, obj));
+        key, BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, obj));
 
     BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
                                               insertLocation,
@@ -2785,12 +2787,12 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::insert_or_assign(const key_type& key,
 }
 
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
-template <class OTHER>
+template <class BDE_OTHER_TYPE>
 inline
 typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator
-map<KEY, VALUE, COMPARATOR, ALLOCATOR>::insert_or_assign(const_iterator  hint,
-                                                         const key_type& key,
-                                                         OTHER&&         obj)
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::insert_or_assign(const_iterator   hint,
+                                                         const key_type&  key,
+                                                         BDE_OTHER_TYPE&& obj)
 {
     BloombergLP::bslalg::RbTreeNode *hintNode =
                     const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
@@ -2805,14 +2807,13 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::insert_or_assign(const_iterator  hint,
 
     if (!comparisonResult) { // ASSIGN
         iterator(insertLocation)->second =
-                                     BSLS_COMPILERFEATURES_FORWARD(OTHER, obj);
+            BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, obj);
         return iterator(insertLocation);                              // RETURN
     }
 
     // INSERT
     BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
-             key,
-             BSLS_COMPILERFEATURES_FORWARD(OTHER, obj));
+        key, BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, obj));
 
     BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
                                               insertLocation,
@@ -2823,12 +2824,12 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::insert_or_assign(const_iterator  hint,
 }
 
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
-template <class OTHER>
+template <class BDE_OTHER_TYPE>
 inline
 pair<typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator, bool>
 map<KEY, VALUE, COMPARATOR, ALLOCATOR>::insert_or_assign(
                                   BloombergLP::bslmf::MovableRef<key_type> key,
-                                                                OTHER&&    obj)
+                                  BDE_OTHER_TYPE&&                         obj)
 {
     int comparisonResult;
     BloombergLP::bslalg::RbTreeNode *insertLocation =
@@ -2840,14 +2841,14 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::insert_or_assign(
 
     if (!comparisonResult) { // ASSIGN
         iterator(insertLocation)->second =
-                                     BSLS_COMPILERFEATURES_FORWARD(OTHER, obj);
+            BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, obj);
         return pair<iterator, bool>(iterator(insertLocation), false); // RETURN
     }
 
     // INSERT
     BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
-             BSLS_COMPILERFEATURES_FORWARD(key_type, key),
-             BSLS_COMPILERFEATURES_FORWARD(OTHER, obj));
+        BSLS_COMPILERFEATURES_FORWARD(key_type, key),
+        BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, obj));
 
     BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
                                               insertLocation,
@@ -2858,12 +2859,13 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::insert_or_assign(
 }
 
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
-template <class OTHER>
+template <class BDE_OTHER_TYPE>
 inline
 typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator
-map<KEY, VALUE, COMPARATOR, ALLOCATOR>::insert_or_assign(const_iterator hint,
-                           BloombergLP::bslmf::MovableRef<key_type>     key,
-                           OTHER&&                                      obj)
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::insert_or_assign(
+                                 const_iterator                           hint,
+                                 BloombergLP::bslmf::MovableRef<key_type> key,
+                                 BDE_OTHER_TYPE&&                         obj)
 {
     BloombergLP::bslalg::RbTreeNode *hintNode =
                     const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
@@ -2878,14 +2880,14 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::insert_or_assign(const_iterator hint,
 
     if (!comparisonResult) { // ASSIGN
         iterator(insertLocation)->second =
-                                     BSLS_COMPILERFEATURES_FORWARD(OTHER, obj);
+            BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, obj);
         return iterator(insertLocation);                              // RETURN
     }
 
     // INSERT
     BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
-             BSLS_COMPILERFEATURES_FORWARD(key_type, key),
-             BSLS_COMPILERFEATURES_FORWARD(OTHER, obj));
+        BSLS_COMPILERFEATURES_FORWARD(key_type, key),
+        BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, obj));
 
     BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
                                               insertLocation,

@@ -517,7 +517,7 @@ void BasicSchemaUtil_ChoiceAnnotationRemover::operator()(
     const int rc = bdlat_ChoiceFunctions::manipulateSelection(
         &element, removeAnnotations);
 
-    BSLS_ASSERT(0 == rc);
+    BSLS_ASSERT(0 == rc); (void) rc;
 }
 
               // ------------------------------------------------

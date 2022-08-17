@@ -439,8 +439,9 @@ StdTestAllocator<TYPE>::StdTestAllocator()
 }
 
 template <class TYPE>
-template <class OTHER>
-StdTestAllocator<TYPE>::StdTestAllocator(const StdTestAllocator<OTHER>&)
+template <class BDE_OTHER_TYPE>
+StdTestAllocator<TYPE>::StdTestAllocator(
+                                       const StdTestAllocator<BDE_OTHER_TYPE>&)
 {
 }
 
@@ -516,8 +517,9 @@ StdTestAllocator<void>::StdTestAllocator()
 {
 }
 
-template <class OTHER>
-StdTestAllocator<void>::StdTestAllocator(const StdTestAllocator<OTHER>&)
+template <class BDE_OTHER_TYPE>
+StdTestAllocator<void>::StdTestAllocator(
+                                       const StdTestAllocator<BDE_OTHER_TYPE>&)
 {
 }
 

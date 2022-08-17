@@ -464,22 +464,22 @@ class StdAllocator {
     typedef ptrdiff_t         difference_type;
     typedef size_t            size_type;
 
-    template <class OTHER>
+    template <class BDE_OTHER_TYPE>
     struct rebind {
-        typedef StdAllocator<OTHER> other;
+        typedef StdAllocator<BDE_OTHER_TYPE> other;
     };
 
     // CREATORS
     StdAllocator();
         // Create a 'StdAllocator' object.
 
-    // StdAllocator(const StdAllocator<OTHER>& other) = default;
-        // Create a 'StdAllocator' object from the specified 'other', using the
-        // implicitly generated trivial copy constructor.  Note that as
-        // 'StdAllocator' is an empty class, the 'other' object is not used.
+    // StdAllocator(const StdAllocator<BDE_OTHER_TYPE>& other) = default;
+    // Create a 'StdAllocator' object from the specified 'other', using the
+    // implicitly generated trivial copy constructor.  Note that as
+    // 'StdAllocator' is an empty class, the 'other' object is not used.
 
-    template <class OTHER>
-    StdAllocator(const StdAllocator<OTHER>& other);
+    template <class BDE_OTHER_TYPE>
+    StdAllocator(const StdAllocator<BDE_OTHER_TYPE>& other);
         // Create a 'StdAllocator' object from the specified 'other'.  Note
         // that as 'StdAllocator' is an empty class, the 'other' object is not
         // used.
@@ -511,9 +511,9 @@ StdAllocator<TYPE>::StdAllocator()
 }
 
 template <class TYPE>
-template <class OTHER>
+template <class BDE_OTHER_TYPE>
 inline
-StdAllocator<TYPE>::StdAllocator(const StdAllocator<OTHER>& /*other*/)
+StdAllocator<TYPE>::StdAllocator(const StdAllocator<BDE_OTHER_TYPE>& /*other*/)
 {
 }
 

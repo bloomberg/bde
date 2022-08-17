@@ -2368,12 +2368,12 @@ class HashTable {
         // 'emplaceWithHint' method instead.
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-    template <class KEY_ARG, class OTHER>
+    template <class KEY_ARG, class BDE_OTHER_TYPE>
     bslalg::BidirectionalLink *insertOrAssign(
                     bool                                       *isInsertedFlag,
                     bslalg::BidirectionalLink                  *hint,
                     BSLS_COMPILERFEATURES_FORWARD_REF(KEY_ARG)  key,
-                    OTHER&&                                     obj);
+                    BDE_OTHER_TYPE&&                            obj);
         // If a key equivalent to the specified 'key' already exists in this
         // hash-table, assign the specified 'obj' to the value associated with
         // that key, load 'false' into the specified 'isInsertedFlag' and
@@ -4404,13 +4404,13 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insert(
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class KEY_ARG, class OTHER>
+template <class KEY_ARG, class BDE_OTHER_TYPE>
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertOrAssign(
                     bool                                       *isInsertedFlag,
                     bslalg::BidirectionalLink                  *hint,
                     BSLS_COMPILERFEATURES_FORWARD_REF(KEY_ARG)  key,
-                    OTHER&&                                     obj)
+                    BDE_OTHER_TYPE&&                            obj)
 {
     typedef bslalg::HashTableImpUtil ImpUtil;
 
@@ -4425,7 +4425,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertOrAssign(
 
     if (hint) { // assign
         static_cast<NodeType *>(hint)->value().second =
-                                     BSLS_COMPILERFEATURES_FORWARD(OTHER, obj);
+            BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, obj);
         *isInsertedFlag = false;
         return hint;                                                  // RETURN
     }
@@ -4437,8 +4437,8 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertOrAssign(
 
     // Make a new node
     hint = d_parameters.nodeFactory().emplaceIntoNewNode(
-                                   BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
-                                   BSLS_COMPILERFEATURES_FORWARD(OTHER, obj));
+        BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
+        BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, obj));
 
     // Add it to the hash table
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>

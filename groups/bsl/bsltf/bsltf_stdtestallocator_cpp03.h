@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Oct 21 10:11:37 2021
+// Generated on Fri Aug 12 18:48:16 2022
 // Command line: sim_cpp11_features.pl bsltf_stdtestallocator.h
 
 #ifdef COMPILING_BSLTF_STDTESTALLOCATOR_H
@@ -602,8 +602,9 @@ StdTestAllocator<TYPE>::StdTestAllocator()
 }
 
 template <class TYPE>
-template <class OTHER>
-StdTestAllocator<TYPE>::StdTestAllocator(const StdTestAllocator<OTHER>&)
+template <class BDE_OTHER_TYPE>
+StdTestAllocator<TYPE>::StdTestAllocator(
+                                       const StdTestAllocator<BDE_OTHER_TYPE>&)
 {
 }
 
@@ -1144,8 +1145,9 @@ StdTestAllocator<void>::StdTestAllocator()
 {
 }
 
-template <class OTHER>
-StdTestAllocator<void>::StdTestAllocator(const StdTestAllocator<OTHER>&)
+template <class BDE_OTHER_TYPE>
+StdTestAllocator<void>::StdTestAllocator(
+                                       const StdTestAllocator<BDE_OTHER_TYPE>&)
 {
 }
 
@@ -1176,7 +1178,7 @@ bool operator!=(const bsltf::StdTestAllocator<TYPE1>&,
 #endif // ! defined(INCLUDED_BSLTF_STDTESTALLOCATOR_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2021 Bloomberg Finance L.P.
+// Copyright 2022 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

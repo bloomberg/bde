@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Jul 20 10:42:39 2022
+// Generated on Fri Aug 12 18:15:41 2022
 // Command line: sim_cpp11_features.pl bslstl_hashtable.h
 
 #ifdef COMPILING_BSLSTL_HASHTABLE_H
@@ -1286,12 +1286,12 @@ class HashTable {
 // {{{ BEGIN GENERATED CODE
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
-    template <class KEY_ARG, class OTHER>
+    template <class KEY_ARG, class BDE_OTHER_TYPE>
     bslalg::BidirectionalLink *insertOrAssign(
                     bool                                       *isInsertedFlag,
                     bslalg::BidirectionalLink                  *hint,
                     BSLS_COMPILERFEATURES_FORWARD_REF(KEY_ARG)  key,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(OTHER) obj);
+                    BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) obj);
 // }}} END GENERATED CODE
 
     void rehashForNumBuckets(SizeType newNumBuckets);
@@ -5465,13 +5465,13 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insert(
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class KEY_ARG, class OTHER>
+template <class KEY_ARG, class BDE_OTHER_TYPE>
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertOrAssign(
                     bool                                       *isInsertedFlag,
                     bslalg::BidirectionalLink                  *hint,
                     BSLS_COMPILERFEATURES_FORWARD_REF(KEY_ARG)  key,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(OTHER) obj)
+                    BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) obj)
 {
     typedef bslalg::HashTableImpUtil ImpUtil;
 
@@ -5485,7 +5485,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertOrAssign(
 
     if (hint) {
         static_cast<NodeType *>(hint)->value().second =
-                                     BSLS_COMPILERFEATURES_FORWARD(OTHER, obj);
+            BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, obj);
         *isInsertedFlag = false;
         return hint;
     }
@@ -5495,8 +5495,8 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertOrAssign(
     }
 
     hint = d_parameters.nodeFactory().emplaceIntoNewNode(
-                                   BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
-                                   BSLS_COMPILERFEATURES_FORWARD(OTHER, obj));
+        BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
+        BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, obj));
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
                             nodeProctor(&d_parameters.nodeFactory(), hint);
