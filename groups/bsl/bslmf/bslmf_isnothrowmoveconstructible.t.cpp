@@ -9,6 +9,7 @@
 #include <bslmf_addvolatile.h>
 #include <bslmf_isarray.h>      // MSVC workaround, pre-VC 2017
 #include <bslmf_issame.h>
+#include <bslmf_movableref.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_bsltestutil.h>
@@ -269,10 +270,10 @@ struct IS_SPECIAL_CASE {
 # define ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_RVAL_REF(TYPE, RESULT)
 #endif
 
-    // Macro: ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TYPE
-    //   This macro tests that the 'is_move_constructible' trait has the expected
-    //   'RESULT' for the given 'TYPE', and pointers/references to that type.
-    //   Pointers and references are always no-throw move constructible.
+// Macro: ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TYPE
+//   This macro tests that the 'is_move_constructible' trait has the expected
+//   'RESULT' for the given 'TYPE', and pointers/references to that type.
+//   Pointers and references are always no-throw move constructible.
 # define ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TYPE(TYPE, RESULT)              \
     ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE(TYPE, RESULT);                       \
     ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE(bsl::add_pointer<TYPE>::type, true); \
@@ -282,10 +283,9 @@ struct IS_SPECIAL_CASE {
 
 // Macro: ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CV_TYPE
 //   This macro tests that the 'is_move_constructible' trait has the expected
-//   'RESULT' for the given 'TYPE', and all cv-qualified variations of that
-//   type, and pointers and references to each of those cv-qualified types.
-#define ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CV_TYPE(TYPE, RESULT)       \
-    ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TYPE(TYPE, RESULT);                  \
+//   'RESULT' for all cv-qualified variations of the given 'TYPE', and pointers
+//   and references to each of those cv-qualified types.
+#define ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CV_TYPE(TYPE, RESULT)            \
     ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TYPE(                                \
                                       bsl::add_const<TYPE>::type, RESULT);    \
     ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TYPE(                                \
@@ -293,18 +293,31 @@ struct IS_SPECIAL_CASE {
     ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TYPE(                                \
                                       bsl::add_cv<TYPE>::type, RESULT)
 
+// Macro: ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TYPE_AND_CV_TYPE
+//   This macro tests that the 'is_move_constructible' trait has the expected
+//   'RESULT' for a given 'TYPE' and all cv-qualified variations of that given
+//   'TYPE', and pointers and references to each of those cv-qualified types.
+#define ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TYPE_AND_CV_TYPE(TYPE, RESULT)   \
+    ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TYPE(TYPE, RESULT);                  \
+    ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CV_TYPE(TYPE, RESULT);
+
 // Macro: ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE
 //   This macro tests that the 'is_move_constructible' trait has the expected
-//   'RESULT' for the given object 'TYPE', and all cv-qualified variations of
-//   that type, and pointers and references to each of those cv-qualified
-//   types, and arrays of those cv-qualified types.  Note that this macro does
-//   not recursively test arrays of pointers to 'TYPE'.
-#define ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(TYPE, RESULT);       \
-    ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CV_TYPE(TYPE, RESULT);               \
-    ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CV_TYPE(TYPE[128], false);           \
-    ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CV_TYPE(TYPE[12][8], false);         \
-    ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CV_TYPE(TYPE[], false);              \
-    ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CV_TYPE(TYPE[][8], false)
+//   'RESULT' for the given object 'TYPE', and for pointers, references to, and
+//   arrays of that type, and the expected 'CVRESULT' for all cv-qualified
+//   variations of that type, and for pointers, references to, and arrays of
+//   each of those cv-qualified types.  Note that this macro does not
+//   recursively test arrays of pointers to 'TYPE'.
+#define ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(TYPE,                \
+                                                         RESULT,              \
+                                                         CVRESULT)            \
+    ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TYPE(TYPE, RESULT);                  \
+    ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CV_TYPE(TYPE, CVRESULT);             \
+    ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TYPE_AND_CV_TYPE(TYPE[128], false);  \
+    ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TYPE_AND_CV_TYPE(TYPE[9][8], false); \
+    ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TYPE_AND_CV_TYPE(TYPE[], false);     \
+    ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TYPE_AND_CV_TYPE(TYPE[][8], false)
+
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -350,6 +363,57 @@ struct NonTrivial {
     // CREATORS
     NonTrivial() {}
     NonTrivial(const NonTrivial&) {}
+};
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+struct NonTrivialWithMoveConstructor {
+    // This 'struct' has a non-'noexcept' move constructor, so is not no-throw
+    // move constructible in any dialect of C++.
+
+    // CREATORS
+    NonTrivialWithMoveConstructor(NonTrivialWithMoveConstructor&&)
+        // Create an instance of the object using move construction.
+    {
+    }
+};
+
+struct NonTrivialWithNoexceptMoveConstructor {
+    // This 'struct' has a 'noexcept' move constructor, so is no-throw move
+    // constructible in any dialect of C++ that supports 'noexcept'.
+
+    // CREATORS
+    NonTrivialWithNoexceptMoveConstructor(
+                 NonTrivialWithNoexceptMoveConstructor&&) BSLS_KEYWORD_NOEXCEPT
+        // Create an instance of the object using move construction.
+    {
+    }
+};
+#endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+
+struct NonTrivialWithMovableRefConstructor {
+    // This 'struct' has a non-'noexcept' 'MovableRef' move constructor, so is
+    // not no-throw move constructible in any dialect of C++.
+
+    // CREATORS
+    NonTrivialWithMovableRefConstructor(
+                        bslmf::MovableRef<NonTrivialWithMovableRefConstructor>)
+        // Create an instance of the object using move construction.
+    {
+    }
+};
+
+struct NonTrivialWithNoexceptMovableRefConstructor {
+    // This 'struct' has a 'noexcept' 'MovableRef' move constructor, so is
+    // no-throw move constructible in any dialect of C++ that supports
+    // 'noexcept'.
+
+    // CREATORS
+    NonTrivialWithNoexceptMovableRefConstructor(
+                bslmf::MovableRef<NonTrivialWithNoexceptMovableRefConstructor>)
+        BSLS_KEYWORD_NOEXCEPT
+        // Create an instance of the object using move construction.
+    {
+    }
 };
 
 union NonTrivialUnion {
@@ -494,8 +558,12 @@ int main(int argc, char *argv[])
 #endif
 
         // C-2
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(Incomplete *, true);
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(Uncomplete *, true);
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(Incomplete *,
+                                                         true,
+                                                         true);
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(Uncomplete *,
+                                                         true,
+                                                         true);
 
         ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE(Incomplete&, true);
         ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE(const Incomplete&, true);
@@ -537,20 +605,30 @@ int main(int argc, char *argv[])
         //:  1 The metafunction returns 'false' for cv-qualified non-trivial
         //:    class types.
         //:
-        //:  2 The metafunction returns 'true' for class types that associate
+        //:  2 For classes with user-defined move constructors, where
+        //:    'noexcept' specifications are supported, the metafunction
+        //:     respects the 'noexcept' specification of the move constructor,
+        //:     and returns 'false' otherwise.
+        //:
+        //:  3 The metafunction returns 'true' for class types that associate
         //:    this trait using either of the BDE traits association
         //:    techniques.
         //
         // Plan:
-        //:  1 Verify that a non-trivual class type is a regular object type
+        //:  1 Verify that a non-trivial class type is a regular object type
         //:    returning 'false' for this trait.
         //:
-        //:  2 Verify that trivial class return 'true' for this trait when
+        //:  2 Verify that a class type with a move constructor returns 'false'
+        //:    for this trait unless the move constructor is callable and has a
+        //:    valid 'noexcept(true)' specification, in which case it returns
+        //:    'true'.
+        //:
+        //:  3 Verify that trivial class returns 'true' for this trait when
         //:    using either of the BDE traits association techniques.   Note
         //:    that the types should be trivial to preserve correct behavior
         //:    with the C++11 native oracle.
         //:
-        //:  3 Defer all other testing of trait behavior with class types to
+        //:  4 Defer all other testing of trait behavior with class types to
         //:    the 'bslmf_movableref' test driver.
         //
         // Testing:
@@ -563,11 +641,45 @@ int main(int argc, char *argv[])
                             "\n=====================================\n");
 
         // C-1
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(NonTrivial, false);
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(NonTrivial,
+                                                         false,
+                                                         false);
         ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(NonTrivialUnion,
-                                                                     false);
+                                                         false,
+                                                         false);
 
         // C-2
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+        // The move constructor is non-'noexcept' so we expect 'false'.
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(
+                                   NonTrivialWithMoveConstructor,
+                                   false,
+                                   false);
+
+        // The move constructor in the test class is not usable for
+        // cv-qualified types, so we expect the trait to return 'false'.  Move
+        // construction is no-throw only if 'noexcept' is supported.
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(
+                                   NonTrivialWithNoexceptMoveConstructor,
+                                   BSLS_KEYWORD_NOEXCEPT_AVAILABLE,
+                                   false);
+#endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+
+        // The move constructor is non-'noexcept' so we expect 'false'.
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(
+                                   NonTrivialWithMovableRefConstructor,
+                                   false,
+                                   false);
+
+        // The move constructor in the test class is not usable for
+        // cv-qualified types, so we expect the trait to return 'false'.  Move
+        // construction is no-throw only if 'noexcept' is supported.
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(
+                                   NonTrivialWithNoexceptMovableRefConstructor,
+                                   BSLS_KEYWORD_NOEXCEPT_AVAILABLE,
+                                   false);
+
+        // C-3
         ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE(ClassUsingNestedCopyable, true);
         ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE(ClassUsingNestedMovable,  true);
         ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE(UnionUsingNestedCopyable, true);
@@ -659,25 +771,35 @@ int main(int argc, char *argv[])
                     "\n===================================================\n");
 
         // C-1
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(bool, true);
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(char, true);
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(int,  true);
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(long double,    true);
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(bsl::nullptr_t, true);
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(bool, true, true);
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(char, true, true);
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(int, true, true);
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(long double,
+                                                         true,
+                                                         true);
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(bsl::nullptr_t,
+                                                         true,
+                                                         true);
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(char16_t,       true);
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(char16_t, true, true);
 #endif
 
         // C-2
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(EnumTestType,   true);
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(EnumTestType,
+                                                         true,
+                                                         true);
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS)
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(EnumClassType,  true);
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(EnumClassType,
+                                                         true,
+                                                         true);
 #endif
 
         // C-3
         ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(DataMemberPtrTestType,
+                                                         true,
                                                          true);
         ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(MethodPtrTestType,
+                                                         true,
                                                          true);
 
         // C-4 : 'void' is not an object type, and although it can be
@@ -689,11 +811,18 @@ int main(int argc, char *argv[])
         ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE(const volatile void, false);
 
         // Pointers to void are perfectly good object types:
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(void*,          true);
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(const void*,    true);
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(volatile void*, true);
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(const volatile void*,
-                                                                         true);
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(void *,
+                                                         true,
+                                                         true);
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(const void *,
+                                                         true,
+                                                         true);
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(volatile void *,
+                                                         true,
+                                                         true);
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(const volatile void *,
+                                                         true,
+                                                         true);
 
         // C-5 : Function types are not object types, nor cv-qualifiable.
         ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TYPE(void(),               false);
