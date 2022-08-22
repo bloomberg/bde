@@ -11,22 +11,21 @@
 
 #include <bslim_testutil.h>
 
-#include <bslmt_configuration.h>
-#include <bslmt_threadattributes.h>
-#include <bsls_atomic.h>
-#include <bslmt_platform.h>
-
-#include <bsls_systemclocktype.h>
-#include <bsls_systemtime.h>
-#include <bsls_systemtime.h>
-
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
+
+#include <bslmt_configuration.h>
+#include <bslmt_threadattributes.h>
+#include <bslmt_platform.h>
+
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_atomic.h>
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
+#include <bsls_systemclocktype.h>
+#include <bsls_systemtime.h>
 #include <bsls_types.h>
 
 #include <bsl_algorithm.h>
@@ -46,9 +45,9 @@
 #include <sys/wait.h>  // wait
 #include <unistd.h>    // fork
 
-# ifdef BSLS_PLATFORM_OS_SOLARIS
-#   include <sys/utsname.h>
-# endif
+#ifdef BSLS_PLATFORM_OS_SOLARIS
+#include <sys/utsname.h>
+#endif
 
 #endif
 
@@ -284,20 +283,13 @@ bool SleepOnATimeInterval(bsls::Types::Int64 seconds, int nanoseconds)
 
 //=============================================================================
 
-namespace {
-namespace u {
-
-                                // local Mutex
-
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 
 // Platform-specific implementation starts here.
 
-// Rather than setting 'WINVER' or 'NTDDI_VERSION', just forward declare the
-// Windows 2000 functions that are used.
+// Forward declare the Windows functions used by test implementation.
 
 struct _RTL_CRITICAL_SECTION;
-
 typedef struct _RTL_CRITICAL_SECTION CRITICAL_SECTION, *LPCRITICAL_SECTION;
 typedef int BOOL;
 typedef unsigned long DWORD;
@@ -317,6 +309,13 @@ extern "C" {
                                 LPCRITICAL_SECTION lpCriticalSection);
 
 }  // extern "C"
+
+namespace {
+namespace u {
+
+                            // =====
+                            // Mutex
+                            // =====
 
 class Mutex {
     // It provides an efficient proxy for Windows critical sections, and
@@ -392,7 +391,12 @@ class Mutex {
 };
 
 #else
-// Unix -- pthreads
+namespace {
+namespace u {
+
+                            // =====
+                            // Mutex
+                            // =====
 
 class Mutex {
     // This class provides a full specialization of 'Mutex' for pthreads.  It
