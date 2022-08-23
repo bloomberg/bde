@@ -1,4 +1,21 @@
 // bslstl_hash.t.cpp                                                  -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                            U_ENABLE_DEPRECATIONS
+//
+// Set 'U_ENABLE_DEPRECATIONS' to 1 get warnings about uses of deprecated
+// methods.  These warnings are quite voluminous.  Test case 7 will fail unless
+// '0 == U_ENABLE_DEPRECATIONS' to make sure we don't ship with these warnings
+// enabled.
+// ----------------------------------------------------------------------------
+
+#undef  U_ENABLE_DEPRECATIONS
+#define U_ENABLE_DEPRECATIONS 0
+#if U_ENABLE_DEPRECATIONS
+# define BSLS_DEPRECATE_FEATURE_ENABLE_ALL_DEPRECATIONS_FOR_TESTING 1
+# include <bsls_deprecatefeature.h>
+#endif
+
 #include <bslstl_hash.h>
 
 #include <bslma_default.h>
@@ -38,14 +55,15 @@ using namespace bsl;
 // [ 2] hash& operator=(const hash&)
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 7] USAGE EXAMPLE 1
-// [ 8] USAGE EXAMPLE 2
+// [ 8] USAGE EXAMPLE 1
+// [ 9] USAGE EXAMPLE 2
 // [ 4] typedef argument_type
 // [ 4] typedef second_argument_type
 // [ 5] IsBitwiseMovable trait
 // [ 5] is_trivially_copyable trait
 // [ 5] is_trivially_default_constructible trait
 // [ 6] QoI: Support for empty base optimization
+// [ 7] 0 == U_ENABLE_DEPRECATIONS
 
 // ============================================================================
 //                      STANDARD BSL ASSERT TEST FUNCTION
@@ -449,7 +467,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
-      case 8: {
+      case 9: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 2
         //   Implement hashing in the new 'bslh' hashing system test that
@@ -514,7 +532,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == hcrsts.count(Box(Point(30, 37), 34, 13)));
 
       } break;
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 1
         //   Extracted from component header file.
@@ -560,6 +578,26 @@ int main(int argc, char *argv[])
         ASSERT(0 == hcri.count(31));
         ASSERT(0 == hcri.count(37));
         ASSERT(0 == hcri.count(58));
+      } break;
+      case 7: {
+        // --------------------------------------------------------------------
+        // TESTING IF 'U_ENABLE_DEPRECATIONS' IS DISABLED
+        //
+        // Concern:
+        //: 1 That we don't ship with 'U_ENABLE_DEPRECATIONS' set.
+        //
+        // Plan:
+        //: 1 Assert that the 'U_ENABLE_DEPRECATIONS' macro is defined as '0'.
+        //
+        // Testing:
+        //   0 == U_ENABLE_DEPRECATIONS
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            printf("\nTESTING IF 'U_ENABLE_DEPRECATIONS' IS DISABLED"
+                   "\n==============================================\n");
+
+        ASSERT(0 == U_ENABLE_DEPRECATIONS);
       } break;
       case 6: {
         // --------------------------------------------------------------------

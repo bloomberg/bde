@@ -425,10 +425,14 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_assert.h>
 
 #include <bsls_compilerfeatures.h>
+#include <bsls_deprecatefeature.h>
 #include <bsls_platform.h>
 
 #include <cstddef>  // for 'std::size_t'
 
+#define BSLSTL_HASH_DEPRECATED_CPP17                                          \
+    BSLS_DEPRECATE_FEATURE(                                                   \
+        "bsl", "deprecated_cpp17_standard_library_features", "do not use")
 
 namespace bsl {
 
@@ -470,8 +474,15 @@ struct hash<bool> {
     // Specialization of 'hash' for 'bool' values.
 
     // STANDARD TYPEDEFS
+    BSLSTL_HASH_DEPRECATED_CPP17
     typedef bool argument_type;
+        // !DEPRECATED!: This typedef is depreacted in C++17, for details see
+        // https://isocpp.org/files/papers/p0005r4.html.
+
+    BSLSTL_HASH_DEPRECATED_CPP17
     typedef std::size_t result_type;
+        // !DEPRECATED!: This typedef is depreacted in C++17, for details see
+        // https://isocpp.org/files/papers/p0005r4.html.
 
     //! hash() = default;
         // Create a 'hash' object.
@@ -500,8 +511,15 @@ struct hash<char> {
     // Specialization of 'hash' for 'char' values.
 
     // STANDARD TYPEDEFS
+    BSLSTL_HASH_DEPRECATED_CPP17
     typedef char argument_type;
+        // !DEPRECATED!: This typedef is depreacted in C++17, for details see
+        // https://isocpp.org/files/papers/p0005r4.html.
+
+    BSLSTL_HASH_DEPRECATED_CPP17
     typedef std::size_t result_type;
+        // !DEPRECATED!: This typedef is depreacted in C++17, for details see
+        // https://isocpp.org/files/papers/p0005r4.html.
 
     //! hash() = default;
         // Create a 'hash' object.
@@ -530,8 +548,15 @@ struct hash<signed char> {
     // Specialization of 'hash' for 'signed' 'char' values.
 
     // STANDARD TYPEDEFS
+    BSLSTL_HASH_DEPRECATED_CPP17
     typedef signed char argument_type;
+        // !DEPRECATED!: This typedef is depreacted in C++17, for details see
+        // https://isocpp.org/files/papers/p0005r4.html.
+
+    BSLSTL_HASH_DEPRECATED_CPP17
     typedef std::size_t result_type;
+        // !DEPRECATED!: This typedef is depreacted in C++17, for details see
+        // https://isocpp.org/files/papers/p0005r4.html.
 
     //! hash() = default;
         // Create a 'hash' object.
@@ -560,8 +585,15 @@ struct hash<unsigned char> {
     // Specialization of 'hash' for 'unsigned' 'char' values.
 
     // STANDARD TYPEDEFS
+    BSLSTL_HASH_DEPRECATED_CPP17
     typedef unsigned char argument_type;
+        // !DEPRECATED!: This typedef is depreacted in C++17, for details see
+        // https://isocpp.org/files/papers/p0005r4.html.
+
+    BSLSTL_HASH_DEPRECATED_CPP17
     typedef std::size_t result_type;
+        // !DEPRECATED!: This typedef is depreacted in C++17, for details see
+        // https://isocpp.org/files/papers/p0005r4.html.
 
     //! hash() = default;
         // Create a 'hash' object.
@@ -590,8 +622,15 @@ struct hash<wchar_t> {
     // Specialization of 'hash' for 'wchar_t' values.
 
     // STANDARD TYPEDEFS
+    BSLSTL_HASH_DEPRECATED_CPP17
     typedef wchar_t argument_type;
+        // !DEPRECATED!: This typedef is depreacted in C++17, for details see
+        // https://isocpp.org/files/papers/p0005r4.html.
+
+    BSLSTL_HASH_DEPRECATED_CPP17
     typedef std::size_t result_type;
+        // !DEPRECATED!: This typedef is depreacted in C++17, for details see
+        // https://isocpp.org/files/papers/p0005r4.html.
 
     //! hash() = default;
         // Create a 'hash' object.
@@ -620,8 +659,15 @@ struct hash<short> {
     // Specialization of 'hash' for 'short' values.
 
     // STANDARD TYPEDEFS
+    BSLSTL_HASH_DEPRECATED_CPP17
     typedef short argument_type;
+        // !DEPRECATED!: This typedef is depreacted in C++17, for details see
+        // https://isocpp.org/files/papers/p0005r4.html.
+
+    BSLSTL_HASH_DEPRECATED_CPP17
     typedef std::size_t result_type;
+        // !DEPRECATED!: This typedef is depreacted in C++17, for details see
+        // https://isocpp.org/files/papers/p0005r4.html.
 
     //! hash() = default;
         // Create a 'hash' object.
@@ -650,8 +696,15 @@ struct hash<unsigned short> {
     // Specialization of 'hash' for 'unsigned' 'short' values.
 
     // STANDARD TYPEDEFS
+    BSLSTL_HASH_DEPRECATED_CPP17
     typedef unsigned short argument_type;
+        // !DEPRECATED!: This typedef is depreacted in C++17, for details see
+        // https://isocpp.org/files/papers/p0005r4.html.
+
+    BSLSTL_HASH_DEPRECATED_CPP17
     typedef std::size_t result_type;
+        // !DEPRECATED!: This typedef is depreacted in C++17, for details see
+        // https://isocpp.org/files/papers/p0005r4.html.
 
     //! hash() = default;
         // Create a 'hash' object.
@@ -680,8 +733,15 @@ struct hash<int> {
     // Specialization of 'hash' for 'int' values.
 
     // STANDARD TYPEDEFS
+    BSLSTL_HASH_DEPRECATED_CPP17
     typedef int argument_type;
+        // !DEPRECATED!: This typedef is depreacted in C++17, for details see
+        // https://isocpp.org/files/papers/p0005r4.html.
+
+    BSLSTL_HASH_DEPRECATED_CPP17
     typedef std::size_t result_type;
+        // !DEPRECATED!: This typedef is depreacted in C++17, for details see
+        // https://isocpp.org/files/papers/p0005r4.html.
 
     //! hash() = default;
         // Create a 'hash' object.
@@ -710,8 +770,15 @@ struct hash<unsigned int> {
     // Specialization of 'hash' for 'unsigned' 'int' values.
 
     // STANDARD TYPEDEFS
+    BSLSTL_HASH_DEPRECATED_CPP17
     typedef unsigned int argument_type;
+        // !DEPRECATED!: This typedef is depreacted in C++17, for details see
+        // https://isocpp.org/files/papers/p0005r4.html.
+
+    BSLSTL_HASH_DEPRECATED_CPP17
     typedef std::size_t result_type;
+        // !DEPRECATED!: This typedef is depreacted in C++17, for details see
+        // https://isocpp.org/files/papers/p0005r4.html.
 
     //! hash() = default;
         // Create a 'hash' object.
@@ -740,8 +807,15 @@ struct hash<long> {
     // Specialization of 'hash' for 'long' values.
 
     // STANDARD TYPEDEFS
+    BSLSTL_HASH_DEPRECATED_CPP17
     typedef long argument_type;
+        // !DEPRECATED!: This typedef is depreacted in C++17, for details see
+        // https://isocpp.org/files/papers/p0005r4.html.
+
+    BSLSTL_HASH_DEPRECATED_CPP17
     typedef std::size_t result_type;
+        // !DEPRECATED!: This typedef is depreacted in C++17, for details see
+        // https://isocpp.org/files/papers/p0005r4.html.
 
     //! hash() = default;
         // Create a 'hash' object.
@@ -770,8 +844,15 @@ struct hash<unsigned long> {
     // Specialization of 'hash' for 'unsigned' 'long' values.
 
     // STANDARD TYPEDEFS
+    BSLSTL_HASH_DEPRECATED_CPP17
     typedef unsigned long argument_type;
+        // !DEPRECATED!: This typedef is depreacted in C++17, for details see
+        // https://isocpp.org/files/papers/p0005r4.html.
+
+    BSLSTL_HASH_DEPRECATED_CPP17
     typedef std::size_t result_type;
+        // !DEPRECATED!: This typedef is depreacted in C++17, for details see
+        // https://isocpp.org/files/papers/p0005r4.html.
 
     //! hash() = default;
         // Create a 'hash' object.
@@ -800,8 +881,15 @@ struct hash<long long> {
     // Specialization of 'hash' for 'long long' values.
 
     // STANDARD TYPEDEFS
+    BSLSTL_HASH_DEPRECATED_CPP17
     typedef long long argument_type;
+        // !DEPRECATED!: This typedef is depreacted in C++17, for details see
+        // https://isocpp.org/files/papers/p0005r4.html.
+
+    BSLSTL_HASH_DEPRECATED_CPP17
     typedef std::size_t result_type;
+        // !DEPRECATED!: This typedef is depreacted in C++17, for details see
+        // https://isocpp.org/files/papers/p0005r4.html.
 
     //! hash() = default;
         // Create a 'hash' object.
@@ -830,8 +918,15 @@ struct hash<unsigned long long> {
     // Specialization of 'hash' for 'unsigned' 'long long' values.
 
     // STANDARD TYPEDEFS
+    BSLSTL_HASH_DEPRECATED_CPP17
     typedef unsigned long long argument_type;
+        // !DEPRECATED!: This typedef is depreacted in C++17, for details see
+        // https://isocpp.org/files/papers/p0005r4.html.
+
+    BSLSTL_HASH_DEPRECATED_CPP17
     typedef std::size_t result_type;
+        // !DEPRECATED!: This typedef is depreacted in C++17, for details see
+        // https://isocpp.org/files/papers/p0005r4.html.
 
     //! hash() = default;
         // Create a 'hash' object.
@@ -1003,6 +1098,8 @@ struct is_trivially_copyable<hash<TYPE> >
 {};
 
 }  // close namespace bsl
+
+#undef BSLSTL_HASH_DEPRECATED_CPP17
 
 #endif
 
