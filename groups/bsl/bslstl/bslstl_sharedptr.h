@@ -1467,6 +1467,7 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_assert.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_deprecatefeature.h>
 #include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
 #include <bsls_nullptr.h>
@@ -2808,6 +2809,9 @@ class shared_ptr {
         // 'std::less<BloombergLP::bslma::SharedPtrRep *>', and 'false'
         // otherwise.
 
+    BSLS_DEPRECATE_FEATURE("bsl",
+                           "deprecated_cpp17_standard_library_features",
+                           "do not use")
     bool unique() const BSLS_KEYWORD_NOEXCEPT;
         // Return 'true' if this shared pointer is not empty and does not share
         // ownership of the object it managed with any other shared pointer,
@@ -2815,7 +2819,11 @@ class shared_ptr {
         // deleter can refer to a null pointer without being empty, and so may
         // be 'unique'.  Also note that the result of this function may not be
         // reliable in a multi-threaded program, where a weak pointer may be
-        // locked on another thread.  This function is deprecated in C++17.
+        // locked on another thread.
+        //
+        // DEPRECATED: This function is deprecated in C++17 because its
+        // correctness is not guaranteed since the value returned by the used
+        // 'use_count' function is approximate.
 
     long use_count() const BSLS_KEYWORD_NOEXCEPT;
         // Return a "snapshot" of the number of shared pointers (including this

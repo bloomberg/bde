@@ -1,4 +1,21 @@
 // bslstl_sharedptr.t.cpp                                             -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                            U_ENABLE_DEPRECATIONS
+//
+// Set 'U_ENABLE_DEPRECATIONS' to 1 get warnings about uses of deprecated
+// methods.  These warnings are quite voluminous.  Test case 14 will fail
+// unless '0 == U_ENABLE_DEPRECATIONS' to make sure we don't ship with these
+// warnings enabled.
+// ----------------------------------------------------------------------------
+
+#undef  U_ENABLE_DEPRECATIONS
+#define U_ENABLE_DEPRECATIONS 0
+#if U_ENABLE_DEPRECATIONS
+# define BSLS_DEPRECATE_FEATURE_ENABLE_ALL_DEPRECATIONS_FOR_TESTING 1
+# include <bsls_deprecatefeature.h>
+#endif
+
 #include <bslstl_sharedptr.h>
 
 #include <bslstl_badweakptr.h>
@@ -92,14 +109,6 @@
 // compiler bug triggering in lower level components, so we simply disable
 // those aspects of testing, and rely on the extensive test coverage on other
 // platforms.
-#endif
-
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
-        // Here and throughout the file wherever 'auto_ptr' is used, suspend
-        // GCC reporting of deprecated declarations since the use of 'auto_ptr'
-        // in this standard interface is required.
-# pragma GCC diagnostic push
-# pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
 using namespace BloombergLP;
@@ -318,20 +327,21 @@ using namespace BloombergLP;
 // [ 1] BREATHING TEST (shared_ptr)
 // [ 3] shared_ptr(TYPE *ptr) // synthesized
 // [ 3] shared_ptr(TYPE *ptr, bslma::Allocator *allocator)  // synthesized
-// [  ] CONCERN: C++ 'bsl::shared_ptr' ISO CONFORMANCE
 // [30] CONCERN: Shared -> Managed -> Shared uses same 'rep' object
 // [21] DRQS 26465543 [void reset()]
 // [22] shared_ptr<cv-void>
 // [36] CONCERN: 'shared_ptr' constructors SFINAE on compatible pointers
 // [36] CONCERN: 'shared_ptr' = operators SFINAE on compatible pointers
 // [37] CONCERN: 'shared_ptr<bslma::Allocator>' behaves correctly
-// [  ] CONCERN: 'shared_ptr<FactoryClass>' behaves correctly
-// [  ] USAGE EXAMPLE (shared_ptr) // TBD
 // [38] CONCERN: Methods qualified 'noexcept' in standard are so implemented.
 // [43] REGRESSIONS
 // [44] CLASS TEMPLATE DEDUCTION GUIDES
-// [-1] PERFORMANCE
 // [45] TESTING BITWISE AND NOTHROW MOVEABILITY
+// [46] 0 == U_ENABLE_DEPRECATIONS
+// [-1] PERFORMANCE
+// [  ] USAGE EXAMPLE (shared_ptr) // TBD
+// [  ] CONCERN: 'shared_ptr<FactoryClass>' behaves correctly
+// [  ] CONCERN: C++ 'bsl::shared_ptr' ISO CONFORMANCE
 // Further, there are a number of behaviors that explicitly should not compile
 // by accident that we will provide tests for.  These tests should fail to
 // compile if the appropriate macro is defined.  Each such test will use a
@@ -7926,6 +7936,26 @@ int main(int argc, char *argv[])
                                              defaultAllocator.numAllocations();
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 46: {
+        // ------------------------------------------------------------------
+        // TESTING IF 'U_ENABLE_DEPRECATIONS' IS DISABLED
+        //
+        // Concern:
+        //: 1 That we don't ship with 'U_ENABLE_DEPRECATIONS' set.
+        //
+        // Plan:
+        //: 1 Assert that the 'U_ENABLE_DEPRECATIONS' macro is defined as '0'.
+        //
+        // Testing:
+        //   0 == U_ENABLE_DEPRECATIONS
+        // ------------------------------------------------------------------
+
+        if (verbose)
+            printf("\nTESTING IF 'U_ENABLE_DEPRECATIONS' IS DISABLED"
+                   "\n==============================================\n");
+
+        ASSERT(0 == U_ENABLE_DEPRECATIONS);
+      } break;
       case 45: {
         //---------------------------------------------------------------------
         // TESTING BITWISE AND NOTHROW MOVEABILITY
@@ -8541,6 +8571,10 @@ int main(int argc, char *argv[])
                                 , void *
                                 >::value));
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+# endif
         ASSERT( (is_constructible<bsl::shared_ptr<bslma::TestAllocator>
                                 , std::auto_ptr<bslma::TestAllocator>
                                 >::value));
@@ -8548,6 +8582,9 @@ int main(int argc, char *argv[])
                                 , std::auto_ptr<bslma::Allocator>
                                 >::value));
         // Note that this converts through auto_ptr_ref, and cannot be blocked.
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic pop
+# endif
 #endif
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT( (is_constructible<bsl::shared_ptr<bslma::TestAllocator>
@@ -8597,12 +8634,19 @@ int main(int argc, char *argv[])
                                 , void *
                                 >::value));
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+# endif
         ASSERT( (is_constructible<bsl::shared_ptr<bslma::Allocator>
                                 , std::auto_ptr<bslma::TestAllocator>
                                 >::value));
         ASSERT( (is_constructible<bsl::shared_ptr<bslma::Allocator>
                                 , std::auto_ptr<bslma::Allocator>
                                 >::value));
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic pop
+# endif
 #endif
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT( (is_constructible<bsl::shared_ptr<bslma::Allocator>
@@ -8660,6 +8704,10 @@ int main(int argc, char *argv[])
                                 , bslma::TestAllocator *
                                 >::value));
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+# endif
         ASSERT( (is_constructible<bsl::shared_ptr<bslma::Allocator>
                                 , std::auto_ptr<bslma::TestAllocator>
                                 , bslma::TestAllocator *
@@ -8668,6 +8716,9 @@ int main(int argc, char *argv[])
                                 , std::auto_ptr<bslma::Allocator>
                                 , bslma::TestAllocator *
                                 >::value));
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic pop
+# endif
 #endif
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT( (is_constructible<bsl::shared_ptr<bslma::Allocator>
@@ -8741,6 +8792,10 @@ int main(int argc, char *argv[])
                                 , support::FactoryDeleter *
                                 >::value));
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+# endif
         ASSERT(!(is_constructible<bsl::shared_ptr<bslma::Allocator>
                                 , std::auto_ptr<bslma::TestAllocator>
                                 , support::FactoryDeleter *
@@ -8749,6 +8804,9 @@ int main(int argc, char *argv[])
                                 , std::auto_ptr<bslma::Allocator>
                                 , support::FactoryDeleter *
                                 >::value));
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic pop
+# endif
 #endif
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT(!(is_constructible<bsl::shared_ptr<bslma::Allocator>
@@ -8805,6 +8863,10 @@ int main(int argc, char *argv[])
                                 , bslstl::SharedPtrNilDeleter
                                 >::value));
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+# endif
         ASSERT(!(is_constructible<bsl::shared_ptr<bslma::Allocator>
                                 , std::auto_ptr<bslma::TestAllocator>
                                 , bslstl::SharedPtrNilDeleter
@@ -8813,6 +8875,9 @@ int main(int argc, char *argv[])
                                 , std::auto_ptr<bslma::Allocator>
                                 , bslstl::SharedPtrNilDeleter
                                 >::value));
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic pop
+# endif
 #endif
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT(!(is_constructible<bsl::shared_ptr<bslma::Allocator>
@@ -8885,6 +8950,10 @@ int main(int argc, char *argv[])
                                 , void(*)(bslma::Allocator *)
                                 >::value));
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+# endif
         ASSERT(!(is_constructible<bsl::shared_ptr<bslma::Allocator>
                                 , std::auto_ptr<bslma::TestAllocator>
                                 , void(*)(bslma::Allocator *)
@@ -8893,6 +8962,9 @@ int main(int argc, char *argv[])
                                 , std::auto_ptr<bslma::Allocator>
                                 , void(*)(bslma::Allocator *)
                                 >::value));
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic pop
+# endif
 #endif
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT(!(is_constructible<bsl::shared_ptr<bslma::Allocator>
@@ -8954,6 +9026,10 @@ int main(int argc, char *argv[])
                                 , bslma::Allocator *
                                 >::value));
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+# endif
         ASSERT(!(is_constructible<bsl::shared_ptr<bslma::Allocator>
                                 , std::auto_ptr<bslma::TestAllocator>
                                 , bslma::Allocator *
@@ -8964,6 +9040,9 @@ int main(int argc, char *argv[])
                                 , bslma::Allocator *
                                 , bslma::Allocator *
                                 >::value));
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic pop
+# endif
 #endif
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT(!(is_constructible<bsl::shared_ptr<bslma::Allocator>
@@ -9052,6 +9131,10 @@ int main(int argc, char *argv[])
                                 , bslma::Allocator *
                                 >::value));
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+# endif
         ASSERT(!(is_constructible<bsl::shared_ptr<bslma::Allocator>
                                 , std::auto_ptr<bslma::TestAllocator>
                                 , bslstl::SharedPtrNilDeleter
@@ -9062,6 +9145,9 @@ int main(int argc, char *argv[])
                                 , bslstl::SharedPtrNilDeleter
                                 , bslma::Allocator *
                                 >::value));
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic pop
+# endif
 #endif
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT(!(is_constructible<bsl::shared_ptr<bslma::Allocator>
@@ -9150,6 +9236,10 @@ int main(int argc, char *argv[])
                                 , bslma::Allocator *
                                 >::value));
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+# endif
         ASSERT(!(is_constructible<bsl::shared_ptr<bslma::Allocator>
                                 , std::auto_ptr<bslma::TestAllocator>
                                 , void(*)(bslma::Allocator *)
@@ -9160,6 +9250,9 @@ int main(int argc, char *argv[])
                                 , void(*)(bslma::TestAllocator *)
                                 , bslma::Allocator *
                                 >::value));
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic pop
+# endif
 #endif
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT(!(is_constructible<bsl::shared_ptr<bslma::Allocator>
@@ -9227,6 +9320,10 @@ int main(int argc, char *argv[])
                                 , bslma::TestAllocator *
                                 >::value));
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+# endif
         ASSERT(!(is_constructible<bsl::shared_ptr<bslma::Allocator>
                                 , std::auto_ptr<bslma::TestAllocator>
                                 , bslma::Allocator *
@@ -9237,6 +9334,9 @@ int main(int argc, char *argv[])
                                 , bslma::Allocator *
                                 , bslma::TestAllocator *
                                 >::value));
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic pop
+# endif
 #endif
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT(!(is_constructible<bsl::shared_ptr<bslma::Allocator>
@@ -9326,6 +9426,10 @@ int main(int argc, char *argv[])
                                 , bslma::TestAllocator *
                                 >::value));
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+# endif
         ASSERT(!(is_constructible<bsl::shared_ptr<bslma::Allocator>
                                 , std::auto_ptr<bslma::TestAllocator>
                                 , bslstl::SharedPtrNilDeleter
@@ -9336,6 +9440,9 @@ int main(int argc, char *argv[])
                                 , bslstl::SharedPtrNilDeleter
                                 , bslma::TestAllocator *
                                 >::value));
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic pop
+# endif
 #endif
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT(!(is_constructible<bsl::shared_ptr<bslma::Allocator>
@@ -9424,6 +9531,10 @@ int main(int argc, char *argv[])
                                 , bslma::TestAllocator *
                                 >::value));
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+# endif
         ASSERT(!(is_constructible<bsl::shared_ptr<bslma::Allocator>
                                 , std::auto_ptr<bslma::TestAllocator>
                                 , void(*)(bslma::TestAllocator *)
@@ -9434,6 +9545,9 @@ int main(int argc, char *argv[])
                                 , void(*)(bslma::Allocator *)
                                 , bslma::TestAllocator *
                                 >::value));
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic pop
+# endif
 #endif
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT(!(is_constructible<bsl::shared_ptr<bslma::Allocator>
@@ -9502,6 +9616,10 @@ int main(int argc, char *argv[])
                                 , bsl::allocator<char>
                                 >::value));
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+# endif
         ASSERT(!(is_constructible<bsl::shared_ptr<bslma::Allocator>
                                 , std::auto_ptr<bslma::TestAllocator>
                                 , bslma::Allocator *
@@ -9512,6 +9630,9 @@ int main(int argc, char *argv[])
                                 , bslma::Allocator *
                                 , bsl::allocator<char>
                                 >::value));
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic pop
+# endif
 #endif
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT(!(is_constructible<bsl::shared_ptr<bslma::Allocator>
@@ -9580,6 +9701,10 @@ int main(int argc, char *argv[])
                                 , bsl::allocator<char>
                                 >::value));
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+# endif
         ASSERT(!(is_constructible<bsl::shared_ptr<bslma::Allocator>
                                 , std::auto_ptr<bslma::TestAllocator>
                                 , bslstl::SharedPtrNilDeleter
@@ -9590,6 +9715,9 @@ int main(int argc, char *argv[])
                                 , bslstl::SharedPtrNilDeleter
                                 , bsl::allocator<char>
                                 >::value));
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic pop
+# endif
 #endif
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT(!(is_constructible<bsl::shared_ptr<bslma::Allocator>
@@ -9699,6 +9827,10 @@ int main(int argc, char *argv[])
                                 , bsl::allocator<char>
                                 >::value));
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+# endif
         ASSERT(!(is_constructible<bsl::shared_ptr<bslma::Allocator>
                                 , std::auto_ptr<bslma::TestAllocator>
                                 , void(*)(bslma::Allocator *)
@@ -9709,6 +9841,9 @@ int main(int argc, char *argv[])
                                 , void(*)(bslma::Allocator *)
                                 , bsl::allocator<char>
                                 >::value));
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic pop
+# endif
 #endif
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT(!(is_constructible<bsl::shared_ptr<bslma::Allocator>
@@ -10157,6 +10292,10 @@ int main(int argc, char *argv[])
                              bsl::shared_ptr<      int>,
                                                   void *>::value));
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+# endif
         ASSERT( (is_constructible<
                              bsl::shared_ptr<      int>,
                                      std::auto_ptr<int> >::value));
@@ -10164,6 +10303,9 @@ int main(int argc, char *argv[])
                              bsl::shared_ptr<      int>,
                                std::auto_ptr<const int> >::value));
         // Note that this converts through auto_ptr_ref, and cannot be blocked.
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic pop
+# endif
 #endif
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT( (is_constructible<
@@ -10212,12 +10354,19 @@ int main(int argc, char *argv[])
                              bsl::shared_ptr<const int>,
                                                   void *>::value));
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+# endif
         ASSERT( (is_constructible<
                              bsl::shared_ptr<const int>,
                                      std::auto_ptr<int> >::value));
         ASSERT( (is_constructible<
                              bsl::shared_ptr<const int>,
                                std::auto_ptr<const int> >::value));
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic pop
+# endif
 #endif
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT( (is_constructible<
@@ -10266,6 +10415,10 @@ int main(int argc, char *argv[])
                              bsl::shared_ptr<     void>,
                                                   void *>::value));
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+# endif
         ASSERT( (is_constructible<
                              bsl::shared_ptr<     void>,
                                      std::auto_ptr<int> >::value));
@@ -10273,6 +10426,9 @@ int main(int argc, char *argv[])
                              bsl::shared_ptr<     void>,
                                std::auto_ptr<const int> >::value));
         // Note that this converts through auto_ptr_ref, and cannot be blocked.
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic pop
+# endif
 #endif
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT( (is_constructible<
@@ -10329,6 +10485,10 @@ int main(int argc, char *argv[])
                                       , bslma::TestAllocator *
                                       >::value));
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+# endif
         ASSERT( (is_constructible< bsl::shared_ptr<const int>
                                       , std::auto_ptr<int>
                                       , bslma::TestAllocator *
@@ -10337,6 +10497,9 @@ int main(int argc, char *argv[])
                                       , std::auto_ptr<const int>
                                       , bslma::TestAllocator *
                                       >::value));
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic pop
+# endif
 #endif
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT( (is_constructible< bsl::shared_ptr<const int>
@@ -10413,6 +10576,10 @@ int main(int argc, char *argv[])
                                       , support::FactoryDeleter *
                                       >::value));
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+# endif
         ASSERT(!(is_constructible< bsl::shared_ptr<const int>
                                       , std::auto_ptr<int>
                                       , support::FactoryDeleter *
@@ -10421,6 +10588,9 @@ int main(int argc, char *argv[])
                                       , std::auto_ptr<const int>
                                       , support::FactoryDeleter *
                                       >::value));
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic pop
+# endif
 #endif
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<const int>
@@ -10477,6 +10647,10 @@ int main(int argc, char *argv[])
                                       , bslstl::SharedPtrNilDeleter
                                       >::value));
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+# endif
         ASSERT(!(is_constructible< bsl::shared_ptr<const int>
                                       , std::auto_ptr<int>
                                       , bslstl::SharedPtrNilDeleter
@@ -10485,6 +10659,9 @@ int main(int argc, char *argv[])
                                       , std::auto_ptr<const int>
                                       , bslstl::SharedPtrNilDeleter
                                       >::value));
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic pop
+# endif
 #endif
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<const int>
@@ -10557,6 +10734,10 @@ int main(int argc, char *argv[])
                                       , void(*)(const int *)
                                       >::value));
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+# endif
         ASSERT(!(is_constructible< bsl::shared_ptr<const int>
                                       , std::auto_ptr<int>
                                       , void(*)(const int *)
@@ -10565,6 +10746,9 @@ int main(int argc, char *argv[])
                                       , std::auto_ptr<const int>
                                       , void(*)(const int *)
                                       >::value));
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic pop
+# endif
 #endif
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<const int>
@@ -10626,6 +10810,10 @@ int main(int argc, char *argv[])
                                       , bslma::Allocator *
                                       >::value));
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+# endif
         ASSERT(!(is_constructible< bsl::shared_ptr<const int>
                                       , std::auto_ptr<int>
                                       , bslma::Allocator *
@@ -10636,6 +10824,9 @@ int main(int argc, char *argv[])
                                       , bslma::Allocator *
                                       , bslma::Allocator *
                                       >::value));
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic pop
+# endif
 #endif
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<const int>
@@ -10724,6 +10915,10 @@ int main(int argc, char *argv[])
                                       , bslma::Allocator *
                                       >::value));
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+# endif
         ASSERT(!(is_constructible< bsl::shared_ptr<const int>
                                       , std::auto_ptr<int>
                                       , bslstl::SharedPtrNilDeleter
@@ -10734,6 +10929,9 @@ int main(int argc, char *argv[])
                                       , bslstl::SharedPtrNilDeleter
                                       , bslma::Allocator *
                                       >::value));
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic pop
+# endif
 #endif
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<const int>
@@ -10822,6 +11020,10 @@ int main(int argc, char *argv[])
                                       , bslma::Allocator *
                                       >::value));
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+# endif
         ASSERT(!(is_constructible< bsl::shared_ptr<const int>
                                       , std::auto_ptr<int>
                                       , void(*)(const int *)
@@ -10832,6 +11034,9 @@ int main(int argc, char *argv[])
                                       , void(*)(int *)
                                       , bslma::Allocator *
                                       >::value));
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic pop
+# endif
 #endif
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<const int>
@@ -10899,6 +11104,10 @@ int main(int argc, char *argv[])
                                       , bslma::TestAllocator *
                                       >::value));
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+# endif
         ASSERT(!(is_constructible< bsl::shared_ptr<const int>
                                       , std::auto_ptr<int>
                                       , bslma::Allocator *
@@ -10909,6 +11118,9 @@ int main(int argc, char *argv[])
                                       , bslma::Allocator *
                                       , bslma::TestAllocator *
                                       >::value));
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic pop
+# endif
 #endif
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<const int>
@@ -10998,6 +11210,10 @@ int main(int argc, char *argv[])
                                       , bslma::TestAllocator *
                                       >::value));
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+# endif
         ASSERT(!(is_constructible< bsl::shared_ptr<const int>
                                       , std::auto_ptr<int>
                                       , bslstl::SharedPtrNilDeleter
@@ -11008,6 +11224,9 @@ int main(int argc, char *argv[])
                                       , bslstl::SharedPtrNilDeleter
                                       , bslma::TestAllocator *
                                       >::value));
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic pop
+# endif
 #endif
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<const int>
@@ -11096,6 +11315,10 @@ int main(int argc, char *argv[])
                                       , bslma::TestAllocator *
                                       >::value));
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+# endif
         ASSERT(!(is_constructible< bsl::shared_ptr<const int>
                                       , std::auto_ptr<int>
                                       , void(*)(int *)
@@ -11106,6 +11329,9 @@ int main(int argc, char *argv[])
                                       , void(*)(const int *)
                                       , bslma::TestAllocator *
                                       >::value));
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic pop
+# endif
 #endif
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<const int>
@@ -11174,6 +11400,10 @@ int main(int argc, char *argv[])
                                       , bsl::allocator<char>
                                       >::value));
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+# endif
         ASSERT(!(is_constructible< bsl::shared_ptr<const int>
                                       , std::auto_ptr<int>
                                       , bslma::Allocator *
@@ -11184,6 +11414,9 @@ int main(int argc, char *argv[])
                                       , bslma::Allocator *
                                       , bsl::allocator<char>
                                       >::value));
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic pop
+# endif
 #endif
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<const int>
@@ -11252,6 +11485,10 @@ int main(int argc, char *argv[])
                                       , bsl::allocator<char>
                                       >::value));
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+# endif
         ASSERT(!(is_constructible< bsl::shared_ptr<const int>
                                       , std::auto_ptr<int>
                                       , bslstl::SharedPtrNilDeleter
@@ -11262,6 +11499,9 @@ int main(int argc, char *argv[])
                                       , bslstl::SharedPtrNilDeleter
                                       , bsl::allocator<char>
                                       >::value));
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic pop
+# endif
 #endif
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<const int>
@@ -11371,6 +11611,10 @@ int main(int argc, char *argv[])
                                       , bsl::allocator<char>
                                       >::value));
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+# endif
         ASSERT(!(is_constructible< bsl::shared_ptr<const int>
                                       , std::auto_ptr<int>
                                       , void(*)(const int *)
@@ -11381,6 +11625,9 @@ int main(int argc, char *argv[])
                                       , void(*)(const int *)
                                       , bsl::allocator<char>
                                       >::value));
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic pop
+# endif
 #endif
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<const int>
