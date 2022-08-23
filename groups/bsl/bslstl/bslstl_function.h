@@ -595,6 +595,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #include <bsls_buildtarget.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_deprecatefeature.h>
 #include <bsls_exceptionutil.h>
 #include <bsls_keyword.h>
 #include <bsls_nullptr.h>
@@ -701,7 +702,12 @@ struct Function_ArgTypes<RET(ARG)> {
     // 'argument_type' nested typedef.
 
     // PUBLIC TYPES
+    BSLS_DEPRECATE_FEATURE("bsl",
+                           "deprecated_cpp17_standard_library_features",
+                           "do not use")
     typedef ARG argument_type;
+        // !DEPRECATED!: This typedef is deprecated in C++17, for details see
+        // https://isocpp.org/files/papers/p0005r4.html.
 };
 
 template <class RET, class ARG1, class ARG2>
@@ -711,8 +717,19 @@ struct Function_ArgTypes<RET(ARG1, ARG2)> {
     // 'first_argument_type' and 'second_argument_type' nested typedefs.
 
     // PUBLIC TYPES
+    BSLS_DEPRECATE_FEATURE("bsl",
+                           "deprecated_cpp17_standard_library_features",
+                           "do not use")
     typedef ARG1 first_argument_type;
+        // !DEPRECATED!: This typedef is deprecated in C++17, for details see
+        // https://isocpp.org/files/papers/p0005r4.html.
+
+    BSLS_DEPRECATE_FEATURE("bsl",
+                           "deprecated_cpp17_standard_library_features",
+                           "do not use")
     typedef ARG2 second_argument_type;
+        // !DEPRECATED!: This typedef is deprecated in C++17, for details see
+        // https://isocpp.org/files/papers/p0005r4.html.
 };
 
                         // ================================

@@ -1,4 +1,21 @@
 // bslstl_function.00.t.cpp                                           -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                            U_ENABLE_DEPRECATIONS
+//
+// Set 'U_ENABLE_DEPRECATIONS' to 1 get warnings about uses of deprecated
+// methods.  These warnings are quite voluminous.  Test case 24 will fail
+// unless '0 == U_ENABLE_DEPRECATIONS' to make sure we don't ship with these
+// warnings enabled.
+// ----------------------------------------------------------------------------
+
+#undef  U_ENABLE_DEPRECATIONS
+#define U_ENABLE_DEPRECATIONS 0
+#if U_ENABLE_DEPRECATIONS
+# define BSLS_DEPRECATE_FEATURE_ENABLE_ALL_DEPRECATIONS_FOR_TESTING 1
+# include <bsls_deprecatefeature.h>
+#endif
+
 #include <bslstl_function.h>
 
 // This test driver is split into several executables to enable compilation on
@@ -180,7 +197,6 @@ Sun_Studio_only_gives_a_warning_for_pound_error;
 // **NOT** using '#else' on purpose, because in an IDE *both* macros are
 // defined, so none of the code is grayed out.
 
-
 #ifdef BDE_VERIFY
 // Suppress some pedantic bde_verify checks in this test driver
 #pragma bde_verify -AL01   // class needs allocator() method
@@ -352,10 +368,11 @@ using std::printf;
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [24] USAGE EXAMPLE
+// [25] USAGE EXAMPLE
 // [ 3] 'TrackableValue' TEST INFRASTRUCTURE
 // [ 2] PRIMITIVE CONSTRUCTORS (BOOTSTRAP)
 // [23] CLASS TEMPLATE DEDUCTION GUIDES
+// [24] 0 == U_ENABLE_DEPRECATIONS
 // [ 6] CONCERN: Construction from 'bdef_Function' does not double-wrap
 // [ 9] CONCERN: Assignment from 'bdef_Function' does not double-wrap
 // [19] CONCERN: Workaround for SunCC bug
@@ -5477,7 +5494,7 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:  // Zero is always the leading case.
 #ifdef BSLSTL_FUNCTION_TEST_COMPILING_A_PART
-    case 24: {
+    case 25: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLES
         //
@@ -5502,6 +5519,26 @@ int main(int argc, char *argv[])
 #else
         BSLSTL_FUNCTION_TEST_CASE_IS_NOT_IN_THIS_EXECUTABLE(test);
 #endif  // BSLSTL_FUNCTION_TEST_PART_09
+      } break;
+      case 24: {
+        // --------------------------------------------------------------------
+        // TESTING IF 'U_ENABLE_DEPRECATIONS' IS DISABLED
+        //
+        // Concern:
+        //: 1 That we don't ship with 'U_ENABLE_DEPRECATIONS' set.
+        //
+        // Plan:
+        //: 1 Assert that the 'U_ENABLE_DEPRECATIONS' macro is defined as '0'.
+        //
+        // Testing:
+        //   0 == U_ENABLE_DEPRECATIONS
+        // --------------------------------------------------------------------
+        if (verbose)
+            printf(
+              "\nTESTING IF 'U_ENABLE_DEPRECATIONS' IS DISABLED"
+              "\n==============================================\n");
+
+        ASSERT(0 == U_ENABLE_DEPRECATIONS);
       } break;
       case 23: {
         //---------------------------------------------------------------------

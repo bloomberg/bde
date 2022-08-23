@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Tue Jan 18 09:07:48 2022
+// Generated on Fri Aug 19 08:48:11 2022
 // Command line: sim_cpp11_features.pl bslstl_function.h
 
 #ifdef COMPILING_BSLSTL_FUNCTION_H
@@ -89,7 +89,12 @@ struct Function_ArgTypes<RET(ARG)> {
     // 'argument_type' nested typedef.
 
     // PUBLIC TYPES
+    BSLS_DEPRECATE_FEATURE("bsl",
+                           "deprecated_cpp17_standard_library_features",
+                           "do not use")
     typedef ARG argument_type;
+        // !DEPRECATED!: This typedef is deprecated in C++17, for details see
+        // https://isocpp.org/files/papers/p0005r4.html.
 };
 
 template <class RET, class ARG1, class ARG2>
@@ -99,8 +104,19 @@ struct Function_ArgTypes<RET(ARG1, ARG2)> {
     // 'first_argument_type' and 'second_argument_type' nested typedefs.
 
     // PUBLIC TYPES
+    BSLS_DEPRECATE_FEATURE("bsl",
+                           "deprecated_cpp17_standard_library_features",
+                           "do not use")
     typedef ARG1 first_argument_type;
+        // !DEPRECATED!: This typedef is deprecated in C++17, for details see
+        // https://isocpp.org/files/papers/p0005r4.html.
+
+    BSLS_DEPRECATE_FEATURE("bsl",
+                           "deprecated_cpp17_standard_library_features",
+                           "do not use")
     typedef ARG2 second_argument_type;
+        // !DEPRECATED!: This typedef is deprecated in C++17, for details see
+        // https://isocpp.org/files/papers/p0005r4.html.
 };
 
                         // ================================
