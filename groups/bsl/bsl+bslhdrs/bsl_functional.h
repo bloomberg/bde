@@ -27,7 +27,6 @@ BSLS_IDENT("$Id: $")
 namespace bsl {
 
     // Import selected symbols into bsl namespace
-    using std::binary_negate;
     using std::divides;
     using std::greater;
     using std::greater_equal;
@@ -40,13 +39,10 @@ namespace bsl {
     using std::modulus;
     using std::multiplies;
     using std::negate;
-    using std::not1;
-    using std::not2;
     using std::not_equal_to;
     using std::plus;
-    using std::unary_negate;
 
-#if ! defined BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED
+#if !defined(BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED)
     // These names are removed by C++17
     using std::binary_function;
     using std::bind1st;
@@ -67,6 +63,14 @@ namespace bsl {
     using std::pointer_to_unary_function;
     using std::ptr_fun;
     using std::unary_function;
+#endif
+
+#if !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_DEPRECATED_REMOVED)
+    // These names are removed by C++20
+    using std::binary_negate;
+    using std::not1;
+    using std::not2;
+    using std::unary_negate;
 #endif
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY

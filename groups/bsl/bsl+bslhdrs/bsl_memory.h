@@ -31,9 +31,6 @@ namespace bsl {
     //  using std::allocator;
     //..
 
-    using std::get_temporary_buffer;
-    using std::raw_storage_iterator;
-    using std::return_temporary_buffer;
     using std::uninitialized_copy;
     using std::uninitialized_fill;
     using std::uninitialized_fill_n;
@@ -81,6 +78,12 @@ namespace bsl {
     using std::undeclare_no_pointers;
     using std::undeclare_reachable;
 #endif // BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API
+
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP20_DEPRECATED_REMOVED
+    using std::get_temporary_buffer;
+    using std::raw_storage_iterator;
+    using std::return_temporary_buffer;
+#endif
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // Import additional names expected by existing code, but not mandated by

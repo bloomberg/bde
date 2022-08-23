@@ -113,11 +113,11 @@ using std::is_object;
 using std::is_scalar;
 using std::is_compound;
 
+
     // 20.10.4.3, type properties:
 using std::is_trivial;
 using std::is_standard_layout;
-using std::is_pod;
-using std::is_literal_type;
+using std::is_pod;      // deprecated by C++20
 using std::is_abstract;
 using std::is_signed;
 using std::is_unsigned;
@@ -172,19 +172,22 @@ using std::aligned_union;
 #endif
 using std::common_type;
 using std::underlying_type;
+
+#if !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_DEPRECATED_REMOVED)
+    // These names are removed by C++20
+using std::is_literal_type;
 using std::result_of;
+#endif
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 template <std::size_t LEN, std::size_t ALIGN>
-using aligned_storage_t =
-                        typename std::aligned_storage<LEN, ALIGN>::type;
+using aligned_storage_t = typename std::aligned_storage<LEN, ALIGN>::type;
     // 'aligned_storage_t' is an alias to the return type of the
     // 'std::aligned_storage' meta-function.
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 template <std::size_t LEN, class... TYPES>
-using aligned_union_t =
-                       typename std::aligned_union<LEN, TYPES...>::type;
+using aligned_union_t = typename std::aligned_union<LEN, TYPES...>::type;
     // 'aligned_union_t' is an alias to the return type of the
     // 'std::aligned_union' meta-function.
 
@@ -205,21 +208,23 @@ using make_unsigned_t = typename std::make_unsigned<TYPE>::type;
     // 'std::make_unsigned' meta-function.
 
 template <class TYPE>
-using remove_all_extents_t =
-                           typename std::remove_all_extents<TYPE>::type;
+using remove_all_extents_t = typename std::remove_all_extents<TYPE>::type;
     // 'remove_all_extents_t' is an alias to the return type of the
     // 'std::remove_all_extents' meta-function.
-
-template <class TYPE>
-using result_of_t = typename std::result_of<TYPE>::type;
-    // ' result_of_t' is an alias to the return type of the
-    // 'std::result_of' meta-function.
 
 template <class TYPE>
 using underlying_type_t = typename std::underlying_type<TYPE>::type;
     // 'underlying_type_t' is an alias to the return type of the
     // 'std::underlying_type' meta-function.
 #endif
+
+#if !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_DEPRECATED_REMOVED)
+    // These names are removed by C++20
+template <class TYPE>
+using result_of_t = typename std::result_of<TYPE>::type;
+    // ' result_of_t' is an alias to the return type of the
+    // 'std::result_of' meta-function.
+# endif
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
 using std::is_null_pointer;
@@ -287,50 +292,24 @@ template <class TYPE>
 BSLS_KEYWORD_INLINE_VARIABLE
 constexpr bool is_standard_layout_v = std::is_standard_layout<TYPE>::value;
 
-// ----------------------------------------------------------------------------
-
-#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 110000 &&  \
+# if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 110000 && \
     BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+# endif
 
 template <class TYPE>
-#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
+# if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
 BSLA_DEPRECATED  // Warn of using 'bsl::is_pod_v' even though we suppress
                  // warnings of using 'std::is_pod' in this implementation.
-#endif // C++20
+# endif // C++20
 BSLS_KEYWORD_INLINE_VARIABLE
 constexpr bool is_pod_v = std::is_pod<TYPE>::value;
 
-#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 110000 &&  \
+# if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 110000 && \
     BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
-#pragma GCC diagnostic pop
-#endif
-
-// ----------------------------------------------------------------------------
-
-#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 110000 &&  \
-    BSLS_COMPILERFEATURES_CPLUSPLUS >= 201703L
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
-
-#if BSLS_COMPILERFEATURES_CPLUSPLUS < 202002L
-template <class TYPE>
-BSLA_DEPRECATED  // Warn of using 'bsl::is_literal_type' even though we
-                 // suppress warnings of using 'std::is_pod' in this
-                 // implementation.
-BSLS_KEYWORD_INLINE_VARIABLE
-constexpr bool is_literal_type_v = std::is_literal_type<TYPE>::value;
-#else
-    // Removed in C++20
-#endif // Introduced in C++17 already deprecated; removed in C++20.
-
-#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 110000 &&  \
-    BSLS_COMPILERFEATURES_CPLUSPLUS >= 201703L
-#pragma GCC diagnostic pop
-#endif
+#   pragma GCC diagnostic pop
+# endif
 
 // ----------------------------------------------------------------------------
 
@@ -470,7 +449,7 @@ template <class TYPE1, class TYPE2>
 BSLS_KEYWORD_INLINE_VARIABLE
 constexpr bool is_base_of_v = std::is_base_of<TYPE1, TYPE2>::value;
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 template <class ...Bools>
 BSLS_KEYWORD_INLINE_VARIABLE
 constexpr bool conjunction_v = std::conjunction<Bools...>::value;
@@ -529,8 +508,30 @@ template <class TYPE1, class TYPE2>
 BSLS_KEYWORD_INLINE_VARIABLE
 constexpr std::size_t is_nothrow_swappable_with_v =
                     std::is_nothrow_swappable_with<TYPE1, TYPE2>::value;
-#endif
-#endif
+# endif // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+
+# if(!defined BSLS_LIBRARYFEATURES_HAS_CPP20_DEPRECATED_REMOVED)
+    // These names are removed by C++20
+#   if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 110000
+#       pragma GCC diagnostic push
+#       pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#   endif
+
+template <class TYPE>
+BSLA_DEPRECATED  // Warn of using 'bsl::is_literal_type' even though we
+                 // suppress warnings of using 'std::is_pod' in this
+                 // implementation.
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool is_literal_type_v = std::is_literal_type<TYPE>::value;
+
+#   if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 110000
+#       pragma GCC diagnostic pop
+#   endif
+# endif // BSLS_LIBRARYFEATURES_HAS_CPP20_DEPRECATED_REMOVED
+
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+
+// ----------------------------------------------------------------------------
 
 #if 0
     // These traits are provided by BDE, and have additional members for
@@ -642,7 +643,7 @@ using std::void_t;
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2019 Bloomberg Finance L.P.
+// Copyright 2022 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
