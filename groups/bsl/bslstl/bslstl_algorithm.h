@@ -180,7 +180,6 @@ namespace bsl {
     using std::bad_alloc;
     using std::bidirectional_iterator_tag;
     using std::forward_iterator_tag;
-    using std::get_temporary_buffer;
     using std::input_iterator_tag;
     using std::iterator;
     using std::new_handler;
@@ -188,7 +187,7 @@ namespace bsl {
     using std::nothrow_t;
     using std::output_iterator_tag;
     using std::random_access_iterator_tag;
-    using std::return_temporary_buffer;
+
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
 #ifndef BSLSTL_ITERATOR_PROVIDE_SUN_CPP98_FIXES

@@ -32,7 +32,12 @@ namespace bsl {
     using std::set_terminate;
     using std::terminate;
     using std::terminate_handler;
+
+#if ! defined(BSLS_LIBRARYFEATURES_HAS_CPP20_DEPRECATED_REMOVED)
+    // This name is removed by C++20
+
     using std::uncaught_exception;
+#endif
 
 #if ! defined(BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED)
     // These names are removed by C++17

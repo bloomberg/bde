@@ -31,9 +31,6 @@ namespace bsl {
     //  using std::allocator;
     //..
 
-    using std::get_temporary_buffer;
-    using std::raw_storage_iterator;
-    using std::return_temporary_buffer;
     using std::uninitialized_copy;
     using std::uninitialized_fill;
     using std::uninitialized_fill_n;
@@ -53,6 +50,19 @@ namespace bsl {
     using std::default_delete;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
+    using std::align;
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API
+    using std::declare_no_pointers;
+    using std::declare_reachable;
+    using std::get_pointer_safety;
+    using std::pointer_safety;
+    using std::undeclare_no_pointers;
+    using std::undeclare_reachable;
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API
+
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
     using std::make_unique;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
@@ -69,18 +79,13 @@ namespace bsl {
     using std::uninitialized_value_construct_n;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
-    using std::align;
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
+#if ! defined(BSLS_LIBRARYFEATURES_HAS_CPP20_DEPRECATED_REMOVED)
+    // These names are removed by C++20
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API
-    using std::declare_no_pointers;
-    using std::declare_reachable;
-    using std::get_pointer_safety;
-    using std::pointer_safety;
-    using std::undeclare_no_pointers;
-    using std::undeclare_reachable;
-#endif // BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API
+    using std::get_temporary_buffer;
+    using std::raw_storage_iterator;
+    using std::return_temporary_buffer;
+#endif
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // Import additional names expected by existing code, but not mandated by

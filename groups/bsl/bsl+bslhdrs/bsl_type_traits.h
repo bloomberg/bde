@@ -117,7 +117,10 @@ using std::is_compound;
 using std::is_trivial;
 using std::is_standard_layout;
 using std::is_pod;
+#if ! defined(BSLS_LIBRARYFEATURES_HAS_CPP20_DEPRECATED_REMOVED)
+    // This name is removed by C++20
 using std::is_literal_type;
+#endif
 using std::is_abstract;
 using std::is_signed;
 using std::is_unsigned;
@@ -172,7 +175,10 @@ using std::aligned_union;
 #endif
 using std::common_type;
 using std::underlying_type;
+#if ! defined(BSLS_LIBRARYFEATURES_HAS_CPP20_DEPRECATED_REMOVED)
+    // This name is removed by C++20
 using std::result_of;
+#endif
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 template <std::size_t LEN, std::size_t ALIGN>
@@ -210,10 +216,14 @@ using remove_all_extents_t =
     // 'remove_all_extents_t' is an alias to the return type of the
     // 'std::remove_all_extents' meta-function.
 
+#if ! defined(BSLS_LIBRARYFEATURES_HAS_CPP20_DEPRECATED_REMOVED)
+    // This name is removed by C++20
+
 template <class TYPE>
 using result_of_t = typename std::result_of<TYPE>::type;
-    // ' result_of_t' is an alias to the return type of the
-    // 'std::result_of' meta-function.
+    // ' result_of_t' is an alias to the return type of the 'std::result_of'
+    // meta-function.
+#endif
 
 template <class TYPE>
 using underlying_type_t = typename std::underlying_type<TYPE>::type;
@@ -316,7 +326,7 @@ constexpr bool is_pod_v = std::is_pod<TYPE>::value;
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
-#if BSLS_COMPILERFEATURES_CPLUSPLUS < 202002L
+#if ! defined(BSLS_LIBRARYFEATURES_HAS_CPP20_DEPRECATED_REMOVED)
 template <class TYPE>
 BSLA_DEPRECATED  // Warn of using 'bsl::is_literal_type' even though we
                  // suppress warnings of using 'std::is_pod' in this

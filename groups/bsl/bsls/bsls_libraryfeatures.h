@@ -15,6 +15,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY: C99 library provided
 //  BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF: C99 'snprintf' provided
 //  BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR: 'auto_ptr' provided
+//  BSLS_LIBRARYFEATURES_HAS_CPP98_BINDERS_API: adaptable function API provided
 //  BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY: C++11 base lib provided
 //  BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING: except handling provided
 //  BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API: GC support provided
@@ -43,6 +44,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_LIBRARYFEATURES_HAS_CPP17_PMR: <memory_resource>
 //  BSLS_LIBRARYFEATURES_HAS_CPP17_TIMESPEC_GET: <ctime>
 //  BSLS_LIBRARYFEATURES_HAS_CPP17_ALIGNED_ALLOC: <cstdlib>
+//  BSLS_LIBRARYFEATURES_HAS_CPP20_DEPRECATED_REMOVED: 'result_of' et al. gone
 //  BSLS_LIBRARYFEATURES_STDCPP_GNU: implementation is GNU libstdc++
 //  BSLS_LIBRARYFEATURES_STDCPP_IBM: implementation is IBM
 //  BSLS_LIBRARYFEATURES_STDCPP_INTELLISENSE: Intellisense is running
@@ -237,6 +239,16 @@ BSLS_IDENT("$Id: $")
 // standard library.  This macro is expected to be defined for all
 // libraries/platforms at least until the introduction of C++17 to our build
 // systems.
+//
+///'BSLS_LIBRARYFEATURES_HAS_CPP98_BINDERS_API'
+///-----------------------------------------
+// The 'BSLS_LIBRARYFEATURES_HAS_CPP98_BINDERS_API' macro is defined if the
+// 'result_type', 'argument_type', 'first_argument_type' and
+// 'second_argument_type' typedefs (defined in '<functional>') are provided by
+// the native standard library.  This macro is expected to be defined for all
+// libraries/platforms at least until the introduction of C++20 to our build
+// systems.
+//
 //
 ///'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY'
 ///-------------------------------------------------
@@ -659,6 +671,15 @@ BSLS_IDENT("$Id: $")
 // '__cplusplus >= 201703L', standard library implementations often provide
 // configuration flags to expose the deprecated library features.
 //
+///'BSLS_LIBRARYFEATURES_HAS_CPP20_DEPRECATED_REMOVED'
+///---------------------------------------------------
+// The 'BSLS_LIBRARYFEATURES_HAS_CPP20_DEPRECATED_REMOVED' macro is defined for
+// libraries that do not export names removed in C++20, such as
+// 'std::uncaught_exception'.  Although these names remain present in some
+// standard library implementations (e.g., gcc),
+// 'BSLS_LIBRARYFEATURES_HAS_CPP20_DEPRECATED_REMOVED' is the equivalent of
+// '__cplusplus >= 202002L'.
+//
 ///'BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION'
 ///----------------------------------------------------
 // The 'BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION' macro is defined if
@@ -1062,9 +1083,9 @@ BSLS_IDENT("$Id: $")
 //                     UNIVERSAL FEATURE SUPPORT
 // ----------------------------------------------------------------------------
 
-// Unconditionally define macros for C++98 features that may be detected as
-// absent from later standards.  All removed libraries will have their macros
-// undefined in a consistent manner at the end of this header
+// Define macros for C++98 features that may be detected as absent from later
+// standards.  All removed libraries will have their macros undefined in a
+// consistent manner at the end of this header
 
 #define BSLS_LIBRARYFEATURES_HAS_C90_GETS                             1
     // Set unconditionally for compilers supporting an earlier standard than
@@ -1077,10 +1098,20 @@ BSLS_IDENT("$Id: $")
     // version/platform combination tested.  Assume universally available until
     // the day tool chains start removing this deprecated class template.
 
+#if BSLS_COMPILERFEATURES_CPLUSPLUS < 202002L
+#define BSLS_LIBRARYFEATURES_HAS_CPP98_BINDERS_API                    1
+    // These APIs are removed in C++20.
+#endif
+
 #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201703L
 #define BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED             1
     // Set when C++17 is detected.  Adjusted below for implementations that
     // keep deprecated functions available.
+#endif
+
+#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
+#define BSLS_LIBRARYFEATURES_HAS_CPP20_DEPRECATED_REMOVED             1
+    // Set when C++20 is detected.
 #endif
 
 // ============================================================================
@@ -1512,6 +1543,14 @@ BSLS_IDENT("$Id: $")
 # undef BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR
     // 'auto_ptr' is removed from C++17, so undefine for any standard version
     // identifier greater than that of C++14.
+#endif
+
+#if BSLS_COMPILERFEATURES_CPLUSPLUS > 202002L
+# undef BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API
+// The garbage collection support API is removed from C++23, so undefine for
+// any standard version identifier greater than that of C++20.  Note that some
+// C++23 preview toolchains removed this API before the final __cplusplus macro
+// value for that standard was known.
 #endif
 
 // ============================================================================
