@@ -82,6 +82,7 @@ BSLS_IDENT("$Id: $")
 #include <baljsn_encoderoptions.h>
 
 #include <bdlb_float.h>
+#include <bdlb_variant.h>
 
 #include <bdldfp_decimal.h>
 #include <bdldfp_decimalconvertutil.h>
@@ -125,6 +126,20 @@ struct PrintUtil {
         // supplied 'TYPE' must be either 'float' or 'double'.
 
   public:
+    // TYPES
+    typedef bdlb::Variant2<bdlt::Date, bdlt::DateTz>      DateOrDateTz;
+        // 'DateOrDateTz' is a convenient alias for
+        // 'bdlb::Variant2<Date, DateTz>'.
+
+    typedef bdlb::Variant2<bdlt::Time, bdlt::TimeTz>      TimeOrTimeTz;
+        // 'TimeOrTimeTz' is a convenient alias for
+        // 'bdlb::Variant2<Time, TimeTz>'.
+
+    typedef bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>
+                                                          DatetimeOrDatetimeTz;
+        // 'DatetimeOrDatetimeTz' is a convenient alias for
+        // 'bdlb::Variant2<Datetime, DatetimeTz>'.
+
     // CLASS METHODS
     template <class TYPE>
     static int printDateAndTime(bsl::ostream&         stream,
@@ -215,6 +230,15 @@ struct PrintUtil {
     static int printValue(bsl::ostream&            stream,
                           const bdlt::DatetimeTz&  value,
                           const EncoderOptions    *options = 0);
+    static int printValue(bsl::ostream&         stream,
+                          const TimeOrTimeTz&   value,
+                          const EncoderOptions *options = 0);
+    static int printValue(bsl::ostream&         stream,
+                          const DateOrDateTz&   value,
+                          const EncoderOptions *options = 0);
+    static int printValue(bsl::ostream&                stream,
+                          const DatetimeOrDatetimeTz&  value,
+                          const EncoderOptions        *options = 0);
         // Encode the specified 'value' into JSON format and output the result
         // to the specified 'stream' using the optionally specified 'options'.
         // Return 0 on success and a non-zero value otherwise.
@@ -515,6 +539,31 @@ int PrintUtil::printValue(bsl::ostream&            stream,
 {
     return printDateAndTime(stream, value, options);
 }
+
+inline
+int PrintUtil::printValue(bsl::ostream&         stream,
+                          const TimeOrTimeTz&   value,
+                          const EncoderOptions *options)
+{
+    return printDateAndTime(stream, value, options);
+}
+
+inline
+int PrintUtil::printValue(bsl::ostream&         stream,
+                          const DateOrDateTz&   value,
+                          const EncoderOptions *options)
+{
+    return printDateAndTime(stream, value, options);
+}
+
+inline
+int PrintUtil::printValue(bsl::ostream&                stream,
+                          const DatetimeOrDatetimeTz&  value,
+                          const EncoderOptions        *options)
+{
+    return printDateAndTime(stream, value, options);
+}
+
 }  // close package namespace
 
 }  // close enterprise namespace

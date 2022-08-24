@@ -75,6 +75,9 @@ BSLS_IDENT("$Id: $")
 //      bdlt::DateTimeTz                    DEFAULT
 //      bdlt::Time                          DEFAULT
 //      bdlt::TimeTz                        DEFAULT
+//      bdlb::Variant2<DateTz, Date>        DEFAULT
+//      bdlb::Variant2<TimeTz, Time>        DEFAULT
+//      Variant2<DatetimeTz, Datetime>      DEFAULT
 //      bsl::vector<char>                   DEFAULT, BASE64, HEX, TEXT, IS_LIST
 //..
 // In addition to the types listed above, this component also recognizes the
@@ -313,6 +316,20 @@ struct TypesPrintUtil {
 struct TypesPrintUtil_Imp {
     // This 'struct' contains functions that are used in the implementation of
     // this component.
+
+    // TYPES
+    typedef bdlb::Variant2<bdlt::Date, bdlt::DateTz>      DateOrDateTz;
+        // 'DateOrDateTz' is a convenient alias for
+        // 'bdlb::Variant2<Date, DateTz>'.
+
+    typedef bdlb::Variant2<bdlt::Time, bdlt::TimeTz>      TimeOrTimeTz;
+        // 'TimeOrTimeTz' is a convenient alias for
+        // 'bdlb::Variant2<Time, TimeTz>'.
+
+    typedef bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>
+                                                          DatetimeOrDatetimeTz;
+        // 'DatetimeOrDatetimeTz' is a convenient alias for
+        // 'bdlb::Variant2<Datetime, DatetimeTz>'.
 
     // CLASS METHODS
     template <class TYPE>
@@ -619,6 +636,21 @@ struct TypesPrintUtil_Imp {
                                     const bdlt::TimeTz&         object,
                                     const EncoderOptions       *encoderOptions,
                                     bdlat_TypeCategory::Simple);
+    static bsl::ostream& printDefault(
+                                    bsl::ostream&               stream,
+                                    const DateOrDateTz&         object,
+                                    const EncoderOptions       *encoderOptions,
+                                    bdlat_TypeCategory::Simple);
+    static bsl::ostream& printDefault(
+                                    bsl::ostream&               stream,
+                                    const TimeOrTimeTz&         object,
+                                    const EncoderOptions       *encoderOptions,
+                                    bdlat_TypeCategory::Simple);
+    static bsl::ostream& printDefault(
+                                   bsl::ostream&                stream,
+                                   const DatetimeOrDatetimeTz&  object,
+                                   const EncoderOptions        *encoderOptions,
+                                   bdlat_TypeCategory::Simple);
     static bsl::ostream& printDefault(
                                      bsl::ostream&              stream,
                                      const bsl::vector<char>&   object,
@@ -1739,6 +1771,36 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                     const bdlt::TimeTz&         object,
                                     const EncoderOptions       *encoderOptions,
                                     bdlat_TypeCategory::Simple)
+{
+    return printDateAndTime(stream, object, encoderOptions);
+}
+
+inline
+bsl::ostream& TypesPrintUtil_Imp::printDefault(
+                                       bsl::ostream&            stream,
+                                       const DateOrDateTz&      object,
+                                       const EncoderOptions    *encoderOptions,
+                                       bdlat_TypeCategory::Simple)
+{
+    return printDateAndTime(stream, object, encoderOptions);
+}
+
+inline
+bsl::ostream& TypesPrintUtil_Imp::printDefault(
+                                          bsl::ostream&         stream,
+                                          const TimeOrTimeTz&     object,
+                                          const EncoderOptions *encoderOptions,
+                                          bdlat_TypeCategory::Simple)
+{
+    return printDateAndTime(stream, object, encoderOptions);
+}
+
+inline
+bsl::ostream& TypesPrintUtil_Imp::printDefault(
+                                   bsl::ostream&                stream,
+                                   const DatetimeOrDatetimeTz&  object,
+                                   const EncoderOptions        *encoderOptions,
+                                   bdlat_TypeCategory::Simple)
 {
     return printDateAndTime(stream, object, encoderOptions);
 }

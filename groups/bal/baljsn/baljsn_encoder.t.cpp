@@ -34,6 +34,7 @@
 
 #include <bdlb_nullableallocatedvalue.h>
 #include <bdlb_nullablevalue.h>
+#include <bdlb_variant.h>
 
 #include <bdlpcre_regex.h>
 
@@ -3980,6 +3981,11 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nENCODING DATE AND TIME TYPES"
                           << "\n============================" << endl;
 
+        typedef bdlb::Variant2<bdlt::Date, bdlt::DateTz>  DateOrDateTz;
+        typedef bdlb::Variant2<bdlt::Time, bdlt::TimeTz>  TimeOrTimeTz;
+        typedef bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>
+                                                          DatetimeOrDatetimeTz;
+
         const struct {
             int        d_line;
             int        d_year;
@@ -4158,6 +4164,79 @@ int main(int argc, char *argv[])
 
                 bsl::string result = oss.str();
                 ASSERTV(LINE, result, EXP, result == EXP);
+            }
+
+            if (verbose) cout << "Encode DateOrDateTz" << endl;
+            {
+                const char *EXP_DATE   = expectedDate[ti];
+                const char *EXP_DATETZ = expectedDateTz[ti];
+
+                DateOrDateTz dateVariant(theDate);
+
+
+                bsl::ostringstream ossDate;
+                ASSERTV(LINE, 0 == ImplUtil::encode(&ossDate, dateVariant));
+
+                bsl::string result = ossDate.str();
+                ASSERTV(LINE, result, EXP_DATE, result == EXP_DATE);
+
+                dateVariant = theDateTz;
+
+                bsl::ostringstream ossDateTz;
+                ASSERTV(LINE, 0 == ImplUtil::encode(&ossDateTz, dateVariant));
+
+                result = ossDateTz.str();
+                ASSERTV(LINE, result, EXP_DATETZ, result == EXP_DATETZ);
+            }
+
+            if (verbose) cout << "Encode TimeOrTimeTz" << endl;
+            {
+                const char *EXP_TIME   = expectedTime[ti];
+                const char *EXP_TIMETZ = expectedTimeTz[ti];
+
+                TimeOrTimeTz timeVariant(theTime);
+
+
+                bsl::ostringstream ossTime;
+                ASSERTV(LINE, 0 == ImplUtil::encode(&ossTime, timeVariant));
+
+                bsl::string result = ossTime.str();
+                ASSERTV(LINE, result, EXP_TIME, result == EXP_TIME);
+
+                timeVariant = theTimeTz;
+
+                bsl::ostringstream ossTimeTz;
+                ASSERTV(LINE, 0 == ImplUtil::encode(&ossTimeTz, timeVariant));
+
+                result = ossTimeTz.str();
+                ASSERTV(LINE, result, EXP_TIMETZ, result == EXP_TIMETZ);
+            }
+
+            if (verbose) cout << "Encode DatetimeOrDatetimeTz" << endl;
+            {
+                const char *EXP_DATETIME   = expectedDatetime[ti];
+                const char *EXP_DATETIMETZ = expectedDatetimeTz[ti];
+
+                DatetimeOrDatetimeTz datetimeVariant(theDatetime);
+
+
+                bsl::ostringstream ossDatetime;
+                ASSERTV(LINE,
+                        0 == ImplUtil::encode(&ossDatetime, datetimeVariant));
+
+                bsl::string result = ossDatetime.str();
+                ASSERTV(LINE, result, EXP_DATETIME, result == EXP_DATETIME);
+
+                datetimeVariant = theDatetimeTz;
+
+                bsl::ostringstream ossDatetimeTz;
+                ASSERTV(LINE,
+                        0 == ImplUtil::encode(&ossDatetimeTz,
+                                              datetimeVariant));
+
+                result = ossDatetimeTz.str();
+                ASSERTV(LINE, result, EXP_DATETIMETZ,
+                        result == EXP_DATETIMETZ);
             }
         }
         {

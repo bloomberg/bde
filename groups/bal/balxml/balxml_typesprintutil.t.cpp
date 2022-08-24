@@ -2405,6 +2405,183 @@ int main(int argc, char *argv[])
                     bsl::string result = oss.str();
                     ASSERTV(LINE, result, EXP, result == EXP);
                 }
+
+                if (verbose) cout << "Print 'DateOrDateTz'" << endl;
+                {
+                    bdlb::Variant2<bdlt::Date, bdlt::DateTz> dateVariant(
+                                                                      theDate);
+                    ASSERTV(dateVariant.is<bdlt::Date>());
+                    ASSERTV(theDate == dateVariant.the<bdlt::Date>());
+
+                    const char *EXP_DATE = expectedDate[ti];
+                    bsl::ostringstream ossDate;
+                    Util::printDefault(ossDate, dateVariant);
+
+                    bsl::string result = ossDate.str();
+                    ASSERTV(LINE, result, EXP_DATE, EXP_DATE == result);
+
+                    dateVariant = theDateTz;
+                    ASSERTV(dateVariant.is<bdlt::DateTz>());
+                    ASSERTV(theDateTz == dateVariant.the<bdlt::DateTz>());
+
+                    const char *EXP_DATETZ = expectedDateTz[ti];
+                    bsl::ostringstream ossDateTz;
+                    Util::printDefault(ossDateTz, dateVariant);
+
+                    result = ossDateTz.str();
+                    ASSERTV(LINE, result, EXP_DATETZ, EXP_DATETZ == result);
+                }
+
+                if (verbose) cout << "Print DateOrDateTzUseZ" << endl;
+                {
+                    const char *EXP = expectedDateTzUseZ[ti];
+
+                    balxml::EncoderOptions options;
+                    options.setUseZAbbreviationForUtc(true);
+
+                    bdlb::Variant2<bdlt::Date, bdlt::DateTz> dateVariant(
+                                                                    theDateTz);
+
+                    ASSERTV(dateVariant.is<bdlt::DateTz>());
+                    ASSERTV(theDateTz == dateVariant.the<bdlt::DateTz>());
+
+                    bsl::ostringstream oss;
+                    Util::printDefault(oss, dateVariant, &options);
+
+                    bsl::string result = oss.str();
+                    ASSERTV(LINE, result, EXP, result == EXP);
+                }
+
+                if (verbose) cout << "Print 'TimeOrTimeTz'" << endl;
+                {
+                    bdlb::Variant2<bdlt::Time, bdlt::TimeTz> dateVariant(
+                                                                      theTime);
+                    ASSERTV(dateVariant.is<bdlt::Time>());
+                    ASSERTV(theTime == dateVariant.the<bdlt::Time>());
+
+                    const char *EXP_TIME = expectedTime[ti];
+                    bsl::ostringstream ossTime;
+                    Util::printDefault(ossTime, dateVariant);
+
+                    bsl::string result = ossTime.str();
+                    ASSERTV(LINE, result, EXP_TIME, EXP_TIME == result);
+
+                    dateVariant = theTimeTz;
+                    ASSERTV(dateVariant.is<bdlt::TimeTz>());
+                    ASSERTV(theTimeTz == dateVariant.the<bdlt::TimeTz>());
+
+                    const char *EXP_TIMETZ = expectedTimeTz[ti];
+                    bsl::ostringstream ossTimeTz;
+                    Util::printDefault(ossTimeTz, dateVariant);
+
+                    result = ossTimeTz.str();
+                    ASSERTV(LINE, result, EXP_TIMETZ, EXP_TIMETZ == result);
+                }
+
+                if (verbose) cout << "Print TimeOrTimeTzUseZ" << endl;
+                {
+                    const char *EXP = expectedTimeTzUseZ[ti];
+
+                    balxml::EncoderOptions options;
+                    options.setUseZAbbreviationForUtc(true);
+
+                    bdlb::Variant2<bdlt::Time, bdlt::TimeTz> dateVariant(
+                                                                    theTimeTz);
+
+                    ASSERTV(dateVariant.is<bdlt::TimeTz>());
+                    ASSERTV(theTimeTz == dateVariant.the<bdlt::TimeTz>());
+
+                    bsl::ostringstream oss;
+                    Util::printDefault(oss, dateVariant, &options);
+
+                    bsl::string result = oss.str();
+                    ASSERTV(LINE, result, EXP, result == EXP);
+                }
+
+                if (verbose) cout << "Print 'DatetimeOrDatetimeTz'" << endl;
+                {
+                    bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>
+                                                      dateVariant(theDatetime);
+
+                    ASSERTV(dateVariant.is<bdlt::Datetime>());
+                    ASSERTV(theDatetime == dateVariant.the<bdlt::Datetime>());
+
+                    const char *EXP_DATETIME = expectedDatetime[ti];
+                    bsl::ostringstream ossDatetime;
+                    Util::printDefault(ossDatetime, dateVariant);
+
+                    bsl::string result = ossDatetime.str();
+                    ASSERTV(LINE, result, EXP_DATETIME,
+                            EXP_DATETIME == result);
+
+                    dateVariant = theDatetimeTz;
+                    ASSERTV(dateVariant.is<bdlt::DatetimeTz>());
+                    ASSERTV(theDatetimeTz ==
+                            dateVariant.the<bdlt::DatetimeTz>());
+
+                    const char *EXP_DATETIMETZ = expectedDatetimeTz[ti];
+                    bsl::ostringstream ossDatetimeTz;
+                    Util::printDefault(ossDatetimeTz, dateVariant);
+
+                    result = ossDatetimeTz.str();
+                    ASSERTV(LINE, result, EXP_DATETIMETZ,
+                            EXP_DATETIMETZ == result);
+                }
+
+                if (verbose) cout << "Print DatetimeOrDatetimeTzUseZ" << endl;
+                {
+                    const char *EXP = expectedDatetimeTzUseZ[ti];
+
+                    balxml::EncoderOptions options;
+                    options.setUseZAbbreviationForUtc(true);
+
+                    bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>
+                                                    dateVariant(theDatetimeTz);
+
+                    ASSERTV(dateVariant.is<bdlt::DatetimeTz>());
+                    ASSERTV(theDatetimeTz ==
+                            dateVariant.the<bdlt::DatetimeTz>());
+
+                    bsl::ostringstream oss;
+                    Util::printDefault(oss, dateVariant, &options);
+
+                    bsl::string result = oss.str();
+                    ASSERTV(LINE, result, EXP, result == EXP);
+                }
+
+                if (verbose) cout << "Print DatetimeMs" << endl;
+                {
+                    bsl::ostringstream oss;
+                    balxml::EncoderOptions options;
+                    options.setDatetimeFractionalSecondPrecision(3);
+
+                    bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>
+                                                      dateVariant(theDatetime);
+
+                    ASSERTV(dateVariant.is<bdlt::Datetime>());
+                    ASSERTV(theDatetime == dateVariant.the<bdlt::Datetime>());
+
+                    const char *EXP_DATETIME = expectedDatetimeMs[ti];
+                    bsl::ostringstream ossDatetime;
+                    Util::printDefault(ossDatetime, dateVariant, &options);
+
+                    bsl::string result = ossDatetime.str();
+                    ASSERTV(LINE, result, EXP_DATETIME,
+                            EXP_DATETIME == result);
+
+                    dateVariant = theDatetimeTz;
+                    ASSERTV(dateVariant.is<bdlt::DatetimeTz>());
+                    ASSERTV(theDatetimeTz ==
+                            dateVariant.the<bdlt::DatetimeTz>());
+
+                    const char *EXP_DATETIMETZ = expectedDatetimeTzMs[ti];
+                    bsl::ostringstream ossDatetimeTz;
+                    Util::printDefault(ossDatetimeTz, dateVariant, &options);
+
+                    result = ossDatetimeTz.str();
+                    ASSERTV(LINE, result, EXP_DATETIMETZ,
+                            EXP_DATETIMETZ == result);
+                }
             }
         }
       } break;

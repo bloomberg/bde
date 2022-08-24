@@ -79,6 +79,9 @@ using bsl::endl;
 // [17] static int getValue(bdlt::DateTz         *v, bsl::string_view s);
 // [18] static int getValue(bdlt::Datetime       *v, bsl::string_view s);
 // [19] static int getValue(bdlt::DatetimeTz     *v, bsl::string_view s);
+// [26] static int getValue(TimeOrTimeTz         *v, bsl::string_view s);
+// [27] static int getValue(DateOrDateTz         *v, bsl::string_view s);
+// [28] static int getValue(DatetimeOrDatetimeTz *v, bsl::string_view s);
 // [20] static int getValue(vector<char>         *v, bsl::string_view s);
 // [21] static int getValue(bdldfp::Decimal64    *v, bsl::string_view s);
 // ----------------------------------------------------------------------------
@@ -89,7 +92,7 @@ using bsl::endl;
 // [24] NUMBERS ROUND-TRIP
 // [25] DATE AND TIME TYPES ROUND-TRIP
 //
-// [26] USAGE EXAMPLE
+// [29] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -328,7 +331,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 26: {
+      case 29: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -392,6 +395,1276 @@ int main(int argc, char *argv[])
     ASSERT(bdlt::Date(1985, 06, 24) == employee.d_date);
     ASSERT(21                      == employee.d_age);
 //..
+      } break;
+      case 28: {
+        // --------------------------------------------------------------------
+        // TESTING 'getValue' for 'bdlt::DatetimeOrDatetimeTz'
+        //
+        // Concerns:
+        //: 1 Values in the valid range, including the maximum and minimum
+        //:   values for this type, are parsed correctly.
+        //:
+        //: 2 The function fails and the passed in variable remains unmodified
+        //:   if the data is not valid.
+        //:
+        //: 3 The return code is 0 on success and non-zero on failure.
+        //
+        // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows of string value, expected parsed value, and return code.
+        //:
+        //: 2 For each row in the table of P-1:
+        //:
+        //:   1 Provide the string value and a variable  to be parsed into to
+        //:     the 'getValue' function.  Invoke the function three times,
+        //:     leaving the variable unset, then assigning a sentinel value of
+        //:     type "bdlt::Datetime' to the variable and finally assigning a
+        //:     a sentinel value of type 'bdlt::DatetimeTz'.
+        //:
+        //:   2 If the parsing should succeed then verify that the variable
+        //:     value matches the expected value.  Otherwise confirm that the
+        //:     variable value is unmodified.  (C-1..2)
+        //:
+        //:   3 Confirm that the return code is 0 on success and non-zero
+        //:     otherwise.  (C-3)
+        //
+        // Testing:
+        //   static int getValue(DatetimeOrDatetimeTz *v, bsl::string_view s);
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            cout << "\nTESTING 'getValue' for 'bdlt::DatetimeOrDatetimeTz'"
+                 << "\n==================================================="
+                 << endl;
+        {
+            static const struct {
+                int         d_line;          // source line number
+
+                const char *d_input_p;       // input
+
+                int         d_year;          // year under test
+
+                int         d_month;         // month under test
+
+                int         d_day;           // day under test
+
+                int         d_hour;          // hour under test
+
+                int         d_minutes;       // minutes under test
+
+                int         d_seconds;       // seconds under test
+
+                int         d_milliSecs;     // milli seconds under test
+
+                int         d_microSecs;     // micro seconds under test
+
+                int         d_tzoffset;      // time zone offset
+
+                bool        d_isValid;       // isValid flag
+
+                bool        d_isDatetimeTz;  // flag indicating whether the
+                                             // result object is expected to
+                                             // contain 'DatetimeTz' or
+                                             // 'Datetime' object
+            } DATA[] = {
+//LINE  INPUT
+//----  --------------------------------------------
+//                    Y     M   D   HH  MM  SS   MS  US   OFF   VALID  TZ
+//                    ----  --  --  --  --  --   --  --   ----- -----  -----
+{ L_, "\"0001-01-01T00:00:00.000\"",
+                         1,  1,  1,  0,  0,  0,  0,   0,     0,  true, false },
+{ L_, "\"0001-01-01T00:00:00.000000\"",
+                         1,  1,  1,  0,  0,  0,  0,   0,     0,  true, false },
+
+{ L_, "\"0001-01-01T01:01:01.001\"",
+                         1,  1,  1,  1,  1,  1,  1,   0,     0,  true, false },
+{ L_, "\"0001-01-01T01:01:01.001000\"",
+                         1,  1,  1,  1,  1,  1,  1,   0,     0,  true, false },
+{ L_, "\"0001-01-01T01:23:59.059\"",
+                         1,  1,  1,  1, 23, 59, 59,   0,     0,  true, false },
+{ L_, "\"0001-01-01T01:23:59.059059\"",
+                         1,  1,  1,  1, 23, 59, 59,  59,     0,  true, false },
+{ L_, "\"0001-01-02T00:00:00.000\"",
+                         1,  1,  2,  0,  0,  0,  0,   0,     0,  true, false },
+{ L_, "\"0001-01-02T00:00:00.000000\"",
+                         1,  1,  2,  0,  0,  0,  0,   0,     0,  true, false },
+{ L_, "\"0001-01-02T01:01:01.001\"",
+                         1,  1,  2,  1,  1,  1,  1,   0,     0,  true, false },
+{ L_, "\"0001-01-02T01:01:01.001000\"",
+                         1,  1,  2,  1,  1,  1,  1,   0,     0,  true, false },
+
+{ L_, "\"0001-01-02T01:23:59.059\"",
+                         1,  1,  2,  1, 23, 59, 59,   0,     0,  true, false },
+{ L_, "\"0001-01-02T01:23:59.059501\"",
+                         1,  1,  2,  1, 23, 59, 59, 501,     0,  true, false },
+
+{ L_, "\"0001-02-01T23:59:59.000\"",
+                         1,  2,  1, 23, 59, 59,  0,   0,     0,  true, false },
+{ L_, "\"0001-02-01T23:59:59.000001\"",
+                         1,  2,  1, 23, 59, 59,  0,   1,     1,  true, false },
+
+{ L_, "\"0001-12-31T00:00:00.000\"",
+                         1, 12, 31,  0,  0,  0,  0,   0,     0,  true, false },
+{ L_, "\"0001-12-31T23:59:59.000\"",
+                         1, 12, 31, 23, 59, 59,  0,   0,     0,  true, false },
+
+
+{ L_, "\"0002-01-01T00:00:00.000000\"",
+                         2,  1,  1,  0,  0,  0,  0,   0,     0,  true, false },
+{ L_, "\"0002-01-01T23:59:59.000000\"",
+                         2,  1,  1, 23, 59, 59,  0,   0,     0,  true, false },
+
+{ L_, "\"0004-02-28T00:00:00.000000\"",
+                         4,  2, 28,  0,  0,  0,  0,   0,     0,  true, false },
+{ L_, "\"0004-02-28T23:59:59.000000\"",
+                         4,  2, 28, 23, 59, 59,  0,   0,     0,  true, false },
+{ L_, "\"0004-02-28T23:59:59.000000\"",
+                         4,  2, 28, 23, 59, 59,  0,   0,     0,  true, false },
+
+{ L_, "\"0004-02-29T00:00:00.000000\"",
+                         4,  2, 29,  0,  0,  0,  0,   0,     0,  true, false },
+{ L_, "\"0004-02-29T23:59:59.000000\"",
+                         4,  2, 29, 23, 59, 59,  0,   0,     0,  true, false },
+
+{ L_, "\"0004-03-01T00:00:00.000000\"",
+                         4,  3,  1,  0,  0,  0,  0,   0,     0,  true, false },
+{ L_, "\"0004-03-01T23:59:59.000000\"",
+                         4,  3,  1, 23, 59, 59,  0,   0,     0,  true, false },
+{ L_, "\"0004-03-01T23:59:59.000000\"",
+                         4,  3,  1, 23, 59, 59,  0,   0,     0,  true, false },
+
+{ L_, "\"0008-02-28T00:00:00.000000\"",
+                         8,  2, 28,  0,  0,  0,  0,   0,     0,  true, false },
+{ L_, "\"0008-02-28T23:59:59.000000\"",
+                         8,  2, 28, 23, 59, 59,  0,   0,     0,  true, false },
+
+{ L_, "\"0008-02-29T00:00:00.000000\"",
+                         8,  2, 29,  0,  0,  0,  0,   0,     0,  true, false },
+{ L_, "\"0008-02-29T23:59:59.000000\"",
+                         8,  2, 29, 23, 59, 59,  0,   0,     0,  true, false },
+
+{ L_, "\"0008-03-01T00:00:00.000000\"",
+                         8,  3,  1,  0,  0,  0,  0,   0,     0,  true, false },
+{ L_, "\"0008-03-01T23:59:59.000000\"",
+                         8,  3,  1, 23, 59, 59,  0,   0,     0,  true, false },
+
+{ L_, "\"0100-02-28T00:00:00.000000\"",
+                       100,  2, 28,  0,  0,  0,  0,   0,     0,  true, false },
+{ L_, "\"0100-02-28T23:59:59.000000\"",
+                       100,  2, 28, 23, 59, 59,  0,   0,     0,  true, false },
+{ L_, "\"0100-02-28T23:59:59.000000\"",
+                       100,  2, 28, 23, 59, 59,  0,   0,     0,  true, false },
+
+{ L_, "\"0100-03-01T00:00:00.000000\"",
+                       100,  3,  1,  0,  0,  0,  0,   0,     0,  true, false },
+{ L_, "\"0100-03-01T23:59:59.000000\"",
+                       100,  3,  1, 23, 59, 59,  0,   0,     0,  true, false },
+{ L_, "\"0100-03-01T23:59:59.000000\"",
+                       100,  3,  1, 23, 59, 59,  0,   0,     0,  true, false },
+
+{ L_, "\"0400-02-28T00:00:00.000000\"",
+                       400,  2, 28,  0,  0,  0,  0,   0,     0,  true, false },
+{ L_, "\"0400-02-28T23:59:59.000000\"",
+                       400,  2, 28, 23, 59, 59,  0,   0,     0,  true, false },
+{ L_, "\"0400-02-28T23:59:59.000000\"",
+                       400,  2, 28, 23, 59, 59,  0,   0,     0,  true, false },
+
+{ L_, "\"0400-02-29T00:00:00.000000\"",
+                       400,  2, 29,  0,  0,  0,  0,   0,     0,  true, false },
+{ L_, "\"0400-02-29T23:59:59.000000\"",
+                       400,  2, 29, 23, 59, 59,  0,   0,     0,  true, false },
+{ L_, "\"0400-02-29T23:59:59.000000\"",
+                       400,  2, 29, 23, 59, 59,  0,   0,     0,  true, false },
+
+{ L_, "\"0400-03-01T00:00:00.000000\"",
+                       400,  3,  1,  0,  0,  0,  0,   0,     0,  true, false },
+{ L_, "\"0400-03-01T23:59:59.000000\"",
+                       400,  3,  1, 23, 59, 59,  0,   0,     0,  true, false },
+{ L_, "\"0400-03-01T23:59:59.000000\"",
+                       400,  3,  1, 23, 59, 59,  0,   0,     0,  true, false },
+
+{ L_, "\"0500-02-28T00:00:00.000000\"",
+                       500,  2, 28,  0,  0,  0,  0,   0,     0,  true, false },
+{ L_, "\"0500-02-28T23:59:59.000000\"",
+                       500,  2, 28, 23, 59, 59,  0,   0,     0,  true, false },
+
+{ L_, "\"0500-03-01T00:00:00.000000\"",
+                      500,  3,  1,  0,  0,  0,  0,   0,     0,  true, false },
+{ L_, "\"0500-03-01T23:59:59.000000\"",
+                       500,  3,  1, 23, 59, 59,  0,   0,     0,  true, false },
+
+{ L_, "\"0800-02-28T00:00:00.000000\"",
+                       800,  2, 28,  0,  0,  0,  0,   0,     0,  true, false },
+{ L_, "\"0800-02-28T23:59:59.000000\"",
+                       800,  2, 28, 23, 59, 59,  0,   0,     0,  true, false },
+
+{ L_, "\"0800-02-29T00:00:00.000000\"",
+                       800,  2, 29,  0,  0,  0,  0,   0,     0,  true, false },
+{ L_, "\"0800-02-29T23:59:59.000000\"",
+                       800,  2, 29, 23, 59, 59,  0,   0,     0,  true, false },
+
+{ L_, "\"0800-03-01T00:00:00.000000\"",
+                       800,  3,  1,  0,  0,  0,  0,   0,     0,  true, false },
+{ L_, "\"0800-03-01T23:59:59.000000\"",
+                       800,  3,  1, 23, 59, 59,  0,   0,     0,  true, false },
+
+{ L_, "\"1000-02-28T00:00:00.000000\"",
+                      1000,  2, 28,  0,  0,  0,  0,   0,     0,  true, false },
+{ L_, "\"1000-02-28T23:59:59.000000\"",
+                      1000,  2, 28, 23, 59, 59,  0,   0,     0,  true, false },
+
+{ L_, "\"1000-03-01T00:00:00.000000\"",
+                      1000,  3,  1,  0,  0,  0,  0,   0,     0,  true, false },
+{ L_, "\"1000-03-01T23:59:59.000000\"",
+                      1000,  3,  1, 23, 59, 59,  0,   0,     0,  true, false },
+
+{ L_, "\"2000-02-28T00:00:00.000000\"",
+                      2000,  2, 28,  0,  0,  0,  0,   0,     0,  true, false },
+{ L_, "\"2000-02-28T23:59:59.000000\"",
+                      2000,  2, 28, 23, 59, 59,  0,   0,     0,  true, false },
+
+{ L_, "\"2000-02-29T00:00:00.000000\"",
+                      2000,  2, 29,  0,  0,  0,  0,   0,     0,  true, false },
+{ L_, "\"2000-02-29T23:59:59.000000\"",
+                      2000,  2, 29, 23, 59, 59,  0,   0,     0,  true, false },
+
+{ L_, "\"2000-03-01T00:00:00.000000\"",
+                      2000,  3,  1,  0,  0,  0,  0,   0,     0,  true, false },
+{ L_, "\"2000-03-01T23:59:59.000000\"",
+                      2000,  3,  1, 23, 59, 59,  0,   0,     0,  true, false },
+
+{ L_, "\"2016-12-31T00:00:00.000000\"",
+                      2016, 12, 31,  0,  0,  0,  0,   0,     0,  true, false },
+{ L_, "\"2017-12-31T00:00:00.000000\"",
+                      2017, 12, 31,  0,  0,  0,  0,   0,     0,  true, false },
+{ L_, "\"2018-12-31T00:00:00.000000\"",
+                      2018, 12, 31,  0,  0,  0,  0,   0,     0,  true, false },
+{ L_, "\"2019-12-31T00:00:00.000000\"",
+                      2019, 12, 31,  0,  0,  0,  0,   0,     0,  true, false },
+
+{ L_, "\"2020-01-01T00:00:00.000000\"",
+                      2020,  1,  1,  0,  0,  0,  0,   0,     0,  true, false },
+{ L_, "\"2020-01-01T00:00:00.000000\"",
+                      2020,  1,  1,  0,  0,  0,  0,   0,     0,  true, false },
+{ L_, "\"2020-01-01T00:00:00.000000\"",
+                      2020,  1,  1,  0,  0,  0,  0,   0,     0,  true, false },
+
+{ L_, "\"2020-01-01T23:59:59.999999\"",
+                      2020,  1,  1, 23, 59, 59,999, 999,     0,  true, false },
+{ L_, "\"2020-01-01T23:59:59.999999\"",
+                      2020,  1,  1, 23, 59, 59,999, 999,     0,  true, false },
+{ L_, "\"2020-01-01T23:59:59.999999\"",
+                      2020,  1,  1, 23, 59, 59,999, 999,     0,  true, false },
+
+{ L_, "\"2020-01-02T00:00:00.000000\"",
+                      2020,  1,  2,  0,  0,  0,  0,   0,     0,  true, false },
+{ L_, "\"2020-01-02T00:00:00.000000\"",
+                      2020,  1,  2,  0,  0,  0,  0,   0,     0,  true, false },
+{ L_, "\"2020-01-02T00:00:00.000000\"",
+                      2020,  1,  2,  0,  0,  0,  0,   0,     0,  true, false },
+
+
+{ L_, "\"2020-02-28T00:00:00.000000\"",
+                      2020,  2, 28,  0,  0,  0,  0,   0,     0,  true, false },
+{ L_, "\"2020-02-28T23:59:59.000000\"",
+                      2020,  2, 28, 23, 59, 59,  0,   0,     0,  true, false },
+{ L_, "\"2020-02-28T23:59:59.000000\"",
+                      2020,  2, 28, 23, 59, 59,  0,   0,     0,  true, false },
+
+{ L_, "\"2020-02-29T00:00:00.000000\"",
+                      2020,  2, 29,  0,  0,  0,  0,   0,     0,  true, false },
+{ L_, "\"2020-02-29T23:59:59.000000\"",
+                      2020,  2, 29, 23, 59, 59,  0,   0,     0,  true, false },
+{ L_, "\"2020-02-29T23:59:59.000000\"",
+                      2020,  2, 29, 23, 59, 59,  0,   0,     0,  true, false },
+
+{ L_, "\"2020-03-01T00:00:00.000000\"",
+                      2020,  3,  1,  0,  0,  0,  0,   0,     0,  true, false },
+{ L_, "\"2020-03-01T23:59:59.000000\"",
+                      2020,  3,  1, 23, 59, 59,  0,   0,     0,  true, false },
+{ L_, "\"2020-03-01T23:59:59.000000\"",
+                      2020,  3,  1, 23, 59, 59,  0,   0,     0,  true, false },
+
+{ L_, "\"2021-01-02T00:00:00.000000\"",
+                      2021,  1,  2,  0,  0,  0,  0,   0,     0,  true, false },
+{ L_, "\"2022-01-02T00:00:00.000000\"",
+                      2022,  1,  2,  0,  0,  0,  0,   0,     0,  true, false },
+
+{ L_, "\"9999-02-28T00:00:00.000000\"",
+                      9999,  2, 28,  0,  0,  0,  0,   0,     0,  true, false },
+{ L_, "\"9999-02-28T23:59:59.000000\"",
+                      9999,  2, 28, 23, 59, 59,  0,   0,     0,  true, false },
+{ L_, "\"9999-02-28T23:59:59.000000\"",
+                      9999,  2, 28, 23, 59, 59,  0,   0,     0,  true, false },
+
+{ L_, "\"9999-03-01T00:00:00.000000\"",
+                      9999,  3,  1,  0,  0,  0,  0,   0,     0,  true, false },
+{ L_, "\"9999-03-01T23:59:59.000000\"",
+                      9999,  3,  1, 23, 59, 59,  0,   0,     0,  true, false },
+{ L_, "\"9999-03-01T23:59:59.000000\"",
+                      9999,  3,  1, 23, 59, 59,  0,   0,     0,  true, false },
+
+{ L_, "\"9999-12-30T00:00:00.000000\"",
+                      9999, 12, 30,  0,  0,  0,  0,   0,     0,  true, false },
+{ L_, "\"9999-12-30T23:59:59.000000\"",
+                      9999, 12, 30, 23, 59, 59,  0,   0,     0,  true, false },
+
+{ L_, "\"9999-12-31T00:00:00.000000\"",
+                      9999, 12, 31,  0,  0,  0,  0,   0,     0,  true, false },
+{ L_, "\"9999-12-31T23:59:59.000000\"",
+                      9999, 12, 31, 23, 59, 59,  0,   0,     0,  true, false },
+
+{ L_, "\"0001-01-01T00:00:00.000Z\"",
+                         1,  1,  1,  0,  0,  0,  0,   0,     0,  true,  true },
+ { L_, "\"0001-01-01T00:00:00.000+00:00\"",
+                         1,  1,  1,  0,  0,  0,  0,   0,     0,  true,  true },
+{ L_, "\"0001-01-01T00:00:00.000+00:45\"",
+                         1,  1,  1,  0,  0,  0,  0,   0,    45,  true,  true },
+{ L_, "\"0001-01-01T00:00:00.000-23:59\"",
+                         1,  1,  1,  0,  0,  0,  0,   0, -1439,  true,  true },
+{ L_, "\"0001-01-01T00:00:00.000000Z\"",
+                         1,  1,  1,  0,  0,  0,  0,   0,     0,  true,  true },
+{ L_, "\"0001-01-01T00:00:00.000000+00:00\"",
+                         1,  1,  1,  0,  0,  0,  0,   0,     0,  true,  true },
+{ L_, "\"0001-01-01T00:00:00.000000+00:45\"",
+                         1,  1,  1,  0,  0,  0,  0,   0,    45,  true,  true },
+{ L_, "\"0001-01-01T00:00:00.000000-23:59\"",
+                         1,  1,  1,  0,  0,  0,  0,   0, -1439,  true,  true },
+
+{ L_, "\"0001-01-01T01:01:01.001z\"",
+                         1,  1,  1,  1,  1,  1,  1,   0,     0,  true,  true },
+{ L_, "\"0001-01-01T01:01:01.001+00:00\"",
+                         1,  1,  1,  1,  1,  1,  1,   0,     0,  true,  true },
+{ L_, "\"0001-01-01T01:01:01.001+08:20\"",
+                         1,  1,  1,  1,  1,  1,  1,   0,   500,  true,  true },
+{ L_, "\"0001-01-01T01:01:01.001000z\"",
+                         1,  1,  1,  1,  1,  1,  1,   0,     0,  true,  true },
+{ L_, "\"0001-01-01T01:01:01.001000+00:00\"",
+                         1,  1,  1,  1,  1,  1,  1,   0,     0,  true,  true },
+{ L_, "\"0001-01-01T01:01:01.001000+08:20\"",
+                         1,  1,  1,  1,  1,  1,  1,   0,   500,  true,  true },
+{ L_, "\"0001-01-01T00:00:00.000000-23:59\"",
+                         1,  1,  1,  0,  0,  0,  0,   0, -1439,  true,  true },
+{ L_, "\"0001-01-01T01:23:59.059059+00:00\"",
+                         1,  1,  1,  1, 23, 59, 59,  59,     0,  true,  true },
+{ L_, "\"0001-01-01T01:23:59.059059+23:59\"",
+                         1,  1,  1,  1, 23, 59, 59,  59,  1439,  true,  true },
+{ L_, "\"0001-01-01T01:23:59.059059-23:59\"",
+                         1,  1,  1,  1, 23, 59, 59,  59, -1439,  true,  true },
+{ L_, "\"0001-01-02T00:00:00.000000+00:00\"",
+                         1,  1,  2,  0,  0,  0,  0,   0,     0,  true,  true },
+{ L_, "\"0001-01-02T00:00:00.000000+23:59\"",
+                         1,  1,  2,  0,  0,  0,  0,   0,  1439,  true,  true },
+{ L_, "\"0001-01-02T00:00:00.000000-23:59\"",
+                         1,  1,  2,  0,  0,  0,  0,   0, -1439,  true,  true },
+{ L_, "\"0001-01-02T01:01:01.000001+00:00\"",
+                         1,  1,  2,  1,  1,  1,  0,   1,     0,  true,  true },
+{ L_, "\"0001-01-02T01:01:01.000001+08:20\"",
+                         1,  1,  2,  1,  1,  1,  0,   1,   500,  true,  true },
+
+{ L_, "\"0001-01-02T01:23:59.059168Z\"",
+                         1,  1,  2,  1, 23, 59, 59, 168,     0,  true,  true },
+{ L_, "\"0001-01-02T01:23:59.059168+00:00\"",
+                         1,  1,  2,  1, 23, 59, 59, 168,     0,  true,  true },
+{ L_, "\"0001-01-02T01:23:59.059168+08:20\"",
+                         1,  1,  2,  1, 23, 59, 59, 168,   500,  true,  true },
+{ L_, "\"0001-01-02T01:23:59.059168-08:20\"",
+                         1,  1,  2,  1, 23, 59, 59, 168,  -500,  true,  true },
+{ L_, "\"0001-01-10T00:00:00.000000z\"",
+                         1,  1, 10,  0,  0,  0,  0,   0,     0,  true,  true },
+{ L_, "\"0001-01-10T00:00:00.000000+00:00\"",
+                         1,  1, 10,  0,  0,  0,  0,   0,     0,  true,  true },
+{ L_, "\"0001-01-10T01:01:01.001+01:39\"",
+                         1,  1, 10,  1,  1,  1,  1,   0,    99,  true,  true },
+{ L_, "\"0001-01-10T01:01:01.000001+01:39\"",
+                         1,  1, 10,  1,  1,  1,  0,   1,    99,  true,  true },
+
+{ L_, "\"0001-01-30T00:00:00.000000Z\"",
+                         1,  1, 30,  0,  0,  0,  0,   0,     0,  true,  true },
+{ L_, "\"0001-01-30T00:00:00.000000+00:00\"",
+                         1,  1, 30,  0,  0,  0,  0,   0,     0,  true,  true },
+{ L_, "\"0001-01-31T00:00:00.000000+23:59\"",
+                         1,  1, 31,  0,  0,  0,  0,   0,  1439,  true,  true },
+{ L_, "\"0001-01-31T00:00:00.000000-23:59\"",
+                         1,  1, 31,  0,  0,  0,  0,   0, -1439,  true,  true },
+
+{ L_, "\"0001-02-01T00:00:00.000000z\"",
+                         1,  2,  1,  0,  0,  0,  0,   0,     0,  true,  true },
+{ L_, "\"0001-02-01T00:00:00.000000+00:00\"",
+                         1,  2,  1,  0,  0,  0,  0,   0,     0,  true,  true },
+{ L_, "\"0001-02-01T23:59:59.000000+23:59\"",
+                         1,  2,  1, 23, 59, 59,  0,   0,  1439,  true,  true },
+
+{ L_, "\"0001-12-31T00:00:00.000000Z\"",
+                         1, 12, 31,  0,  0,  0,  0,   0,     0,  true,  true },
+{ L_, "\"0001-12-31T00:00:00.000000+00:00\"",
+                         1, 12, 31,  0,  0,  0,  0,   0,     0,  true,  true },
+{ L_, "\"0001-12-31T23:59:59.000000+23:59\"",
+                         1, 12, 31, 23, 59, 59,  0,   0,  1439,  true,  true },
+
+{ L_, "\"0002-01-01T00:00:00.000000+00:00\"",
+                         2,  1,  1,  0,  0,  0,  0,   0,     0,  true,  true },
+{ L_, "\"0002-01-01T23:59:59.000000+23:59\"",
+                         2,  1,  1, 23, 59, 59,  0,   0,  1439,  true,  true },
+
+{ L_, "\"0004-02-28T00:00:00.000000+00:00\"",
+                         4,  2, 28,  0,  0,  0,  0,   0,     0,  true,  true },
+{ L_, "\"0004-02-28T23:59:59.000000+23:59\"",
+                         4,  2, 28, 23, 59, 59,  0,   0,  1439,  true,  true },
+{ L_, "\"0004-02-28T23:59:59.000000-23:59\"",
+                         4,  2, 28, 23, 59, 59,  0,   0, -1439,  true,  true },
+
+{ L_, "\"0004-02-29T00:00:00.000000+00:00\"",
+                         4,  2, 29,  0,  0,  0,  0,   0,     0,  true,  true },
+{ L_, "\"0004-02-29T23:59:59.000000+23:59\"",
+                         4,  2, 29, 23, 59, 59,  0,   0,  1439,  true,  true },
+{ L_, "\"0004-02-29T23:59:59.000000-23:59\"",
+                         4,  2, 29, 23, 59, 59,  0,   0, -1439,  true,  true },
+
+{ L_, "\"0100-02-28T00:00:00.000000+00:00\"",
+                       100,  2, 28,  0,  0,  0,  0,   0,     0,  true,  true },
+{ L_, "\"0100-02-28T23:59:59.000000+23:59\"",
+                       100,  2, 28, 23, 59, 59,  0,   0,  1439,  true,  true },
+{ L_, "\"0100-02-28T23:59:59.000000-23:59\"",
+                       100,  2, 28, 23, 59, 59,  0,   0, -1439,  true,  true },
+
+
+{ L_, "\"0100-03-01T00:00:00.000000+00:00\"",
+                       100,  3,  1,  0,  0,  0,  0,   0,     0,  true,  true },
+{ L_, "\"0100-03-01T23:59:59.000000+23:59\"",
+                       100,  3,  1, 23, 59, 59,  0,   0,  1439,  true,  true },
+{ L_, "\"0100-03-01T23:59:59.000000-23:59\"",
+                       100,  3,  1, 23, 59, 59,  0,   0, -1439,  true,  true },
+
+{ L_, "\"9999-12-31T00:00:00.000000+00:00\"",
+                      9999, 12, 31,  0,  0,  0,  0,   0,     0,  true,  true },
+{ L_, "\"9999-12-31T23:59:59.000000+23:59\"",
+                      9999, 12, 31, 23, 59, 59,  0,   0,  1439,  true,  true },
+{ L_, "\"9999-12-31T23:59:59.000000-23:59\"",
+                      9999, 12, 31, 23, 59, 59,  0,   0, -1439,  true,  true },
+
+{ L_, "\"0000-01-01T00:00:00.000000+00:00\"",
+                         1,  1,  1, 24,  0,  0,  0,   0,     0, false,  true },
+{ L_, "\"0001-00-01T00:00:00.000000+00:00\"",
+                         1,  1,  1, 24,  0,  0,  0,   0,     0, false,  true },
+{ L_, "\"0001-01-00T00:00:00.000000+00:00\"",
+                         1,  1,  1, 24,  0,  0,  0,   0,     0, false,  true },
+{ L_, "\"0000-00-00T00:00:00.000000+00:00\"",
+                         1,  1,  1, 24,  0,  0,  0,   0,     0, false,  true },
+{ L_, "\"0001-13-00T00:00:00.000000+00:00\"",
+                         1,  1,  1, 24,  0,  0,  0,   0,     0, false,  true },
+{ L_, "\"0001-01-32T00:00:00.000000+00:00\"",
+                         1,  1,  1, 24,  0,  0,  0,   0,     0, false,  true },
+{ L_, "\"0001-01-01T25:00:00.000000+00:00\"",
+                         1,  1,  1, 24,  0,  0,  0,   0,     0, false,  true },
+{ L_, "\"0001-01-01T00:61:00.000000+00:00\"",
+                         1,  1,  1, 24,  0,  0,  0,   0,     0, false,  true },
+{ L_, "\"0001-01-01T00:00:61.000000+00:00\"",
+                         1,  1,  1, 24,  0,  0,  0,   0,     0, false,  true },
+{ L_, "\"0001-01-01T00:00:00.000000+24:00\"",
+                         1,  1,  1, 24,  0,  0,  0,   0,     0, false,  true },
+{ L_, "\"0001-01-01T00:00:00.000000+00:61\"",
+                         1,  1,  1, 24,  0,  0,  0,   0,     0, false,  true },
+{ L_, "\"0001-01-01T00:00:00.000000-24:00\"",
+                         1,  1,  1, 24,  0,  0,  0,   0,     0, false,  true },
+{ L_, "\"0001-01-01T00:00:00.000000-00:61\"",
+                         1,  1,  1, 24,  0,  0,  0,   0,     0, false,  true },
+
+{ L_, "\"GARBAGE\"",
+                         1,  1,  1, 24,  0,  0,  0,   0,     0, false, false },
+{ L_, "\".9999\"",
+                         1,  1,  1, 24,  0,  0,  0,   0,     0, false, false },
+{ L_, "\"23:59:59.9999\"",
+                         1,  1,  1, 24,  0,  0,  0,   0,     0, false, false },
+{ L_, "\"T23:59:59.9999\"",
+                         1,  1,  1, 24,  0,  0,  0,   0,     0, false, false },
+{ L_, "\"01T23:59:59.9999\"",
+                         1,  1,  1, 24,  0,  0,  0,   0,     0, false, false },
+{ L_, "\"01-01T23:59:59.9999\"",
+                         1,  1,  1, 24,  0,  0,  0,   0,     0, false, false },
+{ L_, "\"0001-01-01T00:00.000\"",
+                         1,  1,  1, 24,  0,  0,  0,   0,     0, false, false },
+
+{ L_, "\"0001-00-01T00:00:00.000\"",
+                         1,  1,  1, 24,  0,  0,  0,   0,     0, false, false },
+{ L_, "\"0000-01-01T00:00:00.000000\"",
+                         1,  1,  1, 24,  0,  0,  0,   0,     0, false, false },
+{ L_, "\"0000-00-00T00:00:00.000\"",
+                         1,  1,  1, 24,  0,  0,  0,   0,     0, false, false },
+{ L_, "\"0001-13-00T00:00:00.000\"",
+                         1,  1,  1, 24,  0,  0,  0,   0,     0, false, false },
+{ L_, "\"0001-01-32T00:00:00.000\"",
+                         1,  1,  1, 24,  0,  0,  0,   0,     0, false, false },
+{ L_, "\"0001-01-01T25:00:00.000\"",
+                         1,  1,  1, 24,  0,  0,  0,   0,     0, false, false },
+{ L_, "\"0001-01-01T00:61:00.000\"",
+                         1,  1,  1, 24,  0,  0,  0,   0,     0, false, false },
+{ L_, "\"0001-01-01T00:00:61.000\"",
+                         1,  1,  1, 24,  0,  0,  0,   0,     0, false, false },
+{ L_, "\"0001-01-01T00:00.000000\"",
+                         1,  1,  1, 24,  0,  0,  0,   0,     0, false, false },
+{ L_, "\"01-01-01T23:59:59.9999\"",
+                         1,  1,  1, 24,  0,  0,  0,   0,     0, false, false },
+{ L_, "\"01-01-01T23:59:59.9999999\"",
+                         1,  1,  1, 24,  0,  0,  0,   0,     0, false, false },
+
+{ L_, "\"0000-01-01T00:00:00.000+00:00\"",
+                         1,  1,  1, 24,  0,  0,  0,   0,     0, false, false },
+{ L_, "\"0000-01-01T00:00:00.000Z\"",
+                         1,  1,  1, 24,  0,  0,  0,   0,     0, false, false },
+{ L_, "\"0000-01-01T00:00:00.000z\"",
+                         1,  1,  1, 24,  0,  0,  0,   0,     0, false, false },
+{ L_, "\"0000-01-01T00:00:00.000-00:00\"",
+                         1,  1,  1, 24,  0,  0,  0,   0,     0, false, false },
+        };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int         LINE          = DATA[i].d_line;
+                const string      INPUT         = DATA[i].d_input_p;
+                const int         YEAR          = DATA[i].d_year;
+                const int         MONTH         = DATA[i].d_month;
+                const int         DAY           = DATA[i].d_day;
+                const int         HOUR          = DATA[i].d_hour;
+                const int         MINUTE        = DATA[i].d_minutes;
+                const int         SECOND        = DATA[i].d_seconds;
+                const int         MILLISECOND   = DATA[i].d_milliSecs;
+                const int         MICROSECOND   = DATA[i].d_microSecs;
+                const int         OFFSET        = DATA[i].d_tzoffset;
+                const bool        IS_VALID      = DATA[i].d_isValid;
+                const bool        IS_DATETIMETZ = DATA[i].d_isDatetimeTz;
+
+                const bdlt::Datetime   DEFAULT_DATETIME;
+                const bdlt::Datetime   EXP_DATETIME(YEAR,
+                                                    MONTH,
+                                                    DAY,
+                                                    HOUR,
+                                                    MINUTE,
+                                                    SECOND,
+                                                    MILLISECOND,
+                                                    MICROSECOND);
+                const bdlt::DatetimeTz DEFAULT_DATETIMETZ;
+                const bdlt::DatetimeTz EXP_DATETIMETZ(EXP_DATETIME, OFFSET);
+
+                if (veryVerbose) { T_ P_(LINE) P(INPUT) }
+
+                const bsl::string_view isb(INPUT);
+
+                // Variant is left unset.
+
+                Util::DatetimeOrDatetimeTz value;
+                ASSERTV(LINE, value.isUnset());
+
+                int rc = Util::getValue(&value, isb);
+
+                if (IS_VALID) {
+                    ASSERTV(LINE, rc, 0 == rc);
+                    if (IS_DATETIMETZ) {
+                        ASSERTV(LINE, value.is<bdlt::DatetimeTz>());
+                        ASSERTV(LINE,
+                                EXP_DATETIMETZ,
+                                value.the<bdlt::DatetimeTz>(),
+                                EXP_DATETIMETZ ==
+                                                value.the<bdlt::DatetimeTz>());
+                    }
+                    else {
+                        ASSERTV(LINE, value.is<bdlt::Datetime>());
+                        ASSERTV(LINE,
+                                EXP_DATETIME,
+                                value.the<bdlt::Datetime>(),
+                                EXP_DATETIME == value.the<bdlt::Datetime>());
+                    }
+                }
+                else {
+                    ASSERTV(LINE, rc, rc);
+                    ASSERTV(LINE, value.isUnset());
+                }
+
+                // 'bdlt::Datetime' value is initially assigned.
+
+                value = DEFAULT_DATETIME;
+                ASSERTV(LINE, value.is<bdlt::Datetime>());
+                ASSERTV(LINE, DEFAULT_DATETIME == value.the<bdlt::Datetime>());
+
+                rc = Util::getValue(&value, isb);
+
+                if (IS_VALID) {
+                    ASSERTV(LINE, rc, 0 == rc);
+                    if (IS_DATETIMETZ) {
+                        ASSERTV(LINE, value.is<bdlt::DatetimeTz>());
+                        ASSERTV(LINE,
+                                EXP_DATETIMETZ,
+                                value.the<bdlt::DatetimeTz>(),
+                                EXP_DATETIMETZ ==
+                                                value.the<bdlt::DatetimeTz>());
+                    }
+                    else {
+                        ASSERTV(LINE, value.is<bdlt::Datetime>());
+                        ASSERTV(LINE,
+                                EXP_DATETIME,
+                                value.the<bdlt::Datetime>(),
+                                EXP_DATETIME == value.the<bdlt::Datetime>());
+                    }
+                }
+                else {
+                    ASSERTV(LINE, rc, rc);
+                    ASSERTV(LINE, value.is<bdlt::Datetime>());
+                    ASSERTV(LINE,
+                            DEFAULT_DATETIME == value.the<bdlt::Datetime>());
+                }
+
+                // 'bdlt::DatetimeTz' value is initially assigned.
+
+                value = DEFAULT_DATETIMETZ;
+                ASSERTV(LINE, value.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE,
+                        DEFAULT_DATETIMETZ == value.the<bdlt::DatetimeTz>());
+
+                rc = Util::getValue(&value, isb);
+
+                if (IS_VALID) {
+                    ASSERTV(LINE, rc, 0 == rc);
+                    if (IS_DATETIMETZ) {
+                        ASSERTV(LINE, value.is<bdlt::DatetimeTz>());
+                        ASSERTV(LINE,
+                                EXP_DATETIMETZ,
+                                value.the<bdlt::DatetimeTz>(),
+                                EXP_DATETIMETZ ==
+                                                value.the<bdlt::DatetimeTz>());
+                    }
+                    else {
+                        ASSERTV(LINE, value.is<bdlt::Datetime>());
+                        ASSERTV(LINE,
+                                EXP_DATETIME,
+                                value.the<bdlt::Datetime>(),
+                                EXP_DATETIME == value.the<bdlt::Datetime>());
+                    }
+                }
+                else {
+                    ASSERTV(LINE, rc, rc);
+                    ASSERTV(LINE, value.is<bdlt::DatetimeTz>());
+                    ASSERTV(LINE,
+                            DEFAULT_DATETIMETZ ==
+                                                value.the<bdlt::DatetimeTz>());
+                }
+            }
+        }
+      } break;
+      case 27: {
+        // --------------------------------------------------------------------
+        // TESTING 'getValue' for 'DateOrDateTz'
+        //
+        // Concerns:
+        //: 1 Values in the valid range, including the maximum and minimum
+        //:   values for this type, are parsed correctly.
+        //:
+        //: 2 The function fails and the passed in variable remains unmodified
+        //:   if the data is not valid.
+        //:
+        //: 3 The return code is 0 on success and non-zero on failure.
+        //
+        // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows of string value, expected parsed value, and return code.
+        //:
+        //: 2 For each row in the table of P-1:
+        //:
+        //:   1 Provide the string value and a variable  to be parsed into to
+        //:     the 'getValue' function.  Invoke the function three times,
+        //:     leaving the variable unset, then assigning a sentinel value of
+        //:     type "bdlt::Date' to the variable and finally assigning a
+        //:     sentinel value of type 'bdlt::DateTz'.
+        //:
+        //:   2 If the parsing should succeed then verify that the variable
+        //:     value matches the expected value.  Otherwise confirm that the
+        //:     variable value is unmodified.  (C-1..2)
+        //:
+        //:   3 Confirm that the return code is 0 on success and non-zero
+        //:     otherwise.  (C-3)
+        //
+        // Testing:
+        //   static int getValue(bdlt::DateOrDateTz   *v, bsl::string_view s);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING 'getValue' for 'DateOrDateTz'"
+                          << "\n=====================================" << endl;
+        {
+            static const struct {
+                int         d_line;      // source line number
+
+                const char *d_input_p;   // input
+
+                int         d_year;      // year under test
+
+                int         d_month;     // month under test
+
+                int         d_day;       // day under test
+
+                int         d_offset;    // UTC offset
+
+                bool        d_isValid;   // isValid flag
+
+                bool        d_isDateTz;  // flag indicating whether the result
+                                         // object is expected to contain
+                                         // 'DateTz' or 'Date' object
+            } DATA[] = {
+  //LINE  INPUT                     YEAR  MONTH   DAY    OFF  VALID   DATETZ
+  //----  ------------------------  ----  -----   ---  -----  -----   ------
+  {  L_, "\"0001-01-01\"",             1,     1,    1,     0,  true,  false },
+  {  L_, "\"0001-01-02\"",             1,     1,    2,     0,  true,  false },
+  {  L_, "\"0001-01-10\"",             1,     1,   10,     0,  true,  false },
+  {  L_, "\"0001-01-30\"",             1,     1,   30,     0,  true,  false },
+  {  L_, "\"0001-01-31\"",             1,     1,   31,     0,  true,  false },
+
+  {  L_, "\"0001-02-01\"",             1,     2,    1,     0,  true,  false },
+  {  L_, "\"0001-12-31\"",             1,    12,   31,     0,  true,  false },
+  {  L_, "\"0002-01-01\"",             2,     1,    1,     0,  true,  false },
+  {  L_, "\"0004-01-01\"",             4,     1,    1,     0,  true,  false },
+  {  L_, "\"0004-02-28\"",             4,     2,   28,     0,  true,  false },
+  {  L_, "\"0004-02-29\"",             4,     2,   29,     0,  true,  false },
+  {  L_, "\"0004-03-01\"",             4,     3,    1,     0,  true,  false },
+
+  {  L_, "\"0008-02-28\"",             8,     2,   28,     0,  true,  false },
+  {  L_, "\"0008-02-29\"",             8,     2,   29,     0,  true,  false },
+  {  L_, "\"0008-03-01\"",             8,     3,    1,     0,  true,  false },
+  {  L_, "\"0100-02-28\"",           100,     2,   28,     0,  true,  false },
+  {  L_, "\"0100-03-01\"",           100,     3,    1,     0,  true,  false },
+  {  L_, "\"0400-02-28\"",           400,     2,   28,     0,  true,  false },
+  {  L_, "\"0400-02-29\"",           400,     2,   29,     0,  true,  false },
+  {  L_, "\"0400-03-01\"",           400,     3,    1,     0,  true,  false },
+  {  L_, "\"0500-02-28\"",           500,     2,   28,     0,  true,  false },
+  {  L_, "\"0500-03-01\"",           500,     3,    1,     0,  true,  false },
+
+  {  L_, "\"0800-02-28\"",           800,     2,   28,     0,  true,  false },
+  {  L_, "\"0800-02-29\"",           800,     2,   29,     0,  true,  false },
+  {  L_, "\"0800-03-01\"",           800,     3,    1,     0,  true,  false },
+  {  L_, "\"1000-02-28\"",          1000,     2,   28,     0,  true,  false },
+  {  L_, "\"1000-03-01\"",          1000,     3,    1,     0,  true,  false },
+  {  L_, "\"2000-02-28\"",          2000,     2,   28,     0,  true,  false },
+  {  L_, "\"2000-02-29\"",          2000,     2,   29,     0,  true,  false },
+  {  L_, "\"2000-03-01\"",          2000,     3,    1,     0,  true,  false },
+  {  L_, "\"2016-12-31\"",          2016,    12,   31,     0,  true,  false },
+  {  L_, "\"2017-12-31\"",          2017,    12,   31,     0,  true,  false },
+  {  L_, "\"2018-12-31\"",          2018,    12,   31,     0,  true,  false },
+  {  L_, "\"2019-12-31\"",          2019,    12,   31,     0,  true,  false },
+
+  {  L_, "\"2020-01-01\"",          2020,     1,    1,     0,  true,  false },
+  {  L_, "\"2020-01-02\"",          2020,     1,    2,     0,  true,  false },
+  {  L_, "\"2020-02-28\"",          2020,     2,   28,     0,  true,  false },
+  {  L_, "\"2020-02-29\"",          2020,     2,   29,     0,  true,  false },
+  {  L_, "\"2020-03-01\"",          2020,     3,    1,     0,  true,  false },
+  {  L_, "\"2022-01-02\"",          2022,     1,    2,     0,  true,  false },
+
+  {  L_, "\"9999-02-28\"",          9999,     2,   28,     0,  true,  false },
+  {  L_, "\"9999-03-01\"",          9999,     3,    1,     0,  true,  false },
+  {  L_, "\"9999-12-30\"",          9999,    12,   30,     0,  true,  false },
+  {  L_, "\"9999-12-31\"",          9999,    12,   31,     0,  true,  false },
+
+  {  L_, "\"0001-01-01+00:00\"",      1,     1,    1,      0,  true,   true },
+  {  L_, "\"0001-01-01+00:45\"",      1,     1,    1,     45,  true,   true },
+  {  L_, "\"0001-01-01-23:59\"",      1,     1,    1,  -1439,  true,   true },
+
+  {  L_, "\"0001-01-02+00:00\"",      1,     1,    2,      0,  true,   true },
+  {  L_, "\"0001-01-02+08:20\"",      1,     1,    2,    500,  true,   true },
+  {  L_, "\"0001-01-02-08:20\"",      1,     1,    2,   -500,  true,   true },
+
+  {  L_, "\"0001-02-01+00:00\"",      1,     2,    1,      0,  true,   true },
+  {  L_, "\"0001-02-01+23:59\"",      1,     2,    1,   1439,  true,   true },
+
+  {  L_, "\"0004-02-29+00:00\"",      4,     2,   29,      0,  true,   true },
+  {  L_, "\"0004-02-29+23:59\"",      4,     2,   29,   1439,  true,   true },
+  {  L_, "\"0004-02-29-23:59\"",      4,     2,   29,  -1439,  true,   true },
+
+  {  L_, "\"9999-02-28+00:00\"",   9999,     2,   28,      0,  true,   true },
+  {  L_, "\"9999-02-28+23:59\"",   9999,     2,   28,   1439,  true,   true },
+  {  L_, "\"9999-02-28-23:59\"",   9999,     2,   28,  -1439,  true,   true },
+
+  {  L_, "\"9999-12-31+00:00\"",   9999,    12,   31,      0,  true,   true },
+  {  L_, "\"9999-12-31+23:59\"",   9999,    12,   31,   1439,  true,   true },
+
+  {  L_, "\"0001-01-01Z\"",            1,     1,    1,     0,  true,   true },
+  {  L_, "\"0001-01-01z\"",            1,     1,    1,     0,  true,   true },
+  {  L_, "\"0001-01-01+00:00\"",       1,     1,    1,     0,  true,   true },
+  {  L_, "\"0001-01-01-00:00\"",       1,     1,    1,     0,  true,   true },
+  {  L_, "\"9999-01-01+00:00\"",    9999,     1,    1,     0,  true,   true },
+  {  L_, "\"9999-01-01-00:00\"",    9999,     1,    1,     0,  true,   true },
+
+  {  L_, "\"GARBAGE\"",                1,     1,    1,     0, false,  false },
+
+  {  L_, "\"0000-01-01\"",             1,     1,    1,     0, false,  false },
+  {  L_, "\"0001-00-01\"",             1,     1,    1,     0, false,  false },
+  {  L_, "\"0001-01-00\"",             1,     1,    1,     0, false,  false },
+  {  L_, "\"0000-00-00\"",             1,     1,    1,     0, false,  false },
+  {  L_, "\"0001-13-00\"",             1,     1,    1,     0, false,  false },
+  {  L_, "\"0001-01-32\"",             1,     1,    1,     0, false,  false },
+
+  {  L_, "\"0001-01-01T00:00:00.000+00:00\"",
+                                       1,     1,    1,     0, false,  false },
+        };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int         LINE        = DATA[i].d_line;
+                const string      INPUT       = DATA[i].d_input_p;
+                const int         YEAR        = DATA[i].d_year;
+                const int         MONTH       = DATA[i].d_month;
+                const int         DAY         = DATA[i].d_day;
+                const int         OFFSET      = DATA[i].d_offset;
+                const bool        IS_VALID    = DATA[i].d_isValid;
+                const bool        IS_DATETZ   = DATA[i].d_isDateTz;
+
+                const bdlt::Date   DEFAULT_DATE;
+                const bdlt::Date   EXP_DATE(YEAR, MONTH, DAY);
+                const bdlt::DateTz DEFAULT_DATETZ;
+                const bdlt::DateTz EXP_DATETZ(EXP_DATE, OFFSET);
+
+                if (veryVerbose) { T_ P_(LINE) P(INPUT) }
+
+                const bsl::string_view isb(INPUT);
+
+                // Variant is left unset.
+
+                Util::DateOrDateTz value;
+                ASSERTV(LINE, value.isUnset());
+
+                int rc = Util::getValue(&value, isb);
+
+                if (IS_VALID) {
+                    ASSERTV(LINE, rc, 0 == rc);
+                    if (IS_DATETZ) {
+                        ASSERTV(LINE, value.is<bdlt::DateTz>());
+                        ASSERTV(LINE, EXP_DATETZ, value.the<bdlt::DateTz>(),
+                                EXP_DATETZ == value.the<bdlt::DateTz>());
+                    }
+                    else {
+                        ASSERTV(LINE, value.is<bdlt::Date>());
+                        ASSERTV(LINE, EXP_DATE, value.the<bdlt::Date>(),
+                                EXP_DATE == value.the<bdlt::Date>());
+                    }
+                }
+                else {
+                    ASSERTV(LINE, rc, rc);
+                    ASSERTV(LINE, value.isUnset());
+                }
+
+                // 'bdlt::Date' value is initially assigned.
+
+                value = DEFAULT_DATE;
+                ASSERTV(LINE, value.is<bdlt::Date>());
+                ASSERTV(LINE, DEFAULT_DATE == value.the<bdlt::Date>());
+
+                rc = Util::getValue(&value, isb);
+
+                if (IS_VALID) {
+                    ASSERTV(LINE, rc, 0 == rc);
+                    if (IS_DATETZ) {
+                        ASSERTV(LINE, value.is<bdlt::DateTz>());
+                        ASSERTV(LINE, EXP_DATETZ, value.the<bdlt::DateTz>(),
+                                EXP_DATETZ == value.the<bdlt::DateTz>());
+                    }
+                    else {
+                        ASSERTV(LINE, value.is<bdlt::Date>());
+                        ASSERTV(LINE, EXP_DATE, value.the<bdlt::Date>(),
+                                EXP_DATE == value.the<bdlt::Date>());
+                    }
+                }
+                else {
+                    ASSERTV(LINE, rc, rc);
+                    ASSERTV(LINE, value.is<bdlt::Date>());
+                    ASSERTV(LINE, DEFAULT_DATE == value.the<bdlt::Date>());
+                }
+
+                // 'bdlt::DateTz' value is initially assigned.
+
+                value = DEFAULT_DATETZ;
+                ASSERTV(LINE, value.is<bdlt::DateTz>());
+                ASSERTV(LINE, DEFAULT_DATETZ == value.the<bdlt::DateTz>());
+
+                rc = Util::getValue(&value, isb);
+
+                if (IS_VALID) {
+                    ASSERTV(LINE, rc, 0 == rc);
+                    if (IS_DATETZ) {
+                        ASSERTV(LINE, value.is<bdlt::DateTz>());
+                        ASSERTV(LINE, EXP_DATETZ, value.the<bdlt::DateTz>(),
+                                EXP_DATETZ == value.the<bdlt::DateTz>());
+                    }
+                    else {
+                        ASSERTV(LINE, value.is<bdlt::Date>());
+                        ASSERTV(LINE, EXP_DATE, value.the<bdlt::Date>(),
+                                EXP_DATE == value.the<bdlt::Date>());
+                    }
+                }
+                else {
+                    ASSERTV(LINE, rc, rc);
+                    ASSERTV(LINE, value.is<bdlt::DateTz>());
+                    ASSERTV(LINE, DEFAULT_DATETZ == value.the<bdlt::DateTz>());
+                }
+            }
+        }
+      } break;
+      case 26: {
+        // --------------------------------------------------------------------
+        // TESTING 'getValue' for 'TimeOrTimeTz'
+        //
+        // Concerns:
+        //: 1 Values in the valid range, including the maximum and minimum
+        //:   values for this type, are parsed correctly.
+        //:
+        //: 2 The function fails and the passed in variable remains unmodified
+        //:   if the data is not valid.
+        //:
+        //: 3 The return code is 0 on success and non-zero on failure.
+        //
+        // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows of string value, expected parsed value, and return code.
+        //:
+        //: 2 For each row in the table of P-1:
+        //:
+        //:   1 Provide the string value and a variable to be parsed into to
+        //:     the 'getValue' function.  Invoke the function three times,
+        //:     leaving the variable unset, then assigning a sentinel value of
+        //:     type "bdlt::Time' to the variable and finally assigning a
+        //:     a sentinel value of type 'bdlt::TimeTz'.
+        //:
+        //:   2 If the parsing should succeed then verify that the variable
+        //:     value matches the expected value.  Otherwise confirm that the
+        //:     variable value is unmodified.  (C-1..2)
+        //:
+        //:   3 Confirm that the return code is 0 on success and non-zero
+        //:     otherwise.  (C-3)
+        //
+        // Testing:
+        //   static int getValue(TimeOrTimeTz         *v, bsl::string_view s);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING 'getValue' for 'TimeOrTimeTz'"
+                          << "\n=====================================" << endl;
+        {
+            static const struct {
+                int         d_line;      // source line number
+
+                const char *d_input_p;   // input
+
+                int         d_hour;      // hour under test
+
+                int         d_minutes;   // minutes under test
+
+                int         d_seconds;   // seconds under test
+
+                int         d_milliSecs; // milli seconds under test
+
+                int         d_uSecs;     // micro seconds under test
+
+                int         d_offset;    // UTC offset
+
+                bool        d_isValid;   // isValid flag
+
+                bool        d_isTimeTz;  // flag indicating whether the result
+                                         // object is expected to contain
+                                         // 'TimeTz' or 'Time' object
+            } DATA[] = {
+  //LINE INPUT
+  //---- ---------------------------
+  //                          HR    M     S    MS   US   OFF    VALID  TIMETZ
+  //                          ---   --    --   ---  ---  -----  ------ ------
+  {  L_, "\"00:00:00\"",
+                                0,   0,    0,    0,   0,     0,  true, false },
+  {  L_, "\"00:00:00.000\"",
+                                0,   0,    0,    0,   0,     0,  true, false },
+  {  L_, "\"00:00:00.000000\"",
+                                0,   0,    0,    0,   0,     0,  true, false },
+  {  L_, "\"00:00:00.000001\"",
+                                0,   0,    0,    0,   1,     0,  true, false },
+  {  L_, "\"00:00:00.000999\"",
+                                0,   0,    0,    0, 999,     0,  true, false },
+  {  L_, "\"00:00:00.001000\"",
+                                0,   0,    0,    1,   0,     0,  true, false },
+  {  L_, "\"00:00:00.999\"",
+                                0,   0,    0,  999,   0,     0,  true, false },
+  {  L_, "\"00:00:00.100001\"",
+                                0,   0,    0,  100,   1,     0,  true, false },
+  {  L_, "\"00:00:00.999999\"",
+                                0,   0,    0,  999, 999,     0,  true, false },
+
+  {  L_, "\"00:00:01\"",
+                                0,   0,    1,    0,   0,     0,  true, false },
+  {  L_, "\"00:00:01.000\"",
+                                0,   0,    1,    0,   0,     0,  true, false },
+  {  L_, "\"00:00:59.000\"",
+                                0,   0,   59,    0,   0,     0,  true, false },
+  {  L_, "\"01:01:01.001\"",
+                                1,   1,    1,    1,   0,     0,  true, false },
+  {  L_, "\"01:01:01.000001\"",
+                                1,   1,    1,    0,   1,     0,  true, false },
+  {  L_, "\"01:01:01.001001\"",
+                                1,   1,    1,    1,   1,     0,  true, false },
+
+  {  L_, "\"01:23:59\"",
+                                1,  23,   59,    0,   0,     0,  true, false },
+  {  L_, "\"01:23:59.059\"",
+                                1,  23,   59,   59,   0,     0,  true, false },
+  {  L_, "\"23:59:59.000\"",
+                               23,  59,   59,    0,   0,     0,  true, false },
+  {  L_, "\"23:59:59.999\"",
+                               23,  59,   59,  999,   0,     0,  true, false },
+  {  L_, "\"23:59:59.999000\"",
+                               23,  59,   59,  999,   0,     0,  true, false },
+  {  L_, "\"23:59:59.999001\"",
+                               23,  59,   59,  999,   1,     0,  true, false },
+  {  L_, "\"23:59:59.999999\"",
+                               23,  59,   59,  999, 999,     0,  true, false },
+  {  L_, "\"23:59:59.999Z\"",
+                               23,  59,   59,  999,   0,     0,  true,  true },
+  {  L_, "\"23:59:59.999z\"",
+                               23,  59,   59,  999,   0,     0,  true,  true },
+
+  {  L_, "\"24:00:00\"",
+                               24,   0,    0,    0,   0,     0,  true, false },
+  {  L_, "\"24:00:00.000\"",
+                               24,   0,    0,    0,   0,     0,  true, false },
+  {  L_, "\"24:00:00.000000\"",
+                               24,   0,    0,    0,   0,     0,  true, false },
+
+  {  L_, "\"00:00:00.000+00:00\"",
+                                0,   0,    0,    0,   0,     0,  true,  true },
+  {  L_, "\"00:00:00.000Z\"",
+                                0,   0,    0,    0,   0,     0,  true,  true },
+  {  L_, "\"00:00:00.000z\"",
+                                0,   0,    0,    0,   0,     0,  true,  true },
+  {  L_, "\"00:00:00.000+00:45\"",
+                                0 ,  0,    0,    0,   0,    45,  true,  true },
+  {  L_, "\"00:00:00.000+23:59\"",
+                                0,   0,    0,    0,   0,  1439,  true,  true },
+  {  L_, "\"00:00:00.000-23:59\"",
+                                0,   0,    0,    0,   0, -1439,  true,  true },
+
+  {  L_, "\"00:00:00.999+00:00\"",
+                                0,   0,    0,  999,   0,     0,  true,  true },
+  {  L_, "\"00:00:00.999+23:59\"",
+                                0,   0,    0,  999,   0,  1439,  true,  true },
+  {  L_, "\"00:00:00.999-23:59\"",
+                                0,   0,    0,  999,   0, -1439,  true,  true },
+
+  {  L_, "\"00:00:00.9999+00:00\"",
+                                0,   0,    0,  999, 900,     0,  true,  true },
+  {  L_, "\"00:00:00.99999+00:00\"",
+                                0,   0,    0,  999, 990,     0,  true,  true },
+  {  L_, "\"00:00:00.999999+00:00\"",
+                                0,   0,    0,  999, 999,     0,  true,  true },
+
+  {  L_, "\"00:00:01.000+00:00\"",
+                                0,   0,    1,    0,   0,     0,  true,  true },
+  {  L_, "\"00:00:01.000Z\"",
+                                0,   0,    1,    0,   0,     0,  true,  true },
+  {  L_, "\"00:00:01.000z\"",
+                                0,   0,    1,    0,   0,     0,  true,  true },
+  {  L_, "\"00:00:01.000+23:59\"",
+                                0,   0,    1,    0,   0,  1439,  true,  true },
+  {  L_, "\"00:00:01.000-23:59\"",
+                                0,   0,    1,    0,   0, -1439,  true,  true },
+
+  {  L_, "\"00:00:59.000+00:00\"",
+                                0,   0,   59,    0,   0,     0,  true,  true },
+  {  L_, "\"00:00:59.000Z\"",
+                                0,   0,   59,    0,   0,     0,  true,  true },
+  {  L_, "\"00:00:59.000z\"",
+                                0,   0,   59,    0,   0,     0,  true,  true },
+  {  L_, "\"00:00:59.000+23:59\"",
+                                0,   0,   59,    0,   0,  1439,  true,  true },
+  {  L_, "\"00:00:59.000-23:59\"",
+                                0,   0,   59,    0,   0, -1439,  true,  true },
+
+  {  L_, "\"01:01:01.001+00:00\"",
+                                1,   1,    1,    1,   0,     0,  true,  true },
+  {  L_, "\"01:01:01.001+08:20\"",
+                                1,   1,    1,    1,   0,   500,  true,  true },
+
+  {  L_, "\"01:23:59.059+00:00\"",
+                                1,  23,   59,   59,   0,     0,  true,  true },
+  {  L_, "\"01:23:59.059Z\"",
+                                1,  23,   59,   59,   0,     0,  true,  true },
+  {  L_, "\"01:23:59.059z\"",
+                                1,  23,   59,   59,   0,     0,  true,  true },
+  {  L_, "\"01:23:59.059+23:59\"",
+                                1,  23,   59,   59,   0,  1439,  true,  true },
+  {  L_, "\"01:23:59.059-23:59\"",
+                                1,  23,   59,   59,   0, -1439,  true,  true },
+
+  {  L_, "\"23:59:59.000+23:59\"",
+                               23,  59,   59,    0,   0,  1439,  true,  true },
+  {  L_, "\"23:59:59.000-23:59\"",
+                               23,  59,   59,    0,   0, -1439,  true,  true },
+
+  {  L_, "\"23:59:59.999+00:00\"",
+                               23,  59,   59,  999,   0,     0,  true,  true },
+  {  L_, "\"23:59:59.999Z\"",
+                               23,  59,   59,  999,   0,     0,  true,  true },
+  {  L_, "\"23:59:59.999z\"",
+                               23,  59,   59,  999,   0,     0,  true,  true },
+  {  L_, "\"23:59:59.999+23:59\"",
+                               23,  59,   59,  999,   0,  1439,  true,  true },
+  {  L_, "\"23:59:59.999-23:59\"",
+                               23,  59,   59,  999,   0, -1439,  true,  true },
+
+  {  L_, "\"24:00:00.000+00:00\"",
+                               24,   0,    0,    0,   0,     0,  true,  true },
+  {  L_, "\"24:00:00.000Z\"",
+                               24,   0,    0,    0,   0,     0,  true,  true },
+  {  L_, "\"24:00:00.000z\"",
+                               24,   0,    0,    0,   0,     0,  true,  true },
+
+  {  L_, "\"23:59:59.9999999\"",
+                                0,   0,    0,    0,   0,     0,  true, false },
+
+  {  L_, "\"GARBAGE\"",
+                               24,   0,    0,    0,   0,     0, false, false },
+  {  L_, "\".9999\"",
+                               24,   0,    0,    0,   0,     0, false, false },
+  {  L_, "\"23.9999\"",
+                               24,   0,    0,    0,   0,     0, false, false },
+  {  L_, "\"23:59.9999\"",
+                               24,   0,    0,    0,   0,     0, false, false },
+
+  {  L_, "\"25:00:00.000\"",
+                               24,   0,    0,    0,   0,     0, false, false },
+  {  L_, "\"00:61:00.000\"",
+                               24,   0,    0,    0,   0,     0, false, false },
+  {  L_, "\"00:00:61.000\"",
+                               24,   0,    0,    0,   0,     0, false, false },
+
+  {  L_, "\"0001-01-01+00:00\"",
+                               24,   0,    0,    0,   0,     0, false, false },
+  {  L_, "\"0001-01-01-00:00\"",
+                               24,   0,    0,    0,   0,     0, false, false },
+
+  {  L_, "\"25:00:00.000+00:00\"",
+                               24,   0,    0,    0,   0,     0, false, false },
+  {  L_, "\"00:61:00.000+00:00\"",
+                               24,   0,    0,    0,   0,     0, false, false },
+  {  L_, "\"00:00:61.000+00:00\"",
+                               24,   0,    0,    0,   0,     0, false, false },
+  {  L_, "\"00:00:00.000+24:00\"",
+                               24,   0,    0,    0,   0,     0, false, false },
+  {  L_, "\"00:00:00.000+00:61\"",
+                               24,   0,    0,    0,   0,     0, false, false },
+  {  L_, "\"00:00:00.000-24:00\"",
+                               24,   0,    0,    0,   0,     0, false, false },
+  {  L_, "\"00:00:00.000-00:61\"",
+                               24,   0,    0,    0,   0,     0, false, false },
+
+  {  L_, "\"0001-01-01T00:00:00.000+00:00\"",
+                               24,   0,    0,    0,   0,     0, false, false },
+        };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int         LINE        = DATA[i].d_line;
+                const string      INPUT       = DATA[i].d_input_p;
+                const int         HOUR        = DATA[i].d_hour;
+                const int         MINUTE      = DATA[i].d_minutes;
+                const int         SECOND      = DATA[i].d_seconds;
+                const int         MILLISECOND = DATA[i].d_milliSecs;
+                const int         MICROSECOND = DATA[i].d_uSecs;
+                const int         OFFSET      = DATA[i].d_offset;
+                const bool        IS_VALID    = DATA[i].d_isValid;
+                const bool        IS_TIMETZ   = DATA[i].d_isTimeTz;
+
+
+                const bdlt::Time   DEFAULT_TIME;
+                const bdlt::Time   EXP_TIME(HOUR,
+                                            MINUTE,
+                                            SECOND,
+                                            MILLISECOND,
+                                            MICROSECOND);
+                const bdlt::TimeTz DEFAULT_TIMETZ;
+                const bdlt::TimeTz EXP_TIMETZ(EXP_TIME, OFFSET);
+
+                if (veryVerbose) { T_ P_(LINE) P(INPUT) }
+
+                const bsl::string_view isb(INPUT);
+
+                // Variant is left unset.
+
+                Util::TimeOrTimeTz value;
+                ASSERTV(LINE, value.isUnset());
+
+                int rc = Util::getValue(&value, isb);
+
+                if (IS_VALID) {
+                    ASSERTV(LINE, rc, 0 == rc);
+                    if (IS_TIMETZ) {
+                        ASSERTV(LINE, value.is<bdlt::TimeTz>());
+                        ASSERTV(LINE, EXP_TIMETZ, value.the<bdlt::TimeTz>(),
+                                EXP_TIMETZ == value.the<bdlt::TimeTz>());
+                    }
+                    else {
+                        ASSERTV(LINE, value.is<bdlt::Time>());
+                        ASSERTV(LINE, EXP_TIME, value.the<bdlt::Time>(),
+                                EXP_TIME == value.the<bdlt::Time>());
+                    }
+                }
+                else {
+                    ASSERTV(LINE, rc, rc);
+                    ASSERTV(LINE, value.isUnset());
+                }
+
+                // 'bdlt::Time' value is initially assigned.
+
+                value = DEFAULT_TIME;
+                ASSERTV(LINE, value.is<bdlt::Time>());
+                ASSERTV(LINE, DEFAULT_TIME == value.the<bdlt::Time>());
+
+                rc = Util::getValue(&value, isb);
+
+                if (IS_VALID) {
+                    ASSERTV(LINE, rc, 0 == rc);
+                    if (IS_TIMETZ) {
+                        ASSERTV(LINE, value.is<bdlt::TimeTz>());
+                        ASSERTV(LINE, EXP_TIMETZ, value.the<bdlt::TimeTz>(),
+                                EXP_TIMETZ == value.the<bdlt::TimeTz>());
+                    }
+                    else {
+                        ASSERTV(LINE, value.is<bdlt::Time>());
+                        ASSERTV(LINE, EXP_TIME, value.the<bdlt::Time>(),
+                                EXP_TIME == value.the<bdlt::Time>());
+                    }
+                }
+                else {
+                    ASSERTV(LINE, rc, rc);
+                    ASSERTV(LINE, value.is<bdlt::Time>());
+                    ASSERTV(LINE, DEFAULT_TIME == value.the<bdlt::Time>());
+                }
+
+                // 'bdlt::TimeTz' value is initially assigned.
+
+                value = DEFAULT_TIMETZ;
+                ASSERTV(LINE, value.is<bdlt::TimeTz>());
+                ASSERTV(LINE, DEFAULT_TIMETZ == value.the<bdlt::TimeTz>());
+
+                rc = Util::getValue(&value, isb);
+
+                if (IS_VALID) {
+                    ASSERTV(LINE, rc, 0 == rc);
+                    if (IS_TIMETZ) {
+                        ASSERTV(LINE, value.is<bdlt::TimeTz>());
+                        ASSERTV(LINE, EXP_TIMETZ, value.the<bdlt::TimeTz>(),
+                                EXP_TIMETZ == value.the<bdlt::TimeTz>());
+                    }
+                    else {
+                        ASSERTV(LINE, value.is<bdlt::Time>());
+                        ASSERTV(LINE, EXP_TIME, value.the<bdlt::Time>(),
+                                EXP_TIME == value.the<bdlt::Time>());
+                    }
+                }
+                else {
+                    ASSERTV(LINE, rc, rc);
+                    ASSERTV(LINE, value.is<bdlt::TimeTz>());
+                    ASSERTV(LINE, DEFAULT_TIMETZ == value.the<bdlt::TimeTz>());
+                }
+            }
+        }
       } break;
       case 25: {
         // --------------------------------------------------------------------

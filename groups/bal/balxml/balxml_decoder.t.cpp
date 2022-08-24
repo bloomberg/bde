@@ -192,10 +192,11 @@ namespace Test = s_baltst;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [16] USAGE EXAMPLES
-// [22] TESTING VALID & INVALID UTF-8: e_STRING
-// [22] TESTING VALID & INVALID UTF-8: e_STREAMBUF
-// [22] TESTING VALID & INVALID UTF-8: e_ISTREAM
-// [23] TESTING VALID & INVALID UTF-8: e_FILE
+// [22] REPRODUCE SCENARIO FROM DRQS 169438741
+// [-1] TESTING VALID & INVALID UTF-8: e_STRING
+// [-1] TESTING VALID & INVALID UTF-8: e_STREAMBUF
+// [-1] TESTING VALID & INVALID UTF-8: e_ISTREAM
+// [-1] TESTING VALID & INVALID UTF-8: e_FILE
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -4414,6 +4415,192 @@ int main(int argc, char *argv[])
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 22: {
+        // --------------------------------------------------------------------
+        // REPRODUCE SCENARIO FROM DRQS 169438741
+        //
+        // Concerns:
+        //: 1 Encoded 'bdlt::Date' and 'bdlt::DateTz' values can be decoded to
+        //:   'bdlb::Variant2<bdlt::Date, bdlt::DateTz>' object.
+        //:
+        //: 2 Encoded 'bdlt::Time' and 'bdlt::TimeTz' values can be decoded to
+        //:   'bdlb::Variant2<bdlt::Time, bdlt::TimeTz>' object.
+        //:
+        //: 3 Encoded 'bdlt::Datetime' and 'bdlt::DatetimeTz' values can be
+        //:   decoded to 'bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>'
+        //:   object.
+        //
+        // Plan:
+        //: 1 For a number of different XML date-and-time representations,
+        //:   enumerate XML arrays of such elements and verify that the XML
+        //:   array decodes into the corresponding 'bsl::vector' value.
+        //:   (C-1..3)
+        //
+        // Testing:
+        //   DRQS 169438741
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nREPRODUCE SCENARIO FROM DRQS 169438741"
+                          << "\n======================================"
+                          << endl;
+        {
+            typedef bdlb::Variant2<bdlt::Date, bdlt::DateTz> DateOrDateTz;
+            typedef bdlb::Variant2<bdlt::Time, bdlt::TimeTz> TimeOrTimeTz;
+            typedef bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>
+                                                          DatetimeOrDatetimeTz;
+
+            balxml::MiniReader     reader;
+            balxml::ErrorInfo      errInfo;
+            balxml::DecoderOptions options;
+
+            balxml::Decoder decoder(&options,
+                                    &reader,
+                                    &errInfo,
+                                    &bsl::cerr,
+                                    &bsl::cerr);
+
+            // Testing 'bdlt::Date' and 'bdltDateTz'.
+            {
+                const bsl::string_view INPUT =
+                                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                                "<Dates " XSI ">\n"
+                                "    0002-02-02\n"
+                                "    9999-12-31\n"
+                                "    0002-02-02Z\n"
+                                "    9999-12-31-01:30\n"
+                                "</Dates>";
+
+                bdlsb::FixedMemInStreamBuf isb(INPUT.data(), INPUT.size());
+
+                if (veryVerbose) {
+                    T_ P(INPUT)
+                }
+
+                const bdlt::Date   EXP_DATE0(2,     2,  2);
+                const bdlt::Date   EXP_DATE1(9999, 12, 31);
+                const bdlt::DateTz EXP_DATE2(EXP_DATE0,   0);
+                const bdlt::DateTz EXP_DATE3(EXP_DATE1, -90);
+
+                bsl::vector<DateOrDateTz> dateVector(4);
+
+                int            rc     = decoder.decode(&isb, &dateVector);
+                const unsigned offset = reader.getCurrentPosition();
+
+                ASSERTV(rc, 0 == rc);
+                ASSERTV(offset, INPUT.size(), offset == INPUT.size());
+
+                ASSERTV(dateVector[0].is<bdlt::Date>());
+                ASSERTV(EXP_DATE0,   dateVector[0].the<bdlt::Date>(),
+                        EXP_DATE0 == dateVector[0].the<bdlt::Date>());
+
+                ASSERTV(dateVector[1].is<bdlt::Date>());
+                ASSERTV(EXP_DATE1,   dateVector[1].the<bdlt::Date>(),
+                        EXP_DATE1 == dateVector[1].the<bdlt::Date>());
+
+                ASSERTV(dateVector[2].is<bdlt::DateTz>());
+                ASSERTV(EXP_DATE2,   dateVector[2].the<bdlt::DateTz>(),
+                        EXP_DATE2 == dateVector[2].the<bdlt::DateTz>());
+
+                ASSERTV(dateVector[3].is<bdlt::DateTz>());
+                ASSERTV(EXP_DATE3,   dateVector[3].the<bdlt::DateTz>(),
+                        EXP_DATE3 == dateVector[3].the<bdlt::DateTz>());
+            }
+
+            // Testing 'bdlt::Time' and 'bdltTimeTz'.
+            {
+                const bsl::string_view INPUT =
+                                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                                "<Times " XSI ">\n"
+                                "    01:01:01\n"
+                                "    23:59:59.999999\n"
+                                "    01:01:01Z\n"
+                                "    23:59:59.999999-01:30\n"
+                                "</Times>";
+
+                bdlsb::FixedMemInStreamBuf isb(INPUT.data(), INPUT.size());
+
+                if (veryVerbose) {
+                    T_ P(INPUT)
+                }
+
+                const bdlt::Time   EXP_TIME0(1,   1,  1);
+                const bdlt::Time   EXP_TIME1(23, 59, 59, 999, 999);
+                const bdlt::TimeTz EXP_TIME2(EXP_TIME0,   0);
+                const bdlt::TimeTz EXP_TIME3(EXP_TIME1, -90);
+
+                bsl::vector<TimeOrTimeTz> timeVector(4);
+
+                int            rc     = decoder.decode(&isb, &timeVector);
+                const unsigned offset = reader.getCurrentPosition();
+
+                ASSERTV(rc, 0 == rc);
+                ASSERTV(offset, INPUT.size(), offset == INPUT.size());
+
+                ASSERTV(timeVector[0].is<bdlt::Time>());
+                ASSERTV(EXP_TIME0,   timeVector[0].the<bdlt::Time>(),
+                        EXP_TIME0 == timeVector[0].the<bdlt::Time>());
+
+                ASSERTV(timeVector[1].is<bdlt::Time>());
+                ASSERTV(EXP_TIME1,   timeVector[1].the<bdlt::Time>(),
+                        EXP_TIME1 == timeVector[1].the<bdlt::Time>());
+
+                ASSERTV(timeVector[2].is<bdlt::TimeTz>());
+                ASSERTV(EXP_TIME2,   timeVector[2].the<bdlt::TimeTz>(),
+                        EXP_TIME2 == timeVector[2].the<bdlt::TimeTz>());
+
+                ASSERTV(timeVector[3].is<bdlt::TimeTz>());
+                ASSERTV(EXP_TIME3,   timeVector[3].the<bdlt::TimeTz>(),
+                        EXP_TIME3 == timeVector[3].the<bdlt::TimeTz>());
+            }
+
+            // Testing 'bdlt::Datetime' and 'bdltDatetimeTz'.
+            {
+                const bsl::string_view INPUT =
+                                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                                "<Times " XSI ">\n"
+                                "    0001-01-01T00:00:00.000000\n"
+                                "    9998-12-31T23:59:60.9999999\n"
+                                "    0001-01-01T00:00:00.0000001Z\n"
+                                "    9998-12-31T23:59:60.9999999+00:30\n"
+                                "</Times>";
+
+                bdlsb::FixedMemInStreamBuf isb(INPUT.data(), INPUT.size());
+
+                if (veryVerbose) {
+                    T_ P(INPUT)
+                }
+
+               const bdlt::Datetime   EXP_DATETIME0(   1, 1, 1, 0, 0, 0, 0, 0);
+               const bdlt::Datetime   EXP_DATETIME1(9999, 1, 1, 0, 0, 1, 0, 0);
+               const bdlt::DatetimeTz EXP_DATETIME2(EXP_DATETIME0,   0);
+               const bdlt::DatetimeTz EXP_DATETIME3(EXP_DATETIME1,  30);
+
+                bsl::vector<DatetimeOrDatetimeTz> dtVector(4);
+
+                int            rc     = decoder.decode(&isb, &dtVector);
+                const unsigned offset = reader.getCurrentPosition();
+
+                ASSERTV(rc, 0 == rc);
+                ASSERTV(offset, INPUT.size(), offset == INPUT.size());
+
+                ASSERTV(dtVector[0].is<bdlt::Datetime>());
+                ASSERTV(EXP_DATETIME0,   dtVector[0].the<bdlt::Datetime>(),
+                        EXP_DATETIME0 == dtVector[0].the<bdlt::Datetime>());
+
+                ASSERTV(dtVector[1].is<bdlt::Datetime>());
+                ASSERTV(EXP_DATETIME1,   dtVector[1].the<bdlt::Datetime>(),
+                        EXP_DATETIME1 == dtVector[1].the<bdlt::Datetime>());
+
+                ASSERTV(dtVector[2].is<bdlt::DatetimeTz>());
+                ASSERTV(EXP_DATETIME2,   dtVector[2].the<bdlt::DatetimeTz>(),
+                        EXP_DATETIME2 == dtVector[2].the<bdlt::DatetimeTz>());
+
+                ASSERTV(dtVector[3].is<bdlt::DatetimeTz>());
+                ASSERTV(EXP_DATETIME3,   dtVector[3].the<bdlt::DatetimeTz>(),
+                        EXP_DATETIME3 == dtVector[3].the<bdlt::DatetimeTz>());
+            }
+        }
+      } break;
       case 21: {
         // --------------------------------------------------------------------
         // Testing Decimal64

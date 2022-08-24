@@ -60,6 +60,9 @@ BSLS_IDENT("$Id: $")
 //      bdlt::DateTimeTz                    DEFAULT
 //      bdlt::Time                          DEFAULT
 //      bdlt::TimeTz                        DEFAULT
+//      bdlb::Variant2<DateTz, Date>        DEFAULT
+//      bdlb::Variant2<TimeTz, Time>        DEFAULT
+//      Variant2<DatetimeTz, Datetime>      DEFAULT
 //      bsl::vector<char>                   DEFAULT, BASE64, HEX, TEXT, IS_LIST
 //..
 // In addition to the types listed above, this component also recognizes the
@@ -133,6 +136,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlat_nullablevaluefunctions.h>
 #include <bdlat_nullablevalueutil.h>
 #include <bdlat_typecategory.h>
+
+#include <bdlb_variant.h>
 
 #include <bdlt_date.h>
 #include <bdlt_datetime.h>
@@ -239,6 +244,20 @@ struct TypesParserUtil {
 struct TypesParserUtil_Imp {
     // This 'struct' contains functions that are used in the implementation of
     // this component.
+
+    // TYPES
+    typedef bdlb::Variant2<bdlt::Date, bdlt::DateTz>      DateOrDateTz;
+        // 'DateOrDateTz' is a convenient alias for
+        // 'bdlb::Variant2<Date, DateTz>'.
+
+    typedef bdlb::Variant2<bdlt::Time, bdlt::TimeTz>      TimeOrTimeTz;
+        // 'TimeOrTimeTz' is a convenient alias for
+        // 'bdlb::Variant2<Time, TimeTz>'.
+
+    typedef bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>
+                                                          DatetimeOrDatetimeTz;
+        // 'DatetimeOrDatetimeTz' is a convenient alias for
+        // 'bdlb::Variant2<Datetime, DatetimeTz>'.
 
     // CLASS METHODS
 
@@ -439,6 +458,18 @@ struct TypesParserUtil_Imp {
                             int                         inputLength,
                             bdlat_TypeCategory::Simple);
     static int parseDefault(bdlt::TimeTz               *result,
+                            const char                 *input,
+                            int                         inputLength,
+                            bdlat_TypeCategory::Simple);
+    static int parseDefault(DateOrDateTz               *result,
+                            const char                 *input,
+                            int                         inputLength,
+                            bdlat_TypeCategory::Simple);
+    static int parseDefault(TimeOrTimeTz               *result,
+                            const char                 *input,
+                            int                         inputLength,
+                            bdlat_TypeCategory::Simple);
+    static int parseDefault(DatetimeOrDatetimeTz       *result,
                             const char                 *input,
                             int                         inputLength,
                             bdlat_TypeCategory::Simple);
@@ -1277,6 +1308,33 @@ int TypesParserUtil_Imp::parseDefault(bdlt::Time                 *result,
 
 inline
 int TypesParserUtil_Imp::parseDefault(bdlt::TimeTz               *result,
+                                      const char                 *input,
+                                      int                         inputLength,
+                                      bdlat_TypeCategory::Simple)
+{
+    return bdlt::Iso8601Util::parse(result, input, inputLength);
+}
+
+inline
+int TypesParserUtil_Imp::parseDefault(DateOrDateTz               *result,
+                                      const char                 *input,
+                                      int                         inputLength,
+                                      bdlat_TypeCategory::Simple)
+{
+    return bdlt::Iso8601Util::parse(result, input, inputLength);
+}
+
+inline
+int TypesParserUtil_Imp::parseDefault(TimeOrTimeTz               *result,
+                                      const char                 *input,
+                                      int                         inputLength,
+                                      bdlat_TypeCategory::Simple)
+{
+    return bdlt::Iso8601Util::parse(result, input, inputLength);
+}
+
+inline
+int TypesParserUtil_Imp::parseDefault(DatetimeOrDatetimeTz       *result,
                                       const char                 *input,
                                       int                         inputLength,
                                       bdlat_TypeCategory::Simple)

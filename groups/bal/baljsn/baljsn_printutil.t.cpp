@@ -70,6 +70,9 @@ using bsl::endl;
 // [ 5] static int printValue(bsl::ostream& s, const bdlt::DateTz&       v);
 // [ 5] static int printValue(bsl::ostream& s, const bdlt::DatetimeTz&   v);
 // [ 5] static int printValue(bsl::ostream& s, const bdldfp::Decimal64&  v);
+// [ 5] static int printValue(bsl::ostream& s, const TimeOrTimeTz&       v);
+// [ 5] static int printValue(bsl::ostream& s, const DateOrDateTz&       v);
+// [ 5] static int printValue(bsl::ostream&, const DatetimeOrDatetimeTz&  );
 // [ 6] static int printValue(bsl::ostream& s, const bdlt::DatetimeInterval v);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -539,6 +542,9 @@ int main(int argc, char *argv[])
         //   static int printValue(bsl::ostream& s, const bdlt::TimeTz&     v);
         //   static int printValue(bsl::ostream& s, const bdlt::DateTz&     v);
         //   static int printValue(bsl::ostream& s, const bdlt::DatetimeTz& v);
+        //   static int printValue(bsl::ostream& s, const TimeOrTimeTz&     v);
+        //   static int printValue(bsl::ostream& s, const DateOrDateTz&     v);
+        //   static int printValue(bsl::ostream&, const DatetimeOrDatetimeTz&);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nENCODING DATE AND TIME TYPES"
@@ -683,7 +689,7 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "Encode DateTz" << endl;
             {
-                const char * EXPECTED = expectedDateTz[ti];
+                const char *EXPECTED = expectedDateTz[ti];
 
                 bsl::ostringstream oss;
                 ASSERTV(LINE, 0 == Util::printValue(oss, theDateTz, &opt));
@@ -694,7 +700,7 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "Encode Time" << endl;
             {
-                const char * EXPECTED = expectedTime[ti];
+                const char *EXPECTED = expectedTime[ti];
 
                 bsl::ostringstream oss;
                 ASSERTV(LINE, 0 == Util::printValue(oss, theTime, &opt));
@@ -705,7 +711,7 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "Encode TimeTz" << endl;
             {
-                const char * EXPECTED = expectedTimeTz[ti];
+                const char *EXPECTED = expectedTimeTz[ti];
 
                 bsl::ostringstream oss;
                 ASSERTV(LINE, 0 == Util::printValue(oss, theTimeTz, &opt));
@@ -716,7 +722,7 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "Encode Datetime" << endl;
             {
-                const char * EXPECTED = expectedDatetime[ti];
+                const char *EXPECTED = expectedDatetime[ti];
 
                 bsl::ostringstream oss;
                 ASSERTV(LINE, 0 == Util::printValue(oss, theDatetime, &opt));
@@ -727,10 +733,86 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "Encode DatetimeTz" << endl;
             {
-                const char * EXPECTED = expectedDatetimeTz[ti];
+                const char *EXPECTED = expectedDatetimeTz[ti];
 
                 bsl::ostringstream oss;
                 ASSERTV(LINE, 0 == Util::printValue(oss, theDatetimeTz, &opt));
+
+                const bsl::string result(oss.str());
+                ASSERTV(LINE, result, EXPECTED, result == EXPECTED);
+            }
+
+            if (verbose) cout << "Encode 'DateOrDateTz' ('Date')" << endl;
+            {
+                Util::DateOrDateTz  dateVariant(theDate);
+                const char         *EXPECTED = expectedDate[ti];
+
+                bsl::ostringstream oss;
+                ASSERTV(LINE, 0 == Util::printValue(oss, dateVariant, &opt));
+
+                const bsl::string result(oss.str());
+                ASSERTV(LINE, result, EXPECTED, result == EXPECTED);
+            }
+
+            if (verbose) cout << "Encode 'DateOrDateTz' ('DateTz')" << endl;
+            {
+                Util::DateOrDateTz  dateTzVariant(theDateTz);
+                const char         *EXPECTED = expectedDateTz[ti];
+
+                bsl::ostringstream oss;
+                ASSERTV(LINE, 0 == Util::printValue(oss, dateTzVariant, &opt));
+
+                const bsl::string result(oss.str());
+                ASSERTV(LINE, result, EXPECTED, result == EXPECTED);
+            }
+
+            if (verbose) cout << "Encode 'TimeOrTimeTz' ('Time')" << endl;
+            {
+                Util::TimeOrTimeTz  timeVariant(theTime);
+                const char         *EXPECTED = expectedTime[ti];
+
+                bsl::ostringstream oss;
+                ASSERTV(LINE, 0 == Util::printValue(oss, timeVariant, &opt));
+
+                const bsl::string result(oss.str());
+                ASSERTV(LINE, result, EXPECTED, result == EXPECTED);
+            }
+
+            if (verbose) cout << "Encode 'TimeOrTimeTz' ('TimeTz')" << endl;
+            {
+                Util::TimeOrTimeTz  timeTzVariant(theTimeTz);
+                const char         *EXPECTED = expectedTimeTz[ti];
+
+                bsl::ostringstream oss;
+                ASSERTV(LINE, 0 == Util::printValue(oss, timeTzVariant, &opt));
+
+                const bsl::string result(oss.str());
+                ASSERTV(LINE, result, EXPECTED, result == EXPECTED);
+            }
+
+            if (verbose)
+                cout << "Encode 'DatetimeOrDatetimeTz' ('Datetime')" << endl;
+            {
+                Util::DatetimeOrDatetimeTz  datetimeVariant(theDatetime);
+                const char                 *EXPECTED = expectedDatetime[ti];
+
+                bsl::ostringstream oss;
+                ASSERTV(LINE,
+                        0 == Util::printValue(oss, datetimeVariant, &opt));
+
+                const bsl::string result(oss.str());
+                ASSERTV(LINE, result, EXPECTED, result == EXPECTED);
+            }
+
+            if (verbose)
+                cout << "Encode 'DatetimeOrDatetimeTz' ('DatetimeTz')" << endl;
+            {
+                Util::DatetimeOrDatetimeTz  datetimeTzVariant(theDatetimeTz);
+                const char                 *EXPECTED = expectedDatetimeTz[ti];
+
+                bsl::ostringstream oss;
+                ASSERTV(LINE,
+                        0 == Util::printValue(oss, datetimeTzVariant, &opt));
 
                 const bsl::string result(oss.str());
                 ASSERTV(LINE, result, EXPECTED, result == EXPECTED);

@@ -122,8 +122,10 @@ namespace test = BloombergLP::s_baltst;
 // [ 7] TESTING DECODING OF ENUM TYPES WITH ESCAPED CHARS
 // [ 8] TESTING CLEARING OF LOGGED MESSAGES ON DECODE CALLS
 // [ 9] TESTING UTF-8 DETECTION
-// [10] FLOATING-POINT VALUES ROUND-TRIP
-// [11] USAGE EXAMPLE
+// [10] TESTING DECODING VECTORS OF VECTORS
+// [11] FLOATING-POINT VALUES ROUND-TRIP
+// [12] REPRODUCE SCENARIO FROM DRQS 169438741
+// [13] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -36877,7 +36879,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 12: {
+      case 13: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -36982,6 +36984,159 @@ int main(int argc, char *argv[])
     ASSERT("New York"      == employee.homeAddress().state());
     ASSERT(21              == employee.age());
 //..
+      } break;
+      case 12: {
+        // --------------------------------------------------------------------
+        // REPRODUCE SCENARIO FROM DRQS 169438741
+        //
+        // Concerns:
+        //: 1 Encoded 'bdlt::Date' and 'bdlt::DateTz' values can be decoded to
+        //:   'bdlb::Variant2<bdlt::Date, bdlt::DateTz>' object.
+        //:
+        //: 2 Encoded 'bdlt::Time' and 'bdlt::TimeTz' values can be decoded to
+        //:   'bdlb::Variant2<bdlt::Time, bdlt::TimeTz>' object.
+        //:
+        //: 3 Encoded 'bdlt::Datetime' and 'bdlt::DatetimeTz' values can be
+        //:   decoded to 'bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>'
+        //:   object.
+        //
+        // Plan:
+        //: 1 For a number of different JSON date-and-time representations,
+        //:   enumerate JSON arrays of such elements and verify that the JSON
+        //:   array decodes into the corresponding 'bsl::vector' value.
+        //:   (C-1..3)
+        //
+        // Testing:
+        //   DRQS 169438741
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nREPRODUCE SCENARIO FROM DRQS 169438741"
+                          << "\n======================================"
+                          << endl;
+        {
+            typedef bdlb::Variant2<bdlt::Date, bdlt::DateTz> DateOrDateTz;
+            typedef bdlb::Variant2<bdlt::Time, bdlt::TimeTz> TimeOrTimeTz;
+            typedef bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>
+                                                          DatetimeOrDatetimeTz;
+
+            baljsn::Decoder        mX;
+            baljsn::DecoderOptions options;
+
+            // Testing 'bdlt::Date' and 'bdltDateTz'.
+            {
+                const char *ENCODED_DATES = "[\"0002-02-02\","
+                                            " \"9999-12-31\","
+                                            " \"0002-02-02Z\","
+                                            " \"9999-12-31-01:30\"]";
+
+                bdlsb::FixedMemInStreamBuf streamBuffer(
+                                                   ENCODED_DATES,
+                                                   bsl::strlen(ENCODED_DATES));
+
+                const bdlt::Date   EXP_DATE0(2,     2,  2);
+                const bdlt::Date   EXP_DATE1(9999, 12, 31);
+                const bdlt::DateTz EXP_DATE2(EXP_DATE0,   0);
+                const bdlt::DateTz EXP_DATE3(EXP_DATE1, -90);
+
+                bsl::vector<DateOrDateTz> dateVector(4);
+
+                int rc = mX.decode(&streamBuffer, &dateVector, options);
+                ASSERTV(rc, 0 == rc);
+
+                ASSERTV(dateVector[0].is<bdlt::Date>());
+                ASSERTV(EXP_DATE0,   dateVector[0].the<bdlt::Date>(),
+                        EXP_DATE0 == dateVector[0].the<bdlt::Date>());
+
+                ASSERTV(dateVector[1].is<bdlt::Date>());
+                ASSERTV(EXP_DATE1,   dateVector[1].the<bdlt::Date>(),
+                        EXP_DATE1 == dateVector[1].the<bdlt::Date>());
+
+                ASSERTV(dateVector[2].is<bdlt::DateTz>());
+                ASSERTV(EXP_DATE2,   dateVector[2].the<bdlt::DateTz>(),
+                        EXP_DATE2 == dateVector[2].the<bdlt::DateTz>());
+
+                ASSERTV(dateVector[3].is<bdlt::DateTz>());
+                ASSERTV(EXP_DATE3,   dateVector[3].the<bdlt::DateTz>(),
+                        EXP_DATE3 == dateVector[3].the<bdlt::DateTz>());
+            }
+
+            // Testing 'bdlt::Time' and 'bdltTimeTz'.
+            {
+                const char *ENCODED_TIMES = "[\"01:01:01\","
+                                            " \"23:59:59.999999\","
+                                            " \"01:01:01Z\","
+                                            " \"23:59:59.999999-01:30\"]";
+
+                bdlsb::FixedMemInStreamBuf streamBuffer(
+                                                   ENCODED_TIMES,
+                                                   bsl::strlen(ENCODED_TIMES));
+
+                const bdlt::Time   EXP_TIME0(1,   1,  1);
+                const bdlt::Time   EXP_TIME1(23, 59, 59, 999, 999);
+                const bdlt::TimeTz EXP_TIME2(EXP_TIME0,   0);
+                const bdlt::TimeTz EXP_TIME3(EXP_TIME1, -90);
+
+                bsl::vector<TimeOrTimeTz> timeVector(4);
+
+                int rc = mX.decode(&streamBuffer, &timeVector, options);
+                ASSERTV(rc, 0 == rc);
+
+                ASSERTV(timeVector[0].is<bdlt::Time>());
+                ASSERTV(EXP_TIME0,   timeVector[0].the<bdlt::Time>(),
+                        EXP_TIME0 == timeVector[0].the<bdlt::Time>());
+
+                ASSERTV(timeVector[1].is<bdlt::Time>());
+                ASSERTV(EXP_TIME1,   timeVector[1].the<bdlt::Time>(),
+                        EXP_TIME1 == timeVector[1].the<bdlt::Time>());
+
+                ASSERTV(timeVector[2].is<bdlt::TimeTz>());
+                ASSERTV(EXP_TIME2,   timeVector[2].the<bdlt::TimeTz>(),
+                        EXP_TIME2 == timeVector[2].the<bdlt::TimeTz>());
+
+                ASSERTV(timeVector[3].is<bdlt::TimeTz>());
+                ASSERTV(EXP_TIME3,   timeVector[3].the<bdlt::TimeTz>(),
+                        EXP_TIME3 == timeVector[3].the<bdlt::TimeTz>());
+            }
+
+            // Testing 'bdlt::Datetime' and 'bdltDatetimeTz'.
+            {
+                const char *ENCODED_DATETIMES =
+                                     "[\"0001-01-01T00:00:00.000000\","
+                                     " \"9998-12-31T23:59:60.9999999\","
+                                     " \"0001-01-01T00:00:00.0000001Z\","
+                                     " \"9998-12-31T23:59:60.9999999+00:30\"]";
+
+                bdlsb::FixedMemInStreamBuf streamBuffer(
+                                               ENCODED_DATETIMES,
+                                               bsl::strlen(ENCODED_DATETIMES));
+
+               const bdlt::Datetime   EXP_DATETIME0(   1, 1, 1, 0, 0, 0, 0, 0);
+               const bdlt::Datetime   EXP_DATETIME1(9999, 1, 1, 0, 0, 1, 0, 0);
+               const bdlt::DatetimeTz EXP_DATETIME2(EXP_DATETIME0,   0);
+               const bdlt::DatetimeTz EXP_DATETIME3(EXP_DATETIME1,  30);
+
+                bsl::vector<DatetimeOrDatetimeTz> dtVector(4);
+
+                int rc = mX.decode(&streamBuffer, &dtVector, options);
+                ASSERTV(rc, 0 == rc);
+
+                ASSERTV(dtVector[0].is<bdlt::Datetime>());
+                ASSERTV(EXP_DATETIME0,   dtVector[0].the<bdlt::Datetime>(),
+                        EXP_DATETIME0 == dtVector[0].the<bdlt::Datetime>());
+
+                ASSERTV(dtVector[1].is<bdlt::Datetime>());
+                ASSERTV(EXP_DATETIME1,   dtVector[1].the<bdlt::Datetime>(),
+                        EXP_DATETIME1 == dtVector[1].the<bdlt::Datetime>());
+
+                ASSERTV(dtVector[2].is<bdlt::DatetimeTz>());
+                ASSERTV(EXP_DATETIME2,   dtVector[2].the<bdlt::DatetimeTz>(),
+                        EXP_DATETIME2 == dtVector[2].the<bdlt::DatetimeTz>());
+
+                ASSERTV(dtVector[3].is<bdlt::DatetimeTz>());
+                ASSERTV(EXP_DATETIME3,   dtVector[3].the<bdlt::DatetimeTz>(),
+                        EXP_DATETIME3 == dtVector[3].the<bdlt::DatetimeTz>());
+            }
+        }
       } break;
       case 11: {
         // --------------------------------------------------------------------

@@ -68,6 +68,8 @@ BSLS_IDENT("$Id: $")
 
 #include <balscm_version.h>
 
+#include <bdlb_variant.h>
+
 #include <bdldfp_decimal.h>
 #include <bdlt_iso8601util.h>
 
@@ -99,15 +101,15 @@ struct ParserUtil {
     // PRIVATE CLASS METHODS
     template <class TYPE>
     static int getDateAndTimeValue(TYPE                    *value,
-                                   const bsl::string_view&  data,
-                                   int                      maxLength);
+                                   const bsl::string_view&  data);
         // Load into the specified 'value' the date or time value represented
-        // as a string in the ISO 8601 format in the specified 'data' and
-        // having a maximum data length of the specified 'maxLength'.  Return 0
-        // on success and a non-zero value otherwise.  Note that an error is
-        // returned if 'data.length() > maxLength'.  Also note that 'TYPE' is
+        // as a string in the ISO 8601 format in the specified 'data'.  Return
+        // 0 on success and a non-zero value otherwise.  Note that 'TYPE' is
         // expected to be one of 'bdlt::Date', 'bdlt::Time', bdlt::Datetime',
-        // 'bdlt::DateTz', 'bdlt::TimeTz', or 'bdlt::DatetimeTz'.
+        // 'bdlt::DateTz', 'bdlt::TimeTz', 'bdlt::DatetimeTz',
+        // 'bdlb::Variant2<bdlt::Date, bdlt::DateTz>',
+        // 'bdlb::Variant2<bdlt::Time, bdlt::TimeTz>' or
+        // 'bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>'.
 
     template <class TYPE>
     static int getIntegralValue(TYPE *value, bsl::string_view data);
@@ -129,6 +131,20 @@ struct ParserUtil {
         // Return 0 on success and a non-zero value otherwise.
 
   public:
+    // TYPES
+    typedef bdlb::Variant2<bdlt::Date, bdlt::DateTz>      DateOrDateTz;
+        // 'DateOrDateTz' is a convenient alias for
+        // 'bdlb::Variant2<Date, DateTz>'.
+
+    typedef bdlb::Variant2<bdlt::Time, bdlt::TimeTz>      TimeOrTimeTz;
+        // 'TimeOrTimeTz' is a convenient alias for
+        // 'bdlb::Variant2<Time, TimeTz>'.
+
+    typedef bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>
+                                                          DatetimeOrDatetimeTz;
+        // 'DatetimeOrDatetimeTz' is a convenient alias for
+        // 'bdlb::Variant2<Datetime, DatetimeTz>'.
+
     // CLASS METHODS
     static int getQuotedString(bsl::string             *value,
                                const bsl::string_view&  data);
@@ -179,6 +195,12 @@ struct ParserUtil {
     static int getValue(bdlt::Time              *value,
                         const bsl::string_view&  data);
     static int getValue(bdlt::TimeTz            *value,
+                        const bsl::string_view&  data);
+    static int getValue(DateOrDateTz            *value,
+                        const bsl::string_view&  data);
+    static int getValue(TimeOrTimeTz            *value,
+                        const bsl::string_view&  data);
+    static int getValue(DatetimeOrDatetimeTz    *value,
                         const bsl::string_view&  data);
     static int getValue(bsl::vector<char>       *value,
                         const bsl::string_view&  data);
@@ -286,16 +308,13 @@ int ParserUtil::getIntegralValue(TYPE *value, bsl::string_view data)
 
 template <class TYPE>
 int ParserUtil::getDateAndTimeValue(TYPE                    *value,
-                                    const bsl::string_view&  data,
-                                    int                      maxLength)
+                                    const bsl::string_view&  data)
 {
     enum { k_STRING_LENGTH_WITH_QUOTES = 2 };
 
     if (data.length()  < k_STRING_LENGTH_WITH_QUOTES
      || '"'           != *data.begin()
-     || '"'           != *(data.end() - 1)
-     || data.length()  > static_cast<unsigned int>(maxLength)
-                                          + k_STRING_LENGTH_WITH_QUOTES) {
+     || '"'           != *(data.end() - 1)) {
         return -1;                                                    // RETURN
     }
 
@@ -386,49 +405,56 @@ int ParserUtil::getValue(bsl::string *value, const bsl::string_view& data)
 inline
 int ParserUtil::getValue(bdlt::Date *value, const bsl::string_view& data)
 {
-    return getDateAndTimeValue(value,
-                               data,
-                               bdlt::Iso8601Util::k_DATETZ_STRLEN);
+    return getDateAndTimeValue(value, data);
 }
 
 inline
 int ParserUtil::getValue(bdlt::Datetime *value, const bsl::string_view& data)
 {
-    return getDateAndTimeValue(value,
-                               data,
-                               bdlt::Iso8601Util::k_DATETIMETZ_STRLEN);
+    return getDateAndTimeValue(value, data);
 }
 
 inline
 int ParserUtil::getValue(bdlt::DatetimeTz *value, const bsl::string_view& data)
 {
-    return getDateAndTimeValue(value,
-                               data,
-                               bdlt::Iso8601Util::k_DATETIMETZ_STRLEN);
+    return getDateAndTimeValue(value, data);
 }
 
 inline
 int ParserUtil::getValue(bdlt::DateTz *value, const bsl::string_view& data)
 {
-    return getDateAndTimeValue(value,
-                               data,
-                               bdlt::Iso8601Util::k_DATETZ_STRLEN);
+    return getDateAndTimeValue(value, data);
 }
 
 inline
 int ParserUtil::getValue(bdlt::Time *value, const bsl::string_view& data)
 {
-    return getDateAndTimeValue(value,
-                               data,
-                               bdlt::Iso8601Util::k_TIMETZ_STRLEN);
+    return getDateAndTimeValue(value, data);
 }
 
 inline
 int ParserUtil::getValue(bdlt::TimeTz *value, const bsl::string_view& data)
 {
-    return getDateAndTimeValue(value,
-                               data,
-                               bdlt::Iso8601Util::k_TIMETZ_STRLEN);
+    return getDateAndTimeValue(value, data);
+}
+
+inline
+int ParserUtil::getValue(DateOrDateTz *value, const bsl::string_view& data)
+{
+    return getDateAndTimeValue(value, data);
+}
+
+inline
+int ParserUtil::getValue(TimeOrTimeTz *value, const bsl::string_view& data)
+{
+    return getDateAndTimeValue(value, data);
+}
+
+inline
+int ParserUtil::getValue(DatetimeOrDatetimeTz    *value,
+                         const bsl::string_view&  data)
+{
+    return getDateAndTimeValue(value, data);
 }
 }  // close package namespace
 

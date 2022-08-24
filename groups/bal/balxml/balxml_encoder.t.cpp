@@ -116,7 +116,9 @@ namespace test = BloombergLP::s_baltst;
 //
 // ACCESSORS
 // ----------------------------------------------------------------------------
-//
+// [ 1] BREATHING TEST
+// [19] USAGE EXAMPLE
+// [18] REPRODUCE SCENARIO FROM DRQS 169438741
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -3900,7 +3902,7 @@ int main(int argc, char *argv[])
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 18: {
+      case 19: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -3917,6 +3919,136 @@ int main(int argc, char *argv[])
         usageExample();
 
         if (verbose) cout << "\nEnd of Test." << endl;
+      } break;
+      case 18: {
+        // --------------------------------------------------------------------
+        // REPRODUCE SCENARIO FROM DRQS 169438741
+        //
+        // Concerns:
+        //: 1 'bdlb::Variant2<bdlt::Date, bdlt::DateTz>' value can be encoded
+        //:   to XML.
+        //:
+        //: 2 'bdlb::Variant2<bdlt::Time, bdlt::TimeTz>' value can be encoded
+        //:   to XML.
+        //:
+        //: 3 'bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>' value can be
+        //:   encoded to XML.
+        //
+        // Plan:
+        //: 1 Create several objects and encode them to XML using
+        //:   'balxml::Encoder'.  Verify obtained results.  (C-1..3)
+        //
+        // Testing:
+        //   DRQS 169438741
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nREPRODUCE SCENARIO FROM DRQS 169438741"
+                          << "\n======================================"
+                          << endl;
+
+        typedef bdlb::Variant2<bdlt::Date, bdlt::DateTz> DateOrDateTz;
+        typedef bdlb::Variant2<bdlt::Time, bdlt::TimeTz> TimeOrTimeTz;
+        typedef bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>
+                                                      DatetimeOrDatetimeTz;
+
+        balxml::EncoderOptions options;
+        balxml::Encoder encoder(&options, 0, 0);
+
+        // Testing 'bdlt::Date' and 'bdltDateTz'.
+        {
+            const DateOrDateTz DATE(bdlt::Date(2, 2, 2));
+            const DateOrDateTz DATETZ(
+                                  bdlt::DateTz(bdlt::Date(9999, 12, 31), -90));
+            const bsl::string_view EXP_DATE =
+                                  "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
+                                  "<anyType" XSI ">"
+                                     "0002-02-02"
+                                  "</anyType>";
+
+            bsl::stringstream resultDate;
+            int rc = encoder.encodeToStream(resultDate, DATE);
+
+            ASSERTV(rc, 0 == rc);
+            ASSERTV(EXP_DATE, resultDate.str(), EXP_DATE == resultDate.str());
+
+            const bsl::string_view EXP_DATETZ =
+                                  "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
+                                  "<anyType" XSI ">"
+                                     "9999-12-31-01:30"
+                                  "</anyType>";
+
+            bsl::stringstream resultDateTz;
+            rc = encoder.encodeToStream(resultDateTz, DATETZ);
+
+            ASSERTV(rc, 0 == rc);
+            ASSERTV(EXP_DATETZ, resultDateTz.str(),
+                    EXP_DATETZ == resultDateTz.str());
+        }
+
+        // Testing 'bdlt::Time' and 'bdltTimeTz'.
+        {
+            const TimeOrTimeTz TIME(bdlt::Time(1, 1, 1));
+            const TimeOrTimeTz TIMETZ(
+                          bdlt::TimeTz(bdlt::Time(23, 59, 59, 999, 999), -90));
+            const bsl::string_view EXP_TIME =
+                                  "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
+                                  "<anyType" XSI ">"
+                                     "01:01:01.000000"
+                                  "</anyType>";
+
+            bsl::stringstream resultTime;
+            int rc = encoder.encodeToStream(resultTime, TIME);
+
+            ASSERTV(rc, 0 == rc);
+            ASSERTV(EXP_TIME, resultTime.str(), EXP_TIME == resultTime.str());
+
+            const bsl::string_view EXP_TIMETZ =
+                                  "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
+                                  "<anyType" XSI ">"
+                                     "23:59:59.999999-01:30"
+                                  "</anyType>";
+
+            bsl::stringstream resultTimeTz;
+            rc = encoder.encodeToStream(resultTimeTz, TIMETZ);
+
+            ASSERTV(rc, 0 == rc);
+            ASSERTV(EXP_TIMETZ, resultTimeTz.str(),
+                    EXP_TIMETZ == resultTimeTz.str());
+        }
+
+        // Testing 'bdlt::Datetime' and 'bdltDatetimeTz'.
+        {
+            const DatetimeOrDatetimeTz DATETIME(
+                                       bdlt::Datetime(1, 1, 1, 0, 0, 0, 0, 0));
+            const DatetimeOrDatetimeTz DATETIMETZ(bdlt::DatetimeTz(
+                bdlt::Datetime(9999, 12, 31, 23, 59, 59, 999, 999), -90));
+
+            const bsl::string_view EXP_DATETIME =
+                                  "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
+                                  "<anyType" XSI ">"
+                                     "0001-01-01T00:00:00.000000"
+                                  "</anyType>";
+
+            bsl::stringstream resultDatetime;
+            int rc = encoder.encodeToStream(resultDatetime, DATETIME);
+
+            ASSERTV(rc, 0 == rc);
+            ASSERTV(EXP_DATETIME, resultDatetime.str(),
+                    EXP_DATETIME == resultDatetime.str());
+
+            const bsl::string_view EXP_DATETIMETZ =
+                                  "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
+                                  "<anyType" XSI ">"
+                                     "9999-12-31T23:59:59.999999-01:30"
+                                  "</anyType>";
+
+            bsl::stringstream resultDatetimeTz;
+            rc = encoder.encodeToStream(resultDatetimeTz, DATETIMETZ);
+
+            ASSERTV(rc, 0 == rc);
+            ASSERTV(EXP_DATETIMETZ, resultDatetimeTz.str(),
+                    EXP_DATETIMETZ == resultDatetimeTz.str());
+        }
       } break;
       case 17: {
         //---------------------------------------------------------------------

@@ -60,6 +60,12 @@ using namespace bsl;
 // [ 6] int generate(char *, int, const TimeTz&, const Config&);
 // [ 7] int generate(char *, int, const DatetimeTz&);
 // [ 7] int generate(char *, int, const DatetimeTz&, const Config&);
+// [12] int generate(char *, int, const DateOrDateTz&);
+// [12] int generate(char *, int, const DateOrDateTz&, const Config&);
+// [13] int generate(char *, int, const TimeOrTimeTz&);
+// [13] int generate(char *, int, const TimeOrTimeTz&, const Config&);
+// [14] int generate(char *, int, const DatetimeOrDatetimeTz&);
+// [14] int generate(char*,int,const DatetimeOrDatetimeTz&,const Config&);
 // [ 1] int generate(string *, const TimeInterval&);
 // [ 1] int generate(string *, const TimeInterval&, const Config&);
 // [ 2] int generate(string *, const Date&);
@@ -74,6 +80,12 @@ using namespace bsl;
 // [ 6] int generate(string *, const TimeTz&, const Config&);
 // [ 7] int generate(string *, const DatetimeTz&);
 // [ 7] int generate(string *, const DatetimeTz&, const Config&);
+// [12] int generate(string *, const DateOrDateTz&);
+// [12] int generate(string *, const DateOrDateTz&, const Config&);
+// [13] int generate(string *, const TimeOrTimeTz&);
+// [13] int generate(string *, const TimeOrTimeTz&, const Config&);
+// [14] int generate(string *, const DatetimeOrDatetimeTz&);
+// [14] int generate(string*, const DatetimeOrDatetimeTz&, const Config&);
 // [ 1] ostream generate(ostream&, const TimeInterval&);
 // [ 1] ostream generate(ostream&, const TimeInterval&, const Config&);
 // [ 2] ostream generate(ostream&, const Date&);
@@ -88,6 +100,12 @@ using namespace bsl;
 // [ 6] ostream generate(ostream&, const TimeTz&, const Config&);
 // [ 7] ostream generate(ostream&, const DatetimeTz&);
 // [ 7] ostream generate(ostream&, const DatetimeTz&, const Config&);
+// [12] ostream generate(ostream&, const DateOrDateTz&);
+// [12] ostream generate(ostream&, const DateOrDateTz&, const Config&);
+// [13] ostream generate(ostream&, const TimeOrTimeTz&);
+// [13] ostream generate(ostream&, const TimeOrTimeTz&, const Config&);
+// [14] ostream generate(ostream&, const DatetimeOrDatetimeTz&);
+// [14] ostream generate(ostream&,const DatetimeOrDatetimeTz&,const Con&);
 // [ 1] int generateRaw(char *, const TimeInterval&);
 // [ 1] int generateRaw(char *, const TimeInterval&, const Config&);
 // [ 2] int generateRaw(char *, const Date&);
@@ -102,6 +120,12 @@ using namespace bsl;
 // [ 6] int generateRaw(char *, const TimeTz&, const Config&);
 // [ 7] int generateRaw(char *, const DatetimeTz&);
 // [ 7] int generateRaw(char *, const DatetimeTz&, const Config&);
+// [12] int generateRaw(char *, const DateOrDateTz&);
+// [12] int generateRaw(char *, const DateOrDateTz&, const Config&);
+// [13] int generateRaw(char *, const TimeOrTimeTz&);
+// [13] int generateRaw(char *, const TimeOrTimeTz&, const Config&);
+// [14] int generateRaw(char *, const DatetimeOrDatetimeTz&);
+// [14] int generateRaw(char*,const DatetimeOrDatetimeTz&, const Config&);
 // [ 8] int parse(TimeInterval *, const char *, int);
 // [ 9] int parse(Date *, const char *, int);
 // [10] int parse(Time *, const char *, int);
@@ -109,6 +133,9 @@ using namespace bsl;
 // [ 9] int parse(DateTz *, const char *, int);
 // [10] int parse(TimeTz *, const char *, int);
 // [11] int parse(DatetimeTz *, const char *, int);
+// [15] int parse(DateOrDateTz *, const char *, int);
+// [16] int parse(TimeOrTimeTz *, const char *, int);
+// [17] int parse(DatetimeOrDatetimeTz *, const char *, int);
 // [ 8] int parse(TimeInterval *result, const StringRef& string);
 // [ 9] int parse(Date *result, const StringRef& string);
 // [10] int parse(Time *result, const StringRef& string);
@@ -116,6 +143,9 @@ using namespace bsl;
 // [ 9] int parse(DateTz *result, const StringRef& string);
 // [10] int parse(TimeTz *result, const StringRef& string);
 // [11] int parse(DatetimeTz *result, const StringRef& string);
+// [15] int parse(DateOrDateTz *result, const StringRef& string);
+// [15] int parse(TimeOrTimeTz *result, const StringRef& string);
+// [15] int parse(DatetimeOrDatetimeTz *result, const StringRef& string);
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 // [ 2] int generate(char *, const Date&, int);
 // [ 3] int generate(char *, const Time&, int);
@@ -134,7 +164,7 @@ using namespace bsl;
 // [ 7] int generateRaw(char *, const DatetimeTz&, bool useZ);
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 //-----------------------------------------------------------------------------
-// [12] USAGE EXAMPLE
+// [18] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -793,7 +823,7 @@ int main(int argc, char *argv[])
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 12: {
+      case 18: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -988,7 +1018,3719 @@ if (veryVerbose)
     ASSERT(BUFLEN - 9 == rc);
     ASSERT(         0 == bsl::strcmp(buffer, "08:59:59+0400"));
 //..
+      } break;
+      case 17: {
+        // --------------------------------------------------------------------
+        // PARSE 'DatetimeOrDatetimeTz'
+        //
+        // Concerns:
+        //: 1 All ISO 8601 string representations supported by this component
+        //:   (as documented in the header file) for 'Datetime' and
+        //:   'DatetimeTz' values are parsed successfully.
+        //:
+        //: 2 If parsing succeeds, the result 'Datetime' or 'DatetimeTz' object
+        //:   has the expected value of the expected type no matter what value
+        //:   of what type was stored there previously.
+        //:
+        //: 3 The result object contains 'DatetimeTz' value if the optional
+        //:   zone designator is present in the input string, and 'Datetime'
+        //:   value otherwise.
+        //:
+        //: 4 The result object contains 'DatetimeTz' value if 'Z' suffix is
+        //:   present in the input string, and it is assumed to be UTC.
+        //:
+        //: 5 If parsing succeeds, 0 is returned.
+        //:
+        //: 6 All strings that are not ISO 8601 representations supported by
+        //:   this component for 'Datetime' and 'DatetimeTz' values are
+        //:   rejected (i.e., parsing fails).
+        //:
+        //: 7 If parsing fails, the result object is unaffected and a non-zero
+        //:   value is returned.
+        //:
+        //: 8 The entire extent of the input string is parsed.
+        //:
+        //: 9 Leap seconds, fractional seconds containing more than three
+        //:   digits, and extremal values (those that can overflow a
+        //:   'Datetime') are handled correctly.
+        //:
+        //:10 QoI: Asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   'Date' values ('D'), 'Time' values ('T'), zone designators ('Z'),
+        //:   and configurations ('C').
+        //:
+        //: 2 Apply the (fully-tested) 'generateRaw' functions to each element
+        //:   in the cross product, 'D x T x Z x C', of the test data from P-1.
+        //:
+        //: 3 Invoke the 'parse' functions on the strings generated in P-2 and
+        //:   verify that parsing succeeds, i.e., that 0 is returned and the
+        //:   result objects have the expected values.  (C-1..5)
+        //:
+        //: 4 Using the table-driven technique, specify a set of distinct
+        //:   strings that are not ISO 8601 representations supported by this
+        //:   component for 'Datetime' and 'DatetimeTz' values.
+        //:
+        //: 5 Invoke the 'parse' functions on the strings from P-4 and verify
+        //:   that parsing fails, i.e., that a non-zero value is returned and
+        //:   the result objects are unchanged.  (C-6..8)
+        //:
+        //: 6 Using the table-driven technique, specify a set of distinct ISO
+        //:   8601 strings that specifically cover cases involving leap
+        //:   seconds, fractional seconds containing more than three digits,
+        //:   and extremal values.
+        //:
+        //: 7 Invoke the 'parse' functions on the strings from P-6 and verify
+        //:   the results are as expected.  (C-9)
+        //:
+        //: 8 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for invalid arguments, but not triggered for adjacent
+        //:   valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-10)
+        //
+        // Testing:
+        //   int parse(DatetimeOrDatetimeTz *, const char *, int);
+        //   int parse(DatetimeOrDatetimeTz *result, const StringRef& string);
+        // --------------------------------------------------------------------
 
+        if (verbose) cout << endl
+                          << "PARSE 'DatetimeOrDatetimeTz'" << endl
+                          << "============================" << endl;
+
+        Util::DatetimeOrDatetimeTz        mX;
+        const Util::DatetimeOrDatetimeTz& X = mX;
+
+        char buffer[Util::k_MAX_STRLEN];
+
+        const bdlt::Date       DD(246, 8, 10);
+        const bdlt::Time       TT(2, 4, 6, 8);
+
+        const bdlt::Datetime   XX(DD, TT);  // 'XX' and 'ZZ' are controls,
+        const bdlt::DatetimeTz ZZ(XX, -7);  // distinct from any test data
+
+        const int                  NUM_DATE_DATA =       NUM_DEFAULT_DATE_DATA;
+        const DefaultDateDataRow (&DATE_DATA)[NUM_DATE_DATA] =
+                                                             DEFAULT_DATE_DATA;
+
+        const int                  NUM_TIME_DATA =       NUM_DEFAULT_TIME_DATA;
+        const DefaultTimeDataRow (&TIME_DATA)[NUM_TIME_DATA] =
+                                                             DEFAULT_TIME_DATA;
+
+        const int                  NUM_ZONE_DATA =       NUM_DEFAULT_ZONE_DATA;
+        const DefaultZoneDataRow (&ZONE_DATA)[NUM_ZONE_DATA] =
+                                                             DEFAULT_ZONE_DATA;
+
+        const int                  NUM_CNFG_DATA =       NUM_DEFAULT_CNFG_DATA;
+        const DefaultCnfgDataRow (&CNFG_DATA)[NUM_CNFG_DATA] =
+                                                             DEFAULT_CNFG_DATA;
+
+        if (verbose) cout << "\nValid ISO 8601 strings." << endl;
+
+        for (int ti = 0; ti < NUM_DATE_DATA; ++ti) {
+            const int ILINE = DATE_DATA[ti].d_line;
+            const int YEAR  = DATE_DATA[ti].d_year;
+            const int MONTH = DATE_DATA[ti].d_month;
+            const int DAY   = DATE_DATA[ti].d_day;
+
+            const bdlt::Date DATE(YEAR, MONTH, DAY);
+
+            for (int tj = 0; tj < NUM_TIME_DATA; ++tj) {
+                const int JLINE = TIME_DATA[tj].d_line;
+                const int HOUR  = TIME_DATA[tj].d_hour;
+                const int MIN   = TIME_DATA[tj].d_min;
+                const int SEC   = TIME_DATA[tj].d_sec;
+                const int MSEC  = TIME_DATA[tj].d_msec;
+                const int USEC  = TIME_DATA[tj].d_usec;
+
+                for (int tk = 0; tk < NUM_ZONE_DATA; ++tk) {
+                    const int KLINE  = ZONE_DATA[tk].d_line;
+                    const int OFFSET = ZONE_DATA[tk].d_offset;
+
+                    if (   bdlt::Time(HOUR, MIN, SEC, MSEC, USEC)
+                                                                == bdlt::Time()
+                        && OFFSET != 0) {
+                        continue;  // skip invalid compositions
+                    }
+
+                    for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
+                        const int  CLINE     = CNFG_DATA[tc].d_line;
+                        const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
+                        const int  PRECISION = CNFG_DATA[tc].d_precision;
+                        const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
+                        const bool USEZ      = CNFG_DATA[tc].d_useZ;
+
+                        int expMsec = MSEC;
+                        int expUsec = USEC;
+                        {
+                            // adjust the expected milliseconds to account for
+                            // PRECISION truncating the value generated
+
+                            int precision = (PRECISION < 3 ? PRECISION : 3);
+
+                            for (int i = 3; i > precision; --i) {
+                                expMsec /= 10;
+                            }
+
+                            for (int i = 3; i > precision; --i) {
+                                expMsec *= 10;
+                            }
+
+                            // adjust the expected microseconds to account for
+                            // PRECISION truncating the value generated
+
+                            precision = (PRECISION > 3 ? PRECISION - 3: 0);
+
+                            for (int i = 3; i > precision; --i) {
+                                expUsec /= 10;
+                            }
+
+                            for (int i = 3; i > precision; --i) {
+                                expUsec *= 10;
+                            }
+                        }
+
+                        const bdlt::Datetime   DATETIME(YEAR,
+                                                        MONTH,
+                                                        DAY,
+                                                        HOUR,
+                                                        MIN,
+                                                        SEC,
+                                                        expMsec,
+                                                        expUsec);
+                        const bdlt::DatetimeTz DATETIMETZ(DATETIME, OFFSET);
+
+                        if (veryVerbose) {
+                            if (0 == tc) {
+                                T_ P_(ILINE) P_(JLINE) P_(KLINE)
+                                                    P_(DATETIME) P(DATETIMETZ);
+                            }
+                            T_ P_(CLINE) P_(OMITCOLON) P_(PRECISION)
+                                                          P_(USECOMMA) P(USEZ);
+                        }
+
+                        Config mC;  const Config& C = mC;
+                        gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
+
+                        // without zone designator in parsed string
+                        {
+                            const int LENGTH = Util::generateRaw(buffer,
+                                                                 DATETIME,
+                                                                 C);
+
+                            if (veryVerbose) {
+                                const bsl::string STRING(buffer, LENGTH);
+                                T_ T_ P(STRING)
+                            }
+
+                            mX.reset();
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX, buffer, LENGTH));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            mX = XX;
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    XX == X.the<bdlt::Datetime>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX, buffer, LENGTH));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            mX = ZZ;
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    ZZ == X.the<bdlt::DatetimeTz>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX, buffer, LENGTH));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            mX.reset();
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                   0 == Util::parse(&mX,
+                                                    StrView(buffer, LENGTH)));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            mX = XX;
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    XX == X.the<bdlt::Datetime>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                   0 == Util::parse(&mX,
+                                                    StrView(buffer, LENGTH)));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                            mX = ZZ;
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    ZZ == X.the<bdlt::DatetimeTz>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                   0 == Util::parse(&mX,
+                                                    StrView(buffer, LENGTH)));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X.the<bdlt::Datetime>());
+
+                        }
+
+                        // with zone designator in parsed string
+                        {
+                            if ((DATE == bdlt::Date() && OFFSET > 0)
+                             || (DATE == bdlt::Date(9999, 12, 31)
+                              && OFFSET < 0)) {
+                                continue;  // skip invalid compositions
+                            }
+
+                            const int LENGTH = Util::generateRaw(buffer,
+                                                                 DATETIMETZ,
+                                                                 C);
+
+                            if (veryVerbose) {
+                                const bsl::string STRING(buffer, LENGTH);
+                                T_ T_ P(STRING)
+                            }
+
+                            mX.reset();
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX, buffer, LENGTH));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+
+                            mX = XX;
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    XX == X.the<bdlt::Datetime>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX, buffer, LENGTH));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+
+                            mX = ZZ;
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    ZZ == X.the<bdlt::DatetimeTz>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX, buffer, LENGTH));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+
+                            mX.reset();
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE, X.isUnset());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                   0 == Util::parse(&mX,
+                                                    StrView(buffer, LENGTH)));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+
+                            mX = XX;
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::Datetime>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    XX == X.the<bdlt::Datetime>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                   0 == Util::parse(&mX,
+                                                    StrView(buffer, LENGTH)));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+
+                            mX = ZZ;
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    ZZ == X.the<bdlt::DatetimeTz>());
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                   0 == Util::parse(&mX,
+                                                    StrView(buffer, LENGTH)));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    X.is<bdlt::DatetimeTz>());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ == X.the<bdlt::DatetimeTz>());
+                        }
+                    }  // loop over 'CNFG_DATA'
+                }  // loop over 'ZONE_DATA'
+            }  // loop over 'TIME_DATA'
+        }  // loop over 'DATE_DATA'
+
+        {
+            // verify 't' and 'z' are accepted
+
+            const bdlt::DatetimeTz EXPECTED(bdlt::Datetime(1, 2, 3, 1, 2, 3),
+                                            0);
+
+            mX.reset();
+            ASSERTV(X.isUnset());
+
+            ASSERT(0 == Util::parse(&mX, "0001-02-03t01:02:03z", 20));
+            ASSERTV( X.is<bdlt::DatetimeTz>());
+            ASSERTV(EXPECTED == X.the<bdlt::DatetimeTz>());
+        }
+
+        if (verbose) cout << "\nInvalid strings." << endl;
+        {
+            const int              NUM_DATE_DATA =         NUM_BAD_DATE_DATA;
+            const BadDateDataRow (&DATE_DATA)[NUM_DATE_DATA] = BAD_DATE_DATA;
+
+            for (int ti = 0; ti < NUM_DATE_DATA; ++ti) {
+                const int LINE = DATE_DATA[ti].d_line;
+
+                bsl::string bad(DATE_DATA[ti].d_invalid);
+
+                // Append a valid time.
+
+                bad.append("T12:26:52.726");
+
+                const char *STRING = bad.c_str();
+                const int   LENGTH = static_cast<int>(bad.length());
+
+                if (veryVerbose) { T_ P_(LINE) P(STRING) }
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING, 0 != Util::parse(&mX, STRING, LENGTH));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING, 0 != Util::parse(&mX, STRING, LENGTH));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING, 0 != Util::parse(&mX, STRING, LENGTH));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX, StrView(STRING, LENGTH)));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX, StrView(STRING, LENGTH)));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX, StrView(STRING, LENGTH)));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+            }
+
+            const int              NUM_TIME_DATA =         NUM_BAD_TIME_DATA;
+            const BadTimeDataRow (&TIME_DATA)[NUM_TIME_DATA] = BAD_TIME_DATA;
+
+            for (int tj = 0; tj < NUM_TIME_DATA; ++tj) {
+                const int LINE = TIME_DATA[tj].d_line;
+
+                // Initialize with a *valid* date string, then append an
+                // invalid time.
+
+                bsl::string bad("2010-08-17");
+
+                // Ensure that 'bad' is initially valid, but only during the
+                // first iteration.
+
+                if (0 == tj) {
+                    const char *STRING = bad.data();
+                    const int   LENGTH = static_cast<int>(bad.length());
+
+                    bdlt::Date mD(DD);  const bdlt::Date& D = mD;
+
+                    ASSERT( 0 == Util::parse(&mD, STRING, LENGTH));
+                    ASSERT(DD != D);
+
+                    mD = DD;
+
+                    ASSERT( 0 == Util::parse(&mD, StrView(STRING, LENGTH)));
+                    ASSERT(DD != D);
+                }
+
+                bad.append("T");
+                bad.append(TIME_DATA[tj].d_invalid);
+
+                const char *STRING = bad.c_str();
+                const int   LENGTH = static_cast<int>(bad.length());
+
+                if (veryVerbose) { T_ P_(LINE) P(STRING) }
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING, 0 != Util::parse(&mX, STRING, LENGTH));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING, 0 != Util::parse(&mX, STRING, LENGTH));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING, 0 != Util::parse(&mX, STRING, LENGTH));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX, StrView(STRING, LENGTH)));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX, StrView(STRING, LENGTH)));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX, StrView(STRING, LENGTH)));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+            }
+
+            const int              NUM_ZONE_DATA =         NUM_BAD_ZONE_DATA;
+            const BadZoneDataRow (&ZONE_DATA)[NUM_ZONE_DATA] = BAD_ZONE_DATA;
+
+            for (int tk = 0; tk < NUM_ZONE_DATA; ++tk) {
+                const int LINE = ZONE_DATA[tk].d_line;
+
+                // Initialize with a *valid* datetime string, then append an
+                // invalid zone designator.
+
+                bsl::string bad("2010-08-17T12:26:52.726");
+
+                // Ensure that 'bad' is initially valid, but only during the
+                // first iteration.
+
+                if (0 == tk) {
+                    const char *STRING = bad.data();
+                    const int   LENGTH = static_cast<int>(bad.length());
+
+                    mX = XX;
+
+                    ASSERT( 0 == Util::parse(&mX, STRING, LENGTH));
+                    ASSERT(mX.is<bdlt::Datetime>());
+                    ASSERT(XX != mX.the<bdlt::Datetime>());
+
+                    mX = XX;
+
+                    ASSERT( 0 == Util::parse(&mX, StrView(STRING, LENGTH)));
+                    ASSERT(mX.is<bdlt::Datetime>());
+                    ASSERT(XX != mX.the<bdlt::Datetime>());
+                }
+
+                // If 'ZONE_DATA[tk].d_invalid' contains nothing but digits,
+                // appending it to 'bad' simply extends the fractional second
+                // (so 'bad' remains valid).
+
+                if (containsOnlyDigits(ZONE_DATA[tk].d_invalid)) {
+                    continue;
+                }
+
+                bad.append(ZONE_DATA[tk].d_invalid);
+
+                const char *STRING = bad.c_str();
+                const int   LENGTH = static_cast<int>(bad.length());
+
+                if (veryVerbose) { T_ P_(LINE) P(STRING) }
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING, 0 != Util::parse(&mX, STRING, LENGTH));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING, 0 != Util::parse(&mX, STRING, LENGTH));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING, 0 != Util::parse(&mX, STRING, LENGTH));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX, StrView(STRING, LENGTH)));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX, StrView(STRING, LENGTH)));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Datetime>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Datetime>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX, StrView(STRING, LENGTH)));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+            }
+        }
+
+        if (verbose) cout << "\nTesting leap seconds and fractional seconds."
+                          << endl;
+        {
+            const struct {
+                int         d_line;           // source line number
+
+                const char *d_input;          // input
+
+                int         d_year;           // year under test
+
+                int         d_month;          // month under test
+
+                int         d_day;            // day under test
+
+                int         d_hour;           // hour under test
+
+                int         d_min;            // minutes under test
+
+                int         d_sec;            // seconds under test
+
+                int         d_msec;           // milli seconds under test
+
+                int         d_usec;           // micro seconds under test
+
+                int         d_offset;         // UTC offset
+
+                bool        d_isDatetimeTz;   // flag indicating whether the
+                                              // result object is expected to
+                                              // contain 'DatetimeTz' or
+                                              // 'Datetime' object
+
+            } DATA[] = {
+                // leap seconds
+                { L_, "0001-01-01T00:00:60.000",
+                              0001, 01, 01, 00, 01, 00, 000, 000,   0, false },
+                { L_, "9998-12-31T23:59:60.999",
+                              9999, 01, 01, 00, 00, 00, 999, 000,   0, false },
+
+                // fractional seconds
+                { L_, "0001-01-01T00:00:00.0000001",
+                              0001, 01, 01, 00, 00, 00, 000, 000,   0, false },
+                { L_, "0001-01-01T00:00:00.0000009",
+                              0001, 01, 01, 00, 00, 00, 000,   1,   0, false },
+                { L_, "0001-01-01T00:00:00.00000001",
+                              0001, 01, 01, 00, 00, 00, 000, 000,   0, false },
+                { L_, "0001-01-01T00:00:00.00000049",
+                              0001, 01, 01, 00, 00, 00, 000, 000,   0, false },
+                { L_, "0001-01-01T00:00:00.00000050",
+                              0001, 01, 01, 00, 00, 00, 000,   1,   0, false },
+                { L_, "0001-01-01T00:00:00.00000099",
+                              0001, 01, 01, 00, 00, 00, 000,   1,   0, false },
+                { L_, "0001-01-01T00:00:00.0001",
+                              0001, 01, 01, 00, 00, 00, 000, 100,   0, false },
+                { L_, "0001-01-01T00:00:00.0009",
+                              0001, 01, 01, 00, 00, 00, 000, 900,   0, false },
+                { L_, "0001-01-01T00:00:00.00001",
+                              0001, 01, 01, 00, 00, 00, 000,  10,   0, false },
+                { L_, "0001-01-01T00:00:00.00049",
+                              0001, 01, 01, 00, 00, 00, 000, 490,   0, false },
+                { L_, "0001-01-01T00:00:00.00050",
+                              0001, 01, 01, 00, 00, 00, 000, 500,   0, false },
+                { L_, "0001-01-01T00:00:00.00099",
+                              0001, 01, 01, 00, 00, 00, 000, 990,   0, false },
+                { L_, "0001-01-01T00:00:00.9994" ,
+                              0001, 01, 01, 00, 00, 00, 999, 400,   0, false },
+                { L_, "0001-01-01T00:00:00.9995" ,
+                              0001, 01, 01, 00, 00, 00, 999, 500,   0, false },
+                { L_, "0001-01-01T00:00:00.9999" ,
+                              0001, 01, 01, 00, 00, 00, 999, 900,   0, false },
+                { L_, "9998-12-31T23:59:60.9999" ,
+                              9999, 01, 01, 00, 00, 00, 999, 900,   0, false },
+                { L_, "0001-01-01T00:00:00.9999994" ,
+                              0001, 01, 01, 00, 00, 00, 999, 999,   0, false },
+                { L_, "0001-01-01T00:00:00.9999995" ,
+                              0001, 01, 01, 00, 00, 01, 000, 000,   0, false },
+                { L_, "0001-01-01T00:00:00.9999999" ,
+                              0001, 01, 01, 00, 00, 01, 000, 000,   0, false },
+                { L_, "9998-12-31T23:59:60.9999999" ,
+                              9999, 01, 01, 00, 00, 01, 000, 000,   0, false },
+
+                // omit fractional seconds
+                { L_, "2014-12-23T12:34:45",
+                              2014, 12, 23, 12, 34, 45, 000, 000,   0, false },
+                { L_, "2014-12-23T12:34:45Z",
+                              2014, 12, 23, 12, 34, 45, 000, 000,   0,  true },
+                { L_, "2014-12-23T12:34:45+00:30",
+                              2014, 12, 23, 12, 34, 45, 000, 000,  30,  true },
+                { L_, "2014-12-23T12:34:45-01:30",
+                              2014, 12, 23, 12, 34, 45, 000, 000, -90,  true },
+
+                { L_, "2014-12-23T12:34:45.9999994Z",
+                              2014, 12, 23, 12, 34, 45, 999, 999,   0,  true },
+                { L_, "2014-12-23T12:34:45.9999994+00:30",
+                              2014, 12, 23, 12, 34, 45, 999, 999,  30,  true },
+                { L_, "2014-12-23T12:34:45.9999994-01:30",
+                              2014, 12, 23, 12, 34, 45, 999, 999, -90,  true },
+                { L_, "2014-12-23T12:34:45.9999995Z",
+                              2014, 12, 23, 12, 34, 46, 000, 000,   0,  true },
+                { L_, "2014-12-23T12:34:45.9999995+00:30",
+                              2014, 12, 23, 12, 34, 46, 000, 000,  30,  true },
+                { L_, "2014-12-23T12:34:45.9999995-01:30",
+                              2014, 12, 23, 12, 34, 46, 000, 000, -90,  true },
+                { L_, "0001-01-01T00:00:00.9999999Z",
+                              0001, 01, 01, 00, 00, 01, 000, 000,   0,  true },
+                { L_, "0001-01-01T00:00:00.9999999+00:30",
+                              0001, 01, 01, 00, 00, 01, 000, 000,  30,  true },
+                { L_, "0001-01-01T00:00:00.9999999-01:30",
+                              0001, 01, 01, 00, 00, 01, 000, 000, -90,  true },
+                { L_, "2014-12-23T12:34:60.9999994+00:30",
+                              2014, 12, 23, 12, 35, 00, 999, 999,  30,  true },
+                { L_, "2014-12-23T12:34:60.9999994-01:30",
+                              2014, 12, 23, 12, 35, 00, 999, 999, -90,  true },
+                { L_, "9998-12-31T23:59:60.9999999+00:30",
+                              9999, 01, 01, 00, 00, 01, 000, 000,  30,  true },
+                { L_, "9998-12-31T23:59:60.9999999-01:30",
+                              9999, 01, 01, 00, 00, 01, 000, 000, -90,  true },
+            };
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int   LINE          = DATA[ti].d_line;
+                const char *INPUT         = DATA[ti].d_input;
+                const int   LENGTH        =
+                                          static_cast<int>(bsl::strlen(INPUT));
+                const int   YEAR          = DATA[ti].d_year;
+                const int   MONTH         = DATA[ti].d_month;
+                const int   DAY           = DATA[ti].d_day;
+                const int   HOUR          = DATA[ti].d_hour;
+                const int   MIN           = DATA[ti].d_min;
+                const int   SEC           = DATA[ti].d_sec;
+                const int   MSEC          = DATA[ti].d_msec;
+                const int   USEC          = DATA[ti].d_usec;
+                const int   OFFSET        = DATA[ti].d_offset;
+                const bool  IS_DATETIMETZ = DATA[ti].d_isDatetimeTz;
+
+                if (veryVerbose) { T_ P_(LINE) P(INPUT) }
+
+                bdlt::Datetime   EXPECTED_DT(YEAR,
+                                             MONTH,
+                                             DAY,
+                                             HOUR,
+                                             MIN,
+                                             SEC,
+                                             MSEC,
+                                             USEC);
+                bdlt::DatetimeTz EXPECTED_DTTZ(EXPECTED_DT, OFFSET);
+
+
+                mX.reset();
+                ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
+
+                ASSERTV(LINE, INPUT, LENGTH,
+                        0 == Util::parse(&mX, INPUT, LENGTH));
+
+                if (IS_DATETIMETZ) {
+                    ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::DatetimeTz>());
+                    ASSERTV(LINE, INPUT, LENGTH,
+                            EXPECTED_DTTZ == X.the<bdlt::DatetimeTz>());
+                }
+                else {
+                    ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::Datetime>());
+                    ASSERTV(LINE, INPUT, LENGTH,
+                            EXPECTED_DT == X.the<bdlt::Datetime>());
+                }
+
+                mX.reset();
+                ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
+
+                ASSERTV(LINE, INPUT, LENGTH,
+                        0 == Util::parse(&mX, StrView(INPUT, LENGTH)));
+
+                if (IS_DATETIMETZ) {
+                    ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::DatetimeTz>());
+                    ASSERTV(LINE, INPUT, LENGTH,
+                            EXPECTED_DTTZ == X.the<bdlt::DatetimeTz>());
+                }
+                else {
+                    ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::Datetime>());
+                    ASSERTV(LINE, INPUT, LENGTH,
+                            EXPECTED_DT == X.the<bdlt::Datetime>());
+                }
+            }
+        }
+
+        if (verbose)
+            cout << "\nTesting zone designators that overflow a 'Datetime'."
+                 << endl;
+        {
+            struct {
+                int         d_line;
+                const char *d_input;
+                int         d_year;
+                int         d_month;
+                int         d_day;
+                int         d_hour;
+                int         d_min;
+                int         d_sec;
+                int         d_msec;
+                int         d_offset;
+            } DATA[] = {
+                { L_, "0001-01-01T00:00:00.000+00:00",
+                                        0001, 01, 01, 00, 00, 00, 000,     0 },
+                { L_, "0001-01-01T00:00:00.000+00:01",
+                                        0001, 01, 01, 00, 00, 00, 000,     1 },
+                { L_, "0001-01-01T23:58:59.000+23:59",
+                                        0001, 01, 01, 23, 58, 59, 000,  1439 },
+
+                { L_, "9999-12-31T23:59:59.999+00:00",
+                                        9999, 12, 31, 23, 59, 59, 999,     0 },
+                { L_, "9999-12-31T23:59:59.999-00:01",
+                                        9999, 12, 31, 23, 59, 59, 999,    -1 },
+                { L_, "9999-12-31T00:01:00.000-23:59",
+                                        9999, 12, 31, 00, 01, 00, 000, -1439 },
+            };
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int   LINE   = DATA[ti].d_line;
+                const char *INPUT  = DATA[ti].d_input;
+                const int   LENGTH = static_cast<int>(bsl::strlen(INPUT));
+                const int   YEAR   = DATA[ti].d_year;
+                const int   MONTH  = DATA[ti].d_month;
+                const int   DAY    = DATA[ti].d_day;
+                const int   HOUR   = DATA[ti].d_hour;
+                const int   MIN    = DATA[ti].d_min;
+                const int   SEC    = DATA[ti].d_sec;
+                const int   MSEC   = DATA[ti].d_msec;
+                const int   OFFSET = DATA[ti].d_offset;
+
+                if (veryVerbose) { T_ P_(LINE) P(INPUT) }
+
+                bdlt::DatetimeTz EXPECTED(bdlt::Datetime(YEAR, MONTH, DAY,
+                                                         HOUR, MIN, SEC, MSEC),
+                                          OFFSET);
+
+                mX.reset();
+                ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
+
+                ASSERTV(
+                    LINE, INPUT, LENGTH, 0 == Util::parse(&mX, INPUT, LENGTH));
+
+                ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, INPUT, LENGTH,
+                        EXPECTED == X.the<bdlt::DatetimeTz>());
+
+                mX.reset();
+                ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
+
+                ASSERTV(LINE, INPUT, LENGTH,
+                        0 == Util::parse(&mX, StrView(INPUT, LENGTH)));
+
+                ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::DatetimeTz>());
+                ASSERTV(LINE, INPUT, LENGTH,
+                        EXPECTED == X.the<bdlt::DatetimeTz>());
+            }
+        }
+
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertTestHandlerGuard hG;
+
+            const char    *INPUT  = "2013-10-23T01:23:45";
+            const int      LENGTH = static_cast<int>(bsl::strlen(INPUT));
+            const StrView  STRING_REF(INPUT, LENGTH);
+
+            bdlt::Datetime   result;
+            bdlt::DatetimeTz resultTz;
+
+            if (veryVerbose) cout << "\t'Invalid result'" << endl;
+            {
+                Util::TimeOrTimeTz *NULL_PTR = 0;
+
+                ASSERT_PASS(Util::parse(      &mX, INPUT, LENGTH));
+                ASSERT_FAIL(Util::parse( NULL_PTR, INPUT, LENGTH));
+
+                ASSERT_PASS(Util::parse(     &mX, STRING_REF));
+                ASSERT_FAIL(Util::parse(NULL_PTR, STRING_REF));
+            }
+
+            if (veryVerbose) cout << "\t'Invalid input'" << endl;
+            {
+                const char    *NULL_PTR = 0;
+                const StrView  NULL_REF;
+
+                ASSERT_PASS(Util::parse(&mX,    INPUT, LENGTH));
+                ASSERT_FAIL(Util::parse(&mX, NULL_PTR, LENGTH));
+
+                ASSERT_PASS(Util::parse(&mX, STRING_REF));
+                ASSERT_FAIL(Util::parse(&mX,   NULL_REF));
+            }
+
+            if (veryVerbose) cout << "\t'Invalid length'" << endl;
+            {
+                ASSERT_PASS(Util::parse(&mX, INPUT, LENGTH));
+                ASSERT_PASS(Util::parse(&mX, INPUT,      0));
+                ASSERT_FAIL(Util::parse(&mX, INPUT,     -1));
+            }
+        }
+      } break;
+      case 16: {
+        // --------------------------------------------------------------------
+        // PARSE 'TimeOrTimeTz'
+        //
+        // Concerns:
+        //: 1 All ISO 8601 string representations supported by this component
+        //:   (as documented in the header file) for 'Time' and 'TimeTz' values
+        //:   are parsed successfully.
+        //:
+        //: 2 If parsing succeeds, the result object contains the expected
+        //:   value of the expected type no matter what value of what type was
+        //:   stored there previously.
+        //:
+        //: 3 The result object contains 'TimeTz' value if the optional zone
+        //:   designator is present in the input string, and 'Time' value
+        //:   otherwise.
+        //:
+        //: 4 The result object contains 'TimeTz' value if 'Z' suffix is
+        //:   present in the input string, and it is assumed to be UTC.
+        //:
+        //: 5 If parsing succeeds, 0 is returned.
+        //:
+        //: 6 All strings that are not ISO 8601 representations supported by
+        //:   this component for 'Time' and 'TimeTz' values are rejected (i.e.,
+        //:   parsing fails).
+        //:
+        //: 7 If parsing fails, the result object is unaffected and a non-zero
+        //:   value is returned.
+        //:
+        //: 8 The entire extent of the input string is parsed.
+        //:
+        //: 9 Leap seconds and fractional seconds containing more than three
+        //:   digits are handled correctly.
+        //:
+        //:10 QoI: Asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   'Time' values ('T'), zone designators ('Z'), and configurations
+        //:   ('C').
+        //:
+        //: 2 Apply the (fully-tested) 'generateRaw' functions to each element
+        //:   in the cross product, 'T x Z x C', of the test data from P-1.
+        //:
+        //: 3 Invoke the 'parse' functions on the strings generated in P-2 and
+        //:   verify that parsing succeeds, i.e., that 0 is returned and the
+        //:   result objects have the expected values.  (C-1..5)
+        //:
+        //: 4 Using the table-driven technique, specify a set of distinct
+        //:   strings that are not ISO 8601 representations supported by this
+        //:   component for 'Time' and 'TimeTz' values.
+        //:
+        //: 5 Invoke the 'parse' functions on the strings from P-4 and verify
+        //:   that parsing fails, i.e., that a non-zero value is returned and
+        //:   the result objects are unchanged.  (C-6..8)
+        //:
+        //: 6 Using the table-driven technique, specify a set of distinct
+        //:   ISO 8601 strings that specifically cover cases involving leap
+        //:   seconds and fractional seconds containing more than three digits.
+        //:
+        //: 7 Invoke the 'parse' functions on the strings from P-6 and verify
+        //:   the results are as expected.  (C-9)
+        //:
+        //: 8 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for invalid arguments, but not triggered for adjacent
+        //:   valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-10)
+        //
+        // Testing:
+        //   int parse(TimeOrTimeTz *, const char *, int);
+        //   int parse(TimeOrTimeTz *result, const StringRef& string);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "PARSE 'TimeOrTimeTz'" << endl
+                          << "====================" << endl;
+
+        Util::TimeOrTimeTz        mX;
+        const Util::TimeOrTimeTz& X = mX;
+
+        char buffer[Util::k_MAX_STRLEN];
+
+        const bdlt::Time   XX(2, 4, 6, 8);  // 'XX' and 'ZZ' are controls,
+        const bdlt::TimeTz ZZ(XX, -7);      // distinct from any test data
+
+        const int                  NUM_TIME_DATA =       NUM_DEFAULT_TIME_DATA;
+        const DefaultTimeDataRow (&TIME_DATA)[NUM_TIME_DATA] =
+                                                             DEFAULT_TIME_DATA;
+
+        const int                  NUM_ZONE_DATA =       NUM_DEFAULT_ZONE_DATA;
+        const DefaultZoneDataRow (&ZONE_DATA)[NUM_ZONE_DATA] =
+                                                             DEFAULT_ZONE_DATA;
+
+        const int                  NUM_CNFG_DATA =       NUM_DEFAULT_CNFG_DATA;
+        const DefaultCnfgDataRow (&CNFG_DATA)[NUM_CNFG_DATA] =
+                                                             DEFAULT_CNFG_DATA;
+
+        if (verbose) cout << "\nValid ISO 8601 strings." << endl;
+
+        for (int ti = 0; ti < NUM_TIME_DATA; ++ti) {
+            const int ILINE = TIME_DATA[ti].d_line;
+            const int HOUR  = TIME_DATA[ti].d_hour;
+            const int MIN   = TIME_DATA[ti].d_min;
+            const int SEC   = TIME_DATA[ti].d_sec;
+            const int MSEC  = TIME_DATA[ti].d_msec;
+            const int USEC  = TIME_DATA[ti].d_usec;
+
+            for (int tj = 0; tj < NUM_ZONE_DATA; ++tj) {
+                const int JLINE  = ZONE_DATA[tj].d_line;
+                const int OFFSET = ZONE_DATA[tj].d_offset;
+
+                if (   bdlt::Time(HOUR, MIN, SEC, MSEC, USEC) == bdlt::Time()
+                    && OFFSET != 0) {
+                    continue;  // skip invalid compositions
+                }
+
+                for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
+                    const int  CLINE     = CNFG_DATA[tc].d_line;
+                    const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
+                    const int  PRECISION = CNFG_DATA[tc].d_precision;
+                    const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
+                    const bool USEZ      = CNFG_DATA[tc].d_useZ;
+
+                    int expMsec = MSEC;
+                    int expUsec = USEC;
+                    {
+                        // adjust the expected milliseconds to account for
+                        // PRECISION truncating the value generated
+
+                        int precision = (PRECISION < 3 ? PRECISION : 3);
+
+                        for (int i = 3; i > precision; --i) {
+                            expMsec /= 10;
+                        }
+
+                        for (int i = 3; i > precision; --i) {
+                            expMsec *= 10;
+                        }
+
+                        // adjust the expected microseconds to account for
+                        // PRECISION truncating the value generated
+
+                        precision = (PRECISION > 3 ? PRECISION - 3: 0);
+
+                        for (int i = 3; i > precision; --i) {
+                            expUsec /= 10;
+                        }
+
+                        for (int i = 3; i > precision; --i) {
+                            expUsec *= 10;
+                        }
+                    }
+
+                    const bdlt::Time TIME(HOUR, MIN, SEC, expMsec, expUsec);
+
+                    const bdlt::TimeTz TIMETZ(TIME, OFFSET);
+
+                    if (veryVerbose) {
+                        if (0 == tc) {
+                            T_ P_(ILINE) P_(JLINE) P_(TIME) P(TIMETZ);
+                        }
+                        T_ P_(CLINE) P_(OMITCOLON) P_(PRECISION)
+                                                          P_(USECOMMA) P(USEZ);
+                    }
+
+                    Config mC;  const Config& C = mC;
+                    gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
+
+                    // without zone designator in parsed string
+                    {
+                        const int LENGTH = Util::generateRaw(buffer, TIME, C);
+
+                        if (veryVerbose) {
+                            const bsl::string STRING(buffer, LENGTH);
+                            T_ T_ P(STRING)
+                        }
+
+                        mX.reset();
+                        ASSERTV(ILINE, JLINE, CLINE, X.isUnset());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                0 == Util::parse(&mX, buffer, LENGTH));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                TIME == X.the<bdlt::Time>());
+
+                        mX = XX;
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                XX == X.the<bdlt::Time>());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                0 == Util::parse(&mX, buffer, LENGTH));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                TIME == X.the<bdlt::Time>());
+
+                        mX = ZZ;
+
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                ZZ == X.the<bdlt::TimeTz>());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                0 == Util::parse(&mX, buffer, LENGTH));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                TIME == X.the<bdlt::Time>());
+
+                        mX.reset();
+                        ASSERTV(ILINE, JLINE, CLINE, X.isUnset());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                               0 == Util::parse(&mX, StrView(buffer, LENGTH)));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                TIME == X.the<bdlt::Time>());
+
+                        mX = XX;
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                XX == X.the<bdlt::Time>());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                               0 == Util::parse(&mX, StrView(buffer, LENGTH)));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                TIME == X.the<bdlt::Time>());
+
+                        mX = ZZ;
+
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                ZZ == X.the<bdlt::TimeTz>());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                               0 == Util::parse(&mX, StrView(buffer, LENGTH)));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                TIME == X.the<bdlt::Time>());
+                    }
+
+                    // with zone designator in parsed string
+                    {
+                        const int LENGTH = Util::generateRaw(buffer,
+                                                             TIMETZ,
+                                                             C);
+
+                        if (veryVerbose) {
+                            const bsl::string STRING(buffer, LENGTH);
+                            T_ T_ P(STRING)
+                        }
+
+                        mX.reset();
+                        ASSERTV(ILINE, JLINE, CLINE, X.isUnset());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                0 == Util::parse(&mX, buffer, LENGTH));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                TIMETZ == X.the<bdlt::TimeTz>());
+
+                        mX = XX;
+
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                XX == X.the<bdlt::Time>());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                0 == Util::parse(&mX, buffer, LENGTH));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                TIMETZ == X.the<bdlt::TimeTz>());
+
+                        mX = ZZ;
+
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                ZZ == X.the<bdlt::TimeTz>());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                0 == Util::parse(&mX, buffer, LENGTH));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                TIMETZ == X.the<bdlt::TimeTz>());
+
+                        mX.reset();
+                        ASSERTV(ILINE, JLINE, CLINE, X.isUnset());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                               0 == Util::parse(&mX, StrView(buffer, LENGTH)));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                TIMETZ == X.the<bdlt::TimeTz>());
+
+                        mX = XX;
+
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Time>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                XX == X.the<bdlt::Time>());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                               0 == Util::parse(&mX, StrView(buffer, LENGTH)));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                TIMETZ == X.the<bdlt::TimeTz>());
+
+                        mX = ZZ;
+
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                ZZ == X.the<bdlt::TimeTz>());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                               0 == Util::parse(&mX, StrView(buffer, LENGTH)));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::TimeTz>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                TIMETZ == X.the<bdlt::TimeTz>());
+                    }
+                }  // loop over 'CNFG_DATA'
+            }  // loop over 'ZONE_DATA'
+        }  // loop over 'TIME_DATA'
+
+        {
+            // verify 'z' is accepted
+            const bdlt::TimeTz EXPECTED(bdlt::Time(1,2,3) , 0);
+
+            mX.reset();
+            ASSERTV(X.isUnset());
+
+            ASSERTV(0 == Util::parse(&mX, "01:02:03z", 9));
+            ASSERTV( X.is<bdlt::TimeTz>());
+            ASSERTV(EXPECTED == X.the<bdlt::TimeTz>());
+
+            mX = XX;
+
+            ASSERTV(X.is<bdlt::Time>());
+            ASSERTV(XX == X.the<bdlt::Time>());
+
+            ASSERTV(0 == Util::parse(&mX, "01:02:03z", 9));
+            ASSERTV(X.is<bdlt::TimeTz>());
+            ASSERTV(EXPECTED == X.the<bdlt::TimeTz>());
+
+            mX = ZZ;
+
+            ASSERT(X.is<bdlt::TimeTz>());
+            ASSERT(ZZ == X.the<bdlt::TimeTz>());
+
+            ASSERT(0 == Util::parse(&mX, "01:02:03z", 9));
+            ASSERT(X.is<bdlt::TimeTz>());
+            ASSERT(EXPECTED == X.the<bdlt::TimeTz>());
+        }
+
+        if (verbose) cout << "\nInvalid strings." << endl;
+        {
+            const int              NUM_TIME_DATA =         NUM_BAD_TIME_DATA;
+            const BadTimeDataRow (&TIME_DATA)[NUM_TIME_DATA] = BAD_TIME_DATA;
+
+            for (int ti = 0; ti < NUM_TIME_DATA; ++ti) {
+                const int   LINE   = TIME_DATA[ti].d_line;
+                const char *STRING = TIME_DATA[ti].d_invalid;
+
+                if (veryVerbose) { T_ P_(LINE) P(STRING) }
+
+                const int LENGTH = static_cast<int>(bsl::strlen(STRING));
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING, 0 != Util::parse(&mX, STRING, LENGTH));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Time>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Time>());
+
+                ASSERTV(LINE, STRING, 0 != Util::parse(&mX, STRING, LENGTH));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Time>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Time>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::TimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::TimeTz>());
+
+                ASSERTV(LINE, STRING, 0 != Util::parse(&mX, STRING, LENGTH));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::TimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::TimeTz>());
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX, StrView(STRING, LENGTH)));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Time>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Time>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX, StrView(STRING, LENGTH)));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Time>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Time>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::TimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::TimeTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX, StrView(STRING, LENGTH)));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::TimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::TimeTz>());
+            }
+
+            const int              NUM_ZONE_DATA =         NUM_BAD_ZONE_DATA;
+            const BadZoneDataRow (&ZONE_DATA)[NUM_ZONE_DATA] = BAD_ZONE_DATA;
+
+            for (int ti = 0; ti < NUM_ZONE_DATA; ++ti) {
+                const int LINE = ZONE_DATA[ti].d_line;
+
+                // Initialize with a *valid* time string, then append an
+                // invalid zone designator.
+
+                bsl::string bad("12:26:52.726");
+
+                // Ensure that 'bad' is initially valid, but only during the
+                // first iteration.
+
+                if (0 == ti) {
+                    const char *STRING = bad.data();
+                    const int   LENGTH = static_cast<int>(bad.length());
+
+                    mX = XX;
+
+                    ASSERT( 0 == Util::parse(&mX, STRING, LENGTH));
+                    ASSERT(mX.is<bdlt::Time>());
+                    ASSERT(XX != mX.the<bdlt::Time>());
+
+                    mX = XX;
+
+                    ASSERT( 0 == Util::parse(&mX, StrView(STRING, LENGTH)));
+                    ASSERT(mX.is<bdlt::Time>());
+                    ASSERT(XX != mX.the<bdlt::Time>());
+                }
+
+                // If 'ZONE_DATA[ti].d_invalid' contains nothing but digits,
+                // appending it to 'bad' simply extends the fractional second
+                // (so 'bad' remains valid).
+
+                if (containsOnlyDigits(ZONE_DATA[ti].d_invalid)) {
+                    continue;
+                }
+
+                bad.append(ZONE_DATA[ti].d_invalid);
+
+                const char *STRING = bad.c_str();
+                const int   LENGTH = static_cast<int>(bad.length());
+
+                if (veryVerbose) { T_ P_(LINE) P(STRING) }
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING, 0 != Util::parse(&mX, STRING, LENGTH));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Time>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Time>());
+
+                ASSERTV(LINE, STRING, 0 != Util::parse(&mX, STRING, LENGTH));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Time>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Time>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::TimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::TimeTz>());
+
+                ASSERTV(LINE, STRING, 0 != Util::parse(&mX, STRING, LENGTH));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::TimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::TimeTz>());
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX, StrView(STRING, LENGTH)));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Time>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Time>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX, StrView(STRING, LENGTH)));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Time>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Time>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::TimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::TimeTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX, StrView(STRING, LENGTH)));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::TimeTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::TimeTz>());
+            }
+        }
+
+        if (verbose) cout << "\nTesting leap seconds and fractional seconds."
+                          << endl;
+        {
+            const struct {
+                int         d_line;      // source line number
+
+                const char *d_input;     // input
+
+                int         d_hour;      // hour under test
+
+                int         d_min;       // minutes under test
+
+                int         d_sec;       // seconds under test
+
+                int         d_msec;      // milli seconds under test
+
+                int         d_usec;      // micro seconds under test
+
+                int         d_offset;    // UTC offset
+
+                bool        d_isTimeTz;  // flag indicating whether the result
+                                         // object is expected to contain
+                                         // 'TimeTz' or 'Time'  object
+            } DATA[] = {
+            // leap seconds
+            //LINE INPUT                    H   M   S   MS   US   OFF  DATETZ
+            //---- ------------------------ --  --  --  ---  ---  ---  ------
+            { L_,  "00:00:60.000",          00, 01, 00, 000, 000,   0, false },
+            { L_,  "22:59:60.999",          23, 00, 00, 999, 000,   0, false },
+            { L_,  "23:59:60.999",          00, 00, 00, 999, 000,   0, false },
+
+            // fractional seconds
+            { L_,  "00:00:00.0001",         00, 00, 00, 000, 100,   0, false },
+            { L_,  "00:00:00.0009",         00, 00, 00, 000, 900,   0, false },
+            { L_,  "00:00:00.00001",        00, 00, 00, 000,  10,   0, false },
+            { L_,  "00:00:00.00049",        00, 00, 00, 000, 490,   0, false },
+            { L_,  "00:00:00.00050",        00, 00, 00, 000, 500,   0, false },
+            { L_,  "00:00:00.00099",        00, 00, 00, 000, 990,   0, false },
+            { L_,  "00:00:00.0000001",      00, 00, 00, 000, 000,   0, false },
+            { L_,  "00:00:00.0000009",      00, 00, 00, 000, 001,   0, false },
+            { L_,  "00:00:00.00000001",     00, 00, 00, 000, 000,   0, false },
+            { L_,  "00:00:00.00000049",     00, 00, 00, 000, 000,   0, false },
+            { L_,  "00:00:00.00000050",     00, 00, 00, 000, 001,   0, false },
+            { L_,  "00:00:00.00000099",     00, 00, 00, 000, 001,   0, false },
+            { L_,  "00:00:00.9994",         00, 00, 00, 999, 400,   0, false },
+            { L_,  "00:00:00.9995",         00, 00, 00, 999, 500,   0, false },
+            { L_,  "00:00:00.9999",         00, 00, 00, 999, 900,   0, false },
+            { L_,  "00:00:59.9999",         00, 00, 59, 999, 900,   0, false },
+            { L_,  "23:59:59.9999",         23, 59, 59, 999, 900,   0, false },
+            { L_,  "00:00:00.9999994",      00, 00, 00, 999, 999,   0, false },
+            { L_,  "00:00:00.9999995",      00, 00,  1, 000, 000,   0, false },
+            { L_,  "00:00:00.9999999",      00, 00,  1, 000, 000,   0, false },
+            { L_,  "00:00:59.9999999",      00,  1, 00, 000, 000,   0, false },
+            { L_,  "23:59:59.9999999",      00, 00, 00, 000, 000,   0, false },
+
+            // omit fractional seconds
+            { L_,  "12:34:45",              12, 34, 45, 000, 000,   0, false },
+            { L_,  "12:34:45Z",             12, 34, 45, 000, 000,   0,  true },
+            { L_,  "12:34:45+00:30",        12, 34, 45, 000, 000,  30,  true },
+            { L_,  "00:00:00+00:30",        00, 00, 00, 000, 000,  30,  true },
+            { L_,  "12:34:45-01:30",        12, 34, 45, 000, 000, -90,  true },
+            { L_,  "23:59:59-01:30",        23, 59, 59, 000, 000, -90,  true },
+
+            { L_, "12:34:45.9999994Z",      12, 34, 45, 999, 999,   0,  true },
+            { L_, "12:34:45.9999994+00:30", 12, 34, 45, 999, 999,  30,  true },
+            { L_, "12:34:45.9999994-01:30", 12, 34, 45, 999, 999, -90,  true },
+            { L_, "12:34:45.9999995Z",      12, 34, 46, 000, 000,   0,  true },
+            { L_, "12:34:45.9999995+00:30", 12, 34, 46, 000, 000,  30,  true },
+            { L_, "12:34:45.9999995-01:30", 12, 34, 46, 000, 000, -90,  true },
+            { L_, "00:00:00.9999999Z",      00, 00, 01, 000, 000,   0,  true },
+            { L_, "00:00:00.9999999+00:30", 00, 00, 01, 000, 000,  30,  true },
+            { L_, "00:00:00.9999999-01:30", 00, 00, 01, 000, 000, -90,  true },
+            { L_, "12:34:60.9999994+00:30", 12, 35, 00, 999, 999,  30,  true },
+            { L_, "12:34:60.9999994-01:30", 12, 35, 00, 999, 999, -90,  true },
+            { L_, "23:59:60.9999999+00:30", 00, 00, 01, 000, 000,  30,  true },
+            { L_, "23:59:60.9999999-01:30", 00, 00, 01, 000, 000, -90,  true },
+            };
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int   LINE      = DATA[ti].d_line;
+                const char *INPUT     = DATA[ti].d_input;
+                const int   LENGTH    = static_cast<int>(bsl::strlen(INPUT));
+                const int   HOUR      = DATA[ti].d_hour;
+                const int   MIN       = DATA[ti].d_min;
+                const int   SEC       = DATA[ti].d_sec;
+                const int   MSEC      = DATA[ti].d_msec;
+                const int   USEC      = DATA[ti].d_usec;
+                const int   OFFSET    = DATA[ti].d_offset;
+                const bool  IS_TIMETZ = DATA[ti].d_isTimeTz;
+
+                if (veryVerbose) { T_ P_(LINE) P(INPUT) }
+
+                const bdlt::Time   EXPECTED_TIME(HOUR, MIN, SEC, MSEC, USEC);
+                const bdlt::TimeTz EXPECTED_TIMETZ(EXPECTED_TIME, OFFSET);
+
+                mX.reset();
+                ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
+
+                ASSERTV(LINE, INPUT, LENGTH,
+                        0 == Util::parse(&mX, INPUT, LENGTH));
+
+                if (IS_TIMETZ) {
+                    ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::TimeTz>());
+                    ASSERTV(LINE, INPUT, LENGTH,
+                            EXPECTED_TIMETZ == X.the<bdlt::TimeTz>());
+                }
+                else {
+                    ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::Time>());
+                    ASSERTV(LINE, INPUT, LENGTH,
+                            EXPECTED_TIME == X.the<bdlt::Time>());
+                }
+
+                mX.reset();
+                ASSERTV(LINE, INPUT, LENGTH, X.isUnset());
+
+                ASSERTV(LINE, INPUT, LENGTH,
+                        0 == Util::parse(&mX, StrView(INPUT, LENGTH)));
+
+                if (IS_TIMETZ) {
+                    ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::TimeTz>());
+                    ASSERTV(LINE, INPUT, LENGTH,
+                            EXPECTED_TIMETZ == X.the<bdlt::TimeTz>());
+                }
+                else {
+                    ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::Time>());
+                    ASSERTV(LINE, INPUT, LENGTH,
+                            EXPECTED_TIME == X.the<bdlt::Time>());
+                }
+            }
+        }
+
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertTestHandlerGuard hG;
+
+            const char    *INPUT  = "01:23:45";
+            const int      LENGTH = static_cast<int>(bsl::strlen(INPUT));
+            const StrView  STRING_REF(INPUT, LENGTH);
+
+            if (veryVerbose) cout << "\t'Invalid result'" << endl;
+            {
+                Util::TimeOrTimeTz *NULL_PTR = 0;
+
+                ASSERT_PASS(Util::parse(     &mX, INPUT, LENGTH));
+                ASSERT_FAIL(Util::parse(NULL_PTR, INPUT, LENGTH));
+
+                ASSERT_PASS(Util::parse(     &mX, STRING_REF));
+                ASSERT_FAIL(Util::parse(NULL_PTR, STRING_REF));
+            }
+
+            if (veryVerbose) cout << "\t'Invalid input'" << endl;
+            {
+                const char    *NULL_PTR = 0;
+                const StrView  NULL_REF;
+
+                ASSERT_PASS(Util::parse(&mX,    INPUT, LENGTH));
+                ASSERT_FAIL(Util::parse(&mX, NULL_PTR, LENGTH));
+
+                ASSERT_PASS(Util::parse(&mX, STRING_REF));
+                ASSERT_FAIL(Util::parse(&mX,   NULL_REF));
+            }
+
+            if (veryVerbose) cout << "\t'Invalid length'" << endl;
+            {
+                ASSERT_PASS(Util::parse(&mX, INPUT, LENGTH));
+                ASSERT_PASS(Util::parse(&mX, INPUT,      0));
+                ASSERT_FAIL(Util::parse(&mX, INPUT,     -1));
+            }
+        }
+      } break;
+      case 15: {
+        // --------------------------------------------------------------------
+        // PARSE 'DateOrDateTz'
+        //
+        // Concerns:
+        //: 1 All ISO 8601 string representations supported by this component
+        //:   (as documented in the header file) for 'Date' and 'DateTz' values
+        //:   are parsed successfully.
+        //:
+        //: 2 If parsing succeeds, the result object contains the expected
+        //:   value of the expected type no matter what value of what type was
+        //:   stored there previously.
+        //:
+        //: 3 The result object contains 'DateTz' value if the optional zone
+        //:   designator is present in the input string, and 'Date' value
+        //:   otherwise.
+        //:
+        //: 4 The result object contains 'DateTz' value if 'Z' suffix is
+        //:   present in the input string, and it is assumed to be UTC.
+        //:
+        //: 5 If parsing succeeds, 0 is returned.
+        //:
+        //: 6 All strings that are not ISO 8601 representations supported by
+        //:   this component for 'Date' and 'DateTz' values are rejected (i.e.,
+        //:   parsing fails).
+        //:
+        //: 7 If parsing fails, the result object is unaffected and a non-zero
+        //:   value is returned.
+        //:
+        //: 8 The entire extent of the input string is parsed.
+        //:
+        //: 9 QoI: Asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   'Date' values ('D'), zone designators ('Z'), and configurations
+        //:   ('C').
+        //:
+        //: 2 Apply the (fully-tested) 'generateRaw' functions to each element
+        //:   in the cross product, 'D x Z x C', of the test data from P-1.
+        //:
+        //: 3 Invoke the 'parse' functions on the strings generated in P-2 and
+        //:   verify that parsing succeeds, i.e., that 0 is returned and the
+        //:   result objects have the expected values.  (C-1..5)
+        //:
+        //: 4 Using the table-driven technique, specify a set of distinct
+        //:   strings that are not ISO 8601 representations supported by this
+        //:   component for 'Date' and 'DateTz' values.
+        //:
+        //: 5 Invoke the 'parse' functions on the strings from P-4 and verify
+        //:   that parsing fails, i.e., that a non-zero value is returned and
+        //:   the result objects are unchanged.  (C-6..8)
+        //:
+        //: 6 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for invalid arguments, but not triggered for adjacent
+        //:   valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-9)
+        //
+        // Testing:
+        //   int parse(DateOrDateTz *, const char *, int);
+        //   int parse(DateOrDateTz *result, const StringRef& string);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "PARSE 'DateOrDateTz'" << endl
+                          << "====================" << endl;
+
+        Util::DateOrDateTz        mX;
+        const Util::DateOrDateTz& X = mX;
+
+        char buffer[Util::k_MAX_STRLEN];
+
+        const bdlt::Date   XX(246, 8, 10);  // 'XX' and 'ZZ' are controls,
+        const bdlt::DateTz ZZ(XX, -7);      // distinct from any test data
+
+        const int                  NUM_DATE_DATA =       NUM_DEFAULT_DATE_DATA;
+        const DefaultDateDataRow (&DATE_DATA)[NUM_DATE_DATA] =
+                                                             DEFAULT_DATE_DATA;
+
+        const int                  NUM_ZONE_DATA =       NUM_DEFAULT_ZONE_DATA;
+        const DefaultZoneDataRow (&ZONE_DATA)[NUM_ZONE_DATA] =
+                                                             DEFAULT_ZONE_DATA;
+
+        const int                  NUM_CNFG_DATA =       NUM_DEFAULT_CNFG_DATA;
+        const DefaultCnfgDataRow (&CNFG_DATA)[NUM_CNFG_DATA] =
+                                                             DEFAULT_CNFG_DATA;
+
+        if (verbose) cout << "\nValid ISO 8601 strings." << endl;
+
+        for (int ti = 0; ti < NUM_DATE_DATA; ++ti) {
+            const int ILINE = DATE_DATA[ti].d_line;
+            const int YEAR  = DATE_DATA[ti].d_year;
+            const int MONTH = DATE_DATA[ti].d_month;
+            const int DAY   = DATE_DATA[ti].d_day;
+
+            const bdlt::Date DATE(YEAR, MONTH, DAY);
+
+            for (int tj = 0; tj < NUM_ZONE_DATA; ++tj) {
+                const int JLINE  = ZONE_DATA[tj].d_line;
+                const int OFFSET = ZONE_DATA[tj].d_offset;
+
+                const bdlt::DateTz DATETZ(DATE, OFFSET);
+
+                if (veryVerbose) { T_ P_(ILINE) P_(JLINE) P_(DATE) P(DATETZ) }
+
+                for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
+                    const int  CLINE     = CNFG_DATA[tc].d_line;
+                    const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
+                    const int  PRECISION = CNFG_DATA[tc].d_precision;
+                    const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
+                    const bool USEZ      = CNFG_DATA[tc].d_useZ;
+
+                    if (veryVerbose) {
+                        T_ P_(CLINE) P_(OMITCOLON) P_(PRECISION)
+                                                           P_(USECOMMA) P(USEZ)
+                    }
+
+                    Config mC;  const Config& C = mC;
+                    gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
+
+                    // without zone designator in parsed string
+                    {
+                        const int LENGTH = Util::generateRaw(buffer, DATE, C);
+
+                        if (veryVerbose) {
+                            const bsl::string STRING(buffer, LENGTH);
+                            T_ T_ P(STRING)
+                        }
+
+                        mX.reset();
+                        ASSERTV(ILINE, JLINE, CLINE, X.isUnset());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                0 == Util::parse(&mX, buffer, LENGTH));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Date>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                DATE == X.the<bdlt::Date>());
+
+                        mX = XX;
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Date>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                XX == X.the<bdlt::Date>());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                0 == Util::parse(&mX, buffer, LENGTH));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Date>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                DATE == X.the<bdlt::Date>());
+
+                        mX = ZZ;
+
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::DateTz>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                ZZ == X.the<bdlt::DateTz>());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                0 == Util::parse(&mX, buffer, LENGTH));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Date>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                DATE == X.the<bdlt::Date>());
+
+                        mX.reset();
+                        ASSERTV(ILINE, JLINE, CLINE, X.isUnset());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                               0 == Util::parse(&mX, StrView(buffer, LENGTH)));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Date>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                DATE == X.the<bdlt::Date>());
+
+                        mX = XX;
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Date>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                XX == X.the<bdlt::Date>());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                               0 == Util::parse(&mX, StrView(buffer, LENGTH)));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Date>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                DATE == X.the<bdlt::Date>());
+
+                        mX = ZZ;
+
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::DateTz>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                ZZ == X.the<bdlt::DateTz>());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                               0 == Util::parse(&mX, StrView(buffer, LENGTH)));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Date>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                DATE == X.the<bdlt::Date>());
+                    }
+
+                    // with zone designator in parsed string
+                    {
+                        const int LENGTH = Util::generateRaw(buffer,
+                                                             DATETZ,
+                                                             C);
+
+                        if (veryVerbose) {
+                            const bsl::string STRING(buffer, LENGTH);
+                            T_ T_ P(STRING)
+                        }
+
+                        mX.reset();
+                        ASSERTV(ILINE, JLINE, CLINE, X.isUnset());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                0 == Util::parse(&mX, buffer, LENGTH));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::DateTz>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                DATETZ == X.the<bdlt::DateTz>());
+
+                        mX = XX;
+
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Date>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                XX == X.the<bdlt::Date>());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                0 == Util::parse(&mX, buffer, LENGTH));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::DateTz>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                DATETZ == X.the<bdlt::DateTz>());
+
+                        mX = ZZ;
+
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::DateTz>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                ZZ == X.the<bdlt::DateTz>());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                0 == Util::parse(&mX, buffer, LENGTH));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::DateTz>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                DATETZ == X.the<bdlt::DateTz>());
+
+                        mX.reset();
+                        ASSERTV(ILINE, JLINE, CLINE, X.isUnset());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                               0 == Util::parse(&mX, StrView(buffer, LENGTH)));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::DateTz>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                DATETZ == X.the<bdlt::DateTz>());
+
+                        mX = XX;
+
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::Date>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                XX == X.the<bdlt::Date>());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                               0 == Util::parse(&mX, StrView(buffer, LENGTH)));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::DateTz>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                DATETZ == X.the<bdlt::DateTz>());
+
+                        mX = ZZ;
+
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::DateTz>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                ZZ == X.the<bdlt::DateTz>());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                               0 == Util::parse(&mX, StrView(buffer, LENGTH)));
+                        ASSERTV(ILINE, JLINE, CLINE, X.is<bdlt::DateTz>());
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                DATETZ == X.the<bdlt::DateTz>());
+                    }
+                }  // loop over 'CNFG_DATA'
+            }  // loop over 'ZONE_DATA'
+        }  // loop over 'DATE_DATA'
+
+        {
+            // verify 'z' is accepted
+
+            const bdlt::DateTz EXPECTED(bdlt::Date(1,2,3) , 0);
+
+            mX.reset();
+            ASSERTV(X.isUnset());
+
+            ASSERTV(0 == Util::parse(&mX, "0001-02-03z", 11));
+            ASSERTV( X.is<bdlt::DateTz>());
+            ASSERTV(EXPECTED == X.the<bdlt::DateTz>());
+        }
+
+        if (verbose) cout << "\nInvalid strings." << endl;
+        {
+            const int              NUM_DATE_DATA =         NUM_BAD_DATE_DATA;
+            const BadDateDataRow (&DATE_DATA)[NUM_DATE_DATA] = BAD_DATE_DATA;
+
+            for (int ti = 0; ti < NUM_DATE_DATA; ++ti) {
+                const int   LINE   = DATE_DATA[ti].d_line;
+                const char *STRING = DATE_DATA[ti].d_invalid;
+
+                if (veryVerbose) { T_ P_(LINE) P(STRING) }
+
+                const int LENGTH = static_cast<int>(bsl::strlen(STRING));
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING, 0 != Util::parse(&mX, STRING, LENGTH));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Date>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Date>());
+
+                ASSERTV(LINE, STRING, 0 != Util::parse(&mX, STRING, LENGTH));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Date>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Date>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DateTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DateTz>());
+
+                ASSERTV(LINE, STRING, 0 != Util::parse(&mX, STRING, LENGTH));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DateTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DateTz>());
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX, StrView(STRING, LENGTH)));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Date>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Date>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX, StrView(STRING, LENGTH)));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Date>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Date>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DateTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DateTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX, StrView(STRING, LENGTH)));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DateTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DateTz>());
+            }
+
+            const int              NUM_ZONE_DATA =         NUM_BAD_ZONE_DATA;
+            const BadZoneDataRow (&ZONE_DATA)[NUM_ZONE_DATA] = BAD_ZONE_DATA;
+
+            for (int ti = 0; ti < NUM_ZONE_DATA; ++ti) {
+                const int LINE = ZONE_DATA[ti].d_line;
+
+                // Initialize with a *valid* date string, then append an
+                // invalid zone designator.
+
+                bsl::string bad("2010-08-17");
+
+                // Ensure that 'bad' is initially valid, but only during the
+                // first iteration.
+
+                if (0 == ti) {
+                    const char *STRING = bad.data();
+                    const int   LENGTH = static_cast<int>(bad.length());
+
+                    mX = XX;
+
+                    ASSERT( 0 == Util::parse(&mX, STRING, LENGTH));
+                    ASSERT(mX.is<bdlt::Date>());
+                    ASSERT(XX != mX.the<bdlt::Date>());
+
+                    mX = XX;
+
+                    ASSERT( 0 == Util::parse(&mX, StrView(STRING, LENGTH)));
+                    ASSERT(mX.is<bdlt::Date>());
+                    ASSERT(XX != mX.the<bdlt::Date>());
+                }
+
+                bad.append(ZONE_DATA[ti].d_invalid);
+
+                const char *STRING = bad.c_str();
+                const int   LENGTH = static_cast<int>(bad.length());
+
+                if (veryVerbose) { T_ P_(LINE) P(STRING) }
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING, 0 != Util::parse(&mX, STRING, LENGTH));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Date>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Date>());
+
+                ASSERTV(LINE, STRING, 0 != Util::parse(&mX, STRING, LENGTH));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Date>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Date>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DateTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DateTz>());
+
+                ASSERTV(LINE, STRING, 0 != Util::parse(&mX, STRING, LENGTH));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DateTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DateTz>());
+
+                mX.reset();
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX, StrView(STRING, LENGTH)));
+                ASSERTV(LINE, STRING, X.isUnset());
+
+                mX = XX;
+                ASSERTV(LINE, STRING, X.is<bdlt::Date>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Date>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX, StrView(STRING, LENGTH)));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::Date>());
+                ASSERTV(LINE, STRING, XX == X.the<bdlt::Date>());
+
+                mX = ZZ;
+                ASSERTV(LINE, STRING, X.is<bdlt::DateTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DateTz>());
+
+                ASSERTV(LINE, STRING,
+                        0 != Util::parse(&mX, StrView(STRING, LENGTH)));
+
+                ASSERTV(LINE, STRING, X.is<bdlt::DateTz>());
+                ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DateTz>());
+            }
+        }
+
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertTestHandlerGuard hG;
+
+            const char *INPUT  = "2013-10-23";
+            const int   LENGTH = static_cast<int>(bsl::strlen(INPUT));
+
+            const StrView stringRef(INPUT, LENGTH);
+            const StrView nullRef;
+
+            if (veryVerbose) cout << "\t'Invalid result'" << endl;
+            {
+                Util::DateOrDateTz *nullPtr = 0;
+
+                ASSERT_PASS(Util::parse(&mX,     INPUT, LENGTH));
+                ASSERT_FAIL(Util::parse(nullPtr, INPUT, LENGTH));
+
+                ASSERT_PASS(Util::parse(&mX,     stringRef));
+                ASSERT_FAIL(Util::parse(nullPtr, stringRef));
+            }
+
+            if (veryVerbose) cout << "\t'Invalid input'" << endl;
+            {
+                ASSERT_PASS(Util::parse(&mX, INPUT, LENGTH));
+                ASSERT_FAIL(Util::parse(&mX,     0, LENGTH));
+
+                ASSERT_PASS(Util::parse(&mX, stringRef));
+                ASSERT_FAIL(Util::parse(&mX, nullRef  ));
+            }
+
+            if (veryVerbose) cout << "\t'Invalid length'" << endl;
+            {
+                ASSERT_PASS(Util::parse(&mX, INPUT, LENGTH));
+                ASSERT_PASS(Util::parse(&mX, INPUT,      0));
+                ASSERT_FAIL(Util::parse(&mX, INPUT,     -1));
+            }
+        }
+      } break;
+      case 14: {
+        // --------------------------------------------------------------------
+        // GENERATE 'DatetimeTz'
+        //
+        // Concerns:
+        //: 1 The output generated by each method has the expected format and
+        //:   contents.
+        //:
+        //: 2 When sufficient capacity is indicated, the method taking
+        //:   'bufferLength' generates a null terminator.
+        //:
+        //: 3 Each method returns the expected value (the correct character
+        //:   count or the supplied 'ostream', depending on the return type).
+        //:
+        //: 4 The value of the supplied object is unchanged.
+        //:
+        //: 5 The configuration that is in effect, whether user-supplied or the
+        //:   process-wide default, has the desired effect on the output.
+        //:
+        //: 6 QoI: Asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //: 1 Create a 'Variant2<Datetime, DatetimeTz>' object, 'X'.
+        //:
+        //: 2 Using the table-driven technique, specify a set of distinct
+        //:   'Date' values (one per row) and their corresponding ISO 8601
+        //:   string representations.
+        //:
+        //: 3 In a second table, specify a set of distinct 'Time' values (one
+        //:   per row) and their corresponding ISO 8601 string representations.
+        //:
+        //: 4 For each element 'R1' in the cross product of the tables from P-2
+        //:   and P-3 create a 'const' 'Datetime' object, 'DT1', from 'R1'.
+        //:
+        //: 5 In a third table, specify a set of distinct timezone values (one
+        //:   per row) and their corresponding ISO 8601 string representations.
+        //:
+        //: 6 For each element 'R2' in the cross product of the tables from
+        //:   P-2, P-3, and P-5:
+        //:
+        //:   1 Create a 'const' 'DatetimeTz' object, 'DT2', from 'R2'.
+        //:
+        //:   2 Assign 'DT1' to 'X'.
+        //:
+        //:   3 Invoke the six methods under test on 'X' for all possible
+        //:     configurations.  Also exercise the method taking 'bufferLength'
+        //:     for all buffer lengths in the range '[0 .. L]', where 'L'
+        //:     provides sufficient capacity for a null terminator and a few
+        //:     extra characters.  For each call, verify that the generated
+        //:     output matches the string from 'R1' (taking the effect of the
+        //:     configuration into account), a null terminator is appended when
+        //:     expected, and the return value is correct.
+        //:
+        //:   4 Assign 'DT2' to 'X'.
+        //:
+        //:   5 Invoke the six methods under test on 'X' for all possible
+        //:     configurations.  Also exercise the method taking 'bufferLength'
+        //:     for all buffer lengths in the range '[0 .. L]', where 'L'
+        //:     provides sufficient capacity for a null terminator and a few
+        //:     extra characters.  For each call, verify that the generated
+        //:     output matches the string from 'R2' (taking the effect of the
+        //:     configuration into account), a null terminator is appended when
+        //:     expected, and the return value is correct.  (C-1..5)
+        //:
+        //: 7 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for invalid arguments, but not triggered for adjacent
+        //:   valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-6)
+        //
+        // Testing:
+        //   int generate(char *, int, const DatetimeOrDatetimeTz&);
+        //   int generate(char*,int,const DatetimeOrDatetimeTz&,const Config&);
+        //   int generate(string *, const DatetimeOrDatetimeTz&);
+        //   int generate(string*, const DatetimeOrDatetimeTz&, const Config&);
+        //   ostream generate(ostream&, const DatetimeOrDatetimeTz&);
+        //   ostream generate(ostream&,const DatetimeOrDatetimeTz&,const Con&);
+        //   int generateRaw(char *, const DatetimeOrDatetimeTz&);
+        //   int generateRaw(char*,const DatetimeOrDatetimeTz&, const Config&);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "GENERATE 'DatetimeTz'" << endl
+                          << "=====================" << endl;
+
+        typedef Util::DatetimeOrDatetimeTz TYPE;
+
+        TYPE        mX;
+        const TYPE& X = mX;
+
+        const int OBJLEN = Util::k_DATETIMETZ_STRLEN;
+        const int BUFLEN = OBJLEN + 4;
+
+        char buffer[BUFLEN];
+        char chaste[BUFLEN];  bsl::memset(chaste, '?', BUFLEN);
+
+        const int                  NUM_DATE_DATA =       NUM_DEFAULT_DATE_DATA;
+        const DefaultDateDataRow (&DATE_DATA)[NUM_DATE_DATA] =
+                                                             DEFAULT_DATE_DATA;
+
+        const int                  NUM_TIME_DATA =       NUM_DEFAULT_TIME_DATA;
+        const DefaultTimeDataRow (&TIME_DATA)[NUM_TIME_DATA] =
+                                                             DEFAULT_TIME_DATA;
+
+        const int                  NUM_ZONE_DATA =       NUM_DEFAULT_ZONE_DATA;
+        const DefaultZoneDataRow (&ZONE_DATA)[NUM_ZONE_DATA] =
+                                                             DEFAULT_ZONE_DATA;
+
+        const int                  NUM_CNFG_DATA =       NUM_DEFAULT_CNFG_DATA;
+        const DefaultCnfgDataRow (&CNFG_DATA)[NUM_CNFG_DATA] =
+                                                             DEFAULT_CNFG_DATA;
+
+        for (int ti = 0; ti < NUM_DATE_DATA; ++ti) {
+            const int   ILINE   = DATE_DATA[ti].d_line;
+            const int   YEAR    = DATE_DATA[ti].d_year;
+            const int   MONTH   = DATE_DATA[ti].d_month;
+            const int   DAY     = DATE_DATA[ti].d_day;
+            const char *ISO8601 = DATE_DATA[ti].d_iso8601;
+
+            const bdlt::Date  DATE(YEAR, MONTH, DAY);
+            const bsl::string EXPECTED_DATE(ISO8601);
+
+            for (int tj = 0; tj < NUM_TIME_DATA; ++tj) {
+                const int   JLINE   = TIME_DATA[tj].d_line;
+                const int   HOUR    = TIME_DATA[tj].d_hour;
+                const int   MIN     = TIME_DATA[tj].d_min;
+                const int   SEC     = TIME_DATA[tj].d_sec;
+                const int   MSEC    = TIME_DATA[tj].d_msec;
+                const int   USEC    = TIME_DATA[tj].d_usec;
+                const char *ISO8601 = TIME_DATA[tj].d_iso8601;
+
+                const bdlt::Time     TIME(HOUR, MIN, SEC, MSEC);
+                const bsl::string    EXPECTED_TIME(ISO8601);
+                const bdlt::Datetime DATETIME(YEAR,
+                                              MONTH,
+                                              DAY,
+                                              HOUR,
+                                              MIN,
+                                              SEC,
+                                              MSEC,
+                                              USEC);
+                const bsl::string    DATETIME_BASE_EXPECTED(
+                                          EXPECTED_DATE + 'T' + EXPECTED_TIME);
+
+                for (int tk = 0; tk < NUM_ZONE_DATA; ++tk) {
+                    const int   KLINE   = ZONE_DATA[tk].d_line;
+                    const int   OFFSET  = ZONE_DATA[tk].d_offset;
+                    const char *ISO8601 = ZONE_DATA[tk].d_iso8601;
+
+                    const bsl::string EXPECTED_ZONE(ISO8601);
+
+                    if (TIME == bdlt::Time() && OFFSET != 0) {
+                        continue;  // skip invalid compositions
+                    }
+
+                    const bdlt::DatetimeTz DATETIMETZ(DATETIME, OFFSET);
+                    const bsl::string      DATETIMETZ_BASE_EXPECTED(
+                                       DATETIME_BASE_EXPECTED + EXPECTED_ZONE);
+
+                if (veryVerbose) {
+                    T_ P_(ILINE) P_(JLINE) P_(DATETIME) P_(DATETIMETZ)
+                       P_(DATETIME_BASE_EXPECTED) P(DATETIMETZ_BASE_EXPECTED)
+                }
+
+                    for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
+                        const int  CLINE     = CNFG_DATA[tc].d_line;
+                        const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
+                        const int  PRECISION = CNFG_DATA[tc].d_precision;
+                        const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
+                        const bool USEZ      = CNFG_DATA[tc].d_useZ;
+
+                        if (veryVerbose) {
+                            T_ P_(CLINE) P_(OMITCOLON) P_(PRECISION)
+                                                           P_(USECOMMA) P(USEZ)
+                        }
+
+                        Config mC;  const Config& C = mC;
+                        gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
+
+                        Config::setDefaultConfiguration(C);
+
+                        bsl::string EXPECTED_DATETIME(DATETIME_BASE_EXPECTED);
+                        updateExpectedPerConfig(&EXPECTED_DATETIME,
+                                                C,
+                                                k_DATETIME_MAX_PRECISION);
+                        bsl::string EXPECTED_DATETIMETZ(
+                                                     DATETIMETZ_BASE_EXPECTED);
+                        updateExpectedPerConfig(&EXPECTED_DATETIMETZ,
+                                                C,
+                                                k_DATETIMETZ_MAX_PRECISION);
+
+                        for (int tt = 0; tt < 2; ++tt) {
+                            const int OBJ_TYPE = tt;
+                            if (OBJ_TYPE) {
+                                mX = DATETIMETZ;
+                            }
+                            else {
+                                mX = DATETIME;
+                            }
+
+                            const bsl::string& EXPECTED =
+                                OBJ_TYPE ? EXPECTED_DATETIMETZ
+                                         : EXPECTED_DATETIME;
+                            const int          OUTLEN =
+                                static_cast<int>(EXPECTED.length());
+
+                            // 'generate' taking 'bufferLength'
+
+                            for (int k = 0; k < BUFLEN; ++k) {
+                                bsl::memset(buffer, '?', BUFLEN);
+
+                                if (veryVeryVerbose) {
+                                    T_ T_ cout << "Length: ";
+                                    P(k)
+                                }
+
+                                ASSERTV(ILINE,
+                                        JLINE,
+                                        KLINE,
+                                        k,
+                                        OUTLEN,
+                                        OUTLEN ==
+                                            Util::generate(buffer, k, X));
+
+                                ASSERTV(
+                                    ILINE,
+                                    JLINE,
+                                    KLINE,
+                                    EXPECTED,
+                                    buffer,
+                                    0 == bsl::memcmp(EXPECTED.c_str(),
+                                                     buffer,
+                                                     k < OUTLEN ? k : OUTLEN));
+
+                                if (k <= OUTLEN) {
+                                    ASSERTV(ILINE,
+                                            JLINE,
+                                            KLINE,
+                                            EXPECTED,
+                                            buffer,
+                                            0 == bsl::memcmp(chaste,
+                                                             buffer + k,
+                                                             BUFLEN - k));
+                                }
+                                else {
+                                    ASSERTV(ILINE,
+                                            JLINE,
+                                            KLINE,
+                                            k,
+                                            OUTLEN,
+                                            '\0' == buffer[OUTLEN]);
+
+                                    ASSERTV(ILINE,
+                                            JLINE,
+                                            KLINE,
+                                            EXPECTED,
+                                            buffer,
+                                            0 == bsl::memcmp(chaste,
+                                                             buffer + k + 1,
+                                                             BUFLEN - k - 1));
+                                }
+                            }
+
+                            // 'generate' to a 'bsl::string'
+                            {
+                                bsl::string mS("qwerty");
+
+                                ASSERTV(ILINE, JLINE, KLINE, OUTLEN,
+                                        OUTLEN == Util::generate(&mS, X));
+
+                                ASSERTV(ILINE, JLINE, KLINE, EXPECTED, mS,
+                                        EXPECTED == mS);
+
+                                if (veryVerbose) { P_(EXPECTED) P(mS); }
+                            }
+
+                            // 'generate' to an 'std::string'
+                            {
+                                std::string mS("qwerty");
+
+                                ASSERTV(ILINE, JLINE, KLINE, OUTLEN,
+                                        OUTLEN == Util::generate(&mS, X));
+
+                                ASSERTV(ILINE, JLINE, KLINE, EXPECTED, mS,
+                                        EXPECTED == mS);
+
+                                if (veryVerbose) { P_(EXPECTED) P(mS); }
+                            }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                            // 'generate' to an 'std::pmr::string'
+                            {
+                                std::pmr::string mS("qwerty");
+
+                                ASSERTV(ILINE, JLINE, KLINE, OUTLEN,
+                                        OUTLEN == Util::generate(&mS, X));
+
+                                ASSERTV(ILINE, JLINE, KLINE, EXPECTED, mS,
+                                        EXPECTED == mS);
+
+                                if (veryVerbose) { P_(EXPECTED) P(mS); }
+                            }
+#endif
+
+                            // 'generate' to an 'ostream'
+                            {
+                                bsl::ostringstream os;
+
+                                ASSERTV(ILINE, JLINE, KLINE,
+                                        &os == &Util::generate(os, X));
+
+                                ASSERTV(ILINE,
+                                        JLINE,
+                                        KLINE,
+                                        EXPECTED,
+                                        os.str(),
+                                        EXPECTED == os.str());
+
+                                if (veryVerbose) { P_(EXPECTED) P(os.str()); }
+                            }
+
+                            // 'generateRaw'
+                            {
+                                bsl::memset(buffer, '?', BUFLEN);
+
+                                ASSERTV(ILINE,
+                                        JLINE,
+                                        KLINE,
+                                        OUTLEN,
+                                        OUTLEN ==
+                                            Util::generateRaw(buffer, X));
+
+                                ASSERTV(ILINE, JLINE, KLINE, EXPECTED, buffer,
+                                        0 == bsl::memcmp(EXPECTED.c_str(),
+                                                         buffer,
+                                                         OUTLEN));
+
+                                ASSERTV(ILINE, JLINE, KLINE, EXPECTED, buffer,
+                                        0 == bsl::memcmp(chaste,
+                                                         buffer + OUTLEN,
+                                                         BUFLEN - OUTLEN));
+                            }
+                        }  // loop over 'OBJ_TYPE' ('Datetime' or 'DatetimeTz')
+                    }  // loop over 'CNFG_DATA'
+
+                    for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
+                        const int  CLINE     = CNFG_DATA[tc].d_line;
+                        const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
+                        const int  PRECISION = CNFG_DATA[tc].d_precision;
+                        const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
+                        const bool USEZ      = CNFG_DATA[tc].d_useZ;
+
+                        if (veryVerbose) {
+                            T_ P_(CLINE) P_(OMITCOLON) P_(PRECISION)
+                                                           P_(USECOMMA) P(USEZ)
+                        }
+
+                        Config mC;  const Config& C = mC;
+                        gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
+
+                        // Set the default configuration to the complement of
+                        // 'C'.
+
+                        Config mDFLT;  const Config& DFLT = mDFLT;
+                        gg(&mDFLT,
+                           9 - PRECISION,
+                           !OMITCOLON,
+                           !USECOMMA,
+                           !USEZ);
+                        Config::setDefaultConfiguration(DFLT);
+
+                        bsl::string EXPECTED_DATETIME(DATETIME_BASE_EXPECTED);
+                        updateExpectedPerConfig(&EXPECTED_DATETIME,
+                                                C,
+                                                k_DATETIME_MAX_PRECISION);
+                        bsl::string EXPECTED_DATETIMETZ(
+                                                     DATETIMETZ_BASE_EXPECTED);
+                        updateExpectedPerConfig(&EXPECTED_DATETIMETZ,
+                                                C,
+                                                k_DATETIMETZ_MAX_PRECISION);
+
+                        for (int tt = 0; tt < 2; ++tt) {
+                            const int OBJ_TYPE = tt;
+                            if (OBJ_TYPE) {
+                                mX = DATETIMETZ;
+                            }
+                            else {
+                                mX = DATETIME;
+                            }
+
+                            const bsl::string& EXPECTED =
+                                OBJ_TYPE ? EXPECTED_DATETIMETZ
+                                         : EXPECTED_DATETIME;
+                            const int          OUTLEN =
+                                static_cast<int>(EXPECTED.length());
+
+                            // 'generate' taking 'bufferLength'
+
+                            for (int k = 0; k < BUFLEN; ++k) {
+                                bsl::memset(buffer, '?', BUFLEN);
+
+                                if (veryVeryVerbose) {
+                                    T_ T_ cout << "Length: "; P(k)
+                                }
+
+                                ASSERTV(ILINE,
+                                        k,
+                                        OUTLEN,
+                                        OUTLEN ==
+                                            Util::generate(buffer, k, X, C));
+
+                                ASSERTV(
+                                    ILINE,
+                                    EXPECTED,
+                                    buffer,
+                                    0 == bsl::memcmp(EXPECTED.c_str(),
+                                                     buffer,
+                                                     k < OUTLEN ? k : OUTLEN));
+
+                                if (k <= OUTLEN) {
+                                    ASSERTV(ILINE, EXPECTED, buffer,
+                                            0 == bsl::memcmp(chaste,
+                                                             buffer + k,
+                                                             BUFLEN - k));
+                                }
+                                else {
+                                    ASSERTV(ILINE, k, OUTLEN,
+                                            '\0' == buffer[OUTLEN]);
+
+                                    ASSERTV(ILINE, EXPECTED, buffer,
+                                            0 == bsl::memcmp(chaste,
+                                                             buffer + k + 1,
+                                                             BUFLEN - k - 1));
+                                }
+                            }
+
+                            // 'generate' to a 'bsl::string'
+                            {
+                                bsl::string mS("qwerty");
+
+                                ASSERTV(ILINE, OUTLEN,
+                                        OUTLEN == Util::generate(&mS, X, C));
+
+                                ASSERTV(ILINE, EXPECTED, mS, EXPECTED == mS);
+
+                                if (veryVerbose) { P_(EXPECTED) P(mS); }
+                            }
+
+                            // 'generate' to an 'std::string'
+                            {
+                                std::string mS("qwerty");
+
+                                ASSERTV(ILINE, OUTLEN,
+                                        OUTLEN == Util::generate(&mS, X, C));
+
+                                ASSERTV(ILINE, EXPECTED, mS, EXPECTED == mS);
+
+                                if (veryVerbose) { P_(EXPECTED) P(mS); }
+                            }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                            // 'generate' to an 'std::pmr::string'
+                            {
+                                std::pmr::string mS("qwerty");
+
+                                ASSERTV(ILINE, OUTLEN,
+                                        OUTLEN == Util::generate(&mS, X, C));
+
+                                ASSERTV(ILINE, EXPECTED, mS, EXPECTED == mS);
+
+                                if (veryVerbose) { P_(EXPECTED) P(mS); }
+                            }
+#endif
+
+                            // 'generate' to an 'ostream'
+                            {
+                                bsl::ostringstream os;
+
+                                ASSERTV(ILINE,
+                                        &os == &Util::generate(os, X, C));
+
+                                ASSERTV(ILINE, EXPECTED, os.str(),
+                                        EXPECTED == os.str());
+
+                                if (veryVerbose) { P_(EXPECTED) P(os.str()); }
+                            }
+
+                            // 'generateRaw'
+                            {
+                                bsl::memset(buffer, '?', BUFLEN);
+
+                                ASSERTV(ILINE,
+                                        OUTLEN,
+                                        OUTLEN ==
+                                            Util::generateRaw(buffer, X, C));
+
+                                ASSERTV(ILINE, EXPECTED, buffer,
+                                        0 == bsl::memcmp(EXPECTED.c_str(),
+                                                         buffer,
+                                                         OUTLEN));
+
+                                ASSERTV(ILINE, EXPECTED, buffer,
+                                        0 == bsl::memcmp(chaste,
+                                                         buffer + OUTLEN,
+                                                         BUFLEN - OUTLEN));
+                            }
+                        }  // loop over 'OBJ_TYPE' ('Datetime' or 'DatetimeTz')
+                    }  // loop over 'CNFG_DATA'
+                }  // loop over 'ZONE_DATA'
+            }  // loop over 'TIME_DATA'
+        }  // loop over 'DATE_DATA'
+
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertTestHandlerGuard hG;
+
+            const Config C;
+
+            if (verbose) cout << "\t'generate'" << endl;
+            {
+                TYPE                  mX;
+                const TYPE&           X = mX;
+                char                  buffer[OBJLEN];
+                char                 *pc = 0;
+                const bdlt::Datetime  DATETIME;
+                mX = DATETIME;
+
+                ASSERT_SAFE_PASS(Util::generate(buffer, OBJLEN, X));
+                ASSERT_SAFE_FAIL(Util::generate(    pc, OBJLEN, X));
+
+                ASSERT_SAFE_PASS(Util::generate(buffer,      0, X));
+                ASSERT_SAFE_FAIL(Util::generate(buffer,     -1, X));
+
+                ASSERT_SAFE_PASS(Util::generate(buffer, OBJLEN, X, C));
+                ASSERT_FAIL(     Util::generate(    pc, OBJLEN, X, C));
+
+                ASSERT_SAFE_PASS(Util::generate(buffer,      0, X, C));
+                ASSERT_FAIL(     Util::generate(buffer,     -1, X, C));
+
+                bsl::string mSB("qwerty");
+                bsl::string *pb = 0;
+
+                ASSERT_PASS(Util::generate(&mSB, X));
+                ASSERT_FAIL(Util::generate(  pb, X));
+
+                ASSERT_PASS(Util::generate(&mSB, X, C));
+                ASSERT_FAIL(Util::generate(  pb, X, C));
+
+                std::string mSS("qwerty");
+                std::string *ps = 0;
+
+                ASSERT_PASS(Util::generate(&mSS, X));
+                ASSERT_FAIL(Util::generate(  ps, X));
+
+                ASSERT_PASS(Util::generate(&mSS, X, C));
+                ASSERT_FAIL(Util::generate(  ps, X, C));
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                std::pmr::string mSP("qwerty");
+                std::pmr::string *pp = 0;
+
+                ASSERT_PASS(Util::generate(&mSP, X));
+                ASSERT_FAIL(Util::generate(  pp, X));
+
+                ASSERT_PASS(Util::generate(&mSP, X, C));
+                ASSERT_FAIL(Util::generate(  pp, X, C));
+#endif
+            }
+
+            if (verbose) cout << "\t'generateRaw'" << endl;
+            {
+                TYPE                  mX;
+                const TYPE&           X = mX;
+                char                  buffer[OBJLEN];
+                char                 *pc = 0;
+                const bdlt::Datetime  DATETIME;
+                mX = DATETIME;
+
+                ASSERT_SAFE_PASS(Util::generateRaw(buffer, X));
+                ASSERT_SAFE_FAIL(Util::generateRaw(    pc, X));
+
+                ASSERT_SAFE_PASS(Util::generateRaw(buffer, X, C));
+                ASSERT_FAIL(     Util::generateRaw(    pc, X, C));
+            }
+        }
+      } break;
+      case 13: {
+        // --------------------------------------------------------------------
+        // GENERATE 'TimeTz'
+        //
+        // Concerns:
+        //: 1 The output generated by each method has the expected format and
+        //:   contents.
+        //:
+        //: 2 When sufficient capacity is indicated, the method taking
+        //:   'bufferLength' generates a null terminator.
+        //:
+        //: 3 Each method returns the expected value (the correct character
+        //:   count or the supplied 'ostream', depending on the return type).
+        //:
+        //: 4 The value of the supplied object is unchanged.
+        //:
+        //: 5 The configuration that is in effect, whether user-supplied or the
+        //:   process-wide default, has the desired effect on the output.
+        //:
+        //: 6 QoI: Asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //: 1 Create a 'Variant2<Time, TimeTz>' object, 'X'.
+        //:
+        //: 2 Using the table-driven technique, specify a set of distinct
+        //:   'Time' values (one per row) and their corresponding ISO 8601
+        //:   string representations.
+        //:
+        //: 3 For each row 'R1' in the table from P-2 create a 'const' 'Time'
+        //:   object, 'T1', from 'R1'.
+        //:
+        //: 4 In a second table, specify a set of distinct timezone values (one
+        //:   per row) and their corresponding ISO 8601 string representations.
+        //:
+        //: 5 For each element 'R2' in the cross product of the tables from P-2
+        //:   and P-4:
+        //:
+        //:   1 Create a 'const' 'TimeTz' object, 'T2', from 'R2'.
+        //:
+        //:   2 Assign 'T1' to 'X'.
+        //:
+        //:   3 Invoke the six methods under test on 'X' for all possible
+        //:     configurations.  Also exercise the method taking 'bufferLength'
+        //:     for all buffer lengths in the range '[0 .. L]', where 'L'
+        //:     provides sufficient capacity for a null terminator and a few
+        //:     extra characters.  For each call, verify that the generated
+        //:     output matches the string from 'R1' (taking the effect of the
+        //:     configuration into account), a null terminator is appended when
+        //:     expected, and the return value is correct.
+        //:
+        //:   4 Assign 'T2' to 'X'.
+        //:
+        //:   5 Invoke the six methods under test on 'X' for all possible
+        //:     configurations.  Also exercise the method taking 'bufferLength'
+        //:     for all buffer lengths in the range '[0 .. L]', where 'L'
+        //:     provides sufficient capacity for a null terminator and a few
+        //:     extra characters.  For each call, verify that the generated
+        //:     output matches the string from 'R2' (taking the effect of the
+        //:     configuration into account), a null terminator is appended when
+        //:     expected, and the return value is correct.  (C-1..5)
+        //:
+        //: 6 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for invalid arguments, but not triggered for adjacent
+        //:   valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-6)
+        //
+        // Testing:
+        //   int generate(char *, int, const TimeOrTimeTzTz&);
+        //   int generate(char *, int, const TimeOrTimeTzTz&, const Config&);
+        //   int generate(string *, const TimeOrTimeTzTz&);
+        //   int generate(string *, const TimeOrTimeTzTz&, const Config&);
+        //   ostream generate(ostream&, const TimeOrTimeTzTz&);
+        //   ostream generate(ostream&, const TimeOrTimeTzTz&, const Config&);
+        //   int generateRaw(char *, const TimeOrTimeTzTz&);
+        //   int generateRaw(char *, const TimeOrTimeTzTz&, const Config&);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "GENERATE 'TimeOrTimeTz'" << endl
+                          << "=======================" << endl;
+
+        typedef Util::TimeOrTimeTz TYPE;
+
+        TYPE        mX;
+        const TYPE& X = mX;
+
+        const int OBJLEN = Util::k_TIMETZ_STRLEN;
+        const int BUFLEN = OBJLEN + 4;
+
+        char buffer[BUFLEN];
+        char chaste[BUFLEN];  bsl::memset(chaste, '?', BUFLEN);
+
+        const int                  NUM_TIME_DATA =       NUM_DEFAULT_TIME_DATA;
+        const DefaultTimeDataRow (&TIME_DATA)[NUM_TIME_DATA] =
+                                                             DEFAULT_TIME_DATA;
+
+        const int                  NUM_ZONE_DATA =       NUM_DEFAULT_ZONE_DATA;
+        const DefaultZoneDataRow (&ZONE_DATA)[NUM_ZONE_DATA] =
+                                                             DEFAULT_ZONE_DATA;
+
+        const int                  NUM_CNFG_DATA =       NUM_DEFAULT_CNFG_DATA;
+        const DefaultCnfgDataRow (&CNFG_DATA)[NUM_CNFG_DATA] =
+                                                             DEFAULT_CNFG_DATA;
+
+        for (int ti = 0; ti < NUM_TIME_DATA; ++ti) {
+            const int   ILINE   = TIME_DATA[ti].d_line;
+            const int   HOUR    = TIME_DATA[ti].d_hour;
+            const int   MIN     = TIME_DATA[ti].d_min;
+            const int   SEC     = TIME_DATA[ti].d_sec;
+            const int   MSEC    = TIME_DATA[ti].d_msec;
+            const int   USEC    = TIME_DATA[ti].d_usec;
+            const char *ISO8601 = TIME_DATA[ti].d_iso8601;
+
+            const bdlt::Time  TIME(HOUR, MIN, SEC, MSEC, USEC);
+            const bsl::string EXPECTED_TIME_BASE(ISO8601);
+
+            for (int tj = 0; tj < NUM_ZONE_DATA; ++tj) {
+                const int   JLINE   = ZONE_DATA[tj].d_line;
+                const int   OFFSET  = ZONE_DATA[tj].d_offset;
+                const char *ISO8601 = ZONE_DATA[tj].d_iso8601;
+
+                const bsl::string EXPECTED_ZONE(ISO8601);
+
+                if (TIME == bdlt::Time() && OFFSET != 0) {
+                    continue;  // skip invalid compositions
+                }
+
+                const bdlt::TimeTz TIMETZ(TIME, OFFSET);
+                const bsl::string  EXPECTED_TIMETZ_BASE(EXPECTED_TIME_BASE +
+                                                        EXPECTED_ZONE);
+
+                if (veryVerbose) {
+                    T_ P_(ILINE) P_(JLINE) P_(TIME) P_(TIMETZ)
+                       P_(EXPECTED_TIME_BASE) P(EXPECTED_TIMETZ_BASE)
+                }
+
+                for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
+                    const int  CLINE     = CNFG_DATA[tc].d_line;
+                    const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
+                    const int  PRECISION = CNFG_DATA[tc].d_precision;
+                    const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
+                    const bool USEZ      = CNFG_DATA[tc].d_useZ;
+
+                    if (veryVerbose) {
+                        T_ P_(CLINE) P_(OMITCOLON) P_(PRECISION)
+                                                           P_(USECOMMA) P(USEZ)
+                    }
+
+                    Config mC;  const Config& C = mC;
+                    gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
+
+                    Config::setDefaultConfiguration(C);
+
+                    bsl::string EXPECTED_TIME(EXPECTED_TIME_BASE);
+                    updateExpectedPerConfig(&EXPECTED_TIME,
+                                            C,
+                                            k_TIME_MAX_PRECISION);
+                    bsl::string EXPECTED_TIMETZ(EXPECTED_TIMETZ_BASE);
+                    updateExpectedPerConfig(&EXPECTED_TIMETZ,
+                                            C,
+                                            k_TIMETZ_MAX_PRECISION);
+
+                    for (int tt = 0; tt < 2; ++tt) {
+                        const int OBJ_TYPE = tt;
+                        if (OBJ_TYPE) {
+                            mX = TIMETZ;
+                        }
+                        else {
+                            mX = TIME;
+                        }
+
+                        const bsl::string& EXPECTED =
+                            OBJ_TYPE ? EXPECTED_TIMETZ : EXPECTED_TIME;
+                        const int          OUTLEN =
+                                           static_cast<int>(EXPECTED.length());
+
+                        // 'generate' taking 'bufferLength'
+
+                        for (int k = 0; k < BUFLEN; ++k) {
+                            bsl::memset(buffer, '?', BUFLEN);
+
+                            if (veryVeryVerbose) {
+                                T_ T_ cout << "Length: "; P(k)
+                            }
+
+                            ASSERTV(ILINE, JLINE, k, OUTLEN,
+                                    OUTLEN == Util::generate(buffer, k, X));
+
+                            ASSERTV(ILINE, JLINE, EXPECTED, buffer,
+                                    0 == bsl::memcmp(EXPECTED.c_str(),
+                                                     buffer,
+                                                     k < OUTLEN ? k : OUTLEN));
+
+                            if (k <= OUTLEN) {
+                                ASSERTV(ILINE, JLINE, EXPECTED, buffer,
+                                        0 == bsl::memcmp(chaste,
+                                                         buffer + k,
+                                                         BUFLEN - k));
+                            }
+                            else {
+                                ASSERTV(ILINE, JLINE, k, OUTLEN,
+                                        '\0' == buffer[OUTLEN]);
+
+                                ASSERTV(ILINE, JLINE, EXPECTED, buffer,
+                                        0 == bsl::memcmp(chaste,
+                                                         buffer + k + 1,
+                                                         BUFLEN - k - 1));
+                            }
+                        }
+
+                        // 'generate' to a 'bsl::string'
+                        {
+                            bsl::string mS("qwerty");
+
+                            ASSERTV(ILINE, JLINE, OUTLEN,
+                                    OUTLEN == Util::generate(&mS, X));
+
+                            ASSERTV(
+                                ILINE, JLINE, EXPECTED, mS, EXPECTED == mS);
+
+                            if (veryVerbose) { P_(EXPECTED) P(mS); }
+                        }
+
+                        // 'generate' to an 'std::string'
+                        {
+                            std::string mS("qwerty");
+
+                            ASSERTV(ILINE, JLINE, OUTLEN,
+                                    OUTLEN == Util::generate(&mS, X));
+
+                            ASSERTV(
+                                ILINE, JLINE, EXPECTED, mS, EXPECTED == mS);
+
+                            if (veryVerbose) { P_(EXPECTED) P(mS); }
+                        }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                        // 'generate' to a 'std::pmr::string'
+                        {
+                            std::pmr::string mS("qwerty");
+
+                            ASSERTV(ILINE, JLINE, OUTLEN,
+                                    OUTLEN == Util::generate(&mS, X));
+
+                            ASSERTV(ILINE, JLINE, EXPECTED, mS, EXPECTED == mS);
+
+                            if (veryVerbose) { P_(EXPECTED) P(mS); }
+                        }
+#endif
+
+                        // 'generate' to an 'ostream'
+                        {
+                            bsl::ostringstream os;
+
+                            ASSERTV(
+                                ILINE, JLINE, &os == &Util::generate(os, X));
+
+                            ASSERTV(ILINE, JLINE, EXPECTED, os.str(),
+                                    EXPECTED == os.str());
+
+                            if (veryVerbose) { P_(EXPECTED) P(os.str()); }
+                        }
+
+                        // 'generateRaw'
+                        {
+                            bsl::memset(buffer, '?', BUFLEN);
+
+                            ASSERTV(ILINE, JLINE, OUTLEN,
+                                    OUTLEN == Util::generateRaw(buffer, X));
+
+                            ASSERTV(ILINE, JLINE, EXPECTED, buffer,
+                                    0 == bsl::memcmp(EXPECTED.c_str(),
+                                                     buffer,
+                                                     OUTLEN));
+
+                            ASSERTV(ILINE, JLINE, EXPECTED, buffer,
+                                    0 == bsl::memcmp(chaste,
+                                                     buffer + OUTLEN,
+                                                     BUFLEN - OUTLEN));
+                        }
+                    }  // loop over 'OBJ_TYPE' ('Time' or 'TimeTz')
+                }  // loop over 'CNFG_DATA'
+
+                for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
+                    const int  CLINE     = CNFG_DATA[tc].d_line;
+                    const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
+                    const int  PRECISION = CNFG_DATA[tc].d_precision;
+                    const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
+                    const bool USEZ      = CNFG_DATA[tc].d_useZ;
+
+                    if (veryVerbose) {
+                        T_ P_(CLINE) P_(OMITCOLON) P_(PRECISION)
+                                                           P_(USECOMMA) P(USEZ)
+                    }
+
+                    Config mC;  const Config& C = mC;
+                    gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
+
+                    // Set the default configuration to the complement of 'C'.
+
+                    Config mDFLT;  const Config& DFLT = mDFLT;
+                    gg(&mDFLT, 9 - PRECISION, !OMITCOLON, !USECOMMA, !USEZ);
+                    Config::setDefaultConfiguration(DFLT);
+
+                    bsl::string EXPECTED_TIME(EXPECTED_TIME_BASE);
+                    updateExpectedPerConfig(&EXPECTED_TIME,
+                                            C,
+                                            k_TIME_MAX_PRECISION);
+                    bsl::string EXPECTED_TIMETZ(EXPECTED_TIMETZ_BASE);
+                    updateExpectedPerConfig(&EXPECTED_TIMETZ,
+                                            C,
+                                            k_TIMETZ_MAX_PRECISION);
+
+                    for (int tt = 0; tt < 2; ++tt) {
+                        const int OBJ_TYPE = tt;
+                        if (OBJ_TYPE) {
+                            mX = TIMETZ;
+                        }
+                        else {
+                            mX = TIME;
+                        }
+
+                        const bsl::string& EXPECTED =
+                            OBJ_TYPE ? EXPECTED_TIMETZ : EXPECTED_TIME;
+                        const int          OUTLEN =
+                                           static_cast<int>(EXPECTED.length());
+
+                        // 'generate' taking 'bufferLength'
+
+                        for (int k = 0; k < BUFLEN; ++k) {
+                            bsl::memset(buffer, '?', BUFLEN);
+
+                            if (veryVeryVerbose) {
+                                T_ T_ cout << "Length: "; P(k)
+                            }
+
+                            ASSERTV(ILINE, k, OUTLEN,
+                                    OUTLEN == Util::generate(buffer, k, X, C));
+
+                            ASSERTV(ILINE, EXPECTED, buffer,
+                                    0 == bsl::memcmp(EXPECTED.c_str(),
+                                                     buffer,
+                                                     k < OUTLEN ? k : OUTLEN));
+
+                            if (k <= OUTLEN) {
+                                ASSERTV(ILINE, EXPECTED, buffer,
+                                        0 == bsl::memcmp(chaste,
+                                                         buffer + k,
+                                                         BUFLEN - k));
+                            }
+                            else {
+                                ASSERTV(
+                                    ILINE, k, OUTLEN, '\0' == buffer[OUTLEN]);
+
+                                ASSERTV(ILINE, EXPECTED, buffer,
+                                        0 == bsl::memcmp(chaste,
+                                                         buffer + k + 1,
+                                                         BUFLEN - k - 1));
+                            }
+                        }
+
+                        // 'generate' to a 'bsl::string'
+                        {
+                            bsl::string mS("qwerty");
+
+                            ASSERTV(ILINE, OUTLEN,
+                                    OUTLEN == Util::generate(&mS, X, C));
+
+                            ASSERTV(ILINE, EXPECTED, mS, EXPECTED == mS);
+
+                            if (veryVerbose) { P_(EXPECTED) P(mS); }
+                        }
+
+                        // 'generate' to an 'std::string'
+                        {
+                            std::string mS("qwerty");
+
+                            ASSERTV(ILINE, OUTLEN,
+                                    OUTLEN == Util::generate(&mS, X, C));
+
+                            ASSERTV(ILINE, EXPECTED, mS, EXPECTED == mS);
+
+                            if (veryVerbose) { P_(EXPECTED) P(mS); }
+                        }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                        // 'generate' to an 'std::pmr::string'
+                        {
+                            std::pmr::string mS("qwerty");
+
+                            ASSERTV(ILINE, OUTLEN,
+                                    OUTLEN == Util::generate(&mS, X, C));
+
+                            ASSERTV(ILINE, EXPECTED, mS, EXPECTED == mS);
+
+                            if (veryVerbose) { P_(EXPECTED) P(mS); }
+                        }
+#endif
+
+                        // 'generate' to an 'ostream'
+                        {
+                            bsl::ostringstream os;
+
+                            ASSERTV(ILINE, &os == &Util::generate(os, X, C));
+
+                            ASSERTV(ILINE, EXPECTED, os.str(),
+                                    EXPECTED == os.str());
+
+                            if (veryVerbose) { P_(EXPECTED) P(os.str()); }
+                        }
+
+                        // 'generateRaw'
+                        {
+                            bsl::memset(buffer, '?', BUFLEN);
+
+                            ASSERTV(ILINE, OUTLEN,
+                                    OUTLEN == Util::generateRaw(buffer, X, C));
+
+                            ASSERTV(ILINE, EXPECTED, buffer,
+                                    0 == bsl::memcmp(EXPECTED.c_str(),
+                                                     buffer,
+                                                     OUTLEN));
+
+                            ASSERTV(ILINE, EXPECTED, buffer,
+                                    0 == bsl::memcmp(chaste,
+                                                     buffer + OUTLEN,
+                                                     BUFLEN - OUTLEN));
+                        }
+                    }  // loop over 'OBJ_TYPE' ('Time' or 'TimeTz')
+                }  // loop over 'CNFG_DATA'
+            }  // loop over 'ZONE_DATA'
+        }  // loop over 'TIME_DATA'
+
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertTestHandlerGuard hG;
+
+            const Config C;
+
+            if (verbose) cout << "\t'generate'" << endl;
+            {
+                TYPE              mX;
+                const TYPE&       X = mX;
+                char              buffer[OBJLEN];
+                char             *pc = 0;
+                const bdlt::Time  TIME;
+                mX = TIME;
+
+                ASSERT_SAFE_PASS(Util::generate(buffer, OBJLEN, X));
+                ASSERT_SAFE_FAIL(Util::generate(    pc, OBJLEN, X));
+
+                ASSERT_SAFE_PASS(Util::generate(buffer,      0, X));
+                ASSERT_SAFE_FAIL(Util::generate(buffer,     -1, X));
+
+                ASSERT_SAFE_PASS(Util::generate(buffer, OBJLEN, X, C));
+                ASSERT_FAIL(     Util::generate(    pc, OBJLEN, X, C));
+
+                ASSERT_SAFE_PASS(Util::generate(buffer,      0, X, C));
+                ASSERT_FAIL(     Util::generate(buffer,     -1, X, C));
+
+                bsl::string  mB("qwerty");
+                bsl::string *pb = 0;
+
+                ASSERT_PASS(Util::generate(&mB, X));
+                ASSERT_FAIL(Util::generate( pb, X));
+
+                ASSERT_PASS(Util::generate(&mB, X, C));
+                ASSERT_FAIL(Util::generate( pb, X, C));
+
+                std::string  mS("qwerty");
+                std::string *ps = 0;
+
+                ASSERT_PASS(Util::generate(&mS, X));
+                ASSERT_FAIL(Util::generate( ps, X));
+
+                ASSERT_PASS(Util::generate(&mS, X, C));
+                ASSERT_FAIL(Util::generate( ps, X, C));
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                std::pmr::string  mP("qwerty");
+                std::pmr::string *pp = 0;
+
+                ASSERT_PASS(Util::generate(&mP, X));
+                ASSERT_FAIL(Util::generate( pp, X));
+
+                ASSERT_PASS(Util::generate(&mP, X, C));
+                ASSERT_FAIL(Util::generate( pp, X, C));
+#endif
+            }
+
+            if (verbose) cout << "\t'generateRaw'" << endl;
+            {
+                TYPE              mX;
+                const TYPE&       X = mX;
+                char              buffer[OBJLEN];
+                char             *pc = 0;
+                const bdlt::Time  TIME;
+                mX = TIME;
+
+                ASSERT_SAFE_PASS(Util::generateRaw(buffer, X));
+                ASSERT_SAFE_FAIL(Util::generateRaw(    pc, X));
+
+                ASSERT_SAFE_PASS(Util::generateRaw(buffer, X, C));
+                ASSERT_FAIL(     Util::generateRaw(    pc, X, C));
+            }
+        }
+
+      } break;
+      case 12: {
+        // --------------------------------------------------------------------
+        // GENERATE 'DateOrDateTz'
+        //
+        // Concerns:
+        //: 1 The output generated by each method has the expected format and
+        //:   contents.
+        //:
+        //: 2 When sufficient capacity is indicated, the method taking
+        //:   'bufferLength' generates a null terminator.
+        //:
+        //: 3 Each method returns the expected value (the correct character
+        //:   count or the supplied 'ostream', depending on the return type).
+        //:
+        //: 4 The value of the supplied object is unchanged.
+        //:
+        //: 5 The configuration that is in effect, whether user-supplied or the
+        //:   process-wide default, has the desired effect on the output.
+        //:
+        //: 6 QoI: Asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //: 1 Create a 'Variant2<Date, DateTz>' object, 'X'.
+        //:
+        //: 2 Using the table-driven technique, specify a set of distinct
+        //:   'Date' values (one per row) and their corresponding ISO 8601
+        //:   string representations.
+        //:
+        //: 3 For each row 'R1' in the table from P-2 create a 'const' 'Date'
+        //:   object, 'D1', from 'R1'.
+        //:
+        //: 4 In a second table, specify a set of distinct timezone values (one
+        //:   per row) and their corresponding ISO 8601 string representations.
+        //:
+        //: 5 For each element 'R2' in the cross product of the tables from P-2
+        //:   and P-4:
+        //:
+        //:   1 Create a 'const' 'DateTz' object, 'D2', from 'R2'.
+        //:
+        //:   2 Assign 'D1' to 'X'.
+        //:
+        //:   3 Invoke the six methods under test on 'X' for all possible
+        //:     configurations.  Also exercise the method taking 'bufferLength'
+        //:     for all buffer lengths in the range '[0 .. L]', where 'L'
+        //:     provides sufficient capacity for a null terminator and a few
+        //:     extra characters.  For each call, verify that the generated
+        //:     output matches the string from 'R1' (taking the effect of the
+        //:     configuration into account), a null terminator is appended when
+        //:     expected, and the return value is correct.
+        //:
+        //:   4 Assign 'D2' to 'X'.
+        //:
+        //:   5 Invoke the six methods under test on 'X' for all possible
+        //:     configurations.  Also exercise the method taking 'bufferLength'
+        //:     for all buffer lengths in the range '[0 .. L]', where 'L'
+        //:     provides sufficient capacity for a null terminator and a few
+        //:     extra characters.  For each call, verify that the generated
+        //:     output matches the string from 'R2' (taking the effect of the
+        //:     configuration into account), a null terminator is appended when
+        //:     expected, and the return value is correct.  (C-1..5)
+        //:
+        //: 6 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for invalid arguments, but not triggered for adjacent
+        //:   valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-6)
+        //
+        // Testing:
+        //   int generate(char *, int, const DateOrDateTz&);
+        //   int generate(char *, int, const DateOrDateTz&, const Config&);
+        //   int generate(string *, const DateOrDateTz&);
+        //   int generate(string *, const DateOrDateTz&, const Config&);
+        //   ostream generate(ostream&, const DateOrDateTz&);
+        //   ostream generate(ostream&, const DateOrDateTz&, const Config&);
+        //   int generateRaw(char *, const DateOrDateTz&);
+        //   int generateRaw(char *, const DateOrDateTz&, const Config&);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "GENERATE 'DateOrDateTz'" << endl
+                          << "=======================" << endl;
+
+        typedef Util::DateOrDateTz TYPE;
+
+        TYPE        mX;
+        const TYPE& X = mX;
+
+        const int OBJLEN = Util::k_DATETZ_STRLEN;
+        const int BUFLEN = OBJLEN + 4;
+
+        char buffer[BUFLEN];
+        char chaste[BUFLEN];  bsl::memset(chaste, '?', BUFLEN);
+
+        const int                  NUM_DATE_DATA =       NUM_DEFAULT_DATE_DATA;
+        const DefaultDateDataRow (&DATE_DATA)[NUM_DATE_DATA] =
+                                                             DEFAULT_DATE_DATA;
+
+        const int                  NUM_ZONE_DATA =       NUM_DEFAULT_ZONE_DATA;
+        const DefaultZoneDataRow (&ZONE_DATA)[NUM_ZONE_DATA] =
+                                                             DEFAULT_ZONE_DATA;
+
+        const int                  NUM_CNFG_DATA =       NUM_DEFAULT_CNFG_DATA;
+        const DefaultCnfgDataRow (&CNFG_DATA)[NUM_CNFG_DATA] =
+                                                             DEFAULT_CNFG_DATA;
+
+        for (int ti = 0; ti < NUM_DATE_DATA; ++ti) {
+            const int   ILINE   = DATE_DATA[ti].d_line;
+            const int   YEAR    = DATE_DATA[ti].d_year;
+            const int   MONTH   = DATE_DATA[ti].d_month;
+            const int   DAY     = DATE_DATA[ti].d_day;
+            const char *ISO8601 = DATE_DATA[ti].d_iso8601;
+
+            const bdlt::Date  DATE(YEAR, MONTH, DAY);
+            const bsl::string EXPECTED_DATE_BASE(ISO8601);
+
+            for (int tj = 0; tj < NUM_ZONE_DATA; ++tj) {
+                const int   JLINE   = ZONE_DATA[tj].d_line;
+                const int   OFFSET  = ZONE_DATA[tj].d_offset;
+                const char *ISO8601 = ZONE_DATA[tj].d_iso8601;
+
+                const bsl::string EXPECTED_ZONE(ISO8601);
+
+                const bdlt::DateTz DATETZ(DATE, OFFSET);
+                const bsl::string  EXPECTED_DATETZ_BASE(EXPECTED_DATE_BASE +
+                                                        EXPECTED_ZONE);
+
+                if (veryVerbose) {
+                    T_ P_(ILINE) P_(JLINE) P_(DATE) P_(DATETZ)
+                       P_(EXPECTED_DATE_BASE) P(EXPECTED_DATETZ_BASE)
+                }
+
+                for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
+                    const int  CLINE     = CNFG_DATA[tc].d_line;
+                    const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
+                    const int  PRECISION = CNFG_DATA[tc].d_precision;
+                    const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
+                    const bool USEZ      = CNFG_DATA[tc].d_useZ;
+
+                    if (veryVerbose) {
+                        T_ P_(CLINE) P_(OMITCOLON) P_(PRECISION)
+                                                           P_(USECOMMA) P(USEZ)
+                    }
+
+                    Config mC;  const Config& C = mC;
+                    gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
+
+                    Config::setDefaultConfiguration(C);
+
+                    bsl::string EXPECTED_DATE(EXPECTED_DATE_BASE);
+                    updateExpectedPerConfig(&EXPECTED_DATE,
+                                            C,
+                                            k_DATE_MAX_PRECISION);
+                    bsl::string EXPECTED_DATETZ(EXPECTED_DATETZ_BASE);
+                    updateExpectedPerConfig(&EXPECTED_DATETZ,
+                                            C,
+                                            k_DATETZ_MAX_PRECISION);
+
+                    for (int tt = 0; tt < 2; ++tt) {
+                        const int OBJ_TYPE = tt;
+                        if (OBJ_TYPE) {
+                            mX = DATETZ;
+                        }
+                        else {
+                            mX = DATE;
+                        }
+
+                        const bsl::string& EXPECTED =
+                            OBJ_TYPE ? EXPECTED_DATETZ : EXPECTED_DATE;
+                        const int          OUTLEN =
+                                           static_cast<int>(EXPECTED.length());
+
+
+                        // 'generate' taking 'bufferLength'
+
+                        for (int k = 0; k < BUFLEN; ++k) {
+                            bsl::memset(buffer, '?', BUFLEN);
+
+                            if (veryVeryVerbose) {
+                                T_ T_ cout << "Length: "; P(k)
+                            }
+
+                            ASSERTV(ILINE, JLINE, k, OUTLEN,
+                                    OUTLEN == Util::generate(buffer, k, X));
+
+                            ASSERTV(ILINE, JLINE, EXPECTED, buffer,
+                                    0 == bsl::memcmp(EXPECTED.c_str(),
+                                                     buffer,
+                                                     k < OUTLEN ? k : OUTLEN));
+
+                            if (k <= OUTLEN) {
+                                ASSERTV(ILINE, JLINE, EXPECTED, buffer,
+                                        0 == bsl::memcmp(chaste,
+                                                         buffer + k,
+                                                         BUFLEN - k));
+                            }
+                            else {
+                                ASSERTV(ILINE, JLINE, k, OUTLEN,
+                                        '\0' == buffer[OUTLEN]);
+
+                                ASSERTV(ILINE, JLINE, EXPECTED, buffer,
+                                        0 == bsl::memcmp(chaste,
+                                                         buffer + k + 1,
+                                                         BUFLEN - k - 1));
+                            }
+
+                        }
+
+                        // 'generate' to a 'bsl::string'
+                        {
+                            bsl::string mS("qwerty");
+
+                            ASSERTV(ILINE, JLINE, OUTLEN,
+                                    OUTLEN == Util::generate(&mS, X));
+
+                            ASSERTV(ILINE, JLINE, EXPECTED, mS, EXPECTED == mS);
+
+                            if (veryVerbose) { P_(EXPECTED) P(mS); }
+                        }
+
+                        // 'generate' to an 'std::string'
+                        {
+                            std::string mS("qwerty");
+
+                            ASSERTV(ILINE, JLINE, OUTLEN,
+                                    OUTLEN == Util::generate(&mS, X));
+
+                            ASSERTV(ILINE, JLINE, EXPECTED, mS, EXPECTED == mS);
+
+                            if (veryVerbose) { P_(EXPECTED) P(mS); }
+                        }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                        // 'generate' to an 'std::pmr::string'
+                        {
+                            std::pmr::string mS("qwerty");
+
+                            ASSERTV(ILINE, JLINE, OUTLEN,
+                                    OUTLEN == Util::generate(&mS, X));
+
+                            ASSERTV(ILINE, JLINE, EXPECTED, mS, EXPECTED == mS);
+
+                            if (veryVerbose) { P_(EXPECTED) P(mS); }
+                        }
+#endif
+
+                        // 'generate' to an 'ostream'
+                        {
+                            bsl::ostringstream os;
+
+                            ASSERTV(
+                                ILINE, JLINE, &os == &Util::generate(os, X));
+
+                            ASSERTV(ILINE, JLINE, EXPECTED, os.str(),
+                                    EXPECTED == os.str());
+
+                            if (veryVerbose) { P_(EXPECTED) P(os.str()); }
+                        }
+
+                        // 'generateRaw'
+                        {
+                            bsl::memset(buffer, '?', BUFLEN);
+
+                            ASSERTV(ILINE, JLINE, OUTLEN,
+                                    OUTLEN == Util::generateRaw(buffer, X));
+
+                            ASSERTV(ILINE, JLINE, EXPECTED, buffer,
+                                    0 == bsl::memcmp(EXPECTED.c_str(),
+                                                     buffer,
+                                                     OUTLEN));
+
+                            ASSERTV(ILINE, JLINE, EXPECTED, buffer,
+                                    0 == bsl::memcmp(chaste,
+                                                     buffer + OUTLEN,
+                                                     BUFLEN - OUTLEN));
+                        }
+                    }  // loop over 'OBJ_TYPE' ('Date' or 'DateTz')
+                }  // loop over 'CNFG_DATA'
+
+                for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
+                    const int  CLINE     = CNFG_DATA[tc].d_line;
+                    const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
+                    const int  PRECISION = CNFG_DATA[tc].d_precision;
+                    const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
+                    const bool USEZ      = CNFG_DATA[tc].d_useZ;
+
+                    if (veryVerbose) {
+                        T_ P_(CLINE) P_(OMITCOLON) P_(PRECISION)
+                                                           P_(USECOMMA) P(USEZ)
+                    }
+
+                    Config mC;  const Config& C = mC;
+                    gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
+
+                    // Set the default configuration to the complement of 'C'.
+
+                    Config mDFLT;  const Config& DFLT = mDFLT;
+                    gg(&mDFLT, 9 - PRECISION, !OMITCOLON, !USECOMMA, !USEZ);
+                    Config::setDefaultConfiguration(DFLT);
+
+                    bsl::string EXPECTED_DATE(EXPECTED_DATE_BASE);
+                    updateExpectedPerConfig(&EXPECTED_DATE,
+                                            C,
+                                            k_DATE_MAX_PRECISION);
+                    bsl::string EXPECTED_DATETZ(EXPECTED_DATETZ_BASE);
+                    updateExpectedPerConfig(&EXPECTED_DATETZ,
+                                            C,
+                                            k_DATETZ_MAX_PRECISION);
+
+                    for (int tt = 0; tt < 2; ++tt) {
+                        const int OBJ_TYPE = tt;
+                        if (OBJ_TYPE) {
+                            mX = DATETZ;
+                        }
+                        else {
+                            mX = DATE;
+                        }
+
+                        const bsl::string& EXPECTED =
+                            OBJ_TYPE ? EXPECTED_DATETZ : EXPECTED_DATE;
+                        const int          OUTLEN =
+                                           static_cast<int>(EXPECTED.length());
+
+                        // 'generate' taking 'bufferLength'
+
+                        for (int k = 0; k < BUFLEN; ++k) {
+                            bsl::memset(buffer, '?', BUFLEN);
+
+                            if (veryVeryVerbose) {
+                                T_ T_ cout << "Length: "; P(k)
+                            }
+
+                            ASSERTV(ILINE, k, OUTLEN,
+                                    OUTLEN == Util::generate(buffer, k, X, C));
+
+                            ASSERTV(ILINE, EXPECTED, buffer,
+                                    0 == bsl::memcmp(EXPECTED.c_str(),
+                                                     buffer,
+                                                     k < OUTLEN ? k : OUTLEN));
+
+                            if (k <= OUTLEN) {
+                                ASSERTV(ILINE, EXPECTED, buffer,
+                                        0 == bsl::memcmp(chaste,
+                                                         buffer + k,
+                                                         BUFLEN - k));
+                            }
+                            else {
+                                ASSERTV(
+                                    ILINE, k, OUTLEN, '\0' == buffer[OUTLEN]);
+
+                                ASSERTV(ILINE, EXPECTED, buffer,
+                                        0 == bsl::memcmp(chaste,
+                                                         buffer + k + 1,
+                                                         BUFLEN - k - 1));
+                            }
+                        }
+
+                        // 'generate' to a 'bsl::string'
+                        {
+                            bsl::string mS("qwerty");
+
+                            ASSERTV(ILINE, OUTLEN,
+                                    OUTLEN == Util::generate(&mS, X, C));
+
+                            ASSERTV(ILINE, EXPECTED, mS, EXPECTED == mS);
+
+                            if (veryVerbose) { P_(EXPECTED) P(mS); }
+                        }
+
+                        // 'generate' to an 'std::string'
+                        {
+                            std::string mS("qwerty");
+
+                            ASSERTV(ILINE, OUTLEN,
+                                    OUTLEN == Util::generate(&mS, X, C));
+
+                            ASSERTV(ILINE, EXPECTED, mS, EXPECTED == mS);
+
+                            if (veryVerbose) { P_(EXPECTED) P(mS); }
+                        }
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                        // 'generate' to an 'std::pmr::string'
+                        {
+                            std::pmr::string mS("qwerty");
+
+                            ASSERTV(ILINE, OUTLEN,
+                                    OUTLEN == Util::generate(&mS, X, C));
+
+                            ASSERTV(ILINE, EXPECTED, mS, EXPECTED == mS);
+
+                            if (veryVerbose) { P_(EXPECTED) P(mS); }
+                        }
+#endif
+
+                        // 'generate' to an 'ostream'
+                        {
+                            bsl::ostringstream os;
+
+                            ASSERTV(ILINE, &os == &Util::generate(os, X, C));
+
+                            ASSERTV(ILINE, EXPECTED, os.str(),
+                                    EXPECTED == os.str());
+
+                            if (veryVerbose) { P_(EXPECTED) P(os.str()); }
+                        }
+
+                        // 'generateRaw'
+                        {
+                            bsl::memset(buffer, '?', BUFLEN);
+
+                            ASSERTV(ILINE, OUTLEN,
+                                    OUTLEN == Util::generateRaw(buffer, X, C));
+
+                            ASSERTV(ILINE, EXPECTED, buffer,
+                                    0 == bsl::memcmp(EXPECTED.c_str(),
+                                                     buffer,
+                                                     OUTLEN));
+
+                            ASSERTV(ILINE, EXPECTED, buffer,
+                                    0 == bsl::memcmp(chaste,
+                                                     buffer + OUTLEN,
+                                                     BUFLEN - OUTLEN));
+                        }
+                    }  // loop over 'OBJ_TYPE' ('Date' or 'DateTz')
+                }  // loop over 'CNFG_DATA'
+            }  // loop over 'ZONE_DATA'
+        }  // loop over 'DATE_DATA'
+
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertTestHandlerGuard hG;
+
+            const Config C;
+
+            if (verbose) cout << "\t'generate'" << endl;
+            {
+                TYPE              mX;
+                const TYPE&       X = mX;
+                char              buffer[OBJLEN];
+                char             *pc = 0;
+                const bdlt::Date  DATE;
+                mX = DATE;
+
+                ASSERT_SAFE_PASS(Util::generate(buffer, OBJLEN, X));
+                ASSERT_SAFE_FAIL(Util::generate(    pc, OBJLEN, X));
+
+                ASSERT_SAFE_PASS(Util::generate(buffer,      0, X));
+                ASSERT_SAFE_FAIL(Util::generate(buffer,     -1, X));
+
+                ASSERT_SAFE_PASS(Util::generate(buffer, OBJLEN, X, C));
+                ASSERT_FAIL(     Util::generate(    pc, OBJLEN, X, C));
+
+                ASSERT_SAFE_PASS(Util::generate(buffer,      0, X, C));
+                ASSERT_FAIL(     Util::generate(buffer,     -1, X, C));
+
+                bsl::string  mB("qwerty");
+                bsl::string *pb = 0;
+
+                ASSERT_PASS(Util::generate(&mB, X));
+                ASSERT_FAIL(Util::generate( pb, X));
+
+                ASSERT_PASS(Util::generate(&mB, X, C));
+                ASSERT_FAIL(Util::generate( pb, X, C));
+
+                std::string  mS("qwerty");
+                std::string *ps = 0;
+
+                ASSERT_PASS(Util::generate(&mS, X));
+                ASSERT_FAIL(Util::generate( ps, X));
+
+                ASSERT_PASS(Util::generate(&mS, X, C));
+                ASSERT_FAIL(Util::generate( ps, X, C));
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                std::pmr::string  mP("qwerty");
+                std::pmr::string *pp = 0;
+
+                ASSERT_PASS(Util::generate(&mP, X));
+                ASSERT_FAIL(Util::generate( pp, X));
+
+                ASSERT_PASS(Util::generate(&mP, X, C));
+                ASSERT_FAIL(Util::generate( pp, X, C));
+#endif
+            }
+
+            if (verbose) cout << "\t'generateRaw'" << endl;
+            {
+               TYPE               mX;
+                const TYPE&       X = mX;
+                char              buffer[OBJLEN];
+                char             *pc = 0;
+                const bdlt::Date  DATE;
+                mX = DATE;
+
+                ASSERT_SAFE_PASS(Util::generateRaw(buffer, X));
+                ASSERT_SAFE_FAIL(Util::generateRaw(    pc, X));
+
+                ASSERT_SAFE_PASS(Util::generateRaw(buffer, X, C));
+                ASSERT_FAIL(     Util::generateRaw(    pc, X, C));
+            }
+        }
       } break;
       case 11: {
         // --------------------------------------------------------------------
@@ -2203,7 +5945,6 @@ if (veryVerbose)
                 ASSERT_FAIL(Util::parse(&resultTz, INPUT,     -1));
             }
         }
-
       } break;
       case 9: {
         // --------------------------------------------------------------------
@@ -2925,7 +6666,7 @@ if (veryVerbose)
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
                         }
 
-                        // 'generate' to a 'string'
+                        // 'generate' to a 'bsl::string'
                         {
                             bsl::string mS("qwerty");
 
@@ -2937,6 +6678,8 @@ if (veryVerbose)
 
                             if (veryVerbose) { P_(EXPECTED) P(mS); }
                         }
+
+                        // 'generate' to an 'std::string'
                         {
                             std::string mS("qwerty");
 
@@ -2948,7 +6691,9 @@ if (veryVerbose)
 
                             if (veryVerbose) { P_(EXPECTED) P(mS); }
                         }
+
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                        // 'generate' to an 'std::pmr::string'
                         {
                             std::pmr::string mS("qwerty");
 
@@ -3061,7 +6806,7 @@ if (veryVerbose)
                             }
                         }
 
-                        // 'generate' to a 'string'
+                        // 'generate' to a 'bsl::string'
                         {
                             bsl::string mS("qwerty");
 
@@ -3072,6 +6817,8 @@ if (veryVerbose)
 
                             if (veryVerbose) { P_(EXPECTED) P(mS); }
                         }
+
+                        // 'generate' to an 'std::string'
                         {
                             std::string mS("qwerty");
 
@@ -3082,7 +6829,9 @@ if (veryVerbose)
 
                             if (veryVerbose) { P_(EXPECTED) P(mS); }
                         }
+
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                        // 'generate' to an 'std::pmr::string'
                         {
                             std::pmr::string mS("qwerty");
 
@@ -3503,7 +7252,7 @@ if (veryVerbose)
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
                     }
 
-                    // 'generate' to a 'string'
+                    // 'generate' to a 'bsl::string'
                     {
                         bsl::string mS("qwerty");
 
@@ -3514,6 +7263,8 @@ if (veryVerbose)
 
                         if (veryVerbose) { P_(EXPECTED) P(mS); }
                     }
+
+                    // 'generate' to an 'std::string'
                     {
                         std::string mS("qwerty");
 
@@ -3524,7 +7275,9 @@ if (veryVerbose)
 
                         if (veryVerbose) { P_(EXPECTED) P(mS); }
                     }
+
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                    // 'generate' to an 'std::pmr::string'
                     {
                         std::pmr::string mS("qwerty");
 
@@ -3629,7 +7382,7 @@ if (veryVerbose)
                         }
                     }
 
-                    // 'generate' to a 'string'
+                    // 'generate' to a 'bsl::string'
                     {
                         bsl::string mS("qwerty");
 
@@ -3640,8 +7393,10 @@ if (veryVerbose)
 
                         if (veryVerbose) { P_(EXPECTED) P(mS); }
                     }
+
+                    // 'generate' to an 'std::string'
                     {
-                        std::string mS("qwerty");
+                       std::string mS("qwerty");
 
                         ASSERTV(ILINE, OUTLEN,
                                 OUTLEN == Util::generate(&mS, X, C));
@@ -3650,7 +7405,9 @@ if (veryVerbose)
 
                         if (veryVerbose) { P_(EXPECTED) P(mS); }
                     }
+
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                    // 'generate' to an 'std::pmr::string'
                     {
                         std::pmr::string mS("qwerty");
 
@@ -4058,7 +7815,7 @@ if (veryVerbose)
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
                     }
 
-                    // 'generate' to a 'string'
+                    // 'generate' to a 'bsl::string'
                     {
                         bsl::string mS("qwerty");
 
@@ -4069,6 +7826,8 @@ if (veryVerbose)
 
                         if (veryVerbose) { P_(EXPECTED) P(mS); }
                     }
+
+                    // 'generate' to an 'std::string'
                     {
                         std::string mS("qwerty");
 
@@ -4079,7 +7838,9 @@ if (veryVerbose)
 
                         if (veryVerbose) { P_(EXPECTED) P(mS); }
                     }
+
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                    // 'generate' to an 'std::pmr::string'
                     {
                         std::pmr::string mS("qwerty");
 
@@ -4184,7 +7945,7 @@ if (veryVerbose)
                         }
                     }
 
-                    // 'generate' to a 'string'
+                    // 'generate' to a 'bsl::string'
                     {
                         bsl::string mS("qwerty");
 
@@ -4195,6 +7956,8 @@ if (veryVerbose)
 
                         if (veryVerbose) { P_(EXPECTED) P(mS); }
                     }
+
+                    // 'generate' to an 'std::string'
                     {
                         std::string mS("qwerty");
 
@@ -4205,7 +7968,9 @@ if (veryVerbose)
 
                         if (veryVerbose) { P_(EXPECTED) P(mS); }
                     }
+
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                    // 'generate' to an 'std::pmr::string'
                     {
                         std::pmr::string mS("qwerty");
 
@@ -4622,7 +8387,7 @@ if (veryVerbose)
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
                     }
 
-                    // 'generate' to a 'string'
+                    // 'generate' to a 'bsl::string'
                     {
                         bsl::string mS("qwerty");
 
@@ -4633,6 +8398,8 @@ if (veryVerbose)
 
                         if (veryVerbose) { P_(EXPECTED) P(mS); }
                     }
+
+                    // 'generate' to an 'std::string'
                     {
                         std::string mS("qwerty");
 
@@ -4643,7 +8410,9 @@ if (veryVerbose)
 
                         if (veryVerbose) { P_(EXPECTED) P(mS); }
                     }
+
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                    // 'generate' to an 'std::pmr::string'
                     {
                         std::pmr::string mS("qwerty");
 
@@ -4748,7 +8517,7 @@ if (veryVerbose)
                         }
                     }
 
-                    // 'generate' to a 'string'
+                    // 'generate' to a 'bsl::string'
                     {
                         bsl::string mS("qwerty");
 
@@ -4759,6 +8528,8 @@ if (veryVerbose)
 
                         if (veryVerbose) { P_(EXPECTED) P(mS); }
                     }
+
+                    // 'generate' to an 'std::string'
                     {
                         std::string mS("qwerty");
 
@@ -4769,7 +8540,9 @@ if (veryVerbose)
 
                         if (veryVerbose) { P_(EXPECTED) P(mS); }
                     }
+
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                    // 'generate' to an 'std::pmr::string'
                     {
                         std::pmr::string mS("qwerty");
 
@@ -5056,7 +8829,7 @@ if (veryVerbose)
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
                 }
 
-                // 'generate' to a 'string'
+                // 'generate' to a 'bsl::string'
                 {
                     bsl::string mS("qwerty");
 
@@ -5066,6 +8839,8 @@ if (veryVerbose)
 
                     if (veryVerbose) { P_(EXPECTED) P(mS); }
                 }
+
+                // 'generate' to an 'std::string'
                 {
                     std::string mS("qwerty");
 
@@ -5075,7 +8850,9 @@ if (veryVerbose)
 
                     if (veryVerbose) { P_(EXPECTED) P(mS); }
                 }
+
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                // 'generate' to an 'std::pmr::string'
                 {
                     std::pmr::string mS("qwerty");
 
@@ -5178,7 +8955,7 @@ if (veryVerbose)
                     }
                 }
 
-                // 'generate' to a 'string'
+                // 'generate' to a 'bsl::string'
                 {
                     bsl::string mS("qwerty");
 
@@ -5189,6 +8966,8 @@ if (veryVerbose)
 
                     if (veryVerbose) { P_(EXPECTED) P(mS); }
                 }
+
+                // 'generate' to an 'std::string'
                 {
                     std::string mS("qwerty");
 
@@ -5199,7 +8978,9 @@ if (veryVerbose)
 
                     if (veryVerbose) { P_(EXPECTED) P(mS); }
                 }
+
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                // 'generate' to an 'std::pmr::string'
                 {
                     std::pmr::string mS("qwerty");
 
@@ -5482,7 +9263,7 @@ if (veryVerbose)
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
                 }
 
-                // 'generate' to a 'string'
+                // 'generate' to a 'bsl::string'
                 {
                     bsl::string mS("qwerty");
 
@@ -5492,6 +9273,8 @@ if (veryVerbose)
 
                     if (veryVerbose) { P_(EXPECTED) P(mS); }
                 }
+
+                // 'generate' to an 'std::string'
                 {
                     std::string mS("qwerty");
 
@@ -5501,7 +9284,9 @@ if (veryVerbose)
 
                     if (veryVerbose) { P_(EXPECTED) P(mS); }
                 }
+
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                // 'generate' to an 'std::pmr::string'
                 {
                     std::pmr::string mS("qwerty");
 
@@ -5604,7 +9389,7 @@ if (veryVerbose)
                     }
                 }
 
-                // 'generate' to a 'string'
+                // 'generate' to a 'bsl::string'
                 {
                     bsl::string mS("qwerty");
 
@@ -5615,6 +9400,8 @@ if (veryVerbose)
 
                     if (veryVerbose) { P_(EXPECTED) P(mS); }
                 }
+
+                // 'generate' to an 'std::string'
                 {
                     std::string mS("qwerty");
 
@@ -5626,6 +9413,7 @@ if (veryVerbose)
                     if (veryVerbose) { P_(EXPECTED) P(mS); }
                 }
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                // 'generate' to an 'std::pmr::string'
                 {
                     std::pmr::string mS("qwerty");
 
@@ -5731,7 +9519,6 @@ if (veryVerbose)
                 ASSERT_FAIL(Util::generateRaw(     0, X, C));
             }
         }
-
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -5879,7 +9666,7 @@ if (veryVerbose)
                     }
                 }
 
-                // 'generate' to a 'string'
+                // 'generate' to a 'bsl::string'
                 {
                     bsl::string mS("qwerty");
 
@@ -5889,6 +9676,8 @@ if (veryVerbose)
 
                     if (veryVerbose) { P_(EXPECTED) P(mS); }
                 }
+
+                // 'generate' to an 'std::string'
                 {
                     std::string mS("qwerty");
 
@@ -5898,7 +9687,9 @@ if (veryVerbose)
 
                     if (veryVerbose) { P_(EXPECTED) P(mS); }
                 }
+
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                // 'generate' to an 'std::pmr::string'
                 {
                     std::pmr::string mS("qwerty");
 
@@ -6001,7 +9792,7 @@ if (veryVerbose)
                     }
                 }
 
-                // 'generate' to a 'string'
+                // 'generate' to a 'bsl::string'
                 {
                     bsl::string mS("qwerty");
 
@@ -6012,6 +9803,8 @@ if (veryVerbose)
 
                     if (veryVerbose) { P_(EXPECTED) P(mS); }
                 }
+
+                // 'generate' to an 'std::string'
                 {
                     std::string mS("qwerty");
 
@@ -6022,7 +9815,9 @@ if (veryVerbose)
 
                     if (veryVerbose) { P_(EXPECTED) P(mS); }
                 }
+
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                // 'generate' to an 'std::pmr::string'
                 {
                     std::pmr::string mS("qwerty");
 

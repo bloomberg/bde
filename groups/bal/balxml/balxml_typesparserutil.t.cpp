@@ -1984,6 +1984,168 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE, ENCODED, IN_DATETIMETZ, decoded,
                             IN_DATETIMETZ == decoded);
                 }
+
+                {
+                    bsl::ostringstream ss;
+                    Print::printDefault(ss, IN_DATE);
+                    ASSERTV(LINE, ss.good());
+
+                    const bsl::string ENCODED(ss.str());
+
+                    bdlb::Variant2<bdlt::Date, bdlt::DateTz> decoded;
+                    ASSERTV(LINE, ENCODED,
+                            0 == Util::parseDefault(&decoded,
+                                                    ENCODED.data(),
+                                                    intLength(ENCODED)));
+                    ASSERTV(LINE, decoded.is<bdlt::Date>())
+                    ASSERTV(LINE, ENCODED, IN_DATE, decoded,
+                            IN_DATE == decoded.the<bdlt::Date>());
+                }
+
+                {
+                    bsl::ostringstream ss;
+                    Print::printDefault(ss, IN_DATETZ);
+                    ASSERTV(LINE, ss.good());
+
+                    const bsl::string ENCODED(ss.str());
+
+                    bdlb::Variant2<bdlt::Date, bdlt::DateTz> decoded;
+                    ASSERTV(LINE, ENCODED,
+                            0 == Util::parseDefault(&decoded,
+                                                    ENCODED.data(),
+                                                    intLength(ENCODED)));
+                    ASSERTV(LINE, decoded.is<bdlt::DateTz>())
+                    ASSERTV(LINE, ENCODED, IN_DATETZ, decoded,
+                            IN_DATETZ == decoded.the<bdlt::DateTz>());
+                }
+
+                {
+                    balxml::EncoderOptions options;
+                    options.setUseZAbbreviationForUtc(true);
+
+                    bsl::ostringstream ss;
+                    Print::printDefault(ss, IN_DATETZ, &options);
+                    ASSERTV(LINE, ss.good());
+
+                    const bsl::string ENCODED(ss.str());
+
+                    bdlb::Variant2<bdlt::Date, bdlt::DateTz> decoded;
+                    ASSERTV(LINE, ENCODED,
+                            0 == Util::parseDefault(&decoded,
+                                                    ENCODED.data(),
+                                                    intLength(ENCODED)));
+                    ASSERTV(LINE, decoded.is<bdlt::DateTz>())
+                    ASSERTV(LINE, ENCODED, IN_DATETZ, decoded,
+                            IN_DATETZ == decoded.the<bdlt::DateTz>());
+                }
+
+                {
+                    bsl::ostringstream ss;
+                    Print::printDefault(ss, IN_TIME);
+                    ASSERTV(LINE, ss.good());
+
+                    const bsl::string ENCODED(ss.str());
+
+                    bdlb::Variant2<bdlt::Time, bdlt::TimeTz> decoded;
+                    ASSERTV(LINE, ENCODED,
+                            0 == Util::parseDefault(&decoded,
+                                                    ENCODED.data(),
+                                                    intLength(ENCODED)));
+                    ASSERTV(LINE, decoded.is<bdlt::Time>())
+                    ASSERTV(LINE, ENCODED, IN_TIME, decoded,
+                            IN_TIME == decoded.the<bdlt::Time>());
+                }
+
+                {
+                    bsl::ostringstream ss;
+                    Print::printDefault(ss, IN_TIMETZ);
+                    ASSERTV(LINE, ss.good());
+
+                    const bsl::string ENCODED(ss.str());
+
+                    bdlb::Variant2<bdlt::Time, bdlt::TimeTz> decoded;
+                    ASSERTV(LINE, ENCODED,
+                            0 == Util::parseDefault(&decoded,
+                                                    ENCODED.data(),
+                                                    intLength(ENCODED)));
+                    ASSERTV(LINE, decoded.is<bdlt::TimeTz>())
+                    ASSERTV(LINE, ENCODED, IN_TIMETZ, decoded,
+                            IN_TIMETZ == decoded.the<bdlt::TimeTz>());
+                }
+
+                {
+                    balxml::EncoderOptions options;
+                    options.setUseZAbbreviationForUtc(true);
+
+                    bsl::ostringstream ss;
+                    Print::printDefault(ss, IN_TIMETZ, &options);
+                    ASSERTV(LINE, ss.good());
+
+                    const bsl::string ENCODED(ss.str());
+
+                    bdlb::Variant2<bdlt::Time, bdlt::TimeTz> decoded;
+                    ASSERTV(LINE, ENCODED,
+                            0 == Util::parseDefault(&decoded,
+                                                    ENCODED.data(),
+                                                    intLength(ENCODED)));
+                    ASSERTV(LINE, decoded.is<bdlt::TimeTz>())
+                    ASSERTV(LINE, ENCODED, IN_TIMETZ, decoded,
+                            IN_TIMETZ == decoded.the<bdlt::TimeTz>());
+                }
+
+                {
+                    bsl::ostringstream ss;
+                    Print::printDefault(ss, IN_DATETIME);
+                    ASSERTV(LINE, ss.good());
+
+                    const bsl::string ENCODED(ss.str());
+
+                    bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz> decoded;
+                    ASSERTV(LINE, ENCODED,
+                            0 == Util::parseDefault(&decoded,
+                                                    ENCODED.data(),
+                                                    intLength(ENCODED)));
+                    ASSERTV(LINE, decoded.is<bdlt::Datetime>())
+                    ASSERTV(LINE, ENCODED, IN_DATETIME, decoded,
+                            IN_DATETIME == decoded.the<bdlt::Datetime>());
+                }
+
+                {
+                    bsl::ostringstream ss;
+                    Print::printDefault(ss, IN_DATETIMETZ);
+                    ASSERTV(LINE, ss.good());
+
+                    const bsl::string ENCODED(ss.str());
+
+                    bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz> decoded;
+                    ASSERTV(LINE, ENCODED,
+                            0 == Util::parseDefault(&decoded,
+                                                    ENCODED.data(),
+                                                    intLength(ENCODED)));
+                    ASSERTV(LINE, decoded.is<bdlt::DatetimeTz>())
+                    ASSERTV(LINE, ENCODED, IN_DATETIMETZ, decoded,
+                            IN_DATETIMETZ == decoded.the<bdlt::DatetimeTz>());
+                }
+
+                {
+                    balxml::EncoderOptions options;
+                    options.setUseZAbbreviationForUtc(true);
+
+                    bsl::ostringstream ss;
+                    Print::printDefault(ss, IN_DATETIMETZ, &options);
+                    ASSERTV(LINE, ss.good());
+
+                    const bsl::string ENCODED(ss.str());
+
+                    bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz> decoded;
+                    ASSERTV(LINE, ENCODED,
+                            0 == Util::parseDefault(&decoded,
+                                                    ENCODED.data(),
+                                                    intLength(ENCODED)));
+                    ASSERTV(LINE, decoded.is<bdlt::DatetimeTz>())
+                    ASSERTV(LINE, ENCODED, IN_DATETIMETZ, decoded,
+                            IN_DATETIMETZ == decoded.the<bdlt::DatetimeTz>());
+                }
             }
         }
       } break;
@@ -2000,7 +2162,7 @@ int main(int argc, char *argv[])
         //: 3 That invalid characters (single- and multi-bytes) are not
         //:   printed.
         //:
-        //: 4 That valid strings are printed correctly, and strings with
+        //: 4 That valid input are printed correctly, and strings with
         //:   invalid characters printed until the first invalid character.
         //
         // Plan:
@@ -4476,6 +4638,263 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(LINE, X,       EXPECTED_RESULT == X);
             }
         }
+
+        if (verbose) cout << "\nUsing 'Date'." << endl;
+        {
+            static const struct {
+                int         d_line;      // source line number
+                const char *d_input_p;   // input
+                int         d_year;      // year under test
+                int         d_month;     // month under test
+                int         d_day;       // day under test
+                bool        d_isValid;   // isValid flag
+            } DATA[] = {
+                //line  input           year month   day  isValid
+                //----  --------------  ---- -----   ---  -------
+                // valid input
+                {  L_, "0001-01-01",     1,     1,    1,   true  },
+                {  L_, "0009-09-09",     9,     9,    9,   true  },
+                {  L_, "0030-10-20",    30,    10,   20,   true  },
+                {  L_, "0842-12-19",   842,    12,   19,   true  },
+                {  L_, "1847-05-19",  1847,     5,   19,   true  },
+                {  L_, "2000-02-29",  2000,     2,   29,   true  },
+                {  L_, "9999-12-31",  9999,    12,   31,   true  },
+
+                // invalid input
+                {  L_, "05-05-05",       1,     1,    1,  false  },
+                {  L_, "005-05-5",       1,     1,    1,  false  },
+                {  L_, "0001 01-01",     1,     1,    1,  false  },
+                {  L_, "0001-01:01",     1,     1,    1,  false  },
+                {  L_, "0000-01-01",     1,     1,    1,  false  },
+                {  L_, "0001-01-32",     1,     1,    1,  false  },
+                {  L_, "0001-04-31",     1,     1,    1,  false  },
+                {  L_, "1970-12-310",    1,     1,    1,  false  },
+
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int         LINE        = DATA[i].d_line;
+                const bsl::string INPUT       = DATA[i].d_input_p;
+                const int         YEAR        = DATA[i].d_year;
+                const int         MONTH       = DATA[i].d_month;
+                const int         DAY         = DATA[i].d_day;
+                const bool        IS_VALID    = DATA[i].d_isValid;
+
+                const bdlt::Date EXP(YEAR, MONTH, DAY);
+
+                bdlt::Date        mX;
+                const bdlt::Date& X = mX;
+
+                int retCode = Util::parseDefault(
+                                             &mX,
+                                             INPUT.c_str(),
+                                             static_cast<int>(INPUT.length()));
+                if (IS_VALID) {
+                    ASSERTV(LINE, retCode,  0   == retCode);
+                    ASSERTV(LINE, INPUT, X, EXP == X      );
+                }
+                else {
+                    ASSERTV(LINE, retCode, 0 != retCode);
+                }
+            }
+        }
+
+        if (verbose) cout << "\nUsing 'DateTz'." << endl;
+        {
+            static const struct {
+                int         d_line;      // source line number
+                const char *d_input_p;   // input
+                int         d_year;      // year under test
+                int         d_month;     // month under test
+                int         d_day;       // day under test
+                int         d_offset;    // offset in minutes from UTC
+                bool        d_isValid;   // isValid flag
+            } DATA[] = {
+                //line  input                year  month   day   off isValid
+                //----  --------------       ----  -----   --- ----- -------
+                // valid input
+                {  L_, "0001-01-01Z",          1,     1,    1,    0,  true  },
+                {  L_, "0009-09-09-02:00",     9,     9,    9, -120,  true  },
+                {  L_, "0030-10-20-00:30",    30,    10,   20,  -30,  true  },
+                {  L_, "0842-12-19+00:00",   842,    12,   19,    0,  true  },
+                {  L_, "1847-05-19+01:30",  1847,     5,   19,   90,  true  },
+                {  L_, "2000-02-29+04:00",  2000,     2,   29,  240,  true  },
+                {  L_, "9999-12-31+23:59",  9999,    12,   31, 1439,  true  },
+
+                // invalid input
+                {  L_, "05-05-05Z",            1,     1,    1,    0, false  },
+                {  L_, "005-05-5-02:00",       1,     1,    1,    0, false  },
+                {  L_, "0001-01-01-02-00",     1,     1,    1,    0, false  },
+                {  L_, "0001-01-01+02",        1,     1,    1,    0, false  },
+                {  L_, "0000-01-01+02:",       1,     1,    1,    0, false  },
+
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int         LINE        = DATA[i].d_line;
+                const bsl::string INPUT       = DATA[i].d_input_p;
+                const int         YEAR        = DATA[i].d_year;
+                const int         MONTH       = DATA[i].d_month;
+                const int         DAY         = DATA[i].d_day;
+                const int         OFFSET      = DATA[i].d_offset;
+                const bool        IS_VALID    = DATA[i].d_isValid;
+
+                const bdlt::DateTz EXP(bdlt::Date(YEAR, MONTH, DAY), OFFSET);
+
+                bdlt::DateTz        mX;
+                const bdlt::DateTz& X = mX;
+
+                int retCode = Util::parseDefault(
+                                             &mX,
+                                             INPUT.c_str(),
+                                             static_cast<int>(INPUT.length()));
+                if (IS_VALID) {
+                    ASSERTV(LINE, retCode,       0   == retCode);
+                    ASSERTV(LINE, INPUT, EXP, X, EXP == X      );
+                }
+                else {
+                    ASSERTV(LINE, retCode, 0 != retCode);
+                }
+            }
+        }
+
+        if (verbose) cout << "\nUsing 'Time'." << endl;
+        {
+            static const struct {
+                int         d_line;      // source line number
+                const char *d_input_p;   // input
+                int         d_hour;      // hour under test
+                int         d_minutes;   // minutes under test
+                int         d_seconds;   // seconds under test
+                int         d_milliSecs; // milli seconds under test
+                int         d_microSecs; // micro seconds under test
+                bool        d_isValid;   // isValid flag
+            } DATA[] = {
+                //LINE INPUT                H    M    S    MS    US    VALID
+                //---- -----------------    --   --   --   ---   ---   -----
+                // valid input
+                {  L_, "00:00:00.000000",    0,   0,   0,    0,    0,   true },
+                {  L_, "01:02:03.004005",    1,   2,   3,    4,    5,   true },
+                {  L_, "10:20:30.040050",   10,  20,  30,   40,   50,   true },
+                {  L_, "19:43:27.805107",   19,  43,  27,  805,  107,   true },
+                {  L_, "23:59:59.999999",   23,  59,  59,  999,  999,   true },
+                {  L_, "24:00:00.0000001",  24,   0,   0,    0,    0,   true },
+
+                // invalid input
+                {  L_, "12:00:1",            0,   0,   0,    0,    0,  false },
+                {  L_, "12:0:01",            0,   0,   0,    0,    0,  false },
+                {  L_, "12:2:001",           0,   0,   0,    0,    0,  false },
+                {  L_, "3:02:001",           0,   0,   0,    0,    0,  false },
+                {  L_, "3:2:0001",           0,   0,   0,    0,    0,  false },
+                {  L_, "20:20:61",           0,   0,   0,    0,    0,  false },
+                {  L_, "03:02:001.",         0,   0,   0,    0,    0,  false },
+                {  L_, "03:02:001,",         0,   0,   0,    0,    0,  false },
+            };
+
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int         LINE        = DATA[i].d_line;
+                const bsl::string INPUT       = DATA[i].d_input_p;
+                const int         HOUR        = DATA[i].d_hour;
+                const int         MINUTE      = DATA[i].d_minutes;
+                const int         SECOND      = DATA[i].d_seconds;
+                const int         MILLISECOND = DATA[i].d_milliSecs;
+                const int         MICROSECOND = DATA[i].d_microSecs;
+                const bool        IS_VALID    = DATA[i].d_isValid;
+
+                const bdlt::Time EXP(HOUR,
+                                     MINUTE,
+                                     SECOND,
+                                     MILLISECOND,
+                                     MICROSECOND);
+
+                bdlt::Time        mX;
+                const bdlt::Time& X = mX;
+
+                int retCode = Util::parseDefault(
+                                             &mX,
+                                             INPUT.c_str(),
+                                             static_cast<int>(INPUT.length()));
+                if (IS_VALID) {
+                    ASSERTV(LINE, retCode,  0   == retCode);
+                    ASSERTV(LINE, INPUT, X, EXP == X      );
+                }
+                else {
+                    ASSERTV(LINE, retCode, 0 != retCode);
+                }
+            }
+        }
+
+        if (verbose) cout << "\nUsing 'TimeTz'." << endl;
+        {
+            static const struct {
+                int         d_line;      // source line number
+                const char *d_input_p;   // input
+                int         d_hour;      // hour under test
+                int         d_minutes;   // minutes under test
+                int         d_seconds;   // seconds under test
+                int         d_milliSecs; // milli seconds under test
+                int         d_microSecs; // micro seconds under test
+                int         d_offset;    // offset in minutes from UTC
+                bool        d_isValid;   // isValid flag
+            } DATA[] = {
+         //LINE INPUT                     H   M   S   MS   US   OFF    VALID
+         //---- -----------------         --  --  --  ---  ---  -----  -----
+         // valid input
+         {  L_, "00:00:00.000000Z",        0,  0,  0,   0,   0,     0,  true },
+         {  L_, "01:02:03.004005-23:59",   1,  2,  3,   4,   5, -1439,  true },
+         {  L_, "10:20:30.040050-02:00",  10, 20, 30,  40,  50,  -120,  true },
+         {  L_, "19:43:27.805107-00:30",  19, 43, 27, 805, 107,   -30,  true },
+         {  L_, "23:59:59.9999991+00:00", 23, 59, 59, 999, 999,     0,  true },
+
+         // invalid input
+         {  L_, "12:00:1Z",                0,  0,  0,   0,   0,     0, false },
+         {  L_, "12:0:01-23:59",           0,  0,  0,   0,   0,     0, false },
+         {  L_, "00:00:00.000000+",        0,  0,  0,   0,   0,     0, false },
+         {  L_, "01:02:03.004005-00",      0,  0,  0,   0,   0,     0, false },
+         {  L_, "10:20:30.040050+03:",     0,  0,  0,   0,   0,     0, false }
+            };
+
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int         LINE        = DATA[i].d_line;
+                const bsl::string INPUT       = DATA[i].d_input_p;
+                const int         HOUR        = DATA[i].d_hour;
+                const int         MINUTE      = DATA[i].d_minutes;
+                const int         SECOND      = DATA[i].d_seconds;
+                const int         MILLISECOND = DATA[i].d_milliSecs;
+                const int         MICROSECOND = DATA[i].d_microSecs;
+                const int         OFFSET      = DATA[i].d_offset;
+                const bool        IS_VALID    = DATA[i].d_isValid;
+
+                const bdlt::TimeTz EXP(bdlt::Time(HOUR,
+                                                  MINUTE,
+                                                  SECOND,
+                                                  MILLISECOND,
+                                                  MICROSECOND),
+                                       OFFSET);
+
+                bdlt::TimeTz        mX;
+                const bdlt::TimeTz& X = mX;
+
+                int retCode = Util::parseDefault(
+                                             &mX,
+                                             INPUT.c_str(),
+                                             static_cast<int>(INPUT.length()));
+                if (IS_VALID) {
+                    ASSERTV(LINE, retCode,       0   == retCode);
+                    ASSERTV(LINE, INPUT, EXP, X, EXP == X      );
+                }
+                else {
+                    ASSERTV(LINE, retCode, 0 != retCode);
+                }
+            }
+        }
+
         if (verbose) cout << "\nUsing 'Datetime'." << endl;
         {
             static const struct {
@@ -4811,6 +5230,7 @@ int main(int argc, char *argv[])
                 }
             }
         }
+
         if (verbose) cout << "\nUsing 'DatetimeTz'." << endl;
         {
             static const struct {
@@ -5193,6 +5613,340 @@ int main(int argc, char *argv[])
                 }
                 else {
                     LOOP2_ASSERT(LINE, retCode, 0 != retCode);
+                }
+            }
+        }
+
+        if (verbose) cout << "\nUsing 'DateOrDateTz'." << endl;
+        {
+            static const struct {
+                int         d_line;      // source line number
+
+                const char *d_input_p;   // input
+
+                int         d_year;      // year under test
+
+                int         d_month;     // month under test
+
+                int         d_day;       // day under test
+
+                int         d_offset;    // offset in minutes from UTC
+
+                bool        d_isValid;   // isValid flag
+
+                bool        d_isDateTz;  // flag indicating whether the result
+                                         // object is expected to contain
+                                         // 'DateTz' or 'Date' object
+            } DATA[] = {
+            //line  input                year  month   day   off valid DateTz
+            //----  --------------       ----  -----   --- ----- ----- ------
+            // valid input
+            {  L_, "0001-01-01",          1,     1,    1,    0,  true, false },
+            {  L_, "0009-09-09",          9,     9,    9,    0,  true, false },
+            {  L_, "0030-10-20",         30,    10,   20,    0,  true, false },
+            {  L_, "0842-12-19",        842,    12,   19,    0,  true, false },
+            {  L_, "1847-05-19",       1847,     5,   19,    0,  true, false },
+            {  L_, "2000-02-29",       2000,     2,   29,    0,  true, false },
+            {  L_, "9999-12-31",       9999,    12,   31,    0,  true, false },
+
+            {  L_, "0001-01-01Z",         1,     1,    1,    0,  true,  true },
+            {  L_, "0009-09-09-02:00",    9,     9,    9, -120,  true,  true },
+            {  L_, "0030-10-20-00:30",   30,    10,   20,  -30,  true,  true },
+            {  L_, "0842-12-19+00:00",  842,    12,   19,    0,  true,  true },
+            {  L_, "1847-05-19+01:30", 1847,     5,   19,   90,  true,  true },
+            {  L_, "2000-02-29+04:00", 2000,     2,   29,  240,  true,  true },
+            {  L_, "9999-12-31+23:59", 9999,    12,   31, 1439,  true,  true },
+
+            // invalid input
+            {  L_, "05-05-05",            1,     1,    1,    0, false, false },
+            {  L_, "005-05-5",            1,     1,    1,    0, false, false },
+            {  L_, "0001 01-01",          1,     1,    1,    0, false, false },
+            {  L_, "0001-01:01",          1,     1,    1,    0, false, false },
+            {  L_, "0000-01-01",          1,     1,    1,    0, false, false },
+            {  L_, "0001-01-32",          1,     1,    1,    0, false, false },
+            {  L_, "0001-04-31",          1,     1,    1,    0, false, false },
+            {  L_, "1970-12-310",         1,     1,    1,    0, false, false },
+
+            {  L_, "05-05-05Z",           1,     1,    1,    0, false, false },
+            {  L_, "005-05-5-02:00",      1,     1,    1,    0, false, false },
+            {  L_, "0001-01-01-02-00",    1,     1,    1,    0, false, false },
+            {  L_, "0001-01-01+02",       1,     1,    1,    0, false, false },
+            {  L_, "0000-01-01+02:",      1,     1,    1,    0, false, false },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int         LINE      = DATA[i].d_line;
+                const bsl::string INPUT     = DATA[i].d_input_p;
+                const int         YEAR      = DATA[i].d_year;
+                const int         MONTH     = DATA[i].d_month;
+                const int         DAY       = DATA[i].d_day;
+                const int         OFFSET    = DATA[i].d_offset;
+                const bool        IS_VALID  = DATA[i].d_isValid;
+                const bool        IS_DATETZ = DATA[i].d_isDateTz;
+
+                const bdlt::Date   EXP_DATE(YEAR, MONTH, DAY);
+                const bdlt::DateTz EXP_DATETZ(EXP_DATE, OFFSET);
+
+                bdlb::Variant2<bdlt::Date, bdlt::DateTz>        mX;
+                const bdlb::Variant2<bdlt::Date, bdlt::DateTz>& X = mX;
+
+                int retCode = Util::parseDefault(
+                                             &mX,
+                                             INPUT.c_str(),
+                                             static_cast<int>(INPUT.length()));
+                if (IS_VALID) {
+                    ASSERTV(LINE, retCode, 0 == retCode);
+                    if (IS_DATETZ) {
+                        ASSERTV(LINE, X.is<bdlt::DateTz>());
+                        ASSERTV(LINE, INPUT, EXP_DATETZ, X.the<bdlt::DateTz>(),
+                                EXP_DATETZ == X.the<bdlt::DateTz>());
+                    }
+                    else {
+                        ASSERTV(LINE, X.is<bdlt::Date>());
+                        ASSERTV(LINE, INPUT, EXP_DATE, X.the<bdlt::Date>(),
+                                EXP_DATE == X.the<bdlt::Date>());
+                    }
+                }
+                else {
+                    ASSERTV(LINE, retCode, 0 != retCode);
+                    ASSERTV(LINE, X.isUnset());
+                }
+            }
+        }
+
+        if (verbose) cout << "\nUsing 'TimeOrTimeTz'." << endl;
+        {
+            static const struct {
+                int         d_line;      // source line number
+
+                const char *d_input_p;   // input
+
+                int         d_hour;      // hour under test
+
+                int         d_minutes;   // minutes under test
+
+                int         d_seconds;   // seconds under test
+
+                int         d_milliSecs; // milli seconds under test
+
+                int         d_microSecs; // micro seconds under test
+
+                int         d_offset;    // offset in minutes from UTC
+
+                bool        d_isValid;   // isValid flag
+
+                bool        d_isTimeTz;  // flag indicating whether the result
+                                         // object is expected to contain
+                                         // 'TimeTz' or 'Time' object
+            } DATA[] = {
+  //LINE INPUT                     H   M   S   MS   US   OFF    VALID  TIMETZ
+  //---- -----------------         --  --  --  ---  ---  -----  -----  ------
+  // valid input
+  {  L_, "00:00:00.000000",         0,  0,  0,   0,   0,     0,  true, false },
+  {  L_, "01:02:03.004005",         1,  2,  3,   4,   5,     0,  true, false },
+  {  L_, "10:20:30.040050",        10, 20, 30,  40,  50,     0,  true, false },
+  {  L_, "19:43:27.805107",        19, 43, 27, 805, 107,     0,  true, false },
+  {  L_, "23:59:59.999999",        23, 59, 59, 999, 999,     0,  true, false },
+  {  L_, "24:00:00.0000001",       24,  0,  0,   0,   0,     0,  true, false },
+
+  {  L_, "00:00:00.000000Z",        0,  0,  0,   0,   0,     0,  true,  true },
+  {  L_, "01:02:03.004005-23:59",   1,  2,  3,   4,   5, -1439,  true,  true },
+  {  L_, "10:20:30.040050-02:00",  10, 20, 30,  40,  50,  -120,  true,  true },
+  {  L_, "19:43:27.805107-00:30",  19, 43, 27, 805, 107,   -30,  true,  true },
+  {  L_, "23:59:59.9999991+00:00", 23, 59, 59, 999, 999,     0,  true,  true },
+
+  // invalid input
+  {  L_, "12:00:1",                 0,  0,  0,   0,   0,     0, false, false },
+  {  L_, "12:0:01",                 0,  0,  0,   0,   0,     0, false, false },
+  {  L_, "12:2:001",                0,  0,  0,   0,   0,     0, false, false },
+  {  L_, "3:02:001",                0,  0,  0,   0,   0,     0, false, false },
+  {  L_, "3:2:0001",                0,  0,  0,   0,   0,     0, false, false },
+  {  L_, "20:20:61",                0,  0,  0,   0,   0,     0, false, false },
+  {  L_, "03:02:001.",              0,  0,  0,   0,   0,     0, false, false },
+  {  L_, "03:02:001,",              0,  0,  0,   0,   0,     0, false, false },
+
+  {  L_, "12:00:1Z",                0,  0,  0,   0,   0,     0, false, false },
+  {  L_, "12:0:01-23:59",           0,  0,  0,   0,   0,     0, false, false },
+  {  L_, "00:00:00.000000+",        0,  0,  0,   0,   0,     0, false, false },
+  {  L_, "01:02:03.004005-00",      0,  0,  0,   0,   0,     0, false, false },
+  {  L_, "10:20:30.040050+03:",     0,  0,  0,   0,   0,     0, false, false }
+            };
+
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int         LINE        = DATA[i].d_line;
+                const bsl::string INPUT       = DATA[i].d_input_p;
+                const int         HOUR        = DATA[i].d_hour;
+                const int         MINUTE      = DATA[i].d_minutes;
+                const int         SECOND      = DATA[i].d_seconds;
+                const int         MILLISECOND = DATA[i].d_milliSecs;
+                const int         MICROSECOND = DATA[i].d_microSecs;
+                const int         OFFSET      = DATA[i].d_offset;
+                const bool        IS_VALID    = DATA[i].d_isValid;
+                const bool        IS_TIMETZ   = DATA[i].d_isTimeTz;
+
+                const bdlt::Time EXP_TIME(HOUR,
+                                          MINUTE,
+                                          SECOND,
+                                          MILLISECOND,
+                                          MICROSECOND);
+                const bdlt::TimeTz EXP_TIMETZ(EXP_TIME, OFFSET);
+
+                bdlb::Variant2<bdlt::Time, bdlt::TimeTz>        mX;
+                const bdlb::Variant2<bdlt::Time, bdlt::TimeTz>& X = mX;
+
+                int retCode = Util::parseDefault(
+                                             &mX,
+                                             INPUT.c_str(),
+                                             static_cast<int>(INPUT.length()));
+                if (IS_VALID) {
+                    ASSERTV(LINE, retCode, 0 == retCode);
+                    if (IS_TIMETZ) {
+                        ASSERTV(LINE, X.is<bdlt::TimeTz>());
+                        ASSERTV(LINE, INPUT, EXP_TIMETZ, X.the<bdlt::TimeTz>(),
+                                EXP_TIMETZ == X.the<bdlt::TimeTz>());
+                    }
+                    else {
+                        ASSERTV(LINE, X.is<bdlt::Time>());
+                        ASSERTV(LINE, INPUT, EXP_TIME, X.the<bdlt::Time>(),
+                                EXP_TIME == X.the<bdlt::Time>());
+                    }
+                }
+                else {
+                    ASSERTV(LINE, retCode, 0 != retCode);
+                    ASSERTV(LINE, X.isUnset());
+                }
+            }
+        }
+
+        if (verbose) cout << "\nUsing 'DatetimeTz'." << endl;
+        {
+            static const struct {
+                int         d_line;          // source line number
+
+                const char *d_input_p;       // input
+
+                int         d_year;          // year under test
+
+                int         d_month;         // month under test
+
+                int         d_day;           // day under test
+
+                int         d_hour;          // hour under test
+
+                int         d_minutes;       // minutes under test
+
+                int         d_seconds;       // seconds under test
+
+                int         d_milliSecs;     // milli seconds under test
+
+                int         d_microSecs;     // micro seconds under test
+
+                int         d_tzoffset;      // time zone offset
+
+                bool        d_isValid;       // isValid flag
+
+                bool        d_isDatetimeTz;  // flag indicating whether the
+                                             // result object is expected to
+                                             // contain 'DatetimeTz' or
+                                             // 'Datetime' object
+            } DATA[] = {
+//line  input
+//----  ---------------------------------------
+//       year  month   day   hour   min   sec    ms   us   off valid   tz
+//       ----  -----   ---   ----   ---   ---    --   --  ---- ------  -----
+    // valid input
+    {   L_, "0001-01-01T00:00:00.000",
+            1,     1,    1,     0,    0,    0,    0,   0,    0,  true, false },
+    {   L_, "0001-01-01T00:00:00.000000",
+            1,     1,    1,     0,    0,    0,    0,   0,    0,  true, false },
+    {   L_, "9999-12-31T00:00:00.000000",
+         9999,    12,   31,     0,    0,    0,    0,   0,    0,  true, false },
+    {   L_, "9999-12-31T23:59:59.000000",
+         9999,    12,   31,    23,   59,   59,    0,   0,    0,  true, false },
+
+    {   L_, "0001-01-01T00:00:00.000Z",
+            1,     1,    1,     0,    0,    0,    0,   0,    0,  true,  true },
+    {   L_, "0001-01-01T00:00:00.000+00:45",
+            1,     1,    1,     0,    0,    0,    0,   0,   45,  true,  true },
+    {   L_, "9999-12-31T00:00:00.000000+00:00",
+         9999,    12,   31,     0,    0,    0,    0,   0,    0,  true,  true },
+    {   L_, "9999-12-31T23:59:59.9999991+23:59",
+         9999,    12,   31,    23,   59,   59,  999, 999, 1439,  true,  true },
+
+    // invalid input
+    {   L_, "0001-00-01T00:00:00.000",
+            1,     1,    1,    24,    0,    0,    0,   0,    0, false, false },
+    {   L_, "0000-01-01T00:00:00.000000",
+            1,     1,    1,    24,    0,    0,    0,   0,    0, false, false },
+    {   L_, "0001-01-01T00:61:00.000",
+            1,     1,    1,    24,    0,    0,    0,   0,    0, false, false },
+    {   L_, "0001-01-01T00:00:61.000",
+            1,     1,    1,    24,    0,    0,    0,   0,    0, false, false },
+
+    {   L_, "0000-01-01T00:00:00.000000+00:00",
+            1,     1,    1,    24,    0,    0,    0,   0,    0, false, false },
+    {   L_, "0001-00-01T00:00:00.000000+00:00",
+            1,     1,    1,    24,    0,    0,    0,   0,    0, false, false },
+    {   L_, "0001-01-01T00:00:00.000000-24:00",
+            1,     1,    1,    24,    0,    0,    0,   0,    0, false, false },
+    {   L_, "0001-01-01T00:00:00.000000-00:61",
+            1,     1,    1,    24,    0,    0,    0,   0,    0, false, false },
+        };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int         LINE          = DATA[i].d_line;
+                const bsl::string INPUT         = DATA[i].d_input_p;
+                const int         YEAR          = DATA[i].d_year;
+                const int         MONTH         = DATA[i].d_month;
+                const int         DAY           = DATA[i].d_day;
+                const int         HOUR          = DATA[i].d_hour;
+                const int         MINUTE        = DATA[i].d_minutes;
+                const int         SECOND        = DATA[i].d_seconds;
+                const int         MILLISECOND   = DATA[i].d_milliSecs;
+                const int         MICROSECOND   = DATA[i].d_microSecs;
+                const int         OFFSET        = DATA[i].d_tzoffset;
+                const bool        IS_VALID      = DATA[i].d_isValid;
+                const bool        IS_DATETIMETZ = DATA[i].d_isDatetimeTz;
+
+                const bdlt::Datetime   EXP_DATETIME(YEAR,
+                                                    MONTH,
+                                                    DAY,
+                                                    HOUR,
+                                                    MINUTE,
+                                                    SECOND,
+                                                    MILLISECOND,
+                                                    MICROSECOND);
+                const bdlt::DatetimeTz EXP_DATETIMETZ(EXP_DATETIME, OFFSET);
+
+                bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>        mX;
+                const bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>& X = mX;
+
+                int retCode = Util::parseDefault(
+                                             &mX,
+                                             INPUT.c_str(),
+                                             static_cast<int>(INPUT.length()));
+                if (IS_VALID) {
+                    ASSERTV(LINE, retCode, 0 == retCode);
+                    if (IS_DATETIMETZ) {
+                        ASSERTV(LINE, X.is<bdlt::DatetimeTz>());
+                        ASSERTV(LINE, INPUT,
+                                EXP_DATETIMETZ, X.the<bdlt::DatetimeTz>(),
+                                EXP_DATETIMETZ == X.the<bdlt::DatetimeTz>());
+                    }
+                    else {
+                        ASSERTV(LINE, X.is<bdlt::Datetime>());
+                        ASSERTV(LINE, INPUT,
+                                EXP_DATETIME, X.the<bdlt::Datetime>(),
+                                EXP_DATETIME == X.the<bdlt::Datetime>());
+                    }
+                }
+                else {
+                    ASSERTV(LINE, retCode, 0 != retCode);
+                    ASSERTV(LINE, X.isUnset());
                 }
             }
         }
