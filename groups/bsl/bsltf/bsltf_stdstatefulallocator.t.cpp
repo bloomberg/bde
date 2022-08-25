@@ -79,6 +79,7 @@ using bsls::NameOf;
 // [14] propagate_on_container_copy_assignment
 // [14] propagate_on_container_move_assignment
 // [14] propagate_on_container_swap
+// [14] is_always_equal
 //
 // CREATORS
 // [ 2] StdStatefulAllocator(bslma::allocator *);
@@ -258,25 +259,74 @@ class TestDriver {
     // 'CA'   - PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT
     // 'SWAP' - PROPAGATE_ON_CONTAINER_SWAP,
     // 'MA'   - PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT
+    // 'IAE'  - IS_ALWAYS_EQUAL
     //
-    //                           TYPE   CC     CA     SWAP   MA
-    //                           -----  -----  -----  -----  -----
-    typedef StdStatefulAllocator<VALUE, false, false, false, false> Obj0;
-    typedef StdStatefulAllocator<VALUE, false, false, false, true>  Obj1;
-    typedef StdStatefulAllocator<VALUE, false, false, true,  false> Obj2;
-    typedef StdStatefulAllocator<VALUE, false, false, true,  true>  Obj3;
-    typedef StdStatefulAllocator<VALUE, false, true,  false, false> Obj4;
-    typedef StdStatefulAllocator<VALUE, false, true,  false, true>  Obj5;
-    typedef StdStatefulAllocator<VALUE, false, true,  true,  false> Obj6;
-    typedef StdStatefulAllocator<VALUE, false, true,  true,  true>  Obj7;
-    typedef StdStatefulAllocator<VALUE, true,  false, false, false> Obj8;
-    typedef StdStatefulAllocator<VALUE, true,  false, false, true>  Obj9;
-    typedef StdStatefulAllocator<VALUE, true,  false, true,  false> Obj10;
-    typedef StdStatefulAllocator<VALUE, true,  false, true,  true>  Obj11;
-    typedef StdStatefulAllocator<VALUE, true,  true,  false, false> Obj12;
-    typedef StdStatefulAllocator<VALUE, true,  true,  false, true>  Obj13;
-    typedef StdStatefulAllocator<VALUE, true,  true,  true,  false> Obj14;
-    typedef StdStatefulAllocator<VALUE, true,  true,  true,  true>  Obj15;
+    //                       TYPE   CC     CA     SWAP   MA     IAE
+    //                       -----  -----  -----  -----  -----  ------
+    typedef
+        StdStatefulAllocator<VALUE, false, false, false, false, false> Obj0;
+    typedef
+        StdStatefulAllocator<VALUE, false, false, false, false, true>  Obj1;
+    typedef
+        StdStatefulAllocator<VALUE, false, false, false, true,  false> Obj2;
+    typedef
+        StdStatefulAllocator<VALUE, false, false, false, true,  true>  Obj3;
+    typedef
+        StdStatefulAllocator<VALUE, false, false, true,  false, false> Obj4;
+    typedef
+        StdStatefulAllocator<VALUE, false, false, true,  false, true>  Obj5;
+    typedef
+        StdStatefulAllocator<VALUE, false, false, true,  true,  false> Obj6;
+    typedef
+        StdStatefulAllocator<VALUE, false, false, true,  true,  true>  Obj7;
+    typedef
+        StdStatefulAllocator<VALUE, false, true,  false, false, false> Obj8;
+    typedef
+        StdStatefulAllocator<VALUE, false, true,  false, false, true>  Obj9;
+    typedef
+        StdStatefulAllocator<VALUE, false, true,  false, true,  false> Obj10;
+    typedef
+        StdStatefulAllocator<VALUE, false, true,  false, true,  true>  Obj11;
+    typedef
+        StdStatefulAllocator<VALUE, false, true,  true,  false, false> Obj12;
+    typedef
+        StdStatefulAllocator<VALUE, false, true,  true,  false, true>  Obj13;
+    typedef
+        StdStatefulAllocator<VALUE, false, true,  true,  true,  false> Obj14;
+    typedef
+        StdStatefulAllocator<VALUE, false, true,  true,  true,  true>  Obj15;
+    typedef
+        StdStatefulAllocator<VALUE, true, false, false, false, false>  Obj16;
+    typedef
+        StdStatefulAllocator<VALUE, true,  false, false, false, true>  Obj17;
+    typedef
+        StdStatefulAllocator<VALUE, true,  false, false, true,  false> Obj18;
+    typedef
+        StdStatefulAllocator<VALUE, true,  false, false, true,  true>  Obj19;
+    typedef
+        StdStatefulAllocator<VALUE, true,  false, true,  false, false> Obj20;
+    typedef
+        StdStatefulAllocator<VALUE, true,  false, true,  false, true>  Obj21;
+    typedef
+        StdStatefulAllocator<VALUE, true,  false, true,  true,  false> Obj22;
+    typedef
+        StdStatefulAllocator<VALUE, true,  false, true,  true,  true>  Obj23;
+    typedef
+        StdStatefulAllocator<VALUE, true,  true,  false, false, false> Obj24;
+    typedef
+        StdStatefulAllocator<VALUE, true,  true,  false, false, true>  Obj25;
+    typedef
+        StdStatefulAllocator<VALUE, true,  true,  false, true,  false> Obj26;
+    typedef
+        StdStatefulAllocator<VALUE, true,  true,  false, true,  true>  Obj27;
+    typedef
+        StdStatefulAllocator<VALUE, true,  true,  true,  false, false> Obj28;
+    typedef
+        StdStatefulAllocator<VALUE, true,  true,  true,  false, true>  Obj29;
+    typedef
+        StdStatefulAllocator<VALUE, true,  true,  true,  true,  false> Obj30;
+    typedef
+        StdStatefulAllocator<VALUE, true,  true,  true,  true,  true>  Obj31;
 
     template <class T>
     static bslmf::MovableRef<T> testArg(T& t, bsl::true_type )
@@ -810,108 +860,237 @@ void TestDriver<VALUE>::testCase14()
     //   propagate_on_container_copy_assignment
     //   propagate_on_container_move_assignment
     //   propagate_on_container_swap
+    //   is_always_equal
     // ------------------------------------------------------------------------
 
     if (verbose)
         printf("\nVALUE: %s\n", NameOf<VALUE>().name());
 
-    //                                    CA     SWAP   MA
-    //                                    -----  -----  -----
-    // typedef StdStatefulAllocator<...,  false, false, false> Obj0;
+    //                                    CA     SWAP   MA     IAE
+    //                                    -----  -----  -----  -----
+    // typedef StdStatefulAllocator<...,  false, false, false, false> Obj0;
 
     ASSERT(!Obj0::propagate_on_container_copy_assignment::value);
     ASSERT(!Obj0::propagate_on_container_swap::value);
     ASSERT(!Obj0::propagate_on_container_move_assignment::value);
+    ASSERT(!Obj0::is_always_equal::value);
 
-    // typedef StdStatefulAllocator<...,  false, false, true>  Obj1;
+    // typedef StdStatefulAllocator<...,  false, false, false, true>  Obj1;
 
     ASSERT(!Obj1::propagate_on_container_copy_assignment::value);
     ASSERT(!Obj1::propagate_on_container_swap::value);
-    ASSERT( Obj1::propagate_on_container_move_assignment::value);
+    ASSERT(!Obj1::propagate_on_container_move_assignment::value);
+    ASSERT( Obj1::is_always_equal::value);
 
-    // typedef StdStatefulAllocator<...,  false, true,  false> Obj2;
+    // typedef StdStatefulAllocator<...,  false, false, true, false>  Obj2;
 
     ASSERT(!Obj2::propagate_on_container_copy_assignment::value);
-    ASSERT( Obj2::propagate_on_container_swap::value);
-    ASSERT(!Obj2::propagate_on_container_move_assignment::value);
+    ASSERT(!Obj2::propagate_on_container_swap::value);
+    ASSERT( Obj2::propagate_on_container_move_assignment::value);
+    ASSERT(!Obj2::is_always_equal::value);
 
-    // typedef StdStatefulAllocator<...,  false, true,  true>  Obj3;
+    // typedef StdStatefulAllocator<...,  false, false, true, true>   Obj3;
 
     ASSERT(!Obj3::propagate_on_container_copy_assignment::value);
-    ASSERT( Obj3::propagate_on_container_swap::value);
+    ASSERT(!Obj3::propagate_on_container_swap::value);
     ASSERT( Obj3::propagate_on_container_move_assignment::value);
+    ASSERT( Obj3::is_always_equal::value);
 
-    // typedef StdStatefulAllocator<...,  true,  false, false> Obj4;
+    // typedef StdStatefulAllocator<...,  false, true,  false, false> Obj4;
 
-    ASSERT( Obj4::propagate_on_container_copy_assignment::value);
-    ASSERT(!Obj4::propagate_on_container_swap::value);
+    ASSERT(!Obj4::propagate_on_container_copy_assignment::value);
+    ASSERT( Obj4::propagate_on_container_swap::value);
     ASSERT(!Obj4::propagate_on_container_move_assignment::value);
+    ASSERT(!Obj4::is_always_equal::value);
 
-    // typedef StdStatefulAllocator<...,  true,  false, true>  Obj5;
+    // typedef StdStatefulAllocator<...,  false, true,  false, true>  Obj5;
 
-    ASSERT( Obj5::propagate_on_container_copy_assignment::value);
-    ASSERT(!Obj5::propagate_on_container_swap::value);
-    ASSERT( Obj5::propagate_on_container_move_assignment::value);
+    ASSERT(!Obj5::propagate_on_container_copy_assignment::value);
+    ASSERT( Obj5::propagate_on_container_swap::value);
+    ASSERT(!Obj5::propagate_on_container_move_assignment::value);
+    ASSERT( Obj5::is_always_equal::value);
 
-    // typedef StdStatefulAllocator<...,  true,  true,  false> Obj6;
+    // typedef StdStatefulAllocator<...,  false, true,  true, false>  Obj6;
 
-    ASSERT( Obj6::propagate_on_container_copy_assignment::value);
+    ASSERT(!Obj6::propagate_on_container_copy_assignment::value);
     ASSERT( Obj6::propagate_on_container_swap::value);
-    ASSERT(!Obj6::propagate_on_container_move_assignment::value);
+    ASSERT( Obj6::propagate_on_container_move_assignment::value);
+    ASSERT(!Obj6::is_always_equal::value);
 
-    // typedef StdStatefulAllocator<...,  true,  true,  true>  Obj7;
+    // typedef StdStatefulAllocator<...,  false, true,  true, true>   Obj7;
 
-    ASSERT( Obj7::propagate_on_container_copy_assignment::value);
+    ASSERT(!Obj7::propagate_on_container_copy_assignment::value);
     ASSERT( Obj7::propagate_on_container_swap::value);
     ASSERT( Obj7::propagate_on_container_move_assignment::value);
+    ASSERT( Obj7::is_always_equal::value);
 
-    // typedef StdStatefulAllocator<...,  false, false, false> Obj8;
+    // typedef StdStatefulAllocator<...,  true,  false, false, false> Obj8;
 
-    ASSERT(!Obj8::propagate_on_container_copy_assignment::value);
+    ASSERT( Obj8::propagate_on_container_copy_assignment::value);
     ASSERT(!Obj8::propagate_on_container_swap::value);
     ASSERT(!Obj8::propagate_on_container_move_assignment::value);
+    ASSERT(!Obj8::is_always_equal::value);
 
-    // typedef StdStatefulAllocator<...,  false, false, true>  Obj9;
+    // typedef StdStatefulAllocator<...,  true,  false, false, true>  Obj9;
 
-    ASSERT(!Obj9::propagate_on_container_copy_assignment::value);
+    ASSERT( Obj9::propagate_on_container_copy_assignment::value);
     ASSERT(!Obj9::propagate_on_container_swap::value);
-    ASSERT( Obj9::propagate_on_container_move_assignment::value);
+    ASSERT(!Obj9::propagate_on_container_move_assignment::value);
+    ASSERT( Obj9::is_always_equal::value);
 
-    // typedef StdStatefulAllocator<...,  false, true,  false> Obj10;
+    // typedef StdStatefulAllocator<...,  true,  false, true, false>  Obj10;
 
-    ASSERT(!Obj10::propagate_on_container_copy_assignment::value);
-    ASSERT( Obj10::propagate_on_container_swap::value);
-    ASSERT(!Obj10::propagate_on_container_move_assignment::value);
+    ASSERT( Obj10::propagate_on_container_copy_assignment::value);
+    ASSERT(!Obj10::propagate_on_container_swap::value);
+    ASSERT( Obj10::propagate_on_container_move_assignment::value);
+    ASSERT(!Obj10::is_always_equal::value);
 
-    // typedef StdStatefulAllocator<...,  false, true,  true>  Obj11;
+    // typedef StdStatefulAllocator<...,  true,  false, true, true>   Obj11;
 
-    ASSERT(!Obj11::propagate_on_container_copy_assignment::value);
-    ASSERT( Obj11::propagate_on_container_swap::value);
+    ASSERT( Obj11::propagate_on_container_copy_assignment::value);
+    ASSERT(!Obj11::propagate_on_container_swap::value);
     ASSERT( Obj11::propagate_on_container_move_assignment::value);
+    ASSERT( Obj11::is_always_equal::value);
 
-    // typedef StdStatefulAllocator<...,  true,  false, false> Obj12;
+    // typedef StdStatefulAllocator<...,  true,  true,  false, false> Obj12;
 
     ASSERT( Obj12::propagate_on_container_copy_assignment::value);
-    ASSERT(!Obj12::propagate_on_container_swap::value);
+    ASSERT( Obj12::propagate_on_container_swap::value);
     ASSERT(!Obj12::propagate_on_container_move_assignment::value);
+    ASSERT(!Obj12::is_always_equal::value);
 
-    // typedef StdStatefulAllocator<...,  true,  false, true>  Obj13;
+    // typedef StdStatefulAllocator<...,  true,  true,  false, true>  Obj13;
 
     ASSERT( Obj13::propagate_on_container_copy_assignment::value);
-    ASSERT(!Obj13::propagate_on_container_swap::value);
-    ASSERT( Obj13::propagate_on_container_move_assignment::value);
+    ASSERT( Obj13::propagate_on_container_swap::value);
+    ASSERT(!Obj13::propagate_on_container_move_assignment::value);
+    ASSERT( Obj13::is_always_equal::value);
 
-    // typedef StdStatefulAllocator<...,  true,  true,  false> Obj14;
+    // typedef StdStatefulAllocator<...,  true,  true,  true, false>  Obj14;
 
     ASSERT( Obj14::propagate_on_container_copy_assignment::value);
     ASSERT( Obj14::propagate_on_container_swap::value);
-    ASSERT(!Obj14::propagate_on_container_move_assignment::value);
+    ASSERT( Obj14::propagate_on_container_move_assignment::value);
+    ASSERT(!Obj14::is_always_equal::value);
 
-    // typedef StdStatefulAllocator<...,  true,  true,  true>  Obj15;
+    // typedef StdStatefulAllocator<...,  true,  true,  true, true>   Obj15;
 
     ASSERT( Obj15::propagate_on_container_copy_assignment::value);
     ASSERT( Obj15::propagate_on_container_swap::value);
     ASSERT( Obj15::propagate_on_container_move_assignment::value);
+    ASSERT( Obj15::is_always_equal::value);
+
+    // typedef StdStatefulAllocator<...,  false, false, false, false> Obj16;
+
+    ASSERT(!Obj16::propagate_on_container_copy_assignment::value);
+    ASSERT(!Obj16::propagate_on_container_swap::value);
+    ASSERT(!Obj16::propagate_on_container_move_assignment::value);
+    ASSERT(!Obj16::is_always_equal::value);
+
+    // typedef StdStatefulAllocator<...,  false, false, false, true>  Obj17;
+
+    ASSERT(!Obj17::propagate_on_container_copy_assignment::value);
+    ASSERT(!Obj17::propagate_on_container_swap::value);
+    ASSERT(!Obj17::propagate_on_container_move_assignment::value);
+    ASSERT( Obj17::is_always_equal::value);
+
+    // typedef StdStatefulAllocator<...,  false, false, true, false>  Obj18;
+
+    ASSERT(!Obj18::propagate_on_container_copy_assignment::value);
+    ASSERT(!Obj18::propagate_on_container_swap::value);
+    ASSERT( Obj18::propagate_on_container_move_assignment::value);
+    ASSERT(!Obj18::is_always_equal::value);
+
+    // typedef StdStatefulAllocator<...,  false, false, true, true>   Obj19;
+
+    ASSERT(!Obj19::propagate_on_container_copy_assignment::value);
+    ASSERT(!Obj19::propagate_on_container_swap::value);
+    ASSERT( Obj19::propagate_on_container_move_assignment::value);
+    ASSERT( Obj19::is_always_equal::value);
+
+    // typedef StdStatefulAllocator<...,  false, true,  false, false> Obj20;
+
+    ASSERT(!Obj20::propagate_on_container_copy_assignment::value);
+    ASSERT( Obj20::propagate_on_container_swap::value);
+    ASSERT(!Obj20::propagate_on_container_move_assignment::value);
+    ASSERT(!Obj20::is_always_equal::value);
+
+    // typedef StdStatefulAllocator<...,  false, true,  false, true>  Obj21;
+
+    ASSERT(!Obj21::propagate_on_container_copy_assignment::value);
+    ASSERT( Obj21::propagate_on_container_swap::value);
+    ASSERT(!Obj21::propagate_on_container_move_assignment::value);
+    ASSERT( Obj21::is_always_equal::value);
+
+    // typedef StdStatefulAllocator<...,  false, true,  true, false>  Obj22;
+
+    ASSERT(!Obj22::propagate_on_container_copy_assignment::value);
+    ASSERT( Obj22::propagate_on_container_swap::value);
+    ASSERT( Obj22::propagate_on_container_move_assignment::value);
+    ASSERT(!Obj22::is_always_equal::value);
+
+    // typedef StdStatefulAllocator<...,  false, true,  true, true>   Obj23;
+
+    ASSERT(!Obj23::propagate_on_container_copy_assignment::value);
+    ASSERT( Obj23::propagate_on_container_swap::value);
+    ASSERT( Obj23::propagate_on_container_move_assignment::value);
+    ASSERT( Obj23::is_always_equal::value);
+
+    // typedef StdStatefulAllocator<...,  true,  false, false, false> Obj24;
+
+    ASSERT( Obj24::propagate_on_container_copy_assignment::value);
+    ASSERT(!Obj24::propagate_on_container_swap::value);
+    ASSERT(!Obj24::propagate_on_container_move_assignment::value);
+    ASSERT(!Obj24::is_always_equal::value);
+
+    // typedef StdStatefulAllocator<...,  true,  false, false, true>  Obj25;
+
+    ASSERT( Obj25::propagate_on_container_copy_assignment::value);
+    ASSERT(!Obj25::propagate_on_container_swap::value);
+    ASSERT(!Obj25::propagate_on_container_move_assignment::value);
+    ASSERT( Obj25::is_always_equal::value);
+
+    // typedef StdStatefulAllocator<...,  true,  false, true, false>  Obj26;
+
+    ASSERT( Obj26::propagate_on_container_copy_assignment::value);
+    ASSERT(!Obj26::propagate_on_container_swap::value);
+    ASSERT( Obj26::propagate_on_container_move_assignment::value);
+    ASSERT(!Obj26::is_always_equal::value);
+
+    // typedef StdStatefulAllocator<...,  true,  false, true, true>   Obj27;
+
+    ASSERT( Obj27::propagate_on_container_copy_assignment::value);
+    ASSERT(!Obj27::propagate_on_container_swap::value);
+    ASSERT( Obj27::propagate_on_container_move_assignment::value);
+    ASSERT( Obj27::is_always_equal::value);
+
+    // typedef StdStatefulAllocator<...,  true,  true,  false, false> Obj28;
+
+    ASSERT( Obj28::propagate_on_container_copy_assignment::value);
+    ASSERT( Obj28::propagate_on_container_swap::value);
+    ASSERT(!Obj28::propagate_on_container_move_assignment::value);
+    ASSERT(!Obj28::is_always_equal::value);
+
+    // typedef StdStatefulAllocator<...,  true,  true,  false, true>  Obj29;
+
+    ASSERT( Obj29::propagate_on_container_copy_assignment::value);
+    ASSERT( Obj29::propagate_on_container_swap::value);
+    ASSERT(!Obj29::propagate_on_container_move_assignment::value);
+    ASSERT( Obj29::is_always_equal::value);
+
+    // typedef StdStatefulAllocator<...,  true,  true,  true, false>  Obj30;
+
+    ASSERT( Obj30::propagate_on_container_copy_assignment::value);
+    ASSERT( Obj30::propagate_on_container_swap::value);
+    ASSERT( Obj30::propagate_on_container_move_assignment::value);
+    ASSERT(!Obj30::is_always_equal::value);
+
+    // typedef StdStatefulAllocator<...,  true,  true,  true, true>   Obj31;
+
+    ASSERT( Obj31::propagate_on_container_copy_assignment::value);
+    ASSERT( Obj31::propagate_on_container_swap::value);
+    ASSERT( Obj31::propagate_on_container_move_assignment::value);
+    ASSERT( Obj31::is_always_equal::value);
 }
 
 template <class VALUE>
@@ -1017,6 +1196,10 @@ void TestDriver<VALUE>::testCase12()
     //: 3 If 'PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION' template parameter is
     //:   equal to 'false', temporary object, delegating requests to the
     //:   default allocator is returned.
+    //:
+    //: 4 If 'IS_ALWAYS_EQUAL' template parameter is
+    //:   equal to 'true', returned objects will always compare as equal to the
+    //:   current object, regardless of other parameter values.
     //
     // Plan:
     //: 1 Create several 'StdStatefulAllocator' objects with different template
@@ -1029,7 +1212,8 @@ void TestDriver<VALUE>::testCase12()
     //:   copy of origin object if the 'bool' template parameter
     //:   'PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION' is true, and a copy of a
     //:   'StdStatefulAllocator' object wrapping the default allocator
-    //:   otherwise.  (C-1..3)
+    //:   otherwise (although this can only be determined when the 'bool'
+    //:   template parameter 'IS_ALWAYS_EQUAL' is false).  (C-1..3)
     //
     // Testing:
     //   StdStatefulAllocator select_on_container_copy_construction() const
@@ -1040,26 +1224,42 @@ void TestDriver<VALUE>::testCase12()
 
     bslma::TestAllocator         da("default", veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard dag(&da);
-    bslma::TestAllocator         allocators[16];
+    bslma::TestAllocator         allocators[32];
 
-                                       //  TYPE   CC     CA     SWAP   MA
-                                       //  -----  -----  -----  -----  -----
-    const Obj0  X0 (&allocators[0 ]);  // <VALUE, false, false, false, false>
-    const Obj1  X1 (&allocators[1 ]);  // <VALUE, false, false, false, true >
-    const Obj2  X2 (&allocators[2 ]);  // <VALUE, false, false, true,  false>
-    const Obj3  X3 (&allocators[3 ]);  // <VALUE, false, false, true,  true >
-    const Obj4  X4 (&allocators[4 ]);  // <VALUE, false, true,  false, false>
-    const Obj5  X5 (&allocators[5 ]);  // <VALUE, false, true,  false, true >
-    const Obj6  X6 (&allocators[6 ]);  // <VALUE, false, true,  true,  false>
-    const Obj7  X7 (&allocators[7 ]);  // <VALUE, false, true,  true,  true >
-    const Obj8  X8 (&allocators[8 ]);  // <VALUE, true,  false, false, false>
-    const Obj9  X9 (&allocators[9 ]);  // <VALUE, true,  false, false, true >
-    const Obj10 X10(&allocators[10]);  // <VALUE, true,  false, true,  false>
-    const Obj11 X11(&allocators[11]);  // <VALUE, true,  false, true,  true >
-    const Obj12 X12(&allocators[12]);  // <VALUE, true,  true,  false, false>
-    const Obj13 X13(&allocators[13]);  // <VALUE, true,  true,  false, true >
-    const Obj14 X14(&allocators[14]);  // <VALUE, true,  true,  true,  false>
-    const Obj15 X15(&allocators[15]);  // <VALUE, true,  true,  true,  true >
+                                       //  TYPE   CC  CA  SWAP  MA  IAE
+                                       //  -----  --  --  ----  --  ---
+    const Obj0  X0 (&allocators[0 ]);  // <VALUE, F,  F,  F,    F,  F>
+    const Obj1  X1 (&allocators[1 ]);  // <VALUE, F,  F,  F,    F,  T>
+    const Obj2  X2 (&allocators[2 ]);  // <VALUE, F,  F,  F,    T,  F>
+    const Obj3  X3 (&allocators[3 ]);  // <VALUE, F,  F,  F,    T,  T>
+    const Obj4  X4 (&allocators[4 ]);  // <VALUE, F,  F,  T,    F,  F>
+    const Obj5  X5 (&allocators[5 ]);  // <VALUE, F,  F,  T,    F,  T>
+    const Obj6  X6 (&allocators[6 ]);  // <VALUE, F,  F,  T,    T,  F>
+    const Obj7  X7 (&allocators[7 ]);  // <VALUE, F,  F,  T,    T,  T>
+    const Obj8  X8 (&allocators[8 ]);  // <VALUE, F,  T,  F,    F,  F>
+    const Obj9  X9 (&allocators[9 ]);  // <VALUE, F,  T,  F,    F,  T>
+    const Obj10 X10(&allocators[10]);  // <VALUE, F,  T,  F,    T,  F>
+    const Obj11 X11(&allocators[11]);  // <VALUE, F,  T,  F,    T,  T>
+    const Obj12 X12(&allocators[12]);  // <VALUE, F,  T,  T,    F,  F>
+    const Obj13 X13(&allocators[13]);  // <VALUE, F,  T,  T,    F,  T>
+    const Obj14 X14(&allocators[14]);  // <VALUE, F,  T,  T,    T,  F>
+    const Obj15 X15(&allocators[15]);  // <VALUE, F,  T,  T,    T,  T>
+    const Obj16 X16(&allocators[16]);  // <VALUE, T,  F,  F,    F,  F>
+    const Obj17 X17(&allocators[17]);  // <VALUE, T,  F,  F,    F,  T>
+    const Obj18 X18(&allocators[18]);  // <VALUE, T,  F,  F,    T,  F>
+    const Obj19 X19(&allocators[19]);  // <VALUE, T,  F,  F,    T,  T>
+    const Obj20 X20(&allocators[20]);  // <VALUE, T,  F,  T,    F,  F>
+    const Obj21 X21(&allocators[21]);  // <VALUE, T,  F,  T,    F,  T>
+    const Obj22 X22(&allocators[22]);  // <VALUE, T,  F,  T,    T,  F>
+    const Obj23 X23(&allocators[23]);  // <VALUE, T,  F,  T,    T,  T>
+    const Obj24 X24(&allocators[24]);  // <VALUE, T,  T,  F,    F,  F>
+    const Obj25 X25(&allocators[25]);  // <VALUE, T,  T,  F,    F,  T>
+    const Obj26 X26(&allocators[26]);  // <VALUE, T,  T,  F,    T,  F>
+    const Obj27 X27(&allocators[27]);  // <VALUE, T,  T,  F,    T,  T>
+    const Obj28 X28(&allocators[28]);  // <VALUE, T,  T,  T,    F,  F>
+    const Obj29 X29(&allocators[29]);  // <VALUE, T,  T,  T,    F,  T>
+    const Obj30 X30(&allocators[30]);  // <VALUE, T,  T,  T,    T,  F>
+    const Obj31 X31(&allocators[31]);  // <VALUE, T,  T,  T,    T,  T>
 
     const Obj0  COPY0  = X0.select_on_container_copy_construction();
     const Obj1  COPY1  = X1.select_on_container_copy_construction();
@@ -1077,23 +1277,85 @@ void TestDriver<VALUE>::testCase12()
     const Obj13 COPY13 = X13.select_on_container_copy_construction();
     const Obj14 COPY14 = X14.select_on_container_copy_construction();
     const Obj15 COPY15 = X15.select_on_container_copy_construction();
+    const Obj16 COPY16 = X16.select_on_container_copy_construction();
+    const Obj17 COPY17 = X17.select_on_container_copy_construction();
+    const Obj18 COPY18 = X18.select_on_container_copy_construction();
+    const Obj19 COPY19 = X19.select_on_container_copy_construction();
+    const Obj20 COPY20 = X20.select_on_container_copy_construction();
+    const Obj21 COPY21 = X21.select_on_container_copy_construction();
+    const Obj22 COPY22 = X22.select_on_container_copy_construction();
+    const Obj23 COPY23 = X23.select_on_container_copy_construction();
+    const Obj24 COPY24 = X24.select_on_container_copy_construction();
+    const Obj25 COPY25 = X25.select_on_container_copy_construction();
+    const Obj26 COPY26 = X26.select_on_container_copy_construction();
+    const Obj27 COPY27 = X27.select_on_container_copy_construction();
+    const Obj28 COPY28 = X28.select_on_container_copy_construction();
+    const Obj29 COPY29 = X29.select_on_container_copy_construction();
+    const Obj30 COPY30 = X30.select_on_container_copy_construction();
+    const Obj31 COPY31 = X31.select_on_container_copy_construction();
 
+    // For the following cases, 'propogate_on_container_copy' is false, so a
+    // newly default constructed allocator is returned by
+    // 'select_on_container_copy_construction'.  As 'is_always_equal' is false,
+    // we can use the equality operator to test that the objects are different.
     ASSERT(X0  != COPY0 );
-    ASSERT(X1  != COPY1 );
     ASSERT(X2  != COPY2 );
-    ASSERT(X3  != COPY3 );
     ASSERT(X4  != COPY4 );
-    ASSERT(X5  != COPY5 );
     ASSERT(X6  != COPY6 );
-    ASSERT(X7  != COPY7 );
-    ASSERT(X8  == COPY8 );
-    ASSERT(X9  == COPY9 );
-    ASSERT(X10 == COPY10);
-    ASSERT(X11 == COPY11);
-    ASSERT(X12 == COPY12);
-    ASSERT(X13 == COPY13);
-    ASSERT(X14 == COPY14);
-    ASSERT(X15 == COPY15);
+    ASSERT(X8  != COPY8 );
+    ASSERT(X10 != COPY10);
+    ASSERT(X12 != COPY12);
+    ASSERT(X14 != COPY14);
+
+    // For the following cases, 'propogate_on_container_copy' is false, so a
+    // newly default constructed allocator is returned by
+    // 'select_on_container_copy_construction'.  However, as the
+    // 'is_always_equal' trait is true, the equality operator will return
+    // 'true' in all cases.
+    ASSERT(X1  == COPY1 ); // is_always_equal
+    ASSERT(X3  == COPY3 ); // is_always_equal
+    ASSERT(X5  == COPY5 ); // is_always_equal
+    ASSERT(X7  == COPY7 ); // is_always_equal
+    ASSERT(X9  == COPY9 ); // is_always_equal
+    ASSERT(X11 == COPY11); // is_always_equal
+    ASSERT(X13 == COPY13); // is_always_equal
+    ASSERT(X15 == COPY15); // is_always_equal
+
+    // For the following cases, 'propogate_on_container_copy' is false, so a
+    // copy of the allocator (obtained using the copy constructor) is returned
+    // by 'select_on_container_copy_construction'.  As they are the same
+    // object, the equality operator will return true.
+    ASSERT(X16 == COPY16); // propagate_on_container_copy_construction
+    ASSERT(X18 == COPY18); // propagate_on_container_copy_construction
+    ASSERT(X20 == COPY20); // propagate_on_container_copy_construction
+    ASSERT(X22 == COPY22); // propagate_on_container_copy_construction
+    ASSERT(X24 == COPY24); // propagate_on_container_copy_construction
+    ASSERT(X26 == COPY26); // propagate_on_container_copy_construction
+    ASSERT(X28 == COPY28); // propagate_on_container_copy_construction
+    ASSERT(X30 == COPY30); // propagate_on_container_copy_construction
+
+    // For the following cases, 'propogate_on_container_copy' is false, so a
+    // copy of the allocator (obtained using the copy constructor) is returned
+    // by 'select_on_container_copy_construction'.  As they are the same
+    // object, the equality operator will return true.  Note, however that, as
+    // the 'is_always_equal' trait is true, the equality operator would have
+    // returned true regardless of whether the objects were the same.
+    ASSERT(X17 == COPY17); // propagate_on_container_copy_construction
+                           // && is_always_equal
+    ASSERT(X19 == COPY19); // propagate_on_container_copy_construction
+                           // && is_always_equal
+    ASSERT(X21 == COPY21); // propagate_on_container_copy_construction
+                           // && is_always_equal
+    ASSERT(X23 == COPY23); // propagate_on_container_copy_construction
+                           // && is_always_equal
+    ASSERT(X25 == COPY25); // propagate_on_container_copy_construction
+                           // && is_always_equal
+    ASSERT(X27 == COPY27); // propagate_on_container_copy_construction
+                           // && is_always_equal
+    ASSERT(X29 == COPY29); // propagate_on_container_copy_construction
+                           // && is_always_equal
+    ASSERT(X31 == COPY31); // propagate_on_container_copy_construction
+                           // && is_always_equal
 
     ASSERT(&da                 == COPY0.allocator());
     ASSERT(&da                 == COPY1.allocator());
@@ -1103,14 +1365,30 @@ void TestDriver<VALUE>::testCase12()
     ASSERT(&da                 == COPY5.allocator());
     ASSERT(&da                 == COPY6.allocator());
     ASSERT(&da                 == COPY7.allocator());
-    ASSERT(X8.allocator()  == COPY8.allocator());
-    ASSERT(X9.allocator()  == COPY9.allocator());
-    ASSERT(X10.allocator() == COPY10.allocator());
-    ASSERT(X11.allocator() == COPY11.allocator());
-    ASSERT(X12.allocator() == COPY12.allocator());
-    ASSERT(X13.allocator() == COPY13.allocator());
-    ASSERT(X14.allocator() == COPY14.allocator());
-    ASSERT(X15.allocator() == COPY15.allocator());
+    ASSERT(&da                 == COPY8.allocator());
+    ASSERT(&da                 == COPY9.allocator());
+    ASSERT(&da                 == COPY10.allocator());
+    ASSERT(&da                 == COPY11.allocator());
+    ASSERT(&da                 == COPY12.allocator());
+    ASSERT(&da                 == COPY13.allocator());
+    ASSERT(&da                 == COPY14.allocator());
+    ASSERT(&da                 == COPY15.allocator());
+    ASSERT(X16.allocator() == COPY16.allocator());
+    ASSERT(X17.allocator() == COPY17.allocator());
+    ASSERT(X18.allocator() == COPY18.allocator());
+    ASSERT(X19.allocator() == COPY19.allocator());
+    ASSERT(X20.allocator() == COPY20.allocator());
+    ASSERT(X21.allocator() == COPY21.allocator());
+    ASSERT(X22.allocator() == COPY22.allocator());
+    ASSERT(X23.allocator() == COPY23.allocator());
+    ASSERT(X24.allocator() == COPY24.allocator());
+    ASSERT(X25.allocator() == COPY25.allocator());
+    ASSERT(X26.allocator() == COPY26.allocator());
+    ASSERT(X27.allocator() == COPY27.allocator());
+    ASSERT(X28.allocator() == COPY28.allocator());
+    ASSERT(X29.allocator() == COPY29.allocator());
+    ASSERT(X30.allocator() == COPY30.allocator());
+    ASSERT(X31.allocator() == COPY31.allocator());
 }
 
 template <class VALUE>
@@ -1435,7 +1713,7 @@ void TestDriver<VALUE>::testCase6()
     //: 3 Two objects, 'X' and 'Y', compare equal if and only if their
     //:   underlying allocator instances are equal.
     //:
-    //: 4 'true  == (X == X)'  (i.e., identity)
+    //: 4 'true == (X == X)'  (i.e., identity)
     //:
     //: 5 'false == (X != X)'  (i.e., identity)
     //:

@@ -169,7 +169,8 @@ template <class TYPE,
           bool  PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION = true,
           bool  PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT = true,
           bool  PROPAGATE_ON_CONTAINER_SWAP = true,
-          bool  PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT = true>
+          bool  PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT = true,
+          bool  IS_ALWAYS_EQUAL = false>
 class StdStatefulAllocator {
     // This allocator implements the minimal interface to comply with section
     // 17.6.3.5 ([allocator.requirements]) of the C++11 standard, while
@@ -228,6 +229,10 @@ class StdStatefulAllocator {
                                    PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>
                                         propagate_on_container_move_assignment;
 
+    typedef bsl::integral_constant<bool,
+                                   IS_ALWAYS_EQUAL>
+                                        is_always_equal;
+
     template <class BDE_OTHER_TYPE>
     struct rebind
     {
@@ -243,7 +248,8 @@ class StdStatefulAllocator {
                                  PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
                                  PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
                                  PROPAGATE_ON_CONTAINER_SWAP,
-                                 PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT> other;
+                                 PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT,
+                                 IS_ALWAYS_EQUAL> other;
     };
 
     // CREATORS
@@ -261,7 +267,8 @@ class StdStatefulAllocator {
                             PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
                             PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
                             PROPAGATE_ON_CONTAINER_SWAP,
-                            PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>& original);
+                            PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT,
+                            IS_ALWAYS_EQUAL>& original);
         // Create a 'StdStatefulAllocator' object wrapping the same test
         // allocator as the specified 'original'.
 
@@ -328,19 +335,22 @@ template <class TYPE,
           bool  PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
           bool  PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
           bool  PROPAGATE_ON_CONTAINER_SWAP,
-          bool  PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>
+          bool  PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT,
+          bool  IS_ALWAYS_EQUAL>
 bool operator==(const StdStatefulAllocator<
                                  TYPE,
                                  PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
                                  PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
                                  PROPAGATE_ON_CONTAINER_SWAP,
-                                 PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>& lhs,
+                                 PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT,
+                                 IS_ALWAYS_EQUAL>& lhs,
                 const StdStatefulAllocator<
                                  TYPE,
                                  PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
                                  PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
                                  PROPAGATE_ON_CONTAINER_SWAP,
-                                 PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>& rhs);
+                                 PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT,
+                                 IS_ALWAYS_EQUAL>& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' have the same underlying
     // test allocator, and 'false' otherwise.
 
@@ -348,19 +358,22 @@ template <class TYPE,
           bool  PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
           bool  PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
           bool  PROPAGATE_ON_CONTAINER_SWAP,
-          bool  PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>
+          bool  PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT,
+          bool  IS_ALWAYS_EQUAL>
 bool operator!=(const StdStatefulAllocator<
                                  TYPE,
                                  PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
                                  PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
                                  PROPAGATE_ON_CONTAINER_SWAP,
-                                 PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>& lhs,
+                                 PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT,
+                                 IS_ALWAYS_EQUAL>& lhs,
                 const StdStatefulAllocator<
                                  TYPE,
                                  PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
                                  PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
                                  PROPAGATE_ON_CONTAINER_SWAP,
-                                 PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>& rhs);
+                                 PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT,
+                                 IS_ALWAYS_EQUAL>& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' have different underlying
     // test allocators, and 'false' otherwise.
 
@@ -378,13 +391,15 @@ template <class TYPE,
           bool  PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
           bool  PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
           bool  PROPAGATE_ON_CONTAINER_SWAP,
-          bool  PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>
+          bool  PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT,
+          bool  IS_ALWAYS_EQUAL>
 inline
 StdStatefulAllocator<TYPE,
                      PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
                      PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
                      PROPAGATE_ON_CONTAINER_SWAP,
-                     PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>::
+                     PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT,
+                     IS_ALWAYS_EQUAL>::
 StdStatefulAllocator(bslma::Allocator *allocator)
 : d_allocator_p(bslma::Default::allocator(allocator))
 {
@@ -394,20 +409,23 @@ template <class TYPE,
           bool  PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
           bool  PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
           bool  PROPAGATE_ON_CONTAINER_SWAP,
-          bool  PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>
+          bool  PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT,
+          bool  IS_ALWAYS_EQUAL>
 template <class BDE_OTHER_TYPE>
 inline
 StdStatefulAllocator<TYPE,
                      PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
                      PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
                      PROPAGATE_ON_CONTAINER_SWAP,
-                     PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>::
+                     PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT,
+                     IS_ALWAYS_EQUAL>::
 StdStatefulAllocator(const StdStatefulAllocator<
                              BDE_OTHER_TYPE,
                              PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
                              PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
                              PROPAGATE_ON_CONTAINER_SWAP,
-                             PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>& original)
+                             PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT,
+                             IS_ALWAYS_EQUAL>& original)
 : d_allocator_p(original.allocator())
 {
 }
@@ -417,14 +435,16 @@ template <class TYPE,
           bool  PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
           bool  PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
           bool  PROPAGATE_ON_CONTAINER_SWAP,
-          bool  PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>
+          bool  PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT,
+          bool  IS_ALWAYS_EQUAL>
 inline
 TYPE *
 StdStatefulAllocator<TYPE,
                      PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
                      PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
                      PROPAGATE_ON_CONTAINER_SWAP,
-                     PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>::allocate(
+                     PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT,
+                     IS_ALWAYS_EQUAL>::allocate(
                                        bslma::Allocator::size_type numElements)
 {
     return static_cast<TYPE *>(d_allocator_p->allocate(
@@ -436,7 +456,8 @@ template <class TYPE,
           bool  PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
           bool  PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
           bool  PROPAGATE_ON_CONTAINER_SWAP,
-          bool  PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>
+          bool  PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT,
+          bool  IS_ALWAYS_EQUAL>
 template <class ELEMENT_TYPE, class... Args>
 inline
 void
@@ -444,7 +465,8 @@ StdStatefulAllocator<TYPE,
                      PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
                      PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
                      PROPAGATE_ON_CONTAINER_SWAP,
-                     PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>::construct(
+                     PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT,
+                     IS_ALWAYS_EQUAL>::construct(
                                     ELEMENT_TYPE *address, Args&&... arguments)
 {
     ::new (static_cast<void*>(address)) ELEMENT_TYPE(
@@ -456,13 +478,15 @@ template <class TYPE,
           bool  PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
           bool  PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
           bool  PROPAGATE_ON_CONTAINER_SWAP,
-          bool  PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>
+          bool  PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT,
+          bool  IS_ALWAYS_EQUAL>
 inline
 void StdStatefulAllocator<TYPE,
                           PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
                           PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
                           PROPAGATE_ON_CONTAINER_SWAP,
-                          PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>::
+                          PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT,
+                          IS_ALWAYS_EQUAL>::
 deallocate(TYPE *address, bslma::Allocator::size_type)
 {
     d_allocator_p->deallocate(address);
@@ -472,14 +496,16 @@ template <class TYPE,
           bool  PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
           bool  PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
           bool  PROPAGATE_ON_CONTAINER_SWAP,
-          bool  PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>
+          bool  PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT,
+          bool  IS_ALWAYS_EQUAL>
 template <class ELEMENT_TYPE>
 inline
 void StdStatefulAllocator<TYPE,
                           PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
                           PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
                           PROPAGATE_ON_CONTAINER_SWAP,
-                          PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>::destroy(
+                          PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT,
+                          IS_ALWAYS_EQUAL>::destroy(
                                                         ELEMENT_TYPE * address)
 {
     address->~ELEMENT_TYPE();
@@ -489,19 +515,22 @@ template <class TYPE,
           bool  PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
           bool  PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
           bool  PROPAGATE_ON_CONTAINER_SWAP,
-          bool  PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>
+          bool  PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT,
+          bool  IS_ALWAYS_EQUAL>
 inline
 typename StdStatefulAllocator<
                              TYPE,
                              PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
                              PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
                              PROPAGATE_ON_CONTAINER_SWAP,
-                             PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>::size_type
+                             PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT,
+                             IS_ALWAYS_EQUAL>::size_type
 StdStatefulAllocator<TYPE,
                      PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
                      PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
                      PROPAGATE_ON_CONTAINER_SWAP,
-                     PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>::
+                     PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT,
+                     IS_ALWAYS_EQUAL>::
 max_size() const
 {
     // Return the largest value, 'v', such that 'v * sizeof(T)' fits in a
@@ -524,18 +553,21 @@ template <class TYPE,
           bool  PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
           bool  PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
           bool  PROPAGATE_ON_CONTAINER_SWAP,
-          bool  PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>
+          bool  PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT,
+          bool  IS_ALWAYS_EQUAL>
 inline
 StdStatefulAllocator<TYPE,
                      PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
                      PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
                      PROPAGATE_ON_CONTAINER_SWAP,
-                     PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>
+                     PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT,
+                     IS_ALWAYS_EQUAL>
 StdStatefulAllocator<TYPE,
                      PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
                      PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
                      PROPAGATE_ON_CONTAINER_SWAP,
-                     PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>::
+                     PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT,
+                     IS_ALWAYS_EQUAL>::
 select_on_container_copy_construction() const
 {
     if (PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION) {
@@ -551,14 +583,16 @@ template <class TYPE,
           bool  PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
           bool  PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
           bool  PROPAGATE_ON_CONTAINER_SWAP,
-          bool  PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>
+          bool  PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT,
+          bool  IS_ALWAYS_EQUAL>
 inline
 bslma::Allocator *
 StdStatefulAllocator<TYPE,
                      PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
                      PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
                      PROPAGATE_ON_CONTAINER_SWAP,
-                     PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>::
+                     PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT,
+                     IS_ALWAYS_EQUAL>::
 allocator() const
 {
     return d_allocator_p;
@@ -571,44 +605,50 @@ template <class TYPE,
           bool  PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
           bool  PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
           bool  PROPAGATE_ON_CONTAINER_SWAP,
-          bool  PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>
+          bool  PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT,
+          bool  IS_ALWAYS_EQUAL>
 inline
 bool bsltf::operator==(const StdStatefulAllocator<
                                   TYPE,
                                   PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
                                   PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
                                   PROPAGATE_ON_CONTAINER_SWAP,
-                                  PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>& lhs,
+                                  PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT,
+                                  IS_ALWAYS_EQUAL>& lhs,
                        const StdStatefulAllocator<
                                   TYPE,
                                   PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
                                   PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
                                   PROPAGATE_ON_CONTAINER_SWAP,
-                                  PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>& rhs)
+                                  PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT,
+                                  IS_ALWAYS_EQUAL>& rhs)
 {
-    return lhs.allocator() == rhs.allocator();
+    return IS_ALWAYS_EQUAL || (lhs.allocator() == rhs.allocator());
 }
 
 template <class TYPE,
           bool  PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
           bool  PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
           bool  PROPAGATE_ON_CONTAINER_SWAP,
-          bool  PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>
+          bool  PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT,
+          bool  IS_ALWAYS_EQUAL>
 inline
 bool bsltf::operator!=(const StdStatefulAllocator<
                                   TYPE,
                                   PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
                                   PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
                                   PROPAGATE_ON_CONTAINER_SWAP,
-                                  PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>& lhs,
+                                  PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT,
+                                  IS_ALWAYS_EQUAL>& lhs,
                        const StdStatefulAllocator<
                                   TYPE,
                                   PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
                                   PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
                                   PROPAGATE_ON_CONTAINER_SWAP,
-                                  PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>& rhs)
+                                  PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT,
+                                  IS_ALWAYS_EQUAL>& rhs)
 {
-    return lhs.allocator() != rhs.allocator();
+    return !IS_ALWAYS_EQUAL && (lhs.allocator() != rhs.allocator());
 }
 
 }  // close enterprise namespace

@@ -75,6 +75,7 @@ using namespace bsl;
 // [ 3] size_type
 // [ 4] rebind_alloc<U>
 // [ 4] rebind_traits<U>
+// [ 3] is_always_equal
 // [ 3] propagate_on_container_copy_assignment
 // [ 3] propagate_on_container_move_assignment
 // [ 3] propagate_on_container_swap
@@ -1284,6 +1285,64 @@ class MinimalAllocator {
     }
 };
 
+                           // ================================
+                           // class MinimalAllocatorWithTraits
+                           // ================================
+
+template <class TYPE, class TRAIT_VALUE>
+class MinimalNonEmptyAllocatorWithTraits {
+    // Minimal non-empty allocator with trait overrides
+    //
+    // This class is a C++11-compliant allocator delegates to 'new' and
+    // 'delete', and permits overriding of all of the traits.
+
+    int d_dummyData; // dummy data to make the class non-emtpy.
+
+  public:
+    // TRAITS
+    typedef TRAIT_VALUE is_always_equal;
+        // trait value for testing.
+
+    typedef TRAIT_VALUE propagate_on_container_copy_assignment;
+        // trait value for testing.
+
+    typedef TRAIT_VALUE propagate_on_container_move_assignment;
+        // trait value for testing.
+
+    typedef TRAIT_VALUE propagate_on_container_swap;
+        // trait value for testing.
+
+    // PUBLIC TYPES
+    typedef TYPE value_type;
+
+    // CREATORS
+    MinimalNonEmptyAllocatorWithTraits() BSLS_KEYWORD_NOEXCEPT
+    : d_dummyData(0)
+        // Construct a default object
+    {
+    }
+    template <class U, class V>
+    MinimalNonEmptyAllocatorWithTraits(
+         const MinimalNonEmptyAllocatorWithTraits<U, V>&) BSLS_KEYWORD_NOEXCEPT
+    : d_dummyData(0)
+        // Copy construct an object
+    {
+    }
+
+    BSLA_NODISCARD
+    TYPE* allocate(size_t n)
+        // Call 'new' with the specified 'n'.
+    {
+        return ::operator new(n * sizeof(TYPE));
+    }
+
+    void deallocate(TYPE* p, size_t)
+        // Call 'new' with the specified 'p'.
+    {
+        ::operator delete(p);
+    }
+};
+
 
 struct AttribStruct5
 {
@@ -1772,7 +1831,7 @@ void testAttribClass<AttribClass5>(const char* className)
 };
 
 template <class ALLOC>
-void testNestedTypedefs(const char* allocName)
+void testNestedTypedefs(const char* allocName, bool always_equal)
 {
     if (verbose)
         printf("Testing nested typedefs for allocator %s\n", allocName);
@@ -1806,6 +1865,18 @@ void testNestedTypedefs(const char* allocName)
     // user-defined conversions.  Convertibility from A* to B* implies either
     // that cv-A is the same as B or cv-A is derived from B, which what we are
     // looking for.
+    if (always_equal) {
+        LOOP_ASSERT(allocName,
+                    (bsl::is_convertible<
+                     typename Traits::is_always_equal *,
+                     bsl::true_type *>::value));
+    }
+    else {
+        LOOP_ASSERT(allocName,
+                    (bsl::is_convertible<
+                     typename Traits::is_always_equal *,
+                     bsl::false_type *>::value));
+    }
     LOOP_ASSERT(allocName,
                 (bsl::is_convertible<
                  typename Traits::propagate_on_container_copy_assignment*,
@@ -1820,7 +1891,7 @@ void testNestedTypedefs(const char* allocName)
                  bsl::false_type* >::value));
 }
 
-template <class ALLOC>
+template <class ALLOC, class POC_VALUE, class IE_VALUE>
 void testMinimalTypedefs(const char* allocName)
 {
     if (verbose)
@@ -1857,16 +1928,21 @@ void testMinimalTypedefs(const char* allocName)
     // looking for.
     LOOP_ASSERT(allocName,
                 (bsl::is_convertible<
+                    typename Traits::is_always_equal *,
+                    IE_VALUE *>::value));
+
+    LOOP_ASSERT(allocName,
+                (bsl::is_convertible<
                  typename Traits::propagate_on_container_copy_assignment*,
-                 bsl::false_type* >::value));
+                 POC_VALUE* >::value));
     LOOP_ASSERT(allocName,
                 (bsl::is_convertible<
                  typename Traits::propagate_on_container_move_assignment*,
-                 bsl::false_type* >::value));
+                 POC_VALUE* >::value));
     LOOP_ASSERT(allocName,
                 (bsl::is_convertible<
                  typename Traits::propagate_on_container_swap*,
-                 bsl::false_type* >::value));
+                 POC_VALUE* >::value));
 }
 
 template <template <class> class ALLOC_TMPL, class TYPE_1, class TYPE_2>
@@ -2614,18 +2690,34 @@ int main(int argc, char *argv[])
         //: 3 'void_pointer' is the same as 'void*' and 'const_void_pointer' is
         //:   the same as 'const void*'.
         //: 4 The types 'propagate_on_container_copy_assignment'
-        //:   'propagate_on_container_move_assignment'
+        //:   'propagate_on_container_move_assignment' and
         //:   'propagate_on_container_swap' are each derived from
-        //:   'bsl::false_type'.
-        //: 5 Concerns 1-4 apply to any allocator type.
+        //:   'bsl::false_type' unless defined as a trait on the allocator
+        //:   itself, in which case they are determined by the trait defined on
+        //:   the allocator.
+        //: 5 Where the trait 'is_always_equal' is not defined on the allocator
+        //:   itself, the type 'is_always_equal' is derived from
+        //:   'bsl::false_type' for non-empty allocators and 'bsl::true_type'
+        //:   otherwise.
+        //: 6 Where the trait 'is_always_equal' is defined on the allocator
+        //:   itself, the type 'is_always_equal' is determined by the trait
+        //:   defined on the allocator.
+        //: 7 Concerns 1-6 apply to any allocator type.
         //
         // Plan:
-        //: o Create a template function, 'testNestedTypedefs' that directly
-        //:   tests each of the types.  (C1-4).
-        //: o Instantiate and invoke 'testNestedTypedefs' on each meaningful
+        //: 1 Create a template function, 'testNestedTypedefs' that directly
+        //:   tests each of the types.  (C1-6).
+        //: 2 Instantiate and invoke 'testNestedTypedefs' on each meaningful
         //:   combination of attribute classes ('AttribClass5',
-        //:   'AttribClass5Alloc', and 'AttribClass5bslma') and allocator type
+        //:   'AttribClass5Alloc', and 'AttribClass5bslma') and allocator types
         //:   ('NonBslmaAllocator', 'BslmaAllocator', 'FunkyAllocator').
+        //: 3 Create a template function, 'testMinimalTypedefs' that directly
+        //:   tests the 'MinimalAllocator' and
+        //:   'MinimalNonEmptyAllocatorWithTraits'  (C1-6).
+        //: 4 Instantiate and invoke 'testMinimalTypedefs' on each meaningful
+        //:   combination of attribute classes ('AttribClass5',
+        //:   'AttribClass5Alloc', and 'AttribClass5bslma') and allocator types
+        //:   ('MinimalAllocator', 'MinimalNonEmptyAllocatorWithTraits').
         //
         // Testing:
         //   allocator_type
@@ -2636,6 +2728,7 @@ int main(int argc, char *argv[])
         //   const_void_pointer
         //   difference_type
         //   size_type
+        //   is_always_equal
         //   propagate_on_container_copy_assignment
         //   propagate_on_container_move_assignment
         //   propagate_on_container_swap
@@ -2644,41 +2737,79 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING NESTED TYPEDEFS"
                             "\n=======================\n");
 
-#define TEST_NESTED_TYPEDEFS(ALLOC) \
-        testNestedTypedefs<ALLOC >(#ALLOC);
+#define TEST_NESTED_TYPEDEFS(ALLOC, ALWAYS_EQUAL) \
+        testNestedTypedefs<ALLOC >(#ALLOC, ALWAYS_EQUAL);
 
-#define TEST_MINIMAL_TYPEDEFS(ALLOC) \
-        testMinimalTypedefs<ALLOC >(#ALLOC);
+#define TEST_MINIMAL_TYPEDEFS(ALLOC, IE_VALUE, POC_VALUE) \
+        testMinimalTypedefs<ALLOC, IE_VALUE, POC_VALUE>(#ALLOC);
 
         typedef AttribClass5Alloc<NonBslmaAllocator<int> > AC5AllocNonBslma;
         typedef AttribClass5Alloc<BslmaAllocator<int> >    AC5AllocBslma;
         typedef AttribClass5Alloc<FunkyAllocator<int> >    AC5AllocFunky;
 
-        TEST_NESTED_TYPEDEFS(NonBslmaAllocator<AttribClass5>);
-        TEST_NESTED_TYPEDEFS(BslmaAllocator<AttribClass5>);
-        TEST_NESTED_TYPEDEFS(FunkyAllocator<AttribClass5>);
-        TEST_MINIMAL_TYPEDEFS(MinimalAllocator<AttribClass5>);
+        typedef bsl::true_type tt;
+        typedef bsl::false_type ft;
 
-        TEST_NESTED_TYPEDEFS(NonBslmaAllocator<AC5AllocNonBslma>);
-        TEST_NESTED_TYPEDEFS(BslmaAllocator<AC5AllocNonBslma>);
-        TEST_NESTED_TYPEDEFS(FunkyAllocator<AC5AllocNonBslma>);
-        TEST_MINIMAL_TYPEDEFS(MinimalAllocator<AC5AllocNonBslma>);
+        TEST_NESTED_TYPEDEFS(NonBslmaAllocator<AttribClass5>, false);
+        TEST_NESTED_TYPEDEFS(BslmaAllocator<AttribClass5>,    false);
+        TEST_NESTED_TYPEDEFS(FunkyAllocator<AttribClass5>,    false);
+        TEST_MINIMAL_TYPEDEFS(MinimalAllocator<AttribClass5>, ft, tt);
 
-        TEST_NESTED_TYPEDEFS(NonBslmaAllocator<AC5AllocBslma>);
-        TEST_NESTED_TYPEDEFS(BslmaAllocator<AC5AllocBslma>);
-        TEST_NESTED_TYPEDEFS(FunkyAllocator<AC5AllocBslma>);
-        TEST_MINIMAL_TYPEDEFS(MinimalAllocator<AC5AllocBslma>);
+        TEST_NESTED_TYPEDEFS(NonBslmaAllocator<AC5AllocNonBslma>, false);
+        TEST_NESTED_TYPEDEFS(BslmaAllocator<AC5AllocNonBslma>,    false);
+        TEST_NESTED_TYPEDEFS(FunkyAllocator<AC5AllocNonBslma>,    false);
+        TEST_MINIMAL_TYPEDEFS(MinimalAllocator<AC5AllocNonBslma>, ft, tt);
 
-        TEST_NESTED_TYPEDEFS(NonBslmaAllocator<AC5AllocFunky>);
-        TEST_NESTED_TYPEDEFS(BslmaAllocator<AC5AllocFunky>);
-        TEST_NESTED_TYPEDEFS(FunkyAllocator<AC5AllocFunky>);
-        TEST_MINIMAL_TYPEDEFS(MinimalAllocator<AC5AllocFunky>);
+        TEST_NESTED_TYPEDEFS(NonBslmaAllocator<AC5AllocBslma>, false);
+        TEST_NESTED_TYPEDEFS(BslmaAllocator<AC5AllocBslma>,    false);
+        TEST_NESTED_TYPEDEFS(FunkyAllocator<AC5AllocBslma>,    false);
+        TEST_MINIMAL_TYPEDEFS(MinimalAllocator<AC5AllocBslma>, ft, tt);
 
-        TEST_NESTED_TYPEDEFS(NonBslmaAllocator<AttribClass5bslma>);
-        TEST_NESTED_TYPEDEFS(BslmaAllocator<AttribClass5bslma>);
-        TEST_NESTED_TYPEDEFS(FunkyAllocator<AttribClass5bslma>);
-        TEST_MINIMAL_TYPEDEFS(MinimalAllocator<AttribClass5bslma>);
+        TEST_NESTED_TYPEDEFS(NonBslmaAllocator<AC5AllocFunky>, false);
+        TEST_NESTED_TYPEDEFS(BslmaAllocator<AC5AllocFunky>,    false);
+        TEST_NESTED_TYPEDEFS(FunkyAllocator<AC5AllocFunky>,    false);
+        TEST_MINIMAL_TYPEDEFS(MinimalAllocator<AC5AllocFunky>, ft, tt);
 
+        TEST_NESTED_TYPEDEFS(NonBslmaAllocator<AttribClass5bslma>, false);
+        TEST_NESTED_TYPEDEFS(BslmaAllocator<AttribClass5bslma>,    false);
+        TEST_NESTED_TYPEDEFS(FunkyAllocator<AttribClass5bslma>,    false);
+        TEST_MINIMAL_TYPEDEFS(MinimalAllocator<AttribClass5bslma>, ft, tt);
+
+        typedef MinimalNonEmptyAllocatorWithTraits<AttribClass5,      tt>
+            MinimalTrueClass5;
+        typedef MinimalNonEmptyAllocatorWithTraits<AC5AllocNonBslma,  tt>
+            MinimalTrueNonBslma;
+        typedef MinimalNonEmptyAllocatorWithTraits<AC5AllocBslma,     tt>
+            MinimalTrueBslma;
+        typedef MinimalNonEmptyAllocatorWithTraits<AC5AllocFunky,     tt>
+            MinimalTrueFunky;
+        typedef MinimalNonEmptyAllocatorWithTraits<AttribClass5bslma, tt>
+            MinimalTrueClass5bslma;
+
+        TEST_MINIMAL_TYPEDEFS(MinimalTrueClass5,      tt, tt);
+        TEST_MINIMAL_TYPEDEFS(MinimalTrueNonBslma,    tt, tt);
+        TEST_MINIMAL_TYPEDEFS(MinimalTrueBslma,       tt, tt);
+        TEST_MINIMAL_TYPEDEFS(MinimalTrueFunky,       tt, tt);
+        TEST_MINIMAL_TYPEDEFS(MinimalTrueClass5bslma, tt, tt);
+
+        typedef MinimalNonEmptyAllocatorWithTraits<AttribClass5,      ft>
+            MinimalFalseClass5;
+        typedef MinimalNonEmptyAllocatorWithTraits<AC5AllocNonBslma,  ft>
+            MinimalFalseNonBslma;
+        typedef MinimalNonEmptyAllocatorWithTraits<AC5AllocBslma,     ft>
+            MinimalFalseBslma;
+        typedef MinimalNonEmptyAllocatorWithTraits<AC5AllocFunky,     ft>
+            MinimalFalseFunky;
+        typedef MinimalNonEmptyAllocatorWithTraits<AttribClass5bslma, ft>
+            MinimalFalseClass5bslma;
+
+        TEST_MINIMAL_TYPEDEFS(MinimalFalseClass5,      ft, ft);
+        TEST_MINIMAL_TYPEDEFS(MinimalFalseNonBslma,    ft, ft);
+        TEST_MINIMAL_TYPEDEFS(MinimalFalseBslma,       ft, ft);
+        TEST_MINIMAL_TYPEDEFS(MinimalFalseFunky,       ft, ft);
+        TEST_MINIMAL_TYPEDEFS(MinimalFalseClass5bslma, ft, ft);
+
+#undef TEST_MINIMAL_TYPEDEFS
 #undef TEST_NESTED_TYPEDEFS
       } break;
       case 2: {

@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Fri Jun  3 08:52:03 2022
+// Generated on Mon Aug 15 10:38:36 2022
 // Command line: sim_cpp11_features.pl bslma_stdallocator.h
 
 #ifdef COMPILING_BSLMA_STDALLOCATOR_H
@@ -1060,6 +1060,8 @@ struct allocator_traits<allocator<TYPE> > {
     {
         return allocator<TYPE>();
     }
+
+    typedef false_type is_always_equal;
 
     typedef false_type propagate_on_container_copy_assignment;
 

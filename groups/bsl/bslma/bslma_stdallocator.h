@@ -796,6 +796,8 @@ struct allocator_traits<allocator<TYPE> > {
         return allocator<TYPE>();
     }
 
+    typedef false_type is_always_equal;
+
     typedef false_type propagate_on_container_copy_assignment;
 
     typedef false_type propagate_on_container_move_assignment;

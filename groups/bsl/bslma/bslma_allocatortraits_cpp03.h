@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu May 12 11:21:13 2022
+// Generated on Thu Aug 25 06:09:46 2022
 // Command line: sim_cpp11_features.pl bslma_allocatortraits.h
 
 #ifdef COMPILING_BSLMA_ALLOCATORTRAITS_H
@@ -30,6 +30,63 @@
 
 namespace BloombergLP {
 namespace bslma {
+
+
+                      // ================================
+                      // AllocatorTraits_HasIsAlwaysEqual
+                      // ================================
+
+template <class ALLOC>
+struct AllocatorTraits_HasIsAlwaysEqual {
+    // This 'struct' template provides a mechanism for determining whether a
+    // given (template parameter) 'ALLOCATOR_TYPE' defines a nested alias named
+    //'is_always_equal'.  The static boolean member 'value' (nested alias
+    // named 'type') is 'true' ('bsl::true_type') if 'ALLOCATOR_TYPE' defines
+    // such an alias, and 'false' ('bsl::false_type') otherwise.
+
+  private:
+    // PRIVATE TYPES
+    typedef struct { char d_a;    } yes_type;
+    typedef struct { char d_a[2]; } no_type;
+
+    // PRIVATE CLASS METHODS
+    template <class U>
+    static yes_type match(typename U::is_always_equal *);
+    template <class U>
+    static no_type match(...);
+        // Return 'yes_type' if the (template parameter) 'TYPE' defines a
+        // nested alias named 'is_always_equal', and 'no_type' otherwise.
+
+  public:
+    // PUBLIC CLASS DATA
+    static const bool value = sizeof(match<ALLOC>(0)) == sizeof(yes_type);
+
+    // PUBLIC TYPES
+    typedef bsl::integral_constant<bool, value> type;
+};
+
+                       // =============================
+                       // AllocatorTraits_IsAlwaysEqual
+                       // =============================
+
+template <class ALLOC, bool = AllocatorTraits_HasIsAlwaysEqual<ALLOC>::value>
+struct AllocatorTraits_IsAlwaysEqual : public ALLOC::is_always_equal
+{
+    // This 'struct' template sets the boolean type for the attribute named
+    // 'is_always_equal' to the nested type alias in the given (template
+    // parameter) 'ALLOC' if 'ALLOC' defines such an alias (i.e., if
+    // 'true == AllocatorTraits_HasIsAlwaysEqual<ALLOCATOR_TYPE>::value').
+};
+
+template <class ALLOC>
+struct AllocatorTraits_IsAlwaysEqual<ALLOC, false>
+                                  : public bsl::is_empty<ALLOC>
+{
+    // This 'struct' template sets the boolean type for the attribute named
+    // 'is_always_equal' to 'bsl::is_empty<ALLOC>' if the given (template
+    // parameter) 'ALLOC' does not define such an alias (i.e., if
+    // 'false == AllocatorTraits_HasIsAlwaysEqual<ALLOCATOR_TYPE>::value').
+};
 
                    // =====================================
                    // AllocatorTraits_HasSelectOnCopyMethod
@@ -1002,6 +1059,14 @@ struct allocator_traits {
         // component) provides the alternate default behavior of *not*
         // propagating the allocator on copy construction (i.e., returning a
         // default-constructed allocator object).
+
+    typedef typename BloombergLP::bslma::AllocatorTraits_IsAlwaysEqual<
+                             ALLOCATOR_TYPE>::type is_always_equal;
+        // Identical to, or derived from 'true_type' if two allocators of
+        // parameterized 'ALLOCATOR_TYPE' always compare equal; otherwise
+        // identical to or derived from 'false_type'.  This type is
+        // 'ALLOCATOR_TYPE::is_always_equal' if such a type is defined, and
+        // 'is_empty<ALLOCATOR_TYPE>' otherwise.
 
     typedef typename BloombergLP::bslma::AllocatorTraits_PropOnCopyAssign<
                   ALLOCATOR_TYPE>::type propagate_on_container_copy_assignment;

@@ -76,6 +76,7 @@ using namespace bsl;
 // [ 3] size_type
 // [ 4] rebind_alloc<U>
 // [ 4] rebind_traits<U>
+// [ 3] is_always_equal
 // [ 3] propagate_on_container_copy_assignment
 // [ 3] propagate_on_container_move_assignment
 // [ 3] propagate_on_container_swap
@@ -1604,6 +1605,10 @@ void testNestedTypedefs(const char* allocName)
     // looking for.
     LOOP_ASSERT(allocName,
                 (bsl::is_convertible<
+                 typename Traits::is_always_equal*,
+                 bsl::false_type* >::value));
+    LOOP_ASSERT(allocName,
+                (bsl::is_convertible<
                  typename Traits::propagate_on_container_copy_assignment*,
                  bsl::false_type* >::value));
     LOOP_ASSERT(allocName,
@@ -2363,8 +2368,8 @@ int main(int argc, char *argv[])
         //:   is the same as 'const void*'.
         //: 4 The types 'propagate_on_container_copy_assignment'
         //:   'propagate_on_container_move_assignment'
-        //:   'propagate_on_container_swap' are each derived from
-        //:   'bsl::false_type'.
+        //:   'propagate_on_container_swap', and 'is_always_equal' are each
+        //:   derived from 'bsl::false_type'.
         //: 5 Concerns 1-4 apply to any allocator type.
         //
         // Plan:
@@ -2384,6 +2389,7 @@ int main(int argc, char *argv[])
         //   const_void_pointer
         //   difference_type
         //   size_type
+        //   is_always_equal
         //   propagate_on_container_copy_assignment
         //   propagate_on_container_move_assignment
         //   propagate_on_container_swap
