@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Fri Aug 12 18:15:41 2022
+// Generated on Wed Aug 24 18:59:03 2022
 // Command line: sim_cpp11_features.pl bslstl_hashtable.h
 
 #ifdef COMPILING_BSLSTL_HASHTABLE_H
@@ -5676,8 +5676,17 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
         this->rehashForNumBuckets(numBuckets() * 2);
     }
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
     hint = d_parameters.nodeFactory().emplaceIntoNewNode(
-                                 BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key));
+          std::piecewise_construct,
+          std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key)),
+          std::forward_as_tuple());
+#else
+    typedef typename ValueType::second_type MappedType;
+    hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+                     BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
+                     MappedType());
+#endif
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
                             nodeProctor(&d_parameters.nodeFactory(), hint);
@@ -5720,9 +5729,19 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
         this->rehashForNumBuckets(numBuckets() * 2);
     }
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
     hint = d_parameters.nodeFactory().emplaceIntoNewNode(
-                                 BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01));
+          std::piecewise_construct,
+          std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key)),
+          std::forward_as_tuple(
+                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01)));
+#else
+    typedef typename ValueType::second_type MappedType;
+    hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+                     BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
+                     MappedType(
+                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01)));
+#endif
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
                             nodeProctor(&d_parameters.nodeFactory(), hint);
@@ -5767,10 +5786,21 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
         this->rehashForNumBuckets(numBuckets() * 2);
     }
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
     hint = d_parameters.nodeFactory().emplaceIntoNewNode(
-                                 BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02));
+          std::piecewise_construct,
+          std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key)),
+          std::forward_as_tuple(
+                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02)));
+#else
+    typedef typename ValueType::second_type MappedType;
+    hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+                     BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
+                     MappedType(
+                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02)));
+#endif
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
                             nodeProctor(&d_parameters.nodeFactory(), hint);
@@ -5817,11 +5847,23 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
         this->rehashForNumBuckets(numBuckets() * 2);
     }
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
     hint = d_parameters.nodeFactory().emplaceIntoNewNode(
-                                 BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03));
+          std::piecewise_construct,
+          std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key)),
+          std::forward_as_tuple(
+                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03)));
+#else
+    typedef typename ValueType::second_type MappedType;
+    hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+                     BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
+                     MappedType(
+                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03)));
+#endif
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
                             nodeProctor(&d_parameters.nodeFactory(), hint);
@@ -5870,12 +5912,25 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
         this->rehashForNumBuckets(numBuckets() * 2);
     }
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
     hint = d_parameters.nodeFactory().emplaceIntoNewNode(
-                                 BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04));
+          std::piecewise_construct,
+          std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key)),
+          std::forward_as_tuple(
+                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04)));
+#else
+    typedef typename ValueType::second_type MappedType;
+    hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+                     BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
+                     MappedType(
+                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04)));
+#endif
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
                             nodeProctor(&d_parameters.nodeFactory(), hint);
@@ -5926,13 +5981,27 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
         this->rehashForNumBuckets(numBuckets() * 2);
     }
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
     hint = d_parameters.nodeFactory().emplaceIntoNewNode(
-                                 BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05));
+          std::piecewise_construct,
+          std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key)),
+          std::forward_as_tuple(
+                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05)));
+#else
+    typedef typename ValueType::second_type MappedType;
+    hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+                     BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
+                     MappedType(
+                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05)));
+#endif
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
                             nodeProctor(&d_parameters.nodeFactory(), hint);
@@ -5985,14 +6054,29 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
         this->rehashForNumBuckets(numBuckets() * 2);
     }
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
     hint = d_parameters.nodeFactory().emplaceIntoNewNode(
-                                 BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06));
+          std::piecewise_construct,
+          std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key)),
+          std::forward_as_tuple(
+                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06)));
+#else
+    typedef typename ValueType::second_type MappedType;
+    hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+                     BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
+                     MappedType(
+                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06)));
+#endif
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
                             nodeProctor(&d_parameters.nodeFactory(), hint);
@@ -6047,15 +6131,31 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
         this->rehashForNumBuckets(numBuckets() * 2);
     }
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
     hint = d_parameters.nodeFactory().emplaceIntoNewNode(
-                                 BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07));
+          std::piecewise_construct,
+          std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key)),
+          std::forward_as_tuple(
+                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07)));
+#else
+    typedef typename ValueType::second_type MappedType;
+    hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+                     BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
+                     MappedType(
+                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07)));
+#endif
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
                             nodeProctor(&d_parameters.nodeFactory(), hint);
@@ -6112,16 +6212,33 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
         this->rehashForNumBuckets(numBuckets() * 2);
     }
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
     hint = d_parameters.nodeFactory().emplaceIntoNewNode(
-                                 BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08));
+          std::piecewise_construct,
+          std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key)),
+          std::forward_as_tuple(
+                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08)));
+#else
+    typedef typename ValueType::second_type MappedType;
+    hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+                     BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
+                     MappedType(
+                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08)));
+#endif
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
                             nodeProctor(&d_parameters.nodeFactory(), hint);
@@ -6180,17 +6297,35 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
         this->rehashForNumBuckets(numBuckets() * 2);
     }
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
     hint = d_parameters.nodeFactory().emplaceIntoNewNode(
-                                 BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_09, args_09));
+          std::piecewise_construct,
+          std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key)),
+          std::forward_as_tuple(
+                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_09, args_09)));
+#else
+    typedef typename ValueType::second_type MappedType;
+    hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+                     BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
+                     MappedType(
+                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_09, args_09)));
+#endif
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
                             nodeProctor(&d_parameters.nodeFactory(), hint);
@@ -6251,18 +6386,37 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
         this->rehashForNumBuckets(numBuckets() * 2);
     }
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
     hint = d_parameters.nodeFactory().emplaceIntoNewNode(
-                                 BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_09, args_09),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_10, args_10));
+          std::piecewise_construct,
+          std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key)),
+          std::forward_as_tuple(
+                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_09, args_09),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_10, args_10)));
+#else
+    typedef typename ValueType::second_type MappedType;
+    hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+                     BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
+                     MappedType(
+                             BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_09, args_09),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_10, args_10)));
+#endif
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
                             nodeProctor(&d_parameters.nodeFactory(), hint);
@@ -6307,9 +6461,17 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
         this->rehashForNumBuckets(numBuckets() * 2);
     }
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
     hint = d_parameters.nodeFactory().emplaceIntoNewNode(
-                                 BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
-                                 BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
+          std::piecewise_construct,
+          std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key)),
+          std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(Args, args)...));
+#else
+    typedef typename ValueType::second_type MappedType;
+    hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+                     BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
+                     MappedType(BSLS_COMPILERFEATURES_FORWARD(Args, args)...));
+#endif
 
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>
                             nodeProctor(&d_parameters.nodeFactory(), hint);

@@ -1483,6 +1483,28 @@ void testTransparentComparator(Container& container,
 }
 
                          // ================
+                         // class IntValue
+                         // ================
+
+struct IntValue {
+    // A struct that holds an integer value, but has multiple constructors
+    // that add the different arguments.
+
+    IntValue ()                    : d_value(0) {}
+        // Construct an IntValue, setting d_value to zero.
+
+    IntValue (int a)               : d_value(a) {}
+        // Construct an IntValue from the specified 'a'
+
+    IntValue (int a, int b)        : d_value(a + b) {}
+        // Construct an IntValue from the specified 'a' and 'b'.
+
+    IntValue (int a, int b, int c) : d_value(a + b + c) {}
+        // Construct an IntValue from the specified 'a', 'b', and 'c'.
+
+    int d_value;
+};
+                         // ================
                          // class MoveHolder
                          // ================
 
@@ -9241,6 +9263,35 @@ int main(int argc, char *argv[])
         TestDriver<char, size_t>::testCase43();
         TestDriver<int,  size_t>::testCase43();
         TestDriver<long, size_t>::testCase43();
+
+        // test 'try_emplace' with different numbers of arguments
+        {
+            typedef bsl::unordered_map<int, IntValue> Map;
+            typedef bsl::pair<Map::iterator, bool> PAIR;
+
+            Map  m;
+            PAIR p;
+
+            p = m.try_emplace(1);
+            ASSERT(p.second);
+            ASSERT(1 == p.first->first);
+            ASSERT(0 == p.first->second.d_value);
+
+            p = m.try_emplace(2, 3);
+            ASSERT(p.second);
+            ASSERT(2 == p.first->first);
+            ASSERT(3 == p.first->second.d_value);
+
+            p = m.try_emplace(4, 5, 6);
+            ASSERT(p.second);
+            ASSERT(4 == p.first->first);
+            ASSERT(11 == p.first->second.d_value);
+
+            p = m.try_emplace(7, 8, 9, 10);
+            ASSERT(p.second);
+            ASSERT(7 == p.first->first);
+            ASSERT(27 == p.first->second.d_value);
+        }
       } break;
       case 42: {
         // --------------------------------------------------------------------

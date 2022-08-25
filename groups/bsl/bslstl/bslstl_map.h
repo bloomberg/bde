@@ -507,9 +507,13 @@ BSLS_IDENT("$Id: $")
 
 #include <functional>
 
-
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 # include <initializer_list>
+#endif
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+#include <tuple>      // for forward_as_tuple (C++11)
+#include <utility>    // for piecewise_construct (C++11)
 #endif
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
@@ -1329,7 +1333,9 @@ class map {
         // item and 'false'.  Otherwise, insert into this map a newly-created
         // entry constructed from 'key' and the specified 'args', and return a
         // pair containing an iterator referring to the newly-created entry and
-        // 'true'.
+        // 'true'.  This method requires that the (template parameter) types
+        // 'KEY' and 'VALUE' are emplace-constructible from 'key' and 'args'
+        // respectively.  For C++03, 'VALUE' must also be copy-constructible.
 
     template<class... Args>
     iterator try_emplace(const_iterator hint, const KEY& key, Args&&... args);
@@ -1343,7 +1349,9 @@ class map {
         // constructed from from 'key' and the specified 'args', and return an
         // iterator referring to the newly-created entry.  Use the specified
         // 'hint' as a starting point for checking to see if the key already in
-        // the map.
+        // the map.  This method requires that the (template parameter) types
+        // 'KEY' and 'VALUE' are emplace-constructible from 'key' and 'args'
+        // respectively.  For C++03, 'VALUE' must also be copy-constructible.
 #endif
 
     void clear() BSLS_KEYWORD_NOEXCEPT;
@@ -3057,9 +3065,16 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(const key_type& key,
         return pair<iterator, bool>(iterator(insertLocation), false); // RETURN
     }
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+          std::piecewise_construct,
+          std::forward_as_tuple(key),
+          std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(Args, args)...));
+#else
     BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
           key,
-          BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
+          mapped_type(BSLS_COMPILERFEATURES_FORWARD(Args, args)...));
+#endif
 
     BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
                                               insertLocation,
@@ -3090,9 +3105,16 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(const_iterator  hint,
         return iterator(insertLocation);                              // RETURN
     }
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+          std::piecewise_construct,
+          std::forward_as_tuple(key),
+          std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(Args, args)...));
+#else
     BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
           key,
-          BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
+          mapped_type(BSLS_COMPILERFEATURES_FORWARD(Args, args)...));
+#endif
 
     BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
                                               insertLocation,
@@ -3122,9 +3144,16 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(
         return pair<iterator, bool>(iterator(insertLocation), false); // RETURN
     }
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+          std::piecewise_construct,
+          std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(key_type, key)),
+          std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(Args, args)...));
+#else
     BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
           BSLS_COMPILERFEATURES_FORWARD(key_type, key),
-          BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
+          mapped_type(BSLS_COMPILERFEATURES_FORWARD(Args, args)...));
+#endif
 
     BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
                                               insertLocation,
@@ -3159,9 +3188,16 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::try_emplace(
         return iterator(insertLocation);                              // RETURN
     }
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
     BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
-             BSLS_COMPILERFEATURES_FORWARD(key_type, key),
-             BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
+          std::piecewise_construct,
+          std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(key_type, key)),
+          std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(Args, args)...));
+#else
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+          BSLS_COMPILERFEATURES_FORWARD(key_type, key),
+          mapped_type(BSLS_COMPILERFEATURES_FORWARD(Args, args)...));
+#endif
 
     BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
                                               insertLocation,

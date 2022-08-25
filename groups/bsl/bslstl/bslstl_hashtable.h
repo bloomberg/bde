@@ -1531,6 +1531,9 @@ BSLS_IDENT("$Id: $")
 #include <cstddef>    // for 'size_t'
 #include <cstring>    // for 'memset'
 #include <limits>     // for numeric_limits
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+#include <tuple>      // for forward_as_tuple (C++11)
+#endif
 #include <utility>    // for swap (C++17)
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
@@ -4614,9 +4617,17 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
     }
 
     // Make a new node
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
     hint = d_parameters.nodeFactory().emplaceIntoNewNode(
-                                 BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
-                                 BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
+          std::piecewise_construct,
+          std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key)),
+          std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(Args, args)...));
+#else
+    typedef typename ValueType::second_type MappedType;
+    hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+                     BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
+                     MappedType(BSLS_COMPILERFEATURES_FORWARD(Args, args)...));
+#endif
 
     // Add it to the hash table
     HashTable_NodeProctor<typename ImplParameters::NodeFactory>

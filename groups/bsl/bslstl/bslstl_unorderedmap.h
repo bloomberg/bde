@@ -1790,7 +1790,10 @@ class unordered_map {
         // existing item, and 'false'.  Otherwise, insert into this map a
         // newly-created 'value_type' object, constructed from 'key' and the
         // specified 'args', and return a pair containing an iterator referring
-        // to the newly-created entry and 'true'.
+        // to the newly-created entry and 'true'.  This method requires that
+        // the (template parameter) types 'KEY' and 'VALUE' are
+        // emplace-constructible from 'key' and 'args' respectively.  For
+        // C++03, 'VALUE' must also be copy-constructible.
 
     template <class... Args>
     pair<iterator, bool> try_emplace(
@@ -1802,7 +1805,9 @@ class unordered_map {
         // newly-created 'value_type' object, constructed from
         // 'std::forward<KEY>(key)' and the specified 'args', and return a pair
         // containing an iterator referring to the newly-created entry, and
-        // 'true'.
+        // 'true'.  This method requires that the (template parameter) types
+        // 'KEY' and 'VALUE' are emplace-constructible from 'key' and 'args'
+        // respectively.  For C++03, 'VALUE' must also be copy-constructible.
 
     template<class... Args>
     iterator
@@ -1813,7 +1818,10 @@ class unordered_map {
         // constructed from 'key' and the specified 'args', and return an
         // iterator referring to the newly-created entry.  Use the specified
         // 'hint' as a starting point for checking to see if the key already
-        // in the unordered_map.
+        // in the unordered_map.  This method requires that the
+        // (template parameter) types 'KEY' and 'VALUE' are
+        // emplace-constructible from 'key' and 'args' respectively.  For
+        // C++03, 'VALUE' must also be copy-constructible.
 
     template <class... Args>
     iterator try_emplace(const_iterator                      hint,
@@ -1825,7 +1833,10 @@ class unordered_map {
         // constructed from 'std::forward<KEY>(key)' and the specified 'args',
         // and return an iterator referring to the newly-created entry.  Use
         // the specified 'hint' as a starting point for checking to see if the
-        // key already in the unordered_map.
+        // key already in the unordered_map.  This method requires that the
+        // (template parameter) types 'KEY' and 'VALUE' are
+        // emplace-constructible from 'key' and 'args' respectively.  For
+        // C++03, 'VALUE' must also be copy-constructible.
 #endif
 
     // ACCESSORS
