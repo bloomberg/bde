@@ -1,5 +1,27 @@
-bsl-internal (3.106.0.0) unstable; urgency=low
+bsl-internal (3.107.0.0) unstable; urgency=low
 
+  * 981403ff7 Re-implement try_emplace so it works as specified (#3881)
+  * 8e48d83ce Bumped version to 3.107.0.0
+  * 6069c5202 C++17 allocator trait is_always_equal drqs 169974128 (#3864)
+  * 3847e0549 'bdlb::Variant' support has been added to 'baljsn::Decoder'. DRQS 169438741 (#3829)
+  * bca19c932 Add is_swappable and is_nothrow_swappable traits drqs 169954295 (#3843)
+  * 2001d3f7e Removed in the C++20 names have been covered by a special macro. DRQS 170066177  (#3875)
+  * 7c18a2dec Argument and result types have been deprecated in 'bslstl::hash'. DRQS 169974435  (#3848)
+  * 50d4a05a4 Argument types have been deprecated in 'bslstl::function'. DRQS 169974416 (#3844)
+  * bbaa62dc9 'bslstl::shared_ptr::unique' deprecation. DRQS 169974461 (#3866)
+  * 425dae7d3 Fix conflicting extern declarations (#3878)
+  * c4affeb84 Nothrow move constructible test enhancements per drqs 169893733 (#3816)
+  * fd37c1716 Replace OTHER with BDE_OTHER_TYPE (#3863)
+  * 9fd4d99b5 bdlc_flathash[map/set] bsl::inserter compatibility on Sun (#3852)
+  * 0446bf069 Fix typos in getArrayUint* calls (#3857)
+  * 1d1aa00c3 bsls_consteval-DRQS168556382 (#3693)
+  * 7c25ee499 Add bslstp::Identity (#3801)
+
+ -- Marshall Clow <mclow3@bloomberg.net>  Thu, 25 Aug 2022 12:09:44 -0700
+
+bsl-internal (3.106.0.0) git; urgency=low
+
+  * 74e526d75 Changelog for version 3.106.0.0
   * e48fb8171 Bumped version to 3.106.0.0
   * d2f2c28f5 Drqs 170067392/bdlma concurrentpoolallocator nb 20220809 (#3851)
   * c95e827e0 correct compile warning (#3850)
@@ -27,7 +49,7 @@ bsl-internal (3.106.0.0) unstable; urgency=low
   * 5b2042479 Merge pull request #3811 from bchapman/bdlt_datetimeinterval-ifvalid-3-drqs-135416925
   * fb15c8963 bdlmt_threadpool improved docs and a few bde_verify fixes (#3819)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 10 Aug 2022 14:32:50 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 10 Aug 2022 14:35:06 -0400
 
 bsl-internal (3.105.0.0) git; urgency=low
 
