@@ -52,11 +52,15 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslmf' package currently has 85 components having 19 levels of physical
+ The 'bslmf' package currently has 87 components having 21 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
+  21. bslmf_isnothrowswappable
+
+  20. bslmf_isswappable
+
   19. bslmf_forwardingreftype
       bslmf_forwardingtype
       bslmf_invokeresult
@@ -299,6 +303,9 @@
 : 'bslmf_isnothrowmoveconstructible':
 :      Provide metafunction to identify no-throw move-constructible types.
 :
+: 'bslmf_isnothrowswappable':
+:      Provide metafunction to identify nothrow swappable types.
+:
 : 'bslmf_ispair':
 :      Provide a compile-time check for the bsl::pair type.
 :
@@ -319,6 +326,9 @@
 :
 : 'bslmf_issame':
 :      Provide a meta-function for testing if two types are the same.
+:
+: 'bslmf_isswappable':
+:      Provide metafunction to identify swappable types.
 :
 : 'bslmf_istransparentpredicate':
 :      Support detection of whether a predicate functor is transparent.
