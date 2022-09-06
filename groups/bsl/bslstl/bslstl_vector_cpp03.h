@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Tue Jul  5 14:15:44 2022
+// Generated on Mon Aug 29 11:42:34 2022
 // Command line: sim_cpp11_features.pl bslstl_vector.h
 
 #ifdef COMPILING_BSLSTL_VECTOR_H
@@ -674,9 +674,10 @@ class vector : public  vectorBase<VALUE_TYPE>
     vector& operator=(std::initializer_list<VALUE_TYPE> values);
         // Assign to this object the value resulting from first clearing this
         // vector and then inserting (in order) each 'VALUE_TYPE' object in the
-        // specified 'values' initializer list.  If an exception is thrown,
-        // '*this' is left in a valid but unspecified state.  This method
-        // requires that the (template parameter) type 'VALUE_TYPE' be
+        // specified 'values' initializer list, and return a reference
+        // providing modifiable access to this object.  If an exception is
+        // thrown, '*this' is left in a valid but unspecified state.  This
+        // method requires that the (template parameter) type 'VALUE_TYPE' be
         // 'copy-insertable' into this vector (see {Requirements on
         // 'VALUE_TYPE'}).
 

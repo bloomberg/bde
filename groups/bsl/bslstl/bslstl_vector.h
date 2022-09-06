@@ -1264,9 +1264,10 @@ class vector : public  vectorBase<VALUE_TYPE>
     vector& operator=(std::initializer_list<VALUE_TYPE> values);
         // Assign to this object the value resulting from first clearing this
         // vector and then inserting (in order) each 'VALUE_TYPE' object in the
-        // specified 'values' initializer list.  If an exception is thrown,
-        // '*this' is left in a valid but unspecified state.  This method
-        // requires that the (template parameter) type 'VALUE_TYPE' be
+        // specified 'values' initializer list, and return a reference
+        // providing modifiable access to this object.  If an exception is
+        // thrown, '*this' is left in a valid but unspecified state.  This
+        // method requires that the (template parameter) type 'VALUE_TYPE' be
         // 'copy-insertable' into this vector (see {Requirements on
         // 'VALUE_TYPE'}).
 

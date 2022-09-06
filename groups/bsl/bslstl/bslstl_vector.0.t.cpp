@@ -239,6 +239,7 @@
 // [37] CONCERN: Access through member pointers compiles
 // [38] CONCERN: Movable types are moved when growing a vector
 // [39] CLASS TEMPLATE DEDUCTION GUIDES
+// [41] INCOMPLETE TYPE SUPPORT
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
