@@ -51,7 +51,10 @@ namespace bsl {
     using std::bidirectional_iterator_tag;
     using std::forward_iterator_tag;
     using std::input_iterator_tag;
+#if !defined(BSLS_PLATFORM_CMP_MSVC) &&                                       \
+    (BSLS_COMPILERFEATURES_CPLUSPLUS <= 201703L)
     using std::iterator;
+#endif
     using std::output_iterator_tag;
     using std::random_access_iterator_tag;
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED

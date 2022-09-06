@@ -98,7 +98,10 @@ namespace bsl {
     using std::bidirectional_iterator_tag;
     using std::forward_iterator_tag;
     using std::input_iterator_tag;
+#if !defined(BSLS_PLATFORM_CMP_MSVC) &&                                       \
+    (BSLS_COMPILERFEATURES_CPLUSPLUS <= 201703L)
     using std::iterator;
+#endif
     using std::new_handler;
     using std::nothrow;
     using std::nothrow_t;
