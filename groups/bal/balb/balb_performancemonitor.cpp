@@ -46,6 +46,12 @@ BSLS_IDENT_RCSID(balb_performancemonitor_cpp,"$Id$ $CSID$")
 #include <bsl_utility.h>
 #include <bsl_vector.h>
 
+// DRQS 170291732: This component cannot be built in 32-bit mode using g++ on
+// Solaris
+#if !(defined(BSLS_PLATFORM_OS_SOLARIS)   \
+        && defined(BSLS_PLATFORM_CMP_GNU) \
+        && defined(BSLS_PLATFORM_CPU_32_BIT))
+
 #if defined(BSLS_PLATFORM_OS_UNIX)
 #include <unistd.h>
 #include <fcntl.h>
@@ -1825,6 +1831,10 @@ void PerformanceMonitor::resetStatistics()
 
 }  // close package namespace
 }  // close enterprise namespace
+
+#endif  // !(defined(BSLS_PLATFORM_OS_SOLARIS)
+        //     && defined(BSLS_PLATFORM_CMP_GNU)
+        //     && defined(BSLS_PLATFORM_CPU_32_BIT))
 
 // ----------------------------------------------------------------------------
 // Copyright 2018 Bloomberg Finance L.P.

@@ -56,6 +56,17 @@
 #include <sys/wait.h>
 #endif
 
+// DRQS 170291732: This component cannot be built in 32-bit mode using g++ on
+// Solaris
+#if (defined(BSLS_PLATFORM_OS_SOLARIS)   \
+       && defined(BSLS_PLATFORM_CMP_GNU) \
+       && defined(BSLS_PLATFORM_CPU_32_BIT))
+int main()
+{
+    return -1;
+}
+#else
+
 using namespace BloombergLP;
 using bsl::cout;
 using bsl::cerr;
@@ -2083,6 +2094,10 @@ int main(int argc, char *argv[])
     }
     return testStatus;
 }
+
+#endif  // !(defined(BSLS_PLATFORM_OS_SOLARIS)
+        //     && defined(BSLS_PLATFORM_CMP_GNU)
+        //     && defined(BSLS_PLATFORM_CPU_32_BIT))
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.
