@@ -32,7 +32,6 @@
 #include <bdlde_utf8checkinginstreambufwrapper.h>
 #include <bdlde_utf8util.h>
 
-#include <bdlb_string.h>
 #include <bdlsb_fixedmeminstreambuf.h>
 
 #include <bslma_defaultallocatorguard.h>
@@ -3279,22 +3278,15 @@ if (verbose) {
         bool doneA = false, doneB = false, doneC = false;
         for (int errVal = -20; errVal < +20; ++errVal) {
             const bsl::string result = Obj::toAscii(errVal);
-            const int         len    = static_cast<int>(result.length());
 
             if (veryVerbose) { P_(errVal); P(result); }
 
             if (Obj::k_SEEK_FAIL == errVal) {
-                ASSERT(bdlb::String::strstrCaseless(result.c_str(),
-                                                    len,
-                                                    "seek_fail",
-                                                    9));
+                ASSERT("SEEK_FAIL" == result);
                 doneA = true;
             }
             else if (0 == errVal) {
-                ASSERT(bdlb::String::strstrCaseless(result.c_str(),
-                                                    len,
-                                                    "no_error",
-                                                    8));
+                ASSERT("NO_ERROR" == result);
                 doneB = true;
             }
             else {

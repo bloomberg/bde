@@ -5,7 +5,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlde_byteorder_cpp,"$Id$ $CSID$")
 
-#include <bdlb_print.h>
+#include <bslim_printer.h>
 
 #include <bsl_ostream.h>
 
@@ -22,14 +22,14 @@ bsl::ostream& Base64IgnoreMode::print(bsl::ostream&          stream,
                                       int                    level,
                                       int                    spacesPerLevel)
 {
-    bdlb::Print::indent(stream, level, spacesPerLevel);
-
-    stream << Base64IgnoreMode::toAscii(value);
-
-    if (spacesPerLevel >= 0) {
-        stream << '\n';
+    if (stream.bad()) {
+        return stream;                                                // RETURN
     }
 
+    bslim::Printer printer(&stream, level, spacesPerLevel);
+    printer.start(true);  // suppress bracket (here and below)
+    stream << Base64IgnoreMode::toAscii(value);
+    printer.end(true);
     return stream;
 }
 

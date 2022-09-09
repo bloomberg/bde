@@ -13,31 +13,30 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlde_byteorder_cpp,"$Id$ $CSID$")
 
-#include <bdlb_print.h>
+#include <bslim_printer.h>
 
 #include <bsl_ostream.h>
 
 namespace BloombergLP {
-
 namespace bdlde {
                               // ----------------
                               // struct ByteOrder
                               // ----------------
 
 // CLASS METHODS
-bsl::ostream& ByteOrder::print(bsl::ostream&  stream,
-                              ByteOrder::Enum value,
-                              int             level,
-                              int             spacesPerLevel)
+bsl::ostream& ByteOrder::print(bsl::ostream&   stream,
+                               ByteOrder::Enum value,
+                               int             level,
+                               int             spacesPerLevel)
 {
-    bdlb::Print::indent(stream, level, spacesPerLevel);
-
-    stream << ByteOrder::toAscii(value);
-
-    if (spacesPerLevel >= 0) {
-        stream << '\n';
+    if (stream.bad()) {
+        return stream;                                                // RETURN
     }
 
+    bslim::Printer printer(&stream, level, spacesPerLevel);
+    printer.start(true);  // suppress bracket (here and below)
+    stream << ByteOrder::toAscii(value);
+    printer.end(true);
     return stream;
 }
 

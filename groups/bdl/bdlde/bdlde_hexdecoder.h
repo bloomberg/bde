@@ -263,8 +263,6 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlscm_version.h>
 
-#include <bdlb_chartype.h>
-
 #include <bsls_assert.h>
 
 #include <bsl_iterator.h>
@@ -290,6 +288,15 @@ class HexDecoder {
     char        d_firstDigit;    // first (left) hex digit to decode
     int         d_outputLength;  // total number of output characters
     const char *d_decodeTable_p; // character code table
+
+    // PRIVATE CLASS METHODS
+    static bool isSpace(char character);
+        // Return 'true' if the specified 'character' is whitespace (i.e.,
+        // space, tab, CR, NL, VT, or FF), and 'false' otherwise.
+
+    static bool isXdigit(char character);
+        // Return 'true' if the specified 'character' is a hex digit, and
+        // 'false' otherwise.
 
     // NOT IMPLEMENTED
     HexDecoder(const HexDecoder&);
@@ -380,6 +387,43 @@ class HexDecoder {
 //                             INLINE DEFINITIONS
 // ============================================================================
 
+// PRIVATE CLASS METHODS
+inline
+bool HexDecoder::isSpace(char character)
+{
+    static const bool k_SPACE_TABLE[256] = {
+    // 0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
+       0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0,  // 00
+       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  // 10
+       1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  // 20
+       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  // 30
+       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  // 40
+       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  // 50
+       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  // 60
+       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  // 70
+    };
+
+    return k_SPACE_TABLE[static_cast<unsigned char>(character)];
+}
+
+inline
+bool HexDecoder::isXdigit(char character)
+{
+    static const bool k_XDIGIT_TABLE[256] = {
+    // 0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
+       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  // 00
+       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  // 10
+       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  // 20
+       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0,  // 30
+       0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,  // 40
+       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  // 50
+       0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,  // 60
+       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  // 70
+    };
+
+    return k_XDIGIT_TABLE[static_cast<unsigned char>(character)];
+}
+
 // MANIPULATORS
 template <class OUTPUT_ITERATOR, class INPUT_ITERATOR>
 int HexDecoder::convert(OUTPUT_ITERATOR out,
@@ -424,8 +468,8 @@ int HexDecoder::convert(OUTPUT_ITERATOR  out,
         const char digit = static_cast<char>(*begin);
         ++begin;
 
-        if (!bdlb::CharType::isSpace(digit)) {
-            if (!bdlb::CharType::isXdigit(static_cast<unsigned char>(digit))) {
+        if (!isSpace(digit)) {
+            if (!isXdigit(digit)) {
                 *numOut = numEmitted;
                 d_outputLength += numEmitted;
                 *numIn = static_cast<int>(bsl::distance(originalBegin, begin));

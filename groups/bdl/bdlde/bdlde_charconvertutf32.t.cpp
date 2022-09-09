@@ -13,8 +13,6 @@
 #include <bdlde_charconvertstatus.h>
 #include <bdlde_utf8util.h>
 
-#include <bdlb_random.h>
-
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_byteorderutil.h>
@@ -2441,19 +2439,38 @@ bsl::string dumpUtf32Vec(const VECTOR& utf32Vec)
     return oss.str();
 }
 
+static inline
+int generate15(int *nextSeed, int seed)
+{
+    unsigned int next = seed;
+
+    next *= 1103515245;
+    next += 12345;
+
+    *nextSeed = next;
+
+    return (next >> 16) & 0x7FFF;
+}
+
+static inline
+int generate15(int *seed)
+{
+    return generate15(seed, *seed);
+}
+
 int myRandSeed = 1234567890;
 static inline
 unsigned int myRand32()
 {
-    return ((unsigned int) bdlb::Random::generate15(&myRandSeed) << 20) ^
-           ((unsigned int) bdlb::Random::generate15(&myRandSeed) <<  8) ^
-           ((unsigned int) bdlb::Random::generate15(&myRandSeed) >>  4);
+    return ((unsigned int) generate15(&myRandSeed) << 20) ^
+           ((unsigned int) generate15(&myRandSeed) <<  8) ^
+           ((unsigned int) generate15(&myRandSeed) >>  4);
 }
 
 static inline
 unsigned int myRand15()
 {
-    return (unsigned int) bdlb::Random::generate15(&myRandSeed);
+    return (unsigned int) generate15(&myRandSeed);
 }
 
 

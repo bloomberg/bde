@@ -9,7 +9,6 @@
 
 #include <bdlde_utf8util.h>
 
-#include <bdlb_random.h>
 #include <bdlsb_fixedmeminstreambuf.h>
 #include <bdlsb_fixedmemoutstreambuf.h>
 
