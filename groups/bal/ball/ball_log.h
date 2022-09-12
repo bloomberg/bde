@@ -241,6 +241,17 @@ BSLS_IDENT("$Id: $")
 // that is in scope and the filename as established by the standard '__FILE__'
 // macro.
 //
+// The code within any logging statement/code block must not produce any side
+// effects because it may or may not be executed based on run-time
+// configuration of the 'ball' logging subsystem:
+//..
+//  BALL_LOG_INFO << ++i;    // (!) May or may not be incremented
+//
+//  BALL_LOG_TRACE_BLOCK {
+//     processRequest(...);  // (!) May or may not be called
+//  }
+//..
+//
 // A set of macros based on C++ streams, 'BALL_LOG_TRACE', 'BALL_LOG_DEBUG',
 // 'BALL_LOG_INFO', 'BALL_LOG_WARN', 'BALL_LOG_ERROR', and 'BALL_LOG_FATAL',
 // are the ones most commonly used for logging.  They have the following usage
@@ -366,10 +377,6 @@ BSLS_IDENT("$Id: $")
 //..
 //  Within the logging code block a special macro, 'BALL_LOG_OUTPUT_STREAM',
 //  provides access to the log stream.
-//
-//  Note that code within a logging code block must not produce any side
-//  effects because it may or may not be executed based on run-time
-//  configuration of the 'ball' logging subsystem.
 //
 ///Utility Macros
 /// - - - - - - -
