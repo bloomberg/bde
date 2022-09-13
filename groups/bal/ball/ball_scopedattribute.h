@@ -13,9 +13,13 @@
 // serves as a scoped guard for 'ball::Attribute' objects.  It defines a single
 // attribute for the current thread while it is in scope.
 //
-// This component participates in the implementation of "Rule-Based Logging".
-// For more information on how to use that feature, please see the package
-// level documentation and usage examples for "Rule-Based Logging".
+// This component is used to associate an attribute (a name-value pair) with
+// the current thread context for use when writing log records for the current
+// thread.  This context information can both be written to the log itself, and
+// used as input when evaluating whether a particular log should be written.
+// For more information on how to use this feature, please see the package
+// level documentation and usage examples for "Log Attributes" and "Rule-Based
+// Logging".
 //
 ///Usage
 ///-----

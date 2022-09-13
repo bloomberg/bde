@@ -28,9 +28,13 @@ BSLS_IDENT("$Id: $")
 // remove that 'ball::AttributeContainer' object from the current attribute
 // context upon destruction.
 //
-// This component participates in the implementation of "Rule-Based Logging".
-// For more information on how to use that feature, please see the package
-// level documentation and usage examples for "Rule-Based Logging".
+// This component is used to help associating an attributes (name-value pairs)
+// with the current thread context for use when writing log records for the
+// current thread.  This context information can both be written to the log
+// itself, and used as input when evaluating whether a particular log should be
+// written.  For more information on how to use this feature, please see the
+// package level documentation and usage examples for "Log Attributes" and
+// "Rule-Based Logging".
 //
 // Note that the 'ball::AttributeContainer' supplied at construction must
 // remain valid and *unmodified* for the lifetime of this object.
