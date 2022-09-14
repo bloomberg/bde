@@ -1752,12 +1752,14 @@ void TestDriver<TYPE, TRAITS>::testCase19()
 
     typedef ::BloombergLP::bslh::Hash<> Hasher;
     typedef Hasher::result_type         HashType;
-    const Hasher                        hasher;
+    Hasher                              hasher;
+    const Hasher&                       HASHER = hasher;
 
     typedef ::BloombergLP::bslh::Hash<WeirdPlace::BslhLikeHashingAlgorithm>
                                         WeirdHasher;
     typedef WeirdHasher::result_type    WeirdHashType;
-    const WeirdHasher                   weirdHasher;
+    WeirdHasher                         weirdHasher;
+    const WeirdHasher&                  WEIRD_HASHER = weirdHasher;
 
     const TYPE *STRING   = s_testString;
     const TYPE *NULL_PTR = 0;
@@ -1848,7 +1850,7 @@ void TestDriver<TYPE, TRAITS>::testCase19()
 
         Obj            mX1(STRING1, LENGTH1);
         const Obj&     X1    = mX1;
-        const HashType HASH1 = hasher(X1);
+        const HashType HASH1 = HASHER(X1);
 
         ASSERTV(LINE1, hashEmpty, HASH1, hashEmpty != HASH1);
         ASSERTV(LINE1, hashZero,  HASH1, hashZero  != HASH1);
@@ -1860,7 +1862,7 @@ void TestDriver<TYPE, TRAITS>::testCase19()
 
             Obj            mX2(STRING2, LENGTH2);
             const Obj&     X2    = mX2;
-            const HashType HASH2 = hasher(X2);
+            const HashType HASH2 = HASHER(X2);
 
             ASSERTV(LINE1, LINE2, HASH1, HASH2, (i == j) == (HASH1 == HASH2));
         }
@@ -1872,11 +1874,11 @@ void TestDriver<TYPE, TRAITS>::testCase19()
 
         Obj            mX1(STRING1);
         const Obj&     X1    = mX1;
-        const HashType HASH1 = hasher(X1);
+        const HashType HASH1 = HASHER(X1);
 
         Obj            mX2(STRING2);
         const Obj&     X2    = mX2;
-        const HashType HASH2 = hasher(X2);
+        const HashType HASH2 = HASHER(X2);
 
         ASSERTV(X1.data() != X2.data());
         ASSERTV(X1        == X2       );
@@ -1886,6 +1888,9 @@ void TestDriver<TYPE, TRAITS>::testCase19()
     // The weird hash function was hastily thrown together and is not a very
     // good hash, and often has a few collisions on unequal inputs.  Keep track
     // and make sure the number of collisions is not too many.
+
+    // The nature of the table is that from the point of view of the weird hash
+    // function, a lot of the strings are extremely similar.
 
     // The quality of the hashing is completely irrelevant to what we are
     // interested in here -- we mostly just want to see if this compiles at
@@ -1899,7 +1904,7 @@ void TestDriver<TYPE, TRAITS>::testCase19()
 
         Obj                 mX1(STRING1, LENGTH1);
         const Obj&          X1    = mX1;
-        const WeirdHashType HASH1 = weirdHasher(X1);
+        const WeirdHashType HASH1 = WEIRD_HASHER(X1);
 
         ASSERTV(LINE1, hashEmpty, HASH1, hashEmpty != HASH1);
         ASSERTV(LINE1, hashZero,  HASH1, hashZero  != HASH1);
@@ -1911,10 +1916,10 @@ void TestDriver<TYPE, TRAITS>::testCase19()
 
             Obj                 mX2(STRING2, LENGTH2);
             const Obj&          X2    = mX2;
-            const WeirdHashType HASH2 = weirdHasher(X2);
+            const WeirdHashType HASH2 = WEIRD_HASHER(X2);
 
             if (i == j) {
-                ASSERT(HASH1 == HASH2);
+                ASSERTV(LINE1, LINE2, HASH1 == HASH2);
             }
             else {
                 if (HASH1 != HASH2) {
@@ -1927,7 +1932,7 @@ void TestDriver<TYPE, TRAITS>::testCase19()
         }
     }
 
-    ASSERT(numCollisions < numNonCollisions / 8);
+    ASSERT(numCollisions < numNonCollisions / 4);
 }
 
 template <class TYPE, class TRAITS>
