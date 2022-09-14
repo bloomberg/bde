@@ -1,5 +1,18 @@
-bsl-internal (3.107.0.0) unstable; urgency=low
+bsl-internal (3.108.0.0) unstable; urgency=low
 
+  * d03bd9976 Bumped version to 3.108.0.0
+  * 5cb738d11 Add better doc for scoped attributes (#3902)
+  * a46473638 Adjust ball macros documentation (#3906)
+  * 39c6aa3ee Move 'bdlde' below 'bdlb' in dependency hierarchy (DRQS 170279641) (#3898)
+  * 4fc645490 Disable balb_performancemonitor impl for Sun/g++/32-bit (#3901)
+  * bb1e82ca1 Test for incomplete types support has been added for 'bsl::vector'. DRQS 169974250 (#3887)
+  * 0389f4c7c 'std::iterator' using-declarations are covered with preprocessor directives. DRQS 170226939 (#3885)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 14 Sep 2022 12:38:57 -0400
+
+bsl-internal (3.107.0.0) git; urgency=low
+
+  * b5f22b141 Changelog for version 3.107.0.0
   * 981403ff7 Re-implement try_emplace so it works as specified (#3881)
   * 8e48d83ce Bumped version to 3.107.0.0
   * 6069c5202 C++17 allocator trait is_always_equal drqs 169974128 (#3864)
@@ -17,7 +30,7 @@ bsl-internal (3.107.0.0) unstable; urgency=low
   * 1d1aa00c3 bsls_consteval-DRQS168556382 (#3693)
   * 7c25ee499 Add bslstp::Identity (#3801)
 
- -- Marshall Clow <mclow3@bloomberg.net>  Thu, 25 Aug 2022 12:09:44 -0700
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 25 Aug 2022 15:12:08 -0400
 
 bsl-internal (3.106.0.0) git; urgency=low
 
