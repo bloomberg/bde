@@ -396,20 +396,21 @@ BSLS_IDENT("$Id: $")
 //..
 // Now, we verify that each element in our array registers with count:
 //..
-// for ( int i = 0; i < 6; ++i) { ASSERT(hashTable.contains(boxes[i])); }
+// for ( int i = 0; i < 6; ++i) { assert(hashTable.contains(boxes[i])); }
 //..
 // Finally, we verify that futures not in our original array are correctly
 // identified as not being in the set:
 //..
-// ASSERT(!hashTable.contains(Box(Point(1, 1), 1, 1)));
-// ASSERT(!hashTable.contains(Box(Point(0, 0), 0, 0)));
-// ASSERT(!hashTable.contains(Box(Point(3, 3), 3, 3)));
+// assert(!hashTable.contains(Box(Point(1, 1), 1, 1)));
+// assert(!hashTable.contains(Box(Point(0, 0), 0, 0)));
+// assert(!hashTable.contains(Box(Point(3, 3), 3, 3)));
 //..
 
 #include <bslscm_version.h>
 
 #include <bslh_defaulthashalgorithm.h>
 
+#include <bslmf_assert.h>
 #include <bslmf_enableif.h>
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_isenum.h>
@@ -428,6 +429,54 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace bslh {
+
+                      // ===========================
+                      // class bslh::Hash_AdlWrapper
+                      // ===========================
+
+template <class HASH_ALGORITHM>
+class Hash_AdlWrapper {
+    // This 'class' is a wrapper that is useful in the case of 'HASH_ALGORITHM'
+    // not being in the 'bslh' namespace, which can be problematic for ADL
+    // lookup of 'bslh::hashAppend'.  Wrapping a hash algorithm in this
+    // wrapper, which is called inline, effectively forwards the algorithm into
+    // the 'bslh' namespace.
+    //
+    // More detailed explanation:
+    //
+    // Normally, we define the free functions 'hashAppend' in the same
+    // namespaces as the types they are hashing, so that ADL will find the
+    // function.  In the case of types in the 'std' namespace, BDE code is not
+    // allowed to create anything in that namespace, so this approach is not
+    // workable and we have to define the 'hashAppend' functions in the 'bslh'
+    // namespace.  Without this wrapper, in the cases where the hash algorithm
+    // is not in 'bslh', ADL then fails to find the function.
+    //
+    // This wrapper solves this problem by effective forwarding the hash
+    // algorithm, wherever it may be, into the 'bslh' namespace.
+
+  public:
+    typedef size_t result_type;
+
+  private:
+    // DATA
+    HASH_ALGORITHM d_hashAlgorithm;    // the wrapped hash algorithm, which may
+                                       // be in any namespace
+
+  public:
+    // CREATORS
+    Hash_AdlWrapper();
+        // Default construct an instance of the hash algorithm wrapped in this
+        // wrapper.
+
+    // MANIPULATORS
+    void operator()(const void *input, size_t numBytes);
+        // Forward the call to the identical manipulator of 'HASH_ALGORITHM'.
+
+    result_type computeHash();
+        // Forward the call to the identical manipulator of 'HASH_ALGORITHM'
+        // and cast the return value to 'result_type.
+};
 
                           // ================
                           // class bslh::Hash
@@ -512,8 +561,9 @@ hashAppend(HASH_ALGORITHM& hashAlg, TYPE input)
     // compilers before 2013 require (some) functions declared using enable_if
     // be in-place inline.
 {
-    if (input == 0)
+    if (input == 0) {
         input = 0;
+    }
     hashAlg(&input, sizeof(input));
 }
 
@@ -580,6 +630,39 @@ void hashAppend(HASH_ALGORITHM& hashAlg, const TYPE (&input)[N]);
 //                            INLINE DEFINITIONS
 // ============================================================================
 
+                            // ---------------------
+                            // bslh::Hash_AdlWrapper
+                            // ---------------------
+
+// CREATORS
+template <class HASH_ALGORITHM>
+inline
+bslh::Hash_AdlWrapper<HASH_ALGORITHM>::Hash_AdlWrapper()
+: d_hashAlgorithm()
+{}
+
+// MANIPULATORS
+template <class HASH_ALGORITHM>
+inline
+void bslh::Hash_AdlWrapper<HASH_ALGORITHM>::operator()(const void *input,
+                                                       size_t      numBytes)
+{
+    d_hashAlgorithm(input, numBytes);
+}
+
+
+template <class HASH_ALGORITHM>
+inline
+typename bslh::Hash_AdlWrapper<HASH_ALGORITHM>::result_type
+bslh::Hash_AdlWrapper<HASH_ALGORITHM>::computeHash()
+{
+    return static_cast<result_type>(d_hashAlgorithm.computeHash());
+}
+
+                                // ----------
+                                // bslh::Hash
+                                // ----------
+
 // ACCESSORS
 template <class HASH_ALGORITHM>
 template <class TYPE>
@@ -587,10 +670,22 @@ inline
 typename bslh::Hash<HASH_ALGORITHM>::result_type
 bslh::Hash<HASH_ALGORITHM>::operator()(TYPE const& key) const
 {
-    HASH_ALGORITHM hashAlg;
-    hashAppend(hashAlg, key);
-    return static_cast<result_type>(hashAlg.computeHash());
+    // Ensure that 'wrapper.computeHash' returns the same type as the return
+    // type of this function so that no cast of the return value is necessary.
+
+    BSLMF_ASSERT((bsl::is_same<
+                         typename Hash_AdlWrapper<HASH_ALGORITHM>::result_type,
+                         result_type>::value));
+
+    Hash_AdlWrapper<HASH_ALGORITHM> wrapper;
+
+    hashAppend(wrapper, key);
+    return wrapper.computeHash();
 }
+
+                              // --------------
+                              // FREE FUNCTIONS
+                              // --------------
 
 // FREE FUNCTIONS
 template <class HASH_ALGORITHM, class TYPE>
