@@ -647,6 +647,54 @@ typename bsl::basic_string_view<CHAR_TYPE>::size_type findLastNotOf(
 }
 
 //=============================================================================
+//                       UNUSUAL HASH ALGORITHM
+//-----------------------------------------------------------------------------
+
+namespace WeirdPlace {
+
+class BslhLikeHashingAlgorithm {
+  public:
+    // PUBLIC TYPES
+    typedef size_t return_type;
+
+  private:
+    // DATA
+    return_type d_value;
+
+  public:
+    // CREATORS
+    BslhLikeHashingAlgorithm() : d_value(0) {}
+
+    // MANIPULATORS
+    void operator()(const void *input, size_t numBytes)
+    {
+        const char *p = static_cast<const char *>(input);
+
+        size_t word;
+
+        const char * const end = p + numBytes;
+        for (const char * const endB = end - sizeof(size_t);
+                                                    p <= endB; p += numBytes) {
+            ::memcpy(&word, p, sizeof(word));
+            d_value ^= word;
+        }
+
+        if (p < end) {
+            word = 0;
+            ::memcpy(&word, p, end - p);
+            d_value ^= word;
+        }
+    }
+
+    return_type computeHash()
+    {
+        return d_value;
+    }
+};
+
+}  // close namespace WeirdPlace
+
+//=============================================================================
 //                       TEST DRIVER TEMPLATE
 //-----------------------------------------------------------------------------
 
@@ -1673,6 +1721,10 @@ void TestDriver<TYPE, TRAITS>::testCase19()
     //: 4 Empty objects can be hashed.
     //:
     //: 5 Zero-length objects can be hashed.
+    //:
+    //: 6 Hashing works for a hash function that is a namespace other than
+    //:   'std' or 'bslh'.  Especially important in C++17 when stringview lives
+    //:   in 'std'.
     //
     // Plan:
     //: 1 Create an empty object, a zero-length object and hash them.
@@ -1688,6 +1740,9 @@ void TestDriver<TYPE, TRAITS>::testCase19()
     //: 5 Create two objects, having the same lengths and referring to the
     //:   different strings, having the same values.  Hash them and verify that
     //:   hashes are equal.  (C-3)
+    //:
+    //: 5 Repeat P-3, except this time using the weird hash function in a
+    //:   strange namespace.
     //
     // Testing:
     //   void hashAppend(HASHALG& hashAlg, const basic_string_view& str);
@@ -1697,7 +1752,12 @@ void TestDriver<TYPE, TRAITS>::testCase19()
 
     typedef ::BloombergLP::bslh::Hash<> Hasher;
     typedef Hasher::result_type         HashType;
-    Hasher                              hasher;
+    const Hasher                        hasher;
+
+    typedef ::BloombergLP::bslh::Hash<WeirdPlace::BslhLikeHashingAlgorithm>
+                                        WeirdHasher;
+    typedef WeirdHasher::result_type    WeirdHashType;
+    const WeirdHasher                   weirdHasher;
 
     const TYPE *STRING   = s_testString;
     const TYPE *NULL_PTR = 0;
@@ -1822,6 +1882,52 @@ void TestDriver<TYPE, TRAITS>::testCase19()
         ASSERTV(X1        == X2       );
         ASSERTV(HASH1     == HASH2    );
     }
+
+    // The weird hash function was hastily thrown together and is not a very
+    // good hash, and often has a few collisions on unequal inputs.  Keep track
+    // and make sure the number of collisions is not too many.
+
+    // The quality of the hashing is completely irrelevant to what we are
+    // interested in here -- we mostly just want to see if this compiles at
+    // all.
+
+    int numCollisions = 0, numNonCollisions = 0;
+    for (size_type i = 0; i < NUM_DATA; ++i) {
+        const int          LINE1   = DATA[i].d_lineNum;
+        const TYPE * const STRING1 = DATA[i].d_string;
+        const size_type    LENGTH1 = DATA[i].d_length;
+
+        Obj                 mX1(STRING1, LENGTH1);
+        const Obj&          X1    = mX1;
+        const WeirdHashType HASH1 = weirdHasher(X1);
+
+        ASSERTV(LINE1, hashEmpty, HASH1, hashEmpty != HASH1);
+        ASSERTV(LINE1, hashZero,  HASH1, hashZero  != HASH1);
+
+        for (size_type j = 0; j < NUM_DATA; ++j) {
+            const int          LINE2   = DATA[j].d_lineNum;
+            const TYPE * const STRING2 = DATA[j].d_string;
+            const size_type    LENGTH2 = DATA[j].d_length;
+
+            Obj                 mX2(STRING2, LENGTH2);
+            const Obj&          X2    = mX2;
+            const WeirdHashType HASH2 = weirdHasher(X2);
+
+            if (i == j) {
+                ASSERT(HASH1 == HASH2);
+            }
+            else {
+                if (HASH1 != HASH2) {
+                    ++numNonCollisions;
+                }
+                else {
+                    ++numCollisions;
+                }
+            }
+        }
+    }
+
+    ASSERT(numCollisions < numNonCollisions / 8);
 }
 
 template <class TYPE, class TRAITS>
