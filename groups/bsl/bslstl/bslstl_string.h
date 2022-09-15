@@ -4456,7 +4456,7 @@ basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::basic_string(
 : Imp()
 , ContainerBase(basicAllocator)
 {
-    assign(strRef.begin(), strRef.end());
+    assign(strRef.data(), strRef.length());
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
@@ -4467,7 +4467,7 @@ basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::basic_string(
 : Imp()
 , ContainerBase(basicAllocator)
 {
-    assign(strView.begin(), strView.end());
+    assign(strView.data(), strView.length());
 }
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
@@ -4764,7 +4764,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator+=(
                  const bsl::basic_string_view<CHAR_TYPE, CHAR_TRAITS>& strView)
 {
-    return append(strView.begin(),strView.end());
+    return append(strView.data(),strView.length());
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
