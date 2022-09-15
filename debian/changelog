@@ -1,5 +1,14 @@
-bsl-internal (3.108.0.0) unstable; urgency=low
+bsl-internal (3.108.0.1) unstable; urgency=low
 
+  * cd975cc04 Address performance of string overloads with string_view parameter (#3909)
+  * e540e9b91 Add bdlde utf8util getLineAndColumnNumber (#3891)
+  * 88dadafab bsl::integral_constant is used instead of deprecated bslmf::MetaInt (DRQS 169833586) (#3882)
+
+ -- osubbotin <osubbotin@bloomberg.net>  Thu, 15 Sep 2022 09:11:42 -0400
+
+bsl-internal (3.108.0.0) git; urgency=low
+
+  * 8ed653418 Changelog for version 3.108.0.0
   * d03bd9976 Bumped version to 3.108.0.0
   * 5cb738d11 Add better doc for scoped attributes (#3902)
   * a46473638 Adjust ball macros documentation (#3906)
@@ -8,7 +17,7 @@ bsl-internal (3.108.0.0) unstable; urgency=low
   * bb1e82ca1 Test for incomplete types support has been added for 'bsl::vector'. DRQS 169974250 (#3887)
   * 0389f4c7c 'std::iterator' using-declarations are covered with preprocessor directives. DRQS 170226939 (#3885)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 14 Sep 2022 12:38:57 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 14 Sep 2022 13:04:31 -0400
 
 bsl-internal (3.107.0.0) git; urgency=low
 
