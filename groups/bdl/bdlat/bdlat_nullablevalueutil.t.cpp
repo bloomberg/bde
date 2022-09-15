@@ -10,6 +10,8 @@
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 
+#include <bslmf_integralconstant.h>
+
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_review.h>
@@ -234,7 +236,7 @@ class TestArray {
 namespace bdlat_ArrayFunctions {
 
 template <>
-struct IsArray<u::TestArray> : bslmf::MetaInt<1> {
+struct IsArray<u::TestArray> : bsl::true_type {
 };
 
 }  // close namespace bdlat_ArrayFunctions
@@ -259,7 +261,7 @@ class TestChoice {
 namespace bdlat_ChoiceFunctions {
 
 template <>
-struct IsChoice<u::TestChoice> : bslmf::MetaInt<1> {
+struct IsChoice<u::TestChoice> : bsl::true_type {
 };
 
 }  // close namespace bdlat_ChoiceFunctions
@@ -283,7 +285,7 @@ class TestCustomizedType {
 namespace bdlat_CustomizedTypeFunctions {
 
 template <>
-struct IsCustomizedType<u::TestCustomizedType> : bslmf::MetaInt<1> {
+struct IsCustomizedType<u::TestCustomizedType> : bsl::true_type {
 };
 
 }  // close namespace bdlat_CustomizedTypeFunctions
@@ -336,13 +338,13 @@ int bdlat_nullableValueManipulateValue(u::TestDynamicType *, MANIPULATOR&)
 
 template <>
 struct bdlat_TypeCategoryDeclareDynamic<u::TestDynamicType>
-: bslmf::MetaInt<1> {
+: bsl::true_type {
 };
 
 namespace bdlat_ArrayFunctions {
 
 template <>
-struct IsArray<u::TestDynamicType> : bslmf::MetaInt<1> {
+struct IsArray<u::TestDynamicType> : bsl::true_type {
 };
 
 }  // close namespace bdlat_ArrayFunctions
@@ -350,7 +352,7 @@ struct IsArray<u::TestDynamicType> : bslmf::MetaInt<1> {
 namespace bdlat_ChoiceFunctions {
 
 template <>
-struct IsChoice<u::TestDynamicType> : bslmf::MetaInt<1> {
+struct IsChoice<u::TestDynamicType> : bsl::true_type {
 };
 
 }  // close namespace bdlat_ChoiceFunctions
@@ -358,7 +360,7 @@ struct IsChoice<u::TestDynamicType> : bslmf::MetaInt<1> {
 namespace bdlat_CustomizedTypeFunctions {
 
 template <>
-struct IsCustomizedType<u::TestDynamicType> : bslmf::MetaInt<1> {
+struct IsCustomizedType<u::TestDynamicType> : bsl::true_type {
 };
 
 }  // close namespace bdlat_CustomizedTypeFunctions
@@ -366,7 +368,7 @@ struct IsCustomizedType<u::TestDynamicType> : bslmf::MetaInt<1> {
 namespace bdlat_EnumFunctions {
 
 template <>
-struct IsEnumeration<u::TestDynamicType> : bslmf::MetaInt<1> {
+struct IsEnumeration<u::TestDynamicType> : bsl::true_type {
 };
 
 }  // close namespace bdlat_EnumFunctions
@@ -374,7 +376,7 @@ struct IsEnumeration<u::TestDynamicType> : bslmf::MetaInt<1> {
 namespace bdlat_NullableValueFunctions {
 
 template <>
-struct IsNullableValue<u::TestDynamicType> : bslmf::MetaInt<1> {
+struct IsNullableValue<u::TestDynamicType> : bsl::true_type {
 };
 
 template <>
@@ -387,7 +389,7 @@ struct ValueType<u::TestDynamicType> {
 namespace bdlat_SequenceFunctions {
 
 template <>
-struct IsSequence<u::TestDynamicType> : bslmf::MetaInt<1> {
+struct IsSequence<u::TestDynamicType> : bsl::true_type {
 };
 
 }  // close namespace bdlat_SequenceFunctions
@@ -411,7 +413,7 @@ class TestEnumeration {
 namespace bdlat_EnumFunctions {
 
 template <>
-struct IsEnumeration<u::TestEnumeration> : bslmf::MetaInt<1> {
+struct IsEnumeration<u::TestEnumeration> : bsl::true_type {
 };
 
 }  // close namespace bdlat_EnumFunctions
@@ -435,7 +437,7 @@ class TestNullableValue {
 namespace bdlat_NullableValueFunctions {
 
 template <>
-struct IsNullableValue<u::TestNullableValue> : bslmf::MetaInt<1> {
+struct IsNullableValue<u::TestNullableValue> : bsl::true_type {
 };
 
 }  // close namespace bdlat_NullableValueFunctions
@@ -459,7 +461,7 @@ class TestSequence {
 namespace bdlat_SequenceFunctions {
 
 template <>
-struct IsSequence<u::TestSequence> : bslmf::MetaInt<1> {
+struct IsSequence<u::TestSequence> : bsl::true_type {
 };
 
 }  // close namespace bdlat_SequenceFunctions

@@ -568,8 +568,6 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlscm_version.h>
 
-#include <bslmf_metaint.h>
-
 #include <bsls_assert.h>
 #include <bsls_review.h>
 

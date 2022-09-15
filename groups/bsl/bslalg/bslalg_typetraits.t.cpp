@@ -4,7 +4,6 @@
 #include <bslma_testallocator.h>
 
 #include <bslmf_conditional.h>
-#include <bslmf_metaint.h>
 
 #include <bsls_bsltestutil.h>
 #include <bsls_objectbuffer.h>

@@ -14,6 +14,7 @@
 #include <bdlat_valuetypefunctions.h>
 
 #include <bslim_testutil.h>
+#include <bslmf_integralconstant.h>
 #include <bsls_platform.h>
 
 #include <bsl_iostream.h>
@@ -250,7 +251,7 @@ namespace bdlat_ArrayFunctions {
     };
 
     template <int SIZE, class TYPE>
-    struct IsArray<Test::FixedArray<SIZE, TYPE> > : public bslmf::MetaInt<1> {
+    struct IsArray<Test::FixedArray<SIZE, TYPE> > : public bsl::true_type {
     };
 }  // close namespace bdlat_ArrayFunctions
 }  // close enterprise namespace

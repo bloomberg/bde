@@ -63,7 +63,8 @@ using namespace BloombergLP;
 // [ 3] operator TYPE() const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 5] USAGE EXAMPLE
+// [ 6] USAGE EXAMPLE
+// [ 5] Deprecated aliases. (COMPILE-TIME MANUAL TEST!)
 // [ 3] CONCERN: The template can be instantiated with different integer types.
 // [ 3] CONCERN: The template can be instantiated with different integer
 //      values, including min and max values for the instance type.
@@ -351,7 +352,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 5: {
+      case 6: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -372,6 +373,35 @@ int main(int argc, char *argv[])
 
         usageExample1();
         usageExample2();
+
+      } break;
+      case 5: {
+        // --------------------------------------------------------------------
+        // TESTING DEPRECATED ALIASES (COMPILE-TIME MANUAL TEST!)
+        //
+        // Concerns:
+        //: 1 THIS IS A COMPILE-TIME NONAUTOMATIC TEST!
+        //:
+        //: 2 Define BSLS_DEPRECATE_FEATURE_ENABLE_ALL_DEPRECATIONS_FOR_TESTING
+        //:   macro to see deprecation warnings during compilation.
+        //
+        // Plan:
+        //: 1 The compiler should produce deprecation warnings when
+        //:   BSLS_DEPRECATE_FEATURE_ENABLE_ALL_DEPRECATIONS_FOR_TESTING macro
+        //:   is defined and ::Type or ::VALUE is used.
+        //
+        // Testing:
+        //   bsl::integral_constant<bool,VAL>::Type
+        //   bsl::integral_constant<bool,VAL>::VALUE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTHIS IS A COMPILE-TIME TEST\n");
+
+        (void) (bsl::false_type::Type *) 0; // deprecation warning here
+        (void) (bsl:: true_type::Type *) 0; // deprecation warning here
+
+        (void) bsl::false_type::VALUE; // deprecation warning here
+        (void) bsl:: true_type::VALUE; // deprecation warning here
 
       } break;
       case 4: {

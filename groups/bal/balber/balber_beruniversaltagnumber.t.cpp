@@ -35,6 +35,7 @@
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslmf_conditional.h>
+#include <bslmf_integralconstant.h>
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_objectbuffer.h>
@@ -140,20 +141,20 @@ bdlat_TypeCategory::Value bdlat_typeCategorySelect(const MyDynamicType& obj)
 namespace bdlat_SequenceFunctions {
 
     template <>
-    struct IsSequence<test::MyDynamicType> : bslmf::MetaInt<1> { };
+    struct IsSequence<test::MyDynamicType> : bsl::true_type { };
 }  // close namespace bdlat_SequenceFunctions
 
 namespace bdlat_ChoiceFunctions {
 
     template <>
-    struct IsChoice<test::MyDynamicType> : bslmf::MetaInt<1> { };
+    struct IsChoice<test::MyDynamicType> : bsl::true_type { };
 
 }  // close namespace bdlat_ChoiceFunctions
 
 namespace bdlat_ArrayFunctions {
 
     template <>
-    struct IsArray<test::MyDynamicType> : bslmf::MetaInt<1> { };
+    struct IsArray<test::MyDynamicType> : bsl::true_type { };
 
     template <>
     struct ElementType<test::MyDynamicType> { typedef int Type; };
@@ -163,14 +164,14 @@ namespace bdlat_ArrayFunctions {
 namespace bdlat_EnumFunctions {
 
     template <>
-    struct IsEnumeration<test::MyDynamicType> : bslmf::MetaInt<1> { };
+    struct IsEnumeration<test::MyDynamicType> : bsl::true_type { };
 
 }  // close namespace bdlat_EnumFunctions
 
 namespace bdlat_NullableValueFunctions {
 
     template <>
-    struct IsNullableValue<test::MyDynamicType> : bslmf::MetaInt<1> { };
+    struct IsNullableValue<test::MyDynamicType> : bsl::true_type { };
 
     template <>
     struct ValueType<test::MyDynamicType> { typedef int Type; };
