@@ -355,6 +355,7 @@ BSLS_IDENT("$Id: $")
 #include <memory_resource>
 #endif
 #include <string>            // 'std::string', 'std::pmr::string'
+#include <bsl_streambuf.h>
 
 namespace BloombergLP {
 
@@ -372,8 +373,9 @@ struct Utf8Util {
     // character, and for appending a Unicode character to a UTF-8 string.
 
     // PUBLIC TYPES
-    typedef bsls::Types::size_type       size_type;
-    typedef bsls::Types::IntPtr          IntPtr;
+    typedef bsls::Types::size_type size_type;
+    typedef bsls::Types::IntPtr    IntPtr;
+    typedef bsls::Types::Uint64    Uint64;
 
     enum ErrorStatus {
         // Enumerate the error status values that are returned (possibly
@@ -563,6 +565,28 @@ struct Utf8Util {
         // that 1 is returned if '0 == *codePoint' since '\0' is a valid 1-byte
         // encoding.
 
+    static int getLineAndColumnNumber(Uint64         *lineNumber,
+                                      Uint64         *utf8Column,
+                                      Uint64         *startOfLineByteOffset,
+                                      bsl::streambuf *input,
+                                      Uint64          byteOffset);
+    static int getLineAndColumnNumber(Uint64         *lineNumber,
+                                      Uint64         *utf8Column,
+                                      Uint64         *startOfLineByteOffset,
+                                      bsl::streambuf *input,
+                                      Uint64          byteOffset,
+                                      char            lineDelimeter);
+        // For the specified 'byteOffset' in the specified 'input', load the
+        // offset's line number into the specified 'lineNumber', the column
+        // number into the specified 'utf8Column', and the byte offset for the
+        // start of the line into 'startOfLineByteOffset'.  Optionally specify
+        // 'lineDelimeter' used to the determine line separator.   If
+        // 'lineDelimeter' is not supplied, lines are delimeted using '\n'.
+        // Return 0 on success, or a non-zero value if 'location' cannot be
+        // found in 'input' or if 'input' contains non-UTF-8 characters.  The
+        // 'utf8Column' is the number of UTF-8 code points between
+        // 'startOfLineByteOffset' and 'byteOffset'.
+
     static bool isValid(const char *string);
         // Return 'true' if the specified 'string' contains valid UTF-8, and
         // 'false' otherwise.  'string' is necessarily null-terminated, so it
@@ -609,6 +633,17 @@ struct Utf8Util {
         // byte after the last valid code point traversed; 'invalidString' is
         // unaffected if 'string' contains only valid UTF-8.  'string' need not
         // be null-terminated and can contain embedded null bytes.
+
+    static bool isValidCodePoint(int        *status,
+                                 const char *codePoint,
+                                 size_type   numBytes);
+        // If the specified 'codePoint' (having at least the specified
+        // 'numBytes') refers to a valid UTF-8 code point then return 'true'
+        // and load the specified 'status' with the number of bytes in the
+        // code-point; otherwise, if 'codePoint' is not a valid code-point,
+        // return 'false' and load 'status' with one of the (negative)
+        // 'ErrorStatus' constants.  The behavior is undefined unless
+        // 'numBytes > 0'.
 
     static IntPtr numBytesIfValid(const bsl::string_view& string,
                                   IntPtr                  numCodePoints);
@@ -788,6 +823,45 @@ struct Utf8Util {
         // this utility.  See 'ErrorStatus'.
 };
 
+                          // =======================
+                          // struct Utf8Util_ImpUtil
+                          // =======================
+
+struct Utf8Util_ImpUtil {
+    // [!PRIVATE!] This struct provides a namespace for static methods used to
+    // implement 'Utf8Util'.  Note that the functions are not typically useful
+    // for clients, and are primarily exposed to allow for more thorough
+    // testing.
+
+    // TYPES
+    typedef bsls::Types::Uint64 Uint64;
+
+    // CLASS METHODS
+    static int getLineAndColumnNumber(
+                                  Uint64         *lineNumber,
+                                  Uint64         *utf8Column,
+                                  Uint64         *startOfLineByteOffset,
+                                  bsl::streambuf *input,
+                                  Uint64          byteOffset,
+                                  char            lineDelimeter,
+                                  char           *temporaryReadBuffer,
+                                  int             temporaryReadBufferNumBytes);
+        // For the specified 'byteOffset' in the specified 'input', load the
+        // byte offset's line number into the specified 'lineNumber', the
+        // column number into the specified 'utf8Column', and the byte offset
+        // for the start of the line into the specified
+        // 'startOfLineByteOffset', using the specified 'lineDelimeter' as the
+        // line separator, and using the specified 'temporaryReadBuffer' (of
+        // the specified length 'temporaryReadBufferNumBytes') as a temporary
+        // buffer for reading.  Return 0 on success, or a non-zero value if
+        // 'location' cannot be found in 'input' or if 'input' contains
+        // non-UTF-8 characters.  The 'utf8Column' is the number of UTF-8 code
+        // points between 'startOfLineByteOffset' and 'byteOffset'.  The
+        // behavior is undefined unless 'temporaryReadBuffer' refers to a valid
+        // buffer of at least 'temporaryReadBufferNumBytes' bytes, and
+        // 'temporaryReadBufferNumBytes' is greater than or equal to 4.
+};
+
 // ============================================================================
 //                            INLINE DEFINITIONS
 // ============================================================================
@@ -831,6 +905,41 @@ inline
 int Utf8Util::getByteSize(const char *codePoint)
 {
     return numBytesInCodePoint(codePoint);
+}
+
+inline
+int Utf8Util::getLineAndColumnNumber(Uint64         *lineNumber,
+                                     Uint64         *utf8Column,
+                                     Uint64         *startOfLineByteOffset,
+                                     bsl::streambuf *input,
+                                     Uint64          byteOffset)
+{
+    return getLineAndColumnNumber(lineNumber,
+                                  utf8Column,
+                                  startOfLineByteOffset,
+                                  input,
+                                  byteOffset,
+                                  '\n');
+}
+
+inline
+int Utf8Util::getLineAndColumnNumber(Uint64         *lineNumber,
+                                     Uint64         *utf8Column,
+                                     Uint64         *startOfLineByteOffset,
+                                     bsl::streambuf *input,
+                                     Uint64          byteOffset,
+                                     char            lineDelimeter)
+{
+    enum { k_BUFFER_SIZE = 2048 };
+    char buffer[k_BUFFER_SIZE];
+    return Utf8Util_ImpUtil::getLineAndColumnNumber(lineNumber,
+                                                    utf8Column,
+                                                    startOfLineByteOffset,
+                                                    input,
+                                                    byteOffset,
+                                                    lineDelimeter,
+                                                    buffer,
+                                                    k_BUFFER_SIZE);
 }
 
 inline

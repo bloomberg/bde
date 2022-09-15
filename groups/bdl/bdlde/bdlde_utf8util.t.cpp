@@ -118,6 +118,7 @@ using bsl::size_t;
 // [12] int appendUtf8Character(bsl::string *, unsigned int);
 // [11] int numBytesInCodePoint(const char *);
 // [11] int getByteSize(const char *);
+// [16] int getLineAndColumnNumber(...);
 // [ 3] bool isValid(const char *s);
 // [ 9] bool isValid(cchar *);
 // [ 3] bool isValid(const char *s, int len);
@@ -138,6 +139,7 @@ using bsl::size_t;
 // [ 8] bool isValid(const char *, int);
 // [ 8] bool isValid(const char **, const char *);
 // [ 8] bool isValid(const char **, const char *, int);
+// [17] bool isValidCodePoint(int *, const char *, size_type);
 // [10] IntPtr numBytesRaw(const bslstl::StringRef&, IntPtr);
 // [10] IntPtr numBytesIfValid(const bslstl::StringRef&, IntPtr);
 // [ 5] IntPtr numCharacters(const char *s);
@@ -164,12 +166,11 @@ using bsl::size_t;
 // [ 1] BREATHING TEST
 // [ 2] TABLE-DRIVEN ENCODING / DECODING / VALIDATION TEST
 // [14] NEGATIVE TESTING
-// [15] USAGE EXAMPLE 1
-// [16] USAGE EXAMPLE 2
-// [17] USAGE EXAMPLE 3
+// [18] USAGE EXAMPLE 1
+// [19] USAGE EXAMPLE 2
+// [20] USAGE EXAMPLE 3
 // [-1] random number generator
 // [-2] 'utf8Encode', 'decode'
-
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
@@ -229,9 +230,10 @@ void aSsErT(bool condition, const char *message, int line)
 //         GLOBAL TYPEDEFS, CONSTANTS, ROUTINES & MACROS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bdlde::Utf8Util     Obj;
-typedef bsls::Types::IntPtr IntPtr;
-typedef bsls::Types::Int64  Int64;
+typedef bdlde::Utf8Util         Obj;
+typedef bdlde::Utf8Util_ImpUtil ImpUtil;
+typedef bsls::Types::IntPtr     IntPtr;
+typedef bsls::Types::Int64      Int64;
 
 static int verbose;
 static int veryVerbose;
@@ -2891,7 +2893,8 @@ static const struct {
                               // null-terminator
 
     int         d_numCodePoints;
-                              // number of UTF-8 code points (-1 if invalid)
+                              // number of UTF-8 code points (or a negative
+                              // expected status value if invalid)
 
     int         d_errOffset;  // byte offset to first invalid sequence;
                               // -1 if valid
@@ -3050,7 +3053,7 @@ static const struct {
     { L_, "\xc0\xbf",                     2, OLE,  0,   0   },
     { L_, "\xc1\x81",                     2, OLE,  0,   0   },
     { L_, "\xc1\xbf",                     2, OLE,  0,   0   },    // max OLE
-    { L_, "\xc2\x80",                     2,   1,  0,   1   },    // min legal
+    { L_, "\xc2\x80",                     2,   1, -1,   1   },    // min legal
 
     // Corrupted 2-octet code point:
 
@@ -3130,6 +3133,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     const char *result = 0;
 
     switch (testIndex) { case 0:  // Zero is always the leading case.
+
       case 10: {
         // --------------------------------------------------------------------
         // TESTING 'toAscii'
@@ -3562,7 +3566,7 @@ int main(int argc, char *argv[])
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 18: {
+      case 20: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 3: 'readIfValid'
         //
@@ -3644,7 +3648,7 @@ int main(int argc, char *argv[])
         ASSERT(out.length() == validLen);
         ASSERT(validChineseUtf8 == out);
       } break;
-      case 17: {
+      case 19: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 2: 'advance'
         //
@@ -3757,7 +3761,7 @@ int main(int argc, char *argv[])
     ASSERT(static_cast<int>(string.length()) == result - start);
 //..
       } break;
-      case 16: {
+      case 18: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 1: 'isValid' AND 'numCodePoints*'
         //
@@ -3876,6 +3880,514 @@ int main(int argc, char *argv[])
     ASSERT(bdlde::Utf8Util::k_OVERLONG_ENCODING == rc);
     ASSERT(invalidPosition == stringWithOverlong.data() + string.length());
 //..
+      } break;
+      case 17: {
+        // --------------------------------------------------------------------
+        // TESTING: 'isValidCodePoint'
+        //
+        // Concern:
+        //: 1 That for a valid code point, 'isValidCodePoint' returns 'true'
+        //:   and loads 'status' with the number of bytes in that code point.
+        //:
+        //: 2 The for an invalid code point, 'isValidCodePoint' returns 'false'
+        //:   and loads 'status' with the correct error status indicator.
+        //:
+        //: 3 That valid code-points of 1, 2, 3, and 4 bytes are tested.
+        //:
+        //: 4 That invalid code points are tested for each of the categories of
+        //:   errors found in  'ErrorStatus'.
+        //:
+        //: 5 QoI: Asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //: 1 Perform a table-based test using the table of test data defined
+        //:   above in 'DATA'.
+        //:
+        //:   1 For intermediate byte in the array of test data, verify bytes
+        //:     that complete a valid code-point return 'true' and the correct
+        //:     number of bytes in that code-point, and bytes that do not
+        //:     complete a code-point return 'false' and
+        //:     'k_UNEXPECTED_CONTINUATION_OCTET'.
+        //:
+        //:   2 For terminating bytes in the input array, verify the return
+        //:      status information matches the data table specification.
+        //:
+        //: 2 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered.
+        //
+        // Testing:
+        //   bool isValidCodePoint(int *, const char *, size_type)
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            bsl::cout << "\tTESTING: 'isValidCodePoint'" << bsl::endl;
+        }
+
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int   LINE         = DATA[i].d_lineNum;
+            const int   NUM_BYTES    = DATA[i].d_numBytes;
+            const char *INPUT        = DATA[i].d_utf8_p;
+            const int   ERROR_OFFSET = DATA[i].d_errOffset;
+            const int   ERROR_STATUS = DATA[i].d_numCodePoints;
+
+            if (NUM_BYTES == 0) {
+                continue;
+            }
+
+            // 'ERROR_OFFSET' is the offset of the expected error in the string
+            // (always the last code-point of input), or -1 if 'INPUT' is valid
+            // UTF-8.
+            //
+            // 'ERROR_STATUS' is either the number of code-points in the
+            // string, or the error code expected for the last code-point.
+
+            const char *position = INPUT;
+            const char *end      = INPUT + NUM_BYTES;
+
+            const char *errorPosition = (ERROR_OFFSET == -1)
+                                           ? end
+                                           : INPUT + ERROR_OFFSET;
+
+            // The expected results ('ERROR_OFFSET' and 'ERROR_STATUS') pertain
+            // only to the last-code point in the data.  All intermediate
+            // positions should be either valid code points, or
+            // 'k_UNEXPECTED_CONTINUATION_OCTET'.
+
+            int status;
+
+            // 'numBytesInCodePoint' can only be called on a valid code-point,
+            // so we must first verify position is prior to 'errorOffset' (if
+            // there was an error offset).
+
+            while (position < errorPosition &&
+                   position + Obj::numBytesInCodePoint(position) < end) {
+
+                IntPtr offset = position - INPUT;
+
+                bool isValid = Obj::isValidCodePoint(
+                    &status, position, NUM_BYTES - offset);
+
+                int EXPECTED_NUM_BYTES = Obj::numBytesInCodePoint(position);
+                ASSERTV(LINE, INPUT, offset, status, isValid);
+                ASSERTV(LINE, INPUT, offset, status,
+                        EXPECTED_NUM_BYTES == status);
+
+                const char *endOfCodePoint = position + status;
+                ++position;
+                while (position < endOfCodePoint) {
+                    IntPtr offset = position - INPUT;
+
+                    bool isValid = Obj::isValidCodePoint(
+                        &status, position, NUM_BYTES - offset);
+
+                    ASSERTV(LINE, INPUT, offset, status, !isValid);
+                    ASSERTV(LINE, INPUT, offset, status, status == UCO);
+                    ++position;
+                }
+            }
+
+            // Test the last code-point matches the expected results.
+
+            IntPtr offset = position - INPUT;
+            bool isValid = Obj::isValidCodePoint(
+                    &status, position, NUM_BYTES - offset);
+
+            bool EXPECTED = ERROR_OFFSET == -1;
+
+            int EXPECTED_STATUS =
+                EXPECTED ? Obj::numBytesInCodePoint(position) : ERROR_STATUS;
+
+            ASSERTV(LINE, INPUT, offset, status, EXPECTED, isValid,
+                    EXPECTED == isValid);
+            ASSERTV(LINE, INPUT, offset, status, EXPECTED_STATUS,
+                    EXPECTED_STATUS == status);
+        }
+
+        if (verbose) cout << "\t\tNegative Testing." << endl;
+        {
+            bsls::AssertTestHandlerGuard hG;
+
+            {
+                int status;
+
+                const char *DATA = "a";
+
+                ASSERT_PASS(Obj::isValidCodePoint(&status, DATA, 1));
+                ASSERT_FAIL(Obj::isValidCodePoint(0, DATA, 1));
+                ASSERT_FAIL(Obj::isValidCodePoint(&status, DATA, 0));
+                ASSERT_FAIL(Obj::isValidCodePoint(&status, 0, 1));
+            }
+        }
+
+      } break;
+      case 16: {
+        // --------------------------------------------------------------------
+        // TESTING: 'getLineAndColumnNumber'
+        //
+        // This test makes use of 'Utf8Util_ImpUtil', which provides a
+        // 'getLineAndColumnNumber' that expose a buffer and buffersi
+        // specifically for testing purposes.  This allows comprehensive
+        // testing reads across the end of a buffer.
+        //
+        // Concern:
+        //: 1 Verify 'getLineAndColumnNumber' returns the line number, UTF-8
+        //:   based column number, and start offset for the byte offset
+        //:   provided in the document.
+        //:
+        //: 2 Verify correct return values for documents including
+        //:   1, 2, 3, and 4 byte code-points.
+        //:
+        //: 3 WHITE BOX: Verify correct return values even where
+        //:   code-points and lines are split across internal read-buffer
+        //:   boundaries.
+        //:
+        //: 4 Verify 'Utf8Util' overloads correctly forward their arguments to
+        //:   the 'Utf8Util_ImpUtil' implementation
+        //:
+        //: 6 Verify the function correctly determines lines based on the
+        //:   supplied delimeter character.
+        //:
+        //: 7 Verify searching for offsets beyond the document return an
+        //:   error.
+        //:
+        //: 8 Verify documents containing invalid UTF-8 characters return
+        //:    an error status.
+        //:
+        //: 9 QoI: Asserted precondition violations are detected when enabled.
+        //:
+        // Plan:
+        //: 1 Using a test input containing several lines of UTF-8 containing
+        //:   code-points of multiple lengths, use a table-based test to
+        //:   verify the expected return values for all the offsets.  Iterate
+        //:   over different temporary read-buffer lengths to verify that
+        //:   spliting reads across buffer boundaries functions correctly.
+        //:
+        //: 2 Test that search for an offset beyond the test input reports an
+        //:   error.
+        //:
+        //: 3 Using the same table based approach as (1), test the public
+        //:   facing overloads (without varying buffer lengths).
+        //:
+        //: 4 For a simple string containing a variety of characters, test
+        //:   supplying different delimeter characters.
+        //:
+        //: 5 For a simple string containing an invalid UTF-8 code point, test
+        //:   that an error status is returned.
+        //:
+        //: 6 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered.
+        //
+        // Testing:
+        //   getLineAndColumnNumber(...)
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            bsl::cout << "\tTESTING: 'getLineAndColumnNumber'" << bsl::endl;
+        }
+        // A 1 byte encoded char (U+0078, latin lowercase x)
+        #define U1_1 'x'
+
+        // A 2 character encoding (U+00A9, copyright sign)
+        #define U2_1 0xc2
+        #define U2_2 0xa9
+
+        // A 3 character encoding (U+08AF, Arabic Letter Sad with Three Dots)
+        #define U3_1 0xe0
+        #define U3_2 0xa2
+        #define U3_3 0xaf
+
+        // A 4 character encoding (Domino tile horizontal 6-6)
+        #define U4_1 0xf0
+        #define U4_2 0x9f
+        #define U4_3 0x81
+        #define U4_4 0xa1
+
+        // The following test document is composed of 4 lines, each with 9
+        // characters plus a '\n'.
+        //
+        // Line 1 is entirely 1 byte characters
+        // Line 2 is 2 byte characters (padded with 1 byte char at the end)
+        // Line 3 is 3 byte characters
+        // Line 4 is 4 byte characters (padded with 1 byte char at the end)
+        const unsigned char documentPtr[] =  {
+          //  0,    1,    2,    3,    4,    5,    6,    7,    8,    9,
+           U1_1, U1_1, U1_1, U1_1, U1_1, U1_1, U1_1, U1_1, U1_1, '\n',
+           U2_1, U2_2, U2_1, U2_2, U2_1, U2_2, U2_1, U2_2, U1_1, '\n',
+           U3_1, U3_2, U3_3, U3_1, U3_2, U3_3, U3_1, U3_2, U3_3, '\n',
+           U4_1, U4_2, U4_3, U4_4, U4_1, U4_2, U4_4, U4_4, U1_1, '\n',
+           0
+        };
+
+        const char *document = reinterpret_cast<const char *>(documentPtr);
+        typedef bsls::Types::Uint64 Uint64;
+
+        // Sanity check the test document structure.
+
+        ASSERTV(bdlde::Utf8Util::isValid(document, bsl::strlen(document)));
+        ASSERT(1 == bdlde::Utf8Util::numBytesInCodePoint(&document[0]));
+        ASSERT(2 == bdlde::Utf8Util::numBytesInCodePoint(&document[10]));
+        ASSERT(3 == bdlde::Utf8Util::numBytesInCodePoint(&document[20]));
+        ASSERT(4 == bdlde::Utf8Util::numBytesInCodePoint(&document[30]));
+
+
+        struct LineDate {
+            int    d_line;
+            Uint64 d_offset;              // input offset into 'documentPtr'
+            Uint64 d_expectedLine;        // expected line number
+            Uint64 d_expectedColumn;      // expected column number
+            Uint64 d_expectedStartLine;   // expected start line
+        } DATA[] = {
+            // Line 1
+            {L_,   0, 1,  1,  0 },
+            {L_,   1, 1,  2,  0 },
+            {L_,   2, 1,  3,  0 },
+            {L_,   9, 1, 10,  0 },
+
+            // Line 2
+            {L_, 10, 2,  1, 10 },
+            {L_, 11, 2,  1, 10 },
+            {L_, 12, 2,  2, 10 },
+            {L_, 13, 2,  2, 10 },
+            {L_, 18, 2,  5, 10 },
+            {L_, 19, 2,  6, 10 },
+
+            // Line 3
+            {L_, 20, 3,  1, 20 },
+            {L_, 21, 3,  1, 20 },
+            {L_, 22, 3,  1, 20 },
+            {L_, 23, 3,  2, 20 },
+            {L_, 24, 3,  2, 20 },
+            {L_, 25, 3,  2, 20 },
+            {L_, 26, 3,  3, 20 },
+            {L_, 27, 3,  3, 20 },
+            {L_, 28, 3,  3, 20 },
+            {L_, 29, 3,  4, 20 },
+
+            // Line 4
+            {L_, 30, 4,  1, 30 },
+            {L_, 31, 4,  1, 30 },
+            {L_, 32, 4,  1, 30 },
+            {L_, 33, 4,  1, 30 },
+            {L_, 34, 4,  2, 30 },
+
+            // Last character
+            {L_, 39, 4,  4, 30 },
+        };
+        const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+
+        if (verbose) {
+            bsl::cout << "\t\tTesting valid UTF-8 sequences" << bsl::endl;
+        }
+        {
+          // The minimum buffer size is 4.
+          for (int bufferSize = 4; bufferSize < 20; ++bufferSize) {
+              char buffer[50];
+              for (int i = 0; i < NUM_DATA; ++i) {
+                  const int    LINE            = DATA[i].d_line;
+                  const Uint64 OFFSET          = DATA[i].d_offset;
+                  const Uint64 EXPECTED_LINE   = DATA[i].d_expectedLine;
+                  const Uint64 EXPECTED_COLUMN = DATA[i].d_expectedColumn;
+                  const Uint64 EXPECTED_START  = DATA[i].d_expectedStartLine;
+
+                  bsl::stringbuf stringbuf(document);
+
+                  Uint64 actualLine, actualColumn, actualStartLineOffset;
+
+                  int rc =
+                      ImpUtil::getLineAndColumnNumber(&actualLine,
+                                                      &actualColumn,
+                                                      &actualStartLineOffset,
+                                                      &stringbuf,
+                                                      OFFSET,
+                                                      '\n',
+                                                      buffer,
+                                                      bufferSize);
+
+                  ASSERTV(LINE, OFFSET, rc, 0 == rc);
+
+                  if (veryVerbose) {
+                      P_(OFFSET); P_(actualLine); P(actualColumn);
+                  }
+
+                  ASSERTV(LINE, OFFSET, actualLine, EXPECTED_LINE,
+                          actualLine == EXPECTED_LINE);
+                  ASSERTV(LINE, OFFSET, actualColumn, EXPECTED_COLUMN,
+                          actualColumn == EXPECTED_COLUMN);
+
+                  ASSERTV(LINE, OFFSET, actualStartLineOffset, EXPECTED_START,
+                          actualStartLineOffset == EXPECTED_START);
+              }
+          }
+        }
+        if (verbose) {
+            bsl::cout << "\t\tTesting out of range offset" << bsl::endl;
+        }
+        {
+            bsl::stringbuf d(document);
+
+            int    rc;
+            Uint64 l, c, s;  // line, column, start-offset
+
+            rc = Obj::getLineAndColumnNumber(&l, &c, &s, &d, 39, '\n');
+
+            // Test the last valid offset in the document (already tested,
+            // matches expeted output table)
+
+            ASSERTV(rc, 0 == rc);
+            ASSERTV(l,  l == 4);
+            ASSERTV(c,  c == 4);
+            ASSERTV(s,  s == 30);
+
+            // Test past the last valid offset in the document
+
+            d.str(document);
+            rc = Obj::getLineAndColumnNumber(&l, &c, &s, &d, 40, '\n');
+            ASSERTV(rc, 0 != rc);
+
+            d.str(document);
+            rc = Obj::getLineAndColumnNumber(&l, &c, &s, &d, 41, '\n');
+            ASSERTV(rc, 0 != rc);
+
+        }
+        if (verbose) {
+            bsl::cout << "\t\tTesting overloads forward arguments" << bsl::endl;
+        }
+        {
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int    LINE            = DATA[i].d_line;
+                const Uint64 O               = DATA[i].d_offset;
+                const Uint64 EXPECTED_LINE   = DATA[i].d_expectedLine;
+                const Uint64 EXPECTED_COLUMN = DATA[i].d_expectedColumn;
+                const Uint64 EXPECTED_START  = DATA[i].d_expectedStartLine;
+
+                bsl::stringbuf d(document);
+
+                int    rc;
+                Uint64 l, c, s;   // line, column, start-offset
+
+                rc = Obj::getLineAndColumnNumber(&l, &c, &s, &d, O, '\n');
+
+                ASSERTV(LINE, O, rc, 0 == rc);
+                ASSERTV(LINE, O, l, EXPECTED_LINE, l == EXPECTED_LINE);
+                ASSERTV(LINE, O, c, EXPECTED_COLUMN, c == EXPECTED_COLUMN);
+                ASSERTV(LINE, O, s, EXPECTED_START, s == EXPECTED_START);
+
+                d.str(document);
+                rc = Obj::getLineAndColumnNumber(&l, &c, &s, &d, O);
+
+                ASSERTV(LINE, O, rc, 0 == rc);
+                ASSERTV(LINE, O, l, EXPECTED_LINE, l == EXPECTED_LINE);
+                ASSERTV(LINE, O, c, EXPECTED_COLUMN, c == EXPECTED_COLUMN);
+                ASSERTV(LINE, O, s, EXPECTED_START, s == EXPECTED_START);
+            }
+        }
+
+        if (verbose) {
+            bsl::cout << "\t\tTesting different delimeters" << bsl::endl;
+        }
+        {
+            const char document[] = {'a', 'a', 'b', 'c', 'a'};
+
+            bsl::stringbuf d(document);
+            int    rc;
+            Uint64 l, c, s;   // line, column, start-offset
+
+            // Testing offset 4, delimeter '\n':
+
+            rc = Obj::getLineAndColumnNumber(&l, &c, &s, &d, 4, '\n');
+
+            ASSERTV(rc, 0 == rc);
+            ASSERTV(l,  l == 1);
+            ASSERTV(c,  c == 5);
+            ASSERTV(s,  s == 0);
+
+            // Testing offset 4, delimeter '1'
+            d.str(document);
+            rc = Obj::getLineAndColumnNumber(&l, &c, &s, &d, 4, 'a');
+
+            ASSERTV(rc, 0 == rc);
+            ASSERTV(l,  l == 3);
+            ASSERTV(c,  c == 3);
+            ASSERTV(s,  s == 2);
+
+            // Testing offset 4, delimeter 'b'
+            d.str(document);
+            rc = Obj::getLineAndColumnNumber(&l, &c, &s, &d, 4, 'b');
+
+            ASSERTV(rc, 0 == rc);
+            ASSERTV(l,  l == 2);
+            ASSERTV(c,  c == 2);
+            ASSERTV(s,  s == 3);
+
+            // Testing offset 4, delimeter 'c'
+
+            d.str(document);
+            rc = Obj::getLineAndColumnNumber(&l, &c, &s, &d, 4, 'c');
+
+            ASSERTV(rc, 0 == rc);
+            ASSERTV(l,  l == 2);
+            ASSERTV(c,  c == 1);
+            ASSERTV(s,  s == 4);
+
+        }
+
+
+        if (verbose) {
+            bsl::cout << "\t\tTesting invalid UTF-8 sequence" << bsl::endl;
+        }
+        {
+            const unsigned char DATA[] = {'a',  'b', '\n', 0xf6, 'x' };
+            Uint64 actualLine, actualColumn, actualStartLineOffset;
+            int rc;
+
+
+            bsl::stringbuf stringbuf(reinterpret_cast<const char *>(DATA));
+            rc = Obj::getLineAndColumnNumber(&actualLine,
+                                             &actualColumn,
+                                             &actualStartLineOffset,
+                                             &stringbuf,
+                                             1,
+                                             '\n');
+
+            ASSERTV(rc, 0 == rc);
+
+            rc = Obj::getLineAndColumnNumber(&actualLine,
+                                             &actualColumn,
+                                             &actualStartLineOffset,
+                                             &stringbuf,
+                                             3,
+                                             '\n');
+
+            ASSERTV(rc, 0 != rc);
+
+            rc = Obj::getLineAndColumnNumber(&actualLine,
+                                             &actualColumn,
+                                             &actualStartLineOffset,
+                                             &stringbuf,
+                                             3,
+                                             '\n');
+
+            ASSERTV(rc, 0 != rc);
+        }
+        if (verbose) cout << "\t\tNegative Testing." << endl;
+        {
+            bsls::AssertTestHandlerGuard hG;
+            {
+                bsl::stringbuf d(document);
+                Uint64 line, column, start;
+                char   buffer[10];
+
+#define T ImpUtil::getLineAndColumnNumber
+                ASSERT_PASS(T(&line, &column, &start, &d, 0, '\n', buffer, 4));
+                ASSERT_FAIL(T(&line, &column, &start, &d, 0, '\n', buffer, 3));
+                ASSERT_FAIL(T(&line, &column, &start, &d, 0, '\n', 0, 4));
+                ASSERT_FAIL(T(&line, &column, &start,  0, 0, '\n', buffer, 4));
+                ASSERT_FAIL(T(&line, &column, 0, &d, 0, '\n', buffer, 4));
+                ASSERT_FAIL(T(&line, 0, &start, &d, 0, '\n', buffer, 4));
+                ASSERT_FAIL(T(0, &column, &start, &d, 0, '\n', buffer, 4));
+#undef T
+            }
+        }
       } break;
       case 15: {
         // --------------------------------------------------------------------
