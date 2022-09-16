@@ -538,7 +538,8 @@ class BslhLikeHashingAlgorithm {
     // MANIPULATORS
     void operator()(const void *input, size_t numBytes)
     {
-        const char *p = static_cast<const char *>(input), *end = p + numBytes;
+        const unsigned char *p = static_cast<unsigned const char *>(input);
+        const unsigned char *end = p + numBytes;
         while (p < end) {
             d_value += *p++;
             d_value *= 99991;    // highest prime below 100,000
