@@ -655,11 +655,11 @@ namespace WeirdPlace {
 class BslhLikeHashingAlgorithm {
   public:
     // PUBLIC TYPES
-    typedef size_t return_type;
+    typedef size_t result_type;
 
   private:
     // DATA
-    return_type d_value;
+    result_type d_value;
 
   public:
     // CREATORS
@@ -668,25 +668,14 @@ class BslhLikeHashingAlgorithm {
     // MANIPULATORS
     void operator()(const void *input, size_t numBytes)
     {
-        const char *p = static_cast<const char *>(input);
-
-        size_t word;
-
-        const char * const end = p + numBytes;
-        for (const char * const endB = end - sizeof(size_t);
-                                                    p <= endB; p += numBytes) {
-            ::memcpy(&word, p, sizeof(word));
-            d_value ^= word;
-        }
-
-        if (p < end) {
-            word = 0;
-            ::memcpy(&word, p, end - p);
-            d_value ^= word;
+        const char *p = static_cast<const char *>(input), *end = p + numBytes;
+        while (p < end) {
+            d_value += *p++;
+            d_value *= 99991;    // highest prime below 100,000
         }
     }
 
-    return_type computeHash()
+    result_type computeHash()
     {
         return d_value;
     }
@@ -1741,7 +1730,7 @@ void TestDriver<TYPE, TRAITS>::testCase19()
     //:   different strings, having the same values.  Hash them and verify that
     //:   hashes are equal.  (C-3)
     //:
-    //: 5 Repeat P-3, except this time using the weird hash function in a
+    //: 6 Repeat P-3, except this time using the weird hash function in a
     //:   strange namespace.
     //
     // Testing:
@@ -1918,21 +1907,9 @@ void TestDriver<TYPE, TRAITS>::testCase19()
             const Obj&          X2    = mX2;
             const WeirdHashType HASH2 = WEIRD_HASHER(X2);
 
-            if (i == j) {
-                ASSERTV(LINE1, LINE2, HASH1 == HASH2);
-            }
-            else {
-                if (HASH1 != HASH2) {
-                    ++numNonCollisions;
-                }
-                else {
-                    ++numCollisions;
-                }
-            }
+            ASSERTV(LINE1, LINE2, (i == j) == (HASH1 == HASH2));
         }
     }
-
-    ASSERT(numCollisions < numNonCollisions / 4);
 }
 
 template <class TYPE, class TRAITS>

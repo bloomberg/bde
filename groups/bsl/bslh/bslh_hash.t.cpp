@@ -525,11 +525,11 @@ namespace WeirdPlace {
 class BslhLikeHashingAlgorithm {
   public:
     // PUBLIC TYPES
-    typedef size_t return_type;
+    typedef size_t result_type;
 
   private:
     // DATA
-    return_type d_value;
+    result_type d_value;
 
   public:
     // CREATORS
@@ -538,25 +538,14 @@ class BslhLikeHashingAlgorithm {
     // MANIPULATORS
     void operator()(const void *input, size_t numBytes)
     {
-        const char *p = static_cast<const char *>(input);
-
-        size_t word;
-
-        const char * const end = p + numBytes;
-        for (const char * const endB = end - sizeof(size_t);
-                                                    p <= endB; p += numBytes) {
-            ::memcpy(&word, p, sizeof(word));
-            d_value ^= word;
-        }
-
-        if (p < end) {
-            word = 0;
-            ::memcpy(&word, p, end - p);
-            d_value ^= word;
+        const char *p = static_cast<const char *>(input), *end = p + numBytes;
+        while (p < end) {
+            d_value += *p++;
+            d_value *= 99991;    // highest prime below 100,000
         }
     }
 
-    return_type computeHash()
+    result_type computeHash()
     {
         return d_value;
     }
@@ -564,19 +553,20 @@ class BslhLikeHashingAlgorithm {
 
 }  // close namespace WeirdPlace
 
-namespace std {
+namespace OtherWeirdPlace {
 
-struct StrangeStdStruct {
+struct StrangeStruct {
     int d_a, d_b, d_c;
 };
 
-}  // close namespace std
+}  // close namespace OtherWeirdPlace
 
 namespace BloombergLP {
 namespace bslh {
 
 template <class HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const std::StrangeStdStruct& x)
+void hashAppend(HASH_ALGORITHM&                       hashAlg,
+                const OtherWeirdPlace::StrangeStruct& x)
 {
     hashAlg(&x.d_a, sizeof(int));
     hashAlg(&x.d_b, sizeof(int));
@@ -992,10 +982,10 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 Define a bslh-style hash algorithm in the namespace 'WeirdPlace'.
         //:
-        //: 2 Define a type 'StrangeStdStruct' in namespace 'std'.
+        //: 2 Define a type 'StrangeStruct' in namespace 'OtherWeirdPlace'.
         //:
-        //: 3 Define a 'hashAppend' function for 'std::StrangeStdStruct' in
-        //:   namespace 'bslh'.
+        //: 3 Define a 'hashAppend' function for
+        //:   'OtherWeirdPlace::StrangeStruct' in namespace 'bslh'.
         //:
         //: 4 See if 'bslh::Hash' can cope.
         //
@@ -1003,7 +993,7 @@ int main(int argc, char *argv[])
         //   bslh::Hash_AdlWrapper
         // --------------------------------------------------------------------
 
-        std::StrangeStdStruct x = { 1, 2, 3 };
+        OtherWeirdPlace::StrangeStruct x = { 1, 2, 3 };
 
         const size_t y = bslh::Hash<WeirdPlace::BslhLikeHashingAlgorithm>()(x);
 
