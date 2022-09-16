@@ -1886,7 +1886,6 @@ void TestDriver<TYPE, TRAITS>::testCase19()
     // interested in here -- we mostly just want to see if this compiles at
     // all.
 
-    int numCollisions = 0, numNonCollisions = 0;
     for (size_type i = 0; i < NUM_DATA; ++i) {
         const int          LINE1   = DATA[i].d_lineNum;
         const TYPE * const STRING1 = DATA[i].d_string;
