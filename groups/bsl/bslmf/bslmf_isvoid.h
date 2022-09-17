@@ -146,8 +146,8 @@ template<class TYPE>
 struct IsVoid : bsl::is_void<TYPE>::type {
     // This 'struct' template implements a meta-function to determine if the
     // (template parameter) 'TYPE' is the (possibly cv-qualified) 'void' type.
-    // This 'struct' derives from 'bsl::true_type' if 'TYPE' is the 'void'
-    // type, and 'bsl::false' otherwise.
+    // This 'struct' derives from 'bslmf::MetaInt<1>' if 'TYPE' is the 'void'
+    // type, and 'bslmf::MetaInt<0>' otherwise.
     //
     // Note that although this 'struct' is functionally equivalent to
     // 'bsl::is_void', and the use of 'bsl::is_void' should be preferred.

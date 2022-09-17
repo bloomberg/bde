@@ -16,9 +16,6 @@ using namespace bslmf;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// CONCERN: bsl::MetaInt is deprecated. Define
-//          BSLS_DEPRECATE_FEATURE_ENABLE_ALL_DEPRECATIONS_FOR_TESTING macro
-//          to see deprecation warnings during compilation.
 //-----------------------------------------------------------------------------
 // [ 1] VALUE
 // [ 2] operator int() const;

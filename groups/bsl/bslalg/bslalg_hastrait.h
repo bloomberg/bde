@@ -17,9 +17,9 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides a meta-function, 'bslalg::HasTrait',
 // that is a legacy mechanism for detecting traits.  'bslalg::HasTrait' takes
 // two template parameters, 'TYPE' and 'TRAIT', and provides a 'Type' member.
-// 'bslalg::HasTrait<TYPE, TRAIT>::Type' evaluates to 'bsl::true_type' if the
-// (template parameter) 'TYPE' has the (template parameter) 'TRAIT', and to
-// 'bsl::false_type' otherwise.  ('bslalg::HasTrait' also provides a 'VALUE'
+// 'bslalg::HasTrait<TYPE, TRAIT>::Type' evaluates to 'bslmf::MetaInt<1>' if
+// the (template parameter) 'TYPE' has the (template parameter) 'TRAIT', and to
+// 'bslmf::MetaInt<0>' otherwise.  ('bslalg::HasTrait' also provides a 'VALUE'
 // member where 'bslalg::HasTrait<TYPE, TRAIT>::VALUE' evaluates to 1 if the
 // 'TYPE' type has the 'TRAIT' trait, and to 0 otherwise.)
 //
@@ -56,7 +56,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
-#include <bslmf_integralconstant.h>
+#include <bslmf_metaint.h>
 #include <bslmf_removecv.h>
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
@@ -73,9 +73,9 @@ namespace bslalg {
 
 template <class TYPE, class TRAIT>
 struct HasTrait {
-    // This meta-function evaluates to 'bsl::true_type' if the (template
+    // This meta-function evaluates to 'bslmf::MetaInt<1>' if the (template
     // parameter) 'TYPE' has the (template parameter) 'TRAIT', and to
-    // 'bsl::false_type' otherwise.
+    // 'bslmf::MetaInt<0>' otherwise.
 
   public:
     enum {
@@ -83,7 +83,7 @@ struct HasTrait {
                        Metafunction<typename bsl::remove_cv<TYPE>::type>::value
     };
 
-    typedef bsl::integral_constant<bool, VALUE> Type;
+    typedef bslmf::MetaInt<VALUE> Type;
 };
 
 }  // close package namespace

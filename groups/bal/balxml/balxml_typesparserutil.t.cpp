@@ -36,7 +36,6 @@
 #include <bslma_allocator.h>
 
 #include <bslmf_conditional.h>
-#include <bslmf_integralconstant.h>
 #include <bslmf_issame.h>
 
 #include <bsl_cstddef.h>
@@ -737,7 +736,7 @@ namespace BloombergLP {
 namespace bdlat_EnumFunctions {
 
     template <>
-    struct IsEnumeration<TestEnum::Value> : bsl::true_type {
+    struct IsEnumeration<TestEnum::Value> : bslmf::MetaInt<1> {
     };
 
     template <>

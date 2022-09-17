@@ -131,8 +131,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                       short                                        value,
                       size_type                                    numElements,
                       void                                        *,
-                      bsl::integral_constant<int,
-                                     e_IS_FUNDAMENTAL_OR_POINTER> *)
+                      bslmf::MetaInt<e_IS_FUNDAMENTAL_OR_POINTER> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
 
@@ -158,8 +157,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                       int                                          value,
                       size_type                                    numElements,
                       void                                        *,
-                      bsl::integral_constant<int,
-                                     e_IS_FUNDAMENTAL_OR_POINTER> *)
+                      bslmf::MetaInt<e_IS_FUNDAMENTAL_OR_POINTER> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
 
@@ -188,8 +186,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                       bsls::Types::Int64                           value,
                       size_type                                    numElements,
                       void                                        *,
-                      bsl::integral_constant<int,
-                                     e_IS_FUNDAMENTAL_OR_POINTER> *)
+                      bslmf::MetaInt<e_IS_FUNDAMENTAL_OR_POINTER> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
 
@@ -224,8 +221,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                       float                                        value,
                       size_type                                    numElements,
                       void                                        *,
-                      bsl::integral_constant<int,
-                                     e_IS_FUNDAMENTAL_OR_POINTER> *)
+                      bslmf::MetaInt<e_IS_FUNDAMENTAL_OR_POINTER> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
 
@@ -248,8 +244,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                       double                                       value,
                       size_type                                    numElements,
                       void                                        *,
-                      bsl::integral_constant<int,
-                                     e_IS_FUNDAMENTAL_OR_POINTER> *)
+                      bslmf::MetaInt<e_IS_FUNDAMENTAL_OR_POINTER> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
 
@@ -272,8 +267,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                       long double                                  value,
                       size_type                                    numElements,
                       void                                        *,
-                      bsl::integral_constant<int,
-                                     e_IS_FUNDAMENTAL_OR_POINTER> *)
+                      bslmf::MetaInt<e_IS_FUNDAMENTAL_OR_POINTER> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
 
@@ -296,8 +290,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                      void                                         *value,
                      size_type                                     numElements,
                      void                                         *,
-                     bsl::integral_constant<int,
-                                     e_IS_FUNDAMENTAL_OR_POINTER> *)
+                     bslmf::MetaInt<e_IS_FUNDAMENTAL_OR_POINTER>  *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
 
@@ -320,8 +313,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                      const void                                   *value,
                      size_type                                     numElements,
                      void                                         *,
-                     bsl::integral_constant<int,
-                                     e_IS_FUNDAMENTAL_OR_POINTER> *)
+                     bslmf::MetaInt<e_IS_FUNDAMENTAL_OR_POINTER>  *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
 
@@ -344,8 +336,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                      volatile void                                *value,
                      size_type                                     numElements,
                      void                                         *,
-                     bsl::integral_constant<int,
-                                     e_IS_FUNDAMENTAL_OR_POINTER> *)
+                     bslmf::MetaInt<e_IS_FUNDAMENTAL_OR_POINTER>  *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
 
@@ -368,8 +359,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                      const volatile void                          *value,
                      size_type                                     numElements,
                      void                                         *,
-                     bsl::integral_constant<int,
-                                     e_IS_FUNDAMENTAL_OR_POINTER> *)
+                     bslmf::MetaInt<e_IS_FUNDAMENTAL_OR_POINTER>  *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
 

@@ -102,12 +102,6 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_tag.h>
 
 #include <bsls_compilerfeatures.h>
-#include <bsls_deprecatefeature.h>
-
-#define BSLMF_DEPRECATE_METAINT                                                \
-    BSLS_DEPRECATE_FEATURE("bsl",                                              \
-                           "bslmf_metaint",                                    \
-                           "Use bsl::integral_constant instead")
 
 namespace BloombergLP {
 
@@ -118,8 +112,7 @@ namespace bslmf {
                            // ==============
 
 template <int INT_VALUE>
-struct BSLMF_DEPRECATE_METAINT MetaInt :
-    public bsl::integral_constant<int, INT_VALUE> {
+struct MetaInt : public bsl::integral_constant<int, INT_VALUE> {
     // Instantiating this template produces a distinct type for each
     // non-negative integer value.  This template has been deprecated in favor
     // of the standard 'integral_constant' template.
@@ -158,7 +151,7 @@ struct BSLMF_DEPRECATE_METAINT MetaInt :
 };
 
 template <>
-struct BSLMF_DEPRECATE_METAINT MetaInt<0> : public bsl::false_type {
+struct MetaInt<0> : public bsl::false_type {
     // This specialization of 'MetaInt' has a 'VAL' of zero and is convertible
     // to and from 'bsl::false_type'.
 
@@ -196,7 +189,7 @@ struct BSLMF_DEPRECATE_METAINT MetaInt<0> : public bsl::false_type {
 };
 
 template <>
-struct BSLMF_DEPRECATE_METAINT MetaInt<1> : public bsl::true_type {
+struct MetaInt<1> : public bsl::true_type {
     // This specialization of 'MetaInt' has a 'VAL' of one and is convertible
     // to and from 'bsl::true_type'.
 
@@ -309,8 +302,6 @@ MetaInt<1>::operator bool() const
 }  // close package namespace
 
 }  // close enterprise namespace
-
-#undef BSLMF_DEPRECATE_METAINT
 
 #endif
 

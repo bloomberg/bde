@@ -651,7 +651,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlat_bdeatoverrides.h>
 
-#include <bslmf_integralconstant.h>
+#include <bslmf_metaint.h>
 
 #include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
@@ -732,7 +732,7 @@ namespace bdlat_ArrayFunctions {
 
     // META-FUNCTIONS
     template <class TYPE, class ALLOC>
-    struct IsArray<bsl::vector<TYPE, ALLOC> > : bsl::true_type {
+    struct IsArray<bsl::vector<TYPE, ALLOC> > : bslmf::MetaInt<1> {
     };
 
     template <class TYPE, class ALLOC>

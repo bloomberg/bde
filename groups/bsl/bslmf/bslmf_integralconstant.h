@@ -146,7 +146,6 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 
 #include <bsls_compilerfeatures.h>
-#include <bsls_deprecatefeature.h>
 #include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
 
@@ -157,9 +156,6 @@ BSLS_IDENT("$Id: $")
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bsls_nativestd.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#define BSL_DEPRECATE_METAINT_COMPATIBILITY_MEMBERS(MESSAGE) \
-    BSLS_DEPRECATE_FEATURE("bsl", "bslmf_metaint", MESSAGE)
 
 namespace BloombergLP {
 namespace bslmf {
@@ -185,10 +181,7 @@ struct integral_constant<bool, false> : ::std::false_type
     typedef integral_constant type;
 
     // COMPATIBILITY MEMBERS
-    BSL_DEPRECATE_METAINT_COMPATIBILITY_MEMBERS("Use ::type member instead")
     typedef BloombergLP::bslmf::MetaInt<false> Type;
-
-    BSL_DEPRECATE_METAINT_COMPATIBILITY_MEMBERS("Use ::value member instead")
     static BSLS_KEYWORD_CONSTEXPR_MEMBER bool VALUE = false;
 };
 
@@ -198,10 +191,7 @@ struct integral_constant<bool, true> : ::std::true_type
     typedef integral_constant type;
 
     // COMPATIBILITY MEMBERS
-    BSL_DEPRECATE_METAINT_COMPATIBILITY_MEMBERS("Use ::type member instead")
     typedef BloombergLP::bslmf::MetaInt<true> Type;
-
-    BSL_DEPRECATE_METAINT_COMPATIBILITY_MEMBERS("Use ::value member instead")
     static BSLS_KEYWORD_CONSTEXPR_MEMBER bool VALUE = true;
 };
 
@@ -252,10 +242,7 @@ struct integral_constant<bool, VAL> {
         // Return 'VAL'.
 
     // COMPATIBILITY MEMBERS
-    BSL_DEPRECATE_METAINT_COMPATIBILITY_MEMBERS("Use ::type member instead")
     typedef BloombergLP::bslmf::MetaInt<VAL> Type;
-
-    BSL_DEPRECATE_METAINT_COMPATIBILITY_MEMBERS("Use ::value member instead")
     static BSLS_KEYWORD_CONSTEXPR_MEMBER bool VALUE = VAL;
 };
 #endif //   defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
@@ -318,8 +305,6 @@ bsl::integral_constant<bool, VAL>::operator bool() const BSLS_KEYWORD_NOEXCEPT
     return VAL;
 }
 #endif // ! defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
-
-#undef BSL_DEPRECATE_METAINT_COMPATIBILITY_MEMBERS
 
 #endif // ! defined(INCLUDED_BSLMF_INTEGRALCONSTANT)
 

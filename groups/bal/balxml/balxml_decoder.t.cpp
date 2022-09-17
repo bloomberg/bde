@@ -93,7 +93,6 @@
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
-#include <bslmf_integralconstant.h>
 #include <bslmf_issame.h>
 
 #include <bsls_assert.h>
@@ -687,7 +686,7 @@ using baexml_Decoder_TestNamespace::TestSequence0;
 namespace BloombergLP {
 namespace bdlat_SequenceFunctions {
     template <>
-    struct IsSequence<TestSequence0> : bsl::true_type {
+    struct IsSequence<TestSequence0> : bslmf::MetaInt<1> {
     };
 }  // close namespace bdlat_SequenceFunctions
 }  // close enterprise namespace
@@ -849,7 +848,7 @@ using baexml_Decoder_TestNamespace::TestSequence1;
 namespace BloombergLP {
 namespace bdlat_SequenceFunctions {
     template <>
-    struct IsSequence<TestSequence1> : bsl::true_type {
+    struct IsSequence<TestSequence1> : bslmf::MetaInt<1> {
     };
 }  // close namespace bdlat_SequenceFunctions
 }  // close enterprise namespace
@@ -1055,7 +1054,7 @@ namespace BloombergLP {
 namespace bdlat_SequenceFunctions {
 template <>
 struct IsSequence<TestSequence2>
-: bsl::true_type { };
+: bslmf::MetaInt<1> { };
 }  // close namespace bdlat_SequenceFunctions
 }  // close enterprise namespace
 
@@ -1128,7 +1127,7 @@ using baexml_Decoder_TestNamespace::TestChoice0;
 namespace BloombergLP {
 namespace bdlat_ChoiceFunctions {
     template <>
-    struct IsChoice<TestChoice0> : bsl::true_type {
+    struct IsChoice<TestChoice0> : bslmf::MetaInt<1> {
     };
 }  // close namespace bdlat_ChoiceFunctions
 }  // close enterprise namespace
@@ -1281,7 +1280,7 @@ using baexml_Decoder_TestNamespace::TestChoice1;
 namespace BloombergLP {
 namespace bdlat_ChoiceFunctions {
     template <>
-    struct IsChoice<TestChoice1> : bsl::true_type {
+    struct IsChoice<TestChoice1> : bslmf::MetaInt<1> {
     };
 }  // close namespace bdlat_ChoiceFunctions
 }  // close enterprise namespace
@@ -1471,7 +1470,7 @@ using baexml_Decoder_TestNamespace::TestChoice2;
 namespace BloombergLP {
 namespace bdlat_ChoiceFunctions {
     template <>
-    struct IsChoice<TestChoice2> : bsl::true_type {
+    struct IsChoice<TestChoice2> : bslmf::MetaInt<1> {
     };
 }  // close namespace bdlat_ChoiceFunctions
 }  // close enterprise namespace
@@ -1684,7 +1683,7 @@ using baexml_Decoder_TestNamespace::TestSequenceWithVector;
 namespace BloombergLP {
 namespace bdlat_SequenceFunctions {
     template <>
-    struct IsSequence<TestSequenceWithVector> : bsl::true_type {
+    struct IsSequence<TestSequenceWithVector> : bslmf::MetaInt<1> {
     };
 }  // close namespace bdlat_SequenceFunctions
 }  // close enterprise namespace

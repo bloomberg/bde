@@ -457,6 +457,7 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_hastrait.h>
 
 #include <bslmf_assert.h>
+#include <bslmf_metaint.h>
 
 #include <bsls_platform.h>
 #include <bsls_types.h>
