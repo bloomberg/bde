@@ -24,6 +24,7 @@
 
 #include <bsl_algorithm.h>
 #include <bsl_climits.h>
+#include <bsl_cstdint.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_fstream.h>
