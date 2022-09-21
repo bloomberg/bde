@@ -2,6 +2,8 @@
 #define BSLSTL_LIST_0T_AS_INCLUDE
 #include <bslstl_list.0.t.cpp>
 
+#include <bslstl_vector.h>
+
 // ============================================================================
 //                             TEST PLAN
 // ----------------------------------------------------------------------------
@@ -7896,6 +7898,880 @@ struct TestDeductionGuides {
 };
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_CTAD
 
+
+                     // ==================================
+                     // class IncompleteTypeSupportChecker
+                     // ==================================
+
+class IncompleteTypeSupportChecker {
+    // This class is intended to test the support of incomplete types by public
+    // methods of 'bsl::list'.  The interface completely copies the existing
+    // 'bsl::list' interface and the only purpose of the functions is to call
+    // the corresponding methods of the list parameterized by the incomplete
+    // type.  Therefore function-level documentation differs from that
+    // described in the standard.  To preserve type incompleteness we have to
+    // implement all public methods inline.  Each method increases its own
+    // invocation counter so we can make sure that each method is compiled and
+    // called.
+
+    // PRIVATE TYPES
+    typedef BloombergLP::bslmf::MovableRefUtil                      MoveUtil;
+    typedef BloombergLP::bslmf::MovableRef<IncompleteTypeSupportChecker>
+                                                                    MovableRef;
+
+  public:
+    // TYPES
+    typedef bsl::list<IncompleteTypeSupportChecker> ListType;
+    typedef ListType::value_type                    value_type;
+    typedef ListType::size_type                     size_type;
+    typedef ListType::allocator_type                allocator_type;
+    typedef ListType::iterator                      iterator;
+    typedef ListType::const_iterator                const_iterator;
+    typedef ListType::reverse_iterator              reverse_iterator;
+    typedef ListType::const_reverse_iterator        const_reverse_iterator;
+    typedef ListType::reference                     reference;
+    typedef ListType::const_reference               const_reference;
+
+  private:
+    // CLASS DATA
+    static const int        s_numFunctions;          // number of public
+                                                     // methods
+
+    static bsl::vector<int> s_functionCallCounters;  // counters storing the
+                                                     // number of each function
+                                                     // calls
+
+    // DATA
+    ListType d_list;  // underlying list parameterized with incomplete type
+
+  public:
+    // CLASS METHODS
+    static void checkInvokedFunctions();
+        // Check that all public functions have been called at least once.
+
+    static void increaseFunctionCallCounter(std::size_t index);
+        // Increase the call count of function with the specified 'index' by
+        // one.
+
+    static void resetFunctionCallCounters();
+        // Reset the call count of each function to zero.
+
+    // CREATORS
+    IncompleteTypeSupportChecker()
+        // Call 'bsl::list' default constructor implicitly.
+    {
+        s_functionCallCounters[0]++;
+    }
+
+    explicit IncompleteTypeSupportChecker(const allocator_type& basicAllocator)
+        // Call 'bsl::list' constructor passing the specified 'basicAllocator'
+        // as a parameter.
+    : d_list(basicAllocator)
+    {
+        s_functionCallCounters[1]++;
+    }
+
+    explicit IncompleteTypeSupportChecker(size_type numElements)
+        // Call 'bsl::list' constructor passing the specified 'numElements' as
+        // a parameter.
+    : d_list(numElements)
+    {
+        s_functionCallCounters[2]++;
+    }
+
+    IncompleteTypeSupportChecker(size_type             numElements,
+                                 const allocator_type& basicAllocator)
+        // Call 'bsl::list' constructor passing the specified 'numElements' and
+        // 'basicAllocator' as parameters.
+    : d_list(numElements, basicAllocator)
+    {
+        s_functionCallCounters[3]++;
+    }
+
+    IncompleteTypeSupportChecker(size_type         numElements,
+                                 const value_type& value)
+        // Call 'bsl::list' constructor passing the specified 'numElements' and
+        // 'value' as parameters.
+    : d_list(numElements, value)
+    {
+        s_functionCallCounters[4]++;
+    }
+
+    template <class INPUT_ITERATOR>
+    IncompleteTypeSupportChecker(INPUT_ITERATOR first, INPUT_ITERATOR last)
+        // Call 'bsl::list' constructor passing the specified 'first' and
+        // 'last' as parameters.
+    : d_list(first, last)
+    {
+        s_functionCallCounters[5]++;
+    }
+
+    IncompleteTypeSupportChecker(const IncompleteTypeSupportChecker& original)
+        // Call 'bsl::list' constructor passing the underlying list of the
+        // specified 'original' as a parameter.
+    : d_list(original.d_list)
+    {
+        s_functionCallCounters[6]++;
+    }
+
+    IncompleteTypeSupportChecker(
+                            const IncompleteTypeSupportChecker& original,
+                            const allocator_type&               basicAllocator)
+        // Call 'bsl::list' constructor passing the underlying list of the
+        // specified 'original' and the specified 'basicAllocator' as
+        // parameters.
+    : d_list(original.d_list, basicAllocator)
+    {
+        s_functionCallCounters[7]++;
+    }
+
+    IncompleteTypeSupportChecker(MovableRef original)
+        // Call 'bsl::list' constructor passing the underlying list of the
+        // specified movable 'original' as a parameter.
+    : d_list(MoveUtil::move(MoveUtil::access(original).d_list))
+    {
+        s_functionCallCounters[8]++;
+    }
+
+    IncompleteTypeSupportChecker(MovableRef            original,
+                                 const allocator_type& basicAllocator)
+        // Call 'bsl::list' constructor passing the specified 'basicAllocator'
+        // and passing the underlying list of the specified movable 'original'
+        // as parameters.
+    : d_list(MoveUtil::move(MoveUtil::access(original).d_list), basicAllocator)
+    {
+        s_functionCallCounters[9]++;
+    }
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    explicit IncompleteTypeSupportChecker(
+                                      std::initializer_list<value_type> values)
+        // Call 'bsl::list' constructor passing the specified 'values' as a
+        // parameter.
+    : d_list(values)
+    {
+        s_functionCallCounters[10]++;
+    }
+#endif
+
+    ~IncompleteTypeSupportChecker()
+        // Call 'bsl::list' destructor.
+    {
+        s_functionCallCounters[11]++;
+    }
+
+    // MANIPULATORS
+    IncompleteTypeSupportChecker& operator=(
+                                       const IncompleteTypeSupportChecker& rhs)
+        // Call the assignment operator of 'bsl::list' passing the underlying
+        // list of the specified 'rhs' as a parameter, and return a reference
+        // providing modifiable access to this object.
+    {
+        s_functionCallCounters[12]++;
+        d_list = rhs.d_list;
+        return *this;
+    }
+
+    IncompleteTypeSupportChecker& operator=(MovableRef rhs)
+        // Call the assignment operator of 'bsl::list' passing the underlying
+        // list of the specified movable 'rhs' as a parameter, and return a
+        // reference providing modifiable access to this object.
+    {
+        s_functionCallCounters[13]++;
+        d_list = MoveUtil::move(MoveUtil::access(rhs).d_list);
+        return *this;
+    }
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    IncompleteTypeSupportChecker& operator=(
+                                      std::initializer_list<value_type> values)
+        // Call the assignment operator of 'bsl::list' passing the specified
+        // 'values' as a parameter, and return a reference providing modifiable
+        // access to this object.
+    {
+        s_functionCallCounters[14]++;
+        d_list = values;
+        return *this;
+    }
+#endif
+
+    template <class INPUT_ITERATOR>
+    void assign(INPUT_ITERATOR first, INPUT_ITERATOR last)
+        // Call the 'assign' method of 'bsl::list' passing the specified
+        // 'first' and 'last' as parameters.
+    {
+        s_functionCallCounters[15]++;
+        d_list.assign(first, last);
+    }
+
+    void assign(size_type numElements, const value_type& value)
+        // Call the 'assign' method of 'bsl::list' passing the specified
+        // 'numElements' and 'value' as parameters.
+    {
+        s_functionCallCounters[16]++;
+        d_list.assign(numElements, value);
+    }
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    void assign(std::initializer_list<value_type> values)
+        // Call the 'assign' method of 'bsl::list' passing the specified
+        // 'values' as a parameter.
+    {
+        s_functionCallCounters[17]++;
+        d_list.assign(values);
+    }
+#endif
+
+    iterator begin()
+        // Return the result of calling the 'begin' manipulator of 'bsl::list'.
+    {
+        s_functionCallCounters[18]++;
+        return d_list.begin();
+    }
+
+    iterator end()
+        // Return the result of calling the 'end' manipulator of 'bsl::list'.
+    {
+        s_functionCallCounters[19]++;
+        return d_list.end();
+    }
+
+    reverse_iterator rbegin()
+        // Return the result of calling the 'rbegin' manipulator of
+        // 'bsl::list'.
+    {
+        s_functionCallCounters[20]++;
+        return d_list.rbegin();
+    }
+
+    reverse_iterator rend()
+        // Return the result of calling the 'rend' manipulator of 'bsl::list'.
+    {
+        s_functionCallCounters[21]++;
+        return d_list.rend();
+    }
+
+    void clear()
+        // Call the 'clear' method of 'bsl::list'.
+    {
+        s_functionCallCounters[22]++;
+        d_list.clear();
+    }
+
+    void resize(size_type newSize)
+        // Call the 'resize' method of 'bsl::list' passing the specified
+        // 'newSize' as a parameter.
+    {
+        s_functionCallCounters[23]++;
+        d_list.resize(newSize);
+    }
+
+    void resize(size_type newSize, const value_type& value)
+        // Call the 'resize' method of 'bsl::list' passing the specified
+        // 'newSize' and 'value' as parameters.
+    {
+        s_functionCallCounters[24]++;
+        d_list.resize(newSize, value);
+    }
+
+    reference back()
+        // Return the result of calling the 'back' manipulator of 'bsl::list'.
+    {
+        s_functionCallCounters[25]++;
+        return d_list.back();
+    }
+
+    reference front()
+        // Return the result of calling the 'front' manipulator of 'bsl::list'.
+    {
+        s_functionCallCounters[26]++;
+        return d_list.front();
+    }
+
+    void pop_back()
+        // Call the 'pop_back' method of 'bsl::list'.
+    {
+        s_functionCallCounters[27]++;
+        d_list.pop_back();
+    }
+
+    void pop_front()
+        // Call the 'pop_front' method of 'bsl::list'.
+    {
+        s_functionCallCounters[28]++;
+        d_list.pop_front();
+    }
+
+    iterator erase(const_iterator position)
+        // Call the 'erase' method of 'bsl::list' passing the specified
+        // 'position' as a parameter, and return the result.
+    {
+        s_functionCallCounters[29]++;
+        return d_list.erase(position);
+    }
+
+    iterator erase(const_iterator dstBegin, const_iterator dstEnd)
+        // Call the 'erase' method of 'bsl::list' passing the specified
+        // 'dstBegin' and 'dstEnd' as parameters, and return the result.
+    {
+        s_functionCallCounters[30]++;
+        return d_list.erase(dstBegin, dstEnd);
+    }
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+    template <class... ARGS>
+    reference emplace_back(ARGS&&... arguments)
+        // Call the 'emplace_back' method of 'bsl::list' passing the specified
+        // 'arguments' as a parameter, and return the result.
+    {
+        s_functionCallCounters[31]++;
+        return d_list.emplace_back(
+            BSLS_COMPILERFEATURES_FORWARD(ARGS, arguments)...);
+    }
+#else
+    template <class ARGS_01,
+              class ARGS_02>
+    reference emplace_back(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02)
+        // Call the 'emplace_back' method of 'bsl::list' passing the specified
+        // 'arguments_01' and 'arguments_02' as parameters, and return the
+        // result.
+    {
+        s_functionCallCounters[31]++;
+        return d_list.emplace_back(
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02));
+    }
+#endif
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+    template <class... ARGS>
+    reference emplace_front(ARGS&&... arguments)
+        // Call the 'emplace_front' method of 'bsl::list' passing the specified
+        // 'arguments' as a parameter, and return the result.
+    {
+        s_functionCallCounters[32]++;
+        return d_list.emplace_front(
+            BSLS_COMPILERFEATURES_FORWARD(ARGS, arguments)...);
+    }
+#else
+    template <class ARGS_01,
+              class ARGS_02>
+    reference emplace_front(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02)
+        // Call the 'emplace_front' method of 'bsl::list' passing the specified
+        // 'arguments_01' and 'arguments_02' as parameters, and return the
+        // result.
+    {
+        s_functionCallCounters[32]++;
+        return d_list.emplace_front(
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02));
+    }
+#endif
+
+    void push_back(const value_type& value)
+        // Call the 'push_back' method of 'bsl::list' passing the specified
+        // 'value' as a parameter.
+    {
+        s_functionCallCounters[33]++;
+        d_list.push_back(value);
+    }
+
+    void push_back(MovableRef value)
+        // Call the 'push_back' method of 'bsl::list' passing the specified
+        // movable 'value' as a parameter.
+    {
+        s_functionCallCounters[34]++;
+        IncompleteTypeSupportChecker& lvalue = value;
+        d_list.push_back(MoveUtil::move(lvalue));
+    }
+
+    void push_front(const value_type& value)
+        // Call the 'push_front' method of 'bsl::list' passing the specified
+        // 'value' as a parameter.
+    {
+        s_functionCallCounters[35]++;
+        d_list.push_front(value);
+    }
+
+    void push_front(MovableRef value)
+        // Call the 'push_front' method of 'bsl::list' passing the specified
+        // movable 'value' as a parameter.
+    {
+        s_functionCallCounters[36]++;
+        IncompleteTypeSupportChecker& lvalue = value;
+        d_list.push_front(MoveUtil::move(lvalue));
+    }
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+    template <class... ARGS>
+    iterator emplace(const_iterator position, ARGS&&... arguments)
+        // Call the 'emplace' method of 'bsl::list' passing the specified
+        // 'position' and 'arguments' as parameters, and return the result.
+    {
+        s_functionCallCounters[37]++;
+        return d_list.emplace(
+                            position,
+                            BSLS_COMPILERFEATURES_FORWARD(ARGS, arguments)...);
+    }
+#else
+    template <class ARGS_01,
+              class ARGS_02>
+    iterator emplace(const_iterator                             position,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02)
+        // Call the 'emplace' method of 'bsl::list' passing the specified
+        // 'position', 'arguments_01' and 'arguments_02' as parameters, and
+        // return the result.
+    {
+        s_functionCallCounters[37]++;
+        return d_list.emplace(
+                         position,
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02));
+    }
+#endif
+
+    iterator insert(const_iterator dstPosition, const value_type& value)
+        // Call the 'insert' method of 'bsl::list' passing the specified
+        // 'dstPosition' and 'value' as parameters, and return the result.
+    {
+        s_functionCallCounters[38]++;
+        return d_list.insert(dstPosition, value);
+    }
+
+    iterator insert(const_iterator dstPosition, MovableRef value)
+        // Call the 'insert' method of 'bsl::list' passing the specified
+        // 'dstPosition' and the specified movable 'value' as parameters, and
+        // return the result.
+    {
+        s_functionCallCounters[39]++;
+        IncompleteTypeSupportChecker& lvalue = value;
+        return d_list.insert(dstPosition, MoveUtil::move(lvalue));
+    }
+
+    iterator insert(const_iterator    dstPosition,
+                    size_type         numElements,
+                    const value_type& value)
+        // Call the 'insert' method of 'bsl::list' passing the specified
+        // 'dstPosition', 'numElements' and 'value' as parameters, and return
+        // the result.
+    {
+        s_functionCallCounters[40]++;
+        return d_list.insert(dstPosition, numElements, value);
+    }
+
+    template <class INPUT_ITERATOR>
+    iterator insert(const_iterator dstPosition,
+                    INPUT_ITERATOR first,
+                    INPUT_ITERATOR last)
+        // Call the 'insert' method of 'bsl::list' passing the specified
+        // 'dstPosition', 'first' and 'last' as parameters, and return the
+        // result.
+    {
+        s_functionCallCounters[41]++;
+        return d_list.insert(dstPosition, first, last);
+    }
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    iterator insert(const_iterator                    dstPosition,
+                    std::initializer_list<value_type> values)
+        // Call the 'insert' method of 'bsl::list' passing the specified
+        // 'dstPosition' and 'values' as parameters, and return the result.
+    {
+        s_functionCallCounters[42]++;
+        return d_list.insert(dstPosition, values);
+    }
+#endif
+
+    void merge(IncompleteTypeSupportChecker& other)
+        // Call the 'merge' method of 'bsl::list' passing the specified 'other'
+        // as a parameter.
+    {
+        s_functionCallCounters[43]++;
+        d_list.merge(other.d_list);
+    }
+
+    void merge(MovableRef other)
+        // Call the 'merge' method of 'bsl::list' passing the specified movable
+        // 'other' as a parameter.
+    {
+        s_functionCallCounters[44]++;
+        d_list.merge(MoveUtil::move(MoveUtil::access(other).d_list));
+    }
+
+    template <class COMPARE>
+    void merge(IncompleteTypeSupportChecker& other, COMPARE comparator)
+        // Call the 'merge' method of 'bsl::list' passing the specified 'other'
+        // and 'comparator' as parameters.
+    {
+        s_functionCallCounters[45]++;
+        d_list.merge(other.d_list, comparator);
+    }
+
+    template <class COMPARE>
+    void merge(MovableRef other, COMPARE comparator)
+        // Call the 'merge' method of 'bsl::list' passing the specified movable
+        // 'other' and 'comparator' as parameters.
+    {
+        s_functionCallCounters[46]++;
+        d_list.merge(MoveUtil::move(MoveUtil::access(other).d_list),
+                     comparator);
+    }
+
+    void remove(const value_type& value)
+        // Call the 'remove' method of 'bsl::list' passing the specified
+        // 'value' as a parameter.
+    {
+        s_functionCallCounters[47]++;
+        d_list.remove(value);
+    }
+
+    template <class PREDICATE>
+    void remove_if(PREDICATE predicate)
+        // Call the 'remove_if' method of 'bsl::list' passing the specified
+        // 'predicate' as a parameter.
+    {
+        s_functionCallCounters[48]++;
+        d_list.remove_if(predicate);
+    }
+
+    void reverse()
+        // Call the 'reverse' method of 'bsl::list'.
+    {
+        s_functionCallCounters[49]++;
+        d_list.reverse();
+    }
+
+    void sort()
+        // Call the 'sort' method of 'bsl::list'.
+    {
+        s_functionCallCounters[50]++;
+        d_list.sort();
+    }
+
+    template <class COMPARE>
+    void sort(COMPARE comparator)
+        // Call the 'sort' method of 'bsl::list' passing the specified
+        // 'comparator' as a parameter.
+    {
+        s_functionCallCounters[51]++;
+        d_list.sort(comparator);
+    }
+
+    void splice(const_iterator dstPosition, IncompleteTypeSupportChecker& src)
+        // Call the 'splice' method of 'bsl::list' passing the specified
+        // 'dstPosition' and 'src' as parameters.
+    {
+        s_functionCallCounters[52]++;
+        d_list.splice(dstPosition, src.d_list);
+    }
+
+    void splice(const_iterator dstPosition, MovableRef src)
+        // Call the 'splice' method of 'bsl::list' passing the specified
+        // 'dstPosition' and movable 'src' as parameters.
+    {
+        s_functionCallCounters[53]++;
+        d_list.splice(dstPosition,
+                      MoveUtil::move(MoveUtil::access(src).d_list));
+    }
+
+    void splice(const_iterator                dstPosition,
+                IncompleteTypeSupportChecker& src,
+                const_iterator                srcNode)
+        // Call the 'splice' method of 'bsl::list' passing the specified
+        // 'dstPosition', 'src' and 'srcNode' as parameters.
+    {
+        s_functionCallCounters[54]++;
+        d_list.splice(dstPosition, src.d_list, srcNode);
+    }
+
+    void splice(const_iterator dstPosition,
+                MovableRef     src,
+                const_iterator srcNode)
+        // Call the 'splice' method of 'bsl::list' passing the specified
+        // 'dstPosition', movable 'src' and 'srcNode' as parameters.
+    {
+        s_functionCallCounters[55]++;
+        d_list.splice(dstPosition,
+                      MoveUtil::move(MoveUtil::access(src).d_list),
+                      srcNode);
+    }
+
+    void splice(const_iterator                dstPosition,
+                IncompleteTypeSupportChecker& src,
+                const_iterator                first,
+                const_iterator                last)
+        // Call the 'splice' method of 'bsl::list' passing the specified
+        // 'dstPosition', 'src', 'first' and 'last' as parameters.
+    {
+        s_functionCallCounters[56]++;
+        d_list.splice(dstPosition, src.d_list, first, last);
+    }
+
+    void splice(const_iterator dstPosition,
+                MovableRef     src,
+                const_iterator first,
+                const_iterator last)
+        // Call the 'splice' method of 'bsl::list' passing the specified
+        // 'dstPosition', movable 'src', 'first' and 'last' as parameters.
+    {
+        s_functionCallCounters[57]++;
+        d_list.splice(dstPosition,
+                      MoveUtil::move(MoveUtil::access(src).d_list),
+                      first,
+                      last);
+    }
+
+    void unique()
+        // Call the 'unique' method of 'bsl::list'.
+    {
+        s_functionCallCounters[58]++;
+        d_list.unique();
+    }
+
+    template <class EQ_PREDICATE>
+    void unique(EQ_PREDICATE binaryPredicate)
+        // Call the 'unique' method of 'bsl::list' passing the specified
+        // 'binaryPredicate' as a parameter.
+    {
+        s_functionCallCounters[59]++;
+        d_list.unique(binaryPredicate);
+    }
+
+    void swap(IncompleteTypeSupportChecker& other)
+        // Call the 'swap' method of 'bsl::list' passing the specified 'other'
+        // as a parameter.
+    {
+        s_functionCallCounters[60]++;
+        d_list.swap(other.d_list);
+    }
+
+    // ACCESSORS
+    const_iterator  begin() const
+        // Return the result of calling the 'begin' accessor of 'bsl::list'.
+    {
+        s_functionCallCounters[61]++;
+        return d_list.begin();
+    }
+
+    const_iterator cbegin() const
+        // Return the result of calling the 'cbegin' accessor of 'bsl::list'.
+    {
+        s_functionCallCounters[62]++;
+        return d_list.cbegin();
+    }
+
+    const_iterator end() const
+        // Return the result of calling the 'end' accessor of 'bsl::list'.
+    {
+        s_functionCallCounters[63]++;
+        return d_list.end();
+    }
+
+    const_iterator cend() const
+        // Return the result of calling the 'cend' accessor of 'bsl::list'.
+    {
+        s_functionCallCounters[64]++;
+        return d_list.cend();
+    }
+
+    const_reverse_iterator  rbegin() const
+        // Return the result of calling the 'rbegin' accessor of 'bsl::list'.
+    {
+        s_functionCallCounters[65]++;
+        return d_list.rbegin();
+    }
+
+    const_reverse_iterator crbegin() const
+        // Return the result of calling the 'crbegin' accessor of 'bsl::list'.
+    {
+        s_functionCallCounters[66]++;
+        return d_list.crbegin();
+    }
+
+    const_reverse_iterator  rend() const
+        // Return the result of calling the 'rend' accessor of 'bsl::list'.
+    {
+        s_functionCallCounters[67]++;
+        return d_list.rend();
+    }
+
+    const_reverse_iterator crend() const
+        // Return the result of calling the 'crend' accessor of 'bsl::list'.
+    {
+        s_functionCallCounters[68]++;
+        return d_list.crend();
+    }
+
+    bool empty() const
+        // Return the result of calling the 'empty' method of 'bsl::list'.
+    {
+        s_functionCallCounters[69]++;
+        return d_list.empty();
+    }
+
+    size_type max_size() const
+        // Return the result of calling the 'max_size' method of 'bsl::list'.
+    {
+        s_functionCallCounters[70]++;
+        return d_list.max_size();
+    }
+
+    size_type size() const
+        // Return the result of calling the 'size' method of 'bsl::list'.
+    {
+        s_functionCallCounters[71]++;
+        return d_list.size();
+    }
+
+    const_reference back() const
+        // Return the result of calling the 'back' method of 'bsl::list'.
+    {
+        s_functionCallCounters[72]++;
+        return d_list.back();
+    }
+
+    const_reference front() const
+        // Return the result of calling the 'back' method of 'bsl::list'.
+    {
+        s_functionCallCounters[73]++;
+        return d_list.front();
+    }
+
+    allocator_type get_allocator() const
+        // Return the result of calling the 'get_allocator' method of
+        // 'bsl::list'.
+    {
+        s_functionCallCounters[74]++;
+        return d_list.get_allocator();
+    }
+
+    const ListType& content() const;
+        // Return a reference providing non-modifiable access to the underlying
+        // list.
+};
+
+// FREE OPERATORS
+bool operator==(const IncompleteTypeSupportChecker& lhs,
+                const IncompleteTypeSupportChecker& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+    // value, and 'false' otherwise.  Two 'IncompleteTypeSupportChecker'
+    // objects 'lhs' and 'rhs' have the same value if their underlying lists
+    // have the same value.
+
+bool operator<(const IncompleteTypeSupportChecker& lhs,
+               const IncompleteTypeSupportChecker& rhs);
+    // Return 'true' if the value of the underlying list of the specified 'lhs'
+    // is lexicographically less than that of the specified 'rhs', and 'false'
+    // otherwise.
+
+                     // ==============================
+                     // class IncompleteTypeComparator
+                     // ==============================
+
+class IncompleteTypeComparator {
+    // This test class provides a mechanism that defines a function-call
+    // operator that compares two objects of 'IncompleteTypeSupportChecker'
+    // type.
+
+  public:
+    // ACCESSORS
+    bool operator()(const IncompleteTypeSupportChecker& lhs,
+                    const IncompleteTypeSupportChecker& rhs);
+        // Return 'true' if the specified 'lhs' less than the specified 'rhs',
+        // and 'false' otherwise.
+};
+
+                     // =====================================
+                     // class IncompleteTypeEqualityPredicate
+                     // =====================================
+
+class IncompleteTypeEqualityPredicate {
+    // This test class provides a mechanism that defines a function-call
+    // operator that compares two objects of 'IncompleteTypeSupportChecker'
+    // type.
+
+  public:
+    // ACCESSORS
+    bool operator()(const IncompleteTypeSupportChecker& lhs,
+                    const IncompleteTypeSupportChecker& rhs);
+        // Return 'true' if the specified 'lhs' is equal to the specified
+        // 'rhs', and 'false' otherwise.
+};
+
+                  // ----------------------------------
+                  // class IncompleteTypeSupportChecker
+                  // ----------------------------------
+// CLASS DATA
+const int        IncompleteTypeSupportChecker::s_numFunctions = 75;
+bsl::vector<int> IncompleteTypeSupportChecker::s_functionCallCounters(
+                                                                s_numFunctions,
+                                                                0);
+
+// CLASS METHODS
+void IncompleteTypeSupportChecker::checkInvokedFunctions()
+{
+    for (std::size_t i = 0; i < s_functionCallCounters.size(); ++i) {
+        const size_t INDEX = i;
+        ASSERTV(INDEX, 0 < s_functionCallCounters[INDEX]);
+    }
+}
+
+void IncompleteTypeSupportChecker::increaseFunctionCallCounter(
+                                                             std::size_t index)
+{
+    s_functionCallCounters[index]++;
+}
+
+void IncompleteTypeSupportChecker::resetFunctionCallCounters()
+{
+    s_functionCallCounters.assign(s_numFunctions, 0);
+}
+
+// ACCESSORS
+const IncompleteTypeSupportChecker::ListType&
+IncompleteTypeSupportChecker::content() const
+{
+    return d_list;
+}
+
+// FREE OPERATORS
+bool operator==(const IncompleteTypeSupportChecker& lhs,
+                const IncompleteTypeSupportChecker& rhs)
+{
+    return lhs.content() == rhs.content();
+}
+
+bool operator<(const IncompleteTypeSupportChecker& lhs,
+               const IncompleteTypeSupportChecker& rhs)
+{
+    return lhs.content() < rhs.content();
+}
+                     // ------------------------------
+                     // class IncompleteTypeComparator
+                     // ------------------------------
+
+bool IncompleteTypeComparator::operator()(
+                                       const IncompleteTypeSupportChecker& lhs,
+                                       const IncompleteTypeSupportChecker& rhs)
+{
+    return lhs < rhs;
+}
+                     // -------------------------------------
+                     // class IncompleteTypeEqualityPredicate
+                     // -------------------------------------
+
+bool IncompleteTypeEqualityPredicate::operator()(
+                                       const IncompleteTypeSupportChecker& lhs,
+                                       const IncompleteTypeSupportChecker& rhs)
+{
+    return (lhs == rhs);
+}
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -7928,6 +8804,428 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 37: {
+        // --------------------------------------------------------------------
+        // TESTING INCOMPLETE TYPE SUPPORT
+        //
+        // Concerns:
+        //: 1 All public methods of 'bsl::list' parameterized with incomplete
+        //:   type are successfully compiled.
+        //
+        // Plan:
+        //: 1 Invoke each public method of the special test type
+        //:   'IncompleteTypeSupportChecker'.
+        //
+        // Testing:
+        //   INCOMPLETE TYPE SUPPORT
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING INCOMPLETE TYPE SUPPORT"
+                            "\n===============================\n");
+
+        bslma::TestAllocator                         da("default",
+                                                        veryVeryVeryVerbose);
+        bslma::TestAllocator                         sa("supplied",
+                                                        veryVeryVeryVerbose);
+        bsl::allocator<IncompleteTypeSupportChecker> defaultAllocator(&da);
+        bsl::allocator<IncompleteTypeSupportChecker> suppliedAllocator(&sa);
+        bslma::DefaultAllocatorGuard                 dag(&da);
+
+        const IncompleteTypeSupportChecker::size_type initialSize = 5;
+
+        IncompleteTypeSupportChecker::resetFunctionCallCounters();
+
+        {
+            IncompleteTypeSupportChecker        mIT;                       // 0
+            const IncompleteTypeSupportChecker& IT = mIT;
+
+            ASSERT(0 == IT.size());
+        }
+
+        {
+            IncompleteTypeSupportChecker        mIT(suppliedAllocator);    // 1
+            const IncompleteTypeSupportChecker& IT = mIT;
+
+            ASSERT(suppliedAllocator == IT.get_allocator());
+        }
+
+        {
+            IncompleteTypeSupportChecker        mIT(initialSize);          // 2
+            const IncompleteTypeSupportChecker& IT = mIT;
+
+            ASSERT(initialSize ==  IT.size());
+        }
+
+        {
+            IncompleteTypeSupportChecker        mIT(initialSize,
+                                                    suppliedAllocator);    // 3
+            const IncompleteTypeSupportChecker& IT = mIT;
+
+            ASSERT(initialSize       == IT.size()         );
+            ASSERT(suppliedAllocator == IT.get_allocator());
+        }
+
+        {
+            IncompleteTypeSupportChecker        mIT(
+                                               initialSize,
+                                               IncompleteTypeSupportChecker());
+                                                                           // 4
+            const IncompleteTypeSupportChecker& IT = mIT;
+
+            ASSERT(initialSize == IT.size());
+        }
+
+        {
+            bsl::vector<IncompleteTypeSupportChecker> source(initialSize);
+            IncompleteTypeSupportChecker              mIT(source.begin(),
+                                                          source.end());
+            const IncompleteTypeSupportChecker&       IT = mIT;            // 5
+
+            ASSERT(initialSize == IT.size());
+        }
+
+        {
+            const IncompleteTypeSupportChecker  source(initialSize);
+            IncompleteTypeSupportChecker        mIT(source);               // 6
+            const IncompleteTypeSupportChecker& IT = mIT;
+
+            ASSERT(initialSize == IT.size());
+        }
+
+        {
+            const IncompleteTypeSupportChecker  source(initialSize);
+            IncompleteTypeSupportChecker        mIT(source,
+                                                    suppliedAllocator);    // 7
+            const IncompleteTypeSupportChecker& IT = mIT;
+
+            ASSERT(initialSize       == IT.size()         );
+            ASSERT(suppliedAllocator == IT.get_allocator());
+        }
+
+        {
+            IncompleteTypeSupportChecker        source(initialSize);
+            IncompleteTypeSupportChecker        mIT(
+                                    bslmf::MovableRefUtil::move(source));  // 8
+            const IncompleteTypeSupportChecker& IT = mIT;
+
+            ASSERT(initialSize == IT.size());
+        }
+
+        {
+            IncompleteTypeSupportChecker        source(initialSize);
+            IncompleteTypeSupportChecker        mIT(
+                                           bslmf::MovableRefUtil::move(source),
+                                           suppliedAllocator);             // 9
+            const IncompleteTypeSupportChecker& IT = mIT;
+
+            ASSERT(initialSize       == IT.size()         );
+            ASSERT(suppliedAllocator == IT.get_allocator());
+        }                                                                 // 11
+
+        {
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+            std::initializer_list<IncompleteTypeSupportChecker> values;
+            IncompleteTypeSupportChecker                        mIT(values);
+                                                                          // 10
+            const IncompleteTypeSupportChecker&                 IT = mIT;
+
+            ASSERT(0 == IT.size());
+#else
+            IncompleteTypeSupportChecker::increaseFunctionCallCounter(10);
+#endif
+        }
+
+        {
+            const IncompleteTypeSupportChecker         source0;
+            const IncompleteTypeSupportChecker         source1(initialSize);
+            IncompleteTypeSupportChecker               source2;
+            bsl::vector<IncompleteTypeSupportChecker>  source3(initialSize);
+            IncompleteTypeSupportChecker               source4;
+            IncompleteTypeSupportChecker               source5;
+            IncompleteTypeSupportChecker               source6;
+            IncompleteTypeSupportChecker               source7(initialSize);
+            IncompleteTypeSupportChecker               source8(initialSize);
+            IncompleteTypeSupportChecker               source9(initialSize);
+            IncompleteTypeSupportChecker               source10(initialSize);
+            IncompleteTypeSupportChecker               source11(initialSize);
+            IncompleteTypeSupportChecker               source12(initialSize);
+            IncompleteTypeSupportChecker               source13(initialSize);
+            IncompleteTypeSupportChecker               source14(initialSize);
+
+            IncompleteTypeComparator                   comparator;
+            IncompleteTypeEqualityPredicate            equalityPredicate;
+
+            IncompleteTypeSupportChecker        mIT;
+            const IncompleteTypeSupportChecker& IT = mIT;
+
+            IncompleteTypeSupportChecker *mR = &(mIT = source1);          // 12
+
+            ASSERT(initialSize == IT.size());
+            ASSERT(mR          == &mIT     );
+
+            mR = &(mIT = bslmf::MovableRefUtil::move(source2));           // 13
+
+            ASSERT(0  == IT.size());
+            ASSERT(mR == &mIT     );
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+            std::initializer_list<IncompleteTypeSupportChecker> values;
+
+            mR = &(mIT = values);                                         // 14
+
+            ASSERT(0  == IT.size());
+            ASSERT(mR == &mIT     );
+#else
+            IncompleteTypeSupportChecker::increaseFunctionCallCounter(14);
+#endif
+
+            mIT.assign(source3.begin(), source3.end());                   // 15
+
+            ASSERT(initialSize == IT.size());
+
+            mIT.assign(2 * initialSize, source1);                         // 16
+
+            ASSERT(2 * initialSize == IT.size());
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+            mIT.assign(values);                                           // 17
+
+            ASSERT(0  == IT.size());
+#else
+            IncompleteTypeSupportChecker::increaseFunctionCallCounter(17);
+#endif
+
+            mIT.assign(source3.begin(), source3.begin());
+
+            ASSERT(mIT.end()    == mIT.begin() );                         // 18
+            ASSERT(mIT.begin()  == mIT.end()   );                         // 19
+            ASSERT(mIT.rend()   == mIT.rbegin());                         // 20
+            ASSERT(mIT.rbegin() == mIT.rend()  );                         // 21
+
+            mIT.assign(initialSize, source1);
+            ASSERT(initialSize == IT.size());
+
+            mIT.clear();                                                  // 22
+
+            ASSERT(0 == IT.size());
+
+            mIT.resize(initialSize);                                      // 23
+
+            ASSERT(initialSize == IT.size());
+
+            mIT.resize(2 * initialSize, source1);                         // 24
+
+            ASSERT(2 * initialSize == IT.size());
+
+            mIT.back() = source2;                                         // 25
+
+            ASSERT(source2 == IT.back());
+
+            mIT.front() = source1;                                        // 26
+
+            ASSERT(source1 == IT.front());
+
+            mIT.pop_back();                                               // 27
+
+            ASSERT(2 * initialSize - 1 == IT.size());
+
+            mIT.pop_front();                                              // 28
+
+            ASSERT(2 * initialSize - 2 == IT.size());
+
+            mIT.erase(IT.cbegin());                                       // 29
+
+            ASSERT(2 * initialSize - 3 == IT.size());
+
+            mIT.erase(IT.cbegin(), ++IT.cbegin());                        // 30
+
+            ASSERTV(2 * initialSize - 4 == IT.size());
+
+            mR = &(mIT.emplace_back(initialSize,
+                                    IncompleteTypeSupportChecker()));     // 31
+
+            ASSERT(2 * initialSize - 3 == IT.size());
+            ASSERT(source1             == IT.back());
+            ASSERT(source1             == *mR      );
+
+            mR = &(mIT.emplace_front(initialSize,
+                                     IncompleteTypeSupportChecker()));    // 32
+
+            ASSERT(2 * initialSize - 2 == IT.size() );
+            ASSERT(source1             == IT.front());
+            ASSERT(source1             == *mR       );
+
+            mIT.push_back(source1);                                       // 33
+
+            ASSERT(2 * initialSize - 1 == IT.size() );
+
+            mIT.push_back(BloombergLP::bslmf::MovableRefUtil::move(source4));
+                                                                          // 34
+            ASSERT(2 * initialSize == IT.size() );
+
+            mIT.push_front(source1);                                      // 35
+
+            ASSERT(2 * initialSize + 1 == IT.size() );
+
+            mIT.push_front(BloombergLP::bslmf::MovableRefUtil::move(source5));
+                                                                          // 36
+            ASSERT(2 * initialSize + 2 == IT.size() );
+
+            IncompleteTypeSupportChecker::iterator mIter = mIT.emplace(
+                                               mIT.cbegin(),
+                                               initialSize,
+                                               IncompleteTypeSupportChecker());
+                                                                          // 37
+            ASSERT(2 * initialSize + 3 == IT.size());
+            ASSERT(IT.begin()          == mIter    );
+
+            mIter = mIT.insert(mIT.cbegin(), source1);                    // 38
+
+            ASSERT(2 * initialSize + 4 == IT.size());
+            ASSERT(IT.begin()          == mIter    );
+
+            mIter = mIT.insert(
+                            mIT.cbegin(),
+                            BloombergLP::bslmf::MovableRefUtil::move(source6));
+                                                                          // 39
+            ASSERT(2 * initialSize + 5 == IT.size());
+            ASSERT(IT.begin()          == mIter    );
+
+            mIter = mIT.insert(mIT.cbegin(), 5, source1);                 // 40
+
+            ASSERT(2 * initialSize + 10 == IT.size());
+            ASSERT(IT.begin()           == mIter    );
+
+            mIter = mIT.insert(mIT.cbegin(), source3.begin(), source3.end());
+                                                                          // 41
+            ASSERT(2 * initialSize + 15 == IT.size());
+            ASSERT(IT.begin()           == mIter    );
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+            mIter = mIT.insert(mIT.cbegin(), values);                     // 42
+
+            ASSERT(2 * initialSize + 15 == IT.size());
+            ASSERT(IT.begin()           == mIter    );
+#else
+            IncompleteTypeSupportChecker::increaseFunctionCallCounter(42);
+#endif
+
+            mIT.merge(source7);                                           // 43
+
+            ASSERT(2 * initialSize + 20 == IT.size()     );
+            ASSERT(0                    == source7.size());
+
+            mIT.merge(BloombergLP::bslmf::MovableRefUtil::move(source8));
+                                                                          // 44
+            ASSERT(2 * initialSize + 25 == IT.size());
+
+            mIT.merge(source9, comparator);                               // 45
+
+            ASSERT(2 * initialSize + 30 == IT.size()     );
+            ASSERT(0                    == source9.size());
+
+            mIT.merge(BloombergLP::bslmf::MovableRefUtil::move(source10),
+                      comparator);                                        // 46
+
+            ASSERT(2 * initialSize + 35 == IT.size());
+
+            mIT.remove(source1);                                          // 47
+
+            ASSERT(2 * initialSize + 20 == IT.size());
+
+            mIT.remove_if(EqPred<IncompleteTypeSupportChecker>(source0)); // 48
+
+            ASSERT(0 == IT.size());
+
+            mIT.push_back(source0);
+            mIT.push_back(source1);
+
+            mIT.reverse();                                                // 49
+
+            ASSERT(source0 == IT.back());
+            ASSERT(source1 == IT.front());
+
+            mIT.sort();                                                   // 50
+
+            ASSERT(source1 == IT.back());
+            ASSERT(source0 == IT.front());
+
+            mIT.push_back(source0);
+
+            mIT.sort(comparator);                                         // 51
+
+            ASSERT(source1 == IT.back());
+
+            mIT.splice(IT.begin(), source11);                             // 52
+
+            ASSERT(8 == IT.size());
+
+            mIT.splice(IT.begin(),
+                       BloombergLP::bslmf::MovableRefUtil::move(source11));
+                                                                          // 53
+            ASSERT(8 == IT.size());
+
+            mIT.splice(IT.begin(), source12, source12.cbegin());          // 54
+
+            ASSERT(9 == IT.size());
+
+            mIT.splice(IT.begin(),
+                       BloombergLP::bslmf::MovableRefUtil::move(source12),
+                       source12.cbegin());                                // 55
+            ASSERT(10 == IT.size());
+
+            mIT.splice(IT.begin(),
+                       source13,
+                       source13.cbegin(),
+                       source13.cend());                                  // 56
+
+            ASSERT(15 == IT.size());
+
+            mIT.splice(IT.begin(),
+                       BloombergLP::bslmf::MovableRefUtil::move(source13),
+                       source13.cbegin(),
+                       source13.cend());                                  // 57
+
+            ASSERT(15 == IT.size());
+
+            mIT.unique();                                                 // 58
+
+            ASSERT(2 == IT.size());
+
+            mIT.push_back(source1);
+
+            mIT.unique(equalityPredicate);                                // 59
+
+            ASSERTV(IT.size(), 2 == IT.size());
+
+            mIT.swap(source14);                                           // 60
+
+            ASSERT(initialSize == IT.size()      );
+            ASSERT(2           == source14.size());
+
+            ASSERT(IT.end()     != IT.begin()   );                        // 61
+            ASSERT(IT.cend()    != IT.cbegin()  );                        // 62
+            ASSERT(IT.begin()   != IT.end()     );                        // 63
+            ASSERT(IT.cbegin()  != IT.cend()    );                        // 64
+            ASSERT(IT.rend()    != IT.rbegin()  );                        // 65
+            ASSERT(IT.crend()   != IT.crbegin() );                        // 66
+            ASSERT(IT.rbegin()  != IT.rend()    );                        // 67
+            ASSERT(IT.crbegin() != IT.crend()   );                        // 68
+
+            ASSERT(false        == IT.empty()   );                        // 69
+            ASSERT(0            != IT.max_size());                        // 70
+            ASSERT(initialSize  == IT.size()    );                        // 71
+
+            ASSERT(source0 == IT.back() );                                // 72
+            ASSERT(source0 == IT.front());                                // 73
+
+            ASSERT(defaultAllocator == IT.get_allocator());               // 74
+        }
+
+        // Check if each function has been called.
+
+        IncompleteTypeSupportChecker::checkInvokedFunctions();
+      } break;
       case 36: {
         // --------------------------------------------------------------------
         // TESTING FREE FUNCTIONS 'BSL::ERASE' AND 'BSL::ERASE_IF'
