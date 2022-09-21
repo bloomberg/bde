@@ -259,7 +259,8 @@ using std::is_nothrow_swappable;
 using std::is_nothrow_swappable_with;
 
 // void_t is supplied by bslmf_voidtype.h, as is invoke_result
-// (bslmf_invokeresult.h) and bool_constant (bslmf_integralconstant.h)
+// (bslmf_invokeresult.h), bool_constant (bslmf_integralconstant.h), and
+// type_identity (bslmf_typeidentity.h)
 #endif
 
 #if defined BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
@@ -647,6 +648,7 @@ using std::void_t;
 #include <bslmf_removepointer.h>
 #include <bslmf_removereference.h>
 #include <bslmf_removevolatile.h>
+#include <bslmf_typeidentity.h>
 #include <bslmf_voidtype.h>
 
 #endif

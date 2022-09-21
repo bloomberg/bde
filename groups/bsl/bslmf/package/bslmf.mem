@@ -80,6 +80,7 @@ bslmf_resulttype
 bslmf_selecttrait
 bslmf_switch
 bslmf_tag
+bslmf_typeidentity
 bslmf_typelist
 bslmf_usesallocator
 bslmf_usesallocatorargt
