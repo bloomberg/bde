@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Mon Aug 29 11:42:34 2022
+// Generated on Wed Sep 21 16:48:36 2022
 // Command line: sim_cpp11_features.pl bslstl_vector.h
 
 #ifdef COMPILING_BSLSTL_VECTOR_H
@@ -600,7 +600,8 @@ class vector : public  vectorBase<VALUE_TYPE>
         // propagated for use in the newly-created vector.  'original' is left
         // in a valid but unspecified state.
 
-    vector(const vector& original, const ALLOCATOR& basicAllocator);
+    vector(const vector& original,
+                const typename type_identity<ALLOCATOR>::type& basicAllocator);
         // Create a vector having the same value as the specified 'original'
         // object that uses the specified 'basicAllocator' to supply memory.
         // This method requires that the (template parameter) type 'VALUE_TYPE'
@@ -610,7 +611,7 @@ class vector : public  vectorBase<VALUE_TYPE>
         // 'bsl::allocator' (the default).
 
     vector(BloombergLP::bslmf::MovableRef<vector> original,
-           const ALLOCATOR&                       basicAllocator);
+                const typename type_identity<ALLOCATOR>::type& basicAllocator);
         // Create a vector having the same value as the specified 'original'
         // object that uses the specified 'basicAllocator' to supply memory.
         // The contents of 'original' are moved (in constant time) to the new
@@ -2101,10 +2102,11 @@ class vector<VALUE_TYPE *, ALLOCATOR>
     vector(BloombergLP::bslmf::MovableRef<vector> original)
                                              BSLS_KEYWORD_NOEXCEPT; // IMPLICIT
 
-    vector(const vector& original, const ALLOCATOR& basicAllocator);
+    vector(const vector& original,
+                const typename type_identity<ALLOCATOR>::type& basicAllocator);
 
     vector(BloombergLP::bslmf::MovableRef<vector> original,
-           const ALLOCATOR&                       basicAllocator);
+                const typename type_identity<ALLOCATOR>::type& basicAllocator);
 
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
@@ -2294,17 +2296,6 @@ class vector<VALUE_TYPE *, ALLOCATOR>
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
 // CLASS TEMPLATE DEDUCTION GUIDES
-
-template <
-    class VALUE,
-    class ALLOCATOR,
-    class ALLOC,
-    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>
-    >
-vector(vector<VALUE, ALLOCATOR>, ALLOC *) -> vector<VALUE, ALLOCATOR>;
-    // Deduce the template parameters 'VALUE' and 'ALLOCATOR' from the
-    // corresponding template parameters of the 'bsl::vector' supplied to the
-    // constructor of 'vector'.
 
 template <
     class SIZE_TYPE,
@@ -3422,7 +3413,8 @@ vector<VALUE_TYPE, ALLOCATOR>::vector(const vector& original)
 
 template <class VALUE_TYPE, class ALLOCATOR>
 vector<VALUE_TYPE, ALLOCATOR>::
-vector(const vector& original, const ALLOCATOR& basicAllocator)
+vector(const vector& original,
+                 const typename type_identity<ALLOCATOR>::type& basicAllocator)
 : vectorBase<VALUE_TYPE>()
 , ContainerBase(basicAllocator)
 {
@@ -3455,8 +3447,8 @@ vector<VALUE_TYPE, ALLOCATOR>::vector(
 
 template <class VALUE_TYPE, class ALLOCATOR>
 vector<VALUE_TYPE, ALLOCATOR>::vector(
-                         BloombergLP::bslmf::MovableRef<vector> original,
-                         const ALLOCATOR&                       basicAllocator)
+                 BloombergLP::bslmf::MovableRef<vector>         original,
+                 const typename type_identity<ALLOCATOR>::type& basicAllocator)
 : vectorBase<VALUE_TYPE>()
 , ContainerBase(basicAllocator)
 {
@@ -5062,7 +5054,7 @@ vector<VALUE_TYPE *, ALLOCATOR>::vector(
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
 vector<VALUE_TYPE *, ALLOCATOR>::vector(const vector&    original,
-                                        const ALLOCATOR& basicAllocator)
+                 const typename type_identity<ALLOCATOR>::type& basicAllocator)
 : d_impl(original.d_impl, ImplAlloc(basicAllocator))
 {
 }
@@ -5070,8 +5062,8 @@ vector<VALUE_TYPE *, ALLOCATOR>::vector(const vector&    original,
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
 vector<VALUE_TYPE *, ALLOCATOR>::vector(
-    BloombergLP::bslmf::MovableRef<vector> original,
-    const ALLOCATOR&                       basicAllocator)
+    BloombergLP::bslmf::MovableRef<vector>         original,
+    const typename type_identity<ALLOCATOR>::type& basicAllocator)
 : d_impl(MoveUtil::move(MoveUtil::access(original).d_impl),
          ImplAlloc(basicAllocator))
 {

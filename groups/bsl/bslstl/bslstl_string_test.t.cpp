@@ -15535,11 +15535,13 @@ struct TestDeductionGuides {
         typedef NarrowTraits         OtherTraits;
         typedef bsl::allocator<CT>   BA;
         typedef std::allocator<CT>   SA;
+        typedef bsl::allocator<int>  OA;
 
         bslma::Allocator     *a1 = nullptr;
         bslma::TestAllocator *a2 = nullptr;
         BA                    ba;
         SA                    sa;
+        OA                    oa;
 
         bsl::basic_string<CT>               s1a;
         bsl::basic_string<CT, OtherTraits>  s1b;
@@ -15547,18 +15549,22 @@ struct TestDeductionGuides {
         bsl::basic_string                   str1b(s1a, ba);
         bsl::basic_string                   str1c(s1a, a1);
         bsl::basic_string                   str1d(s1a, a2);
-        bsl::basic_string                   str1e(s1b);
-        bsl::basic_string                   str1f(s1b, ba);
-        bsl::basic_string                   str1g(s1b, a1);
-        bsl::basic_string                   str1h(s1b, a2);
+        bsl::basic_string                   str1e(s1a, oa);
+        bsl::basic_string                   str1f(s1b);
+        bsl::basic_string                   str1g(s1b, ba);
+        bsl::basic_string                   str1h(s1b, a1);
+        bsl::basic_string                   str1i(s1b, a2);
+        bsl::basic_string                   str1j(s1b, oa);
         ASSERT_SAME_TYPE(decltype(str1a), decltype(s1a));
         ASSERT_SAME_TYPE(decltype(str1b), decltype(s1a));
         ASSERT_SAME_TYPE(decltype(str1c), decltype(s1a));
         ASSERT_SAME_TYPE(decltype(str1d), decltype(s1a));
-        ASSERT_SAME_TYPE(decltype(str1e), decltype(s1b));
+        ASSERT_SAME_TYPE(decltype(str1e), decltype(s1a));
         ASSERT_SAME_TYPE(decltype(str1f), decltype(s1b));
         ASSERT_SAME_TYPE(decltype(str1g), decltype(s1b));
         ASSERT_SAME_TYPE(decltype(str1h), decltype(s1b));
+        ASSERT_SAME_TYPE(decltype(str1i), decltype(s1b));
+        ASSERT_SAME_TYPE(decltype(str1j), decltype(s1b));
 
         bsl::basic_string<CT>               s2a;
         bsl::basic_string<CT, OtherTraits>  s2b;
@@ -15566,18 +15572,22 @@ struct TestDeductionGuides {
         bsl::basic_string                   str2b(std::move(s2a), ba);
         bsl::basic_string                   str2c(std::move(s2a), a1);
         bsl::basic_string                   str2d(std::move(s2a), a2);
-        bsl::basic_string                   str2e(std::move(s2b));
-        bsl::basic_string                   str2f(std::move(s2b), ba);
-        bsl::basic_string                   str2g(std::move(s2b), a1);
-        bsl::basic_string                   str2h(std::move(s2b), a2);
+        bsl::basic_string                   str2e(std::move(s2a), oa);
+        bsl::basic_string                   str2f(std::move(s2b));
+        bsl::basic_string                   str2g(std::move(s2b), ba);
+        bsl::basic_string                   str2h(std::move(s2b), a1);
+        bsl::basic_string                   str2i(std::move(s2b), a2);
+        bsl::basic_string                   str2j(std::move(s2b), oa);
         ASSERT_SAME_TYPE(decltype(str2a), decltype(s2a));
         ASSERT_SAME_TYPE(decltype(str2b), decltype(s2a));
         ASSERT_SAME_TYPE(decltype(str2c), decltype(s2a));
         ASSERT_SAME_TYPE(decltype(str2d), decltype(s2a));
-        ASSERT_SAME_TYPE(decltype(str2e), decltype(s2b));
+        ASSERT_SAME_TYPE(decltype(str2e), decltype(s2a));
         ASSERT_SAME_TYPE(decltype(str2f), decltype(s2b));
         ASSERT_SAME_TYPE(decltype(str2g), decltype(s2b));
         ASSERT_SAME_TYPE(decltype(str2h), decltype(s2b));
+        ASSERT_SAME_TYPE(decltype(str2i), decltype(s2b));
+        ASSERT_SAME_TYPE(decltype(str2j), decltype(s2b));
 
         bsl::basic_string str3a("abc");
         bsl::basic_string str3b("abc", ba);

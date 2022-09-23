@@ -523,22 +523,9 @@ stack(CONTAINER) -> stack<typename CONTAINER::value_type, CONTAINER>;
 template<
     class CONTAINER,
     class ALLOCATOR,
-    class = bsl::enable_if_t<bsl::uses_allocator<CONTAINER, ALLOCATOR>::value>
+    class = bsl::enable_if_t<bsl::uses_allocator_v<CONTAINER, ALLOCATOR>>
     >
-stack(CONTAINER, ALLOCATOR)
-                           -> stack<typename CONTAINER::value_type, CONTAINER>;
-    // Deduce the template parameters 'VALUE' and 'CONTAINER' from the
-    // parameters supplied to the constructor of 'stack'. This deduction guide
-    // does not participate if the specified 'CONTAINER' is not an
-    // allocator-aware container.
-
-template<
-    class CONTAINER,
-    class ALLOC,
-    class ALLOCATOR = typename CONTAINER::allocator_type,
-    class = bsl::enable_if_t<bsl::is_convertible<ALLOC *, ALLOCATOR>::value>
-    >
-stack(CONTAINER, ALLOC *) -> stack<typename CONTAINER::value_type, CONTAINER>;
+stack(CONTAINER, ALLOCATOR) -> stack<typename CONTAINER::value_type, CONTAINER>;
     // Deduce the template parameters 'VALUE' and 'CONTAINER' from the
     // parameters supplied to the constructor of 'stack'.  This deduction
     // guide does not participate unless the supplied allocator is convertible

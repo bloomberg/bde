@@ -962,6 +962,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isconvertible.h>
 #include <bslmf_movableref.h>
 #include <bslmf_nestedtraitdeclaration.h>
+#include <bslmf_typeidentity.h>
 #include <bslmf_util.h>    // 'forward(V)'
 
 #include <bsls_assert.h>
@@ -1269,8 +1270,9 @@ class unordered_map {
         // default), the currently installed default allocator is used to
         // supply memory.
 
-    unordered_map(const unordered_map& original,
-                  const ALLOCATOR&     basicAllocator);
+    unordered_map(
+                const unordered_map&                           original,
+                const typename type_identity<ALLOCATOR>::type& basicAllocator);
         // Create an unordered map having the same value, hasher, key-equality
         // comparator, and 'max_load_factor' as the specified 'original', and
         // using the specified 'basicAllocator' to supply memory.  If the
@@ -1289,8 +1291,8 @@ class unordered_map {
         // map.  'original' is left in a valid but unspecified state.
 
     unordered_map(
-                 BloombergLP::bslmf::MovableRef<unordered_map> original,
-                 const ALLOCATOR&                              basicAllocator);
+                BloombergLP::bslmf::MovableRef<unordered_map>  original,
+                const typename type_identity<ALLOCATOR>::type& basicAllocator);
         // Create an unordered map having the same value, hasher, key-equality
         // comparator, and 'max_load_factor' as the specified 'original'.  Use
         // the specified 'basicAllocator' to supply memory.  This method
@@ -1792,8 +1794,8 @@ class unordered_map {
         // specified 'args', and return a pair containing an iterator referring
         // to the newly-created entry and 'true'.  This method requires that
         // the (template parameter) types 'KEY' and 'VALUE' are
-        // emplace-constructible from 'key' and 'args' respectively.  For
-        // C++03, 'VALUE' must also be copy-constructible.
+        // 'emplace-constructible' from 'key' and 'args' respectively.  For
+        // C++03, 'VALUE' must also be 'copy-constructible'.
 
     template <class... Args>
     pair<iterator, bool> try_emplace(
@@ -1806,8 +1808,8 @@ class unordered_map {
         // 'std::forward<KEY>(key)' and the specified 'args', and return a pair
         // containing an iterator referring to the newly-created entry, and
         // 'true'.  This method requires that the (template parameter) types
-        // 'KEY' and 'VALUE' are emplace-constructible from 'key' and 'args'
-        // respectively.  For C++03, 'VALUE' must also be copy-constructible.
+        // 'KEY' and 'VALUE' are 'emplace-constructible' from 'key' and 'args'
+        // respectively.  For C++03, 'VALUE' must also be 'copy-constructible'.
 
     template<class... Args>
     iterator
@@ -1820,8 +1822,8 @@ class unordered_map {
         // 'hint' as a starting point for checking to see if the key already
         // in the unordered_map.  This method requires that the
         // (template parameter) types 'KEY' and 'VALUE' are
-        // emplace-constructible from 'key' and 'args' respectively.  For
-        // C++03, 'VALUE' must also be copy-constructible.
+        // 'emplace-constructible' from 'key' and 'args' respectively.  For
+        // C++03, 'VALUE' must also be 'copy-constructible'.
 
     template <class... Args>
     iterator try_emplace(const_iterator                      hint,
@@ -1835,8 +1837,8 @@ class unordered_map {
         // the specified 'hint' as a starting point for checking to see if the
         // key already in the unordered_map.  This method requires that the
         // (template parameter) types 'KEY' and 'VALUE' are
-        // emplace-constructible from 'key' and 'args' respectively.  For
-        // C++03, 'VALUE' must also be copy-constructible.
+        // 'emplace-constructible' from 'key' and 'args' respectively.  For
+        // C++03, 'VALUE' must also be 'copy-constructible'.
 #endif
 
     // ACCESSORS
@@ -2028,21 +2030,6 @@ class unordered_map {
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
 // CLASS TEMPLATE DEDUCTION GUIDES
-
-template <
-    class KEY,
-    class VALUE,
-    class HASH,
-    class EQUAL,
-    class ALLOCATOR,
-    class ALLOC,
-    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>
-    >
-unordered_map(unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>, ALLOC *)
--> unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>;
-    // Deduce the template parameters 'KEY', 'VALUE', 'HASH', 'EQUAL' and
-    // 'ALLOCATOR' from the corresponding template parameters of the
-    // 'bsl::unordered_map' supplied to the constructor of 'unordered_map'.
 
 template <
     class INPUT_ITERATOR,
@@ -2607,8 +2594,8 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_map(
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_map(
-                                          const unordered_map&  original,
-                                          const ALLOCATOR& basicAllocator)
+                 const unordered_map&                           original,
+                 const typename type_identity<ALLOCATOR>::type& basicAllocator)
 : d_impl(original.d_impl, basicAllocator)
 {
 }
@@ -2627,8 +2614,8 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_map(
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_map(
-                  BloombergLP::bslmf::MovableRef<unordered_map> original,
-                  const ALLOCATOR&                         basicAllocator)
+                 BloombergLP::bslmf::MovableRef<unordered_map>  original,
+                 const typename type_identity<ALLOCATOR>::type& basicAllocator)
 : d_impl(MoveUtil::move(MoveUtil::access(original).d_impl), basicAllocator)
 {
 }

@@ -6486,9 +6486,11 @@ struct TestDeductionGuides {
         bsl::stack     s2a(s2, bsl::allocator<T2>());
         bsl::stack     s2b(s2, a1);
         bsl::stack     s2c(s2, a2);
+        bsl::stack     s2d(s2, bsl::allocator<int>());
         ASSERT_SAME_TYPE(decltype(s2a), bsl::stack<T2>);
         ASSERT_SAME_TYPE(decltype(s2b), bsl::stack<T2>);
         ASSERT_SAME_TYPE(decltype(s2c), bsl::stack<T2>);
+        ASSERT_SAME_TYPE(decltype(s2d), bsl::stack<T2>);
 
         typedef short T3;
         bsl::stack<T3> s3;
@@ -6500,9 +6502,11 @@ struct TestDeductionGuides {
         bsl::stack     s4a(std::move(s4), bsl::allocator<T4>{});
         bsl::stack     s4b(std::move(s4), a1);
         bsl::stack     s4c(std::move(s4), a2);
+        bsl::stack     s4d(std::move(s4), bsl::allocator<int>{});
         ASSERT_SAME_TYPE(decltype(s4a), bsl::stack<T4>);
         ASSERT_SAME_TYPE(decltype(s4b), bsl::stack<T4>);
         ASSERT_SAME_TYPE(decltype(s4c), bsl::stack<T4>);
+        ASSERT_SAME_TYPE(decltype(s4d), bsl::stack<T4>);
 
         typedef long T5;
         bsl::vector<T5>  v5;
@@ -6517,9 +6521,11 @@ struct TestDeductionGuides {
         bsl::stack      s6a(v6, bsl::allocator<T6>());
         bsl::stack      s6b(v6, a1);
         bsl::stack      s6c(v6, a2);
+        bsl::stack      s6d(v6, bsl::allocator<int>());
         ASSERT_SAME_TYPE(decltype(s6a), bsl::stack<T6, bsl::vector<T6>>);
         ASSERT_SAME_TYPE(decltype(s6b), bsl::stack<T6, bsl::vector<T6>>);
         ASSERT_SAME_TYPE(decltype(s6c), bsl::stack<T6, bsl::vector<T6>>);
+        ASSERT_SAME_TYPE(decltype(s6d), bsl::stack<T6, bsl::vector<T6>>);
 
         typedef long long T7;
         bsl::vector<T7>  v7;
@@ -6531,12 +6537,14 @@ struct TestDeductionGuides {
 
         typedef double T8;
         bsl::vector<T8> v8;
-        bsl::stack      s8a(std::move(v8), bsl::allocator<T6>());
+        bsl::stack      s8a(std::move(v8), bsl::allocator<T8>());
         bsl::stack      s8b(std::move(v8), a1);
         bsl::stack      s8c(std::move(v8), a2);
+        bsl::stack      s8d(std::move(v8), bsl::allocator<int>());
         ASSERT_SAME_TYPE(decltype(s6a), bsl::stack<T8, bsl::vector<T8>>);
         ASSERT_SAME_TYPE(decltype(s8b), bsl::stack<T8, bsl::vector<T8>>);
         ASSERT_SAME_TYPE(decltype(s8c), bsl::stack<T8, bsl::vector<T8>>);
+        ASSERT_SAME_TYPE(decltype(s8d), bsl::stack<T8, bsl::vector<T8>>);
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // Compile-fail tests

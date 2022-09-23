@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Jun  8 13:16:02 2022
+// Generated on Wed Sep 21 17:27:43 2022
 // Command line: sim_cpp11_features.pl bslstl_unorderedmultimap.h
 
 #ifdef COMPILING_BSLSTL_UNORDEREDMULTIMAP_H
@@ -179,8 +179,9 @@ class unordered_multimap {
         // newly-created unordered multimap.  'original' is left in a valid but
         // unspecified state.
 
-    unordered_multimap(const unordered_multimap& original,
-                       const allocator_type&     basicAllocator);
+    unordered_multimap(
+                const unordered_multimap&                      original,
+                const typename type_identity<ALLOCATOR>::type& basicAllocator);
         // Create an unordered multimap having the same value as the specified
         // 'original' object that uses the specified 'basicAllocator' to supply
         // memory.  Use a copy of 'original.hash_function()' to generate hash
@@ -195,7 +196,7 @@ class unordered_multimap {
 
     unordered_multimap(
             BloombergLP::bslmf::MovableRef<unordered_multimap> original,
-            const ALLOCATOR&                                   basicAllocator);
+            const typename type_identity<ALLOCATOR>::type&     basicAllocator);
         // Create an unordered multimap having the same value as the specified
         // 'original' object that uses the specified 'basicAllocator' to supply
         // memory.  The contents of 'original' are moved (in constant time) to
@@ -905,23 +906,6 @@ class unordered_multimap {
 // CLASS TEMPLATE DEDUCTION GUIDES
 
 template <
-    class KEY,
-    class VALUE,
-    class HASH,
-    class EQUAL,
-    class ALLOCATOR,
-    class ALLOC,
-    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>
-    >
-unordered_multimap(unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>,
-                   ALLOC *)
--> unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>;
-    // Deduce the template parameters 'KEY', 'VALUE', 'HASH', 'EQUAL' and
-    // 'ALLOCATOR' from the corresponding template parameters of the
-    // 'bsl::unordered_multimap' supplied to the constructor of
-    // 'unordered_multimap'.
-
-template <
     class INPUT_ITERATOR,
     class KEY = BloombergLP::bslstl::IteratorUtil::IterKey_t<INPUT_ITERATOR>,
     class VALUE =
@@ -1385,8 +1369,8 @@ unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_multimap(
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
 unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_multimap(
-                                      const unordered_multimap& original,
-                                      const ALLOCATOR&          basicAllocator)
+                 const unordered_multimap&                      original,
+                 const typename type_identity<ALLOCATOR>::type& basicAllocator)
 : d_impl(original.d_impl, basicAllocator)
 {
 }
@@ -1395,7 +1379,7 @@ template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
 unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_multimap(
              BloombergLP::bslmf::MovableRef<unordered_multimap> original,
-             const ALLOCATOR&                                   basicAllocator)
+             const typename type_identity<ALLOCATOR>::type&     basicAllocator)
 : d_impl(MoveUtil::move(MoveUtil::access(original).d_impl), basicAllocator)
 {
 }

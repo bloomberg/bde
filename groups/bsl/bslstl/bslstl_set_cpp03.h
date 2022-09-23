@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Tue Jun 28 15:42:43 2022
+// Generated on Wed Sep 21 17:14:49 2022
 // Command line: sim_cpp11_features.pl bslstl_set.h
 
 #ifdef COMPILING_BSLSTL_SET_H
@@ -235,7 +235,8 @@ class set {
         // propagated for use in the newly-created set.  'original' is left in
         // a valid but unspecified state.
 
-    set(const set& original, const ALLOCATOR& basicAllocator);
+    set(const set&                                     original,
+        const typename type_identity<ALLOCATOR>::type& basicAllocator);
         // Create a set having the same value as the specified 'original'
         // object that uses the specified 'basicAllocator' to supply memory.
         // Use a copy of 'original.key_comp()' to order the keys contained in
@@ -245,8 +246,8 @@ class set {
         // 'basicAllocator' if the (template parameter) type 'ALLOCATOR' is
         // 'bsl::allocator' (the default).
 
-    set(BloombergLP::bslmf::MovableRef<set> original,
-        const ALLOCATOR&                    basicAllocator);
+    set(BloombergLP::bslmf::MovableRef<set>            original,
+        const typename type_identity<ALLOCATOR>::type& basicAllocator);
         // Create a set having the same value as the specified 'original'
         // object that uses the specified 'basicAllocator' to supply memory.
         // The contents of 'original' are moved (in constant time) to the new
@@ -1296,20 +1297,6 @@ class set {
 // CLASS TEMPLATE DEDUCTION GUIDES
 
 template <
-    class KEY,
-    class COMPARATOR,
-    class ALLOCATOR,
-    class ALLOC,
-    class = bsl::enable_if_t<bsl::is_convertible<ALLOC *, ALLOCATOR>::value>
-    >
-set(set<KEY, COMPARATOR, ALLOCATOR>, ALLOC *)
--> set<KEY, COMPARATOR, ALLOCATOR>;
-    // Deduce the template parameters 'KEY', 'COMPARATOR' and 'ALLOCATOR' from
-    // the corresponding template parameters of the 'bsl::set' supplied to the
-    // constructor of 'set'.  This deduction guide does not participate unless
-    // the specified 'ALLOC' is convertible to 'ALLOCATOR'.
-
-template <
     class INPUT_ITERATOR,
     class KEY = typename bsl::iterator_traits<INPUT_ITERATOR>::value_type,
     class COMPARATOR = std::less<KEY>,
@@ -1695,8 +1682,9 @@ set<KEY, COMPARATOR, ALLOCATOR>::set(
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
-set<KEY, COMPARATOR, ALLOCATOR>::set(const set&       original,
-                                     const ALLOCATOR& basicAllocator)
+set<KEY, COMPARATOR, ALLOCATOR>::set(
+                 const set&                                     original,
+                 const typename type_identity<ALLOCATOR>::type& basicAllocator)
 : d_compAndAlloc(original.comparator().keyComparator(), basicAllocator)
 , d_tree()
 {
@@ -1711,8 +1699,8 @@ set<KEY, COMPARATOR, ALLOCATOR>::set(const set&       original,
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 set<KEY, COMPARATOR, ALLOCATOR>::set(
-                            BloombergLP::bslmf::MovableRef<set> original,
-                            const ALLOCATOR&                    basicAllocator)
+                 BloombergLP::bslmf::MovableRef<set>            original,
+                 const typename type_identity<ALLOCATOR>::type& basicAllocator)
 : d_compAndAlloc(MoveUtil::access(original).comparator().keyComparator(),
                  basicAllocator)
 , d_tree()

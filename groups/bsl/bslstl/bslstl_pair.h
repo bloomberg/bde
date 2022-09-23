@@ -1153,8 +1153,8 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
         // supply memory for each of 'first' and 'second' when its type
         // (template parameter 'T1' or 'T2', respectively) uses 'bslma'-style
         // allocators.  Note that the copy constructor is implicitly declared
-        // (if 'T1' and 'T2' are both copy-constructible) by compilers that do
-        // not support defaulted declarations.
+        // (if 'T1' and 'T2' are both 'copy-constructible') by compilers that
+        // do not support defaulted declarations.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
     //! pair(pair&& original);  // Allow move ctor to implicitly default/delete
@@ -1188,7 +1188,7 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
         // supply memory for each of 'first' and 'second' when its type
         // (template parameter 'T1' or 'T2', respectively) uses 'bslma'-style
         // allocators.  This method requires that 'T1' and 'T2' be
-        // copy-constructible.
+        // 'copy-constructible'.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
     template <class PARAM_1, class PARAM_2>

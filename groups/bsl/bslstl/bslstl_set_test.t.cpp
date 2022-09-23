@@ -7831,9 +7831,11 @@ struct TestDeductionGuides {
         bsl::set     s2a(s2, bsl::allocator<T2>());
         bsl::set     s2b(s2, a1);
         bsl::set     s2c(s2, a2);
+        bsl::set     s2d(s2, bsl::allocator<int>());
         ASSERT_SAME_TYPE(decltype(s2a), bsl::set<T2>);
         ASSERT_SAME_TYPE(decltype(s2b), bsl::set<T2>);
         ASSERT_SAME_TYPE(decltype(s2c), bsl::set<T2>);
+        ASSERT_SAME_TYPE(decltype(s2d), bsl::set<T2>);
 
         typedef short T3;
         bsl::set<T3> s3;
@@ -7845,9 +7847,11 @@ struct TestDeductionGuides {
         bsl::set     s4a(std::move(s4), bsl::allocator<T4>{});
         bsl::set     s4b(std::move(s4), a1);
         bsl::set     s4c(std::move(s4), a2);
+        bsl::set     s4d(std::move(s4), bsl::allocator<int>{});
         ASSERT_SAME_TYPE(decltype(s4a), bsl::set<T4>);
         ASSERT_SAME_TYPE(decltype(s4b), bsl::set<T4>);
         ASSERT_SAME_TYPE(decltype(s4c), bsl::set<T4>);
+        ASSERT_SAME_TYPE(decltype(s4d), bsl::set<T4>);
 
 
         typedef long T5;

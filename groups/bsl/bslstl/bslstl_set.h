@@ -537,6 +537,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isconvertible.h>
 #include <bslmf_istransparentpredicate.h>
 #include <bslmf_movableref.h>
+#include <bslmf_typeidentity.h>
 #include <bslmf_util.h>    // 'forward(V)'
 
 #include <bsls_assert.h>
@@ -773,7 +774,8 @@ class set {
         // propagated for use in the newly-created set.  'original' is left in
         // a valid but unspecified state.
 
-    set(const set& original, const ALLOCATOR& basicAllocator);
+    set(const set&                                     original,
+        const typename type_identity<ALLOCATOR>::type& basicAllocator);
         // Create a set having the same value as the specified 'original'
         // object that uses the specified 'basicAllocator' to supply memory.
         // Use a copy of 'original.key_comp()' to order the keys contained in
@@ -783,8 +785,8 @@ class set {
         // 'basicAllocator' if the (template parameter) type 'ALLOCATOR' is
         // 'bsl::allocator' (the default).
 
-    set(BloombergLP::bslmf::MovableRef<set> original,
-        const ALLOCATOR&                    basicAllocator);
+    set(BloombergLP::bslmf::MovableRef<set>            original,
+        const typename type_identity<ALLOCATOR>::type& basicAllocator);
         // Create a set having the same value as the specified 'original'
         // object that uses the specified 'basicAllocator' to supply memory.
         // The contents of 'original' are moved (in constant time) to the new
@@ -1541,20 +1543,6 @@ class set {
 // CLASS TEMPLATE DEDUCTION GUIDES
 
 template <
-    class KEY,
-    class COMPARATOR,
-    class ALLOCATOR,
-    class ALLOC,
-    class = bsl::enable_if_t<bsl::is_convertible<ALLOC *, ALLOCATOR>::value>
-    >
-set(set<KEY, COMPARATOR, ALLOCATOR>, ALLOC *)
--> set<KEY, COMPARATOR, ALLOCATOR>;
-    // Deduce the template parameters 'KEY', 'COMPARATOR' and 'ALLOCATOR' from
-    // the corresponding template parameters of the 'bsl::set' supplied to the
-    // constructor of 'set'.  This deduction guide does not participate unless
-    // the specified 'ALLOC' is convertible to 'ALLOCATOR'.
-
-template <
     class INPUT_ITERATOR,
     class KEY = typename bsl::iterator_traits<INPUT_ITERATOR>::value_type,
     class COMPARATOR = std::less<KEY>,
@@ -1940,8 +1928,9 @@ set<KEY, COMPARATOR, ALLOCATOR>::set(
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
-set<KEY, COMPARATOR, ALLOCATOR>::set(const set&       original,
-                                     const ALLOCATOR& basicAllocator)
+set<KEY, COMPARATOR, ALLOCATOR>::set(
+                 const set&                                     original,
+                 const typename type_identity<ALLOCATOR>::type& basicAllocator)
 : d_compAndAlloc(original.comparator().keyComparator(), basicAllocator)
 , d_tree()
 {
@@ -1956,8 +1945,8 @@ set<KEY, COMPARATOR, ALLOCATOR>::set(const set&       original,
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 set<KEY, COMPARATOR, ALLOCATOR>::set(
-                            BloombergLP::bslmf::MovableRef<set> original,
-                            const ALLOCATOR&                    basicAllocator)
+                 BloombergLP::bslmf::MovableRef<set>            original,
+                 const typename type_identity<ALLOCATOR>::type& basicAllocator)
 : d_compAndAlloc(MoveUtil::access(original).comparator().keyComparator(),
                  basicAllocator)
 , d_tree()

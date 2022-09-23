@@ -2605,9 +2605,9 @@ template <
     class CHAR_TRAITS,
     class ALLOCATOR,
     class ALLOC,
-    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>
+    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC, ALLOCATOR>>
     >
-basic_string(basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>, ALLOC *)
+basic_string(basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>, ALLOC)
 -> basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>;
     // Deduce the template parameters 'CHAR_TYPE', 'TRAITS', and 'ALLOCATOR'
     // from the corresponding template parameters of the 'bsl::basic_string'

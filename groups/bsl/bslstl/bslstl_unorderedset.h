@@ -586,6 +586,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_enableif.h>
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_nestedtraitdeclaration.h>
+#include <bslmf_typeidentity.h>
 #include <bslmf_util.h>    // 'forward(V)'
 
 #include <bsls_assert.h>
@@ -758,8 +759,9 @@ class unordered_set {
         // the newly-created set.  'original' is left in a valid but
         // unspecified state.
 
-    unordered_set(const unordered_set&  original,
-                  const ALLOCATOR&      basicAllocator);
+    unordered_set(
+                const unordered_set&                           original,
+                const typename type_identity<ALLOCATOR>::type& basicAllocator);
         // Create an unordered set having the same value as the specified
         // 'original' object that uses the specified 'basicAllocator' to supply
         // memory.  Use a copy of 'original.hash_function()' to generate hash
@@ -772,8 +774,8 @@ class unordered_set {
         // default).
 
     unordered_set(
-                 BloombergLP::bslmf::MovableRef<unordered_set> original,
-                 const ALLOCATOR&                              basicAllocator);
+                BloombergLP::bslmf::MovableRef<unordered_set>  original,
+                const typename type_identity<ALLOCATOR>::type& basicAllocator);
         // Create an unordered set having the same value as the specified
         // 'original' object that uses the specified 'basicAllocator' to supply
         // memory.  The contents of 'original' are moved (in constant time) to
@@ -1412,23 +1414,6 @@ class unordered_set {
 // CLASS TEMPLATE DEDUCTION GUIDES
 
 template <
-    class KEY,
-    class HASH,
-    class EQUAL,
-    class ALLOCATOR,
-    class ALLOC,
-    class = bsl::enable_if_t<std::is_convertible<ALLOC *, ALLOCATOR>::value>
-    >
-unordered_set(unordered_set<KEY, HASH, EQUAL, ALLOCATOR>, ALLOC *)
--> unordered_set<KEY, HASH, EQUAL, ALLOCATOR>;
-    // Deduce the template parameters 'KEY', 'HASH', 'EQUAL' and 'ALLOCATOR'
-    // from the corresponding template parameters of the 'bsl::unordered_set'
-    // supplied to the constructor of 'unordered_set'.  This deduction guide
-    // does not participate unless the supplied allocator is convertible to
-    // 'bsl::allocator<KEY>'.
-
-
-template <
     class INPUT_ITERATOR,
     class KEY = BloombergLP::bslstl::IteratorUtil::IterVal_t<INPUT_ITERATOR>,
     class HASH = bsl::hash<KEY>,
@@ -1837,8 +1822,8 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::unordered_set(
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::unordered_set(
-                                           const unordered_set& original,
-                                           const ALLOCATOR&     basicAllocator)
+                 const unordered_set&                           original,
+                 const typename type_identity<ALLOCATOR>::type& basicAllocator)
 : d_impl(original.d_impl, basicAllocator)
 {
 }
@@ -1846,8 +1831,8 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::unordered_set(
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::unordered_set(
-                  BloombergLP::bslmf::MovableRef<unordered_set> original,
-                  const ALLOCATOR&                              basicAllocator)
+                 BloombergLP::bslmf::MovableRef<unordered_set>  original,
+                 const typename type_identity<ALLOCATOR>::type& basicAllocator)
 : d_impl(MoveUtil::move(MoveUtil::access(original).d_impl), basicAllocator)
 {
 }

@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Aug 24 18:59:03 2022
+// Generated on Wed Sep 21 17:14:49 2022
 // Command line: sim_cpp11_features.pl bslstl_map.h
 
 #ifdef COMPILING_BSLSTL_MAP_H
@@ -309,7 +309,8 @@ class map {
         // with 'original' is propagated for use in the newly-created map.
         // 'original' is left in a valid but unspecified state.
 
-    map(const map& original, const ALLOCATOR& basicAllocator);
+    map(const map&                                     original,
+        const typename type_identity<ALLOCATOR>::type& basicAllocator);
         // Create a map having the same value as the specified 'original'
         // object that uses the specified 'basicAllocator' to supply memory.
         // Use a copy of 'original.key_comp()' to order the key-value pairs
@@ -319,8 +320,8 @@ class map {
         // 'bslma::Allocator *' can be supplied for 'basicAllocator' if the
         // (template parameter) 'ALLOCATOR' is 'bsl::allocator' (the default).
 
-    map(BloombergLP::bslmf::MovableRef<map> original,
-        const ALLOCATOR&                    basicAllocator);
+    map(BloombergLP::bslmf::MovableRef<map>            original,
+        const typename type_identity<ALLOCATOR>::type& basicAllocator);
         // Create a map having the same value as the specified 'original'
         // object that uses the specified 'basicAllocator' to supply memory.
         // The contents of 'original' are moved (in constant time) to the new
@@ -2196,20 +2197,6 @@ class map {
 // CLASS TEMPLATE DEDUCTION GUIDES
 
 template <
-    class KEY,
-    class VALUE,
-    class COMPARATOR,
-    class ALLOCATOR,
-    class ALLOC,
-    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>
-    >
-map(map<KEY, VALUE, COMPARATOR, ALLOCATOR>, ALLOC *)
--> map<KEY, VALUE, COMPARATOR, ALLOCATOR>;
-    // Deduce the template parameters 'KEY', 'VALUE', 'COMPARATOR' and
-    // 'ALLOCATOR' from the corresponding template parameters of the
-    // 'bsl::map' supplied to the constructor of 'map'.
-
-template <
     class INPUT_ITERATOR,
     class KEY = BloombergLP::bslstl::IteratorUtil::IterKey_t<INPUT_ITERATOR>,
     class VALUE =
@@ -2659,8 +2646,8 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::map(
 
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
-map<KEY, VALUE, COMPARATOR, ALLOCATOR>::map(const map&       original,
-                                            const ALLOCATOR& basicAllocator)
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::map(const map&          original,
+                 const typename type_identity<ALLOCATOR>::type& basicAllocator)
 : d_compAndAlloc(original.comparator().keyComparator(), basicAllocator)
 , d_tree()
 {
@@ -2675,8 +2662,8 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::map(const map&       original,
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 map<KEY, VALUE, COMPARATOR, ALLOCATOR>::map(
-                           BloombergLP::bslmf::MovableRef<map> original,
-                           const ALLOCATOR&                    basicAllocator)
+                 BloombergLP::bslmf::MovableRef<map>            original,
+                 const typename type_identity<ALLOCATOR>::type& basicAllocator)
 : d_compAndAlloc(MoveUtil::access(original).comparator().keyComparator(),
                  basicAllocator)
 , d_tree()

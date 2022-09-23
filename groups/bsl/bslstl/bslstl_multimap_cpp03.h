@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Jun  8 13:16:02 2022
+// Generated on Wed Sep 21 17:14:49 2022
 // Command line: sim_cpp11_features.pl bslstl_multimap.h
 
 #ifdef COMPILING_BSLSTL_MULTIMAP_H
@@ -313,7 +313,8 @@ class multimap {
         // newly-created multimap.  'original' is left in a valid but
         // unspecified state.
 
-    multimap(const multimap& original, const ALLOCATOR& basicAllocator);
+    multimap(const multimap&                                original,
+             const typename type_identity<ALLOCATOR>::type& basicAllocator);
         // Create a multimap having the same value as the specified 'original'
         // object that uses the specified 'basicAllocator' to supply memory.
         // Use a copy of 'original.key_comp()' to order the key-value pairs
@@ -323,8 +324,8 @@ class multimap {
         // a 'bslma::Allocator *' can be supplied for 'basicAllocator' if the
         // (template parameter) 'ALLOCATOR' is 'bsl::allocator' (the default).
 
-    multimap(BloombergLP::bslmf::MovableRef<multimap> original,
-             const ALLOCATOR&                         basicAllocator);
+    multimap(BloombergLP::bslmf::MovableRef<multimap>       original,
+             const typename type_identity<ALLOCATOR>::type& basicAllocator);
         // Create a multimap having the same value as the specified 'original'
         // object that uses the specified 'basicAllocator' to supply memory.
         // The contents of 'original' are moved (in constant time) to the new
@@ -1131,20 +1132,6 @@ class multimap {
 // CLASS TEMPLATE DEDUCTION GUIDES
 
 template <
-    class KEY,
-    class VALUE,
-    class COMPARATOR,
-    class ALLOCATOR,
-    class ALLOC,
-    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>
-    >
-multimap(multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>, ALLOC *)
--> multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>;
-    // Deduce the template parameters 'KEY', 'VALUE', 'COMPARATOR' and
-    // 'ALLOCATOR' from the corresponding template parameters of the
-    // 'bsl::multimap' supplied to the constructor of 'multimap'.
-
-template <
     class INPUT_ITERATOR,
     class KEY = BloombergLP::bslstl::IteratorUtil::IterKey_t<INPUT_ITERATOR>,
     class VALUE =
@@ -1567,8 +1554,8 @@ multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::multimap(
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::multimap(
-                                               const multimap&  original,
-                                               const ALLOCATOR& basicAllocator)
+                 const multimap&                                original,
+                 const typename type_identity<ALLOCATOR>::type& basicAllocator)
 : d_compAndAlloc(original.comparator().keyComparator(), basicAllocator)
 , d_tree()
 {
@@ -1583,8 +1570,8 @@ multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::multimap(
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::multimap(
-                       BloombergLP::bslmf::MovableRef<multimap> original,
-                       const ALLOCATOR&                         basicAllocator)
+                 BloombergLP::bslmf::MovableRef<multimap> original,
+                 const typename type_identity<ALLOCATOR>::type& basicAllocator)
 : d_compAndAlloc(MoveUtil::access(original).comparator().keyComparator(),
                  basicAllocator)
 , d_tree()

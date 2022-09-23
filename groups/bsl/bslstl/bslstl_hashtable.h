@@ -1866,7 +1866,7 @@ class HashTable {
     // constructed directly in the node using the allocator as described in the
     // C++11 standard under the allocator-aware container requirements in
     // ([container.requirements.general], C++11 23.2.1).  The (template
-    // parameter) types 'HASHER' and 'COMPARATOR' shall be copy-constructible
+    // parameter) types 'HASHER' and 'COMPARATOR' shall be 'copy-constructible'
     // function-objects.  'HASHER' shall support a function call operator
     // compatible with the following statements:
     //..

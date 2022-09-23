@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Tue Jul  5 14:15:44 2022
+// Generated on Wed Sep 21 17:14:49 2022
 // Command line: sim_cpp11_features.pl bslstl_list.h
 
 #ifdef COMPILING_BSLSTL_LIST_H
@@ -616,7 +616,8 @@ class list {
         // type 'VALUE' be 'copy-insertable' into this list (see {Requirements
         // on 'VALUE'}).
 
-    list(const list& original, const ALLOCATOR& basicAllocator);
+    list(const list&                                    original,
+         const typename type_identity<ALLOCATOR>::type& basicAllocator);
         // Create a list that has the same value as the specified 'original'
         // object.  Use the specified 'basicAllocator' to supply memory.  This
         // method requires that the (template parameter) 'VALUE' be
@@ -632,8 +633,8 @@ class list {
         // propagated for use in the newly-created list.  'original' is left in
         // a valid but unspecified state.
 
-    list(BloombergLP::bslmf::MovableRef<list> original,
-         const ALLOCATOR&                     basicAllocator);
+    list(BloombergLP::bslmf::MovableRef<list>           original,
+         const typename type_identity<ALLOCATOR>::type& basicAllocator);
         // Create a list having the same value as the specified 'original'
         // object that uses the specified 'basicAllocator' to supply memory.
         // The contents of 'original' are moved (in constant time) to the new
@@ -1673,18 +1674,6 @@ class list {
 // CLASS TEMPLATE DEDUCTION GUIDES
 
 template <
-    class VALUE,
-    class ALLOCATOR,
-    class ALLOC,
-    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>
-    >
-list(list<VALUE, ALLOCATOR>, ALLOC *) -> list<VALUE, ALLOCATOR>;
-    // Deduce the template parameters 'VALUE' and 'ALLOCATOR' from the
-    // corresponding template parameters of the 'bsl::list' supplied to the
-    // constructor of 'list'.  This deduction guide does not participate unless
-    // the supplied allocator is convertible to 'ALLOCATOR'.
-
-template <
     class SIZE_TYPE,
     class VALUE,
     class ALLOC,
@@ -2356,8 +2345,8 @@ list<VALUE, ALLOCATOR>::list(const list& original)
 }
 
 template <class VALUE, class ALLOCATOR>
-list<VALUE, ALLOCATOR>::list(const list&      original,
-                             const ALLOCATOR& basicAllocator)
+list<VALUE, ALLOCATOR>::list(const list&                        original,
+                 const typename type_identity<ALLOCATOR>::type& basicAllocator)
 : d_sentinel()
 , d_alloc_and_size(basicAllocator, size_type(-1))
 {
@@ -2387,8 +2376,8 @@ list<VALUE, ALLOCATOR>::list(BloombergLP::bslmf::MovableRef<list> original)
 
 template <class VALUE, class ALLOCATOR>
 list<VALUE, ALLOCATOR>::list(
-                           BloombergLP::bslmf::MovableRef<list> original,
-                           const ALLOCATOR&                     basicAllocator)
+                 BloombergLP::bslmf::MovableRef<list>           original,
+                 const typename type_identity<ALLOCATOR>::type& basicAllocator)
 : d_sentinel()
 , d_alloc_and_size(basicAllocator, size_type(-1))
 {

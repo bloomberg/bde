@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Dec  1 08:45:19 2021
+// Generated on Fri Sep 23 09:33:25 2022
 // Command line: sim_cpp11_features.pl bslstl_stack.h
 
 #ifdef COMPILING_BSLSTL_STACK_H
@@ -401,22 +401,9 @@ stack(CONTAINER) -> stack<typename CONTAINER::value_type, CONTAINER>;
 template<
     class CONTAINER,
     class ALLOCATOR,
-    class = bsl::enable_if_t<bsl::uses_allocator<CONTAINER, ALLOCATOR>::value>
+    class = bsl::enable_if_t<bsl::uses_allocator_v<CONTAINER, ALLOCATOR>>
     >
-stack(CONTAINER, ALLOCATOR)
-                           -> stack<typename CONTAINER::value_type, CONTAINER>;
-    // Deduce the template parameters 'VALUE' and 'CONTAINER' from the
-    // parameters supplied to the constructor of 'stack'. This deduction guide
-    // does not participate if the specified 'CONTAINER' is not an
-    // allocator-aware container.
-
-template<
-    class CONTAINER,
-    class ALLOC,
-    class ALLOCATOR = typename CONTAINER::allocator_type,
-    class = bsl::enable_if_t<bsl::is_convertible<ALLOC *, ALLOCATOR>::value>
-    >
-stack(CONTAINER, ALLOC *) -> stack<typename CONTAINER::value_type, CONTAINER>;
+stack(CONTAINER, ALLOCATOR) -> stack<typename CONTAINER::value_type, CONTAINER>;
     // Deduce the template parameters 'VALUE' and 'CONTAINER' from the
     // parameters supplied to the constructor of 'stack'.  This deduction
     // guide does not participate unless the supplied allocator is convertible
@@ -1059,7 +1046,7 @@ void swap(stack<VALUE, CONTAINER>& lhs,
 #endif // ! defined(INCLUDED_BSLSTL_STACK_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2021 Bloomberg Finance L.P.
+// Copyright 2022 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

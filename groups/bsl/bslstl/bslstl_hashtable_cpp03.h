@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Aug 24 18:59:03 2022
+// Generated on Mon Sep 19 08:58:18 2022
 // Command line: sim_cpp11_features.pl bslstl_hashtable.h
 
 #ifdef COMPILING_BSLSTL_HASHTABLE_H
@@ -343,7 +343,7 @@ class HashTable {
     // constructed directly in the node using the allocator as described in the
     // C++11 standard under the allocator-aware container requirements in
     // ([container.requirements.general], C++11 23.2.1).  The (template
-    // parameter) types 'HASHER' and 'COMPARATOR' shall be copy-constructible
+    // parameter) types 'HASHER' and 'COMPARATOR' shall be 'copy-constructible'
     // function-objects.  'HASHER' shall support a function call operator
     // compatible with the following statements:
     //..

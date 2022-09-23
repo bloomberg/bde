@@ -8013,9 +8013,11 @@ struct TestDeductionGuides {
         bsl::multiset     ms2a(ms2, bsl::allocator<T2>());
         bsl::multiset     ms2b(ms2, a1);
         bsl::multiset     ms2c(ms2, a2);
+        bsl::multiset     ms2d(ms2, bsl::allocator<int>());
         ASSERT_SAME_TYPE(decltype(ms2a), bsl::multiset<T2>);
         ASSERT_SAME_TYPE(decltype(ms2b), bsl::multiset<T2>);
         ASSERT_SAME_TYPE(decltype(ms2c), bsl::multiset<T2>);
+        ASSERT_SAME_TYPE(decltype(ms2d), bsl::multiset<T2>);
 
         typedef short T3;
         bsl::multiset<T3> ms3;
@@ -8027,9 +8029,11 @@ struct TestDeductionGuides {
         bsl::multiset     ms4a(std::move(ms4), bsl::allocator<T4>{});
         bsl::multiset     ms4b(std::move(ms4), a1);
         bsl::multiset     ms4c(std::move(ms4), a2);
+        bsl::multiset     ms4d(std::move(ms4), bsl::allocator<int>{});
         ASSERT_SAME_TYPE(decltype(ms4a), bsl::multiset<T4>);
         ASSERT_SAME_TYPE(decltype(ms4b), bsl::multiset<T4>);
         ASSERT_SAME_TYPE(decltype(ms4c), bsl::multiset<T4>);
+        ASSERT_SAME_TYPE(decltype(ms4d), bsl::multiset<T4>);
 
 
         typedef long T5;

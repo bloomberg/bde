@@ -5652,9 +5652,11 @@ struct TestDeductionGuides {
         bsl::queue     q2a(q2, bsl::allocator<T2>());
         bsl::queue     q2b(q2, a1);
         bsl::queue     q2c(q2, a2);
+        bsl::queue     q2d(q2, bsl::allocator<int>());
         ASSERT_SAME_TYPE(decltype(q2a), bsl::queue<T2>);
         ASSERT_SAME_TYPE(decltype(q2b), bsl::queue<T2>);
         ASSERT_SAME_TYPE(decltype(q2c), bsl::queue<T2>);
+        ASSERT_SAME_TYPE(decltype(q2d), bsl::queue<T2>);
 
         typedef short T3;
         bsl::queue<T3> q3;
@@ -5666,9 +5668,11 @@ struct TestDeductionGuides {
         bsl::queue     q4a(std::move(q4), bsl::allocator<T4>{});
         bsl::queue     q4b(std::move(q4), a1);
         bsl::queue     q4c(std::move(q4), a2);
+        bsl::queue     q4d(std::move(q4), bsl::allocator<int>{});
         ASSERT_SAME_TYPE(decltype(q4a), bsl::queue<T4>);
         ASSERT_SAME_TYPE(decltype(q4b), bsl::queue<T4>);
         ASSERT_SAME_TYPE(decltype(q4c), bsl::queue<T4>);
+        ASSERT_SAME_TYPE(decltype(q4d), bsl::queue<T4>);
 
         typedef long T5;
         bsl::vector<T5>       v5;
@@ -5683,9 +5687,11 @@ struct TestDeductionGuides {
         bsl::queue      q6a(v6, bsl::allocator<T6>());
         bsl::queue      q6b(v6, a1);
         bsl::queue      q6c(v6, a2);
+        bsl::queue      q6d(v6, bsl::allocator<int>());
         ASSERT_SAME_TYPE(decltype(q6a), bsl::queue<T6, bsl::vector<T6>>);
         ASSERT_SAME_TYPE(decltype(q6b), bsl::queue<T6, bsl::vector<T6>>);
         ASSERT_SAME_TYPE(decltype(q6c), bsl::queue<T6, bsl::vector<T6>>);
+        ASSERT_SAME_TYPE(decltype(q6d), bsl::queue<T6, bsl::vector<T6>>);
 
         typedef long long T7;
         bsl::vector<T7>       v7;
@@ -5697,12 +5703,14 @@ struct TestDeductionGuides {
 
         typedef double T8;
         bsl::vector<T8> v8;
-        bsl::queue      q8a(std::move(v8), bsl::allocator<T6>());
+        bsl::queue      q8a(std::move(v8), bsl::allocator<T8>());
         bsl::queue      q8b(std::move(v8), a1);
         bsl::queue      q8c(std::move(v8), a2);
+        bsl::queue      q8d(std::move(v8), bsl::allocator<int>());
         ASSERT_SAME_TYPE(decltype(q6a), bsl::queue<T8, bsl::vector<T8>>);
         ASSERT_SAME_TYPE(decltype(q8b), bsl::queue<T8, bsl::vector<T8>>);
         ASSERT_SAME_TYPE(decltype(q8c), bsl::queue<T8, bsl::vector<T8>>);
+        ASSERT_SAME_TYPE(decltype(q8d), bsl::queue<T8, bsl::vector<T8>>);
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // Compile-fail tests

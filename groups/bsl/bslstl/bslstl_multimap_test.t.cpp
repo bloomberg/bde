@@ -8273,14 +8273,16 @@ struct TestDeductionGuides {
         ASSERT_SAME_TYPE(decltype(m1a), bsl::multimap<T1, T1>);
 
         typedef float T2;
+        typedef bsl::allocator<bsl::pair<const T2, T2>> BA2;
         bsl::multimap<T2, T2> m2;
-        bsl::multimap         m2a(m2,
-                                  bsl::allocator<bsl::pair<const T2, T2>>());
+        bsl::multimap         m2a(m2, BA2());
         bsl::multimap         m2b(m2, a1);
         bsl::multimap         m2c(m2, a2);
+        bsl::multimap         m2d(m2, bsl::allocator<int>());
         ASSERT_SAME_TYPE(decltype(m2a), bsl::multimap<T2, T2>);
         ASSERT_SAME_TYPE(decltype(m2b), bsl::multimap<T2, T2>);
         ASSERT_SAME_TYPE(decltype(m2c), bsl::multimap<T2, T2>);
+        ASSERT_SAME_TYPE(decltype(m2d), bsl::multimap<T2, T2>);
 
         typedef short T3;
         bsl::multimap<T3, T3> m3;
@@ -8288,14 +8290,16 @@ struct TestDeductionGuides {
         ASSERT_SAME_TYPE(decltype(m3a), bsl::multimap<T3, T3>);
 
         typedef long double T4;
+        typedef bsl::allocator<bsl::pair<const T2, T2>> BA4;
         bsl::multimap<T4, T4> m4;
-        bsl::multimap         m4a(std::move(m4),
-                                  bsl::allocator<bsl::pair<const T4, T4>>{});
+        bsl::multimap         m4a(std::move(m4), BA4());
         bsl::multimap         m4b(std::move(m4), a1);
         bsl::multimap         m4c(std::move(m4), a2);
+        bsl::multimap         m4d(std::move(m4), bsl::allocator<int>());
         ASSERT_SAME_TYPE(decltype(m4a), bsl::multimap<T4, T4>);
         ASSERT_SAME_TYPE(decltype(m4b), bsl::multimap<T4, T4>);
         ASSERT_SAME_TYPE(decltype(m4c), bsl::multimap<T4, T4>);
+        ASSERT_SAME_TYPE(decltype(m4d), bsl::multimap<T4, T4>);
 
 
         typedef long T5;

@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Aug 24 18:22:28 2022
+// Generated on Wed Sep 21 17:27:43 2022
 // Command line: sim_cpp11_features.pl bslstl_unorderedmap.h
 
 #ifdef COMPILING_BSLSTL_UNORDEREDMAP_H
@@ -301,8 +301,9 @@ class unordered_map {
         // default), the currently installed default allocator is used to
         // supply memory.
 
-    unordered_map(const unordered_map& original,
-                  const ALLOCATOR&     basicAllocator);
+    unordered_map(
+                const unordered_map&                           original,
+                const typename type_identity<ALLOCATOR>::type& basicAllocator);
         // Create an unordered map having the same value, hasher, key-equality
         // comparator, and 'max_load_factor' as the specified 'original', and
         // using the specified 'basicAllocator' to supply memory.  If the
@@ -321,8 +322,8 @@ class unordered_map {
         // map.  'original' is left in a valid but unspecified state.
 
     unordered_map(
-                 BloombergLP::bslmf::MovableRef<unordered_map> original,
-                 const ALLOCATOR&                              basicAllocator);
+                BloombergLP::bslmf::MovableRef<unordered_map>  original,
+                const typename type_identity<ALLOCATOR>::type& basicAllocator);
         // Create an unordered map having the same value, hasher, key-equality
         // comparator, and 'max_load_factor' as the specified 'original'.  Use
         // the specified 'basicAllocator' to supply memory.  This method
@@ -1979,21 +1980,6 @@ class unordered_map {
 // CLASS TEMPLATE DEDUCTION GUIDES
 
 template <
-    class KEY,
-    class VALUE,
-    class HASH,
-    class EQUAL,
-    class ALLOCATOR,
-    class ALLOC,
-    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>
-    >
-unordered_map(unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>, ALLOC *)
--> unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>;
-    // Deduce the template parameters 'KEY', 'VALUE', 'HASH', 'EQUAL' and
-    // 'ALLOCATOR' from the corresponding template parameters of the
-    // 'bsl::unordered_map' supplied to the constructor of 'unordered_map'.
-
-template <
     class INPUT_ITERATOR,
     class KEY = BloombergLP::bslstl::IteratorUtil::IterKey_t<INPUT_ITERATOR>,
     class VALUE =
@@ -2556,8 +2542,8 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_map(
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_map(
-                                          const unordered_map&  original,
-                                          const ALLOCATOR& basicAllocator)
+                 const unordered_map&                           original,
+                 const typename type_identity<ALLOCATOR>::type& basicAllocator)
 : d_impl(original.d_impl, basicAllocator)
 {
 }
@@ -2576,8 +2562,8 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_map(
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_map(
-                  BloombergLP::bslmf::MovableRef<unordered_map> original,
-                  const ALLOCATOR&                         basicAllocator)
+                 BloombergLP::bslmf::MovableRef<unordered_map>  original,
+                 const typename type_identity<ALLOCATOR>::type& basicAllocator)
 : d_impl(MoveUtil::move(MoveUtil::access(original).d_impl), basicAllocator)
 {
 }

@@ -420,6 +420,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_matcharithmetictype.h>
 #include <bslmf_movableref.h>
 #include <bslmf_nil.h>
+#include <bslmf_typeidentity.h>
 #include <bslmf_util.h>    // 'forward(V)'
 
 #include <bsls_assert.h>
@@ -1001,7 +1002,8 @@ class deque : public  Deque_Base<VALUE_TYPE>
         // parameter) 'VALUE_TYPE' be 'copy-insertable' into this deque (see
         // {Requirements on 'VALUE_TYPE'}).
 
-    deque(const deque& original, const ALLOCATOR& basicAllocator);
+    deque(const deque&                                   original,
+          const typename type_identity<ALLOCATOR>::type& basicAllocator);
         // Create a deque that has the same value as the specified 'original'
         // object and that uses the specified 'basicAllocator' to supply
         // memory.  This method requires that the (template parameter)
@@ -1017,8 +1019,8 @@ class deque : public  Deque_Base<VALUE_TYPE>
         // propagated for use in the newly-created deque.  'original' is left
         // in a valid but unspecified state.
 
-    deque(BloombergLP::bslmf::MovableRef<deque> original,
-          const ALLOCATOR&                      basicAllocator);
+    deque(BloombergLP::bslmf::MovableRef<deque>          original,
+          const typename type_identity<ALLOCATOR>::type& basicAllocator);
         // Create a deque having the same value as the specified 'original'
         // object that uses the specified 'basicAllocator' to supply memory.
         // The contents of 'original' are moved (in constant time) to the new
@@ -1378,17 +1380,6 @@ class deque : public  Deque_Base<VALUE_TYPE>
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
 // CLASS TEMPLATE DEDUCTION GUIDES
-
-template <
-    class VALUE,
-    class ALLOCATOR,
-    class ALLOC,
-    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>
-    >
-deque(deque<VALUE, ALLOCATOR>, ALLOC *) -> deque<VALUE, ALLOCATOR>;
-    // Deduce the template parameters 'VALUE' and 'ALLOCATOR' from the
-    // corresponding template parameters of the 'bsl::deque' supplied to the
-    // constructor of 'deque'.
 
 template <
     class SIZE_TYPE,
@@ -2764,8 +2755,8 @@ deque<VALUE_TYPE, ALLOCATOR>::deque(
 
 template <class VALUE_TYPE, class ALLOCATOR>
 deque<VALUE_TYPE, ALLOCATOR>::deque(
-                            const deque<VALUE_TYPE, ALLOCATOR>& original,
-                            const ALLOCATOR&                    basicAllocator)
+                 const deque<VALUE_TYPE, ALLOCATOR>&            original,
+                 const typename type_identity<ALLOCATOR>::type& basicAllocator)
 : Deque_Base<VALUE_TYPE>()
 , ContainerBase(basicAllocator)
 {
@@ -2793,8 +2784,8 @@ deque<VALUE_TYPE, ALLOCATOR>::deque(
 
 template <class VALUE_TYPE, class ALLOCATOR>
 deque<VALUE_TYPE, ALLOCATOR>::deque(
-                          BloombergLP::bslmf::MovableRef<deque> original,
-                          const ALLOCATOR&                      basicAllocator)
+                 BloombergLP::bslmf::MovableRef<deque>          original,
+                 const typename type_identity<ALLOCATOR>::type& basicAllocator)
 : Deque_Base<VALUE_TYPE>()
 , ContainerBase(basicAllocator)
 {

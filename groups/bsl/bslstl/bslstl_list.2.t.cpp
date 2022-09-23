@@ -7799,9 +7799,11 @@ struct TestDeductionGuides {
         bsl::list     l2a(l2, bsl::allocator<T2>());
         bsl::list     l2b(l2, a1);
         bsl::list     l2c(l2, a2);
+        bsl::list     l2d(l2, bsl::allocator<int>());
         ASSERT_SAME_TYPE(decltype(l2a), bsl::list<T2, bsl::allocator<T2>>);
         ASSERT_SAME_TYPE(decltype(l2b), bsl::list<T2, bsl::allocator<T2>>);
         ASSERT_SAME_TYPE(decltype(l2c), bsl::list<T2, bsl::allocator<T2>>);
+        ASSERT_SAME_TYPE(decltype(l2d), bsl::list<T2, bsl::allocator<T2>>);
 
         bsl::list<short> l3;
         bsl::list        l3a(std::move(l3));
@@ -7812,9 +7814,11 @@ struct TestDeductionGuides {
         bsl::list     l4a(std::move(l4), bsl::allocator<T4>());
         bsl::list     l4b(std::move(l4), a1);
         bsl::list     l4c(std::move(l4), a2);
+        bsl::list     l4d(std::move(l4), bsl::allocator<int>());
         ASSERT_SAME_TYPE(decltype(l4a), bsl::list<T4, bsl::allocator<T4>>);
         ASSERT_SAME_TYPE(decltype(l4b), bsl::list<T4, bsl::allocator<T4>>);
         ASSERT_SAME_TYPE(decltype(l4c), bsl::list<T4, bsl::allocator<T4>>);
+        ASSERT_SAME_TYPE(decltype(l4d), bsl::list<T4, bsl::allocator<T4>>);
 
     // Turn off complaints about passing allocators in non-allocator positions
     // BDE_VERIFY pragma: push

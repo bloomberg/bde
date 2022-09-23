@@ -6016,9 +6016,11 @@ struct TestDeductionGuides {
         bsl::priority_queue     pq2a(pq2, bsl::allocator<T2>());
         bsl::priority_queue     pq2b(pq2, a1);
         bsl::priority_queue     pq2c(pq2, a2);
+        bsl::priority_queue     pq2d(pq2, bsl::allocator<int>());
         ASSERT_SAME_TYPE(decltype(pq2a), bsl::priority_queue<T2>);
         ASSERT_SAME_TYPE(decltype(pq2b), bsl::priority_queue<T2>);
         ASSERT_SAME_TYPE(decltype(pq2c), bsl::priority_queue<T2>);
+        ASSERT_SAME_TYPE(decltype(pq2d), bsl::priority_queue<T2>);
 
         typedef short T3;
         bsl::priority_queue<T3> pq3;
@@ -6030,9 +6032,11 @@ struct TestDeductionGuides {
         bsl::priority_queue     pq4a(std::move(pq4), bsl::allocator<T4>{});
         bsl::priority_queue     pq4b(std::move(pq4), a1);
         bsl::priority_queue     pq4c(std::move(pq4), a2);
+        bsl::priority_queue     pq4d(std::move(pq4), bsl::allocator<int>{});
         ASSERT_SAME_TYPE(decltype(pq4a), bsl::priority_queue<T4>);
         ASSERT_SAME_TYPE(decltype(pq4b), bsl::priority_queue<T4>);
         ASSERT_SAME_TYPE(decltype(pq4c), bsl::priority_queue<T4>);
+        ASSERT_SAME_TYPE(decltype(pq4d), bsl::priority_queue<T4>);
 
 
         typedef long                       T5;
@@ -6065,9 +6069,11 @@ struct TestDeductionGuides {
         bsl::priority_queue pq6a(CompT6{}, v6, bsl::allocator<T6>{});
         bsl::priority_queue pq6b(CompT6{}, v6, a1);
         bsl::priority_queue pq6c(CompT6{}, v6, a2);
-        bsl::priority_queue pq6d(StupidLessFn<T6>, v6, bsl::allocator<T6>{});
-        bsl::priority_queue pq6e(StupidLessFn<T6>, v6, a1);
-        bsl::priority_queue pq6f(StupidLessFn<T6>, v6, a2);
+        bsl::priority_queue pq6d(CompT6{}, v6, bsl::allocator<int>{});
+        bsl::priority_queue pq6e(StupidLessFn<T6>, v6, bsl::allocator<T6>{});
+        bsl::priority_queue pq6f(StupidLessFn<T6>, v6, a1);
+        bsl::priority_queue pq6g(StupidLessFn<T6>, v6, a2);
+        bsl::priority_queue pq6h(StupidLessFn<T6>, v6, bsl::allocator<int>{});
         ASSERT_SAME_TYPE(decltype(pq6a),
                          bsl::priority_queue<T6, bsl::vector<T6>, CompT6>);
         ASSERT_SAME_TYPE(decltype(pq6b),
@@ -6075,10 +6081,14 @@ struct TestDeductionGuides {
         ASSERT_SAME_TYPE(decltype(pq6c),
                          bsl::priority_queue<T6, bsl::vector<T6>, CompT6>);
         ASSERT_SAME_TYPE(decltype(pq6d),
-                         bsl::priority_queue<T6, bsl::vector<T6>, CompFnT6 *>);
+                         bsl::priority_queue<T6, bsl::vector<T6>, CompT6>);
         ASSERT_SAME_TYPE(decltype(pq6e),
                          bsl::priority_queue<T6, bsl::vector<T6>, CompFnT6 *>);
         ASSERT_SAME_TYPE(decltype(pq6f),
+                         bsl::priority_queue<T6, bsl::vector<T6>, CompFnT6 *>);
+        ASSERT_SAME_TYPE(decltype(pq6g),
+                         bsl::priority_queue<T6, bsl::vector<T6>, CompFnT6 *>);
+        ASSERT_SAME_TYPE(decltype(pq6h),
                          bsl::priority_queue<T6, bsl::vector<T6>, CompFnT6 *>);
 
 
@@ -6112,9 +6122,11 @@ struct TestDeductionGuides {
         bsl::priority_queue pq8a(CompT8{}, v8, bsl::allocator<T8>{});
         bsl::priority_queue pq8b(CompT8{}, v8, a1);
         bsl::priority_queue pq8c(CompT8{}, v8, a2);
-        bsl::priority_queue pq8d(StupidLessFn<T8>, v8, bsl::allocator<T8>{});
-        bsl::priority_queue pq8e(StupidLessFn<T8>, v8, a1);
-        bsl::priority_queue pq8f(StupidLessFn<T8>, v8, a2);
+        bsl::priority_queue pq8d(CompT8{}, v8, bsl::allocator<int>{});
+        bsl::priority_queue pq8e(StupidLessFn<T8>, v8, bsl::allocator<T8>{});
+        bsl::priority_queue pq8f(StupidLessFn<T8>, v8, a1);
+        bsl::priority_queue pq8g(StupidLessFn<T8>, v8, a2);
+        bsl::priority_queue pq8h(StupidLessFn<T8>, v8, bsl::allocator<int>{});
         ASSERT_SAME_TYPE(decltype(pq8a),
                              bsl::priority_queue<T8, bsl::vector<T8>, CompT8>);
         ASSERT_SAME_TYPE(decltype(pq8b),
@@ -6122,10 +6134,14 @@ struct TestDeductionGuides {
         ASSERT_SAME_TYPE(decltype(pq8c),
                              bsl::priority_queue<T8, bsl::vector<T8>, CompT8>);
         ASSERT_SAME_TYPE(decltype(pq8d),
-                         bsl::priority_queue<T8, bsl::vector<T8>, CompFnT8 *>);
+                             bsl::priority_queue<T8, bsl::vector<T8>, CompT8>);
         ASSERT_SAME_TYPE(decltype(pq8e),
                          bsl::priority_queue<T8, bsl::vector<T8>, CompFnT8 *>);
         ASSERT_SAME_TYPE(decltype(pq8f),
+                         bsl::priority_queue<T8, bsl::vector<T8>, CompFnT8 *>);
+        ASSERT_SAME_TYPE(decltype(pq8g),
+                         bsl::priority_queue<T8, bsl::vector<T8>, CompFnT8 *>);
+        ASSERT_SAME_TYPE(decltype(pq8h),
                          bsl::priority_queue<T8, bsl::vector<T8>, CompFnT8 *>);
 
 

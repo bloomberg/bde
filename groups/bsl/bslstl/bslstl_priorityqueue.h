@@ -621,21 +621,10 @@ priority_queue(COMPARATOR, CONTAINER)
 template <
     class COMPARATOR,
     class CONTAINER,
-    class ALLOCATOR
+    class ALLOCATOR,
+    class = bsl::enable_if_t<bsl::uses_allocator_v<CONTAINER, ALLOCATOR>>
     >
 priority_queue(COMPARATOR, CONTAINER, ALLOCATOR)
-  -> priority_queue<typename CONTAINER::value_type, CONTAINER, COMPARATOR>;
-    // Deduce the template parameters 'VALUE', 'CONTAINER' and 'COMPARATOR'
-    // from the parameters supplied to the constructor of 'priority_queue'.
-
-template <
-    class COMPARATOR,
-    class CONTAINER,
-    class ALLOC,
-    class ALLOCATOR = typename CONTAINER::allocator_type,
-    class = bsl::enable_if_t<bsl::is_convertible_v<ALLOC *, ALLOCATOR>>
-    >
-priority_queue(COMPARATOR, CONTAINER, ALLOC *)
   -> priority_queue<typename CONTAINER::value_type, CONTAINER, COMPARATOR>;
     // Deduce the template parameters 'VALUE', 'CONTAINER' and 'COMPARATOR'
     // from the parameters supplied to the constructor of 'priority_queue'.

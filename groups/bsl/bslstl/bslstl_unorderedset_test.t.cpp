@@ -7990,9 +7990,11 @@ struct TestDeductionGuides {
         bsl::unordered_set     us2a(us2, bsl::allocator<T2>());
         bsl::unordered_set     us2b(us2, a1);
         bsl::unordered_set     us2c(us2, a2);
+        bsl::unordered_set     us2d(us2, bsl::allocator<int>());
         ASSERT_SAME_TYPE(decltype(us2a), bsl::unordered_set<T2>);
         ASSERT_SAME_TYPE(decltype(us2b), bsl::unordered_set<T2>);
         ASSERT_SAME_TYPE(decltype(us2c), bsl::unordered_set<T2>);
+        ASSERT_SAME_TYPE(decltype(us2d), bsl::unordered_set<T2>);
 
         typedef short T3;
         bsl::unordered_set<T3> us3;
@@ -8004,9 +8006,11 @@ struct TestDeductionGuides {
         bsl::unordered_set     us4a(std::move(us4), bsl::allocator<T4>{});
         bsl::unordered_set     us4b(std::move(us4), a1);
         bsl::unordered_set     us4c(std::move(us4), a2);
+        bsl::unordered_set     us4d(std::move(us4), bsl::allocator<int>{});
         ASSERT_SAME_TYPE(decltype(us4a), bsl::unordered_set<T4>);
         ASSERT_SAME_TYPE(decltype(us4b), bsl::unordered_set<T4>);
         ASSERT_SAME_TYPE(decltype(us4c), bsl::unordered_set<T4>);
+        ASSERT_SAME_TYPE(decltype(us4d), bsl::unordered_set<T4>);
     }
 
     void TestIteratorConstructors ()

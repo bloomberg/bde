@@ -499,6 +499,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isconvertible.h>
 #include <bslmf_istransparentpredicate.h>
 #include <bslmf_movableref.h>
+#include <bslmf_typeidentity.h>
 #include <bslmf_util.h>    // 'forward(V)'
 
 #include <bsls_assert.h>
@@ -737,7 +738,8 @@ class multiset {
         // newly-created multiset.  'original' is left in a valid but
         // unspecified state.
 
-    multiset(const multiset& original, const ALLOCATOR& basicAllocator);
+    multiset(const multiset&                                original,
+             const typename type_identity<ALLOCATOR>::type& basicAllocator);
         // Create a multiset having the same value as the specified 'original'
         // object that uses the specified 'basicAllocator' to supply memory.
         // Use a copy of 'original.key_comp()' to order the keys contained in
@@ -747,8 +749,8 @@ class multiset {
         // supplied for 'basicAllocator' if the (template parameter) type
         // 'ALLOCATOR' is 'bsl::allocator' (the default).
 
-    multiset(BloombergLP::bslmf::MovableRef<multiset> original,
-             const ALLOCATOR&                         basicAllocator);
+    multiset(BloombergLP::bslmf::MovableRef<multiset>       original,
+             const typename type_identity<ALLOCATOR>::type& basicAllocator);
         // Create a multiset having the same value as the specified 'original'
         // object that uses the specified 'basicAllocator' to supply memory.
         // The contents of 'original' are moved (in constant time) to the new
@@ -1460,20 +1462,6 @@ class multiset {
 // CLASS TEMPLATE DEDUCTION GUIDES
 
 template <
-    class KEY,
-    class COMPARATOR,
-    class ALLOCATOR,
-    class ALLOC,
-    class = bsl::enable_if_t<bsl::is_convertible<ALLOC *, ALLOCATOR>::value>
-    >
-multiset(multiset<KEY, COMPARATOR, ALLOCATOR>, ALLOC *)
--> multiset<KEY, COMPARATOR, ALLOCATOR>;
-    // Deduce the template parameters 'KEY', 'COMPARATOR' and 'ALLOCATOR' from
-    // the corresponding template parameters of the 'bsl::multiset' supplied to
-    // the constructor of 'multiset'.  This deduction guide does not
-    // participate unless the specified 'ALLOC' is convertible to 'ALLOCATOR'.
-
-template <
     class INPUT_ITERATOR,
     class KEY =
          typename BloombergLP::bslstl::IteratorUtil::IterVal_t<INPUT_ITERATOR>,
@@ -1864,7 +1852,7 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::multiset(
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 multiset<KEY, COMPARATOR, ALLOCATOR>::multiset(const multiset&  original,
-                                               const ALLOCATOR& basicAllocator)
+                 const typename type_identity<ALLOCATOR>::type& basicAllocator)
 : d_compAndAlloc(original.comparator().keyComparator(), basicAllocator)
 , d_tree()
 {
@@ -1879,8 +1867,8 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::multiset(const multiset&  original,
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 multiset<KEY, COMPARATOR, ALLOCATOR>::multiset(
-                       BloombergLP::bslmf::MovableRef<multiset> original,
-                       const ALLOCATOR&                         basicAllocator)
+                 BloombergLP::bslmf::MovableRef<multiset>       original,
+                 const typename type_identity<ALLOCATOR>::type& basicAllocator)
 : d_compAndAlloc(MoveUtil::access(original).comparator().keyComparator(),
                  basicAllocator)
 , d_tree()
