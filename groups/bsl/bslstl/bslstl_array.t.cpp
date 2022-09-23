@@ -4567,7 +4567,7 @@ struct TestDeductionGuides {
         //..
     {
         bsl::array a1a{12, 23, 34, 45, 56};
-        bsl::array a1b{12L, 23, 34, 45};
+        bsl::array a1b{12L, 23L, 34L, 45L};
         ASSERT_SAME_TYPE(decltype(a1a), bsl::array<int, 5>);
         ASSERT_SAME_TYPE(decltype(a1b), bsl::array<long, 4>);
 
@@ -4578,6 +4578,15 @@ struct TestDeductionGuides {
         bsl::array<double, 3> a3{1.0, 2.0, 3.0};
         bsl::array            a3a(std::move(a3));
         ASSERT_SAME_TYPE(decltype(a3a), bsl::array<double, 3>);
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // Compile-fail tests
+// #define BSLSTL_ARRAY_COMPILE_FAIL_MIXED_TYPES_LIST
+#if defined BSLSTL_ARRAY_COMPILE_FAIL_MIXED_TYPES_LIST
+        bsl::array arr {1.2, 3, 4};
+        // This should fail to compile (not all values in the list are the same
+        // type).
+#endif
     }
 
 #undef ASSERT_SAME_TYPE

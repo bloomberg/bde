@@ -167,6 +167,8 @@ BSLS_IDENT("$Id: $")
 #include <bslh_hash.h>
 
 #include <bslmf_assert.h>
+#include <bslmf_enableif.h>
+#include <bslmf_issame.h>
 #include <bslmf_movableref.h>
 
 #include <bsls_assert.h>
@@ -398,7 +400,10 @@ struct array {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
 // CLASS TEMPLATE DEDUCTION GUIDES
 
-template<class VALUE_TYPE, class... OTHERS>
+template<class    VALUE_TYPE,
+         class... OTHERS,
+         class = bsl::enable_if_t<(bsl::is_same_v<VALUE_TYPE, OTHERS> && ...)>
+         >
 array(VALUE_TYPE, OTHERS...) -> array<VALUE_TYPE, 1 + sizeof...(OTHERS)>;
     // Deduce the specified types 'VALUE_TYPE' and 'SIZE' from the
     // corresponding elements in the sequence supplied to the constructor of
