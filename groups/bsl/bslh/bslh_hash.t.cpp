@@ -977,8 +977,10 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 That 'bslh::Hash' can hash an object where the object's type is
-        //:   in 'std', the hash algorithm is in neither std nor bslh, and the
-        //:   'hashAppend' function is in bslh.
+        //:   in some namespace that is neither 'std' nor 'bslh', the hash
+        //:   algorithm is in neither 'bslh' nor the namespace where the type
+        //:   being hashed is declared, and the 'hashAppend' function is in
+        //:   bslh.
         //
         // Plan:
         //: 1 Define a bslh-style hash algorithm in the namespace 'WeirdPlace'.

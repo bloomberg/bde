@@ -1712,9 +1712,9 @@ void TestDriver<TYPE, TRAITS>::testCase19()
     //:
     //: 5 Zero-length objects can be hashed.
     //:
-    //: 6 Hashing works for a hash function that is a namespace other than
-    //:   'std' or 'bslh'.  Especially important in C++17 when stringview lives
-    //:   in 'std'.
+    //: 6 Hashing works for a hash algorithm that is declared in a namespace
+    //:   other than 'std' or 'bslh'.  Especially important in C++17 when
+    //:   stringview lives in 'std'.
     //
     // Plan:
     //: 1 Create an empty object, a zero-length object and hash them.

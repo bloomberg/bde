@@ -24,9 +24,8 @@ BSLS_IDENT("$Id: $")
 // require seeds, will not meet these requirements, meaning they cannot be used
 // with 'bslh::Hash'.  A call to 'bslh::Hash::operator()' for a (template
 // parameter) 'TYPE' will call the 'hashAppend' free function for 'TYPE' and
-// provide 'hashAppend' an instance of the 'HASH_ALGORITHM', and provide
-// 'Hash_AdlWrapper', a wrapper around 'HASH_ALGORITHM' that is in the 'bslh'
-// namespace.
+// provide 'hashAppend' an instance of 'Hash_AdlWrapper<HASH_ALGORITHM>', a
+// wrapper around 'HASH_ALGORITHM' that is in the 'bslh' namespace.
 //
 // This component also contains 'hashAppend' definitions for fundamental types,
 // which are required by algorithms defined in 'bslh'.  Clients are expected to
@@ -448,16 +447,16 @@ class Hash_AdlWrapper {
     // Normally, we define the free functions 'hashAppend' in the same
     // namespaces as the types they are hashing, so that ADL will find the
     // function.  In cases where this is not possible, such as 'std', we
-    // support defining a 'hsahAppend' overload in the 'bslh' namespace
+    // support defining a 'hashAppend' overload in the 'bslh' namespace
     // instead.  This wrapper makes sure that 'bslh' is an associated namespace
     // when it is used as the first argument to 'hashAppend', ensuring that
     // such overloads in 'bslh' added outside this component are still found
-    // via ADL." Without this wrapper, in the cases where the hash algorithm is
+    // via ADL.  Without this wrapper, in the cases where the hash algorithm is
     // neither in 'bslh' nor in the namespace of the hashed type, ADL then
     // fails to find the function.
     //
-    // This wrapper solves this problem by forcibly associating the hash
-    // algorithm, wherever it may be, with the 'bslh' namespace.
+    // This wrapper solves this problem by forcibly associating the invocation
+    // of 'hashAppend', wherever it may be, with the 'bslh' namespace.
 
   public:
     typedef typename HASH_ALGORITHM::result_type result_type;
