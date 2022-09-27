@@ -1,7 +1,6 @@
 bslstl_algorithm
 bslstl_algorithmworkaround
 bslstl_allocator
-bslstl_allocatortraits
 bslstl_array
 bslstl_badfunctioncall
 bslstl_badoptionalaccess
