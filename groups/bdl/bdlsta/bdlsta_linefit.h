@@ -154,6 +154,7 @@ class LineFit {
                         // ---------------------
 
 // CREATORS
+inline
 LineFit::LineFit()
 : d_count(0)
 , d_xMean(0.0)
