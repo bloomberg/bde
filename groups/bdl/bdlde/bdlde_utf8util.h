@@ -146,7 +146,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  bsl::string stringWithNull = string;
 //  stringWithNull += '\0';
-//..
+//
 //  assert(true == bdlde::Utf8Util::isValid(stringWithNull.data(),
 //                                          stringWithNull.length()));
 //
