@@ -654,7 +654,8 @@ int Utf8Util_ImpUtil::getLineAndColumnNumber(
 
     while (true) {
 
-        bsl::streamsize attemptToRead = k_BUFFER_SIZE - remainder;
+        bsl::streamsize attemptToRead =
+                       static_cast<bsl::streamsize>(k_BUFFER_SIZE - remainder);
         bsl::streamsize numRead = input->sgetn(buffer + remainder,
                                                attemptToRead);
 
@@ -673,7 +674,10 @@ int Utf8Util_ImpUtil::getLineAndColumnNumber(
         while (currentPosition < onePastLastPosInBuffer) {
             int status;
             bool isValid = Utf8Util::isValidCodePoint(
-                &status, position, onePastLastPosInBuffer - currentPosition);
+                        &status,
+                        position,
+                        static_cast<Utf8Util::size_type>(onePastLastPosInBuffer
+                                                           - currentPosition));
 
             if (!isValid && status != k_END_OF_INPUT_TRUNCATION) {
               // Invalid code point.
