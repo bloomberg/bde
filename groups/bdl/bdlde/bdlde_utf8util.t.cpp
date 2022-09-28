@@ -3816,7 +3816,7 @@ int main(int argc, char *argv[])
 // 3-byte sequence "\xed\xa2\xab" to avoid validation:
 //..
     bsl::string stringWithSurrogate = string + "\xed\xa2\xab";
-//..
+
     ASSERT(false == bdlde::Utf8Util::isValid(stringWithSurrogate.data(),
                                              stringWithSurrogate.length()));
     ASSERT(false == bdlde::Utf8Util::isValid(stringWithSurrogate.c_str()));
