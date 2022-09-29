@@ -7988,7 +7988,7 @@ int main(int argc, char *argv[])
             const bsl::pair<int, long>&   X = mX;
 
             ASSERT(noexcept(mX = MoveUtil::move(mP)));
-# if defined(BSLSTL_PAIR_SUPPORTS_NOEXCEPT_ON_SWAP)
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
             ASSERT(noexcept(mX.swap(mP)));
             ASSERT(noexcept(bsl::swap(mX, mP)));
 # endif

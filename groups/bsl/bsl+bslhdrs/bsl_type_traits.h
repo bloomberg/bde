@@ -523,18 +523,10 @@ BSLS_KEYWORD_INLINE_VARIABLE
 constexpr std::size_t is_nothrow_invocable_r_v =
                  std::is_nothrow_invocable_r<RET, TYPE, Args...>::value;
 
-template <class TYPE>
-BSLS_KEYWORD_INLINE_VARIABLE
-constexpr std::size_t is_swappable_v = std::is_swappable<TYPE>::value;
-
 template <class TYPE1, class TYPE2>
 BSLS_KEYWORD_INLINE_VARIABLE
 constexpr std::size_t is_swappable_with_v =
                             std::is_swappable_with<TYPE1, TYPE2>::value;
-template <class TYPE>
-BSLS_KEYWORD_INLINE_VARIABLE
-constexpr std::size_t is_nothrow_swappable_v =
-                                 std::is_nothrow_swappable<TYPE>::value;
 
 template <class TYPE1, class TYPE2>
 BSLS_KEYWORD_INLINE_VARIABLE
@@ -633,11 +625,13 @@ using std::void_t;
 #include <bslmf_ismemberobjectpointer.h>
 #include <bslmf_ismemberpointer.h>
 #include <bslmf_isnothrowmoveconstructible.h>
+#include <bslmf_isnothrowswappable.h>
 #include <bslmf_ispointer.h>
 #include <bslmf_ispolymorphic.h>
 #include <bslmf_isreference.h>
 #include <bslmf_isrvaluereference.h>
 #include <bslmf_issame.h>
+#include <bslmf_isswappable.h>
 #include <bslmf_istriviallycopyable.h>
 #include <bslmf_istriviallydefaultconstructible.h>
 #include <bslmf_isvoid.h>

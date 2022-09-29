@@ -286,6 +286,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isbitwiseequalitycomparable.h>
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_isconvertible.h>
+#include <bslmf_isnothrowswappable.h>
 #include <bslmf_ispair.h>
 #include <bslmf_istriviallycopyable.h>
 #include <bslmf_istriviallydefaultconstructible.h>
@@ -337,11 +338,6 @@ void swap(TYPE& a, TYPE& b);
 
 #endif // ! BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES  && ! CLANG
 
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-# define BSLSTL_PAIR_SUPPORTS_NOEXCEPT_ON_SWAP 1
-#endif
 
 #if !defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS) \
  || (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900)
@@ -492,7 +488,8 @@ struct Pair_ImpUtil {
         // no-throw exception-safety guarantee.
 #endif
 
-#if defined(BSLSTL_PAIR_SUPPORTS_NOEXCEPT_ON_SWAP)
+#if defined(BSLS_PLATFORM_CMP_MSVC) \
+ && BSLS_COMPILERFEATURES_CPLUSPLUS < 201703L
     template <class TYPE1, class TYPE2>
     static constexpr bool hasNothrowSwap()
     {
@@ -1555,10 +1552,13 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
     }
 #endif
 
-#if defined(BSLSTL_PAIR_SUPPORTS_NOEXCEPT_ON_SWAP)
+#if defined(BSLS_PLATFORM_CMP_MSVC) \
+ && BSLS_COMPILERFEATURES_CPLUSPLUS < 201703L
     void swap(pair& other) noexcept(Pair_ImpUtil::hasNothrowSwap<T1, T2>());
 #else
-    void swap(pair& other);
+    void swap(pair& other)
+     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(bsl::is_nothrow_swappable<T1>::value
+                                      && bsl::is_nothrow_swappable<T2>::value);
 #endif
         // Swap the value of this pair with the value of the specified 'other'
         // pair by applying 'swap' to each of the 'first' and 'second' pair
@@ -3099,11 +3099,14 @@ pair<T1, T2>::operator std::tuple<decltype(std::ignore)&, PARAM_2&>()
 
 template <class T1, class T2>
 inline
-#if defined(BSLSTL_PAIR_SUPPORTS_NOEXCEPT_ON_SWAP)
+#if defined(BSLS_PLATFORM_CMP_MSVC) \
+ && BSLS_COMPILERFEATURES_CPLUSPLUS < 201703L
 void pair<T1, T2>::swap(pair& other)
                                noexcept(Pair_ImpUtil::hasNothrowSwap<T1, T2>())
 #else
 void pair<T1, T2>::swap(pair& other)
+      BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(bsl::is_nothrow_swappable<T1>::value
+                                       && bsl::is_nothrow_swappable<T2>::value)
 #endif
 {
     // Find either 'std::swap' or a specialized 'swap' for 'T1' and 'T2' via
