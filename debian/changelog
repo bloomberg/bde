@@ -1,10 +1,27 @@
-bsl-internal (3.108.0.1) unstable; urgency=low
+bsl-internal (3.109.0.0) unstable; urgency=low
 
+  * 53a12d8ea Bumped version to 3.109.0.0
+  * 755e94e18 C++17-conformant noexcept specification for pair::swap() (DRQS 169974448) (#3900)
+  * c56f32c26 correct build warnings (#3923)
+  * f9a80b331 Add dual-mode build system (#3919)
+  * 07b9a487c remove bslstl_allocatortraits (#3922)
+  * e15f05be6 Fix overly restrictive deduction guides for bsl containers. (#3913)
+  * 045c843fb Fix too-permissive CTAD for braced constructors (#3892)
+  * ba8a7e9b5 Rebase `bslmf_typeidentity` component on master - DRQS 170378886 (#3916)
+  * 764acb48f Test for incomplete types support has been added for 'bsl::list' (#3897)
+  * 1b3c66957 adding header to fix build error (#3914)
+  * 108b36251 Revert "bsl::integral_constant is used instead of deprecated bslmf::MetaInt (DRQS 169833586) (#3882)" (#3912)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 29 Sep 2022 14:44:59 -0400
+
+bsl-internal (3.108.0.1) git; urgency=low
+
+  * 86f939133 Changelog for version 3.108.0.1
   * cd975cc04 Address performance of string overloads with string_view parameter (#3909)
   * e540e9b91 Add bdlde utf8util getLineAndColumnNumber (#3891)
   * 88dadafab bsl::integral_constant is used instead of deprecated bslmf::MetaInt (DRQS 169833586) (#3882)
 
- -- osubbotin <osubbotin@bloomberg.net>  Thu, 15 Sep 2022 09:11:42 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 15 Sep 2022 10:38:16 -0400
 
 bsl-internal (3.108.0.0) git; urgency=low
 
