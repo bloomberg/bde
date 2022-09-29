@@ -52,7 +52,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslmf' package currently has 87 components having 21 levels of physical
+ The 'bslmf' package currently has 88 components having 21 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -144,6 +144,7 @@
       bslmf_removevolatile
       bslmf_resulttype
       bslmf_switch
+      bslmf_typeidentity
       bslmf_typelist
 
    3. bslmf_isarray
@@ -413,6 +414,9 @@
 :
 : 'bslmf_tag':
 :      Provide an integral-constant-to-type conversion.
+:
+: 'bslmf_typeidentity':
+:      Provide a template metafunction that returns its argument.
 :
 : 'bslmf_typelist':
 :      Provide a typelist component.
