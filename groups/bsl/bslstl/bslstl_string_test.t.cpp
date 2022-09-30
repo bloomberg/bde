@@ -215,6 +215,7 @@ using bsls::nameOfType;
 // [20] template <It> basic_string& replace(const_iterator p, q, It f, l);
 // [36] CHAR_TYPE *data();
 // [21] void swap(basic_string& other);
+// [39] void shrink_to_fit();
 //
 // ACCESSORS:
 // [26] operator std::basic_string<CHAR, TRAITS, A2>() const;
@@ -347,16 +348,16 @@ using bsls::nameOfType;
 // [37] string operator+(CHAR, const string&);
 // [37] string operator+(const nstd::string&, CHAR);
 // [37] string operator+(CHAR, const nstd::string&);
-// [38] CLASS TEMPLATE DEDUCTION GUIDES
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [39] USAGE EXAMPLE
+// [40] USAGE EXAMPLE
 // [11] CONCERN: The object has the necessary type traits
 // [26] 'npos' VALUE
 // [25] CONCERN: 'std::length_error' is used properly
 // [27] DRQS 16870796
 // [ 9] basic_string& operator=(const CHAR_TYPE *s); [NEGATIVE ONLY]
 // [36] CONCERN: Methods qualified 'noexcept' in standard are so implemented.
+// [38] CLASS TEMPLATE DEDUCTION GUIDES
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int TestDriver:ggg(Obj *object, const char *spec, int vF = 1);
@@ -1141,6 +1142,9 @@ struct TestDriver {
         // specifications, and check that the specified 'result' agrees.
 
     // TEST CASES
+    static void testCase39();
+        // Test 'shrink_to_fit'.
+
     static void testCase37();
         // Test '+' operator.
 
@@ -1416,6 +1420,149 @@ void TestDriver<TYPE,TRAITS,ALLOC>::stretchRemoveAll(Obj         *object,
                                 // ----------
                                 // TEST CASES
                                 // ----------
+
+template <class TYPE, class TRAITS, class ALLOC>
+void TestDriver<TYPE, TRAITS, ALLOC>::testCase39()
+{
+    // ------------------------------------------------------------------------
+    // TESTING 'shrink_to_fit'
+    //
+    // Concerns:
+    //: 1 The 'shrink_to_fit' method works correctly for objects of any size
+    //:   and any capacity.
+    //:
+    //: 2 The contained value remains unaffected.
+    //:
+    //: 3 The null termination is preserved by the shrinkage operation.
+    //:
+    //: 4 If the object's capacity is equal to its size, the method does
+    //:   nothing.
+    //:
+    //: 5 The object allocator is used to supply memory.
+    //:
+    //: 6 Allocation occurs only is the size of the object exceeds the size of
+    //:   the short string buffer.
+    //:
+    //
+    // Plan:
+    //: 1 Using a loop-based approach, construct a set of objects having
+    //:   different sizes and capacity.
+    //:
+    //: 2 Call the 'shrink_to_fit' method and verify that the value and the
+    //:   size of the object remain unaffected, that subsequent capacity is
+    //:   equal to the expected value and that the expected number of bytes
+    //:   were allocated by the object allocator.  (C-1..6)
+    //
+    // Testing:
+    //   void shrink_to_fit();
+    // ------------------------------------------------------------------------
+
+    const char *ty = bsls::NameOf<TYPE>();
+
+    const TYPE *VALUES;
+    const int   NUM_VALUES = getValues(&VALUES);
+
+    // Since we know the strategy of memory allocation for 'bsl::string', we
+    // can accurately determine the expected values for capacity.  If the size
+    // of the object is less or equal than the size of the short string buffer
+    // than the capacity after the 'shrink_to_fit' method call is equal to the
+    // size of the short string buffer ('k_DEFAULT_CAPACITY') and no additional
+    // memory allocation occurs.  The next edge value is the buffer size
+    // multiplied by one and a half, because we have 1.5 growth factor for
+    // memory ('k_PROPOSED_CAPACITY').  Finally, if the length of the string
+    // exceeds 'k_PROPOSED_CAPACITY', then we expect the capacity to be equal
+    // to the size of the object.
+
+    const size_t k_DEFAULT_CAPACITY  =
+                                      ExpectedShortBufferCapacity<TYPE>::value;
+    const size_t k_PROPOSED_CAPACITY =
+                                k_DEFAULT_CAPACITY + (k_DEFAULT_CAPACITY >> 1);
+    const size_t k_MAX_CAPACITY      = k_DEFAULT_CAPACITY * 4;
+
+    Tam dam(defaultAllocator_p);
+
+    for (size_t i = k_DEFAULT_CAPACITY; i < k_MAX_CAPACITY; ++i) {
+        const size_t CAPACITY         = i;
+        const size_t INITIAL_CAPACITY = CAPACITY == k_DEFAULT_CAPACITY
+                                      ? k_DEFAULT_CAPACITY
+                                      : CAPACITY <= k_PROPOSED_CAPACITY
+                                          ? k_PROPOSED_CAPACITY
+                                          : CAPACITY;
+
+        for (size_t j = 0; j <= CAPACITY; ++j) {
+            const size_t SIZE = j;
+            const size_t EXP_CAPACITY = SIZE <= k_DEFAULT_CAPACITY
+                                      ? k_DEFAULT_CAPACITY
+                                      : SIZE <= k_PROPOSED_CAPACITY
+                                          ? k_PROPOSED_CAPACITY
+                                          : SIZE;
+
+            Obj        mX(objectAllocator_p);
+            const Obj& X = mX;
+
+            mX.reserve(CAPACITY);
+            mX.resize(SIZE);
+
+            for (size_t k = 0; k < SIZE; ++k) {
+                const size_t INDEX       = k;
+                const size_t VALUE_INDEX = INDEX % NUM_VALUES;
+
+                mX[INDEX] = VALUES[VALUE_INDEX];
+            }
+
+            const Int64 NUM_ALLOCATIONS  = objectAllocator_p->numAllocations();
+            const Int64 NUM_BYTES_IN_USE = objectAllocator_p->numBytesInUse();
+
+            const bool IS_ALLOCATION_EXPECTED = INITIAL_CAPACITY != SIZE
+                                             && SIZE > k_DEFAULT_CAPACITY;
+
+            const Int64 INITIAL_ALLOCATED =
+                                        INITIAL_CAPACITY > k_DEFAULT_CAPACITY
+                                        ? (INITIAL_CAPACITY + 1) * sizeof(TYPE)
+                                        : 0;
+            const Int64 EXP_ALLOCATED = EXP_CAPACITY > k_DEFAULT_CAPACITY
+                                      ? (EXP_CAPACITY + 1) * sizeof(TYPE)
+                                      : 0;
+
+            const Int64 EXP_NUM_ALLOCATIONS  = IS_ALLOCATION_EXPECTED
+                                             ? NUM_ALLOCATIONS + 1
+                                             : NUM_ALLOCATIONS;
+            const Int64 EXP_NUM_BYTES_IN_USE =
+                          NUM_BYTES_IN_USE - INITIAL_ALLOCATED + EXP_ALLOCATED;
+
+            ASSERTV(ty, CAPACITY, SIZE, INITIAL_CAPACITY == X.capacity());
+            ASSERTV(ty, CAPACITY, SIZE, SIZE             == X.size()    );
+
+            mX.shrink_to_fit();
+
+            ASSERTV(ty, CAPACITY, SIZE, EXP_CAPACITY, X.capacity(),
+                    EXP_CAPACITY == X.capacity());
+            ASSERTV(ty, CAPACITY, SIZE, X.size(), SIZE == X.size());
+            ASSERTV(
+                   ty, CAPACITY, SIZE,
+                   EXP_NUM_ALLOCATIONS, objectAllocator_p->numAllocations(),
+                   EXP_NUM_ALLOCATIONS == objectAllocator_p->numAllocations());
+            ASSERTV(
+                   ty, CAPACITY, SIZE,
+                   EXP_NUM_BYTES_IN_USE, objectAllocator_p->numBytesInUse(),
+                   EXP_NUM_BYTES_IN_USE == objectAllocator_p->numBytesInUse());
+
+            for (size_t k = 0; k < SIZE; ++k) {
+                const size_t INDEX       = k;
+                const size_t VALUE_INDEX = INDEX % NUM_VALUES;
+
+                ASSERTV(ty, CAPACITY, SIZE, INDEX,
+                        VALUES[VALUE_INDEX] == mX[INDEX]);
+            }
+
+            // Check that the null termination is correctly handled.
+
+            ASSERTV(ty, CAPACITY, SIZE, SIZE == TRAITS::length(mX.c_str()));
+        }
+    }
+
+    ASSERT(dam.isTotalSame());
+}
 
 template <class TYPE, class TRAITS, class ALLOC>
 void TestDriver<TYPE, TRAITS, ALLOC>::testCase37()
@@ -15934,6 +16081,49 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 39: {
+        // --------------------------------------------------------------------
+        // TESTING 'shrink_to_fit'
+        //
+        // Concerns:
+        //: 1 The 'shrink_to_fit' method works correctly for objects of any
+        //:   size and any capacity.
+        //:
+        //: 2 The contained value remains unaffected.
+        //:
+        //: 3 The null termination is preserved by the shrinkage operation.
+        //:
+        //: 4 If the object's capacity is equal to its size, the method does
+        //:   nothing.
+        //:
+        //: 5 The object allocator is used to supply memory.
+        //:
+        //: 6 Allocation occurs only is the size of the object exceeds the size
+        //:   of the short string buffer.
+        //:
+        //
+        // Plan:
+        //: 1 Using a loop-based approach, construct a set of objects having
+        //:   different sizes and capacity.
+        //:
+        //: 2 Call the 'shrink_to_fit' method and verify that the value and the
+        //:   size of the object remain unaffected, that subsequent capacity is
+        //:   equal to the expected value and that the expected number of bytes
+        //:   were allocated by the object allocator.  (C-1..6)
+        //
+        // Testing:
+        //   void shrink_to_fit();
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\n" "TESTING 'shrink_to_fit'\n"
+                                 "=======================\n");
+
+        if (verbose) printf("\n... with 'char'.\n");
+        TestDriver<char>::testCase39();
+
+        if (verbose) printf("\n... with 'wchar_t'.\n");
+        TestDriver<wchar_t>::testCase39();
+      } break;
       case 38: {
         //---------------------------------------------------------------------
         // TESTING CLASS TEMPLATE DEDUCTION GUIDES (AT COMPILE TIME)
@@ -15970,7 +16160,7 @@ int main(int argc, char *argv[])
       } break;
       case 37: {
         // --------------------------------------------------------------------
-        // TESTING 'data' MANIPULATOR
+        // TESTING 'operator+'
         // --------------------------------------------------------------------
 
         if (verbose) printf("\n" "TESTING 'operator+'\n"

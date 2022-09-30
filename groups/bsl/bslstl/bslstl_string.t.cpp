@@ -207,6 +207,7 @@ using bsls::nameOfType;
 // [20] template <It> basic_string& replace(const_iterator p, q, It f, l);
 // [36] CHAR_TYPE *data();
 // [21] void swap(basic_string& other);
+// [39] void shrink_to_fit();
 //
 // ACCESSORS:
 // [26] operator std::basic_string<CHAR, TRAITS, A2>() const;
@@ -327,13 +328,14 @@ using bsls::nameOfType;
 // [29] hashAppend(HASHALG& hashAlg, const std::basic_string& str);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [39] USAGE EXAMPLE
+// [40] USAGE EXAMPLE
 // [11] CONCERN: The object has the necessary type traits
 // [26] 'npos' VALUE
 // [25] CONCERN: 'std::length_error' is used properly
 // [27] DRQS 16870796
 // [ 9] basic_string& operator=(const CHAR_TYPE *s); [NEGATIVE ONLY]
 // [36] CONCERN: Methods qualified 'noexcept' in standard are so implemented.
+// [38] CLASS TEMPLATE DEDUCTION GUIDES
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int TestDriver:ggg(Obj *object, const char *spec, int vF = 1);
@@ -5775,7 +5777,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 39: {
+      case 40: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -5987,6 +5989,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
+      case 39:     BSLA_FALLTHROUGH;
       case 38:     BSLA_FALLTHROUGH;
       case 37:     BSLA_FALLTHROUGH;
       case 36:     BSLA_FALLTHROUGH;

@@ -32,10 +32,9 @@ BSLS_IDENT("$Id: $")
 // random access iterators as specified in the [basic.string] section of the
 // C++ standard [21.4].  The 'basic_string' implemented here adheres to the
 // C++11 standard, except that it does not have interfaces that take rvalue
-// references, the 'shrink_to_fit' method, and template specializations
-// 'std::u16string' and 'std::u32string'.  Note that excluded C++11 features
-// are those that require (or are greatly simplified by) C++11 compiler
-// support.
+// references and template specializations 'std::u16string' and
+// 'std::u32string'.  Note that excluded C++11 features are those that require
+// (or are greatly simplified by) C++11 compiler support.
 //
 ///Memory Allocation
 ///-----------------
@@ -1678,6 +1677,13 @@ class basic_string
         // Note that the capacity of a string is the maximum length it can
         // accommodate without reallocation.  The actual storage allocated may
         // be higher.
+
+    void shrink_to_fit();
+        // Request the removal of unused capacity by causing reallocation.
+        // Note that this method has no effect if the capacity is equal to the
+        // size.  Also note that if (and only if) reallocation occurs, all
+        // iterators, including the past the end iterator, and all references
+        // to the elements are invalidated.
 
     void clear() BSLS_KEYWORD_NOEXCEPT;
         // Reset this string to an empty value.  Note that the capacity may
@@ -4634,6 +4640,19 @@ void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::reserve(
     privateThrowLengthError(newCapacity > max_size(),
                             "string<...>::reserve(n): string too long");
     privateReserveRaw(newCapacity);
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+BSLS_PLATFORM_AGGRESSIVE_INLINE
+void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::shrink_to_fit()
+{
+    if (this->size() < this->d_capacity) {
+        basic_string temp(this->get_allocator());
+        temp.privateAppend(this->data(),
+                           this->length(),
+                           "string<...>::shrink_to_fit(): string too long");
+        quickSwapRetainAllocators(temp);
+    }
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
