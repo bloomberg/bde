@@ -288,6 +288,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isconvertible.h>
 #include <bslmf_isnothrowswappable.h>
 #include <bslmf_ispair.h>
+#include <bslmf_isswappable.h>
 #include <bslmf_istriviallycopyable.h>
 #include <bslmf_istriviallydefaultconstructible.h>
 #include <bslmf_makeintegersequence.h>
@@ -1686,7 +1687,15 @@ bool operator>=(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs);
 
 // FREE FUNCTIONS
 template <class T1, class T2>
-void swap(pair<T1, T2>& a, pair<T1, T2>& b)
+#if BSLS_COMPILERFEATURES_CPLUSPLUS < 201103L \
+ || (defined(BSLS_PLATFORM_CMP_MSVC) && \
+                                     BSLS_COMPILERFEATURES_CPLUSPLUS < 201703L)
+void
+#else
+typename bsl::enable_if<bsl::is_swappable<T1>::value
+                     && bsl::is_swappable<T2>::value>::type
+#endif
+swap(pair<T1, T2>& a, pair<T1, T2>& b)
                       BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(noexcept(a.swap(b)));
     // Swap the values of the specified 'a' and 'b' pairs by applying 'swap' to
     // each of the 'first' and 'second' pair fields.  Note that this method is
@@ -3172,7 +3181,15 @@ bool operator>=(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs)
 // FREE FUNCTIONS
 template <class T1, class T2>
 inline
-void swap(pair<T1, T2>& a, pair<T1, T2>& b)
+#if BSLS_COMPILERFEATURES_CPLUSPLUS < 201103L \
+ || (defined(BSLS_PLATFORM_CMP_MSVC) && \
+                                     BSLS_COMPILERFEATURES_CPLUSPLUS < 201703L)
+void
+#else
+typename bsl::enable_if<bsl::is_swappable<T1>::value
+                     && bsl::is_swappable<T2>::value>::type
+#endif
+swap(pair<T1, T2>& a, pair<T1, T2>& b)
                        BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(noexcept(a.swap(b)))
 {
     a.swap(b);
