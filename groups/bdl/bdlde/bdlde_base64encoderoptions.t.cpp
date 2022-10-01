@@ -535,25 +535,25 @@ if (verbose) {
         //:   'isPadded'.  For all 3 attributes, have the loops also allow
         //:   separate iterations for defaulting values.
         //:
-        //: 2 Default-construct an object, 'master'.
+        //: 2 Default-construct an object, 'main'.
         //:
-        //: 3 Call the 3 manipulators to set the state of 'master', except
+        //: 3 Call the 3 manipulators to set the state of 'main', except
         //:   sometimes don't call certain ones to leave attributes in their
         //:   default state.
         //:
         //: 4 Verify the state of the object through the accessors.
         //:
         //: 5 Value-construct an object, letting none of the arguments default,
-        //:   and observe that the value is the same as 'MASTER' by checking
+        //:   and observe that the value is the same as 'MAIN' by checking
         //:   the attributes and calling '==' and '!='.
         //:
         //: 6 Value-construct an object, sometimes partially allowing arguments
-        //:   to default, and observe that the value is the same as 'MASTER' by
+        //:   to default, and observe that the value is the same as 'MAIN' by
         //:   checking the attributes and calling '==' and '!='.
         //:
         //: 7 Create an object using the 'urlSafe' class method, verify
         //:   that its attributes are as expected and that comparisons between
-        //:   it and 'MASTER' using '==' and '!=' yield expected results.
+        //:   it and 'MAIN' using '==' and '!=' yield expected results.
         //:
         //: 8 Nest another 3 loops to go through all of the same set of states,
         //:   other than the defaulting states, as the outer 3 loops do,
@@ -561,17 +561,17 @@ if (verbose) {
         //:   driven by the inner loops match those of the outer loops, and
         //:   then value-construct an inner object 'mY', setting the 3
         //:   attribues of it according to the inner loop values.
-        //:   o Confirm that '==' and '!=' between 'master' and 'mY' yield the
+        //:   o Confirm that '==' and '!=' between 'main' and 'mY' yield the
         //:     expected results.
         //:
-        //:   o Copy-assign 'master' to 'mY' and observe with '==' and '!='
+        //:   o Copy-assign 'main' to 'mY' and observe with '==' and '!='
         //:     that they match.
         //:
         //: 9 After the inner 3 loops are done:
-        //:   o copy-construct another object from 'MASTER' and observe that
-        //:     it has the same value.
+        //:   o copy-construct another object from 'MAIN' and observe that it
+        //:     has the same value.
         //:
-        //:   o copy-assign 'MASTER to a default-constructed object and observe
+        //:   o copy-assign 'MAIN' to a default-constructed object and observe
         //:     equivalence with '==' and '!='.
         //
         // Testing:
@@ -608,20 +608,20 @@ if (verbose) {
                 for (int pi = -1; pi < 2; ++pi) {
                     const bool PADDED = pi < 0 || pi;
 
-                    Obj master = Obj::mime();    const Obj& MASTER = master;
+                    Obj main = Obj::mime();    const Obj& MAIN = main;
                     if (0 <= MLL) {
-                        master.setMaxLineLength(MLL);
+                        main.setMaxLineLength(MLL);
                     }
                     if (0 <= ai) {
-                        master.setAlphabet(alphabet);
+                        main.setAlphabet(alphabet);
                     }
                     if (0 <= pi) {
-                        master.setIsPadded(PADDED);
+                        main.setIsPadded(PADDED);
                     }
 
-                    ASSERT(MASTER.maxLineLength() == MLL);
-                    ASSERT(MASTER.alphabet()      == alphabet);
-                    ASSERT(MASTER.isPadded()      == PADDED);
+                    ASSERT(MAIN.maxLineLength() == MLL);
+                    ASSERT(MAIN.alphabet()      == alphabet);
+                    ASSERT(MAIN.isPadded()      == PADDED);
 
                     if (veryVerbose) cout << "Call 'custom' class method\n";
                     {
@@ -631,10 +631,10 @@ if (verbose) {
                         ASSERT(X.alphabet()      == alphabet);
                         ASSERT(X.isPadded()      == PADDED);
 
-                        ASSERTV(alphabet, PADDED, MLL, X, X == MASTER );
-                        ASSERT(  MASTER == X );
-                        ASSERT(!(X != MASTER));
-                        ASSERT(!(MASTER != X));
+                        ASSERTV(alphabet, PADDED, MLL, X, X == MAIN );
+                        ASSERT(  MAIN == X );
+                        ASSERT(!(X != MAIN));
+                        ASSERT(!(MAIN != X));
                     }
 
                     if (veryVerbose) cout << "MIME\n";
@@ -649,10 +649,10 @@ if (verbose) {
                         ASSERT(X.alphabet()      == Alpha::e_BASIC);
                         ASSERT(X.isPadded()      == true);
 
-                        ASSERT( EQ == (X == MASTER));
-                        ASSERT( EQ == (MASTER == X));
-                        ASSERT(!EQ == (X != MASTER));
-                        ASSERT(!EQ == (MASTER != X));
+                        ASSERT( EQ == (X == MAIN));
+                        ASSERT( EQ == (MAIN == X));
+                        ASSERT(!EQ == (X != MAIN));
+                        ASSERT(!EQ == (MAIN != X));
                     }
 
                     if (veryVerbose) cout << "Standard\n";
@@ -667,10 +667,10 @@ if (verbose) {
                         ASSERT(X.alphabet()      == Alpha::e_BASIC);
                         ASSERT(X.isPadded()      == PADDED);
 
-                        ASSERT( EQ == (X == MASTER));
-                        ASSERT( EQ == (MASTER == X));
-                        ASSERT(!EQ == (X != MASTER));
-                        ASSERT(!EQ == (MASTER != X));
+                        ASSERT( EQ == (X == MAIN));
+                        ASSERT( EQ == (MAIN == X));
+                        ASSERT(!EQ == (X != MAIN));
+                        ASSERT(!EQ == (MAIN != X));
                     }
 
                     if (veryVerbose) cout << "URL Safe\n";
@@ -688,10 +688,10 @@ if (verbose) {
                         ASSERT(X.alphabet()      == Alpha::e_URL);
                         ASSERT(X.isPadded()      == expPad);
 
-                        ASSERT( EQ == (X == MASTER));
-                        ASSERT( EQ == (MASTER == X));
-                        ASSERT(!EQ == (X != MASTER));
-                        ASSERT(!EQ == (MASTER != X));
+                        ASSERT( EQ == (X == MAIN));
+                        ASSERT( EQ == (MAIN == X));
+                        ASSERT(!EQ == (X != MAIN));
+                        ASSERT(!EQ == (MAIN != X));
                     }
 
                     if (veryVeryVerbose) cout <<
@@ -720,10 +720,10 @@ if (verbose) {
                                 ASSERTV(PADDED_B,  Y.isPadded()      ==
                                                                      PADDED_B);
 
-                                ASSERTV(MASTER, Y, EQ == (MASTER == Y));
-                                ASSERT( EQ == (Y == MASTER));
-                                ASSERT(!EQ == (MASTER != Y));
-                                ASSERT(!EQ == (Y != MASTER));
+                                ASSERTV(MAIN, Y, EQ == (MAIN == Y));
+                                ASSERT( EQ == (Y == MAIN));
+                                ASSERT(!EQ == (MAIN != Y));
+                                ASSERT(!EQ == (Y != MAIN));
 
                                 if (veryVeryVeryVerbose) cout <<
                                   "Inner copy assign to default constructed\n";
@@ -736,21 +736,21 @@ if (verbose) {
                                 ASSERT(!(Y != Z));
                                 ASSERT(!(Z != Y));
 
-                                ASSERT( EQ == (MASTER == Z));
-                                ASSERT( EQ == (Z == MASTER));
-                                ASSERT(!EQ == (MASTER != Z));
-                                ASSERT(!EQ == (Z != MASTER));
+                                ASSERT( EQ == (MAIN == Z));
+                                ASSERT( EQ == (Z == MAIN));
+                                ASSERT(!EQ == (MAIN != Z));
+                                ASSERT(!EQ == (Z != MAIN));
 
                                 if (veryVeryVeryVerbose) cout <<
                                       "Inner copy assign to arbitrary state\n";
 
-                                p = &(mZ = MASTER);
+                                p = &(mZ = MAIN);
                                 ASSERT(&Z == p);
 
-                                ASSERT(  Z == MASTER );
-                                ASSERT(  MASTER == Z );
-                                ASSERT(!(Z != MASTER));
-                                ASSERT(!(MASTER != Z));
+                                ASSERT(  Z == MAIN );
+                                ASSERT(  MAIN == Z );
+                                ASSERT(!(Z != MAIN));
+                                ASSERT(!(MAIN != Z));
 
                                 ASSERT( EQ == (Y == Z));
                                 ASSERT( EQ == (Z == Y));
@@ -762,22 +762,22 @@ if (verbose) {
 
                     if (veryVeryVerbose) cout << "Copy construct\n";
                     {
-                        const Obj X(master);
-                        ASSERT(  X == MASTER );
-                        ASSERT(  MASTER == X );
-                        ASSERT(!(X != MASTER));
-                        ASSERT(!(MASTER != X));
+                        const Obj X(main);
+                        ASSERT(  X == MAIN );
+                        ASSERT(  MAIN == X );
+                        ASSERT(!(X != MAIN));
+                        ASSERT(!(MAIN != X));
                     }
 
                     if (veryVeryVerbose) cout << "Outer copy assign\n";
                     {
                         Obj mY = Obj::mime();    const Obj& Y = mY;
-                        Obj *p = &(mY = master);
+                        Obj *p = &(mY = main);
                         ASSERT(&mY == p);
-                        ASSERT(  Y == MASTER );
-                        ASSERT(  MASTER == Y );
-                        ASSERT(!(Y != MASTER));
-                        ASSERT(!(MASTER != Y));
+                        ASSERT(  Y == MAIN );
+                        ASSERT(  MAIN == Y );
+                        ASSERT(!(Y != MAIN));
+                        ASSERT(!(MAIN != Y));
                     }
                 }
             }

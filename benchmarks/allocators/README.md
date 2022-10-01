@@ -9,5 +9,5 @@ available on a fork of this repository at
 bde-allocator-benchmarks(https://github.com/bloomberg/bde-allocator-benchmarks).
 
 The benchmark source code for all three papers is also included in
-bde-allocator-benchmarks(https://github.com/bloomberg/bde-allocator-benchmarks/tree/master/benchmarks/allocators).
+bde-allocator-benchmarks(https://github.com/bloomberg/bde-allocator-benchmarks/tree/main/benchmarks/allocators).
 
