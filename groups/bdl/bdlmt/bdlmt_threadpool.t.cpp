@@ -279,6 +279,17 @@ void TestJobFunction1(void *ptr)
     ++args->d_count;
     ++args->d_startSig;
     args->d_startCond->signal();
+
+    bsl::string threadName;
+    bslmt::ThreadUtil::getThreadName(&threadName);
+#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_SOLARIS) ||   \
+                                       defined(BSLS_PLATFORM_OS_DARWIN)
+    ASSERTV(threadName, threadName == "bdl.ThreadPool" ||
+                                                    threadName == "OtherName");
+#else
+    ASSERTV(threadName, threadName.empty());
+#endif
+
     while ( !args->d_stopSig ) {
         args->d_stopCond->wait(args->d_mutex);
     }
@@ -1569,6 +1580,7 @@ int main(int argc, char *argv[])
                 args.d_count = 0;
 
                 bslmt::ThreadAttributes attr;
+                attr.setThreadName("OtherName");
                 Obj x(attr, MIN, MAX, IDLE);
 
                 const Obj& X = x;

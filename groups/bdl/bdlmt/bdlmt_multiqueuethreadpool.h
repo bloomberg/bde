@@ -70,6 +70,20 @@ BSLS_IDENT("$Id: $")
 // encouraged to use benchmarks to guide their decision when setting this
 // option.
 //
+///Thread Names for Sub-Threads
+///----------------------------
+// To facilitate debugging, users can provide a thread name as the 'threadName'
+// attribute of the 'bslmt::ThreadAttributes' argument passed to the
+// constructor, that will be used for all the sub-threads.  The thread name
+// should not be used programmatically, but will appear in debugging tools on
+// platforms that support naming threads to help users identify the source and
+// purpose of a thread.  If no 'ThreadAttributes' object is passed, or if the
+// 'threadName' attribute is not set, the default value "bdl.MultiQuePl" will
+// be used.  Note that this only applies to a 'bdlmt::ThreadPool' automatically
+// created by a 'bdlmt::MultiQueueThreadPool'.  If a thread pool already exists
+// and is passed to the multi queue thread pool at construction, the subthreads
+// will be named however was specified when that thread pool was created.
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -580,7 +594,12 @@ class MultiQueueThreadPool {
     typedef bsl::map<int, MultiQueueThreadPool_Queue *> QueueRegistry;
 
   private:
-    // DATA
+    // PRIVATE CLASS DATA
+    static const char       s_defaultThreadName[16];  // Thread name to use
+                                                      // when none is
+                                                      // specified.
+
+    // PRIVATE DATA
     bslma::Allocator *d_allocator_p;        // memory allocator (held)
 
     ThreadPool       *d_threadPool_p;       // threads for queue processing

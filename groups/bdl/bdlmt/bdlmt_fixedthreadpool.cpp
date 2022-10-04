@@ -61,6 +61,9 @@ namespace bdlmt {
                           // class FixedThreadPool
                           // ---------------------
 
+// PRIVATE CLASS DATA
+const char FixedThreadPool::s_defaultThreadName[16] = { "bdl.FixedPool" };
+
 // PRIVATE MANIPULATORS
 void FixedThreadPool::workerThread()
 {
@@ -124,6 +127,10 @@ FixedThreadPool::FixedThreadPool(
     d_queue.disablePushBack();
     d_queue.disablePopFront();
 
+    if (d_threadAttributes.threadName().empty()) {
+        d_threadAttributes.setThreadName(s_defaultThreadName);
+    }
+
 #if defined(BSLS_PLATFORM_OS_UNIX)
     initBlockSet(&d_blockSet);
 #endif
@@ -144,6 +151,8 @@ FixedThreadPool::FixedThreadPool(int               numThreads,
 
     d_queue.disablePushBack();
     d_queue.disablePopFront();
+
+    d_threadAttributes.setThreadName(s_defaultThreadName);
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
     initBlockSet(&d_blockSet);

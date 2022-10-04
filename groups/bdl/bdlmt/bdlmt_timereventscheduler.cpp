@@ -313,6 +313,9 @@ namespace bdlmt {
                          // class TimerEventScheduler
                          // -------------------------
 
+// PRIVATE CLASS DATA
+const char TimerEventScheduler::s_defaultThreadName[16] = { "bdl.TimerEvent" };
+
 // PRIVATE MANIPULATORS
 void TimerEventScheduler::yieldToDispatcher()
 {
@@ -587,6 +590,9 @@ int TimerEventScheduler::start(const bslmt::ThreadAttributes& threadAttributes)
 
     bslmt::ThreadAttributes modAttr(threadAttributes);
     modAttr.setDetachedState(bslmt::ThreadAttributes::e_CREATE_JOINABLE);
+    if (modAttr.threadName().empty()) {
+        modAttr.setThreadName(s_defaultThreadName);
+    }
 
     if (bslmt::ThreadUtil::create(&d_dispatcherThread,
                                   modAttr,

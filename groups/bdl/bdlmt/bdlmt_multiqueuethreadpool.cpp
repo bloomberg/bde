@@ -450,6 +450,10 @@ void MultiQueueThreadPool_Queue::waitWhilePausing()
                     // class bdlmt::MultiQueueThreadPool
                     // ---------------------------------
 
+// PRIVATE CLASS DATA
+const char MultiQueueThreadPool::s_defaultThreadName[16] = {
+                                                            "bdl.MultiQuePl" };
+
 // PRIVATE MANIPULATORS
 void MultiQueueThreadPool::deleteQueueCb(
                                   MultiQueueThreadPool_Queue *queue,
@@ -498,11 +502,25 @@ MultiQueueThreadPool::MultiQueueThreadPool(
 , d_numEnqueued(0)
 , d_numDeleted(0)
 {
-    d_threadPool_p = new (*d_allocator_p) ThreadPool(threadAttributes,
-                                                     minThreads,
-                                                     maxThreads,
-                                                     maxIdleTime,
-                                                     d_allocator_p);
+    if (threadAttributes.threadName().empty()) {
+        bslmt::ThreadAttributes modAttr(threadAttributes);  // name is empty,
+                                                            // no alloc
+        modAttr.setThreadName(s_defaultThreadName);         // short string,
+                                                            // no alloc
+
+        d_threadPool_p = new (*d_allocator_p) ThreadPool(modAttr,
+                                                         minThreads,
+                                                         maxThreads,
+                                                         maxIdleTime,
+                                                         d_allocator_p);
+    }
+    else {
+        d_threadPool_p = new (*d_allocator_p) ThreadPool(threadAttributes,
+                                                         minThreads,
+                                                         maxThreads,
+                                                         maxIdleTime,
+                                                         d_allocator_p);
+    }
 }
 
 MultiQueueThreadPool::MultiQueueThreadPool(ThreadPool       *threadPool,

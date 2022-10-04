@@ -140,6 +140,9 @@ bsls::TimeInterval EventSchedulerTestTimeSource_Data::currentTime() const
                            // class EventScheduler
                            // --------------------
 
+// PRIVATE CLASS DATA
+const char EventScheduler::s_defaultThreadName[16] = { "bdl.EventSched" };
+
 // PRIVATE CLASS METHODS
 bsls::Types::Int64 EventScheduler::returnZero()
 {
@@ -845,6 +848,9 @@ int EventScheduler::start(const bslmt::ThreadAttributes& threadAttributes)
 
     bslmt::ThreadAttributes modAttr(threadAttributes);
     modAttr.setDetachedState(bslmt::ThreadAttributes::e_CREATE_JOINABLE);
+    if (modAttr.threadName().empty()) {
+        modAttr.setThreadName(s_defaultThreadName);
+    }
 
     if (bslmt::ThreadUtil::createWithAllocator(
                 &d_dispatcherThread,

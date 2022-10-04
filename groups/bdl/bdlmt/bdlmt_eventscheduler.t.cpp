@@ -606,8 +606,18 @@ struct TestClass1 {
     // MANIPULATORS
     void callback()
     {
+        bsl::string threadName;
+        bslmt::ThreadUtil::getThreadName(&threadName);
+#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_SOLARIS) ||   \
+                                       defined(BSLS_PLATFORM_OS_DARWIN)
+        ASSERTV(threadName, threadName == "bdl.EventSched" ||
+                                                    threadName == "OtherName");
+#else
+        ASSERTV(threadName, threadName.empty());
+#endif
+
         if (veryVerbose) {
-            ET_("TestClass1::callback"); PT_(this);
+            ET_("TestClass1::callback"); PT_(threadName); PT_(this);
             PT(u::now());
         }
         if (d_executionTime) {
@@ -1960,7 +1970,9 @@ void Test6_2::operator()()
                       bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj3),
                       now - T);
 
-    x.start();
+    bslmt::ThreadAttributes attr;
+    attr.setThreadName("OtherName");
+    x.start(attr);
     microSleep(TM4, 0); // let the callback of 'testObj1' be started
     double elapsed = (u::now() - now).totalSecondsAsDouble();
     x.cancelAllEventsAndWait();

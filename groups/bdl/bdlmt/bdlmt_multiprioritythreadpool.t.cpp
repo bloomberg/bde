@@ -389,6 +389,15 @@ struct Functor {
     {
         d_barrier->wait();
 
+        bsl::string threadName;
+        bslmt::ThreadUtil::getThreadName(&threadName);
+#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_SOLARIS) ||   \
+                                       defined(BSLS_PLATFORM_OS_DARWIN)
+        ASSERTV(threadName, threadName == "OtherName");
+#else
+        ASSERTV(threadName, threadName.empty());
+#endif
+
         bslmt::ThreadUtil::microSleep(50 * 1000);       // 0.05 sec
         bslmt::ThreadUtil::yield();
         bslmt::ThreadUtil::microSleep(50 * 1000);       // 0.05 sec
@@ -647,7 +656,16 @@ bsls::AtomicInt counter;
 
 extern "C" void *incCounter(void *)
 {
-    ++counter;
+    if (1 == ++counter) {
+        bsl::string threadName;
+        bslmt::ThreadUtil::getThreadName(&threadName);
+#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_SOLARIS) ||   \
+                                       defined(BSLS_PLATFORM_OS_DARWIN)
+        ASSERTV(threadName, threadName == "bdl.MultiPriPl");
+#else
+        ASSERTV(threadName, threadName.empty());
+#endif
+    }
 
     return 0;
 }
@@ -818,6 +836,7 @@ int main(int argc, char *argv[])
             bslma::TestAllocator localTa;
 
             bslmt::ThreadAttributes attrib;
+            attrib.setThreadName("OtherName");
 
             if (ATTRIB_DETACHED == attrState) {
                 attrib.setDetachedState(

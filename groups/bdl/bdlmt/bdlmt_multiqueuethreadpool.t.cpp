@@ -244,6 +244,16 @@ void incrementCounter(bsls::AtomicInt *counter)
 
     ASSERT(counter);
     ++*counter;
+
+    bsl::string threadName;
+    bslmt::ThreadUtil::getThreadName(&threadName);
+#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_SOLARIS) ||   \
+                                       defined(BSLS_PLATFORM_OS_DARWIN)
+    ASSERTV(threadName, threadName == "bdl.MultiQuePl" ||
+                  threadName == "bdl.ThreadPool" || threadName == "OtherName");
+#else
+    ASSERTV(threadName, threadName.empty());
+#endif
 }
 
 static void timedWaitOnBarrier(bslmt::Barrier  *barrier,
@@ -2720,6 +2730,8 @@ int main(int argc, char *argv[]) {
         }
 
         bslmt::ThreadAttributes   defaultAttrs;
+        defaultAttrs.setThreadName("OtherName");
+
         bslmt::ThreadUtil::Handle handle;
         bslmt::ThreadAttributes   detached;
         detached.setDetachedState(bslmt::ThreadAttributes::e_CREATE_DETACHED);

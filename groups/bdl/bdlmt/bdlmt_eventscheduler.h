@@ -189,6 +189,17 @@ BSLS_IDENT("$Id: $")
 // 'bdlt::EventSchedulerTestTimeSource'.  See Example 3 below for an
 // illustration of how this is done.
 //
+///Thread Name for Dispatcher Thread
+///---------------------------------
+// To facilitate debugging, users can provide a thread name as the 'threadName'
+// attribute of the 'bslmt::ThreadAttributes' argument passed to the 'start'
+// method, that will be used for the dispatcher thread.  The thread name should
+// not be used programmatically, but will appear in debugging tools on
+// platforms that support naming threads to help users identify the source and
+// purpose of a thread.  If no 'ThreadAttributes' object is passed, or if the
+// 'threadName' attribute is not set, the default value "bdl.EventSched" will
+// be used.
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -618,6 +629,10 @@ class EventScheduler {
     EventScheduler& operator=(const EventScheduler&);
 
   private:
+    // PRIVATE CLASS DATA
+    static const char     s_defaultThreadName[16];  // Thread name to use when
+                                                    // none is specified.
+
     // PRIVATE DATA
     CurrentTimeFunctor    d_currentTimeFunctor; // when called, returns the
                                                 // current time the scheduler
@@ -680,6 +695,8 @@ class EventScheduler {
 
     bsls::SystemClockType::Enum
                           d_clockType;          // clock type used
+
+
 
     // PRIVATE CLASS METHODS
     static bsls::Types::Int64 returnZero();

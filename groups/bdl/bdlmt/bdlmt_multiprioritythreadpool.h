@@ -88,6 +88,17 @@ BSLS_IDENT("$Id: $")
 //: o 'drainJobs'
 // Note that, in these cases, such undefined behavior may include deadlock.
 //
+///Thread Names for Sub-Threads
+///----------------------------
+// To facilitate debugging, users can provide a thread name as the 'threadName'
+// attribute of the 'bslmt::ThreadAttributes' argument passed to the
+// constructor, that will be used for all the sub-threads.  The thread name
+// should not be used programmatically, but will appear in debugging tools on
+// platforms that support naming threads to help users identify the source and
+// purpose of a thread.  If no 'ThreadAttributes' object is passed, or if the
+// 'threadName' attribute is not set, the default value "bdl.MultiPriPl" will
+// be used.
+//
 ///Usage
 ///-----
 // The following two examples illustrate use of the multi-priority thread pool
@@ -445,7 +456,11 @@ class MultipriorityThreadPool {
     };
 
   private:
-    // DATA
+    // PRIVATE CLASS DATA
+    static const char       s_defaultThreadName[16];// Thread name to use when
+                                                    // none is specified.
+
+    // PRIVATE DATA
     bslmt::Mutex            d_mutex;      // mutex for worker threads as they
                                           // analyze state, and for methods
                                           // that manipulate that state

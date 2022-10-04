@@ -529,7 +529,7 @@ struct TestClass1 {
 
     bsls::AtomicInt  d_numStarted;
     bsls::AtomicInt  d_numExecuted;
-    int             d_executionTime; // in microseconds
+    int              d_executionTime; // in microseconds
 
     // CREATORS
     TestClass1() :
@@ -551,6 +551,16 @@ struct TestClass1 {
     void callback()
     {
         ++d_numStarted;
+
+        bsl::string threadName;
+        bslmt::ThreadUtil::getThreadName(&threadName);
+#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_SOLARIS) ||   \
+                                       defined(BSLS_PLATFORM_OS_DARWIN)
+        ASSERTV(threadName, threadName == "bdl.TimerEvent" ||
+                                                    threadName == "OtherName");
+#else
+        ASSERTV(threadName, threadName.empty());
+#endif
 
         if (d_executionTime) {
             sleepUntilMs(d_executionTime / 1000);
@@ -1557,7 +1567,9 @@ void test7_c()
 
     myMicroSleep(T6, 0); // let testObj1's callback be pending
 
-    x.start();
+    bslmt::ThreadAttributes attr;
+    attr.setThreadName("OtherName");
+    x.start(attr);
 
     myMicroSleep(T3, 0); // give enough time to complete testObj's callback
     makeSureTestObjectIsExecuted(testObj1, mT, 100);

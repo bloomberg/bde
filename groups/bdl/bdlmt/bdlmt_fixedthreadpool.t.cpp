@@ -256,6 +256,17 @@ void testJobFunction1(void *ptr)
 {
     TestJobFunctionArgs *args = (TestJobFunctionArgs*)ptr;
     bslmt::LockGuard<bslmt::Mutex> lock(args->d_mutex_p);
+
+    bsl::string threadName;
+    bslmt::ThreadUtil::getThreadName(&threadName);
+#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_SOLARIS) ||   \
+                                       defined(BSLS_PLATFORM_OS_DARWIN)
+    ASSERTV(threadName, threadName == "bdl.FixedPool" ||
+                                                    threadName == "OtherName");
+#else
+    ASSERTV(threadName, threadName.empty());
+#endif
+
     ++args->d_count;
     ++args->d_startSig;
     args->d_startCond->signal();
@@ -1280,8 +1291,8 @@ int main(int argc, char *argv[])
 
 #       ifdef BSLS_PLATFORM_OS_LINUX
             enum {
-                NUM_ITERATIONS = 10,
-                NUM_ITERATIONS_PER_LINE = 10,
+                NUM_ITERATIONS = 5,
+                NUM_ITERATIONS_PER_LINE = 5,
                 NUM_ITERATIONS_PER_DOT = 1
             };
 #       else
@@ -1982,6 +1993,7 @@ int main(int argc, char *argv[])
             args.d_count = 0;
 
             bslmt::ThreadAttributes attr;
+            attr.setThreadName("OtherName");
             Obj x(attr, THREADS, QUEUE_CAPACITY, &testAllocator);
 
             const Obj& X = x;
@@ -2192,6 +2204,7 @@ int main(int argc, char *argv[])
 
             bslmt::ThreadUtil::Handle threadHandles[NITERATIONS];
             bslmt::ThreadAttributes attributes;
+            attributes.setThreadName("bdl.FixedPool");
 
             mutex.lock();
             for (int i=0; i<NITERATIONS; ++i) {

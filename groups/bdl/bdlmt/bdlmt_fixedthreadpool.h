@@ -89,6 +89,17 @@ BSLS_IDENT("$Id: $")
 // SIGIOT
 //..
 //
+///Thread Names for Sub-Threads
+///----------------------------
+// To facilitate debugging, users can provide a thread name as the 'threadName'
+// attribute of the 'bslmt::ThreadAttributes' argument passed to the
+// constructor, that will be used for all the sub-threads.  The thread name
+// should not be used programmatically, but will appear in debugging tools on
+// platforms that support naming threads to help users identify the source and
+// purpose of a thread.  If no 'ThreadAttributes' object is passed, or if the
+// 'threadName' attribute is not set, the default value "bdl.FixedPool" will be
+// used.
+//
 ///Usage
 ///-----
 // This example demonstrates the use of a 'bdlmt::FixedThreadPool' to
@@ -385,7 +396,12 @@ class FixedThreadPool {
     };
 
   private:
-    // DATA
+    // PRIVATE CLASS DATA
+    static const char       s_defaultThreadName[16];  // Thread name to use
+                                                      // when none is
+                                                      // specified.
+
+    // PRIVATE DATA
     Queue                   d_queue;              // underlying queue
 
     bsls::AtomicInt         d_numActiveThreads;   // number of threads

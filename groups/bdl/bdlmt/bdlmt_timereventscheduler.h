@@ -141,6 +141,17 @@ BSLS_IDENT("$Id: $")
 // 'bdlt::TimerEventSchedulerTestTimeSource'.  See Example 3 below for an
 // illustration of how this is done.
 //
+///Thread Name for Dispatcher Thread
+///---------------------------------
+// To facilitate debugging, users can provide a thread name as the 'threadName'
+// attribute of the 'bslmt::ThreadAttributes' argument passed to the 'start'
+// method, that will be used for the dispatcher thread.  The thread name should
+// not be used programmatically, but will appear in debugging tools on
+// platforms that support naming threads to help users identify the source and
+// purpose of a thread.  If no 'ThreadAttributes' object is passed, or if the
+// 'threadName' attribute is not set, the default value "bdl.TimerEvent" will
+// be used.
+//
 ///Usage
 ///-----
 // The following example shows how to use a 'bdlmt::TimerEventScheduler' to
@@ -436,7 +447,11 @@ class TimerEventScheduler {
     };
 
   private:
-    // DATA
+    // PRIVATE CLASS DATA
+    static const char s_defaultThreadName[16];  // Thread name to use when none
+                                                // is specified.
+
+    // PRIVATE DATA
     bslma::Allocator *d_allocator_p;        // memory allocator (held)
 
     CurrentTimeFunctor
@@ -651,7 +666,7 @@ class TimerEventScheduler {
 
     int start(const bslmt::ThreadAttributes& threadAttributes);
         // Begin dispatching events on this scheduler using the specified
-        // 'threadAttributes' for the dispatcher thread (except that the
+        // 'threadAttributes' for the dispatcher thread (except that the      \
         // DETACHED attribute is ignored).  Return 0 on success, and a nonzero
         // value otherwise.  If another thread is currently executing 'stop',
         // wait until the dispatcher thread stops before starting a new one.

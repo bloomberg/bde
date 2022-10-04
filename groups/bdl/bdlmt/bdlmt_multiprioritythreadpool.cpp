@@ -76,6 +76,10 @@ namespace bdlmt {
                        // class MultipriorityThreadPool
                        // -----------------------------
 
+// PRIVATE CLASS DATA
+const char MultipriorityThreadPool::s_defaultThreadName[16] = {
+                                                            "bdl.MultiPriPl" };
+
 // PRIVATE MANIPULATORS
 void MultipriorityThreadPool::worker()
 {
@@ -169,6 +173,8 @@ MultipriorityThreadPool::MultipriorityThreadPool(
     BSLS_ASSERT(k_MAX_NUM_PRIORITIES >= numPriorities);
     BSLS_ASSERT(1 <= numPriorities);
     BSLS_ASSERT(1 <= numThreads);
+
+    d_threadAttributes.setThreadName(s_defaultThreadName);
 }
 
 MultipriorityThreadPool::MultipriorityThreadPool(
@@ -193,6 +199,9 @@ MultipriorityThreadPool::MultipriorityThreadPool(
     // Force all threads to be joinable.
     d_threadAttributes.setDetachedState(
                                    bslmt::ThreadAttributes::e_CREATE_JOINABLE);
+    if (d_threadAttributes.threadName().empty()) {
+        d_threadAttributes.setThreadName(s_defaultThreadName);
+    }
 }
 
 MultipriorityThreadPool::~MultipriorityThreadPool()
