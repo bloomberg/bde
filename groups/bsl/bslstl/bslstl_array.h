@@ -168,6 +168,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmf_assert.h>
 #include <bslmf_enableif.h>
+#include <bslmf_isnothrowswappable.h>
 #include <bslmf_issame.h>
 #include <bslmf_movableref.h>
 
@@ -268,7 +269,8 @@ struct array {
         // Set every element in this array to the specified 'value' using the
         // 'operator=' of 'value_type'.
 
-    void swap(array& rhs);
+    void swap(array& rhs) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+                                 bsl::is_nothrow_swappable<VALUE_TYPE>::value);
         // Exchange each corresponding element between this array and the
         // specified 'rhs' array by calling 'swap(a,b)' where 'swap' is found
         // by overload resolution including at least the namespaces 'std' and
@@ -573,6 +575,8 @@ void array<VALUE_TYPE, SIZE>::fill(const VALUE_TYPE& value)
 
 template <class VALUE_TYPE, size_t SIZE>
 void array<VALUE_TYPE, SIZE>::swap(array<VALUE_TYPE, SIZE>& rhs)
+    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+        bsl::is_nothrow_swappable<VALUE_TYPE>::value)
 {
     for (size_t i = 0; i < SIZE; ++i) {
         using std::swap;

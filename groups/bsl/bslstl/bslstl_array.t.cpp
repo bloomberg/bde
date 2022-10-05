@@ -3770,6 +3770,11 @@ void TestDriver<TYPE, SIZE>::testCase8()
 
     if (veryVerbose) printf("\t\t\tTesting member 'swap' function\n");
 
+#if BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+    const bool isSwapNoexcept = bsl::is_nothrow_swappable<TYPE>::value;
+    ASSERT(isSwapNoexcept == noexcept(mX1.swap(mX2)));
+#endif
+
     mX1.swap(mX2);
     ASSERTV(SIZE, W1 == X1);
     ASSERTV(SIZE, W2 == X2);
