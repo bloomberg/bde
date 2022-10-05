@@ -111,7 +111,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  balb::FileCleanerConfiguration config(
 //               fileNamePattern.c_str(),
-//               bsls::TimeInterval(7 * bdlt::TimeUnitRatio::k_SECONDS_PERDAY),
+//               bsls::TimeInterval(7 * bdlt::TimeUnitRatio::k_SECONDS_PER_DAY),
 //               4);
 //..
 // Next, we create a file observer and enable file logging:
