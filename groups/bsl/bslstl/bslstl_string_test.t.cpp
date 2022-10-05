@@ -334,20 +334,23 @@ using bsls::nameOfType;
 // [  ] basic_istream& operator>>(basic_istream& stream, string& str);
 // [29] hashAppend(HASHALG& hashAlg, const basic_string& str);
 // [29] hashAppend(HASHALG& hashAlg, const std::basic_string& str);
-// [37] string operator+(const string&, const string&);
-// [37] string operator+(const nstd::string&, const string&);
-// [37] string operator+(const string&, const nstd::string&);
-// [37] string operator+(const nstd::string&, const nstd::string&);
-// [37] string operator+(const string&, const CHAR *);
-// [37] string operator+(const CHAR *, const string&);
-// [37] string operator+(const nstd::string&, const CHAR *);
-// [37] string operator+(const CHAR *, const nstd::string&);
-// [37] string operator+(const string_view&, CHAR);
-// [37] string operator+(CHAR, const string_view&);
-// [37] string operator+(const string&, CHAR);
-// [37] string operator+(CHAR, const string&);
-// [37] string operator+(const nstd::string&, CHAR);
-// [37] string operator+(CHAR, const nstd::string&);
+// [37] string operator+(const string&,      const string&);
+// [37] string operator+(const string&&,     const string&);
+// [37] string operator+(const string&,      const string&&);
+// [37] string operator+(const string&&,     const string&&);
+// [37] string operator+(const std::string&, const string&);
+// [37] string operator+(const std::string&, const string&&);
+// [37] string operator+(const string&,      const std::string&);
+// [37] string operator+(const string&&,     const std::string&);
+// [37] string operator+(const string&,      const CHAR *);
+// [37] string operator+(const string&&,     const CHAR *);
+// [37] string operator+(const CHAR *,       const string&);
+// [37] string operator+(const CHAR *,       const string&&);
+// [37] string operator+(const string&,      CHAR);
+// [37] string operator+(const string&&,     CHAR);
+// [37] string operator+(CHAR,               const string&);
+// [37] string operator+(CHAR,               const string&&);
+// [38] CLASS TEMPLATE DEDUCTION GUIDES
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [40] USAGE EXAMPLE
@@ -1145,6 +1148,7 @@ struct TestDriver {
     static void testCase39();
         // Test 'shrink_to_fit'.
 
+    template <bool PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION>
     static void testCase37();
         // Test '+' operator.
 
@@ -1565,190 +1569,719 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase39()
 }
 
 template <class TYPE, class TRAITS, class ALLOC>
+template <bool PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION>
 void TestDriver<TYPE, TRAITS, ALLOC>::testCase37()
 {
     // ------------------------------------------------------------------------
     // TESTING 'operator+'
     //
     // Concerns:
-    //: 1 That all overloads of 'operator+' compile and work properly.
+    //: 1 The operator correctly handles empty strings.
+    //:
+    //: 2 Strings of any length and content can be concatenated.
+    //:
+    //: 3 Input parameters are correctly positioned in the result string.
+    //:
+    //: 4 Expected allocator is used to supply memory.
+    //:
+    //: 5 QoI: Asserted precondition violations are detected when enabled.
     //
     // Plan:
-    //: 1 Create a table of a number of strings.
+    //: 1 Use the table-based approach to specify a set of test values.
     //:
-    //: 2 Iterate through the 'I' loop, and create a buffer of 'TYPE's
-    //:   initialized with the values from the spec (note that the buffer may
-    //:   be 'wchar_t's while the spec is always 'char's).
-    //:   o Initialize a 'const TYPE *' string 'IPC' pointing to the
-    //:     null-terminated string in the buffer.
+    //: 2 Iterate through the 'I' loop, and create various input variants
+    //:   ('bsl::string', 'std::string', 'const TYPE *' and 'TYPE') to be used
+    //:   as the 'left-hand-side' non-moveable parameters for the operator.
+    //:   For each 'lhs' value:
     //:
-    //:   o Initialize a 'std::string', a 'bsl::basic_string', and a
-    //:     'bsl::basic_string_view', all of them with 'IPC'.
+    //:   1 Iterate through the 'J' loop, and create various input variants
+    //:     ('bsl::string', 'std::string', 'const TYPE *' and 'TYPE') to be
+    //:     used as the 'right-hand-side' non-moveable  parameters for the
+    //:     operator.  For each pair '(lhs, rhs)':
     //:
-    //:   o Create a 'TYPE' variable 'ISC' which, if the length of the I string
-    //:     is 1, contains the first element of the string, and otherwise
-    //:     contains 0.
+    //:     1 Call the operator and verify that the result string contains the
+    //:       expected value.
     //:
-    //:   o Iterate through the 'J' loop, creating a buffer of 'TYPE's.
-    //:     1 Initialize a 'const TYPE *' string 'JPC' pointing to the
-    //:       null-terminated string in the buffer.
+    //:     2 Verify that the expected allocator is used to supply memory.
     //:
-    //:     2 Initialize a 'std::string', a 'bsl::basic_string', and a
-    //:       'bsl::basic_string_view', all of them with 'JPC'.
+    //:     3 Create several moveable objects having 'lhs' and 'rhs' values and
+    //:       various capacity.  Call the operator and verify that the result
+    //:       string contains the expected value.  (C-1..3)
     //:
-    //:     3 Create a 'TYPE' variable 'JSC' which, if the length of the I
-    //:       string is 1, contains the first element of the string, and
-    //:       otherwise contains 0.
+    //:     4 Verify that the expected allocator is used to supply memory.
+    //:       (C-4)
     //:
-    //:     4 Create a buffer 'RAW_SUM' that is the null-terminated
-    //:       concatenation of the I buffer and the J buffer, and create a
-    //:       basic string view 'SUM' that refers to it.
-    //:
-    //:     5 Do additions with the I values on the lhs and J values on the
-    //:       rhs, for every supported combination of types, but not with ISC
-    //:       or JSC if those values are 0, and compare the result to 'SUM'
+    //: 3 Verify that, in appropriate build modes, defensive checks are
+    //:   triggered for invalid date and 'numDays' values, but not triggered
+    //:   for adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
+    //:   (C-5)
     //
     // Testing:
-    //   string operator+(const string&, const string&);
-    //   string operator+(const nstd::string&, const string&);
-    //   string operator+(const string&, const nstd::string&);
-    //   string operator+(const nstd::string&, const nstd::string&);
-    //   string operator+(const string&, const CHAR *);
-    //   string operator+(const CHAR *, const string&);
-    //   string operator+(const nstd::string&, const CHAR *);
-    //   string operator+(const CHAR *, const nstd::string&);
-    //   string operator+(const string_view&, CHAR);
-    //   string operator+(CHAR, const string_view&);
-    //   string operator+(const string&, CHAR);
-    //   string operator+(CHAR, const string&);
-    //   string operator+(const nstd::string&, CHAR);
-    //   string operator+(CHAR, const nstd::string&);
+    //   string operator+(const string&,      const string&);
+    //   string operator+(const string&&,     const string&);
+    //   string operator+(const string&,      const string&&);
+    //   string operator+(const string&&,     const string&&);
+    //   string operator+(const std::string&, const string&);
+    //   string operator+(const std::string&, const string&&);
+    //   string operator+(const string&,      const std::string&);
+    //   string operator+(const string&&,     const std::string&);
+    //   string operator+(const string&,      const CHAR *);
+    //   string operator+(const string&&,     const CHAR *);
+    //   string operator+(const CHAR *,       const string&);
+    //   string operator+(const CHAR *,       const string&&);
+    //   string operator+(const string&,      CHAR);
+    //   string operator+(const string&&,     CHAR);
+    //   string operator+(CHAR,               const string&);
+    //   string operator+(CHAR,               const string&&);
     // ------------------------------------------------------------------------
 
     const char *ty = bsls::NameOf<TYPE>();
 
-    typedef std::basic_string<TYPE, TRAITS> NObj;
-    typedef bsl::basic_string_view<TYPE, TRAITS>   SV;
+    typedef bsltf::StdStatefulAllocator<
+                            TYPE,
+                            PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION> StdAlloc;
+
+    typedef bsl::basic_string<TYPE, TRAITS, StdAlloc> Obj;
+    typedef std::basic_string<TYPE, TRAITS>           StdString;
 
     static const struct {
         int         d_lineNum;  // source line number
         const char *d_spec_p;   // specification string
     } DATA[] = {
         //line  spec
-        //----  -----------------------------------
-        { L_,   ""                                 },
-        { L_,   "A"                                },
-        { L_,   "B"                                },
-        { L_,   "C"                                },
-        { L_,   "D"                                },
-        { L_,   "AB"                               },
-        { L_,   "BC"                               },
-        { L_,   "BCA"                              },
-        { L_,   "CAB"                              },
-        { L_,   "CDAB"                             },
-        { L_,   "DABC"                             },
-        { L_,   "ABCDE"                            },
-        { L_,   "EDCBA"                            },
-        { L_,   "ABCDEA"                           },
-        { L_,   "ABCDEAB"                          },
-        { L_,   "BACDEABC"                         },
-        { L_,   "CBADEABCD"                        },
-        { L_,   "CBADEABCDAB"                      },
-        { L_,   "CBADEABCDABC"                     },
-        { L_,   "CBADEABCDABCDE"                   },
-        { L_,   "CBADEABCDABCDEA"                  },
-        { L_,   "CBADEABCDABCDEAB"                 },
-        { L_,   "CBADEABCDABCDEABCBADEABCDABCDEA"  },
-        { L_,   "CBADEABCDABCDEABCBADEABCDABCDEAB" }
+        //----  -------------------------------------
+        { L_,   ""                                   },
+        { L_,   "A"                                  },
+        { L_,   "B"                                  },
+        { L_,   "C"                                  },
+        { L_,   "D"                                  },
+        { L_,   "AB"                                 },
+        { L_,   "BC"                                 },
+        { L_,   "BCA"                                },
+        { L_,   "CAB"                                },
+        { L_,   "CDAB"                               },
+        { L_,   "DABC"                               },
+        { L_,   "ABCDE"                              },
+        { L_,   "EDCBA"                              },
+        { L_,   "ABCDEA"                             },
+        { L_,   "ABCDEAB"                            },
+        { L_,   "BACDEABC"                           },
+        { L_,   "CBADEABCD"                          },
+        { L_,   "CBADEABCDAB"                        },
+        { L_,   "CBADEABCDABC"                       },
+        { L_,   "CBADEABCDABCDE"                     },
+        { L_,   "CBADEABCDABCDEA"                    },
+        { L_,   "CBADEABCDABCDEAB"                   },
+        { L_,   "CBADEABCDABCDEABCBADEAB"            },
+        { L_,   "CBADEABCDABCDEABCBADEABC"           },
+        { L_,   "CBADEABCDABCDEABCBADEABCDABCDEA"    },
+        { L_,   "CBADEABCDABCDEABCBADEABCDABCDEABCD" }
     };
 
-    enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+    const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+    const size_t MAX_LEN  = strlen(DATA[NUM_DATA - 1].d_spec_p);
 
-    for (int ti = 0; ti < NUM_DATA; ++ti) {
-        const int   LINEI      = DATA[ti].d_lineNum;
-        const char *RAW_SPEC_I = DATA[ti].d_spec_p;
-        int         LENI;
+    bslma::TestAllocator         la("left",    veryVeryVeryVerbose);
+    StdAlloc                     sla(&la);
+    bslma::TestAllocator         ra("right",   veryVeryVeryVerbose);
+    StdAlloc                     sra(&ra);
+    bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard dag(&da);
 
-        TYPE SPEC_I[100];
-        memset(SPEC_I, 0, sizeof(SPEC_I));
-        {
-            int ii = 0;
-            for (; RAW_SPEC_I[ii]; ++ii) {
-                SPEC_I[ii] = RAW_SPEC_I[ii];
-            }
-            LENI = ii;
+    bslma::TestAllocator *ua  = 0;  //     used allocator
+    bslma::TestAllocator *nua = 0;  // not used allocator
+
+    // Since we know the strategy of memory allocation for 'bsl::string', we
+    // can accurately determine the expected number of bytes allocated for the
+    // result string.  If the size of the concatenated string is less than or
+    // equal to the size of the short string buffer then the expected capacity
+    // is equal to the size of the short string buffer ('DEFAULT_CAPACITY') and
+    // no additional memory allocation occurs.  The next edge value is the
+    // buffer size multiplied by one and a half, because we have 1.5 growth
+    // factor for memory ('DFLT_PROPOSED_CAPACITY').  Finally, if the length of
+    // the string exceeds 'DFLT_PROPOSED_CAPACITY', we expect the capacity to
+    // be equal to the size of the concatenated string.
+
+    const size_t DFLT_CAPACITY          =
+                                   static_cast<const size_t>(DEFAULT_CAPACITY);
+    const size_t DFLT_PROPOSED_CAPACITY = DFLT_CAPACITY + (DFLT_CAPACITY >> 1);
+
+    const bool PROPAGATE = PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION;
+
+    if (verbose) printf("\tTesting basic behavior\n");
+    for (size_t ti = 0; ti < NUM_DATA; ++ti) {
+        const int     LINE_L     = DATA[ti].d_lineNum;
+        const char   *RAW_SPEC_L = DATA[ti].d_spec_p;
+        const size_t  LEN_L      = strlen(RAW_SPEC_L);
+
+        Obj SPEC_L;
+
+        for (size_t i = 0; i < LEN_L; ++i) {
+            SPEC_L.push_back(RAW_SPEC_L[i]);
         }
+        const TYPE *PCL = SPEC_L.c_str();
 
-        const TYPE *IPC = &SPEC_I[0];
+        Obj             mXL(SPEC_L, sla);
+        const Obj&      XL = mXL;
+        const TYPE      CL = 1 == LEN_L ? *PCL : 0;
+        const StdString STD_L(PCL);
 
-        const NObj INS(IPC);
-        const Obj  IS(IPC);
-        const SV   ISV(IPC);    (void) ISV;
-        const TYPE ISC = 1 == LENI ? *IPC : 0;
+        for (size_t tj = 0; tj < NUM_DATA; ++tj) {
+            const int     LINE_R     = DATA[tj].d_lineNum;
+            const char   *RAW_SPEC_R = DATA[tj].d_spec_p;
+            const size_t  LEN_R      = strlen(RAW_SPEC_R);
+            const size_t  LEN_E      = LEN_L + LEN_R;
 
-        for (int tj = 0; tj < NUM_DATA; ++tj) {
-            const int   LINEJ      = DATA[tj].d_lineNum;
-            const char *RAW_SPEC_J = DATA[tj].d_spec_p;
-            int         LENJ;
+            Obj SPEC_R;
 
-            TYPE SPEC_J[100];
-            memset(SPEC_J, 0, sizeof(SPEC_J));
-            {
-                int ii = 0;
-                for (; RAW_SPEC_J[ii]; ++ii) {
-                    SPEC_J[ii] = RAW_SPEC_J[ii];
-                }
-                LENJ = ii;
+            for (size_t j = 0; j < LEN_R; ++j) {
+                SPEC_R.push_back(RAW_SPEC_R[j]);
             }
-            const TYPE *JPC = &SPEC_J[0];
+            const TYPE *PCR = SPEC_R.c_str();
 
-            TYPE RAW_SUM[100];
-            memset(RAW_SUM, 0, sizeof(RAW_SUM));
-            {
-                int ii = 0;
-                for (; IPC[ii]; ++ii) {
-                    RAW_SUM[ii] = IPC[ii];
-                }
-                ASSERT(LENI == ii);
-                for (int jj = 0; JPC[jj]; ++ii, ++jj) {
-                    RAW_SUM[ii] = JPC[jj];
-                }
-                ASSERT(0 == RAW_SUM[ii]);
-                ASSERT(LENI + LENJ == ii);
+            if (veryVerbose) { T_ T_ P_(RAW_SPEC_L) P(RAW_SPEC_R) }
+
+            Obj             mXR(SPEC_R, sra);
+            const Obj&      XR = mXR;
+            const TYPE      CR = 1 == LEN_R ? *PCR : 0;
+            const StdString STD_R(PCR);
+
+            Obj SPEC_EXP(SPEC_L);
+            SPEC_EXP.append(SPEC_R);
+
+            const Obj EXPECTED(SPEC_EXP);
+
+            // According to LEWG's paper (
+            // 'www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1165r1.html')
+            // used allocator is determined depending on the
+            // 'select_on_container_copy_construction' trait of the allocator
+            // of the object passed as a parameter to the operator.
+
+            // Reference providing non-modifiable access to 'bsl::string'
+            // object is passed as 'lhs', therefore we monitor the 'la'
+            // allocator.
+
+            if (PROPAGATE) {
+                ua  = &la;
+                nua = &da;
             }
-            const TYPE *SPC = &RAW_SUM[0];
+            else {
+                ua  = &da;
+                nua = &la;
+            }
 
-            const SV   SUM(SPC);
+            const size_t EXP_ALLOCATED_CAPACITY = LEN_E <= DFLT_CAPACITY
+                                              ? 0
+                                              : LEN_E <= DFLT_PROPOSED_CAPACITY
+                                                  ? DFLT_PROPOSED_CAPACITY + 1
+                                                  : LEN_E + 1;
 
-            const NObj JNS(JPC);
-            const Obj  JS(JPC);
-            const SV   JSV(JPC);    (void) JSV;
-            const TYPE JSC = 1 == LENJ ? *JPC : 0;
+            // The Sun compiler does not seem to support NRVO.  Therefore we
+            // expect additional memory allocation for a copy of the returned
+            // value.
 
-            ASSERT(SUM == IPC + JNS);
-            ASSERT(SUM == IPC + JS);
+            const size_t EXP_COPY_OVERHEAD =
+#ifndef BSLS_PLATFORM_CMP_SUN
+                                        0;
+#else
+                                        LEN_E <= DFLT_CAPACITY ? 0 : LEN_E + 1;
+#endif
 
-            ASSERT(SUM == INS + JPC);
-            ASSERT(SUM == INS + JNS);
-            ASSERT(SUM == INS + JS);
-//          ASSERT(SUM == INS + JSV);
-            ASSERT(!JSC || SUM == INS + JSC);
+            const Int64  EXP_ALLOCATED_BYTES =
+                   (EXP_COPY_OVERHEAD + EXP_ALLOCATED_CAPACITY) * sizeof(TYPE);
 
-            ASSERT(SUM == IS  + JPC);
-            ASSERT(SUM == IS  + JNS);
-            ASSERT(SUM == IS  + JS);
-//          ASSERT(SUM == IS  + JSV);
-            ASSERT(!JSC || SUM == IS  + JSC);
+            // const bsl::basic_string& + const bsl::basic_string&
 
-//          ASSERT(SUM == ISV + JNS);
-//          ASSERT(SUM == ISV + JS);
+            Int64 expUsedAllocTotal    =
+                                     ua->numBytesTotal() + EXP_ALLOCATED_BYTES;
+            Int64 expNotUsedAllocTotal = nua->numBytesTotal();
 
-            bsl::basic_string<TYPE> s;
-            ASSERTV(ty, char(ISC), LINEI, LINEJ,
-                                            !ISC || SUM == (s = ISC + JNS, s));
-            ASSERTV(ty, char(ISC), LINEI, LINEJ,
-                                            !ISC || SUM == (s = ISC + JS,  s));
+            ASSERTV(EXPECTED, XL + XR, EXPECTED == XL + XR);
+            ASSERTV(expUsedAllocTotal,
+                    EXP_ALLOCATED_BYTES,
+                    ua->numBytesTotal(),
+                    expUsedAllocTotal    == ua->numBytesTotal());
+            ASSERTV(expNotUsedAllocTotal,
+                    EXP_ALLOCATED_BYTES,
+                    nua->numBytesTotal(),
+                    expNotUsedAllocTotal == nua->numBytesTotal());
+
+            ASSERTV(ty, LINE_L, LINE_R,
+                    ua == (XL + XR).get_allocator().allocator());
+
+            // const bsl::basic_string& + const std::basic_string&
+
+            expUsedAllocTotal    = ua->numBytesTotal() + EXP_ALLOCATED_BYTES;
+            expNotUsedAllocTotal = nua->numBytesTotal();
+
+            ASSERTV(EXPECTED, XL + STD_R, EXPECTED == XL + STD_R);
+            ASSERTV(expUsedAllocTotal,
+                    EXP_ALLOCATED_BYTES,
+                    ua->numBytesTotal(),
+                    expUsedAllocTotal    == ua->numBytesTotal());
+            ASSERTV(expNotUsedAllocTotal,
+                    EXP_ALLOCATED_BYTES,
+                    nua->numBytesTotal(),
+                    expNotUsedAllocTotal == nua->numBytesTotal());
+
+            ASSERTV(ty, LINE_L, LINE_R,
+                    ua == (XL + STD_R).get_allocator().allocator());
+
+            // const bsl::basic_string& + const TYPE*
+
+            expUsedAllocTotal    = ua->numBytesTotal() + EXP_ALLOCATED_BYTES;
+            expNotUsedAllocTotal = nua->numBytesTotal();
+
+            ASSERTV(EXPECTED, XL + PCR, EXPECTED == XL + PCR);
+            ASSERTV(expUsedAllocTotal,
+                    EXP_ALLOCATED_BYTES,
+                    ua->numBytesTotal(),
+                    expUsedAllocTotal    == ua->numBytesTotal());
+            ASSERTV(expNotUsedAllocTotal,
+                    EXP_ALLOCATED_BYTES,
+                    nua->numBytesTotal(),
+                    expNotUsedAllocTotal == nua->numBytesTotal());
+
+            ASSERTV(ty, LINE_L, LINE_R,
+                    ua == (XL + PCR).get_allocator().allocator());
+
+            // const bsl::basic_string& + TYPE
+
+            if (CR) {
+                expUsedAllocTotal    =
+                                     ua->numBytesTotal() + EXP_ALLOCATED_BYTES;
+                expNotUsedAllocTotal = nua->numBytesTotal();
+                ASSERTV(EXPECTED, XL + CR, EXPECTED == XL + CR);
+                ASSERTV(expUsedAllocTotal,
+                        EXP_ALLOCATED_BYTES,
+                        ua->numBytesTotal(),
+                        expUsedAllocTotal    == ua->numBytesTotal());
+                ASSERTV(expNotUsedAllocTotal,
+                        EXP_ALLOCATED_BYTES,
+                        nua->numBytesTotal(),
+                        expNotUsedAllocTotal == nua->numBytesTotal());
+
+                ASSERTV(ty, LINE_L, LINE_R,
+                        ua == (XL + CR).get_allocator().allocator());
+            }
+
+            // Reference providing non-modifiable access to 'bsl::string'
+            // object is passed as 'rhs', therefore we monitor the 'ra'
+            // allocator.
+
+            if (PROPAGATE) {
+                ua  = &ra;
+            }
+            else {
+                nua = &ra;
+            }
+
+            // const TYPE* + const bsl::basic_string&
+
+            expUsedAllocTotal    = ua->numBytesTotal() + EXP_ALLOCATED_BYTES;
+            expNotUsedAllocTotal = nua->numBytesTotal();
+
+            ASSERTV(EXPECTED == PCL + XR);
+            ASSERTV(expUsedAllocTotal,
+                    EXP_ALLOCATED_BYTES,
+                    ua->numBytesTotal(),
+                    expUsedAllocTotal    == ua->numBytesTotal());
+            ASSERTV(expNotUsedAllocTotal,
+                    EXP_ALLOCATED_BYTES,
+                    nua->numBytesTotal(),
+                    expNotUsedAllocTotal == nua->numBytesTotal());
+
+            ASSERTV(ty, LINE_L, LINE_R,
+                    ua == (PCL + XR).get_allocator().allocator());
+
+            // const std::basic_string& + const bsl::basic_string&
+
+            expUsedAllocTotal    = ua->numBytesTotal() + EXP_ALLOCATED_BYTES;
+            expNotUsedAllocTotal = nua->numBytesTotal();
+
+            ASSERTV(EXPECTED == STD_L + XR);
+            ASSERTV(expUsedAllocTotal,
+                    EXP_ALLOCATED_BYTES,
+                    ua->numBytesTotal(),
+                    expUsedAllocTotal    == ua->numBytesTotal());
+            ASSERTV(expNotUsedAllocTotal,
+                    EXP_ALLOCATED_BYTES,
+                    nua->numBytesTotal(),
+                    expNotUsedAllocTotal == nua->numBytesTotal());
+
+            ASSERTV(ty, LINE_L, LINE_R,
+                    ua == (STD_L + XR).get_allocator().allocator());
+
+            // TYPE + const bsl::basic_string&
+
+            if (CL) {
+                expUsedAllocTotal    =
+                                     ua->numBytesTotal() + EXP_ALLOCATED_BYTES;
+                expNotUsedAllocTotal = nua->numBytesTotal();
+                ASSERTV(EXPECTED == CL  + XR);
+                ASSERTV(expUsedAllocTotal,
+                        EXP_ALLOCATED_BYTES,
+                        ua->numBytesTotal(),
+                        expUsedAllocTotal    == ua->numBytesTotal());
+                ASSERTV(expNotUsedAllocTotal,
+                        EXP_ALLOCATED_BYTES,
+                        nua->numBytesTotal(),
+                        expNotUsedAllocTotal == nua->numBytesTotal());
+
+                ASSERTV(ty, LINE_L, LINE_R,
+                        ua == (CL  + XR).get_allocator().allocator());
+            }
+
+            // According to the paper mentioned above, moveable object
+            // allocator must be used to supply memory.  Rvalue reference
+            // points to the 'lhs' parameter, therefore the 'la' allocator is
+            // expected to be used.
+
+            ua  = &la;
+            nua = &da;
+
+            size_t tk = DFLT_CAPACITY < LEN_L ? LEN_L : DFLT_CAPACITY;
+            for (; tk <= MAX_LEN * 2 + 1; ++tk) {
+                const size_t CAPACITY = tk;
+
+                // Since we do not create a new object here, the edge values
+                // depend on the initial capacity of the moveable string, not
+                // on the default capacity.
+
+                const size_t INITIAL_CAPACITY = CAPACITY == DFLT_CAPACITY
+                                           ? DFLT_CAPACITY
+                                           : CAPACITY <= DFLT_PROPOSED_CAPACITY
+                                               ? DFLT_PROPOSED_CAPACITY
+                                               : CAPACITY;
+                const size_t PROPOSED_CAPACITY =
+                                    INITIAL_CAPACITY + (INITIAL_CAPACITY >> 1);
+                const size_t EXP_REALLOCATED_CAPACITY =
+                                                   LEN_E <= INITIAL_CAPACITY
+                                                   ? 0
+                                                   : LEN_E <= PROPOSED_CAPACITY
+                                                       ? PROPOSED_CAPACITY + 1
+                                                       : LEN_E + 1;
+                const Int64  EXP_REALLOCATED_BYTES =
+                                       EXP_REALLOCATED_CAPACITY * sizeof(TYPE);
+
+                if (veryVerbose) { T_ T_ T_ P(CAPACITY) }
+
+                if (veryVeryVerbose) {
+                    T_ T_ T_ P_(INITIAL_CAPACITY)
+                             P_(PROPOSED_CAPACITY)
+                             P(EXP_REALLOCATED_BYTES)
+                }
+
+                // bsl::basic_string&& + bsl::basic_string&&
+
+                Obj        mXML1(sla);
+                const Obj& XML1 = mXML1;
+
+                mXML1.reserve(CAPACITY);
+                mXML1.append(PCL);
+
+                ASSERTV(INITIAL_CAPACITY == XML1.capacity());
+
+                Obj mXMR(SPEC_R, sra);
+
+                expUsedAllocTotal    =
+                                   ua->numBytesTotal() + EXP_REALLOCATED_BYTES;
+                expNotUsedAllocTotal = nua->numBytesTotal();
+
+                ASSERTV(
+                     ty, LINE_L, LINE_R, CAPACITY,
+                     EXPECTED == MoveUtil::move(mXML1) + MoveUtil::move(mXMR));
+                ASSERTV(expUsedAllocTotal,
+                        EXP_REALLOCATED_BYTES,
+                        ua->numBytesTotal(),
+                        expUsedAllocTotal    == ua->numBytesTotal());
+                ASSERTV(expNotUsedAllocTotal,
+                        EXP_REALLOCATED_BYTES,
+                        nua->numBytesTotal(),
+                        expNotUsedAllocTotal == nua->numBytesTotal());
+
+                Obj mXMLA1(sla);
+                mXMLA1.reserve(CAPACITY);
+                mXMLA1.append(PCL);
+                Obj mXMRA(SPEC_R, sra);
+
+                ASSERTV(ty, LINE_L, LINE_R,
+                        ua == (MoveUtil::move(mXMLA1) + MoveUtil::move(mXMRA))
+                                  .get_allocator()
+                                  .allocator());
+
+                // bsl::basic_string&& + const bsl::basic_string&
+
+                Obj        mXML2(sla);
+                const Obj& XML2 = mXML2;
+
+                mXML2.reserve(CAPACITY);
+                mXML2.append(PCL);
+
+                ASSERTV(INITIAL_CAPACITY == XML2.capacity());
+
+                expUsedAllocTotal    =
+                                   ua->numBytesTotal() + EXP_REALLOCATED_BYTES;
+                expNotUsedAllocTotal = nua->numBytesTotal();
+
+                ASSERTV(ty, LINE_L, LINE_R, CAPACITY,
+                        EXPECTED == MoveUtil::move(mXML2) + XR);
+                ASSERTV(expUsedAllocTotal,
+                        EXP_REALLOCATED_BYTES,
+                        ua->numBytesTotal(),
+                        expUsedAllocTotal    == ua->numBytesTotal());
+                ASSERTV(expNotUsedAllocTotal,
+                        EXP_REALLOCATED_BYTES,
+                        nua->numBytesTotal(),
+                        expNotUsedAllocTotal == nua->numBytesTotal());
+
+                Obj mXMLA2(sla);
+                mXMLA2.reserve(CAPACITY);
+                mXMLA2.append(PCL);
+
+                ASSERTV(ty, LINE_L, LINE_R,
+                        ua == (MoveUtil::move(mXMLA2) + XR)
+                                  .get_allocator()
+                                  .allocator());
+
+                // bsl::basic_string&& + const TYPE *
+
+                Obj        mXML3(sla);
+                const Obj& XML3 = mXML3;
+
+                mXML3.reserve(CAPACITY);
+                mXML3.append(PCL);
+
+                ASSERTV(INITIAL_CAPACITY == XML3.capacity());
+
+                expUsedAllocTotal    =
+                                   ua->numBytesTotal() + EXP_REALLOCATED_BYTES;
+                expNotUsedAllocTotal = nua->numBytesTotal();
+
+                ASSERTV(ty, LINE_L, LINE_R, CAPACITY,
+                        EXPECTED == MoveUtil::move(mXML3) + PCR);
+                ASSERTV(expUsedAllocTotal,
+                        EXP_REALLOCATED_BYTES,
+                        ua->numBytesTotal(),
+                        expUsedAllocTotal    == ua->numBytesTotal());
+                ASSERTV(expNotUsedAllocTotal,
+                        EXP_REALLOCATED_BYTES,
+                        nua->numBytesTotal(),
+                        expNotUsedAllocTotal == nua->numBytesTotal());
+
+                Obj mXMLA3(sla);
+                mXMLA3.reserve(CAPACITY);
+                mXMLA3.append(PCL);
+
+                ASSERTV(ty, LINE_L, LINE_R,
+                        ua == (MoveUtil::move(mXMLA3) + PCR)
+                                  .get_allocator()
+                                  .allocator());
+
+                // bsl::basic_string&& + TYPE
+
+                if (CR) {
+                    Obj        mXML4(sla);
+                    const Obj& XML4 = mXML4;
+
+                    mXML4.reserve(CAPACITY);
+                    mXML4.append(PCL);
+
+                    ASSERTV(INITIAL_CAPACITY == XML4.capacity());
+
+                    expUsedAllocTotal    =
+                                   ua->numBytesTotal() + EXP_REALLOCATED_BYTES;
+                    expNotUsedAllocTotal = nua->numBytesTotal();
+
+                    ASSERTV(
+                         ty, LINE_L, LINE_R, CAPACITY,
+                         EXPECTED == MoveUtil::move(mXML4) + CR);
+                    ASSERTV(expUsedAllocTotal,
+                            EXP_REALLOCATED_BYTES,
+                            ua->numBytesTotal(),
+                            expUsedAllocTotal    == ua->numBytesTotal());
+                    ASSERTV(expNotUsedAllocTotal,
+                            EXP_REALLOCATED_BYTES,
+                            nua->numBytesTotal(),
+                            expNotUsedAllocTotal == nua->numBytesTotal());
+
+                    Obj mXMLA4(sla);
+                    mXMLA4.reserve(CAPACITY);
+                    mXMLA4.append(PCL);
+
+                    ASSERTV(ty, LINE_L, LINE_R,
+                            ua == (MoveUtil::move(mXMLA4) + CR)
+                                      .get_allocator()
+                                      .allocator());
+                }
+            }
+
+            // Rvalue reference points to the 'rhs' parameter, therefore the
+            // 'ra' allocator is expected to be used.
+
+            ua  = &ra;
+
+            size_t tl = DFLT_CAPACITY < LEN_R ? LEN_R : DFLT_CAPACITY;
+            for (; tl <= MAX_LEN * 2 + 1; ++tl) {
+                const size_t CAPACITY = tl;
+                const size_t INITIAL_CAPACITY = CAPACITY == DFLT_CAPACITY
+                                           ? DFLT_CAPACITY
+                                           : CAPACITY <= DFLT_PROPOSED_CAPACITY
+                                               ? DFLT_PROPOSED_CAPACITY
+                                               : CAPACITY;
+                const size_t PROPOSED_CAPACITY =
+                                    INITIAL_CAPACITY + (INITIAL_CAPACITY >> 1);
+                const size_t EXP_REALLOCATED_CAPACITY =
+                                                   LEN_E <= INITIAL_CAPACITY
+                                                   ? 0
+                                                   : LEN_E <= PROPOSED_CAPACITY
+                                                       ? PROPOSED_CAPACITY + 1
+                                                       : LEN_E + 1;
+                const Int64  EXP_REALLOCATED_BYTES =
+                                       EXP_REALLOCATED_CAPACITY * sizeof(TYPE);
+
+                if (veryVerbose) { T_ T_ T_ P(CAPACITY) }
+
+                if (veryVeryVerbose) {
+                    T_ T_ T_ P_(INITIAL_CAPACITY)
+                             P_(PROPOSED_CAPACITY)
+                             P(EXP_REALLOCATED_BYTES)
+                }
+
+                // const bsl::basic_string& + bsl::basic_string&&
+
+                Obj        mXMR1(sra);
+                const Obj& XMR1 = mXMR1;
+
+                mXMR1.reserve(CAPACITY);
+                mXMR1.append(PCR);
+
+                ASSERTV(INITIAL_CAPACITY == XMR1.capacity());
+
+                expUsedAllocTotal    =
+                                   ua->numBytesTotal() + EXP_REALLOCATED_BYTES;
+                expNotUsedAllocTotal = nua->numBytesTotal();
+
+                ASSERTV(ty, LINE_L, LINE_R, CAPACITY,
+                        EXPECTED == XL + MoveUtil::move(mXMR1));
+                ASSERTV(expUsedAllocTotal,
+                        EXP_REALLOCATED_BYTES,
+                        ua->numBytesTotal(),
+                        expUsedAllocTotal    == ua->numBytesTotal());
+                ASSERTV(expNotUsedAllocTotal,
+                        EXP_REALLOCATED_BYTES,
+                        nua->numBytesTotal(),
+                        expNotUsedAllocTotal == nua->numBytesTotal());
+
+                Obj mXMRA1(sra);
+                mXMRA1.reserve(CAPACITY);
+                mXMRA1.append(PCR);
+
+                ASSERTV(ty, LINE_L, LINE_R,
+                        ua == (XL + MoveUtil::move(mXMRA1))
+                                  .get_allocator()
+                                  .allocator());
+
+                // const TYPE * + bsl::basic_string&&
+
+                Obj        mXMR2(sra);
+                const Obj& XMR2 = mXMR2;
+
+                mXMR2.reserve(CAPACITY);
+                mXMR2.append(PCR);
+
+                ASSERTV(INITIAL_CAPACITY == XMR2.capacity());
+
+                expUsedAllocTotal    =
+                                   ua->numBytesTotal() + EXP_REALLOCATED_BYTES;
+                expNotUsedAllocTotal = nua->numBytesTotal();
+
+                ASSERTV(ty, LINE_L, LINE_R, CAPACITY,
+                        EXPECTED == PCL + MoveUtil::move(mXMR2));
+                ASSERTV(expUsedAllocTotal,
+                        EXP_REALLOCATED_BYTES,
+                        ua->numBytesTotal(),
+                        expUsedAllocTotal    == ua->numBytesTotal());
+                ASSERTV(expNotUsedAllocTotal,
+                        EXP_REALLOCATED_BYTES,
+                        nua->numBytesTotal(),
+                        expNotUsedAllocTotal == nua->numBytesTotal());
+
+                Obj mXMRA2(sra);
+                mXMRA2.reserve(CAPACITY);
+                mXMRA2.append(PCR);
+
+                ASSERTV(ty, LINE_L, LINE_R,
+                        ua == (PCL + MoveUtil::move(mXMRA2))
+                                  .get_allocator()
+                                  .allocator());
+
+                // TYPE + bsl::basic_string&&
+
+                if (CL) {
+                    Obj        mXMR3(sra);
+                    const Obj& XMR3 = mXMR3;
+
+                    mXMR3.reserve(CAPACITY);
+                    mXMR3.append(PCR);
+
+                    ASSERTV(INITIAL_CAPACITY == XMR3.capacity());
+
+                    expUsedAllocTotal    =
+                                   ua->numBytesTotal() + EXP_REALLOCATED_BYTES;
+                    expNotUsedAllocTotal = nua->numBytesTotal();
+
+                    ASSERTV(
+                         ty, LINE_L, LINE_R, CAPACITY,
+                         EXPECTED == CL + MoveUtil::move(mXMR3));
+                    ASSERTV(expUsedAllocTotal,
+                            EXP_REALLOCATED_BYTES,
+                            ua->numBytesTotal(),
+                            expUsedAllocTotal    == ua->numBytesTotal());
+                    ASSERTV(expNotUsedAllocTotal,
+                            EXP_REALLOCATED_BYTES,
+                            nua->numBytesTotal(),
+                            expNotUsedAllocTotal == nua->numBytesTotal());
+
+                    Obj mXMRA3(sra);
+                    mXMRA3.reserve(CAPACITY);
+                    mXMRA3.append(PCR);
+
+                    ASSERTV(ty, LINE_L, LINE_R,
+                            ua == (CL + MoveUtil::move(mXMRA3))
+                                      .get_allocator()
+                                      .allocator());
+                }
+            }
         }
+    }
+
+    if (verbose) printf("\tNegative testing\n");
+
+    {
+        bsls::AssertTestHandlerGuard guard;
+
+        Obj         mX;
+        const Obj&  X = mX;
+        Obj         mXML1;
+        Obj         mXML2;
+        Obj         mXMR1;
+        Obj         mXMR2;
+        TYPE        character = 0;
+        const TYPE *validPtr  = &character;
+        const TYPE *nullPtr   = 0;
+
+        ASSERT_SAFE_FAIL(X + nullPtr );
+        ASSERT_SAFE_PASS(X + validPtr);
+
+        ASSERT_SAFE_FAIL(nullPtr  + X);
+        ASSERT_SAFE_PASS(validPtr + X);
+
+        ASSERT_SAFE_FAIL(MoveUtil::move(mXML1) + nullPtr );
+        ASSERT_SAFE_PASS(MoveUtil::move(mXML2) + validPtr);
+
+        ASSERT_SAFE_FAIL(nullPtr  + MoveUtil::move(mXMR1));
+        ASSERT_SAFE_PASS(validPtr + MoveUtil::move(mXMR2));
     }
 }
 
@@ -16161,22 +16694,79 @@ int main(int argc, char *argv[])
       case 37: {
         // --------------------------------------------------------------------
         // TESTING 'operator+'
+        //
+        // Concerns:
+        //: 1 The operator correctly handles empty strings.
+        //:
+        //: 2 Strings of any length and content can be concatenated.
+        //:
+        //: 3 Input parameters are correctly positioned in the result string.
+        //:
+        //: 4 Expected allocator is used to supply memory.
+        //:
+        //: 5 QoI: Asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //: 1 Use the table-based approach to specify a set of test values.
+        //:
+        //: 2 Iterate through the 'I' loop, and create various input variants
+        //:   ('bsl::string', 'std::string', 'const TYPE *' and 'TYPE') to be
+        //:   used as the 'left-hand-side' non-moveable parameters for the
+        //:   operator.  For each 'lhs' value:
+        //:
+        //:   1 Iterate through the 'J' loop, and create various input
+        //:     variants ('bsl::string', 'std::string', 'const TYPE *' and
+        //:     'TYPE') to be used as the 'right-hand-side' non-moveable
+        //:      parameters for the operator.  For each pair '(lhs, rhs)':
+        //:
+        //:     1 Call the operator and verify that the result string contains
+        //:       the expected value.
+        //:
+        //:     2 Verify that the expected allocator is used to supply memory.
+        //:
+        //:     3 Create several moveable objects having 'lhs' and 'rhs' values
+        //:       and various capacity.  Call the operator and verify that the
+        //:       result string contains the expected value.  (C-1..3)
+        //:
+        //:     4 Verify that the expected allocator is used to supply memory.
+        //:       (C-4)
+        //:
+        //: 3 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for invalid date and 'numDays' values, but not
+        //:   triggered for adjacent valid ones (using the 'BSLS_ASSERTTEST_*'
+        //:   macros). (C-5)
+        //
+        // Testing:
+        //   string operator+(const string&,      const string&);
+        //   string operator+(const string&&,     const string&);
+        //   string operator+(const string&,      const string&&);
+        //   string operator+(const string&&,     const string&&);
+        //   string operator+(const std::string&, const string&);
+        //   string operator+(const std::string&, const string&&);
+        //   string operator+(const string&,      const std::string&);
+        //   string operator+(const string&&,     const std::string&);
+        //   string operator+(const string&,      const CHAR *);
+        //   string operator+(const string&&,     const CHAR *);
+        //   string operator+(const CHAR *,       const string&);
+        //   string operator+(const CHAR *,       const string&&);
+        //   string operator+(const string&,      CHAR);
+        //   string operator+(const string&&,     CHAR);
+        //   string operator+(CHAR,               const string&);
+        //   string operator+(CHAR,               const string&&);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\n" "TESTING 'operator+'\n"
                                  "===================\n");
 
-        if (verbose) printf("\n... with 'char'.\n");
-        TestDriver<char>::testCase37();
+        if (verbose) printf("\n... with 'char' and allocator copy.\n");
+        TestDriver<char>::testCase37<true> ();
+        if (verbose) printf("\n... with 'char' and default allocator.\n");
+        TestDriver<char>::testCase37<false>();
 
-        if (verbose) printf("\n... with 'wchar_t'.\n");
-        TestDriver<wchar_t>::testCase37();
-
-        if (verbose) printf("\n... with 'int'.\n");
-        TestDriver<int>::testCase37();
-
-        if (verbose) printf("\n... with 'unsigned'.\n");
-        TestDriver<unsigned>::testCase37();
+        if (verbose) printf("\n... with 'wchar_t' and allocator copy.\n");
+        TestDriver<wchar_t>::testCase37<true> ();
+        if (verbose) printf("\n... with 'wchar_t' and default allocator.\n");
+        TestDriver<wchar_t>::testCase37<false>();
       } break;
       case 36: {
         // --------------------------------------------------------------------
