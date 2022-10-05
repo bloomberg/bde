@@ -121,6 +121,20 @@ The following commands can be used to configure and build the BDE repository:
    $ cmake_build.py build --test run
    ```
 
+Build Instructions (Vcpkg)
+---------------------------------
+You can build and install bde using [vcpkg](https://github.com/Microsoft/vcpkg/) dependency manager:
+
+```sh or powershell
+    git clone https://github.com/Microsoft/vcpkg.git
+    cd vcpkg
+    ./bootstrap-vcpkg.sh
+    ./vcpkg integrate install
+    ./vcpkg install bde
+```
+
+The bde port in vcpkg is kept up to date by Microsoft team members and community contributors. If the version is out of date, please [create an issue or pull request](https://github.com/Microsoft/vcpkg) on the vcpkg repository.
+
 License
 =======
 The BDE libraries are distributed under the Apache License (version 2.0); see
