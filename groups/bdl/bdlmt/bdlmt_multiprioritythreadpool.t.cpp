@@ -1511,7 +1511,7 @@ int main(int argc, char *argv[])
         ASSERT(!pool.isSuspended());
         checkOutPool(&pool);
 
-        pool.startThreads();
+        ASSERT(0 == pool.startThreads());
 
         ASSERT(pool.isStarted());
         ASSERT(!pool.isSuspended());
@@ -1680,7 +1680,7 @@ int main(int argc, char *argv[])
                         memset(resultsVec, 0, sizeof(resultsVec));
                         resultsVecIdx = 0;
 
-                        pool->startThreads();
+                        ASSERT(0 == pool->startThreads());
 
                         for (long i = 0; 10 > i; ++i) {
                             int sts = pool->enqueueJob(&pushInt,
