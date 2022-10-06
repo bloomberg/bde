@@ -910,9 +910,7 @@ class basic_string_view {
         // Convert this object to a string type native to the compiler's
         // library, instantiated with the same character type and traits type.
         // The return string will contain the same sequence of characters as
-        // this object and will have a default-constructed allocator.  Note
-        // that this conversion operator can be invoked implicitly (e.g.,
-        // during argument passing).
+        // this object and will have a default-constructed allocator.
     {
         // See {DRQS 131792157} for why this is inline.
         return std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>(
