@@ -900,12 +900,6 @@ void slist<_Tp,_Alloc>::sort()
 //# include <stl/debug/bslstp_stl_slist.h>
 //#endif
 
-// This needs to be updated whenever bos_stdhdrs_epilogue.h changes.
-#ifdef BOS_STDHDRS_DEFINED_STD_MACRO
-#undef std
-#define BSLSTP_DEFINE_STD
-#endif
-
 namespace std {
 
 // Specialization of insert_iterator so that insertions will be constant
@@ -946,11 +940,6 @@ public:
 
 
 }  // close namespace std
-
-#ifdef BSLSTP_DEFINE_STD
-#undef BSLSTP_DEFINE_STD
-#define std bsl
-#endif
 
 //# if defined ( _STLP_USE_WRAPPER_FOR_ALLOC_PARAM )
 //# include <stl/wrappers/bslstp_stl_slist.h>

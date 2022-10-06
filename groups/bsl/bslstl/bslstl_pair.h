@@ -1778,11 +1778,6 @@ struct tuple_size<bsl::pair<T1, T2> > : integral_constant<size_t, 2>
 
 }  // close namespace std
 
-#if defined(BSLSTL_PAIR_RESTORE_STD)
-#   define std bsl
-#   undef BSLSTL_PAIR_RESTORE_STD
-#endif
-
 namespace BloombergLP {
 namespace bslstl {
 

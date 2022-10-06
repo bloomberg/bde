@@ -407,10 +407,6 @@ void bsl::hashAppend(HASHALG& hashAlg, const type_index& object)
 }
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-# ifdef std
-#   undef std
-#   define BSLSTL_ERROR_STD_DEFINED
-# endif // std
 
 namespace std {
                         // ---------------------------
@@ -436,10 +432,6 @@ struct hash<bsl::type_index> {
 
 }  // close namespace std
 
-# ifdef BSLSTL_ERROR_STD_DEFINED
-#   undef BSLSTL_ERROR_STD_DEFINED
-#   define std bsl
-# endif // BSLSTL_ERROR_STD_DEFINED
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
 #endif
