@@ -58,25 +58,30 @@ using namespace bsl;
 // responsibility of the generators themselves.
 // ----------------------------------------------------------------------------
 // CLASS METHODS
-// [1] void generate(Guid *out, size_t numGuids)
-// [1] void generate(unsigned char *out, size_t numGuids)
-// [1] Guid generate()
-// [2] int getVersion(const Guid& guid)
-// [3] int guidFromString(Guid *result, bsl::string_view guidString)
-// [3] Guid guidFromString(bsl::string_view guidString)
-// [4] void guidToString(bsl::string *result, const Guid& guid)
-// [4] void guidToString(std::string *result, const Guid& guid)
-// [4] void guidToString(std::pmr::string *result, const Guid& guid)
-// [4] bsl::string guidToString(const Guid& guid)
-// [5] Uint64 getMostSignificantBits(const Guid& guid)
-// [6] Uint64 getLeastSignificantBits(const Guid& guid)
-// [7] void generateNonSecure(Guid *result, size_t numGuids)
-// [7] void generateNonSecure(unsigned char *result, size_t numGuids)
-// [7] Guid generateNonSecure()
+// [ 1] void generate(Guid *out, size_t numGuids)
+// [ 1] void generate(unsigned char *out, size_t numGuids)
+// [ 1] Guid generate()
+// [ 2] int getVersion(const Guid& guid)
+// [ 3] int guidFromString(Guid *result, bsl::string_view guidString)
+// [ 3] Guid guidFromString(bsl::string_view guidString)
+// [ 4] void guidToString(bsl::string *result, const Guid& guid)
+// [ 4] void guidToString(std::string *result, const Guid& guid)
+// [ 4] void guidToString(std::pmr::string *result, const Guid& guid)
+// [ 4] bsl::string guidToString(const Guid& guid)
+// [ 5] Uint64 getMostSignificantBits(const Guid& guid)
+// [ 6] Uint64 getLeastSignificantBits(const Guid& guid)
+// [ 7] void generateNonSecure(Guid *result, size_t numGuids)
+// [ 7] void generateNonSecure(unsigned char *result, size_t numGuids)
+// [ 7] Guid generateNonSecure()
+// [ 8] Guid generateFromName(const Guid& nsId, const string_view& name)
+// [ 9] Guid dnsNamespace()
+// [ 9] Guid urlNamespace()
+// [ 9] Guid oidNamespace()
+// [ 9] Guid x500Namespace()
 // ----------------------------------------------------------------------------
-// [ 8] MULTI-THREADING TEST CASE
-// [ 9] TESTING 'generateNonSecure' FROM FORK PER DRQS 168925481
-// [10] USAGE EXAMPLE
+// [10] MULTI-THREADING TEST CASE
+// [11] TESTING 'generateNonSecure' FROM FORK PER DRQS 168925481
+// [12] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -403,6 +408,17 @@ struct BasicBloomFilter
     }
 };
 
+string allCharacters()
+    // Return a string that contains every value of 'char' exactly once, sorted
+    // in numerical order.
+{
+    string result;
+    for (int c = -128; c != 128; ++c) {
+        result.push_back(static_cast<char>(c));
+    }
+    return result;
+}
+
 }  // close unnamed namespace
 
 //=============================================================================
@@ -522,7 +538,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
     switch (test)  { case 0:
-      case 10: {
+      case 12: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -556,7 +572,7 @@ int main(int argc, char *argv[])
         ASSERT(e2 < e3 || e3 < e2);
         ASSERT(e1 < e3 || e3 < e1);
       } break;
-      case 9: {
+      case 11: {
         // --------------------------------------------------------------------
         // TESTING 'generateNonSecure' FROM FORK PER DRQS 168925481
         //
@@ -719,7 +735,7 @@ int main(int argc, char *argv[])
 #endif // BSLS_PLATFORM_OS_WINDOWS
 
       } break;
-      case 8: {
+      case 10: {
         // --------------------------------------------------------------------
         // TESTING 'generateNonSecure' FROM MULTIPLE THREADS
         //
@@ -758,6 +774,157 @@ int main(int argc, char *argv[])
             ASSERT(0 == bslmt::ThreadUtil::join(handles[i]));
         }
 
+      } break;
+      case 9: {
+        // --------------------------------------------------------------------
+        // TESTING PREDEFINED NAMESPACE IDS
+        //
+        // Concerns:
+        //: 1 The functions 'dnsNamespace', 'urlNamespace', 'oidNamespace', and
+        //:   'x500Namespace' defined in this component return the correct
+        //:   values defined in RFC 4122, Appendix C.
+        //
+        // Plan:
+        //: 1 Convert the string form of each of the predefined namespace IDs
+        //:   defined in Appendix C to a 'bdlb::Guid' value, and verify that it
+        //:   is the same as the value returned by the corresponding method.
+        //:   (C-1)
+        //
+        // Testing:
+        //   Guid dnsNamespace()
+        //   Guid urlNamespace()
+        //   Guid oidNamespace()
+        //   Guid x500Namespace()
+        // --------------------------------------------------------------------
+        if (verbose) cout << endl
+                          << "TESTING PREDEFINED NAMESPACE IDS" << endl
+                          << "================================" << endl;
+
+        const string k_DNS_NS_STR  = "6ba7b8109dad11d180b400c04fd430c8";
+        const string k_URL_NS_STR  = "6ba7b8119dad11d180b400c04fd430c8";
+        const string k_OID_NS_STR  = "6ba7b8129dad11d180b400c04fd430c8";
+        const string k_X500_NS_STR = "6ba7b8149dad11d180b400c04fd430c8";
+        ASSERT(Util::guidFromString(k_DNS_NS_STR) == Util::dnsNamespace());
+        ASSERT(Util::guidFromString(k_URL_NS_STR) == Util::urlNamespace());
+        ASSERT(Util::guidFromString(k_OID_NS_STR) == Util::oidNamespace());
+        ASSERT(Util::guidFromString(k_X500_NS_STR) == Util::x500Namespace());
+      } break;
+      case 8: {
+        // --------------------------------------------------------------------
+        // TESTING 'generateFromName'
+        //
+        // Concerns:
+        //: 1 The class method 'generateFromName' generates the unique correct
+        //:   UUID when given a namespace ID and name string as input according
+        //:   to the specification in RFC 4122, version 5.
+        //
+        // Plan:
+        //: 1 Specify a set of namespace IDs generated from (hard-coded)
+        //:   randomly generated UUID strings.  Also specify a set of name
+        //:   strings.
+        //:
+        //: 2 Using the table-driven technique:
+        //:
+        //:   1 Specify a set of rows representing all possible combinations of
+        //:     a namespace ID and a name string selected from the sets
+        //:     specified in P-1.
+        //:
+        //:   2 Additionally provide a column, 'EXPECTED', that specifies the
+        //:     string form of the UUID that is expected to be generated from
+        //:     the namespace ID and name string.  Note that the expected
+        //:     values were generated using a canonical implementation provided
+        //:     by the 'libuuid' library.
+        //:
+        //: 3 For each row (representing a distinct combination of a namespace
+        //:   ID 'ID' and name string 'N') in the table described in P-2:
+        //:   (C-1)
+        //:
+        //:   1 Generate a 'Guid' using 'Util::generateFromName' supplied with
+        //:     the namespace ID 'ID' and name 'N'.
+        //:
+        //:   2 Convert the expected string representation of the expected
+        //:     value into a 'Guid'.
+        //:
+        //:   3 Verify that the generated value equals the expected value.
+        //:
+        //:   4 Specifically verify that the generated value has the correct
+        //:     4-bit version field, namely '0101', representing a version 5
+        //:     UUID.
+        //:
+        //:   5 Specifically verify that bits 6 and 7 of the
+        //:     'clock_seq_hi_and_reserved' field are 0 and 1, respectively, as
+        //:     specified in RFC 4122.
+        //
+        // Note: One of the important properties of UUIDv5 is that two UUIDs
+        // generated from the same name, but two different name space IDs,
+        // should be different with high probability.  We won't explicitly test
+        // this, but it can be observed from the table (P-2) that this property
+        // holds for the combinations of namespace ID and name contained
+        // therein.
+        //
+        // Testing:
+        //   Guid generateFromName(const Guid& nsId, const string_view& name)
+        // --------------------------------------------------------------------
+        if (verbose) cout << endl
+                          << "TESTING 'generateFromName'" << endl
+                          << "==========================" << endl;
+        const char *nsIdStrings[] = {
+            "88515314-9c0d-44ac-bf6d-9a4cb5b2ec89",
+            "80d90399-1dbe-498c-ae89-4855ebfa548f",
+            "adde14a7-e049-4dfd-90da-d680b724a49c"
+        };
+
+        const int k_NUM_NAMESPACE_IDS = sizeof nsIdStrings /
+                                        sizeof *nsIdStrings;
+
+        Obj nsIds[k_NUM_NAMESPACE_IDS];
+        for (int i = 0; i < k_NUM_NAMESPACE_IDS; ++i) {
+            ASSERT(0 == Util::guidFromString(nsIds + i, nsIdStrings[i]));
+        }
+
+        const string names[3] = {
+            "",
+            allCharacters(),
+            "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"
+        };
+
+        const struct {
+            int    d_lineNum;
+            Obj    d_namespaceId;
+            string d_name;
+            string d_expected;
+        } DATA[] = {
+            //LINE NS ID     NAME      EXPECTED
+            //---- --------  --------  --------------------------------------
+            { L_,  nsIds[0], names[0], "c2faa822-7fb4-5a20-bfc4-b2e9bb2008ae"},
+            { L_,  nsIds[0], names[1], "59bb581d-a13f-5364-ad3b-bb4d19d96bb6"},
+            { L_,  nsIds[0], names[2], "f1c5e75d-7f35-52bf-9674-bc17338d1348"},
+            { L_,  nsIds[1], names[0], "227dd609-6bf8-52dc-b42f-85ae08e202d4"},
+            { L_,  nsIds[1], names[1], "0895d110-355e-5a67-9c0e-0808ef78c75a"},
+            { L_,  nsIds[1], names[2], "4fa19270-8c13-532c-bbba-323c4084b86d"},
+            { L_,  nsIds[2], names[0], "4a9789c2-0bac-5459-9f4a-d0d46de51355"},
+            { L_,  nsIds[2], names[1], "cc0c75e9-8d09-5ba4-a0d5-e7433cc45a69"},
+            { L_,  nsIds[2], names[2], "a7af84f1-c949-533f-bb5c-dac800b23d0f"},
+        };
+        const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int    LINE         = DATA[i].d_lineNum;
+            const Obj    NAMESPACE_ID = DATA[i].d_namespaceId;
+            const string NAME         = DATA[i].d_name;
+            const string EXPECTED     = DATA[i].d_expected;
+            if (veryVerbose) {
+                T_ P_(LINE) P_(NAME) P_(NAMESPACE_ID) P(EXPECTED)
+            }
+            const Obj result = Util::generateFromName(NAMESPACE_ID, NAME);
+            const Obj expected = Util::guidFromString(EXPECTED);
+            ASSERTV(LINE,
+                    Util::guidToString(result),
+                    Util::guidToString(expected),
+                    result == expected);
+            ASSERT(5 == result.version());
+            ASSERT(2 == (result.clockSeqHiRes() >> 6));
+        }
       } break;
       case 7: {
         // --------------------------------------------------------------------
