@@ -666,7 +666,7 @@ class TimerEventScheduler {
 
     int start(const bslmt::ThreadAttributes& threadAttributes);
         // Begin dispatching events on this scheduler using the specified
-        // 'threadAttributes' for the dispatcher thread (except that the      \
+        // 'threadAttributes' for the dispatcher thread (except that the
         // DETACHED attribute is ignored).  Return 0 on success, and a nonzero
         // value otherwise.  If another thread is currently executing 'stop',
         // wait until the dispatcher thread stops before starting a new one.
