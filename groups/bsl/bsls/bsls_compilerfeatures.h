@@ -78,7 +78,7 @@ BSLS_IDENT("$Id: $")
 //:     The values generally set (as defined in the C++ Standard) are the year
 //:     and month when the Standard was completed, and the value of this macro
 //:     should be compared with the appropriate constants -- '199711L',
-//:     '201103L', '201402L', '201703L', etc.
+//:     '201103L', '201402L', '201703L', '202002L', etc.
 //:
 //: 'BSLS_COMPILERFEATURES_FORWARD_REF(T)':
 //:     This macro provides a portable way to declare a function template

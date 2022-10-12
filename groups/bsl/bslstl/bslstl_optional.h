@@ -5542,6 +5542,38 @@ bool operator>=(const std::optional<LHS_TYPE>& lhs,
 #endif
 }  // close namespace bsl
 
+#if BSLS_COMPILERFEATURES_CPLUSPLUS==202002L && \
+    defined(BSLS_LIBRARYFEATURES_STDCPP_GNU) && \
+    (BSLS_PLATFORM_CMP_VERSION > 110000 &&      \
+     BSLS_PLATFORM_CMP_VERSION < 130000)
+
+#define BSLSTL_OPTIONAL_CPP20_IS_OPTIONAL_WORKAROUND_NEEDED
+
+// There is a problem in the standard definition of the is-optional concept
+// that results in types inheriting from std::optional not being identified
+// correctly as optional types.  The end result is endless recursion
+// evaluating the requires clause for the spaceship operator when it is
+// implemented according to the C++20 specification, which currently happens
+// for gcc-11 and gcc-12 when building with C++20.
+//
+// The issue with the standard is tracked here:
+// https://cplusplus.github.io/LWG/lwg-active.html#3746
+//
+// DRQS 170388558
+//
+// BSLSTL_OPTIONAL_CPP20_IS_OPTIONAL_WORKAROUND_NEEDED is deliberately exposed
+// to allow its use in higher level optional types (i.e., bdlb::NullableValue).
+
+// The following hack prevents a compiler crash, and should only be applied on
+// compiler versions where the problem is not fixed.
+
+namespace std {
+template<typename _Tp>
+inline constexpr bool __is_optional_v<bsl::optional<_Tp>> = true;
+}
+
+#endif // BSLSTL_OPTIONAL_CPP20_IS_OPTIONAL_WORKAROUND_NEEDED
+
 #undef BSLSTL_OPTIONAL_DECLARE_IF_CONSTRUCTS_FROM_BSL_OPTIONAL
 #undef BSLSTL_OPTIONAL_DEFINE_IF_CONSTRUCTS_FROM_BSL_OPTIONAL
 #undef BSLSTL_OPTIONAL_DECLARE_IF_CONSTRUCTS_FROM_STD_OPTIONAL

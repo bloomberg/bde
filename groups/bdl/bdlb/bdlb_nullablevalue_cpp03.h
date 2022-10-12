@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Mar  3 14:02:24 2022
+// Generated on Tue Oct 11 15:23:13 2022
 // Command line: sim_cpp11_features.pl bdlb_nullablevalue.h
 
 #ifdef COMPILING_BDLB_NULLABLEVALUE_H
@@ -1869,6 +1869,17 @@ bdlb::swap(NullableValue<TYPE>& lhs, NullableValue<TYPE>& rhs)
 }
 
 }  // close enterprise namespace
+
+#ifdef  BSLSTL_OPTIONAL_CPP20_IS_OPTIONAL_WORKAROUND_NEEDED
+// This hack works around a bug in gcc's defintion for is-optional.  See
+// bslstl_optional.h for more information.
+
+namespace std {
+template <typename _Tp>
+inline
+constexpr bool __is_optional_v<BloombergLP::bdlb::NullableValue<_Tp> > = true;
+}
+#endif  // BSLSTL_OPTIONAL_CPP20_IS_OPTIONAL_WORKAROUND_NEEDED
 
 #else // if ! defined(DEFINED_BDLB_NULLABLEVALUE_H)
 # error Not valid except when included from bdlb_nullablevalue.h
